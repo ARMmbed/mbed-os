@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief SAM Peripheral Analog-to-Digital Converter Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #include "adc.h"
 
 #if SAMD20
@@ -16,7 +62,7 @@
  *  \li GCLK generator 0 (GCLK main) clock source
  *  \li 1V from internal bandgap reference
  *  \li Div 4 clock prescaler
- *  \li 12 bit resolution
+ *  \li 12-bit resolution
  *  \li Window monitor disabled
  *  \li No gain
  *  \li Positive input on ADC PIN 0
@@ -128,7 +174,7 @@ static inline void _adc_configure_ain_pin(uint32_t pin)
 
     /* Pinmapping table for AINxx -> GPIO pin number */
     const uint32_t pinmapping[] = {
-#if (SAMD20E | SAMD21E)
+#if (SAMD20E) || (SAMD21E)|| (SAMDA1E)
         PIN_PA02B_ADC_AIN0,  PIN_PA03B_ADC_AIN1,
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_PA04B_ADC_AIN4,  PIN_PA05B_ADC_AIN5,
@@ -139,7 +185,7 @@ static inline void _adc_configure_ain_pin(uint32_t pin)
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_PA08B_ADC_AIN16, PIN_PA09B_ADC_AIN17,
         PIN_PA10B_ADC_AIN18, PIN_PA11B_ADC_AIN19,
-#elif (SAMD20G | SAMD21G)
+#elif (SAMD20G) || (SAMD21G)|| (SAMDA1G)
         PIN_PA02B_ADC_AIN0,  PIN_PA03B_ADC_AIN1,
         PIN_PB08B_ADC_AIN2,  PIN_PB09B_ADC_AIN3,
         PIN_PA04B_ADC_AIN4,  PIN_PA05B_ADC_AIN5,
@@ -150,7 +196,7 @@ static inline void _adc_configure_ain_pin(uint32_t pin)
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_PA08B_ADC_AIN16, PIN_PA09B_ADC_AIN17,
         PIN_PA10B_ADC_AIN18, PIN_PA11B_ADC_AIN19,
-#elif (SAMD20J | SAMD21J)
+#elif (SAMD20J) || (SAMD21J)|| (SAMDA1J)
         PIN_PA02B_ADC_AIN0,  PIN_PA03B_ADC_AIN1,
         PIN_PB08B_ADC_AIN2,  PIN_PB09B_ADC_AIN3,
         PIN_PA04B_ADC_AIN4,  PIN_PA05B_ADC_AIN5,
@@ -183,7 +229,7 @@ static inline void _adc_configure_ain_pin(uint32_t pin)
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_PA08B_ADC_AIN16, PIN_PA09B_ADC_AIN17,
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
-#elif (SAMD10C | SAMD11C)
+#elif (SAMD10C) || (SAMD11C)
         PIN_PA02B_ADC_AIN0,  PIN_INVALID_ADC_AIN,
         PIN_PA04B_ADC_AIN2,  PIN_PA05B_ADC_AIN3,
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
@@ -194,7 +240,7 @@ static inline void _adc_configure_ain_pin(uint32_t pin)
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
-#elif (SAMD10DS | SAMD11DS)
+#elif (SAMD10DS) || (SAMD11DS)
         PIN_PA02B_ADC_AIN0,  PIN_INVALID_ADC_AIN,
         PIN_PA04B_ADC_AIN2,  PIN_PA05B_ADC_AIN3,
         PIN_PA06B_ADC_AIN4,  PIN_PA07B_ADC_AIN5,
@@ -205,7 +251,7 @@ static inline void _adc_configure_ain_pin(uint32_t pin)
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
         PIN_INVALID_ADC_AIN, PIN_INVALID_ADC_AIN,
-#elif (SAMD10DM | SAMD11DM)
+#elif (SAMD10DM) || (SAMD11DM)
         PIN_PA02B_ADC_AIN0,  PIN_PA03B_ADC_AIN1,
         PIN_PA04B_ADC_AIN2,  PIN_PA05B_ADC_AIN3,
         PIN_PA06B_ADC_AIN4,  PIN_PA07B_ADC_AIN5,
@@ -431,7 +477,7 @@ static enum status_code _adc_set_config(
                         (config->window.window_lower_value > 511 ||
                          config->window.window_lower_value < -512 ||
                          config->window.window_upper_value > 511 ||
-                         config->window.window_upper_value > -512)) {
+                         config->window.window_upper_value < -512)) {
                     /* Invalid value */
                     return STATUS_ERR_INVALID_ARG;
                 } else if (config->window.window_lower_value > 1023 ||
@@ -561,6 +607,26 @@ static enum status_code _adc_set_config(
         );
 
     return STATUS_OK;
+}
+
+/**
+ * \brief Initializes the ADC channel sequence
+ *
+ * Like SAMD and SAMR21 the INPUTOFFSET register will be incremented one
+ * automatically after a conversion done, causing the next conversion
+ * to be done with the positive input equal to MUXPOS + INPUTOFFSET,
+ * it is scanning continuously one by one even ADC channels are not continuous.
+ *
+ * Initializes the ADC channel sequence by the sequence of pin_array.
+ *
+ * \param[in]  pin_array   The array of the Mux selection for the positive ADC input
+ * \param[in]  size        The size of pin_array
+ */
+void adc_regular_ain_channel(uint32_t *pin_array, uint8_t size)
+{
+    for (int i = 0; i < size; i++) {
+        _adc_configure_ain_pin(pin_array[i]);
+    }
 }
 
 /**

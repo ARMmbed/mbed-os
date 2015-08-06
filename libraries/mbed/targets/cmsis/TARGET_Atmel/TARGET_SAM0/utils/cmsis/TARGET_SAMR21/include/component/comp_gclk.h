@@ -1,3 +1,46 @@
+/**
+ * \file
+ *
+ * \brief Component description for GCLK
+ *
+ * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+
 #ifndef _SAMR21_GCLK_COMPONENT_
 #define _SAMR21_GCLK_COMPONENT_
 
@@ -66,7 +109,7 @@ typedef union {
 
 #define GCLK_CLKCTRL_ID_Pos         0            /**< \brief (GCLK_CLKCTRL) Generic Clock Selection ID */
 #define GCLK_CLKCTRL_ID_Msk         (0x3Ful << GCLK_CLKCTRL_ID_Pos)
-#define GCLK_CLKCTRL_ID(value)      ((GCLK_CLKCTRL_ID_Msk & ((value) << GCLK_CLKCTRL_ID_Pos)))
+#define GCLK_CLKCTRL_ID(value)      (GCLK_CLKCTRL_ID_Msk & ((value) << GCLK_CLKCTRL_ID_Pos))
 #define   GCLK_CLKCTRL_ID_DFLL48_Val      0x0ul  /**< \brief (GCLK_CLKCTRL) DFLL48 */
 #define   GCLK_CLKCTRL_ID_FDPLL_Val       0x1ul  /**< \brief (GCLK_CLKCTRL) FDPLL */
 #define   GCLK_CLKCTRL_ID_FDPLL32K_Val    0x2ul  /**< \brief (GCLK_CLKCTRL) FDPLL32K */
@@ -143,7 +186,7 @@ typedef union {
 #define GCLK_CLKCTRL_ID_I2S_1       (GCLK_CLKCTRL_ID_I2S_1_Val     << GCLK_CLKCTRL_ID_Pos)
 #define GCLK_CLKCTRL_GEN_Pos        8            /**< \brief (GCLK_CLKCTRL) Generic Clock Generator */
 #define GCLK_CLKCTRL_GEN_Msk        (0xFul << GCLK_CLKCTRL_GEN_Pos)
-#define GCLK_CLKCTRL_GEN(value)     ((GCLK_CLKCTRL_GEN_Msk & ((value) << GCLK_CLKCTRL_GEN_Pos)))
+#define GCLK_CLKCTRL_GEN(value)     (GCLK_CLKCTRL_GEN_Msk & ((value) << GCLK_CLKCTRL_GEN_Pos))
 #define   GCLK_CLKCTRL_GEN_GCLK0_Val      0x0ul  /**< \brief (GCLK_CLKCTRL) Generic clock generator 0 */
 #define   GCLK_CLKCTRL_GEN_GCLK1_Val      0x1ul  /**< \brief (GCLK_CLKCTRL) Generic clock generator 1 */
 #define   GCLK_CLKCTRL_GEN_GCLK2_Val      0x2ul  /**< \brief (GCLK_CLKCTRL) Generic clock generator 2 */
@@ -191,10 +234,10 @@ typedef union {
 
 #define GCLK_GENCTRL_ID_Pos         0            /**< \brief (GCLK_GENCTRL) Generic Clock Generator Selection */
 #define GCLK_GENCTRL_ID_Msk         (0xFul << GCLK_GENCTRL_ID_Pos)
-#define GCLK_GENCTRL_ID(value)      ((GCLK_GENCTRL_ID_Msk & ((value) << GCLK_GENCTRL_ID_Pos)))
+#define GCLK_GENCTRL_ID(value)      (GCLK_GENCTRL_ID_Msk & ((value) << GCLK_GENCTRL_ID_Pos))
 #define GCLK_GENCTRL_SRC_Pos        8            /**< \brief (GCLK_GENCTRL) Source Select */
 #define GCLK_GENCTRL_SRC_Msk        (0x1Ful << GCLK_GENCTRL_SRC_Pos)
-#define GCLK_GENCTRL_SRC(value)     ((GCLK_GENCTRL_SRC_Msk & ((value) << GCLK_GENCTRL_SRC_Pos)))
+#define GCLK_GENCTRL_SRC(value)     (GCLK_GENCTRL_SRC_Msk & ((value) << GCLK_GENCTRL_SRC_Pos))
 #define   GCLK_GENCTRL_SRC_XOSC_Val       0x0ul  /**< \brief (GCLK_GENCTRL) XOSC oscillator output */
 #define   GCLK_GENCTRL_SRC_GCLKIN_Val     0x1ul  /**< \brief (GCLK_GENCTRL) Generator input pad */
 #define   GCLK_GENCTRL_SRC_GCLKGEN1_Val   0x2ul  /**< \brief (GCLK_GENCTRL) Generic clock generator 1 output */
@@ -245,10 +288,10 @@ typedef union {
 
 #define GCLK_GENDIV_ID_Pos          0            /**< \brief (GCLK_GENDIV) Generic Clock Generator Selection */
 #define GCLK_GENDIV_ID_Msk          (0xFul << GCLK_GENDIV_ID_Pos)
-#define GCLK_GENDIV_ID(value)       ((GCLK_GENDIV_ID_Msk & ((value) << GCLK_GENDIV_ID_Pos)))
+#define GCLK_GENDIV_ID(value)       (GCLK_GENDIV_ID_Msk & ((value) << GCLK_GENDIV_ID_Pos))
 #define GCLK_GENDIV_DIV_Pos         8            /**< \brief (GCLK_GENDIV) Division Factor */
 #define GCLK_GENDIV_DIV_Msk         (0xFFFFul << GCLK_GENDIV_DIV_Pos)
-#define GCLK_GENDIV_DIV(value)      ((GCLK_GENDIV_DIV_Msk & ((value) << GCLK_GENDIV_DIV_Pos)))
+#define GCLK_GENDIV_DIV(value)      (GCLK_GENDIV_DIV_Msk & ((value) << GCLK_GENDIV_DIV_Pos))
 #define GCLK_GENDIV_MASK            0x00FFFF0Ful /**< \brief (GCLK_GENDIV) MASK Register */
 
 /** \brief GCLK hardware registers */

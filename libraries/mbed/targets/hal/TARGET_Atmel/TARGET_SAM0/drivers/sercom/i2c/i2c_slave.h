@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief SAM SERCOM I2C Slave Driver
+ *
+ * Copyright (c) 2013-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef I2C_SLAVE_H_INCLUDED
 #define I2C_SLAVE_H_INCLUDED
 
@@ -409,6 +455,92 @@ static void _i2c_slave_wait_for_sync(
 }
 #endif
 
+///@cond INTERNAL
+/**
+ * \internal Workaround for errata 13574
+ * Instead set ACK/NACK of CTRLB
+ *
+ * This errata exist in part revisions of SAMD20/D21
+ * D10/D11/L21/DAx/C20/C21, but workaround can be works in all
+ * revision of those device. As this function operation
+ * should be use less cpu time as possible, so caller
+ * function can ignore to check revision number, and use
+ * this workaround in all revision of those device.
+ *
+ * \param[in,out] module  Pointer to software module structure
+ * \param[in] send_ack true send ACK, false send NACK
+ */
+static inline void _i2c_slave_set_ctrlb_ackact(
+    struct i2c_slave_module *const module,
+    bool send_ack)
+{
+    Assert(module);
+    Assert(module->hw);
+
+    SercomI2cs *const i2c_hw = &(module->hw->I2CS);
+
+#if (SAMD20 || SAMD21 || SAMD10 || SAMD11 || SAML21 || SAMDA1 || SAMC20 || SAMC21)
+    /* Workaround, Following two write are atomic */
+    system_interrupt_enter_critical_section();
+    i2c_hw->STATUS.reg = 0;
+
+    if (send_ack == true) {
+        i2c_hw->CTRLB.reg = 0;
+    } else {
+        i2c_hw->CTRLB.reg = SERCOM_I2CS_CTRLB_ACKACT;
+    }
+    system_interrupt_leave_critical_section();
+#else
+    /* Normal operation */
+    if (send_ack == true) {
+        i2c_hw->CTRLB.reg &= ~SERCOM_I2CS_CTRLB_ACKACT;
+    } else {
+        i2c_hw->CTRLB.reg |= SERCOM_I2CS_CTRLB_ACKACT;
+    }
+#endif
+    return;
+}
+
+/**
+ * \internal Workaround for SAM0 errata 13574,
+ * instead Set CMD3 of CTRLB
+ *
+ * This errata exist in part revisions of SAMD20/D21
+ * D10/D11/L21/DAx/C20/C21, but workaround can be works in all
+ * revision of those device. As this function operation
+ * should be use less cpu time as possible, so caller
+ * function can ignore to check revision number, and use
+ * this workaround in all revision of those device.
+ *
+ * \param[in,out] module  Pointer to software module structure
+ */
+static inline void _i2c_slave_set_ctrlb_cmd3(
+    struct i2c_slave_module *const module)
+{
+    Assert(module);
+    Assert(module->hw);
+
+    SercomI2cs *const i2c_hw = &(module->hw->I2CS);
+
+#if (SAMD20 || SAMD21 || SAMD10 || SAMD11 || SAML21 || SAMDA1 || SAMC20 || SAMC21)
+    /* Workaround */
+    /*
+     * Below code instead i2c_hw->CTRLB.reg = SERCOM_I2CS_CTRLB_CMD(0x3);
+     * CMD=0x3 clears all interrupts, so to keep the result similar
+     * PREC is cleared if it was set
+     */
+    if (i2c_hw->INTFLAG.bit.PREC) {
+        i2c_hw->INTFLAG.reg = SERCOM_I2CS_INTFLAG_PREC;
+    }
+    i2c_hw->INTFLAG.reg = SERCOM_I2CS_INTFLAG_AMATCH;
+#else
+    /* Normal operation */
+    i2c_hw->CTRLB.reg = SERCOM_I2CS_CTRLB_CMD(0x3);
+#endif
+    return;
+}
+///@endcond
+
 /**
  * \brief Gets the I<SUP>2</SUP>C slave default configurations
  *
@@ -427,7 +559,7 @@ static void _i2c_slave_wait_for_sync(
  * - Do not run in standby
  * - PINMUX_DEFAULT for SERCOM pads
  *
- * Those default configuration only availale if the device supports it:
+ * Those default configuration only available if the device supports it:
  * - Not using 10-bit addressing
  * - Standard-mode and Fast-mode transfer speed
  * - SCL stretch disabled

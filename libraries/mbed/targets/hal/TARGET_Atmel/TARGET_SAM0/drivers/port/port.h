@@ -1,10 +1,55 @@
+/**
+ * \file
+ *
+ * \brief SAM GPIO Port Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #ifndef PORT_H_INCLUDED
 #define PORT_H_INCLUDED
 
 /**
  * \defgroup asfdoc_sam0_port_group SAM Port Driver (PORT)
  *
- * This driver for Atmel庐 | SMART SAM devices provides an interface for the configuration
+ * This driver for Atmel&reg; | SMART SAM devices provides an interface for the configuration
  * and management of the device's General Purpose Input/Output (GPIO) pin
  * functionality, for manual pin state reading and writing.
  *
@@ -16,6 +61,8 @@
  *  - Atmel | SMART SAM R21
  *  - Atmel | SMART SAM D10/D11
  *  - Atmel | SMART SAM L21
+ *  - Atmel | SMART SAM DAx
+ *  - Atmel | SMART SAM C20/C21
  *
  * The outline of this documentation is as follows:
  *  - \ref asfdoc_sam0_port_prerequisites
@@ -47,7 +94,7 @@
  *  </tr>
  *  <tr>
  *    <td>FEATURE_PORT_INPUT_EVENT</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  * </table>
  * \note The specific features are only available in the driver when the
@@ -122,7 +169,7 @@ extern "C" {
  * Define port features set according to different device family.
  * @{
 */
-#if (SAML21) || defined(__DOXYGEN__)
+#if (SAML21) || (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
 /** Event input control feature support for PORT group. */
 #  define FEATURE_PORT_INPUT_EVENT
 #endif
@@ -199,7 +246,7 @@ enum port_pin_pull {
  */
 enum port_input_event_action {
     /** Event out to pin. */
-    PORT_INPUT_EVENT_ACTION_OUT	= 0,
+    PORT_INPUT_EVENT_ACTION_OUT = 0,
     /** Set output register of pin on event. */
     PORT_INPUT_EVENT_ACTION_SET,
     /** Clear output register pin on event. */
@@ -215,13 +262,13 @@ enum port_input_event_action {
  */
 enum port_input_event {
     /** Port input event 0. */
-    PORT_INPUT_EVENT_0	= 0,
+    PORT_INPUT_EVENT_0 = 0,
     /** Port input event 1. */
-    PORT_INPUT_EVENT_1	= 1,
+    PORT_INPUT_EVENT_1 = 1,
     /** Port input event 2. */
-    PORT_INPUT_EVENT_2	= 2,
+    PORT_INPUT_EVENT_2 = 2,
     /** Port input event 3. */
-    PORT_INPUT_EVENT_3	= 3,
+    PORT_INPUT_EVENT_3 = 3,
 };
 
 /**
@@ -230,7 +277,7 @@ enum port_input_event {
  *  Configuration structure for a port input event.
  */
 struct port_input_event_config {
-    /** PPort input event action. */
+    /** Port input event action. */
     enum port_input_event_action  action;
     /** GPIO pin. */
     uint8_t gpio_pin;
@@ -251,7 +298,7 @@ struct port_config {
     /** Port pull-up/pull-down for input pins. */
     enum port_pin_pull input_pull;
 
-    /** Enable lowest possible powerstate on the pin
+    /** Enable lowest possible powerstate on the pin.
      *
      *  \note All other configurations will be ignored, the pin will be disabled.
      */
@@ -612,16 +659,16 @@ static inline enum status_code port_input_event_set_config(
                                      | PORT_EVCTRL_PID0(pin_index);
             break;
         case PORT_INPUT_EVENT_1:
-            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
-                                     | PORT_EVCTRL_PID0(pin_index);
+            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT1(config->action)
+                                     | PORT_EVCTRL_PID1(pin_index);
             break;
         case PORT_INPUT_EVENT_2:
-            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
-                                     | PORT_EVCTRL_PID0(pin_index);
+            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT2(config->action)
+                                     | PORT_EVCTRL_PID2(pin_index);
             break;
         case PORT_INPUT_EVENT_3:
-            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT0(config->action)
-                                     | PORT_EVCTRL_PID0(pin_index);
+            port_base->EVCTRL.reg |= PORT_EVCTRL_EVACT3(config->action)
+                                     | PORT_EVCTRL_PID3(pin_index);
             break;
         default:
             Assert(false);
@@ -684,10 +731,7 @@ static inline enum status_code port_input_event_set_config(
  *		<th>Changelog</th>
  *	</tr>
  *	<tr>
- *		<td>Added input event feature and support for SAML21</td>
- *	</tr>
- *	<tr>
- *		<td>Added support for SAMD21</td>
+ *		<td>Added input event feature</td>
  *	</tr>
  *	<tr>
  *		<td>Initial Release</td>
@@ -714,10 +758,10 @@ static inline enum status_code port_input_event_set_config(
  *		<th>Date</td>
  *		<th>Comments</td>
  *	</tr>
-  *	<tr>
+ *	<tr>
  *		<td>E</td>
- *		<td>11/2014</td>
- *		<td>Added input event feature and support for SAML21.</td>
+ *		<td>06/2015</td>
+ *		<td>Added input event feature and support for SAML21, SAMC21, and SAMDAx.</td>
  *	</tr>
  *	<tr>
  *		<td>D</td>

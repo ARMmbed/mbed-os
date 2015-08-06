@@ -1,11 +1,64 @@
-#include <compiler.h>
+/**
+ * \file
+ *
+ * \brief SAM D21/R21/DA0/DA1 Clock Driver
+ *
+ * Copyright (C) 2013-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #include <clock.h>
 #include <conf_clocks.h>
 #include <system.h>
 
 #ifndef SYSCTRL_FUSES_OSC32K_ADDR
+#if (SAMR21) || (SAMD)
+#  define SYSCTRL_FUSES_OSC32K_ADDR FUSES_OSC32K_CAL_ADDR
+#  define SYSCTRL_FUSES_OSC32K_Pos  FUSES_OSC32K_CAL_Pos
+#elif (SAML21)
+#  define SYSCTRL_FUSES_OSC32K_ADDR NVMCTRL_OTP4
+#  define SYSCTRL_FUSES_OSC32K_Pos  6
+
+#else
 #  define SYSCTRL_FUSES_OSC32K_ADDR SYSCTRL_FUSES_OSC32K_CAL_ADDR
 #  define SYSCTRL_FUSES_OSC32K_Pos  SYSCTRL_FUSES_OSC32K_CAL_Pos
+#endif
 #endif
 
 /**
@@ -368,8 +421,8 @@ void system_clock_source_dpll_set_config(
     refclk = config->reference_frequency;
 
     /* Only reference clock REF1 can be divided */
-    if (config->reference_clock == SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_REF1) {
-        refclk = refclk / config->reference_divider;
+    if (config->reference_clock == SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC) {
+        refclk = refclk / (2 * (config->reference_divider + 1));
     }
 
     /* Calculate LDRFRAC and LDR */
@@ -398,9 +451,7 @@ void system_clock_source_dpll_set_config(
      * Fck = Fckrx * (LDR + 1 + LDRFRAC / 16)
      */
     _system_clock_inst.dpll.frequency =
-        (config->reference_frequency *
-         (((tmpldr + 1) << 4) + tmpldrfrac)
-        ) >> 4;
+        (refclk * (((tmpldr + 1) << 4) + tmpldrfrac)) >> 4;
 }
 #endif
 
@@ -771,7 +822,8 @@ void system_clock_init(void)
     /* OSCK32K */
 #if CONF_CLOCK_OSC32K_ENABLE == true
     SYSCTRL->OSC32K.bit.CALIB =
-        (*(uint32_t *)SYSCTRL_FUSES_OSC32K_ADDR >> SYSCTRL_FUSES_OSC32K_Pos);
+        ((*(uint32_t *)SYSCTRL_FUSES_OSC32K_ADDR >>
+          SYSCTRL_FUSES_OSC32K_Pos) & 0x7Ful);
 
     struct system_clock_source_osc32k_config osc32k_conf;
     system_clock_source_osc32k_get_config_defaults(&osc32k_conf);
@@ -795,8 +847,22 @@ void system_clock_init(void)
     dfll_conf.loop_mode      = CONF_CLOCK_DFLL_LOOP_MODE;
     dfll_conf.on_demand      = false;
 
+    /* Using DFLL48M COARSE CAL value from NVM Software Calibration Area Mapping
+       in DFLL.COARSE helps to output a frequency close to 48 MHz.*/
+#define NVM_DFLL_COARSE_POS    58 /* DFLL48M Coarse calibration value bit position.*/
+#define NVM_DFLL_COARSE_SIZE   6  /* DFLL48M Coarse calibration value bit size.*/
+
+    uint32_t coarse =( *((uint32_t *)(NVMCTRL_OTP4)
+                         + (NVM_DFLL_COARSE_POS / 32))
+                       >> (NVM_DFLL_COARSE_POS % 32))
+                     & ((1 << NVM_DFLL_COARSE_SIZE) - 1);
+    /* In some revision chip, the coarse calibration value is not correct. */
+    if (coarse == 0x3f) {
+        coarse = 0x1f;
+    }
+    dfll_conf.coarse_value = coarse;
+
     if (CONF_CLOCK_DFLL_LOOP_MODE == SYSTEM_CLOCK_DFLL_LOOP_MODE_OPEN) {
-        dfll_conf.coarse_value = CONF_CLOCK_DFLL_COARSE_VALUE;
         dfll_conf.fine_value   = CONF_CLOCK_DFLL_FINE_VALUE;
     }
 
@@ -832,27 +898,7 @@ void system_clock_init(void)
     dfll_conf.fine_max_step   = CONF_CLOCK_DFLL_MAX_FINE_STEP_SIZE;
 
     if (CONF_CLOCK_DFLL_LOOP_MODE == SYSTEM_CLOCK_DFLL_LOOP_MODE_USB_RECOVERY) {
-#define NVM_DFLL_COARSE_POS    58
-#define NVM_DFLL_COARSE_SIZE   6
-#define NVM_DFLL_FINE_POS      64
-#define NVM_DFLL_FINE_SIZE     10
-        uint32_t coarse =( *((uint32_t *)(NVMCTRL_OTP4)
-                             + (NVM_DFLL_COARSE_POS / 32))
-                           >> (NVM_DFLL_COARSE_POS % 32))
-                         & ((1 << NVM_DFLL_COARSE_SIZE) - 1);
-        if (coarse == 0x3f) {
-            coarse = 0x1f;
-        }
-        uint32_t fine =( *((uint32_t *)(NVMCTRL_OTP4)
-                           + (NVM_DFLL_FINE_POS / 32))
-                         >> (NVM_DFLL_FINE_POS % 32))
-                       & ((1 << NVM_DFLL_FINE_SIZE) - 1);
-        if (fine == 0x3ff) {
-            fine = 0x1ff;
-        }
-        dfll_conf.coarse_value = coarse;
-        dfll_conf.fine_value   = fine;
-
+        dfll_conf.fine_value   = 0x1ff;
         dfll_conf.quick_lock = SYSTEM_CLOCK_DFLL_QUICK_LOCK_ENABLE;
         dfll_conf.stable_tracking = SYSTEM_CLOCK_DFLL_STABLE_TRACKING_FIX_AFTER_LOCK;
         dfll_conf.wakeup_lock = SYSTEM_CLOCK_DFLL_WAKEUP_LOCK_KEEP;
@@ -883,7 +929,7 @@ void system_clock_init(void)
 
     /* Configure all GCLK generators except for the main generator, which
      * is configured later after all other clock systems are set up */
-    MREPEAT(8, _CONF_CLOCK_GCLK_CONFIG_NONMAIN, ~);
+    MREPEAT(GCLK_GEN_NUM, _CONF_CLOCK_GCLK_CONFIG_NONMAIN, ~);
 
 #  if CONF_CLOCK_DFLL_ENABLE == true
     /* Enable DFLL reference clock if in closed loop mode */
@@ -894,6 +940,23 @@ void system_clock_init(void)
         dfll_gclk_chan_conf.source_generator = CONF_CLOCK_DFLL_SOURCE_GCLK_GENERATOR;
         system_gclk_chan_set_config(SYSCTRL_GCLK_ID_DFLL48, &dfll_gclk_chan_conf);
         system_gclk_chan_enable(SYSCTRL_GCLK_ID_DFLL48);
+    }
+#  endif
+
+#  if CONF_CLOCK_DPLL_ENABLE == true
+    /* Enable DPLL internal lock timer and reference clock */
+    struct system_gclk_chan_config dpll_gclk_chan_conf;
+    system_gclk_chan_get_config_defaults(&dpll_gclk_chan_conf);
+    if (CONF_CLOCK_DPLL_LOCK_TIME != SYSTEM_CLOCK_SOURCE_DPLL_LOCK_TIME_DEFAULT) {
+        dpll_gclk_chan_conf.source_generator = CONF_CLOCK_DPLL_LOCK_GCLK_GENERATOR;
+        system_gclk_chan_set_config(SYSCTRL_GCLK_ID_FDPLL32K, &dpll_gclk_chan_conf);
+        system_gclk_chan_enable(SYSCTRL_GCLK_ID_FDPLL32K);
+    }
+
+    if (CONF_CLOCK_DPLL_REFERENCE_CLOCK == SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_GCLK) {
+        dpll_gclk_chan_conf.source_generator = CONF_CLOCK_DPLL_REFERENCE_GCLK_GENERATOR;
+        system_gclk_chan_set_config(SYSCTRL_GCLK_ID_FDPLL, &dpll_gclk_chan_conf);
+        system_gclk_chan_enable(SYSCTRL_GCLK_ID_FDPLL);
     }
 #  endif
 #endif
@@ -913,9 +976,17 @@ void system_clock_init(void)
 #  if (CONF_CLOCK_DPLL_ENABLE == true)
 
     /* Enable DPLL reference clock */
-    if (CONF_CLOCK_DPLL_REFERENCE_CLOCK == SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_REF0) {
+    if (CONF_CLOCK_DPLL_REFERENCE_CLOCK == SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC32K) {
         /* XOSC32K should have been enabled for DPLL_REF0 */
         Assert(CONF_CLOCK_XOSC32K_ENABLE);
+    } else if (CONF_CLOCK_DPLL_REFERENCE_CLOCK == SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC) {
+        /* XOSC should have been enabled for DPLL_REF1 */
+        Assert(CONF_CLOCK_XOSC_ENABLE);
+    } else if (CONF_CLOCK_DPLL_REFERENCE_CLOCK == SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_GCLK) {
+        /* GCLK should have been enabled */
+        Assert(CONF_CLOCK_CONFIGURE_GCLK);
+    } else {
+        Assert(false);
     }
 
     struct system_clock_source_dpll_config dpll_config;
@@ -928,10 +999,11 @@ void system_clock_init(void)
     dpll_config.low_power_enable = CONF_CLOCK_DPLL_LOW_POWER_ENABLE;
 
     dpll_config.filter           = CONF_CLOCK_DPLL_FILTER;
+    dpll_config.lock_time        = CONF_CLOCK_DPLL_LOCK_TIME;
 
     dpll_config.reference_clock     = CONF_CLOCK_DPLL_REFERENCE_CLOCK;
     dpll_config.reference_frequency = CONF_CLOCK_DPLL_REFERENCE_FREQUENCY;
-    dpll_config.reference_divider   = CONF_CLOCK_DPLL_REFEREMCE_DIVIDER;
+    dpll_config.reference_divider   = CONF_CLOCK_DPLL_REFERENCE_DIVIDER;
     dpll_config.output_frequency    = CONF_CLOCK_DPLL_OUTPUT_FREQUENCY;
 
     system_clock_source_dpll_set_config(&dpll_config);
@@ -949,6 +1021,7 @@ void system_clock_init(void)
 
     system_apb_clock_set_divider(SYSTEM_CLOCK_APB_APBA, CONF_CLOCK_APBA_DIVIDER);
     system_apb_clock_set_divider(SYSTEM_CLOCK_APB_APBB, CONF_CLOCK_APBB_DIVIDER);
+    system_apb_clock_set_divider(SYSTEM_CLOCK_APB_APBC, CONF_CLOCK_APBC_DIVIDER);
 
     /* GCLK 0 */
 #if CONF_CLOCK_CONFIGURE_GCLK == true

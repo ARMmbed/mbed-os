@@ -1,10 +1,56 @@
+/**
+ *
+ * \file
+ *
+ * \brief SAM SERCOM USART Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #ifndef USART_H_INCLUDED
 #define USART_H_INCLUDED
 
 /**
  * \defgroup asfdoc_sam0_sercom_usart_group SAM Serial USART Driver (SERCOM USART)
  *
- * This driver for Atmel庐 | SMART SAM devices provides an interface for the configuration
+ * This driver for Atmel&reg; | SMART SAM devices provides an interface for the configuration
  * and management of the SERCOM module in its USART mode to transfer or receive
  * USART data frames. The following driver API modes are covered by this
  * manual:
@@ -22,6 +68,8 @@
  *  - Atmel | SMART SAM R21
  *  - Atmel | SMART SAM D10/D11
  *  - Atmel | SMART SAM L21
+ *  - Atmel | SMART SAM DAx
+ *  - Atmel | SMART SAM C20/C21
  *
  * The outline of this documentation is as follows:
  * - \ref asfdoc_sam0_sercom_usart_prerequisites
@@ -51,35 +99,43 @@
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_SYNC_SCHEME_V2</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_OVER_SAMPLE</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_HARDWARE_FLOW_CONTROL</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_IRDA</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_LIN_SLAVE</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_COLLISION_DECTION</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_START_FRAME_DECTION</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_USART_IMMEDIATE_BUFFER_OVERFLOW_NOTIFICATION</td>
- *    <td>SAM D21/R21/D10/D11/L21</td>
+ *    <td>SAM D21/R21/D10/D11/L21/DAx/C20/C21</td>
+ *  </tr>
+ *  <tr>
+ *    <td>FEATURE_USART_RS485</td>
+ *    <td>SAM C20/C21</td>
+ *  </tr>
+ * <tr>
+ *    <td>FEATURE_USART_LIN_MASTER</td>
+ *    <td>SAM C20/C21</td>
  *  </tr>
  * </table>
  * \note The specific features are only available in the driver when the
@@ -210,8 +266,6 @@
 #include <sercom.h>
 #include <pinmux.h>
 
-#define USART_CALLBACK_MODE true
-
 #if USART_CALLBACK_MODE == true
 #  include <sercom_interrupt.h>
 #endif
@@ -225,7 +279,8 @@ extern "C" {
  * Define SERCOM USART features set according to different device family.
  * @{
  */
-#if (SAMD21) || (SAMR21) || (SAMD10) || (SAMD11) || (SAML21) || defined(__DOXYGEN__)
+#if (SAMD21) || (SAMR21) || (SAMD10) || (SAMD11) || (SAML21) || \
+	(SAMDA1) || (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
 /** Usart sync scheme version 2. */
 #  define FEATURE_USART_SYNC_SCHEME_V2
 /** Usart over sampling. */
@@ -243,7 +298,80 @@ extern "C" {
 /** Usart start buffer overflow notification. */
 #  define FEATURE_USART_IMMEDIATE_BUFFER_OVERFLOW_NOTIFICATION
 #endif
+
+#if (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
+/** LIN master mode. */
+#define FEATURE_USART_LIN_MASTER
+/** RS485 mode. */
+#  define FEATURE_USART_RS485
+#endif
 /*@}*/
+
+#ifdef FEATURE_USART_LIN_MASTER
+/**
+ * \brief LIN Node Type.
+ *
+ * LIN node type.
+ */
+enum lin_node_type {
+    /** LIN master mode */
+    LIN_MASTER_NODE = SERCOM_USART_CTRLA_FORM(0x02),
+    /** LIN slave mode */
+    LIN_SLAVE_NODE = SERCOM_USART_CTRLA_FORM(0x04),
+    /** Neither LIN master nor LIN slave mode */
+    LIN_INVALID_MODE = SERCOM_USART_CTRLA_FORM(0x00),
+};
+
+/**
+ * \brief LIN Master Command Enum.
+ *
+ * LIN master command enum.
+ */
+enum lin_master_cmd {
+    /** LIN master software control transmission command */
+    LIN_MASTER_SOFTWARE_CONTROL_TRANSMIT_CMD = SERCOM_USART_CTRLB_LINCMD(0x01),
+    /** LIN master automatically transmission command */
+    LIN_MASTER_AUTO_TRANSMIT_CMD = SERCOM_USART_CTRLB_LINCMD(0x02),
+};
+
+/**
+ * \brief LIN Master Header Delay.
+ *
+ * LIN master header delay between break and sync transmission,
+ * and between the sync and identifier (ID) fields.
+ * This field is only valid when using automatically transmission command
+ */
+enum lin_master_header_delay {
+    /** Delay between break and sync transmission is 1 bit time.
+    	Delay between sync and ID transmission is 1 bit time. */
+    LIN_MASTER_HEADER_DELAY_0 = SERCOM_USART_CTRLC_HDRDLY(0x0),
+    /** Delay between break and sync transmission is 4 bit time.
+    	Delay between sync and ID transmission is 4 bit time. */
+    LIN_MASTER_HEADER_DELAY_1 = SERCOM_USART_CTRLC_HDRDLY(0x01),
+    /** Delay between break and sync transmission is 8 bit time.
+    	Delay between sync and ID transmission is 4 bit time. */
+    LIN_MASTER_HEADER_DELAY_2 = SERCOM_USART_CTRLC_HDRDLY(0x02),
+    /** Delay between break and sync transmission is 14 bit time.
+    	Delay between sync and ID transmission is 4 bit time. */
+    LIN_MASTER_HEADER_DELAY_3 = SERCOM_USART_CTRLC_HDRDLY(0x03),
+};
+
+/**
+ * \brief LIN Master Break Length.
+ *
+ * Length of the break field transmitted when in LIN master mode
+ */
+enum lin_master_break_length {
+    /** Break field transmission is 13 bit times. */
+    LIN_MASTER_BREAK_LENGTH_13_BIT = SERCOM_USART_CTRLC_BRKLEN(0x0),
+    /** Break field transmission is 17 bit times. */
+    LIN_MASTER_BREAK_LENGTH_17_BIT = SERCOM_USART_CTRLC_BRKLEN(0x1),
+    /** Break field transmission is 21 bit times. */
+    LIN_MASTER_BREAK_LENGTH_21_BIT = SERCOM_USART_CTRLC_BRKLEN(0x2),
+    /** Break field transmission is 26 bit times. */
+    LIN_MASTER_BREAK_LENGTH_26_BIT = SERCOM_USART_CTRLC_BRKLEN(0x3),
+};
+#endif
 
 #ifndef PINMUX_DEFAULT
 /** Default pinmux. */
@@ -372,6 +500,16 @@ enum usart_signal_mux_settings {
     USART_RX_3_TX_2_XCK_3 = (SERCOM_USART_CTRLA_RXPO(3) | SERCOM_USART_CTRLA_TXPO(1)),
     /** MUX setting USART_RX_3_TX_0_RTS_2_CTS_3. */
     USART_RX_3_TX_0_RTS_2_CTS_3 = (SERCOM_USART_CTRLA_RXPO(3) | SERCOM_USART_CTRLA_TXPO(2)),
+#ifdef FEATURE_USART_RS485
+    /** MUX setting USART_RX_0_TX_0_XCK_1_TE_2. */
+    USART_RX_0_TX_0_XCK_1_TE_2 = (SERCOM_USART_CTRLA_RXPO(0) | SERCOM_USART_CTRLA_TXPO(3)),
+    /** MUX setting USART_RX_1_TX_0_XCK_1_TE_2. */
+    USART_RX_1_TX_0_XCK_1_TE_2 = (SERCOM_USART_CTRLA_RXPO(1) | SERCOM_USART_CTRLA_TXPO(3)),
+    /** MUX setting USART_RX_2_TX_0_XCK_1_TE_2. */
+    USART_RX_2_TX_0_XCK_1_TE_2 = (SERCOM_USART_CTRLA_RXPO(2) | SERCOM_USART_CTRLA_TXPO(3)),
+    /** MUX setting USART_RX_3_TX_0_XCK_1_TE_2. */
+    USART_RX_3_TX_0_XCK_1_TE_2 = (SERCOM_USART_CTRLA_RXPO(3) | SERCOM_USART_CTRLA_TXPO(3)),
+#endif
 #else
     /** MUX setting RX_0_TX_0_XCK_1. */
     USART_RX_0_TX_0_XCK_1 = (SERCOM_USART_CTRLA_RXPO(0)),
@@ -458,6 +596,32 @@ enum usart_sample_adjustment {
 };
 #endif
 
+#ifdef FEATURE_USART_RS485
+/**
+ * \brief RS485 Guard Time
+ *
+ * The value of RS485 guard time.
+ */
+enum rs485_guard_time {
+    /** The guard time is 0-bit time. */
+    RS485_GUARD_TIME_0_BIT = 0,
+    /** The guard time is 1-bit time. */
+    RS485_GUARD_TIME_1_BIT,
+    /** The guard time is 2-bit times. */
+    RS485_GUARD_TIME_2_BIT,
+    /** The guard time is 3-bit times. */
+    RS485_GUARD_TIME_3_BIT,
+    /** The guard time is 4-bit times. */
+    RS485_GUARD_TIME_4_BIT,
+    /** The guard time is 5-bit times. */
+    RS485_GUARD_TIME_5_BIT,
+    /** The guard time is 6-bit times. */
+    RS485_GUARD_TIME_6_BIT,
+    /** The guard time is 7-bit times. */
+    RS485_GUARD_TIME_7_BIT,
+};
+#endif
+
 /**
  * \brief USART Transceiver
  *
@@ -508,9 +672,23 @@ struct usart_config {
     /** Enable LIN Slave Support. */
     bool lin_slave_enable;
 #endif
+
+#ifdef FEATURE_USART_LIN_MASTER
+    /** LIN node type. */
+    enum lin_node_type lin_node;
+    /** LIN master header delay. */
+    enum lin_master_header_delay lin_header_delay;
+    /** LIN Master Break Length. */
+    enum lin_master_break_length lin_break_length;
+#endif
+
 #ifdef FEATURE_USART_START_FRAME_DECTION
     /** Enable start of frame dection. */
     bool start_frame_detection_enable;
+#endif
+#ifdef FEATURE_USART_RS485
+    /** RS485 guard time. */
+    enum rs485_guard_time rs485_guard_time;
 #endif
 #ifdef FEATURE_USART_COLLISION_DECTION
     /** Enable collision dection. */
@@ -543,13 +721,37 @@ struct usart_config {
     bool run_in_standby;
     /** GCLK generator source. */
     enum gclk_generator generator_source;
-    /** PAD0 pinmux. */
+    /** PAD0 pinmux.
+     *
+     * If current USARTx has several alternative multiplexing I/O pin for PAD0, then
+     * only one peripheral multiplexing I/O can be enabled for current USARTx PAD0
+     * function. Make sure other alternative multiplexing I/O associated current
+     * USARTx PAD0 is not setup usart function.
+     */
     uint32_t pinmux_pad0;
-    /** PAD1 pinmux. */
+    /** PAD1 pinmux.
+     *
+     * If current USARTx has several alternative multiplexing I/O pin for PAD1, then
+     * only one peripheral multiplexing I/O can be enabled for current USARTx PAD1
+     * function. Make sure other alternative multiplexing I/O associated current
+     * USARTx PAD1 is not setup usart function.
+     */
     uint32_t pinmux_pad1;
-    /** PAD2 pinmux. */
+    /** PAD2 pinmux.
+     *
+     * If current USARTx has several alternative multiplexing I/O pin for PAD2, then
+     * only one peripheral multiplexing I/O can be enabled for current USARTx PAD2
+     * function. Make sure other alternative multiplexing I/O associated current
+     * USARTx PAD2 is not setup usart function.
+     */
     uint32_t pinmux_pad2;
-    /** PAD3 pinmux. */
+    /** PAD3 pinmux.
+     *
+     * If current USARTx has several alternative multiplexing I/O pin for PAD3, then
+     * only one peripheral multiplexing I/O can be enabled for current USARTx PAD3
+     * function. Make sure other alternative multiplexing I/O associated current
+     * USARTx PAD3 is not setup usart function.
+     */
     uint32_t pinmux_pad3;
 };
 
@@ -566,7 +768,7 @@ struct usart_module;
  *
  * Type of the callback functions.
  */
-typedef void (*usart_callback_t)(const struct usart_module *const module);
+typedef void (*usart_callback_t)(struct usart_module *const module);
 #endif
 
 /**
@@ -777,6 +979,13 @@ static inline void usart_get_config_defaults(
 #ifdef FEATURE_USART_LIN_SLAVE
     config->lin_slave_enable      = false;
 #endif
+
+#ifdef FEATURE_USART_LIN_MASTER
+    config->lin_node = LIN_INVALID_MODE;
+    config->lin_header_delay = LIN_MASTER_HEADER_DELAY_0;
+    config->lin_break_length = LIN_MASTER_BREAK_LENGTH_13_BIT;
+#endif
+
 #ifdef FEATURE_USART_IMMEDIATE_BUFFER_OVERFLOW_NOTIFICATION
     config->immediate_buffer_overflow_notification      = false;
 #endif
@@ -789,6 +998,9 @@ static inline void usart_get_config_defaults(
 #endif
 #ifdef FEATURE_USART_COLLISION_DECTION
     config->collision_detection_enable                  = false;
+#endif
+#ifdef FEATURE_USART_RS485
+    config->rs485_guard_time = RS485_GUARD_TIME_0_BIT;
 #endif
 }
 
@@ -943,6 +1155,7 @@ static inline void usart_enable_transceiver(
             module->transmitter_enabled = true;
             break;
     }
+    _usart_wait_for_sync(module);
 }
 
 /**
@@ -983,6 +1196,49 @@ static inline void usart_disable_transceiver(
 }
 
 /** @} */
+
+#ifdef FEATURE_USART_LIN_MASTER
+/**
+ * \name LIN Master Command and Status
+ * @{
+ */
+
+/**
+ * \brief Sending LIN command.
+ *
+ * Sending LIN command.
+ *
+ * \param[in]  module Pointer to USART software instance struct.
+ * \param[in]  cmd  Cammand type.
+ */
+static inline void lin_master_send_cmd(
+    struct usart_module *const module,
+    enum lin_master_cmd cmd)
+{
+    SercomUsart *const usart_hw = &(module->hw->USART);
+    _usart_wait_for_sync(module);
+    usart_hw->CTRLB.reg |= cmd;
+}
+
+/**
+ * \brief Get LIN transmission status.
+ *
+ * Get LIN transmission status.
+ *
+ * \param[in]  module Pointer to USART software instance struct.
+ *
+ * \return Status of LIN master transmission.
+ * \retval true   Data transmission completed
+ * \retval false  Transmission is ongoing
+ */
+static inline bool lin_master_transmission_status(struct usart_module *const module)
+{
+    SercomUsart *const usart_hw = &(module->hw->USART);
+    return ((usart_hw->STATUS.reg & SERCOM_USART_STATUS_TXE)? true:false);
+}
+
+/** @} */
+#endif
 
 #ifdef __cplusplus
 }
@@ -1047,25 +1303,21 @@ static inline void usart_disable_transceiver(
  *	<tr>
  *		<th>Changelog</th>
  *	</tr>
- *  <tr>
- *		<td>Add support for SAML21 (same features as SAMD21)</td>
- *  </tr>
- *  <tr>
- *		<td>Add support for SAMD10/D11 (same features as SAMD21)</td>
- *  </tr>
- *  <tr>
- *		<td>Add support for SAMR21 (same features as SAMD21)</td>
- *  </tr>
+  *	<tr>
+ *		<td>Added new feature as below:
+ *          \li LIN master
+ *          \li RS485
+ *	</tr>
  *	<tr>
- *		<td>Add support for SAMD21 and added new feature as below:
-                \li Oversample
-                \li Buffer overflow notification
-                \li Irda
-                \li Lin slave
-                \li Start frame detection
-                \li Hardware flow control
-                \li Collision detection
-                \li DMA support </td>
+ *		<td>Added new feature as below:
+ *          \li Oversample
+ *          \li Buffer overflow notification
+ *          \li Irda
+ *          \li Lin slave
+ *          \li Start frame detection
+ *          \li Hardware flow control
+ *          \li Collision detection
+ *          \li DMA support </td>
  *	</tr>
  *	<tr>
  *		<td>\li Added new \c transmitter_enable and \c receiver_enable Boolean
@@ -1095,6 +1347,7 @@ static inline void usart_disable_transceiver(
  * - \subpage asfdoc_sam0_sercom_usart_callback_use_case
  * \endif
  * - \subpage asfdoc_sam0_sercom_usart_dma_use_case
+ * - \subpage asfdoc_sam0_sercom_usart_lin_use_case
  */
 
 /**
@@ -1187,32 +1440,32 @@ static inline void usart_disable_transceiver(
  *		<th>Comments</td>
  *	</tr>
  *	<tr>
- *		<td>F</td>
- *		<td>11/2014</td>
- *		<td>Add support for SAML21.</td>
+ *		<td>42118F</td>
+ *		<td>06/2015</td>
+ *		<td>Add support for SAML21, SAMDAx, and SAMC20/C21.</td>
  *	</tr>
  *	<tr>
- *		<td>E</td>
+ *		<td>42118E</td>
  *		<td>12/2014</td>
  *		<td>Add support for SAMR21 and SAMD10/D11.</td>
  *	</tr>
  *	<tr>
- *		<td>D</td>
+ *		<td>42118D</td>
  *		<td>01/2014</td>
  *		<td>Add support for SAMD21.</td>
  *	</tr>
  *	<tr>
- *		<td>C</td>
+ *		<td>42118C</td>
  *		<td>10/2013</td>
  *		<td>Replaced the pad multiplexing documentation with a condensed table.</td>
  *	</tr>
  *	<tr>
- *		<td>B</td>
+ *		<td>42118B</td>
  *		<td>06/2013</td>
  *		<td>Corrected documentation typos.</td>
  *	</tr>
  *	<tr>
- *		<td>A</td>
+ *		<td>42118A</td>
  *		<td>06/2013</td>
  *		<td>Initial release</td>
  *	</tr>

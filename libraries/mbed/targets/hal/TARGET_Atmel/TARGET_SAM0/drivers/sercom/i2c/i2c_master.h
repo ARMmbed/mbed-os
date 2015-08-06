@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief SAM SERCOM I2C Master Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef I2C_MASTER_H_INCLUDED
 #define I2C_MASTER_H_INCLUDED
 
@@ -72,7 +118,7 @@ enum i2c_master_start_hold_time {
 };
 
 /**
- * \ brief Values for inactive bus time-out.
+ * \brief Values for inactive bus time-out.
  *
  * If the inactive bus time-out is enabled and the bus is inactive for
  * longer than the time-out setting, the bus state logic will be set to idle.
@@ -176,6 +222,8 @@ struct i2c_master_module {
     uint16_t buffer_timeout;
     /** If true, stop condition will be sent after a read/write. */
     bool send_stop;
+    /** If true, nack signal will be sent after a read/write. */
+    bool send_nack;
 #  if I2C_MASTER_CALLBACK_MODE == true
     /** Pointers to callback functions. */
     volatile i2c_master_callback_t callbacks[_I2C_MASTER_CALLBACK_N];
@@ -248,6 +296,8 @@ struct i2c_master_config {
     /** Set to enable maser SCL low extend time-out. */
     bool master_scl_low_extend_timeout;
 #endif
+    /** Get more accurate BAUD, considering rise time(required for standard-mode and Fast-mode). */
+    uint16_t sda_scl_rise_time_ns;
 };
 
 /**
@@ -375,7 +425,7 @@ static void _i2c_master_wait_for_sync(
  * - Do not run in standby
  * - PINMUX_DEFAULT for SERCOM pads
  *
- * Those default configuration only availale if the device supports it:
+ * Those default configuration only available if the device supports it:
  * - High speed baudrate 3.4MHz
  * - Standard-mode and Fast-mode transfer speed
  * - SCL stretch disabled
@@ -410,6 +460,8 @@ static inline void i2c_master_get_config_defaults(
     config->slave_scl_low_extend_timeout   = false;
     config->master_scl_low_extend_timeout  = false;
 #endif
+    /* The typical value is 215ns */
+    config->sda_scl_rise_time_ns = 215;
 }
 
 enum status_code i2c_master_init(
@@ -514,6 +566,20 @@ enum status_code i2c_master_write_packet_wait_no_stop(
     struct i2c_master_packet *const packet);
 
 void i2c_master_send_stop(struct i2c_master_module *const module);
+
+void i2c_master_send_nack(struct i2c_master_module *const module);
+
+enum status_code i2c_master_read_byte(
+    struct i2c_master_module *const module,
+    uint8_t *byte);
+
+enum status_code i2c_master_write_byte(
+    struct i2c_master_module *const module,
+    uint8_t byte);
+
+enum status_code i2c_master_read_packet_wait_no_nack(
+    struct i2c_master_module *const module,
+    struct i2c_master_packet *const packet);
 
 /** @} */
 

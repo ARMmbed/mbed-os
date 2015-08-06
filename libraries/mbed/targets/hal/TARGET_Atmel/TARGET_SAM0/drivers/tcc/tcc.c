@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief SAM TCC - Timer Counter for Control Applications Driver
+ *
+ * Copyright (C) 2013-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #include "tcc.h"
 
 #if TCC_ASYNC == true
@@ -26,7 +72,7 @@
 #if !defined(__DOXYGEN__)
 
 #  define _TCC_GCLK_ID(n,unused)           TPASTE3(TCC,n,_GCLK_ID),
-#  if (SAML21)
+#  if (SAML21) || (SAMC20) || (SAMC21)
 #    define _TCC_APBCMASK(n,unused)        TPASTE2(MCLK_APBCMASK_TCC,n),
 #  else
 #    define _TCC_APBCMASK(n,unused)        TPASTE2(PM_APBCMASK_TCC,n),
@@ -587,7 +633,7 @@ enum status_code tcc_init(
 
     hw->DRVCTRL.reg = drvctrl;
 
-#if (!SAML21)
+#if (!SAML21) && (!SAMC20) && (!SAMC21)
     while (hw->SYNCBUSY.reg & (TCC_SYNCBUSY_WAVE | TCC_SYNCBUSY_WAVEB)) {
         /* Wait for sync */
     }
@@ -599,7 +645,7 @@ enum status_code tcc_init(
     }
     hw->COUNT.reg = config->counter.count;
 
-#if (!SAML21)
+#if (!SAML21) && (!SAMC20) && (!SAMC21)
     while (hw->SYNCBUSY.reg & (TCC_SYNCBUSY_PER | TCC_SYNCBUSY_PERB)) {
         /* Wait for sync */
     }
@@ -607,7 +653,7 @@ enum status_code tcc_init(
     hw->PER.reg = (config->counter.period);
 
     for (i = 0; i <  _tcc_cc_nums[module_index]; i ++) {
-#if (!SAML21)
+#if (!SAML21) && (!SAMC20) && (!SAMC21)
         while (hw->SYNCBUSY.reg & (
                     (TCC_SYNCBUSY_CC0 | TCC_SYNCBUSY_CCB0) << i)) {
             /* Wait for sync */
@@ -1010,7 +1056,7 @@ static enum status_code _tcc_set_compare_value(
     }
 
     if (double_buffering_enabled) {
-#if (SAML21)
+#if (SAML21) || (SAMC20) || (SAMC21)
         tcc_module->CCBUF[channel_index].reg = compare;
 #else
         while(tcc_module->SYNCBUSY.reg  &
@@ -1135,7 +1181,7 @@ static enum status_code _tcc_set_top_value(
     }
 
     if (double_buffering_enabled) {
-#if (SAML21)
+#if (SAML21) || (SAMC20) || (SAMC21)
         tcc_module->PERBUF.reg = top_value;
 #else
         while(tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PERB) {
@@ -1285,7 +1331,7 @@ enum status_code tcc_set_pattern(
     }
 
     if (module_inst->double_buffering_enabled) {
-#if (SAML21)
+#if (SAML21) || (SAMC20) || (SAMC21)
         tcc_module->PATTBUF.reg = patt_value;
 #else
         while(tcc_module->SYNCBUSY.reg  & TCC_SYNCBUSY_PATTB) {
@@ -1375,10 +1421,10 @@ uint32_t tcc_get_status(
     }
     /* Recoverable fault inputs */
     if (status_flags & TCC_STATUS_FAULTAIN) {
-        status |= TCC_STATUS_NON_RECOVERABLE_FAULT_PRESENT(0);
+        status |= TCC_STATUS_RECOVERABLE_FAULT_PRESENT(0);
     }
     if (status_flags & TCC_STATUS_FAULTBIN) {
-        status |= TCC_STATUS_NON_RECOVERABLE_FAULT_PRESENT(1);
+        status |= TCC_STATUS_RECOVERABLE_FAULT_PRESENT(1);
     }
 
     /* Check for TCC capture overflow */

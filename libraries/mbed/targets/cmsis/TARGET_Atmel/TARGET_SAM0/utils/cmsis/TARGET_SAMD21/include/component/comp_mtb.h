@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief Component description for MTB
+ *
+ * Copyright (c) 2014-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef _SAMD21_MTB_COMPONENT_
 #define _SAMD21_MTB_COMPONENT_
 
@@ -13,12 +59,12 @@
 /* -------- MTB_POSITION : (MTB Offset: 0x000) (R/W 32) MTB Position -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint32_t :2;               /*!< bit:  0.. 1  Reserved                           */
-        uint32_t WRAP:1;           /*!< bit:      2  Pointer Value Wraps                */
-        uint32_t POINTER:29;       /*!< bit:  3..31  Trace Packet Location Pointer      */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint32_t reg;                /*!< Type      used for register access              */
+  struct {
+    uint32_t :2;               /*!< bit:  0.. 1  Reserved                           */
+    uint32_t WRAP:1;           /*!< bit:      2  Pointer Value Wraps                */
+    uint32_t POINTER:29;       /*!< bit:  3..31  Trace Packet Location Pointer      */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_POSITION_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -34,17 +80,17 @@ typedef union {
 /* -------- MTB_MASTER : (MTB Offset: 0x004) (R/W 32) MTB Master -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint32_t MASK:5;           /*!< bit:  0.. 4  Maximum Value of the Trace Buffer in SRAM */
-        uint32_t TSTARTEN:1;       /*!< bit:      5  Trace Start Input Enable           */
-        uint32_t TSTOPEN:1;        /*!< bit:      6  Trace Stop Input Enable            */
-        uint32_t SFRWPRIV:1;       /*!< bit:      7  Special Function Register Write Privilege */
-        uint32_t RAMPRIV:1;        /*!< bit:      8  SRAM Privilege                     */
-        uint32_t HALTREQ:1;        /*!< bit:      9  Halt Request                       */
-        uint32_t :21;              /*!< bit: 10..30  Reserved                           */
-        uint32_t EN:1;             /*!< bit:     31  Main Trace Enable                  */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint32_t reg;                /*!< Type      used for register access              */
+  struct {
+    uint32_t MASK:5;           /*!< bit:  0.. 4  Maximum Value of the Trace Buffer in SRAM */
+    uint32_t TSTARTEN:1;       /*!< bit:      5  Trace Start Input Enable           */
+    uint32_t TSTOPEN:1;        /*!< bit:      6  Trace Stop Input Enable            */
+    uint32_t SFRWPRIV:1;       /*!< bit:      7  Special Function Register Write Privilege */
+    uint32_t RAMPRIV:1;        /*!< bit:      8  SRAM Privilege                     */
+    uint32_t HALTREQ:1;        /*!< bit:      9  Halt Request                       */
+    uint32_t :21;              /*!< bit: 10..30  Reserved                           */
+    uint32_t EN:1;             /*!< bit:     31  Main Trace Enable                  */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_MASTER_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -71,13 +117,13 @@ typedef union {
 /* -------- MTB_FLOW : (MTB Offset: 0x008) (R/W 32) MTB Flow -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint32_t AUTOSTOP:1;       /*!< bit:      0  Auto Stop Tracing                  */
-        uint32_t AUTOHALT:1;       /*!< bit:      1  Auto Halt Request                  */
-        uint32_t :1;               /*!< bit:      2  Reserved                           */
-        uint32_t WATERMARK:29;     /*!< bit:  3..31  Watermark value                    */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint32_t reg;                /*!< Type      used for register access              */
+  struct {
+    uint32_t AUTOSTOP:1;       /*!< bit:      0  Auto Stop Tracing                  */
+    uint32_t AUTOHALT:1;       /*!< bit:      1  Auto Halt Request                  */
+    uint32_t :1;               /*!< bit:      2  Reserved                           */
+    uint32_t WATERMARK:29;     /*!< bit:  3..31  Watermark value                    */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_FLOW_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -96,7 +142,7 @@ typedef union {
 /* -------- MTB_BASE : (MTB Offset: 0x00C) (R/  32) MTB Base -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_BASE_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -106,7 +152,7 @@ typedef union {
 /* -------- MTB_ITCTRL : (MTB Offset: 0xF00) (R/W 32) MTB Integration Mode Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_ITCTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -116,7 +162,7 @@ typedef union {
 /* -------- MTB_CLAIMSET : (MTB Offset: 0xFA0) (R/W 32) MTB Claim Set -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_CLAIMSET_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -126,7 +172,7 @@ typedef union {
 /* -------- MTB_CLAIMCLR : (MTB Offset: 0xFA4) (R/W 32) MTB Claim Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_CLAIMCLR_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -136,7 +182,7 @@ typedef union {
 /* -------- MTB_LOCKACCESS : (MTB Offset: 0xFB0) (R/W 32) MTB Lock Access -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_LOCKACCESS_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -146,7 +192,7 @@ typedef union {
 /* -------- MTB_LOCKSTATUS : (MTB Offset: 0xFB4) (R/  32) MTB Lock Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_LOCKSTATUS_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -156,7 +202,7 @@ typedef union {
 /* -------- MTB_AUTHSTATUS : (MTB Offset: 0xFB8) (R/  32) MTB Authentication Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_AUTHSTATUS_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -166,7 +212,7 @@ typedef union {
 /* -------- MTB_DEVARCH : (MTB Offset: 0xFBC) (R/  32) MTB Device Architecture -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_DEVARCH_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -176,7 +222,7 @@ typedef union {
 /* -------- MTB_DEVID : (MTB Offset: 0xFC8) (R/  32) MTB Device Configuration -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_DEVID_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -186,7 +232,7 @@ typedef union {
 /* -------- MTB_DEVTYPE : (MTB Offset: 0xFCC) (R/  32) MTB Device Type -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_DEVTYPE_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -196,7 +242,7 @@ typedef union {
 /* -------- MTB_PID4 : (MTB Offset: 0xFD0) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID4_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -206,7 +252,7 @@ typedef union {
 /* -------- MTB_PID5 : (MTB Offset: 0xFD4) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID5_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -216,7 +262,7 @@ typedef union {
 /* -------- MTB_PID6 : (MTB Offset: 0xFD8) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID6_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -226,7 +272,7 @@ typedef union {
 /* -------- MTB_PID7 : (MTB Offset: 0xFDC) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID7_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -236,7 +282,7 @@ typedef union {
 /* -------- MTB_PID0 : (MTB Offset: 0xFE0) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID0_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -246,7 +292,7 @@ typedef union {
 /* -------- MTB_PID1 : (MTB Offset: 0xFE4) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID1_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -256,7 +302,7 @@ typedef union {
 /* -------- MTB_PID2 : (MTB Offset: 0xFE8) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID2_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -266,7 +312,7 @@ typedef union {
 /* -------- MTB_PID3 : (MTB Offset: 0xFEC) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_PID3_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -276,7 +322,7 @@ typedef union {
 /* -------- MTB_CID0 : (MTB Offset: 0xFF0) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_CID0_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -286,7 +332,7 @@ typedef union {
 /* -------- MTB_CID1 : (MTB Offset: 0xFF4) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_CID1_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -296,7 +342,7 @@ typedef union {
 /* -------- MTB_CID2 : (MTB Offset: 0xFF8) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_CID2_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -306,7 +352,7 @@ typedef union {
 /* -------- MTB_CID3 : (MTB Offset: 0xFFC) (R/  32) CoreSight -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    uint32_t reg;                /*!< Type      used for register access              */
+  uint32_t reg;                /*!< Type      used for register access              */
 } MTB_CID3_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -316,35 +362,35 @@ typedef union {
 /** \brief MTB hardware registers */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef struct {
-    __IO MTB_POSITION_Type         POSITION;    /**< \brief Offset: 0x000 (R/W 32) MTB Position */
-    __IO MTB_MASTER_Type           MASTER;      /**< \brief Offset: 0x004 (R/W 32) MTB Master */
-    __IO MTB_FLOW_Type             FLOW;        /**< \brief Offset: 0x008 (R/W 32) MTB Flow */
-    __I  MTB_BASE_Type             BASE;        /**< \brief Offset: 0x00C (R/  32) MTB Base */
-    RoReg8                    Reserved1[0xEF0];
-    __IO MTB_ITCTRL_Type           ITCTRL;      /**< \brief Offset: 0xF00 (R/W 32) MTB Integration Mode Control */
-    RoReg8                    Reserved2[0x9C];
-    __IO MTB_CLAIMSET_Type         CLAIMSET;    /**< \brief Offset: 0xFA0 (R/W 32) MTB Claim Set */
-    __IO MTB_CLAIMCLR_Type         CLAIMCLR;    /**< \brief Offset: 0xFA4 (R/W 32) MTB Claim Clear */
-    RoReg8                    Reserved3[0x8];
-    __IO MTB_LOCKACCESS_Type       LOCKACCESS;  /**< \brief Offset: 0xFB0 (R/W 32) MTB Lock Access */
-    __I  MTB_LOCKSTATUS_Type       LOCKSTATUS;  /**< \brief Offset: 0xFB4 (R/  32) MTB Lock Status */
-    __I  MTB_AUTHSTATUS_Type       AUTHSTATUS;  /**< \brief Offset: 0xFB8 (R/  32) MTB Authentication Status */
-    __I  MTB_DEVARCH_Type          DEVARCH;     /**< \brief Offset: 0xFBC (R/  32) MTB Device Architecture */
-    RoReg8                    Reserved4[0x8];
-    __I  MTB_DEVID_Type            DEVID;       /**< \brief Offset: 0xFC8 (R/  32) MTB Device Configuration */
-    __I  MTB_DEVTYPE_Type          DEVTYPE;     /**< \brief Offset: 0xFCC (R/  32) MTB Device Type */
-    __I  MTB_PID4_Type             PID4;        /**< \brief Offset: 0xFD0 (R/  32) CoreSight */
-    __I  MTB_PID5_Type             PID5;        /**< \brief Offset: 0xFD4 (R/  32) CoreSight */
-    __I  MTB_PID6_Type             PID6;        /**< \brief Offset: 0xFD8 (R/  32) CoreSight */
-    __I  MTB_PID7_Type             PID7;        /**< \brief Offset: 0xFDC (R/  32) CoreSight */
-    __I  MTB_PID0_Type             PID0;        /**< \brief Offset: 0xFE0 (R/  32) CoreSight */
-    __I  MTB_PID1_Type             PID1;        /**< \brief Offset: 0xFE4 (R/  32) CoreSight */
-    __I  MTB_PID2_Type             PID2;        /**< \brief Offset: 0xFE8 (R/  32) CoreSight */
-    __I  MTB_PID3_Type             PID3;        /**< \brief Offset: 0xFEC (R/  32) CoreSight */
-    __I  MTB_CID0_Type             CID0;        /**< \brief Offset: 0xFF0 (R/  32) CoreSight */
-    __I  MTB_CID1_Type             CID1;        /**< \brief Offset: 0xFF4 (R/  32) CoreSight */
-    __I  MTB_CID2_Type             CID2;        /**< \brief Offset: 0xFF8 (R/  32) CoreSight */
-    __I  MTB_CID3_Type             CID3;        /**< \brief Offset: 0xFFC (R/  32) CoreSight */
+  __IO MTB_POSITION_Type         POSITION;    /**< \brief Offset: 0x000 (R/W 32) MTB Position */
+  __IO MTB_MASTER_Type           MASTER;      /**< \brief Offset: 0x004 (R/W 32) MTB Master */
+  __IO MTB_FLOW_Type             FLOW;        /**< \brief Offset: 0x008 (R/W 32) MTB Flow */
+  __I  MTB_BASE_Type             BASE;        /**< \brief Offset: 0x00C (R/  32) MTB Base */
+       RoReg8                    Reserved1[0xEF0];
+  __IO MTB_ITCTRL_Type           ITCTRL;      /**< \brief Offset: 0xF00 (R/W 32) MTB Integration Mode Control */
+       RoReg8                    Reserved2[0x9C];
+  __IO MTB_CLAIMSET_Type         CLAIMSET;    /**< \brief Offset: 0xFA0 (R/W 32) MTB Claim Set */
+  __IO MTB_CLAIMCLR_Type         CLAIMCLR;    /**< \brief Offset: 0xFA4 (R/W 32) MTB Claim Clear */
+       RoReg8                    Reserved3[0x8];
+  __IO MTB_LOCKACCESS_Type       LOCKACCESS;  /**< \brief Offset: 0xFB0 (R/W 32) MTB Lock Access */
+  __I  MTB_LOCKSTATUS_Type       LOCKSTATUS;  /**< \brief Offset: 0xFB4 (R/  32) MTB Lock Status */
+  __I  MTB_AUTHSTATUS_Type       AUTHSTATUS;  /**< \brief Offset: 0xFB8 (R/  32) MTB Authentication Status */
+  __I  MTB_DEVARCH_Type          DEVARCH;     /**< \brief Offset: 0xFBC (R/  32) MTB Device Architecture */
+       RoReg8                    Reserved4[0x8];
+  __I  MTB_DEVID_Type            DEVID;       /**< \brief Offset: 0xFC8 (R/  32) MTB Device Configuration */
+  __I  MTB_DEVTYPE_Type          DEVTYPE;     /**< \brief Offset: 0xFCC (R/  32) MTB Device Type */
+  __I  MTB_PID4_Type             PID4;        /**< \brief Offset: 0xFD0 (R/  32) CoreSight */
+  __I  MTB_PID5_Type             PID5;        /**< \brief Offset: 0xFD4 (R/  32) CoreSight */
+  __I  MTB_PID6_Type             PID6;        /**< \brief Offset: 0xFD8 (R/  32) CoreSight */
+  __I  MTB_PID7_Type             PID7;        /**< \brief Offset: 0xFDC (R/  32) CoreSight */
+  __I  MTB_PID0_Type             PID0;        /**< \brief Offset: 0xFE0 (R/  32) CoreSight */
+  __I  MTB_PID1_Type             PID1;        /**< \brief Offset: 0xFE4 (R/  32) CoreSight */
+  __I  MTB_PID2_Type             PID2;        /**< \brief Offset: 0xFE8 (R/  32) CoreSight */
+  __I  MTB_PID3_Type             PID3;        /**< \brief Offset: 0xFEC (R/  32) CoreSight */
+  __I  MTB_CID0_Type             CID0;        /**< \brief Offset: 0xFF0 (R/  32) CoreSight */
+  __I  MTB_CID1_Type             CID1;        /**< \brief Offset: 0xFF4 (R/  32) CoreSight */
+  __I  MTB_CID2_Type             CID2;        /**< \brief Offset: 0xFF8 (R/  32) CoreSight */
+  __I  MTB_CID3_Type             CID3;        /**< \brief Offset: 0xFFC (R/  32) CoreSight */
 } Mtb;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 

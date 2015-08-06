@@ -1,3 +1,48 @@
+/**
+ * \file
+ *
+ * \brief SAM Clock Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #ifndef SYSTEM_CLOCK_FEATURE_H_INCLUDED
 #define SYSTEM_CLOCK_FEATURE_H_INCLUDED
 
@@ -8,7 +53,7 @@ extern "C" {
 /**
  * \defgroup asfdoc_sam0_system_clock_group SAM System Clock Management Driver (SYSTEM CLOCK)
  *
- * This driver for Atmel庐 | SMART SAM devices provides an interface for the configuration
+ * This driver for Atmel&reg; | SMART ARM&reg;-based microcontrollers provides an interface for the configuration
  * and management of the device's clocking related functions. This includes
  * the various clock sources, bus clocks, and generic clocks within the device,
  * with functions to manage the enabling, disabling, source selection, and
@@ -24,6 +69,7 @@ extern "C" {
  *  - Atmel | SMART SAM D20/D21
  *  - Atmel | SMART SAM R21
  *  - Atmel | SMART SAM D10/D11
+ *  - Atmel | SMART SAM DA0/DA1
  *
  * The outline of this documentation is as follows:
  *  - \ref asfdoc_sam0_system_clock_prerequisites
@@ -57,7 +103,7 @@ extern "C" {
  *	</tr>
  *	<tr>
  *		<td>FEATURE_SYSTEM_CLOCK_DPLL</td>
- *		<td>SAMD21, SAMR21, SAMD10, SAMD11</td>
+ *		<td>SAMD21, SAMR21, SAMD10, SAMD11, SAMDAx</td>
  *	</tr>
  * </table>
  * \note The specific features are only available in the driver when the
@@ -219,14 +265,14 @@ extern "C" {
  */
 
 #include <compiler.h>
+#include <gclk.h>
 
-#include <status_codes.h>
 /**
  * \name Driver Feature Definition
  * Define system clock features set according to different device family.
  * @{
  */
-#if (SAMD21) || (SAMR21) || (SAMD11) || (SAMD10) || defined(__DOXYGEN__)
+#if (SAMD21) || (SAMR21) || (SAMD11) || (SAMD10) || (SAMDA1) || defined(__DOXYGEN__)
 /** Digital Phase Locked Loop (DPLL) feature support. */
 #  define FEATURE_SYSTEM_CLOCK_DPLL
 #endif
@@ -481,9 +527,9 @@ enum system_clock_source {
     SYSTEM_CLOCK_SOURCE_DFLL     = GCLK_SOURCE_DFLL48M,
     /** Internal Ultra Low Power 32KHz oscillator. */
     SYSTEM_CLOCK_SOURCE_ULP32K   = GCLK_SOURCE_OSCULP32K,
-    /** Generator input pad */
+    /** Generator input pad. */
     SYSTEM_CLOCK_SOURCE_GCLKIN     = GCLK_SOURCE_GCLKIN,
-    /** Generic clock generator one output */
+    /** Generic clock generator one output. */
     SYSTEM_CLOCK_SOURCE_GCLKGEN1   = GCLK_SOURCE_GCLKGEN1,
 #ifdef FEATURE_SYSTEM_CLOCK_DPLL
     /** Digital Phase Locked Loop (DPLL).
@@ -562,7 +608,7 @@ struct system_clock_source_xosc32k_config {
  * Internal 8MHz (nominal) oscillator configuration structure.
  */
 struct system_clock_source_osc8m_config {
-    /* Internal 8MHz RC oscillator prescaler. */
+    /** Internal 8MHz RC oscillator prescaler. */
     enum system_osc8m_div prescaler;
     /** Keep the OSC8M enabled in standby sleep mode. */
     bool run_in_standby;
@@ -1091,11 +1137,11 @@ static inline enum status_code system_apb_clock_set_mask(
      * \brief Reference clock source of the DPLL module.
      */
     enum system_clock_source_dpll_reference_clock {
-    /** Select CLK_DPLL_REF0 as clock reference. */
-    SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_REF0,
-    /** Select CLK_DPLL_REF1 as clock reference. */
-    SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_REF1,
-    /** Select GCLK_DPLL as clock reference. */
+    /** Select XOSC32K as clock reference. */
+    SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC32K,
+    /** Select XOSC as clock reference. */
+    SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC,
+    /** Select GCLK as clock reference. */
     SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_GCLK,
 };
 
@@ -1199,7 +1245,7 @@ static inline void system_clock_source_dpll_get_config_defaults(
     config->output_frequency    = 48000000;
     config->reference_frequency = 32768;
     config->reference_divider   = 1;
-    config->reference_clock     = SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_REF0;
+    config->reference_clock     = SYSTEM_CLOCK_SOURCE_DPLL_REFERENCE_CLOCK_XOSC32K;
 
     config->lock_time           = SYSTEM_CLOCK_SOURCE_DPLL_LOCK_TIME_DEFAULT;
     config->filter              = SYSTEM_CLOCK_SOURCE_DPLL_FILTER_DEFAULT;
@@ -1319,11 +1365,6 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  *
  * \section asfdoc_sam0_system_clock_extra_errata Errata
  *
- *	- This driver implements workaround for errata 10558
- *
- *	  "Several reset values of SYSCTRL.INTFLAG are wrong (BOD and DFLL)"
- *	  When system_init is called it will reset these interrupts flags before they are used.
-
  *	- This driver implements experimental workaround for errata 9905
  *
  *	  "The DFLL clock must be requested before being configured otherwise a
@@ -1372,7 +1413,7 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  *			\li Updated dfll configuration function to implement workaround for
  *			    errata 9905 in the DFLL module
  *			\li Updated \c system_clock_init() to reset interrupt flags before
- *			    they are used, errata 10558
+ *			    they are used
  *			\li Fixed \c system_clock_source_get_hz() to return correcy DFLL
  *			    frequency number
  *		</td>
@@ -1414,6 +1455,11 @@ static inline void system_flash_set_waitstates(uint8_t wait_states)
  *		<th>Doc. Rev.</td>
  *		<th>Date</td>
  *		<th>Comments</td>
+ *	</tr>
+ *	<tr>
+ *		<td>E</td>
+ *		<td>04/2015</td>
+ *		<td>Added support for SAMDAx.</td>
  *	</tr>
  *	<tr>
  *		<td>D</td>

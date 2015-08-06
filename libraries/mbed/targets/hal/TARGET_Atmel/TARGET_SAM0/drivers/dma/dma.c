@@ -1,3 +1,49 @@
+/*
+ * \file
+ *
+ * \brief SAM Direct Memory Access Controller Driver
+ *
+ * Copyright (C) 2014-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #include <string.h>
 #include "dma.h"
 #include "clock.h"
@@ -30,6 +76,9 @@ static DmacDescriptor _write_back_section[CONF_MAX_USED_CHANNEL_NUM] SECTION_DMA
 
 /** Internal DMA resource pool. */
 static struct dma_resource* _dma_active_resource[CONF_MAX_USED_CHANNEL_NUM];
+
+/* DMA channel interrup flag. */
+uint8_t g_chan_interrupt_flag[CONF_MAX_USED_CHANNEL_NUM]= {0};
 
 /**
  * \brief Find a free channel for a DMA resource.
@@ -262,7 +311,7 @@ enum status_code dma_allocate(struct dma_resource *resource,
 
     if (!_dma_inst._dma_init) {
         /* Initialize clocks for DMA */
-#if (SAML21)
+#if (SAML21) || (SAMC20) || (SAMC21)
         system_ahb_clock_set_mask(MCLK_AHBMASK_DMAC);
 #else
         system_ahb_clock_set_mask(PM_AHBMASK_DMAC);
@@ -402,9 +451,7 @@ enum status_code dma_start_transfer_job(struct dma_resource *resource)
 
     /* Set the interrupt flag */
     DMAC->CHID.reg = DMAC_CHID_ID(resource->channel_id);
-    DMAC->CHINTENSET.reg = DMAC_CHINTENSET_TERR |
-                           DMAC_CHINTENSET_TCMPL | DMAC_CHINTENSET_SUSP;
-
+    DMAC->CHINTENSET.reg = (DMAC_CHINTENSET_MASK & g_chan_interrupt_flag[resource->channel_id]);
     /* Set job status */
     resource->job_status = STATUS_BUSY;
 

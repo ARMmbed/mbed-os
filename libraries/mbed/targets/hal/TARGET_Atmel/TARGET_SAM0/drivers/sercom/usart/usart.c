@@ -1,3 +1,48 @@
+/**
+ * \file
+ *
+ * \brief SAM SERCOM USART Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #include "usart.h"
 #include <pinmux.h>
 #if USART_CALLBACK_MODE == true
@@ -137,15 +182,7 @@ static enum status_code _usart_set_config(
 
     /* Check parity mode bits */
     if (config->parity != USART_PARITY_NONE) {
-#ifdef FEATURE_USART_LIN_SLAVE
-        if(config->lin_slave_enable) {
-            ctrla |= SERCOM_USART_CTRLA_FORM(0x5);
-        } else {
-            ctrla |= SERCOM_USART_CTRLA_FORM(1);
-        }
-#else
         ctrla |= SERCOM_USART_CTRLA_FORM(1);
-#endif
         ctrlb |= config->parity;
     } else {
 #ifdef FEATURE_USART_LIN_SLAVE
@@ -158,6 +195,17 @@ static enum status_code _usart_set_config(
         ctrla |= SERCOM_USART_CTRLA_FORM(0);
 #endif
     }
+
+#ifdef FEATURE_USART_LIN_MASTER
+    usart_hw->CTRLC.reg = ((usart_hw->CTRLC.reg) & SERCOM_USART_CTRLC_GTIME_Msk)
+                          | config->lin_header_delay
+                          | config->lin_break_length;
+
+    if (config->lin_node != LIN_INVALID_MODE) {
+        ctrla &= ~(SERCOM_USART_CTRLA_FORM(0xf));
+        ctrla |= config->lin_node;
+    }
+#endif
 
     /* Set whether module should run in standby. */
     if (config->run_in_standby || system_is_debugger_present()) {
@@ -175,6 +223,11 @@ static enum status_code _usart_set_config(
 
     /* Write configuration to CTRLA */
     usart_hw->CTRLA.reg = ctrla;
+
+#ifdef FEATURE_USART_RS485
+    usart_hw->CTRLC.reg &= ~(SERCOM_USART_CTRLC_GTIME(0x7));
+    usart_hw->CTRLC.reg |= SERCOM_USART_CTRLC_GTIME(config->rs485_guard_time);
+#endif
 
     return STATUS_OK;
 }
@@ -225,12 +278,24 @@ enum status_code usart_init(
     SercomUsart *const usart_hw = &(module->hw->USART);
 
     uint32_t sercom_index = _sercom_get_sercom_inst_index(module->hw);
+    uint32_t pm_index, gclk_index;
+#if (SAML21) || (SAMC20) || (SAMC21)
 #if (SAML21)
-    uint32_t pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
+    if (sercom_index == 5) {
+        pm_index     = MCLK_APBDMASK_SERCOM5_Pos;
+        gclk_index   = SERCOM5_GCLK_ID_CORE;
+    } else {
+        pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
+        gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+    }
 #else
-    uint32_t pm_index     = sercom_index + PM_APBCMASK_SERCOM0_Pos;
+    pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
+    gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
 #endif
-    uint32_t gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#else
+    pm_index     = sercom_index + PM_APBCMASK_SERCOM0_Pos;
+    gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#endif
 
     if (usart_hw->CTRLA.reg & SERCOM_USART_CTRLA_SWRST) {
         /* The module is busy resetting itself */
@@ -243,7 +308,15 @@ enum status_code usart_init(
     }
 
     /* Turn on module in PM */
+#if (SAML21)
+    if (sercom_index == 5) {
+        system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBD, 1 << pm_index);
+    } else {
+        system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBC, 1 << pm_index);
+    }
+#else
     system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBC, 1 << pm_index);
+#endif
 
     /* Set up the GCLK for the module */
     struct system_gclk_chan_config gclk_chan_conf;
@@ -501,7 +574,7 @@ enum status_code usart_read_wait(
  * \param[in]  tx_data  Pointer to data to transmit
  * \param[in]  length   Number of characters to transmit
  *
- * \note if using 9-bit data, the array that *tx_data point to should be defined
+ * \note If using 9-bit data, the array that *tx_data point to should be defined
  *       as uint16_t array and should be casted to uint8_t* pointer. Because it
  *       is an address pointer, the highest byte is not discarded. For example:
  *   \code
@@ -595,7 +668,7 @@ enum status_code usart_write_buffer_wait(
  * \param[out] rx_data  Pointer to receive buffer
  * \param[in]  length   Number of characters to receive
  *
- * \note if using 9-bit data, the array that *rx_data point to should be defined
+ * \note If using 9-bit data, the array that *rx_data point to should be defined
  *       as uint16_t array and should be casted to uint8_t* pointer. Because it
  *       is an address pointer, the highest byte is not discarded. For example:
  *   \code

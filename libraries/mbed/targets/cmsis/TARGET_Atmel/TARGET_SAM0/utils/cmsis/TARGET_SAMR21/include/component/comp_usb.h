@@ -1,3 +1,46 @@
+/**
+ * \file
+ *
+ * \brief Component description for USB
+ *
+ * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+
 #ifndef _SAMR21_USB_COMPONENT_
 #define _SAMR21_USB_COMPONENT_
 
@@ -79,7 +122,7 @@ typedef union {
 
 #define USB_QOSCTRL_CQOS_Pos        0            /**< \brief (USB_QOSCTRL) Configuration Quality of Service */
 #define USB_QOSCTRL_CQOS_Msk        (0x3ul << USB_QOSCTRL_CQOS_Pos)
-#define USB_QOSCTRL_CQOS(value)     ((USB_QOSCTRL_CQOS_Msk & ((value) << USB_QOSCTRL_CQOS_Pos)))
+#define USB_QOSCTRL_CQOS(value)     (USB_QOSCTRL_CQOS_Msk & ((value) << USB_QOSCTRL_CQOS_Pos))
 #define   USB_QOSCTRL_CQOS_DISABLE_Val    0x0ul  /**< \brief (USB_QOSCTRL) Background (no sensitive operation) */
 #define   USB_QOSCTRL_CQOS_LOW_Val        0x1ul  /**< \brief (USB_QOSCTRL) Sensitive Bandwidth */
 #define   USB_QOSCTRL_CQOS_MEDIUM_Val     0x2ul  /**< \brief (USB_QOSCTRL) Sensitive Latency */
@@ -90,7 +133,7 @@ typedef union {
 #define USB_QOSCTRL_CQOS_HIGH       (USB_QOSCTRL_CQOS_HIGH_Val     << USB_QOSCTRL_CQOS_Pos)
 #define USB_QOSCTRL_DQOS_Pos        2            /**< \brief (USB_QOSCTRL) Data Quality of Service */
 #define USB_QOSCTRL_DQOS_Msk        (0x3ul << USB_QOSCTRL_DQOS_Pos)
-#define USB_QOSCTRL_DQOS(value)     ((USB_QOSCTRL_DQOS_Msk & ((value) << USB_QOSCTRL_DQOS_Pos)))
+#define USB_QOSCTRL_DQOS(value)     (USB_QOSCTRL_DQOS_Msk & ((value) << USB_QOSCTRL_DQOS_Pos))
 #define   USB_QOSCTRL_DQOS_DISABLE_Val    0x0ul  /**< \brief (USB_QOSCTRL) Background (no sensitive operation) */
 #define   USB_QOSCTRL_DQOS_LOW_Val        0x1ul  /**< \brief (USB_QOSCTRL) Sensitive Bandwidth */
 #define   USB_QOSCTRL_DQOS_MEDIUM_Val     0x2ul  /**< \brief (USB_QOSCTRL) Sensitive Latency */
@@ -130,7 +173,7 @@ typedef union {
 #define USB_DEVICE_CTRLB_UPRSM      (0x1ul << USB_DEVICE_CTRLB_UPRSM_Pos)
 #define USB_DEVICE_CTRLB_SPDCONF_Pos 2            /**< \brief (USB_DEVICE_CTRLB) Speed Configuration */
 #define USB_DEVICE_CTRLB_SPDCONF_Msk (0x3ul << USB_DEVICE_CTRLB_SPDCONF_Pos)
-#define USB_DEVICE_CTRLB_SPDCONF(value) ((USB_DEVICE_CTRLB_SPDCONF_Msk & ((value) << USB_DEVICE_CTRLB_SPDCONF_Pos)))
+#define USB_DEVICE_CTRLB_SPDCONF(value) (USB_DEVICE_CTRLB_SPDCONF_Msk & ((value) << USB_DEVICE_CTRLB_SPDCONF_Pos))
 #define   USB_DEVICE_CTRLB_SPDCONF_FS_Val 0x0ul  /**< \brief (USB_DEVICE_CTRLB) FS : Full Speed */
 #define   USB_DEVICE_CTRLB_SPDCONF_LS_Val 0x1ul  /**< \brief (USB_DEVICE_CTRLB) LS : Low Speed */
 #define   USB_DEVICE_CTRLB_SPDCONF_HS_Val 0x2ul  /**< \brief (USB_DEVICE_CTRLB) HS : High Speed capable */
@@ -153,7 +196,7 @@ typedef union {
 #define USB_DEVICE_CTRLB_GNAK       (0x1ul << USB_DEVICE_CTRLB_GNAK_Pos)
 #define USB_DEVICE_CTRLB_LPMHDSK_Pos 10           /**< \brief (USB_DEVICE_CTRLB) Link Power Management Handshake */
 #define USB_DEVICE_CTRLB_LPMHDSK_Msk (0x3ul << USB_DEVICE_CTRLB_LPMHDSK_Pos)
-#define USB_DEVICE_CTRLB_LPMHDSK(value) ((USB_DEVICE_CTRLB_LPMHDSK_Msk & ((value) << USB_DEVICE_CTRLB_LPMHDSK_Pos)))
+#define USB_DEVICE_CTRLB_LPMHDSK(value) (USB_DEVICE_CTRLB_LPMHDSK_Msk & ((value) << USB_DEVICE_CTRLB_LPMHDSK_Pos))
 #define   USB_DEVICE_CTRLB_LPMHDSK_NO_Val 0x0ul  /**< \brief (USB_DEVICE_CTRLB) No handshake. LPM is not supported */
 #define   USB_DEVICE_CTRLB_LPMHDSK_ACK_Val 0x1ul  /**< \brief (USB_DEVICE_CTRLB) ACK */
 #define   USB_DEVICE_CTRLB_LPMHDSK_NYET_Val 0x2ul  /**< \brief (USB_DEVICE_CTRLB) NYET */
@@ -192,7 +235,7 @@ typedef union {
 #define USB_HOST_CTRLB_RESUME       (0x1ul << USB_HOST_CTRLB_RESUME_Pos)
 #define USB_HOST_CTRLB_SPDCONF_Pos  2            /**< \brief (USB_HOST_CTRLB) Speed Configuration for Host */
 #define USB_HOST_CTRLB_SPDCONF_Msk  (0x3ul << USB_HOST_CTRLB_SPDCONF_Pos)
-#define USB_HOST_CTRLB_SPDCONF(value) ((USB_HOST_CTRLB_SPDCONF_Msk & ((value) << USB_HOST_CTRLB_SPDCONF_Pos)))
+#define USB_HOST_CTRLB_SPDCONF(value) (USB_HOST_CTRLB_SPDCONF_Msk & ((value) << USB_HOST_CTRLB_SPDCONF_Pos))
 #define   USB_HOST_CTRLB_SPDCONF_NORMAL_Val 0x0ul  /**< \brief (USB_HOST_CTRLB) Normal mode:the host starts in full-speed mode and performs a high-speed reset to switch to the high speed mode if the downstream peripheral is high-speed capable. */
 #define   USB_HOST_CTRLB_SPDCONF_FS_Val   0x3ul  /**< \brief (USB_HOST_CTRLB) Full-speed:the host remains in full-speed mode whatever is the peripheral speed capability. Relevant in UTMI mode only. */
 #define USB_HOST_CTRLB_SPDCONF_NORMAL (USB_HOST_CTRLB_SPDCONF_NORMAL_Val << USB_HOST_CTRLB_SPDCONF_Pos)
@@ -227,7 +270,7 @@ typedef union {
 
 #define USB_DEVICE_DADD_DADD_Pos    0            /**< \brief (USB_DEVICE_DADD) Device Address */
 #define USB_DEVICE_DADD_DADD_Msk    (0x7Ful << USB_DEVICE_DADD_DADD_Pos)
-#define USB_DEVICE_DADD_DADD(value) ((USB_DEVICE_DADD_DADD_Msk & ((value) << USB_DEVICE_DADD_DADD_Pos)))
+#define USB_DEVICE_DADD_DADD(value) (USB_DEVICE_DADD_DADD_Msk & ((value) << USB_DEVICE_DADD_DADD_Pos))
 #define USB_DEVICE_DADD_ADDEN_Pos   7            /**< \brief (USB_DEVICE_DADD) Device Address Enable */
 #define USB_DEVICE_DADD_ADDEN       (0x1ul << USB_DEVICE_DADD_ADDEN_Pos)
 #define USB_DEVICE_DADD_MASK        0xFFul       /**< \brief (USB_DEVICE_DADD) MASK Register */
@@ -249,7 +292,7 @@ typedef union {
 
 #define USB_HOST_HSOFC_FLENC_Pos    0            /**< \brief (USB_HOST_HSOFC) Frame Length Control */
 #define USB_HOST_HSOFC_FLENC_Msk    (0xFul << USB_HOST_HSOFC_FLENC_Pos)
-#define USB_HOST_HSOFC_FLENC(value) ((USB_HOST_HSOFC_FLENC_Msk & ((value) << USB_HOST_HSOFC_FLENC_Pos)))
+#define USB_HOST_HSOFC_FLENC(value) (USB_HOST_HSOFC_FLENC_Msk & ((value) << USB_HOST_HSOFC_FLENC_Pos))
 #define USB_HOST_HSOFC_FLENCE_Pos   7            /**< \brief (USB_HOST_HSOFC) Frame Length Control Enable */
 #define USB_HOST_HSOFC_FLENCE       (0x1ul << USB_HOST_HSOFC_FLENCE_Pos)
 #define USB_HOST_HSOFC_MASK         0x8Ful       /**< \brief (USB_HOST_HSOFC) MASK Register */
@@ -272,7 +315,7 @@ typedef union {
 
 #define USB_DEVICE_STATUS_SPEED_Pos 2            /**< \brief (USB_DEVICE_STATUS) Speed Status */
 #define USB_DEVICE_STATUS_SPEED_Msk (0x3ul << USB_DEVICE_STATUS_SPEED_Pos)
-#define USB_DEVICE_STATUS_SPEED(value) ((USB_DEVICE_STATUS_SPEED_Msk & ((value) << USB_DEVICE_STATUS_SPEED_Pos)))
+#define USB_DEVICE_STATUS_SPEED(value) (USB_DEVICE_STATUS_SPEED_Msk & ((value) << USB_DEVICE_STATUS_SPEED_Pos))
 #define   USB_DEVICE_STATUS_SPEED_FS_Val  0x0ul  /**< \brief (USB_DEVICE_STATUS) Full-speed mode */
 #define   USB_DEVICE_STATUS_SPEED_HS_Val  0x1ul  /**< \brief (USB_DEVICE_STATUS) High-speed mode */
 #define   USB_DEVICE_STATUS_SPEED_LS_Val  0x2ul  /**< \brief (USB_DEVICE_STATUS) Low-speed mode */
@@ -281,7 +324,7 @@ typedef union {
 #define USB_DEVICE_STATUS_SPEED_LS  (USB_DEVICE_STATUS_SPEED_LS_Val << USB_DEVICE_STATUS_SPEED_Pos)
 #define USB_DEVICE_STATUS_LINESTATE_Pos 6            /**< \brief (USB_DEVICE_STATUS) USB Line State Status */
 #define USB_DEVICE_STATUS_LINESTATE_Msk (0x3ul << USB_DEVICE_STATUS_LINESTATE_Pos)
-#define USB_DEVICE_STATUS_LINESTATE(value) ((USB_DEVICE_STATUS_LINESTATE_Msk & ((value) << USB_DEVICE_STATUS_LINESTATE_Pos)))
+#define USB_DEVICE_STATUS_LINESTATE(value) (USB_DEVICE_STATUS_LINESTATE_Msk & ((value) << USB_DEVICE_STATUS_LINESTATE_Pos))
 #define   USB_DEVICE_STATUS_LINESTATE_0_Val 0x0ul  /**< \brief (USB_DEVICE_STATUS) SE0/RESET */
 #define   USB_DEVICE_STATUS_LINESTATE_1_Val 0x1ul  /**< \brief (USB_DEVICE_STATUS) FS-J or LS-K State */
 #define   USB_DEVICE_STATUS_LINESTATE_2_Val 0x2ul  /**< \brief (USB_DEVICE_STATUS) FS-K or LS-J State */
@@ -308,10 +351,10 @@ typedef union {
 
 #define USB_HOST_STATUS_SPEED_Pos   2            /**< \brief (USB_HOST_STATUS) Speed Status */
 #define USB_HOST_STATUS_SPEED_Msk   (0x3ul << USB_HOST_STATUS_SPEED_Pos)
-#define USB_HOST_STATUS_SPEED(value) ((USB_HOST_STATUS_SPEED_Msk & ((value) << USB_HOST_STATUS_SPEED_Pos)))
+#define USB_HOST_STATUS_SPEED(value) (USB_HOST_STATUS_SPEED_Msk & ((value) << USB_HOST_STATUS_SPEED_Pos))
 #define USB_HOST_STATUS_LINESTATE_Pos 6            /**< \brief (USB_HOST_STATUS) USB Line State Status */
 #define USB_HOST_STATUS_LINESTATE_Msk (0x3ul << USB_HOST_STATUS_LINESTATE_Pos)
-#define USB_HOST_STATUS_LINESTATE(value) ((USB_HOST_STATUS_LINESTATE_Msk & ((value) << USB_HOST_STATUS_LINESTATE_Pos)))
+#define USB_HOST_STATUS_LINESTATE(value) (USB_HOST_STATUS_LINESTATE_Msk & ((value) << USB_HOST_STATUS_LINESTATE_Pos))
 #define USB_HOST_STATUS_MASK        0xCCul       /**< \brief (USB_HOST_STATUS) MASK Register */
 
 /* -------- USB_FSMSTATUS : (USB Offset: 0x00D) (R/   8) Finite State Machine Status -------- */
@@ -330,7 +373,7 @@ typedef union {
 
 #define USB_FSMSTATUS_FSMSTATE_Pos  0            /**< \brief (USB_FSMSTATUS) Fine State Machine Status */
 #define USB_FSMSTATUS_FSMSTATE_Msk  (0x3Ful << USB_FSMSTATUS_FSMSTATE_Pos)
-#define USB_FSMSTATUS_FSMSTATE(value) ((USB_FSMSTATUS_FSMSTATE_Msk & ((value) << USB_FSMSTATUS_FSMSTATE_Pos)))
+#define USB_FSMSTATUS_FSMSTATE(value) (USB_FSMSTATUS_FSMSTATE_Msk & ((value) << USB_FSMSTATUS_FSMSTATE_Pos))
 #define   USB_FSMSTATUS_FSMSTATE_OFF_Val  0x1ul  /**< \brief (USB_FSMSTATUS) OFF (L3). It corresponds to the powered-off, disconnected, and disabled state */
 #define   USB_FSMSTATUS_FSMSTATE_ON_Val   0x2ul  /**< \brief (USB_FSMSTATUS) ON (L0). It corresponds to the Idle and Active states */
 #define   USB_FSMSTATUS_FSMSTATE_SUSPEND_Val 0x4ul  /**< \brief (USB_FSMSTATUS) SUSPEND (L2) */
@@ -365,10 +408,10 @@ typedef union {
 
 #define USB_DEVICE_FNUM_MFNUM_Pos   0            /**< \brief (USB_DEVICE_FNUM) Micro Frame Number */
 #define USB_DEVICE_FNUM_MFNUM_Msk   (0x7ul << USB_DEVICE_FNUM_MFNUM_Pos)
-#define USB_DEVICE_FNUM_MFNUM(value) ((USB_DEVICE_FNUM_MFNUM_Msk & ((value) << USB_DEVICE_FNUM_MFNUM_Pos)))
+#define USB_DEVICE_FNUM_MFNUM(value) (USB_DEVICE_FNUM_MFNUM_Msk & ((value) << USB_DEVICE_FNUM_MFNUM_Pos))
 #define USB_DEVICE_FNUM_FNUM_Pos    3            /**< \brief (USB_DEVICE_FNUM) Frame Number */
 #define USB_DEVICE_FNUM_FNUM_Msk    (0x7FFul << USB_DEVICE_FNUM_FNUM_Pos)
-#define USB_DEVICE_FNUM_FNUM(value) ((USB_DEVICE_FNUM_FNUM_Msk & ((value) << USB_DEVICE_FNUM_FNUM_Pos)))
+#define USB_DEVICE_FNUM_FNUM(value) (USB_DEVICE_FNUM_FNUM_Msk & ((value) << USB_DEVICE_FNUM_FNUM_Pos))
 #define USB_DEVICE_FNUM_FNCERR_Pos  15           /**< \brief (USB_DEVICE_FNUM) Frame Number CRC Error */
 #define USB_DEVICE_FNUM_FNCERR      (0x1ul << USB_DEVICE_FNUM_FNCERR_Pos)
 #define USB_DEVICE_FNUM_MASK        0xBFFFul     /**< \brief (USB_DEVICE_FNUM) MASK Register */
@@ -390,10 +433,10 @@ typedef union {
 
 #define USB_HOST_FNUM_MFNUM_Pos     0            /**< \brief (USB_HOST_FNUM) Micro Frame Number */
 #define USB_HOST_FNUM_MFNUM_Msk     (0x7ul << USB_HOST_FNUM_MFNUM_Pos)
-#define USB_HOST_FNUM_MFNUM(value)  ((USB_HOST_FNUM_MFNUM_Msk & ((value) << USB_HOST_FNUM_MFNUM_Pos)))
+#define USB_HOST_FNUM_MFNUM(value)  (USB_HOST_FNUM_MFNUM_Msk & ((value) << USB_HOST_FNUM_MFNUM_Pos))
 #define USB_HOST_FNUM_FNUM_Pos      3            /**< \brief (USB_HOST_FNUM) Frame Number */
 #define USB_HOST_FNUM_FNUM_Msk      (0x7FFul << USB_HOST_FNUM_FNUM_Pos)
-#define USB_HOST_FNUM_FNUM(value)   ((USB_HOST_FNUM_FNUM_Msk & ((value) << USB_HOST_FNUM_FNUM_Pos)))
+#define USB_HOST_FNUM_FNUM(value)   (USB_HOST_FNUM_FNUM_Msk & ((value) << USB_HOST_FNUM_FNUM_Pos))
 #define USB_HOST_FNUM_MASK          0x3FFFul     /**< \brief (USB_HOST_FNUM) MASK Register */
 
 /* -------- USB_HOST_FLENHIGH : (USB Offset: 0x012) (R/   8) HOST HOST Host Frame Length -------- */
@@ -411,7 +454,7 @@ typedef union {
 
 #define USB_HOST_FLENHIGH_FLENHIGH_Pos 0            /**< \brief (USB_HOST_FLENHIGH) Frame Length */
 #define USB_HOST_FLENHIGH_FLENHIGH_Msk (0xFFul << USB_HOST_FLENHIGH_FLENHIGH_Pos)
-#define USB_HOST_FLENHIGH_FLENHIGH(value) ((USB_HOST_FLENHIGH_FLENHIGH_Msk & ((value) << USB_HOST_FLENHIGH_FLENHIGH_Pos)))
+#define USB_HOST_FLENHIGH_FLENHIGH(value) (USB_HOST_FLENHIGH_FLENHIGH_Msk & ((value) << USB_HOST_FLENHIGH_FLENHIGH_Pos))
 #define USB_HOST_FLENHIGH_MASK      0xFFul       /**< \brief (USB_HOST_FLENHIGH) MASK Register */
 
 /* -------- USB_DEVICE_INTENCLR : (USB Offset: 0x014) (R/W 16) DEVICE DEVICE Device Interrupt Enable Clear -------- */
@@ -586,19 +629,19 @@ typedef union {
 
 /* -------- USB_DEVICE_INTFLAG : (USB Offset: 0x01C) (R/W 16) DEVICE DEVICE Device Interrupt Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-typedef union {
+typedef union { // __I to avoid read-modify-write on write-to-clear register
   struct {
-    uint16_t SUSPEND:1;        /*!< bit:      0  Suspend                            */
-    uint16_t MSOF:1;           /*!< bit:      1  Micro Start of Frame in High Speed Mode */
-    uint16_t SOF:1;            /*!< bit:      2  Start Of Frame                     */
-    uint16_t EORST:1;          /*!< bit:      3  End of Reset                       */
-    uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up                            */
-    uint16_t EORSM:1;          /*!< bit:      5  End Of Resume                      */
-    uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume                    */
-    uint16_t RAMACER:1;        /*!< bit:      7  Ram Access                         */
-    uint16_t LPMNYET:1;        /*!< bit:      8  Link Power Management Not Yet      */
-    uint16_t LPMSUSP:1;        /*!< bit:      9  Link Power Management Suspend      */
-    uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+    __I uint16_t SUSPEND:1;        /*!< bit:      0  Suspend                            */
+    __I uint16_t MSOF:1;           /*!< bit:      1  Micro Start of Frame in High Speed Mode */
+    __I uint16_t SOF:1;            /*!< bit:      2  Start Of Frame                     */
+    __I uint16_t EORST:1;          /*!< bit:      3  End of Reset                       */
+    __I uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up                            */
+    __I uint16_t EORSM:1;          /*!< bit:      5  End Of Resume                      */
+    __I uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume                    */
+    __I uint16_t RAMACER:1;        /*!< bit:      7  Ram Access                         */
+    __I uint16_t LPMNYET:1;        /*!< bit:      8  Link Power Management Not Yet      */
+    __I uint16_t LPMSUSP:1;        /*!< bit:      9  Link Power Management Suspend      */
+    __I uint16_t :6;               /*!< bit: 10..15  Reserved                           */
   } bit;                       /*!< Structure used for bit  access                  */
   uint16_t reg;                /*!< Type      used for register access              */
 } USB_DEVICE_INTFLAG_Type;
@@ -631,18 +674,18 @@ typedef union {
 
 /* -------- USB_HOST_INTFLAG : (USB Offset: 0x01C) (R/W 16) HOST HOST Host Interrupt Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-typedef union {
+typedef union { // __I to avoid read-modify-write on write-to-clear register
   struct {
-    uint16_t :2;               /*!< bit:  0.. 1  Reserved                           */
-    uint16_t HSOF:1;           /*!< bit:      2  Host Start Of Frame                */
-    uint16_t RST:1;            /*!< bit:      3  Bus Reset                          */
-    uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up                            */
-    uint16_t DNRSM:1;          /*!< bit:      5  Downstream                         */
-    uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume from the Device    */
-    uint16_t RAMACER:1;        /*!< bit:      7  Ram Access                         */
-    uint16_t DCONN:1;          /*!< bit:      8  Device Connection                  */
-    uint16_t DDISC:1;          /*!< bit:      9  Device Disconnection               */
-    uint16_t :6;               /*!< bit: 10..15  Reserved                           */
+    __I uint16_t :2;               /*!< bit:  0.. 1  Reserved                           */
+    __I uint16_t HSOF:1;           /*!< bit:      2  Host Start Of Frame                */
+    __I uint16_t RST:1;            /*!< bit:      3  Bus Reset                          */
+    __I uint16_t WAKEUP:1;         /*!< bit:      4  Wake Up                            */
+    __I uint16_t DNRSM:1;          /*!< bit:      5  Downstream                         */
+    __I uint16_t UPRSM:1;          /*!< bit:      6  Upstream Resume from the Device    */
+    __I uint16_t RAMACER:1;        /*!< bit:      7  Ram Access                         */
+    __I uint16_t DCONN:1;          /*!< bit:      8  Device Connection                  */
+    __I uint16_t DDISC:1;          /*!< bit:      9  Device Disconnection               */
+    __I uint16_t :6;               /*!< bit: 10..15  Reserved                           */
   } bit;                       /*!< Structure used for bit  access                  */
   uint16_t reg;                /*!< Type      used for register access              */
 } USB_HOST_INTFLAG_Type;
@@ -712,7 +755,7 @@ typedef union {
 #define USB_DEVICE_EPINTSMRY_EPINT7 (1 << USB_DEVICE_EPINTSMRY_EPINT7_Pos)
 #define USB_DEVICE_EPINTSMRY_EPINT_Pos 0            /**< \brief (USB_DEVICE_EPINTSMRY) End Point x Interrupt */
 #define USB_DEVICE_EPINTSMRY_EPINT_Msk (0xFFul << USB_DEVICE_EPINTSMRY_EPINT_Pos)
-#define USB_DEVICE_EPINTSMRY_EPINT(value) ((USB_DEVICE_EPINTSMRY_EPINT_Msk & ((value) << USB_DEVICE_EPINTSMRY_EPINT_Pos)))
+#define USB_DEVICE_EPINTSMRY_EPINT(value) (USB_DEVICE_EPINTSMRY_EPINT_Msk & ((value) << USB_DEVICE_EPINTSMRY_EPINT_Pos))
 #define USB_DEVICE_EPINTSMRY_MASK   0x00FFul     /**< \brief (USB_DEVICE_EPINTSMRY) MASK Register */
 
 /* -------- USB_HOST_PINTSMRY : (USB Offset: 0x020) (R/  16) HOST HOST Pipe Interrupt Summary -------- */
@@ -758,7 +801,7 @@ typedef union {
 #define USB_HOST_PINTSMRY_EPINT7    (1 << USB_HOST_PINTSMRY_EPINT7_Pos)
 #define USB_HOST_PINTSMRY_EPINT_Pos 0            /**< \brief (USB_HOST_PINTSMRY) Pipe x Interrupt */
 #define USB_HOST_PINTSMRY_EPINT_Msk (0xFFul << USB_HOST_PINTSMRY_EPINT_Pos)
-#define USB_HOST_PINTSMRY_EPINT(value) ((USB_HOST_PINTSMRY_EPINT_Msk & ((value) << USB_HOST_PINTSMRY_EPINT_Pos)))
+#define USB_HOST_PINTSMRY_EPINT(value) (USB_HOST_PINTSMRY_EPINT_Msk & ((value) << USB_HOST_PINTSMRY_EPINT_Pos))
 #define USB_HOST_PINTSMRY_MASK      0x00FFul     /**< \brief (USB_HOST_PINTSMRY) MASK Register */
 
 /* -------- USB_DESCADD : (USB Offset: 0x024) (R/W 32) Descriptor Address -------- */
@@ -776,7 +819,7 @@ typedef union {
 
 #define USB_DESCADD_DESCADD_Pos     0            /**< \brief (USB_DESCADD) Descriptor Address Value */
 #define USB_DESCADD_DESCADD_Msk     (0xFFFFFFFFul << USB_DESCADD_DESCADD_Pos)
-#define USB_DESCADD_DESCADD(value)  ((USB_DESCADD_DESCADD_Msk & ((value) << USB_DESCADD_DESCADD_Pos)))
+#define USB_DESCADD_DESCADD(value)  (USB_DESCADD_DESCADD_Msk & ((value) << USB_DESCADD_DESCADD_Pos))
 #define USB_DESCADD_MASK            0xFFFFFFFFul /**< \brief (USB_DESCADD) MASK Register */
 
 /* -------- USB_PADCAL : (USB Offset: 0x028) (R/W 16) USB PAD Calibration -------- */
@@ -799,13 +842,13 @@ typedef union {
 
 #define USB_PADCAL_TRANSP_Pos       0            /**< \brief (USB_PADCAL) USB Pad Transp calibration */
 #define USB_PADCAL_TRANSP_Msk       (0x1Ful << USB_PADCAL_TRANSP_Pos)
-#define USB_PADCAL_TRANSP(value)    ((USB_PADCAL_TRANSP_Msk & ((value) << USB_PADCAL_TRANSP_Pos)))
+#define USB_PADCAL_TRANSP(value)    (USB_PADCAL_TRANSP_Msk & ((value) << USB_PADCAL_TRANSP_Pos))
 #define USB_PADCAL_TRANSN_Pos       6            /**< \brief (USB_PADCAL) USB Pad Transn calibration */
 #define USB_PADCAL_TRANSN_Msk       (0x1Ful << USB_PADCAL_TRANSN_Pos)
-#define USB_PADCAL_TRANSN(value)    ((USB_PADCAL_TRANSN_Msk & ((value) << USB_PADCAL_TRANSN_Pos)))
+#define USB_PADCAL_TRANSN(value)    (USB_PADCAL_TRANSN_Msk & ((value) << USB_PADCAL_TRANSN_Pos))
 #define USB_PADCAL_TRIM_Pos         12           /**< \brief (USB_PADCAL) USB Pad Trim calibration */
 #define USB_PADCAL_TRIM_Msk         (0x7ul << USB_PADCAL_TRIM_Pos)
-#define USB_PADCAL_TRIM(value)      ((USB_PADCAL_TRIM_Msk & ((value) << USB_PADCAL_TRIM_Pos)))
+#define USB_PADCAL_TRIM(value)      (USB_PADCAL_TRIM_Msk & ((value) << USB_PADCAL_TRIM_Pos))
 #define USB_PADCAL_MASK             0x77DFul     /**< \brief (USB_PADCAL) MASK Register */
 
 /* -------- USB_DEVICE_EPCFG : (USB Offset: 0x100) (R/W  8) DEVICE DEVICE_ENDPOINT End Point Configuration -------- */
@@ -826,10 +869,10 @@ typedef union {
 
 #define USB_DEVICE_EPCFG_EPTYPE0_Pos 0            /**< \brief (USB_DEVICE_EPCFG) End Point Type0 */
 #define USB_DEVICE_EPCFG_EPTYPE0_Msk (0x7ul << USB_DEVICE_EPCFG_EPTYPE0_Pos)
-#define USB_DEVICE_EPCFG_EPTYPE0(value) ((USB_DEVICE_EPCFG_EPTYPE0_Msk & ((value) << USB_DEVICE_EPCFG_EPTYPE0_Pos)))
+#define USB_DEVICE_EPCFG_EPTYPE0(value) (USB_DEVICE_EPCFG_EPTYPE0_Msk & ((value) << USB_DEVICE_EPCFG_EPTYPE0_Pos))
 #define USB_DEVICE_EPCFG_EPTYPE1_Pos 4            /**< \brief (USB_DEVICE_EPCFG) End Point Type1 */
 #define USB_DEVICE_EPCFG_EPTYPE1_Msk (0x7ul << USB_DEVICE_EPCFG_EPTYPE1_Pos)
-#define USB_DEVICE_EPCFG_EPTYPE1(value) ((USB_DEVICE_EPCFG_EPTYPE1_Msk & ((value) << USB_DEVICE_EPCFG_EPTYPE1_Pos)))
+#define USB_DEVICE_EPCFG_EPTYPE1(value) (USB_DEVICE_EPCFG_EPTYPE1_Msk & ((value) << USB_DEVICE_EPCFG_EPTYPE1_Pos))
 #define USB_DEVICE_EPCFG_NYETDIS_Pos 7            /**< \brief (USB_DEVICE_EPCFG) NYET Token Disable */
 #define USB_DEVICE_EPCFG_NYETDIS    (0x1ul << USB_DEVICE_EPCFG_NYETDIS_Pos)
 #define USB_DEVICE_EPCFG_MASK       0xF7ul       /**< \brief (USB_DEVICE_EPCFG) MASK Register */
@@ -852,12 +895,12 @@ typedef union {
 
 #define USB_HOST_PCFG_PTOKEN_Pos    0            /**< \brief (USB_HOST_PCFG) Pipe Token */
 #define USB_HOST_PCFG_PTOKEN_Msk    (0x3ul << USB_HOST_PCFG_PTOKEN_Pos)
-#define USB_HOST_PCFG_PTOKEN(value) ((USB_HOST_PCFG_PTOKEN_Msk & ((value) << USB_HOST_PCFG_PTOKEN_Pos)))
+#define USB_HOST_PCFG_PTOKEN(value) (USB_HOST_PCFG_PTOKEN_Msk & ((value) << USB_HOST_PCFG_PTOKEN_Pos))
 #define USB_HOST_PCFG_BK_Pos        2            /**< \brief (USB_HOST_PCFG) Pipe Bank */
 #define USB_HOST_PCFG_BK            (0x1ul << USB_HOST_PCFG_BK_Pos)
 #define USB_HOST_PCFG_PTYPE_Pos     3            /**< \brief (USB_HOST_PCFG) Pipe Type */
 #define USB_HOST_PCFG_PTYPE_Msk     (0x7ul << USB_HOST_PCFG_PTYPE_Pos)
-#define USB_HOST_PCFG_PTYPE(value)  ((USB_HOST_PCFG_PTYPE_Msk & ((value) << USB_HOST_PCFG_PTYPE_Pos)))
+#define USB_HOST_PCFG_PTYPE(value)  (USB_HOST_PCFG_PTYPE_Msk & ((value) << USB_HOST_PCFG_PTYPE_Pos))
 #define USB_HOST_PCFG_MASK          0x3Ful       /**< \brief (USB_HOST_PCFG) MASK Register */
 
 /* -------- USB_HOST_BINTERVAL : (USB Offset: 0x103) (R/W  8) HOST HOST_PIPE Bus Access Period of Pipe -------- */
@@ -875,7 +918,7 @@ typedef union {
 
 #define USB_HOST_BINTERVAL_BITINTERVAL_Pos 0            /**< \brief (USB_HOST_BINTERVAL) Bit Interval */
 #define USB_HOST_BINTERVAL_BITINTERVAL_Msk (0xFFul << USB_HOST_BINTERVAL_BITINTERVAL_Pos)
-#define USB_HOST_BINTERVAL_BITINTERVAL(value) ((USB_HOST_BINTERVAL_BITINTERVAL_Msk & ((value) << USB_HOST_BINTERVAL_BITINTERVAL_Pos)))
+#define USB_HOST_BINTERVAL_BITINTERVAL(value) (USB_HOST_BINTERVAL_BITINTERVAL_Msk & ((value) << USB_HOST_BINTERVAL_BITINTERVAL_Pos))
 #define USB_HOST_BINTERVAL_MASK     0xFFul       /**< \brief (USB_HOST_BINTERVAL) MASK Register */
 
 /* -------- USB_DEVICE_EPSTATUSCLR : (USB Offset: 0x104) ( /W  8) DEVICE DEVICE_ENDPOINT End Point Pipe Status Clear -------- */
@@ -915,7 +958,7 @@ typedef union {
 #define USB_DEVICE_EPSTATUSCLR_STALLRQ1 (1 << USB_DEVICE_EPSTATUSCLR_STALLRQ1_Pos)
 #define USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos 4            /**< \brief (USB_DEVICE_EPSTATUSCLR) Stall x Request Clear */
 #define USB_DEVICE_EPSTATUSCLR_STALLRQ_Msk (0x3ul << USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos)
-#define USB_DEVICE_EPSTATUSCLR_STALLRQ(value) ((USB_DEVICE_EPSTATUSCLR_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos)))
+#define USB_DEVICE_EPSTATUSCLR_STALLRQ(value) (USB_DEVICE_EPSTATUSCLR_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUSCLR_STALLRQ_Pos))
 #define USB_DEVICE_EPSTATUSCLR_BK0RDY_Pos 6            /**< \brief (USB_DEVICE_EPSTATUSCLR) Bank 0 Ready Clear */
 #define USB_DEVICE_EPSTATUSCLR_BK0RDY (0x1ul << USB_DEVICE_EPSTATUSCLR_BK0RDY_Pos)
 #define USB_DEVICE_EPSTATUSCLR_BK1RDY_Pos 7            /**< \brief (USB_DEVICE_EPSTATUSCLR) Bank 1 Ready Clear */
@@ -991,7 +1034,7 @@ typedef union {
 #define USB_DEVICE_EPSTATUSSET_STALLRQ1 (1 << USB_DEVICE_EPSTATUSSET_STALLRQ1_Pos)
 #define USB_DEVICE_EPSTATUSSET_STALLRQ_Pos 4            /**< \brief (USB_DEVICE_EPSTATUSSET) Stall x Request Set */
 #define USB_DEVICE_EPSTATUSSET_STALLRQ_Msk (0x3ul << USB_DEVICE_EPSTATUSSET_STALLRQ_Pos)
-#define USB_DEVICE_EPSTATUSSET_STALLRQ(value) ((USB_DEVICE_EPSTATUSSET_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUSSET_STALLRQ_Pos)))
+#define USB_DEVICE_EPSTATUSSET_STALLRQ(value) (USB_DEVICE_EPSTATUSSET_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUSSET_STALLRQ_Pos))
 #define USB_DEVICE_EPSTATUSSET_BK0RDY_Pos 6            /**< \brief (USB_DEVICE_EPSTATUSSET) Bank 0 Ready Set */
 #define USB_DEVICE_EPSTATUSSET_BK0RDY (0x1ul << USB_DEVICE_EPSTATUSSET_BK0RDY_Pos)
 #define USB_DEVICE_EPSTATUSSET_BK1RDY_Pos 7            /**< \brief (USB_DEVICE_EPSTATUSSET) Bank 1 Ready Set */
@@ -1067,7 +1110,7 @@ typedef union {
 #define USB_DEVICE_EPSTATUS_STALLRQ1 (1 << USB_DEVICE_EPSTATUS_STALLRQ1_Pos)
 #define USB_DEVICE_EPSTATUS_STALLRQ_Pos 4            /**< \brief (USB_DEVICE_EPSTATUS) Stall x Request */
 #define USB_DEVICE_EPSTATUS_STALLRQ_Msk (0x3ul << USB_DEVICE_EPSTATUS_STALLRQ_Pos)
-#define USB_DEVICE_EPSTATUS_STALLRQ(value) ((USB_DEVICE_EPSTATUS_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUS_STALLRQ_Pos)))
+#define USB_DEVICE_EPSTATUS_STALLRQ(value) (USB_DEVICE_EPSTATUS_STALLRQ_Msk & ((value) << USB_DEVICE_EPSTATUS_STALLRQ_Pos))
 #define USB_DEVICE_EPSTATUS_BK0RDY_Pos 6            /**< \brief (USB_DEVICE_EPSTATUS) Bank 0 ready */
 #define USB_DEVICE_EPSTATUS_BK0RDY  (0x1ul << USB_DEVICE_EPSTATUS_BK0RDY_Pos)
 #define USB_DEVICE_EPSTATUS_BK1RDY_Pos 7            /**< \brief (USB_DEVICE_EPSTATUS) Bank 1 ready */
@@ -1108,23 +1151,23 @@ typedef union {
 
 /* -------- USB_DEVICE_EPINTFLAG : (USB Offset: 0x107) (R/W  8) DEVICE DEVICE_ENDPOINT End Point Interrupt Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-typedef union {
+typedef union { // __I to avoid read-modify-write on write-to-clear register
   struct {
-    uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0                */
-    uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1                */
-    uint8_t  TRFAIL0:1;        /*!< bit:      2  Error Flow 0                       */
-    uint8_t  TRFAIL1:1;        /*!< bit:      3  Error Flow 1                       */
-    uint8_t  RXSTP:1;          /*!< bit:      4  Received Setup                     */
-    uint8_t  STALL0:1;         /*!< bit:      5  Stall 0 In/out                     */
-    uint8_t  STALL1:1;         /*!< bit:      6  Stall 1 In/out                     */
-    uint8_t  :1;               /*!< bit:      7  Reserved                           */
+    __I uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0                */
+    __I uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1                */
+    __I uint8_t  TRFAIL0:1;        /*!< bit:      2  Error Flow 0                       */
+    __I uint8_t  TRFAIL1:1;        /*!< bit:      3  Error Flow 1                       */
+    __I uint8_t  RXSTP:1;          /*!< bit:      4  Received Setup                     */
+    __I uint8_t  STALL0:1;         /*!< bit:      5  Stall 0 In/out                     */
+    __I uint8_t  STALL1:1;         /*!< bit:      6  Stall 1 In/out                     */
+    __I uint8_t  :1;               /*!< bit:      7  Reserved                           */
   } bit;                       /*!< Structure used for bit  access                  */
   struct {
-    uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x                */
-    uint8_t  TRFAIL:2;         /*!< bit:  2.. 3  Error Flow x                       */
-    uint8_t  :1;               /*!< bit:      4  Reserved                           */
-    uint8_t  STALL:2;          /*!< bit:  5.. 6  Stall x In/out                     */
-    uint8_t  :1;               /*!< bit:      7  Reserved                           */
+    __I uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x                */
+    __I uint8_t  TRFAIL:2;         /*!< bit:  2.. 3  Error Flow x                       */
+    __I uint8_t  :1;               /*!< bit:      4  Reserved                           */
+    __I uint8_t  STALL:2;          /*!< bit:  5.. 6  Stall x In/out                     */
+    __I uint8_t  :1;               /*!< bit:      7  Reserved                           */
   } vec;                       /*!< Structure used for vec  access                  */
   uint8_t reg;                 /*!< Type      used for register access              */
 } USB_DEVICE_EPINTFLAG_Type;
@@ -1139,14 +1182,14 @@ typedef union {
 #define USB_DEVICE_EPINTFLAG_TRCPT1 (1 << USB_DEVICE_EPINTFLAG_TRCPT1_Pos)
 #define USB_DEVICE_EPINTFLAG_TRCPT_Pos 0            /**< \brief (USB_DEVICE_EPINTFLAG) Transfer Complete x */
 #define USB_DEVICE_EPINTFLAG_TRCPT_Msk (0x3ul << USB_DEVICE_EPINTFLAG_TRCPT_Pos)
-#define USB_DEVICE_EPINTFLAG_TRCPT(value) ((USB_DEVICE_EPINTFLAG_TRCPT_Msk & ((value) << USB_DEVICE_EPINTFLAG_TRCPT_Pos)))
+#define USB_DEVICE_EPINTFLAG_TRCPT(value) (USB_DEVICE_EPINTFLAG_TRCPT_Msk & ((value) << USB_DEVICE_EPINTFLAG_TRCPT_Pos))
 #define USB_DEVICE_EPINTFLAG_TRFAIL0_Pos 2            /**< \brief (USB_DEVICE_EPINTFLAG) Error Flow 0 */
 #define USB_DEVICE_EPINTFLAG_TRFAIL0 (1 << USB_DEVICE_EPINTFLAG_TRFAIL0_Pos)
 #define USB_DEVICE_EPINTFLAG_TRFAIL1_Pos 3            /**< \brief (USB_DEVICE_EPINTFLAG) Error Flow 1 */
 #define USB_DEVICE_EPINTFLAG_TRFAIL1 (1 << USB_DEVICE_EPINTFLAG_TRFAIL1_Pos)
 #define USB_DEVICE_EPINTFLAG_TRFAIL_Pos 2            /**< \brief (USB_DEVICE_EPINTFLAG) Error Flow x */
 #define USB_DEVICE_EPINTFLAG_TRFAIL_Msk (0x3ul << USB_DEVICE_EPINTFLAG_TRFAIL_Pos)
-#define USB_DEVICE_EPINTFLAG_TRFAIL(value) ((USB_DEVICE_EPINTFLAG_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTFLAG_TRFAIL_Pos)))
+#define USB_DEVICE_EPINTFLAG_TRFAIL(value) (USB_DEVICE_EPINTFLAG_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTFLAG_TRFAIL_Pos))
 #define USB_DEVICE_EPINTFLAG_RXSTP_Pos 4            /**< \brief (USB_DEVICE_EPINTFLAG) Received Setup */
 #define USB_DEVICE_EPINTFLAG_RXSTP  (0x1ul << USB_DEVICE_EPINTFLAG_RXSTP_Pos)
 #define USB_DEVICE_EPINTFLAG_STALL0_Pos 5            /**< \brief (USB_DEVICE_EPINTFLAG) Stall 0 In/out */
@@ -1155,24 +1198,24 @@ typedef union {
 #define USB_DEVICE_EPINTFLAG_STALL1 (1 << USB_DEVICE_EPINTFLAG_STALL1_Pos)
 #define USB_DEVICE_EPINTFLAG_STALL_Pos 5            /**< \brief (USB_DEVICE_EPINTFLAG) Stall x In/out */
 #define USB_DEVICE_EPINTFLAG_STALL_Msk (0x3ul << USB_DEVICE_EPINTFLAG_STALL_Pos)
-#define USB_DEVICE_EPINTFLAG_STALL(value) ((USB_DEVICE_EPINTFLAG_STALL_Msk & ((value) << USB_DEVICE_EPINTFLAG_STALL_Pos)))
+#define USB_DEVICE_EPINTFLAG_STALL(value) (USB_DEVICE_EPINTFLAG_STALL_Msk & ((value) << USB_DEVICE_EPINTFLAG_STALL_Pos))
 #define USB_DEVICE_EPINTFLAG_MASK   0x7Ful       /**< \brief (USB_DEVICE_EPINTFLAG) MASK Register */
 
 /* -------- USB_HOST_PINTFLAG : (USB Offset: 0x107) (R/W  8) HOST HOST_PIPE Pipe Interrupt Flag -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
-typedef union {
+typedef union { // __I to avoid read-modify-write on write-to-clear register
   struct {
-    uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0 Interrupt Flag */
-    uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1 Interrupt Flag */
-    uint8_t  TRFAIL:1;         /*!< bit:      2  Error Flow Interrupt Flag          */
-    uint8_t  PERR:1;           /*!< bit:      3  Pipe Error Interrupt Flag          */
-    uint8_t  TXSTP:1;          /*!< bit:      4  Transmit  Setup Interrupt Flag     */
-    uint8_t  STALL:1;          /*!< bit:      5  Stall Interrupt Flag               */
-    uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
+    __I uint8_t  TRCPT0:1;         /*!< bit:      0  Transfer Complete 0 Interrupt Flag */
+    __I uint8_t  TRCPT1:1;         /*!< bit:      1  Transfer Complete 1 Interrupt Flag */
+    __I uint8_t  TRFAIL:1;         /*!< bit:      2  Error Flow Interrupt Flag          */
+    __I uint8_t  PERR:1;           /*!< bit:      3  Pipe Error Interrupt Flag          */
+    __I uint8_t  TXSTP:1;          /*!< bit:      4  Transmit  Setup Interrupt Flag     */
+    __I uint8_t  STALL:1;          /*!< bit:      5  Stall Interrupt Flag               */
+    __I uint8_t  :2;               /*!< bit:  6.. 7  Reserved                           */
   } bit;                       /*!< Structure used for bit  access                  */
   struct {
-    uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x Interrupt Flag */
-    uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+    __I uint8_t  TRCPT:2;          /*!< bit:  0.. 1  Transfer Complete x Interrupt Flag */
+    __I uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
   } vec;                       /*!< Structure used for vec  access                  */
   uint8_t reg;                 /*!< Type      used for register access              */
 } USB_HOST_PINTFLAG_Type;
@@ -1187,7 +1230,7 @@ typedef union {
 #define USB_HOST_PINTFLAG_TRCPT1    (1 << USB_HOST_PINTFLAG_TRCPT1_Pos)
 #define USB_HOST_PINTFLAG_TRCPT_Pos 0            /**< \brief (USB_HOST_PINTFLAG) Transfer Complete x Interrupt Flag */
 #define USB_HOST_PINTFLAG_TRCPT_Msk (0x3ul << USB_HOST_PINTFLAG_TRCPT_Pos)
-#define USB_HOST_PINTFLAG_TRCPT(value) ((USB_HOST_PINTFLAG_TRCPT_Msk & ((value) << USB_HOST_PINTFLAG_TRCPT_Pos)))
+#define USB_HOST_PINTFLAG_TRCPT(value) (USB_HOST_PINTFLAG_TRCPT_Msk & ((value) << USB_HOST_PINTFLAG_TRCPT_Pos))
 #define USB_HOST_PINTFLAG_TRFAIL_Pos 2            /**< \brief (USB_HOST_PINTFLAG) Error Flow Interrupt Flag */
 #define USB_HOST_PINTFLAG_TRFAIL    (0x1ul << USB_HOST_PINTFLAG_TRFAIL_Pos)
 #define USB_HOST_PINTFLAG_PERR_Pos  3            /**< \brief (USB_HOST_PINTFLAG) Pipe Error Interrupt Flag */
@@ -1231,14 +1274,14 @@ typedef union {
 #define USB_DEVICE_EPINTENCLR_TRCPT1 (1 << USB_DEVICE_EPINTENCLR_TRCPT1_Pos)
 #define USB_DEVICE_EPINTENCLR_TRCPT_Pos 0            /**< \brief (USB_DEVICE_EPINTENCLR) Transfer Complete x Interrupt Disable */
 #define USB_DEVICE_EPINTENCLR_TRCPT_Msk (0x3ul << USB_DEVICE_EPINTENCLR_TRCPT_Pos)
-#define USB_DEVICE_EPINTENCLR_TRCPT(value) ((USB_DEVICE_EPINTENCLR_TRCPT_Msk & ((value) << USB_DEVICE_EPINTENCLR_TRCPT_Pos)))
+#define USB_DEVICE_EPINTENCLR_TRCPT(value) (USB_DEVICE_EPINTENCLR_TRCPT_Msk & ((value) << USB_DEVICE_EPINTENCLR_TRCPT_Pos))
 #define USB_DEVICE_EPINTENCLR_TRFAIL0_Pos 2            /**< \brief (USB_DEVICE_EPINTENCLR) Error Flow 0 Interrupt Disable */
 #define USB_DEVICE_EPINTENCLR_TRFAIL0 (1 << USB_DEVICE_EPINTENCLR_TRFAIL0_Pos)
 #define USB_DEVICE_EPINTENCLR_TRFAIL1_Pos 3            /**< \brief (USB_DEVICE_EPINTENCLR) Error Flow 1 Interrupt Disable */
 #define USB_DEVICE_EPINTENCLR_TRFAIL1 (1 << USB_DEVICE_EPINTENCLR_TRFAIL1_Pos)
 #define USB_DEVICE_EPINTENCLR_TRFAIL_Pos 2            /**< \brief (USB_DEVICE_EPINTENCLR) Error Flow x Interrupt Disable */
 #define USB_DEVICE_EPINTENCLR_TRFAIL_Msk (0x3ul << USB_DEVICE_EPINTENCLR_TRFAIL_Pos)
-#define USB_DEVICE_EPINTENCLR_TRFAIL(value) ((USB_DEVICE_EPINTENCLR_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTENCLR_TRFAIL_Pos)))
+#define USB_DEVICE_EPINTENCLR_TRFAIL(value) (USB_DEVICE_EPINTENCLR_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTENCLR_TRFAIL_Pos))
 #define USB_DEVICE_EPINTENCLR_RXSTP_Pos 4            /**< \brief (USB_DEVICE_EPINTENCLR) Received Setup Interrupt Disable */
 #define USB_DEVICE_EPINTENCLR_RXSTP (0x1ul << USB_DEVICE_EPINTENCLR_RXSTP_Pos)
 #define USB_DEVICE_EPINTENCLR_STALL0_Pos 5            /**< \brief (USB_DEVICE_EPINTENCLR) Stall 0 In/Out Interrupt Disable */
@@ -1247,7 +1290,7 @@ typedef union {
 #define USB_DEVICE_EPINTENCLR_STALL1 (1 << USB_DEVICE_EPINTENCLR_STALL1_Pos)
 #define USB_DEVICE_EPINTENCLR_STALL_Pos 5            /**< \brief (USB_DEVICE_EPINTENCLR) Stall x In/Out Interrupt Disable */
 #define USB_DEVICE_EPINTENCLR_STALL_Msk (0x3ul << USB_DEVICE_EPINTENCLR_STALL_Pos)
-#define USB_DEVICE_EPINTENCLR_STALL(value) ((USB_DEVICE_EPINTENCLR_STALL_Msk & ((value) << USB_DEVICE_EPINTENCLR_STALL_Pos)))
+#define USB_DEVICE_EPINTENCLR_STALL(value) (USB_DEVICE_EPINTENCLR_STALL_Msk & ((value) << USB_DEVICE_EPINTENCLR_STALL_Pos))
 #define USB_DEVICE_EPINTENCLR_MASK  0x7Ful       /**< \brief (USB_DEVICE_EPINTENCLR) MASK Register */
 
 /* -------- USB_HOST_PINTENCLR : (USB Offset: 0x108) (R/W  8) HOST HOST_PIPE Pipe Interrupt Flag Clear -------- */
@@ -1279,7 +1322,7 @@ typedef union {
 #define USB_HOST_PINTENCLR_TRCPT1   (1 << USB_HOST_PINTENCLR_TRCPT1_Pos)
 #define USB_HOST_PINTENCLR_TRCPT_Pos 0            /**< \brief (USB_HOST_PINTENCLR) Transfer Complete x Disable */
 #define USB_HOST_PINTENCLR_TRCPT_Msk (0x3ul << USB_HOST_PINTENCLR_TRCPT_Pos)
-#define USB_HOST_PINTENCLR_TRCPT(value) ((USB_HOST_PINTENCLR_TRCPT_Msk & ((value) << USB_HOST_PINTENCLR_TRCPT_Pos)))
+#define USB_HOST_PINTENCLR_TRCPT(value) (USB_HOST_PINTENCLR_TRCPT_Msk & ((value) << USB_HOST_PINTENCLR_TRCPT_Pos))
 #define USB_HOST_PINTENCLR_TRFAIL_Pos 2            /**< \brief (USB_HOST_PINTENCLR) Error Flow Interrupt Disable */
 #define USB_HOST_PINTENCLR_TRFAIL   (0x1ul << USB_HOST_PINTENCLR_TRFAIL_Pos)
 #define USB_HOST_PINTENCLR_PERR_Pos 3            /**< \brief (USB_HOST_PINTENCLR) Pipe Error Interrupt Disable */
@@ -1323,14 +1366,14 @@ typedef union {
 #define USB_DEVICE_EPINTENSET_TRCPT1 (1 << USB_DEVICE_EPINTENSET_TRCPT1_Pos)
 #define USB_DEVICE_EPINTENSET_TRCPT_Pos 0            /**< \brief (USB_DEVICE_EPINTENSET) Transfer Complete x Interrupt Enable */
 #define USB_DEVICE_EPINTENSET_TRCPT_Msk (0x3ul << USB_DEVICE_EPINTENSET_TRCPT_Pos)
-#define USB_DEVICE_EPINTENSET_TRCPT(value) ((USB_DEVICE_EPINTENSET_TRCPT_Msk & ((value) << USB_DEVICE_EPINTENSET_TRCPT_Pos)))
+#define USB_DEVICE_EPINTENSET_TRCPT(value) (USB_DEVICE_EPINTENSET_TRCPT_Msk & ((value) << USB_DEVICE_EPINTENSET_TRCPT_Pos))
 #define USB_DEVICE_EPINTENSET_TRFAIL0_Pos 2            /**< \brief (USB_DEVICE_EPINTENSET) Error Flow 0 Interrupt Enable */
 #define USB_DEVICE_EPINTENSET_TRFAIL0 (1 << USB_DEVICE_EPINTENSET_TRFAIL0_Pos)
 #define USB_DEVICE_EPINTENSET_TRFAIL1_Pos 3            /**< \brief (USB_DEVICE_EPINTENSET) Error Flow 1 Interrupt Enable */
 #define USB_DEVICE_EPINTENSET_TRFAIL1 (1 << USB_DEVICE_EPINTENSET_TRFAIL1_Pos)
 #define USB_DEVICE_EPINTENSET_TRFAIL_Pos 2            /**< \brief (USB_DEVICE_EPINTENSET) Error Flow x Interrupt Enable */
 #define USB_DEVICE_EPINTENSET_TRFAIL_Msk (0x3ul << USB_DEVICE_EPINTENSET_TRFAIL_Pos)
-#define USB_DEVICE_EPINTENSET_TRFAIL(value) ((USB_DEVICE_EPINTENSET_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTENSET_TRFAIL_Pos)))
+#define USB_DEVICE_EPINTENSET_TRFAIL(value) (USB_DEVICE_EPINTENSET_TRFAIL_Msk & ((value) << USB_DEVICE_EPINTENSET_TRFAIL_Pos))
 #define USB_DEVICE_EPINTENSET_RXSTP_Pos 4            /**< \brief (USB_DEVICE_EPINTENSET) Received Setup Interrupt Enable */
 #define USB_DEVICE_EPINTENSET_RXSTP (0x1ul << USB_DEVICE_EPINTENSET_RXSTP_Pos)
 #define USB_DEVICE_EPINTENSET_STALL0_Pos 5            /**< \brief (USB_DEVICE_EPINTENSET) Stall 0 In/out Interrupt enable */
@@ -1339,7 +1382,7 @@ typedef union {
 #define USB_DEVICE_EPINTENSET_STALL1 (1 << USB_DEVICE_EPINTENSET_STALL1_Pos)
 #define USB_DEVICE_EPINTENSET_STALL_Pos 5            /**< \brief (USB_DEVICE_EPINTENSET) Stall x In/out Interrupt enable */
 #define USB_DEVICE_EPINTENSET_STALL_Msk (0x3ul << USB_DEVICE_EPINTENSET_STALL_Pos)
-#define USB_DEVICE_EPINTENSET_STALL(value) ((USB_DEVICE_EPINTENSET_STALL_Msk & ((value) << USB_DEVICE_EPINTENSET_STALL_Pos)))
+#define USB_DEVICE_EPINTENSET_STALL(value) (USB_DEVICE_EPINTENSET_STALL_Msk & ((value) << USB_DEVICE_EPINTENSET_STALL_Pos))
 #define USB_DEVICE_EPINTENSET_MASK  0x7Ful       /**< \brief (USB_DEVICE_EPINTENSET) MASK Register */
 
 /* -------- USB_HOST_PINTENSET : (USB Offset: 0x109) (R/W  8) HOST HOST_PIPE Pipe Interrupt Flag Set -------- */
@@ -1371,7 +1414,7 @@ typedef union {
 #define USB_HOST_PINTENSET_TRCPT1   (1 << USB_HOST_PINTENSET_TRCPT1_Pos)
 #define USB_HOST_PINTENSET_TRCPT_Pos 0            /**< \brief (USB_HOST_PINTENSET) Transfer Complete x Interrupt Enable */
 #define USB_HOST_PINTENSET_TRCPT_Msk (0x3ul << USB_HOST_PINTENSET_TRCPT_Pos)
-#define USB_HOST_PINTENSET_TRCPT(value) ((USB_HOST_PINTENSET_TRCPT_Msk & ((value) << USB_HOST_PINTENSET_TRCPT_Pos)))
+#define USB_HOST_PINTENSET_TRCPT(value) (USB_HOST_PINTENSET_TRCPT_Msk & ((value) << USB_HOST_PINTENSET_TRCPT_Pos))
 #define USB_HOST_PINTENSET_TRFAIL_Pos 2            /**< \brief (USB_HOST_PINTENSET) Error Flow Interrupt Enable */
 #define USB_HOST_PINTENSET_TRFAIL   (0x1ul << USB_HOST_PINTENSET_TRFAIL_Pos)
 #define USB_HOST_PINTENSET_PERR_Pos 3            /**< \brief (USB_HOST_PINTENSET) Pipe Error Interrupt Enable */
@@ -1396,7 +1439,7 @@ typedef union {
 
 #define USB_DEVICE_ADDR_ADDR_Pos    0            /**< \brief (USB_DEVICE_ADDR) Adress of data buffer */
 #define USB_DEVICE_ADDR_ADDR_Msk    (0xFFFFFFFFul << USB_DEVICE_ADDR_ADDR_Pos)
-#define USB_DEVICE_ADDR_ADDR(value) ((USB_DEVICE_ADDR_ADDR_Msk & ((value) << USB_DEVICE_ADDR_ADDR_Pos)))
+#define USB_DEVICE_ADDR_ADDR(value) (USB_DEVICE_ADDR_ADDR_Msk & ((value) << USB_DEVICE_ADDR_ADDR_Pos))
 #define USB_DEVICE_ADDR_MASK        0xFFFFFFFFul /**< \brief (USB_DEVICE_ADDR) MASK Register */
 
 /* -------- USB_HOST_ADDR : (USB Offset: 0x000) (R/W 32) HOST HOST_DESC_BANK Host Bank, Adress of Data Buffer -------- */
@@ -1413,7 +1456,7 @@ typedef union {
 
 #define USB_HOST_ADDR_ADDR_Pos      0            /**< \brief (USB_HOST_ADDR) Adress of data buffer */
 #define USB_HOST_ADDR_ADDR_Msk      (0xFFFFFFFFul << USB_HOST_ADDR_ADDR_Pos)
-#define USB_HOST_ADDR_ADDR(value)   ((USB_HOST_ADDR_ADDR_Msk & ((value) << USB_HOST_ADDR_ADDR_Pos)))
+#define USB_HOST_ADDR_ADDR(value)   (USB_HOST_ADDR_ADDR_Msk & ((value) << USB_HOST_ADDR_ADDR_Pos))
 #define USB_HOST_ADDR_MASK          0xFFFFFFFFul /**< \brief (USB_HOST_ADDR) MASK Register */
 
 /* -------- USB_DEVICE_PCKSIZE : (USB Offset: 0x004) (R/W 32) DEVICE DEVICE_DESC_BANK Endpoint Bank, Packet Size -------- */
@@ -1433,13 +1476,13 @@ typedef union {
 
 #define USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos 0            /**< \brief (USB_DEVICE_PCKSIZE) Byte Count */
 #define USB_DEVICE_PCKSIZE_BYTE_COUNT_Msk (0x3FFFul << USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos)
-#define USB_DEVICE_PCKSIZE_BYTE_COUNT(value) ((USB_DEVICE_PCKSIZE_BYTE_COUNT_Msk & ((value) << USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos)))
+#define USB_DEVICE_PCKSIZE_BYTE_COUNT(value) (USB_DEVICE_PCKSIZE_BYTE_COUNT_Msk & ((value) << USB_DEVICE_PCKSIZE_BYTE_COUNT_Pos))
 #define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos 14           /**< \brief (USB_DEVICE_PCKSIZE) Multi Packet In or Out size */
 #define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Msk (0x3FFFul << USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos)
-#define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(value) ((USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Msk & ((value) << USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos)))
+#define USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE(value) (USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Msk & ((value) << USB_DEVICE_PCKSIZE_MULTI_PACKET_SIZE_Pos))
 #define USB_DEVICE_PCKSIZE_SIZE_Pos 28           /**< \brief (USB_DEVICE_PCKSIZE) Enpoint size */
 #define USB_DEVICE_PCKSIZE_SIZE_Msk (0x7ul << USB_DEVICE_PCKSIZE_SIZE_Pos)
-#define USB_DEVICE_PCKSIZE_SIZE(value) ((USB_DEVICE_PCKSIZE_SIZE_Msk & ((value) << USB_DEVICE_PCKSIZE_SIZE_Pos)))
+#define USB_DEVICE_PCKSIZE_SIZE(value) (USB_DEVICE_PCKSIZE_SIZE_Msk & ((value) << USB_DEVICE_PCKSIZE_SIZE_Pos))
 #define USB_DEVICE_PCKSIZE_AUTO_ZLP_Pos 31           /**< \brief (USB_DEVICE_PCKSIZE) Automatic Zero Length Packet */
 #define USB_DEVICE_PCKSIZE_AUTO_ZLP (0x1ul << USB_DEVICE_PCKSIZE_AUTO_ZLP_Pos)
 #define USB_DEVICE_PCKSIZE_MASK     0xFFFFFFFFul /**< \brief (USB_DEVICE_PCKSIZE) MASK Register */
@@ -1461,13 +1504,13 @@ typedef union {
 
 #define USB_HOST_PCKSIZE_BYTE_COUNT_Pos 0            /**< \brief (USB_HOST_PCKSIZE) Byte Count */
 #define USB_HOST_PCKSIZE_BYTE_COUNT_Msk (0x3FFFul << USB_HOST_PCKSIZE_BYTE_COUNT_Pos)
-#define USB_HOST_PCKSIZE_BYTE_COUNT(value) ((USB_HOST_PCKSIZE_BYTE_COUNT_Msk & ((value) << USB_HOST_PCKSIZE_BYTE_COUNT_Pos)))
+#define USB_HOST_PCKSIZE_BYTE_COUNT(value) (USB_HOST_PCKSIZE_BYTE_COUNT_Msk & ((value) << USB_HOST_PCKSIZE_BYTE_COUNT_Pos))
 #define USB_HOST_PCKSIZE_MULTI_PACKET_SIZE_Pos 14           /**< \brief (USB_HOST_PCKSIZE) Multi Packet In or Out size */
 #define USB_HOST_PCKSIZE_MULTI_PACKET_SIZE_Msk (0x3FFFul << USB_HOST_PCKSIZE_MULTI_PACKET_SIZE_Pos)
-#define USB_HOST_PCKSIZE_MULTI_PACKET_SIZE(value) ((USB_HOST_PCKSIZE_MULTI_PACKET_SIZE_Msk & ((value) << USB_HOST_PCKSIZE_MULTI_PACKET_SIZE_Pos)))
+#define USB_HOST_PCKSIZE_MULTI_PACKET_SIZE(value) (USB_HOST_PCKSIZE_MULTI_PACKET_SIZE_Msk & ((value) << USB_HOST_PCKSIZE_MULTI_PACKET_SIZE_Pos))
 #define USB_HOST_PCKSIZE_SIZE_Pos   28           /**< \brief (USB_HOST_PCKSIZE) Pipe size */
 #define USB_HOST_PCKSIZE_SIZE_Msk   (0x7ul << USB_HOST_PCKSIZE_SIZE_Pos)
-#define USB_HOST_PCKSIZE_SIZE(value) ((USB_HOST_PCKSIZE_SIZE_Msk & ((value) << USB_HOST_PCKSIZE_SIZE_Pos)))
+#define USB_HOST_PCKSIZE_SIZE(value) (USB_HOST_PCKSIZE_SIZE_Msk & ((value) << USB_HOST_PCKSIZE_SIZE_Pos))
 #define USB_HOST_PCKSIZE_AUTO_ZLP_Pos 31           /**< \brief (USB_HOST_PCKSIZE) Automatic Zero Length Packet */
 #define USB_HOST_PCKSIZE_AUTO_ZLP   (0x1ul << USB_HOST_PCKSIZE_AUTO_ZLP_Pos)
 #define USB_HOST_PCKSIZE_MASK       0xFFFFFFFFul /**< \brief (USB_HOST_PCKSIZE) MASK Register */
@@ -1488,10 +1531,10 @@ typedef union {
 
 #define USB_DEVICE_EXTREG_SUBPID_Pos 0            /**< \brief (USB_DEVICE_EXTREG) SUBPID field send with extended token */
 #define USB_DEVICE_EXTREG_SUBPID_Msk (0xFul << USB_DEVICE_EXTREG_SUBPID_Pos)
-#define USB_DEVICE_EXTREG_SUBPID(value) ((USB_DEVICE_EXTREG_SUBPID_Msk & ((value) << USB_DEVICE_EXTREG_SUBPID_Pos)))
+#define USB_DEVICE_EXTREG_SUBPID(value) (USB_DEVICE_EXTREG_SUBPID_Msk & ((value) << USB_DEVICE_EXTREG_SUBPID_Pos))
 #define USB_DEVICE_EXTREG_VARIABLE_Pos 4            /**< \brief (USB_DEVICE_EXTREG) Variable field send with extended token */
 #define USB_DEVICE_EXTREG_VARIABLE_Msk (0x7FFul << USB_DEVICE_EXTREG_VARIABLE_Pos)
-#define USB_DEVICE_EXTREG_VARIABLE(value) ((USB_DEVICE_EXTREG_VARIABLE_Msk & ((value) << USB_DEVICE_EXTREG_VARIABLE_Pos)))
+#define USB_DEVICE_EXTREG_VARIABLE(value) (USB_DEVICE_EXTREG_VARIABLE_Msk & ((value) << USB_DEVICE_EXTREG_VARIABLE_Pos))
 #define USB_DEVICE_EXTREG_MASK      0x7FFFul     /**< \brief (USB_DEVICE_EXTREG) MASK Register */
 
 /* -------- USB_HOST_EXTREG : (USB Offset: 0x008) (R/W 16) HOST HOST_DESC_BANK Host Bank, Extended -------- */
@@ -1510,10 +1553,10 @@ typedef union {
 
 #define USB_HOST_EXTREG_SUBPID_Pos  0            /**< \brief (USB_HOST_EXTREG) SUBPID field send with extended token */
 #define USB_HOST_EXTREG_SUBPID_Msk  (0xFul << USB_HOST_EXTREG_SUBPID_Pos)
-#define USB_HOST_EXTREG_SUBPID(value) ((USB_HOST_EXTREG_SUBPID_Msk & ((value) << USB_HOST_EXTREG_SUBPID_Pos)))
+#define USB_HOST_EXTREG_SUBPID(value) (USB_HOST_EXTREG_SUBPID_Msk & ((value) << USB_HOST_EXTREG_SUBPID_Pos))
 #define USB_HOST_EXTREG_VARIABLE_Pos 4            /**< \brief (USB_HOST_EXTREG) Variable field send with extended token */
 #define USB_HOST_EXTREG_VARIABLE_Msk (0x7FFul << USB_HOST_EXTREG_VARIABLE_Pos)
-#define USB_HOST_EXTREG_VARIABLE(value) ((USB_HOST_EXTREG_VARIABLE_Msk & ((value) << USB_HOST_EXTREG_VARIABLE_Pos)))
+#define USB_HOST_EXTREG_VARIABLE(value) (USB_HOST_EXTREG_VARIABLE_Msk & ((value) << USB_HOST_EXTREG_VARIABLE_Pos))
 #define USB_HOST_EXTREG_MASK        0x7FFFul     /**< \brief (USB_HOST_EXTREG) MASK Register */
 
 /* -------- USB_DEVICE_STATUS_BK : (USB Offset: 0x00A) (R/W  8) DEVICE DEVICE_DESC_BANK Enpoint Bank, Status of Bank -------- */
@@ -1574,13 +1617,13 @@ typedef union {
 
 #define USB_HOST_CTRL_PIPE_PDADDR_Pos 0            /**< \brief (USB_HOST_CTRL_PIPE) Pipe Device Adress */
 #define USB_HOST_CTRL_PIPE_PDADDR_Msk (0x7Ful << USB_HOST_CTRL_PIPE_PDADDR_Pos)
-#define USB_HOST_CTRL_PIPE_PDADDR(value) ((USB_HOST_CTRL_PIPE_PDADDR_Msk & ((value) << USB_HOST_CTRL_PIPE_PDADDR_Pos)))
+#define USB_HOST_CTRL_PIPE_PDADDR(value) (USB_HOST_CTRL_PIPE_PDADDR_Msk & ((value) << USB_HOST_CTRL_PIPE_PDADDR_Pos))
 #define USB_HOST_CTRL_PIPE_PEPNUM_Pos 8            /**< \brief (USB_HOST_CTRL_PIPE) Pipe Endpoint Number */
 #define USB_HOST_CTRL_PIPE_PEPNUM_Msk (0xFul << USB_HOST_CTRL_PIPE_PEPNUM_Pos)
-#define USB_HOST_CTRL_PIPE_PEPNUM(value) ((USB_HOST_CTRL_PIPE_PEPNUM_Msk & ((value) << USB_HOST_CTRL_PIPE_PEPNUM_Pos)))
+#define USB_HOST_CTRL_PIPE_PEPNUM(value) (USB_HOST_CTRL_PIPE_PEPNUM_Msk & ((value) << USB_HOST_CTRL_PIPE_PEPNUM_Pos))
 #define USB_HOST_CTRL_PIPE_PERMAX_Pos 12           /**< \brief (USB_HOST_CTRL_PIPE) Pipe Error Max Number */
 #define USB_HOST_CTRL_PIPE_PERMAX_Msk (0xFul << USB_HOST_CTRL_PIPE_PERMAX_Pos)
-#define USB_HOST_CTRL_PIPE_PERMAX(value) ((USB_HOST_CTRL_PIPE_PERMAX_Msk & ((value) << USB_HOST_CTRL_PIPE_PERMAX_Pos)))
+#define USB_HOST_CTRL_PIPE_PERMAX(value) (USB_HOST_CTRL_PIPE_PERMAX_Msk & ((value) << USB_HOST_CTRL_PIPE_PERMAX_Pos))
 #define USB_HOST_CTRL_PIPE_MASK     0xFF7Ful     /**< \brief (USB_HOST_CTRL_PIPE) MASK Register */
 
 /* -------- USB_HOST_STATUS_PIPE : (USB Offset: 0x00E) (R/W 16) HOST HOST_DESC_BANK Host Bank, Host Status Pipe -------- */
@@ -1613,7 +1656,7 @@ typedef union {
 #define USB_HOST_STATUS_PIPE_CRC16ER (0x1ul << USB_HOST_STATUS_PIPE_CRC16ER_Pos)
 #define USB_HOST_STATUS_PIPE_ERCNT_Pos 5            /**< \brief (USB_HOST_STATUS_PIPE) Pipe Error Count */
 #define USB_HOST_STATUS_PIPE_ERCNT_Msk (0x7ul << USB_HOST_STATUS_PIPE_ERCNT_Pos)
-#define USB_HOST_STATUS_PIPE_ERCNT(value) ((USB_HOST_STATUS_PIPE_ERCNT_Msk & ((value) << USB_HOST_STATUS_PIPE_ERCNT_Pos)))
+#define USB_HOST_STATUS_PIPE_ERCNT(value) (USB_HOST_STATUS_PIPE_ERCNT_Msk & ((value) << USB_HOST_STATUS_PIPE_ERCNT_Pos))
 #define USB_HOST_STATUS_PIPE_MASK   0x00FFul     /**< \brief (USB_HOST_STATUS_PIPE) MASK Register */
 
 /** \brief UsbDeviceDescBank SRAM registers */

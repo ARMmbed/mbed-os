@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief SAM I2C Master Interrupt Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #include "i2c_master_interrupt.h"
 
 extern enum status_code _i2c_master_wait_for_bus(
@@ -33,12 +79,12 @@ static void _i2c_master_read(
     module->buffer_remaining--;
 
     if (sclsm_flag) {
-        if (module->buffer_remaining == 1) {
+        if (module->send_nack && module->buffer_remaining == 1) {
             /* Set action to NACK. */
             i2c_module->CTRLB.reg |= SERCOM_I2CM_CTRLB_ACKACT;
         }
     } else {
-        if (module->buffer_remaining == 0) {
+        if (module->send_nack && module->buffer_remaining == 0) {
             /* Set action to NACK. */
             i2c_module->CTRLB.reg |= SERCOM_I2CM_CTRLB_ACKACT;
         }
@@ -201,6 +247,42 @@ void i2c_master_unregister_callback(
 
 /**
  * \internal
+ * Starts a read bytes operation.
+ *
+ * \param[in,out] module  Pointer to software module struct
+ * \param[in,out] packet  Pointer to I<SUP>2</SUP>C packet to transfer
+ *
+ * \return Status of starting reading I<SUP>2</SUP>C packet.
+ * \retval STATUS_OK    If reading was started successfully
+ * \retval STATUS_BUSY  If module is currently busy with another transfer
+ */
+enum status_code i2c_master_read_bytes(
+    struct i2c_master_module *const module,
+    struct i2c_master_packet *const packet)
+{
+    /* Sanity check */
+    Assert(module);
+    Assert(module->hw);
+
+    SercomI2cm *const i2c_module = &(module->hw->I2CM);
+
+    /* Save packet to software module */
+    module->buffer             = packet->data;
+    module->buffer_remaining   = packet->data_length;
+    module->transfer_direction = I2C_TRANSFER_READ;
+    module->status             = STATUS_BUSY;
+    module->send_stop = false;
+    module->send_nack = false;
+
+    /* Enable interrupts */
+    i2c_module->INTENSET.reg =
+        SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB;
+
+    return STATUS_OK;
+}
+
+/**
+ * \internal
  * Starts a read packet operation.
  *
  * \param[in,out] module  Pointer to software module struct
@@ -262,7 +344,7 @@ static enum status_code _i2c_master_read_packet(
                 SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB;
 
             /*
-             * Write ADDR[7:0] register to 鈥10 address[9:8] 1鈥
+             * Write ADDR[7:0] register to "11110 address[9:8] 1"
              * ADDR.TENBITEN must be cleared
              */
             i2c_module->ADDR.reg = (((packet->address >> 8) | 0x78) << 1) |
@@ -313,7 +395,7 @@ enum status_code i2c_master_read_packet_job(
 
     /* Make sure we send STOP */
     module->send_stop = true;
-
+    module->send_nack = true;
     /* Start reading */
     return _i2c_master_read_packet(module, packet);
 }
@@ -352,9 +434,85 @@ enum status_code i2c_master_read_packet_job_no_stop(
 
     /* Make sure we don't send STOP */
     module->send_stop = false;
-
+    module->send_nack = true;
     /* Start reading */
     return _i2c_master_read_packet(module, packet);
+}
+
+/**
+ * \brief Initiates a read packet operation without sending a NACK signal and a
+ * STOP condition when done
+ *
+ * Reads a data packet from the specified slave address on the I<SUP>2</SUP>C bus without
+ * sending a nack and a stop condition, thus retaining ownership of the bus when done.
+ * To end the transaction, a \ref i2c_master_read_packet_wait "read" or
+ * \ref i2c_master_write_packet_wait "write" with stop condition must be
+ * performed.
+ *
+ * This is the non-blocking equivalent of \ref i2c_master_read_packet_wait_no_stop.
+ *
+ * \param[in,out] module  Pointer to software module struct
+ * \param[in,out] packet  Pointer to I<SUP>2</SUP>C packet to transfer
+ *
+ * \return Status of starting reading I<SUP>2</SUP>C packet.
+ * \retval STATUS_OK   If reading was started successfully
+ * \retval STATUS_BUSY If module is currently busy with another operation
+ */
+enum status_code i2c_master_read_packet_job_no_nack(
+    struct i2c_master_module *const module,
+    struct i2c_master_packet *const packet)
+{
+    /* Sanity check */
+    Assert(module);
+    Assert(module->hw);
+    Assert(packet);
+
+    /* Check if the I2C module is busy with a job */
+    if (module->buffer_remaining > 0) {
+        return STATUS_BUSY;
+    }
+
+    /* Make sure we don't send STOP */
+    module->send_stop = false;
+    module->send_nack = false;
+    /* Start reading */
+    return _i2c_master_read_packet(module, packet);
+}
+
+/**
+ * \internal
+ * Starts a write bytes operation.
+ *
+ * \param[in,out] module  Pointer to software module struct
+ * \param[in,out] packet  Pointer to I<SUP>2</SUP>C packet to transfer
+ *
+ * \return Status of starting write I<SUP>2</SUP>C bytes.
+ * \retval STATUS_OK    If writing was started successfully
+ * \retval STATUS_BUSY  If module is currently busy with another transfer
+ */
+enum status_code i2c_master_write_bytes(
+    struct i2c_master_module *const module,
+    struct i2c_master_packet *const packet)
+{
+    /* Sanity check */
+    Assert(module);
+    Assert(module->hw);
+
+    SercomI2cm *const i2c_module = &(module->hw->I2CM);
+
+    /* Save packet to software module */
+    module->buffer             = packet->data;
+    module->buffer_remaining   = packet->data_length;
+    module->transfer_direction = I2C_TRANSFER_WRITE;
+    module->status             = STATUS_BUSY;
+    module->send_stop = false;
+    module->send_nack = false;
+
+    /* Enable interrupts */
+    i2c_module->INTENSET.reg =
+        SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB;
+
+    return STATUS_OK;
 }
 
 /**
@@ -437,7 +595,7 @@ enum status_code i2c_master_write_packet_job(
 
     /* Make sure we send STOP at end*/
     module->send_stop = true;
-
+    module->send_nack = true;
     /* Start write operation */
     return _i2c_master_write_packet(module, packet);
 }
@@ -476,7 +634,7 @@ enum status_code i2c_master_write_packet_job_no_stop(
 
     /* Do not send stop condition when done */
     module->send_stop = false;
-
+    module->send_nack = true;
     /* Start write operation */
     return _i2c_master_write_packet(module, packet);
 }
@@ -523,7 +681,11 @@ void _i2c_master_interrupt_handler(
             /* Send stop condition */
             _i2c_master_wait_for_sync(module);
             i2c_module->CTRLB.reg |= SERCOM_I2CM_CTRLB_CMD(3);
+        } else {
+            /* Clear write interrupt flag */
+            i2c_module->INTFLAG.reg = SERCOM_I2CM_INTFLAG_MB;
         }
+
         if (callback_mask & (1 << I2C_MASTER_CALLBACK_WRITE_COMPLETE)) {
             module->callbacks[I2C_MASTER_CALLBACK_WRITE_COMPLETE](module);
         }
@@ -546,6 +708,10 @@ void _i2c_master_interrupt_handler(
             (module->status == STATUS_BUSY) &&
             (module->transfer_direction == I2C_TRANSFER_READ)) {
 
+        /* Clear read interrupt flag */
+        if (i2c_module->INTFLAG.reg & SERCOM_I2CM_INTFLAG_SB) {
+            i2c_module->INTFLAG.reg = SERCOM_I2CM_INTFLAG_SB;
+        }
         /* Stop packet operation */
         i2c_module->INTENCLR.reg =
             SERCOM_I2CM_INTENCLR_MB | SERCOM_I2CM_INTENCLR_SB;

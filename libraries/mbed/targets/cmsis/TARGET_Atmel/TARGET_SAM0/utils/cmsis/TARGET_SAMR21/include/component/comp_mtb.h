@@ -1,3 +1,46 @@
+/**
+ * \file
+ *
+ * \brief Component description for MTB
+ *
+ * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+
 #ifndef _SAMR21_MTB_COMPONENT_
 #define _SAMR21_MTB_COMPONENT_
 
@@ -28,7 +71,7 @@ typedef union {
 #define MTB_POSITION_WRAP           (0x1ul << MTB_POSITION_WRAP_Pos)
 #define MTB_POSITION_POINTER_Pos    3            /**< \brief (MTB_POSITION) Trace Packet Location Pointer */
 #define MTB_POSITION_POINTER_Msk    (0x1FFFFFFFul << MTB_POSITION_POINTER_Pos)
-#define MTB_POSITION_POINTER(value) ((MTB_POSITION_POINTER_Msk & ((value) << MTB_POSITION_POINTER_Pos)))
+#define MTB_POSITION_POINTER(value) (MTB_POSITION_POINTER_Msk & ((value) << MTB_POSITION_POINTER_Pos))
 #define MTB_POSITION_MASK           0xFFFFFFFCul /**< \brief (MTB_POSITION) MASK Register */
 
 /* -------- MTB_MASTER : (MTB Offset: 0x004) (R/W 32) MTB Master -------- */
@@ -53,7 +96,7 @@ typedef union {
 
 #define MTB_MASTER_MASK_Pos         0            /**< \brief (MTB_MASTER) Maximum Value of the Trace Buffer in SRAM */
 #define MTB_MASTER_MASK_Msk         (0x1Ful << MTB_MASTER_MASK_Pos)
-#define MTB_MASTER_MASK(value)      ((MTB_MASTER_MASK_Msk & ((value) << MTB_MASTER_MASK_Pos)))
+#define MTB_MASTER_MASK(value)      (MTB_MASTER_MASK_Msk & ((value) << MTB_MASTER_MASK_Pos))
 #define MTB_MASTER_TSTARTEN_Pos     5            /**< \brief (MTB_MASTER) Trace Start Input Enable */
 #define MTB_MASTER_TSTARTEN         (0x1ul << MTB_MASTER_TSTARTEN_Pos)
 #define MTB_MASTER_TSTOPEN_Pos      6            /**< \brief (MTB_MASTER) Trace Stop Input Enable */
@@ -90,7 +133,7 @@ typedef union {
 #define MTB_FLOW_AUTOHALT           (0x1ul << MTB_FLOW_AUTOHALT_Pos)
 #define MTB_FLOW_WATERMARK_Pos      3            /**< \brief (MTB_FLOW) Watermark value */
 #define MTB_FLOW_WATERMARK_Msk      (0x1FFFFFFFul << MTB_FLOW_WATERMARK_Pos)
-#define MTB_FLOW_WATERMARK(value)   ((MTB_FLOW_WATERMARK_Msk & ((value) << MTB_FLOW_WATERMARK_Pos)))
+#define MTB_FLOW_WATERMARK(value)   (MTB_FLOW_WATERMARK_Msk & ((value) << MTB_FLOW_WATERMARK_Pos))
 #define MTB_FLOW_MASK               0xFFFFFFFBul /**< \brief (MTB_FLOW) MASK Register */
 
 /* -------- MTB_BASE : (MTB Offset: 0x00C) (R/  32) MTB Base -------- */

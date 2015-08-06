@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief Instance description for NVMCTRL
+ *
+ * Copyright (c) 2014-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef _SAMD21_NVMCTRL_INSTANCE_
 #define _SAMD21_NVMCTRL_INSTANCE_
 
@@ -31,19 +77,20 @@
 #define NVMCTRL_AUX3_ADDRESS        0x0080A000
 #define NVMCTRL_CLK_AHB_ID          4        // Index of AHB Clock in PM.AHBMASK register
 #define NVMCTRL_FACTORY_WORD_IMPLEMENTED_MASK 0xC0000007FFFFFFFF
-#define NVMCTRL_FLASH_SIZE          262144
+#define NVMCTRL_FLASH_SIZE          65536   
 #define NVMCTRL_LOCKBIT_ADDRESS     0x00802000
-#define NVMCTRL_PAGES               4096
-#define NVMCTRL_PAGE_HW             32
-#define NVMCTRL_PAGE_SIZE           64
-#define NVMCTRL_PAGE_W              16
-#define NVMCTRL_PMSB                3
-#define NVMCTRL_PSZ_BITS            6
-#define NVMCTRL_ROW_PAGES           4
-#define NVMCTRL_ROW_SIZE            256
-#define NVMCTRL_TEMP_LOG_ADDRESS    0x00806030
+#define NVMCTRL_PAGES               1024    
+#define NVMCTRL_PAGE_HW             32      
+#define NVMCTRL_PAGE_SIZE           64      
+#define NVMCTRL_PAGE_W              16      
+#define NVMCTRL_PMSB                3       
+#define NVMCTRL_PSZ_BITS            6       
+#define NVMCTRL_ROW_PAGES           4       
+#define NVMCTRL_ROW_SIZE            256     
 #define NVMCTRL_USER_PAGE_ADDRESS   0x00800000
 #define NVMCTRL_USER_PAGE_OFFSET    0x00800000
 #define NVMCTRL_USER_WORD_IMPLEMENTED_MASK 0xC01FFFFFFFFFFFFF
+#define NVMCTRL_RWWEE_PAGES         32       // Page size
+#define NVMCTRL_RWW_EEPROM_ADDR     0x00400000 // Start address of the RWW EEPROM area
 
 #endif /* _SAMD21_NVMCTRL_INSTANCE_ */

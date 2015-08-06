@@ -1,3 +1,46 @@
+/**
+ * \file
+ *
+ * \brief Component description for PORT
+ *
+ * Copyright (c) 2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+
 #ifndef _SAMR21_PORT_COMPONENT_
 #define _SAMR21_PORT_COMPONENT_
 
@@ -25,7 +68,7 @@ typedef union {
 
 #define PORT_DIR_DIR_Pos            0            /**< \brief (PORT_DIR) Port Data Direction */
 #define PORT_DIR_DIR_Msk            (0xFFFFFFFFul << PORT_DIR_DIR_Pos)
-#define PORT_DIR_DIR(value)         ((PORT_DIR_DIR_Msk & ((value) << PORT_DIR_DIR_Pos)))
+#define PORT_DIR_DIR(value)         (PORT_DIR_DIR_Msk & ((value) << PORT_DIR_DIR_Pos))
 #define PORT_DIR_MASK               0xFFFFFFFFul /**< \brief (PORT_DIR) MASK Register */
 
 /* -------- PORT_DIRCLR : (PORT Offset: 0x04) (R/W 32) GROUP Data Direction Clear -------- */
@@ -43,7 +86,7 @@ typedef union {
 
 #define PORT_DIRCLR_DIRCLR_Pos      0            /**< \brief (PORT_DIRCLR) Port Data Direction Clear */
 #define PORT_DIRCLR_DIRCLR_Msk      (0xFFFFFFFFul << PORT_DIRCLR_DIRCLR_Pos)
-#define PORT_DIRCLR_DIRCLR(value)   ((PORT_DIRCLR_DIRCLR_Msk & ((value) << PORT_DIRCLR_DIRCLR_Pos)))
+#define PORT_DIRCLR_DIRCLR(value)   (PORT_DIRCLR_DIRCLR_Msk & ((value) << PORT_DIRCLR_DIRCLR_Pos))
 #define PORT_DIRCLR_MASK            0xFFFFFFFFul /**< \brief (PORT_DIRCLR) MASK Register */
 
 /* -------- PORT_DIRSET : (PORT Offset: 0x08) (R/W 32) GROUP Data Direction Set -------- */
@@ -61,7 +104,7 @@ typedef union {
 
 #define PORT_DIRSET_DIRSET_Pos      0            /**< \brief (PORT_DIRSET) Port Data Direction Set */
 #define PORT_DIRSET_DIRSET_Msk      (0xFFFFFFFFul << PORT_DIRSET_DIRSET_Pos)
-#define PORT_DIRSET_DIRSET(value)   ((PORT_DIRSET_DIRSET_Msk & ((value) << PORT_DIRSET_DIRSET_Pos)))
+#define PORT_DIRSET_DIRSET(value)   (PORT_DIRSET_DIRSET_Msk & ((value) << PORT_DIRSET_DIRSET_Pos))
 #define PORT_DIRSET_MASK            0xFFFFFFFFul /**< \brief (PORT_DIRSET) MASK Register */
 
 /* -------- PORT_DIRTGL : (PORT Offset: 0x0C) (R/W 32) GROUP Data Direction Toggle -------- */
@@ -79,7 +122,7 @@ typedef union {
 
 #define PORT_DIRTGL_DIRTGL_Pos      0            /**< \brief (PORT_DIRTGL) Port Data Direction Toggle */
 #define PORT_DIRTGL_DIRTGL_Msk      (0xFFFFFFFFul << PORT_DIRTGL_DIRTGL_Pos)
-#define PORT_DIRTGL_DIRTGL(value)   ((PORT_DIRTGL_DIRTGL_Msk & ((value) << PORT_DIRTGL_DIRTGL_Pos)))
+#define PORT_DIRTGL_DIRTGL(value)   (PORT_DIRTGL_DIRTGL_Msk & ((value) << PORT_DIRTGL_DIRTGL_Pos))
 #define PORT_DIRTGL_MASK            0xFFFFFFFFul /**< \brief (PORT_DIRTGL) MASK Register */
 
 /* -------- PORT_OUT : (PORT Offset: 0x10) (R/W 32) GROUP Data Output Value -------- */
@@ -97,7 +140,7 @@ typedef union {
 
 #define PORT_OUT_OUT_Pos            0            /**< \brief (PORT_OUT) Port Data Output Value */
 #define PORT_OUT_OUT_Msk            (0xFFFFFFFFul << PORT_OUT_OUT_Pos)
-#define PORT_OUT_OUT(value)         ((PORT_OUT_OUT_Msk & ((value) << PORT_OUT_OUT_Pos)))
+#define PORT_OUT_OUT(value)         (PORT_OUT_OUT_Msk & ((value) << PORT_OUT_OUT_Pos))
 #define PORT_OUT_MASK               0xFFFFFFFFul /**< \brief (PORT_OUT) MASK Register */
 
 /* -------- PORT_OUTCLR : (PORT Offset: 0x14) (R/W 32) GROUP Data Output Value Clear -------- */
@@ -115,7 +158,7 @@ typedef union {
 
 #define PORT_OUTCLR_OUTCLR_Pos      0            /**< \brief (PORT_OUTCLR) Port Data Output Value Clear */
 #define PORT_OUTCLR_OUTCLR_Msk      (0xFFFFFFFFul << PORT_OUTCLR_OUTCLR_Pos)
-#define PORT_OUTCLR_OUTCLR(value)   ((PORT_OUTCLR_OUTCLR_Msk & ((value) << PORT_OUTCLR_OUTCLR_Pos)))
+#define PORT_OUTCLR_OUTCLR(value)   (PORT_OUTCLR_OUTCLR_Msk & ((value) << PORT_OUTCLR_OUTCLR_Pos))
 #define PORT_OUTCLR_MASK            0xFFFFFFFFul /**< \brief (PORT_OUTCLR) MASK Register */
 
 /* -------- PORT_OUTSET : (PORT Offset: 0x18) (R/W 32) GROUP Data Output Value Set -------- */
@@ -133,7 +176,7 @@ typedef union {
 
 #define PORT_OUTSET_OUTSET_Pos      0            /**< \brief (PORT_OUTSET) Port Data Output Value Set */
 #define PORT_OUTSET_OUTSET_Msk      (0xFFFFFFFFul << PORT_OUTSET_OUTSET_Pos)
-#define PORT_OUTSET_OUTSET(value)   ((PORT_OUTSET_OUTSET_Msk & ((value) << PORT_OUTSET_OUTSET_Pos)))
+#define PORT_OUTSET_OUTSET(value)   (PORT_OUTSET_OUTSET_Msk & ((value) << PORT_OUTSET_OUTSET_Pos))
 #define PORT_OUTSET_MASK            0xFFFFFFFFul /**< \brief (PORT_OUTSET) MASK Register */
 
 /* -------- PORT_OUTTGL : (PORT Offset: 0x1C) (R/W 32) GROUP Data Output Value Toggle -------- */
@@ -151,7 +194,7 @@ typedef union {
 
 #define PORT_OUTTGL_OUTTGL_Pos      0            /**< \brief (PORT_OUTTGL) Port Data Output Value Toggle */
 #define PORT_OUTTGL_OUTTGL_Msk      (0xFFFFFFFFul << PORT_OUTTGL_OUTTGL_Pos)
-#define PORT_OUTTGL_OUTTGL(value)   ((PORT_OUTTGL_OUTTGL_Msk & ((value) << PORT_OUTTGL_OUTTGL_Pos)))
+#define PORT_OUTTGL_OUTTGL(value)   (PORT_OUTTGL_OUTTGL_Msk & ((value) << PORT_OUTTGL_OUTTGL_Pos))
 #define PORT_OUTTGL_MASK            0xFFFFFFFFul /**< \brief (PORT_OUTTGL) MASK Register */
 
 /* -------- PORT_IN : (PORT Offset: 0x20) (R/  32) GROUP Data Input Value -------- */
@@ -169,7 +212,7 @@ typedef union {
 
 #define PORT_IN_IN_Pos              0            /**< \brief (PORT_IN) Port Data Input Value */
 #define PORT_IN_IN_Msk              (0xFFFFFFFFul << PORT_IN_IN_Pos)
-#define PORT_IN_IN(value)           ((PORT_IN_IN_Msk & ((value) << PORT_IN_IN_Pos)))
+#define PORT_IN_IN(value)           (PORT_IN_IN_Msk & ((value) << PORT_IN_IN_Pos))
 #define PORT_IN_MASK                0xFFFFFFFFul /**< \brief (PORT_IN) MASK Register */
 
 /* -------- PORT_CTRL : (PORT Offset: 0x24) (R/W 32) GROUP Control -------- */
@@ -187,7 +230,7 @@ typedef union {
 
 #define PORT_CTRL_SAMPLING_Pos      0            /**< \brief (PORT_CTRL) Input Sampling Mode */
 #define PORT_CTRL_SAMPLING_Msk      (0xFFFFFFFFul << PORT_CTRL_SAMPLING_Pos)
-#define PORT_CTRL_SAMPLING(value)   ((PORT_CTRL_SAMPLING_Msk & ((value) << PORT_CTRL_SAMPLING_Pos)))
+#define PORT_CTRL_SAMPLING(value)   (PORT_CTRL_SAMPLING_Msk & ((value) << PORT_CTRL_SAMPLING_Pos))
 #define PORT_CTRL_MASK              0xFFFFFFFFul /**< \brief (PORT_CTRL) MASK Register */
 
 /* -------- PORT_WRCONFIG : (PORT Offset: 0x28) ( /W 32) GROUP Write Configuration -------- */
@@ -216,7 +259,7 @@ typedef union {
 
 #define PORT_WRCONFIG_PINMASK_Pos   0            /**< \brief (PORT_WRCONFIG) Pin Mask for Multiple Pin Configuration */
 #define PORT_WRCONFIG_PINMASK_Msk   (0xFFFFul << PORT_WRCONFIG_PINMASK_Pos)
-#define PORT_WRCONFIG_PINMASK(value) ((PORT_WRCONFIG_PINMASK_Msk & ((value) << PORT_WRCONFIG_PINMASK_Pos)))
+#define PORT_WRCONFIG_PINMASK(value) (PORT_WRCONFIG_PINMASK_Msk & ((value) << PORT_WRCONFIG_PINMASK_Pos))
 #define PORT_WRCONFIG_PMUXEN_Pos    16           /**< \brief (PORT_WRCONFIG) Peripheral Multiplexer Enable */
 #define PORT_WRCONFIG_PMUXEN        (0x1ul << PORT_WRCONFIG_PMUXEN_Pos)
 #define PORT_WRCONFIG_INEN_Pos      17           /**< \brief (PORT_WRCONFIG) Input Enable */
@@ -227,7 +270,7 @@ typedef union {
 #define PORT_WRCONFIG_DRVSTR        (0x1ul << PORT_WRCONFIG_DRVSTR_Pos)
 #define PORT_WRCONFIG_PMUX_Pos      24           /**< \brief (PORT_WRCONFIG) Peripheral Multiplexing */
 #define PORT_WRCONFIG_PMUX_Msk      (0xFul << PORT_WRCONFIG_PMUX_Pos)
-#define PORT_WRCONFIG_PMUX(value)   ((PORT_WRCONFIG_PMUX_Msk & ((value) << PORT_WRCONFIG_PMUX_Pos)))
+#define PORT_WRCONFIG_PMUX(value)   (PORT_WRCONFIG_PMUX_Msk & ((value) << PORT_WRCONFIG_PMUX_Pos))
 #define PORT_WRCONFIG_WRPMUX_Pos    28           /**< \brief (PORT_WRCONFIG) Write PMUX */
 #define PORT_WRCONFIG_WRPMUX        (0x1ul << PORT_WRCONFIG_WRPMUX_Pos)
 #define PORT_WRCONFIG_WRPINCFG_Pos  30           /**< \brief (PORT_WRCONFIG) Write PINCFG */
@@ -252,7 +295,7 @@ typedef union {
 
 #define PORT_PMUX_PMUXE_Pos         0            /**< \brief (PORT_PMUX) Peripheral Multiplexing Even */
 #define PORT_PMUX_PMUXE_Msk         (0xFul << PORT_PMUX_PMUXE_Pos)
-#define PORT_PMUX_PMUXE(value)      ((PORT_PMUX_PMUXE_Msk & ((value) << PORT_PMUX_PMUXE_Pos)))
+#define PORT_PMUX_PMUXE(value)      (PORT_PMUX_PMUXE_Msk & ((value) << PORT_PMUX_PMUXE_Pos))
 #define   PORT_PMUX_PMUXE_A_Val           0x0ul  /**< \brief (PORT_PMUX) Peripheral function A selected */
 #define   PORT_PMUX_PMUXE_B_Val           0x1ul  /**< \brief (PORT_PMUX) Peripheral function B selected */
 #define   PORT_PMUX_PMUXE_C_Val           0x2ul  /**< \brief (PORT_PMUX) Peripheral function C selected */
@@ -271,7 +314,7 @@ typedef union {
 #define PORT_PMUX_PMUXE_H           (PORT_PMUX_PMUXE_H_Val         << PORT_PMUX_PMUXE_Pos)
 #define PORT_PMUX_PMUXO_Pos         4            /**< \brief (PORT_PMUX) Peripheral Multiplexing Odd */
 #define PORT_PMUX_PMUXO_Msk         (0xFul << PORT_PMUX_PMUXO_Pos)
-#define PORT_PMUX_PMUXO(value)      ((PORT_PMUX_PMUXO_Msk & ((value) << PORT_PMUX_PMUXO_Pos)))
+#define PORT_PMUX_PMUXO(value)      (PORT_PMUX_PMUXO_Msk & ((value) << PORT_PMUX_PMUXO_Pos))
 #define   PORT_PMUX_PMUXO_A_Val           0x0ul  /**< \brief (PORT_PMUX) Peripheral function A selected */
 #define   PORT_PMUX_PMUXO_B_Val           0x1ul  /**< \brief (PORT_PMUX) Peripheral function B selected */
 #define   PORT_PMUX_PMUXO_C_Val           0x2ul  /**< \brief (PORT_PMUX) Peripheral function C selected */

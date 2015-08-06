@@ -1,10 +1,56 @@
+/**
+ * \file
+ *
+ * \brief SAM TC - Timer Counter Driver
+ *
+ * Copyright (C) 2013-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef TC_H_INCLUDED
 #define TC_H_INCLUDED
 
 /**
  * \defgroup asfdoc_sam0_tc_group SAM Timer/Counter Driver (TC)
  *
- * This driver for Atmel庐 | SMART SAM devices provides an interface for the configuration
+ * This driver for Atmel&reg; | SMART SAM devices provides an interface for the configuration
  * and management of the timer modules within the device, for waveform
  * generation and timing operations. The following driver API modes are covered
  * by this manual:
@@ -23,6 +69,8 @@
  *  - Atmel | SMART SAM R21
  *  - Atmel | SMART SAM D10/D11
  *  - Atmel | SMART SAM L21
+ *  - Atmel | SMART SAM DAx
+ *  - Atmel | SMART SAM C20/C21
  *
  * The outline of this documentation is as follows:
  *  - \ref asfdoc_sam0_tc_prerequisites
@@ -69,22 +117,26 @@
  *  </tr>
  *  <tr>
  *    <td>FEATURE_TC_DOUBLE_BUFFERED</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_TC_SYNCBUSY_SCHEME_VERSION_2</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_TC_STAMP_PW_CAPTURE</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_TC_READ_SYNC</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_TC_IO_CAPTURE</td>
+ *    <td>SAML21/C20/C21</td>
+ *  </tr>
+ *  <tr>
+ *    <td>FEATURE_TC_GENERATE_DMA_TRIGGER</td>
  *    <td>SAML21</td>
  *  </tr>
  * </table>
@@ -108,7 +160,7 @@
  *
  * \note The connection of events between modules requires the use of the
  *       \ref asfdoc_sam0_events_group "SAM Event System Driver (EVENTS)"
- *       to route output event of one module to the the input event of another.
+ *       to route output event of one module to the input event of another.
  *       For more information on event routing, refer to the event driver
  *       documentation.
  *
@@ -412,26 +464,27 @@
  * Define port features set according to different device family
  * @{
 */
-#if (SAML21) || defined(__DOXYGEN__)
-/** TC double buffered */
+#if (SAML21) || (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
+/** TC double buffered. */
 #  define FEATURE_TC_DOUBLE_BUFFERED
-/** SYNCBUSY scheme version 2 */
+/** SYNCBUSY scheme version 2. */
 #  define FEATURE_TC_SYNCBUSY_SCHEME_VERSION_2
-/** TC time stamp capture and pulse width capture */
+/** TC time stamp capture and pulse width capture. */
 #  define FEATURE_TC_STAMP_PW_CAPTURE
-/** Read synchronization of COUNT*/
+/** Read synchronization of COUNT. */
 #  define FEATURE_TC_READ_SYNC
-/** IO pin edge capture*/
+/** IO pin edge capture. */
 #  define FEATURE_TC_IO_CAPTURE
+/** Generate DMA triggers. */
+#  define FEATURE_TC_GENERATE_DMA_TRIGGER
 #endif
 /*@}*/
 
 #if !defined(__DOXYGEN__)
-#if SAMD20 || SAML21
+#if SAMD20 || SAML21 || SAMC20 || SAMC21
 #  define TC_INSTANCE_OFFSET 0
 #endif
-#if  defined(SAMD21) || defined(SAMR21)
-//#if SAMD21 || SAMR21
+#if SAMD21 || SAMR21 || SAMDA1
 #  define TC_INSTANCE_OFFSET 3
 #endif
 #if SAMD10 || SAMD11
@@ -440,7 +493,7 @@
 
 #if SAMD20
 #  define NUMBER_OF_COMPARE_CAPTURE_CHANNELS TC0_CC8_NUM
-#elif SAML21
+#elif SAML21 || SAMC20 || SAMC21
 #  define NUMBER_OF_COMPARE_CAPTURE_CHANNELS TC0_CC_NUM
 #elif SAMD10 || SAMD11
 #  define NUMBER_OF_COMPARE_CAPTURE_CHANNELS TC1_CC8_NUM
@@ -452,7 +505,7 @@
 /** TC Instance MAX ID Number. */
 #if SAMD20E || SAMD21G || SAMD21E || SAMR21
 #define TC_INST_MAX_ID  5
-#elif SAML21
+#elif SAML21 || SAMC20 || SAMC21
 #define TC_INST_MAX_ID  4
 #elif SAMD10 || SAMD11
 #define TC_INST_MAX_ID  2
@@ -462,15 +515,15 @@
 
 #endif
 
-//#if TC_ASYNC == true // TEMP: Commented by V
+#if TC_ASYNC == true
 #  include <system_interrupt.h>
-//#endif
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//#if TC_ASYNC == true // TEMP: Commented by V
+#if TC_ASYNC == true
 /** Enum for the possible callback types for the TC module. */
 enum tc_callback {
     /** Callback for TC overflow. */
@@ -486,7 +539,7 @@ enum tc_callback {
     TC_CALLBACK_N,
 #  endif
 };
-//#endif
+#endif
 
 /**
  * \name Module Status Flags
@@ -547,7 +600,7 @@ enum tc_compare_capture_channel {
 };
 
 /** TC wave generation mode. */
-#if SAML21
+#if SAML21 || SAMC20 || SAMC21
 #define TC_WAVE_GENERATION_NORMAL_FREQ_MODE TC_WAVE_WAVEGEN_NFRQ
 #define TC_WAVE_GENERATION_MATCH_FREQ_MODE  TC_WAVE_WAVEGEN_MFRQ
 #define TC_WAVE_GENERATION_NORMAL_PWM_MODE  TC_WAVE_WAVEGEN_NPWM
@@ -675,7 +728,7 @@ enum tc_count_direction {
 };
 
 /** Waveform inversion mode. */
-#if SAML21
+#if SAML21 || SAMC20 || SAMC21
 #define TC_WAVEFORM_INVERT_CC0_MODE  TC_DRVCTRL_INVEN(1)
 #define TC_WAVEFORM_INVERT_CC1_MODE  TC_DRVCTRL_INVEN(2)
 #else
@@ -807,7 +860,7 @@ struct tc_config {
 
     /** When \c true the module is enabled during standby. */
     bool run_in_standby;
-#if (SAML21)
+#if (SAML21) || (SAMC20) || (SAMC21)
     /** Run on demand. */
     bool on_demand;
 #endif
@@ -824,7 +877,7 @@ struct tc_config {
     enum tc_reload_action reload_action;
 
     /** Specifies which channel(s) to invert the waveform on.
-    	For SAML21, it's also used to invert IO input pin. */
+    	For SAML21/C20/C21, it's also used to invert IO input pin. */
     uint8_t waveform_invert_output;
 
     /** Specifies which channel(s) to enable channel capture
@@ -870,14 +923,13 @@ struct tc_config {
 #endif
 };
 
-
-//#if TC_ASYNC == true // TEMP: Commented by V
+#if TC_ASYNC == true
 /* Forward Declaration for the device instance. */
 struct tc_module;
 
 /* Type of the callback functions. */
 typedef void (*tc_callback_t)(struct tc_module *const module);
-//#endif
+#endif
 
 /**
  * \brief TC software device instance structure.
@@ -895,14 +947,14 @@ struct tc_module {
 
     /** Size of the initialized Timer/Counter module configuration. */
     enum tc_counter_size counter_size;
-//#  if TC_ASYNC == true // TEMP: Commented by V
+#  if TC_ASYNC == true
     /** Array of callbacks. */
     tc_callback_t callback[TC_CALLBACK_N];
     /** Bit mask for callbacks registered. */
     uint8_t register_callback_mask;
     /** Bit mask for callbacks enabled. */
     uint8_t enable_callback_mask;
-//#  endif
+#  endif
 #ifdef FEATURE_TC_DOUBLE_BUFFERED
     /** Set to \c true to enable double buffering write. */
     bool double_buffering_enabled;
@@ -947,7 +999,7 @@ static inline bool tc_is_syncing(
     /* Get a pointer to the module's hardware instance */
     TcCount8 *const tc_module = &(module_inst->hw->COUNT8);
 
-#if (SAML21)
+#if (SAML21) || (SAMC20) || (SAMC21)
     return (tc_module->SYNCBUSY.reg);
 #else
     return (tc_module->STATUS.reg & TC_STATUS_SYNCBUSY);
@@ -969,10 +1021,10 @@ static inline bool tc_is_syncing(
  *  \li Normal frequency wave generation
  *  \li GCLK reload action
  *  \li Don't run in standby
- *  \li Don't run on demand for SAML21
+ *  \li Don't run on demand for SAML21/C20/C21
  *  \li No inversion of waveform output
  *  \li No capture enabled
- *  \li No I/O capture enabled for SAML21
+ *  \li No I/O capture enabled for SAML21/C20/C21
  *  \li No event input enabled
  *  \li Count upward
  *  \li Don't perform one-shot operations
@@ -1001,7 +1053,7 @@ static inline void tc_get_config_defaults(
     config->wave_generation            = TC_WAVE_GENERATION_NORMAL_FREQ;
     config->reload_action              = TC_RELOAD_ACTION_GCLK;
     config->run_in_standby             = false;
-#if (SAML21)
+#if (SAML21) || (SAMC20) || (SAMC21)
     config->on_demand                  = false;
 #endif
     config->waveform_invert_output     = TC_WAVEFORM_INVERT_OUTPUT_NONE;
@@ -1246,7 +1298,7 @@ static inline void tc_stop_counter(
     }
 
     /* Write command to execute */
-    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(2);
+    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_STOP_Val);
 }
 
 /**
@@ -1278,7 +1330,7 @@ static inline void tc_start_counter(
     }
 
     /* Write command to execute */
-    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(1);
+    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_RETRIGGER_Val);
 }
 
 /** @} */
@@ -1318,7 +1370,7 @@ static inline void tc_update_double_buffer(
     }
 
     /* Write command to execute */
-    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(3);
+    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_UPDATE_Val);
 }
 /** @} */
 #endif
@@ -1358,7 +1410,53 @@ static inline void tc_sync_read_count(
     }
 
     /* Write command to execute */
-    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(4);
+    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_READSYNC_Val);
+}
+/** @} */
+#endif
+
+#ifdef FEATURE_TC_GENERATE_DMA_TRIGGER
+/**
+ * \name Generate TC DMA Triggers command
+ * @{
+ */
+
+/**
+ * \brief TC DMA Trigger.
+ *
+ * TC DMA trigger command.
+ *
+ * \param[in]  module_inst   Pointer to the software module instance struct
+ */
+static inline void tc_dma_trigger_command(
+    const struct tc_module *const module_inst)
+{
+    /* Sanity check arguments */
+    Assert(module_inst);
+    Assert(module_inst->hw);
+
+    /* Get a pointer to the module's hardware instance */
+    TcCount8 *const tc_module = &(module_inst->hw->COUNT8);
+
+    while (tc_is_syncing(module_inst)) {
+        /* Wait for sync */
+    }
+
+    /* Make certain that there are no conflicting commands in the register */
+    tc_module->CTRLBCLR.reg = TC_CTRLBCLR_CMD_NONE;
+
+    while (tc_is_syncing(module_inst)) {
+        /* Wait for sync */
+    }
+
+#if SAML21
+    /* Write command to execute */
+    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_DMATRG_Val);
+#endif
+#if (SAMC20) || (SAMC21)
+    /* Write command to execute */
+    tc_module->CTRLBSET.reg = TC_CTRLBSET_CMD(TC_CTRLBSET_CMD_DMAOS_Val);
+#endif
 }
 /** @} */
 #endif
@@ -1587,15 +1685,6 @@ static inline void tc_clear_status(
  *	<tr>
  *		<th>Changelog</th>
  *	</tr>
- *  <tr>
- *    <td>Added support for SAML21</td>
- *  </tr>
- *  <tr>
- *    <td>Added support for SAMD10/D11</td>
- *  </tr>
- *  <tr>
- *    <td>Added support for SAMR21</td>
- *  </tr>
  *	<tr>
  *    <td>Added support for SAMD21 and do some modifications as below:
  *          \li Clean up in the configuration structure, the counter size
@@ -1623,6 +1712,7 @@ static inline void tc_clear_status(
  * added to the user application.
  *
  *  - \subpage asfdoc_sam0_tc_basic_use_case
+ *  - \subpage asfdoc_sam0_tc_macth_freq_use_case
  * \if TC_CALLBACK_MODE
  *  - \subpage asfdoc_sam0_tc_timer_use_case
  *  - \subpage asfdoc_sam0_tc_callback_use_case
@@ -1638,9 +1728,14 @@ static inline void tc_clear_status(
  *		<th>Comments</td>
  *	</tr>
  *	<tr>
+ *		<td>F</td>
+ *		<td>12/2014</td>
+ *		<td>Added support for SAMC21.</td>
+ *	</tr>
+ *	<tr>
  *		<td>E</td>
- *		<td>11/2014</td>
- *		<td>Added support for SAML21.</td>
+ *		<td>04/2015</td>
+ *		<td>Added support for SAML21 and SAMDAx.</td>
  *	</tr>
  *	<tr>
  *		<td>D</td>

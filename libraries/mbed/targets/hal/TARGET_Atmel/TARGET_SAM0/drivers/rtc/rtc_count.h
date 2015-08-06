@@ -1,10 +1,56 @@
+/**
+ * \file
+ *
+ * \brief SAM RTC Driver (Count Mode)
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef RTC_COUNT_H_INCLUDED
 #define RTC_COUNT_H_INCLUDED
 
 /**
  * \defgroup asfdoc_sam0_rtc_count_group SAM RTC Count Driver (RTC COUNT)
  *
- * This driver for Atmel庐 | SMART SAM devices provides an interface for the configuration
+ * This driver for Atmel&reg; | SMART SAM devices provides an interface for the configuration
  * and management of the device's Real Time Clock functionality in Count
  * operating mode, for the configuration and retrieval of the current RTC
  * counter value. The following driver API modes are covered by this
@@ -23,6 +69,8 @@
  *  - Atmel | SMART SAM R21
  *  - Atmel | SMART SAM D10/D11
  *  - Atmel | SMART SAM L21
+ *  - Atmel | SMART SAM DAx
+ *  - Atmel | SMART SAM C20/C21
  *
  * The outline of this documentation is as follows:
  *  - \ref asfdoc_sam0_rtc_count_prerequisites
@@ -66,15 +114,15 @@
  *  </tr>
  *  <tr>
  *    <td>FEATURE_RTC_PERIODIC_INT</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_RTC_PRESCALER_OFF</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_RTC_CLOCK_SELECTION</td>
- *    <td>SAML21</td>
+ *    <td>SAML21/C20/C21</td>
  *  </tr>
  *  <tr>
  *    <td>FEATURE_RTC_GENERAL_PURPOSE_REG</td>
@@ -82,7 +130,7 @@
  *  </tr>
  *  <tr>
  *    <td>FEATURE_RTC_CONTINUOUSLY_UPDATED</td>
- *    <td>SAMD20,SAMD21,SAMR21,SAMD10,SAMD11</td>
+ *    <td>SAMD20, SAMD21, SAMR21, SAMD10, SAMD11, SAMDAx</td>
  *  </tr>
  * </table>
  * \note The specific features are only available in the driver when the
@@ -181,7 +229,7 @@
  * \section asfdoc_sam0_rtc_count_special_considerations Special Considerations
  *
  * \subsection asfdoc_sam0_rtc_count_special_considerations_clock Clock Setup
- * \subsubsection asfdoc_sam0_rtc_count_clock_samd_r SAM D20/D21/R21/D10/D11 Clock Setup
+ * \subsubsection asfdoc_sam0_rtc_count_clock_samd_r SAM D20/D21/R21/D10/D11/DA0/DA1 Clock Setup
  * The RTC is typically clocked by a specialized GCLK generator that has a
  * smaller prescaler than the others. By default the RTC clock is on, selected
  * to use the internal 32KHz RC-oscillator with a prescaler of 32, giving a
@@ -235,7 +283,7 @@
  * }
  * \enddot
  *
- * \subsubsection asfdoc_sam0_rtc_count_clock_saml SAM L21 Clock Setup
+ * \subsubsection asfdoc_sam0_rtc_count_clock_saml SAM L21/C20/C21 Clock Setup
  * The RTC clock can be selected from OSC32K,XOSC32K or OSCULP32K , and a 32KHz
  * or 1KHz oscillator clock frequency is required. This clock must be
  * configured and enabled in the 32KHz oscillator controller before using the RTC.
@@ -316,15 +364,17 @@ extern "C" {
  * Define port features set according to different device family
  * @{
 */
-#if (SAML21) || defined(__DOXYGEN__)
+#if (SAML21) || (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
 /** RTC periodic interval interrupt. */
 #  define FEATURE_RTC_PERIODIC_INT
 /** RTC prescaler is off. */
 #  define FEATURE_RTC_PRESCALER_OFF
 /** RTC clock selection. */
 #  define FEATURE_RTC_CLOCK_SELECTION
+#  if !(SAMC20) && !(SAMC21)
 /** General purpose registers. */
 #  define FEATURE_RTC_GENERAL_PURPOSE_REG
+#  endif
 #else
 /** RTC continuously updated. */
 #  define FEATURE_RTC_CONTINUOUSLY_UPDATED
@@ -404,21 +454,21 @@ enum rtc_count_compare {
  * \brief Available periodic interval source.
  */
 enum rtc_count_periodic_interval {
-    /** Periodic interval 0 */
+    /** Periodic interval 0. */
     RTC_COUNT_PERIODIC_INTERVAL_0 = 0,
-    /** Periodic interval 1 */
+    /** Periodic interval 1. */
     RTC_COUNT_PERIODIC_INTERVAL_1 = 1,
-    /** Periodic interval 2 */
+    /** Periodic interval 2. */
     RTC_COUNT_PERIODIC_INTERVAL_2 = 2,
-    /** Periodic interval 3 */
+    /** Periodic interval 3. */
     RTC_COUNT_PERIODIC_INTERVAL_3 = 3,
-    /** Periodic interval 4 */
+    /** Periodic interval 4. */
     RTC_COUNT_PERIODIC_INTERVAL_4 = 4,
-    /** Periodic interval 5 */
+    /** Periodic interval 5. */
     RTC_COUNT_PERIODIC_INTERVAL_5 = 5,
-    /** Periodic interval 6 */
+    /** Periodic interval 6. */
     RTC_COUNT_PERIODIC_INTERVAL_6 = 6,
-    /** Periodic interval 7 */
+    /** Periodic interval 7. */
     RTC_COUNT_PERIODIC_INTERVAL_7 = 7,
 };
 #endif
@@ -457,7 +507,7 @@ enum rtc_count_callback {
     /** Callback for compare channel 2. */
     RTC_COUNT_CALLBACK_COMPARE_2,
 #  endif
-#  if (RTC_NUM_OF_COMP16 > 3)	|| defined(__DOXYGEN__)
+#  if (RTC_NUM_OF_COMP16 > 3) || defined(__DOXYGEN__)
     /** Callback for compare channel 3. */
     RTC_COUNT_CALLBACK_COMPARE_3,
 #  endif
@@ -494,7 +544,7 @@ enum rtc_count_callback {
     /** Callback for compare channel 2. */
     RTC_COUNT_CALLBACK_COMPARE_2,
 #  endif
-#  if (RTC_NUM_OF_COMP16 > 3)	|| defined(__DOXYGEN__)
+#  if (RTC_NUM_OF_COMP16 > 3) || defined(__DOXYGEN__)
     /** Callback for compare channel 3. */
     RTC_COUNT_CALLBACK_COMPARE_3,
 #  endif
@@ -646,6 +696,13 @@ struct rtc_count_config {
      *  needed for reading. */
     bool continuously_update;
 #endif
+#if (SAML21) || (SAMC20) || (SAMC21)
+    /** Enable count read synchronization. The COUNT value requires
+     * synchronization when reading. Disabling the synchronization
+     * will prevent the COUNT value from displaying the current value. */
+    bool enable_read_sync;
+#endif
+
     /** Array of Compare values. Not all Compare values are available in 32-bit
      *  mode. */
     uint32_t compare_values[RTC_NUM_OF_COMP16];
@@ -670,6 +727,7 @@ struct rtc_count_config {
  *  - Continuously sync count register off
  *  - No event source on
  *  - All compare values equal 0
+ *  - Count read synchronization is disabled for SAML21
  *
  *  \param[out] config  Configuration structure to be initialized to default
  *                      values.
@@ -687,6 +745,9 @@ static inline void rtc_count_get_config_defaults(
 
 #ifdef FEATURE_RTC_CONTINUOUSLY_UPDATED
     config->continuously_update = false;
+#endif
+#if (SAML21)
+    config->enable_read_sync = false;
 #endif
 
     for (uint8_t i = 0; i < RTC_NUM_OF_COMP16; i++) {
@@ -1010,7 +1071,7 @@ static inline void rtc_write_general_purpose_reg(
  * \param[in] module  Pointer to the software instance struct
  * \param[in] index General purpose register index (0..3)
  *
- * \retval Value of general purpose register
+ * \return Value of general purpose register
  */
 static inline uint32_t rtc_read_general_purpose_reg(
     struct rtc_module *const module,
@@ -1083,6 +1144,9 @@ static inline uint32_t rtc_read_general_purpose_reg(
  *		<th>Changelog</th>
  *	</tr>
  *	<tr>
+ *		<td>Added support for SAMC21</td>
+ *	</tr>
+ *	<tr>
  *		<td>Added support for SAML21</td>
  *	</tr>
  *	<tr>
@@ -1125,8 +1189,8 @@ static inline uint32_t rtc_read_general_purpose_reg(
  *	</tr>
  *	<tr>
  *		<td>E</td>
- *		<td>11/2014</td>
- *		<td>Added support for SAML21.</td>
+ *		<td>06/2015</td>
+ *		<td>Added support for SAML21, SAMC21, and SAMDAx.</td>
  *	</tr>
  *	<tr>
  *		<td>D</td>

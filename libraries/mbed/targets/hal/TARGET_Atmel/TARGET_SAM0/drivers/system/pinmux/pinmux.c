@@ -1,3 +1,48 @@
+/**
+ * \file
+ *
+ * \brief SAM Pin Multiplexer Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #include <pinmux.h>
 
 /**
@@ -50,7 +95,7 @@ static void _system_pinmux_config(
         /* Check if the user has requested that the output buffer be enabled */
         if ((config->direction == SYSTEM_PINMUX_PIN_DIR_OUTPUT) ||
                 (config->direction == SYSTEM_PINMUX_PIN_DIR_OUTPUT_WITH_READBACK)) {
-            /* Cannot use a pullup if the output driver is enabled,
+            /* Cannot use a pull-up if the output driver is enabled,
              * if requested the input buffer can only sample the current
              * output state */
             pin_cfg &= ~PORT_WRCONFIG_PULLEN;
@@ -82,7 +127,7 @@ static void _system_pinmux_config(
          * requested and it does not violate the valid set of port
          * configurations */
         if (pin_cfg & PORT_WRCONFIG_PULLEN) {
-            /* Set the OUT register bits to enable the pullup if requested,
+            /* Set the OUT register bits to enable the pull-up if requested,
              * clear to enable pull-down */
             if (config->input_pull == SYSTEM_PINMUX_PIN_PULL_UP) {
                 port->OUTSET.reg = pin_mask;

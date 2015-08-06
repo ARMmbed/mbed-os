@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief Component description for GCLK
+ *
+ * Copyright (c) 2014-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef _SAMD21_GCLK_COMPONENT_
 #define _SAMD21_GCLK_COMPONENT_
 
@@ -13,11 +59,11 @@
 /* -------- GCLK_CTRL : (GCLK Offset: 0x0) (R/W  8) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint8_t reg;                 /*!< Type      used for register access              */
+  struct {
+    uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
+    uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint8_t reg;                 /*!< Type      used for register access              */
 } GCLK_CTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -31,11 +77,11 @@ typedef union {
 /* -------- GCLK_STATUS : (GCLK Offset: 0x1) (R/   8) Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
-        uint8_t  SYNCBUSY:1;       /*!< bit:      7  Synchronization Busy Status        */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint8_t reg;                 /*!< Type      used for register access              */
+  struct {
+    uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
+    uint8_t  SYNCBUSY:1;       /*!< bit:      7  Synchronization Busy Status        */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint8_t reg;                 /*!< Type      used for register access              */
 } GCLK_STATUS_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -49,15 +95,15 @@ typedef union {
 /* -------- GCLK_CLKCTRL : (GCLK Offset: 0x2) (R/W 16) Generic Clock Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint16_t ID:6;             /*!< bit:  0.. 5  Generic Clock Selection ID         */
-        uint16_t :2;               /*!< bit:  6.. 7  Reserved                           */
-        uint16_t GEN:4;            /*!< bit:  8..11  Generic Clock Generator            */
-        uint16_t :2;               /*!< bit: 12..13  Reserved                           */
-        uint16_t CLKEN:1;          /*!< bit:     14  Clock Enable                       */
-        uint16_t WRTLOCK:1;        /*!< bit:     15  Write Lock                         */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint16_t reg;                /*!< Type      used for register access              */
+  struct {
+    uint16_t ID:6;             /*!< bit:  0.. 5  Generic Clock Selection ID         */
+    uint16_t :2;               /*!< bit:  6.. 7  Reserved                           */
+    uint16_t GEN:4;            /*!< bit:  8..11  Generic Clock Generator            */
+    uint16_t :2;               /*!< bit: 12..13  Reserved                           */
+    uint16_t CLKEN:1;          /*!< bit:     14  Clock Enable                       */
+    uint16_t WRTLOCK:1;        /*!< bit:     15  Write Lock                         */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint16_t reg;                /*!< Type      used for register access              */
 } GCLK_CLKCTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -169,20 +215,20 @@ typedef union {
 /* -------- GCLK_GENCTRL : (GCLK Offset: 0x4) (R/W 32) Generic Clock Generator Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint32_t ID:4;             /*!< bit:  0.. 3  Generic Clock Generator Selection  */
-        uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
-        uint32_t SRC:5;            /*!< bit:  8..12  Source Select                      */
-        uint32_t :3;               /*!< bit: 13..15  Reserved                           */
-        uint32_t GENEN:1;          /*!< bit:     16  Generic Clock Generator Enable     */
-        uint32_t IDC:1;            /*!< bit:     17  Improve Duty Cycle                 */
-        uint32_t OOV:1;            /*!< bit:     18  Output Off Value                   */
-        uint32_t OE:1;             /*!< bit:     19  Output Enable                      */
-        uint32_t DIVSEL:1;         /*!< bit:     20  Divide Selection                   */
-        uint32_t RUNSTDBY:1;       /*!< bit:     21  Run in Standby                     */
-        uint32_t :10;              /*!< bit: 22..31  Reserved                           */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint32_t reg;                /*!< Type      used for register access              */
+  struct {
+    uint32_t ID:4;             /*!< bit:  0.. 3  Generic Clock Generator Selection  */
+    uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
+    uint32_t SRC:5;            /*!< bit:  8..12  Source Select                      */
+    uint32_t :3;               /*!< bit: 13..15  Reserved                           */
+    uint32_t GENEN:1;          /*!< bit:     16  Generic Clock Generator Enable     */
+    uint32_t IDC:1;            /*!< bit:     17  Improve Duty Cycle                 */
+    uint32_t OOV:1;            /*!< bit:     18  Output Off Value                   */
+    uint32_t OE:1;             /*!< bit:     19  Output Enable                      */
+    uint32_t DIVSEL:1;         /*!< bit:     20  Divide Selection                   */
+    uint32_t RUNSTDBY:1;       /*!< bit:     21  Run in Standby                     */
+    uint32_t :10;              /*!< bit: 22..31  Reserved                           */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint32_t reg;                /*!< Type      used for register access              */
 } GCLK_GENCTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -230,13 +276,13 @@ typedef union {
 /* -------- GCLK_GENDIV : (GCLK Offset: 0x8) (R/W 32) Generic Clock Generator Division -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-    struct {
-        uint32_t ID:4;             /*!< bit:  0.. 3  Generic Clock Generator Selection  */
-        uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
-        uint32_t DIV:16;           /*!< bit:  8..23  Division Factor                    */
-        uint32_t :8;               /*!< bit: 24..31  Reserved                           */
-    } bit;                       /*!< Structure used for bit  access                  */
-    uint32_t reg;                /*!< Type      used for register access              */
+  struct {
+    uint32_t ID:4;             /*!< bit:  0.. 3  Generic Clock Generator Selection  */
+    uint32_t :4;               /*!< bit:  4.. 7  Reserved                           */
+    uint32_t DIV:16;           /*!< bit:  8..23  Division Factor                    */
+    uint32_t :8;               /*!< bit: 24..31  Reserved                           */
+  } bit;                       /*!< Structure used for bit  access                  */
+  uint32_t reg;                /*!< Type      used for register access              */
 } GCLK_GENDIV_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -254,11 +300,11 @@ typedef union {
 /** \brief GCLK hardware registers */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef struct {
-    __IO GCLK_CTRL_Type            CTRL;        /**< \brief Offset: 0x0 (R/W  8) Control */
-    __I  GCLK_STATUS_Type          STATUS;      /**< \brief Offset: 0x1 (R/   8) Status */
-    __IO GCLK_CLKCTRL_Type         CLKCTRL;     /**< \brief Offset: 0x2 (R/W 16) Generic Clock Control */
-    __IO GCLK_GENCTRL_Type         GENCTRL;     /**< \brief Offset: 0x4 (R/W 32) Generic Clock Generator Control */
-    __IO GCLK_GENDIV_Type          GENDIV;      /**< \brief Offset: 0x8 (R/W 32) Generic Clock Generator Division */
+  __IO GCLK_CTRL_Type            CTRL;        /**< \brief Offset: 0x0 (R/W  8) Control */
+  __I  GCLK_STATUS_Type          STATUS;      /**< \brief Offset: 0x1 (R/   8) Status */
+  __IO GCLK_CLKCTRL_Type         CLKCTRL;     /**< \brief Offset: 0x2 (R/W 16) Generic Clock Control */
+  __IO GCLK_GENCTRL_Type         GENCTRL;     /**< \brief Offset: 0x4 (R/W 32) Generic Clock Generator Control */
+  __IO GCLK_GENDIV_Type          GENDIV;      /**< \brief Offset: 0x8 (R/W 32) Generic Clock Generator Division */
 } Gclk;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 

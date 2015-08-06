@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief SAM R21 System Interrupt Driver
+ *
+ * Copyright (C) 2014-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #ifndef SYSTEM_INTERRUPT_FEATURES_H_INCLUDED
 #define SYSTEM_INTERRUPT_FEATURES_H_INCLUDED
 
@@ -14,11 +60,11 @@
 		MREPEAT(name##_INST_NUM, _MODULE_IRQn, name)
 
 #  define _SYSTEM_INTERRUPT_IPSR_MASK              0x0000003f
-#  define _SYSTEM_INTERRUPT_PRIORITY_MASK          0x00000007
+#  define _SYSTEM_INTERRUPT_PRIORITY_MASK          0x00000003
 
 #  define _SYSTEM_INTERRUPT_EXTERNAL_VECTOR_START  0
 
-#  define _SYSTEM_INTERRUPT_SYSTICK_PRI_POS        29
+#  define _SYSTEM_INTERRUPT_SYSTICK_PRI_POS        30
 #endif
 
 /**
@@ -30,11 +76,11 @@
  * \brief Table of possible system interrupt/exception vector numbers.
  *
  * Table of all possible interrupt and exception vector indexes within the
- * SAMD21 device.
+ * SAMR21 device.
  */
 #if defined(__DOXYGEN__)
 /** \note The actual enumeration name is "system_interrupt_vector". */
-enum system_interrupt_vector_samd21 {
+enum system_interrupt_vector_samr21 {
 #else
 enum system_interrupt_vector {
 #endif
@@ -95,40 +141,23 @@ enum system_interrupt_vector {
      */
     SYSTEM_INTERRUPT_MODULE_TCn        = TCn_IRQn,
 #else
-    //_SYSTEM_INTERRUPT_MODULES(SERCOM)
-    SYSTEM_INTERRUPT_MODULE_SERCOM0 = SERCOM0_IRQn,
-    SYSTEM_INTERRUPT_MODULE_SERCOM1 = SERCOM1_IRQn,
-    SYSTEM_INTERRUPT_MODULE_SERCOM2 = SERCOM2_IRQn,
-    SYSTEM_INTERRUPT_MODULE_SERCOM3 = SERCOM3_IRQn,
-    SYSTEM_INTERRUPT_MODULE_SERCOM4 = SERCOM4_IRQn,
-    SYSTEM_INTERRUPT_MODULE_SERCOM5 = SERCOM5_IRQn,
+    _SYSTEM_INTERRUPT_MODULES(SERCOM)
 
-    //_SYSTEM_INTERRUPT_MODULES(TCC)
-    SYSTEM_INTERRUPT_MODULE_TCC0 = TCC0_IRQn,
-    SYSTEM_INTERRUPT_MODULE_TCC1 = TCC1_IRQn,
-    SYSTEM_INTERRUPT_MODULE_TCC2 = TCC2_IRQn,
+    _SYSTEM_INTERRUPT_MODULES(TCC)
 
     SYSTEM_INTERRUPT_MODULE_TC3        = TC3_IRQn,
     SYSTEM_INTERRUPT_MODULE_TC4        = TC4_IRQn,
     SYSTEM_INTERRUPT_MODULE_TC5        = TC5_IRQn,
-#  if (SAMD21J)
-    SYSTEM_INTERRUPT_MODULE_TC6        = TC6_IRQn,
-    SYSTEM_INTERRUPT_MODULE_TC7        = TC7_IRQn,
-#  endif
+
 #endif
 
     /** Interrupt vector index for an Analog Comparator peripheral interrupt. */
     SYSTEM_INTERRUPT_MODULE_AC         = AC_IRQn,
     /** Interrupt vector index for an Analog-to-Digital peripheral interrupt. */
     SYSTEM_INTERRUPT_MODULE_ADC        = ADC_IRQn,
-    /** Interrupt vector index for a Digital-to-Analog peripheral interrupt. */
-    SYSTEM_INTERRUPT_MODULE_DAC        = DAC_IRQn,
     /** Interrupt vector index for a Peripheral Touch Controller peripheral
      *  interrupt. */
     SYSTEM_INTERRUPT_MODULE_PTC        = PTC_IRQn,
-    /** Interrupt vector index for a Inter-IC Sound Interface peripheral
-     *  interrupt. */
-    SYSTEM_INTERRUPT_MODULE_I2S        = I2S_IRQn,
 };
 
 /** @} */

@@ -1,3 +1,48 @@
+/**
+ * \file
+ *
+ * \brief SAM RTC Driver (Count Mode)
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #include "rtc_count.h"
 #include <gclk.h>
 
@@ -211,11 +256,11 @@ static enum status_code _rtc_count_set_config(
  *
  * \param[out] module  Pointer to the software instance struct
  * \param[in]   hw      Pointer to hardware instance
- * \param[in] config  Pointer to the configuration structure.
+ * \param[in] config  Pointer to the configuration structure
  *
  * \return Status of the initialization procedure.
- * \retval STATUS_OK               If the initialization was run stressfully.
- * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were given.
+ * \retval STATUS_OK               If the initialization was run stressfully
+ * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were given
  */
 enum status_code rtc_count_init(
     struct rtc_module *const module,
@@ -264,11 +309,11 @@ enum status_code rtc_count_init(
  * Sets the value of the counter to the specified value.
  *
  * \param[in,out] module  Pointer to the software instance struct
- * \param[in] count_value  The value to be set in count register.
+ * \param[in] count_value  The value to be set in count register
  *
  * \return Status of setting the register.
- * \retval STATUS_OK               If everything was executed correctly.
- * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided.
+ * \retval STATUS_OK               If everything was executed correctly
+ * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided
  */
 enum status_code rtc_count_set_count(
     struct rtc_module *const module,
@@ -373,13 +418,13 @@ uint32_t rtc_count_get_count(struct rtc_module *const module)
  * \note Compare 4 and 5 are only available in 16-bit mode.
  *
  * \param[in,out] module  Pointer to the software instance struct
- * \param[in] comp_value  The value to be written to the compare.
- * \param[in] comp_index  Index of the compare to set.
+ * \param[in] comp_value  The value to be written to the compare
+ * \param[in] comp_index  Index of the compare to set
  *
  * \return Status indicating if compare was successfully set.
- * \retval STATUS_OK               If compare was successfully set.
- * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided.
- * \retval STATUS_ERR_BAD_FORMAT   If the module was not initialized in a mode.
+ * \retval STATUS_OK               If compare was successfully set
+ * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided
+ * \retval STATUS_ERR_BAD_FORMAT   If the module was not initialized in a mode
  */
 enum status_code rtc_count_set_compare(
     struct rtc_module *const module,
@@ -444,13 +489,13 @@ enum status_code rtc_count_set_compare(
  *
  * \param[in,out] module  Pointer to the software instance struct
  * \param[out] comp_value  Pointer to 32-bit integer that will be populated with
- *                         the current compare value.
- * \param[in]  comp_index  Index of compare to check.
+ *                         the current compare value
+ * \param[in]  comp_index  Index of compare to check
  *
  * \return Status of the reading procedure.
- * \retval STATUS_OK               If the value was read correctly.
- * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided.
- * \retval STATUS_ERR_BAD_FORMAT   If the module was not initialized in a mode.
+ * \retval STATUS_OK               If the value was read correctly
+ * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided
+ * \retval STATUS_ERR_BAD_FORMAT   If the module was not initialized in a mode
  */
 enum status_code rtc_count_get_compare(
     struct rtc_module *const module,
@@ -502,11 +547,11 @@ enum status_code rtc_count_get_compare(
  * \note Only available in 16-bit mode.
  *
  * \param[in,out] module  Pointer to the software instance struct
- * \param[out] period_value  Pointer to value for return argument.
+ * \param[out] period_value  Pointer to value for return argument
  *
  * \return Status of getting the period value.
- * \retval STATUS_OK                   If the period value was read correctly.
- * \retval STATUS_ERR_UNSUPPORTED_DEV  If incorrect mode was set.
+ * \retval STATUS_OK                   If the period value was read correctly
+ * \retval STATUS_ERR_UNSUPPORTED_DEV  If incorrect mode was set
  */
 enum status_code rtc_count_get_period(
     struct rtc_module *const module,
@@ -537,11 +582,11 @@ enum status_code rtc_count_get_period(
  * \note Only available in 16-bit mode.
  *
  * \param[in,out] module  Pointer to the software instance struct
- * \param[in] period_value  The value to set to the period.
+ * \param[in] period_value  The value to set to the period
  *
  * \return Status of setting the period value.
- * \retval STATUS_OK                   If the period was set correctly.
- * \retval STATUS_ERR_UNSUPPORTED_DEV  If module is not operated in 16-bit mode.
+ * \retval STATUS_OK                   If the period was set correctly
+ * \retval STATUS_ERR_UNSUPPORTED_DEV  If module is not operated in 16-bit mode
  */
 enum status_code rtc_count_set_period(
     struct rtc_module *const module,
@@ -577,7 +622,7 @@ enum status_code rtc_count_set_period(
  * \note Compare 4 and 5 are only available in 16-bit mode.
  *
  * \param[in,out] module  Pointer to the software instance struct
- * \param[in] comp_index  Index of compare to check current flag.
+ * \param[in] comp_index  Index of compare to check current flag
  */
 bool rtc_count_is_compare_match(
     struct rtc_module *const module,
@@ -613,7 +658,7 @@ bool rtc_count_is_compare_match(
     }
 
     /* Set status of INTFLAG as return argument. */
-    return (rtc_module->MODE0.INTFLAG.reg & (1 << comp_index));
+    return (rtc_module->MODE0.INTFLAG.reg & (1 << comp_index)) ? true : false;
 }
 
 /**
@@ -625,12 +670,12 @@ bool rtc_count_is_compare_match(
  * \note Compare 4 and 5 are only available in 16-bit mode.
  *
  * \param[in,out] module  Pointer to the software instance struct
- * \param[in] comp_index  Index of compare to check current flag.
+ * \param[in] comp_index  Index of compare to check current flag
  *
  * \return Status indicating if flag was successfully cleared.
- * \retval STATUS_OK               If flag was successfully cleared.
- * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided.
- * \retval STATUS_ERR_BAD_FORMAT   If the module was not initialized in a mode.
+ * \retval STATUS_OK               If flag was successfully cleared
+ * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided
+ * \retval STATUS_ERR_BAD_FORMAT   If the module was not initialized in a mode
  */
 enum status_code rtc_count_clear_compare_match(
     struct rtc_module *const module,
@@ -684,11 +729,11 @@ enum status_code rtc_count_clear_compare_match(
  * \note Can only be used when the RTC is operated in 1Hz.
  *
  * \param[in,out] module  Pointer to the software instance struct
- * \param[in] value  Ranging from -127 to 127 used for the correction.
+ * \param[in] value  Ranging from -127 to 127 used for the correction
  *
  * \return Status of the calibration procedure.
- * \retval STATUS_OK               If calibration was executed correctly.
- * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided.
+ * \retval STATUS_OK               If calibration was executed correctly
+ * \retval STATUS_ERR_INVALID_ARG  If invalid argument(s) were provided
  */
 enum status_code rtc_count_frequency_correction(
     struct rtc_module *const module,

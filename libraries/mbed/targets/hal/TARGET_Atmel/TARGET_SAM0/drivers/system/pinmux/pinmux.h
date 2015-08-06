@@ -1,13 +1,58 @@
+/**
+ * \file
+ *
+ * \brief SAM Pin Multiplexer Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
 #ifndef PINMUX_H_INCLUDED
 #define PINMUX_H_INCLUDED
 
 /**
  * \defgroup asfdoc_sam0_system_pinmux_group SAM System Pin Multiplexer Driver (SYSTEM PINMUX)
  *
- * This driver for Atmel庐 | SMART SAM devices provides an interface for the configuration
- * and management of the device's physical I/O Pins, to alter the direction and
- * input/drive characteristics as well as to configure the pin peripheral
- * multiplexer selection.
+ * This driver for Atmel&reg; | SMART SAM devices provides an interface for the
+ * configuration and management of the device's physical I/O Pins, to alter the
+ * direction and input/drive characteristics as well as to configure the pin
+ * peripheral multiplexer selection.
  *
  * The following peripherals are used by this module:
  *  - PORT (Port I/O Management)
@@ -17,6 +62,8 @@
  *  - Atmel | SMART SAM R21
  *  - Atmel | SMART SAM D10/D11
  *  - Atmel | SMART SAM L21
+ *  - Atmel | SMART SAM DAx
+ *  - Atmel | SMART SAM C20/C21
  *
  * Physically, the modules are interconnected within the device as shown in the
  * following diagram:
@@ -51,7 +98,7 @@
  *  </tr>
  *  <tr>
  *    <td>FEATURE_SYSTEM_PINMUX_DRIVE_STRENGTH</td>
- *    <td>SAML21</td>
+ *    <td>SAML21, SAMC20/C21</td>
  *  </tr>
  * </table>
  * \note The specific features are only available in the driver when the
@@ -156,7 +203,7 @@ extern "C" {
 #endif
 
 /*@{*/
-#if (SAML21) || defined(__DOXYGEN__)
+#if (SAML21) || (SAMC20) || (SAMC21) || defined(__DOXYGEN__)
 /** Output Driver Strength Selection feature support. */
 #  define FEATURE_SYSTEM_PINMUX_DRIVE_STRENGTH
 #endif
@@ -557,9 +604,6 @@ void system_pinmux_group_set_output_drive(
  *		<th>Changelog</th>
  *	</tr>
  *	<tr>
- *		<td>Add SAML21 support.</td>
- *	</tr>
- *	<tr>
  *		<td>Removed code of open drain, slew limit and drive strength
  *		features</td>
  *	</tr>
@@ -597,18 +641,18 @@ void system_pinmux_group_set_output_drive(
  *	</tr>
  *	<tr>
  *		<td>F</td>
- *		<td>11/2014</td>
- *		<td>Add support for SAML21.</td>
+ *		<td>06/2015</td>
+ *		<td>Add support for SAML21, SAMDAx, and SAMC20/C21.</td>
  *	</tr>
  *	<tr>
  *		<td>E</td>
  *		<td>12/2014</td>
- *		<td>Add support for SAMR21 and SAMD10/D11</td>
+ *		<td>Add support for SAMR21 and SAMD10/D11.</td>
  *	</tr>
  *	<tr>
  *		<td>D</td>
  *		<td>01/2014</td>
- *		<td>Add support for SAMD21</td>
+ *		<td>Add support for SAMD21.</td>
  *	</tr>
  *	<tr>
  *		<td>C</td>

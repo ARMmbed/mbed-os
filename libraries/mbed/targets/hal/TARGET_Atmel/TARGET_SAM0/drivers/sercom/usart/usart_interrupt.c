@@ -1,3 +1,49 @@
+/**
+ * \file
+ *
+ * \brief SAM SERCOM USART Asynchronous Driver
+ *
+ * Copyright (C) 2012-2015 Atmel Corporation. All rights reserved.
+ *
+ * \asf_license_start
+ *
+ * \page License
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * 3. The name of Atmel may not be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * 4. This software may only be redistributed and used in connection with an
+ *    Atmel microcontroller product.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * EXPRESSLY AND SPECIFICALLY DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ * \asf_license_stop
+ *
+ */
+/*
+ * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
+ */
+
 #include "usart_interrupt.h"
 
 /**
@@ -9,7 +55,7 @@
  * \param[in]  length   Length of data buffer
  *
  */
-void _usart_write_buffer(
+enum status_code _usart_write_buffer(
     struct usart_module *const module,
     uint8_t *tx_data,
     uint16_t length)
@@ -17,17 +63,31 @@ void _usart_write_buffer(
     /* Sanity check arguments */
     Assert(module);
     Assert(module->hw);
+    Assert(tx_data);
 
     /* Get a pointer to the hardware module instance */
     SercomUsart *const usart_hw = &(module->hw->USART);
 
+    system_interrupt_enter_critical_section();
+
+    /* Check if the USART transmitter is busy */
+    if (module->remaining_tx_buffer_length > 0) {
+        system_interrupt_leave_critical_section();
+        return STATUS_BUSY;
+    }
+
     /* Write parameters to the device instance */
     module->remaining_tx_buffer_length = length;
+
+    system_interrupt_leave_critical_section();
+
     module->tx_buffer_ptr              = tx_data;
     module->tx_status                  = STATUS_BUSY;
 
     /* Enable the Data Register Empty Interrupt */
     usart_hw->INTENSET.reg = SERCOM_USART_INTFLAG_DRE;
+
+    return STATUS_OK;
 }
 
 /**
@@ -39,7 +99,7 @@ void _usart_write_buffer(
  * \param[in]  length   Length of data buffer
  *
  */
-void _usart_read_buffer(
+enum status_code _usart_read_buffer(
     struct usart_module *const module,
     uint8_t *rx_data,
     uint16_t length)
@@ -47,13 +107,25 @@ void _usart_read_buffer(
     /* Sanity check arguments */
     Assert(module);
     Assert(module->hw);
+    Assert(rx_data);
 
     /* Get a pointer to the hardware module instance */
     SercomUsart *const usart_hw = &(module->hw->USART);
 
+    system_interrupt_enter_critical_section();
+
+    /* Check if the USART receiver is busy */
+    if (module->remaining_rx_buffer_length > 0) {
+        system_interrupt_leave_critical_section();
+        return STATUS_BUSY;
+    }
+
     /* Set length for the buffer and the pointer, and let
      * the interrupt handler do the rest */
     module->remaining_rx_buffer_length = length;
+
+    system_interrupt_leave_critical_section();
+
     module->rx_buffer_ptr              = rx_data;
     module->rx_status                  = STATUS_BUSY;
 
@@ -73,6 +145,8 @@ void _usart_read_buffer(
         usart_hw->INTENSET.reg = SERCOM_USART_INTFLAG_RXS;
     }
 #endif
+
+    return STATUS_OK;
 }
 
 /**
@@ -129,7 +203,7 @@ void usart_unregister_callback(
 }
 
 /**
- * \brief Asynchronous write a single char
+ * \brief Asynchronous write a data
  *
  * Sets up the driver to write the data given. If registered and enabled,
  * a callback function will be called when the transmit is completed.
@@ -151,10 +225,6 @@ enum status_code usart_write_job(
     Assert(module);
     Assert(tx_data);
 
-    /* Check if the USART transmitter is busy */
-    if (module->remaining_tx_buffer_length > 0) {
-        return STATUS_BUSY;
-    }
 
     /* Check that the transmitter is enabled */
     if (!(module->transmitter_enabled)) {
@@ -162,13 +232,11 @@ enum status_code usart_write_job(
     }
 
     /* Call internal write buffer function with length 1 */
-    _usart_write_buffer(module, (uint8_t *)tx_data, 1);
-
-    return STATUS_OK;
+    return _usart_write_buffer(module, (uint8_t *)tx_data, 1);
 }
 
 /**
- * \brief Asynchronous read a single char
+ * \brief Asynchronous read a data
  *
  * Sets up the driver to read data from the USART module to the data
  * pointer given. If registered and enabled, a callback will be called
@@ -189,15 +257,8 @@ enum status_code usart_read_job(
     Assert(module);
     Assert(rx_data);
 
-    /* Check if the USART receiver is busy */
-    if (module->remaining_rx_buffer_length > 0) {
-        return STATUS_BUSY;
-    }
-
     /* Call internal read buffer function with length 1 */
-    _usart_read_buffer(module, (uint8_t *)rx_data, 1);
-
-    return STATUS_OK;
+    return _usart_read_buffer(module, (uint8_t *)rx_data, 1);
 }
 
 /**
@@ -210,7 +271,7 @@ enum status_code usart_read_job(
  * \param[in]  tx_data  Pointer do data buffer to transmit
  * \param[in]  length   Length of the data to transmit
  *
- * \note if using 9-bit data, the array that *tx_data point to should be defined
+ * \note If using 9-bit data, the array that *tx_data point to should be defined
  *       as uint16_t array and should be casted to uint8_t* pointer. Because it
  *       is an address pointer, the highest byte is not discarded. For example:
  *   \code
@@ -240,20 +301,13 @@ enum status_code usart_write_buffer_job(
         return STATUS_ERR_INVALID_ARG;
     }
 
-    /* Check if the USART transmitter is busy */
-    if (module->remaining_tx_buffer_length > 0) {
-        return STATUS_BUSY;
-    }
-
     /* Check that the receiver is enabled */
     if (!(module->transmitter_enabled)) {
         return STATUS_ERR_DENIED;
     }
 
     /* Issue internal asynchronous write */
-    _usart_write_buffer(module, tx_data, length);
-
-    return STATUS_OK;
+    return _usart_write_buffer(module, tx_data, length);
 }
 
 /**
@@ -266,7 +320,7 @@ enum status_code usart_write_buffer_job(
  * \param[out] rx_data  Pointer to data buffer to receive
  * \param[in]  length   Data buffer length
  *
- * \note if using 9-bit data, the array that *rx_data point to should be defined
+ * \note If using 9-bit data, the array that *rx_data point to should be defined
  *       as uint16_t array and should be casted to uint8_t* pointer. Because it
  *       is an address pointer, the highest byte is not discarded. For example:
  *   \code
@@ -301,15 +355,8 @@ enum status_code usart_read_buffer_job(
         return STATUS_ERR_DENIED;
     }
 
-    /* Check if the USART receiver is busy */
-    if (module->remaining_rx_buffer_length > 0) {
-        return STATUS_BUSY;
-    }
-
     /* Issue internal asynchronous read */
-    _usart_read_buffer(module, rx_data, length);
-
-    return STATUS_OK;
+    return _usart_read_buffer(module, rx_data, length);
 }
 
 /**
@@ -495,6 +542,12 @@ void _usart_interrupt_handler(
                 error_code &= ~SERCOM_USART_STATUS_CTS;
             }
 #endif
+#ifdef FEATURE_USART_LIN_MASTER
+            /* TXE status should not be considered as an error */
+            if(error_code & SERCOM_USART_STATUS_TXE) {
+                error_code &= ~SERCOM_USART_STATUS_TXE;
+            }
+#endif
             /* Check if an error has occurred during the receiving */
             if (error_code) {
                 /* Check which error occurred */
@@ -612,3 +665,4 @@ void _usart_interrupt_handler(
     }
 #endif
 }
+
