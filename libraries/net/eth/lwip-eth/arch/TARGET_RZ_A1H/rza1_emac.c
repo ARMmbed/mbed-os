@@ -24,17 +24,14 @@ static void rza1_recv_task(void *arg) {
     struct eth_hdr *ethhdr;
     u16_t          recv_size;
     struct pbuf    *p;
-    struct pbuf    *q;
 
     while (1) {
         sys_arch_sem_wait(&recv_ready_sem, 0);
         recv_size = ethernet_receive();
         if (recv_size != 0) {
-            p = pbuf_alloc(PBUF_RAW, recv_size, PBUF_POOL);
+            p = pbuf_alloc(PBUF_RAW, recv_size, PBUF_RAM);
             if (p != NULL) {
-                for (q = p; q != NULL; q = q->next) {
-                    (void)ethernet_read((char *)q->payload, q->len);
-                }
+                (void)ethernet_read((char *)p->payload, p->len);
                 ethhdr = p->payload;
                 switch (htons(ethhdr->type)) {
                     case ETHTYPE_IP:
