@@ -21,8 +21,8 @@
   "dependencies": {
     "mbed-client-libservice": "~3.0.0",
     "mbed-client-c": "~0.1.6",
-    "mbed-6lowpan-eventloop": "~0.0.8",
-    "mbed-6lowpan": "~0.0.9"
+    "sal-stack-nanostack-eventloop": "~0.0.8",
+    "sal-stack-nanostack": "~0.0.9"
   },
   "targetDependencies": {}
 }
