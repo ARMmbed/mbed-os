@@ -11,6 +11,8 @@
 #define TIMER_IRQ       LPTimer_IRQn
 #elif defined(TARGET_LPC2368) || defined(TARGET_LPC2460)
 #define TIMER_IRQ       TIMER3_IRQn
+#elif defined(TARGET_SAMR21G18A)
+#define TIMER_IRQ       TC4_IRQn
 #else
 #error This test can't run on this target.
 #endif
