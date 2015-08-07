@@ -103,18 +103,25 @@ const PinMap PinMap_PWM[] = {
     {PA07, PWM_1, 4},
     {PA08, PWM_0, 4},
     {PA09, PWM_0, 4},
+    {PA10, PWM_1, 4},
+    {PA11, PWM_1, 4},
     {PA12, PWM_2, 4},
     {PA13, PWM_2, 4},
     {PA16, PWM_2, 4},
     {PA17, PWM_2, 4},
     {PA18, PWM_0, 5},
     {PA19, PWM_0, 5},
+    {PA20, PWM_0, 5},
     {PA22, PWM_0, 5},
     {PA23, PWM_0, 5},
     {PA24, PWM_1, 5},
     {PA25, PWM_1, 5},
     {PA30, PWM_1, 4},
     {PA31, PWM_1, 4},
+    {PB16, PWM_0, 5},
+    {PB17, PWM_0, 5},
+    {PB30, PWM_0, 4},
+    {PB31, PWM_0, 4},
 
     /* Not connected */
     {NC  , NC   , NC}
@@ -190,20 +197,28 @@ const struct pwm_pin_channel pwn_pins[] = {
     {PA07, PWM_1, 1},
     {PA08, PWM_0, 0},
     {PA09, PWM_0, 1},
+    {PA10, PWM_1, 0},
+    {PA11, PWM_1, 1},
     {PA12, PWM_2, 0},
     {PA13, PWM_2, 1},
     {PA16, PWM_2, 0},
     {PA17, PWM_2, 1},
     {PA18, PWM_0, 2},
     {PA19, PWM_0, 3},
+    {PA20, PWM_0, 6},
     {PA22, PWM_0, 4},
     {PA23, PWM_0, 5},
     {PA24, PWM_1, 2},
     {PA25, PWM_1, 3},
     {PA30, PWM_1, 0},
     {PA31, PWM_1, 1},
+    {PB16, PWM_0, 4},
+    {PB17, PWM_0, 5},
+    {PB30, PWM_0, 0},
+    {PB31, PWM_0, 1},
 
-    {NC,   NC,   NC}
+    /* Not connected */
+    {NC  , NC   , NC}
 };
 
 
