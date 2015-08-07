@@ -27,6 +27,8 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
+#define PORT_SHIFT  3
+
 typedef enum {
     p0  = 0,
     p1  = 1,
@@ -58,8 +60,9 @@ typedef enum {
     p27 = 27,
     p28 = 28,
     p29 = 29,
-    p30 = 30,
-
+    p30 = 30,  
+    
+    //NORMAL PINS...
     P0_0  = p0,
     P0_1  = p1,
     P0_2  = p2,
@@ -68,7 +71,7 @@ typedef enum {
     P0_5  = p5,
     P0_6  = p6,
     P0_7  = p7,
-
+    
     P0_8  = p8,
     P0_9  = p9,
     P0_10 = p10,
@@ -77,7 +80,7 @@ typedef enum {
     P0_13 = p13,
     P0_14 = p14,
     P0_15 = p15,
-
+    
     P0_16 = p16,
     P0_17 = p17,
     P0_18 = p18,
@@ -86,7 +89,7 @@ typedef enum {
     P0_21 = p21,
     P0_22 = p22,
     P0_23 = p23,
-
+    
     P0_24 = p24,
     P0_25 = p25,
     P0_26 = p26,
@@ -95,74 +98,89 @@ typedef enum {
     P0_29 = p29,
     P0_30 = p30,
 
-    LED1  = p18,
-    LED2  = p19,
-    LED3  = p18,
-    LED4  = p19,
+    //PADS
+    PAD3 = p1,
+    PAD2 = p2,
+    PAD1 = p3,
+    
 
-    BUTTON1 = p16,
-    BUTTON2 = p17,
+    //LED MATRIX COLS
+    COL1 = p4,
+    COL2 = p5,
+    COL3 = p6,
+    COL4 = p7,
+    COL5 = p8,
+    COL6 = p9,
+    COL7 = p10,
+    COL8 = p11,
+    COL9 = p12,
 
-    RX_PIN_NUMBER = p11,
-    TX_PIN_NUMBER = p9,
-    CTS_PIN_NUMBER = 31, // unused
-    RTS_PIN_NUMBER = 31, // unused
+    //LED MATRIX ROWS
+    ROW1 = p13,
+    ROW2 = p14,
+    ROW3 = p15,
 
-    // mbed interface pins
+    //NORMAL PIN (NO SPECIFIED FUNCTIONALITY)
+    //PIN_16
+
+    // BUTTON A
+    BUTTON_A = p17,
+    
+
+    //NORMAL PIN (NO SPECIFIED FUNCTIONALITY)
+    //PIN_18
+    
+    //TARGET RESET
+    TGT_NRESET = p19,
+
+    //NORMAL PIN (NO SPECIFIED FUNCTIONALITY)
+    //PIN_20
+
+    //MASTER OUT SLAVE IN
+    MOSI = p21,
+    
+    //MASTER IN SLAVE OUT
+    MISO = p22,
+
+    //SERIAL CLOCK
+    SCK = p23,
+
+    // RX AND TX PINS
+    TGT_TX = p24,
+    TGT_RX = p25,
+
+    //BUTTON B
+    BUTTON_B = p26,
+    
+    //ACCEL INTERRUPT PINS (MMA8653FC)
+    ACCEL_INT2 = p27,
+    ACCEL_INT1 = p28,
+
+    //MAGENETOMETER INTERRUPT PIN (MAG3110)
+    MAG_INT1 = p29,
+
+    // Not connected
+    NC = (int)0xFFFFFFFF,
+
+    RX_PIN_NUMBER = TGT_RX,
+    TX_PIN_NUMBER = TGT_TX,
+    CTS_PIN_NUMBER = 31, //unused  ** REQUIRES A PROPER FIX **
+    RTS_PIN_NUMBER = 31, //unused 
+
+    // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
 
-    SPI_PSELMOSI0 = p20,
-    SPI_PSELMISO0 = p22,
-    SPI_PSELSS0 = p24,
-    SPI_PSELSCK0 = p25,
+    LED1    = PAD1,
+    LED2    = PAD2,
+    LED3    = PAD3,
+    LED4    = P0_16,
 
-    SPI_PSELMOSI1 = p12,
-    SPI_PSELMISO1 = p13,
-    SPI_PSELSS1 = p14,
-    SPI_PSELSCK1 = p15,
+    //SDA (SERIAL DATA LINE)
+    I2C_SDA0 = p30,
 
-    SPIS_PSELMOSI = p12,
-    SPIS_PSELMISO = p13,
-    SPIS_PSELSS = p14,
-    SPIS_PSELSCK = p15,
-
-    LED_CONNECT = P0_18,
-    LED_MODE = P0_19,
-    OUT_LOW= P0_20,
-    SW1 = P0_16,
-    SW2 = P0_17,
-
-    R_PWM = P0_28,
-    R_IN1 = P0_30,
-    R_IN2 = P0_0,
-    L_PWM = P0_29,
-    L_IN1 = P0_23,
-    L_IN2 = P0_24,
-
-    MMC_SCK = P0_15,
-    MMC_CS = P0_14,
-    MMC_SDO = P0_13,
-    MMC_SDI = P0_12,
-
-    R_ENC1 = P0_8,
-    R_ENC2 = P0_10,
-    L_ENC1 = P0_6,
-    L_ENC2 = P0_7,
-
-    P1IN = P0_2,
-    P2IN = P0_3,
-    P3IN = P0_4,
-    P4IN = P0_5,
-
-    I2C_SCL = P0_21,
-    I2C_SDA = P0_22,
-
-    I2C_SCL0 = P0_21, //required definition for the i2c patch
-    I2C_SDA0 = P0_22, //required definition for the i2c patch
-
-    // Not connected
-    NC = (int)0xFFFFFFFF
+    //SCL (SERIAL CLOCK LINE)
+    I2C_SCL0 = p0
 
 } PinName;
 

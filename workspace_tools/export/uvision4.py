@@ -100,6 +100,7 @@ class Uvision4(Exporter):
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
+        'DISCO_L053C8',
         'DISCO_F334C8',
         'DISCO_F746NG',
         'DISCO_L476VG',
