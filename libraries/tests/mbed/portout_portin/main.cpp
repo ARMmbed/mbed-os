@@ -129,6 +129,15 @@
 #define P2_2    (1 << 2)  // PC2
 #define PORT_2  PortC
 
+#elif defined(TARGET_SAMR21G18A)
+#define P1_1    (1 << 6)  /*PA06*/
+#define P1_2    (1 << 7)  /*PA07*/
+#define PORT_1  PortA
+
+#define P2_1    (1 << 2)  /*PA02*/
+#define P2_2    (1 << 3)  /*PA03*/
+#define PORT_2  PortB
+
 #endif
 
 #define MASK_1   (P1_1 | P1_2)
