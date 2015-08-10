@@ -1566,6 +1566,15 @@ class SAMR21G18A(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 
+class SAMD21J18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM0', 'SAMD21']
+        self.macros = ['__SAMD21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
 # Get a single instance for each target
 TARGETS = [
 
@@ -1717,7 +1726,9 @@ TARGETS = [
     ### WIZnet ###
     WIZWIKI_W7500(),
 
+    ### Atmel ###
     SAMR21G18A(),
+    SAMD21J18A(),
 ]
 
 # Map each target name to its unique instance
