@@ -118,12 +118,12 @@ struct pwm_pin_channel {
 #define STDIO_UART        UART_0
 
 // Default peripherals
-#define MBED_SPI0         PB22, PB02, PB23, PA14
+#define MBED_SPI0         PA18, PA16, PA19, PA17
 
 #define MBED_UART0        PA04, PA05
 #define MBED_UARTUSB      USBTX, USBRX
 
-#define MBED_I2C0         PA16, PA17
+#define MBED_I2C0         PA08, PA09
 
 #define MBED_ANALOGIN0    PA04
 #define MBED_ANALOGIN1    PA05
