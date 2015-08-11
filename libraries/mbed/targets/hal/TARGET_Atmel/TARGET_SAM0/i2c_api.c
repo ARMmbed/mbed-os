@@ -671,8 +671,13 @@ int  i2c_slave_receive(i2c_t *obj)
             /* Slave is read addressed */
             return 1;
         } else {
-            /* Slave is write addressed */
-            return 3;
+            if (!(i2c_module->DATA.reg & 0xFF)) {
+                /* General call address detected */
+                return 2;
+            } else {
+                /* Slave is write addressed */
+                return 3;
+            }
         }
     }
 
