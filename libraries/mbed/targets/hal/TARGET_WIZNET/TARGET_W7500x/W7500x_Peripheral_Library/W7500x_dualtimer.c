@@ -13,6 +13,7 @@
 
 /* Includes -------------------------------------------*/
 #include "W7500x.h"
+#include "W7500x_dualtimer.h"
 
 void DUALTIMER_ClockEnable(DUALTIMER_TypeDef* DUALTIMERn)
 {

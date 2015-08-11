@@ -32,6 +32,8 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 #include "system_W7500x.h"
+#include "W7500x_dualtimer.h"
+#include "W7500x_pwm.h"
 
 #define TIMER_0         DUALTIMER0_0
 #define TIMER_1         PWM_CH1
