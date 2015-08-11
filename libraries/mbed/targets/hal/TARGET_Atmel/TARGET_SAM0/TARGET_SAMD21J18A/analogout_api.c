@@ -34,15 +34,16 @@ void analogout_init(dac_t *obj, PinName pin)
         g_sys_init = 1;
     }
 
+    struct dac_config config_dac;
     struct dac_chan_config config_dac_chan;
-    uint32_t pos_input = 0;
+    uint32_t pos_input;
     pos_input = pinmap_find_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(pos_input != NC);
 
     obj->dac = DAC_0;
 
-    dac_get_config_defaults(&(obj->config_dac));
-    dac_init(&dac_instance, DAC, &(obj->config_dac));
+    dac_get_config_defaults(&config_dac);
+    dac_init(&dac_instance, (Dac *)DAC_0, &config_dac);
 
     dac_chan_get_config_defaults(&config_dac_chan);
     dac_chan_set_config(&dac_instance, DAC_CHANNEL_0, &config_dac_chan);
@@ -67,24 +68,24 @@ void analogout_free(dac_t *obj)
 void analogout_write(dac_t *obj, float value)
 {
     MBED_ASSERT(obj);
-    uint32_t count_val = 0;
+    uint16_t count_val = 0;
     if (value < 0.0) {
         count_val = 0;
     } else if (value > 1.0) {
-        count_val = (uint32_t)MAX_VAL_10BIT;
+        count_val = MAX_VAL_10BIT;
     } else {
-        count_val = (uint32_t) (value * (float)MAX_VAL_10BIT);
+        count_val = (uint16_t)(value * (float)MAX_VAL_10BIT);
     }
-    dac_chan_write(&dac_instance, DAC_CHANNEL_0, (uint16_t)count_val);
+    dac_chan_write(&dac_instance, DAC_CHANNEL_0, count_val);
 
 }
 
 void analogout_write_u16(dac_t *obj, uint16_t value)
 {
     MBED_ASSERT(obj);
-    uint32_t count_val;
-    count_val = (uint32_t)((value * (float)MAX_VAL_10BIT) / 0xFFFF);  /*Normalization to the value 0xFFFF*/
-    dac_chan_write(&dac_instance, DAC_CHANNEL_0, (uint16_t)count_val);
+    uint16_t count_val;
+    count_val = (uint16_t)((value * (float)MAX_VAL_10BIT) / 0xFFFF);  /*Normalization to the value 0xFFFF*/
+    dac_chan_write(&dac_instance, DAC_CHANNEL_0, count_val);
 
 }
 
@@ -92,7 +93,7 @@ float analogout_read(dac_t *obj)
 {
     MBED_ASSERT(obj);
     uint32_t data_val = 0;
-    Dac *const dac_module = (uint32_t)obj->dac;
+    Dac *const dac_module = (Dac *)obj->dac;
     data_val = dac_module->DATA.reg;
     return data_val/(float)MAX_VAL_10BIT;
 }
@@ -101,7 +102,7 @@ uint16_t analogout_read_u16(dac_t *obj)
 {
     MBED_ASSERT(obj);
     uint32_t data_val = 0;
-    Dac *const dac_module = (uint32_t)obj->dac;
+    Dac *const dac_module = (Dac *)obj->dac;
     data_val = dac_module->DATA.reg;
     return (uint16_t)((data_val / (float)MAX_VAL_10BIT) * 0xFFFF);   /*Normalization to the value 0xFFFF*/
 }

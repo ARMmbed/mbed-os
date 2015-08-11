@@ -79,7 +79,6 @@ struct analogin_s {
 #if DEVICE_ANALOGOUT
 struct dac_s {
     DACName dac;
-    struct dac_config config_dac;
 };
 #endif
 
