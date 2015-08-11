@@ -147,8 +147,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     if (mux_func == (uint32_t)NC) return;
     config_i2c_master.pinmux_pad1 = (scl << 16) | (mux_func & 0xFFFF);
 
-    config_i2c_master.start_hold_time = I2C_MASTER_START_HOLD_TIME_DISABLED;
-
     /* Default baud rate is set to 100kHz */
     pI2C_S(obj)->baud_rate = I2C_MASTER_DEFAULT_BAUD;
     config_i2c_master.baud_rate = pI2C_S(obj)->baud_rate / 1000;
@@ -361,14 +359,7 @@ void i2c_reset(i2c_t *obj)
     /* Send STOP */
     i2c_stop(obj);
 
-    if (pI2C_S(obj)->mode == I2C_MODE_MASTER) {
-        pI2C_S(obj)->start_pending = 0;
-        /* Reset the master module */
-        i2c_master_reset(&pI2C_S(obj)->master);
-    } else {
-        /* Reset the slave module */
-        i2c_slave_reset(&pI2C_S(obj)->slave);
-    }
+    pI2C_S(obj)->start_pending = 0;
 }
 
 /** Write address preceded by START condition.
@@ -619,8 +610,6 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
         config_i2c_slave.pinmux_pad0 = (pI2C_S(obj)->pins[0] << 16) | (mux_func[0] & 0xFFFF);
         /* SERCOM PAD1 - SCL */
         config_i2c_slave.pinmux_pad1 = (pI2C_S(obj)->pins[1] << 16) | (mux_func[1] & 0xFFFF);
-
-        config_i2c_slave.sda_hold_time = I2C_SLAVE_SDA_HOLD_TIME_DISABLED;
 
         i2c_slave_init(&pI2C_S(obj)->slave, pI2C_S(obj)->master.hw, &config_i2c_slave);
 
