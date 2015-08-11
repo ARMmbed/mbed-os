@@ -103,5 +103,5 @@ uint16_t analogout_read_u16(dac_t *obj)
     uint32_t data_val = 0;
     Dac *const dac_module = (uint32_t)obj->dac;
     data_val = dac_module->DATA.reg;
-    return (uint16_t)((data_val /MAX_VAL_10BIT) * 0xFFFF);   /*Normalization to the value 0xFFFF*/
+    return (uint16_t)((data_val / (float)MAX_VAL_10BIT) * 0xFFFF);   /*Normalization to the value 0xFFFF*/
 }
