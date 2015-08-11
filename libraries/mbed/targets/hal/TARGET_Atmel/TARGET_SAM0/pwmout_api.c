@@ -21,7 +21,7 @@
 #include "pinmap_function.h"
 
 /* Compare Channel used for PWM in TCC Modules */
-#define PWMOUT_CTRL_CHANNEL     3
+#define PWMOUT_CTRL_CHANNEL     0
 
 /* Prescaler values for TCC Module */
 const uint32_t tcc_prescaler[] = {
