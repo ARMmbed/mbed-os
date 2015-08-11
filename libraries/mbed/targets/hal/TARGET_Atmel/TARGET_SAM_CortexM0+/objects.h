@@ -28,6 +28,10 @@
 #include "i2c_slave.h"
 #include "dma_api.h"
 
+#if DEVICE_ANALOGOUT
+#include "dac.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -69,9 +73,15 @@ struct serial_s {
 
 struct analogin_s {
     ADCName adc;
-    struct adc_module adc_instance;
     struct adc_config config_adc;
 };
+
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    struct dac_config config_dac;
+};
+#endif
 
 struct pwmout_s {
     struct tcc_module tcc;

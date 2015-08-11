@@ -23,7 +23,10 @@
 /************ADC***************/
 extern const PinMap PinMap_ADC[];
 
-//*********SERCOM*************/
+/************DAC***************/
+extern const PinMap PinMap_DAC[];
+
+/*********SERCOM*************/
 extern const PinMap PinMap_SERCOM_PAD[];
 extern const PinMap PinMap_SERCOM_PADEx[];
 

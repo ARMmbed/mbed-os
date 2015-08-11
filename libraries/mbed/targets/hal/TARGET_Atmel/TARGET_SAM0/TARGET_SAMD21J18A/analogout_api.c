@@ -19,36 +19,89 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "dac.h"
+
+struct dac_module dac_instance;
+extern uint8_t g_sys_init;
+
+#define MAX_VAL_10BIT 0x03FF
 
 void analogout_init(dac_t *obj, PinName pin)
 {
+    MBED_ASSERT(obj);
+    if (g_sys_init == 0) {
+        system_init();
+        g_sys_init = 1;
+    }
+
+    struct dac_chan_config config_dac_chan;
+    uint32_t pos_input = 0;
+    pos_input = pinmap_find_peripheral(pin, PinMap_DAC);
+    MBED_ASSERT(pos_input != NC);
+
+    obj->dac = DAC_0;
+
+    dac_get_config_defaults(&(obj->config_dac));
+    dac_init(&dac_instance, DAC, &(obj->config_dac));
+
+    dac_chan_get_config_defaults(&config_dac_chan);
+    dac_chan_set_config(&dac_instance, DAC_CHANNEL_0, &config_dac_chan);
+    dac_chan_enable(&dac_instance, DAC_CHANNEL_0);
+
+    dac_enable(&dac_instance);
 }
 
-void analogout_free(dac_t *obj) {}
-
-static inline void dac_write(dac_t *obj, int value)
+void analogout_free(dac_t *obj)
 {
-}
+    MBED_ASSERT(obj);
+    struct system_pinmux_config pin_conf;
 
-static inline int dac_read(dac_t *obj)
-{
-    return 0;
+    dac_disable(&dac_instance);
+    pin_conf.direction = SYSTEM_PINMUX_PIN_DIR_INPUT;
+    pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
+    pin_conf.powersave    = false;
+    pin_conf.mux_position = SYSTEM_PINMUX_GPIO;
+    system_pinmux_pin_set_config(PA02, &pin_conf);  /*PA04 is the only DAC pin available*/
 }
 
 void analogout_write(dac_t *obj, float value)
 {
+    MBED_ASSERT(obj);
+    uint32_t count_val = 0;
+    if (value < 0.0) {
+        count_val = 0;
+    } else if (value > 1.0) {
+        count_val = (uint32_t)MAX_VAL_10BIT;
+    } else {
+        count_val = (uint32_t) (value * (float)MAX_VAL_10BIT);
+    }
+    dac_chan_write(&dac_instance, DAC_CHANNEL_0, (uint16_t)count_val);
+
 }
 
 void analogout_write_u16(dac_t *obj, uint16_t value)
 {
+    MBED_ASSERT(obj);
+    uint32_t count_val;
+    count_val = (uint32_t)((value * (float)MAX_VAL_10BIT) / 0xFFFF);  /*Normalization to the value 0xFFFF*/
+    dac_chan_write(&dac_instance, DAC_CHANNEL_0, (uint16_t)count_val);
+
 }
 
 float analogout_read(dac_t *obj)
 {
-    return 0.0;
+    MBED_ASSERT(obj);
+    uint32_t data_val = 0;
+    Dac *const dac_module = (uint32_t)obj->dac;
+    data_val = dac_module->DATA.reg;
+    return data_val/(float)MAX_VAL_10BIT;
 }
 
 uint16_t analogout_read_u16(dac_t *obj)
 {
-    return 0;
+    MBED_ASSERT(obj);
+    uint32_t data_val = 0;
+    Dac *const dac_module = (uint32_t)obj->dac;
+    data_val = dac_module->DATA.reg;
+    return (uint16_t)((data_val /MAX_VAL_10BIT) * 0xFFFF);   /*Normalization to the value 0xFFFF*/
 }
