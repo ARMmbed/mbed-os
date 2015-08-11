@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_spdifrx.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the SPDIFRX audio interface:
   *           + Initialization and Configuration
@@ -28,7 +28,7 @@
             (+++) Enable the NVIC SPDIFRX IRQ handle.
         (##) DMA Configuration if you need to use DMA process (HAL_SPDIFRX_ReceiveDataFlow_DMA() and HAL_SPDIFRX_ReceiveControlFlow_DMA() API's).
             (+++) Declare a DMA handle structure for the reception of the Data Flow channel.
-                      (+++) Declare a DMA handle structure for the reception of the Control Flow channel.
+            (+++) Declare a DMA handle structure for the reception of the Control Flow channel.
             (+++) Enable the DMAx interface clock.
             (+++) Configure the declared DMA handle structure CtrlRx/DataRx with the required parameters.
             (+++) Configure the DMA Channel.

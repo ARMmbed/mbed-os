@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
@@ -532,7 +532,7 @@ typedef struct
   * @{
   */
 #define UART_FLAG_TEACK                     ((uint32_t)0x00200000)
-#define UART_FLAG_SBKF                      ((uint32_t)0x00040000
+#define UART_FLAG_SBKF                      ((uint32_t)0x00040000)
 #define UART_FLAG_CMF                       ((uint32_t)0x00020000)
 #define UART_FLAG_BUSY                      ((uint32_t)0x00010000)
 #define UART_FLAG_ABRF                      ((uint32_t)0x00008000)

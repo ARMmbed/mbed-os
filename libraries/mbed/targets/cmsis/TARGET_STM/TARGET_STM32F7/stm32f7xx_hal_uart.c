@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_uart.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   UART HAL module driver.
-  *
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Asynchronous Receiver Transmitter (UART) peripheral:
   *           + Initialization and de-initialization functions
@@ -551,7 +550,7 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   *
 @verbatim   
  ===============================================================================
-                      ##### I/O operation functions #####
+                      ##### IO operation functions #####
  ===============================================================================
     This subsection provides a set of functions allowing to manage the UART asynchronous
     and Half duplex data transfers.
@@ -1053,13 +1052,20 @@ HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
   }
   else if(huart->State == HAL_UART_STATE_BUSY_RX)
   {
+		/* Clear the Overrun flag before resuming the Rx transfer*/
+    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_OREF);
+
     /* Enable the UART DMA Rx request */
     huart->Instance->CR3 |= USART_CR3_DMAR;
   }
   else if(huart->State == HAL_UART_STATE_BUSY_TX_RX)
   {
+		/* Clear the Overrun flag before resuming the Rx transfer*/
+    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_OREF);
+		
     /* Enable the UART DMA Rx request  before the DMA Tx request */
     huart->Instance->CR3 |= USART_CR3_DMAR;
+
     /* Enable the UART DMA Tx request */
     huart->Instance->CR3 |= USART_CR3_DMAT;
   }
@@ -1071,8 +1077,7 @@ HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
     __HAL_UART_ENABLE(huart);
   }
 
-  /* TEACK and/or REACK to check before moving huart->State to Ready */
-  return (UART_CheckIdleState(huart));
+  return HAL_OK;
 }
 
 /**
@@ -1082,8 +1087,12 @@ HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart)
   */
 HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
 {
-  /* Process Locked */
-  __HAL_LOCK(huart);
+  /* The Lock is not implemented on this API to allow the user application
+     to call the HAL UART API under callbacks HAL_UART_TxCpltCallback() / HAL_UART_RxCpltCallback() /
+     HAL_UART_TxHalfCpltCallback / HAL_UART_RxHalfCpltCallback: 
+     indeed, when HAL_DMA_Abort() API is called, the DMA TX/RX Transfer or Half Transfer complete  
+     interrupt is generated if the DMA transfer interruption occurs at the middle or at the end of 
+     the stream and the corresponding call back is executed. */
   
   /* Disable the UART Tx/Rx DMA requests */
   huart->Instance->CR3 &= ~USART_CR3_DMAT;
@@ -1100,13 +1109,7 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
     HAL_DMA_Abort(huart->hdmarx);
   }
   
-  /* Disable UART peripheral */
-  __HAL_UART_DISABLE(huart);
-  
   huart->State = HAL_UART_STATE_READY;
-  
-  /* Process Unlocked */
-  __HAL_UNLOCK(huart);
   
   return HAL_OK;
 }
