@@ -61,7 +61,7 @@ void analogout_free(dac_t *obj)
     pin_conf.input_pull = SYSTEM_PINMUX_PIN_PULL_UP;
     pin_conf.powersave    = false;
     pin_conf.mux_position = SYSTEM_PINMUX_GPIO;
-    system_pinmux_pin_set_config(PA02, &pin_conf);  /*PA04 is the only DAC pin available*/
+    system_pinmux_pin_set_config(PA02, &pin_conf);  /*PA02 is the only DAC pin available*/
 }
 
 void analogout_write(dac_t *obj, float value)
