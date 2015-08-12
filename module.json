@@ -1,5 +1,5 @@
 {
-  "name": "mbed-client-randlib",
+  "name": "nanostack-randlib",
   "version": "0.0.3",
   "description": "Pseudo random library used by mbed-client and 6LoWPAN stack.",
   "keywords": [],
