@@ -348,7 +348,7 @@ int  i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     }
 }
 
-/** Reset I2C peripheral. TODO: The action here. Most of the implementation sends stop().
+/** Reset I2C peripheral.
  *  @param obj The i2c object
  */
 void i2c_reset(i2c_t *obj)
@@ -654,7 +654,6 @@ int  i2c_slave_receive(i2c_t *obj)
 
     SercomI2cs *const i2c_module = &(pI2C_S(obj)->slave.hw->I2CS);
 
-    /* TODO: Currently not checking "write to all" condition */
     if (i2c_module->INTFLAG.reg & SERCOM_I2CS_INTFLAG_AMATCH) {
         if (i2c_module->STATUS.reg & SERCOM_I2CS_STATUS_DIR) {
             /* Slave is read addressed */
@@ -826,7 +825,7 @@ void i2c_write_complete_callback(struct i2c_master_module *const module)
     } else {
         i2c_master_disable_callback(&pI2C_S(obj)->master, I2C_MASTER_CALLBACK_WRITE_COMPLETE);
 
-        /* TODO: Register read complete callback */
+        /* Register read complete callback */
         i2c_master_register_callback(&pI2C_S(obj)->master, i2c_transfer_complete_callback, I2C_MASTER_CALLBACK_READ_COMPLETE);
         i2c_master_enable_callback(&pI2C_S(obj)->master, I2C_MASTER_CALLBACK_READ_COMPLETE);
 
@@ -876,7 +875,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
     /* TODO: Current implementation is interrupt based only */
 
-    /* TODO: Set interrupt handler to default handler of ASF */
+    /* Set interrupt handler to default handler of ASF */
     /* Enable interrupt */
     NVIC_SetVector((SERCOM0_IRQn + sercom_index), sercom_irq_handlers[sercom_index]);
     NVIC_EnableIRQ(SERCOM0_IRQn + sercom_index);
