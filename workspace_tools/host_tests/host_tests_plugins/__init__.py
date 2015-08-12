@@ -29,6 +29,7 @@ import module_copy_sync
 # Plugins used to reset certain platform
 import module_reset_mbed
 import module_reset_silabs
+import module_reset_wait
 #import module_reset_mps2
 
 
@@ -42,6 +43,7 @@ HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_shell.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_remount.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_sync.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mbed.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_wait.load_plugin())
 #HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_firefox.load_plugin())
 
 # Extra platforms support

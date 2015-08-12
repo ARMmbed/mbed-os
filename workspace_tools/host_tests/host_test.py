@@ -225,7 +225,7 @@ class Mbed:
         # Flush serials to get only input after reset
         self.flush()
         if self.options.forced_reset_type:
-            result = host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
+            result = host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk, serial=self.serial)
         else:
             result = host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
         # Give time to wait for the image loading
@@ -381,8 +381,9 @@ class Test(HostTestResults):
         result = self.mbed.init_serial()
         if not result:
             self.print_result(self.RESULT_IO_SERIAL)
-
+        
         # Reset device
+        self.mbed.flush()
         self.notify("HOST: Reset target...")
         result = self.mbed.reset()
         if not result:
