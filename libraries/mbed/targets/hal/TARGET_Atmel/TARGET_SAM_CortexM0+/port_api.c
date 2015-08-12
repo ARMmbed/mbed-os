@@ -29,7 +29,7 @@
 
 uint32_t start_pin(PortName port)
 {
-    if(port <= 2) { /* PortC value is 2*/
+    if(port < PortMax) { /* PortC value is 2*/
         return port * 32;
     } else {
         return NC;

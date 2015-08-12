@@ -22,10 +22,11 @@ extern "C" {
 
 typedef enum {
     PortA = 0,
-    PortB = 1,
+    PortB,
 #if defined(TARGET_SAMR21G18A)
-    PortC = 2
+    PortC,
 #endif
+    PortMax
 } PortName;
 
 #ifdef __cplusplus
