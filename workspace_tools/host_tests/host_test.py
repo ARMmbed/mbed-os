@@ -24,7 +24,7 @@ except ImportError, e:
 
 import os
 import re
-import types
+import ctypes
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
@@ -269,12 +269,12 @@ class Mbed:
 
     	can_print_disk_warning = True
 
-            # Wait for mbed disk to be available for writing
-            while self.get_free_space_bytes(disk) <= 0:
-                if can_print_disk_warning:
-                	print 'MBED: Waiting for mbed disk to mount propertly'
-    	        can_print_disk_warning = False
-    	    pass
+        # Wait for mbed disk to be available for writing
+        while self.get_free_space_bytes(disk) <= 0:
+            if can_print_disk_warning:
+            	print 'MBED: Waiting for mbed disk to mount propertly'
+	        can_print_disk_warning = False
+	    pass
 
     	# Wait 1 second to ensure mbed is ready
     	sleep(1)
@@ -381,7 +381,7 @@ class Test(HostTestResults):
         result = self.mbed.init_serial()
         if not result:
             self.print_result(self.RESULT_IO_SERIAL)
-        
+
         # Reset device
         self.mbed.flush()
         self.notify("HOST: Reset target...")

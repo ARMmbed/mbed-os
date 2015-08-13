@@ -66,7 +66,7 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
                         print "Unexpected error:", sys.exc_info()[0]
                     else:
                         device = p1.communicate()[0].strip()
-    
+
                     sleep(1)
 
                 if self.run_command('sudo umount %s' %  (destination_disk), shell=True):
@@ -116,11 +116,6 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
 
             result = self.run_command(cmd, shell=shell)
 
-<<<<<<< HEAD
-=======
-            sleep(3)
-
->>>>>>> Added copy-shell method back, but moved platform_wait into each copy plugin instead of the host test. Also improving stability of remount method
         return result
 
 
