@@ -126,12 +126,12 @@ struct pwm_pin_channel {
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
-#define STDIO_UART        UART_0
+#define STDIO_UART        UART_3
 
 // Default peripherals
 #define MBED_SPI0         PA18, PA16, PA19, PA17
 
-#define MBED_UART0        PB10, PB11
+#define MBED_UART0        PA04, PA05
 #define MBED_UARTUSB      USBTX, USBRX
 
 #define MBED_I2C0         PA08, PA09
