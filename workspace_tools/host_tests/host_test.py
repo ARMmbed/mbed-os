@@ -24,6 +24,7 @@ except ImportError, e:
 
 import os
 import re
+import types
 import ctypes
 from sys import stdout
 from time import sleep, time
