@@ -19,7 +19,7 @@ import inspect
 import os
 from os import listdir, remove, makedirs
 from shutil import copyfile
-from os.path import isdir, join, exists, split, relpath, splitext
+from os.path import isdir, isabs, join, exists, split, relpath, splitext, pathsep, basename
 from subprocess import Popen, PIPE, STDOUT, call
 
 
@@ -57,22 +57,43 @@ def is_cmd_valid(cmd):
 
 
 def is_exec(path):
-    return os.access(path, os.X_OK) or os.access(path+'.exe', os.X_OK)
+    return os.access(path, os.X_OK)
+
+
+def barename(filename):
+    """ Returns the part of a filename without the file extension or/and path.
+        
+        'a/b/c.exe' => 'c'
+        'c.exe'     => 'c'
+    """
+    return splitext(basename(filename))[0]
+
+
+def command_paths():
+    """ Returns a list of paths found in PATH environment variable.
+    """
+    if not 'PATH' in os.environ:
+        return False
+    PATH = os.environ['PATH']
+    PATH = os.path.normpath(PATH)
+    return PATH.split(pathsep)
 
 
 def find_cmd_abspath(cmd):
-    """ Returns the absolute path to a command.
-        None is returned if no absolute path was found.
+    """ Returns the absolute path to a command. Notice that no checking
+        is being made to see if the file is executable or not.
     """
-    if exists(cmd) or exists(cmd + '.exe'):
-        return os.path.abspath(cmd)
-    if not 'PATH' in os.environ:
+    if not command_paths():
         raise Exception("Can't find command path for current platform ('%s')" % sys.platform)
-    PATH=os.environ['PATH']
-    for path in PATH.split(os.pathsep):
-        abspath = '%s/%s' % (path, cmd)
-        if exists(abspath) or exists(abspath + '.exe'):
-            return abspath
+    if isabs(cmd) and exists(cmd):
+        return cmd
+    for path in command_paths():
+        if not exists(path):
+            continue
+        for filename in listdir(path):
+            if barename(filename) == barename(cmd):
+                return join(path, filename)
+    return None
 
 
 def mkdir(path):
