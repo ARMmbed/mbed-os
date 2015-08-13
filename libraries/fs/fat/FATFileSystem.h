@@ -40,7 +40,7 @@ public:
 
     static FATFileSystem * _ffs[_VOLUMES];   // FATFileSystem objects, as parallel to FatFs drives array
     FATFS _fs;                               // Work area (file system object) for logical drive
-    int _fsid;
+    char _fsid[2];
 
     /**
      * Opens a file on the filesystem
