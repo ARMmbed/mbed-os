@@ -348,6 +348,7 @@ class SingleTestRunner(object):
                                                          toolchain,
                                                          options=build_mbed_libs_options,
                                                          clean=clean_mbed_libs_options,
+                                                         verbose=self.opts_verbose,
                                                          jobs=self.opts_jobs)
 
                 if not build_mbed_libs_result:
