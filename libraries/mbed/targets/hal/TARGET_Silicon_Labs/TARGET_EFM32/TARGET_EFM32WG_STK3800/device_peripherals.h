@@ -26,6 +26,9 @@
 #define PWM_TIMER_CLOCK cmuClock_TIMER2
 #define PWM_ROUTE TIMER_ROUTE_LOCATION_LOC1
 
+/* USB */
+#define USB_TIMER USB_TIMER1
+
 /* Clocks */
 
 /* Clock definitions */
