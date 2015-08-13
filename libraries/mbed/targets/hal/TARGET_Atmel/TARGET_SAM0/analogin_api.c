@@ -22,6 +22,7 @@
 #include "adc.h"
 #include "status_codes.h"
 
+extern uint8_t g_sys_init;
 struct adc_module adc_instance;
 
 void adc_configure_ain_pin(uint32_t pin)
@@ -144,6 +145,10 @@ void adc_configure_ain_pin(uint32_t pin)
 void analogin_init(analogin_t *obj, PinName pin)
 {
     MBED_ASSERT(obj);
+    if (g_sys_init == 0) {
+        system_init();
+        g_sys_init = 1;
+    }
     uint32_t pos_input;
     static uint8_t init_flag = 0;
 
