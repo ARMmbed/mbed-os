@@ -52,18 +52,23 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
-	
+
             shell = False
-            
+
             # Remount as a synchronous file system
             if sys.platform == 'linux2':
                 device = ""
 
                 while not device:
-                    p1 = Popen('df %s --output=source | sed -n 2p' % destination_disk, shell=True, stdout=PIPE)
-                    device = p1.communicate()[0].strip()
+                    try:
+                        p1 = Popen('df %s --output=source | sed -n 2p' % destination_disk, shell=True, stdout=PIPE)
+                    except:
+                        print "Unexpected error:", sys.exc_info()[0]
+                    else:
+                        device = p1.communicate()[0].strip()
+
                     sleep(1)
-                
+
                 if self.run_command('sudo umount %s' %  (destination_disk), shell=True):
                     self.print_plugin_info('UNMOUNT OK')
                 else:
@@ -111,6 +116,8 @@ class HostTestPluginCopyMethod_Remount(HostTestPluginBase):
 
             result = self.run_command(cmd, shell=shell)
 
+            # Still some issues with flashing the platform too quickly.
+            # Wait for magic 3 seconds to improve stability.
             sleep(3)
         
         return result

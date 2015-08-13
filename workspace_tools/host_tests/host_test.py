@@ -24,7 +24,7 @@ except ImportError, e:
 
 import os
 import re
-import types
+import ctypes
 from sys import stdout
 from time import sleep, time
 from optparse import OptionParser
@@ -225,13 +225,37 @@ class Mbed:
         # Flush serials to get only input after reset
         self.flush()
         if self.options.forced_reset_type:
-            result = host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
+            result = host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk, serial=self.serial)
         else:
             result = host_tests_plugins.call_plugin('ResetMethod', 'default', serial=self.serial)
         # Give time to wait for the image loading
         reset_tout_s = self.options.forced_reset_timeout if self.options.forced_reset_timeout is not None else self.DEFAULT_RESET_TOUT
         self.reset_timeout(reset_tout_s)
         return result
+
+    def get_free_space_bytes(self, dirname):
+        """Return folder/drive free space (in megabytes)."""
+        if sys.platform == 'win32':
+            free_bytes = ctypes.c_ulonglong(0)
+
+            # Disable Windows error box temporarily
+            oldError = ctypes.windll.kernel32.SetErrorMode(1) #note that SEM_FAILCRITICALERRORS = 1
+
+            try:
+                ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(dirname), None, None, ctypes.pointer(free_bytes))
+            except:
+                return 0
+
+            ctypes.windll.kernel32.SetErrorMode(oldError)
+
+            return free_bytes.value
+        else:
+            try:
+                st = os.statvfs(dirname)
+            except:
+                return 0
+
+            return st.f_bavail
 
     def copy_image(self, image_path=None, disk=None, copy_method=None):
         """ Closure for copy_image_raw() method.
@@ -240,7 +264,20 @@ class Mbed:
         # Set closure environment
         image_path = image_path if image_path is not None else self.image_path
         disk = disk if disk is not None else self.disk
-        copy_method = copy_method if copy_method is not None else self.copy_method	
+
+        copy_method = copy_method if copy_method is not None else self.copy_method
+
+    	can_print_disk_warning = True
+
+        # Wait for mbed disk to be available for writing
+        while self.get_free_space_bytes(disk) <= 0:
+            if can_print_disk_warning:
+            	print 'MBED: Waiting for mbed disk to mount propertly'
+	        can_print_disk_warning = False
+	    pass
+
+    	# Wait 1 second to ensure mbed is ready
+    	sleep(1)
 
         # Call proper copy method
         result = self.copy_image_raw(image_path, disk, copy_method)
@@ -333,9 +370,6 @@ class Test(HostTestResults):
         # Copy image to device
         self.notify("HOST: Copy image onto target...")
         result = self.mbed.copy_image()
-       
-	#self.print_result(self.RESULT_SUCCESS)
-	#return
 	if not result:
             self.print_result(self.RESULT_IOERR_COPY)
 
@@ -346,6 +380,7 @@ class Test(HostTestResults):
             self.print_result(self.RESULT_IO_SERIAL)
 
         # Reset device
+        self.mbed.flush()
         self.notify("HOST: Reset target...")
         result = self.mbed.reset()
         if not result:

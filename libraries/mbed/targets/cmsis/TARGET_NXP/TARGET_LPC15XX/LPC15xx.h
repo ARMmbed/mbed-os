@@ -159,9 +159,9 @@ typedef enum {
 
 typedef struct {                                    /*!< GPIO_PORT Structure                                                   */
   __IO uint8_t   B[76];                             /*!< Byte pin registers                                                    */
-  __I  uint32_t  RESERVED0[45];
+  __I  uint32_t  RESERVED0[1005];
   __IO uint32_t  W[76];                             /*!< Word pin registers                                                    */
-  __I  uint32_t  RESERVED1[1908];
+  __I  uint32_t  RESERVED1[948];
   __IO uint32_t  DIR[3];                            /*!< Port Direction registers                                              */
   __I  uint32_t  RESERVED2[29];
   __IO uint32_t  MASK[3];                           /*!< Port Mask register                                                    */

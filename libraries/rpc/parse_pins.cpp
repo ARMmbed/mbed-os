@@ -38,7 +38,7 @@ PinName parse_pins(const char *str) {
                                 , NC, NC, NC, NC, NC, NC, NC, NC, p41, p42, p43, p44, p45, p46};
 #endif
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC1114)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC1114) || defined(TARGET_RZ_A1H)
     if (str[0] == 'P') {              // Pn_n
         uint32_t port = str[1] - '0';
         uint32_t pin  = str[3] - '0'; // Pn_n

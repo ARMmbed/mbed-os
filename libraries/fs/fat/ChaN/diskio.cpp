@@ -13,30 +13,30 @@
 using namespace mbed;
 
 DSTATUS disk_initialize (
-    BYTE drv                /* Physical drive nmuber (0..) */
+    BYTE pdrv        /* Physical drive number (0..) */
 )
 {
-    debug_if(FFS_DBG, "disk_initialize on drv [%d]\n", drv);
-    return (DSTATUS)FATFileSystem::_ffs[drv]->disk_initialize();
+    debug_if(FFS_DBG, "disk_initialize on pdrv [%d]\n", pdrv);
+    return (DSTATUS)FATFileSystem::_ffs[pdrv]->disk_initialize();
 }
 
 DSTATUS disk_status (
-    BYTE drv        /* Physical drive nmuber (0..) */
+    BYTE pdrv        /* Physical drive number (0..) */
 )
 {
-    debug_if(FFS_DBG, "disk_status on drv [%d]\n", drv);
-    return (DSTATUS)FATFileSystem::_ffs[drv]->disk_status();
+    debug_if(FFS_DBG, "disk_status on pdrv [%d]\n", pdrv);
+    return (DSTATUS)FATFileSystem::_ffs[pdrv]->disk_status();
 }
 
 DRESULT disk_read (
-    BYTE drv,        /* Physical drive nmuber (0..) */
-    BYTE *buff,        /* Data buffer to store read data */
+    BYTE pdrv,       /* Physical drive number (0..) */
+    BYTE* buff,      /* Data buffer to store read data */
     DWORD sector,    /* Sector address (LBA) */
-    BYTE count        /* Number of sectors to read (1..255) */
+    UINT count       /* Number of sectors to read (1..) */
 )
 {
-    debug_if(FFS_DBG, "disk_read(sector %d, count %d) on drv [%d]\n", sector, count, drv);
-    if (FATFileSystem::_ffs[drv]->disk_read((uint8_t*)buff, sector, count))
+    debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
+    if (FATFileSystem::_ffs[pdrv]->disk_read((uint8_t*)buff, sector, count))
         return RES_PARERR;
     else
         return RES_OK;
@@ -44,14 +44,14 @@ DRESULT disk_read (
 
 #if _READONLY == 0
 DRESULT disk_write (
-    BYTE drv,            /* Physical drive nmuber (0..) */
-    const BYTE *buff,    /* Data to be written */
+    BYTE pdrv,           /* Physical drive number (0..) */
+    const BYTE* buff,    /* Data to be written */
     DWORD sector,        /* Sector address (LBA) */
-    BYTE count            /* Number of sectors to write (1..255) */
+    UINT count           /* Number of sectors to write (1..) */
 )
 {
-    debug_if(FFS_DBG, "disk_write(sector %d, count %d) on drv [%d]\n", sector, count, drv);
-    if (FATFileSystem::_ffs[drv]->disk_write((uint8_t*)buff, sector, count))
+    debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
+    if (FATFileSystem::_ffs[pdrv]->disk_write((uint8_t*)buff, sector, count))
         return RES_PARERR;
     else
         return RES_OK;
@@ -59,25 +59,25 @@ DRESULT disk_write (
 #endif /* _READONLY */
 
 DRESULT disk_ioctl (
-    BYTE drv,        /* Physical drive nmuber (0..) */
-    BYTE ctrl,        /* Control code */
-    void *buff        /* Buffer to send/receive control data */
+    BYTE pdrv,        /* Physical drive number (0..) */
+    BYTE cmd,         /* Control code */
+    void* buff        /* Buffer to send/receive control data */
 )
 {
-    debug_if(FFS_DBG, "disk_ioctl(%d)\n", ctrl);
-    switch(ctrl) {
+    debug_if(FFS_DBG, "disk_ioctl(%d)\n", cmd);
+    switch(cmd) {
         case CTRL_SYNC:
-            if(FATFileSystem::_ffs[drv] == NULL) {
+            if(FATFileSystem::_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
-            } else if(FATFileSystem::_ffs[drv]->disk_sync()) {
+            } else if(FATFileSystem::_ffs[pdrv]->disk_sync()) {
                 return RES_ERROR;
             }
             return RES_OK;
         case GET_SECTOR_COUNT:
-            if(FATFileSystem::_ffs[drv] == NULL) {
+            if(FATFileSystem::_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD res = FATFileSystem::_ffs[drv]->disk_sectors();
+                DWORD res = FATFileSystem::_ffs[pdrv]->disk_sectors();
                 if(res > 0) {
                     *((DWORD*)buff) = res; // minimum allowed
                     return RES_OK;

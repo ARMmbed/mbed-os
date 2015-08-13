@@ -89,7 +89,7 @@ void timer_oc_irq_handler(void)
             // Prepare next interrupt
             __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
             PreviousVal = val;
-#if 1 // For DEBUG only
+#if 0 // For DEBUG only
             HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
 #endif
         }
@@ -140,7 +140,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     // Enable timer
     HAL_TIM_Base_Start(&TimMasterHandle);
 
-#if 1 // For DEBUG only
+#if 0 // For DEBUG only
     __GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = GPIO_PIN_6;
