@@ -41,7 +41,7 @@ class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
     name = 'HostTestPluginCopyMethod_Mbed'
     type = 'CopyMethod'
     stable = True
-    capabilities = ['default']
+    capabilities = ['shutil', 'default']
     required_parameters = ['image_path', 'destination_disk']
 
     def setup(self, *args, **kwargs):
@@ -56,7 +56,8 @@ class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
         """
         result = False
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
-            if capabilitity == 'default':
+            # Capability 'default' is a dummy capability
+            if capability == 'shutil':
                 image_path = kwargs['image_path']
                 destination_disk = kwargs['destination_disk']
                 # Wait for mount point to be ready
