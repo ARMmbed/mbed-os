@@ -4,6 +4,7 @@
 #include "W7500x_uart.h"
 #include "W7500x_i2c.h"
 #include "W7500x_adc.h"
+#include "W7500x_dualtimer.h"
 #include "system_W7500x.h"
 
 

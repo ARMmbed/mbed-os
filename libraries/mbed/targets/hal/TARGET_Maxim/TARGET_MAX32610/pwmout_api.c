@@ -52,54 +52,30 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     // Check if there is a pulse train already active on this port
     int pin_func = (MXC_GPIO->func_sel[port] & (0xF << (port_pin*4))) >> (port_pin*4);
-    if((pin_func > 0) && (pin_func < 4)) {
-        // Search through PinMap_PWM to find the active PT
-        while(pwm.pin != (PinName)NC) {
-            if((pwm.pin == pin) && (pwm.function == pin_func)) {
-                break;
-            }
-            pwm = PinMap_PWM[++i];
-        }
+    MBED_ASSERT((pin_func < 1) || (pin_func > 3));
 
-    } else {
-       // Search through PinMap_PWM to find an available PT
-        int i = 0;
-        while(pwm.pin != (PinName)NC && (i > -1)) {
-            pwm = PinMap_PWM[i++];
-            if(pwm.pin == pin) {
-                // Check each instance of PT
-                while(1) {
-                    // Check to see if this PT instance is already in use
-                    if((((mxc_pt_regs_t*)pwm.peripheral)->rate_length & 
-                        MXC_F_PT_RATE_LENGTH_MODE)) {
-                        i = -1;
-                        break;
-                    } 
-
-                    // If all instances are in use, overwrite the last 
-                    pwm = PinMap_PWM[++i];
-                    if(pwm.pin != pin) {
-                        pwm = PinMap_PWM[--i];
-                        i = -1; 
-                        break;
-                    }
-
-                }
-            }
-        } 
+    // Search through PinMap_PWM to find the pin
+    while(pwm.pin != pin) {
+        pwm = PinMap_PWM[++i];
     }
 
-    // Make sure we found an available PWM generator
-    MBED_ASSERT(pwm.pin != (PinName)NC);
+    // Find a free PT instance on this pin
+    while(pwm.pin == pin) {
 
-    // Disable all pwm output
-    MXC_PTG->ctrl = 0;
+        // Check to see if this PT instance is free
+        if((((mxc_pt_regs_t*)pwm.peripheral)->rate_length & 
+            MXC_F_PT_RATE_LENGTH_MODE)) {
+            break;
+        }
+
+        pwm = PinMap_PWM[++i];
+
+        // Raise an assertion if we can not allocate another PT instance.
+        MBED_ASSERT(pwm.pin == pin);
+    }
 
     // Enable the clock
     MXC_CLKMAN->clk_ctrl_2_pt = MXC_E_CLKMAN_CLK_SCALE_ENABLED;
-
-    // Set the drive mode to normal
-    MXC_SET_FIELD(&MXC_GPIO->out_mode[port], (0x7 << (port_pin*4)), (MXC_V_GPIO_OUT_MODE_NORMAL_DRIVE << (port_pin*4)));
 
     // Set the obj pointer to the propper PWM instance
     obj->pwm = (mxc_pt_regs_t*)pwm.peripheral;
@@ -119,6 +95,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_us(obj, 20000);
     pwmout_write    (obj, 0);
+
+    // Set the drive mode to normal
+    MXC_SET_FIELD(&MXC_GPIO->out_mode[port], (0x7 << (port_pin*4)), (MXC_V_GPIO_OUT_MODE_NORMAL_DRIVE << (port_pin*4)));
 
     // Enable the global pwm
     MXC_PTG->ctrl = MXC_F_PT_CTRL_ENABLE_ALL;

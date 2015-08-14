@@ -91,6 +91,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
     ('DELTA_DFCM_NNN40',  ('ARM', 'GCC_ARM')),
+    ('NRF51_MICROBIT',      ('ARM',)),
+    ('NRF51_MICROBIT_B',      ('ARM',)),
 
     ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
