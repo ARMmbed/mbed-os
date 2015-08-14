@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_ll_fmc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of FMC HAL module.
   ******************************************************************************
   * @attention
@@ -145,7 +145,7 @@
 /** @defgroup FMC_Setup_Time FMC Setup Time 
   * @{
   */
-#define IS_FMC_SETUP_TIME(TIME) ((TIME) <= 255)
+#define IS_FMC_SETUP_TIME(TIME) ((TIME) <= 254)
 /**
   * @}
   */
@@ -153,7 +153,7 @@
 /** @defgroup FMC_Wait_Setup_Time FMC Wait Setup Time 
   * @{
   */
-#define IS_FMC_WAIT_TIME(TIME) ((TIME) <= 255)
+#define IS_FMC_WAIT_TIME(TIME) ((TIME) <= 254)
 /**
   * @}
   */
@@ -161,7 +161,7 @@
 /** @defgroup FMC_Hold_Setup_Time FMC Hold Setup Time 
   * @{
   */
-#define IS_FMC_HOLD_TIME(TIME) ((TIME) <= 255)
+#define IS_FMC_HOLD_TIME(TIME) ((TIME) <= 254)
 /**
   * @}
   */
@@ -169,7 +169,7 @@
 /** @defgroup FMC_HiZ_Setup_Time FMC HiZ Setup Time 
   * @{
   */
-#define IS_FMC_HIZ_TIME(TIME) ((TIME) <= 255)
+#define IS_FMC_HIZ_TIME(TIME) ((TIME) <= 254)
 /**
   * @}
   */
@@ -552,26 +552,26 @@ typedef struct
                                       the command assertion for NAND-Flash read or write access
                                       to common/Attribute or I/O memory space (depending on
                                       the memory space timing to be configured).
-                                      This parameter can be a value between Min_Data = 0 and Max_Data = 255    */
+                                      This parameter can be a value between Min_Data = 0 and Max_Data = 254    */
 
   uint32_t WaitSetupTime;        /*!< Defines the minimum number of HCLK cycles to assert the
                                       command for NAND-Flash read or write access to
                                       common/Attribute or I/O memory space (depending on the
                                       memory space timing to be configured). 
-                                      This parameter can be a number between Min_Data = 0 and Max_Data = 255   */
+                                      This parameter can be a number between Min_Data = 0 and Max_Data = 254   */
 
   uint32_t HoldSetupTime;        /*!< Defines the number of HCLK clock cycles to hold address
                                       (and data for write access) after the command de-assertion
                                       for NAND-Flash read or write access to common/Attribute
                                       or I/O memory space (depending on the memory space timing
                                       to be configured).
-                                      This parameter can be a number between Min_Data = 0 and Max_Data = 255   */
+                                      This parameter can be a number between Min_Data = 0 and Max_Data = 254   */
 
   uint32_t HiZSetupTime;         /*!< Defines the number of HCLK clock cycles during which the
                                       data bus is kept in HiZ after the start of a NAND-Flash
                                       write access to common/Attribute or I/O memory space (depending
                                       on the memory space timing to be configured).
-                                      This parameter can be a number between Min_Data = 0 and Max_Data = 255   */
+                                      This parameter can be a number between Min_Data = 0 and Max_Data = 254   */
 }FMC_NAND_PCC_TimingTypeDef;
 
 /** 

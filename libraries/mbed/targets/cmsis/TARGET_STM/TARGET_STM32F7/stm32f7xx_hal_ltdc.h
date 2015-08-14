@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_ltdc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of LTDC HAL module.
   ******************************************************************************
   * @attention
@@ -136,10 +136,10 @@ typedef struct
                                             This parameter must be a number between Min_Data = 0x000 and Max_Data = 0xFFF. */
 
   uint32_t WindowY0;                   /*!< Configures the Window vertical Start Position.
-                                            This parameter must be a number between Min_Data = 0x000 and Max_Data = 0xFFF. */
+                                            This parameter must be a number between Min_Data = 0x000 and Max_Data = 0x7FF. */
 
   uint32_t WindowY1;                   /*!< Configures the Window vertical Stop Position.
-                                            This parameter must be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF. */
+                                            This parameter must be a number between Min_Data = 0x0000 and Max_Data = 0x7FF. */
 
   uint32_t PixelFormat;                /*!< Specifies the pixel format. 
                                             This parameter can be one of value of @ref LTDC_Pixelformat */

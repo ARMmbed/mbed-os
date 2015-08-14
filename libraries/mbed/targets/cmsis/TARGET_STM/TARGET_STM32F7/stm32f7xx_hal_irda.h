@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
@@ -77,8 +77,8 @@ typedef struct
                                                  the word length is set to 9 data bits; 8th bit when the
                                                  word length is set to 8 data bits). */
  
-  uint16_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
-                                           This parameter can be a value of @ref IRDA_Mode */
+  uint16_t Mode;                      /*!< Specifies whether the Receive or Transmit mode is enabled or disabled.
+                                           This parameter can be a value of @ref IRDA_Transfer_Mode */
   
   uint8_t  Prescaler;                 /*!< Specifies the Prescaler value for dividing the UART/USART source clock
                                            to achieve low-power frequency.

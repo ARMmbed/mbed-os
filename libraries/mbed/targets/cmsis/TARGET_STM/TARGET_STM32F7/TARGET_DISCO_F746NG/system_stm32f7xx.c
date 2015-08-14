@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f7xx.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    28-April-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   CMSIS Cortex-M7 Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -335,6 +335,7 @@ void SystemCoreClockUpdate(void)
   */
 void SystemInit_ExtMemCtl(void)
 {
+  __IO uint32_t tmp = 0;
 #if defined (DATA_IN_ExtSDRAM)
   register uint32_t tmpreg = 0, timeout = 0xFFFF;
   register uint32_t index;
@@ -342,6 +343,9 @@ void SystemInit_ExtMemCtl(void)
   /* Enable GPIOD, GPIOE, GPIOF, GPIOG, GPIOH and GPIOI interface 
       clock */
   RCC->AHB1ENR |= 0x000001F8;
+  
+  /* Delay after an RCC peripheral clock enabling */
+  tmp = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOEEN);
   
   /* Connect PDx pins to FMC Alternate function */
   GPIOD->AFR[0]  = 0x000000CC;
@@ -419,6 +423,9 @@ void SystemInit_ExtMemCtl(void)
   /* Enable the FMC interface clock */
   RCC->AHB3ENR |= 0x00000001;
   
+  /* Delay after an RCC peripheral clock enabling */
+  tmp = READ_BIT(RCC->AHB3ENR, RCC_AHB3ENR_FMCEN);
+
   /* Configure and enable SDRAM bank1 */
   FMC_Bank5_6->SDCR[0] = 0x000019E5;
   FMC_Bank5_6->SDTR[0] = 0x01116361;      
@@ -473,6 +480,9 @@ void SystemInit_ExtMemCtl(void)
    /* Enable GPIOD, GPIOE, GPIOF and GPIOG interface clock */
   RCC->AHB1ENR   |= 0x00000078;
   
+    /* Delay after an RCC peripheral clock enabling */
+  tmp = READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_GPIOEEN);
+  
   /* Connect PDx pins to FMC Alternate function */
   GPIOD->AFR[0]  = 0x00CCC0CC;
   GPIOD->AFR[1]  = 0xCCCCCCCC;
@@ -524,6 +534,9 @@ void SystemInit_ExtMemCtl(void)
 /*-- FMC/FSMC Configuration --------------------------------------------------*/                                                                               
   /* Enable the FMC/FSMC interface clock */
   RCC->AHB3ENR         |= 0x00000001;
+  
+  /* Delay after an RCC peripheral clock enabling */
+  tmp = READ_BIT(RCC->AHB3ENR, RCC_AHB3ENR_FMCEN);
 
   /* Configure and enable Bank1_SRAM2 */
   FMC_Bank1->BTCR[4]  = 0x00001091;
@@ -531,6 +544,8 @@ void SystemInit_ExtMemCtl(void)
   FMC_Bank1E->BWTR[4] = 0x0FFFFFFF;  
 
 #endif /* DATA_IN_ExtSRAM */
+
+  (void)(tmp);
 }
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
 
