@@ -31,18 +31,13 @@
 #define MBED_DEVICE_H
 
 
-//MODTRONIX BEGIN
-//Provide place for adding global define. Alternative to adding them in IDE project
-//properties. Add project defines here, or add them to your toolchain compiler preprocessor
+//MODTRONIX BEGIN - mbed Defines //////////////////////////////////////////////
+//Provide place for adding mbed defines. Alternative to adding them in IDE project properties.
+//Add project defines here, or add them to your toolchain compiler preprocessor
 
- //Defines what ports to use for default serial port.
- //0 = B10/B11
- //1 = A2/A3
-#if !defined  (MX_DEFAULT_SERIAL_PINS)
-#define MX_DEFAULT_SERIAL_PINS   0          // Use B10/B11 for default serial port, in stead of A2/A3
-#endif
 
-//MODTRONIX END
+//MODTRONIX END ///////////////////////////////////////////////////////////////
+
 
 #define DEVICE_PORTIN           1
 #define DEVICE_PORTOUT          1
