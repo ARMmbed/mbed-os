@@ -17,6 +17,7 @@ limitations under the License.
 
 import os
 from os.path import join, basename
+from time import sleep
 from host_test_plugins import HostTestPluginBase
 
 
@@ -27,7 +28,7 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
     type = 'CopyMethod'
     stable = True
     capabilities = ['shell', 'cp', 'copy', 'xcopy']
-    required_parameters = ['image_path', 'destination_disk']
+    required_parameters = ['image_path', 'destination_disk', 'program_cycle_s']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
@@ -43,6 +44,7 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
             image_path = kwargs['image_path']
             destination_disk = kwargs['destination_disk']
+            program_cycle_s = kwargs['program_cycle_s']
             # Wait for mount point to be ready
             self.check_mount_point_ready(destination_disk)  # Blocking
             # Prepare correct command line parameter values
@@ -56,6 +58,9 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
                 cmd = [copy_method, image_path, destination_path]
                 shell = not capabilitity == 'cp'
                 result = self.run_command(cmd, shell=shell)
+
+            sleep(program_cycle_s)
+
         return result
 
 

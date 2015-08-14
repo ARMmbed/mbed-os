@@ -88,7 +88,7 @@ class HostTestPluginBase:
             while not access(destination_disk, F_OK):
                 sleep(loop_delay)
                 self.print_plugin_char('.')
-
+     
     def check_parameters(self, capabilitity, *args, **kwargs):
         """ This function should be ran each time we call execute()
             to check if none of the required parameters is missing.
@@ -105,6 +105,7 @@ class HostTestPluginBase:
     def run_command(self, cmd, shell=True):
         """ Runs command from command line.
         """
+
         result = True
         ret = 0
         try:
@@ -117,3 +118,4 @@ class HostTestPluginBase:
             self.print_plugin_error("[ret=%d] Command: %s"% (int(ret), cmd))
             self.print_plugin_error(str(e))
         return result
+ 

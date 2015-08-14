@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from time import sleep
 from host_test_plugins import HostTestPluginBase
 
 
@@ -24,7 +25,7 @@ class HostTestPluginCopyMethod_Silabs(HostTestPluginBase):
     name = 'HostTestPluginCopyMethod_Silabs'
     type = 'CopyMethod'
     capabilities = ['eACommander', 'eACommander-usb']
-    required_parameters = ['image_path', 'destination_disk']
+    required_parameters = ['image_path', 'destination_disk', 'program_cycle_s']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
@@ -41,6 +42,7 @@ class HostTestPluginCopyMethod_Silabs(HostTestPluginBase):
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
             image_path = kwargs['image_path']
             destination_disk = kwargs['destination_disk']
+            program_cycle_s = kwargs['program_cycle_s']
             if capabilitity == 'eACommander':
                 cmd = [self.EACOMMANDER_CMD,
                        '--serialno', destination_disk,
@@ -52,6 +54,9 @@ class HostTestPluginCopyMethod_Silabs(HostTestPluginBase):
                        '--usb', destination_disk,
                        '--flash', image_path]
                 result = self.run_command(cmd)
+
+            sleep(program_cycle_s)
+
         return result
 
 
