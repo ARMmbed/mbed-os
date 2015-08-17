@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   SAI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Serial Audio Interface (SAI) peripheral:
@@ -320,7 +320,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
   uint32_t freq = 0;
   
   /* Check the SAI handle allocation */
-  if(hsai == HAL_NULL)
+  if(hsai == NULL)
   {
     return HAL_ERROR;
   }
@@ -448,7 +448,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
 HAL_StatusTypeDef HAL_SAI_DeInit(SAI_HandleTypeDef *hsai)
 {
   /* Check the SAI handle allocation */
-  if(hsai == HAL_NULL)
+  if(hsai == NULL)
   {
     return HAL_ERROR;
   }
@@ -568,7 +568,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit(SAI_HandleTypeDef *hsai, uint8_t* pData, uint
 {
   uint32_t tickstart = 0;
   
-  if((pData == HAL_NULL ) || (Size == 0)) 
+  if((pData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -664,7 +664,7 @@ HAL_StatusTypeDef HAL_SAI_Receive(SAI_HandleTypeDef *hsai, uint8_t *pData, uint1
 {
   uint32_t tickstart = 0;
   
-  if((pData == HAL_NULL ) || (Size == 0)) 
+  if((pData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -758,7 +758,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit_IT(SAI_HandleTypeDef *hsai, uint8_t *pData, u
 {  
   if(hsai->State == HAL_SAI_STATE_READY)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -821,7 +821,7 @@ HAL_StatusTypeDef HAL_SAI_Receive_IT(SAI_HandleTypeDef *hsai, uint8_t *pData, ui
   
   if(hsai->State == HAL_SAI_STATE_READY)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -930,12 +930,12 @@ HAL_StatusTypeDef HAL_SAI_DMAStop(SAI_HandleTypeDef *hsai)
   hsai->Instance->CR1 &= ~SAI_xCR1_DMAEN;
   
   /* Abort the SAI DMA Tx Stream */
-  if(hsai->hdmatx != HAL_NULL)
+  if(hsai->hdmatx != NULL)
   {
     HAL_DMA_Abort(hsai->hdmatx);
   }
   /* Abort the SAI DMA Rx Stream */
-  if(hsai->hdmarx != HAL_NULL)
+  if(hsai->hdmarx != NULL)
   {  
     HAL_DMA_Abort(hsai->hdmarx);
   }
@@ -963,12 +963,12 @@ HAL_StatusTypeDef HAL_SAI_Abort(SAI_HandleTypeDef *hsai)
   hsai->Instance->CR1 &= ~SAI_xCR1_DMAEN;
   
   /* Abort the SAI DMA Tx Stream */
-  if(hsai->hdmatx != HAL_NULL)
+  if(hsai->hdmatx != NULL)
   {
     HAL_DMA_Abort(hsai->hdmatx);
   }
   /* Abort the SAI DMA Rx Stream */
-  if(hsai->hdmarx != HAL_NULL)
+  if(hsai->hdmarx != NULL)
   {  
     HAL_DMA_Abort(hsai->hdmarx);
   }
@@ -1003,7 +1003,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit_DMA(SAI_HandleTypeDef *hsai, uint8_t *pData, 
 {
   uint32_t *tmp;
   
-  if((pData == HAL_NULL) || (Size == 0)) 
+  if((pData == NULL) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -1068,7 +1068,7 @@ HAL_StatusTypeDef HAL_SAI_Receive_DMA(SAI_HandleTypeDef *hsai, uint8_t *pData, u
 {
   uint32_t *tmp;
   
-  if((pData == HAL_NULL) || (Size == 0))
+  if((pData == NULL) || (Size == 0))
   {
     return  HAL_ERROR;
   } 

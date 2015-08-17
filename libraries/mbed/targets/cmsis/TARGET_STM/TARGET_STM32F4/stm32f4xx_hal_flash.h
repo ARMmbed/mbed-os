@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of FLASH HAL module.
   ******************************************************************************
   * @attention
@@ -192,6 +192,13 @@ typedef struct
   * @retval none
   */ 
 #define __HAL_FLASH_SET_LATENCY(__LATENCY__) (*(__IO uint8_t *)ACR_BYTE0_ADDRESS = (uint8_t)(__LATENCY__))
+
+/**
+  * @brief  Get the FLASH Latency.
+  * @retval FLASH Latency
+  *          The value of this parameter depend on device used within the same series
+  */ 
+#define __HAL_FLASH_GET_LATENCY()     (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))
 
 /**
   * @brief  Enable the FLASH prefetch buffer.

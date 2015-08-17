@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   NOR HAL module driver.
   *          This file provides a generic firmware to drive NOR memories mounted 
   *          as external device.
@@ -170,7 +170,7 @@
 HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDef *Timing, FMC_NORSRAM_TimingTypeDef *ExtTiming)
 {
   /* Check the NOR handle parameter */
-  if(hnor == HAL_NULL)
+  if(hnor == NULL)
   {
      return HAL_ERROR;
   }
@@ -433,7 +433,7 @@ HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint
   /* Send read data command */
   NOR_WRITE(NOR_ADDR_SHIFT(deviceaddress, NOR_MEMORY_8B, NOR_CMD_ADDRESS_FIRST), NOR_CMD_DATA_FIRST); 
   NOR_WRITE(NOR_ADDR_SHIFT(deviceaddress, NOR_MEMORY_8B, NOR_CMD_ADDRESS_SECOND), NOR_CMD_DATA_SECOND);  
- __NOR_WRITE((uint32_t)pAddress, NOR_CMD_DATA_READ_RESET);
+  NOR_WRITE((uint32_t)pAddress, NOR_CMD_DATA_READ_RESET);
 
   /* Read the data */
  *pData = *(__IO uint32_t *)(uint32_t)pAddress;

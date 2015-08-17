@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -209,7 +209,7 @@ __weak HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   uint32_t tmp = 0, i2sclk = 0;
   
   /* Check the I2S handle allocation */
-  if(hi2s == HAL_NULL)
+  if(hi2s == NULL)
   {
     return HAL_ERROR;
   }
@@ -330,7 +330,7 @@ __weak HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
 HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
 {
   /* Check the I2S handle allocation */
-  if(hi2s == HAL_NULL)
+  if(hi2s == NULL)
   {
     return HAL_ERROR;
   }
@@ -438,7 +438,7 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
 HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
   uint32_t tmp1 = 0, tmp2 = 0;  
-  if((pData == HAL_NULL ) || (Size == 0)) 
+  if((pData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -480,13 +480,16 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
       {
         return HAL_TIMEOUT;
       }
-    } 
-    /* Wait until Busy flag is reset */
-    if (I2S_WaitFlagStateUntilTimeout(hi2s, I2S_FLAG_BSY, SET, Timeout) != HAL_OK)
-    {
-      return HAL_TIMEOUT;
     }
-
+    /* Check if Slave mode is selected */
+    if(((hi2s->Instance->I2SCFGR & SPI_I2SCFGR_I2SCFG) == I2S_MODE_SLAVE_TX) || ((hi2s->Instance->I2SCFGR & SPI_I2SCFGR_I2SCFG) == I2S_MODE_SLAVE_RX))
+    {
+      /* Wait until Busy flag is reset */
+      if (I2S_WaitFlagStateUntilTimeout(hi2s, I2S_FLAG_BSY, SET, Timeout) != HAL_OK)
+      {
+        return HAL_TIMEOUT;
+      }
+    }
     hi2s->State = HAL_I2S_STATE_READY; 
     
     /* Process Unlocked */
@@ -520,7 +523,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
 HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
   uint32_t tmp1 = 0, tmp2 = 0;   
-  if((pData == HAL_NULL ) || (Size == 0)) 
+  if((pData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -605,7 +608,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   uint32_t tmp1 = 0, tmp2 = 0;     
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -673,7 +676,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
   uint32_t tmp1 = 0, tmp2 = 0;     
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -739,7 +742,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
   uint32_t *tmp;
   uint32_t tmp1 = 0, tmp2 = 0;     
   
-  if((pData == HAL_NULL) || (Size == 0)) 
+  if((pData == NULL) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -824,7 +827,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   uint32_t *tmp;
   uint32_t tmp1 = 0, tmp2 = 0;  
   
-  if((pData == HAL_NULL) || (Size == 0))
+  if((pData == NULL) || (Size == 0))
   {
     return  HAL_ERROR;
   }
@@ -1002,12 +1005,12 @@ __weak HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   hi2s->Instance->CR2 &= ~SPI_CR2_RXDMAEN;
 
   /* Abort the I2S DMA Stream tx */
-  if(hi2s->hdmatx != HAL_NULL)
+  if(hi2s->hdmatx != NULL)
   {
     HAL_DMA_Abort(hi2s->hdmatx);
   }
   /* Abort the I2S DMA Stream rx */
-  if(hi2s->hdmarx != HAL_NULL)
+  if(hi2s->hdmarx != NULL)
   {
     HAL_DMA_Abort(hi2s->hdmarx);
   }
