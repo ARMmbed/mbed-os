@@ -69,11 +69,8 @@ class GCC(mbedToolchain):
         if "save-asm" in self.options:
             common_flags.append("-save-temps")
 
-        if "debug-info" in self.options:
-            common_flags.append("-g")
-            common_flags.append("-O0")
-        else:
-            common_flags.append("-O2")
+        common_flags.append("-ggdb")
+        common_flags.append("-O0")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
