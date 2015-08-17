@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of FLASH HAL Extension module.
   ******************************************************************************
   * @attention
@@ -197,8 +197,8 @@ typedef struct
   */
 #define OB_RDP_LEVEL_0   ((uint8_t)0xAA)
 #define OB_RDP_LEVEL_1   ((uint8_t)0x55)
-/*#define OB_RDP_LEVEL_2   ((uint8_t)0xCC)*/ /*!< Warning: When enabling read protection level 2 
-                                                  it s no more possible to go back to level 1 or 0 */
+#define OB_RDP_LEVEL_2   ((uint8_t)0xCC) /*!< Warning: When enabling read protection level 2 
+                                              it s no more possible to go back to level 1 or 0 */
 /**
   * @}
   */ 
@@ -685,9 +685,9 @@ uint16_t          HAL_FLASHEx_OB_GetBank2WRP(void);
 
 #define IS_OPTIONBYTE(VALUE)(((VALUE) <= (OPTIONBYTE_WRP|OPTIONBYTE_RDP|OPTIONBYTE_USER|OPTIONBYTE_BOR)))
 
-#define IS_OB_RDP_LEVEL(LEVEL) (((LEVEL) == OB_RDP_LEVEL_0)   ||\
-                                ((LEVEL) == OB_RDP_LEVEL_1))/*||\
-                                ((LEVEL) == OB_RDP_LEVEL_2))*/
+#define IS_OB_RDP_LEVEL(LEVEL) (((LEVEL) == OB_RDP_LEVEL_0) ||\
+                                ((LEVEL) == OB_RDP_LEVEL_1) ||\
+                                ((LEVEL) == OB_RDP_LEVEL_2))
 
 #define IS_OB_IWDG_SOURCE(SOURCE) (((SOURCE) == OB_IWDG_SW) || ((SOURCE) == OB_IWDG_HW))
 
