@@ -27,7 +27,17 @@ __IO uint32_t* IOCON_REGISTERS[18] = {
 };
 
 void pin_function(PinName pin, int function) {
-    
+    if (function == 0) {
+        // Disable initial fixed function for P0_2, P0_3 and P0_5
+        uint32_t enable = 0;
+        if (pin == P0_2)
+            enable = 1 << 3;
+        else if (pin == P0_3)
+            enable = 1 << 2;
+        else if (pin == P0_5)
+            enable = 1 << 6;
+        LPC_SWM->PINENABLE0 |= enable;
+    }
 }
 
 void pin_mode(PinName pin, PinMode mode) {

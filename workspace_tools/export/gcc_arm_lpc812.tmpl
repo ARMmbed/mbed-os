@@ -1,0 +1,10 @@
+{% extends "gcc_arm_common.tmpl" %}
+
+{% block target_project_elf %}
+{{ super() }}
+	@echo ""
+	@echo "*****"
+	@echo "***** You must modify vector checksum value in *.bin and *.hex files."
+	@echo "*****"
+	@echo ""
+{% endblock %}
