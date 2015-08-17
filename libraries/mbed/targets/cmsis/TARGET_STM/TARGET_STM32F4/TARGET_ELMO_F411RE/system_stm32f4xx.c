@@ -84,7 +84,7 @@
 #include "hal_tick.h"
 
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)8000000) /*!< Default value of the External oscillator in Hz */
+  #define HSE_VALUE    ((uint32_t)25000000) /*!< Default value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSI_VALUE)
@@ -138,7 +138,7 @@
   */
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (1) /* Use external clock */
+#define USE_PLL_HSE_EXTC (0) /* Use external clock */
 #define USE_PLL_HSE_XTAL (1) /* Use external xtal */
 
 /**
@@ -612,8 +612,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
   //RCC_OscInitStruct.PLL.PLLM          = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
   //RCC_OscInitStruct.PLL.PLLN          = 384;           // VCO output clock = 384 MHz (1 MHz * 384)
-  RCC_OscInitStruct.PLL.PLLM            = 4;             // VCO input clock = 2 MHz (8 MHz / 4)
-  RCC_OscInitStruct.PLL.PLLN            = 192;           // VCO output clock = 384 MHz (2 MHz * 192)
+  //RCC_OscInitStruct.PLL.PLLM            = 4;             // VCO input clock = 2 MHz (8 MHz / 4)
+  //RCC_OscInitStruct.PLL.PLLN            = 192;           // VCO output clock = 384 MHz (2 MHz * 192)
+
+  RCC_OscInitStruct.PLL.PLLM            = 25;             // VCO input clock = 2 MHz (8 MHz / 4)
+  RCC_OscInitStruct.PLL.PLLN            = 384;           // VCO output clock = 384 MHz (2 MHz * 192)
+
+
   RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV4; // PLLCLK = 96 MHz (384 MHz / 4)
   RCC_OscInitStruct.PLL.PLLQ            = 8;             // USB clock = 48 MHz (384 MHz / 8) --> Good for USB
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
