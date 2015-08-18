@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   IRDA HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the IrDA SIR ENDEC block (IrDA):
@@ -213,7 +213,7 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
 HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == HAL_NULL)
+  if(hirda == NULL)
   {
     return HAL_ERROR;
   }
@@ -273,7 +273,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == HAL_NULL)
+  if(hirda == NULL)
   {
     return HAL_ERROR;
   }
@@ -396,7 +396,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
   tmp1 = hirda->State; 
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -488,7 +488,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
   tmp1 = hirda->State; 
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -580,7 +580,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
   tmp1 = hirda->State;   
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -632,7 +632,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
   tmp1 = hirda->State;   
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -689,7 +689,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
   tmp1 = hirda->State;   
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -759,7 +759,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
   tmp1 = hirda->State; 
   if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return HAL_ERROR;
     }
@@ -912,12 +912,12 @@ HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda)
   hirda->Instance->CR3 &= ~USART_CR3_DMAR;
   
   /* Abort the UART DMA tx Stream */
-  if(hirda->hdmatx != HAL_NULL)
+  if(hirda->hdmatx != NULL)
   {
     HAL_DMA_Abort(hirda->hdmatx);
   }
   /* Abort the UART DMA rx Stream */
-  if(hirda->hdmarx != HAL_NULL)
+  if(hirda->hdmarx != NULL)
   {
     HAL_DMA_Abort(hirda->hdmarx);
   }
