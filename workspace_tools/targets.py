@@ -1162,6 +1162,27 @@ class ARCH_BLE_OTA(MCU_NRF51_16K_OTA):
         self.macros += ['TARGET_ARCH_BLE']
         self.supported_form_factors = ["ARDUINO"]
 
+class ARCH_LINK(MCU_NRF51_16K):
+    def __init__(self):
+        MCU_NRF51_16K.__init__(self)
+        self.extra_labels += ['ARCH_BLE']
+        self.macros += ['TARGET_ARCH_BLE']
+        self.supported_form_factors = ["ARDUINO"]
+
+class ARCH_LINK_BOOT(MCU_NRF51_16K_BOOT):
+    def __init__(self):
+        MCU_NRF51_16K_BOOT.__init__(self)
+        self.extra_labels += ['ARCH_BLE', 'ARCH_LINK']
+        self.macros += ['TARGET_ARCH_BLE', 'TARGET_ARCH_LINK']
+        self.supported_form_factors = ["ARDUINO"]
+
+class ARCH_LINK_OTA(MCU_NRF51_16K_OTA):
+    def __init__(self):
+        MCU_NRF51_16K_OTA.__init__(self)
+        self.extra_labels += ['ARCH_BLE', 'ARCH_LINK']
+        self.macros += ['TARGET_ARCH_BLE', 'TARGET_ARCH_LINK']
+        self.supported_form_factors = ["ARDUINO"]
+
 class SEEED_TINY_BLE(MCU_NRF51_16K):
     def __init__(self):
         MCU_NRF51_16K.__init__(self)
