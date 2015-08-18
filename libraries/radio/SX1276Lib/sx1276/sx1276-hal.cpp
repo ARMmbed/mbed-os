@@ -70,9 +70,9 @@ SX1276MB1xAS::SX1276MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
                             antSwitch( A4 ),
                             fake( D8 )
                         #else
-                        :   SX1276( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, D10, A0, D2, D3, D4, D5, D8, D9 ),
+                        :   SX1276( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, PA_4, PC_4, PC_10, PC_11, PC_12, PD_2, PB_5, PB_6 ),
                             antSwitch( A4 ), 
-                            fake( A3 )
+                            fake( PC_2 )
                         #endif
 {
     Reset( );
