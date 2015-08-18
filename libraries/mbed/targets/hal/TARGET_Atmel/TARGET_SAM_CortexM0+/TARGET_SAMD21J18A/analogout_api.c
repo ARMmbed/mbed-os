@@ -69,9 +69,9 @@ void analogout_write(dac_t *obj, float value)
 {
     MBED_ASSERT(obj);
     uint16_t count_val = 0;
-    if (value < 0.0) {
+    if (value < 0.0f) {
         count_val = 0;
-    } else if (value > 1.0) {
+    } else if (value > 1.0f) {
         count_val = MAX_VAL_10BIT;
     } else {
         count_val = (uint16_t)(value * (float)MAX_VAL_10BIT);
@@ -89,20 +89,22 @@ void analogout_write_u16(dac_t *obj, uint16_t value)
 
 }
 
+static uint32_t data_reg_read(dac_t *obj)
+{
+    Dac *const dac_module = (Dac *)obj->dac;
+    return (uint32_t)dac_module->DATA.reg;
+}
+
 float analogout_read(dac_t *obj)
 {
     MBED_ASSERT(obj);
-    uint32_t data_val = 0;
-    Dac *const dac_module = (Dac *)obj->dac;
-    data_val = dac_module->DATA.reg;
+    uint32_t data_val = data_reg_read(obj);
     return data_val/(float)MAX_VAL_10BIT;
 }
 
 uint16_t analogout_read_u16(dac_t *obj)
 {
     MBED_ASSERT(obj);
-    uint32_t data_val = 0;
-    Dac *const dac_module = (Dac *)obj->dac;
-    data_val = dac_module->DATA.reg;
+    uint32_t data_val = data_reg_read(obj);
     return (uint16_t)((data_val / (float)MAX_VAL_10BIT) * 0xFFFF);   /*Normalization to the value 0xFFFF*/
 }
