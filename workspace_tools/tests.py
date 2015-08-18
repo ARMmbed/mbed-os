@@ -1049,6 +1049,13 @@ TESTS = [
         "automated": True,
         #"host_test" : "detect_auto",
     },
+	
+    {
+        "id": "ELMO_SX", "description": "ELMO radio",
+        "source_dir": [join(TEST_DIR, "radio", "SX127xPingPong"), join(LIB_DIR, "radio", "SX1276Lib")],
+        "dependencies": [MBED_LIBRARIES],
+        "automated": False,
+    },
 ]
 
 # Group tests with the same goals into categories
