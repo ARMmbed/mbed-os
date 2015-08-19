@@ -9,8 +9,8 @@
 # OR (Cross-compile GCC toolchain)
 # make PLATFORM=arm-linux-gnueabi-
 #
-# OR (ArmCC/Keil)
-# make CC=ArmCC AR=ArmAR
+# OR (armcc/Keil)
+# make CC=armcc AR=ArmAR
 #
 # OR (IAR-ARM)
 # make CC=iccarm
