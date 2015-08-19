@@ -72,6 +72,16 @@ uint8_t Buffer[BUFFER_SIZE];
 int16_t RssiValue = 0.0;
 int8_t SnrValue = 0.0;
 
+
+void radioRegistersPrint()
+{
+	printf("--REGS--\n\r");
+	for (int i = REG_OPMODE; i <= REG_PLL; ++i)
+	{
+		printf("REG %.2x = %.2x\r\n", i, Radio.Read(i));
+	}
+}
+
 int main() 
 {
     uint8_t i;
