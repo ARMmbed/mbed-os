@@ -37,6 +37,7 @@
 #include "pinmap.h"
 #include <string.h>
 #include "PeripheralPins.h"
+#include "W7500x_uart.h"
 
 #define UART_NUM (2)
 

@@ -32,6 +32,8 @@
 #include "pinmap.h"
 #include "PortNames.h"
 #include "mbed_error.h"
+#include "W7500x.h"
+#include "W7500x_gpio.h"
 
 
 uint32_t Get_GPIO_BaseAddress(uint32_t port_idx)

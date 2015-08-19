@@ -28,48 +28,75 @@
  *******************************************************************************
  */
  
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
 #include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
 #include "PinNames.h"
+#include "PortNames.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef enum {
-    ADC_0 = (int)W7500x_ADC_BASE
-} ADCName;
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t event;
+    PinName pin;
+    uint32_t pin_index;
+    uint32_t pin_num;
+    uint32_t port_num;
+    uint32_t rise_null;
+    uint32_t fall_null;
+};
 
-typedef enum {
-    UART_0 = (int)W7500x_UART0_BASE,
-    UART_1 = (int)W7500x_UART1_BASE
-} UARTName;
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
 
-#define STDIO_UART_TX  PC_2
-#define STDIO_UART_RX  PC_3
-#define STDIO_UART     UART_1
+struct analogin_s {
+    ADCName adc;
+    PinName pin;
+};
 
-typedef enum {
-    SPI_0 = (int)SSP0_BASE,
-    SPI_1 = (int)SSP1_BASE
-} SPIName;
+struct serial_s {
+    UARTName uart;
+    int index; // Used by irq
+    uint32_t baudrate;
+    uint32_t databits;
+    uint32_t stopbits;
+    uint32_t parity;
+    PinName pin_tx;
+    PinName pin_rx;
+};
 
-typedef enum {
-    I2C_0 = (int)I2C0_BASE,
-    I2C_1 = (int)I2C1_BASE
-} I2CName;
+struct spi_s {
+	SSP_TypeDef *spi;
+};
 
-typedef enum {    
-    PWM_0 = (int)PWM_CH0_BASE,
-    PWM_1 = (int)PWM_CH1_BASE,
-    PWM_2 = (int)PWM_CH2_BASE,
-    PWM_3 = (int)PWM_CH3_BASE,
-    PWM_4 = (int)PWM_CH4_BASE,
-    PWM_5 = (int)PWM_CH5_BASE,
-    PWM_6 = (int)PWM_CH6_BASE,
-    PWM_7 = (int)PWM_CH7_BASE
-} PWMName;
+struct i2c_s {
+    I2CName I2Cx;
+    PinName sda;
+    PinName scl; 
+    uint16_t ADDRESS;
+    uint16_t is_setAddress;
+};
+
+struct pwmout_s {
+    PWM_CHn_TypeDef * PWM_CHx;
+    PinName pin;
+    uint32_t period;
+    uint32_t pulse;
+    uint32_t PrescalerValue;
+};
+
+#include "gpio_object.h"
 
 #ifdef __cplusplus
 }

@@ -125,7 +125,6 @@ typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 
 
 
-
 /**
   * @}
   */
@@ -1010,19 +1009,30 @@ typedef struct
 /******************************************************************************/
 
 /*********************** Bit definition for dualtimer   ***********************/
-#define DUALTIMER_TimerControl_TimerDIsable (0x0ul << 7)
-#define DUALTIMER_TimerControl_TimerEnable  (0x1ul << 7)
-#define DUALTIMER_TimerControl_FreeRunning  (0x0ul << 6)
-#define DUALTIMER_TimerControl_Periodic     (0x1ul << 6)
-#define DUALTIMER_TimerControl_IntDisable   (0x0ul << 5)
-#define DUALTIMER_TimerControl_IntEnable    (0x1ul << 5)
-#define DUALTIMER_TimerControl_Pre_1        (0x0ul << 2)
-#define DUALTIMER_TimerControl_Pre_16       (0x1ul << 2)
-#define DUALTIMER_TimerControl_Pre_256      (0x2ul << 2)
-#define DUALTIMER_TimerControl_Size_16      (0x0ul << 1)
-#define DUALTIMER_TimerControl_Size_32      (0x1ul << 1)
-#define DUALTIMER_TimerControl_Wrapping     (0x0ul << 0)
-#define DUALTIMER_TimerControl_OneShot      (0x1ul << 0)
+#define DUALTIMER_TimerControl_TimerDIsable     0x0ul
+#define DUALTIMER_TimerControl_TimerEnable      0x1ul
+#define DUALTIMER_TimerControl_TimerEnable_Pos  7
+
+#define DUALTIMER_TimerControl_FreeRunning      0x0ul
+#define DUALTIMER_TimerControl_Periodic         0x1ul
+#define DUALTIMER_TimerControl_TimerMode_Pos    6
+
+#define DUALTIMER_TimerControl_IntDisable       0x0ul
+#define DUALTIMER_TimerControl_IntEnable        0x1ul
+#define DUALTIMER_TimerControl_IntEnable_Pos    5
+
+#define DUALTIMER_TimerControl_Pre_1            0x0ul
+#define DUALTIMER_TimerControl_Pre_16           0x1ul
+#define DUALTIMER_TimerControl_Pre_256          0x2ul
+#define DUALTIMER_TimerControl_Pre_Pos          2
+
+#define DUALTIMER_TimerControl_Size_16          0x0ul
+#define DUALTIMER_TimerControl_Size_32          0x1ul
+#define DUALTIMER_TimerControl_Size_Pos         1
+
+#define DUALTIMER_TimerControl_Wrapping         0x0ul
+#define DUALTIMER_TimerControl_OneShot          0x1ul
+#define DUALTIMER_TimerControl_OneShot_Pos      0
 
 /******************************************************************************/
 /*                                                                            */
@@ -1136,6 +1146,23 @@ typedef struct
 
 
 
+typedef enum
+{
+    PAD_PA = 0,
+    PAD_PB,
+    PAD_PC,
+    PAD_PD
+}PAD_Type;
+
+typedef enum
+{
+    PAD_AF0    = Px_AFSR_AF0,
+    PAD_AF1    = Px_AFSR_AF1,
+    PAD_AF2    = Px_AFSR_AF2,
+    PAD_AF3    = Px_AFSR_AF3
+}PAD_AF_TypeDef;
+
+
 #if !defined  (USE_HAL_DRIVER)
 #define USE_HAL_DRIVER
 #endif /* USE_HAL_DRIVER */
@@ -1143,8 +1170,15 @@ typedef struct
 
 
 #if defined (USE_HAL_DRIVER)
-    #include "W7500x_conf.h"
+//    #include "system_W7500x.h"
+//    #include "W7500x_conf.h"
 #endif
+
+#ifdef USE_FULL_ASSERT
+    #define assert_param(expr)  ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__,__LINE__))
+#else
+    #define assert_param(expr)   ((void)0)
+#endif /* USE_FULL_ASSERT */
 
 #ifdef __cplusplus
 }

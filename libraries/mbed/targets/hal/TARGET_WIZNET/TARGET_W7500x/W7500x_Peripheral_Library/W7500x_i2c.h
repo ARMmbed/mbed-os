@@ -27,76 +27,55 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+/*include -------------------------------------*/
+#ifndef __W7500X_I2C_H
+#define __W7500X_I2C_H
+
+#include "W7500x.h"
+
+
+typedef enum {
+    I2C_PA_5    = 0x05,
+    I2C_PA_6    = 0x06,
+    I2C_PA_9    = 0x09,
+    I2C_PA_10   = 0x0A,
+    I2C_PC_4    = 0x24,
+    I2C_PC_5    = 0x25,
+    I2C_PC_8    = 0x28,
+    // Not connected
+    I2C_NC = (int)0xFFFFFFFF
+} I2C_PinName;
+
+typedef struct
+{
+    I2C_PinName scl;
+    I2C_PinName sda;
+}I2C_ConfigStruct;
+
+
+#define I2C_PORT(X) (((uint32_t)(X) >> 4) & 0xF)    // port number (0=A, 1=B, 2=C, 3=D)
+#define I2C_PIN_INDEX(X)  (1 << ((uint32_t)(X) & 0xF))    // pin index : flag bit 
  
-#ifndef MBED_GPIO_OBJECT_H
-#define MBED_GPIO_OBJECT_H
+uint32_t I2C_Init(I2C_ConfigStruct* conf);
 
-#include "mbed_assert.h"
-#include "W7500x_gpio.h"
+void I2C_WriteBitSDA(I2C_ConfigStruct* conf, uint8_t data);
+void I2C_WriteBitSCL(I2C_ConfigStruct* conf, uint8_t data);
+uint8_t I2C_ReadBitSDA(I2C_ConfigStruct* conf);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void I2C_SendACK(I2C_ConfigStruct* conf);
+void I2C_SendNACK(I2C_ConfigStruct* conf);
 
-typedef struct {
-    PinName  pin;
-    uint32_t pin_index;
-    uint32_t port_num;
-    uint32_t direction;
-    uint32_t mode;
-    __IO uint32_t *reg_data_in;
-} gpio_t;
+uint8_t I2C_WriteByte(I2C_ConfigStruct* conf, uint8_t data);
+uint8_t I2C_ReadByte(I2C_ConfigStruct* conf);
 
+void I2C_Start(I2C_ConfigStruct* conf);
+void I2C_Stop(I2C_ConfigStruct* conf);
 
-extern uint32_t Get_GPIO_BaseAddress(uint32_t port_idx);
+int I2C_Write(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
+int I2C_WriteRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
+int I2C_Read(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
+int I2C_ReadRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
 
 
-static inline void gpio_write(gpio_t *obj, int value) {
-    MBED_ASSERT(obj->pin != (PinName)NC);
+ #endif //__W7500X_I2C_H
 
-    uint32_t port_num = WIZ_PORT(obj->pin);
-    uint32_t pin_index  = WIZ_PIN_INDEX(obj->pin);
-
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
-    
-
-    if (value)
-    {
-        HAL_GPIO_SetBits(gpio, pin_index);
-    }
-    else
-    {
-        HAL_GPIO_ResetBits(gpio, pin_index);
-    }
-}
-
-static inline int gpio_read(gpio_t *obj) {
-    int ret;
-
-    MBED_ASSERT(obj->pin != (PinName)NC);
-
-    uint32_t port_num = WIZ_PORT(obj->pin);
-
-    GPIO_TypeDef *gpio = (GPIO_TypeDef *)Get_GPIO_BaseAddress(port_num);
-
-    if(obj->direction == PIN_OUTPUT)
-    {
-        ret = ( HAL_GPIO_ReadOutputData(gpio) & obj->pin_index ) ? 1 : 0;
-    }
-    else
-    {
-        ret = ((*obj->reg_data_in & obj->pin_index) ? 1 : 0);
-    }
-
-    return ret;
-}
-
-static inline int gpio_is_connected(const gpio_t *obj) {
-    return obj->pin != (PinName)NC;
-}
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif

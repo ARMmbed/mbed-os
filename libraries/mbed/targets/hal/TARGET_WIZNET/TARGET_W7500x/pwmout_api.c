@@ -35,6 +35,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
+#include "W7500x_pwm.h"
 
 static PWM_TimerModeInitTypeDef TimerModeStructure;
 
