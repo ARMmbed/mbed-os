@@ -71,7 +71,7 @@ SX1276MB1xAS::SX1276MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
                             fake( D8 )
                         #else
                         :   SX1276( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, PA_4, PC_4, PC_10, PC_11, PC_12, PD_2, PB_5, PB_6 ),
-                            antSwitch( A4 ), 
+                            antSwitch( PB_1 ),
                             fake( PC_2 )
                         #endif
 {
@@ -100,21 +100,7 @@ SX1276MB1xAS::SX1276MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
 //-------------------------------------------------------------------------
 uint8_t SX1276MB1xAS::DetectBoardType( void )
 {
-    if( boardConnected == UNKNOWN )
-    {
-        antSwitch.input( );
-        wait_ms( 1 );
-        if( antSwitch == 1 )
-        {
-            boardConnected = SX1276MB1LAS;
-        }
-        else
-        {
-            boardConnected = SX1276MB1MAS;
-        }
-        antSwitch.output( );
-        wait_ms( 1 );
-    }
+	boardConnected = SX1276MB1MAS;
     return ( boardConnected );
 }
 
