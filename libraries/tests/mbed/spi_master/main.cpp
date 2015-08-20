@@ -22,6 +22,9 @@ DigitalOut cs(PC14);
 #elif defined(TARGET_EFM32HG_STK3400)
 SPI spi(PE10, PE11, PE12);   // mosi, miso, sclk
 DigitalOut cs(PE13);
+#elif defined(TARGET_SAMR21G18A)
+SPI spi(PB22, PB02, PB23);   // mosi, miso, sclk
+DigitalOut cs(PB03);
 #else
 SPI spi(p5, p6, p7); // mosi, miso, sclk
 DigitalOut cs(p8);

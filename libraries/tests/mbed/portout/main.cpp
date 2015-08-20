@@ -24,6 +24,12 @@
 #     define LED2       (1 <<  6) // P7.6
 #     define LED3       (1 <<  4) // P7.4
 #     define LED4       0
+# elif defined(TARGET_SAMR21G18A)
+#     define LED_PORT   PortA
+#     define LED1       (1 <<  19) /*PA19*/
+#     define LED2       0 
+#     define LED3       0 
+#     define LED4       0
 # endif
 
 #define LED_MASK    (LED1|LED2|LED3|LED4)
