@@ -1163,6 +1163,27 @@ class ARCH_BLE_OTA(MCU_NRF51_16K_OTA):
         self.macros += ['TARGET_ARCH_BLE']
         self.supported_form_factors = ["ARDUINO"]
 
+class ARCH_LINK(MCU_NRF51_16K):
+    def __init__(self):
+        MCU_NRF51_16K.__init__(self)
+        self.extra_labels += ['ARCH_BLE']
+        self.macros += ['TARGET_ARCH_BLE']
+        self.supported_form_factors = ["ARDUINO"]
+
+class ARCH_LINK_BOOT(MCU_NRF51_16K_BOOT):
+    def __init__(self):
+        MCU_NRF51_16K_BOOT.__init__(self)
+        self.extra_labels += ['ARCH_BLE', 'ARCH_LINK']
+        self.macros += ['TARGET_ARCH_BLE', 'TARGET_ARCH_LINK']
+        self.supported_form_factors = ["ARDUINO"]
+
+class ARCH_LINK_OTA(MCU_NRF51_16K_OTA):
+    def __init__(self):
+        MCU_NRF51_16K_OTA.__init__(self)
+        self.extra_labels += ['ARCH_BLE', 'ARCH_LINK']
+        self.macros += ['TARGET_ARCH_BLE', 'TARGET_ARCH_LINK']
+        self.supported_form_factors = ["ARDUINO"]
+
 class SEEED_TINY_BLE(MCU_NRF51_16K):
     def __init__(self):
         MCU_NRF51_16K.__init__(self)
@@ -1540,8 +1561,8 @@ class SAMR21G18A(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M0+"
-        self.extra_labels = ['Atmel', 'SAM21']
-        self.macros = ['__SAMR21G18A__']
+        self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMR21']
+        self.macros = ['__SAMR21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 

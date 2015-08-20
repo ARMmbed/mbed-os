@@ -61,6 +61,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     if (obj->pwm == PWM_9) __HAL_RCC_TIM9_CLK_ENABLE();
     if (obj->pwm == PWM_10) __HAL_RCC_TIM10_CLK_ENABLE();
     if (obj->pwm == PWM_11) __HAL_RCC_TIM11_CLK_ENABLE();
+#if defined(TIM12_BASE)
+    if (obj->pwm == PWM_12) __HAL_RCC_TIM12_CLK_ENABLE();
+#endif
 #if defined(TIM13_BASE)
     if (obj->pwm == PWM_13) __HAL_RCC_TIM13_CLK_ENABLE();
 #endif
@@ -180,7 +183,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
 #if defined(TIM12_BASE)
         case PWM_12:
 #endif
-#if defined(TIM13_BASE)        
+#if defined(TIM13_BASE)
         case PWM_13:
 #endif
 #if defined(TIM14_BASE)
@@ -192,7 +195,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
         
         // APB2 clock
         case PWM_1:
-#if defined(TIM8_BASE)          
+#if defined(TIM8_BASE)
         case PWM_8:
 #endif
         case PWM_9:
