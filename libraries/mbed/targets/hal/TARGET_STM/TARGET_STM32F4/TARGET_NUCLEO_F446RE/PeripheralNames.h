@@ -80,6 +80,7 @@ typedef enum {
     PWM_9  = (int)TIM9_BASE,
     PWM_10 = (int)TIM10_BASE,
     PWM_11 = (int)TIM11_BASE,
+    PWM_12 = (int)TIM12_BASE,
     PWM_13 = (int)TIM13_BASE,
     PWM_14 = (int)TIM14_BASE
 } PWMName;

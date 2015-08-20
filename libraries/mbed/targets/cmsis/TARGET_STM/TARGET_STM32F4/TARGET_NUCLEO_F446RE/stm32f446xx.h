@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f446xx.h
   * @author  MCD Application Team
-  * @version V2.3.0
-  * @date    02-March-2015
+  * @version V2.3.2
+  * @date    26-June-2015
   * @brief   CMSIS STM32F446xx Device Peripheral Access Layer Header File.
   *
   *          This file contains:
@@ -944,10 +944,11 @@ typedef struct
 #define QSPI_R_BASE            ((uint32_t)0xA0001000) /*!< QuadSPI registers base address                                            */
 
 #define SRAM1_BB_BASE         ((uint32_t)0x22000000) /*!< SRAM1(112 KB) base address in the bit-band region                          */
-#define SRAM2_BB_BASE         ((uint32_t)0x2201C000) /*!< SRAM2(16 KB) base address in the bit-band region                           */
+#define SRAM2_BB_BASE         ((uint32_t)0x22380000) /*!< SRAM2(16 KB) base address in the bit-band region                           */
 #define PERIPH_BB_BASE        ((uint32_t)0x42000000) /*!< Peripheral base address in the bit-band region                             */
-#define BKPSRAM_BB_BASE       ((uint32_t)0x42024000) /*!< Backup SRAM(4 KB) base address in the bit-band region                      */
+#define BKPSRAM_BB_BASE       ((uint32_t)0x42480000) /*!< Backup SRAM(4 KB) base address in the bit-band region                      */
 #define FLASH_END             ((uint32_t)0x0807FFFF) /*!< FLASH end address                                                          */
+
 
 /* Legacy defines */
 #define SRAM_BASE             SRAM1_BASE
@@ -5654,7 +5655,7 @@ typedef struct
 
 /********************  Bits definition for RTC_PRER register  *****************/
 #define RTC_PRER_PREDIV_A                    ((uint32_t)0x007F0000)
-#define RTC_PRER_PREDIV_S                    ((uint32_t)0x00001FFF)
+#define RTC_PRER_PREDIV_S                    ((uint32_t)0x00007FFF)
 
 /********************  Bits definition for RTC_WUTR register  *****************/
 #define RTC_WUTR_WUT                         ((uint32_t)0x0000FFFF)
@@ -6059,7 +6060,7 @@ typedef struct
 #define  SAI_xSR_FLVL                     ((uint32_t)0x00070000)         /*!<FLVL[2:0] (FIFO Level Threshold)               */
 #define  SAI_xSR_FLVL_0                   ((uint32_t)0x00010000)         /*!<Bit 0 */
 #define  SAI_xSR_FLVL_1                   ((uint32_t)0x00020000)         /*!<Bit 1 */
-#define  SAI_xSR_FLVL_2                   ((uint32_t)0x00030000)         /*!<Bit 2 */
+#define  SAI_xSR_FLVL_2                   ((uint32_t)0x00040000)         /*!<Bit 2 */
 
 /******************  Bit definition for SAI_xCLRFR register  ******************/
 #define  SAI_xCLRFR_COVRUDR               ((uint32_t)0x00000001)        /*!<Clear Overrun underrun                               */
@@ -7556,16 +7557,8 @@ typedef struct
 #define USB_OTG_DEACHINT_OEP1INT                 ((uint32_t)0x00020000)           /*!< OUT endpoint 1 interrupt bit */
 
 /********************  Bit definition forUSB_OTG_GCCFG register  ********************/
-#define USB_OTG_GCCFG_DCDET                  ((uint32_t)0x00000001)              /*!< Data contact detection (DCD) status */
-#define USB_OTG_GCCFG_PDET                   ((uint32_t)0x00000002)              /*!< Primary detection (PD) status */
-#define USB_OTG_GCCFG_SDET                   ((uint32_t)0x00000004)              /*!< Secondary detection (SD) status */
-#define USB_OTG_GCCFG_PS2DET                 ((uint32_t)0x00000008)              /*!< DM pull-up detection status */
-#define USB_OTG_GCCFG_PWRDWN                 ((uint32_t)0x00010000)              /*!< Power down */
-#define USB_OTG_GCCFG_BCDEN                  ((uint32_t)0x00020000)              /*!< Battery charging detector (BCD) enable */
-#define USB_OTG_GCCFG_DCDEN                  ((uint32_t)0x00040000)              /*!< Data contact detection (DCD) mode enable*/
-#define USB_OTG_GCCFG_PDEN                   ((uint32_t)0x00080000)              /*!< Primary detection (PD) mode enable*/
-#define USB_OTG_GCCFG_SDEN                   ((uint32_t)0x00100000)              /*!< Secondary detection (SD) mode enable */
-#define USB_OTG_GCCFG_VBDEN                  ((uint32_t)0x00200000)              /*!< USB VBUS Detection Enable */
+#define USB_OTG_GCCFG_PWRDWN ((uint32_t)0x00010000) /*!< Power down control */
+#define USB_OTG_GCCFG_VBDEN  ((uint32_t)0x00200000) /*!< USB VBUS Detection Enable */
 
 /********************  Bit definition forUSB_OTG_GPWRDN) register  ********************/
 #define USB_OTG_GPWRDN_ADPMEN                 ((uint32_t)0x00000001)             /*!< ADP module enable */
