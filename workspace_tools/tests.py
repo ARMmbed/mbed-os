@@ -1052,7 +1052,7 @@ TESTS = [
 	
     {
         "id": "ELMO_SX", "description": "ELMO radio",
-        "source_dir": [join(TEST_DIR, "radio", "SX127xPingPong"), join(LIB_DIR, "radio", "SX1276Lib")],
+        "source_dir": [join(TEST_DIR, "radio", "SX127xPingPong"), join(LIB_DIR, "radio", "SX127x")],
         "dependencies": [MBED_LIBRARIES],
         "automated": False,
     },
