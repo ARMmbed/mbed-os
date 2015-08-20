@@ -69,8 +69,8 @@ typedef enum {
     PB22  = 54,
     PB23  = 55,
 
-    USBTX = PA22,
-    USBRX = PA23,
+    USBTX = PB10,
+    USBRX = PB11,
 
     LED1 = PA23,
     LED2 = PA23,
