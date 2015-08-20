@@ -208,8 +208,8 @@ bool SX1272MB1xAS::CheckRfFrequency( uint32_t frequency )
 void SX1272MB1xAS::Reset( void )
 {
     reset.output();
-    reset = 0;
-    wait_ms( 1000 );
+    reset = 1;
+    wait_ms( 1 );
     reset.input();
     wait_ms( 6 );
 }
