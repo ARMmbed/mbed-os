@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_cryp_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Extended CRYP HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of CRYP extension peripheral:
@@ -20,7 +20,7 @@
         (##) In case of using interrupts (e.g. HAL_CRYPEx_AESGCM_Encrypt_IT())
             (+++) Configure the CRYP interrupt priority using HAL_NVIC_SetPriority()
             (+++) Enable the CRYP IRQ handler using HAL_NVIC_EnableIRQ()
-            (+) In CRYP IRQ handler, call HAL_CRYP_IRQHandler()
+            (+++) In CRYP IRQ handler, call HAL_CRYP_IRQHandler()
         (##) In case of using DMA to control data transfer (e.g. HAL_AES_ECB_Encrypt_DMA())
             (+++) Enable the DMAx interface clock using __DMAx_CLK_ENABLE()
             (+++) Configure and enable two DMA streams one for managing data transfer from
@@ -59,10 +59,10 @@
        authentication messages.
        Call those functions after the processing ones (polling, interrupt or DMA).
        e.g. in AES-CCM mode call HAL_CRYPEx_AESCCM_Encrypt() to encrypt the plain data
-            then call HAL_CRYPEx_AESCCM_Finish() to get the authentication message
-    @note: For CCM Encrypt/Decrypt API's, only DataType = 8-bit is supported by this version.
-    @note: The HAL_CRYPEx_AESGCM_xxxx() implementation is limited to 32bits inputs data length 
-           (Plain/Cyphertext, Header) compared with GCM standards specifications (800-38D).
+            then call HAL_CRYPEx_AESCCM_Finish() to get the authentication message      
+    -@- For CCM Encrypt/Decrypt API's, only DataType = 8-bit is supported by this version.       
+    -@- The HAL_CRYPEx_AESGCM_xxxx() implementation is limited to 32bits inputs data length 
+        (Plain/Cyphertext, Header) compared with GCM standards specifications (800-38D).
     (#)Call HAL_CRYP_DeInit() to deinitialize the CRYP peripheral.
 
   @endverbatim

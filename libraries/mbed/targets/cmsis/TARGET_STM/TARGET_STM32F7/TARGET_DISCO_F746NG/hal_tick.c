@@ -34,7 +34,7 @@
   */
 #include "hal_tick.h"
 
-// Enable it to measure the tick period on  ARDUINO-D2 pin (PG6)
+// 0=NO, 1=PG6 toggles at each tick
 #define DEBUG_TICK 0
 
 TIM_HandleTypeDef TimMasterHandle;
@@ -60,7 +60,7 @@ void timer_irq_handler(void) {
             // Prepare next interrupt
             __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
             PreviousVal = val;
-#if DEBUG_TICK == 1
+#if DEBUG_TICK > 0
             HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_6);
 #endif
         }
@@ -69,6 +69,16 @@ void timer_irq_handler(void) {
 
 // Reconfigure the HAL tick using a standard timer instead of systick.
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    uint32_t PclkFreq;
+
+    // Get clock configuration
+    // Note: PclkFreq contains here the Latency (not used after)
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
+
+    // Get TIM5 clock value
+    PclkFreq = HAL_RCC_GetPCLK1Freq();
+
     // Enable timer clock
     TIM_MST_RCC;
 
@@ -76,20 +86,16 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     TIM_MST_RESET_ON;
     TIM_MST_RESET_OFF;
 
-    // Just in case the system clock has been changed and the SystemCoreClock
-    // variable not updated...
-    SystemCoreClockUpdate();
-
-    // Note on timer clock:
-    // TIM5 input clock (TIM5CLK) is set to APB1 clock (PCLK1) x2,
-    // since APB1 prescaler is equal to 4 (see system_stm32f7xx.c).
-    // We have TIM5CLK = PCLK1*2 and PCLK1 = HCLK/4
-    // So TIM5CLK = HCLK/2 = SystemCoreClock/2
-
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
-    TimMasterHandle.Init.Period            = 0xFFFFFFFF;
-    TimMasterHandle.Init.Prescaler         = (uint32_t)((SystemCoreClock / 2) / 1000000) - 1; // 1 us tick
+    TimMasterHandle.Init.Period = 0xFFFFFFFF;
+
+    // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
+    if (RCC_ClkInitStruct.APB1CLKDivider == RCC_HCLK_DIV1)
+      TimMasterHandle.Init.Prescaler = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 us tick
+    else
+      TimMasterHandle.Init.Prescaler = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick  
+
     TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     TimMasterHandle.Init.RepetitionCounter = 0;
@@ -107,7 +113,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 
-#if DEBUG_TICK == 1
+#if DEBUG_TICK > 0
     __GPIOG_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = GPIO_PIN_6;

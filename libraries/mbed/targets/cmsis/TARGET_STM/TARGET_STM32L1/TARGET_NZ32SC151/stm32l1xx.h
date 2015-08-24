@@ -64,19 +64,19 @@
   * @{
   */
 
- //MODTRONIX specific, provide place for adding global define. Alternative to adding them in IDE project properties.
- //Add project defines here, or add them to your toolchain compiler preprocessor
-#if !defined  (HSE_VALUE)
-#define HSE_VALUE    ((uint32_t)16000000) 	/*!< Value of the External oscillator in Hz */
-#endif
 
- //Defines what ports to use for default serial port.
- //0 = B10/B11
- //1 = A2/A3
+//MODTRONIX BEGIN - HAL Defines ///////////////////////////////////////////////
+//Provide place for adding HAL defines. Alternative to adding them in IDE project properties.
+//Add project defines here, or add them to your toolchain compiler preprocessor
+
+//Defines what ports to use for default serial port.
+//0 = B10/B11
+//1 = A2/A3
 #if !defined  (MX_DEFAULT_SERIAL_PINS)
-#define MX_DEFAULT_SERIAL_PINS   0         /*!< Use B10/B11 for default serial port, in stead of A2/A3 */
+#define MX_DEFAULT_SERIAL_PINS   0          /*!< Use B10/B11 for default serial port, in stead of A2/A3 */
 #endif
 
+//MODTRONIX END ///////////////////////////////////////////////////////////////
 
 /* Uncomment the line below according to the target STM32L device used in your 
    application 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -169,7 +169,7 @@ typedef struct
   * @{
   */
 
-#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F17xx)   
+#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)
 /** @brief  macros configure the main internal regulator output voltage.
   * @param  __REGULATOR__: specifies the regulator output voltage to achieve
   *         a tradeoff between performance and power consumption when the device does

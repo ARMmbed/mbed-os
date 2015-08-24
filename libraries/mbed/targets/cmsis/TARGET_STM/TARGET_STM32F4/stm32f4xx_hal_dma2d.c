@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma2d.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   DMA2D HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the DMA2D peripheral:
@@ -185,7 +185,7 @@ HAL_StatusTypeDef HAL_DMA2D_Init(DMA2D_HandleTypeDef *hdma2d)
   uint32_t tmp = 0;
 
   /* Check the DMA2D peripheral state */
-  if(hdma2d == HAL_NULL)
+  if(hdma2d == NULL)
   {
      return HAL_ERROR;
   }
@@ -266,7 +266,7 @@ HAL_StatusTypeDef HAL_DMA2D_Init(DMA2D_HandleTypeDef *hdma2d)
 HAL_StatusTypeDef HAL_DMA2D_DeInit(DMA2D_HandleTypeDef *hdma2d)
 {
   /* Check the DMA2D peripheral state */
-  if(hdma2d == HAL_NULL)
+  if(hdma2d == NULL)
   {
      return HAL_ERROR;
   }
@@ -737,7 +737,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma2d);       
       
-      if(hdma2d->XferErrorCallback != HAL_NULL)
+      if(hdma2d->XferErrorCallback != NULL)
       {
         /* Transfer error Callback */
         hdma2d->XferErrorCallback(hdma2d);
@@ -764,7 +764,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma2d);       
       
-      if(hdma2d->XferErrorCallback != HAL_NULL)
+      if(hdma2d->XferErrorCallback != NULL)
       {
         /* Transfer error Callback */
         hdma2d->XferErrorCallback(hdma2d);
@@ -791,7 +791,7 @@ void HAL_DMA2D_IRQHandler(DMA2D_HandleTypeDef *hdma2d)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma2d);       
       
-      if(hdma2d->XferCpltCallback != HAL_NULL)
+      if(hdma2d->XferCpltCallback != NULL)
       {
         /* Transfer complete Callback */
         hdma2d->XferCpltCallback(hdma2d);
@@ -895,7 +895,7 @@ HAL_StatusTypeDef HAL_DMA2D_ConfigLayer(DMA2D_HandleTypeDef *hdma2d, uint32_t La
     if ((pLayerCfg->InputColorMode == CM_A4) || (pLayerCfg->InputColorMode == CM_A8))
     {
       /* Prepare the value to be wrote to the BGCOLR register */
-      tmp |= ((pLayerCfg->InputAlpha) & 0x00FFFFFF);
+      tmp = ((pLayerCfg->InputAlpha) & 0x00FFFFFF);
     
       /* Write to DMA2D BGCOLR register */
       hdma2d->Instance->BGCOLR = tmp;
@@ -941,7 +941,7 @@ HAL_StatusTypeDef HAL_DMA2D_ConfigLayer(DMA2D_HandleTypeDef *hdma2d, uint32_t La
     if ((pLayerCfg->InputColorMode == CM_A4) || (pLayerCfg->InputColorMode == CM_A8))
     {
       /* Prepare the value to be wrote to the FGCOLR register */
-      tmp |= ((pLayerCfg->InputAlpha) & 0x00FFFFFF);
+      tmp = ((pLayerCfg->InputAlpha) & 0x00FFFFFF);
     
       /* Write to DMA2D FGCOLR register */
       hdma2d->Instance->FGCOLR = tmp;

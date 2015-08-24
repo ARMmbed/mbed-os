@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Extension RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -200,27 +200,27 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   /*------------------------------------ RTC configuration --------------------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == (RCC_PERIPHCLK_RTC))
   {
-    /* Enable Power Clock*/
-    __HAL_RCC_PWR_CLK_ENABLE();
-    
-    /* Enable write access to Backup domain */
-    PWR->CR1 |= PWR_CR1_DBP;
-    
-    /* Get Start Tick*/
-    tickstart = HAL_GetTick();
-    
-    /* Wait for Backup domain Write protection disable */
-    while((PWR->CR1 & PWR_CR1_DBP) == RESET)
-    {
-      if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
-      {
-        return HAL_TIMEOUT;
-      }      
-    }
-    
     /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
     if((RCC->BDCR & RCC_BDCR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL))
     {
+      /* Enable Power Clock*/
+      __HAL_RCC_PWR_CLK_ENABLE();
+      
+      /* Enable write access to Backup domain */
+      PWR->CR1 |= PWR_CR1_DBP;
+      
+      /* Get Start Tick*/
+      tickstart = HAL_GetTick();
+      
+      /* Wait for Backup domain Write protection disable */
+      while((PWR->CR1 & PWR_CR1_DBP) == RESET)
+      {
+        if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
+        {
+          return HAL_TIMEOUT;
+        }      
+      }
+
       /* Store the content of BDCR register before the reset of Backup Domain */
       tmpreg0 = (RCC->BDCR & ~(RCC_BDCR_RTCSEL));
       
@@ -230,25 +230,26 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       
       /* Restore the Content of BDCR register */
       RCC->BDCR = tmpreg0;
-    }
-    
-    /* If LSE is selected as RTC clock source, wait for LSE reactivation */
-    if(PeriphClkInit->RTCClockSelection == RCC_RTCCLKSOURCE_LSE)
-    {
-      /* Get Start Tick*/
-      tickstart = HAL_GetTick();
-     
-      /* Wait till LSE is ready */  
-      while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
+      
+      /* If LSE is selected as RTC clock source, wait for LSE reactivation */
+      if (HAL_IS_BIT_SET(tmpreg0, RCC_BDCR_LSERDY))
       {
-        if((HAL_GetTick() - tickstart ) > RCC_LSE_TIMEOUT_VALUE)
+        /* Get Start Tick*/
+        tickstart = HAL_GetTick();
+        
+        /* Wait till LSE is ready */  
+        while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
         {
-          return HAL_TIMEOUT;
-        }      
-      }  
+          if((HAL_GetTick() - tickstart ) > RCC_LSE_TIMEOUT_VALUE)
+          {
+            return HAL_TIMEOUT;
+          }
+        }
+      }
+      __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection); 			
     }
-    __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection); 
   }
+
   /*------------------------------------ TIM configuration --------------------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_TIM) == (RCC_PERIPHCLK_TIM))
   {
@@ -465,7 +466,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       tmpreg0 = ((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SP) >> POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SP));
       tmpreg1 = ((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SQ) >> POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SQ));
       /* Configure the PLLI2S division factors */
-      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) × (PLLI2SN/PLLM) */
+      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) x (PLLI2SN/PLLM) */
       /* I2SCLK = f(PLLI2S clock output) = f(VCO clock) / PLLI2SR */
       __HAL_RCC_PLLI2S_CONFIG(PeriphClkInit->PLLI2S.PLLI2SN , tmpreg0, tmpreg1, PeriphClkInit->PLLI2S.PLLI2SR);
     }
@@ -502,7 +503,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       tmpreg0 = ((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SQ) >> POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SQ));
       tmpreg1 = ((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SR) >> POSITION_VAL(RCC_PLLI2SCFGR_PLLI2SR));
       /* Configure the PLLI2S division factors */
-      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) × (PLLI2SN/PLLM) */
+      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) x (PLLI2SN/PLLM) */
       /* SPDIFCLK = f(PLLI2S clock output) = f(VCO clock) / PLLI2SP */
       __HAL_RCC_PLLI2S_CONFIG(PeriphClkInit->PLLI2S.PLLI2SN , PeriphClkInit->PLLI2S.PLLI2SP, tmpreg0, tmpreg1);
     }  
@@ -517,7 +518,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       assert_param(IS_RCC_PLLI2SQ_VALUE(PeriphClkInit->PLLI2S.PLLI2SQ));
 
       /* Configure the PLLI2S division factors */
-      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) × (PLLI2SN/PLLI2SM) */
+      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) x (PLLI2SN/PLLI2SM) */
       /* SPDIFRXCLK = f(PLLI2S clock output) = f(VCO clock) / PLLI2SP */
       __HAL_RCC_PLLI2S_CONFIG(PeriphClkInit->PLLI2S.PLLI2SN , PeriphClkInit->PLLI2S.PLLI2SP, PeriphClkInit->PLLI2S.PLLI2SQ, PeriphClkInit->PLLI2S.PLLI2SR);
     } 
@@ -594,7 +595,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       tmpreg1 = ((RCC->PLLSAICFGR & RCC_PLLSAICFGR_PLLSAIR) >> POSITION_VAL(RCC_PLLSAICFGR_PLLSAIR));
       
       /* Configure the PLLSAI division factors */
-      /* PLLSAI_VCO = f(VCO clock) = f(PLLSAI clock input) × (PLLI2SN/PLLM) */
+      /* PLLSAI_VCO = f(VCO clock) = f(PLLSAI clock input) x (PLLI2SN/PLLM) */
       /* 48CLK = f(PLLSAI clock output) = f(VCO clock) / PLLSAIP */
       __HAL_RCC_PLLSAI_CONFIG(PeriphClkInit->PLLSAI.PLLSAIN , PeriphClkInit->PLLSAI.PLLSAIP, tmpreg0, tmpreg1);
     }        

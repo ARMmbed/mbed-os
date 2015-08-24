@@ -49,6 +49,8 @@ typedef enum {
 #include "USBEndpoints_RZ_A1H.h"
 #elif defined(TARGET_Maxim)
 #include "USBEndpoints_Maxim.h"
+#elif defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32HG_STK3400)
+#include "USBEndpoints_EFM32.h"
 #else
 #error "Unknown target type"
 #endif

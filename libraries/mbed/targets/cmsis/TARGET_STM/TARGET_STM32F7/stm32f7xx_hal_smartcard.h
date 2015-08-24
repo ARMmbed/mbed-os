@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -103,7 +103,7 @@ typedef struct
   
   uint32_t NACKState;                  /*!< Specifies whether the SmartCard NACK transmission is enabled
                                             in case of parity error.
-                                            This parameter can be a value of @ref SmartCard_NACK_State */ 
+                                            This parameter can be a value of @ref SMARTCARD_NACK_State */ 
                                            
   uint32_t TimeOutEnable;              /*!< Specifies whether the receiver timeout is enabled. 
                                             This parameter can be a value of @ref SMARTCARD_Timeout_Enable*/
@@ -311,7 +311,7 @@ typedef struct
   */  
 
 
-/** @defgroup SmartCard_NACK_State  SMARTCARD NACK State
+/** @defgroup SMARTCARD_NACK_State  SMARTCARD NACK State
   * @{
   */
 #define SMARTCARD_NACK_ENABLE           ((uint32_t)USART_CR3_NACK)
@@ -329,7 +329,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup SmartCard_DMA_Requests   SMARTCARD DMA requests
+/** @defgroup SMARTCARD_DMA_Requests   SMARTCARD DMA requests
   * @{
   */
 
@@ -431,6 +431,7 @@ typedef struct
 #define SMARTCARD_FLAG_TXE                       ((uint32_t)0x00000080)
 #define SMARTCARD_FLAG_TC                        ((uint32_t)0x00000040)
 #define SMARTCARD_FLAG_RXNE                      ((uint32_t)0x00000020)
+#define SMARTCARD_FLAG_IDLE                      ((uint32_t)0x00000010)
 #define SMARTCARD_FLAG_ORE                       ((uint32_t)0x00000008)
 #define SMARTCARD_FLAG_NE                        ((uint32_t)0x00000004)
 #define SMARTCARD_FLAG_FE                        ((uint32_t)0x00000002)
@@ -454,7 +455,7 @@ typedef struct
 #define SMARTCARD_IT_TXE                         ((uint16_t)0x0727)
 #define SMARTCARD_IT_TC                          ((uint16_t)0x0626)
 #define SMARTCARD_IT_RXNE                        ((uint16_t)0x0525)
-
+#define SMARTCARD_IT_IDLE                        ((uint16_t)0x0424)
 #define SMARTCARD_IT_ERR                         ((uint16_t)0x0060)
 #define SMARTCARD_IT_ORE                         ((uint16_t)0x0300)
 #define SMARTCARD_IT_NE                          ((uint16_t)0x0200)
@@ -474,6 +475,7 @@ typedef struct
 #define SMARTCARD_CLEAR_FEF                       USART_ICR_FECF            /*!< Framing Error Clear Flag */         
 #define SMARTCARD_CLEAR_NEF                       USART_ICR_NCF             /*!< Noise detected Clear Flag */        
 #define SMARTCARD_CLEAR_OREF                      USART_ICR_ORECF           /*!< OverRun Error Clear Flag */         
+#define SMARTCARD_CLEAR_IDLEF                     USART_ICR_IDLECF          /*!< Idle line detected clear Flag */
 #define SMARTCARD_CLEAR_TCF                       USART_ICR_TCCF            /*!< Transmission Complete Clear Flag */ 
 #define SMARTCARD_CLEAR_RTOF                      USART_ICR_RTOCF           /*!< Receiver Time Out Clear Flag */     
 #define SMARTCARD_CLEAR_EOBF                      USART_ICR_EOBCF           /*!< End Of Block Clear Flag */          

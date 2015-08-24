@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Controller Area Network (CAN) peripheral:
   *           + Initialization and de-initialization functions 
@@ -171,7 +171,7 @@ HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
   uint32_t tickstart = 0;
   
   /* Check CAN handle */
-  if(hcan == HAL_NULL)
+  if(hcan == NULL)
   {
      return HAL_ERROR;
   }
@@ -460,7 +460,7 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
 HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan)
 {
   /* Check CAN handle */
-  if(hcan == HAL_NULL)
+  if(hcan == NULL)
   {
      return HAL_ERROR;
   }

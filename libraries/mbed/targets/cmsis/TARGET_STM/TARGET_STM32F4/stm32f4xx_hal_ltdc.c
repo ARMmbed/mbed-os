@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_ltdc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   LTDC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the LTDC peripheral:
@@ -150,7 +150,7 @@ HAL_StatusTypeDef HAL_LTDC_Init(LTDC_HandleTypeDef *hltdc)
   uint32_t tmp = 0, tmp1 = 0;
 
   /* Check the LTDC peripheral state */
-  if(hltdc == HAL_NULL)
+  if(hltdc == NULL)
   {
     return HAL_ERROR;
   }

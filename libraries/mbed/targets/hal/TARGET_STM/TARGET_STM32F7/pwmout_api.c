@@ -42,24 +42,21 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 {
     // Get the peripheral name from the pin and assign it to the object
     obj->pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
+    MBED_ASSERT(obj->pwm != (PWMName)NC);
 
     // Get the functions (timer channel, (non)inverted) from the pin and assign it to the object
     uint32_t function = pinmap_function(pin, PinMap_PWM);
     MBED_ASSERT(function != (uint32_t)NC);
-    obj->channel  = STM_PIN_CHANNEL(function);
+    obj->channel = STM_PIN_CHANNEL(function);
     obj->inverted = STM_PIN_INVERTED(function);
 
-    if (obj->pwm == (PWMName)NC) {
-        error("PWM error: pinout mapping failed.");
-    }
-
     // Enable TIM clock
-    if (obj->pwm ==  PWM_1) __HAL_RCC_TIM1_CLK_ENABLE();
-    if (obj->pwm ==  PWM_2) __HAL_RCC_TIM2_CLK_ENABLE();
-    if (obj->pwm ==  PWM_3) __HAL_RCC_TIM3_CLK_ENABLE();
-    if (obj->pwm ==  PWM_4) __HAL_RCC_TIM4_CLK_ENABLE();
-    if (obj->pwm ==  PWM_8) __HAL_RCC_TIM8_CLK_ENABLE();
-    if (obj->pwm ==  PWM_9) __HAL_RCC_TIM9_CLK_ENABLE();
+    if (obj->pwm == PWM_1) __HAL_RCC_TIM1_CLK_ENABLE();
+    if (obj->pwm == PWM_2) __HAL_RCC_TIM2_CLK_ENABLE();
+    if (obj->pwm == PWM_3) __HAL_RCC_TIM3_CLK_ENABLE();
+    if (obj->pwm == PWM_4) __HAL_RCC_TIM4_CLK_ENABLE();
+    if (obj->pwm == PWM_8) __HAL_RCC_TIM8_CLK_ENABLE();
+    if (obj->pwm == PWM_9) __HAL_RCC_TIM9_CLK_ENABLE();
     if (obj->pwm == PWM_10) __HAL_RCC_TIM10_CLK_ENABLE();
     if (obj->pwm == PWM_11) __HAL_RCC_TIM11_CLK_ENABLE();
     if (obj->pwm == PWM_12) __HAL_RCC_TIM12_CLK_ENABLE();
@@ -124,7 +121,7 @@ void pwmout_write(pwmout_t* obj, float value)
     }
 
     if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, channel) != HAL_OK) {
-        error("Cannot configure PWM channel");
+        error("Cannot configure PWM channel\n");
     }
 
     if (obj->inverted) {
@@ -156,14 +153,21 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
 void pwmout_period_us(pwmout_t* obj, int us)
 {
     TimHandle.Instance = (TIM_TypeDef *)(obj->pwm);
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
     uint32_t PclkFreq;
-
+    uint32_t APBxCLKDivider;
     float dc = pwmout_read(obj);
 
     __HAL_TIM_DISABLE(&TimHandle);
 
-    // Get the PCLK used by the timer
+    // Get clock configuration
+    // Note: PclkFreq contains here the Latency (not used after)
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
+
+    // Get the PCLK and APBCLK divider related to the timer
     switch (obj->pwm) {
+
+        // APB1 clock
         case PWM_2:
         case PWM_3:
         case PWM_4:
@@ -172,26 +176,33 @@ void pwmout_period_us(pwmout_t* obj, int us)
         case PWM_13:
         case PWM_14:
             PclkFreq = HAL_RCC_GetPCLK1Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB1CLKDivider;
             break;
+
+        // APB2 clock
         case PWM_1:
         case PWM_8:
         case PWM_9:
         case PWM_10:
         case PWM_11:
             PclkFreq = HAL_RCC_GetPCLK2Freq();
+            APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
             break;
         default:
             return;
     }
 
     TimHandle.Init.Period        = us - 1;
-    // TIMxCLK = 2 x PCLKx when the APB prescaler is not equal to 1 (DIV4 or DIV2 in our case)
-    TimHandle.Init.Prescaler     = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick
+    // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
+    if (APBxCLKDivider == RCC_HCLK_DIV1)
+      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 µs tick
+    else
+      TimHandle.Init.Prescaler   = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 µs tick
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
 
     if (HAL_TIM_PWM_Init(&TimHandle) != HAL_OK) {
-        error("Cannot initialize PWM");
+        error("Cannot initialize PWM\n");
     }
 
     // Set duty cycle again

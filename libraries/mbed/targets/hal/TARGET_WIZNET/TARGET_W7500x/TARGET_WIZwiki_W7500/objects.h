@@ -81,7 +81,9 @@ struct spi_s {
 };
 
 struct i2c_s {
-    I2CName  i2c;
+    I2CName I2Cx;
+    PinName sda;
+    PinName scl; 
     uint16_t ADDRESS;
     uint16_t is_setAddress;
 };

@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_spi.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   SPI HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Serial Peripheral Interface (SPI) peripheral:
   *           + Initialization and de-initialization functions
@@ -2141,6 +2140,7 @@ static void SPI_2linesRxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
   {
     if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
+      SET_BIT(hspi->Instance->CR2, SPI_RXFIFO_THRESHOLD);
       hspi->RxISR =  SPI_2linesRxISR_8BITCRC;
       return;
     }

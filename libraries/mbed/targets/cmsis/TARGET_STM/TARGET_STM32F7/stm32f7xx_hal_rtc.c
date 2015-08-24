@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
@@ -62,7 +62,7 @@
        accesses. 
   [..] To enable access to the RTC Domain and RTC registers, proceed as follows:
     (+) Enable the Power Controller (PWR) APB1 interface clock using the
-        __PWR_CLK_ENABLE() function.
+        __HAL_RCC_PWR_CLK_ENABLE() function.
     (+) Enable access to RTC domain using the HAL_PWR_EnableBkUpAccess() function.
     (+) Select the RTC clock source using the __HAL_RCC_RTC_CONFIG() function.
     (+) Enable RTC Clock using the __HAL_RCC_RTC_ENABLE() function.
@@ -547,16 +547,23 @@ HAL_StatusTypeDef HAL_RTC_SetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
 
 /**
   * @brief  Gets RTC current time.
-  * @param  hrtc: pointer to a RTC_HandleTypeDef structure that contains
-  *                the configuration information for RTC.
-  * @param  sTime: Pointer to Time structure
+  * @param  hrtc: RTC handle
+  * @param  sTime: Pointer to Time structure with Hours, Minutes and Seconds fields returned 
+  *                with input format (BIN or BCD), also SubSeconds field returning the
+  *                RTC_SSR register content and SecondFraction field the Synchronous pre-scaler
+  *                factor to be used for second fraction ratio computation.
   * @param  Format: Specifies the format of the entered parameters.
   *          This parameter can be one of the following values:
-  *            @arg FORMAT_BIN: Binary data format 
-  *            @arg FORMAT_BCD: BCD data format
-  * @note   You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values 
-  *         in the higher-order calendar shadow registers to ensure consistency between the time and date values.
-  *         Reading RTC current time locks the values in calendar shadow registers until Current date is read.  
+  *            @arg RTC_FORMAT_BIN: Binary data format 
+  *            @arg RTC_FORMAT_BCD: BCD data format
+  * @note  You can use SubSeconds and SecondFraction (sTime structure fields returned) to convert SubSeconds
+  *        value in second fraction ratio with time unit following generic formula:
+  *        Second fraction ratio * time_unit= [(SecondFraction-SubSeconds)/(SecondFraction+1)] * time_unit
+  *        This conversion can be performed only if no shift operation is pending (ie. SHFP=0) when PREDIV_S >= SS
+  * @note  You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values 
+  *        in the higher-order calendar shadow registers to ensure consistency between the time and date values.
+  *        Reading RTC current time locks the values in calendar shadow registers until Current date is read
+  *        to ensure consistency between the time and date values.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format)
@@ -597,8 +604,8 @@ HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
   * @param  sDate: Pointer to date structure
   * @param  Format: specifies the format of the entered parameters.
   *          This parameter can be one of the following values:
-  *            @arg FORMAT_BIN: Binary data format 
-  *            @arg FORMAT_BCD: BCD data format
+  *            @arg RTC_FORMAT_BIN: Binary data format 
+  *            @arg RTC_FORMAT_BCD: BCD data format
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTC_SetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format)
@@ -706,8 +713,11 @@ HAL_StatusTypeDef HAL_RTC_SetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDat
   * @param  sDate: Pointer to Date structure
   * @param  Format: Specifies the format of the entered parameters.
   *          This parameter can be one of the following values:
-  *            @arg FORMAT_BIN:  Binary data format 
-  *            @arg FORMAT_BCD:  BCD data format
+  *            @arg RTC_FORMAT_BIN:  Binary data format 
+  *            @arg RTC_FORMAT_BCD:  BCD data format
+  * @note You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values 
+  * in the higher-order calendar shadow registers to ensure consistency between the time and date values.
+  * Reading RTC current time locks the values in calendar shadow registers until Current date is read.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTC_GetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format)
@@ -1237,8 +1247,8 @@ HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alar
   *             @arg RTC_ALARM_B: AlarmB  
   * @param  Format: Specifies the format of the entered parameters.
   *          This parameter can be one of the following values:
-  *             @arg FORMAT_BIN: Binary data format 
-  *             @arg FORMAT_BCD: BCD data format
+  *             @arg RTC_FORMAT_BIN: Binary data format 
+  *             @arg RTC_FORMAT_BCD: BCD data format
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTC_GetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Alarm, uint32_t Format)

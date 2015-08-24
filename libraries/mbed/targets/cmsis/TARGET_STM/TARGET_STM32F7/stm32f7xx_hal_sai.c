@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_sai.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   SAI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Serial Audio Interface (SAI) peripheral:
@@ -413,7 +413,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
                             ((hsai->FrameInit.ActiveFrameLength - 1) << 8));  
   
   /* SAI Block_x SLOT Configuration ------------------------------------------*/
-  /* This register has no meaning in AC’97 and SPDIF audio protocol */
+  /* This register has no meaning in AC 97 and SPDIF audio protocol */
   hsai->Instance->SLOTR&= (~(SAI_xSLOTR_FBOFF | SAI_xSLOTR_SLOTSZ |            \
                              SAI_xSLOTR_NBSLOT | SAI_xSLOTR_SLOTEN ));
   

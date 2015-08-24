@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_hash.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of HASH HAL module.
   ******************************************************************************
   * @attention
@@ -68,7 +68,7 @@
 typedef struct
 {
   uint32_t DataType;  /*!< 32-bit data, 16-bit data, 8-bit data or 1-bit string.
-                           This parameter can be a value of @ref HASH DataType */
+                           This parameter can be a value of @ref HASH_Data_Type */
 
   uint32_t KeySize;   /*!< The key size is used only in HMAC operation          */
 
@@ -173,7 +173,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup HASH_Exported_Constants_Group3 HASH DataType
+/** @defgroup HASH_Data_Type HASH Data Type
   * @{
   */
 #define HASH_DATATYPE_32B          ((uint32_t)0x0000) /*!< 32-bit data. No swapping                     */
@@ -209,8 +209,8 @@ typedef struct
 /** @defgroup HASH_Exported_Constants_Group6 HASH Interrupts definition 
   * @{
   */
-#define HASH_IT_DINI               HASH_IMR_DINIM  /*!< A new block can be entered into the input buffer (DIN) */
-#define HASH_IT_DCI                HASH_IMR_DCIM   /*!< Digest calculation complete                            */
+#define HASH_IT_DINI               HASH_IMR_DINIE  /*!< A new block can be entered into the input buffer (DIN) */
+#define HASH_IT_DCI                HASH_IMR_DCIE   /*!< Digest calculation complete                            */
 /**
   * @}
   */
@@ -240,7 +240,8 @@ typedef struct
   *            @arg HASH_FLAG_DINNE: DIN not empty : The input buffer contains at least one word of data
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
-#define __HAL_HASH_GET_FLAG(__FLAG__) ((HASH->SR & (__FLAG__)) == (__FLAG__))
+#define __HAL_HASH_GET_FLAG(__FLAG__) (((__FLAG__) > 8U) ? ((HASH->CR & (__FLAG__)) == (__FLAG__)) :\
+                                                           ((HASH->SR & (__FLAG__)) == (__FLAG__)))
 
 /**
   * @brief  Enable the multiple DMA mode. 
@@ -414,6 +415,9 @@ void HAL_HASH_ErrorCallback(HASH_HandleTypeDef *hhash);
 
 #define IS_HASH_HMAC_KEYTYPE(__KEYTYPE__) (((__KEYTYPE__) == HASH_HMAC_KEYTYPE_SHORTKEY) || \
                                            ((__KEYTYPE__) == HASH_HMAC_KEYTYPE_LONGKEY))
+                                           
+#define IS_HASH_SHA1_BUFFER_SIZE(__SIZE__) ((((__SIZE__)%4) != 0)? 0U: 1U)
+
 
 /**
   * @}

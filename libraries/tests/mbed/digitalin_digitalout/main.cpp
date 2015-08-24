@@ -58,6 +58,10 @@ DigitalIn  in(PC1);
 DigitalOut out(PE10);
 DigitalIn  in(PC1);
 
+#elif defined(TARGET_SAMR21G18A)
+DigitalOut out(PA06);
+DigitalIn  in(PA07);
+
 #else
 DigitalOut out(p5);
 DigitalIn in(p25);

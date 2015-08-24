@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -64,12 +64,15 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @addtogroup HAL_Private_Constants
+  * @{
+  */
 /**
- * @brief STM32F7xx HAL Driver version number V1.0.0
+ * @brief STM32F7xx HAL Driver version number V1.0.1
    */
 #define __STM32F7xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
 #define __STM32F7xx_HAL_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32F7xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32F7xx_HAL_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
 #define __STM32F7xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F7xx_HAL_VERSION         ((__STM32F7xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F7xx_HAL_VERSION_SUB1 << 16)\
@@ -77,19 +80,28 @@
                                         |(__STM32F7xx_HAL_VERSION_RC))
                                         
 #define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFF)
+/**
+  * @}
+  */
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+/** @addtogroup HAL_Private_Variables
+  * @{
+  */
 static __IO uint32_t uwTick;
+/**
+  * @}
+  */
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup HAL_Private_Functions HAL Private Functions
+/** @defgroup HAL_Exported_Functions HAL Exported Functions
   * @{
   */
 
-/** @defgroup HAL_Group1 Initialization and de-initialization Functions 
+/** @defgroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions 
  *  @brief    Initialization and de-initialization functions
  *
 @verbatim    
@@ -243,7 +255,7 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   * @}
   */
 
-/** @defgroup HAL_Group2 HAL Control functions 
+/** @defgroup HAL_Exported_Functions_Group2 HAL Control functions 
  *  @brief    HAL Control functions
  *
 @verbatim

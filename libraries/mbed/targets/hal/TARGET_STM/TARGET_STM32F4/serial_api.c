@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include "pinmap.h"
 #include <string.h>
 #include "PeripheralPins.h"
+#include "mbed_error.h"
 
 #define UART_NUM (8)
 
@@ -66,7 +67,9 @@ static void init_uart(serial_t *obj)
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
-    HAL_UART_Init(&UartHandle);
+    if (HAL_UART_Init(&UartHandle) != HAL_OK) {
+        error("Cannot initialize UART");
+    }
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
@@ -82,44 +85,46 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Enable USART clock
     switch (obj->uart) {
         case UART_1:
-            __USART1_CLK_ENABLE();
+            __HAL_RCC_USART1_CLK_ENABLE();
             obj->index = 0;
             break;
         case UART_2:
-            __USART2_CLK_ENABLE();
+            __HAL_RCC_USART2_CLK_ENABLE();
             obj->index = 1;
             break;
 #if defined(USART3_BASE)
         case UART_3:
-            __USART3_CLK_ENABLE();
+            __HAL_RCC_USART3_CLK_ENABLE();
             obj->index = 2;
             break;
 #endif
 #if defined(UART4_BASE)
         case UART_4:
-            __UART4_CLK_ENABLE();
+            __HAL_RCC_UART4_CLK_ENABLE();
             obj->index = 3;
             break;
 #endif
 #if defined(UART5_BASE)
         case UART_5:
-            __UART5_CLK_ENABLE();
+            __HAL_RCC_UART5_CLK_ENABLE();
             obj->index = 4;
             break;
 #endif
+#if defined(USART6_BASE)
         case UART_6:
-            __USART6_CLK_ENABLE();
+            __HAL_RCC_USART6_CLK_ENABLE();
             obj->index = 5;
             break;
+#endif
 #if defined(UART7_BASE)
         case UART_7:
-            __UART7_CLK_ENABLE();
+            __HAL_RCC_UART7_CLK_ENABLE();
             obj->index = 6;
             break;
 #endif
 #if defined(UART8_BASE)
         case UART_8:
-            __UART8_CLK_ENABLE();
+            __HAL_RCC_UART8_CLK_ENABLE();
             obj->index = 7;
             break;
 #endif
@@ -188,11 +193,13 @@ void serial_free(serial_t *obj)
             __UART5_CLK_DISABLE();
             break;
 #endif
+#if defined(USART6_BASE)
         case UART_6:
             __USART6_FORCE_RESET();
             __USART6_RELEASE_RESET();
             __USART6_CLK_DISABLE();
             break;
+#endif
 #if defined(UART7_BASE)
         case UART_7:
             __UART7_FORCE_RESET();
@@ -282,40 +289,42 @@ static void uart2_irq(void)
 }
 
 #if defined(USART3_BASE)
-static void uart3_irq(void) 
+static void uart3_irq(void)
 {
     uart_irq(UART_3, 2);
 }
 #endif
 
 #if defined(UART4_BASE)
-static void uart4_irq(void) 
+static void uart4_irq(void)
 {
     uart_irq(UART_4, 3);
 }
 #endif
 
 #if defined(UART5_BASE)
-static void uart5_irq(void) 
+static void uart5_irq(void)
 {
     uart_irq(UART_5, 4);
 }
 #endif
 
+#if defined(USART6_BASE)
 static void uart6_irq(void)
 {
     uart_irq(UART_6, 5);
 }
+#endif
 
 #if defined(UART7_BASE)
-static void uart7_irq(void) 
+static void uart7_irq(void)
 {
     uart_irq(UART_7, 6);
 }
 #endif
 
 #if defined(UART8_BASE)
-static void uart8_irq(void) 
+static void uart8_irq(void)
 {
     uart_irq(UART_8, 7);
 }
@@ -362,10 +371,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             vector = (uint32_t)&uart5_irq;
             break;
 #endif
+#if defined(USART6_BASE)
         case UART_6:
             irq_n = USART6_IRQn;
             vector = (uint32_t)&uart6_irq;
             break;
+#endif
 #if defined(UART7_BASE)
         case UART_7:
             irq_n = UART7_IRQn;

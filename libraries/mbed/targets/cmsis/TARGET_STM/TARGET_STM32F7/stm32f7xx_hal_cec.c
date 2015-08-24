@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_cec.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   CEC HAL module driver.
-  * 
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Definition Multimedia Interface 
   *          Consumer Electronics Control Peripheral (CEC).
@@ -25,24 +24,25 @@
     (#) Initialize the CEC low level resources by implementing the HAL_CEC_MspInit ()API:
         (##) Enable the CEC interface clock.
         (##) CEC pins configuration:
-            (+) Enable the clock for the CEC GPIOs.
-            (+) Configure these CEC pins as alternate function pull-up.
+            (+++) Enable the clock for the CEC GPIOs.
+            (+++) Configure these CEC pins as alternate function pull-up.
         (##) NVIC configuration if you need to use interrupt process (HAL_CEC_Transmit_IT()
              and HAL_CEC_Receive_IT() APIs):
-            (+) Configure the CEC interrupt priority.
-            (+) Enable the NVIC CEC IRQ handle.
-            (@) The specific CEC interrupts (Transmission complete interrupt, 
-                RXNE interrupt and Error Interrupts) will be managed using the macros
-                __HAL_CEC_ENABLE_IT() and __HAL_CEC_DISABLE_IT() inside the transmit 
-                and receive process.
+            (+++) Configure the CEC interrupt priority.
+            (+++) Enable the NVIC CEC IRQ handle.
+            (+++) The specific CEC interrupts (Transmission complete interrupt, 
+                  RXNE interrupt and Error Interrupts) will be managed using the macros
+                  __HAL_CEC_ENABLE_IT() and __HAL_CEC_DISABLE_IT() inside the transmit 
+                  and receive process.
 
     (#) Program the Signal Free Time (SFT) and SFT option, Tolerance, reception stop in
         in case of Bit Rising Error, Error-Bit generation conditions, device logical
         address and Listen mode in the hcec Init structure.
 
     (#) Initialize the CEC registers by calling the HAL_CEC_Init() API.
-        
-    (@) This API (HAL_CEC_Init()) configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
+
+  [..]        
+    (@) This API (HAL_CEC_Init()) configures also the low level Hardware (GPIO, CLOCK, CORTEX...etc)
         by calling the customed HAL_CEC_MspInit() API.
 
   @endverbatim
@@ -272,7 +272,7 @@ HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec)
   *
 @verbatim     
  ===============================================================================
-                      ##### I/O operation functions ##### 
+                      ##### IO operation functions ##### 
  ===============================================================================  
     This subsection provides a set of functions allowing to manage the CEC data transfers.
     
@@ -368,7 +368,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
       {
       	if(Timeout != HAL_MAX_DELAY)
         {
-          if((HAL_GetTick() - tickstart) > Timeout)
+          if((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout))
           {
             hcec->State = HAL_CEC_STATE_TIMEOUT;                
             /* Process Unlocked */
@@ -426,7 +426,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
     {
     	if(Timeout != HAL_MAX_DELAY)
       {
-        if((HAL_GetTick() - tickstart) > Timeout)
+        if((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout))
         {
           hcec->State = HAL_CEC_STATE_ERROR;
           __HAL_UNLOCK(hcec);             
@@ -498,10 +498,10 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
       {
     	  if(Timeout != HAL_MAX_DELAY)
         {
-          if((HAL_GetTick() - tickstart) > Timeout)
+          if((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout))
           {
             hcec->State = HAL_CEC_STATE_TIMEOUT;
-            __HAL_UNLOCK(hcec);    
+            __HAL_UNLOCK(hcec);
             return HAL_TIMEOUT;
           }
         }
