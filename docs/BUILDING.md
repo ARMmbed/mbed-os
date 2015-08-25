@@ -44,6 +44,11 @@ $ sudo python setup.py install
 ```
 when your system requires administrator rights to install new Python packages.
 
+### Manual Python package dependency installation
+In case you do not want to install whole mbed package using ```setuptools```, you can use ```requirements.txt``` file and with help of ```pip`` package manager install only mbed's Python package dependencies:
+```
+$ pip install -r requirements.txt
+```
 ## Prerequisites (manual Python package dependency installation)
 **Please only read this chapter if you had problems installing mbed SDK dependencies to Python packages**.
 
