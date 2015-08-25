@@ -46,6 +46,8 @@ Sender s2(pc, '2');
 #   define LED_NAME LED2
 #elif defined(TARGET_KL05Z)
 #   define LED_NAME LED2
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) /*to avoid build errors*/
+#   define LED_NAME LED2  /*Only 1 LED available*/
 #else
 #   define LED_NAME PTE31
 #endif
