@@ -250,7 +250,9 @@ class Mbed:
             Please refer to host_test_plugins functionality
         """
         # Flush serials to get only input after reset
-        self.flush()
+        #self.flush()
+        self.serial.flushInput()
+        self.serial.flushOutput()
         if self.options.forced_reset_type:
             result = host_tests_plugins.call_plugin('ResetMethod', self.options.forced_reset_type, disk=self.disk)
         else:
@@ -285,6 +287,7 @@ class Mbed:
             copy_method = 'shell'
 
         result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk, program_cycle_s=self.program_cycle_s, target_mcu=self.options.micro)
+
         return result;
 
     def flush(self):
