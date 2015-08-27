@@ -1659,6 +1659,9 @@ TARGETS = [
     ARCH_BLE(),             # nRF51_16K
     ARCH_BLE_BOOT(),        # nRF51_16K
     ARCH_BLE_OTA(),         # nRF51_16K
+    ARCH_LINK(),            # nRF51_16K
+    ARCH_LINK_BOOT(),       # nRF51_16K
+    ARCH_LINK_OTA(),        # nRF51_16K
     SEEED_TINY_BLE(),       # nRF51_16K
     SEEED_TINY_BLE_BOOT(),  # nRF51_16K
     SEEED_TINY_BLE_OTA(),   # nRF51_16K
