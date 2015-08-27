@@ -37,10 +37,36 @@ static void init(void) {
 
 void rtc_init(void) {
     init();
+#ifdef TARGET_KL43Z
+    RTC->LR |= RTC_LR_LRL_MASK;
+    RTC->LR |= RTC_LR_SRL_MASK|RTC_LR_CRL_MASK|RTC_LR_TCL_MASK;
+     /* run soft reset sequence only if clock doesn't run                           */
 
+	if (!(RTC_SR & RTC_SR_TCE_MASK))
+	{
+		RTC->CR|= RTC_CR_SWR_MASK;
+		RTC->CR&=~RTC_CR_SWR_MASK;
+	}
+    RTC->CR  = RTC_CR_SC2P_MASK | RTC_CR_OSCE_MASK | RTC_CR_UM_MASK;
+
+	if(RTC->SR & RTC_SR_TCE_MASK)
+	{
+		RTC->SR  &= ~RTC_SR_TCE_MASK;
+		if(RTC->CR & RTC_CR_OSCE_MASK)
+			for(int i=0; i<0x1000; i++) __NOP();
+	}
     //Configure the TSR. default value: 1
     RTC->TSR = 1;
-    
+    RTC->SR = RTC_SR_TCE_MASK;
+    RTC->IER = RTC_IER_TSIE_MASK | RTC_IER_TAIE_MASK | RTC_IER_TOIE_MASK | RTC_IER_TIIE_MASK;
+    RTC->IER &= ~RTC_IER_WPON_MASK;
+    RTC->TAR = 0l;
+    RTC->TPR = 0l;
+    RTC->LR = RTC_LR_LRL_MASK | RTC_LR_SRL_MASK | RTC_LR_CRL_MASK | RTC_LR_TCL_MASK | (0x87);
+#else    	
+    //Configure the TSR. default value: 1
+    RTC->TSR = 1;
+
     if (PinMap_RTC[0].pin == NC) {        //Use OSC32K
         RTC->CR |= RTC_CR_OSCE_MASK;
         //delay for OSCE stabilization
@@ -49,6 +75,7 @@ void rtc_init(void) {
 
     // enable counter
     RTC->SR |= RTC_SR_TCE_MASK;
+#endif	
 }
 
 void rtc_free(void) {
