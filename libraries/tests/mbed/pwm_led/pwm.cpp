@@ -28,9 +28,6 @@
 #elif defined (TARGET_DISCO_F407VG) 
 #define TEST_LED LED1
 
-#elif defined(TARGET_SAMR21G18A)
-#define TEST_LED LED1
-
 #else
 #error This test is not supported on this target.
 #endif
