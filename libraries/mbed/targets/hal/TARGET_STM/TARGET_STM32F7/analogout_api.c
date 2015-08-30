@@ -67,7 +67,7 @@ void analogout_init(dac_t *obj, PinName pin)
     DacHandle.Instance = DAC;
 
     status = HAL_DAC_Init(&DacHandle);
-    if ( status != HAL_OK ) {
+    if (status != HAL_OK) {
         error("HAL_DAC_Init failed");
     }
 
@@ -75,7 +75,7 @@ void analogout_init(dac_t *obj, PinName pin)
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
 
     if (obj->channel == 1) {
-        channel = DAC_CHANNEL_1; 
+        channel = DAC_CHANNEL_1;
     } else {
         channel = DAC_CHANNEL_2;
     }
@@ -108,7 +108,7 @@ static inline void dac_write(dac_t *obj, uint16_t value)
         status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, value);
     }
 
-    if ( status != HAL_OK ) {
+    if (status != HAL_OK) {
         error("DAC pin mapping failed");
     }
 }
@@ -120,7 +120,7 @@ static inline int dac_read(dac_t *obj)
     } else if (obj->channel == 2) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
-	return 0;	/* Just silented warning */
+    return 0;   /* Just silented warning */
 }
 
 void analogout_write(dac_t *obj, float value)

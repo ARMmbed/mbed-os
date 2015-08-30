@@ -33,13 +33,12 @@
 #include "PeripheralNames.h"
 #include "system_W7500x.h"
 
-// 32-bit timer selection
-#define TIM_MST7    PWM_CH7
-#define TIM_MST6    PWM_CH6
-#define IRQn_PWM6   PWM6_IRQn
+#define TIMER_0         DUALTIMER0_0
+#define TIMER_1         PWM_CH1
+#define TIMER_IRQn      DUALTIMER0_IRQn
 
-static PWM_TimerModeInitTypeDef TimMasterHandle_CH7;
-static PWM_TimerModeInitTypeDef TimMasterHandle_CH6;
+static PWM_TimerModeInitTypeDef TimerInitType;
+static DUALTIMER_InitTypDef TimerHandler;
 
 static int us_ticker_inited = 0;
 
@@ -47,17 +46,12 @@ static int us_ticker_inited = 0;
 #ifdef __cplusplus
 extern "C"{
 #endif
-void PWM6_Handler(void)
+
+void DUALTIMER0_Handler(void)
 {
-    uint32_t IntFlag = 0;
-
-    IntFlag = PWM_CHn_GetIntFlagStatus(TIM_MST6);
-
-    /* If overflow interrupt is occurred */
-    if( (IntFlag & PWM_CHn_IER_OI_Msk) != 0 )
+   if(DUALTIMER_GetIntStatus(DUALTIMER0_0))
     {
-        /* Clear overflow interrupt */
-        PWM_CH6_ClearOverflowInt();
+        DUALTIMER_IntClear(DUALTIMER0_0);
         us_ticker_irq_handler();
     }
 }
@@ -72,66 +66,69 @@ void us_ticker_init(void)
     us_ticker_inited = 1;
 
     SystemCoreClockUpdate();
-    TimMasterHandle_CH7.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
-    TimMasterHandle_CH7.PWM_CHn_LR = 0xFFFFFFFF;
-    TimMasterHandle_CH7.PWM_CHn_PDMR = 1;
+    TimerInitType.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
+    TimerInitType.PWM_CHn_LR = 0xFFFFFFFF;
+    TimerInitType.PWM_CHn_PDMR = 1;
 
-    PWM_TimerModeInit(TIM_MST7, &TimMasterHandle_CH7);
-    PWM_CHn_Start(TIM_MST7);
+    PWM_TimerModeInit(TIMER_1, &TimerInitType);
+    PWM_CHn_Start(TIMER_1);
 }
 
 
 uint32_t us_ticker_read()
 {
     if (!us_ticker_inited) us_ticker_init();
-
-    return (TIM_MST7->TCR);
+    return (TIMER_1->TCR);
 }
 
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     int32_t dev = 0;
+    
     if (!us_ticker_inited)
     {
         us_ticker_init();
     }
     
-    dev = (int32_t)(timestamp - (us_ticker_read() + 150));
+    dev = (int32_t)(timestamp - us_ticker_read());
+    dev = dev * ((GetSystemClock() / 1000000) / 16);     
 
     if(dev <= 0)
     {
         us_ticker_irq_handler();
-    	return;
+        return;
     }
+    
+    DUALTIMER_ClockEnable(TIMER_0);
+    DUALTIMER_Stop(TIMER_0);
+    
+    TimerHandler.TimerControl_Mode       = DUALTIMER_TimerControl_Periodic;
+    TimerHandler.TimerControl_OneShot    = DUALTIMER_TimerControl_OneShot;
+    TimerHandler.TimerControl_Pre        = DUALTIMER_TimerControl_Pre_16;
+    TimerHandler.TimerControl_Size       = DUALTIMER_TimerControl_Size_32;
+    
+    TimerHandler.TimerLoad      = (uint32_t)dev;
+    
+    DUALTIMER_Init(TIMER_0, &TimerHandler);
+    
+    DUALTIMER_IntConfig(TIMER_0, ENABLE);
+    
+    NVIC_EnableIRQ(TIMER_IRQn);
+    
+    DUALTIMER_Start(TIMER_0);
+    
 
-    PWM_CHn_Stop(TIM_MST6);
-
-    SystemCoreClockUpdate();
-    TimMasterHandle_CH6.PWM_CHn_PR = (GetSystemClock() / 1000000) -1;
-    TimMasterHandle_CH6.PWM_CHn_LR = dev;
-
-    TimMasterHandle_CH6.PWM_CHn_UDMR = 0;
-    TimMasterHandle_CH6.PWM_CHn_PDMR = 0;
-
-    NVIC_EnableIRQ(IRQn_PWM6);
-
-    PWM_CHn_IntConfig(TIM_MST6, PWM_CHn_IER_OIE, ENABLE);
-    PWM_IntConfig(TIM_MST6, ENABLE);
-    PWM_TimerModeInit(TIM_MST6, &TimMasterHandle_CH6);
-
-    PWM_CHn_Start(TIM_MST6);
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    NVIC_DisableIRQ(IRQn_PWM6);
-
-    PWM_CHn_IntConfig(TIM_MST6, PWM_CHn_IER_OIE, DISABLE);
-    PWM_IntConfig(TIM_MST6, DISABLE);
+    NVIC_DisableIRQ(TIMER_IRQn);
+    
+    DUALTIMER_IntConfig(TIMER_0, DISABLE);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    PWM_CHn_ClearInt(TIM_MST6, PWM_CHn_IER_OIE);
+    DUALTIMER_IntClear(TIMER_0);
 }

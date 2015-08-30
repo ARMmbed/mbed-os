@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
@@ -85,7 +85,7 @@
 /** @defgroup PWR_Regulator_Voltage_Scale PWR Regulator Voltage Scale
   * @{
   */
-#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F17xx)   
+#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)   
 #define PWR_REGULATOR_VOLTAGE_SCALE1         PWR_CR_VOS             /* Scale 1 mode(default value at reset): the maximum value of fHCLK = 168 MHz. */
 #define PWR_REGULATOR_VOLTAGE_SCALE2         ((uint32_t)0x00000000) /* Scale 2 mode: the maximum value of fHCLK = 144 MHz. */
 #else
@@ -256,7 +256,7 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
                                                 ((REGULATOR) == PWR_LOWPOWERREGULATOR_UNDERDRIVE_ON))
 #endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
 
-#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F17xx)   
+#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)
 #define IS_PWR_VOLTAGE_SCALING_RANGE(VOLTAGE) (((VOLTAGE) == PWR_REGULATOR_VOLTAGE_SCALE1) || \
                                                ((VOLTAGE) == PWR_REGULATOR_VOLTAGE_SCALE2))
 #else

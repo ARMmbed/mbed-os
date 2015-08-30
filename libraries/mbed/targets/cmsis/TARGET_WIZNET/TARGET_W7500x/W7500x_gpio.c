@@ -176,7 +176,7 @@ uint8_t HAL_GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
     return bitstatus;
 }
 
-uint8_t HAL_GPIO_ReadInputData(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+uint16_t HAL_GPIO_ReadInputData(GPIO_TypeDef* GPIOx)
 {
     assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
     return ((uint16_t)GPIOx->DATA);
@@ -284,5 +284,15 @@ void HAL_PAD_AFConfig(PAD_Type Px, uint16_t GPIO_Pin, PAD_AF_TypeDef P_AF)
             }				
         }
     }
+}
+
+void GPIO_OutEnClr(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+    GPIOx->OUTENCLR = GPIO_Pin;
+}
+
+void GPIO_OutEnSet(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
+{
+    GPIOx->OUTENSET = GPIO_Pin;
 }
 

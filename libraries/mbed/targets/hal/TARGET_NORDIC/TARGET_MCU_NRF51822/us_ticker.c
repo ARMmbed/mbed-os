@@ -159,10 +159,11 @@ void RTC1_IRQHandler(void)
         NRF_RTC1->EVENTS_OVRFLW = 0;
         NRF_RTC1->EVTENCLR      = RTC_EVTEN_OVRFLW_Msk;
     }
-    if (NRF_RTC1->EVENTS_COMPARE[0] && us_ticker_callbackPending && ((int)(us_ticker_callbackTimestamp - rtc1_getCounter()) <= 0)) {
+    if (NRF_RTC1->EVENTS_COMPARE[0]) {
         NRF_RTC1->EVENTS_COMPARE[0] = 0;
         NRF_RTC1->EVTENCLR          = RTC_EVTEN_COMPARE0_Msk;
-        invokeCallback();
+        if (us_ticker_callbackPending && ((int)(us_ticker_callbackTimestamp - rtc1_getCounter()) <= 0))
+            invokeCallback();
     }
 }
 

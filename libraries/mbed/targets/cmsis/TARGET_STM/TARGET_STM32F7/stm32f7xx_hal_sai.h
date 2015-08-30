@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_sai.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of SAI HAL module.
   ******************************************************************************
   * @attention
@@ -101,7 +101,7 @@ typedef struct
 
   uint32_t NoDivider;           /*!< Specifies whether master clock will be divided or not.
                                      This parameter can be a value of @ref SAI_Block_NoDivider
-                                     @note: If bit NODIV in the SAI_xCR1 register is cleared, the frame length 
+                                     @note  If bit NODIV in the SAI_xCR1 register is cleared, the frame length 
                                             should be aligned to a number equal to a power of 2, from 8 to 256.
                                             If bit NODIV in the SAI_xCR1 register is set, the frame length can 
                                             take any of the values without constraint since the input clock of 
@@ -152,7 +152,7 @@ typedef struct
 
   uint32_t FrameLength;         /*!< Specifies the Frame length, the number of SCK clocks for each audio frame.
                                      This parameter must be a number between Min_Data = 8 and Max_Data = 256.
-                                     @note: If master clock MCLK_x pin is declared as an output, the frame length
+                                     @note  If master clock MCLK_x pin is declared as an output, the frame length
                                             should be aligned to a number equal to power of 2 in order to keep 
                                             in an audio frame, an integer number of MCLK pulses by bit Clock. */                                               
                                                                             

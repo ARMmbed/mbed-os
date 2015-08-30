@@ -2,15 +2,15 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
   *           + Initialization and de-initialization functions
   *           + RTC Time and Date functions
   *           + RTC Alarm functions
-  *           + Peripheral Control functions   
+  *           + Peripheral Control functions
   *           + Peripheral State functions
   *         
   @verbatim
@@ -203,7 +203,7 @@
 HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
 {
   /* Check the RTC peripheral state */
-  if(hrtc == HAL_NULL)
+  if(hrtc == NULL)
   {
      return HAL_ERROR;
   }
@@ -547,9 +547,13 @@ HAL_StatusTypeDef HAL_RTC_SetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
   *          This parameter can be one of the following values:
   *            @arg RTC_FORMAT_BIN: Binary data format 
   *            @arg RTC_FORMAT_BCD: BCD data format
+  * @note  You can use SubSeconds and SecondFraction (sTime structure fields returned) to convert SubSeconds
+  *        value in second fraction ratio with time unit following generic formula:
+  *        Second fraction ratio * time_unit= [(SecondFraction-SubSeconds)/(SecondFraction+1)] * time_unit
+  *        This conversion can be performed only if no shift operation is pending (ie. SHFP=0) when PREDIV_S >= SS
   * @note You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values 
-  * in the higher-order calendar shadow registers to ensure consistency between the time and date values.
-  * Reading RTC current time locks the values in calendar shadow registers until Current date is read.
+  *        in the higher-order calendar shadow registers to ensure consistency between the time and date values.
+  *        Reading RTC current time locks the values in calendar shadow registers until current date is read.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format)
@@ -559,9 +563,12 @@ HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
   /* Check the parameters */
   assert_param(IS_RTC_FORMAT(Format));
   
-  /* Get subseconds values from the correspondent registers*/
+  /* Get subseconds structure field from the corresponding register */
   sTime->SubSeconds = (uint32_t)(hrtc->Instance->SSR);
 
+  /* Get SecondFraction structure field from the corresponding register field */
+  sTime->SecondFraction = (uint32_t)(hrtc->Instance->PRER & RTC_PRER_PREDIV_S);
+  
   /* Get the TR register */
   tmpreg = (uint32_t)(hrtc->Instance->TR & RTC_TR_RESERVED_MASK); 
   

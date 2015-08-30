@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of ADC HAL module.
   ******************************************************************************
   * @attention
@@ -168,6 +168,7 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_T8_CC3           ((uint32_t)(ADC_CR2_JEXTSEL_3 | ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_0))
 #define ADC_EXTERNALTRIGINJECCONV_T8_CC4           ((uint32_t)(ADC_CR2_JEXTSEL_3 | ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_1))
 #define ADC_EXTERNALTRIGINJECCONV_EXT_IT15         ((uint32_t)ADC_CR2_JEXTSEL)
+#define ADC_INJECTED_SOFTWARE_START                ((uint32_t)ADC_CR2_JEXTSEL + 1)
 /**
   * @}
   */ 
@@ -306,7 +307,8 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeConfigChannel(ADC_HandleTypeDef* hadc, ADC_
                                         ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC2)  || \
                                         ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC3)  || \
                                         ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC4)  || \
-                                        ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15))
+                                        ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15)|| \
+                                        ((INJTRIG) == ADC_INJECTED_SOFTWARE_START))
 #define IS_ADC_INJECTED_LENGTH(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
 #define IS_ADC_INJECTED_RANK(RANK) (((RANK) >= ((uint32_t)1)) && ((RANK) <= ((uint32_t)4)))
 

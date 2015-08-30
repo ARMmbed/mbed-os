@@ -125,22 +125,22 @@ typedef enum {
     PH_1  = 0x71,
 
     // Arduino connector namings
-    A0          = PA_0,
-    A1          = PA_1,
+    A0          = PC_2,
+    A1          = PC_0,
     A2          = PC_4,
     A3          = PB_0,
     A4          = PC_1,
-    A5          = PC_0,
+    A5          = PC_9,
     D0          = PA_3,
     D1          = PA_2,
-    D2          = PC_9,
-    D3          = PB_15,
-    D4          = PA_8,
-    D5          = PA_7,
-    D6          = PB_13,
-    D7          = PC_2,
-    D8          = PA_9,
-    D9          = PB_1,
+    D2          = PB_15,
+    D3          = PA_0,
+    D4          = PA_7,
+    D5          = PA_9,
+    D6          = PA_1,
+    D7          = PA_8,
+    D8          = PB_1,
+    D9          = PB_13,
     D10         = PC_8,
     D11         = PB_5,
     D12         = PA_6,
@@ -171,11 +171,34 @@ typedef enum {
     RADIO_DSR   = D8,
     RADIO_DTR   = D4,
     RADIO_RI    = D9,
-    I2C_SCL     = D15,
-    I2C_SDA     = D14,
-    SPI_MOSI    = PC_12,
-    SPI_MISO    = PC_11,
-    SPI_SCK     = PC_10,
+
+    // I2C1 and I2C3 are available on Arduino pins
+    I2C1_SCL    = D15,
+    I2C1_SDA    = D14,     
+    I2C3_SCL    = D7,
+    I2C3_SDA    = A5,
+
+    // legacy definitions
+    I2C_SCL     = I2C1_SCL,
+    I2C_SDA     = I2C1_SDA,
+
+    // SPI1 and SPI2 are available on Arduino pins
+    SPI1_MOSI   = D11,
+    SPI1_MISO   = D12,
+    SPI1_SCK    = D13,
+    SPI2_MOSI   = D2,
+    SPI2_MISO   = A0,
+    SPI2_SCK    = D9,
+
+    // SPI3 connects to flash part
+    SPI3_MOSI   = PC_12,
+    SPI3_MISO   = PC_11,
+    SPI3_SCK    = PC_10,
+
+    // legacy definitions
+    SPI_MOSI    = SPI3_MOSI,
+    SPI_MISO    = SPI3_MISO,
+    SPI_SCK     = SPI3_SCK,
     SPI_CS1     = PA_4,
     SPI_CS2     = PB_14,
 

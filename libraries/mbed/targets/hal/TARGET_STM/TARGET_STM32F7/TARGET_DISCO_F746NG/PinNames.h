@@ -268,12 +268,12 @@ typedef enum {
     D2          = PG_6,
     D3          = PB_4,
     D4          = PG_7,
-    D5          = PA_8,
+    D5          = PI_0,
     D6          = PH_6,
     D7          = PI_3,
     D8          = PI_2,
     D9          = PA_15,
-    D10         = PI_0,
+    D10         = PA_8,
     D11         = PB_15,
     D12         = PB_14,
     D13         = PI_1,
@@ -286,17 +286,17 @@ typedef enum {
     LED3        = PI_1,
     LED4        = PI_1,
     USER_BUTTON = PI_11,
-    SERIAL_TX   = PC_6,
-    SERIAL_RX   = PC_7,
-    USBTX       = PC_6,
-    USBRX       = PC_7,
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PB_15,
-    SPI_MISO    = PB_14,
-    SPI_SCK     = PI_1,
-    SPI_CS      = PI_0,
-    PWM_OUT     = PB_4,
+    SERIAL_TX   = PA_9, // Virtual Com Port
+    SERIAL_RX   = PB_7, // Virtual Com Port
+    USBTX       = PA_9, // Virtual Com Port
+    USBRX       = PB_7, // Virtual Com Port
+    I2C_SCL     = D15,
+    I2C_SDA     = D14,
+    SPI_MOSI    = D11,
+    SPI_MISO    = D12,
+    SPI_SCK     = D13,
+    SPI_CS      = D10,
+    PWM_OUT     = D9,
 
     // Not connected
     NC = (int)0xFFFFFFFF

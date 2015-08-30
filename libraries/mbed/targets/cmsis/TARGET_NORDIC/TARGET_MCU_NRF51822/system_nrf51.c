@@ -34,6 +34,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "nrf.h"
+#include "nrf_delay.h"
 #include "system_nrf51.h"
 
 /*lint ++flb "Enter library region" */
@@ -42,6 +43,7 @@
 
 static bool is_manual_peripheral_setup_needed(void);
 static bool is_disabled_in_debug_needed(void);
+static void init_clock(void);
 
 
 #if defined ( __CC_ARM )
@@ -82,8 +84,19 @@ void SystemInit(void)
     }
 
     // Start the external 32khz crystal oscillator.
+    init_clock();
+}
 
-#if defined(TARGET_DELTA_DFCM_NNN40) || defined(TARGET_HRM1017)
+void init_clock(void)
+{
+    /* For compatibility purpose, the default behaviour is to first attempt to initialise an
+       external clock, and after a timeout, use the internal RC one. To avoid this wait, boards that
+       don't have an external oscillator can set TARGET_NRF_LFCLK_RC directly. */
+    int i = 0;
+    const uint32_t polling_period = 200;
+    const uint32_t timeout = 1000000;
+
+#if defined(TARGET_NRF_LFCLK_RC)
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
 #else
     NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
@@ -91,7 +104,26 @@ void SystemInit(void)
     NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
     NRF_CLOCK->TASKS_LFCLKSTART     = 1;
 
-    // Wait for the external oscillator to start up.
+    /* Wait for the external oscillator to start up.
+       nRF51822 product specification (8.1.5) gives a typical value of 300ms for external clock
+       startup duration, and a maximum value of 1s. When using the internal RC source, typical delay
+       will be 390µs, so we use a polling period of 200µs.
+
+       We can't use us_ticker at this point, so we have to rely on a less precise method for
+       measuring our timeout. Because of this, the actual timeout will be slightly longer than 1
+       second, which isn't an issue at all, since this fallback should only be used as a safety net.
+       */
+    for (i = 0; i < (timeout / polling_period); i++) {
+        if (NRF_CLOCK->EVENTS_LFCLKSTARTED != 0)
+            return;
+        nrf_delay_us(polling_period);
+    }
+
+    /* Fallback to internal clock. Belt and braces, since the internal clock is used by default
+       whilst no external source is running. This is not only a sanity check, but it also allows
+       code down the road (e.g. ble initialisation) to directly know which clock is used. */
+    NRF_CLOCK->LFCLKSRC         = (CLOCK_LFCLKSRC_SRC_RC << CLOCK_LFCLKSRC_SRC_Pos);
+    NRF_CLOCK->TASKS_LFCLKSTART = 1;
     while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {
         // Do nothing.
     }
