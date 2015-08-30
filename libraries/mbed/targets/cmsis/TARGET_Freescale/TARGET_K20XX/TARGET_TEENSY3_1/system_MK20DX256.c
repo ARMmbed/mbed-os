@@ -7,7 +7,7 @@
 **
 **     
 **
-**     Version:             rev. 1.0, 2011-12-15
+**     Version:             rev. 1.0, 2015-08-30
 **
 **     Abstract:
 **         Provides a system configuration function and a global variable that
@@ -20,7 +20,7 @@
 **     mail:                 support@freescale.com
 **
 **     Revisions:
-**     - rev. 1.0 (2011-12-15)
+**     - rev. 1.0 (2015-08-30)
 **         Initial version
 **
 ** ###################################################################
@@ -29,7 +29,7 @@
 /**
  * @file MK20DX256
  * @version 1.0
- * @date 2011-12-15
+ * @date 2015-08-30
  * @brief Device specific configuration file for MK20DX256 (implementation file)
  *
  * Provides a system configuration function and a global variable that contains
@@ -87,7 +87,7 @@
     #define CPU_INT_SLOW_CLK_HZ             32768u   /* Value of the slow internal oscillator clock frequency in Hz  */
     #define CPU_INT_FAST_CLK_HZ             4000000u /* Value of the fast internal oscillator clock frequency in Hz  */
     #define DEFAULT_SYSTEM_CLOCK            72000000u /* Default System clock value */    
-#endif /* (CLOCK_SETUP == 2) */
+#endif 
 
 
 /* ----------------------------------------------------------------------------
@@ -187,8 +187,8 @@ void SystemInit (void) {
   MCG->C2 = MCG_C2_RANGE0(2) | MCG_C2_EREFS0_MASK;
   
 #elif (CLOCK_SETUP == 3)
-  /* SIM->CLKDIV1: OUTDIV1=0,OUTDIV2=0,OUTDIV4=1 Set Prescalers 72MHz cpu, 72MHz system, 36MHz flash*/
-  SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV4(1);
+  /* SIM->CLKDIV1: OUTDIV1=0,OUTDIV2=0,OUTDIV4=1 Set Prescalers 72MHz cpu, 48MHz system, 25MHz flash*/
+  SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(2);
   /* SIM->CLKDIV2: USBDIV=2,USBFRAC=1 Divide 72MHz system clock for USB 48MHz */
   SIM->CLKDIV2 = SIM_CLKDIV2_USBDIV(2) | SIM_CLKDIV2_USBFRAC_MASK;
   /* OSC0->CR: ERCLKEN=0,EREFSTEN=0,SC2P=1,SC4P=0,SC8P=1,SC16P=0 10pF loading capacitors for 16MHz system oscillator*/
