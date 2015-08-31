@@ -56,7 +56,7 @@
          Core clock = 8MHz, BusClock = 8MHz
    3 ... Multipurpose Clock Generator (MCG) in PLL Engaged External (PEE) mode
          Reference clock source for MCG module is an external crystal 16MHz
-         Core clock = 72MHz, BusClock = 48MHz
+         Core clock = 72MHz, BusClock = 36MHz, FlashClock 24MHz
          This is the default Teensy3.1 72Mhz set up      
 */
 
@@ -187,7 +187,7 @@ void SystemInit (void) {
   MCG->C2 = MCG_C2_RANGE0(2) | MCG_C2_EREFS0_MASK;
   
 #elif (CLOCK_SETUP == 3)
-  /* SIM->CLKDIV1: OUTDIV1=0,OUTDIV2=0,OUTDIV4=1 Set Prescalers 72MHz cpu, 48MHz system, 25MHz flash*/
+  /* SIM->CLKDIV1: OUTDIV1=0,OUTDIV2=0,OUTDIV4=1 Set Prescalers 72MHz cpu, 36MHz system, 24MHz flash*/
   SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV2(1) | SIM_CLKDIV1_OUTDIV4(2);
   /* SIM->CLKDIV2: USBDIV=2,USBFRAC=1 Divide 72MHz system clock for USB 48MHz */
   SIM->CLKDIV2 = SIM_CLKDIV2_USBDIV(2) | SIM_CLKDIV2_USBFRAC_MASK;
