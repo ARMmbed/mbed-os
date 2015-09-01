@@ -20,6 +20,7 @@
 //New, using MRT instead of SCT, needed to free up SCT for PWM
 //Ported from LPC824 libs
 static int us_ticker_inited = 0;
+static int us_ticker_interrupt_inited = 0;
 unsigned int ticker_fullcount_us;
 unsigned long int ticker_expired_count_us = 0;
 int MRT_Clock_MHz;
@@ -53,7 +54,15 @@ void us_ticker_init(void) {
     LPC_MRT->INTVAL1 = 0x80000000UL;
     // Disable ch1 interrupt, Mode 0 is Repeat Interrupt
     LPC_MRT->CTRL1 = (0x0 << 1) | (0x0 << 0);
-    
+}
+
+void us_ticker_interrupt_init(void) {
+
+    if (us_ticker_interrupt_inited)
+        return;
+
+    us_ticker_interrupt_inited = 1;
+
     // Set MRT interrupt vector
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
@@ -84,6 +93,9 @@ uint32_t us_ticker_read() {
 //TIMER1 is used for Timestamped interrupts (Ticker(), Timeout())
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     
+    if (!us_ticker_interrupt_inited)
+        us_ticker_interrupt_init();
+
     // MRT source clock is SystemCoreClock (30MHz) and MRT is a 31-bit countdown timer    
     // Force load interval value (Bit 0-30 is interval value, Bit 31 is Force Load bit)
     // Note: The MRT has less counter headroom available than the typical mbed 32bit timer @ 1 MHz.
