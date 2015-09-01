@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
@@ -138,6 +138,19 @@ typedef struct
   * @}
   */
 
+/** @defgroup PCD_Turnaround_Timeout Turnaround Timeout Value
+  * @{
+  */
+#ifndef USBD_HS_TRDT_VALUE
+ #define USBD_HS_TRDT_VALUE           9
+#endif /* USBD_HS_TRDT_VALUE */
+#ifndef USBD_FS_TRDT_VALUE
+ #define USBD_FS_TRDT_VALUE           5
+#endif /* USBD_FS_TRDT_VALUE */
+/**
+  * @}
+  */
+
 /**
   * @}
   */
@@ -209,6 +222,9 @@ typedef struct
                                                                    EXTI->FTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE 
                                                          
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_GENERATE_SWIT()  (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE) 
+/**
+  * @}
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup PCD_Exported_Functions PCD Exported Functions
@@ -284,8 +300,12 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 
 /**
   * @}
-  */ 
-
+  */
+ 
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup PCD_Private_Macros PCD Private Macros
+ * @{
+ */
 /** @defgroup PCD_Instance_definition PCD Instance definition
   * @{
   */
@@ -299,10 +319,9 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /**
   * @}
   */ 
-
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}

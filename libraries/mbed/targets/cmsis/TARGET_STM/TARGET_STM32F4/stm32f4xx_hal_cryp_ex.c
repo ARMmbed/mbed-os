@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp_ex.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Extended CRYP HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of CRYP extension peripheral:
@@ -3002,19 +3002,19 @@ void HAL_CRYPEx_GCMCCM_IRQHandler(CRYP_HandleTypeDef *hcryp)
   switch(CRYP->CR & CRYP_CR_ALGOMODE_DIRECTION)
   {    
   case CRYP_CR_ALGOMODE_AES_GCM_ENCRYPT:
-    HAL_CRYPEx_AESGCM_Encrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
+    HAL_CRYPEx_AESGCM_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_GCM_DECRYPT:
-    HAL_CRYPEx_AESGCM_Decrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
+    HAL_CRYPEx_AESGCM_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CCM_ENCRYPT:
-    HAL_CRYPEx_AESCCM_Encrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
+    HAL_CRYPEx_AESCCM_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CCM_DECRYPT:
-    HAL_CRYPEx_AESCCM_Decrypt_IT(hcryp, HAL_NULL, 0, HAL_NULL);
+    HAL_CRYPEx_AESCCM_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   default:

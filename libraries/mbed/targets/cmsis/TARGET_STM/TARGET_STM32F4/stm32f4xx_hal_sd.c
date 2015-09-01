@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sd.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   SD card HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Secure Digital (SD) peripheral:
@@ -2642,7 +2642,7 @@ static HAL_SD_ErrorTypedef SD_SendStatus(SD_HandleTypeDef *hsd, uint32_t *pCardS
   SDIO_CmdInitTypeDef sdio_cmdinitstructure;
   HAL_SD_ErrorTypedef errorstate = SD_OK;
   
-  if(pCardStatus == HAL_NULL)
+  if(pCardStatus == NULL)
   {
     errorstate = SD_INVALID_PARAMETER;
     

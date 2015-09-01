@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hcd.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of HCD HAL module.
   ******************************************************************************
   * @attention
@@ -50,8 +50,7 @@
   * @{
   */
 
-/** @defgroup HCD HCD
-  * @brief HCD HAL module driver
+/** @addtogroup HCD
   * @{
   */
 
@@ -105,6 +104,7 @@ typedef struct
 /** @defgroup HCD_Exported_Constants HCD Exported Constants
   * @{
   */
+
 /** @defgroup HCD_Speed HCD Speed
   * @{
   */
@@ -150,11 +150,12 @@ typedef struct
   */
 
 /* Exported functions --------------------------------------------------------*/
-/** @defgroup HCD_Exported_Functions HCD Exported Functions
+/** @addtogroup HCD_Exported_Functions HCD Exported Functions
   * @{
   */
 
-/** @defgroup HCD_Exported_Functions_Group1 Initialization and de-initialization functions
+/* Initialization/de-initialization functions  ********************************/
+/** @addtogroup HCD_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 HAL_StatusTypeDef   HAL_HCD_Init(HCD_HandleTypeDef *hhcd);
@@ -168,13 +169,15 @@ HAL_StatusTypeDef   HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
                                     uint16_t mps);
 
 HAL_StatusTypeDef   HAL_HCD_HC_Halt(HCD_HandleTypeDef *hhcd, uint8_t ch_num);
+
 void                HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd);
 void                HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */
 
-/** @defgroup HCD_Exported_Functions_Group2 IO operation functions
+/* I/O operation functions  ***************************************************/
+/** @addtogroup HCD_Exported_Functions_Group2 IO operation functions
   * @{
   */
 HAL_StatusTypeDef   HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
@@ -198,7 +201,8 @@ void                HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd,
   * @}
   */
 
-/** @defgroup HCD_Exported_Functions_Group3 Peripheral Control functions
+/* Peripheral Control functions  **********************************************/
+/** @addtogroup HCD_Exported_Functions_Group3 Peripheral Control functions
   * @{
   */
 HAL_StatusTypeDef   HAL_HCD_ResetPort(HCD_HandleTypeDef *hhcd);
@@ -208,7 +212,8 @@ HAL_StatusTypeDef   HAL_HCD_Stop(HCD_HandleTypeDef *hhcd);
   * @}
   */
 
-/** @defgroup HCD_Exported_Functions_Group4 Peripheral State functions
+/* Peripheral State functions  ************************************************/
+/** @addtogroup HCD_Exported_Functions_Group4 Peripheral State functions
   * @{
   */
 HCD_StateTypeDef    HAL_HCD_GetState(HCD_HandleTypeDef *hhcd);
@@ -241,24 +246,6 @@ uint32_t            HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 #endif
 /**
   * @}
-  */
-
-/**
-  * @}
-  */
-
-/* Private functions prototypes ----------------------------------------------*/
-/** @defgroup HCD_Private_Functions_Prototypes HCD Private Functions Prototypes
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/* Private functions ---------------------------------------------------------*/
-/** @defgroup HCD_Private_Functions HCD Private Functions
-  * @{
   */
 
 /**

@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   USART HAL module driver.
-  *
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Synchronous/Asynchronous Receiver Transmitter
   *          Peripheral (USART).
@@ -24,30 +23,30 @@
       (#) Initialize the USART low level resources by implement the HAL_USART_MspInit ()API:
           (##) Enable the USARTx interface clock.
           (##) USART pins configuration:
-            (+) Enable the clock for the USART GPIOs.
-            (+) Configure these USART pins as alternate function pull-up.
+            (+++) Enable the clock for the USART GPIOs.
+            (+++) Configure these USART pins as alternate function pull-up.
           (##) NVIC configuration if you need to use interrupt process (HAL_USART_Transmit_IT(),
                 HAL_USART_Receive_IT() and HAL_USART_TransmitReceive_IT() APIs):
-            (+) Configure the USARTx interrupt priority.
-            (+) Enable the NVIC USART IRQ handle.
-              (@) The specific USART interrupts (Transmission complete interrupt, 
+            (+++) Configure the USARTx interrupt priority.
+            (+++) Enable the NVIC USART IRQ handle.
+            (+++) The specific USART interrupts (Transmission complete interrupt, 
                   RXNE interrupt and Error Interrupts) will be managed using the macros
                   __HAL_USART_ENABLE_IT() and __HAL_USART_DISABLE_IT() inside the transmit and receive process.
           (##) DMA Configuration if you need to use DMA process (HAL_USART_Transmit_DMA()
                HAL_USART_Receive_IT() and HAL_USART_TransmitReceive_IT() APIs):
-            (+) Declare a DMA handle structure for the Tx/Rx stream.
-            (+) Enable the DMAx interface clock.
-            (+) Configure the declared DMA handle structure with the required Tx/Rx parameters.                
-            (+) Configure the DMA Tx/Rx Stream.
-            (+) Associate the initialized DMA handle to the USART DMA Tx/Rx handle.
-            (+) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx/Rx Stream.
+            (+++) Declare a DMA handle structure for the Tx/Rx stream.
+            (+++) Enable the DMAx interface clock.
+            (+++) Configure the declared DMA handle structure with the required Tx/Rx parameters.                
+            (+++) Configure the DMA Tx/Rx Stream.
+            (+++) Associate the initialized DMA handle to the USART DMA Tx/Rx handle.
+            (+++) Configure the priority and enable the NVIC for the transfer complete interrupt on the DMA Tx/Rx Stream.
 
       (#) Program the Baud Rate, Word Length, Stop Bit, Parity, Hardware 
           flow control and Mode(Receiver/Transmitter) in the husart Init structure.
 
       (#) Initialize the USART registers by calling the HAL_USART_Init() API:
-          (+) These API's configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
-              by calling the customed HAL_USART_MspInit(&husart) API.
+          (++) These API's configures also the low level Hardware (GPIO, CLOCK, CORTEX...etc)
+               by calling the customed HAL_USART_MspInit(&husart) API.
 
   @endverbatim
   ******************************************************************************
@@ -159,13 +158,14 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
              8-bit or 9-bit), the possible USART frame formats are as listed in the
              following table:
 
-   +---------------------------------------------------------------+
-   | M1M0 bits |  PCE bit  |            USART frame                |
-   |-----------------------|---------------------------------------|
-   |     10    |     0     |    | SB | 7-bit data | STB |          |
-   |-----------|-----------|---------------------------------------|
-   |     10    |     1     |    | SB | 6-bit data | PB | STB |     |
-   +---------------------------------------------------------------+
+   (+++) +---------------------------------------------------------------+
+   (+++) | M1M0 bits |  PCE bit  |            USART frame                |
+   (+++) |-----------------------|---------------------------------------|
+   (+++) |     10    |     0     |    | SB | 7-bit data | STB |          |
+   (+++) |-----------|-----------|---------------------------------------|
+   (+++) |     10    |     1     |    | SB | 6-bit data | PB | STB |     |
+   (+++) +---------------------------------------------------------------+
+
         (++) USART polarity
         (++) USART phase
         (++) USART LastBit
@@ -304,10 +304,10 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
          clock (SCLK is always an output).
 
     (#) There are two mode of transfer:
-       (+) Blocking mode: The communication is performed in polling mode.
+       (++) Blocking mode: The communication is performed in polling mode.
             The HAL status of all data processing is returned by the same function
             after finishing transfer.
-       (+) No-Blocking mode: The communication is performed using Interrupts
+       (++) No-Blocking mode: The communication is performed using Interrupts
            or DMA, These API's return the HAL status.
            The end of the data processing will be indicated through the
            dedicated USART IRQ when using Interrupt mode or the DMA IRQ when
@@ -317,31 +317,31 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
            The HAL_USART_ErrorCallback()user callback will be executed when a communication error is detected
 
     (#) Blocking mode API's are :
-        (+) HAL_USART_Transmit()in simplex mode
-        (+) HAL_USART_Receive() in full duplex receive only
-        (+) HAL_USART_TransmitReceive() in full duplex mode
+        (++) HAL_USART_Transmit()in simplex mode
+        (++) HAL_USART_Receive() in full duplex receive only
+        (++) HAL_USART_TransmitReceive() in full duplex mode
 
     (#) Non-Blocking mode API's with Interrupt are :
-        (+) HAL_USART_Transmit_IT()in simplex mode
-        (+) HAL_USART_Receive_IT() in full duplex receive only
-        (+) HAL_USART_TransmitReceive_IT()in full duplex mode
-        (+) HAL_USART_IRQHandler()
+        (++) HAL_USART_Transmit_IT()in simplex mode
+        (++) HAL_USART_Receive_IT() in full duplex receive only
+        (++) HAL_USART_TransmitReceive_IT()in full duplex mode
+        (++) HAL_USART_IRQHandler()
 
     (#) No-Blocking mode functions with DMA are :
-        (+) HAL_USART_Transmit_DMA()in simplex mode
-        (+) HAL_USART_Receive_DMA() in full duplex receive only
-        (+) HAL_USART_TransmitReceive_DMA() in full duplex mode
-        (+) HAL_USART_DMAPause()
-        (+) HAL_USART_DMAResume()
-        (+) HAL_USART_DMAStop()
+        (++) HAL_USART_Transmit_DMA()in simplex mode
+        (++) HAL_USART_Receive_DMA() in full duplex receive only
+        (++) HAL_USART_TransmitReceive_DMA() in full duplex mode
+        (++) HAL_USART_DMAPause()
+        (++) HAL_USART_DMAResume()
+        (++) HAL_USART_DMAStop()
 
     (#) A set of Transfer Complete Callbacks are provided in No_Blocking mode:
-        (+) HAL_USART_TxCpltCallback()
-        (+) HAL_USART_RxCpltCallback()
-        (+) HAL_USART_TxHalfCpltCallback()
-        (+) HAL_USART_RxHalfCpltCallback()
-        (+) HAL_USART_ErrorCallback()
-        (+) HAL_USART_TxRxCpltCallback()
+        (++) HAL_USART_TxCpltCallback()
+        (++) HAL_USART_RxCpltCallback()
+        (++) HAL_USART_TxHalfCpltCallback()
+        (++) HAL_USART_RxHalfCpltCallback()
+        (++) HAL_USART_ErrorCallback()
+        (++) HAL_USART_TxRxCpltCallback()
 
 @endverbatim
   * @{
@@ -1000,22 +1000,22 @@ HAL_StatusTypeDef HAL_USART_DMAResume(USART_HandleTypeDef *husart)
   }
   else if(husart->State == HAL_USART_STATE_BUSY_RX)
   {
+    /* Clear the Overrun flag before resuming the Rx transfer*/
+    __HAL_USART_CLEAR_IT(husart, USART_CLEAR_OREF);
+
     /* Enable the USART DMA Rx request */
     husart->Instance->CR3 |= USART_CR3_DMAR;
   }
   else if(husart->State == HAL_USART_STATE_BUSY_TX_RX)
   {
+    /* Clear the Overrun flag before resuming the Rx transfer*/
+    __HAL_USART_CLEAR_IT(husart, USART_CLEAR_OREF);
+
     /* Enable the USART DMA Rx request  before the DMA Tx request */
     husart->Instance->CR3 |= USART_CR3_DMAR;
+
     /* Enable the USART DMA Tx request */
     husart->Instance->CR3 |= USART_CR3_DMAT;
-  }
-
-  /* If the USART peripheral is still not enabled, enable it */
-  if((husart->Instance->CR1 & USART_CR1_UE) == 0)
-  {
-    /* Enable USART peripheral */
-    __HAL_USART_ENABLE(husart);
   }
 
   /* Process Unlocked */
@@ -1031,8 +1031,12 @@ HAL_StatusTypeDef HAL_USART_DMAResume(USART_HandleTypeDef *husart)
   */
 HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart)
 {
-  /* Process Locked */
-  __HAL_LOCK(husart);
+  /* The Lock is not implemented on this API to allow the user application
+     to call the HAL USART API under callbacks HAL_USART_TxCpltCallback() / HAL_USART_RxCpltCallback() /
+     HAL_USART_TxHalfCpltCallback / HAL_USART_RxHalfCpltCallback: 
+     indeed, when HAL_DMA_Abort() API is called, the DMA TX/RX Transfer or Half Transfer complete  
+     interrupt is generated if the DMA transfer interruption occurs at the middle or at the end of 
+     the stream and the corresponding call back is executed. */
 
   /* Disable the USART Tx/Rx DMA requests */
   husart->Instance->CR3 &= ~USART_CR3_DMAT;
@@ -1049,13 +1053,7 @@ HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart)
     HAL_DMA_Abort(husart->hdmarx);
   }
 
-  /* Disable USART peripheral */
-  __HAL_USART_DISABLE(husart);
-
   husart->State = HAL_USART_STATE_READY;
-
-  /* Process Unlocked */
-  __HAL_UNLOCK(husart);
 
   return HAL_OK;
 }

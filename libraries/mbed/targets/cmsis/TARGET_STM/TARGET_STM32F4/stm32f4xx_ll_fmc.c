@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fmc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   FMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -1625,7 +1625,7 @@ HAL_StatusTypeDef FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_Com
   /* Get tick */ 
   tickstart = HAL_GetTick();
 
-  /* wait until command is send */
+  /* Wait until command is send */
   while(HAL_IS_BIT_SET(Device->SDSR, FMC_SDSR_BUSY))
   {
     /* Check for the Timeout */
@@ -1636,8 +1636,6 @@ HAL_StatusTypeDef FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_Com
         return HAL_TIMEOUT;
       }
     }     
-    
-    return HAL_ERROR;
   }
   
   return HAL_OK;  

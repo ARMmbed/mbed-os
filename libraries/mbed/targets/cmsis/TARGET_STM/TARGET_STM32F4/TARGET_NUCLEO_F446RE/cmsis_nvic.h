@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,10 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-// STM32F411RE
 // CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 86 vectors = 344 bytes from 0x40 to 0x197
-// Total: 102 vectors = 408 bytes (0x198) to be reserved in RAM
-#define NVIC_NUM_VECTORS      102
+// MCU Peripherals: 97 vectors = 388 bytes from 0x40 to 0x1C3
+// Total: 113 vectors = 452 bytes (0x1C4) to be reserved in RAM
+#define NVIC_NUM_VECTORS      113
 #define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"
