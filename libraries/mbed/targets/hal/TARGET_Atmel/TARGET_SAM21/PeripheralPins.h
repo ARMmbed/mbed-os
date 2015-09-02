@@ -20,34 +20,21 @@
 #include "pinmap.h"
 #include "PeripheralNames.h"
 
-void find_pin_settings (PinName output, PinName input, PinName clock, PinName chipsel, uint32_t* pad_pinmuxes);  // clock also for RTS and chipsel for CTS
-uint32_t find_mux_setting (PinName output, PinName input, PinName clock, PinName chipsel);
 /************RTC***************/
 //extern const PinMap PinMap_RTC[];
 
 /************ADC***************/
-//extern const PinMap PinMap_ADC[];
+extern const PinMap PinMap_ADC[];
 
-/************DAC***************/
-//extern const PinMap PinMap_DAC[];
-
-/************I2C***************/
-//extern const PinMap PinMap_I2C_SDA[];
-//extern const PinMap PinMap_I2C_SCL[];
-
-/************UART***************/
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
-
-/************SPI***************/
-//extern const PinMap PinMap_SPI_SCLK[];
-//extern const PinMap PinMap_SPI_MOSI[];
-//extern const PinMap PinMap_SPI_MISO[];
-//extern const PinMap PinMap_SPI_SSEL[];
+//*********SERCOM*************/
+extern const PinMap PinMap_SERCOM_PAD[];
+extern const PinMap PinMap_SERCOM_PADEx[];
 
 /************PWM***************/
 //extern const PinMap PinMap_PWM[];
 
+/**********EXTINT*************/
+extern const PinMap PinMap_EXTINT[];
 
 
 #endif

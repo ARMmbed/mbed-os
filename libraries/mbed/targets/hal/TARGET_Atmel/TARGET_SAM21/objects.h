@@ -20,21 +20,26 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "gpio_object.h"
+#include "adc.h"
+#include "extint.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct gpio_irq_s {
+    uint8_t irqmask;
     uint32_t port;
     uint32_t pin;
     uint32_t ch;
+    struct extint_chan_conf config_extint_chan;
 };
 
 struct port_s {
     __IO uint32_t *OUTCLR;
     __IO uint32_t *OUTSET;
     __I uint32_t *IN;
+    __I uint32_t *OUT;
 
     PortName port;
     uint32_t mask;
@@ -48,15 +53,16 @@ struct serial_s {
     uint32_t character_size;
     uint32_t mux_setting;
     uint32_t baudrate;
-    uint32_t pinmux_pad0;
-    uint32_t pinmux_pad1;
-    uint32_t pinmux_pad2;
-    uint32_t pinmux_pad3;
-    PinName rxpin;
-    PinName txpin;
+    PinName pins[4];
 #if DEVICE_SERIAL_ASYNCH
     uint32_t events;
 #endif
+};
+
+struct analogin_s {
+    ADCName adc;
+    struct adc_module adc_instance;
+    struct adc_config config_adc;
 };
 /*
 struct pwmout_s {
@@ -67,10 +73,6 @@ struct pwmout_s {
 struct serial_s {
     LPC_UART_TypeDef *uart;
     int index;
-};
-
-struct analogin_s {
-    ADCName adc;
 };
 
 struct dac_s {
@@ -90,6 +92,7 @@ struct i2c_s {
 struct spi_s {
     Sercom *spi;
     uint8_t mode;
+    PinName pins[4];
 #if DEVICE_SPI_ASYNCH
     uint8_t status;
     uint32_t mask;

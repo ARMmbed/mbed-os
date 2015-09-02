@@ -34,7 +34,7 @@ endif
 {%- endblock %}
 
 CPU = {% block cpu %}{% for cf in cpu_flags %}{{cf|replace("-mfloat-abi=softfp","-mfloat-abi=$(FLOAT_ABI)")}} {% endfor %}{% endblock %}
-CC_FLAGS = {% block cc_flags %}$(CPU) -c -g -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP{% endblock %}
+CC_FLAGS = {% block cc_flags %}$(CPU) -c -g -fno-common -fmessage-length=0 -Wall -Wextra -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP{% endblock %}
 CC_SYMBOLS = {% block cc_symbols %}{% for s in symbols %}-D{{s}} {% endfor %}{% endblock %}
 
 LD_FLAGS = {%- block ld_flags -%}

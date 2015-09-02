@@ -83,21 +83,6 @@ typedef enum
     Bit_SET
 }BitAction;
 
-typedef enum
-{
-    PAD_PA = 0,
-    PAD_PB,
-    PAD_PC,
-    PAD_PD
-}PAD_Type;
-
-typedef enum
-{
-    PAD_AF0    = Px_AFSR_AF0,
-    PAD_AF1    = Px_AFSR_AF1,
-    PAD_AF2    = Px_AFSR_AF2,
-    PAD_AF3    = Px_AFSR_AF3
-}PAD_AF_TypeDef;
 
 #define IS_PAD_TYPE(Px)  (((Px) == PAD_PA) || ((Px) == PAD_PB) \
                           ((Px) == PAD_PC) || ((Px) == PAD_PD))
@@ -117,7 +102,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef* GPIOx);
 void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct);
 void HAL_GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct);
 uint8_t HAL_GPIO_ReadInputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
-uint8_t HAL_GPIO_ReadInputData(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+uint16_t HAL_GPIO_ReadInputData(GPIO_TypeDef* GPIOx);
 uint8_t HAL_GPIO_ReadOutputDataBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 uint16_t HAL_GPIO_ReadOutputData(GPIO_TypeDef* GPIOx);
 void HAL_GPIO_SetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
@@ -125,6 +110,9 @@ void HAL_GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 void HAL_GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal);
 void HAL_GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal);
 void HAL_PAD_AFConfig(PAD_Type Px, uint16_t Pnum, PAD_AF_TypeDef P_AF);
+
+void GPIO_OutEnClr(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
+void GPIO_OutEnSet(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin);
 
 
 #ifdef __cplusplus
