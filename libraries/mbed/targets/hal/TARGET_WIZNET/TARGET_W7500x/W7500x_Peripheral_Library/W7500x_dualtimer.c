@@ -13,6 +13,7 @@
 
 /* Includes -------------------------------------------*/
 #include "W7500x.h"
+#include "W7500x_dualtimer.h"
 
 void DUALTIMER_ClockEnable(DUALTIMER_TypeDef* DUALTIMERn)
 {
@@ -56,7 +57,7 @@ void DUALTIMER_DeInit(DUALTIMER_TypeDef* DUALTIMERn)
     DUALTIMERn->TimerBGLoad = 0x0;
 }
 
-void DUALTIMER_Init(DUALTIMER_TypeDef* DUALTIMERn, DUALTIMER_InitTypDef* DUALTIMER_InitStruct)
+void DUALTIMER_Init(DUALTIMER_TypeDef* DUALTIMERn, DULATIMER_InitTypDef* DUALTIMER_InitStruct)
 {
     uint32_t tmp = 0;
     /* Check the parameters */

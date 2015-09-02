@@ -1,4 +1,5 @@
 #include "W7500x.h"
+#include "W7500x_adc.h"
 
 void ADC_PowerDownEnable (FunctionalState NewState)
 {

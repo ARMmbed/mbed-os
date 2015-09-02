@@ -46,7 +46,7 @@ static uint32_t channel_ids[4][16];
 #ifdef __cplusplus
 extern "C"{
 #endif
-
+void port_generic_handler(GPIO_TypeDef* GPIOx, uint32_t port_num);
  
 void PORT0_Handler(void)
 {
