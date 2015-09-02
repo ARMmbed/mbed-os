@@ -27,55 +27,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-/*include -------------------------------------*/
-#include "W7500x.h"
+ 
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#ifndef __W7500X_I2C_H
-#define __W7500X_I2C_H
-
+#include "cmsis.h"
+#include "PinNames.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum {
-    I2C_PA_5    = 0x05,
-    I2C_PA_6    = 0x06,
-    I2C_PA_9    = 0x09,
-    I2C_PA_10   = 0x0A,
-    I2C_PC_4    = 0x24,
-    I2C_PC_5    = 0x25,
-    I2C_PC_8    = 0x28,
-    // Not connected
-    I2C_NC = (int)0xFFFFFFFF
-} I2C_PinName;
+    ADC_0 = (int)W7500x_ADC_BASE
+} ADCName;
 
-typedef struct
-{
-    I2C_PinName scl;
-    I2C_PinName sda;
-}I2C_ConfigStruct;
+typedef enum {
+    UART_0 = (int)W7500x_UART0_BASE,
+    UART_1 = (int)W7500x_UART1_BASE
+} UARTName;
 
+typedef enum {
+    SPI_0 = (int)SSP0_BASE,
+    SPI_1 = (int)SSP1_BASE
+} SPIName;
 
-#define I2C_PORT(X) (((uint32_t)(X) >> 4) & 0xF)    // port number (0=A, 1=B, 2=C, 3=D)
-#define I2C_PIN_INDEX(X)  (1 << ((uint32_t)(X) & 0xF))    // pin index : flag bit 
- 
-uint32_t I2C_Init(I2C_ConfigStruct* conf);
+typedef enum {
+    I2C_0 = (int)I2C0_BASE,
+    I2C_1 = (int)I2C1_BASE
+} I2CName;
 
-void I2C_WriteBitSDA(I2C_ConfigStruct* conf, uint8_t data);
-void I2C_WriteBitSCL(I2C_ConfigStruct* conf, uint8_t data);
-uint8_t I2C_ReadBitSDA(I2C_ConfigStruct* conf);
+typedef enum {    
+    PWM_0 = (int)PWM_CH0_BASE,
+    PWM_1 = (int)PWM_CH1_BASE,
+    PWM_2 = (int)PWM_CH2_BASE,
+    PWM_3 = (int)PWM_CH3_BASE,
+    PWM_4 = (int)PWM_CH4_BASE,
+    PWM_5 = (int)PWM_CH5_BASE,
+    PWM_6 = (int)PWM_CH6_BASE,
+    PWM_7 = (int)PWM_CH7_BASE
+} PWMName;
 
-void I2C_SendACK(I2C_ConfigStruct* conf);
-void I2C_SendNACK(I2C_ConfigStruct* conf);
+#ifdef __cplusplus
+}
+#endif
 
-uint8_t I2C_WriteByte(I2C_ConfigStruct* conf, uint8_t data);
-uint8_t I2C_ReadByte(I2C_ConfigStruct* conf);
-
-void I2C_Start(I2C_ConfigStruct* conf);
-void I2C_Stop(I2C_ConfigStruct* conf);
-
-int I2C_Write(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
-int I2C_WriteRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
-int I2C_Read(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
-int I2C_ReadRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len);
-
-
- #endif //__W7500X_I2C_H
-
+#endif

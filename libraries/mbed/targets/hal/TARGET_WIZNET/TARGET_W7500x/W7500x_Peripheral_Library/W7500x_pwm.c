@@ -13,6 +13,7 @@
   
 /* Includes -------------------------------------------*/
 #include "W7500x.h"
+#include "W7500x_pwm.h"
 
 void PWM_DeInit(PWM_CHn_TypeDef* PWM_CHn)
 {
