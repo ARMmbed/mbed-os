@@ -28,8 +28,9 @@
  *******************************************************************************
  */
 /*include -------------------------------------*/
-#include <stdio.h>
 #include "W7500x.h"
+#include "W7500x_i2c.h"
+#include "W7500x_gpio.h"
 
 GPIO_InitTypeDef GPIO_InitDef;
 
@@ -61,8 +62,8 @@ uint32_t I2C_Init(I2C_ConfigStruct* conf)
     HAL_GPIO_ResetBits((GPIO_TypeDef*)(GPIOA_BASE + (sda_port_num << 24)), sda_pin_index);
     
     //Pin muxing
-    HAL_PAD_AFConfig(scl_port_num, scl_pin_index, PAD_AF1);
-    HAL_PAD_AFConfig(sda_port_num, sda_pin_index, PAD_AF1);
+    HAL_PAD_AFConfig((PAD_Type)scl_port_num, (uint16_t)scl_pin_index, PAD_AF1);
+    HAL_PAD_AFConfig((PAD_Type)sda_port_num, (uint16_t)sda_pin_index, PAD_AF1);
 
     return 0;
 }
@@ -98,9 +99,6 @@ uint8_t I2C_ReadBitSDA(I2C_ConfigStruct* conf)
     
     if(HAL_GPIO_ReadInputDataBit((GPIO_TypeDef*)(GPIOA_BASE + (sda_port_num << 24)), sda_pin_index))
         return 1;
-    else
-        return 0;
-    
     
     return 0;
 }
@@ -193,7 +191,7 @@ int I2C_Write(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
     //Write addr
     if(I2C_WriteByte(conf, addr) != 0)
     {
-        printf("Received NACK at address phase!!\r\n");
+        //printf("Received NACK at address phase!!\r\n");
         return -1;
     }
 
@@ -218,7 +216,7 @@ int I2C_WriteRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint3
     //Write addr
     if(I2C_WriteByte(conf, addr) != 0)
     {
-        printf("Received NACK at address phase!!\r\n");
+        //printf("Received NACK at address phase!!\r\n");
         return -1;
     }
 
@@ -241,7 +239,7 @@ int I2C_Read(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32_t len)
     //Write addr | read command
     if(I2C_WriteByte(conf, (addr | 1)) != 0)
     {
-        printf("Received NACK at address phase!!\r\n");
+        //printf("Received NACK at address phase!!\r\n");
         return -1;
     }
     
@@ -270,7 +268,7 @@ int I2C_ReadRepeated(I2C_ConfigStruct* conf, uint8_t addr, uint8_t* data, uint32
     //Write addr | read command
     if(I2C_WriteByte(conf, (addr | 1)) != 0)
     {
-        printf("Received NACK at address phase!!\r\n");
+        //printf("Received NACK at address phase!!\r\n");
         return -1;
     }
     
