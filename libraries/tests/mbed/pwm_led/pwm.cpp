@@ -28,7 +28,7 @@
 #elif defined (TARGET_DISCO_F407VG) 
 #define TEST_LED LED1
 
-#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
 #define TEST_LED LED1
 
 #else
