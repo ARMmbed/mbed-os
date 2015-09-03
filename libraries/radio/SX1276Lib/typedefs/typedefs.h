@@ -18,18 +18,22 @@ Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 #include "mbed.h"
 #include "./enums/enums.h"
 
+
 class SX1276;
+class Radio;
 class SX1276MB1xAS;
+class SX1272MB1xAS;
 /*!
  * Hardware IO IRQ callback function definition
  */
-typedef void ( SX1276::*DioIrqHandler )( void );
+typedef void ( Radio::*DioIrqHandler )( void );
 
 /*!
  * triggers definition
  */
-typedef void ( SX1276::*Trigger )( void );
-typedef void ( SX1276MB1xAS::*TriggerMB1xAS )( void );
+typedef void ( Radio::*Trigger )( void );
+typedef void ( SX1276MB1xAS::*TriggerMB1xASSX1276 )( void );
+typedef void ( SX1272MB1xAS::*TriggerMB1xASSX1272 )( void );
 
 /*!
  * FSK bandwidth definition

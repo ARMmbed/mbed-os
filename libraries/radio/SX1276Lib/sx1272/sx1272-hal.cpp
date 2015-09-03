@@ -12,9 +12,9 @@ License: Revised BSD License, see LICENSE.TXT file include in the project
 
 Maintainers: Miguel Luis, Gregory Cristian and Nicolas Huguenin
 */
-#include "sx1276-hal.h"
+#include "sx1272-hal.h"
 
-const RadioRegisters_t SX1276MB1xAS::RadioRegsInit[] = 
+const RadioRegisters_t SX1272MB1xAS::RadioRegsInit[] =
 {                                                 
     { MODEM_FSK , REG_LNA                , 0x23 },
     { MODEM_FSK , REG_RXCONFIG           , 0x1E },
@@ -33,12 +33,12 @@ const RadioRegisters_t SX1276MB1xAS::RadioRegsInit[] =
     { MODEM_LORA, REG_LR_PAYLOADMAXLENGTH, 0x40 },  
 };
 
-SX1276MB1xAS::SX1276MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void ( *rxDone ) ( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr ), 
+SX1272MB1xAS::SX1272MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void ( *rxDone ) ( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr ),
                             void ( *rxTimeout ) ( ), void ( *rxError ) ( ), void ( *fhssChangeChannel ) ( uint8_t channelIndex ), void ( *cadDone ) ( bool ChannelActivityDetected ),
                             PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
                             PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5,
                             PinName antSwitch )
-                            : SX1276( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, mosi, miso, sclk, nss, reset, dio0, dio1, dio2, dio3, dio4, dio5),
+                            : SX1272( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, mosi, miso, sclk, nss, reset, dio0, dio1, dio2, dio3, dio4, dio5),
                             antSwitch( antSwitch ),
                         #if( defined ( TARGET_NUCLEO_L152RE ) )
                             fake( D8 ) 
@@ -63,23 +63,20 @@ SX1276MB1xAS::SX1276MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
     this->settings.State = IDLE ;
 }
 
-SX1276MB1xAS::SX1276MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void ( *rxDone ) ( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr ), 
+SX1272MB1xAS::SX1272MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void ( *rxDone ) ( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr ),
                             void ( *rxTimeout ) ( ), void ( *rxError ) ( ), void ( *fhssChangeChannel ) ( uint8_t channelIndex ), void ( *cadDone ) ( bool ChannelActivityDetected ) ) 
                         #if defined ( TARGET_NUCLEO_L152RE )
-                        :   SX1276( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, D10, A0, D2, D3, D4, D5, A3, D9 ), // For NUCLEO L152RE dio4 is on port A3
+                        :   SX1272( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, D10, A0, D2, D3, D4, D5, A3, D9 ), // For NUCLEO L152RE dio4 is on port A3
                             antSwitch( A4 ),
                             fake( D8 )
                         #else
-                        :   SX1276( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, PA_4, PC_4, PC_10, PC_11, PC_12, PD_2, PB_5, PB_6 ),
+                        :   SX1272( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, PA_4, PC_4, PC_10, PC_11, PC_12, PD_2, PB_5, PB_6 ),
                             antSwitch( PB_1 ),
                             fake( PC_2 )
                         #endif
 {
     Reset( );
     
-    boardConnected = UNKNOWN;
-    
-    DetectBoardType( );
     
     RxChainCalibration( );
     
@@ -98,19 +95,13 @@ SX1276MB1xAS::SX1276MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
 //-------------------------------------------------------------------------
 //                      Board relative functions
 //-------------------------------------------------------------------------
-uint8_t SX1276MB1xAS::DetectBoardType( void )
-{
-	boardConnected = SX1276MB1MAS;
-    return ( boardConnected );
-}
-
-void SX1276MB1xAS::IoInit( void )
+void SX1272MB1xAS::IoInit( void )
 {
     AntSwInit( );
     SpiInit( );
 }
 
-void SX1276MB1xAS::RadioRegistersInit( ){
+void SX1272MB1xAS::RadioRegistersInit( ){
     uint8_t i = 0;
     for( i = 0; i < sizeof( RadioRegsInit ) / sizeof( RadioRegisters_t ); i++ )
     {
@@ -119,7 +110,7 @@ void SX1276MB1xAS::RadioRegistersInit( ){
     }    
 }
 
-void SX1276MB1xAS::SpiInit( void )
+void SX1272MB1xAS::SpiInit( void )
 {
     nss = 1;    
     spi.format( 8,0 );   
@@ -134,7 +125,7 @@ void SX1276MB1xAS::SpiInit( void )
     wait(0.1); 
 }
 
-void SX1276MB1xAS::IoIrqInit( DioIrqHandler *irqHandlers )
+void SX1272MB1xAS::IoIrqInit( DioIrqHandler *irqHandlers )
 {
     #if( defined ( TARGET_NUCLEO_L152RE ) ||  defined ( TARGET_LPC11U6X ) )
         dio0.mode(PullDown);
@@ -143,38 +134,24 @@ void SX1276MB1xAS::IoIrqInit( DioIrqHandler *irqHandlers )
         dio3.mode(PullDown); 
         dio4.mode(PullDown); 
     #endif
-    dio0.rise( this, static_cast< TriggerMB1xASSX1276 > ( irqHandlers[0] ) );
-    dio1.rise( this, static_cast< TriggerMB1xASSX1276 > ( irqHandlers[1] ) );
-    dio2.rise( this, static_cast< TriggerMB1xASSX1276 > ( irqHandlers[2] ) );
-    dio3.rise( this, static_cast< TriggerMB1xASSX1276 > ( irqHandlers[3] ) );
-    dio4.rise( this, static_cast< TriggerMB1xASSX1276 > ( irqHandlers[4] ) );
+    dio0.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[0] ) );
+    dio1.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[1] ) );
+    dio2.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[2] ) );
+    dio3.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[3] ) );
+    dio4.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[4] ) );
 }
 
-void SX1276MB1xAS::IoDeInit( void )
+void SX1272MB1xAS::IoDeInit( void )
 {
     //nothing
 }
 
-uint8_t SX1276MB1xAS::GetPaSelect( uint32_t channel )
+uint8_t SX1272MB1xAS::GetPaSelect( uint32_t channel )
 {
-    if( channel > RF_MID_BAND_THRESH )
-    {
-        if( boardConnected == SX1276MB1LAS )
-        {
-            return RF_PACONFIG_PASELECT_PABOOST;
-        }
-        else
-        {
-            return RF_PACONFIG_PASELECT_RFO;
-        }
-    }
-    else
-    {
-        return RF_PACONFIG_PASELECT_RFO;
-    }
+	return RF_PACONFIG_PASELECT_RFO;
 }
 
-void SX1276MB1xAS::SetAntSwLowPower( bool status )
+void SX1272MB1xAS::SetAntSwLowPower( bool status )
 {
     if( isRadioActive != status )
     {
@@ -191,17 +168,17 @@ void SX1276MB1xAS::SetAntSwLowPower( bool status )
     }
 }
 
-void SX1276MB1xAS::AntSwInit( void )
+void SX1272MB1xAS::AntSwInit( void )
 {
     antSwitch = 0;
 }
 
-void SX1276MB1xAS::AntSwDeInit( void )
+void SX1272MB1xAS::AntSwDeInit( void )
 {
     antSwitch = 0;
 }
 
-void SX1276MB1xAS::SetAntSw( uint8_t rxTx )
+void SX1272MB1xAS::SetAntSw( uint8_t rxTx )
 {
     if( this->rxTx == rxTx )
     {
@@ -221,35 +198,35 @@ void SX1276MB1xAS::SetAntSw( uint8_t rxTx )
     }
 }
 
-bool SX1276MB1xAS::CheckRfFrequency( uint32_t frequency )
+bool SX1272MB1xAS::CheckRfFrequency( uint32_t frequency )
 {
     //TODO: Implement check, currently all frequencies are supported
     return true;
 }
 
 
-void SX1276MB1xAS::Reset( void )
+void SX1272MB1xAS::Reset( void )
 {
     reset.output();
     reset = 0;
-    wait_ms( 1 );
+    wait_ms( 1000 );
     reset.input();
     wait_ms( 6 );
 }
     
-void SX1276MB1xAS::Write( uint8_t addr, uint8_t data )
+void SX1272MB1xAS::Write( uint8_t addr, uint8_t data )
 {
     Write( addr, &data, 1 );
 }
 
-uint8_t SX1276MB1xAS::Read( uint8_t addr )
+uint8_t SX1272MB1xAS::Read( uint8_t addr )
 {
     uint8_t data;
     Read( addr, &data, 1 );
     return data;
 }
 
-void SX1276MB1xAS::Write( uint8_t addr, uint8_t *buffer, uint8_t size )
+void SX1272MB1xAS::Write( uint8_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
@@ -262,7 +239,7 @@ void SX1276MB1xAS::Write( uint8_t addr, uint8_t *buffer, uint8_t size )
     nss = 1;
 }
 
-void SX1276MB1xAS::Read( uint8_t addr, uint8_t *buffer, uint8_t size )
+void SX1272MB1xAS::Read( uint8_t addr, uint8_t *buffer, uint8_t size )
 {
     uint8_t i;
 
@@ -275,12 +252,12 @@ void SX1276MB1xAS::Read( uint8_t addr, uint8_t *buffer, uint8_t size )
     nss = 1;
 }
 
-void SX1276MB1xAS::WriteFifo( uint8_t *buffer, uint8_t size )
+void SX1272MB1xAS::WriteFifo( uint8_t *buffer, uint8_t size )
 {
     Write( 0, buffer, size );
 }
 
-void SX1276MB1xAS::ReadFifo( uint8_t *buffer, uint8_t size )
+void SX1272MB1xAS::ReadFifo( uint8_t *buffer, uint8_t size )
 {
     Read( 0, buffer, size );
 }

@@ -1,6 +1,6 @@
 #include "mbed.h"
 #include "main.h"
-#include "sx1276-hal.h"
+#include "sx1272-hal.h"
 #include "debug.h"
 
 /* Set this flag to '1' to display debug messages on the console */
@@ -61,7 +61,7 @@ DigitalOut led(LED1);
 typedef RadioState States_t;
 volatile States_t State = LOWPOWER;
 
-SX1276MB1xAS Radio( OnTxDone, OnTxTimeout, OnRxDone, OnRxTimeout, OnRxError, NULL, NULL );
+SX1272MB1xAS Radio( OnTxDone, OnTxTimeout, OnRxDone, OnRxTimeout, OnRxError, NULL, NULL );
 
 const uint8_t PingMsg[] = "PING";
 const uint8_t PongMsg[] = "PONG";
@@ -96,8 +96,6 @@ int main()
         wait( 1 );
     }
             
-    debug_if( ( DEBUG_MESSAGE & ( Radio.DetectBoardType( ) == SX1276MB1LAS ) ) , "\n\r > Board Type: SX1276MB1LAS < \n\r" );
-    debug_if( ( DEBUG_MESSAGE & ( Radio.DetectBoardType( ) == SX1276MB1MAS ) ) , "\n\r > Board Type: SX1276MB1MAS < \n\r" );
     
     Radio.SetChannel( RF_FREQUENCY ); 
 
