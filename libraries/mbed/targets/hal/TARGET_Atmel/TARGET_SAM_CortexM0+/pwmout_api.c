@@ -86,7 +86,7 @@ bool pwmout_init_hw(pwmout_t* obj)
     PinName pin;
     uint32_t ch_index = NC;
     struct tcc_config config_tcc;
-	uint32_t tcc_channel = NC;
+    uint32_t tcc_channel = NC;
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -101,18 +101,15 @@ bool pwmout_init_hw(pwmout_t* obj)
         /* Pin not supported */
         return 0;
     }
-	if ((ch_index == 0) || (ch_index == 4)) {
-		tcc_channel = 0;
-	}
-	else if ((ch_index == 1) || (ch_index == 5)) {
-		tcc_channel = 1;	
-	}
-	else if ((ch_index == 2) || (ch_index == 6)) {
-		tcc_channel = 2;	
-	}
-	else if ((ch_index == 3) || (ch_index == 7)) {
-		tcc_channel = 3;	
-	}
+    if ((ch_index == 0) || (ch_index == 4)) {
+        tcc_channel = 0;
+    } else if ((ch_index == 1) || (ch_index == 5)) {
+        tcc_channel = 1;
+    } else if ((ch_index == 2) || (ch_index == 6)) {
+        tcc_channel = 2;
+    } else if ((ch_index == 3) || (ch_index == 7)) {
+        tcc_channel = 3;
+    }
 
     tcc_get_config_defaults(&config_tcc, (Tcc*)pwm);
 
