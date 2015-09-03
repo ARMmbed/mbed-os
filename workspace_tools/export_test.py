@@ -182,6 +182,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'NUCLEO_F401RE'),
             ('gcc_arm', 'NUCLEO_F411RE'),
             ('gcc_arm', 'NUCLEO_F446RE'),
+            ('gcc_arm', 'ELMO_F411RE'),
             ('gcc_arm', 'DISCO_F429ZI'),
             ('gcc_arm', 'NUCLEO_F334R8'),
             ('gcc_arm', 'MAX32600MBED'),
