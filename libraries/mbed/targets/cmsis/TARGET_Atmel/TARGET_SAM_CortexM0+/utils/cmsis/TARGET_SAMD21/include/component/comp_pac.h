@@ -59,11 +59,11 @@
 /* -------- PAC_WPCLR : (PAC Offset: 0x0) (R/W 32) Write Protection Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t :1;               /*!< bit:      0  Reserved                           */
-    uint32_t WP:31;            /*!< bit:  1..31  Write Protection Clear             */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t :1;               /*!< bit:      0  Reserved                           */
+        uint32_t WP:31;            /*!< bit:  1..31  Write Protection Clear             */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } PAC_WPCLR_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -78,11 +78,11 @@ typedef union {
 /* -------- PAC_WPSET : (PAC Offset: 0x4) (R/W 32) Write Protection Set -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t :1;               /*!< bit:      0  Reserved                           */
-    uint32_t WP:31;            /*!< bit:  1..31  Write Protection Set               */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t :1;               /*!< bit:      0  Reserved                           */
+        uint32_t WP:31;            /*!< bit:  1..31  Write Protection Set               */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } PAC_WPSET_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -97,8 +97,8 @@ typedef union {
 /** \brief PAC hardware registers */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef struct {
-  __IO PAC_WPCLR_Type            WPCLR;       /**< \brief Offset: 0x0 (R/W 32) Write Protection Clear */
-  __IO PAC_WPSET_Type            WPSET;       /**< \brief Offset: 0x4 (R/W 32) Write Protection Set */
+    __IO PAC_WPCLR_Type            WPCLR;       /**< \brief Offset: 0x0 (R/W 32) Write Protection Clear */
+    __IO PAC_WPSET_Type            WPSET;       /**< \brief Offset: 0x4 (R/W 32) Write Protection Set */
 } Pac;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
