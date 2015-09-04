@@ -18,7 +18,7 @@
 
 /************RTC***************/
 const PinMap PinMap_RTC[] = {
-    {PTC1, RTC_CLKIN, 1},
+	{NC, OSC32KCLK, 0},
 };
 
 /************ADC***************/
