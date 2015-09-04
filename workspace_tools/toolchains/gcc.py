@@ -52,7 +52,7 @@ class GCC(mbedToolchain):
             self.cpu.append("-mthumb-interwork")
             self.cpu.append("-marm")
             self.cpu.append("-march=armv7-a")
-            self.cpu.append("-mfpu=vfpv3-d16")
+            self.cpu.append("-mfpu=vfpv3")
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
