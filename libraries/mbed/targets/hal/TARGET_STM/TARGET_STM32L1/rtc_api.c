@@ -42,18 +42,22 @@ void rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
-    if (rtc_inited) return;
-    rtc_inited = 1;
-
+    if(RTC->ISR != 7){      // RTC initialization and status register (RTC_ISR), cold start RTC reset value       
+        rtc_inited=1;
+        rtc_isenabled();    // Flag not to reset time registers in rtc_time.c file      
+    }
+        
+    if (rtc_inited) return; // Exit here, do not reset if RTC is already running
+    
     RtcHandle.Instance = RTC;
 
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
-    // Enable access to Backup domain
+    // Enable write access to Backup domain
     HAL_PWR_EnableBkUpAccess();
 
-    // Reset Backup domain
+    // Reset Backup domain   
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
 
@@ -131,7 +135,10 @@ void rtc_free(void)
 
 int rtc_isenabled(void)
 {
-    return rtc_inited;
+    if(RTC->ISR != 7){
+        return 1;
+    }
+    else {return 0;}
 }
 
 /*
@@ -185,6 +192,9 @@ void rtc_write(time_t t)
     RTC_TimeTypeDef timeStruct;
 
     RtcHandle.Instance = RTC;
+    
+    // Enable write access to Backup domain
+    HAL_PWR_EnableBkUpAccess();
 
     // Convert the time into a tm
     struct tm *timeinfo = localtime(&t);
