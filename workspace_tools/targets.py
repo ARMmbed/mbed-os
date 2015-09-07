@@ -692,6 +692,16 @@ class NUCLEO_L152RE(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0710"]
 
+class NUCLEO_L476RG(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32L4', 'STM32L476RG']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.detect_code = ["0765"]
+
 class STM32F3XX(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1641,6 +1651,7 @@ TARGETS = [
     NUCLEO_L053R8(),
     NUCLEO_L073RZ(),
     NUCLEO_L152RE(),
+    NUCLEO_L476RG(),
     STM32F3XX(),
     STM32F407(),
     DISCO_F051R8(),
