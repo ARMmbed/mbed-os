@@ -87,7 +87,7 @@ void in_handler() {
 #define PIN_OUT    PE10
 #define PIN_IN     PC1
 
-#elif defined(TARGET_SAMR21G18A)
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
 #define PIN_OUT    PA06
 #define PIN_IN     PA07
 
