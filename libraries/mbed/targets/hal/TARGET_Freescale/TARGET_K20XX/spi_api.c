@@ -60,16 +60,27 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     MBED_ASSERT((bits > 4) || (bits < 16));
     MBED_ASSERT((mode >= 0) && (mode <= 3));
 
-    uint32_t polarity = (mode & 0x2) ? 1 : 0;
-    uint32_t phase = (mode & 0x1) ? 1 : 0;
+    uint8_t polarity = (mode & 0x2) ? 1 : 0;
+    uint8_t phase = (mode & 0x1) ? 1 : 0;
+    uint8_t old_polarity = (obj->spi->CTAR[0] & SPI_CTAR_CPOL_MASK) != 0;
 
     // set master/slave
-    obj->spi->MCR &= ~SPI_MCR_MSTR_MASK;
-    obj->spi->MCR |= ((!slave) << SPI_MCR_MSTR_SHIFT);
+    if (slave) {
+        obj->spi->MCR &= ~SPI_MCR_MSTR_MASK;
+    } else {
+        obj->spi->MCR |= (1UL << SPI_MCR_MSTR_SHIFT);
+    }
 
     // CTAR0 is used
     obj->spi->CTAR[0] &= ~(SPI_CTAR_CPHA_MASK | SPI_CTAR_CPOL_MASK | SPI_CTAR_FMSZ_MASK);
     obj->spi->CTAR[0] |= (polarity << SPI_CTAR_CPOL_SHIFT) | (phase << SPI_CTAR_CPHA_SHIFT) | ((bits - 1) << SPI_CTAR_FMSZ_SHIFT);
+    
+    //If clk idle state was changed, start a dummy transmission
+    //This is a 'feature' in DSPI: https://community.freescale.com/thread/105526
+    if ((old_polarity != polarity) && (slave == 0)) {
+        //Start transfer (CS should be high, so shouldn't matter)
+        spi_master_write(obj, 0xFFFF);
+    }
 }
 
 static const uint8_t baudrate_prescaler[] = {2,3,5,7};
