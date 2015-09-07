@@ -166,7 +166,19 @@ typedef enum {
     SPI_MOSI    = D11,
     SPI_MISO    = D12,
     SPI_SCK     = D13,
-    SPI_CS      = D10
+    SPI_CS      = D10,
+    RF_SPI_MOSI = PA_7,
+    RF_SPI_MISO = PA_6,
+    RF_SPI_SCK  = PA_5,
+    RF_SPI_CS   = PA_4,
+    RF_RESET    = PC_4,
+    RF_DIO0     = PC_10,
+    RF_DIO1     = PC_11,
+    RF_DIO2     = PC_12,
+    RF_DIO3     = PD_2,
+    RF_DIO4     = PB_5,
+    RF_DIO5     = PB_6,
+    RF_RXTX_SW  = PC_13
 } PinName;
 
 typedef enum {

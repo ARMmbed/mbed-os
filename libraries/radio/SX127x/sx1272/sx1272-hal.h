@@ -27,8 +27,6 @@ protected:
      */
     DigitalInOut antSwitch;
     
-    DigitalIn fake;
-    
 private:
     static const RadioRegisters_t RadioRegsInit[];
     
@@ -37,9 +35,8 @@ public:
                   void ( *rxTimeout ) ( ), void ( *rxError ) ( ), void ( *fhssChangeChannel ) ( uint8_t channelIndex ), void ( *cadDone ) ( bool ChannelActivityDetected ),
             PinName mosi, PinName miso, PinName sclk, PinName nss, PinName reset,
             PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5,
-            PinName antSwitch ); 
-            SX1272MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void ( *rxDone ) ( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr ),
-                          void ( *rxTimeout ) ( ), void ( *rxError ) ( ), void ( *fhssChangeChannel ) ( uint8_t channelIndex ), void ( *cadDone ) ( bool ChannelActivityDetected ) );
+            PinName antSwitch );
+
     virtual ~SX1272MB1xAS( ) { };
     
     protected:

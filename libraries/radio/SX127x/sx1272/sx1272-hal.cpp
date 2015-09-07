@@ -39,12 +39,7 @@ SX1272MB1xAS::SX1272MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
                             PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5,
                             PinName antSwitch )
                             : SX1272( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, mosi, miso, sclk, nss, reset, dio0, dio1, dio2, dio3, dio4, dio5),
-                            antSwitch( antSwitch ),
-                        #if( defined ( TARGET_NUCLEO_L152RE ) )
-                            fake( D8 ) 
-                        #else
-                            fake( A3 )
-                        #endif
+                            antSwitch( antSwitch )
 {
     Reset( );
     
@@ -54,35 +49,6 @@ SX1272MB1xAS::SX1272MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
     
     SetOpMode( RF_OPMODE_SLEEP );
     
-    IoIrqInit( dioIrq );
-    
-    RadioRegistersInit( );
-
-    SetModem( MODEM_FSK );
-
-    this->settings.State = IDLE ;
-}
-
-SX1272MB1xAS::SX1272MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void ( *rxDone ) ( uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr ),
-                            void ( *rxTimeout ) ( ), void ( *rxError ) ( ), void ( *fhssChangeChannel ) ( uint8_t channelIndex ), void ( *cadDone ) ( bool ChannelActivityDetected ) ) 
-                        #if defined ( TARGET_NUCLEO_L152RE )
-                        :   SX1272( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, D10, A0, D2, D3, D4, D5, A3, D9 ), // For NUCLEO L152RE dio4 is on port A3
-                            antSwitch( A4 ),
-                            fake( D8 )
-                        #else
-                        :   SX1272( txDone, txTimeout, rxDone, rxTimeout, rxError, fhssChangeChannel, cadDone, D11, D12, D13, PA_4, PC_4, PC_10, PC_11, PC_12, PD_2, PB_5, PB_6 ),
-                            antSwitch( PB_1 ),
-                            fake( PC_2 )
-                        #endif
-{
-    Reset( );
-    
-    
-    RxChainCalibration( );
-    
-    IoInit( );
-    
-    SetOpMode( RF_OPMODE_SLEEP );
     IoIrqInit( dioIrq );
     
     RadioRegistersInit( );
