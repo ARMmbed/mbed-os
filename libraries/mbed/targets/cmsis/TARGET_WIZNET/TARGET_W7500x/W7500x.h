@@ -125,7 +125,6 @@ typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 
 
 
-
 /**
   * @}
   */
@@ -1147,6 +1146,23 @@ typedef struct
 
 
 
+typedef enum
+{
+    PAD_PA = 0,
+    PAD_PB,
+    PAD_PC,
+    PAD_PD
+}PAD_Type;
+
+typedef enum
+{
+    PAD_AF0    = Px_AFSR_AF0,
+    PAD_AF1    = Px_AFSR_AF1,
+    PAD_AF2    = Px_AFSR_AF2,
+    PAD_AF3    = Px_AFSR_AF3
+}PAD_AF_TypeDef;
+
+
 #if !defined  (USE_HAL_DRIVER)
 #define USE_HAL_DRIVER
 #endif /* USE_HAL_DRIVER */
@@ -1154,8 +1170,15 @@ typedef struct
 
 
 #if defined (USE_HAL_DRIVER)
-    #include "W7500x_conf.h"
+//    #include "system_W7500x.h"
+//    #include "W7500x_conf.h"
 #endif
+
+#ifdef USE_FULL_ASSERT
+    #define assert_param(expr)  ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__,__LINE__))
+#else
+    #define assert_param(expr)   ((void)0)
+#endif /* USE_FULL_ASSERT */
 
 #ifdef __cplusplus
 }
