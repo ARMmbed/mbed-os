@@ -61,7 +61,9 @@ DigitalOut led(LED1);
 typedef RadioState States_t;
 volatile States_t State = LOWPOWER;
 
-SX1272MB1xAS Radio( OnTxDone, OnTxTimeout, OnRxDone, OnRxTimeout, OnRxError, NULL, NULL );
+SX1272MB1xAS Radio( OnTxDone, OnTxTimeout, OnRxDone, OnRxTimeout, OnRxError, NULL, NULL,
+               RF_SPI_MOSI, RF_SPI_MISO, RF_SPI_SCK, RF_SPI_CS,
+               RF_RESET, RF_DIO0, RF_DIO1, RF_DIO2, RF_DIO3, RF_DIO4, RF_DIO5, RF_RXTX_SW );
 
 const uint8_t PingMsg[] = "PING";
 const uint8_t PongMsg[] = "PONG";
