@@ -37,7 +37,7 @@ public:
             PinName dio0, PinName dio1, PinName dio2, PinName dio3, PinName dio4, PinName dio5,
             PinName antSwitch );
 
-    virtual ~SX1272MB1xAS( ) { };
+    virtual ~SX1272MB1xAS( );
     
     protected:
     /*!
@@ -61,6 +61,11 @@ public:
      * @param [IN] irqHandlers Array containing the IRQ callback functions
      */
     virtual void IoIrqInit( DioIrqHandler *irqHandlers );
+
+    /*!
+     * @brief Deinitializes DIO IRQ handlers (switches off interrupts)
+     */
+    virtual void IoIrqDeInit( void );
 
     /*!
      * @brief De-initializes the radio I/Os pins interface. 

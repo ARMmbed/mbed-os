@@ -58,6 +58,12 @@ SX1272MB1xAS::SX1272MB1xAS( void ( *txDone )( ), void ( *txTimeout ) ( ), void (
     this->settings.State = IDLE ;
 }
 
+
+SX1272MB1xAS::~SX1272MB1xAS ( )
+{
+    IoIrqDeInit( );
+};
+
 //-------------------------------------------------------------------------
 //                      Board relative functions
 //-------------------------------------------------------------------------
@@ -105,6 +111,15 @@ void SX1272MB1xAS::IoIrqInit( DioIrqHandler *irqHandlers )
     dio2.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[2] ) );
     dio3.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[3] ) );
     dio4.rise( this, static_cast< TriggerMB1xASSX1272 > ( irqHandlers[4] ) );
+}
+
+void SX1272MB1xAS::IoIrqDeInit( )
+{
+    dio0.disable_irq();
+    dio1.disable_irq();
+    dio2.disable_irq();
+    dio3.disable_irq();
+    dio4.disable_irq();
 }
 
 void SX1272MB1xAS::IoDeInit( void )
