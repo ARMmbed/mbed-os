@@ -1,14 +1,14 @@
 /**************************************************************************//**
  * @file     system_MBRZA1H.c
  * @brief    CMSIS Device System Source File for
- *           ARMCA9 Device Series
+ *           ARM Cortex-A9 Device Series
  * @version  V1.00
- * @date     19 Sept 2013
+ * @date     09 January 2015
  *
  * @note
  *
  ******************************************************************************/
-/* Copyright (c) 2011 - 2013 ARM LIMITED
+/* Copyright (c) 2011 - 2015 ARM LIMITED
 
    All rights reserved.
    Redistribution and use in source and binary forms, with or without
@@ -50,9 +50,9 @@ void FPUEnable(void);
 #endif
 
 uint32_t IRQNestLevel;
+unsigned char seen_id0_active = 0; // single byte to hold a flag used in the workaround for GIC errata 733075
 
 
-#if defined(__ARMCC_VERSION)
 /**
  * Initialize the cache.
  *
@@ -61,6 +61,7 @@ uint32_t IRQNestLevel;
  *
  * @brief Initialise caches. Requires PL1, so implemented as an SVC in case threads are USR mode.
  */
+#if defined(__ARMCC_VERSION)
 #pragma push
 #pragma arm
 
@@ -189,7 +190,7 @@ void SystemInit (void)
 
 //Fault Status Register (IFSR/DFSR) definitions
 #define FSR_ALIGNMENT_FAULT                  0x01   //DFSR only. Fault on first lookup
-#define FSR_INSTRUCTION_CACHE_MAINTAINANCE   0x04   //DFSR only - async/external
+#define FSR_INSTRUCTION_CACHE_MAINTENANCE    0x04   //DFSR only - async/external
 #define FSR_SYNC_EXT_TTB_WALK_FIRST          0x0c   //sync/external
 #define FSR_SYNC_EXT_TTB_WALK_SECOND         0x0e   //sync/external
 #define FSR_SYNC_PARITY_TTB_WALK_FIRST       0x1c   //sync/external
@@ -223,7 +224,7 @@ void CDAbtHandler(uint32_t DFSR, uint32_t DFAR, uint32_t LR) {
 
         //Your code here. Value in DFAR is invalid for some fault statuses.
         case FSR_ALIGNMENT_FAULT:
-        case FSR_INSTRUCTION_CACHE_MAINTAINANCE:
+        case FSR_INSTRUCTION_CACHE_MAINTENANCE:
         case FSR_SYNC_EXT_TTB_WALK_FIRST:
         case FSR_SYNC_EXT_TTB_WALK_SECOND:
         case FSR_TRANSLATION_FAULT_FIRST:
@@ -278,19 +279,34 @@ void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR) {
 }
 
 //returns amount to decrement lr by
-//this will be 0 when we have emulated the instruction and simply want to execute the next instruction
-//this will be 2 when we have performed some maintenance and want to retry the instruction in thumb (state == 2)
-//this will be 4 when we have performed some maintenance and want to retry the instruction in arm (state == 4)
+//this will be 0 when we have emulated the instruction and want to execute the next instruction
+//this will be 2 when we have performed some maintenance and want to retry the instruction in Thumb (state == 2)
+//this will be 4 when we have performed some maintenance and want to retry the instruction in ARM (state == 4)
 uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
     const unsigned int THUMB = 2;
     const unsigned int ARM = 4;
     //Lazy VFP/NEON initialisation and switching
-    if ((state == ARM   && ((opcode & 0x0C000000)) >> 26 == 0x03) ||
-        (state == THUMB && ((opcode & 0xEC000000)) >> 26 == 0x3B)) {
-        if (((opcode & 0x00000E00) >> 9) == 5) { //fp instruction?
+
+    // (ARM ARM section A7.5) VFP data processing instruction?
+    // (ARM ARM section A7.6) VFP/NEON register load/store instruction?
+    // (ARM ARM section A7.8) VFP/NEON register data transfer instruction?
+    // (ARM ARM section A7.9) VFP/NEON 64-bit register data transfer instruction?
+    if ((state == ARM   && ((opcode & 0x0C000000) >> 26 == 0x03)) ||
+        (state == THUMB && ((opcode & 0xEC000000) >> 26 == 0x3B))) {
+        if (((opcode & 0x00000E00) >> 9) == 5) {
             FPUEnable();
             return state;
         }
+    }
+
+    // (ARM ARM section A7.4) NEON data processing instruction?
+    if ((state == ARM   && ((opcode & 0xFE000000) >> 24 == 0xF2)) ||
+        (state == THUMB && ((opcode & 0xEF000000) >> 24 == 0xEF)) ||
+    // (ARM ARM section A7.7) NEON load/store instruction?
+        (state == ARM   && ((opcode >> 24) == 0xF4)) ||
+        (state == THUMB && ((opcode >> 24) == 0xF9))) {
+        FPUEnable();
+        return state;
     }
 
     //Add code here for other Undef cases
@@ -304,18 +320,22 @@ uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
 __asm void FPUEnable(void) {
         ARM
 
-        //Permit access to VFP registers by modifying CPACR
+        //Permit access to VFP/NEON, registers by modifying CPACR
         MRC     p15,0,R1,c1,c0,2
         ORR     R1,R1,#0x00F00000
         MCR     p15,0,R1,c1,c0,2
 
-        //Enable VFP
+        //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+        ISB
+
+        //Enable VFP/NEON
         VMRS    R1,FPEXC
         ORR     R1,R1,#0x40000000
         VMSR    FPEXC,R1
 
-        //Initialise VFP registers to 0
+        //Initialise VFP/NEON registers to 0
         MOV     R2,#0
+        //Initialise D16 registers to 0
         VMOV    D0, R2,R2
         VMOV    D1, R2,R2
         VMOV    D2, R2,R2
@@ -332,7 +352,23 @@ __asm void FPUEnable(void) {
         VMOV    D13,R2,R2
         VMOV    D14,R2,R2
         VMOV    D15,R2,R2
-
+        //Initialise D32 registers to 0
+        VMOV    D16,R2,R2
+        VMOV    D17,R2,R2
+        VMOV    D18,R2,R2
+        VMOV    D19,R2,R2
+        VMOV    D20,R2,R2
+        VMOV    D21,R2,R2
+        VMOV    D22,R2,R2
+        VMOV    D23,R2,R2
+        VMOV    D24,R2,R2
+        VMOV    D25,R2,R2
+        VMOV    D26,R2,R2
+        VMOV    D27,R2,R2
+        VMOV    D28,R2,R2
+        VMOV    D29,R2,R2
+        VMOV    D30,R2,R2
+        VMOV    D31,R2,R2
         //Initialise FPSCR to a known state
         VMRS    R2,FPSCR
         LDR     R3,=0x00086060 //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
@@ -344,40 +380,71 @@ __asm void FPUEnable(void) {
 #pragma pop
 
 #elif defined(__GNUC__)
-void FPUEnable(void)
-{
-    __asm__ __volatile__ (
-            ".align 2                   \n\t"
-            ".arm                       \n\t"
-            "mrc    p15,0,r1,c1,c0,2    \n\t"
-            "orr    r1,r1,#0x00f00000   \n\t"
-            "mcr    p15,0,r1,c1,c0,2    \n\t"
-            "vmrs   r1,fpexc            \n\t"
-            "orr    r1,r1,#0x40000000   \n\t"
-            "vmsr   fpexc,r1            \n\t"
-            "mov    r2,#0               \n\t"
-            "vmov   d0, r2,r2           \n\t"
-            "vmov   d1, r2,r2           \n\t"
-            "vmov   d2, r2,r2           \n\t"
-            "vmov   d3, r2,r2           \n\t"
-            "vmov   d4, r2,r2           \n\t"
-            "vmov   d5, r2,r2           \n\t"
-            "vmov   d6, r2,r2           \n\t"
-            "vmov   d7, r2,r2           \n\t"
-            "vmov   d8, r2,r2           \n\t"
-            "vmov   d9, r2,r2           \n\t"
-            "vmov   d10,r2,r2           \n\t"
-            "vmov   d11,r2,r2           \n\t"
-            "vmov   d12,r2,r2           \n\t"
-            "vmov   d13,r2,r2           \n\t"
-            "vmov   d14,r2,r2           \n\t"
-            "vmov   d15,r2,r2           \n\t"
-            "vmrs   r2,fpscr            \n\t"
-            "ldr    r3,=0x00086060      \n\t"
-            "and    r2,r2,r3            \n\t"
-            "vmsr   fpscr,r2            \n\t"
-            "bx     lr                  \n\t"
-    );
+void FPUEnable(void) {
+    __asm__ (
+        ".ARM;"
+
+        //Permit access to VFP/NEON, registers by modifying CPACR
+        "MRC     p15,0,R1,c1,c0,2;"
+        "ORR     R1,R1,#0x00F00000;"
+        "MCR     p15,0,R1,c1,c0,2;"
+
+        //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+        "ISB;"
+
+        //Enable VFP/NEON
+        "VMRS    R1,FPEXC;"
+        "ORR     R1,R1,#0x40000000;"
+        "VMSR    FPEXC,R1;"
+
+        //Initialise VFP/NEON registers to 0
+        "MOV     R2,#0;"
+        //Initialise D16 registers to 0
+        "VMOV    D0, R2,R2;"
+        "VMOV    D1, R2,R2;"
+        "VMOV    D2, R2,R2;"
+        "VMOV    D3, R2,R2;"
+        "VMOV    D4, R2,R2;"
+        "VMOV    D5, R2,R2;"
+        "VMOV    D6, R2,R2;"
+        "VMOV    D7, R2,R2;"
+        "VMOV    D8, R2,R2;"
+        "VMOV    D9, R2,R2;"
+        "VMOV    D10,R2,R2;"
+        "VMOV    D11,R2,R2;"
+        "VMOV    D12,R2,R2;"
+        "VMOV    D13,R2,R2;"
+        "VMOV    D14,R2,R2;"
+        "VMOV    D15,R2,R2;"
+        //Initialise D32 registers to 0
+        "VMOV    D16,R2,R2;"
+        "VMOV    D17,R2,R2;"
+        "VMOV    D18,R2,R2;"
+        "VMOV    D19,R2,R2;"
+        "VMOV    D20,R2,R2;"
+        "VMOV    D21,R2,R2;"
+        "VMOV    D22,R2,R2;"
+        "VMOV    D23,R2,R2;"
+        "VMOV    D24,R2,R2;"
+        "VMOV    D25,R2,R2;"
+        "VMOV    D26,R2,R2;"
+        "VMOV    D27,R2,R2;"
+        "VMOV    D28,R2,R2;"
+        "VMOV    D29,R2,R2;"
+        "VMOV    D30,R2,R2;"
+        "VMOV    D31,R2,R2;"
+
+        //Initialise FPSCR to a known state
+        "VMRS    R2,FPSCR;"
+        "LDR     R3,=0x00086060;" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
+        "AND     R2,R2,R3;"
+        "VMSR    FPSCR,R2;"
+
+        //"BX      LR;"
+             :
+             :
+             :"r1", "r2", "r3");
+    return;
 }
 #else
 #endif
