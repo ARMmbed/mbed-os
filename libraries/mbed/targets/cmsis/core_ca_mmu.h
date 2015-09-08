@@ -1,14 +1,13 @@
 ;/**************************************************************************//**
 ; * @file     core_ca_mmu.h
-; * @brief    MMU Startup File for
-; *           VE_A9_MP Device Series
+; * @brief    MMU Startup File for A9_MP Device Series
 ; * @version  V1.01
-; * @date     25 March 2013
+; * @date     10 Sept 2014
 ; *
 ; * @note
 ; *
 ; ******************************************************************************/
-;/* Copyright (c) 2012 ARM LIMITED
+;/* Copyright (c) 2012-2014 ARM LIMITED
 ;
 ;   All rights reserved.
 ;   Redistribution and use in source and binary forms, with or without
@@ -298,7 +297,7 @@ __STATIC_INLINE int __ap_section(uint32_t *descriptor_l1, mmu_access_Type user, 
         else if ((priv == RW) && (user == READ))        { ap = 0x2; }
         else if ((priv == RW) && (user == RW))          { ap = 0x3; }
         else if ((priv == READ) && (user == NO_ACCESS)) { ap = 0x5; }
-        else if ((priv == READ) && (user == READ))      { ap = 0x6; }
+        else if ((priv == READ) && (user == READ))      { ap = 0x7; }
     }
 
     else { //Simplified access
@@ -647,7 +646,7 @@ __STATIC_INLINE int __memory_page(uint32_t *descriptor_l2, mmu_memory_Type mem, 
     The function creates a section descriptor.
     
     Assumptions:
-    - 16MB super sections not suported
+    - 16MB super sections not supported
     - TEX remap disabled, so memory type and attributes are described directly by bits in the descriptor
     - Functions always return 0
 
