@@ -50,6 +50,7 @@ static const PinMap PinMap_UART_TX[] = {
     {P1_18, UART_0, 2},
     {P1_27, UART_0, 2},
     {P1_8 , UART_1, 2},
+    {P0_14, UART_1, 4},
     {P1_0 , UART_2, 3},
     {P1_23, UART_2, 3},
     {P2_4 , UART_3, 1},
@@ -62,6 +63,7 @@ static const PinMap PinMap_UART_RX[] = {
     {P1_17, UART_0, 2},
     {P1_26, UART_0, 2},
     {P1_2 , UART_1, 3},
+    {P0_13, UART_1, 4},
     {P0_20, UART_2, 2},
     {P1_6 , UART_2, 2},
     {P2_3 , UART_3, 1},
@@ -323,22 +325,42 @@ void uart0_irq()
 
 void uart1_irq()
 {
-    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 1);
+    if(LPC_USART1->STAT & (1 << 2)){
+        uart_irq(1, 1);
+    }
+    if(LPC_USART1->STAT & (1 << 0)){
+        uart_irq(2, 1);
+    }
 }
 
 void uart2_irq()
 {
-    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 2);
+    if(LPC_USART2->STAT & (1 << 2)){
+        uart_irq(1, 2);
+    }
+    if(LPC_USART2->STAT & (1 << 0)){
+        uart_irq(2, 2);
+    }
 }
 
 void uart3_irq()
 {
-    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 3);
+    if(LPC_USART3->STAT & (1 << 2)){
+        uart_irq(1, 3);
+    }
+    if(LPC_USART3->STAT & (1 << 0)){
+        uart_irq(2, 3);
+    }
 }
 
 void uart4_irq()
 {
-    uart_irq((LPC_USART1->STAT & (1 << 2)) ? 2 : 1, 4);
+    if(LPC_USART4->STAT & (1 << 2)){
+        uart_irq(1, 4);
+    }
+    if(LPC_USART4->STAT & (1 << 0)){
+        uart_irq(2, 4);
+    }
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
@@ -349,12 +371,17 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
-    switch ((int)obj->uart) {
-        case UART_0: irq_n = USART0_IRQn;   vector = (uint32_t)&uart0_irq; break;
-        case UART_1: irq_n = USART1_4_IRQn; vector = (uint32_t)&uart1_irq; break;
-        case UART_2: irq_n = USART2_3_IRQn; vector = (uint32_t)&uart2_irq; break;
-        case UART_3: irq_n = USART2_3_IRQn; vector = (uint32_t)&uart3_irq; break;
-        case UART_4: irq_n = USART1_4_IRQn; vector = (uint32_t)&uart4_irq; break;
+    if(obj->index == 0){
+        irq_n = USART0_IRQn;   vector = (uint32_t)&uart0_irq;
+    }
+    else{
+        switch ((int)obj->mini_uart) {
+            case UART_0: irq_n = USART0_IRQn;   vector = (uint32_t)&uart0_irq; break;
+            case UART_1: irq_n = USART1_4_IRQn; vector = (uint32_t)&uart1_irq; break;
+            case UART_2: irq_n = USART2_3_IRQn; vector = (uint32_t)&uart2_irq; break;
+            case UART_3: irq_n = USART2_3_IRQn; vector = (uint32_t)&uart3_irq; break;
+            case UART_4: irq_n = USART1_4_IRQn; vector = (uint32_t)&uart4_irq; break;
+        }
     }
     
     if (enable) {
@@ -368,15 +395,15 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
         NVIC_EnableIRQ(irq_n);
     } else { // disable
         int all_disabled = 0;
-        SerialIrq other_irq = (irq == RxIrq) ? (TxIrq) : (RxIrq);
+        SerialIrq other_irq = (irq == RxIrq) ? (RxIrq) : (TxIrq);
 
         if (obj->index == 0) {
             obj->uart->IER &= ~(1 << irq);
             all_disabled = (obj->uart->IER & (1 << other_irq)) == 0;
         }
         else {
-            obj->mini_uart->INTENSET &= ~(1 << ((irq == RxIrq) ? 0 : 2));
-            all_disabled = (obj->mini_uart->INTENSET & (1 << ((other_irq == RxIrq) ? 0 : 2))) == 0;
+            obj->mini_uart->INTENCLR = (1 << ((irq == RxIrq) ? 0 : 2));
+            all_disabled = (obj->mini_uart->INTENSET) == 0;
          }
 
         if (all_disabled)

@@ -83,21 +83,6 @@ typedef enum
     Bit_SET
 }BitAction;
 
-typedef enum
-{
-    PAD_PA = 0,
-    PAD_PB,
-    PAD_PC,
-    PAD_PD
-}PAD_Type;
-
-typedef enum
-{
-    PAD_AF0    = Px_AFSR_AF0,
-    PAD_AF1    = Px_AFSR_AF1,
-    PAD_AF2    = Px_AFSR_AF2,
-    PAD_AF3    = Px_AFSR_AF3
-}PAD_AF_TypeDef;
 
 #define IS_PAD_TYPE(Px)  (((Px) == PAD_PA) || ((Px) == PAD_PB) \
                           ((Px) == PAD_PC) || ((Px) == PAD_PD))
