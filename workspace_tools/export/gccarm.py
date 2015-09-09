@@ -99,6 +99,7 @@ class GccArm(Exporter):
         'NZ32SC151',
         'SAMR21G18A',
         'TEENSY3_1',
+        'SAMD21J18A',
     ]
 
     DOT_IN_RELATIVE_PATH = True

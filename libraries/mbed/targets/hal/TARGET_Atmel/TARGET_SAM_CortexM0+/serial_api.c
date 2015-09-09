@@ -133,10 +133,9 @@ uint32_t serial_find_mux_settings (serial_t *obj)
     if ((pSERIAL_S(obj)->pins[USART_RXFLOW_INDEX] == NC) && (pSERIAL_S(obj)->pins[USART_TXFLOW_INDEX] == NC)) {
         if (pinpad[USART_TX_INDEX] == 0) {
             mux_setting |= SERCOM_USART_CTRLA_TXPO(0);
-        } else if(pinpad[USART_RX_INDEX] == 2) {
+        } else if(pinpad[USART_TX_INDEX] == 2) {
             mux_setting |= SERCOM_USART_CTRLA_TXPO(1);
         } else {
-            mux_setting = mux_setting;  // dummy condition
         }
     } else { // for hardware flow control and uart // expecting the tx in pad 0, rts in pad2 and cts in pad 3
         if((pinpad[USART_TX_INDEX] == 0) && (pinpad[USART_RXFLOW_INDEX]/*rts pin*/ == 2) && (pinpad[USART_TXFLOW_INDEX] /*cts pin*/ == 3)) {

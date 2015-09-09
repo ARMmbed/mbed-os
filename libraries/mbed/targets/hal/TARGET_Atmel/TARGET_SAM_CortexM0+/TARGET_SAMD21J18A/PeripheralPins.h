@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PORTNAMES_H
-#define MBED_PORTNAMES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef MBED_PERIPHERALPINS_H
+#define MBED_PERIPHERALPINS_H
 
-typedef enum {
-    PortA = 0,
-    PortB,
-#if defined(TARGET_SAMR21G18A)
-    PortC,
-#endif
-    PortMax
-} PortName;
+#include "pinmap.h"
+#include "PeripheralNames.h"
 
-#ifdef __cplusplus
-}
-#endif
+/************ADC***************/
+extern const PinMap PinMap_ADC[];
+
+/************DAC***************/
+extern const PinMap PinMap_DAC[];
+
+/*********SERCOM*************/
+extern const PinMap PinMap_SERCOM_PAD[];
+extern const PinMap PinMap_SERCOM_PADEx[];
+
+/************PWM***************/
+extern const PinMap PinMap_PWM[];
+
+/**********EXTINT*************/
+extern const PinMap PinMap_EXTINT[];
+
+
 #endif
