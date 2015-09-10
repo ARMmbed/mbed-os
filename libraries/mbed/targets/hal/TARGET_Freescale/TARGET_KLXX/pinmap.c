@@ -35,5 +35,5 @@ void pin_mode(PinName pin, PinMode mode) {
     __IO uint32_t* pin_pcr = (__IO uint32_t*)(PORTA_BASE + pin);
 
     // pin pullup bits: [1:0] -> 11 = (0x3)
-    *pin_pcr = (*pin_pcr & ~0x3) | mode;
+    *pin_pcr = (*pin_pcr & ~0x3) | mode | 0x04;
 }

@@ -26,12 +26,13 @@
 #define DEVICE_ANALOGOUT        1
 
 #define DEVICE_SERIAL           1
+//#define DEVICE_SERIAL_ASYNCH    1
 
 #define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
+#define DEVICE_I2CSLAVE         0
 
 #define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
+#define DEVICE_SPISLAVE         0
 
 #define DEVICE_CAN              0
 
@@ -41,7 +42,7 @@
 
 #define DEVICE_PWMOUT           1
 
-#define DEVICE_SEMIHOST         1
+#define DEVICE_SEMIHOST         0
 #define DEVICE_LOCALFILESYSTEM  0
 #define DEVICE_ID_LENGTH       24
 
@@ -49,7 +50,7 @@
 
 #define DEVICE_DEBUG_AWARENESS  0
 
-#define DEVICE_STDIO_MESSAGES   1
+#define DEVICE_STDIO_MESSAGES   0
 
 #define DEVICE_ERROR_RED        1
 

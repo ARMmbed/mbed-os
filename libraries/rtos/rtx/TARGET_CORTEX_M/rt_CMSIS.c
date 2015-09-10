@@ -439,9 +439,11 @@ osStatus svcKernelStart (void) {
 
   if (os_running) return osOK;
 
+#if (OS_TIMERS != 0)
   // Create OS Timers resources (Message Queue & Thread)
   osMessageQId_osTimerMessageQ = svcMessageCreate (&os_messageQ_def_osTimerMessageQ, NULL);
   osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL);
+#endif
 
   rt_tsk_prio(0, 0);                            // Lowest priority
   __set_PSP(os_tsk.run->tsk_stack + 8*4);       // New context

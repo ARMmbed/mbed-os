@@ -7,7 +7,7 @@ dist
 MANIFEST
 
 # Private settings
-private_settings.py
+#private_settings.py
 
 # Default Build Directory
 build/

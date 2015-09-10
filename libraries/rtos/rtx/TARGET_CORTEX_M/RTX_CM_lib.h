@@ -100,7 +100,7 @@ __USED uint32_t const os_clockrate = OS_TICK;
 __USED uint32_t const os_timernum  = 0;
 
 /* Stack for the os_idle_demon */
-unsigned int idle_task_stack[OS_IDLESTKSIZE];
+unsigned int idle_task_stack[OS_IDLESTKSIZE/4];
 unsigned short const idle_task_stack_size = OS_IDLESTKSIZE;
 
 #ifndef OS_FIFOSZ
