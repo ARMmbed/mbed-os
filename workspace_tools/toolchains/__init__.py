@@ -287,7 +287,7 @@ class mbedToolchain:
             if hasattr(self.target, 'supported_form_factors'):
                 self.symbols.extend(["TARGET_FF_%s" % t for t in self.target.supported_form_factors])
 
-        return self.symbols
+        return list(set(self.symbols))  # Return only unique symbols
 
     def get_labels(self):
         if self.labels is None:

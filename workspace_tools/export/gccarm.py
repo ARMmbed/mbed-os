@@ -40,6 +40,8 @@ class GccArm(Exporter):
         'LPC11U35_401',
         'LPC11U35_501',
         'LPC11U37H_401',
+        'LPC810',
+        'LPC812',
         'LPC824',
         'SSCI824',
         'STM32F407',
@@ -48,6 +50,7 @@ class GccArm(Exporter):
         'DISCO_F407VG',
         'DISCO_F303VC',
         'DISCO_F746NG',
+        'DISCO_L476VG',
         'UBLOX_C027',
         'ARCH_PRO',
         'NRF51822',
@@ -85,7 +88,7 @@ class GccArm(Exporter):
         'NRF51_DONGLE',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
-		'DELTA_DFCM_NNN40',
+        'DELTA_DFCM_NNN40',
         'RZ_A1H',
         'MOTE_L152RC',
         'EFM32WG_STK3800',
@@ -94,8 +97,9 @@ class GccArm(Exporter):
         'EFM32ZG_STK3200',
         'EFM32HG_STK3400',
         'NZ32SC151',
-        'SAMD21J18A',
         'SAMR21G18A',
+        'TEENSY3_1',
+        'SAMD21J18A',
     ]
 
     DOT_IN_RELATIVE_PATH = True

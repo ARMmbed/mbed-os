@@ -6,9 +6,16 @@
 #include "cmsis_nvic.h"
 #include <string.h>
 
+#if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
+#define PIN_IN      (PA06)
+#define PIN_OUT     (PA07)
+#define NUM_VECTORS (16+28)
+
+#else
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)
 #define NUM_VECTORS (16+33)
+#endif
 
 DigitalOut out(PIN_OUT);
 DigitalOut myled(LED1);

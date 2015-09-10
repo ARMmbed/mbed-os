@@ -42,7 +42,7 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
     }
     
     //Fill the stack with a magic word for maximum usage checking
-    for (int i = 0; i < (stack_size / sizeof(uint32_t)); i++) {
+    for (uint32_t i = 0; i < (stack_size / sizeof(uint32_t)); i++) {
         _thread_def.stack_pointer[i] = 0xE25A2EA5;
     }
 #endif

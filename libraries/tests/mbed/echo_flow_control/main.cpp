@@ -6,6 +6,21 @@
 #define FLOW_CONTROL_RTS    p30
 #define FLOW_CONTROL_CTS    p29
 #define RTS_CHECK_PIN       p8
+
+#elif defined(TARGET_SAMR21G18A)
+#define UART_TX             PA04
+#define UART_RX             PA05
+#define FLOW_CONTROL_RTS    PA06
+#define FLOW_CONTROL_CTS    PA07
+#define RTS_CHECK_PIN       PB03
+
+#elif defined(TARGET_SAMD21J18A)
+#define UART_TX             PA22
+#define UART_RX             PA23
+#define FLOW_CONTROL_RTS    PA24
+#define FLOW_CONTROL_CTS    PA25
+#define RTS_CHECK_PIN       PB03
+
 #else
 #error This test is not supported on this target
 #endif

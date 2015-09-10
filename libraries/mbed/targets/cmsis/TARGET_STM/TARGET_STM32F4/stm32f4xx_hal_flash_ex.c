@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Extended FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the FLASH extension peripheral:
@@ -125,7 +125,7 @@ static HAL_StatusTypeDef  FLASH_OB_UserConfig(uint8_t Iwdg, uint8_t Stop, uint8_
 static HAL_StatusTypeDef  FLASH_OB_BOR_LevelConfig(uint8_t Level);
 static uint8_t            FLASH_OB_GetUser(void);
 static uint16_t           FLASH_OB_GetWRP(void);
-static FlagStatus         FLASH_OB_GetRDP(void);
+static uint8_t            FLASH_OB_GetRDP(void);
 static uint8_t            FLASH_OB_GetBOR(void);
 
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx)
@@ -361,16 +361,16 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
   pOBInit->OptionType = OPTIONBYTE_WRP | OPTIONBYTE_RDP | OPTIONBYTE_USER | OPTIONBYTE_BOR;
 
   /*Get WRP*/
-  pOBInit->WRPSector = FLASH_OB_GetWRP();
-
+  pOBInit->WRPSector = (uint32_t)FLASH_OB_GetWRP();
+  
   /*Get RDP Level*/
-  pOBInit->RDPLevel = FLASH_OB_GetRDP();
-
+  pOBInit->RDPLevel = (uint32_t)FLASH_OB_GetRDP();
+  
   /*Get USER*/
-  pOBInit->USERConfig = FLASH_OB_GetUser();
+  pOBInit->USERConfig = (uint8_t)FLASH_OB_GetUser();
 
   /*Get BOR Level*/
-  pOBInit->BORLevel = FLASH_OB_GetBOR();
+  pOBInit->BORLevel = (uint32_t)FLASH_OB_GetBOR();
 }
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) ||\
@@ -1212,7 +1212,6 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t Iwdg, uint8_t Stop, uint8_t
   }
   
   return status; 
-
 }
 
 /**
@@ -1234,8 +1233,7 @@ static HAL_StatusTypeDef FLASH_OB_BOR_LevelConfig(uint8_t Level)
   *(__IO uint8_t *)OPTCR_BYTE0_ADDRESS &= (~FLASH_OPTCR_BOR_LEV);
   *(__IO uint8_t *)OPTCR_BYTE0_ADDRESS |= Level;
   
-  return HAL_OK;
-  
+  return HAL_OK;  
 }
 
 /**
@@ -1261,17 +1259,27 @@ static uint16_t FLASH_OB_GetWRP(void)
 
 /**
   * @brief  Returns the FLASH Read Protection level.
-  * @retval FlagStatus FLASH Readout Protection Status:
-  *           - SET, when OB_RDP_Level_1 or OB_RDP_Level_2 is set
-  *           - RESET, when OB_RDP_Level_0 is set
+  * @retval FLASH ReadOut Protection Status:
+  *         This parameter can be one of the following values:
+  *            @arg OB_RDP_LEVEL_0: No protection
+  *            @arg OB_RDP_LEVEL_1: Read protection of the memory
+  *            @arg OB_RDP_LEVEL_2: Full chip protection
   */
-static FlagStatus FLASH_OB_GetRDP(void)
+static uint8_t FLASH_OB_GetRDP(void)
 {
-  FlagStatus readstatus = RESET;
+  uint8_t readstatus = OB_RDP_LEVEL_0;
 
-  if((*(__IO uint8_t*)(OPTCR_BYTE1_ADDRESS) != (uint8_t)OB_RDP_LEVEL_0))
+  if((*(__IO uint8_t*)(OPTCR_BYTE1_ADDRESS) == (uint8_t)OB_RDP_LEVEL_2))
   {
-    readstatus = SET;
+    readstatus = OB_RDP_LEVEL_2;
+  }
+  else if((*(__IO uint8_t*)(OPTCR_BYTE1_ADDRESS) == (uint8_t)OB_RDP_LEVEL_1))
+  {
+    readstatus = OB_RDP_LEVEL_1;
+  }
+  else 
+  {
+    readstatus = OB_RDP_LEVEL_0;
   }
   
   return readstatus;

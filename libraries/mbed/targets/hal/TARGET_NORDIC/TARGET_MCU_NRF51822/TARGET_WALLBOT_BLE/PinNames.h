@@ -158,6 +158,9 @@ typedef enum {
     I2C_SCL = P0_21,
     I2C_SDA = P0_22,
 
+    I2C_SCL0 = P0_21, //required definition for the i2c patch
+    I2C_SDA0 = P0_22, //required definition for the i2c patch
+
     // Not connected
     NC = (int)0xFFFFFFFF
 

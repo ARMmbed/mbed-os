@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the CORTEX:
@@ -26,7 +26,7 @@
         function according to the following table.
     (#) Configure the priority of the selected IRQ Channels using HAL_NVIC_SetPriority(). 
     (#) Enable the selected IRQ Channels using HAL_NVIC_EnableIRQ().
-    (#) please refer to programing manual for details in how to configure priority. 
+    (#) please refer to programming manual for details in how to configure priority. 
       
      -@- When the NVIC_PRIORITYGROUP_0 is selected, IRQ preemption is no more possible. 
          The pending IRQ priority will be managed only by the sub priority.
@@ -297,15 +297,15 @@ void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init)
     assert_param(IS_MPU_REGION_SIZE(MPU_Init->Size));
     
     MPU->RBAR = MPU_Init->BaseAddress;
-    MPU->RASR = (MPU_Init->DisableExec             << MPU_RASR_XN_Pos)   |
-                (MPU_Init->AccessPermission        << MPU_RASR_AP_Pos)   |
-                (MPU_Init->TypeExtField            << MPU_RASR_TEX_Pos)  |
-                (MPU_Init->IsShareable             << MPU_RASR_S_Pos)    |
-                (MPU_Init->IsCacheable             << MPU_RASR_C_Pos)    |
-                (MPU_Init->IsBufferable            << MPU_RASR_B_Pos)    |
-                (MPU_Init->SubRegionDisable        << MPU_RASR_SRD_Pos)  |
-                (MPU_Init->Size                    << MPU_RASR_SIZE_Pos) |
-                (MPU_Init->Enable                  << MPU_RASR_ENABLE_Pos);
+    MPU->RASR = ((uint32_t)MPU_Init->DisableExec             << MPU_RASR_XN_Pos)   |
+                ((uint32_t)MPU_Init->AccessPermission        << MPU_RASR_AP_Pos)   |
+                ((uint32_t)MPU_Init->TypeExtField            << MPU_RASR_TEX_Pos)  |
+                ((uint32_t)MPU_Init->IsShareable             << MPU_RASR_S_Pos)    |
+                ((uint32_t)MPU_Init->IsCacheable             << MPU_RASR_C_Pos)    |
+                ((uint32_t)MPU_Init->IsBufferable            << MPU_RASR_B_Pos)    |
+                ((uint32_t)MPU_Init->SubRegionDisable        << MPU_RASR_SRD_Pos)  |
+                ((uint32_t)MPU_Init->Size                    << MPU_RASR_SIZE_Pos) |
+                ((uint32_t)MPU_Init->Enable                  << MPU_RASR_ENABLE_Pos);
   }
   else
   {

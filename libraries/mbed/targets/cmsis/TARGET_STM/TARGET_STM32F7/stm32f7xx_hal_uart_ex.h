@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_uart_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of UART HAL Extension module.
   ******************************************************************************
   * @attention
@@ -99,7 +99,7 @@
            
 /** @brief  Reports the UART clock source.
   * @param  __HANDLE__: specifies the UART Handle
-  * @param  __CLOCKSOURCE__ : output variable   
+  * @param  __CLOCKSOURCE__: output variable   
   * @retval UART clocking source, written in __CLOCKSOURCE__.
   */
 #define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \

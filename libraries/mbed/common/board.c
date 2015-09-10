@@ -19,7 +19,7 @@
 #include "mbed_interface.h"
 
 WEAK void mbed_die(void) {
-#ifndef NRF51_H
+#if !defined (NRF51_H) && !defined(TARGET_EFM32)
 	__disable_irq();	// dont allow interrupts to disturb the flash pattern
 #endif
 #if   (DEVICE_ERROR_RED == 1)
