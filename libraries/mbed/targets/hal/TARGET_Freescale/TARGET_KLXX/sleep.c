@@ -68,3 +68,35 @@ void deepsleep(void)
         ADC0->CFG2 |= (ADC_CFG2_ADHSC_MASK);
     }
 }
+
+
+
+//Ultra low-power stop mode (VLLS0 + POR disabled)
+void ultradeepsleep(void)
+{
+    //Check if ADC is enabled and HS mode is set, if yes disable it (lowers power consumption by 60uA)
+    uint8_t ADC_HSC = 0;
+    if (SIM->SCGC6 & SIM_SCGC6_ADC0_MASK) {
+        if (ADC0->CFG2 & ADC_CFG2_ADHSC_MASK) {
+            ADC_HSC = 1;
+            ADC0->CFG2 &= ~(ADC_CFG2_ADHSC_MASK);
+        }
+    }
+    
+#if ! defined(TARGET_KL43Z)
+    //Check if PLL/FLL is enabled:
+    uint32_t PLL_FLL_en = (MCG->C1 & MCG_C1_CLKS_MASK) == MCG_C1_CLKS(0);
+#endif 
+   
+    SMC->PMPROT = SMC_PMPROT_AVLLS_MASK | SMC_PMPROT_ALLS_MASK | SMC_PMPROT_AVLP_MASK;
+    SMC->PMCTRL = SMC_PMCTRL_STOPM(4);	//<- Set VLLS mode
+	SMC->STOPCTRL = 0x20; //<- Set VLLS0 and POR disabled
+
+    //Deep sleep for ARM core:
+    SCB->SCR = 1<<SCB_SCR_SLEEPDEEP_Pos;
+
+    __WFI();
+	
+	//<- A hard RESET is required to wake it up again.
+}
+
