@@ -40,6 +40,8 @@ class GccArm(Exporter):
         'LPC11U35_401',
         'LPC11U35_501',
         'LPC11U37H_401',
+        'LPC810',
+        'LPC812',
         'LPC824',
         'SSCI824',
         'STM32F407',
@@ -97,6 +99,7 @@ class GccArm(Exporter):
         'NZ32SC151',
         'SAMR21G18A',
         'TEENSY3_1',
+        'SAMD21J18A',
     ]
 
     DOT_IN_RELATIVE_PATH = True

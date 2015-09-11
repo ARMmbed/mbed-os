@@ -315,7 +315,7 @@ class LPC810(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC81X']
-        self.supported_toolchains = ["uARM", "IAR"]
+        self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
 
@@ -324,7 +324,7 @@ class LPC812(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['NXP', 'LPC81X']
-        self.supported_toolchains = ["uARM", "IAR"]
+        self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
@@ -1566,6 +1566,15 @@ class SAMR21G18A(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 
+class SAMD21J18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
+        self.macros = ['__SAMD21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
 # Get a single instance for each target
 TARGETS = [
 
@@ -1659,6 +1668,9 @@ TARGETS = [
     ARCH_BLE(),             # nRF51_16K
     ARCH_BLE_BOOT(),        # nRF51_16K
     ARCH_BLE_OTA(),         # nRF51_16K
+    ARCH_LINK(),            # nRF51_16K
+    ARCH_LINK_BOOT(),       # nRF51_16K
+    ARCH_LINK_OTA(),        # nRF51_16K
     SEEED_TINY_BLE(),       # nRF51_16K
     SEEED_TINY_BLE_BOOT(),  # nRF51_16K
     SEEED_TINY_BLE_OTA(),   # nRF51_16K
@@ -1714,7 +1726,9 @@ TARGETS = [
     ### WIZnet ###
     WIZWIKI_W7500(),
 
+    ### Atmel ###
     SAMR21G18A(),
+    SAMD21J18A(),
 ]
 
 # Map each target name to its unique instance

@@ -54,6 +54,10 @@ AnalogOut out(PA_5);
 AnalogIn in(AIN_7P);
 AnalogOut out(AOUT_DO);
 
+#elif defined(TARGET_SAMD21J18A)
+AnalogIn in(PA04);
+AnalogOut out(PA02);
+
 #else
 AnalogIn in(p17);
 AnalogOut out(p18);

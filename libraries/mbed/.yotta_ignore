@@ -1,0 +1,14 @@
+# ignore files for targets that aren't supported by the yotta build (to
+# minimise the size of the published module)
+
+TARGET_ARM_SSG
+TARGET_Freescale
+TARGET_RENESAS
+TARGET_Silicon_Labs
+TARGET_Atmel
+TARGET_Maxim
+TARGET_NXP
+TARGET_STM
+TARGET_WIZNET
+TOOLCHAIN_IAR
+

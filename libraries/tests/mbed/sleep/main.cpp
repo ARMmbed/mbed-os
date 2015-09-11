@@ -8,6 +8,8 @@ InterruptIn wkp(D0);
 InterruptIn wkp(P0_16);
 #elif defined(TARGET_SAMR21G18A)
 InterruptIn wkp(PA28);
+#elif defined(TARGET_SAMD21J18A)
+InterruptIn wkp(PA15);
 #else
 InterruptIn wkp(p14);
 #endif

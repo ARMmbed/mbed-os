@@ -1,6 +1,5 @@
 #include "W7500x.h"
-
-
+#include "W7500x_gpio.h"
 
 void HAL_GPIO_DeInit(GPIO_TypeDef* GPIOx)
 {
