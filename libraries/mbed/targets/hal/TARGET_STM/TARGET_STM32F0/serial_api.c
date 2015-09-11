@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,11 @@ static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
 #define UART_NUM (2)
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0};
+
+#elif defined (TARGET_STM32F031K6)
+#define UART_NUM (1)
+
+static uint32_t serial_irq_ids[UART_NUM] = {0};
 
 #else
 #define UART_NUM (4)
@@ -102,10 +107,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         obj->index = 0;
     }
 
+#if defined USART2_BASE
     if (obj->uart == UART_2) {
         __USART2_CLK_ENABLE();
         obj->index = 1;
     }
+#endif
 
 #if defined USART3_BASE
     if (obj->uart == UART_3) {
@@ -186,11 +193,13 @@ void serial_free(serial_t *obj)
         __USART1_CLK_DISABLE();
     }
 
+#if defined(USART2_BASE)
     if (obj->uart == UART_2) {
         __USART2_FORCE_RESET();
         __USART2_RELEASE_RESET();
         __USART2_CLK_DISABLE();
     }
+#endif
 
 #if defined USART3_BASE
     if (obj->uart == UART_3) {
@@ -309,10 +318,12 @@ static void uart1_irq(void)
     uart_irq(UART_1, 0);
 }
 
+#if defined(USART2_BASE)
 static void uart2_irq(void)
 {
     uart_irq(UART_2, 1);
 }
+#endif
 
 #if defined USART3_BASE
 static void uart3_irq(void)
@@ -374,10 +385,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&uart1_irq;
     }
 
+#if defined(USART2_BASE)
     if (obj->uart == UART_2) {
         irq_n = USART2_IRQn;
         vector = (uint32_t)&uart2_irq;
     }
+#endif
 
 #if defined (TARGET_STM32F091RC)
     if (obj->uart == UART_3) {
@@ -413,15 +426,19 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 #elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
 
 #else
+#if defined(USART3_BASE)
     if (obj->uart == UART_3) {
         irq_n = USART3_4_IRQn;
         vector = (uint32_t)&uart3_irq;
     }
+#endif
 
+#if defined(USART4_BASE)
     if (obj->uart == UART_4) {
         irq_n = USART3_4_IRQn;
         vector = (uint32_t)&uart4_irq;
     }
+#endif
 #endif
 
     if (enable) {
