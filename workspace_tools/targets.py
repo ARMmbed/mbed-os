@@ -562,6 +562,16 @@ class NUCLEO_F030R8(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0725"]
 
+class NUCLEO_F031K6(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['STM', 'STM32F0', 'STM32F031K6']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["0791"]
+
 class NUCLEO_F070RB(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1628,6 +1638,7 @@ TARGETS = [
 
     ### STMicro ###
     NUCLEO_F030R8(),
+    NUCLEO_F031K6(),
     NUCLEO_F070RB(),
     NUCLEO_F072RB(),
     NUCLEO_F091RC(),
