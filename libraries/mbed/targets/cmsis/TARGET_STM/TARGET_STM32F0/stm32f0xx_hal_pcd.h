@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -62,25 +62,30 @@
   */
 
 /** 
-  * @brief  PCD State structures definition  
+  * @brief  PCD State structure definition  
   */  
 typedef enum 
 {
-  PCD_READY    = 0x00,
-  PCD_ERROR    = 0x01,
-  PCD_BUSY     = 0x02,
-  PCD_TIMEOUT  = 0x03
+  HAL_PCD_STATE_RESET   = 0x00,
+  HAL_PCD_STATE_READY   = 0x01,
+  HAL_PCD_STATE_ERROR   = 0x02,
+  HAL_PCD_STATE_BUSY    = 0x03,
+  HAL_PCD_STATE_TIMEOUT = 0x04
 } PCD_StateTypeDef;
 
+/**
+  * @brief  PCD double buffered endpoint direction
+  */
 typedef enum
 {
-  /* double buffered endpoint direction */
   PCD_EP_DBUF_OUT,
   PCD_EP_DBUF_IN,
   PCD_EP_DBUF_ERR,
 }PCD_EP_DBUF_DIR;
 
-/* endpoint buffer number */
+/**
+  * @brief  PCD endpoint buffer number 
+  */
 typedef enum 
 {
   PCD_EP_NOBUF,
@@ -93,31 +98,31 @@ typedef enum
   */
 typedef struct
 {
-  uint32_t dev_endpoints;        /*!< Device Endpoints number.
-                                      This parameter depends on the used USB core.   
-                                      This parameter must be a number between Min_Data = 1 and Max_Data = 15 */    
-
-  uint32_t speed;                /*!< USB Core speed.
-                                      This parameter can be any value of @ref PCD_Core_Speed                 */        
-                             
-  uint32_t ep0_mps;              /*!< Set the Endpoint 0 Max Packet size. 
-                                      This parameter can be any value of @ref PCD_EP0_MPS                    */              
-                       
-  uint32_t phy_itface;           /*!< Select the used PHY interface.
-                                      This parameter can be any value of @ref PCD_Core_PHY                   */ 
-                                
-  uint32_t Sof_enable;           /*!< Enable or disable the output of the SOF signal.                         
-                                      This parameter can be set to ENABLE or DISABLE                      */
-  
-  uint32_t low_power_enable;     /*!< Enable or disable Low Power mode                                      
-                                      This parameter can be set to ENABLE or DISABLE                      */
-  
-  uint32_t lpm_enable;           /*!< Enable or disable the Link Power Management .                                  
-                                      This parameter can be set to ENABLE or DISABLE                      */
-
-  uint32_t battery_charging_enable; /*!< Enable or disable Battery charging.                                  
-                                      This parameter can be set to ENABLE or DISABLE                      */                                    
-                                
+  uint32_t dev_endpoints;               /*!< Device Endpoints number.
+                                             This parameter depends on the used USB core.   
+                                             This parameter must be a number between Min_Data = 1 and Max_Data = 15 */    
+                                        
+  uint32_t speed;                       /*!< USB Core speed.
+                                             This parameter can be any value of @ref PCD_Core_Speed                 */        
+                                        
+  uint32_t ep0_mps;                     /*!< Set the Endpoint 0 Max Packet size. 
+                                             This parameter can be any value of @ref PCD_EP0_MPS                    */              
+                                        
+  uint32_t phy_itface;                  /*!< Select the used PHY interface.
+                                             This parameter can be any value of @ref PCD_Core_PHY                   */ 
+                                        
+  uint32_t Sof_enable;                  /*!< Enable or disable the output of the SOF signal.                         
+                                             This parameter can be set to ENABLE or DISABLE                         */
+                                        
+  uint32_t low_power_enable;            /*!< Enable or disable Low Power mode                                      
+                                             This parameter can be set to ENABLE or DISABLE                         */
+                                        
+  uint32_t lpm_enable;                  /*!< Enable or disable the Link Power Management .                                  
+                                             This parameter can be set to ENABLE or DISABLE                         */
+                                        
+  uint32_t battery_charging_enable;     /*!< Enable or disable Battery charging.                                  
+                                             This parameter can be set to ENABLE or DISABLE                         */                                    
+                                        
 }PCD_InitTypeDef;
 
 typedef struct
@@ -136,16 +141,13 @@ typedef struct
                                 
   uint16_t  pmaadress;      /*!< PMA Address
                                  This parameter can be any value between Min_addr = 0 and Max_addr = 1K   */ 
-  
-  
+
   uint16_t  pmaaddr0;       /*!< PMA Address0
                                  This parameter can be any value between Min_addr = 0 and Max_addr = 1K   */   
-  
-  
+
   uint16_t  pmaaddr1;        /*!< PMA Address1
                                  This parameter can be any value between Min_addr = 0 and Max_addr = 1K   */   
-  
-  
+
   uint8_t   doublebuffer;    /*!< Double buffer enable
                                  This parameter can be 0 or 1                                             */    
                                 
@@ -153,7 +155,6 @@ typedef struct
                                  This parameter must be a number between Min_Data = 0 and Max_Data = 64KB */
 
   uint8_t   *xfer_buff;     /*!< Pointer to transfer buffer                                               */
-                                
   
   uint32_t  xfer_len;       /*!< Current transfer length                                                  */
   
@@ -168,15 +169,15 @@ typedef   USB_TypeDef PCD_TypeDef;
   */ 
 typedef struct
 {
-  PCD_TypeDef             *Instance;   /*!< Register base address              */ 
-  PCD_InitTypeDef         Init;       /*!< PCD required parameters            */
-  __IO uint8_t            USB_Address; /*!< USB Address            */  
-  PCD_EPTypeDef           IN_ep[8];  /*!< IN endpoint parameters             */
-  PCD_EPTypeDef           OUT_ep[8]; /*!< OUT endpoint parameters            */
-  HAL_LockTypeDef         Lock;       /*!< PCD peripheral status              */
-  __IO PCD_StateTypeDef   State;      /*!< PCD communication state            */
-  uint32_t                Setup[12];  /*!< Setup packet buffer                */
-  void                    *pData;      /*!< Pointer to upper stack Handler     */    
+  PCD_TypeDef             *Instance;      /*!< Register base address              */ 
+  PCD_InitTypeDef         Init;           /*!< PCD required parameters            */
+  __IO uint8_t            USB_Address;    /*!< USB Address                        */  
+  PCD_EPTypeDef           IN_ep[8];       /*!< IN endpoint parameters             */
+  PCD_EPTypeDef           OUT_ep[8];      /*!< OUT endpoint parameters            */
+  HAL_LockTypeDef         Lock;           /*!< PCD peripheral status              */
+  __IO PCD_StateTypeDef   State;          /*!< PCD communication state            */
+  uint32_t                Setup[12];      /*!< Setup packet buffer                */
+  void                    *pData;         /*!< Pointer to upper stack Handler     */    
   
 } PCD_HandleTypeDef;
 
@@ -184,7 +185,9 @@ typedef struct
   * @}
   */ 
  
-#include "stm32f0xx_hal_pcd_ex.h"    
+/* Include PCD HAL Extension module */
+#include "stm32f0xx_hal_pcd_ex.h"
+    
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup PCD_Exported_Constants PCD Exported Constants
   * @{
@@ -203,6 +206,112 @@ typedef struct
   * @{
   */
 #define PCD_PHY_EMBEDDED             2
+/**
+  * @}
+  */
+/**
+  * @}
+  */
+
+/* Exported macros -----------------------------------------------------------*/
+/** @defgroup PCD_Exported_Macros PCD Exported Macros
+ *  @brief macros to handle interrupts and specific clock configurations
+  * @{
+  */
+#define __HAL_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__)      ((((__HANDLE__)->Instance->ISTR) & (__INTERRUPT__)) == (__INTERRUPT__))
+#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->ISTR) &= ~(__INTERRUPT__))
+
+#define __HAL_USB_WAKEUP_EXTI_ENABLE_IT()                  EXTI->IMR |= USB_WAKEUP_EXTI_LINE
+#define __HAL_USB_WAKEUP_EXTI_DISABLE_IT()                 EXTI->IMR &= ~(USB_WAKEUP_EXTI_LINE)
+#define __HAL_USB_EXTI_GENERATE_SWIT(__EXTILINE__)        (EXTI->SWIER |= (__EXTILINE__))
+ 
+/**
+  * @}
+  */                                                      
+
+/* Exported functions --------------------------------------------------------*/
+/** @addtogroup PCD_Exported_Functions PCD Exported Functions
+  * @{
+  */
+
+/* Initialization/de-initialization functions  ********************************/
+/** @addtogroup PCD_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
+HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_DeInit (PCD_HandleTypeDef *hpcd);
+void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
+/**
+  * @}
+  */
+
+/* I/O operation functions  ***************************************************/
+/* Non-Blocking mode: Interrupt */
+/** @addtogroup PCD_Exported_Functions_Group2 IO operation functions
+  * @{
+  */
+HAL_StatusTypeDef HAL_PCD_Start(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_Stop(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd);
+
+void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
+void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
+void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_ISOOUTIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
+void HAL_PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
+void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd);
+void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd);
+/**
+  * @}
+  */
+
+/* Peripheral Control functions  **********************************************/
+/** @addtogroup PCD_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
+HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_SetAddress(PCD_HandleTypeDef *hpcd, uint8_t address);
+HAL_StatusTypeDef HAL_PCD_EP_Open(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type);
+HAL_StatusTypeDef HAL_PCD_EP_Close(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
+HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
+HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
+uint16_t          HAL_PCD_EP_GetRxCount(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
+HAL_StatusTypeDef HAL_PCD_EP_SetStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
+HAL_StatusTypeDef HAL_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
+HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
+HAL_StatusTypeDef HAL_PCD_ActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
+HAL_StatusTypeDef HAL_PCD_DeActivateRemoteWakeup(PCD_HandleTypeDef *hpcd);
+/**
+  * @}
+  */
+
+/* Peripheral State functions  ************************************************/
+/** @addtogroup PCD_Exported_Functions_Group4 Peripheral State functions
+  * @{
+  */
+PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup PCD_Private_Constants PCD Private Constants
+  * @{
+  */
+/** @defgroup USB_EXTI_Line_Interrupt USB EXTI line interrupt
+  * @{
+  */
+#define  USB_WAKEUP_EXTI_LINE              ((uint32_t)EXTI_IMR_MR18)  /*!< External interrupt line 18 Connected to the USB FS EXTI Line */
 /**
   * @}
   */
@@ -226,63 +335,44 @@ typedef struct
 /** @defgroup PCD_EP_Type PCD EP Type
   * @{
   */
-#define PCD_EP_TYPE_CTRL                                 0
-#define PCD_EP_TYPE_ISOC                                 1
-#define PCD_EP_TYPE_BULK                                 2
-#define PCD_EP_TYPE_INTR                                 3
+#define PCD_EP_TYPE_CTRL                       0
+#define PCD_EP_TYPE_ISOC                       1
+#define PCD_EP_TYPE_BULK                       2
+#define PCD_EP_TYPE_INTR                       3
 /**
   * @}
   */ 
 
-/** @defgroup PCD_ENDP_Type PCD_ENDP_Type
+/** @defgroup PCD_ENDP PCD ENDP
   * @{
   */
-
-#define PCD_ENDP0                             ((uint8_t)0)
-#define PCD_ENDP1                             ((uint8_t)1)
-#define PCD_ENDP2                             ((uint8_t)2)
-#define PCD_ENDP3                             ((uint8_t)3)
-#define PCD_ENDP4                             ((uint8_t)4)
-#define PCD_ENDP5                             ((uint8_t)5)
-#define PCD_ENDP6                             ((uint8_t)6)
-#define PCD_ENDP7                             ((uint8_t)7)
-
-/*  Endpoint Kind */
-#define PCD_SNG_BUF                                      0
-#define PCD_DBL_BUF                                      1
-
-#define IS_PCD_ALL_INSTANCE                              IS_USB_ALL_INSTANCE
+#define PCD_ENDP0                              ((uint8_t)0)
+#define PCD_ENDP1                              ((uint8_t)1)
+#define PCD_ENDP2                              ((uint8_t)2)
+#define PCD_ENDP3                              ((uint8_t)3)
+#define PCD_ENDP4                              ((uint8_t)4)
+#define PCD_ENDP5                              ((uint8_t)5)
+#define PCD_ENDP6                              ((uint8_t)6)
+#define PCD_ENDP7                              ((uint8_t)7)
 /**
   * @}
-  */ 
+  */
 
-/**
-  * @}
-  */   
-
-/* Exported macros -----------------------------------------------------------*/
-
-/** @defgroup PCD_Exported_Macros PCD Exported Macros
- *  @brief macros to handle interrupts and specific clock configurations
+/** @defgroup PCD_ENDP_Kind PCD Endpoint Kind
   * @{
   */
-#define __HAL_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__)      ((((__HANDLE__)->Instance->ISTR) & (__INTERRUPT__)) == (__INTERRUPT__))
-#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->ISTR) &= ~(__INTERRUPT__))
-
-#define  USB_EXTI_LINE_WAKEUP              ((uint32_t)0x00040000)  /*!< External interrupt line 18 Connected to the USB FS EXTI Line */
-
-#define __HAL_USB_EXTI_ENABLE_IT()                 EXTI->IMR |= USB_EXTI_LINE_WAKEUP
-#define __HAL_USB_EXTI_DISABLE_IT()                EXTI->IMR &= ~(USB_EXTI_LINE_WAKEUP)
-#define __HAL_USB_EXTI_GENERATE_SWIT(__EXTILINE__) (EXTI->SWIER |= (__EXTILINE__))
- 
+#define PCD_SNG_BUF                            0
+#define PCD_DBL_BUF                            1
 /**
   * @}
-  */                                                      
+  */
 
-/* Internal macros -----------------------------------------------------------*/
+/**
+  * @}
+  */
 
-/** @defgroup PCD_Private_Macros PCD Private Macros
- *  @brief macros to handle interrupts and specific clock configurations
+/* Private macros ------------------------------------------------------------*/
+/** @addtogroup PCD_Private_Macros PCD Private Macros
   * @{
   */
 
@@ -662,7 +752,7 @@ typedef struct
     {PCD_SET_EP_RX_CNT((USBx), (bEpNum),(wCount));}\
     else if((bDir) == PCD_EP_DBUF_IN)\
       /* IN endpoint */\
-      *PCD_EP_RX_CNT((USBx), (bEpNum)) = (uint32_t)(wCount); \
+      *PCD_EP_TX_CNT((USBx), (bEpNum)) = (uint32_t)(wCount); \
   } /* SetEPDblBuf1Count */
 
 #define PCD_SET_EP_DBUF_CNT(USBx, bEpNum, bDir, wCount) {\
@@ -679,81 +769,10 @@ typedef struct
 #define PCD_GET_EP_DBUF0_CNT(USBx, bEpNum) (PCD_GET_EP_TX_CNT((USBx), (bEpNum)))
 #define PCD_GET_EP_DBUF1_CNT(USBx, bEpNum) (PCD_GET_EP_RX_CNT((USBx), (bEpNum)))
 
-
-/**
-  * @}
-  */
-
-/* Exported functions --------------------------------------------------------*/
-
-/** @addtogroup PCD_Exported_Functions
+/** @defgroup PCD_Instance_definition PCD Instance definition
   * @{
   */
-
-/** @addtogroup PCD_Exported_Functions_Group1
-  * @{
-  */
-/* Initialization and de-initialization functions  **********************************/
-HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCD_DeInit (PCD_HandleTypeDef *hpcd);
-void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
-
-/**
-  * @}
-  */
-
-/** @addtogroup PCD_Exported_Functions_Group2
-  * @{
-  */
-/* IO operation functions  *****************************************************/
- /* Non Blocking mode: Interrupt */
-HAL_StatusTypeDef HAL_PCD_Start(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCD_Stop(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd);
-
-void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-void HAL_PCD_DataInStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-void HAL_PCD_SetupStageCallback(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_ResumeCallback(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_ISOOUTIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-void HAL_PCD_ISOINIncompleteCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum);
-void HAL_PCD_ConnectCallback(PCD_HandleTypeDef *hpcd);
-void HAL_PCD_DisconnectCallback(PCD_HandleTypeDef *hpcd);
-
-/**
-  * @}
-  */
-
-/** @addtogroup PCD_Exported_Functions_Group3
-  * @{
-  */
-/* Peripheral Control functions  ************************************************/
-HAL_StatusTypeDef HAL_PCD_DevConnect(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCD_DevDisconnect(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCD_SetAddress(PCD_HandleTypeDef *hpcd, uint8_t address);
-HAL_StatusTypeDef HAL_PCD_EP_Open(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint16_t ep_mps, uint8_t ep_type);
-HAL_StatusTypeDef HAL_PCD_EP_Close(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-HAL_StatusTypeDef HAL_PCD_EP_Receive(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
-HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, uint8_t *pBuf, uint32_t len);
-uint16_t          HAL_PCD_EP_GetRxCount(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-HAL_StatusTypeDef HAL_PCD_EP_SetStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-HAL_StatusTypeDef HAL_PCD_EP_ClrStall(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-HAL_StatusTypeDef HAL_PCD_EP_Flush(PCD_HandleTypeDef *hpcd, uint8_t ep_addr);
-HAL_StatusTypeDef HAL_PCD_ActiveRemoteWakeup(PCD_HandleTypeDef *hpcd);
-HAL_StatusTypeDef HAL_PCD_DeActiveRemoteWakeup(PCD_HandleTypeDef *hpcd);
-/**
-  * @}
-  */
-
-/** @addtogroup PCD_Exported_Functions_Group4
-  * @{
-  */
-/* Peripheral State functions  **************************************************/
-PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
+#define IS_PCD_ALL_INSTANCE                    IS_USB_ALL_INSTANCE
 /**
   * @}
   */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@
   * @{
   */
 
-/** @defgroup PWREx PWREx Extended HAL module driver
+/** @defgroup PWREx PWREx
   * @brief    PWREx HAL module driver
   * @{
   */
@@ -93,7 +93,7 @@
       (+) A PVDO flag is available to indicate if VDD/VDDA is higher or lower
           than the PVD threshold. This event is internally connected to the EXTI
           line16 and can generate an interrupt if enabled. This is done through
-          HAL_PWR_PVDConfig(), HAL_PWR_EnablePVD() functions.
+          HAL_PWR_ConfigPVD(), HAL_PWR_EnablePVD() functions.
       (+) The PVD is stopped in Standby mode.
       -@- PVD is not available on STM32F030x4/x6/x8
 
@@ -104,7 +104,7 @@
           to VREFInt Voltage
       (+) This monitor is internally connected to the EXTI line31
           and can generate an interrupt if enabled. This is done through
-          HAL_PWR_EnableVddio2Monitor() function.
+          HAL_PWREx_EnableVddio2Monitor() function.
       -@- VDDIO2 is available on STM32F07x/09x/04x
                     
 @endverbatim
@@ -123,7 +123,7 @@
   *         detection level.
   * @retval None
   */
-void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
+void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
 {
   /* Check the parameters */
   assert_param(IS_PWR_PVD_LEVEL(sConfigPVD->PVDLevel));
@@ -135,7 +135,7 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
   /* Clear any previous config. Keep it clear if no event or IT mode is selected */
   __HAL_PWR_PVD_EXTI_DISABLE_EVENT();
   __HAL_PWR_PVD_EXTI_DISABLE_IT();
-  __HAL_PWR_PVD_EXTI_CLEAR_EGDE_TRIGGER();
+  __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();
 
   /* Configure interrupt mode */
   if((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
@@ -152,12 +152,12 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
   /* Configure the edge */
   if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
   {
-    __HAL_PWR_PVD_EXTI_SET_RISING_EDGE_TRIGGER();
+    __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();
   }
   
   if((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
   {
-    __HAL_PWR_PVD_EXTI_SET_FALLING_EGDE_TRIGGER();
+    __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
   }
 }
 
@@ -222,20 +222,20 @@ __weak void HAL_PWR_PVDCallback(void)
           NVIS has to be enable by user.
   * @retval None
   */
-void HAL_PWR_EnableVddio2Monitor(void)
+void HAL_PWREx_EnableVddio2Monitor(void)
 {
   __HAL_PWR_VDDIO2_EXTI_ENABLE_IT();
-  __HAL_PWR_VDDIO2_EXTI_SET_FALLING_EGDE_TRIGGER();
+  __HAL_PWR_VDDIO2_EXTI_ENABLE_FALLING_EDGE();
 }
 
 /**
   * @brief Disable the Vddio2 Monitor.
   * @retval None
   */
-void HAL_PWR_DisableVddio2Monitor(void)
+void HAL_PWREx_DisableVddio2Monitor(void)
 {
   __HAL_PWR_VDDIO2_EXTI_DISABLE_IT();
-  __HAL_PWR_VDDIO2_EXTI_CLEAR_EGDE_TRIGGER();
+  __HAL_PWR_VDDIO2_EXTI_DISABLE_FALLING_EDGE();
 
 }
 
@@ -244,13 +244,13 @@ void HAL_PWR_DisableVddio2Monitor(void)
   * @note This API should be called under the VDDIO2_IRQHandler() PVD_VDDIO2_IRQHandler().
   * @retval None
   */
-void HAL_PWR_Vddio2Monitor_IRQHandler(void)
+void HAL_PWREx_Vddio2Monitor_IRQHandler(void)
 {
   /* Check PWR exti flag */
   if(__HAL_PWR_VDDIO2_EXTI_GET_FLAG() != RESET)
   {
     /* PWR Vddio2 monitor interrupt user callback */
-    HAL_PWR_Vddio2MonitorCallback();
+    HAL_PWREx_Vddio2MonitorCallback();
 
     /* Clear PWR Exti pending bit */
     __HAL_PWR_VDDIO2_EXTI_CLEAR_FLAG();
@@ -261,10 +261,10 @@ void HAL_PWR_Vddio2Monitor_IRQHandler(void)
   * @brief PWR Vddio2 Monitor interrupt callback
   * @retval None
   */
-__weak void HAL_PWR_Vddio2MonitorCallback(void)
+__weak void HAL_PWREx_Vddio2MonitorCallback(void)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_PWR_Vddio2MonitorCallback could be implemented in the user file
+            the HAL_PWREx_Vddio2MonitorCallback could be implemented in the user file
    */
 }
 

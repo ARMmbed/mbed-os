@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@
   * @{
   */
 
-/** @defgroup HAL HAL module driver
+/** @defgroup HAL HAL
   * @brief HAL module driver.
   * @{
   */
@@ -66,14 +66,14 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/** @defgroup HAL_Private Constants
+/** @defgroup HAL_Private_Constants HAL Private Constants
   * @{
   */
 /** 
-  * @brief STM32F0xx HAL Driver version number V1.2.0
+  * @brief STM32F0xx HAL Driver version number V1.3.0
   */
 #define __STM32F0xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32F0xx_HAL_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
+#define __STM32F0xx_HAL_VERSION_SUB1   (0x03) /*!< [23:16] sub1 version */
 #define __STM32F0xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32F0xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F0xx_HAL_VERSION         ((__STM32F0xx_HAL_VERSION_MAIN << 24)\
@@ -87,6 +87,13 @@
   */
 
 /* Private macro -------------------------------------------------------------*/
+/** @defgroup HAL_Private_Macros HAL Private Macros
+  * @{
+  */
+/**
+  * @}
+  */
+
 /* Private variables ---------------------------------------------------------*/
 /** @defgroup HAL_Private_Variables HAL Private Variables
   * @{
@@ -174,14 +181,14 @@ HAL_StatusTypeDef HAL_Init(void)
 HAL_StatusTypeDef HAL_DeInit(void)
 {
   /* Reset of all peripherals */
-  __APB1_FORCE_RESET();
-  __APB1_RELEASE_RESET();
+  __HAL_RCC_APB1_FORCE_RESET();
+  __HAL_RCC_APB1_RELEASE_RESET();
 
-  __APB2_FORCE_RESET();
-  __APB2_RELEASE_RESET();
+  __HAL_RCC_APB2_FORCE_RESET();
+  __HAL_RCC_APB2_RELEASE_RESET();
 
-  __AHB_FORCE_RESET();
-  __AHB_RELEASE_RESET();
+  __HAL_RCC_AHB_FORCE_RESET();
+  __HAL_RCC_AHB_RELEASE_RESET();
 
   /* De-Init the low level hardware */
   HAL_MspDeInit();
@@ -282,49 +289,14 @@ __weak void HAL_IncTick(void)
 }
 
 /**
-  * @brief  Povides a tick value in millisecond.
-  * @note   The function is declared as __Weak  to be overwritten  in case of other 
+  * @brief  Provides a tick value in millisecond.
+  * @note   This function is declared as __weak  to be overwritten  in case of other 
   *       implementations in user file.
   * @retval tick value
   */
 __weak uint32_t HAL_GetTick(void)
 {
   return uwTick;
-}
-
-/**
-  * @brief Suspend Tick increment.
-  * @note In the default implementation , SysTick timer is the source of time base. It is
-  *       used to generate interrupts at regular time intervals. Once HAL_SuspendTick()
-  *       is called, the the SysTick interrupt will be disabled and so Tick increment 
-  *       is suspended.
-  * @note This function is declared as __weak to be overwritten in case of other
-  *       implementations in user file.
-  * @retval None
-  */
-__weak void HAL_SuspendTick(void)
-
-{
-  /* Disable SysTick Interrupt */
-  SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
-
-}
-
-/**
-  * @brief Resume Tick increment.
-  * @note In the default implementation , SysTick timer is the source of time base. It is
-  *       used to generate interrupts at regular time intervals. Once HAL_ResumeTick()
-  *       is called, the the SysTick interrupt will be enabled and so Tick increment 
-  *       is resumed.
-  *         The function is declared as __Weak  to be overwritten  in case of other
-  *       implementations in user file.
-  * @retval None
-  */
-__weak void HAL_ResumeTick(void)
-{
-  /* Enable SysTick Interrupt */
-  SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
-
 }
 
 /**
@@ -345,6 +317,39 @@ __weak void HAL_Delay(__IO uint32_t Delay)
   while((HAL_GetTick() - tickstart) < Delay)
   {
   }
+}
+
+/**
+  * @brief Suspend Tick increment.
+  * @note In the default implementation , SysTick timer is the source of time base. It is
+  *       used to generate interrupts at regular time intervals. Once HAL_SuspendTick()
+  *       is called, the the SysTick interrupt will be disabled and so Tick increment 
+  *       is suspended.
+  * @note This function is declared as __weak to be overwritten in case of other
+  *       implementations in user file.
+  * @retval None
+  */
+__weak void HAL_SuspendTick(void)
+
+{
+  /* Disable SysTick Interrupt */
+  CLEAR_BIT(SysTick->CTRL,SysTick_CTRL_TICKINT_Msk);
+}
+
+/**
+  * @brief Resume Tick increment.
+  * @note In the default implementation , SysTick timer is the source of time base. It is
+  *       used to generate interrupts at regular time intervals. Once HAL_ResumeTick()
+  *       is called, the the SysTick interrupt will be enabled and so Tick increment 
+  *       is resumed.
+  * @note This function is declared as __weak  to be overwritten  in case of other
+  *       implementations in user file.
+  * @retval None
+  */
+__weak void HAL_ResumeTick(void)
+{
+  /* Enable SysTick Interrupt */
+  SET_BIT(SysTick->CTRL,SysTick_CTRL_TICKINT_Msk);
 }
 
 /**
@@ -378,7 +383,7 @@ uint32_t HAL_GetDEVID(void)
   * @brief  Enable the Debug Module during STOP mode       
   * @retval None
   */
-void HAL_EnableDBGStopMode(void)
+void HAL_DBGMCU_EnableDBGStopMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
@@ -387,7 +392,7 @@ void HAL_EnableDBGStopMode(void)
   * @brief  Disable the Debug Module during STOP mode       
   * @retval None
   */
-void HAL_DisableDBGStopMode(void)
+void HAL_DBGMCU_DisableDBGStopMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
@@ -396,7 +401,7 @@ void HAL_DisableDBGStopMode(void)
   * @brief  Enable the Debug Module during STANDBY mode       
   * @retval None
   */
-void HAL_EnableDBGStandbyMode(void)
+void HAL_DBGMCU_EnableDBGStandbyMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
@@ -405,7 +410,7 @@ void HAL_EnableDBGStandbyMode(void)
   * @brief  Disable the Debug Module during STANDBY mode       
   * @retval None
   */
-void HAL_DisableDBGStandbyMode(void)
+void HAL_DBGMCU_DisableDBGStandbyMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }

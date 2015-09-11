@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   COMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
@@ -19,25 +19,24 @@
            
   [..]       
       The STM32F0xx device family integrates up to 2 analog comparators COMP1 and COMP2:
-      (#) The non inverting input and inverting input can be set to GPIO pins
+      (+) The non inverting input and inverting input can be set to GPIO pins
           as shown in table1. COMP Inputs below.
   
-      (#) The COMP output is available using HAL_COMP_GetOutputLevel()
+      (+) The COMP output is available using HAL_COMP_GetOutputLevel()
           and can be set on GPIO pins. Refer to table 2. COMP Outputs below.
   
-      (#) The COMP output can be redirected to embedded timers (TIM1, TIM2 and TIM3)
+      (+) The COMP output can be redirected to embedded timers (TIM1, TIM2 and TIM3)
           Refer to table 3. COMP Outputs redirection to embedded timers below.
   
-      (#) The comparators COMP1 and COMP2 can be combined in window mode.
+      (+) The comparators COMP1 and COMP2 can be combined in window mode.
   
-      (#) The comparators have interrupt capability with wake-up
+      (+) The comparators have interrupt capability with wake-up
           from Sleep and Stop modes (through the EXTI controller):
           (++) COMP1 is internally connected to EXTI Line 21
           (++) COMP2 is internally connected to EXTI Line 22
-          From the corresponding IRQ handler, the right interrupt source can be retrieved with the 
-          macro __HAL_COMP_EXTI_GET_FLAG(). Possible values are:
-          (++) COMP_EXTI_LINE_COMP1_EVENT
-          (++) COMP_EXTI_LINE_COMP2_EVENT
+
+      (+) From the corresponding IRQ handler, the right interrupt source can be retrieved with the 
+          macros __HAL_COMP_COMP1_EXTI_GET_FLAG() and __HAL_COMP_COMP2_EXTI_GET_FLAG().
 
 
 [..] Table 1. COMP Inputs for the STM32F05x, STM32F07x and STM32F09x devices
@@ -100,23 +99,36 @@
            interrupt vector using HAL_NVIC_EnableIRQ() function.
   
       (#) Configure the comparator using HAL_COMP_Init() function:
-      (++) Select the inverting input
-      (++) Select the non inverting input
+      (++) Select the inverting input (input minus)
+      (++) Select the non inverting input (input plus)
       (++) Select the output polarity  
       (++) Select the output redirection
       (++) Select the hysteresis level
       (++) Select the power mode
       (++) Select the event/interrupt mode
+      (++) Select the window mode
   
-      (#) Enable the comparator using HAL_COMP_Start() function or HAL_COMP_Start_IT() function for interrupt mode
+      -@@- HAL_COMP_Init() calls internally __HAL_RCC_SYSCFG_CLK_ENABLE() in order
+          to access the comparator(s) registers.
+
+      (#) Enable the comparator using HAL_COMP_Start() function or HAL_COMP_Start_IT() function for interrupt mode.
     
-      (#) Read the comparator output level with HAL_COMP_GetOutputLevel()
-    
+      (#) Use HAL_COMP_TriggerCallback() and/or HAL_COMP_GetOutputLevel() functions
+          to manage comparator outputs (event/interrupt triggered and output level).
+
+      (#) Disable the comparator using HAL_COMP_Stop() or HAL_COMP_Stop_IT() 
+          function.
+
+      (#) De-initialize the comparator using HAL_COMP_DeInit() function.
+
+      (#) For safety purposes comparator(s) can be locked using HAL_COMP_Lock() function.
+          Only a MCU reset can reset that protection.
+      
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -156,7 +168,7 @@
   * @{
   */
 
-/** @defgroup COMP COMP HAL Module Driver 
+/** @defgroup COMP COMP
   * @brief COMP HAL module driver
   * @{
   */
@@ -235,19 +247,26 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
       assert_param(IS_COMP_DAC1SWITCH_INSTANCE(hcomp->Instance));
     }
   
-    if(hcomp->Init.WindowMode != COMP_WINDOWMODE_DISABLED)
+    if(hcomp->Init.WindowMode != COMP_WINDOWMODE_DISABLE)
     {
       assert_param(IS_COMP_WINDOWMODE_INSTANCE(hcomp->Instance));
     }
-  
+
+    /* Init SYSCFG and the low level hardware to access comparators */
+    __HAL_RCC_SYSCFG_CLK_ENABLE();  
+
+    /* Init the low level hardware : SYSCFG to access comparators */
+    HAL_COMP_MspInit(hcomp);
+
     if(hcomp->State == HAL_COMP_STATE_RESET)
     {
-      /* Init SYSCFG and the low level hardware to access comparators */
-      __SYSCFG_CLK_ENABLE();
-
-      HAL_COMP_MspInit(hcomp);
+      /* Allocate lock resource and initialize it */
+      hcomp->Lock = HAL_UNLOCKED;
     }
-  
+
+    /* Change COMP peripheral state */
+    hcomp->State = HAL_COMP_STATE_BUSY;
+
     /* Set COMP parameters */
     /*     Set COMPxINSEL bits according to hcomp->Init.InvertingInput value        */
     /*     Set COMPxOUTSEL bits according to hcomp->Init.Output value               */
@@ -259,7 +278,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
       regshift = COMP_CSR_COMP2_SHIFT;
     }
     MODIFY_REG(COMP->CSR, 
-               (uint32_t)(COMP_CSR_COMPxINSEL  | COMP_CSR_COMPxNONINSEL_MASK | \
+               (COMP_CSR_COMPxINSEL  | COMP_CSR_COMPxNONINSEL_MASK | \
                 COMP_CSR_COMPxOUTSEL | COMP_CSR_COMPxPOL           | \
                 COMP_CSR_COMPxHYST   | COMP_CSR_COMPxMODE) << regshift,
                (hcomp->Init.InvertingInput    | \
@@ -269,16 +288,13 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
                 hcomp->Init.Hysteresis        | \
                 hcomp->Init.Mode) << regshift);   
     
-    if(hcomp->Init.WindowMode != COMP_WINDOWMODE_DISABLED)
+    if(hcomp->Init.WindowMode != COMP_WINDOWMODE_DISABLE)
     {
       COMP->CSR |= COMP_CSR_WNDWEN;
     }
 
     /* Initialize the COMP state*/
-    if(hcomp->State == HAL_COMP_STATE_RESET)
-    {
-      hcomp->State = HAL_COMP_STATE_READY;
-    }
+    hcomp->State = HAL_COMP_STATE_READY;
   }
   
   return status;
@@ -319,6 +335,9 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
     HAL_COMP_MspDeInit(hcomp);
 
     hcomp->State = HAL_COMP_STATE_RESET;
+    
+    /* Release Lock */
+    __HAL_UNLOCK(hcomp);
   }
   
   return status;
@@ -394,7 +413,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
       {
         regshift = COMP_CSR_COMP2_SHIFT;
       }
-      SET_BIT(COMP->CSR, (uint32_t)COMP_CSR_COMPxEN << regshift);
+      SET_BIT(COMP->CSR, COMP_CSR_COMPxEN << regshift);
 
       hcomp->State = HAL_COMP_STATE_BUSY;      
     }
@@ -434,7 +453,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
       {
         regshift = COMP_CSR_COMP2_SHIFT;
       }
-      CLEAR_BIT(COMP->CSR, (uint32_t)COMP_CSR_COMPxEN << regshift);
+      CLEAR_BIT(COMP->CSR, COMP_CSR_COMPxEN << regshift);
 
       hcomp->State = HAL_COMP_STATE_READY;
     }
@@ -464,29 +483,31 @@ HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp)
   if(status == HAL_OK)
   {
     /* Check the Exti Line output configuration */
-    extiline = __HAL_COMP_GET_EXTI_LINE(hcomp->Instance);
+    extiline = COMP_GET_EXTI_LINE(hcomp->Instance);
     /* Configure the rising edge */
     if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_RISING) != RESET)
     {
-      __HAL_COMP_EXTI_RISING_IT_ENABLE(extiline);
+      SET_BIT(EXTI->RTSR, extiline);
     }
     else
     {
-      __HAL_COMP_EXTI_RISING_IT_DISABLE(extiline);
+      CLEAR_BIT(EXTI->RTSR, extiline);
     }
     /* Configure the falling edge */
     if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_FALLING) != RESET)
     {
-      __HAL_COMP_EXTI_FALLING_IT_ENABLE(extiline);
+      SET_BIT(EXTI->FTSR, extiline);
     }
     else
     {
-      __HAL_COMP_EXTI_FALLING_IT_DISABLE(extiline);
+      CLEAR_BIT(EXTI->FTSR, extiline);
     }
+
+    /* Clear COMP EXTI pending bit */
+    WRITE_REG(EXTI->PR, extiline);
+    
     /* Enable Exti interrupt mode */
-    __HAL_COMP_EXTI_ENABLE_IT(extiline);
-    /* Clear COMP Exti pending bit */
-    __HAL_COMP_EXTI_CLEAR_FLAG(extiline);    
+    SET_BIT(EXTI->IMR, extiline);
   }
 
   return status;
@@ -502,7 +523,7 @@ HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Disable the Exti Line interrupt mode */
-  __HAL_COMP_EXTI_DISABLE_IT(__HAL_COMP_GET_EXTI_LINE(hcomp->Instance));
+  CLEAR_BIT(EXTI->IMR, COMP_GET_EXTI_LINE(hcomp->Instance));
   
   status = HAL_COMP_Stop(hcomp);
   
@@ -516,17 +537,17 @@ HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp)
   */
 void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
 {
-  uint32_t extiline = __HAL_COMP_GET_EXTI_LINE(hcomp->Instance);
+  uint32_t extiline = COMP_GET_EXTI_LINE(hcomp->Instance);
   
   /* Check COMP Exti flag */
-  if(__HAL_COMP_EXTI_GET_FLAG(extiline) != RESET)
+  if(READ_BIT(EXTI->PR, extiline) != RESET)
   {
     /* Clear COMP Exti pending bit */
-    __HAL_COMP_EXTI_CLEAR_FLAG(extiline);
+    WRITE_REG(EXTI->PR, extiline);
 
     /* COMP trigger user callback */
     HAL_COMP_TriggerCallback(hcomp);    
-  }  
+  }
 }
 
 /**
@@ -576,7 +597,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
     {
       regshift = COMP_CSR_COMP2_SHIFT;
     }
-    SET_BIT(COMP->CSR, (uint32_t)COMP_CSR_COMPxLOCK << regshift);
+    SET_BIT(COMP->CSR, COMP_CSR_COMPxLOCK << regshift);
   }
   
   return status; 
@@ -611,7 +632,7 @@ uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
   {
     regshift = COMP_CSR_COMP2_SHIFT;
   }
-  level = READ_BIT(COMP->CSR, (uint32_t)COMP_CSR_COMPxOUT << regshift);
+  level = READ_BIT(COMP->CSR, COMP_CSR_COMPxOUT << regshift);
   
   if(level != 0)
   {
