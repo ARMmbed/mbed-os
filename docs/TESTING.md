@@ -767,7 +767,7 @@ TEST(BusOut_digitalout_write, led_1_nc_2_nc_nc_3)
 ```
 
 ## Example
-In below example we will run two example unit tests that are now available. tests ```UT_1``` and ```UT_2``` are unit tests used for now only to check if mbed SDK works with CppUTest library and if tests are being executed. In future number of unit tests will increase, nothing is also stoping you from writing and executing your own unit tests!
+In below example we will run two example unit tests that are now available. tests ```UT_1``` and ```UT_2``` are unit tests used for now only to check if mbed SDK works with CppUTest library and if tests are being executed. In future number of unit tests will increase, nothing is also stopping you from writing and executing your own unit tests!
 
 ### Example configuration
 By default unit tests ```UT_1``` and ```UT_2``` are not automated - simply test suite will ignore them. Also we do not want to create dependency to CppUTest library each time someone executes automation.
