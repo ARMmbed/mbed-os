@@ -1389,17 +1389,17 @@ class NRF51_MICROBIT_B_OTA(MCU_NRF51_16K_OTA):
 class ARM_MPS2_Target(Target):
     def __init__(self):
         Target.__init__(self)
-        self.OUTPUT_EXT = 'axf'
-
-    def init_hooks(self, hook, toolchain_name):
-        hook.hook_add_binary("replace", self.output_axf)
-
-    @staticmethod
-    def output_axf(t_self, resources, elf, bin):
-        shutil.copy(elf, bin)
-        t_self.debug("Passing ELF file %s" % bin)
-
-
+#        self.OUTPUT_EXT = 'axf'
+#
+#    def init_hooks(self, hook, toolchain_name):
+#        hook.hook_add_binary("replace", self.output_axf)
+#
+#    @staticmethod
+#    def output_axf(t_self, resources, elf, bin):
+#        shutil.copy(elf, bin)
+#        t_self.debug("Passing ELF file %s" % bin)
+#
+#
 class ARM_MPS2_M0(ARM_MPS2_Target):
     def __init__(self):
         ARM_MPS2_Target.__init__(self)
@@ -1451,6 +1451,15 @@ class ARM_MPS2_M7(ARM_MPS2_Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M7']
         self.macros = ['CMSDK_CM7']
+        self.supported_toolchains = ["ARM"]
+        self.default_toolchain = "ARM"
+        
+class ARM_MPS2_BEID(ARM_MPS2_Target):
+    def __init__(self):
+        ARM_MPS2_Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_BEID']
+        self.macros = ['CMSDK_BEID']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
@@ -1707,6 +1716,7 @@ TARGETS = [
     ARM_MPS2_M3(),
     ARM_MPS2_M4(),
     ARM_MPS2_M7(),
+    ARM_MPS2_BEID(),
     ARM_MPS2(),
 
     ### Renesas ###
