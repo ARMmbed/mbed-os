@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,6 +34,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 #include <string.h>
 #include "PeripheralPins.h"
 
@@ -74,7 +75,9 @@ static void init_uart(serial_t *obj)
     UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
     UartHandle.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
 
-    HAL_UART_Init(&UartHandle);
+    if (HAL_UART_Init(&UartHandle) != HAL_OK) {
+        error("Cannot initialize UART");
+    }
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)

@@ -115,13 +115,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->pin_sclk = sclk;
     obj->pin_ssel = ssel;
 
-    if (ssel == NC) { // SW NSS Master mode
-        obj->mode = SPI_MODE_MASTER;
-        obj->nss = SPI_NSS_SOFT;
-    } else { // Slave
+    if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
-        obj->mode = SPI_MODE_SLAVE;
-        obj->nss = SPI_NSS_HARD_INPUT;
+    } else {
+        obj->nss = SPI_NSS_SOFT;
     }
 
     init_spi(obj);
@@ -189,13 +186,11 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
             break;
     }
 
-    if (slave == 0) {
-        obj->mode = SPI_MODE_MASTER;
-        obj->nss = SPI_NSS_SOFT;
-    } else {
-        obj->mode = SPI_MODE_SLAVE;
-        obj->nss = SPI_NSS_HARD_INPUT;
+    if (obj->nss != SPI_NSS_SOFT) {
+        obj->nss = (slave) ? SPI_NSS_HARD_INPUT : SPI_NSS_HARD_OUTPUT;
     }
+
+    obj->mode = (slave) ? SPI_MODE_SLAVE : SPI_MODE_MASTER;
 
     init_spi(obj);
 }
@@ -222,7 +217,7 @@ void spi_frequency(spi_t *obj, int hz)
         obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 32 MHz - 36 MHz
     }
 #elif defined(TARGET_STM32F302R8)
-        if (hz < 250000) {
+    if (hz < 250000) {
         obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 125 kHz - 141 kHz
     } else if ((hz >= 250000) && (hz < 500000)) {
         obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 250 kHz - 280 kHz
@@ -239,7 +234,7 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 16000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 16 MHz - 18 MHz
     }
- 
+
 #else
     // Values depend of APB1CLK and APB2CLK : 32 MHz if HSI is used, 36 MHz if HSE is used
     if (obj->spi == SPI_1) {
@@ -259,7 +254,7 @@ void spi_frequency(spi_t *obj, int hz)
             obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 16 MHz - 18 MHz
         } else { // >= 32000000
             obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 32 MHz - 36 MHz
-        }      
+        }
     } else {
         if (hz < 250000) {
             obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 125 kHz - 141 kHz

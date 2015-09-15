@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited
@@ -33,6 +34,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
+    ('LPC2460',      ('GCC_ARM',)),
     ('LPC812',       ('uARM','IAR')),
     ('LPC824',       ('uARM', 'GCC_ARM', 'IAR', 'GCC_CR')),
     ('SSCI824',      ('uARM','GCC_ARM')),
@@ -47,7 +49,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC4330_M4',   ('ARM', 'GCC_ARM', 'GCC_CR')),
     ('LPC4337',      ('ARM',)),
-    ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
+    ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
+    ('MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
@@ -68,10 +71,15 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_F334R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F401RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F446RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L053R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F405RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+#    ('DISCO_F746NG', ('ARM', 'uARM', 'IAR')),
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
@@ -84,17 +92,31 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
+    ('DELTA_DFCM_NNN40',  ('ARM', 'GCC_ARM')),
+    ('NRF51_MICROBIT',      ('ARM',)),
+    ('NRF51_MICROBIT_B',      ('ARM',)),
 
     ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
     ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
 
+    ('ARM_MPS2_M0'   ,     ('ARM',)),
+    ('ARM_MPS2_M0P'   ,     ('ARM',)),
+    ('ARM_MPS2_M3'   ,     ('ARM',)),
+    ('ARM_MPS2_M4'   ,     ('ARM',)),
+    ('ARM_MPS2_M7'   ,     ('ARM',)),
+
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
-    ('EFM32ZG_STK3200',     ('ARM', 'GCC_ARM', 'uARM')),
-    ('EFM32HG_STK3400',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
+    ('EFM32HG_STK3400',     ('GCC_ARM', 'uARM')),
     ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
+
+    ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
+    ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
+
+    ('WIZWIKI_W7500',   ('ARM', 'uARM')),
 )
 
 
@@ -108,6 +130,8 @@ if __name__ == '__main__':
                       default=False, help="Verbose diagnostic output")
     parser.add_option("-t", "--toolchains", dest="toolchains", help="Use toolchains names separated by comma")
 
+    parser.add_option("-p", "--platforms", dest="platforms", default="", help="Build only for the platform namesseparated by comma")
+
     parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an html file")
 
 
@@ -117,7 +141,16 @@ if __name__ == '__main__':
     successes = []
     skips = []
     build_report = []
+
+    platforms = None
+    if options.platforms != "":
+        platforms = set(options.platforms.split(","))
+
     for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
+        if platforms is not None and not target_name in platforms:
+            print("Excluding %s from release" % target_name)
+            continue
+
         if options.official_only:
             toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
         else:

@@ -25,7 +25,7 @@
 #define CMD_POWER_UP (0xAB)
 #define CMD_POWER_DOWN (0xB9)
 
-void spi_flash_init(void)
+void flash_init(void)
 {   
 	NRF_GPIO->PIN_CNF[SPIM1_MOSI_PIN] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
 									| (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
@@ -79,7 +79,7 @@ void spi_flash_init(void)
 
 }
 
-void spi_flash_powerDown(void)
+void flash_powerDown(void)
 {
     NRF_GPIO->OUTCLR 		= 	(GPIO_OUTCLR_PIN28_Clear << GPIO_OUTCLR_PIN28_Pos);
     //spi.write(CMD_POWER_DOWN);
@@ -115,9 +115,9 @@ void mbed_sdk_init()
     {// Do nothing.
     }
 	
-	spi_flash_init();
+	flash_init();
 	
 	//nrf_delay_ms(10);
-	spi_flash_powerDown();
+	flash_powerDown();
 	
 }

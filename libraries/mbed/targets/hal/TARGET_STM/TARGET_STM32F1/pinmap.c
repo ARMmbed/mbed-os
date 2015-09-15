@@ -177,11 +177,20 @@ void pin_mode(PinName pin, PinMode mode)
             if (pin_index < 8) {
                 if ((gpio->CRL & (0x03 << (pin_index * 4))) == 0) { // MODE bits = Input mode
                     gpio->CRL |= (0x08 << (pin_index * 4)); // Set pull-up / pull-down
+                    gpio->CRL &= ~(0x08 << ((pin_index * 4)-1)); // ENSURES GPIOx_CRL.CNFx.bit0 = 0
                 }
             } else {
                 if ((gpio->CRH & (0x03 << ((pin_index % 8) * 4))) == 0) { // MODE bits = Input mode
                     gpio->CRH |= (0x08 << ((pin_index % 8) * 4)); // Set pull-up / pull-down
+                    gpio->CRH &= ~(0x08 << (((pin_index % 8) * 4)-1)); // ENSURES GPIOx_CRH.CNFx.bit0 = 0
                 }
+            }
+            // Now it's time to setup properly if pullup or pulldown. This is done in ODR register:
+            // set pull-up => bit=1, set pull-down => bit = 0
+            if (mode == PullUp) {
+                gpio->ODR |= (0x01 << (pin_index)); // Set pull-up
+            } else{
+                gpio->ODR &= ~(0x01 << (pin_index)); // Set pull-down
             }
             break;
         case OpenDrain:

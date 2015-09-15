@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,7 @@
 #include <math.h>
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 #include "PeripheralPins.h"
 
 static SPI_HandleTypeDef SpiHandle;
@@ -57,7 +58,9 @@ static void init_spi(spi_t *obj)
     SpiHandle.Init.NSS               = obj->nss;
     SpiHandle.Init.TIMode            = SPI_TIMODE_DISABLED;
 
-    HAL_SPI_Init(&SpiHandle);
+    if (HAL_SPI_Init(&SpiHandle) != HAL_OK) {
+        error("Cannot initialize SPI");
+    }
 
     __HAL_SPI_ENABLE(&SpiHandle);
 }
@@ -100,13 +103,10 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->pin_sclk = sclk;
     obj->pin_ssel = ssel;
 
-    if (ssel == NC) { // SW NSS Master mode
-        obj->mode = SPI_MODE_MASTER;
-        obj->nss = SPI_NSS_SOFT;
-    } else { // Slave
+    if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
-        obj->mode = SPI_MODE_SLAVE;
-        obj->nss = SPI_NSS_HARD_INPUT;
+    } else {
+        obj->nss = SPI_NSS_SOFT;
     }
 
     init_spi(obj);
@@ -162,13 +162,11 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
             break;
     }
 
-    if (slave == 0) {
-        obj->mode = SPI_MODE_MASTER;
-        obj->nss = SPI_NSS_SOFT;
-    } else {
-        obj->mode = SPI_MODE_SLAVE;
-        obj->nss = SPI_NSS_HARD_INPUT;
+    if (obj->nss != SPI_NSS_SOFT) {
+        obj->nss = (slave) ? SPI_NSS_HARD_INPUT : SPI_NSS_HARD_OUTPUT;
     }
+
+    obj->mode = (slave) ? SPI_MODE_SLAVE : SPI_MODE_MASTER;
 
     init_spi(obj);
 }
@@ -193,6 +191,7 @@ void spi_frequency(spi_t *obj, int hz)
     } else { // >= 16000000
         obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 16 MHz
     }
+
     init_spi(obj);
 }
 

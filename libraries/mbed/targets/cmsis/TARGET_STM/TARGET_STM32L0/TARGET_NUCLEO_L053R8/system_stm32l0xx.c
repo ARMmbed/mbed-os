@@ -147,7 +147,7 @@
   */
 uint32_t SystemCoreClock = 32000000;
 const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
+const uint8_t PLLMulTable_2[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 
 /**
   * @}
@@ -280,7 +280,7 @@ void SystemCoreClockUpdate (void)
       /* Get PLL clock source and multiplication factor ----------------------*/
       pllmul = RCC->CFGR & RCC_CFGR_PLLMUL;
       plldiv = RCC->CFGR & RCC_CFGR_PLLDIV;
-      pllmul = PLLMulTable[(pllmul >> 18)];
+      pllmul = PLLMulTable_2[(pllmul >> 18)];
       plldiv = (plldiv >> 22) + 1;
       
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;

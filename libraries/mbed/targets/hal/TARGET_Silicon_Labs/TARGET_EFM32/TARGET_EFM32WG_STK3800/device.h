@@ -50,6 +50,8 @@
 
 #define DEVICE_LOWPOWERTIMER    1
 
+#define DEVICE_ERROR_PATTERN    1
+
 #include "objects.h"
 #include "Modules.h"
 #include "device_peripherals.h"

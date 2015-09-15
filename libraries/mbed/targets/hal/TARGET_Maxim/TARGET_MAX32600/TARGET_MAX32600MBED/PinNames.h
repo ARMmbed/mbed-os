@@ -170,10 +170,10 @@ typedef enum {
     AOUT_CO = (0xF << PORT_SHIFT) | 2,
     AOUT_DO = (0xF << PORT_SHIFT) | 3,
 
-    LED_GREEN  = P7_4,
-    LED_RED    = P7_0,
-    LED_YELLOW = P6_6,
-    LED_BLUE   = P7_6,
+    LED_GREEN  = P6_6,
+    LED_RED    = P7_1,
+    LED_YELLOW = P7_0,
+    LED_BLUE   = P6_7,
 
     // mbed original LED naming
     LED1 = LED_RED,

@@ -34,10 +34,12 @@ void mbed_sdk_init()
 
     /* Set up the clock sources for this chip */
 #if( CORE_CLOCK_SOURCE == HFXO)
-    CMU_ClockSelectSet(cmuClock_HF, HFXO);
+    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
+    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFXO);
     SystemHFXOClockSet(HFXO_FREQUENCY);
 #elif( CORE_CLOCK_SOURCE == HFRCO)
-    CMU_ClockSelectSet(cmuClock_HF, HFRCO);
+    CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
+    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFRCO);
     CMU_HFRCOBandSet(HFRCO_FREQUENCY);
 #else
 #error "Core clock selection not valid (mbed_overrides.c)"
@@ -47,37 +49,42 @@ void mbed_sdk_init()
 
 #if( LOW_ENERGY_CLOCK_SOURCE == LFXO )
 #ifdef CMU_LFACLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFA, LFXO);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
 #endif
 #ifdef CMU_LFBCLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFB, LFXO);
+    /* cmuClock_LFB (to date) only has LEUART peripherals.
+    *  Do NOT set it up here, as LEUARTs might have been initialized
+    *	 before this code is called. (Limitation of the override mechanism of ARMCC)
+    */
+    //TODO: Look for a more elegant fix.
+    //CMU_ClockSelectSet(cmuClock_LFB, LFXO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFE, LFXO);
+    CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFXO);
 #endif
     SystemLFXOClockSet(LFXO_FREQUENCY);
 
 #elif( LOW_ENERGY_CLOCK_SOURCE == LFRCO )
 #ifdef CMU_LFACLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFA, LFRCO);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
 #endif
 #ifdef CMU_LFBCLKSEL_REG
     //CMU_ClockSelectSet(cmuClock_LFB, LFRCO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFE, LFRCO);
+    CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFRCO);
 #endif
     CMU_HFRCOBandSet(HFRCO_FREQUENCY);
 
 #elif( LOW_ENERGY_CLOCK_SOURCE == ULFRCO)
 #ifdef CMU_LFACLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFA, ULFRCO);
+    CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
 #endif
 #ifdef CMU_LFBCLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFB, ULFRCO);
+    CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_ULFRCO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
-    CMU_ClockSelectSet(cmuClock_LFE, ULFRCO);
+    CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_ULFRCO);
 #endif
 #else
 #error "Low energy clock selection not valid"
@@ -87,7 +94,8 @@ void mbed_sdk_init()
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
 }
 
-void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask) {
+void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask)
+{
     uint32_t freq = 14000000, baudrate;
     USART_OVS_TypeDef ovs;
 

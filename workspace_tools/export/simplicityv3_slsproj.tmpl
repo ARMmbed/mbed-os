@@ -2,7 +2,7 @@
 <project xmlns:model="http://www.silabs.com/sls/IDE.ecore" name="{{ name }}" kitCompatibility="{{ kit }}"
 																		  partCompatibility="{{ part }}"
 																		  toolchainCompatibility="com.silabs.ide.si32.gcc:4.8.3.20131129"
-																		  sdkCompatibility="com.silabs.sdk.si32.efm32.sls:2.0.5"
+																		  sdkCompatibility="com.silabs.sdk.si32.efm32"
 																		  propertyScope="project"
 																		  contentRoot=".">
 {# Hierarchically include all folders into the project #}
@@ -55,6 +55,18 @@
     ${workspace_loc:/${ProjName}/{{ file }}}{% if not loop.last %} {% endif %}
     {%- endfor -%}"/>
     {%- endif %}
+{# Manually override linker ordering #}
+    {%- if libraries %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.category.ordering.selection" value="
+    {%- if object_files -%}
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}};
+    {%- endfor -%}
+    {%- endif -%}
+    {%- for library in libraries -%}
+    ${-l{{ library }}}{% if not loop.last %};{% endif %}
+    {%- endfor -%}"/>
+    {%- endif %}
 {# Define mbed-specific linker file #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>
@@ -62,8 +74,10 @@
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="-Wl,--wrap=main"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="-Wl,--wrap=main"/>
 {# For debug build, don't apply optimizations #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.none"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none"/>
-    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 "/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect.default"/>
   </configuration>
   <configuration name="com.silabs.ide.si32.gcc.release#com.silabs.ide.si32.gcc:4.8.3.20131129" label="GNU ARM v4.8.3 - Release" stockConfigCompatibility="com.silabs.ide.toolchain.core.release">
@@ -98,6 +112,18 @@
     ${workspace_loc:/${ProjName}/{{ file }}}{% if not loop.last %} {% endif %}
     {%- endfor -%}"/>
     {%- endif %}
+{# Manually override linker ordering #}
+    {%- if libraries %}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.category.ordering.selection" value="
+    {%- if object_files -%}
+    {%- for file in object_files -%}
+    ${workspace_loc:/${ProjName}/{{ file }}};
+    {%- endfor -%}
+    {%- endif -%}
+    {%- for library in libraries -%}{% if not loop.last %};{% endif %}
+    ${-l{{ library }}}
+    {%- endfor -%}"/>
+    {%- endif %}
 {# Define mbed-specific linker file #}
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.usescript" value="true"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.toolchain.exe" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.script" value="${workspace_loc:/${ProjName}/{{ linker_script }}}"/>
@@ -105,8 +131,10 @@
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.linker.base" optionId="gnu.c.link.option.ldflags" value="-Wl,--wrap=main"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.linker.base" optionId="gnu.cpp.link.option.flags" value="-Wl,--wrap=main"/>
 {# Use optimize for size on release build #}
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.optimization.level" value="gnu.c.optimization.level.size"/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.c.compiler.base" optionId="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.size"/>
-    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 "/>
+    <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -fno-rtti -fno-exceptions -fno-common -fomit-frame-pointer"/>
     <toolOption toolId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.base" optionId="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect" value="com.silabs.ide.si32.gcc.cdt.managedbuild.tool.gnu.cpp.compiler.misc.dialect.default"/>
   </configuration>
 </project>

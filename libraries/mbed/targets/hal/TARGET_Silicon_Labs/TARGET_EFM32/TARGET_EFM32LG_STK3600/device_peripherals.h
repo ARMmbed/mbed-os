@@ -26,15 +26,18 @@
 #define PWM_TIMER_CLOCK cmuClock_TIMER2
 #define PWM_ROUTE TIMER_ROUTE_LOCATION_LOC1
 
+/* USB */
+#define USB_TIMER USB_TIMER1
+
 /* Clocks */
 
 /* Clock definitions */
-#define LFXO	cmuSelect_LFXO
-#define HFXO	cmuSelect_HFXO
-#define LFRCO	cmuSelect_LFRCO
-#define HFRCO	cmuSelect_HFRCO
+#define LFXO	0
+#define HFXO	1
+#define LFRCO	2
+#define HFRCO	3
 #if !defined(_EFM32_GECKO_FAMILY)
-#define ULFRCO	cmuSelect_ULFRCO
+#define ULFRCO	4
 #endif
 
 /* Low Energy peripheral clock source.
@@ -64,7 +67,7 @@
 #define HFRCO_FREQUENCY 		CMU_HFRCOCTRL_BAND_14MHZ
 
 #define LFXO_FREQUENCY			32768
-#define HFXO_FREQUENCY			32000000
+#define HFXO_FREQUENCY			48000000
 
 #if (LOW_ENERGY_CLOCK_SOURCE == LFXO)
 #define LOW_ENERGY_CLOCK_FREQUENCY	LFXO_FREQUENCY

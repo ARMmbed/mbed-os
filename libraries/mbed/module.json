@@ -1,0 +1,30 @@
+{
+  "name": "mbed-classic",
+  "version": "0.0.1",
+  "description": "mbed core SDK (for mbed 2.0, *not* mbedOS)",
+  "keywords": [
+    "mbed"
+  ],
+  "author": "Bogdan Marinescu <bogdan.marinescu@arm.com>",
+  "repository": {
+    "url": "git@github.com:mbedmicro/mbed.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/mbedmicro/mbed",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    }
+  ],
+  "extraIncludes": [
+    "api",
+    "hal",
+    "targets/hal",
+    "targets/cmsis"
+  ],
+  "dependencies": {
+  },
+  "targetDependencies": {
+  }
+}

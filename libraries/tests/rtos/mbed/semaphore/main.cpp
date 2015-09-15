@@ -11,10 +11,22 @@
  * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
  * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
  */
-#if defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/4
+#if (defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)) && defined(TOOLCHAIN_GCC)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/16
+#elif (defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)) && defined(TOOLCHAIN_GCC)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/8
 #elif defined(TARGET_STM32F334R8) && (defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_IAR))
     #define STACK_SIZE DEFAULT_STACK_SIZE/4
+#elif defined(TARGET_STM32F103RB) && defined(TOOLCHAIN_IAR)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/4
+#elif defined(TARGET_STM32F030R8) && defined(TOOLCHAIN_IAR)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/4	
+#elif defined(TARGET_STM32F070RB) && defined(TOOLCHAIN_IAR)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2	
+#elif defined(TARGET_STM32F072RB) && defined(TOOLCHAIN_IAR)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2	
+#elif defined(TARGET_STM32F302R8) && defined(TOOLCHAIN_IAR)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2		
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif

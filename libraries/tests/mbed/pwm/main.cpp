@@ -28,7 +28,7 @@ int main() {
 
     notify_completion(result == value ? true : false);
 
-#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
     PwmOut pwm_p25(p25);
     PwmOut pwm_p26(p26);
 
@@ -166,6 +166,16 @@ int main() {
 
     printf("Initialize PWM on pin P1.2 with duty cycle: %.2f\n", pwm_1.read());
     printf("Initialize PWM on pin P1.3 with duty cycle: %.2f\n", pwm_2.read());
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
+    PwmOut pwm(LED1);
+
+    pwm.period_ms(1000);
+    pwm.write(value);
+
+    float result = floor(pwm.read() * 100 + 0.5) / 100; // round it to 0.xx
+    printf("Initialize PWM on pin LED1 with duty cycle: %.2f\n", result);
+
+    notify_completion(result == value ? true : false);
 #else
 #error This test is not supported on this target.
 #endif

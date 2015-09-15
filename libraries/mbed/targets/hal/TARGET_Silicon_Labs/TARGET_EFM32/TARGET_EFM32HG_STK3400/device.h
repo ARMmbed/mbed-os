@@ -45,10 +45,17 @@
 #define DEVICE_PWMOUT           1
 
 #define DEVICE_SLEEP            1
- 
+
 #define DEVICE_STDIO_MESSAGES   1
 
 #define DEVICE_LOWPOWERTIMER    1
+
+#define DEVICE_ERROR_PATTERN    1
+
+// Redefine OPEN_MAX from sys_limits.h to save on RAM.
+// Effect: maximum amount of file handlers = OPEN_MAX
+// This is not going to have an impact, since this is a RAM-limited part anyway.
+#define OPEN_MAX                24
 
 #include "objects.h"
 #include "Modules.h"

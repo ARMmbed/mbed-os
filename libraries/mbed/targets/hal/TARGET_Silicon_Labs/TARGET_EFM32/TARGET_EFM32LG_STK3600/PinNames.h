@@ -92,8 +92,8 @@ typedef enum {
     /* mbed modes:
      * PullUp, PullDown, PullNone, OpenDrain
      *
-	 * mbed default digital input mode:
-	 * PullDefault
+     * mbed default digital input mode:
+     * PullDefault
      *
      * mbed default digital output mode:
      * PullNone
@@ -102,7 +102,7 @@ typedef enum {
     PullDown = InputPullDown,
     OpenDrain = WiredAnd,
     PullNone = PushPull,
-    PullDefault = PullUp
+    PullDefault = PushPull
 } PinMode;
 
 #ifdef __cplusplus

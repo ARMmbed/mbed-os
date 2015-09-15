@@ -48,7 +48,7 @@ USBHAL::USBHAL(void) {
     // Enable power and clocking
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
 
-#if defined(TARGET_STM32F407VG) || defined(TARGET_STM32F401RE) || defined(TARGET_STM32F411RE)
+#if defined(TARGET_STM32F407VG) || defined(TARGET_STM32F401RE) || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F429ZI)
     pin_function(PA_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));
     pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_PULLDOWN, GPIO_AF10_OTG_FS));
     pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS));
@@ -307,7 +307,13 @@ void USBHAL::_usbisr(void) {
 
 
 void USBHAL::usbisr(void) {
+    if (OTG_FS->GREGS.GINTSTS & (1 << 11)) { // USB Suspend
+        suspendStateChanged(1);
+    };
+
     if (OTG_FS->GREGS.GINTSTS & (1 << 12)) { // USB Reset
+        suspendStateChanged(0);
+
         // Set SNAK bits
         OTG_FS->OUTEP_REGS[0].DOEPCTL |= (1 << 27);
         OTG_FS->OUTEP_REGS[1].DOEPCTL |= (1 << 27);

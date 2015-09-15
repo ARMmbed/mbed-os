@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    ADC_0 = ADC0_BASE 
+    ADC_0 = ADC0_BASE
 } ADCName;
 
 typedef enum {

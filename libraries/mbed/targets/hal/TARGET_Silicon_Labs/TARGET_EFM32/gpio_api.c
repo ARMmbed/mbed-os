@@ -19,9 +19,28 @@
 #include "mbed_assert.h"
 #include "sleepmodes.h"
 
-uint8_t gpio_get_index(gpio_t *obj)
+
+void gpio_write(gpio_t *obj, int value)
 {
-    return 0;
+    if (value) {
+        GPIO_PinOutSet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
+    } else {
+        GPIO_PinOutClear((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF);
+    }
+}
+
+int gpio_read(gpio_t *obj)
+{
+    if (obj->dir == PIN_INPUT) {
+        return GPIO_PinInGet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF); // Pin number encoded in first four bits of obj->pin
+    } else {
+        return GPIO_PinOutGet((GPIO_Port_TypeDef)(obj->pin >> 4 & 0xF), obj->pin & 0xF);
+    }
+}
+
+int gpio_is_connected(const gpio_t *obj)
+{
+    return (obj->pin | 0xFFFFFF00 )!= (PinName)NC;
 }
 
 /*
@@ -42,21 +61,49 @@ void gpio_init(gpio_t *obj, PinName pin)
     CMU_ClockEnable(cmuClock_HFPER, true);
     CMU_ClockEnable(cmuClock_GPIO, true);
     obj->pin = pin;
-    obj->mask = gpio_set(pin);
-    obj->port = pin >> 4;
-}
-
-void gpio_pin_enable(gpio_t *obj, uint8_t enable)
-{
-    if (enable) {
-        pin_mode(obj->pin, obj->mode);
-    } else {
-        pin_mode(obj->pin, Disabled); // TODO_LP return mode to default value
-    }
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
+        if(obj->dir == PIN_INPUT) {
+        switch(mode) {
+            case PullDefault:
+                mode = Input;
+                break;
+            case PullUp:
+                mode = InputPullUp;
+                break;
+            case PullDown:
+                mode = InputPullDown;
+                break;
+            default:
+                break;
+        }
+        
+        //Handle DOUT setting
+        if((mode & 0x10) != 0) {
+            //Set DOUT
+            GPIO->P[(obj->pin >> 4) & 0xF].DOUTSET = 1 << (obj->pin & 0xF);
+        } else {
+            //Clear DOUT
+            GPIO->P[(obj->pin >> 4) & 0xF].DOUTCLR = 1 << (obj->pin & 0xF);
+        }
+    } else {
+        switch(mode) {
+            case PullDefault:
+                mode = PushPull;
+                break;
+            case PullUp:
+                mode = WiredAndPullUp;
+                break;
+            case PullDown:
+                mode = WiredOrPullDown;
+                break;
+            default:
+                break;
+        }
+    }
+    
     obj->mode = mode; // Update object
     pin_mode(obj->pin, mode); // Update register
 }
@@ -74,4 +121,3 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
             break;
     }
 }
-

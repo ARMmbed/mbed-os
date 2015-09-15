@@ -237,7 +237,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
  * @param hint      A suggestion for how to use DMA with this transfer
  * @return Returns number of data transfered, or 0 otherwise
  */
-int serial_tx_asynch(serial_t *obj, void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint);
+int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint);
 
 /** Begin asynchronous RX transfer (enable interrupt for data collecting)
  *  The used buffer is specified in the serial object - rx_buff

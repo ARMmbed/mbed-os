@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,8 @@
 static DAC_HandleTypeDef DacHandle;
 
 // These variables are used for the "free" function
-static int pa4_used = 0;
-static int pa5_used = 0;
+static int channel1_used = 0;
+static int channel2_used = 0;
 
 void analogout_init(dac_t *obj, PinName pin)
 {
@@ -50,6 +50,11 @@ void analogout_init(dac_t *obj, PinName pin)
     // Get the peripheral name from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT(obj->dac != (DACName)NC);
+
+    // Get the pin function and assign the used channel to the object
+    uint32_t function = pinmap_function(pin, PinMap_DAC);
+    MBED_ASSERT(function != (uint32_t)NC);
+    obj->channel = STM_PIN_CHANNEL(function);
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
@@ -66,17 +71,22 @@ void analogout_init(dac_t *obj, PinName pin)
     sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
 
-    if (pin == PA_4) {
-        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_1);
-        pa4_used = 1;
-    }
-
 #if defined(DAC_CHANNEL_2)
-    if (pin == PA_5) {
-        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_2);
-        pa5_used = 1;
-    }
+    if (obj->channel == 2) {
+        if (HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_2) != HAL_OK) {
+            error("Cannot configure DAC channel 2");
+        }
+        channel2_used = 1;
+    } else
 #endif
+    {
+        // channel 1 per default
+        if (HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_1) != HAL_OK) {
+            error("Cannot configure DAC channel 1");
+        }
+        obj->channel = 1;
+        channel1_used = 1;
+    }
 
     analogout_write_u16(obj, 0);
 }
@@ -84,10 +94,10 @@ void analogout_init(dac_t *obj, PinName pin)
 void analogout_free(dac_t *obj)
 {
     // Reset DAC and disable clock
-    if (obj->pin == PA_4) pa4_used = 0;
-    if (obj->pin == PA_5) pa5_used = 0;
+    if (obj->channel == 1) channel1_used = 0;
+    if (obj->channel == 2) channel2_used = 0;
 
-    if ((pa4_used == 0) && (pa5_used == 0)) {
+    if ((channel1_used == 0) && (channel2_used == 0)) {
         __DAC_FORCE_RESET();
         __DAC_RELEASE_RESET();
         __DAC_CLK_DISABLE();
@@ -99,13 +109,12 @@ void analogout_free(dac_t *obj)
 
 static inline void dac_write(dac_t *obj, uint16_t value)
 {
-    if (obj->pin == PA_4) {
+    if (obj->channel == 1) {
         HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
         HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
     }
-
 #if defined(DAC_CHANNEL_2)
-    if (obj->pin == PA_5) {
+    if (obj->channel == 2) {
         HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, value);
         HAL_DAC_Start(&DacHandle, DAC_CHANNEL_2);
     }
@@ -114,17 +123,15 @@ static inline void dac_write(dac_t *obj, uint16_t value)
 
 static inline int dac_read(dac_t *obj)
 {
-    if (obj->pin == PA_4) {
+    if (obj->channel == 1) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
     }
 #if defined(DAC_CHANNEL_2)
-    else if (obj->pin == PA_5) {
+    if (obj->channel == 2) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
 #endif
-    else {
-        return 0;
-    }
+    return 0;
 }
 
 void analogout_write(dac_t *obj, float value)

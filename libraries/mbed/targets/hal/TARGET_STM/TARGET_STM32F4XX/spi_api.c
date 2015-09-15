@@ -92,18 +92,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             break;
     }
-    
-
-    // set default format and frequency
-    if (ssel == NC) {
-        spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
-    } else {
-        spi_format(obj, 8, 0, 1);  // 8 bits, mode 0, slave
-    }
-    spi_frequency(obj, 1000000);
-    
-    // enable the ssp channel
-    ssp_enable(obj);
 
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
@@ -111,8 +99,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
-    }
-    else {
+    } else {
         // Use software slave management
         obj->spi->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;
     }
@@ -132,6 +119,11 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
                      ((polarity) ? 1 : 0) << 1 |
                      ((slave) ? 0: 1) << 2 |
                      ((bits == 16) ? 1 : 0) << 11;
+
+    if (slave) {
+        // Use software slave management
+        obj->spi->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;
+    }
 
     if (obj->spi->SR & SPI_SR_MODF) {
         obj->spi->CR1 = obj->spi->CR1;

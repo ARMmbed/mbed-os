@@ -64,6 +64,8 @@
 
 #define DEVICE_ERROR_PATTERN    1
 
+#define DEVICE_LOWPOWERTIMER    1
+
 #define DEVICE_CAN              0
 #define DEVICE_ETHERNET         0
 

@@ -50,6 +50,7 @@ class Uvision4(Exporter):
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
+        'NUCLEO_F446RE',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
@@ -65,6 +66,9 @@ class Uvision4(Exporter):
         'ARCH_BLE',
         'DISCO_F407VG',
         'DISCO_L053C8',
+        'DISCO_F334C8',
+        'DISCO_F746NG',
+        'DISCO_L476VG',
         'MTS_GAMBIT',
         'ARCH_MAX',
         'MTS_MDOT_F405RG',
@@ -76,6 +80,7 @@ class Uvision4(Exporter):
         'MAXWSNENV',
         'MAX32600MBED',
         'MOTE_L152RC',
+        'NZ32SC151',
     ]
 
     USING_MICROLIB = [
@@ -93,15 +98,21 @@ class Uvision4(Exporter):
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
         'NUCLEO_F411RE',
+        'NUCLEO_F446RE',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
+        'DISCO_L053C8',
+        'DISCO_F334C8',
+        'DISCO_F746NG',
+        'DISCO_L476VG',
         'LPC1549',
         'LPC11U68',
         'LPC11U35_501',
         'KL05Z',
         'LPC11U37H_401',
         'MOTE_L152RC',
+        'NZ32SC151',
     ]
 
     FILE_TYPES = {

@@ -28,6 +28,12 @@
 extern "C" {
 #endif
 
+typedef struct {
+    PinName pin:8;
+    PinMode mode:6;
+    PinDirection dir:2;
+} gpio_t;
+
 #if DEVICE_ANALOGIN
 struct analogin_s {
     ADC_TypeDef *adc;
@@ -68,9 +74,9 @@ struct port_s {
 #if DEVICE_PWMOUT
 struct pwmout_s {
     //The period of the pulse in clock cycles
-    uint32_t period_cycles;
+    uint16_t period_cycles;
     //The width of the pulse in clock cycles
-    uint32_t width_cycles;
+    uint16_t width_cycles;
     //Channel on TIMER
     uint32_t channel;
     PinName pin;
@@ -79,10 +85,9 @@ struct pwmout_s {
 
 #if DEVICE_INTERRUPTIN
 struct gpio_irq_s {
-    uint32_t port;
-    PinName pin;
-    uint32_t risingEdge;
-    uint32_t fallingEdge;
+    PinName pin:8; // Pin number 4 least significant bits, port number 4 most significant bits
+    uint32_t risingEdge:1;
+    uint32_t fallingEdge:1;
 };
 #endif
 
@@ -129,15 +134,14 @@ struct lp_timer_s {
 #if DEVICE_SLEEP
 #define NUM_SLEEP_MODES 5
 typedef enum {
-	EM0 = 0,
-	EM1 = 1,
-	EM2 = 2,
-	EM3 = 3,
-	EM4 = 4
+    EM0 = 0,
+    EM1 = 1,
+    EM2 = 2,
+    EM3 = 3,
+    EM4 = 4
 } sleepstate_enum;
 #endif
 
-#include "gpio_object.h"
 
 #ifdef __cplusplus
 }

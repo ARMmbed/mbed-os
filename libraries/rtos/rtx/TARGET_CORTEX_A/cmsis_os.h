@@ -264,6 +264,9 @@ typedef struct os_thread_def  {
   osPriority             tpriority;    ///< initial thread priority
   uint32_t               instances;    ///< maximum number of instances of that thread function
   uint32_t               stacksize;    ///< stack size requirements in bytes; 0 is default stack size
+#ifdef __MBED_CMSIS_RTOS_CA9
+  uint32_t               *stack_pointer;  ///< pointer to the stack memory block
+#endif
 } osThreadDef_t;
 
 /// Timer Definition structure contains timer parameters.
@@ -356,10 +359,11 @@ int32_t osKernelRunning(void);
 #define osThreadDef(name, priority, instances, stacksz)  \
 extern const osThreadDef_t os_thread_def_##name
 #else                            // define the object
-#if defined (__MBED_CMSIS_RTOS_CA9)
+#ifdef __MBED_CMSIS_RTOS_CA9
 #define osThreadDef(name, priority, stacksz)  \
+uint32_t os_thread_def_stack_##name [stacksz / sizeof(uint32_t)]; \
 const osThreadDef_t os_thread_def_##name = \
-{ (name), (priority), 1, (stacksz)  }
+{ (name), (priority), 1, (stacksz), (os_thread_def_stack_##name) }
 #else
 #define osThreadDef(name, priority, instances, stacksz)  \
 const osThreadDef_t os_thread_def_##name = \

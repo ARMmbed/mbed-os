@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,8 +76,8 @@ static uint32_t pin_base_nr[16] = {
     7, // pin 11
     8, // pin 12
     9, // pin 13
-   10, // pin 14
-   11  // pin 15
+    10, // pin 14
+    11  // pin 15
 };
 
 static gpio_irq_handler irq_handler;

@@ -30,7 +30,7 @@
  * ownership rights.
  *******************************************************************************
  */
- 
+
 #include "mbed_error.h"
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
@@ -53,7 +53,7 @@ static inline void inc_current_cnt(uint32_t inc) {
 
     // Overflow the ticker when the us ticker overflows
     current_cnt += inc;
-    if(current_cnt > MAX_TICK_VAL) {
+    if (current_cnt > MAX_TICK_VAL) {
         current_cnt -= (MAX_TICK_VAL + 1);
     }
 }
@@ -64,7 +64,7 @@ static inline int event_passed(uint64_t current, uint64_t event) {
     // Determine if the event has already happened.
     // If the event is behind the current ticker, within a window,
     // then the event has already happened.
-    if(((current < tick_win) && ((event < current) || 
+    if (((current < tick_win) && ((event < current) || 
         (event > (MAX_TICK_VAL - (tick_win - current))))) || 
         ((event < current) && (event > (current - tick_win)))) {
         return 1;
@@ -169,7 +169,7 @@ uint32_t us_ticker_read(void)
 {
     uint64_t current_cnt1, current_cnt2;
     uint32_t term_cnt, tmr_cnt;
-    int intfl1, intfl2;
+    uint32_t intfl1, intfl2;
 
     if (!us_ticker_inited)
         us_ticker_init();
@@ -184,6 +184,7 @@ uint32_t us_ticker_read(void)
         current_cnt2 = current_cnt;
     } while ((current_cnt1 != current_cnt2) || (intfl1 != intfl2));
 
+    // Account for an unserviced interrupt
     if (intfl1) {
         current_cnt1 += term_cnt;
     }
@@ -197,6 +198,7 @@ uint32_t us_ticker_read(void)
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     // Note: interrupts are disabled before this function is called.
+
     US_TIMER->ctrl &= ~MXC_F_TMR_CTRL_ENABLE0;  // disable timer
 
     if (US_TIMER->intfl) {

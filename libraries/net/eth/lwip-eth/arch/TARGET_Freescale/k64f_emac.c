@@ -540,7 +540,7 @@ static void packet_rx(void* pvParameters) {
     /* Wait for receive task to wakeup */
     sys_arch_sem_wait(&k64f_enet->RxReadySem, 0);
 
-    if ((bdPtr[idx].control & kEnetRxBdEmpty) == 0) {
+    while ((bdPtr[idx].control & kEnetRxBdEmpty) == 0) {
       k64f_enetif_input(k64f_enet->netif, idx);
       idx = (idx + 1) % ENET_RX_RING_LEN;
     }

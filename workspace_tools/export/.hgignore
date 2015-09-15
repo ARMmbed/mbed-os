@@ -18,3 +18,5 @@ Makefile$
 \.ewp$
 \.eww$
 \.htm$
+Debug$
+.settings$
