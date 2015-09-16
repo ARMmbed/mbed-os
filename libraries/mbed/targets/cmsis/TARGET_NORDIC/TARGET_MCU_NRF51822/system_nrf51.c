@@ -92,7 +92,7 @@ void init_clock(void)
     /* For compatibility purpose, the default behaviour is to first attempt to initialise an
        external clock, and after a timeout, use the internal RC one. To avoid this wait, boards that
        don't have an external oscillator can set TARGET_NRF_LFCLK_RC directly. */
-    int i = 0;
+    uint32_t i = 0;
     const uint32_t polling_period = 200;
     const uint32_t timeout = 1000000;
 

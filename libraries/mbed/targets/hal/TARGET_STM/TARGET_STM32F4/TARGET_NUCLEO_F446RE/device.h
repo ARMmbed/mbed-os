@@ -63,7 +63,8 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
-#define DEVICE_ERROR_RED        0
+#define DEVICE_ERROR_RED        1
+#define LED_RED                 LED1
 
 #include "objects.h"
 

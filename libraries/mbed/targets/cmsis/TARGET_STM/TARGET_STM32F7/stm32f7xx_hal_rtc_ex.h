@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_rtc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of RTC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -186,9 +186,9 @@ typedef struct
 /** @defgroup RTCEx_TimeStamp_Pin_Selection RTCEx TimeStamp Pin Selection
   * @{
   */ 
-#define RTC_TIMESTAMPPIN_DEFAULT              ((uint32_t)0x00000000)
-#define RTC_TIMESTAMPPIN_PI8               ((uint32_t)0x00000002)
-#define RTC_TIMESTAMPPIN_PC1               ((uint32_t)0x00000004)
+#define RTC_TIMESTAMPPIN_DEFAULT            ((uint32_t)0x00000000)
+#define RTC_TIMESTAMPPIN_POS1               ((uint32_t)0x00000002)
+#define RTC_TIMESTAMPPIN_POS2               ((uint32_t)0x00000004)
 /**
   * @}
   */ 
@@ -431,7 +431,7 @@ typedef struct
   *            @arg RTC_FLAG_WUTF
   * @retval None
   */
-#define __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ISR) = (~(((__FLAG__) | RTC_ISR_INIT)& 0x0000FFFF)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT)) 
+#define __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ISR) = (~((__FLAG__) | RTC_ISR_INIT)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))    
 
 /**
   * @brief  Enable the RTC Tamper1 input detection.
@@ -488,7 +488,7 @@ typedef struct
   */
 #define __HAL_RTC_TAMPER_GET_IT(__HANDLE__, __INTERRUPT__)           (((__INTERRUPT__) == RTC_IT_TAMP1) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 3)) != RESET) ? SET : RESET) : \
                                                                       ((__INTERRUPT__) == RTC_IT_TAMP2) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 5)) != RESET) ? SET : RESET) : \
-                                                                      (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 7)) != RESET) ? SET : RESET))
+                                                                                                          (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 7)) != RESET) ? SET : RESET))
 
 /**
   * @brief  Check whether the specified RTC Tamper interrupt has been enabled or not.
@@ -525,7 +525,7 @@ typedef struct
   *             @arg RTC_FLAG_TAMP3F: Tamper3 flag
   * @retval None
   */
-#define __HAL_RTC_TAMPER_CLEAR_FLAG(__HANDLE__, __FLAG__)      ((__HANDLE__)->Instance->ISR) = (~(((__FLAG__) | RTC_ISR_INIT)& 0x0000FFFF)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))
+#define __HAL_RTC_TAMPER_CLEAR_FLAG(__HANDLE__, __FLAG__)      ((__HANDLE__)->Instance->ISR) = (~((__FLAG__) | RTC_ISR_INIT)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))
 
 /**
   * @brief  Enable the RTC TimeStamp peripheral.
@@ -601,7 +601,7 @@ typedef struct
   *             @arg RTC_FLAG_TSOVF
   * @retval None
   */
-#define __HAL_RTC_TIMESTAMP_CLEAR_FLAG(__HANDLE__, __FLAG__)   ((__HANDLE__)->Instance->ISR) = (~(((__FLAG__) | RTC_ISR_INIT)& 0x0000FFFF)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))
+#define __HAL_RTC_TIMESTAMP_CLEAR_FLAG(__HANDLE__, __FLAG__)   ((__HANDLE__)->Instance->ISR) = (~((__FLAG__) | RTC_ISR_INIT)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT))
 
 /**
   * @brief  Enable the RTC internal TimeStamp peripheral.
@@ -819,7 +819,7 @@ typedef struct
   * @brief Check whether the RTC Tamper and Timestamp associated Exti line interrupt flag is set or not.
   * @retval Line Status.
   */
-#define __HAL_RTC_TAMPER_TIMESTAMP_EXTI_GET_FLAG()         (EXTI->PR & RTC_EXTI_LINE_WAKEUPTIMER_EVENT)
+#define __HAL_RTC_TAMPER_TIMESTAMP_EXTI_GET_FLAG()         (EXTI->PR & RTC_EXTI_LINE_TAMPER_TIMESTAMP_EVENT)
 
 /**
   * @brief Clear the RTC Tamper and Timestamp associated Exti line flag.
@@ -930,7 +930,18 @@ HAL_StatusTypeDef HAL_RTCEx_PollForAlarmBEvent(RTC_HandleTypeDef *hrtc, uint32_t
   * @}
   */
 
-/* Private macros ------------------------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup RTCEx_Private_Constants RTCEx Private Constants
+  * @{
+  */
+/* Masks Definition */
+#define RTC_TAMPCR_TAMPXE     ((uint32_t) (RTC_TAMPCR_TAMP3E | RTC_TAMPCR_TAMP2E | RTC_TAMPCR_TAMP1E))
+#define RTC_TAMPCR_TAMPXIE    ((uint32_t) (RTC_TAMPER1_INTERRUPT | RTC_TAMPER2_INTERRUPT | RTC_TAMPER3_INTERRUPT))
+/**
+  * @}
+  */
+  
+/* Private macros ------------------------------------------------------------*/   
 /** @defgroup RTCEx_Private_Macros RTCEx Private Macros
   * @{
   */
@@ -945,11 +956,13 @@ HAL_StatusTypeDef HAL_RTCEx_PollForAlarmBEvent(RTC_HandleTypeDef *hrtc, uint32_t
 #define IS_RTC_BKP(__BKP__)               ((__BKP__) < (uint32_t) RTC_BKP_NUMBER)
 #define IS_TIMESTAMP_EDGE(__EDGE__) (((__EDGE__) == RTC_TIMESTAMPEDGE_RISING) || \
                                      ((__EDGE__) == RTC_TIMESTAMPEDGE_FALLING))
-#define IS_RTC_TAMPER(__TAMPER__) ((((__TAMPER__) & (uint32_t)0xFFFFFFD6) == 0x00) && ((__TAMPER__) != (uint32_t)RESET))
-#define IS_RTC_TAMPER_INTERRUPT(__INTERRUPT__) ((((__INTERRUPT__) & (uint32_t)0xFFB6FFFB) == 0x00) && ((__INTERRUPT__) != (uint32_t)RESET))
+#define IS_RTC_TAMPER(__TAMPER__)   ((((__TAMPER__) & ((uint32_t)(0xFFFFFFFF ^ RTC_TAMPCR_TAMPXE))) == 0x00) && ((__TAMPER__) != (uint32_t)RESET))
+
+#define IS_RTC_TAMPER_INTERRUPT(__INTERRUPT__)  ((((__INTERRUPT__) & (uint32_t)(0xFFFFFFFF ^ RTC_TAMPCR_TAMPXIE)) == 0x00) && ((__INTERRUPT__) != (uint32_t)RESET))
+
 #define IS_RTC_TIMESTAMP_PIN(__PIN__) (((__PIN__) == RTC_TIMESTAMPPIN_DEFAULT) || \
-                                       ((__PIN__) == RTC_TIMESTAMPPIN_PI8)  || \
-                                       ((__PIN__) == RTC_TIMESTAMPPIN_PC1))
+                                       ((__PIN__) == RTC_TIMESTAMPPIN_POS1)  || \
+                                       ((__PIN__) == RTC_TIMESTAMPPIN_POS2))
 #define IS_RTC_TAMPER_TRIGGER(__TRIGGER__) (((__TRIGGER__) == RTC_TAMPERTRIGGER_RISINGEDGE) || \
                                         ((__TRIGGER__) == RTC_TAMPERTRIGGER_FALLINGEDGE) || \
                                         ((__TRIGGER__) == RTC_TAMPERTRIGGER_LOWLEVEL) || \

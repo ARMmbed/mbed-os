@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f746xx.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    28-April-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   CMSIS STM32F746xx Device Peripheral Access Layer Header File.
   *
   *          This file contains:
@@ -322,9 +322,11 @@ typedef struct
 typedef struct
 {
   __IO uint32_t  DR;          /*!< CRC Data register,                           Address offset: 0x00 */
-  __IO uint32_t  IDR;         /*!< CRC Independent data register,               Address offset: 0x04 */
+  __IO uint8_t   IDR;         /*!< CRC Independent data register,               Address offset: 0x04 */
+  uint8_t        RESERVED0;   /*!< Reserved, 0x05                                                    */
+  uint16_t       RESERVED1;   /*!< Reserved, 0x06                                                    */
   __IO uint32_t  CR;          /*!< CRC Control register,                        Address offset: 0x08 */
-  uint32_t       RESERVED0;   /*!< Reserved,                                                    0x0C */
+  uint32_t       RESERVED2;   /*!< Reserved,                                                    0x0C */
   __IO uint32_t  INIT;        /*!< Initial CRC value register,                  Address offset: 0x10 */
   __IO uint32_t  POL;         /*!< CRC polynomial register,                     Address offset: 0x14 */
 } CRC_TypeDef;
@@ -4924,6 +4926,14 @@ typedef struct
 /*******************  Bit definition for I2C_OAR2 register  ******************/
 #define  I2C_OAR2_OA2                        ((uint32_t)0x000000FE)        /*!< Interface own address 2 */
 #define  I2C_OAR2_OA2MSK                     ((uint32_t)0x00000700)        /*!< Own address 2 masks     */
+#define  I2C_OAR2_OA2NOMASK                  ((uint32_t)0x00000000)        /*!< No mask */
+#define  I2C_OAR2_OA2MASK01                  ((uint32_t)0x00000100)        /*!< OA2[1] is masked, Only OA2[7:2] are compared */
+#define  I2C_OAR2_OA2MASK02                  ((uint32_t)0x00000200)        /*!< OA2[2:1] is masked, Only OA2[7:3] are compared */
+#define  I2C_OAR2_OA2MASK03                  ((uint32_t)0x00000300)        /*!< OA2[3:1] is masked, Only OA2[7:4] are compared */
+#define  I2C_OAR2_OA2MASK04                  ((uint32_t)0x00000400)        /*!< OA2[4:1] is masked, Only OA2[7:5] are compared */
+#define  I2C_OAR2_OA2MASK05                  ((uint32_t)0x00000500)        /*!< OA2[5:1] is masked, Only OA2[7:6] are compared */
+#define  I2C_OAR2_OA2MASK06                  ((uint32_t)0x00000600)        /*!< OA2[6:1] is masked, Only OA2[7] are compared */
+#define  I2C_OAR2_OA2MASK07                  ((uint32_t)0x00000700)        /*!< OA2[7:1] is masked, No comparison is done */
 #define  I2C_OAR2_OA2EN                      ((uint32_t)0x00008000)        /*!< Own address 2 enable    */
 
 /*******************  Bit definition for I2C_TIMINGR register *******************/
@@ -6557,7 +6567,7 @@ typedef struct
 #define  SAI_xSR_FLVL                     ((uint32_t)0x00070000)         /*!<FLVL[2:0] (FIFO Level Threshold)               */
 #define  SAI_xSR_FLVL_0                   ((uint32_t)0x00010000)         /*!<Bit 0 */
 #define  SAI_xSR_FLVL_1                   ((uint32_t)0x00020000)         /*!<Bit 1 */
-#define  SAI_xSR_FLVL_2                   ((uint32_t)0x00030000)         /*!<Bit 2 */
+#define  SAI_xSR_FLVL_2                   ((uint32_t)0x00040000)         /*!<Bit 2 */
 
 /******************  Bit definition for SAI_xCLRFR register  ******************/
 #define  SAI_xCLRFR_COVRUDR               ((uint32_t)0x00000001)        /*!<Clear Overrun underrun                               */

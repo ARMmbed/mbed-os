@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
@@ -173,7 +173,7 @@ typedef struct __SPI_HandleTypeDef
 #define HAL_SPI_ERROR_OVR          ((uint32_t)0x00000004)   /*!< OVR error            */
 #define HAL_SPI_ERROR_FRE          ((uint32_t)0x00000008)   /*!< FRE error            */
 #define HAL_SPI_ERROR_DMA          ((uint32_t)0x00000010)   /*!< DMA transfer error   */
-#define HAL_SPI_ERROR_FLAG         ((uint32_t)0x00000010)   /*!< Flag: RXNE,TXE, BSY  */
+#define HAL_SPI_ERROR_FLAG         ((uint32_t)0x00000020)   /*!< Flag: RXNE,TXE, BSY  */
 /**
   * @}
   */

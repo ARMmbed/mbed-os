@@ -286,8 +286,8 @@ typedef enum {
     LED3        = PI_1,
     LED4        = PI_1,
     USER_BUTTON = PI_11,
-    SERIAL_TX   = D1,
-    SERIAL_RX   = D0,
+    SERIAL_TX   = PA_9, // Virtual Com Port
+    SERIAL_RX   = PB_7, // Virtual Com Port
     USBTX       = PA_9, // Virtual Com Port
     USBRX       = PB_7, // Virtual Com Port
     I2C_SCL     = D15,

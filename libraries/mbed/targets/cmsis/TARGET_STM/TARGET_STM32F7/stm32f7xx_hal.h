@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -58,7 +58,10 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-
+/** @defgroup HAL_Exported_Macros HAL Exported Macros
+  * @{
+  */
+  
 /** @brief  Freeze/Unfreeze Peripherals in Debug mode 
   */
 #define __HAL_DBGMCU_FREEZE_TIM2()           (DBGMCU->APB1FZ |= (DBGMCU_APB1_FZ_DBG_TIM2_STOP))
@@ -122,17 +125,30 @@
 #define __HAL_SYSCFG_REMAPMEMORY_FMC_SDRAM() do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_SWP_FMC);\
                                           SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_SWP_FMC_0);\
                                          }while(0);
-
-
+/**
+  * @}
+  */
+  
 /* Exported functions --------------------------------------------------------*/
-
+/** @addtogroup HAL_Exported_Functions
+  * @{
+  */
+/** @addtogroup HAL_Exported_Functions_Group1
+  * @{
+  */
 /* Initialization and de-initialization functions  ******************************/
 HAL_StatusTypeDef HAL_Init(void);
 HAL_StatusTypeDef HAL_DeInit(void);
 void HAL_MspInit(void);
 void HAL_MspDeInit(void);
 HAL_StatusTypeDef HAL_InitTick (uint32_t TickPriority);
-
+/**
+  * @}
+  */
+ 
+/** @addtogroup HAL_Exported_Functions_Group2
+  * @{
+  */ 
 /* Peripheral Control functions  ************************************************/
 void HAL_IncTick(void);
 void HAL_Delay(__IO uint32_t Delay);
@@ -152,8 +168,30 @@ void HAL_EnableCompensationCell(void);
 void HAL_DisableCompensationCell(void);
 void HAL_EnableFMCMemorySwapping(void);
 void HAL_DisableFMCMemorySwapping(void);
+/**
+  * @}
+  */
 
-
+/**
+  * @}
+  */  
+/* Private types -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/** @defgroup HAL_Private_Variables HAL Private Variables
+  * @{
+  */
+/**
+  * @}
+  */
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup HAL_Private_Constants HAL Private Constants
+  * @{
+  */
+/**
+  * @}
+  */
+/* Private macros ------------------------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
 /**
   * @}
   */ 

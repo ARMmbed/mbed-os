@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC) peripheral:
   *           + Initialization and de-initialization functions
@@ -258,7 +258,7 @@ static void ADC_DMAHalfConvCplt(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
 {
   /* Check ADC handle */
-  if(hadc == HAL_NULL)
+  if(hadc == NULL)
   {
      return HAL_ERROR;
   }
@@ -317,7 +317,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
 HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
 {
   /* Check ADC handle */
-  if(hadc == HAL_NULL)
+  if(hadc == NULL)
   {
      return HAL_ERROR;
   } 

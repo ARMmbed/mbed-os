@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_sd.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Header file of SD HAL module.
   ******************************************************************************
   * @attention
@@ -603,7 +603,7 @@ typedef enum
 
 /**
   * @brief  Clear the SD's interrupt pending bits.
-  * @param  __HANDLE__ : SD Handle
+  * @param  __HANDLE__: SD Handle
   * @param  __INTERRUPT__: specifies the interrupt pending bit to clear. 
   *          This parameter can be one or a combination of the following values:
   *            @arg SDMMC_IT_CCRCFAIL: Command response received (CRC check failed) interrupt

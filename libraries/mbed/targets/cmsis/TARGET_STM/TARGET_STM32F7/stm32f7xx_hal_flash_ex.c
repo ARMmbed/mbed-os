@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    12-May-2015
+  * @version V1.0.1
+  * @date    25-June-2015
   * @brief   Extended FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the FLASH extension peripheral:
@@ -126,7 +126,7 @@ static HAL_StatusTypeDef  FLASH_OB_BOR_LevelConfig(uint8_t Level);
 static HAL_StatusTypeDef  FLASH_OB_BootAddressConfig(uint32_t BootOption, uint32_t Address);
 static uint32_t           FLASH_OB_GetUser(void);
 static uint32_t           FLASH_OB_GetWRP(void);
-static FlagStatus         FLASH_OB_GetRDP(void);
+static uint8_t            FLASH_OB_GetRDP(void);
 static uint32_t           FLASH_OB_GetBOR(void);
 static uint32_t           FLASH_OB_GetBootAddress(uint32_t BootOption);
 
@@ -727,18 +727,28 @@ static uint32_t FLASH_OB_GetWRP(void)
 /**
   * @brief  Returns the FLASH Read Protection level.
   * @retval FlagStatus FLASH ReadOut Protection Status:
-  *           - SET, when OB_RDP_Level_1 or OB_RDP_Level_2 is set
-  *           - RESET, when OB_RDP_Level_0 is set
+  *         This parameter can be one of the following values:
+  *            @arg OB_RDP_LEVEL_0: No protection
+  *            @arg OB_RDP_LEVEL_1: Read protection of the memory
+  *            @arg OB_RDP_LEVEL_2: Full chip protection
   */
-static FlagStatus FLASH_OB_GetRDP(void)
+static uint8_t FLASH_OB_GetRDP(void)
 {
-  FlagStatus readstatus = RESET;
-
-  if (((uint16_t)(FLASH->OPTCR & 0xFF00)) != (uint16_t)OB_RDP_LEVEL_0)
-  {
-    readstatus = SET;
-  }
+  uint8_t readstatus = OB_RDP_LEVEL_0;
   
+  if (((FLASH->OPTCR & FLASH_OPTCR_RDP) >> 8) == OB_RDP_LEVEL_0)
+  {
+    readstatus = OB_RDP_LEVEL_0;
+  }
+  else if (((FLASH->OPTCR & FLASH_OPTCR_RDP) >> 8) == OB_RDP_LEVEL_2)
+  {
+    readstatus = OB_RDP_LEVEL_2;
+  }
+  else 
+  {
+    readstatus = OB_RDP_LEVEL_1;
+  }
+
   return readstatus;
 }
 

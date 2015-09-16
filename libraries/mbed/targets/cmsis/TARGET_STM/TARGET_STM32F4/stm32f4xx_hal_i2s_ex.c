@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s_ex.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.3.2
+  * @date    26-June-2015
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2S extension peripheral:
@@ -188,7 +188,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   uint32_t tmp = 0, i2sclk = 0;
   
   /* Check the I2S handle allocation */
-  if(hi2s == HAL_NULL)
+  if(hi2s == NULL)
   {
     return HAL_ERROR;
   }
@@ -351,7 +351,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *p
   uint32_t tickstart = 0;
   uint32_t tmp1 = 0, tmp2 = 0;
  
-  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -525,7 +525,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t
   
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -649,7 +649,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
   uint32_t *tmp;
   uint32_t tmp1 = 0, tmp2 = 0;
     
-  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -902,12 +902,12 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   }
   
   /* Abort the I2S DMA Stream tx */
-  if(hi2s->hdmatx != HAL_NULL)
+  if(hi2s->hdmatx != NULL)
   {
     HAL_DMA_Abort(hi2s->hdmatx);
   }
   /* Abort the I2S DMA Stream rx */
-  if(hi2s->hdmarx != HAL_NULL)
+  if(hi2s->hdmarx != NULL)
   {
     HAL_DMA_Abort(hi2s->hdmarx);
   }

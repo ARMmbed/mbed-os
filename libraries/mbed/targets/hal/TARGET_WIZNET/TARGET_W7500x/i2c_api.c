@@ -40,6 +40,7 @@
 
 #include "wait_api.h"
 #include "us_ticker_api.h"
+#include "W7500x_i2c.h"
 
 /* Timeout values for flags and events waiting loops. These timeouts are
    not based on accurate values, they just guarantee that the application will
@@ -106,12 +107,12 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     
     if(stop)
     {  
-        if(I2C_Read(&conf, address,  data, length) != 0)
+        if(I2C_Read(&conf, address,  (uint8_t*)data, length) != 0)
             return -1;
     }
     else
     {
-        if(I2C_ReadRepeated(&conf, address,  data, length) != 0)
+        if(I2C_ReadRepeated(&conf, address,  (uint8_t*)data, length) != 0)
             return -1;
     }
     
@@ -129,12 +130,12 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     
     if(stop)
     {  
-        if(I2C_Write(&conf, address,  data, length) != 0)
+        if(I2C_Write(&conf, address,  (uint8_t*)data, length) != 0)
            return -1;
     }
     else
     {
-        if(I2C_WriteRepeated(&conf, address,  data, length) != 0)
+        if(I2C_WriteRepeated(&conf, address,  (uint8_t*)data, length) != 0)
            return -1;
     }
     
