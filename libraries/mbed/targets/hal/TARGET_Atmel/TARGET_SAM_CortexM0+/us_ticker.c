@@ -23,9 +23,15 @@
 #include "tc.h"
 #include "tc_interrupt.h"
 
+#if (SAMD21) || (SAMR21)
 #define TICKER_COUNTER_uS		TC4
 #define TICKER_COUNTER_IRQn		TC4_IRQn
 #define TICKER_COUNTER_Handlr	TC4_Handler
+#elif (SAML21) /*SAML21 TCC4 does not support 32 bit counter operations*/
+#define TICKER_COUNTER_uS		TC0
+#define TICKER_COUNTER_IRQn		TC0_IRQn
+#define TICKER_COUNTER_Handlr	TC0_Handler
+#endif
 
 static int us_ticker_inited = 0;
 extern uint8_t g_sys_init;

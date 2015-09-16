@@ -21,6 +21,11 @@
 
 #include "rtc_count.h"
 
+#if !defined(RTC_CLOCK_SOURCE)
+#  warning  RTC_CLOCK_SOURCE is not defined, assuming RTC_CLOCK_SELECTION_ULP1K.
+#  define RTC_CLOCK_SOURCE RTC_CLOCK_SELECTION_ULP1K
+#endif
+
 /* Global RTC instance*/
 static struct rtc_module rtc_instance;
 
@@ -67,7 +72,11 @@ void rtc_free(void)
         /* Disable the RTC module */
         rtc_count_disable(&rtc_instance);
         /* Disable the RTC clock */
+#if (SAMD21) || (SAMR21)
         system_gclk_chan_disable(RTC_GCLK_ID);
+#elif (SAML21)
+        system_gclk_chan_disable(RTC_CLOCK_SOURCE);
+#endif
         rtc_inited = 0;
     }
 }

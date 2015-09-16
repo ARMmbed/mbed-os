@@ -22,6 +22,9 @@
 
 #include "pinmap_function.h"
 
+#define 	SERCOM_SPI_STATUS_SYNCBUSY_Pos   15
+#define 	SERCOM_SPI_STATUS_SYNCBUSY   (0x1u << SERCOM_SPI_STATUS_SYNCBUSY_Pos)
+
 #define SPI_MOSI_INDEX	0
 #define SPI_MISO_INDEX	1
 #define SPI_SCLK_INDEX	2
@@ -64,8 +67,13 @@ static inline bool spi_is_syncing(spi_t *obj)
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
+#  ifdef FEATURE_SPI_SYNC_SCHEME_VERSION_2
     /* Return synchronization status */
     return (_SPI(obj).SYNCBUSY.reg);
+#  else
+    /* Return synchronization status */
+    return (_SPI(obj).STATUS.reg & SERCOM_SPI_STATUS_SYNCBUSY);
+#  endif
 }
 
 static inline void spi_enable(spi_t *obj)
@@ -261,12 +269,31 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t pm_index, gclk_index;
 #if (SAML21)
     if (sercom_index == 5) {
+#  ifdef ID_SERCOM5
         pm_index     = MCLK_APBDMASK_SERCOM5_Pos;
         gclk_index   =  SERCOM5_GCLK_ID_CORE;
+#  else
+        return STATUS_ERR_INVALID_ARG;
+#  endif
     } else {
         pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
         gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
     }
+#elif (SAMC21)
+    if (sercom_index == 5) {
+#  ifdef ID_SERCOM5
+        pm_index     = MCLK_APBCMASK_SERCOM5_Pos;
+        gclk_index   =  SERCOM5_GCLK_ID_CORE;
+#  else
+        return STATUS_ERR_INVALID_ARG;
+#  endif
+    } else {
+        pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
+        gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+    }
+#elif (SAMC20)
+    pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
+    gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
 #else
     pm_index     = sercom_index + PM_APBCMASK_SERCOM0_Pos;
     gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
@@ -275,7 +302,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     /* Turn on module in PM */
 #if (SAML21)
     if (sercom_index == 5) {
+#  ifdef ID_SERCOM5
         system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBD, 1 << pm_index);
+#  else
+        return STATUS_ERR_INVALID_ARG;
+#  endif
     } else {
         system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBC, 1 << pm_index);
     }
@@ -427,6 +458,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     uint16_t baud = 0;
+    uint32_t gclk_index = 0;
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
@@ -435,7 +467,31 @@ void spi_frequency(spi_t *obj, int hz)
 
     /* Find frequency of the internal SERCOMi_GCLK_ID_CORE */
     uint32_t sercom_index = _sercom_get_sercom_inst_index(pSPI_SERCOM(obj));
-    uint32_t gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#if (SAML21)
+    if (sercom_index == 5) {
+#  ifdef ID_SERCOM5
+        gclk_index   =  SERCOM5_GCLK_ID_CORE;
+#  else
+        return STATUS_ERR_INVALID_ARG;
+#  endif
+    } else {
+        gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+    }
+#elif (SAMC21)
+    if (sercom_index == 5) {
+#  ifdef ID_SERCOM5
+        gclk_index   =  SERCOM5_GCLK_ID_CORE;
+#  else
+        return STATUS_ERR_INVALID_ARG;
+#  endif
+    } else {
+        gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+    }
+#elif (SAMC20)
+    gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#else
+    gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#endif
     uint32_t internal_clock = system_gclk_chan_get_hz(gclk_index);
 
     /* Get baud value, based on baudrate and the internal clock frequency */
