@@ -702,6 +702,16 @@ class NUCLEO_L152RE(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0710"]
 
+class NUCLEO_L476RG(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32L4', 'STM32L476RG']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.detect_code = ["0765"]
+
 class STM32F3XX(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1576,6 +1586,15 @@ class SAMR21G18A(Target):
         self.supported_toolchains = ["GCC_ARM"]
         self.default_toolchain = "GCC_ARM"
 
+class SAMD21J18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
+        self.macros = ['__SAMD21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
 # Get a single instance for each target
 TARGETS = [
 
@@ -1643,6 +1662,7 @@ TARGETS = [
     NUCLEO_L053R8(),
     NUCLEO_L073RZ(),
     NUCLEO_L152RE(),
+    NUCLEO_L476RG(),
     STM32F3XX(),
     STM32F407(),
     DISCO_F051R8(),
@@ -1728,7 +1748,9 @@ TARGETS = [
     ### WIZnet ###
     WIZWIKI_W7500(),
 
+    ### Atmel ###
     SAMR21G18A(),
+    SAMD21J18A(),
 ]
 
 # Map each target name to its unique instance

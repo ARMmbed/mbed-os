@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 #include "rtc_api.h"
+#include "cmsis.h"
+#include "W7500x_pwm.h"
 
 time_t wiz_rtc_time;
 char rtc_enabled = 0;

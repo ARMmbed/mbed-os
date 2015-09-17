@@ -14,6 +14,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "W7500x.h"
+#include "W7500x_uart.h"
 
 void UART_StructInit(UART_InitTypeDef* UART_InitStruct)
 {

@@ -58,7 +58,7 @@ DigitalIn  in(PC1);
 DigitalOut out(PE10);
 DigitalIn  in(PC1);
 
-#elif defined(TARGET_SAMR21G18A)
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
 DigitalOut out(PA06);
 DigitalIn  in(PA07);
 
