@@ -136,10 +136,10 @@ void rtc_free(void)
 void rtc_free_real(uint32_t flags)
 {
     /* Clear use flag */
-    flags &= ~flags;
+    useflags &= ~flags;
 
     /* Disable the RTC if it was inited and is no longer in use by anyone. */
-    if (rtc_inited && (flags == 0)) {
+    if (rtc_inited && (useflags == 0)) {
         NVIC_DisableIRQ(RTC_IRQn);
         RTC_Reset();
         CMU_ClockEnable(cmuClock_RTC, false);
