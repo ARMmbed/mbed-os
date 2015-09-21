@@ -39,6 +39,7 @@ from workspace_tools.test_api import get_autodetected_MUTS_list
 from workspace_tools.test_api import get_module_avail
 
 
+
 class Mbed:
     """ Base class for a host driven test
     """
@@ -146,6 +147,7 @@ class Mbed:
                     mut = muts_list[1]
                     self.port = mut['port']
                     found = True
+
                     break
                 else:
                     sleep(3)

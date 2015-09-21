@@ -17,11 +17,12 @@ limitations under the License.
 
 import os
 import sys
-import mbed_lstools
-import ctypes
 from os.path import join, basename, exists, abspath, dirname
 from time import sleep
 from host_test_plugins import HostTestPluginBase
+
+sys.path.append(abspath(join(dirname(__file__), "../../../")))
+from workspace_tools.test_api import get_autodetected_MUTS_list
 
 class HostTestPluginCopyMethod_Smart(HostTestPluginBase):
 
@@ -72,19 +73,8 @@ class HostTestPluginCopyMethod_Smart(HostTestPluginBase):
                 remount_complete = False
 
                 for i in range(0, 60):
-                    oldError = None
-                    if os.name == 'nt':
-                        # Disable Windows error box temporarily
-                        oldError = ctypes.windll.kernel32.SetErrorMode(1) #note that SEM_FAILCRITICALERRORS = 1
-
                     print('Looking for %s with MBEDLS' % target_mcu)
-                    mbeds = mbed_lstools.create()
-                    detect_muts_list = mbeds.list_mbeds()
-
-                    if os.name == 'nt':
-                        ctypes.windll.kernel32.SetErrorMode(oldError)
-
-                    muts_list = get_autodetected_MUTS(detect_muts_list, platform_name_filter=platform_name_filter)
+                    muts_list = get_autodetected_MUTS_list(platform_name_filter=platform_name_filter)
 
                     if 1 in muts_list:
                         mut = muts_list[1]
@@ -119,44 +109,10 @@ class HostTestPluginCopyMethod_Smart(HostTestPluginBase):
 
                     result = None
 
+
         return result
 
 def load_plugin():
     """ Returns plugin available in this module
     """
     return HostTestPluginCopyMethod_Smart()
-
-def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
-    """ Function detects all connected to host mbed-enabled devices and generates artificial MUTS file.
-        If function fails to auto-detect devices it will return empty dictionary.
-
-        if get_module_avail('mbed_lstools'):
-            mbeds = mbed_lstools.create()
-            mbeds_list = mbeds.list_mbeds()
-
-        @param mbeds_list list of mbeds captured from mbed_lstools
-        @param platform_name You can filter 'platform_name' with list of filtered targets from 'platform_name_filter'
-    """
-    result = {}   # Should be in muts_all.json format
-    # Align mbeds_list from mbed_lstools to MUT file format (JSON dictionary with muts)
-    # mbeds_list = [{'platform_name': 'NUCLEO_F302R8', 'mount_point': 'E:', 'target_id': '07050200623B61125D5EF72A', 'serial_port': u'COM34'}]
-    index = 1
-    for mut in mbeds_list:
-        # Filter the MUTS if a filter is specified
-
-        if platform_name_filter and not mut['platform_name'] in platform_name_filter:
-            continue
-
-        # For mcu_unique - we are assigning 'platform_name_unique' value from  mbedls output (if its existing)
-        # if not we  are creating our own unique value (last few chars from platform's target_id).
-        m = {'mcu': mut['platform_name'],
-             'mcu_unique' : mut['platform_name_unique'] if 'platform_name_unique' in mut else "%s[%s]" % (mut['platform_name'], mut['target_id'][-4:]),
-             'port': mut['serial_port'],
-             'disk': mut['mount_point'],
-             'peripherals': []     # No peripheral detection
-             }
-        if index not in result:
-            result[index] = {}
-        result[index] = m
-        index += 1
-    return result
