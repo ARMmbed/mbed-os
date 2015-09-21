@@ -1707,6 +1707,7 @@ def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
     index = 1
     for mut in mbeds_list:
         # Filter the MUTS if a filter is specified
+
         if platform_name_filter and not mut['platform_name'] in platform_name_filter:
             continue
 
