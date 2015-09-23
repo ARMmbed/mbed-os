@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pcd.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -44,7 +44,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -143,7 +143,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
   uint32_t wInterrupt_Mask = 0;
   
   /* Check the PCD handle allocation */
-  if(hpcd == HAL_NULL)
+  if(hpcd == NULL)
   {
     return HAL_ERROR;
   }
@@ -214,7 +214,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
 HAL_StatusTypeDef HAL_PCD_DeInit(PCD_HandleTypeDef *hpcd)
 {
   /* Check the PCD handle allocation */
-  if(hpcd == HAL_NULL)
+  if(hpcd == NULL)
   {
     return HAL_ERROR;
   }

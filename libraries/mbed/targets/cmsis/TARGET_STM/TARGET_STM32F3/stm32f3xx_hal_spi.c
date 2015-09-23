@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_spi.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   SPI HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -83,7 +83,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -219,7 +219,7 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
   uint32_t frxth;
   
   /* Check the SPI handle allocation */
-  if(hspi == HAL_NULL)
+  if(hspi == NULL)
   { 
     return HAL_ERROR;
   }
@@ -314,7 +314,7 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
 {
   /* Check the SPI handle allocation */
-  if(hspi == HAL_NULL)
+  if(hspi == NULL)
   {
      return HAL_ERROR;
   }
@@ -434,7 +434,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint
     return HAL_BUSY;
   }
   
-  if((pData == HAL_NULL ) || (Size == 0))
+  if((pData == NULL ) || (Size == 0))
   {
     return HAL_ERROR;
   }
@@ -448,7 +448,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint
   hspi->pTxBuffPtr  = pData;
   hspi->TxXferSize  = Size;
   hspi->TxXferCount = Size;
-  hspi->pRxBuffPtr  = HAL_NULL;
+  hspi->pRxBuffPtr  = NULL;
   hspi->RxXferSize  = 0;
   hspi->RxXferCount = 0;
 
@@ -565,7 +565,7 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
     return HAL_BUSY;
   }
   
-  if((pData == HAL_NULL ) || (Size == 0))
+  if((pData == NULL ) || (Size == 0))
   {
     return HAL_ERROR;
   }
@@ -585,7 +585,7 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
   hspi->pRxBuffPtr  = pData;
   hspi->RxXferSize  = Size;
   hspi->RxXferCount = Size;
-  hspi->pTxBuffPtr  = HAL_NULL;
+  hspi->pTxBuffPtr  = NULL;
   hspi->TxXferSize  = 0;
   hspi->TxXferCount = 0;
     
@@ -686,10 +686,13 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
     if(hspi->Init.DataSize > SPI_DATASIZE_8BIT)
     {        
       tmpreg = hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */      
     }
     else
     {
       tmpreg = *(__IO uint8_t *)&hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */      
+
       if((hspi->Init.DataSize == SPI_DATASIZE_8BIT) && (hspi->Init.CRCLength == SPI_CRC_LENGTH_16BIT))
       {
         if(SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SPI_FLAG_RXNE, Timeout) != HAL_OK)
@@ -698,6 +701,7 @@ HAL_StatusTypeDef HAL_SPI_Receive(SPI_HandleTypeDef *hspi, uint8_t *pData, uint1
           hspi->ErrorCode|= HAL_SPI_ERROR_CRC;
         }
         tmpreg = *(__IO uint8_t *)&hspi->Instance->DR;
+        UNUSED(tmpreg); /* To avoid GCC warning */      
       }
     }
   }
@@ -755,7 +759,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxD
     return HAL_BUSY;
   }
   
-  if((pTxData == HAL_NULL) || (pRxData == HAL_NULL) || (Size == 0))
+  if((pTxData == NULL) || (pRxData == NULL) || (Size == 0))
   {
     return HAL_ERROR;
   }
@@ -908,10 +912,13 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxD
     if(hspi->Init.DataSize == SPI_DATASIZE_16BIT)
     {
       tmpreg = hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */      
     }
     else
     {
       tmpreg = *(__IO uint8_t *)&hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */      
+
       if(hspi->Init.CRCLength == SPI_CRC_LENGTH_16BIT)
       {
         if(SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SPI_FLAG_RXNE, Timeout) != HAL_OK) 
@@ -920,6 +927,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive(SPI_HandleTypeDef *hspi, uint8_t *pTxD
           hspi->ErrorCode|= HAL_SPI_ERROR_CRC;
         }    
         tmpreg = *(__IO uint8_t *)&hspi->Instance->DR;
+        UNUSED(tmpreg); /* To avoid GCC warning */      
       }
     }
   }
@@ -971,7 +979,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, u
   
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -984,19 +992,19 @@ HAL_StatusTypeDef HAL_SPI_Transmit_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, u
     hspi->pTxBuffPtr  = pData;
     hspi->TxXferSize  = Size;
     hspi->TxXferCount = Size;
-    hspi->pRxBuffPtr  = HAL_NULL;
+    hspi->pRxBuffPtr  = NULL;
     hspi->RxXferSize  = 0;
     hspi->RxXferCount = 0;
 
     /* Set the function for IT treatement */
     if(hspi->Init.DataSize > SPI_DATASIZE_8BIT )
     {
-      hspi->RxISR = HAL_NULL;
+      hspi->RxISR = NULL;
       hspi->TxISR = SPI_TxISR_16BIT;
     }
     else
     {
-      hspi->RxISR = HAL_NULL;
+      hspi->RxISR = NULL;
       hspi->TxISR = SPI_TxISR_8BIT;
     }
     
@@ -1048,7 +1056,7 @@ HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, ui
 {
   if(hspi->State == HAL_SPI_STATE_READY)
   {
-    if((pData == HAL_NULL) || (Size == 0))
+    if((pData == NULL) || (Size == 0))
     { 
       return  HAL_ERROR;                      
     }
@@ -1062,7 +1070,7 @@ HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, ui
     hspi->pRxBuffPtr  = pData;
     hspi->RxXferSize  = Size;
     hspi->RxXferCount = Size;
-    hspi->pTxBuffPtr  = HAL_NULL;
+    hspi->pTxBuffPtr  = NULL;
     hspi->TxXferSize  = 0;
     hspi->TxXferCount = 0;
 
@@ -1094,14 +1102,14 @@ HAL_StatusTypeDef HAL_SPI_Receive_IT(SPI_HandleTypeDef *hspi, uint8_t *pData, ui
       /* set fiforxthresold according the reception data lenght: 16 bit */
       CLEAR_BIT(hspi->Instance->CR2, SPI_RXFIFO_THRESHOLD);
       hspi->RxISR = SPI_RxISR_16BIT;
-      hspi->TxISR = HAL_NULL;
+      hspi->TxISR = NULL;
     }
     else
     {
       /* set fiforxthresold according the reception data lenght: 8 bit */
       SET_BIT(hspi->Instance->CR2, SPI_RXFIFO_THRESHOLD);
       hspi->RxISR = SPI_RxISR_8BIT;
-      hspi->TxISR = HAL_NULL;
+      hspi->TxISR = NULL;
     }
     
     /* Configure communication direction : 1Line */
@@ -1156,7 +1164,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_IT(SPI_HandleTypeDef *hspi, uint8_t *p
   if((hspi->State == HAL_SPI_STATE_READY) || \
      ((hspi->Init.Mode == SPI_MODE_MASTER) && (hspi->Init.Direction == SPI_DIRECTION_2LINES) && (hspi->State == HAL_SPI_STATE_BUSY_RX)))
   {
-    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1254,7 +1262,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, 
     return HAL_BUSY;
   }
   
-  if((pData == HAL_NULL) || (Size == 0))
+  if((pData == NULL) || (Size == 0))
   {
     return HAL_ERROR;
   }
@@ -1267,7 +1275,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, 
   hspi->pTxBuffPtr  = pData;
   hspi->TxXferSize  = Size;
   hspi->TxXferCount = Size;
-  hspi->pRxBuffPtr  = HAL_NULL;
+  hspi->pRxBuffPtr  = NULL;
   hspi->RxXferSize  = 0;
   hspi->RxXferCount = 0;
   
@@ -1339,7 +1347,7 @@ HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, u
     return HAL_BUSY;
   }
   
-  if((pData == HAL_NULL) || (Size == 0))
+  if((pData == NULL) || (Size == 0))
   {
     return HAL_ERROR;
   }
@@ -1352,7 +1360,7 @@ HAL_StatusTypeDef HAL_SPI_Receive_DMA(SPI_HandleTypeDef *hspi, uint8_t *pData, u
   hspi->pRxBuffPtr  = pData;
   hspi->RxXferSize  = Size;
   hspi->RxXferCount = Size;
-  hspi->pTxBuffPtr  = HAL_NULL;
+  hspi->pTxBuffPtr  = NULL;
   hspi->TxXferSize  = 0;
   hspi->TxXferCount = 0;
 
@@ -1438,7 +1446,7 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
   if((hspi->State == HAL_SPI_STATE_READY) ||
      ((hspi->Init.Mode == SPI_MODE_MASTER) && (hspi->Init.Direction == SPI_DIRECTION_2LINES) && (hspi->State == HAL_SPI_STATE_BUSY_RX)))
   {
-    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1533,9 +1541,9 @@ HAL_StatusTypeDef HAL_SPI_TransmitReceive_DMA(SPI_HandleTypeDef *hspi, uint8_t *
     /* Enable the Rx DMA channel */
     HAL_DMA_Start_IT(hspi->hdmarx, (uint32_t)&hspi->Instance->DR, (uint32_t) hspi->pRxBuffPtr, hspi->RxXferCount);
     
-    /* Set the SPI Tx DMA transfer complete callback as HAL_NULL because the communication closing
+    /* Set the SPI Tx DMA transfer complete callback as NULL because the communication closing
     is performed in DMA reception complete callback  */
-    hspi->hdmatx->XferCpltCallback = HAL_NULL;
+    hspi->hdmatx->XferCpltCallback = NULL;
     
     /* Set the DMA error callback */
     hspi->hdmatx->XferErrorCallback = SPI_DMAError;
@@ -1691,10 +1699,13 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
     if(hspi->Init.DataSize > SPI_DATASIZE_8BIT)
     {        
       tmpreg = hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */
     }
     else
     {
       tmpreg = *(__IO uint8_t *)&hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */
+
       if(hspi->Init.CRCLength == SPI_CRC_LENGTH_16BIT)
       {
         if(SPI_WaitFlagStateUntilTimeout(hspi, SPI_FLAG_RXNE, SPI_FLAG_RXNE, SPI_DEFAULT_TIMEOUT) != HAL_OK)
@@ -1703,6 +1714,7 @@ static void SPI_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
           hspi->ErrorCode|= HAL_SPI_ERROR_CRC;      
         }
         tmpreg = *(__IO uint8_t *)&hspi->Instance->DR;
+        UNUSED(tmpreg); /* To avoid GCC warning */
       }
     }  
   }
@@ -1760,6 +1772,7 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
         hspi->ErrorCode|= HAL_SPI_ERROR_CRC;      
       }
       tmpreg = *(__IO uint8_t *)&hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */
     }
     else
     {
@@ -1769,6 +1782,7 @@ static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)
         hspi->ErrorCode|= HAL_SPI_ERROR_CRC;      
       }
       tmpreg = hspi->Instance->DR;
+      UNUSED(tmpreg); /* To avoid GCC warning */
     }
   }  
   
@@ -1963,6 +1977,8 @@ static void SPI_2linesRxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
   __IO uint8_t tmpreg;
   
   tmpreg = *((__IO uint8_t *)&hspi->Instance->DR);
+  UNUSED(tmpreg); /* To avoid GCC warning */
+  
   hspi->CRCSize--;
   
   /* check end of the reception */
@@ -2053,6 +2069,7 @@ static void SPI_2linesRxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
   __IO uint16_t tmpreg;
   /* Receive data in 16 Bit mode */
   tmpreg = hspi->Instance->DR;
+  UNUSED(tmpreg); /* To avoid GCC warning */
   
   /* Disable RXNE interrupt */
   __HAL_SPI_DISABLE_IT(hspi, SPI_IT_RXNE); 
@@ -2096,6 +2113,8 @@ static void SPI_RxISR_8BITCRC(struct __SPI_HandleTypeDef *hspi)
 {
   __IO uint8_t tmpreg;
   tmpreg = *((__IO uint8_t*)&hspi->Instance->DR);
+  UNUSED(tmpreg); /* To avoid GCC warning */
+
   hspi->CRCSize--;
   
   if(hspi->CRCSize == 0)
@@ -2139,6 +2158,7 @@ static void SPI_RxISR_16BITCRC(struct __SPI_HandleTypeDef *hspi)
   __IO uint16_t tmpreg;
   
   tmpreg = hspi->Instance->DR;
+  UNUSED(tmpreg); /* To avoid GCC warning */
   
   /* Disable RXNE and ERR interrupt */
   __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_RXNE | SPI_IT_ERR));
@@ -2283,6 +2303,7 @@ static HAL_StatusTypeDef SPI_WaitFifoStateUntilTimeout(SPI_HandleTypeDef *hspi, 
     if((Flag == SPI_SR_FRLVL) && (State == SPI_FRLVL_EMPTY))
     {
       tmpreg = *((__IO uint8_t*)&hspi->Instance->DR);
+      UNUSED(tmpreg); /* To avoid GCC warning */
     }
     if(Timeout != HAL_MAX_DELAY)
     {

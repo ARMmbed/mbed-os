@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_opamp.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   OPAMP HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -158,7 +158,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -252,7 +252,7 @@ HAL_StatusTypeDef HAL_OPAMP_Init(OPAMP_HandleTypeDef *hopamp)
 
   /* Check the OPAMP handle allocation and lock status */
   /* Init not allowed if calibration is ongoing */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY))
   {
     return HAL_ERROR;
@@ -376,7 +376,7 @@ HAL_StatusTypeDef HAL_OPAMP_DeInit(OPAMP_HandleTypeDef *hopamp)
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
   /* DeInit not allowed if calibration is ongoing */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY))
   {
     status = HAL_ERROR;
@@ -457,7 +457,7 @@ HAL_StatusTypeDef HAL_OPAMP_Start(OPAMP_HandleTypeDef *hopamp)
   
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
                       
   {
     status = HAL_ERROR;
@@ -498,7 +498,7 @@ HAL_StatusTypeDef HAL_OPAMP_Stop(OPAMP_HandleTypeDef *hopamp)
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
   /* Check if OPAMP calibration ongoing */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY))  
   {
     status = HAL_ERROR;
@@ -544,7 +544,7 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
   
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
   {
     status = HAL_ERROR;
   }
@@ -739,7 +739,7 @@ HAL_StatusTypeDef HAL_OPAMP_Lock(OPAMP_HandleTypeDef *hopamp)
   /* Check if OPAMP locked */
   /* OPAMP can be locked when enabled and running in normal mode */ 
   /*   It is meaningless otherwise */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
                       || (hopamp->State == HAL_OPAMP_STATE_READY) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY)\
                       || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))
@@ -789,7 +789,7 @@ HAL_StatusTypeDef HAL_OPAMP_Lock(OPAMP_HandleTypeDef *hopamp)
 HAL_OPAMP_StateTypeDef HAL_OPAMP_GetState(OPAMP_HandleTypeDef *hopamp)
 {
   /* Check the OPAMP handle allocation */
-  if(hopamp == HAL_NULL)
+  if(hopamp == NULL)
   {
     return HAL_OPAMP_STATE_RESET;
   }
@@ -815,7 +815,7 @@ OPAMP_TrimmingValueTypeDef HAL_OPAMP_GetTrimOffset (OPAMP_HandleTypeDef *hopamp,
   
   /* Check the OPAMP handle allocation */
   /* Value can be retrieved in HAL_OPAMP_STATE_READY state */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET) \
                       || (hopamp->State == HAL_OPAMP_STATE_BUSY) \
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY)\
                       || (hopamp->State == HAL_OPAMP_STATE_BUSYLOCKED))

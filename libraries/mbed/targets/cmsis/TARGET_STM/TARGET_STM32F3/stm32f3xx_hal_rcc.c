@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -37,7 +37,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -282,7 +282,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   uint32_t tickstart = 0;
 
   /* Check the parameters */
-  assert_param(RCC_ClkInitStruct != HAL_NULL);
+  assert_param(RCC_ClkInitStruct != NULL);
   assert_param(IS_RCC_CLOCKTYPE(RCC_ClkInitStruct->ClockType));
   assert_param(IS_FLASH_LATENCY(FLatency));
 
@@ -669,8 +669,8 @@ __weak void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
 void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t *pFLatency)
 {
   /* Check the parameters */
-  assert_param(RCC_ClkInitStruct != HAL_NULL);
-  assert_param(pFLatency != HAL_NULL);
+  assert_param(RCC_ClkInitStruct != NULL);
+  assert_param(pFLatency != NULL);
 
   /* Set all possible values for the Clock type parameter --------------------*/
   RCC_ClkInitStruct->ClockType = RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2s_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   I2S Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2S Extended peripheral:
@@ -88,7 +88,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -228,7 +228,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
        /* STM32F302xC || STM32F303xC || STM32F358xx    */
   
   /* Check the I2S handle allocation */
-  if(hi2s == HAL_NULL)
+  if(hi2s == NULL)
   {
     return HAL_ERROR;
   }
@@ -789,7 +789,7 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   */
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size, uint32_t Timeout)
 {
-  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   }
@@ -1028,7 +1028,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t
 {
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1176,7 +1176,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
 {
   uint32_t *tmp;
     
-  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   }

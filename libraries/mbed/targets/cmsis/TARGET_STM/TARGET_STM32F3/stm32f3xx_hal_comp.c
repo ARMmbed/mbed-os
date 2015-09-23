@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   COMP HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -201,7 +201,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -279,7 +279,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -342,7 +342,7 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -416,7 +416,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -451,7 +451,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -587,7 +587,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -679,7 +679,7 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
-  if(hcomp == HAL_NULL)
+  if(hcomp == NULL)
   {
     return HAL_COMP_STATE_RESET;
   }
