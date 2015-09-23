@@ -96,11 +96,6 @@ void rtc_init_real(uint32_t flags)
     useflags |= flags;
 
     if (!rtc_inited) {
-        /* Start LFXO and wait until it is stable */
-        CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
-
-        /* Route the LFXO clock to the RTC */
-        CMU_ClockSelectSet(cmuClock_LFA, LOW_ENERGY_CLOCK_SOURCE);
         CMU_ClockEnable(cmuClock_RTC, true);
 
         /* Enable clock to the interface of the low energy modules */
