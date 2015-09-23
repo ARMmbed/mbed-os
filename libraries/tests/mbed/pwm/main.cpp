@@ -166,7 +166,7 @@ int main() {
 
     printf("Initialize PWM on pin P1.2 with duty cycle: %.2f\n", pwm_1.read());
     printf("Initialize PWM on pin P1.3 with duty cycle: %.2f\n", pwm_2.read());
-#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A)
     PwmOut pwm(LED1);
 
     pwm.period_ms(1000);
