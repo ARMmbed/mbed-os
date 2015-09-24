@@ -243,7 +243,6 @@ class Mbed:
         copy_method = copy_method if copy_method is not None else self.copy_method
         # Call proper copy method
         result = self.copy_image_raw(image_path, disk, copy_method)
-        sleep(self.program_cycle_s)
         return result
 
     def copy_image_raw(self, image_path=None, disk=None, copy_method=None):
@@ -258,7 +257,7 @@ class Mbed:
         else:
             copy_method = 'shell'
 
-        result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+        result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk, program_cycle_s=self.program_cycle_s)
         return result;
 
     def flush(self):
