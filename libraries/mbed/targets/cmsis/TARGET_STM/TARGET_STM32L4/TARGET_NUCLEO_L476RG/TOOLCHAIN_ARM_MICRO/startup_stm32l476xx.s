@@ -52,8 +52,7 @@ Stack_Size      EQU     0x00000400
                 
 Stack_Mem       SPACE   Stack_Size
 
-;FAIL __initial_sp    EQU     0x20020000 ; Top of RAM
-__initial_sp
+__initial_sp    EQU     0x20018000 ; Top of SRAM1 (96K)
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
