@@ -29,6 +29,8 @@ static const PinMap PinMap_ADC[] = {
     {p4, ADC0_0, 32},
     {p5, ADC0_0, 64},
     {p6, ADC0_0, 128},
+    {p26, ADC0_0, 1},
+    {p27, ADC0_0, 2}, 
     {NC, NC, 0}
 };
 
