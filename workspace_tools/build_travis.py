@@ -43,7 +43,7 @@ build_list = (
     { "target": "NUCLEO_F091RC",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F103RB",     "toolchains": "GCC_ARM", "libs": ["rtos", "fat"] },
     { "target": "NUCLEO_F302R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "NUCLEO_F303K8",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NUCLEO_F303K8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F303RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F334R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F401RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
