@@ -17,7 +17,6 @@ limitations under the License.
 
 from shutil import copy
 from host_test_plugins import HostTestPluginBase
-from time import sleep
 
 
 class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
@@ -43,7 +42,7 @@ class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
     type = 'CopyMethod'
     stable = True
     capabilities = ['shutil', 'default']
-    required_parameters = ['image_path', 'destination_disk', 'program_cycle_s']
+    required_parameters = ['image_path', 'destination_disk']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
@@ -61,14 +60,9 @@ class HostTestPluginCopyMethod_Mbed(HostTestPluginBase):
             if capability == 'shutil':
                 image_path = kwargs['image_path']
                 destination_disk = kwargs['destination_disk']
-                program_cycle_s = kwargs['program_cycle_s']
                 # Wait for mount point to be ready
                 self.check_mount_point_ready(destination_disk)  # Blocking
                 result = self.generic_mbed_copy(image_path, destination_disk)
-
-                # Allow mbed to cycle
-                sleep(program_cycle_s)
-
         return result
 
 
