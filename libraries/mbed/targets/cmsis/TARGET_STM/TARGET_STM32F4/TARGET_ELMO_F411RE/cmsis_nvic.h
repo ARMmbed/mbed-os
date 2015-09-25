@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,46 +27,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
-#ifndef MBED_DEVICE_H
-#define MBED_DEVICE_H
+ */ 
 
-#define DEVICE_PORTIN           1
-#define DEVICE_PORTOUT          1
-#define DEVICE_PORTINOUT        1
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-#define DEVICE_INTERRUPTIN      1
+// STM32F411RE
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 86 vectors = 344 bytes from 0x40 to 0x197
+// Total: 102 vectors = 408 bytes (0x198) to be reserved in RAM
+#define NVIC_NUM_VECTORS      102
+#define NVIC_USER_IRQ_OFFSET  16
 
-#define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0 // Not present on this device
+#include "cmsis.h"
 
-#define DEVICE_SERIAL           1
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
-#define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
-
-#define DEVICE_RTC              1
-
-#define DEVICE_PWMOUT           1
-
-#define DEVICE_SLEEP            1
-
-//=======================================
-
-#define DEVICE_SEMIHOST         0
-#define DEVICE_LOCALFILESYSTEM  0
-#define DEVICE_ID_LENGTH       24
-
-#define DEVICE_DEBUG_AWARENESS  0
-
-#define DEVICE_STDIO_MESSAGES   1
-
-#define DEVICE_ERROR_RED        1
-#define LED_RED                 LED1
-
-#include "objects.h"
+#ifdef __cplusplus
+}
+#endif
 
 #endif

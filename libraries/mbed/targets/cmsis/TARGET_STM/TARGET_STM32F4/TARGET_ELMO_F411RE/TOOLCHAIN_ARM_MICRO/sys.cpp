@@ -1,6 +1,8 @@
-/* mbed Microcontroller Library
+/* mbed Microcontroller Library - stackheap
+ * Setup a fixed single stack/heap memory model, 
+ * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,48 +26,31 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  *******************************************************************************
  */
-#ifndef MBED_DEVICE_H
-#define MBED_DEVICE_H
 
-#define DEVICE_PORTIN           1
-#define DEVICE_PORTOUT          1
-#define DEVICE_PORTINOUT        1
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
-#define DEVICE_INTERRUPTIN      1
+#include <rt_misc.h>
+#include <stdint.h>
 
-#define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0 // Not present on this device
+extern char Image$$RW_IRAM1$$ZI$$Limit[];
 
-#define DEVICE_SERIAL           1
+extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t sp_limit = __current_sp();
 
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
+    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
 
-#define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
+    struct __initial_stackheap r;
+    r.heap_base = zi_limit;
+    r.heap_limit = sp_limit;
+    return r;
+}
 
-#define DEVICE_RTC              1
-
-#define DEVICE_PWMOUT           1
-
-#define DEVICE_SLEEP            1
-
-//=======================================
-
-#define DEVICE_SEMIHOST         0
-#define DEVICE_LOCALFILESYSTEM  0
-#define DEVICE_ID_LENGTH       24
-
-#define DEVICE_DEBUG_AWARENESS  0
-
-#define DEVICE_STDIO_MESSAGES   1
-
-#define DEVICE_ERROR_RED        1
-#define LED_RED                 LED1
-
-#include "objects.h"
-
-#endif
+#ifdef __cplusplus
+}
+#endif 

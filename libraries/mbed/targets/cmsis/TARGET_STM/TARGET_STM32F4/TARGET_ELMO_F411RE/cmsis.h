@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
+ * A generic CMSIS include header
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,45 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_DEVICE_H
-#define MBED_DEVICE_H
 
-#define DEVICE_PORTIN           1
-#define DEVICE_PORTOUT          1
-#define DEVICE_PORTINOUT        1
+#ifndef MBED_CMSIS_H
+#define MBED_CMSIS_H
 
-#define DEVICE_INTERRUPTIN      1
-
-#define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0 // Not present on this device
-
-#define DEVICE_SERIAL           1
-
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
-
-#define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
-
-#define DEVICE_RTC              1
-
-#define DEVICE_PWMOUT           1
-
-#define DEVICE_SLEEP            1
-
-//=======================================
-
-#define DEVICE_SEMIHOST         0
-#define DEVICE_LOCALFILESYSTEM  0
-#define DEVICE_ID_LENGTH       24
-
-#define DEVICE_DEBUG_AWARENESS  0
-
-#define DEVICE_STDIO_MESSAGES   1
-
-#define DEVICE_ERROR_RED        1
-#define LED_RED                 LED1
-
-#include "objects.h"
+#include "stm32f4xx.h"
+#include "cmsis_nvic.h"
 
 #endif

@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,8 +63,7 @@
 
 #define DEVICE_STDIO_MESSAGES   1
 
-#define DEVICE_ERROR_RED        1
-#define LED_RED                 LED1
+#define DEVICE_ERROR_RED        0
 
 #include "objects.h"
 

@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,45 +27,56 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_DEVICE_H
-#define MBED_DEVICE_H
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#define DEVICE_PORTIN           1
-#define DEVICE_PORTOUT          1
-#define DEVICE_PORTINOUT        1
+#include "cmsis.h"
 
-#define DEVICE_INTERRUPTIN      1
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0 // Not present on this device
+typedef enum {
+    ADC_1 = (int)ADC1_BASE
+} ADCName;
 
-#define DEVICE_SERIAL           1
+typedef enum {
+    UART_1 = (int)USART1_BASE,
+    UART_2 = (int)USART2_BASE,
+    UART_6 = (int)USART6_BASE
+} UARTName;
 
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
+#define STDIO_UART_TX  PA_9
+#define STDIO_UART_RX  PA_10
+#define STDIO_UART     UART_1
 
-#define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
+typedef enum {
+    SPI_1 = (int)SPI1_BASE, ELMO_RF_SPI2 = SPI_1,
+    SPI_2 = (int)SPI2_BASE, ELMO_SPI1 = SPI_2,
+    SPI_3 = (int)SPI3_BASE,
+    SPI_4 = (int)SPI4_BASE,
+    SPI_5 = (int)SPI5_BASE
+} SPIName;
 
-#define DEVICE_RTC              1
+typedef enum {
+    I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE,
+    I2C_3 = (int)I2C3_BASE
+} I2CName;
 
-#define DEVICE_PWMOUT           1
+typedef enum {
+    PWM_1  = (int)TIM1_BASE,
+    PWM_2  = (int)TIM2_BASE,
+    PWM_3  = (int)TIM3_BASE,
+    PWM_4  = (int)TIM4_BASE,
+    PWM_5  = (int)TIM5_BASE,
+    PWM_9  = (int)TIM9_BASE,
+    PWM_10 = (int)TIM10_BASE,
+    PWM_11 = (int)TIM11_BASE
+} PWMName;
 
-#define DEVICE_SLEEP            1
-
-//=======================================
-
-#define DEVICE_SEMIHOST         0
-#define DEVICE_LOCALFILESYSTEM  0
-#define DEVICE_ID_LENGTH       24
-
-#define DEVICE_DEBUG_AWARENESS  0
-
-#define DEVICE_STDIO_MESSAGES   1
-
-#define DEVICE_ERROR_RED        1
-#define LED_RED                 LED1
-
-#include "objects.h"
+#ifdef __cplusplus
+}
+#endif
 
 #endif

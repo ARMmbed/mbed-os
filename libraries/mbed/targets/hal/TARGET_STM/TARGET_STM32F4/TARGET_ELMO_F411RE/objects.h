@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,45 +27,82 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_DEVICE_H
-#define MBED_DEVICE_H
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
-#define DEVICE_PORTIN           1
-#define DEVICE_PORTOUT          1
-#define DEVICE_PORTINOUT        1
+#include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 
-#define DEVICE_INTERRUPTIN      1
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0 // Not present on this device
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t irq_index;
+    uint32_t event;
+    PinName pin;
+};
 
-#define DEVICE_SERIAL           1
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
 
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
+struct analogin_s {
+    ADCName adc;
+    PinName pin;
+    uint8_t channel;
+};
 
-#define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
+struct serial_s {
+    UARTName uart;
+    int index; // Used by irq
+    uint32_t baudrate;
+    uint32_t databits;
+    uint32_t stopbits;
+    uint32_t parity;
+    PinName pin_tx;
+    PinName pin_rx;
+};
 
-#define DEVICE_RTC              1
+struct spi_s {
+    SPIName spi;
+    uint32_t bits;
+    uint32_t cpol;
+    uint32_t cpha;
+    uint32_t mode;
+    uint32_t nss;
+    uint32_t br_presc;
+    PinName pin_miso;
+    PinName pin_mosi;
+    PinName pin_sclk;
+    PinName pin_ssel;
+};
 
-#define DEVICE_PWMOUT           1
+struct i2c_s {
+    I2CName  i2c;
+    uint32_t slave;
+};
 
-#define DEVICE_SLEEP            1
+struct pwmout_s {
+    PWMName pwm;
+    PinName pin;
+    uint32_t period;
+    uint32_t pulse;
+    uint8_t channel;
+    uint8_t inverted;
+};
 
-//=======================================
+#include "gpio_object.h"
 
-#define DEVICE_SEMIHOST         0
-#define DEVICE_LOCALFILESYSTEM  0
-#define DEVICE_ID_LENGTH       24
-
-#define DEVICE_DEBUG_AWARENESS  0
-
-#define DEVICE_STDIO_MESSAGES   1
-
-#define DEVICE_ERROR_RED        1
-#define LED_RED                 LED1
-
-#include "objects.h"
+#ifdef __cplusplus
+}
+#endif
 
 #endif
