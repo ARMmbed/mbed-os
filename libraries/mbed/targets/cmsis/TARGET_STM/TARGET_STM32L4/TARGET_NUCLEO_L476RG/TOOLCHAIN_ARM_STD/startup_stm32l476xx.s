@@ -39,7 +39,7 @@
 ; 
 ;*******************************************************************************
 
-__initial_sp    EQU     0x20020000 ; Top of RAM
+__initial_sp    EQU     0x20018000 ; Top of SRAM1 (96K)
 
                 PRESERVE8
                 THUMB
