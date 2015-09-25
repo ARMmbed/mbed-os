@@ -37,13 +37,16 @@ def main(arguments):
     parser.add_argument('-k', '--api-key', help='api-key for posting data')
     args = parser.parse_args(arguments)
 
+    headers = { 'X-Api-Key':  args.api_key }
+
     if args.info_type == 'build':
         build = {}
         build['id'] = args.build
         build['buildType'] = 'Nightly'
         build['source'] = 'https://github.com/mbedmicro/mbed'
 
-        r = requests.post(urlparse.urljoin(args.url, "api/builds"), json=build)
+
+        r = requests.post(urlparse.urljoin(args.url, "api/builds"), headers=headers, json=build)
         print("Build POST status", r.status_code, r.reason)
         print(r.text)
 
@@ -114,7 +117,7 @@ def main(arguments):
         ts_data['testIds'] = list(testIds_set)
         ts_data['hostOses'] = list(hostOses_set)
 
-        r = requests.post(urlparse.urljoin(args.url, "api/testRuns"), json=ts_data)
+        r = requests.post(urlparse.urljoin(args.url, "api/testRuns"), headers=headers, json=ts_data)
         print("testRuns POST status", r.status_code, r.reason)
         print(r.text)
 
