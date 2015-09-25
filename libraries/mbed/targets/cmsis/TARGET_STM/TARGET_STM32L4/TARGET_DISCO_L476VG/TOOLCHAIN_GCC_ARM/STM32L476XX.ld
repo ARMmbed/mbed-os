@@ -2,8 +2,8 @@
 MEMORY
 { 
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
-  RAM (rwx)  : ORIGIN = 0x10000188, LENGTH = 32k - 0x188
-  RAM2 (rwx)  : ORIGIN = 0x20000000, LENGTH = 96k
+  SRAM2 (rwx)  : ORIGIN = 0x10000188, LENGTH = 32k - 0x188
+  SRAM1 (rwx)  : ORIGIN = 0x20000000, LENGTH = 96k
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -112,7 +112,7 @@ SECTIONS
         __data_end__ = .;
         _edata = .;
 
-    } > RAM
+    } > SRAM2
 
     .bss :
     {
@@ -124,7 +124,7 @@ SECTIONS
         . = ALIGN(4);
         __bss_end__ = .;
         _ebss = .;
-    } > RAM
+    } > SRAM2
 
     .heap (COPY):
     {
@@ -132,7 +132,7 @@ SECTIONS
         end = __end__;
         *(.heap*)
         __HeapLimit = .;
-    } > RAM
+    } > SRAM2
 
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
@@ -140,11 +140,11 @@ SECTIONS
     .stack_dummy (COPY):
     {
         *(.stack*)
-    } > RAM
+    } > SRAM2
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
-    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+    __StackTop = ORIGIN(SRAM2) + LENGTH(SRAM2);
     _estack = __StackTop;
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
