@@ -35,6 +35,8 @@ import host_tests_plugins
 # we can find packages we want from the same level as other files do
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from workspace_tools.test_api import get_autodetected_MUTS_list
+from workspace_tools.test_api import get_module_avail
 
 
 class Mbed:
@@ -89,6 +91,12 @@ class Mbed:
                           type="int",
                           help="When forcing a reset using option -r you can set up after reset timeout in seconds")
 
+        parser.add_option('', '--auto',
+                          dest='auto_detect',
+                          metavar=False,
+                          action="store_true",
+                          help='Use mbed-ls module to detect all connected mbed devices')
+
         (self.options, _) = parser.parse_args()
 
         self.DEFAULT_RESET_TOUT = 0
@@ -125,6 +133,25 @@ class Mbed:
         # Overload serial port configuration from default to parameters' values if they are specified
         serial_baud = serial_baud if serial_baud is not None else self.serial_baud
         serial_timeout = serial_timeout if serial_timeout is not None else self.serial_timeout
+
+        if get_module_avail('mbed_lstools') and self.options.auto_detect:
+            # Ensure serial port is up-to-date (try to find it 60 times)
+            found = False
+
+            for i in range(0, 60):
+                print('Looking for %s with MBEDLS' % self.options.micro)
+                muts_list = get_autodetected_MUTS_list(platform_name_filter=[self.options.micro])
+
+                if 1 in muts_list:
+                    mut = muts_list[1]
+                    self.port = mut['port']
+                    found = True
+                    break
+                else:
+                    sleep(3)
+
+            if not found:
+                return False
 
         # Clear serial port
         if self.serial:
@@ -243,7 +270,6 @@ class Mbed:
         copy_method = copy_method if copy_method is not None else self.copy_method
         # Call proper copy method
         result = self.copy_image_raw(image_path, disk, copy_method)
-        sleep(self.program_cycle_s)
         return result
 
     def copy_image_raw(self, image_path=None, disk=None, copy_method=None):
@@ -258,7 +284,7 @@ class Mbed:
         else:
             copy_method = 'shell'
 
-        result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk)
+        result = host_tests_plugins.call_plugin('CopyMethod', copy_method, image_path=image_path, destination_disk=disk, program_cycle_s=self.program_cycle_s, target_mcu=self.options.micro)
         return result;
 
     def flush(self):

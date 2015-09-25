@@ -8,7 +8,7 @@ Each test is supervised by python script called “host test” which will at le
 ## What is host test?
 Test suite supports test supervisor concept. This concept is realized by separate Python script called ```host test```. Host tests can be found in ```mbed/workspace_tools/host_tests/``` directory. Note: In newer mbed versions (mbed OS) host tests will be separate library.
 
-Host test script is executed in parallel with test runner to monitor test execution. Basic host test just monitors device's default serial port for test results returned by test runner. Simple tests will print test result on serial port. In other cases host tests can for example judge by test results returned by test runner is test passed or failed. It all depends on test itself.
+Host test script is executed in parallel with test runner to monitor test execution. Basic host test just monitors device's default serial port for test results returned by test runner. Simple tests will print test result on serial port. In other cases host tests can for example judge by test results returned by test runner if test passed or failed. It all depends on test itself.
 
 In some cases host test can be TCP server echoing packets from test runner and judging packet loss. In other cases it can just check if values returned from accelerometer are actually valid (sane).
 
@@ -37,7 +37,7 @@ After connecting boards to our host machine (PC) we can check which serial ports
 * ```NUCLEO_F103RB``` serial port is on ```COM11``` and disk drive is ```I:```. 
 If you are working under Linux your port and disk could look like /dev/ttyACM5 and /media/usb5.
 
-This information is needed to create ```muts_all.json``` configuration file. You can create in in ```mbed/workspace_tools/``` directory:
+This information is needed to create ```muts_all.json``` configuration file. You can create it in ```mbed/workspace_tools/``` directory:
 ```
 $ touch muts_all.json
 ```
@@ -289,13 +289,13 @@ $ python singletest.py -R -f RTOS
 ```
 
 * Shuffle your tests. We strongly encourage you to shuffle your test order each time you execute test suite script.
-Rationale: It is probable that tests executed in one particular order will pass and in other will fail. To shuffle your tests’ order please use option ```–u``` (or ```--shuffle```):
+Rationale: It is probable that tests executed in one particular order will pass and in other will fail. To shuffle your tests’ order please use option ```-u``` (or ```--shuffle```):
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json --shuffle
 ```
-Above command with force test script to randomly generate shuffle seed and shuffle test order execution. Note: Shuffle seed is float in ```[0.0, 1.0)```.
+Above command will force test script to randomly generate shuffle seed and shuffle test order execution. Note: Shuffle seed is float in ```[0.0, 1.0)```.
 
-You can always recreate particular test order by forcing shuffle (```-u``` or ```--shuffle```} switch) and passing shuffle seed back to test suite using ```--shuffle-seed``` switch:
+You can always recreate particular test order by forcing shuffle (```-u``` or ```--shuffle``` switch) and passing shuffle seed back to test suite using ```--shuffle-seed``` switch:
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json --shuffle --shuffle-seed 0.4041028336
 ```
@@ -311,7 +311,7 @@ Shuffle Seed: 0.4041028336
 Completed in 234.85 sec
 ```
 
-### Exmple of device configuration (one device connected to host computer)
+### Example of device configuration (one device connected to host computer)
 
 This example will show you how to configure single device, run general tests or only peripheral tests. We will also show some real test result examples.
 
@@ -597,7 +597,7 @@ Note: In dependency section we've added library ```CPPUTEST_LIBRARY``` which is 
 
 ### Tests are now divided into two types:
 #### 'Hello world' tests 
-First type of test cases we call 'hello world' tests. They do not dependent on CppUTest library and are monolithic programs usually composed of one main function. Yo can find this tests in below example directories:
+First type of test cases we call 'hello world' tests. They do not dependent on CppUTest library and are monolithic programs usually composed of one main function. You can find this tests in below example directories:
 
 * ```mbed/libraries/tests/mbed/```
 * ```mbed/libraries/tests/net/```
@@ -767,12 +767,12 @@ TEST(BusOut_digitalout_write, led_1_nc_2_nc_nc_3)
 ```
 
 ## Example
-In below example we will run two example unit tests that are now available. tests ```UT_1``` and ```UT_2``` are unit tests used for now only to check if mbed SDK works with CppUTest library and if tests are being executed. In future number of unit tests will increase, nothing is also should stop you from writing and executing your own unit tests!
+In below example we will run two example unit tests that are now available. tests ```UT_1``` and ```UT_2``` are unit tests used for now only to check if mbed SDK works with CppUTest library and if tests are being executed. In future number of unit tests will increase, nothing is also stopping you from writing and executing your own unit tests!
 
 ### Example configuration
 By default unit tests ```UT_1``` and ```UT_2``` are not automated - simply test suite will ignore them. Also we do not want to create dependency to CppUTest library each time someone executes automation.
 
-Note: To compile ```UT_1``` and ```UT_2``` tests CppUTest library described above installation is needed and not all users wish to add UT libs to their project. Also new to mbed users may find it difficult. This is why unit testing is an extra feature active only after you deliberately install and enable needed components.
+Note: To compile ```UT_1``` and ```UT_2``` tests CppUTest library described above, installation is needed and not all users wish to add UT libs to their project. Also new to mbed users may find it difficult. This is why unit testing is an extra feature active only after you deliberately install and enable needed components.
 
 Bellow snippet shows how to modify 'automated' flag so test suite will consider unit tests ```UT_1``` and ```UT_2``` as part of "automated test portfolio". Just change flag 'automated' from ```False``` to ```True```.
 

@@ -56,12 +56,12 @@
 /* -------- EIC_CTRL : (EIC Offset: 0x00) (R/W  8) Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
-    uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
-    uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  SWRST:1;          /*!< bit:      0  Software Reset                     */
+        uint8_t  ENABLE:1;         /*!< bit:      1  Enable                             */
+        uint8_t  :6;               /*!< bit:  2.. 7  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } EIC_CTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -77,11 +77,11 @@ typedef union {
 /* -------- EIC_STATUS : (EIC Offset: 0x01) (R/   8) Status -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
-    uint8_t  SYNCBUSY:1;       /*!< bit:      7  Synchronization Busy               */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  :7;               /*!< bit:  0.. 6  Reserved                           */
+        uint8_t  SYNCBUSY:1;       /*!< bit:      7  Synchronization Busy               */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } EIC_STATUS_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -95,12 +95,12 @@ typedef union {
 /* -------- EIC_NMICTRL : (EIC Offset: 0x02) (R/W  8) Non-Maskable Interrupt Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  NMISENSE:3;       /*!< bit:  0.. 2  Non-Maskable Interrupt Sense       */
-    uint8_t  NMIFILTEN:1;      /*!< bit:      3  Non-Maskable Interrupt Filter Enable */
-    uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  NMISENSE:3;       /*!< bit:  0.. 2  Non-Maskable Interrupt Sense       */
+        uint8_t  NMIFILTEN:1;      /*!< bit:      3  Non-Maskable Interrupt Filter Enable */
+        uint8_t  :4;               /*!< bit:  4.. 7  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } EIC_NMICTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -129,11 +129,11 @@ typedef union {
 /* -------- EIC_NMIFLAG : (EIC Offset: 0x03) (R/W  8) Non-Maskable Interrupt Flag Status and Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint8_t  NMI:1;            /*!< bit:      0  Non-Maskable Interrupt             */
-    uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint8_t reg;                 /*!< Type      used for register access              */
+    struct {
+        uint8_t  NMI:1;            /*!< bit:      0  Non-Maskable Interrupt             */
+        uint8_t  :7;               /*!< bit:  1.. 7  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint8_t reg;                 /*!< Type      used for register access              */
 } EIC_NMIFLAG_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -147,30 +147,30 @@ typedef union {
 /* -------- EIC_EVCTRL : (EIC Offset: 0x04) (R/W 32) Event Control -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t EXTINTEO0:1;      /*!< bit:      0  External Interrupt 0 Event Output Enable */
-    uint32_t EXTINTEO1:1;      /*!< bit:      1  External Interrupt 1 Event Output Enable */
-    uint32_t EXTINTEO2:1;      /*!< bit:      2  External Interrupt 2 Event Output Enable */
-    uint32_t EXTINTEO3:1;      /*!< bit:      3  External Interrupt 3 Event Output Enable */
-    uint32_t EXTINTEO4:1;      /*!< bit:      4  External Interrupt 4 Event Output Enable */
-    uint32_t EXTINTEO5:1;      /*!< bit:      5  External Interrupt 5 Event Output Enable */
-    uint32_t EXTINTEO6:1;      /*!< bit:      6  External Interrupt 6 Event Output Enable */
-    uint32_t EXTINTEO7:1;      /*!< bit:      7  External Interrupt 7 Event Output Enable */
-    uint32_t EXTINTEO8:1;      /*!< bit:      8  External Interrupt 8 Event Output Enable */
-    uint32_t EXTINTEO9:1;      /*!< bit:      9  External Interrupt 9 Event Output Enable */
-    uint32_t EXTINTEO10:1;     /*!< bit:     10  External Interrupt 10 Event Output Enable */
-    uint32_t EXTINTEO11:1;     /*!< bit:     11  External Interrupt 11 Event Output Enable */
-    uint32_t EXTINTEO12:1;     /*!< bit:     12  External Interrupt 12 Event Output Enable */
-    uint32_t EXTINTEO13:1;     /*!< bit:     13  External Interrupt 13 Event Output Enable */
-    uint32_t EXTINTEO14:1;     /*!< bit:     14  External Interrupt 14 Event Output Enable */
-    uint32_t EXTINTEO15:1;     /*!< bit:     15  External Interrupt 15 Event Output Enable */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  struct {
-    uint32_t EXTINTEO:16;      /*!< bit:  0..15  External Interrupt x Event Output Enable */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } vec;                       /*!< Structure used for vec  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t EXTINTEO0:1;      /*!< bit:      0  External Interrupt 0 Event Output Enable */
+        uint32_t EXTINTEO1:1;      /*!< bit:      1  External Interrupt 1 Event Output Enable */
+        uint32_t EXTINTEO2:1;      /*!< bit:      2  External Interrupt 2 Event Output Enable */
+        uint32_t EXTINTEO3:1;      /*!< bit:      3  External Interrupt 3 Event Output Enable */
+        uint32_t EXTINTEO4:1;      /*!< bit:      4  External Interrupt 4 Event Output Enable */
+        uint32_t EXTINTEO5:1;      /*!< bit:      5  External Interrupt 5 Event Output Enable */
+        uint32_t EXTINTEO6:1;      /*!< bit:      6  External Interrupt 6 Event Output Enable */
+        uint32_t EXTINTEO7:1;      /*!< bit:      7  External Interrupt 7 Event Output Enable */
+        uint32_t EXTINTEO8:1;      /*!< bit:      8  External Interrupt 8 Event Output Enable */
+        uint32_t EXTINTEO9:1;      /*!< bit:      9  External Interrupt 9 Event Output Enable */
+        uint32_t EXTINTEO10:1;     /*!< bit:     10  External Interrupt 10 Event Output Enable */
+        uint32_t EXTINTEO11:1;     /*!< bit:     11  External Interrupt 11 Event Output Enable */
+        uint32_t EXTINTEO12:1;     /*!< bit:     12  External Interrupt 12 Event Output Enable */
+        uint32_t EXTINTEO13:1;     /*!< bit:     13  External Interrupt 13 Event Output Enable */
+        uint32_t EXTINTEO14:1;     /*!< bit:     14  External Interrupt 14 Event Output Enable */
+        uint32_t EXTINTEO15:1;     /*!< bit:     15  External Interrupt 15 Event Output Enable */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    struct {
+        uint32_t EXTINTEO:16;      /*!< bit:  0..15  External Interrupt x Event Output Enable */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } vec;                       /*!< Structure used for vec  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } EIC_EVCTRL_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -217,30 +217,30 @@ typedef union {
 /* -------- EIC_INTENCLR : (EIC Offset: 0x08) (R/W 32) Interrupt Enable Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t EXTINT0:1;        /*!< bit:      0  External Interrupt 0 Enable        */
-    uint32_t EXTINT1:1;        /*!< bit:      1  External Interrupt 1 Enable        */
-    uint32_t EXTINT2:1;        /*!< bit:      2  External Interrupt 2 Enable        */
-    uint32_t EXTINT3:1;        /*!< bit:      3  External Interrupt 3 Enable        */
-    uint32_t EXTINT4:1;        /*!< bit:      4  External Interrupt 4 Enable        */
-    uint32_t EXTINT5:1;        /*!< bit:      5  External Interrupt 5 Enable        */
-    uint32_t EXTINT6:1;        /*!< bit:      6  External Interrupt 6 Enable        */
-    uint32_t EXTINT7:1;        /*!< bit:      7  External Interrupt 7 Enable        */
-    uint32_t EXTINT8:1;        /*!< bit:      8  External Interrupt 8 Enable        */
-    uint32_t EXTINT9:1;        /*!< bit:      9  External Interrupt 9 Enable        */
-    uint32_t EXTINT10:1;       /*!< bit:     10  External Interrupt 10 Enable       */
-    uint32_t EXTINT11:1;       /*!< bit:     11  External Interrupt 11 Enable       */
-    uint32_t EXTINT12:1;       /*!< bit:     12  External Interrupt 12 Enable       */
-    uint32_t EXTINT13:1;       /*!< bit:     13  External Interrupt 13 Enable       */
-    uint32_t EXTINT14:1;       /*!< bit:     14  External Interrupt 14 Enable       */
-    uint32_t EXTINT15:1;       /*!< bit:     15  External Interrupt 15 Enable       */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  struct {
-    uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt x Enable        */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } vec;                       /*!< Structure used for vec  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t EXTINT0:1;        /*!< bit:      0  External Interrupt 0 Enable        */
+        uint32_t EXTINT1:1;        /*!< bit:      1  External Interrupt 1 Enable        */
+        uint32_t EXTINT2:1;        /*!< bit:      2  External Interrupt 2 Enable        */
+        uint32_t EXTINT3:1;        /*!< bit:      3  External Interrupt 3 Enable        */
+        uint32_t EXTINT4:1;        /*!< bit:      4  External Interrupt 4 Enable        */
+        uint32_t EXTINT5:1;        /*!< bit:      5  External Interrupt 5 Enable        */
+        uint32_t EXTINT6:1;        /*!< bit:      6  External Interrupt 6 Enable        */
+        uint32_t EXTINT7:1;        /*!< bit:      7  External Interrupt 7 Enable        */
+        uint32_t EXTINT8:1;        /*!< bit:      8  External Interrupt 8 Enable        */
+        uint32_t EXTINT9:1;        /*!< bit:      9  External Interrupt 9 Enable        */
+        uint32_t EXTINT10:1;       /*!< bit:     10  External Interrupt 10 Enable       */
+        uint32_t EXTINT11:1;       /*!< bit:     11  External Interrupt 11 Enable       */
+        uint32_t EXTINT12:1;       /*!< bit:     12  External Interrupt 12 Enable       */
+        uint32_t EXTINT13:1;       /*!< bit:     13  External Interrupt 13 Enable       */
+        uint32_t EXTINT14:1;       /*!< bit:     14  External Interrupt 14 Enable       */
+        uint32_t EXTINT15:1;       /*!< bit:     15  External Interrupt 15 Enable       */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    struct {
+        uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt x Enable        */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } vec;                       /*!< Structure used for vec  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } EIC_INTENCLR_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -287,30 +287,30 @@ typedef union {
 /* -------- EIC_INTENSET : (EIC Offset: 0x0C) (R/W 32) Interrupt Enable Set -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t EXTINT0:1;        /*!< bit:      0  External Interrupt 0 Enable        */
-    uint32_t EXTINT1:1;        /*!< bit:      1  External Interrupt 1 Enable        */
-    uint32_t EXTINT2:1;        /*!< bit:      2  External Interrupt 2 Enable        */
-    uint32_t EXTINT3:1;        /*!< bit:      3  External Interrupt 3 Enable        */
-    uint32_t EXTINT4:1;        /*!< bit:      4  External Interrupt 4 Enable        */
-    uint32_t EXTINT5:1;        /*!< bit:      5  External Interrupt 5 Enable        */
-    uint32_t EXTINT6:1;        /*!< bit:      6  External Interrupt 6 Enable        */
-    uint32_t EXTINT7:1;        /*!< bit:      7  External Interrupt 7 Enable        */
-    uint32_t EXTINT8:1;        /*!< bit:      8  External Interrupt 8 Enable        */
-    uint32_t EXTINT9:1;        /*!< bit:      9  External Interrupt 9 Enable        */
-    uint32_t EXTINT10:1;       /*!< bit:     10  External Interrupt 10 Enable       */
-    uint32_t EXTINT11:1;       /*!< bit:     11  External Interrupt 11 Enable       */
-    uint32_t EXTINT12:1;       /*!< bit:     12  External Interrupt 12 Enable       */
-    uint32_t EXTINT13:1;       /*!< bit:     13  External Interrupt 13 Enable       */
-    uint32_t EXTINT14:1;       /*!< bit:     14  External Interrupt 14 Enable       */
-    uint32_t EXTINT15:1;       /*!< bit:     15  External Interrupt 15 Enable       */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  struct {
-    uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt x Enable        */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } vec;                       /*!< Structure used for vec  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t EXTINT0:1;        /*!< bit:      0  External Interrupt 0 Enable        */
+        uint32_t EXTINT1:1;        /*!< bit:      1  External Interrupt 1 Enable        */
+        uint32_t EXTINT2:1;        /*!< bit:      2  External Interrupt 2 Enable        */
+        uint32_t EXTINT3:1;        /*!< bit:      3  External Interrupt 3 Enable        */
+        uint32_t EXTINT4:1;        /*!< bit:      4  External Interrupt 4 Enable        */
+        uint32_t EXTINT5:1;        /*!< bit:      5  External Interrupt 5 Enable        */
+        uint32_t EXTINT6:1;        /*!< bit:      6  External Interrupt 6 Enable        */
+        uint32_t EXTINT7:1;        /*!< bit:      7  External Interrupt 7 Enable        */
+        uint32_t EXTINT8:1;        /*!< bit:      8  External Interrupt 8 Enable        */
+        uint32_t EXTINT9:1;        /*!< bit:      9  External Interrupt 9 Enable        */
+        uint32_t EXTINT10:1;       /*!< bit:     10  External Interrupt 10 Enable       */
+        uint32_t EXTINT11:1;       /*!< bit:     11  External Interrupt 11 Enable       */
+        uint32_t EXTINT12:1;       /*!< bit:     12  External Interrupt 12 Enable       */
+        uint32_t EXTINT13:1;       /*!< bit:     13  External Interrupt 13 Enable       */
+        uint32_t EXTINT14:1;       /*!< bit:     14  External Interrupt 14 Enable       */
+        uint32_t EXTINT15:1;       /*!< bit:     15  External Interrupt 15 Enable       */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    struct {
+        uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt x Enable        */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } vec;                       /*!< Structure used for vec  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } EIC_INTENSET_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -357,30 +357,30 @@ typedef union {
 /* -------- EIC_INTFLAG : (EIC Offset: 0x10) (R/W 32) Interrupt Flag Status and Clear -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union { // __I to avoid read-modify-write on write-to-clear register
-  struct {
-    __I uint32_t EXTINT0:1;        /*!< bit:      0  External Interrupt 0               */
-    __I uint32_t EXTINT1:1;        /*!< bit:      1  External Interrupt 1               */
-    __I uint32_t EXTINT2:1;        /*!< bit:      2  External Interrupt 2               */
-    __I uint32_t EXTINT3:1;        /*!< bit:      3  External Interrupt 3               */
-    __I uint32_t EXTINT4:1;        /*!< bit:      4  External Interrupt 4               */
-    __I uint32_t EXTINT5:1;        /*!< bit:      5  External Interrupt 5               */
-    __I uint32_t EXTINT6:1;        /*!< bit:      6  External Interrupt 6               */
-    __I uint32_t EXTINT7:1;        /*!< bit:      7  External Interrupt 7               */
-    __I uint32_t EXTINT8:1;        /*!< bit:      8  External Interrupt 8               */
-    __I uint32_t EXTINT9:1;        /*!< bit:      9  External Interrupt 9               */
-    __I uint32_t EXTINT10:1;       /*!< bit:     10  External Interrupt 10              */
-    __I uint32_t EXTINT11:1;       /*!< bit:     11  External Interrupt 11              */
-    __I uint32_t EXTINT12:1;       /*!< bit:     12  External Interrupt 12              */
-    __I uint32_t EXTINT13:1;       /*!< bit:     13  External Interrupt 13              */
-    __I uint32_t EXTINT14:1;       /*!< bit:     14  External Interrupt 14              */
-    __I uint32_t EXTINT15:1;       /*!< bit:     15  External Interrupt 15              */
-    __I uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  struct {
-    __I uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt x               */
-    __I uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } vec;                       /*!< Structure used for vec  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        __I uint32_t EXTINT0:1;        /*!< bit:      0  External Interrupt 0               */
+        __I uint32_t EXTINT1:1;        /*!< bit:      1  External Interrupt 1               */
+        __I uint32_t EXTINT2:1;        /*!< bit:      2  External Interrupt 2               */
+        __I uint32_t EXTINT3:1;        /*!< bit:      3  External Interrupt 3               */
+        __I uint32_t EXTINT4:1;        /*!< bit:      4  External Interrupt 4               */
+        __I uint32_t EXTINT5:1;        /*!< bit:      5  External Interrupt 5               */
+        __I uint32_t EXTINT6:1;        /*!< bit:      6  External Interrupt 6               */
+        __I uint32_t EXTINT7:1;        /*!< bit:      7  External Interrupt 7               */
+        __I uint32_t EXTINT8:1;        /*!< bit:      8  External Interrupt 8               */
+        __I uint32_t EXTINT9:1;        /*!< bit:      9  External Interrupt 9               */
+        __I uint32_t EXTINT10:1;       /*!< bit:     10  External Interrupt 10              */
+        __I uint32_t EXTINT11:1;       /*!< bit:     11  External Interrupt 11              */
+        __I uint32_t EXTINT12:1;       /*!< bit:     12  External Interrupt 12              */
+        __I uint32_t EXTINT13:1;       /*!< bit:     13  External Interrupt 13              */
+        __I uint32_t EXTINT14:1;       /*!< bit:     14  External Interrupt 14              */
+        __I uint32_t EXTINT15:1;       /*!< bit:     15  External Interrupt 15              */
+        __I uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    struct {
+        __I uint32_t EXTINT:16;        /*!< bit:  0..15  External Interrupt x               */
+        __I uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } vec;                       /*!< Structure used for vec  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } EIC_INTFLAG_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -427,30 +427,30 @@ typedef union { // __I to avoid read-modify-write on write-to-clear register
 /* -------- EIC_WAKEUP : (EIC Offset: 0x14) (R/W 32) Wake-Up Enable -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t WAKEUPEN0:1;      /*!< bit:      0  External Interrupt 0 Wake-up Enable */
-    uint32_t WAKEUPEN1:1;      /*!< bit:      1  External Interrupt 1 Wake-up Enable */
-    uint32_t WAKEUPEN2:1;      /*!< bit:      2  External Interrupt 2 Wake-up Enable */
-    uint32_t WAKEUPEN3:1;      /*!< bit:      3  External Interrupt 3 Wake-up Enable */
-    uint32_t WAKEUPEN4:1;      /*!< bit:      4  External Interrupt 4 Wake-up Enable */
-    uint32_t WAKEUPEN5:1;      /*!< bit:      5  External Interrupt 5 Wake-up Enable */
-    uint32_t WAKEUPEN6:1;      /*!< bit:      6  External Interrupt 6 Wake-up Enable */
-    uint32_t WAKEUPEN7:1;      /*!< bit:      7  External Interrupt 7 Wake-up Enable */
-    uint32_t WAKEUPEN8:1;      /*!< bit:      8  External Interrupt 8 Wake-up Enable */
-    uint32_t WAKEUPEN9:1;      /*!< bit:      9  External Interrupt 9 Wake-up Enable */
-    uint32_t WAKEUPEN10:1;     /*!< bit:     10  External Interrupt 10 Wake-up Enable */
-    uint32_t WAKEUPEN11:1;     /*!< bit:     11  External Interrupt 11 Wake-up Enable */
-    uint32_t WAKEUPEN12:1;     /*!< bit:     12  External Interrupt 12 Wake-up Enable */
-    uint32_t WAKEUPEN13:1;     /*!< bit:     13  External Interrupt 13 Wake-up Enable */
-    uint32_t WAKEUPEN14:1;     /*!< bit:     14  External Interrupt 14 Wake-up Enable */
-    uint32_t WAKEUPEN15:1;     /*!< bit:     15  External Interrupt 15 Wake-up Enable */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  struct {
-    uint32_t WAKEUPEN:16;      /*!< bit:  0..15  External Interrupt x Wake-up Enable */
-    uint32_t :16;              /*!< bit: 16..31  Reserved                           */
-  } vec;                       /*!< Structure used for vec  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t WAKEUPEN0:1;      /*!< bit:      0  External Interrupt 0 Wake-up Enable */
+        uint32_t WAKEUPEN1:1;      /*!< bit:      1  External Interrupt 1 Wake-up Enable */
+        uint32_t WAKEUPEN2:1;      /*!< bit:      2  External Interrupt 2 Wake-up Enable */
+        uint32_t WAKEUPEN3:1;      /*!< bit:      3  External Interrupt 3 Wake-up Enable */
+        uint32_t WAKEUPEN4:1;      /*!< bit:      4  External Interrupt 4 Wake-up Enable */
+        uint32_t WAKEUPEN5:1;      /*!< bit:      5  External Interrupt 5 Wake-up Enable */
+        uint32_t WAKEUPEN6:1;      /*!< bit:      6  External Interrupt 6 Wake-up Enable */
+        uint32_t WAKEUPEN7:1;      /*!< bit:      7  External Interrupt 7 Wake-up Enable */
+        uint32_t WAKEUPEN8:1;      /*!< bit:      8  External Interrupt 8 Wake-up Enable */
+        uint32_t WAKEUPEN9:1;      /*!< bit:      9  External Interrupt 9 Wake-up Enable */
+        uint32_t WAKEUPEN10:1;     /*!< bit:     10  External Interrupt 10 Wake-up Enable */
+        uint32_t WAKEUPEN11:1;     /*!< bit:     11  External Interrupt 11 Wake-up Enable */
+        uint32_t WAKEUPEN12:1;     /*!< bit:     12  External Interrupt 12 Wake-up Enable */
+        uint32_t WAKEUPEN13:1;     /*!< bit:     13  External Interrupt 13 Wake-up Enable */
+        uint32_t WAKEUPEN14:1;     /*!< bit:     14  External Interrupt 14 Wake-up Enable */
+        uint32_t WAKEUPEN15:1;     /*!< bit:     15  External Interrupt 15 Wake-up Enable */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    struct {
+        uint32_t WAKEUPEN:16;      /*!< bit:  0..15  External Interrupt x Wake-up Enable */
+        uint32_t :16;              /*!< bit: 16..31  Reserved                           */
+    } vec;                       /*!< Structure used for vec  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } EIC_WAKEUP_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -497,25 +497,25 @@ typedef union {
 /* -------- EIC_CONFIG : (EIC Offset: 0x18) (R/W 32) Configuration n -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint32_t SENSE0:3;         /*!< bit:  0.. 2  Input Sense 0 Configuration        */
-    uint32_t FILTEN0:1;        /*!< bit:      3  Filter 0 Enable                    */
-    uint32_t SENSE1:3;         /*!< bit:  4.. 6  Input Sense 1 Configuration        */
-    uint32_t FILTEN1:1;        /*!< bit:      7  Filter 1 Enable                    */
-    uint32_t SENSE2:3;         /*!< bit:  8..10  Input Sense 2 Configuration        */
-    uint32_t FILTEN2:1;        /*!< bit:     11  Filter 2 Enable                    */
-    uint32_t SENSE3:3;         /*!< bit: 12..14  Input Sense 3 Configuration        */
-    uint32_t FILTEN3:1;        /*!< bit:     15  Filter 3 Enable                    */
-    uint32_t SENSE4:3;         /*!< bit: 16..18  Input Sense 4 Configuration        */
-    uint32_t FILTEN4:1;        /*!< bit:     19  Filter 4 Enable                    */
-    uint32_t SENSE5:3;         /*!< bit: 20..22  Input Sense 5 Configuration        */
-    uint32_t FILTEN5:1;        /*!< bit:     23  Filter 5 Enable                    */
-    uint32_t SENSE6:3;         /*!< bit: 24..26  Input Sense 6 Configuration        */
-    uint32_t FILTEN6:1;        /*!< bit:     27  Filter 6 Enable                    */
-    uint32_t SENSE7:3;         /*!< bit: 28..30  Input Sense 7 Configuration        */
-    uint32_t FILTEN7:1;        /*!< bit:     31  Filter 7 Enable                    */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint32_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint32_t SENSE0:3;         /*!< bit:  0.. 2  Input Sense 0 Configuration        */
+        uint32_t FILTEN0:1;        /*!< bit:      3  Filter 0 Enable                    */
+        uint32_t SENSE1:3;         /*!< bit:  4.. 6  Input Sense 1 Configuration        */
+        uint32_t FILTEN1:1;        /*!< bit:      7  Filter 1 Enable                    */
+        uint32_t SENSE2:3;         /*!< bit:  8..10  Input Sense 2 Configuration        */
+        uint32_t FILTEN2:1;        /*!< bit:     11  Filter 2 Enable                    */
+        uint32_t SENSE3:3;         /*!< bit: 12..14  Input Sense 3 Configuration        */
+        uint32_t FILTEN3:1;        /*!< bit:     15  Filter 3 Enable                    */
+        uint32_t SENSE4:3;         /*!< bit: 16..18  Input Sense 4 Configuration        */
+        uint32_t FILTEN4:1;        /*!< bit:     19  Filter 4 Enable                    */
+        uint32_t SENSE5:3;         /*!< bit: 20..22  Input Sense 5 Configuration        */
+        uint32_t FILTEN5:1;        /*!< bit:     23  Filter 5 Enable                    */
+        uint32_t SENSE6:3;         /*!< bit: 24..26  Input Sense 6 Configuration        */
+        uint32_t FILTEN6:1;        /*!< bit:     27  Filter 6 Enable                    */
+        uint32_t SENSE7:3;         /*!< bit: 28..30  Input Sense 7 Configuration        */
+        uint32_t FILTEN7:1;        /*!< bit:     31  Filter 7 Enable                    */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint32_t reg;                /*!< Type      used for register access              */
 } EIC_CONFIG_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -663,16 +663,16 @@ typedef union {
 /** \brief EIC hardware registers */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef struct {
-  __IO EIC_CTRL_Type             CTRL;        /**< \brief Offset: 0x00 (R/W  8) Control */
-  __I  EIC_STATUS_Type           STATUS;      /**< \brief Offset: 0x01 (R/   8) Status */
-  __IO EIC_NMICTRL_Type          NMICTRL;     /**< \brief Offset: 0x02 (R/W  8) Non-Maskable Interrupt Control */
-  __IO EIC_NMIFLAG_Type          NMIFLAG;     /**< \brief Offset: 0x03 (R/W  8) Non-Maskable Interrupt Flag Status and Clear */
-  __IO EIC_EVCTRL_Type           EVCTRL;      /**< \brief Offset: 0x04 (R/W 32) Event Control */
-  __IO EIC_INTENCLR_Type         INTENCLR;    /**< \brief Offset: 0x08 (R/W 32) Interrupt Enable Clear */
-  __IO EIC_INTENSET_Type         INTENSET;    /**< \brief Offset: 0x0C (R/W 32) Interrupt Enable Set */
-  __IO EIC_INTFLAG_Type          INTFLAG;     /**< \brief Offset: 0x10 (R/W 32) Interrupt Flag Status and Clear */
-  __IO EIC_WAKEUP_Type           WAKEUP;      /**< \brief Offset: 0x14 (R/W 32) Wake-Up Enable */
-  __IO EIC_CONFIG_Type           CONFIG[2];   /**< \brief Offset: 0x18 (R/W 32) Configuration n */
+    __IO EIC_CTRL_Type             CTRL;        /**< \brief Offset: 0x00 (R/W  8) Control */
+    __I  EIC_STATUS_Type           STATUS;      /**< \brief Offset: 0x01 (R/   8) Status */
+    __IO EIC_NMICTRL_Type          NMICTRL;     /**< \brief Offset: 0x02 (R/W  8) Non-Maskable Interrupt Control */
+    __IO EIC_NMIFLAG_Type          NMIFLAG;     /**< \brief Offset: 0x03 (R/W  8) Non-Maskable Interrupt Flag Status and Clear */
+    __IO EIC_EVCTRL_Type           EVCTRL;      /**< \brief Offset: 0x04 (R/W 32) Event Control */
+    __IO EIC_INTENCLR_Type         INTENCLR;    /**< \brief Offset: 0x08 (R/W 32) Interrupt Enable Clear */
+    __IO EIC_INTENSET_Type         INTENSET;    /**< \brief Offset: 0x0C (R/W 32) Interrupt Enable Set */
+    __IO EIC_INTFLAG_Type          INTFLAG;     /**< \brief Offset: 0x10 (R/W 32) Interrupt Flag Status and Clear */
+    __IO EIC_WAKEUP_Type           WAKEUP;      /**< \brief Offset: 0x14 (R/W 32) Wake-Up Enable */
+    __IO EIC_CONFIG_Type           CONFIG[2];   /**< \brief Offset: 0x18 (R/W 32) Configuration n */
 } Eic;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 

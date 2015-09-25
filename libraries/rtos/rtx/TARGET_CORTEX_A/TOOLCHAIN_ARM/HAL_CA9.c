@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    HAL_CA9.c
  *      Purpose: Hardware Abstraction Layer for Cortex-A9
- *      Rev.:    3 Sept 2013
+ *      Rev.:    8 April 2015
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 2012 - 2013 ARM Limited
+ * Copyright (c) 2012 - 2015 ARM Limited
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -114,6 +114,7 @@ __asm void SVC_Handler (void) {
         IMPORT  SVC_Table
         IMPORT  rt_stk_check
         IMPORT  FPUEnable
+        IMPORT  scheduler_suspended    ; flag set by rt_suspend, cleared by rt_resume, read by SVC_Handler
 
 Mode_SVC        EQU     0x13
 
@@ -159,7 +160,7 @@ Mode_SVC        EQU     0x13
         /* Here we will be in SVC mode (even if coming in from PendSV_Handler or OS_Tick_Handler) */
 Sys_Switch
         LDR     LR,=__cpp(&os_tsk)
-        LDM     LR,{R4,LR}              ; os_tsk.run, os_tsk.new
+        LDM     LR,{R4,LR}              ; os_tsk.run, os_tsk.new_tsk
         CMP     R4,LR
         BNE     switching
 
@@ -170,7 +171,13 @@ Sys_Switch
         PUSH    {R12, LR}               ; Store stack adjustment and dummy LR to SVC stack
 
         CPSID   i
+        ; Do not unlock scheduler if it has just been suspended by rt_suspend()
+        LDR     R1,=scheduler_suspended
+        LDRB    R0, [R1]
+        CMP     R0, #1
+        BEQ     dont_unlock
         BLX     rt_tsk_unlock
+dont_unlock
 
         POP     {R12, LR}               ; Get stack adjustment & discard dummy LR
         ADD     SP, SP, R12             ; Unadjust stack
@@ -188,7 +195,7 @@ switching
 
         PUSH    {R8-R11} //R4 and LR already stacked
         MOV     R10,R4                  ; Preserve os_tsk.run
-        MOV     R11,LR                  ; Preserve os_tsk.new
+        MOV     R11,LR                  ; Preserve os_tsk.new_tsk
 
         ADD     R8,SP,#16               ; Unstack R4,LR
         LDMIA   R8,{R4,LR}
@@ -204,21 +211,22 @@ switching
         SUB     R8,R8,#4                ; No writeback for store of User LR
         STMDB   R8!,{R0-R3,R12}         ; User R0-R3,R12
         MOV     R3,R10                  ; os_tsk.run
-        MOV     LR,R11                  ; os_tsk.new
+        MOV     LR,R11                  ; os_tsk.new_tsk
         POP     {R9-R12}
         ADD     SP,SP,#12               ; Fix up SP for unstack of R4, LR & SPSR
         STMDB   R8!,{R4-R7,R9-R12}      ; User R4-R11
 
-        //If applicable, stack VFP state
+        //If applicable, stack VFP/NEON state
         MRC     p15,0,R1,c1,c0,2        ; VFP/NEON access enabled? (CPACR)
         AND     R2,R1,#0x00F00000
         CMP     R2,#0x00F00000
         BNE     no_outgoing_vfp
         VMRS    R2,FPSCR
         STMDB   R8!,{R2,R4}             ; Push FPSCR, maintain 8-byte alignment
-        VSTMDB  R8!,{S0-S31}
-        LDRB    R2,[R3,#TCB_STACKF]     ; Record in TCB that VFP state is stacked
-        ORR     R2,#2
+        VSTMDB  R8!,{D0-D15}
+        VSTMDB  R8!,{D16-D31}
+        LDRB    R2,[R3,#TCB_STACKF]     ; Record in TCB that NEON/D32 state is stacked
+        ORR     R2,#4
         STRB    R2,[R3,#TCB_STACKF]
 
 no_outgoing_vfp
@@ -238,8 +246,8 @@ no_outgoing_vfp
 
         MOV     LR,R4
 
-SVC_Next  //R4 == os_tsk.run, LR == os_tsk.new, R0-R3, R5-R12 corruptible
-        LDR     R1,=__cpp(&os_tsk)      ; os_tsk.run = os_tsk.new
+SVC_Next  //R4 == os_tsk.run, LR == os_tsk.new_tsk, R0-R3, R5-R12 corruptible
+        LDR     R1,=__cpp(&os_tsk)      ; os_tsk.run = os_tsk.new_tsk
         STR     LR,[R1]
         LDRB    R1,[LR,#TCB_TID]        ; os_tsk.run->task_id
         LSL     R1,#8                   ; Store PROCID
@@ -247,16 +255,17 @@ SVC_Next  //R4 == os_tsk.run, LR == os_tsk.new, R0-R3, R5-R12 corruptible
 
         LDR     R0,[LR,#TCB_TSTACK]     ; os_tsk.run->tsk_stack
 
-        //Does incoming task have VFP state in stack?
+        //Does incoming task have VFP/NEON state in stack?
         LDRB    R3,[LR,#TCB_STACKF]
-        TST     R3,#0x2
+        ANDS    R3, R3, #0x6
         MRC     p15,0,R1,c1,c0,2        ; Read CPACR
-        ANDEQ   R1,R1,#0xFF0FFFFF       ; Disable VFP access if incoming task does not have stacked VFP state
-        ORRNE   R1,R1,#0x00F00000       ; Enable VFP access if incoming task does have stacked VFP state
+        ANDEQ   R1,R1,#0xFF0FFFFF       ; Disable VFP/NEON access if incoming task does not have stacked VFP/NEON state
+        ORRNE   R1,R1,#0x00F00000       ; Enable VFP/NEON access if incoming task does have stacked VFP/NEON state
         MCR     p15,0,R1,c1,c0,2        ; Write CPACR
         BEQ     no_incoming_vfp
-        ISB                             ; We only need the sync if we enabled, otherwise we will context switch before next VFP instruction anyway
-        VLDMIA  R0!,{S0-S31}
+        ISB                             ; We only need the sync if we enabled, otherwise we will context switch before next VFP/NEON instruction anyway
+        VLDMIA  R0!,{D16-D31}
+        VLDMIA  R0!,{D0-D15}
         LDR     R2,[R0]
         VMSR    FPSCR,R2
         ADD     R0,R0,#8
@@ -343,7 +352,8 @@ __asm void PendSV_Handler (U32 IRQn) {
     ARM
 
     IMPORT  rt_tsk_lock
-    IMPORT  IRQNestLevel
+    IMPORT  IRQNestLevel                ; Flag indicates whether inside an ISR, and the depth of nesting.  0 = not in ISR.
+    IMPORT  seen_id0_active             ; Flag used to workaround GIC 390 errata 733075 - set in startup_Renesas_RZ_A1.s
 
     ADD     SP,SP,#8 //fix up stack pointer (R0 has been pushed and will never be popped, R1 was pushed for stack alignment)
 
@@ -354,6 +364,11 @@ __asm void PendSV_Handler (U32 IRQn) {
     LDR     R1, =__cpp(&GICInterface_BASE)
     LDR     R1, [R1, #0]
     STR     R0, [R1, #0x10]
+
+    ; If it was interrupt ID0, clear the seen flag, otherwise return as normal
+    CMP     R0, #0
+    LDREQ   R1, =seen_id0_active
+    STRBEQ  R0, [R1]                    ; Clear the seen flag, using R0 (which is 0), to save loading another register
 
     LDR     R0, =IRQNestLevel           ; Get address of nesting counter
     LDR     R1, [R0]
@@ -380,7 +395,8 @@ __asm void OS_Tick_Handler (U32 IRQn) {
     ARM
 
     IMPORT  rt_tsk_lock
-    IMPORT  IRQNestLevel
+    IMPORT  IRQNestLevel                ; Flag indicates whether inside an ISR, and the depth of nesting.  0 = not in ISR.
+    IMPORT  seen_id0_active             ; Flag used to workaround GIC 390 errata 733075 - set in startup_Renesas_RZ_A1.s
 
     ADD     SP,SP,#8 //fix up stack pointer (R0 has been pushed and will never be popped, R1 was pushed for stack alignment)
 
@@ -390,6 +406,11 @@ __asm void OS_Tick_Handler (U32 IRQn) {
     LDR     R1, =__cpp(&GICInterface_BASE)
     LDR     R1, [R1, #0]
     STR     R0, [R1, #0x10]
+
+    ; If it was interrupt ID0, clear the seen flag, otherwise return as normal
+    CMP     R0, #0
+    LDREQ   R1, =seen_id0_active
+    STRBEQ  R0, [R1]                    ; Clear the seen flag, using R0 (which is 0), to save loading another register
 
     LDR     R0, =IRQNestLevel           ; Get address of nesting counter
     LDR     R1, [R0]

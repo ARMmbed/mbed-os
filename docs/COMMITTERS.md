@@ -1,6 +1,6 @@
 # Committing changes to mbedmicro/mbed
 * Our current branching model is very simple. We are using ```master``` branch to merge all pull requests.
-* Based on stable ```SHA``` version of ```master``` branch we decide to release and att he same time ```tag``` our build release.
+* Based on stable ```SHA``` version of ```master``` branch we decide to release and at the same time ```tag``` our build release.
 * Our current release versioning follows simple integer version: ```94```, ```95```, ```96``` etc.
 
 # Committer Guide

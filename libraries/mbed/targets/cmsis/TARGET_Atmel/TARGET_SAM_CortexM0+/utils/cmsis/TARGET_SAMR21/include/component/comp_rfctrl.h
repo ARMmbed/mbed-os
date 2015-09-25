@@ -56,16 +56,16 @@
 /* -------- RFCTRL_FECFG : (RFCTRL Offset: 0x0) (R/W 16) Front-end control bus configuration -------- */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef union {
-  struct {
-    uint16_t F0CFG:2;          /*!< bit:  0.. 1  Front-end control signal 0 configuration */
-    uint16_t F1CFG:2;          /*!< bit:  2.. 3  Front-end control signal 1 configuration */
-    uint16_t F2CFG:2;          /*!< bit:  4.. 5  Front-end control signal 2 configuration */
-    uint16_t F3CFG:2;          /*!< bit:  6.. 7  Front-end control signal 3 configuration */
-    uint16_t F4CFG:2;          /*!< bit:  8.. 9  Front-end control signal 4 configuration */
-    uint16_t F5CFG:2;          /*!< bit: 10..11  Front-end control signal 5 configuration */
-    uint16_t :4;               /*!< bit: 12..15  Reserved                           */
-  } bit;                       /*!< Structure used for bit  access                  */
-  uint16_t reg;                /*!< Type      used for register access              */
+    struct {
+        uint16_t F0CFG:2;          /*!< bit:  0.. 1  Front-end control signal 0 configuration */
+        uint16_t F1CFG:2;          /*!< bit:  2.. 3  Front-end control signal 1 configuration */
+        uint16_t F2CFG:2;          /*!< bit:  4.. 5  Front-end control signal 2 configuration */
+        uint16_t F3CFG:2;          /*!< bit:  6.. 7  Front-end control signal 3 configuration */
+        uint16_t F4CFG:2;          /*!< bit:  8.. 9  Front-end control signal 4 configuration */
+        uint16_t F5CFG:2;          /*!< bit: 10..11  Front-end control signal 5 configuration */
+        uint16_t :4;               /*!< bit: 12..15  Reserved                           */
+    } bit;                       /*!< Structure used for bit  access                  */
+    uint16_t reg;                /*!< Type      used for register access              */
 } RFCTRL_FECFG_Type;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 
@@ -95,7 +95,7 @@ typedef union {
 /** \brief RFCTRL hardware registers */
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
 typedef struct {
-  __IO RFCTRL_FECFG_Type         FECFG;       /**< \brief Offset: 0x0 (R/W 16) Front-end control bus configuration */
+    __IO RFCTRL_FECFG_Type         FECFG;       /**< \brief Offset: 0x0 (R/W 16) Front-end control bus configuration */
 } Rfctrl;
 #endif /* !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__)) */
 

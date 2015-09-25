@@ -61,6 +61,7 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
+        'NUCLEO_L476RG',
         'DISCO_L053C8',
         'DISCO_F334C8',
         'DISCO_F746NG',

@@ -1,18 +1,32 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file rtc_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
 
 #include "device.h"
 #if DEVICE_RTC
@@ -82,11 +96,6 @@ void rtc_init_real(uint32_t flags)
     useflags |= flags;
 
     if (!rtc_inited) {
-        /* Start LFXO and wait until it is stable */
-        CMU_OscillatorEnable(cmuOsc_LFXO, true, true);
-
-        /* Route the LFXO clock to the RTC */
-        CMU_ClockSelectSet(cmuClock_LFA, LOW_ENERGY_CLOCK_SOURCE);
         CMU_ClockEnable(cmuClock_RTC, true);
 
         /* Enable clock to the interface of the low energy modules */
@@ -122,10 +131,10 @@ void rtc_free(void)
 void rtc_free_real(uint32_t flags)
 {
     /* Clear use flag */
-    flags &= ~flags;
+    useflags &= ~flags;
 
     /* Disable the RTC if it was inited and is no longer in use by anyone. */
-    if (rtc_inited && (flags == 0)) {
+    if (rtc_inited && (useflags == 0)) {
         NVIC_DisableIRQ(RTC_IRQn);
         RTC_Reset();
         CMU_ClockEnable(cmuClock_RTC, false);
