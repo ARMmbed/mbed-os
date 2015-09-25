@@ -1389,17 +1389,7 @@ class NRF51_MICROBIT_B_OTA(MCU_NRF51_16K_OTA):
 class ARM_MPS2_Target(Target):
     def __init__(self):
         Target.__init__(self)
-#        self.OUTPUT_EXT = 'axf'
-#
-#    def init_hooks(self, hook, toolchain_name):
-#        hook.hook_add_binary("replace", self.output_axf)
-#
-#    @staticmethod
-#    def output_axf(t_self, resources, elf, bin):
-#        shutil.copy(elf, bin)
-#        t_self.debug("Passing ELF file %s" % bin)
-#
-#
+
 class ARM_MPS2_M0(ARM_MPS2_Target):
     def __init__(self):
         ARM_MPS2_Target.__init__(self)
