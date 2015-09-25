@@ -2,12 +2,12 @@
  * @file     core_caFunc.h
  * @brief    CMSIS Cortex-A Core Function Access Header File
  * @version  V3.10
- * @date     9 May 2013
+ * @date     30 Oct 2013
  *
  * @note
  *
  ******************************************************************************/
-/* Copyright (c) 2009 - 2012 ARM LIMITED
+/* Copyright (c) 2009 - 2013 ARM LIMITED
 
    All rights reserved.
    Redistribution and use in source and binary forms, with or without
@@ -147,8 +147,6 @@ __STATIC_ASM void __set_PSP(uint32_t topOfProcStack)
 /** \brief  Set User Mode
 
     This function changes the processor state to User Mode
-
-    \param [in]    topOfProcStack  USR/SYS Stack Pointer value to set
  */
 __STATIC_ASM void __set_CPS_USR(void)
 {
@@ -253,7 +251,7 @@ __STATIC_INLINE uint32_t __get_CPACR(void)
 
     This function assigns the given value to the Coprocessor Access Control register.
 
-    \param [in]    cpacr  Coporcessor Acccess Control value to set
+    \param [in]    cpacr  Coprocessor Acccess Control value to set
  */
 __STATIC_INLINE void __set_CPACR(uint32_t cpacr)
 {
@@ -275,7 +273,7 @@ __STATIC_INLINE uint32_t __get_CBAR() {
 
 /** \brief  Get TTBR0
 
-    This function returns the value of the Configuration Base Address register.
+    This function returns the value of the Translation Table Base Register 0.
 
     \return               Translation Table Base Register 0 value
  */
@@ -286,7 +284,7 @@ __STATIC_INLINE uint32_t __get_TTBR0() {
 
 /** \brief  Set TTBR0
 
-    This function assigns the given value to the Coprocessor Access Control register.
+    This function assigns the given value to the Translation Table Base Register 0.
 
     \param [in]    ttbr0  Translation Table Base Register 0 value to set
  */
@@ -309,7 +307,7 @@ __STATIC_INLINE uint32_t __get_DACR() {
 
 /** \brief  Set DACR
 
-    This function assigns the given value to the Coprocessor Access Control register.
+    This function assigns the given value to the Domain Access Control Register.
 
     \param [in]    dacr   Domain Access Control Register value to set
  */
@@ -325,7 +323,7 @@ __STATIC_INLINE void __set_DACR(uint32_t dacr) {
 
     This function assigns the given value to the System Control Register.
 
-    \param [in]    sctlr  System Control Register, value to set
+    \param [in]    sctlr  System Control Register value to set
  */
 __STATIC_INLINE void __set_SCTLR(uint32_t sctlr)
 {
@@ -397,9 +395,9 @@ __STATIC_INLINE void __enable_mmu(void) {
     __ISB();
 }
 
-/** \brief  Enable MMU
+/** \brief  Disable MMU
 
-    Enable MMU
+    Disable MMU
  */
 __STATIC_INLINE void __disable_mmu(void) {
     // Clear M bit 0 to disable the MMU
@@ -477,8 +475,9 @@ __STATIC_INLINE void __v7_clean_inv_dcache_mva(void *va) {
     __DMB();     //ensure the ordering of data cache maintenance operations and their effects
 }
 
-/** \brief
- * Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency.
+/** \brief  Clean and Invalidate the entire data or unified cache
+
+    Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency.
  */
 #pragma push
 #pragma arm
@@ -522,12 +521,12 @@ Dccsw   CMP     R0, #1
         BNE     Dccisw
         MCR     p15, 0, R11, c7, c10, 2    // DCCSW. Clean by Set/Way
         B       cont
-Dccisw  MCR     p15, 0, R11, c7, c14, 2    // DCCISW, Clean and Invalidate by Set/Way
+Dccisw  MCR     p15, 0, R11, c7, c14, 2    // DCCISW. Clean and Invalidate by Set/Way
 cont    SUBS    R9, R9, #1                 // Decrement the Way number
         BGE     Loop3
         SUBS    R7, R7, #1                 // Decrement the Set number
         BGE     Loop2
-Skip    ADD     R10, R10, #2               // increment the cache number
+Skip    ADD     R10, R10, #2               // Increment the cache number
         CMP     R3, R10
         BGT     Loop1
 
@@ -539,9 +538,6 @@ Finished
 }
 #pragma pop
 
-/** \brief  __v7_all_cache - helper function
-
- */
 
 /** \brief  Invalidate the whole D$
 
@@ -577,7 +573,6 @@ __STATIC_INLINE void __v7_clean_inv_dcache_all(void) {
 #error IAR Compiler support not implemented for Cortex-A
 
 #elif (defined (__GNUC__)) /*------------------ GNU Compiler ---------------------*/
-
 /* GNU gcc specific functions */
 
 #define MODE_USR 0x10
@@ -620,14 +615,12 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __disable_irq(void)
 __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_APSR(void)
 {
 #if 1
-    uint32_t result;
-
-    __ASM volatile ("mrs %0, apsr" : "=r" (result) );
-    return (result);
+  register uint32_t __regAPSR;
+  __ASM volatile ("mrs %0, apsr" : "=r" (__regAPSR) );
 #else
   register uint32_t __regAPSR          __ASM("apsr");
-  return(__regAPSR);
 #endif
+  return(__regAPSR);
 }
 
 
@@ -694,22 +687,49 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_LR(uint32_t lr)
 
     \param [in]    topOfProcStack  USR/SYS Stack Pointer value to set
  */
-extern void __set_PSP(uint32_t topOfProcStack);
+__attribute__( ( always_inline ) ) __STATIC_INLINE void __set_PSP(uint32_t topOfProcStack)
+{
+    __asm__ volatile (
+    ".ARM;"
+    ".eabi_attribute Tag_ABI_align8_preserved,1;"
+
+    "BIC     R0, R0, #7;" /* ;ensure stack is 8-byte aligned */
+    "MRS     R1, CPSR;"
+    "CPS     %0;"         /* ;no effect in USR mode */
+    "MOV     SP, R0;"
+    "MSR     CPSR_c, R1;" /* ;no effect in USR mode */
+    "ISB;"
+    //"BX      LR;"
+    :
+    : "i"(MODE_SYS)
+    : "r0", "r1");
+    return;
+}
 
 /** \brief  Set User Mode
 
     This function changes the processor state to User Mode
-
-    \param [in]    topOfProcStack  USR/SYS Stack Pointer value to set
  */
-extern void __set_CPS_USR(void);
+__attribute__( ( always_inline ) ) __STATIC_INLINE void __set_CPS_USR(void)
+{
+    __asm__ volatile (
+    ".ARM;"
+
+    "CPS  %0;"
+    //"BX   LR;"
+    :
+    : "i"(MODE_USR)
+    : );
+    return;
+}
+
 
 /** \brief  Enable FIQ
 
     This function enables FIQ interrupts by clearing the F-bit in the CPSR.
     Can only be executed in Privileged modes.
  */
-#define __enable_fault_irq                __enable_fiq
+#define __enable_fault_irq()                __asm__ volatile ("cpsie f")
 
 
 /** \brief  Disable FIQ
@@ -717,7 +737,7 @@ extern void __set_CPS_USR(void);
     This function disables FIQ interrupts by setting the F-bit in the CPSR.
     Can only be executed in Privileged modes.
  */
-#define __disable_fault_irq               __disable_fiq
+#define __disable_fault_irq()               __asm__ volatile ("cpsid f")
 
 
 /** \brief  Get FPSCR
@@ -825,7 +845,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_CPACR(void)
 
     This function assigns the given value to the Coprocessor Access Control register.
 
-    \param [in]    cpacr  Coporcessor Acccess Control value to set
+    \param [in]    cpacr  Coprocessor Acccess Control value to set
  */
 __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_CPACR(uint32_t cpacr)
 {
@@ -856,7 +876,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_CBAR() {
 
 /** \brief  Get TTBR0
 
-    This function returns the value of the Configuration Base Address register.
+    This function returns the value of the Translation Table Base Register 0.
 
     \return               Translation Table Base Register 0 value
  */
@@ -872,7 +892,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_TTBR0() {
 
 /** \brief  Set TTBR0
 
-    This function assigns the given value to the Coprocessor Access Control register.
+    This function assigns the given value to the Translation Table Base Register 0.
 
     \param [in]    ttbr0  Translation Table Base Register 0 value to set
  */
@@ -904,7 +924,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __get_DACR() {
 
 /** \brief  Set DACR
 
-    This function assigns the given value to the Coprocessor Access Control register.
+    This function assigns the given value to the Domain Access Control Register.
 
     \param [in]    dacr   Domain Access Control Register value to set
  */
@@ -924,7 +944,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_DACR(uint32_t dacr
 
     This function assigns the given value to the System Control Register.
 
-    \param [in]    sctlr  System Control Register, value to set
+    \param [in]    sctlr  System Control Register value to set
  */
 __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_SCTLR(uint32_t sctlr)
 {
@@ -1005,9 +1025,9 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __enable_mmu(void) {
     __ISB();
 }
 
-/** \brief  Enable MMU
+/** \brief  Disable MMU
 
-    Enable MMU
+    Disable MMU
  */
 __attribute__( ( always_inline ) ) __STATIC_INLINE void __disable_mmu(void) {
     // Clear M bit 0 to disable the MMU
@@ -1109,14 +1129,10 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __v7_clean_inv_dcache_mv
     __DMB();     //ensure the ordering of data cache maintenance operations and their effects
 }
 
-/** \brief
- * Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency.
+/** \brief  Clean and Invalidate the entire data or unified cache
+
+    Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency.
  */
-
-/** \brief  __v7_all_cache - helper function
-
- */
-
 extern void __v7_all_cache(uint32_t op);
 
 
