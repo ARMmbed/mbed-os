@@ -981,7 +981,7 @@ class SingleTestRunner(object):
         if self.db_logger:
             self.db_logger.disconnect()
 
-        return (self.shape_global_test_loop_result(test_all_result),
+        return (self.shape_global_test_loop_result(test_all_result, self.opts_waterfall_test and self.opts_consolidate_waterfall_test),
                 target_name_unique,
                 toolchain_name,
                 test_id,
@@ -1029,12 +1029,17 @@ class SingleTestRunner(object):
         test_loop_ok_result = test_all_result.count(self.TEST_RESULT_OK)
         return "%d/%d"% (test_loop_ok_result, test_loop_count)
 
-    def shape_global_test_loop_result(self, test_all_result):
+    def shape_global_test_loop_result(self, test_all_result, waterfall_and_consolidate):
         """ Reformats list of results to simple string
         """
         result = self.TEST_RESULT_FAIL
-        if all(test_all_result[0] == res for res in test_all_result):
-            result = test_all_result[0]
+
+        if waterfall_and_consolidate:
+            if any(res == self.TEST_RESULT_OK for res in test_all_result):
+                result = self.TEST_RESULT_OK
+        else:
+            if all(test_all_result[0] == res for res in test_all_result):
+                result = test_all_result[0]
         return result
 
     def run_host_test(self, name, image_path, disk, port, duration,
