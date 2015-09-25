@@ -40,8 +40,7 @@ ADC_HandleTypeDef AdcHandle;
 
 int adc_inited = 0;
 
-void analogin_init(analogin_t *obj, PinName pin)
-{
+void analogin_init(analogin_t *obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
@@ -79,13 +78,12 @@ void analogin_init(analogin_t *obj, PinName pin)
         }
         // Run the ADC calibration
         if (HAL_ADCEx_Calibration_Start(&AdcHandle) != HAL_OK) {
-          error("Cannot Start ADC_Calibration");
+            error("Cannot Start ADC_Calibration");
         }
     }
 }
 
-static inline uint16_t adc_read(analogin_t *obj)
-{
+static inline uint16_t adc_read(analogin_t *obj) {
     ADC_ChannelConfTypeDef sConfig;
 
     AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
@@ -168,16 +166,14 @@ static inline uint16_t adc_read(analogin_t *obj)
     }
 }
 
-uint16_t analogin_read_u16(analogin_t *obj)
-{
+uint16_t analogin_read_u16(analogin_t *obj) {
     uint16_t value = adc_read(obj);
     // 12-bit to 16-bit conversion
     value = ((value << 4) & (uint16_t)0xFFF0) | ((value >> 8) & (uint16_t)0x000F);
     return value;
 }
 
-float analogin_read(analogin_t *obj)
-{
+float analogin_read(analogin_t *obj) {
     uint16_t value = adc_read(obj);
     return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }

@@ -115,8 +115,8 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
 /**
   * @}
   */
-  
+
 /**
   * @}
-  */    
+  */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
