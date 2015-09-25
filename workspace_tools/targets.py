@@ -658,7 +658,7 @@ class ELMO_F411RE(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.default_toolchain = "GCC_ARM"
+        self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
         self.detect_code = ["----"]
 
