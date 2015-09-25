@@ -27,6 +27,7 @@ import random
 import optparse
 import datetime
 import threading
+import ctypes
 from types import ListType
 from colorama import Fore, Back, Style
 from prettytable import PrettyTable
@@ -180,7 +181,8 @@ class SingleTestRunner(object):
                  _opts_jobs=None,
                  _opts_waterfall_test=None,
                  _opts_consolidate_waterfall_test=None,
-                 _opts_extend_test_timeout=None):
+                 _opts_extend_test_timeout=None,
+                 _opts_auto_detect=None):
         """ Let's try hard to init this object
         """
         from colorama import init
@@ -240,6 +242,7 @@ class SingleTestRunner(object):
         self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
+        self.opts_auto_detect = _opts_auto_detect
 
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
@@ -855,25 +858,8 @@ class SingleTestRunner(object):
             print "Error: No Mbed available: MUT[%s]" % data['mcu']
             return None
 
-        disk = mut.get('disk')
-        port = mut.get('port')
-
-        if disk is None or port is None:
-            return None
-
-        target_by_mcu = TARGET_MAP[mut['mcu']]
-        target_name_unique = mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu']
-        # Some extra stuff can be declared in MUTs structure
-        reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
-        reset_tout = mut.get('reset_tout')  # COPY_IMAGE -> RESET_PROC -> SLEEP(RESET_TOUT)
-        image_dest = mut.get('image_dest')  # Image file destination DISK + IMAGE_DEST + BINARY_NAME
-        images_config = mut.get('images_config')    # Available images selection via config file
-        mobo_config = mut.get('mobo_config')        # Available board configuration selection e.g. core selection etc.
+        mcu = mut['mcu']
         copy_method = mut.get('copy_method')        # Available board configuration selection e.g. core selection etc.
-
-        # When the build and test system were separate, this was relative to a
-        # base network folder base path: join(NETWORK_BASE_PATH, )
-        image_path = image
 
         if self.db_logger:
             self.db_logger.reconnect()
@@ -886,6 +872,46 @@ class SingleTestRunner(object):
         detailed_test_results = {}  # { Loop_number: { results ... } }
 
         for test_index in range(test_loops):
+
+            # If mbedls is available and we are auto detecting MUT info,
+            # update MUT info (mounting may changed)
+            if get_module_avail('mbed_lstools') and self.opts_auto_detect:
+                platform_name_filter = [mcu]
+                muts_list = {}
+                found = False
+
+                for i in range(0, 60):
+                    print('Looking for %s with MBEDLS' % mcu)
+                    muts_list = get_autodetected_MUTS_list(platform_name_filter=platform_name_filter)
+
+                    if 1 not in muts_list:
+                        sleep(3)
+                    else:
+                        found = True
+                        break
+
+                if not found:
+                    print "Error: mbed not found with MBEDLS: %s" % data['mcu']
+                    return None
+                else:
+                    mut = muts_list[1]
+
+            disk = mut.get('disk')
+            port = mut.get('port')
+
+            if disk is None or port is None:
+                return None
+
+            target_by_mcu = TARGET_MAP[mut['mcu']]
+            target_name_unique = mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu']
+            # Some extra stuff can be declared in MUTs structure
+            reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
+            reset_tout = mut.get('reset_tout')  # COPY_IMAGE -> RESET_PROC -> SLEEP(RESET_TOUT)
+
+            # When the build and test system were separate, this was relative to a
+            # base network folder base path: join(NETWORK_BASE_PATH, )
+            image_path = image
+
             # Host test execution
             start_host_exec_time = time()
 
@@ -1065,6 +1091,9 @@ class SingleTestRunner(object):
                '-p', port,
                '-t', str(duration),
                '-C', str(program_cycle_s)]
+
+        if get_module_avail('mbed_lstools') and self.opts_auto_detect:
+            cmd += ['--auto']
 
         # Add extra parameters to host_test
         if copy_method is not None:
@@ -1642,6 +1671,20 @@ def get_module_avail(module_name):
     return module_name in sys.modules.keys()
 
 
+def get_autodetected_MUTS_list(platform_name_filter=None):
+    oldError = None
+    if os.name == 'nt':
+        # Disable Windows error box temporarily
+        oldError = ctypes.windll.kernel32.SetErrorMode(1) #note that SEM_FAILCRITICALERRORS = 1
+
+    mbeds = mbed_lstools.create()
+    detect_muts_list = mbeds.list_mbeds()
+
+    if os.name == 'nt':
+        ctypes.windll.kernel32.SetErrorMode(oldError)
+
+    return get_autodetected_MUTS(detect_muts_list, platform_name_filter=platform_name_filter)
+
 def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
     """ Function detects all connected to host mbed-enabled devices and generates artificial MUTS file.
         If function fails to auto-detect devices it will return empty dictionary.
@@ -1658,6 +1701,11 @@ def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
     # mbeds_list = [{'platform_name': 'NUCLEO_F302R8', 'mount_point': 'E:', 'target_id': '07050200623B61125D5EF72A', 'serial_port': u'COM34'}]
     index = 1
     for mut in mbeds_list:
+        # Filter the MUTS if a filter is specified
+
+        if platform_name_filter and not mut['platform_name'] in platform_name_filter:
+            continue
+
         # For mcu_unique - we are assigning 'platform_name_unique' value from  mbedls output (if its existing)
         # if not we  are creating our own unique value (last few chars from platform's target_id).
         m = {'mcu': mut['platform_name'],
@@ -1688,8 +1736,8 @@ def get_autodetected_TEST_SPEC(mbeds_list,
     result = {'targets': {} }
 
     for mut in mbeds_list:
-        mcu = mut['platform_name']
-        if platform_name_filter is None or (platform_name_filter and mut['platform_name'] in platform_name_filter):
+        mcu = mut['mcu']
+        if platform_name_filter is None or (platform_name_filter and mut['mcu'] in platform_name_filter):
             if mcu in TARGET_MAP:
                 default_toolchain = TARGET_MAP[mcu].default_toolchain
                 supported_toolchains = TARGET_MAP[mcu].supported_toolchains
