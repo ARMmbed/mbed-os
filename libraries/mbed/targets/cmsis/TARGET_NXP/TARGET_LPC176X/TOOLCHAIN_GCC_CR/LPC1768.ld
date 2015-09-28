@@ -8,7 +8,8 @@ MEMORY
   /* Define each memory region */
   MFlash512 (rx) : ORIGIN = 0x0, LENGTH = 0x80000 /* 512k */
   RamLoc32 (rwx) : ORIGIN = 0x100000C8, LENGTH = 0x7F38 /* 32k */
-  RamAHB32 (rwx) : ORIGIN = 0x2007c000, LENGTH = 0x8000 /* 32k */
+  RamAHB_USB (rwx) : ORIGIN = 0x2007c000, LENGTH = 0x4000 /* 16k */
+  RamAHB_Eth (rwx) : ORIGIN = 0x20080000, LENGTH = 0x4000 /* 16k */
 
 }
   /* Define a symbol for the top of each memory region */
@@ -110,11 +111,11 @@ SECTIONS
         *(.data.$RAM2*)
         *(.data.$RamAHB32*)
        . = ALIGN(4) ;
-    } > RamAHB32 AT>MFlash512
+    } > RamAHB_USB AT>MFlash512
     
     /* MAIN DATA SECTION */
 
-    .uninit_RESERVED : ALIGN(4)
+    .uninit_RESERVED(NOLOAD) : ALIGN(4)
     {
         KEEP(*(.bss.$RESERVED*))
     } > RamLoc32
@@ -130,15 +131,21 @@ SECTIONS
     } > RamLoc32 AT>MFlash512
 
     
-    .bss_RAM2 : ALIGN(4)
+    .bss_RAM2(NOLOAD) : ALIGN(4)
     {
         *(.bss.$RAM2*)
         *(.bss.$RamAHB32*)
+        *(AHBSRAM0)
        . = ALIGN(4) ;
-    } > RamAHB32
+    } > RamAHB_USB
 
+    .bss_RAM3(NOLOAD) : ALIGN(4)
+    {
+        *(AHBSRAM1)
+       . = ALIGN(4) ;
+    } > RamAHB_Eth
     /* MAIN BSS SECTION */
-    .bss : ALIGN(4)
+    .bss(NOLOAD) : ALIGN(4)
     {
         _bss = .;
         *(.bss*)
