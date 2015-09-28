@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_opamp_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   Extended OPAMP HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -15,7 +15,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -106,8 +106,8 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t delta;
 
-  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
+  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
   {
     status = HAL_ERROR;
   }
@@ -368,10 +368,10 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t delta;
 
-  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp3 == HAL_NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
-     (hopamp4 == HAL_NULL) || (hopamp4->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
+  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp3 == NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
+     (hopamp4 == NULL) || (hopamp4->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
   {
     status = HAL_ERROR;
   }

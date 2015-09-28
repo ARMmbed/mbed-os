@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -70,8 +70,8 @@ typedef enum
 } HAL_LockTypeDef;
 
 /* Exported macro ------------------------------------------------------------*/
-#ifndef HAL_NULL
-  #define HAL_NULL      (void *) 0
+#ifndef NULL
+  #define NULL      0
 #endif
 
 #define HAL_MAX_DELAY      0xFFFFFFFF
@@ -85,6 +85,8 @@ typedef enum
                               (__DMA_HANDLE_).Parent = (__HANDLE__);               \
                           } while(0)
 
+#define UNUSED(x) ((void)(x))
+                         
 /** @brief Reset the Handle's State field.
   * @param __HANDLE__: specifies the Peripheral Handle.
   * @note  This macro can be used for the following purpose:

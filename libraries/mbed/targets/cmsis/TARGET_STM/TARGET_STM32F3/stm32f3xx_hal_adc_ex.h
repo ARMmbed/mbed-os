@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -3300,7 +3300,7 @@ typedef struct
              )?                                                                \
               ((__HANDLE_OTHER_ADC__)->Instance = ADC3)                        \
               :                                                                \
-              ((__HANDLE_OTHER_ADC__)->Instance = HAL_NULL)                        \
+              ((__HANDLE_OTHER_ADC__)->Instance = NULL)                        \
            )                                                                   \
          )                                                                     \
      )                                                                         \
@@ -3324,7 +3324,7 @@ typedef struct
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 #define __HAL_ADC_COMMON_ADC_OTHER(__HANDLE__, __HANDLE_OTHER_ADC__)           \
-  ((__HANDLE_OTHER_ADC__)->Instance = HAL_NULL)
+  ((__HANDLE_OTHER_ADC__)->Instance = NULL)
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
 
 /**
@@ -3345,7 +3345,7 @@ typedef struct
        )?                                                                      \
         ((__HANDLE_SLAVE__)->Instance = ADC4)                                  \
         :                                                                      \
-        ((__HANDLE_SLAVE__)->Instance = HAL_NULL)                                  \
+        ((__HANDLE_SLAVE__)->Instance = NULL)                                  \
      )                                                                         \
   )
 #endif /* STM32F303xE || STM32F398xx || */
@@ -3359,7 +3359,7 @@ typedef struct
     )?                                                                         \
      ((__HANDLE_SLAVE__)->Instance = ADC2)                                     \
      :                                                                         \
-     ( HAL_NULL )                                                                  \
+     ( NULL )                                                                  \
   )
 #endif /* STM32F302xE                               || */
        /* STM32F302xC                               || */

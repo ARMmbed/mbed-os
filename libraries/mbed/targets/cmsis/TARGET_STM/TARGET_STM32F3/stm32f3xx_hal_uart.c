@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_uart.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   UART HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -71,7 +71,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -206,7 +206,7 @@ static HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
 {
   /* Check the UART handle allocation */
-  if(huart == HAL_NULL)
+  if(huart == NULL)
   {
     return HAL_ERROR;
   }
@@ -266,7 +266,7 @@ HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart)
 {
   /* Check the UART handle allocation */
-  if(huart == HAL_NULL)
+  if(huart == NULL)
   {
     return HAL_ERROR;
   }
@@ -326,7 +326,7 @@ HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLength)
 {
   /* Check the UART handle allocation */
-  if(huart == HAL_NULL)
+  if(huart == NULL)
   {
     return HAL_ERROR;
   }
@@ -406,7 +406,7 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
 HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Address, uint32_t WakeUpMethod)
 {
   /* Check the UART handle allocation */
-  if(huart == HAL_NULL)
+  if(huart == NULL)
   {
     return HAL_ERROR;
   }
@@ -469,7 +469,7 @@ HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Add
 HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
 {
   /* Check the UART handle allocation */
-  if(huart == HAL_NULL)
+  if(huart == NULL)
   {
     return HAL_ERROR;
   }
@@ -594,7 +594,7 @@ HAL_StatusTypeDef HAL_UART_Transmit(UART_HandleTypeDef *huart, uint8_t *pData, u
 
   if((huart->State == HAL_UART_STATE_READY) || (huart->State == HAL_UART_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL ) || (Size == 0)) 
+    if((pData == NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -673,7 +673,7 @@ HAL_StatusTypeDef HAL_UART_Receive(UART_HandleTypeDef *huart, uint8_t *pData, ui
 
   if((huart->State == HAL_UART_STATE_READY) || (huart->State == HAL_UART_STATE_BUSY_TX))
   { 
-    if((pData == HAL_NULL ) || (Size == 0)) 
+    if((pData == NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -750,7 +750,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
 {  
   if((huart->State == HAL_UART_STATE_READY) || (huart->State == HAL_UART_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL ) || (Size == 0)) 
+    if((pData == NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -801,7 +801,7 @@ HAL_StatusTypeDef HAL_UART_Receive_IT(UART_HandleTypeDef *huart, uint8_t *pData,
 {  
   if((huart->State == HAL_UART_STATE_READY) || (huart->State == HAL_UART_STATE_BUSY_TX))
   {
-    if((pData == HAL_NULL ) || (Size == 0)) 
+    if((pData == NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -860,7 +860,7 @@ HAL_StatusTypeDef HAL_UART_Transmit_DMA(UART_HandleTypeDef *huart, uint8_t *pDat
   
   if((huart->State == HAL_UART_STATE_READY) || (huart->State == HAL_UART_STATE_BUSY_RX))
   {
-    if((pData == HAL_NULL ) || (Size == 0)) 
+    if((pData == NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -926,7 +926,7 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
   
   if((huart->State == HAL_UART_STATE_READY) || (huart->State == HAL_UART_STATE_BUSY_TX))
   {
-    if((pData == HAL_NULL ) || (Size == 0)) 
+    if((pData == NULL ) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -1064,12 +1064,12 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   huart->Instance->CR3 &= ~USART_CR3_DMAR;
   
   /* Abort the UART DMA tx channel */
-  if(huart->hdmatx != HAL_NULL)
+  if(huart->hdmatx != NULL)
   {
     HAL_DMA_Abort(huart->hdmatx);
   }
   /* Abort the UART DMA rx channel */
-  if(huart->hdmarx != HAL_NULL)
+  if(huart->hdmarx != NULL)
   {
     HAL_DMA_Abort(huart->hdmarx);
   }

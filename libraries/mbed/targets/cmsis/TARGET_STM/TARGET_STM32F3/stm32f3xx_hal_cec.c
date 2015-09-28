@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_cec.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   CEC HAL module driver.
   * 
   *          This file provides firmware functions to manage the following 
@@ -49,7 +49,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -148,7 +148,7 @@ HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec)
   uint32_t tmpreg = 0x0;
   
   /* Check the CEC handle allocation */
-  if(hcec == HAL_NULL)
+  if(hcec == NULL)
   {
     return HAL_ERROR;
   }
@@ -209,7 +209,7 @@ HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec)
 HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec)
 {
   /* Check the CEC handle allocation */
-  if(hcec == HAL_NULL)
+  if(hcec == NULL)
   {
     return HAL_ERROR;
   }
@@ -324,7 +324,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
   if((hcec->State == HAL_CEC_STATE_READY) && (__HAL_CEC_GET_TRANSMISSION_START_FLAG(hcec) == RESET)) 
   {
     hcec->ErrorCode = HAL_CEC_ERROR_NONE;
-    if((pData == HAL_NULL) && (Size > 0)) 
+    if((pData == NULL) && (Size > 0)) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;                                    
@@ -472,7 +472,7 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
   if (hcec->State == HAL_CEC_STATE_READY)
   { 
     hcec->ErrorCode = HAL_CEC_ERROR_NONE;
-    if (pData == HAL_NULL) 
+    if (pData == NULL) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;                                    
@@ -576,7 +576,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
   if (((hcec->State == HAL_CEC_STATE_READY) || (hcec->State == HAL_CEC_STATE_STANDBY_RX)) 
   &&   (__HAL_CEC_GET_TRANSMISSION_START_FLAG(hcec) == RESET)) 
   {    
-    if((pData == HAL_NULL) && (Size > 0)) 
+    if((pData == NULL) && (Size > 0)) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;                                    
@@ -706,7 +706,7 @@ HAL_StatusTypeDef HAL_CEC_Receive_IT(CEC_HandleTypeDef *hcec, uint8_t *pData)
 {  
   if(hcec->State == HAL_CEC_STATE_READY)
   {
-    if(pData == HAL_NULL) 
+    if(pData == NULL) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return HAL_ERROR;                                    

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_sdadc.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.1.1
+  * @date    19-June-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Sigma-Delta Analog to Digital Convertor
   *          (SDADC) peripherals:
@@ -163,7 +163,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -280,7 +280,7 @@ HAL_StatusTypeDef HAL_SDADC_Init(SDADC_HandleTypeDef* hsdadc)
   assert_param(IS_SDADC_VREF(hsdadc->Init.ReferenceVoltage));
   
   /* Check SDADC handle */
-  if(hsdadc == HAL_NULL)
+  if(hsdadc == NULL)
   {
     return HAL_ERROR;
   }
@@ -343,7 +343,7 @@ HAL_StatusTypeDef HAL_SDADC_DeInit(SDADC_HandleTypeDef* hsdadc)
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
   
   /* Check SDADC handle */
-  if(hsdadc == HAL_NULL)
+  if(hsdadc == NULL)
   {
     return HAL_ERROR;
   }
@@ -441,7 +441,7 @@ HAL_StatusTypeDef HAL_SDADC_PrepareChannelConfig(SDADC_HandleTypeDef *hsdadc,
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
   assert_param(IS_SDADC_CONF_INDEX(ConfIndex));
-  assert_param(ConfParamStruct != HAL_NULL);
+  assert_param(ConfParamStruct != NULL);
   assert_param(IS_SDADC_INPUT_MODE(ConfParamStruct->InputMode));
   assert_param(IS_SDADC_GAIN(ConfParamStruct->Gain));
   assert_param(IS_SDADC_COMMON_MODE(ConfParamStruct->CommonMode));
@@ -1279,7 +1279,7 @@ HAL_StatusTypeDef HAL_SDADC_Start_DMA(SDADC_HandleTypeDef *hsdadc, uint32_t *pDa
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != HAL_NULL);
+  assert_param(pData != NULL);
   assert_param(Length != 0);
 
   /* Check that DMA is not enabled for injected conversion */
@@ -1604,7 +1604,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedStart_DMA(SDADC_HandleTypeDef *hsdadc, uint3
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != HAL_NULL);
+  assert_param(pData != NULL);
   assert_param(Length != 0);
 
   /* Check that DMA is not enabled for regular conversion */
@@ -1717,7 +1717,7 @@ uint32_t HAL_SDADC_InjectedGetValue(SDADC_HandleTypeDef *hsdadc, uint32_t* Chann
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(Channel != HAL_NULL);
+  assert_param(Channel != NULL);
 
   /* Read SDADC_JDATAR register and extract channel and conversion value */
   value = hsdadc->Instance->JDATAR;
@@ -1744,7 +1744,7 @@ HAL_StatusTypeDef HAL_SDADC_MultiModeStart_DMA(SDADC_HandleTypeDef* hsdadc, uint
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != HAL_NULL);
+  assert_param(pData != NULL);
   assert_param(Length != 0);
 
   /* Check instance is SDADC1 */
@@ -1900,7 +1900,7 @@ HAL_StatusTypeDef HAL_SDADC_InjectedMultiModeStart_DMA(SDADC_HandleTypeDef* hsda
 
   /* Check parameters */
   assert_param(IS_SDADC_ALL_INSTANCE(hsdadc->Instance));
-  assert_param(pData != HAL_NULL);
+  assert_param(pData != NULL);
   assert_param(Length != 0);
 
   /* Check instance is SDADC1 */
