@@ -1718,7 +1718,11 @@ TARGETS = [
     NRF51_DONGLE_BOOT(),    # nRF51_32K
     NRF51_DONGLE_OTA(),     # nRF51_32K
     NRF51_MICROBIT(),       # nRF51_16K - S110
-    NRF51_MICROBIT_B(),       # nRF51_16K - default
+    NRF51_MICROBIT_BOOT(),  # nRF51_16K - S110
+    NRF51_MICROBIT_OTA(),   # nRF51_16K - S110
+    NRF51_MICROBIT_B(),     # nRF51_16K - default
+    NRF51_MICROBIT_B_BOOT(),# nRF51_16K - default
+    NRF51_MICROBIT_B_OTA(), # nRF51_16K - default
 
 
     ### ARM ###
