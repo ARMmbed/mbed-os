@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.1.1
-  * @date    19-June-2015
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -109,7 +109,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -236,7 +236,7 @@ __weak HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
 HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
 {
   /* Check the I2S handle allocation */
-  if(hi2s == NULL)
+  if(hi2s == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -347,7 +347,7 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   */
 HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   }
@@ -450,7 +450,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
   */
 HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  if((pData == NULL ) || (Size == 0)) 
+  if((pData == HAL_NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   }
@@ -552,7 +552,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
 {
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -617,7 +617,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
 {
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -679,7 +679,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
 {
   uint32_t *tmp;
   
-  if((pData == NULL) || (Size == 0)) 
+  if((pData == HAL_NULL) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   }
@@ -757,7 +757,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
 {
   uint32_t *tmp;
   
-  if((pData == NULL) || (Size == 0)) 
+  if((pData == HAL_NULL) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   } 

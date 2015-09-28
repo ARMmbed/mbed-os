@@ -24,8 +24,6 @@
     #define STACK_SIZE DEFAULT_STACK_SIZE/2	
 #elif defined(TARGET_STM32F302R8) && defined(TOOLCHAIN_IAR)
     #define STACK_SIZE DEFAULT_STACK_SIZE/2		
-#elif defined(TARGET_STM32F303K8) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_hrtim.c
   * @author  MCD Application Team
-  * @version V1.1.1
-  * @date    19-June-2015
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Resolution Timer (HRTIM) peripheral:
@@ -288,7 +288,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -481,7 +481,7 @@ HAL_StatusTypeDef HAL_HRTIM_Init(HRTIM_HandleTypeDef * hhrtim)
   uint32_t hrtim_mcr;
   
   /* Check the HRTIM handle allocation */
-  if(hhrtim == NULL)
+  if(hhrtim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -494,12 +494,12 @@ HAL_StatusTypeDef HAL_HRTIM_Init(HRTIM_HandleTypeDef * hhrtim)
   hhrtim->State = HAL_HRTIM_STATE_BUSY;
   
   /* Initialize the DMA handles */
-  hhrtim->hdmaMaster = (DMA_HandleTypeDef *)NULL;    
-  hhrtim->hdmaTimerA = (DMA_HandleTypeDef *)NULL;     
-  hhrtim->hdmaTimerB = (DMA_HandleTypeDef *)NULL;  
-  hhrtim->hdmaTimerC = (DMA_HandleTypeDef *)NULL;  
-  hhrtim->hdmaTimerD = (DMA_HandleTypeDef *)NULL;  
-  hhrtim->hdmaTimerE = (DMA_HandleTypeDef *)NULL;  
+  hhrtim->hdmaMaster = (DMA_HandleTypeDef *)HAL_NULL;    
+  hhrtim->hdmaTimerA = (DMA_HandleTypeDef *)HAL_NULL;     
+  hhrtim->hdmaTimerB = (DMA_HandleTypeDef *)HAL_NULL;  
+  hhrtim->hdmaTimerC = (DMA_HandleTypeDef *)HAL_NULL;  
+  hhrtim->hdmaTimerD = (DMA_HandleTypeDef *)HAL_NULL;  
+  hhrtim->hdmaTimerE = (DMA_HandleTypeDef *)HAL_NULL;  
   
   /* HRTIM output synchronization configuration (if required) */
   if ((hhrtim->Init.SyncOptions & HRTIM_SYNCOPTION_MASTER) != RESET)
@@ -580,7 +580,7 @@ HAL_StatusTypeDef HAL_HRTIM_Init(HRTIM_HandleTypeDef * hhrtim)
 HAL_StatusTypeDef HAL_HRTIM_DeInit (HRTIM_HandleTypeDef * hhrtim)
 {
   /* Check the HRTIM handle allocation */
-  if(hhrtim == NULL)
+  if(hhrtim == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -1215,8 +1215,8 @@ HAL_StatusTypeDef HAL_HRTIM_SimpleOCChannelConfig(HRTIM_HandleTypeDef * hhrtim,
                                                  HRTIM_SimpleOCChannelCfgTypeDef* pSimpleOCChannelCfg)
 {
   uint32_t CompareUnit = 0xFFFFFFFF;
-  HRTIM_CompareCfgTypeDef CompareCfg = {0};
-  HRTIM_OutputCfgTypeDef OutputCfg = {0};
+  HRTIM_CompareCfgTypeDef CompareCfg;
+  HRTIM_OutputCfgTypeDef OutputCfg;
   
   /* Check parameters */
   assert_param(IS_HRTIM_TIMER_OUTPUT(TimerIdx, OCChannel));
@@ -7281,7 +7281,7 @@ static uint32_t HRTIM_GetDMAFromOCMode(HRTIM_HandleTypeDef * hhrtim,
 static DMA_HandleTypeDef * HRTIM_GetDMAHandleFromTimerIdx(HRTIM_HandleTypeDef * hhrtim,
                                                           uint32_t TimerIdx)
 {
-  DMA_HandleTypeDef * hdma = (DMA_HandleTypeDef *)NULL;
+  DMA_HandleTypeDef * hdma = (DMA_HandleTypeDef *)HAL_NULL;
   
   switch (TimerIdx)
   {

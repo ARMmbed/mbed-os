@@ -77,7 +77,7 @@ if __name__ == '__main__':
                       action="store_true",
                       dest="fat",
                       default=False,
-                      help="Compile FS ad SD card file system library")
+                      help="Compile FS and SD card file system library")
 
     parser.add_option("-b", "--ublox",
                       action="store_true",
