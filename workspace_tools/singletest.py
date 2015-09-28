@@ -168,6 +168,7 @@ if __name__ == '__main__':
         # Open file with test specification
         # test_spec_filename tells script which targets and their toolchain(s)
         # should be covered by the test scenario
+        opts.auto_detect = False
         test_spec = get_json_data_from_file(opts.test_spec_filename) if opts.test_spec_filename else None
         if test_spec is None:
             if not opts.test_spec_filename:
