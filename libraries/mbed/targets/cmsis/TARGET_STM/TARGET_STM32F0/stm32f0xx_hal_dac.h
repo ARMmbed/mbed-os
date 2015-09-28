@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,16 +43,16 @@
  extern "C" {
 #endif
 
+/** @addtogroup STM32F0xx_HAL_Driver
+  * @{
+  */
+
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal_def.h"
-
-/** @addtogroup STM32F0xx_HAL_Driver
-  * @{
-  */
 
 /** @addtogroup DAC
   * @{
@@ -123,8 +123,8 @@ typedef struct
   * @{
   */
 #define  HAL_DAC_ERROR_NONE              0x00    /*!< No error                          */
-#define  HAL_DAC_ERROR_DMAUNDERRUNCH1    0x01    /*!< DAC channel1 DAM underrun error   */
-#define  HAL_DAC_ERROR_DMAUNDERRUNCH2    0x02    /*!< DAC channel2 DAM underrun error   */
+#define  HAL_DAC_ERROR_DMAUNDERRUNCH1    0x01    /*!< DAC channel1 DMA underrun error   */
+#define  HAL_DAC_ERROR_DMAUNDERRUNCH2    0x02    /*!< DAC channel2 DMA underrun error   */
 #define  HAL_DAC_ERROR_DMA               0x04    /*!< DMA error                         */   
 /**
   * @}
@@ -136,30 +136,17 @@ typedef struct
 #define DAC_OUTPUTBUFFER_ENABLE            ((uint32_t)0x00000000)
 #define DAC_OUTPUTBUFFER_DISABLE           ((uint32_t)DAC_CR_BOFF1)
 
-#define IS_DAC_OUTPUT_BUFFER_STATE(STATE) (((STATE) == DAC_OUTPUTBUFFER_ENABLE) || \
-                                           ((STATE) == DAC_OUTPUTBUFFER_DISABLE))
 /**
   * @}
   */
 
-/** @defgroup DAC_data_alignement DAC data alignement
+/** @defgroup DAC_data_alignment DAC data alignment
   * @{
   */
 #define DAC_ALIGN_12B_R                    ((uint32_t)0x00000000)
 #define DAC_ALIGN_12B_L                    ((uint32_t)0x00000004)
 #define DAC_ALIGN_8B_R                     ((uint32_t)0x00000008)
 
-#define IS_DAC_ALIGN(ALIGN) (((ALIGN) == DAC_ALIGN_12B_R) || \
-                             ((ALIGN) == DAC_ALIGN_12B_L) || \
-                             ((ALIGN) == DAC_ALIGN_8B_R))
-/**
-  * @}
-  */
-
-/** @defgroup DAC_data DAC data
-  * @{
-  */
-#define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0) 
 /**
   * @}
   */
@@ -214,27 +201,12 @@ typedef struct
 #define __HAL_DAC_DISABLE(__HANDLE__, __DAC_Channel__) \
 ((__HANDLE__)->Instance->CR &=  ~(DAC_CR_EN1 << (__DAC_Channel__)))
  
-/** @brief Set DHR12R1 alignment
-  * @param  __ALIGNEMENT__: specifies the DAC alignement
-  * @retval None
-  */
-#define __HAL_DHR12R1_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000008) + (__ALIGNEMENT__))
-
-/** @brief  Set DHR12R2 alignment
-  * @param  __ALIGNEMENT__: specifies the DAC alignement
-  * @retval None
-  */
-#define __HAL_DHR12R2_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000014) + (__ALIGNEMENT__))
-
-/** @brief  Set DHR12RD alignment
-  * @param  __ALIGNEMENT__: specifies the DAC alignement
-  * @retval None
-  */
-#define __HAL_DHR12RD_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000020) + (__ALIGNEMENT__))
-
 /** @brief Enable the DAC interrupt
   * @param  __HANDLE__: specifies the DAC handle
   * @param  __INTERRUPT__: specifies the DAC interrupt.
+  *          This parameter can be any combination of the following values:
+  *            @arg DAC_IT_DMAUDR1: DAC channel 1 DMA underrun interrupt
+  *            @arg DAC_IT_DMAUDR2: DAC channel 2 DMA underrun interrupt
   * @retval None
   */
 #define __HAL_DAC_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR) |= (__INTERRUPT__))
@@ -242,20 +214,36 @@ typedef struct
 /** @brief Disable the DAC interrupt
   * @param  __HANDLE__: specifies the DAC handle
   * @param  __INTERRUPT__: specifies the DAC interrupt.
+  *          This parameter can be any combination of the following values:
+  *            @arg DAC_IT_DMAUDR1: DAC channel 1 DMA underrun interrupt
   * @retval None
   */
 #define __HAL_DAC_DISABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR) &= ~(__INTERRUPT__))
 
-/** @brief  Get the selected DAC's flag status.
+/** @brief  Check whether the specified DAC interrupt source is enabled or not
+  * @param __HANDLE__: DAC handle
+  * @param __INTERRUPT__: DAC interrupt source to check
+  *          This parameter can be any combination of the following values:
+  *            @arg DAC_IT_DMAUDR1: DAC channel 1 DMA underrun interrupt
+  *            @arg DAC_IT_DMAUDR2: DAC channel 2 DMA underrun interrupt
+  * @retval State of interruption (SET or RESET)
+  */
+#define __HAL_DAC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR & (__INTERRUPT__)) == (__INTERRUPT__))
+
+/** @brief  Get the selected DAC's flag status
   * @param  __HANDLE__: specifies the DAC handle.
-  * @param  __FLAG__: specifies the FLAG.
+  * @param  __FLAG__: specifies the DAC flag to get.
+  *          This parameter can be any combination of the following values:
+  *            @arg DAC_FLAG_DMAUDR1: DAC channel 1 DMA underrun flag
   * @retval None
   */
 #define __HAL_DAC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->Instance->SR) & (__FLAG__)) == (__FLAG__))
 
-/** @brief  Clear the DAC's flag.
+/** @brief  Clear the DAC's flag
   * @param  __HANDLE__: specifies the DAC handle.
-  * @param  __FLAG__: specifies the FLAG.
+  * @param  __FLAG__: specifies the DAC flag to clear.
+  *          This parameter can be any combination of the following values:
+  *            @arg DAC_FLAG_DMAUDR1: DAC channel 1 DMA underrun flag
   * @retval None
   */
 #define __HAL_DAC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR) = (__FLAG__))
@@ -264,6 +252,58 @@ typedef struct
   * @}
   */
   
+/* Private macro -------------------------------------------------------------*/
+
+/** @addtogroup DAC_Private_Macros
+  * @{
+  */
+#define IS_DAC_OUTPUT_BUFFER_STATE(STATE) (((STATE) == DAC_OUTPUTBUFFER_ENABLE) || \
+                                           ((STATE) == DAC_OUTPUTBUFFER_DISABLE))
+
+
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
+
+#define IS_DAC_CHANNEL(CHANNEL) (((CHANNEL) == DAC_CHANNEL_1) || \
+                                 ((CHANNEL) == DAC_CHANNEL_2))
+
+#endif /* STM32F071xB || STM32F072xB || STM32F078xx || */
+       /* STM32F091xC || STM32F098xx */
+
+#if defined(STM32F051x8) || defined(STM32F058xx)
+
+#define IS_DAC_CHANNEL(CHANNEL) (((CHANNEL) == DAC_CHANNEL_1))
+
+#endif  /* STM32F051x8 || STM32F058xx */ 
+
+
+#define IS_DAC_ALIGN(ALIGN) (((ALIGN) == DAC_ALIGN_12B_R) || \
+                             ((ALIGN) == DAC_ALIGN_12B_L) || \
+                             ((ALIGN) == DAC_ALIGN_8B_R))
+
+#define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0) 
+
+/** @brief Set DHR12R1 alignment
+  * @param  __ALIGNMENT__: specifies the DAC alignment
+  * @retval None
+  */
+#define DAC_DHR12R1_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000008) + (__ALIGNMENT__))
+
+/** @brief  Set DHR12R2 alignment
+  * @param  __ALIGNMENT__: specifies the DAC alignment
+  * @retval None
+  */
+#define DAC_DHR12R2_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000014) + (__ALIGNMENT__))
+
+/** @brief  Set DHR12RD alignment
+  * @param  __ALIGNMENT__: specifies the DAC alignment
+  * @retval None
+  */
+#define DAC_DHR12RD_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000020) + (__ALIGNMENT__))
+
+/**
+  * @}
+  */
 
 /* Include DAC HAL Extension module */
 #include "stm32f0xx_hal_dac_ex.h"   
@@ -296,6 +336,10 @@ HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef* hdac, uint32_t Channel);
 HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment);
 HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel);
 
+void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac);
+
+HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data);
+
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac);
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac);
 void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac);
@@ -308,9 +352,9 @@ void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
   * @{
   */ 
 /* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel);
-HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data);
 uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel);
+
+HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel);
 /**
   * @}
   */
@@ -320,7 +364,6 @@ uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel);
   */     
 /* Peripheral State and Error functions ***************************************/
 HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef* hdac);
-void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac);
 uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
 
 /**
@@ -335,14 +378,14 @@ uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
   * @}
   */
   
-/**
-  * @}
-  */
-    
 #endif /* STM32F051x8 || STM32F058xx ||                */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
   
+/**
+  * @}
+  */
+    
 #ifdef __cplusplus
 }
 #endif 

@@ -562,6 +562,16 @@ class NUCLEO_F030R8(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0725"]
 
+class NUCLEO_F031K6(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['STM', 'STM32F0', 'STM32F031K6']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["0791"]
+
 class NUCLEO_F070RB(Target):
     def __init__(self):
         Target.__init__(self)
@@ -662,6 +672,16 @@ class NUCLEO_F411RE(Target):
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0740"]
+        
+class ELMO_F411RE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["----"]
 
 class NUCLEO_F446RE(Target):
     def __init__(self):
@@ -1410,16 +1430,6 @@ class NRF51_MICROBIT_B_OTA(MCU_NRF51_16K_OTA):
 class ARM_MPS2_Target(Target):
     def __init__(self):
         Target.__init__(self)
-        self.OUTPUT_EXT = 'axf'
-
-    def init_hooks(self, hook, toolchain_name):
-        hook.hook_add_binary("replace", self.output_axf)
-
-    @staticmethod
-    def output_axf(t_self, resources, elf, bin):
-        shutil.copy(elf, bin)
-        t_self.debug("Passing ELF file %s" % bin)
-
 
 class ARM_MPS2_M0(ARM_MPS2_Target):
     def __init__(self):
@@ -1472,6 +1482,15 @@ class ARM_MPS2_M7(ARM_MPS2_Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M7']
         self.macros = ['CMSDK_CM7']
+        self.supported_toolchains = ["ARM"]
+        self.default_toolchain = "ARM"
+        
+class ARM_MPS2_BEID(ARM_MPS2_Target):
+    def __init__(self):
+        ARM_MPS2_Target.__init__(self)
+        self.core = "Cortex-M3"
+        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_BEID']
+        self.macros = ['CMSDK_BEID']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
 
@@ -1577,6 +1596,14 @@ class WIZWIKI_W7500(Target):
         self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
 
+class WIZWIKI_W7500P(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500P']
+        self.supported_toolchains = ["uARM", "ARM"]
+        self.default_toolchain = "ARM"
+        self.supported_form_factors = ["ARDUINO"]
 
 class SAMR21G18A(Target):
     def __init__(self):
@@ -1649,6 +1676,7 @@ TARGETS = [
 
     ### STMicro ###
     NUCLEO_F030R8(),
+    NUCLEO_F031K6(),
     NUCLEO_F070RB(),
     NUCLEO_F072RB(),
     NUCLEO_F091RC(),
@@ -1659,6 +1687,7 @@ TARGETS = [
     NUCLEO_F334R8(),
     NUCLEO_F401RE(),
     NUCLEO_F411RE(),
+    ELMO_F411RE(),
     NUCLEO_F446RE(),
     NUCLEO_L053R8(),
     NUCLEO_L073RZ(),
@@ -1720,7 +1749,11 @@ TARGETS = [
     NRF51_DONGLE_BOOT(),    # nRF51_32K
     NRF51_DONGLE_OTA(),     # nRF51_32K
     NRF51_MICROBIT(),       # nRF51_16K - S110
-    NRF51_MICROBIT_B(),       # nRF51_16K - default
+    NRF51_MICROBIT_BOOT(),  # nRF51_16K - S110
+    NRF51_MICROBIT_OTA(),   # nRF51_16K - S110
+    NRF51_MICROBIT_B(),     # nRF51_16K - default
+    NRF51_MICROBIT_B_BOOT(),# nRF51_16K - default
+    NRF51_MICROBIT_B_OTA(), # nRF51_16K - default
 
 
     ### ARM ###
@@ -1730,6 +1763,7 @@ TARGETS = [
     ARM_MPS2_M3(),
     ARM_MPS2_M4(),
     ARM_MPS2_M7(),
+    ARM_MPS2_BEID(),
     ARM_MPS2(),
 
     ### Renesas ###
@@ -1748,6 +1782,7 @@ TARGETS = [
 
     ### WIZnet ###
     WIZWIKI_W7500(),
+    WIZWIKI_W7500P(),
 
     ### Atmel ###
     SAMR21G18A(),

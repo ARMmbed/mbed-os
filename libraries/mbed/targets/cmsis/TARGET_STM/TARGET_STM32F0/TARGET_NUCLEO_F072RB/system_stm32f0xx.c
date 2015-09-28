@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f0xx.c
   * @author  MCD Application Team
-  * @version V2.2.0
-  * @date    05-December-2014
+  * @version V2.2.2
+  * @date    26-June-2015
   * @brief   CMSIS Cortex-M0 Device Peripheral Access Layer System Source File.
   *
   * 1. This file provides two functions and one global variable to be called from
@@ -42,7 +42,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -82,7 +82,6 @@
   */
 
 #include "stm32f0xx.h"
-#include "hal_tick.h"
 
 /**
   * @}
@@ -108,6 +107,7 @@
   #define HSI_VALUE    ((uint32_t)8000000) /*!< Default value of the Internal oscillator in Hz.
                                                 This value can be provided and adapted by the user application. */
 #endif /* HSI_VALUE */
+
 /**
   * @}
   */
@@ -161,8 +161,6 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @{
   */
 
-extern int NVIC_vtor_remap;
-
 /**
   * @brief  Setup the microcontroller system.
   *         Initialize the default HSI clock source, vector table location and the PLL configuration is reset.
@@ -195,7 +193,7 @@ void SystemInit(void)
   /* Reset PREDIV[3:0] bits */
   RCC->CFGR2 &= (uint32_t)0xFFFFFFF0;
 
-#if defined (STM32F072xB) || defined (STM32F078xB)
+#if defined (STM32F072xB) || defined (STM32F078xx)
   /* Reset USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW, USBSW and ADCSW bits */
   RCC->CFGR3 &= (uint32_t)0xFFFCFE2C;
 #elif defined (STM32F071xB)
@@ -227,19 +225,6 @@ void SystemInit(void)
 
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
-
-  /* Configure the Cube driver */
-  SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
-  NVIC_vtor_remap = 0; // Because it is not cleared the first time we enter in NVIC_SetVector()
-  HAL_Init();
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
-
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;
 }
 
 /**
@@ -314,9 +299,9 @@ void SystemCoreClockUpdate (void)
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx */
       else
       {
-#if defined(STM32F042x6) || defined(STM32F048xx)  || defined(STM32F070x6) || \
-    defined(STM32F078xx) || defined(STM32F071xB)  || defined(STM32F072xB) || defined(STM32F070xB) || \
-    defined(STM32F091xC) || defined(STM32F098xx)  || defined(STM32F030xC)
+#if defined(STM32F042x6) || defined(STM32F048xx)  || defined(STM32F070x6) \
+ || defined(STM32F078xx) || defined(STM32F071xB)  || defined(STM32F072xB) \
+ || defined(STM32F070xB) || defined(STM32F091xC) || defined(STM32F098xx)  || defined(STM32F030xC)
         /* HSI used as PLL clock source : SystemCoreClock = HSI/PREDIV * PLLMUL */
         SystemCoreClock = (HSI_VALUE/predivfactor) * pllmull;
 #else
@@ -370,7 +355,7 @@ void SetSysClock(void)
   }
   
   // Output clock on MCO pin(PA8) for debugging purpose
-  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_SYSCLK, RCC_MCO_DIV1); // 48 MHz
+  // HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_SYSCLK, RCC_MCO_DIV1); // 48 MHz
 }
 
 #if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
@@ -379,17 +364,24 @@ void SetSysClock(void)
 /******************************************************************************/
 uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 {
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+  //Select HSI as system clock source to allow modification of the PLL configuration
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  if(HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  {
+    return 0; // FAIL
+  }
 
+  
   // Select HSE oscillator as PLL source
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   if (bypass == 0) {
       RCC_OscInitStruct.HSEState   = RCC_HSE_ON; // External 8 MHz xtal on OSC_IN/OSC_OUT
   } else {
       RCC_OscInitStruct.HSEState   = RCC_HSE_BYPASS; // External 8 MHz clock on OSC_IN only
   }
-  RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV2;
@@ -425,13 +417,13 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
  
-  // Select HSI48 oscillator as PLL source
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48;
-  RCC_OscInitStruct.HSI48State     = RCC_HSI48_ON;
+  // Select PLLCLK = 48 MHz ((HSI 8 MHz / 2) * 12)
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSI48;
-  RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV2;
-  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL2;
+  RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSI; // HSI div 2
+  RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV1;
+  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL12;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
       return 0; // FAIL
   }
@@ -446,7 +438,7 @@ uint8_t SetSysClock_PLL_HSI(void)
   }
 
   // Output clock on MCO1 pin(PA8) for debugging purpose
-  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSI48, RCC_MCO_DIV1); // 48 MHz
+  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSI, RCC_MCO_DIV1); // 48 MHz
 
   return 1; // OK
 }

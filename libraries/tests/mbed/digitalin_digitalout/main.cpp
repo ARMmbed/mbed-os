@@ -27,6 +27,10 @@ DigitalIn in(D2);
 DigitalOut out(PC_7);
 DigitalIn in(PB_8);
 
+#elif defined(TARGET_NUCLEO_F031K6)
+DigitalOut out(A4);
+DigitalIn in(A5);
+
 #elif defined(TARGET_ARCH_MAX) || \
       defined(TARGET_DISCO_F407VG) || \
       defined(TARGET_DISCO_F429ZI)|| \

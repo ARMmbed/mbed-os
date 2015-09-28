@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -14,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -48,7 +48,7 @@
   * @{
   */
 
-/** @defgroup PWR PWR HAL module Driver 
+/** @defgroup PWR PWR
   * @brief PWR HAL module driver
   * @{
   */
@@ -79,7 +79,7 @@
       write accesses.
       To enable access to the RTC Domain and RTC registers, proceed as follows:
         (+) Enable the Power Controller (PWR) APB1 interface clock using the
-            __PWR_CLK_ENABLE() macro.
+            __HAL_RCC_PWR_CLK_ENABLE() macro.
         (+) Enable access to RTC domain using the HAL_PWR_EnableBkUpAccess() function.
 
 @endverbatim
@@ -92,13 +92,13 @@
   */
 void HAL_PWR_DeInit(void)
 {
-  __PWR_FORCE_RESET();
-  __PWR_RELEASE_RESET();
+  __HAL_RCC_PWR_FORCE_RESET();
+  __HAL_RCC_PWR_RELEASE_RESET();
 }
 
 /**
   * @brief Enables access to the backup domain (RTC registers, RTC
-  *         backup data registers).
+  *         backup data registers when present).
   * @note  If the HSE divided by 32 is used as the RTC clock, the
   *         Backup Domain Access should be kept enabled.
   * @retval None
@@ -110,7 +110,7 @@ void HAL_PWR_EnableBkUpAccess(void)
 
 /**
   * @brief Disables access to the backup domain (RTC registers, RTC
-  *         backup data registers).
+  *         backup data registers when present).
   * @note  If the HSE divided by 32 is used as the RTC clock, the
   *         Backup Domain Access should be kept enabled.
   * @retval None

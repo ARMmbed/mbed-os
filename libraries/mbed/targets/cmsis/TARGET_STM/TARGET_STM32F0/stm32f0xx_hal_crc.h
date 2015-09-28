@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup CRC CRC HAL module driver
+/** @addtogroup CRC CRC
   * @{
   */ 
 
@@ -111,8 +111,8 @@ typedef struct
                                               
   uint32_t OutputDataInversionMode;   /*!< This parameter is a value of @ref CRCEx_Output_Data_Inversion and specifies output data (i.e. CRC) inversion mode.
                                             Can be either 
-                                            CRC_OUTPUTDATA_INVERSION_DISABLED   no CRC inversion, or 
-                                            CRC_OUTPUTDATA_INVERSION_ENABLED    CRC 0x11223344 is converted into 0x22CC4488 */                                           
+                                            CRC_OUTPUTDATA_INVERSION_DISABLE   no CRC inversion, or 
+                                            CRC_OUTPUTDATA_INVERSION_ENABLE    CRC 0x11223344 is converted into 0x22CC4488 */                                           
 }CRC_InitTypeDef;
 
 
@@ -238,6 +238,20 @@ typedef struct
   */
 #define __HAL_CRC_INITIALCRCVALUE_CONFIG(__HANDLE__, __INIT__) ((__HANDLE__)->Instance->INIT = (__INIT__))    
 
+/**
+  * @brief Stores a 8-bit data in the Independent Data(ID) register.
+  * @param __HANDLE__: CRC handle
+  * @param __VALUE__: 8-bit value to be stored in the ID register
+  * @retval None
+  */
+#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (WRITE_REG((__HANDLE__)->Instance->IDR, (__VALUE__)))
+
+/**
+  * @brief Returns the 8-bit data stored in the Independent Data(ID) register.
+  * @param __HANDLE__: CRC handle
+  * @retval 8-bit value of the ID register 
+  */
+#define __HAL_CRC_GET_IDR(__HANDLE__) (((__HANDLE__)->Instance->IDR) & CRC_IDR_IDR)
 /**
   * @}
   */

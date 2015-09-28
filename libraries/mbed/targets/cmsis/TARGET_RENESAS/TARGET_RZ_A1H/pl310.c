@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     pl310.c
- * @brief    Implementation of pl310 functions
+ * @brief    Implementation of PL310 PrimeCell Level 2 Cache Controller functions
  * @version
- * @date     11 June 2013
+ * @date     3 December 2014
  *
  * @note
  *
@@ -80,7 +80,7 @@ void PL310_CleanInvAllByWay (void)
         assoc =  8;
 
     PL310->CLEAN_INV_WAY = (1 << assoc) - 1;
-    while(PL310->CLEAN_INV_WAY && ((1 << assoc) - 1)); //poll invalidate
+    while(PL310->CLEAN_INV_WAY & ((1 << assoc) - 1)); //poll invalidate
 
     PL310_Sync();
 }

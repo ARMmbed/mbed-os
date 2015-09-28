@@ -72,6 +72,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_F401RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F446RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('ELMO_F411RE', ('GCC_ARM')),
     ('NUCLEO_L053R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('MTS_MDOT_F405RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
@@ -117,6 +118,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
 
     ('WIZWIKI_W7500',   ('ARM', 'uARM')),
+    ('WIZWIKI_W7500P',('ARM', 'uARM')),
 )
 
 

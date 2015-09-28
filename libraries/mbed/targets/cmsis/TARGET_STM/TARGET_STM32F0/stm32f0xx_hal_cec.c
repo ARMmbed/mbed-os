@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_cec.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   CEC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Definition Multimedia Interface 
@@ -47,7 +47,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -88,7 +88,7 @@
   * @{
   */
 
-/** @defgroup CEC CEC HAL Module Driver 
+/** @defgroup CEC CEC
   * @brief HAL CEC module driver
   * @{
   */
@@ -161,7 +161,8 @@ HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec)
     return HAL_ERROR;
   }
 
-  /* Check the parameters */ 
+  /* Check the parameters */
+  assert_param(IS_CEC_ALL_INSTANCE(hcec->Instance)); 
   assert_param(IS_CEC_SIGNALFREETIME(hcec->Init.SignalFreeTime));
   assert_param(IS_CEC_TOLERANCE(hcec->Init.Tolerance));  
   assert_param(IS_CEC_BRERXSTOP(hcec->Init.BRERxStop));
@@ -172,12 +173,13 @@ HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec)
   assert_param(IS_CEC_OAR_ADDRESS(hcec->Init.OwnAddress)); 
   assert_param(IS_CEC_LISTENING_MODE(hcec->Init.ListenMode));
   assert_param(IS_CEC_ADDRESS(hcec->Init.InitiatorAddress));  
-
-  
+ 
   if(hcec->State == HAL_CEC_STATE_RESET)
   {   
+    /* Allocate lock resource and initialize it */
+    hcec->Lock = HAL_UNLOCKED;
     /* Init the low level hardware : GPIO, CLOCK */
-  HAL_CEC_MspInit(hcec);
+    HAL_CEC_MspInit(hcec);
   }
   
   hcec->State = HAL_CEC_STATE_BUSY;
@@ -365,7 +367,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
       hcec->TxXferCount--;
 
       tickstart = HAL_GetTick();
-      while(HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_ISR_TXBR))
+      while(HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_FLAG_TXBR))
       {
       	if(Timeout != HAL_MAX_DELAY)
         {
@@ -384,19 +386,19 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
          * has Tx Missing Acknowledge error occurred ? 
          * has Arbitration Loss error occurred ? */
         tempisr = hcec->Instance->ISR;
-        if ((tempisr & (CEC_ISR_TXUDR|CEC_ISR_TXERR|CEC_ISR_TXACKE|CEC_ISR_ARBLST)) != 0)
+        if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST)) != 0)
         {
           /* copy ISR for error handling purposes */
           hcec->ErrorCode = tempisr;
          /* clear all error flags by default */
-         __HAL_CEC_CLEAR_FLAG(hcec, (CEC_ISR_TXUDR|CEC_ISR_TXERR|CEC_ISR_TXACKE|CEC_ISR_ARBLST));
+         __HAL_CEC_CLEAR_FLAG(hcec, (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST));
          hcec->State = HAL_CEC_STATE_ERROR;
          __HAL_UNLOCK(hcec);
          return  HAL_ERROR;                                    
         }
       } 
       /* TXBR to clear BEFORE writing TXDR register */
-      __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_TXBR);
+      __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_TXBR);
       if (hcec->TxXferCount == 0)
       {
         /* if last byte transmission, set TX End of Message (TXEOM) bit */
@@ -406,12 +408,12 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
       
       /* error check after TX byte write up */
       tempisr = hcec->Instance->ISR;
-      if ((tempisr & (CEC_ISR_TXUDR|CEC_ISR_TXERR|CEC_ISR_TXACKE|CEC_ISR_ARBLST)) != 0)
+      if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST)) != 0)
       {
         /* copy ISR for error handling purposes */
         hcec->ErrorCode = tempisr;
         /* clear all error flags by default */
-        __HAL_CEC_CLEAR_FLAG(hcec, (CEC_ISR_TXUDR|CEC_ISR_TXERR|CEC_ISR_TXACKE|CEC_ISR_ARBLST));
+        __HAL_CEC_CLEAR_FLAG(hcec, (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST));
         hcec->State = HAL_CEC_STATE_ERROR;
         __HAL_UNLOCK(hcec);
         return  HAL_ERROR;                                    
@@ -438,12 +440,12 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
 
     /* Final error check once all bytes have been transmitted */
     tempisr = hcec->Instance->ISR;
-    if ((tempisr & (CEC_ISR_TXUDR|CEC_ISR_TXERR|CEC_ISR_TXACKE)) != 0)
+    if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE)) != 0)
     {
       /* copy ISR for error handling purposes */
       hcec->ErrorCode = tempisr;
       /* clear all error flags by default */
-      __HAL_CEC_CLEAR_FLAG(hcec, (CEC_ISR_TXUDR|CEC_ISR_TXERR|CEC_ISR_TXACKE));
+      __HAL_CEC_CLEAR_FLAG(hcec, (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE));
       hcec->State = HAL_CEC_STATE_ERROR;
       __HAL_UNLOCK(hcec);
       return  HAL_ERROR;                                    
@@ -490,12 +492,12 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
     __HAL_LOCK(hcec);
     
     
-    /* Rx loop until CEC_ISR_RXEND  is set */
-    while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_ISR_RXEND))
+    /* Rx loop until CEC_FLAG_RXEND  is set */
+    while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_FLAG_RXEND))
     {
       tickstart = HAL_GetTick();
       /* Wait for next byte to be received */
-      while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_ISR_RXBR))
+      while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_FLAG_RXBR))
       {
     	  if(Timeout != HAL_MAX_DELAY)
         {
@@ -513,46 +515,46 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
          * has Rx Bit Rising error occurred ?             
          * has Rx Overrun error occurred ? */
         temp = (uint32_t) (hcec->Instance->ISR);
-        if ((temp & (CEC_ISR_RXACKE|CEC_ISR_LBPE|CEC_ISR_SBPE|CEC_ISR_BRE|CEC_ISR_RXOVR)) != 0)
+        if ((temp & (CEC_FLAG_RXACKE|CEC_FLAG_LBPE|CEC_FLAG_SBPE|CEC_FLAG_BRE|CEC_FLAG_RXOVR)) != 0)
         {
           /* copy ISR for error handling purposes */
           hcec->ErrorCode = temp;
           /* clear all error flags by default */
-          __HAL_CEC_CLEAR_FLAG(hcec, (CEC_ISR_RXACKE|CEC_ISR_LBPE|CEC_ISR_SBPE|CEC_ISR_BRE|CEC_ISR_RXOVR));
+          __HAL_CEC_CLEAR_FLAG(hcec, (CEC_FLAG_RXACKE|CEC_FLAG_LBPE|CEC_FLAG_SBPE|CEC_FLAG_BRE|CEC_FLAG_RXOVR));
           hcec->State = HAL_CEC_STATE_ERROR;
           __HAL_UNLOCK(hcec);
           return  HAL_ERROR;                                    
         }
-      } /* while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_ISR_RXBR)) */
+      } /* while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_FLAG_RXBR)) */
   
 
       /* read received data */
       *pData++ = hcec->Instance->RXDR;
       temp = (uint32_t) (hcec->Instance->ISR);
       /* end of message ? */
-      if ((temp &  CEC_ISR_RXEND) != 0)      
+      if ((temp &  CEC_FLAG_RXEND) != 0)      
       {
          assert_param(IS_CEC_MSGSIZE(hcec->RxXferSize));
-         __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_RXEND);
+         __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_RXEND);
           hcec->State = HAL_CEC_STATE_READY;  
          __HAL_UNLOCK(hcec);  
          return HAL_OK; 
       }
       
       /* clear Rx-Byte Received flag */
-      __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_RXBR); 
+      __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_RXBR); 
       /* increment payload byte counter */
        hcec->RxXferSize++;
-    } /* while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_ISR_RXEND)) */ 
+    } /* while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_FLAG_RXEND)) */ 
     
     /* if the instructions below are executed, it means RXEND was set when RXBR was 
      * set for the first time:
-     * the code within the "while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_ISR_RXEND))"
+     * the code within the "while (HAL_IS_BIT_CLR(hcec->Instance->ISR, CEC_FLAG_RXEND))"
      * loop has not been executed and this means a single byte has been sent */
     *pData++ = hcec->Instance->RXDR;
      /* only one header is received: RxXferSize is set to 0 (no operand, no opcode) */ 
      hcec->RxXferSize = 0;
-     __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_RXEND);
+     __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_RXEND);
                              
     hcec->State = HAL_CEC_STATE_READY;  
     __HAL_UNLOCK(hcec);  
@@ -609,7 +611,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
      * Tx-Error IT
      * Tx-Buffer Underrun IT 
      * Tx arbitration lost     */
-    __HAL_CEC_ENABLE_IT(hcec, CEC_IER_TXBRIE|CEC_IER_TXENDIE|CEC_IER_TX_ALL_ERR);
+    __HAL_CEC_ENABLE_IT(hcec, CEC_IT_TXBR|CEC_IT_TXEND|CEC_IER_TX_ALL_ERR);
                                      
     /* Enable the Peripheral */
     __HAL_CEC_ENABLE(hcec);
@@ -656,14 +658,14 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
       __HAL_CEC_DISABLE(hcec);
       
       /* Disable the CEC Transmission Interrupts */
-      __HAL_CEC_DISABLE_IT(hcec, CEC_IER_TXBRIE|CEC_IER_TXENDIE);
+      __HAL_CEC_DISABLE_IT(hcec, CEC_IT_TXBR|CEC_IT_TXEND);
       /* Disable the CEC Transmission Error Interrupts */
       __HAL_CEC_DISABLE_IT(hcec, CEC_IER_TX_ALL_ERR);
       
       /* Enable the Peripheral */
       __HAL_CEC_ENABLE(hcec);
     
-      __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_TXBR|CEC_ISR_TXEND);
+      __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_TXBR|CEC_FLAG_TXEND);
           
       hcec->State = HAL_CEC_STATE_READY;
       /* Call the Process Unlocked before calling the Tx call back API to give the possibility to
@@ -682,7 +684,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
         __HAL_CEC_LAST_BYTE_TX_SET(hcec);
       }
       /* clear Tx-Byte request flag */
-       __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_TXBR); 
+       __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_TXBR); 
        hcec->Instance->TXDR = *hcec->pTxBuffPtr++;
       hcec->TxXferCount--;
       
@@ -744,7 +746,7 @@ HAL_StatusTypeDef HAL_CEC_Receive_IT(CEC_HandleTypeDef *hcec, uint8_t *pData)
     /* Enable the following two CEC Reception interrupts: 
      * Rx Byte Received IT 
      * End of Reception IT */
-    __HAL_CEC_ENABLE_IT(hcec, CEC_IER_RXBRIE|CEC_IER_RXENDIE);
+    __HAL_CEC_ENABLE_IT(hcec, CEC_IT_RXBR|CEC_IT_RXEND);
     
     __HAL_CEC_ENABLE(hcec);
 
@@ -756,7 +758,15 @@ HAL_StatusTypeDef HAL_CEC_Receive_IT(CEC_HandleTypeDef *hcec, uint8_t *pData)
   }
 }
 
-
+/**
+  * @brief Get size of the received frame.
+  * @param hcec: CEC handle
+  * @retval Frame size
+  */
+uint32_t HAL_CEC_GetReceivedFrameSize(CEC_HandleTypeDef *hcec)
+{
+  return hcec->RxXferSize;
+}
     
 /**
   * @brief This function handles CEC interrupt requests.
@@ -768,65 +778,65 @@ void HAL_CEC_IRQHandler(CEC_HandleTypeDef *hcec)
   /* save interrupts register for further error or interrupts handling purposes */
   hcec->ErrorCode = hcec->Instance->ISR;
   /* CEC TX missing acknowledge error interrupt occurred -------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_TXACKE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_TXACKEIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_TXACKE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_TXACKE) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_TXACKE);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_TXACKE);
     hcec->State = HAL_CEC_STATE_ERROR;
   }
   
   /* CEC transmit error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_TXERR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_TXERRIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_TXERR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_TXERR) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_TXERR);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_TXERR);
     hcec->State = HAL_CEC_STATE_ERROR;
   }
   
   /* CEC TX underrun error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_TXUDR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_TXUDRIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_TXUDR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_TXUDR) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_TXUDR);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_TXUDR);
     hcec->State = HAL_CEC_STATE_ERROR;
   }
   
   /* CEC TX arbitration error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_ARBLST) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_ARBLSTIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_ARBLST) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_ARBLST) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_ARBLST);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_ARBLST);
     hcec->State = HAL_CEC_STATE_ERROR;
   }
   
   /* CEC RX overrun error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_RXOVR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_RXOVRIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_RXOVR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_RXOVR) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_RXOVR);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_RXOVR);
     hcec->State = HAL_CEC_STATE_ERROR;
   } 
   
   /* CEC RX bit rising error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_BRE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_BREIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_BRE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_BRE) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_BRE);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_BRE);
     hcec->State = HAL_CEC_STATE_ERROR;
   }   
   
   /* CEC RX short bit period error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_SBPE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_SBPEIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_SBPE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_SBPE) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_SBPE);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_SBPE);
     hcec->State = HAL_CEC_STATE_ERROR;
   }   
   
   /* CEC RX long bit period error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_LBPE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_LBPEIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_LBPE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_LBPE) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_LBPE);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_LBPE);
     hcec->State = HAL_CEC_STATE_ERROR;
   }   
   
   /* CEC RX missing acknowledge error interrupt occured --------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_RXACKE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_RXACKEIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_RXACKE) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_RXACKE) != RESET))
   { 
-    __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_RXACKE);
+    __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_RXACKE);
     hcec->State = HAL_CEC_STATE_ERROR;
   }   
 
@@ -836,14 +846,14 @@ void HAL_CEC_IRQHandler(CEC_HandleTypeDef *hcec)
   }
 
   /* CEC RX byte received interrupt  ---------------------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_RXBR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_RXBRIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_RXBR) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_RXBR) != RESET))
   { 
     /* RXBR IT is cleared during HAL_CEC_Transmit_IT processing */
     CEC_Receive_IT(hcec);
   }
   
   /* CEC RX end received interrupt  ---------------------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_RXEND) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_RXENDIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_RXEND) != RESET) && (__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_RXEND) != RESET))
   { 
     /* RXBR IT is cleared during HAL_CEC_Transmit_IT processing */
     CEC_Receive_IT(hcec);
@@ -851,14 +861,14 @@ void HAL_CEC_IRQHandler(CEC_HandleTypeDef *hcec)
   
   
   /* CEC TX byte request interrupt ------------------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_TXBR) != RESET) &&(__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_TXBRIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_TXBR) != RESET) &&(__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_TXBR) != RESET))
   {
     /* TXBR IT is cleared during HAL_CEC_Transmit_IT processing */
     CEC_Transmit_IT(hcec);
   } 
   
   /* CEC TX end interrupt ------------------------------------------------*/
-  if((__HAL_CEC_GET_IT(hcec, CEC_ISR_TXEND) != RESET) &&(__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IER_TXENDIE) != RESET))
+  if((__HAL_CEC_GET_FLAG(hcec, CEC_FLAG_TXEND) != RESET) &&(__HAL_CEC_GET_IT_SOURCE(hcec, CEC_IT_TXEND) != RESET))
   {
    /* TXEND IT is cleared during HAL_CEC_Transmit_IT processing */
     CEC_Transmit_IT(hcec);
@@ -983,17 +993,17 @@ static HAL_StatusTypeDef CEC_Transmit_IT(CEC_HandleTypeDef *hcec)
       __HAL_CEC_DISABLE(hcec);
       
       /* Disable the CEC Transmission Interrupts */
-      __HAL_CEC_DISABLE_IT(hcec, CEC_IER_TXBRIE|CEC_IER_TXENDIE);
+      __HAL_CEC_DISABLE_IT(hcec, CEC_IT_TXBR|CEC_IT_TXEND);
       /* Disable the CEC Transmission Error Interrupts */
       __HAL_CEC_DISABLE_IT(hcec, CEC_IER_TX_ALL_ERR);
       
       /* Enable the Peripheral */
       __HAL_CEC_ENABLE(hcec);
     
-      __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_TXBR|CEC_ISR_TXEND);
+      __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_TXBR|CEC_FLAG_TXEND);
      
       /* If RX interruptions are enabled, return to HAL_CEC_STATE_STANDBY_RX state */
-      if (__HAL_CEC_GET_IT_SOURCE(hcec, (CEC_IER_RXBRIE|CEC_IER_RXENDIE) ) != RESET)
+      if (__HAL_CEC_GET_IT_SOURCE(hcec, (CEC_IT_RXBR|CEC_IT_RXEND) ) != RESET)
       {
         hcec->State = HAL_CEC_STATE_STANDBY_RX;
       }
@@ -1014,7 +1024,7 @@ static HAL_StatusTypeDef CEC_Transmit_IT(CEC_HandleTypeDef *hcec)
         __HAL_CEC_LAST_BYTE_TX_SET(hcec);
       }
       /* clear Tx-Byte request flag */
-       __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_TXBR); 
+       __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_TXBR); 
        hcec->Instance->TXDR = *hcec->pTxBuffPtr++;
       hcec->TxXferCount--;
   
@@ -1055,15 +1065,15 @@ static HAL_StatusTypeDef CEC_Receive_IT(CEC_HandleTypeDef *hcec)
     /* reception is starting */ 
     hcec->State = HAL_CEC_STATE_BUSY_RX;
     tempisr =  (uint32_t) (hcec->Instance->ISR);
-    if ((tempisr & CEC_ISR_RXBR) != 0)
+    if ((tempisr & CEC_FLAG_RXBR) != 0)
     {
       /* read received byte */
       *hcec->pRxBuffPtr++ = hcec->Instance->RXDR;
       /* if last byte has been received */      
-      if ((tempisr & CEC_ISR_RXEND) != 0)
+      if ((tempisr & CEC_FLAG_RXEND) != 0)
       {
         /* clear IT */
-        __HAL_CEC_CLEAR_FLAG(hcec,CEC_ISR_RXBR|CEC_ISR_RXEND);
+        __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_RXBR|CEC_FLAG_RXEND);
         /* RX interrupts are not disabled at this point.
          * Indeed, to disable the IT, the IP must be disabled first
          * which resets the TXSOM flag. In case of arbitration loss,
@@ -1081,7 +1091,7 @@ static HAL_StatusTypeDef CEC_Receive_IT(CEC_HandleTypeDef *hcec)
         
         return HAL_OK;
       } 
-      __HAL_CEC_CLEAR_FLAG(hcec, CEC_ISR_RXBR);  
+      __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_RXBR);  
 
       hcec->RxXferSize++;
       

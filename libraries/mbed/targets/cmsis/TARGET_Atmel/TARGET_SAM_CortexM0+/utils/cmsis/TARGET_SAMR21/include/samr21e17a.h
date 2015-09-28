@@ -56,7 +56,7 @@
 /*@{*/
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #if !(defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__))
@@ -90,99 +90,97 @@ typedef volatile       uint8_t  RwReg8;  /**< Read-Write  8-bit register (volati
 /*@{*/
 
 /** Interrupt Number Definition */
-typedef enum IRQn
-{
-  /******  Cortex-M0+ Processor Exceptions Numbers ******************************/
-  NonMaskableInt_IRQn      = -14,/**<  2 Non Maskable Interrupt                 */
-  HardFault_IRQn           = -13,/**<  3 Cortex-M0+ Hard Fault Interrupt        */
-  SVCall_IRQn              = -5, /**< 11 Cortex-M0+ SV Call Interrupt           */
-  PendSV_IRQn              = -2, /**< 14 Cortex-M0+ Pend SV Interrupt           */
-  SysTick_IRQn             = -1, /**< 15 Cortex-M0+ System Tick Interrupt       */
-  /******  SAMR21E17A-specific Interrupt Numbers ***********************/
-  PM_IRQn                  =  0, /**<  0 SAMR21E17A Power Manager (PM) */
-  SYSCTRL_IRQn             =  1, /**<  1 SAMR21E17A System Control (SYSCTRL) */
-  WDT_IRQn                 =  2, /**<  2 SAMR21E17A Watchdog Timer (WDT) */
-  RTC_IRQn                 =  3, /**<  3 SAMR21E17A Real-Time Counter (RTC) */
-  EIC_IRQn                 =  4, /**<  4 SAMR21E17A External Interrupt Controller (EIC) */
-  NVMCTRL_IRQn             =  5, /**<  5 SAMR21E17A Non-Volatile Memory Controller (NVMCTRL) */
-  DMAC_IRQn                =  6, /**<  6 SAMR21E17A Direct Memory Access Controller (DMAC) */
-  USB_IRQn                 =  7, /**<  7 SAMR21E17A Universal Serial Bus (USB) */
-  EVSYS_IRQn               =  8, /**<  8 SAMR21E17A Event System Interface (EVSYS) */
-  SERCOM0_IRQn             =  9, /**<  9 SAMR21E17A Serial Communication Interface 0 (SERCOM0) */
-  SERCOM1_IRQn             = 10, /**< 10 SAMR21E17A Serial Communication Interface 1 (SERCOM1) */
-  SERCOM2_IRQn             = 11, /**< 11 SAMR21E17A Serial Communication Interface 2 (SERCOM2) */
-  SERCOM3_IRQn             = 12, /**< 12 SAMR21E17A Serial Communication Interface 3 (SERCOM3) */
-  SERCOM4_IRQn             = 13, /**< 13 SAMR21E17A Serial Communication Interface 4 (SERCOM4) */
-  SERCOM5_IRQn             = 14, /**< 14 SAMR21E17A Serial Communication Interface 5 (SERCOM5) */
-  TCC0_IRQn                = 15, /**< 15 SAMR21E17A Timer Counter Control 0 (TCC0) */
-  TCC1_IRQn                = 16, /**< 16 SAMR21E17A Timer Counter Control 1 (TCC1) */
-  TCC2_IRQn                = 17, /**< 17 SAMR21E17A Timer Counter Control 2 (TCC2) */
-  TC3_IRQn                 = 18, /**< 18 SAMR21E17A Basic Timer Counter 3 (TC3) */
-  TC4_IRQn                 = 19, /**< 19 SAMR21E17A Basic Timer Counter 4 (TC4) */
-  TC5_IRQn                 = 20, /**< 20 SAMR21E17A Basic Timer Counter 5 (TC5) */
-  TC6_IRQn                 = 21, /**< 21 SAMR21E17A Basic Timer Counter 6 (TC6) */
-  TC7_IRQn                 = 22, /**< 22 SAMR21E17A Basic Timer Counter 7 (TC7) */
-  ADC_IRQn                 = 23, /**< 23 SAMR21E17A Analog Digital Converter (ADC) */
-  AC_IRQn                  = 24, /**< 24 SAMR21E17A Analog Comparators (AC) */
-  DAC_IRQn                 = 25, /**< 25 SAMR21E17A Digital Analog Converter (DAC) */
-  PTC_IRQn                 = 26, /**< 26 SAMR21E17A Peripheral Touch Controller (PTC) */
-  I2S_IRQn                 = 27, /**< 27 SAMR21E17A Inter-IC Sound Interface (I2S) */
+typedef enum IRQn {
+    /******  Cortex-M0+ Processor Exceptions Numbers ******************************/
+    NonMaskableInt_IRQn      = -14,/**<  2 Non Maskable Interrupt                 */
+    HardFault_IRQn           = -13,/**<  3 Cortex-M0+ Hard Fault Interrupt        */
+    SVCall_IRQn              = -5, /**< 11 Cortex-M0+ SV Call Interrupt           */
+    PendSV_IRQn              = -2, /**< 14 Cortex-M0+ Pend SV Interrupt           */
+    SysTick_IRQn             = -1, /**< 15 Cortex-M0+ System Tick Interrupt       */
+    /******  SAMR21E17A-specific Interrupt Numbers ***********************/
+    PM_IRQn                  =  0, /**<  0 SAMR21E17A Power Manager (PM) */
+    SYSCTRL_IRQn             =  1, /**<  1 SAMR21E17A System Control (SYSCTRL) */
+    WDT_IRQn                 =  2, /**<  2 SAMR21E17A Watchdog Timer (WDT) */
+    RTC_IRQn                 =  3, /**<  3 SAMR21E17A Real-Time Counter (RTC) */
+    EIC_IRQn                 =  4, /**<  4 SAMR21E17A External Interrupt Controller (EIC) */
+    NVMCTRL_IRQn             =  5, /**<  5 SAMR21E17A Non-Volatile Memory Controller (NVMCTRL) */
+    DMAC_IRQn                =  6, /**<  6 SAMR21E17A Direct Memory Access Controller (DMAC) */
+    USB_IRQn                 =  7, /**<  7 SAMR21E17A Universal Serial Bus (USB) */
+    EVSYS_IRQn               =  8, /**<  8 SAMR21E17A Event System Interface (EVSYS) */
+    SERCOM0_IRQn             =  9, /**<  9 SAMR21E17A Serial Communication Interface 0 (SERCOM0) */
+    SERCOM1_IRQn             = 10, /**< 10 SAMR21E17A Serial Communication Interface 1 (SERCOM1) */
+    SERCOM2_IRQn             = 11, /**< 11 SAMR21E17A Serial Communication Interface 2 (SERCOM2) */
+    SERCOM3_IRQn             = 12, /**< 12 SAMR21E17A Serial Communication Interface 3 (SERCOM3) */
+    SERCOM4_IRQn             = 13, /**< 13 SAMR21E17A Serial Communication Interface 4 (SERCOM4) */
+    SERCOM5_IRQn             = 14, /**< 14 SAMR21E17A Serial Communication Interface 5 (SERCOM5) */
+    TCC0_IRQn                = 15, /**< 15 SAMR21E17A Timer Counter Control 0 (TCC0) */
+    TCC1_IRQn                = 16, /**< 16 SAMR21E17A Timer Counter Control 1 (TCC1) */
+    TCC2_IRQn                = 17, /**< 17 SAMR21E17A Timer Counter Control 2 (TCC2) */
+    TC3_IRQn                 = 18, /**< 18 SAMR21E17A Basic Timer Counter 3 (TC3) */
+    TC4_IRQn                 = 19, /**< 19 SAMR21E17A Basic Timer Counter 4 (TC4) */
+    TC5_IRQn                 = 20, /**< 20 SAMR21E17A Basic Timer Counter 5 (TC5) */
+    TC6_IRQn                 = 21, /**< 21 SAMR21E17A Basic Timer Counter 6 (TC6) */
+    TC7_IRQn                 = 22, /**< 22 SAMR21E17A Basic Timer Counter 7 (TC7) */
+    ADC_IRQn                 = 23, /**< 23 SAMR21E17A Analog Digital Converter (ADC) */
+    AC_IRQn                  = 24, /**< 24 SAMR21E17A Analog Comparators (AC) */
+    DAC_IRQn                 = 25, /**< 25 SAMR21E17A Digital Analog Converter (DAC) */
+    PTC_IRQn                 = 26, /**< 26 SAMR21E17A Peripheral Touch Controller (PTC) */
+    I2S_IRQn                 = 27, /**< 27 SAMR21E17A Inter-IC Sound Interface (I2S) */
 
-  PERIPH_COUNT_IRQn        = 28  /**< Number of peripheral IDs */
+    PERIPH_COUNT_IRQn        = 28  /**< Number of peripheral IDs */
 } IRQn_Type;
 
-typedef struct _DeviceVectors
-{
-  /* Stack pointer */
-  void* pvStack;
+typedef struct _DeviceVectors {
+    /* Stack pointer */
+    void* pvStack;
 
-  /* Cortex-M handlers */
-  void* pfnReset_Handler;
-  void* pfnNMI_Handler;
-  void* pfnHardFault_Handler;
-  void* pfnReservedM12;
-  void* pfnReservedM11;
-  void* pfnReservedM10;
-  void* pfnReservedM9;
-  void* pfnReservedM8;
-  void* pfnReservedM7;
-  void* pfnReservedM6;
-  void* pfnSVC_Handler;
-  void* pfnReservedM4;
-  void* pfnReservedM3;
-  void* pfnPendSV_Handler;
-  void* pfnSysTick_Handler;
+    /* Cortex-M handlers */
+    void* pfnReset_Handler;
+    void* pfnNMI_Handler;
+    void* pfnHardFault_Handler;
+    void* pfnReservedM12;
+    void* pfnReservedM11;
+    void* pfnReservedM10;
+    void* pfnReservedM9;
+    void* pfnReservedM8;
+    void* pfnReservedM7;
+    void* pfnReservedM6;
+    void* pfnSVC_Handler;
+    void* pfnReservedM4;
+    void* pfnReservedM3;
+    void* pfnPendSV_Handler;
+    void* pfnSysTick_Handler;
 
-  /* Peripheral handlers */
-  void* pfnPM_Handler;                    /*  0 Power Manager */
-  void* pfnSYSCTRL_Handler;               /*  1 System Control */
-  void* pfnWDT_Handler;                   /*  2 Watchdog Timer */
-  void* pfnRTC_Handler;                   /*  3 Real-Time Counter */
-  void* pfnEIC_Handler;                   /*  4 External Interrupt Controller */
-  void* pfnNVMCTRL_Handler;               /*  5 Non-Volatile Memory Controller */
-  void* pfnDMAC_Handler;                  /*  6 Direct Memory Access Controller */
-  void* pfnUSB_Handler;                   /*  7 Universal Serial Bus */
-  void* pfnEVSYS_Handler;                 /*  8 Event System Interface */
-  void* pfnSERCOM0_Handler;               /*  9 Serial Communication Interface 0 */
-  void* pfnSERCOM1_Handler;               /* 10 Serial Communication Interface 1 */
-  void* pfnSERCOM2_Handler;               /* 11 Serial Communication Interface 2 */
-  void* pfnSERCOM3_Handler;               /* 12 Serial Communication Interface 3 */
-  void* pfnSERCOM4_Handler;               /* 13 Serial Communication Interface 4 */
-  void* pfnSERCOM5_Handler;               /* 14 Serial Communication Interface 5 */
-  void* pfnTCC0_Handler;                  /* 15 Timer Counter Control 0 */
-  void* pfnTCC1_Handler;                  /* 16 Timer Counter Control 1 */
-  void* pfnTCC2_Handler;                  /* 17 Timer Counter Control 2 */
-  void* pfnTC3_Handler;                   /* 18 Basic Timer Counter 3 */
-  void* pfnTC4_Handler;                   /* 19 Basic Timer Counter 4 */
-  void* pfnTC5_Handler;                   /* 20 Basic Timer Counter 5 */
-  void* pfnTC6_Handler;                   /* 21 Basic Timer Counter 6 */
-  void* pfnTC7_Handler;                   /* 22 Basic Timer Counter 7 */
-  void* pfnADC_Handler;                   /* 23 Analog Digital Converter */
-  void* pfnAC_Handler;                    /* 24 Analog Comparators */
-  void* pfnDAC_Handler;                   /* 25 Digital Analog Converter */
-  void* pfnPTC_Handler;                   /* 26 Peripheral Touch Controller */
-  void* pfnI2S_Handler;                   /* 27 Inter-IC Sound Interface */
-  void* pfnReserved28;
+    /* Peripheral handlers */
+    void* pfnPM_Handler;                    /*  0 Power Manager */
+    void* pfnSYSCTRL_Handler;               /*  1 System Control */
+    void* pfnWDT_Handler;                   /*  2 Watchdog Timer */
+    void* pfnRTC_Handler;                   /*  3 Real-Time Counter */
+    void* pfnEIC_Handler;                   /*  4 External Interrupt Controller */
+    void* pfnNVMCTRL_Handler;               /*  5 Non-Volatile Memory Controller */
+    void* pfnDMAC_Handler;                  /*  6 Direct Memory Access Controller */
+    void* pfnUSB_Handler;                   /*  7 Universal Serial Bus */
+    void* pfnEVSYS_Handler;                 /*  8 Event System Interface */
+    void* pfnSERCOM0_Handler;               /*  9 Serial Communication Interface 0 */
+    void* pfnSERCOM1_Handler;               /* 10 Serial Communication Interface 1 */
+    void* pfnSERCOM2_Handler;               /* 11 Serial Communication Interface 2 */
+    void* pfnSERCOM3_Handler;               /* 12 Serial Communication Interface 3 */
+    void* pfnSERCOM4_Handler;               /* 13 Serial Communication Interface 4 */
+    void* pfnSERCOM5_Handler;               /* 14 Serial Communication Interface 5 */
+    void* pfnTCC0_Handler;                  /* 15 Timer Counter Control 0 */
+    void* pfnTCC1_Handler;                  /* 16 Timer Counter Control 1 */
+    void* pfnTCC2_Handler;                  /* 17 Timer Counter Control 2 */
+    void* pfnTC3_Handler;                   /* 18 Basic Timer Counter 3 */
+    void* pfnTC4_Handler;                   /* 19 Basic Timer Counter 4 */
+    void* pfnTC5_Handler;                   /* 20 Basic Timer Counter 5 */
+    void* pfnTC6_Handler;                   /* 21 Basic Timer Counter 6 */
+    void* pfnTC7_Handler;                   /* 22 Basic Timer Counter 7 */
+    void* pfnADC_Handler;                   /* 23 Analog Digital Converter */
+    void* pfnAC_Handler;                    /* 24 Analog Comparators */
+    void* pfnDAC_Handler;                   /* 25 Digital Analog Converter */
+    void* pfnPTC_Handler;                   /* 26 Peripheral Touch Controller */
+    void* pfnI2S_Handler;                   /* 27 Inter-IC Sound Interface */
+    void* pfnReserved28;
 } DeviceVectors;
 
 /* Cortex-M0+ processor handlers */
@@ -227,7 +225,7 @@ void I2S_Handler                 ( void );
  * \brief Configuration of the Cortex-M0+ Processor and Core Peripherals
  */
 
-#define LITTLE_ENDIAN          1        
+#define LITTLE_ENDIAN          1
 #define __CM0PLUS_REV          1         /*!< Core revision r0p1 */
 #define __MPU_PRESENT          0         /*!< MPU present or not */
 #define __NVIC_PRIO_BITS       2         /*!< Number of bits used for Priority Levels */

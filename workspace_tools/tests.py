@@ -1049,6 +1049,7 @@ TESTS = [
         "automated": True,
         #"host_test" : "detect_auto",
     },
+	
 ]
 
 # Group tests with the same goals into categories
