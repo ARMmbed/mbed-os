@@ -37,7 +37,6 @@ class CoIDE(Exporter):
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
-        'NUCLEO_F303K8',
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
