@@ -39,7 +39,7 @@
 ; 
 ;*******************************************************************************
 
-__initial_sp    EQU     0x20020000 ; Top of RAM
+__initial_sp    EQU     0x10008000 ; Top of RAM, L4-ECC-SRAM2 retained in standby
 
                 PRESERVE8
                 THUMB

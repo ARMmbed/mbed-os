@@ -52,8 +52,7 @@ Stack_Size      EQU     0x00000400
                 
 Stack_Mem       SPACE   Stack_Size
 
-;FAIL __initial_sp    EQU     0x20020000 ; Top of RAM
-__initial_sp
+__initial_sp    EQU     0x10008000 ; Top of RAM, L4-ECC-SRAM2 retained in standby
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
