@@ -99,7 +99,10 @@ def add_test_runs(args):
 
             system_outs = test_case.findall('system-out')
 
-            testRun['output'] = system_outs[0].text
+            if system_outs:
+                testRun['output'] = system_outs[0].text
+            else:
+                testRun['output'] = ""
 
             errors = test_case.findall('error')
 
