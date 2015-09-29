@@ -28,49 +28,51 @@
  *******************************************************************************
  */
  
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#include "cmsis.h"
-#include "PinNames.h"
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define DEVICE_PORTIN           1
+#define DEVICE_PORTOUT          1
+#define DEVICE_PORTINOUT        1
 
-typedef enum {
-    ADC_0 = (int)W7500x_ADC_BASE
-} ADCName;
+#define DEVICE_INTERRUPTIN      1
 
-typedef enum {
-    UART_0 = (int)W7500x_UART0_BASE,
-    UART_1 = (int)W7500x_UART1_BASE,
-    UART_2 = (int)W7500x_UART2_BASE
-} UARTName;
+#define DEVICE_ANALOGIN         1
+#define DEVICE_ANALOGOUT        0 // Not present on this device
+
+#define DEVICE_SERIAL           1
+
+#define DEVICE_I2C              1
+#define DEVICE_I2CSLAVE         0
+
+#define DEVICE_SPI              1
+#define DEVICE_SPISLAVE         1
+
+#define DEVICE_RTC              1
+
+#define DEVICE_PWMOUT           1
+
+#define DEVICE_SLEEP            0
+
+#define DEVICE_ETHERNET         0
 
 
-typedef enum {
-    SPI_0 = (int)SSP0_BASE,
-    SPI_1 = (int)SSP1_BASE
-} SPIName;
+//=======================================
 
-typedef enum {
-    I2C_0 = (int)I2C0_BASE,
-    I2C_1 = (int)I2C1_BASE
-} I2CName;
+#define DEVICE_SEMIHOST         0
+#define DEVICE_LOCALFILESYSTEM  0
+#define DEVICE_ID_LENGTH       24
 
-typedef enum {    
-    PWM_0 = (int)PWM_CH0_BASE,
-    PWM_1 = (int)PWM_CH1_BASE,
-    PWM_2 = (int)PWM_CH2_BASE,
-    PWM_3 = (int)PWM_CH3_BASE,
-    PWM_4 = (int)PWM_CH4_BASE,
-    PWM_5 = (int)PWM_CH5_BASE,
-    PWM_6 = (int)PWM_CH6_BASE,
-    PWM_7 = (int)PWM_CH7_BASE
-} PWMName;
+#define DEVICE_DEBUG_AWARENESS  0
 
-#ifdef __cplusplus
-}
-#endif
+#define DEVICE_STDIO_MESSAGES   1
+
+#define STDIO_UART_TX  PC_10
+#define STDIO_UART_RX  PC_11
+#define STDIO_UART     UART_2
+
+#define DEVICE_ERROR_RED        0
+
+#include "objects.h"
 
 #endif
