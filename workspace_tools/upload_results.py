@@ -31,26 +31,35 @@ def finish_command(command, response):
 
 def create_build(args):
     build = {}
-    build['id'] = args.build
     build['buildType'] = args.build_type
+    build['number'] = args.build_number
     build['source'] = args.build_source
     build['status'] = 'running'
 
     r = requests.post(urlparse.urljoin(args.url, "api/builds"), headers=create_headers(args), json=build)
-    finish_command('create-build', r)
+
+    if r.status_code < 400:
+        if args.property_file_format:
+            print("MBED_BUILD_ID=" + r.text)
+        else:
+            print(r.text)
+
+        sys.exit(0)
+    else:
+        sys.exit(2)
 
 def finish_build(args):
     data = {}
     data['status'] = 'completed'
 
-    r = requests.put(urlparse.urljoin(args.url, "api/builds/" + args.build), headers=create_headers(args), json=data)
+    r = requests.put(urlparse.urljoin(args.url, "api/builds/" + args.build_id), headers=create_headers(args), json=data)
     finish_command('finish-build', r)
 
 def abort_build(args):
     data = {}
     data['status'] = 'aborted'
 
-    r = requests.put(urlparse.urljoin(args.url, "api/builds/" + args.build), headers=create_headers(args), json=data)
+    r = requests.put(urlparse.urljoin(args.url, "api/builds/" + args.build_id), headers=create_headers(args), json=data)
     finish_command('abort-build', r)
 
 def add_test_runs(args):
@@ -89,7 +98,7 @@ def add_test_runs(args):
 
         for test_case in test_suite.findall('testcase'):
             testRun = {}
-            testRun['build'] = args.build
+            testRun['build'] = args.build_id
             testRun['hostOs'] = args.host_os
             testRun['platform'] = platform
             testRun['toolchain'] = toolchain
@@ -127,23 +136,27 @@ def main(arguments):
     # Register and parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--url', required=True, help='url to ci site')
-    parser.add_argument('-b', '--build', required=True, help='build number')
     parser.add_argument('-k', '--api-key', required=True, help='api-key for posting data')
 
     subparsers = parser.add_subparsers(help='subcommand help')
 
     create_build_parser = subparsers.add_parser('create-build', help='create a new build')
+    create_build_parser.add_argument('-b', '--build-number', required=True, help='build number')
     create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull Request'], required=True, help='type of build')
     create_build_parser.add_argument('-s', '--build-source', required=True, help='url to source of build')
+    create_build_parser.add_argument('-p', '--property-file-format', action='store_true', help='print result in the property file format')
     create_build_parser.set_defaults(func=create_build)
 
     finish_build_parser = subparsers.add_parser('finish-build', help='finish a running build')
+    finish_build_parser.add_argument('-b', '--build-id', required=True, help='build id')
     finish_build_parser.set_defaults(func=finish_build)
 
     abort_build_parser = subparsers.add_parser('abort-build', help='abort a running build')
+    abort_build_parser.add_argument('-b', '--build-id', required=True, help='build id')
     abort_build_parser.set_defaults(func=abort_build)
 
     add_test_runs_parser = subparsers.add_parser('add-test-runs', help='add test runs to a build')
+    add_test_runs_parser.add_argument('-b', '--build-id', required=True, help='build id')
     add_test_runs_parser.add_argument('-t', '--test-report', required=True, help='path to junit xml test report')
     add_test_runs_parser.add_argument('-o', '--host-os', required=True, help='host os on which test was run')
     add_test_runs_parser.set_defaults(func=add_test_runs)
