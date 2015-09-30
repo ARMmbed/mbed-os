@@ -165,18 +165,8 @@ typedef enum {
     
 
     // Generic signals namings
-    LED_RED     = PC_8,
-    LED_GREEN   = PC_9,
-    LED_BLUE    = PC_5,
-
-    LED1        = LED_RED,
-    LED2        = LED_GREEN,
-    LED3        = LED_BLUE,
-    LED4        = LED_BLUE,
-
-    LEDR        = LED_RED,
-    LEDG        = LED_GREEN,
-    LEDB        = LED_BLUE,
+    LED1        = PA_01,
+    LED2        = PA_02,
 
     USBTX       = PC_10,
     USBRX       = PC_11,
