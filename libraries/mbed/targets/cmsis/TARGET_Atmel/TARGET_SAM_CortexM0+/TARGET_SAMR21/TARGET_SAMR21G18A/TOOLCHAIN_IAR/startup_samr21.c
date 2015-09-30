@@ -42,7 +42,10 @@
 #include "samr21.h"
 
 typedef void (*intfunc) (void);
-typedef union { intfunc __fun; void * __ptr; } intvec_elem;
+typedef union {
+    intfunc __fun;
+    void * __ptr;
+} intvec_elem;
 
 void __iar_program_start(void);
 int __low_level_init(void);
@@ -116,89 +119,89 @@ void Dummy_Handler(void);
 #pragma section  = ".intvec"
 #pragma location = ".intvec"
 const DeviceVectors __vector_table[] = {
-        __sfe("CSTACK"),
-        (void*) __iar_program_start,
-        (void*) NMI_Handler,
-        (void*) HardFault_Handler,
-        (void*) (0UL), /* Reserved */
-        (void*) (0UL), /* Reserved */
-        (void*) (0UL), /* Reserved */
-        (void*) (0UL), /* Reserved */
-        (void*) (0UL), /* Reserved */
-        (void*) (0UL), /* Reserved */
-        (void*) (0UL), /* Reserved */
-        (void*) SVC_Handler,
-        (void*) (0UL), /* Reserved */
-        (void*) (0UL), /* Reserved */
-        (void*) PendSV_Handler,
-        (void*) SysTick_Handler,
+    __sfe("CSTACK"),
+    (void*) __iar_program_start,
+    (void*) NMI_Handler,
+    (void*) HardFault_Handler,
+    (void*) (0UL), /* Reserved */
+    (void*) (0UL), /* Reserved */
+    (void*) (0UL), /* Reserved */
+    (void*) (0UL), /* Reserved */
+    (void*) (0UL), /* Reserved */
+    (void*) (0UL), /* Reserved */
+    (void*) (0UL), /* Reserved */
+    (void*) SVC_Handler,
+    (void*) (0UL), /* Reserved */
+    (void*) (0UL), /* Reserved */
+    (void*) PendSV_Handler,
+    (void*) SysTick_Handler,
 
-        /* Configurable interrupts */
-        (void*) PM_Handler,             /*  0 Power Manager */
-        (void*) SYSCTRL_Handler,        /*  1 System Control */
-        (void*) WDT_Handler,            /*  2 Watchdog Timer */
-        (void*) RTC_Handler,            /*  3 Real-Time Counter */
-        (void*) EIC_Handler,            /*  4 External Interrupt Controller */
-        (void*) NVMCTRL_Handler,        /*  5 Non-Volatile Memory Controller */
-        (void*) DMAC_Handler,           /*  6 Direct Memory Access Controller */
+    /* Configurable interrupts */
+    (void*) PM_Handler,             /*  0 Power Manager */
+    (void*) SYSCTRL_Handler,        /*  1 System Control */
+    (void*) WDT_Handler,            /*  2 Watchdog Timer */
+    (void*) RTC_Handler,            /*  3 Real-Time Counter */
+    (void*) EIC_Handler,            /*  4 External Interrupt Controller */
+    (void*) NVMCTRL_Handler,        /*  5 Non-Volatile Memory Controller */
+    (void*) DMAC_Handler,           /*  6 Direct Memory Access Controller */
 #ifdef ID_USB
-        (void*) USB_Handler,            /*  7 Universal Serial Bus */
+    (void*) USB_Handler,            /*  7 Universal Serial Bus */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
-        (void*) EVSYS_Handler,          /*  8 Event System Interface */
-        (void*) SERCOM0_Handler,        /*  9 Serial Communication Interface 0 */
-        (void*) SERCOM1_Handler,        /* 10 Serial Communication Interface 1 */
-        (void*) SERCOM2_Handler,        /* 11 Serial Communication Interface 2 */
-        (void*) SERCOM3_Handler,        /* 12 Serial Communication Interface 3 */
+    (void*) EVSYS_Handler,          /*  8 Event System Interface */
+    (void*) SERCOM0_Handler,        /*  9 Serial Communication Interface 0 */
+    (void*) SERCOM1_Handler,        /* 10 Serial Communication Interface 1 */
+    (void*) SERCOM2_Handler,        /* 11 Serial Communication Interface 2 */
+    (void*) SERCOM3_Handler,        /* 12 Serial Communication Interface 3 */
 #ifdef ID_SERCOM4
-        (void*) SERCOM4_Handler,        /* 13 Serial Communication Interface 4 */
+    (void*) SERCOM4_Handler,        /* 13 Serial Communication Interface 4 */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
 #ifdef ID_SERCOM5
-        (void*) SERCOM5_Handler,        /* 14 Serial Communication Interface 5 */
+    (void*) SERCOM5_Handler,        /* 14 Serial Communication Interface 5 */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
-        (void*) TCC0_Handler,           /* 15 Timer Counter Control 0 */
-        (void*) TCC1_Handler,           /* 16 Timer Counter Control 1 */
-        (void*) TCC2_Handler,           /* 17 Timer Counter Control 2 */
-        (void*) TC3_Handler,            /* 18 Basic Timer Counter 0 */
-        (void*) TC4_Handler,            /* 19 Basic Timer Counter 1 */
-        (void*) TC5_Handler,            /* 20 Basic Timer Counter 2 */
+    (void*) TCC0_Handler,           /* 15 Timer Counter Control 0 */
+    (void*) TCC1_Handler,           /* 16 Timer Counter Control 1 */
+    (void*) TCC2_Handler,           /* 17 Timer Counter Control 2 */
+    (void*) TC3_Handler,            /* 18 Basic Timer Counter 0 */
+    (void*) TC4_Handler,            /* 19 Basic Timer Counter 1 */
+    (void*) TC5_Handler,            /* 20 Basic Timer Counter 2 */
 #ifdef ID_TC6
-        (void*) TC6_Handler,            /* 21 Basic Timer Counter 3 */
+    (void*) TC6_Handler,            /* 21 Basic Timer Counter 3 */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
 #ifdef ID_TC7
-        (void*) TC7_Handler,            /* 22 Basic Timer Counter 4 */
+    (void*) TC7_Handler,            /* 22 Basic Timer Counter 4 */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
 #ifdef ID_ADC
-        (void*) ADC_Handler,            /* 23 Analog Digital Converter */
+    (void*) ADC_Handler,            /* 23 Analog Digital Converter */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
 #ifdef ID_AC
-        (void*) AC_Handler,             /* 24 Analog Comparators */
+    (void*) AC_Handler,             /* 24 Analog Comparators */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
 #ifdef ID_DAC
-        (void*) DAC_Handler,            /* 25 Digital Analog Converter */
+    (void*) DAC_Handler,            /* 25 Digital Analog Converter */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
 #ifdef ID_PTC
-        (void*) PTC_Handler,            /* 26 Peripheral Touch Controller */
+    (void*) PTC_Handler,            /* 26 Peripheral Touch Controller */
 #else
-        (void*) (0UL), /* Reserved*/
+    (void*) (0UL), /* Reserved*/
 #endif
-        (void*) I2S_Handler,            /* 27 Inter-IC Sound Interface */
-        (void*) (0UL), /* Reserved */
+    (void*) I2S_Handler,            /* 27 Inter-IC Sound Interface */
+    (void*) (0UL), /* Reserved */
 };
 
 /**------------------------------------------------------------------------------
@@ -207,11 +210,11 @@ const DeviceVectors __vector_table[] = {
  *------------------------------------------------------------------------------*/
 int __low_level_init(void)
 {
-        uint32_t *pSrc = __section_begin(".intvec");
+    uint32_t *pSrc = __section_begin(".intvec");
 
-        SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
+    SCB->VTOR = ((uint32_t) pSrc & SCB_VTOR_TBLOFF_Msk);
 
-        return 1; /* if return 0, the data sections will not be initialized */
+    return 1; /* if return 0, the data sections will not be initialized */
 }
 
 /**------------------------------------------------------------------------------
@@ -220,20 +223,20 @@ int __low_level_init(void)
  *------------------------------------------------------------------------------*/
 void Reset_Handler(void)
 {
-        /* Change default QOS values to have the best performance and correct USB behaviour */
-        SBMATRIX->SFR[SBMATRIX_SLAVE_HMCRAMC0].reg = 2;
+    /* Change default QOS values to have the best performance and correct USB behaviour */
+    SBMATRIX->SFR[SBMATRIX_SLAVE_HMCRAMC0].reg = 2;
 #if defined(ID_USB)
-        USB->DEVICE.QOSCTRL.bit.CQOS = 2;
-        USB->DEVICE.QOSCTRL.bit.DQOS = 2;
+    USB->DEVICE.QOSCTRL.bit.CQOS = 2;
+    USB->DEVICE.QOSCTRL.bit.DQOS = 2;
 #endif
-        DMAC->QOSCTRL.bit.DQOS = 2;
-        DMAC->QOSCTRL.bit.FQOS = 2;
-        DMAC->QOSCTRL.bit.WRBQOS = 2;
+    DMAC->QOSCTRL.bit.DQOS = 2;
+    DMAC->QOSCTRL.bit.FQOS = 2;
+    DMAC->QOSCTRL.bit.WRBQOS = 2;
 
-        /* Overwriting the default value of the NVMCTRL.CTRLB.MANW bit (errata reference 13134) */
-        NVMCTRL->CTRLB.bit.MANW = 1;
+    /* Overwriting the default value of the NVMCTRL.CTRLB.MANW bit (errata reference 13134) */
+    NVMCTRL->CTRLB.bit.MANW = 1;
 
-        __iar_program_start();
+    __iar_program_start();
 }
 
 /**
@@ -241,6 +244,6 @@ void Reset_Handler(void)
  */
 void Dummy_Handler(void)
 {
-        while (1) {
-        }
+    while (1) {
+    }
 }

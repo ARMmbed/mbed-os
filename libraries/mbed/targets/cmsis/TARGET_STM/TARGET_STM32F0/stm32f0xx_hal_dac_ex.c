@@ -2,12 +2,11 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dac_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   DAC HAL module driver.
-  *         This file provides firmware functions to manage the following 
-  *         functionalities of DAC extension peripheral:
-  *           + Extended features functions
+  *          This file provides firmware functions to manage the extended 
+  *          functionalities of the DAC peripheral.  
   *     
   *
   @verbatim      
@@ -15,7 +14,7 @@
                       ##### How to use this driver #####
   ==============================================================================
     [..]          
-      (+) When Dual mode is enabled (i.e DAC Channel1 and Channel2 are used simultaneously) :
+      (+) When Dual mode is enabled (i.e. DAC Channel1 and Channel2 are used simultaneously) :
           Use HAL_DACEx_DualGetValue() to get digital data to be converted and use
           HAL_DACEx_DualSetValue() to set digital value to converted simultaneously in Channel 1 and Channel 2.  
       (+) Use HAL_DACEx_TriangleWaveGenerate() to generate Triangle signal.
@@ -25,7 +24,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -56,28 +55,21 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
 
+/** @addtogroup STM32F0xx_HAL_Driver
+  * @{
+  */
+
 #ifdef HAL_DAC_MODULE_ENABLED
+
+/** @addtogroup DAC
+  * @{
+  */ 
 
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
 
-/** @addtogroup STM32F0xx_HAL_Driver
-  * @{
-  */
-
-/** @defgroup DACEx DACEx Extended HAL module driver
-  * @brief DACEx driver module
-  * @{
-  */ 
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-/** @defgroup DACEx_Private_Functions DACEx Private Functions
+/** @addtogroup DAC_Private_Functions
   * @{
   */
 static void DAC_DMAConvCpltCh1(DMA_HandleTypeDef *hdma);
@@ -87,32 +79,37 @@ static void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma);
   * @}
   */
   
-/** @defgroup DACEx_Exported_Functions DACEx Exported Functions
-  * @{
-  */
-
-/** @defgroup DACEx_Exported_Functions_Group1 Extended features functions
- *  @brief    Extended features functions 
- *
-@verbatim   
-  ==============================================================================
-                 ##### Extended features functions #####
-  ==============================================================================  
-    [..]  This section provides functions allowing to:
-      (+) Start conversion.
-      (+) Stop conversion.
-      (+) Start conversion and enable DMA transfer.
-      (+) Stop conversion and disable DMA transfer.
-      (+) Get result of conversion.
-      (+) Get result of dual mode conversion.
-                     
-@endverbatim
-  * @{
-  */
-
 #endif /* STM32F051x8 STM32F058xx  */
        /* STM32F071xB STM32F072xB STM32F078xx */
        /* STM32F091xC STM32F098xx */
+
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
+
+/** @addtogroup DAC_Private_Functions
+  * @{
+  */
+
+/* DAC_DMAConvCpltCh2 / DAC_DMAErrorCh2 / DAC_DMAHalfConvCpltCh2 */
+/* are set by HAL_DAC_Start_DMA */
+
+void DAC_DMAConvCpltCh2(DMA_HandleTypeDef *hdma);
+void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma);
+void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma); 
+/**
+  * @}
+  */
+
+#endif /* STM32F071xB  STM32F072xB  STM32F078xx */
+       /* STM32F091xC  STM32F098xx */
+
+/** @addtogroup DAC_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup DAC_Exported_Functions_Group3
+  * @{
+  */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
@@ -145,7 +142,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   hdac->State = HAL_DAC_STATE_BUSY;
   
   /* Get the DAC CR value */
-  tmpreg1 = DAC->CR;
+  tmpreg1 = hdac->Instance->CR;
   /* Clear BOFFx, TENx, TSELx, WAVEx and MAMPx bits */
   tmpreg1 &= ~(((uint32_t)(DAC_CR_MAMP1 | DAC_CR_WAVE1 | DAC_CR_TSEL1 | DAC_CR_TEN1 | DAC_CR_BOFF1)) << Channel); 
   /* Configure for the selected DAC channel: buffer output, trigger */
@@ -155,9 +152,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   /* Calculate CR register value depending on DAC_Channel */
   tmpreg1 |= tmpreg2 << Channel;
   /* Write to DAC CR */
-  DAC->CR = tmpreg1;
-  /* Disable wave generation */
-  DAC->CR &= ~(DAC_CR_WAVE1 << Channel);
+  hdac->Instance->CR = tmpreg1;
   
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -201,9 +196,8 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   hdac->State = HAL_DAC_STATE_BUSY;
   
   /* Get the DAC CR value */
-  tmpreg1 = DAC->CR;
+  tmpreg1 = hdac->Instance->CR;
   /* Clear BOFFx, TENx, TSELx, WAVEx and MAMPx bits */
-  // tmpreg1 &= ~(((uint32_t)(DAC_CR_MAMP1 | DAC_CR_WAVE1 | DAC_CR_TSEL1 | DAC_CR_TEN1 | DAC_CR_BOFF1)) << Channel); 
   tmpreg1 &= ~(((uint32_t)(DAC_CR_TSEL1 | DAC_CR_TEN1 | DAC_CR_BOFF1)) << Channel); 
   /* Configure for the selected DAC channel: buffer output, trigger */
   /* Set TSELx and TENx bits according to DAC_Trigger value */
@@ -212,9 +206,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   /* Calculate CR register value depending on DAC_Channel */
   tmpreg1 |= tmpreg2 << Channel;
   /* Write to DAC CR */
-  DAC->CR = tmpreg1;
-  /* Disable wave generation */
-  //  DAC->CR &= ~(DAC_CR_WAVE1 << Channel);
+  hdac->Instance->CR = tmpreg1;
   
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -287,6 +279,14 @@ uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel)
 
 #endif /* STM32F051x8 STM32F058xx */
 
+/**
+  * @}
+  */
+
+/** @addtogroup DAC_Exported_Functions_Group2
+  * @{
+  */
+
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
 
@@ -302,8 +302,6 @@ uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;
-  
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
   
@@ -318,24 +316,20 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   
   if(Channel == DAC_CHANNEL_1)
   {
-    tmp1 = hdac->Instance->CR & DAC_CR_TEN1;
-    tmp2 = hdac->Instance->CR & DAC_CR_TSEL1;
     /* Check if software trigger enabled */
-    if((tmp1 ==  DAC_CR_TEN1) && (tmp2 ==  DAC_CR_TSEL1))
+    if((hdac->Instance->CR & (DAC_CR_TEN1 | DAC_CR_TSEL1)) == (DAC_CR_TEN1 | DAC_CR_TSEL1))
     {
       /* Enable the selected DAC software conversion */
-      hdac->Instance->SWTRIGR |= (uint32_t)DAC_SWTRIGR_SWTRIG1;
+      SET_BIT(hdac->Instance->SWTRIGR, DAC_SWTRIGR_SWTRIG1);
     }
   }
   else
   {
-    tmp1 = hdac->Instance->CR & DAC_CR_TEN2;
-    tmp2 = hdac->Instance->CR & DAC_CR_TSEL2;    
     /* Check if software trigger enabled */
-    if((tmp1 == DAC_CR_TEN2) && (tmp2 == DAC_CR_TSEL2))
+    if((hdac->Instance->CR & (DAC_CR_TEN2 | DAC_CR_TSEL2)) == (DAC_CR_TEN2 | DAC_CR_TSEL2))
     {
       /* Enable the selected DAC software conversion*/
-      hdac->Instance->SWTRIGR |= (uint32_t)DAC_SWTRIGR_SWTRIG2;
+      SET_BIT(hdac->Instance->SWTRIGR, DAC_SWTRIGR_SWTRIG2);
     }
   }
   
@@ -392,7 +386,7 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
     hdac->DMA_Handle1->XferErrorCallback = DAC_DMAErrorCh1;
     
     /* Enable the selected DAC channel1 DMA request */
-    hdac->Instance->CR |= DAC_CR_DMAEN1;
+    SET_BIT(hdac->Instance->CR, DAC_CR_DMAEN1);
     
     /* Case of use of channel 1 */
     switch(Alignment)
@@ -425,7 +419,7 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
     hdac->DMA_Handle2->XferErrorCallback = DAC_DMAErrorCh2;
     
     /* Enable the selected DAC channel2 DMA request */
-    hdac->Instance->CR |= DAC_CR_DMAEN2;
+    SET_BIT(hdac->Instance->CR, DAC_CR_DMAEN2);
     
     /* Case of use of channel 2 */
     switch(Alignment)
@@ -484,8 +478,6 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
 
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;
-  
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
   
@@ -500,13 +492,11 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   
   if(Channel == DAC_CHANNEL_1)
   {
-    tmp1 = hdac->Instance->CR & DAC_CR_TEN1;
-    tmp2 = hdac->Instance->CR & DAC_CR_TSEL1;
     /* Check if software trigger enabled */
-    if((tmp1 ==  DAC_CR_TEN1) && (tmp2 ==  DAC_CR_TSEL1))
+    if((hdac->Instance->CR & (DAC_CR_TEN1 | DAC_CR_TSEL1)) == (DAC_CR_TEN1 | DAC_CR_TSEL1))
     {
       /* Enable the selected DAC software conversion */
-      hdac->Instance->SWTRIGR |= (uint32_t)DAC_SWTRIGR_SWTRIG1;
+      SET_BIT(hdac->Instance->SWTRIGR, DAC_SWTRIGR_SWTRIG1);
     }
   }
  
@@ -560,7 +550,7 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
   hdac->DMA_Handle1->XferErrorCallback = DAC_DMAErrorCh1;
   
   /* Enable the selected DAC channel1 DMA request */
-  hdac->Instance->CR |= DAC_CR_DMAEN1;
+  SET_BIT(hdac->Instance->CR, DAC_CR_DMAEN1);
 
   /* Case of use of channel 1 */
   switch(Alignment)
@@ -618,40 +608,47 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
   */
 void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
 {
-  /* Check Overrun flag */
-  if(__HAL_DAC_GET_FLAG(hdac, DAC_FLAG_DMAUDR1))
-  {
-    /* Change DAC state to error state */
-    hdac->State = HAL_DAC_STATE_ERROR;
+  if(__HAL_DAC_GET_IT_SOURCE(hdac, DAC_IT_DMAUDR1))
+  { 
+    /* Check underrun channel 1 flag */
+    if(__HAL_DAC_GET_FLAG(hdac, DAC_FLAG_DMAUDR1))
+    {
+      /* Change DAC state to error state */
+      hdac->State = HAL_DAC_STATE_ERROR;
     
-    /* Set DAC error code to chanel1 DMA underrun error */
-    hdac->ErrorCode |= HAL_DAC_ERROR_DMAUNDERRUNCH1;
+      /* Set DAC error code to channel1 DMA underrun error */
+      hdac->ErrorCode |= HAL_DAC_ERROR_DMAUNDERRUNCH1;
     
-    /* Clear the underrun flag */
-    __HAL_DAC_CLEAR_FLAG(hdac,DAC_FLAG_DMAUDR1);
+      /* Clear the underrun flag */
+      __HAL_DAC_CLEAR_FLAG(hdac,DAC_FLAG_DMAUDR1);
     
-    /* Disable the selected DAC channel1 DMA request */
-    hdac->Instance->CR &= ~DAC_CR_DMAEN1;
+      /* Disable the selected DAC channel1 DMA request */
+      hdac->Instance->CR &= ~DAC_CR_DMAEN1;
     
-    /* Error callback */ 
-    HAL_DAC_DMAUnderrunCallbackCh1(hdac);
+      /* Error callback */ 
+      HAL_DAC_DMAUnderrunCallbackCh1(hdac);
+    }
   }
-  else
+  if(__HAL_DAC_GET_IT_SOURCE(hdac, DAC_IT_DMAUDR2))
   {
-    /* Change DAC state to error state */
-    hdac->State = HAL_DAC_STATE_ERROR;
+    /* Check underrun channel 2 flag */
+    if(__HAL_DAC_GET_FLAG(hdac, DAC_FLAG_DMAUDR2))
+    { 
+      /* Change DAC state to error state */
+      hdac->State = HAL_DAC_STATE_ERROR;
     
-    /* Set DAC error code to channel2 DMA underrun error */
-    hdac->ErrorCode |= HAL_DAC_ERROR_DMAUNDERRUNCH2;
+      /* Set DAC error code to channel2 DMA underrun error */
+      hdac->ErrorCode |= HAL_DAC_ERROR_DMAUNDERRUNCH2;
     
-    /* Clear the underrun flag */
-    __HAL_DAC_CLEAR_FLAG(hdac,DAC_FLAG_DMAUDR2);
+      /* Clear the underrun flag */
+      __HAL_DAC_CLEAR_FLAG(hdac,DAC_FLAG_DMAUDR2);
     
-    /* Disable the selected DAC channel1 DMA request */
-    hdac->Instance->CR &= ~DAC_CR_DMAEN2;
+      /* Disable the selected DAC channel1 DMA request */
+      hdac->Instance->CR &= ~DAC_CR_DMAEN2;
     
-    /* Error callback */ 
-    HAL_DACEx_DMAUnderrunCallbackCh2(hdac);
+      /* Error callback */ 
+      HAL_DACEx_DMAUnderrunCallbackCh2(hdac);
+    }
   }
 }
 
@@ -669,27 +666,204 @@ void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
   */
 void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
 {
+  if(__HAL_DAC_GET_IT_SOURCE(hdac, DAC_IT_DMAUDR1))
+  { 
   /* Check Overrun flag */
   if(__HAL_DAC_GET_FLAG(hdac, DAC_FLAG_DMAUDR1))
-  {
-    /* Change DAC state to error state */
-    hdac->State = HAL_DAC_STATE_ERROR;
+    {
+      /* Change DAC state to error state */
+      hdac->State = HAL_DAC_STATE_ERROR;
     
-    /* Set DAC error code to chanel1 DMA underrun error */
-    hdac->ErrorCode |= HAL_DAC_ERROR_DMAUNDERRUNCH1;
+      /* Set DAC error code to chanel1 DMA underrun error */
+      hdac->ErrorCode |= HAL_DAC_ERROR_DMAUNDERRUNCH1;
     
-    /* Clear the underrun flag */
-    __HAL_DAC_CLEAR_FLAG(hdac,DAC_FLAG_DMAUDR1);
+      /* Clear the underrun flag */
+      __HAL_DAC_CLEAR_FLAG(hdac,DAC_FLAG_DMAUDR1);
     
-    /* Disable the selected DAC channel1 DMA request */
-    hdac->Instance->CR &= ~DAC_CR_DMAEN1;
+      /* Disable the selected DAC channel1 DMA request */
+      hdac->Instance->CR &= ~DAC_CR_DMAEN1;
     
-    /* Error callback */ 
-    HAL_DAC_DMAUnderrunCallbackCh1(hdac);
+      /* Error callback */ 
+      HAL_DAC_DMAUnderrunCallbackCh1(hdac);
+    }
   }
 }
 
 #endif  /* STM32F051x8 STM32F058xx */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+#if defined(STM32F051x8) || defined(STM32F058xx) || \
+    defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
+
+/** @addtogroup DAC_Private_Functions
+  * @{
+  */
+
+/**
+  * @brief  DMA conversion complete callback. 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
+  * @retval None
+  */
+static void DAC_DMAConvCpltCh1(DMA_HandleTypeDef *hdma)   
+{
+  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+  
+  HAL_DAC_ConvCpltCallbackCh1(hdac); 
+  
+  hdac->State= HAL_DAC_STATE_READY;
+}
+
+/**
+  * @brief  DMA half transfer complete callback. 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
+  * @retval None
+  */
+static void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma)   
+{
+    DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+    /* Conversion complete callback */
+    HAL_DAC_ConvHalfCpltCallbackCh1(hdac); 
+}
+
+/**
+  * @brief  DMA error callback 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
+  * @retval None
+  */
+static void DAC_DMAErrorCh1(DMA_HandleTypeDef *hdma)   
+{
+  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+    
+  /* Set DAC error code to DMA error */
+  hdac->ErrorCode |= HAL_DAC_ERROR_DMA;
+    
+  HAL_DAC_ErrorCallbackCh1(hdac); 
+    
+  hdac->State= HAL_DAC_STATE_READY;
+}
+/**
+  * @}
+  */
+#endif /* STM32F051x8  STM32F058xx */
+       /* STM32F071xB  STM32F072xB  STM32F078xx */
+       /* STM32F091xC  STM32F098xx */
+
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
+    defined(STM32F091xC) || defined(STM32F098xx)
+
+/** @addtogroup DAC_Private_Functions
+  * @{
+  */
+
+/**
+  * @brief  DMA conversion complete callback. 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
+  * @retval None
+  */
+void DAC_DMAConvCpltCh2(DMA_HandleTypeDef *hdma)   
+{
+  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+  
+  HAL_DACEx_ConvCpltCallbackCh2(hdac); 
+  
+  hdac->State= HAL_DAC_STATE_READY;
+}
+
+/**
+  * @brief  DMA half transfer complete callback. 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
+  * @retval None
+  */
+void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma)   
+{
+    DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+    /* Conversion complete callback */
+    HAL_DACEx_ConvHalfCpltCallbackCh2(hdac); 
+}
+
+/**
+  * @brief  DMA error callback 
+  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
+  *                the configuration information for the specified DMA module.
+  * @retval None
+  */
+void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma)   
+{
+  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+    
+  /* Set DAC error code to DMA error */
+  hdac->ErrorCode |= HAL_DAC_ERROR_DMA;
+    
+  HAL_DACEx_ErrorCallbackCh2(hdac); 
+    
+  hdac->State= HAL_DAC_STATE_READY;
+}
+
+/**
+  * @}
+  */
+
+#endif /* STM32F071xB  STM32F072xB  STM32F078xx */
+       /* STM32F091xC  STM32F098xx */
+
+/**
+  * @}
+  */
+
+/** @defgroup DACEx DACEx
+  * @brief DACEx driver module
+  * @{
+  */ 
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/** @defgroup DACEx_Private_Macros DACEx Private Macros
+  * @{
+  */
+/**
+  * @}
+  */
+
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
+/** @defgroup DACEx_Exported_Functions DACEx Exported Functions
+  * @{
+  */
+
+/** @defgroup DACEx_Exported_Functions_Group1 Extended features functions
+ *  @brief    Extended features functions 
+ *
+@verbatim   
+  ==============================================================================
+                 ##### Extended features functions #####
+  ==============================================================================  
+    [..]  This section provides functions allowing to:
+      (+) Start conversion.
+      (+) Stop conversion.
+      (+) Start conversion and enable DMA transfer.
+      (+) Stop conversion and disable DMA transfer.
+      (+) Get result of conversion.
+      (+) Get result of dual mode conversion.
+                     
+@endverbatim
+  * @{
+  */
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx) 
@@ -775,7 +949,7 @@ HAL_StatusTypeDef HAL_DACEx_TriangleWaveGenerate(DAC_HandleTypeDef* hdac, uint32
   hdac->State = HAL_DAC_STATE_BUSY;
   
   /* Enable the selected wave generation for the selected DAC channel */
-  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1)|(DAC_CR_MAMP1))<<Channel, (DAC_WAVE_TRIANGLE | Amplitude) << Channel);
+  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1)|(DAC_CR_MAMP1))<<Channel, (DAC_CR_WAVE1_1 | Amplitude) << Channel);
   
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -823,7 +997,7 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t 
   hdac->State = HAL_DAC_STATE_BUSY;
   
   /* Enable the selected wave generation for the selected DAC channel */
-  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1)|(DAC_CR_MAMP1))<<Channel, (DAC_WAVE_NOISE | Amplitude) << Channel);
+  MODIFY_REG(hdac->Instance->CR, ((DAC_CR_WAVE1)|(DAC_CR_MAMP1))<<Channel, (DAC_CR_WAVE1_0 | Amplitude) << Channel);
   
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -838,9 +1012,26 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t 
 #endif   /* STM32F071xB  STM32F072xB  STM32F078xx */
          /* STM32F091xC  STM32F098xx */
   
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
 #if defined(STM32F051x8) || defined(STM32F058xx) || \
     defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || \
     defined(STM32F091xC) || defined(STM32F098xx)
+
+/** @addtogroup DACEx_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup DACEx_Exported_Functions_Group1
+ *  @brief    Extended features functions
+   * @{
+  */
 
 /**
   * @brief  Set the specified data holding register value for dual DAC channel.
@@ -877,7 +1068,7 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   }
   
   tmp = (uint32_t)hdac->Instance;
-  tmp += __HAL_DHR12RD_ALIGNEMENT(Alignment);
+  tmp += DAC_DHR12RD_ALIGNMENT(Alignment);
 
   /* Set the dual DAC selected data holding register */
   *(__IO uint32_t *)tmp = data;
@@ -894,58 +1085,6 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   * @}
   */
 
-/** @addtogroup DACEx_Private_Functions
-  * @{
-  */
-
-/**
-  * @brief  DMA conversion complete callback. 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *                the configuration information for the specified DMA module.
-  * @retval None
-  */
-static void DAC_DMAConvCpltCh1(DMA_HandleTypeDef *hdma)   
-{
-  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  
-  HAL_DAC_ConvCpltCallbackCh1(hdac); 
-  
-  hdac->State= HAL_DAC_STATE_READY;
-}
-
-/**
-  * @brief  DMA half transfer complete callback. 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *                the configuration information for the specified DMA module.
-  * @retval None
-  */
-static void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma)   
-{
-    DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-    /* Conversion complete callback */
-    HAL_DAC_ConvHalfCpltCallbackCh1(hdac); 
-}
-
-/**
-  * @brief  DMA error callback 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *                the configuration information for the specified DMA module.
-  * @retval None
-  */
-static void DAC_DMAErrorCh1(DMA_HandleTypeDef *hdma)   
-{
-  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-    
-  /* Set DAC error code to DMA error */
-  hdac->ErrorCode |= HAL_DAC_ERROR_DMA;
-    
-  HAL_DAC_ErrorCallbackCh1(hdac); 
-    
-  hdac->State= HAL_DAC_STATE_READY;
-}
-/**
-  * @}
-  */
 #endif /* STM32F051x8  STM32F058xx */
        /* STM32F071xB  STM32F072xB  STM32F078xx */
        /* STM32F091xC  STM32F098xx */
@@ -961,6 +1100,7 @@ static void DAC_DMAErrorCh1(DMA_HandleTypeDef *hdma)
  *  @brief    Extended features functions
    * @{
   */
+
 /**
   * @brief  Conversion complete callback in non blocking mode for Channel2 
   * @param  hdac: pointer to a DAC_HandleTypeDef structure that contains
@@ -1014,60 +1154,6 @@ __weak void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac)
 }
 
 /**
-  * @brief  DMA conversion complete callback. 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *                the configuration information for the specified DMA module.
-  * @retval None
-  */
-void DAC_DMAConvCpltCh2(DMA_HandleTypeDef *hdma)   
-{
-  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  
-  HAL_DACEx_ConvCpltCallbackCh2(hdac); 
-  
-  hdac->State= HAL_DAC_STATE_READY;
-}
-
-/**
-  * @brief  DMA half transfer complete callback. 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *                the configuration information for the specified DMA module.
-  * @retval None
-  */
-void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma)   
-{
-    DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-    /* Conversion complete callback */
-    HAL_DACEx_ConvHalfCpltCallbackCh2(hdac); 
-}
-
-/**
-  * @brief  DMA error callback 
-  * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *                the configuration information for the specified DMA module.
-  * @retval None
-  */
-void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma)   
-{
-  DAC_HandleTypeDef* hdac = ( DAC_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-    
-  /* Set DAC error code to DMA error */
-  hdac->ErrorCode |= HAL_DAC_ERROR_DMA;
-    
-  HAL_DACEx_ErrorCallbackCh2(hdac); 
-    
-  hdac->State= HAL_DAC_STATE_READY;
-}
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
   * @}
   */
 
@@ -1078,6 +1164,14 @@ void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma)
 #endif /* STM32F071xB  STM32F072xB  STM32F078xx */
        /* STM32F091xC  STM32F098xx */
 
+/**
+  * @}
+  */
+
 #endif /* HAL_DAC_MODULE_ENABLED */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -1,18 +1,33 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file mbed_overrides.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
+
 #include "em_chip.h"
 #include "em_device.h"
 #include "em_cmu.h"
@@ -35,11 +50,9 @@ void mbed_sdk_init()
     /* Set up the clock sources for this chip */
 #if( CORE_CLOCK_SOURCE == HFXO)
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
-    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFXO);
     SystemHFXOClockSet(HFXO_FREQUENCY);
 #elif( CORE_CLOCK_SOURCE == HFRCO)
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
-    CMU_ClockSelectSet(cmuClock_HFPER, cmuSelect_HFRCO);
     CMU_HFRCOBandSet(HFRCO_FREQUENCY);
 #else
 #error "Core clock selection not valid (mbed_overrides.c)"
@@ -53,11 +66,8 @@ void mbed_sdk_init()
 #endif
 #ifdef CMU_LFBCLKSEL_REG
     /* cmuClock_LFB (to date) only has LEUART peripherals.
-    *  Do NOT set it up here, as LEUARTs might have been initialized
-    *	 before this code is called. (Limitation of the override mechanism of ARMCC)
+    *  This gets set automatically whenever you create serial objects using LEUART
     */
-    //TODO: Look for a more elegant fix.
-    //CMU_ClockSelectSet(cmuClock_LFB, LFXO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFXO);
@@ -69,7 +79,7 @@ void mbed_sdk_init()
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
 #endif
 #ifdef CMU_LFBCLKSEL_REG
-    //CMU_ClockSelectSet(cmuClock_LFB, LFRCO);
+    //CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFRCO);
 #endif
 #ifdef CMU_LFECLKSEL_REG
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFRCO);
