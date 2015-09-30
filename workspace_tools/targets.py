@@ -1594,6 +1594,14 @@ class WIZWIKI_W7500P(Target):
         self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
 
+class WIZWIKI_W7500ECO(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500ECO']
+        self.supported_toolchains = ["uARM", "ARM"]
+        self.default_toolchain = "ARM"
+		
 class SAMR21G18A(Target):
     def __init__(self):
         Target.__init__(self)

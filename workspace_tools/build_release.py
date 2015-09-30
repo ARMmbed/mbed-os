@@ -120,6 +120,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('WIZWIKI_W7500',   ('ARM', 'uARM')),
     ('WIZWIKI_W7500P',('ARM', 'uARM')),
+	('WIZWIKI_W7500ECO',('ARM', 'uARM')),
 )
 
 
