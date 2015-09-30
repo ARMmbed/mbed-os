@@ -211,7 +211,9 @@ if __name__ == '__main__':
             ('gcc_arm', 'EFM32ZG_STK3200'),
             ('gcc_arm', 'EFM32HG_STK3400'),
 
-            ('ds5_5', 'LPC1768'), ('ds5_5', 'LPC11U24'),
+            ('ds5_5', 'LPC1768'),
+            ('ds5_5', 'LPC11U24'),
+            ('ds5_5', 'RZ_A1H'),
 
             ('iar', 'LPC1768'),
             ('iar', 'LPC4088_DM'),
