@@ -1779,7 +1779,7 @@ TARGETS = [
     ### WIZnet ###
     WIZWIKI_W7500(),
     WIZWIKI_W7500P(),
-	WIZWIKI_W7500ECO(),
+    WIZWIKI_W7500ECO(),
 
     ### Atmel ###
     SAMR21G18A(),
