@@ -1337,7 +1337,7 @@ class NRF51_DK(MCU_NRF51_32K):
 class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
         MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels = ['NRF51_DK']
+        self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
@@ -1345,7 +1345,7 @@ class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
 class NRF51_DK_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
         MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels = ['NRF51_DK']
+        self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
@@ -1357,13 +1357,13 @@ class NRF51_DONGLE(MCU_NRF51_32K):
 class NRF51_DONGLE_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
         MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels = ['NRF51_DONGLE']
+        self.extra_labels += ['NRF51_DONGLE']
         self.macros += ['TARGET_NRF51_DONGLE']
 
 class NRF51_DONGLE_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
         MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels = ['NRF51_DONGLE']
+        self.extra_labels += ['NRF51_DONGLE']
         self.macros += ['TARGET_NRF51_DONGLE']
 
 class NRF51_MICROBIT(MCU_NRF51_16K_S110):
