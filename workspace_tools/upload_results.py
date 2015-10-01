@@ -36,6 +36,9 @@ def create_build(args):
     build['source'] = args.build_source
     build['status'] = 'running'
 
+    if build['buildType'] == 'Pull_Request':
+        build['buildType'] = 'Pull Request'
+
     r = requests.post(urlparse.urljoin(args.url, "api/builds"), headers=create_headers(args), json=build)
 
     if r.status_code < 400:
@@ -142,7 +145,7 @@ def main(arguments):
 
     create_build_parser = subparsers.add_parser('create-build', help='create a new build')
     create_build_parser.add_argument('-b', '--build-number', required=True, help='build number')
-    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull Request'], required=True, help='type of build')
+    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull_Request'], required=True, help='type of build')
     create_build_parser.add_argument('-s', '--build-source', required=True, help='url to source of build')
     create_build_parser.add_argument('-p', '--property-file-format', action='store_true', help='print result in the property file format')
     create_build_parser.set_defaults(func=create_build)
