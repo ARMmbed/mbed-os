@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.1.1
-  * @date    19-June-2015
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   IRDA HAL module driver.
   * 
   *          This file provides firmware functions to manage the following 
@@ -57,7 +57,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -192,7 +192,7 @@ static HAL_StatusTypeDef IRDA_Receive_IT(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == NULL)
+  if(hirda == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -241,7 +241,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
 HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
 {
   /* Check the IRDA handle allocation */
-  if(hirda == NULL)
+  if(hirda == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -354,7 +354,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
    
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_RX)) 
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -434,7 +434,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
   
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_TX))
   { 
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -512,7 +512,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
 {
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -562,7 +562,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
 {  
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -621,7 +621,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
   
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -684,7 +684,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
   
   if ((hirda->State == HAL_IRDA_STATE_READY) || (hirda->State == HAL_IRDA_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }

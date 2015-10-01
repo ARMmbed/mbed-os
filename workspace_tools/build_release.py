@@ -67,7 +67,6 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_F091RC', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F103RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F302R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F303K8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F303RE', ('ARM', 'uARM', 'IAR')),
     ('NUCLEO_F334R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F401RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
@@ -81,7 +80,9 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-#    ('DISCO_F746NG', ('ARM', 'uARM', 'IAR')),
+    ('DISCO_F746NG', ('ARM', 'uARM')),
+    ('DISCO_L476VG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_L476RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 

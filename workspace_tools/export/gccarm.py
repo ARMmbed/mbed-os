@@ -75,7 +75,6 @@ class GccArm(Exporter):
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
-        'NUCLEO_F303K8',
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'DISCO_L053C8',
@@ -104,6 +103,7 @@ class GccArm(Exporter):
         'SAMR21G18A',
         'TEENSY3_1',
         'SAMD21J18A',
+        'SAMD21G18A',
     ]
 
     DOT_IN_RELATIVE_PATH = True
