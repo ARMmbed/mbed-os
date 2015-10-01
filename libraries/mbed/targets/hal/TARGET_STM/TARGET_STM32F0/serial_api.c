@@ -42,7 +42,7 @@
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-#elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
+#elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8) || defined (TARGET_STM32F042K6)
 #define UART_NUM (2)
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0};

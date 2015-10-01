@@ -48,6 +48,7 @@ class IAREmbeddedWorkbench(Exporter):
         'K64F',
         'NUCLEO_F030R8',
         'NUCLEO_F031K6',
+        'NUCLEO_F042K6',
         'NUCLEO_F070RB',
         'NUCLEO_F072RB',
         'NUCLEO_F091RC',

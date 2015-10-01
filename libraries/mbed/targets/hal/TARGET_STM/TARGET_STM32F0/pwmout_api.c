@@ -108,7 +108,7 @@ void pwmout_write(pwmout_t* obj, float value) {
     sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
     sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
-#if defined (TARGET_STM32F031K6)
+#if defined (TARGET_STM32F031K6) || defined (TARGET_STM32F042K6)
     switch (obj->pin) {
         // Channels 1
         case PA_4:
