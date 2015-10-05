@@ -1337,7 +1337,7 @@ class NRF51_DK(MCU_NRF51_32K):
 class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
         MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels = ['NRF51_DK']
+        self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
@@ -1345,7 +1345,7 @@ class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
 class NRF51_DK_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
         MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels = ['NRF51_DK']
+        self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
@@ -1357,13 +1357,13 @@ class NRF51_DONGLE(MCU_NRF51_32K):
 class NRF51_DONGLE_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
         MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels = ['NRF51_DONGLE']
+        self.extra_labels += ['NRF51_DONGLE']
         self.macros += ['TARGET_NRF51_DONGLE']
 
 class NRF51_DONGLE_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
         MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels = ['NRF51_DONGLE']
+        self.extra_labels += ['NRF51_DONGLE']
         self.macros += ['TARGET_NRF51_DONGLE']
 
 class NRF51_MICROBIT(MCU_NRF51_16K_S110):
@@ -1601,7 +1601,7 @@ class SAMR21G18A(Target):
         self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMR21']
         self.macros = ['__SAMR21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "GCC_ARM"
+        self.default_toolchain = "ARM"
 
 class SAMD21J18A(Target):
     def __init__(self):
@@ -1610,7 +1610,17 @@ class SAMD21J18A(Target):
         self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
         self.macros = ['__SAMD21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "GCC_ARM"
+        self.default_toolchain = "ARM"
+
+class SAMD21G18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
+        self.macros = ['__SAMD21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "ARM"
+
 
 # Get a single instance for each target
 TARGETS = [
@@ -1775,6 +1785,7 @@ TARGETS = [
     ### Atmel ###
     SAMR21G18A(),
     SAMD21J18A(),
+    SAMD21G18A(),
 ]
 
 # Map each target name to its unique instance

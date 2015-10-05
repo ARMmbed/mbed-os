@@ -20,9 +20,6 @@
 
 #include "pinmap_function.h"
 
-/* Compare Channel used for PWM in TCC Modules */
-#define PWMOUT_CTRL_CHANNEL     0
-
 /* Prescaler values for TCC Module */
 const uint32_t tcc_prescaler[] = {
     TCC_CLOCK_PRESCALER_DIV1,
@@ -89,6 +86,7 @@ bool pwmout_init_hw(pwmout_t* obj)
     PinName pin;
     uint32_t ch_index = NC;
     struct tcc_config config_tcc;
+    uint32_t tcc_channel = NC;
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -103,6 +101,15 @@ bool pwmout_init_hw(pwmout_t* obj)
         /* Pin not supported */
         return 0;
     }
+    if ((ch_index == 0) || (ch_index == 4)) {
+        tcc_channel = 0;
+    } else if ((ch_index == 1) || (ch_index == 5)) {
+        tcc_channel = 1;
+    } else if ((ch_index == 2) || (ch_index == 6)) {
+        tcc_channel = 2;
+    } else if ((ch_index == 3) || (ch_index == 7)) {
+        tcc_channel = 3;
+    }
 
     tcc_get_config_defaults(&config_tcc, (Tcc*)pwm);
 
@@ -111,7 +118,7 @@ bool pwmout_init_hw(pwmout_t* obj)
 
     config_tcc.counter.period = obj->period;
     config_tcc.compare.wave_generation = TCC_WAVE_GENERATION_SINGLE_SLOPE_PWM;
-    config_tcc.compare.match[PWMOUT_CTRL_CHANNEL] = obj->period * obj->duty_cycle;
+    config_tcc.compare.match[tcc_channel] = obj->period * obj->duty_cycle;
 
     config_tcc.pins.enable_wave_out_pin[ch_index] = true;
     config_tcc.pins.wave_out_pin[ch_index]        = pin;
