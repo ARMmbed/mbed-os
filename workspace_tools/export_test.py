@@ -121,6 +121,7 @@ if __name__ == '__main__':
 
             ('uvision', 'NUCLEO_F030R8'),
             ('uvision', 'NUCLEO_F031K6'),
+            ('uvision', 'NUCLEO_F042K6'),
             ('uvision', 'NUCLEO_F070RB'),
             ('uvision', 'NUCLEO_F072RB'),
             ('uvision', 'NUCLEO_F091RC'),
@@ -180,6 +181,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'DISCO_L053C8'),
             ('gcc_arm', 'DISCO_F746NG'),
             ('gcc_arm', 'NUCLEO_F031K6'),
+            ('gcc_arm', 'NUCLEO_F042K6'),
             ('gcc_arm', 'NRF51822'),
             ('gcc_arm', 'HRM1017'),
             ('gcc_arm', 'NUCLEO_F401RE'),
@@ -221,6 +223,7 @@ if __name__ == '__main__':
 
             ('iar', 'NUCLEO_F030R8'),
             ('iar', 'NUCLEO_F031K6'),
+            ('iar', 'NUCLEO_F042K6'),
             ('iar', 'NUCLEO_F070RB'),
             ('iar', 'NUCLEO_F072RB'),
             ('iar', 'NUCLEO_F091RC'),
