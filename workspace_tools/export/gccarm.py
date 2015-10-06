@@ -56,6 +56,7 @@ class GccArm(Exporter):
         'NRF51822',
         'HRM1017',
         'RBLAB_NRF51822',
+        'RBLAB_BLENANO',
         'LPC2368',
         'LPC2460',
         'LPCCAPPUCCINO',
