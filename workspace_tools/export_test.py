@@ -183,6 +183,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'NUCLEO_F031K6'),
             ('gcc_arm', 'NUCLEO_F042K6'),
             ('gcc_arm', 'NRF51822'),
+            ('gcc_arm', 'RBLAB_BLENANO')
             ('gcc_arm', 'HRM1017'),
             ('gcc_arm', 'NUCLEO_F401RE'),
             ('gcc_arm', 'NUCLEO_F411RE'),
