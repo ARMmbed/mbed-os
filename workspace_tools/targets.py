@@ -1617,6 +1617,16 @@ class EFM32HG_STK3400(Target):
         self.supported_toolchains = ["GCC_ARM", "uARM"]
         self.default_toolchain = "uARM"
 
+class EFM32PG_STKXXXX(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels = ['Silicon_Labs', 'EFM32']
+        self.macros = ['EFM32PG322F64']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+
+
 
 ##WIZnet
 
@@ -1842,6 +1852,7 @@ TARGETS = [
     EFM32WG_STK3800(),
     EFM32ZG_STK3200(),
     EFM32HG_STK3400(),
+	EFM32PG_STKXXXX(),
 
     ### WIZnet ###
     WIZWIKI_W7500(),
