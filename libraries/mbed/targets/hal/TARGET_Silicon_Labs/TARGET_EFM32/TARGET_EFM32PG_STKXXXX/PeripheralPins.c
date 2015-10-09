@@ -137,10 +137,43 @@ const PinMap PinMap_I2C_SDA[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
-    {PA12, PWM_CH0, 0},
-    {PA13, PWM_CH1, 0},
-    {PA14, PWM_CH2, 0},
-    {NC  , NC   , 0}
+
+    // Pearl ok
+
+    {PA0,  PWM_CH0,  0},
+    {PA1,  PWM_CH0,  1},
+    {PA2,  PWM_CH0,  2},
+    {PA3,  PWM_CH0,  3},
+    {PA4,  PWM_CH0,  4},
+    {PA5,  PWM_CH0,  5},
+    {PB11, PWM_CH0,  6},
+    {PB12, PWM_CH0,  7},
+    {PB13, PWM_CH0,  8},
+    {PB14, PWM_CH0,  9},
+    {PB15, PWM_CH0, 10},
+    {PC6,  PWM_CH0, 11},
+    {PC7,  PWM_CH0, 12},
+    {PC8,  PWM_CH0, 13},
+    {PC9,  PWM_CH0, 14},
+    {PC10, PWM_CH0, 15},
+    {PC11, PWM_CH0, 16},
+
+    {PD10, PWM_CH0, 18},
+    {PD11, PWM_CH0, 19},
+    {PD12, PWM_CH0, 20},
+    {PD13, PWM_CH0, 21},
+    {PD14, PWM_CH0, 22},
+    {PD15, PWM_CH0, 23},
+    {PF0,  PWM_CH0, 24},
+    {PF1,  PWM_CH0, 25},
+    {PF2,  PWM_CH0, 26},
+    {PF3,  PWM_CH0, 27},
+    {PF4,  PWM_CH0, 28},
+    {PF5,  PWM_CH0, 29},
+    {PF6,  PWM_CH0, 30},
+    {PF7,  PWM_CH0, 31},
+
+    {NC  , NC     , NC}
 };
 
 /*************SPI**************/
