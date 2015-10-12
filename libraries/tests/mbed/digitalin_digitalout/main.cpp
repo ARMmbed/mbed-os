@@ -27,7 +27,8 @@ DigitalIn in(D2);
 DigitalOut out(PC_7);
 DigitalIn in(PB_8);
 
-#elif defined(TARGET_NUCLEO_F031K6)
+#elif defined(TARGET_NUCLEO_F031K6) || \
+      defined(TARGET_NUCLEO_F042K6)
 DigitalOut out(A4);
 DigitalIn in(A5);
 
@@ -62,9 +63,9 @@ DigitalIn  in(PC1);
 DigitalOut out(PE10);
 DigitalIn  in(PC1);
 
-#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
-DigitalOut out(PA06);
-DigitalIn  in(PA07);
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
+DigitalOut out(PB02);
+DigitalIn  in(PB03);
 
 #else
 DigitalOut out(p5);

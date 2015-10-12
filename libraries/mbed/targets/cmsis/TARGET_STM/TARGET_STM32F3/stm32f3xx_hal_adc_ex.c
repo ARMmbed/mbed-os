@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.1
-  * @date    19-June-2015
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -164,7 +164,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -379,7 +379,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   uint32_t WaitLoopIndex = 0;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -501,7 +501,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
     /* Parameters that can be updated only when ADC is disabled:              */
     /*  - Multimode clock configuration                                       */
     if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-        ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+        ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
           (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
     {
       /* Reset configuration of ADC common register CCR:                      */
@@ -652,7 +652,7 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
   HAL_StatusTypeDef tmpHALStatus = HAL_OK;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -793,7 +793,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   ADC_HandleTypeDef tmphadcSharingSameCommonRegister;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -953,7 +953,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
     /* Software is allowed to change common parameters only when all ADCs of  */
     /* the common group are disabled.                                         */
     if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-        ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+        ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
           (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
     {
       /* Reset configuration of ADC common register CCR:
@@ -1051,7 +1051,7 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   HAL_StatusTypeDef tmpHALStatus = HAL_OK;
   
   /* Check ADC handle */
-  if(hadc == NULL)
+  if(hadc == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -3875,7 +3875,7 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStart_DMA(ADC_HandleTypeDef* hadc, uint32_t
   /* (Depending on STM32F3 product, there may be up to 2 ADC slaves)          */
   __HAL_ADC_MULTI_SLAVE(hadc, &tmphadcSlave);
   
-  if (tmphadcSlave.Instance == NULL)
+  if (tmphadcSlave.Instance == HAL_NULL)
   {
     /* Update ADC state machine to error */
     hadc->State = HAL_ADC_STATE_ERROR;
@@ -3995,7 +3995,7 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStop_DMA(ADC_HandleTypeDef* hadc)
     /* (Depending on STM32F3 product, there may be up to 2 ADC slaves)        */
     __HAL_ADC_MULTI_SLAVE(hadc, &tmphadcSlave);
     
-    if (tmphadcSlave.Instance == NULL)
+    if (tmphadcSlave.Instance == HAL_NULL)
     {
       /* Update ADC state machine to error */
       hadc->State = HAL_ADC_STATE_ERROR;
@@ -4554,7 +4554,7 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
       /* Software is allowed to change common parameters only when all ADCs   */
       /* of the common group are disabled.                                    */
       if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-          ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+          ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
             (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
       {
         /* If Channel_16 is selected, enable Temp. sensor measurement path    */
@@ -5205,7 +5205,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedConfigChannel(ADC_HandleTypeDef* hadc, ADC_I
       /* Software is allowed to change common parameters only when all ADCs   */
       /* of the common group are disabled.                                    */
       if ((__HAL_ADC_IS_ENABLED(hadc) == RESET)                                  &&
-          ( (tmphadcSharingSameCommonRegister.Instance == NULL) ||
+          ( (tmphadcSharingSameCommonRegister.Instance == HAL_NULL) ||
             (__HAL_ADC_IS_ENABLED(&tmphadcSharingSameCommonRegister) == RESET) ))
       {
         /* If Channel_16 is selected, enable Temp. sensor measurement path    */

@@ -141,6 +141,7 @@ typedef enum {
     XBEE_DIO4        = PA_7,
     XBEE_DIO5        = PC_1,
     XBEE_DIO6        = PA_1,
+    XBEE_DIO7        = PA_0,
     XBEE_DO8         = PA_6,
     XBEE_DI8         = PA_11,
     XBEE_PWM0        = PA_8,

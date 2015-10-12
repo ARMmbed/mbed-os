@@ -56,6 +56,7 @@ class GccArm(Exporter):
         'NRF51822',
         'HRM1017',
         'RBLAB_NRF51822',
+        'RBLAB_BLENANO',
         'LPC2368',
         'LPC2460',
         'LPCCAPPUCCINO',
@@ -69,12 +70,12 @@ class GccArm(Exporter):
         'DISCO_F429ZI',
         'NUCLEO_F030R8',
         'NUCLEO_F031K6',
+        'NUCLEO_F042K6',
         'NUCLEO_F070RB',
         'NUCLEO_F072RB',
         'NUCLEO_F091RC',
         'NUCLEO_F103RB',
         'NUCLEO_F302R8',
-        'NUCLEO_F303K8',
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'DISCO_L053C8',
@@ -103,6 +104,7 @@ class GccArm(Exporter):
         'SAMR21G18A',
         'TEENSY3_1',
         'SAMD21J18A',
+        'SAMD21G18A',
     ]
 
     DOT_IN_RELATIVE_PATH = True

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.1.1
-  * @date    19-June-2015
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 
@@ -75,7 +75,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -173,7 +173,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   uint32_t tmp = 0;
   
   /* Check the DMA handle allocation */
-  if(hdma == NULL)
+  if(hdma == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -226,7 +226,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
 HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
 {
   /* Check the DMA handle allocation */
-  if(hdma == NULL)
+  if(hdma == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -531,7 +531,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma); 
     
-      if (hdma->XferErrorCallback != NULL)
+      if (hdma->XferErrorCallback != HAL_NULL)
       {
         /* Transfer error callback */
         hdma->XferErrorCallback(hdma);
@@ -556,7 +556,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Change DMA peripheral state */
       hdma->State = HAL_DMA_STATE_READY_HALF;
 
-      if(hdma->XferHalfCpltCallback != NULL)
+      if(hdma->XferHalfCpltCallback != HAL_NULL)
       {
         /* Half transfer callback */
         hdma->XferHalfCpltCallback(hdma);
@@ -586,7 +586,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       /* Process Unlocked */
       __HAL_UNLOCK(hdma);
     
-      if(hdma->XferCpltCallback != NULL)
+      if(hdma->XferCpltCallback != HAL_NULL)
       {       
         /* Transfer complete callback */
         hdma->XferCpltCallback(hdma);

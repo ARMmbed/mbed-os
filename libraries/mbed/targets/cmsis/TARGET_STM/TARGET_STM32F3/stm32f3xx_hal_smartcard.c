@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_smartcard.c
   * @author  MCD Application Team
-  * @version V1.1.1
-  * @date    19-June-2015
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -60,7 +60,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -204,7 +204,7 @@ static HAL_StatusTypeDef SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsmartcar
 HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsmartcard)
 {
   /* Check the SMARTCARD handle allocation */
-  if(hsmartcard == NULL)
+  if(hsmartcard == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -259,7 +259,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsmartcard)
 HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsmartcard)
 {
   /* Check the SMARTCARD handle allocation */
-  if(hsmartcard == NULL)
+  if(hsmartcard == HAL_NULL)
   {
     return HAL_ERROR;
   }
@@ -374,7 +374,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit(SMARTCARD_HandleTypeDef *hsmartcard, ui
 {
   if ((hsmartcard->State == HAL_SMARTCARD_STATE_READY) || (hsmartcard->State == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;
     }
@@ -440,7 +440,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive(SMARTCARD_HandleTypeDef *hsmartcard, uin
 { 
   if ((hsmartcard->State == HAL_SMARTCARD_STATE_READY) || (hsmartcard->State == HAL_SMARTCARD_STATE_BUSY_TX))
   { 
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -504,7 +504,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsmartcard,
 {
   if ((hsmartcard->State == HAL_SMARTCARD_STATE_READY) || (hsmartcard->State == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -555,7 +555,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsmartcard, 
 {
   if ((hsmartcard->State == HAL_SMARTCARD_STATE_READY) || (hsmartcard->State == HAL_SMARTCARD_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -611,7 +611,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit_DMA(SMARTCARD_HandleTypeDef *hsmartcard
   
   if ((hsmartcard->State == HAL_SMARTCARD_STATE_READY) || (hsmartcard->State == HAL_SMARTCARD_STATE_BUSY_RX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -674,7 +674,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Receive_DMA(SMARTCARD_HandleTypeDef *hsmartcard,
   
   if ((hsmartcard->State == HAL_SMARTCARD_STATE_READY) || (hsmartcard->State == HAL_SMARTCARD_STATE_BUSY_TX))
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == HAL_NULL) || (Size == 0)) 
     {
       return HAL_ERROR;                                    
     }

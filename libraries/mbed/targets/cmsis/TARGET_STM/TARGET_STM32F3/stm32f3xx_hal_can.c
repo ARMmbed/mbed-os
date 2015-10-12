@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.1.1
-  * @date    19-June-2015
+  * @version V1.1.0
+  * @date    12-Sept-2014
   * @brief   CAN HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -73,7 +73,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -161,7 +161,7 @@ HAL_StatusTypeDef HAL_CAN_Init(CAN_HandleTypeDef* hcan)
   uint32_t tickstart = 0;
   
   /* Check CAN handle */
-  if(hcan == NULL)
+  if(hcan == HAL_NULL)
   {
      return HAL_ERROR;
   }
@@ -431,7 +431,7 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
 HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan)
 {
   /* Check CAN handle */
-  if(hcan == NULL)
+  if(hcan == HAL_NULL)
   {
      return HAL_ERROR;
   }

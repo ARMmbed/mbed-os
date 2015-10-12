@@ -12,7 +12,7 @@ SPISlave device(D11, D12, D13, D10);       // mosi, miso, sclk, ssel
 SPISlave device(dp2, dp1, dp6, dp25);            // mosi, miso, sclk, ssel
 #elif defined(TARGET_SAMR21G18A)
 SPISlave device(PB22, PB02, PB23, PB03);		// mosi, miso, sclk, ssel
-#elif defined(TARGET_SAMD21J18A)
+#elif defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
 SPISlave device(PA18, PA16, PA19, PA17);		// mosi, miso, sclk, ssel
 #else
 SPISlave device(p5, p6, p7, p8);            // mosi, miso, sclk, ssel

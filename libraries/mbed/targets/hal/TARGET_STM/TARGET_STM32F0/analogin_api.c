@@ -127,7 +127,7 @@ static inline uint16_t adc_read(analogin_t *obj) {
         case PB_1:
             sConfig.Channel = ADC_CHANNEL_9;
             break;
-#if !defined (TARGET_STM32F031K6)
+#if !defined (TARGET_STM32F031K6) && !defined (TARGET_STM32F042K6)
         case PC_0:
             sConfig.Channel = ADC_CHANNEL_10;
             break;

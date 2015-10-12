@@ -572,6 +572,16 @@ class NUCLEO_F031K6(Target):
         self.supported_form_factors = ["ARDUINO"]
         self.detect_code = ["0791"]
 
+class NUCLEO_F042K6(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['STM', 'STM32F0', 'STM32F042K6']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["0785"]
+
 class NUCLEO_F070RB(Target):
     def __init__(self):
         Target.__init__(self)
@@ -621,17 +631,6 @@ class NUCLEO_F302R8(Target):
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0705"]
-
-class NUCLEO_F303K8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F3', 'STM32F303K8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["0775"]
-
 
 class NUCLEO_F303RE(Target):
     def __init__(self):
@@ -1348,7 +1347,7 @@ class NRF51_DK(MCU_NRF51_32K):
 class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
         MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels = ['NRF51_DK']
+        self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
@@ -1356,7 +1355,7 @@ class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
 class NRF51_DK_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
         MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels = ['NRF51_DK']
+        self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
@@ -1368,13 +1367,13 @@ class NRF51_DONGLE(MCU_NRF51_32K):
 class NRF51_DONGLE_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
         MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels = ['NRF51_DONGLE']
+        self.extra_labels += ['NRF51_DONGLE']
         self.macros += ['TARGET_NRF51_DONGLE']
 
 class NRF51_DONGLE_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
         MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels = ['NRF51_DONGLE']
+        self.extra_labels += ['NRF51_DONGLE']
         self.macros += ['TARGET_NRF51_DONGLE']
 
 class NRF51_MICROBIT(MCU_NRF51_16K_S110):
@@ -1605,6 +1604,14 @@ class WIZWIKI_W7500P(Target):
         self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
 
+class WIZWIKI_W7500ECO(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500ECO']
+        self.supported_toolchains = ["uARM", "ARM"]
+        self.default_toolchain = "ARM"
+		
 class SAMR21G18A(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1612,7 +1619,7 @@ class SAMR21G18A(Target):
         self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMR21']
         self.macros = ['__SAMR21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "GCC_ARM"
+        self.default_toolchain = "ARM"
 
 class SAMD21J18A(Target):
     def __init__(self):
@@ -1621,7 +1628,17 @@ class SAMD21J18A(Target):
         self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
         self.macros = ['__SAMD21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "GCC_ARM"
+        self.default_toolchain = "ARM"
+
+class SAMD21G18A(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
+        self.macros = ['__SAMD21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "ARM"
+
 
 # Get a single instance for each target
 TARGETS = [
@@ -1677,12 +1694,12 @@ TARGETS = [
     ### STMicro ###
     NUCLEO_F030R8(),
     NUCLEO_F031K6(),
+    NUCLEO_F042K6(),
     NUCLEO_F070RB(),
     NUCLEO_F072RB(),
     NUCLEO_F091RC(),
     NUCLEO_F103RB(),
     NUCLEO_F302R8(),
-    NUCLEO_F303K8(),
     NUCLEO_F303RE(),
     NUCLEO_F334R8(),
     NUCLEO_F401RE(),
@@ -1783,10 +1800,12 @@ TARGETS = [
     ### WIZnet ###
     WIZWIKI_W7500(),
     WIZWIKI_W7500P(),
+    WIZWIKI_W7500ECO(),
 
     ### Atmel ###
     SAMR21G18A(),
     SAMD21J18A(),
+    SAMD21G18A(),
 ]
 
 # Map each target name to its unique instance
