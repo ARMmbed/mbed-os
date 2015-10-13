@@ -41,8 +41,7 @@ typedef enum {
     PortB = gpioPortB, /**< Port B */
     PortC = gpioPortC, /**< Port C */
     PortD = gpioPortD, /**< Port D */
-    PortE = gpioPortE, /**< Port E */
-    PortF = gpioPortF /**< Port F */
+    PortF = gpioPortF  /**< Port F */
 } PortName;
 
 #ifdef __cplusplus
