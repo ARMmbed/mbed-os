@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_emu.h
  * @brief Energy management unit (EMU) peripheral API
- * @version 3.20.12
+ * @version 4.1.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,7 +30,6 @@
  *
  ******************************************************************************/
 
-
 #ifndef __SILICON_LABS_EM_EMU_H__
 #define __SILICON_LABS_EM_EMU_H__
 
@@ -38,7 +37,7 @@
 #if defined( EMU_PRESENT )
 
 #include <stdbool.h>
-#include "em_bitband.h"
+#include "em_bus.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,19 +59,21 @@ extern "C" {
 
 typedef enum
 {
-  /** Enable EM2 and 3 voltage regulator reduced drive strength (reduced leakage current) */
+  /** Enable EM2 and EM3 regulator reduced drive strength (reduced leakage current) */
 #if defined( _EMU_CTRL_EM23VREG_MASK )
   emuEM23Vreg_REDUCED = EMU_CTRL_EM23VREG_REDUCED,
 #elif defined( _EMU_CTRL_EMVREG_MASK )
   emuEM23Vreg_REDUCED = EMU_CTRL_EMVREG_REDUCED,
 #endif
-  /** Enable EM2 and 3 voltage regulator full drive strength (faster startup) */
+  /** Enable EM2 and EM3 regulator full drive strength (faster startup) */
 #if defined( _EMU_CTRL_EM23VREG_MASK )
   emuEM23Vreg_FULL = EMU_CTRL_EM23VREG_FULL,
 #elif defined( _EMU_CTRL_EMVREG_MASK )
   emuEM23Vreg_FULL = EMU_CTRL_EMVREG_FULL,
+#else
+  emuEMVregNoConfig = 0,
 #endif
-} EMU_EM23VregMode;
+} EMU_EM23VregMode_TypeDef;
 
 #if defined( _EMU_EM4CONF_OSC_MASK )
 /** EM4 duty oscillator */
@@ -143,7 +144,61 @@ typedef enum
   emuBODMode_Inactive,
 } EMU_BODMode_TypeDef;
 
+#if defined( _EMU_EM4CTRL_EM4STATE_MASK )
+/** EM4 modes */
+typedef enum
+{
+  /** EM4 Hibernate */
+  emuEM4Hibernate = EMU_EM4CTRL_EM4STATE_EM4H,
+  /** EM4 Shutoff */
+  emuEM4Shutoff = EMU_EM4CTRL_EM4STATE_EM4S,
+} EMU_EM4State_TypeDef;
+#endif
 
+#if defined( _EMU_PWRCFG_MASK )
+/** Power configurations */
+typedef enum
+{
+  /** Default DCDC startup mode */
+  emuPowerConfig_Startup = EMU_PWRCFG_PWRCFG_STARTUP,
+  /** Disable DCDC */
+  emuPowerConfig_NoDcdc = EMU_PWRCFG_PWRCFG_NODCDC,
+  /** DCDC is connected to DCDD */
+  emuPowerConfig_DcdcToDvdd = EMU_PWRCFG_PWRCFG_DCDCTODVDD,
+  /** DCDC is connected to DECOUPLE */
+  emuPowerConfig_DcdcToDecouple = EMU_PWRCFG_PWRCFG_DCDCTODECOUPLE,
+} EMU_PowerConfig_TypeDef;
+#endif
+
+#if defined( _EMU_DCDCCTRL_MASK )
+/** DCDC operating modes */
+typedef enum
+{
+  /** DCDC regulator bypass */
+  emuDcdcMode_Bypass = EMU_DCDCCTRL_DCDCMODE_BYPASS,
+  /** DCDC low-noise mode */
+  emuDcdcMode_LowNoise = EMU_DCDCCTRL_DCDCMODE_LOWNOISE,
+  /** DCDC low-power mode */
+  emuDcdcMode_LowPower = EMU_DCDCCTRL_DCDCMODE_LOWPOWER,
+  /** DCDC regulator is off */
+  emuDcdcMode_Off = EMU_DCDCCTRL_DCDCMODE_OFF,
+} EMU_DcdcMode_TypeDef;
+#endif
+
+#if defined( _EMU_DCDCMISCCTRL_MASK )
+/** DCDC low-power mode comparator bias selection */
+typedef enum
+{
+  /** Optimal speed and efficiency compromise when load is 1u - 10uA */
+  emuDcdcLpcmpBiasMode_10uA = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS0,
+  /** Optimal speed and efficiency compromise when load is 10u - 100uA */
+  emuDcdcLpcmpBiasMode_100uA = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS1,
+  /** Optimal speed and efficiency compromise when load is 100u - 1mA */
+  emuDcdcLpcmpBiasMode_1mA = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS2,
+  /** Optimal speed and efficiency compromise when load is 1m - 10mA */
+  emuDcdcLpcmpBiasMode_10mA = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS3,
+} EMU_DcdcLpcmpBiasMode_TypeDef;
+#endif
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
@@ -152,44 +207,56 @@ typedef enum
 /** Energy Mode 2 and 3 initialization structure  */
 typedef struct
 {
-  bool em23Vreg;
+  EMU_EM23VregMode_TypeDef em23Vreg;    /**< Enable VREG in EM2/3 */
 } EMU_EM23Init_TypeDef;
 
 /** Default initialization of EM2 and 3 configuration */
 #define EMU_EM23INIT_DEFAULT    \
-  { false }     /* Reduced voltage regulator drive strength in EM2 and EM3 */
+{ (EMU_EM23VregMode_TypeDef)0 }/* Reduced voltage regulator drive strength in EM2 and EM3 */
 
 
+#if defined( _EMU_EM4CONF_MASK ) || defined( _EMU_EM4CTRL_MASK )
 /** Energy Mode 4 initialization structure  */
 typedef struct
 {
-  /* Init parameters for platforms with EMU->EM4CONF register */
 #if defined( _EMU_EM4CONF_MASK )
-  bool                  lockConfig;     /** Lock configuration of regulator, BOD and oscillator */
-  bool                  buBodRstDis;    /** When set, no reset will be asserted due to Brownout when in EM4 */
-  EMU_EM4Osc_TypeDef    osc;            /** EM4 duty oscillator */
-  bool                  buRtcWakeup;    /** Wake up on EM4 BURTC interrupt */
-  bool                  vreg;           /** Enable EM4 voltage regulator */
-#else
-  bool                  reserved;       /** Placeholder for empty structs */
+  /* Init parameters for platforms with EMU->EM4CONF register */
+  bool                  lockConfig;     /**< Lock configuration of regulator, BOD and oscillator */
+  bool                  buBodRstDis;    /**< When set, no reset will be asserted due to Brownout when in EM4 */
+  EMU_EM4Osc_TypeDef    osc;            /**< EM4 duty oscillator */
+  bool                  buRtcWakeup;    /**< Wake up on EM4 BURTC interrupt */
+  bool                  vreg;           /**< Enable EM4 voltage regulator */
+
+#elif defined( _EMU_EM4CTRL_MASK )
+  /* Init parameters for platforms with EMU->EM4CTRL register */
+  bool                  retainLfxo;     /**< Disable the LFXO upon EM4 entry */
+  bool                  retainLfrco;    /**< Disable the LFRCO upon EM4 entry */
+  bool                  retainUlfrco;   /**< Disable the ULFRCO upon EM4 entry */
+  EMU_EM4State_TypeDef  em4State;       /**< Hibernate or shutoff state */
 #endif
 } EMU_EM4Init_TypeDef;
+#endif
 
 /** Default initialization of EM4 configuration */
 #if defined( _EMU_EM4CONF_MASK )
-#define EMU_EM4INIT_DEFAULT    \
-  { false,             /* Dont't lock configuration after it's been set */ \
-    false,             /* No reset will be asserted due to Brownout when in EM4 */ \
-    emuEM4Osc_ULFRCO,  /* Use default ULFRCO oscillator  */ \
-    true,              /* Wake up on EM4 BURTC interrupt */ \
-    true,              /* Enable VREG */ \
-  }
-#else
- #define EMU_EM4INIT_DEFAULT    \
-  { false,             /* Placeholder default value */ \
-  }
+#define EMU_EM4INIT_DEFAULT                                                                \
+{                                                                                          \
+  false,                              /* Dont't lock configuration after it's been set */  \
+  false,                              /* No reset will be asserted due to Brownout when in EM4 */ \
+  emuEM4Osc_ULFRCO,                   /* Use default ULFRCO oscillator  */                 \
+  true,                               /* Wake up on EM4 BURTC interrupt */                 \
+  true,                               /* Enable VREG */                                    \
+}
 #endif
-
+#if defined( _EMU_EM4CTRL_MASK )
+#define EMU_EM4INIT_DEFAULT                                                                \
+{                                                                                          \
+  false,                             /* Retain LFXO configuration upon EM4 entry */        \
+  false,                             /* Retain LFRCO configuration upon EM4 entry */       \
+  false,                             /* Retain ULFRCO configuration upon EM4 entry */      \
+  emuEM4Shutoff,                                                                           \
+}
+#endif
 
 #if defined( BU_PRESENT )
 /** Backup Power Domain Initialization structure */
@@ -221,23 +288,47 @@ typedef struct
   bool                  enable;
 } EMU_BUPDInit_TypeDef;
 
-/** Default */
-#define EMU_BUPDINIT_DEFAULT                                                \
-  { emuProbe_Disable, /* Do not enable voltage probe */                     \
-    false,            /* Disable BOD calibration mode */                    \
-    false,            /* Disable BU_STAT pin for backup mode indication */  \
-                                                                            \
-    emuRes_Res0,      /* RES0 series resistance between main and backup power */ \
-    false,            /* Don't enable strong switch */                           \
-    false,            /* Don't enable medium switch */                           \
-    false,            /* Don't enable weak switch */                             \
-                                                                                 \
-    emuPower_None,    /* No connection between main and backup power (inactive mode) */  \
-    emuPower_None,    /* No connection between main and backup power (active mode) */    \
-    true              /* Enable BUPD enter on BOD, enable BU_VIN pin, release BU reset  */  \
-  }
+/** Default Backup Power Domain configuration */
+#define EMU_BUPDINIT_DEFAULT                                              \
+{                                                                         \
+  emuProbe_Disable, /* Do not enable voltage probe */                     \
+  false,            /* Disable BOD calibration mode */                    \
+  false,            /* Disable BU_STAT pin for backup mode indication */  \
+                                                                          \
+  emuRes_Res0,      /* RES0 series resistance between main and backup power */ \
+  false,            /* Don't enable strong switch */                           \
+  false,            /* Don't enable medium switch */                           \
+  false,            /* Don't enable weak switch */                             \
+                                                                               \
+  emuPower_None,    /* No connection between main and backup power (inactive mode) */     \
+  emuPower_None,    /* No connection between main and backup power (active mode) */       \
+  true              /* Enable BUPD enter on BOD, enable BU_VIN pin, release BU reset  */  \
+}
 #endif
 
+#if defined( _EMU_DCDCCTRL_MASK )
+/** DCDC initialization structure */
+typedef struct
+{
+  EMU_PowerConfig_TypeDef powerConfig;     /**< Device external power configuration */
+  EMU_DcdcMode_TypeDef dcdcMode;           /**< DCDC regulator operating mode */
+  bool em23LowPower;                       /**< Enable low-power mode in EM2 and 3 */
+  bool em4LowPower;                        /**< Enable low-power mode in EM4 */
+  EMU_DcdcLpcmpBiasMode_TypeDef lpcmpBias; /**< Low-power mode comparator bias selection */
+  uint32_t mVout;                          /**< Target output voltage (mV) */
+} EMU_DCDCInit_TypeDef;
+
+/** Default DCDC initialization */
+#define EMU_DCDCINIT_DEFAULT                                                     \
+{                                                                                \
+  emuPowerConfig_DcdcToDvdd,  /* DCDC to DVDD */                                 \
+  emuDcdcMode_LowNoise,       /* Low-niose mode in EM0 */                        \
+  true,                       /* Low-power moode in EM2 and 3 */                 \
+  true,                       /* Low-power mode in EM4 */                        \
+  emuDcdcLpcmpBiasMode_10mA,  /* Use the max load/safe bias mode */              \
+  1800,                       /* Nominal output voltage for DVDD mode, 1.8V  */  \
+}
+#endif
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -255,7 +346,7 @@ __STATIC_INLINE void EMU_EnterEM1(void)
 }
 
 void EMU_EM23Init(EMU_EM23Init_TypeDef *em23Init);
-#if defined( _EMU_EM4CONF_MASK )
+#if defined( _EMU_EM4CONF_MASK ) || defined( _EMU_EM4CTRL_MASK )
 void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init);
 #endif
 void EMU_EnterEM2(bool restore);
@@ -268,7 +359,11 @@ void EMU_BUPDInit(EMU_BUPDInit_TypeDef *bupdInit);
 void EMU_BUThresholdSet(EMU_BODMode_TypeDef mode, uint32_t value);
 void EMU_BUThresRangeSet(EMU_BODMode_TypeDef mode, uint32_t value);
 #endif
-
+#if defined( _EMU_DCDCCTRL_MASK )
+bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit);
+void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode);
+bool EMU_DCDCOutputVoltageSet(uint32_t mV);
+#endif
 
 #if defined( _EMU_IF_MASK )
 /***************************************************************************//**
@@ -295,7 +390,7 @@ __STATIC_INLINE void EMU_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void EMU_IntDisable(uint32_t flags)
 {
-  EMU->IEN &= ~(flags);
+  EMU->IEN &= ~flags;
 }
 
 
@@ -382,10 +477,9 @@ __STATIC_INLINE void EMU_IntSet(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void EMU_EM4Lock(bool enable)
 {
-  BITBAND_Peripheral(&(EMU->EM4CONF), _EMU_EM4CONF_LOCKCONF_SHIFT, enable);
+  BUS_RegBitWrite(&(EMU->EM4CONF), _EMU_EM4CONF_LOCKCONF_SHIFT, enable);
 }
 #endif
-
 
 #if defined( _EMU_STATUS_BURDY_MASK )
 /***************************************************************************//**
@@ -394,10 +488,10 @@ __STATIC_INLINE void EMU_EM4Lock(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void EMU_BUReady(void)
 {
-  while(!(EMU->STATUS & EMU_STATUS_BURDY));
+  while(!(EMU->STATUS & EMU_STATUS_BURDY))
+    ;
 }
 #endif
-
 
 #if defined( _EMU_ROUTE_BUVINPEN_MASK )
 /***************************************************************************//**
@@ -408,21 +502,21 @@ __STATIC_INLINE void EMU_BUReady(void)
  ******************************************************************************/
 __STATIC_INLINE void EMU_BUPinEnable(bool enable)
 {
-  BITBAND_Peripheral(&(EMU->ROUTE), _EMU_ROUTE_BUVINPEN_SHIFT, enable);
+  BUS_RegBitWrite(&(EMU->ROUTE), _EMU_ROUTE_BUVINPEN_SHIFT, enable);
 }
 #endif
 
-
 /***************************************************************************//**
  * @brief
- *   Lock the EMU in order to protect all its registers against unintended
+ *   Lock the EMU in order to protect its registers against unintended
  *   modification.
  *
  * @note
  *   If locking the EMU registers, they must be unlocked prior to using any
- *   EMU API functions modifying EMU registers. An exception to this is the
- *   energy mode entering API (EMU_EnterEMn()), which can be used when the
- *   EMU registers are locked.
+ *   EMU API functions modifying EMU registers, excluding interrupt control
+ *   and regulator control if the architecture has a EMU_PWRCTRL register.
+ *   An exception to this is the energy mode entering API (EMU_EnterEMn()),
+ *   which can be used when the EMU registers are locked.
  ******************************************************************************/
 __STATIC_INLINE void EMU_Lock(void)
 {
@@ -439,15 +533,39 @@ __STATIC_INLINE void EMU_Unlock(void)
   EMU->LOCK = EMU_LOCK_LOCKKEY_UNLOCK;
 }
 
+
+#if defined( _EMU_PWRLOCK_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Lock the EMU regulator control registers in order to protect against
+ *   unintended modification.
+ ******************************************************************************/
+__STATIC_INLINE void EMU_PowerLock(void)
+{
+  EMU->PWRLOCK = EMU_PWRLOCK_LOCKKEY_LOCK;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Unlock the EMU power control registers so that writing to
+ *   locked registers again is possible.
+ ******************************************************************************/
+__STATIC_INLINE void EMU_PowerUnlock(void)
+{
+  EMU->PWRLOCK = EMU_PWRLOCK_LOCKKEY_UNLOCK;
+}
+#endif
+
+
 /***************************************************************************//**
  * @brief
  *   Block entering EM2 or higher number energy modes.
  ******************************************************************************/
 __STATIC_INLINE void EMU_EM2Block(void)
 {
-  BITBAND_Peripheral(&(EMU->CTRL), _EMU_CTRL_EM2BLOCK_SHIFT, 1U);
+  BUS_RegBitWrite(&(EMU->CTRL), _EMU_CTRL_EM2BLOCK_SHIFT, 1U);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -455,9 +573,8 @@ __STATIC_INLINE void EMU_EM2Block(void)
  ******************************************************************************/
 __STATIC_INLINE void EMU_EM2UnBlock(void)
 {
-  BITBAND_Peripheral(&(EMU->CTRL), _EMU_CTRL_EM2BLOCK_SHIFT, 0U);
+  BUS_RegBitWrite(&(EMU->CTRL), _EMU_CTRL_EM2BLOCK_SHIFT, 0U);
 }
-
 
 /** @} (end addtogroup EMU) */
 /** @} (end addtogroup EM_Library) */
@@ -467,4 +584,4 @@ __STATIC_INLINE void EMU_EM2UnBlock(void)
 #endif
 
 #endif /* defined( EMU_PRESENT ) */
-#endif /* __EM_EMU_H */
+#endif /* __SILICON_LABS_EM_EMU_H__ */

@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_dma.h
  * @brief Direct memory access (DMA) API
- * @version 3.20.12
+ * @version 4.1.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,10 +30,8 @@
  *
  ******************************************************************************/
 
-
-
-#ifndef __SILICON_LABS_EM_DMA_H_
-#define __SILICON_LABS_EM_DMA_H_
+#ifndef __SILICON_LABS_EM_DMA_H__
+#define __SILICON_LABS_EM_DMA_H__
 
 #include "em_device.h"
 #if defined( DMA_PRESENT )
@@ -407,14 +405,14 @@ __STATIC_INLINE void DMA_ResetLoop(unsigned int channel)
   /* Clean loop copy operation */
   switch(channel)
   {
-  case 0:
-    DMA->LOOP0 = _DMA_LOOP0_RESETVALUE;
-    break;
-  case 1:
-    DMA->LOOP1 = _DMA_LOOP1_RESETVALUE;
-    break;
-  default:
-    break;
+    case 0:
+      DMA->LOOP0 = _DMA_LOOP0_RESETVALUE;
+      break;
+    case 1:
+      DMA->LOOP1 = _DMA_LOOP1_RESETVALUE;
+      break;
+    default:
+      break;
   }
 }
 #endif
@@ -460,4 +458,4 @@ void DMA_Reset(void);
 #endif
 
 #endif /* defined( DMA_PRESENT ) */
-#endif /* __SILICON_LABS_EM_DMA_H_ */
+#endif /* __SILICON_LABS_EM_DMA_H__ */

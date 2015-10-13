@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_gpio.h
  * @brief General Purpose IO (GPIO) peripheral API
- * @version 3.20.12
+ * @version 4.1.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,14 +31,14 @@
  ******************************************************************************/
 
 
-#ifndef __SILICON_LABS_EM_GPIO_H_
-#define __SILICON_LABS_EM_GPIO_H_
+#ifndef __SILICON_LABS_EM_GPIO_H__
+#define __SILICON_LABS_EM_GPIO_H__
 
 #include "em_device.h"
 #if defined(GPIO_COUNT) && (GPIO_COUNT > 0)
 
 #include <stdbool.h>
-#include "em_bitband.h"
+#include "em_bus.h"
 #include "em_assert.h"
 
 #ifdef __cplusplus
@@ -56,20 +56,188 @@ extern "C" {
  ******************************************************************************/
 
 /*******************************************************************************
+ *******************************   DEFINES   ***********************************
+ ******************************************************************************/
+
+#if defined( _EFM32_TINY_FAMILY ) || defined( _EFM32_ZERO_FAMILY )
+
+#define _GPIO_PORT_A_PIN_COUNT 14
+#define _GPIO_PORT_B_PIN_COUNT 10
+#define _GPIO_PORT_C_PIN_COUNT 16
+#define _GPIO_PORT_D_PIN_COUNT 9
+#define _GPIO_PORT_E_PIN_COUNT 12
+#define _GPIO_PORT_F_PIN_COUNT 6
+
+#define _GPIO_PORT_A_PIN_MASK 0xF77F
+#define _GPIO_PORT_B_PIN_MASK 0x79F8
+#define _GPIO_PORT_C_PIN_MASK 0xFFFF
+#define _GPIO_PORT_D_PIN_MASK 0x01FF
+#define _GPIO_PORT_E_PIN_MASK 0xFFF0
+#define _GPIO_PORT_F_PIN_MASK 0x003F
+
+#elif defined( _EFM32_HAPPY_FAMILY )
+
+#define _GPIO_PORT_A_PIN_COUNT 6
+#define _GPIO_PORT_B_PIN_COUNT 5
+#define _GPIO_PORT_C_PIN_COUNT 12
+#define _GPIO_PORT_D_PIN_COUNT 4
+#define _GPIO_PORT_E_PIN_COUNT 4
+#define _GPIO_PORT_F_PIN_COUNT 6
+
+#define _GPIO_PORT_A_PIN_MASK 0x0707
+#define _GPIO_PORT_B_PIN_MASK 0x6980
+#define _GPIO_PORT_C_PIN_MASK 0xEF1F
+#define _GPIO_PORT_D_PIN_MASK 0x00F0
+#define _GPIO_PORT_E_PIN_MASK 0x3C00
+#define _GPIO_PORT_F_PIN_MASK 0x003F
+
+#elif defined( _EFM32_GIANT_FAMILY ) || defined( _EFM32_WONDER_FAMILY )
+
+#define _GPIO_PORT_A_PIN_COUNT 16
+#define _GPIO_PORT_B_PIN_COUNT 16
+#define _GPIO_PORT_C_PIN_COUNT 16
+#define _GPIO_PORT_D_PIN_COUNT 16
+#define _GPIO_PORT_E_PIN_COUNT 16
+#define _GPIO_PORT_F_PIN_COUNT 13
+
+#define _GPIO_PORT_A_PIN_MASK 0xFFFF
+#define _GPIO_PORT_B_PIN_MASK 0xFFFF
+#define _GPIO_PORT_C_PIN_MASK 0xFFFF
+#define _GPIO_PORT_D_PIN_MASK 0xFFFF
+#define _GPIO_PORT_E_PIN_MASK 0xFFFF
+#define _GPIO_PORT_F_PIN_MASK 0x1FFF
+
+#elif defined( _EFM32_GECKO_FAMILY )
+
+#define _GPIO_PORT_A_PIN_COUNT 16
+#define _GPIO_PORT_B_PIN_COUNT 16
+#define _GPIO_PORT_C_PIN_COUNT 16
+#define _GPIO_PORT_D_PIN_COUNT 16
+#define _GPIO_PORT_E_PIN_COUNT 16
+#define _GPIO_PORT_F_PIN_COUNT 10
+
+#define _GPIO_PORT_A_PIN_MASK 0xFFFF
+#define _GPIO_PORT_B_PIN_MASK 0xFFFF
+#define _GPIO_PORT_C_PIN_MASK 0xFFFF
+#define _GPIO_PORT_D_PIN_MASK 0xFFFF
+#define _GPIO_PORT_E_PIN_MASK 0xFFFF
+#define _GPIO_PORT_F_PIN_MASK 0x03FF
+
+#elif defined( _EFR32_MIGHTY_FAMILY )    \
+      || defined( _EFR32_BLUE_FAMILY )   \
+      || defined( _EFR32_FLEX_FAMILY )   \
+      || defined( _EFR32_SNAPPY_FAMILY ) \
+      || defined( _EFM32_PEARL_FAMILY )  \
+      || defined( _EFM32_JADE_FAMILY )
+
+#define _GPIO_PORT_A_PIN_COUNT 6
+#define _GPIO_PORT_B_PIN_COUNT 5
+#define _GPIO_PORT_C_PIN_COUNT 6
+#define _GPIO_PORT_D_PIN_COUNT 3
+#define _GPIO_PORT_E_PIN_COUNT 0
+#define _GPIO_PORT_F_PIN_COUNT 8
+
+#define _GPIO_PORT_A_PIN_MASK 0x003F
+#define _GPIO_PORT_B_PIN_MASK 0xF800
+#define _GPIO_PORT_C_PIN_MASK 0x0FC0
+#define _GPIO_PORT_D_PIN_MASK 0xE000
+#define _GPIO_PORT_E_PIN_MASK 0x0000
+#define _GPIO_PORT_F_PIN_MASK 0x00FF
+
+#else
+#warning "Port and pin masks are not defined for this family."
+#endif
+
+#if defined( _GPIO_PORT_G_PIN_COUNT ) && defined( _GPIO_PORT_H_PIN_COUNT )
+#define _GPIO_PORT_SIZE(port) (                \
+        (port) == 0 ? _GPIO_PORT_A_PIN_COUNT : \
+        (port) == 1 ? _GPIO_PORT_B_PIN_COUNT : \
+        (port) == 2 ? _GPIO_PORT_C_PIN_COUNT : \
+        (port) == 3 ? _GPIO_PORT_D_PIN_COUNT : \
+        (port) == 4 ? _GPIO_PORT_E_PIN_COUNT : \
+        (port) == 5 ? _GPIO_PORT_F_PIN_COUNT : \
+        (port) == 6 ? _GPIO_PORT_G_PIN_COUNT : \
+        (port) == 7 ? _GPIO_PORT_H_PIN_COUNT : \
+        0)
+#else
+#define _GPIO_PORT_SIZE(port) (                \
+        (port) == 0 ? _GPIO_PORT_A_PIN_COUNT : \
+        (port) == 1 ? _GPIO_PORT_B_PIN_COUNT : \
+        (port) == 2 ? _GPIO_PORT_C_PIN_COUNT : \
+        (port) == 3 ? _GPIO_PORT_D_PIN_COUNT : \
+        (port) == 4 ? _GPIO_PORT_E_PIN_COUNT : \
+        (port) == 5 ? _GPIO_PORT_F_PIN_COUNT : \
+        0)
+#endif
+
+#if defined( _GPIO_PORT_G_PIN_MASK ) && defined( _GPIO_PORT_H_PIN_MASK )
+#define _GPIO_PORT_MASK(port) ( \
+        (port) == 0 ? _GPIO_PORT_A_PIN_MASK : \
+        (port) == 1 ? _GPIO_PORT_B_PIN_MASK : \
+        (port) == 2 ? _GPIO_PORT_C_PIN_MASK : \
+        (port) == 3 ? _GPIO_PORT_D_PIN_MASK : \
+        (port) == 4 ? _GPIO_PORT_E_PIN_MASK : \
+        (port) == 5 ? _GPIO_PORT_F_PIN_MASK : \
+        (port) == 6 ? _GPIO_PORT_G_PIN_MASK : \
+        (port) == 7 ? _GPIO_PORT_H_PIN_MASK : \
+        0)
+#else
+#define _GPIO_PORT_MASK(port) ( \
+        (port) == 0 ? _GPIO_PORT_A_PIN_MASK : \
+        (port) == 1 ? _GPIO_PORT_B_PIN_MASK : \
+        (port) == 2 ? _GPIO_PORT_C_PIN_MASK : \
+        (port) == 3 ? _GPIO_PORT_D_PIN_MASK : \
+        (port) == 4 ? _GPIO_PORT_E_PIN_MASK : \
+        (port) == 5 ? _GPIO_PORT_F_PIN_MASK : \
+        0)
+#endif
+
+/** Validation of port and pin */
+#define GPIO_PORT_VALID(port)          ( _GPIO_PORT_MASK(port) )
+#define GPIO_PORT_PIN_VALID(port, pin) ((( _GPIO_PORT_MASK(port)) >> (pin)) & 0x1 )
+
+#define GPIO_PIN_MAX  15
+
+#if defined( _GPIO_PORT_G_PIN_COUNT ) && defined( _GPIO_PORT_H_PIN_COUNT )
+#define GPIO_PORT_MAX  7
+#else
+#define GPIO_PORT_MAX  5
+#endif
+
+/*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
 
-/** GPIO ports identificator. */
+/** GPIO ports ids. */
 typedef enum
 {
-  gpioPortA = 0, /**< Port A */
-  gpioPortB = 1, /**< Port B */
-  gpioPortC = 2, /**< Port C */
-  gpioPortD = 3, /**< Port D */
-  gpioPortE = 4, /**< Port E */
-  gpioPortF = 5  /**< Port F */
+#if ( _GPIO_PORT_A_PIN_COUNT > 0 )
+  gpioPortA = 0,
+#endif
+#if ( _GPIO_PORT_B_PIN_COUNT > 0 )
+  gpioPortB = 1,
+#endif
+#if ( _GPIO_PORT_C_PIN_COUNT > 0 )
+  gpioPortC = 2,
+#endif
+#if ( _GPIO_PORT_D_PIN_COUNT > 0 )
+  gpioPortD = 3,
+#endif
+#if ( _GPIO_PORT_E_PIN_COUNT > 0 )
+  gpioPortE = 4,
+#endif
+#if ( _GPIO_PORT_F_PIN_COUNT > 0 )
+  gpioPortF = 5
+#endif
+#if defined( _GPIO_PORT_G_PIN_COUNT ) && ( _GPIO_PORT_G_PIN_COUNT > 0 )
+  gpioPortG = 6
+#endif
+#if defined( _GPIO_PORT_H_PIN_COUNT ) && ( _GPIO_PORT_H_PIN_COUNT > 0 )
+  gpioPortH = 7
+#endif
 } GPIO_Port_TypeDef;
 
+#if defined( _GPIO_P_CTRL_DRIVEMODE_MASK )
 /** GPIO drive mode. */
 typedef enum
 {
@@ -82,8 +250,20 @@ typedef enum
   /** 2 mA */
   gpioDriveModeLow      = GPIO_P_CTRL_DRIVEMODE_LOW
 } GPIO_DriveMode_TypeDef;
+#endif
 
-/** Pin mode. For more details on each mode, please refer to the EFM32
+#if defined( _GPIO_P_CTRL_DRIVESTRENGTH_MASK )
+/** GPIO drive strength. */
+typedef enum
+{
+  /** 10 mA */
+  gpioDriveStrengthStrong   = GPIO_P_CTRL_DRIVESTRENGTH_STRONG,
+  /** 1 mA */
+  gpioDriveStrengthWeak     = GPIO_P_CTRL_DRIVESTRENGTH_WEAK
+} GPIO_DriveStrength_TypeDef;
+#endif
+
+/** Pin mode. For more details on each mode, please refer to the
  * reference manual. */
 typedef enum
 {
@@ -97,8 +277,10 @@ typedef enum
   gpioModeInputPullFilter           = _GPIO_P_MODEL_MODE0_INPUTPULLFILTER,
   /** Push-pull output */
   gpioModePushPull                  = _GPIO_P_MODEL_MODE0_PUSHPULL,
+#ifdef _GPIO_P_MODEL_MODE0_PUSHPULLDRIVE
   /** Push-pull output with drive-strength set by DRIVEMODE */
   gpioModePushPullDrive             = _GPIO_P_MODEL_MODE0_PUSHPULLDRIVE,
+#endif
   /** Wired-or output */
   gpioModeWiredOr                   = _GPIO_P_MODEL_MODE0_WIREDOR,
   /** Wired-or output with pull-down */
@@ -111,6 +293,7 @@ typedef enum
   gpioModeWiredAndPullUp            = _GPIO_P_MODEL_MODE0_WIREDANDPULLUP,
   /** Open-drain output with filter and pullup */
   gpioModeWiredAndPullUpFilter      = _GPIO_P_MODEL_MODE0_WIREDANDPULLUPFILTER,
+#ifdef _GPIO_P_MODEL_MODE0_WIREDANDDRIVE
   /** Open-drain output with drive-strength set by DRIVEMODE */
   gpioModeWiredAndDrive             = _GPIO_P_MODEL_MODE0_WIREDANDDRIVE,
   /** Open-drain output with filter and drive-strength set by DRIVEMODE */
@@ -119,23 +302,8 @@ typedef enum
   gpioModeWiredAndDrivePullUp       = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEPULLUP,
   /** Open-drain output with filter, pullup and drive-strength set by DRIVEMODE */
   gpioModeWiredAndDrivePullUpFilter = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEPULLUPFILTER
+#endif
 } GPIO_Mode_TypeDef;
-
-
-/*******************************************************************************
- *******************************   DEFINES   ***********************************
- ******************************************************************************/
-
-/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
-
-/** Validation of pin typically usable in assert statements. */
-#define GPIO_PIN_VALID(pin)           ((pin) < 16)
-
-/** Validation of port typically usable in assert statements. */
-#define GPIO_PORT_VALID(port)         ((port) <= gpioPortF)
-
-/** @endcond */
-
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -154,8 +322,8 @@ void GPIO_PinModeSet(GPIO_Port_TypeDef port,
                      GPIO_Mode_TypeDef mode,
                      unsigned int out);
 
-# if defined( GPIO_CTRL_EM4RET )
-__STATIC_INLINE void GPIO_EM4SetPinRetention(bool enable);
+# if defined( _GPIO_EM4WUEN_MASK )
+void GPIO_EM4EnablePinWakeup(uint32_t pinmask, uint32_t polaritymask);
 #endif
 
 /***************************************************************************//**
@@ -172,13 +340,19 @@ __STATIC_INLINE void GPIO_EM4SetPinRetention(bool enable);
  ******************************************************************************/
 __STATIC_INLINE void GPIO_DbgSWDClkEnable(bool enable)
 {
-  BITBAND_Peripheral(&(GPIO->ROUTE), _GPIO_ROUTE_SWCLKPEN_SHIFT, (unsigned int)enable);
+#if defined( _GPIO_ROUTE_SWCLKPEN_MASK )
+  BUS_RegBitWrite(&(GPIO->ROUTE), _GPIO_ROUTE_SWCLKPEN_SHIFT, enable);
+#elif defined( _GPIO_ROUTEPEN_SWCLKTCKPEN_MASK )
+  BUS_RegBitWrite(&(GPIO->ROUTEPEN), _GPIO_ROUTEPEN_SWCLKTCKPEN_SHIFT, enable);
+#else
+#warning "ROUTE enable for SWCLK pin is not defined."
+#endif
 }
 
 
 /***************************************************************************//**
  * @brief
- *   Enable/disable serial wire data pin.
+ *   Enable/disable serial wire data I/O pin.
  *
  * @note
  *   Disabling SWDClk will disable the debug interface, which may result in
@@ -190,11 +364,17 @@ __STATIC_INLINE void GPIO_DbgSWDClkEnable(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void GPIO_DbgSWDIOEnable(bool enable)
 {
-  BITBAND_Peripheral(&(GPIO->ROUTE), _GPIO_ROUTE_SWDIOPEN_SHIFT, (unsigned int)enable);
+#if defined( _GPIO_ROUTE_SWDIOPEN_MASK )
+  BUS_RegBitWrite(&(GPIO->ROUTE), _GPIO_ROUTE_SWDIOPEN_SHIFT, enable);
+#elif defined( _GPIO_ROUTEPEN_SWDIOTMSPEN_MASK )
+  BUS_RegBitWrite(&(GPIO->ROUTEPEN), _GPIO_ROUTEPEN_SWDIOTMSPEN_SHIFT, enable);
+#else
+#warning "ROUTE enable for SWDIO pin is not defined."
+#endif
 }
 
 
-#if defined( GPIO_ROUTE_SWOPEN )
+#if defined( _GPIO_ROUTE_SWOPEN_MASK ) || defined( _GPIO_ROUTEPEN_SWVPEN_MASK )
 /***************************************************************************//**
  * @brief
  *   Enable/Disable serial wire output pin.
@@ -210,12 +390,23 @@ __STATIC_INLINE void GPIO_DbgSWDIOEnable(bool enable)
  ******************************************************************************/
 __STATIC_INLINE void GPIO_DbgSWOEnable(bool enable)
 {
-  BITBAND_Peripheral(&(GPIO->ROUTE), _GPIO_ROUTE_SWOPEN_SHIFT, (unsigned int)enable);
+#if defined( _GPIO_ROUTE_SWOPEN_MASK )
+  BUS_RegBitWrite(&(GPIO->ROUTE), _GPIO_ROUTE_SWOPEN_SHIFT, enable);
+#elif defined( _GPIO_ROUTEPEN_SWVPEN_MASK )
+  BUS_RegBitWrite(&(GPIO->ROUTEPEN), _GPIO_ROUTEPEN_SWVPEN_SHIFT, enable);
+#else
+#warning "ROUTE enable for SWO/SWV pin is not defined."
+#endif
 }
 #endif
 
+#if defined (_GPIO_P_CTRL_DRIVEMODE_MASK)
 void GPIO_DriveModeSet(GPIO_Port_TypeDef port, GPIO_DriveMode_TypeDef mode);
+#endif
 
+#if defined( _GPIO_P_CTRL_DRIVESTRENGTH_MASK )
+void GPIO_DriveStrengthSet(GPIO_Port_TypeDef port, GPIO_DriveStrength_TypeDef mode);
+#endif
 
 # if defined( _GPIO_EM4WUEN_MASK )
 /**************************************************************************//**
@@ -235,40 +426,7 @@ __STATIC_INLINE void GPIO_EM4DisablePinWakeup(uint32_t pinmask)
 #endif
 
 
-# if defined( _GPIO_EM4WUEN_MASK )
-/**************************************************************************//**
- * @brief
- *   Enable GPIO pin wake-up from EM4. When the function exits,
- *   EM4 mode can be safely entered.
- *
- * @note
- *   It is assumed that the GPIO pin modes are set correctly.
- *   Valid modes are @ref gpioModeInput and @ref gpioModeInputPull.
- *
- * @param[in] pinmask
- *   Bitmask containing the bitwise logic OR of which GPIO pin(s) to enable.
- *   Refer to Reference Manuals for pinmask to GPIO port/pin mapping.
- * @param[in] polaritymask
- *   Bitmask containing the bitwise logic OR of GPIO pin(s) wake-up polarity.
- *   Refer to Reference Manuals for pinmask to GPIO port/pin mapping.
- *****************************************************************************/
-__STATIC_INLINE void GPIO_EM4EnablePinWakeup(uint32_t pinmask,
-                                             uint32_t polaritymask)
-{
-  EFM_ASSERT((pinmask & ~_GPIO_EM4WUEN_MASK) == 0);
-  EFM_ASSERT((polaritymask & ~_GPIO_EM4WUPOL_MASK) == 0);
-
-  GPIO->EM4WUPOL &= ~pinmask;               /* Set wakeup polarity */
-  GPIO->EM4WUPOL |= pinmask & polaritymask;
-  GPIO->EM4WUEN  |= pinmask;                /* Enable wakeup */
-
-  GPIO_EM4SetPinRetention(true);            /* Enable pin retention */
-
-  GPIO->CMD = GPIO_CMD_EM4WUCLR;            /* Clear wake-up logic */
-}
-#endif
-
-#if defined( _GPIO_EM4WUCAUSE_MASK )
+#if defined( _GPIO_EM4WUCAUSE_MASK ) || defined( _RMU_RSTCAUSE_EM4RST_MASK )
 /**************************************************************************//**
  * @brief
  *   Check which GPIO pin(s) that caused a wake-up from EM4.
@@ -279,12 +437,16 @@ __STATIC_INLINE void GPIO_EM4EnablePinWakeup(uint32_t pinmask,
  *****************************************************************************/
 __STATIC_INLINE uint32_t GPIO_EM4GetPinWakeupCause(void)
 {
+#if defined( _GPIO_EM4WUCAUSE_MASK )
   return GPIO->EM4WUCAUSE & _GPIO_EM4WUCAUSE_MASK;
+#else
+  return RMU->RSTCAUSE & _RMU_RSTCAUSE_EM4RST_MASK;
+#endif
 }
 #endif
 
 
-# if defined( GPIO_CTRL_EM4RET )
+#if defined( GPIO_CTRL_EM4RET ) || defined( _EMU_EM4CTRL_EM4IO0RETMODE_MASK )
 /**************************************************************************//**
  * @brief
  *   Enable GPIO pin retention of output enable, output value, pull enable and
@@ -298,11 +460,21 @@ __STATIC_INLINE void GPIO_EM4SetPinRetention(bool enable)
 {
   if (enable)
   {
+#if defined( GPIO_CTRL_EM4RET )
     GPIO->CTRL |= GPIO_CTRL_EM4RET;
+#else
+    EMU->EM4CTRL = (EMU->EM4CTRL & ~_EMU_EM4CTRL_EM4IO0RETMODE_MASK)
+                   | EMU_EM4CTRL_EM4IO0RETMODE_EM4EXIT;
+#endif
   }
   else
   {
+#if defined( GPIO_CTRL_EM4RET )
     GPIO->CTRL &= ~GPIO_CTRL_EM4RET;
+#else
+    EMU->EM4CTRL = (EMU->EM4CTRL & ~_EMU_EM4CTRL_EM4IO0RETMODE_MASK)
+                   | EMU_EM4CTRL_EM4IO0RETMODE_DISABLE;
+#endif
   }
 }
 #endif
@@ -321,8 +493,8 @@ __STATIC_INLINE void GPIO_EM4SetPinRetention(bool enable)
  *   @li GPIO_INSENSE_PRS - peripheral reflex system input sensing.
  *
  * @param[in] mask
- *   Mask containing bitwise logic OR of bits similar as for @p val used to indicate
- *   which input sense options to disable/enable.
+ *   Mask containing bitwise logic OR of bits similar as for @p val used to
+ *   indicate which input sense options to disable/enable.
  ******************************************************************************/
 __STATIC_INLINE void GPIO_InputSenseSet(uint32_t val, uint32_t mask)
 {
@@ -451,11 +623,11 @@ __STATIC_INLINE void GPIO_Lock(void)
  * @return
  *   The pin value, 0 or 1.
  ******************************************************************************/
-__STATIC_INLINE unsigned int GPIO_PinInGet(GPIO_Port_TypeDef port, unsigned int pin)
+__STATIC_INLINE unsigned int GPIO_PinInGet(GPIO_Port_TypeDef port,
+                                           unsigned int pin)
 {
-  EFM_ASSERT(GPIO_PORT_VALID(port) && GPIO_PIN_VALID(pin));
-
-  return((unsigned int)((GPIO->P[port].DIN >> pin) & 0x1));
+  EFM_ASSERT(GPIO_PORT_PIN_VALID(port, pin));
+  return BUS_RegBitRead(&GPIO->P[port].DIN, pin);
 }
 
 
@@ -476,9 +648,12 @@ __STATIC_INLINE unsigned int GPIO_PinInGet(GPIO_Port_TypeDef port, unsigned int 
  ******************************************************************************/
 __STATIC_INLINE void GPIO_PinOutClear(GPIO_Port_TypeDef port, unsigned int pin)
 {
-  EFM_ASSERT(GPIO_PORT_VALID(port) && GPIO_PIN_VALID(pin));
-
+  EFM_ASSERT(GPIO_PORT_PIN_VALID(port, pin));
+#if defined( _GPIO_P_DOUTCLR_MASK )
   GPIO->P[port].DOUTCLR = 1 << pin;
+#else
+  BUS_RegBitWrite(&GPIO->P[port].DOUT, pin, 0);
+#endif
 }
 
 
@@ -495,11 +670,11 @@ __STATIC_INLINE void GPIO_PinOutClear(GPIO_Port_TypeDef port, unsigned int pin)
  * @return
  *   The DOUT setting for the requested pin, 0 or 1.
  ******************************************************************************/
-__STATIC_INLINE unsigned int GPIO_PinOutGet(GPIO_Port_TypeDef port, unsigned int pin)
+__STATIC_INLINE unsigned int GPIO_PinOutGet(GPIO_Port_TypeDef port,
+                                            unsigned int pin)
 {
-  EFM_ASSERT(GPIO_PORT_VALID(port) && GPIO_PIN_VALID(pin));
-
-  return((unsigned int)((GPIO->P[port].DOUT >> pin) & 0x1));
+  EFM_ASSERT(GPIO_PORT_PIN_VALID(port, pin));
+  return BUS_RegBitRead(&GPIO->P[port].DOUT, pin);
 }
 
 
@@ -520,9 +695,12 @@ __STATIC_INLINE unsigned int GPIO_PinOutGet(GPIO_Port_TypeDef port, unsigned int
  ******************************************************************************/
 __STATIC_INLINE void GPIO_PinOutSet(GPIO_Port_TypeDef port, unsigned int pin)
 {
-  EFM_ASSERT(GPIO_PORT_VALID(port) && GPIO_PIN_VALID(pin));
-
+  EFM_ASSERT(GPIO_PORT_PIN_VALID(port, pin));
+#if defined( _GPIO_P_DOUTSET_MASK )
   GPIO->P[port].DOUTSET = 1 << pin;
+#else
+  BUS_RegBitWrite(&GPIO->P[port].DOUT, pin, 1);
+#endif
 }
 
 
@@ -543,7 +721,7 @@ __STATIC_INLINE void GPIO_PinOutSet(GPIO_Port_TypeDef port, unsigned int pin)
  ******************************************************************************/
 __STATIC_INLINE void GPIO_PinOutToggle(GPIO_Port_TypeDef port, unsigned int pin)
 {
-  EFM_ASSERT(GPIO_PORT_VALID(port) && GPIO_PIN_VALID(pin));
+  EFM_ASSERT(GPIO_PORT_PIN_VALID(port, pin));
 
   GPIO->P[port].DOUTTGL = 1 << pin;
 }
@@ -560,7 +738,7 @@ __STATIC_INLINE uint32_t GPIO_PortInGet(GPIO_Port_TypeDef port)
 {
   EFM_ASSERT(GPIO_PORT_VALID(port));
 
-  return(GPIO->P[port].DIN & _GPIO_P_DIN_DIN_MASK);
+  return GPIO->P[port].DIN;
 }
 
 
@@ -582,8 +760,11 @@ __STATIC_INLINE uint32_t GPIO_PortInGet(GPIO_Port_TypeDef port)
 __STATIC_INLINE void GPIO_PortOutClear(GPIO_Port_TypeDef port, uint32_t pins)
 {
   EFM_ASSERT(GPIO_PORT_VALID(port));
-
-  GPIO->P[port].DOUTCLR = pins & _GPIO_P_DOUTCLR_DOUTCLR_MASK;
+#if defined( _GPIO_P_DOUTCLR_MASK )
+  GPIO->P[port].DOUTCLR = pins;
+#else
+  BUS_RegMaskedClear(&GPIO->P[port].DOUT, pins);
+#endif
 }
 
 
@@ -601,7 +782,7 @@ __STATIC_INLINE uint32_t GPIO_PortOutGet(GPIO_Port_TypeDef port)
 {
   EFM_ASSERT(GPIO_PORT_VALID(port));
 
-  return(GPIO->P[port].DOUT & _GPIO_P_DOUT_DOUT_MASK);
+  return GPIO->P[port].DOUT;
 }
 
 
@@ -623,8 +804,11 @@ __STATIC_INLINE uint32_t GPIO_PortOutGet(GPIO_Port_TypeDef port)
 __STATIC_INLINE void GPIO_PortOutSet(GPIO_Port_TypeDef port, uint32_t pins)
 {
   EFM_ASSERT(GPIO_PORT_VALID(port));
-
-  GPIO->P[port].DOUTSET = pins & _GPIO_P_DOUTSET_DOUTSET_MASK;
+#if defined( _GPIO_P_DOUTSET_MASK )
+  GPIO->P[port].DOUTSET = pins;
+#else
+  BUS_RegMaskedSet(&GPIO->P[port].DOUT, pins);
+#endif
 }
 
 
@@ -646,7 +830,9 @@ __STATIC_INLINE void GPIO_PortOutSet(GPIO_Port_TypeDef port, uint32_t pins)
  * @param[in] mask
  *   Mask indicating which bits to modify.
  ******************************************************************************/
-__STATIC_INLINE void GPIO_PortOutSetVal(GPIO_Port_TypeDef port, uint32_t val, uint32_t mask)
+__STATIC_INLINE void GPIO_PortOutSetVal(GPIO_Port_TypeDef port,
+                                        uint32_t val,
+                                        uint32_t mask)
 {
   EFM_ASSERT(GPIO_PORT_VALID(port));
 
@@ -656,7 +842,7 @@ __STATIC_INLINE void GPIO_PortOutSetVal(GPIO_Port_TypeDef port, uint32_t val, ui
 
 /***************************************************************************//**
  * @brief
- *   Toggle a single pin in GPIO port data out register.
+ *   Toggle pins in GPIO port data out register.
  *
  * @note
  *   In order for the setting to take effect on the output pad, the pin must
@@ -673,7 +859,7 @@ __STATIC_INLINE void GPIO_PortOutToggle(GPIO_Port_TypeDef port, uint32_t pins)
 {
   EFM_ASSERT(GPIO_PORT_VALID(port));
 
-  GPIO->P[port].DOUTTGL = pins & _GPIO_P_DOUTTGL_DOUTTGL_MASK;
+  GPIO->P[port].DOUTTGL = pins;
 }
 
 
@@ -686,7 +872,6 @@ __STATIC_INLINE void GPIO_Unlock(void)
   GPIO->LOCK = GPIO_LOCK_LOCKKEY_UNLOCK;
 }
 
-
 /** @} (end addtogroup GPIO) */
 /** @} (end addtogroup EM_Library) */
 
@@ -695,4 +880,4 @@ __STATIC_INLINE void GPIO_Unlock(void)
 #endif
 
 #endif /* defined(GPIO_COUNT) && (GPIO_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_GPIO_H_ */
+#endif /* __SILICON_LABS_EM_GPIO_H__ */

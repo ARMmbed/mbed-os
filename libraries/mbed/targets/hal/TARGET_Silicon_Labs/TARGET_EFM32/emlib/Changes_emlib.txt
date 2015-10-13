@@ -1,6 +1,30 @@
 ================ Revision history ============================================
+4.1.0:
+ - The typedef EMU_EM23Init_TypeDef which is a parameter to EMU_EM23Init()
+   has got a new definition.
+
+4.0.0:
+ - Use ARM CMSIS version 4.2.0.
+ - New style version macros in em_version.h.
+
+3.20.14:
+ - USB release only.
+
+3.20.13:
+ - Added new style family #defines in em_system.h, including EZR32 families.
+ - Fixed I2C_FREQ_STANDARD_MAX macros.
+ - Fixed bug in MSC_WriteWord which called internal functions that were linked
+   to flash for armgcc. All subsequent calls of MSC_WriteWord should now be
+   linked to RAM for all supported compilers. The internals of MSC_WriteWord
+   will check the global variable SystemCoreClock in order to make sure the
+   frequency is high enough for flash operations. If the core clock frequency
+   is changed, software is responsible for calling MSC_Init or
+   SystemCoreClockGet in order to set the SystemCoreClock variable to the
+   correct value.
+ - Added errata fix IDAC_101.
+
 3.20.12:
- - Added errata fix EMU_108 and IDAC101.
+ - Added errata fix EMU_108.
  - #ifdef's now use register defines instead of a mix of register and family defines.
  - Added a case for when there are only 4 DMA channels available:
    Alignment was (correctly) defined at 7 bit, but got asserted for 8 bit, leading

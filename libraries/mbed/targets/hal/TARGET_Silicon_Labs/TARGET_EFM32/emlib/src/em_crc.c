@@ -1,6 +1,6 @@
 /***************************************************************************//**
- * @file em_prs.h
- * @brief Peripheral Reflex System (PRS) peripheral API
+ * @file
+ * @brief Cyclic Redundancy Check (CRC) API.
  * @version 4.1.0
  *******************************************************************************
  * @section License
@@ -30,15 +30,10 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_PRS_H__
-#define __SILICON_LABS_EM_PRS_H__
+#include "em_crc.h"
+#include "em_assert.h"
 
-#include "em_device.h"
-#if defined(PRS_COUNT) && (PRS_COUNT > 0)
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#if defined(CRC_COUNT) && (CRC_COUNT > 0)
 
 /***************************************************************************//**
  * @addtogroup EM_Library
@@ -46,7 +41,7 @@ extern "C" {
  ******************************************************************************/
 
 /***************************************************************************//**
- * @addtogroup PRS
+ * @addtogroup CRC
  * @{
  ******************************************************************************/
 
@@ -54,77 +49,74 @@ extern "C" {
  ********************************   ENUMS   ************************************
  ******************************************************************************/
 
-/** Edge detection type. */
-typedef enum
-{
-  prsEdgeOff  = PRS_CH_CTRL_EDSEL_OFF,      /**< Leave signal as is. */
-  prsEdgePos  = PRS_CH_CTRL_EDSEL_POSEDGE,  /**< Generate pules on positive edge. */
-  prsEdgeNeg  = PRS_CH_CTRL_EDSEL_NEGEDGE,  /**< Generate pules on negative edge. */
-  prsEdgeBoth = PRS_CH_CTRL_EDSEL_BOTHEDGES /**< Generate pules on both edges. */
-} PRS_Edge_TypeDef;
 
 /*******************************************************************************
- *****************************   PROTOTYPES   **********************************
+ *******************************   STRUCTS   ***********************************
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ ***************************   GLOBAL FUNCTIONS   ******************************
  ******************************************************************************/
 
 /***************************************************************************//**
  * @brief
- *   Set level control bit for one or more channels.
+ *   Initialize the Cyclic Redundancy Check (CRC) module of EFR.
  *
  * @details
- *   The level value for a channel is XORed with both the pulse possible issued
- *   by PRS_PulseTrigger() and the PRS input signal selected for the channel(s).
+ *   Use this function to configure the main operational parameters of the CRC
+ *   such as CRC bytes, number of valid input bits, input/output bit- and bit
+ *   order reversing.
+ *   Refer to EFR Reference Manual Chapter 14 and the configuration structure
+ *   CRC_Init_TypeDef for more details.
  *
- * @param[in] level
- *   Level to use for channels indicated by @p mask. Use logical OR combination
- *   of PRS_SWLEVEL_CHnLEVEL defines for channels to set high level, otherwise 0.
+ * @note
+ *   Internal notes:
+ *   - Initialize the CRC in the Init() function or let users use the separate
+ *   command function?
  *
- * @param[in] mask
- *   Mask indicating which channels to set level for. Use logical OR combination
- *   of PRS_SWLEVEL_CHnLEVEL defines.
+ * @param[in] init
+ *   Pointer to initialization structure used to configure the CRC.
  ******************************************************************************/
-__STATIC_INLINE void PRS_LevelSet(uint32_t level, uint32_t mask)
+void CRC_Init(CRC_Init_TypeDef const *init)
 {
-  PRS->SWLEVEL = (PRS->SWLEVEL & ~mask) | (level & mask);
+  /* Sanity check of bitsPerWord. */
+  EFM_ASSERT(init->bitsPerWord < 16U);
+
+  /* Set CRC control configuration parameters such as CRC width, byte and bit
+   * bit order, the number of bits per word, inverting input/output, etc. */
+  CRC->CTRL = (uint32_t)init->crcWidth
+              | (uint32_t)init->byteReverse
+              | (uint32_t)init->inputBitOrder
+              | (uint32_t)init->bitReverse
+              | ((uint32_t)init->bitsPerWord >> _CRC_CTRL_BITSPERWORD_SHIFT)
+              | ((uint32_t)init->inputPadding >> _CRC_CTRL_PADCRCINPUT_SHIFT)
+              | ((uint32_t)init->invInput >> _CRC_CTRL_INPUTINV_SHIFT)
+              | ((uint32_t)init->invOutput >> _CRC_CTRL_OUTPUTINV_SHIFT);
+
+  /* Set CRC polynomial value. */
+  CRC->POLY = init->crcPoly;
+
+  /* Load CRC initialization value to CRC_INIT. Please note, that the
+   * initialization is not performed here! */
+  CRC->INIT = init->initValue;
 }
 
 
 /***************************************************************************//**
  * @brief
- *   Trigger a high pulse (one HFPERCLK) for one or more channels.
- *
- * @details
- *   Setting a bit for a channel causes the bit in the register to remain high
- *   for one HFPERCLK cycle. The pulse is XORed with both the corresponding bit
- *   in PRS SWLEVEL register and the PRS input signal selected for the
- *   channel(s).
- *
- * @param[in] channels
- *   Logical ORed combination of channels to trigger a pulse for. Use
- *   PRS_SWPULSE_CHnPULSE defines.
+ *   Reset CRC registers to the hardware reset state.
  ******************************************************************************/
-__STATIC_INLINE void PRS_PulseTrigger(uint32_t channels)
+void CRC_Reset(void)
 {
-  PRS->SWPULSE = channels & _PRS_SWPULSE_MASK;
+  /* Reset CRC registers to their default value. */
+  CRC->CTRL = _CRC_CTRL_RESETVALUE;
+  CRC->POLY = _CRC_POLY_RESETVALUE;
+  CRC->INIT = _CRC_INIT_RESETVALUE;
 }
 
-void PRS_SourceSignalSet(unsigned int ch,
-                         uint32_t source,
-                         uint32_t signal,
-                         PRS_Edge_TypeDef edge);
 
-#if defined( PRS_CH_CTRL_ASYNC )
-void PRS_SourceAsyncSignalSet(unsigned int ch,
-                              uint32_t source,
-                              uint32_t signal);
-#endif
-
-/** @} (end addtogroup PRS) */
+/** @} (end addtogroup CRC) */
 /** @} (end addtogroup EM_Library) */
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* defined(PRS_COUNT) && (PRS_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_PRS_H__ */
+#endif /* defined(CRC_COUNT) && (CRC_COUNT > 0) */
