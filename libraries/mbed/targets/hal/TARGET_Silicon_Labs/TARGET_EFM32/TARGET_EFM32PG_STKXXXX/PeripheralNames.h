@@ -39,16 +39,11 @@ extern "C" {
 #endif
 
 typedef enum {
-    DAC_0 = DAC0_BASE
-} DACName;
-
-typedef enum {
     ADC_0 = ADC0_BASE
 } ADCName;
 
 typedef enum {
     I2C_0 = I2C0_BASE,
-    I2C_1 = I2C1_BASE
 } I2CName;
 
 typedef enum {
@@ -59,12 +54,9 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-    UART_0 = UART0_BASE,
-    UART_1 = UART1_BASE,
     USART_0 = USART0_BASE,
     USART_1 = USART1_BASE,
     LEUART_0 = LEUART0_BASE,
-    LEUART_1 = LEUART1_BASE
 } UARTName;
 
 #define STDIO_UART_TX     USBTX
@@ -74,7 +66,6 @@ typedef enum {
 typedef enum {
     SPI_0 = USART0_BASE,
     SPI_1 = USART1_BASE,
-    SPI_2 = USART2_BASE
 } SPIName;
 
 #ifdef __cplusplus
