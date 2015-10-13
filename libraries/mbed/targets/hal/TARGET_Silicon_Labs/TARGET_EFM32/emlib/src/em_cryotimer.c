@@ -1,6 +1,6 @@
 /***************************************************************************//**
- * @file em_version.h
- * @brief Assign correct part number for include file
+ * @file em_cryotimer.c
+ * @brief Ultra Low Energy Timer/Counter (CRYOTIMER) peripheral API
  * @version 4.1.0
  *******************************************************************************
  * @section License
@@ -12,9 +12,9 @@
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- *    claim that you wrote the original software.
+ *    claim that you wrote the original software.@n
  * 2. Altered source versions must be plainly marked as such, and must not be
- *    misrepresented as being the original software.
+ *    misrepresented as being the original software.@n
  * 3. This notice may not be removed or altered from any source distribution.
  *
  * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
@@ -30,57 +30,32 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_EM_VERSION_H__
-#define __SILICON_LABS_EM_VERSION_H__
+#include "em_cryotimer.h"
+#include "em_bus.h"
 
-#include "em_device.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#if defined(CRYOTIMER_PRESENT) && (CRYOTIMER_COUNT == 1)
 
 /***************************************************************************//**
- * @addtogroup EM_Library
- * @{
+ * @brief
+ *   Initialize the CRYOTIMER.
+ *
+ * @details
+ *   Use this function to initialize the CRYOTIMER.
+ *   Select prescaler setting and select low frequency oscillator.
+ *   Refer to the configuration structure @ref CRYOTIMER_Init_TypeDef for more
+ *   details.
+ *
+ * @param[in] init
+ *   Pointer to initialization structure.
  ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup VERSION
- * @{
- ******************************************************************************/
-
-/** Version number of emlib peripheral API. */
-#define _EMLIB_VERSION 4.1.0
-
-/** Major version of emlib. Bumped when incompatible API changes introduced. */
-#define _EMLIB_VERSION_MAJOR 4
-
-/** Minor version of emlib. Bumped when functionality is added in a backwards-
-    compatible manner. */
-#define _EMLIB_VERSION_MINOR 1
-
-/** Patch revision of emlib. Bumped when adding backwards-compatible bug
-    fixes.*/
-#define _EMLIB_VERSION_PATCH 0
-
-
-/** Version number of targeted CMSIS package. */
-#define _CMSIS_VERSION 4.2.0
-
-/** Major version of CMSIS. */
-#define _CMSIS_VERSION_MAJOR 4
-
-/** Minor version of CMSIS. */
-#define _CMSIS_VERSION_MINOR 2
-
-/** Patch revision of CMSIS. */
-#define _CMSIS_VERSION_PATCH 0
-
-/** @} (end addtogroup Version) */
-/** @} (end addtogroup EM_Library) */
-
-#ifdef __cplusplus
+void CRYOTIMER_Init(const CRYOTIMER_Init_TypeDef *init)
+{
+  CRYOTIMER->PERIODSEL = (uint32_t)init->period & _CRYOTIMER_PERIODSEL_MASK;
+  CRYOTIMER->CTRL = ((uint32_t)init->enable << _CRYOTIMER_CTRL_EN_SHIFT)
+                  | ((uint32_t)init->debugRun << _CRYOTIMER_CTRL_DEBUGRUN_SHIFT)
+                  | ((uint32_t)init->osc << _CRYOTIMER_CTRL_OSCSEL_SHIFT)
+                  | ((uint32_t)init->presc << _CRYOTIMER_CTRL_PRESC_SHIFT);
+  CRYOTIMER_EM4WakeupEnable(init->em4Wakeup);
 }
-#endif
 
-#endif /* __SILICON_LABS_EM_VERSION_H__ */
+#endif /* defined(CRYOTIMER_PRESENT) && (CRYOTIMER_COUNT > 0) */

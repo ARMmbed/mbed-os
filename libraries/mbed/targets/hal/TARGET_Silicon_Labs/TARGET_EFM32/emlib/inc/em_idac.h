@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_idac.h
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 3.20.12
+ * @version 4.1.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,9 +30,8 @@
  *
  ******************************************************************************/
 
-
-#ifndef __SILICON_LABS_EM_IDAC_H_
-#define __SILICON_LABS_EM_IDAC_H_
+#ifndef __SILICON_LABS_EM_IDAC_H__
+#define __SILICON_LABS_EM_IDAC_H__
 
 #include "em_device.h"
 
@@ -67,8 +66,43 @@ extern "C" {
 /** Output mode. */
 typedef enum
 {
+#if defined( _IDAC_CTRL_OUTMODE_PIN )
   idacOutputPin     = IDAC_CTRL_OUTMODE_PIN,     /**< Output to IDAC OUT pin */
   idacOutputADC     = IDAC_CTRL_OUTMODE_ADC      /**< Output to ADC */
+#else
+  idacOutputAportBus1xCh0 = IDAC_CTRL_OUTMODE_BUS1XCH0, /**< Output to APORT Bus1X Ch0 */
+  idacOutputAportBus1yCh1 = IDAC_CTRL_OUTMODE_BUS1YCH1, /**< Output to APORT Bus1Y Ch1 */
+  idacOutputAportBus1xCh2 = IDAC_CTRL_OUTMODE_BUS1XCH2, /**< Output to APORT Bus1X Ch2 */
+  idacOutputAportBus1yCh3 = IDAC_CTRL_OUTMODE_BUS1YCH3, /**< Output to APORT Bus1Y Ch3 */
+  idacOutputAportBus1xCh4 = IDAC_CTRL_OUTMODE_BUS1XCH4, /**< Output to APORT Bus1X Ch4 */
+  idacOutputAportBus1yCh5 = IDAC_CTRL_OUTMODE_BUS1YCH5, /**< Output to APORT Bus1Y Ch5 */
+  idacOutputAportBus1xCh6 = IDAC_CTRL_OUTMODE_BUS1XCH6, /**< Output to APORT Bus1X Ch6 */
+  idacOutputAportBus1yCh7 = IDAC_CTRL_OUTMODE_BUS1YCH7, /**< Output to APORT Bus1Y Ch7 */
+  idacOutputAportBus1xCh8 = IDAC_CTRL_OUTMODE_BUS1XCH8, /**< Output to APORT Bus1X Ch8 */
+  idacOutputAportBus1yCh9 = IDAC_CTRL_OUTMODE_BUS1YCH9, /**< Output to APORT Bus1Y Ch9 */
+  idacOutputAportBus1xCh10 = IDAC_CTRL_OUTMODE_BUS1XCH10, /**< Output to APORT Bus1X Ch10 */
+  idacOutputAportBus1yCh11 = IDAC_CTRL_OUTMODE_BUS1YCH11, /**< Output to APORT Bus1Y Ch11 */
+  idacOutputAportBus1xCh12 = IDAC_CTRL_OUTMODE_BUS1XCH12, /**< Output to APORT Bus1X Ch12 */
+  idacOutputAportBus1yCh13 = IDAC_CTRL_OUTMODE_BUS1YCH13, /**< Output to APORT Bus1Y Ch13 */
+  idacOutputAportBus1xCh14 = IDAC_CTRL_OUTMODE_BUS1XCH14, /**< Output to APORT Bus1X Ch14 */
+  idacOutputAportBus1yCh15 = IDAC_CTRL_OUTMODE_BUS1YCH15, /**< Output to APORT Bus1Y Ch15 */
+  idacOutputAportBus1xCh16 = IDAC_CTRL_OUTMODE_BUS1XCH16, /**< Output to APORT Bus1X Ch16 */
+  idacOutputAportBus1yCh17 = IDAC_CTRL_OUTMODE_BUS1YCH17, /**< Output to APORT Bus1Y Ch17 */
+  idacOutputAportBus1xCh18 = IDAC_CTRL_OUTMODE_BUS1XCH18, /**< Output to APORT Bus1X Ch18 */
+  idacOutputAportBus1yCh19 = IDAC_CTRL_OUTMODE_BUS1YCH19, /**< Output to APORT Bus1Y Ch19 */
+  idacOutputAportBus1xCh20 = IDAC_CTRL_OUTMODE_BUS1XCH20, /**< Output to APORT Bus1X Ch20 */
+  idacOutputAportBus1yCh21 = IDAC_CTRL_OUTMODE_BUS1YCH21, /**< Output to APORT Bus1Y Ch21 */
+  idacOutputAportBus1xCh22 = IDAC_CTRL_OUTMODE_BUS1XCH22, /**< Output to APORT Bus1X Ch22 */
+  idacOutputAportBus1yCh23 = IDAC_CTRL_OUTMODE_BUS1YCH23, /**< Output to APORT Bus1Y Ch23 */
+  idacOutputAportBus1xCh24 = IDAC_CTRL_OUTMODE_BUS1XCH24, /**< Output to APORT Bus1X Ch24 */
+  idacOutputAportBus1yCh25 = IDAC_CTRL_OUTMODE_BUS1YCH25, /**< Output to APORT Bus1Y Ch25 */
+  idacOutputAportBus1xCh26 = IDAC_CTRL_OUTMODE_BUS1XCH26, /**< Output to APORT Bus1X Ch26 */
+  idacOutputAportBus1yCh27 = IDAC_CTRL_OUTMODE_BUS1YCH27, /**< Output to APORT Bus1Y Ch27 */
+  idacOutputAportBus1xCh28 = IDAC_CTRL_OUTMODE_BUS1XCH28, /**< Output to APORT Bus1X Ch28 */
+  idacOutputAportBus1yCh29 = IDAC_CTRL_OUTMODE_BUS1YCH29, /**< Output to APORT Bus1Y Ch29 */
+  idacOutputAportBus1xCh30 = IDAC_CTRL_OUTMODE_BUS1XCH30, /**< Output to APORT Bus1X Ch30 */
+  idacOutputAportBus1yCh31 = IDAC_CTRL_OUTMODE_BUS1YCH31, /**< Output to APORT Bus1Y Ch31 */
+#endif
 } IDAC_OutMode_TypeDef;
 
 
@@ -80,28 +114,16 @@ typedef enum
   idacPRSSELCh1 = IDAC_CTRL_PRSSEL_PRSCH1,      /**< PRS channel 1. */
   idacPRSSELCh2 = IDAC_CTRL_PRSSEL_PRSCH2,      /**< PRS channel 2. */
   idacPRSSELCh3 = IDAC_CTRL_PRSSEL_PRSCH3,      /**< PRS channel 3. */
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH4 )
+#if defined( IDAC_CTRL_PRSSEL_PRSCH4 )
   idacPRSSELCh4 = IDAC_CTRL_PRSSEL_PRSCH4,      /**< PRS channel 4. */
-#endif
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH5 )
   idacPRSSELCh5 = IDAC_CTRL_PRSSEL_PRSCH5,      /**< PRS channel 5. */
 #endif
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH6 )
+#if defined( IDAC_CTRL_PRSSEL_PRSCH6 )
   idacPRSSELCh6 = IDAC_CTRL_PRSSEL_PRSCH6,      /**< PRS channel 6. */
-#endif
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH7 )
   idacPRSSELCh7 = IDAC_CTRL_PRSSEL_PRSCH7,      /**< PRS channel 7. */
-#endif
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH8 )
   idacPRSSELCh8 = IDAC_CTRL_PRSSEL_PRSCH8,      /**< PRS channel 8. */
-#endif
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH9 )
   idacPRSSELCh9 = IDAC_CTRL_PRSSEL_PRSCH9,      /**< PRS channel 9. */
-#endif
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH10 )
   idacPRSSELCh10 = IDAC_CTRL_PRSSEL_PRSCH10,    /**< PRS channel 10 */
-#endif
-#if  defined( IDAC_CTRL_PRSSEL_PRSCH11 )
   idacPRSSELCh11 = IDAC_CTRL_PRSSEL_PRSCH11,    /**< PRS channel 11 */
 #endif
 } IDAC_PRSSEL_TypeDef;
@@ -148,13 +170,25 @@ typedef struct
 } IDAC_Init_TypeDef;
 
 /** Default config for IDAC init structure. */
-#define IDAC_INIT_DEFAULT                                             \
-  { false,          /* Leave IDAC disabled when init done. */         \
-    idacOutputPin,   /* Output to IDAC OUT pin. */                     \
-    false,          /* Disable PRS triggering. */                     \
-    idacPRSSELCh0,  /* Select PRS ch0 (if PRS triggering enabled). */ \
-    false           /* Disable current sink mode. */                  \
-  }
+#if defined( _IDAC_CTRL_OUTMODE_PIN )
+#define IDAC_INIT_DEFAULT                                              \
+{                                                                      \
+  false,          /**< Leave IDAC disabled when init done. */          \
+  idacOutputPin,  /**< Output to IDAC output pin. */                   \
+  false,          /**< Disable PRS triggering. */                      \
+  idacPRSSELCh0,  /**< Select PRS ch0 (if PRS triggering enabled). */  \
+  false           /**< Disable current sink mode. */                   \
+}
+#else
+#define IDAC_INIT_DEFAULT                                              \
+{                                                                      \
+  false,          /**< Leave IDAC disabled when init done. */          \
+  idacOutputAportBus1xCh0,  /**< Output to APORT. */                   \
+  false,          /**< Disable PRS triggering. */                      \
+  idacPRSSELCh0,  /**< Select PRS ch0 (if PRS triggering enabled). */  \
+  false           /**< Disable current sink mode. */                   \
+}
+#endif
 
 
 /*******************************************************************************
@@ -271,4 +305,4 @@ void IDAC_OutEnable(IDAC_TypeDef *idac, bool enable);
 
 #endif /* defined(IDAC_COUNT) && (IDAC_COUNT > 0) */
 
-#endif /* __SILICON_LABS_EM_IDAC_H_ */
+#endif /* __SILICON_LABS_EM_IDAC_H__ */

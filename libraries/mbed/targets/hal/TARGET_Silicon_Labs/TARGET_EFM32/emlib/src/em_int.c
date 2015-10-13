@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file em_int.c
  * @brief Interrupt enable/disable unit API
- * @version 3.20.12
+ * @version 4.1.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,7 +29,6 @@
  * arising from your use of this Software.
  *
  ******************************************************************************/
-
 
 #include <stdint.h>
 #include "em_int.h"
@@ -67,7 +66,6 @@
 /** Interrupt lock level counter. Set to zero initially as we normally enter
  * main with interrupts enabled  */
 uint32_t INT_LockCnt = 0;
-
 
 /** @} (end addtogroup INT) */
 /** @} (end addtogroup EM_Library) */

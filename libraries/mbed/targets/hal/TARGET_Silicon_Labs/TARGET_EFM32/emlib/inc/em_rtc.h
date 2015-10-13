@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_rtc.h
  * @brief Real Time Counter (RTC) peripheral API
- * @version 3.20.12
+ * @version 4.1.0
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,9 +30,8 @@
  *
  ******************************************************************************/
 
-
-#ifndef __SILICON_LABS_EM_RTC_H_
-#define __SILICON_LABS_EM_RTC_H_
+#ifndef __SILICON_LABS_EM_RTC_H__
+#define __SILICON_LABS_EM_RTC_H__
 
 #include "em_device.h"
 #if defined(RTC_COUNT) && (RTC_COUNT > 0)
@@ -66,11 +65,12 @@ typedef struct
 } RTC_Init_TypeDef;
 
 /** Suggested default config for RTC init structure. */
-#define RTC_INIT_DEFAULT                                       \
-  { true,    /* Start counting when init done */               \
-    false,   /* Disable updating during debug halt */          \
-    true     /* Restart counting from 0 when reaching COMP0 */ \
-  }
+#define RTC_INIT_DEFAULT                                     \
+{                                                            \
+  true,    /* Start counting when init done */               \
+  false,   /* Disable updating during debug halt */          \
+  true     /* Restart counting from 0 when reaching COMP0 */ \
+}
 
 
 /*******************************************************************************
@@ -89,7 +89,7 @@ void RTC_CompareSet(unsigned int comp, uint32_t value);
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTC_CounterGet(void)
 {
-  return(RTC->CNT);
+  return RTC->CNT;
 }
 
 void RTC_CounterReset(void);
@@ -123,7 +123,7 @@ __STATIC_INLINE void RTC_IntClear(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void RTC_IntDisable(uint32_t flags)
 {
-  RTC->IEN &= ~(flags);
+  RTC->IEN &= ~flags;
 }
 
 
@@ -160,7 +160,7 @@ __STATIC_INLINE void RTC_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t RTC_IntGet(void)
 {
-  return(RTC->IF);
+  return RTC->IF;
 }
 
 
@@ -188,4 +188,4 @@ void RTC_Reset(void);
 #endif
 
 #endif /* defined(RTC_COUNT) && (RTC_COUNT > 0) */
-#endif /* __SILICON_LABS_EM_RTC_H_ */
+#endif /* __SILICON_LABS_EM_RTC_H__ */

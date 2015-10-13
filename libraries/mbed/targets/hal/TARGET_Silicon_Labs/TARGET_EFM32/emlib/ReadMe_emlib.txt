@@ -1,11 +1,8 @@
 ================ Silicon Labs Peripheral Library ============================
 
 This directory, "emlib", contains the Silicon Labs Peripheral Support
-library for the EFM32 series of microcontrollers and EFR4 series for RF
-transceivers and System-On-Chip devices.
-
-The "emlib" SW is designed to support all Silicon Labs EFM and EFR devices,
-from Gecko revision B and forward.
+library for the EFM32 and EZR32 series of microcontrollers and System-On-Chip
+devices.
 
 Some design guidelines for this library:
 
@@ -26,19 +23,19 @@ Some design guidelines for this library:
 
 ================ About CMSIS ================================================
 
-These APIs are based on EFM32_CMSIS "Device" header file structure.
+These APIs are based on EM_CMSIS "Device" header file structure.
 
 As a result of this, the library requires basic C99-support. You might have
 to enable C99 support in your compiler. Comments are in doxygen compatible
 format.
 
-The EFM32_CMSIS library contains all peripheral module registers and bit field
+The EM_CMSIS library contains all peripheral module registers and bit field
 descriptors.
 
-To download EFM32_CMSIS, go to
-    http://www.silabs.com/support/pages/software-downloads.aspx
+To download EM_CMSIS, go to
+    http://www.silabs.com/support/pages/document-library.aspx?p=MCUs--32-bit
 
-For more information about CMSIS see 
+For more information about CMSIS see
     http://www.onarm.com
     http://www.arm.com/products/CPUs/CMSIS.html
 
@@ -59,8 +56,8 @@ license.
 ================ Software updates ============================================
 
 Silicon Labs continually works to provide updated and improved emlib, example
-code and other software of use for Silicon Labs customers. Please check the 
-download section of Silicon Labs's web site at 
+code and other software of use for Silicon Labs customers. Please check the
+download section of Silicon Labs's web site at
 
         http://www.silabs.com
 
@@ -68,5 +65,4 @@ for the latest releases. If you download and install the
 Simplicity Studio application, you will be notified about updates when
 available.
 
-
-(C) Copyright Silicon Labs, 2014
+(C) Copyright Silicon Labs, 2015
