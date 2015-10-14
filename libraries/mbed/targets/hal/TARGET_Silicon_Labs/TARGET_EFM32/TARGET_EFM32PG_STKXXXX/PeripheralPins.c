@@ -33,21 +33,37 @@
 /************ADC***************/
 /* The third "function" value is used to select the correct ADC channel */
 const PinMap PinMap_ADC[] = {
-    {PD0, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH0},
-    {PD1, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH1},
-    {PD2, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH2},
-    {PD3, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH3},
-    {PD4, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH4},
-    {PD5, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH5},
-    {PD6, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH6},
-    {PD7, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH7},
-    {NC  , NC   , NC}
+    // Pearl ok
+    {PA0,  ADC_0, adcPosSelBUS3XCH8},
+    {PA2,  ADC_0, adcPosSelBUS3XCH10},  
+    {PA4,  ADC_0, adcPosSelBUS3XCH12},  
+    {PB12, ADC_0, adcPosSelBUS3XCH28},  
+    {PB14, ADC_0, adcPosSelBUS3XCH30},  
+    {PC6,  ADC_0, adcPosSelBUS1XCH6},  
+    {PC7,  ADC_0, adcPosSelBUS2XCH7},  
+    {PC8,  ADC_0, adcPosSelBUS1XCH8}, 
+    {PC9,  ADC_0, adcPosSelBUS2XCH9},  
+    {PC10, ADC_0, adcPosSelBUS1XCH10},
+    {PC11, ADC_0, adcPosSelBUS2XCH11},  
+    {PD10, ADC_0, adcPosSelBUS3XCH2},  
+    {PD11, ADC_0, adcPosSelBUS3YCH3},
+    {PD12, ADC_0, adcPosSelBUS3XCH4},
+    {PD13, ADC_0, adcPosSelBUS3YCH5},
+    {PD14, ADC_0, adcPosSelBUS3XCH6},
+    {PF0,  ADC_0, adcPosSelBUS1XCH16},
+    {PF1,  ADC_0, adcPosSelBUS2XCH17},
+    {PF2,  ADC_0, adcPosSelBUS1XCH18},
+    {PF3,  ADC_0, adcPosSelBUS2XCH19},
+    {PF4,  ADC_0, adcPosSelBUS1XCH20},
+    {PF5,  ADC_0, adcPosSelBUS2XCH21},
+    {PF6,  ADC_0, adcPosSelBUS1XCH22},
+    {PF7,  ADC_0, adcPosSelBUS2XCH23},
+    {NC ,  NC   , NC}
 };
 
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
-    {PB11, DAC_0, 0},
-    {PB12, DAC_0, 1},
+    // Pearl ok
     {NC  , NC   , NC}
 };
 
