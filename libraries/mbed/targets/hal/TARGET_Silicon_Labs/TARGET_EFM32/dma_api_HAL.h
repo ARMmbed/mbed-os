@@ -63,7 +63,9 @@ extern "C" {
 typedef struct {
     DMAUsage dmaUsageState;
     int dmaChannel;
+#ifndef LDMA_PRESENT
     DMA_CB_TypeDef dmaCallback;
+#endif
 } DMA_OPTIONS_t;
 
 typedef void (*DMACallback)(void);

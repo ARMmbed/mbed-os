@@ -30,10 +30,18 @@
 
 #include <stdint.h>
 #include "dma_api_HAL.h"
-#include "em_dma.h"
 #include "em_cmu.h"
 
+#ifdef DMA_PRESENT
+#include "em_dma.h"
+#endif
+
+#ifdef LDMA_PRESENT
+#include "em_ldma.h"
+#endif
+
 /** DMA control block array, requires proper alignment. */
+#ifdef DMA_PRESENT
 #if defined (__ICCARM__)
 #pragma data_alignment=DMACTRL_ALIGNMENT
 DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2];
@@ -47,6 +55,7 @@ DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2] __attribute__ ((align
 #else
 #error Undefined toolkit, need to define alignment
 #endif
+#endif /* DMA_PRESENT */
 
 uint32_t channels = 0; // Bit vector of taken channels
 bool enabled = false;
@@ -54,15 +63,33 @@ bool enabled = false;
 void dma_init(void)
 {
     if (enabled) return;
+
+#if defined DMA_PRESENT
+    CMU_ClockEnable(cmuClock_DMA, true);
+    CMU_ClockEnable(cmuClock_HFPER, true); // FIXME: DMA is clocked via HFCORECLK, why HFPERCLK?
+
     DMA_Init_TypeDef   dmaInit;
 
-    CMU_ClockEnable(cmuClock_DMA, true);
-    CMU_ClockEnable(cmuClock_HFPER, true);
-
-    /* Configure general DMA issues */
     dmaInit.hprot        = 0;
     dmaInit.controlBlock = dmaControlBlock;
     DMA_Init(&dmaInit);
+
+#elif defined LDMA_PRESENT
+    CMU_ClockEnable(cmuClock_BUS, true);
+    CMU_ClockEnable(cmuClock_LDMA, true);
+
+    LDMA_Init_t ldmaInit;
+
+    ldmaInit.ldmaInitCtrlNumFixed = 0;     /* All channels round-robin */
+    ldmaInit.ldmaInitCtrlSyncPrsClrEn = 0; /* Do not allow PRS to clear SYNCTRIG */
+    ldmaInit.ldmaInitCtrlSyncPrsSetEn = 0; /* Do not allow PRS to set SYNCTRIG */
+    ldmaInit.ldmaInitIrqPriority = 1;      /* IRQ Priority - FIXME: correct value? */
+
+    LDMA_Init(&ldmaInit);
+#else
+#error no dma block?
+#endif
+
     enabled = true;
 }
 
@@ -100,4 +127,3 @@ int dma_channel_free(int channelid)
     channels &= ~(1 << channelid);
     return 0;
 }
-
