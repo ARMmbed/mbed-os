@@ -34,9 +34,16 @@
 #include "rtc_api.h"
 #include "rtc_api_HAL.h"
 #include "em_cmu.h"
-#include "em_rtc.h"
 #include "sleep_api.h"
 #include "sleepmodes.h"
+
+#if (defined RTC_COUNT) && (RTC_COUNT > 0)
+#include "em_rtc.h"
+#endif
+
+#if (defined RTCC_COUNT) && (RTCC_COUNT > 0)
+#include "em_rtcc.h"
+#endif
 
 static bool         rtc_inited  = false;
 static time_t       time_base   = 0;
@@ -153,8 +160,8 @@ void RTCC_IRQHandler(void)
         time_extend += 1;
     }
 
-    if (flags & RTCC_IF_COMP0) {
-        RTCC_IntClear(RTCC_IF_COMP0);
+    if (flags & RTCC_IF_CC0) {
+        RTCC_IntClear(RTCC_IF_CC0);
         if (comp0_handler != NULL) {
             comp0_handler();
         }
