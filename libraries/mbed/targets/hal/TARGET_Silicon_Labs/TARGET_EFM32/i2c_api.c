@@ -129,8 +129,14 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     I2C_Init(obj->i2c.i2c, &i2cInit);
 
     /* Enable pins at correct location */
+#ifdef I2C_ROUTE_SDAPEN
     obj->i2c.i2c->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (obj->i2c.loc << _I2C_ROUTE_LOCATION_SHIFT);
     i2c_enable_pins(obj, true);
+#else
+    obj->i2c.i2c->ROUTEPEN  = I2C_ROUTEPEN_SDAPEN | I2C_ROUTEPEN_SCLPEN;
+    obj->i2c.i2c->ROUTELOC0 = (pin_location(obj->i2c.sda, PinMap_I2C_SDA) << _I2C_ROUTELOC0_SDALOC_SHIFT) |
+                              (pin_location(obj->i2c.scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
+#endif
 
     /* Enable General Call Address Mode. That is; we respond to the general address (0x0) */
     obj->i2c.i2c->CTRL |= _I2C_CTRL_GCAMEN_MASK;
