@@ -35,6 +35,11 @@
 #include "rtc_api_HAL.h"
 #include "lp_ticker_api.h"
 
+#include "em_int.h"
+#if (defined RTCC_COUNT) && (RTCC_COUNT > 0)
+#include "em_rtcc.h"
+#endif
+
 static int rtc_reserved = 0;
 
 void lp_ticker_init()
@@ -154,12 +159,12 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     /* Set callback */
     RTCC_ChannelCCVSet(0, (uint32_t)timestamp_ticks);
-    RTCC_IntEnable(RTCC_IF_COMP0);
+    RTCC_IntEnable(RTCC_IF_CC0);
 }
 
 inline void lp_ticker_disable_interrupt()
 {
-    RTCC_IntDisable(RTCC_IF_COMP0);
+    RTCC_IntDisable(RTCC_IF_CC0);
 
     INT_Disable();
     if(rtc_reserved) {
@@ -171,7 +176,7 @@ inline void lp_ticker_disable_interrupt()
 
 inline void lp_ticker_clear_interrupt()
 {
-    RTCC_IntClear(RTCC_IF_COMP0);
+    RTCC_IntClear(RTCC_IF_CC0);
 }
 
 timestamp_t lp_ticker_read()
