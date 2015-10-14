@@ -3530,6 +3530,8 @@ typedef struct {
 #define PIT_TCTRL_TEN_SHIFT                      0
 #define PIT_TCTRL_TIE_MASK                       0x2u
 #define PIT_TCTRL_TIE_SHIFT                      1
+#define PIT_TCTRL_CHN_MASK                       0x4u
+#define PIT_TCTRL_CHN_SHIFT                      2
 /* TFLG Bit Fields */
 #define PIT_TFLG_TIF_MASK                        0x1u
 #define PIT_TFLG_TIF_SHIFT                       0
