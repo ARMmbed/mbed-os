@@ -448,11 +448,23 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     /* Enable pins for UART at correct location */
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+#ifdef _LEUART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.leuart->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
+#else
+        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
+                                               (obj->serial.location << _LEUART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.leuart->ROUTEPEN = LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
+#endif
         obj->serial.periph.leuart->IFC = LEUART_IFC_TXC;
         obj->serial.periph.leuart->CTRL |= LEUART_CTRL_RXDMAWU | LEUART_CTRL_TXDMAWU;
     } else {
+#ifdef _USART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.uart->ROUTE = USART_ROUTE_RXPEN | USART_ROUTE_TXPEN | (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
+#else
+        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location << _USART_ROUTELOC0_TXLOC_SHIFT) |
+                                             (obj->serial.location << _USART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.uart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
+#endif
         obj->serial.periph.uart->IFC = USART_IFC_TXC;
     }
 
@@ -587,7 +599,13 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         LEUART_Init(obj->serial.periph.leuart, &init);
 
         /* Re-enable pins for UART at correct location */
+#ifdef _LEUART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.leuart->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
+#else
+        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
+                                               (obj->serial.location << _LEUART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.leuart->ROUTEPEN = LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
+#endif
 
         /* Re-enable interrupts */
         if(was_enabled != 0) {
@@ -632,7 +650,13 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         USART_InitAsync(obj->serial.periph.uart, &init);
 
         /* Re-enable pins for UART at correct location */
+#ifdef _USART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.uart->ROUTE = USART_ROUTE_RXPEN | USART_ROUTE_TXPEN | (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
+#else
+        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location << _USART_ROUTELOC0_TXLOC_SHIFT) |
+                                             (obj->serial.location << _USART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.uart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
+#endif
 
         /* Re-enable interrupts */
         if(was_enabled != 0) {
