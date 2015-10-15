@@ -33,7 +33,15 @@
 
 #include <stdint.h>
 #include "dma_api.h"
+#include "em_device.h"
+
+#ifdef DMA_PRESENT
 #include "em_dma.h"
+#endif
+
+#ifdef LDMA_PRESENT
+#include "em_ldma.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,6 +73,8 @@ typedef struct {
     int dmaChannel;
 #ifndef LDMA_PRESENT
     DMA_CB_TypeDef dmaCallback;
+#else
+    LDMA_Callback_t dmaCallback;
 #endif
 } DMA_OPTIONS_t;
 

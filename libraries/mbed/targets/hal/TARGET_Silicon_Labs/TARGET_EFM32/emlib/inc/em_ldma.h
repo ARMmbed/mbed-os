@@ -434,6 +434,13 @@ typedef struct
   uint8_t               ldmaLoopCnt;           /**< Counter for looped transfers.        */
 } LDMA_TransferCfg_t;
 
+typedef void (*LDMA_CBFunc_t)(unsigned int channel, bool primary, void *user);
+
+typedef struct
+{
+    LDMA_CBFunc_t cbFunc;
+    void *userPtr;
+} LDMA_Callback_t;
 
 /*******************************************************************************
  **************************   STRUCT INITIALIZERS   ****************************
@@ -1213,7 +1220,9 @@ void LDMA_DeInit( void );
 void LDMA_Init( LDMA_Init_t *init );
 void LDMA_StartTransfer(  int ch,
                           LDMA_TransferCfg_t *transfer,
-                          LDMA_Descriptor_t  *descriptor );
+                          LDMA_Descriptor_t  *descriptor,
+                          LDMA_CBFunc_t callback,
+                          void *userData );
 void LDMA_StopTransfer( int ch );
 bool LDMA_TransferDone( int ch );
 uint32_t LDMA_TransferRemainingCount( int ch );

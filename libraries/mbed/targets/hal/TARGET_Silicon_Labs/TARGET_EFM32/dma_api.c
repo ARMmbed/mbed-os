@@ -30,6 +30,7 @@
 
 #include <stdint.h>
 #include "dma_api_HAL.h"
+#include "em_device.h"
 #include "em_cmu.h"
 
 #ifdef DMA_PRESENT

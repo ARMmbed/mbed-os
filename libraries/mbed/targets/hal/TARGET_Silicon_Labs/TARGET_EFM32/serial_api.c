@@ -85,6 +85,7 @@ void serial_enable_pins(serial_t *obj, uint8_t enable);
 IRQn_Type serial_get_rx_irq_index(serial_t *obj);
 IRQn_Type serial_get_tx_irq_index(serial_t *obj);
 CMU_Clock_TypeDef serial_get_clock(serial_t *obj);
+static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx);
 
 /* ISRs for RX and TX events */
 #ifdef UART0
@@ -964,6 +965,8 @@ static void serial_dmaTransferComplete(unsigned int channel, bool primary, void 
     }
 }
 
+#ifndef LDMA_PRESENT
+
 /******************************************
 * static void serial_setupDmaChannel(serial_t *obj, bool tx_nrx)
 *
@@ -1065,9 +1068,9 @@ static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx)
 
         DMA_CfgChannel(obj->serial.dmaOptionsRX.dmaChannel, &channelConfig);
     }
-
-
 }
+
+#endif /* LDMA_PRESENT */
 
 /******************************************
 * static void serial_dmaTrySetState(DMA_OPTIONS_t *obj, DMAUsage requestedState)
@@ -1120,6 +1123,8 @@ static void serial_dmaTrySetState(DMA_OPTIONS_t *obj, DMAUsage requestedState, s
         obj->dmaUsageState = DMA_USAGE_NEVER;
     }
 }
+
+#ifndef LDMA_PRESENT
 
 static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length, bool tx_nrx)
 {
@@ -1182,6 +1187,55 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
         }
     }
 }
+
+#endif
+
+
+#ifdef LDMA_PRESENT
+
+static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx)
+{
+
+}
+
+static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length, bool tx_nrx)
+{
+    uint32_t dma_periph;
+    obj->serial.dmaOptionsRX.dmaCallback.userPtr = cb;
+
+    if( tx_nrx ) {
+        switch((uint32_t)(obj->serial.periph.uart)) {
+            case USART_0:  dma_periph = DMAREQ_USART0_TXBL; break;
+            case USART_1:  dma_periph = DMAREQ_USART1_TXBL; break;
+            case LEUART_0: dma_periph = DMAREQ_LEUART0_TXBL; break;
+            default:
+                EFM_ASSERT(0);
+                while(1);
+                break;
+        }
+
+        LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
+        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(buffer, dma_periph, length);
+        LDMA_StartTransfer(obj->serial.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, cb);
+
+    } else {
+        switch((uint32_t)(obj->serial.periph.uart)) {
+            case USART_0:  dma_periph = DMAREQ_USART0_RXDATAV; break;
+            case USART_1:  dma_periph = DMAREQ_USART1_RXDATAV; break;
+            case LEUART_0: dma_periph = DMAREQ_LEUART0_RXDATAV; break;
+            default:
+                EFM_ASSERT(0);
+                while(1);
+                break;
+        }
+
+        LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
+        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(dma_periph, buffer, length);
+        LDMA_StartTransfer(obj->serial.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, cb);
+    }
+}
+
+#endif /* LDMA_PRESENT */
 
 /************************************************************************************
  *          ASYNCHRONOUS HAL                                                        *
@@ -1463,7 +1517,11 @@ uint8_t serial_tx_active(serial_t *obj)
             return 1;
         case DMA_USAGE_ALLOCATED:
             /* Check whether the allocated DMA channel is active by checking the DMA transfer */
-            return(DMA_ChannelEnabled(obj->serial.dmaOptionsTX.dmaChannel));
+#ifndef LDMA_PRESENT
+            return DMA_ChannelEnabled(obj->serial.dmaOptionsTX.dmaChannel);
+#else
+            return !LDMA_TransferDone(obj->serial.dmaOptionsTX.dmaChannel);
+#endif
         default:
             /* Check whether interrupt for serial TX is enabled */
             if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
@@ -1487,7 +1545,11 @@ uint8_t serial_rx_active(serial_t *obj)
             return 1;
         case DMA_USAGE_ALLOCATED:
             /* Check whether the allocated DMA channel is active by checking the DMA transfer */
-            return(DMA_ChannelEnabled(obj->serial.dmaOptionsRX.dmaChannel));
+#ifndef LDMA_PRESENT
+            return DMA_ChannelEnabled(obj->serial.dmaOptionsRX.dmaChannel);
+#else
+            return !LDMA_TransferDone(obj->serial.dmaOptionsTX.dmaChannel);
+#endif
         default:
             /* Check whether interrupt for serial TX is enabled */
             if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
@@ -1764,11 +1826,19 @@ void serial_tx_abort_asynch(serial_t *obj)
     switch(obj->serial.dmaOptionsTX.dmaUsageState) {
         case DMA_USAGE_ALLOCATED:
             /* stop DMA transfer */
+#ifndef LDMA_PRESENT
             DMA_ChannelEnable(obj->serial.dmaOptionsTX.dmaChannel, false);
+#else
+            LDMA_StopTransfer(obj->serial.dmaOptionsTX.dmaChannel);
+#endif
             break;
         case DMA_USAGE_TEMPORARY_ALLOCATED:
             /* stop DMA transfer and release channel */
+#ifndef LDMA_PRESENT
             DMA_ChannelEnable(obj->serial.dmaOptionsTX.dmaChannel, false);
+#else
+            LDMA_StopTransfer(obj->serial.dmaOptionsTX.dmaChannel);
+#endif
             dma_channel_free(obj->serial.dmaOptionsTX.dmaChannel);
             obj->serial.dmaOptionsTX.dmaChannel = -1;
             obj->serial.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
@@ -1811,11 +1881,19 @@ void serial_rx_abort_asynch(serial_t *obj)
     switch(obj->serial.dmaOptionsRX.dmaUsageState) {
         case DMA_USAGE_ALLOCATED:
             /* stop DMA transfer */
+#ifndef LDMA_PRESENT
             DMA_ChannelEnable(obj->serial.dmaOptionsRX.dmaChannel, false);
+#else
+            LDMA_StopTransfer(obj->serial.dmaOptionsRX.dmaChannel);
+#endif
             break;
         case DMA_USAGE_TEMPORARY_ALLOCATED:
             /* stop DMA transfer and release channel */
+#ifndef LDMA_PRESENT
             DMA_ChannelEnable(obj->serial.dmaOptionsRX.dmaChannel, false);
+#else
+            LDMA_StopTransfer(obj->serial.dmaOptionsRX.dmaChannel);
+#endif
             dma_channel_free(obj->serial.dmaOptionsRX.dmaChannel);
             obj->serial.dmaOptionsRX.dmaChannel = -1;
             obj->serial.dmaOptionsRX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
