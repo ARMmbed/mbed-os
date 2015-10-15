@@ -120,7 +120,13 @@ uint16_t analogin_read_u16(analogin_t *obj)
     adc->CMD = ADC_CMD_SINGLESTOP;
 
     // Make sure we are checking the correct channel
+#if defined _ADC_SINGLECTRL_INPUTSEL_MASK
     adc->SINGLECTRL = (adc->SINGLECTRL & ~_ADC_SINGLECTRL_INPUTSEL_MASK) | obj->channel;
+#elif _ADC_SINGLECTRL_POSSEL_MASK
+    adc->SINGLECTRL = (adc->SINGLECTRL & ~_ADC_SINGLECTRL_POSSEL_MASK) | obj->channel;
+#else
+#error no inputselmask
+#endif
 
     ADC_Start(adc, adcStartSingle);
 
