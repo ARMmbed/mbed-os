@@ -1,7 +1,7 @@
 ;/*****************************************************************************
-; * @file     startup_SAMR21.s
+; * @file     startup_SAMD21.s
 ; * @brief    CMSIS Cortex-M0+ Core Device Startup File for
-; *           Atmel SAMR21 Device Series
+; *           Atmel SAMD21 Device Series
 ; * @version  V1.00
 ; * @date     24. February 2014
 ; *
@@ -124,6 +124,7 @@ SysTick_Handler PROC
                 ENDP
 
 Default_Handler PROC
+                EXPORT  PM_Handler                [WEAK]
                 EXPORT  PM_Handler                [WEAK]
                 EXPORT  SYSCTRL_Handler           [WEAK]
                 EXPORT  WDT_Handler               [WEAK]
