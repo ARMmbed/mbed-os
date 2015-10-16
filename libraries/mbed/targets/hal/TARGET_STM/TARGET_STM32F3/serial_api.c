@@ -94,11 +94,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         __HAL_RCC_USART2_CONFIG(RCC_USART2CLKSOURCE_SYSCLK);
         obj->index = 1;
     }
+#if defined(UART3_BASE)
     if (obj->uart == UART_3) {
         __USART3_CLK_ENABLE();
         __HAL_RCC_USART3_CONFIG(RCC_USART3CLKSOURCE_SYSCLK);
         obj->index = 2;
     }
+#endif
 #if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         __UART4_CLK_ENABLE();
@@ -155,11 +157,13 @@ void serial_free(serial_t *obj)
         __USART2_RELEASE_RESET();
         __USART2_CLK_DISABLE();
     }
+#if defined(UART3_BASE)
     if (obj->uart == UART_3) {
         __USART3_FORCE_RESET();
         __USART3_RELEASE_RESET();
         __USART3_CLK_DISABLE();
     }
+#endif
 #if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         __UART4_FORCE_RESET();
@@ -248,10 +252,12 @@ static void uart2_irq(void)
     uart_irq(UART_2, 1);
 }
 
+#if defined(UART3_BASE)
 static void uart3_irq(void)
 {
     uart_irq(UART_3, 2);
 }
+#endif
 
 #if defined(UART4_BASE)
 static void uart4_irq(void)
@@ -290,10 +296,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&uart2_irq;
     }
 
+#if defined(UART3_BASE)
     if (obj->uart == UART_3) {
         irq_n = USART3_IRQn;
         vector = (uint32_t)&uart3_irq;
     }
+#endif
 
 #if defined(UART4_BASE)
     if (obj->uart == UART_4) {
