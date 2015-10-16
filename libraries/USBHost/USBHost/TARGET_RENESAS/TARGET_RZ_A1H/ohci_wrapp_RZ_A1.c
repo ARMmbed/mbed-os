@@ -199,7 +199,6 @@ static int32_t iso_trans_doing(hced_t *p_ed, uint32_t index);
 static void chk_iso_td_done(genelal_ed_t *p_g_ed);
 static int32_t chk_iso_ed(genelal_ed_t *p_g_ed);
 static void iso_trans_setting(genelal_ed_t *p_g_ed, uint32_t index);
-static uint32_t iso_chk_starting_frame(genelal_ed_t *p_g_ed);
 static void iso_trans(genelal_ed_t *p_g_ed);
 #endif
 static void connect_check(void);
@@ -215,6 +214,7 @@ static usb_ohci_reg_t *p_usb_reg     = &usb_reg;
 static usbisr_fnc_t   *p_usbisr_cb   = NULL;
 static osSemaphoreId  semid_cb       = NULL;
 static uint32_t       connect_change = 0xFFFFFFFF;
+static uint32_t       connect_status = 0;
 static uint32_t       init_end       = 0;
 static genelal_ed_t   ctl_ed;
 static genelal_ed_t   blk_ed;
@@ -283,13 +283,13 @@ osThreadDef(int_ed_task_4,   osPriorityNormal,      512);
 static void iso_ed_task_1(void const * argument) {
     iso_ed_task(argument);
 }
-osThreadDef(iso_ed_task_1,   osPriorityNormal,      512);
+osThreadDef(iso_ed_task_1,   osPriorityAboveNormal, 512);
 #endif
 #if (ISO_TRANS_MAX_NUM >= 2)
 static void iso_ed_task_2(void const * argument) {
     iso_ed_task(argument);
 }
-osThreadDef(iso_ed_task_2,   osPriorityNormal,      512);
+osThreadDef(iso_ed_task_2,   osPriorityAboveNormal, 512);
 #endif
 
 void ohciwrapp_init(usbisr_fnc_t *p_usbisr_fnc) {
@@ -878,25 +878,28 @@ static void control_trans(genelal_ed_t *p_g_ed) {
     p_g_ed->pipe_no    = USB_HOST_PIPE0;
 
     p_g_ed->trans_wait = 1;
-
-    if (td_info.direction == 0) {
-        uint16_t Req  = (p_td->currBufPtr[1] << 8) + p_td->currBufPtr[0];
-        uint16_t Val  = (p_td->currBufPtr[3] << 8) + p_td->currBufPtr[2];
-        uint16_t Indx = (p_td->currBufPtr[5] << 8) + p_td->currBufPtr[4];
-        uint16_t Len  = (p_td->currBufPtr[7] << 8) + p_td->currBufPtr[6];
-
-        g_usbx_host_data_pointer[USB_HOST_PIPE0] = p_td->bufEnd;
-        usbx_host_SetupStage(Req, Val, Indx, Len);
-    } else if (td_info.direction == 1) {
-        usbx_host_CtrlWriteStart(td_info.count, p_td->currBufPtr);
+    if (connect_status == 0) {
+        ohciwrapp_loc_TransEnd(p_g_ed->pipe_no, TD_CC_DEVICENOTRESPONDING);
     } else {
-        usbx_host_CtrlReadStart(td_info.count, p_td->currBufPtr);
-    }
+        if (td_info.direction == 0) {
+            uint16_t Req  = (p_td->currBufPtr[1] << 8) + p_td->currBufPtr[0];
+            uint16_t Val  = (p_td->currBufPtr[3] << 8) + p_td->currBufPtr[2];
+            uint16_t Indx = (p_td->currBufPtr[5] << 8) + p_td->currBufPtr[4];
+            uint16_t Len  = (p_td->currBufPtr[7] << 8) + p_td->currBufPtr[6];
 
-    (void)osSemaphoreWait(p_g_ed->semid_wait, CTL_TRANS_TIMEOUT);
-    if (p_g_ed->trans_wait == 1) {
-        p_g_ed->trans_wait = 0;
-        RZA_IO_RegWrite_32(&p_td->control, TD_CC_DEVICENOTRESPONDING, TD_CTL_SHFT_CC, TD_CTL_MSK_CC);
+            g_usbx_host_data_pointer[USB_HOST_PIPE0] = p_td->bufEnd;
+            usbx_host_SetupStage(Req, Val, Indx, Len);
+        } else if (td_info.direction == 1) {
+            usbx_host_CtrlWriteStart(td_info.count, p_td->currBufPtr);
+        } else {
+            usbx_host_CtrlReadStart(td_info.count, p_td->currBufPtr);
+        }
+
+        (void)osSemaphoreWait(p_g_ed->semid_wait, CTL_TRANS_TIMEOUT);
+        if (p_g_ed->trans_wait == 1) {
+            p_g_ed->trans_wait = 0;
+            RZA_IO_RegWrite_32(&p_td->control, TD_CC_DEVICENOTRESPONDING, TD_CTL_SHFT_CC, TD_CTL_MSK_CC);
+        }
     }
 
     g_usbx_host_CmdStage &= (~USB_HOST_CMD_FIELD);
@@ -928,14 +931,18 @@ static void bulk_trans(genelal_ed_t *p_g_ed) {
     set_togle(p_g_ed->pipe_no, p_td, p_ed);
 
     p_g_ed->trans_wait = 1;
-    if (td_info.direction == 1) {
-        usbx_host_start_send_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
+    if (connect_status == 0) {
+        ohciwrapp_loc_TransEnd(p_g_ed->pipe_no, TD_CC_DEVICENOTRESPONDING);
     } else {
-        usbx_host_start_receive_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
-    }
+        if (td_info.direction == 1) {
+            usbx_host_start_send_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
+        } else {
+            usbx_host_start_receive_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
+        }
 
-    (void)osSemaphoreWait(p_g_ed->semid_wait, BLK_TRANS_TIMEOUT);
-    usbx_host_stop_transfer(p_g_ed->pipe_no);
+        (void)osSemaphoreWait(p_g_ed->semid_wait, BLK_TRANS_TIMEOUT);
+        usbx_host_stop_transfer(p_g_ed->pipe_no);
+    }
 }
 
 static void int_trans_setting(genelal_ed_t *p_g_ed, uint32_t index) {
@@ -1023,10 +1030,14 @@ static void int_trans(genelal_ed_t *p_g_ed) {
 
     get_td_info(p_g_ed, &td_info);
     p_g_ed->trans_wait = 1;
-    if (td_info.direction == 1) {
-        usbx_host_start_send_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
+    if (connect_status == 0) {
+        ohciwrapp_loc_TransEnd(p_g_ed->pipe_no, TD_CC_DEVICENOTRESPONDING);
     } else {
-        usbx_host_start_receive_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
+        if (td_info.direction == 1) {
+            usbx_host_start_send_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
+        } else {
+            usbx_host_start_receive_transfer(p_g_ed->pipe_no, td_info.count, p_td->currBufPtr);
+        }
     }
 }
 
@@ -1089,7 +1100,6 @@ static void set_togle(uint32_t pipe, hctd_t *p_td, hced_t *p_ed) {
 static void iso_ed_task(void const * argument) {
     genelal_ed_t *p_iso_ed = &iso_ed[(uint32_t)argument];
     uint32_t     wait_cnt = 0;
-    uint32_t     wait_time = 0;
     hcca_t       *p_hcca;
     hced_t       *p_ed;
 
@@ -1115,17 +1125,26 @@ static void iso_ed_task(void const * argument) {
         if (p_iso_ed->p_curr_ed != NULL) {
             while ((p_usb_reg->HcControl & OR_CONTROL_IE) != 0) {
                 if (chk_iso_ed(p_iso_ed) != 0) {
-                    wait_time = iso_chk_starting_frame(p_iso_ed);
-                    if (wait_time != 0) {
-                        osDelay(wait_time);
-                        p_usb_reg->HcFmNumber += wait_time;
-                        p_usb_reg->HcFmNumber &= 0x0000FFFF;
+                    hcisotd_t *p_isotd = (hcisotd_t *)p_iso_ed->p_curr_td;
+                    uint32_t  starting_frame = p_isotd->control & 0x0000FFFF;
+                    uint32_t  wait_time = 0;
+                    uint32_t  wk_HcFmNumber = p_usb_reg->HcFmNumber;
+
+                    if (starting_frame > wk_HcFmNumber) {
+                        wait_time = starting_frame - wk_HcFmNumber;
+                    } else {
+                        wait_time = (0xFFFF - wk_HcFmNumber) + starting_frame;
+                    }
+                    if ((wait_time >= 2) && (wait_time <= 1000)) {
+                        for (int cnt = 0; cnt < (wait_time - 1); cnt++) {
+                            osDelay(1);
+                            p_usb_reg->HcFmNumber = (wk_HcFmNumber + cnt) & 0x0000FFFF;
+                        }
                     }
                     p_iso_ed->psw_idx   = 0;
                     iso_trans(p_iso_ed);
                     (void)osSemaphoreWait(p_iso_ed->semid_wait, osWaitForever);
-                    usbx_host_stop_transfer(p_iso_ed->pipe_no);
-                    wait_cnt = 1;
+                    wait_cnt = 8;
                 } else {
                     if (wait_cnt > 0) {
                         wait_cnt--;
@@ -1234,18 +1253,6 @@ static void iso_trans_setting(genelal_ed_t *p_g_ed, uint32_t index) {
     usbx_api_host_SetEndpointTable(td_info.devadr, user_table, wk_table);
 }
 
-static uint32_t iso_chk_starting_frame(genelal_ed_t *p_g_ed) {
-    hcisotd_t *p_isotd = (hcisotd_t *)p_g_ed->p_curr_td;
-    uint32_t  starting_frame = p_isotd->control & 0x0000FFFF;
-    uint32_t  wait_time = 0;
-
-    if ((p_g_ed->psw_idx == 0) && (starting_frame > p_usb_reg->HcFmNumber)) {
-        wait_time = starting_frame - p_usb_reg->HcFmNumber;
-    }
-
-    return wait_time;
-}
-
 static void iso_trans(genelal_ed_t *p_g_ed) {
     hcisotd_t *p_isotd = (hcisotd_t *)p_g_ed->p_curr_td;
     tdinfo_t  td_info;
@@ -1268,10 +1275,14 @@ static void iso_trans(genelal_ed_t *p_g_ed) {
 
     get_td_info(p_g_ed, &td_info);
     p_g_ed->trans_wait = 1;
-    if (td_info.direction == 1) {
-        usbx_host_start_send_transfer(p_g_ed->pipe_no, data_size, (uint8_t *)buff_addr);
+    if (connect_status == 0) {
+        ohciwrapp_loc_TransEnd(p_g_ed->pipe_no, TD_CC_DEVICENOTRESPONDING);
     } else {
-        usbx_host_start_receive_transfer(p_g_ed->pipe_no, data_size, (uint8_t *)buff_addr);
+        if (td_info.direction == 1) {
+            usbx_host_start_send_transfer(p_g_ed->pipe_no, data_size, (uint8_t *)buff_addr);
+        } else {
+            usbx_host_start_receive_transfer(p_g_ed->pipe_no, data_size, (uint8_t *)buff_addr);
+        }
     }
 }
 #endif
@@ -1326,6 +1337,7 @@ static void connect_check(void) {
 void ohciwrapp_loc_Connect(uint32_t type) {
     uint32_t cnt;
 
+    connect_status = type;
     connect_change = type;
     if (type == 0) {
         if (ctl_ed.trans_wait == 1) {
@@ -1445,11 +1457,7 @@ void ohciwrapp_loc_TransEnd(uint32_t pipe, uint32_t ConditionCode) {
 
         if (p_isotd != NULL) {
             usbx_host_stop_transfer(pipe);
-            if (p_usb_reg->HcFmNumber < 0x0000FFFF) {
-                p_usb_reg->HcFmNumber++;
-            } else {
-                p_usb_reg->HcFmNumber = 0;
-            }
+            p_usb_reg->HcFmNumber = ((p_isotd->control & 0x0000FFFF) + p_wait_ed->psw_idx) & 0x0000FFFF;
 
             /* Size of packet */
             p_isotd->offsetPSW[p_wait_ed->psw_idx] -= g_usbx_host_data_count[pipe];
@@ -1469,10 +1477,8 @@ void ohciwrapp_loc_TransEnd(uint32_t pipe, uint32_t ConditionCode) {
                 p_wait_ed->psw_idx++;
             }
             if (chk_iso_ed(p_wait_ed) != 0) {
-                if (iso_chk_starting_frame(p_wait_ed) == 0) {
-                    iso_trans(p_wait_ed);
-                    next_trans = 1;
-                }
+                iso_trans(p_wait_ed);
+                next_trans = 1;
             }
             if (next_trans == 0) {
                 p_wait_ed->trans_wait = 0;
