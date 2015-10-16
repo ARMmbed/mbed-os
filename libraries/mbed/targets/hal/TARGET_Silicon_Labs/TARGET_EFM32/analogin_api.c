@@ -123,7 +123,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
 #if defined _ADC_SINGLECTRL_INPUTSEL_MASK
     adc->SINGLECTRL = (adc->SINGLECTRL & ~_ADC_SINGLECTRL_INPUTSEL_MASK) | obj->channel;
 #elif _ADC_SINGLECTRL_POSSEL_MASK
-    adc->SINGLECTRL = (adc->SINGLECTRL & ~_ADC_SINGLECTRL_POSSEL_MASK) | obj->channel;
+    adc->SINGLECTRL = (adc->SINGLECTRL & ~_ADC_SINGLECTRL_POSSEL_MASK) | obj->channel << _ADC_SINGLECTRL_POSSEL_SHIFT;
 #else
 #error no inputselmask
 #endif
