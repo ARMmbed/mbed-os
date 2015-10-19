@@ -41,8 +41,7 @@
 DAC_HandleTypeDef    DacHandle;
 static DAC_ChannelConfTypeDef sConfig;
 
-void analogout_init(dac_t *obj, PinName pin)
-{
+void analogout_init(dac_t *obj, PinName pin) {
     uint32_t channel ;
     HAL_StatusTypeDef status;
 
@@ -95,12 +94,10 @@ void analogout_init(dac_t *obj, PinName pin)
 
 }
 
-void analogout_free(dac_t *obj)
-{
+void analogout_free(dac_t *obj) {
 }
 
-static inline void dac_write(dac_t *obj, int value)
-{
+static inline void dac_write(dac_t *obj, int value) {
     HAL_StatusTypeDef status = HAL_ERROR;
 
     if (obj->channel == 1) {
@@ -114,18 +111,16 @@ static inline void dac_write(dac_t *obj, int value)
     }
 }
 
-static inline int dac_read(dac_t *obj)
-{
+static inline int dac_read(dac_t *obj) {
     if (obj->channel == 1) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
     } else if (obj->channel == 2) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
-	return 0;	/* Just silented warning */
+    return 0;	/* Just silented warning */
 }
 
-void analogout_write(dac_t *obj, float value)
-{
+void analogout_write(dac_t *obj, float value) {
     if (value < 0.0f) {
         dac_write(obj, 0); // Min value
     } else if (value > 1.0f) {
@@ -135,19 +130,16 @@ void analogout_write(dac_t *obj, float value)
     }
 }
 
-void analogout_write_u16(dac_t *obj, uint16_t value)
-{
+void analogout_write_u16(dac_t *obj, uint16_t value) {
     dac_write(obj, value >> (16 - DAC_NB_BITS));
 }
 
-float analogout_read(dac_t *obj)
-{
+float analogout_read(dac_t *obj) {
     uint32_t value = dac_read(obj);
     return (float)value * (1.0f / (float)DAC_RANGE);
 }
 
-uint16_t analogout_read_u16(dac_t *obj)
-{
+uint16_t analogout_read_u16(dac_t *obj) {
     uint32_t value = dac_read(obj);
     return (value << 4) | ((value >> 8) & 0x000F); // Conversion from 12 to 16 bits
 }
