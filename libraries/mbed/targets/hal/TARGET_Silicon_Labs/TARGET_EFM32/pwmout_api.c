@@ -51,6 +51,20 @@ uint32_t pwmout_get_channel_route(pwmout_t *obj)
     MBED_ASSERT(obj->channel != (PWMName) NC);
 
     switch (obj->channel) {
+#ifdef TIMER_ROUTEPEN_CC0PEN
+        case PWM_CH0:
+            return TIMER_ROUTEPEN_CC0PEN;
+            break;
+        case PWM_CH1:
+            return TIMER_ROUTEPEN_CC1PEN;
+            break;
+        case PWM_CH2:
+            return TIMER_ROUTEPEN_CC2PEN;
+            break;
+        case PWM_CH3:
+            return TIMER_ROUTEPEN_CC3PEN;
+            break;
+#else
         case PWM_CH0:
             return TIMER_ROUTE_CC0PEN;
             break;
@@ -60,6 +74,7 @@ uint32_t pwmout_get_channel_route(pwmout_t *obj)
         case PWM_CH2:
             return TIMER_ROUTE_CC2PEN;
             break;
+#endif
         default:
             return 0;
     }
@@ -75,6 +90,15 @@ void pwmout_enable_pins(pwmout_t *obj, uint8_t enable)
     }
 }
 
+#ifdef _TIMER_CC_CTRL_MODE_DEFAULT
+void pwmout_enable(pwmout_t *obj, uint8_t enable){
+    PWM_TIMER->CC[obj->channel].CTRL = _TIMER_CC_CTRL_MODE_DEFAULT;
+    if (enable) {
+        /* Set mode to PWM */
+        PWM_TIMER->CC[obj->channel].CTRL = TIMER_CC_CTRL_MODE_PWM;
+    }
+}
+#else
 void pwmout_enable(pwmout_t *obj, uint8_t enable)
 {
     /* Start with default CC (Compare/Capture) channel parameters */
@@ -87,7 +111,7 @@ void pwmout_enable(pwmout_t *obj, uint8_t enable)
     /* Configure CC channel */
     TIMER_InitCC(PWM_TIMER, obj->channel, &timerCCInit);
 }
-
+#endif
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
     obj->channel = (PWMName) pinmap_peripheral(pin, PinMap_PWM);
@@ -105,6 +129,32 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
     /* Enable correct channel */
     uint32_t routeloc = pwmout_get_channel_route(obj);
+#ifdef _TIMER_ROUTELOC0_CC0LOC_LOC0
+    PWM_TIMER->ROUTEPEN |= routeloc;
+    blockSleepMode(EM1);
+    pwmout_enable(obj, true);
+    pwmout_enable_pins(obj, true);
+    switch (obj->channel) {
+        case PWM_CH0:
+            PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC0LOC_MASK;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTELOC0_CC0LOC_SHIFT;
+            break;
+        case PWM_CH1:
+            PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC1LOC_MASK;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM)<< _TIMER_ROUTELOC0_CC1LOC_SHIFT;
+            break;
+        case PWM_CH2:
+            PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC2LOC_MASK;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTELOC0_CC2LOC_SHIFT;
+            break;
+        case PWM_CH3:
+            PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC3LOC_MASK;
+            PWM_TIMER->ROUTELOC0 |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTELOC0_CC3LOC_SHIFT;
+            break;
+        default:
+            MBED_ASSERT(false);
+    }
+#else
     if(PWM_TIMER->ROUTE & routeloc) {
         //This channel was already in use
         //TODO: gracefully handle this case
@@ -121,11 +171,27 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     /* Route correct channel to location 1 */
     PWM_TIMER->ROUTE &= ~_TIMER_ROUTE_LOCATION_MASK;
     PWM_TIMER->ROUTE |= PWM_ROUTE;
-
+#endif
     /* Set default 20ms frequency and 0ms pulse width */
     pwmout_period(obj, 0.02);
 }
 
+#ifdef TIMER_ROUTEPEN_CC0PEN
+void pwmout_free(pwmout_t *obj)
+{
+    uint32_t routeloc = pwmout_get_channel_route(obj);
+    if(PWM_TIMER->ROUTEPEN & routeloc) {
+        //This channel was in use, so disable
+        PWM_TIMER->ROUTEPEN &= ~routeloc;
+        pwmout_enable_pins(obj, false);
+        unblockSleepMode(EM1);
+
+        //TODO: check if all channels are down, then switch off timer
+    } else {
+        //This channel was disabled already
+    }
+}
+#else
 void pwmout_free(pwmout_t *obj)
 {
     uint32_t routeloc = pwmout_get_channel_route(obj);
@@ -140,7 +206,7 @@ void pwmout_free(pwmout_t *obj)
         //This channel was disabled already
     }
 }
-
+#endif
 void pwmout_write(pwmout_t *obj, float value)
 {
     if (value < 0.0f) {
