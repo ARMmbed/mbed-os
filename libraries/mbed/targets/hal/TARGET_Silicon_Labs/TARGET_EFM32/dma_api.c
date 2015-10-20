@@ -76,7 +76,6 @@ void dma_init(void)
     DMA_Init(&dmaInit);
 
 #elif defined LDMA_PRESENT
-    CMU_ClockEnable(cmuClock_BUS, true);
     CMU_ClockEnable(cmuClock_LDMA, true);
 
     LDMA_Init_t ldmaInit;
