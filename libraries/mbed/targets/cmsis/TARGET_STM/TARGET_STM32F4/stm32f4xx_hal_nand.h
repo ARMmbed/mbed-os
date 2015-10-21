@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nand.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of NAND HAL module.
   ******************************************************************************
   * @attention
@@ -48,9 +48,11 @@
   #include "stm32f4xx_ll_fsmc.h"
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
   #include "stm32f4xx_ll_fmc.h"
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx ||\
+          STM32F479xx */
 
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
@@ -60,10 +62,10 @@
   * @{
   */ 
 
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
-    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F446xx)
-    
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+	defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
+
 /* Exported typedef ----------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /** @defgroup NAND_Exported_Types NAND Exported Types
@@ -274,7 +276,7 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 /**
   * @brief  NAND memory address computation.
   * @param  __ADDRESS__: NAND memory address.
-  * @param  __HANDLE__ : NAND handle.
+  * @param  __HANDLE__: NAND handle.
   * @retval NAND Raw address value
   */
 #define ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) ((__ADDRESS__)->Page + \
@@ -294,7 +296,7 @@ uint32_t              HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx ||\
           STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||\
-          STM32F446xx */
+          STM32F446xx || STM32F469xx || STM32F479xx */
     
 /**
   * @}

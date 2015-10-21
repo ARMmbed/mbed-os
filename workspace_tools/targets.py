@@ -807,6 +807,16 @@ class DISCO_F429ZI(Target):
         self.supported_toolchains = ["GCC_ARM", "IAR"]
         self.default_toolchain = "GCC_ARM"
 
+class DISCO_F469NI(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F469', 'STM32F469NI']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["0788"]
+
 class DISCO_L053C8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1720,6 +1730,7 @@ TARGETS = [
     DISCO_F407VG(),     # STM32F407
     ARCH_MAX(),         # STM32F407
     DISCO_F429ZI(),
+    DISCO_F469NI(),
     DISCO_L053C8(),
     DISCO_L476VG(),
     MTS_MDOT_F405RG(),

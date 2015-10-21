@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_fmpi2c.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   FMPI2C HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -193,7 +193,7 @@
 
 #ifdef HAL_FMPI2C_MODULE_ENABLED
 
-#if defined(STM32F446xx)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) 
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -253,12 +253,12 @@ static void FMPI2C_TransferConfig(FMPI2C_HandleTypeDef *hfmpi2c,  uint16_t DevAd
   * @{
   */
 
-/** @defgroup FMPI2C_Exported_Functions_Group1 Initialization/de-initialization functions 
+/** @defgroup FMPI2C_Exported_Functions_Group1 Initialization and de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
  ===============================================================================
-              ##### Initialization/de-initialization functions #####
+              ##### Initialization and de-initialization functions #####
  ===============================================================================
     [..]  This subsection provides a set of functions allowing to initialize and 
           de-initialiaze the FMPI2Cx peripheral:
@@ -4085,7 +4085,7 @@ static void FMPI2C_TransferConfig(FMPI2C_HandleTypeDef *hfmpi2c,  uint16_t DevAd
 /**
   * @}
   */
-#endif /* STM32F446xx */
+#endif /* STM32F410xx || STM32F446xx  */
 #endif /* HAL_FMPI2C_MODULE_ENABLED */
 /**
   * @}

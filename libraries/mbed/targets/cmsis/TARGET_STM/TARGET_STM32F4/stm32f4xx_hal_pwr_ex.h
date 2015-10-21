@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
@@ -59,8 +59,8 @@
 /** @defgroup PWREx_Exported_Constants PWREx Exported Constants
   * @{
   */
-
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
    
 /** @defgroup PWREx_Regulator_state_in_UnderDrive_mode PWREx Regulator state in UnderDrive mode
   * @{
@@ -80,9 +80,9 @@
 /**
   * @}
   */
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 
-/** @defgroup PWR_Regulator_Voltage_Scale PWR Regulator Voltage Scale
+/** @defgroup PWREx_Regulator_Voltage_Scale PWREx Regulator Voltage Scale
   * @{
   */
 #if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)   
@@ -98,7 +98,19 @@
 /**
   * @}
   */
-    
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx)   
+/** @defgroup PWREx_WakeUp_Pins PWREx WakeUp Pins
+  * @{
+  */
+#define PWR_WAKEUP_PIN2                 ((uint32_t)0x00000080)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)    
+#define PWR_WAKEUP_PIN3                 ((uint32_t)0x00000040)
+#endif /* STM32F410xx  */
+/**
+  * @}
+  */   
+#endif /* STM32F410xx || STM32F446xx  */
+
 /**
   * @}
   */ 
@@ -107,7 +119,46 @@
 /** @defgroup PWREx_Exported_Constants PWREx Exported Constants
   *  @{
   */
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+
+#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)
+/** @brief  macros configure the main internal regulator output voltage.
+  * @param  __REGULATOR__: specifies the regulator output voltage to achieve
+  *         a tradeoff between performance and power consumption when the device does
+  *         not operate at the maximum frequency (refer to the datasheets for more details).
+  *          This parameter can be one of the following values:
+  *            @arg PWR_REGULATOR_VOLTAGE_SCALE1: Regulator voltage output Scale 1 mode
+  *            @arg PWR_REGULATOR_VOLTAGE_SCALE2: Regulator voltage output Scale 2 mode
+  * @retval None
+  */
+#define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
+                                                            __IO uint32_t tmpreg;                               \
+                                                            MODIFY_REG(PWR->CR, PWR_CR_VOS, (__REGULATOR__));   \
+                                                            /* Delay after an RCC peripheral clock enabling */  \
+                                                            tmpreg = READ_BIT(PWR->CR, PWR_CR_VOS);             \
+                                                            UNUSED(tmpreg);                                     \
+				                           } while(0)
+#else
+/** @brief  macros configure the main internal regulator output voltage.
+  * @param  __REGULATOR__: specifies the regulator output voltage to achieve
+  *         a tradeoff between performance and power consumption when the device does
+  *         not operate at the maximum frequency (refer to the datasheets for more details).
+  *          This parameter can be one of the following values:
+  *            @arg PWR_REGULATOR_VOLTAGE_SCALE1: Regulator voltage output Scale 1 mode
+  *            @arg PWR_REGULATOR_VOLTAGE_SCALE2: Regulator voltage output Scale 2 mode
+  *            @arg PWR_REGULATOR_VOLTAGE_SCALE3: Regulator voltage output Scale 3 mode
+  * @retval None
+  */
+#define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
+                                                            __IO uint32_t tmpreg;                               \
+                                                            MODIFY_REG(PWR->CR, PWR_CR_VOS, (__REGULATOR__));   \
+                                                            /* Delay after an RCC peripheral clock enabling */  \
+                                                            tmpreg = READ_BIT(PWR->CR, PWR_CR_VOS);             \
+                                                            UNUSED(tmpreg);                                     \
+				                           } while(0)
+#endif /* STM32F405xx || STM32F407xx || STM32F415xx || STM32F417xx */ 
+
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /** @brief Macros to enable or disable the Over drive mode.
   * @note  These macros can be used only for STM32F42xx/STM3243xx devices.
   */
@@ -152,7 +203,7 @@
   */
 #define __HAL_PWR_CLEAR_ODRUDR_FLAG() (PWR->CSR |= PWR_FLAG_UDRDY)
 
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 /**
   * @}
   */
@@ -172,18 +223,25 @@ HAL_StatusTypeDef HAL_PWREx_DisableBkUpReg(void);
 uint32_t HAL_PWREx_GetVoltageRange(void);
 HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling);
 
-#if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE)
+#if defined(STM32F469xx) || defined(STM32F479xx)
+void HAL_PWREx_EnableWakeUpPinPolarityRisingEdge(void);
+void HAL_PWREx_EnableWakeUpPinPolarityFallingEdge(void);
+#endif /* STM32F469xx || STM32F479xx */
+
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F401xC) ||\
+    defined(STM32F401xE) || defined(STM32F411xE) 
 void HAL_PWREx_EnableMainRegulatorLowVoltage(void);
 void HAL_PWREx_DisableMainRegulatorLowVoltage(void);
 void HAL_PWREx_EnableLowRegulatorLowVoltage(void);
 void HAL_PWREx_DisableLowRegulatorLowVoltage(void);
-#endif /* STM32F401xC || STM32F401xE || STM32F411xE */
+#endif /* STM32F410xx || STM32F401xC || STM32F401xE || STM32F411xE  */
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) ||\
+    defined(STM32F469xx) || defined(STM32F479xx)
 HAL_StatusTypeDef HAL_PWREx_EnableOverDrive(void);
 HAL_StatusTypeDef HAL_PWREx_DisableOverDrive(void);
 HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t STOPEntry);
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 
 /**
   * @}
@@ -234,7 +292,13 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
 /* --- CSR Register ---*/
 /* Alias word address of BRE bit */
 #define BRE_BIT_NUMBER   POSITION_VAL(PWR_CSR_BRE)
-#define CSR_BRE_BB      (uint32_t)(PERIPH_BB_BASE + (PWR_CSR_OFFSET_BB * 32) + (BRE_BIT_NUMBER * 4))    
+#define CSR_BRE_BB      (uint32_t)(PERIPH_BB_BASE + (PWR_CSR_OFFSET_BB * 32) + (BRE_BIT_NUMBER * 4))
+
+#if defined(STM32F469xx) || defined(STM32F479xx)
+/* Alias word address of WUPP bit */
+#define WUPP_BIT_NUMBER   POSITION_VAL(PWR_CSR_WUPP)
+#define CSR_WUPP_BB      (PERIPH_BB_BASE + (PWR_CSR_OFFSET_BB * 32) + (WUPP_BIT_NUMBER * 4))
+#endif /* STM32F469xx || STM32F479xx */
 /**
   * @}
   */
@@ -251,10 +315,11 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
 /** @defgroup PWREx_IS_PWR_Definitions PWREx Private macros to check input parameters
   * @{
   */
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 #define IS_PWR_REGULATOR_UNDERDRIVE(REGULATOR) (((REGULATOR) == PWR_MAINREGULATOR_UNDERDRIVE_ON) || \
                                                 ((REGULATOR) == PWR_LOWPOWERREGULATOR_UNDERDRIVE_ON))
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 
 #if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)
 #define IS_PWR_VOLTAGE_SCALING_RANGE(VOLTAGE) (((VOLTAGE) == PWR_REGULATOR_VOLTAGE_SCALE1) || \
@@ -265,6 +330,14 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
                                                ((VOLTAGE) == PWR_REGULATOR_VOLTAGE_SCALE3))
 #endif /* STM32F405xx || STM32F407xx || STM32F415xx || STM32F417xx */ 
 
+#if defined(STM32F446xx)
+#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || ((PIN) == PWR_WAKEUP_PIN2))
+#elif defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) 
+#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || ((PIN) == PWR_WAKEUP_PIN2) || \
+                                ((PIN) == PWR_WAKEUP_PIN3))
+#else
+#define IS_PWR_WAKEUP_PIN(PIN) ((PIN) == PWR_WAKEUP_PIN1)
+#endif /* STM32F446xx */
 /**
   * @}
   */

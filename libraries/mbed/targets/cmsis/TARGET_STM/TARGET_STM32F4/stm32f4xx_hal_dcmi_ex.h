@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi_ex.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of DCMI Extension HAL module.
   ******************************************************************************
   * @attention
@@ -44,7 +44,8 @@
 #endif
 
 #if defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) ||\
-    defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+    defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) || defined(STM32F469xx) ||\
+    defined(STM32F479xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
@@ -54,13 +55,13 @@
   * @{
   */
 
-/** @addtogroup DCMIEx DCMI Extended
+/** @addtogroup DCMIEx
   * @brief DCMI HAL module driver
   * @{
   */  
 
 /* Exported types ------------------------------------------------------------*/
-/** @defgroup DCMIEx_Exported_Types DCMI Extende Exported Types
+/** @defgroup DCMIEx_Exported_Types DCMI Extended Exported Types
   * @{
   */
 /** 
@@ -101,7 +102,7 @@ typedef struct
 
   uint32_t JPEGMode;                    /*!< Enable or Disable the JPEG mode.                                
                                              This parameter can be a value of @ref DCMI_MODE_JPEG            */
-#if defined(STM32F446xx) 
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
   uint32_t ByteSelectMode;              /*!< Specifies the data to be captured by the interface 
                                             This parameter can be a value of @ref DCMIEx_Byte_Select_Mode      */
                                             
@@ -114,7 +115,7 @@ typedef struct
   uint32_t LineSelectStart;             /*!< Specifies if the line of data to be captured by the interface is even or odd
                                             This parameter can be a value of @ref DCMIEx_Line_Select_Start     */
                                                                                         
-#endif /* STM32F446xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
 }DCMI_InitTypeDef;
 
 /**
@@ -122,7 +123,7 @@ typedef struct
   */
 
 /* Exported constants --------------------------------------------------------*/
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /** @defgroup DCMIEx_Exported_Constants DCMI Exported Constants
   * @{
   */
@@ -196,14 +197,15 @@ typedef struct
                                       
 #define IS_DCMI_LINE_SELECT_START(POLARITY)(((POLARITY) == DCMI_OELS_ODD) || \
                                             ((POLARITY) == DCMI_OELS_EVEN))
-#endif /* STM32F446xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
 /**
   * @}
   */
 
 /* Private functions ---------------------------------------------------------*/
 #endif /* STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
-          STM32F429xx || STM32F439xx || STM32F446xx */
+          STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx ||\
+          STM32F479xx */
 /**
   * @}
   */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -134,7 +134,8 @@
                                                  }while(0);
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) 
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) ||\
+    defined(STM32F469xx) || defined(STM32F479xx)
 /** @brief  FMC Bank1 (NOR/PSRAM 1 and 2) mapped at 0x00000000
   */
 #define __HAL_SYSCFG_REMAPMEMORY_FMC()       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
@@ -146,7 +147,37 @@
 #define __HAL_SYSCFG_REMAPMEMORY_FMC_SDRAM()       do {SYSCFG->MEMRMP &= ~(SYSCFG_MEMRMP_MEM_MODE);\
                                                        SYSCFG->MEMRMP |= (SYSCFG_MEMRMP_MEM_MODE_2);\
                                                       }while(0);
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */ 
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F469xx || STM32F479xx */ 
+
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
+/** @defgroup Cortex_Lockup_Enable Cortex Lockup Enable
+  * @{
+  */
+/** @brief  SYSCFG Break Lockup lock
+  *         Enables and locks the connection of Cortex-M4 LOCKUP (Hardfault) output to TIM1/8 input
+  * @note   The selected configuration is locked and can be unlocked by system reset
+  */
+#define __HAL_SYSCFG_BREAK_PVD_LOCK()      do {SYSCFG->CFGR2 &= ~(SYSCFG_CFGR2_PVD_LOCK); \
+                                               SYSCFG->CFGR2 |= SYSCFG_CFGR2_PVD_LOCK;    \
+                                              }while(0)
+/**
+ * @}
+ */
+                                                 
+/** @defgroup PVD_Lock_Enable PVD Lock
+  * @{
+  */
+/** @brief  SYSCFG Break PVD lock
+  *         Enables and locks the PVD connection with Timer1/8 Break Input, , as well as the PVDE and PLS[2:0] in the PWR_CR register
+  * @note   The selected configuration is locked and can be unlocked by system reset
+  */                                                
+#define __HAL_SYSCFG_BREAK_LOCKUP_LOCK()     do {SYSCFG->CFGR2 &= ~(SYSCFG_CFGR2_LOCKUP_LOCK); \
+                                                 SYSCFG->CFGR2 |= SYSCFG_CFGR2_LOCKUP_LOCK;    \
+                                                }while(0)
+/**
+ * @}
+ */
+#endif /* STM32F410Tx || STM32F410Cx || STM32F410Rx */
 /**
   * @}
   */
@@ -188,10 +219,11 @@ void HAL_DBGMCU_EnableDBGStandbyMode(void);
 void HAL_DBGMCU_DisableDBGStandbyMode(void);
 void HAL_EnableCompensationCell(void);
 void HAL_DisableCompensationCell(void);
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) ||\
+    defined(STM32F469xx) || defined(STM32F479xx)
 void HAL_EnableMemorySwappingBank(void);
 void HAL_DisableMemorySwappingBank(void);
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */ 
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F469xx || STM32F479xx */ 
 /**
   * @}
   */

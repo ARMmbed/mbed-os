@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_gpio.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of GPIO HAL module.
   ******************************************************************************
   * @attention
@@ -156,11 +156,11 @@ typedef enum
 /** @defgroup GPIO_speed_define  GPIO speed define
   * @brief GPIO Output Maximum frequency
   * @{
-  */  
-#define  GPIO_SPEED_LOW         ((uint32_t)0x00000000)  /*!< Low speed     */
-#define  GPIO_SPEED_MEDIUM      ((uint32_t)0x00000001)  /*!< Medium speed  */
-#define  GPIO_SPEED_FAST        ((uint32_t)0x00000002)  /*!< Fast speed    */
-#define  GPIO_SPEED_HIGH        ((uint32_t)0x00000003)  /*!< High speed    */
+  */
+#define  GPIO_SPEED_FREQ_LOW         ((uint32_t)0x00000000)  /*!< IO works at 2 MHz, please refer to the product datasheet */
+#define  GPIO_SPEED_FREQ_MEDIUM      ((uint32_t)0x00000001)  /*!< range 12,5 MHz to 50 MHz, please refer to the product datasheet */
+#define  GPIO_SPEED_FREQ_HIGH        ((uint32_t)0x00000002)  /*!< range 25 MHz to 100 MHz, please refer to the product datasheet  */
+#define  GPIO_SPEED_FREQ_VERY_HIGH   ((uint32_t)0x00000003)  /*!< range 50 MHz to 200 MHz, please refer to the product datasheet  */
 /**
   * @}
   */
@@ -293,8 +293,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
                             ((MODE) == GPIO_MODE_EVT_FALLING)        ||\
                             ((MODE) == GPIO_MODE_EVT_RISING_FALLING) ||\
                             ((MODE) == GPIO_MODE_ANALOG))
-#define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_SPEED_LOW)  || ((SPEED) == GPIO_SPEED_MEDIUM) || \
-                              ((SPEED) == GPIO_SPEED_FAST) || ((SPEED) == GPIO_SPEED_HIGH))
+#define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_SPEED_FREQ_LOW)  || ((SPEED) == GPIO_SPEED_FREQ_MEDIUM) || \
+                              ((SPEED) == GPIO_SPEED_FREQ_HIGH) || ((SPEED) == GPIO_SPEED_FREQ_VERY_HIGH))
 #define IS_GPIO_PULL(PULL) (((PULL) == GPIO_NOPULL) || ((PULL) == GPIO_PULLUP) || \
                             ((PULL) == GPIO_PULLDOWN))
 /**
