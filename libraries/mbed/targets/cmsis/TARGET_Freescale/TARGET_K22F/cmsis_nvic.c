@@ -31,7 +31,6 @@
 #include "cmsis_nvic.h"
 
 #define NVIC_RAM_VECTOR_ADDRESS (0x1FFF0000)  // Vectors positioned at start of RAM
-#define NVIC_FLASH_VECTOR_ADDRESS (__vector_table)       // Initial vector position in flash
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     uint32_t *vectors = (uint32_t*)SCB->VTOR;
