@@ -196,6 +196,28 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
     }
 
     /* Enabling pins and setting location */
+#ifdef _USART_ROUTEPEN_RESETVALUE
+    uint32_t route = USART_ROUTEPEN_CLKPEN;
+    obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CLKLOC_MASK;
+    obj->spi.spi->ROUTELOC0 |= pin_location(clk, PinMap_SPI_CLK)<<_USART_ROUTELOC0_CLKLOC_SHIFT;
+    if (mosi != NC) {
+        route |= USART_ROUTEPEN_TXPEN;
+        obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_TXLOC_MASK;
+        obj->spi.spi->ROUTELOC0 |= pin_location(mosi, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_TXLOC_SHIFT;
+    }
+    if (miso != NC) {
+        route |= USART_ROUTEPEN_RXPEN;
+        obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_RXLOC_MASK;
+        obj->spi.spi->ROUTELOC0 |= pin_location(mosi, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_RXLOC_SHIFT;
+    }
+    if (!obj->spi.master) {
+        route |= USART_ROUTEPEN_CSPEN;
+        obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CSLOC_MASK;
+        obj->spi.spi->ROUTELOC0 |= pin_location(mosi, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_CSLOC_SHIFT;
+    }
+    obj->spi.spi->ROUTEPEN = route;
+
+#else
     uint32_t route = USART_ROUTE_CLKPEN | (obj->spi.location << _USART_ROUTE_LOCATION_SHIFT);
 
     if (mosi != NC) {
@@ -209,7 +231,7 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
     }
     obj->spi.spi->ROUTE = route;
 }
-
+#endif
 void spi_enable(spi_t *obj, uint8_t enable)
 {
     USART_Enable(obj->spi.spi, (enable ? usartEnable : usartDisable));
@@ -306,14 +328,24 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     }
 
     //save state
+#ifdef _USART_ROUTEPEN_RESETVALUE
+    uint32_t route = obj->spi.spi->ROUTEPEN;
+    uint32_t loc = obj->spi.spi->ROUTELOC0;
+#else
     uint32_t route = obj->spi.spi->ROUTE;
+#endif
     uint32_t iflags = obj->spi.spi->IEN;
     bool enabled = (obj->spi.spi->STATUS & (USART_STATUS_RXENS | USART_STATUS_TXENS)) != 0;
 
     usart_init(obj, 100000, databits, (slave ? false : true), clockMode);
 
     //restore state
+#ifdef _USART_ROUTEPEN_RESETVALUE
+    uint32_t route = obj->spi.spi->ROUTEPEN;
+    uint32_t loc = obj->spi.spi->ROUTELOC0;
+#else
     obj->spi.spi->ROUTE = route;
+#endif
     obj->spi.spi->IEN = iflags;
 
     if(enabled) spi_enable(obj, enabled);
