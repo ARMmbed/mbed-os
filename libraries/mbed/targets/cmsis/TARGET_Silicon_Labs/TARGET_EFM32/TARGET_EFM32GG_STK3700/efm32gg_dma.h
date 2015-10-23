@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32gg_dma.h
  * @brief EFM32GG_DMA register and bit field definitions
- * @version 3.20.6
+ * @version 4.1.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -75,7 +75,6 @@ typedef struct
   __IO uint32_t  RECT0;          /**< Channel 0 Rectangle Register  */
 
   uint32_t       RESERVED6[39];  /**< Reserved registers */
-
   DMA_CH_TypeDef CH[12];         /**< Channel registers */
 } DMA_TypeDef;                   /** @} */
 
