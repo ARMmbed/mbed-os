@@ -2,7 +2,7 @@
 ; * @file startup_efm32gg.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32GG Device Series
-; * @version 3.20.6
+; * @version 4.1.0
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -262,15 +262,20 @@ MSC_IRQHandler
 AES_IRQHandler
 EBI_IRQHandler
 EMU_IRQHandler
-
-
                 B       .
-
                 ENDP
 
                 ALIGN
 
 ; User Initial Stack & Heap
+
+                IF      :DEF:__MICROLIB
+
+                EXPORT  __initial_sp
+                EXPORT  __heap_base
+                EXPORT  __heap_limit
+
+                ELSE
 
                 IMPORT  __use_two_region_memory
                 EXPORT  __user_initial_stackheap
@@ -284,5 +289,7 @@ __user_initial_stackheap PROC
                 ENDP
 
                 ALIGN
+
+                ENDIF
 
                 END
