@@ -109,7 +109,7 @@ static void usart_init(spi_t *obj, uint32_t baudrate, USART_Databits_TypeDef dat
     init.baudrate = baudrate;
     init.databits = databits;
     init.master = master;
-    init.msbf	= 1;
+    init.msbf   = 1;
     init.clockMode = clockMode;
 
     /* Determine the reference clock, because the correct clock is not set up at init time */
@@ -117,7 +117,19 @@ static void usart_init(spi_t *obj, uint32_t baudrate, USART_Databits_TypeDef dat
 
     USART_InitSync(obj->spi.spi, &init);
 }
-
+#ifdef LDMA_PRESENT
+void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
+{
+    obj->spi.spi = (USART_TypeDef *) pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    SPIName spi_cs = (SPIName) pinmap_peripheral(cs, PinMap_SPI_CS);
+    if (cs != NC) { /* Slave mode */
+        obj->spi.master = false;
+    } else {
+        obj->spi.master = true;
+    }
+    obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
+}
+#else
 void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
 {
     SPIName spi_mosi = (SPIName) pinmap_peripheral(mosi, PinMap_SPI_MOSI);
@@ -147,7 +159,7 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
 
     obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
 }
-
+#endif
 void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, PinName clk, PinName cs)
 {
     if (enable) {
@@ -216,7 +228,7 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
         obj->spi.spi->ROUTELOC0 |= pin_location(mosi, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_CSLOC_SHIFT;
     }
     obj->spi.spi->ROUTEPEN = route;
-
+}
 #else
     uint32_t route = USART_ROUTE_CLKPEN | (obj->spi.location << _USART_ROUTE_LOCATION_SHIFT);
 
@@ -341,8 +353,8 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     //restore state
 #ifdef _USART_ROUTEPEN_RESETVALUE
-    uint32_t route = obj->spi.spi->ROUTEPEN;
-    uint32_t loc = obj->spi.spi->ROUTELOC0;
+    obj->spi.spi->ROUTEPEN = route;
+    obj->spi.spi->ROUTELOC0 = loc;
 #else
     obj->spi.spi->ROUTE = route;
 #endif
@@ -438,7 +450,11 @@ uint8_t spi_active(spi_t *obj)
             return true;
         case DMA_USAGE_ALLOCATED:
             /* Check whether the allocated DMA channel is active */
+#ifdef LDMA_PRESENT
+            return !LDMA_TransferDone(obj->spi.dmaOptionsTX.dmaChannel);
+#else
             return(DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
+#endif
         default:
             /* Check whether interrupt for spi is enabled */
             return (obj->spi.spi->IEN & (USART_IEN_RXDATAV | USART_IEN_TXBL)) ? true : false;
@@ -701,11 +717,11 @@ bool spi_allocate_dma(spi_t *obj)
 * This function tries to allocate DMA as indicated by the hint (state).
 * There are three possibilities:
 *   * state = NEVER:
-*		if there were channels allocated by state = ALWAYS, they will be released
+*       if there were channels allocated by state = ALWAYS, they will be released
 *   * state = OPPORTUNITIC:
-*		if there are channels available, they will get used, but freed upon transfer completion
-*	* state = ALWAYS
-*		if there are channels available, they will get allocated and not be freed until state changes
+*       if there are channels available, they will get used, but freed upon transfer completion
+*   * state = ALWAYS
+*       if there are channels available, they will get allocated and not be freed until state changes
 ******************************************/
 void spi_enable_dma(spi_t *obj, DMAUsage state)
 {
@@ -738,6 +754,29 @@ void spi_enable_dma(spi_t *obj, DMAUsage state)
     }
 }
 
+#ifdef LDMA_PRESENT
+/************************************************************************************
+ *          DMA helper functions                                                    *
+ ************************************************************************************/
+/******************************************
+* static void serial_dmaTransferComplete(uint channel, bool primary, void* user)
+*
+* Callback function which gets called upon DMA transfer completion
+* the user-defined pointer is pointing to the CPP-land thunk
+******************************************/
+static void serial_dmaTransferComplete(unsigned int channel, bool primary, void *user)
+{
+
+    /* User pointer should be a thunk to CPP land */
+    if (user != NULL) {
+        ((DMACallback)user)();
+    }
+}
+static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
+{
+    obj->spi.dmaOptionsRX.dmaCallback.userPtr = callback;
+}
+#else
 /******************************************
 * void spi_master_dma_channel_setup(spi_t *obj)
 *
@@ -793,7 +832,78 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
     DMA_CfgChannel(obj->spi.dmaOptionsRX.dmaChannel, &rxChnlCfg);
     DMA_CfgChannel(obj->spi.dmaOptionsTX.dmaChannel, &txChnlCfg);
 }
+#endif // LDMA_PRESENT
+/******************************************
+* void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int length)
+*
+* This function will start the DMA engine for SPI transfers
+*
+*   * rxdata: pointer to RX buffer, if needed.
+*   * txdata: pointer to TX buffer, if needed. Else FF's.
+*   * tx_length: how many bytes will get sent.
+*   * rx_length: how many bytes will get received. If > tx_length, TX will get padded with n lower bits of SPI_FILL_WORD.
+******************************************/
+#ifdef LDMA_PRESENT
+static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int tx_length, int rx_length)
+{
+    LDMA_PeripheralSignal_t dma_periph;
 
+    if( txdata ) {
+        volatile void *target_addr;
+
+        switch((int)obj->spi.spi) {
+            case USART_0:
+                dma_periph = ldmaPeripheralSignal_USART0_TXBL;
+                target_addr = &USART0->TXDATA;
+                break;
+            case USART_1:
+                dma_periph = ldmaPeripheralSignal_USART1_TXBL;
+                target_addr = &USART1->TXDATA;
+                break;
+            case LEUART_0:
+                dma_periph = ldmaPeripheralSignal_LEUART0_TXBL;
+                target_addr = &LEUART0->TXDATA;
+                break;
+            default:
+                EFM_ASSERT(0);
+                while(1);
+                break;
+        }
+
+        LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
+        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(txdata, target_addr, tx_length);
+        LDMA_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
+
+    }
+    if(rxdata) {
+        volatile const void *source_addr;
+
+        switch((int)obj->spi.spi) {
+            case USART_0:
+                dma_periph = ldmaPeripheralSignal_USART0_RXDATAV;
+                source_addr = &USART0->RXDATA;
+                break;
+            case USART_1:
+                dma_periph = ldmaPeripheralSignal_USART1_RXDATAV;
+                source_addr = &USART1->RXDATA;
+                break;
+            case LEUART_0:
+                dma_periph = ldmaPeripheralSignal_LEUART0_RXDATAV;
+                source_addr = &LEUART0->RXDATA;
+                break;
+            default:
+                EFM_ASSERT(0);
+                while(1);
+                break;
+        }
+
+        LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
+        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
+        LDMA_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr); // obj->spi.dmaOptionsTX.dmaCallback JJH
+    }
+}
+
+#else
 /******************************************
 * void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int length)
 *
@@ -861,7 +971,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
         /* Activate TX channel */
-        DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+        DMA_ActivateBasic(  obj->spi.dmaOptionsTX.dmaChannel,
                             true,
                             false,
                             (obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
@@ -899,7 +1009,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
         /* Activate TX channel */
-        DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+        DMA_ActivateBasic(  obj->spi.dmaOptionsTX.dmaChannel,
                             true,
                             false,
                             (void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
@@ -907,7 +1017,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                             (tx_length / 2) - 1); // When using TXDOUBLE, recalculate transfer length
     }
 }
-
+#endif //LDMA_PRESENT
 /********************************************************************
 * spi_master_transfer_dma(spi_t *obj, void *rxdata, void *txdata, int length, DMACallback cb, DMAUsage hint)
 *
@@ -1012,6 +1122,11 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 * return: event mask. Currently only 0 or SPI_EVENT_COMPLETE upon transfer completion.
 *
 ********************************************************************/
+#ifdef LDMA_PRESENT
+uint32_t spi_irq_handler_asynch(spi_t* obj)
+{
+}
+#else
 uint32_t spi_irq_handler_asynch(spi_t* obj)
 {
 
@@ -1054,7 +1169,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
                     DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
                     /* Activate TX channel */
-                    DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+                    DMA_ActivateBasic(  obj->spi.dmaOptionsTX.dmaChannel,
                                         true,
                                         false,
                                         (obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
@@ -1070,7 +1185,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
                     txDescrCfg.hprot = 0;
                     DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
 
-                    DMA_ActivateBasic(	obj->spi.dmaOptionsTX.dmaChannel,
+                    DMA_ActivateBasic(  obj->spi.dmaOptionsTX.dmaChannel,
                                         true,
                                         false,
                                         (void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
@@ -1120,7 +1235,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
         return 0;
     }
 }
-
+#endif LDMA_PRESENT
 /** Abort an SPI transfer
  *
  * @param obj The SPI peripheral to stop
