@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_gpio_p.h
  * @brief EFM32LG_GPIO_P register and bit field definitions
- * @version 3.20.6
+ * @version 4.1.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
