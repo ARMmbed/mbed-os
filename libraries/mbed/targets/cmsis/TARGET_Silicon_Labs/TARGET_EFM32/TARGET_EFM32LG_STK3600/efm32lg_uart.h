@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_uart.h
  * @brief EFM32LG_UART register and bit field definitions
- * @version 3.20.6
+ * @version 4.1.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -37,7 +37,7 @@
 
 /* Bit fields for UART CTRL */
 #define _UART_CTRL_RESETVALUE                0x00000000UL                            /**< Default value for UART_CTRL */
-#define _UART_CTRL_MASK                      0x7DFFFF7FUL                            /**< Mask for UART_CTRL */
+#define _UART_CTRL_MASK                      0xFFFFFF7FUL                            /**< Mask for UART_CTRL */
 #define UART_CTRL_SYNC                       (0x1UL << 0)                            /**< USART Synchronous Mode */
 #define _UART_CTRL_SYNC_SHIFT                0                                       /**< Shift value for USART_SYNC */
 #define _UART_CTRL_SYNC_MASK                 0x1UL                                   /**< Bit mask for USART_SYNC */
@@ -176,6 +176,11 @@
 #define _UART_CTRL_ERRSTX_MASK               0x1000000UL                             /**< Bit mask for USART_ERRSTX */
 #define _UART_CTRL_ERRSTX_DEFAULT            0x00000000UL                            /**< Mode DEFAULT for UART_CTRL */
 #define UART_CTRL_ERRSTX_DEFAULT             (_UART_CTRL_ERRSTX_DEFAULT << 24)       /**< Shifted mode DEFAULT for UART_CTRL */
+#define UART_CTRL_SSSEARLY                   (0x1UL << 25)                           /**< Synchronous Slave Setup Early */
+#define _UART_CTRL_SSSEARLY_SHIFT            25                                      /**< Shift value for USART_SSSEARLY */
+#define _UART_CTRL_SSSEARLY_MASK             0x2000000UL                             /**< Bit mask for USART_SSSEARLY */
+#define _UART_CTRL_SSSEARLY_DEFAULT          0x00000000UL                            /**< Mode DEFAULT for UART_CTRL */
+#define UART_CTRL_SSSEARLY_DEFAULT           (_UART_CTRL_SSSEARLY_DEFAULT << 25)     /**< Shifted mode DEFAULT for UART_CTRL */
 #define _UART_CTRL_TXDELAY_SHIFT             26                                      /**< Shift value for USART_TXDELAY */
 #define _UART_CTRL_TXDELAY_MASK              0xC000000UL                             /**< Bit mask for USART_TXDELAY */
 #define _UART_CTRL_TXDELAY_DEFAULT           0x00000000UL                            /**< Mode DEFAULT for UART_CTRL */
@@ -203,6 +208,11 @@
 #define _UART_CTRL_MVDIS_MASK                0x40000000UL                            /**< Bit mask for USART_MVDIS */
 #define _UART_CTRL_MVDIS_DEFAULT             0x00000000UL                            /**< Mode DEFAULT for UART_CTRL */
 #define UART_CTRL_MVDIS_DEFAULT              (_UART_CTRL_MVDIS_DEFAULT << 30)        /**< Shifted mode DEFAULT for UART_CTRL */
+#define UART_CTRL_SMSDELAY                   (0x1UL << 31)                           /**< Synchronous Master Sample Delay */
+#define _UART_CTRL_SMSDELAY_SHIFT            31                                      /**< Shift value for USART_SMSDELAY */
+#define _UART_CTRL_SMSDELAY_MASK             0x80000000UL                            /**< Bit mask for USART_SMSDELAY */
+#define _UART_CTRL_SMSDELAY_DEFAULT          0x00000000UL                            /**< Mode DEFAULT for UART_CTRL */
+#define UART_CTRL_SMSDELAY_DEFAULT           (_UART_CTRL_SMSDELAY_DEFAULT << 31)     /**< Shifted mode DEFAULT for UART_CTRL */
 
 /* Bit fields for UART FRAME */
 #define _UART_FRAME_RESETVALUE               0x00001005UL                             /**< Default value for UART_FRAME */

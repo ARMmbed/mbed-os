@@ -2,7 +2,7 @@
 ; * @file startup_efm32lg.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32LG Device Series
-; * @version 3.20.6
+; * @version 4.1.0
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -34,7 +34,6 @@ Stack_Size      EQU     0x00000400
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
 __initial_sp    EQU     0x20008000
-
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
@@ -117,6 +116,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     AES_IRQHandler        ; 36: AES Interrupt
                 DCD     EBI_IRQHandler        ; 37: EBI Interrupt
                 DCD     EMU_IRQHandler        ; 38: EMU Interrupt
+                DCD     0                         ; 39: Reserved
 
 __Vectors_End
 __Vectors_Size  EQU     __Vectors_End - __Vectors
@@ -263,9 +263,7 @@ AES_IRQHandler
 EBI_IRQHandler
 EMU_IRQHandler
 
-
                 B       .
-
                 ENDP
 
                 ALIGN
