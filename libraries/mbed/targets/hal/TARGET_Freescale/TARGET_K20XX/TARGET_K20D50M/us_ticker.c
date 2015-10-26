@@ -55,8 +55,10 @@ static volatile uint32_t msb_counter = 0;
 static uint32_t timer_ldval = 0;
 
 static void timer_isr(void) {
-    msb_counter++;
-    PIT_TIMER.TFLG = 1;
+    if (PIT_TIMER.TFLG == 1) {
+        msb_counter++;
+        PIT_TIMER.TFLG = 1;
+    }
 }
 
 static void timer_init(void) {  
