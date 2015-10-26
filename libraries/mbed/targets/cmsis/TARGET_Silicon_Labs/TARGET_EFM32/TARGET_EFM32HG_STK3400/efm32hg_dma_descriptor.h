@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32hg_dma_descriptor.h
  * @brief EFM32HG_DMA_DESCRIPTOR register and bit field definitions
- * @version 3.20.12
+ * @version 4.1.0
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>

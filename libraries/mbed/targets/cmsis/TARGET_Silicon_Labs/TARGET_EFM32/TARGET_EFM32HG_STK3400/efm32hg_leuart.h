@@ -1,7 +1,7 @@
 /**************************************************************************//**
  * @file efm32hg_leuart.h
  * @brief EFM32HG_LEUART register and bit field definitions
- * @version 3.20.12
+ * @version 4.1.0
  ******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
