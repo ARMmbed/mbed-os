@@ -2,7 +2,7 @@
 ; * @file startup_efm32zg.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32ZG Device Series
-; * @version 3.20.6
+; * @version 4.1.0
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -29,7 +29,7 @@
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Stack_Size      EQU     0x00000200
+Stack_Size      EQU     0x00000400
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
@@ -95,6 +95,8 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     VCMP_IRQHandler        ; 14: VCMP Interrupt
                 DCD     MSC_IRQHandler        ; 15: MSC Interrupt
                 DCD     AES_IRQHandler        ; 16: AES Interrupt
+                DCD     0                         ; 17: Reserved
+                DCD     0                         ; 18: Reserved
 
 __Vectors_End
 __Vectors_Size  EQU     __Vectors_End - __Vectors
@@ -177,17 +179,34 @@ VCMP_IRQHandler
 MSC_IRQHandler
 AES_IRQHandler
 
-
                 B       .
-
                 ENDP
 
                 ALIGN
 
 ; User Initial Stack & Heap
 
+                IF      :DEF:__MICROLIB
+
                 EXPORT  __initial_sp
                 EXPORT  __heap_base
                 EXPORT  __heap_limit
+
+                ELSE
+
+                IMPORT  __use_two_region_memory
+                EXPORT  __user_initial_stackheap
+
+__user_initial_stackheap PROC
+                LDR     R0, =  Heap_Mem
+                LDR     R1, =(Stack_Mem + Stack_Size)
+                LDR     R2, = (Heap_Mem +  Heap_Size)
+                LDR     R3, = Stack_Mem
+                BX      LR
+                ENDP
+
+                ALIGN
+
+                ENDIF
 
                 END
