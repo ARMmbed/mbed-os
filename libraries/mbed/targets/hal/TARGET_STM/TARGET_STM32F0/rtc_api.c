@@ -33,6 +33,14 @@
 
 #include "mbed_error.h"
 
+// There is no LSE oscillator on these boards
+#if defined(TARGET_NUCLEO_F031K6) || defined(TARGET_NUCLEO_F042K6)
+#define USE_LSE_OSCILLATOR 0
+#warning The RTC is running on the LSI oscillator (time precision may be affected).
+#else
+#define USE_LSE_OSCILLATOR 1
+#endif
+
 static int rtc_inited = 0;
 
 static RTC_HandleTypeDef RtcHandle;
@@ -56,6 +64,7 @@ void rtc_init(void) {
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
 
+#if USE_LSE_OSCILLATOR == 1
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
@@ -64,7 +73,9 @@ void rtc_init(void) {
         // Connect LSE to RTC
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
         rtc_freq = LSE_VALUE;
-    } else {
+    } else
+#endif
+    {
         // Enable LSI clock
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
