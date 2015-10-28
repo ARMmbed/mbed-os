@@ -49,9 +49,4 @@ void coap_server_delete_session(int8_t service_id);
 
 int8_t coap_server_service_init(int8_t interface_id, uint16_t listen_port, uint8_t service_options);
 
-coap_service_session_t *coap_service_search_from_list(int8_t interface_id);
-
-coap_service_session_t *coap_service_find_by_service(int8_t service_id);
-
-
 #endif /* COAP_SERVER_H_ */

@@ -26,6 +26,8 @@
 
 //typedef struct sn_coap_hdr_s sn_coap_hdr_s;
 
+static coap_service_session_t *coap_service_find_by_service(int8_t service_id);
+
 /* Coap service class handlers*/
 
 void coap_server_delete_session(int8_t service_id)
@@ -43,27 +45,9 @@ void coap_server_delete_session(int8_t service_id)
 
 }
 
-static coap_service_session_t *coap_service_search_from_list(int8_t interface_id)
-{
-	coap_service_session_t *this = NULL;
-
-	/*
-	ns_list_foreach(coap_service_session_t,cur_ptr, &instance_list)
-    {
-        if(cur_ptr->interface_id == interface_id)
-        {
-            this = cur_ptr;
-            break;
-        }
-    }
-	*/
-
-    return this;
-}
-
-
 static coap_service_session_t *coap_service_find_by_service(int8_t service_id)
 {
+    (void)service_id;
 	coap_service_session_t *this = NULL;
 
 	/*
@@ -90,6 +74,8 @@ static coap_service_session_t *coap_service_find_by_service(int8_t service_id)
  */
 int8_t coap_server_service_init(int8_t interface_id, uint16_t listen_port, uint8_t service_options)
 {
+    (void)listen_port;
+    (void)service_options;
 	int retVal = -1;
 	int8_t socketInstance;
 
