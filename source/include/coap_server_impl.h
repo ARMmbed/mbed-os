@@ -34,8 +34,6 @@ void *memory_allocation(uint16_t size);
 
 void memory_free(void* ptr);
 
-static int8_t coap_server_service_tasklet_generated(void);
-
 void coap_server_service_tasklet(arm_event_s * event);
 
 uint16_t socket_open(uint16_t listen_port, coap_service_request_recv_cb *requst_recv_cb);

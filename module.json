@@ -19,10 +19,10 @@
     "source/include"
   ],
   "dependencies": {
-    "nanostack-libservice": "~3.0.0",
-    "mbed-client-c": "~0.1.6",
-    "sal-stack-nanostack-eventloop": "~0.0.8",
-    "sal-stack-nanostack": "^2.1.0"
+    "nanostack-libservice": "^3.0.0",
+    "mbed-client-c": "^1.1.0",
+    "sal-stack-nanostack-eventloop": "^1.0.0",
+    "sal-stack-nanostack": "^3.0.0"
   },
   "targetDependencies": {}
 }

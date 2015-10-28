@@ -30,6 +30,7 @@
 
 static int8_t coap_service_tasklet = -1;
 
+static int8_t coap_server_service_tasklet_generated(void);
 void coap_server_service_tasklet(arm_event_s * event);
 
 int8_t coap_server_start(void)
