@@ -58,18 +58,15 @@ typedef enum {
 
 typedef enum {
     I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE
-//    I2C_3 = (int)FMPI2C1_BASE /* is it a normal i2c? */
+    I2C_2 = (int)I2C2_BASE,
+    FMPI2C_1 = (int)FMPI2C1_BASE
 } I2CName;
 
 typedef enum {
     PWM_1  = (int)TIM1_BASE,
-//    PWM_2  = (int)TIM2_BASE,
-//    PWM_3  = (int)TIM3_BASE,
-//    PWM_4  = (int)TIM4_BASE,
     PWM_5  = (int)TIM5_BASE,
+    PWM_6  = (int)TIM6_BASE,
     PWM_9  = (int)TIM9_BASE,
-//    PWM_10 = (int)TIM10_BASE,
     PWM_11 = (int)TIM11_BASE
 } PWMName;
 
