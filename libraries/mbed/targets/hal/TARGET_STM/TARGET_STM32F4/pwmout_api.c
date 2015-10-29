@@ -51,19 +51,32 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->inverted = STM_PIN_INVERTED(function);
 
     // Enable TIM clock
+#if defined(TIM1_BASE)
     if (obj->pwm == PWM_1) __HAL_RCC_TIM1_CLK_ENABLE();
+#endif
+#if defined(TIM2_BASE)
     if (obj->pwm == PWM_2) __HAL_RCC_TIM2_CLK_ENABLE();
+#endif
+#if defined(TIM3_BASE)
     if (obj->pwm == PWM_3) __HAL_RCC_TIM3_CLK_ENABLE();
+#endif
+#if defined(TIM4_BASE)
     if (obj->pwm == PWM_4) __HAL_RCC_TIM4_CLK_ENABLE();
 #if defined(TIM5_BASE)
     if (obj->pwm == PWM_5) __HAL_RCC_TIM5_CLK_ENABLE();
-#endif	
+#endif
 #if defined(TIM8_BASE)
     if (obj->pwm == PWM_8) __HAL_RCC_TIM8_CLK_ENABLE();
 #endif
+#if defined(TIM9_BASE)
     if (obj->pwm == PWM_9) __HAL_RCC_TIM9_CLK_ENABLE();
+#endif
+#if defined(TIM10_BASE)
     if (obj->pwm == PWM_10) __HAL_RCC_TIM10_CLK_ENABLE();
+#endif
+#if defined(TIM11_BASE)
     if (obj->pwm == PWM_11) __HAL_RCC_TIM11_CLK_ENABLE();
+#endif
 #if defined(TIM12_BASE)
     if (obj->pwm == PWM_12) __HAL_RCC_TIM12_CLK_ENABLE();
 #endif
@@ -179,10 +192,18 @@ void pwmout_period_us(pwmout_t* obj, int us)
     switch (obj->pwm) {
       
         // APB1 clock
+#if defined(TIM2_BASE)
         case PWM_2:
+#endif
+#if defined(TIM3_BASE)
         case PWM_3:
+#endif
+#if defined(TIM4_BASE)
         case PWM_4:
+#endif
+#if defined(TIM5_BASE)
         case PWM_5:
+#endif
 #if defined(TIM12_BASE)
         case PWM_12:
 #endif
@@ -197,13 +218,21 @@ void pwmout_period_us(pwmout_t* obj, int us)
             break;
         
         // APB2 clock
+#if defined(TIM1_BASE)
         case PWM_1:
+#endif
 #if defined(TIM8_BASE)
         case PWM_8:
 #endif
+#if defined(TIM9_BASE)
         case PWM_9:
+#endif
+#if defined(TIM10_BASE)
         case PWM_10:
+#endif
+#if defined(TIM11_BASE)
         case PWM_11:
+#endif
             PclkFreq = HAL_RCC_GetPCLK2Freq();
             APBxCLKDivider = RCC_ClkInitStruct.APB2CLKDivider;
             break;
