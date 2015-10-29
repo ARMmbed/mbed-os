@@ -1,13 +1,13 @@
 /**************************************************************************//**
  * @file     core_cmInstr.h
  * @brief    CMSIS Cortex-M Core Instruction Access Header File
- * @version  V3.20
- * @date     05. March 2013
+ * @version  V4.10
+ * @date     18. March 2015
  *
  * @note
  *
  ******************************************************************************/
-/* Copyright (c) 2009 - 2013 ARM LIMITED
+/* Copyright (c) 2009 - 2014 ARM LIMITED
 
    All rights reserved.
    Redistribution and use in source and binary forms, with or without
@@ -89,24 +89,33 @@
     so that all instructions following the ISB are fetched from cache or
     memory, after the instruction has been completed.
  */
-#define __ISB()                           __isb(0xF)
-
+#define __ISB() do {\
+                   __schedule_barrier();\
+                   __isb(0xF);\
+                   __schedule_barrier();\
+                } while (0)
 
 /** \brief  Data Synchronization Barrier
 
     This function acts as a special kind of Data Memory Barrier.
     It completes when all explicit memory accesses before this instruction complete.
  */
-#define __DSB()                           __dsb(0xF)
-
+#define __DSB() do {\
+                   __schedule_barrier();\
+                   __dsb(0xF);\
+                   __schedule_barrier();\
+                } while (0)
 
 /** \brief  Data Memory Barrier
 
     This function ensures the apparent order of the explicit memory operations before
     and after the instruction, without ensuring their completion.
  */
-#define __DMB()                           __dmb(0xF)
-
+#define __DMB() do {\
+                   __schedule_barrier();\
+                   __dmb(0xF);\
+                   __schedule_barrier();\
+                } while (0)
 
 /** \brief  Reverse byte order (32 bit)
 
@@ -171,8 +180,6 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 #define __BKPT(value)                       __breakpoint(value)
 
 
-#if       (__CORTEX_M >= 0x03)
-
 /** \brief  Reverse bit order of value
 
     This function reverses the bit order of the given value.
@@ -180,12 +187,42 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
     \param [in]    value  Value to reverse
     \return               Reversed value
  */
-#define __RBIT                            __rbit
+#if       (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300)
+  #define __RBIT                          __rbit
+#else
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __RBIT(uint32_t value)
+{
+  uint32_t result;
+  int32_t s = 4 /*sizeof(v)*/ * 8 - 1; // extra shift needed at end
 
+  result = value;                      // r will be reversed bits of v; first get LSB of v
+  for (value >>= 1; value; value >>= 1)
+  {
+    result <<= 1;
+    result |= value & 1;
+    s--;
+  }
+  result <<= s;                       // shift when v's highest bits are zero
+  return(result);
+}
+#endif
+
+
+/** \brief  Count leading zeros
+
+    This function counts the number of leading zeros of a data value.
+
+    \param [in]  value  Value to count the leading zeros
+    \return             number of leading zeros in value
+ */
+#define __CLZ                             __clz
+
+
+#if       (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300)
 
 /** \brief  LDR Exclusive (8 bit)
 
-    This function performs a exclusive LDR command for 8 bit value.
+    This function executes a exclusive LDR instruction for 8 bit value.
 
     \param [in]    ptr  Pointer to data
     \return             value of type uint8_t at (*ptr)
@@ -195,7 +232,7 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 
 /** \brief  LDR Exclusive (16 bit)
 
-    This function performs a exclusive LDR command for 16 bit values.
+    This function executes a exclusive LDR instruction for 16 bit values.
 
     \param [in]    ptr  Pointer to data
     \return        value of type uint16_t at (*ptr)
@@ -205,7 +242,7 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 
 /** \brief  LDR Exclusive (32 bit)
 
-    This function performs a exclusive LDR command for 32 bit values.
+    This function executes a exclusive LDR instruction for 32 bit values.
 
     \param [in]    ptr  Pointer to data
     \return        value of type uint32_t at (*ptr)
@@ -215,7 +252,7 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 
 /** \brief  STR Exclusive (8 bit)
 
-    This function performs a exclusive STR command for 8 bit values.
+    This function executes a exclusive STR instruction for 8 bit values.
 
     \param [in]  value  Value to store
     \param [in]    ptr  Pointer to location
@@ -227,7 +264,7 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 
 /** \brief  STR Exclusive (16 bit)
 
-    This function performs a exclusive STR command for 16 bit values.
+    This function executes a exclusive STR instruction for 16 bit values.
 
     \param [in]  value  Value to store
     \param [in]    ptr  Pointer to location
@@ -239,7 +276,7 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 
 /** \brief  STR Exclusive (32 bit)
 
-    This function performs a exclusive STR command for 32 bit values.
+    This function executes a exclusive STR instruction for 32 bit values.
 
     \param [in]  value  Value to store
     \param [in]    ptr  Pointer to location
@@ -279,29 +316,83 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 #define __USAT                            __usat
 
 
-/** \brief  Count leading zeros
+/** \brief  Rotate Right with Extend (32 bit)
 
-    This function counts the number of leading zeros of a data value.
+    This function moves each bit of a bitstring right by one bit.
+    The carry input is shifted in at the left end of the bitstring.
 
-    \param [in]  value  Value to count the leading zeros
-    \return             number of leading zeros in value
+    \param [in]    value  Value to rotate
+    \return               Rotated value
  */
-#define __CLZ                             __clz
-
-#endif /* (__CORTEX_M >= 0x03) */
-
-
-
-#elif defined ( __ICCARM__ ) /*------------------ ICC Compiler -------------------*/
-/* IAR iccarm specific functions */
-
-#include <cmsis_iar.h>
+#ifndef __NO_EMBEDDED_ASM
+__attribute__((section(".rrx_text"))) __STATIC_INLINE __ASM uint32_t __RRX(uint32_t value)
+{
+  rrx r0, r0
+  bx lr
+}
+#endif
 
 
-#elif defined ( __TMS470__ ) /*---------------- TI CCS Compiler ------------------*/
-/* TI CCS specific functions */
+/** \brief  LDRT Unprivileged (8 bit)
 
-#include <cmsis_ccs.h>
+    This function executes a Unprivileged LDRT instruction for 8 bit value.
+
+    \param [in]    ptr  Pointer to data
+    \return             value of type uint8_t at (*ptr)
+ */
+#define __LDRBT(ptr)                      ((uint8_t )  __ldrt(ptr))
+
+
+/** \brief  LDRT Unprivileged (16 bit)
+
+    This function executes a Unprivileged LDRT instruction for 16 bit values.
+
+    \param [in]    ptr  Pointer to data
+    \return        value of type uint16_t at (*ptr)
+ */
+#define __LDRHT(ptr)                      ((uint16_t)  __ldrt(ptr))
+
+
+/** \brief  LDRT Unprivileged (32 bit)
+
+    This function executes a Unprivileged LDRT instruction for 32 bit values.
+
+    \param [in]    ptr  Pointer to data
+    \return        value of type uint32_t at (*ptr)
+ */
+#define __LDRT(ptr)                       ((uint32_t ) __ldrt(ptr))
+
+
+/** \brief  STRT Unprivileged (8 bit)
+
+    This function executes a Unprivileged STRT instruction for 8 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+#define __STRBT(value, ptr)               __strt(value, ptr)
+
+
+/** \brief  STRT Unprivileged (16 bit)
+
+    This function executes a Unprivileged STRT instruction for 16 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+#define __STRHT(value, ptr)               __strt(value, ptr)
+
+
+/** \brief  STRT Unprivileged (32 bit)
+
+    This function executes a Unprivileged STRT instruction for 32 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+#define __STRT(value, ptr)                __strt(value, ptr)
+
+#endif /* (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300) */
 
 
 #elif defined ( __GNUC__ ) /*------------------ GNU Compiler ---------------------*/
@@ -322,7 +413,7 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(in
 
     No Operation does nothing. This instruction can be used for code alignment purposes.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __NOP(void)
+__attribute__((always_inline)) __STATIC_INLINE void __NOP(void)
 {
   __ASM volatile ("nop");
 }
@@ -333,7 +424,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __NOP(void)
     Wait For Interrupt is a hint instruction that suspends execution
     until one of a number of events occurs.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __WFI(void)
+__attribute__((always_inline)) __STATIC_INLINE void __WFI(void)
 {
   __ASM volatile ("wfi");
 }
@@ -344,7 +435,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __WFI(void)
     Wait For Event is a hint instruction that permits the processor to enter
     a low-power state until one of a number of events occurs.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __WFE(void)
+__attribute__((always_inline)) __STATIC_INLINE void __WFE(void)
 {
   __ASM volatile ("wfe");
 }
@@ -354,7 +445,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __WFE(void)
 
     Send Event is a hint instruction. It causes an event to be signaled to the CPU.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __SEV(void)
+__attribute__((always_inline)) __STATIC_INLINE void __SEV(void)
 {
   __ASM volatile ("sev");
 }
@@ -366,9 +457,9 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __SEV(void)
     so that all instructions following the ISB are fetched from cache or
     memory, after the instruction has been completed.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __ISB(void)
+__attribute__((always_inline)) __STATIC_INLINE void __ISB(void)
 {
-  __ASM volatile ("isb");
+  __ASM volatile ("isb 0xF":::"memory");
 }
 
 
@@ -377,9 +468,9 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __ISB(void)
     This function acts as a special kind of Data Memory Barrier.
     It completes when all explicit memory accesses before this instruction complete.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __DSB(void)
+__attribute__((always_inline)) __STATIC_INLINE void __DSB(void)
 {
-  __ASM volatile ("dsb");
+  __ASM volatile ("dsb 0xF":::"memory");
 }
 
 
@@ -388,9 +479,9 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __DSB(void)
     This function ensures the apparent order of the explicit memory operations before
     and after the instruction, without ensuring their completion.
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __DMB(void)
+__attribute__((always_inline)) __STATIC_INLINE void __DMB(void)
 {
-  __ASM volatile ("dmb");
+  __ASM volatile ("dmb 0xF":::"memory");
 }
 
 
@@ -401,7 +492,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __DMB(void)
     \param [in]    value  Value to reverse
     \return               Reversed value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __REV(uint32_t value)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __REV(uint32_t value)
 {
 #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
   return __builtin_bswap32(value);
@@ -421,7 +512,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __REV(uint32_t value
     \param [in]    value  Value to reverse
     \return               Reversed value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __REV16(uint32_t value)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __REV16(uint32_t value)
 {
   uint32_t result;
 
@@ -437,7 +528,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __REV16(uint32_t val
     \param [in]    value  Value to reverse
     \return               Reversed value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE int32_t __REVSH(int32_t value)
+__attribute__((always_inline)) __STATIC_INLINE int32_t __REVSH(int32_t value)
 {
 #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
   return (short)__builtin_bswap16(value);
@@ -458,9 +549,9 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE int32_t __REVSH(int32_t value
     \param [in]    value  Number of Bits to rotate
     \return               Rotated value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __ROR(uint32_t op1, uint32_t op2)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __ROR(uint32_t op1, uint32_t op2)
 {
-  return (op1 >> op2) | (op1 << (32 - op2)); 
+  return (op1 >> op2) | (op1 << (32 - op2));
 }
 
 
@@ -475,8 +566,6 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __ROR(uint32_t op1, 
 #define __BKPT(value)                       __ASM volatile ("bkpt "#value)
 
 
-#if       (__CORTEX_M >= 0x03)
-
 /** \brief  Reverse bit order of value
 
     This function reverses the bit order of the given value.
@@ -484,23 +573,48 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __ROR(uint32_t op1, 
     \param [in]    value  Value to reverse
     \return               Reversed value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __RBIT(uint32_t value)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __RBIT(uint32_t value)
 {
   uint32_t result;
 
+#if       (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300)
    __ASM volatile ("rbit %0, %1" : "=r" (result) : "r" (value) );
-   return(result);
+#else
+  int32_t s = 4 /*sizeof(v)*/ * 8 - 1; // extra shift needed at end
+
+  result = value;                      // r will be reversed bits of v; first get LSB of v
+  for (value >>= 1; value; value >>= 1)
+  {
+    result <<= 1;
+    result |= value & 1;
+    s--;
+  }
+  result <<= s;                       // shift when v's highest bits are zero
+#endif
+  return(result);
 }
 
 
+/** \brief  Count leading zeros
+
+    This function counts the number of leading zeros of a data value.
+
+    \param [in]  value  Value to count the leading zeros
+    \return             number of leading zeros in value
+ */
+#define __CLZ             __builtin_clz
+
+
+#if       (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300)
+
 /** \brief  LDR Exclusive (8 bit)
 
-    This function performs a exclusive LDR command for 8 bit value.
+    This function executes a exclusive LDR instruction for 8 bit value.
 
     \param [in]    ptr  Pointer to data
     \return             value of type uint8_t at (*ptr)
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint8_t __LDREXB(volatile uint8_t *addr)
+__attribute__((always_inline)) __STATIC_INLINE uint8_t __LDREXB(volatile uint8_t *addr)
 {
     uint32_t result;
 
@@ -512,18 +626,18 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint8_t __LDREXB(volatile uin
     */
    __ASM volatile ("ldrexb %0, [%1]" : "=r" (result) : "r" (addr) : "memory" );
 #endif
-   return(result);
+   return ((uint8_t) result);    /* Add explicit type cast here */
 }
 
 
 /** \brief  LDR Exclusive (16 bit)
 
-    This function performs a exclusive LDR command for 16 bit values.
+    This function executes a exclusive LDR instruction for 16 bit values.
 
     \param [in]    ptr  Pointer to data
     \return        value of type uint16_t at (*ptr)
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint16_t __LDREXH(volatile uint16_t *addr)
+__attribute__((always_inline)) __STATIC_INLINE uint16_t __LDREXH(volatile uint16_t *addr)
 {
     uint32_t result;
 
@@ -535,18 +649,18 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint16_t __LDREXH(volatile ui
     */
    __ASM volatile ("ldrexh %0, [%1]" : "=r" (result) : "r" (addr) : "memory" );
 #endif
-   return(result);
+   return ((uint16_t) result);    /* Add explicit type cast here */
 }
 
 
 /** \brief  LDR Exclusive (32 bit)
 
-    This function performs a exclusive LDR command for 32 bit values.
+    This function executes a exclusive LDR instruction for 32 bit values.
 
     \param [in]    ptr  Pointer to data
     \return        value of type uint32_t at (*ptr)
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __LDREXW(volatile uint32_t *addr)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __LDREXW(volatile uint32_t *addr)
 {
     uint32_t result;
 
@@ -557,50 +671,50 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __LDREXW(volatile ui
 
 /** \brief  STR Exclusive (8 bit)
 
-    This function performs a exclusive STR command for 8 bit values.
+    This function executes a exclusive STR instruction for 8 bit values.
 
     \param [in]  value  Value to store
     \param [in]    ptr  Pointer to location
     \return          0  Function succeeded
     \return          1  Function failed
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __STREXB(uint8_t value, volatile uint8_t *addr)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __STREXB(uint8_t value, volatile uint8_t *addr)
 {
    uint32_t result;
 
-   __ASM volatile ("strexb %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" (value) );
+   __ASM volatile ("strexb %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" ((uint32_t)value) );
    return(result);
 }
 
 
 /** \brief  STR Exclusive (16 bit)
 
-    This function performs a exclusive STR command for 16 bit values.
+    This function executes a exclusive STR instruction for 16 bit values.
 
     \param [in]  value  Value to store
     \param [in]    ptr  Pointer to location
     \return          0  Function succeeded
     \return          1  Function failed
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __STREXH(uint16_t value, volatile uint16_t *addr)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __STREXH(uint16_t value, volatile uint16_t *addr)
 {
    uint32_t result;
 
-   __ASM volatile ("strexh %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" (value) );
+   __ASM volatile ("strexh %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" ((uint32_t)value) );
    return(result);
 }
 
 
 /** \brief  STR Exclusive (32 bit)
 
-    This function performs a exclusive STR command for 32 bit values.
+    This function executes a exclusive STR instruction for 32 bit values.
 
     \param [in]  value  Value to store
     \param [in]    ptr  Pointer to location
     \return          0  Function succeeded
     \return          1  Function failed
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __STREXW(uint32_t value, volatile uint32_t *addr)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __STREXW(uint32_t value, volatile uint32_t *addr)
 {
    uint32_t result;
 
@@ -614,7 +728,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE uint32_t __STREXW(uint32_t va
     This function removes the exclusive lock which is created by LDREX.
 
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE void __CLREX(void)
+__attribute__((always_inline)) __STATIC_INLINE void __CLREX(void)
 {
   __ASM volatile ("clrex" ::: "memory");
 }
@@ -652,34 +766,148 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __CLREX(void)
  })
 
 
-/** \brief  Count leading zeros
+/** \brief  Rotate Right with Extend (32 bit)
 
-    This function counts the number of leading zeros of a data value.
+    This function moves each bit of a bitstring right by one bit.
+    The carry input is shifted in at the left end of the bitstring.
 
-    \param [in]  value  Value to count the leading zeros
-    \return             number of leading zeros in value
+    \param [in]    value  Value to rotate
+    \return               Rotated value
  */
-__attribute__( ( always_inline ) ) __STATIC_INLINE uint8_t __CLZ(uint32_t value)
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __RRX(uint32_t value)
 {
-   uint32_t result;
+  uint32_t result;
 
-  __ASM volatile ("clz %0, %1" : "=r" (result) : "r" (value) );
+  __ASM volatile ("rrx %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
   return(result);
 }
 
-#endif /* (__CORTEX_M >= 0x03) */
+
+/** \brief  LDRT Unprivileged (8 bit)
+
+    This function executes a Unprivileged LDRT instruction for 8 bit value.
+
+    \param [in]    ptr  Pointer to data
+    \return             value of type uint8_t at (*ptr)
+ */
+__attribute__((always_inline)) __STATIC_INLINE uint8_t __LDRBT(volatile uint8_t *addr)
+{
+    uint32_t result;
+
+#if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+   __ASM volatile ("ldrbt %0, %1" : "=r" (result) : "Q" (*addr) );
+#else
+    /* Prior to GCC 4.8, "Q" will be expanded to [rx, #0] which is not
+       accepted by assembler. So has to use following less efficient pattern.
+    */
+   __ASM volatile ("ldrbt %0, [%1]" : "=r" (result) : "r" (addr) : "memory" );
+#endif
+   return ((uint8_t) result);    /* Add explicit type cast here */
+}
 
 
+/** \brief  LDRT Unprivileged (16 bit)
+
+    This function executes a Unprivileged LDRT instruction for 16 bit values.
+
+    \param [in]    ptr  Pointer to data
+    \return        value of type uint16_t at (*ptr)
+ */
+__attribute__((always_inline)) __STATIC_INLINE uint16_t __LDRHT(volatile uint16_t *addr)
+{
+    uint32_t result;
+
+#if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+   __ASM volatile ("ldrht %0, %1" : "=r" (result) : "Q" (*addr) );
+#else
+    /* Prior to GCC 4.8, "Q" will be expanded to [rx, #0] which is not
+       accepted by assembler. So has to use following less efficient pattern.
+    */
+   __ASM volatile ("ldrht %0, [%1]" : "=r" (result) : "r" (addr) : "memory" );
+#endif
+   return ((uint16_t) result);    /* Add explicit type cast here */
+}
+
+
+/** \brief  LDRT Unprivileged (32 bit)
+
+    This function executes a Unprivileged LDRT instruction for 32 bit values.
+
+    \param [in]    ptr  Pointer to data
+    \return        value of type uint32_t at (*ptr)
+ */
+__attribute__((always_inline)) __STATIC_INLINE uint32_t __LDRT(volatile uint32_t *addr)
+{
+    uint32_t result;
+
+   __ASM volatile ("ldrt %0, %1" : "=r" (result) : "Q" (*addr) );
+   return(result);
+}
+
+
+/** \brief  STRT Unprivileged (8 bit)
+
+    This function executes a Unprivileged STRT instruction for 8 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+__attribute__((always_inline)) __STATIC_INLINE void __STRBT(uint8_t value, volatile uint8_t *addr)
+{
+   __ASM volatile ("strbt %1, %0" : "=Q" (*addr) : "r" ((uint32_t)value) );
+}
+
+
+/** \brief  STRT Unprivileged (16 bit)
+
+    This function executes a Unprivileged STRT instruction for 16 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+__attribute__((always_inline)) __STATIC_INLINE void __STRHT(uint16_t value, volatile uint16_t *addr)
+{
+   __ASM volatile ("strht %1, %0" : "=Q" (*addr) : "r" ((uint32_t)value) );
+}
+
+
+/** \brief  STRT Unprivileged (32 bit)
+
+    This function executes a Unprivileged STRT instruction for 32 bit values.
+
+    \param [in]  value  Value to store
+    \param [in]    ptr  Pointer to location
+ */
+__attribute__((always_inline)) __STATIC_INLINE void __STRT(uint32_t value, volatile uint32_t *addr)
+{
+   __ASM volatile ("strt %1, %0" : "=Q" (*addr) : "r" (value) );
+}
+
+#endif /* (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300) */
+
+
+#elif defined ( __ICCARM__ ) /*------------------ ICC Compiler -------------------*/
+/* IAR iccarm specific functions */
+#include <cmsis_iar.h>
+
+
+#elif defined ( __TMS470__ ) /*---------------- TI CCS Compiler ------------------*/
+/* TI CCS specific functions */
+#include <cmsis_ccs.h>
 
 
 #elif defined ( __TASKING__ ) /*------------------ TASKING Compiler --------------*/
 /* TASKING carm specific functions */
-
 /*
  * The CMSIS functions have been implemented as intrinsics in the compiler.
  * Please use "carm -?i" to get an up to date list of all intrinsics,
  * Including the CMSIS ones.
  */
+
+
+#elif defined ( __CSMC__ ) /*------------------ COSMIC Compiler -------------------*/
+/* Cosmic specific functions */
+#include <cmsis_csm.h>
 
 #endif
 

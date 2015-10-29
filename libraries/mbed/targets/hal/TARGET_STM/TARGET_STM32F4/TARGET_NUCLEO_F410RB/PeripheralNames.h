@@ -53,25 +53,26 @@ typedef enum {
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
     SPI_2 = (int)SPI2_BASE,
-    SPI_3 = (int)SPI3_BASE,
-    SPI_4 = (int)SPI4_BASE,
+//    SPI_3 = (int)SPI3_BASE,
+//    SPI_4 = (int)SPI4_BASE,
     SPI_5 = (int)SPI5_BASE
 } SPIName;
 
 typedef enum {
     I2C_1 = (int)I2C1_BASE,
     I2C_2 = (int)I2C2_BASE,
-    I2C_3 = (int)I2C3_BASE
+//    I2C_3 = (int)I2C3_BASE
+   I2C_LAST
 } I2CName;
 
 typedef enum {
     PWM_1  = (int)TIM1_BASE,
-    PWM_2  = (int)TIM2_BASE,
-    PWM_3  = (int)TIM3_BASE,
-    PWM_4  = (int)TIM4_BASE,
+//    PWM_2  = (int)TIM2_BASE,
+//    PWM_3  = (int)TIM3_BASE,
+//    PWM_4  = (int)TIM4_BASE,
     PWM_5  = (int)TIM5_BASE,
     PWM_9  = (int)TIM9_BASE,
-    PWM_10 = (int)TIM10_BASE,
+//    PWM_10 = (int)TIM10_BASE,
     PWM_11 = (int)TIM11_BASE
 } PWMName;
 

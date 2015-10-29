@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
-  * @brief   Header file of ADC HAL extension module.
+  * @version V1.4.1
+  * @date    09-October-2015
+  * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
   *
@@ -201,10 +201,10 @@ typedef struct
 /** @defgroup ADC_ClockPrescaler  ADC Clock Prescaler
   * @{
   */ 
-#define ADC_CLOCKPRESCALER_PCLK_DIV2    ((uint32_t)0x00000000)
-#define ADC_CLOCKPRESCALER_PCLK_DIV4    ((uint32_t)ADC_CCR_ADCPRE_0)
-#define ADC_CLOCKPRESCALER_PCLK_DIV6    ((uint32_t)ADC_CCR_ADCPRE_1)
-#define ADC_CLOCKPRESCALER_PCLK_DIV8    ((uint32_t)ADC_CCR_ADCPRE)
+#define ADC_CLOCK_SYNC_PCLK_DIV2    ((uint32_t)0x00000000)
+#define ADC_CLOCK_SYNC_PCLK_DIV4    ((uint32_t)ADC_CCR_ADCPRE_0)
+#define ADC_CLOCK_SYNC_PCLK_DIV6    ((uint32_t)ADC_CCR_ADCPRE_1)
+#define ADC_CLOCK_SYNC_PCLK_DIV8    ((uint32_t)ADC_CCR_ADCPRE)
 /**
   * @}
   */ 
@@ -565,10 +565,10 @@ uint32_t HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
 /** @defgroup ADC_Private_Macros ADC Private Macros
   * @{
   */
-#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK)     (((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV2) || \
-                                              ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV4) || \
-                                              ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV6) || \
-                                              ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV8))
+#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK)     (((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV2) || \
+                                              ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV4) || \
+                                              ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV6) || \
+                                              ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV8))
 #define IS_ADC_SAMPLING_DELAY(DELAY) (((DELAY) == ADC_TWOSAMPLINGDELAY_5CYCLES)  || \
                                       ((DELAY) == ADC_TWOSAMPLINGDELAY_6CYCLES)  || \
                                       ((DELAY) == ADC_TWOSAMPLINGDELAY_7CYCLES)  || \

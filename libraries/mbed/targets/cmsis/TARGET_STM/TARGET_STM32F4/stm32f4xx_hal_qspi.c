@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_qspi.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   QSPI HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -166,7 +166,7 @@
   */
 #ifdef HAL_QSPI_MODULE_ENABLED
 
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -377,7 +377,7 @@ HAL_StatusTypeDef HAL_QSPI_DeInit(QSPI_HandleTypeDef *hqspi)
   *
 @verbatim   
  ===============================================================================
-                      ##### I/O operation functions #####
+                      ##### IO operation functions #####
  ===============================================================================
        [..]
     This subsection provides a set of functions allowing to :
@@ -1311,28 +1311,31 @@ if(hqspi->State == HAL_QSPI_STATE_READY)
     /* Wait till BUSY flag reset */
     status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_BUSY, RESET, hqspi->Timeout);
     
-  if (status == HAL_OK)
-  {
-    /* Configure QSPI: PSMAR register with the status match value */
-    WRITE_REG(hqspi->Instance->PSMAR, cfg->Match);
+    if (status == HAL_OK)
+    {
+      /* Configure QSPI: PSMAR register with the status match value */
+      WRITE_REG(hqspi->Instance->PSMAR, cfg->Match);
     
-    /* Configure QSPI: PSMKR register with the status mask value */
-    WRITE_REG(hqspi->Instance->PSMKR, cfg->Mask);
+      /* Configure QSPI: PSMKR register with the status mask value */
+      WRITE_REG(hqspi->Instance->PSMKR, cfg->Mask);
     
-    /* Configure QSPI: PIR register with the interval value */
-    WRITE_REG(hqspi->Instance->PIR, cfg->Interval);
+      /* Configure QSPI: PIR register with the interval value */
+      WRITE_REG(hqspi->Instance->PIR, cfg->Interval);
     
-    /* Configure QSPI: CR register with Match mode and Automatic stop mode */
-    MODIFY_REG(hqspi->Instance->CR, (QUADSPI_CR_PMM | QUADSPI_CR_APMS), 
+      /* Configure QSPI: CR register with Match mode and Automatic stop mode */
+      MODIFY_REG(hqspi->Instance->CR, (QUADSPI_CR_PMM | QUADSPI_CR_APMS), 
                (cfg->MatchMode | cfg->AutomaticStop));
+            
+      /* Clear interrupt */
+      __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_TE | QSPI_FLAG_SM);
 
-    /* Call the configuration function */
-    cmd->NbData = cfg->StatusBytesSize;
-    QSPI_Config(hqspi, cmd, QSPI_FUNCTIONAL_MODE_AUTO_POLLING);
-
-    /* Enable the QSPI Transfer Error, FIFO threshold and status match Interrupt */
-    __HAL_QSPI_ENABLE_IT(hqspi, (QSPI_IT_FT | QSPI_IT_SM | QSPI_IT_TE));
-        }
+      /* Enable the QSPI Transfer Error and status match Interrupt */
+      __HAL_QSPI_ENABLE_IT(hqspi, (QSPI_IT_SM | QSPI_IT_TE));
+    
+      /* Call the configuration function */
+      cmd->NbData = cfg->StatusBytesSize;
+      QSPI_Config(hqspi, cmd, QSPI_FUNCTIONAL_MODE_AUTO_POLLING);
+    }
   }
   else
   {
@@ -1928,7 +1931,7 @@ static void QSPI_Config(QSPI_HandleTypeDef *hqspi, QSPI_CommandTypeDef *cmd, uin
 /**
   * @}
   */
-#endif /* STM32F446xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx  */
 
 #endif /* HAL_QSPI_MODULE_ENABLED */
 /**
