@@ -88,9 +88,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         __HAL_RCC_SPI2_CLK_ENABLE();
     }
 
+#if defined SPI3_BASE
     if (obj->spi == SPI_3) {
         __HAL_RCC_SPI3_CLK_ENABLE();
     }
+#endif
 
 #if defined SPI4_BASE
     if (obj->spi == SPI_4) {
@@ -143,12 +145,13 @@ void spi_free(spi_t *obj)
         __HAL_RCC_SPI2_RELEASE_RESET();
         __HAL_RCC_SPI2_CLK_DISABLE();
     }
-
+#if defined SPI3_BASE
     if (obj->spi == SPI_3) {
         __HAL_RCC_SPI3_FORCE_RESET();
         __HAL_RCC_SPI3_RELEASE_RESET();
         __HAL_RCC_SPI3_CLK_DISABLE();
     }
+#endif
 
 #if defined SPI4_BASE
     if (obj->spi == SPI_4) {
