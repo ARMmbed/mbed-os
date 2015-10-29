@@ -456,10 +456,10 @@ class SingleTestRunner(object):
                 MACROS.append('TEST_SUITE_UUID="%s"'% str(test_uuid))
 
                 # Prepare extended test results data structure (it can be used to generate detailed test report)
-                if toolchain not in self.test_summary_ext:
-                    self.test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
-                if target not in self.test_summary_ext[toolchain]:
-                    self.test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
+                if target not in self.test_summary_ext:
+                    self.test_summary_ext[target] = {}  # test_summary_ext : toolchain
+                if toolchain not in self.test_summary_ext[target]:
+                    self.test_summary_ext[target][toolchain] = {}    # test_summary_ext : toolchain : target
 
                 tt_test_id = "%s::%s::%s" % (toolchain, target, test_id)    # For logging only
 
@@ -491,17 +491,17 @@ class SingleTestRunner(object):
                     )
 
                     # Add detailed test result to test summary structure
-                    if test_id not in self.test_summary_ext[toolchain][target]:
-                        self.test_summary_ext[toolchain][target][test_id] = []
+                    if test_id not in self.test_summary_ext[target][toolchain]:
+                        self.test_summary_ext[target][toolchain][test_id] = []
 
-                    self.test_summary_ext[toolchain][target][test_id].append({ 0: {
-                        'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
-                        'single_test_output' : '',
+                    self.test_summary_ext[target][toolchain][test_id].append({ 0: {
+                        'result' : self.TEST_RESULT_BUILD_FAILED,
+                        'output' : '',
                         'target_name' : target,
                         'target_name_unique': target,
                         'toolchain_name' : toolchain,
-                        'test_id' : test_id,
-                        'test_description' : 'Toolchain build failed',
+                        'id' : test_id,
+                        'description' : 'Toolchain build failed',
                         'elapsed_time' : 0,
                         'duration' : 0,
                         'copy_method' : None
@@ -543,9 +543,9 @@ class SingleTestRunner(object):
                         self.test_summary.append(single_test_result)
 
                     # Add detailed test result to test summary structure
-                    if target not in self.test_summary_ext[toolchain][target]:
-                        if test_id not in self.test_summary_ext[toolchain][target]:
-                            self.test_summary_ext[toolchain][target][test_id] = []
+                    if target not in self.test_summary_ext[target][toolchain]:
+                        if test_id not in self.test_summary_ext[target][toolchain]:
+                            self.test_summary_ext[target][toolchain][test_id] = []
 
                         append_test_result = detailed_test_results
 
@@ -554,7 +554,7 @@ class SingleTestRunner(object):
                         if self.opts_waterfall_test and self.opts_consolidate_waterfall_test:
                             append_test_result = {0: detailed_test_results[len(detailed_test_results) - 1]}
 
-                        self.test_summary_ext[toolchain][target][test_id].append(append_test_result)
+                        self.test_summary_ext[target][toolchain][test_id].append(append_test_result)
 
             test_suite_properties['skipped'] = ', '.join(test_suite_properties['skipped'])
             self.test_suite_properties_ext[target][toolchain] = test_suite_properties
@@ -945,13 +945,13 @@ class SingleTestRunner(object):
             elapsed_time = single_testduration  # TIme of single test case execution after reset
 
             detailed_test_results[test_index] = {
-                'single_test_result' : single_test_result,
-                'single_test_output' : single_test_output,
+                'result' : single_test_result,
+                'output' : single_test_output,
                 'target_name' : target_name,
                 'target_name_unique' : target_name_unique,
                 'toolchain_name' : toolchain_name,
-                'test_id' : test_id,
-                'test_description' : test_description,
+                'id' : test_id,
+                'description' : test_description,
                 'elapsed_time' : round(elapsed_time, 2),
                 'duration' : single_timeout,
                 'copy_method' : _copy_method,

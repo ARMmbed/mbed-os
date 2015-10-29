@@ -27,6 +27,7 @@ sys.path.insert(0, ROOT)
 from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.build_api import write_build_report
 from workspace_tools.targets import TARGET_MAP
+from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
@@ -145,11 +146,13 @@ if __name__ == '__main__':
 
 
     options, args = parser.parse_args()
+    id_name = "MBED"
     start = time()
     failures = []
     successes = []
     skips = []
-    build_report = []
+    report = {}
+    properties = {}
 
     platforms = None
     if options.platforms != "":
@@ -170,34 +173,63 @@ if __name__ == '__main__':
             toolchainSet = set(toolchains)
             toolchains = toolchainSet and set((options.toolchains).split(','))
 
-
-        cur_target_build_report = { "target": target_name, "passing": [], "failing": [], "skipped": []}
-
         for toolchain in toolchains:
+            if not target_name in report:
+                report[target_name] = {}
+
+            if not toolchain in report[target_name]:
+                report[target_name][toolchain] = {}
+
+            if not id_name in report[target_name][toolchain]:
+                report[target_name][toolchain][id_name] = []
+
+            if not target_name in properties:
+                properties[target_name] = {}
+
+            if not toolchain in properties[target_name]:
+                properties[target_name][toolchain] = {}
+
+            properties[target_name][toolchain]["target"] = target_name
+            properties[target_name][toolchain]["toolchain"] = toolchain
+
+
             id = "%s::%s" % (target_name, toolchain)
+
+            start = time()
+            cur_result = {}
+            cur_result["toolchain_name"] = toolchain
+            cur_result["target_name"] = target_name
+            cur_result["id"] = id_name
+            cur_result["description"] = "mbed SDK"
+
             try:
                 built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
+                end = time()
+
+                cur_result["elapsed_time"] = end - start
+                cur_result["output"] = ""
 
                 if built_mbed_lib:
-                    successes.append(id)
-                    cur_target_build_report["passing"].append({ "toolchain": toolchain })
+                    cur_result["result"] = "OK"
                 else:
-                    skips.append(id)
-                    cur_target_build_report["skipped"].append({ "toolchain": toolchain })
-
+                    cur_result["result"] = "SKIP"
 
             except Exception, e:
-                failures.append(id)
-                cur_target_build_report["failing"].append({ "toolchain": toolchain })
-                print e
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                end = time()
+                cur_result["result"] = "FAIL"
+                cur_result["output"] = str(e)
+                cur_result["elapsed_time"] = end - start
+                print str(e)
 
-        if len(toolchains) > 0:
-            build_report.append(cur_target_build_report)
+            cur_result_wrap = { 0: cur_result }
+            report[target_name][toolchain][id_name].append(cur_result_wrap)
 
     # Write summary of the builds
 
     if options.report_build_file_name:
-        write_build_report(build_report, 'library_build/report.html', options.report_build_file_name)
+        report_exporter = ReportExporter(ResultExporterType.JUNIT)
+        report_exporter.report_to_file(report, options.report_build_file_name, test_suite_properties=properties)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 

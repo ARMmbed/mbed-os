@@ -35,11 +35,11 @@ class ReportExporter():
     u'uARM': {   u'LPC1768': {   'MBED_2': {   0: {   'copy_method': 'shutils.copy()',
                                                       'duration': 20,
                                                       'elapsed_time': 1.7929999828338623,
-                                                      'single_test_output': 'Host test instrumentation on ...\r\n',
-                                                      'single_test_result': 'OK',
+                                                      'output': 'Host test instrumentation on ...\r\n',
+                                                      'result': 'OK',
                                                       'target_name': u'LPC1768',
-                                                      'test_description': 'stdio',
-                                                      'test_id': u'MBED_2',
+                                                      'description': 'stdio',
+                                                      'id': u'MBED_2',
                                                       'toolchain_name': u'uARM'}},
     """
     CSS_STYLE = """<style>
@@ -111,8 +111,8 @@ class ReportExporter():
                          'OTHER': 'LightGray',
                         }
 
-        tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
-        background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'OTHER']
+        tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['id'], test_no)
+        background_color = RESULT_COLORS[test['result'] if test['result'] in RESULT_COLORS else 'OTHER']
         result_div_style = "background-color: %s"% background_color
 
         result = """<div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
@@ -130,12 +130,12 @@ class ReportExporter():
                  """% (result_div_style,
                        tooltip_name,
                        tooltip_name,
-                       test['single_test_result'],
+                       test['result'],
                        tooltip_name,
                        test['target_name_unique'],
-                       test['test_description'],
+                       test['description'],
                        test['elapsed_time'],
-                       test['single_test_output'].replace('\n', '<br />'))
+                       test['output'].replace('\n', '<br />'))
         return result
 
     def get_result_tree(self, test_results):
@@ -160,11 +160,11 @@ class ReportExporter():
             We need this to create complete list of all test ran.
         """
         result = []
-        toolchains = test_result_ext.keys()
-        for toolchain in toolchains:
-            targets = test_result_ext[toolchain].keys()
-            for target in targets:
-                tests = test_result_ext[toolchain][target].keys()
+        targets = test_result_ext.keys()
+        for target in targets:
+            toolchains = test_result_ext[target].keys()
+            for toolchain in toolchains:
+                tests = test_result_ext[target][toolchain].keys()
                 result.extend(tests)
         return sorted(list(set(result)))
 
@@ -185,15 +185,15 @@ class ReportExporter():
                  """% (self.CSS_STYLE, self.JAVASCRIPT)
 
         unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
-        toolchains = sorted(test_result_ext.keys())
+        targets = sorted(test_result_ext.keys())
         result += '<table><tr>'
-        for toolchain in toolchains:
-            targets = sorted(test_result_ext[toolchain].keys())
+        for target in targets:
+            toolchains = sorted(test_result_ext[target].keys())
             for target in targets:
                 result += '<td></td>'
                 result += '<td></td>'
 
-                tests = sorted(test_result_ext[toolchain][target].keys())
+                tests = sorted(test_result_ext[target][toolchain].keys())
                 for test in unique_test_ids:
                     result += """<td align="center">%s</td>"""% test
                 result += """</tr>
@@ -203,7 +203,7 @@ class ReportExporter():
                           """% (toolchain, target)
 
                 for test in unique_test_ids:
-                    test_result = self.get_result_tree(test_result_ext[toolchain][target][test]) if test in tests else ''
+                    test_result = self.get_result_tree(test_result_ext[target][toolchain][test]) if test in tests else ''
                     result += '<td>%s</td>'% (test_result)
 
                 result += '</tr>'
@@ -246,34 +246,40 @@ class ReportExporter():
         test_suites = []
         test_cases = []
 
-        toolchains = sorted(test_result_ext.keys())
-        for toolchain in toolchains:
-            targets = sorted(test_result_ext[toolchain].keys())
-            for target in targets:
+        targets = sorted(test_result_ext.keys())
+        for target in targets:
+            toolchains = sorted(test_result_ext[target].keys())
+            for toolchain in toolchains:
                 test_cases = []
-                tests = sorted(test_result_ext[toolchain][target].keys())
+                tests = sorted(test_result_ext[target][toolchain].keys())
                 for test in tests:
-                    test_results = test_result_ext[toolchain][target][test]
+                    test_results = test_result_ext[target][toolchain][test]
                     for test_res in test_results:
                         test_ids = sorted(test_res.keys())
                         for test_no in test_ids:
                             test_result = test_res[test_no]
-                            name = test_result['test_description']
-                            classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
+                            name = test_result['description']
+                            classname = 'test.%s.%s.%s'% (target, toolchain, test_result['id'])
                             elapsed_sec = test_result['elapsed_time']
-                            _stdout = test_result['single_test_output']
-                            _stderr = test_result['target_name_unique']
+                            _stdout = test_result['output']
+
+                            if 'target_name_unique' in test_result:
+                                _stderr = test_result['target_name_unique']
+                            else:
+                                _stderr = test_result['target_name']
+
                             # Test case
                             tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
                             # Test case extra failure / error info
-                            if test_result['single_test_result'] == 'FAIL':
-                                message = test_result['single_test_result']
+                            if test_result['result'] == 'FAIL':
+                                message = test_result['result']
                                 tc.add_failure_info(message, _stdout)
-                            elif test_result['single_test_result'] != 'OK':
-                                message = test_result['single_test_result']
+                            elif test_result['result'] != 'OK':
+                                message = test_result['result']
                                 tc.add_error_info(message, _stdout)
 
                             test_cases.append(tc)
+
                 ts = TestSuite("test.suite.%s.%s"% (target, toolchain), test_cases, properties=test_suite_properties[target][toolchain])
                 test_suites.append(ts)
         return TestSuite.to_xml_string(test_suites)
