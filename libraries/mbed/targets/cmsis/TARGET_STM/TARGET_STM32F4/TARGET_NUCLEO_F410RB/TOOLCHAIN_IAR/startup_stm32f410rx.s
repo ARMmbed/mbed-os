@@ -1,9 +1,9 @@
-;/******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
-;* File Name          : startup_stm32f411xe.s
+;/******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
+;* File Name          : startup_stm32f410rx.s
 ;* Author             : MCD Application Team
-;* Version            : V2.1.0
-;* Date               : 19-June-2014
-;* Description        : STM32F411xExx devices vector table for EWARM toolchain.
+;* Version            : V2.4.1
+;* Date               : 09-October-2015
+;* Description        : STM32F410Rx devices vector table for EWARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == _iar_program_start,
@@ -113,12 +113,12 @@ __vector_table
         DCD     0                                 ; Reserved
         DCD     EXTI9_5_IRQHandler                ; External Line[9:5]s
         DCD     TIM1_BRK_TIM9_IRQHandler          ; TIM1 Break and TIM9
-        DCD     TIM1_UP_TIM10_IRQHandler          ; TIM1 Update and TIM10
+        DCD     TIM1_UP_IRQHandler                ; TIM1 Update
         DCD     TIM1_TRG_COM_TIM11_IRQHandler     ; TIM1 Trigger and Commutation and TIM11
         DCD     TIM1_CC_IRQHandler                ; TIM1 Capture Compare
-        DCD     TIM2_IRQHandler                   ; TIM2
-        DCD     TIM3_IRQHandler                   ; TIM3
-        DCD     TIM4_IRQHandler                   ; TIM4
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
         DCD     I2C1_EV_IRQHandler                ; I2C1 Event
         DCD     I2C1_ER_IRQHandler                ; I2C1 Error
         DCD     I2C2_EV_IRQHandler                ; I2C2 Event
@@ -130,19 +130,19 @@ __vector_table
         DCD     0                                 ; Reserved
         DCD     EXTI15_10_IRQHandler              ; External Line[15:10]s
         DCD     RTC_Alarm_IRQHandler              ; RTC Alarm (A and B) through EXTI Line
-        DCD     OTG_FS_WKUP_IRQHandler            ; USB OTG FS Wakeup through EXTI line
+        DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     DMA1_Stream7_IRQHandler           ; DMA1 Stream7
         DCD     0                                 ; Reserved
-        DCD     SDIO_IRQHandler                   ; SDIO
+        DCD     0                                 ; Reserved
         DCD     TIM5_IRQHandler                   ; TIM5
-        DCD     SPI3_IRQHandler                   ; SPI3
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
+		DCD     TIM6_DAC_IRQHandler               ; TIM6 and DAC
         DCD     0                                 ; Reserved
         DCD     DMA2_Stream0_IRQHandler           ; DMA2 Stream 0
         DCD     DMA2_Stream1_IRQHandler           ; DMA2 Stream 1
@@ -155,13 +155,11 @@ __vector_table
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
-        DCD     OTG_FS_IRQHandler                 ; USB OTG FS
+        DCD     0                                 ; Reserved
         DCD     DMA2_Stream5_IRQHandler           ; DMA2 Stream 5
         DCD     DMA2_Stream6_IRQHandler           ; DMA2 Stream 6
         DCD     DMA2_Stream7_IRQHandler           ; DMA2 Stream 7
         DCD     USART6_IRQHandler                 ; USART6
-        DCD     I2C3_EV_IRQHandler                ; I2C3 event
-        DCD     I2C3_ER_IRQHandler                ; I2C3 error
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
@@ -169,11 +167,25 @@ __vector_table
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     RNG_IRQHandler                    ; RNG
         DCD     FPU_IRQHandler                    ; FPU
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
-        DCD     SPI4_IRQHandler                   ; SPI4
+        DCD     0                                 ; Reserved
         DCD     SPI5_IRQHandler                   ; SPI5
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     0                                 ; Reserved
+        DCD     FMPI2C1_EV_IRQHandler             ; FMPI2C1 Event
+        DCD     FMPI2C1_ER_IRQHandler             ; FMPI2C1 Error
+        DCD     LPTIM1_IRQHandler                 ; LP TIM1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -339,10 +351,10 @@ EXTI9_5_IRQHandler
 TIM1_BRK_TIM9_IRQHandler  
         B TIM1_BRK_TIM9_IRQHandler
 
-        PUBWEAK TIM1_UP_TIM10_IRQHandler
+        PUBWEAK TIM1_UP_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-TIM1_UP_TIM10_IRQHandler  
-        B TIM1_UP_TIM10_IRQHandler
+TIM1_UP_IRQHandler  
+        B TIM1_UP_IRQHandler
 
         PUBWEAK TIM1_TRG_COM_TIM11_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
@@ -353,21 +365,6 @@ TIM1_TRG_COM_TIM11_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 TIM1_CC_IRQHandler  
         B TIM1_CC_IRQHandler
-
-        PUBWEAK TIM2_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-TIM2_IRQHandler  
-        B TIM2_IRQHandler
-
-        PUBWEAK TIM3_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-TIM3_IRQHandler  
-        B TIM3_IRQHandler
-
-        PUBWEAK TIM4_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-TIM4_IRQHandler  
-        B TIM4_IRQHandler
 
         PUBWEAK I2C1_EV_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
@@ -419,30 +416,20 @@ EXTI15_10_IRQHandler
 RTC_Alarm_IRQHandler  
         B RTC_Alarm_IRQHandler
 
-        PUBWEAK OTG_FS_WKUP_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-OTG_FS_WKUP_IRQHandler  
-        B OTG_FS_WKUP_IRQHandler
-
         PUBWEAK DMA1_Stream7_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 DMA1_Stream7_IRQHandler  
         B DMA1_Stream7_IRQHandler
-
-        PUBWEAK SDIO_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-SDIO_IRQHandler  
-        B SDIO_IRQHandler
 
         PUBWEAK TIM5_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 TIM5_IRQHandler  
         B TIM5_IRQHandler
 
-        PUBWEAK SPI3_IRQHandler
+        PUBWEAK TIM6_DAC_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-SPI3_IRQHandler  
-        B SPI3_IRQHandler
+TIM6_DAC_IRQHandler  
+        B TIM6_DAC_IRQHandler
 
         PUBWEAK DMA2_Stream0_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
@@ -469,11 +456,6 @@ DMA2_Stream3_IRQHandler
 DMA2_Stream4_IRQHandler  
         B DMA2_Stream4_IRQHandler
 
-        PUBWEAK OTG_FS_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-OTG_FS_IRQHandler  
-        B OTG_FS_IRQHandler
-
         PUBWEAK DMA2_Stream5_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 DMA2_Stream5_IRQHandler  
@@ -494,30 +476,35 @@ DMA2_Stream7_IRQHandler
 USART6_IRQHandler  
         B USART6_IRQHandler
 
-        PUBWEAK I2C3_EV_IRQHandler
+        PUBWEAK RNG_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
-I2C3_EV_IRQHandler  
-        B I2C3_EV_IRQHandler
-
-        PUBWEAK I2C3_ER_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-I2C3_ER_IRQHandler  
-        B I2C3_ER_IRQHandler
+RNG_IRQHandler
+        B RNG_IRQHandler
 
         PUBWEAK FPU_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 FPU_IRQHandler  
         B FPU_IRQHandler
-
-        PUBWEAK SPI4_IRQHandler
-        SECTION .text:CODE:REORDER:NOROOT(1)
-SPI4_IRQHandler  
-        B SPI4_IRQHandler
 		
         PUBWEAK SPI5_IRQHandler
         SECTION .text:CODE:REORDER:NOROOT(1)
 SPI5_IRQHandler  
         B SPI5_IRQHandler
-        
+
+        PUBWEAK FMPI2C1_EV_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+FMPI2C1_EV_IRQHandler  
+        B FMPI2C1_EV_IRQHandler
+
+        PUBWEAK FMPI2C1_ER_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+FMPI2C1_ER_IRQHandler
+        B FMPI2C1_ER_IRQHandler
+
+        PUBWEAK LPTIM1_IRQHandler
+        SECTION .text:CODE:REORDER:NOROOT(1)
+LPTIM1_IRQHandler
+        B LPTIM1_IRQHandler
+
         END
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
