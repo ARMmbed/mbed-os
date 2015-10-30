@@ -90,7 +90,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(scl, OpenDrain);
     }
 #endif
-#if defined FMPI2C1_BASE
+#if (defined(FMPI2C1_BASE) && defined(FMPI2C_1))
     // Enable I2C3 clock and pinout if not done
     if ((obj->i2c == FMPI2C_1) && !fmpi2c1_inited) {
         fmpi2c1_inited = 1;
@@ -337,7 +337,7 @@ void i2c_reset(i2c_t *obj)
     }
 #endif
 
-#if defined FMPI2C1_BASE
+#if (defined(FMPI2C1_BASE) && defined(FMPI2C_1))
     if (obj->i2c == FMPI2C_1) {
         __FMPI2C1_FORCE_RESET();
         __FMPI2C1_RELEASE_RESET();
