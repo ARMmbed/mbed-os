@@ -201,7 +201,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
 #if defined(TIM4_BASE)
         case PWM_4:
 #endif
-#if defined(TIM5_BASE)
+#if defined(TIM5_BASE) && defined(PWM_5)
         case PWM_5:
 #endif
 #if defined(TIM12_BASE)
