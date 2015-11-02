@@ -24,9 +24,11 @@ static void rza1_recv_task(void *arg) {
     struct eth_hdr *ethhdr;
     u16_t          recv_size;
     struct pbuf    *p;
+    int            cnt;
 
     while (1) {
         sys_arch_sem_wait(&recv_ready_sem, 0);
+        for (cnt = 0; cnt < 16; cnt++) {
         recv_size = ethernet_receive();
         if (recv_size != 0) {
             p = pbuf_alloc(PBUF_RAW, recv_size, PBUF_RAM);
@@ -51,6 +53,9 @@ static void rza1_recv_task(void *arg) {
                         pbuf_free(p);
                         break;
                 }
+                }
+            } else {
+                break;
             }
         }
     }
