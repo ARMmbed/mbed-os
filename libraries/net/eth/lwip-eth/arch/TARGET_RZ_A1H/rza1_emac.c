@@ -29,30 +29,30 @@ static void rza1_recv_task(void *arg) {
     while (1) {
         sys_arch_sem_wait(&recv_ready_sem, 0);
         for (cnt = 0; cnt < 16; cnt++) {
-        recv_size = ethernet_receive();
-        if (recv_size != 0) {
-            p = pbuf_alloc(PBUF_RAW, recv_size, PBUF_RAM);
-            if (p != NULL) {
-                (void)ethernet_read((char *)p->payload, p->len);
-                ethhdr = p->payload;
-                switch (htons(ethhdr->type)) {
-                    case ETHTYPE_IP:
-                    case ETHTYPE_ARP:
+            recv_size = ethernet_receive();
+            if (recv_size != 0) {
+                p = pbuf_alloc(PBUF_RAW, recv_size, PBUF_RAM);
+                if (p != NULL) {
+                    (void)ethernet_read((char *)p->payload, p->len);
+                    ethhdr = p->payload;
+                    switch (htons(ethhdr->type)) {
+                        case ETHTYPE_IP:
+                        case ETHTYPE_ARP:
 #if PPPOE_SUPPORT
-                    case ETHTYPE_PPPOEDISC:
-                    case ETHTYPE_PPPOE:
+                        case ETHTYPE_PPPOEDISC:
+                        case ETHTYPE_PPPOE:
 #endif /* PPPOE_SUPPORT */
-                        /* full packet send to tcpip_thread to process */
-                        if (netif->input(p, netif) != ERR_OK) {
-                            /* Free buffer */
+                            /* full packet send to tcpip_thread to process */
+                            if (netif->input(p, netif) != ERR_OK) {
+                                /* Free buffer */
+                                pbuf_free(p);
+                            }
+                            break;
+                        default:
+                            /* Return buffer */
                             pbuf_free(p);
-                        }
-                        break;
-                    default:
-                        /* Return buffer */
-                        pbuf_free(p);
-                        break;
-                }
+                            break;
+                    }
                 }
             } else {
                 break;
