@@ -40,6 +40,11 @@ typedef enum {
     ADC_1 = (int)ADC1_BASE
 } ADCName;
 
+
+typedef enum {
+    DAC_1 = (int)DAC_BASE
+} DACName;
+
 typedef enum {
     UART_1 = (int)USART1_BASE,
     UART_2 = (int)USART2_BASE,

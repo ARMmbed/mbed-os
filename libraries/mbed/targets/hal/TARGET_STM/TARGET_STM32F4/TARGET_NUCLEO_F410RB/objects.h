@@ -60,6 +60,11 @@ struct analogin_s {
     uint8_t channel;
 };
 
+struct dac_s {
+    DACName dac;
+    uint8_t channel;
+};
+
 struct serial_s {
     UARTName uart;
     int index; // Used by irq
