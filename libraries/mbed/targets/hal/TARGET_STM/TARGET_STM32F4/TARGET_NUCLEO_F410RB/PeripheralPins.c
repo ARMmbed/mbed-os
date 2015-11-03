@@ -58,6 +58,13 @@ const PinMap PinMap_ADC[] = {
     {NC,   NC,    0}
 };
 
+//*** DAC ***
+
+const PinMap PinMap_DAC[] = {
+    {PA_5, DAC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0xFF, 1,  0)}, // DAC_OUT1
+    {NC,   NC,    0}
+};
+
 //*** I2C ***
 
 const PinMap PinMap_I2C_SDA[] = {
