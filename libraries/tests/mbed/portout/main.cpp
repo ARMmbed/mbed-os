@@ -42,6 +42,12 @@
 #     define LED2       0
 #     define LED3       0
 #     define LED4       0
+# elif defined(TARGET_SAML21J18A)
+#     define LED_PORT   PortB
+#     define LED1       (1 <<  10) /*PB10*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
 # endif
 
 

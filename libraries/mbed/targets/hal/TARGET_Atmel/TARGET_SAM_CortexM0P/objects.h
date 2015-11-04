@@ -79,6 +79,9 @@ struct analogin_s {
 #if DEVICE_ANALOGOUT
 struct dac_s {
     DACName dac;
+    PinName pin;
+    uint32_t channel;
+    struct dac_module dac_instance;
 };
 #endif
 

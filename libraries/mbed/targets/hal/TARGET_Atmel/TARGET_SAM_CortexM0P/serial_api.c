@@ -60,8 +60,11 @@ static inline void usart_syncing(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-
+#ifdef FEATURE_USART_SYNC_SCHEME_V2
     while(_USART(obj).SYNCBUSY.reg);
+#else
+    while(_USART(obj).SYNCBUSY.reg & SERCOM_USART_STATUS_SYNCBUSY);
+#endif
 }
 
 static inline void enable_usart(serial_t *obj)
@@ -261,8 +264,23 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     /* Disable USART module */
     disable_usart(obj);
 
+#if (SAML21) || (SAMC20) || (SAMC21)
+#if (SAML21)
+    if (sercom_index == 5) {
+        pm_index     = MCLK_APBDMASK_SERCOM5_Pos;
+        gclk_index   = SERCOM5_GCLK_ID_CORE;
+    } else {
+        pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
+        gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+    }
+#else
+    pm_index     = sercom_index + MCLK_APBCMASK_SERCOM0_Pos;
+    gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#endif
+#else
     pm_index     = sercom_index + PM_APBCMASK_SERCOM0_Pos;
     gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#endif
 
     if (_USART(obj).CTRLA.reg & SERCOM_USART_CTRLA_SWRST) {
         return;  /* The module is busy resetting itself */
@@ -273,7 +291,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
     /* Turn on module in PM */
+#if (SAML21)
+    if (sercom_index == 5) {
+        system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBD, 1 << pm_index);
+    } else {
+        system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBC, 1 << pm_index);
+    }
+#else
     system_apb_clock_set_mask(SYSTEM_CLOCK_APB_APBC, 1 << pm_index);
+#endif
 
     /* Set up the GCLK for the module */
     gclk_chan_conf.source_generator = GCLK_GENERATOR_0;
@@ -352,8 +378,19 @@ void serial_baud(serial_t *obj, int baudrate)
     disable_usart(obj);
 
     sercom_index = _sercom_get_sercom_inst_index(pUSART_S(obj));
+#if (SAML21) || (SAMC20) || (SAMC21)
+#if (SAML21)
+    if (sercom_index == 5) {
+        gclk_index   = SERCOM5_GCLK_ID_CORE;
+    } else {
+        gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+    }
+#else
     gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
-
+#endif
+#else
+    gclk_index   = sercom_index + SERCOM0_GCLK_ID_CORE;
+#endif
     gclk_chan_conf.source_generator = GCLK_GENERATOR_0;
     system_gclk_chan_set_config(gclk_index, &gclk_chan_conf);
     system_gclk_chan_enable(gclk_index);
@@ -871,7 +908,6 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     serial_tx_buffer_set(obj, (void *)tx, tx_length, tx_width);
     serial_tx_enable_event(obj, event, true);
 
-//    if( hint == DMA_USAGE_NEVER) {  //TODO: DMA to be implemented later
     NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
     NVIC_DisableIRQ(get_serial_irq_num(obj));
     NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
@@ -881,7 +917,6 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         _USART(obj).INTENCLR.reg = SERCOM_USART_INTFLAG_TXC;
         _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_DRE;
     }
-//	}
     return 0;
 }
 
@@ -896,7 +931,6 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     serial_set_char_match(obj, char_match);
     serial_rx_buffer_set(obj, rx, rx_length, rx_width);
 
-//    if( hint == DMA_USAGE_NEVER) {  //TODO: DMA to be implemented later
     NVIC_ClearPendingIRQ(get_serial_irq_num(obj));
     NVIC_DisableIRQ(get_serial_irq_num(obj));
     NVIC_SetVector(get_serial_irq_num(obj), (uint32_t)handler);
@@ -905,7 +939,6 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     if (pUSART_S(obj)) {
         _USART(obj).INTENSET.reg = SERCOM_USART_INTFLAG_RXC;
     }
-//	}
     return;
 }
 
@@ -999,7 +1032,6 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
 
 int serial_irq_handler_asynch(serial_t *obj)
 {
-//TODO: DMA to be implemented
     /* Sanity check arguments */
     MBED_ASSERT(obj);
     uint16_t interrupt_status;
@@ -1034,7 +1066,6 @@ int serial_irq_handler_asynch(serial_t *obj)
 
 void serial_tx_abort_asynch(serial_t *obj)
 {
-//TODO: DMA to be implemented
     /* Sanity check arguments */
     MBED_ASSERT(obj);
     _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_TXC;
@@ -1046,7 +1077,6 @@ void serial_tx_abort_asynch(serial_t *obj)
 
 void serial_rx_abort_asynch(serial_t *obj)
 {
-//TODO: DMA to be implemented
     /* Sanity check arguments */
     MBED_ASSERT(obj);
     _USART(obj).INTFLAG.reg = SERCOM_USART_INTFLAG_RXC;

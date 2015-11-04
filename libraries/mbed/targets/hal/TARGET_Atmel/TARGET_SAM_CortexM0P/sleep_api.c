@@ -27,7 +27,11 @@
  */
 void sleep(void)
 {
+#if (SAMD21) || (SAMR21)
     system_set_sleepmode(SYSTEM_SLEEPMODE_IDLE_2);
+#elif (SAML21)
+    system_set_sleepmode(SYSTEM_SLEEPMODE_IDLE);
+#endif
     system_sleep();
 }
 
