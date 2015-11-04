@@ -157,6 +157,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     /* check for RTCC limitation */
     if((timestamp_ticks - RTCC_CounterGet()) >= 0x80000000) timestamp_ticks = RTCC_CounterGet() + 2;
 
+    /* init channel */
+    RTCC_CCChConf_TypeDef ccchConf = RTCC_CH_INIT_COMPARE_DEFAULT;
+    RTCC_ChannelInit(0,&ccchConf);
     /* Set callback */
     RTCC_ChannelCCVSet(0, (uint32_t)timestamp_ticks);
     RTCC_IntEnable(RTCC_IF_CC0);

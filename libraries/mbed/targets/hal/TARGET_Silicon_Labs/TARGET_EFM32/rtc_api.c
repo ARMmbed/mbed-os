@@ -192,14 +192,16 @@ void rtc_init_real(uint32_t flags)
         /* Enable clock to the interface of the low energy modules */
         CMU_ClockEnable(cmuClock_CORELE, true);
 
-        /* Scale clock to save power */
-        CMU_ClockDivSet(cmuClock_RTCC, RTC_CLOCKDIV);
-
         /* Initialize RTC */
         RTCC_Init_TypeDef init = RTCC_INIT_DEFAULT;
         init.enable = 1;
         init.precntWrapOnCCV0 = false;
         init.cntWrapOnCCV1 = false;
+#if RTC_CLOCKDIV_INT == 8
+        init.presc = rtccCntPresc_8;
+#else
+#error invalid prescaler value RTC_CLOCKDIV_INT
+#endif
 
         /* Enable Interrupt from RTC */
         RTCC_IntEnable(RTCC_IEN_OF);
