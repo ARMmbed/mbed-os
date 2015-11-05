@@ -37,23 +37,29 @@ CPU_COUNT_MIN = 1
 def print_notify(event, silent=False):
     """ Default command line notification
     """
+    msg = None
+
     if event['type'] in ['info', 'debug']:
-        print event['message']
+        msg = event['message']
 
     elif event['type'] == 'cc':
         event['severity'] = event['severity'].title()
         event['file'] = basename(event['file'])
-        print '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
+        msg = '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
 
     elif event['type'] == 'progress':
         if not silent:
-            print '%s: %s' % (event['action'].title(), basename(event['file']))
+            msg = '%s: %s' % (event['action'].title(), basename(event['file']))
+
+    if msg:
+        print msg
+        return msg + "\n"
 
 def print_notify_verbose(event, silent=False):
     """ Default command line notification with more verbose mode
     """
     if event['type'] in ['info', 'debug']:
-        print_notify(event) # standard handle
+        return print_notify(event) # standard handle
 
     elif event['type'] == 'cc':
         event['severity'] = event['severity'].title()
@@ -62,10 +68,12 @@ def print_notify_verbose(event, silent=False):
         event['toolchain'] = "None"
         event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
         event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
-        print '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
+        msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
+        print msg
+        return msg + "\n"
 
     elif event['type'] == 'progress':
-        print_notify(event) # standard handle
+        return print_notify(event) # standard handle
 
 def compile_worker(job):
     results = []
@@ -415,6 +423,8 @@ class mbedToolchain:
         return resources
 
     def copy_files(self, files_paths, trg_path, rel_path=None):
+        output = ""
+
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
 
@@ -431,9 +441,11 @@ class mbedToolchain:
             target = join(trg_path, relative_path)
 
             if (target != source) and (self.need_update(target, [source])):
-                self.progress("copy", relative_path)
+                output += self.progress("copy", relative_path)
                 mkdir(dirname(target))
                 copyfile(source, target)
+
+        return output
 
     def relative_object_path(self, build_path, base_dir, source):
         source_dir, name, _ = split_path(source)
@@ -493,22 +505,25 @@ class mbedToolchain:
             return self.compile_seq(queue, objects)
 
     def compile_seq(self, queue, objects):
+        output = ""
+
         for item in queue:
             result = compile_worker(item)
 
             self.compiled += 1
-            self.progress("compile", item['source'], build_update=True)
+            output += self.progress("compile", item['source'], build_update=True)
             for res in result['results']:
-                self.debug("Command: %s" % ' '.join(res['command']))
-                self.compile_output([
+                output += self.debug("Command: %s" % ' '.join(res['command']))
+                output += self.compile_output([
                     res['code'],
                     res['output'],
                     res['command']
                 ])
             objects.append(result['object'])
-        return objects
+        return objects, output
 
     def compile_queue(self, queue, objects):
+        output = ""
         jobs_count = int(self.jobs if self.jobs else cpu_count())
         p = Pool(processes=jobs_count)
 
@@ -532,10 +547,10 @@ class mbedToolchain:
                         results.remove(r)
 
                         self.compiled += 1
-                        self.progress("compile", result['source'], build_update=True)
+                        output += self.progress("compile", result['source'], build_update=True)
                         for res in result['results']:
-                            self.debug("Command: %s" % ' '.join(res['command']))
-                            self.compile_output([
+                            output += self.debug("Command: %s" % ' '.join(res['command']))
+                            output += self.compile_output([
                                 res['code'],
                                 res['output'],
                                 res['command']
@@ -560,7 +575,7 @@ class mbedToolchain:
         p.terminate()
         p.join()
 
-        return objects
+        return objects, output
 
     def compile_command(self, source, object, includes):
         # Check dependencies
@@ -586,21 +601,26 @@ class mbedToolchain:
         return None
 
     def compile_output(self, output=[]):
+        tmp_output = ""
         _rc = output[0]
         _stderr = output[1]
         command = output[2]
 
         # Parse output for Warnings and Errors
-        self.parse_output(_stderr)
-        self.debug("Return: %s"% _rc)
+        tmp_output += self.parse_output(_stderr)
+        tmp_output += self.debug("Return: %s"% _rc)
         for error_line in _stderr.splitlines():
-            self.debug("Output: %s"% error_line)
+            tmp_output += self.debug("Output: %s"% error_line)
+
 
         # Check return code
         if _rc != 0:
             for line in _stderr.splitlines():
-                self.tool_error(line)
+                tmp_output += self.tool_error(line)
+
             raise ToolException(_stderr)
+
+        return tmp_output
 
     def compile(self, cc, source, object, includes):
         _, ext = splitext(source)
@@ -626,16 +646,18 @@ class mbedToolchain:
 
     def build_library(self, objects, dir, name):
         needed_update = False
+        output = ""
         lib = self.STD_LIB_NAME % name
         fout = join(dir, lib)
         if self.need_update(fout, objects):
-            self.info("Library: %s" % lib)
+            output = self.info("Library: %s" % lib)
             self.archive(objects, fout)
             needed_update = True
 
-        return needed_update
+        return needed_update, output
 
     def link_program(self, r, tmp_path, name):
+        output = ""
         needed_update = False
         ext = 'bin'
         if hasattr(self.target, 'OUTPUT_EXT'):
@@ -653,19 +675,19 @@ class mbedToolchain:
 
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             needed_update = True
-            self.progress("link", name)
+            output += self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
 
         if self.need_update(bin, [elf]):
             needed_update = True
-            self.progress("elf2bin", name)
+            output += self.progress("elf2bin", name)
 
             self.binary(r, elf, bin)
 
         self.var("compile_succeded", True)
         self.var("binary", filename)
 
-        return bin, needed_update
+        return bin, needed_update, output
 
     def default_cmd(self, command):
         _stdout, _stderr, _rc = run_cmd(command)
@@ -688,17 +710,20 @@ class mbedToolchain:
 
     ### NOTIFICATIONS ###
     def info(self, message):
-        self.notify({'type': 'info', 'message': message})
+        return self.notify({'type': 'info', 'message': message})
 
     def debug(self, message):
+        output = ""
         if self.VERBOSE:
             if type(message) is ListType:
                 message = ' '.join(message)
             message = "[DEBUG] " + message
-            self.notify({'type': 'debug', 'message': message})
+            output = self.notify({'type': 'debug', 'message': message})
+
+        return output
 
     def cc_info(self, severity, file, line, message, target_name=None, toolchain_name=None):
-        self.notify({'type': 'cc',
+        return self.notify({'type': 'cc',
                      'severity': severity,
                      'file': file,
                      'line': line,
@@ -710,13 +735,13 @@ class mbedToolchain:
         msg = {'type': 'progress', 'action': action, 'file': file}
         if build_update:
             msg['percent'] = 100. * float(self.compiled) / float(self.to_be_compiled)
-        self.notify(msg)
+        return self.notify(msg)
 
     def tool_error(self, message):
-        self.notify({'type': 'tool_error', 'message': message})
+        return self.notify({'type': 'tool_error', 'message': message})
 
     def var(self, key, value):
-        self.notify({'type': 'var', 'key': key, 'val': value})
+        return self.notify({'type': 'var', 'key': key, 'val': value})
 
 from workspace_tools.settings import ARM_BIN
 from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH

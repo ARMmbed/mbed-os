@@ -99,10 +99,11 @@ class ARM(mbedToolchain):
         return dependencies
 
     def parse_output(self, output):
+        tmp_output = ""
         for line in output.splitlines():
             match = ARM.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
-                self.cc_info(
+                tmp_output += self.cc_info(
                     match.group('severity').lower(),
                     match.group('file'),
                     match.group('line'),
@@ -112,16 +113,18 @@ class ARM(mbedToolchain):
                 )
             match = self.goanna_parse_line(line)
             if match is not None:
-                self.cc_info(
+                tmp_output += self.cc_info(
                     match.group('severity').lower(),
                     match.group('file'),
                     match.group('line'),
                     match.group('message')
                 )
                 
+        return tmp_output
+
     def get_dep_opt(self, dep_path):
         return ["--depend", dep_path]
-        
+
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
 
