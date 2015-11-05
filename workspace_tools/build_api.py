@@ -95,10 +95,10 @@ def build_project(src_path, build_path, target, toolchain_name,
     if name is None:
         # We will use default project name based on project folder name
         name = PROJECT_BASENAME
-        cur_result["output"] += toolchain.info("Building project %s (%s, %s)" % (PROJECT_BASENAME.upper(), target.name, toolchain_name))
+        toolchain.info("Building project %s (%s, %s)" % (PROJECT_BASENAME.upper(), target.name, toolchain_name))
     else:
         # User used custom global project name to have the same name for the
-        cur_result["output"] += toolchain.info("Building project %s to %s (%s, %s)" % (PROJECT_BASENAME.upper(), name, target.name, toolchain_name))
+        toolchain.info("Building project %s to %s (%s, %s)" % (PROJECT_BASENAME.upper(), name, target.name, toolchain_name))
 
     start = time()
     id_name = project_id.upper()
@@ -141,17 +141,16 @@ def build_project(src_path, build_path, target, toolchain_name,
         # Compile Sources
         for path in src_paths:
             src = toolchain.scan_resources(path)
-            objects, build_output = toolchain.compile_sources(src, build_path, resources.inc_dirs)
+            objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
             resources.objects.extend(objects)
-            cur_result["output"] += build_output
 
         # Link Program
-        res, needed_update, build_output = toolchain.link_program(resources, build_path, name)
-        cur_result["output"] += build_output
+        res, needed_update = toolchain.link_program(resources, build_path, name)
 
         if report != None and needed_update:
             end = time()
             cur_result["elapsed_time"] = end - start
+            cur_result["output"] = toolchain.get_output()
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
@@ -161,8 +160,13 @@ def build_project(src_path, build_path, target, toolchain_name,
     except Exception, e:
         end = time()
         cur_result["result"] = "FAIL"
-        cur_result["output"] = str(e)
         cur_result["elapsed_time"] = end - start
+
+        toolchain_output = toolchain.get_output()
+        if toolchain_output:
+            cur_result["output"] += toolchain_output
+
+        cur_result["output"] += str(e)
 
         add_result_to_report(report, cur_result)
 
@@ -221,7 +225,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.jobs = jobs
         toolchain.build_all = clean
 
-        cur_result["output"] += toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+        toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
         # Scan Resources
         resources = []
@@ -253,23 +257,21 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         # Copy Headers
         for resource in resources:
-            cur_result["output"] += toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
         dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
 
         # Compile Sources
         objects = []
         for resource in resources:
-            objects, tmp_output = toolchain.compile_sources(resource, tmp_path, dependencies_include_dir)
+            objects = toolchain.compile_sources(resource, tmp_path, dependencies_include_dir)
             objects.extend(objects)
-            cur_result["output"] += tmp_output
 
-        needed_update, build_output = toolchain.build_library(objects, bin_path, name)
-
-        cur_result["output"] += build_output
+        needed_update = toolchain.build_library(objects, bin_path, name)
 
         if report != None and needed_update:
             end = time()
             cur_result["elapsed_time"] = end - start
+            cur_result["output"] = toolchain.get_output()
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
@@ -278,8 +280,13 @@ def build_library(src_paths, build_path, target, toolchain_name,
         if report != None:
             end = time()
             cur_result["result"] = "FAIL"
-            cur_result["output"] += str(e)
             cur_result["elapsed_time"] = end - start
+
+            toolchain_output = toolchain.get_output()
+            if toolchain_output:
+                cur_result["output"] += toolchain_output
+
+            cur_result["output"] += str(e)
 
             add_result_to_report(report, cur_result)
 
@@ -356,37 +363,34 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         mkdir(TMP_PATH)
 
         # CMSIS
-        cur_result["output"] += toolchain.info("Building library %s (%s, %s)"% ('CMSIS', target.name, toolchain_name))
+        toolchain.info("Building library %s (%s, %s)"% ('CMSIS', target.name, toolchain_name))
         cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
         resources = toolchain.scan_resources(cmsis_src)
 
-        cur_result["output"] += toolchain.copy_files(resources.headers, BUILD_TARGET)
-        cur_result["output"] += toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
-        cur_result["output"] += toolchain.copy_files(resources.bin_files, BUILD_TOOLCHAIN)
+        toolchain.copy_files(resources.headers, BUILD_TARGET)
+        toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
+        toolchain.copy_files(resources.bin_files, BUILD_TOOLCHAIN)
 
-        objects, build_output = toolchain.compile_sources(resources, TMP_PATH)
-        cur_result["output"] += build_output
-        cur_result["output"] += toolchain.copy_files(objects, BUILD_TOOLCHAIN)
+        objects = toolchain.compile_sources(resources, TMP_PATH)
+        toolchain.copy_files(objects, BUILD_TOOLCHAIN)
 
         # mbed
-        cur_result["output"] += toolchain.info("Building library %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+        toolchain.info("Building library %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
         # Common Headers
-        cur_result["output"] += toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
-        cur_result["output"] += toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
+        toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
+        toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
 
         # Target specific sources
         HAL_SRC = join(MBED_TARGETS_PATH, "hal")
         hal_implementation = toolchain.scan_resources(HAL_SRC)
-        cur_result["output"] += toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, HAL_SRC)
+        toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, HAL_SRC)
         incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
-        objects, build_output = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
-        cur_result["output"] += build_output
+        objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
         # Common Sources
         mbed_resources = toolchain.scan_resources(MBED_COMMON)
-        objects, build_output = toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES] + incdirs)
-        cur_result["output"] += build_output
+        objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
         # A number of compiled files need to be copied as objects as opposed to
         # being part of the mbed library, for reasons that have to do with the way
@@ -404,15 +408,15 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         for o in separate_objects:
             objects.remove(o)
 
-        needed_update, build_output = toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
-        cur_result["output"] += build_output
+        needed_update = toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
 
         for o in separate_objects:
-            cur_result["output"] += toolchain.copy_files(o, BUILD_TOOLCHAIN)
+            toolchain.copy_files(o, BUILD_TOOLCHAIN)
 
         if report != None and needed_update:
             end = time()
             cur_result["elapsed_time"] = end - start
+            cur_result["output"] = toolchain.get_output()
             cur_result["result"] = "OK"
 
             add_result_to_report(report, cur_result)
@@ -423,8 +427,13 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         if report != None:
             end = time()
             cur_result["result"] = "FAIL"
-            cur_result["output"] += str(e)
             cur_result["elapsed_time"] = end - start
+
+            toolchain_output = toolchain.get_output()
+            if toolchain_output:
+                cur_result["output"] += toolchain_output
+
+            cur_result["output"] += str(e)
 
             add_result_to_report(report, cur_result)
 

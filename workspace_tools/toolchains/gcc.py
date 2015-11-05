@@ -115,13 +115,12 @@ class GCC(mbedToolchain):
 
     def parse_output(self, output):
         # The warning/error notification is multiline
-        tmp_output = ""
         WHERE, WHAT = 0, 1
         state, file, message = WHERE, None, None
         for line in output.splitlines():
             match = self.goanna_parse_line(line)
             if match is not None:
-                tmp_output += self.cc_info(
+                self.cc_info(
                     match.group('severity').lower(),
                     match.group('file'),
                     match.group('line'),
@@ -148,13 +147,11 @@ class GCC(mbedToolchain):
                     state = WHERE
                     continue
 
-                tmp_output += self.cc_info(
+                self.cc_info(
                     match.group('severity'),
                     file, match.group('line'),
                     message + match.group('message')
                 )
-
-        return tmp_output
 
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, "rcs", lib_path] + objects)
