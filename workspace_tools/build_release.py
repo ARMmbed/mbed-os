@@ -142,15 +142,11 @@ if __name__ == '__main__':
 
     parser.add_option("-p", "--platforms", dest="platforms", default="", help="Build only for the platform namesseparated by comma")
 
-    parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an html file")
+    parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an junit xml file")
 
 
     options, args = parser.parse_args()
-    id_name = "MBED"
     start = time()
-    failures = []
-    successes = []
-    skips = []
     report = {}
     properties = {}
 
@@ -174,74 +170,23 @@ if __name__ == '__main__':
             toolchains = toolchainSet and set((options.toolchains).split(','))
 
         for toolchain in toolchains:
-            if not target_name in report:
-                report[target_name] = {}
-
-            if not toolchain in report[target_name]:
-                report[target_name][toolchain] = {}
-
-            if not id_name in report[target_name][toolchain]:
-                report[target_name][toolchain][id_name] = []
-
-            if not target_name in properties:
-                properties[target_name] = {}
-
-            if not toolchain in properties[target_name]:
-                properties[target_name][toolchain] = {}
-
-            properties[target_name][toolchain]["target"] = target_name
-            properties[target_name][toolchain]["toolchain"] = toolchain
-
-
             id = "%s::%s" % (target_name, toolchain)
 
-            start = time()
-            cur_result = {}
-            cur_result["toolchain_name"] = toolchain
-            cur_result["target_name"] = target_name
-            cur_result["id"] = id_name
-            cur_result["description"] = "mbed SDK"
-
             try:
-                built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
-                end = time()
-
-                cur_result["elapsed_time"] = end - start
-                cur_result["output"] = ""
-
-                if built_mbed_lib:
-                    cur_result["result"] = "OK"
-                else:
-                    cur_result["result"] = "SKIP"
+                built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs, report=report, properties=properties)
 
             except Exception, e:
-                exc_type, exc_value, exc_tb = sys.exc_info()
-                end = time()
-                cur_result["result"] = "FAIL"
-                cur_result["output"] = str(e)
-                cur_result["elapsed_time"] = end - start
                 print str(e)
 
-            cur_result_wrap = { 0: cur_result }
-            report[target_name][toolchain][id_name].append(cur_result_wrap)
-
     # Write summary of the builds
-
     if options.report_build_file_name:
-        report_exporter = ReportExporter(ResultExporterType.JUNIT)
-        report_exporter.report_to_file(report, options.report_build_file_name, test_suite_properties=properties)
+        file_report_exporter = ReportExporter(ResultExporterType.JUNIT)
+        file_report_exporter.report_to_file(report, options.report_build_file_name, test_suite_properties=properties)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
-    if successes:
-        print "\n\nBuild successes:"
-        print "\n".join(["  * %s" % s for s in successes])
+    print_report_exporter = ReportExporter(ResultExporterType.PRINT)
+    status = print_report_exporter.report(report)
 
-    if skips:
-        print "\n\nBuild skips:"
-        print "\n".join(["  * %s" % s for s in skips])
-
-    if failures:
-        print "\n\nBuild failures:"
-        print "\n".join(["  * %s" % f for f in failures])
+    if not status:
         sys.exit(1)

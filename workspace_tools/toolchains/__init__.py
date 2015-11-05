@@ -393,7 +393,7 @@ class mbedToolchain:
 
                 elif ext == '.hex':
                     resources.hex_files.append(file_path)
-                
+
                 elif ext == '.bin':
                     resources.bin_files.append(file_path)
 
@@ -625,13 +625,18 @@ class mbedToolchain:
         return self.compile(self.cppc, source, object, includes)
 
     def build_library(self, objects, dir, name):
+        needed_update = False
         lib = self.STD_LIB_NAME % name
         fout = join(dir, lib)
         if self.need_update(fout, objects):
             self.info("Library: %s" % lib)
             self.archive(objects, fout)
+            needed_update = True
+
+        return needed_update
 
     def link_program(self, r, tmp_path, name):
+        needed_update = False
         ext = 'bin'
         if hasattr(self.target, 'OUTPUT_EXT'):
             ext = self.target.OUTPUT_EXT
@@ -647,10 +652,12 @@ class mbedToolchain:
         bin = join(tmp_path, filename)
 
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
+            needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
 
         if self.need_update(bin, [elf]):
+            needed_update = True
             self.progress("elf2bin", name)
 
             self.binary(r, elf, bin)
@@ -658,7 +665,7 @@ class mbedToolchain:
         self.var("compile_succeded", True)
         self.var("binary", filename)
 
-        return bin
+        return bin, needed_update
 
     def default_cmd(self, command):
         _stdout, _stderr, _rc = run_cmd(command)

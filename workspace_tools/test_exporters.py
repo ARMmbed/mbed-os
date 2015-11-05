@@ -23,7 +23,8 @@ from workspace_tools.utils import construct_enum
 ResultExporterType = construct_enum(HTML='Html_Exporter',
                                     JUNIT='JUnit_Exporter',
                                     JUNIT_OPER='JUnit_Exporter_Interoperability',
-                                    BUILD='Build_Exporter')
+                                    BUILD='Build_Exporter',
+                                    PRINT='Print_Exporter')
 
 
 class ReportExporter():
@@ -82,6 +83,9 @@ class ReportExporter():
         elif self.result_exporter_type == ResultExporterType.JUNIT_OPER:
             # JUNIT exporter for interoperability test
             return self.exporter_junit_ioper(test_summary_ext, test_suite_properties)
+        elif self.result_exporter_type == ResultExporterType.PRINT:
+            # JUNIT exporter for interoperability test
+            return self.exporter_print(test_summary_ext)
         return None
 
     def report_to_file(self, test_summary_ext, file_name, test_suite_properties=None):
@@ -189,7 +193,7 @@ class ReportExporter():
         result += '<table><tr>'
         for target in targets:
             toolchains = sorted(test_result_ext[target].keys())
-            for target in targets:
+            for toolchain in toolchains:
                 result += '<td></td>'
                 result += '<td></td>'
 
@@ -233,6 +237,8 @@ class ReportExporter():
                     tc.add_failure_info(description, _stdout)
                 elif result == 'ERROR':
                     tc.add_error_info(description, _stdout)
+                elif result == 'SKIP':
+                    tc.add_skipped_info(description, _stdout)
 
                 test_cases.append(tc)
             ts = TestSuite("test.suite.ioper.%s" % (platform), test_cases)
@@ -274,6 +280,9 @@ class ReportExporter():
                             if test_result['result'] == 'FAIL':
                                 message = test_result['result']
                                 tc.add_failure_info(message, _stdout)
+                            elif test_result['result'] == 'SKIP':
+                                message = test_result['result']
+                                tc.add_skipped_info(message, _stdout)
                             elif test_result['result'] != 'OK':
                                 message = test_result['result']
                                 tc.add_error_info(message, _stdout)
@@ -283,3 +292,51 @@ class ReportExporter():
                 ts = TestSuite("test.suite.%s.%s"% (target, toolchain), test_cases, properties=test_suite_properties[target][toolchain])
                 test_suites.append(ts)
         return TestSuite.to_xml_string(test_suites)
+
+    def exporter_print_helper(self, array):
+        for item in array:
+            print "  * %s::%s::%s" % (item["target_name"], item["toolchain_name"], item["id"])
+
+    def exporter_print(self, test_result_ext):
+        """ Export test results in print format.
+        """
+        failures = []
+        skips = []
+        successes = []
+
+        unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
+        targets = sorted(test_result_ext.keys())
+
+        for target in targets:
+            toolchains = sorted(test_result_ext[target].keys())
+            for toolchain in toolchains:
+                tests = sorted(test_result_ext[target][toolchain].keys())
+                for test in tests:
+                    test_runs = test_result_ext[target][toolchain][test]
+                    for test_runner in test_runs:
+                        #test_run = test_result_ext[target][toolchain][test][test_run_number][0]
+                        test_run = test_runner[0]
+
+                        if test_run["result"] == "FAIL":
+                            failures.append(test_run)
+                        elif test_run["result"] == "SKIP":
+                            skips.append(test_run)
+                        elif test_run["result"] == "OK":
+                            successes.append(test_run)
+                        else:
+                            raise Exception("Unhandled result type: %s" % (test_run["result"]))
+
+        if successes:
+            print "\n\nBuild successes:"
+            self.exporter_print_helper(successes)
+
+        if skips:
+            print "\n\nBuild skips:"
+            self.exporter_print_helper(skips)
+
+        if failures:
+            print "\n\nBuild failures:"
+            self.exporter_print_helper(failures)
+            return False
+        else:
+            return True
