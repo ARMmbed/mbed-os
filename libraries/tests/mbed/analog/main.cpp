@@ -50,6 +50,10 @@ AnalogOut out(PA_4);
 AnalogIn in(PC_3);
 AnalogOut out(PA_5);
 
+#elif defined(TARGET_DISCO_F469NI)
+AnalogIn in(PC_5);
+AnalogOut out(PA_4);
+
 #elif defined(TARGET_MAX32600MBED)
 AnalogIn in(AIN_7P);
 AnalogOut out(AOUT_DO);
