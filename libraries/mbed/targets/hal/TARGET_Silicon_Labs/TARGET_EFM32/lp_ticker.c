@@ -110,6 +110,12 @@ inline void lp_ticker_clear_interrupt()
 
 timestamp_t lp_ticker_read()
 {
+    if(!rtc_reserved) {
+        INT_Disable();
+        rtc_init_real(RTC_INIT_LPTIMER);
+        rtc_reserved = 1;
+        INT_Enable();
+    }
     uint64_t ticks_temp;
     uint64_t ticks = RTC_CounterGet();
 
@@ -184,6 +190,12 @@ inline void lp_ticker_clear_interrupt()
 
 timestamp_t lp_ticker_read()
 {
+    if(!rtc_reserved) {
+        INT_Disable();
+        rtc_init_real(RTC_INIT_LPTIMER);
+        rtc_reserved = 1;
+        INT_Enable();
+    }
     uint64_t ticks_temp;
     uint64_t ticks = RTCC_CounterGet();
 
