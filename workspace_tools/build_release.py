@@ -61,6 +61,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('TEENSY3_1',      ('ARM', 'GCC_ARM')),
 
     ('NUCLEO_F030R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F031K6', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F042K6', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F070RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F072RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),

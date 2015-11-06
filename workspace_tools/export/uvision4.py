@@ -86,6 +86,9 @@ class Uvision4(Exporter):
         'MAX32600MBED',
         'MOTE_L152RC',
         'NZ32SC151',
+        'SAMR21G18A',
+        'SAMD21J18A',
+        'SAMD21G18A',
     ]
 
     USING_MICROLIB = [
@@ -123,6 +126,9 @@ class Uvision4(Exporter):
         'LPC11U37H_401',
         'MOTE_L152RC',
         'NZ32SC151',
+        'SAMR21G18A',
+        'SAMD21J18A',
+        'SAMD21G18A',
     ]
 
     FILE_TYPES = {

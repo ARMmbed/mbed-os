@@ -1642,7 +1642,7 @@ class SAMR21G18A(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMR21']
         self.macros = ['__SAMR21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
 
 class SAMD21J18A(Target):
@@ -1651,7 +1651,7 @@ class SAMD21J18A(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
         self.macros = ['__SAMD21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
 
 class SAMD21G18A(Target):
@@ -1660,7 +1660,7 @@ class SAMD21G18A(Target):
         self.core = "Cortex-M0+"
         self.extra_labels = ['Atmel', 'SAM_CortexM0+', 'SAMD21']
         self.macros = ['__SAMD21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM"]
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
 
 
