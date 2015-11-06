@@ -464,7 +464,8 @@ class SingleTestRunner(object):
                                      jobs=self.opts_jobs,
                                      report=build_report,
                                      properties=build_properties,
-                                     project_id=test_id)
+                                     project_id=test_id,
+                                     project_description=test.get_description())
 
                 except ToolException:
                     project_name_str = project_name if project_name is not None else test_id

@@ -77,7 +77,7 @@ def add_result_to_report(report, result):
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
         clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None,
-        jobs=1, silent=False, report=None, properties=None, project_id=None):
+        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None):
     """ This function builds project. Project can be for example one test / UT
     """
     # Toolchain instance
@@ -102,7 +102,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
     start = time()
     id_name = project_id.upper()
-    description = project_id
+    description = project_description
     cur_result = None
 
     if report != None:
