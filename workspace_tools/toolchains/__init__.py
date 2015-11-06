@@ -703,7 +703,7 @@ class mbedToolchain:
 
     ### NOTIFICATIONS ###
     def info(self, message):
-        return self.notify({'type': 'info', 'message': message})
+        self.notify({'type': 'info', 'message': message})
 
     def debug(self, message):
         if self.VERBOSE:
@@ -713,7 +713,7 @@ class mbedToolchain:
             self.notify({'type': 'debug', 'message': message})
 
     def cc_info(self, severity, file, line, message, target_name=None, toolchain_name=None):
-        return self.notify({'type': 'cc',
+        self.notify({'type': 'cc',
                      'severity': severity,
                      'file': file,
                      'line': line,
@@ -725,13 +725,13 @@ class mbedToolchain:
         msg = {'type': 'progress', 'action': action, 'file': file}
         if build_update:
             msg['percent'] = 100. * float(self.compiled) / float(self.to_be_compiled)
-        return self.notify(msg)
+        self.notify(msg)
 
     def tool_error(self, message):
-        return self.notify({'type': 'tool_error', 'message': message})
+        self.notify({'type': 'tool_error', 'message': message})
 
     def var(self, key, value):
-        return self.notify({'type': 'var', 'key': key, 'val': value})
+        self.notify({'type': 'var', 'key': key, 'val': value})
 
 from workspace_tools.settings import ARM_BIN
 from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH

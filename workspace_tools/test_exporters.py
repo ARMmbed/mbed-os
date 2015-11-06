@@ -277,15 +277,14 @@ class ReportExporter():
 
                             # Test case
                             tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
+
                             # Test case extra failure / error info
+                            message = test_result['result']
                             if test_result['result'] == 'FAIL':
-                                message = test_result['result']
                                 tc.add_failure_info(message, _stdout)
                             elif test_result['result'] == 'SKIP':
-                                message = test_result['result']
                                 tc.add_skipped_info(message, _stdout)
                             elif test_result['result'] != 'OK':
-                                message = test_result['result']
                                 tc.add_error_info(message, _stdout)
 
                             test_cases.append(tc)
