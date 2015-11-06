@@ -1473,7 +1473,7 @@ def singletest_in_cli_mode(single_test):
     print
     # Write summary of the builds
 
-    print_report_exporter = ReportExporter(ResultExporterType.PRINT)
+    print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
     status = print_report_exporter.report(build_report)
 
     # Store extra reports in files
@@ -1487,7 +1487,7 @@ def singletest_in_cli_mode(single_test):
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
     if single_test.opts_report_build_file_name:
         # Export build results as html report to sparate file
-        report_exporter = ReportExporter(ResultExporterType.JUNIT)
+        report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
         report_exporter.report_to_file(build_report, single_test.opts_report_build_file_name, test_suite_properties=build_properties)
 
     # Returns True if no build failures of the test projects or their dependencies

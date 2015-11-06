@@ -68,8 +68,9 @@ class ReportExporter():
                  </script>
                  """
 
-    def __init__(self, result_exporter_type):
+    def __init__(self, result_exporter_type, package="test"):
         self.result_exporter_type = result_exporter_type
+        self.package = package
 
     def report(self, test_summary_ext, test_suite_properties=None):
         """ Invokes report depending on exporter_type set in constructor
@@ -265,7 +266,7 @@ class ReportExporter():
                         for test_no in test_ids:
                             test_result = test_res[test_no]
                             name = test_result['description']
-                            classname = 'test.%s.%s.%s'% (target, toolchain, test_result['id'])
+                            classname = '%s.%s.%s.%s'% (self.package, target, toolchain, test_result['id'])
                             elapsed_sec = test_result['elapsed_time']
                             _stdout = test_result['output']
 

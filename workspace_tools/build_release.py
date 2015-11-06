@@ -180,12 +180,12 @@ if __name__ == '__main__':
 
     # Write summary of the builds
     if options.report_build_file_name:
-        file_report_exporter = ReportExporter(ResultExporterType.JUNIT)
+        file_report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
         file_report_exporter.report_to_file(report, options.report_build_file_name, test_suite_properties=properties)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
-    print_report_exporter = ReportExporter(ResultExporterType.PRINT)
+    print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
     status = print_report_exporter.report(report)
 
     if not status:
