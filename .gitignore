@@ -1,2 +1,3 @@
 *.a
+*.lib
 output
