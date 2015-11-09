@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,11 +37,19 @@ extern "C" {
 #endif
 
 // See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
-#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((AFNUM) << 7) | ((PUPD) << 4) | ((MODE) << 0)))
-#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((INVERTED & 0x01) << 15) | ((CHANNEL & 0x0F) << 11) | ((AFNUM & 0x0F) << 7) | ((PUPD & 0x07) << 4) | ((MODE & 0x0F) << 0)))
-#define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
-#define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
-#define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
+#define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((MODE  & 0x0F) << 0) |\
+                                                ((PUPD  & 0x07) << 4) |\
+                                                ((AFNUM & 0x0F) << 7)))
+
+#define STM_PIN_DATA_EXT(MODE, PUPD, AFNUM, CHANNEL, INVERTED)  ((int)(((MODE     & 0x0F) <<  0) |\
+                                                                       ((PUPD     & 0x07) <<  4) |\
+                                                                       ((AFNUM    & 0x0F) <<  7) |\
+                                                                       ((CHANNEL  & 0x0F) << 11) |\
+                                                                       ((INVERTED & 0x01) << 15)))
+
+#define STM_PIN_MODE(X)     (((X) >>  0) & 0x0F)
+#define STM_PIN_PUPD(X)     (((X) >>  4) & 0x07)
+#define STM_PIN_AFNUM(X)    (((X) >>  7) & 0x0F)
 #define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
 #define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
 #define STM_MODE_INPUT              (0)
@@ -193,111 +201,15 @@ typedef enum {
 
     PH_0  = 0x70,
     PH_1  = 0x71,
-    PH_2  = 0x72,
-    PH_3  = 0x73,
-    PH_4  = 0x74,
-    PH_5  = 0x75,
-    PH_6  = 0x76,
-    PH_7  = 0x77,
-    PH_8  = 0x78,
-    PH_9  = 0x79,
-    PH_10 = 0x7A,
-    PH_11 = 0x7B,
-    PH_12 = 0x7C,
-    PH_13 = 0x7D,
-    PH_14 = 0x7E,
-    PH_15 = 0x7F,
-
-
-    PI_0  = 0x80,
-    PI_1  = 0x81,
-    PI_2  = 0x82,
-    PI_3  = 0x83,
-    PI_4  = 0x84,
-    PI_5  = 0x85,
-    PI_6  = 0x86,
-    PI_7  = 0x87,
-    PI_8  = 0x88,
-    PI_9  = 0x89,
-    PI_10 = 0x8A,
-    PI_11 = 0x8B,
-    PI_12 = 0x8C,
-    PI_13 = 0x8D,
-    PI_14 = 0x8E,
-    PI_15 = 0x8F,
-
-
-    PJ_0  = 0x90,
-    PJ_1  = 0x91,
-    PJ_2  = 0x92,
-    PJ_3  = 0x93,
-    PJ_4  = 0x94,
-    PJ_5  = 0x95,
-    PJ_6  = 0x96,
-    PJ_7  = 0x97,
-    PJ_8  = 0x98,
-    PJ_9  = 0x99,
-    PJ_10 = 0x9A,
-    PJ_11 = 0x9B,
-    PJ_12 = 0x9C,
-    PJ_13 = 0x9D,
-    PJ_14 = 0x9E,
-    PJ_15 = 0x9F,
-
-
-    PK_0  = 0xA0,
-    PK_1  = 0xA1,
-    PK_2  = 0xA2,
-    PK_3  = 0xA3,
-    PK_4  = 0xA4,
-    PK_5  = 0xA5,
-    PK_6  = 0xA6,
-    PK_7  = 0xA7,
-
-    // Arduino connector namings
-/*
-    A0          = PA_0,
-    A1          = PA_1,
-    A2          = PA_4,
-    A3          = PB_0,
-    A4          = PC_1,
-    A5          = PC_0,
-    D0          = PA_3,
-    D1          = PA_2,
-    D2          = PA_10,
-    D3          = PB_3,
-    D4          = PB_5,
-    D5          = PB_4,
-    D6          = PB_10,
-    D7          = PA_8,
-    D8          = PA_9,
-    D9          = PC_7,
-    D10         = PB_6,
-    D11         = PA_7,
-    D12         = PA_6,
-    D13         = PA_5,
-    D14         = PB_9,
-    D15         = PB_8,
-*/
 
     // Generic signals namings
-    LED1        = PG_13,
-    LED2        = PG_14,
-    LED3        = PG_13,
-    LED4        = PG_14,
+    LED1        = PG_13, // Corresponds to LD3 on MB1075B
+    LED2        = PG_14, // Corresponds to LD4 on MB1075B
     USER_BUTTON = PA_0,
     SERIAL_TX   = PA_9,
     SERIAL_RX   = PA_10,
     USBTX       = PA_9,
     USBRX       = PA_10,
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
-    SPI_CS      = PA_4,
-    PWM_OUT     = PB_3,
-
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
