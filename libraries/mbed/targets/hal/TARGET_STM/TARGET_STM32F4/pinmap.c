@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -173,8 +173,9 @@ void pin_mode(PinName pin, PinMode mode)
 
     // Configure pull-up/pull-down resistors
     uint32_t pupd = (uint32_t)mode;
-    if (pupd > 2)
+    if (pupd > 2) {
         pupd = 0; // Open-drain = No pull-up/No pull-down
+    }
     gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPDR0 << (pin_index * 2)));
     gpio->PUPDR |= (uint32_t)(pupd << (pin_index * 2));
 
