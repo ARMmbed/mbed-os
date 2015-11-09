@@ -155,6 +155,12 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     /* map offset to RTC value */
     // ticks = offset * RTC frequency div 1000000
     timestamp_ticks = ((uint64_t)offset * (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) / 1000000;
+    // checking the rounding. If timeout is wanted between RTCC ticks, irq should be configured to
+    // trigger in the latter RTCC-tick. Otherwise ticker-api fails to send timer event to its client
+    if(((timestamp_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) < offset){
+        timestamp_ticks++;
+    }
+
     timestamp_ticks += current_ticks;
 
     /* RTCC has 32 bit resolution */
