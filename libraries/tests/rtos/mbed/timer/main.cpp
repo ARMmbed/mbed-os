@@ -2,15 +2,9 @@
 #include "test_env.h"
 #include "rtos.h"
 
-#if defined(TARGET_DISCO_F429ZI)
-DigitalOut LEDs[2] = {
-    DigitalOut(LED1), DigitalOut(LED2)
-};
-#else
 DigitalOut LEDs[4] = {
     DigitalOut(LED1), DigitalOut(LED2), DigitalOut(LED3), DigitalOut(LED4)
 };
-#endif
 
 void print_char(char c = '*')
 {
@@ -36,17 +30,13 @@ int main(void) {
 
     RtosTimer led_1_timer(blink, osTimerPeriodic, (void *)0);
     RtosTimer led_2_timer(blink, osTimerPeriodic, (void *)1);
-#if !defined(TARGET_DISCO_F429ZI)
     RtosTimer led_3_timer(blink, osTimerPeriodic, (void *)2);
     RtosTimer led_4_timer(blink, osTimerPeriodic, (void *)3);
-#endif
 
     led_1_timer.start(200);
     led_2_timer.start(100);
-#if !defined(TARGET_DISCO_F429ZI)
     led_3_timer.start(50);
     led_4_timer.start(25);
-#endif
 
     Thread::wait(osWaitForever);
 }

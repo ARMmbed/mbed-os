@@ -205,6 +205,8 @@ typedef enum {
     // Generic signals namings
     LED1        = PG_13, // Corresponds to LD3 on MB1075B
     LED2        = PG_14, // Corresponds to LD4 on MB1075B
+    LED3        = PG_13,
+    LED4        = PG_14,
     USER_BUTTON = PA_0,
     SERIAL_TX   = PA_9,
     SERIAL_RX   = PA_10,
