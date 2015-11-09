@@ -1034,12 +1034,11 @@ class SingleTestRunner(object):
         """
         result = self.TEST_RESULT_FAIL
 
-        if waterfall_and_consolidate:
-            if any(res == self.TEST_RESULT_OK for res in test_all_result):
-                result = self.TEST_RESULT_OK
-        else:
-            if all(test_all_result[0] == res for res in test_all_result):
-                result = test_all_result[0]
+        if all(test_all_result[0] == res for res in test_all_result):
+            result = test_all_result[0]
+        elif waterfall_and_consolidate and any(res == self.TEST_RESULT_OK for res in test_all_result):
+            result = self.TEST_RESULT_OK
+
         return result
 
     def run_host_test(self, name, image_path, disk, port, duration,

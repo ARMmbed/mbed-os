@@ -13,6 +13,8 @@
 #define TIMER_IRQ       TIMER3_IRQn
 #elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
 #define TIMER_IRQ       TC4_IRQn
+#elif defined(TARGET_SAML21J18A)
+#define TIMER_IRQ       TC0_IRQn
 #else
 #error This test can't run on this target.
 #endif
@@ -46,7 +48,7 @@ Sender s2(pc, '2');
 #   define LED_NAME LED2
 #elif defined(TARGET_KL05Z)
 #   define LED_NAME LED2
-#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) /*to avoid build errors*/
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A) /*to avoid build errors*/
 #   define LED_NAME LED2  /*Only 1 LED available*/
 #else
 #   define LED_NAME PTE31
