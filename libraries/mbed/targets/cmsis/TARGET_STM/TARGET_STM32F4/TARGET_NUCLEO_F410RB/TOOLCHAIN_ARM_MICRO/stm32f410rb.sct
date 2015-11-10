@@ -27,7 +27,7 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; STM32F411RE: 128 KB FLASH (0x20000) + 32 KB SRAM (0x8000)
+; STM32F410RB: 128 KB FLASH (0x20000) + 32 KB SRAM (0x8000)
 LR_IROM1 0x08000000 0x20000  {    ; load region size_region
 
   ER_IROM1 0x08000000 0x20000  {  ; load address = execution address
@@ -36,8 +36,8 @@ LR_IROM1 0x08000000 0x20000  {    ; load region size_region
    .ANY (+RO)
   }
 
-  ; Total: 102 vectors = 408 bytes (0x198) to be reserved in RAM
-  RW_IRAM1 (0x20000000+0x198) (0x8000-0x198)  {  ; RW data
+  ; Total: 112 vectors = 448 bytes (0x1C0) to be reserved in RAM
+  RW_IRAM1 (0x20000000+0x1C0) (0x8000-0x1C0)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
