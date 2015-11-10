@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hcd.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of HCD HAL module.
   ******************************************************************************
   * @attention
@@ -42,7 +42,10 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
+    defined(STM32F469xx) || defined(STM32F479xx) 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_ll_usb.h"
    
@@ -177,7 +180,7 @@ void                HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd);
   */
 
 /* I/O operation functions  ***************************************************/
-/** @addtogroup HCD_Exported_Functions_Group2 IO operation functions
+/** @addtogroup HCD_Exported_Functions_Group2 Input and Output operation functions
   * @{
   */
 HAL_StatusTypeDef   HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
@@ -238,10 +241,11 @@ uint32_t            HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
   * @{
   */
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) ||\
-    defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+    defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) || defined(STM32F469xx) ||\
+    defined(STM32F479xx)
  #define IS_HCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
                                         ((INSTANCE) == USB_OTG_HS))
-#elif defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE)
+#elif defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) 
  #define IS_HCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS))
 #endif
 /**
@@ -259,7 +263,8 @@ uint32_t            HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */ 
-
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
 #ifdef __cplusplus
 }
 #endif

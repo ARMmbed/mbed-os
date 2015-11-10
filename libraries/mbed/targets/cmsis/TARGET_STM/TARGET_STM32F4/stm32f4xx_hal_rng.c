@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rng.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   RNG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Random Number Generator (RNG) peripheral:
@@ -70,7 +70,9 @@
 #ifdef HAL_RNG_MODULE_ENABLED
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
-    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F469xx) ||\
+    defined(STM32F479xx) 
 
 
 /* Private types -------------------------------------------------------------*/
@@ -500,7 +502,8 @@ HAL_RNG_StateTypeDef HAL_RNG_GetState(RNG_HandleTypeDef *hrng)
   * @}
   */
 
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
+          STM32F429xx || STM32F439xx || STM32F410xx || STM32F469xx || STM32F479xx  */
 
 #endif /* HAL_RNG_MODULE_ENABLED */
 

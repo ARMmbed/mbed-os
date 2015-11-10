@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s_ex.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2S extension peripheral:
@@ -114,11 +114,6 @@
   */
 
 #ifdef HAL_I2S_MODULE_ENABLED
-
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
-    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE)
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -175,6 +170,10 @@
 @endverbatim
   * @{
   */
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) ||\
+    defined(STM32F479xx) 
 /**
   * @brief Initializes the I2S according to the specified parameters 
   *         in the I2S_InitTypeDef and create the associated handle.
@@ -1004,7 +1003,7 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
 
       tmp1 = I2SxEXT(hi2s->Instance)->SR & SPI_SR_OVR;
       tmp2 = I2SxEXT(hi2s->Instance)->CR2 & I2S_IT_ERR;
-      /* I2Sext Overrun error interrupt occurred ------------------------------*/
+      /* I2Sext Overrun error interrupt occurred -----------------------------*/
       if((tmp1 == SPI_SR_OVR) && (tmp2 == I2S_IT_ERR))
       {
         /* Clear I2Sext OVR Flag */ 
@@ -1031,7 +1030,7 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
 
       tmp1 = __HAL_I2S_GET_FLAG(hi2s, I2S_FLAG_UDR);
       tmp2 = __HAL_I2S_GET_IT_SOURCE(hi2s, I2S_IT_ERR);
-      /* I2S Underrun error interrupt occurred --------------------------------*/
+      /* I2S Underrun error interrupt occurred -------------------------------*/
       if((tmp1 != RESET) && (tmp2 != RESET))
       {
         __HAL_I2S_CLEAR_UDRFLAG(hi2s);
@@ -1058,7 +1057,7 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
 
       tmp1 = __HAL_I2S_GET_FLAG(hi2s, I2S_FLAG_OVR);
       tmp2 = __HAL_I2S_GET_IT_SOURCE(hi2s, I2S_IT_ERR);
-      /* I2S Overrun error interrupt occurred ---------------------------------*/
+      /* I2S Overrun error interrupt occurred --------------------------------*/
       if((tmp1 != RESET) && (tmp2 != RESET))
       {
         __HAL_I2S_CLEAR_OVRFLAG(hi2s);
@@ -1082,7 +1081,7 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
 
       tmp1 = I2SxEXT(hi2s->Instance)->SR & SPI_SR_UDR;
       tmp2 = I2SxEXT(hi2s->Instance)->CR2 & I2S_IT_ERR;
-      /* I2Sext Underrun error interrupt occurred -----------------------------*/
+      /* I2Sext Underrun error interrupt occurred ----------------------------*/
       if((tmp1 == SPI_SR_UDR) && (tmp2 == I2S_IT_ERR))
       {
         /* Clear I2Sext UDR Flag */ 
@@ -1105,7 +1104,6 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
 /**
   * @}
   */
-
 
 /**
   * @brief Full-Duplex Transmit/Receive data in non-blocking mode using Interrupt 
@@ -1220,7 +1218,8 @@ HAL_StatusTypeDef I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s)
     return HAL_BUSY; 
   }
 }
-#endif /* STM32F40xxx/ STM32F41xxx/ STM32F42xxx/ STM32F43xxx/ STM32F401xx/ STM32F411xx */
+#endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx || STM32F401xx ||\
+          STM32F411xx || STM32F469xx || STM32F479xx  */
 /**
   * @brief DMA I2S transmit process complete callback 
   * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
@@ -1239,13 +1238,15 @@ void I2S_DMATxCplt(DMA_HandleTypeDef *hdma)
     hi2s->Instance->CR2 &= (uint32_t)(~SPI_CR2_TXDMAEN);
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
-    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE)
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) ||\
+    defined(STM32F479xx) 
     if(hi2s->Init.FullDuplexMode == I2S_FULLDUPLEXMODE_ENABLE)
     {
       /* Disable Rx DMA Request for the slave*/  
       I2SxEXT(hi2s->Instance)->CR2 &= (uint32_t)(~SPI_CR2_RXDMAEN);
     }
-#endif /* STM32F40xxx/ STM32F41xxx/ STM32F42xxx/ STM32F43xxx/ STM32F401xx/ STM32F411xx */
+#endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx || STM32F401xx || STM32F411xx ||\
+          STM32F469xx || STM32F479xx  */
     if(hi2s->State == HAL_I2S_STATE_BUSY_TX_RX)
     {
       if(hi2s->RxXferCount == 0)
@@ -1277,13 +1278,15 @@ void I2S_DMARxCplt(DMA_HandleTypeDef *hdma)
     hi2s->Instance->CR2 &= (uint32_t)(~SPI_CR2_RXDMAEN);
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
-    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE)
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) ||\
+    defined(STM32F479xx) 
     if(hi2s->Init.FullDuplexMode == I2S_FULLDUPLEXMODE_ENABLE)
     {
       /* Disable Tx DMA Request for the slave*/  
       I2SxEXT(hi2s->Instance)->CR2 &= (uint32_t)(~SPI_CR2_TXDMAEN);
     }
-#endif /* STM32F40xxx/ STM32F41xxx/ STM32F42xxx/ STM32F43xxx/ STM32F401xx/ STM32F411xx */
+#endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx || STM32F401xx || STM32F411xx ||\
+          STM32F469xx || STM32F479xx  */
     hi2s->RxXferCount = 0;
     if(hi2s->State == HAL_I2S_STATE_BUSY_TX_RX)
     {
@@ -1315,8 +1318,8 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
   /* This variable used to store the I2S_CK_x (value in Hz) */
   uint32_t i2ssourceclock = 0;
 
-  /* Configure SAI Clock based on SAI source clock selection */ 
-#if defined(STM32F446xx)
+  /* Configure 12S Clock based on I2S source clock selection */ 
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) 
   switch(hi2s->Init.ClockSource)
   {
     case I2S_CLOCK_EXTERNAL :
@@ -1325,6 +1328,7 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
       i2ssourceclock = EXTERNAL_CLOCK_VALUE;
       break;
     }
+#if defined(STM32F446xx) 
     case I2S_CLOCK_PLL :
     { 
       /* Configure the PLLI2S division factor */
@@ -1346,6 +1350,7 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
       i2ssourceclock = (uint32_t)(vcooutput /(((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SR) >> 28) & (RCC_PLLI2SCFGR_PLLI2SR >> 28)));
       break;
     }
+#endif /* STM32F446xx  */
     case I2S_CLOCK_PLLR :
     { 
       /* Configure the PLLI2S division factor */
@@ -1388,18 +1393,16 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
       break;
     }
   }
-#endif /* STM32F446xx */
+#endif /* STM32F410xx || STM32F446xx  */
+
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F401xC) || defined(STM32F401xE) 
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F469xx) || defined(STM32F479xx)
       
   /* If an external I2S clock has to be used, the specific define should be set  
   in the project configuration or in the stm32f4xx_conf.h file */
   if(hi2s->Init.ClockSource == I2S_CLOCK_EXTERNAL)
   {
-    /* Enable the External Clock selection */
-    __HAL_RCC_I2S_CONFIG(RCC_I2SCLKSOURCE_EXT);
-    
     /* Set the I2S clock to the external clock  value */
     i2ssourceclock = EXTERNAL_CLOCK_VALUE;
   }
@@ -1423,7 +1426,7 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
     /* I2S_CLK = PLLI2S_VCO Output/PLLI2SR */
     i2ssourceclock = (uint32_t)(vcooutput /(((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SR) >> 28) & (RCC_PLLI2SCFGR_PLLI2SR >> 28)));
   }
-#endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx */
+#endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx || STM32F469xx || STM32F479xx */
 
 #if defined(STM32F411xE)
       
@@ -1431,9 +1434,6 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
   in the project configuration or in the stm32f4xx_conf.h file */
   if(hi2s->Init.ClockSource == I2S_CLOCK_EXTERNAL)
   {
-    /* Enable the External Clock selection */
-    __HAL_RCC_I2S_CONFIG(RCC_I2SCLKSOURCE_EXT);
-    
     /* Set the I2S clock to the external clock  value */
     i2ssourceclock = EXTERNAL_CLOCK_VALUE;
   }
@@ -1461,11 +1461,14 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
 
   /* the return result is the value of SAI clock */
   return i2ssourceclock; 
-
 }
 /**
   * @}
   */
+  
+/**
+  * @}
+  */  
   
 #endif /* HAL_I2S_MODULE_ENABLED */
 /**

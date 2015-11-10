@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of RTC HAL module.
   ******************************************************************************
   * @attention
@@ -110,10 +110,10 @@ typedef struct
   
   uint8_t Seconds;          /*!< Specifies the RTC Time Seconds.
                                  This parameter must be a number between Min_Data = 0 and Max_Data = 59 */
-  
+
   uint8_t TimeFormat;       /*!< Specifies the RTC AM/PM Time.
                                  This parameter can be a value of @ref RTC_AM_PM_Definitions */
-                                 
+  
   uint32_t SubSeconds;     /*!< Specifies the RTC_SSR RTC Sub Second register content.
                                  This parameter corresponds to a time unit range between [0-1] Second
                                  with [1 Sec / SecondFraction +1] granularity */
@@ -122,8 +122,8 @@ typedef struct
                                  corresponding to Synchronous pre-scaler factor value (PREDIV_S)
                                  This parameter corresponds to a time unit range between [0-1] Second
                                  with [1 Sec / SecondFraction +1] granularity.
-                                 This field will be used only by HAL_RTC_GetTime function */ 
-  
+                                 This field will be used only by HAL_RTC_GetTime function */
+
   uint32_t DayLightSaving;  /*!< Specifies DayLight Save Operation.
                                  This parameter can be a value of @ref RTC_DayLightSaving_Definitions */
   

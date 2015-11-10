@@ -55,6 +55,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     if (obj->pwm == PWM_2) __HAL_RCC_TIM2_CLK_ENABLE();
     if (obj->pwm == PWM_3) __HAL_RCC_TIM3_CLK_ENABLE();
     if (obj->pwm == PWM_4) __HAL_RCC_TIM4_CLK_ENABLE();
+#if defined(TIM5_BASE)
+    if (obj->pwm == PWM_5) __HAL_RCC_TIM5_CLK_ENABLE();
+#endif	
 #if defined(TIM8_BASE)
     if (obj->pwm == PWM_8) __HAL_RCC_TIM8_CLK_ENABLE();
 #endif

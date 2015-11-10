@@ -81,6 +81,16 @@
 #define P2_2    (1 << 6)  // P4_6
 #define PORT_2  Port4
 
+#elif defined(TARGET_DISCO_F469NI)
+
+#define P1_1    (1 << 2)  // PC_2
+#define P1_2    (1 << 3)  // PC_3
+#define PORT_1  PortC
+
+#define P2_1    (1 << 1)  // PA_1
+#define P2_2    (1 << 2)  // PA_2
+#define PORT_2  PortA
+        
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \

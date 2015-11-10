@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
@@ -158,17 +158,6 @@ typedef struct
 #define HAL_I2SEX_ERROR_OVR         ((uint32_t)0x00000008)    /*!< I2S extended Overrun error  */
 #define HAL_I2S_ERROR_FRE           ((uint32_t)0x00000010)    /*!< I2S Frame format error      */
 #define HAL_I2S_ERROR_DMA           ((uint32_t)0x00000020)    /*!< DMA transfer error          */
-/**
-  * @}
-  */
-
-/** @defgroup I2S_Clock_Source I2S Clock Source 
-  * @{
-  */
-#define I2S_CLOCK_PLL                     ((uint32_t)0x00000000)
-#define I2S_CLOCK_EXTERNAL                ((uint32_t)0x00000001)
-#define I2S_CLOCK_PLLR                    ((uint32_t)0x00000002)
-#define I2S_CLOCK_PLLSRC                  ((uint32_t)0x00000003)
 /**
   * @}
   */
@@ -438,11 +427,6 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
 /** @defgroup I2S_Private_Macros I2S Private Macros
   * @{
   */
-#define IS_I2S_CLOCKSOURCE(CLOCK) (((CLOCK) == I2S_CLOCK_EXTERNAL) || \
-                                   ((CLOCK) == I2S_CLOCK_PLLR)     ||\
-                                   ((CLOCK) == I2S_CLOCK_PLLSRC)   ||\
-                                   ((CLOCK) == I2S_CLOCK_PLL))
-                                   
 #define IS_I2S_MODE(MODE) (((MODE) == I2S_MODE_SLAVE_TX)  || \
                            ((MODE) == I2S_MODE_SLAVE_RX)  || \
                            ((MODE) == I2S_MODE_MASTER_TX) || \
@@ -471,8 +455,7 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
 
 #define IS_I2S_CPOL(CPOL) (((CPOL) == I2S_CPOL_LOW) || \
                            ((CPOL) == I2S_CPOL_HIGH))
-                                                              
-#define I2SxEXT(__INSTANCE__) ((__INSTANCE__) == (SPI2)? (SPI_TypeDef *)(I2S2ext_BASE): (SPI_TypeDef *)(I2S3ext_BASE)) 
+ 
 /**
   * @}
   */

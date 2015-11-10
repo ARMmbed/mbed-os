@@ -2,15 +2,15 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
   *           + Initialization and de-initialization functions
   *           + RTC Time and Date functions
   *           + RTC Alarm functions
-  *           + Peripheral Control functions
+  *           + Peripheral Control functions   
   *           + Peripheral State functions
   *         
   @verbatim
@@ -565,10 +565,10 @@ HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
   
   /* Get subseconds structure field from the corresponding register */
   sTime->SubSeconds = (uint32_t)(hrtc->Instance->SSR);
-
-  /* Get SecondFraction structure field from the corresponding register field */
-  sTime->SecondFraction = (uint32_t)(hrtc->Instance->PRER & RTC_PRER_PREDIV_S);
   
+  /* Get SecondFraction structure field from the corresponding register field*/
+  sTime->SecondFraction = (uint32_t)(hrtc->Instance->PRER & RTC_PRER_PREDIV_S);
+
   /* Get the TR register */
   tmpreg = (uint32_t)(hrtc->Instance->TR & RTC_TR_RESERVED_MASK); 
   

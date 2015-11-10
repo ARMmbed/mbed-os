@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp_ex.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of CRYP HAL Extension module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F437xx) || defined(STM32F439xx)
+#if defined(STM32F437xx) || defined(STM32F439xx) || defined(STM32F479xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -203,7 +203,7 @@ void HAL_CRYPEx_GCMCCM_IRQHandler(CRYP_HandleTypeDef *hcryp);
   * @}
   */
    
-#endif /* STM32F437xx || STM32F439xx */
+#endif /* STM32F437xx || STM32F439xx || STM32F479xx */
 /**
   * @}
   */ 

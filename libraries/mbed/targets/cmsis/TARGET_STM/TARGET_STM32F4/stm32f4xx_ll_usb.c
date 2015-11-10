@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_usb.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   USB Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -62,8 +62,11 @@
   * @{
   */
 
-#if defined (HAL_PCD_MODULE_ENABLED) || defined (HAL_HCD_MODULE_ENABLED)
-
+#if defined(HAL_PCD_MODULE_ENABLED) || defined(HAL_HCD_MODULE_ENABLED)
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
+    defined(STM32F469xx) || defined(STM32F479xx) 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -203,7 +206,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   uint32_t i = 0;
 
   /*Activate VBUS Sensing B */
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
   USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
   
   if (cfg.vbus_sensing_enable == 0)
@@ -222,7 +225,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   {
     USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
   }
-#endif /* STM32F446xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx  */
 
   /* Restart the Phy Clock */
   USBx_PCGCCTL = 0;
@@ -1135,13 +1138,13 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   USBx_PCGCCTL = 0;
   
   /* Activate VBUS Sensing B */
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
   USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
 #else
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSASEN);
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSBSEN);
   USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
-#endif /* STM32F446xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx  */
 
   /* Disable the FS/LS support mode only */
   if((cfg.speed == USB_OTG_SPEED_FULL)&&
@@ -1695,8 +1698,9 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
 /**
   * @}
   */
-
-#endif /* defined (HAL_PCD_MODULE_ENABLED) || defined (HAL_HCD_MODULE_ENABLED) */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
+#endif /* defined(HAL_PCD_MODULE_ENABLED) || defined(HAL_HCD_MODULE_ENABLED) */
 
 /**
   * @}

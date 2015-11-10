@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fsmc.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of FSMC HAL module.
   ******************************************************************************
   * @attention
@@ -54,7 +54,7 @@
   * @{
   */
 
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) 
 /* Private types -------------------------------------------------------------*/
 /** @defgroup FSMC_LL_Private_Types FSMC Private Types
   * @{
@@ -159,6 +159,7 @@ typedef struct
 
 }FSMC_NORSRAM_TimingTypeDef;
 
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 /** 
   * @brief FSMC NAND Configuration Structure definition
   */ 
@@ -241,6 +242,7 @@ typedef struct
 /**
   * @}
   */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 /* Private constants ---------------------------------------------------------*/
 /** @defgroup FSMC_LL_Private_Constants FSMC Private Constants
@@ -403,6 +405,7 @@ typedef struct
   * @}
   */
 
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 /** @defgroup FSMC_LL_NAND_Controller FSMC NAND and PCCARD Controller
   * @{
   */
@@ -466,7 +469,8 @@ typedef struct
 /**
   * @}
   */  
-   
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
+
 /** @defgroup FSMC_LL_Interrupt_definition FSMC Interrupt definition
   * @{
   */  
@@ -494,13 +498,17 @@ typedef struct
   */
 #define FSMC_NORSRAM_TypeDef                  FSMC_Bank1_TypeDef
 #define FSMC_NORSRAM_EXTENDED_TypeDef         FSMC_Bank1E_TypeDef
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 #define FSMC_NAND_TypeDef                     FSMC_Bank2_3_TypeDef
 #define FSMC_PCCARD_TypeDef                   FSMC_Bank4_TypeDef
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 #define FSMC_NORSRAM_DEVICE                   FSMC_Bank1
 #define FSMC_NORSRAM_EXTENDED_DEVICE          FSMC_Bank1E
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 #define FSMC_NAND_DEVICE                      FSMC_Bank2_3
 #define FSMC_PCCARD_DEVICE                    FSMC_Bank4
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 #define FMC_NORSRAM_TypeDef                   FSMC_NORSRAM_TypeDef
 #define FMC_NORSRAM_EXTENDED_TypeDef          FSMC_NORSRAM_EXTENDED_TypeDef
@@ -517,6 +525,7 @@ typedef struct
 #define __FMC_NORSRAM_ENABLE                  __FSMC_NORSRAM_ENABLE
 #define __FMC_NORSRAM_DISABLE                 __FSMC_NORSRAM_DISABLE 
 
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 #define FMC_NAND_InitTypeDef                  FSMC_NAND_InitTypeDef
 #define FMC_PCCARD_InitTypeDef                FSMC_PCCARD_InitTypeDef
 #define FMC_NAND_PCC_TimingTypeDef            FSMC_NAND_PCC_TimingTypeDef
@@ -546,18 +555,23 @@ typedef struct
 #define __FMC_PCCARD_DISABLE_IT               __FSMC_PCCARD_DISABLE_IT
 #define __FMC_PCCARD_GET_FLAG                 __FSMC_PCCARD_GET_FLAG
 #define __FMC_PCCARD_CLEAR_FLAG               __FSMC_PCCARD_CLEAR_FLAG
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 #define FMC_NORSRAM_TypeDef                   FSMC_NORSRAM_TypeDef
 #define FMC_NORSRAM_EXTENDED_TypeDef          FSMC_NORSRAM_EXTENDED_TypeDef
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 #define FMC_NAND_TypeDef                      FSMC_NAND_TypeDef
 #define FMC_PCCARD_TypeDef                    FSMC_PCCARD_TypeDef
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 #define FMC_NORSRAM_DEVICE                    FSMC_NORSRAM_DEVICE            
-#define FMC_NORSRAM_EXTENDED_DEVICE           FSMC_NORSRAM_EXTENDED_DEVICE   
+#define FMC_NORSRAM_EXTENDED_DEVICE           FSMC_NORSRAM_EXTENDED_DEVICE  
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 #define FMC_NAND_DEVICE                       FSMC_NAND_DEVICE             
 #define FMC_PCCARD_DEVICE                     FSMC_PCCARD_DEVICE 
 
 #define FMC_NAND_BANK2                        FSMC_NAND_BANK2
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 #define FMC_NORSRAM_BANK1                     FSMC_NORSRAM_BANK1    
 #define FMC_NORSRAM_BANK2                     FSMC_NORSRAM_BANK2    
@@ -612,6 +626,7 @@ typedef struct
  *  @brief macros to handle NAND device enable/disable
  *  @{
  */
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 /**
   * @brief  Enable the NAND device access.
   * @param  __INSTANCE__: FSMC_NAND Instance
@@ -766,6 +781,7 @@ typedef struct
 /**
   * @}
   */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 /** @defgroup FSMC_LL_Assert_Macros FSMC Assert Macros
   * @{
@@ -911,6 +927,7 @@ HAL_StatusTypeDef  FSMC_NORSRAM_WriteOperation_Disable(FSMC_NORSRAM_TypeDef *Dev
   * @}
   */
 
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 /** @defgroup FSMC_LL_NAND NAND
   *  @{
   */
@@ -955,11 +972,12 @@ HAL_StatusTypeDef  FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device);
 /**
   * @}
   */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 /**
   * @}
   */
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx  */
 
 /**
   * @}

@@ -66,6 +66,7 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_L476RG',
         'DISCO_L053C8',
         'DISCO_F334C8',
+        'DISCO_F469NI',
         'DISCO_F746NG',
         'DISCO_L476VG',
         #'STM32F407', Fails to build same for GCC
