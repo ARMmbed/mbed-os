@@ -58,11 +58,11 @@ AnalogOut out(PA_4);
 AnalogIn in(AIN_7P);
 AnalogOut out(AOUT_DO);
 
-#elif defined(TARGET_SAMD21J18A)
+#elif defined(TARGET_SAMD21J18A) ||  defined(TARGET_SAML21J18A)
 AnalogIn in(PA04);
 AnalogOut out(PA02);
 
-#elif defined(TARGET_SAMD21J18A)
+#elif defined(TARGET_SAMD21G18A)
 AnalogIn in(PB02);
 AnalogOut out(PA02);
 

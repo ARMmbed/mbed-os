@@ -89,6 +89,7 @@ class Uvision4(Exporter):
         'SAMR21G18A',
         'SAMD21J18A',
         'SAMD21G18A',
+        'SAML21J18A',
     ]
 
     USING_MICROLIB = [
@@ -129,6 +130,7 @@ class Uvision4(Exporter):
         'SAMR21G18A',
         'SAMD21J18A',
         'SAMD21G18A',
+        'SAML21J18A',
     ]
 
     FILE_TYPES = {
