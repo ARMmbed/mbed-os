@@ -34,9 +34,9 @@
 
 // STM32F411RE
 // CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 86 vectors = 344 bytes from 0x40 to 0x197
-// Total: 102 vectors = 408 bytes (0x198) to be reserved in RAM
-#define NVIC_NUM_VECTORS      102
+// MCU Peripherals: 98 vectors = 392 bytes from 0x40 to 0x1C8
+// Total: 114 vectors = 456 bytes (0x1C8) to be reserved in RAM
+#define NVIC_NUM_VECTORS      114
 #define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"
