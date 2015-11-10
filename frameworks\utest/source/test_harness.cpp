@@ -21,133 +21,145 @@
 
 using namespace mbed::test::v0;
 
+
 namespace
 {
-    const Test *specification = NULL;
-    size_t length = 0;
-    size_t number_of_tests = 0;
-    size_t index_of_tests = 0;
-    const Case *current = NULL;
-    set_up_handler_t set_up = NULL;
-    tear_down_handler_t tear_down = NULL;
-    int32_t repeats = 0;
+    const Test *test_specification = NULL;
+    size_t test_length = 0;
 
-    size_t passed = 0;
-    size_t failed = 0;
-    minar::callback_handle_t timeout_handle = NULL;
+    test_set_up_handler_t test_set_up_handler = NULL;
+    test_tear_down_handler_t test_tear_down_handler = NULL;
+
+    size_t test_index_of_case = 0;
+
+    size_t test_passed = 0;
+    size_t test_failed = 0;
+
+    const Case *case_current = NULL;
+    control_flow_t case_control_flow = CONTROL_FLOW_NEXT;
+
+    minar::callback_handle_t case_timeout_handle = NULL;
+
+    size_t case_passed = 0;
+    size_t case_failed = 0;
+    size_t case_failed_before = 0;
 }
 
 static void die() {
     while(1) ;
 }
 
-mbed::test::v0::status_t mbed::test::v0::default_set_up_handler(const size_t number_of_tests) {
-    printf("\n>>> Running %u tests...\n", number_of_tests);
-    return STATUS_SUCCESS;
-}
-
-void mbed::test::v0::default_tear_down_handler(const size_t _passed, const size_t _failed) {
-    printf("\n>>> Tear Down: %u passed, %u failed\n", _passed, _failed);
-    if (_failed) printf(">>> TESTS FAILED!\n");
-}
-
-void TestHarness::run(const Test *const _specification,
-                      const size_t _length,
-                      const set_up_handler_t _set_up,
-                      const tear_down_handler_t _tear_down)
+void TestHarness::run(const Test *const specification,
+                      const size_t length,
+                      const test_set_up_handler_t set_up_handler,
+                      const test_tear_down_handler_t tear_down_handler)
 {
-    specification = _specification;
-    length = _length;
-    set_up = _set_up;
-    tear_down = _tear_down;
-    number_of_tests = 0;
-    index_of_tests = 0;
+    test_specification = specification;
+    test_length = length;
+    test_set_up_handler = set_up_handler;
+    test_tear_down_handler = tear_down_handler;
 
-    for (current = specification; current != (specification + length); current++) {
-        number_of_tests += 1 + current->repeats;
-    }
+    test_index_of_case = 0;
+    test_passed = 0;
+    test_failed = 0;
 
-    current = specification;
-    repeats = current->repeats;
+    case_passed = 0;
+    case_failed = 0;
+    case_failed_before = 0;
+    case_current = specification;
 
-    if (set_up && (set_up(number_of_tests) != STATUS_SUCCESS)) {
-        printf(">>> Setup failed!\n");
-        if (tear_down) tear_down(passed, failed);
+    if (test_set_up_handler && (test_set_up_handler(test_length) != STATUS_CONTINUE)) {
+        if (test_tear_down_handler) test_tear_down_handler(0, 0, FAILURE_SETUP);
         die();
     }
 
-    minar::Scheduler::postCallback(run_next_test);
+    minar::Scheduler::postCallback(run_next_case);
 }
 
-void TestHarness::handle_failure(status_t reason)
+void TestHarness::raise_failure(failure_t reason)
 {
-    failed++;
-    status_t fail_status = current->failure_handler(current, reason);
-    if (fail_status == STATUS_CONTINUE) {
-        current++;
-        minar::Scheduler::postCallback(run_next_test);
-        return;
+    case_failed++;
+    status_t fail_status = case_current->failure_handler(case_current, reason);
+    if (fail_status != STATUS_CONTINUE) {
+        if (case_current->tear_down_handler) case_current->tear_down_handler(case_current, case_passed, case_failed);
+        test_failed++;
+        if (test_tear_down_handler) test_tear_down_handler(test_passed, test_failed, reason);
+        die();
     }
-    if (tear_down) tear_down(passed, failed);
-    die();
+}
+
+void TestHarness::schedule_next_case()
+{
+    if (case_failed_before == case_failed) case_passed++;
+    if(case_control_flow == CONTROL_FLOW_NEXT) {
+        if (case_current->tear_down_handler) {
+            if (case_current->tear_down_handler(case_current, case_passed, case_failed) != STATUS_CONTINUE) {
+                raise_failure(FAILURE_TEARDOWN);
+            }
+        }
+
+        if (case_failed > 0) test_failed++;
+        else test_passed++;
+
+        case_current++;
+        case_passed = 0;
+        case_failed = 0;
+        case_failed_before = 0;
+    }
+    minar::Scheduler::postCallback(run_next_case);
 }
 
 void TestHarness::handle_timeout()
 {
-    if (timeout_handle != NULL)
+    if (case_timeout_handle != NULL)
     {
-        handle_failure(STATUS_FAILURE_TIMEOUT);
-        timeout_handle = NULL;
+        raise_failure(FAILURE_TIMEOUT);
+        case_timeout_handle = NULL;
+        schedule_next_case();
     }
 }
 
-void TestHarness::validateCallback()
+void TestHarness::validate_callback()
 {
-    if (timeout_handle != NULL)
+    if (case_timeout_handle != NULL)
     {
-        minar::Scheduler::cancelCallback(timeout_handle);
-        printf(">>> Validated Callback...\n");
-        passed++;
-        current++;
-        timeout_handle = NULL;
-        minar::Scheduler::postCallback(run_next_test);
+        minar::Scheduler::cancelCallback(case_timeout_handle);
+        case_timeout_handle = NULL;
+        schedule_next_case();
     }
 }
 
-void TestHarness::run_next_test()
+void TestHarness::run_next_case()
 {
-    if(current != (specification + length))
+    if(case_current != (test_specification + test_length))
     {
-        Unity.CurrentTestFailed = false;
-
-        TEST_PROTECT();
-        if (Unity.CurrentTestFailed) {
-            if (timeout_handle) {
-                minar::Scheduler::cancelCallback(timeout_handle);
-                timeout_handle = NULL;
+        if (case_current->set_up_handler) {
+            if (case_current->set_up_handler(case_current, test_index_of_case) != STATUS_CONTINUE) {
+                raise_failure(FAILURE_SETUP);
             }
-            handle_failure(STATUS_FAILURE_ASSERTION);
-            return;
+        }
+        test_index_of_case++;
+
+        case_failed_before = case_failed;
+
+        if (case_current->handler) {
+            case_control_flow = CONTROL_FLOW_NEXT;
+            case_current->handler();
+        } else if (case_current->control_flow_handler) {
+            case_control_flow = case_current->control_flow_handler();
         }
 
-        printf("\n>>> Running #%u: '%s'...\n", ++index_of_tests, current->description);
-
-        current->case_handler();
-
-        if (current->timeout_ms >= 0) {
-            timeout_handle = minar::Scheduler::postCallback(handle_timeout)
-                                .delay(minar::milliseconds(current->timeout_ms))
-                                .tolerance(0)
-                                .getHandle();
+        if (case_current->timeout_ms >= 0) {
+            case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
+                                            .delay(minar::milliseconds(case_current->timeout_ms))
+                                            .tolerance(0)
+                                            .getHandle();
         }
         else {
-            passed++;
-            if (repeats-- <= 0) {
-                current++;
-                repeats = current->repeats;
-            }
-            minar::Scheduler::postCallback(run_next_test);
+            schedule_next_case();
         }
     }
-    else if (tear_down) tear_down(passed, failed);
+    else if (test_tear_down_handler) {
+        test_tear_down_handler(test_passed, test_failed, FAILURE_NONE);
+    }
 }

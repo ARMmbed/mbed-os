@@ -21,34 +21,70 @@
 using namespace mbed::test::v0;
 
 
-Case::Case(const char *description, const case_handler_t case_handler) :
-    description(description), case_handler(case_handler), repeats(0), failure_handler(default_failure_handler), timeout_ms(-1) {}
+Case::Case(const char *description,
+           const case_handler_t handler,
+           const case_set_up_handler_t set_up_handler,
+           const case_tear_down_handler_t tear_down_handler,
+           const case_failure_handler_t failure_handler) :
+    description(description),
+    handler(handler),
+    control_flow_handler(NULL),
+    set_up_handler(set_up_handler),
+    tear_down_handler(tear_down_handler),
+    failure_handler(failure_handler),
+    timeout_ms(-1)
+{}
 
-Case::Case(const char *description, const case_handler_t case_handler, const uint32_t repeats) :
-    description(description), case_handler(case_handler), repeats(repeats), failure_handler(default_failure_handler), timeout_ms(-1) {}
+Case::Case(const char *description,
+           const case_control_flow_handler_t control_flow_handler,
+           const case_set_up_handler_t set_up_handler,
+           const case_tear_down_handler_t tear_down_handler,
+           const case_failure_handler_t failure_handler) :
+    description(description),
+    handler(NULL),
+    control_flow_handler(control_flow_handler),
+    set_up_handler(set_up_handler),
+    tear_down_handler(tear_down_handler),
+    failure_handler(failure_handler),
+    timeout_ms(-1)
+{}
 
-Case::Case(const char *description, const case_handler_t case_handler, const case_failure_handler_t failure_handler) :
-    description(description), case_handler(case_handler), repeats(0), failure_handler(failure_handler), timeout_ms(-1) {}
-
-Case::Case(const char *description, const case_handler_t case_handler, const uint32_t repeats, const case_failure_handler_t failure_handler) :
-    description(description), case_handler(case_handler), repeats(repeats), failure_handler(failure_handler), timeout_ms(-1) {}
-
-Case::Case(const char *description, const case_handler_t case_handler, const uint32_t repeats, const case_failure_handler_t failure_handler, const int32_t timeout_ms) :
-    description(description), case_handler(case_handler), repeats(repeats), failure_handler(failure_handler), timeout_ms(timeout_ms) {}
+Case::Case(const char *description,
+           const case_handler_t handler,
+           const case_control_flow_handler_t control_flow_handler,
+           const case_set_up_handler_t set_up_handler,
+           const case_tear_down_handler_t tear_down_handler,
+           const case_failure_handler_t failure_handler,
+           const int32_t timeout_ms) :
+    description(description),
+    handler(handler),
+    control_flow_handler(control_flow_handler),
+    set_up_handler(set_up_handler),
+    tear_down_handler(tear_down_handler),
+    failure_handler(failure_handler),
+    timeout_ms(timeout_ms)
+{}
 
 const char*
-Case::getDescription() const
-{ return description; }
+Case::get_description() const {
+    return description;
+}
 
 
-AsyncCase::AsyncCase(const char *description, const case_handler_t case_handler, const uint32_t timeout_ms) :
-    Case(description, case_handler, 0, default_failure_handler, timeout_ms) {}
+AsyncCase::AsyncCase(const char *description,
+                     const case_handler_t handler,
+                     const uint32_t timeout_ms,
+                     const case_set_up_handler_t set_up_handler,
+                     const case_tear_down_handler_t tear_down_handler,
+                     const case_failure_handler_t failure_handler) :
+    Case(description, handler, NULL, set_up_handler, tear_down_handler, failure_handler, timeout_ms)
+{}
 
-AsyncCase::AsyncCase(const char *description, const case_handler_t case_handler, const uint32_t repeats, const uint32_t timeout_ms) :
-    Case(description, case_handler, repeats, default_failure_handler, timeout_ms) {}
-
-AsyncCase::AsyncCase(const char *description, const case_handler_t case_handler, const case_failure_handler_t failure_handler, const uint32_t timeout_ms) :
-    Case(description, case_handler, 0, failure_handler, timeout_ms) {}
-
-AsyncCase::AsyncCase(const char *description, const case_handler_t case_handler, const uint32_t repeats, const case_failure_handler_t failure_handler, const uint32_t timeout_ms) :
-    Case(description, case_handler, repeats, failure_handler, timeout_ms) {}
+AsyncCase::AsyncCase(const char *description,
+                     const case_control_flow_handler_t control_flow_handler,
+                     const uint32_t timeout_ms,
+                     const case_set_up_handler_t set_up_handler,
+                     const case_tear_down_handler_t tear_down_handler,
+                     const case_failure_handler_t failure_handler) :
+    Case(description, NULL, control_flow_handler, set_up_handler, tear_down_handler, failure_handler, timeout_ms)
+{}
