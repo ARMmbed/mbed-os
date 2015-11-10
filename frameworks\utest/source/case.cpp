@@ -22,18 +22,18 @@ using namespace mbed::test::v0;
 
 
 Case::Case(const char *description, const case_handler_t case_handler) :
-    description(description), case_handler(case_handler), repeats(0), failure_handler(default_failure_handler), timeout_ms(0) {}
+    description(description), case_handler(case_handler), repeats(0), failure_handler(default_failure_handler), timeout_ms(-1) {}
 
 Case::Case(const char *description, const case_handler_t case_handler, const uint32_t repeats) :
-    description(description), case_handler(case_handler), repeats(repeats), failure_handler(default_failure_handler), timeout_ms(0) {}
+    description(description), case_handler(case_handler), repeats(repeats), failure_handler(default_failure_handler), timeout_ms(-1) {}
 
 Case::Case(const char *description, const case_handler_t case_handler, const case_failure_handler_t failure_handler) :
-    description(description), case_handler(case_handler), repeats(0), failure_handler(failure_handler), timeout_ms(0) {}
+    description(description), case_handler(case_handler), repeats(0), failure_handler(failure_handler), timeout_ms(-1) {}
 
 Case::Case(const char *description, const case_handler_t case_handler, const uint32_t repeats, const case_failure_handler_t failure_handler) :
-    description(description), case_handler(case_handler), repeats(repeats), failure_handler(failure_handler), timeout_ms(0) {}
+    description(description), case_handler(case_handler), repeats(repeats), failure_handler(failure_handler), timeout_ms(-1) {}
 
-Case::Case(const char *description, const case_handler_t case_handler, const uint32_t repeats, const case_failure_handler_t failure_handler, const uint32_t timeout_ms) :
+Case::Case(const char *description, const case_handler_t case_handler, const uint32_t repeats, const case_failure_handler_t failure_handler, const int32_t timeout_ms) :
     description(description), case_handler(case_handler), repeats(repeats), failure_handler(failure_handler), timeout_ms(timeout_ms) {}
 
 const char*

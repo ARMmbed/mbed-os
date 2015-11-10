@@ -132,17 +132,13 @@ void TestHarness::run_next_test()
 
         printf("\n>>> Running #%u: '%s'...\n", ++index_of_tests, current->description);
 
-        status_t status = current->case_handler();
+        current->case_handler();
 
-        if (status == STATUS_EXPECT_ASYNC_CALL) {
+        if (current->timeout_ms >= 0) {
             timeout_handle = minar::Scheduler::postCallback(handle_timeout)
-                            .delay(minar::milliseconds(current->timeout_ms))
-                            .tolerance(0)
-                            .getHandle();
-        }
-        else if (status != STATUS_SUCCESS) {
-            handle_failure(status);
-            return;
+                                .delay(minar::milliseconds(current->timeout_ms))
+                                .tolerance(0)
+                                .getHandle();
         }
         else {
             passed++;

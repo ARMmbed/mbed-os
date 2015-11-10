@@ -30,9 +30,6 @@ statusToString(status_t status)
         case STATUS_ABORT:
             return "Abort";
 
-        case STATUS_EXPECT_ASYNC_CALL:
-            return "Expect Asynchronous Call";
-
         case STATUS_FAILURE:
             return "Failure";
         case STATUS_FAILURE_TIMEOUT:
