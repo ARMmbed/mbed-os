@@ -18,6 +18,7 @@
 
  #include "mbed-test-async/harness.h"
  #include "minar/minar.h"
+ #include "core-util/CriticalSectionLock.h"
 
 using namespace mbed::test::v0;
 
@@ -59,6 +60,8 @@ void Harness::run(const Test *const specification,
                       const test_set_up_handler_t set_up_handler,
                       const test_tear_down_handler_t tear_down_handler)
 {
+    util::CriticalSectionLock lock;
+
     test_specification = specification;
     test_length = length;
     handlers.test_set_up = defaults.get_handler(set_up_handler);
@@ -83,6 +86,8 @@ void Harness::run(const Test *const specification,
 
 void Harness::raise_failure(failure_t reason)
 {
+    util::CriticalSectionLock lock;
+
     case_failed++;
     status_t fail_status = STATUS_ABORT;
 
@@ -128,6 +133,8 @@ void Harness::schedule_next_case()
 
 void Harness::handle_timeout()
 {
+    util::CriticalSectionLock lock;
+
     if (case_timeout_handle != NULL)
     {
         raise_failure(FAILURE_TIMEOUT);
@@ -138,6 +145,8 @@ void Harness::handle_timeout()
 
 void Harness::validate_callback()
 {
+    util::CriticalSectionLock lock;
+
     if (case_timeout_handle != NULL)
     {
         minar::Scheduler::cancelCallback(case_timeout_handle);
@@ -148,6 +157,8 @@ void Harness::validate_callback()
 
 void Harness::run_next_case()
 {
+    util::CriticalSectionLock lock;
+
     if(case_current != (test_specification + test_length))
     {
         handlers.case_set_up    = defaults.get_handler(case_current->set_up_handler);
