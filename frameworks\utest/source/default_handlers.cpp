@@ -42,13 +42,13 @@ failureToString(failure_t failure)
     return "Unknown Failure";
 }
 
-mbed::test::v0::status_t mbed::test::v0::default_test_set_up_handler(const size_t number_of_cases)
+mbed::test::v0::status_t mbed::test::v0::verbose_test_set_up_handler(const size_t number_of_cases)
 {
     printf("\n>>> Running %u test cases...\n", number_of_cases);
     return STATUS_CONTINUE;
 }
 
-void mbed::test::v0::default_test_tear_down_handler(const size_t passed, const size_t failed, const failure_t failure)
+void mbed::test::v0::verbose_test_tear_down_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
     printf("\n>>> Test Cases: %u passed, %u failed", passed, failed);
     if (failure == FAILURE_NONE) {
@@ -59,19 +59,19 @@ void mbed::test::v0::default_test_tear_down_handler(const size_t passed, const s
     if (failed) printf(">>> TESTS FAILED!\n");
 }
 
-mbed::test::v0::status_t mbed::test::v0::default_case_set_up_handler(const mbed::test::v0::Case *const source, const size_t index_of_case)
+mbed::test::v0::status_t mbed::test::v0::verbose_case_set_up_handler(const mbed::test::v0::Case *const source, const size_t index_of_case)
 {
     printf("\n>>> Running #%u: '%s'...\n", index_of_case, source->get_description());
     return STATUS_CONTINUE;
 }
 
-mbed::test::v0::status_t mbed::test::v0::default_case_tear_down_handler(const mbed::test::v0::Case *const source, const size_t passed, const size_t failed)
+mbed::test::v0::status_t mbed::test::v0::verbose_case_tear_down_handler(const mbed::test::v0::Case *const source, const size_t passed, const size_t failed)
 {
     printf(">>> '%s': %u passed, %u failed\n", source->get_description(), passed, failed);
     return STATUS_CONTINUE;
 }
 
-status_t mbed::test::v0::default_case_failure_handler(const mbed::test::v0::Case *const source, const mbed::test::v0::failure_t reason)
+status_t mbed::test::v0::verbose_case_failure_handler(const mbed::test::v0::Case *const source, const mbed::test::v0::failure_t reason)
 {
     if (reason == FAILURE_ASSERTION) {
         printf("\n");
