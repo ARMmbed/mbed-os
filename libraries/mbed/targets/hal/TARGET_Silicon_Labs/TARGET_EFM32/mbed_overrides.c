@@ -69,7 +69,7 @@ void mbed_sdk_init()
     *  This gets set automatically whenever you create serial objects using LEUART
     */
 #endif
-#ifdef CMU_LFECLKSEL_REG
+#ifdef _CMU_LFECLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFXO);
 #endif
     SystemLFXOClockSet(LFXO_FREQUENCY);
