@@ -16,7 +16,7 @@
  ****************************************************************************
  */
 
- #include "mbed-test-async/async_test.h"
+ #include "mbed-test-async/harness.h"
  #include "minar/minar.h"
 
 using namespace mbed::test::v0;
@@ -49,7 +49,7 @@ static void die() {
     while(1) ;
 }
 
-void TestHarness::run(const Test *const specification,
+void Harness::run(const Test *const specification,
                       const size_t length,
                       const test_set_up_handler_t set_up_handler,
                       const test_tear_down_handler_t tear_down_handler)
@@ -76,7 +76,7 @@ void TestHarness::run(const Test *const specification,
     minar::Scheduler::postCallback(run_next_case);
 }
 
-void TestHarness::raise_failure(failure_t reason)
+void Harness::raise_failure(failure_t reason)
 {
     case_failed++;
     status_t fail_status = case_current->failure_handler(case_current, reason);
@@ -88,7 +88,7 @@ void TestHarness::raise_failure(failure_t reason)
     }
 }
 
-void TestHarness::schedule_next_case()
+void Harness::schedule_next_case()
 {
     if (case_failed_before == case_failed) case_passed++;
     if(case_control_flow == CONTROL_FLOW_NEXT) {
@@ -109,7 +109,7 @@ void TestHarness::schedule_next_case()
     minar::Scheduler::postCallback(run_next_case);
 }
 
-void TestHarness::handle_timeout()
+void Harness::handle_timeout()
 {
     if (case_timeout_handle != NULL)
     {
@@ -119,7 +119,7 @@ void TestHarness::handle_timeout()
     }
 }
 
-void TestHarness::validate_callback()
+void Harness::validate_callback()
 {
     if (case_timeout_handle != NULL)
     {
@@ -129,7 +129,7 @@ void TestHarness::validate_callback()
     }
 }
 
-void TestHarness::run_next_case()
+void Harness::run_next_case()
 {
     if(case_current != (test_specification + test_length))
     {

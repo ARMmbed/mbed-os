@@ -16,7 +16,7 @@
  ****************************************************************************
  */
 
- #include "mbed-test-async/async_test.h"
+ #include "mbed-test-async/case.h"
 
 using namespace mbed::test::v0;
 

@@ -16,10 +16,10 @@
  ****************************************************************************
  */
 
- #include "mbed-test-async/async_test.h"
+ #include "mbed-test-async/harness.h"
 
 extern "C"
 void mbed_test_unity_assert_failure()
 {
-    mbed::test::v0::TestHarness::raise_failure(mbed::test::v0::FAILURE_ASSERTION);
+    mbed::test::v0::Harness::raise_failure(mbed::test::v0::FAILURE_ASSERTION);
 }
