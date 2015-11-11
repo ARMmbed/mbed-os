@@ -61,7 +61,7 @@ void mbed::test::v0::verbose_test_tear_down_handler(const size_t passed, const s
 
 mbed::test::v0::status_t mbed::test::v0::verbose_case_set_up_handler(const mbed::test::v0::Case *const source, const size_t index_of_case)
 {
-    printf("\n>>> Running #%u: '%s'...\n", index_of_case, source->get_description());
+    printf("\n>>> Running case #%u: '%s'...\n", index_of_case + 1, source->get_description());
     return STATUS_CONTINUE;
 }
 

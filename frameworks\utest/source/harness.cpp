@@ -143,10 +143,12 @@ void Harness::run_next_case()
         handlers.case_tear_down = defaults.get_handler(case_current->tear_down_handler);
         handlers.case_failure   = defaults.get_handler(case_current->failure_handler);
 
-        if (handlers.case_set_up && (handlers.case_set_up(case_current, test_index_of_case) != STATUS_CONTINUE)) {
-            raise_failure(FAILURE_SETUP);
+        if (!case_failed && !case_passed) {
+            if (handlers.case_set_up && (handlers.case_set_up(case_current, test_index_of_case) != STATUS_CONTINUE)) {
+                raise_failure(FAILURE_SETUP);
+            }
+            test_index_of_case++;
         }
-        test_index_of_case++;
 
         case_failed_before = case_failed;
 
