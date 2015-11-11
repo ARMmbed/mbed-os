@@ -29,6 +29,8 @@ const char* failureToString(failure_t failure)
             return "No Failure";
         case FAILURE:
             return "Unspecified Failure";
+        case FAILURE_CASES:
+            return "Test Cases Failed";
         case FAILURE_SETUP:
             return "Setup Failed";
         case FAILURE_TEARDOWN:
@@ -64,9 +66,14 @@ status_t mbed::test::v0::verbose_case_set_up_handler(const Case *const source, c
     return STATUS_CONTINUE;
 }
 
-status_t mbed::test::v0::verbose_case_tear_down_handler(const Case *const source, const size_t passed, const size_t failed)
+status_t mbed::test::v0::verbose_case_tear_down_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
-    printf(">>> '%s': %u passed, %u failed\n", source->get_description(), passed, failed);
+    printf(">>> '%s': %u passed, %u failed", source->get_description(), passed, failed);
+    if (failure == FAILURE_NONE) {
+        printf("\n");
+    } else  {
+        printf(" with reason '%s'\n", failureToString(failure));
+    }
     return STATUS_CONTINUE;
 }
 
@@ -77,7 +84,7 @@ status_t mbed::test::v0::verbose_case_failure_handler(const Case *const /*source
     } else {
         printf(">>> failed with reason '%s'\n", failureToString(reason));
     }
-    return STATUS_CONTINUE;
+    return (reason == FAILURE_TEARDOWN) ? STATUS_ABORT : STATUS_CONTINUE;
 }
 
 

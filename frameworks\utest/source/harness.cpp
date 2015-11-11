@@ -84,11 +84,20 @@ void Harness::run(const Test *const specification,
 void Harness::raise_failure(failure_t reason)
 {
     case_failed++;
-    if (!handlers.case_failure) return;
+    status_t fail_status = STATUS_ABORT;
 
-    status_t fail_status = handlers.case_failure(case_current, reason);
+    if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
+
+    if (fail_status != STATUS_CONTINUE || reason == FAILURE_SETUP) {
+        if (handlers.case_tear_down && reason != FAILURE_TEARDOWN) {
+            status_t teardown_status = handlers.case_tear_down(case_current, case_passed, case_failed, reason);
+            if (teardown_status != STATUS_CONTINUE) {
+                raise_failure(FAILURE_TEARDOWN);
+            }
+            else handlers.case_tear_down = NULL;
+        }
+    }
     if (fail_status != STATUS_CONTINUE) {
-        if (handlers.case_tear_down) handlers.case_tear_down(case_current, case_passed, case_failed);
         test_failed++;
         if (handlers.test_tear_down) handlers.test_tear_down(test_passed, test_failed, reason);
         die();
@@ -100,7 +109,9 @@ void Harness::schedule_next_case()
     if (case_failed_before == case_failed) case_passed++;
 
     if(case_control_flow == CONTROL_FLOW_NEXT) {
-        if (handlers.case_tear_down && (handlers.case_tear_down(case_current, case_passed, case_failed) != STATUS_CONTINUE)) {
+        if (handlers.case_tear_down &&
+            (handlers.case_tear_down(case_current, case_passed, case_failed,
+                                     case_failed ? FAILURE_CASES : FAILURE_NONE) != STATUS_CONTINUE)) {
             raise_failure(FAILURE_TEARDOWN);
         }
 
@@ -144,10 +155,12 @@ void Harness::run_next_case()
         handlers.case_failure   = defaults.get_handler(case_current->failure_handler);
 
         if (!case_failed && !case_passed) {
-            if (handlers.case_set_up && (handlers.case_set_up(case_current, test_index_of_case) != STATUS_CONTINUE)) {
+            size_t index = test_index_of_case++;
+            if (handlers.case_set_up && (handlers.case_set_up(case_current, index) != STATUS_CONTINUE)) {
                 raise_failure(FAILURE_SETUP);
+                schedule_next_case();
+                return;
             }
-            test_index_of_case++;
         }
 
         case_failed_before = case_failed;
@@ -170,6 +183,7 @@ void Harness::run_next_case()
         }
     }
     else if (handlers.test_tear_down) {
-        handlers.test_tear_down(test_passed, test_failed, FAILURE_NONE);
+        handlers.test_tear_down(test_passed, test_failed, test_failed ? FAILURE_CASES : FAILURE_NONE);
+        die();
     }
 }
