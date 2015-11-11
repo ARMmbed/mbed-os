@@ -41,7 +41,7 @@ namespace
     size_t case_failed = 0;
     size_t case_failed_before = 0;
 
-    handlers_t defaults = verbose_handlers;
+    handlers_t defaults = greentea_handlers;
     handlers_t handlers = defaults;
 }
 

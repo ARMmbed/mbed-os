@@ -80,3 +80,44 @@ status_t mbed::test::v0::verbose_case_failure_handler(const mbed::test::v0::Case
     }
     return STATUS_CONTINUE;
 }
+
+
+
+mbed::test::v0::status_t mbed::test::v0::greentea_test_set_up_handler(const size_t number_of_cases)
+{
+    printf("{{timeout;%u}}\n", number_of_cases);
+    printf("{{host_test_name;default_auto}}\n");
+    printf("{{description;default_greentea_handler_test}}\n");
+    printf("{{test_id;default_greentea_handler_test}}\n");
+    printf("{{start}}\n");
+
+    return STATUS_CONTINUE;
+}
+
+void mbed::test::v0::greentea_test_tear_down_handler(const size_t /*passed*/, const size_t failed, const failure_t failure)
+{
+    if (failed || failure != FAILURE_NONE) {
+        printf("{{failure}}\n");
+    } else {
+        printf("{{success}}\n");
+    }
+    printf("{{end}}\n");
+}
+
+mbed::test::v0::status_t mbed::test::v0::greentea_case_set_up_handler(const mbed::test::v0::Case *const /*source*/, const size_t /*index_of_case*/)
+{
+    return STATUS_CONTINUE;
+}
+
+mbed::test::v0::status_t mbed::test::v0::greentea_case_tear_down_handler(const mbed::test::v0::Case *const /*source*/, const size_t /*passed*/, const size_t /*failed*/)
+{
+    return STATUS_CONTINUE;
+}
+
+status_t mbed::test::v0::greentea_case_failure_handler(const mbed::test::v0::Case *const /*source*/, const mbed::test::v0::failure_t reason)
+{
+    if (reason == FAILURE_ASSERTION) {
+        printf("\n");
+    }
+    return STATUS_ABORT;
+}
