@@ -44,7 +44,7 @@ failureToString(failure_t failure)
 
 mbed::test::v0::status_t mbed::test::v0::verbose_test_set_up_handler(const size_t number_of_cases)
 {
-    printf("\n>>> Running %u test cases...\n", number_of_cases);
+    printf(">>> Running %u test cases...\n", number_of_cases);
     return STATUS_CONTINUE;
 }
 
@@ -71,12 +71,12 @@ mbed::test::v0::status_t mbed::test::v0::verbose_case_tear_down_handler(const mb
     return STATUS_CONTINUE;
 }
 
-status_t mbed::test::v0::verbose_case_failure_handler(const mbed::test::v0::Case *const source, const mbed::test::v0::failure_t reason)
+status_t mbed::test::v0::verbose_case_failure_handler(const mbed::test::v0::Case *const /*source*/, const mbed::test::v0::failure_t reason)
 {
     if (reason == FAILURE_ASSERTION) {
         printf("\n");
     } else {
-        printf(">>> '%s' failed with reason '%s'\n", source->get_description(), failureToString(reason));
+        printf(">>> failed with reason '%s'\n", failureToString(reason));
     }
     return STATUS_CONTINUE;
 }
@@ -91,11 +91,14 @@ mbed::test::v0::status_t mbed::test::v0::greentea_test_set_up_handler(const size
     printf("{{test_id;default_greentea_handler_test}}\n");
     printf("{{start}}\n");
 
+    verbose_test_set_up_handler(number_of_cases);
+
     return STATUS_CONTINUE;
 }
 
-void mbed::test::v0::greentea_test_tear_down_handler(const size_t /*passed*/, const size_t failed, const failure_t failure)
+void mbed::test::v0::greentea_test_tear_down_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
+    verbose_test_tear_down_handler(passed, failed, failure);
     if (failed || failure != FAILURE_NONE) {
         printf("{{failure}}\n");
     } else {
@@ -104,20 +107,8 @@ void mbed::test::v0::greentea_test_tear_down_handler(const size_t /*passed*/, co
     printf("{{end}}\n");
 }
 
-mbed::test::v0::status_t mbed::test::v0::greentea_case_set_up_handler(const mbed::test::v0::Case *const /*source*/, const size_t /*index_of_case*/)
+status_t mbed::test::v0::greentea_case_failure_handler(const mbed::test::v0::Case *const source, const mbed::test::v0::failure_t reason)
 {
-    return STATUS_CONTINUE;
-}
-
-mbed::test::v0::status_t mbed::test::v0::greentea_case_tear_down_handler(const mbed::test::v0::Case *const /*source*/, const size_t /*passed*/, const size_t /*failed*/)
-{
-    return STATUS_CONTINUE;
-}
-
-status_t mbed::test::v0::greentea_case_failure_handler(const mbed::test::v0::Case *const /*source*/, const mbed::test::v0::failure_t reason)
-{
-    if (reason == FAILURE_ASSERTION) {
-        printf("\n");
-    }
+    verbose_case_failure_handler(source, reason);
     return STATUS_ABORT;
 }
