@@ -67,13 +67,13 @@ typedef enum {
     BTN0 = SW0,
     BTN1 = SW1,
 
-    /* Serial */
-    SERIAL_TX   = PD10, // ???
-    SERIAL_RX   = PD11, // ???
+    /* Serial (just some usable pins) */
+    SERIAL_TX   = PD10,
+    SERIAL_RX   = PD11,
 
-    //USBTX       = PE0,
-    //USBRX       = PE1,
-
+    /* Board Controller UART (USB) + enable pin */
+    USBTX       = PA0,
+    USBRX       = PA1,
     EFM_BC_EN   = PA5,
 
     /* Not connected */

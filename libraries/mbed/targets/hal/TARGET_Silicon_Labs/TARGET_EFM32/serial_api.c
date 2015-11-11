@@ -159,9 +159,7 @@ static void uart_init(serial_t *obj)
         init.databits = usartDatabits8;
         init.parity = usartNoParity;
         init.stopbits = usartStopbits1;
-
-        /* Determine the reference clock, because the correct clock is not set up at init time */
-        init.refFreq = REFERENCE_FREQUENCY;
+        init.refFreq = 0; /* Emlib will read HFPER clock to figure out the divider */
 
         USART_InitAsync(obj->serial.periph.uart, &init);
     }
@@ -1133,7 +1131,7 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
     if(tx_nrx) {
         // Set DMA callback
         obj->serial.dmaOptionsTX.dmaCallback.cbFunc = serial_dmaTransferComplete;
-        obj->serial.dmaOptionsTX.dmaCallback.userPtr = cb;
+        obj->serial.dmaOptionsTX.dmaCallback.userPtr = NULL;
 
         // Set up configuration structure
         channelConfig.dstInc = dmaDataIncNone;
@@ -1142,10 +1140,17 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
         channelConfig.arbRate = dmaArbitrate1;
         channelConfig.hprot = 0;
 
+        // Clear TXC
+        if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+            LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_TXC);
+        } else {
+            USART_IntClear(obj->serial.periph.uart, USART_IFC_TXC);
+        }
+
         DMA_CfgDescr(obj->serial.dmaOptionsTX.dmaChannel, true, &channelConfig);
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             // Activate TX
-            obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN;
+            obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN | LEUART_CMD_CLEARTX;
             while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
 
             // Kick off TX DMA
@@ -1157,6 +1162,12 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
             // Kick off TX DMA
             DMA_ActivateBasic(obj->serial.dmaOptionsTX.dmaChannel, true, false, (void*) &(obj->serial.periph.uart->TXDATA), buffer, length - 1);
         }
+
+        // Set callback and enable TXC. This will fire once the
+        // serial transfer finishes
+        NVIC_SetVector(serial_get_tx_irq_index(obj), (uint32_t)cb);
+        serial_irq_set(obj, TxIrq, true);
+
     } else {
         // Set DMA callback
         obj->serial.dmaOptionsRX.dmaCallback.cbFunc = serial_dmaTransferComplete;
@@ -1206,51 +1217,78 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
     if( tx_nrx ) {
         volatile void *target_addr;
 
+        // Clear TXC
+        if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+            LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_TXC);
+        } else {
+            USART_IntClear(obj->serial.periph.uart, USART_IFC_TXC);
+        }
+
         switch((uint32_t)(obj->serial.periph.uart)) {
+#ifdef USART0
             case USART_0:
                 dma_periph = ldmaPeripheralSignal_USART0_TXBL;
                 target_addr = &USART0->TXDATA;
                 obj->serial.periph.uart->CMD = USART_CMD_TXEN | USART_CMD_CLEARTX;
                 break;
+#endif
+#ifdef USART1
             case USART_1:
                 dma_periph = ldmaPeripheralSignal_USART1_TXBL;
                 target_addr = &USART1->TXDATA;
                 obj->serial.periph.uart->CMD = USART_CMD_TXEN | USART_CMD_CLEARTX;
                 break;
+#endif
+#ifdef LEUART0
             case LEUART_0:
                 dma_periph = ldmaPeripheralSignal_LEUART0_TXBL;
                 target_addr = &LEUART0->TXDATA;
-                obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN;
+                obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN | LEUART_CMD_CLEARTX;
+                while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
                 break;
+#endif
             default:
-                EFM_ASSERT(0);
+                MBED_ASSERT(0);
                 while(1);
                 break;
         }
 
+        // Set callback and enable TXC. This will fire once the
+        // serial transfer finishes
+        NVIC_SetVector(serial_get_tx_irq_index(obj), (uint32_t)cb);
+        serial_irq_set(obj, TxIrq, true);
+
+        // Start DMA transfer
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(buffer, target_addr, length);
-        LDMA_StartTransfer(obj->serial.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, cb);
+        LDMA_StartTransfer(obj->serial.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, NULL);
 
     } else {
         volatile const void *source_addr;
 
         switch((uint32_t)(obj->serial.periph.uart)) {
+#ifdef USART0
             case USART_0:
                 dma_periph = ldmaPeripheralSignal_USART0_RXDATAV;
                 source_addr = &USART0->RXDATA;
                 obj->serial.periph.uart->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX;
                 break;
+#endif
+#ifdef USART1
             case USART_1:
                 dma_periph = ldmaPeripheralSignal_USART1_RXDATAV;
                 source_addr = &USART1->RXDATA;
                 obj->serial.periph.uart->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX;
                 break;
+#endif
+#ifdef LEUART0
             case LEUART_0:
                 dma_periph = ldmaPeripheralSignal_LEUART0_RXDATAV;
                 source_addr = &LEUART0->RXDATA;
                 obj->serial.periph.leuart->CMD = LEUART_CMD_RXEN | LEUART_CMD_CLEARRX;
+                while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
                 break;
+#endif
             default:
                 EFM_ASSERT(0);
                 while(1);
@@ -1389,7 +1427,7 @@ void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
  */
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    // Check that a buffer has indeed been set up
+   // Check that a buffer has indeed been set up
     MBED_ASSERT(tx != (void*)0);
     if(tx_length == 0) return 0;
 
@@ -1539,24 +1577,13 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
  */
 uint8_t serial_tx_active(serial_t *obj)
 {
-    switch(obj->serial.dmaOptionsTX.dmaUsageState) {
-        case DMA_USAGE_TEMPORARY_ALLOCATED:
-            /* Temporary allocation always means its active, as this state gets cleared afterwards */
-            return 1;
-        case DMA_USAGE_ALLOCATED:
-            /* Check whether the allocated DMA channel is active by checking the DMA transfer */
-#ifndef LDMA_PRESENT
-            return DMA_ChannelEnabled(obj->serial.dmaOptionsTX.dmaChannel);
-#else
-            return !LDMA_TransferDone(obj->serial.dmaOptionsTX.dmaChannel);
-#endif
-        default:
-            /* Check whether interrupt for serial TX is enabled */
-            if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-                return (obj->serial.periph.leuart->IEN & (LEUART_IEN_TXBL)) ? true : false;
-            } else {
-                return (obj->serial.periph.uart->IEN & (USART_IEN_TXBL)) ? true : false;
-            }
+    if(!serial_writable(obj))
+        return false;
+
+    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        return (obj->serial.periph.leuart->IEN & (LEUART_IEN_TXBL|LEUART_IEN_TXC)) ? true : false;
+    } else {
+        return (obj->serial.periph.uart->IEN & (USART_IEN_TXBL|USART_IEN_TXC)) ? true : false;
     }
 }
 
@@ -1576,7 +1603,9 @@ uint8_t serial_rx_active(serial_t *obj)
 #ifndef LDMA_PRESENT
             return DMA_ChannelEnabled(obj->serial.dmaOptionsRX.dmaChannel);
 #else
-            return !LDMA_TransferDone(obj->serial.dmaOptionsTX.dmaChannel);
+            // LDMA_TransferDone does not work since the CHDONE bits get cleared,
+            // so just check if the channel is enabled
+            return LDMA->CHEN & (1 << obj->serial.dmaOptionsRX.dmaChannel);
 #endif
         default:
             /* Check whether interrupt for serial TX is enabled */
@@ -1611,6 +1640,7 @@ int serial_tx_irq_handler_asynch(serial_t *obj)
                 /* Last byte has been put in TX, set up TXC interrupt */
                 LEUART_IntDisable(obj->serial.periph.leuart, LEUART_IEN_TXBL);
                 LEUART_IntEnable(obj->serial.periph.leuart, LEUART_IEN_TXC);
+                while (obj->serial.periph.leuart->SYNCBUSY);
             }
         }else if (obj->serial.periph.leuart->IF & LEUART_IF_TXC){
             /* Last byte has been successfully transmitted. Stop the procedure */
@@ -1795,28 +1825,21 @@ int serial_irq_handler_asynch(serial_t *obj)
         return SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
     } else if (serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel]) {
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-            if(obj->serial.periph.leuart->IEN & LEUART_IEN_TXC){
-                LEUART_IntDisable(obj->serial.periph.leuart,LEUART_IEN_TXC);
-                /* Clean up */
-                serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
-                serial_tx_abort_asynch(obj);
-                /* Notify CPP land of completion */
-                return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
-            }else{
-                LEUART_IntEnable(obj->serial.periph.leuart,LEUART_IEN_TXC);
-            }
+            LEUART_IntDisable(obj->serial.periph.leuart,LEUART_IEN_TXC);
+            LEUART_IntClear(obj->serial.periph.leuart,LEUART_IFC_TXC);
+            /* Clean up */
+            serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
+            serial_tx_abort_asynch(obj);
+            /* Notify CPP land of completion */
+            return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }else{
-            // HACK
-            //if(obj->serial.periph.uart->IEN & USART_IEN_TXC){
-            //    USART_IntDisable(obj->serial.periph.uart,USART_IEN_TXC);
-                /* Clean up */
-                serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
-                serial_tx_abort_asynch(obj);
-                /* Notify CPP land of completion */
-                return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
-            //}else{
-            //    USART_IntEnable(obj->serial.periph.uart,USART_IEN_TXC);
-            //}
+            USART_IntDisable(obj->serial.periph.uart, USART_IEN_TXC);
+            USART_IntClear(obj->serial.periph.uart, USART_IFC_TXC);
+            /* Clean up */
+            serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
+            serial_tx_abort_asynch(obj);
+            /* Notify CPP land of completion */
+            return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }
     } else {
         /* Check the NVIC to see which interrupt we're running from
@@ -1848,8 +1871,13 @@ int serial_irq_handler_asynch(serial_t *obj)
  */
 void serial_tx_abort_asynch(serial_t *obj)
 {
-    /* Stop transmitter */
-    //obj->serial.periph.uart->CMD |= USART_CMD_TXDIS;
+#ifdef _SILICON_LABS_32B_PLATFORM_2
+    // Disabling the transmitter when using DMA on older platforms
+    // can cause the UART to leave the line low, generating a BREAK
+    // condition until the next transmission begins. Only use
+    // on Pearl.
+    obj->serial.periph.uart->CMD |= USART_CMD_TXDIS;
+#endif
 
     /* Clean up */
     switch(obj->serial.dmaOptionsTX.dmaUsageState) {
@@ -1873,15 +1901,16 @@ void serial_tx_abort_asynch(serial_t *obj)
             obj->serial.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
             break;
         default:
-            /* stop interrupting */
-            if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-                LEUART_IntDisable(obj->serial.periph.leuart, LEUART_IEN_TXC);
-                LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_TXC);
-            } else {
-                USART_IntDisable(obj->serial.periph.uart, USART_IEN_TXC);
-                USART_IntClear(obj->serial.periph.uart, USART_IFC_TXC);
-            }
             break;
+    }
+
+    /* stop interrupting */
+    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        LEUART_IntDisable(obj->serial.periph.leuart, LEUART_IEN_TXC);
+        LEUART_IntClear(obj->serial.periph.leuart, LEUART_IFC_TXC);
+    } else {
+        USART_IntDisable(obj->serial.periph.uart, USART_IEN_TXC);
+        USART_IntClear(obj->serial.periph.uart, USART_IFC_TXC);
     }
 
     /* Say that we can stop using this emode */
