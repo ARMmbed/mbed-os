@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -85,7 +85,6 @@ typedef struct
   * @{
   */
 #define PWR_WAKEUP_PIN1                 ((uint32_t)0x00000100)
-#define PWR_WAKEUP_PIN2                 ((uint32_t)0x00000080)
 /**
   * @}
   */
@@ -168,43 +167,6 @@ typedef struct
 /** @defgroup PWR_Exported_Macro PWR Exported Macro
   * @{
   */
-
-#if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)
-/** @brief  macros configure the main internal regulator output voltage.
-  * @param  __REGULATOR__: specifies the regulator output voltage to achieve
-  *         a tradeoff between performance and power consumption when the device does
-  *         not operate at the maximum frequency (refer to the datasheets for more details).
-  *          This parameter can be one of the following values:
-  *            @arg PWR_REGULATOR_VOLTAGE_SCALE1: Regulator voltage output Scale 1 mode
-  *            @arg PWR_REGULATOR_VOLTAGE_SCALE2: Regulator voltage output Scale 2 mode
-  * @retval None
-  */
-#define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
-                                                            __IO uint32_t tmpreg;                               \
-                                                            MODIFY_REG(PWR->CR, PWR_CR_VOS, (__REGULATOR__));   \
-                                                            /* Delay after an RCC peripheral clock enabling */  \
-                                                            tmpreg = READ_BIT(PWR->CR, PWR_CR_VOS);             \
-                                                            UNUSED(tmpreg);                                     \
-				                                                	} while(0)
-#else
-/** @brief  macros configure the main internal regulator output voltage.
-  * @param  __REGULATOR__: specifies the regulator output voltage to achieve
-  *         a tradeoff between performance and power consumption when the device does
-  *         not operate at the maximum frequency (refer to the datasheets for more details).
-  *          This parameter can be one of the following values:
-  *            @arg PWR_REGULATOR_VOLTAGE_SCALE1: Regulator voltage output Scale 1 mode
-  *            @arg PWR_REGULATOR_VOLTAGE_SCALE2: Regulator voltage output Scale 2 mode
-  *            @arg PWR_REGULATOR_VOLTAGE_SCALE3: Regulator voltage output Scale 3 mode
-  * @retval None
-  */
-#define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
-                                                            __IO uint32_t tmpreg;                               \
-                                                            MODIFY_REG(PWR->CR, PWR_CR_VOS, (__REGULATOR__));   \
-                                                            /* Delay after an RCC peripheral clock enabling */  \
-                                                            tmpreg = READ_BIT(PWR->CR, PWR_CR_VOS);             \
-                                                            UNUSED(tmpreg);                                     \
-				                                                	} while(0)
-#endif /* STM32F405xx || STM32F407xx || STM32F415xx || STM32F417xx */ 
 
 /** @brief  Check PWR flag is set or not.
   * @param  __FLAG__: specifies the flag to check.
@@ -445,7 +407,6 @@ void HAL_PWR_DisableSEVOnPend(void);
 /** @defgroup PWR_IS_PWR_Definitions PWR Private macros to check input parameters
   * @{
   */
-#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || ((PIN) == PWR_WAKEUP_PIN2))
 #define IS_PWR_PVD_LEVEL(LEVEL) (((LEVEL) == PWR_PVDLEVEL_0) || ((LEVEL) == PWR_PVDLEVEL_1)|| \
                                  ((LEVEL) == PWR_PVDLEVEL_2) || ((LEVEL) == PWR_PVDLEVEL_3)|| \
                                  ((LEVEL) == PWR_PVDLEVEL_4) || ((LEVEL) == PWR_PVDLEVEL_5)|| \

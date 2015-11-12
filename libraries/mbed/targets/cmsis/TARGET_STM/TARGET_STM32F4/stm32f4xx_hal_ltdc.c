@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_ltdc.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   LTDC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the LTDC peripheral:
@@ -109,7 +109,7 @@
 
 #ifdef HAL_LTDC_MODULE_ENABLED
 
-#if defined(STM32F429xx) || defined(STM32F439xx)
+#if defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -372,7 +372,7 @@ void HAL_LTDC_IRQHandler(LTDC_HandleTypeDef *hltdc)
       __HAL_UNLOCK(hltdc);
 
       /* Line interrupt Callback */
-      HAL_LTDC_LineEvenCallback(hltdc);
+      HAL_LTDC_LineEventCallback(hltdc);
     }
   }
 }
@@ -396,10 +396,10 @@ __weak void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc)
   *                the configuration information for the LTDC.
   * @retval None
   */
-__weak void HAL_LTDC_LineEvenCallback(LTDC_HandleTypeDef *hltdc)
+__weak void HAL_LTDC_LineEventCallback(LTDC_HandleTypeDef *hltdc)
 {
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_LTDC_LineEvenCallback could be implemented in the user file
+            the HAL_LTDC_LineEventCallback could be implemented in the user file
    */
 }
 
@@ -872,7 +872,7 @@ HAL_StatusTypeDef HAL_LTDC_SetWindowPosition(LTDC_HandleTypeDef *hltdc, uint32_t
   LTDC_SetConfig(hltdc, pLayerCfg, LayerIdx);
 
   /* Sets the Reload type */
-  hltdc->Instance->SRCR = LTDC_SRCR_IMR;
+  hltdc->Instance->SRCR = LTDC_SRCR_VBR;
 
   /* Change the LTDC state*/
   hltdc->State = HAL_LTDC_STATE_READY;
@@ -1014,6 +1014,80 @@ HAL_StatusTypeDef HAL_LTDC_SetAddress(LTDC_HandleTypeDef *hltdc, uint32_t Addres
   __HAL_UNLOCK(hltdc);
 
   return HAL_OK;
+}
+
+/**
+  * @brief  Function used to reconfigure the pitch for specific cases where the attached LayerIdx buffer have a width that is
+  *         larger than the one intended to be displayed on screen. Example of a buffer 800x480 attached to layer for which we 
+  *         want to read and display on screen only a portion 320x240 taken in the center of the buffer. The pitch in pixels 
+  *         will be in that case 800 pixels and not 320 pixels as initially configured by previous call to HAL_LTDC_ConfigLayer().
+  *         Note : this function should be called only after a previous call to HAL_LTDC_ConfigLayer() to modify the default pitch
+  *                configured by HAL_LTDC_ConfigLayer() when required (refer to example described just above).
+  * @param  hltdc:             pointer to a LTDC_HandleTypeDef structure that contains
+  *                            the configuration information for the LTDC.
+  * @param  LinePitchInPixels: New line pitch in pixels to configure for LTDC layer 'LayerIdx'.
+  * @param  LayerIdx:          LTDC layer index concerned by the modification of line pitch.
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_LTDC_SetPitch(LTDC_HandleTypeDef *hltdc, uint32_t LinePitchInPixels, uint32_t LayerIdx)
+{
+  uint32_t tmp = 0;
+  uint32_t pitchUpdate = 0;
+  uint32_t pixelFormat = 0;
+  
+  /* Process locked */
+  __HAL_LOCK(hltdc);
+  
+  /* Change LTDC peripheral state */
+  hltdc->State = HAL_LTDC_STATE_BUSY;
+  
+  /* Check the parameters */
+  assert_param(IS_LTDC_LAYER(LayerIdx));
+  
+  /* get LayerIdx used pixel format */
+  pixelFormat = hltdc->LayerCfg[LayerIdx].PixelFormat;
+  
+  if(pixelFormat == LTDC_PIXEL_FORMAT_ARGB8888)
+  {
+    tmp = 4;
+  }
+  else if (pixelFormat == LTDC_PIXEL_FORMAT_RGB888)
+  {
+    tmp = 3;
+  }
+  else if((pixelFormat == LTDC_PIXEL_FORMAT_ARGB4444) || \
+          (pixelFormat == LTDC_PIXEL_FORMAT_RGB565)   || \
+          (pixelFormat == LTDC_PIXEL_FORMAT_ARGB1555) || \
+         (pixelFormat == LTDC_PIXEL_FORMAT_AL88))
+  {
+    tmp = 2;
+  }
+  else
+  {
+    tmp = 1;
+  }
+  
+  pitchUpdate = ((LinePitchInPixels * tmp) << 16);
+  
+  /* Clear previously set standard pitch */
+  LTDC_LAYER(hltdc, LayerIdx)->CFBLR &= ~LTDC_LxCFBLR_CFBP;
+  
+  /* Sets the Reload type as immediate update of LTDC pitch configured above */
+  LTDC->SRCR |= LTDC_SRCR_IMR;
+  
+  /* Set new line pitch value */
+  LTDC_LAYER(hltdc, LayerIdx)->CFBLR |= pitchUpdate;
+  
+  /* Sets the Reload type as immediate update of LTDC pitch configured above */
+  LTDC->SRCR |= LTDC_SRCR_IMR;
+  
+  /* Change the LTDC state*/
+  hltdc->State = HAL_LTDC_STATE_READY;
+  
+  /* Process unlocked */
+  __HAL_UNLOCK(hltdc);
+  
+  return HAL_OK;  
 }
 
 /**
@@ -1178,7 +1252,7 @@ static void LTDC_SetConfig(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeDef *pLay
 /**
   * @}
   */
-#endif /* STM32F429xx || STM32F439xx */
+#endif /* STM32F429xx || STM32F439xx  || STM32F469xx || STM32F479xx */
 #endif /* HAL_LTDC_MODULE_ENABLED */
 /**
   * @}

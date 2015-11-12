@@ -49,6 +49,7 @@ class GccArm(Exporter):
         'DISCO_F051R8',
         'DISCO_F407VG',
         'DISCO_F429ZI',
+        'DISCO_F469NI',
         'DISCO_F303VC',
         'DISCO_F746NG',
         'DISCO_L476VG',

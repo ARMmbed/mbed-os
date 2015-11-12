@@ -29,7 +29,11 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
+#ifdef TARGET_STM32F469
+#define TIM_MST TIM2
+#else
 #define TIM_MST TIM5
+#endif
 
 static TIM_HandleTypeDef TimMasterHandle;
 static int us_ticker_inited = 0;

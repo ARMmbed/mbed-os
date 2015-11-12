@@ -10,6 +10,10 @@ DigitalIn in(dp2);
 DigitalOut out(D7);
 DigitalIn in(D2);
 
+#elif defined(TARGET_DISCO_F469NI)
+DigitalOut out(PB_1);
+DigitalIn in(PG_9);
+
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \

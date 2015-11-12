@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
@@ -42,7 +42,10 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
+    defined(STM32F469xx) || defined(STM32F479xx) 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_ll_usb.h"
    
@@ -104,6 +107,10 @@ typedef struct
   uint32_t                lpm_active;   /*!< Enable or disable the Link Power Management .                                  
                                         This parameter can be set to ENABLE or DISABLE */
 #endif /* USB_OTG_GLPMCFG_LPMEN */
+#ifdef USB_OTG_GCCFG_BCDEN
+  uint32_t battery_charging_active;     /*!< Enable or disable Battery charging.                                  
+                                        This parameter can be set to ENABLE or DISABLE                      */
+#endif /* USB_OTG_GCCFG_BCDEN */
   void                    *pData;       /*!< Pointer to upper stack Handler */    
 } PCD_HandleTypeDef;
 
@@ -137,7 +144,7 @@ typedef struct
 /**
   * @}
   */
-
+  
 /** @defgroup PCD_Turnaround_Timeout Turnaround Timeout Value
   * @{
   */
@@ -164,7 +171,7 @@ typedef struct
 #define __HAL_PCD_DISABLE(__HANDLE__)                  USB_DisableGlobalInt ((__HANDLE__)->Instance)
    
 #define __HAL_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__)      ((USB_ReadInterrupts((__HANDLE__)->Instance) & (__INTERRUPT__)) == (__INTERRUPT__))
-#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->GINTSTS) = (__INTERRUPT__))
+#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    (((__HANDLE__)->Instance->GINTSTS) &= (__INTERRUPT__))
 #define __HAL_PCD_IS_INVALID_INTERRUPT(__HANDLE__)         (USB_ReadInterrupts((__HANDLE__)->Instance) == 0)
 
 
@@ -221,10 +228,10 @@ typedef struct
                                                                    EXTI->RTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE;\
                                                                    EXTI->FTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE 
                                                          
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_GENERATE_SWIT()  (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE) 
+#define __HAL_USB_OTG_FS_WAKEUP_EXTI_GENERATE_SWIT()  (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE)
 /**
   * @}
-  */
+  */ 
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup PCD_Exported_Functions PCD Exported Functions
@@ -245,7 +252,7 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef *hpcd);
 
 /* I/O operation functions  ***************************************************/
 /* Non-Blocking mode: Interrupt */
-/** @addtogroup PCD_Exported_Functions_Group2 IO operation functions
+/** @addtogroup PCD_Exported_Functions_Group2 Input and Output operation functions
   * @{
   */
 /* Non-Blocking mode: Interrupt */
@@ -310,18 +317,15 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
   * @{
   */
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) ||\
-    defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+    defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
  #define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
                                         ((INSTANCE) == USB_OTG_HS))
-#elif defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE)
+#elif defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) 
  #define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS))
 #endif
 /**
   * @}
   */ 
-/**
-  * @}
-  */
 
 /**
   * @}
@@ -331,6 +335,11 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
   * @}
   */ 
 
+/**
+  * @}
+  */ 
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
 #ifdef __cplusplus
 }
 #endif
