@@ -180,7 +180,7 @@ class mbedToolchain:
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
     GOANNA_DIAGNOSTIC_PATTERN = re.compile(r'"\[Goanna\] (?P<severity>warning) \[(?P<file>[^:]+):(?P<line>\d+)\] \- (?P<message>.*)"')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         self.target = target
         self.name = self.__class__.__name__
         self.hook = hooks.Hook(target, self)
@@ -189,7 +189,13 @@ class mbedToolchain:
 
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
-        self.notify_fun = notify if notify is not None else self.print_notify
+        if notify:
+            self.notify_fun = notify
+        elif extra_verbose:
+            self.notify_fun = self.print_notify_verbose
+        else:
+            self.notify_fun = self.print_notify
+
         self.options = options if options is not None else []
 
         self.macros = macros or []

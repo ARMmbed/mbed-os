@@ -28,7 +28,6 @@ sys.path.insert(0, ROOT)
 
 
 from workspace_tools.toolchains import TOOLCHAINS
-from workspace_tools.toolchains import print_notify_verbose
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
@@ -184,8 +183,6 @@ if __name__ == '__main__':
     if options.cpputest_lib:
         libraries.extend(["cpputest"])
 
-    notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
-
     # Build results
     failures = []
     successes = []
@@ -203,7 +200,7 @@ if __name__ == '__main__':
                         # Static check for library
                         static_analysis_scan_lib(lib_id, mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
                                   options=options.options,
-                                  notify=notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
+                                  extra_verbose=options.extra_verbose_notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
                                   macros=options.macros)
                         pass
                 except Exception, e:
@@ -221,17 +218,16 @@ if __name__ == '__main__':
                     mcu = TARGET_MAP[target]
                     lib_build_res = build_mbed_libs(mcu, toolchain,
                                                     options=options.options,
-                                                    notify=notify,
+                                                    extra_verbose=options.extra_verbose_notify,
                                                     verbose=options.verbose,
                                                     silent=options.silent,
                                                     jobs=options.jobs,
                                                     clean=options.clean,
                                                     macros=options.macros)
                     for lib_id in libraries:
-                        notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                         build_lib(lib_id, mcu, toolchain,
                                   options=options.options,
-                                  notify=notify,
+                                  extra_verbose=options.extra_verbose_notify,
                                   verbose=options.verbose,
                                   silent=options.silent,
                                   clean=options.clean,
