@@ -70,6 +70,11 @@ Case::get_description() const {
     return description;
 }
 
+bool
+Case::is_empty() const {
+    return !(handler || control_flow_handler || set_up_handler || tear_down_handler);
+}
+
 
 AsyncCase::AsyncCase(const char *description,
                      const case_handler_t handler,

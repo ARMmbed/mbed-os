@@ -31,6 +31,8 @@ const char* failureToString(failure_t failure)
             return "Unspecified Failure";
         case FAILURE_CASES:
             return "Test Cases Failed";
+        case FAILURE_EMPTY_CASE:
+            return "Test Case is Empty";
         case FAILURE_SETUP:
             return "Setup Failed";
         case FAILURE_TEARDOWN:
