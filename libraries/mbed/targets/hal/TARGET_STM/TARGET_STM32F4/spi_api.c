@@ -355,7 +355,48 @@ void spi_frequency(spi_t *obj, int hz)
         } else { // >= 22000000
             obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 22.5 MHz
         }
-    }    
+    }
+#elif defined(TARGET_STM32F469NI)
+    // Values depend of PCLK2: 84 MHz
+    if ((obj->spi == SPI_1) || (obj->spi == SPI_4)) {
+        if (hz < 600000) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 328 kHz
+        } else if ((hz >= 600000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 656 kHz
+        } else if ((hz >= 1000000) && (hz < 2000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_64;  // 1.31 MHz
+        } else if ((hz >= 2000000) && (hz < 5000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_32;  // 2.63 MHz
+        } else if ((hz >= 5000000) && (hz < 10000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_16;  // 5.25 MHz
+        } else if ((hz >= 10000000) && (hz < 20000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_8;   // 10.5 MHz
+        } else if ((hz >= 20000000) && (hz < 40000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_4;   // 21 MHz
+        } else { // >= 40000000
+            obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 42 MHz
+        }
+    }
+    // Values depend of PCLK1: 42 MHz
+    if ((obj->spi == SPI_2) || (obj->spi == SPI_3)) {
+        if (hz < 300000) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 164 kHz
+        } else if ((hz >= 300000) && (hz < 600000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 328 kHz
+        } else if ((hz >= 600000) && (hz < 1000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_64;  // 656 kHz
+        } else if ((hz >= 1000000) && (hz < 2000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_32;  // 1.31 MHz
+        } else if ((hz >= 2000000) && (hz < 5000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_16;  // 2.63 MHz
+        } else if ((hz >= 5000000) && (hz < 10000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_8;   // 5.25 MHz
+        } else if ((hz >= 10000000) && (hz < 20000000)) {
+            obj->br_presc = SPI_BAUDRATEPRESCALER_4;   // 10.5 MHz
+        } else { // >= 20000000
+            obj->br_presc = SPI_BAUDRATEPRESCALER_2;   // 21 MHz
+        }
+    }
 #elif defined(TARGET_STM32F410RB)
     // Values depend of PCLK2: 100 MHz
     if ((obj->spi == SPI_1) || (obj->spi == SPI_5)) {

@@ -61,6 +61,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('TEENSY3_1',      ('ARM', 'GCC_ARM')),
 
     ('NUCLEO_F030R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F031K6', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F042K6', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F070RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F072RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
@@ -82,6 +83,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('DISCO_F469NI', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F746NG', ('ARM', 'uARM')),
     ('DISCO_L476VG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L476RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),

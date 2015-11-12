@@ -120,10 +120,14 @@ def add_test_runs(args):
                 testRun['output'] = ""
 
             errors = test_case.findall('error')
+            failures = test_case.findall('failure')
 
             if errors:
                 testRun['pass'] = False
                 testRun['result'] = errors[0].attrib['message']
+            elif failures:
+                testRun['pass'] = False
+                testRun['result'] = failures[0].attrib['message']
             else:
                 testRun['pass'] = True
                 testRun['result'] = 'OK'

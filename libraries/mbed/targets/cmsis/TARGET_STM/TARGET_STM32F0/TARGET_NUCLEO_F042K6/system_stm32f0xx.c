@@ -118,7 +118,7 @@
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
 #define USE_PLL_HSE_EXTC (1) /* Use external clock */
-#define USE_PLL_HSE_XTAL (1) /* Use external xtal */
+#define USE_PLL_HSE_XTAL (0) /* Use external xtal */
 
 /**
   * @}
@@ -413,13 +413,14 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
  
-  // Select PLLCLK = 48 MHz ((HSI 8 MHz / 2) * 12)
+  // Select PLLCLK = 48 MHz ((HSI 8 MHz) * 6)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSI; // HSI div 2
+  RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV1;
-  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL12;
+  RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL6;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
       return 0; // FAIL
   }

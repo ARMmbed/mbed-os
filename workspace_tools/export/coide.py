@@ -53,6 +53,7 @@ class CoIDE(Exporter):
         'DISCO_F401VC',
         'DISCO_F407VG',
         'DISCO_F429ZI',
+        'DISCO_F469NI',
         'MTS_MDOT_F405RG',
         'MTS_MDOT_F411RE',
         'MOTE_L152RC',

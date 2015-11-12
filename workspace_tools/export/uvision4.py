@@ -72,6 +72,7 @@ class Uvision4(Exporter):
         'DISCO_F407VG',
         'DISCO_L053C8',
         'DISCO_F334C8',
+        'DISCO_F469NI',
         'DISCO_F746NG',
         'DISCO_L476VG',
         'MTS_GAMBIT',
@@ -86,6 +87,10 @@ class Uvision4(Exporter):
         'MAX32600MBED',
         'MOTE_L152RC',
         'NZ32SC151',
+        'SAMR21G18A',
+        'SAMD21J18A',
+        'SAMD21G18A',
+        'SAML21J18A',
     ]
 
     USING_MICROLIB = [
@@ -114,6 +119,7 @@ class Uvision4(Exporter):
         'NUCLEO_L476RG',
         'DISCO_L053C8',
         'DISCO_F334C8',
+        'DISCO_F469NI',
         'DISCO_F746NG',
         'DISCO_L476VG',
         'LPC1549',
@@ -123,6 +129,10 @@ class Uvision4(Exporter):
         'LPC11U37H_401',
         'MOTE_L152RC',
         'NZ32SC151',
+        'SAMR21G18A',
+        'SAMD21J18A',
+        'SAMD21G18A',
+        'SAML21J18A',
     ]
 
     FILE_TYPES = {
