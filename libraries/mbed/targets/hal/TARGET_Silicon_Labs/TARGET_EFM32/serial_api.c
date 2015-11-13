@@ -1147,10 +1147,17 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
             USART_IntClear(obj->serial.periph.uart, USART_IFC_TXC);
         }
 
+        // Set callback and enable TXC. This will fire once the
+        // serial transfer finishes
+        NVIC_SetVector(serial_get_tx_irq_index(obj), (uint32_t)cb);
+        serial_irq_set(obj, TxIrq, true);
+
         DMA_CfgDescr(obj->serial.dmaOptionsTX.dmaChannel, true, &channelConfig);
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-            // Activate TX
-            obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN | LEUART_CMD_CLEARTX;
+            // Activate TX and clear TX buffer (note that clear must be done
+            // separately and before TXEN or DMA will die on some platforms)
+            obj->serial.periph.leuart->CMD = LEUART_CMD_CLEARTX;
+            obj->serial.periph.leuart->CMD = LEUART_CMD_TXEN;
             while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
 
             // Kick off TX DMA
@@ -1163,10 +1170,6 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
             DMA_ActivateBasic(obj->serial.dmaOptionsTX.dmaChannel, true, false, (void*) &(obj->serial.periph.uart->TXDATA), buffer, length - 1);
         }
 
-        // Set callback and enable TXC. This will fire once the
-        // serial transfer finishes
-        NVIC_SetVector(serial_get_tx_irq_index(obj), (uint32_t)cb);
-        serial_irq_set(obj, TxIrq, true);
 
     } else {
         // Set DMA callback
@@ -1825,16 +1828,12 @@ int serial_irq_handler_asynch(serial_t *obj)
         return SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
     } else if (serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel]) {
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-            LEUART_IntDisable(obj->serial.periph.leuart,LEUART_IEN_TXC);
-            LEUART_IntClear(obj->serial.periph.leuart,LEUART_IFC_TXC);
             /* Clean up */
             serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
             serial_tx_abort_asynch(obj);
             /* Notify CPP land of completion */
             return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }else{
-            USART_IntDisable(obj->serial.periph.uart, USART_IEN_TXC);
-            USART_IntClear(obj->serial.periph.uart, USART_IFC_TXC);
             /* Clean up */
             serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
             serial_tx_abort_asynch(obj);
@@ -1876,7 +1875,12 @@ void serial_tx_abort_asynch(serial_t *obj)
     // can cause the UART to leave the line low, generating a BREAK
     // condition until the next transmission begins. Only use
     // on Pearl.
-    obj->serial.periph.uart->CMD |= USART_CMD_TXDIS;
+    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        obj->serial.periph.leuart->CMD = LEUART_CMD_TXDIS;
+        while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
+    } else {
+        obj->serial.periph.uart->CMD = USART_CMD_TXDIS;
+    }
 #endif
 
     /* Clean up */
@@ -1933,7 +1937,12 @@ void serial_tx_abort_asynch(serial_t *obj)
 void serial_rx_abort_asynch(serial_t *obj)
 {
     /* Stop receiver */
-    obj->serial.periph.uart->CMD |= USART_CMD_RXDIS;
+    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        obj->serial.periph.leuart->CMD = LEUART_CMD_RXDIS;
+        while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
+    } else {
+        obj->serial.periph.uart->CMD = USART_CMD_RXDIS;
+    }
 
     /* Clean up */
     switch(obj->serial.dmaOptionsRX.dmaUsageState) {
