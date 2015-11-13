@@ -42,17 +42,12 @@ namespace
     size_t case_failed = 0;
     size_t case_failed_before = 0;
 
-    handlers_t defaults = greentea_handlers;
+    handlers_t defaults = default_handlers;
     handlers_t handlers = defaults;
 }
 
 static void die() {
     while(1) ;
-}
-
-void Harness::set_default_handlers(const handlers_t defaults)
-{
-    ::defaults = defaults;
 }
 
 void Harness::run(const Specification specification)
@@ -61,6 +56,7 @@ void Harness::run(const Specification specification)
 
     test_cases = specification.cases;
     test_length = specification.length;
+    defaults = specification.defaults;
     handlers.test_set_up = defaults.get_handler(specification.set_up_handler);
     handlers.test_tear_down = defaults.get_handler(specification.tear_down_handler);
 
