@@ -263,8 +263,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         # Compile Sources
         objects = []
         for resource in resources:
-            objects = toolchain.compile_sources(resource, tmp_path, dependencies_include_dir)
-            objects.extend(objects)
+            objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies_include_dir))
 
         needed_update = toolchain.build_library(objects, bin_path, name)
 
