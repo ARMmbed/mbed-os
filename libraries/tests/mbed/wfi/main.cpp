@@ -14,7 +14,7 @@ int main(void)
 #endif
     int count = 0;
     while(1) {
-      printf("%d\r\n", count++);      
+      printf("%d\r\n", count++);
       __WFI();
     }
 }
