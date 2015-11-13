@@ -91,17 +91,12 @@ status_t mbed::test::v0::verbose_case_failure_handler(const Case *const /*source
 
 
 
-status_t mbed::test::v0::greentea_test_set_up_handler(const size_t number_of_cases)
+status_t mbed::test::v0::greentea_test_set_up_handler(const size_t /*number_of_cases*/)
 {
-    printf("{{timeout;%u}}\n", number_of_cases);
-    printf("{{host_test_name;default_auto}}\n");
-    printf("{{description;default_greentea_handler_test}}\n");
-    printf("{{test_id;default_greentea_handler_test}}\n");
-    printf("{{start}}\n");
+    printf(">>> I do not know how to tell greentea that the test started, since\n");
+    printf(">>> you forgot to override the `test_set_up_handler` in your specification.\n");
 
-    verbose_test_set_up_handler(number_of_cases);
-
-    return STATUS_CONTINUE;
+    return STATUS_ABORT;
 }
 
 void mbed::test::v0::greentea_test_tear_down_handler(const size_t passed, const size_t failed, const failure_t failure)
