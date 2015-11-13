@@ -673,6 +673,16 @@ class NUCLEO_F401RE(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0720"]
 
+class NUCLEO_F410RB(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F410RB']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.detect_code = ["0740"]
+
 class NUCLEO_F411RE(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1737,6 +1747,7 @@ TARGETS = [
     NUCLEO_F303RE(),
     NUCLEO_F334R8(),
     NUCLEO_F401RE(),
+    NUCLEO_F410RB(),
     NUCLEO_F411RE(),
     ELMO_F411RE(),
     NUCLEO_F446RE(),
