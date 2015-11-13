@@ -68,7 +68,7 @@ typedef enum {
     SPI_3 = (int)SPI3_BASE,
     SPI_4 = (int)SPI4_BASE,
     SPI_5 = (int)SPI5_BASE,
-    SPI_6 = (int)SPI5_BASE
+    SPI_6 = (int)SPI6_BASE
 } SPIName;
 
 typedef enum {

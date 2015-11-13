@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    RT_SEMAPHORE.C
  *      Purpose: Implements binary and counting semaphores
- *      Rev.:    V4.60
+ *      Rev.:    V4.70
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -152,7 +152,7 @@ OS_RESULT rt_sem_wait (OS_ID semaphore, U16 timeout) {
 /*--------------------------- isr_sem_send ----------------------------------*/
 
 void isr_sem_send (OS_ID semaphore) {
-  /* Same function as "os_sem"send", but to be called by ISRs */
+  /* Same function as "os_sem_send", but to be called by ISRs */
   P_SCB p_SCB = semaphore;
 
   rt_psq_enq (p_SCB, 0);

@@ -44,7 +44,7 @@ static inline int div_round_up(int x, int y) {
 
 void analogin_init(analogin_t *obj, PinName pin) {
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj->adc != (uint32_t)NC);
+    MBED_ASSERT(obj->adc != (ADCName)NC);
     
     // Power up ADC
     LPC_SYSCON->PDRUNCFG &= ~ (1 << 4);

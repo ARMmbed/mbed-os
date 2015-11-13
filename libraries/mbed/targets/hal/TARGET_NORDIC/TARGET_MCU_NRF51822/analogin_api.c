@@ -29,6 +29,10 @@ static const PinMap PinMap_ADC[] = {
     {p4, ADC0_0, 32},
     {p5, ADC0_0, 64},
     {p6, ADC0_0, 128},
+#ifndef TARGET_NRF51_DONGLE
+    {p26, ADC0_0, 1},
+    {p27, ADC0_0, 2},
+#endif
     {NC, NC, 0}
 };
 
@@ -61,8 +65,10 @@ uint16_t analogin_read_u16(analogin_t *obj)
 {
     NRF_ADC->CONFIG     &= ~ADC_CONFIG_PSEL_Msk;
     NRF_ADC->CONFIG     |= obj->adc_pin << ADC_CONFIG_PSEL_Pos;
+    NRF_ADC->EVENTS_END  = 0;
     NRF_ADC->TASKS_START = 1;
-    while (((NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) >> ADC_BUSY_BUSY_Pos) == ADC_BUSY_BUSY_Busy) {
+
+    while (!NRF_ADC->EVENTS_END) {
     }
 
     return (uint16_t)NRF_ADC->RESULT; // 10 bit

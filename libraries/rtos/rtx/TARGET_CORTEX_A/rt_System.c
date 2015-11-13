@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    RT_SYSTEM.C
  *      Purpose: System Task Manager
- *      Rev.:    V4.60
+ *      Rev.:    8 April 2015
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,7 @@
  *---------------------------------------------------------------------------*/
 
 int os_tick_irqn;
+U8  scheduler_suspended = 0;    // flag set by rt_suspend, cleared by rt_resume, read by SVC_Handler
 
 /*----------------------------------------------------------------------------
  *      Local Variables
@@ -68,29 +69,40 @@ static          U8  pend_flags;
  *      Global Functions
  *---------------------------------------------------------------------------*/
 
+#define RL_RTX_VER      0x473
+
 #if defined (__CC_ARM)
 __asm void $$RTX$$version (void) {
    /* Export a version number symbol for a version control. */
 
                 EXPORT  __RL_RTX_VER
 
-__RL_RTX_VER    EQU     0x450
+__RL_RTX_VER    EQU     RL_RTX_VER
 }
 #endif
 
 
 /*--------------------------- rt_suspend ------------------------------------*/
 
+extern U32 sysUserTimerWakeupTime(void);
+
 U32 rt_suspend (void) {
   /* Suspend OS scheduler */
   U32 delta = 0xFFFF;
+#ifdef __CMSIS_RTOS
+  U32 sleep;
+#endif
 
   rt_tsk_lock();
+  scheduler_suspended = 1;
 
   if (os_dly.p_dlnk) {
     delta = os_dly.delta_time;
   }
-#ifndef __CMSIS_RTOS
+#ifdef __CMSIS_RTOS
+  sleep = sysUserTimerWakeupTime();
+  if (sleep < delta) delta = sleep;
+#else
   if (os_tmr.next) {
     if (os_tmr.tcnt < delta) delta = os_tmr.tcnt;
   }
@@ -101,6 +113,8 @@ U32 rt_suspend (void) {
 
 
 /*--------------------------- rt_resume -------------------------------------*/
+
+extern void sysUserTimerUpdate (U32 sleep_time);
 
 void rt_resume (U32 sleep_time) {
   /* Resume OS scheduler after suspend */
@@ -133,8 +147,10 @@ void rt_resume (U32 sleep_time) {
     os_time += sleep_time;
   }
 
-#ifndef __CMSIS_RTOS
   /* Check the user timers. */
+#ifdef __CMSIS_RTOS
+  sysUserTimerUpdate(sleep_time);
+#else
   if (os_tmr.next) {
     delta = sleep_time;
     if (delta >= os_tmr.tcnt) {
@@ -155,6 +171,7 @@ void rt_resume (U32 sleep_time) {
   next = rt_get_first (&os_rdy);
   rt_switch_req (next);
 
+  scheduler_suspended = 0;
   rt_tsk_unlock();
 }
 
@@ -163,6 +180,9 @@ void rt_resume (U32 sleep_time) {
 
 void rt_tsk_lock (void) {
   /* Prevent task switching by locking out scheduler */
+  if (os_lock == __TRUE) // don't lock again if already locked
+    return;
+
   if (os_tick_irqn < 0) {
     OS_LOCK();
     os_lock = __TRUE;
@@ -250,6 +270,19 @@ __weak int os_tick_init (void) {
   return (-1);  /* Return IRQ number of SysTick timer */
 }
 
+/*--------------------------- os_tick_val -----------------------------------*/
+
+__weak U32 os_tick_val (void) {
+  /* Get SysTick timer current value (0 .. OS_TRV). */
+  return rt_systick_val();
+}
+
+/*--------------------------- os_tick_ovf -----------------------------------*/
+
+__weak U32 os_tick_ovf (void) {
+  /* Get SysTick timer overflow flag */
+  return rt_systick_ovf();
+}
 
 /*--------------------------- os_tick_irqack --------------------------------*/
 

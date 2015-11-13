@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s_ex.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
@@ -65,7 +65,37 @@
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup I2SEx_Exported_Constants I2S Exported Constants
   * @{
-  */ 
+  */
+
+/** @defgroup I2S_Clock_Source I2S Clock Source 
+  * @{
+  */
+
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) || \
+    defined(STM32F479xx)
+#define I2S_CLOCK_PLL                     ((uint32_t)0x00000000)
+#define I2S_CLOCK_EXTERNAL                ((uint32_t)0x00000001)      
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F469xx || STM32F479xx */    
+   
+#if defined(STM32F446xx) 
+#define I2S_CLOCK_PLL                     ((uint32_t)0x00000000)
+#define I2S_CLOCK_EXTERNAL                ((uint32_t)0x00000001) 
+#define I2S_CLOCK_PLLR                    ((uint32_t)0x00000002)
+#define I2S_CLOCK_PLLSRC                  ((uint32_t)0x00000003)
+#endif /* STM32F446xx  */
+
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
+#define I2S_CLOCK_PLLSRC                  ((uint32_t)0x00000000)      
+#define I2S_CLOCK_EXTERNAL                ((uint32_t)0x00000001) 
+#define I2S_CLOCK_PLLR                    ((uint32_t)0x00000002)
+#endif /* STM32F410Tx || STM32F410Cx || STM32F410Rx */
+/**
+  * @}
+  */
+
 /**
   * @}
   */ 
@@ -116,6 +146,36 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
 /** @defgroup I2SEx_Private_Macros I2S Private Macros
   * @{
   */
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) || \
+    defined(STM32F479xx)
+#define IS_I2S_CLOCKSOURCE(CLOCK) (((CLOCK) == I2S_CLOCK_EXTERNAL) ||\
+                                   ((CLOCK) == I2S_CLOCK_PLL))
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F469xx || STM32F479xx */
+
+#if defined(STM32F446xx)  
+#define IS_I2S_CLOCKSOURCE(CLOCK) (((CLOCK) == I2S_CLOCK_EXTERNAL) ||\
+                                   ((CLOCK) == I2S_CLOCK_PLL)      ||\
+                                   ((CLOCK) == I2S_CLOCK_PLLSRC)   ||\
+                                   ((CLOCK) == I2S_CLOCK_PLLR))
+#endif /* STM32F446xx  */
+
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
+#define IS_I2S_CLOCKSOURCE(CLOCK) (((CLOCK) == I2S_CLOCK_EXTERNAL) ||\
+                                   ((CLOCK) == I2S_CLOCK_PLLSRC)     ||\
+                                   ((CLOCK) == I2S_CLOCK_PLLR))
+#endif /* STM32F410Tx || STM32F410Cx || STM32F410Rx */
+
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Cx) || defined(STM32F410Rx) || \
+    defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
+#define I2SxEXT(__INSTANCE__) ((__INSTANCE__) == (SPI2)? (SPI_TypeDef *)(I2S2ext_BASE): (SPI_TypeDef *)(I2S3ext_BASE))
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F410Cx || STM32F410Rx || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */      
+
 /**
   * @}
   */

@@ -304,6 +304,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F303RE)
 #define INITIAL_SP            (0x20010000UL)
 
+#elif defined(TARGET_STM32F303K8)
+#define INITIAL_SP            (0x20003000UL)
+
 #elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600)
 #define INITIAL_SP            (0x20008000UL)
 
@@ -321,6 +324,15 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 
 #elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F030R8)
 #define INITIAL_SP            (0x20002000UL)
+
+#elif defined(TARGET_STM32L476VG)
+#define INITIAL_SP            (0x20018000UL)
+
+#elif defined(TARGET_STM32L476RG)
+#define INITIAL_SP            (0x20018000UL)
+
+#elif defined(TARGET_STM32F469NI)
+#define INITIAL_SP            (0x20050000UL)
 
 #else
 #error "no target defined"

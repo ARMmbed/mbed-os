@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,7 @@ static int rtc_inited = 0;
 
 static RTC_HandleTypeDef RtcHandle;
 
-void rtc_init(void)
-{
+void rtc_init(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
@@ -95,8 +94,7 @@ void rtc_init(void)
     }
 }
 
-void rtc_free(void)
-{
+void rtc_free(void) {
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -121,8 +119,7 @@ void rtc_free(void)
     rtc_inited = 0;
 }
 
-int rtc_isenabled(void)
-{
+int rtc_isenabled(void) {
     return rtc_inited;
 }
 
@@ -143,8 +140,7 @@ int rtc_isenabled(void)
    tm_yday     days since January 1 0-365
    tm_isdst    Daylight Saving Time flag
 */
-time_t rtc_read(void)
-{
+time_t rtc_read(void) {
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
     struct tm timeinfo;
@@ -171,8 +167,7 @@ time_t rtc_read(void)
     return t;
 }
 
-void rtc_write(time_t t)
-{
+void rtc_write(time_t t) {
     RTC_DateTypeDef dateStruct;
     RTC_TimeTypeDef timeStruct;
 

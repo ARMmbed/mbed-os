@@ -135,11 +135,11 @@ LICENSE  MANIFEST.in  README.md  libraries  setup.py  travis  workspace_tools
 ```
 Directory structure we are interested in:
 ```
-  mbed/workspace_tools/         - test suite scripts, build scripts etc.
-  mbed/library/tests/           - mbed SDK tests,
-  mbed/library/tests/mbed/      - tests for mbed SDK and peripherals tests,
-  mbed/library/tests/net/echo/  - tests for Ethernet interface,
-  mbed/library/tests/rtos/mbed/ - tests for RTOS. 
+  mbed/workspace_tools/           - test suite scripts, build scripts etc.
+  mbed/libraries/tests/           - mbed SDK tests,
+  mbed/libraries/tests/mbed/      - tests for mbed SDK and peripherals tests,
+  mbed/libraries/tests/net/echo/  - tests for Ethernet interface,
+  mbed/libraries/tests/rtos/mbed/ - tests for RTOS. 
 ```
 
 ### Workspace tools
@@ -334,7 +334,7 @@ Build successes:
 
 * If you’re unsure which platforms and toolchains are supported please use switch ```-S``` to print simple matrix of platform to compiler dependencies.
 ```
-$ python python build.py -S
+$ python build.py -S
 +-------------------------+-----------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
 | Platform                |    ARM    |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  |   GCC_CS  | GCC_CW_EWL | GCC_CW_NEWLIB |
 +-------------------------+-----------+-----------+-----------+-----------+-----------+-----------+------------+---------------+

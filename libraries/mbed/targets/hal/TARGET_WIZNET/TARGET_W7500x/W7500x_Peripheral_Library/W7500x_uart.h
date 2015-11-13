@@ -224,12 +224,32 @@ typedef struct
 /** @addtogroup S_UART_Flags
   * @{
   */
-#define S_UART_FLAG_RXO        ((uint16_t)0x01UL << 3) /*!< RX buffer Overrun   */
-#define S_UART_FLAG_TXO        ((uint16_t)0x01UL << 2) /*!< TX buffer Overrun   */
-#define S_UART_FLAG_RXF        ((uint16_t)0x01UL << 1) /*!< RX buffer Full      */
-#define S_UART_FLAG_TXF        ((uint16_t)0x01UL << 0) /*!< TX buffer Full      */
-#define IS_S_UART_FLAG(FLAG)   (((FLAG) == S_UART_FLAG_RXO) || ((FLAG) == S_UART_FLAG_TXO) || \
-                                ((FLAG) == S_UART_FLAG_RXF) || ((FLAG) == S_UART_FLAG_TXF))
+#define S_UART_STATE_RXO        ((uint16_t)0x01UL << 3) /*!< RX buffer Overrun   */
+#define S_UART_STATE_TXO        ((uint16_t)0x01UL << 2) /*!< TX buffer Overrun   */
+#define S_UART_STATE_RXF        ((uint16_t)0x01UL << 1) /*!< RX buffer Full      */
+#define S_UART_STATE_TXF        ((uint16_t)0x01UL << 0) /*!< TX buffer Full      */
+#define IS_S_UART_STATE(FLAG)   (((FLAG) == S_UART_STATE_RXO) || ((FLAG) == S_UART_STATE_TXO) || \
+                                ((FLAG) == S_UART_STATE_RXF)  || ((FLAG) == S_UART_STATE_TXF))
+/**
+  * @}
+  */
+
+
+/** @addtogroup S_UART_CTRL_Flags
+  * @{
+  */
+
+#define S_UART_CTRL_RXOI        ((uint16_t)0x01UL << 5) /*!< RX overrun interrupt   */
+#define S_UART_CTRL_TXOI        ((uint16_t)0x01UL << 4) /*!< TX overrun interrupt   */
+#define S_UART_CTRL_RXI         ((uint16_t)0x01UL << 3) /*!< RX interrupt           */
+#define S_UART_CTRL_TXI         ((uint16_t)0x01UL << 2) /*!< TX interrupt           */
+#define S_UART_CTRL_RX          ((uint16_t)0x01UL << 1) /*!< RX 			         */
+#define S_UART_CTRL_TX          ((uint16_t)0x01UL << 0) /*!< TX            		 */
+
+
+#define IS_S_UART_CTRL_FLAG(FLAG)   (((FLAG) == S_UART_CTRL_FLAG_RXOI)  || ((FLAG) == S_UART_CTRL_FLAG_TXOI) || \
+                                     ((FLAG) == S_UART_CTRL_FLAG_RXI)   || ((FLAG) == S_UART_CTRL_FLAG_TXI) || \
+									 ((FLAG) == S_UART_CTRL_FLAG_RX)    || ((FLAG) == S_UART_CTRL_FLAG_TX))
 /**
   * @}
   */
@@ -239,13 +259,12 @@ typedef struct
   * @{
   */
 
-#define S_UART_IT_FLAG_RXOI        ((uint16_t)0x01UL << 5) /*!< RX overrun interrupt   */
-#define S_UART_IT_FLAG_TXOI        ((uint16_t)0x01UL << 4) /*!< TX overrun interrupt   */
-#define S_UART_IT_FLAG_RXI         ((uint16_t)0x01UL << 3) /*!< RX interrupt           */
-#define S_UART_IT_FLAG_TXI         ((uint16_t)0x01UL << 2) /*!< TX interrupt           */
-#define IS_S_UART_IT_FLAG(FLAG)   (((FLAG) == S_UART_IT_FLAG_RXOI)  || ((FLAG) == S_UART_IT_FLAG_TXOI) || \
-                                   ((FLAG) == S_UART_IT_FLAG_RXI)   || ((FLAG) == S_UART_IT_FLAG_TXI))
-
+#define S_UART_INTSTATUS_RXOI        ((uint16_t)0x01UL << 3) /*!< RX overrun interrupt   */
+#define S_UART_INTSTATUS_TXOI        ((uint16_t)0x01UL << 2) /*!< TX overrun interrupt   */
+#define S_UART_INTSTATUS_RXI         ((uint16_t)0x01UL << 1) /*!< RX interrupt           */
+#define S_UART_INTSTATUS_TXI         ((uint16_t)0x01UL << 0) /*!< TX interrupt           */
+#define IS_S_UART_INTSTATUS(FLAG)   (((FLAG) == S_UART_INTSTATUS_RXOI)  || ((FLAG) == S_UART_INTSTATUS_TXOI) || \
+									 ((FLAG) == S_UART_INTSTATUS_RXI)   || ((FLAG) == S_UART_INTSTATUS_TXI))
 /**
   * @}
   */
@@ -263,21 +282,26 @@ void        UART_ITConfig           (UART_TypeDef* UARTx, uint16_t UART_IT, Func
 ITStatus    UART_GetITStatus        (UART_TypeDef* UARTx, uint16_t UART_IT);
 void        UART_ClearITPendingBit  (UART_TypeDef* UARTx, uint16_t UART_IT);
 
-
-void S_UART_DeInit(void);
-uint32_t S_UART_Init(uint32_t baud);
-void S_UART_SendData(uint16_t Data);
-uint16_t S_UART_ReceiveData(void);
-
-
-
 uint8_t     UartPutc                (UART_TypeDef* UARTx, uint8_t ch);
 void        UartPuts                (UART_TypeDef* UARTx, uint8_t *str);
 uint8_t     UartGetc                (UART_TypeDef* UARTx);
 
-uint8_t S_UartPutc(uint8_t ch);
-void S_UartPuts(uint8_t *str);
-uint8_t S_UartGetc(void);
+void 		S_UART_DeInit	(void);
+uint32_t 	S_UART_Init		(uint32_t baud);
+void 		S_UART_SetBaud	(uint32_t baud);
+void		S_UART_SetCTRL	(uint16_t S_UART_CTRL, FunctionalState NewState);
+void 		S_UART_SendData	(uint16_t Data);
+uint16_t 	S_UART_ReceiveData(void);
+
+uint8_t 	S_UartPutc	(uint8_t ch);
+void 		S_UartPuts	(uint8_t *str);
+uint8_t 	S_UartGetc	(void);
+
+FlagStatus	S_UART_GetFlagStatus	(uint16_t S_UART_STATE);
+void		S_UART_ITConfig			(uint16_t S_UART_CTRL, FunctionalState NewState);
+
+ITStatus 	S_UART_GetITStatus		(uint16_t S_UART_IT);
+void 		S_UART_ClearITPendingBit(uint16_t S_UART_IT);
 
 
 #ifdef __cplusplus

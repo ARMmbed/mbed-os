@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_sdmmc.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of SDMMC HAL module.
   ******************************************************************************
   * @attention
@@ -42,7 +42,10 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
+    defined(STM32F469xx) || defined(STM32F479xx) 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -792,7 +795,9 @@ typedef struct
   */  
 #define __SDIO_SUSPEND_CMD_DISABLE()   (*(__IO uint32_t *) CMD_SDIOSUSPEND_BB = DISABLE)
 
-#if !defined(STM32F446xx)   
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) 
 /**
   * @brief  Enable the command completion signal.
   * @retval None
@@ -828,7 +833,8 @@ typedef struct
   * @retval None
   */  
 #define __SDIO_CEATA_SENDCMD_DISABLE()   (*(__IO uint32_t *) CMD_ATACMD_BB = DISABLE)
-#endif /* !defined(STM32F446xx)  */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F401xC || STM32F401xE || STM32F411xE ||\
+          STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx  */
 /**
   * @}
   */
@@ -898,7 +904,8 @@ HAL_StatusTypeDef SDIO_SetSDIOReadWaitMode(uint32_t SDIO_ReadWaitMode);
 /**
   * @}
   */
-
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
 #ifdef __cplusplus
 }
 #endif

@@ -27,6 +27,11 @@ DigitalInOut d2(D7);
 DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);
 
+#elif defined(TARGET_NUCLEO_F031K6) || \
+      defined(TARGET_NUCLEO_F042K6)
+DigitalInOut d1(A4);
+DigitalInOut d2(A5);
+
 #elif defined(TARGET_ARCH_MAX) || \
       defined(TARGET_DISCO_F407VG) || \
       defined(TARGET_DISCO_F429ZI)|| \
@@ -58,7 +63,11 @@ DigitalInOut d2(PC1);
 DigitalInOut d1(PE10);
 DigitalInOut d2(PC1);
 
-#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
+DigitalInOut d1(PB02);
+DigitalInOut d2(PB03);
+
+#elif defined(TARGET_SAML21J18A))
 DigitalInOut d1(PA06);
 DigitalInOut d2(PA07);
 

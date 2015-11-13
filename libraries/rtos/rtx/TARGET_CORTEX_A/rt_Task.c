@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    RT_TASK.C
  *      Purpose: Task functions and system start up.
- *      Rev.:    V4.60
+ *      Rev.:    V4.73
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -79,10 +79,12 @@ static void rt_init_context (P_TCB p_TCB, U8 priority, FUNCP task_body) {
   p_TCB->cb_type = TCB;
   p_TCB->state   = READY;
   p_TCB->prio    = priority;
+  p_TCB->prio_base = priority;
   p_TCB->p_lnk   = NULL;
   p_TCB->p_rlnk  = NULL;
   p_TCB->p_dlnk  = NULL;
   p_TCB->p_blnk  = NULL;
+  p_TCB->p_mlnk    = NULL;
   p_TCB->delta_time    = 0;
   p_TCB->interval_time = 0;
   p_TCB->events  = 0;
@@ -101,7 +103,7 @@ static void rt_init_context (P_TCB p_TCB, U8 priority, FUNCP task_body) {
 
 void rt_switch_req (P_TCB p_new) {
   /* Switch to next task (identified by "p_new"). */
-  os_tsk.new   = p_new;
+  os_tsk.new_tsk   = p_new;
   p_new->state = RUNNING;
   DBG_TASK_SWITCH(p_new->task_id);
 }
@@ -188,6 +190,7 @@ OS_RESULT rt_tsk_prio (OS_TID task_id, U8 new_prio) {
   if (task_id == 0) {
     /* Change execution priority of calling task. */
     os_tsk.run->prio = new_prio;
+    os_tsk.run->prio_base = new_prio;
 run:if (rt_rdy_prio() > new_prio) {
       rt_put_prio (&os_rdy, os_tsk.run);
       os_tsk.run->state   = READY;
@@ -203,6 +206,7 @@ run:if (rt_rdy_prio() > new_prio) {
   }
   p_task = os_active_TCB[task_id-1];
   p_task->prio = new_prio;
+  p_task->prio_base = new_prio;
   if (p_task == os_tsk.run) {
     goto run;
   }
@@ -254,12 +258,40 @@ OS_TID rt_tsk_create (FUNCP task, U32 prio_stksz, void *stk, void *argv) {
 OS_RESULT rt_tsk_delete (OS_TID task_id) {
   /* Terminate the task identified with "task_id". */
   P_TCB task_context;
+  P_TCB  p_TCB;
+  P_MUCB p_MCB, p_MCB0;
 
   if (task_id == 0 || task_id == os_tsk.run->task_id) {
     /* Terminate itself. */
     os_tsk.run->state     = INACTIVE;
     os_tsk.run->tsk_stack = rt_get_PSP ();
     rt_stk_check ();
+    p_MCB = os_tsk.run->p_mlnk;
+    while (p_MCB) {
+      /* Release mutexes owned by this task */
+      if (p_MCB->p_lnk) {
+        /* A task is waiting for mutex. */
+        p_TCB = rt_get_first ((P_XCB)p_MCB);
+#ifdef __CMSIS_RTOS
+        rt_ret_val(p_TCB, 0/*osOK*/);
+#else
+        rt_ret_val(p_TCB, OS_R_MUT); 
+#endif
+        rt_rmv_dly (p_TCB);
+        p_TCB->state = READY;
+        rt_put_prio (&os_rdy, p_TCB);
+        /* A waiting task becomes the owner of this mutex. */
+        p_MCB0 = p_MCB;
+        p_MCB->level  = 1;
+        p_MCB->owner  = p_TCB;
+        p_MCB->p_mlnk = p_TCB->p_mlnk;
+        p_TCB->p_mlnk = p_MCB; 
+        p_MCB = p_MCB0->p_mlnk;
+      }
+      else {
+        p_MCB = p_MCB->p_mlnk;
+      }
+    }
     os_active_TCB[os_tsk.run->task_id-1] = NULL;
     rt_free_box (mp_stk, os_tsk.run->stack);
     os_tsk.run->stack = NULL;
@@ -278,11 +310,43 @@ OS_RESULT rt_tsk_delete (OS_TID task_id) {
     task_context = os_active_TCB[task_id-1];
     rt_rmv_list (task_context);
     rt_rmv_dly (task_context);
+    p_MCB = task_context->p_mlnk;
+    while (p_MCB) {
+      /* Release mutexes owned by this task */
+      if (p_MCB->p_lnk) {
+        /* A task is waiting for mutex. */
+        p_TCB = rt_get_first ((P_XCB)p_MCB);
+#ifdef __CMSIS_RTOS
+        rt_ret_val(p_TCB, 0/*osOK*/);
+#else
+        rt_ret_val(p_TCB, OS_R_MUT); 
+#endif
+        rt_rmv_dly (p_TCB);
+        p_TCB->state = READY;
+        rt_put_prio (&os_rdy, p_TCB);
+        /* A waiting task becomes the owner of this mutex. */
+        p_MCB0 = p_MCB;
+        p_MCB->level  = 1;
+        p_MCB->owner  = p_TCB;
+        p_MCB->p_mlnk = p_TCB->p_mlnk;
+        p_TCB->p_mlnk = p_MCB; 
+        p_MCB = p_MCB0->p_mlnk;
+      }
+      else {
+        p_MCB = p_MCB->p_mlnk;
+      }
+    }
     os_active_TCB[task_id-1] = NULL;
     rt_free_box (mp_stk, task_context->stack);
     task_context->stack = NULL;
     DBG_TASK_NOTIFY(task_context, __FALSE);
     rt_free_box (mp_tcb, task_context);
+    if (rt_rdy_prio() > os_tsk.run->prio) {
+      /* Ready task has higher priority than running task. */
+      os_tsk.run->state = READY;
+      rt_put_prio (&os_rdy, os_tsk.run);
+      rt_dispatch (NULL);
+    }
   }
   return (OS_R_OK);
 }

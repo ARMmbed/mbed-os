@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_usb.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of USB Core HAL module.
   ******************************************************************************
   * @attention
@@ -42,7 +42,10 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
+    defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
+    defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
+    defined(STM32F469xx) || defined(STM32F479xx) 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -125,6 +128,8 @@ typedef struct
   uint32_t low_power_enable;     /*!< Enable or disable the low power mode.                                  */
   
   uint32_t lpm_enable;           /*!< Enable or disable Link Power Management.                               */
+
+  uint32_t battery_charging_enable; /*!< Enable or disable Battery charging.                                 */
                           
   uint32_t vbus_sensing_enable;  /*!< Enable or disable the VBUS Sensing feature.                            */ 
 
@@ -452,7 +457,8 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx);
 /**
   * @}
   */
-  
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
 #ifdef __cplusplus
 }
 #endif

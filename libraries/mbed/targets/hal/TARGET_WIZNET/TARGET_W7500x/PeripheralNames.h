@@ -43,7 +43,8 @@ typedef enum {
 
 typedef enum {
     UART_0 = (int)W7500x_UART0_BASE,
-    UART_1 = (int)W7500x_UART1_BASE
+    UART_1 = (int)W7500x_UART1_BASE,
+    UART_2 = (int)W7500x_UART2_BASE
 } UARTName;
 
 

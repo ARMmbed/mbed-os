@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of PWR extension peripheral:           
@@ -122,7 +122,7 @@
           is in power down mode, an additional startup delay is incurred when 
           waking up from Stop mode.
           
-           (+) For STM32F42xxx/43xxx Devices, the scale can be modified only when the PLL 
+           (+) For STM32F42xxx/43xxx/446xx/469xx/479xx Devices, the scale can be modified only when the PLL 
            is OFF and the HSI or HSE clock source is selected as system clock. 
            The new value programmed is active only when the PLL is ON.
            When the PLL is OFF, the voltage scale 3 is automatically selected. 
@@ -131,7 +131,7 @@
     *** Over-Drive and Under-Drive configuration ****
     =================================================
     [..]         
-       (+) For STM32F42xxx/43xxx Devices, in Run mode: the main regulator has
+       (+) For STM32F42xxx/43xxx/446xx/469xx/479xx Devices, in Run mode: the main regulator has
            2 operating modes available:
         (++) Normal mode: The CPU and core logic operate at maximum frequency at a given 
              voltage scaling (scale 1, scale 2 or scale 3)
@@ -141,7 +141,7 @@
             disabled by HAL_PWREx_DisableOverDrive() function, to enter or exit from Over-drive mode please follow 
             the sequence described in Reference manual.
              
-       (+) For STM32F42xxx/43xxx Devices, in Stop mode: the main regulator or low power regulator 
+       (+) For STM32F42xxx/43xxx/446xx/469xx/479xx Devices, in Stop mode: the main regulator or low power regulator 
            supplies a low power voltage to the 1.2V domain, thus preserving the content of registers 
            and internal SRAM. 2 operating modes are available:
          (++) Normal mode: the 1.2V domain is preserved in nominal leakage mode. This mode is only 
@@ -275,7 +275,9 @@ HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling)
 }
 
 #elif defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
-      defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx)
+      defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || \
+      defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || \
+      defined(STM32F479xx) 
 /**
   * @brief Configures the main internal regulator output voltage.
   * @param  VoltageScaling: specifies the regulator output voltage to achieve
@@ -364,10 +366,31 @@ HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling)
 }
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
-#if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE)
+#if defined(STM32F469xx) || defined(STM32F479xx)
+/**
+  * @brief Enables Wakeup Pin Detection on high level (rising edge).
+  * @retval None
+  */
+void HAL_PWREx_EnableWakeUpPinPolarityRisingEdge(void)
+{
+  *(__IO uint32_t *) CSR_WUPP_BB = (uint32_t)DISABLE;
+}
+
+/**
+  * @brief Enables Wakeup Pin Detection on low level (falling edge).
+  * @retval None
+  */
+void HAL_PWREx_EnableWakeUpPinPolarityFallingEdge(void)
+{
+  *(__IO uint32_t *) CSR_WUPP_BB = (uint32_t)ENABLE;
+}
+#endif /* STM32F469xx || STM32F479xx */
+
+#if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
+    defined(STM32F411xE) 
 /**
   * @brief Enables Main Regulator low voltage mode.
-  * @note  This mode is only available for STM32F401xx/STM32F411xx devices.   
+  * @note  This mode is only available for STM32F401xx/STM32F410xx/STM32F411xx devices.   
   * @retval None
   */
 void HAL_PWREx_EnableMainRegulatorLowVoltage(void)
@@ -377,7 +400,7 @@ void HAL_PWREx_EnableMainRegulatorLowVoltage(void)
 
 /**
   * @brief Disables Main Regulator low voltage mode.
-  * @note  This mode is only available for STM32F401xx/STM32F411xx devices. 
+  * @note  This mode is only available for STM32F401xx/STM32F410xx/STM32F411xx devices. 
   * @retval None
   */
 void HAL_PWREx_DisableMainRegulatorLowVoltage(void)
@@ -387,7 +410,7 @@ void HAL_PWREx_DisableMainRegulatorLowVoltage(void)
 
 /**
   * @brief Enables Low Power Regulator low voltage mode.
-  * @note  This mode is only available for STM32F401xx/STM32F411xx devices.   
+  * @note  This mode is only available for STM32F401xx/STM32F410xx/STM32F411xx devices.   
   * @retval None
   */
 void HAL_PWREx_EnableLowRegulatorLowVoltage(void)
@@ -397,7 +420,7 @@ void HAL_PWREx_EnableLowRegulatorLowVoltage(void)
 
 /**
   * @brief Disables Low Power Regulator low voltage mode.
-  * @note  This mode is only available for STM32F401xx/STM32F411xx devices.   
+  * @note  This mode is only available for STM32F401xx/STM32F410xx/STM32F411xx devices.   
   * @retval None
   */
 void HAL_PWREx_DisableLowRegulatorLowVoltage(void)
@@ -405,12 +428,13 @@ void HAL_PWREx_DisableLowRegulatorLowVoltage(void)
   *(__IO uint32_t *) CR_LPLVDS_BB = (uint32_t)DISABLE;
 }
 
-#endif /* STM32F401xC || STM32F401xE || STM32F411xE */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE  */
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /**
   * @brief  Activates the Over-Drive mode.
-  * @note   This function can be used only for STM32F42xx/STM32F43xx devices.
+  * @note   This function can be used only for STM32F42xx/STM32F43xx/STM32F446xx/STM32F469xx/STM32F479xx devices.
   *         This mode allows the CPU and the core logic to operate at a higher frequency
   *         than the normal mode for a given voltage scaling (scale 1, scale 2 or scale 3).   
   * @note   It is recommended to enter or exit Over-drive mode when the application is not running 
@@ -457,7 +481,7 @@ HAL_StatusTypeDef HAL_PWREx_EnableOverDrive(void)
 
 /**
   * @brief  Deactivates the Over-Drive mode.
-  * @note   This function can be used only for STM32F42xx/STM32F43xx devices.
+  * @note   This function can be used only for STM32F42xx/STM32F43xx/STM32F446xx/STM32F469xx/STM32F479xx devices.
   *         This mode allows the CPU and the core logic to operate at a higher frequency
   *         than the normal mode for a given voltage scaling (scale 1, scale 2 or scale 3).    
   * @note   It is recommended to enter or exit Over-drive mode when the application is not running 
@@ -506,7 +530,7 @@ HAL_StatusTypeDef HAL_PWREx_DisableOverDrive(void)
 /**
   * @brief  Enters in Under-Drive STOP mode.
   *  
-  * @note   This mode is only available for STM32F42xxx/STM324F3xxx devices. 
+  * @note   This mode is only available for STM32F42xxx/STM324F3xxx/STM32F446xx/STM32F469xx/STM32F479xx devices. 
   * 
   * @note    This mode can be selected only when the Under-Drive is already active 
   *   
@@ -603,7 +627,7 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
   return HAL_OK;  
 }
 
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 /**
   * @}
   */
