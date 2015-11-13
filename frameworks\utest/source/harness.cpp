@@ -25,7 +25,7 @@ using namespace mbed::test::v0;
 
 namespace
 {
-    const Test *test_specification = NULL;
+    const Case *test_cases = NULL;
     size_t test_length = 0;
 
     size_t test_index_of_case = 0;
@@ -55,17 +55,14 @@ void Harness::set_default_handlers(const handlers_t defaults)
     ::defaults = defaults;
 }
 
-void Harness::run(const Test *const specification,
-                      const size_t length,
-                      const test_set_up_handler_t set_up_handler,
-                      const test_tear_down_handler_t tear_down_handler)
+void Harness::run(const Specification specification)
 {
     util::CriticalSectionLock lock;
 
-    test_specification = specification;
-    test_length = length;
-    handlers.test_set_up = defaults.get_handler(set_up_handler);
-    handlers.test_tear_down = defaults.get_handler(tear_down_handler);
+    test_cases = specification.cases;
+    test_length = specification.length;
+    handlers.test_set_up = defaults.get_handler(specification.set_up_handler);
+    handlers.test_tear_down = defaults.get_handler(specification.tear_down_handler);
 
     test_index_of_case = 0;
     test_passed = 0;
@@ -74,7 +71,7 @@ void Harness::run(const Test *const specification,
     case_passed = 0;
     case_failed = 0;
     case_failed_before = 0;
-    case_current = specification;
+    case_current = test_cases;
 
     if (handlers.test_set_up && (handlers.test_set_up(test_length) != STATUS_CONTINUE)) {
         if (handlers.test_tear_down) handlers.test_tear_down(0, 0, FAILURE_SETUP);
@@ -159,7 +156,7 @@ void Harness::run_next_case()
 {
     util::CriticalSectionLock lock;
 
-    if(case_current != (test_specification + test_length))
+    if(case_current != (test_cases + test_length))
     {
         handlers.case_set_up    = defaults.get_handler(case_current->set_up_handler);
         handlers.case_tear_down = defaults.get_handler(case_current->tear_down_handler);
