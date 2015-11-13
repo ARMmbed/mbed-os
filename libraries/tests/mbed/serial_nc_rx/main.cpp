@@ -7,7 +7,7 @@ int main() {
     MBED_HOSTTEST_DESCRIPTION(Serial NC RX);
     MBED_HOSTTEST_START("MBED_37");
 
-    Serial *pc = new Serial(USBTX, USBRX);
+    Serial *pc = new Serial(NC, USBRX);
 
     char c = pc->getc();
 
