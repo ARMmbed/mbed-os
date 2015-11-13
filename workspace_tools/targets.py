@@ -1622,7 +1622,7 @@ class EFM32PG_STKXXXX(Target):
         Target.__init__(self)
         self.core = "Cortex-M4"
         self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32PG322F64']
+        self.macros = ['EFM32PG1B200F256GM32']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
 
