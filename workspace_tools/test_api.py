@@ -401,15 +401,15 @@ class SingleTestRunner(object):
 
 
             # First pass through all tests and determine which libraries need to be built
-            libraries = set()
+            libraries = []
             for test_id in valid_test_map_keys:
                 test = TEST_MAP[test_id]
 
                 # Detect which lib should be added to test
                 # Some libs have to compiled like RTOS or ETH
                 for lib in LIBRARIES:
-                    if lib['build_dir'] in test.dependencies:
-                        libraries.add(lib['id'])
+                    if lib['build_dir'] in test.dependencies and lib['build_dir'] not in libraries:
+                        libraries.append(lib['id'])
 
 
             build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
