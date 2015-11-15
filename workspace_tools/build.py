@@ -50,6 +50,12 @@ if __name__ == '__main__':
                       default=False,
                       help="Compile the rtos")
 
+    parser.add_option("--rpc",
+                      action="store_true",
+                      dest="rpc",
+                      default=False,
+                      help="Compile the rpc library")
+
     parser.add_option("-e", "--eth",
                       action="store_true", dest="eth",
                       default=False,
@@ -169,6 +175,8 @@ if __name__ == '__main__':
     # Additional Libraries
     if options.rtos:
         libraries.extend(["rtx", "rtos"])
+    if options.rpc:
+        libraries.extend(["rpc"])
     if options.eth:
         libraries.append("eth")
     if options.usb:
