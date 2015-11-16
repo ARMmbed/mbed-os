@@ -1663,9 +1663,6 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
  */
 uint8_t serial_tx_active(serial_t *obj)
 {
-    if(!serial_writable(obj))
-        return false;
-
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         return (obj->serial.periph.leuart->IEN & (LEUART_IEN_TXBL|LEUART_IEN_TXC)) ? true : false;
     } else {
