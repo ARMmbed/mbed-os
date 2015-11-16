@@ -35,6 +35,7 @@ namespace
 
     const Case *case_current = NULL;
     control_flow_t case_control_flow = CONTROL_FLOW_NEXT;
+    size_t case_repeat_count = 0;
 
     minar::callback_handle_t case_timeout_handle = NULL;
 
@@ -120,6 +121,7 @@ void Harness::schedule_next_case()
         case_passed = 0;
         case_failed = 0;
         case_failed_before = 0;
+        case_repeat_count = 0;
     }
     minar::Scheduler::postCallback(run_next_case);
 }
@@ -152,7 +154,7 @@ void Harness::run_next_case()
 {
     util::CriticalSectionLock lock;
 
-    if(case_current != (test_cases + test_length))
+    if(case_current < (test_cases + test_length))
     {
         handlers.case_set_up    = defaults.get_handler(case_current->set_up_handler);
         handlers.case_tear_down = defaults.get_handler(case_current->tear_down_handler);
@@ -179,7 +181,8 @@ void Harness::run_next_case()
             case_control_flow = CONTROL_FLOW_NEXT;
             case_current->handler();
         } else if (case_current->control_flow_handler) {
-            case_control_flow = case_current->control_flow_handler();
+            case_control_flow = case_current->control_flow_handler(case_repeat_count);
+            case_repeat_count++;
         }
 
         if (case_current->timeout_ms >= 0) {
