@@ -40,6 +40,7 @@
 
 #include "dma_api.h"
 #include "dma_api_HAL.h"
+#include "serial_api_HAL.h"
 #include "spi_api.h"
 #include "em_usart.h"
 #include "em_cmu.h"
@@ -117,10 +118,11 @@ static void usart_init(spi_t *obj, uint32_t baudrate, USART_Databits_TypeDef dat
 
     USART_InitSync(obj->spi.spi, &init);
 }
-#ifdef LDMA_PRESENT
+#ifdef _SILICON_LABS_32B_PLATFORM_2
 void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
 {
-    obj->spi.spi = (USART_TypeDef *) pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    obj->spi.spi = serial_uart_allocate(UART_TYPE_USART);
+    MBED_ASSERT(obj->spi.spi);
     SPIName spi_cs = (SPIName) pinmap_peripheral(cs, PinMap_SPI_CS);
     if (cs != NC) { /* Slave mode */
         obj->spi.master = false;

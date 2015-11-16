@@ -124,6 +124,9 @@ int dma_channel_allocate(uint32_t capabilities)
 
 int dma_channel_free(int channelid)
 {
-    channels &= ~(1 << channelid);
+    if( channelid >= 0 ) {
+        channels &= ~(1 << channelid);
+    }
+
     return 0;
 }

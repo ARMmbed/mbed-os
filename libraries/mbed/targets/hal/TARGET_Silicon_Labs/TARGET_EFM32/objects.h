@@ -114,7 +114,12 @@ struct serial_s {
         USART_TypeDef *uart;
         LEUART_TypeDef *leuart;
     } periph;
+#ifndef _SILICON_LABS_32B_PLATFORM_2
     uint32_t location;
+#else
+    uint32_t location_tx;
+    uint32_t location_rx;
+#endif
     PinName rx_pin;
     PinName tx_pin;
 #if DEVICE_SERIAL_ASYNCH
