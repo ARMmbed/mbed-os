@@ -30,8 +30,8 @@ class GCC(mbedToolchain):
     CIRCULAR_DEPENDENCIES = True
     DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path=""):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         if target.core == "Cortex-M0+":
             cpu = "cortex-m0plus"
@@ -179,8 +179,8 @@ class GCC(mbedToolchain):
 
 
 class GCC_ARM(GCC):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        GCC.__init__(self, target, options, notify, macros, silent, GCC_ARM_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        GCC.__init__(self, target, options, notify, macros, silent, GCC_ARM_PATH, extra_verbose=extra_verbose)
 
         # Use latest gcc nanolib
         self.ld.append("--specs=nano.specs")
@@ -193,8 +193,8 @@ class GCC_ARM(GCC):
 
 
 class GCC_CR(GCC):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        GCC.__init__(self, target, options, notify, macros, silent, GCC_CR_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        GCC.__init__(self, target, options, notify, macros, silent, GCC_CR_PATH, extra_verbose=extra_verbose)
 
         additional_compiler_flags = [
             "-D__NEWLIB__", "-D__CODE_RED", "-D__USE_CMSIS", "-DCPP_USE_HEAP",
@@ -210,8 +210,8 @@ class GCC_CR(GCC):
 
 
 class GCC_CS(GCC):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        GCC.__init__(self, target, options, notify, macros, silent, GCC_CS_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        GCC.__init__(self, target, options, notify, macros, silent, GCC_CS_PATH, extra_verbose=extra_verbose)
 
 
 class GCC_CW(GCC):
@@ -219,13 +219,13 @@ class GCC_CW(GCC):
         "Cortex-M0+": "armv6-m",
     }
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        GCC.__init__(self, target, options, notify, macros, silent, CW_GCC_PATH)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        GCC.__init__(self, target, options, notify, macros, silent, CW_GCC_PATH, extra_verbose=extra_verbose)
 
 
 class GCC_CW_EWL(GCC_CW):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        GCC_CW.__init__(self, target, options, notify, macros, silent)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        GCC_CW.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         # Compiler
         common = [
@@ -253,5 +253,5 @@ class GCC_CW_EWL(GCC_CW):
 
 
 class GCC_CW_NEWLIB(GCC_CW):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        GCC_CW.__init__(self, target, options, notify, macros, silent)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        GCC_CW.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
