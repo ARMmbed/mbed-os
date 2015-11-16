@@ -150,6 +150,15 @@ void Harness::validate_callback()
     }
 }
 
+bool Harness::is_busy()
+{
+    util::CriticalSectionLock lock;
+    if (!test_cases)   return false;
+    if (!case_current) return false;
+
+    return (case_current < (test_cases + test_length));
+}
+
 void Harness::run_next_case()
 {
     util::CriticalSectionLock lock;
