@@ -34,6 +34,7 @@
 
 #include "mbed_assert.h"
 #include "serial_api.h"
+#include "serial_api_HAL.h"
 #include <string.h>
 #include <stdbool.h>
 
@@ -65,6 +66,12 @@
 #define LEUART_REF_VALID(ref)    (((ref) == LEUART0) || ((ref) == LEUART1))
 #else
 #error Undefined number of low energy UARTs (LEUART).
+#endif
+
+#ifdef _SILICON_LABS_32B_PLATFORM_2
+static uint8_t leuart0_reserved = 0;
+static uint8_t usart_reserved[USART_COUNT] = { 0, 0 };
+static USART_TypeDef * const usart_map[USART_COUNT] = { USART0, USART1 };
 #endif
 
 /* Store IRQ id for each UART */
@@ -334,8 +341,55 @@ inline CMU_Clock_TypeDef serial_get_clock(serial_t *obj)
     }
 }
 
+#ifdef _SILICON_LABS_32B_PLATFORM_2
+void *serial_uart_allocate(unsigned int uart_type)
+{
+    int i;
+
+    if( uart_type & UART_TYPE_LEUART ) {
+        if( !leuart0_reserved ) {
+            leuart0_reserved = 1;
+            return LEUART0;
+        }
+    }
+
+    if( uart_type & UART_TYPE_USART ) {
+        for( i=0 ; i<USART_COUNT ; i++ ) {
+            if( !usart_reserved[i] ) {
+                usart_reserved[i] = 1;
+                return usart_map[i];
+            }
+        }
+    }
+
+    return NULL;
+}
+
+void serial_uart_free(void *uart)
+{
+    int i;
+
+    for( i=0 ; i<USART_COUNT ; i++ ) {
+        if( usart_map[i] == uart ) {
+            usart_reserved[i] = 0;
+            return;
+        }
+    }
+
+    if( uart == LEUART0 ) {
+        leuart0_reserved = 0;
+        return;
+    }
+
+    MBED_ASSERT(0);
+}
+#endif /* _SILICON_LABS_32B_PLATFORM_2 */
+
 void serial_preinit(serial_t *obj, PinName tx, PinName rx)
 {
+#ifndef _SILICON_LABS_32B_PLATFORM_2
+    /* Older platforms with fixed pin mappings per UART */
+
     /* Get UART object connected to the given pins */
     UARTName uart_tx = (UARTName) pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName) pinmap_peripheral(rx, PinMap_UART_RX);
@@ -351,6 +405,22 @@ void serial_preinit(serial_t *obj, PinName tx, PinName rx)
     /* Check that pins are used by same location for the given UART */
     obj->serial.location = pinmap_merge(uart_tx_loc, uart_rx_loc);
     MBED_ASSERT(obj->serial.location != (uint32_t)NC);
+
+#else
+    /* New platforms with free pin mapping */
+
+    obj->serial.periph.uart = serial_uart_allocate(UART_TYPE_USART);
+    MBED_ASSERT(obj->serial.periph.uart);
+
+    uint32_t uart_tx_loc = pin_location(tx, PinMap_UART_TX);
+    uint32_t uart_rx_loc = pin_location(rx, PinMap_UART_RX);
+
+    MBED_ASSERT((uart_tx_loc != NC) && (uart_rx_loc != NC));
+    MBED_ASSERT(uart_tx_loc != uart_rx_loc);
+
+    obj->serial.location_tx = uart_tx_loc;
+    obj->serial.location_rx = uart_rx_loc;
+#endif
 
     /* Store pins in object for easy disabling in serial_free() */
     obj->serial.rx_pin = rx;
@@ -450,8 +520,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #ifdef _LEUART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.leuart->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
 #else
-        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
-                                               (obj->serial.location << _LEUART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location_tx << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
+                                               (obj->serial.location_rx << _LEUART_ROUTELOC0_RXLOC_SHIFT);
         obj->serial.periph.leuart->ROUTEPEN = LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
 #endif
         obj->serial.periph.leuart->IFC = LEUART_IFC_TXC;
@@ -460,8 +530,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #ifdef _USART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.uart->ROUTE = USART_ROUTE_RXPEN | USART_ROUTE_TXPEN | (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
 #else
-        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location << _USART_ROUTELOC0_TXLOC_SHIFT) |
-                                             (obj->serial.location << _USART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT) |
+                                             (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
         obj->serial.periph.uart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
 #endif
         obj->serial.periph.uart->IFC = USART_IFC_TXC;
@@ -483,6 +553,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->serial.dmaOptionsRX.dmaChannel = -1;
     obj->serial.dmaOptionsRX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
 
+}
+
+void serial_free(serial_t *obj)
+{
+    if( LEUART_REF_VALID(obj->serial.periph.leuart) ) {
+        LEUART_Enable(obj->serial.periph.leuart, leuartDisable);
+    } else {
+        USART_Enable(obj->serial.periph.uart, usartDisable);
+    }
+
+#ifdef _SILICON_LABS_32B_PLATFORM_2
+    serial_uart_free(obj->serial.periph.uart);
+#endif
 }
 
 void serial_enable(serial_t *obj, uint8_t enable)
@@ -601,8 +684,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 #ifdef _LEUART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.leuart->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
 #else
-        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
-                                               (obj->serial.location << _LEUART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location_tx << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
+                                               (obj->serial.location_rx << _LEUART_ROUTELOC0_RXLOC_SHIFT);
         obj->serial.periph.leuart->ROUTEPEN = LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
 #endif
 
@@ -652,8 +735,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 #ifdef _USART_ROUTE_LOCATION_SHIFT
         obj->serial.periph.uart->ROUTE = USART_ROUTE_RXPEN | USART_ROUTE_TXPEN | (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
 #else
-        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location << _USART_ROUTELOC0_TXLOC_SHIFT) |
-                                             (obj->serial.location << _USART_ROUTELOC0_RXLOC_SHIFT);
+        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT) |
+                                             (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
         obj->serial.periph.uart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
 #endif
 

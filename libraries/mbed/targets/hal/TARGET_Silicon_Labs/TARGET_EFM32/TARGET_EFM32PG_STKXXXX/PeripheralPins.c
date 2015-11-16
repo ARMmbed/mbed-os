@@ -494,9 +494,9 @@ const PinMap PinMap_SPI_CS[] = {
 /************UART**************/
 const PinMap PinMap_UART_TX[] = {
 
-    // Pearl ok
+    /* USART0, USART1, LEUART0. Pinmaps are identical
+       so peripheral selection is dynamic */
 
-    /* USART0 */
     {PA0,  USART_0,  0},
     {PA1,  USART_0,  1},
     {PA2,  USART_0,  2},
@@ -530,18 +530,14 @@ const PinMap PinMap_UART_TX[] = {
     {PF6,  USART_0, 30},
     {PF7,  USART_0, 31},
 
-    /* USART1, LEUART0, LEUART1 excluded as they can not
-       be selected through the Mbed API since their
-       pin maps completely overlap each other - FIXME */
-
     {NC  , NC   , NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
 
-    // Pearl ok
+    /* USART0, USART1, LEUART0. Pinmaps are identical
+       so peripheral selection is dynamic */
 
-    /* USART0 */
     {PA1,  USART_0,  0},
     {PA2,  USART_0,  1},
     {PA3,  USART_0,  2},
@@ -574,10 +570,6 @@ const PinMap PinMap_UART_RX[] = {
     {PF6,  USART_0, 29},
     {PF7,  USART_0, 30},
     {PA0,  USART_0, 31},
-
-    /* USART1, LEUART0, LEUART1 excluded as they can not
-       be selected through the Mbed API since their
-       pin maps completely overlap each other - FIXME */
 
     {NC  , NC   , NC}
 };
