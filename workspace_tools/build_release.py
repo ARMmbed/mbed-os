@@ -27,6 +27,7 @@ sys.path.insert(0, ROOT)
 from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.build_api import write_build_report
 from workspace_tools.targets import TARGET_MAP
+from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
@@ -141,15 +142,13 @@ if __name__ == '__main__':
 
     parser.add_option("-p", "--platforms", dest="platforms", default="", help="Build only for the platform namesseparated by comma")
 
-    parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an html file")
+    parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an junit xml file")
 
 
     options, args = parser.parse_args()
     start = time()
-    failures = []
-    successes = []
-    skips = []
-    build_report = []
+    report = {}
+    properties = {}
 
     platforms = None
     if options.platforms != "":
@@ -170,46 +169,24 @@ if __name__ == '__main__':
             toolchainSet = set(toolchains)
             toolchains = toolchainSet and set((options.toolchains).split(','))
 
-
-        cur_target_build_report = { "target": target_name, "passing": [], "failing": [], "skipped": []}
-
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
+
             try:
-                built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs)
-
-                if built_mbed_lib:
-                    successes.append(id)
-                    cur_target_build_report["passing"].append({ "toolchain": toolchain })
-                else:
-                    skips.append(id)
-                    cur_target_build_report["skipped"].append({ "toolchain": toolchain })
-
+                built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs, report=report, properties=properties)
 
             except Exception, e:
-                failures.append(id)
-                cur_target_build_report["failing"].append({ "toolchain": toolchain })
-                print e
-
-        if len(toolchains) > 0:
-            build_report.append(cur_target_build_report)
+                print str(e)
 
     # Write summary of the builds
-
     if options.report_build_file_name:
-        write_build_report(build_report, 'library_build/report.html', options.report_build_file_name)
+        file_report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
+        file_report_exporter.report_to_file(report, options.report_build_file_name, test_suite_properties=properties)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
-    if successes:
-        print "\n\nBuild successes:"
-        print "\n".join(["  * %s" % s for s in successes])
+    print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
+    status = print_report_exporter.report(report)
 
-    if skips:
-        print "\n\nBuild skips:"
-        print "\n".join(["  * %s" % s for s in skips])
-
-    if failures:
-        print "\n\nBuild failures:"
-        print "\n".join(["  * %s" % f for f in failures])
+    if not status:
         sys.exit(1)

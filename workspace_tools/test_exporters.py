@@ -23,7 +23,8 @@ from workspace_tools.utils import construct_enum
 ResultExporterType = construct_enum(HTML='Html_Exporter',
                                     JUNIT='JUnit_Exporter',
                                     JUNIT_OPER='JUnit_Exporter_Interoperability',
-                                    BUILD='Build_Exporter')
+                                    BUILD='Build_Exporter',
+                                    PRINT='Print_Exporter')
 
 
 class ReportExporter():
@@ -35,11 +36,11 @@ class ReportExporter():
     u'uARM': {   u'LPC1768': {   'MBED_2': {   0: {   'copy_method': 'shutils.copy()',
                                                       'duration': 20,
                                                       'elapsed_time': 1.7929999828338623,
-                                                      'single_test_output': 'Host test instrumentation on ...\r\n',
-                                                      'single_test_result': 'OK',
+                                                      'output': 'Host test instrumentation on ...\r\n',
+                                                      'result': 'OK',
                                                       'target_name': u'LPC1768',
-                                                      'test_description': 'stdio',
-                                                      'test_id': u'MBED_2',
+                                                      'description': 'stdio',
+                                                      'id': u'MBED_2',
                                                       'toolchain_name': u'uARM'}},
     """
     CSS_STYLE = """<style>
@@ -67,8 +68,9 @@ class ReportExporter():
                  </script>
                  """
 
-    def __init__(self, result_exporter_type):
+    def __init__(self, result_exporter_type, package="test"):
         self.result_exporter_type = result_exporter_type
+        self.package = package
 
     def report(self, test_summary_ext, test_suite_properties=None):
         """ Invokes report depending on exporter_type set in constructor
@@ -82,6 +84,9 @@ class ReportExporter():
         elif self.result_exporter_type == ResultExporterType.JUNIT_OPER:
             # JUNIT exporter for interoperability test
             return self.exporter_junit_ioper(test_summary_ext, test_suite_properties)
+        elif self.result_exporter_type == ResultExporterType.PRINT:
+            # JUNIT exporter for interoperability test
+            return self.exporter_print(test_summary_ext)
         return None
 
     def report_to_file(self, test_summary_ext, file_name, test_suite_properties=None):
@@ -111,8 +116,8 @@ class ReportExporter():
                          'OTHER': 'LightGray',
                         }
 
-        tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['test_id'], test_no)
-        background_color = RESULT_COLORS[test['single_test_result'] if test['single_test_result'] in RESULT_COLORS else 'OTHER']
+        tooltip_name = self.get_tooltip_name(test['toolchain_name'], test['target_name'], test['id'], test_no)
+        background_color = RESULT_COLORS[test['result'] if test['result'] in RESULT_COLORS else 'OTHER']
         result_div_style = "background-color: %s"% background_color
 
         result = """<div class="name" style="%s" onmouseover="show(%s)" onmouseout="hide(%s)">
@@ -130,12 +135,12 @@ class ReportExporter():
                  """% (result_div_style,
                        tooltip_name,
                        tooltip_name,
-                       test['single_test_result'],
+                       test['result'],
                        tooltip_name,
                        test['target_name_unique'],
-                       test['test_description'],
+                       test['description'],
                        test['elapsed_time'],
-                       test['single_test_output'].replace('\n', '<br />'))
+                       test['output'].replace('\n', '<br />'))
         return result
 
     def get_result_tree(self, test_results):
@@ -160,11 +165,11 @@ class ReportExporter():
             We need this to create complete list of all test ran.
         """
         result = []
-        toolchains = test_result_ext.keys()
-        for toolchain in toolchains:
-            targets = test_result_ext[toolchain].keys()
-            for target in targets:
-                tests = test_result_ext[toolchain][target].keys()
+        targets = test_result_ext.keys()
+        for target in targets:
+            toolchains = test_result_ext[target].keys()
+            for toolchain in toolchains:
+                tests = test_result_ext[target][toolchain].keys()
                 result.extend(tests)
         return sorted(list(set(result)))
 
@@ -185,15 +190,15 @@ class ReportExporter():
                  """% (self.CSS_STYLE, self.JAVASCRIPT)
 
         unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
-        toolchains = sorted(test_result_ext.keys())
+        targets = sorted(test_result_ext.keys())
         result += '<table><tr>'
-        for toolchain in toolchains:
-            targets = sorted(test_result_ext[toolchain].keys())
-            for target in targets:
+        for target in targets:
+            toolchains = sorted(test_result_ext[target].keys())
+            for toolchain in toolchains:
                 result += '<td></td>'
                 result += '<td></td>'
 
-                tests = sorted(test_result_ext[toolchain][target].keys())
+                tests = sorted(test_result_ext[target][toolchain].keys())
                 for test in unique_test_ids:
                     result += """<td align="center">%s</td>"""% test
                 result += """</tr>
@@ -203,7 +208,7 @@ class ReportExporter():
                           """% (toolchain, target)
 
                 for test in unique_test_ids:
-                    test_result = self.get_result_tree(test_result_ext[toolchain][target][test]) if test in tests else ''
+                    test_result = self.get_result_tree(test_result_ext[target][toolchain][test]) if test in tests else ''
                     result += '<td>%s</td>'% (test_result)
 
                 result += '</tr>'
@@ -233,6 +238,8 @@ class ReportExporter():
                     tc.add_failure_info(description, _stdout)
                 elif result == 'ERROR':
                     tc.add_error_info(description, _stdout)
+                elif result == 'SKIP':
+                    tc.add_skipped_info(description, _stdout)
 
                 test_cases.append(tc)
             ts = TestSuite("test.suite.ioper.%s" % (platform), test_cases)
@@ -246,34 +253,90 @@ class ReportExporter():
         test_suites = []
         test_cases = []
 
-        toolchains = sorted(test_result_ext.keys())
-        for toolchain in toolchains:
-            targets = sorted(test_result_ext[toolchain].keys())
-            for target in targets:
+        targets = sorted(test_result_ext.keys())
+        for target in targets:
+            toolchains = sorted(test_result_ext[target].keys())
+            for toolchain in toolchains:
                 test_cases = []
-                tests = sorted(test_result_ext[toolchain][target].keys())
+                tests = sorted(test_result_ext[target][toolchain].keys())
                 for test in tests:
-                    test_results = test_result_ext[toolchain][target][test]
+                    test_results = test_result_ext[target][toolchain][test]
                     for test_res in test_results:
                         test_ids = sorted(test_res.keys())
                         for test_no in test_ids:
                             test_result = test_res[test_no]
-                            name = test_result['test_description']
-                            classname = 'test.%s.%s.%s'% (target, toolchain, test_result['test_id'])
+                            name = test_result['description']
+                            classname = '%s.%s.%s.%s'% (self.package, target, toolchain, test_result['id'])
                             elapsed_sec = test_result['elapsed_time']
-                            _stdout = test_result['single_test_output']
-                            _stderr = test_result['target_name_unique']
+                            _stdout = test_result['output']
+
+                            if 'target_name_unique' in test_result:
+                                _stderr = test_result['target_name_unique']
+                            else:
+                                _stderr = test_result['target_name']
+
                             # Test case
                             tc = TestCase(name, classname, elapsed_sec, _stdout, _stderr)
+
                             # Test case extra failure / error info
-                            if test_result['single_test_result'] == 'FAIL':
-                                message = test_result['single_test_result']
+                            message = test_result['result']
+                            if test_result['result'] == 'FAIL':
                                 tc.add_failure_info(message, _stdout)
-                            elif test_result['single_test_result'] != 'OK':
-                                message = test_result['single_test_result']
+                            elif test_result['result'] == 'SKIP':
+                                tc.add_skipped_info(message, _stdout)
+                            elif test_result['result'] != 'OK':
                                 tc.add_error_info(message, _stdout)
 
                             test_cases.append(tc)
+
                 ts = TestSuite("test.suite.%s.%s"% (target, toolchain), test_cases, properties=test_suite_properties[target][toolchain])
                 test_suites.append(ts)
         return TestSuite.to_xml_string(test_suites)
+
+    def exporter_print_helper(self, array):
+        for item in array:
+            print "  * %s::%s::%s" % (item["target_name"], item["toolchain_name"], item["id"])
+
+    def exporter_print(self, test_result_ext):
+        """ Export test results in print format.
+        """
+        failures = []
+        skips = []
+        successes = []
+
+        unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
+        targets = sorted(test_result_ext.keys())
+
+        for target in targets:
+            toolchains = sorted(test_result_ext[target].keys())
+            for toolchain in toolchains:
+                tests = sorted(test_result_ext[target][toolchain].keys())
+                for test in tests:
+                    test_runs = test_result_ext[target][toolchain][test]
+                    for test_runner in test_runs:
+                        #test_run = test_result_ext[target][toolchain][test][test_run_number][0]
+                        test_run = test_runner[0]
+
+                        if test_run["result"] == "FAIL":
+                            failures.append(test_run)
+                        elif test_run["result"] == "SKIP":
+                            skips.append(test_run)
+                        elif test_run["result"] == "OK":
+                            successes.append(test_run)
+                        else:
+                            raise Exception("Unhandled result type: %s" % (test_run["result"]))
+
+        if successes:
+            print "\n\nBuild successes:"
+            self.exporter_print_helper(successes)
+
+        if skips:
+            print "\n\nBuild skips:"
+            self.exporter_print_helper(skips)
+
+        if failures:
+            print "\n\nBuild failures:"
+            self.exporter_print_helper(failures)
+            return False
+        else:
+            return True

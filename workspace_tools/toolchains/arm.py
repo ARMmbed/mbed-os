@@ -30,8 +30,8 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -118,10 +118,10 @@ class ARM(mbedToolchain):
                     match.group('line'),
                     match.group('message')
                 )
-                
+
     def get_dep_opt(self, dep_path):
         return ["--depend", dep_path]
-        
+
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
 
@@ -149,8 +149,8 @@ class ARM(mbedToolchain):
         self.default_cmd(args)
 
 class ARM_STD(ARM):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        ARM.__init__(self, target, options, notify, macros, silent)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
         self.cc   += ["-D__ASSERT_MSG"]
         self.cppc += ["-D__ASSERT_MSG"]
         self.ld.append("--libpath=%s" % ARM_LIB)
@@ -159,8 +159,8 @@ class ARM_STD(ARM):
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        ARM.__init__(self, target, options, notify, macros, silent)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         # Compiler
         self.asm  += ["-D__MICROLIB"]
