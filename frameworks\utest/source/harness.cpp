@@ -58,8 +58,8 @@ void Harness::run(const Specification specification)
     test_cases = specification.cases;
     test_length = specification.length;
     defaults = specification.defaults;
-    handlers.test_set_up = defaults.get_handler(specification.set_up_handler);
-    handlers.test_tear_down = defaults.get_handler(specification.tear_down_handler);
+    handlers.test_setup = defaults.get_handler(specification.setup_handler);
+    handlers.test_teardown = defaults.get_handler(specification.teardown_handler);
 
     test_index_of_case = 0;
     test_passed = 0;
@@ -70,8 +70,8 @@ void Harness::run(const Specification specification)
     case_failed_before = 0;
     case_current = test_cases;
 
-    if (handlers.test_set_up && (handlers.test_set_up(test_length) != STATUS_CONTINUE)) {
-        if (handlers.test_tear_down) handlers.test_tear_down(0, 0, FAILURE_SETUP);
+    if (handlers.test_setup && (handlers.test_setup(test_length) != STATUS_CONTINUE)) {
+        if (handlers.test_teardown) handlers.test_teardown(0, 0, FAILURE_SETUP);
         die();
     }
 
@@ -88,17 +88,17 @@ void Harness::raise_failure(failure_t reason)
     if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
 
     if (fail_status != STATUS_CONTINUE || reason == FAILURE_SETUP) {
-        if (handlers.case_tear_down && reason != FAILURE_TEARDOWN) {
-            status_t teardown_status = handlers.case_tear_down(case_current, case_passed, case_failed, reason);
+        if (handlers.case_teardown && reason != FAILURE_TEARDOWN) {
+            status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, reason);
             if (teardown_status != STATUS_CONTINUE) {
                 raise_failure(FAILURE_TEARDOWN);
             }
-            else handlers.case_tear_down = NULL;
+            else handlers.case_teardown = NULL;
         }
     }
     if (fail_status != STATUS_CONTINUE) {
         test_failed++;
-        if (handlers.test_tear_down) handlers.test_tear_down(test_passed, test_failed, reason);
+        if (handlers.test_teardown) handlers.test_teardown(test_passed, test_failed, reason);
         die();
     }
 }
@@ -108,8 +108,8 @@ void Harness::schedule_next_case()
     if (case_failed_before == case_failed) case_passed++;
 
     if(case_control_flow == CONTROL_FLOW_NEXT) {
-        if (handlers.case_tear_down &&
-            (handlers.case_tear_down(case_current, case_passed, case_failed,
+        if (handlers.case_teardown &&
+            (handlers.case_teardown(case_current, case_passed, case_failed,
                                      case_failed ? FAILURE_CASES : FAILURE_NONE) != STATUS_CONTINUE)) {
             raise_failure(FAILURE_TEARDOWN);
         }
@@ -165,8 +165,8 @@ void Harness::run_next_case()
 
     if(case_current < (test_cases + test_length))
     {
-        handlers.case_set_up    = defaults.get_handler(case_current->set_up_handler);
-        handlers.case_tear_down = defaults.get_handler(case_current->tear_down_handler);
+        handlers.case_setup    = defaults.get_handler(case_current->setup_handler);
+        handlers.case_teardown = defaults.get_handler(case_current->teardown_handler);
         handlers.case_failure   = defaults.get_handler(case_current->failure_handler);
 
         if (case_current->is_empty()) {
@@ -177,7 +177,7 @@ void Harness::run_next_case()
 
         if (!case_failed && !case_passed) {
             size_t index = test_index_of_case++;
-            if (handlers.case_set_up && (handlers.case_set_up(case_current, index) != STATUS_CONTINUE)) {
+            if (handlers.case_setup && (handlers.case_setup(case_current, index) != STATUS_CONTINUE)) {
                 raise_failure(FAILURE_SETUP);
                 schedule_next_case();
                 return;
@@ -204,8 +204,8 @@ void Harness::run_next_case()
             schedule_next_case();
         }
     }
-    else if (handlers.test_tear_down) {
-        handlers.test_tear_down(test_passed, test_failed, test_failed ? FAILURE_CASES : FAILURE_NONE);
+    else if (handlers.test_teardown) {
+        handlers.test_teardown(test_passed, test_failed, test_failed ? FAILURE_CASES : FAILURE_NONE);
         die();
     }
 }
