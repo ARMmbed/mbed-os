@@ -27,23 +27,12 @@
  */
 #include "cmsis.h"
 
-extern int stdio_uart_inited;
-
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init() {
-    /* Configure the Cube driver */
-    SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
-
-    HAL_Init();
-
-    /* Configure the System clock source, PLL Multiplier and Divider factors,
-       AHB/APBx prescalers and Flash settings */
-    SetSysClock();
-
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
 
-    // reset serial next time it is called, now that system clock is set
-    stdio_uart_inited = 0;
+    // Need to restart HAL driver after the RAM is initialized
+    HAL_Init();
 
 }

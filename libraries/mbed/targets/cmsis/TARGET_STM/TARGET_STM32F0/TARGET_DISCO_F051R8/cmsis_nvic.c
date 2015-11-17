@@ -27,31 +27,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */ 
+ */
 #include "cmsis_nvic.h"
 
 #define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
+int NVIC_vtor_remap = 0; // To keep track that the vectors remap is done
+
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     int i;
-    // To keep track that the vectors remap is done
-    static volatile uint32_t vtor_remap = 0;
-    // Space for dynamic vectors, initialised to allocate in R/W
-    static volatile uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
     
     // Copy and switch to dynamic vectors if first time called
-    if (vtor_remap == 0) {
-      uint32_t *old_vectors = (uint32_t *)NVIC_FLASH_VECTOR_ADDRESS;
-      for (i = 0; i < NVIC_NUM_VECTORS; i++) {    
-          vectors[i] = old_vectors[i];
-      }
-      SYSCFG->CFGR1 |= 0x03; // Embedded SRAM mapped at 0x00000000
-      vtor_remap = 1; // The vectors remap is done
+    if (NVIC_vtor_remap == 0) {
+        uint32_t *old_vectors = (uint32_t *)NVIC_FLASH_VECTOR_ADDRESS;
+        for (i = 0; i < NVIC_NUM_VECTORS; i++) {
+            *((uint32_t *)(NVIC_RAM_VECTOR_ADDRESS + (i*4))) = old_vectors[i];
+        }
+        SYSCFG->CFGR1 |= 0x03; // Embedded SRAM mapped at 0x00000000
+        NVIC_vtor_remap = 1; // The vectors remap is done
     }
 
     // Set the vector
-    vectors[IRQn + 16] = vector;
+    *((uint32_t *)(NVIC_RAM_VECTOR_ADDRESS + (IRQn*4) + (NVIC_USER_IRQ_OFFSET*4))) = vector;
 }
 
 uint32_t NVIC_GetVector(IRQn_Type IRQn) {
