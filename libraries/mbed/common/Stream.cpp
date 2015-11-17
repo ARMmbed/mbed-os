@@ -108,4 +108,16 @@ int Stream::scanf(const char* format, ...) {
     return r;
 }
 
+int Stream::vprintf(const char* format, va_list args) {
+    fflush(_file);
+    int r = vfprintf(_file, format, args);
+    return r;
+}
+
+int Stream::vscanf(const char* format, va_list args) {
+    fflush(_file);
+    int r = vfscanf(_file, format, args);
+    return r;
+}
+
 } // namespace mbed
