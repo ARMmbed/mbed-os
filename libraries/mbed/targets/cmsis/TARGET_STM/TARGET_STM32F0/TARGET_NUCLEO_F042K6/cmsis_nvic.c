@@ -44,7 +44,7 @@ void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
         for (i = 0; i < NVIC_NUM_VECTORS; i++) {
             *((uint32_t *)(NVIC_RAM_VECTOR_ADDRESS + (i*4))) = old_vectors[i];
         }
-        SYSCFG->CFGR1 |= 0x03; // Embedded SRAM mapped at 0x00000000
+        SYSCFG->CFGR1 |= SYSCFG_CFGR1_MEM_MODE; // Embedded SRAM mapped at 0x00000000
         NVIC_vtor_remap = 1; // The vectors remap is done
     }
 
