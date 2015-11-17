@@ -82,7 +82,6 @@
   */
 
 #include "stm32f0xx.h"
-#include "hal_tick.h"
 /**
   * @}
   */
@@ -237,9 +236,6 @@ void SystemInit(void)
      AHB/APBx prescalers and Flash settings */
   SetSysClock();
 
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;
 }
 
 /**
