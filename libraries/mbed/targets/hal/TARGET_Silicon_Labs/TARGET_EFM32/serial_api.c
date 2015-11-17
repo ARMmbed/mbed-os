@@ -1693,14 +1693,14 @@ int serial_irq_handler_asynch(serial_t *obj)
             }
         }else{
             if(obj->serial.periph.uart->IEN & USART_IEN_TXC){
-                USART_IntDisable(obj->serial.periph.leuart,USART_IEN_TXC);
+                USART_IntDisable(obj->serial.periph.uart,USART_IEN_TXC);
                 /* Clean up */
                 serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
                 serial_tx_abort_asynch(obj);
                 /* Notify CPP land of completion */
                 return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
             }else{
-                USART_IntEnable(obj->serial.periph.leuart,USART_IEN_TXC);
+                USART_IntEnable(obj->serial.periph.uart,USART_IEN_TXC);
             }
         }
     } else {
