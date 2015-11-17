@@ -21,30 +21,6 @@
 
 using namespace mbed::test::v0;
 
-const char* failureToString(failure_t failure)
-{
-    switch(failure)
-    {
-        case FAILURE_NONE:
-            return "No Failure";
-        case FAILURE:
-            return "Unspecified Failure";
-        case FAILURE_CASES:
-            return "Test Cases Failed";
-        case FAILURE_EMPTY_CASE:
-            return "Test Case is Empty";
-        case FAILURE_SETUP:
-            return "Setup Failed";
-        case FAILURE_TEARDOWN:
-            return "Teardown Failed";
-        case FAILURE_TIMEOUT:
-            return "Timed Out";
-        case FAILURE_ASSERTION:
-            return "Assertion Failed";
-    }
-    return "Unknown Failure";
-}
-
 status_t mbed::test::v0::verbose_test_setup_handler(const size_t number_of_cases)
 {
     printf(">>> Running %u test cases...\n", number_of_cases);
@@ -57,7 +33,7 @@ void mbed::test::v0::verbose_test_teardown_handler(const size_t passed, const si
     if (failure == FAILURE_NONE) {
         printf("\n");
     } else  {
-        printf(" with reason '%s'\n", failureToString(failure));
+        printf(" with reason '%s'\n", stringify(failure));
     }
     if (failed) printf(">>> TESTS FAILED!\n");
 }
@@ -74,7 +50,7 @@ status_t mbed::test::v0::verbose_case_teardown_handler(const Case *const source,
     if (failure == FAILURE_NONE) {
         printf("\n");
     } else  {
-        printf(" with reason '%s'\n", failureToString(failure));
+        printf(" with reason '%s'\n", stringify(failure));
     }
     return STATUS_CONTINUE;
 }
@@ -84,7 +60,7 @@ status_t mbed::test::v0::verbose_case_failure_handler(const Case *const /*source
     if (reason == FAILURE_ASSERTION) {
         printf("\n");
     } else {
-        printf(">>> failed with reason '%s'\n", failureToString(reason));
+        printf(">>> failed with reason '%s'\n", stringify(reason));
     }
     return (reason == FAILURE_TEARDOWN) ? STATUS_ABORT : STATUS_CONTINUE;
 }
