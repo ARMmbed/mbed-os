@@ -57,9 +57,7 @@ status_t mbed::test::v0::verbose_case_teardown_handler(const Case *const source,
 
 status_t mbed::test::v0::verbose_case_failure_handler(const Case *const /*source*/, const failure_t reason)
 {
-    if (reason == FAILURE_ASSERTION) {
-        printf("\n");
-    } else {
+    if (reason != FAILURE_ASSERTION) {
         printf(">>> failed with reason '%s'\n", stringify(reason));
     }
     return (reason == FAILURE_TEARDOWN) ? STATUS_ABORT : STATUS_CONTINUE;
