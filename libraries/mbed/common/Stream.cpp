@@ -15,8 +15,6 @@
  */
 #include "Stream.h"
 
-#include <cstdarg>
-
 namespace mbed {
 
 Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
@@ -91,7 +89,7 @@ off_t Stream::flen() {
 }
 
 int Stream::printf(const char* format, ...) {
-    std::va_list arg;
+    va_list arg;
     va_start(arg, format);
     fflush(_file);
     int r = vfprintf(_file, format, arg);
@@ -100,7 +98,7 @@ int Stream::printf(const char* format, ...) {
 }
 
 int Stream::scanf(const char* format, ...) {
-    std::va_list arg;
+    va_list arg;
     va_start(arg, format);
     fflush(_file);
     int r = vfscanf(_file, format, arg);

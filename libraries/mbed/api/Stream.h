@@ -18,6 +18,7 @@
 
 #include "platform.h"
 #include "FileLike.h"
+#include "stdarg.h"
 
 namespace mbed {
 
