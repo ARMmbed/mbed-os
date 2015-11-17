@@ -583,7 +583,7 @@ TESTS = [
         "id": "MBED_36", "description": "WFI correct behavior",
         "source_dir": join(TEST_DIR, "mbed", "wfi"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True
+        "automated": False
     },
     {
         "id": "MBED_37", "description": "Serial NC RX",
@@ -1049,7 +1049,7 @@ TESTS = [
         "automated": True,
         #"host_test" : "detect_auto",
     },
-	
+
 ]
 
 # Group tests with the same goals into categories
