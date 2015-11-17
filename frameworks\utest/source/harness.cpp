@@ -34,7 +34,7 @@ namespace
     size_t test_failed = 0;
 
     const Case *case_current = NULL;
-    control_flow_t case_control_flow = CONTROL_FLOW_NEXT;
+    control_t case_control = control_t();
     size_t case_repeat_count = 0;
 
     minar::callback_handle_t case_timeout_handle = NULL;
@@ -107,16 +107,19 @@ void Harness::schedule_next_case()
 {
     if (case_failed_before == case_failed) case_passed++;
 
-    if(case_control_flow == CONTROL_FLOW_NEXT) {
+    if(case_control.repeat != REPEAT_CASE_ONLY) {
         if (handlers.case_teardown &&
             (handlers.case_teardown(case_current, case_passed, case_failed,
                                      case_failed ? FAILURE_CASES : FAILURE_NONE) != STATUS_CONTINUE)) {
             raise_failure(FAILURE_TEARDOWN);
         }
+    }
 
+    if(case_control.repeat == REPEAT_NO_REPEAT) {
         if (case_failed > 0) test_failed++;
         else test_passed++;
 
+        case_control = control_t();
         case_current++;
         case_passed = 0;
         case_failed = 0;
@@ -167,7 +170,7 @@ void Harness::run_next_case()
     {
         handlers.case_setup    = defaults.get_handler(case_current->setup_handler);
         handlers.case_teardown = defaults.get_handler(case_current->teardown_handler);
-        handlers.case_failure   = defaults.get_handler(case_current->failure_handler);
+        handlers.case_failure  = defaults.get_handler(case_current->failure_handler);
 
         if (case_current->is_empty()) {
             raise_failure(FAILURE_EMPTY_CASE);
@@ -175,9 +178,9 @@ void Harness::run_next_case()
             return;
         }
 
-        if (!case_failed && !case_passed) {
-            size_t index = test_index_of_case++;
-            if (handlers.case_setup && (handlers.case_setup(case_current, index) != STATUS_CONTINUE)) {
+        if ((!case_failed && !case_passed) || case_control.repeat == REPEAT_ALL) {
+            if (case_control.repeat == REPEAT_NO_REPEAT) test_index_of_case++;
+            if (handlers.case_setup && (handlers.case_setup(case_current, test_index_of_case) != STATUS_CONTINUE)) {
                 raise_failure(FAILURE_SETUP);
                 schedule_next_case();
                 return;
@@ -187,16 +190,17 @@ void Harness::run_next_case()
         case_failed_before = case_failed;
 
         if (case_current->handler) {
-            case_control_flow = CONTROL_FLOW_NEXT;
             case_current->handler();
-        } else if (case_current->control_flow_handler) {
-            case_control_flow = case_current->control_flow_handler(case_repeat_count);
-            case_repeat_count++;
+        } else if (case_current->control_handler) {
+            case_control = case_current->control_handler();
+        } else if (case_current->repeat_count_handler) {
+            case_control = case_current->repeat_count_handler(case_repeat_count);
         }
+        case_repeat_count++;
 
-        if (case_current->timeout_ms > 0) {
+        if (case_control.timeout > 0) {
             case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
-                                            .delay(minar::milliseconds(case_current->timeout_ms))
+                                            .delay(minar::milliseconds(case_control.timeout))
                                             .getHandle();
         }
         else {
