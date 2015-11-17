@@ -69,6 +69,49 @@ def abort_build(args):
     finish_command('abort-build', r)
 
 def add_project_runs(args):
+    '''
+    -------------------------------------
+    Notes on 'project_run_data' structure:
+    --------------------------------------
+        'projectRuns' - Tree structure used to keep track of what projects have
+            been logged in different report files. The tree is organized as follows:
+
+            'projectRuns': {                - Root element of tree
+
+                'hostOs': {                 - Host OS on which project was built/tested
+                                                - ex. windows, linux, or mac
+
+                    'platform': {           - Platform for which project was built/tested
+                                              (Corresponds to platform names in targets.py)
+                                                - ex. K64F, LPC1768, NRF51822, etc.
+
+                        'toolchain': {      - Toolchain with which project was built/tested
+                                              (Corresponds to TOOLCHAIN_CLASSES names in toolchains/__init__.py)
+                                                - ex. ARM, uARM, GCC_ARM, etc.
+
+                            'project': {    - Project that was build/tested
+                                              (Corresponds to test id in tests.py or library id in libraries.py)
+                                                - For tests, ex. MBED_A1, MBED_11, DTCT_1 etc.
+                                                - For libraries, ex. MBED, RTX, RTOS, etc.
+
+                            },
+                            ...
+                        },
+                        ...
+                    },
+                    ...
+                }
+            }
+
+        'platforms_set' - Set of all the platform names mentioned in the given report files
+
+        'toolchains_set' - Set of all the toolchain names mentioned in the given report files
+
+        'names_set' - Set of all the project names mentioned in the given report files
+
+        'hostOses_set' - Set of all the host names given (only given by the command line arguments)
+    '''
+
     project_run_data = {}
     project_run_data['projectRuns'] = {}
     project_run_data['platforms_set'] = set()
@@ -82,7 +125,6 @@ def add_project_runs(args):
     if (args.test_report):
         add_report(project_run_data, args.test_report, False, args.build_id, args.host_os)
 
-
     ts_data = format_project_run_data(project_run_data)
     r = requests.post(urlparse.urljoin(args.url, "api/projectRuns"), headers=create_headers(args), json=ts_data)
     finish_command('add-project-runs', r)
@@ -91,11 +133,11 @@ def format_project_run_data(project_run_data):
     ts_data = {}
     ts_data['projectRuns'] = []
 
-    for hostOs in project_run_data['projectRuns'].keys():
-        for platform in project_run_data['projectRuns'][hostOs].keys():
-            for toolchain in project_run_data['projectRuns'][hostOs][platform].keys():
-                for project in project_run_data['projectRuns'][hostOs][platform][toolchain].keys():
-                    ts_data['projectRuns'].append(project_run_data['projectRuns'][hostOs][platform][toolchain][project])
+    for hostOs in project_run_data['projectRuns'].values():
+        for platform in hostOs.values():
+            for toolchain in platform.values():
+                for project in toolchain.values():
+                    ts_data['projectRuns'].append(project)
 
     ts_data['platforms'] = list(project_run_data['platforms_set'])
     ts_data['toolchains'] = list(project_run_data['toolchains_set'])
@@ -104,53 +146,47 @@ def format_project_run_data(project_run_data):
 
     return ts_data
 
-# prd - Project Run Data - Datastructure containing all project runs
-# pt - Project Run - Data specific to one project run
-def project_run_exists_full(prd, pr):
-    if prd['projectRuns'][pr['hostOs']]:
-        if prd['projectRuns'][pr['hostOs']][pr['platform']]:
-            if prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']]:
-                if prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']][pr['project']]:
-                    return True
+def find_project_run(projectRuns, project):
+    keys = ['hostOs', 'platform', 'toolchain', 'project']
 
-    return False
+    elem = projectRuns
 
-# prd - Project Run Data - Datastructure containing all project runs
-# pt - Project Run - Data specific to one project run
-def project_run_exists(prd, pr):
-    if pr['project'] in prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']]:
-        return True
+    for key in keys:
+        if not project[key] in elem:
+            return None
+
+        elem = elem[project[key]]
+
+    return elem
+
+def add_project_run(projectRuns, project):
+    keys = ['hostOs', 'platform', 'toolchain']
+
+    elem = projectRuns
+
+    for key in keys:
+        if not project[key] in elem:
+            elem[project[key]] = {}
+
+        elem = elem[project[key]]
+
+    elem[project['project']] = project
+
+def update_project_run_results(project_to_update, project):
+    project_to_update['pass'] = project['pass']
+    project_to_update['result'] = project['result']
+
+    if 'buildOutput' in project:
+        project_to_update['buildOutput'] = project['buildOutput']
     else:
-        return False
+        project_to_update['testOutput'] = project['testOutput']
 
-# prd - Project Run Data - Datastructure containing all project runs
-# pt - Project Run - Data specific to one project run
-def prep_project_run(prd, pr):
-    if not pr['hostOs'] in prd['projectRuns']:
-        prd['projectRuns'][pr['hostOs']] = {}
-
-    if not pr['platform'] in prd['projectRuns'][pr['hostOs']]:
-        prd['projectRuns'][pr['hostOs']][pr['platform']] = {}
-
-    if not pr['toolchain'] in prd['projectRuns'][pr['hostOs']][pr['platform']]:
-        prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']] = {}
-
-# prd - Project Run Data - Datastructure containing all project runs
-# pt - Project Run - Data specific to one project run
-def update_project_run(prd, pr):
-    prep_project_run(prd, pr)
-
-    if project_run_exists(prd, pr):
-        prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']][pr['project']]['pass'] = pr['pass']
-        prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']][pr['project']]['result'] = pr['result']
-
-        if 'buildOutput' in pr:
-            prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']][pr['project']]['buildOutput'] = pr['buildOutput']
-        else:
-            prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']][pr['project']]['testOutput'] = pr['testOutput']
-
+def update_project_run(projectRuns, project):
+    found_project = find_project_run(projectRuns, project)
+    if found_project:
+        update_project_run_results(found_project, project)
     else:
-        prd['projectRuns'][pr['hostOs']][pr['platform']][pr['toolchain']][pr['project']] = pr
+        add_project_run(projectRuns, project)
 
 def add_report(project_run_data, report_file, is_build, build_id, host_os):
     tree = None
@@ -210,7 +246,7 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
                 projectRun['pass'] = True
                 projectRun['result'] = 'OK'
 
-            update_project_run(project_run_data, projectRun)
+            update_project_run(project_run_data['projectRuns'], projectRun)
 
 def main(arguments):
     # Register and parse command line arguments
