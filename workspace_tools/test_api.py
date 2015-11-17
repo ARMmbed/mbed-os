@@ -395,7 +395,7 @@ class SingleTestRunner(object):
                 # Detect which lib should be added to test
                 # Some libs have to compiled like RTOS or ETH
                 for lib in LIBRARIES:
-                    if lib['build_dir'] in test.dependencies and lib['build_dir'] not in libraries:
+                    if lib['build_dir'] in test.dependencies and lib['id'] not in libraries:
                         libraries.append(lib['id'])
 
 
