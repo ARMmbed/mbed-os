@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -117,7 +117,7 @@ static inline int dac_read(dac_t *obj) {
     } else if (obj->channel == 2) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
     }
-    return 0;	/* Just silented warning */
+	return 0;	/* Just silented warning */
 }
 
 void analogout_write(dac_t *obj, float value) {
