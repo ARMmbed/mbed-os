@@ -32,7 +32,7 @@ Case::Case(const char *description,
     setup_handler(setup_handler),
     teardown_handler(teardown_handler),
     failure_handler(failure_handler),
-    timeout_ms(-1)
+    timeout_ms(0)
 {}
 
 Case::Case(const char *description,
@@ -45,7 +45,7 @@ Case::Case(const char *description,
     setup_handler(default_handler),
     teardown_handler(teardown_handler),
     failure_handler(failure_handler),
-    timeout_ms(-1)
+    timeout_ms(0)
 {}
 
 Case::Case(const char *description,
@@ -57,7 +57,7 @@ Case::Case(const char *description,
     setup_handler(default_handler),
     teardown_handler(default_handler),
     failure_handler(failure_handler),
-    timeout_ms(-1)
+    timeout_ms(0)
 {}
 
 // control flow handler
@@ -72,7 +72,7 @@ Case::Case(const char *description,
     setup_handler(setup_handler),
     teardown_handler(teardown_handler),
     failure_handler(failure_handler),
-    timeout_ms(-1)
+    timeout_ms(0)
 {}
 
 Case::Case(const char *description,
@@ -84,7 +84,7 @@ Case::Case(const char *description,
     setup_handler(default_handler),
     teardown_handler(default_handler),
     failure_handler(failure_handler),
-    timeout_ms(-1)
+    timeout_ms(0)
 {}
 
 Case::Case(const char *description,
@@ -97,7 +97,7 @@ Case::Case(const char *description,
     setup_handler(default_handler),
     teardown_handler(teardown_handler),
     failure_handler(failure_handler),
-    timeout_ms(-1)
+    timeout_ms(0)
 {}
 
 Case::Case(const char *description,

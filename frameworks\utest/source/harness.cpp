@@ -194,7 +194,7 @@ void Harness::run_next_case()
             case_repeat_count++;
         }
 
-        if (case_current->timeout_ms >= 0) {
+        if (case_current->timeout_ms > 0) {
             case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
                                             .delay(minar::milliseconds(case_current->timeout_ms))
                                             .tolerance(0)
