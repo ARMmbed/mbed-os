@@ -40,12 +40,14 @@
 #define DEVICE_ANALOGOUT        1
 
 #define DEVICE_SERIAL           1
+#define DEVICE_SERIAL_ASYNCH    1
 
 #define DEVICE_I2C              1
 #define DEVICE_I2CSLAVE         1
 
 #define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         1
+#define DEVICE_SPI_ASYNCH       0
 
 #define DEVICE_RTC              1
 
