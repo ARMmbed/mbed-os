@@ -1682,6 +1682,15 @@ class SAML21J18A(Target):
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
 
+class SAMG55J19(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels = ['Atmel', 'SAM_CortexM4', 'SAMG55']
+        self.macros = ['__SAMG55J19__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+
 
 # Get a single instance for each target
 TARGETS = [
@@ -1853,6 +1862,8 @@ TARGETS = [
     SAMD21J18A(),
     SAMD21G18A(),
     SAML21J18A(),
+    SAMG55J19(),
+    
 ]
 
 # Map each target name to its unique instance
