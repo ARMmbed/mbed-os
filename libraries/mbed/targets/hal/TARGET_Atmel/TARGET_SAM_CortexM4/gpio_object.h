@@ -34,9 +34,9 @@ static inline void gpio_write(gpio_t *obj, int value)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
     if (value)
-        ioport_set_pin_level(LED_0_PIN, IOPORT_PIN_LEVEL_HIGH);
+        ioport_set_pin_level(obj->pin, IOPORT_PIN_LEVEL_HIGH);
     else
-        ioport_set_pin_level(LED_0_PIN, IOPORT_PIN_LEVEL_LOW);
+        ioport_set_pin_level(obj->pin, IOPORT_PIN_LEVEL_LOW);
 }
 
 static inline int gpio_read(gpio_t *obj)
