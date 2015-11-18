@@ -26,7 +26,7 @@ void mbed_sdk_init()
 {
     if(g_sys_init == 0) {
         g_sys_init = 1;
-        system_init();
+        sysclk_init();
     }
 }
 /***************************************************************/

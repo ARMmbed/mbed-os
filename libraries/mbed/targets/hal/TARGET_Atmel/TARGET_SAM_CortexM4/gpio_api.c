@@ -18,23 +18,60 @@
 #include "gpio_object.h"
 #include "gpio_api.h"
 #include "compiler.h"
+#include "ioport.h"
+
+static uint8_t ioinit = 1;
 
 uint32_t gpio_set(PinName pin)
 {
     MBED_ASSERT(pin != (PinName)NC);
+    return (1UL << (pin % 32));
 }
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
     MBED_ASSERT(pin != (PinName)NC);
+    if (ioinit) {
+        ioport_init();
+        ioinit = 0;
+    }
+    obj->pin = pin;
+    obj->mask = gpio_set(pin);
+
+    ioport_set_pin_dir(pin, IOPORT_DIR_INPUT);
+    ioport_set_pin_mode(pin, IOPORT_MODE_PULLUP);
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
+    obj->mode = mode;
+    switch (mode) {
+        case PullNone :
+            ioport_set_pin_mode(obj->pin, IOPORT_MODE_OPEN_DRAIN);
+            break;
+        case PullUp:
+            ioport_set_pin_mode(obj->pin, IOPORT_MODE_PULLUP);
+            break;
+        case PullDown:
+            ioport_set_pin_mode(obj->pin, IOPORT_MODE_PULLDOWN);
+            break;
+    }
 }
 
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
+    obj->direction = direction;
+    switch (direction) {
+        case PIN_INPUT :
+            ioport_set_pin_dir(obj->pin, IOPORT_DIR_INPUT);
+            break;
+        case PIN_OUTPUT:
+            ioport_set_pin_dir(obj->pin, IOPORT_DIR_OUTPUT);
+            break;
+        case PIN_INPUT_OUTPUT:
+            ioport_set_pin_dir(obj->pin, IOPORT_DIR_OUTPUT);
+            break;
+    }
 }

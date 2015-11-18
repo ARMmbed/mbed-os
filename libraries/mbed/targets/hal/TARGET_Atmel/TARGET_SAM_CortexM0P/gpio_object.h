@@ -17,6 +17,7 @@
 #define MBED_GPIO_OBJECT_H
 
 #include "mbed_assert.h"
+#include "ioport.h"
 
 #ifdef __cplusplus
 extern "C" {
