@@ -17,6 +17,7 @@
 #define MBED_GPIO_OBJECT_H
 
 #include "mbed_assert.h"
+#include "ioport.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,20 +25,29 @@ extern "C" {
 
 typedef struct {
     PinName  pin;
+    uint32_t mask;
+    uint8_t mode;
+    uint8_t direction;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
+    if (value)
+        ioport_set_pin_level(LED_0_PIN, IOPORT_PIN_LEVEL_HIGH);
+    else
+        ioport_set_pin_level(LED_0_PIN, IOPORT_PIN_LEVEL_LOW);
 }
 
 static inline int gpio_read(gpio_t *obj)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
+    return (arch_ioport_get_pin_level(obj->pin) ? 1 : 0);
 }
 
 static inline int gpio_is_connected(const gpio_t *obj)
 {
+    return obj->pin != (PinName)NC;
 }
 
 #ifdef __cplusplus

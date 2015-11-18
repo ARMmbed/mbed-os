@@ -1,9 +1,9 @@
 /**
  * \file
  *
- * \brief Board configuration.
+ * \brief GPIO service for SAM.
  *
- * Copyright (c) 2014-2015 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2011-2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -44,21 +44,40 @@
  * Support and FAQ: visit <a href="http://www.atmel.com/design-support/">Atmel Support</a>
  */
 
-#ifndef CONF_BOARD_H_INCLUDED
-#define CONF_BOARD_H_INCLUDED
+#ifndef SAM_GPIO_H_INCLUDED
+#define SAM_GPIO_H_INCLUDED
 
-#define BAORD SAMG55_XPLAINED_PRO
+#include "compiler.h"
+#include "pio.h"
 
-/** Enable Com Port. */
-#define CONF_BOARD_UART_CONSOLE
+#define gpio_pin_is_low(io_id) \
+	(pio_get_pin_value(io_id) ? 0 : 1)
 
-/* USART6 module is used in SYNC. mode. */
-#define CONF_BOARD_USART0
+#define gpio_pin_is_high(io_id) \
+	(pio_get_pin_value(io_id) ? 1 : 0)
 
+#define gpio_set_pin_high(io_id) \
+	pio_set_pin_high(io_id)
 
-/** Configure AT30TSE pins */
-#define CONF_BOARD_AT30TSE
+#define gpio_set_pin_low(io_id) \
+	pio_set_pin_low(io_id)
 
-#define BOARD_FLEXCOM_TWI			FLEXCOM4
+#define gpio_toggle_pin(io_id) \
+	pio_toggle_pin(io_id)
 
-#endif /* CONF_BOARD_H_INCLUDED */
+#define gpio_configure_pin(io_id,io_flags) \
+	pio_configure_pin(io_id,io_flags)
+
+#define gpio_configure_group(port_id,port_mask,io_flags) \
+	pio_configure_pin_group(port_id,port_mask,io_flags)
+
+#define gpio_set_pin_group_high(port_id,mask) \
+	pio_set_pin_group_high(port_id,mask)
+
+#define gpio_set_pin_group_low(port_id,mask) \
+	pio_set_pin_group_low(port_id,mask)
+
+#define gpio_toggle_pin_group(port_id,mask) \
+	pio_toggle_pin_group(port_id,mask)
+
+#endif /* SAM_GPIO_H_INCLUDED */

@@ -2078,7 +2078,7 @@ class SAMG55J19(Target):
         Target.__init__(self)
         self.core = "Cortex-M4"
         self.extra_labels = ['Atmel', 'SAM_CortexM4', 'SAMG55']
-        self.macros = ['__SAMG55J19__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.macros = ['__SAMG55J19__', 'BOARD=75', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
         self.progen = {
