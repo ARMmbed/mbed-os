@@ -67,7 +67,7 @@ build_list = (
     { "target": "DISCO_F407VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F429ZI",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DISCO_F469NI",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "DISCO_F746NG",      "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "DISCO_F746NG",      "toolchains": "GCC_ARM", "libs": ["fat"] },
 
     { "target": "LPC1114",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC11U35_401",      "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
