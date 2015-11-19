@@ -1237,7 +1237,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
         return 0;
     }
 }
-#endif LDMA_PRESENT
+#endif // LDMA_PRESENT
 /** Abort an SPI transfer
  *
  * @param obj The SPI peripheral to stop

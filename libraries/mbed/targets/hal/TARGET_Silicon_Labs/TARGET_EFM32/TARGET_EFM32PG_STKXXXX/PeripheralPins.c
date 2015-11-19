@@ -33,19 +33,18 @@
 /************ADC***************/
 /* The third "function" value is used to select the correct ADC channel */
 const PinMap PinMap_ADC[] = {
-    // Pearl ok
     {PA0,  ADC_0, adcPosSelBUS3XCH8},
-    {PA2,  ADC_0, adcPosSelBUS3XCH10},  
-    {PA4,  ADC_0, adcPosSelBUS3XCH12},  
-    {PB12, ADC_0, adcPosSelBUS3XCH28},  
-    {PB14, ADC_0, adcPosSelBUS3XCH30},  
-    {PC6,  ADC_0, adcPosSelBUS1XCH6},  
-    {PC7,  ADC_0, adcPosSelBUS2XCH7},  
-    {PC8,  ADC_0, adcPosSelBUS1XCH8}, 
-    {PC9,  ADC_0, adcPosSelBUS2XCH9},  
+    {PA2,  ADC_0, adcPosSelBUS3XCH10},
+    {PA4,  ADC_0, adcPosSelBUS3XCH12},
+    {PB12, ADC_0, adcPosSelBUS3XCH28},
+    {PB14, ADC_0, adcPosSelBUS3XCH30},
+    {PC6,  ADC_0, adcPosSelBUS1XCH6},
+    {PC7,  ADC_0, adcPosSelBUS2XCH7},
+    {PC8,  ADC_0, adcPosSelBUS1XCH8},
+    {PC9,  ADC_0, adcPosSelBUS2XCH9},
     {PC10, ADC_0, adcPosSelBUS1XCH10},
-    {PC11, ADC_0, adcPosSelBUS2XCH11},  
-    {PD10, ADC_0, adcPosSelBUS3XCH2},  
+    {PC11, ADC_0, adcPosSelBUS2XCH11},
+    {PD10, ADC_0, adcPosSelBUS3XCH2},
     {PD11, ADC_0, adcPosSelBUS3YCH3},
     {PD12, ADC_0, adcPosSelBUS3XCH4},
     {PD13, ADC_0, adcPosSelBUS3YCH5},
@@ -63,14 +62,11 @@ const PinMap PinMap_ADC[] = {
 
 /************DAC***************/
 const PinMap PinMap_DAC[] = {
-    // Pearl ok
     {NC  , NC   , NC}
 };
 
 /************I2C SCL***********/
 const PinMap PinMap_I2C_SCL[] = {
-    // Pearl ok
-
     /* I2C0 */
     {PA1,  I2C_0,  0},
     {PA2,  I2C_0,  1},
@@ -110,9 +106,6 @@ const PinMap PinMap_I2C_SCL[] = {
 
 /************I2C SDA***********/
 const PinMap PinMap_I2C_SDA[] = {
-
-    // Pearl ok
-
     /* I2C0 */
     {PA0,  I2C_0,  0},
     {PA1,  I2C_0,  1},
@@ -153,9 +146,6 @@ const PinMap PinMap_I2C_SDA[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
-
-    // Pearl ok
-
     {PA0,  PWM_CH0,  0},
     {PA1,  PWM_CH0,  1},
     {PA2,  PWM_CH0,  2},
@@ -194,8 +184,6 @@ const PinMap PinMap_PWM[] = {
 
 /*************SPI**************/
 const PinMap PinMap_SPI_MOSI[] = {
-
-    // Pearl ok
 
     /* USART0 */
     {PA0,  SPI_0,  0},
@@ -270,8 +258,6 @@ const PinMap PinMap_SPI_MOSI[] = {
 
 const PinMap PinMap_SPI_MISO[] = {
 
-    // Pearl ok
-
     /* USART0 */
     {PA1,  SPI_0,  0},
     {PA2,  SPI_0,  1},
@@ -344,8 +330,6 @@ const PinMap PinMap_SPI_MISO[] = {
 };
 
 const PinMap PinMap_SPI_CLK[] = {
-
-    // Pearl ok
 
     /* USART0 */
     {PA2,  SPI_0,  0},

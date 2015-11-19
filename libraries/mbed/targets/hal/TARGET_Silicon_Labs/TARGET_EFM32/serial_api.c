@@ -90,12 +90,12 @@ int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
 static void uart_irq(UARTName, int, SerialIrq);
-uint8_t serial_get_index(serial_t *obj);
-void serial_enable(serial_t *obj, uint8_t enable);
-void serial_enable_pins(serial_t *obj, uint8_t enable);
-IRQn_Type serial_get_rx_irq_index(serial_t *obj);
-IRQn_Type serial_get_tx_irq_index(serial_t *obj);
-CMU_Clock_TypeDef serial_get_clock(serial_t *obj);
+static uint8_t serial_get_index(serial_t *obj);
+static void serial_enable(serial_t *obj, uint8_t enable);
+static void serial_enable_pins(serial_t *obj, uint8_t enable);
+static IRQn_Type serial_get_rx_irq_index(serial_t *obj);
+static IRQn_Type serial_get_tx_irq_index(serial_t *obj);
+static CMU_Clock_TypeDef serial_get_clock(serial_t *obj);
 static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx);
 
 /* ISRs for RX and TX events */
@@ -182,7 +182,7 @@ static void uart_init(serial_t *obj, uint32_t baudrate)
 * @param obj pointer to serial object
 * @return internal index of U(S)ART peripheral
 */
-inline uint8_t serial_get_index(serial_t *obj)
+static inline uint8_t serial_get_index(serial_t *obj)
 {
     switch ((uint32_t)obj->serial.periph.uart) {
 #ifdef UART0
@@ -223,7 +223,7 @@ inline uint8_t serial_get_index(serial_t *obj)
 * @param obj pointer to serial object
 * @return internal NVIC RX IRQ index of U(S)ART peripheral
 */
-inline IRQn_Type serial_get_rx_irq_index(serial_t *obj)
+static inline IRQn_Type serial_get_rx_irq_index(serial_t *obj)
 {
     switch ((uint32_t)obj->serial.periph.uart) {
 #ifdef UART0
@@ -266,7 +266,7 @@ inline IRQn_Type serial_get_rx_irq_index(serial_t *obj)
 * @param obj pointer to serial object
 * @return internal NVIC TX IRQ index of U(S)ART peripheral
 */
-inline IRQn_Type serial_get_tx_irq_index(serial_t *obj)
+static inline IRQn_Type serial_get_tx_irq_index(serial_t *obj)
 {
     switch ((uint32_t)obj->serial.periph.uart) {
 #ifdef UART0
@@ -479,7 +479,7 @@ void serial_preinit(serial_t *obj, PinName tx, PinName rx, int allow_leuart)
     }
 }
 
-void serial_enable_pins(serial_t *obj, uint8_t enable)
+static void serial_enable_pins(serial_t *obj, uint8_t enable)
 {
     if (enable) {
         /* Configure GPIO pins*/
@@ -582,7 +582,7 @@ void serial_free(serial_t *obj)
 #endif
 }
 
-void serial_enable(serial_t *obj, uint8_t enable)
+static void serial_enable(serial_t *obj, uint8_t enable)
 {
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         if (enable) {
