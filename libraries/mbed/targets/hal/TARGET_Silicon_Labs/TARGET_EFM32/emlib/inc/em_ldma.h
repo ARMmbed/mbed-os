@@ -1226,7 +1226,7 @@ void LDMA_StartTransfer(  int ch,
 void LDMA_StopTransfer( int ch );
 bool LDMA_TransferDone( int ch );
 uint32_t LDMA_TransferRemainingCount( int ch );
-
+bool LDMA_ChannelEnabled( int ch );
 /** @} (end addtogroup LDMA) */
 /** @} (end addtogroup EM_Library) */
 
