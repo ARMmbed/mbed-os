@@ -508,6 +508,24 @@ uint32_t LDMA_TransferRemainingCount( int ch )
   return remaining + 1;
 }
 
+/***************************************************************************//**
+ * @brief
+ *   Check if LDMA channel is enabled.
+ *
+ * @param[in] ch
+ *   LDMA channel to check.
+ *
+ * @return
+ *   true if channel is enabled, false if not.
+ ******************************************************************************/
+bool LDMA_ChannelEnabled( int ch )
+{
+  EFM_ASSERT(ch < DMA_CHAN_COUNT);
+  uint32_t chMask = 1 << ch;
+  return (bool)(LDMA->CHEN & chMask);
+  INT_Disable();
+}
+
 /** @} (end addtogroup LDMA) */
 /** @} (end addtogroup EM_Library) */
 #endif /* defined( LDMA_PRESENT ) && ( LDMA_COUNT == 1 ) */

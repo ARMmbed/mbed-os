@@ -453,7 +453,7 @@ uint8_t spi_active(spi_t *obj)
         case DMA_USAGE_ALLOCATED:
             /* Check whether the allocated DMA channel is active */
 #ifdef LDMA_PRESENT
-            return !LDMA_TransferDone(obj->spi.dmaOptionsTX.dmaChannel);
+            return(LDMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || LDMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
 #else
             return(DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
 #endif
@@ -872,6 +872,17 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                 break;
         }
 
+        int max_length = 1024;
+#ifdef _LDMA_CH_CTRL_XFERCNT_MASK
+        max_length = (_LDMA_CH_CTRL_XFERCNT_MASK>>_LDMA_CH_CTRL_XFERCNT_SHIFT)+1;
+#endif
+        if(tx_length>max_length){
+            tx_length = max_length;
+        }
+
+        /* Save amount of TX done by DMA */
+        obj->tx_buff.pos += tx_length;
+
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(txdata, target_addr, tx_length);
         LDMA_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
@@ -1127,6 +1138,65 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 #ifdef LDMA_PRESENT
 uint32_t spi_irq_handler_asynch(spi_t* obj)
 {
+    if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+        /* DMA implementation */
+        /* If there is still data in the TX buffer, setup a new transfer. */
+        if (obj->tx_buff.pos < obj->tx_buff.length) {
+            /* Find position and remaining length without modifying tx_buff. */
+            void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
+            uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
+
+            /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
+            spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
+
+            return 0;
+        }
+        /* If there is an RX transfer ongoing, wait for it to finish */
+        if (LDMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel)) {
+            /* Check if we need to kick off TX transfer again to force more incoming data. */
+            if (LDMA_TransferDone(obj->spi.dmaOptionsTX.dmaChannel) && (obj->tx_buff.pos < obj->rx_buff.length)) {
+                void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
+                uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
+                /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
+                spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
+            } else return 0;
+        }
+        /* If there is still a TX transfer ongoing (tx_length > rx_length), wait for it to finish */
+        if (!LDMA_TransferDone(obj->spi.dmaOptionsTX.dmaChannel)) {
+            return 0;
+        }
+        /* Release the dma channels if they were opportunistically allocated */
+        if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
+            dma_channel_free(obj->spi.dmaOptionsTX.dmaChannel);
+            dma_channel_free(obj->spi.dmaOptionsRX.dmaChannel);
+            obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
+        }
+
+        unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+        /* return to CPP land to say we're finished */
+        return SPI_EVENT_COMPLETE;
+    } else {
+        /* IRQ implementation */
+        if (spi_master_rx_int_flag(obj)) {
+            spi_master_read_asynch(obj);
+        }
+
+        if (spi_master_tx_int_flag(obj)) {
+            spi_master_write_asynch(obj);
+        }
+
+        uint32_t event = spi_event_check(obj);
+        if (event & SPI_EVENT_INTERNAL_TRANSFER_COMPLETE) {
+            /* disable interrupts */
+            spi_enable_interrupt(obj, (uint32_t)NULL, false);
+
+            unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+            /* Return the event back to userland */
+            return event;
+        }
+
+        return 0;
+    }
 }
 #else
 uint32_t spi_irq_handler_asynch(spi_t* obj)
