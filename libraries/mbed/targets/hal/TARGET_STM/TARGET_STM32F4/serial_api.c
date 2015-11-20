@@ -59,11 +59,12 @@ static void init_uart(serial_t *obj)
 {
     UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
 
-    UartHandle.Init.BaudRate   = _SERIAL_OBJ(baudrate);
-    UartHandle.Init.WordLength = _SERIAL_OBJ(databits);
-    UartHandle.Init.StopBits   = _SERIAL_OBJ(stopbits);
-    UartHandle.Init.Parity     = _SERIAL_OBJ(parity);
-    UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+    UartHandle.Init.BaudRate     = _SERIAL_OBJ(baudrate);
+    UartHandle.Init.WordLength   = _SERIAL_OBJ(databits);
+    UartHandle.Init.StopBits     = _SERIAL_OBJ(stopbits);
+    UartHandle.Init.Parity       = _SERIAL_OBJ(parity);
+    UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
 
     if (_SERIAL_OBJ(pin_rx) == NC) {
         UartHandle.Init.Mode = UART_MODE_TX;
@@ -74,7 +75,7 @@ static void init_uart(serial_t *obj)
     }
 
     if (HAL_UART_Init(&UartHandle) != HAL_OK) {
-        error("Cannot initialize UART");
+        error("Cannot initialize UART\n");
     }
 }
 
@@ -525,10 +526,13 @@ void h_serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t widt
  */
 void h_serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
 {
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    MBED_ASSERT(rx != (void*)0);
     // We only support byte buffers for now
     MBED_ASSERT(width == 8);
 
-    // Exit if a transmit is already on-going
+    // Exit if a reception is already on-going
     if (serial_rx_active(obj)) return;
 
     obj->rx_buff.buffer = rx;
@@ -550,7 +554,6 @@ void h_serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
     if (enable) _SERIAL_OBJ(events) |= event;
     else _SERIAL_OBJ(events) &= ~event;
 }
-
 
 /** Configure RX events
  *
@@ -625,20 +628,6 @@ IRQn_Type h_serial_get_irq_index(serial_t *obj)
     return irq_n;
 }
 
-/** The asynchronous TX handler. Writes to the TX FIFO and checks for events.
- *  If any TX event has occured, the TX abort function is called.
- *
- * @param obj The serial object
- * @return Returns event flags if a TX transfer termination condition was met or 0 otherwise
- */
-int h_serial_tx_irq_handler_asynch(serial_t *obj)
-{
-  UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
-  HAL_UART_IRQHandler(&UartHandle);
-
-    return 0;
-}
-
 //----------------------------------------------------------------------------------------
 // MBED API FUNCTIONS
 //----------------------------------------------------------------------------------------
@@ -657,7 +646,7 @@ int h_serial_tx_irq_handler_asynch(serial_t *obj)
  */
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-  // TODO
+  uint32_t tmpstatus = 0;
   
   // Check buffer is ok
   MBED_ASSERT(tx != (void*)0);
@@ -678,18 +667,18 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
   NVIC_DisableIRQ(irqn);
   NVIC_SetPriority(irqn, 1);
   NVIC_SetVector(irqn, (uint32_t)handler);
-  __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_TXE);
-  NVIC_EnableIRQ(irqn);
-  //serial_irq_set(obj, TxIrq, 1);
-    
   UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
+  NVIC_EnableIRQ(irqn);
+    
+  // the following function will enable UART_IT_TXE and error interrupts
   if (HAL_UART_Transmit_IT(&UartHandle, (uint8_t*)tx, tx_length) != HAL_OK)
   {
     /* Transfer error in transmission process */
     return 0;
   }
   
-  while (HAL_UART_GetState(&UartHandle) != HAL_UART_STATE_READY){
+  while ((tmpstatus == HAL_UART_STATE_BUSY_TX) || (tmpstatus == HAL_UART_STATE_BUSY_TX_RX)){
+    tmpstatus = HAL_UART_GetState(&UartHandle);
   }
   
   return tx_length;
@@ -710,7 +699,36 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
  */
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
-  // TODO
+      /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    MBED_ASSERT(rx != (void*)0);
+
+    h_serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, 0);
+    h_serial_rx_enable_event(obj, event, 1);
+    // set CharMatch
+    if (char_match != SERIAL_RESERVED_CHAR_MATCH) {
+        obj->char_match = char_match;
+    }
+    h_serial_rx_buffer_set(obj, rx, rx_length, rx_width);
+
+    IRQn_Type irqn = h_serial_get_irq_index(obj);
+    NVIC_ClearPendingIRQ(irqn);
+    NVIC_DisableIRQ(irqn);
+    NVIC_SetVector(irqn, (uint32_t)handler);
+    NVIC_EnableIRQ(irqn);
+
+    UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
+
+    // following HAL function will enable the RXNE interrupt + error interrupts    
+    if (HAL_UART_Receive_IT(&UartHandle, (uint8_t*)rx, rx_length) != HAL_OK)
+    {
+      /* Transfer error in transmission process */
+      return;
+    }
+
+    // TO DO setup sleep mode
+    // TO DO setup DMA part
+    return;
 }
 
 /** Attempts to determine if the serial peripheral is already in use for TX
@@ -720,9 +738,9 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
  */
 uint8_t serial_tx_active(serial_t *obj)
 {
-  // TODO
-  UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
-  return (UartHandle.Instance->CR1 & USART_CR1_TXEIE ? 1 : 0);
+    MBED_ASSERT(obj);
+    UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
+    return (UartHandle.Instance->CR1 & USART_CR1_TXEIE ? 1 : 0);
 }
 
 /** Attempts to determine if the serial peripheral is already in use for RX
@@ -732,8 +750,9 @@ uint8_t serial_tx_active(serial_t *obj)
  */
 uint8_t serial_rx_active(serial_t *obj)
 {
-  // TODO
-  return 0;
+    MBED_ASSERT(obj);
+    UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
+    return (UartHandle.Instance->CR1 & USART_CR1_RXNEIE ? 1 : 0);
 }
 
 /** The asynchronous TX and RX handler.
@@ -743,20 +762,42 @@ uint8_t serial_rx_active(serial_t *obj)
  */
 int serial_irq_handler_asynch(serial_t *obj)
 {
-  // TODO
+  int return_event = 0;
+  uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
+  // Irq handler is common to Tx and Rx
     UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
-
-    h_serial_tx_irq_handler_asynch(obj);
+    HAL_UART_IRQHandler(&UartHandle);
+  // TX PART:
     if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TC) != RESET) {
         __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_TC);
         // return event SERIAL_EVENT_TX_COMPLETE if requested
-        if ((_SERIAL_OBJ(events) && SERIAL_EVENT_TX_COMPLETE ) != 0){
-            return SERIAL_EVENT_TX_COMPLETE;
+        if ((_SERIAL_OBJ(events) & SERIAL_EVENT_TX_COMPLETE ) != 0){
+            return_event |= SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }
-        // ??? need to disable the interrupt ???
     }
- 
-    return 0;  
+    //RX PART
+    // handle error events:
+    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_PE)) {
+        return_event |= SERIAL_EVENT_RX_PARITY_ERROR & obj->serial.events;
+    }
+    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_NE)) {
+      // not supported by mbed
+    }
+    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_FE)) {
+        return_event |= SERIAL_EVENT_RX_FRAMING_ERROR & obj->serial.events;
+    }
+    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_ORE)) {
+        return_event |= SERIAL_EVENT_RX_OVERRUN_ERROR & obj->serial.events;
+    }
+    
+    if (UartHandle.RxXferCount==0) {
+        return_event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
+    }
+
+    if ((buf != NULL) && (buf[obj->rx_buff.pos-1] == obj->char_match) && (_SERIAL_OBJ(events) & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+      return_event |= SERIAL_EVENT_RX_CHARACTER_MATCH & obj->serial.events;
+    }
+    return return_event;  
 }
 
 /** Abort the ongoing TX transaction. It disables the enabled interupt for TX and
