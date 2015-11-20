@@ -66,6 +66,7 @@ class GccArm(Exporter):
         'MTS_GAMBIT',
         'ARCH_MAX',
         'NUCLEO_F401RE',
+        'NUCLEO_F410RB',
         'NUCLEO_F411RE',
         'NUCLEO_F446RE',
         'ARCH_MAX',

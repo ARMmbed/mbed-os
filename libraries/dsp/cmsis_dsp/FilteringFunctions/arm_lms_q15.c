@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_lms_q15.c    
@@ -90,6 +90,7 @@ void arm_lms_q15(
   q63_t acc;                                     /* Accumulator */
   q15_t e = 0;                                   /* error of data sample */
   q15_t alpha;                                   /* Intermediate constant for taps update */
+  q31_t coef;                                    /* Teporary variable for coefficient */
   q31_t acc_l, acc_h;
   int32_t lShift = (15 - (int32_t) S->postShift);       /*  Post shift  */
   int32_t uShift = (32 - lShift);
@@ -99,7 +100,6 @@ void arm_lms_q15(
 
   /* Run the below code for Cortex-M4 and Cortex-M3 */
 
-  q31_t coef;                                    /* Teporary variable for coefficient */
 
   /* S->pState points to buffer which contains previous frame (numTaps - 1) samples */
   /* pStateCurnt points to the location where the new input data should be written */
@@ -340,7 +340,8 @@ void arm_lms_q15(
     while(tapCnt > 0u)
     {
       /* Perform the multiply-accumulate */
-      *pb++ += (q15_t) (((q31_t) alpha * (*px++)) >> 15);
+      coef = (q31_t) * pb + (((q31_t) alpha * (*px++)) >> 15);
+      *pb++ = (q15_t) __SSAT((coef), 16);
 
       /* Decrement the loop counter */
       tapCnt--;

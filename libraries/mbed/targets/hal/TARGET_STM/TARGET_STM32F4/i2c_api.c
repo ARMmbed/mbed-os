@@ -47,6 +47,7 @@ I2C_HandleTypeDef I2cHandle;
 int i2c1_inited = 0;
 int i2c2_inited = 0;
 int i2c3_inited = 0;
+int fmpi2c1_inited = 0;
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
@@ -77,6 +78,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(sda, OpenDrain);
         pin_mode(scl, OpenDrain);
     }
+#if defined I2C3_BASE
     // Enable I2C3 clock and pinout if not done
     if ((obj->i2c == I2C_3) && !i2c3_inited) {
         i2c3_inited = 1;
@@ -87,6 +89,20 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(sda, OpenDrain);
         pin_mode(scl, OpenDrain);
     }
+#endif
+
+#if defined FMPI2C1_BASE
+    // Enable I2C3 clock and pinout if not done
+    if ((obj->i2c == FMPI2C_1) && !fmpi2c1_inited) {
+        fmpi2c1_inited = 1;
+        __HAL_RCC_FMPI2C1_CLK_ENABLE();
+        // Configure I2C pins
+        pinmap_pinout(sda, PinMap_I2C_SDA);
+        pinmap_pinout(scl, PinMap_I2C_SCL);
+        pin_mode(sda, OpenDrain);
+        pin_mode(scl, OpenDrain);
+    }
+#endif
 
     // Reset to clear pending flags if any
     i2c_reset(obj);
@@ -315,10 +331,19 @@ void i2c_reset(i2c_t *obj)
         __I2C2_FORCE_RESET();
         __I2C2_RELEASE_RESET();
     }
+#if defined I2C3_BASE
     if (obj->i2c == I2C_3) {
         __I2C3_FORCE_RESET();
         __I2C3_RELEASE_RESET();
     }
+#endif
+
+#if defined FMPI2C1_BASE
+    if (obj->i2c == FMPI2C_1) {
+        __HAL_RCC_FMPI2C1_FORCE_RESET();
+        __HAL_RCC_FMPI2C1_RELEASE_RESET();
+    }
+#endif
 }
 
 #if DEVICE_I2CSLAVE

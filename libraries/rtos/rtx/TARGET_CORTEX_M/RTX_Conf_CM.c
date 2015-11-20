@@ -50,7 +50,7 @@
 //   <i> Default: 6
 #ifndef OS_TASKCNT
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347) || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
-   || defined(TARGET_KL46Z) || defined(TARGET_KL43Z)  || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
+   || defined(TARGET_STM32F410RB) || defined(TARGET_KL46Z) || defined(TARGET_KL43Z)  || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC) || defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_TEENSY3_1) \
    || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI)
 #    define OS_TASKCNT         14
@@ -68,7 +68,7 @@
 //   <o>Scheduler (+ interrupts) stack size [bytes] <64-4096:8><#/4>
 #ifndef OS_SCHEDULERSTKSIZE
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347)  || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
-   || defined(TARGET_KL46Z) || defined(TARGET_KL43Z) || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
+   || defined(TARGET_STM32F410RB) || defined(TARGET_KL46Z) || defined(TARGET_KL43Z) || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC) || defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_TEENSY3_1) \
    || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI)
 #      define OS_SCHEDULERSTKSIZE    256
@@ -158,6 +158,9 @@
 #    define OS_CLOCK       84000000
 
 #  elif defined(TARGET_STM32F411RE)
+#     define OS_CLOCK      100000000
+
+#  elif defined(TARGET_STM32F410RB)
 #     define OS_CLOCK      100000000
 
 #elif defined(TARGET_STM32F103RB)
