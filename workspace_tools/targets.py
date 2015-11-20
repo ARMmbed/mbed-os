@@ -1689,7 +1689,7 @@ class EFM32HG_STK3400(Target):
         self.supported_toolchains = ["GCC_ARM", "uARM"]
         self.default_toolchain = "uARM"
 
-class EFM32PG_STKXXXX(Target):
+class EFM32PG_STK3401(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4"

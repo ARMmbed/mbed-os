@@ -63,7 +63,7 @@ class SimplicityV3(Exporter):
         'EFM32LG_STK3600',
         'EFM32WG_STK3800',
         'EFM32HG_STK3400',
-        'EFM32PG_STKXXXX'
+        'EFM32PG_STK3401'
     ]
 
     PARTS = {
@@ -72,7 +72,7 @@ class SimplicityV3(Exporter):
         'EFM32LG_STK3600': 'com.silabs.mcu.si32.efm32.efm32lg.efm32lg990f256',
         'EFM32WG_STK3800': 'com.silabs.mcu.si32.efm32.efm32wg.efm32wg990f256',
         'EFM32HG_STK3400': 'com.silabs.mcu.si32.efm32.efm32hg.efm32hg322f64',
-		'EFM32PG_STKXXXX': 'com.silabs.mcu.si32.efm32.efm32hg.efm32pg322f64'
+		'EFM32PG_STK3401': 'com.silabs.mcu.si32.efm32.efm32hg.efm32pg322f64'
     }
 
     KITS = {
@@ -81,7 +81,7 @@ class SimplicityV3(Exporter):
         'EFM32LG_STK3600': 'com.silabs.kit.si32.efm32.efm32lg.stk3600',
         'EFM32WG_STK3800': 'com.silabs.kit.si32.efm32.efm32wg.stk3800',
         'EFM32HG_STK3400': 'com.silabs.kit.si32.efm32.efm32hg.slstk3400a',
-		'EFM32PG_STKXXXX': 'com.silabs.kit.si32.efm32.efm32pg.stk3xxxx'
+		'EFM32PG_STK3401': 'com.silabs.kit.si32.efm32.efm32pg.slstk3401a'
     }
 
     FILE_TYPES = {
