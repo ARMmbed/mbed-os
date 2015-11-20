@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013  
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015 
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_dct4_init_q15.c    
@@ -4273,7 +4273,7 @@ arm_status arm_dct4_init_q15(
   }
 
   /* Initialize the RFFT/RIFFT */
-  arm_rfft_init_q15(S->pRfft, S->pCfft, S->N, 0u, 1u);
+  arm_rfft_init_q15(S->pRfft, S->N, 0u, 1u);
 
   /* return the status of DCT4 Init function */
   return (status);

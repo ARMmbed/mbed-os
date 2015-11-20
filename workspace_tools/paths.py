@@ -47,6 +47,8 @@ HOST_TESTS = join(ROOT, "workspace_tools", "host_tests")
 # mbed RPC
 MBED_RPC = join(LIB_DIR, "rpc")
 
+RPC_LIBRARY = join(BUILD_DIR, "rpc")
+
 # mbed RTOS
 RTOS = join(LIB_DIR, "rtos")
 MBED_RTX = join(RTOS, "rtx")

@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_var_q15.c    
@@ -75,21 +75,26 @@
 void arm_var_q15(
   q15_t * pSrc,
   uint32_t blockSize,
-  q31_t * pResult)
+  q15_t * pResult)
 {
-  q31_t sum = 0;                                 /* Accumulator */
-  q31_t meanOfSquares, squareOfMean;             /* Mean of square and square of mean */
-  q15_t mean;                                    /* mean */
-  uint32_t blkCnt;                               /* loop counter */
-  q15_t t;                                       /* Temporary variable */
-  q63_t sumOfSquares = 0;                        /* Accumulator */
 
+  q31_t sum = 0;                                 /* Accumulator */
+  q31_t meanOfSquares, squareOfMean;             /* square of mean and mean of square */
+  uint32_t blkCnt;                               /* loop counter */
+  q63_t sumOfSquares = 0;                        /* Accumulator */
+   
 #ifndef ARM_MATH_CM0_FAMILY
 
   /* Run the below code for Cortex-M4 and Cortex-M3 */
 
-  q31_t in;                                      /* Input variable */
-  q15_t in1;                                     /* Temporary variable */
+  q31_t in;                                      /* input value */
+  q15_t in1;                                     /* input value */
+
+	if(blockSize == 1)
+	{
+		*pResult = 0;
+		return;
+	}
 
   /*loop Unrolling */
   blkCnt = blockSize >> 2u;
@@ -124,8 +129,8 @@ void arm_var_q15(
     /* Compute Sum of squares of the input samples    
      * and then store the result in a temporary variable, sum. */
     in1 = *pSrc++;
-    sum += in1;
     sumOfSquares = __SMLALD(in1, in1, sumOfSquares);
+    sum += in1;
 
     /* Decrement the loop counter */
     blkCnt--;
@@ -133,16 +138,25 @@ void arm_var_q15(
 
   /* Compute Mean of squares of the input samples    
    * and then store the result in a temporary variable, meanOfSquares. */
-  t = (q15_t) ((1.0f / (float32_t) (blockSize - 1u)) * 16384);
-  sumOfSquares = __SSAT((sumOfSquares >> 15u), 16u);
+  meanOfSquares = (q31_t) (sumOfSquares / (q63_t)(blockSize - 1));
 
-  meanOfSquares = (q31_t) ((sumOfSquares * t) >> 14u);
+  /* Compute square of mean */
+  squareOfMean = (q31_t)((q63_t)sum * sum / (q63_t)(blockSize * (blockSize - 1)));
+
+  /* mean of the squares minus the square of the mean. */
+  *pResult = (meanOfSquares - squareOfMean) >> 15;
 
 #else
 
   /* Run the below code for Cortex-M0 */
+  q15_t in;                                      /* input value */
 
-  q15_t in;                                      /* Temporary variable */
+	if(blockSize == 1)
+	{
+		*pResult = 0;
+		return;
+	}
+
   /* Loop over blockSize number of values */
   blkCnt = blockSize;
 
@@ -164,22 +178,15 @@ void arm_var_q15(
 
   /* Compute Mean of squares of the input samples     
    * and then store the result in a temporary variable, meanOfSquares. */
-  t = (q15_t) ((1.0f / (float32_t) (blockSize - 1u)) * 16384);
-  sumOfSquares = __SSAT((sumOfSquares >> 15u), 16u);
-  meanOfSquares = (q31_t) ((sumOfSquares * t) >> 14u);
-
-#endif /* #ifndef ARM_MATH_CM0_FAMILY */
-
-  /* Compute mean of all input values */
-  t = (q15_t) ((1.0f / (float32_t) (blockSize * (blockSize - 1u))) * 32768);
-  mean = __SSAT(sum, 16u);
+  meanOfSquares = (q31_t) (sumOfSquares / (q63_t)(blockSize - 1));
 
   /* Compute square of mean */
-  squareOfMean = ((q31_t) mean * mean) >> 15;
-  squareOfMean = (q31_t) (((q63_t) squareOfMean * t) >> 15);
+  squareOfMean = (q31_t)((q63_t)sum * sum / (q63_t)(blockSize * (blockSize - 1)));
 
-  /* Compute variance and then store the result to the destination */
-  *pResult = (meanOfSquares - squareOfMean);
+  /* mean of the squares minus the square of the mean. */
+  *pResult = (meanOfSquares - squareOfMean) >> 15;
+
+#endif /* #ifndef ARM_MATH_CM0_FAMILY */
 
 }
 

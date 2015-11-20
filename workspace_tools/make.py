@@ -30,6 +30,7 @@ sys.path.insert(0, ROOT)
 from workspace_tools.utils import args_error
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import RTOS_LIBRARIES
+from workspace_tools.paths import RPC_LIBRARY
 from workspace_tools.paths import ETH_LIBRARY
 from workspace_tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
 from workspace_tools.paths import DSP_LIBRARIES
@@ -112,6 +113,10 @@ if __name__ == '__main__':
     parser.add_option("--rtos",
                       action="store_true", dest="rtos",
                       default=False, help="Link with RTOS library")
+
+    parser.add_option("--rpc",
+                      action="store_true", dest="rpc",
+                      default=False, help="Link with RPC library")
 
     parser.add_option("--eth",
                       action="store_true", dest="eth",
@@ -218,6 +223,7 @@ if __name__ == '__main__':
 
         # Linking with extra libraries
         if options.rtos:     test.dependencies.append(RTOS_LIBRARIES)
+        if options.rpc:      test.dependencies.append(RPC_LIBRARY)
         if options.eth:      test.dependencies.append(ETH_LIBRARY)
         if options.usb_host: test.dependencies.append(USB_HOST_LIBRARIES)
         if options.usb:      test.dependencies.append(USB_LIBRARIES)

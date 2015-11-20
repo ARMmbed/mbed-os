@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_std_q15.c    
@@ -77,17 +77,21 @@ void arm_std_q15(
 {
   q31_t sum = 0;                                 /* Accumulator */
   q31_t meanOfSquares, squareOfMean;             /* square of mean and mean of square */
-  q15_t mean;                                    /* mean */
   uint32_t blkCnt;                               /* loop counter */
-  q15_t t;                                       /* Temporary variable */
   q63_t sumOfSquares = 0;                        /* Accumulator */
-
+   
 #ifndef ARM_MATH_CM0_FAMILY
 
   /* Run the below code for Cortex-M4 and Cortex-M3 */
 
   q31_t in;                                      /* input value */
   q15_t in1;                                     /* input value */
+
+	if(blockSize == 1)
+	{
+		*pResult = 0;
+		return;
+	}
 
   /*loop Unrolling */
   blkCnt = blockSize >> 2u;
@@ -131,29 +135,25 @@ void arm_std_q15(
 
   /* Compute Mean of squares of the input samples    
    * and then store the result in a temporary variable, meanOfSquares. */
-  t = (q15_t) ((1.0 / (blockSize - 1)) * 16384LL);
-  sumOfSquares = __SSAT((sumOfSquares >> 15u), 16u);
-
-  meanOfSquares = (q31_t) ((sumOfSquares * t) >> 14u);
-
-  /* Compute mean of all input values */
-  t = (q15_t) ((1.0 / (blockSize * (blockSize - 1))) * 32768LL);
-  mean = (q15_t) __SSAT(sum, 16u);
+  meanOfSquares = (q31_t)(sumOfSquares / (q63_t)(blockSize - 1));
 
   /* Compute square of mean */
-  squareOfMean = ((q31_t) mean * mean) >> 15;
-  squareOfMean = (q31_t) (((q63_t) squareOfMean * t) >> 15);
+  squareOfMean = (q31_t) ((q63_t)sum * sum / (q63_t)(blockSize * (blockSize - 1)));
 
   /* mean of the squares minus the square of the mean. */
-  in1 = (q15_t) (meanOfSquares - squareOfMean);
-
   /* Compute standard deviation and store the result to the destination */
-  arm_sqrt_q15(in1, pResult);
+  arm_sqrt_q15(__SSAT((meanOfSquares - squareOfMean) >> 15, 16u), pResult);
 
 #else
 
   /* Run the below code for Cortex-M0 */
   q15_t in;                                      /* input value */
+
+	if(blockSize == 1)
+	{
+		*pResult = 0;
+		return;
+	}
 
   /* Loop over blockSize number of values */
   blkCnt = blockSize;
@@ -176,24 +176,14 @@ void arm_std_q15(
 
   /* Compute Mean of squares of the input samples     
    * and then store the result in a temporary variable, meanOfSquares. */
-  t = (q15_t) ((1.0 / (blockSize - 1)) * 16384LL);
-  sumOfSquares = __SSAT((sumOfSquares >> 15u), 16u);
-  meanOfSquares = (q31_t) ((sumOfSquares * t) >> 14u);
+  meanOfSquares = (q31_t)(sumOfSquares / (q63_t)(blockSize - 1));
 
-  /* Compute mean of all input values */
-  mean = (q15_t) __SSAT(sum, 16u);
-
-  /* Compute square of mean of the input samples   
-   * and then store the result in a temporary variable, squareOfMean.*/
-  t = (q15_t) ((1.0 / (blockSize * (blockSize - 1))) * 32768LL);
-  squareOfMean = ((q31_t) mean * mean) >> 15;
-  squareOfMean = (q31_t) (((q63_t) squareOfMean * t) >> 15);
+  /* Compute square of mean */
+  squareOfMean = (q31_t) ((q63_t)sum * sum / (q63_t)(blockSize * (blockSize - 1)));
 
   /* mean of the squares minus the square of the mean. */
-  in = (q15_t) (meanOfSquares - squareOfMean);
-
   /* Compute standard deviation and store the result to the destination */
-  arm_sqrt_q15(in, pResult);
+  arm_sqrt_q15(__SSAT((meanOfSquares - squareOfMean) >> 15, 16u), pResult);
 
 #endif /* #ifndef ARM_MATH_CM0_FAMILY */
 

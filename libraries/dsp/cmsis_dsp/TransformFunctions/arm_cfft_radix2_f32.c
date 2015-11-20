@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------   
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.   
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.   
 *   
-* $Date:        17. January 2013  
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015 
+* $Revision: 	V.1.4.5  
 *   
 * Project: 	    CMSIS DSP Library   
 * Title:	    arm_cfft_radix2_f32.c   
@@ -72,7 +72,7 @@ extern void arm_bitreversal_f32(
 /**   
 * @details
 * @brief Radix-2 CFFT/CIFFT.
-* @deprecated Do not use this function.  It has been superceded by \ref arm_cfft_f32 and will be removed
+* @deprecated Do not use this function.  It has been superseded by \ref arm_cfft_f32 and will be removed
 * in the future.
 * @param[in]      *S    points to an instance of the floating-point Radix-2 CFFT/CIFFT structure.  
 * @param[in, out] *pSrc points to the complex data buffer of size <code>2*fftLen</code>. Processing occurs in-place.  

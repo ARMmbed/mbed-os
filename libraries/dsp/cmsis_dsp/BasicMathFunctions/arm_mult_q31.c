@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_mult_q31.c    
@@ -118,6 +118,20 @@ void arm_mult_q31(
   /* If the blockSize is not a multiple of 4, compute any remaining output samples here.    
    ** No loop unrolling is used. */
   blkCnt = blockSize % 0x4u;
+  
+  while(blkCnt > 0u)
+  {
+    /* C = A * B */
+    /* Multiply the inputs and then store the results in the destination buffer. */
+    inA1 = *pSrcA++;
+    inB1 = *pSrcB++;
+    out1 = ((q63_t) inA1 * inB1) >> 32;
+    out1 = __SSAT(out1, 31);
+    *pDst++ = out1 << 1u;
+
+    /* Decrement the blockSize loop counter */
+    blkCnt--;
+  }
 
 #else
 
@@ -126,7 +140,6 @@ void arm_mult_q31(
   /* Initialize blkCnt with number of samples */
   blkCnt = blockSize;
 
-#endif /* #ifndef ARM_MATH_CM0_FAMILY */
 
   while(blkCnt > 0u)
   {
@@ -138,6 +151,8 @@ void arm_mult_q31(
     /* Decrement the blockSize loop counter */
     blkCnt--;
   }
+  
+#endif /* #ifndef ARM_MATH_CM0_FAMILY */
 }
 
 /**    

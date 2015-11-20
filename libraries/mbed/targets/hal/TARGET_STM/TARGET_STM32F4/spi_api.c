@@ -104,6 +104,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 #endif
 
+#if defined SPI6_BASE
+    if (obj->spi == SPI_6) {
+        __HAL_RCC_SPI6_CLK_ENABLE();
+    }
+#endif
+
     // Configure the SPI pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
@@ -163,6 +169,14 @@ void spi_free(spi_t *obj)
         __HAL_RCC_SPI5_FORCE_RESET();
         __HAL_RCC_SPI5_RELEASE_RESET();
         __HAL_RCC_SPI5_CLK_DISABLE();
+    }
+#endif
+
+#if defined SPI6_BASE
+    if (obj->spi == SPI_6) {
+        __HAL_RCC_SPI6_FORCE_RESET();
+        __HAL_RCC_SPI6_RELEASE_RESET();
+        __HAL_RCC_SPI6_CLK_DISABLE();
     }
 #endif
 

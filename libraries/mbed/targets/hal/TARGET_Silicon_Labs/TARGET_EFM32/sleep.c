@@ -41,10 +41,7 @@ uint32_t sleep_block_counter[NUM_SLEEP_MODES] = {0};
 
 /**
  * Sleep mode.
- * Enter Energy Mode 1, which turns off the clock to the CPU.
- *
- * In EM1, the CPU is sleeping and the power consumption is only 50 μA/MHz.
- * All peripherals, including DMA, PRS and memory system, are still available.
+ * Enter the lowest possible sleep mode that is not blocked by ongoing activity.
  */
 void sleep(void)
 {
@@ -57,13 +54,10 @@ void sleep(void)
     } else if (sleep_block_counter[2] > 0) {
         /* Blocked everything below EM2, enter EM2 */
         EMU_EnterEM2(true);
-    } else if (sleep_block_counter[3] > 0) {
+    } else {
         /* Blocked everything below EM3, enter EM3 */
         EMU_EnterEM3(true);
-    } else{
-        /* Nothing is blocked, enter EM4 */
-        EMU_EnterEM4();
-    }
+    } /* Never enter EM4, as mbed has no way of configuring EM4 wakeup */
     return;
 }
 
