@@ -58,6 +58,7 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
         'NUCLEO_F401RE',
+        'NUCLEO_F410RB',
         'NUCLEO_F411RE',
         'NUCLEO_F446RE',
         'NUCLEO_L053R8',

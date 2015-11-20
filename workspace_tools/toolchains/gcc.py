@@ -186,7 +186,7 @@ class GCC_ARM(GCC):
         self.ld.append("--specs=nano.specs")
         if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
-        elif target.name in ["RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
+        elif target.name in ["RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
             self.ld.extend(["-u_printf_float", "-u_scanf_float"])
 
         self.sys_libs.append("nosys")
