@@ -40,7 +40,7 @@ void rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
-    if(RTC->ISR == 7) {     // RTC initialization and status register (RTC_ISR), cold start (with no backup domain power) RTC reset value
+    if((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {     // RTC initialization and status register (RTC_ISR), cold start (with no backup domain power) RTC reset value
 
         RtcHandle.Instance = RTC;
 

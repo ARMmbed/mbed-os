@@ -48,6 +48,9 @@ void rtc_init(void)
 
     RtcHandle.Instance = RTC;
 
+    // Check if RTC is already initialized
+    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return;
+
     // Enable Power clock
     __HAL_RCC_PWR_CLK_ENABLE();
 
