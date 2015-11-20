@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. October 2015
+* $Revision: 	V.1.4.5 a
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_biquad_cascade_df1_fast_q31.c    
@@ -124,19 +124,19 @@ void arm_biquad_cascade_df1_fast_q31(
 
       /* acc =  b0 * x[n] + b1 * x[n-1] + b2 * x[n-2] + a1 * y[n-1] + a2 * y[n-2] */
       /* acc =  b0 * x[n] */
-      //acc = (q31_t) (((q63_t) b1 * Xn1) >> 32);
+      /*acc = (q31_t) (((q63_t) b1 * Xn1) >> 32);*/
       mult_32x32_keep32_R(acc, b1, Xn1);
       /* acc +=  b1 * x[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b0 * (Xn))) >> 32);   
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b0 * (Xn))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b0, Xn);
       /* acc +=  b[2] * x[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b2, Xn2);
       /* acc +=  a1 * y[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a1, Yn1);
       /* acc +=  a2 * y[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a2, Yn2);
 
       /* The result is converted to 1.31 , Yn2 variable is reused */
@@ -150,19 +150,19 @@ void arm_biquad_cascade_df1_fast_q31(
 
       /* acc =  b0 * x[n] + b1 * x[n-1] + b2 * x[n-2] + a1 * y[n-1] + a2 * y[n-2] */
       /* acc =  b0 * x[n] */
-      //acc = (q31_t) (((q63_t) b0 * (Xn2)) >> 32);
+      /*acc = (q31_t) (((q63_t) b0 * (Xn2)) >> 32);*/
       mult_32x32_keep32_R(acc, b0, Xn2);
       /* acc +=  b1 * x[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b1, Xn);
       /* acc +=  b[2] * x[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b2, Xn1);
       /* acc +=  a1 * y[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a1, Yn2);
       /* acc +=  a2 * y[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a2, Yn1);
 
       /* The result is converted to 1.31, Yn1 variable is reused  */
@@ -176,19 +176,19 @@ void arm_biquad_cascade_df1_fast_q31(
 
       /* acc =  b0 * x[n] + b1 * x[n-1] + b2 * x[n-2] + a1 * y[n-1] + a2 * y[n-2] */
       /* acc =  b0 * x[n] */
-      //acc = (q31_t) (((q63_t) b0 * (Xn1)) >> 32);
+      /*acc = (q31_t) (((q63_t) b0 * (Xn1)) >> 32);*/
       mult_32x32_keep32_R(acc, b0, Xn1);
       /* acc +=  b1 * x[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b1, Xn2);
       /* acc +=  b[2] * x[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b2, Xn);
       /* acc +=  a1 * y[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a1, Yn1);
       /* acc +=  a2 * y[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a2, Yn2);
 
       /* The result is converted to 1.31, Yn2 variable is reused  */
@@ -203,19 +203,19 @@ void arm_biquad_cascade_df1_fast_q31(
 
       /* acc =  b0 * x[n] + b1 * x[n-1] + b2 * x[n-2] + a1 * y[n-1] + a2 * y[n-2] */
       /* acc =  b0 * x[n] */
-      //acc = (q31_t) (((q63_t) b0 * (Xn)) >> 32);
+      /*acc = (q31_t) (((q63_t) b0 * (Xn)) >> 32);*/
       mult_32x32_keep32_R(acc, b0, Xn);
       /* acc +=  b1 * x[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b1, Xn1);
       /* acc +=  b[2] * x[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b2, Xn2);
       /* acc +=  a1 * y[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a1, Yn2);
       /* acc +=  a2 * y[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a2, Yn1);
 
       /* Every time after the output is computed state should be updated. */
@@ -248,19 +248,19 @@ void arm_biquad_cascade_df1_fast_q31(
 
       /* acc =  b0 * x[n] + b1 * x[n-1] + b2 * x[n-2] + a1 * y[n-1] + a2 * y[n-2] */
       /* acc =  b0 * x[n] */
-      //acc = (q31_t) (((q63_t) b0 * (Xn)) >> 32);
+      /*acc = (q31_t) (((q63_t) b0 * (Xn)) >> 32);*/
       mult_32x32_keep32_R(acc, b0, Xn);
       /* acc +=  b1 * x[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b1 * (Xn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b1, Xn1);
       /* acc +=  b[2] * x[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) b2 * (Xn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, b2, Xn2);
       /* acc +=  a1 * y[n-1] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn1))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a1 * (Yn1))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a1, Yn1);
       /* acc +=  a2 * y[n-2] */
-      //acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn2))) >> 32);
+      /*acc = (q31_t) ((((q63_t) acc << 32) + ((q63_t) a2 * (Yn2))) >> 32);*/
       multAcc_32x32_keep32_R(acc, a2, Yn2);
 
       /* The result is converted to 1.31  */

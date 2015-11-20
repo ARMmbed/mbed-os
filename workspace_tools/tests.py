@@ -583,7 +583,7 @@ TESTS = [
         "id": "MBED_36", "description": "WFI correct behavior",
         "source_dir": join(TEST_DIR, "mbed", "wfi"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True
+        "automated": False
     },
     {
         "id": "MBED_37", "description": "Serial NC RX",
@@ -1049,7 +1049,7 @@ TESTS = [
         "automated": True,
         #"host_test" : "detect_auto",
     },
-	
+
 ]
 
 # Group tests with the same goals into categories
@@ -1092,6 +1092,8 @@ class Test:
     def is_supported(self, target, toolchain):
         if hasattr(self, 'mcu') and not target in self.mcu:
             return False
+        if hasattr(self, 'exclude_mcu') and target in self.exclude_mcu:
+            return False
         if not hasattr(self, 'supported'):
             return True
         return (target in self.supported) and (toolchain in self.supported[target])
@@ -1111,6 +1113,7 @@ class Test:
     def __getitem__(self, key):
         if key == "id": return self.id
         elif key == "mcu": return self.mcu
+        elif key == "exclude_mcu": return self.exclude_mcu
         elif key == "dependencies": return self.dependencies
         elif key == "description": return self.description
         elif key == "duration": return self.duration

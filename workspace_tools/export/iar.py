@@ -63,8 +63,9 @@ class IAREmbeddedWorkbench(Exporter):
         'NUCLEO_F446RE',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
-        'NUCLEO_L152RE',        
-        #'NUCLEO_L476RG', removed because iar_nucleo_l476rg.ewp.tmpl is missing
+        'NUCLEO_L152RE',
+        'NUCLEO_L476RG',
+        'DISCO_F429ZI',
         'DISCO_L053C8',
         'DISCO_F334C8',
         'DISCO_F469NI',
