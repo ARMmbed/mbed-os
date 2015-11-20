@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_rms_q31.c    
@@ -141,12 +141,8 @@ void arm_rms_q31(
   }
 
   /* Convert data in 2.62 to 1.31 by 31 right shifts and saturate */
-
-  sum = __SSAT(sum >> 31, 31);
-
-
   /* Compute Rms and store the result in the destination vector */
-  arm_sqrt_q31((q31_t) ((q31_t) sum / (int32_t) blockSize), pResult);
+  arm_sqrt_q31(clip_q63_to_q31((sum / (q63_t) blockSize) >> 31), pResult);
 }
 
 /**        

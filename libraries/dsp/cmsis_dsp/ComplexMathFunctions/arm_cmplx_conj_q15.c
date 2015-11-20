@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. October 2015
+* $Revision: 	V.1.4.5 a
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_cmplx_conj_q15.c    
@@ -103,7 +103,7 @@ void arm_cmplx_conj_q15(
     in3 = __QSAX(zero, in3);
     in4 = __QSAX(zero, in4);
 
-#endif //       #ifndef ARM_MATH_BIG_ENDIAN
+#endif /* #ifndef ARM_MATH_BIG_ENDIAN */
 
     in1 = ((uint32_t) in1 >> 16) | ((uint32_t) in1 << 16);
     in2 = ((uint32_t) in2 >> 16) | ((uint32_t) in2 << 16);

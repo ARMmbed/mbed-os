@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013 
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_float_to_q15.c    
@@ -104,22 +104,22 @@ void arm_float_to_q15(
     /* convert from float to q15 and then store the results in the destination buffer */
     in = *pIn++;
     in = (in * 32768.0f);
-    in += in > 0 ? 0.5 : -0.5;
+    in += in > 0.0f ? 0.5f : -0.5f;
     *pDst++ = (q15_t) (__SSAT((q31_t) (in), 16));
 
     in = *pIn++;
     in = (in * 32768.0f);
-    in += in > 0 ? 0.5 : -0.5;
+    in += in > 0.0f ? 0.5f : -0.5f;
     *pDst++ = (q15_t) (__SSAT((q31_t) (in), 16));
 
     in = *pIn++;
     in = (in * 32768.0f);
-    in += in > 0 ? 0.5 : -0.5;
+    in += in > 0.0f ? 0.5f : -0.5f;
     *pDst++ = (q15_t) (__SSAT((q31_t) (in), 16));
 
     in = *pIn++;
     in = (in * 32768.0f);
-    in += in > 0 ? 0.5 : -0.5;
+    in += in > 0.0f ? 0.5f : -0.5f;
     *pDst++ = (q15_t) (__SSAT((q31_t) (in), 16));
 
 #else
@@ -149,7 +149,7 @@ void arm_float_to_q15(
     /* convert from float to q15 and then store the results in the destination buffer */
     in = *pIn++;
     in = (in * 32768.0f);
-    in += in > 0 ? 0.5 : -0.5;
+    in += in > 0.0f ? 0.5f : -0.5f;
     *pDst++ = (q15_t) (__SSAT((q31_t) (in), 16));
 
 #else

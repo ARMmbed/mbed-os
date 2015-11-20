@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_biquad_cascade_df1_q31.c    
@@ -90,7 +90,7 @@ void arm_biquad_cascade_df1_q31(
   uint32_t sample, stage = S->numStages;         /*  loop counters                     */
 
 
-#ifndef ARM_MATH_CM0_FAMILY
+#ifndef ARM_MATH_CM0_FAMILY_FAMILY
 
   q31_t acc_l, acc_h;                            /*  temporary output variables    */
 
@@ -394,8 +394,11 @@ void arm_biquad_cascade_df1_q31(
 
   } while(--stage);
 
-#endif /*  #ifndef ARM_MATH_CM0_FAMILY */
+#endif /*  #ifndef ARM_MATH_CM0_FAMILY_FAMILY */
 }
+
+
+
 
 /**    
   * @} end of BiquadCascadeDF1 group    

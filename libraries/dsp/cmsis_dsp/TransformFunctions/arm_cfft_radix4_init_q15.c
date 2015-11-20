@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013  
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015 
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_cfft_radix4_init_q15.c    
@@ -54,6 +54,7 @@
 
 /**    
 * @brief Initialization function for the Q15 CFFT/CIFFT.   
+* @deprecated Do not use this function.  It has been superseded by \ref arm_cfft_q15 and will be removed
 * @param[in,out] *S             points to an instance of the Q15 CFFT/CIFFT structure.   
 * @param[in]     fftLen         length of the FFT.   
 * @param[in]     ifftFlag       flag that selects forward (ifftFlag=0) or inverse (ifftFlag=1) transform.   
@@ -84,7 +85,7 @@ arm_status arm_cfft_radix4_init_q15(
   /*  Initialise the FFT length */
   S->fftLen = fftLen;
   /*  Initialise the Twiddle coefficient pointer */
-  S->pTwiddle = (q15_t *) twiddleCoefQ15;
+  S->pTwiddle = (q15_t *) twiddleCoef_4096_q15;
   /*  Initialise the Flag for selection of CFFT or CIFFT */
   S->ifftFlag = ifftFlag;
   /*  Initialise the Flag for calculation Bit reversal or not */

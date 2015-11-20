@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------   
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.   
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.   
 *   
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *   
 * Project: 	    CMSIS DSP Library   
 * Title:		arm_conv_partial_fast_q15.c   
@@ -124,8 +124,8 @@ arm_status arm_conv_partial_fast_q15(
     /* Conditions to check which loopCounter holds   
      * the first and last indices of the output samples to be calculated. */
     check = firstIndex + numPoints;
-    blockSize3 = ((int32_t) check - (int32_t) srcALen);
-    blockSize3 = (blockSize3 > 0) ? blockSize3 : 0;
+    blockSize3 = ((int32_t)check > (int32_t)srcALen) ? (int32_t)check - (int32_t)srcALen : 0;
+    blockSize3 = ((int32_t)firstIndex > (int32_t)srcALen - 1) ? blockSize3 - (int32_t)firstIndex + (int32_t)srcALen : blockSize3;
     blockSize1 = (((int32_t) srcBLen - 1) - (int32_t) firstIndex);
     blockSize1 = (blockSize1 > 0) ? ((check > (srcBLen - 1u)) ? blockSize1 :
                                      (int32_t) numPoints) : 0;
@@ -280,7 +280,14 @@ arm_status arm_conv_partial_fast_q15(
      */
 
     /* Working pointer of inputA */
-    px = pIn1;
+    if((int32_t)firstIndex - (int32_t)srcBLen + 1 > 0)
+    {
+      px = pIn1 + firstIndex - srcBLen + 1;
+    }
+    else
+    {
+      px = pIn1;
+    }
 
     /* Working pointer of inputB */
     pSrc2 = pIn2 + (srcBLen - 1u);
@@ -764,13 +771,13 @@ arm_status arm_conv_partial_fast_q15(
     /* Conditions to check which loopCounter holds   
      * the first and last indices of the output samples to be calculated. */
     check = firstIndex + numPoints;
-    blockSize3 = ((int32_t) check - (int32_t) srcALen);
-    blockSize3 = (blockSize3 > 0) ? blockSize3 : 0;
-    blockSize1 = (((int32_t) srcBLen - 1) - (int32_t) firstIndex);
+    blockSize3 = ((int32_t)check > (int32_t)srcALen) ? (int32_t)check - (int32_t)srcALen : 0;
+    blockSize3 = ((int32_t)firstIndex > (int32_t)srcALen - 1) ? blockSize3 - (int32_t)firstIndex + (int32_t)srcALen : blockSize3;
+    blockSize1 = ((int32_t) srcBLen - 1) - (int32_t) firstIndex;
     blockSize1 = (blockSize1 > 0) ? ((check > (srcBLen - 1u)) ? blockSize1 :
                                      (int32_t) numPoints) : 0;
-    blockSize2 = (int32_t) check - ((blockSize3 + blockSize1) +
-                                    (int32_t) firstIndex);
+    blockSize2 = ((int32_t) check - blockSize3) -
+      (blockSize1 + (int32_t) firstIndex);
     blockSize2 = (blockSize2 > 0) ? blockSize2 : 0;
 
     /* conv(x,y) at n = x[n] * y[0] + x[n-1] * y[1] + x[n-2] * y[2] + ...+ x[n-N+1] * y[N -1] */
@@ -818,7 +825,7 @@ arm_status arm_conv_partial_fast_q15(
     /* Second part of this stage computes the MAC operations greater than or equal to 4 */
 
     /* The first part of the stage starts here */
-  while((count < 4u) && (blockSize1 > 0u))
+  while((count < 4u) && (blockSize1 > 0))
     {
       /* Accumulator is made zero for every iteration */
       sum = 0;
@@ -856,7 +863,7 @@ arm_status arm_conv_partial_fast_q15(
      * y[srcBLen] and y[srcBLen-1] coefficients, py is decremented by 1 */
     py = py - 1;
 
-  while(blockSize1 > 0u)
+  while(blockSize1 > 0)
     {
       /* Accumulator is made zero for every iteration */
       sum = 0;
@@ -918,7 +925,14 @@ arm_status arm_conv_partial_fast_q15(
      */
 
     /* Working pointer of inputA */
-    px = pIn1;
+    if((int32_t)firstIndex - (int32_t)srcBLen + 1 > 0)
+    {
+      px = pIn1 + firstIndex - srcBLen + 1;
+    }
+    else
+    {
+      px = pIn1;
+    }
 
     /* Working pointer of inputB */
     pSrc2 = pIn2 + (srcBLen - 1u);
@@ -1431,7 +1445,7 @@ arm_status arm_conv_partial_fast_q15(
      * so pointer py is updated to read only one sample at a time */
     py = py + 1u;
 
-  while(blockSize3 > 0u)
+  while(blockSize3 > 0)
     {
       /* Accumulator is made zero for every iteration */
       sum = 0;
