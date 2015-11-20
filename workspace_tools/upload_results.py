@@ -222,31 +222,34 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
 
             project_run_data['names_set'].add(projectRun['project'])
 
-            system_outs = test_case.findall('system-out')
+            skipped = test_case.findall('skipped')
 
-            output = ""
-            if system_outs:
-                output = system_outs[0].text
+            if not skipped:
+                system_outs = test_case.findall('system-out')
 
-            if is_build:
-                projectRun['buildOutput'] = output
-            else:
-                projectRun['testOutput'] = output
+                output = ""
+                if system_outs:
+                    output = system_outs[0].text
 
-            errors = test_case.findall('error')
-            failures = test_case.findall('failure')
+                if is_build:
+                    projectRun['buildOutput'] = output
+                else:
+                    projectRun['testOutput'] = output
 
-            if errors:
-                projectRun['pass'] = False
-                projectRun['result'] = errors[0].attrib['message']
-            elif failures:
-                projectRun['pass'] = False
-                projectRun['result'] = failures[0].attrib['message']
-            else:
-                projectRun['pass'] = True
-                projectRun['result'] = 'OK'
+                errors = test_case.findall('error')
+                failures = test_case.findall('failure')
 
-            update_project_run(project_run_data['projectRuns'], projectRun)
+                if errors:
+                    projectRun['pass'] = False
+                    projectRun['result'] = errors[0].attrib['message']
+                elif failures:
+                    projectRun['pass'] = False
+                    projectRun['result'] = failures[0].attrib['message']
+                else:
+                    projectRun['pass'] = True
+                    projectRun['result'] = 'OK'
+
+                update_project_run(project_run_data['projectRuns'], projectRun)
 
 def main(arguments):
     # Register and parse command line arguments
