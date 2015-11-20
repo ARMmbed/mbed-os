@@ -34,6 +34,14 @@ LIBRARIES = [
         "dependencies": [MBED_LIBRARIES, MBED_RTX],
     },
 
+    # RPC
+    {
+        "id": "rpc",
+        "source_dir": MBED_RPC,
+        "build_dir": RPC_LIBRARY,
+        "dependencies": [MBED_LIBRARIES],
+    },
+
     # USB Device libraries
     {
         "id": "usb",
