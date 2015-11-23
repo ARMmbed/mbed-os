@@ -19,15 +19,15 @@
  #include "mbed-test-async/default_handlers.h"
  #include "mbed-test-async/case.h"
 
-using namespace mbed::test::v0;
+using namespace utest::v0;
 
-status_t mbed::test::v0::verbose_test_setup_handler(const size_t number_of_cases)
+status_t utest::v0::verbose_test_setup_handler(const size_t number_of_cases)
 {
     printf(">>> Running %u test cases...\n", number_of_cases);
     return STATUS_CONTINUE;
 }
 
-void mbed::test::v0::verbose_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
+void utest::v0::verbose_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
     printf("\n>>> Test cases: %u passed, %u failed", passed, failed);
     if (failure == FAILURE_NONE) {
@@ -38,13 +38,13 @@ void mbed::test::v0::verbose_test_teardown_handler(const size_t passed, const si
     if (failed) printf(">>> TESTS FAILED!\n");
 }
 
-status_t mbed::test::v0::verbose_case_setup_handler(const Case *const source, const size_t index_of_case)
+status_t utest::v0::verbose_case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     printf("\n>>> Running case #%u: '%s'...\n", index_of_case + 1, source->get_description());
     return STATUS_CONTINUE;
 }
 
-status_t mbed::test::v0::verbose_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+status_t utest::v0::verbose_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     printf(">>> '%s': %u passed, %u failed", source->get_description(), passed, failed);
     if (failure == FAILURE_NONE) {
@@ -55,7 +55,7 @@ status_t mbed::test::v0::verbose_case_teardown_handler(const Case *const source,
     return STATUS_CONTINUE;
 }
 
-status_t mbed::test::v0::verbose_case_failure_handler(const Case *const /*source*/, const failure_t reason)
+status_t utest::v0::verbose_case_failure_handler(const Case *const /*source*/, const failure_t reason)
 {
     if (reason != FAILURE_ASSERTION) {
         printf(">>> failed with reason '%s'\n", stringify(reason));
@@ -65,7 +65,7 @@ status_t mbed::test::v0::verbose_case_failure_handler(const Case *const /*source
 
 
 
-status_t mbed::test::v0::greentea_test_setup_handler(const size_t /*number_of_cases*/)
+status_t utest::v0::greentea_test_setup_handler(const size_t /*number_of_cases*/)
 {
     printf(">>> I do not know how to tell greentea that the test started, since\n");
     printf(">>> you forgot to override the `test_setup_handler` in your specification.\n");
@@ -73,7 +73,7 @@ status_t mbed::test::v0::greentea_test_setup_handler(const size_t /*number_of_ca
     return STATUS_ABORT;
 }
 
-void mbed::test::v0::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
+void utest::v0::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
     verbose_test_teardown_handler(passed, failed, failure);
     if (failed || failure != FAILURE_NONE) {
@@ -84,7 +84,7 @@ void mbed::test::v0::greentea_test_teardown_handler(const size_t passed, const s
     printf("{{end}}\n");
 }
 
-status_t mbed::test::v0::greentea_case_failure_handler(const Case *const source, const failure_t reason)
+status_t utest::v0::greentea_case_failure_handler(const Case *const source, const failure_t reason)
 {
     verbose_case_failure_handler(source, reason);
     return STATUS_ABORT;

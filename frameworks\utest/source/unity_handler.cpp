@@ -21,5 +21,5 @@
 extern "C"
 void mbed_test_unity_assert_failure()
 {
-    mbed::test::v0::Harness::raise_failure(mbed::test::v0::FAILURE_ASSERTION);
+    utest::v0::Harness::raise_failure(utest::v0::FAILURE_ASSERTION);
 }

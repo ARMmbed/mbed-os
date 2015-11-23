@@ -20,7 +20,7 @@
  #include "minar/minar.h"
  #include "core-util/CriticalSectionLock.h"
 
-using namespace mbed::test::v0;
+using namespace utest::v0;
 
 
 namespace
@@ -53,7 +53,7 @@ static void die() {
 
 void Harness::run(const Specification specification)
 {
-    util::CriticalSectionLock lock;
+    mbed::util::CriticalSectionLock lock;
 
     test_cases = specification.cases;
     test_length = specification.length;
@@ -80,7 +80,7 @@ void Harness::run(const Specification specification)
 
 void Harness::raise_failure(failure_t reason)
 {
-    util::CriticalSectionLock lock;
+    mbed::util::CriticalSectionLock lock;
 
     case_failed++;
     status_t fail_status = STATUS_ABORT;
@@ -131,7 +131,7 @@ void Harness::schedule_next_case()
 
 void Harness::handle_timeout()
 {
-    util::CriticalSectionLock lock;
+    mbed::util::CriticalSectionLock lock;
 
     if (case_timeout_handle != NULL)
     {
@@ -143,7 +143,7 @@ void Harness::handle_timeout()
 
 void Harness::validate_callback()
 {
-    util::CriticalSectionLock lock;
+    mbed::util::CriticalSectionLock lock;
 
     if (case_timeout_handle != NULL)
     {
@@ -155,7 +155,7 @@ void Harness::validate_callback()
 
 bool Harness::is_busy()
 {
-    util::CriticalSectionLock lock;
+    mbed::util::CriticalSectionLock lock;
     if (!test_cases)   return false;
     if (!case_current) return false;
 
@@ -164,7 +164,7 @@ bool Harness::is_busy()
 
 void Harness::run_next_case()
 {
-    util::CriticalSectionLock lock;
+    mbed::util::CriticalSectionLock lock;
 
     if(case_current < (test_cases + test_length))
     {
