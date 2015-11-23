@@ -713,6 +713,16 @@ class NUCLEO_F446RE(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0777"]
 
+class B96B_F446VE(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F446VE']
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.detect_code = ["0840"]
+
 class NUCLEO_L053R8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1735,6 +1745,7 @@ TARGETS = [
     MTS_GAMBIT(),       # FRDM K64F
 
     ### STMicro ###
+    B96B_F446VE(),
     NUCLEO_F030R8(),
     NUCLEO_F031K6(),
     NUCLEO_F042K6(),
