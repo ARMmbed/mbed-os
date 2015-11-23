@@ -16,12 +16,13 @@
  ****************************************************************************
  */
 
-#ifndef MBED_TEST_ASYNC_H
-#define MBED_TEST_ASYNC_H
+#ifndef UTEST_H
+#define UTEST_H
 
 #include "types.h"
 #include "case.h"
 #include "default_handlers.h"
 #include "harness.h"
 
-#endif // MBED_TEST_ASYNC_H
+
+#endif // UTEST_H

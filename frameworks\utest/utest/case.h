@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
-#ifndef MBED_TEST_ASYNC_CASES_H
-#define MBED_TEST_ASYNC_CASES_H
+#ifndef UTEST_CASES_H
+#define UTEST_CASES_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -126,4 +126,4 @@ namespace v0 {
 }   // namespace v0
 }   // namespace utest
 
- #endif // MBED_TEST_ASYNC_CASES_H
+ #endif // UTEST_CASES_H

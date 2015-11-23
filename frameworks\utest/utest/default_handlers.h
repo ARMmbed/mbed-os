@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
-#ifndef MBED_TEST_ASYNC_DEFAULT_HANDLER_H
-#define MBED_TEST_ASYNC_DEFAULT_HANDLER_H
+#ifndef UTEST_DEFAULT_HANDLER_H
+#define UTEST_DEFAULT_HANDLER_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -170,4 +170,4 @@ namespace v0 {
 }   // namespace v0
 }   // namespace utest
 
-#endif // MBED_TEST_ASYNC_DEFAULT_HANDLER_H
+#endif // UTEST_DEFAULT_HANDLER_H

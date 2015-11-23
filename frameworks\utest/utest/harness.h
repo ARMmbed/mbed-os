@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
-#ifndef MBED_TEST_ASYNC_HARNESS_H
-#define MBED_TEST_ASYNC_HARNESS_H
+#ifndef UTEST_HARNESS_H
+#define UTEST_HARNESS_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -70,4 +70,4 @@ namespace v0 {
 }   // namespace v0
 }   // namespace utest
 
-#endif // MBED_TEST_ASYNC_HARNESS_H
+#endif // UTEST_HARNESS_H

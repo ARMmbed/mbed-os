@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
-#ifndef MBED_TEST_ASYNC_TYPES_H
-#define MBED_TEST_ASYNC_TYPES_H
+#ifndef UTEST_TYPES_H
+#define UTEST_TYPES_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -223,4 +223,4 @@ namespace v0 {
 }   // namespace v0
 }   // namespace utest
 
-#endif // MBED_TEST_ASYNC_TYPES_H
+#endif // UTEST_TYPES_H

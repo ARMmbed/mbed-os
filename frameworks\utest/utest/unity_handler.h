@@ -16,12 +16,12 @@
  ****************************************************************************
  */
 
-#ifndef MBED_TEST_ASYNC_UNITY_ASSERT_FAILURE_H
-#define MBED_TEST_ASYNC_UNITY_ASSERT_FAILURE_H
+#ifndef UTEST_UNITY_ASSERT_FAILURE_H
+#define UTEST_UNITY_ASSERT_FAILURE_H
 
 #include <stdint.h>
 
 /// this function is called from the unity module when an assertion failed.
 void utest_unity_assert_failure();
 
-#endif // MBED_ASYNC_TEST_UNITY_ASSERT_FAILURE_H
+#endif // UTEST_UNITY_ASSERT_FAILURE_H

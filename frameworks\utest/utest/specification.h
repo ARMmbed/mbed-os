@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
-#ifndef MBED_TEST_ASYNC_SPECIFICATION_H
-#define MBED_TEST_ASYNC_SPECIFICATION_H
+#ifndef UTEST_SPECIFICATION_H
+#define UTEST_SPECIFICATION_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -94,4 +94,4 @@ namespace v0 {
 }   // namespace v0
 }   // namespace utest
 
- #endif // MBED_TEST_ASYNC_SPECIFICATION_H
+ #endif // UTEST_SPECIFICATION_H
