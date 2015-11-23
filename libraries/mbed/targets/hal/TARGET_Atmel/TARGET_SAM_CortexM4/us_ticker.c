@@ -53,16 +53,15 @@ void us_ticker_init(void)
 #if SAMG55
     /* Enable PCK output */
     pmc_disable_pck(PMC_PCK_3);
-    pmc_switch_pck_to_mck(PMC_PCK_3, PMC_PCK_PRES_CLK_8);
+    pmc_switch_pck_to_mck(PMC_PCK_3, PMC_PCK_PRES_CLK_1);
     pmc_enable_pck(PMC_PCK_3);
 #endif
 
     /* Init TC to waveform mode. */
     tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL,
-            TC_CMR_ETRGEDG_NONE /* External Trigger Edge: None*/
+            TC_CMR_TCCLKS_TIMER_CLOCK4
            );
 
-    /* Start the timer counter on TC TC_CHANNEL_CAPTURE */
     tc_start(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL);
 }
 
