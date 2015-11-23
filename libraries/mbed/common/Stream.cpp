@@ -89,7 +89,7 @@ off_t Stream::flen() {
 }
 
 int Stream::printf(const char* format, ...) {
-    va_list arg;
+    std::va_list arg;
     va_start(arg, format);
     fflush(_file);
     int r = vfprintf(_file, format, arg);
@@ -98,7 +98,7 @@ int Stream::printf(const char* format, ...) {
 }
 
 int Stream::scanf(const char* format, ...) {
-    va_list arg;
+    std::va_list arg;
     va_start(arg, format);
     fflush(_file);
     int r = vfscanf(_file, format, arg);
@@ -106,13 +106,13 @@ int Stream::scanf(const char* format, ...) {
     return r;
 }
 
-int Stream::vprintf(const char* format, va_list args) {
+int Stream::vprintf(const char* format, std::va_list args) {
     fflush(_file);
     int r = vfprintf(_file, format, args);
     return r;
 }
 
-int Stream::vscanf(const char* format, va_list args) {
+int Stream::vscanf(const char* format, std::va_list args) {
     fflush(_file);
     int r = vfscanf(_file, format, args);
     return r;
