@@ -20,7 +20,7 @@
 #include "compiler.h"
 #include "ioport.h"
 
-static uint8_t ioinit = 1;
+uint8_t ioinit = 1;
 
 uint32_t gpio_set(PinName pin)
 {
