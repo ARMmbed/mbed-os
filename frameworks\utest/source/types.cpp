@@ -16,7 +16,7 @@
  ****************************************************************************
  */
 
- #include "mbed-test-async/types.h"
+ #include "utest/types.h"
 
 const char* utest::v0::stringify(utest::v0::failure_t failure)
 {

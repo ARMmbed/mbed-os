@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
- #include "mbed-test-async/default_handlers.h"
- #include "mbed-test-async/case.h"
+ #include "utest/default_handlers.h"
+ #include "utest/case.h"
 
 using namespace utest::v0;
 

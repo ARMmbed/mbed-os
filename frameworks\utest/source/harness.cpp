@@ -16,7 +16,7 @@
  ****************************************************************************
  */
 
- #include "mbed-test-async/harness.h"
+ #include "utest/harness.h"
  #include "minar/minar.h"
  #include "core-util/CriticalSectionLock.h"
 

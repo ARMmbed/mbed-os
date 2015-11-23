@@ -16,7 +16,7 @@
  ****************************************************************************
  */
 
- #include "mbed-test-async/case.h"
+ #include "utest/case.h"
 
 using namespace utest::v0;
 
