@@ -19,7 +19,7 @@
  #include "mbed-test-async/harness.h"
 
 extern "C"
-void mbed_test_unity_assert_failure()
+void utest_unity_assert_failure()
 {
     utest::v0::Harness::raise_failure(utest::v0::FAILURE_ASSERTION);
 }
