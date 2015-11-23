@@ -25,6 +25,10 @@ extern "C" {
 #endif
 // Default peripherals to be added
 
+#define STDIO_UART_TX     USBTX
+#define STDIO_UART_RX     USBRX
+#define STDIO_UART        1//UART_1
+
 
 #ifdef __cplusplus
 }
