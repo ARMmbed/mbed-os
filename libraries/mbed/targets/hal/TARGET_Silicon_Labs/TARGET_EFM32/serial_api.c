@@ -2021,6 +2021,14 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
  */
 int serial_irq_handler_asynch(serial_t *obj)
 {
+    uint32_t txc_int;
+
+    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
+        txc_int = LEUART_IntGetEnabled(obj->serial.periph.leuart) & LEUART_IF_TXC;
+    } else {
+        txc_int = USART_IntGetEnabled(obj->serial.periph.uart) & USART_IF_TXC;
+    }
+
     /* First, check if we're running in DMA mode */
     if(serial_dma_irq_fired[obj->serial.dmaOptionsRX.dmaChannel]) {
         /* Clean up */
@@ -2029,7 +2037,7 @@ int serial_irq_handler_asynch(serial_t *obj)
 
         /* Notify CPP land of RX completion */
         return SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
-    } else if (serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel]) {
+    } else if (txc_int && serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel]) {
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             /* Clean up */
             serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
@@ -2073,16 +2081,18 @@ int serial_irq_handler_asynch(serial_t *obj)
  */
 void serial_tx_abort_asynch(serial_t *obj)
 {
-    // We would disable the transmitter here (issue a TXDIS command),
-    // but the TXC interrupt seems to only indicate that the last
-    // frame has been moved to the shift register, instead of the
-    // transfer being actually complete. Disabling can therefore
-    // cause data loss on the wire.
-    //
-    // As an additional bonus, disabling the transmitter when using
-    // DMA on platforms prior to Pearl can cause the UART to leave
-    // the line low, generating a break condition until the next
-    // transmission begins.
+    // Disabling the transmitter when using DMA on platforms
+    // prior to Pearl can cause the UART to leave the line low,
+    // generating a break condition until the next transmission begins.
+
+#ifdef _SILICON_LABS_32B_PLATFORM_2
+    if( LEUART_REF_VALID(obj->serial.periph.leuart) ) {
+        obj->serial.periph.leuart->CMD = LEUART_CMD_TXDIS;
+        while(obj->serial.periph.leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
+    } else {
+        obj->serial.periph.uart->CMD = USART_CMD_TXDIS;
+    }
+#endif
 
     /* Clean up */
     switch(obj->serial.dmaOptionsTX.dmaUsageState) {
