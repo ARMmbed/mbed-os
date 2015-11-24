@@ -58,7 +58,7 @@ class Uvision4(Exporter):
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
-        #'NUCLEO_L476RG', removed because uvision4_nucleo_l476rg.uvproj.tmpl is missing
+        'NUCLEO_L476RG',
         'UBLOX_C027',
         'LPC1549',
         'LPC11U68',
