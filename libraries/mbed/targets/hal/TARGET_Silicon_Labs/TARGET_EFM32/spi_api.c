@@ -853,18 +853,28 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
     if( txdata ) {
         volatile void *target_addr;
 
+        /* Select TX target address. 9 bit frame length requires to use extended register.
+           10 bit and larger frame requires to use TXDOUBLE register. */
         switch((int)obj->spi.spi) {
             case USART_0:
                 dma_periph = ldmaPeripheralSignal_USART0_TXBL;
-                target_addr = &USART0->TXDATA;
+                if(obj->spi.bits <= 8){
+                    target_addr = &USART0->TXDATA;
+                }else if(obj->spi.bits == 9){
+                    target_addr = USART0->TXDOUBLEX;
+                }else{
+                    target_addr = &USART0->TXDOUBLE;
+                }
                 break;
             case USART_1:
                 dma_periph = ldmaPeripheralSignal_USART1_TXBL;
-                target_addr = &USART1->TXDATA;
-                break;
-            case LEUART_0:
-                dma_periph = ldmaPeripheralSignal_LEUART0_TXBL;
-                target_addr = &LEUART0->TXDATA;
+                if(obj->spi.bits <= 8){
+                    target_addr = &USART1->TXDATA;
+                }else if(obj->spi.bits == 9){
+                    target_addr = &USART1->TXDATAX;
+                }else{
+                    target_addr = &USART1->TXDOUBLE;
+                }
                 break;
             default:
                 EFM_ASSERT(0);
@@ -872,6 +882,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                 break;
         }
 
+        /*  Check the transmit lenght, and split long transfers to smaller ones*/
         int max_length = 1024;
 #ifdef _LDMA_CH_CTRL_XFERCNT_MASK
         max_length = (_LDMA_CH_CTRL_XFERCNT_MASK>>_LDMA_CH_CTRL_XFERCNT_SHIFT)+1;
@@ -890,19 +901,28 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
     }
     if(rxdata) {
         volatile const void *source_addr;
-
+        /* Select RX source address. 9 bit frame length requires to use extended register.
+           10 bit and larger frame requires to use RXDOUBLE register. */
         switch((int)obj->spi.spi) {
             case USART_0:
                 dma_periph = ldmaPeripheralSignal_USART0_RXDATAV;
-                source_addr = &USART0->RXDATA;
+                if(obj->spi.bits <= 8){
+                    source_addr = &USART0->RXDATA;
+                }else if(obj->spi.bits == 9){
+                    source_addr = &USART0->RXDATAX;
+                }else{
+                    source_addr = &USART0->RXDOUBLE;
+                }
                 break;
             case USART_1:
                 dma_periph = ldmaPeripheralSignal_USART1_RXDATAV;
-                source_addr = &USART1->RXDATA;
-                break;
-            case LEUART_0:
-                dma_periph = ldmaPeripheralSignal_LEUART0_RXDATAV;
-                source_addr = &LEUART0->RXDATA;
+                if(obj->spi.bits <= 8){
+                    source_addr = &USART1->RXDATA;
+                }else if(obj->spi.bits == 9){
+                    source_addr = &USART1->RXDATAX;
+                }else{
+                    source_addr = &USART1->RXDOUBLE;
+                }
                 break;
             default:
                 EFM_ASSERT(0);
@@ -912,7 +932,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
-        LDMA_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr); // obj->spi.dmaOptionsTX.dmaCallback JJH
+        LDMA_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
     }
 }
 
