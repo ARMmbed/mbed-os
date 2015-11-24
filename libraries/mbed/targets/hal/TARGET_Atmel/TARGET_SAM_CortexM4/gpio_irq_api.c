@@ -22,7 +22,7 @@
 
 #define IRQ_RISE_POSITION   1
 #define IRQ_FALL_POSITION   2
-#define CHANNEL_NUM         16
+#define CHANNEL_NUM         32
 #define MAX_PORT_NUM        2
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
@@ -31,28 +31,27 @@ extern uint8_t ioinit;
 
 void gpio_irq_common_handler(uint32_t port_id)
 {
-    uint32_t i = 0, j = 0;
-    uint32_t status_flag = 0;
+    uint32_t i = 0, status = 0, mask = 0, temp = 0;
     gpio_irq_event event;
 
     Pio* pio_base = arch_ioport_port_to_base(port_id);
-    status_flag = pio_base->PIO_ISR;
+    mask = pio_base->PIO_IMR;
+    status = pio_base->PIO_ISR;
+    status = status & mask;
 
-    for (i = 0; i < MAX_PORT_NUM; i++) {
-        for (j = 0; j < CHANNEL_NUM ; j++) {
-            if (status_flag & (1 << j ) ) {
-                if((pio_base->PIO_PDSR) & (1 << j )) { /*GPIO is in HIGH state, hence its a low to high transition*/
-                    event = IRQ_RISE;
-                } else {  /*GPIO is in LOW state, hence its a high to low transition*/
-                    event = IRQ_FALL;
-                }
-                if(irq_handler) {
-                    irq_handler(channel_ids[j], event);
-                }
+    for (i = 0; i < 32 ; i++) {
+        temp = (1 << i );
+        if (status & temp ) {
+            if((pio_base->PIO_PDSR) & temp) {
+                event = IRQ_RISE;
+            } else {
+                event = IRQ_FALL;
+            }
+            if(irq_handler) {
+                irq_handler(channel_ids[i], event);
             }
         }
     }
-
 }
 
 void gpio_irq_porta(void)
@@ -80,12 +79,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t vector = 0;
     uint8_t int_channel = 0;
 
+    irq_handler = handler;  // assuming the usage of these apis in mbed layer only
     int_channel = pin % 32; /*to get the channel to be used*/
     channel_ids[int_channel] = id;
     obj->pin = pin;
     port_id = ioport_pin_to_port_id(pin);
 
-    ioport_set_pin_dir(pin, IOPORT_DIR_INPUT);
+    ioport_set_pin_dir(pin, IOPORT_DIR_INPUT); /*Pin to be configured input for GPIO Interrupt*/
     ioport_set_pin_mode(pin, IOPORT_MODE_PULLUP);
 
     switch (port_id) {
@@ -114,10 +114,10 @@ void gpio_irq_free(gpio_irq_t *obj)
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
     MBED_ASSERT(obj);
+    uint32_t mask = 0;
 
     Pio* pio_base = arch_ioport_port_to_base(arch_ioport_pin_to_port_id(obj->pin));
-
-    pio_base->PIO_IER = 0x1u << ((obj->pin) % 32);
+    mask = (1 << (obj->pin % 32));
 
     if (enable) {
         if (event == IRQ_RISE) {
@@ -125,59 +125,58 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         } else if (event == IRQ_FALL) {
             obj->irqmask |= IRQ_FALL_POSITION;
         }
-        pio_base->PIO_IER = 0x1u << ((obj->pin) % 32);
     } else {
+
         if (event == IRQ_RISE) {
             obj->irqmask &= ~IRQ_RISE_POSITION;
         } else if (event == IRQ_FALL) {
             obj->irqmask &= ~IRQ_FALL_POSITION;
         }
-        pio_base->PIO_IDR = 0x1u << ((obj->pin) % 32);
     }
 
-    if (obj->irqmask == (IRQ_RISE_POSITION | IRQ_FALL_POSITION)) { /*Both Edge detection*/
-        ioport_set_pin_sense_mode(obj->pin, IOPORT_SENSE_RISING);
-        ioport_set_pin_sense_mode(obj->pin, IOPORT_SENSE_FALLING);
-    } else if (obj->irqmask == IRQ_RISE_POSITION) {  /*Rising Detection*/
-        ioport_set_pin_sense_mode(obj->pin, IOPORT_SENSE_RISING);
-    } else if (obj->irqmask == IRQ_FALL_POSITION) {  /*Falling Detection*/
-        ioport_set_pin_sense_mode(obj->pin, IOPORT_SENSE_FALLING);
-    } else { /*None and disable*/
+    if (obj->irqmask == (IRQ_RISE_POSITION | IRQ_FALL_POSITION)) { /*both edge detection*/
+        pio_base->PIO_AIMDR = mask;
+        pio_base->PIO_IER = mask;
+    } else if (obj->irqmask == IRQ_RISE_POSITION) {  /*rising detection*/
+        pio_base->PIO_ESR = mask;
+        pio_base->PIO_REHLSR = mask;
+        pio_base->PIO_AIMER = mask;
+        pio_base->PIO_IER = mask;
+    } else if (obj->irqmask == IRQ_FALL_POSITION) {  /*falling detection*/
+        pio_base->PIO_ESR = mask;
+        pio_base->PIO_FELLSR = mask;
+        pio_base->PIO_AIMER = mask;
+        pio_base->PIO_IER = mask;
+    } else { /*none and disable*/
+        pio_base->PIO_IDR = mask;
     }
+}
+
+static IRQn_Type pin_to_irq (uint32_t pin)
+{
+    uint32_t port_id;
+    IRQn_Type irq_n = (IRQn_Type)0;
+    port_id = ioport_pin_to_port_id(pin);
+
+    switch (port_id) {
+        case IOPORT_PIOA :
+            irq_n = PIOA_IRQn;
+            break;
+        case IOPORT_PIOB :
+            irq_n = PIOB_IRQn;
+            break;
+    }
+    return irq_n;
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
     MBED_ASSERT(obj);
-    uint32_t port_id;
-    IRQn_Type irq_n = (IRQn_Type)0;
-    port_id = ioport_pin_to_port_id(obj->pin);
-
-    switch (port_id) {
-        case IOPORT_PIOA :
-            irq_n = PIOA_IRQn;
-            break;
-        case IOPORT_PIOB :
-            irq_n = PIOB_IRQn;
-            break;
-    }
-    NVIC_EnableIRQ(irq_n);
+    NVIC_EnableIRQ(pin_to_irq(obj->pin));
 }
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
     MBED_ASSERT(obj);
-    uint32_t port_id;
-    IRQn_Type irq_n = (IRQn_Type)0;
-    port_id = ioport_pin_to_port_id(obj->pin);
-
-    switch (port_id) {
-        case IOPORT_PIOA :
-            irq_n = PIOA_IRQn;
-            break;
-        case IOPORT_PIOB :
-            irq_n = PIOB_IRQn;
-            break;
-    }
-    NVIC_DisableIRQ(irq_n);
+    NVIC_DisableIRQ(pin_to_irq(obj->pin));
 }
