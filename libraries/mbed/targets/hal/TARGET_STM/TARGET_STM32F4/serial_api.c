@@ -57,6 +57,11 @@ serial_t stdio_uart;
 
 static void init_uart(serial_t *obj)
 {
+#if DEVICE_SERIAL_ASYNCH_DMA
+    static DMA_HandleTypeDef hdma_tx;
+    static DMA_HandleTypeDef hdma_rx;
+#endif
+
     UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
 
     UartHandle.Init.BaudRate     = _SERIAL_OBJ(baudrate);
@@ -73,6 +78,48 @@ static void init_uart(serial_t *obj)
     } else {
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
+#if DEVICE_SERIAL_ASYNCH_DMA
+    // set DMA in the UartHandle
+    /* Configure the DMA handler for Transmission process */
+    hdma_tx.Instance                 = DMA1_Stream4;
+    hdma_tx.Init.Channel             = DMA_CHANNEL_4;
+    hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+    hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+    hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    hdma_tx.Init.Mode                = DMA_NORMAL;
+    hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+    hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
+    hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
+
+    HAL_DMA_Init(&hdma_tx);
+
+    /* Associate the initialized DMA handle to the UART handle */
+    __HAL_LINKDMA(UartHandle, hdmatx, hdma_tx);
+
+    /* Configure the DMA handler for reception process */
+    hdma_rx.Instance                 = DMA1_Stream2;
+    hdma_rx.Init.Channel             = DMA_CHANNEL_4;
+    hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+    hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
+    hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    hdma_rx.Init.Mode                = DMA_NORMAL;
+    hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
+    hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
+    hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4;
+
+    HAL_DMA_Init(&hdma_rx);
+
+    /* Associate the initialized DMA handle to the UART handle */
+    __HAL_LINKDMA(UartHandle, hdmarx, hdma_rx);
+#endif
 
     if (HAL_UART_Init(&UartHandle) != HAL_OK) {
         error("Cannot initialize UART\n");
@@ -110,6 +157,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         case UART_4:
             __HAL_RCC_UART4_CLK_ENABLE();
             _SERIAL_OBJ(index) = 3;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA1_CLK_ENABLE();
+#endif
             break;
 #endif
 #if defined(UART5_BASE)
@@ -193,6 +243,9 @@ void serial_free(serial_t *obj)
             __UART4_FORCE_RESET();
             __UART4_RELEASE_RESET();
             __UART4_CLK_DISABLE();
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA1_CLK_DISABLE();
+#endif
             break;
 #endif
 #if defined(UART5_BASE)
@@ -287,6 +340,12 @@ static void uart_irq(UARTName name, int id)
     }
 }
 
+static void dma_irq(DMAname name, int id)
+{
+  // TO DO
+    DmaHandle.Instance = (DMA_TypeDef *)name;
+
+}
 static void uart1_irq(void)
 {
     uart_irq(UART_1, 0);
@@ -309,6 +368,19 @@ static void uart4_irq(void)
 {
     uart_irq(UART_4, 3);
 }
+#if DEVICE_SERIAL_ASYNCH_DMA
+
+static void dma1_stream2_irq(void)
+{
+    dma_irq(DMA_1, 3 /* TO DO : ??? WHAT IS THIS 3 ??? */);
+}
+
+
+static void dma1_stream4_irq(void)
+{
+    dma_irq(DMA_1, 3 /* TO DO : ??? WHAT IS THIS 3 ??? */);
+}
+#endif
 #endif
 
 #if defined(UART5_BASE)
@@ -349,6 +421,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     IRQn_Type irq_n = (IRQn_Type)0;
     uint32_t vector = 0;
+#if DEVICE_SERIAL_ASYNC_DMA
+    IRQn_Type irq_n_dma = (IRQn_Type)0;
+    uint32_t vector_dma = 0;
+#endif
 
     UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
 
@@ -372,6 +448,15 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case UART_4:
             irq_n = UART4_IRQn;
             vector = (uint32_t)&uart4_irq;
+#if DEVICE_SERIAL_ASYNC_DMA
+            if (irq == RxIrq) {
+                irqn_dma = DMA1_Stream2_IRQn;
+                vector_dma = (uint32_t)&dma1_stream2_irq;
+            } else {
+                irqn_dma = DMA1_Stream4_IRQn;
+                vector_dma = (uint32_t)&dma1_stream4_irq;
+            }
+#endif
             break;
 #endif
 #if defined(UART5_BASE)
@@ -410,7 +495,10 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
-
+#if DEVICE_SERIAL_ASYNC_DMA
+        NVIC_SetVector(irq_n_dma, vector_dma);
+        NVIC_EnableIRQ(irq_n_dma);
+#endif
     } else { // disable
 
         int all_disabled = 0;
@@ -425,7 +513,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             if ((UartHandle.Instance->CR1 & USART_CR1_RXNEIE) == 0) all_disabled = 1;
         }
 
-        if (all_disabled) NVIC_DisableIRQ(irq_n);
+        if (all_disabled) {
+          NVIC_DisableIRQ(irq_n);
+#if DEVICE_SERIAL_ASYNC_DMA
+          NVIC_DisableIRQ(irq_n_dma);
+#endif
+        }
 
     }
 }
