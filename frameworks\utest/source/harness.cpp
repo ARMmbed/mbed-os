@@ -179,8 +179,9 @@ void Harness::run_next_case()
         }
 
         if ((!case_failed && !case_passed) || case_control.repeat == REPEAT_ALL) {
+            uint32_t index_of_case = test_index_of_case;
             if (case_control.repeat == REPEAT_NO_REPEAT) test_index_of_case++;
-            if (handlers.case_setup && (handlers.case_setup(case_current, test_index_of_case) != STATUS_CONTINUE)) {
+            if (handlers.case_setup && (handlers.case_setup(case_current, index_of_case) != STATUS_CONTINUE)) {
                 raise_failure(FAILURE_SETUP);
                 schedule_next_case();
                 return;
