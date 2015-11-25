@@ -30,7 +30,7 @@
 
 
 namespace utest {
-namespace v0 {
+namespace v1 {
 
     /** Test Harness.
      *
@@ -67,7 +67,7 @@ namespace v0 {
         static void schedule_next_case();
     };
 
-}   // namespace v0
+}   // namespace v1
 }   // namespace utest
 
 #endif // UTEST_HARNESS_H

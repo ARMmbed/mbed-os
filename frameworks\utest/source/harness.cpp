@@ -20,7 +20,7 @@
  #include "minar/minar.h"
  #include "core-util/CriticalSectionLock.h"
 
-using namespace utest::v0;
+using namespace utest::v1;
 
 
 namespace

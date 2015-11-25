@@ -28,7 +28,7 @@
 
 
 namespace utest {
-namespace v0 {
+namespace v1 {
 
     /** Test specification containing the setup and teardown handlers and test cases.
      *
@@ -91,7 +91,7 @@ namespace v0 {
         friend class Harness;
     };
 
-}   // namespace v0
+}   // namespace v1
 }   // namespace utest
 
  #endif // UTEST_SPECIFICATION_H

@@ -27,7 +27,7 @@
 
 
 namespace utest {
-namespace v0 {
+namespace v1 {
 
     /** Test case wrapper class.
      *
@@ -123,7 +123,7 @@ namespace v0 {
         friend class Harness;
     };
 
-}   // namespace v0
+}   // namespace v1
 }   // namespace utest
 
  #endif // UTEST_CASES_H

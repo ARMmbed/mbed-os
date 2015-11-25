@@ -21,5 +21,5 @@
 extern "C"
 void utest_unity_assert_failure()
 {
-    utest::v0::Harness::raise_failure(utest::v0::FAILURE_ASSERTION);
+    utest::v1::Harness::raise_failure(utest::v1::FAILURE_ASSERTION);
 }

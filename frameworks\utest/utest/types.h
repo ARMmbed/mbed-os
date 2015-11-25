@@ -25,7 +25,7 @@
 
 
 namespace utest {
-namespace v0 {
+namespace v1 {
 
     enum repeat_t {
         REPEAT_NO_REPEAT = 0,   ///< continue with the next test case
@@ -220,7 +220,7 @@ namespace v0 {
      */
     typedef status_t (*case_failure_handler_t)(const Case *const source, const failure_t reason);
 
-}   // namespace v0
+}   // namespace v1
 }   // namespace utest
 
 #endif // UTEST_TYPES_H

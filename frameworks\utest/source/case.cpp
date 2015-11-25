@@ -18,7 +18,7 @@
 
  #include "utest/case.h"
 
-using namespace utest::v0;
+using namespace utest::v1;
 
 // normal handler
 Case::Case(const char *description,
