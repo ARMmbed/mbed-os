@@ -80,6 +80,9 @@ DigitalIn  in(PB03);
 DigitalOut out(PA06);
 DigitalIn  in(PA07);
 
+#elif defined(TARGET_SAMG55J19)
+DigitalOut out(PA18);
+DigitalIn  in(PA17);
 #else
 DigitalOut out(p5);
 DigitalIn in(p25);
