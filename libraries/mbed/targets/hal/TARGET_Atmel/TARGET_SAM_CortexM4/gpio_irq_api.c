@@ -78,6 +78,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t port_id;
     uint32_t vector = 0;
     uint8_t int_channel = 0;
+    uint32_t dummyread = 0;
+    Pio* pio_base;
 
     irq_handler = handler;  // assuming the usage of these apis in mbed layer only
     int_channel = pin % 32; /*to get the channel to be used*/
@@ -99,6 +101,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             vector = (uint32_t)gpio_irq_portb;
             break;
     }
+    dummyread = pio_base->PIO_ISR; /*To read and clear status register*/
     NVIC_SetVector(irq_n, vector);
     NVIC_EnableIRQ(irq_n);
 
