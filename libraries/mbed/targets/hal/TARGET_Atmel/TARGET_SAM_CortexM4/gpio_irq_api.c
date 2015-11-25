@@ -86,6 +86,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     channel_ids[int_channel] = id;
     obj->pin = pin;
     port_id = ioport_pin_to_port_id(pin);
+    pio_base = arch_ioport_port_to_base(port_id);
 
     ioport_set_pin_dir(pin, IOPORT_DIR_INPUT); /*Pin to be configured input for GPIO Interrupt*/
     ioport_set_pin_mode(pin, IOPORT_MODE_PULLUP);

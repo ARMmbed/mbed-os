@@ -68,9 +68,13 @@ DigitalInOut d2(PC1);
 DigitalInOut d1(PB02);
 DigitalInOut d2(PB03);
 
-#elif defined(TARGET_SAML21J18A))
+#elif defined(TARGET_SAML21J18A)
 DigitalInOut d1(PA06);
 DigitalInOut d2(PA07);
+
+#elif defined(TARGET_SAMG55J19)
+DigitalInOut d1(PA18);
+DigitalInOut d2(PA17);
 
 #else
 DigitalInOut d1(p5);

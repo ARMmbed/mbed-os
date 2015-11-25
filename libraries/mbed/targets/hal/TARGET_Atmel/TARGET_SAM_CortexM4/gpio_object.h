@@ -42,7 +42,7 @@ static inline void gpio_write(gpio_t *obj, int value)
 static inline int gpio_read(gpio_t *obj)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
-    return (arch_ioport_get_pin_level(obj->pin) ? 1 : 0);
+    return (ioport_get_pin_level(obj->pin) ? 1 : 0);
 }
 
 static inline int gpio_is_connected(const gpio_t *obj)
