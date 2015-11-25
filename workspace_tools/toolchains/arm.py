@@ -133,6 +133,7 @@ class ARM(mbedToolchain):
 
         if mem_map:
             args.extend(["--scatter", mem_map])
+            args.extend(['--predefine="-D%s"' % s for s in self.get_symbols()])
 
         if hasattr(self.target, "link_cmdline_hook"):
             args = self.target.link_cmdline_hook(self.__class__.__name__, args)
