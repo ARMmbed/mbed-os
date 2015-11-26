@@ -13,16 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <string.h>
 #include "mbed_assert.h"
 #include "cmsis.h"
 #include "serial_api.h"
 #include "sysclk.h"
 #include "serial_platform.h"
 #include "ioport.h"
-//#include "PeripheralPins.h"
-//#include "pinmap_function.h"
+#include "pinmap.h"
+#include "PeripheralPins.h"
 
+#if DEVICE_SERIAL_ASYNCH
+#define pUSART_S(obj)			obj->serial.uart
+#define pSERIAL_S(obj)			((struct serial_s*)&(obj->serial))
+#else
+#define pUSART_S(obj)			obj->uart
+#define pSERIAL_S(obj)			((struct serial_s*)obj)
+#endif
+#define _USART(obj)			((Usart*)pUSART_S(obj))
+#define USART_NUM 8
+
+static uint32_t serial_irq_ids[USART_NUM] = {0};
 static uart_irq_handler irq_handler;
 
 int stdio_uart_inited = 0;
@@ -30,37 +40,87 @@ serial_t stdio_uart;
 
 extern uint8_t g_sys_init;
 
+static int get_usart_clock_id(UARTName peripheral)
+{
+    int cid;
+    switch (peripheral) {
+        case UART_0:
+            cid = ID_FLEXCOM0;
+            break;
+        case UART_1:
+            cid = ID_FLEXCOM1;
+            break;
+        case UART_2:
+            cid = ID_FLEXCOM2;
+            break;
+        case UART_3:
+            cid = ID_FLEXCOM3;
+            break;
+        case UART_4:
+            cid = ID_FLEXCOM4;
+            break;
+        case UART_5:
+            cid = ID_FLEXCOM5;
+            break;
+        case UART_6:
+            cid = ID_FLEXCOM6;
+            break;
+        case UART_7:
+            cid = ID_FLEXCOM7;
+            break;
+        default :
+            cid = NC;
+            break;
+    }
+    return cid;
+}
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    int clockid = NC;
+
+    /*To determine the uart peripheral associated with pins*/
+    UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
+    UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
+    UARTName uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
+
+    MBED_ASSERT(uart != (UARTName)NC);
+
     if (g_sys_init == 0) {
         sysclk_init();
         g_sys_init = 1;
     }
-    const usart_serial_options_t uart_serial_options = {
-        .baudrate = (9600UL),
-        .charlength = US_MR_CHRL_8_BIT,
-        .paritytype = US_MR_PAR_NO,
-        .stopbits = US_MR_NBSTOP_1_BIT,
-    };
+    pUSART_S(obj) = uart;
+    pSERIAL_S(obj)->uart_serial_options.baudrate = (9600UL);
+    pSERIAL_S(obj)->uart_serial_options.charlength = US_MR_CHRL_8_BIT;
+    pSERIAL_S(obj)->uart_serial_options.paritytype = US_MR_PAR_NO;
+    pSERIAL_S(obj)->uart_serial_options.stopbits = US_MR_NBSTOP_1_BIT;
 
     /* Configure UART pins */
-//    ioport_set_port_peripheral_mode(IOPORT_PIOA, (PIO_PA27B_RXD7| PIO_PA28B_TXD7),
-//                                    (IOPORT_MODE_MUX_B));
-    ioport_set_port_mode(IOPORT_PIOA, (PIO_PA27B_RXD7| PIO_PA28B_TXD7), (IOPORT_MODE_MUX_B));
-    ioport_disable_port(IOPORT_PIOA, (PIO_PA27B_RXD7| PIO_PA28B_TXD7));
+    pin_function(tx, pinmap_find_function(tx, PinMap_UART_TX));
+    ioport_disable_pin(tx);
+    pin_function(rx, pinmap_find_function(rx, PinMap_UART_RX));
+    ioport_disable_pin(rx);
 
-    sysclk_enable_peripheral_clock(ID_FLEXCOM7); // stdio uart being 7 . Have to implement pin to peripheral mapping
-    usart_serial_init(USART7, &uart_serial_options);
+    clockid = get_usart_clock_id(uart);
+    if (clockid != NC) {
+        sysclk_enable_peripheral_clock(clockid);
+    }
+    usart_serial_init((Usart*)uart, &(pSERIAL_S(obj)->uart_serial_options));
 
+    if(uart == STDIO_UART) {
+        stdio_uart_inited = 1;
+        memcpy(&stdio_uart, obj, sizeof(serial_t));
+    }
 }
 
 void serial_free(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    usart_reset(_USART(obj));
 }
 
 void serial_baud(serial_t *obj, int baudrate)
@@ -70,6 +130,14 @@ void serial_baud(serial_t *obj, int baudrate)
     MBED_ASSERT((baudrate == 110) || (baudrate == 150) || (baudrate == 300) || (baudrate == 1200) ||
                 (baudrate == 2400) || (baudrate == 4800) || (baudrate == 9600) || (baudrate == 19200) || (baudrate == 38400) ||
                 (baudrate == 57600) || (baudrate == 115200) || (baudrate == 230400) || (baudrate == 460800) || (baudrate == 921600) );
+    uint32_t clockid = 0;
+    clockid = get_usart_clock_id(pUSART_S(obj));
+    if (clockid != NC) {
+        sysclk_disable_peripheral_clock(clockid);
+    }
+    pSERIAL_S(obj)->uart_serial_options.baudrate = baudrate;
+    usart_serial_init(_USART(obj), &(pSERIAL_S(obj)->uart_serial_options));
+    sysclk_enable_peripheral_clock(clockid);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
@@ -78,8 +146,52 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     MBED_ASSERT(obj);
     MBED_ASSERT((stop_bits == 1) || (stop_bits == 2));
     MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
-    MBED_ASSERT((data_bits == 5) || (data_bits == 6) || (data_bits == 7) || (data_bits == 8) /*|| (data_bits == 9)*/);
+    MBED_ASSERT((data_bits == 5) || (data_bits == 6) || (data_bits == 7) || (data_bits == 8));
 
+    uint32_t clockid = 0;
+    clockid = get_usart_clock_id(pUSART_S(obj));
+    if (clockid != NC) {
+        sysclk_disable_peripheral_clock(clockid);
+    }
+
+    switch(stop_bits) { /*selecting the stop bits*/
+        case 1:
+            pSERIAL_S(obj)->uart_serial_options.stopbits = US_MR_NBSTOP_1_BIT;
+            break;
+        case 2:
+            pSERIAL_S(obj)->uart_serial_options.stopbits = US_MR_NBSTOP_2_BIT;
+            break;
+    }
+
+    switch(parity) { /*selecting the parity bits*/
+        case ParityNone:
+            pSERIAL_S(obj)->uart_serial_options.paritytype = US_MR_PAR_NO;
+            break;
+        case ParityOdd:
+            pSERIAL_S(obj)->uart_serial_options.paritytype = US_MR_PAR_ODD;
+            break;
+        case ParityEven:
+            pSERIAL_S(obj)->uart_serial_options.paritytype = US_MR_PAR_EVEN;
+            break;
+    }
+
+    switch(data_bits) { /*selecting the data bits*/
+        case 5:
+            pSERIAL_S(obj)->uart_serial_options.charlength = US_MR_CHRL_5_BIT;
+            break;
+        case 6:
+            pSERIAL_S(obj)->uart_serial_options.charlength = US_MR_CHRL_6_BIT;
+            break;
+        case 7:
+            pSERIAL_S(obj)->uart_serial_options.charlength = US_MR_CHRL_7_BIT;
+            break;
+        case 8:
+            pSERIAL_S(obj)->uart_serial_options.charlength = US_MR_CHRL_8_BIT;
+            break;
+    }
+
+    usart_serial_init(_USART(obj), &(pSERIAL_S(obj)->uart_serial_options));
+    sysclk_enable_peripheral_clock(clockid);
 }
 
 #ifdef DEVICE_SERIAL_FC
@@ -115,10 +227,36 @@ void serial_pinout_tx(PinName tx)
 /******************************************************************************
  * INTERRUPTS HANDLING
  ******************************************************************************/
+static uint8_t serial_get_index(serial_t *obj)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    switch ((int)pUSART_S(obj)) {
+        case UART_0:
+            return 0;
+        case UART_1:
+            return 1;
+        case UART_2:
+            return 2;
+        case UART_3:
+            return 3;
+        case UART_4:
+            return 4;
+        case UART_5:
+            return 5;
+        case UART_6:
+            return 6;
+        case UART_7:
+            return 7;
+    }
+    return 0;
+}
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    irq_handler = handler;
+    serial_irq_ids[serial_get_index(obj)] = id;
 }
 
 
@@ -135,25 +273,42 @@ int serial_getc(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-
+    while (!serial_readable(obj));
+    return (int)((_USART(obj)->US_RHR & US_RHR_RXCHR_Msk) & 0xFF);
 }
 
 void serial_putc(serial_t *obj, int c)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    while (!serial_writable(obj));
+    _USART(obj)->US_THR = US_THR_TXCHR(c);
 }
 
 int serial_readable(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    uint32_t status = 1;
+    if (!(_USART(obj)->US_CSR & US_CSR_RXRDY)) {
+        status = 0;
+    } else {
+        status = 1;
+    }
+    return status;
 }
 
 int serial_writable(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    uint32_t status = 1;
+    if (!(_USART(obj)->US_CSR & US_CSR_TXRDY)) {
+        status = 0;
+    } else {
+        status = 1;
+    }
+    return status;
 }
 
 /************************************************************************************
