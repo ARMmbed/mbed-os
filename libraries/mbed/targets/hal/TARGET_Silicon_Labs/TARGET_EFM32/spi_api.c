@@ -49,8 +49,8 @@
 #include "sleepmodes.h"
 
 static uint16_t fill_word = SPI_FILL_WORD;
-#define SPI_LEAST_ACTIVE_SLEEPMODE EM1
 
+#define SPI_LEAST_ACTIVE_SLEEPMODE EM0
 static inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
 {
     switch ((int)obj->spi.spi) {
@@ -861,7 +861,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                 if(obj->spi.bits <= 8){
                     target_addr = &USART0->TXDATA;
                 }else if(obj->spi.bits == 9){
-                    target_addr = USART0->TXDOUBLEX;
+                    target_addr = &USART0->TXDATAX;
                 }else{
                     target_addr = &USART0->TXDOUBLE;
                 }
@@ -896,6 +896,10 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(txdata, target_addr, tx_length);
+        if(obj->spi.bits >= 9){
+            desc.xfer.size = ldmaCtrlSizeHalf;
+            desc.xfer.srcInc = ldmaCtrlSrcIncTwo;
+        }
         LDMA_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
 
     }
@@ -932,6 +936,10 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
+        if(obj->spi.bits >= 9){
+            desc.xfer.size = ldmaCtrlSizeHalf;
+            desc.xfer.srcInc = ldmaCtrlSrcIncTwo;
+        }
         LDMA_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
     }
 }
