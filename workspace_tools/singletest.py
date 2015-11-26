@@ -71,13 +71,17 @@ from workspace_tools.test_api import get_avail_tests_summary_table
 from workspace_tools.test_api import get_default_test_options_parser
 from workspace_tools.test_api import print_muts_configuration_from_json
 from workspace_tools.test_api import print_test_configuration_from_json
-from workspace_tools.test_api import get_autodetected_MUTS
+from workspace_tools.test_api import get_autodetected_MUTS_list
 from workspace_tools.test_api import get_autodetected_TEST_SPEC
 from workspace_tools.test_api import get_module_avail
+from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+
 
 # Importing extra modules which can be not installed but if available they can extend test suite functionality
 try:
     import mbed_lstools
+    from workspace_tools.compliance.ioper_runner import IOperTestRunner
+    from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
 except:
     pass
 
@@ -142,13 +146,12 @@ if __name__ == '__main__':
         # parameters like 'toolchains_filter' are also set.
         print "MBEDLS: Detecting connected mbed-enabled devices... "
 
-        if get_module_avail('mbed_lstools'):
-            mbeds = mbed_lstools.create()
-            muts_list = mbeds.list_mbeds_ext() if hasattr(mbeds, 'list_mbeds_ext') else mbeds.list_mbeds()
-            for mut in muts_list:
-                print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['platform_name_unique'] if 'platform_name_unique' in mut else mut['platform_name'],
-                                        mut['serial_port'],
-                                        mut['mount_point'])
+        MUTs = get_autodetected_MUTS_list()
+
+        for mut in MUTs.values():
+            print "MBEDLS: Detected %s, port: %s, mounted: %s"% (mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu'],
+                                    mut['port'],
+                                    mut['disk'])
 
         # Set up parameters for test specification filter function (we need to set toolchains per target here)
         use_default_toolchain = 'default' in opts.toolchains_filter.split(',') if opts.toolchains_filter is not None else True
@@ -156,17 +159,16 @@ if __name__ == '__main__':
         toolchain_filter = opts.toolchains_filter
         platform_name_filter = opts.general_filter_regex.split(',') if opts.general_filter_regex is not None else opts.general_filter_regex
         # Test specification with information about each target and associated toolchain
-        test_spec = get_autodetected_TEST_SPEC(muts_list,
+        test_spec = get_autodetected_TEST_SPEC(MUTs.values(),
                                                use_default_toolchain=use_default_toolchain,
                                                use_supported_toolchains=use_supported_toolchains,
                                                toolchain_filter=toolchain_filter,
                                                platform_name_filter=platform_name_filter)
-        # MUTs configuration auto-detection
-        MUTs = get_autodetected_MUTS(muts_list)
     else:
         # Open file with test specification
         # test_spec_filename tells script which targets and their toolchain(s)
         # should be covered by the test scenario
+        opts.auto_detect = False
         test_spec = get_json_data_from_file(opts.test_spec_filename) if opts.test_spec_filename else None
         if test_spec is None:
             if not opts.test_spec_filename:
@@ -182,14 +184,32 @@ if __name__ == '__main__':
             exit(-1)
 
     if opts.verbose_test_configuration_only:
-        print "MUTs configuration in %s:"% ('auto-detected' if opts.auto_detect else opts.muts_spec_filename)
+        print "MUTs configuration in %s:" % ('auto-detected' if opts.auto_detect else opts.muts_spec_filename)
         if MUTs:
             print print_muts_configuration_from_json(MUTs, platform_filter=opts.general_filter_regex)
         print
-        print "Test specification in %s:"% ('auto-detected' if opts.auto_detect else opts.test_spec_filename)
+        print "Test specification in %s:" % ('auto-detected' if opts.auto_detect else opts.test_spec_filename)
         if test_spec:
             print print_test_configuration_from_json(test_spec)
         exit(0)
+
+    if get_module_avail('mbed_lstools'):
+        if opts.operability_checks:
+            # Check if test scope is valid and run tests
+            test_scope = get_available_oper_test_scopes()
+            if opts.operability_checks in test_scope:
+                tests = IOperTestRunner(scope=opts.operability_checks)
+                test_results = tests.run()
+
+                # Export results in form of JUnit XML report to separate file
+                if opts.report_junit_file_name:
+                    report_exporter = ReportExporter(ResultExporterType.JUNIT_OPER)
+                    report_exporter.report_to_file(test_results, opts.report_junit_file_name)
+            else:
+                print "Unknown interoperability test scope name: '%s'" % (opts.operability_checks)
+                print "Available test scopes: %s" % (','.join(["'%s'" % n for n in test_scope]))
+
+            exit(0)
 
     # Verbose test specification and MUTs configuration
     if MUTs and opts.verbose:
@@ -231,7 +251,12 @@ if __name__ == '__main__':
                                    _opts_mut_reset_type=opts.mut_reset_type,
                                    _opts_jobs=opts.jobs,
                                    _opts_waterfall_test=opts.waterfall_test,
-                                   _opts_extend_test_timeout=opts.extend_test_timeout)
+                                   _opts_consolidate_waterfall_test=opts.consolidate_waterfall_test,
+                                   _opts_extend_test_timeout=opts.extend_test_timeout,
+                                   _opts_auto_detect=opts.auto_detect)
 
     # Runs test suite in CLI mode
-    singletest_in_cli_mode(single_test)
+    if (singletest_in_cli_mode(single_test)):
+        exit(0)
+    else:
+        exit(-1)

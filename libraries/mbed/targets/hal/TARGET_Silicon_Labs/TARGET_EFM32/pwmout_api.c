@@ -1,18 +1,32 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file pwmout_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
 
 #include "device.h"
 #include "clocking.h"
@@ -30,7 +44,6 @@
 #include "em_gpio.h"
 #include "em_timer.h"
 
-static int pwm_clockfreq;
 static int pwm_prescaler_div;
 
 uint32_t pwmout_get_channel_route(pwmout_t *obj)
@@ -109,9 +122,6 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     PWM_TIMER->ROUTE &= ~_TIMER_ROUTE_LOCATION_MASK;
     PWM_TIMER->ROUTE |= PWM_ROUTE;
 
-    /*HFPER is the default clock we will use. It has a frequency of 14MHz*/
-    pwm_clockfreq = REFERENCE_FREQUENCY;
-
     /* Set default 20ms frequency and 0ms pulse width */
     pwmout_period(obj, 0.02);
 }
@@ -139,7 +149,7 @@ void pwmout_write(pwmout_t *obj, float value)
         value = 1;
     }
 
-    float pulse_period_in_s = obj->period_cycles / (float) pwm_clockfreq;
+    float pulse_period_in_s = obj->period_cycles / ((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div));
     pwmout_pulsewidth(obj, value * pulse_period_in_s);
 }
 
@@ -155,7 +165,7 @@ void pwmout_period(pwmout_t *obj, float seconds)
     // This gives us max resolution for a given period
 
     //The value of the top register if prescaler is set to 0
-    int cycles = pwm_clockfreq * seconds;
+    int cycles = REFERENCE_FREQUENCY * seconds;
     pwm_prescaler_div = 0;
 
     //The top register is only 16 bits, so we keep dividing till we are below 0xFFFF
@@ -187,23 +197,25 @@ void pwmout_period_ms(pwmout_t *obj, int ms)
 
 void pwmout_period_us(pwmout_t *obj, int us)
 {
-    pwmout_period_ms(obj, us / 1000.0f);
+    pwmout_period(obj, us / 1000000.0f);
 }
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
-    obj->width_cycles = pwm_clockfreq * seconds;
+    obj->width_cycles = (uint32_t) (((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div)) * seconds);
     TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
 void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
-    pwmout_pulsewidth(obj, ms / 1000.0f);
+    obj->width_cycles = (uint32_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000;
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    pwmout_pulsewidth_ms(obj, us / 1000.0f);
+    obj->width_cycles = (uint32_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * us) / 1000000;
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
 }
 
 #endif

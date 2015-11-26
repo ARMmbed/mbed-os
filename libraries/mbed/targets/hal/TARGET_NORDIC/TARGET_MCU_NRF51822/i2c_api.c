@@ -17,6 +17,7 @@
 #include "i2c_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "twi_master.h"
 #include "mbed_error.h"
 
 // nRF51822's I2C_0 and SPI_0 (I2C_1, SPI_1 and SPIS1) share the same address.
@@ -53,7 +54,7 @@ void twi_master_init(i2c_t *obj, PinName sda, PinName scl, int frequency)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
-    NRF_TWI_Type *i2c;
+    NRF_TWI_Type *i2c = NULL;
   
     if (i2c0_spi0_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_I2C &&
             i2c0_spi0_peripheral.sda_mosi == (uint8_t)sda &&
@@ -85,6 +86,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         // No available peripheral
         error("No available I2C");
     }
+
+	twi_master_init_and_clear(i2c);
 
     obj->i2c               = i2c;
     obj->scl               = scl;

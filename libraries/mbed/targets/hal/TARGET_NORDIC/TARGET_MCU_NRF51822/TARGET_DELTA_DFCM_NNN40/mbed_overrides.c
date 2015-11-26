@@ -16,7 +16,8 @@
 
 #include "cmsis.h"
 
-
+/* No init flash in this version, 2015/10/27 */
+#if 0
 #define SPIM1_SCK_PIN       11u     /**< SPI clock GPIO pin number. */
 #define SPIM1_MOSI_PIN      15u     /**< SPI Master Out Slave In GPIO pin number. */
 #define SPIM1_MISO_PIN      9u     /**< SPI Master In Slave Out GPIO pin number. */
@@ -25,7 +26,7 @@
 #define CMD_POWER_UP (0xAB)
 #define CMD_POWER_DOWN (0xB9)
 
-void spi_flash_init(void)
+void flash_init(void)
 {   
 	NRF_GPIO->PIN_CNF[SPIM1_MOSI_PIN] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
 									| (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
@@ -79,7 +80,7 @@ void spi_flash_init(void)
 
 }
 
-void spi_flash_powerDown(void)
+void flash_powerDown(void)
 {
     NRF_GPIO->OUTCLR 		= 	(GPIO_OUTCLR_PIN28_Clear << GPIO_OUTCLR_PIN28_Pos);
     //spi.write(CMD_POWER_DOWN);
@@ -95,6 +96,8 @@ void spi_flash_powerDown(void)
     //wait for sleep
     //wait_us(3);
 }
+/* No init flash in this version, 2015/10/27 */
+#endif
 
 void mbed_sdk_init()
 {
@@ -115,9 +118,11 @@ void mbed_sdk_init()
     {// Do nothing.
     }
 	
-	spi_flash_init();
-	
-	//nrf_delay_ms(10);
-	spi_flash_powerDown();
+/* No init flash in this version, 2015/10/27 */
+//  flash_init();
+//  
+//  //nrf_delay_ms(10);
+//  flash_powerDown();
+/* No init flash in this version, 2015/10/27 */
 	
 }

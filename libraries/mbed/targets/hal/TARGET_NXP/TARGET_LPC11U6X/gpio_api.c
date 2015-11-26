@@ -33,6 +33,7 @@ uint32_t gpio_set(PinName pin) {
     
     int func = ((pin == P0_0)  || // reset
                 (pin == P0_10) || // SWCLK
+                (pin == P0_11) || // TDI
                 (pin == P0_12) || // TMS
                 (pin == P0_13) || // TDO
                 (pin == P0_14) || // TRST

@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    rt_CMSIS.c
  *      Purpose: CMSIS RTOS API
- *      Rev.:    V4.60
+ *      Rev.:    V4.74
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -98,6 +98,14 @@ __svc_indirect(0) t  _##f (t(*)());                                            \
 __attribute__((always_inline))                                                 \
 static __inline   t __##f (void) {                                             \
   return _##f(f);                                                              \
+}
+
+#define SVC_1_0(f,t,t1,...)                                                    \
+__svc_indirect(0) t  _##f (t(*)(t1),t1);                                       \
+                  t     f (t1 a1);                                             \
+__attribute__((always_inline))                                                 \
+static __inline   t __##f (t1 a1) {                                            \
+  _##f(f,a1);                                                                  \
 }
 
 #define SVC_1_1(f,t,t1,...)                                                    \
@@ -280,6 +288,13 @@ static inline  t __##f (void) {                                                \
   return (t) rv;                                                               \
 }
 
+#define SVC_1_0(f,t,t1)                                                        \
+__attribute__((always_inline))                                                 \
+static inline  t __##f (t1 a1) {                                               \
+  SVC_Arg1(t1);                                                                \
+  SVC_Call(f);                                                                 \
+}
+
 #define SVC_1_1(f,t,t1,rv)                                                     \
 __attribute__((always_inline))                                                 \
 static inline  t __##f (t1 a1) {                                               \
@@ -351,6 +366,14 @@ _Pragma("swi_number=0") __swi t _##f (void);                                   \
 static inline t __##f (void) {                                                 \
   SVC_Setup(f);                                                                \
   return _##f();                                                               \
+}
+
+#define SVC_1_0(f,t,t1,...)                                                    \
+t f (t1 a1);                                                                   \
+_Pragma("swi_number=0") __swi t _##f (t1 a1);                                  \
+static inline t __##f (t1 a1) {                                                \
+  SVC_Setup(f);                                                                \
+  _##f(a1);                                                                    \
 }
 
 #define SVC_1_1(f,t,t1,...)                                                    \
@@ -442,9 +465,11 @@ extern const uint32_t  os_section_id$$Base;
 extern const uint32_t  os_section_id$$Limit;
 #endif
 
+#ifndef __MBED_CMSIS_RTOS_CA9
 // OS Stack Memory for Threads definitions
 extern       uint64_t  os_stack_mem[];
 extern const uint32_t  os_stack_sz;
+#endif
 
 // OS Timers external resources
 extern const osThreadDef_t   os_thread_def_osTimerThread;
@@ -537,6 +562,7 @@ uint8_t os_running;                             // Kernel Running flag
 SVC_0_1(svcKernelInitialize, osStatus, RET_osStatus)
 SVC_0_1(svcKernelStart,      osStatus, RET_osStatus)
 SVC_0_1(svcKernelRunning,    int32_t,  RET_int32_t)
+SVC_0_1(svcKernelSysTick,    uint32_t, RET_uint32_t)
 
 static void  sysThreadError   (osStatus status);
 osThreadId   svcThreadCreate  (const osThreadDef_t *thread_def, void *argument);
@@ -546,6 +572,11 @@ osMessageQId svcMessageCreate (const osMessageQDef_t *queue_def, osThreadId thre
 
 /// Initialize the RTOS Kernel for creating objects
 osStatus svcKernelInitialize (void) {
+#ifdef __MBED_CMSIS_RTOS_CA9
+  if (!os_initialized) {
+    rt_sys_init();                              // RTX System Initialization
+  }
+#else
   int ret;
 
   if (!os_initialized) {
@@ -557,6 +588,7 @@ osStatus svcKernelInitialize (void) {
 
     rt_sys_init();                              // RTX System Initialization
   }
+#endif
 
   os_tsk.run->prio = 255;                       // Highest priority
 
@@ -569,6 +601,7 @@ osStatus svcKernelInitialize (void) {
   sysThreadError(osOK);
 
   os_initialized = 1;
+  os_running = 0;
 
   return osOK;
 }
@@ -578,8 +611,10 @@ osStatus svcKernelStart (void) {
 
   if (os_running) return osOK;
 
-  rt_tsk_prio(0, 0);                            // Lowest priority
-  __set_PSP(os_tsk.run->tsk_stack + 8*4);       // New context
+  rt_tsk_prio(0, os_tsk.run->prio_base);        // Restore priority
+  if (os_tsk.run->task_id == 0xFF) {            // Idle Thread
+    __set_PSP(os_tsk.run->tsk_stack + 8*4);     // Setup PSP
+  }
   os_tsk.run = NULL;                            // Force context switch
 
   rt_sys_start();
@@ -592,6 +627,22 @@ osStatus svcKernelStart (void) {
 /// Check if the RTOS kernel is already started
 int32_t svcKernelRunning(void) {
   return os_running;
+}
+
+/// Get the RTOS kernel system timer counter
+uint32_t svcKernelSysTick (void) {
+  uint32_t tick, tick0;
+
+  tick = os_tick_val();
+  if (os_tick_ovf()) {
+    tick0 = os_tick_val();
+    if (tick0 < tick) tick = tick0;
+    tick += (os_trv + 1) * (os_time + 1);
+  } else {
+    tick += (os_trv + 1) *  os_time;
+  }
+
+  return tick;
 }
 
 // Kernel Control Public API
@@ -634,6 +685,12 @@ int32_t osKernelRunning(void) {
   }
 }
 
+/// Get the RTOS kernel system timer counter
+uint32_t osKernelSysTick (void) {
+  if (__exceptional_mode()) return 0;              // Not allowed in ISR
+  return __svcKernelSysTick();
+}
+
 
 // ==== Thread Management ====
 
@@ -668,6 +725,13 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
     return NULL;
   }
 
+#ifdef __MBED_CMSIS_RTOS_CA9
+  if (thread_def->stacksize != 0) {             // Custom stack size
+    stk = (void *)thread_def->stack_pointer;
+  } else {                                      // Default stack size
+    stk = NULL;
+  }
+#else
   if (thread_def->stacksize != 0) {             // Custom stack size
     stk = rt_alloc_mem(                         // Allocate stack
       os_stack_mem,
@@ -680,6 +744,7 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
   } else {                                      // Default stack size
     stk = NULL;
   }
+#endif
 
   tsk = rt_tsk_create(                          // Create task
     (FUNCP)thread_def->pthread,                 // Task function pointer
@@ -690,9 +755,11 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
   );
 
   if (tsk == 0) {                               // Invalid task ID
+#ifndef __MBED_CMSIS_RTOS_CA9
     if (stk != NULL) {
       rt_free_mem(os_stack_mem, stk);           // Free allocated stack
     }
+#endif
     sysThreadError(osErrorNoMemory);            // Create task failed (Out of memory)
     return NULL;
   }
@@ -717,20 +784,26 @@ osThreadId svcThreadGetId (void) {
 osStatus svcThreadTerminate (osThreadId thread_id) {
   OS_RESULT res;
   P_TCB     ptcb;
+#ifndef __MBED_CMSIS_RTOS_CA9
   void     *stk;
+#endif
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
   if (ptcb == NULL) return osErrorParameter;
 
+#ifndef __MBED_CMSIS_RTOS_CA9
   stk = ptcb->priv_stack ? ptcb->stack : NULL;  // Private stack
+#endif
 
   res = rt_tsk_delete(ptcb->task_id);           // Delete task
 
   if (res == OS_R_NOK) return osErrorResource;  // Delete task failed
 
+#ifndef __MBED_CMSIS_RTOS_CA9
   if (stk != NULL) {
     rt_free_mem(os_stack_mem, stk);             // Free private stack
   }
+#endif
 
   return osOK;
 }
@@ -1023,6 +1096,7 @@ osTimerId svcTimerCreate (const osTimerDef_t *timer_def, os_timer_type type, voi
     return NULL;
   }
 
+  pt->next  = NULL;
   pt->state = osTimerStopped;
   pt->type  =  (uint8_t)type;
   pt->arg   = argument;
@@ -1152,6 +1226,30 @@ void sysTimerTick (void) {
   }
 }
 
+/// Get user timers wake-up time 
+uint32_t sysUserTimerWakeupTime (void) {
+
+  if (os_timer_head) {
+    return os_timer_head->tcnt;
+  }
+  return 0xFFFF;
+}
+
+/// Update user timers on resume
+void sysUserTimerUpdate (uint32_t sleep_time) {
+
+  while (os_timer_head && sleep_time) {
+    if (sleep_time >= os_timer_head->tcnt) {
+      sleep_time -= os_timer_head->tcnt;
+      os_timer_head->tcnt = 1;
+      sysTimerTick();
+    } else {
+      os_timer_head->tcnt -= sleep_time;
+      break;
+    }
+  }
+}
+
 
 // Timer Management Public API
 
@@ -1213,7 +1311,6 @@ __NO_RETURN void osTimerThread (void const *argument) {
 // Signal Service Calls declarations
 SVC_2_1(svcSignalSet,             int32_t, osThreadId, int32_t,  RET_int32_t)
 SVC_2_1(svcSignalClear,           int32_t, osThreadId, int32_t,  RET_int32_t)
-SVC_1_1(svcSignalGet,             int32_t, osThreadId,           RET_int32_t)
 SVC_2_3(svcSignalWait,  os_InRegs osEvent, int32_t,    uint32_t, RET_osEvent)
 
 // Signal Service Calls
@@ -1250,16 +1347,6 @@ int32_t svcSignalClear (osThreadId thread_id, int32_t signals) {
   rt_evt_clr(signals, ptcb->task_id);           // Clear event flags
 
   return sig;
-}
-
-/// Get Signal Flags status of an active thread
-int32_t svcSignalGet (osThreadId thread_id) {
-  P_TCB ptcb;
-
-  ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return 0x80000000;
-
-  return ptcb->events;                          // Return event flags
 }
 
 /// Wait for one or more Signal Flags to become signaled for the current RUNNING thread
@@ -1335,12 +1422,6 @@ int32_t osSignalSet (osThreadId thread_id, int32_t signals) {
 int32_t osSignalClear (osThreadId thread_id, int32_t signals) {
   if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
   return __svcSignalClear(thread_id, signals);
-}
-
-/// Get Signal Flags status of an active thread
-int32_t osSignalGet (osThreadId thread_id) {
-  if (__exceptional_mode()) return osErrorISR;     // Not allowed in ISR
-  return __svcSignalGet(thread_id);
 }
 
 /// Wait for one or more Signal Flags to become signaled for the current RUNNING thread
@@ -1936,7 +2017,6 @@ osMailQId svcMailCreate (const osMailQDef_t *queue_def, osThreadId thread_id) {
 
   rt_mbx_init(pmcb, 4*(queue_def->queue_sz + 4));
 
-
   return queue_def->pool;
 }
 
@@ -1996,7 +2076,7 @@ osStatus sysMailFree (osMailQId queue_id, void *mail, uint32_t isr) {
 
   if (res != 0) return osErrorValue;
 
-  if (pmcb->state == 3) {
+  if ((pmcb->p_lnk != NULL) && (pmcb->state == 3)) {
     // Task is waiting to allocate a message
     if (isr) {
       rt_psq_enq (pmcb, (U32)pool);
@@ -2005,9 +2085,6 @@ osStatus sysMailFree (osMailQId queue_id, void *mail, uint32_t isr) {
       mem = rt_alloc_box(pool);
       if (mem != NULL) {
         ptcb = rt_get_first((P_XCB)pmcb);
-        if (pmcb->p_lnk == NULL) {
-          pmcb->state = 0;
-        }
         rt_ret_val(ptcb, (U32)mem);
         rt_rmv_dly(ptcb);
         rt_dispatch(ptcb);
@@ -2087,3 +2164,23 @@ os_InRegs osEvent osMailGet (osMailQId queue_id, uint32_t millisec) {
 #ifdef __CC_ARM
 #pragma pop
 #endif // __arm__
+
+
+//  ==== RTX Extensions ====
+
+// Service Calls declarations
+SVC_0_1(rt_suspend, uint32_t, RET_uint32_t)
+SVC_1_0(rt_resume,  void,     uint32_t)
+
+
+// Public API
+
+/// Suspends the OS task scheduler
+uint32_t os_suspend (void) {
+  return __rt_suspend();
+}
+
+/// Resumes the OS task scheduler
+void os_resume (uint32_t sleep_time) {
+  __rt_resume(sleep_time);
+}

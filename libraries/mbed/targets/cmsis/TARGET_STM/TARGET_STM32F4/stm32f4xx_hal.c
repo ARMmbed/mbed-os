@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -68,11 +68,11 @@
   * @{
   */
 /**
-  * @brief STM32F4xx HAL Driver version number V1.3.0
+  * @brief STM32F4xx HAL Driver version number V1.4.1
   */
 #define __STM32F4xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32F4xx_HAL_VERSION_SUB1   (0x03) /*!< [23:16] sub1 version */
-#define __STM32F4xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32F4xx_HAL_VERSION_SUB1   (0x04) /*!< [23:16] sub1 version */
+#define __STM32F4xx_HAL_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
 #define __STM32F4xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F4xx_HAL_VERSION         ((__STM32F4xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F4xx_HAL_VERSION_SUB1 << 16)\
@@ -479,7 +479,8 @@ void HAL_DisableCompensationCell(void)
   *(__IO uint32_t *)CMPCR_CMP_PD_BB = (uint32_t)DISABLE;
 }
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) ||\
+    defined(STM32F469xx) || defined(STM32F479xx)
 /**
   * @brief  Enables the Internal FLASH Bank Swapping.
   *   
@@ -510,7 +511,7 @@ void HAL_DisableMemorySwappingBank(void)
 
   *(__IO uint32_t *)UFB_MODE_BB = (uint32_t)DISABLE;
 }
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F469xx || STM32F479xx */
 
 /**
   * @}

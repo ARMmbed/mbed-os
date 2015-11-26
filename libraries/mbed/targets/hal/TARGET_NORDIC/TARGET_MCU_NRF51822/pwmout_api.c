@@ -116,6 +116,19 @@ void timer_init(uint8_t pwmChoice)
     timer->TASKS_START = 0x01;
 }
 
+static void timer_free()
+{
+    NRF_TIMER_Type *timer = Timers[0];
+    for(uint8_t i = 1; i < NO_PWMS; i++){
+        if(PWM_taken[i]){
+            break;
+        }
+        if((i == NO_PWMS - 1) && (!PWM_taken[i]))
+            timer->TASKS_STOP = 0x01;
+    }
+}
+
+
 /** @brief Function for initializing the GPIO Tasks/Events peripheral.
  */
 void gpiote_init(PinName pin, uint8_t channel_number)
@@ -154,6 +167,14 @@ void gpiote_init(PinName pin, uint8_t channel_number)
     __NOP();
 }
 
+static void gpiote_free(PinName pin,uint8_t channel_number)
+{
+    NRF_GPIOTE->TASKS_OUT[channel_number] = 0;
+    NRF_GPIOTE->CONFIG[channel_number] = 0;
+    NRF_GPIO->PIN_CNF[pin] = (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos);
+
+}
+
 /** @brief Function for initializing the Programmable Peripheral Interconnect peripheral.
  */
 static void ppi_init(uint8_t pwm)
@@ -171,6 +192,16 @@ static void ppi_init(uint8_t pwm)
     // Enable PPI channels.
     NRF_PPI->CHEN |= (1 << channel_number) |
                      (1 << (channel_number + 1));
+}
+
+static void ppi_free(uint8_t pwm)
+{
+    //using ppi channels 0-7 (only 0-7 are available)
+    uint8_t channel_number = 2*pwm;
+
+    // Disable PPI channels.
+    NRF_PPI->CHEN &= (~(1 << channel_number))
+                  &  (~(1 << (channel_number+1)));
 }
 
 void setModulation(pwmout_t *obj, uint8_t toggle, uint8_t high)
@@ -239,11 +270,13 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     pwmout_write    (obj, 0);
 }
 
-void pwmout_free(pwmout_t *obj)
-{
+void pwmout_free(pwmout_t* obj) {
     MBED_ASSERT(obj->pwm != (PWMName)NC);
-    PWM_taken[obj->pwm] = 0;
     pwmout_write(obj, 0);
+    PWM_taken[obj->pwm] = 0;
+    timer_free();
+    ppi_free(obj->pwm);
+    gpiote_free(obj->pin,obj->pwm);
 }
 
 void pwmout_write(pwmout_t *obj, float value)

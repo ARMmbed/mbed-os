@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the CORTEX:
@@ -32,13 +32,15 @@
       (#)  Configure the priority of the selected IRQ Channels using HAL_NVIC_SetPriority()
 
       (#)  Enable the selected IRQ Channels using HAL_NVIC_EnableIRQ()
+      
+      -@-  Negative value of IRQn_Type are not allowed.
 
 
     [..]
     *** How to configure Systick using CORTEX HAL driver ***
     ========================================================
     [..]
-    Setup SysTick Timer for time base 
+    Setup SysTick Timer for time base. 
            
    (+) The HAL_SYSTICK_Config()function calls the SysTick_Config() function which
        is a CMSIS function that:
@@ -68,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,7 +104,7 @@
   * @{
   */
 
-/** @defgroup CORTEX CORTEX HAL module driver
+/** @defgroup CORTEX CORTEX
   * @brief CORTEX CORTEX HAL module driver
   * @{
   */
@@ -141,10 +143,10 @@
   * @param  IRQn: External interrupt number .
   *         This parameter can be an enumerator of IRQn_Type enumeration
   *         (For the complete STM32 Devices IRQ Channels list, please refer to stm32l0xx.h file)
-  * @param  PreemptPriority: The pre-emption priority for the IRQn channel.
+  * @param  PreemptPriority: The preemption priority for the IRQn channel.
   *         This parameter can be a value between 0 and 3.
   *         A lower priority value indicates a higher priority
-  * @param  SubPriority: The subpriority level for the IRQ channel.
+  * @param  SubPriority: the subpriority level for the IRQ channel.
   *         with stm32f0xx devices, this parameter is a dummy value and it is ignored, because 
   *         no subpriority supported in Cortex M0 based products.   
   * @retval None
@@ -160,26 +162,32 @@ void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t Sub
   * @brief  Enables a device specific interrupt in the NVIC interrupt controller.
   * @note   To configure interrupts priority correctly, the NVIC_PriorityGroupConfig()
   *         function should be called before. 
-  * @param  IRQn External interrupt number
+  * @param  IRQn External interrupt number.
   *         This parameter can be an enumerator of IRQn_Type enumeration
   *         (For the complete STM32 Devices IRQ Channels list, please refer to the appropriate CMSIS device file (stm32f0xxxx.h))
   * @retval None
   */
 void HAL_NVIC_EnableIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Enable interrupt */
   NVIC_EnableIRQ(IRQn);
 }
 
 /**
   * @brief  Disables a device specific interrupt in the NVIC interrupt controller.
-  * @param  IRQn External interrupt number
+  * @param  IRQn External interrupt number.
   *         This parameter can be an enumerator of IRQn_Type enumeration
   *         (For the complete STM32 Devices IRQ Channels list, please refer to the appropriate CMSIS device file (stm32f0xxxx.h))
   * @retval None
   */
 void HAL_NVIC_DisableIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Disable interrupt */
   NVIC_DisableIRQ(IRQn);
 }
@@ -228,7 +236,7 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
 
 /**
   * @brief  Gets the priority of an interrupt.
-  * @param  IRQn: External interrupt number
+  * @param  IRQn: External interrupt number.
   *         This parameter can be an enumerator of IRQn_Type enumeration
   *         (For the complete STM32 Devices IRQ Channels list, please refer to the appropriate CMSIS device file (stm32f0xxxx.h))
   * @retval None
@@ -248,6 +256,9 @@ uint32_t HAL_NVIC_GetPriority(IRQn_Type IRQn)
   */
 void HAL_NVIC_SetPendingIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Set interrupt pending */
   NVIC_SetPendingIRQ(IRQn);
 }
@@ -255,7 +266,7 @@ void HAL_NVIC_SetPendingIRQ(IRQn_Type IRQn)
 /**
   * @brief  Gets Pending Interrupt (reads the pending register in the NVIC
   *         and returns the pending bit for the specified interrupt).
-  * @param  IRQn External interrupt number
+  * @param  IRQn External interrupt number.
   *         This parameter can be an enumerator of IRQn_Type enumeration
   *         (For the complete STM32 Devices IRQ Channels list, please refer to the appropriate CMSIS device file (stm32f0xxxx.h))
   * @retval status: - 0  Interrupt status is not pending.
@@ -263,19 +274,25 @@ void HAL_NVIC_SetPendingIRQ(IRQn_Type IRQn)
   */
 uint32_t HAL_NVIC_GetPendingIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Return 1 if pending else 0 */
   return NVIC_GetPendingIRQ(IRQn);
 }
 
 /**
   * @brief  Clears the pending bit of an external interrupt.
-  * @param  IRQn External interrupt number
+  * @param  IRQn External interrupt number.
   *         This parameter can be an enumerator of IRQn_Type enumeration
   *         (For the complete STM32 Devices IRQ Channels list, please refer to the appropriate CMSIS device file (stm32f0xxxx.h))
   * @retval None
   */
 void HAL_NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Clear pending interrupt */
   NVIC_ClearPendingIRQ(IRQn);
 }

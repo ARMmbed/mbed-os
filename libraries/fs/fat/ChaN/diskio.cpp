@@ -1,83 +1,105 @@
 /*-----------------------------------------------------------------------*/
-/* Low level disk I/O module skeleton for FatFs     (C)ChaN, 2007        */
+/* Low level disk I/O module skeleton for FatFs     (C)ChaN, 2014        */
 /*-----------------------------------------------------------------------*/
-/* This is a stub disk I/O module that acts as front end of the existing */
-/* disk I/O modules and attach it to FatFs module with common interface. */
+/* If a working storage control module is available, it should be        */
+/* attached to the FatFs via a glue function rather than modifying it.   */
+/* This is an example of glue functions to attach various exsisting      */
+/* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
-#include "ffconf.h"
-#include "diskio.h"
 
+#include "diskio.h"
 #include "mbed_debug.h"
 #include "FATFileSystem.h"
 
 using namespace mbed;
 
-DSTATUS disk_initialize (
-    BYTE drv                /* Physical drive nmuber (0..) */
-)
-{
-    debug_if(FFS_DBG, "disk_initialize on drv [%d]\n", drv);
-    return (DSTATUS)FATFileSystem::_ffs[drv]->disk_initialize();
-}
+/*-----------------------------------------------------------------------*/
+/* Get Drive Status                                                      */
+/*-----------------------------------------------------------------------*/
 
 DSTATUS disk_status (
-    BYTE drv        /* Physical drive nmuber (0..) */
+    BYTE pdrv        /* Physical drive nmuber to identify the drive */
 )
 {
-    debug_if(FFS_DBG, "disk_status on drv [%d]\n", drv);
-    return (DSTATUS)FATFileSystem::_ffs[drv]->disk_status();
+    debug_if(FFS_DBG, "disk_status on pdrv [%d]\n", pdrv);
+    return (DSTATUS)FATFileSystem::_ffs[pdrv]->disk_status();
 }
+
+/*-----------------------------------------------------------------------*/
+/* Inidialize a Drive                                                    */
+/*-----------------------------------------------------------------------*/
+
+DSTATUS disk_initialize (
+    BYTE pdrv        /* Physical drive nmuber to identify the drive */
+)
+{
+    debug_if(FFS_DBG, "disk_initialize on pdrv [%d]\n", pdrv);
+    return (DSTATUS)FATFileSystem::_ffs[pdrv]->disk_initialize();
+}
+
+/*-----------------------------------------------------------------------*/
+/* Read Sector(s)                                                        */
+/*-----------------------------------------------------------------------*/
 
 DRESULT disk_read (
-    BYTE drv,        /* Physical drive nmuber (0..) */
-    BYTE *buff,        /* Data buffer to store read data */
-    DWORD sector,    /* Sector address (LBA) */
-    BYTE count        /* Number of sectors to read (1..255) */
+    BYTE pdrv,       /* Physical drive nmuber to identify the drive */
+    BYTE* buff,      /* Data buffer to store read data */
+    DWORD sector,    /* Sector address in LBA */
+    UINT count       /* Number of sectors to read */
 )
 {
-    debug_if(FFS_DBG, "disk_read(sector %d, count %d) on drv [%d]\n", sector, count, drv);
-    if (FATFileSystem::_ffs[drv]->disk_read((uint8_t*)buff, sector, count))
+    debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
+    if (FATFileSystem::_ffs[pdrv]->disk_read((uint8_t*)buff, sector, count))
         return RES_PARERR;
     else
         return RES_OK;
 }
 
-#if _READONLY == 0
+/*-----------------------------------------------------------------------*/
+/* Write Sector(s)                                                       */
+/*-----------------------------------------------------------------------*/
+
+#if _USE_WRITE
 DRESULT disk_write (
-    BYTE drv,            /* Physical drive nmuber (0..) */
-    const BYTE *buff,    /* Data to be written */
-    DWORD sector,        /* Sector address (LBA) */
-    BYTE count            /* Number of sectors to write (1..255) */
+    BYTE pdrv,           /* Physical drive nmuber to identify the drive */
+    const BYTE* buff,    /* Data to be written */
+    DWORD sector,        /* Sector address in LBA */
+    UINT count           /* Number of sectors to write */
 )
 {
-    debug_if(FFS_DBG, "disk_write(sector %d, count %d) on drv [%d]\n", sector, count, drv);
-    if (FATFileSystem::_ffs[drv]->disk_write((uint8_t*)buff, sector, count))
+    debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
+    if (FATFileSystem::_ffs[pdrv]->disk_write((uint8_t*)buff, sector, count))
         return RES_PARERR;
     else
         return RES_OK;
 }
-#endif /* _READONLY */
+#endif
 
+/*-----------------------------------------------------------------------*/
+/* Miscellaneous Functions                                               */
+/*-----------------------------------------------------------------------*/
+
+#if _USE_IOCTL
 DRESULT disk_ioctl (
-    BYTE drv,        /* Physical drive nmuber (0..) */
-    BYTE ctrl,        /* Control code */
-    void *buff        /* Buffer to send/receive control data */
+    BYTE pdrv,        /* Physical drive nmuber (0..) */
+    BYTE cmd,         /* Control code */
+    void* buff        /* Buffer to send/receive control data */
 )
 {
-    debug_if(FFS_DBG, "disk_ioctl(%d)\n", ctrl);
-    switch(ctrl) {
+    debug_if(FFS_DBG, "disk_ioctl(%d)\n", cmd);
+    switch(cmd) {
         case CTRL_SYNC:
-            if(FATFileSystem::_ffs[drv] == NULL) {
+            if(FATFileSystem::_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
-            } else if(FATFileSystem::_ffs[drv]->disk_sync()) {
+            } else if(FATFileSystem::_ffs[pdrv]->disk_sync()) {
                 return RES_ERROR;
             }
             return RES_OK;
         case GET_SECTOR_COUNT:
-            if(FATFileSystem::_ffs[drv] == NULL) {
+            if(FATFileSystem::_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD res = FATFileSystem::_ffs[drv]->disk_sectors();
+                DWORD res = FATFileSystem::_ffs[pdrv]->disk_sectors();
                 if(res > 0) {
                     *((DWORD*)buff) = res; // minimum allowed
                     return RES_OK;
@@ -92,3 +114,4 @@ DRESULT disk_ioctl (
     }
     return RES_PARERR;
 }
+#endif

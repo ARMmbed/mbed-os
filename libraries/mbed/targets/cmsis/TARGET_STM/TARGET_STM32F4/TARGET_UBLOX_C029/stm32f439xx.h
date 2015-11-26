@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f439xx.h
   * @author  MCD Application Team
-  * @version V2.3.0
-  * @date    02-March-2015
+  * @version V2.3.2
+  * @date    26-June-2015
   * @brief   CMSIS STM32F439xx Device Peripheral Access Layer Header File.
   *
   *          This file contains:
@@ -1129,12 +1129,11 @@ USB_OTG_HostChannelTypeDef;
 #define PERIPH_BASE           ((uint32_t)0x40000000) /*!< Peripheral base address in the alias region                                */
 #define BKPSRAM_BASE          ((uint32_t)0x40024000) /*!< Backup SRAM(4 KB) base address in the alias region                         */
 #define FMC_R_BASE            ((uint32_t)0xA0000000) /*!< FMC registers base address                                                 */
-#define CCMDATARAM_BB_BASE    ((uint32_t)0x12000000) /*!< CCM(core coupled memory) data RAM(64 KB) base address in the bit-band region  */
 #define SRAM1_BB_BASE         ((uint32_t)0x22000000) /*!< SRAM1(112 KB) base address in the bit-band region                             */
-#define SRAM2_BB_BASE         ((uint32_t)0x2201C000) /*!< SRAM2(16 KB) base address in the bit-band region                              */
-#define SRAM3_BB_BASE         ((uint32_t)0x22020000) /*!< SRAM3(64 KB) base address in the bit-band region                              */
+#define SRAM2_BB_BASE         ((uint32_t)0x22380000) /*!< SRAM2(16 KB) base address in the bit-band region                              */
+#define SRAM3_BB_BASE         ((uint32_t)0x22400000) /*!< SRAM3(64 KB) base address in the bit-band region                              */
 #define PERIPH_BB_BASE        ((uint32_t)0x42000000) /*!< Peripheral base address in the bit-band region                                */
-#define BKPSRAM_BB_BASE       ((uint32_t)0x42024000) /*!< Backup SRAM(4 KB) base address in the bit-band region                         */
+#define BKPSRAM_BB_BASE       ((uint32_t)0x42480000) /*!< Backup SRAM(4 KB) base address in the bit-band region                         */
 #define FLASH_END             ((uint32_t)0x081FFFFF) /*!< FLASH end address */
 #define CCMDATARAM_END        ((uint32_t)0x1000FFFF) /*!< CCM data RAM end address */
 
@@ -5292,17 +5291,27 @@ USB_OTG_HostChannelTypeDef;
 #define HASH_CR_LKEY                         ((uint32_t)0x00010000)
 
 /******************  Bits definition for HASH_STR register  *******************/
-#define HASH_STR_NBW                         ((uint32_t)0x0000001F)
-#define HASH_STR_NBW_0                       ((uint32_t)0x00000001)
-#define HASH_STR_NBW_1                       ((uint32_t)0x00000002)
-#define HASH_STR_NBW_2                       ((uint32_t)0x00000004)
-#define HASH_STR_NBW_3                       ((uint32_t)0x00000008)
-#define HASH_STR_NBW_4                       ((uint32_t)0x00000010)
+#define HASH_STR_NBLW                        ((uint32_t)0x0000001F)
+#define HASH_STR_NBLW_0                      ((uint32_t)0x00000001)
+#define HASH_STR_NBLW_1                      ((uint32_t)0x00000002)
+#define HASH_STR_NBLW_2                      ((uint32_t)0x00000004)
+#define HASH_STR_NBLW_3                      ((uint32_t)0x00000008)
+#define HASH_STR_NBLW_4                      ((uint32_t)0x00000010)
 #define HASH_STR_DCAL                        ((uint32_t)0x00000100)
+/* Aliases for HASH_STR register */
+#define HASH_STR_NBW                         HASH_STR_NBLW
+#define HASH_STR_NBW_0                       HASH_STR_NBLW_0
+#define HASH_STR_NBW_1                       HASH_STR_NBLW_1
+#define HASH_STR_NBW_2                       HASH_STR_NBLW_2
+#define HASH_STR_NBW_3                       HASH_STR_NBLW_3
+#define HASH_STR_NBW_4                       HASH_STR_NBLW_4
 
 /******************  Bits definition for HASH_IMR register  *******************/
-#define HASH_IMR_DINIM                       ((uint32_t)0x00000001)
-#define HASH_IMR_DCIM                        ((uint32_t)0x00000002)
+#define HASH_IMR_DINIE                       ((uint32_t)0x00000001)
+#define HASH_IMR_DCIE                        ((uint32_t)0x00000002)
+/* Aliases for HASH_IMR register */
+#define HASH_IMR_DINIM                       HASH_IMR_DINIE
+#define HASH_IMR_DCIM                        HASH_IMR_DCIE
 
 /******************  Bits definition for HASH_SR register  ********************/
 #define HASH_SR_DINIS                        ((uint32_t)0x00000001)
@@ -6292,7 +6301,7 @@ USB_OTG_HostChannelTypeDef;
 
 /********************  Bits definition for RTC_PRER register  *****************/
 #define RTC_PRER_PREDIV_A                    ((uint32_t)0x007F0000)
-#define RTC_PRER_PREDIV_S                    ((uint32_t)0x00001FFF)
+#define RTC_PRER_PREDIV_S                    ((uint32_t)0x00007FFF)
 
 /********************  Bits definition for RTC_WUTR register  *****************/
 #define RTC_WUTR_WUT                         ((uint32_t)0x0000FFFF)
@@ -6697,7 +6706,7 @@ USB_OTG_HostChannelTypeDef;
 #define  SAI_xSR_FLVL                     ((uint32_t)0x00070000)         /*!<FLVL[2:0] (FIFO Level Threshold)               */
 #define  SAI_xSR_FLVL_0                   ((uint32_t)0x00010000)         /*!<Bit 0 */
 #define  SAI_xSR_FLVL_1                   ((uint32_t)0x00020000)         /*!<Bit 1 */
-#define  SAI_xSR_FLVL_2                   ((uint32_t)0x00030000)         /*!<Bit 2 */
+#define  SAI_xSR_FLVL_2                   ((uint32_t)0x00040000)         /*!<Bit 2 */
 
 /******************  Bit definition for SAI_xCLRFR register  ******************/
 #define  SAI_xCLRFR_COVRUDR               ((uint32_t)0x00000001)        /*!<Clear Overrun underrun                               */

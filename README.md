@@ -30,6 +30,7 @@ NXP:
 * [mbed LPC11U24](http://developer.mbed.org/platforms/mbed-LPC11U24/) (Cortex-M0)
 * [EA LPC11U35](http://developer.mbed.org/platforms/EA-LPC11U35/) (Cortex-M0)
 * mbed LPC2368 (ARM7TDMI-S)
+* LPC2460 (ARM7TDMI-S)
 * LPC810 (Cortex-M0+)
 * [LPC812](http://developer.mbed.org/platforms/NXP-LPC800-MAX/) (Cortex-M0+)
 * [EA LPC4088](http://developer.mbed.org/platforms/EA-LPC4088/) (Cortex-M4F)
@@ -66,7 +67,9 @@ STMicroelectronics:
 * [Nucleo-F302R8](https://developer.mbed.org/platforms/ST-Nucleo-F302R8/) (Cortex-M4F)
 * [Nucleo-F334R8](https://developer.mbed.org/platforms/ST-Nucleo-F334R8/) (Cortex-M4F)
 * [Nucleo-F401RE](https://developer.mbed.org/platforms/ST-Nucleo-F401RE/) (Cortex-M4F)
+* Nucleo-F410RB (Cortex-M4F)
 * [Nucleo-F411RE](https://developer.mbed.org/platforms/ST-Nucleo-F411RE/) (Cortex-M4F)
+* [Nucleo-L476RG](https://developer.mbed.org/platforms/ST-Nucleo-L476RG/) (Cortex-M4F)
 * STM32F4XX (Cortex-M4F)
 * STM32F3XX (Cortex-M4F)
 * STM32F0-Discovery (Cortex-M0)
@@ -75,6 +78,7 @@ STMicroelectronics:
 * STM32F4-Discovery (Cortex-M4F)
 * STM32F429-Discovery (Cortex-M4F)
 * STM32L0-Discovery (Cortex-M0+)
+* [STM32L4-Discovery](https://developer.mbed.org/platforms/ST-Discovery-L476VG/) (Cortex-M4F)
 * [Arch Max](https://developer.mbed.org/platforms/Seeed-Arch-Max/) (Cortex-M4F)
 
 
@@ -92,6 +96,11 @@ Silicon Labs:
 * [EFM32 Giant Gecko] (https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
 * [EFM32 Wonder Gecko] (https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
 
+Atmel:
+* [SAM R21 XPRO] (https://developer.mbed.org/platforms/SAMR21-XPRO/) (Cortex-M0+)
+* [SAM L21 XPRO B] (https://developer.mbed.org/platforms/SAML21-XPRO/) (Cortex-M0+)
+* [SAM D21 XPRO] (https://developer.mbed.org/platforms/SAMD21-XPRO/) (Cortex-M0+)
+* [SAM W25 XPRO] (https://developer.mbed.org/platforms/SAMW25-XPRO/) (Cortex-M0+)
 
 Supported Toolchains and IDEs
 -----------------------------

@@ -90,6 +90,7 @@
       defined(TARGET_NUCLEO_F303RE) || \
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F410RB) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
@@ -101,6 +102,61 @@
 #define P2_1    (1 << 8)  // PB_8
 #define P2_2    (1 << 9)  // PB_9
 #define PORT_2  PortB
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+#define P1_1    (1 << 0)  // PD0
+#define P1_2    (1 << 1)  // PD1
+#define PORT_1  PortD
+
+#define P2_1    (1 << 3)  // PC3
+#define P2_2    (1 << 4)  // PC4
+#define PORT_2  PortC
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+#define P1_1    (1 << 7)  // PD7
+#define P1_2    (1 << 6)  // PD6
+#define PORT_1  PortD
+
+#define P2_1    (1 << 1)  // PC1
+#define P2_2    (1 << 2)  // PC2
+#define PORT_2  PortC
+
+#elif defined(TARGET_EFM32HG_STK3400)
+#define P1_1    (1 << 10)  // PE10
+#define P1_2    (1 << 11)  // PE11
+#define PORT_1  PortE
+
+#define P2_1    (1 << 1)  // PC1
+#define P2_2    (1 << 2)  // PC2
+#define PORT_2  PortC
+
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
+#define P1_1    (1 << 6)  /*PA06*/
+#define P1_2    (1 << 7)  /*PA07*/
+#define PORT_1  PortA
+
+#define P2_1    (1 << 2)  /*PB02*/
+#define P2_2    (1 << 3)  /*PB03*/
+#define PORT_2  PortB
+
+#elif defined(TARGET_SAMD21G18A)
+#define P1_1    (1 << 2)  /*PA02*/
+#define P1_2    (1 << 3)  /*PA03*/
+#define PORT_1  PortA
+
+#define P2_1    (1 << 2)  /*PB02*/
+#define P2_2    (1 << 3)  /*PB03*/
+#define PORT_2  PortB
+
+#elif defined(TARGET_SAML21J18A)
+#define P1_1    (1 << 4)  /*PA04*/
+#define P1_2    (1 << 5)  /*PA05*/
+#define PORT_1  PortA
+
+#define P2_1    (1 << 0)  /*PB00*/
+#define P2_2    (1 << 1)  /*PB01*/
+#define PORT_2  PortB
+
 #endif
 
 #define MASK_1   (P1_1 | P1_2)

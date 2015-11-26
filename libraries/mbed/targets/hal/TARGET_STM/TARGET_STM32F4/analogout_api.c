@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,13 @@
 #include "stm32f4xx_hal.h"
 #include "PeripheralPins.h"
 
-#define RANGE_12BIT (0xFFF)
+#define DAC_RANGE    (0xFFF) // 12 bits
+#define DAC_NB_BITS  (12)
 
 DAC_HandleTypeDef    DacHandle;
 static DAC_ChannelConfTypeDef sConfig;
 
-void analogout_init(dac_t *obj, PinName pin)
-{
+void analogout_init(dac_t *obj, PinName pin) {
     uint32_t channel ;
     HAL_StatusTypeDef status;
 
@@ -94,18 +94,16 @@ void analogout_init(dac_t *obj, PinName pin)
 
 }
 
-void analogout_free(dac_t *obj)
-{
+void analogout_free(dac_t *obj) {
 }
 
-static inline void dac_write(dac_t *obj, uint16_t value)
-{
+static inline void dac_write(dac_t *obj, int value) {
     HAL_StatusTypeDef status = HAL_ERROR;
 
     if (obj->channel == 1) {
-        status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, value);
+        status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (value & DAC_RANGE));
     } else if (obj->channel == 2) {
-        status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, value);
+        status = HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, (value & DAC_RANGE));
     }
 
     if ( status != HAL_OK ) {
@@ -113,8 +111,7 @@ static inline void dac_write(dac_t *obj, uint16_t value)
     }
 }
 
-static inline int dac_read(dac_t *obj)
-{
+static inline int dac_read(dac_t *obj) {
     if (obj->channel == 1) {
         return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
     } else if (obj->channel == 2) {
@@ -123,36 +120,28 @@ static inline int dac_read(dac_t *obj)
 	return 0;	/* Just silented warning */
 }
 
-void analogout_write(dac_t *obj, float value)
-{
+void analogout_write(dac_t *obj, float value) {
     if (value < 0.0f) {
         dac_write(obj, 0); // Min value
     } else if (value > 1.0f) {
-        dac_write(obj, (uint16_t)RANGE_12BIT); // Max value
+        dac_write(obj, (int)DAC_RANGE); // Max value
     } else {
-        dac_write(obj, (uint16_t)(value * (float)RANGE_12BIT));
+        dac_write(obj, (int)(value * (float)DAC_RANGE));
     }
 }
 
-void analogout_write_u16(dac_t *obj, uint16_t value)
-{
-    if (value > (uint16_t)RANGE_12BIT) {
-        value = (uint16_t)RANGE_12BIT; // Max value
-    }
-
-    dac_write(obj, value);
+void analogout_write_u16(dac_t *obj, uint16_t value) {
+    dac_write(obj, value >> (16 - DAC_NB_BITS));
 }
 
-float analogout_read(dac_t *obj)
-{
-
+float analogout_read(dac_t *obj) {
     uint32_t value = dac_read(obj);
-    return (float)value * (1.0f / (float)RANGE_12BIT);
+    return (float)value * (1.0f / (float)DAC_RANGE);
 }
 
-uint16_t analogout_read_u16(dac_t *obj)
-{
-    return (uint16_t)dac_read(obj);
+uint16_t analogout_read_u16(dac_t *obj) {
+    uint32_t value = dac_read(obj);
+    return (value << 4) | ((value >> 8) & 0x000F); // Conversion from 12 to 16 bits
 }
 
 #endif // DEVICE_ANALOGOUT

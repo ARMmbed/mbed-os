@@ -1,18 +1,33 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file spi_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
+
 #include "device.h"
 #include "clocking.h"
 #if DEVICE_SPI
@@ -35,7 +50,7 @@
 static uint16_t fill_word = SPI_FILL_WORD;
 #define SPI_LEAST_ACTIVE_SLEEPMODE EM1
 
-inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
+static inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
 {
     switch ((int)obj->spi.spi) {
 #ifdef USART0
@@ -56,7 +71,7 @@ inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
     }
 }
 
-inline uint8_t spi_get_index(spi_t *obj)
+static inline uint8_t spi_get_index(spi_t *obj)
 {
     uint8_t index = 0;
     switch ((int)obj->spi.spi) {
@@ -344,7 +359,6 @@ int spi_master_write(spi_t *obj, int value)
 
     /* Wait for transmission of last byte */
     while (!(obj->spi.spi->STATUS & USART_STATUS_TXC)) {
-        sleep(); // TODO_LP this might break other code, write should be separate from read?
     }
 
     return spi_read(obj);
@@ -399,15 +413,12 @@ uint8_t spi_active(spi_t *obj)
     }
 }
 
-void spi_buffer_set(spi_t *obj, void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint8_t bit_width)
+void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint8_t bit_width)
 {
     uint32_t i;
     uint16_t *tx_ptr = (uint16_t *) tx;
 
-    tx_length *= (bit_width >> 3);
-    rx_length *= (bit_width >> 3);
-
-    obj->tx_buff.buffer = tx;
+    obj->tx_buff.buffer = (void *)tx;
     obj->rx_buff.buffer = rx;
     obj->tx_buff.length = tx_length;
     obj->rx_buff.length = rx_length;
@@ -761,7 +772,7 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
 *   * tx_length: how many bytes will get sent.
 *   * rx_length: how many bytes will get received. If > tx_length, TX will get padded with n lower bits of SPI_FILL_WORD.
 ******************************************/
-static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_length, int rx_length)
+static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int tx_length, int rx_length)
 {
     /* DMA descriptors */
     DMA_CfgDescr_TypeDef rxDescrCfg;
@@ -822,7 +833,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
                             true,
                             false,
                             (obj->spi.bits <= 8 ? (void *)&(obj->spi.spi->TXDATA) : (void *)&(obj->spi.spi->TXDOUBLE)), //When frame size > 9, point to TXDOUBLE
-                            (txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (txdata == 0 ? &fill_word : (void *)txdata), // When there is nothing to transmit, point to static fill word
                             (obj->spi.bits <= 8 ? tx_length - 1 : (tx_length / 2) - 1)); // When using TXDOUBLE, recalculate transfer length
     } else {
         /* Frame size == 9 */
@@ -860,7 +871,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
                             true,
                             false,
                             (void *)&(obj->spi.spi->TXDATAX), //When frame size > 9, point to TXDOUBLE
-                            (txdata == 0 ? &fill_word : txdata), // When there is nothing to transmit, point to static fill word
+                            (txdata == 0 ? &fill_word : (void *)txdata), // When there is nothing to transmit, point to static fill word
                             (tx_length / 2) - 1); // When using TXDOUBLE, recalculate transfer length
     }
 }
@@ -882,7 +893,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, void* txdata, int tx_leng
 *                 If the previous transfer has kept the channel, that channel will continue to get used.
 *
 ********************************************************************/
-void spi_master_transfer_dma(spi_t *obj, void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
+void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int tx_length, int rx_length, void* cb, DMAUsage hint)
 {
     /* Init DMA here to include it in the power figure */
     dma_init();
@@ -930,7 +941,7 @@ void spi_master_transfer_dma(spi_t *obj, void *txdata, void *rxdata, int tx_leng
  * @param[in] handler   SPI interrupt handler
  * @param[in] hint      A suggestion for how to use DMA with this transfer
  */
-void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     if( spi_active(obj) ) return;
 
@@ -950,11 +961,6 @@ void spi_master_transfer(spi_t *obj, void *tx, size_t tx_length, void *rx, size_
     /* Then, enable the events */
     spi_enable_event(obj, SPI_EVENT_ALL, false);
     spi_enable_event(obj, event, true);
-
-    /* Be tricky on how we handle increased bit widths in the buffer... Handling on byte-basis */
-    // div 8 = shift right 3
-    tx_length = tx_length * (bit_width >> 3);
-    rx_length = rx_length * (bit_width >> 3);
 
     // Set the sleep mode
     blockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
@@ -985,7 +991,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
         /* If there is still data in the TX buffer, setup a new transfer. */
         if (obj->tx_buff.pos < obj->tx_buff.length) {
             /* Find position and remaining length without modifying tx_buff. */
-            void* tx_pointer = obj->tx_buff.buffer + obj->tx_buff.pos;
+            void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
             uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
 
             /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */

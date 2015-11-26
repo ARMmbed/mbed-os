@@ -3,7 +3,7 @@
  * @brief Clock selection calculations
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -51,8 +51,18 @@
 #endif
 #endif
 
+#if ( LOW_ENERGY_CLOCK_SOURCE == LFXO )
+#define LEUART_USING_LFXO
+#if ( defined(CMU_CTRL_HFLE) && (REFERENCE_FREQUENCY > 24000000) )
+#define LEUART_HF_REF_FREQ (REFERENCE_FREQUENCY / 4)
+#else
+#define LEUART_HF_REF_FREQ (REFERENCE_FREQUENCY / 2)
+#endif
+#define LEUART_LF_REF_FREQ LFXO_FREQUENCY
+#else
 #if ( defined(CMU_CTRL_HFLE) && (REFERENCE_FREQUENCY > 24000000) )
 #define LEUART_REF_FREQ (REFERENCE_FREQUENCY / 4)
 #else
 #define LEUART_REF_FREQ (REFERENCE_FREQUENCY / 2)
+#endif
 #endif

@@ -50,8 +50,7 @@ static const uint32_t gpio_mode[13] = {
 };
 
 // Enable GPIO clock and return GPIO base address
-uint32_t Set_GPIO_Clock(uint32_t port_idx)
-{
+uint32_t Set_GPIO_Clock(uint32_t port_idx) {
     uint32_t gpio_add = 0;
     switch (port_idx) {
         case PortA:
@@ -62,18 +61,24 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx)
             gpio_add = GPIOB_BASE;
             __GPIOB_CLK_ENABLE();
             break;
+#if defined(GPIOC_BASE)
         case PortC:
             gpio_add = GPIOC_BASE;
             __GPIOC_CLK_ENABLE();
             break;
+#endif
+#if defined(GPIOD_BASE)
         case PortD:
             gpio_add = GPIOD_BASE;
             __GPIOD_CLK_ENABLE();
             break;
+#endif
+#if defined(GPIOF_BASE)
         case PortF:
             gpio_add = GPIOF_BASE;
             __GPIOF_CLK_ENABLE();
             break;
+#endif
         default:
             error("Pinmap error: wrong port number.");
             break;
@@ -84,8 +89,7 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx)
 /**
  * Configure pin (mode, speed, output type and pull-up/pull-down)
  */
-void pin_function(PinName pin, int data)
-{
+void pin_function(PinName pin, int data) {
     MBED_ASSERT(pin != (PinName)NC);
 
     // Get the pin informations
@@ -119,8 +123,7 @@ void pin_function(PinName pin, int data)
 /**
  * Configure pin pull-up/pull-down
  */
-void pin_mode(PinName pin, PinMode mode)
-{
+void pin_mode(PinName pin, PinMode mode) {
     MBED_ASSERT(pin != (PinName)NC);
 
     uint32_t port_index = STM_PORT(pin);

@@ -1,18 +1,32 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file i2c_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
 
 #include "device.h"
 #include "clocking.h"
@@ -426,7 +440,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
  *  @param handler The I2C IRQ handler to be set
  *  @param hint    DMA hint usage
  */
-void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     I2C_TransferReturn_TypeDef retval;
     if(i2c_active(obj)) return;
@@ -440,7 +454,7 @@ void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_
     if((tx_length > 0) && (rx_length == 0)) {
         obj->i2c.xfer.flags = I2C_FLAG_WRITE;
         //Store buffer info
-        obj->i2c.xfer.buf[0].data = tx;
+        obj->i2c.xfer.buf[0].data = (void *)tx;
         obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
     } else if ((tx_length == 0) && (rx_length > 0)) {
         obj->i2c.xfer.flags = I2C_FLAG_READ;
@@ -450,7 +464,7 @@ void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length, void *rx, size_
     } else if ((tx_length > 0) && (rx_length > 0)) {
         obj->i2c.xfer.flags = I2C_FLAG_WRITE_READ;
         //Store buffer info
-        obj->i2c.xfer.buf[0].data = tx;
+        obj->i2c.xfer.buf[0].data = (void *)tx;
         obj->i2c.xfer.buf[0].len  = (uint16_t) tx_length;
         obj->i2c.xfer.buf[1].data = rx;
         obj->i2c.xfer.buf[1].len  = (uint16_t) rx_length;

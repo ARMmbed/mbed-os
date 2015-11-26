@@ -285,7 +285,11 @@ void sys_sem_free(sys_sem_t *sem) {}
  * @return a new mutex */
 err_t sys_mutex_new(sys_mutex_t *mutex) {
 #ifdef CMSIS_OS_RTX
+#ifdef __MBED_CMSIS_RTOS_CA9
+    memset(mutex->data, 0, sizeof(int32_t)*4);
+#else
     memset(mutex->data, 0, sizeof(int32_t)*3);
+#endif
     mutex->def.mutex = mutex->data;
 #endif
     mutex->id = osMutexCreate(&mutex->def);
@@ -426,12 +430,10 @@ sys_thread_t sys_thread_new(const char *pcName,
     t->def.pthread = (os_pthread)thread;
     t->def.tpriority = (osPriority)priority;
     t->def.stacksize = stacksize;
-#ifndef __MBED_CMSIS_RTOS_CA9
     t->def.stack_pointer = (uint32_t*)malloc(stacksize);
     if (t->def.stack_pointer == NULL) {
       error("Error allocating the stack memory");
     }
-#endif
 #endif
     t->id = osThreadCreate(&t->def, arg);
     if (t->id == NULL)

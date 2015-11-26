@@ -1,6 +1,6 @@
 /* ----------------------------------------------------------------------
- * $Date:        5. June 2012
- * $Revision:    V1.01
+ * $Date:        5. February 2013
+ * $Revision:    V1.02
  *
  * Project:      CMSIS-RTOS API
  * Title:        cmsis_os.h RTX header file
@@ -18,9 +18,13 @@
  *     - const attribute added to the osXxxxDef macros
  *    Added: osTimerDelete, osMutexDelete, osSemaphoreDelete
  *    Added: osKernelInitialize
+ * Version 1.02
+ *    Control functions for short timeouts in microsecond resolution:
+ *    Added: osKernelSysTick, osKernelSysTickFrequency, osKernelSysTickMicroSec
+ *    Removed: osSignalGet 
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 2012 ARM LIMITED
+ * Copyright (c) 2013 ARM LIMITED
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -127,13 +131,13 @@ used throughout the whole project.
 #define _CMSIS_OS_H
 
 /// \note MUST REMAIN UNCHANGED: \b osCMSIS identifies the CMSIS-RTOS API version.
-#define osCMSIS           0x10001      ///< API version (main [31:16] .sub [15:0])
+#define osCMSIS           0x10002      ///< API version (main [31:16] .sub [15:0])
 
 /// \note CAN BE CHANGED: \b osCMSIS_KERNEL identifies the underlying RTOS kernel and version number.
-#define osCMSIS_RTX     ((4<<16)|61)   ///< RTOS identification and version (main [31:16] .sub [15:0])
+#define osCMSIS_RTX     ((4<<16)|74)   ///< RTOS identification and version (main [31:16] .sub [15:0])
 
 /// \note MUST REMAIN UNCHANGED: \b osKernelSystemId shall be consistent in every CMSIS-RTOS.
-#define osKernelSystemId "RTX V4.61"   ///< RTOS identification string
+#define osKernelSystemId "RTX V4.74"   ///< RTOS identification string
 
 #define CMSIS_OS_RTX
 #define CMSIS_OS_RTX_CA          /* new define for Coretex-A */
@@ -155,6 +159,7 @@ used throughout the whole project.
 #define osFeature_Signals      16      ///< maximum number of Signal Flags available per thread
 #define osFeature_Semaphore    65535   ///< maximum count for \ref osSemaphoreCreate function
 #define osFeature_Wait         0       ///< osWait function: 1=available, 0=not available
+#define osFeature_SysTick      1       ///< osKernelSysTick functions: 1=available, 0=not available
 
 #if defined (__CC_ARM)
 #define os_InRegs __value_in_regs      // Compiler specific: force struct in registers
@@ -264,6 +269,9 @@ typedef struct os_thread_def  {
   osPriority             tpriority;    ///< initial thread priority
   uint32_t               instances;    ///< maximum number of instances of that thread function
   uint32_t               stacksize;    ///< stack size requirements in bytes; 0 is default stack size
+#ifdef __MBED_CMSIS_RTOS_CA9
+  uint32_t               *stack_pointer;  ///< pointer to the stack memory block
+#endif
 } osThreadDef_t;
 
 /// Timer Definition structure contains timer parameters.
@@ -342,6 +350,30 @@ osStatus osKernelStart (void);
 /// \return 0 RTOS is not started, 1 RTOS is started.
 int32_t osKernelRunning(void);
 
+#if (defined (osFeature_SysTick)  &&  (osFeature_SysTick != 0))     // System Timer available
+
+extern uint32_t const os_tickfreq;
+extern uint16_t const os_tickus_i;
+extern uint16_t const os_tickus_f;
+
+/// Get the RTOS kernel system timer counter.
+/// \note MUST REMAIN UNCHANGED: \b osKernelSysTick shall be consistent in every CMSIS-RTOS.
+/// \return RTOS kernel system timer as 32-bit value 
+uint32_t osKernelSysTick (void);
+
+/// The RTOS kernel system timer frequency in Hz.
+/// \note Reflects the system timer setting and is typically defined in a configuration file.
+#define osKernelSysTickFrequency os_tickfreq
+
+/// Convert a microseconds value to a RTOS kernel system timer value.
+/// \param         microsec     time value in microseconds.
+/// \return time value normalized to the \ref osKernelSysTickFrequency
+/*
+#define osKernelSysTickMicroSec(microsec) (((uint64_t)microsec * (osKernelSysTickFrequency)) / 1000000)
+*/
+#define osKernelSysTickMicroSec(microsec) ((microsec * os_tickus_i) + ((microsec * os_tickus_f) >> 16))
+
+#endif    // System Timer available
 
 //  ==== Thread Management ====
 
@@ -356,10 +388,11 @@ int32_t osKernelRunning(void);
 #define osThreadDef(name, priority, instances, stacksz)  \
 extern const osThreadDef_t os_thread_def_##name
 #else                            // define the object
-#if defined (__MBED_CMSIS_RTOS_CA9)
+#ifdef __MBED_CMSIS_RTOS_CA9
 #define osThreadDef(name, priority, stacksz)  \
+uint32_t os_thread_def_stack_##name [stacksz / sizeof(uint32_t)]; \
 const osThreadDef_t os_thread_def_##name = \
-{ (name), (priority), 1, (stacksz)  }
+{ (name), (priority), 1, (stacksz), (os_thread_def_stack_##name) }
 #else
 #define osThreadDef(name, priority, instances, stacksz)  \
 const osThreadDef_t os_thread_def_##name = \
@@ -500,12 +533,6 @@ int32_t osSignalSet (osThreadId thread_id, int32_t signals);
 /// \note MUST REMAIN UNCHANGED: \b osSignalClear shall be consistent in every CMSIS-RTOS.
 int32_t osSignalClear (osThreadId thread_id, int32_t signals);
 
-/// Get Signal Flags status of an active thread.
-/// \param[in]     thread_id     thread ID obtained by \ref osThreadCreate or \ref osThreadGetId.
-/// \return previous signal flags of the specified thread or 0x80000000 in case of incorrect parameters.
-/// \note MUST REMAIN UNCHANGED: \b osSignalGet shall be consistent in every CMSIS-RTOS.
-int32_t osSignalGet (osThreadId thread_id);
-
 /// Wait for one or more Signal Flags to become signaled for the current \b RUNNING thread.
 /// \param[in]     signals       wait until all specified signal flags set or 0 for any single signal flag.
 /// \param[in]     millisec      timeout value or 0 in case of no time-out.
@@ -525,7 +552,7 @@ os_InRegs osEvent osSignalWait (int32_t signals, uint32_t millisec);
 extern const osMutexDef_t os_mutex_def_##name
 #else                            // define the object
 #define osMutexDef(name)  \
-uint32_t os_mutex_cb_##name[3]; \
+uint32_t os_mutex_cb_##name[4] = { 0 }; \
 const osMutexDef_t os_mutex_def_##name = { (os_mutex_cb_##name) }
 #endif
 
@@ -575,7 +602,7 @@ osStatus osMutexDelete (osMutexId mutex_id);
 extern const osSemaphoreDef_t os_semaphore_def_##name
 #else                            // define the object
 #define osSemaphoreDef(name)  \
-uint32_t os_semaphore_cb_##name[2]; \
+uint32_t os_semaphore_cb_##name[2] = { 0 }; \
 const osSemaphoreDef_t os_semaphore_def_##name = { (os_semaphore_cb_##name) }
 #endif
 
@@ -685,7 +712,7 @@ osStatus osPoolFree (osPoolId pool_id, void *block);
 extern const osMessageQDef_t os_messageQ_def_##name
 #else                            // define the object
 #define osMessageQDef(name, queue_sz, type)   \
-uint32_t os_messageQ_q_##name[4+(queue_sz)]; \
+uint32_t os_messageQ_q_##name[4+(queue_sz)] = { 0 }; \
 const osMessageQDef_t os_messageQ_def_##name = \
 { (queue_sz), (os_messageQ_q_##name) }
 #endif
@@ -737,7 +764,7 @@ os_InRegs osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec);
 extern const osMailQDef_t os_mailQ_def_##name
 #else                            // define the object
 #define osMailQDef(name, queue_sz, type) \
-uint32_t os_mailQ_q_##name[4+(queue_sz)]; \
+uint32_t os_mailQ_q_##name[4+(queue_sz)] = { 0 }; \
 uint32_t os_mailQ_m_##name[3+((sizeof(type)+3)/4)*(queue_sz)]; \
 void *   os_mailQ_p_##name[2] = { (os_mailQ_q_##name), os_mailQ_m_##name }; \
 const osMailQDef_t os_mailQ_def_##name =  \
@@ -794,6 +821,15 @@ os_InRegs osEvent osMailGet (osMailQId queue_id, uint32_t millisec);
 osStatus osMailFree (osMailQId queue_id, void *mail);
 
 #endif  // Mail Queues available
+
+
+//  ==== RTX Extensions ====
+
+/// os_suspend: http://www.keil.com/support/man/docs/rlarm/rlarm_os_suspend.htm
+uint32_t os_suspend (void);
+
+/// os_resume: http://www.keil.com/support/man/docs/rlarm/rlarm_os_resume.htm
+void os_resume (uint32_t sleep_time);
 
 
 #ifdef  __cplusplus

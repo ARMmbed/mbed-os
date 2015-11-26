@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,8 +34,7 @@
 #include "cmsis.h"
 
 #if defined(TARGET_STM32F070RB)
-void sleep(void)
-{
+void sleep(void) {
     TIM_HandleTypeDef TimMasterHandle;
 
     TimMasterHandle.Instance = TIM1;
@@ -51,8 +50,7 @@ void sleep(void)
 }
 
 #elif defined(TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
-void sleep(void)
-{
+void sleep(void) {
     // Stop HAL systick
     HAL_SuspendTick();
     // Request to enter SLEEP mode
@@ -64,8 +62,7 @@ void sleep(void)
 #else
 static TIM_HandleTypeDef TimMasterHandle;
 
-void sleep(void)
-{
+void sleep(void) {
     TimMasterHandle.Instance = TIM2;
 
     // Disable HAL tick interrupt
@@ -80,8 +77,7 @@ void sleep(void)
 #endif
 
 #if defined(TARGET_STM32F030R8) || defined (TARGET_STM32F051R8)
-void deepsleep(void)
-{
+void deepsleep(void) {
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
@@ -94,8 +90,7 @@ void deepsleep(void)
 }
 
 #else
-void deepsleep(void)
-{
+void deepsleep(void) {
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 

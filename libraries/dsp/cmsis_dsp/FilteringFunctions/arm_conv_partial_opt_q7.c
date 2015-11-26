@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_conv_partial_opt_q7.c    
@@ -446,7 +446,6 @@ arm_status arm_conv_partial_opt_q7(
   q7_t *pOut = pDst;                             /* output pointer */
   q15_t x10, x11, x20, x21;                      /* Temporary input variables */
   q15_t y10, y11;                                /* Temporary input variables */
-  q7_t out0, out1, out2, out3;                   /* temporary variables */
 
   /* Check for range of output samples to be calculated */
   if((firstIndex + numPoints) > ((srcALen + (srcBLen - 1u))))
@@ -717,13 +716,10 @@ arm_status arm_conv_partial_opt_q7(
       blkCnt--;
 
       /* Store the result in the accumulator in the destination buffer. */
-      out0 = (q7_t) (__SSAT(acc0 >> 7u, 8));
-      out1 = (q7_t) (__SSAT(acc1 >> 7u, 8));
-      out2 = (q7_t) (__SSAT(acc2 >> 7u, 8));
-      out3 = (q7_t) (__SSAT(acc3 >> 7u, 8));
-
-
-      *__SIMD32(pOut)++ = __PACKq7(out0, out1, out2, out3);
+      *pOut++ = (q7_t) (__SSAT(acc0 >> 7u, 8));
+      *pOut++ = (q7_t) (__SSAT(acc1 >> 7u, 8));
+      *pOut++ = (q7_t) (__SSAT(acc2 >> 7u, 8));
+      *pOut++ = (q7_t) (__SSAT(acc3 >> 7u, 8));
 
       /* Initialization of inputB pointer */
       pScr2 = py;

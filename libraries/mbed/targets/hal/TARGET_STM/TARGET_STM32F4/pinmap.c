@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -66,14 +66,18 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx)
             gpio_add = GPIOC_BASE;
             __GPIOC_CLK_ENABLE();
             break;
+#if defined GPIOD_BASE
         case PortD:
             gpio_add = GPIOD_BASE;
             __GPIOD_CLK_ENABLE();
             break;
+#endif
+#if defined GPIOE_BASE
         case PortE:
             gpio_add = GPIOE_BASE;
             __GPIOE_CLK_ENABLE();
             break;
+#endif
 #if defined GPIOF_BASE
         case PortF:
             gpio_add = GPIOF_BASE;
@@ -169,8 +173,9 @@ void pin_mode(PinName pin, PinMode mode)
 
     // Configure pull-up/pull-down resistors
     uint32_t pupd = (uint32_t)mode;
-    if (pupd > 2)
+    if (pupd > 2) {
         pupd = 0; // Open-drain = No pull-up/No pull-down
+    }
     gpio->PUPDR &= (uint32_t)(~(GPIO_PUPDR_PUPDR0 << (pin_index * 2)));
     gpio->PUPDR |= (uint32_t)(pupd << (pin_index * 2));
 

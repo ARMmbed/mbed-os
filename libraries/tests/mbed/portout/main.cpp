@@ -1,6 +1,6 @@
 #include "mbed.h"
 
-# if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088)
+# if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
 #     define LED_PORT   Port1
 #     define LED1       (1 << 18) // P1.18
 #     define LED2       (1 << 20) // P1.20
@@ -24,7 +24,32 @@
 #     define LED2       (1 <<  6) // P7.6
 #     define LED3       (1 <<  4) // P7.4
 #     define LED4       0
+# elif defined(TARGET_SAMR21G18A)
+#     define LED_PORT   PortA
+#     define LED1       (1 <<  19) /*PA19*/
+#     define LED2       0 
+#     define LED3       0 
+#     define LED4       0
+# elif defined(TARGET_SAMD21J18A)
+#     define LED_PORT   PortB
+#     define LED1       (1 <<  30) /*PB30*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
+# elif defined(TARGET_SAMD21G18A)
+#     define LED_PORT   PortA
+#     define LED1       (1 <<  23) /*PA23*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
+# elif defined(TARGET_SAML21J18A)
+#     define LED_PORT   PortB
+#     define LED1       (1 <<  10) /*PB10*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
 # endif
+
 
 #define LED_MASK    (LED1|LED2|LED3|LED4)
 

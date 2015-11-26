@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_eth.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   ETH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Ethernet (ETH) peripheral:
@@ -112,7 +112,8 @@
 
 #ifdef HAL_ETH_MODULE_ENABLED
 
-#if defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
+#if defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) ||\
+    defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -182,7 +183,7 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
   uint32_t err = ETH_SUCCESS;
   
   /* Check the ETH peripheral state */
-  if(heth == HAL_NULL)
+  if(heth == NULL)
   {
     return HAL_ERROR;
   }
@@ -809,7 +810,7 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame(ETH_HandleTypeDef *heth)
     else if((heth->RxDesc->Status & ETH_DMARXDESC_FS) != (uint32_t)RESET)
     {
       (heth->RxFrameInfos).FSRxDesc = heth->RxDesc;
-      (heth->RxFrameInfos).LSRxDesc = HAL_NULL;
+      (heth->RxFrameInfos).LSRxDesc = NULL;
       (heth->RxFrameInfos).SegCount = 1;
       /* Point to next descriptor */
       heth->RxDesc = (ETH_DMADescTypeDef*) (heth->RxDesc->Buffer2NextDescAddr);
@@ -1285,7 +1286,7 @@ HAL_StatusTypeDef HAL_ETH_ConfigMAC(ETH_HandleTypeDef *heth, ETH_MACInitTypeDef 
   assert_param(IS_ETH_SPEED(heth->Init.Speed));
   assert_param(IS_ETH_DUPLEX_MODE(heth->Init.DuplexMode)); 
   
-  if (macconf != HAL_NULL)
+  if (macconf != NULL)
   {
     /* Check the parameters */
     assert_param(IS_ETH_WATCHDOG(macconf->Watchdog));
@@ -2004,7 +2005,8 @@ static void ETH_FlushTransmitFIFO(ETH_HandleTypeDef *heth)
   * @}
   */
 
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx ||\
+          STM32F437xx || STM32F429xx || STM32F439xx || STM32F469xx || STM32F479xx */
 #endif /* HAL_ETH_MODULE_ENABLED */
 /**
   * @}

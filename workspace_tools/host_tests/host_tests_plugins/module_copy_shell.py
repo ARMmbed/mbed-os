@@ -18,6 +18,7 @@ limitations under the License.
 import os
 from os.path import join, basename
 from host_test_plugins import HostTestPluginBase
+from time import sleep
 
 
 class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
@@ -27,35 +28,43 @@ class HostTestPluginCopyMethod_Shell(HostTestPluginBase):
     type = 'CopyMethod'
     stable = True
     capabilities = ['shell', 'cp', 'copy', 'xcopy']
-    required_parameters = ['image_path', 'destination_disk']
+    required_parameters = ['image_path', 'destination_disk', 'program_cycle_s']
 
     def setup(self, *args, **kwargs):
         """ Configure plugin, this function should be called before plugin execute() method is used.
         """
         return True
 
-    def execute(self, capabilitity, *args, **kwargs):
+    def execute(self, capability, *args, **kwargs):
         """ Executes capability by name.
             Each capability may directly just call some command line
             program or execute building pythonic function
         """
         result = False
-        if self.check_parameters(capabilitity, *args, **kwargs) is True:
+        if self.check_parameters(capability, *args, **kwargs) is True:
             image_path = kwargs['image_path']
             destination_disk = kwargs['destination_disk']
+            program_cycle_s = kwargs['program_cycle_s']
             # Wait for mount point to be ready
             self.check_mount_point_ready(destination_disk)  # Blocking
             # Prepare correct command line parameter values
             image_base_name = basename(image_path)
             destination_path = join(destination_disk, image_base_name)
-            if capabilitity == 'shell':
-                if os.name == 'nt': capabilitity = 'copy'
-                elif os.name == 'posix': capabilitity = 'cp'
-            if capabilitity == 'cp' or capabilitity == 'copy' or capabilitity == 'xcopy':
-                copy_method = capabilitity
+            if capability == 'shell':
+                if os.name == 'nt': capability = 'copy'
+                elif os.name == 'posix': capability = 'cp'
+            if capability == 'cp' or capability == 'copy' or capability == 'copy':
+                copy_method = capability
                 cmd = [copy_method, image_path, destination_path]
-                shell = not capabilitity == 'cp'
-                result = self.run_command(cmd, shell=shell)
+                if os.name == 'posix':
+                    result = self.run_command(cmd, shell=False)
+                    result = self.run_command(["sync"])
+                else:
+                    result = self.run_command(cmd)
+
+            # Allow mbed to cycle
+            sleep(program_cycle_s)
+
         return result
 
 

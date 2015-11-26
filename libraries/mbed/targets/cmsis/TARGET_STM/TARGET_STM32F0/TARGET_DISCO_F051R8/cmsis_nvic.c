@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,10 @@
 #define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
 #define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-static unsigned char vtor_remap = 0; // To keep track that the vectors remap is done
-
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     int i;
+    // To keep track that the vectors remap is done
+    static volatile uint32_t vtor_remap = 0;
     // Space for dynamic vectors, initialised to allocate in R/W
     static volatile uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
     

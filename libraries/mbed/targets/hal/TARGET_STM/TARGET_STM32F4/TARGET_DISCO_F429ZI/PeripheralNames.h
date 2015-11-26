@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,13 +38,11 @@ extern "C" {
 
 typedef enum {
     ADC_1 = (int)ADC1_BASE,
-    ADC_2 = (int)ADC2_BASE,
     ADC_3 = (int)ADC3_BASE
 } ADCName;
 
 typedef enum {
-    DAC_0 = 0,
-    DAC_1
+    DAC_1 = (int)DAC_BASE
 } DACName;
 
 typedef enum {
@@ -68,7 +66,7 @@ typedef enum {
     SPI_3 = (int)SPI3_BASE,
     SPI_4 = (int)SPI4_BASE,
     SPI_5 = (int)SPI5_BASE,
-    SPI_6 = (int)SPI5_BASE
+    SPI_6 = (int)SPI6_BASE
 } SPIName;
 
 typedef enum {
@@ -87,6 +85,7 @@ typedef enum {
     PWM_9  = (int)TIM9_BASE,
     PWM_10 = (int)TIM10_BASE,
     PWM_11 = (int)TIM11_BASE,
+    PWM_12 = (int)TIM12_BASE,
     PWM_13 = (int)TIM13_BASE,
     PWM_14 = (int)TIM14_BASE
 } PWMName;

@@ -201,6 +201,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityForced1: parity_enable = 1; parity_select = 2; break;
         case ParityForced0: parity_enable = 1; parity_select = 3; break;
         default:
+            parity_enable = 0, parity_select = 0;
             break;
     }
     

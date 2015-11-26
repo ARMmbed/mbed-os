@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of HASH HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F415xx) || defined(STM32F417xx) || defined(STM32F437xx) || defined(STM32F439xx)
+#if defined(STM32F415xx) || defined(STM32F417xx) || defined(STM32F437xx) || defined(STM32F439xx) || defined(STM32F479xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
@@ -210,8 +210,8 @@ typedef struct
 /** @defgroup HASH_Exported_Constants_Group6 HASH Interrupts definition 
   * @{
   */
-#define HASH_IT_DINI               HASH_IMR_DINIM  /*!< A new block can be entered into the input buffer (DIN) */
-#define HASH_IT_DCI                HASH_IMR_DCIM   /*!< Digest calculation complete                            */
+#define HASH_IT_DINI               HASH_IMR_DINIE  /*!< A new block can be entered into the input buffer (DIN) */
+#define HASH_IT_DCI                HASH_IMR_DCIE   /*!< Digest calculation complete                            */
 /**
   * @}
   */
@@ -241,7 +241,8 @@ typedef struct
   *            @arg HASH_FLAG_DINNE: DIN not empty : The input buffer contains at least one word of data
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
-#define __HAL_HASH_GET_FLAG(__FLAG__) ((HASH->SR & (__FLAG__)) == (__FLAG__))
+#define __HAL_HASH_GET_FLAG(__FLAG__) (((__FLAG__) > 8U) ? ((HASH->CR & (__FLAG__)) == (__FLAG__)) :\
+                                                           ((HASH->SR & (__FLAG__)) == (__FLAG__)))
 
 /**
   * @brief  Enable the multiple DMA mode. 
@@ -267,7 +268,7 @@ typedef struct
   * @param  SIZE: size in byte of last data written in Data register.
   * @retval None
 */
-#define __HAL_HASH_SET_NBVALIDBITS(SIZE) do{HASH->STR &= ~(HASH_STR_NBW);\
+#define __HAL_HASH_SET_NBVALIDBITS(SIZE) do{HASH->STR &= ~(HASH_STR_NBLW);\
                                             HASH->STR |= 8 * ((SIZE) % 4);\
                                            }while(0)
 
@@ -416,6 +417,8 @@ void HAL_HASH_ErrorCallback(HASH_HandleTypeDef *hhash);
 #define IS_HASH_HMAC_KEYTYPE(__KEYTYPE__) (((__KEYTYPE__) == HASH_HMAC_KEYTYPE_SHORTKEY) || \
                                            ((__KEYTYPE__) == HASH_HMAC_KEYTYPE_LONGKEY))
 
+#define IS_HASH_SHA1_BUFFER_SIZE(__SIZE__) ((((__SIZE__)%4) != 0)? 0U: 1U)
+
 /**
   * @}
   */ 
@@ -429,7 +432,7 @@ void HAL_HASH_ErrorCallback(HASH_HandleTypeDef *hhash);
   * @}
   */
  
-#endif /* STM32F415xx || STM32F417xx || STM32F437xx || STM32F439xx */
+#endif /* STM32F415xx || STM32F417xx || STM32F437xx || STM32F439xx || STM32F479xx */
 /**
   * @}
   */ 

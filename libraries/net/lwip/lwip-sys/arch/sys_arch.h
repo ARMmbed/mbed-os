@@ -40,7 +40,11 @@ typedef struct {
     osMutexId    id;
     osMutexDef_t def;
 #ifdef CMSIS_OS_RTX
+#ifdef __MBED_CMSIS_RTOS_CA9
+    int32_t      data[4];
+#else
     int32_t      data[3];
+#endif
 #endif
 } sys_mutex_t;
 

@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
-  * @brief   Header file of ADC HAL extension module.
+  * @version V1.4.1
+  * @date    09-October-2015
+  * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
   *
@@ -97,7 +97,11 @@ typedef struct
                                        This parameter can be set to ENABLE or DISABLE */ 
   uint32_t EOCSelection;          /*!< Specifies whether the EOC flag is set 
                                        at the end of single channel conversion or at the end of all conversions.
-                                       This parameter can be a value of @ref ADC_EOCSelection */
+                                       This parameter can be a value of @ref ADC_EOCSelection
+                                       Note: Impact on overrun when not using DMA: When EOCSelection is set to ADC_EOC_SINGLE_CONV,
+                                       overrun detection is automatically enabled, in this case each conversion data must be read.
+                                       To perform ADC conversions without having to read all conversion data, this parameter must
+                                       be set to ADC_EOC_SEQ_CONV */
   uint32_t ContinuousConvMode;    /*!< Specifies whether the conversion is performed in Continuous or Single mode.
                                        This parameter can be set to ENABLE or DISABLE. */
   uint32_t DMAContinuousRequests; /*!< Specifies whether the DMA requests is performed in Continuous or in Single mode.
@@ -197,10 +201,10 @@ typedef struct
 /** @defgroup ADC_ClockPrescaler  ADC Clock Prescaler
   * @{
   */ 
-#define ADC_CLOCKPRESCALER_PCLK_DIV2    ((uint32_t)0x00000000)
-#define ADC_CLOCKPRESCALER_PCLK_DIV4    ((uint32_t)ADC_CCR_ADCPRE_0)
-#define ADC_CLOCKPRESCALER_PCLK_DIV6    ((uint32_t)ADC_CCR_ADCPRE_1)
-#define ADC_CLOCKPRESCALER_PCLK_DIV8    ((uint32_t)ADC_CCR_ADCPRE)
+#define ADC_CLOCK_SYNC_PCLK_DIV2    ((uint32_t)0x00000000)
+#define ADC_CLOCK_SYNC_PCLK_DIV4    ((uint32_t)ADC_CCR_ADCPRE_0)
+#define ADC_CLOCK_SYNC_PCLK_DIV6    ((uint32_t)ADC_CCR_ADCPRE_1)
+#define ADC_CLOCK_SYNC_PCLK_DIV8    ((uint32_t)ADC_CCR_ADCPRE)
 /**
   * @}
   */ 
@@ -561,10 +565,10 @@ uint32_t HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
 /** @defgroup ADC_Private_Macros ADC Private Macros
   * @{
   */
-#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK)     (((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV2) || \
-                                              ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV4) || \
-                                              ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV6) || \
-                                              ((ADC_CLOCK) == ADC_CLOCKPRESCALER_PCLK_DIV8))
+#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK)     (((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV2) || \
+                                              ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV4) || \
+                                              ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV6) || \
+                                              ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV8))
 #define IS_ADC_SAMPLING_DELAY(DELAY) (((DELAY) == ADC_TWOSAMPLINGDELAY_5CYCLES)  || \
                                       ((DELAY) == ADC_TWOSAMPLINGDELAY_6CYCLES)  || \
                                       ((DELAY) == ADC_TWOSAMPLINGDELAY_7CYCLES)  || \

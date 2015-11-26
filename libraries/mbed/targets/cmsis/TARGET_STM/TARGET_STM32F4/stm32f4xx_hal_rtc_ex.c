@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc_ex.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    09-March-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) Extension peripheral:
@@ -149,8 +149,9 @@
   *                                         falling edge of the related pin.
   * @param  RTC_TimeStampPin: specifies the RTC TimeStamp Pin.
   *          This parameter can be one of the following values:
-  *             @arg RTC_TIMESTAMPPIN_PC13: PC13 is selected as RTC TimeStamp Pin.
-  *             @arg RTC_TIMESTAMPPIN_PI8: PI8 is selected as RTC TimeStamp Pin. (not applicable in the case of STM32F446xx devices) 
+  *             @arg RTC_TIMESTAMPPIN_DEFAULT: PC13 is selected as RTC TimeStamp Pin.
+  *             @arg RTC_TIMESTAMPPIN_POS1: PI8/PA0 is selected as RTC TimeStamp Pin.
+  *             (PI8 for all STM32 devices except for STM32F446xx devices the PA0 is used) 
   *             @arg RTC_TIMESTAMPPIN_PA0: PA0 is selected as RTC TimeStamp Pin only for STM32F446xx devices  
   * @retval HAL status
   */
@@ -209,7 +210,7 @@ HAL_StatusTypeDef HAL_RTCEx_SetTimeStamp(RTC_HandleTypeDef *hrtc, uint32_t TimeS
   *                                         falling edge of the related pin.
   * @param  RTC_TimeStampPin: Specifies the RTC TimeStamp Pin.
   *          This parameter can be one of the following values:
-  *             @arg RTC_TIMESTAMPPIN_PC13: PC13 is selected as RTC TimeStamp Pin.
+  *             @arg RTC_TIMESTAMPPIN_DEFAULT: PC13 is selected as RTC TimeStamp Pin.
   *             @arg RTC_TIMESTAMPPIN_PI8: PI8 is selected as RTC TimeStamp Pin. (not applicable in the case of STM32F446xx devices) 
   *             @arg RTC_TIMESTAMPPIN_PA0: PA0 is selected as RTC TimeStamp Pin only for STM32F446xx devices   
   * @retval HAL status
@@ -743,10 +744,32 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer(RTC_HandleTypeDef *hrtc, uint32_t Wak
   
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
-  
+
+  /*Check RTC WUTWF flag is reset only when wake up timer enabled*/
+  if((hrtc->Instance->CR & RTC_CR_WUTE) != RESET)
+  {
+    tickstart = HAL_GetTick();
+
+    /* Wait till RTC WUTWF flag is reset and if Time out is reached exit */
+    while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTWF) == SET)
+    {
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
+      {
+        /* Enable the write protection for RTC registers */
+        __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+        
+        hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+        /* Process Unlocked */ 
+        __HAL_UNLOCK(hrtc);
+
+        return HAL_TIMEOUT;
+      }
+    }
+  }
+
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
 
-  /* Get tick */
   tickstart = HAL_GetTick();
 
   /* Wait till RTC WUTWF flag is set and if Time out is reached exit */
@@ -756,14 +779,14 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer(RTC_HandleTypeDef *hrtc, uint32_t Wak
     {
       /* Enable the write protection for RTC registers */
       __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
-      
-      hrtc->State = HAL_RTC_STATE_TIMEOUT; 
-      
+
+      hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
       /* Process Unlocked */ 
       __HAL_UNLOCK(hrtc);
-      
+
       return HAL_TIMEOUT;
-    }  
+    }
   }
   
   /* Clear the Wake-up Timer clock source bits in CR register */
@@ -812,10 +835,32 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
   
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
-  
+
+  /*Check RTC WUTWF flag is reset only when wake up timer enabled*/
+  if((hrtc->Instance->CR & RTC_CR_WUTE) != RESET)
+  {
+    tickstart = HAL_GetTick();
+ 
+    /* Wait till RTC WUTWF flag is reset and if Time out is reached exit */
+    while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTWF) == SET)
+    {
+      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
+      {
+       /* Enable the write protection for RTC registers */
+       __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+
+       hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+       /* Process Unlocked */ 
+       __HAL_UNLOCK(hrtc);
+
+       return HAL_TIMEOUT;
+      }
+    }
+  }
+
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
 
-  /* Get tick */
   tickstart = HAL_GetTick();
 
   /* Wait till RTC WUTWF flag is set and if Time out is reached exit */
@@ -825,14 +870,14 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
     {
       /* Enable the write protection for RTC registers */
       __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
-      
+
       hrtc->State = HAL_RTC_STATE_TIMEOUT; 
-      
+
       /* Process Unlocked */ 
       __HAL_UNLOCK(hrtc);
-      
+
       return HAL_TIMEOUT;
-    }  
+    }
   }
   
   /* Configure the Wake-up Timer counter */

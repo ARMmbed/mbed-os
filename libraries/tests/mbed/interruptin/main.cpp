@@ -44,12 +44,19 @@ void in_handler() {
       defined(TARGET_NUCLEO_F303RE) || \
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F410RB) || \
       defined(TARGET_NUCLEO_F411RE) || \
+      defined(TARGET_NUCLEO_F446RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 #define PIN_IN      PB_8
 #define PIN_OUT     PC_7
+
+#elif defined(TARGET_NUCLEO_F031K6) || \
+      defined(TARGET_NUCLEO_F042K6)
+#define PIN_IN      A4
+#define PIN_OUT     A5
 
 #elif defined(TARGET_ARCH_MAX) || \
       defined(TARGET_DISCO_F407VG) || \
@@ -73,6 +80,26 @@ void in_handler() {
 #elif defined(TARGET_MAX32600MBED)
 #define PIN_OUT    P1_0
 #define PIN_IN     P4_7
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
+#define PIN_OUT    PD0
+#define PIN_IN     PC3
+
+#elif defined(TARGET_EFM32ZG_STK3200)
+#define PIN_OUT    PD7
+#define PIN_IN     PC1
+
+#elif defined(TARGET_EFM32HG_STK3400)
+#define PIN_OUT    PE10
+#define PIN_IN     PC1
+
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
+#define PIN_OUT    PB02
+#define PIN_IN     PB03
+
+#elif defined(TARGET_SAML21J18A) 
+#define PIN_OUT    PA02
+#define PIN_IN     PA03
 
 #else
 #define PIN_IN      (p5)

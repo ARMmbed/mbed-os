@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. October 2015
+* $Revision: 	V.1.4.5 a
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_mult_q15.c    
@@ -118,7 +118,7 @@ void arm_mult_q15(
     *__SIMD32(pDst)++ = __PKHBT(out2, out1, 16);
     *__SIMD32(pDst)++ = __PKHBT(out4, out3, 16);
 
-#endif //      #ifndef ARM_MATH_BIG_ENDIAN
+#endif /* #ifndef ARM_MATH_BIG_ENDIAN */
 
     /* Decrement the blockSize loop counter */
     blkCnt--;
