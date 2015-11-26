@@ -96,6 +96,11 @@ Silicon Labs:
 * [EFM32 Giant Gecko] (https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
 * [EFM32 Wonder Gecko] (https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
 
+Atmel:
+* [SAM R21 XPRO] (https://developer.mbed.org/platforms/SAMR21-XPRO/) (Cortex-M0+)
+* [SAM L21 XPRO B] (https://developer.mbed.org/platforms/SAML21-XPRO/) (Cortex-M0+)
+* [SAM D21 XPRO] (https://developer.mbed.org/platforms/SAMD21-XPRO/) (Cortex-M0+)
+* [SAM W25 XPRO] (https://developer.mbed.org/platforms/SAMW25-XPRO/) (Cortex-M0+)
 
 Supported Toolchains and IDEs
 -----------------------------

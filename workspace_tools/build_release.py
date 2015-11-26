@@ -129,6 +129,11 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('WIZWIKI_W7500',   ('ARM', 'uARM')),
     ('WIZWIKI_W7500P',('ARM', 'uARM')),
     ('WIZWIKI_W7500ECO',('ARM', 'uARM')),
+
+    ('SAMR21G18A',('ARM', 'uARM', 'GCC_ARM')),
+    ('SAMD21J18A',('ARM', 'uARM', 'GCC_ARM')),
+    ('SAMD21G18A',('ARM', 'uARM', 'GCC_ARM')),
+
 )
 
 
