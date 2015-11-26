@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cmu.c
  * @brief Clock management unit (CMU) Peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -33,6 +33,7 @@
 #if defined( CMU_PRESENT )
 
 #include <stddef.h>
+#include <limits.h>
 #include "em_assert.h"
 #include "em_bus.h"
 #include "em_emu.h"
@@ -57,9 +58,9 @@
 
 #if defined( _SILICON_LABS_32B_PLATFORM_2 )
 /** Maximum allowed core frequency when using 0 wait-states on flash access. */
-#define CMU_MAX_FREQ_0WS    25000000
+#define CMU_MAX_FREQ_0WS    26000000
 /** Maximum allowed core frequency when using 1 wait-states on flash access */
-#define CMU_MAX_FREQ_1WS    50000000
+#define CMU_MAX_FREQ_1WS    40000000
 #elif defined( _SILICON_LABS_32B_PLATFORM_1 )
 /** Maximum allowed core frequency when using 0 wait-states on flash access. */
 #define CMU_MAX_FREQ_0WS    16000000
@@ -673,9 +674,9 @@ void CMU_AUXHFRCOBandSet(CMU_AUXHFRCOBand_TypeDef band)
  *   Frequency in Hz
  *
  * @return
- *   Pointer to the AUXHFRCO calibration word for a given frequency
+ *   AUXHFRCO calibration word for a given frequency
  *****************************************************************************/
-uint32_t* CMU_AUXHFRCODevinfoGet(CMU_AUXHFRCOFreq_TypeDef freq)
+static uint32_t CMU_AUXHFRCODevinfoGet(CMU_AUXHFRCOFreq_TypeDef freq)
 {
   switch (freq)
   {
@@ -683,31 +684,31 @@ uint32_t* CMU_AUXHFRCODevinfoGet(CMU_AUXHFRCOFreq_TypeDef freq)
     case cmuAUXHFRCOFreq_1M0Hz:
     case cmuAUXHFRCOFreq_2M0Hz:
     case cmuAUXHFRCOFreq_4M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 0);
+      return DEVINFO->AUXHFRCOCAL0;
 
     case cmuAUXHFRCOFreq_7M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 3);
+      return DEVINFO->AUXHFRCOCAL3;
 
     case cmuAUXHFRCOFreq_13M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 6);
+      return DEVINFO->AUXHFRCOCAL6;
 
     case cmuAUXHFRCOFreq_16M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 7);
+      return DEVINFO->AUXHFRCOCAL7;
 
     case cmuAUXHFRCOFreq_19M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 8);
+      return DEVINFO->AUXHFRCOCAL8;
 
     case cmuAUXHFRCOFreq_26M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 10);
+      return DEVINFO->AUXHFRCOCAL10;
 
     case cmuAUXHFRCOFreq_32M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 11);
+      return DEVINFO->AUXHFRCOCAL11;
 
     case cmuAUXHFRCOFreq_38M0Hz:
-      return (uint32_t *)(&DEVINFO->AUXHFRCOCAL0 + 12);
+      return DEVINFO->AUXHFRCOCAL12;
 
     default: /* cmuAUXHFRCOFreq_UserDefined */
-      return NULL;
+      return 0;
   }
 }
 #endif /* _CMU_AUXHFRCOCTRL_FREQRANGE_MASK */
@@ -738,117 +739,39 @@ CMU_AUXHFRCOFreq_TypeDef CMU_AUXHFRCOFreqGet(void)
  ******************************************************************************/
 void CMU_AUXHFRCOFreqSet(CMU_AUXHFRCOFreq_TypeDef freq)
 {
-  uint32_t *freqCalDevinfo;
   uint32_t freqCal;
-  uint32_t ctrlReg;
 
-  /* Get DEVINFO index, set frequency */
-  freqCalDevinfo = CMU_AUXHFRCODevinfoGet(freq);
-  EFM_ASSERT(freqCalDevinfo != NULL);
-  freqCal = * freqCalDevinfo;
+  /* Get DEVINFO index, set global auxHfrcoFreq */
+  freqCal = CMU_AUXHFRCODevinfoGet(freq);
+  EFM_ASSERT((freqCal != 0) && (freqCal != UINT_MAX));
   auxHfrcoFreq = freq;
 
-  /* If calibration is present in DEVINFO, set calibration data for the selected
-     frequency. Wait for any previous sync to complete first. */
-  while(BUS_RegBitRead(&CMU->SYNCBUSY, _CMU_SYNCBUSY_AUXHFRCOBSY_SHIFT))
+  /* Wait for any previous sync to complete, and then set calibration data
+     for the selected frequency.  */
+  while(BUS_RegBitRead(&CMU->SYNCBUSY, _CMU_SYNCBUSY_AUXHFRCOBSY_SHIFT));
+
+  /* Set divider in AUXHFRCOCTRL for 1, 2 and 4MHz */
+  switch(freq)
   {
+    case cmuAUXHFRCOFreq_1M0Hz:
+      freqCal = (freqCal & ~_CMU_AUXHFRCOCTRL_CLKDIV_MASK)
+                | CMU_AUXHFRCOCTRL_CLKDIV_DIV4;
+      break;
+
+    case cmuAUXHFRCOFreq_2M0Hz:
+      freqCal = (freqCal & ~_CMU_AUXHFRCOCTRL_CLKDIV_MASK)
+                | CMU_AUXHFRCOCTRL_CLKDIV_DIV2;
+      break;
+
+    case cmuAUXHFRCOFreq_4M0Hz:
+      freqCal = (freqCal & ~_CMU_AUXHFRCOCTRL_CLKDIV_MASK)
+                | CMU_AUXHFRCOCTRL_CLKDIV_DIV1;
+      break;
+
+    default:
+      break;
   }
-  if (freqCal != ~0U)
-  {
-    /* Set divider in AUXHFRCOCTRL for 1 and 2MHz */
-    switch(freq)
-    {
-      case cmuAUXHFRCOFreq_1M0Hz:
-        freqCal = (freqCal & ~_CMU_AUXHFRCOCTRL_CLKDIV_MASK)
-                  | (2 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_2M0Hz:
-        freqCal = (freqCal & ~_CMU_AUXHFRCOCTRL_CLKDIV_MASK)
-                  | (1 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      default:
-        break;
-    }
-    CMU->AUXHFRCOCTRL = freqCal;
-  }
-  else
-  {
-    /* Calibration data does not exist, set best known approximation. */
-    ctrlReg = _CMU_AUXHFRCOCTRL_RESETVALUE
-              & ~(_CMU_AUXHFRCOCTRL_FREQRANGE_MASK
-                  | _CMU_AUXHFRCOCTRL_LDOHP_MASK
-                  | _CMU_AUXHFRCOCTRL_CLKDIV_MASK);
-
-    switch(freq)
-    {
-      case cmuAUXHFRCOFreq_1M0Hz:
-        ctrlReg |= (0 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (2 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_2M0Hz:
-        ctrlReg |= (0 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_4M0Hz:
-        ctrlReg |= (0 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_7M0Hz:
-        ctrlReg |= (3 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_13M0Hz:
-        ctrlReg |= (6 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_16M0Hz:
-        ctrlReg |= (7 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_19M0Hz:
-        ctrlReg |= (8 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_26M0Hz:
-        ctrlReg |= (10 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_32M0Hz:
-        ctrlReg |= (11 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuAUXHFRCOFreq_38M0Hz:
-        ctrlReg |= (12 << _CMU_AUXHFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_AUXHFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_AUXHFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      default:
-        EFM_ASSERT(0);
-        break;
-    }
-    CMU->AUXHFRCOCTRL = ctrlReg;
-  }
+  CMU->AUXHFRCOCTRL = freqCal;
 }
 #endif /* _CMU_AUXHFRCOCTRL_FREQRANGE_MASK */
 
@@ -3065,9 +2988,9 @@ void CMU_HFRCOBandSet(CMU_HFRCOBand_TypeDef band)
  *   Frequency in Hz
  *
  * @return
- *   Pointer to the HFRCO calibration word for a given frequency
+ *   HFRCO calibration word for a given frequency
  *****************************************************************************/
-uint32_t* CMU_HFRCODevinfoGet(CMU_HFRCOFreq_TypeDef freq)
+static uint32_t CMU_HFRCODevinfoGet(CMU_HFRCOFreq_TypeDef freq)
 {
   switch (freq)
   {
@@ -3075,31 +2998,31 @@ uint32_t* CMU_HFRCODevinfoGet(CMU_HFRCOFreq_TypeDef freq)
     case cmuHFRCOFreq_1M0Hz:
     case cmuHFRCOFreq_2M0Hz:
     case cmuHFRCOFreq_4M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 0);
+      return DEVINFO->HFRCOCAL0;
 
     case cmuHFRCOFreq_7M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 3);
+      return DEVINFO->HFRCOCAL3;
 
     case cmuHFRCOFreq_13M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 6);
+      return DEVINFO->HFRCOCAL6;
 
     case cmuHFRCOFreq_16M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 7);
+      return DEVINFO->HFRCOCAL7;
 
     case cmuHFRCOFreq_19M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 8);
+      return DEVINFO->HFRCOCAL8;
 
     case cmuHFRCOFreq_26M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 10);
+      return DEVINFO->HFRCOCAL10;
 
     case cmuHFRCOFreq_32M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 11);
+      return DEVINFO->HFRCOCAL11;
 
     case cmuHFRCOFreq_38M0Hz:
-      return (uint32_t *)(&DEVINFO->HFRCOCAL0 + 12);
+      return DEVINFO->HFRCOCAL12;
 
     default: /* cmuHFRCOFreq_UserDefined */
-      return NULL;
+      return 0;
   }
 }
 
@@ -3126,14 +3049,11 @@ CMU_HFRCOFreq_TypeDef CMU_HFRCOFreqGet(void)
  ******************************************************************************/
 void CMU_HFRCOFreqSet(CMU_HFRCOFreq_TypeDef freq)
 {
-  uint32_t* freqCalDevinfo;
   uint32_t freqCal;
-  uint32_t ctrlReg;
 
-  /* Get DEVINFO index, set frequency */
-  freqCalDevinfo = CMU_HFRCODevinfoGet(freq);
-  EFM_ASSERT(freqCalDevinfo != NULL);
-  freqCal = *freqCalDevinfo;
+  /* Get DEVINFO index, set CMSIS frequency SystemHfrcoFreq */
+  freqCal = CMU_HFRCODevinfoGet(freq);
+  EFM_ASSERT((freqCal != 0) && (freqCal != UINT_MAX));
   SystemHfrcoFreq = (uint32_t)freq;
 
   /* Set max wait-states while changing core clock */
@@ -3142,105 +3062,36 @@ void CMU_HFRCOFreqSet(CMU_HFRCOFreq_TypeDef freq)
     flashWaitStateMax();
   }
 
-  /* If calibration is present in DEVINFO, set calibration data for the selected
-     frequency. Wait for any previous sync to complete first. */
-  while(BUS_RegBitRead(&CMU->SYNCBUSY, _CMU_SYNCBUSY_HFRCOBSY_SHIFT))
+  /* Wait for any previous sync to complete, and then set calibration data
+     for the selected frequency.  */
+  while(BUS_RegBitRead(&CMU->SYNCBUSY, _CMU_SYNCBUSY_HFRCOBSY_SHIFT));
+
+  /* Check for valid calibration data */
+  EFM_ASSERT(freqCal != UINT_MAX);
+
+  /* Set divider in HFRCOCTRL for 1, 2 and 4MHz */
+  switch(freq)
   {
+    case cmuHFRCOFreq_1M0Hz:
+      freqCal = (freqCal & ~_CMU_HFRCOCTRL_CLKDIV_MASK)
+                | CMU_HFRCOCTRL_CLKDIV_DIV4;
+      break;
+
+    case cmuHFRCOFreq_2M0Hz:
+      freqCal = (freqCal & ~_CMU_HFRCOCTRL_CLKDIV_MASK)
+                | CMU_HFRCOCTRL_CLKDIV_DIV2;
+      break;
+
+    case cmuHFRCOFreq_4M0Hz:
+      freqCal = (freqCal & ~_CMU_HFRCOCTRL_CLKDIV_MASK)
+                | CMU_HFRCOCTRL_CLKDIV_DIV1;
+      break;
+
+    default:
+      break;
   }
-  if (freqCal != ~0U)
-  {
-    switch(freq)
-    {
-      case cmuHFRCOFreq_1M0Hz:
-        freqCal = (freqCal & ~_CMU_HFRCOCTRL_CLKDIV_MASK)
-                  | (2 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
+  CMU->HFRCOCTRL = freqCal;
 
-      case cmuHFRCOFreq_2M0Hz:
-        freqCal = (freqCal & ~_CMU_HFRCOCTRL_CLKDIV_MASK)
-                  | (1 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      default:
-        break;
-    }
-    CMU->HFRCOCTRL = freqCal;
-  }
-  else
-  {
-    /* Calibration data does not exist, set best known approximation. */
-    ctrlReg = _CMU_HFRCOCTRL_RESETVALUE & ~(_CMU_HFRCOCTRL_FREQRANGE_MASK
-                                            | _CMU_HFRCOCTRL_LDOHP_MASK
-                                            | _CMU_HFRCOCTRL_CLKDIV_MASK);
-
-    switch(freq)
-    {
-      case cmuHFRCOFreq_1M0Hz:
-        ctrlReg |= (0 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (2 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_2M0Hz:
-        ctrlReg |= (0 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_4M0Hz:
-        ctrlReg |= (0 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_7M0Hz:
-        ctrlReg |= (3 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_13M0Hz:
-        ctrlReg |= (6 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_16M0Hz:
-        ctrlReg |= (7 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_19M0Hz:
-        ctrlReg |= (8 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_26M0Hz:
-        ctrlReg |= (10 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_32M0Hz:
-        ctrlReg |= (11 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      case cmuHFRCOFreq_38M0Hz:
-        ctrlReg |= (12 << _CMU_HFRCOCTRL_FREQRANGE_SHIFT)
-                   | (1 << _CMU_HFRCOCTRL_LDOHP_SHIFT)
-                   | (0 << _CMU_HFRCOCTRL_CLKDIV_SHIFT);
-        break;
-
-      default:
-        EFM_ASSERT(0);
-        break;
-    }
-    CMU->HFRCOCTRL = ctrlReg;
-  }
   /* Optimize flash access wait-state configuration for this frequency, */
   /* if HFRCO is reference for core clock.                              */
   if (CMU_ClockSelectGet(cmuClock_HF) == cmuSelect_HFRCO)
@@ -3335,14 +3186,16 @@ void CMU_HFXOAutostartEnable(bool enRACStartSel,
  *
  * @note
  *   HFXO configuration should be obtained from a configuration tool,
- *   app note or xtal datasheet. This function disables the HFXO.
+ *   app note or xtal datasheet. This function disables the HFXO to ensure
+ *   a valid state before update.
  *
  * @param[in] hfxoInit
  *    HFXO setup parameters
  *****************************************************************************/
 void CMU_HFXOInit(CMU_HFXOInit_TypeDef *hfxoInit)
 {
-  uint32_t reg;
+  uint32_t ishReg;
+  uint32_t ishMax;
 
   /* Do not disable HFXO if it is currently selected as HF/Core clock */
   EFM_ASSERT(CMU_ClockSelectGet(cmuClock_HF) != cmuSelect_HFXO);
@@ -3365,53 +3218,51 @@ void CMU_HFXOInit(CMU_HFXOInit_TypeDef *hfxoInit)
                         ? CMU_HFXOCTRL_AUTOSTARTRDYSELRAC : 0)
 #endif
                      | (hfxoInit->autoStartEm01
-                        ? CMU_HFXOCTRL_AUTOSTARTSELEM0EM1 : 0)
+                        ? CMU_HFXOCTRL_AUTOSTARTEM0EM1 : 0)
                      | (hfxoInit->autoSelEm01
                         ? CMU_HFXOCTRL_AUTOSTARTSELEM0EM1 : 0));
 
   /* Set XTAL tuning parameters */
 
-  /* Set peak detection threshold (currently hidden) */
+  /* Set peak detection threshold in CMU_HFXOCTRL1_PEAKDETTHR[2:0] (hidden). */
   BUS_RegMaskedWrite((volatile uint32_t *)0x400E4028, 0x7, hfxoInit->thresholdPeakDetect);
 
-  /* Set current and cap tuning for startup and steady state */
+  /* Set tuning for startup and steady state */
   BUS_RegMaskedWrite(&CMU->HFXOSTARTUPCTRL,
                      _CMU_HFXOSTARTUPCTRL_CTUNE_MASK
                      | _CMU_HFXOSTARTUPCTRL_REGISHWARM_MASK
-                     | _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_MASK,
+                     | _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_MASK
+                     | _CMU_HFXOSTARTUPCTRL_IBTRIMXOCOREWARM_MASK,
                      (hfxoInit->ctuneStartup
                       << _CMU_HFXOSTARTUPCTRL_CTUNE_SHIFT)
                      | (hfxoInit->regIshStartup
                         << _CMU_HFXOSTARTUPCTRL_REGISHWARM_SHIFT)
-                     | (hfxoInit->ibTrimStartup
-                        << _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_SHIFT));
+                     | (hfxoInit->xoCoreBiasTrimStartup
+                        << _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_SHIFT)
+                     | 0x4 /* Recommended tuning */
+                        << _CMU_HFXOSTARTUPCTRL_IBTRIMXOCOREWARM_SHIFT);
+
+  /* Adjust CMU_HFXOSTEADYSTATECTRL_REGISHUPPER according to regIshSteadyState.
+     Saturate at max value. Please see the reference manual page 433 and Section
+     12.5.10 CMU_HFXOSTEADYSTATECTRL for more details. */
+  ishReg = hfxoInit->regIshSteadyState + 3;
+  ishMax = _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_MASK
+            >> _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_SHIFT;
+  ishReg = ishReg > ishMax ? ishMax : ishReg;
+  ishReg <<= _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_SHIFT;
 
   BUS_RegMaskedWrite(&CMU->HFXOSTEADYSTATECTRL,
                      _CMU_HFXOSTEADYSTATECTRL_CTUNE_MASK
                      | _CMU_HFXOSTEADYSTATECTRL_REGISH_MASK
-                     | _CMU_HFXOSTEADYSTATECTRL_IBTRIMXOCORE_MASK,
+                     | _CMU_HFXOSTEADYSTATECTRL_IBTRIMXOCORE_MASK
+                     | _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_MASK,
                      (hfxoInit->ctuneSteadyState
                       << _CMU_HFXOSTEADYSTATECTRL_CTUNE_SHIFT)
                      | (hfxoInit->regIshSteadyState
                         << _CMU_HFXOSTEADYSTATECTRL_REGISH_SHIFT)
-                     | (hfxoInit->ibTrimSteadyState
-                        << _CMU_HFXOSTEADYSTATECTRL_IBTRIMXOCORE_SHIFT));
-
-  /* Adjust CMU_HFXOSTEADYSTATECTRL_REGISHUPPER according to regIshSteadyState.
-     Saturate at max value. */
-  reg = hfxoInit->regIshSteadyState + 3;
-  if (reg > (_CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_MASK
-             >> _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_SHIFT))
-  {
-    BUS_RegMaskedSet(&CMU->HFXOSTEADYSTATECTRL,
-                     _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_MASK);
-  }
-  else
-  {
-    reg <<= _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_SHIFT;
-    BUS_RegMaskedWrite(&CMU->HFXOSTEADYSTATECTRL,
-                       _CMU_HFXOSTEADYSTATECTRL_REGISHUPPER_MASK, reg);
-  }
+                     | (hfxoInit->xoCoreBiasTrimSteadyState
+                        << _CMU_HFXOSTEADYSTATECTRL_IBTRIMXOCORE_SHIFT)
+                     | ishReg);
 
   /* Set timeouts */
   BUS_RegMaskedWrite(&CMU->HFXOTIMEOUTCTRL,
@@ -3491,7 +3342,8 @@ void CMU_LCDClkFDIVSet(uint32_t div)
  *
  * @note
  *   LFXO configuration should be obtained from a configuration tool,
- *   app note or xtal datasheet. This function disables the LFXO.
+ *   app note or xtal datasheet. This function disables the LFXO to ensure
+ *   a valid state before update.
  *
  * @param[in] lfxoInit
  *    LFXO setup parameters
@@ -3499,7 +3351,7 @@ void CMU_LCDClkFDIVSet(uint32_t div)
 void CMU_LFXOInit(CMU_LFXOInit_TypeDef *lfxoInit)
 {
   /* Do not disable LFXO if it is currently selected as HF/Core clock */
-  EFM_ASSERT(CMU_ClockSelectGet(cmuClock_HF) != cmuSelect_HFXO);
+  EFM_ASSERT(CMU_ClockSelectGet(cmuClock_HF) != cmuSelect_LFXO);
 
   /* LFXO must be disabled before reconfiguration */
   CMU_OscillatorEnable(cmuOsc_LFXO, false, false);
@@ -3707,7 +3559,7 @@ uint32_t CMU_OscillatorTuningGet(CMU_Osc_TypeDef osc)
       break;
   }
 
-  return(ret);
+  return ret;
 }
 
 

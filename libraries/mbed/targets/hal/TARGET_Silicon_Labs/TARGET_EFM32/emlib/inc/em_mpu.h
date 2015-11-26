@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_mpu.h
  * @brief Memory protection unit (MPU) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>

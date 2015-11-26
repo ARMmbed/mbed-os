@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_usb.h
  * @brief EFM32HG_USB register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32HG_USB
  * @{
@@ -1789,5 +1793,5 @@ typedef struct
 #define USB_FIFORAM_FIFORAM_DEFAULT                (_USB_FIFORAM_FIFORAM_DEFAULT << 0) /**< Shifted mode DEFAULT for USB_FIFORAM */
 
 /** @} End of group EFM32HG_USB */
-
+/** @} End of group Parts */
 

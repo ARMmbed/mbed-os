@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_wdog_pch.h
  * @brief EFM32PG1B_WDOG_PCH register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,10 +30,17 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @brief WDOG_PCH EFM32PG1B WDOG PCH
  *****************************************************************************/
 typedef struct
 {
   __IO uint32_t PRSCTRL; /**< PRS Control Register  */
 } WDOG_PCH_TypeDef;
+
+/** @} End of group Parts */
+
 

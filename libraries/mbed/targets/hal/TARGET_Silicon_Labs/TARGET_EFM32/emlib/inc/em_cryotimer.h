@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cryotimer.h
  * @brief Ultra Low Energy Timer/Counter (CRYOTIMER) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -209,6 +209,28 @@ __STATIC_INLINE void CRYOTIMER_IntClear(uint32_t flags)
 __STATIC_INLINE uint32_t CRYOTIMER_IntGet(void)
 {
   return CRYOTIMER->IF;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending CRYOTIMER interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled CRYOTIMER interrupt sources
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in CRYOTIMER_IEN and
+ *   - the pending interrupt flags CRYOTIMER_IF
+ ******************************************************************************/
+__STATIC_INLINE uint32_t CRYOTIMER_IntGetEnabled(void)
+{
+  uint32_t ien;
+
+  ien = CRYOTIMER->IEN & _CRYOTIMER_IEN_MASK;
+  return CRYOTIMER->IF & ien;
 }
 
 /***************************************************************************//**

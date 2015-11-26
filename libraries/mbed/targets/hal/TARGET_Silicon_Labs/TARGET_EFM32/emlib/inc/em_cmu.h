@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cmu.h
  * @brief Clock management unit (CMU) API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -687,7 +687,7 @@ typedef enum
                  | (CMU_HFCORE_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
-#if defined( CMU_CTRL_HFRADIOCLK )
+#if defined( CMU_CTRL_HFRADIOCLKEN )
   /**********************************/
   /* HF radio clock sub-branch */
   /**********************************/
@@ -940,7 +940,7 @@ typedef enum
 #if defined( _CMU_STATUS_USHFRCOENS_MASK )
   cmuOsc_USHFRCO,  /**< USB high frequency RC oscillator */
 #endif
-#if defined( CMU_LFCLKSEL_LFAE_ULFRCO )
+#if defined( CMU_LFCLKSEL_LFAE_ULFRCO ) || defined( CMU_LFACLKSEL_LFA_ULFRCO )
   cmuOsc_ULFRCO    /**< Ultra low frequency RC oscillator. */
 #endif
 } CMU_Osc_TypeDef;
@@ -1007,38 +1007,62 @@ typedef struct
   bool autoStartSelOnRacWakeup;         /**< Enable auto-start and select on RAC wakeup */
   uint16_t ctuneStartup;                /**< Startup phase CTUNE (load capacitance) value */
   uint16_t ctuneSteadyState;            /**< Steady-state phase CTUNE (load capacitance) value */
-  uint8_t regIshStartup;                /**< RegIsh startup current */
-  uint8_t regIshSteadyState;            /**< RegIsh steady-state current */
-  uint8_t ibTrimStartup;                /**< Ib trim startup current */
-  uint8_t ibTrimSteadyState;            /**< Ib trim steady-state current */
+  uint8_t regIshStartup;                /**< Shunt startup current */
+  uint8_t regIshSteadyState;            /**< Shunt steady-state current */
+  uint8_t xoCoreBiasTrimStartup;        /**< Startup XO core bias current trim */
+  uint8_t xoCoreBiasTrimSteadyState;    /**< Steady-state XO core bias current trim */
   uint8_t thresholdPeakDetect;          /**< Peak detection threshold */
   uint8_t timeoutShuntOptimization;     /**< Timeout - shunt optimization */
-  uint8_t timeoutPeakDetect;            /**< Timeout - teak detection */
+  uint8_t timeoutPeakDetect;            /**< Timeout - peak detection */
   uint8_t timeoutWarmSteady;            /**< Timeout - warmup */
   uint8_t timeoutSteady;                /**< Timeout - steady-state */
   uint8_t timeoutStartup;               /**< Timeout - startup */
 } CMU_HFXOInit_TypeDef;
 
 /** Default HFXO initialization */
-#define CMU_HFXOINIT_DEFAULT                                            \
-  { false,      /* Default is low-noise mode */                         \
-    false,      /* Disable auto-start on EM0/1 entry */                 \
-    false,      /* Disable auto-select on EM0/1 entry */                \
-    false,      /* Disable auto-start and select on RAC wakeup */       \
-    _CMU_HFXOSTARTUPCTRL_CTUNE_DEFAULT,                                 \
-    _CMU_HFXOSTEADYSTATECTRL_CTUNE_DEFAULT,                             \
-    _CMU_HFXOSTARTUPCTRL_REGISHWARM_DEFAULT,                            \
-    _CMU_HFXOSTEADYSTATECTRL_REGISH_DEFAULT,                            \
-    _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_DEFAULT,                          \
-    _CMU_HFXOSTEADYSTATECTRL_IBTRIMXOCORE_DEFAULT,                      \
-    0x4,        /* Default peak detection threshold */                  \
-    _CMU_HFXOTIMEOUTCTRL_SHUNTOPTTIMEOUT_DEFAULT,                       \
-    _CMU_HFXOTIMEOUTCTRL_PEAKDETTIMEOUT_DEFAULT,                        \
-    _CMU_HFXOTIMEOUTCTRL_WARMSTEADYTIMEOUT_DEFAULT,                     \
-    _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT,                         \
-    _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_DEFAULT,                        \
-  }
+#if defined( _EFR_DEVICE )
+#define CMU_HFXOINIT_DEFAULT                                                    \
+{                                                                               \
+  false,        /* Low-noise mode for EFR32 */                                  \
+  false,        /* Disable auto-start on EM0/1 entry */                         \
+  false,        /* Disable auto-select on EM0/1 entry */                        \
+  false,        /* Disable auto-start and select on RAC wakeup */               \
+  _CMU_HFXOSTARTUPCTRL_CTUNE_DEFAULT,                                           \
+  _CMU_HFXOSTEADYSTATECTRL_CTUNE_DEFAULT,                                       \
+  _CMU_HFXOSTARTUPCTRL_REGISHWARM_DEFAULT,                                      \
+  _CMU_HFXOSTEADYSTATECTRL_REGISH_DEFAULT,                                      \
+  _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_DEFAULT,                                    \
+  0x7,          /* Recommended steady-state XO core bias current */             \
+  0x6,          /* Recommended peak detection threshold */                      \
+  _CMU_HFXOTIMEOUTCTRL_SHUNTOPTTIMEOUT_DEFAULT,                                 \
+  0xA,          /* Recommended peak detection timeout  */                       \
+  _CMU_HFXOTIMEOUTCTRL_WARMSTEADYTIMEOUT_DEFAULT,                               \
+  _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT,                                   \
+  _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_DEFAULT,                                  \
+}
+/* EFM32 device */
+#else
+#define CMU_HFXOINIT_DEFAULT                                                    \
+{                                                                               \
+  true,         /* Low-power mode for EFM32 */                                  \
+  false,        /* Disable auto-start on EM0/1 entry */                         \
+  false,        /* Disable auto-select on EM0/1 entry */                        \
+  false,        /* Disable auto-start and select on RAC wakeup */               \
+  _CMU_HFXOSTARTUPCTRL_CTUNE_DEFAULT,                                           \
+  _CMU_HFXOSTEADYSTATECTRL_CTUNE_DEFAULT,                                       \
+  _CMU_HFXOSTARTUPCTRL_REGISHWARM_DEFAULT,                                      \
+  _CMU_HFXOSTEADYSTATECTRL_REGISH_DEFAULT,                                      \
+  _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_DEFAULT,                                    \
+  0x7,          /* Recommended steady-state osc core bias current */            \
+  0x6,          /* Recommended peak detection threshold */                      \
+  _CMU_HFXOTIMEOUTCTRL_SHUNTOPTTIMEOUT_DEFAULT,                                 \
+  0xA,          /* Recommended peak detection timeout  */                       \
+  _CMU_HFXOTIMEOUTCTRL_WARMSTEADYTIMEOUT_DEFAULT,                               \
+  _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT,                                   \
+  _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_DEFAULT,                                  \
+}
 #endif
+#endif /* _CMU_HFXOCTRL_MASK */
 
 
 /*******************************************************************************
@@ -1050,7 +1074,6 @@ CMU_AUXHFRCOBand_TypeDef  CMU_AUXHFRCOBandGet(void);
 void                      CMU_AUXHFRCOBandSet(CMU_AUXHFRCOBand_TypeDef band);
 
 #elif defined( _CMU_AUXHFRCOCTRL_FREQRANGE_MASK )
-uint32_t*                 CMU_AUXHFRCODevinfoGet(CMU_AUXHFRCOFreq_TypeDef freq);
 CMU_AUXHFRCOFreq_TypeDef  CMU_AUXHFRCOFreqGet(void);
 void                      CMU_AUXHFRCOFreqSet(CMU_AUXHFRCOFreq_TypeDef freqEnum);
 #endif
@@ -1082,7 +1105,6 @@ CMU_HFRCOBand_TypeDef CMU_HFRCOBandGet(void);
 void                  CMU_HFRCOBandSet(CMU_HFRCOBand_TypeDef band);
 
 #elif defined( _CMU_HFRCOCTRL_FREQRANGE_MASK )
-uint32_t*             CMU_HFRCODevinfoGet(CMU_HFRCOFreq_TypeDef freq);
 CMU_HFRCOFreq_TypeDef CMU_HFRCOFreqGet(void);
 void                  CMU_HFRCOFreqSet(CMU_HFRCOFreq_TypeDef freqEnum);
 #endif

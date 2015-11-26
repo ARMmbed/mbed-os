@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file system_efm32pg1b.c
  * @brief CMSIS Cortex-M3/M4 System Layer for EFM32 devices.
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -58,7 +58,7 @@
 #endif
 
 #ifndef EFM32_HFXO_FREQ
-#define EFM32_HFXO_FREQ                 (38400000UL)
+#define EFM32_HFXO_FREQ                 (40000000UL)
 #endif
 
 #ifndef EFM32_HFRCO_STARTUP_FREQ

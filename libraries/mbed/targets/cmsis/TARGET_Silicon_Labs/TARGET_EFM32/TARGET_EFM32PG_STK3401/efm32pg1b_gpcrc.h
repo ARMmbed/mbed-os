@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_gpcrc.h
  * @brief EFM32PG1B_GPCRC register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,25 +30,27 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @defgroup EFM32PG1B_GPCRC
  * @{
  * @brief EFM32PG1B_GPCRC Register Declaration
  *****************************************************************************/
 typedef struct
 {
-  __IO uint32_t       CTRL;           /**< Control Register  */
-  __IO uint32_t       CMD;            /**< Command Register  */
-  __IO uint32_t       INIT;           /**< CRC Init Value  */
-  __IO uint32_t       POLY;           /**< CRC Polynomial Value  */
-  __IO uint32_t       INPUTDATA;      /**< Input 32-bit Data Register  */
-  __IO uint32_t       INPUTDATAHWORD; /**< Input 16-bit Data Register  */
-  __IO uint32_t       INPUTDATABYTE;  /**< Input 8-bit Data Register  */
-  __I uint32_t        DATA;           /**< CRC Data Register  */
-  __I uint32_t        DATAREV;        /**< CRC Data Reverse Register  */
-  __I uint32_t        DATABYTEREV;    /**< CRC Data Byte Reverse Register  */
-
-  GPCRC_SNOOP_TypeDef SNOOP[3];       /**< Snooping registers */
-} GPCRC_TypeDef;                      /** @} */
+  __IO uint32_t CTRL;           /**< Control Register  */
+  __IO uint32_t CMD;            /**< Command Register  */
+  __IO uint32_t INIT;           /**< CRC Init Value  */
+  __IO uint32_t POLY;           /**< CRC Polynomial Value  */
+  __IO uint32_t INPUTDATA;      /**< Input 32-bit Data Register  */
+  __IO uint32_t INPUTDATAHWORD; /**< Input 16-bit Data Register  */
+  __IO uint32_t INPUTDATABYTE;  /**< Input 8-bit Data Register  */
+  __I uint32_t  DATA;           /**< CRC Data Register  */
+  __I uint32_t  DATAREV;        /**< CRC Data Reverse Register  */
+  __I uint32_t  DATABYTEREV;    /**< CRC Data Byte Reverse Register  */
+} GPCRC_TypeDef;                /** @} */
 
 /**************************************************************************//**
  * @defgroup EFM32PG1B_GPCRC_BitFields
@@ -174,42 +176,6 @@ typedef struct
 #define _GPCRC_DATABYTEREV_DATABYTEREV_DEFAULT          0x00000000UL                                  /**< Mode DEFAULT for GPCRC_DATABYTEREV */
 #define GPCRC_DATABYTEREV_DATABYTEREV_DEFAULT           (_GPCRC_DATABYTEREV_DATABYTEREV_DEFAULT << 0) /**< Shifted mode DEFAULT for GPCRC_DATABYTEREV */
 
-/* Bit fields for GPCRC SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_RESETVALUE                    0x00000000UL                                /**< Default value for GPCRC_SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_MASK                          0x0000000FUL                                /**< Mask for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPEN                        (0x1UL << 0)                                /**< Snooping Enable */
-#define _GPCRC_SNOOP_CTRL_SNOOPEN_SHIFT                 0                                           /**< Shift value for GPCRC_SNOOPEN */
-#define _GPCRC_SNOOP_CTRL_SNOOPEN_MASK                  0x1UL                                       /**< Bit mask for GPCRC_SNOOPEN */
-#define _GPCRC_SNOOP_CTRL_SNOOPEN_DEFAULT               0x00000000UL                                /**< Mode DEFAULT for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPEN_DEFAULT                (_GPCRC_SNOOP_CTRL_SNOOPEN_DEFAULT << 0)    /**< Shifted mode DEFAULT for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPRWB                       (0x1UL << 1)                                /**< Snooping Mode */
-#define _GPCRC_SNOOP_CTRL_SNOOPRWB_SHIFT                1                                           /**< Shift value for GPCRC_SNOOPRWB */
-#define _GPCRC_SNOOP_CTRL_SNOOPRWB_MASK                 0x2UL                                       /**< Bit mask for GPCRC_SNOOPRWB */
-#define _GPCRC_SNOOP_CTRL_SNOOPRWB_DEFAULT              0x00000000UL                                /**< Mode DEFAULT for GPCRC_SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_SNOOPRWB_WRITE                0x00000000UL                                /**< Mode WRITE for GPCRC_SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_SNOOPRWB_READ                 0x00000001UL                                /**< Mode READ for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPRWB_DEFAULT               (_GPCRC_SNOOP_CTRL_SNOOPRWB_DEFAULT << 1)   /**< Shifted mode DEFAULT for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPRWB_WRITE                 (_GPCRC_SNOOP_CTRL_SNOOPRWB_WRITE << 1)     /**< Shifted mode WRITE for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPRWB_READ                  (_GPCRC_SNOOP_CTRL_SNOOPRWB_READ << 1)      /**< Shifted mode READ for GPCRC_SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_SNOOPSIZE_SHIFT               2                                           /**< Shift value for GPCRC_SNOOPSIZE */
-#define _GPCRC_SNOOP_CTRL_SNOOPSIZE_MASK                0xCUL                                       /**< Bit mask for GPCRC_SNOOPSIZE */
-#define _GPCRC_SNOOP_CTRL_SNOOPSIZE_DEFAULT             0x00000000UL                                /**< Mode DEFAULT for GPCRC_SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_SNOOPSIZE_BYTE                0x00000000UL                                /**< Mode BYTE for GPCRC_SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_SNOOPSIZE_HALFWORD            0x00000001UL                                /**< Mode HALFWORD for GPCRC_SNOOP_CTRL */
-#define _GPCRC_SNOOP_CTRL_SNOOPSIZE_WORD                0x00000002UL                                /**< Mode WORD for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPSIZE_DEFAULT              (_GPCRC_SNOOP_CTRL_SNOOPSIZE_DEFAULT << 2)  /**< Shifted mode DEFAULT for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPSIZE_BYTE                 (_GPCRC_SNOOP_CTRL_SNOOPSIZE_BYTE << 2)     /**< Shifted mode BYTE for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPSIZE_HALFWORD             (_GPCRC_SNOOP_CTRL_SNOOPSIZE_HALFWORD << 2) /**< Shifted mode HALFWORD for GPCRC_SNOOP_CTRL */
-#define GPCRC_SNOOP_CTRL_SNOOPSIZE_WORD                 (_GPCRC_SNOOP_CTRL_SNOOPSIZE_WORD << 2)     /**< Shifted mode WORD for GPCRC_SNOOP_CTRL */
-
-/* Bit fields for GPCRC SNOOP_ADDR */
-#define _GPCRC_SNOOP_ADDR_RESETVALUE                    0x40000000UL                               /**< Default value for GPCRC_SNOOP_ADDR */
-#define _GPCRC_SNOOP_ADDR_MASK                          0x001FFFFCUL                               /**< Mask for GPCRC_SNOOP_ADDR */
-#define _GPCRC_SNOOP_ADDR_SNOOPADDR_SHIFT               2                                          /**< Shift value for GPCRC_SNOOPADDR */
-#define _GPCRC_SNOOP_ADDR_SNOOPADDR_MASK                0x1FFFFCUL                                 /**< Bit mask for GPCRC_SNOOPADDR */
-#define _GPCRC_SNOOP_ADDR_SNOOPADDR_DEFAULT             0x00000000UL                               /**< Mode DEFAULT for GPCRC_SNOOP_ADDR */
-#define GPCRC_SNOOP_ADDR_SNOOPADDR_DEFAULT              (_GPCRC_SNOOP_ADDR_SNOOPADDR_DEFAULT << 2) /**< Shifted mode DEFAULT for GPCRC_SNOOP_ADDR */
-
 /** @} End of group EFM32PG1B_GPCRC */
-
+/** @} End of group Parts */
 

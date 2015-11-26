@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_system.c
  * @brief System Peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -76,6 +76,7 @@ void SYSTEM_ChipRevisionGet(SYSTEM_ChipRevision_TypeDef *rev)
   tmp |=  ((ROMTABLE->PID3 & _ROMTABLE_PID3_REVMINORLSB_MASK) >> _ROMTABLE_PID3_REVMINORLSB_SHIFT);
   rev->minor = tmp;
 }
+
 
 #if defined(CALIBRATE)
 /***************************************************************************//**

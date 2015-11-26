@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_pcnt.h
  * @brief Pulse Counter (PCNT) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -55,17 +55,21 @@ extern "C" {
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
-/** PCNT Counter register sizes. */
+/** PCNT0 Counter register size. */
 #if defined(_EFM32_GECKO_FAMILY)
-#define PCNT0_CNT_SIZE    (8)   /** PCNT0 counter is  8 bits. */
+#define PCNT0_CNT_SIZE    (8)   /* PCNT0 counter is  8 bits. */
 #else
-#define PCNT0_CNT_SIZE   (16)   /** PCNT0 counter is 16 bits. */
+#define PCNT0_CNT_SIZE   (16)   /* PCNT0 counter is 16 bits. */
 #endif
+
 #ifdef PCNT1
-#define PCNT1_CNT_SIZE    (8)   /** PCNT1 counter is  8 bits. */
+/** PCNT1 Counter register size. */
+#define PCNT1_CNT_SIZE    (8)   /* PCNT1 counter is  8 bits. */
 #endif
+
 #ifdef PCNT2
-#define PCNT2_CNT_SIZE    (8)   /** PCNT2 counter is  8 bits. */
+/** PCNT2 Counter register size. */
+#define PCNT2_CNT_SIZE    (8)   /* PCNT2 counter is  8 bits. */
 #endif
 
 
@@ -541,15 +545,15 @@ __STATIC_INLINE uint32_t PCNT_IntGet(PCNT_TypeDef *pcnt)
  ******************************************************************************/
 __STATIC_INLINE uint32_t PCNT_IntGetEnabled(PCNT_TypeDef *pcnt)
 {
-  uint32_t tmp = 0U;
+  uint32_t ien;
 
 
   /* Store pcnt->IEN in temporary variable in order to define explicit order
    * of volatile accesses. */
-  tmp = pcnt->IEN;
+  ien = pcnt->IEN;
 
   /* Bitwise AND of pending and enabled interrupts */
-  return pcnt->IF & tmp;
+  return pcnt->IF & ien;
 }
 
 /***************************************************************************//**

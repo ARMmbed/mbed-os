@@ -2,7 +2,7 @@
  * @file em_gpio.c
  * @brief General Purpose IO (GPIO) peripheral API
  *   devices.
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -55,7 +55,9 @@
 
 /** Validation of pin typically usable in assert statements. */
 #define GPIO_DRIVEMODE_VALID(mode)    ((mode) <= 3)
-
+#define GPIO_STRENGHT_VALID(strenght) (!((strenght) & \
+                                         ~(_GPIO_P_CTRL_DRIVESTRENGTH_MASK \
+                                           | _GPIO_P_CTRL_DRIVESTRENGTHALT_MASK)))
 /** @endcond */
 
 
@@ -120,10 +122,10 @@ void GPIO_DriveModeSet(GPIO_Port_TypeDef port, GPIO_DriveMode_TypeDef mode)
 void GPIO_DriveStrengthSet(GPIO_Port_TypeDef port,
                            GPIO_DriveStrength_TypeDef strength)
 {
-  EFM_ASSERT(GPIO_PORT_VALID(port) && GPIO_DRIVEMODE_VALID(strength));
-
-  GPIO->P[port].CTRL = (GPIO->P[port].CTRL & ~(_GPIO_P_CTRL_DRIVESTRENGTH_MASK))
-                       | (strength << _GPIO_P_CTRL_DRIVESTRENGTH_SHIFT);
+  EFM_ASSERT(GPIO_PORT_VALID(port) && GPIO_STRENGHT_VALID(strength));
+  BUS_RegMaskedWrite(&GPIO->P[port].CTRL,
+                     _GPIO_P_CTRL_DRIVESTRENGTH_MASK | _GPIO_P_CTRL_DRIVESTRENGTHALT_MASK,
+                     strength);
 }
 #endif
 
@@ -178,14 +180,16 @@ void GPIO_IntConfig(GPIO_Port_TypeDef port,
    * pins 8-15. */
   if (pin < 8)
   {
-    GPIO->EXTIPSELL = (GPIO->EXTIPSELL & ~(0xF << (4 * pin))) |
-                      (port << (4 * pin));
+    BUS_RegMaskedWrite(&GPIO->EXTIPSELL,
+                       0xF << (4 * pin),
+                       port << (4 * pin));
   }
   else
   {
     tmp             = pin - 8;
-    GPIO->EXTIPSELH = (GPIO->EXTIPSELH & ~(0xF << (4 * tmp))) |
-                      (port << (4 * tmp));
+    BUS_RegMaskedWrite(&GPIO->EXTIPSELH,
+                       0xF << (4 * tmp),
+                       port << (4 * tmp));
   }
 
   /* Enable/disable rising edge */
@@ -244,13 +248,15 @@ void GPIO_PinModeSet(GPIO_Port_TypeDef port,
    * register controls pins 0-7 and MODEH controls pins 8-15. */
   if (pin < 8)
   {
-    GPIO->P[port].MODEL = (GPIO->P[port].MODEL & ~(0xF << (pin * 4))) |
-                          (mode << (pin * 4));
+    BUS_RegMaskedWrite(&GPIO->P[port].MODEL,
+                       0xF << (pin * 4),
+                       mode << (pin * 4));
   }
   else
   {
-    GPIO->P[port].MODEH = (GPIO->P[port].MODEH & ~(0xF << ((pin - 8) * 4))) |
-                          (mode << ((pin - 8) * 4));
+    BUS_RegMaskedWrite(&GPIO->P[port].MODEH,
+                       0xF << ((pin - 8) * 4),
+                       mode << ((pin - 8) * 4));
   }
 
   if (mode == gpioModeDisabled)

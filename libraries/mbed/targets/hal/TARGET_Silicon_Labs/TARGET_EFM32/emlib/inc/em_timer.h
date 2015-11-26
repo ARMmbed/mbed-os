@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_timer.h
  * @brief Timer/counter (TIMER) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -796,14 +796,14 @@ __STATIC_INLINE uint32_t TIMER_IntGet(TIMER_TypeDef *timer)
  ******************************************************************************/
 __STATIC_INLINE uint32_t TIMER_IntGetEnabled(TIMER_TypeDef *timer)
 {
-  uint32_t tmp;
+  uint32_t ien;
 
   /* Store TIMER->IEN in temporary variable in order to define explicit order
    * of volatile accesses. */
-  tmp = timer->IEN;
+  ien = timer->IEN;
 
   /* Bitwise AND of pending and enabled interrupts */
-  return timer->IF & tmp;
+  return timer->IF & ien;
 }
 
 

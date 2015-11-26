@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_assert.h
  * @brief Emlib peripheral API "assert" implementation.
- * @version 4.1.0
+ * @version 4.2.0
  *
  * @details
  * By default, emlib library assert usage is not included in order to reduce

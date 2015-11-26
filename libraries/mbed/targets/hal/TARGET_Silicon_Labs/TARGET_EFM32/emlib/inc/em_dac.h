@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_dac.h
  * @brief Digital to Analog Converter (DAC) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -359,6 +359,38 @@ __STATIC_INLINE void DAC_IntEnable(DAC_TypeDef *dac, uint32_t flags)
 __STATIC_INLINE uint32_t DAC_IntGet(DAC_TypeDef *dac)
 {
   return dac->IF;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending DAC interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @param[in] dac
+ *   Pointer to DAC peripheral register block.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled DAC interrupt sources.
+ *   The return value is the bitwise AND combination of
+ *   - the OR combination of enabled interrupt sources in DACx_IEN_nnn
+ *     register (DACx_IEN_nnn) and
+ *   - the OR combination of valid interrupt flags of the DAC module
+ *     (DACx_IF_nnn).
+ ******************************************************************************/
+__STATIC_INLINE uint32_t DAC_IntGetEnabled(DAC_TypeDef *dac)
+{
+  uint32_t ien;
+
+  /* Store DAC->IEN in temporary variable in order to define explicit order
+   * of volatile accesses. */
+  ien = dac->IEN;
+
+  /* Bitwise AND of pending and enabled interrupts */
+  return dac->IF & ien;
 }
 
 

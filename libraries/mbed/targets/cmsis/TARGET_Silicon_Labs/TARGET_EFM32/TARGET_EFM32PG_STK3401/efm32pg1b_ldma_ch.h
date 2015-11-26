@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_ldma_ch.h
  * @brief EFM32PG1B_LDMA_CH register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,6 +30,10 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @brief LDMA_CH EFM32PG1B LDMA CH
  *****************************************************************************/
 typedef struct
@@ -43,4 +47,7 @@ typedef struct
   __IO uint32_t LINK;         /**< Channel Descriptor Link Structure Address Register  */
   uint32_t      RESERVED0[5]; /**< Reserved future */
 } LDMA_CH_TypeDef;
+
+/** @} End of group Parts */
+
 

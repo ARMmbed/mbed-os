@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_adc.c
  * @brief Analog to Digital Converter (ADC) Peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -202,25 +202,37 @@
  *   Reference to load calibrated values for. No values are loaded for
  *   external references.
  *
- * @param[in] calRegShift
- *   Left shift count for ADC calibration register (
- *   to select SINGLE or SCAN register fields).
+ * @param[in] setScanCal
+ *   Select scan mode (true) or single mode (false) calibration load.
  ******************************************************************************/
 static void ADC_LoadDevinfoCal(ADC_TypeDef *adc,
                                ADC_Ref_TypeDef ref,
-                               uint32_t calRegShift)
+                               bool setScanCal)
 {
   uint32_t calReg;
   uint32_t newCal;
   uint32_t mask;
-  bool setNewCal = true;
+  uint32_t shift;
 
-  mask = ~(_ADC_CAL_SINGLEOFFSET_MASK
-#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
-          | _ADC_CAL_SINGLEOFFSETINV_MASK
+  if (setScanCal)
+  {
+    shift = _ADC_CAL_SCANOFFSET_SHIFT;
+    mask  = ~(_ADC_CAL_SCANOFFSET_MASK
+#if defined( _ADC_CAL_SCANOFFSETINV_MASK )
+              | _ADC_CAL_SCANOFFSETINV_MASK
 #endif
-          | _ADC_CAL_SINGLEGAIN_MASK);
-  mask <<= calRegShift;
+              | _ADC_CAL_SCANGAIN_MASK);
+  }
+  else
+  {
+    shift = _ADC_CAL_SINGLEOFFSET_SHIFT;
+    mask  = ~(_ADC_CAL_SINGLEOFFSET_MASK
+#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
+              | _ADC_CAL_SINGLEOFFSETINV_MASK
+#endif
+              | _ADC_CAL_SINGLEGAIN_MASK);
+  }
+
   calReg = adc->CAL & mask;
   newCal = 0;
 
@@ -313,14 +325,11 @@ static void ADC_LoadDevinfoCal(ADC_TypeDef *adc,
        available for the internal references adcRefVBGR, adcRefVEntropy and
        adcRefVBGRlow. */
     default:
-      setNewCal = false;
+      newCal = 0;
       break;
   }
 
-  if (setNewCal)
-  {
-    adc->CAL = calReg | (newCal << calRegShift);
-  }
+  adc->CAL = calReg | (newCal << shift);
 }
 
 /** @endcond */
@@ -390,7 +399,7 @@ void ADC_Init(ADC_TypeDef *adc, const ADC_Init_TypeDef *init)
 }
 
 
-#if defined( _ADC_SCANCHCONF_MASK )
+#if defined( _ADC_SCANINPUTSEL_MASK )
 /***************************************************************************//**
  * @brief
  *   Clear ADC scan input configuration.
@@ -407,7 +416,7 @@ void ADC_ScanInputClear(ADC_InitScan_TypeDef *scanInit)
   scanInit->scanInputConfig.scanInputEn = 0;
 
   /* Default alternative negative inputs */
-  scanInit->scanInputConfig.scanNegSel = _ADC_SCANNSEL_RESETVALUE;
+  scanInit->scanInputConfig.scanNegSel = _ADC_SCANNEGSEL_RESETVALUE;
 }
 
 
@@ -444,7 +453,7 @@ uint32_t ADC_ScanSingleEndedInputAdd(ADC_InitScan_TypeDef *scanInit,
   scanInit->diff = false;
 
   /* Check for unsupported APORTs */
-  EFM_ASSERT((singleEndedSel <= adcPosSelBUS0YCH0) || (singleEndedSel >= adcPosSelBUS0YCH15));
+  EFM_ASSERT((singleEndedSel <= adcPosSelAPORT0YCH0) || (singleEndedSel >= adcPosSelAPORT0YCH15));
 
   /* Decode the input group select by shifting right by 3 */
   newSel = singleEndedSel >> 3;
@@ -510,10 +519,10 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
                                       ADC_PosSel_TypeDef posSel,
                                       ADC_ScanNegInput_TypeDef negInput)
 {
-  uint32_t negInputRegMask;
-  uint32_t negInputRegShift;
-  uint32_t negInputRegVal;
-  uint32_t scanId;
+  uint32_t negInputRegMask = 0;
+  uint32_t negInputRegShift = 0;
+  uint32_t negInputRegVal = 0;
+  uint32_t scanId = 0;
 
   /* Do a single ended init, then update for differential scan. */
   scanId = ADC_ScanSingleEndedInputAdd(scanInit, inputGroup, posSel);
@@ -526,50 +535,50 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
   {
     if (scanId == 0)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH0NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH0NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT0NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT0NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
     }
     else if (scanId == 2)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH2NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH2NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT2NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT2NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
     }
     else if (scanId == 4)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH4NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH4NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT4NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT4NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
     }
     else if (scanId == 6)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH6NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH6NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT6NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT6NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
     }
     else if (scanId == 9)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH9NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH9NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT9NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT9NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
     }
     else if (scanId == 11)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH11NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH11NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT11NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT11NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
     }
     else if (scanId == 13)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH13NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH13NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT13NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT13NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
     }
     else if (scanId == 15)
     {
-      negInputRegMask  = _ADC_SCANNSEL_CH15NSEL_MASK;
-      negInputRegShift = _ADC_SCANNSEL_CH15NSEL_SHIFT;
+      negInputRegMask  = _ADC_SCANNEGSEL_INPUT15NEGSEL_MASK;
+      negInputRegShift = _ADC_SCANNEGSEL_INPUT15NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
     }
     else
@@ -578,25 +587,25 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
       EFM_ASSERT(false);
     }
 
-    /* Find ADC_SCANNSEL_CHxNSEL value for positive input 0, 2, 4 and 6 */
+    /* Find ADC_SCANNEGSEL_CHxNSEL value for positive input 0, 2, 4 and 6 */
     if (inputGroup == 0)
     {
       switch (negInput)
       {
         case adcScanNegInput1:
-          negInputRegVal = _ADC_SCANNSEL_CH0NSEL_CH1;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT0NEGSEL_INPUT1;
           break;
 
         case adcScanNegInput3:
-          negInputRegVal = _ADC_SCANNSEL_CH0NSEL_CH3;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT0NEGSEL_INPUT3;
           break;
 
         case adcScanNegInput5:
-          negInputRegVal = _ADC_SCANNSEL_CH0NSEL_CH5;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT0NEGSEL_INPUT5;
           break;
 
         case adcScanNegInput7:
-          negInputRegVal = _ADC_SCANNSEL_CH0NSEL_CH7;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT0NEGSEL_INPUT7;
           break;
 
         default:
@@ -607,23 +616,23 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
     }
     else if (inputGroup == 1)
     {
-      /* Find ADC_SCANNSEL_CHxNSEL value for positive input 9, 11, 13 and 15 */
+      /* Find ADC_SCANNEGSEL_CHxNSEL value for positive input 9, 11, 13 and 15 */
       switch (negInput)
       {
         case adcScanNegInput8:
-          negInputRegVal = _ADC_SCANNSEL_CH9NSEL_CH8;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT9NEGSEL_INPUT8;
           break;
 
         case adcScanNegInput10:
-          negInputRegVal = _ADC_SCANNSEL_CH9NSEL_CH10;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT9NEGSEL_INPUT10;
           break;
 
         case adcScanNegInput12:
-          negInputRegVal = _ADC_SCANNSEL_CH9NSEL_CH12;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT9NEGSEL_INPUT12;
           break;
 
         case adcScanNegInput14:
-          negInputRegVal = _ADC_SCANNSEL_CH9NSEL_CH14;
+          negInputRegVal = _ADC_SCANNEGSEL_INPUT9NEGSEL_INPUT14;
           break;
 
         default:
@@ -677,7 +686,7 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
   adc->CMD = ADC_CMD_SCANSTOP;
 
   /* Load calibration data for selected reference */
-  ADC_LoadDevinfoCal(adc, init->reference, _ADC_CAL_SCANOFFSET_SHIFT);
+  ADC_LoadDevinfoCal(adc, init->reference, true);
 
   tmp = 0
 #if defined ( _ADC_SCANCTRL_PRSSEL_MASK )
@@ -701,7 +710,7 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
 
 #if defined( _ADC_SCANCTRL_INPUTMASK_MASK )
   if (init->diff)
-#elif defined( _ADC_SCANCHCONF_MASK )
+#elif defined( _ADC_SCANINPUTSEL_MASK )
   if (init->diff)
 #endif
   {
@@ -763,10 +772,10 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
 #endif
 
   /* Write scan input configuration */
-#if defined( _ADC_SCANCHCONF_MASK )
-  adc->SCANCHCONF = init->scanInputConfig.scanInputSel;
-  adc->SCANMASK   = init->scanInputConfig.scanInputEn;
-  adc->SCANNSEL   = init->scanInputConfig.scanNegSel;
+#if defined( _ADC_SCANINPUTSEL_MASK )
+  adc->SCANINPUTSEL = init->scanInputConfig.scanInputSel;
+  adc->SCANMASK     = init->scanInputConfig.scanInputEn;
+  adc->SCANNEGSEL   = init->scanInputConfig.scanNegSel;
 #endif
 
   /* Assert for any APORT bus conflicts programming errors */
@@ -808,7 +817,7 @@ void ADC_InitSingle(ADC_TypeDef *adc, const ADC_InitSingle_TypeDef *init)
   adc->CMD = ADC_CMD_SINGLESTOP;
 
   /* Load calibration data for selected reference */
-  ADC_LoadDevinfoCal(adc, init->reference, _ADC_CAL_SINGLEOFFSET_SHIFT);
+  ADC_LoadDevinfoCal(adc, init->reference, false);
 
   tmp = 0
 #if defined( _ADC_SINGLECTRL_PRSSEL_MASK )
@@ -920,7 +929,7 @@ uint32_t ADC_DataIdScanGet(ADC_TypeDef *adc, uint32_t *scanId)
 
   /* Pop data FIFO with scan ID */
   scanData = adc->SCANDATAX;
-  *scanId = (scanData & _ADC_SCANDATAX_SCANDATASRC_MASK) >> _ADC_SCANDATAX_SCANDATASRC_SHIFT;
+  *scanId = (scanData & _ADC_SCANDATAX_SCANINPUTID_MASK) >> _ADC_SCANDATAX_SCANINPUTID_SHIFT;
   return (scanData & _ADC_SCANDATAX_DATA_MASK) >> _ADC_SCANDATAX_DATA_SHIFT;
 }
 #endif
@@ -987,40 +996,40 @@ uint8_t ADC_PrescaleCalc(uint32_t adcFreq, uint32_t hfperFreq)
 void ADC_Reset(ADC_TypeDef *adc)
 {
   /* Stop conversions, before resetting other registers. */
-  adc->CMD         = ADC_CMD_SINGLESTOP | ADC_CMD_SCANSTOP;
-  adc->SINGLECTRL  = _ADC_SINGLECTRL_RESETVALUE;
+  adc->CMD          = ADC_CMD_SINGLESTOP | ADC_CMD_SCANSTOP;
+  adc->SINGLECTRL   = _ADC_SINGLECTRL_RESETVALUE;
 #if defined( _ADC_SINGLECTRLX_MASK )
-  adc->SINGLECTRLX = _ADC_SINGLECTRLX_RESETVALUE;
+  adc->SINGLECTRLX  = _ADC_SINGLECTRLX_RESETVALUE;
 #endif
-  adc->SCANCTRL    = _ADC_SCANCTRL_RESETVALUE;
+  adc->SCANCTRL     = _ADC_SCANCTRL_RESETVALUE;
 #if defined( _ADC_SCANCTRLX_MASK )
-  adc->SCANCTRLX   = _ADC_SCANCTRLX_RESETVALUE;
+  adc->SCANCTRLX    = _ADC_SCANCTRLX_RESETVALUE;
 #endif
-  adc->CTRL        = _ADC_CTRL_RESETVALUE;
-  adc->IEN         = _ADC_IEN_RESETVALUE;
-  adc->IFC         = _ADC_IFC_MASK;
-  adc->BIASPROG    = _ADC_BIASPROG_RESETVALUE;
+  adc->CTRL         = _ADC_CTRL_RESETVALUE;
+  adc->IEN          = _ADC_IEN_RESETVALUE;
+  adc->IFC          = _ADC_IFC_MASK;
+  adc->BIASPROG     = _ADC_BIASPROG_RESETVALUE;
 #if defined( _ADC_SCANMASK_MASK )
-  adc->SCANMASK    = _ADC_SCANMASK_RESETVALUE;
+  adc->SCANMASK     = _ADC_SCANMASK_RESETVALUE;
 #endif
-#if defined( _ADC_SCANCHCONF_MASK )
-  adc->SCANCHCONF  = _ADC_SCANCHCONF_RESETVALUE;
+#if defined( _ADC_SCANINPUTSEL_MASK )
+  adc->SCANINPUTSEL = _ADC_SCANINPUTSEL_RESETVALUE;
 #endif
-#if defined( _ADC_SCANNSEL_MASK )
-  adc->SCANNSEL    = _ADC_SCANNSEL_RESETVALUE;
+#if defined( _ADC_SCANNEGSEL_MASK )
+  adc->SCANNEGSEL   = _ADC_SCANNEGSEL_RESETVALUE;
 #endif
 
   /* Clear data FIFOs */
 #if defined( _ADC_SINGLEFIFOCLEAR_MASK )
   adc->SINGLEFIFOCLEAR |= ADC_SINGLEFIFOCLEAR_SINGLEFIFOCLEAR;
-  adc->SCANFIFOCLEAR |= ADC_SCANFIFOCLEAR_SCANFIFOCLEAR;
+  adc->SCANFIFOCLEAR   |= ADC_SCANFIFOCLEAR_SCANFIFOCLEAR;
 #endif
 
   /* Load calibration values for the 1V25 internal reference. */
-  ADC_LoadDevinfoCal(adc, adcRef1V25, _ADC_CAL_SINGLEOFFSET_SHIFT);
-  ADC_LoadDevinfoCal(adc, adcRef1V25, _ADC_CAL_SCANOFFSET_SHIFT);
+  ADC_LoadDevinfoCal(adc, adcRef1V25, false);
+  ADC_LoadDevinfoCal(adc, adcRef1V25, true);
 
-#if defined( _ADC_SCANCHCONF_MASK )
+#if defined( _ADC_SCANINPUTSEL_MASK )
   /* Do not reset route register, setting should be done independently */
 #endif
 }

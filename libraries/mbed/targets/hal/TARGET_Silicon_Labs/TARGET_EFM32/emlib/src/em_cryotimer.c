@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cryotimer.c
  * @brief Ultra Low Energy Timer/Counter (CRYOTIMER) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>

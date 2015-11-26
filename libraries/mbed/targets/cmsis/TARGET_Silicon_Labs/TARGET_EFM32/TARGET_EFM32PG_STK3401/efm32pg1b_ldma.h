@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_ldma.h
  * @brief EFM32PG1B_LDMA register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32PG1B_LDMA
  * @{
@@ -256,6 +260,7 @@ typedef struct
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER0UFOF            0x00000000UL                                     /**< Mode TIMER0UFOF for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER1UFOF            0x00000000UL                                     /**< Mode TIMER1UFOF for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_MSCWDATA              0x00000000UL                                     /**< Mode MSCWDATA for LDMA_CH_REQSEL */
+#define _LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0WR         0x00000000UL                                     /**< Mode CRYPTODATA0WR for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_PRSREQ1               0x00000001UL                                     /**< Mode PRSREQ1 for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_ADC0SCAN              0x00000001UL                                     /**< Mode ADC0SCAN for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_USART0TXBL            0x00000001UL                                     /**< Mode USART0TXBL for LDMA_CH_REQSEL */
@@ -264,16 +269,20 @@ typedef struct
 #define _LDMA_CH_REQSEL_SIGSEL_I2C0TXBL              0x00000001UL                                     /**< Mode I2C0TXBL for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER0CC0             0x00000001UL                                     /**< Mode TIMER0CC0 for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER1CC0             0x00000001UL                                     /**< Mode TIMER1CC0 for LDMA_CH_REQSEL */
+#define _LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0XWR        0x00000001UL                                     /**< Mode CRYPTODATA0XWR for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_USART0TXEMPTY         0x00000002UL                                     /**< Mode USART0TXEMPTY for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_USART1TXEMPTY         0x00000002UL                                     /**< Mode USART1TXEMPTY for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_LEUART0TXEMPTY        0x00000002UL                                     /**< Mode LEUART0TXEMPTY for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER0CC1             0x00000002UL                                     /**< Mode TIMER0CC1 for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER1CC1             0x00000002UL                                     /**< Mode TIMER1CC1 for LDMA_CH_REQSEL */
+#define _LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0RD         0x00000002UL                                     /**< Mode CRYPTODATA0RD for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT    0x00000003UL                                     /**< Mode USART1RXDATAVRIGHT for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER0CC2             0x00000003UL                                     /**< Mode TIMER0CC2 for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER1CC2             0x00000003UL                                     /**< Mode TIMER1CC2 for LDMA_CH_REQSEL */
+#define _LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1WR         0x00000003UL                                     /**< Mode CRYPTODATA1WR for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_USART1TXBLRIGHT       0x00000004UL                                     /**< Mode USART1TXBLRIGHT for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SIGSEL_TIMER1CC3             0x00000004UL                                     /**< Mode TIMER1CC3 for LDMA_CH_REQSEL */
+#define _LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1RD         0x00000004UL                                     /**< Mode CRYPTODATA1RD for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_PRSREQ0                (_LDMA_CH_REQSEL_SIGSEL_PRSREQ0 << 0)            /**< Shifted mode PRSREQ0 for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_ADC0SINGLE             (_LDMA_CH_REQSEL_SIGSEL_ADC0SINGLE << 0)         /**< Shifted mode ADC0SINGLE for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_USART0RXDATAV          (_LDMA_CH_REQSEL_SIGSEL_USART0RXDATAV << 0)      /**< Shifted mode USART0RXDATAV for LDMA_CH_REQSEL */
@@ -283,6 +292,7 @@ typedef struct
 #define LDMA_CH_REQSEL_SIGSEL_TIMER0UFOF             (_LDMA_CH_REQSEL_SIGSEL_TIMER0UFOF << 0)         /**< Shifted mode TIMER0UFOF for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER1UFOF             (_LDMA_CH_REQSEL_SIGSEL_TIMER1UFOF << 0)         /**< Shifted mode TIMER1UFOF for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_MSCWDATA               (_LDMA_CH_REQSEL_SIGSEL_MSCWDATA << 0)           /**< Shifted mode MSCWDATA for LDMA_CH_REQSEL */
+#define LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0WR          (_LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0WR << 0)      /**< Shifted mode CRYPTODATA0WR for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_PRSREQ1                (_LDMA_CH_REQSEL_SIGSEL_PRSREQ1 << 0)            /**< Shifted mode PRSREQ1 for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_ADC0SCAN               (_LDMA_CH_REQSEL_SIGSEL_ADC0SCAN << 0)           /**< Shifted mode ADC0SCAN for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_USART0TXBL             (_LDMA_CH_REQSEL_SIGSEL_USART0TXBL << 0)         /**< Shifted mode USART0TXBL for LDMA_CH_REQSEL */
@@ -291,16 +301,20 @@ typedef struct
 #define LDMA_CH_REQSEL_SIGSEL_I2C0TXBL               (_LDMA_CH_REQSEL_SIGSEL_I2C0TXBL << 0)           /**< Shifted mode I2C0TXBL for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER0CC0              (_LDMA_CH_REQSEL_SIGSEL_TIMER0CC0 << 0)          /**< Shifted mode TIMER0CC0 for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER1CC0              (_LDMA_CH_REQSEL_SIGSEL_TIMER1CC0 << 0)          /**< Shifted mode TIMER1CC0 for LDMA_CH_REQSEL */
+#define LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0XWR         (_LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0XWR << 0)     /**< Shifted mode CRYPTODATA0XWR for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_USART0TXEMPTY          (_LDMA_CH_REQSEL_SIGSEL_USART0TXEMPTY << 0)      /**< Shifted mode USART0TXEMPTY for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_USART1TXEMPTY          (_LDMA_CH_REQSEL_SIGSEL_USART1TXEMPTY << 0)      /**< Shifted mode USART1TXEMPTY for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_LEUART0TXEMPTY         (_LDMA_CH_REQSEL_SIGSEL_LEUART0TXEMPTY << 0)     /**< Shifted mode LEUART0TXEMPTY for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER0CC1              (_LDMA_CH_REQSEL_SIGSEL_TIMER0CC1 << 0)          /**< Shifted mode TIMER0CC1 for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER1CC1              (_LDMA_CH_REQSEL_SIGSEL_TIMER1CC1 << 0)          /**< Shifted mode TIMER1CC1 for LDMA_CH_REQSEL */
+#define LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0RD          (_LDMA_CH_REQSEL_SIGSEL_CRYPTODATA0RD << 0)      /**< Shifted mode CRYPTODATA0RD for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT     (_LDMA_CH_REQSEL_SIGSEL_USART1RXDATAVRIGHT << 0) /**< Shifted mode USART1RXDATAVRIGHT for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER0CC2              (_LDMA_CH_REQSEL_SIGSEL_TIMER0CC2 << 0)          /**< Shifted mode TIMER0CC2 for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER1CC2              (_LDMA_CH_REQSEL_SIGSEL_TIMER1CC2 << 0)          /**< Shifted mode TIMER1CC2 for LDMA_CH_REQSEL */
+#define LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1WR          (_LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1WR << 0)      /**< Shifted mode CRYPTODATA1WR for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_USART1TXBLRIGHT        (_LDMA_CH_REQSEL_SIGSEL_USART1TXBLRIGHT << 0)    /**< Shifted mode USART1TXBLRIGHT for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SIGSEL_TIMER1CC3              (_LDMA_CH_REQSEL_SIGSEL_TIMER1CC3 << 0)          /**< Shifted mode TIMER1CC3 for LDMA_CH_REQSEL */
+#define LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1RD          (_LDMA_CH_REQSEL_SIGSEL_CRYPTODATA1RD << 0)      /**< Shifted mode CRYPTODATA1RD for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SOURCESEL_SHIFT              16                                               /**< Shift value for LDMA_SOURCESEL */
 #define _LDMA_CH_REQSEL_SOURCESEL_MASK               0x3F0000UL                                       /**< Bit mask for LDMA_SOURCESEL */
 #define _LDMA_CH_REQSEL_SOURCESEL_NONE               0x00000000UL                                     /**< Mode NONE for LDMA_CH_REQSEL */
@@ -313,6 +327,7 @@ typedef struct
 #define _LDMA_CH_REQSEL_SOURCESEL_TIMER0             0x00000018UL                                     /**< Mode TIMER0 for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SOURCESEL_TIMER1             0x00000019UL                                     /**< Mode TIMER1 for LDMA_CH_REQSEL */
 #define _LDMA_CH_REQSEL_SOURCESEL_MSC                0x00000030UL                                     /**< Mode MSC for LDMA_CH_REQSEL */
+#define _LDMA_CH_REQSEL_SOURCESEL_CRYPTO             0x00000031UL                                     /**< Mode CRYPTO for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SOURCESEL_NONE                (_LDMA_CH_REQSEL_SOURCESEL_NONE << 16)           /**< Shifted mode NONE for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SOURCESEL_PRS                 (_LDMA_CH_REQSEL_SOURCESEL_PRS << 16)            /**< Shifted mode PRS for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SOURCESEL_ADC0                (_LDMA_CH_REQSEL_SOURCESEL_ADC0 << 16)           /**< Shifted mode ADC0 for LDMA_CH_REQSEL */
@@ -323,6 +338,7 @@ typedef struct
 #define LDMA_CH_REQSEL_SOURCESEL_TIMER0              (_LDMA_CH_REQSEL_SOURCESEL_TIMER0 << 16)         /**< Shifted mode TIMER0 for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SOURCESEL_TIMER1              (_LDMA_CH_REQSEL_SOURCESEL_TIMER1 << 16)         /**< Shifted mode TIMER1 for LDMA_CH_REQSEL */
 #define LDMA_CH_REQSEL_SOURCESEL_MSC                 (_LDMA_CH_REQSEL_SOURCESEL_MSC << 16)            /**< Shifted mode MSC for LDMA_CH_REQSEL */
+#define LDMA_CH_REQSEL_SOURCESEL_CRYPTO              (_LDMA_CH_REQSEL_SOURCESEL_CRYPTO << 16)         /**< Shifted mode CRYPTO for LDMA_CH_REQSEL */
 
 /* Bit fields for LDMA CH_CFG */
 #define _LDMA_CH_CFG_RESETVALUE                      0x00000000UL                             /**< Default value for LDMA_CH_CFG */
@@ -541,5 +557,5 @@ typedef struct
 #define LDMA_CH_LINK_LINKADDR_DEFAULT                (_LDMA_CH_LINK_LINKADDR_DEFAULT << 2)  /**< Shifted mode DEFAULT for LDMA_CH_LINK */
 
 /** @} End of group EFM32PG1B_LDMA */
-
+/** @} End of group Parts */
 

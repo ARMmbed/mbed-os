@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_pcnt.h
  * @brief EFM32PG1B_PCNT register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32PG1B_PCNT
  * @{
@@ -698,5 +702,5 @@ typedef struct
 #define PCNT_OVSCFG_FLUTTERRM_DEFAULT      (_PCNT_OVSCFG_FLUTTERRM_DEFAULT << 12) /**< Shifted mode DEFAULT for PCNT_OVSCFG */
 
 /** @} End of group EFM32PG1B_PCNT */
-
+/** @} End of group Parts */
 

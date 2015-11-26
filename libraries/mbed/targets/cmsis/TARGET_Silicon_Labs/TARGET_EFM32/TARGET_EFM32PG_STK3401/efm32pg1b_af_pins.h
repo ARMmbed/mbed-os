@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_af_pins.h
  * @brief EFM32PG1B_AF_PINS register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32PG1B_AF_Pins
  * @{
@@ -94,5 +98,5 @@
 #define AF_DBG_SWCLKTCK_PIN(i)     ((i) == 0 ? 0 :  -1)
 
 /** @} End of group EFM32PG1B_AF_Pins */
-
+/** @} End of group Parts */
 

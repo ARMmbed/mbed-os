@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_ebi.h
  * @brief External Bus Iterface (EBI) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -722,7 +722,7 @@ __STATIC_INLINE void EBI_IntClear(uint32_t flags)
 
 /***************************************************************************//**
  * @brief
- *   Set one or more pending EBI interrupts from SW.
+ *   Set one or more pending EBI interrupts.
  *
  * @param[in] flags
  *   EBI interrupt sources to set to pending. Use a logical OR combination of
@@ -736,7 +736,7 @@ __STATIC_INLINE void EBI_IntSet(uint32_t flags)
 
 /***************************************************************************//**
  * @brief
- *   Disable one or more EBI interrupts
+ *   Disable one or more EBI interrupts.
  *
  * @param[in] flags
  *   EBI interrupt sources to disable. Use logical OR combination of valid
@@ -750,7 +750,7 @@ __STATIC_INLINE void EBI_IntDisable(uint32_t flags)
 
 /***************************************************************************//**
  * @brief
- *   Enable one or more EBI interrupts
+ *   Enable one or more EBI interrupts.
  *
  * @param[in] flags
  *   EBI interrupt sources to enable. Use logical OR combination of valid
@@ -764,7 +764,7 @@ __STATIC_INLINE void EBI_IntEnable(uint32_t flags)
 
 /***************************************************************************//**
  * @brief
- *   Get pending EBI interrupt flags
+ *   Get pending EBI interrupt flags.
  *
  * @note
  *   The event bits are not cleared by the use of this function
@@ -775,7 +775,30 @@ __STATIC_INLINE void EBI_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t EBI_IntGet(void)
 {
-  return(EBI->IF);
+  return EBI->IF;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending EBI interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled EBI interrupt sources
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in EBI_IEN and
+ *   - the pending interrupt flags EBI_IF
+ ******************************************************************************/
+__STATIC_INLINE uint32_t EBI_IntGetEnabled(void)
+{
+  uint32_t ien;
+
+  ien = EBI->IEN;
+  return EBI->IF & ien;
 }
 
 

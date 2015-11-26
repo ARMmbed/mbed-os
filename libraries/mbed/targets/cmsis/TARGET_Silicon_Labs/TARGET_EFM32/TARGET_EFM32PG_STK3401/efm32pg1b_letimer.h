@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_letimer.h
  * @brief EFM32PG1B_LETIMER register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32PG1B_LETIMER
  * @{
@@ -67,7 +71,7 @@ typedef struct
 
 /* Bit fields for LETIMER CTRL */
 #define _LETIMER_CTRL_RESETVALUE                0x00000000UL                           /**< Default value for LETIMER_CTRL */
-#define _LETIMER_CTRL_MASK                      0x00001FFFUL                           /**< Mask for LETIMER_CTRL */
+#define _LETIMER_CTRL_MASK                      0x000013FFUL                           /**< Mask for LETIMER_CTRL */
 #define _LETIMER_CTRL_REPMODE_SHIFT             0                                      /**< Shift value for LETIMER_REPMODE */
 #define _LETIMER_CTRL_REPMODE_MASK              0x3UL                                  /**< Bit mask for LETIMER_REPMODE */
 #define _LETIMER_CTRL_REPMODE_DEFAULT           0x00000000UL                           /**< Mode DEFAULT for LETIMER_CTRL */
@@ -124,16 +128,6 @@ typedef struct
 #define _LETIMER_CTRL_COMP0TOP_MASK             0x200UL                                /**< Bit mask for LETIMER_COMP0TOP */
 #define _LETIMER_CTRL_COMP0TOP_DEFAULT          0x00000000UL                           /**< Mode DEFAULT for LETIMER_CTRL */
 #define LETIMER_CTRL_COMP0TOP_DEFAULT           (_LETIMER_CTRL_COMP0TOP_DEFAULT << 9)  /**< Shifted mode DEFAULT for LETIMER_CTRL */
-#define LETIMER_CTRL_RTCC0TEN                   (0x1UL << 10)                          /**< RTC Compare 0 Trigger Enable */
-#define _LETIMER_CTRL_RTCC0TEN_SHIFT            10                                     /**< Shift value for LETIMER_RTCC0TEN */
-#define _LETIMER_CTRL_RTCC0TEN_MASK             0x400UL                                /**< Bit mask for LETIMER_RTCC0TEN */
-#define _LETIMER_CTRL_RTCC0TEN_DEFAULT          0x00000000UL                           /**< Mode DEFAULT for LETIMER_CTRL */
-#define LETIMER_CTRL_RTCC0TEN_DEFAULT           (_LETIMER_CTRL_RTCC0TEN_DEFAULT << 10) /**< Shifted mode DEFAULT for LETIMER_CTRL */
-#define LETIMER_CTRL_RTCC1TEN                   (0x1UL << 11)                          /**< RTC Compare 1 Trigger Enable */
-#define _LETIMER_CTRL_RTCC1TEN_SHIFT            11                                     /**< Shift value for LETIMER_RTCC1TEN */
-#define _LETIMER_CTRL_RTCC1TEN_MASK             0x800UL                                /**< Bit mask for LETIMER_RTCC1TEN */
-#define _LETIMER_CTRL_RTCC1TEN_DEFAULT          0x00000000UL                           /**< Mode DEFAULT for LETIMER_CTRL */
-#define LETIMER_CTRL_RTCC1TEN_DEFAULT           (_LETIMER_CTRL_RTCC1TEN_DEFAULT << 11) /**< Shifted mode DEFAULT for LETIMER_CTRL */
 #define LETIMER_CTRL_DEBUGRUN                   (0x1UL << 12)                          /**< Debug Mode Run Enable */
 #define _LETIMER_CTRL_DEBUGRUN_SHIFT            12                                     /**< Shift value for LETIMER_DEBUGRUN */
 #define _LETIMER_CTRL_DEBUGRUN_MASK             0x1000UL                               /**< Bit mask for LETIMER_DEBUGRUN */
@@ -622,5 +616,5 @@ typedef struct
 #define LETIMER_PRSSEL_PRSCLEARMODE_BOTH        (_LETIMER_PRSSEL_PRSCLEARMODE_BOTH << 26)    /**< Shifted mode BOTH for LETIMER_PRSSEL */
 
 /** @} End of group EFM32PG1B_LETIMER */
-
+/** @} End of group Parts */
 

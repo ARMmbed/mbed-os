@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_gpio.h
  * @brief General Purpose IO (GPIO) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -59,6 +59,7 @@ extern "C" {
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 #if defined( _EFM32_TINY_FAMILY ) || defined( _EFM32_ZERO_FAMILY )
 
 #define _GPIO_PORT_A_PIN_COUNT 14
@@ -91,7 +92,8 @@ extern "C" {
 #define _GPIO_PORT_E_PIN_MASK 0x3C00
 #define _GPIO_PORT_F_PIN_MASK 0x003F
 
-#elif defined( _EFM32_GIANT_FAMILY ) || defined( _EFM32_WONDER_FAMILY )
+#elif defined( _EFM32_GIANT_FAMILY ) \
+      || defined( _EFM32_WONDER_FAMILY )
 
 #define _GPIO_PORT_A_PIN_COUNT 16
 #define _GPIO_PORT_B_PIN_COUNT 16
@@ -126,9 +128,7 @@ extern "C" {
 #elif defined( _EFR32_MIGHTY_FAMILY )    \
       || defined( _EFR32_BLUE_FAMILY )   \
       || defined( _EFR32_FLEX_FAMILY )   \
-      || defined( _EFR32_SNAPPY_FAMILY ) \
-      || defined( _EFM32_PEARL_FAMILY )  \
-      || defined( _EFM32_JADE_FAMILY )
+      || defined( _EFR32_ZAPPY_FAMILY )
 
 #define _GPIO_PORT_A_PIN_COUNT 6
 #define _GPIO_PORT_B_PIN_COUNT 5
@@ -141,6 +141,23 @@ extern "C" {
 #define _GPIO_PORT_B_PIN_MASK 0xF800
 #define _GPIO_PORT_C_PIN_MASK 0x0FC0
 #define _GPIO_PORT_D_PIN_MASK 0xE000
+#define _GPIO_PORT_E_PIN_MASK 0x0000
+#define _GPIO_PORT_F_PIN_MASK 0x00FF
+
+#elif defined( _EFM32_PEARL_FAMILY )    \
+      || defined( _EFM32_JADE_FAMILY )
+
+#define _GPIO_PORT_A_PIN_COUNT 6
+#define _GPIO_PORT_B_PIN_COUNT 5
+#define _GPIO_PORT_C_PIN_COUNT 6
+#define _GPIO_PORT_D_PIN_COUNT 7
+#define _GPIO_PORT_E_PIN_COUNT 0
+#define _GPIO_PORT_F_PIN_COUNT 8
+
+#define _GPIO_PORT_A_PIN_MASK 0x003F
+#define _GPIO_PORT_B_PIN_MASK 0xF800
+#define _GPIO_PORT_C_PIN_MASK 0x0FC0
+#define _GPIO_PORT_D_PIN_MASK 0xFE00
 #define _GPIO_PORT_E_PIN_MASK 0x0000
 #define _GPIO_PORT_F_PIN_MASK 0x00FF
 
@@ -196,13 +213,16 @@ extern "C" {
 #define GPIO_PORT_VALID(port)          ( _GPIO_PORT_MASK(port) )
 #define GPIO_PORT_PIN_VALID(port, pin) ((( _GPIO_PORT_MASK(port)) >> (pin)) & 0x1 )
 
+/** Highest GPIO pin number */
 #define GPIO_PIN_MAX  15
 
+/** Highest GPIO port number */
 #if defined( _GPIO_PORT_G_PIN_COUNT ) && defined( _GPIO_PORT_H_PIN_COUNT )
 #define GPIO_PORT_MAX  7
 #else
 #define GPIO_PORT_MAX  5
 #endif
+/** @endcond */
 
 /*******************************************************************************
  ********************************   ENUMS   ************************************
@@ -252,15 +272,25 @@ typedef enum
 } GPIO_DriveMode_TypeDef;
 #endif
 
-#if defined( _GPIO_P_CTRL_DRIVESTRENGTH_MASK )
+#if defined( _GPIO_P_CTRL_DRIVESTRENGTH_MASK ) && defined( _GPIO_P_CTRL_DRIVESTRENGTHALT_MASK )
 /** GPIO drive strength. */
 typedef enum
 {
-  /** 10 mA */
-  gpioDriveStrengthStrong   = GPIO_P_CTRL_DRIVESTRENGTH_STRONG,
-  /** 1 mA */
-  gpioDriveStrengthWeak     = GPIO_P_CTRL_DRIVESTRENGTH_WEAK
+  /** GPIO weak 1mA and alternate function weak 1mA */
+  gpioDriveStrengthWeakAlternateWeak     = GPIO_P_CTRL_DRIVESTRENGTH_WEAK | GPIO_P_CTRL_DRIVESTRENGTHALT_WEAK,
+
+  /** GPIO weak 1mA and alternate function strong 10mA */
+  gpioDriveStrengthWeakAlternateStrong   = GPIO_P_CTRL_DRIVESTRENGTH_WEAK | GPIO_P_CTRL_DRIVESTRENGTHALT_STRONG,
+
+    /** GPIO strong 10mA and alternate function weak 1mA */
+  gpioDriveStrengthStrongAlternateWeak   = GPIO_P_CTRL_DRIVESTRENGTH_STRONG | GPIO_P_CTRL_DRIVESTRENGTHALT_WEAK,
+
+  /** GPIO strong 10mA and alternate function strong 10mA */
+  gpioDriveStrengthStrongAlternateStrong = GPIO_P_CTRL_DRIVESTRENGTH_STRONG | GPIO_P_CTRL_DRIVESTRENGTHALT_STRONG,
 } GPIO_DriveStrength_TypeDef;
+/* For legacy support */
+#define gpioDriveStrengthStrong   gpioDriveStrengthStrongAlternateStrong
+#define gpioDriveStrengthWeak     gpioDriveStrengthWeakAlternateWeak
 #endif
 
 /** Pin mode. For more details on each mode, please refer to the
@@ -277,31 +307,45 @@ typedef enum
   gpioModeInputPullFilter           = _GPIO_P_MODEL_MODE0_INPUTPULLFILTER,
   /** Push-pull output */
   gpioModePushPull                  = _GPIO_P_MODEL_MODE0_PUSHPULL,
-#ifdef _GPIO_P_MODEL_MODE0_PUSHPULLDRIVE
+#if defined( _GPIO_P_MODEL_MODE0_PUSHPULLDRIVE )
   /** Push-pull output with drive-strength set by DRIVEMODE */
   gpioModePushPullDrive             = _GPIO_P_MODEL_MODE0_PUSHPULLDRIVE,
 #endif
+#if defined( _GPIO_P_MODEL_MODE0_PUSHPULLALT )
+  /** Push-pull using alternate control */
+  gpioModePushPullAlternate       = _GPIO_P_MODEL_MODE0_PUSHPULLALT,
+#endif
   /** Wired-or output */
-  gpioModeWiredOr                   = _GPIO_P_MODEL_MODE0_WIREDOR,
+  gpioModeWiredOr                       = _GPIO_P_MODEL_MODE0_WIREDOR,
   /** Wired-or output with pull-down */
-  gpioModeWiredOrPullDown           = _GPIO_P_MODEL_MODE0_WIREDORPULLDOWN,
+  gpioModeWiredOrPullDown               = _GPIO_P_MODEL_MODE0_WIREDORPULLDOWN,
   /** Open-drain output */
-  gpioModeWiredAnd                  = _GPIO_P_MODEL_MODE0_WIREDAND,
+  gpioModeWiredAnd                      = _GPIO_P_MODEL_MODE0_WIREDAND,
   /** Open-drain output with filter */
-  gpioModeWiredAndFilter            = _GPIO_P_MODEL_MODE0_WIREDANDFILTER,
+  gpioModeWiredAndFilter                = _GPIO_P_MODEL_MODE0_WIREDANDFILTER,
   /** Open-drain output with pullup */
-  gpioModeWiredAndPullUp            = _GPIO_P_MODEL_MODE0_WIREDANDPULLUP,
+  gpioModeWiredAndPullUp                = _GPIO_P_MODEL_MODE0_WIREDANDPULLUP,
   /** Open-drain output with filter and pullup */
-  gpioModeWiredAndPullUpFilter      = _GPIO_P_MODEL_MODE0_WIREDANDPULLUPFILTER,
-#ifdef _GPIO_P_MODEL_MODE0_WIREDANDDRIVE
+  gpioModeWiredAndPullUpFilter          = _GPIO_P_MODEL_MODE0_WIREDANDPULLUPFILTER,
+#if defined( _GPIO_P_MODEL_MODE0_WIREDANDDRIVE )
   /** Open-drain output with drive-strength set by DRIVEMODE */
-  gpioModeWiredAndDrive             = _GPIO_P_MODEL_MODE0_WIREDANDDRIVE,
+  gpioModeWiredAndDrive                 = _GPIO_P_MODEL_MODE0_WIREDANDDRIVE,
   /** Open-drain output with filter and drive-strength set by DRIVEMODE */
-  gpioModeWiredAndDriveFilter       = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEFILTER,
+  gpioModeWiredAndDriveFilter           = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEFILTER,
   /** Open-drain output with pullup and drive-strength set by DRIVEMODE */
-  gpioModeWiredAndDrivePullUp       = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEPULLUP,
+  gpioModeWiredAndDrivePullUp           = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEPULLUP,
   /** Open-drain output with filter, pullup and drive-strength set by DRIVEMODE */
-  gpioModeWiredAndDrivePullUpFilter = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEPULLUPFILTER
+  gpioModeWiredAndDrivePullUpFilter     = _GPIO_P_MODEL_MODE0_WIREDANDDRIVEPULLUPFILTER
+#endif
+#if defined( _GPIO_P_MODEL_MODE0_WIREDANDALT )
+  /** Open-drain output using alternate control */
+  gpioModeWiredAndAlternate             = _GPIO_P_MODEL_MODE0_WIREDANDALT,
+  /** Open-drain output using alternate control with filter */
+  gpioModeWiredAndAlternateFilter       = _GPIO_P_MODEL_MODE0_WIREDANDALTFILTER,
+  /** Open-drain output using alternate control with pullup */
+  gpioModeWiredAndAlternatePullUp       = _GPIO_P_MODEL_MODE0_WIREDANDALTPULLUP,
+  /** Open-drain output uisng alternate control with filter and pullup */
+  gpioModeWiredAndAlternatePullUpFilter = _GPIO_P_MODEL_MODE0_WIREDANDALTPULLUPFILTER,
 #endif
 } GPIO_Mode_TypeDef;
 
@@ -405,7 +449,7 @@ void GPIO_DriveModeSet(GPIO_Port_TypeDef port, GPIO_DriveMode_TypeDef mode);
 #endif
 
 #if defined( _GPIO_P_CTRL_DRIVESTRENGTH_MASK )
-void GPIO_DriveStrengthSet(GPIO_Port_TypeDef port, GPIO_DriveStrength_TypeDef mode);
+void GPIO_DriveStrengthSet(GPIO_Port_TypeDef port, GPIO_DriveStrength_TypeDef strength);
 #endif
 
 # if defined( _GPIO_EM4WUEN_MASK )
@@ -446,11 +490,16 @@ __STATIC_INLINE uint32_t GPIO_EM4GetPinWakeupCause(void)
 #endif
 
 
-#if defined( GPIO_CTRL_EM4RET ) || defined( _EMU_EM4CTRL_EM4IO0RETMODE_MASK )
+#if defined( GPIO_CTRL_EM4RET ) || defined( _EMU_EM4CTRL_EM4IORETMODE_MASK )
 /**************************************************************************//**
  * @brief
  *   Enable GPIO pin retention of output enable, output value, pull enable and
  *   pull direction in EM4.
+ * 
+ * @note
+ *   For platform 2 parts, EMU_EM4Init() and EMU_UnlatchPinRetention() offers 
+ *   more pin retention features. This function implements the EM4EXIT retention
+ *   mode on platform 2.
  *
  * @param[in] enable
  *   @li true - enable EM4 pin retention.
@@ -463,8 +512,8 @@ __STATIC_INLINE void GPIO_EM4SetPinRetention(bool enable)
 #if defined( GPIO_CTRL_EM4RET )
     GPIO->CTRL |= GPIO_CTRL_EM4RET;
 #else
-    EMU->EM4CTRL = (EMU->EM4CTRL & ~_EMU_EM4CTRL_EM4IO0RETMODE_MASK)
-                   | EMU_EM4CTRL_EM4IO0RETMODE_EM4EXIT;
+    EMU->EM4CTRL = (EMU->EM4CTRL & ~_EMU_EM4CTRL_EM4IORETMODE_MASK)
+                   | EMU_EM4CTRL_EM4IORETMODE_EM4EXIT;
 #endif
   }
   else
@@ -472,8 +521,8 @@ __STATIC_INLINE void GPIO_EM4SetPinRetention(bool enable)
 #if defined( GPIO_CTRL_EM4RET )
     GPIO->CTRL &= ~GPIO_CTRL_EM4RET;
 #else
-    EMU->EM4CTRL = (EMU->EM4CTRL & ~_EMU_EM4CTRL_EM4IO0RETMODE_MASK)
-                   | EMU_EM4CTRL_EM4IO0RETMODE_DISABLE;
+    EMU->EM4CTRL = (EMU->EM4CTRL & ~_EMU_EM4CTRL_EM4IORETMODE_MASK)
+                   | EMU_EM4CTRL_EM4IORETMODE_DISABLE;
 #endif
   }
 }
@@ -555,7 +604,7 @@ __STATIC_INLINE void GPIO_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t GPIO_IntGet(void)
 {
-  return(GPIO->IF);
+  return GPIO->IF;
 }
 
 

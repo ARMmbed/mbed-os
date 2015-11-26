@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_rtc.h
  * @brief Real Time Counter (RTC) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -161,6 +161,29 @@ __STATIC_INLINE void RTC_IntEnable(uint32_t flags)
 __STATIC_INLINE uint32_t RTC_IntGet(void)
 {
   return RTC->IF;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending RTC interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled RTC interrupt sources
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in RTC_IEN and
+ *   - the pending interrupt flags RTC_IF
+ ******************************************************************************/
+__STATIC_INLINE uint32_t RTC_IntGetEnabled(void)
+{
+  uint32_t ien;
+
+  ien = RTC->IEN;
+  return RTC->IF & ien;
 }
 
 

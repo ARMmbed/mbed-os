@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file system_efm32zg.c
  * @brief CMSIS Cortex-M0+ System Layer for EFM32ZG devices.
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,

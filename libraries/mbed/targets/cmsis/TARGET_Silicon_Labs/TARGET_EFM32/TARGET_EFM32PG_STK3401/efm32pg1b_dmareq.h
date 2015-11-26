@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_dmareq.h
  * @brief EFM32PG1B_DMAREQ register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 
 /**************************************************************************//**
  * @defgroup EFM32PG1B_DMAREQ_BitFields
@@ -61,7 +65,12 @@
 #define DMAREQ_TIMER1_CC2             ((25 << 16) + 3) /**< DMA channel select for TIMER1_CC2 */
 #define DMAREQ_TIMER1_CC3             ((25 << 16) + 4) /**< DMA channel select for TIMER1_CC3 */
 #define DMAREQ_MSC_WDATA              ((48 << 16) + 0) /**< DMA channel select for MSC_WDATA */
+#define DMAREQ_CRYPTO_DATA0WR         ((49 << 16) + 0) /**< DMA channel select for CRYPTO_DATA0WR */
+#define DMAREQ_CRYPTO_DATA0XWR        ((49 << 16) + 1) /**< DMA channel select for CRYPTO_DATA0XWR */
+#define DMAREQ_CRYPTO_DATA0RD         ((49 << 16) + 2) /**< DMA channel select for CRYPTO_DATA0RD */
+#define DMAREQ_CRYPTO_DATA1WR         ((49 << 16) + 3) /**< DMA channel select for CRYPTO_DATA1WR */
+#define DMAREQ_CRYPTO_DATA1RD         ((49 << 16) + 4) /**< DMA channel select for CRYPTO_DATA1RD */
 
 /** @} End of group EFM32PG1B_DMAREQ */
-
+/** @} End of group Parts */
 

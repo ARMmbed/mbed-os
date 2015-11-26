@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_version.h
  * @brief Assign correct part number for include file
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -50,14 +50,14 @@ extern "C" {
  ******************************************************************************/
 
 /** Version number of emlib peripheral API. */
-#define _EMLIB_VERSION 4.1.0
+#define _EMLIB_VERSION 4.2.0
 
 /** Major version of emlib. Bumped when incompatible API changes introduced. */
 #define _EMLIB_VERSION_MAJOR 4
 
 /** Minor version of emlib. Bumped when functionality is added in a backwards-
     compatible manner. */
-#define _EMLIB_VERSION_MINOR 1
+#define _EMLIB_VERSION_MINOR 2
 
 /** Patch revision of emlib. Bumped when adding backwards-compatible bug
     fixes.*/
