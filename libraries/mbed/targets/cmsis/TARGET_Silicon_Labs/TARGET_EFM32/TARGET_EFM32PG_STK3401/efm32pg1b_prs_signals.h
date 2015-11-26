@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_prs_signals.h
  * @brief EFM32PG1B_PRS_SIGNALS register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @addtogroup EFM32PG1B_PRS_Signals
  * @{
@@ -101,5 +105,5 @@
 #define PRS_CMU_CLKOUT1         ((61 << 8) + 1) /**< PRS Clock Output 1 */
 
 /** @} End of group EFM32PG1B_PRS */
-
+/** @} End of group Parts */
 

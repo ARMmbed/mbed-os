@@ -2,7 +2,7 @@
  * @file em_usart.h
  * @brief Universal synchronous/asynchronous receiver/transmitter (USART/UART)
  *   peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -688,14 +688,14 @@ __STATIC_INLINE uint32_t USART_IntGet(USART_TypeDef *usart)
  ******************************************************************************/
 __STATIC_INLINE uint32_t USART_IntGetEnabled(USART_TypeDef *usart)
 {
-  uint32_t tmp;
+  uint32_t ien;
 
   /* Store USARTx->IEN in temporary variable in order to define explicit order
    * of volatile accesses. */
-  tmp = usart->IEN;
+  ien = usart->IEN;
 
   /* Bitwise AND of pending and enabled interrupts */
-  return usart->IF & tmp;
+  return usart->IF & ien;
 }
 
 

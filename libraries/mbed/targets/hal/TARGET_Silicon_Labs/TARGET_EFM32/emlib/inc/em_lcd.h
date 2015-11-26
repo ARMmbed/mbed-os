@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_lcd.h
  * @brief Liquid Crystal Display (LCD) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -506,14 +506,14 @@ __STATIC_INLINE uint32_t LCD_IntGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LCD_IntGetEnabled(void)
 {
-  uint32_t tmp = 0U;
+  uint32_t ien;
 
   /* Store LCD->IEN in temporary variable in order to define explicit order
    * of volatile accesses. */
-  tmp = LCD->IEN;
+  ien = LCD->IEN;
 
   /* Bitwise AND of pending and enabled interrupts */
-  return LCD->IF & tmp;
+  return LCD->IF & ien;
 }
 
 

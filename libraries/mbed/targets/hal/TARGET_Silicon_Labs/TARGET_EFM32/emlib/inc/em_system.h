@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_system.h
  * @brief System API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -316,6 +316,22 @@ __STATIC_INLINE uint32_t SYSTEM_GetFlashPageSize(void)
 
   return 1 << ((tmp + 10) & 0xFF);
 }
+
+
+#if defined( _DEVINFO_DEVINFOREV_DEVINFOREV_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Get DEVINFO revision.
+ *
+ * @return
+ *   Revision of the DEVINFO contents.
+ ******************************************************************************/
+__STATIC_INLINE uint8_t SYSTEM_GetDevinfoRev(void)
+{
+  return (DEVINFO->DEVINFOREV & _DEVINFO_DEVINFOREV_DEVINFOREV_MASK)
+          >> _DEVINFO_DEVINFOREV_DEVINFOREV_SHIFT;
+}
+#endif
 
 
 /***************************************************************************//**

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_usart.h
  * @brief EFM32PG1B_USART register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32PG1B_USART
  * @{
@@ -1964,5 +1968,5 @@ typedef struct
 #define USART_ROUTELOC1_RTSLOC_LOC31            (_USART_ROUTELOC1_RTSLOC_LOC31 << 8)   /**< Shifted mode LOC31 for USART_ROUTELOC1 */
 
 /** @} End of group EFM32PG1B_USART */
-
+/** @} End of group Parts */
 

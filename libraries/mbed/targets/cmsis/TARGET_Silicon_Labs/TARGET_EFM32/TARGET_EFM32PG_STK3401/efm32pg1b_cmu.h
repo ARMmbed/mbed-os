@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_cmu.h
  * @brief EFM32PG1B_CMU register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,6 +30,10 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @defgroup EFM32PG1B_CMU
  * @{
  * @brief EFM32PG1B_CMU Register Declaration
@@ -47,31 +51,30 @@ typedef struct
   uint32_t      RESERVED2[1];        /**< Reserved for future use **/
   __IO uint32_t LFRCOCTRL;           /**< LFRCO Control Register  */
   __IO uint32_t HFXOCTRL;            /**< HFXO Control Register  */
-
-  uint32_t      RESERVED3[1];        /**< Reserved for future use **/
+  __IO uint32_t HFXOCTRL1;           /**< HFXO Control 1  */
   __IO uint32_t HFXOSTARTUPCTRL;     /**< HFXO Startup Control  */
   __IO uint32_t HFXOSTEADYSTATECTRL; /**< HFXO Steady State control  */
   __IO uint32_t HFXOTIMEOUTCTRL;     /**< HFXO Timeout Control  */
   __IO uint32_t LFXOCTRL;            /**< LFXO Control Register  */
 
-  uint32_t      RESERVED4[5];        /**< Reserved for future use **/
+  uint32_t      RESERVED3[5];        /**< Reserved for future use **/
   __IO uint32_t CALCTRL;             /**< Calibration Control Register  */
   __IO uint32_t CALCNT;              /**< Calibration Counter Register  */
-  uint32_t      RESERVED5[2];        /**< Reserved for future use **/
+  uint32_t      RESERVED4[2];        /**< Reserved for future use **/
   __IO uint32_t OSCENCMD;            /**< Oscillator Enable/Disable Command Register  */
   __IO uint32_t CMD;                 /**< Command Register  */
-  uint32_t      RESERVED6[2];        /**< Reserved for future use **/
-  __IO uint32_t DBGCLKSEL;           /**< Debug Clock Select  */
+  uint32_t      RESERVED5[2];        /**< Reserved for future use **/
+  __IO uint32_t DBGCLKSEL;           /**< Debug Trace Clock Select  */
   __IO uint32_t HFCLKSEL;            /**< High Frequency Clock Select Command Register  */
-  uint32_t      RESERVED7[2];        /**< Reserved for future use **/
+  uint32_t      RESERVED6[2];        /**< Reserved for future use **/
   __IO uint32_t LFACLKSEL;           /**< Low Frequency A Clock Select Register  */
   __IO uint32_t LFBCLKSEL;           /**< Low Frequency B Clock Select Register  */
   __IO uint32_t LFECLKSEL;           /**< Low Frequency E Clock Select Register  */
 
-  uint32_t      RESERVED8[1];        /**< Reserved for future use **/
+  uint32_t      RESERVED7[1];        /**< Reserved for future use **/
   __I uint32_t  STATUS;              /**< Status Register  */
   __I uint32_t  HFCLKSTATUS;         /**< HFCLK Status Register  */
-  uint32_t      RESERVED9[1];        /**< Reserved for future use **/
+  uint32_t      RESERVED8[1];        /**< Reserved for future use **/
   __I uint32_t  HFXOTRIMSTATUS;      /**< HFXO Trim Status  */
   __I uint32_t  IF;                  /**< Interrupt Flag Register  */
   __IO uint32_t IFS;                 /**< Interrupt Flag Set Register  */
@@ -79,45 +82,45 @@ typedef struct
   __IO uint32_t IEN;                 /**< Interrupt Enable Register  */
   __IO uint32_t HFBUSCLKEN0;         /**< High Frequency Bus Clock Enable Register 0  */
 
-  uint32_t      RESERVED10[3];       /**< Reserved for future use **/
+  uint32_t      RESERVED9[3];        /**< Reserved for future use **/
   __IO uint32_t HFPERCLKEN0;         /**< High Frequency Peripheral Clock Enable Register 0  */
 
-  uint32_t      RESERVED11[7];       /**< Reserved for future use **/
+  uint32_t      RESERVED10[7];       /**< Reserved for future use **/
   __IO uint32_t LFACLKEN0;           /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
-  uint32_t      RESERVED12[1];       /**< Reserved for future use **/
+  uint32_t      RESERVED11[1];       /**< Reserved for future use **/
   __IO uint32_t LFBCLKEN0;           /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
-  uint32_t      RESERVED13[1];       /**< Reserved for future use **/
+  uint32_t      RESERVED12[1];       /**< Reserved for future use **/
   __IO uint32_t LFECLKEN0;           /**< Low Frequency E Clock Enable Register 0 (Async Reg)  */
 
-  uint32_t      RESERVED14[3];       /**< Reserved for future use **/
+  uint32_t      RESERVED13[3];       /**< Reserved for future use **/
   __IO uint32_t HFPRESC;             /**< High Frequency Clock Prescaler Register  */
 
-  uint32_t      RESERVED15[1];       /**< Reserved for future use **/
+  uint32_t      RESERVED14[1];       /**< Reserved for future use **/
   __IO uint32_t HFCOREPRESC;         /**< High Frequency Core Clock Prescaler Register  */
   __IO uint32_t HFPERPRESC;          /**< High Frequency Peripheral Clock Prescaler Register  */
 
-  uint32_t      RESERVED16[1];       /**< Reserved for future use **/
+  uint32_t      RESERVED15[1];       /**< Reserved for future use **/
   __IO uint32_t HFEXPPRESC;          /**< High Frequency Export Clock Prescaler Register  */
 
-  uint32_t      RESERVED17[2];       /**< Reserved for future use **/
+  uint32_t      RESERVED16[2];       /**< Reserved for future use **/
   __IO uint32_t LFAPRESC0;           /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
-  uint32_t      RESERVED18[1];       /**< Reserved for future use **/
+  uint32_t      RESERVED17[1];       /**< Reserved for future use **/
   __IO uint32_t LFBPRESC0;           /**< Low Frequency B Prescaler Register 0  (Async Reg)  */
-  uint32_t      RESERVED19[1];       /**< Reserved for future use **/
+  uint32_t      RESERVED18[1];       /**< Reserved for future use **/
   __IO uint32_t LFEPRESC0;           /**< Low Frequency E Prescaler Register 0  (Async Reg)  */
-  uint32_t      RESERVED20[3];       /**< Reserved for future use **/
+  uint32_t      RESERVED19[3];       /**< Reserved for future use **/
   __I uint32_t  SYNCBUSY;            /**< Synchronization Busy Register  */
   __IO uint32_t FREEZE;              /**< Freeze Register  */
-  uint32_t      RESERVED21[2];       /**< Reserved for future use **/
+  uint32_t      RESERVED20[2];       /**< Reserved for future use **/
   __IO uint32_t PCNTCTRL;            /**< PCNT Control Register  */
 
-  uint32_t      RESERVED22[2];       /**< Reserved for future use **/
+  uint32_t      RESERVED21[2];       /**< Reserved for future use **/
   __IO uint32_t ADCCTRL;             /**< ADC Control Register  */
-  uint32_t      RESERVED23[4];       /**< Reserved for future use **/
+  uint32_t      RESERVED22[4];       /**< Reserved for future use **/
   __IO uint32_t ROUTEPEN;            /**< I/O Routing Pin Enable Register  */
   __IO uint32_t ROUTELOC0;           /**< I/O Routing Location Register  */
 
-  uint32_t      RESERVED24[2];       /**< Reserved for future use **/
+  uint32_t      RESERVED23[2];       /**< Reserved for future use **/
   __IO uint32_t LOCK;                /**< Configuration Lock Register  */
 } CMU_TypeDef;                       /** @} */
 
@@ -402,6 +405,23 @@ typedef struct
 #define _CMU_HFXOCTRL_AUTOSTARTRDYSELRAC_MASK               0x40000000UL                                     /**< Bit mask for CMU_AUTOSTARTRDYSELRAC */
 #define _CMU_HFXOCTRL_AUTOSTARTRDYSELRAC_DEFAULT            0x00000000UL                                     /**< Mode DEFAULT for CMU_HFXOCTRL */
 #define CMU_HFXOCTRL_AUTOSTARTRDYSELRAC_DEFAULT             (_CMU_HFXOCTRL_AUTOSTARTRDYSELRAC_DEFAULT << 30) /**< Shifted mode DEFAULT for CMU_HFXOCTRL */
+
+/* Bit fields for CMU HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_RESETVALUE                           0x00000240UL                             /**< Default value for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_MASK                                 0x00000277UL                             /**< Mask for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_SHIFT                     0                                        /**< Shift value for CMU_PEAKDETTHR */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_MASK                      0x7UL                                    /**< Bit mask for CMU_PEAKDETTHR */
+#define _CMU_HFXOCTRL1_PEAKDETTHR_DEFAULT                   0x00000000UL                             /**< Mode DEFAULT for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_PEAKDETTHR_DEFAULT                    (_CMU_HFXOCTRL1_PEAKDETTHR_DEFAULT << 0) /**< Shifted mode DEFAULT for CMU_HFXOCTRL1 */
+#define _CMU_HFXOCTRL1_REGLVL_SHIFT                         4                                        /**< Shift value for CMU_REGLVL */
+#define _CMU_HFXOCTRL1_REGLVL_MASK                          0x70UL                                   /**< Bit mask for CMU_REGLVL */
+#define _CMU_HFXOCTRL1_REGLVL_DEFAULT                       0x00000004UL                             /**< Mode DEFAULT for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_REGLVL_DEFAULT                        (_CMU_HFXOCTRL1_REGLVL_DEFAULT << 4)     /**< Shifted mode DEFAULT for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_XTIBIASEN                             (0x1UL << 9)                             /**< Reserved for internal use. Do not change. */
+#define _CMU_HFXOCTRL1_XTIBIASEN_SHIFT                      9                                        /**< Shift value for CMU_XTIBIASEN */
+#define _CMU_HFXOCTRL1_XTIBIASEN_MASK                       0x200UL                                  /**< Bit mask for CMU_XTIBIASEN */
+#define _CMU_HFXOCTRL1_XTIBIASEN_DEFAULT                    0x00000001UL                             /**< Mode DEFAULT for CMU_HFXOCTRL1 */
+#define CMU_HFXOCTRL1_XTIBIASEN_DEFAULT                     (_CMU_HFXOCTRL1_XTIBIASEN_DEFAULT << 9)  /**< Shifted mode DEFAULT for CMU_HFXOCTRL1 */
 
 /* Bit fields for CMU HFXOSTARTUPCTRL */
 #define _CMU_HFXOSTARTUPCTRL_RESETVALUE                     0xA1250060UL                                          /**< Default value for CMU_HFXOSTARTUPCTRL */
@@ -835,7 +855,6 @@ typedef struct
 /* Bit fields for CMU DBGCLKSEL */
 #define _CMU_DBGCLKSEL_RESETVALUE                           0x00000000UL                       /**< Default value for CMU_DBGCLKSEL */
 #define _CMU_DBGCLKSEL_MASK                                 0x00000001UL                       /**< Mask for CMU_DBGCLKSEL */
-#define CMU_DBGCLKSEL_DBG                                   (0x1UL << 0)                       /**< Debug Clock */
 #define _CMU_DBGCLKSEL_DBG_SHIFT                            0                                  /**< Shift value for CMU_DBG */
 #define _CMU_DBGCLKSEL_DBG_MASK                             0x1UL                              /**< Bit mask for CMU_DBG */
 #define _CMU_DBGCLKSEL_DBG_DEFAULT                          0x00000000UL                       /**< Mode DEFAULT for CMU_DBGCLKSEL */
@@ -1345,33 +1364,38 @@ typedef struct
 #define CMU_IEN_CMUERR_DEFAULT                              (_CMU_IEN_CMUERR_DEFAULT << 31)          /**< Shifted mode DEFAULT for CMU_IEN */
 
 /* Bit fields for CMU HFBUSCLKEN0 */
-#define _CMU_HFBUSCLKEN0_RESETVALUE                         0x00000000UL                          /**< Default value for CMU_HFBUSCLKEN0 */
-#define _CMU_HFBUSCLKEN0_MASK                               0x0000003DUL                          /**< Mask for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_LE                                  (0x1UL << 0)                          /**< Low Energy Peripheral Interface Clock Enable */
-#define _CMU_HFBUSCLKEN0_LE_SHIFT                           0                                     /**< Shift value for CMU_LE */
-#define _CMU_HFBUSCLKEN0_LE_MASK                            0x1UL                                 /**< Bit mask for CMU_LE */
-#define _CMU_HFBUSCLKEN0_LE_DEFAULT                         0x00000000UL                          /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_LE_DEFAULT                          (_CMU_HFBUSCLKEN0_LE_DEFAULT << 0)    /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_GPIO                                (0x1UL << 2)                          /**< General purpose Input/Output Clock Enable */
-#define _CMU_HFBUSCLKEN0_GPIO_SHIFT                         2                                     /**< Shift value for CMU_GPIO */
-#define _CMU_HFBUSCLKEN0_GPIO_MASK                          0x4UL                                 /**< Bit mask for CMU_GPIO */
-#define _CMU_HFBUSCLKEN0_GPIO_DEFAULT                       0x00000000UL                          /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_GPIO_DEFAULT                        (_CMU_HFBUSCLKEN0_GPIO_DEFAULT << 2)  /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_PRS                                 (0x1UL << 3)                          /**< Peripheral Reflex System Clock Enable */
-#define _CMU_HFBUSCLKEN0_PRS_SHIFT                          3                                     /**< Shift value for CMU_PRS */
-#define _CMU_HFBUSCLKEN0_PRS_MASK                           0x8UL                                 /**< Bit mask for CMU_PRS */
-#define _CMU_HFBUSCLKEN0_PRS_DEFAULT                        0x00000000UL                          /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_PRS_DEFAULT                         (_CMU_HFBUSCLKEN0_PRS_DEFAULT << 3)   /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_LDMA                                (0x1UL << 4)                          /**< Linked Direct Memory Access Controller Clock Enable */
-#define _CMU_HFBUSCLKEN0_LDMA_SHIFT                         4                                     /**< Shift value for CMU_LDMA */
-#define _CMU_HFBUSCLKEN0_LDMA_MASK                          0x10UL                                /**< Bit mask for CMU_LDMA */
-#define _CMU_HFBUSCLKEN0_LDMA_DEFAULT                       0x00000000UL                          /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_LDMA_DEFAULT                        (_CMU_HFBUSCLKEN0_LDMA_DEFAULT << 4)  /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_GPCRC                               (0x1UL << 5)                          /**< General Purpose CRC Clock Enable */
-#define _CMU_HFBUSCLKEN0_GPCRC_SHIFT                        5                                     /**< Shift value for CMU_GPCRC */
-#define _CMU_HFBUSCLKEN0_GPCRC_MASK                         0x20UL                                /**< Bit mask for CMU_GPCRC */
-#define _CMU_HFBUSCLKEN0_GPCRC_DEFAULT                      0x00000000UL                          /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
-#define CMU_HFBUSCLKEN0_GPCRC_DEFAULT                       (_CMU_HFBUSCLKEN0_GPCRC_DEFAULT << 5) /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define _CMU_HFBUSCLKEN0_RESETVALUE                         0x00000000UL                           /**< Default value for CMU_HFBUSCLKEN0 */
+#define _CMU_HFBUSCLKEN0_MASK                               0x0000003FUL                           /**< Mask for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_LE                                  (0x1UL << 0)                           /**< Low Energy Peripheral Interface Clock Enable */
+#define _CMU_HFBUSCLKEN0_LE_SHIFT                           0                                      /**< Shift value for CMU_LE */
+#define _CMU_HFBUSCLKEN0_LE_MASK                            0x1UL                                  /**< Bit mask for CMU_LE */
+#define _CMU_HFBUSCLKEN0_LE_DEFAULT                         0x00000000UL                           /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_LE_DEFAULT                          (_CMU_HFBUSCLKEN0_LE_DEFAULT << 0)     /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_CRYPTO                              (0x1UL << 1)                           /**< Advanced Encryption Standard Accelerator Clock Enable */
+#define _CMU_HFBUSCLKEN0_CRYPTO_SHIFT                       1                                      /**< Shift value for CMU_CRYPTO */
+#define _CMU_HFBUSCLKEN0_CRYPTO_MASK                        0x2UL                                  /**< Bit mask for CMU_CRYPTO */
+#define _CMU_HFBUSCLKEN0_CRYPTO_DEFAULT                     0x00000000UL                           /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_CRYPTO_DEFAULT                      (_CMU_HFBUSCLKEN0_CRYPTO_DEFAULT << 1) /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_GPIO                                (0x1UL << 2)                           /**< General purpose Input/Output Clock Enable */
+#define _CMU_HFBUSCLKEN0_GPIO_SHIFT                         2                                      /**< Shift value for CMU_GPIO */
+#define _CMU_HFBUSCLKEN0_GPIO_MASK                          0x4UL                                  /**< Bit mask for CMU_GPIO */
+#define _CMU_HFBUSCLKEN0_GPIO_DEFAULT                       0x00000000UL                           /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_GPIO_DEFAULT                        (_CMU_HFBUSCLKEN0_GPIO_DEFAULT << 2)   /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_PRS                                 (0x1UL << 3)                           /**< Peripheral Reflex System Clock Enable */
+#define _CMU_HFBUSCLKEN0_PRS_SHIFT                          3                                      /**< Shift value for CMU_PRS */
+#define _CMU_HFBUSCLKEN0_PRS_MASK                           0x8UL                                  /**< Bit mask for CMU_PRS */
+#define _CMU_HFBUSCLKEN0_PRS_DEFAULT                        0x00000000UL                           /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_PRS_DEFAULT                         (_CMU_HFBUSCLKEN0_PRS_DEFAULT << 3)    /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_LDMA                                (0x1UL << 4)                           /**< Linked Direct Memory Access Controller Clock Enable */
+#define _CMU_HFBUSCLKEN0_LDMA_SHIFT                         4                                      /**< Shift value for CMU_LDMA */
+#define _CMU_HFBUSCLKEN0_LDMA_MASK                          0x10UL                                 /**< Bit mask for CMU_LDMA */
+#define _CMU_HFBUSCLKEN0_LDMA_DEFAULT                       0x00000000UL                           /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_LDMA_DEFAULT                        (_CMU_HFBUSCLKEN0_LDMA_DEFAULT << 4)   /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_GPCRC                               (0x1UL << 5)                           /**< General Purpose CRC Clock Enable */
+#define _CMU_HFBUSCLKEN0_GPCRC_SHIFT                        5                                      /**< Shift value for CMU_GPCRC */
+#define _CMU_HFBUSCLKEN0_GPCRC_MASK                         0x20UL                                 /**< Bit mask for CMU_GPCRC */
+#define _CMU_HFBUSCLKEN0_GPCRC_DEFAULT                      0x00000000UL                           /**< Mode DEFAULT for CMU_HFBUSCLKEN0 */
+#define CMU_HFBUSCLKEN0_GPCRC_DEFAULT                       (_CMU_HFBUSCLKEN0_GPCRC_DEFAULT << 5)  /**< Shifted mode DEFAULT for CMU_HFBUSCLKEN0 */
 
 /* Bit fields for CMU HFPERCLKEN0 */
 #define _CMU_HFPERCLKEN0_RESETVALUE                         0x00000000UL                              /**< Default value for CMU_HFPERCLKEN0 */
@@ -1463,7 +1487,6 @@ typedef struct
 #define _CMU_HFPRESC_PRESC_NODIVISION                       0x00000000UL                              /**< Mode NODIVISION for CMU_HFPRESC */
 #define CMU_HFPRESC_PRESC_DEFAULT                           (_CMU_HFPRESC_PRESC_DEFAULT << 8)         /**< Shifted mode DEFAULT for CMU_HFPRESC */
 #define CMU_HFPRESC_PRESC_NODIVISION                        (_CMU_HFPRESC_PRESC_NODIVISION << 8)      /**< Shifted mode NODIVISION for CMU_HFPRESC */
-#define CMU_HFPRESC_HFCLKLEPRESC                            (0x1UL << 24)                             /**< HFCLKLE prescaler */
 #define _CMU_HFPRESC_HFCLKLEPRESC_SHIFT                     24                                        /**< Shift value for CMU_HFCLKLEPRESC */
 #define _CMU_HFPRESC_HFCLKLEPRESC_MASK                      0x1000000UL                               /**< Bit mask for CMU_HFCLKLEPRESC */
 #define _CMU_HFPRESC_HFCLKLEPRESC_DEFAULT                   0x00000000UL                              /**< Mode DEFAULT for CMU_HFPRESC */
@@ -1659,25 +1682,25 @@ typedef struct
 #define CMU_PCNTCTRL_PCNT0CLKSEL_PCNT0S0                    (_CMU_PCNTCTRL_PCNT0CLKSEL_PCNT0S0 << 1) /**< Shifted mode PCNT0S0 for CMU_PCNTCTRL */
 
 /* Bit fields for CMU ADCCTRL */
-#define _CMU_ADCCTRL_RESETVALUE                             0x00000000UL                        /**< Default value for CMU_ADCCTRL */
-#define _CMU_ADCCTRL_MASK                                   0x00000130UL                        /**< Mask for CMU_ADCCTRL */
-#define _CMU_ADCCTRL_CLKSEL_SHIFT                           4                                   /**< Shift value for CMU_CLKSEL */
-#define _CMU_ADCCTRL_CLKSEL_MASK                            0x30UL                              /**< Bit mask for CMU_CLKSEL */
-#define _CMU_ADCCTRL_CLKSEL_DEFAULT                         0x00000000UL                        /**< Mode DEFAULT for CMU_ADCCTRL */
-#define _CMU_ADCCTRL_CLKSEL_DISABLED                        0x00000000UL                        /**< Mode DISABLED for CMU_ADCCTRL */
-#define _CMU_ADCCTRL_CLKSEL_AUXHFRCO                        0x00000001UL                        /**< Mode AUXHFRCO for CMU_ADCCTRL */
-#define _CMU_ADCCTRL_CLKSEL_HFXO                            0x00000002UL                        /**< Mode HFXO for CMU_ADCCTRL */
-#define _CMU_ADCCTRL_CLKSEL_HFSRCCLK                        0x00000003UL                        /**< Mode HFSRCCLK for CMU_ADCCTRL */
-#define CMU_ADCCTRL_CLKSEL_DEFAULT                          (_CMU_ADCCTRL_CLKSEL_DEFAULT << 4)  /**< Shifted mode DEFAULT for CMU_ADCCTRL */
-#define CMU_ADCCTRL_CLKSEL_DISABLED                         (_CMU_ADCCTRL_CLKSEL_DISABLED << 4) /**< Shifted mode DISABLED for CMU_ADCCTRL */
-#define CMU_ADCCTRL_CLKSEL_AUXHFRCO                         (_CMU_ADCCTRL_CLKSEL_AUXHFRCO << 4) /**< Shifted mode AUXHFRCO for CMU_ADCCTRL */
-#define CMU_ADCCTRL_CLKSEL_HFXO                             (_CMU_ADCCTRL_CLKSEL_HFXO << 4)     /**< Shifted mode HFXO for CMU_ADCCTRL */
-#define CMU_ADCCTRL_CLKSEL_HFSRCCLK                         (_CMU_ADCCTRL_CLKSEL_HFSRCCLK << 4) /**< Shifted mode HFSRCCLK for CMU_ADCCTRL */
-#define CMU_ADCCTRL_INV                                     (0x1UL << 8)                        /**< Invert clock selected by ADCCLKSEL */
-#define _CMU_ADCCTRL_INV_SHIFT                              8                                   /**< Shift value for CMU_INV */
-#define _CMU_ADCCTRL_INV_MASK                               0x100UL                             /**< Bit mask for CMU_INV */
-#define _CMU_ADCCTRL_INV_DEFAULT                            0x00000000UL                        /**< Mode DEFAULT for CMU_ADCCTRL */
-#define CMU_ADCCTRL_INV_DEFAULT                             (_CMU_ADCCTRL_INV_DEFAULT << 8)     /**< Shifted mode DEFAULT for CMU_ADCCTRL */
+#define _CMU_ADCCTRL_RESETVALUE                             0x00000000UL                            /**< Default value for CMU_ADCCTRL */
+#define _CMU_ADCCTRL_MASK                                   0x00000130UL                            /**< Mask for CMU_ADCCTRL */
+#define _CMU_ADCCTRL_ADC0CLKSEL_SHIFT                       4                                       /**< Shift value for CMU_ADC0CLKSEL */
+#define _CMU_ADCCTRL_ADC0CLKSEL_MASK                        0x30UL                                  /**< Bit mask for CMU_ADC0CLKSEL */
+#define _CMU_ADCCTRL_ADC0CLKSEL_DEFAULT                     0x00000000UL                            /**< Mode DEFAULT for CMU_ADCCTRL */
+#define _CMU_ADCCTRL_ADC0CLKSEL_DISABLED                    0x00000000UL                            /**< Mode DISABLED for CMU_ADCCTRL */
+#define _CMU_ADCCTRL_ADC0CLKSEL_AUXHFRCO                    0x00000001UL                            /**< Mode AUXHFRCO for CMU_ADCCTRL */
+#define _CMU_ADCCTRL_ADC0CLKSEL_HFXO                        0x00000002UL                            /**< Mode HFXO for CMU_ADCCTRL */
+#define _CMU_ADCCTRL_ADC0CLKSEL_HFSRCCLK                    0x00000003UL                            /**< Mode HFSRCCLK for CMU_ADCCTRL */
+#define CMU_ADCCTRL_ADC0CLKSEL_DEFAULT                      (_CMU_ADCCTRL_ADC0CLKSEL_DEFAULT << 4)  /**< Shifted mode DEFAULT for CMU_ADCCTRL */
+#define CMU_ADCCTRL_ADC0CLKSEL_DISABLED                     (_CMU_ADCCTRL_ADC0CLKSEL_DISABLED << 4) /**< Shifted mode DISABLED for CMU_ADCCTRL */
+#define CMU_ADCCTRL_ADC0CLKSEL_AUXHFRCO                     (_CMU_ADCCTRL_ADC0CLKSEL_AUXHFRCO << 4) /**< Shifted mode AUXHFRCO for CMU_ADCCTRL */
+#define CMU_ADCCTRL_ADC0CLKSEL_HFXO                         (_CMU_ADCCTRL_ADC0CLKSEL_HFXO << 4)     /**< Shifted mode HFXO for CMU_ADCCTRL */
+#define CMU_ADCCTRL_ADC0CLKSEL_HFSRCCLK                     (_CMU_ADCCTRL_ADC0CLKSEL_HFSRCCLK << 4) /**< Shifted mode HFSRCCLK for CMU_ADCCTRL */
+#define CMU_ADCCTRL_ADC0CLKINV                              (0x1UL << 8)                            /**< Invert clock selected by ADC0CLKSEL */
+#define _CMU_ADCCTRL_ADC0CLKINV_SHIFT                       8                                       /**< Shift value for CMU_ADC0CLKINV */
+#define _CMU_ADCCTRL_ADC0CLKINV_MASK                        0x100UL                                 /**< Bit mask for CMU_ADC0CLKINV */
+#define _CMU_ADCCTRL_ADC0CLKINV_DEFAULT                     0x00000000UL                            /**< Mode DEFAULT for CMU_ADCCTRL */
+#define CMU_ADCCTRL_ADC0CLKINV_DEFAULT                      (_CMU_ADCCTRL_ADC0CLKINV_DEFAULT << 8)  /**< Shifted mode DEFAULT for CMU_ADCCTRL */
 
 /* Bit fields for CMU ROUTEPEN */
 #define _CMU_ROUTEPEN_RESETVALUE                            0x00000000UL                            /**< Default value for CMU_ROUTEPEN */
@@ -1754,5 +1777,5 @@ typedef struct
 #define CMU_LOCK_LOCKKEY_UNLOCK                             (_CMU_LOCK_LOCKKEY_UNLOCK << 0)   /**< Shifted mode UNLOCK for CMU_LOCK */
 
 /** @} End of group EFM32PG1B_CMU */
-
+/** @} End of group Parts */
 

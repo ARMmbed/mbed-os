@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_aes.h
  * @brief Advanced encryption standard (AES) accelerator peripheral API.
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -199,7 +199,30 @@ __STATIC_INLINE void AES_IntEnable(uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t AES_IntGet(void)
 {
-  return(AES->IF);
+  return AES->IF;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending AES interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled AES interrupt sources
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in AES_IEN and
+ *   - the pending interrupt flags AES_IF
+ ******************************************************************************/
+__STATIC_INLINE uint32_t AES_IntGetEnabled(void)
+{
+  uint32_t ien;
+
+  ien = AES->IEN;
+  return AES->IF & ien;
 }
 
 

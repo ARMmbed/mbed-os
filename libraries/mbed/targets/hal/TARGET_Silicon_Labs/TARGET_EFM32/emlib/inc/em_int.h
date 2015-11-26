@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_int.h
  * @brief Interrupt enable/disable unit API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -65,7 +65,7 @@ extern "C" {
  *   Disable interrupts and increment lock level counter.
  *
  * @return
- *   The resulting interrupt nesting level.
+ *   The resulting interrupt disable nesting level.
  *
  ******************************************************************************/
 __STATIC_INLINE uint32_t INT_Disable(void)
@@ -84,7 +84,7 @@ __STATIC_INLINE uint32_t INT_Disable(void)
  *   Enable interrupts.
  *
  * @return
- *   The resulting interrupt nesting level.
+ *   The resulting interrupt disable nesting level.
  *
  * @details
  *   Decrement interrupt lock level counter and enable interrupts if counter

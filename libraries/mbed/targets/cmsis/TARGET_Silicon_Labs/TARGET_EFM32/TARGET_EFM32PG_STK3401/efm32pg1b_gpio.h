@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_gpio.h
  * @brief EFM32PG1B_GPIO register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,6 +30,10 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @defgroup EFM32PG1B_GPIO
  * @{
  * @brief EFM32PG1B_GPIO Register Declaration
@@ -41,8 +45,8 @@ typedef struct
   uint32_t       RESERVED0[112]; /**< Reserved for future use **/
   __IO uint32_t  EXTIPSELL;      /**< External Interrupt Port Select Low Register  */
   __IO uint32_t  EXTIPSELH;      /**< External Interrupt Port Select High Register  */
-  __IO uint32_t  EXTIGSELL;      /**< External Interrupt Group Select Low Register  */
-  __IO uint32_t  EXTIGSELH;      /**< External Interrupt Group Select High Register  */
+  __IO uint32_t  EXTIPINSELL;    /**< External Interrupt Pin Select Low Register  */
+  __IO uint32_t  EXTIPINSELH;    /**< External Interrupt Pin Select High Register  */
   __IO uint32_t  EXTIRISE;       /**< External Interrupt Rising Edge Trigger Register  */
   __IO uint32_t  EXTIFALL;       /**< External Interrupt Falling Edge Trigger Register  */
   __IO uint32_t  EXTILEVEL;      /**< External Interrupt Level Register  */
@@ -722,13 +726,13 @@ typedef struct
 #define _GPIO_P_PINLOCKN_PINLOCKN_DEFAULT               0x0000FFFFUL                             /**< Mode DEFAULT for GPIO_P_PINLOCKN */
 #define GPIO_P_PINLOCKN_PINLOCKN_DEFAULT                (_GPIO_P_PINLOCKN_PINLOCKN_DEFAULT << 0) /**< Shifted mode DEFAULT for GPIO_P_PINLOCKN */
 
-/* Bit fields for GPIO P_TOL5VDIS */
-#define _GPIO_P_TOL5VDIS_RESETVALUE                     0x00000000UL                             /**< Default value for GPIO_P_TOL5VDIS */
-#define _GPIO_P_TOL5VDIS_MASK                           0x0000FFFFUL                             /**< Mask for GPIO_P_TOL5VDIS */
-#define _GPIO_P_TOL5VDIS_TOL5VDIS_SHIFT                 0                                        /**< Shift value for GPIO_TOL5VDIS */
-#define _GPIO_P_TOL5VDIS_TOL5VDIS_MASK                  0xFFFFUL                                 /**< Bit mask for GPIO_TOL5VDIS */
-#define _GPIO_P_TOL5VDIS_TOL5VDIS_DEFAULT               0x00000000UL                             /**< Mode DEFAULT for GPIO_P_TOL5VDIS */
-#define GPIO_P_TOL5VDIS_TOL5VDIS_DEFAULT                (_GPIO_P_TOL5VDIS_TOL5VDIS_DEFAULT << 0) /**< Shifted mode DEFAULT for GPIO_P_TOL5VDIS */
+/* Bit fields for GPIO P_OVTDIS */
+#define _GPIO_P_OVTDIS_RESETVALUE                       0x00000000UL                         /**< Default value for GPIO_P_OVTDIS */
+#define _GPIO_P_OVTDIS_MASK                             0x0000FFFFUL                         /**< Mask for GPIO_P_OVTDIS */
+#define _GPIO_P_OVTDIS_OVTDIS_SHIFT                     0                                    /**< Shift value for GPIO_OVTDIS */
+#define _GPIO_P_OVTDIS_OVTDIS_MASK                      0xFFFFUL                             /**< Bit mask for GPIO_OVTDIS */
+#define _GPIO_P_OVTDIS_OVTDIS_DEFAULT                   0x00000000UL                         /**< Mode DEFAULT for GPIO_P_OVTDIS */
+#define GPIO_P_OVTDIS_OVTDIS_DEFAULT                    (_GPIO_P_OVTDIS_OVTDIS_DEFAULT << 0) /**< Shifted mode DEFAULT for GPIO_P_OVTDIS */
 
 /* Bit fields for GPIO EXTIPSELL */
 #define _GPIO_EXTIPSELL_RESETVALUE                      0x00000000UL                              /**< Default value for GPIO_EXTIPSELL */
@@ -962,205 +966,205 @@ typedef struct
 #define GPIO_EXTIPSELH_EXTIPSEL15_PORTD                 (_GPIO_EXTIPSELH_EXTIPSEL15_PORTD << 28)   /**< Shifted mode PORTD for GPIO_EXTIPSELH */
 #define GPIO_EXTIPSELH_EXTIPSEL15_PORTF                 (_GPIO_EXTIPSELH_EXTIPSEL15_PORTF << 28)   /**< Shifted mode PORTF for GPIO_EXTIPSELH */
 
-/* Bit fields for GPIO EXTIGSELL */
-#define _GPIO_EXTIGSELL_RESETVALUE                      0x32103210UL                              /**< Default value for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_MASK                            0x33333333UL                              /**< Mask for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL0_SHIFT                 0                                         /**< Shift value for GPIO_EXTIGSEL0 */
-#define _GPIO_EXTIGSELL_EXTIGSEL0_MASK                  0x3UL                                     /**< Bit mask for GPIO_EXTIGSEL0 */
-#define _GPIO_EXTIGSELL_EXTIGSEL0_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL0_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL0_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL0_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL0_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL0_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL0_DEFAULT << 0)  /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL0_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL0_GROUP0 << 0)   /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL0_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL0_GROUP1 << 0)   /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL0_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL0_GROUP2 << 0)   /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL0_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL0_GROUP3 << 0)   /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL1_SHIFT                 4                                         /**< Shift value for GPIO_EXTIGSEL1 */
-#define _GPIO_EXTIGSELL_EXTIGSEL1_MASK                  0x30UL                                    /**< Bit mask for GPIO_EXTIGSEL1 */
-#define _GPIO_EXTIGSELL_EXTIGSEL1_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL1_DEFAULT               0x00000001UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL1_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL1_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL1_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL1_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL1_GROUP0 << 4)   /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL1_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL1_DEFAULT << 4)  /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL1_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL1_GROUP1 << 4)   /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL1_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL1_GROUP2 << 4)   /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL1_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL1_GROUP3 << 4)   /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL2_SHIFT                 8                                         /**< Shift value for GPIO_EXTIGSEL2 */
-#define _GPIO_EXTIGSELL_EXTIGSEL2_MASK                  0x300UL                                   /**< Bit mask for GPIO_EXTIGSEL2 */
-#define _GPIO_EXTIGSELL_EXTIGSEL2_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL2_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL2_DEFAULT               0x00000002UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL2_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL2_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL2_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL2_GROUP0 << 8)   /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL2_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL2_GROUP1 << 8)   /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL2_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL2_DEFAULT << 8)  /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL2_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL2_GROUP2 << 8)   /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL2_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL2_GROUP3 << 8)   /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL3_SHIFT                 12                                        /**< Shift value for GPIO_EXTIGSEL3 */
-#define _GPIO_EXTIGSELL_EXTIGSEL3_MASK                  0x3000UL                                  /**< Bit mask for GPIO_EXTIGSEL3 */
-#define _GPIO_EXTIGSELL_EXTIGSEL3_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL3_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL3_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL3_DEFAULT               0x00000003UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL3_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL3_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL3_GROUP0 << 12)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL3_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL3_GROUP1 << 12)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL3_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL3_GROUP2 << 12)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL3_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL3_DEFAULT << 12) /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL3_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL3_GROUP3 << 12)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL4_SHIFT                 16                                        /**< Shift value for GPIO_EXTIGSEL4 */
-#define _GPIO_EXTIGSELL_EXTIGSEL4_MASK                  0x30000UL                                 /**< Bit mask for GPIO_EXTIGSEL4 */
-#define _GPIO_EXTIGSELL_EXTIGSEL4_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL4_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL4_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL4_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL4_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL4_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL4_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL4_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL4_GROUP0 << 16)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL4_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL4_GROUP1 << 16)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL4_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL4_GROUP2 << 16)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL4_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL4_GROUP3 << 16)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL5_SHIFT                 20                                        /**< Shift value for GPIO_EXTIGSEL5 */
-#define _GPIO_EXTIGSELL_EXTIGSEL5_MASK                  0x300000UL                                /**< Bit mask for GPIO_EXTIGSEL5 */
-#define _GPIO_EXTIGSELL_EXTIGSEL5_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL5_DEFAULT               0x00000001UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL5_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL5_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL5_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL5_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL5_GROUP0 << 20)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL5_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL5_DEFAULT << 20) /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL5_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL5_GROUP1 << 20)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL5_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL5_GROUP2 << 20)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL5_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL5_GROUP3 << 20)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL6_SHIFT                 24                                        /**< Shift value for GPIO_EXTIGSEL6 */
-#define _GPIO_EXTIGSELL_EXTIGSEL6_MASK                  0x3000000UL                               /**< Bit mask for GPIO_EXTIGSEL6 */
-#define _GPIO_EXTIGSELL_EXTIGSEL6_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL6_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL6_DEFAULT               0x00000002UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL6_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL6_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL6_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL6_GROUP0 << 24)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL6_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL6_GROUP1 << 24)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL6_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL6_DEFAULT << 24) /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL6_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL6_GROUP2 << 24)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL6_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL6_GROUP3 << 24)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL7_SHIFT                 28                                        /**< Shift value for GPIO_EXTIGSEL7 */
-#define _GPIO_EXTIGSELL_EXTIGSEL7_MASK                  0x30000000UL                              /**< Bit mask for GPIO_EXTIGSEL7 */
-#define _GPIO_EXTIGSELL_EXTIGSEL7_GROUP0                0x00000000UL                              /**< Mode GROUP0 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL7_GROUP1                0x00000001UL                              /**< Mode GROUP1 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL7_GROUP2                0x00000002UL                              /**< Mode GROUP2 for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL7_DEFAULT               0x00000003UL                              /**< Mode DEFAULT for GPIO_EXTIGSELL */
-#define _GPIO_EXTIGSELL_EXTIGSEL7_GROUP3                0x00000003UL                              /**< Mode GROUP3 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL7_GROUP0                 (_GPIO_EXTIGSELL_EXTIGSEL7_GROUP0 << 28)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL7_GROUP1                 (_GPIO_EXTIGSELL_EXTIGSEL7_GROUP1 << 28)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL7_GROUP2                 (_GPIO_EXTIGSELL_EXTIGSEL7_GROUP2 << 28)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL7_DEFAULT                (_GPIO_EXTIGSELL_EXTIGSEL7_DEFAULT << 28) /**< Shifted mode DEFAULT for GPIO_EXTIGSELL */
-#define GPIO_EXTIGSELL_EXTIGSEL7_GROUP3                 (_GPIO_EXTIGSELL_EXTIGSEL7_GROUP3 << 28)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELL */
+/* Bit fields for GPIO EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_RESETVALUE                    0x32103210UL                                  /**< Default value for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_MASK                          0x33333333UL                                  /**< Mask for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL0_SHIFT             0                                             /**< Shift value for GPIO_EXTIPINSEL0 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL0_MASK              0x3UL                                         /**< Bit mask for GPIO_EXTIPINSEL0 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL0_DEFAULT           0x00000000UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL0_PIN0              0x00000000UL                                  /**< Mode PIN0 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL0_PIN1              0x00000001UL                                  /**< Mode PIN1 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL0_PIN2              0x00000002UL                                  /**< Mode PIN2 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL0_PIN3              0x00000003UL                                  /**< Mode PIN3 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL0_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL0_DEFAULT << 0)  /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL0_PIN0               (_GPIO_EXTIPINSELL_EXTIPINSEL0_PIN0 << 0)     /**< Shifted mode PIN0 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL0_PIN1               (_GPIO_EXTIPINSELL_EXTIPINSEL0_PIN1 << 0)     /**< Shifted mode PIN1 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL0_PIN2               (_GPIO_EXTIPINSELL_EXTIPINSEL0_PIN2 << 0)     /**< Shifted mode PIN2 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL0_PIN3               (_GPIO_EXTIPINSELL_EXTIPINSEL0_PIN3 << 0)     /**< Shifted mode PIN3 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL1_SHIFT             4                                             /**< Shift value for GPIO_EXTIPINSEL1 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL1_MASK              0x30UL                                        /**< Bit mask for GPIO_EXTIPINSEL1 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL1_PIN0              0x00000000UL                                  /**< Mode PIN0 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL1_DEFAULT           0x00000001UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL1_PIN1              0x00000001UL                                  /**< Mode PIN1 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL1_PIN2              0x00000002UL                                  /**< Mode PIN2 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL1_PIN3              0x00000003UL                                  /**< Mode PIN3 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL1_PIN0               (_GPIO_EXTIPINSELL_EXTIPINSEL1_PIN0 << 4)     /**< Shifted mode PIN0 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL1_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL1_DEFAULT << 4)  /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL1_PIN1               (_GPIO_EXTIPINSELL_EXTIPINSEL1_PIN1 << 4)     /**< Shifted mode PIN1 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL1_PIN2               (_GPIO_EXTIPINSELL_EXTIPINSEL1_PIN2 << 4)     /**< Shifted mode PIN2 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL1_PIN3               (_GPIO_EXTIPINSELL_EXTIPINSEL1_PIN3 << 4)     /**< Shifted mode PIN3 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL2_SHIFT             8                                             /**< Shift value for GPIO_EXTIPINSEL2 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL2_MASK              0x300UL                                       /**< Bit mask for GPIO_EXTIPINSEL2 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL2_PIN0              0x00000000UL                                  /**< Mode PIN0 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL2_PIN1              0x00000001UL                                  /**< Mode PIN1 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL2_DEFAULT           0x00000002UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL2_PIN2              0x00000002UL                                  /**< Mode PIN2 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL2_PIN3              0x00000003UL                                  /**< Mode PIN3 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL2_PIN0               (_GPIO_EXTIPINSELL_EXTIPINSEL2_PIN0 << 8)     /**< Shifted mode PIN0 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL2_PIN1               (_GPIO_EXTIPINSELL_EXTIPINSEL2_PIN1 << 8)     /**< Shifted mode PIN1 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL2_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL2_DEFAULT << 8)  /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL2_PIN2               (_GPIO_EXTIPINSELL_EXTIPINSEL2_PIN2 << 8)     /**< Shifted mode PIN2 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL2_PIN3               (_GPIO_EXTIPINSELL_EXTIPINSEL2_PIN3 << 8)     /**< Shifted mode PIN3 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL3_SHIFT             12                                            /**< Shift value for GPIO_EXTIPINSEL3 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL3_MASK              0x3000UL                                      /**< Bit mask for GPIO_EXTIPINSEL3 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL3_PIN0              0x00000000UL                                  /**< Mode PIN0 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL3_PIN1              0x00000001UL                                  /**< Mode PIN1 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL3_PIN2              0x00000002UL                                  /**< Mode PIN2 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL3_DEFAULT           0x00000003UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL3_PIN3              0x00000003UL                                  /**< Mode PIN3 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL3_PIN0               (_GPIO_EXTIPINSELL_EXTIPINSEL3_PIN0 << 12)    /**< Shifted mode PIN0 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL3_PIN1               (_GPIO_EXTIPINSELL_EXTIPINSEL3_PIN1 << 12)    /**< Shifted mode PIN1 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL3_PIN2               (_GPIO_EXTIPINSELL_EXTIPINSEL3_PIN2 << 12)    /**< Shifted mode PIN2 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL3_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL3_DEFAULT << 12) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL3_PIN3               (_GPIO_EXTIPINSELL_EXTIPINSEL3_PIN3 << 12)    /**< Shifted mode PIN3 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL4_SHIFT             16                                            /**< Shift value for GPIO_EXTIPINSEL4 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL4_MASK              0x30000UL                                     /**< Bit mask for GPIO_EXTIPINSEL4 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL4_DEFAULT           0x00000000UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL4_PIN4              0x00000000UL                                  /**< Mode PIN4 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL4_PIN5              0x00000001UL                                  /**< Mode PIN5 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL4_PIN6              0x00000002UL                                  /**< Mode PIN6 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL4_PIN7              0x00000003UL                                  /**< Mode PIN7 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL4_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL4_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL4_PIN4               (_GPIO_EXTIPINSELL_EXTIPINSEL4_PIN4 << 16)    /**< Shifted mode PIN4 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL4_PIN5               (_GPIO_EXTIPINSELL_EXTIPINSEL4_PIN5 << 16)    /**< Shifted mode PIN5 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL4_PIN6               (_GPIO_EXTIPINSELL_EXTIPINSEL4_PIN6 << 16)    /**< Shifted mode PIN6 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL4_PIN7               (_GPIO_EXTIPINSELL_EXTIPINSEL4_PIN7 << 16)    /**< Shifted mode PIN7 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL5_SHIFT             20                                            /**< Shift value for GPIO_EXTIPINSEL5 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL5_MASK              0x300000UL                                    /**< Bit mask for GPIO_EXTIPINSEL5 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL5_PIN4              0x00000000UL                                  /**< Mode PIN4 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL5_DEFAULT           0x00000001UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL5_PIN5              0x00000001UL                                  /**< Mode PIN5 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL5_PIN6              0x00000002UL                                  /**< Mode PIN6 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL5_PIN7              0x00000003UL                                  /**< Mode PIN7 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL5_PIN4               (_GPIO_EXTIPINSELL_EXTIPINSEL5_PIN4 << 20)    /**< Shifted mode PIN4 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL5_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL5_DEFAULT << 20) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL5_PIN5               (_GPIO_EXTIPINSELL_EXTIPINSEL5_PIN5 << 20)    /**< Shifted mode PIN5 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL5_PIN6               (_GPIO_EXTIPINSELL_EXTIPINSEL5_PIN6 << 20)    /**< Shifted mode PIN6 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL5_PIN7               (_GPIO_EXTIPINSELL_EXTIPINSEL5_PIN7 << 20)    /**< Shifted mode PIN7 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL6_SHIFT             24                                            /**< Shift value for GPIO_EXTIPINSEL6 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL6_MASK              0x3000000UL                                   /**< Bit mask for GPIO_EXTIPINSEL6 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL6_PIN4              0x00000000UL                                  /**< Mode PIN4 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL6_PIN5              0x00000001UL                                  /**< Mode PIN5 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL6_DEFAULT           0x00000002UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL6_PIN6              0x00000002UL                                  /**< Mode PIN6 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL6_PIN7              0x00000003UL                                  /**< Mode PIN7 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL6_PIN4               (_GPIO_EXTIPINSELL_EXTIPINSEL6_PIN4 << 24)    /**< Shifted mode PIN4 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL6_PIN5               (_GPIO_EXTIPINSELL_EXTIPINSEL6_PIN5 << 24)    /**< Shifted mode PIN5 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL6_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL6_DEFAULT << 24) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL6_PIN6               (_GPIO_EXTIPINSELL_EXTIPINSEL6_PIN6 << 24)    /**< Shifted mode PIN6 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL6_PIN7               (_GPIO_EXTIPINSELL_EXTIPINSEL6_PIN7 << 24)    /**< Shifted mode PIN7 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL7_SHIFT             28                                            /**< Shift value for GPIO_EXTIPINSEL7 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL7_MASK              0x30000000UL                                  /**< Bit mask for GPIO_EXTIPINSEL7 */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL7_PIN4              0x00000000UL                                  /**< Mode PIN4 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL7_PIN5              0x00000001UL                                  /**< Mode PIN5 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL7_PIN6              0x00000002UL                                  /**< Mode PIN6 for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL7_DEFAULT           0x00000003UL                                  /**< Mode DEFAULT for GPIO_EXTIPINSELL */
+#define _GPIO_EXTIPINSELL_EXTIPINSEL7_PIN7              0x00000003UL                                  /**< Mode PIN7 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL7_PIN4               (_GPIO_EXTIPINSELL_EXTIPINSEL7_PIN4 << 28)    /**< Shifted mode PIN4 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL7_PIN5               (_GPIO_EXTIPINSELL_EXTIPINSEL7_PIN5 << 28)    /**< Shifted mode PIN5 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL7_PIN6               (_GPIO_EXTIPINSELL_EXTIPINSEL7_PIN6 << 28)    /**< Shifted mode PIN6 for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL7_DEFAULT            (_GPIO_EXTIPINSELL_EXTIPINSEL7_DEFAULT << 28) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELL */
+#define GPIO_EXTIPINSELL_EXTIPINSEL7_PIN7               (_GPIO_EXTIPINSELL_EXTIPINSEL7_PIN7 << 28)    /**< Shifted mode PIN7 for GPIO_EXTIPINSELL */
 
-/* Bit fields for GPIO EXTIGSELH */
-#define _GPIO_EXTIGSELH_RESETVALUE                      0x32103210UL                               /**< Default value for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_MASK                            0x33333333UL                               /**< Mask for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL8_SHIFT                 0                                          /**< Shift value for GPIO_EXTIGSEL8 */
-#define _GPIO_EXTIGSELH_EXTIGSEL8_MASK                  0x3UL                                      /**< Bit mask for GPIO_EXTIGSEL8 */
-#define _GPIO_EXTIGSELH_EXTIGSEL8_DEFAULT               0x00000000UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL8_GROUP0                0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL8_GROUP1                0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL8_GROUP2                0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL8_GROUP3                0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL8_DEFAULT                (_GPIO_EXTIGSELH_EXTIGSEL8_DEFAULT << 0)   /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL8_GROUP0                 (_GPIO_EXTIGSELH_EXTIGSEL8_GROUP0 << 0)    /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL8_GROUP1                 (_GPIO_EXTIGSELH_EXTIGSEL8_GROUP1 << 0)    /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL8_GROUP2                 (_GPIO_EXTIGSELH_EXTIGSEL8_GROUP2 << 0)    /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL8_GROUP3                 (_GPIO_EXTIGSELH_EXTIGSEL8_GROUP3 << 0)    /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL9_SHIFT                 4                                          /**< Shift value for GPIO_EXTIGSEL9 */
-#define _GPIO_EXTIGSELH_EXTIGSEL9_MASK                  0x30UL                                     /**< Bit mask for GPIO_EXTIGSEL9 */
-#define _GPIO_EXTIGSELH_EXTIGSEL9_GROUP0                0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL9_DEFAULT               0x00000001UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL9_GROUP1                0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL9_GROUP2                0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL9_GROUP3                0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL9_GROUP0                 (_GPIO_EXTIGSELH_EXTIGSEL9_GROUP0 << 4)    /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL9_DEFAULT                (_GPIO_EXTIGSELH_EXTIGSEL9_DEFAULT << 4)   /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL9_GROUP1                 (_GPIO_EXTIGSELH_EXTIGSEL9_GROUP1 << 4)    /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL9_GROUP2                 (_GPIO_EXTIGSELH_EXTIGSEL9_GROUP2 << 4)    /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL9_GROUP3                 (_GPIO_EXTIGSELH_EXTIGSEL9_GROUP3 << 4)    /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL10_SHIFT                8                                          /**< Shift value for GPIO_EXTIGSEL10 */
-#define _GPIO_EXTIGSELH_EXTIGSEL10_MASK                 0x300UL                                    /**< Bit mask for GPIO_EXTIGSEL10 */
-#define _GPIO_EXTIGSELH_EXTIGSEL10_GROUP0               0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL10_GROUP1               0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL10_DEFAULT              0x00000002UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL10_GROUP2               0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL10_GROUP3               0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL10_GROUP0                (_GPIO_EXTIGSELH_EXTIGSEL10_GROUP0 << 8)   /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL10_GROUP1                (_GPIO_EXTIGSELH_EXTIGSEL10_GROUP1 << 8)   /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL10_DEFAULT               (_GPIO_EXTIGSELH_EXTIGSEL10_DEFAULT << 8)  /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL10_GROUP2                (_GPIO_EXTIGSELH_EXTIGSEL10_GROUP2 << 8)   /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL10_GROUP3                (_GPIO_EXTIGSELH_EXTIGSEL10_GROUP3 << 8)   /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL11_SHIFT                12                                         /**< Shift value for GPIO_EXTIGSEL11 */
-#define _GPIO_EXTIGSELH_EXTIGSEL11_MASK                 0x3000UL                                   /**< Bit mask for GPIO_EXTIGSEL11 */
-#define _GPIO_EXTIGSELH_EXTIGSEL11_GROUP0               0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL11_GROUP1               0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL11_GROUP2               0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL11_DEFAULT              0x00000003UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL11_GROUP3               0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL11_GROUP0                (_GPIO_EXTIGSELH_EXTIGSEL11_GROUP0 << 12)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL11_GROUP1                (_GPIO_EXTIGSELH_EXTIGSEL11_GROUP1 << 12)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL11_GROUP2                (_GPIO_EXTIGSELH_EXTIGSEL11_GROUP2 << 12)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL11_DEFAULT               (_GPIO_EXTIGSELH_EXTIGSEL11_DEFAULT << 12) /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL11_GROUP3                (_GPIO_EXTIGSELH_EXTIGSEL11_GROUP3 << 12)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL12_SHIFT                16                                         /**< Shift value for GPIO_EXTIGSEL12 */
-#define _GPIO_EXTIGSELH_EXTIGSEL12_MASK                 0x30000UL                                  /**< Bit mask for GPIO_EXTIGSEL12 */
-#define _GPIO_EXTIGSELH_EXTIGSEL12_DEFAULT              0x00000000UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL12_GROUP0               0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL12_GROUP1               0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL12_GROUP2               0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL12_GROUP3               0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL12_DEFAULT               (_GPIO_EXTIGSELH_EXTIGSEL12_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL12_GROUP0                (_GPIO_EXTIGSELH_EXTIGSEL12_GROUP0 << 16)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL12_GROUP1                (_GPIO_EXTIGSELH_EXTIGSEL12_GROUP1 << 16)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL12_GROUP2                (_GPIO_EXTIGSELH_EXTIGSEL12_GROUP2 << 16)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL12_GROUP3                (_GPIO_EXTIGSELH_EXTIGSEL12_GROUP3 << 16)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL13_SHIFT                20                                         /**< Shift value for GPIO_EXTIGSEL13 */
-#define _GPIO_EXTIGSELH_EXTIGSEL13_MASK                 0x300000UL                                 /**< Bit mask for GPIO_EXTIGSEL13 */
-#define _GPIO_EXTIGSELH_EXTIGSEL13_GROUP0               0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL13_DEFAULT              0x00000001UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL13_GROUP1               0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL13_GROUP2               0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL13_GROUP3               0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL13_GROUP0                (_GPIO_EXTIGSELH_EXTIGSEL13_GROUP0 << 20)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL13_DEFAULT               (_GPIO_EXTIGSELH_EXTIGSEL13_DEFAULT << 20) /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL13_GROUP1                (_GPIO_EXTIGSELH_EXTIGSEL13_GROUP1 << 20)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL13_GROUP2                (_GPIO_EXTIGSELH_EXTIGSEL13_GROUP2 << 20)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL13_GROUP3                (_GPIO_EXTIGSELH_EXTIGSEL13_GROUP3 << 20)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL14_SHIFT                24                                         /**< Shift value for GPIO_EXTIGSEL14 */
-#define _GPIO_EXTIGSELH_EXTIGSEL14_MASK                 0x3000000UL                                /**< Bit mask for GPIO_EXTIGSEL14 */
-#define _GPIO_EXTIGSELH_EXTIGSEL14_GROUP0               0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL14_GROUP1               0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL14_DEFAULT              0x00000002UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL14_GROUP2               0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL14_GROUP3               0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL14_GROUP0                (_GPIO_EXTIGSELH_EXTIGSEL14_GROUP0 << 24)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL14_GROUP1                (_GPIO_EXTIGSELH_EXTIGSEL14_GROUP1 << 24)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL14_DEFAULT               (_GPIO_EXTIGSELH_EXTIGSEL14_DEFAULT << 24) /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL14_GROUP2                (_GPIO_EXTIGSELH_EXTIGSEL14_GROUP2 << 24)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL14_GROUP3                (_GPIO_EXTIGSELH_EXTIGSEL14_GROUP3 << 24)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL15_SHIFT                28                                         /**< Shift value for GPIO_EXTIGSEL15 */
-#define _GPIO_EXTIGSELH_EXTIGSEL15_MASK                 0x30000000UL                               /**< Bit mask for GPIO_EXTIGSEL15 */
-#define _GPIO_EXTIGSELH_EXTIGSEL15_GROUP0               0x00000000UL                               /**< Mode GROUP0 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL15_GROUP1               0x00000001UL                               /**< Mode GROUP1 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL15_GROUP2               0x00000002UL                               /**< Mode GROUP2 for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL15_DEFAULT              0x00000003UL                               /**< Mode DEFAULT for GPIO_EXTIGSELH */
-#define _GPIO_EXTIGSELH_EXTIGSEL15_GROUP3               0x00000003UL                               /**< Mode GROUP3 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL15_GROUP0                (_GPIO_EXTIGSELH_EXTIGSEL15_GROUP0 << 28)  /**< Shifted mode GROUP0 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL15_GROUP1                (_GPIO_EXTIGSELH_EXTIGSEL15_GROUP1 << 28)  /**< Shifted mode GROUP1 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL15_GROUP2                (_GPIO_EXTIGSELH_EXTIGSEL15_GROUP2 << 28)  /**< Shifted mode GROUP2 for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL15_DEFAULT               (_GPIO_EXTIGSELH_EXTIGSEL15_DEFAULT << 28) /**< Shifted mode DEFAULT for GPIO_EXTIGSELH */
-#define GPIO_EXTIGSELH_EXTIGSEL15_GROUP3                (_GPIO_EXTIGSELH_EXTIGSEL15_GROUP3 << 28)  /**< Shifted mode GROUP3 for GPIO_EXTIGSELH */
+/* Bit fields for GPIO EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_RESETVALUE                    0x32103210UL                                   /**< Default value for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_MASK                          0x33333333UL                                   /**< Mask for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL8_SHIFT             0                                              /**< Shift value for GPIO_EXTIPINSEL8 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL8_MASK              0x3UL                                          /**< Bit mask for GPIO_EXTIPINSEL8 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL8_DEFAULT           0x00000000UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL8_PIN8              0x00000000UL                                   /**< Mode PIN8 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL8_PIN9              0x00000001UL                                   /**< Mode PIN9 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL8_PIN10             0x00000002UL                                   /**< Mode PIN10 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL8_PIN11             0x00000003UL                                   /**< Mode PIN11 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL8_DEFAULT            (_GPIO_EXTIPINSELH_EXTIPINSEL8_DEFAULT << 0)   /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL8_PIN8               (_GPIO_EXTIPINSELH_EXTIPINSEL8_PIN8 << 0)      /**< Shifted mode PIN8 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL8_PIN9               (_GPIO_EXTIPINSELH_EXTIPINSEL8_PIN9 << 0)      /**< Shifted mode PIN9 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL8_PIN10              (_GPIO_EXTIPINSELH_EXTIPINSEL8_PIN10 << 0)     /**< Shifted mode PIN10 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL8_PIN11              (_GPIO_EXTIPINSELH_EXTIPINSEL8_PIN11 << 0)     /**< Shifted mode PIN11 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL9_SHIFT             4                                              /**< Shift value for GPIO_EXTIPINSEL9 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL9_MASK              0x30UL                                         /**< Bit mask for GPIO_EXTIPINSEL9 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL9_PIN8              0x00000000UL                                   /**< Mode PIN8 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL9_DEFAULT           0x00000001UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL9_PIN9              0x00000001UL                                   /**< Mode PIN9 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL9_PIN10             0x00000002UL                                   /**< Mode PIN10 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL9_PIN11             0x00000003UL                                   /**< Mode PIN11 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL9_PIN8               (_GPIO_EXTIPINSELH_EXTIPINSEL9_PIN8 << 4)      /**< Shifted mode PIN8 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL9_DEFAULT            (_GPIO_EXTIPINSELH_EXTIPINSEL9_DEFAULT << 4)   /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL9_PIN9               (_GPIO_EXTIPINSELH_EXTIPINSEL9_PIN9 << 4)      /**< Shifted mode PIN9 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL9_PIN10              (_GPIO_EXTIPINSELH_EXTIPINSEL9_PIN10 << 4)     /**< Shifted mode PIN10 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL9_PIN11              (_GPIO_EXTIPINSELH_EXTIPINSEL9_PIN11 << 4)     /**< Shifted mode PIN11 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL10_SHIFT            8                                              /**< Shift value for GPIO_EXTIPINSEL10 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL10_MASK             0x300UL                                        /**< Bit mask for GPIO_EXTIPINSEL10 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL10_PIN8             0x00000000UL                                   /**< Mode PIN8 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL10_PIN9             0x00000001UL                                   /**< Mode PIN9 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL10_DEFAULT          0x00000002UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL10_PIN10            0x00000002UL                                   /**< Mode PIN10 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL10_PIN11            0x00000003UL                                   /**< Mode PIN11 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL10_PIN8              (_GPIO_EXTIPINSELH_EXTIPINSEL10_PIN8 << 8)     /**< Shifted mode PIN8 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL10_PIN9              (_GPIO_EXTIPINSELH_EXTIPINSEL10_PIN9 << 8)     /**< Shifted mode PIN9 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL10_DEFAULT           (_GPIO_EXTIPINSELH_EXTIPINSEL10_DEFAULT << 8)  /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL10_PIN10             (_GPIO_EXTIPINSELH_EXTIPINSEL10_PIN10 << 8)    /**< Shifted mode PIN10 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL10_PIN11             (_GPIO_EXTIPINSELH_EXTIPINSEL10_PIN11 << 8)    /**< Shifted mode PIN11 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL11_SHIFT            12                                             /**< Shift value for GPIO_EXTIPINSEL11 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL11_MASK             0x3000UL                                       /**< Bit mask for GPIO_EXTIPINSEL11 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL11_PIN8             0x00000000UL                                   /**< Mode PIN8 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL11_PIN9             0x00000001UL                                   /**< Mode PIN9 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL11_PIN10            0x00000002UL                                   /**< Mode PIN10 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL11_DEFAULT          0x00000003UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL11_PIN11            0x00000003UL                                   /**< Mode PIN11 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL11_PIN8              (_GPIO_EXTIPINSELH_EXTIPINSEL11_PIN8 << 12)    /**< Shifted mode PIN8 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL11_PIN9              (_GPIO_EXTIPINSELH_EXTIPINSEL11_PIN9 << 12)    /**< Shifted mode PIN9 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL11_PIN10             (_GPIO_EXTIPINSELH_EXTIPINSEL11_PIN10 << 12)   /**< Shifted mode PIN10 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL11_DEFAULT           (_GPIO_EXTIPINSELH_EXTIPINSEL11_DEFAULT << 12) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL11_PIN11             (_GPIO_EXTIPINSELH_EXTIPINSEL11_PIN11 << 12)   /**< Shifted mode PIN11 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL12_SHIFT            16                                             /**< Shift value for GPIO_EXTIPINSEL12 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL12_MASK             0x30000UL                                      /**< Bit mask for GPIO_EXTIPINSEL12 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL12_DEFAULT          0x00000000UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL12_PIN12            0x00000000UL                                   /**< Mode PIN12 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL12_PIN13            0x00000001UL                                   /**< Mode PIN13 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL12_PIN14            0x00000002UL                                   /**< Mode PIN14 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL12_PIN15            0x00000003UL                                   /**< Mode PIN15 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL12_DEFAULT           (_GPIO_EXTIPINSELH_EXTIPINSEL12_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL12_PIN12             (_GPIO_EXTIPINSELH_EXTIPINSEL12_PIN12 << 16)   /**< Shifted mode PIN12 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL12_PIN13             (_GPIO_EXTIPINSELH_EXTIPINSEL12_PIN13 << 16)   /**< Shifted mode PIN13 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL12_PIN14             (_GPIO_EXTIPINSELH_EXTIPINSEL12_PIN14 << 16)   /**< Shifted mode PIN14 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL12_PIN15             (_GPIO_EXTIPINSELH_EXTIPINSEL12_PIN15 << 16)   /**< Shifted mode PIN15 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL13_SHIFT            20                                             /**< Shift value for GPIO_EXTIPINSEL13 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL13_MASK             0x300000UL                                     /**< Bit mask for GPIO_EXTIPINSEL13 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL13_PIN12            0x00000000UL                                   /**< Mode PIN12 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL13_DEFAULT          0x00000001UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL13_PIN13            0x00000001UL                                   /**< Mode PIN13 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL13_PIN14            0x00000002UL                                   /**< Mode PIN14 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL13_PIN15            0x00000003UL                                   /**< Mode PIN15 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL13_PIN12             (_GPIO_EXTIPINSELH_EXTIPINSEL13_PIN12 << 20)   /**< Shifted mode PIN12 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL13_DEFAULT           (_GPIO_EXTIPINSELH_EXTIPINSEL13_DEFAULT << 20) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL13_PIN13             (_GPIO_EXTIPINSELH_EXTIPINSEL13_PIN13 << 20)   /**< Shifted mode PIN13 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL13_PIN14             (_GPIO_EXTIPINSELH_EXTIPINSEL13_PIN14 << 20)   /**< Shifted mode PIN14 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL13_PIN15             (_GPIO_EXTIPINSELH_EXTIPINSEL13_PIN15 << 20)   /**< Shifted mode PIN15 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL14_SHIFT            24                                             /**< Shift value for GPIO_EXTIPINSEL14 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL14_MASK             0x3000000UL                                    /**< Bit mask for GPIO_EXTIPINSEL14 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL14_PIN12            0x00000000UL                                   /**< Mode PIN12 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL14_PIN13            0x00000001UL                                   /**< Mode PIN13 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL14_DEFAULT          0x00000002UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL14_PIN14            0x00000002UL                                   /**< Mode PIN14 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL14_PIN15            0x00000003UL                                   /**< Mode PIN15 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL14_PIN12             (_GPIO_EXTIPINSELH_EXTIPINSEL14_PIN12 << 24)   /**< Shifted mode PIN12 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL14_PIN13             (_GPIO_EXTIPINSELH_EXTIPINSEL14_PIN13 << 24)   /**< Shifted mode PIN13 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL14_DEFAULT           (_GPIO_EXTIPINSELH_EXTIPINSEL14_DEFAULT << 24) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL14_PIN14             (_GPIO_EXTIPINSELH_EXTIPINSEL14_PIN14 << 24)   /**< Shifted mode PIN14 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL14_PIN15             (_GPIO_EXTIPINSELH_EXTIPINSEL14_PIN15 << 24)   /**< Shifted mode PIN15 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL15_SHIFT            28                                             /**< Shift value for GPIO_EXTIPINSEL15 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL15_MASK             0x30000000UL                                   /**< Bit mask for GPIO_EXTIPINSEL15 */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL15_PIN12            0x00000000UL                                   /**< Mode PIN12 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL15_PIN13            0x00000001UL                                   /**< Mode PIN13 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL15_PIN14            0x00000002UL                                   /**< Mode PIN14 for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL15_DEFAULT          0x00000003UL                                   /**< Mode DEFAULT for GPIO_EXTIPINSELH */
+#define _GPIO_EXTIPINSELH_EXTIPINSEL15_PIN15            0x00000003UL                                   /**< Mode PIN15 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL15_PIN12             (_GPIO_EXTIPINSELH_EXTIPINSEL15_PIN12 << 28)   /**< Shifted mode PIN12 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL15_PIN13             (_GPIO_EXTIPINSELH_EXTIPINSEL15_PIN13 << 28)   /**< Shifted mode PIN13 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL15_PIN14             (_GPIO_EXTIPINSELH_EXTIPINSEL15_PIN14 << 28)   /**< Shifted mode PIN14 for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL15_DEFAULT           (_GPIO_EXTIPINSELH_EXTIPINSEL15_DEFAULT << 28) /**< Shifted mode DEFAULT for GPIO_EXTIPINSELH */
+#define GPIO_EXTIPINSELH_EXTIPINSEL15_PIN15             (_GPIO_EXTIPINSELH_EXTIPINSEL15_PIN15 << 28)   /**< Shifted mode PIN15 for GPIO_EXTIPINSELH */
 
 /* Bit fields for GPIO EXTIRISE */
 #define _GPIO_EXTIRISE_RESETVALUE                       0x00000000UL                           /**< Default value for GPIO_EXTIRISE */
@@ -1179,12 +1183,38 @@ typedef struct
 #define GPIO_EXTIFALL_EXTIFALL_DEFAULT                  (_GPIO_EXTIFALL_EXTIFALL_DEFAULT << 0) /**< Shifted mode DEFAULT for GPIO_EXTIFALL */
 
 /* Bit fields for GPIO EXTILEVEL */
-#define _GPIO_EXTILEVEL_RESETVALUE                      0x00000000UL                               /**< Default value for GPIO_EXTILEVEL */
-#define _GPIO_EXTILEVEL_MASK                            0x003F0000UL                               /**< Mask for GPIO_EXTILEVEL */
-#define _GPIO_EXTILEVEL_EM4WULEVEL_SHIFT                16                                         /**< Shift value for GPIO_EM4WULEVEL */
-#define _GPIO_EXTILEVEL_EM4WULEVEL_MASK                 0x3F0000UL                                 /**< Bit mask for GPIO_EM4WULEVEL */
-#define _GPIO_EXTILEVEL_EM4WULEVEL_DEFAULT              0x00000000UL                               /**< Mode DEFAULT for GPIO_EXTILEVEL */
-#define GPIO_EXTILEVEL_EM4WULEVEL_DEFAULT               (_GPIO_EXTILEVEL_EM4WULEVEL_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_EXTILEVEL */
+#define _GPIO_EXTILEVEL_RESETVALUE                      0x00000000UL                            /**< Default value for GPIO_EXTILEVEL */
+#define _GPIO_EXTILEVEL_MASK                            0x13130000UL                            /**< Mask for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU0                           (0x1UL << 16)                           /**< EM4 Wake Up Level for EM4WU0 Pin */
+#define _GPIO_EXTILEVEL_EM4WU0_SHIFT                    16                                      /**< Shift value for GPIO_EM4WU0 */
+#define _GPIO_EXTILEVEL_EM4WU0_MASK                     0x10000UL                               /**< Bit mask for GPIO_EM4WU0 */
+#define _GPIO_EXTILEVEL_EM4WU0_DEFAULT                  0x00000000UL                            /**< Mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU0_DEFAULT                   (_GPIO_EXTILEVEL_EM4WU0_DEFAULT << 16)  /**< Shifted mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU1                           (0x1UL << 17)                           /**< EM4 Wake Up Level for EM4WU1 Pin */
+#define _GPIO_EXTILEVEL_EM4WU1_SHIFT                    17                                      /**< Shift value for GPIO_EM4WU1 */
+#define _GPIO_EXTILEVEL_EM4WU1_MASK                     0x20000UL                               /**< Bit mask for GPIO_EM4WU1 */
+#define _GPIO_EXTILEVEL_EM4WU1_DEFAULT                  0x00000000UL                            /**< Mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU1_DEFAULT                   (_GPIO_EXTILEVEL_EM4WU1_DEFAULT << 17)  /**< Shifted mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU4                           (0x1UL << 20)                           /**< EM4 Wake Up Level for EM4WU4 Pin */
+#define _GPIO_EXTILEVEL_EM4WU4_SHIFT                    20                                      /**< Shift value for GPIO_EM4WU4 */
+#define _GPIO_EXTILEVEL_EM4WU4_MASK                     0x100000UL                              /**< Bit mask for GPIO_EM4WU4 */
+#define _GPIO_EXTILEVEL_EM4WU4_DEFAULT                  0x00000000UL                            /**< Mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU4_DEFAULT                   (_GPIO_EXTILEVEL_EM4WU4_DEFAULT << 20)  /**< Shifted mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU8                           (0x1UL << 24)                           /**< EM4 Wake Up Level for EM4WU8 Pin */
+#define _GPIO_EXTILEVEL_EM4WU8_SHIFT                    24                                      /**< Shift value for GPIO_EM4WU8 */
+#define _GPIO_EXTILEVEL_EM4WU8_MASK                     0x1000000UL                             /**< Bit mask for GPIO_EM4WU8 */
+#define _GPIO_EXTILEVEL_EM4WU8_DEFAULT                  0x00000000UL                            /**< Mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU8_DEFAULT                   (_GPIO_EXTILEVEL_EM4WU8_DEFAULT << 24)  /**< Shifted mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU9                           (0x1UL << 25)                           /**< EM4 Wake Up Level for EM4WU9 Pin */
+#define _GPIO_EXTILEVEL_EM4WU9_SHIFT                    25                                      /**< Shift value for GPIO_EM4WU9 */
+#define _GPIO_EXTILEVEL_EM4WU9_MASK                     0x2000000UL                             /**< Bit mask for GPIO_EM4WU9 */
+#define _GPIO_EXTILEVEL_EM4WU9_DEFAULT                  0x00000000UL                            /**< Mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU9_DEFAULT                   (_GPIO_EXTILEVEL_EM4WU9_DEFAULT << 25)  /**< Shifted mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU12                          (0x1UL << 28)                           /**< EM4 Wake Up Level for EM4WU12 Pin */
+#define _GPIO_EXTILEVEL_EM4WU12_SHIFT                   28                                      /**< Shift value for GPIO_EM4WU12 */
+#define _GPIO_EXTILEVEL_EM4WU12_MASK                    0x10000000UL                            /**< Bit mask for GPIO_EM4WU12 */
+#define _GPIO_EXTILEVEL_EM4WU12_DEFAULT                 0x00000000UL                            /**< Mode DEFAULT for GPIO_EXTILEVEL */
+#define GPIO_EXTILEVEL_EM4WU12_DEFAULT                  (_GPIO_EXTILEVEL_EM4WU12_DEFAULT << 28) /**< Shifted mode DEFAULT for GPIO_EXTILEVEL */
 
 /* Bit fields for GPIO IF */
 #define _GPIO_IF_RESETVALUE                             0x00000000UL                   /**< Default value for GPIO_IF */
@@ -1318,5 +1348,5 @@ typedef struct
 #define GPIO_LOCK_LOCKKEY_UNLOCK                        (_GPIO_LOCK_LOCKKEY_UNLOCK << 0)   /**< Shifted mode UNLOCK for GPIO_LOCK */
 
 /** @} End of group EFM32PG1B_GPIO */
-
+/** @} End of group Parts */
 

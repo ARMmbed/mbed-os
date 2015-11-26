@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_wdog.h
  * @brief EFM32PG1B_WDOG register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32PG1B_WDOG
  * @{
@@ -226,12 +230,12 @@ typedef struct
 #define _WDOG_IF_WIN_MASK                         0x4UL                        /**< Bit mask for WDOG_WIN */
 #define _WDOG_IF_WIN_DEFAULT                      0x00000000UL                 /**< Mode DEFAULT for WDOG_IF */
 #define WDOG_IF_WIN_DEFAULT                       (_WDOG_IF_WIN_DEFAULT << 2)  /**< Shifted mode DEFAULT for WDOG_IF */
-#define WDOG_IF_PEM0                              (0x1UL << 3)                 /**< PRS event Missing Interrupt Flag */
+#define WDOG_IF_PEM0                              (0x1UL << 3)                 /**< PRS Channel Zero Event Missing Interrupt Flag */
 #define _WDOG_IF_PEM0_SHIFT                       3                            /**< Shift value for WDOG_PEM0 */
 #define _WDOG_IF_PEM0_MASK                        0x8UL                        /**< Bit mask for WDOG_PEM0 */
 #define _WDOG_IF_PEM0_DEFAULT                     0x00000000UL                 /**< Mode DEFAULT for WDOG_IF */
 #define WDOG_IF_PEM0_DEFAULT                      (_WDOG_IF_PEM0_DEFAULT << 3) /**< Shifted mode DEFAULT for WDOG_IF */
-#define WDOG_IF_PEM1                              (0x1UL << 4)                 /**< PRS event Missing Interrupt Flag */
+#define WDOG_IF_PEM1                              (0x1UL << 4)                 /**< PRS Channel One Event Missing Interrupt Flag */
 #define _WDOG_IF_PEM1_SHIFT                       4                            /**< Shift value for WDOG_PEM1 */
 #define _WDOG_IF_PEM1_MASK                        0x10UL                       /**< Bit mask for WDOG_PEM1 */
 #define _WDOG_IF_PEM1_DEFAULT                     0x00000000UL                 /**< Mode DEFAULT for WDOG_IF */
@@ -325,5 +329,5 @@ typedef struct
 #define WDOG_IEN_PEM1_DEFAULT                     (_WDOG_IEN_PEM1_DEFAULT << 4) /**< Shifted mode DEFAULT for WDOG_IEN */
 
 /** @} End of group EFM32PG1B_WDOG */
-
+/** @} End of group Parts */
 

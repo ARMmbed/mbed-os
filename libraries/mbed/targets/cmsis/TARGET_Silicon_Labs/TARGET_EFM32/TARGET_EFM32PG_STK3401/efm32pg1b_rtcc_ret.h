@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_rtcc_ret.h
  * @brief EFM32PG1B_RTCC_RET register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,10 +30,17 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @brief RTCC_RET EFM32PG1B RTCC RET
  *****************************************************************************/
 typedef struct
 {
   __IO uint32_t REG; /**< Retention register  */
 } RTCC_RET_TypeDef;
+
+/** @} End of group Parts */
+
 

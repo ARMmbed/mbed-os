@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file system_efm32wg.h
  * @brief CMSIS Cortex-M4 System Layer for EFM32WG devices.
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  *****************************************************************************/
 
-#ifndef __SILICON_LABS_SYSTEM_EFM32WG_H__
-#define __SILICON_LABS_SYSTEM_EFM32WG_H__
+#ifndef SYSTEM_EFM32WG_H
+#define SYSTEM_EFM32WG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,4 +136,4 @@ void SystemLFXOClockSet(uint32_t freq);
 #ifdef __cplusplus
 }
 #endif
-#endif /* __SILICON_LABS_SYSTEM_EFM32WG_H__ */
+#endif /* SYSTEM_EFM32WG_H */

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_burtc.h
  * @brief EFM32LG_BURTC register and bit field definitions
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32LG_BURTC
  * @{
@@ -372,5 +376,5 @@ typedef struct
 #define BURTC_RET_REG_REG_DEFAULT             (_BURTC_RET_REG_REG_DEFAULT << 0) /**< Shifted mode DEFAULT for BURTC_RET_REG */
 
 /** @} End of group EFM32LG_BURTC */
-
+/** @} End of group Parts */
 

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_lesense.c
  * @brief Low Energy Sensor (LESENSE) Peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -539,10 +539,7 @@ void LESENSE_ChannelConfig(LESENSE_ChDesc_TypeDef const *confCh,
                          (uint32_t)confCh->acmpThres,
                          (uint32_t)confCh->cntThres);
 
-  /* Enable/disable interrupts on channel.
-   * Note: BUS_RegBitWrite() function is used for setting/clearing single
-   * bit peripheral register bitfields. Read the function description in
-   * em_bus.h for more details. */
+  /* Enable/disable interrupts on channel */
   BUS_RegBitWrite(&(LESENSE->IEN), chIdx, confCh->enaInt);
 
   /* Enable/disable CHchIdx pin. */

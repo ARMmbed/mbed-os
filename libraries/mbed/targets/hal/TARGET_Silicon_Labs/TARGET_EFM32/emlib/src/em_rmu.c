@@ -2,7 +2,7 @@
  * @file em_rmu.c
  * @brief Reset Management Unit (RMU) peripheral module peripheral API
  *
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -199,9 +199,7 @@ extern uint32_t rstCause;
  *
  * @param[in] reset Reset types to enable/disable
  *
- * @param[in] enable
- *   @li false - Disable reset signal or flag
- *   @li true - Enable reset signal or flag
+ * @param[in] mode  Reset mode
  ******************************************************************************/
 void RMU_ResetControl(RMU_Reset_TypeDef reset, RMU_ResetMode_TypeDef mode)
 {
@@ -216,7 +214,7 @@ void RMU_ResetControl(RMU_Reset_TypeDef reset, RMU_ResetMode_TypeDef mode)
   val = (uint32_t)mode << shift;
   RMU->CTRL = (RMU->CTRL & ~reset) | val;
 #else
-  BUS_RegBitWrite(&RMU->CTRL, (uint32_t)shift, mode);
+  BUS_RegBitWrite(&RMU->CTRL, (uint32_t)shift, mode ? 1 : 0);
 #endif
 }
 

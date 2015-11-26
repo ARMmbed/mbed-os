@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_chip.h
  * @brief Chip Initialization API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -180,13 +180,6 @@ __STATIC_INLINE void CHIP_Init(void)
     /* This disables an internal LDO test signal driving PC4 */
     *(volatile uint32_t*)(0x400C80E4) &= ~(1 << 24);
   }
-#endif
-
-#if defined(_SILICON_LABS_32B_PLATFORM_2)
-#if defined(DEBUG_EFM)
-  /* Remove reset survival lock on CMU in debug mode */
-  CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK | (1UL << 31);
-#endif
 #endif
 }
 

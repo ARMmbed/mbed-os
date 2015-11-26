@@ -1,7 +1,7 @@
 /* @file startup_efm32pg1b.S
  * @brief startup file for Silicon Labs EFM32PG1B devices.
  *        For use with GCC for ARM Embedded Processors
- * @version 4.1.0
+ * @version 4.2.0
  * Date:    12 June 2014
  *
  */
@@ -113,7 +113,7 @@ __Vectors:
     .long       PCNT0_IRQHandler    /* 22 - PCNT0 */
     .long       CMU_IRQHandler    /* 23 - CMU */
     .long       MSC_IRQHandler    /* 24 - MSC */
-    .long       Default_Handler    /* 25 - Reserved */
+    .long       CRYPTO_IRQHandler    /* 25 - CRYPTO */
     .long       LETIMER0_IRQHandler    /* 26 - LETIMER0 */
     .long       Default_Handler    /* 27 - Reserved */
     .long       Default_Handler    /* 28 - Reserved */
@@ -308,6 +308,7 @@ Default_Handler:
     def_irq_handler     PCNT0_IRQHandler
     def_irq_handler     CMU_IRQHandler
     def_irq_handler     MSC_IRQHandler
+    def_irq_handler     CRYPTO_IRQHandler
     def_irq_handler     LETIMER0_IRQHandler
     def_irq_handler     RTCC_IRQHandler
     def_irq_handler     CRYOTIMER_IRQHandler

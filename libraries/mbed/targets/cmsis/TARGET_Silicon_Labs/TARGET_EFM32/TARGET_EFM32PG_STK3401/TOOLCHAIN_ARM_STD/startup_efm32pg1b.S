@@ -2,7 +2,7 @@
 ; * @file startup_efm32pg1b.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32PG1B Device Series
-; * @version 4.1.0
+; * @version 4.2.0
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -103,7 +103,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     PCNT0_IRQHandler        ; 22: PCNT0 Interrupt
                 DCD     CMU_IRQHandler        ; 23: CMU Interrupt
                 DCD     MSC_IRQHandler        ; 24: MSC Interrupt
-                DCD     0                         ; 25: Reserved
+                DCD     CRYPTO_IRQHandler        ; 25: CRYPTO Interrupt
                 DCD     LETIMER0_IRQHandler        ; 26: LETIMER0 Interrupt
                 DCD     0                         ; 27: Reserved
                 DCD     0                         ; 28: Reserved
@@ -197,6 +197,7 @@ Default_Handler PROC
                 EXPORT  PCNT0_IRQHandler        [WEAK]
                 EXPORT  CMU_IRQHandler        [WEAK]
                 EXPORT  MSC_IRQHandler        [WEAK]
+                EXPORT  CRYPTO_IRQHandler        [WEAK]
                 EXPORT  LETIMER0_IRQHandler        [WEAK]
                 EXPORT  RTCC_IRQHandler        [WEAK]
                 EXPORT  CRYOTIMER_IRQHandler        [WEAK]
@@ -222,6 +223,7 @@ LEUART0_IRQHandler
 PCNT0_IRQHandler
 CMU_IRQHandler
 MSC_IRQHandler
+CRYPTO_IRQHandler
 LETIMER0_IRQHandler
 RTCC_IRQHandler
 CRYOTIMER_IRQHandler

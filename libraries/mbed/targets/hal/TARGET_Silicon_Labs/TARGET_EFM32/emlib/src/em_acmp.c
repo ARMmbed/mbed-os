@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_acmp.c
  * @brief Analog Comparator (ACMP) Peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -377,9 +377,6 @@ void ACMP_Init(ACMP_TypeDef *acmp, const ACMP_Init_TypeDef *init)
 #endif
 #if defined(_ACMP_CTRL_WARMTIME_MASK)
                | (init->warmTime << _ACMP_CTRL_WARMTIME_SHIFT)
-#endif
-#if defined(_ACMP_CTRL_REFRESHRATE_MASK)
-               | (init->refreshRate << _ACMP_CTRL_REFRESHRATE_SHIFT)
 #endif
 #if defined(_ACMP_CTRL_HYSTSEL_MASK)
                | (init->hysteresisLevel << _ACMP_CTRL_HYSTSEL_SHIFT)

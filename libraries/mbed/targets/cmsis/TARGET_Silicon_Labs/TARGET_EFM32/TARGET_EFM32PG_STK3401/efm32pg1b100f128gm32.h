@@ -2,10 +2,10 @@
  * @file efm32pg1b100f128gm32.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32PG1B100F128GM32
- * @version 4.1.0
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  *****************************************************************************/
 
-#ifndef __SILICON_LABS_EFM32PG1B100F128GM32_H__
-#define __SILICON_LABS_EFM32PG1B100F128GM32_H__
+#ifndef SILICON_LABS_EFM32PG1B100F128GM32_H
+#define SILICON_LABS_EFM32PG1B100F128GM32_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +83,7 @@ typedef enum IRQn
   PCNT0_IRQn            = 22, /*!< 16+22 EFM32 PCNT0 Interrupt */
   CMU_IRQn              = 23, /*!< 16+23 EFM32 CMU Interrupt */
   MSC_IRQn              = 24, /*!< 16+24 EFM32 MSC Interrupt */
+  CRYPTO_IRQn           = 25, /*!< 16+25 EFM32 CRYPTO Interrupt */
   LETIMER0_IRQn         = 26, /*!< 16+26 EFM32 LETIMER0 Interrupt */
   RTCC_IRQn             = 29, /*!< 16+29 EFM32 RTCC Interrupt */
   CRYOTIMER_IRQn        = 31, /*!< 16+31 EFM32 CRYOTIMER Interrupt */
@@ -118,98 +119,114 @@ typedef enum IRQn
 #endif
 
 /** Configure part number */
-#define PART_NUMBER            "EFM32PG1B100F128GM32" /**< Part Number */
+#define PART_NUMBER               "EFM32PG1B100F128GM32" /**< Part Number */
 
 /** Memory Base addresses and limits */
-#define FLASH_MEM_BASE         ((uint32_t) 0x00000000UL) /**< FLASH base address  */
-#define FLASH_MEM_SIZE         ((uint32_t) 0x10000000UL) /**< FLASH available address space  */
-#define FLASH_MEM_END          ((uint32_t) 0x0FFFFFFFUL) /**< FLASH end address  */
-#define FLASH_MEM_BITS         ((uint32_t) 0x28UL)       /**< FLASH used bits  */
-#define RAM_CODE_MEM_BASE      ((uint32_t) 0x10000000UL) /**< RAM_CODE base address  */
-#define RAM_CODE_MEM_SIZE      ((uint32_t) 0x7C00UL)     /**< RAM_CODE available address space  */
-#define RAM_CODE_MEM_END       ((uint32_t) 0x10007BFFUL) /**< RAM_CODE end address  */
-#define RAM_CODE_MEM_BITS      ((uint32_t) 0x15UL)       /**< RAM_CODE used bits  */
-#define PER_BITCLR_MEM_BASE    ((uint32_t) 0x44000000UL) /**< PER_BITCLR base address  */
-#define PER_BITCLR_MEM_SIZE    ((uint32_t) 0xE8000UL)    /**< PER_BITCLR available address space  */
-#define PER_BITCLR_MEM_END     ((uint32_t) 0x440E7FFFUL) /**< PER_BITCLR end address  */
-#define PER_BITCLR_MEM_BITS    ((uint32_t) 0x20UL)       /**< PER_BITCLR used bits  */
-#define PER_BITSET_MEM_BASE    ((uint32_t) 0x46000000UL) /**< PER_BITSET base address  */
-#define PER_BITSET_MEM_SIZE    ((uint32_t) 0xE8000UL)    /**< PER_BITSET available address space  */
-#define PER_BITSET_MEM_END     ((uint32_t) 0x460E7FFFUL) /**< PER_BITSET end address  */
-#define PER_BITSET_MEM_BITS    ((uint32_t) 0x20UL)       /**< PER_BITSET used bits  */
-#define PER_MEM_BASE           ((uint32_t) 0x40000000UL) /**< PER base address  */
-#define PER_MEM_SIZE           ((uint32_t) 0xE8000UL)    /**< PER available address space  */
-#define PER_MEM_END            ((uint32_t) 0x400E7FFFUL) /**< PER end address  */
-#define PER_MEM_BITS           ((uint32_t) 0x20UL)       /**< PER used bits  */
-#define RAM_MEM_BASE           ((uint32_t) 0x20000000UL) /**< RAM base address  */
-#define RAM_MEM_SIZE           ((uint32_t) 0x7C00UL)     /**< RAM available address space  */
-#define RAM_MEM_END            ((uint32_t) 0x20007BFFUL) /**< RAM end address  */
-#define RAM_MEM_BITS           ((uint32_t) 0x15UL)       /**< RAM used bits  */
+#define FLASH_MEM_BASE            ((uint32_t) 0x00000000UL) /**< FLASH base address  */
+#define FLASH_MEM_SIZE            ((uint32_t) 0x10000000UL) /**< FLASH available address space  */
+#define FLASH_MEM_END             ((uint32_t) 0x0FFFFFFFUL) /**< FLASH end address  */
+#define FLASH_MEM_BITS            ((uint32_t) 0x28UL)       /**< FLASH used bits  */
+#define RAM_CODE_MEM_BASE         ((uint32_t) 0x10000000UL) /**< RAM_CODE base address  */
+#define RAM_CODE_MEM_SIZE         ((uint32_t) 0x7C00UL)     /**< RAM_CODE available address space  */
+#define RAM_CODE_MEM_END          ((uint32_t) 0x10007BFFUL) /**< RAM_CODE end address  */
+#define RAM_CODE_MEM_BITS         ((uint32_t) 0x15UL)       /**< RAM_CODE used bits  */
+#define PER_BITCLR_MEM_BASE       ((uint32_t) 0x44000000UL) /**< PER_BITCLR base address  */
+#define PER_BITCLR_MEM_SIZE       ((uint32_t) 0xE8000UL)    /**< PER_BITCLR available address space  */
+#define PER_BITCLR_MEM_END        ((uint32_t) 0x440E7FFFUL) /**< PER_BITCLR end address  */
+#define PER_BITCLR_MEM_BITS       ((uint32_t) 0x20UL)       /**< PER_BITCLR used bits  */
+#define CRYPTO_BITSET_MEM_BASE    ((uint32_t) 0x460F0000UL) /**< CRYPTO_BITSET base address  */
+#define CRYPTO_BITSET_MEM_SIZE    ((uint32_t) 0x400UL)      /**< CRYPTO_BITSET available address space  */
+#define CRYPTO_BITSET_MEM_END     ((uint32_t) 0x460F03FFUL) /**< CRYPTO_BITSET end address  */
+#define CRYPTO_BITSET_MEM_BITS    ((uint32_t) 0x10UL)       /**< CRYPTO_BITSET used bits  */
+#define CRYPTO_MEM_BASE           ((uint32_t) 0x400F0000UL) /**< CRYPTO base address  */
+#define CRYPTO_MEM_SIZE           ((uint32_t) 0x400UL)      /**< CRYPTO available address space  */
+#define CRYPTO_MEM_END            ((uint32_t) 0x400F03FFUL) /**< CRYPTO end address  */
+#define CRYPTO_MEM_BITS           ((uint32_t) 0x10UL)       /**< CRYPTO used bits  */
+#define CRYPTO_BITCLR_MEM_BASE    ((uint32_t) 0x440F0000UL) /**< CRYPTO_BITCLR base address  */
+#define CRYPTO_BITCLR_MEM_SIZE    ((uint32_t) 0x400UL)      /**< CRYPTO_BITCLR available address space  */
+#define CRYPTO_BITCLR_MEM_END     ((uint32_t) 0x440F03FFUL) /**< CRYPTO_BITCLR end address  */
+#define CRYPTO_BITCLR_MEM_BITS    ((uint32_t) 0x10UL)       /**< CRYPTO_BITCLR used bits  */
+#define PER_BITSET_MEM_BASE       ((uint32_t) 0x46000000UL) /**< PER_BITSET base address  */
+#define PER_BITSET_MEM_SIZE       ((uint32_t) 0xE8000UL)    /**< PER_BITSET available address space  */
+#define PER_BITSET_MEM_END        ((uint32_t) 0x460E7FFFUL) /**< PER_BITSET end address  */
+#define PER_BITSET_MEM_BITS       ((uint32_t) 0x20UL)       /**< PER_BITSET used bits  */
+#define PER_MEM_BASE              ((uint32_t) 0x40000000UL) /**< PER base address  */
+#define PER_MEM_SIZE              ((uint32_t) 0xE8000UL)    /**< PER available address space  */
+#define PER_MEM_END               ((uint32_t) 0x400E7FFFUL) /**< PER end address  */
+#define PER_MEM_BITS              ((uint32_t) 0x20UL)       /**< PER used bits  */
+#define RAM_MEM_BASE              ((uint32_t) 0x20000000UL) /**< RAM base address  */
+#define RAM_MEM_SIZE              ((uint32_t) 0x7C00UL)     /**< RAM available address space  */
+#define RAM_MEM_END               ((uint32_t) 0x20007BFFUL) /**< RAM end address  */
+#define RAM_MEM_BITS              ((uint32_t) 0x15UL)       /**< RAM used bits  */
 
 /** Bit banding area */
-#define BITBAND_PER_BASE       ((uint32_t) 0x42000000UL) /**< Peripheral Address Space bit-band area */
-#define BITBAND_RAM_BASE       ((uint32_t) 0x22000000UL) /**< SRAM Address Space bit-band area */
+#define BITBAND_PER_BASE          ((uint32_t) 0x42000000UL) /**< Peripheral Address Space bit-band area */
+#define BITBAND_RAM_BASE          ((uint32_t) 0x22000000UL) /**< SRAM Address Space bit-band area */
 
 /** Flash and SRAM limits for EFM32PG1B100F128GM32 */
-#define FLASH_BASE             (0x00000000UL) /**< Flash Base Address */
-#define FLASH_SIZE             (0x00020000UL) /**< Available Flash Memory */
-#define FLASH_PAGE_SIZE        2048           /**< Flash Memory page size */
-#define SRAM_BASE              (0x20000000UL) /**< SRAM Base Address */
-#define SRAM_SIZE              (0x00008000UL) /**< Available SRAM Memory */
-#define __CM4_REV              0x001          /**< Cortex-M4 Core revision r0p1 */
-#define PRS_CHAN_COUNT         12             /**< Number of PRS channels */
-#define DMA_CHAN_COUNT         8              /**< Number of DMA channels */
+#define FLASH_BASE                (0x00000000UL) /**< Flash Base Address */
+#define FLASH_SIZE                (0x00020000UL) /**< Available Flash Memory */
+#define FLASH_PAGE_SIZE           2048           /**< Flash Memory page size */
+#define SRAM_BASE                 (0x20000000UL) /**< SRAM Base Address */
+#define SRAM_SIZE                 (0x00008000UL) /**< Available SRAM Memory */
+#define __CM4_REV                 0x001          /**< Cortex-M4 Core revision r0p1 */
+#define PRS_CHAN_COUNT            12             /**< Number of PRS channels */
+#define DMA_CHAN_COUNT            8              /**< Number of DMA channels */
 
 /** AF channels connect the different on-chip peripherals with the af-mux */
-#define AFCHAN_MAX             72
-#define AFCHANLOC_MAX          32
+#define AFCHAN_MAX                72
+#define AFCHANLOC_MAX             32
 /** Analog AF channels */
-#define AFACHAN_MAX            61
+#define AFACHAN_MAX               61
 
 /* Part number capabilities */
 
-#define TIMER_PRESENT        /**< TIMER is available in this part */
-#define TIMER_COUNT        2 /**< 2 TIMERs available  */
-#define USART_PRESENT        /**< USART is available in this part */
-#define USART_COUNT        2 /**< 2 USARTs available  */
-#define LEUART_PRESENT       /**< LEUART is available in this part */
-#define LEUART_COUNT       1 /**< 1 LEUARTs available  */
-#define LETIMER_PRESENT      /**< LETIMER is available in this part */
-#define LETIMER_COUNT      1 /**< 1 LETIMERs available  */
-#define PCNT_PRESENT         /**< PCNT is available in this part */
-#define PCNT_COUNT         1 /**< 1 PCNTs available  */
-#define I2C_PRESENT          /**< I2C is available in this part */
-#define I2C_COUNT          1 /**< 1 I2Cs available  */
-#define ADC_PRESENT          /**< ADC is available in this part */
-#define ADC_COUNT          1 /**< 1 ADCs available  */
-#define ACMP_PRESENT         /**< ACMP is available in this part */
-#define ACMP_COUNT         2 /**< 2 ACMPs available  */
-#define IDAC_PRESENT         /**< IDAC is available in this part */
-#define IDAC_COUNT         1 /**< 1 IDACs available  */
-#define WDOG_PRESENT         /**< WDOG is available in this part */
-#define WDOG_COUNT         1 /**< 1 WDOGs available  */
+#define TIMER_PRESENT         /**< TIMER is available in this part */
+#define TIMER_COUNT         2 /**< 2 TIMERs available  */
+#define USART_PRESENT         /**< USART is available in this part */
+#define USART_COUNT         2 /**< 2 USARTs available  */
+#define LEUART_PRESENT        /**< LEUART is available in this part */
+#define LEUART_COUNT        1 /**< 1 LEUARTs available  */
+#define LETIMER_PRESENT       /**< LETIMER is available in this part */
+#define LETIMER_COUNT       1 /**< 1 LETIMERs available  */
+#define PCNT_PRESENT          /**< PCNT is available in this part */
+#define PCNT_COUNT          1 /**< 1 PCNTs available  */
+#define I2C_PRESENT           /**< I2C is available in this part */
+#define I2C_COUNT           1 /**< 1 I2Cs available  */
+#define ADC_PRESENT           /**< ADC is available in this part */
+#define ADC_COUNT           1 /**< 1 ADCs available  */
+#define ACMP_PRESENT          /**< ACMP is available in this part */
+#define ACMP_COUNT          2 /**< 2 ACMPs available  */
+#define IDAC_PRESENT          /**< IDAC is available in this part */
+#define IDAC_COUNT          1 /**< 1 IDACs available  */
+#define WDOG_PRESENT          /**< WDOG is available in this part */
+#define WDOG_COUNT          1 /**< 1 WDOGs available  */
 #define MSC_PRESENT
-#define MSC_COUNT          1
+#define MSC_COUNT           1
 #define EMU_PRESENT
-#define EMU_COUNT          1
+#define EMU_COUNT           1
 #define RMU_PRESENT
-#define RMU_COUNT          1
+#define RMU_COUNT           1
 #define CMU_PRESENT
-#define CMU_COUNT          1
+#define CMU_COUNT           1
+#define CRYPTO_PRESENT
+#define CRYPTO_COUNT        1
 #define GPIO_PRESENT
-#define GPIO_COUNT         1
+#define GPIO_COUNT          1
 #define PRS_PRESENT
-#define PRS_COUNT          1
+#define PRS_COUNT           1
 #define LDMA_PRESENT
-#define LDMA_COUNT         1
+#define LDMA_COUNT          1
 #define FPUEH_PRESENT
-#define FPUEH_COUNT        1
+#define FPUEH_COUNT         1
 #define GPCRC_PRESENT
-#define GPCRC_COUNT        1
+#define GPCRC_COUNT         1
 #define CRYOTIMER_PRESENT
-#define CRYOTIMER_COUNT    1
+#define CRYOTIMER_COUNT     1
 #define RTCC_PRESENT
-#define RTCC_COUNT         1
+#define RTCC_COUNT          1
+#define BOOTLOADER_PRESENT
+#define BOOTLOADER_COUNT    1
 
 #include "core_cm4.h"         /* Cortex-M4 processor and core peripherals */
 #include "system_efm32pg1b.h" /* System Header File */
@@ -226,6 +243,7 @@ typedef enum IRQn
 #include "efm32pg1b_emu.h"
 #include "efm32pg1b_rmu.h"
 #include "efm32pg1b_cmu.h"
+#include "efm32pg1b_crypto.h"
 #include "efm32pg1b_gpio_p.h"
 #include "efm32pg1b_gpio.h"
 #include "efm32pg1b_prs_ch.h"
@@ -233,7 +251,6 @@ typedef enum IRQn
 #include "efm32pg1b_ldma_ch.h"
 #include "efm32pg1b_ldma.h"
 #include "efm32pg1b_fpueh.h"
-#include "efm32pg1b_gpcrc_snoop.h"
 #include "efm32pg1b_gpcrc.h"
 #include "efm32pg1b_timer_cc.h"
 #include "efm32pg1b_timer.h"
@@ -266,6 +283,7 @@ typedef enum IRQn
 #define EMU_BASE          (0x400E3000UL) /**< EMU base address  */
 #define RMU_BASE          (0x400E5000UL) /**< RMU base address  */
 #define CMU_BASE          (0x400E4000UL) /**< CMU base address  */
+#define CRYPTO_BASE       (0x400F0000UL) /**< CRYPTO base address  */
 #define GPIO_BASE         (0x4000A000UL) /**< GPIO base address  */
 #define PRS_BASE          (0x400E6000UL) /**< PRS base address  */
 #define LDMA_BASE         (0x400E2000UL) /**< LDMA base address  */
@@ -302,6 +320,7 @@ typedef enum IRQn
 #define EMU          ((EMU_TypeDef *) EMU_BASE)             /**< EMU base pointer */
 #define RMU          ((RMU_TypeDef *) RMU_BASE)             /**< RMU base pointer */
 #define CMU          ((CMU_TypeDef *) CMU_BASE)             /**< CMU base pointer */
+#define CRYPTO       ((CRYPTO_TypeDef *) CRYPTO_BASE)       /**< CRYPTO base pointer */
 #define GPIO         ((GPIO_TypeDef *) GPIO_BASE)           /**< GPIO base pointer */
 #define PRS          ((PRS_TypeDef *) PRS_BASE)             /**< PRS base pointer */
 #define LDMA         ((LDMA_TypeDef *) LDMA_BASE)           /**< LDMA base pointer */
@@ -403,4 +422,4 @@ typedef enum IRQn
 #ifdef __cplusplus
 }
 #endif
-#endif /* __SILICON_LABS_EFM32PG1B100F128GM32_H__ */
+#endif /* SILICON_LABS_EFM32PG1B100F128GM32_H */

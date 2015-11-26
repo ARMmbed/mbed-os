@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_msc.h
  * @brief Flash controller module (MSC) peripheral API
- * @version 4.1.0
+ * @version 4.2.0
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -118,7 +118,7 @@ typedef enum
 /** Code execution configuration */
 typedef struct
 {
-  bool scbtEn;          /**< Enable suppressed Conditional Branch Target Prefetch */
+  bool scbtEn;          /**< Enable Suppressed Conditional Branch Target Prefetch */
   bool prefetchEn;      /**< Enable MSC prefetching */
   bool ifcDis;          /**< Disable instruction cache */
   bool aiDis;           /**< Disable automatic cache invalidation on write or erase */
@@ -126,6 +126,7 @@ typedef struct
   bool useHprot;        /**< Use ahb_hprot to determine if the instruction is cacheable or not */
 } MSC_ExecConfig_TypeDef;
 
+/** Default MSC ExecConfig initialization */
 #define MSC_EXECCONFIG_DEFAULT  \
 {                               \
   false,                        \
