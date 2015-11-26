@@ -13,34 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
 
-#include "cmsis.h"
-#include "PinNames.h"
+#ifndef MBED_PERIPHERALPINS_H
+#define MBED_PERIPHERALPINS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "pinmap.h"
+#include "PeripheralNames.h"
 
-typedef enum {
-    UART_0 = (int)0x4000C200U,
-    UART_1 = (int)0x40020200U,
-    UART_2 = (int)0x40024200U,
-    UART_3 = (int)0x40018200U,
-    UART_4 = (int)0x4001C200U,
-    UART_5 = (int)0x40008200U,
-    UART_6 = (int)0x40040200U,
-    UART_7 = (int)0x40034200U,
-} UARTName;
+/************ADC***************/
+extern const PinMap PinMap_ADC[];
 
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
-#define STDIO_UART        UART_7
+/************DAC***************/
+extern const PinMap PinMap_DAC[];
+
+/************UART***************/
+extern const PinMap PinMap_UART_TX[];
+extern const PinMap PinMap_UART_RX[];
+extern const PinMap PinMap_UART_CTS[];
+extern const PinMap PinMap_UART_RTS[];
+
+/************PWM***************/
+extern const PinMap PinMap_PWM[];
 
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

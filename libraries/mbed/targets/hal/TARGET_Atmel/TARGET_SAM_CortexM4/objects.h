@@ -20,6 +20,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "gpio_object.h"
+#include "uart_serial.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +35,8 @@ struct port_s {
 };
 
 struct serial_s {
+    UARTName uart;
+    usart_serial_options_t uart_serial_options;
 #if DEVICE_SERIAL_ASYNCH
 #endif
 };
