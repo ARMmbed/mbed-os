@@ -26,8 +26,8 @@
 #define DEVICE_ANALOGOUT        0
 
 #define DEVICE_SERIAL           1
-#define DEVICE_SERIAL_FC        0
-#define DEVICE_SERIAL_ASYNCH    0
+#define DEVICE_SERIAL_FC        1
+#define DEVICE_SERIAL_ASYNCH    1
 
 #define DEVICE_I2C              0
 #define DEVICE_I2CSLAVE         0
