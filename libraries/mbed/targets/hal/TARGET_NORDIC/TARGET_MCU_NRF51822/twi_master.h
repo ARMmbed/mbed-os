@@ -23,6 +23,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "nrf51.h"
+
 /** @file
 * @brief Software controlled TWI Master driver.
 *
@@ -68,11 +70,12 @@ extern "C" {
  *
  * Both pins are configured as Standard-0, No-drive-1 (open drain).
  *
+ * @param twi The TWI interface to use - either NRF_TWI0 or NRF_TWI1
  * @return
  * @retval true TWI bus is clear for transfers.
  * @retval false TWI bus is stuck.
  */
-bool twi_master_init_and_clear(void);
+bool twi_master_init_and_clear(NRF_TWI_Type* twi);
 
 /**
  * @brief Function for transferring data over TWI bus.
@@ -90,11 +93,12 @@ bool twi_master_init_and_clear(void);
  * @param data Pointer to data.
  * @param data_length Number of bytes to transfer.
  * @param issue_stop_condition If @ref TWI_ISSUE_STOP, STOP condition is issued before exiting function. If @ref TWI_DONT_ISSUE_STOP, STOP condition is not issued before exiting function. If transfer failed for any reason, STOP condition will be issued in any case.
+ * @param twi The TWI interface to use - either NRF_TWI0 or NRF_TWI1
  * @return
  * @retval true Data transfer succeeded without errors.
  * @retval false Data transfer failed.
  */
-bool twi_master_transfer(uint8_t address, uint8_t *data, uint8_t data_length, bool issue_stop_condition);
+bool twi_master_transfer(uint8_t address, uint8_t *data, uint8_t data_length, bool issue_stop_condition, NRF_TWI_Type* twi);
 
 /**
  *@}

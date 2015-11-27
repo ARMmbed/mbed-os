@@ -112,6 +112,8 @@ typedef enum {
     A3          = PA_4,
     A4          = PA_5,
     A5          = PA_6,
+    A6          = PA_7,
+    A7          = PA_2,
     D0          = PA_10,
     D1          = PA_9,
     D2          = PA_12,

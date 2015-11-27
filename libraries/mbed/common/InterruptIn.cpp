@@ -44,6 +44,7 @@ void InterruptIn::rise(void (*fptr)(void)) {
         _rise.attach(fptr);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
     } else {
+        _rise.attach(NULL);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
     }
 }
@@ -53,6 +54,7 @@ void InterruptIn::fall(void (*fptr)(void)) {
         _fall.attach(fptr);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
     } else {
+        _fall.attach(NULL);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
     }
 }
