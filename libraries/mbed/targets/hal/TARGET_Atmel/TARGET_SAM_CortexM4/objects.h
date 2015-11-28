@@ -38,6 +38,7 @@ struct serial_s {
     UARTName uart;
     usart_serial_options_t uart_serial_options;
 #if DEVICE_SERIAL_ASYNCH
+    uint32_t events;
 #endif
 };
 

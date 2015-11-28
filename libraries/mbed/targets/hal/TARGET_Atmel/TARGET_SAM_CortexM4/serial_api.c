@@ -361,9 +361,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
                 usart_enable_interrupt(_USART(obj), US_IER_RXRDY);
                 break;
             case TxIrq:
-                usart_enable_interrupt(_USART(obj), US_IER_TXRDY);
+                usart_enable_interrupt(_USART(obj), US_IER_TXEMPTY);
                 break;
         }
+
+        NVIC_ClearPendingIRQ(irq_n);
+        NVIC_DisableIRQ(irq_n);
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
     } else {
@@ -372,7 +375,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
                 usart_disable_interrupt(_USART(obj), US_IER_RXRDY);
                 break;
             case TxIrq:
-                usart_disable_interrupt(_USART(obj), US_IER_TXRDY);
+                usart_disable_interrupt(_USART(obj), US_IDR_TXEMPTY);
                 break;
         }
         NVIC_DisableIRQ(irq_n);
@@ -382,17 +385,20 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 static inline void uart_irq(Usart *const usart, uint32_t index)
 {
     MBED_ASSERT(usart != (void*)0);
-    uint32_t ul_status;
+    uint32_t mask, status;
+    int a= 1;
+    /* Read and clear mask. */
+    status = usart_get_status(usart);
+    mask = usart_get_interrupt_mask(usart);
+    status &= mask;
 
-    /* Read USART Status. */
-    ul_status = usart_get_status(usart);
     if (serial_irq_ids[index] != 0) {
-        if (ul_status & US_IER_RXRDY) { /*For Receive Complete*/
+        if (status & US_IER_RXRDY) { /*For Receive Complete*/
             if (irq_handler) {
                 irq_handler(serial_irq_ids[index], RxIrq);
             }
         }
-        if (ul_status & US_IER_TXRDY) { /*For Transmit Complete*/
+        if (status & US_IER_TXEMPTY) { /*For Transmit Complete*/
             if (irq_handler) {
                 irq_handler(serial_irq_ids[index], TxIrq);
             }
@@ -575,7 +581,75 @@ int serial_writable(serial_t *obj)
  * 			ASYNCHRONOUS HAL														*
  ************************************************************************************/
 
+
 #if DEVICE_SERIAL_ASYNCH
+/************************************
+ * HELPER FUNCTIONS					*
+ ***********************************/
+void serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    if(enable) {
+        pSERIAL_S(obj)->events |= event;
+    } else {
+        pSERIAL_S(obj)->events &= ~ event;
+    }
+}
+
+void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    if(enable) {
+        pSERIAL_S(obj)->events |= event;
+    } else {
+        pSERIAL_S(obj)->events &= ~ event;
+    }
+}
+
+void serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    MBED_ASSERT(tx != (void*)0);
+    // We only support byte buffers for now
+    MBED_ASSERT(width == 8);
+
+    if(serial_tx_active(obj)) return;
+
+    obj->tx_buff.buffer = tx;
+    obj->tx_buff.length = tx_length;
+    obj->tx_buff.pos = 0;
+
+    return;
+}
+
+void serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    MBED_ASSERT(rx != (void*)0);
+    // We only support byte buffers for now
+    MBED_ASSERT(width == 8);
+
+    if(serial_rx_active(obj)) return;
+
+    obj->rx_buff.buffer = rx;
+    obj->rx_buff.length = rx_length;
+    obj->rx_buff.pos = 0;
+
+    return;
+}
+
+void serial_set_char_match(serial_t *obj, uint8_t char_match)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    if (char_match != SERIAL_RESERVED_CHAR_MATCH) {
+        obj->char_match = char_match;
+    }
+}
 
 /************************************
  * TRANSFER FUNCTIONS				*
@@ -586,6 +660,20 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     MBED_ASSERT(obj);
     MBED_ASSERT(tx != (void*)0);
     if(tx_length == 0) return 0;
+    IRQn_Type irq_n = (IRQn_Type)0;
+    irq_n = get_serial_irq_num(obj);
+
+    serial_tx_buffer_set(obj, (void *)tx, tx_length, tx_width);
+    serial_tx_enable_event(obj, event, true);
+
+    NVIC_ClearPendingIRQ(irq_n);
+    NVIC_DisableIRQ(irq_n);
+    NVIC_SetVector(irq_n, (uint32_t)handler);
+    NVIC_EnableIRQ(irq_n);
+
+    usart_enable_interrupt(_USART(obj), US_IER_TXBUFE);
+
+    return 0;
 }
 
 void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
@@ -593,19 +681,105 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     /* Sanity check arguments */
     MBED_ASSERT(obj);
     MBED_ASSERT(rx != (void*)0);
+    IRQn_Type irq_n = (IRQn_Type)0;
+    irq_n = get_serial_irq_num(obj);
+
+    serial_rx_enable_event(obj, SERIAL_EVENT_RX_ALL, false);
+    serial_rx_enable_event(obj, event, true);
+    serial_set_char_match(obj, char_match);
+    serial_rx_buffer_set(obj, rx, rx_length, rx_width);
+
+    NVIC_ClearPendingIRQ(irq_n);
+    NVIC_DisableIRQ(irq_n);
+    NVIC_SetVector(irq_n, (uint32_t)handler);
+    NVIC_EnableIRQ(irq_n);
+
+    usart_enable_interrupt(_USART(obj), US_IER_RXBUFF);
+
+    return;
 }
 
 uint8_t serial_tx_active(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    return ((obj->tx_buff.length > 0) ? true : false);
 }
 
 uint8_t serial_rx_active(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    return ((obj->rx_buff.length > 0) ? true : false);
 }
+
+int serial_tx_irq_handler_asynch(serial_t *obj)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    serial_tx_abort_asynch(obj);
+    return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
+}
+int serial_rx_irq_handler_asynch(serial_t *obj)
+{
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+    int event = 0;
+    /* This interrupt handler is called from USART irq */
+    uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
+    uint8_t error_code = 0;
+    uint8_t received_data = 0;
+
+    uint32_t ul_status;
+
+    /* Read USART Status. */
+    ul_status = usart_get_status(_USART(obj));
+
+    if (ul_status & US_CSR_OVRE) { /* Overrun Error */
+        serial_rx_abort_asynch(obj);
+        return SERIAL_EVENT_RX_OVERFLOW;
+    }
+    if (ul_status & US_CSR_FRAME) { /* Framing Error */
+        serial_rx_abort_asynch(obj);
+        return SERIAL_EVENT_RX_FRAMING_ERROR;
+    }
+    if (ul_status & US_CSR_PARE) { /* Parity Error */
+        serial_rx_abort_asynch(obj);
+        return SERIAL_EVENT_RX_PARITY_ERROR;
+    }
+
+    /* Read current packet from DATA register,
+    * increment buffer pointer and decrement buffer length */
+    received_data = ((_USART(obj)->US_RHR & US_RHR_RXCHR_Msk) & 0xFF);
+
+    /* Read value will be at least 8-bits long */
+    buf[obj->rx_buff.pos] = received_data;
+    /* Increment 8-bit pointer */
+    obj->rx_buff.pos++;
+
+    /* Check if the last character have been received */
+    if(--(obj->rx_buff.length) == 0) {
+        event |= SERIAL_EVENT_RX_COMPLETE;
+        if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+            event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
+        }
+        serial_rx_abort_asynch(obj);
+        return event & obj->serial.events;
+    }
+
+    /* Check for character match event */
+    if((buf[obj->rx_buff.pos - 1] == obj->char_match) && (obj->serial.events & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+        event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
+    }
+
+    /* Return to the call back if character match occured */
+    if(event != 0) {
+        serial_rx_abort_asynch(obj);
+        return event & obj->serial.events;
+    }
+    return 0;
+}
+
 
 int serial_irq_handler_asynch(serial_t *obj)
 {
@@ -617,12 +791,18 @@ void serial_tx_abort_asynch(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    usart_disable_interrupt(_USART(obj), US_IER_TXBUFE);
+    obj->tx_buff.length = 0;
+    obj->rx_buff.pos = 0;
 }
 
 void serial_rx_abort_asynch(serial_t *obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    usart_disable_interrupt(_USART(obj), US_IER_RXBUFF);
+    obj->tx_buff.length = 0;
+    obj->rx_buff.pos = 0;
 }
 
 #endif
