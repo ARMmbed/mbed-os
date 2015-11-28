@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from exporters import Exporter
-from os.path import splitext, basename
+from os.path import splitext, basename, dirname
 
 
 class AtmelStudio(Exporter):
@@ -32,16 +32,20 @@ class AtmelStudio(Exporter):
     DOT_IN_RELATIVE_PATH = True
 
     def generate(self):
-        # "make" wants Unix paths
-        self.resources.win_to_unix()
 
-        to_be_compiled = []
+        source_files = []
+        dirs = []
         for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
             r = getattr(self.resources, r_type)
             if r:
                 for source in r:
-                    base, ext = splitext(source)
-                    to_be_compiled.append(base + '.o')
+                    source_files.append(source[2:])
+                    dirs.append(dirname(source[2:]))
+
+        source_folders = []
+        for e in dirs:
+            if e and e not in source_folders:
+                source_folders.append(e)
 
         libraries = []
         for lib in self.resources.libraries:
@@ -49,8 +53,10 @@ class AtmelStudio(Exporter):
             libraries.append(l[3:])
 
         ctx = {
+            'target': self.target,
             'name': self.program_name,
-            'to_be_compiled': to_be_compiled,
+            'source_files': source_files,
+            'source_folders': source_folders,
             'object_files': self.resources.objects,
             'include_paths': self.resources.inc_dirs,
             'library_paths': self.resources.lib_dirs,
@@ -59,5 +65,5 @@ class AtmelStudio(Exporter):
             'symbols': self.get_symbols()
         }
         target = self.target.lower()
-        self.gen_file('atmelstudio6_2_%s.atsln.tmpl' % target, ctx, '%s.atsln' % self.program_name)
-        self.gen_file('atmelstudio6_2_%s.cppproj.tmpl' % target, ctx, '%s.cppproj' % self.program_name)
+        self.gen_file('atmelstudio6_2.atsln.tmpl', ctx, '%s.atsln' % self.program_name)
+        self.gen_file('atmelstudio6_2.cppproj.tmpl', ctx, '%s.cppproj' % self.program_name)

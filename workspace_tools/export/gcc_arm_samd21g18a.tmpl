@@ -14,7 +14,7 @@ LINKER_SCRIPT = {{linker_script}}
 AS      = $(GCC_BIN)arm-none-eabi-as
 CC      = $(GCC_BIN)arm-none-eabi-gcc
 CPP     = $(GCC_BIN)arm-none-eabi-g++
-LD      = $(GCC_BIN)arm-none-eabi-gcc
+LD      = $(GCC_BIN)arm-none-eabi-g++
 OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 OBJDUMP = $(GCC_BIN)arm-none-eabi-objdump
 SIZE 	= $(GCC_BIN)arm-none-eabi-size
@@ -26,7 +26,7 @@ CC_SYMBOLS = {% for s in symbols %}-D{{s}} {% endfor %}
 
 LD_FLAGS = $(CPU) -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main
 LD_FLAGS += -Wl,-Map=$(PROJECT).map,--cref
-LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc -lnosys
+LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group 
 
 ifeq ($(DEBUG), 1)
   CC_FLAGS += -DDEBUG -O0
