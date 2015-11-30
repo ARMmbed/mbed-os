@@ -17,6 +17,9 @@ limitations under the License.
 from exporters import Exporter
 from os.path import basename
 
+from project_generator.generate import Generator
+from project_generator.project import Project
+from project_generator.settings import ProjectSettings
 
 class Uvision4(Exporter):
     NAME = 'uVision4'
@@ -157,32 +160,36 @@ class Uvision4(Exporter):
         return self.FLAGS
 
     def generate(self):
-        source_files = {
-            'mbed': [],
-            'hal': [],
-            'src': []
-        }
-        for r_type, n in Uvision4.FILE_TYPES.iteritems():
+
+        sources = []
+        for r_type in ['c_sources', 'cpp_sources', 's_sources']:
             for file in getattr(self.resources, r_type):
-                f = {'name': basename(file), 'type': n, 'path': file}
-                if file.startswith("mbed\\common"):
-                    source_files['mbed'].append(f)
-                elif file.startswith("mbed\\targets"):
-                    source_files['hal'].append(f)
-                else:
-                    source_files['src'].append(f)
-        source_files = dict( [(k,v) for k,v in source_files.items() if len(v)>0])
-        ctx = {
-            'name': self.program_name,
-            'include_paths': self.resources.inc_dirs,
-            'scatter_file': self.resources.linker_script,
-            'object_files': self.resources.objects + self.resources.libraries,
-            'source_files': source_files.items(),
-            'symbols': self.get_symbols() + ['__ASSERT_MSG'],
-            'hex_files' : self.resources.hex_files,
-            'flags' : self.get_flags(),
+                sources.append(file)
+
+        # TODO: sources in groups
+        project_data = {
+            'common': {
+                'sources': sources + self.resources.hex_files + 
+                    self.resources.objects + self.resources.libraries,
+                # 'includes': self.resources.inc_dirs,
+                'target': [self.target.lower()],
+                'debugger': ['cmsis-dap'],
+                'macros': self.get_symbols() + ['__ASSERT_MSG'],
+                'export_dir': [self.inputDir],
+            },
+            'tool_specific': {
+                'uvision': {
+                    'linker_file': [self.resources.linker_script],
+                    'misc': {
+                        'cxx_flags': ['--gnu', '--no_rtti'],
+                    }
+                }
+            }
         }
-        target = self.target.lower()
-        # Project file
-        self.gen_file('uvision4_%s.uvproj.tmpl' % target, ctx, '%s.uvproj' % self.program_name)
-        self.gen_file('uvision4_%s.uvopt.tmpl' % target, ctx, '%s.uvopt' % self.program_name)
+
+        settings = ProjectSettings()
+        project = Project(self.program_name, [project_data], settings)
+        # TODO: fix
+        # this hack is for these scripts which know too much
+        project.project['common']['include_paths'] = self.resources.inc_dirs
+        project.generate('uvision', copied=True)
