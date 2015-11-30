@@ -53,10 +53,6 @@
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\samr21\include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
       {% for i in include_paths %}<Value>../{{i}}</Value> 
       {% endfor %}
     </ListValues>
@@ -74,10 +70,6 @@
   </armgcccpp.compiler.symbols.DefSymbols>
   <armgcccpp.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\samr21\include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
       {% for i in include_paths %}<Value>../{{i}}</Value> 
       {% endfor %}
    </ListValues>
@@ -103,10 +95,8 @@
   <armgcccpp.linker.miscellaneous.LinkerFlags>-T../{{linker_script}} -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,--cref -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group </armgcccpp.linker.miscellaneous.LinkerFlags>
   <armgcccpp.preprocessingassembler.general.IncludePaths>
     <ListValues>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\samr21\include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+      {% for i in include_paths %}<Value>../{{i}}</Value> 
+      {% endfor %}
     </ListValues>
   </armgcccpp.preprocessingassembler.general.IncludePaths>
 </ArmGccCpp>
@@ -129,10 +119,6 @@
   </armgcc.compiler.symbols.DefSymbols>
   <armgcc.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\samr21\include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
       {% for i in include_paths %}<Value>../{{i}}</Value> 
       {% endfor %}
     </ListValues>
@@ -151,10 +137,6 @@
   </armgcccpp.compiler.symbols.DefSymbols>
   <armgcccpp.compiler.directories.IncludePaths>
     <ListValues>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\samr21\include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
       {% for i in include_paths %}<Value>../{{i}}</Value> 
       {% endfor %}
     </ListValues>
@@ -182,10 +164,8 @@
   <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
   <armgcccpp.preprocessingassembler.general.IncludePaths>
     <ListValues>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL\samr21\include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\CMSIS\Include</Value>
-      <Value>%24(ToolchainDir)\..\..\CMSIS_Atmel\Device\ATMEL</Value>
+      {% for i in include_paths %}<Value>../{{i}}</Value> 
+      {% endfor %}
     </ListValues>
   </armgcccpp.preprocessingassembler.general.IncludePaths>
   <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
