@@ -47,6 +47,10 @@ typedef void (*CB_Add_t)(int);
 
 static CB_Add_t Tab_RxCallbacks[UART_NUM] = {0};
 static int Tab_RxCallbackEvents[UART_NUM] = {0};
+static const uint32_t DMA_UartRx_Channel[UART_NUM] = {DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_5, DMA_CHANNEL_5, DMA_CHANNEL_5};
+static const uint32_t DMA_UartRx_Stream[UART_NUM]  = {(uint32_t)DMA2_Stream5, (uint32_t) DMA1_Stream5, (uint32_t) DMA1_Stream1, (uint32_t) DMA1_Stream2, (uint32_t) DMA1_Stream0, (uint32_t) DMA2_Stream5, (uint32_t) DMA1_Stream3, (uint32_t) DMA1_Stream6};
+static const uint32_t DMA_UartTx_Channel[UART_NUM] = {DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_5, DMA_CHANNEL_5, DMA_CHANNEL_5};
+static const uint32_t DMA_UartTx_Stream[UART_NUM]  = {(uint32_t)DMA2_Stream7, (uint32_t) DMA1_Stream6, (uint32_t) DMA1_Stream3, (uint32_t) DMA1_Stream4, (uint32_t) DMA1_Stream7, (uint32_t) DMA2_Stream6, (uint32_t) DMA1_Stream1, (uint32_t) DMA1_Stream0};
 static uart_irq_handler irq_handler;
 
 DMA_HandleTypeDef DmaHandle;
@@ -90,8 +94,8 @@ static void init_uart(serial_t *obj)
 #if DEVICE_SERIAL_ASYNCH_DMA
     // set DMA in the UartHandle
     /* Configure the DMA handler for Transmission process */
-    hdma_tx.Instance                 = DMA1_Stream4;
-    hdma_tx.Init.Channel             = DMA_CHANNEL_4;
+    hdma_tx.Instance                 = (DMA_Stream_TypeDef *)DMA_UartTx_Stream[_SERIAL_OBJ(index)];
+    hdma_tx.Init.Channel             = DMA_UartTx_Channel[_SERIAL_OBJ(index)];
     hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
     hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
     hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
@@ -110,8 +114,8 @@ static void init_uart(serial_t *obj)
     __HAL_LINKDMA(&UartHandle, hdmatx, hdma_tx);
 
     /* Configure the DMA handler for reception process */
-    hdma_rx.Instance                 = DMA1_Stream2;
-    hdma_rx.Init.Channel             = DMA_CHANNEL_4;
+    hdma_rx.Instance                 = (DMA_Stream_TypeDef *)DMA_UartRx_Stream[_SERIAL_OBJ(index)];
+    hdma_rx.Init.Channel             = DMA_UartRx_Channel[_SERIAL_OBJ(index)];
     hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
     hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
     hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
@@ -153,15 +157,24 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         case UART_1:
             __HAL_RCC_USART1_CLK_ENABLE();
             _SERIAL_OBJ(index) = 0;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA2_CLK_ENABLE();
+#endif
             break;
         case UART_2:
             __HAL_RCC_USART2_CLK_ENABLE();
             _SERIAL_OBJ(index) = 1;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA1_CLK_ENABLE();
+#endif
             break;
 #if defined(USART3_BASE)
         case UART_3:
             __HAL_RCC_USART3_CLK_ENABLE();
             _SERIAL_OBJ(index) = 2;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA1_CLK_ENABLE();
+#endif
             break;
 #endif
 #if defined(UART4_BASE)
@@ -177,24 +190,36 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         case UART_5:
             __HAL_RCC_UART5_CLK_ENABLE();
             _SERIAL_OBJ(index) = 4;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA1_CLK_ENABLE();
+#endif
             break;
 #endif
 #if defined(USART6_BASE)
         case UART_6:
             __HAL_RCC_USART6_CLK_ENABLE();
             _SERIAL_OBJ(index) = 5;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA2_CLK_ENABLE();
+#endif
             break;
 #endif
 #if defined(UART7_BASE)
         case UART_7:
             __HAL_RCC_UART7_CLK_ENABLE();
             _SERIAL_OBJ(index) = 6;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA1_CLK_ENABLE();
+#endif
             break;
 #endif
 #if defined(UART8_BASE)
         case UART_8:
             __HAL_RCC_UART8_CLK_ENABLE();
             _SERIAL_OBJ(index) = 7;
+#if DEVICE_SERIAL_ASYNCH_DMA
+            __HAL_RCC_DMA1_CLK_ENABLE();
+#endif
             break;
 #endif
     }
@@ -777,51 +802,45 @@ IRQn_Type h_serial_tx_get_irqdma_index(serial_t *obj) {
     UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
 
     switch (_SERIAL_OBJ(uart)) {
-#if 0
 #if defined(USART1_BASE)
         case UART_1:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA2_Stream7_IRQn;
             break;
-#endif
 #endif
 #if defined(USART2_BASE)
         case UART_2:
             irq_n = DMA1_Stream6_IRQn;
             break;
 #endif
-#if 0
 #if defined(USART3_BASE)
         case UART_3:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream3_IRQn;
             break;
-#endif
 #endif
 #if defined(UART4_BASE)
         case UART_4:
             irq_n = DMA1_Stream4_IRQn;
             break;
 #endif
-#if 0
 #if defined(UART5_BASE)
         case UART_5:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream7_IRQn;
             break;
 #endif
 #if defined(USART6_BASE)
         case UART_6:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA2_Stream6_IRQn;
             break;
 #endif
 #if defined(UART7_BASE)
         case UART_7:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream1_IRQn;
             break;
 #endif
 #if defined(UART8_BASE)
         case UART_8:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream0_IRQn;
             break;
-#endif
 #endif
         default:
             irq_n = (IRQn_Type)0;
@@ -841,51 +860,45 @@ IRQn_Type h_serial_rx_get_irqdma_index(serial_t *obj) {
     UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
 
     switch (_SERIAL_OBJ(uart)) {
-#if 0
 #if defined(USART1_BASE)
         case UART_1:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA2_Stream5_IRQn;
             break;
-#endif
 #endif
 #if defined(USART2_BASE)
         case UART_2:
             irq_n = DMA1_Stream5_IRQn;
             break;
 #endif
-#if 0
 #if defined(USART3_BASE)
         case UART_3:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream1_IRQn;
             break;
-#endif
 #endif
 #if defined(UART4_BASE)
         case UART_4:
             irq_n = DMA1_Stream2_IRQn;
             break;
 #endif
-#if 0
 #if defined(UART5_BASE)
         case UART_5:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream0_IRQn;
             break;
 #endif
 #if defined(USART6_BASE)
         case UART_6:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA2_Stream2_IRQn;
             break;
 #endif
 #if defined(UART7_BASE)
         case UART_7:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream3_IRQn;
             break;
 #endif
 #if defined(UART8_BASE)
         case UART_8:
-            irq_n = (IRQn_Type)0;
+            irq_n = DMA1_Stream6_IRQn;
             break;
-#endif
 #endif
         default:
             irq_n = (IRQn_Type)0;
