@@ -22,12 +22,6 @@ const PinMap PinMap_ADC[] = {
     {NC  , NC   , NC}
 };
 
-/************DAC***************/
-const PinMap PinMap_DAC[] = {
-    /* Not connected */
-    {NC  , NC   , NC}
-};
-
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {PA03, UART_3, 0},
@@ -81,6 +75,82 @@ const PinMap PinMap_UART_RTS[] = {
     {PB09, UART_4, 1},
     {PB15, UART_3, 0},
     {PB15, UART_6, 1},
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+/************SPI***************/
+const PinMap PinMap_SPI_SCLK[] = {
+    {PB00, UART_0, 0},
+    {PA27, UART_1, 0},
+    {PA15, UART_2, 1},
+    {PA24, UART_2, 1},
+    {PB13, UART_3, 0},
+    {PB01, UART_4, 0},
+    {PA14, UART_5, 0},
+    {PB13, UART_6, 1},
+    {PA29, UART_7, 1},
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+const PinMap PinMap_SPI_MOSI[] = {
+    {PA10, UART_0, 0},
+    {PB03, UART_1, 0},
+    {PA06, UART_2, 0},
+    {PA03, UART_3, 0},
+    {PB08, UART_4, 0},
+    {PB10, UART_4, 0},
+    {PA13, UART_5, 0},
+    {PB00, UART_6, 1},
+    {PB10, UART_6, 1},
+    {PA28, UART_7, 1},
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+const PinMap PinMap_SPI_MISO[] = {
+    {PA09, UART_0, 0},
+    {PB02, UART_1, 0},
+    {PA05, UART_2, 0},
+    {PA04, UART_3, 0},
+    {PB09, UART_4, 0},
+    {PB11, UART_4, 0},
+    {PA12, UART_5, 0},
+    {PB01, UART_6, 1},
+    {PB11, UART_6, 1},
+    {PA27, UART_7, 1},
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+/************I2C***************/
+const PinMap PinMap_I2C_SDA[] = {
+    {PA10, UART_0, 0},
+    {PB03, UART_1, 0},
+    {PA06, UART_2, 0},
+    {PA03, UART_3, 0},
+    {PB08, UART_4, 0},
+    {PB10, UART_4, 0},
+    {PA13, UART_5, 0},
+    {PB00, UART_6, 1},
+    {PB10, UART_6, 1},
+    {PA28, UART_7, 1},
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+const PinMap PinMap_I2C_SCL[] = {
+    {PA09, UART_0, 0},
+    {PB02, UART_1, 0},
+    {PA05, UART_2, 0},
+    {PA04, UART_3, 0},
+    {PB09, UART_4, 0},
+    {PB11, UART_4, 0},
+    {PA12, UART_5, 0},
+    {PB01, UART_6, 1},
+    {PB11, UART_6, 1},
+    {PA27, UART_7, 1},
     /* Not connected */
     {NC  , NC   , NC}
 };
