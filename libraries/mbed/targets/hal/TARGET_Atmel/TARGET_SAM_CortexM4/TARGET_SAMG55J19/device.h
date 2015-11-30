@@ -50,6 +50,7 @@
 #define DEVICE_ID_LENGTH        0
 #define DEVICE_MAC_OFFSET       0
 
+#define DEVICE_LOWPOWERTIMER	1
 #define DEVICE_SLEEP            0
 
 #define DEVICE_DEBUG_AWARENESS  0
