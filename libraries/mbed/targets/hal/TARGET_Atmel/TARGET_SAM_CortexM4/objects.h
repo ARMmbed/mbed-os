@@ -32,6 +32,10 @@ struct gpio_irq_s {
 };
 
 struct port_s {
+    PortName port;
+    uint32_t mask;
+    uint8_t mode;
+    uint8_t direction;
 };
 
 struct serial_s {
