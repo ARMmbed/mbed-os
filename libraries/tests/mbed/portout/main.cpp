@@ -49,6 +49,12 @@
 #     define LED3       0
 #     define LED4       0
 # endif
+# elif defined(TARGET_SAMG55J19)
+#     define LED_PORT   PortA
+#     define LED1       (1 <<  6) /*PA06*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
 
 
 #define LED_MASK    (LED1|LED2|LED3|LED4)
