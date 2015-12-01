@@ -88,5 +88,7 @@ void lp_ticker_disable_interrupt(void)
 
 void lp_ticker_clear_interrupt(void)
 {
-
+    uint32_t ul_status;
+    /* Get RTT status */
+    ul_status = rtt_get_status(RTT);
 }
