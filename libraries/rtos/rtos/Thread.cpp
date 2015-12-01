@@ -22,6 +22,7 @@
 #include "Thread.h"
 
 #include "mbed_error.h"
+#include "rtos_idle.h"
 
 namespace rtos {
 
@@ -130,6 +131,13 @@ osStatus Thread::yield() {
 
 osThreadId Thread::gettid() {
     return osThreadGetId();
+}
+
+void Thread::attach_idle_hook(void (*fptr)(void)) {
+	if (fptr != NULL)
+		rtos_idle_hook_fptr = fptr;
+	else
+		rtos_idle_hook_fptr = &rtos_idle_default_hook;
 }
 
 Thread::~Thread() {
