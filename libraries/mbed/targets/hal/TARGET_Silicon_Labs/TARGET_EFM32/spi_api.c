@@ -51,6 +51,8 @@
 static uint16_t fill_word = SPI_FILL_WORD;
 
 #define SPI_LEAST_ACTIVE_SLEEPMODE EM0
+#define USE_UINT16_BUFFER
+
 static inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
 {
     switch ((int)obj->spi.spi) {
@@ -488,53 +490,36 @@ void spi_buffer_set(spi_t *obj, const void *tx, uint32_t tx_length, void *rx, ui
 static void spi_buffer_tx_write(spi_t *obj)
 {
     uint32_t data;
-    // This routine gets triggered on TXBL (= buffer empty), so check to see if we can write a double value
-    if (obj->spi.bits % 9 != 0) {
-        // No special 9-bit scenario
-        if((obj->tx_buff.pos < obj->tx_buff.length - 1) && ((obj->tx_buff.pos & 0x1) == 0)) {
-            // write double frame
-            if (obj->tx_buff.buffer == (void *)0) {
-                data = SPI_FILL_WORD;
-            } else {
-                uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
-                data = tx[obj->tx_buff.pos / 2] & 0xFFFF;
-            }
-            obj->tx_buff.pos += 2;
-            obj->spi.spi->TXDOUBLE = data;
-        } else if (obj->tx_buff.pos < obj->tx_buff.length) {
-            // write single frame
-            if (obj->tx_buff.buffer == (void *)0) {
-                data = SPI_FILL_WORD & 0xFF;
-            } else {
-                uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer);
-                data = tx[obj->tx_buff.pos] & 0xFF;
-            }
-            obj->tx_buff.pos++;
-            obj->spi.spi->TXDATA = data;
+    if(obj->spi.bits >= 9) {
+        // write double frame
+        if (obj->tx_buff.buffer == (void *)0) {
+            data = SPI_FILL_WORD;
+        } else {
+#ifdef USE_UINT16_BUFFER
+            uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
+#else
+            uint32_t *tx = (uint16_t *)(obj->tx_buff.buffer);
+#endif
+            data = tx[obj->tx_buff.pos] & 0xFFFF;
         }
-    } else {
-        // 9-bit frame
-        if(obj->tx_buff.pos < obj->tx_buff.length - 3) {
-            // write double frame
-            if (obj->tx_buff.buffer == (void *)0) {
-                data = ((SPI_FILL_WORD & 0x01FF) << 16) | (SPI_FILL_WORD & 0x1FF);
-            } else {
-                uint32_t *tx = (uint32_t *)(obj->tx_buff.buffer);
-                data = tx[obj->tx_buff.pos / 4] & 0x01FF01FF;
-            }
-            obj->tx_buff.pos += 4;
-            obj->spi.spi->TXDOUBLEX = data;
-        } else if (obj->tx_buff.pos < obj->tx_buff.length - 1) {
-            // write single frame
-            if (obj->tx_buff.buffer == (void *)0) {
-                data = SPI_FILL_WORD & 0x01FF;
-            } else {
-                uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
-                data = tx[obj->tx_buff.pos / 2] & 0x01FF;
-            }
-            obj->tx_buff.pos += 2;
+        obj->tx_buff.pos += 1;
+        if(obj->spi.bits == 9){
             obj->spi.spi->TXDATAX = data;
+        }else {
+            obj->spi.spi->TXDOUBLE = data;
         }
+
+    } else if (obj->tx_buff.pos < obj->tx_buff.length) {
+        // write single frame
+        if (obj->tx_buff.buffer == (void *)0) {
+            data = SPI_FILL_WORD & 0xFF;
+        } else {
+            uint8_t *tx = (uint8_t *)(obj->tx_buff.buffer);
+            data = tx[obj->tx_buff.pos] & 0xFF;
+        }
+        obj->tx_buff.pos++;
+
+        obj->spi.spi->TXDATA = data;
     }
 }
 
@@ -897,8 +882,12 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(txdata, target_addr, tx_length);
         if(obj->spi.bits >= 9){
+#ifdef USE_UINT16_BUFFER
+            desc.xfer.size = ldmaCtrlSizeHalf;
+#else
             desc.xfer.size = ldmaCtrlSizeHalf;
             desc.xfer.srcInc = ldmaCtrlSrcIncTwo;
+#endif
         }
         LDMA_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
 
