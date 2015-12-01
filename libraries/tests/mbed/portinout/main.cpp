@@ -166,6 +166,15 @@
 #define P2_2    (1 << 1)  /*PB01*/
 #define PORT_2  PortB
 
+#elif defined(TARGET_SAMG55J19)
+#define P1_1    (1 << 17)  /*PA17*/
+#define P1_2    (1 << 18)  /*PA18*/
+#define PORT_1  PortA
+
+#define P2_1    (1 << 10)  /*PB10*/
+#define P2_2    (1 << 11)  /*PB11*/
+#define PORT_2  PortB
+
 #endif
 
 #define MASK_1   (P1_1 | P1_2)
