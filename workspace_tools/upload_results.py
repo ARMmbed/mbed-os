@@ -115,6 +115,7 @@ def add_project_runs(args):
     project_run_data = {}
     project_run_data['projectRuns'] = {}
     project_run_data['platforms_set'] = set()
+    project_run_data['vendors_set'] = set()
     project_run_data['toolchains_set'] = set()
     project_run_data['names_set'] = set()
     project_run_data['hostOses_set'] = set()
@@ -140,6 +141,7 @@ def format_project_run_data(project_run_data):
                     ts_data['projectRuns'].append(project)
 
     ts_data['platforms'] = list(project_run_data['platforms_set'])
+    ts_data['vendors'] = list(project_run_data['vendors_set'])
     ts_data['toolchains'] = list(project_run_data['toolchains_set'])
     ts_data['names'] = list(project_run_data['names_set'])
     ts_data['hostOses'] = list(project_run_data['hostOses_set'])
@@ -203,6 +205,7 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
     for test_suite in test_suites:
         platform = ""
         toolchain = ""
+        vendor = ""
         for properties in test_suite.findall('properties'):
             for property in properties.findall('property'):
                 if property.attrib['name'] == 'target':
@@ -211,6 +214,9 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
                 elif property.attrib['name'] == 'toolchain':
                     toolchain = property.attrib['value']
                     project_run_data['toolchains_set'].add(toolchain)
+                elif property.attrib['name'] == 'vendor':
+                    vendor = property.attrib['value']
+                    project_run_data['vendors_set'].add(vendor)
 
         for test_case in test_suite.findall('testcase'):
             projectRun = {}
@@ -219,6 +225,7 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
             projectRun['platform'] = platform
             projectRun['toolchain'] = toolchain
             projectRun['project'] = test_case.attrib['classname'].split('.')[-1]
+            projectRun['vendor'] = vendor
 
             project_run_data['names_set'].add(projectRun['project'])
 

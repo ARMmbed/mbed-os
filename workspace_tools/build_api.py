@@ -45,7 +45,7 @@ def prep_report(report, target_name, toolchain_name, id_name):
     if not id_name in report[target_name][toolchain_name]:
         report[target_name][toolchain_name][id_name] = []
 
-def prep_properties(properties, target_name, toolchain_name, id_name):
+def prep_properties(properties, target_name, toolchain_name, vendor_label):
     # Setup test properties
     if not target_name in properties:
         properties[target_name] = {}
@@ -54,6 +54,7 @@ def prep_properties(properties, target_name, toolchain_name, id_name):
         properties[target_name][toolchain_name] = {}
 
     properties[target_name][toolchain_name]["target"] = target_name
+    properties[target_name][toolchain_name]["vendor"] = vendor_label
     properties[target_name][toolchain_name]["toolchain"] = toolchain_name
 
 def create_result(target_name, toolchain_name, id_name, description):
@@ -105,12 +106,13 @@ def build_project(src_path, build_path, target, toolchain_name,
         start = time()
         id_name = project_id.upper()
         description = project_description
+        vendor_label = target.extra_labels[0]
         cur_result = None
         prep_report(report, target.name, toolchain_name, id_name)
         cur_result = create_result(target.name, toolchain_name, id_name, description)
 
         if properties != None:
-            prep_properties(properties, target.name, toolchain_name, id_name)
+            prep_properties(properties, target.name, toolchain_name, vendor_label)
 
     try:
         # Scan src_path and libraries_paths for resources
@@ -200,12 +202,13 @@ def build_library(src_paths, build_path, target, toolchain_name,
         start = time()
         id_name = name.upper()
         description = name
+        vendor_label = target.extra_labels[0]
         cur_result = None
         prep_report(report, target.name, toolchain_name, id_name)
         cur_result = create_result(target.name, toolchain_name, id_name, description)
 
         if properties != None:
-            prep_properties(properties, target.name, toolchain_name, id_name)
+            prep_properties(properties, target.name, toolchain_name, vendor_label)
 
     for src_path in src_paths:
         if not exists(src_path):
@@ -328,12 +331,13 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         start = time()
         id_name = "MBED"
         description = "mbed SDK"
+        vendor_label = target.extra_labels[0]
         cur_result = None
         prep_report(report, target.name, toolchain_name, id_name)
         cur_result = create_result(target.name, toolchain_name, id_name, description)
 
         if properties != None:
-            prep_properties(properties, target.name, toolchain_name, id_name)
+            prep_properties(properties, target.name, toolchain_name, vendor_label)
 
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:

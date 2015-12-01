@@ -312,12 +312,15 @@ class SingleTestRunner(object):
         for toolchain in toolchains:
             tt_id = "%s::%s" % (toolchain, target)
 
+            T = TARGET_MAP[target]
+
             # print target, toolchain
             # Test suite properties returned to external tools like CI
             test_suite_properties = {
                 'jobs': self.opts_jobs,
                 'clean': clean,
                 'target': target,
+                'vendor': T.extra_labels[0],
                 'test_ids': ', '.join(test_ids),
                 'toolchain': toolchain,
                 'shuffle_random_seed': self.shuffle_random_seed
@@ -330,7 +333,6 @@ class SingleTestRunner(object):
                 print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
                 continue
 
-            T = TARGET_MAP[target]
             build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
