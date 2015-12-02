@@ -12,9 +12,13 @@ from workspace_tools.utils import mkdir
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.targets import TARGET_MAP
 
+from project_generator.generate import Generator
+from project_generator.project import Project
+from project_generator.settings import ProjectSettings
+
 class OldLibrariesException(Exception): pass
 
-class Exporter():
+class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
 
@@ -41,6 +45,31 @@ class Exporter():
             if r:
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
         return resources
+
+    def get_project_data(self):
+        """ Get ProGen project data  """
+        # provide default data, some tools don't require any additional
+        # tool specific settings
+        sources = []
+        for r_type in ['c_sources', 'cpp_sources', 's_sources']:
+            for file in getattr(self.resources, r_type):
+                sources.append(file)
+
+        # TODO: sources in groups
+        project_data = {
+            'common': {
+                'sources': sources + self.resources.hex_files + 
+                    self.resources.objects + self.resources.libraries,
+                # 'includes': self.resources.inc_dirs,
+                'target': [self.target.lower()],
+                'debugger': ['cmsis-dap'], #TODO: per target to set this
+                'macros': self.get_symbols(),
+                'export_dir': [self.inputDir],
+                'linker_file': [self.resources.linker_script],
+                'template': [''],
+            }
+        }
+        return project_data
 
     def __scan_all(self, path):
         resources = []
@@ -88,6 +117,15 @@ class Exporter():
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
         #    raise OldLibrariesException()
+
+    def gen_file_progen(self, tool_name, project_data):
+        """" Generate project using ProGen Project API """
+        settings = ProjectSettings()
+        project = Project(self.program_name, [project_data], settings)
+        # TODO: fix
+        # this hack is for these scripts which know too much
+        project.project['common']['include_paths'] = self.resources.inc_dirs
+        project.generate(tool_name, copied=True)
 
     def gen_file(self, template_file, data, target_file):
         template_path = join(Exporter.TEMPLATE_DIR, template_file)
