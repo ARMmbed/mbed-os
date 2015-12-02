@@ -924,7 +924,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         }
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
-        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
+        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(source_addr, rxdata, rx_length);
         if(obj->spi.bits >= 9){
             desc.xfer.size = ldmaCtrlSizeHalf;
             desc.xfer.srcInc = ldmaCtrlSrcIncTwo;
