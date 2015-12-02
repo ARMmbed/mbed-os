@@ -88,31 +88,42 @@ class IAREmbeddedWorkbench(Exporter):
     ]
 
     def generate(self):
-        """
-        Generates the project files
-        """
-        sources = []
-        sources += self.resources.c_sources
-        sources += self.resources.cpp_sources
-        sources += self.resources.s_sources
-
-        iar_files = IarFolder("", "", [])
-        for source in sources:
-            iar_files.insert_file(source)
-
-        ctx = {
-            'name': self.program_name,
-            'include_paths': self.resources.inc_dirs,
-            'linker_script': self.resources.linker_script,
-            'object_files': self.resources.objects,
-            'libraries': self.resources.libraries,
-            'symbols': self.get_symbols(),
-            'source_files': iar_files.__str__(),
-            'binary_files': self.resources.bin_files,
+        """ Generates the project files """
+        project_data = self.get_project_data()
+        tool_specific = {
+            'iar': {
+                'misc': {
+                    'cxx_flags': ['--no_rtti', '--no_exceptions'],
+                    'c_flags': ['--diag_suppress=Pa050,Pa084,Pa093,Pa082'],
+                }
+            }
         }
-        self.gen_file('iar_%s.ewp.tmpl' % self.target.lower(), ctx, '%s.ewp' % self.program_name)
-        self.gen_file('iar.eww.tmpl', ctx, '%s.eww' % self.program_name)
-        self.gen_file('iar_%s.ewd.tmpl' % self.target.lower(), ctx, '%s.ewd' % self.program_name)
+        project_data['tool_specific'] = {}
+        project_data['tool_specific'].update(tool_specific)
+        self.gen_file_progen('iar_arm', project_data)
+
+        # sources = []
+        # sources += self.resources.c_sources
+        # sources += self.resources.cpp_sources
+        # sources += self.resources.s_sources
+
+        # iar_files = IarFolder("", "", [])
+        # for source in sources:
+        #     iar_files.insert_file(source)
+
+        # ctx = {
+        #     'name': self.program_name,
+        #     'include_paths': self.resources.inc_dirs,
+        #     'linker_script': self.resources.linker_script,
+        #     'object_files': self.resources.objects,
+        #     'libraries': self.resources.libraries,
+        #     'symbols': self.get_symbols(),
+        #     'source_files': iar_files.__str__(),
+        #     'binary_files': self.resources.bin_files,
+        # }
+        # self.gen_file('iar_%s.ewp.tmpl' % self.target.lower(), ctx, '%s.ewp' % self.program_name)
+        # self.gen_file('iar.eww.tmpl', ctx, '%s.eww' % self.program_name)
+        # self.gen_file('iar_%s.ewd.tmpl' % self.target.lower(), ctx, '%s.ewd' % self.program_name)
 
 class IarFolder():
     """
