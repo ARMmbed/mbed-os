@@ -17,13 +17,10 @@ limitations under the License.
 from exporters import Exporter
 from os.path import basename
 
-from project_generator.generate import Generator
-from project_generator.project import Project
-from project_generator.settings import ProjectSettings
-
 class Uvision4(Exporter):
     NAME = 'uVision4'
 
+    # TODO: replace by progendef targets
     TARGETS = [
         'LPC1768',
         'LPC11U24',
@@ -140,56 +137,25 @@ class Uvision4(Exporter):
         'SAML21J18A',
     ]
 
-    FILE_TYPES = {
-        'c_sources':'1',
-        'cpp_sources':'8',
-        's_sources':'2'
-    }
-
-    FLAGS = [
-        "--gnu", "--no_rtti",
-    ]
-
-    # By convention uVision projects do not show header files in the editor:
-    # 'headers':'5',
-
     def get_toolchain(self):
         return 'uARM' if (self.target in self.USING_MICROLIB) else 'ARM'
 
-    def get_flags(self):
-        return self.FLAGS
-
     def generate(self):
+        # set specific flags
+        cxx_flags = ['--gnu', '--no_rtti'] 
+        if self.get_toolchain() == 'uARM':
+            cxx_flags.append('--library_type=microlib')
 
-        sources = []
-        for r_type in ['c_sources', 'cpp_sources', 's_sources']:
-            for file in getattr(self.resources, r_type):
-                sources.append(file)
-
-        # TODO: sources in groups
-        project_data = {
-            'common': {
-                'sources': sources + self.resources.hex_files + 
-                    self.resources.objects + self.resources.libraries,
-                # 'includes': self.resources.inc_dirs,
-                'target': [self.target.lower()],
-                'debugger': ['cmsis-dap'],
-                'macros': self.get_symbols() + ['__ASSERT_MSG'],
-                'export_dir': [self.inputDir],
-            },
-            'tool_specific': {
-                'uvision': {
-                    'linker_file': [self.resources.linker_script],
-                    'misc': {
-                        'cxx_flags': ['--gnu', '--no_rtti'],
-                    }
+        project_data = self.get_project_data()
+        # inject uvision data
+        project_data['common']['macros'] += ['__ASSERT_MSG']
+        tool_specific = {
+            'uvision': {
+                'misc': {
+                    'cxx_flags': cxx_flags,
                 }
             }
         }
-
-        settings = ProjectSettings()
-        project = Project(self.program_name, [project_data], settings)
-        # TODO: fix
-        # this hack is for these scripts which know too much
-        project.project['common']['include_paths'] = self.resources.inc_dirs
-        project.generate('uvision', copied=True)
+        project_data['tool_specific'] = {}
+        project_data['tool_specific'].update(tool_specific)
+        self.gen_file_progen('uvision', project_data)
