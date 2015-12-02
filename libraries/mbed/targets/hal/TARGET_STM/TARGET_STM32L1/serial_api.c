@@ -231,6 +231,9 @@ static void uart_irq(UARTName name, int id)
             irq_handler(serial_irq_ids[id], RxIrq);
             __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_RXNE);
         }
+        if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_ORE) != RESET) {
+            __HAL_UART_CLEAR_OREFLAG(&UartHandle);
+        }
     }
 }
 
