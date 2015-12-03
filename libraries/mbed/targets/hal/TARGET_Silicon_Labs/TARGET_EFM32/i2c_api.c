@@ -107,10 +107,13 @@ void i2c_preinit(i2c_t *obj, PinName sda, PinName scl)
     obj->i2c.i2c = (I2C_TypeDef*) pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(((int) obj->i2c.i2c) != NC);
 
+#ifndef _SILICON_LABS_32B_PLATFORM_2
     int loc_sda = pin_location(sda, PinMap_I2C_SDA);
     int loc_scl = pin_location(scl, PinMap_I2C_SCL);
     obj->i2c.loc = pinmap_merge(loc_sda, loc_scl);
     MBED_ASSERT(obj->i2c.loc != NC);
+#endif
+
     obj->i2c.sda = sda;
     obj->i2c.scl = scl;
 }
