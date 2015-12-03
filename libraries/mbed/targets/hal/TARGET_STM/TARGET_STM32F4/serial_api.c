@@ -45,12 +45,17 @@
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
 typedef void (*CB_Add_t)(int);
 
+#if DEVICE_SERIAL_ASYNCH_DMA
 static CB_Add_t Tab_RxCallbacks[UART_NUM] = {0};
 static int Tab_RxCallbackEvents[UART_NUM] = {0};
 static const uint32_t DMA_UartRx_Channel[UART_NUM] = {DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_5, DMA_CHANNEL_5, DMA_CHANNEL_5};
 static const uint32_t DMA_UartRx_Stream[UART_NUM]  = {(uint32_t)DMA2_Stream5, (uint32_t) DMA1_Stream5, (uint32_t) DMA1_Stream1, (uint32_t) DMA1_Stream2, (uint32_t) DMA1_Stream0, (uint32_t) DMA2_Stream5, (uint32_t) DMA1_Stream3, (uint32_t) DMA1_Stream6};
 static const uint32_t DMA_UartTx_Channel[UART_NUM] = {DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_5, DMA_CHANNEL_5, DMA_CHANNEL_5};
 static const uint32_t DMA_UartTx_Stream[UART_NUM]  = {(uint32_t)DMA2_Stream7, (uint32_t) DMA1_Stream6, (uint32_t) DMA1_Stream3, (uint32_t) DMA1_Stream4, (uint32_t) DMA1_Stream7, (uint32_t) DMA2_Stream6, (uint32_t) DMA1_Stream1, (uint32_t) DMA1_Stream0};
+
+static int EventStatus = 0;
+static serial_t *SerialRxObj = 0;
+#endif
 static uart_irq_handler irq_handler;
 
 DMA_HandleTypeDef DmaHandle;
@@ -58,9 +63,6 @@ UART_HandleTypeDef UartHandle;
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
-
-static int EventStatus = 0;
-static serial_t *SerialRxObj = 0;
 
 #if DEVICE_SERIAL_ASYNCH
 #define _SERIAL_OBJ(X) (obj->serial.X)
@@ -81,7 +83,11 @@ static void init_uart(serial_t *obj)
     UartHandle.Init.WordLength   = _SERIAL_OBJ(databits);
     UartHandle.Init.StopBits     = _SERIAL_OBJ(stopbits);
     UartHandle.Init.Parity       = _SERIAL_OBJ(parity);
+#if DEVICE_SERIAL_FC
+    UartHandle.Init.HwFlowCtl    = _SERIAL_OBJ(hw_flow_ctl);
+#else
     UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+#endif
     UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
 
     if (_SERIAL_OBJ(pin_rx) == NC) {
@@ -375,7 +381,7 @@ static void uart_irq(UARTName name, int id)
         }
     }
 }
-
+#if DEVICE_SERIAL_ASYNCH_DMA
 static void dma_irq(DMAName name, int id)
 {
   // TO DO
@@ -391,6 +397,8 @@ static void dma_irq(DMAName name, int id)
         }
     }
 }
+#endif
+
 static void uart1_irq(void)
 {
     uart_irq(UART_1, 0);
@@ -1199,7 +1207,7 @@ int serial_irq_handler_asynch(serial_t *obj)
     }
     if ((UartHandle.RxXferCount==0)&&(UartHandle.RxXferSize !=0)) {
         return_event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
-    
+    }
     if ((buf != NULL) && (buf[obj->rx_buff.pos-1] == obj->char_match) && (_SERIAL_OBJ(events) & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
       return_event |= SERIAL_EVENT_RX_CHARACTER_MATCH & obj->serial.events;
     }
@@ -1240,4 +1248,58 @@ void serial_rx_abort_asynch(serial_t *obj) {
 
 #endif
 
+#if DEVICE_SERIAL_FC
+/** Set HW Control Flow
+ * @param obj    The serial object
+ * @param type   The Control Flow type (FlowControlNone, FlowControlRTS, FlowControlCTS, FlowControlRTSCTS)
+ * @param rxflow Pin for the rxflow
+ * @param txflow Pin for the txflow
+ */
+void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
+{
+
+    // Determine the UART to use (UART_1, UART_2, ...)
+    UARTName uart_rts = (UARTName)pinmap_peripheral(rxflow, PinMap_UART_RTS);
+    UARTName uart_cts = (UARTName)pinmap_peripheral(txflow, PinMap_UART_CTS);
+
+    // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
+    _SERIAL_OBJ(uart) = (UARTName)pinmap_merge(uart_cts, uart_rts);
+
+    MBED_ASSERT(_SERIAL_OBJ(uart) != (UARTName)NC);
+    UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
+
+    if(type == FlowControlNone) {
+        // Disable hardware flow control
+      _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_NONE;
+      UartHandle.Instance->CR3 &= ~UART_HWCONTROL_RTS_CTS;
+    }
+    if (type == FlowControlRTS) {
+        // Enable RTS
+        MBED_ASSERT(uart_rts != (UARTName)NC);
+        _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_RTS;
+        // Enable the pin for RTS function
+        pinmap_pinout(rxflow, PinMap_UART_RTS);
+        UartHandle.Instance->CR3 |= UART_HWCONTROL_RTS;
+    }
+    if (type == FlowControlCTS) {
+        // Enable CTS
+        MBED_ASSERT(uart_cts != (UARTName)NC);
+        _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_CTS;
+        // Enable the pin for CTS function
+        pinmap_pinout(txflow, PinMap_UART_CTS);
+        UartHandle.Instance->CR3 |= UART_HWCONTROL_CTS;
+    }
+    if (type == FlowControlRTSCTS) {
+        // Enable CTS & RTS
+        MBED_ASSERT(uart_rts != (UARTName)NC);
+        MBED_ASSERT(uart_cts != (UARTName)NC);
+        _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_RTS_CTS;
+        // Enable the pin for CTS function
+        pinmap_pinout(txflow, PinMap_UART_CTS);
+        // Enable the pin for RTS function
+        pinmap_pinout(rxflow, PinMap_UART_RTS);
+        UartHandle.Instance->CR3 |= UART_HWCONTROL_RTS_CTS;
+    }
+}
+#endif
 #endif
