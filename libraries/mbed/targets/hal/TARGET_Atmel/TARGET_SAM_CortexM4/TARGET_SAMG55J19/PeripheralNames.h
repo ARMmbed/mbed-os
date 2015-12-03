@@ -34,6 +34,17 @@ typedef enum {
     UART_7 = (int)0x40034200U,
 } UARTName;
 
+typedef enum {
+    SPI_0 = (int)0x4000C400U,
+    SPI_1 = (int)0x40020400U,
+    SPI_2 = (int)0x40024400U,
+    SPI_3 = (int)0x40018400U,
+    SPI_4 = (int)0x4001C400U,
+    SPI_5 = (int)0x40008400U,
+    SPI_6 = (int)0x40040400U,
+    SPI_7 = (int)0x40034400U,
+} SPIName;
+
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
 #define STDIO_UART        UART_7

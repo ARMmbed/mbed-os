@@ -58,6 +58,7 @@ struct i2c_s {
 };
 
 struct spi_s {
+    SPIName spi;
 #if DEVICE_SPI_ASYNCH
 #endif
 };
