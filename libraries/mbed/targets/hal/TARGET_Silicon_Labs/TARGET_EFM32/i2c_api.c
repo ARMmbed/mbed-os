@@ -148,6 +148,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     /* We are assuming that there is only one master. So disable automatic arbitration */
     obj->i2c.i2c->CTRL |= _I2C_CTRL_ARBDIS_MASK;
 
+    /* Set to master (needed if this I2C block was used previously as slave) */
+    i2c_slave_mode(obj, false);
+
     /* Enable i2c */
     i2c_enable(obj, true);
 }
