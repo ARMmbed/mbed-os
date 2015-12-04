@@ -877,7 +877,10 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         }
 
         /* Save amount of TX done by DMA */
+
         obj->tx_buff.pos += tx_length;
+        /* Clear TX registers */
+        obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(txdata, target_addr, tx_length);
@@ -923,11 +926,18 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                 break;
         }
 
+        /* Clear RX registers */
+        obj->spi.spi->CMD = USART_CMD_CLEARRX;
+
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
-        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(source_addr, rxdata, rx_length);
+        LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
         if(obj->spi.bits >= 9){
+#ifdef USE_UINT16_BUFFER
+            desc.xfer.size = ldmaCtrlSizeHalf;
+#else
             desc.xfer.size = ldmaCtrlSizeHalf;
             desc.xfer.srcInc = ldmaCtrlSrcIncTwo;
+#endif
         }
         LDMA_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
     }
