@@ -53,7 +53,16 @@ static void die() {
 
 void Harness::run(const Specification specification)
 {
+    run(specification, 0);
+}
+
+void Harness::run(const Specification specification, std::size_t start_case)
+{
     mbed::util::CriticalSectionLock lock;
+
+    // ignore any invalid start index
+    if (start_case >= specification.length)
+        return;
 
     test_cases = specification.cases;
     test_length = specification.length;
@@ -68,7 +77,7 @@ void Harness::run(const Specification specification)
     case_passed = 0;
     case_failed = 0;
     case_failed_before = 0;
-    case_current = test_cases;
+    case_current = &test_cases[start_case];
 
     if (handlers.test_setup && (handlers.test_setup(test_length) != STATUS_CONTINUE)) {
         if (handlers.test_teardown) handlers.test_teardown(0, 0, FAILURE_SETUP);

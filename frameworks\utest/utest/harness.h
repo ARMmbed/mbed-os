@@ -43,8 +43,12 @@ namespace v1 {
     class Harness
     {
     public:
-        /// Starts running a test specification
+        /// Runs a test specification
         static void run(const Specification specification);
+
+        /// Runs a test specification starting at the specified case index
+        /// @warning if the start index is out of bounds, the call has no effect!
+        static void run(const Specification specification, size_t start_case);
 
         /// @returns `true` if a test specification is being executed, `false` otherwise
         static bool is_busy();
