@@ -61,7 +61,7 @@ class Exporter(object):
                 'sources': sources + self.resources.hex_files + 
                     self.resources.objects + self.resources.libraries,
                 # 'includes': self.resources.inc_dirs,
-                'target': [self.target.lower()],
+                'target': [self.PROGEN_TARGETS[self.target]],
                 'debugger': ['cmsis-dap'], #TODO: per target to set this
                 'macros': self.get_symbols(),
                 'export_dir': [self.inputDir],
