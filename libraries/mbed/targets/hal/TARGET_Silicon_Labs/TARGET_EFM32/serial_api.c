@@ -496,6 +496,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     uint32_t baudrate;
     uint32_t allow_leuart = true;
+    uint32_t uart_for_stdio = false;
 
 #ifdef _SILICON_LABS_32B_PLATFORM_2
     if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX)) {
@@ -520,8 +521,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     CMU_ClockEnable(serial_get_clock(obj), true);
 
     /* Limitations of board controller: CDC port only supports 115kbaud */
-    if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX) && (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART )) {
+    if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX)
+#ifndef _SILICON_LABS_32B_PLATFORM_2
+       && (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART )
+#endif
+        ) {
         baudrate = 115200;
+        uart_for_stdio = true;
     } else {
         baudrate = 9600;
     }
@@ -552,7 +558,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
     /* If this is the UART to be used for stdio, copy it to the stdio_uart struct */
-    if (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART ) {
+    if(uart_for_stdio) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
