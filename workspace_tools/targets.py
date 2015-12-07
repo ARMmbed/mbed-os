@@ -836,7 +836,7 @@ class DISCO_F429ZI(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F429', 'STM32F429ZI']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "GCC_ARM"
+        self.default_toolchain = "uARM"
 
 class DISCO_F469NI(Target):
     def __init__(self):
