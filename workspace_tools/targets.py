@@ -849,7 +849,7 @@ class DISCO_L053C8(Target):
 class DISCO_F746NG(Target):
     def __init__(self):
         Target.__init__(self)
-        self.core = "Cortex-M7"
+        self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
