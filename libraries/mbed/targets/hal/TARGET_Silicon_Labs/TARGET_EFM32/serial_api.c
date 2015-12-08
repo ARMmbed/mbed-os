@@ -122,20 +122,22 @@ static void usart2_tx_irq() { uart_irq(USART_2, 4, TxIrq); USART_IntClear((USART
 #ifdef LEUART0
 static void leuart0_irq()
 {
-    if(LEUART_IntGetEnabled(LEUART0) && (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IFC_PERR | LEUART_IF_RXOF)) {
+    if(LEUART_IntGetEnabled(LEUART0) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF)) {
         uart_irq(LEUART_0, 5, RxIrq);
     } else {
         uart_irq(LEUART_0, 5, TxIrq);
+        LEUART_IntClear(LEUART0, LEUART_IFC_TXC);
     }
 }
 #endif
 #ifdef LEUART1
 static void leuart1_irq()
 {
-    if(LEUART_IntGetEnabled(LEUART1) && (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IFC_PERR | LEUART_IF_RXOF)) {
+    if(LEUART_IntGetEnabled(LEUART1) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF)) {
         uart_irq(LEUART_1, 6, RxIrq);
     } else {
         uart_irq(LEUART_1, 6, TxIrq);
+        LEUART_IntClear(LEUART1, LEUART_IFC_TXC);
     }
 }
 #endif
