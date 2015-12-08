@@ -44,11 +44,15 @@ namespace v1 {
     {
     public:
         /// Runs a test specification
-        static void run(const Specification specification);
+        /// @retval `true`  if the specification can be run
+        /// @retval `false` if another specification is currently running
+        static bool run(const Specification specification);
 
         /// Runs a test specification starting at the specified case index
         /// @warning if the start index is out of bounds, the call has no effect!
-        static void run(const Specification specification, size_t start_case);
+        /// @retval `true`  if the specification can be run
+        /// @retval `false` if another specification is currently running, or the start index was out of bounds
+        static bool run(const Specification specification, size_t start_case);
 
         /// @returns `true` if a test specification is being executed, `false` otherwise
         static bool is_busy();

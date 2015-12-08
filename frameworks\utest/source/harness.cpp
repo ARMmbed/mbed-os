@@ -51,18 +51,22 @@ static void die() {
     while(1) ;
 }
 
-void Harness::run(const Specification specification)
+bool Harness::run(const Specification specification)
 {
-    run(specification, 0);
+    return run(specification, 0);
 }
 
-void Harness::run(const Specification specification, std::size_t start_case)
+bool Harness::run(const Specification specification, std::size_t start_case)
 {
     mbed::util::CriticalSectionLock lock;
 
     // ignore any invalid start index
     if (start_case >= specification.length)
-        return;
+        return false;
+
+    // check if a specification is currently running
+    if (is_busy())
+        return false;
 
     test_cases = specification.cases;
     test_length = specification.length;
@@ -81,10 +85,12 @@ void Harness::run(const Specification specification, std::size_t start_case)
 
     if (handlers.test_setup && (handlers.test_setup(test_length) != STATUS_CONTINUE)) {
         if (handlers.test_teardown) handlers.test_teardown(0, 0, FAILURE_SETUP);
-        die();
+        test_cases = NULL;
+        return true;
     }
 
     minar::Scheduler::postCallback(run_next_case);
+    return true;
 }
 
 void Harness::raise_failure(failure_t reason)
@@ -219,6 +225,6 @@ void Harness::run_next_case()
     }
     else if (handlers.test_teardown) {
         handlers.test_teardown(test_passed, test_failed, test_failed ? FAILURE_CASES : FAILURE_NONE);
-        die();
+        test_cases = NULL;
     }
 }
