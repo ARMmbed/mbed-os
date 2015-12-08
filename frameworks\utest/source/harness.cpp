@@ -38,6 +38,7 @@ namespace
     size_t case_repeat_count = 0;
 
     minar::callback_handle_t case_timeout_handle = NULL;
+    size_t case_validation_count = 0;
 
     size_t case_passed = 0;
     size_t case_failed = 0;
@@ -58,8 +59,6 @@ bool Harness::run(const Specification specification)
 
 bool Harness::run(const Specification specification, std::size_t start_case)
 {
-    mbed::util::CriticalSectionLock lock;
-
     // ignore any invalid start index
     if (start_case >= specification.length)
         return false;
@@ -95,12 +94,18 @@ bool Harness::run(const Specification specification, std::size_t start_case)
 
 void Harness::raise_failure(failure_t reason)
 {
-    mbed::util::CriticalSectionLock lock;
-
-    case_failed++;
     status_t fail_status = STATUS_ABORT;
+    {
+        mbed::util::CriticalSectionLock lock;
+        case_failed++;
 
-    if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
+        if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
+        if (fail_status != STATUS_CONTINUE && case_timeout_handle != NULL)
+        {
+            minar::Scheduler::cancelCallback(case_timeout_handle);
+            case_timeout_handle = NULL;
+        }
+    }
 
     if (fail_status != STATUS_CONTINUE || reason == FAILURE_SETUP) {
         if (handlers.case_teardown && reason != FAILURE_TEARDOWN) {
@@ -152,19 +157,20 @@ void Harness::handle_timeout()
     {
         raise_failure(FAILURE_TIMEOUT);
         case_timeout_handle = NULL;
-        schedule_next_case();
+        minar::Scheduler::postCallback(schedule_next_case);
     }
 }
 
 void Harness::validate_callback()
 {
     mbed::util::CriticalSectionLock lock;
+    case_validation_count++;
 
     if (case_timeout_handle != NULL)
     {
         minar::Scheduler::cancelCallback(case_timeout_handle);
         case_timeout_handle = NULL;
-        schedule_next_case();
+        minar::Scheduler::postCallback(schedule_next_case);
     }
 }
 
@@ -179,8 +185,6 @@ bool Harness::is_busy()
 
 void Harness::run_next_case()
 {
-    mbed::util::CriticalSectionLock lock;
-
     if(case_current < (test_cases + test_length))
     {
         handlers.case_setup    = defaults.get_handler(case_current->setup_handler);
@@ -193,6 +197,8 @@ void Harness::run_next_case()
             return;
         }
 
+        case_validation_count = 0;
+
         if ((!case_failed && !case_passed) || case_control.repeat == REPEAT_ALL) {
             uint32_t index_of_case = test_index_of_case;
             if (case_control.repeat == REPEAT_NO_REPEAT) test_index_of_case++;
@@ -202,6 +208,7 @@ void Harness::run_next_case()
                 return;
             }
         }
+        // printf("running test case %p\n", case_current);
 
         case_failed_before = case_failed;
 
@@ -214,13 +221,16 @@ void Harness::run_next_case()
         }
         case_repeat_count++;
 
-        if (case_control.timeout != uint32_t(-1)) {
-            case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
-                                            .delay(minar::milliseconds(case_control.timeout))
-                                            .getHandle();
-        }
-        else {
-            schedule_next_case();
+        {
+            mbed::util::CriticalSectionLock lock;
+            if (case_control.timeout != uint32_t(-1) && case_validation_count == 0) {
+                case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
+                                                .delay(minar::milliseconds(case_control.timeout))
+                                                .getHandle();
+            }
+            else {
+                minar::Scheduler::postCallback(schedule_next_case);
+            }
         }
     }
     else if (handlers.test_teardown) {
