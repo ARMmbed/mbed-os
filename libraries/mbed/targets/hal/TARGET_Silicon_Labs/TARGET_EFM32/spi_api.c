@@ -50,7 +50,7 @@
 
 static uint16_t fill_word = SPI_FILL_WORD;
 
-#define SPI_LEAST_ACTIVE_SLEEPMODE EM0
+#define SPI_LEAST_ACTIVE_SLEEPMODE EM1
 #define USE_UINT16_BUFFER
 
 static inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
@@ -125,7 +125,6 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
 {
     obj->spi.spi = serial_uart_allocate(UART_TYPE_USART);
     MBED_ASSERT(obj->spi.spi);
-    SPIName spi_cs = (SPIName) pinmap_peripheral(cs, PinMap_SPI_CS);
     if (cs != NC) { /* Slave mode */
         obj->spi.master = false;
     } else {
@@ -1173,6 +1172,8 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
             uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
 
+            /* Wait previous transmit to complete */
+            while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
             /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
             spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
 
@@ -1347,9 +1348,13 @@ void spi_abort_asynch(spi_t *obj)
     // Determine whether we're running DMA or interrupt
     if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED || obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
         // Cancel the DMA transfers
+#ifdef LDMA_PRESENT
+        LDMA_StopTransfer(obj->spi.dmaOptionsTX.dmaChannel);
+        LDMA_StopTransfer(obj->spi.dmaOptionsRX.dmaChannel);
+#else
         DMA_ChannelEnable(obj->spi.dmaOptionsTX.dmaChannel, false);
         DMA_ChannelEnable(obj->spi.dmaOptionsRX.dmaChannel, false);
-
+#endif
         /* Release the dma channels if they were opportunistically allocated */
         if (obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_TEMPORARY_ALLOCATED) {
             dma_channel_free(obj->spi.dmaOptionsTX.dmaChannel);
