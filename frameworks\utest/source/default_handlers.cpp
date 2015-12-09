@@ -58,9 +58,11 @@ status_t utest::v1::verbose_case_teardown_handler(const Case *const source, cons
 status_t utest::v1::verbose_case_failure_handler(const Case *const /*source*/, const failure_t reason)
 {
     if (reason != FAILURE_ASSERTION) {
-        printf(">>> failed with reason '%s'\n", stringify(reason));
+        printf(">>> failure with reason '%s'\n", stringify(reason));
     }
-    return (reason == FAILURE_TEARDOWN) ? STATUS_ABORT : STATUS_CONTINUE;
+    if (reason == FAILURE_TEARDOWN) return STATUS_ABORT;
+    if (reason & FAILURE_IGNORE)    return STATUS_IGNORE;
+    return STATUS_CONTINUE;
 }
 
 
@@ -86,6 +88,6 @@ void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t
 
 status_t utest::v1::greentea_case_failure_handler(const Case *const source, const failure_t reason)
 {
-    verbose_case_failure_handler(source, reason);
-    return STATUS_ABORT;
+    status_t status = verbose_case_failure_handler(source, reason);
+    return (status == STATUS_IGNORE) ? STATUS_IGNORE : STATUS_ABORT;
 }

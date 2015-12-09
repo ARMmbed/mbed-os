@@ -34,7 +34,7 @@ namespace
     size_t test_failed = 0;
 
     const Case *case_current = NULL;
-    control_t case_control = control_t();
+    control_t case_control = control_t(REPEAT_ALL);
     size_t case_repeat_count = 0;
 
     minar::callback_handle_t case_timeout_handle = NULL;
@@ -97,17 +97,18 @@ void Harness::raise_failure(failure_t reason)
     status_t fail_status = STATUS_ABORT;
     {
         mbed::util::CriticalSectionLock lock;
-        case_failed++;
 
         if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
-        if (fail_status != STATUS_CONTINUE && case_timeout_handle != NULL)
+        if (fail_status != STATUS_IGNORE) case_failed++;
+
+        if (fail_status == STATUS_ABORT && case_timeout_handle)
         {
             minar::Scheduler::cancelCallback(case_timeout_handle);
             case_timeout_handle = NULL;
         }
     }
 
-    if (fail_status != STATUS_CONTINUE || reason == FAILURE_SETUP) {
+    if (fail_status == STATUS_ABORT || reason == FAILURE_SETUP) {
         if (handlers.case_teardown && reason != FAILURE_TEARDOWN) {
             status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, reason);
             if (teardown_status != STATUS_CONTINUE) {
@@ -116,7 +117,7 @@ void Harness::raise_failure(failure_t reason)
             else handlers.case_teardown = NULL;
         }
     }
-    if (fail_status != STATUS_CONTINUE) {
+    if (fail_status == STATUS_ABORT) {
         test_failed++;
         if (handlers.test_teardown) handlers.test_teardown(test_passed, test_failed, reason);
         die();
@@ -125,9 +126,10 @@ void Harness::raise_failure(failure_t reason)
 
 void Harness::schedule_next_case()
 {
-    if (case_failed_before == case_failed) case_passed++;
+    if (!(case_control.repeat & REPEAT_ON_TIMEOUT) &&
+        case_failed_before == case_failed) case_passed++;
 
-    if(case_control.repeat != REPEAT_CASE_ONLY) {
+    if (case_control.repeat & REPEAT_ALL || case_control.repeat == REPEAT_NO_REPEAT) {
         if (handlers.case_teardown &&
             (handlers.case_teardown(case_current, case_passed, case_failed,
                                      case_failed ? FAILURE_CASES : FAILURE_NONE) != STATUS_CONTINUE)) {
@@ -135,11 +137,11 @@ void Harness::schedule_next_case()
         }
     }
 
-    if(case_control.repeat == REPEAT_NO_REPEAT) {
+    if (case_control.repeat == REPEAT_NO_REPEAT) {
         if (case_failed > 0) test_failed++;
         else test_passed++;
 
-        case_control = control_t();
+        case_control = control_t(REPEAT_ALL);
         case_current++;
         case_passed = 0;
         case_failed = 0;
@@ -151,12 +153,17 @@ void Harness::schedule_next_case()
 
 void Harness::handle_timeout()
 {
-    mbed::util::CriticalSectionLock lock;
-
-    if (case_timeout_handle != NULL)
+    bool timeout_occurred = false;
     {
-        raise_failure(FAILURE_TIMEOUT);
-        case_timeout_handle = NULL;
+        mbed::util::CriticalSectionLock lock;
+
+        if (case_timeout_handle != NULL) {
+            case_timeout_handle = NULL;
+            timeout_occurred = true;
+        }
+    }
+    if (timeout_occurred) {
+        raise_failure(failure_t(FAILURE_TIMEOUT | ((case_control.repeat & REPEAT_ON_TIMEOUT) ? FAILURE_IGNORE : 0)));
         minar::Scheduler::postCallback(schedule_next_case);
     }
 }
@@ -170,6 +177,7 @@ void Harness::validate_callback()
     {
         minar::Scheduler::cancelCallback(case_timeout_handle);
         case_timeout_handle = NULL;
+        if (case_control.repeat & REPEAT_ON_TIMEOUT) case_control = control_t();
         minar::Scheduler::postCallback(schedule_next_case);
     }
 }
@@ -199,16 +207,15 @@ void Harness::run_next_case()
 
         case_validation_count = 0;
 
-        if ((!case_failed && !case_passed) || case_control.repeat == REPEAT_ALL) {
-            uint32_t index_of_case = test_index_of_case;
-            if (case_control.repeat == REPEAT_NO_REPEAT) test_index_of_case++;
+        if (case_control.repeat == REPEAT_ALL) {
+            case_control = control_t();
+            uint32_t index_of_case = test_index_of_case++;
             if (handlers.case_setup && (handlers.case_setup(case_current, index_of_case) != STATUS_CONTINUE)) {
                 raise_failure(FAILURE_SETUP);
                 schedule_next_case();
                 return;
             }
         }
-        // printf("running test case %p\n", case_current);
 
         case_failed_before = case_failed;
 

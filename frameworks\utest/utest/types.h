@@ -22,19 +22,21 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-
+#include "compiler-polyfill/attributes.h"
 
 namespace utest {
 namespace v1 {
 
     enum repeat_t {
-        REPEAT_NO_REPEAT = 0,   ///< continue with the next test case
-        REPEAT_CASE_ONLY,       ///< repeat the current test case without the setup and teardown handlers
-        REPEAT_ALL,             ///< repeat the current test case with the setup and teardown handlers
+        REPEAT_NO_REPEAT  = 0,  ///< continue with the next test case
+        REPEAT_CASE_ONLY  = 1,  ///< repeat the current test case without the setup and teardown handlers
+        REPEAT_ALL        = 2,  ///< repeat the current test case with the setup and teardown handlers
+        REPEAT_ON_TIMEOUT = 4   ///< repeat the current on timeout only89
     };
 
     enum status_t {
         STATUS_CONTINUE = 0,        ///< continues testing
+        STATUS_IGNORE,              ///< ignores failure and continues testing
         STATUS_ABORT,               ///< stops testing
     };
 
@@ -47,10 +49,13 @@ namespace v1 {
         FAILURE_TEARDOWN,   ///< A failure occurred on teardown
         FAILURE_TIMEOUT,    ///< An expected asynchronous call timed out
         FAILURE_ASSERTION,  ///< An assertion failed
+        FAILURE_IGNORE = 0x8000,    ///< A failure occurred, but may be ignored
     };
 
     /// Stringifies a failure for understandable error messages.
     const char* stringify(failure_t failure);
+    /// Stringifies a status for understandable status messages.
+    const char* stringify(status_t status);
 
     /** Control class for specifying test case attributes
      *
@@ -107,12 +112,24 @@ namespace v1 {
 
     /// Alias class for asynchronous timeout control in milliseconds
     struct CaseTimeout : public control_t {
-        CaseTimeout(uint32_t ms) : control_t(ms) {}
+        inline CaseTimeout(uint32_t ms) : control_t(ms) {}
+    };
+    /// Alias class for asynchronous timeout control in milliseconds and
+    /// repeats the test case handler with calling teardown and setup handlers
+    struct CaseRepeatAllOnTimeout : public control_t {
+        inline CaseRepeatAllOnTimeout(uint32_t ms) : control_t(repeat_t(REPEAT_ALL | REPEAT_ON_TIMEOUT), ms) {}
+    };
+    /// Alias class for asynchronous timeout control in milliseconds and
+    /// repeats only the test case handler without calling teardown and setup handlers
+    struct CaseRepeatHandlerOnTimeout : public control_t {
+        inline CaseRepeatHandlerOnTimeout(uint32_t ms) : control_t(repeat_t(REPEAT_CASE_ONLY | REPEAT_ON_TIMEOUT), ms) {}
     };
     /// repeats only the test case handler without calling teardown and setup handlers
-    const control_t CaseRepeatHandlerOnly = control_t(REPEAT_CASE_ONLY);
+    const control_t CaseRepeatHandler                  = control_t(REPEAT_CASE_ONLY);
+    const control_t CaseRepeatHandlerOnly __deprecated = CaseRepeatHandler; // [[deprecated("use CaseRepeatHandler instead")]]
     /// repeats the test case handler with calling teardown and setup handlers
-    const control_t CaseRepeat = control_t(REPEAT_ALL);
+    const control_t CaseRepeatAll           = control_t(REPEAT_ALL);
+    const control_t CaseRepeat __deprecated = CaseRepeatAll;  // [[deprecated("use CaseRepeatAll instead")]]
     /// does not repeat this test case, but moves on to the next one
     const control_t CaseNext = control_t(REPEAT_NO_REPEAT);
 

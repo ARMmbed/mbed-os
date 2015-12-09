@@ -20,24 +20,51 @@
 
 const char* utest::v1::stringify(utest::v1::failure_t failure)
 {
-    switch(failure)
+    const char *string;
+    switch(failure & ~FAILURE_IGNORE)
     {
         case FAILURE_NONE:
-            return "No Failure";
+            string = "Ignored: No Failure";
+            break;
         case FAILURE:
-            return "Unspecified Failure";
+            string = "Ignored: Unspecified Failure";
+            break;
         case FAILURE_CASES:
-            return "Test Cases Failed";
+            string = "Ignored: Test Cases Failed";
+            break;
         case FAILURE_EMPTY_CASE:
-            return "Test Case is Empty";
+            string = "Ignored: Test Case is Empty";
+            break;
         case FAILURE_SETUP:
-            return "Setup Failed";
+            string = "Ignored: Setup Failed";
+            break;
         case FAILURE_TEARDOWN:
-            return "Teardown Failed";
+            string = "Ignored: Teardown Failed";
+            break;
         case FAILURE_TIMEOUT:
-            return "Timed Out";
+            string = "Ignored: Timed Out";
+            break;
         case FAILURE_ASSERTION:
-            return "Assertion Failed";
+            string = "Ignored: Assertion Failed";
+            break;
+        default:
+            string = "Ignored: Unknown Failure";
+            break;
     }
-    return "Unknown Failure";
+    if (!(failure & FAILURE_IGNORE)) string += 9;
+    return string;
+}
+
+const char* utest::v1::stringify(utest::v1::status_t status)
+{
+    switch(status)
+    {
+        case STATUS_CONTINUE:
+            return "Continue";
+        case STATUS_IGNORE:
+            return "Ignore";
+        case STATUS_ABORT:
+            return "Abort";
+    }
+    return "Unknown Status";
 }
