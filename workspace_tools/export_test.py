@@ -150,6 +150,7 @@ if __name__ == '__main__':
             ('uvision', 'DISCO_F746NG'),
             ('uvision', 'DISCO_F469NI'),
             ('uvision', 'DISCO_L476VG'),
+            ('uvision', 'MOTE_L152RC'),
 
             ('lpcxpresso', 'LPC1768'),
             ('lpcxpresso', 'LPC4088'),
@@ -260,6 +261,7 @@ if __name__ == '__main__':
             ('iar', 'MTS_MDOT_F411RE'),
             ('iar', 'MAXWSNENV'),
             ('iar', 'MAX32600MBED'),
+            ('iar', 'MOTE_L152RC'),
 
             # Removed following item to avoid script error
             #(None, None),

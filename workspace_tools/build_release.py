@@ -90,6 +90,8 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('DISCO_L476VG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L476RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
+    ('MOTE_L152RC', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+
     ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
 
     ('NRF51822',     ('ARM', 'GCC_ARM', 'IAR')),

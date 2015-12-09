@@ -55,6 +55,8 @@ build_list = (
     { "target": "NUCLEO_L073RZ",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F446RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
+    { "target": "MOTE_L152RC",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+
     { "target": "ELMO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
     { "target": "MTS_MDOT_F405RG",   "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
