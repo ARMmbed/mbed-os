@@ -1271,35 +1271,36 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     if(type == FlowControlNone) {
         // Disable hardware flow control
       _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_NONE;
-      UartHandle.Instance->CR3 &= ~UART_HWCONTROL_RTS_CTS;
     }
     if (type == FlowControlRTS) {
         // Enable RTS
         MBED_ASSERT(uart_rts != (UARTName)NC);
         _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_RTS;
+        _SERIAL_OBJ(pin_rts) = rxflow;
         // Enable the pin for RTS function
         pinmap_pinout(rxflow, PinMap_UART_RTS);
-        UartHandle.Instance->CR3 |= UART_HWCONTROL_RTS;
     }
     if (type == FlowControlCTS) {
         // Enable CTS
         MBED_ASSERT(uart_cts != (UARTName)NC);
         _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_CTS;
+        _SERIAL_OBJ(pin_cts) = txflow;
         // Enable the pin for CTS function
         pinmap_pinout(txflow, PinMap_UART_CTS);
-        UartHandle.Instance->CR3 |= UART_HWCONTROL_CTS;
     }
     if (type == FlowControlRTSCTS) {
         // Enable CTS & RTS
         MBED_ASSERT(uart_rts != (UARTName)NC);
         MBED_ASSERT(uart_cts != (UARTName)NC);
         _SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_RTS_CTS;
+        _SERIAL_OBJ(pin_rts) = rxflow;
+        _SERIAL_OBJ(pin_cts) = txflow;
         // Enable the pin for CTS function
         pinmap_pinout(txflow, PinMap_UART_CTS);
         // Enable the pin for RTS function
         pinmap_pinout(rxflow, PinMap_UART_RTS);
-        UartHandle.Instance->CR3 |= UART_HWCONTROL_RTS_CTS;
     }
+    init_uart(obj);
 }
 #endif
 #endif
