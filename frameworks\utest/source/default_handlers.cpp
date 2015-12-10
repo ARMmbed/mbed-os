@@ -21,6 +21,28 @@
 
 using namespace utest::v1;
 
+const handlers_t utest::v1::verbose_continue_handlers = {
+    verbose_test_setup_handler,
+    verbose_test_teardown_handler,
+    verbose_case_setup_handler,
+    verbose_case_teardown_handler,
+    verbose_case_failure_handler
+};
+const handlers_t utest::v1::greentea_abort_handlers = {
+    greentea_test_setup_handler,
+    greentea_test_teardown_handler,
+    verbose_case_setup_handler,
+    verbose_case_teardown_handler,
+    greentea_case_failure_handler
+};
+const handlers_t utest::v1::greentea_continue_handlers = {
+    greentea_test_setup_handler,
+    greentea_test_teardown_handler,
+    verbose_case_setup_handler,
+    verbose_case_teardown_handler,
+    verbose_case_failure_handler
+};
+
 status_t utest::v1::verbose_test_setup_handler(const size_t number_of_cases)
 {
     printf(">>> Running %u test cases...\n", number_of_cases);
@@ -57,11 +79,11 @@ status_t utest::v1::verbose_case_teardown_handler(const Case *const source, cons
 
 status_t utest::v1::verbose_case_failure_handler(const Case *const /*source*/, const failure_t reason)
 {
-    if (reason != FAILURE_ASSERTION) {
+    if (!(reason & FAILURE_ASSERTION)) {
         printf(">>> failure with reason '%s'\n", stringify(reason));
     }
-    if (reason == FAILURE_TEARDOWN) return STATUS_ABORT;
-    if (reason & FAILURE_IGNORE)    return STATUS_IGNORE;
+    if (reason & FAILURE_TEARDOWN) return STATUS_ABORT;
+    if (reason & FAILURE_IGNORE)   return STATUS_IGNORE;
     return STATUS_CONTINUE;
 }
 
@@ -78,7 +100,7 @@ status_t utest::v1::greentea_test_setup_handler(const size_t /*number_of_cases*/
 void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
     verbose_test_teardown_handler(passed, failed, failure);
-    if (failed || failure != FAILURE_NONE) {
+    if (failed || (failure && !(failure & FAILURE_IGNORE))) {
         printf("{{failure}}\n");
     } else {
         printf("{{success}}\n");
@@ -89,5 +111,5 @@ void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t
 status_t utest::v1::greentea_case_failure_handler(const Case *const source, const failure_t reason)
 {
     status_t status = verbose_case_failure_handler(source, reason);
-    return (status == STATUS_IGNORE) ? STATUS_IGNORE : STATUS_ABORT;
+    return (status & STATUS_IGNORE) ? STATUS_IGNORE : STATUS_ABORT;
 }

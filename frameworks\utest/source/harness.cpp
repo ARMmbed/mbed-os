@@ -52,12 +52,12 @@ static void die() {
     while(1) ;
 }
 
-bool Harness::run(const Specification specification)
+bool Harness::run(const Specification& specification)
 {
     return run(specification, 0);
 }
 
-bool Harness::run(const Specification specification, std::size_t start_case)
+bool Harness::run(const Specification& specification, std::size_t start_case)
 {
     // ignore any invalid start index
     if (start_case >= specification.length)
@@ -99,17 +99,17 @@ void Harness::raise_failure(failure_t reason)
         mbed::util::CriticalSectionLock lock;
 
         if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
-        if (fail_status != STATUS_IGNORE) case_failed++;
+        if (!(fail_status & STATUS_IGNORE)) case_failed++;
 
-        if (fail_status == STATUS_ABORT && case_timeout_handle)
+        if ((fail_status & STATUS_ABORT) && case_timeout_handle)
         {
             minar::Scheduler::cancelCallback(case_timeout_handle);
             case_timeout_handle = NULL;
         }
     }
 
-    if (fail_status == STATUS_ABORT || reason == FAILURE_SETUP) {
-        if (handlers.case_teardown && reason != FAILURE_TEARDOWN) {
+    if (fail_status & STATUS_ABORT || reason & FAILURE_SETUP) {
+        if (handlers.case_teardown && !(reason & FAILURE_TEARDOWN)) {
             status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, reason);
             if (teardown_status != STATUS_CONTINUE) {
                 raise_failure(FAILURE_TEARDOWN);
@@ -117,7 +117,7 @@ void Harness::raise_failure(failure_t reason)
             else handlers.case_teardown = NULL;
         }
     }
-    if (fail_status == STATUS_ABORT) {
+    if (fail_status & STATUS_ABORT) {
         test_failed++;
         if (handlers.test_teardown) handlers.test_teardown(test_passed, test_failed, reason);
         die();
@@ -126,8 +126,9 @@ void Harness::raise_failure(failure_t reason)
 
 void Harness::schedule_next_case()
 {
-    if (!(case_control.repeat & REPEAT_ON_TIMEOUT) &&
-        case_failed_before == case_failed) case_passed++;
+    if (!(case_control.repeat & REPEAT_ON_TIMEOUT) && case_failed_before == case_failed) {
+        case_passed++;
+    }
 
     if (case_control.repeat & REPEAT_ALL || case_control.repeat == REPEAT_NO_REPEAT) {
         if (handlers.case_teardown &&

@@ -138,31 +138,13 @@ namespace v1 {
     status_t greentea_case_failure_handler (const Case *const source, const failure_t reason);
 
     /// The verbose default handlers that always continue on failure
-    const handlers_t verbose_continue_handlers = {
-        verbose_test_setup_handler,
-        verbose_test_teardown_handler,
-        verbose_case_setup_handler,
-        verbose_case_teardown_handler,
-        verbose_case_failure_handler
-    };
+    extern const handlers_t verbose_continue_handlers;
 
     /// The greentea default handlers that always abort on the first encountered failure
-    const handlers_t greentea_abort_handlers = {
-        greentea_test_setup_handler,
-        greentea_test_teardown_handler,
-        verbose_case_setup_handler,
-        verbose_case_teardown_handler,
-        greentea_case_failure_handler
-    };
+    extern const handlers_t greentea_abort_handlers;
 
     /// The greentea default handlers that always continue on failure
-    const handlers_t greentea_continue_handlers = {
-        greentea_test_setup_handler,
-        greentea_test_teardown_handler,
-        verbose_case_setup_handler,
-        verbose_case_teardown_handler,
-        verbose_case_failure_handler
-    };
+    extern const handlers_t greentea_continue_handlers;
 
     /// The greentea aborting handlers are the default
     const handlers_t default_handlers = greentea_abort_handlers;

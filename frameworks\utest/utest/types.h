@@ -31,25 +31,25 @@ namespace v1 {
         REPEAT_NO_REPEAT  = 0,  ///< continue with the next test case
         REPEAT_CASE_ONLY  = 1,  ///< repeat the current test case without the setup and teardown handlers
         REPEAT_ALL        = 2,  ///< repeat the current test case with the setup and teardown handlers
-        REPEAT_ON_TIMEOUT = 4   ///< repeat the current on timeout only89
+        REPEAT_ON_TIMEOUT = 4   ///< repeat the current on timeout only
     };
 
     enum status_t {
-        STATUS_CONTINUE = 0,        ///< continues testing
-        STATUS_IGNORE,              ///< ignores failure and continues testing
-        STATUS_ABORT,               ///< stops testing
+        STATUS_CONTINUE = 0,    ///< continues testing
+        STATUS_IGNORE = 1,      ///< ignores failure and continues testing
+        STATUS_ABORT = 2        ///< stops testing
     };
 
     enum failure_t {
-        FAILURE_NONE = 0,   ///< No failure occurred
-        FAILURE,            ///< An unknown failure occurred
-        FAILURE_CASES,      ///< A failure occurred in at least one test case
-        FAILURE_EMPTY_CASE, ///< The test case contains only empty handlers
-        FAILURE_SETUP,      ///< A failure occurred on setup
-        FAILURE_TEARDOWN,   ///< A failure occurred on teardown
-        FAILURE_TIMEOUT,    ///< An expected asynchronous call timed out
-        FAILURE_ASSERTION,  ///< An assertion failed
-        FAILURE_IGNORE = 0x8000,    ///< A failure occurred, but may be ignored
+        FAILURE_NONE = 0,       ///< No failure occurred
+        FAILURE = 1,            ///< An unknown failure occurred
+        FAILURE_CASES = 2,      ///< A failure occurred in at least one test case
+        FAILURE_EMPTY_CASE = 4, ///< The test case contains only empty handlers
+        FAILURE_SETUP = 8,      ///< A failure occurred on setup
+        FAILURE_TEARDOWN = 16,  ///< A failure occurred on teardown
+        FAILURE_TIMEOUT = 32,   ///< An expected asynchronous call timed out
+        FAILURE_ASSERTION = 64, ///< An assertion failed
+        FAILURE_IGNORE = 0x8000 ///< A failure occurred, but may be ignored
     };
 
     /// Stringifies a failure for understandable error messages.
