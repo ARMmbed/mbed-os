@@ -79,6 +79,8 @@ struct serial_s {
 #endif
 #if DEVICE_SERIAL_FC
     uint32_t hw_flow_ctl;
+    PinName pin_rts;
+    PinName pin_cts;
 #endif
 };
 

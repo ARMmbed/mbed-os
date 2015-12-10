@@ -43,18 +43,13 @@
 #define UART_STATE_TX_ACTIVE 0x10
 
 static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0, 0, 0, 0, 0, 0};
-typedef void (*CB_Add_t)(int);
 
 #if DEVICE_SERIAL_ASYNCH_DMA
-static CB_Add_t Tab_RxCallbacks[UART_NUM] = {0};
-static int Tab_RxCallbackEvents[UART_NUM] = {0};
 static const uint32_t DMA_UartRx_Channel[UART_NUM] = {DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_5, DMA_CHANNEL_5, DMA_CHANNEL_5};
 static const uint32_t DMA_UartRx_Stream[UART_NUM]  = {(uint32_t)DMA2_Stream5, (uint32_t) DMA1_Stream5, (uint32_t) DMA1_Stream1, (uint32_t) DMA1_Stream2, (uint32_t) DMA1_Stream0, (uint32_t) DMA2_Stream5, (uint32_t) DMA1_Stream3, (uint32_t) DMA1_Stream6};
 static const uint32_t DMA_UartTx_Channel[UART_NUM] = {DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_4, DMA_CHANNEL_5, DMA_CHANNEL_5, DMA_CHANNEL_5};
 static const uint32_t DMA_UartTx_Stream[UART_NUM]  = {(uint32_t)DMA2_Stream7, (uint32_t) DMA1_Stream6, (uint32_t) DMA1_Stream3, (uint32_t) DMA1_Stream4, (uint32_t) DMA1_Stream7, (uint32_t) DMA2_Stream6, (uint32_t) DMA1_Stream1, (uint32_t) DMA1_Stream0};
 
-static int EventStatus = 0;
-static serial_t *SerialRxObj = 0;
 #endif
 static uart_irq_handler irq_handler;
 
@@ -138,8 +133,6 @@ static void init_uart(serial_t *obj)
 
     /* Associate the initialized DMA handle to the UART handle */
     __HAL_LINKDMA(&UartHandle, hdmarx, hdma_rx);
-    EventStatus = 0;
-    SerialRxObj = obj;
 #endif
 
     if (HAL_UART_Init(&UartHandle) != HAL_OK) {
@@ -914,56 +907,6 @@ IRQn_Type h_serial_rx_get_irqdma_index(serial_t *obj) {
 
     return irq_n;
 }
-static int h_serial_get_uart_index(UART_HandleTypeDef *huart){
-    int index =0;
-
-    switch((int)(huart->Instance)){
-#if defined(USART1_BASE)
-    case UART_1:
-        index = 0;
-        break;
-#endif
-#if defined(USART2_BASE)
-    case UART_2:
-        index = 1;
-        break;
-#endif
-#if defined(USART3_BASE)
-    case UART_3:
-        index = 2;
-        break;
-#endif
-#if defined(UART4_BASE)
-    case UART_4:
-        index = 3;
-        break;
-#endif
-#if defined(UART5_BASE)
-    case UART_5:
-        index = 4;
-        break;
-#endif
-#if defined(USART6_BASE)
-    case UART_6:
-        index = 5;
-        break;
-#endif
-#if defined(UART7_BASE)
-    case UART_7:
-        index = 6;
-        break;
-#endif
-#if defined(UART8_BASE)
-    case UART_8:
-        index = 7;
-        break;
-#endif
-    default:
-        index = -1;
-  }
-  return index;
-}
-
 #endif
 //----------------------------------------------------------------------------------------
 // MBED API FUNCTIONS
@@ -1012,8 +955,8 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     NVIC_ClearPendingIRQ(irqn);
     NVIC_DisableIRQ(irqn);
     NVIC_SetPriority(irqn, 1);
-    NVIC_SetVector(irqn, (uint32_t)&h_serial_txdma_irq_handler_asynch);
-    UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
+//    NVIC_SetVector(irqn, (uint32_t)&h_serial_txdma_irq_handler_asynch);
+    NVIC_SetVector(irqn, (uint32_t)handler);
     NVIC_EnableIRQ(irqn);
 
     // the following function will enable program and enable the DMA transfer
@@ -1050,7 +993,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
  * @param char_match A character in range 0-254 to be matched
  * @param hint       A suggestion for how to use DMA with this transfer
  */
-void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint, void (*callback)(int), int event2)
+void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -1079,15 +1022,9 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     NVIC_ClearPendingIRQ(irqn);
     NVIC_DisableIRQ(irqn);
     NVIC_SetPriority(irqn, 1);
-    NVIC_SetVector(irqn, (uint32_t)&h_serial_rxdma_irq_handler_asynch);
-    UartHandle.Instance = (USART_TypeDef *)_SERIAL_OBJ(uart);
+    NVIC_SetVector(irqn, (uint32_t)handler);
+
     NVIC_EnableIRQ(irqn);
-
-    if (_SERIAL_OBJ(index) != -1){
-        Tab_RxCallbacks[_SERIAL_OBJ(index)] = (CB_Add_t)callback;
-        Tab_RxCallbackEvents[_SERIAL_OBJ(index)] = event2;
-    }
-
     // following HAL function will program and enable the DMA transfer
     HAL_UART_Receive_DMA(&UartHandle, (uint8_t*)rx, rx_length);
 #else
@@ -1125,35 +1062,6 @@ uint8_t serial_rx_active(serial_t *obj)
 
 }
 
-#if DEVICE_SERIAL_ASYNCH_DMA
-/* the following function is weak in the HAL code */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-    CB_Add_t callback_address;
-    int index = 0; int event = 0;
-    uint8_t *buf = (uint8_t*)SerialRxObj->rx_buff.buffer;
-    //RX PART
-    // increment rx_buff.pos
-    if (UartHandle.RxXferSize !=0) { 
-        SerialRxObj->rx_buff.pos = UartHandle.RxXferSize - UartHandle.RxXferCount;
-    }
-
-    if ((buf != NULL) && (buf[SerialRxObj->rx_buff.pos-1] == SerialRxObj->char_match)) {
-      EventStatus |= SERIAL_EVENT_RX_CHARACTER_MATCH;
-    }
-
-   EventStatus |= SERIAL_EVENT_RX_COMPLETE;
-   index = h_serial_get_uart_index(huart);
-  
-   callback_address = (void (*)(int)) *(__IO uint32_t*) (Tab_RxCallbacks[index]);
-   event = Tab_RxCallbackEvents[index];
-   if (callback_address !=0) {
-        callback_address(EventStatus&event);
-   }
-   EventStatus &= SERIAL_EVENT_RX_COMPLETE;
-   EventStatus &= SERIAL_EVENT_RX_CHARACTER_MATCH;
-}
-#endif
-
 /** The asynchronous TX and RX handler.
  *
  * @param obj The serial object
@@ -1162,11 +1070,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 int serial_irq_handler_asynch(serial_t *obj)
 {
   volatile int return_event = 0;
-#if !DEVICE_SERIAL_ASYNCH_DMA
   uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
-#endif
+
   // Irq handler is common to Tx and Rx
     UartHandle.Instance = (USART_TypeDef *)(_SERIAL_OBJ(uart));
+#if DEVICE_SERIAL_ASYNCH_DMA
+    if ((UartHandle.Instance->CR3 & USART_CR3_DMAT) !=0) {
+        // call dma tx interrupt
+        HAL_DMA_IRQHandler(UartHandle.hdmatx);
+    }
+    if ((UartHandle.Instance->CR3 & USART_CR3_DMAR) !=0) {
+        // call dma rx interrupt
+        HAL_DMA_IRQHandler(UartHandle.hdmarx);
+    }
+#endif
     HAL_UART_IRQHandler(&UartHandle);
   // TX PART:
     if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TC) != RESET) {
@@ -1193,25 +1110,18 @@ int serial_irq_handler_asynch(serial_t *obj)
       __HAL_UART_CLEAR_FLAG(&UartHandle, HAL_UART_ERROR_ORE);
         return_event |= SERIAL_EVENT_RX_OVERRUN_ERROR & obj->serial.events;
     }
- 
-#if DEVICE_SERIAL_ASYNCH_DMA
-      if ((EventStatus&SERIAL_EVENT_RX_COMPLETE) !=0) {
-        return_event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
-        EventStatus &= ~SERIAL_EVENT_RX_COMPLETE;
-    }
-#else
+
     //RX PART
     // increment rx_buff.pos
     if (UartHandle.RxXferSize !=0) { 
         obj->rx_buff.pos = UartHandle.RxXferSize - UartHandle.RxXferCount;
     }
-    if ((UartHandle.RxXferCount==0)&&(UartHandle.RxXferSize !=0)) {
+    if ((UartHandle.RxXferCount==0)&&(obj->rx_buff.pos >= (obj->rx_buff.length - 1))) {
         return_event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
     }
     if ((buf != NULL) && (buf[obj->rx_buff.pos-1] == obj->char_match) && (_SERIAL_OBJ(events) & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
       return_event |= SERIAL_EVENT_RX_CHARACTER_MATCH & obj->serial.events;
     }
-#endif
     return return_event;  
 }
 

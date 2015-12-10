@@ -186,10 +186,9 @@ int SerialBase::read(uint16_t *buffer, int length, const event_callback_t& callb
 
 void SerialBase::start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event, unsigned char char_match)
 {
-    int event2 = event;
     _rx_callback = callback;
     _thunk_irq.callback(&SerialBase::interrupt_handler_asynch);
-    serial_rx_asynch(&_serial, buffer, buffer_size, buffer_width, _thunk_irq.entry(), event, char_match, _rx_usage, (void (*)(int))& callback, event2);
+    serial_rx_asynch(&_serial, buffer, buffer_size, buffer_width, _thunk_irq.entry(), event, char_match, _rx_usage);
 }
 
 void SerialBase::interrupt_handler_asynch(void)
