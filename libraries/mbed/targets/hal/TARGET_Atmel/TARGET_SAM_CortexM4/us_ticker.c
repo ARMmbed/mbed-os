@@ -82,6 +82,7 @@ void us_ticker_init(void)
 
     if (g_sys_init == 0) {
         sysclk_init();
+        system_board_init();
         g_sys_init = 1;
     }
 

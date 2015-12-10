@@ -49,16 +49,4 @@
 
 #define BAORD SAMG55_XPLAINED_PRO
 
-/** Enable Com Port. */
-#define CONF_BOARD_UART_CONSOLE
-
-/* USART6 module is used in SYNC. mode. */
-#define CONF_BOARD_USART0
-
-
-/** Configure AT30TSE pins */
-#define CONF_BOARD_AT30TSE
-
-#define BOARD_FLEXCOM_TWI			FLEXCOM4
-
 #endif /* CONF_BOARD_H_INCLUDED */

@@ -18,14 +18,15 @@
 #include "gpio_api.h"
 #include "ioport.h"
 
-extern uint8_t ioinit;
+extern uint8_t g_sys_init;
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
     MBED_ASSERT(obj);
-    if (ioinit) {
-        ioport_init();
-        ioinit = 0;
+    if (g_sys_init == 0) {
+        sysclk_init();
+        system_board_init();
+        g_sys_init = 1;
     }
     obj->port = port;
     obj->mask = mask;

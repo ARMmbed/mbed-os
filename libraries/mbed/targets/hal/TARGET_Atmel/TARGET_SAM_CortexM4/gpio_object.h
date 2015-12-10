@@ -25,7 +25,6 @@ extern "C" {
 
 typedef struct {
     PinName  pin;
-    uint32_t mask;
     uint8_t mode;
     uint8_t direction;
 } gpio_t;

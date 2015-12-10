@@ -27,7 +27,7 @@
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
-extern uint8_t ioinit;
+extern uint8_t g_sys_init;
 
 static IRQn_Type pin_to_irq (uint32_t pin);
 
@@ -71,9 +71,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     MBED_ASSERT(obj);
     if (pin == NC)
         return -1;
-    if (ioinit) {
-        ioport_init();
-        ioinit = 0;
+    if (g_sys_init == 0) {
+        sysclk_init();
+        system_board_init();
+        g_sys_init = 1;
     }
 
     IRQn_Type irq_n = (IRQn_Type)0;
