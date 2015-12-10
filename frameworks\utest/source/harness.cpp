@@ -128,11 +128,11 @@ void Harness::raise_failure(failure_t reason)
 
 void Harness::schedule_next_case()
 {
-    if (!(case_control.repeat & REPEAT_ON_TIMEOUT) && case_failed_before == case_failed) {
+    if ((case_control.repeat & REPEAT_ON_VALIDATE) && case_failed_before == case_failed) {
         case_passed++;
     }
 
-    if (case_control.repeat & REPEAT_ALL || case_control.repeat == REPEAT_NO_REPEAT) {
+    if (case_control.repeat & REPEAT_SETUP_TEARDOWN || case_control.repeat == REPEAT_NO_REPEAT) {
         if (handlers.case_teardown &&
             (handlers.case_teardown(case_current, case_passed, case_failed,
                                      case_failed ? FAILURE_CASES : FAILURE_NONE) != STATUS_CONTINUE)) {
@@ -180,7 +180,8 @@ void Harness::validate_callback()
     {
         minar::Scheduler::cancelCallback(case_timeout_handle);
         case_timeout_handle = NULL;
-        if (case_control.repeat & REPEAT_ON_TIMEOUT) case_control = control_t();
+        if (case_control.repeat & REPEAT_ON_VALIDATE) case_control = control_t(REPEAT_ALL);
+        else if (case_control.repeat & REPEAT_ON_TIMEOUT) case_control = control_t();
         minar::Scheduler::postCallback(schedule_next_case);
     }
 }

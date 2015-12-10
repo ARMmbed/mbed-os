@@ -29,9 +29,16 @@ namespace v1 {
 
     enum repeat_t {
         REPEAT_NO_REPEAT  = 0,  ///< continue with the next test case
-        REPEAT_CASE_ONLY  = 1,  ///< repeat the current test case without the setup and teardown handlers
-        REPEAT_ALL        = 2,  ///< repeat the current test case with the setup and teardown handlers
-        REPEAT_ON_TIMEOUT = 4   ///< repeat the current on timeout only
+
+        REPEAT_ON_TIMEOUT = 1,
+        REPEAT_ON_VALIDATE  = 2,
+        REPEAT_CASE_ONLY  = 4,
+        REPEAT_SETUP_TEARDOWN = 8,
+
+        REPEAT_ALL_ON_TIMEOUT = REPEAT_SETUP_TEARDOWN | REPEAT_ON_TIMEOUT,  ///< repeat the handler with setup and teardown on timeout
+        REPEAT_HANDLER_ON_TIMEOUT = REPEAT_CASE_ONLY | REPEAT_ON_TIMEOUT,   ///< repeat only the handler on timeout
+        REPEAT_ALL = REPEAT_SETUP_TEARDOWN | REPEAT_ON_VALIDATE,            ///< repeat the handler with setup and teardown
+        REPEAT_HANDLER = REPEAT_CASE_ONLY | REPEAT_ON_VALIDATE              ///< repeat only the handler
     };
 
     enum status_t {
@@ -99,7 +106,8 @@ namespace v1 {
 
         control_t &
         operator+(const control_t &rhs) {
-            if (repeat == 0 || repeat < rhs.repeat) repeat = rhs.repeat;
+            repeat = repeat_t(repeat | rhs.repeat);
+            if (repeat & REPEAT_SETUP_TEARDOWN) repeat = repeat_t(repeat & ~REPEAT_HANDLER);
             if (timeout == uint32_t(-1) || timeout > rhs.timeout) timeout = rhs.timeout;
             return *this;
         }
@@ -117,15 +125,15 @@ namespace v1 {
     /// Alias class for asynchronous timeout control in milliseconds and
     /// repeats the test case handler with calling teardown and setup handlers
     struct CaseRepeatAllOnTimeout : public control_t {
-        inline CaseRepeatAllOnTimeout(uint32_t ms) : control_t(repeat_t(REPEAT_ALL | REPEAT_ON_TIMEOUT), ms) {}
+        inline CaseRepeatAllOnTimeout(uint32_t ms) : control_t(REPEAT_ALL_ON_TIMEOUT, ms) {}
     };
     /// Alias class for asynchronous timeout control in milliseconds and
     /// repeats only the test case handler without calling teardown and setup handlers
     struct CaseRepeatHandlerOnTimeout : public control_t {
-        inline CaseRepeatHandlerOnTimeout(uint32_t ms) : control_t(repeat_t(REPEAT_CASE_ONLY | REPEAT_ON_TIMEOUT), ms) {}
+        inline CaseRepeatHandlerOnTimeout(uint32_t ms) : control_t(REPEAT_HANDLER_ON_TIMEOUT, ms) {}
     };
     /// repeats only the test case handler without calling teardown and setup handlers
-    const control_t CaseRepeatHandler                  = control_t(REPEAT_CASE_ONLY);
+    const control_t CaseRepeatHandler                  = control_t(REPEAT_HANDLER);
     const control_t CaseRepeatHandlerOnly __deprecated = CaseRepeatHandler; // [[deprecated("use CaseRepeatHandler instead")]]
     /// repeats the test case handler with calling teardown and setup handlers
     const control_t CaseRepeatAll           = control_t(REPEAT_ALL);
