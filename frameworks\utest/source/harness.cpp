@@ -22,7 +22,6 @@
 
 using namespace utest::v1;
 
-
 namespace
 {
     const Case *test_cases = NULL;
@@ -67,11 +66,12 @@ bool Harness::run(const Specification& specification, std::size_t start_case)
     if (is_busy())
         return false;
 
-    test_cases = specification.cases;
+    test_cases  = specification.cases;
     test_length = specification.length;
-    defaults = specification.defaults;
-    handlers.test_setup = defaults.get_handler(specification.setup_handler);
+    defaults    = specification.defaults;
+    handlers.test_setup    = defaults.get_handler(specification.setup_handler);
     handlers.test_teardown = defaults.get_handler(specification.teardown_handler);
+    handlers.test_failure  = defaults.get_handler(specification.failure_handler);
 
     test_index_of_case = 0;
     test_passed = 0;
@@ -83,6 +83,7 @@ bool Harness::run(const Specification& specification, std::size_t start_case)
     case_current = &test_cases[start_case];
 
     if (handlers.test_setup && (handlers.test_setup(test_length) != STATUS_CONTINUE)) {
+        if (handlers.test_failure) handlers.test_failure(FAILURE_SETUP);
         if (handlers.test_teardown) handlers.test_teardown(0, 0, FAILURE_SETUP);
         test_cases = NULL;
         return true;
@@ -98,6 +99,7 @@ void Harness::raise_failure(failure_t reason)
     {
         mbed::util::CriticalSectionLock lock;
 
+        if (handlers.test_failure) handlers.test_failure(reason);
         if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
         if (!(fail_status & STATUS_IGNORE)) case_failed++;
 

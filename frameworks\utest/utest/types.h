@@ -163,6 +163,15 @@ namespace v1 {
      */
     typedef void (*test_teardown_handler_t)(const size_t passed, const size_t failed, const failure_t failure);
 
+    /** Test failure handler.
+     *
+     * This handler is called anytime a failure occurs during the execution of a test speficication.
+     * The handler only allows logging of failures and cannot influence test execution.
+     *
+     * @param   failure the reason why this handler was called
+     */
+    typedef void (*test_failure_handler_t)(const failure_t reason);
+
     /** Test case setup handler.
      *
      * This handler is called before execution of each test case and

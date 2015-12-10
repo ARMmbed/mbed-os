@@ -24,6 +24,7 @@ using namespace utest::v1;
 const handlers_t utest::v1::verbose_continue_handlers = {
     verbose_test_setup_handler,
     verbose_test_teardown_handler,
+    ignore_handler,
     verbose_case_setup_handler,
     verbose_case_teardown_handler,
     verbose_case_failure_handler
@@ -31,6 +32,7 @@ const handlers_t utest::v1::verbose_continue_handlers = {
 const handlers_t utest::v1::greentea_abort_handlers = {
     greentea_test_setup_handler,
     greentea_test_teardown_handler,
+    ignore_handler,
     verbose_case_setup_handler,
     verbose_case_teardown_handler,
     greentea_case_failure_handler
@@ -38,6 +40,23 @@ const handlers_t utest::v1::greentea_abort_handlers = {
 const handlers_t utest::v1::greentea_continue_handlers = {
     greentea_test_setup_handler,
     greentea_test_teardown_handler,
+    ignore_handler,
+    verbose_case_setup_handler,
+    verbose_case_teardown_handler,
+    verbose_case_failure_handler
+};
+
+static void selftest_failure_handler(const failure_t reason) {
+    if (reason == FAILURE_ASSERTION) {
+        printf(">>> failure with reason '%s (in selftest)'\n{{failure}}\n{{end}}\n", stringify(reason));
+        while(1) ;
+    }
+}
+
+const handlers_t utest::v1::selftest_handlers = {
+    greentea_test_setup_handler,
+    greentea_test_teardown_handler,
+    selftest_failure_handler,
     verbose_case_setup_handler,
     verbose_case_teardown_handler,
     verbose_case_failure_handler

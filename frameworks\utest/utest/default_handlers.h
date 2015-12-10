@@ -37,10 +37,11 @@ namespace v1 {
     {
         operator test_setup_handler_t()    const { return test_setup_handler_t(1); }
         operator test_teardown_handler_t() const { return test_teardown_handler_t(1); }
+        operator test_failure_handler_t()  const { return test_failure_handler_t(1); }
 
         operator case_setup_handler_t()    const { return case_setup_handler_t(1); }
         operator case_teardown_handler_t() const { return case_teardown_handler_t(1); }
-        operator case_failure_handler_t()   const { return case_failure_handler_t(1); }
+        operator case_failure_handler_t()  const { return case_failure_handler_t(1); }
     } default_handler;
 
     /** Ignore handler hint.
@@ -56,10 +57,11 @@ namespace v1 {
 
         operator test_setup_handler_t()    const { return test_setup_handler_t(NULL); }
         operator test_teardown_handler_t() const { return test_teardown_handler_t(NULL); }
+        operator test_failure_handler_t()  const { return test_failure_handler_t(NULL); }
 
         operator case_setup_handler_t()    const { return case_setup_handler_t(NULL); }
         operator case_teardown_handler_t() const { return case_teardown_handler_t(NULL); }
-        operator case_failure_handler_t()   const { return case_failure_handler_t(NULL); }
+        operator case_failure_handler_t()  const { return case_failure_handler_t(NULL); }
     } ignore_handler;
 
     /** A table of handlers.
@@ -88,6 +90,7 @@ namespace v1 {
     {
         test_setup_handler_t test_setup;
         test_teardown_handler_t test_teardown;
+        test_failure_handler_t test_failure;
 
         case_setup_handler_t case_setup;
         case_teardown_handler_t case_teardown;
@@ -99,6 +102,10 @@ namespace v1 {
         }
         inline test_teardown_handler_t get_handler(test_teardown_handler_t handler) const {
             if (handler == default_handler) return test_teardown;
+            return handler;
+        }
+        inline test_failure_handler_t get_handler(test_failure_handler_t handler) const {
+            if (handler == default_handler) return test_failure;
             return handler;
         }
 
@@ -145,6 +152,9 @@ namespace v1 {
 
     /// The greentea default handlers that always continue on failure
     extern const handlers_t greentea_continue_handlers;
+
+    /// The selftest default handlers that always abort on _any_ assertion failure, otherwise continue
+    extern const handlers_t selftest_handlers;
 
     /// The greentea aborting handlers are the default
     const handlers_t default_handlers = greentea_abort_handlers;
