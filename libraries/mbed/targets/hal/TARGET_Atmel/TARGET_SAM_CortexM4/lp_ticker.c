@@ -40,16 +40,17 @@ void lp_ticker_init(void)
 {
     if (g_sys_init == 0) {
         sysclk_init();
+        system_board_init();
         g_sys_init = 1;
     }
     if (lp_ticker_inited) return;
-
-    lp_ticker_inited = 1;
 
 #if SAM4N || SAM4S || SAM4E || SAM4C || SAM4CP || SAM4CM || SAMV71 || SAMV70 || SAME70 || SAMS70
     rtt_sel_source(RTT, true);
 #endif
     rtt_init(RTT, 33); /* Selects 32.768Khz clock with prescalar 33 */ /*1ms tick*/
+
+    lp_ticker_inited = 1;
 }
 
 uint32_t lp_ticker_read()

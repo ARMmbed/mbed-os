@@ -101,6 +101,10 @@ void in_handler() {
 #define PIN_OUT    PA02
 #define PIN_IN     PA03
 
+#elif defined(TARGET_SAMG55J19)
+#define PIN_OUT    PA13
+#define PIN_IN     PB13
+
 #else
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)

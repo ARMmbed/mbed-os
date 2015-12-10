@@ -145,6 +145,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     if (g_sys_init == 0) {
         sysclk_init();
+        system_board_init();
         g_sys_init = 1;
     }
     pUSART_S(obj) = uart;
@@ -391,7 +392,6 @@ static inline void uart_irq(Usart *const usart, uint32_t index)
 {
     MBED_ASSERT(usart != (void*)0);
     uint32_t mask, status;
-    int a= 1;
     /* Read and clear mask. */
     status = usart_get_status(usart);
     mask = usart_get_interrupt_mask(usart);
