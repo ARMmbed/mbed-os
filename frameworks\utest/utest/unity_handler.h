@@ -24,4 +24,7 @@
 /// this function is called from the unity module when an assertion failed.
 void utest_unity_assert_failure();
 
+/// this function is called from the unity module when an assertion failed, but is ignored.
+void utest_unity_ignore_failure();
+
 #endif // UTEST_UNITY_ASSERT_FAILURE_H
