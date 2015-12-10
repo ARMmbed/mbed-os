@@ -876,10 +876,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         }
 
         /* Save amount of TX done by DMA */
-
         obj->tx_buff.pos += tx_length;
-        /* Clear TX registers */
-        obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(txdata, target_addr, tx_length);
@@ -924,9 +921,6 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
                 while(1);
                 break;
         }
-
-        /* Clear RX registers */
-        obj->spi.spi->CMD = USART_CMD_CLEARRX;
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
@@ -989,9 +983,6 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
             rxDescrCfg.hprot = 0;
             DMA_CfgDescr(obj->spi.dmaOptionsRX.dmaChannel, true, &rxDescrCfg);
 
-            // Clear RX registers - Useful if previous command transfered don't
-            obj->spi.spi->CMD = USART_CMD_CLEARRX;
-
             /* Activate RX channel */
             DMA_ActivateBasic(obj->spi.dmaOptionsRX.dmaChannel, true, false, rxdata, (void *)&(obj->spi.spi->RXDATA),
                               rx_length - 1);
@@ -1005,9 +996,6 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         txDescrCfg.arbRate = dmaArbitrate1;
         txDescrCfg.hprot = 0;
         DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
-
-        /* Clear TX registers */
-        obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
         /* Activate TX channel */
         DMA_ActivateBasic(  obj->spi.dmaOptionsTX.dmaChannel,
@@ -1028,9 +1016,6 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
             rxDescrCfg.hprot = 0;
             DMA_CfgDescr(obj->spi.dmaOptionsRX.dmaChannel, true, &rxDescrCfg);
 
-            // Clear RX registers - Useful if previous command transfered don't
-            obj->spi.spi->CMD = USART_CMD_CLEARRX;
-
             /* Activate RX channel */
             DMA_ActivateBasic(obj->spi.dmaOptionsRX.dmaChannel, true, false, rxdata, (void *)&(obj->spi.spi->RXDATAX),
                               (rx_length / 2) - 1);
@@ -1043,9 +1028,6 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         txDescrCfg.arbRate = dmaArbitrate1;
         txDescrCfg.hprot = 0;
         DMA_CfgDescr(obj->spi.dmaOptionsTX.dmaChannel, true, &txDescrCfg);
-
-        /* Clear TX registers */
-        obj->spi.spi->CMD = USART_CMD_CLEARTX;
 
         /* Activate TX channel */
         DMA_ActivateBasic(  obj->spi.dmaOptionsTX.dmaChannel,
@@ -1078,6 +1060,9 @@ void spi_master_transfer_dma(spi_t *obj, const void *txdata, void *rxdata, int t
 {
     /* Init DMA here to include it in the power figure */
     dma_init();
+    /* Clear TX and RX registers */
+    obj->spi.spi->CMD = USART_CMD_CLEARTX;
+    obj->spi.spi->CMD = USART_CMD_CLEARRX;
     /* If the DMA channels are already allocated, we can assume they have been setup already */
     if (hint != DMA_USAGE_NEVER && obj->spi.dmaOptionsTX.dmaUsageState == DMA_USAGE_ALLOCATED) {
         /* setup has already been done, so just activate the transfer */
@@ -1172,8 +1157,6 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;
             uint32_t tx_length = obj->tx_buff.length - obj->tx_buff.pos;
 
-            /* Wait previous transmit to complete */
-            while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
             /* Begin transfer. Rely on spi_activate_dma to split up the transfer further. */
             spi_activate_dma(obj, obj->rx_buff.buffer, tx_pointer, tx_length, obj->rx_buff.length);
 
@@ -1200,6 +1183,8 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
         }
 
+        /* Wait transmit to complete, before user code is indicated*/
+        while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
         unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
         /* return to CPP land to say we're finished */
         return SPI_EVENT_COMPLETE;
@@ -1307,6 +1292,8 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
         }
 
+        /* Wait transmit to complete, before user code is indicated*/
+        while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
         unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
 
         /* return to CPP land to say we're finished */
