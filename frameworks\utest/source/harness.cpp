@@ -33,11 +33,12 @@ namespace
     size_t test_failed = 0;
 
     const Case *case_current = NULL;
-    control_t case_control = control_t(REPEAT_ALL);
+    control_t case_control = control_t(REPEAT_SETUP_TEARDOWN);
     size_t case_repeat_count = 0;
 
     minar::callback_handle_t case_timeout_handle = NULL;
     size_t case_validation_count = 0;
+    bool case_timeout_occurred = false;
 
     size_t case_passed = 0;
     size_t case_failed = 0;
@@ -128,11 +129,11 @@ void Harness::raise_failure(failure_t reason)
 
 void Harness::schedule_next_case()
 {
-    if ((case_control.repeat & REPEAT_ON_VALIDATE) && case_failed_before == case_failed) {
+    if (!case_timeout_occurred && case_failed_before == case_failed) {
         case_passed++;
     }
 
-    if (case_control.repeat & REPEAT_SETUP_TEARDOWN || case_control.repeat == REPEAT_NO_REPEAT) {
+    if (case_control.repeat & REPEAT_SETUP_TEARDOWN || !(case_control.repeat & (REPEAT_ON_TIMEOUT | REPEAT_ON_VALIDATE))) {
         if (handlers.case_teardown &&
             (handlers.case_teardown(case_current, case_passed, case_failed,
                                      case_failed ? FAILURE_CASES : FAILURE_NONE) != STATUS_CONTINUE)) {
@@ -140,11 +141,11 @@ void Harness::schedule_next_case()
         }
     }
 
-    if (case_control.repeat == REPEAT_NO_REPEAT) {
+    if (!(case_control.repeat & (REPEAT_ON_TIMEOUT | REPEAT_ON_VALIDATE))) {
         if (case_failed > 0) test_failed++;
         else test_passed++;
 
-        case_control = control_t(REPEAT_ALL);
+        case_control = control_t(REPEAT_SETUP_TEARDOWN);
         case_current++;
         case_passed = 0;
         case_failed = 0;
@@ -156,16 +157,15 @@ void Harness::schedule_next_case()
 
 void Harness::handle_timeout()
 {
-    bool timeout_occurred = false;
     {
         mbed::util::CriticalSectionLock lock;
 
         if (case_timeout_handle != NULL) {
             case_timeout_handle = NULL;
-            timeout_occurred = true;
+            case_timeout_occurred = true;
         }
     }
-    if (timeout_occurred) {
+    if (case_timeout_occurred) {
         raise_failure(failure_t(FAILURE_TIMEOUT | ((case_control.repeat & REPEAT_ON_TIMEOUT) ? FAILURE_IGNORE : 0)));
         minar::Scheduler::postCallback(schedule_next_case);
     }
@@ -180,8 +180,7 @@ void Harness::validate_callback()
     {
         minar::Scheduler::cancelCallback(case_timeout_handle);
         case_timeout_handle = NULL;
-        if (case_control.repeat & REPEAT_ON_VALIDATE) case_control = control_t(REPEAT_ALL);
-        else if (case_control.repeat & REPEAT_ON_TIMEOUT) case_control = control_t();
+        case_control.repeat = repeat_t(case_control.repeat & ~REPEAT_ON_TIMEOUT);
         minar::Scheduler::postCallback(schedule_next_case);
     }
 }
@@ -209,9 +208,13 @@ void Harness::run_next_case()
             return;
         }
 
-        case_validation_count = 0;
+        {
+            mbed::util::CriticalSectionLock lock;
+            case_validation_count = 0;
+            case_timeout_occurred = false;
+        }
 
-        if (case_control.repeat == REPEAT_ALL) {
+        if (case_control.repeat & REPEAT_SETUP_TEARDOWN) {
             case_control = control_t();
             uint32_t index_of_case = test_index_of_case++;
             if (handlers.case_setup && (handlers.case_setup(case_current, index_of_case) != STATUS_CONTINUE)) {
@@ -234,6 +237,8 @@ void Harness::run_next_case()
 
         {
             mbed::util::CriticalSectionLock lock;
+            if (case_validation_count) case_control.repeat = repeat_t(case_control.repeat & ~REPEAT_ON_TIMEOUT);
+
             if (case_control.timeout != uint32_t(-1) && case_validation_count == 0) {
                 case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
                                                 .delay(minar::milliseconds(case_control.timeout))
