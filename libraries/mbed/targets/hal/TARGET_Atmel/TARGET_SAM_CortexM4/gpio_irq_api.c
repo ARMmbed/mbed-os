@@ -22,12 +22,14 @@
 
 #define IRQ_RISE_POSITION   1
 #define IRQ_FALL_POSITION   2
-#define CHANNEL_NUM         32
-#define MAX_PORT_NUM        2
+#define CHANNEL_NUM         48
+#define MAX_PINS_IN_PORT    32
 
 static uint32_t channel_ids[CHANNEL_NUM] = {0};
 static gpio_irq_handler irq_handler;
 extern uint8_t ioinit;
+
+static IRQn_Type pin_to_irq (uint32_t pin);
 
 void gpio_irq_common_handler(uint32_t port_id)
 {
@@ -39,7 +41,7 @@ void gpio_irq_common_handler(uint32_t port_id)
     status = pio_base->PIO_ISR;
     status = status & mask;
 
-    for (i = 0; i < 32 ; i++) {
+    for (i = 0; i < MAX_PINS_IN_PORT ; i++) {
         temp = (1 << i );
         if (status & temp ) {
             if((pio_base->PIO_PDSR) & temp) {
@@ -48,7 +50,7 @@ void gpio_irq_common_handler(uint32_t port_id)
                 event = IRQ_FALL;
             }
             if(irq_handler) {
-                irq_handler(channel_ids[i], event);
+                irq_handler(channel_ids[(port_id * 32) + i], event);
             }
         }
     }
@@ -78,11 +80,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t port_id;
     uint32_t vector = 0;
     uint8_t int_channel = 0;
-    uint32_t dummyread = 0;
     Pio* pio_base;
 
     irq_handler = handler;  // assuming the usage of these apis in mbed layer only
-    int_channel = pin % 32; /*to get the channel to be used*/
+    int_channel = ((pin / 32) * 32)  + (pin % 32); /*to get the channel to be used*/
     channel_ids[int_channel] = id;
     obj->pin = pin;
     port_id = ioport_pin_to_port_id(pin);
@@ -91,18 +92,18 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     ioport_set_pin_dir(pin, IOPORT_DIR_INPUT); /*Pin to be configured input for GPIO Interrupt*/
     ioport_set_pin_mode(pin, IOPORT_MODE_PULLUP);
 
+    irq_n = pin_to_irq(pin);
+
     switch (port_id) {
             /*only 2 ports for SAMG55*/ /*Setting up the vectors*/
         case IOPORT_PIOA :
-            irq_n = PIOA_IRQn;
             vector = (uint32_t)gpio_irq_porta;
             break;
         case IOPORT_PIOB :
-            irq_n = PIOB_IRQn;
             vector = (uint32_t)gpio_irq_portb;
             break;
     }
-    dummyread = pio_base->PIO_ISR; /*To read and clear status register*/
+    pio_base->PIO_ISR; /*To read and clear status register*/
     NVIC_SetVector(irq_n, vector);
     NVIC_EnableIRQ(irq_n);
 
@@ -112,7 +113,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 void gpio_irq_free(gpio_irq_t *obj)
 {
     MBED_ASSERT(obj);
-    channel_ids[(obj->pin) % 32] = 0;
+    channel_ids[((obj->pin / 32) * 32)  + (obj->pin % 32)] = 0;
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
@@ -137,7 +138,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             obj->irqmask &= ~IRQ_FALL_POSITION;
         }
     }
-
+    pio_base->PIO_ISR; /*To read and clear status register*/
     if (obj->irqmask == (IRQ_RISE_POSITION | IRQ_FALL_POSITION)) { /*both edge detection*/
         pio_base->PIO_AIMDR = mask;
         pio_base->PIO_IER = mask;
