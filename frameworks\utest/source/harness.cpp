@@ -151,6 +151,7 @@ void Harness::schedule_next_case()
         case_failed = 0;
         case_failed_before = 0;
         case_repeat_count = 0;
+        test_index_of_case++;
     }
     minar::Scheduler::postCallback(run_next_case);
 }
@@ -216,8 +217,7 @@ void Harness::run_next_case()
 
         if (case_control.repeat & REPEAT_SETUP_TEARDOWN) {
             case_control = control_t();
-            uint32_t index_of_case = test_index_of_case++;
-            if (handlers.case_setup && (handlers.case_setup(case_current, index_of_case) != STATUS_CONTINUE)) {
+            if (handlers.case_setup && (handlers.case_setup(case_current, test_index_of_case) != STATUS_CONTINUE)) {
                 raise_failure(FAILURE_SETUP);
                 schedule_next_case();
                 return;
