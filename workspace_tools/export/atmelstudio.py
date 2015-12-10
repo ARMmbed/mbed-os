@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import uuid
 from exporters import Exporter
 from os.path import splitext, basename, dirname
 
@@ -51,6 +52,9 @@ class AtmelStudio(Exporter):
         for lib in self.resources.libraries:
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
+		
+        solution_uuid = '{' + str(uuid.uuid4()) + '}'
+        project_uuid = '{' + str(uuid.uuid4()) + '}'
 
         ctx = {
             'target': self.target,
@@ -62,7 +66,9 @@ class AtmelStudio(Exporter):
             'library_paths': self.resources.lib_dirs,
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
-            'symbols': self.get_symbols()
+            'symbols': self.get_symbols(),
+            'solution_uuid': solution_uuid.upper(),
+            'project_uuid': project_uuid.upper()
         }
         target = self.target.lower()
         self.gen_file('atmelstudio6_2.atsln.tmpl', ctx, '%s.atsln' % self.program_name)
