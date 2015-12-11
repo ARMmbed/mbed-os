@@ -127,6 +127,8 @@ namespace v1 {
     status_t verbose_test_setup_handler   (const size_t number_of_cases);
     /// Prints the number of tests that passed and failed with a reason if provided.
     void     verbose_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure);
+    /// Prints the failure.
+    void     verbose_test_failure_handler(const failure_t failure);
 
     /// Prints the index and description of the case being run and continues.
     status_t verbose_case_setup_handler   (const Case *const source, const size_t index_of_case);
@@ -140,9 +142,17 @@ namespace v1 {
     status_t greentea_test_setup_handler   (const size_t number_of_cases);
     /// Calls `verbose_test_teardown_handler` and then prints the greentea failure and success and end strings.
     void     greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure);
+    /// Does nothing. Use this for forwards compatibility.
+    void     greentea_test_failure_handler(const failure_t failure);
 
+    /// Forwards to `verbose_case_setup_handler`. Use this for forwards compatibility.
+    status_t greentea_case_setup_handler   (const Case *const source, const size_t index_of_case);
+    /// Forwards to `verbose_case_teardown_handler`. Use this for forwards compatibility.
+    status_t greentea_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure);
     /// Calls `verbose_case_failure_handler` but then aborts.
-    status_t greentea_case_failure_handler (const Case *const source, const failure_t reason);
+    status_t greentea_case_failure_abort_handler (const Case *const source, const failure_t reason);
+    /// Forwards to `verbose_case_failure_handler`. Use this for forwards compatibility.
+    status_t greentea_case_failure_continue_handler (const Case *const source, const failure_t reason);
 
     /// The verbose default handlers that always continue on failure
     extern const handlers_t verbose_continue_handlers;

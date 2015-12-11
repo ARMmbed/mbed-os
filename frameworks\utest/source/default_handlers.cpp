@@ -21,6 +21,9 @@
 
 using namespace utest::v1;
 
+static status_t greentea_unknown_test_setup_handler(const size_t);
+static void selftest_failure_handler(const failure_t reason);
+
 const handlers_t utest::v1::verbose_continue_handlers = {
     verbose_test_setup_handler,
     verbose_test_teardown_handler,
@@ -30,22 +33,38 @@ const handlers_t utest::v1::verbose_continue_handlers = {
     verbose_case_failure_handler
 };
 const handlers_t utest::v1::greentea_abort_handlers = {
-    greentea_test_setup_handler,
+    greentea_unknown_test_setup_handler,
     greentea_test_teardown_handler,
     ignore_handler,
-    verbose_case_setup_handler,
-    verbose_case_teardown_handler,
-    greentea_case_failure_handler
+    greentea_case_setup_handler,
+    greentea_case_teardown_handler,
+    greentea_case_failure_abort_handler
 };
 const handlers_t utest::v1::greentea_continue_handlers = {
-    greentea_test_setup_handler,
+    greentea_unknown_test_setup_handler,
     greentea_test_teardown_handler,
     ignore_handler,
-    verbose_case_setup_handler,
-    verbose_case_teardown_handler,
-    verbose_case_failure_handler
+    greentea_case_setup_handler,
+    greentea_case_teardown_handler,
+    greentea_case_failure_continue_handler
 };
 
+const handlers_t utest::v1::selftest_handlers = {
+    greentea_unknown_test_setup_handler,
+    greentea_test_teardown_handler,
+    selftest_failure_handler,
+    greentea_case_setup_handler,
+    greentea_case_teardown_handler,
+    greentea_case_failure_continue_handler
+};
+
+// --- SPECIAL HANDLERS ---
+static status_t greentea_unknown_test_setup_handler(const size_t) {
+    printf(">>> I do not know how to tell greentea that the test started, since\n");
+    printf(">>> you forgot to override the `test_setup_handler` in your specification.\n");
+
+    return STATUS_ABORT;
+}
 static void selftest_failure_handler(const failure_t reason) {
     if (reason == FAILURE_ASSERTION) {
         printf(">>> failure with reason '%s (in selftest)'\n{{failure}}\n{{end}}\n", stringify(reason));
@@ -53,15 +72,7 @@ static void selftest_failure_handler(const failure_t reason) {
     }
 }
 
-const handlers_t utest::v1::selftest_handlers = {
-    greentea_test_setup_handler,
-    greentea_test_teardown_handler,
-    selftest_failure_handler,
-    verbose_case_setup_handler,
-    verbose_case_teardown_handler,
-    verbose_case_failure_handler
-};
-
+// --- VERBOSE TEST HANDLERS ---
 status_t utest::v1::verbose_test_setup_handler(const size_t number_of_cases)
 {
     printf(">>> Running %u test cases...\n", number_of_cases);
@@ -79,6 +90,12 @@ void utest::v1::verbose_test_teardown_handler(const size_t passed, const size_t 
     if (failed) printf(">>> TESTS FAILED!\n");
 }
 
+void utest::v1::verbose_test_failure_handler(const failure_t reason)
+{
+    printf(">>> failure with reason '%s'\n", stringify(reason));
+}
+
+// --- VERBOSE CASE HANDLERS ---
 status_t utest::v1::verbose_case_setup_handler(const Case *const source, const size_t index_of_case)
 {
     printf("\n>>> Running case #%u: '%s'...\n", index_of_case + 1, source->get_description());
@@ -99,7 +116,7 @@ status_t utest::v1::verbose_case_teardown_handler(const Case *const source, cons
 status_t utest::v1::verbose_case_failure_handler(const Case *const /*source*/, const failure_t reason)
 {
     if (!(reason & FAILURE_ASSERTION)) {
-        printf(">>> failure with reason '%s'\n", stringify(reason));
+        verbose_test_failure_handler(reason);
     }
     if (reason & FAILURE_TEARDOWN) return STATUS_ABORT;
     if (reason & FAILURE_IGNORE)   return STATUS_IGNORE;
@@ -107,13 +124,10 @@ status_t utest::v1::verbose_case_failure_handler(const Case *const /*source*/, c
 }
 
 
-
-status_t utest::v1::greentea_test_setup_handler(const size_t /*number_of_cases*/)
+// --- GREENTEA HANDLERS ---
+status_t utest::v1::greentea_test_setup_handler(const size_t number_of_cases)
 {
-    printf(">>> I do not know how to tell greentea that the test started, since\n");
-    printf(">>> you forgot to override the `test_setup_handler` in your specification.\n");
-
-    return STATUS_ABORT;
+    return verbose_test_setup_handler(number_of_cases);
 }
 
 void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
@@ -127,8 +141,29 @@ void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t
     printf("{{end}}\n");
 }
 
-status_t utest::v1::greentea_case_failure_handler(const Case *const source, const failure_t reason)
+void utest::v1::greentea_test_failure_handler(const failure_t)
+{
+    // does nothing here
+}
+
+// --- GREENTEA CASE HANDLERS ---
+status_t utest::v1::greentea_case_setup_handler(const Case *const source, const size_t index_of_case)
+{
+    return verbose_case_setup_handler(source, index_of_case);
+}
+
+status_t utest::v1::greentea_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+{
+    return verbose_case_teardown_handler(source, passed, failed, failure);
+}
+
+status_t utest::v1::greentea_case_failure_abort_handler(const Case *const source, const failure_t reason)
 {
     status_t status = verbose_case_failure_handler(source, reason);
     return (status & STATUS_IGNORE) ? STATUS_IGNORE : STATUS_ABORT;
+}
+
+status_t utest::v1::greentea_case_failure_continue_handler(const Case *const source, const failure_t reason)
+{
+    return verbose_case_failure_handler(source, reason);
 }
