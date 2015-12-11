@@ -44,6 +44,6 @@ void deepsleep(void)
 {
     enum sleepmgr_mode sleep_mode;
 
-    sleep_mode = SLEEPMGR_WAIT;
+    sleep_mode = SLEEPMGR_BACKUP;
     sleepmgr_sleep(sleep_mode);
 }
