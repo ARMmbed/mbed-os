@@ -81,18 +81,14 @@
   <armgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
-      {% for l in libraries %}<Value>{{l}}</Value>
-      {% endfor %}
     </ListValues>
   </armgcccpp.linker.libraries.Libraries>
   <armgcccpp.linker.libraries.LibrarySearchPaths>
     <ListValues>
-      {% for l in library_paths %}<Value>{{l}}</Value> 
-      {% endfor %}
     </ListValues>
   </armgcccpp.linker.libraries.LibrarySearchPaths>
   <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-  <armgcccpp.linker.miscellaneous.LinkerFlags>-T../{{linker_script}} -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,--cref -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group </armgcccpp.linker.miscellaneous.LinkerFlags>
+  <armgcccpp.linker.miscellaneous.LinkerFlags>{% for p in library_paths %}-L../{{p}} {% endfor %} {% for f in object_files %}../{{f}} {% endfor %} {% for lib in libraries %}-l{{lib}} {% endfor %} -T../{{linker_script}} -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,--cref -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group </armgcccpp.linker.miscellaneous.LinkerFlags>
   <armgcccpp.preprocessingassembler.general.IncludePaths>
     <ListValues>
       {% for i in include_paths %}<Value>../{{i}}</Value> 
@@ -149,18 +145,14 @@
   <armgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
-      {% for l in libraries %}<Value>{{l}}</Value>
-      {% endfor %}
     </ListValues>
   </armgcccpp.linker.libraries.Libraries>
   <armgcccpp.linker.libraries.LibrarySearchPaths>
     <ListValues>
-      {% for l in library_paths %}<Value>{{l}}</Value> 
-      {% endfor %}
     </ListValues>
   </armgcccpp.linker.libraries.LibrarySearchPaths>
   <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-  <armgcccpp.linker.miscellaneous.LinkerFlags>-T../{{linker_script}} -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,--cref -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group </armgcccpp.linker.miscellaneous.LinkerFlags>
+  <armgcccpp.linker.miscellaneous.LinkerFlags>{% for p in library_paths %}-L../{{p}} {% endfor %} {% for f in object_files %}../{{f}} {% endfor %} {% for lib in libraries %}-l{{lib}} {% endfor %} -T../{{linker_script}} -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,--cref -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group </armgcccpp.linker.miscellaneous.LinkerFlags>
   <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
   <armgcccpp.preprocessingassembler.general.IncludePaths>
     <ListValues>
