@@ -83,9 +83,8 @@ void analogout_init(dac_t *obj, PinName pin)
     }
     /* Use default channel settings */
     DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+    initChannel.enable = true;
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
-
-
 }
 
 void analogout_enable(dac_t *obj, uint8_t enable)
