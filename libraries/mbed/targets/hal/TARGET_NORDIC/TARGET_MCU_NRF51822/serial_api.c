@@ -58,6 +58,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart = (NRF_UART_Type *)uart;
 
     //pin configurations --
+    NRF_GPIO->OUT |= (1 << tx);
+    NRF_GPIO->OUT |= (1 << RTS_PIN_NUMBER);
     NRF_GPIO->DIR |= (1 << tx); //TX_PIN_NUMBER);
     NRF_GPIO->DIR |= (1 << RTS_PIN_NUMBER);
 
