@@ -355,7 +355,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     i2c_clear_SI(obj);
     i2c_wait_SI(obj);
  
-    // Obtain new status. (See Image-2) 
+    // Obtain new status.
     status = i2c_status(obj);
  
     if(status != 0xA0) {
