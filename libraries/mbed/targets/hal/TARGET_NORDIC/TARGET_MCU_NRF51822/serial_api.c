@@ -77,7 +77,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     obj->uart->EVENTS_RXDRDY = 0;
     // dummy write needed or TXDRDY trails write rather than leads write.
     //  pins are disconnected so nothing is physically transmitted on the wire
+    obj->uart->PSELTXD = 0xFFFFFFFF;
+    obj->uart->EVENTS_TXDRDY = 0;
     obj->uart->TXD = 0;
+    while (obj->uart->EVENTS_TXDRDY != 1);
 
     obj->index = 0;
     
