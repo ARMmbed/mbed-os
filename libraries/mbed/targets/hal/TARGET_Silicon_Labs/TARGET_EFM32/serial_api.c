@@ -149,16 +149,34 @@ static void leuart1_irq()
  *
  * @param obj pointer to serial object
  */
-static void uart_init(serial_t *obj, uint32_t baudrate)
+static void uart_init(serial_t *obj, uint32_t baudrate, SerialParity parity, int stop_bits)
 {
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         LEUART_Init_TypeDef init = LEUART_INIT_DEFAULT;
 
+        if (stop_bits == 2) {
+            init.stopbits = leuartStopbits2;
+        } else {
+            init.stopbits = leuartStopbits1;
+        }
+
+        switch (parity) {
+            case ParityOdd:
+            case ParityForced0:
+                init.parity = leuartOddParity;
+                break;
+            case ParityEven:
+            case ParityForced1:
+                init.parity = leuartEvenParity;
+                break;
+            default: /* ParityNone */
+                init.parity = leuartNoParity;
+                break;
+        }
+
         init.enable = leuartDisable;
         init.baudrate = baudrate;
         init.databits = leuartDatabits8;
-        init.parity = leuartNoParity;
-        init.stopbits = leuartStopbits1;
 #ifdef LEUART_USING_LFXO
         init.refFreq = LEUART_LF_REF_FREQ;
 #else
@@ -168,12 +186,29 @@ static void uart_init(serial_t *obj, uint32_t baudrate)
     } else {
         USART_InitAsync_TypeDef init = USART_INITASYNC_DEFAULT;
 
+        if (stop_bits == 2) {
+            init.stopbits = usartStopbits2;
+        } else {
+            init.stopbits = usartStopbits1;
+        }
+        switch (parity) {
+            case ParityOdd:
+            case ParityForced0:
+                init.parity = usartOddParity;
+                break;
+            case ParityEven:
+            case ParityForced1:
+                init.parity = usartEvenParity;
+                break;
+            default: /* ParityNone */
+                init.parity = usartNoParity;
+                break;
+        }
+
         init.enable = usartDisable;
         init.baudrate = baudrate;
         init.oversampling = usartOVS16;
         init.databits = usartDatabits8;
-        init.parity = usartNoParity;
-        init.stopbits = usartStopbits1;
         init.refFreq = 0; /* Emlib will read HFPER clock to figure out the divider */
 
         USART_InitAsync(obj->serial.periph.uart, &init);
@@ -496,6 +531,7 @@ static void serial_enable_pins(serial_t *obj, uint8_t enable)
     }
 }
 
+
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     uint32_t baudrate;
@@ -537,7 +573,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 
     /* Configure UART for async operation */
-    uart_init(obj, baudrate);
+    uart_init(obj, baudrate, ParityNone, 1);
 
     /* Enable pins for UART at correct location */
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
@@ -569,7 +605,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     serial_enable_pins(obj, true);
     serial_enable(obj, true);
-
 
     obj->serial.dmaOptionsTX.dmaChannel = -1;
     obj->serial.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
@@ -700,10 +735,6 @@ static void serial_switch_to_usart(serial_t *obj, int baudrate)
     /* Disable LEUART */
     serial_enable(obj, false);
 
-    /* Disable GPIO pins and routing */
-    serial_enable_pins(obj, false);
-    leuart->ROUTEPEN = 0;
-
     /* Remove IRQ callback */
     serial_irq_ids[serial_get_index(obj)] = 0;
 
@@ -719,34 +750,7 @@ static void serial_switch_to_usart(serial_t *obj, int baudrate)
     obj->serial.dmaOptionsRX.dmaChannel = -1;
     obj->serial.dmaOptionsRX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
 
-    serial_uart_free(leuart);
-
     /* TODO: disable clocks? */
-
-    /* Replace LEUART with USART */
-    serial_preinit(obj, obj->serial.tx_pin, obj->serial.rx_pin, false);
-    CMU_ClockEnable(serial_get_clock(obj), true);
-    uart_init(obj, baudrate);
-
-    USART_TypeDef *usart = obj->serial.periph.uart;
-
-    usart->ROUTELOC0 = (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT) |
-                       (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
-    usart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
-    usart->IFC = USART_IFC_TXC;
-
-    serial_enable_pins(obj, true);
-    serial_enable(obj, true);
-
-    /* Restore interrupts */
-    serial_irq_ids[serial_get_index(obj)] = irq_id;
-
-    if( ien_rxd ) serial_irq_set(obj, RxIrq, 1);
-    if( ien_txc ) serial_irq_set(obj, TxIrq, 1);
-
-    if( ien_ferr ) usart->IEN |= USART_IEN_FERR;
-    if( ien_perr ) usart->IEN |= USART_IEN_PERR;
-    if( ien_rxof ) usart->IEN |= USART_IEN_RXOF;
 
     SerialParity par = ParityNone;
     switch( parity ) {
@@ -767,7 +771,32 @@ static void serial_switch_to_usart(serial_t *obj, int baudrate)
             break;
     }
 
-    serial_format(obj, 8, par, stopb);
+    /* Replace LEUART with USART */
+    serial_preinit(obj, obj->serial.tx_pin, obj->serial.rx_pin, false);
+    CMU_ClockEnable(serial_get_clock(obj), true);
+    uart_init(obj, baudrate, par, stopb);
+
+    USART_TypeDef *usart = obj->serial.periph.uart;
+
+    /* Disable/enable routing */
+    usart->ROUTELOC0 = (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT) |
+                       (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
+    leuart->ROUTEPEN = 0;
+    usart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
+    usart->IFC = USART_IFC_TXC;
+
+    serial_uart_free(leuart);
+    serial_enable(obj, true);
+
+    /* Restore interrupts */
+    serial_irq_ids[serial_get_index(obj)] = irq_id;
+
+    if( ien_rxd ) serial_irq_set(obj, RxIrq, 1);
+    if( ien_txc ) serial_irq_set(obj, TxIrq, 1);
+
+    if( ien_ferr ) usart->IEN |= USART_IEN_FERR;
+    if( ien_perr ) usart->IEN |= USART_IEN_PERR;
+    if( ien_rxof ) usart->IEN |= USART_IEN_RXOF;
 }
 #endif /* _SILICON_LABS_32B_PLATFORM_2 */
 
