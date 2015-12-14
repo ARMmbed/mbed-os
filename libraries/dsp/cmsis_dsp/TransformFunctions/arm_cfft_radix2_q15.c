@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------   
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.   
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.   
 *   
-* $Date:        17. January 2013  
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015 
+* $Revision: 	V.1.4.5  
 *   
 * Project: 	    CMSIS DSP Library   
 * Title:	    arm_cfft_radix2_q15.c   
@@ -71,6 +71,7 @@ void arm_bitreversal_q15(
 /**   
  * @details   
  * @brief Processing function for the fixed-point CFFT/CIFFT.  
+ * @deprecated Do not use this function.  It has been superseded by \ref arm_cfft_q15 and will be removed
  * @param[in]      *S    points to an instance of the fixed-point CFFT/CIFFT structure.  
  * @param[in, out] *pSrc points to the complex data buffer of size <code>2*fftLen</code>. Processing occurs in-place.  
  * @return none.  
@@ -130,12 +131,12 @@ void arm_radix2_butterfly_q15(
     l = i + n2;
 
     T = _SIMD32_OFFSET(pSrc + (2 * i));
-    in = ((int16_t) (T & 0xFFFF)) >> 2;
-    T = ((T >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (T & 0xFFFF)) >> 1;
+    T = ((T >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     S = _SIMD32_OFFSET(pSrc + (2 * l));
-    in = ((int16_t) (S & 0xFFFF)) >> 2;
-    S = ((S >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (S & 0xFFFF)) >> 1;
+    S = ((S >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     R = __QSUB16(T, S);
 
@@ -165,12 +166,12 @@ void arm_radix2_butterfly_q15(
     l++;
 
     T = _SIMD32_OFFSET(pSrc + (2 * i));
-    in = ((int16_t) (T & 0xFFFF)) >> 2;
-    T = ((T >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (T & 0xFFFF)) >> 1;
+    T = ((T >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     S = _SIMD32_OFFSET(pSrc + (2 * l));
-    in = ((int16_t) (S & 0xFFFF)) >> 2;
-    S = ((S >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (S & 0xFFFF)) >> 1;
+    S = ((S >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     R = __QSUB16(T, S);
 
@@ -335,12 +336,12 @@ void arm_radix2_butterfly_q15(
     for (i = j; i < fftLen; i += n1)
     {
       l = i + n2;
-      xt = (pSrc[2 * i] >> 2u) - (pSrc[2 * l] >> 2u);
-      pSrc[2 * i] = ((pSrc[2 * i] >> 2u) + (pSrc[2 * l] >> 2u)) >> 1u;
+      xt = (pSrc[2 * i] >> 1u) - (pSrc[2 * l] >> 1u);
+      pSrc[2 * i] = ((pSrc[2 * i] >> 1u) + (pSrc[2 * l] >> 1u)) >> 1u;
 
-      yt = (pSrc[2 * i + 1] >> 2u) - (pSrc[2 * l + 1] >> 2u);
+      yt = (pSrc[2 * i + 1] >> 1u) - (pSrc[2 * l + 1] >> 1u);
       pSrc[2 * i + 1] =
-        ((pSrc[2 * l + 1] >> 2u) + (pSrc[2 * i + 1] >> 2u)) >> 1u;
+        ((pSrc[2 * l + 1] >> 1u) + (pSrc[2 * i + 1] >> 1u)) >> 1u;
 
       pSrc[2u * l] = (((int16_t) (((q31_t) xt * cosVal) >> 16)) +
                       ((int16_t) (((q31_t) yt * sinVal) >> 16)));
@@ -459,12 +460,12 @@ void arm_radix2_butterfly_inverse_q15(
     l = i + n2;
 
     T = _SIMD32_OFFSET(pSrc + (2 * i));
-    in = ((int16_t) (T & 0xFFFF)) >> 2;
-    T = ((T >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (T & 0xFFFF)) >> 1;
+    T = ((T >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     S = _SIMD32_OFFSET(pSrc + (2 * l));
-    in = ((int16_t) (S & 0xFFFF)) >> 2;
-    S = ((S >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (S & 0xFFFF)) >> 1;
+    S = ((S >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     R = __QSUB16(T, S);
 
@@ -493,12 +494,12 @@ void arm_radix2_butterfly_inverse_q15(
     l++;
 
     T = _SIMD32_OFFSET(pSrc + (2 * i));
-    in = ((int16_t) (T & 0xFFFF)) >> 2;
-    T = ((T >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (T & 0xFFFF)) >> 1;
+    T = ((T >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     S = _SIMD32_OFFSET(pSrc + (2 * l));
-    in = ((int16_t) (S & 0xFFFF)) >> 2;
-    S = ((S >> 2) & 0xFFFF0000) | (in & 0xFFFF);
+    in = ((int16_t) (S & 0xFFFF)) >> 1;
+    S = ((S >> 1) & 0xFFFF0000) | (in & 0xFFFF);
 
     R = __QSUB16(T, S);
 
@@ -654,12 +655,12 @@ void arm_radix2_butterfly_inverse_q15(
     for (i = j; i < fftLen; i += n1)
     {
       l = i + n2;
-      xt = (pSrc[2 * i] >> 2u) - (pSrc[2 * l] >> 2u);
-      pSrc[2 * i] = ((pSrc[2 * i] >> 2u) + (pSrc[2 * l] >> 2u)) >> 1u;
+      xt = (pSrc[2 * i] >> 1u) - (pSrc[2 * l] >> 1u);
+      pSrc[2 * i] = ((pSrc[2 * i] >> 1u) + (pSrc[2 * l] >> 1u)) >> 1u;
 
-      yt = (pSrc[2 * i + 1] >> 2u) - (pSrc[2 * l + 1] >> 2u);
+      yt = (pSrc[2 * i + 1] >> 1u) - (pSrc[2 * l + 1] >> 1u);
       pSrc[2 * i + 1] =
-        ((pSrc[2 * l + 1] >> 2u) + (pSrc[2 * i + 1] >> 2u)) >> 1u;
+        ((pSrc[2 * l + 1] >> 1u) + (pSrc[2 * i + 1] >> 1u)) >> 1u;
 
       pSrc[2u * l] = (((int16_t) (((q31_t) xt * cosVal) >> 16)) -
                       ((int16_t) (((q31_t) yt * sinVal) >> 16)));

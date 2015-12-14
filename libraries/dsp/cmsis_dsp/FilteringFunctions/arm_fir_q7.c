@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:        arm_fir_q7.c    
@@ -137,11 +137,11 @@ void arm_fir_q7(
     while(i > 0u)
     {
       /* Read the b[numTaps] coefficient */
-      c0 = *(pb++);
+      c0 = *pb;
 
       /* Read x[n-numTaps-3] sample */
-      x3 = *(px++);
-
+      x3 = *px;
+      
       /* acc0 +=  b[numTaps] * x[n-numTaps] */
       acc0 += ((q15_t) x0 * c0);
 
@@ -155,10 +155,10 @@ void arm_fir_q7(
       acc3 += ((q15_t) x3 * c0);
 
       /* Read the b[numTaps-1] coefficient */
-      c0 = *(pb++);
+      c0 = *(pb + 1u);
 
       /* Read x[n-numTaps-4] sample */
-      x0 = *(px++);
+      x0 = *(px + 1u);
 
       /* Perform the multiply-accumulates */
       acc0 += ((q15_t) x1 * c0);
@@ -167,27 +167,34 @@ void arm_fir_q7(
       acc3 += ((q15_t) x0 * c0);
 
       /* Read the b[numTaps-2] coefficient */
-      c0 = *(pb++);
+      c0 = *(pb + 2u);
 
       /* Read x[n-numTaps-5] sample */
-      x1 = *(px++);
+      x1 = *(px + 2u);
 
       /* Perform the multiply-accumulates */
       acc0 += ((q15_t) x2 * c0);
       acc1 += ((q15_t) x3 * c0);
       acc2 += ((q15_t) x0 * c0);
       acc3 += ((q15_t) x1 * c0);
+
       /* Read the b[numTaps-3] coefficients */
-      c0 = *(pb++);
+      c0 = *(pb + 3u);
 
       /* Read x[n-numTaps-6] sample */
-      x2 = *(px++);
-
+      x2 = *(px + 3u);
+      
       /* Perform the multiply-accumulates */
       acc0 += ((q15_t) x3 * c0);
       acc1 += ((q15_t) x0 * c0);
       acc2 += ((q15_t) x1 * c0);
       acc3 += ((q15_t) x2 * c0);
+
+      /* update coefficient pointer */
+      pb += 4u;
+      px += 4u;
+      
+      /* Decrement the loop counter */
       i--;
     }
 

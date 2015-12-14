@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "PeripheralPins.h"
 
 /************RTC***************/
@@ -23,23 +23,29 @@ const PinMap PinMap_RTC[] = {
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    {PTC2,  ADC0_SE4b, 0},
-    {PTC8,  ADC1_SE4b, 0},
-    {PTC9,  ADC1_SE5b, 0},
-    {PTD1,  ADC0_SE5b, 0},
-    {PTC10, ADC1_SE6b, 0},
-    {PTD5,  ADC0_SE6b, 0},
-    {PTC11, ADC1_SE7b, 0},
-    {PTD6,  ADC0_SE7b, 0},
+    {PTA17, ADC1_SE17, 0},
     {PTB0 , ADC0_SE8 , 0},
     {PTB1 , ADC0_SE9 , 0},
     {PTB2 , ADC0_SE12, 0},
     {PTB3 , ADC0_SE13, 0},
-    {PTC0 , ADC0_SE14, 0},
+    {PTB6 , ADC1_SE12, 0},
+    {PTB7 , ADC1_SE13, 0},
     {PTB10, ADC1_SE14, 0},
     {PTB11, ADC1_SE15, 0},
+    {PTC0 , ADC0_SE14, 0},
     {PTC1 , ADC0_SE15, 0},
-    {PTA17, ADC1_SE17, 0},
+    {PTC2,  ADC0_SE4b, 0},
+    {PTC8,  ADC1_SE4b, 0},
+    {PTC9,  ADC1_SE5b, 0},
+    {PTC10, ADC1_SE6b, 0},
+    {PTC11, ADC1_SE7b, 0},
+    {PTD1,  ADC0_SE5b, 0},
+    {PTD5,  ADC0_SE6b, 0},
+    {PTD6,  ADC0_SE7b, 0},
+    {PTE0,  ADC1_SE4a, 0},
+    {PTE1,  ADC1_SE5a, 0},
+    {PTE2,  ADC1_SE6a, 0},
+    {PTE3,  ADC1_SE7a, 0},
     //{PTE24, ADC0_SE17, 0}, //I2C pull up
     //{PTE25, ADC0_SE18, 0}, //I2C pull up
     {NC   , NC       , 0}
@@ -152,18 +158,18 @@ const PinMap PinMap_PWM[] = {
     {PTA11, PWM_21, 3},
     {PTA12, PWM_10, 3},
     {PTA13, PWM_11, 3},
-    
+
     {PTB0 , PWM_10, 3},
     {PTB1 , PWM_11, 3},
     {PTB18, PWM_20, 3},
     {PTB19, PWM_21, 3},
-    
+
     {PTC1 , PWM_00, 4},
     {PTC2 , PWM_01, 4},
     {PTC3 , PWM_02, 4},
     {PTC4 , PWM_03, 4},
     {PTC5 , PWM_02, 7},
-    
+
     {PTD0 , PWM_30, 4},
     {PTD1 , PWM_31, 4},
     {PTD2 , PWM_32, 4},
@@ -172,7 +178,7 @@ const PinMap PinMap_PWM[] = {
     {PTD5 , PWM_05, 4},
     {PTD6 , PWM_06, 4},
     {PTD7 , PWM_07, 4},
-    
+
     {PTE5 , PWM_30, 6},
     {PTE6 , PWM_31, 6},
     {NC   ,  NC   , 0}

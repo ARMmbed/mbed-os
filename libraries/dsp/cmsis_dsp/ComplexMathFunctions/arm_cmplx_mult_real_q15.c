@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. October 2015
+* $Revision: 	V.1.4.5 a
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_cmplx_mult_real_q15.c    
@@ -112,7 +112,7 @@ void arm_cmplx_mult_real_q15(
     mul4 = (q31_t) ((q15_t) (inA2 >> 16) * (q15_t) inB1);
     mul3 = (q31_t) ((q15_t) inA2 * (q15_t) inB1);
 
-#endif //      #ifndef ARM_MATH_BIG_ENDIAN
+#endif /* #ifndef ARM_MATH_BIG_ENDIAN */
 
     /* saturate the result */
     out1 = (q15_t) __SSAT(mul1 >> 15u, 16);
@@ -142,7 +142,7 @@ void arm_cmplx_mult_real_q15(
     mul4 = (q31_t) ((q15_t) (inA2 >> 16) * (q15_t) inB1);
     mul3 = (q31_t) ((q15_t) inA2 * (q15_t) inB1);
 
-#endif //      #ifndef ARM_MATH_BIG_ENDIAN
+#endif /* #ifndef ARM_MATH_BIG_ENDIAN */
 
     out1 = (q15_t) __SSAT(mul1 >> 15u, 16);
     out2 = (q15_t) __SSAT(mul2 >> 15u, 16);

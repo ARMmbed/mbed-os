@@ -68,79 +68,195 @@ def abort_build(args):
     r = requests.put(urlparse.urljoin(args.url, "api/builds/" + args.build_id), headers=create_headers(args), json=data)
     finish_command('abort-build', r)
 
-def add_test_runs(args):
+def add_project_runs(args):
+    '''
+    -------------------------------------
+    Notes on 'project_run_data' structure:
+    --------------------------------------
+        'projectRuns' - Tree structure used to keep track of what projects have
+            been logged in different report files. The tree is organized as follows:
+
+            'projectRuns': {                - Root element of tree
+
+                'hostOs': {                 - Host OS on which project was built/tested
+                                                - ex. windows, linux, or mac
+
+                    'platform': {           - Platform for which project was built/tested
+                                              (Corresponds to platform names in targets.py)
+                                                - ex. K64F, LPC1768, NRF51822, etc.
+
+                        'toolchain': {      - Toolchain with which project was built/tested
+                                              (Corresponds to TOOLCHAIN_CLASSES names in toolchains/__init__.py)
+                                                - ex. ARM, uARM, GCC_ARM, etc.
+
+                            'project': {    - Project that was build/tested
+                                              (Corresponds to test id in tests.py or library id in libraries.py)
+                                                - For tests, ex. MBED_A1, MBED_11, DTCT_1 etc.
+                                                - For libraries, ex. MBED, RTX, RTOS, etc.
+
+                            },
+                            ...
+                        },
+                        ...
+                    },
+                    ...
+                }
+            }
+
+        'platforms_set' - Set of all the platform names mentioned in the given report files
+
+        'toolchains_set' - Set of all the toolchain names mentioned in the given report files
+
+        'names_set' - Set of all the project names mentioned in the given report files
+
+        'hostOses_set' - Set of all the host names given (only given by the command line arguments)
+    '''
+
+    project_run_data = {}
+    project_run_data['projectRuns'] = {}
+    project_run_data['platforms_set'] = set()
+    project_run_data['vendors_set'] = set()
+    project_run_data['toolchains_set'] = set()
+    project_run_data['names_set'] = set()
+    project_run_data['hostOses_set'] = set()
+    project_run_data['hostOses_set'].add(args.host_os)
+
+    add_report(project_run_data, args.build_report, True, args.build_id, args.host_os)
+
+    if (args.test_report):
+        add_report(project_run_data, args.test_report, False, args.build_id, args.host_os)
+
+    ts_data = format_project_run_data(project_run_data)
+    r = requests.post(urlparse.urljoin(args.url, "api/projectRuns"), headers=create_headers(args), json=ts_data)
+    finish_command('add-project-runs', r)
+
+def format_project_run_data(project_run_data):
+    ts_data = {}
+    ts_data['projectRuns'] = []
+
+    for hostOs in project_run_data['projectRuns'].values():
+        for platform in hostOs.values():
+            for toolchain in platform.values():
+                for project in toolchain.values():
+                    ts_data['projectRuns'].append(project)
+
+    ts_data['platforms'] = list(project_run_data['platforms_set'])
+    ts_data['vendors'] = list(project_run_data['vendors_set'])
+    ts_data['toolchains'] = list(project_run_data['toolchains_set'])
+    ts_data['names'] = list(project_run_data['names_set'])
+    ts_data['hostOses'] = list(project_run_data['hostOses_set'])
+
+    return ts_data
+
+def find_project_run(projectRuns, project):
+    keys = ['hostOs', 'platform', 'toolchain', 'project']
+
+    elem = projectRuns
+
+    for key in keys:
+        if not project[key] in elem:
+            return None
+
+        elem = elem[project[key]]
+
+    return elem
+
+def add_project_run(projectRuns, project):
+    keys = ['hostOs', 'platform', 'toolchain']
+
+    elem = projectRuns
+
+    for key in keys:
+        if not project[key] in elem:
+            elem[project[key]] = {}
+
+        elem = elem[project[key]]
+
+    elem[project['project']] = project
+
+def update_project_run_results(project_to_update, project):
+    project_to_update['pass'] = project['pass']
+    project_to_update['result'] = project['result']
+
+    if 'buildOutput' in project:
+        project_to_update['buildOutput'] = project['buildOutput']
+    else:
+        project_to_update['testOutput'] = project['testOutput']
+
+def update_project_run(projectRuns, project):
+    found_project = find_project_run(projectRuns, project)
+    if found_project:
+        update_project_run_results(found_project, project)
+    else:
+        add_project_run(projectRuns, project)
+
+def add_report(project_run_data, report_file, is_build, build_id, host_os):
     tree = None
 
     try:
-        tree = ET.parse(args.test_report)
+        tree = ET.parse(report_file)
     except:
         print(sys.exc_info()[0])
-        print('Invalid path to test report.')
+        print('Invalid path to report: %s', report_file)
         sys.exit(1)
 
     test_suites = tree.getroot()
 
-    ts_data = {}
-    ts_data['testRuns'] = []
-
-    platforms_set = set()
-    toolchains_set = set()
-    testIds_set = set()
-    hostOses_set = set()
-
-    hostOses_set.add(args.host_os)
-
     for test_suite in test_suites:
         platform = ""
         toolchain = ""
+        vendor = ""
         for properties in test_suite.findall('properties'):
             for property in properties.findall('property'):
                 if property.attrib['name'] == 'target':
                     platform = property.attrib['value']
-                    platforms_set.add(platform)
+                    project_run_data['platforms_set'].add(platform)
                 elif property.attrib['name'] == 'toolchain':
                     toolchain = property.attrib['value']
-                    toolchains_set.add(toolchain)
+                    project_run_data['toolchains_set'].add(toolchain)
+                elif property.attrib['name'] == 'vendor':
+                    vendor = property.attrib['value']
+                    project_run_data['vendors_set'].add(vendor)
 
         for test_case in test_suite.findall('testcase'):
-            testRun = {}
-            testRun['build'] = args.build_id
-            testRun['hostOs'] = args.host_os
-            testRun['platform'] = platform
-            testRun['toolchain'] = toolchain
-            testRun['test'] = test_case.attrib['classname'].split('.')[-1]
+            projectRun = {}
+            projectRun['build'] = build_id
+            projectRun['hostOs'] = host_os
+            projectRun['platform'] = platform
+            projectRun['toolchain'] = toolchain
+            projectRun['project'] = test_case.attrib['classname'].split('.')[-1]
+            projectRun['vendor'] = vendor
 
-            testIds_set.add(testRun['test'])
+            project_run_data['names_set'].add(projectRun['project'])
 
-            system_outs = test_case.findall('system-out')
+            skipped = test_case.findall('skipped')
 
-            if system_outs:
-                testRun['output'] = system_outs[0].text
-            else:
-                testRun['output'] = ""
+            if not skipped:
+                system_outs = test_case.findall('system-out')
 
-            errors = test_case.findall('error')
-            failures = test_case.findall('failure')
+                output = ""
+                if system_outs:
+                    output = system_outs[0].text
 
-            if errors:
-                testRun['pass'] = False
-                testRun['result'] = errors[0].attrib['message']
-            elif failures:
-                testRun['pass'] = False
-                testRun['result'] = failures[0].attrib['message']
-            else:
-                testRun['pass'] = True
-                testRun['result'] = 'OK'
+                if is_build:
+                    projectRun['buildOutput'] = output
+                else:
+                    projectRun['testOutput'] = output
 
-            ts_data['testRuns'].append(testRun)
+                errors = test_case.findall('error')
+                failures = test_case.findall('failure')
 
-    ts_data['platforms'] = list(platforms_set)
-    ts_data['toolchains'] = list(toolchains_set)
-    ts_data['testIds'] = list(testIds_set)
-    ts_data['hostOses'] = list(hostOses_set)
+                if errors:
+                    projectRun['pass'] = False
+                    projectRun['result'] = errors[0].attrib['message']
+                elif failures:
+                    projectRun['pass'] = False
+                    projectRun['result'] = failures[0].attrib['message']
+                else:
+                    projectRun['pass'] = True
+                    projectRun['result'] = 'OK'
 
-    r = requests.post(urlparse.urljoin(args.url, "api/testRuns"), headers=create_headers(args), json=ts_data)
-    finish_command('add-test-runs', r)
+                update_project_run(project_run_data['projectRuns'], projectRun)
 
 def main(arguments):
     # Register and parse command line arguments
@@ -165,11 +281,12 @@ def main(arguments):
     abort_build_parser.add_argument('-b', '--build-id', required=True, help='build id')
     abort_build_parser.set_defaults(func=abort_build)
 
-    add_test_runs_parser = subparsers.add_parser('add-test-runs', help='add test runs to a build')
-    add_test_runs_parser.add_argument('-b', '--build-id', required=True, help='build id')
-    add_test_runs_parser.add_argument('-t', '--test-report', required=True, help='path to junit xml test report')
-    add_test_runs_parser.add_argument('-o', '--host-os', required=True, help='host os on which test was run')
-    add_test_runs_parser.set_defaults(func=add_test_runs)
+    add_project_runs_parser = subparsers.add_parser('add-project-runs', help='add project runs to a build')
+    add_project_runs_parser.add_argument('-b', '--build-id', required=True, help='build id')
+    add_project_runs_parser.add_argument('-r', '--build-report', required=True, help='path to junit xml build report')
+    add_project_runs_parser.add_argument('-t', '--test-report', required=False, help='path to junit xml test report')
+    add_project_runs_parser.add_argument('-o', '--host-os', required=True, help='host os on which test was run')
+    add_project_runs_parser.set_defaults(func=add_project_runs)
 
     args = parser.parse_args(arguments)
     args.func(args)

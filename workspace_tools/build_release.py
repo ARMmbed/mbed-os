@@ -73,6 +73,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('NUCLEO_F303RE', ('ARM', 'uARM', 'IAR')),
     ('NUCLEO_F334R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F401RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F410RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F446RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('ELMO_F411RE', ('ARM', 'uARM', 'GCC_ARM')),
@@ -83,8 +84,9 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('DISCO_F429ZI', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('DISCO_F469NI', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('DISCO_F746NG', ('ARM', 'uARM')),
+    ('DISCO_F746NG', ('ARM', 'uARM', 'GCC_ARM')),
     ('DISCO_L476VG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L476RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
@@ -127,6 +129,11 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('WIZWIKI_W7500',   ('ARM', 'uARM')),
     ('WIZWIKI_W7500P',('ARM', 'uARM')),
     ('WIZWIKI_W7500ECO',('ARM', 'uARM')),
+
+    ('SAMR21G18A',('ARM', 'uARM', 'GCC_ARM')),
+    ('SAMD21J18A',('ARM', 'uARM', 'GCC_ARM')),
+    ('SAMD21G18A',('ARM', 'uARM', 'GCC_ARM')),
+
 )
 
 
