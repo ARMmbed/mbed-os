@@ -160,7 +160,6 @@ uint8_t SetSysClock_PLL_HSI(void);
   * @{
   */
 
-extern int NVIC_vtor_remap;
 
 /**
   * @brief  Setup the microcontroller system.
@@ -229,7 +228,6 @@ void SystemInit(void)
 
   /* Configure the Cube driver */
   SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
-  NVIC_vtor_remap = 0; // Because it is not cleared the first time we enter in NVIC_SetVector()
   HAL_Init();
 
   /* Configure the System clock source, PLL Multiplier and Divider factors,
