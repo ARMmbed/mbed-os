@@ -175,7 +175,7 @@ static void uart_init(serial_t *obj, uint32_t baudrate, SerialParity parity, int
         }
 
         init.enable = leuartDisable;
-        init.baudrate = baudrate;
+        init.baudrate = 9600;
         init.databits = leuartDatabits8;
 #ifdef LEUART_USING_LFXO
         init.refFreq = LEUART_LF_REF_FREQ;
@@ -183,6 +183,10 @@ static void uart_init(serial_t *obj, uint32_t baudrate, SerialParity parity, int
         init.refFreq = LEUART_REF_FREQ;
 #endif
         LEUART_Init(obj->serial.periph.leuart, &init);
+
+        if (baudrate != 9600) {
+            serial_baud(obj, baudrate);
+        }
     } else {
         USART_InitAsync_TypeDef init = USART_INITASYNC_DEFAULT;
 
