@@ -177,7 +177,7 @@ void Harness::validate_callback()
     mbed::util::CriticalSectionLock lock;
     case_validation_count++;
 
-    if (case_timeout_handle != NULL)
+    if (case_timeout_handle != NULL || case_control.timeout == TIMEOUT_FOREVER)
     {
         minar::Scheduler::cancelCallback(case_timeout_handle);
         case_timeout_handle = NULL;
@@ -239,10 +239,14 @@ void Harness::run_next_case()
             mbed::util::CriticalSectionLock lock;
             if (case_validation_count) case_control.repeat = repeat_t(case_control.repeat & ~REPEAT_ON_TIMEOUT);
 
-            if (case_control.timeout != uint32_t(-1) && case_validation_count == 0) {
-                case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
+            // if timeout valid
+            if (case_control.timeout != TIMEOUT_NONE && case_validation_count == 0) {
+                // if await validation _with_ timeout
+                if (case_control.timeout != TIMEOUT_FOREVER) {
+                    case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
                                                 .delay(minar::milliseconds(case_control.timeout))
                                                 .getHandle();
+                }
             }
             else {
                 minar::Scheduler::postCallback(schedule_next_case);
