@@ -20,7 +20,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "gpio_object.h"
-#include "uart_serial.h"
+#include "serial_platform.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +42,8 @@ struct serial_s {
     UARTName uart;
     usart_serial_options_t uart_serial_options;
 #if DEVICE_SERIAL_ASYNCH
+    uint8_t actrec;
+    uint8_t acttra;
     uint32_t events;
 #endif
 };
@@ -58,8 +60,19 @@ struct i2c_s {
 };
 
 struct spi_s {
-    SPIName spi;
+    Spi * spi_base;
+    Flexcom * flexcom;
+    uint8_t cs;
+    uint8_t polarity;
+    uint8_t phase;
+    uint32_t transferrate;
+    uint8_t is_slave;
+    uint8_t module_number;
 #if DEVICE_SPI_ASYNCH
+    Pdc * pdc;
+    uint8_t dma_usage;
+    IRQn_Type irq_type;
+    uint32_t event;
 #endif
 };
 
