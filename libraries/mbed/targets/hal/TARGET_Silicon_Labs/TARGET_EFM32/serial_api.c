@@ -1908,7 +1908,7 @@ int serial_tx_irq_handler_asynch(serial_t *obj)
             }
         }else if (obj->serial.periph.leuart->IF & LEUART_IF_TXC){
             /* Last byte has been successfully transmitted. Stop the procedure */
-            serial_tx_abort_asynch(obj);
+            serial_tx_abort_asynch_intern(obj, 1);
             return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }
     } else {
@@ -1925,7 +1925,7 @@ int serial_tx_irq_handler_asynch(serial_t *obj)
             }
         } else if (obj->serial.periph.uart->IF & USART_IF_TXC) {
             /* Last byte has been successfully transmitted. Stop the procedure */
-            serial_tx_abort_asynch(obj);
+            serial_tx_abort_asynch_intern(obj, 1);
             return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }
     }
@@ -2099,13 +2099,13 @@ int serial_irq_handler_asynch(serial_t *obj)
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             /* Clean up */
             serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
-            serial_tx_abort_asynch(obj);
+            serial_tx_abort_asynch_intern(obj, 1);
             /* Notify CPP land of completion */
             return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }else{
             /* Clean up */
             serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
-            serial_tx_abort_asynch(obj);
+            serial_tx_abort_asynch_intern(obj, 1);
             /* Notify CPP land of completion */
             return SERIAL_EVENT_TX_COMPLETE & obj->serial.events;
         }
