@@ -99,6 +99,8 @@ static CMU_Clock_TypeDef serial_get_clock(serial_t *obj);
 static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx);
 static void serial_rx_abort_asynch_intern(serial_t *obj, int unblock_sleep);
 static void serial_tx_abort_asynch_intern(serial_t *obj, int unblock_sleep);
+static void serial_block_sleep(serial_t *obj);
+static void serial_unblock_sleep(serial_t *obj);
 
 /* ISRs for RX and TX events */
 #ifdef UART0
@@ -756,6 +758,11 @@ static void serial_switch_to_usart(serial_t *obj, int baudrate)
 
     /* TODO: disable clocks? */
 
+    /* Disable sleep */
+    uint32_t sleep_count = obj->serial.sleep_blocked;
+    while( obj->serial.sleep_blocked > 0 )
+        serial_unblock_sleep(obj);
+
     SerialParity par = ParityNone;
     switch( parity ) {
         case LEUART_CTRL_PARITY_NONE: par = ParityNone; break;
@@ -791,6 +798,10 @@ static void serial_switch_to_usart(serial_t *obj, int baudrate)
 
     serial_uart_free(leuart);
     serial_enable(obj, true);
+
+    /* Restore sleep */
+    while( obj->serial.sleep_blocked < sleep_count )
+        serial_block_sleep(obj);
 
     /* Restore interrupts */
     serial_irq_ids[serial_get_index(obj)] = irq_id;
@@ -1708,15 +1719,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     serial_tx_enable_event(obj, event, true);
 
     // Set up sleepmode
-#ifdef LEUART_USING_LFXO
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
-        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
-    }else{
-        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
-    }
-#else
-    blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
-#endif
+    serial_block_sleep(obj);
 
     // Determine DMA strategy
     serial_dmaTrySetState(&(obj->serial.dmaOptionsTX), hint, obj, true);
@@ -1788,15 +1791,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     obj->char_match = char_match;
 
     // Set up sleepmode
-#ifdef LEUART_USING_LFXO
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
-        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
-    }else{
-        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
-    }
-#else
-    blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
-#endif
+    serial_block_sleep(obj);
 
     // Determine DMA strategy
     // If character match is enabled, we can't use DMA, sadly. We could when using LEUART though, but that support is not in here yet.
@@ -2201,7 +2196,14 @@ static void serial_tx_abort_asynch_intern(serial_t *obj, int unblock_sleep)
     }
 
     /* Say that we can stop using this emode */
-    if( unblock_sleep ) {
+    if(unblock_sleep)
+        serial_unblock_sleep(obj);
+}
+
+
+static void serial_unblock_sleep(serial_t *obj)
+{
+    if( obj->serial.sleep_blocked > 0 ) {
 #ifdef LEUART_USING_LFXO
         if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
             unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
@@ -2211,7 +2213,22 @@ static void serial_tx_abort_asynch_intern(serial_t *obj, int unblock_sleep)
 #else
         unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
 #endif
+        obj->serial.sleep_blocked--;
     }
+}
+
+static void serial_block_sleep(serial_t *obj)
+{
+    obj->serial.sleep_blocked++;
+#ifdef LEUART_USING_LFXO
+    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
+        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
+    }else{
+        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    }
+#else
+    blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+#endif
 }
 
 /** Abort the ongoing RX transaction It disables the enabled interrupt for RX and
@@ -2273,17 +2290,8 @@ static void serial_rx_abort_asynch_intern(serial_t *obj, int unblock_sleep)
     }
 
     /* Say that we can stop using this emode */
-    if( unblock_sleep ) {
-#ifdef LEUART_USING_LFXO
-        if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
-            unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
-        }else{
-            unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
-        }
-#else
-        unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
-#endif
-    }
+    if( unblock_sleep )
+        serial_unblock_sleep(obj);
 }
 
 #endif //DEVICE_SERIAL_ASYNCH
