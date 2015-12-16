@@ -129,6 +129,7 @@ struct serial_s {
     DMA_OPTIONS_t dmaOptionsTX;
     DMA_OPTIONS_t dmaOptionsRX;
 #endif
+    uint32_t sleep_blocked;
 };
 #endif
 
