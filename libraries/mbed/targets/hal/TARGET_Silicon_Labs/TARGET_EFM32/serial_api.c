@@ -2087,14 +2087,16 @@ int serial_irq_handler_asynch(serial_t *obj)
     }
 
     /* First, check if we're running in DMA mode */
-    if(serial_dma_irq_fired[obj->serial.dmaOptionsRX.dmaChannel]) {
+    if( (obj->serial.dmaOptionsRX.dmaChannel != -1) &&
+        serial_dma_irq_fired[obj->serial.dmaOptionsRX.dmaChannel]) {
         /* Clean up */
         serial_dma_irq_fired[obj->serial.dmaOptionsRX.dmaChannel] = false;
         serial_rx_abort_asynch_intern(obj, 1);
 
         /* Notify CPP land of RX completion */
         return SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
-    } else if (txc_int && serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel]) {
+    } else if (txc_int && (obj->serial.dmaOptionsTX.dmaChannel != -1) &&
+               serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel]) {
         if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
             /* Clean up */
             serial_dma_irq_fired[obj->serial.dmaOptionsTX.dmaChannel] = false;
