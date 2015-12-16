@@ -28,12 +28,15 @@ namespace utest {
 namespace v1 {
 
     enum repeat_t {
-        REPEAT_NONE  = 0,  ///< continue with the next test case
+        REPEAT_UNDECLR = 0,
+        REPEAT_NONE    = 1,       ///< continue with the next test case
 
-        REPEAT_ON_TIMEOUT = 1,
-        REPEAT_ON_VALIDATE  = 2,
-        REPEAT_CASE_ONLY  = 4,
-        REPEAT_SETUP_TEARDOWN = 8,
+        REPEAT_ON_TIMEOUT     =  2,
+        REPEAT_ON_VALIDATE    =  4,
+        REPEAT_CASE_ONLY      =  8,
+        REPEAT_SETUP_TEARDOWN = 16,
+
+        REPEAT_MASK = REPEAT_ON_TIMEOUT | REPEAT_ON_VALIDATE | REPEAT_CASE_ONLY | REPEAT_SETUP_TEARDOWN,
 
         REPEAT_ALL_ON_TIMEOUT = REPEAT_SETUP_TEARDOWN | REPEAT_ON_TIMEOUT,  ///< repeat the handler with setup and teardown on timeout
         REPEAT_HANDLER_ON_TIMEOUT = REPEAT_CASE_ONLY | REPEAT_ON_TIMEOUT,   ///< repeat only the handler on timeout
@@ -60,8 +63,9 @@ namespace v1 {
     };
 
     enum {
-        TIMEOUT_FOREVER = uint32_t(-1), ///< Never time out
-        TIMEOUT_NONE = uint32_t(-2)     ///< Do not use a timeout
+        TIMEOUT_NONE    = uint32_t(-1), ///< Do not use a timeout
+        TIMEOUT_UNDECLR = uint32_t(-2), ///< Timeout not explicitly specified, defaults to NONE
+        TIMEOUT_FOREVER = uint32_t(-3)  ///< Never time out
     };
 
     /// Stringifies a failure for understandable error messages.
@@ -98,31 +102,34 @@ namespace v1 {
      */
     struct control_t
     {
-        control_t() : repeat(REPEAT_NONE), timeout(TIMEOUT_NONE) {}
+        control_t() : repeat(REPEAT_UNDECLR), timeout(TIMEOUT_UNDECLR) {}
 
         control_t(repeat_t repeat, uint32_t timeout_ms) :
             repeat(repeat), timeout(timeout_ms) {}
 
         control_t(repeat_t repeat) :
-            repeat(repeat), timeout(TIMEOUT_NONE) {}
+            repeat(repeat), timeout(TIMEOUT_UNDECLR) {}
 
         control_t(uint32_t timeout_ms) :
-            repeat(REPEAT_NONE), timeout(timeout_ms) {}
+            repeat(REPEAT_UNDECLR), timeout(timeout_ms) {}
 
         control_t
         inline operator+(const control_t& rhs) const {
-            control_t result(repeat_t(this->repeat | rhs.repeat), this->timeout);
+            control_t result(
+                repeat_t(this->repeat | rhs.repeat),
+                (rhs.timeout == TIMEOUT_NONE) ? rhs.timeout : this->timeout);
 
-            if (result.repeat & REPEAT_SETUP_TEARDOWN) {
-                result.repeat = repeat_t(result.repeat & ~REPEAT_HANDLER);
+            if (result.repeat & REPEAT_NONE) {
+                result.repeat = REPEAT_NONE;
             }
-            // This works and does the right thing,
-            // since (uint32_t(-1) > uint32_t(-2)) => true, or
-            // TIMEOUT_FOREVER > TIMEOUT_NONE => NONE overwrites FOREVER
-            // which is correct as it is more restrictive
-            if (result.timeout > rhs.timeout) {
+            else if (result.repeat & REPEAT_SETUP_TEARDOWN) {
+                result.repeat = repeat_t(result.repeat & ~REPEAT_CASE_ONLY);
+            }
+
+            if (result.timeout != TIMEOUT_NONE && result.timeout > rhs.timeout) {
                 result.timeout = rhs.timeout;
             }
+
             return result;
         }
 
@@ -141,17 +148,19 @@ namespace v1 {
         friend class Harness;
     };
 
-    /// Awaits until the callback is validated and never times out. Use with caution!
-    const  control_t CaseAwait(TIMEOUT_FOREVER);
-    /// repeats only the test case handler without calling teardown and setup handlers
-    const  control_t CaseRepeatHandler(REPEAT_HANDLER);
+    /// does not repeat this test case, but moves on to the next one
+    const  control_t CaseNext(REPEAT_NONE, TIMEOUT_NONE);
+
     /// repeats the test case handler with calling teardown and setup handlers
     const  control_t CaseRepeatAll(REPEAT_ALL);
-    /// does not repeat this test case, but moves on to the next one
-    const  control_t CaseNext(REPEAT_NONE);
+    /// repeats only the test case handler without calling teardown and setup handlers
+    const  control_t CaseRepeatHandler(REPEAT_HANDLER);
 
+    /// Awaits until the callback is validated and never times out. Use with caution!
+    const  control_t CaseAwait(TIMEOUT_FOREVER);
     /// Alias class for asynchronous timeout control in milliseconds
-    inline control_t CaseTimeout(uint32_t ms) { return control_t(ms); }
+    inline control_t CaseTimeout(uint32_t ms) { return ms; }
+
     /// Alias class for asynchronous timeout control in milliseconds and
     /// repeats the test case handler with calling teardown and setup handlers
     inline control_t CaseRepeatAllOnTimeout(uint32_t ms) { return control_t(REPEAT_ALL_ON_TIMEOUT, ms); }

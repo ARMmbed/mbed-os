@@ -240,9 +240,9 @@ void Harness::run_next_case()
             if (case_validation_count) case_control.repeat = repeat_t(case_control.repeat & ~REPEAT_ON_TIMEOUT);
 
             // if timeout valid
-            if (case_control.timeout != TIMEOUT_NONE && case_validation_count == 0) {
+            if (case_control.timeout < TIMEOUT_UNDECLR && case_validation_count == 0) {
                 // if await validation _with_ timeout
-                if (case_control.timeout != TIMEOUT_FOREVER) {
+                if (case_control.timeout < TIMEOUT_FOREVER) {
                     case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
                                                 .delay(minar::milliseconds(case_control.timeout))
                                                 .getHandle();
