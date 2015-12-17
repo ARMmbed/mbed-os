@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
+ * A generic CMSIS include header
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,45 +29,10 @@
  *******************************************************************************
  */
 
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
+#ifndef MBED_CMSIS_H
+#define MBED_CMSIS_H
 
-#include "pinmap.h"
-#include "PeripheralNames.h"
-
-//*** ADC ***
-
-extern const PinMap PinMap_ADC[];
-
-//*** DAC ***
-
-extern const PinMap PinMap_DAC[];
-
-//*** I2C ***
-
-extern const PinMap PinMap_I2C_SDA[];
-extern const PinMap PinMap_I2C_SCL[];
-
-//*** PWM ***
-
-extern const PinMap PinMap_PWM[];
-
-//*** SERIAL ***
-
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
-extern const PinMap PinMap_UART_RTS[];
-extern const PinMap PinMap_UART_CTS[];
-
-//*** SPI ***
-
-extern const PinMap PinMap_SPI_MOSI[];
-extern const PinMap PinMap_SPI_MISO[];
-extern const PinMap PinMap_SPI_SCLK[];
-extern const PinMap PinMap_SPI_SSEL[];
-
-//*** CAN ***
-extern const PinMap PinMap_CAN_RD[];
-extern const PinMap PinMap_CAN_TD[];
+#include "stm32f4xx.h"
+#include "cmsis_nvic.h"
 
 #endif

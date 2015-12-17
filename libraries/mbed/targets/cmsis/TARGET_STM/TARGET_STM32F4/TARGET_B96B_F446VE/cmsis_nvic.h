@@ -1,6 +1,7 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,47 +27,28 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
+ */ 
 
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-#include "pinmap.h"
-#include "PeripheralNames.h"
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 97 vectors = 388 bytes from 0x40 to 0x1C3
+// Total: 113 vectors = 452 bytes (0x1C4) to be reserved in RAM
+#define NVIC_NUM_VECTORS      113
+#define NVIC_USER_IRQ_OFFSET  16
 
-//*** ADC ***
+#include "cmsis.h"
 
-extern const PinMap PinMap_ADC[];
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-//*** DAC ***
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
-extern const PinMap PinMap_DAC[];
-
-//*** I2C ***
-
-extern const PinMap PinMap_I2C_SDA[];
-extern const PinMap PinMap_I2C_SCL[];
-
-//*** PWM ***
-
-extern const PinMap PinMap_PWM[];
-
-//*** SERIAL ***
-
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
-extern const PinMap PinMap_UART_RTS[];
-extern const PinMap PinMap_UART_CTS[];
-
-//*** SPI ***
-
-extern const PinMap PinMap_SPI_MOSI[];
-extern const PinMap PinMap_SPI_MISO[];
-extern const PinMap PinMap_SPI_SCLK[];
-extern const PinMap PinMap_SPI_SSEL[];
-
-//*** CAN ***
-extern const PinMap PinMap_CAN_RD[];
-extern const PinMap PinMap_CAN_TD[];
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -27,46 +27,25 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-#ifndef MBED_PERIPHERALPINS_H
-#define MBED_PERIPHERALPINS_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "pinmap.h"
-#include "PeripheralNames.h"
+typedef enum {
+    PortA = 0,
+    PortB = 1,
+    PortC = 2,
+    PortD = 3,
+    PortE = 4,
+    PortF = 5,
+    PortG = 6,
+    PortH = 7
+} PortName;
 
-//*** ADC ***
-
-extern const PinMap PinMap_ADC[];
-
-//*** DAC ***
-
-extern const PinMap PinMap_DAC[];
-
-//*** I2C ***
-
-extern const PinMap PinMap_I2C_SDA[];
-extern const PinMap PinMap_I2C_SCL[];
-
-//*** PWM ***
-
-extern const PinMap PinMap_PWM[];
-
-//*** SERIAL ***
-
-extern const PinMap PinMap_UART_TX[];
-extern const PinMap PinMap_UART_RX[];
-extern const PinMap PinMap_UART_RTS[];
-extern const PinMap PinMap_UART_CTS[];
-
-//*** SPI ***
-
-extern const PinMap PinMap_SPI_MOSI[];
-extern const PinMap PinMap_SPI_MISO[];
-extern const PinMap PinMap_SPI_SCLK[];
-extern const PinMap PinMap_SPI_SSEL[];
-
-//*** CAN ***
-extern const PinMap PinMap_CAN_RD[];
-extern const PinMap PinMap_CAN_TD[];
-
+#ifdef __cplusplus
+}
+#endif
 #endif

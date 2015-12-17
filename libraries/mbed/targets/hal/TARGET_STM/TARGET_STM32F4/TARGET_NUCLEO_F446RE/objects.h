@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,9 @@ struct serial_s {
     uint32_t parity;
     PinName pin_tx;
     PinName pin_rx;
+#if DEVICE_SERIAL_ASYNCH
+    uint32_t events;
+#endif
 };
 
 struct spi_s {
