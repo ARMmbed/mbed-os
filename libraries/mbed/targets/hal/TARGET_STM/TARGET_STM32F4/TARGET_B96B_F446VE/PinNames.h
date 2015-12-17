@@ -120,7 +120,7 @@ typedef enum {
     PC_15 = 0x2F,
 
     PD_0  = 0x30,
-    PD_1  = 0x31,    
+    PD_1  = 0x31,
     PD_2  = 0x32,
     PD_3  = 0x33,
     PD_4  = 0x34,
