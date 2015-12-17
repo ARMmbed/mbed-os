@@ -119,15 +119,20 @@ namespace v1 {
                 repeat_t(this->repeat | rhs.repeat),
                 (rhs.timeout == TIMEOUT_NONE) ? rhs.timeout : this->timeout);
 
+            if (result.timeout != TIMEOUT_NONE && result.timeout > rhs.timeout) {
+                result.timeout = rhs.timeout;
+            }
+
             if (result.repeat & REPEAT_NONE) {
                 result.repeat = REPEAT_NONE;
             }
-            else if (result.repeat & REPEAT_SETUP_TEARDOWN) {
-                result.repeat = repeat_t(result.repeat & ~REPEAT_CASE_ONLY);
-            }
-
-            if (result.timeout != TIMEOUT_NONE && result.timeout > rhs.timeout) {
-                result.timeout = rhs.timeout;
+            else {
+                if (result.repeat & REPEAT_SETUP_TEARDOWN) {
+                    result.repeat = repeat_t(result.repeat & ~REPEAT_CASE_ONLY);
+                }
+                if (result.timeout == TIMEOUT_NONE && result.repeat & REPEAT_ON_TIMEOUT) {
+                    result.repeat = repeat_t(result.repeat & ~REPEAT_ON_TIMEOUT);
+                }
             }
 
             return result;
@@ -148,14 +153,18 @@ namespace v1 {
         friend class Harness;
     };
 
-    /// does not repeat this test case, but moves on to the next one
+    /// does not repeat this test case and immediately moves on to the next one without timeout
     const  control_t CaseNext(REPEAT_NONE, TIMEOUT_NONE);
 
+    /// does not repeat this test case, moves on to the next one
+    const  control_t CaseNoRepeat(REPEAT_NONE);
     /// repeats the test case handler with calling teardown and setup handlers
     const  control_t CaseRepeatAll(REPEAT_ALL);
     /// repeats only the test case handler without calling teardown and setup handlers
     const  control_t CaseRepeatHandler(REPEAT_HANDLER);
 
+    /// No timeout, immediately moves on to the next case, but allows repeats
+    const  control_t CaseNoTimeout(TIMEOUT_NONE);
     /// Awaits until the callback is validated and never times out. Use with caution!
     const  control_t CaseAwait(TIMEOUT_FOREVER);
     /// Alias class for asynchronous timeout control in milliseconds
