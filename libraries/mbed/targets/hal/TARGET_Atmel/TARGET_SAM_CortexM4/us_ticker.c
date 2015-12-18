@@ -23,9 +23,10 @@
 
 static uint8_t us_ticker_inited = 0;
 extern uint8_t g_sys_init;
-uint16_t us_ticker_16bit_counter;
-uint16_t us_ticker_interrupt_counter;
-uint16_t us_ticker_interrupt_offset;
+volatile uint16_t us_ticker_16bit_counter;
+volatile uint16_t us_ticker_interrupt_counter;
+volatile uint16_t us_ticker_interrupt_offset;
+
 
 #define TICKER_COUNTER_uS        TC0
 
@@ -53,8 +54,10 @@ void TICKER_COUNTER_Handlr1(void)
             us_ticker_interrupt_counter--;
         } else {
             if(us_ticker_interrupt_offset) {
-                tc_write_rc(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, (uint32_t)us_ticker_interrupt_offset);
                 us_ticker_interrupt_offset=0;
+                tc_stop(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1);
+                tc_write_rc(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, (uint32_t)us_ticker_interrupt_offset);
+                tc_start(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1);
             } else
                 us_ticker_irq_handler();
         }
@@ -93,22 +96,22 @@ void us_ticker_init(void)
 #if SAMG55
     /* Enable PCK output */
     pmc_disable_pck(PMC_PCK_3);
-    pmc_switch_pck_to_mck(PMC_PCK_3, PMC_PCK_PRES_CLK_1);
+    pmc_switch_pck_to_mainck(PMC_PCK_3, PMC_PCK_PRES_CLK_8);
     pmc_enable_pck(PMC_PCK_3);
 #endif
 
     /* Init TC to Counter mode. */
-    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0, TC_CMR_TCCLKS_TIMER_CLOCK4);
-    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, TC_CMR_TCCLKS_TIMER_CLOCK4);
+    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0, TC_CMR_TCCLKS_TIMER_CLOCK5);
+    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, TC_CMR_TCCLKS_TIMER_CLOCK5);
+
 
     NVIC_DisableIRQ(TICKER_COUNTER_IRQn0);
     NVIC_SetVector(TICKER_COUNTER_IRQn0, (uint32_t)TICKER_COUNTER_Handlr0);
 
-    tc_enable_interrupt(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0, TC_IER_COVFS);
-
     NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn0);
     NVIC_SetPriority(TICKER_COUNTER_IRQn0, 0);
     NVIC_EnableIRQ(TICKER_COUNTER_IRQn0);
+    tc_enable_interrupt(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0, TC_IER_COVFS);
 
     tc_start(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0);
 }
@@ -118,7 +121,14 @@ uint32_t us_ticker_read()
 {
     if (!us_ticker_inited)
         us_ticker_init();
-    uint32_t counter_value=tc_read_cv(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0);
+	
+	uint32_t counter_value=0;
+	uint16_t tickerbefore=0;
+	do{
+		tickerbefore=us_ticker_16bit_counter;
+		counter_value=tc_read_cv(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0);
+	}while(tickerbefore!=us_ticker_16bit_counter);
+	
     return counter_value+(OVERFLOW_16bit_VALUE*us_ticker_16bit_counter);
 }
 
@@ -138,7 +148,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     uint16_t interruptat=0;
 
     if(delta > OVERFLOW_16bit_VALUE) {
-        us_ticker_interrupt_counter= delta/OVERFLOW_16bit_VALUE;
+        us_ticker_interrupt_counter= (delta/OVERFLOW_16bit_VALUE) -1;
         us_ticker_interrupt_offset=delta%OVERFLOW_16bit_VALUE;
         interruptat=OVERFLOW_16bit_VALUE;
     } else {
@@ -151,11 +161,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     NVIC_SetVector(TICKER_COUNTER_IRQn1, (uint32_t)TICKER_COUNTER_Handlr1);
 
     tc_write_rc(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, (uint32_t)interruptat);
-    tc_enable_interrupt(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, TC_IDR_CPCS );
 
     NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn1);
     NVIC_SetPriority(TICKER_COUNTER_IRQn1, 0);
     NVIC_EnableIRQ(TICKER_COUNTER_IRQn1);
+    tc_enable_interrupt(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, TC_IDR_CPCS );
 
     tc_start(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1);
 }
