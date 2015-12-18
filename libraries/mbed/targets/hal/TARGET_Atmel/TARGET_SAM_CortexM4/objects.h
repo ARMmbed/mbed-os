@@ -60,19 +60,19 @@ struct i2c_s {
 };
 
 struct spi_s {
-    Spi * spi_base;
-    Flexcom * flexcom;
-    uint8_t cs;
-    uint8_t polarity;
-    uint8_t phase;
-    uint32_t transferrate;
-    uint8_t is_slave;
-    uint8_t module_number;
+	Spi * spi_base;
+	Flexcom * flexcom;
+	uint8_t cs;
+	uint8_t polarity;
+	uint8_t phase;
+	uint32_t transferrate;
+	uint8_t is_slave;
+	uint8_t module_number;
 #if DEVICE_SPI_ASYNCH
-    Pdc * pdc;
-    uint8_t dma_usage;
-    IRQn_Type irq_type;
-    uint32_t event;
+	Pdc * pdc;
+	uint8_t dma_usage;
+	IRQn_Type irq_type;
+	uint32_t event;
 #endif
 };
 

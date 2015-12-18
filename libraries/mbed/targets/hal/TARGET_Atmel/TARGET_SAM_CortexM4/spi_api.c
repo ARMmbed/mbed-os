@@ -14,16 +14,160 @@
  * limitations under the License.
  */
 
-#include "cmsis.h"
+#include "device.h"
+#include "dma_api.h"
+#include "buffer.h"
 #include "spi_api.h"
+#include "pinmap.h"
+#include "spi_driver.h"
 #include "PeripheralPins.h"
+#include "pdc.h"
 
-#if DEVICE_SPI
 
-/**
- * \defgroup GeneralSPI SPI Configuration Functions
- * @{
- */
+/* Chip select. */
+#define SPI_CHIP_SEL 0
+
+/* Clock polarity. */
+#define SPI_CLK_POLARITY 0
+
+/* Clock phase. */
+#define SPI_CLK_PHASE 0
+
+/* Last data */
+#define SPI_LAST	0
+
+
+/* Delay before SPCK. */
+#define SPI_DLYBS 0x40
+
+/* Delay between consecutive transfers. */
+#define SPI_DLYBCT 0x10
+
+#define SPI0_Handler     FLEXCOM0_Handler
+#define SPI1_Handler     FLEXCOM1_Handler
+#define SPI2_Handler     FLEXCOM2_Handler
+#define SPI3_Handler     FLEXCOM3_Handler
+#define SPI4_Handler     FLEXCOM4_Handler
+#define SPI5_Handler     FLEXCOM5_Handler
+#define SPI6_Handler     FLEXCOM6_Handler
+#define SPI7_Handler     FLEXCOM7_Handler
+
+#define MAX_SPI	8
+
+volatile uint32_t gCallbackHandler[MAX_SPI];
+typedef void (*SPIHandler)(void);
+/* SPI clock setting (Hz). */
+uint32_t gSPI_clock=500000;
+
+extern uint8_t g_sys_init;
+
+
+void SPI0_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM0_IRQn); 
+	if(gCallbackHandler[0]) ((SPIHandler)gCallbackHandler[0])(); 
+}
+
+void SPI1_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM1_IRQn); 
+	if(gCallbackHandler[1]) ((SPIHandler)gCallbackHandler[1])(); 
+}
+
+void SPI2_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM2_IRQn); 
+	if(gCallbackHandler[2]) ((SPIHandler)gCallbackHandler[2])(); 
+}
+
+void SPI3_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM3_IRQn); 
+	if(gCallbackHandler[3]) ((SPIHandler)gCallbackHandler[3])(); 
+}
+
+void SPI4_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM4_IRQn); 
+	if(gCallbackHandler[4]) ((SPIHandler)gCallbackHandler[4])(); 
+}
+
+void SPI5_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM5_IRQn); 
+	if(gCallbackHandler[5]) ((SPIHandler)gCallbackHandler[5])(); 
+}
+
+void SPI6_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM6_IRQn); 
+	if(gCallbackHandler[6]) ((SPIHandler)gCallbackHandler[6])(); 
+}
+
+void SPI7_Handler(void) { 
+	NVIC_DisableIRQ(FLEXCOM7_IRQn); 
+	if(gCallbackHandler[7]) ((SPIHandler)gCallbackHandler[7])(); 
+}
+
+
+void pinmap_find_spi_info(Spi *sercombase, spi_t *obj){
+	if(sercombase==SPI0) {
+		obj->spi.flexcom=FLEXCOM0;
+		obj->spi.module_number=0;
+		obj->spi.pdc =PDC_SPI0;
+		obj->spi.irq_type=FLEXCOM0_IRQn;
+	}
+	else if(sercombase==SPI1){
+		obj->spi.flexcom=FLEXCOM1;
+		obj->spi.module_number=1;
+		obj->spi.pdc =PDC_SPI1;
+		obj->spi.irq_type=FLEXCOM1_IRQn;
+	}
+	else if(sercombase==SPI2){
+		obj->spi.flexcom=FLEXCOM2;
+		obj->spi.module_number=2;
+		obj->spi.pdc =PDC_SPI2;
+		obj->spi.irq_type=FLEXCOM2_IRQn;
+	}
+	else if(sercombase==SPI3){
+		obj->spi.flexcom=FLEXCOM3;
+		obj->spi.module_number=3;
+		obj->spi.pdc =PDC_SPI3;
+		obj->spi.irq_type=FLEXCOM3_IRQn;
+	}
+	else if(sercombase==SPI4){
+		obj->spi.flexcom=FLEXCOM4;
+		obj->spi.module_number=4;
+		obj->spi.pdc =PDC_SPI4;
+		obj->spi.irq_type=FLEXCOM4_IRQn;
+	}
+	else if(sercombase==SPI5){
+		obj->spi.flexcom=FLEXCOM5;
+		obj->spi.module_number=5;
+		obj->spi.pdc =PDC_SPI5;
+		obj->spi.irq_type=FLEXCOM5_IRQn;
+	}
+	else if(sercombase==SPI6){
+		obj->spi.flexcom=FLEXCOM6;
+		obj->spi.module_number=6;
+		obj->spi.pdc =PDC_SPI6;
+		obj->spi.irq_type=FLEXCOM6_IRQn;
+	}
+	else if(sercombase==SPI7){
+		obj->spi.flexcom=FLEXCOM7;
+		obj->spi.module_number=7;
+		obj->spi.pdc =PDC_SPI7;
+		obj->spi.irq_type=FLEXCOM7_IRQn;
+	}
+	else {
+		obj->spi.flexcom=(Flexcom *)NC;
+		obj->spi.module_number=0;
+		obj->spi.pdc =(Pdc *) NC;
+	}
+}
+
+Spi* pinmap_find_sercom(PinName mosi, PinName miso, PinName sclk){
+	Spi* sercomIndex=(Spi*)pinmap_peripheral (mosi,PinMap_SPI_MOSI);
+	if(sercomIndex== (Spi*)pinmap_peripheral (miso, PinMap_SPI_MISO) && 
+	   sercomIndex == (Spi*)pinmap_peripheral (sclk, PinMap_SPI_SCLK))
+	   return sercomIndex;
+	
+	return (Spi*)NC;
+}
+
 
 /** Initialize the SPI peripheral
  *
@@ -32,11 +176,66 @@
  * @param[in]  mosi The pin to use for MOSI
  * @param[in]  miso The pin to use for MISO
  * @param[in]  sclk The pin to use for SCLK
- * @param[in]  ssel The pin to use for SSEL
+ * @param[in]  ssel The pin to use for SSEL <Not Used>
  */
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel /*Not Used*/)
 {
+	MBED_ASSERT(obj);
+	MBED_ASSERT(mosi !=NC && miso!=NC && sclk !=NC );
+	
+	 if (g_sys_init == 0) {
+        sysclk_init();
+        system_board_init();
+        g_sys_init = 1;
+    }
+	
+	Spi *sercombase = pinmap_find_sercom(mosi,miso,sclk);
+	MBED_ASSERT(sercom!=NC);
+	
+	pinmap_find_spi_info(sercombase, obj);
+	MBED_ASSERT(obj->spi.flexcom!=NC);
+	MBED_ASSERT(obj->spi.pdc!=NC);
+	
+    /* Configure SPI pins */
+    pin_function(mosi, pinmap_find_function(mosi, PinMap_SPI_MOSI));
+    ioport_disable_pin(mosi);
 
+    pin_function(miso, pinmap_find_function(miso, PinMap_SPI_MISO));
+    ioport_disable_pin(miso);
+
+    pin_function(sclk, pinmap_find_function(sclk, PinMap_SPI_SCLK));
+    ioport_disable_pin(sclk);
+	
+	#if (SAMG55)
+	/* Enable the peripheral and set SPI mode. */
+	flexcom_enable(obj->spi.flexcom);
+	flexcom_set_opmode(obj->spi.flexcom, FLEXCOM_SPI);
+	#else
+	/* Configure an SPI peripheral. */
+	spi_enable_clock(sercombase);
+	#endif
+	spi_disable(sercombase);
+	spi_reset(sercombase);
+	spi_set_lastxfer(sercombase);
+	spi_set_master_mode(sercombase);
+	spi_disable_mode_fault_detect(sercombase);
+	spi_set_peripheral_chip_select_value(sercombase, SPI_CHIP_SEL);
+	spi_set_clock_polarity(sercombase, SPI_CHIP_SEL, SPI_CLK_POLARITY);
+	spi_set_clock_phase(sercombase, SPI_CHIP_SEL, SPI_CLK_PHASE);
+	spi_set_bits_per_transfer(sercombase, SPI_CHIP_SEL, SPI_CSR_BITS_8_BIT);
+	spi_set_baudrate_div(sercombase, SPI_CHIP_SEL,(sysclk_get_cpu_hz() / gSPI_clock));
+	spi_set_transfer_delay(sercombase, SPI_CHIP_SEL, SPI_DLYBS,SPI_DLYBCT);
+	
+	spi_enable(sercombase);
+
+	pdc_disable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTDIS |	PERIPH_PTCR_TXTDIS);
+
+	obj->spi.spi_base=sercombase;
+	obj->spi.cs= SPI_CHIP_SEL;
+	obj->spi.polarity=SPI_CLK_POLARITY;
+	obj->spi.phase=SPI_CLK_PHASE;
+	obj->spi.transferrate=SPI_CSR_BITS_8_BIT;
+	obj->spi.is_slave=0;
 }
 
 /** Release a SPI object
@@ -49,9 +248,26 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
  * Disable the SPI clock
  * @param[in] obj The SPI object to deinitialize
  */
-void spi_free(spi_t *obj)
-{
+void spi_free(spi_t *obj){
+	MBED_ASSERT(obj);
+	spi_disable(obj->spi.spi_base);	
+	spi_reset(obj->spi.spi_base);
+	flexcom_disable((Flexcom *)obj->spi.flexcom);
+}
 
+uint32_t get_transfer_rate(int bits){
+	switch(bits){
+		case 8: return SPI_CSR_BITS_8_BIT;
+		case 9: return SPI_CSR_BITS_9_BIT;
+		case 10: return SPI_CSR_BITS_10_BIT;
+		case 11: return SPI_CSR_BITS_11_BIT;
+		case 12: return SPI_CSR_BITS_12_BIT;
+		case 13: return SPI_CSR_BITS_13_BIT;
+		case 14: return SPI_CSR_BITS_14_BIT;
+		case 15: return SPI_CSR_BITS_15_BIT;
+		case 16: return SPI_CSR_BITS_16_BIT;
+		default: return NC;
+	}
 }
 
 /** Configure the SPI format
@@ -64,7 +280,26 @@ void spi_free(spi_t *obj)
  */
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
+	uint32_t transferrate= get_transfer_rate(bits);
+	MBED_ASSERT(transferrate!=NC);
 
+	spi_disable(obj->spi.spi_base);
+	obj->spi.transferrate=transferrate;
+	if(slave) {
+		spi_set_slave_mode(obj->spi.spi_base);
+		obj->spi.is_slave=1;
+	}
+	else{
+		spi_set_master_mode(obj->spi.spi_base);
+		obj->spi.is_slave=0;
+	}
+	spi_set_bits_per_transfer(obj->spi.spi_base, obj->spi.cs, obj->spi.transferrate);
+	spi_set_clock_phase(obj->spi.spi_base, SPI_CHIP_SEL, (mode & 0x01));
+	spi_set_clock_polarity(obj->spi.spi_base, SPI_CHIP_SEL, (mode & 0x02));
+	
+	obj->spi.phase=(mode & 0x01);
+	obj->spi.polarity=(mode & 0x02);
+	spi_enable(obj->spi.spi_base);
 }
 
 /** Set the SPI baud rate
@@ -74,9 +309,12 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
  * @param[in,out] obj The SPI object to configure
  * @param[in]     hz  The baud rate in Hz
  */
-void spi_frequency(spi_t *obj, int hz)
-{
 
+void spi_frequency(spi_t *obj, int hz){
+	spi_disable(obj->spi.spi_base);	
+	int16_t baudrate_div=spi_calc_baudrate_div(hz, sysclk_get_cpu_hz());
+	spi_set_baudrate_div(obj->spi.spi_base,obj->spi.cs,(uint8_t)baudrate_div);
+	spi_enable(obj->spi.spi_base);
 }
 
 /**@}*/
@@ -91,9 +329,15 @@ void spi_frequency(spi_t *obj, int hz)
  * @param[in] value The value to send
  * @return Returns the value received during send
  */
-int  spi_master_write(spi_t *obj, int value)
-{
-
+int  spi_master_write(spi_t *obj, int value){
+	spi_status_t status=spi_write(obj->spi.spi_base,(uint16_t)value,obj->spi.cs,SPI_LAST);
+	if(status ==SPI_OK){
+		uint16_t data;
+		status =spi_read(obj->spi.spi_base,&data,&obj->spi.cs);
+		if(status == SPI_OK)
+			return data;
+	}
+	return 0;
 }
 
 /** Check if a value is available to read
@@ -101,9 +345,10 @@ int  spi_master_write(spi_t *obj, int value)
  * @param[in] obj The SPI peripheral to check
  * @return non-zero if a value is available
  */
-int  spi_slave_receive(spi_t *obj)
-{
-
+int  spi_slave_receive(spi_t *obj){
+	if(obj->spi.spi_base->SPI_SR & SPI_SR_RDRF)	
+		return 1;		
+	return 0;	
 }
 
 /** Get a received value out of the SPI receive buffer in slave mode
@@ -112,9 +357,12 @@ int  spi_slave_receive(spi_t *obj)
  * @param[in] obj The SPI peripheral to read
  * @return The value received
  */
-int  spi_slave_read(spi_t *obj)
-{
-
+int  spi_slave_read(spi_t *obj){
+	uint16_t data;
+	spi_status_t status =spi_read(obj->spi.spi_base, &data, &obj->spi.cs);
+	if(status == SPI_OK)
+		return data;
+	return 0;
 }
 
 /** Write a value to the SPI peripheral in slave mode
@@ -125,7 +373,7 @@ int  spi_slave_read(spi_t *obj)
  */
 void spi_slave_write(spi_t *obj, int value)
 {
-
+	spi_write(obj->spi.spi_base,(uint16_t)value,obj->spi.cs,SPI_LAST);
 }
 
 /** Checks if the specified SPI peripheral is in use
@@ -133,9 +381,10 @@ void spi_slave_write(spi_t *obj, int value)
  * @param[in] obj The SPI peripheral to check
  * @return non-zero if the peripheral is currently transmitting
  */
-int  spi_busy(spi_t *obj)
-{
-
+int  spi_busy(spi_t *obj){
+	if(obj->spi.spi_base->SPI_SR & SPI_SR_TDRE) //Transmit Data Register Empty
+		return 0;
+	return 1;
 }
 
 /** Get the module number
@@ -145,11 +394,11 @@ int  spi_busy(spi_t *obj)
  */
 uint8_t spi_get_module(spi_t *obj)
 {
-
+	return obj->spi.module_number;
 }
 
-/**@}*/
 
+/**@}*/
 #if DEVICE_SPI_ASYNCH
 /**
  * \defgroup AsynchSPI Asynchronous SPI Hardware Abstraction Layer
@@ -168,9 +417,58 @@ uint8_t spi_get_module(spi_t *obj)
  * @param[in] handler   SPI interrupt handler
  * @param[in] hint      A suggestion for how to use DMA with this transfer
  */
+#warning "Only DMA async supported by SPI master transfer"
+
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
+	obj->tx_buff.buffer=(void *)tx;
+	obj->tx_buff.length=tx_length;
+	obj->tx_buff.pos=0;
 
+	obj->rx_buff.buffer=rx;
+	obj->rx_buff.length=rx_length;
+	obj->rx_buff.pos=0;	
+	
+	if(bit_width){
+		uint32_t transferrate= get_transfer_rate(bit_width);
+		spi_set_bits_per_transfer(obj->spi.spi_base, obj->spi.cs, transferrate);
+	}
+	
+	if(tx){
+		pdc_packet_t pdc_packet_tx;
+		pdc_packet_tx.ul_addr=(uint32_t)tx;
+		pdc_packet_tx.ul_size=tx_length;
+		
+		/* Configure PDC for data send */
+		pdc_tx_init(obj->spi.pdc, &pdc_packet_tx, NULL);
+	}
+	
+	if(rx){
+		pdc_rx_clear_cnt(obj->spi.pdc);
+		/* Initialize PDC data packet for transfer */
+		pdc_packet_t pdc_packet_rx;
+		pdc_packet_rx.ul_addr=(uint32_t)rx;
+		pdc_packet_rx.ul_size=rx_length;
+		/* Configure PDC for data receive */
+		pdc_rx_init(obj->spi.pdc, &pdc_packet_rx, NULL);
+	}
+	
+	obj->spi.dma_usage=hint;
+	obj->spi.event=event;
+	
+	gCallbackHandler[obj->spi.module_number]=handler;
+
+	NVIC_ClearPendingIRQ(obj->spi.irq_type);
+
+	/* Enable SPI interrupt */
+	NVIC_EnableIRQ(obj->spi.irq_type);
+
+	/* Enable SPI IRQ */
+	spi_enable_interrupt(obj->spi.spi_base, SPI_IER_RXBUFF);
+	
+	/* Enable PDC transfers */
+	pdc_enable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTEN | PERIPH_PTCR_TXTEN);
+	
 }
 
 /** The asynchronous IRQ handler
@@ -180,9 +478,24 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
  * @param[in] obj     The SPI object which holds the transfer information
  * @return event flags if a transfer termination condition was met or 0 otherwise.
  */
-uint32_t spi_irq_handler_asynch(spi_t *obj)
-{
+uint32_t spi_irq_handler_asynch(spi_t *obj){
+uint32_t event=0;
+	// Data transferred via DMA
+	if((obj->spi.spi_base->SPI_SR & SPI_IER_TXBUFE) || (obj->spi.spi_base->SPI_SR & SPI_IER_RXBUFF)){
+		event |=SPI_EVENT_COMPLETE;		
+	}
 
+	if(obj->spi.spi_base->SPI_SR & SPI_SR_MODF)
+	{
+		event |=SPI_EVENT_ERROR;
+	}
+	
+	if(obj->spi.spi_base->SPI_SR & SPI_SR_OVRES)
+	{
+		event |=SPI_EVENT_ERROR;
+	}
+
+	return event;	
 }
 
 /** Attempts to determine if the SPI peripheral is already in use.
@@ -196,9 +509,12 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
  * @param[in] obj The SPI object to check for activity
  * @return non-zero if the SPI port is active or zero if it is not.
  */
+
 uint8_t spi_active(spi_t *obj)
 {
-
+	if(obj->spi.spi_base->SPI_SR & SPI_SR_ENDTX && obj->spi.spi_base->SPI_SR & SPI_SR_ENDRX)
+		return 0;
+	return 1;
 }
 
 /** Abort an SPI transfer
@@ -207,13 +523,18 @@ uint8_t spi_active(spi_t *obj)
  */
 void spi_abort_asynch(spi_t *obj)
 {
+	/* Disable PDC transfers */
+	pdc_disable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTDIS | PERIPH_PTCR_TXTDIS);
+		
+	/* Clear PDC buffer receive counter */
+	pdc_rx_clear_cnt(obj->spi.pdc);		
 
+	/* Disable SPI IRQ */
+	spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_TXBUFE);
+	spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_RXBUFF);
+
+	/* Disable SPI interrupt */
+	NVIC_DisableIRQ(obj->spi.irq_type);
 }
 
-
 #endif
-
-/**@}*/
-
-#endif // SPI_DEVICE
-
