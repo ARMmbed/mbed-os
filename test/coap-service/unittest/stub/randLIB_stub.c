@@ -12,6 +12,8 @@
 #error "RAND_MAX isn't 2^n-1 :("
 #endif
 
+int counter = 1;
+
 void randLIB_seed_random(void)
 {
 }
@@ -33,6 +35,9 @@ uint32_t randLIB_get_32bit(void)
 
 int8_t randLIB_get_n_bytes_random(uint8_t *data_ptr, uint8_t eight_bit_boundary)
 {
+    if(data_ptr && eight_bit_boundary > 0){
+        data_ptr[0] = counter++%255;
+    }
     return 0;
 }
 

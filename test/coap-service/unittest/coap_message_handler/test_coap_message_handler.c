@@ -172,11 +172,13 @@ bool test_coap_message_handler_coap_msg_process()
         return false;
 
     sn_coap_protocol_stub.expectedHeader->msg_id = 2;
-    if( 0 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, NULL, 0, process_cb))
+//    sn_coap_protocol_stub.expectedHeader->token_ptr = (uint8_t*)malloc(4);
+//    memset(sn_coap_protocol_stub.expectedHeader->token_ptr, 1, 4);
+    if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, NULL, 0, process_cb))
         return false;
 
-//    free(sn_coap_protocol_stub.expectedHeader);
-//    sn_coap_protocol_stub.expectedHeader = NULL;
+//    free(sn_coap_protocol_stub.expectedHeader->token_ptr);
+
     free(sn_coap_protocol_stub.expectedCoap);
     sn_coap_protocol_stub.expectedCoap = NULL;
     coap_message_handler_destroy(handle);

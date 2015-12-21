@@ -16,6 +16,7 @@ TEST_SRC_FILES = \
 	../stub/sn_coap_builder_stub.c \
 	../stub/nsdynmemLIB_stub.c \
 	../stub/ns_list_stub.c \
+	../stub/randLIB_stub.c \
 
 include ../MakefileWorker.mk
 

@@ -9,6 +9,7 @@
 #include "ns_types.h"
 #include "ns_list.h"
 #include "ns_trace.h"
+#include "randLIB.h"
 
 #define TRACE_GROUP "CoSA"
 
@@ -41,6 +42,19 @@ static coap_transaction_t *transaction_find_client(uint16_t msg_id)
     }
     return this;
 }
+
+static coap_transaction_t *transaction_find_client_by_token(uint8_t token[4])
+{
+    coap_transaction_t *this = NULL;
+    ns_list_foreach(coap_transaction_t, cur_ptr, &request_list) {
+        if (memcmp(cur_ptr->token,token,4) == 0 && cur_ptr->client_request) {
+           this = cur_ptr;
+            break;
+        }
+    }
+    return this;
+}
+
 static coap_transaction_t *transaction_find_server(uint16_t msg_id)
 {
     coap_transaction_t *this = NULL;
@@ -88,15 +102,16 @@ static void transaction_delete(coap_transaction_t *this)
 
 static int8_t coap_rx_function(sn_coap_hdr_s *resp_ptr, sn_nsdl_addr_s *address_ptr, void *param)
 {
-    coap_transaction_t *this;
+    coap_transaction_t *this = NULL;
     (void)address_ptr;
     (void)param;
     tr_warn("transaction was not handled");
     if (!resp_ptr) {
         return -1;
     }
-    //TODO: IOTCLT-294 & 295 here.
-    this = transaction_find_client(resp_ptr->msg_id);
+    if( resp_ptr->token_ptr ){
+        this = transaction_find_client_by_token(resp_ptr->token_ptr);
+    }
     if (this && this->resp_cb) {
         this->resp_cb(this->service_id, resp_ptr->msg_id, NULL);
     }
@@ -210,7 +225,10 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         }
     } else {
         //response find by MSG id
-        coap_transaction_t *this = transaction_find_client(coap_message->msg_id);
+        coap_transaction_t *this = NULL;
+        if( coap_message->token_ptr ){
+            this = transaction_find_client_by_token(coap_message->token_ptr);
+        }
         if (!this) {
             tr_error("client transaction not found");
             sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
@@ -234,6 +252,7 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     coap_transaction_t *transaction_ptr;
     sn_coap_hdr_s request;
     sn_nsdl_addr_s dst_addr;
+    uint8_t token[4];
     uint16_t data_len;
     uint8_t *data_ptr;
 
@@ -261,7 +280,13 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     request.uri_path_ptr = (uint8_t *)uri;
     request.uri_path_len = strlen(uri);
     coap_service_build_content_format(&request, cont_type);
-    //TODO: check validity of request.content_type_ptr
+
+    do{
+        randLIB_get_n_bytes_random(token,4);
+    }while(transaction_find_client_by_token(token));
+    memcpy(transaction_ptr->token,token,4);
+    request.token_ptr = transaction_ptr->token;
+    request.token_len = 4;
 
     request.payload_len = payload_len;
     request.payload_ptr = (uint8_t *) payload_ptr;  // Cast away const and trust that nsdl doesn't modify...
@@ -281,7 +306,6 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     own_free(data_ptr);
     if(request_response_cb == NULL){
         //No response expected
-        transaction_delete(transaction_ptr);
         return 0;
     }
     return transaction_ptr->msg_id;

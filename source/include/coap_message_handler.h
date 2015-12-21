@@ -2,8 +2,8 @@
  * Copyright (c) 2015 ARM Limited. All rights reserved.
  */
 
-#ifndef __COAPPI_SERVICE_API_H__
-#define __COAPPI_SERVICE_API_H__
+#ifndef __COAP_MESSAGE_HANDLER_H__
+#define __COAP_MESSAGE_HANDLER_H__
 
 #include <inttypes.h>
 #include "sn_coap_header.h"
@@ -34,6 +34,7 @@ typedef struct coap_msg_handler_s {
 typedef struct coap_transaction {
     uint8_t remote_address[16];
     uint16_t remote_port;
+    uint8_t token[4];
     uint16_t msg_id;
     int8_t service_id;
     uint8_t options;
