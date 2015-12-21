@@ -1,3 +1,5 @@
 *.a
 *.lib
 output
+lcov
+coverage

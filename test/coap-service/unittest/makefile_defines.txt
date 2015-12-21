@@ -1,0 +1,42 @@
+#--- Inputs ----#
+CPPUTEST_HOME = /usr
+CPPUTEST_USE_EXTENSIONS = Y
+CPPUTEST_USE_VPATH = Y
+CPPUTEST_USE_GCOV = Y
+CPP_PLATFORM = gcc
+
+INCLUDE_DIRS =\
+  .\
+  ../stub\
+  ../../../../../nanostack/source/6LoWPAN/Thread/\
+  ../../../../../nanostack/source/6LoWPAN/Mesh/\
+  ../../../../../nanostack/source/6LoWPAN/RPL/\
+  ../../../../../nanostack/source/\
+  ../../../../../nanostack/source/Core/include/\
+  ../../../../../nanostack/source/Common_Protocols/\
+  ../../../../../nanostack/source/Security/Common/\
+  ../../../../../nanostack/source/Service_Libs/etx/\
+  ../../../../../nanostack/source/MLE/\
+  ../../../../../nanostack/nanostack/\
+  ../../../../../coap-service/coap-service/\
+  ../../../../../coap-service/source/include/\
+  ../../../../../libService/libService/\
+  ../../../../../libService/exported-libs/mbed-client-libservice/mbed-client-libservice/\
+  ../../../../../libService/exported-libs/mbed-client-randlib/mbed-client-randlib/\
+  ../../../../../coap-service/coap-service/\
+  ../../../../../nsdl-c/nsdl-c/\
+  ../../../../../nsdl-c/source/libCoap/src/include/\
+  ../../../../../event-loop/nanostack-event-loop/\
+  ../../../../../event-loop/source/ \
+  ../../../../../mbedtls/include/ \
+  ../../../../../mbedtls/include/mbedtls/ \
+  /usr/include\
+  $(CPPUTEST_HOME)/include\
+
+CPPUTESTFLAGS = -D__thumb2__ -w 
+CPPUTEST_CFLAGS += -std=gnu99 
+
+#if you need to use -std=c++11 or c++0x you need to uncomment this
+#CPPUTESTFLAGS += -DCPPUTEST_STD_CPP_LIB_DISABLED 
+#CPPUTEST_CXXFLAGS += -std=gnu++0x
+

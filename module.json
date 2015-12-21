@@ -1,12 +1,11 @@
 {
   "name": "coap-service",
-  "version": "0.0.11",
+  "version": "1.0.0",
   "description": "CoAP Service library",
   "keywords": [
     "coap",
     "service"
   ],
-  "author": "Erno Tormikoski <erno.tormikoski@arm.com>",
   "repository": {
     "url": "git@github.com:ARMmbed/coap-service.git",
     "type": "git"

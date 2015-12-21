@@ -20,37 +20,32 @@
 #
 SERVLIB_DIR := ../libService
 override CFLAGS += -I$(SERVLIB_DIR)/libService/
-#override CFLAGS += -I$(SERVLIB_DIR)/libService/platform/
+
+NANOSTACK_DIR := ../nanostack
+override CFLAGS += -I$(NANOSTACK_DIR)/nanostack/
 
 NSDLC_DIR := ../nsdl-c
 override CFLAGS += -I$(NSDLC_DIR)/nsdl-c
 
 EVENTLOOP_DIR := ../event-loop
 override CFLAGS += -I$(EVENTLOOP_DIR)/nanostack-event-loop/
-#override CFLAGS += -I$(EVENTLOOP_DIR)/event-loop/
 
-#override CFLAGS += -I../libService/libService/
-#override CFLAGS += -I../nsdl-c/nsdl-c/
-#override CFLAGS += -I../event-loop/nanostack-event-loop/
-
-LIB = libcoap-service.a
-
-SRCS := \
-	source/coap_service.c \
-	source/coap_server.c \
-	coap-service-nanomesh/coap_server_impl.c \
-
-override CFLAGS += -DVERSION='"$(VERSION)"'
-
-
+MBEDTLS_DIR := ../mbedtls
+override CFLAGS += -I$(MBEDTLS_DIR)/configs -I$(MBEDTLS_DIR) -DMBEDTLS_CONFIG_FILE='<config-thread.h>' -I$(MBEDTLS_DIR)/include
 
 COAPSERVICE_DIR := ../coap-service
 override CFLAGS += -I$(COAPSERVICE_DIR)/coap-service/
 override CFLAGS += -I$(COAPSERVICE_DIR)/source/include/
 
-#override CFLAGS += -Isource/coap-service/source/include/
-#override CFLAGS += -Icoap-service-nanomesh/include/
+LIB = libcoap-service.a
 
+SRCS := \
+	source/coap_connection_handler.c \
+	source/coap_message_handler.c \
+	source/coap_security_handler.c \
+	source/coap_service_api.c \
+
+override CFLAGS += -DVERSION='"$(VERSION)"'
 
 include ../libService/toolchain_rules.mk
 
