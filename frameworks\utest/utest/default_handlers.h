@@ -36,13 +36,13 @@ namespace v1 {
      */
     const struct
     {
-        const test_setup_handler_t    test_setup = test_setup_handler_t(1);
+        const test_setup_handler_t    test_setup    = test_setup_handler_t(1);
         const test_teardown_handler_t test_teardown = test_teardown_handler_t(1);
-        const test_failure_handler_t  test_failure = test_failure_handler_t(1);
+        const test_failure_handler_t  test_failure  = test_failure_handler_t(1);
 
-        const case_setup_handler_t    case_setup = case_setup_handler_t(1);
+        const case_setup_handler_t    case_setup    = case_setup_handler_t(1);
         const case_teardown_handler_t case_teardown = case_teardown_handler_t(1);
-        const case_failure_handler_t  case_failure = case_failure_handler_t(1);
+        const case_failure_handler_t  case_failure  = case_failure_handler_t(1);
 
         operator test_setup_handler_t()    const { return test_setup; }
         operator test_teardown_handler_t() const { return test_teardown; }
@@ -61,20 +61,20 @@ namespace v1 {
      */
     const struct
     {
-        const case_handler_t              handler = case_handler_t(NULL);
-        const case_control_handler_t      control = case_control_handler_t(NULL);
+        const case_handler_t            handler    = case_handler_t(NULL);
+        const case_control_handler_t    control    = case_control_handler_t(NULL);
         const case_call_count_handler_t call_count = case_call_count_handler_t(NULL);
 
-        const test_setup_handler_t    test_setup = test_setup_handler_t(1);
-        const test_teardown_handler_t test_teardown = test_teardown_handler_t(1);
-        const test_failure_handler_t  test_failure = test_failure_handler_t(1);
+        const test_setup_handler_t    test_setup    = test_setup_handler_t(NULL);
+        const test_teardown_handler_t test_teardown = test_teardown_handler_t(NULL);
+        const test_failure_handler_t  test_failure  = test_failure_handler_t(NULL);
 
-        const case_setup_handler_t    case_setup = case_setup_handler_t(1);
-        const case_teardown_handler_t case_teardown = case_teardown_handler_t(1);
-        const case_failure_handler_t  case_failure = case_failure_handler_t(1);
+        const case_setup_handler_t    case_setup    = case_setup_handler_t(NULL);
+        const case_teardown_handler_t case_teardown = case_teardown_handler_t(NULL);
+        const case_failure_handler_t  case_failure  = case_failure_handler_t(NULL);
 
-        operator case_handler_t()              const { return handler; }
-        operator case_control_handler_t()      const { return control; }
+        operator case_handler_t()            const { return handler; }
+        operator case_control_handler_t()    const { return control; }
         operator case_call_count_handler_t() const { return call_count; }
 
         operator test_setup_handler_t()    const { return test_setup; }
