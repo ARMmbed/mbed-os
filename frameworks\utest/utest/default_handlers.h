@@ -63,7 +63,7 @@ namespace v1 {
     {
         const case_handler_t              handler = case_handler_t(NULL);
         const case_control_handler_t      control = case_control_handler_t(NULL);
-        const case_repeat_count_handler_t repeat_count = case_repeat_count_handler_t(NULL);
+        const case_call_count_handler_t call_count = case_call_count_handler_t(NULL);
 
         const test_setup_handler_t    test_setup = test_setup_handler_t(1);
         const test_teardown_handler_t test_teardown = test_teardown_handler_t(1);
@@ -75,7 +75,7 @@ namespace v1 {
 
         operator case_handler_t()              const { return handler; }
         operator case_control_handler_t()      const { return control; }
-        operator case_repeat_count_handler_t() const { return repeat_count; }
+        operator case_call_count_handler_t() const { return call_count; }
 
         operator test_setup_handler_t()    const { return test_setup; }
         operator test_teardown_handler_t() const { return test_teardown; }

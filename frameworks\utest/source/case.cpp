@@ -103,7 +103,7 @@ Case::Case(const char *description,
 // control flow handler
 Case::Case(const char *description,
            const case_setup_handler_t setup_handler,
-           const case_repeat_count_handler_t case_repeat_count_handler,
+           const case_call_count_handler_t case_repeat_count_handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     description(description),
@@ -116,7 +116,7 @@ Case::Case(const char *description,
 {}
 
 Case::Case(const char *description,
-           const case_repeat_count_handler_t case_repeat_count_handler,
+           const case_call_count_handler_t case_repeat_count_handler,
            const case_failure_handler_t failure_handler) :
     description(description),
     handler(ignore_handler),
@@ -128,7 +128,7 @@ Case::Case(const char *description,
 {}
 
 Case::Case(const char *description,
-           const case_repeat_count_handler_t case_repeat_count_handler,
+           const case_call_count_handler_t case_repeat_count_handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
     description(description),

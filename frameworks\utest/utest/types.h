@@ -80,21 +80,22 @@ namespace v1 {
      * Instead of using this class directly it is recommended to use the aliases for clearer
      * semantics:
      * @code
-     * control_t test_case(const size_t repeat_count) {
+     * control_t test_case(const size_t call_count) {
      *     // repeat 5 times for a total of 6 calls
-     *     return (repeat_count < 5) ? CaseRepeatHandler : CaseNext;
+     *     return (call_count < 6) ? CaseRepeatHandler : CaseNext;
      * }
      * @endcode
      *
      * This class overloads the `+` operator to implement something similiar to saturated arbitration:
      * - The lower timeout value "wins".
      * - A more involved repeat "wins" (ie. `ALL` > 'HANDLER' > 'NONE').
+     * - Next Case always wins.
      *
      * You may then add timeouts and repeats together:
      * @code
-     * control_t test_case(const size_t repeat_count) {
+     * control_t test_case(const size_t call_count) {
      *     // repeat 5 times for a total of 6 calls, each with a 500ms asynchronous timeout
-     *     return CaseTimeout(500) + ((repeat_count < 5) ? CaseRepeatAll : CaseNext);
+     *     return CaseTimeout(500) + ((call_count < 6) ? CaseRepeatAll : CaseNoRepeat);
      * }
      * @endcode
      *
@@ -259,12 +260,12 @@ namespace v1 {
      * This handler is called only if the case setup succeeded and then may be repeated or
      * awaiting a asynchronous callback, depending on the return modifiers.
      *
-     * @param   repeat_count    starting at `0`, contains the number of times this handler has been called
+     * @param   call_count    starting at `1`, contains the number of times this handler has been called
      *
      * @returns
      *    A combination of control modifiers.
      */
-    typedef control_t (*case_repeat_count_handler_t)(const size_t repeat_count);
+    typedef control_t (*case_call_count_handler_t)(const size_t call_count);
 
     /** Test case teardown handler.
      *

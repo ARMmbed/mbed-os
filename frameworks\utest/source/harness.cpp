@@ -34,7 +34,7 @@ namespace
 
     const Case *case_current = NULL;
     control_t case_control = control_t(REPEAT_SETUP_TEARDOWN);
-    size_t case_repeat_count = 0;
+    size_t case_repeat_count = 1;
 
     minar::callback_handle_t case_timeout_handle = NULL;
     size_t case_validation_count = 0;
@@ -150,7 +150,7 @@ void Harness::schedule_next_case()
         case_passed = 0;
         case_failed = 0;
         case_failed_before = 0;
-        case_repeat_count = 0;
+        case_repeat_count = 1;
         test_index_of_case++;
     }
     minar::Scheduler::postCallback(run_next_case);

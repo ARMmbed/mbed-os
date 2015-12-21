@@ -85,19 +85,19 @@ namespace v1 {
              const case_teardown_handler_t teardown_handler,
              const case_failure_handler_t failure_handler = default_handler);
 
-        // overloads for case_repeat_count_handler_t
+        // overloads for case_call_count_handler_t
         Case(const char *description,
             const case_setup_handler_t setup_handler,
-            const case_repeat_count_handler_t case_handler,
+            const case_call_count_handler_t case_handler,
             const case_teardown_handler_t teardown_handler = default_handler,
             const case_failure_handler_t failure_handler = default_handler);
 
         Case(const char *description,
-            const case_repeat_count_handler_t case_handler,
+            const case_call_count_handler_t case_handler,
             const case_failure_handler_t failure_handler = default_handler);
 
         Case(const char *description,
-            const case_repeat_count_handler_t case_handler,
+            const case_call_count_handler_t case_handler,
             const case_teardown_handler_t teardown_handler,
             const case_failure_handler_t failure_handler = default_handler);
 
@@ -113,7 +113,7 @@ namespace v1 {
 
         const case_handler_t handler;
         const case_control_handler_t control_handler;
-        const case_repeat_count_handler_t repeat_count_handler;
+        const case_call_count_handler_t repeat_count_handler;
 
         const case_setup_handler_t setup_handler;
         const case_teardown_handler_t teardown_handler;
