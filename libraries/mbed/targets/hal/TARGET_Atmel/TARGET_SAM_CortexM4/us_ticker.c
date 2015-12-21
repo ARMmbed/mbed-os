@@ -21,12 +21,12 @@
 #include "sysclk.h"
 #include "tc.h"
 
-static uint8_t us_ticker_inited = 0;
+uint8_t us_ticker_inited = 0;
 extern uint8_t g_sys_init;
 volatile uint16_t us_ticker_16bit_counter;
 volatile uint16_t us_ticker_interrupt_counter;
 volatile uint16_t us_ticker_interrupt_offset;
-
+volatile uint32_t overflow32bitcounter = 0;
 
 #define TICKER_COUNTER_uS        TC0
 
@@ -71,6 +71,8 @@ void TICKER_COUNTER_Handlr0(void)
 
     if (((status & interrupmask)  & TC_IER_COVFS)) {
         us_ticker_16bit_counter++;
+        if(us_ticker_16bit_counter == 0xFFFF)
+            overflow32bitcounter++;
     }
 }
 
@@ -121,14 +123,14 @@ uint32_t us_ticker_read()
 {
     if (!us_ticker_inited)
         us_ticker_init();
-	
-	uint32_t counter_value=0;
-	uint16_t tickerbefore=0;
-	do{
-		tickerbefore=us_ticker_16bit_counter;
-		counter_value=tc_read_cv(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0);
-	}while(tickerbefore!=us_ticker_16bit_counter);
-	
+
+    uint32_t counter_value=0;
+    uint16_t tickerbefore=0;
+    do {
+        tickerbefore=us_ticker_16bit_counter;
+        counter_value=tc_read_cv(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0);
+    } while(tickerbefore!=us_ticker_16bit_counter);
+
     return counter_value+(OVERFLOW_16bit_VALUE*us_ticker_16bit_counter);
 }
 

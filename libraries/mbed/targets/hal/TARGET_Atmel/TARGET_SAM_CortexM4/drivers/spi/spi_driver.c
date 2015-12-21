@@ -71,58 +71,58 @@
 void spi_enable_clock(Spi *p_spi)
 {
 #if (SAM4S || SAM3S || SAM3N || SAM3U || SAM4E || SAM4N || SAMG51|| SAMG53|| SAMG54)
-	UNUSED(p_spi);
-	sysclk_enable_peripheral_clock(ID_SPI);
+    UNUSED(p_spi);
+    sysclk_enable_peripheral_clock(ID_SPI);
 #elif (SAM3XA || SAM4C || SAM4CP || SAM4CM || SAMV71 || SAMV70 || SAME70 || SAMS70)
-	if (p_spi == SPI0) {
-		sysclk_enable_peripheral_clock(ID_SPI0);
-	}
-	#ifdef SPI1
-	else if (p_spi == SPI1) {
-		sysclk_enable_peripheral_clock(ID_SPI1);
-	}
-	#endif
+    if (p_spi == SPI0) {
+        sysclk_enable_peripheral_clock(ID_SPI0);
+    }
+#ifdef SPI1
+    else if (p_spi == SPI1) {
+        sysclk_enable_peripheral_clock(ID_SPI1);
+    }
+#endif
 #elif (SAMG55)
-	if (p_spi == SPI0) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM0);
-	}
-	#ifdef SPI1
-	else if (p_spi == SPI1) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM1);
-	}
-	#endif
-	#ifdef SPI2
-	else if (p_spi == SPI2) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM2);
-	}
-	#endif
-	#ifdef SPI3
-	else if (p_spi == SPI3) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM3);
-	}
-	#endif
-	#ifdef SPI4
-	else if (p_spi == SPI4) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM4);
-	}
-	#endif
-	#ifdef SPI5
-	else if (p_spi == SPI5) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM5);
-	}
-	#endif
-	#ifdef SPI6
-	else if (p_spi == SPI6) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM6);
-	}
-	#endif
-	#ifdef SPI7
-	else if (p_spi == SPI7) {
-		sysclk_enable_peripheral_clock(ID_FLEXCOM7);
-	}
-	#endif
+    if (p_spi == SPI0) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM0);
+    }
+#ifdef SPI1
+    else if (p_spi == SPI1) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM1);
+    }
+#endif
+#ifdef SPI2
+    else if (p_spi == SPI2) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM2);
+    }
+#endif
+#ifdef SPI3
+    else if (p_spi == SPI3) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM3);
+    }
+#endif
+#ifdef SPI4
+    else if (p_spi == SPI4) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM4);
+    }
+#endif
+#ifdef SPI5
+    else if (p_spi == SPI5) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM5);
+    }
+#endif
+#ifdef SPI6
+    else if (p_spi == SPI6) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM6);
+    }
+#endif
+#ifdef SPI7
+    else if (p_spi == SPI7) {
+        sysclk_enable_peripheral_clock(ID_FLEXCOM7);
+    }
+#endif
 #elif SAM4L
-	sysclk_enable_peripheral_clock(p_spi);
+    sysclk_enable_peripheral_clock(p_spi);
 #endif
 }
 
@@ -134,58 +134,58 @@ void spi_enable_clock(Spi *p_spi)
 void spi_disable_clock(Spi *p_spi)
 {
 #if (SAM4S || SAM3S || SAM3N || SAM3U || SAM4E || SAM4N || SAMG51|| SAMG53|| SAMG54)
-	UNUSED(p_spi);
-	sysclk_disable_peripheral_clock(ID_SPI);
+    UNUSED(p_spi);
+    sysclk_disable_peripheral_clock(ID_SPI);
 #elif (SAM3XA || SAM4C || SAM4CP || SAM4CM || SAMV71 || SAMV70 || SAME70 || SAMS70)
-	if (p_spi == SPI0) {
-		sysclk_disable_peripheral_clock(ID_SPI0);
-	}
-	#ifdef SPI1
-	else if (p_spi == SPI1) {
-		sysclk_disable_peripheral_clock(ID_SPI1);
-	}
-	#endif
+    if (p_spi == SPI0) {
+        sysclk_disable_peripheral_clock(ID_SPI0);
+    }
+#ifdef SPI1
+    else if (p_spi == SPI1) {
+        sysclk_disable_peripheral_clock(ID_SPI1);
+    }
+#endif
 #elif (SAMG55)
-	if (p_spi == SPI0) {
-		sysclk_disable_peripheral_clock(ID_FLEXCOM0);
-	}
-	#ifdef SPI1
-	else if (p_spi == SPI1) {
-		sysclk_disable_peripheral_clock(ID_FLEXCOM1);
-	}
-	#endif
-	#ifdef SPI2
-		else if (p_spi == SPI2) {
-			sysclk_disable_peripheral_clock(ID_FLEXCOM2);
-		}
-	#endif
-	#ifdef SPI3
-		else if (p_spi == SPI3) {
-			sysclk_disable_peripheral_clock(ID_FLEXCOM3);
-		}
-	#endif
-	#ifdef SPI4
-		else if (p_spi == SPI4) {
-			sysclk_disable_peripheral_clock(ID_FLEXCOM4);
-		}
-	#endif
-	#ifdef SPI5
-		else if (p_spi == SPI5) {
-			sysclk_disable_peripheral_clock(ID_FLEXCOM5);
-		}
-	#endif
-	#ifdef SPI6
-		else if (p_spi == SPI6) {
-			sysclk_disable_peripheral_clock(ID_FLEXCOM6);
-		}
-	#endif
-	#ifdef SPI7
-		else if (p_spi == SPI7) {
-			sysclk_disable_peripheral_clock(ID_FLEXCOM7);
-		}
-	#endif
+    if (p_spi == SPI0) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM0);
+    }
+#ifdef SPI1
+    else if (p_spi == SPI1) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM1);
+    }
+#endif
+#ifdef SPI2
+    else if (p_spi == SPI2) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM2);
+    }
+#endif
+#ifdef SPI3
+    else if (p_spi == SPI3) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM3);
+    }
+#endif
+#ifdef SPI4
+    else if (p_spi == SPI4) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM4);
+    }
+#endif
+#ifdef SPI5
+    else if (p_spi == SPI5) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM5);
+    }
+#endif
+#ifdef SPI6
+    else if (p_spi == SPI6) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM6);
+    }
+#endif
+#ifdef SPI7
+    else if (p_spi == SPI7) {
+        sysclk_disable_peripheral_clock(ID_FLEXCOM7);
+    }
+#endif
 #elif SAM4L
-	sysclk_disable_peripheral_clock(p_spi);
+    sysclk_disable_peripheral_clock(p_spi);
 #endif
 }
 
@@ -203,8 +203,8 @@ void spi_disable_clock(Spi *p_spi)
  */
 void spi_set_peripheral_chip_select_value(Spi *p_spi, uint32_t ul_value)
 {
-	p_spi->SPI_MR &= (~SPI_MR_PCS_Msk);
-	p_spi->SPI_MR |= SPI_MR_PCS(ul_value);
+    p_spi->SPI_MR &= (~SPI_MR_PCS_Msk);
+    p_spi->SPI_MR |= SPI_MR_PCS(ul_value);
 }
 
 /**
@@ -216,8 +216,8 @@ void spi_set_peripheral_chip_select_value(Spi *p_spi, uint32_t ul_value)
  */
 void spi_set_delay_between_chip_select(Spi *p_spi, uint32_t ul_delay)
 {
-	p_spi->SPI_MR &= (~SPI_MR_DLYBCS_Msk);
-	p_spi->SPI_MR |= SPI_MR_DLYBCS(ul_delay);
+    p_spi->SPI_MR &= (~SPI_MR_DLYBCS_Msk);
+    p_spi->SPI_MR |= SPI_MR_DLYBCS(ul_delay);
 }
 
 /**
@@ -234,22 +234,22 @@ void spi_set_delay_between_chip_select(Spi *p_spi, uint32_t ul_delay)
  */
 spi_status_t spi_read(Spi *p_spi, uint16_t *us_data, uint8_t *p_pcs)
 {
-	uint32_t timeout = SPI_TIMEOUT;
-	static uint32_t reg_value;
+    uint32_t timeout = SPI_TIMEOUT;
+    static uint32_t reg_value;
 
-	while (!(p_spi->SPI_SR & SPI_SR_RDRF)) {
-		if (!timeout--) {
-			return SPI_ERROR_TIMEOUT;
-		}
-	}
+    while (!(p_spi->SPI_SR & SPI_SR_RDRF)) {
+        if (!timeout--) {
+            return SPI_ERROR_TIMEOUT;
+        }
+    }
 
-	reg_value = p_spi->SPI_RDR;
-	if (spi_get_peripheral_select_mode(p_spi)) {
-		*p_pcs = (uint8_t) ((reg_value & SPI_RDR_PCS_Msk) >> SPI_RDR_PCS_Pos);
-	}
-	*us_data = (uint16_t) (reg_value & SPI_RDR_RD_Msk);
+    reg_value = p_spi->SPI_RDR;
+    if (spi_get_peripheral_select_mode(p_spi)) {
+        *p_pcs = (uint8_t) ((reg_value & SPI_RDR_PCS_Msk) >> SPI_RDR_PCS_Pos);
+    }
+    *us_data = (uint16_t) (reg_value & SPI_RDR_RD_Msk);
 
-	return SPI_OK;
+    return SPI_OK;
 }
 
 /**
@@ -266,29 +266,29 @@ spi_status_t spi_read(Spi *p_spi, uint16_t *us_data, uint8_t *p_pcs)
  * \retval SPI_ERROR_TIMEOUT on Time-out.
  */
 spi_status_t spi_write(Spi *p_spi, uint16_t us_data,
-		uint8_t uc_pcs, uint8_t uc_last)
+                       uint8_t uc_pcs, uint8_t uc_last)
 {
-	uint32_t timeout = SPI_TIMEOUT;
-	uint32_t value;
+    uint32_t timeout = SPI_TIMEOUT;
+    uint32_t value;
 
-	while (!(p_spi->SPI_SR & SPI_SR_TDRE)) {
-		if (!timeout--) {
-			return SPI_ERROR_TIMEOUT;
-		}
-	}
+    while (!(p_spi->SPI_SR & SPI_SR_TDRE)) {
+        if (!timeout--) {
+            return SPI_ERROR_TIMEOUT;
+        }
+    }
 
-	if (spi_get_peripheral_select_mode(p_spi)) {
-		value = SPI_TDR_TD(us_data) | SPI_TDR_PCS(uc_pcs);
-		if (uc_last) {
-			value |= SPI_TDR_LASTXFER;
-		}
-	} else {
-		value = SPI_TDR_TD(us_data);
-	}
+    if (spi_get_peripheral_select_mode(p_spi)) {
+        value = SPI_TDR_TD(us_data) | SPI_TDR_PCS(uc_pcs);
+        if (uc_last) {
+            value |= SPI_TDR_LASTXFER;
+        }
+    } else {
+        value = SPI_TDR_TD(us_data);
+    }
 
-	p_spi->SPI_TDR = value;
+    p_spi->SPI_TDR = value;
 
-	return SPI_OK;
+    return SPI_OK;
 }
 
 /**
@@ -299,13 +299,13 @@ spi_status_t spi_write(Spi *p_spi, uint16_t us_data,
  * \param ul_polarity Default clock state is logical one(high)/zero(low).
  */
 void spi_set_clock_polarity(Spi *p_spi, uint32_t ul_pcs_ch,
-		uint32_t ul_polarity)
+                            uint32_t ul_polarity)
 {
-	if (ul_polarity) {
-		p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_CPOL;
-	} else {
-		p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CPOL);
-	}
+    if (ul_polarity) {
+        p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_CPOL;
+    } else {
+        p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CPOL);
+    }
 }
 
 /**
@@ -317,11 +317,11 @@ void spi_set_clock_polarity(Spi *p_spi, uint32_t ul_pcs_ch,
  */
 void spi_set_clock_phase(Spi *p_spi, uint32_t ul_pcs_ch, uint32_t ul_phase)
 {
-	if (ul_phase) {
-		p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_NCPHA;
-	} else {
-		p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_NCPHA);
-	}
+    if (ul_phase) {
+        p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_NCPHA;
+    } else {
+        p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_NCPHA);
+    }
 }
 
 /**
@@ -332,17 +332,17 @@ void spi_set_clock_phase(Spi *p_spi, uint32_t ul_pcs_ch, uint32_t ul_phase)
  * \param ul_cs_behavior Behavior of the Chip Select after transfer.
  */
 void spi_configure_cs_behavior(Spi *p_spi, uint32_t ul_pcs_ch,
-		uint32_t ul_cs_behavior)
+                               uint32_t ul_cs_behavior)
 {
-	if (ul_cs_behavior == SPI_CS_RISE_FORCED) {
-		p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CSAAT);
-		p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_CSNAAT;
-	} else if (ul_cs_behavior == SPI_CS_RISE_NO_TX) {
-		p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CSAAT);
-		p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CSNAAT);
-	} else if (ul_cs_behavior == SPI_CS_KEEP_LOW) {
-		p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_CSAAT;
-	}
+    if (ul_cs_behavior == SPI_CS_RISE_FORCED) {
+        p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CSAAT);
+        p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_CSNAAT;
+    } else if (ul_cs_behavior == SPI_CS_RISE_NO_TX) {
+        p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CSAAT);
+        p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_CSNAAT);
+    } else if (ul_cs_behavior == SPI_CS_KEEP_LOW) {
+        p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_CSAAT;
+    }
 }
 
 /**
@@ -354,10 +354,10 @@ void spi_configure_cs_behavior(Spi *p_spi, uint32_t ul_pcs_ch,
  *        in the device header file.
  */
 void spi_set_bits_per_transfer(Spi *p_spi, uint32_t ul_pcs_ch,
-		uint32_t ul_bits)
+                               uint32_t ul_bits)
 {
-	p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_BITS_Msk);
-	p_spi->SPI_CSR[ul_pcs_ch] |= ul_bits;
+    p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_BITS_Msk);
+    p_spi->SPI_CSR[ul_pcs_ch] |= ul_bits;
 }
 
 /**
@@ -372,14 +372,14 @@ void spi_set_bits_per_transfer(Spi *p_spi, uint32_t ul_pcs_ch,
  */
 int16_t spi_calc_baudrate_div(const uint32_t baudrate, uint32_t mck)
 {
-	int baud_div = div_ceil(mck, baudrate);
+    int baud_div = div_ceil(mck, baudrate);
 
-	/* The value of baud_div is from 1 to 255 in the SCBR field. */
-	if (baud_div <= 0 || baud_div > 255) {
-		return -1;
-	}
+    /* The value of baud_div is from 1 to 255 in the SCBR field. */
+    if (baud_div <= 0 || baud_div > 255) {
+        return -1;
+    }
 
-	return baud_div;
+    return baud_div;
 }
 
 /**
@@ -390,10 +390,10 @@ int16_t spi_calc_baudrate_div(const uint32_t baudrate, uint32_t mck)
  * \param uc_baudrate_divider Baudrate divider from MCK.
  */
 void spi_set_baudrate_div(Spi *p_spi, uint32_t ul_pcs_ch,
-		uint8_t uc_baudrate_divider)
+                          uint8_t uc_baudrate_divider)
 {
-	p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_SCBR_Msk);
-	p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_SCBR(uc_baudrate_divider);
+    p_spi->SPI_CSR[ul_pcs_ch] &= (~SPI_CSR_SCBR_Msk);
+    p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_SCBR(uc_baudrate_divider);
 }
 
 /**
@@ -405,11 +405,11 @@ void spi_set_baudrate_div(Spi *p_spi, uint32_t ul_pcs_ch,
  * \param uc_dlybct Delay between consecutive transfers (in number of MCK clocks).
  */
 void spi_set_transfer_delay(Spi *p_spi, uint32_t ul_pcs_ch,
-		uint8_t uc_dlybs, uint8_t uc_dlybct)
+                            uint8_t uc_dlybs, uint8_t uc_dlybct)
 {
-	p_spi->SPI_CSR[ul_pcs_ch] &= ~(SPI_CSR_DLYBS_Msk | SPI_CSR_DLYBCT_Msk);
-	p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_DLYBS(uc_dlybs)
-			| SPI_CSR_DLYBCT(uc_dlybct);
+    p_spi->SPI_CSR[ul_pcs_ch] &= ~(SPI_CSR_DLYBS_Msk | SPI_CSR_DLYBCT_Msk);
+    p_spi->SPI_CSR[ul_pcs_ch] |= SPI_CSR_DLYBS(uc_dlybs)
+                                 | SPI_CSR_DLYBCT(uc_dlybct);
 }
 
 
@@ -422,17 +422,17 @@ void spi_set_transfer_delay(Spi *p_spi, uint32_t ul_pcs_ch,
 void spi_set_writeprotect(Spi *p_spi, uint32_t ul_enable)
 {
 #if SAM4L
-	if (ul_enable) {
-		p_spi->SPI_WPCR = SPI_WPCR_SPIWPKEY_VALUE | SPI_WPCR_SPIWPEN;
-	} else {
-		p_spi->SPI_WPCR = SPI_WPCR_SPIWPKEY_VALUE;
-	}
+    if (ul_enable) {
+        p_spi->SPI_WPCR = SPI_WPCR_SPIWPKEY_VALUE | SPI_WPCR_SPIWPEN;
+    } else {
+        p_spi->SPI_WPCR = SPI_WPCR_SPIWPKEY_VALUE;
+    }
 #else
-	if (ul_enable) {
-		p_spi->SPI_WPMR = SPI_WPMR_WPKEY_PASSWD | SPI_WPMR_WPEN;
-	} else {
-		p_spi->SPI_WPMR = SPI_WPMR_WPKEY_PASSWD;
-	}
+    if (ul_enable) {
+        p_spi->SPI_WPMR = SPI_WPMR_WPKEY_PASSWD | SPI_WPMR_WPEN;
+    } else {
+        p_spi->SPI_WPMR = SPI_WPMR_WPKEY_PASSWD;
+    }
 #endif
 }
 
@@ -445,7 +445,7 @@ void spi_set_writeprotect(Spi *p_spi, uint32_t ul_enable)
  */
 uint32_t spi_get_writeprotect_status(Spi *p_spi)
 {
-	return p_spi->SPI_WPSR;
+    return p_spi->SPI_WPSR;
 }
 
 /**
