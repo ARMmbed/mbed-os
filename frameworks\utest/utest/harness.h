@@ -62,12 +62,21 @@ namespace v1 {
          * You can only validate a callback once, calling this function when no callback is expected
          * has no side effects.
          * After callback validation, the next test case is scheduled.
+         *
+         * You may specify additional test case attributes with this callback.
+         * So for example, you may delay the decision to repeat an asynchronous test case until the callback
+         * needs to be validated.
+         *
+         * However, be aware, that only the repeat attributes can be modified and the usual arbitration rules apply.
+         * The modified case attributes are only valid until the case handler returns updated attributes.
+         *
+         * @param control   the test case attribute to be added to the existing attributes.
          */
-        static void validate_callback();
+        static void validate_callback(const control_t control = control_t());
 
         /// Raising a failure causes the failure to be counted and the failure handler to be called.
         /// Further action then depends on its return state.
-        static void raise_failure(failure_t reason);
+        static void raise_failure(const failure_t reason);
 
     protected:
         static void run_next_case();

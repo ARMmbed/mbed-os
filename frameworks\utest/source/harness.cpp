@@ -94,7 +94,7 @@ bool Harness::run(const Specification& specification, std::size_t start_case)
     return true;
 }
 
-void Harness::raise_failure(failure_t reason)
+void Harness::raise_failure(const failure_t reason)
 {
     status_t fail_status = STATUS_ABORT;
     {
@@ -172,7 +172,7 @@ void Harness::handle_timeout()
     }
 }
 
-void Harness::validate_callback()
+void Harness::validate_callback(const control_t control)
 {
     mbed::util::CriticalSectionLock lock;
     case_validation_count++;
@@ -181,7 +181,8 @@ void Harness::validate_callback()
     {
         minar::Scheduler::cancelCallback(case_timeout_handle);
         case_timeout_handle = NULL;
-        case_control.repeat = repeat_t(case_control.repeat & ~REPEAT_ON_TIMEOUT);
+        control_t merged_control = case_control + control;
+        case_control.repeat = repeat_t(merged_control.repeat & ~REPEAT_ON_TIMEOUT);
         minar::Scheduler::postCallback(schedule_next_case);
     }
 }
