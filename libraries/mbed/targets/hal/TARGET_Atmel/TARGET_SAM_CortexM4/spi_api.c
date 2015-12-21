@@ -190,7 +190,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 	
 	Spi *sercombase = pinmap_find_sercom(mosi,miso,sclk);
-	MBED_ASSERT(sercom!=NC);
+	MBED_ASSERT(sercombase!=NC);
 	
 	pinmap_find_spi_info(sercombase, obj);
 	MBED_ASSERT(obj->spi.flexcom!=NC);
@@ -421,13 +421,7 @@ uint8_t spi_get_module(spi_t *obj)
 
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-	obj->tx_buff.buffer=(void *)tx;
-	obj->tx_buff.length=tx_length;
-	obj->tx_buff.pos=0;
-
-	obj->rx_buff.buffer=rx;
-	obj->rx_buff.length=rx_length;
-	obj->rx_buff.pos=0;	
+	uint32_t pdcenable=0;
 	
 	if(bit_width){
 		uint32_t transferrate= get_transfer_rate(bit_width);
@@ -439,16 +433,18 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 		pdc_packet_tx.ul_addr=(uint32_t)tx;
 		pdc_packet_tx.ul_size=tx_length;
 		
+		pdcenable|=PERIPH_PTCR_TXTEN;
 		/* Configure PDC for data send */
 		pdc_tx_init(obj->spi.pdc, &pdc_packet_tx, NULL);
 	}
 	
 	if(rx){
 		pdc_rx_clear_cnt(obj->spi.pdc);
-		/* Initialize PDC data packet for transfer */
 		pdc_packet_t pdc_packet_rx;
 		pdc_packet_rx.ul_addr=(uint32_t)rx;
 		pdc_packet_rx.ul_size=rx_length;
+		pdcenable|=PERIPH_PTCR_RXTEN;
+		
 		/* Configure PDC for data receive */
 		pdc_rx_init(obj->spi.pdc, &pdc_packet_rx, NULL);
 	}
@@ -464,10 +460,10 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 	NVIC_EnableIRQ(obj->spi.irq_type);
 
 	/* Enable SPI IRQ */
-	spi_enable_interrupt(obj->spi.spi_base, SPI_IER_RXBUFF);
+	spi_enable_interrupt(obj->spi.spi_base, SPI_IER_RXBUFF| SPI_IER_TXBUFE | SPI_IER_MODF | SPI_IER_OVRES);
 	
 	/* Enable PDC transfers */
-	pdc_enable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTEN | PERIPH_PTCR_TXTEN);
+	pdc_enable_transfer(obj->spi.pdc, pdcenable );
 	
 }
 
@@ -480,21 +476,26 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
  */
 uint32_t spi_irq_handler_asynch(spi_t *obj){
 uint32_t event=0;
+
+	pdc_disable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTDIS| PERIPH_PTCR_TXTDIS);
 	// Data transferred via DMA
 	if((obj->spi.spi_base->SPI_SR & SPI_IER_TXBUFE) || (obj->spi.spi_base->SPI_SR & SPI_IER_RXBUFF)){
-		event |=SPI_EVENT_COMPLETE;		
+		if(obj->spi.event | SPI_EVENT_COMPLETE)
+			event |=SPI_EVENT_COMPLETE;		
 	}
 
 	if(obj->spi.spi_base->SPI_SR & SPI_SR_MODF)
 	{
-		event |=SPI_EVENT_ERROR;
+		if(obj->spi.event | SPI_EVENT_ERROR)
+			event |=SPI_EVENT_ERROR;
 	}
 	
 	if(obj->spi.spi_base->SPI_SR & SPI_SR_OVRES)
 	{
-		event |=SPI_EVENT_ERROR;
+		if(obj->spi.event | SPI_EVENT_RX_OVERFLOW)
+			event |=SPI_EVENT_RX_OVERFLOW;
 	}
-
+	
 	return event;	
 }
 
