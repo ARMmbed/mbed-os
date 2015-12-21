@@ -348,6 +348,8 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
     serial_irq_ids[serial_get_index(obj)] = id;
 }
 
+#warning "Interrupt only available for Serial Receive complete. Transmit complete not supported by Controller"
+
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     /* Sanity check arguments */
@@ -364,7 +366,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
                 usart_enable_interrupt(_USART(obj), US_IER_RXRDY);
                 break;
             case TxIrq:
-                usart_enable_interrupt(_USART(obj), US_IER_TXEMPTY);
                 break;
         }
         NVIC_ClearPendingIRQ(irq_n);
@@ -377,7 +378,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
                 usart_disable_interrupt(_USART(obj), US_IER_RXRDY);
                 break;
             case TxIrq:
-                usart_disable_interrupt(_USART(obj), US_IDR_TXEMPTY);
                 break;
         }
         NVIC_DisableIRQ(irq_n);
@@ -397,11 +397,6 @@ static inline void uart_irq(Usart *const usart, uint32_t index)
         if (status & US_IER_RXRDY) { /*For Receive Complete*/
             if (irq_handler) {
                 irq_handler(serial_irq_ids[index], RxIrq);
-            }
-        }
-        if (status & US_IER_TXEMPTY) { /*For Transmit Complete*/
-            if (irq_handler) {
-                irq_handler(serial_irq_ids[index], TxIrq);
             }
         }
     }

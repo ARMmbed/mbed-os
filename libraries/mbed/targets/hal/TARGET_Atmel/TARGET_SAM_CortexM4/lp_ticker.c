@@ -17,39 +17,54 @@
 #include "cmsis.h"
 #include "lp_ticker_api.h"
 #include "mbed_assert.h"
-#include "rtt.h"
+#include "sleep_api.h"
+#include "compiler.h"
+#include "sysclk.h"
+#include "tc.h"
+#include "us_ticker_api.h"
 
-static uint8_t lp_ticker_inited = 0;
+uint8_t lp_ticker_inited = 0;
+extern uint8_t us_ticker_inited;
 extern uint8_t g_sys_init;
+extern volatile uint32_t overflow32bitcounter;
+uint16_t us_ticker_interrupt_counter;
+uint16_t us_ticker_interrupt_offset;
 
-void RTT_Handler(void)
+#define TICKER_COUNTER_lp        TC0
+#define TICKER_COUNTER_CHANNEL2  2
+#define TICKER_COUNTER_IRQn2     TC2_IRQn
+#define TICKER_COUNTER_Handlr2   TC2_Handler
+
+#define OVERFLOW_16bit_VALUE_LP    0xFFFF
+
+
+void TICKER_COUNTER_Handlr2(void)
 {
-    uint32_t ul_status;
+    uint32_t status=tc_get_status(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
+    uint32_t interrupmask=tc_get_interrupt_mask(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
 
-    /* Get RTT status */
-    ul_status = rtt_get_status(RTT);
-
-    /* Alarm */
-    if ((ul_status & RTT_SR_ALMS) == RTT_SR_ALMS) {
-        rtt_disable_interrupt(RTT, RTT_MR_ALMIEN);
-        lp_ticker_irq_handler();
+    if (((status & interrupmask)  & TC_IER_CPCS)) {
+        if(us_ticker_interrupt_counter) {
+            us_ticker_interrupt_counter--;
+        } else {
+            if(us_ticker_interrupt_offset) {
+                tc_write_rc(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, (uint32_t)us_ticker_interrupt_offset);
+                us_ticker_interrupt_offset=0;
+            } else {
+                lp_ticker_irq_handler();
+            }
+        }
     }
 }
 
 void lp_ticker_init(void)
 {
-    if (g_sys_init == 0) {
-        sysclk_init();
-        system_board_init();
-        g_sys_init = 1;
-    }
-    if (lp_ticker_inited) return;
+    if(lp_ticker_inited)
+        return;
+    if (!us_ticker_inited)
+        us_ticker_init();
 
-#if SAM4N || SAM4S || SAM4E || SAM4C || SAM4CP || SAM4CM || SAMV71 || SAMV70 || SAME70 || SAMS70
-    rtt_sel_source(RTT, true);
-#endif
-    rtt_init(RTT, 33); /* Selects 32.768Khz clock with prescalar 33 */ /*1ms tick*/
-
+    tc_init(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_CMR_TCCLKS_TIMER_CLOCK5);
     lp_ticker_inited = 1;
 }
 
@@ -57,7 +72,7 @@ uint32_t lp_ticker_read()
 {
     if (!lp_ticker_inited)
         lp_ticker_init();
-    return rtt_read_timer_value(RTT);
+    return us_ticker_read();
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
@@ -65,31 +80,47 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cur_time;
     int32_t delta;
 
-    cur_time = lp_ticker_read();
+    cur_time = us_ticker_read();
     delta = (int32_t)((uint32_t)timestamp - cur_time);
     if (delta < 0) {
         /* Event already occurred in past */
         lp_ticker_irq_handler();
         return;
     }
-    /* Enable RTT interrupt */
-    NVIC_DisableIRQ(RTT_IRQn);
-    NVIC_ClearPendingIRQ(RTT_IRQn);
-    NVIC_SetPriority(RTT_IRQn, 0);
-    NVIC_EnableIRQ(RTT_IRQn);
-    rtt_enable_interrupt(RTT, RTT_MR_RTTINCIEN);
 
-    rtt_write_alarm_time(RTT, (uint32_t)timestamp);
+    uint16_t interruptat=0;
+
+    if(delta > OVERFLOW_16bit_VALUE_LP) {
+        us_ticker_interrupt_counter= delta/OVERFLOW_16bit_VALUE_LP;
+        us_ticker_interrupt_offset=delta%OVERFLOW_16bit_VALUE_LP;
+        interruptat=OVERFLOW_16bit_VALUE_LP;
+    } else {
+        us_ticker_interrupt_counter=0;
+        us_ticker_interrupt_offset=0;
+        interruptat=delta;
+    }
+
+    NVIC_DisableIRQ(TICKER_COUNTER_IRQn2);
+    NVIC_SetVector(TICKER_COUNTER_IRQn2, (uint32_t)TICKER_COUNTER_Handlr2);
+
+    tc_write_rc(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, (uint32_t)interruptat);
+    tc_enable_interrupt(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_IDR_CPCS );
+
+    NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn2);
+    NVIC_SetPriority(TICKER_COUNTER_IRQn2, 0);
+    NVIC_EnableIRQ(TICKER_COUNTER_IRQn2);
+
+    tc_start(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
 }
 
 void lp_ticker_disable_interrupt(void)
 {
-    rtt_disable_interrupt(RTT, RTT_MR_ALMIEN);
+    tc_stop(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
+    tc_disable_interrupt(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_IDR_CPCS);
+    NVIC_DisableIRQ(TICKER_COUNTER_IRQn2);
 }
 
 void lp_ticker_clear_interrupt(void)
 {
-    uint32_t ul_status;
-    /* Get RTT status */
-    ul_status = rtt_get_status(RTT);
+    NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn2);
 }
