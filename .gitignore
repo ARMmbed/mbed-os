@@ -3,3 +3,9 @@
 output
 lcov
 coverage
+.yotta.json
+.yotta_ignore
+build/
+yotta_modules/
+yotta_targets/
+

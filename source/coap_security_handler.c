@@ -18,7 +18,7 @@
 #include "mbedtls/ssl_ciphersuites.h"
 
 
-const static int PSK_SUITES[] = {
+const int PSK_SUITES[] = {
     MBEDTLS_TLS_ECJPAKE_WITH_AES_128_CCM_8,
     0
 };
@@ -267,6 +267,7 @@ int coap_security_handler_connect(thread_security_t *sec, bool is_server, const 
         memcpy(sec->_pw, pw, len);
         sec->_pw_len = len;
     }
+
     if( mbedtls_ssl_set_hs_ecjpake_password(&sec->_ssl, pw, len) != 0 ){
         return -1;
     }

@@ -23,7 +23,7 @@
 #include "thread_commissioning_if.h"
 //#include "thread_tmf_data_if.h"
 
-int thread_management_server_init(int8_t interface_id, uint8_t *PSKd_ptr, uint8_t PSKd_len)
+int thread_management_server_init(int8_t interface_id)
 {
     return 0;
 }
