@@ -56,7 +56,7 @@
  * 	* LFRCO: internal RC oscillator (32.768kHz)
  * 	* ULFRCO: internal ultra-low power RC oscillator (available down to EM3) (1kHz)
  */
-#define LOW_ENERGY_CLOCK_SOURCE	LFXO
+#define LOW_ENERGY_CLOCK_SOURCE		LFXO
 
 /** Core clock source.
  * Options:
@@ -65,16 +65,19 @@
  */
 #define CORE_CLOCK_SOURCE		HFXO
 
-/** HFRCO frequency band
- * Options:
- * 	* CMU_HFRCOCTRL_BAND_28MHZ
- * 	* CMU_HFRCOCTRL_BAND_21MHZ
- * 	* CMU_HFRCOCTRL_BAND_14MHZ
- * 	* CMU_HFRCOCTRL_BAND_11MHZ
- * 	* CMU_HFRCOCTRL_BAND_7MHZ
- * 	* CMU_HFRCOCTRL_BAND_1MHZ
- */
-#define HFRCO_FREQUENCY 		CMU_HFRCOCTRL_BAND_14MHZ
+/** Select HFRCO frequency */
+#define PER_CMU_HFRCO_FREQ_1MHZ   1
+#define PER_CMU_HFRCO_FREQ_2MHZ   2
+#define PER_CMU_HFRCO_FREQ_4MHZ   3
+#define PER_CMU_HFRCO_FREQ_7MHZ   4
+#define PER_CMU_HFRCO_FREQ_13MHZ  5
+#define PER_CMU_HFRCO_FREQ_16MHZ  6
+#define PER_CMU_HFRCO_FREQ_19MHZ  7
+#define PER_CMU_HFRCO_FREQ_26MHZ  8
+#define PER_CMU_HFRCO_FREQ_32MHZ  9
+#define PER_CMU_HFRCO_FREQ_38MHZ  10
+
+#define HFRCO_FREQUENCY 		PER_CMU_HFRCO_FREQ_38MHZ
 
 #define LFXO_FREQUENCY			32768
 #define HFXO_FREQUENCY			40000000

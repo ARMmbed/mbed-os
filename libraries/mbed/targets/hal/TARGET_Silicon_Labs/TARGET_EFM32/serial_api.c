@@ -70,6 +70,9 @@
 
 #ifdef _SILICON_LABS_32B_PLATFORM_2
 #define SERIAL_LEUART_MAX_BAUDRATE 9600
+#ifndef LEUART_USING_LFXO
+# define SERIAL_LEUART_MIN_BAUDRATE (LEUART_REF_FREQ>>10)
+#endif
 
 static void serial_switch_to_usart(serial_t *obj, int baudrate);
 
@@ -101,6 +104,7 @@ static void serial_rx_abort_asynch_intern(serial_t *obj, int unblock_sleep);
 static void serial_tx_abort_asynch_intern(serial_t *obj, int unblock_sleep);
 static void serial_block_sleep(serial_t *obj);
 static void serial_unblock_sleep(serial_t *obj);
+static void serial_leuart_baud(serial_t *obj, int baudrate);
 
 /* ISRs for RX and TX events */
 #ifdef UART0
@@ -186,7 +190,7 @@ static void uart_init(serial_t *obj, uint32_t baudrate, SerialParity parity, int
 #ifdef LEUART_USING_LFXO
         init.refFreq = LEUART_LF_REF_FREQ;
 #else
-        init.refFreq = LEUART_REF_FREQ;
+        init.refFreq = 0;
 #endif
         LEUART_Init(obj->serial.periph.leuart, &init);
 
@@ -564,7 +568,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         CMU_ClockEnable(cmuClock_CORELE, true);
 #else
         //set to use high-speed clock
+#ifdef _SILICON_LABS_32B_PLATFORM_2
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_HFCLKLE);
+        CMU_ClockDivSet(serial_get_clock(obj), 8);
+#else
         CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
+#endif
 #endif
     }
 
@@ -662,61 +671,69 @@ void serial_baud(serial_t *obj, int baudrate)
 {
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
 #ifndef _SILICON_LABS_32B_PLATFORM_2
-#ifdef LEUART_USING_LFXO
-
-        /* check if baudrate is within allowed range */
-        MBED_ASSERT(baudrate >= (LEUART_LF_REF_FREQ >> 7));
-
-        if(baudrate > (LEUART_LF_REF_FREQ >> 1)){
-            /* check if baudrate is within allowed range */
-            MBED_ASSERT((baudrate <= (LEUART_HF_REF_FREQ >> 1)) && (baudrate > (LEUART_HF_REF_FREQ >> 10)));
-
-            CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
-            uint8_t divisor = 1;
-
-            if(baudrate > (LEUART_HF_REF_FREQ >> 7)){
-                divisor = 1;
-            }else if(baudrate > (LEUART_HF_REF_FREQ >> 8)){
-                divisor = 2;
-            }else if(baudrate > (LEUART_HF_REF_FREQ >> 9)){
-                divisor = 4;
-            }else{
-                divisor = 8;
-            }
-            CMU_ClockDivSet(serial_get_clock(obj), divisor);
-            LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_HF_REF_FREQ/divisor, (uint32_t)baudrate);
-        }else{
-            CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
-            CMU_ClockDivSet(serial_get_clock(obj), 1);
-            LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_LF_REF_FREQ, (uint32_t)baudrate);
-        }
-#else
-        /* check if baudrate is within allowed range */
-        MBED_ASSERT((baudrate > (LEUART_REF_FREQ >> 10)) && (baudrate <= (LEUART_REF_FREQ >> 1)));
-        uint8_t divisor = 1;
-        if(baudrate > (LEUART_REF_FREQ >> 7)){
-            divisor = 1;
-        }else if(baudrate > (LEUART_REF_FREQ >> 8)){
-            divisor = 2;
-        }else if(baudrate > (LEUART_REF_FREQ >> 9)){
-            divisor = 4;
-        }else{
-            divisor = 8;
-        }
-        CMU_ClockDivSet(serial_get_clock(obj), divisor);
-        LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_REF_FREQ/divisor, (uint32_t)baudrate);
-#endif
+        serial_leuart_baud(obj, baudrate);
 #else
         /* For Pearl, we must check if we need to upgrade to using a standard USART */
-        if( baudrate > SERIAL_LEUART_MAX_BAUDRATE ) {
+        if( (baudrate > SERIAL_LEUART_MAX_BAUDRATE)
+#ifndef LEUART_USING_LFXO
+            || (baudrate < SERIAL_LEUART_MIN_BAUDRATE)
+#endif
+            ) {
             serial_switch_to_usart(obj, baudrate);
         } else {
-            LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_LF_REF_FREQ, (uint32_t)baudrate);
+            serial_leuart_baud(obj, baudrate);
         }
 #endif
     } else {
         USART_BaudrateAsyncSet(obj->serial.periph.uart, 0, (uint32_t)baudrate, usartOVS16);
     }
+}
+
+static void serial_leuart_baud(serial_t *obj, int baudrate)
+{
+#ifdef LEUART_USING_LFXO
+    /* check if baudrate is within allowed range */
+    MBED_ASSERT(baudrate >= (LEUART_LF_REF_FREQ >> 7));
+
+    if(baudrate > (LEUART_LF_REF_FREQ >> 1)){
+        /* check if baudrate is within allowed range */
+        MBED_ASSERT((baudrate <= (LEUART_HF_REF_FREQ >> 1)) && (baudrate > (LEUART_HF_REF_FREQ >> 10)));
+
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
+        uint8_t divisor = 1;
+
+        if(baudrate > (LEUART_HF_REF_FREQ >> 7)){
+            divisor = 1;
+        }else if(baudrate > (LEUART_HF_REF_FREQ >> 8)){
+            divisor = 2;
+        }else if(baudrate > (LEUART_HF_REF_FREQ >> 9)){
+            divisor = 4;
+        }else{
+            divisor = 8;
+        }
+        CMU_ClockDivSet(serial_get_clock(obj), divisor);
+        LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_HF_REF_FREQ/divisor, (uint32_t)baudrate);
+    }else{
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
+        CMU_ClockDivSet(serial_get_clock(obj), 1);
+        LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_LF_REF_FREQ, (uint32_t)baudrate);
+    }
+#else
+    /* check if baudrate is within allowed range */
+    MBED_ASSERT((baudrate > (LEUART_REF_FREQ >> 10)) && (baudrate <= (LEUART_REF_FREQ >> 1)));
+    uint8_t divisor = 1;
+    if(baudrate > (LEUART_REF_FREQ >> 7)){
+        divisor = 1;
+    }else if(baudrate > (LEUART_REF_FREQ >> 8)){
+        divisor = 2;
+    }else if(baudrate > (LEUART_REF_FREQ >> 9)){
+        divisor = 4;
+    }else{
+        divisor = 8;
+    }
+    CMU_ClockDivSet(serial_get_clock(obj), divisor);
+    LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_REF_FREQ/divisor, (uint32_t)baudrate);
+#endif
 }
 
 #ifdef _SILICON_LABS_32B_PLATFORM_2
