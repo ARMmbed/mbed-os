@@ -21,7 +21,8 @@
     "nanostack-libservice": "^3.0.0",
     "mbed-client-c": "^1.1.0",
     "sal-stack-nanostack-eventloop": "^1.0.0",
-    "sal-stack-nanostack": "^3.0.0"
+    "sal-stack-nanostack": "^3.0.0",
+    "mbedtls": "^2.0.0"
   },
   "targetDependencies": {}
 }
