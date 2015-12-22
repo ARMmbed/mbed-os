@@ -293,6 +293,7 @@ namespace v1 {
      * @returns
      *    You can return `STATUS_ABORT` to indicate that this failure is non-recoverable, which will call the case
      *    teardown handler with reason. If a failure occurs during teardown, the teardown will not be called again.
+     *    You may return `STATUS_IGNORE` which will cause the harness to ignore and not count the failure.
      */
     typedef status_t (*case_failure_handler_t)(const Case *const source, const failure_t reason);
 
