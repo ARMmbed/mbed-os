@@ -13,6 +13,7 @@ extern "C" {
 
 #include "ns_types.h"
 #include "sn_coap_header.h"
+#include "ns_address.h"
 
 /**
  * This interface is used in sending and receiving of CoAP messages to multicast address and receive multiple responses.
@@ -124,7 +125,7 @@ extern void coap_service_delete( int8_t service_id );
  *
  * \param service_id         Id number of the current service.
  */
-extern void coap_service_close_secure_connection(int8_t service_id);
+extern void coap_service_close_secure_connection(int8_t service_id, ns_address_t *dest_addr);
 
 /**
  * \brief Sets password for device

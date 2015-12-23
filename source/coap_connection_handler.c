@@ -131,6 +131,20 @@ static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
     return this;
 }
 
+static secure_session_t *secure_session_find_by_parent(internal_socket_t *parent)
+{
+    secure_session_t *this = NULL;
+    ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
+        if( cur_ptr->sec_handler ){
+            if (cur_ptr->parent == parent ) {
+                this = cur_ptr;
+                break;
+            }
+        }
+    }
+    return this;
+}
+
 static secure_session_t *secure_session_find(internal_socket_t *parent, uint8_t *address_ptr, uint16_t port)
 {
     secure_session_t *this = NULL;
@@ -258,6 +272,7 @@ static int send_to_socket(int8_t socket_id, uint8_t *address_ptr, uint16_t port,
     socket_setsockopt(sock->listen_socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_ADDR_PREFERENCES, &opt_name, sizeof(int));
     socket_setsockopt(sock->listen_socket, SOCKET_IPPROTO_IPV6, SOCKET_LINK_LAYER_SECURITY, &securityLinkLayer, sizeof(int8_t));
     //For some reason socket_sendto returns 0 in success, while other socket impls return number of bytes sent!!!
+    //TODO: check if address_ptr is valid and use that instead if it is
     int ret = socket_sendto(sock->listen_socket, &sock->dest_addr, (unsigned char*)buf, len);
     if( ret < 0 )
         return ret;
@@ -557,15 +572,17 @@ void connection_handler_destroy(thread_conn_handler_t *handler)
         if( handler->socket && handler->socket->is_secure){
             //If nothing is sent, there is no address to find.
             //This case is handled in int_socket_delete.
-            secure_session_t *session = secure_session_find( handler->socket, handler->socket->dest_addr.address,
-                                                             handler->socket->dest_addr.identifier);
+            secure_session_t *session = secure_session_find_by_parent( handler->socket);
 
-            if( session && handler->socket->usage_counter == 1){ //Last connection
-                thread_security_send_close_alert( session->sec_handler );
-            }
+            while(session != NULL ){
+                if( session && handler->socket->usage_counter == 1){ //Last connection
+                    thread_security_send_close_alert( session->sec_handler );
+                }
 
-            if( session){
-                secure_session_delete(session);
+                if( session){
+                    secure_session_delete(session);
+                }
+                session = secure_session_find_by_parent( handler->socket);
             }
         }
         int_socket_delete(handler->socket);
@@ -574,12 +591,12 @@ void connection_handler_destroy(thread_conn_handler_t *handler)
     }
 }
 
-void connection_handler_close_secure_connection( thread_conn_handler_t *handler )
+void connection_handler_close_secure_connection( thread_conn_handler_t *handler, ns_address_t *dest_addr )
 {
     if(handler){
         if( handler->socket && handler->socket->is_secure){
-            secure_session_t *session = secure_session_find( handler->socket, handler->socket->dest_addr.address,
-                                                             handler->socket->dest_addr.identifier);
+            secure_session_t *session = secure_session_find( handler->socket, dest_addr->address,
+                                                             dest_addr->identifier);
             if( session ){
                 thread_security_send_close_alert( session->sec_handler );
             }

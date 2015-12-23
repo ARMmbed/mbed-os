@@ -38,7 +38,7 @@ void connection_handler_destroy(thread_conn_handler_t *handler)
 
 }
 
-void connection_handler_close_secure_connection( thread_conn_handler_t *handler )
+void connection_handler_close_secure_connection( thread_conn_handler_t *handler, ns_address_t *dest_addr )
 {
 
 }

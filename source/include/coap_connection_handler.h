@@ -34,7 +34,7 @@ thread_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_fr
 
 void connection_handler_destroy( thread_conn_handler_t *handler );
 
-void connection_handler_close_secure_connection( thread_conn_handler_t *handler );
+void connection_handler_close_secure_connection(thread_conn_handler_t *handler, ns_address_t *dest_addr);
 
 int coap_connection_handler_open_connection(thread_conn_handler_t *handler, uint16_t listen_port, bool use_ephemeral_port, bool is_secure, bool real_socket, bool bypassSec);
 
