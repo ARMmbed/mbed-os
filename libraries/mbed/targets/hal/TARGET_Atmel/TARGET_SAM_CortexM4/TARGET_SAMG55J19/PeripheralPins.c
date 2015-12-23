@@ -19,6 +19,15 @@
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
     /* Not connected */
+    {PA17, ADC_0, NC}, /*NC in mux posiotn since it is a extra function and doesnt have a name*/
+    {PA18, ADC_1, NC}, /*Pin is multiplexed to the extra function once the corresponding ADC channel is enabled*/
+    {PA19, ADC_2, NC},
+    {PA20, ADC_3, NC},
+    {PB00, ADC_4, NC},
+    {PB01, ADC_5, NC},
+    {PB02, ADC_6, NC},
+    {PB03, ADC_7, NC},
+    /* Not connected */
     {NC  , NC   , NC}
 };
 
