@@ -8,22 +8,18 @@ CPP_PLATFORM = gcc
 INCLUDE_DIRS =\
   .\
   ../stub\
-  ../../../../../nanostack/source/6LoWPAN/Thread/\
-  ../../../../../nanostack/source/6LoWPAN/Mesh/\
-  ../../../../../nanostack/source/6LoWPAN/RPL/\
-  ../../../../../nanostack/source/\
-  ../../../../../nanostack/source/Core/include/\
-  ../../../../../nanostack/source/Common_Protocols/\
-  ../../../../../nanostack/source/Security/Common/\
-  ../../../../../nanostack/source/Service_Libs/etx/\
-  ../../../../../nanostack/source/MLE/\
+  ../../../../coap-service/\
+  ../../../../source/include/\
+  ../../../../yotta_modules/mbedtls/ \
+  ../../../../yotta_modules/sal-stack-nanostack/nanostack/ \
+  ../../../../yotta_modules/nanostack-randlib/mbed-client-randlib/ \
+  ../../../../yotta_modules/nanostack-libservice/mbed-client-libservice/ \
+  ../../../../yotta_modules/mbed-client-c/nsdl-c/ \
+  ../../../../yotta_modules/mbed-client-c/source/libCoap/src/include/ \
+  ../../../../yotta_modules/sal-stack-nanostack-eventloop/nanostack-event-loop/ \
+  ../../../../yotta_modules/sal-stack-nanostack-eventloop/source/ \
   ../../../../../nanostack/nanostack/\
-  ../../../../../coap-service/coap-service/\
-  ../../../../../coap-service/source/include/\
   ../../../../../libService/libService/\
-  ../../../../../libService/exported-libs/mbed-client-libservice/mbed-client-libservice/\
-  ../../../../../libService/exported-libs/mbed-client-randlib/mbed-client-randlib/\
-  ../../../../../coap-service/coap-service/\
   ../../../../../nsdl-c/nsdl-c/\
   ../../../../../nsdl-c/source/libCoap/src/include/\
   ../../../../../event-loop/nanostack-event-loop/\

@@ -4,7 +4,6 @@
 #include "ns_types.h"
 #include "timer_sys.h"
 #include "platform/arm_hal_interrupt.h"
-#include "platform/ns_debug.h"
 #include "ns_timer.h"
 #include "nsdynmemLIB.h"
 #include "eventOS_event.h"

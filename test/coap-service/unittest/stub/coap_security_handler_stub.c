@@ -8,7 +8,6 @@
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "coap_connection_handler.h"
-#include "randLIB.h"
 #include "coap_security_handler_stub.h"
 
 thread_sec_def coap_security_handler_stub;

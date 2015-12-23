@@ -10,7 +10,6 @@
 #include "nsdynmemLIB.h"
 #include "socket_api.h"
 #include "net_interface.h"
-#include "randLIB.h"
 #include "eventOS_callback_timer.h"
 #include "coap_connection_handler_stub.h"
 
