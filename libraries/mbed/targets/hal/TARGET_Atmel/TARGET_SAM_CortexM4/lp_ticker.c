@@ -27,8 +27,8 @@ uint8_t lp_ticker_inited = 0;
 extern uint8_t us_ticker_inited;
 extern uint8_t g_sys_init;
 extern volatile uint32_t overflow32bitcounter;
-static uint16_t us_ticker_interrupt_counter;
-static uint16_t us_ticker_interrupt_offset;
+static uint16_t lp_ticker_interrupt_counter;
+static uint16_t lp_ticker_interrupt_offset;
 
 #define TICKER_COUNTER_lp        TC0
 #define TICKER_COUNTER_CHANNEL2  2
@@ -44,12 +44,14 @@ void TICKER_COUNTER_Handlr2(void)
     uint32_t interrupmask=tc_get_interrupt_mask(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
 
     if (((status & interrupmask)  & TC_IER_CPCS)) {
-        if(us_ticker_interrupt_counter) {
-            us_ticker_interrupt_counter--;
+        if(lp_ticker_interrupt_counter) {
+            lp_ticker_interrupt_counter--;
         } else {
-            if(us_ticker_interrupt_offset) {
-                tc_write_rc(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, (uint32_t)us_ticker_interrupt_offset);
-                us_ticker_interrupt_offset=0;
+            if(lp_ticker_interrupt_offset) {
+                tc_stop(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
+                tc_write_rc(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, (uint32_t)lp_ticker_interrupt_offset);
+                tc_start(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
+                lp_ticker_interrupt_offset=0;
             } else {
                 lp_ticker_irq_handler();
             }
@@ -91,12 +93,12 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     uint16_t interruptat=0;
 
     if(delta > OVERFLOW_16bit_VALUE_LP) {
-        us_ticker_interrupt_counter= delta/OVERFLOW_16bit_VALUE_LP;
-        us_ticker_interrupt_offset=delta%OVERFLOW_16bit_VALUE_LP;
+        lp_ticker_interrupt_counter= (delta/OVERFLOW_16bit_VALUE_LP) -1;
+        lp_ticker_interrupt_offset=delta%OVERFLOW_16bit_VALUE_LP;
         interruptat=OVERFLOW_16bit_VALUE_LP;
     } else {
-        us_ticker_interrupt_counter=0;
-        us_ticker_interrupt_offset=0;
+        lp_ticker_interrupt_counter=0;
+        lp_ticker_interrupt_offset=0;
         interruptat=delta;
     }
 
@@ -104,11 +106,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     NVIC_SetVector(TICKER_COUNTER_IRQn2, (uint32_t)TICKER_COUNTER_Handlr2);
 
     tc_write_rc(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, (uint32_t)interruptat);
-    tc_enable_interrupt(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_IDR_CPCS );
 
     NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn2);
     NVIC_SetPriority(TICKER_COUNTER_IRQn2, 0);
     NVIC_EnableIRQ(TICKER_COUNTER_IRQn2);
+    tc_enable_interrupt(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_IDR_CPCS );
 
     tc_start(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
 }
