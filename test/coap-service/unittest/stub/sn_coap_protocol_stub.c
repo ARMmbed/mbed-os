@@ -46,22 +46,22 @@ struct coap_s *sn_coap_protocol_init(void *(*used_malloc_func_ptr)(uint16_t), vo
     return sn_coap_protocol_stub.expectedCoap;
 }
 
-int8_t sn_coap_protocol_set_block_size(uint16_t block_size)
+int8_t sn_coap_protocol_set_block_size(struct coap_s *handle, uint16_t block_size)
 {
     return sn_coap_protocol_stub.expectedInt8;
 }
 
-int8_t sn_coap_protocol_set_duplicate_buffer_size(uint8_t message_count)
+int8_t sn_coap_protocol_set_duplicate_buffer_size(struct coap_s *handle, uint8_t size)
 {
     return sn_coap_protocol_stub.expectedInt8;
 }
 
-int8_t sn_coap_protocol_set_retransmission_parameters(uint8_t resending_count, uint8_t resending_intervall)
+int8_t sn_coap_protocol_set_retransmission_parameters(struct coap_s *handle, uint8_t resending_count, uint8_t resending_intervall)
 {
     return sn_coap_protocol_stub.expectedInt8;
 }
 
-int8_t sn_coap_protocol_set_retransmission_buffer(uint8_t buffer_size_messages, uint16_t buffer_size_bytes)
+int8_t sn_coap_protocol_set_retransmission_buffer(struct coap_s *handle, uint8_t buffer_size_messages, uint16_t buffer_size_bytes)
 {
     return sn_coap_protocol_stub.expectedInt8;
 }
