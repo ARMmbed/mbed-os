@@ -86,6 +86,7 @@ class IAREmbeddedWorkbench(Exporter):
         'HRM1017',
         'ARCH_BLE',
         'MOTE_L152RC',
+        'EFM32PG_STK3401',
     ]
 
     def generate(self):

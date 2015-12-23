@@ -72,7 +72,7 @@ class SimplicityV3(Exporter):
         'EFM32LG_STK3600': 'com.silabs.mcu.si32.efm32.efm32lg.efm32lg990f256',
         'EFM32WG_STK3800': 'com.silabs.mcu.si32.efm32.efm32wg.efm32wg990f256',
         'EFM32HG_STK3400': 'com.silabs.mcu.si32.efm32.efm32hg.efm32hg322f64',
-		'EFM32PG_STK3401': 'com.silabs.mcu.si32.efm32.efm32hg.efm32pg322f64'
+        'EFM32PG_STK3401': 'com.silabs.mcu.si32.efm32.efm32pg1b.efm32pg1b200f256gm48'
     }
 
     KITS = {
