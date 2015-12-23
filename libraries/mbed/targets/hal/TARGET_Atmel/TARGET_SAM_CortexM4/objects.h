@@ -49,6 +49,7 @@ struct serial_s {
 };
 
 struct analogin_s {
+    enum adc_channel_num channel;
 };
 
 struct pwmout_s {

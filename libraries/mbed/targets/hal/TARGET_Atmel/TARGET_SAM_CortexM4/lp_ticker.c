@@ -27,8 +27,8 @@ uint8_t lp_ticker_inited = 0;
 extern uint8_t us_ticker_inited;
 extern uint8_t g_sys_init;
 extern volatile uint32_t overflow32bitcounter;
-uint16_t us_ticker_interrupt_counter;
-uint16_t us_ticker_interrupt_offset;
+static uint16_t us_ticker_interrupt_counter;
+static uint16_t us_ticker_interrupt_offset;
 
 #define TICKER_COUNTER_lp        TC0
 #define TICKER_COUNTER_CHANNEL2  2
