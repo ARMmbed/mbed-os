@@ -25,7 +25,7 @@ class Exporter(object):
     # mapping mbed to progen targets
     PROGEN_TARGETS = {
         'LPC1768': 'lpc1768',
-        'LPC11U24': 'lpc11u14_201',
+        'LPC11U24': 'lpc11u24_201',
         'LPC1347':'lpc1347',
         'LPC1114':'lpc1114_102',
         'LPC11C24':'lpc11c24_301',
@@ -46,7 +46,7 @@ class Exporter(object):
         'K64F': 'mk64fn1m0xxx12',
         'K22F': 'mk22dn512xxx5',
         'K20D50M': 'frdm-k20d50m',
-        'TEENSY3_1':'mk20dx128xxx5',
+        'TEENSY3_1':'mk20dx256xxx7',
 
         'NUCLEO_F030R8':'nucleo-f030r8',
         'NUCLEO_F031K6':'nucleo-f031k6',
@@ -80,9 +80,9 @@ class Exporter(object):
         'NRF51822':'mkit',
         'HRM1017':'hrm1017',
         'RBLAB_NRF51822':'nrf51',
-        'ARCH_PRO':'arhc-pro',
+        'ARCH_PRO':'arch-pro',
         'ARCH_BLE':'arch-ble',
-        'MTS_GAMBIT':'mk64fn1m0xxx12',
+        'MTS_GAMBIT':'mts-gambit',
         'ARCH_MAX':'lpc1768',
         'MTS_MDOT_F405RG':'stm32f405rg',
         'NRF51_DK':'nrf51',
