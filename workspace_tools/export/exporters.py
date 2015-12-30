@@ -138,12 +138,15 @@ class Exporter(object):
             for file in getattr(self.resources, r_type):
                 sources.append(file)
 
-        # TODO: sources in groups
         project_data = {
             'common': {
-                'sources': sources + self.resources.hex_files + 
-                    self.resources.objects + self.resources.libraries,
-                # 'includes': self.resources.inc_dirs,
+                'sources': { 
+                    'Source Files': sources + self.resources.hex_files +
+                        self.resources.objects + self.resources.libraries,
+                },
+                'includes':  { 
+                    'Include Files': self.resources.headers,
+                },
                 'target': [self.PROGEN_TARGETS[self.target]],
                 'debugger': ['cmsis-dap'], #TODO: per target to set this
                 'macros': self.get_symbols(),
@@ -205,9 +208,6 @@ class Exporter(object):
         """" Generate project using ProGen Project API """
         settings = ProjectSettings()
         project = Project(self.program_name, [project_data], settings)
-        # TODO: fix
-        # this hack is for these scripts which know too much
-        project.project['common']['include_paths'] = self.resources.inc_dirs
         project.generate(tool_name, copied=True)
 
     def gen_file(self, template_file, data, target_file):
