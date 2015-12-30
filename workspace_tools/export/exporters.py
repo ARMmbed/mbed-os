@@ -148,11 +148,9 @@ class Exporter(object):
                     'Include Files': self.resources.headers,
                 },
                 'target': [self.PROGEN_TARGETS[self.target]],
-                'debugger': ['cmsis-dap'], #TODO: per target to set this
                 'macros': self.get_symbols(),
                 'export_dir': [self.inputDir],
                 'linker_file': [self.resources.linker_script],
-                'template': [''],
             }
         }
         return project_data
