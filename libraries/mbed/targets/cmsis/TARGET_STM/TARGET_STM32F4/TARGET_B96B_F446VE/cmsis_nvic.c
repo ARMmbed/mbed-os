@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
@@ -26,91 +27,29 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+ */ 
+#include "cmsis_nvic.h"
 
-#include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
+#define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    uint32_t i;
 
-struct gpio_irq_s {
-    IRQn_Type irq_n;
-    uint32_t irq_index;
-    uint32_t event;
-    PinName pin;
-};
-
-struct port_s {
-    PortName port;
-    uint32_t mask;
-    PinDirection direction;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_out;
-};
-
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-    uint8_t channel;
-};
-
-struct dac_s {
-    DACName dac;
-    uint8_t channel;
-};
-
-struct serial_s {
-    UARTName uart;
-    int index; // Used by irq
-    uint32_t baudrate;
-    uint32_t databits;
-    uint32_t stopbits;
-    uint32_t parity;
-    PinName pin_tx;
-    PinName pin_rx;
-#if DEVICE_SERIAL_ASYNCH
-    uint32_t events;
-#endif
-};
-
-struct spi_s {
-    SPIName spi;
-    uint32_t bits;
-    uint32_t cpol;
-    uint32_t cpha;
-    uint32_t mode;
-    uint32_t nss;
-    uint32_t br_presc;
-    PinName pin_miso;
-    PinName pin_mosi;
-    PinName pin_sclk;
-    PinName pin_ssel;
-};
-
-struct i2c_s {
-    I2CName  i2c;
-    uint32_t slave;
-};
-
-struct pwmout_s {
-    PWMName pwm;
-    PinName pin;
-    uint32_t period;
-    uint32_t pulse;
-    uint8_t channel;
-    uint8_t inverted;
-};
-
-#include "gpio_object.h"
-
-#ifdef __cplusplus
+    // Copy and switch to dynamic vectors if the first time called
+    if (SCB->VTOR == NVIC_FLASH_VECTOR_ADDRESS) {
+        uint32_t *old_vectors = vectors;
+        vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+        for (i=0; i<NVIC_NUM_VECTORS; i++) {
+            vectors[i] = old_vectors[i];
+        }
+        SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+    }
+    vectors[IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
-#endif
 
-#endif
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    uint32_t *vectors = (uint32_t*)SCB->VTOR;
+    return vectors[IRQn + NVIC_USER_IRQ_OFFSET];
+}

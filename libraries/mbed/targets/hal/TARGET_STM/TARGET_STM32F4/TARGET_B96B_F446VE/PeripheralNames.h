@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,87 +27,70 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
 #include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct gpio_irq_s {
-    IRQn_Type irq_n;
-    uint32_t irq_index;
-    uint32_t event;
-    PinName pin;
-};
+typedef enum {
+    ADC_1 = (int)ADC1_BASE,
+    ADC_3 = (int)ADC3_BASE,
+} ADCName;
 
-struct port_s {
-    PortName port;
-    uint32_t mask;
-    PinDirection direction;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_out;
-};
+typedef enum {
+    DAC_1 = (int)DAC_BASE
+} DACName;
 
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-    uint8_t channel;
-};
+typedef enum {
+    UART_1 = (int)USART1_BASE,
+    UART_2 = (int)USART2_BASE,
+    UART_3 = (int)USART3_BASE,
+    UART_4 = (int)UART4_BASE,
+    UART_5 = (int)UART5_BASE,
+    UART_6 = (int)USART6_BASE
+} UARTName;
 
-struct dac_s {
-    DACName dac;
-    uint8_t channel;
-};
+typedef enum {
+    DMA_1 = (int)DMA1_BASE,
+    DMA_2 = (int)DMA2_BASE
+} DMAName;
 
-struct serial_s {
-    UARTName uart;
-    int index; // Used by irq
-    uint32_t baudrate;
-    uint32_t databits;
-    uint32_t stopbits;
-    uint32_t parity;
-    PinName pin_tx;
-    PinName pin_rx;
-#if DEVICE_SERIAL_ASYNCH
-    uint32_t events;
-#endif
-};
+#define STDIO_UART_TX  PC_10
+#define STDIO_UART_RX  PC_11
+#define STDIO_UART     UART_4
 
-struct spi_s {
-    SPIName spi;
-    uint32_t bits;
-    uint32_t cpol;
-    uint32_t cpha;
-    uint32_t mode;
-    uint32_t nss;
-    uint32_t br_presc;
-    PinName pin_miso;
-    PinName pin_mosi;
-    PinName pin_sclk;
-    PinName pin_ssel;
-};
+typedef enum {
+    SPI_1 = (int)SPI1_BASE,
+    SPI_2 = (int)SPI2_BASE,
+    SPI_3 = (int)SPI3_BASE,
+    SPI_4 = (int)SPI4_BASE
+} SPIName;
 
-struct i2c_s {
-    I2CName  i2c;
-    uint32_t slave;
-};
+typedef enum {
+    I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE,
+    I2C_3 = (int)I2C3_BASE,
+    FMPI2C_1 = (int)FMPI2C1_BASE
+} I2CName;
 
-struct pwmout_s {
-    PWMName pwm;
-    PinName pin;
-    uint32_t period;
-    uint32_t pulse;
-    uint8_t channel;
-    uint8_t inverted;
-};
-
-#include "gpio_object.h"
+typedef enum {
+    PWM_1  = (int)TIM1_BASE,
+    PWM_2  = (int)TIM2_BASE,
+    PWM_3  = (int)TIM3_BASE,
+    PWM_4  = (int)TIM4_BASE,
+    PWM_5  = (int)TIM5_BASE,
+    PWM_8  = (int)TIM8_BASE,
+    PWM_9  = (int)TIM9_BASE,
+    PWM_10 = (int)TIM10_BASE,
+    PWM_11 = (int)TIM11_BASE,
+    PWM_12 = (int)TIM12_BASE,
+    PWM_13 = (int)TIM13_BASE,
+    PWM_14 = (int)TIM14_BASE
+} PWMName;
 
 #ifdef __cplusplus
 }
