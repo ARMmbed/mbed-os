@@ -10,6 +10,7 @@
 #include "mbedtls/error.h"
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/entropy_poll.h"
+#include "mbedtls/ssl.h"
 #include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "coap_connection_handler.h"
