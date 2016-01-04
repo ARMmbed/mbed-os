@@ -68,19 +68,6 @@
 #error Undefined number of low energy UARTs (LEUART).
 #endif
 
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-#define SERIAL_LEUART_MAX_BAUDRATE 9600
-#ifndef LEUART_USING_LFXO
-# define SERIAL_LEUART_MIN_BAUDRATE (LEUART_REF_FREQ>>10)
-#endif
-
-static void serial_switch_to_usart(serial_t *obj, int baudrate);
-
-static uint8_t leuart0_reserved = 0;
-static uint8_t usart_reserved[USART_COUNT] = { 0, 0 };
-static USART_TypeDef * const usart_map[USART_COUNT] = { USART0, USART1 };
-#endif
-
 /* Store IRQ id for each UART */
 static uint32_t serial_irq_ids[SERIAL_NUM_UARTS] = { 0 };
 /* Interrupt handler from mbed common */
@@ -190,7 +177,7 @@ static void uart_init(serial_t *obj, uint32_t baudrate, SerialParity parity, int
 #ifdef LEUART_USING_LFXO
         init.refFreq = LEUART_LF_REF_FREQ;
 #else
-        init.refFreq = 0;
+        init.refFreq = LEUART_REF_FREQ;
 #endif
         LEUART_Init(obj->serial.periph.leuart, &init);
 
@@ -223,7 +210,7 @@ static void uart_init(serial_t *obj, uint32_t baudrate, SerialParity parity, int
         init.baudrate = baudrate;
         init.oversampling = usartOVS16;
         init.databits = usartDatabits8;
-        init.refFreq = 0; /* Emlib will read HFPER clock to figure out the divider */
+        init.refFreq = REFERENCE_FREQUENCY;
 
         USART_InitAsync(obj->serial.periph.uart, &init);
     }
@@ -398,55 +385,8 @@ inline CMU_Clock_TypeDef serial_get_clock(serial_t *obj)
     }
 }
 
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-void *serial_uart_allocate(unsigned int uart_type)
+void serial_preinit(serial_t *obj, PinName tx, PinName rx)
 {
-    int i;
-
-    if( uart_type & UART_TYPE_LEUART ) {
-        if( !leuart0_reserved ) {
-            leuart0_reserved = 1;
-            return LEUART0;
-        }
-    }
-
-    if( uart_type & UART_TYPE_USART ) {
-        for( i=0 ; i<USART_COUNT ; i++ ) {
-            if( !usart_reserved[i] ) {
-                usart_reserved[i] = 1;
-                return usart_map[i];
-            }
-        }
-    }
-
-    return NULL;
-}
-
-void serial_uart_free(void *uart)
-{
-    int i;
-
-    for( i=0 ; i<USART_COUNT ; i++ ) {
-        if( usart_map[i] == uart ) {
-            usart_reserved[i] = 0;
-            return;
-        }
-    }
-
-    if( uart == LEUART0 ) {
-        leuart0_reserved = 0;
-        return;
-    }
-
-    MBED_ASSERT(0);
-}
-#endif /* _SILICON_LABS_32B_PLATFORM_2 */
-
-void serial_preinit(serial_t *obj, PinName tx, PinName rx, int allow_leuart)
-{
-#ifndef _SILICON_LABS_32B_PLATFORM_2
-    /* Older platforms with fixed pin mappings per UART */
-
     /* Get UART object connected to the given pins */
     UARTName uart_tx = (UARTName) pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName) pinmap_peripheral(rx, PinMap_UART_RX);
@@ -459,26 +399,18 @@ void serial_preinit(serial_t *obj, PinName tx, PinName rx, int allow_leuart)
     /* Get location */
     uint32_t uart_tx_loc = pin_location(tx, PinMap_UART_TX);
     uint32_t uart_rx_loc = pin_location(rx, PinMap_UART_RX);
+
+#if defined(_SILICON_LABS_32B_PLATFORM_1)
     /* Check that pins are used by same location for the given UART */
     obj->serial.location = pinmap_merge(uart_tx_loc, uart_rx_loc);
     MBED_ASSERT(obj->serial.location != (uint32_t)NC);
-
 #else
-    /* New platforms with free pin mapping */
-    uint32_t type = allow_leuart ? (UART_TYPE_USART|UART_TYPE_LEUART) : UART_TYPE_USART;
-    obj->serial.periph.uart = serial_uart_allocate(type);
-    MBED_ASSERT(obj->serial.periph.uart);
-
-    uint32_t uart_tx_loc = pin_location(tx, PinMap_UART_TX);
-    uint32_t uart_rx_loc = pin_location(rx, PinMap_UART_RX);
-
-    MBED_ASSERT((uart_tx_loc != NC) && (uart_rx_loc != NC));
-
     obj->serial.location_tx = uart_tx_loc;
     obj->serial.location_rx = uart_rx_loc;
 #endif
 
     /* Store pins in object for easy disabling in serial_free() */
+    //TODO: replace all usages with AF_USARTx_TX_PORT(location) macro to save 8 bytes from struct
     obj->serial.rx_pin = rx;
     obj->serial.tx_pin = tx;
 
@@ -549,28 +481,20 @@ static void serial_enable_pins(serial_t *obj, uint8_t enable)
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     uint32_t baudrate;
-    uint32_t allow_leuart = true;
     uint32_t uart_for_stdio = false;
 
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-    if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX)) {
-        allow_leuart = false;
-    }
-#endif
-
-    serial_preinit(obj, tx, rx, allow_leuart);
+    serial_preinit(obj, tx, rx);
 
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         // Set up LEUART clock tree
 #ifdef LEUART_USING_LFXO
         //set to use LFXO
-        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
         CMU_ClockEnable(cmuClock_CORELE, true);
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);
 #else
         //set to use high-speed clock
 #ifdef _SILICON_LABS_32B_PLATFORM_2
         CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_HFCLKLE);
-        CMU_ClockDivSet(serial_get_clock(obj), 8);
 #else
         CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
 #endif
@@ -581,10 +505,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     /* Limitations of board controller: CDC port only supports 115kbaud */
     if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX)
-#ifndef _SILICON_LABS_32B_PLATFORM_2
        && (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART )
-#endif
-        ) {
+      ) {
         baudrate = 115200;
         uart_for_stdio = true;
     } else {
@@ -640,10 +562,6 @@ void serial_free(serial_t *obj)
     } else {
         USART_Enable(obj->serial.periph.uart, usartDisable);
     }
-
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-    serial_uart_free(obj->serial.periph.uart);
-#endif
 }
 
 static void serial_enable(serial_t *obj, uint8_t enable)
@@ -670,37 +588,52 @@ static void serial_enable(serial_t *obj, uint8_t enable)
 void serial_baud(serial_t *obj, int baudrate)
 {
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-#ifndef _SILICON_LABS_32B_PLATFORM_2
         serial_leuart_baud(obj, baudrate);
-#else
-        /* For Pearl, we must check if we need to upgrade to using a standard USART */
-        if( (baudrate > SERIAL_LEUART_MAX_BAUDRATE)
-#ifndef LEUART_USING_LFXO
-            || (baudrate < SERIAL_LEUART_MIN_BAUDRATE)
-#endif
-            ) {
-            serial_switch_to_usart(obj, baudrate);
-        } else {
-            serial_leuart_baud(obj, baudrate);
-        }
-#endif
     } else {
         USART_BaudrateAsyncSet(obj->serial.periph.uart, 0, (uint32_t)baudrate, usartOVS16);
     }
 }
 
+/**
+ * Set LEUART baud rate
+ * Calculate whether LF or HF clock should be used.
+ */
 static void serial_leuart_baud(serial_t *obj, int baudrate)
 {
 #ifdef LEUART_USING_LFXO
     /* check if baudrate is within allowed range */
+#if defined(_SILICON_LABS_32B_PLATFORM_2)
+    // P2 has 9 bits + 5 fractional bits in LEUART CLKDIV register
+    MBED_ASSERT(baudrate >= (LEUART_LF_REF_FREQ >> 9));
+#else
+    // P1 has 7 bits + 5 fractional bits in LEUART CLKDIV register
     MBED_ASSERT(baudrate >= (LEUART_LF_REF_FREQ >> 7));
+#endif
 
     if(baudrate > (LEUART_LF_REF_FREQ >> 1)){
-        /* check if baudrate is within allowed range */
+        // Baudrate is bigger than LFCLK/2 - we need to use the HF clock
+        uint8_t divisor = 1;
+
+#if defined(_SILICON_LABS_32B_PLATFORM_2)
+        /* Check if baudrate is within allowed range: (HFCLK/4096, HFCLK/2] */
+        MBED_ASSERT((baudrate <= (LEUART_HF_REF_FREQ >> 1)) && (baudrate > (LEUART_HF_REF_FREQ >> 12)));
+
+        CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_HFCLKLE);
+
+        if(baudrate > (LEUART_HF_REF_FREQ >> 9)){
+            divisor = 1;
+        }else if(baudrate > (LEUART_HF_REF_FREQ >> 10)){
+            divisor = 2;
+        }else if(baudrate > (LEUART_HF_REF_FREQ >> 11)){
+            divisor = 4;
+        }else{
+            divisor = 8;
+        }
+#else // P1
+        /* Check if baudrate is within allowed range */
         MBED_ASSERT((baudrate <= (LEUART_HF_REF_FREQ >> 1)) && (baudrate > (LEUART_HF_REF_FREQ >> 10)));
 
         CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2);
-        uint8_t divisor = 1;
 
         if(baudrate > (LEUART_HF_REF_FREQ >> 7)){
             divisor = 1;
@@ -711,6 +644,7 @@ static void serial_leuart_baud(serial_t *obj, int baudrate)
         }else{
             divisor = 8;
         }
+#endif
         CMU_ClockDivSet(serial_get_clock(obj), divisor);
         LEUART_BaudrateSet(obj->serial.periph.leuart, LEUART_HF_REF_FREQ/divisor, (uint32_t)baudrate);
     }else{
@@ -736,120 +670,11 @@ static void serial_leuart_baud(serial_t *obj, int baudrate)
 #endif
 }
 
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-/**
- * Deinit LEUART, and allocate and init an USART on the same pins with
- * the same configuration.
- */
-static void serial_switch_to_usart(serial_t *obj, int baudrate)
-{
-    LEUART_TypeDef *leuart = obj->serial.periph.leuart;
-
-    while(leuart->SYNCBUSY & LEUART_SYNCBUSY_CMD);
-
-    /* Grab all relevant status */
-    uint32_t ien_rxd  = leuart->IEN & LEUART_IEN_RXDATAV;
-    uint32_t ien_txc  = leuart->IEN & LEUART_IEN_TXC;
-    uint32_t ien_ferr = leuart->IEN & LEUART_IEN_FERR;
-    uint32_t ien_perr = leuart->IEN & LEUART_IEN_PERR;
-    uint32_t ien_rxof = leuart->IEN & LEUART_IEN_RXOF;
-
-    uint32_t parity    = leuart->CTRL & _LEUART_CTRL_PARITY_MASK;
-    uint32_t stop_bits = leuart->CTRL & _LEUART_CTRL_STOPBITS_MASK;
-
-    uint32_t irq_id = serial_irq_ids[serial_get_index(obj)];
-
-    /* Disable LEUART */
-    serial_enable(obj, false);
-
-    /* Remove IRQ callback */
-    serial_irq_ids[serial_get_index(obj)] = 0;
-
-    /* Free DMA channels */
-    if( obj->serial.dmaOptionsTX.dmaChannel != -1 )
-        dma_channel_free(obj->serial.dmaOptionsTX.dmaChannel);
-
-    if( obj->serial.dmaOptionsRX.dmaChannel != -1 )
-        dma_channel_free(obj->serial.dmaOptionsRX.dmaChannel);
-
-    obj->serial.dmaOptionsTX.dmaChannel = -1;
-    obj->serial.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
-    obj->serial.dmaOptionsRX.dmaChannel = -1;
-    obj->serial.dmaOptionsRX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
-
-    /* TODO: disable clocks? */
-
-    /* Disable sleep */
-    uint32_t sleep_count = obj->serial.sleep_blocked;
-    while( obj->serial.sleep_blocked > 0 )
-        serial_unblock_sleep(obj);
-
-    SerialParity par = ParityNone;
-    switch( parity ) {
-        case LEUART_CTRL_PARITY_NONE: par = ParityNone; break;
-        case LEUART_CTRL_PARITY_EVEN: par = ParityEven; break;
-        case LEUART_CTRL_PARITY_ODD:  par = ParityOdd;  break;
-        default:
-            MBED_ASSERT(0);
-            break;
-    }
-
-    int stopb = 1;
-    switch( stop_bits ) {
-        case LEUART_CTRL_STOPBITS_ONE: stopb = 1; break;
-        case LEUART_CTRL_STOPBITS_TWO: stopb = 2; break;
-        default:
-            MBED_ASSERT(0);
-            break;
-    }
-
-    /* Replace LEUART with USART */
-    serial_preinit(obj, obj->serial.tx_pin, obj->serial.rx_pin, false);
-    CMU_ClockEnable(serial_get_clock(obj), true);
-    uart_init(obj, baudrate, par, stopb);
-
-    USART_TypeDef *usart = obj->serial.periph.uart;
-
-    /* Disable/enable routing */
-    usart->ROUTELOC0 = (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT) |
-                       (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
-    leuart->ROUTEPEN = 0;
-    usart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
-    usart->IFC = USART_IFC_TXC;
-
-    serial_uart_free(leuart);
-    serial_enable(obj, true);
-
-    /* Restore sleep */
-    while( obj->serial.sleep_blocked < sleep_count )
-        serial_block_sleep(obj);
-
-    /* Restore interrupts */
-    serial_irq_ids[serial_get_index(obj)] = irq_id;
-
-    if( ien_rxd ) serial_irq_set(obj, RxIrq, 1);
-    if( ien_txc ) serial_irq_set(obj, TxIrq, 1);
-
-    if( ien_ferr ) usart->IEN |= USART_IEN_FERR;
-    if( ien_perr ) usart->IEN |= USART_IEN_PERR;
-    if( ien_rxof ) usart->IEN |= USART_IEN_RXOF;
-}
-#endif /* _SILICON_LABS_32B_PLATFORM_2 */
-
 /**
  * Set UART format by re-initializing the peripheral.
  */
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
 {
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-        if (data_bits != 8) {
-            /* Only have 8 bit support on LEUART so need to move to standard USART */
-            serial_switch_to_usart(obj, LEUART_BaudrateGet(obj->serial.periph.leuart));
-        }
-    }
-#endif
-
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         /* Save the serial state */
         uint8_t     was_enabled = LEUART_StatusGet(obj->serial.periph.leuart) & (LEUART_STATUS_TXENS | LEUART_STATUS_RXENS);

@@ -42,9 +42,6 @@
 extern "C" {
 #endif
 
-void *serial_uart_allocate(unsigned int uart_type);
-void  serial_uart_free(void *uart);
-
 #ifdef __cplusplus
 }
 #endif

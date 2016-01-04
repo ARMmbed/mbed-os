@@ -348,10 +348,6 @@ const PinMap PinMap_SPI_CS[] = {
 
 /************UART**************/
 const PinMap PinMap_UART_TX[] = {
-
-    /* USART0, USART1, LEUART0. Pinmaps are identical
-       so peripheral selection is dynamic */
-
     {PA0,  USART_0,  0},
     {PA1,  USART_0,  1},
     {PA2,  USART_0,  2},
@@ -363,36 +359,34 @@ const PinMap PinMap_UART_TX[] = {
     {PB13, USART_0,  8},
     {PB14, USART_0,  9},
     {PB15, USART_0, 10},
-    {PC6,  USART_0, 11},
-    {PC7,  USART_0, 12},
-    {PC8,  USART_0, 13},
-    {PC9,  USART_0, 14},
-    {PC10, USART_0, 15},
-    {PC11, USART_0, 16},
 
-    {PD10, USART_0, 18},
-    {PD11, USART_0, 19},
-    {PD12, USART_0, 20},
-    {PD13, USART_0, 21},
-    {PD14, USART_0, 22},
-    {PD15, USART_0, 23},
-    {PF0,  USART_0, 24},
-    {PF1,  USART_0, 25},
-    {PF2,  USART_0, 26},
-    {PF3,  USART_0, 27},
-    {PF4,  USART_0, 28},
-    {PF5,  USART_0, 29},
-    {PF6,  USART_0, 30},
-    {PF7,  USART_0, 31},
+    {PD10, LEUART_0, 18},
+    {PD11, LEUART_0, 19},
+    {PD12, LEUART_0, 20},
+    {PD13, LEUART_0, 21},
+    {PD14, LEUART_0, 22},
+    {PD15, LEUART_0, 23},
+
+    {PC6,  USART_1, 11},
+    {PC7,  USART_1, 12},
+    {PC8,  USART_1, 13},
+    {PC9,  USART_1, 14},
+    {PC10, USART_1, 15},
+    {PC11, USART_1, 16},
+    {PF0,  USART_1, 24},
+    {PF1,  USART_1, 25},
+    {PF2,  USART_1, 26},
+    {PF3,  USART_1, 27},
+    {PF4,  USART_1, 28},
+    {PF5,  USART_1, 29},
+    {PF6,  USART_1, 30},
+    {PF7,  USART_1, 31},
 
     {NC  , NC   , NC}
 };
 
 const PinMap PinMap_UART_RX[] = {
-
-    /* USART0, USART1, LEUART0. Pinmaps are identical
-       so peripheral selection is dynamic */
-
+    {PA0,  USART_0, 31},
     {PA1,  USART_0,  0},
     {PA2,  USART_0,  1},
     {PA3,  USART_0,  2},
@@ -403,28 +397,28 @@ const PinMap PinMap_UART_RX[] = {
     {PB13, USART_0,  7},
     {PB14, USART_0,  8},
     {PB15, USART_0,  9},
-    {PC6,  USART_0, 10},
-    {PC7,  USART_0, 11},
-    {PC8,  USART_0, 12},
-    {PC9,  USART_0, 13},
-    {PC10, USART_0, 14},
-    {PC11, USART_0, 15},
 
-    {PD10, USART_0, 17},
-    {PD11, USART_0, 18},
-    {PD12, USART_0, 19},
-    {PD13, USART_0, 20},
-    {PD14, USART_0, 21},
-    {PD15, USART_0, 22},
-    {PF0,  USART_0, 23},
-    {PF1,  USART_0, 24},
-    {PF2,  USART_0, 25},
-    {PF3,  USART_0, 26},
-    {PF4,  USART_0, 27},
-    {PF5,  USART_0, 28},
-    {PF6,  USART_0, 29},
-    {PF7,  USART_0, 30},
-    {PA0,  USART_0, 31},
+    {PD10, LEUART_0, 17},
+    {PD11, LEUART_0, 18},
+    {PD12, LEUART_0, 19},
+    {PD13, LEUART_0, 20},
+    {PD14, LEUART_0, 21},
+    {PD15, LEUART_0, 22},
+
+    {PC6,  USART_1, 10},
+    {PC7,  USART_1, 11},
+    {PC8,  USART_1, 12},
+    {PC9,  USART_1, 13},
+    {PC10, USART_1, 14},
+    {PC11, USART_1, 15},
+    {PF0,  USART_1, 23},
+    {PF1,  USART_1, 24},
+    {PF2,  USART_1, 25},
+    {PF3,  USART_1, 26},
+    {PF4,  USART_1, 27},
+    {PF5,  USART_1, 28},
+    {PF6,  USART_1, 29},
+    {PF7,  USART_1, 30},
 
     {NC  , NC   , NC}
 };
