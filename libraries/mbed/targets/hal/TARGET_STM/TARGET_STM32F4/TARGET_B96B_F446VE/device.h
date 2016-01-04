@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,73 +27,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#include "cmsis.h"
+#define DEVICE_PORTIN           1
+#define DEVICE_PORTOUT          1
+#define DEVICE_PORTINOUT        1
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define DEVICE_INTERRUPTIN      1
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_3 = (int)ADC3_BASE
-} ADCName;
+#define DEVICE_ANALOGIN         1
+#define DEVICE_ANALOGOUT        1
 
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
+#define DEVICE_SERIAL            1
+#define DEVICE_SERIAL_ASYNCH     1
+#define DEVICE_SERIAL_ASYNCH_DMA 1
+#define DEVICE_SERIAL_FC         1
 
-typedef enum {
-    UART_1 = (int)USART1_BASE,
-    UART_2 = (int)USART2_BASE,
-    UART_3 = (int)USART3_BASE,
-    UART_4 = (int)UART4_BASE,
-    UART_5 = (int)UART5_BASE,
-    UART_6 = (int)USART6_BASE
-} UARTName;
+#define DEVICE_I2C              1
+#define DEVICE_I2CSLAVE         1
 
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
+#define DEVICE_SPI              1
+#define DEVICE_SPISLAVE         1
+#define DEVICE_SPI_ASYNCH       0
 
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE,
-    SPI_3 = (int)SPI3_BASE,
-    SPI_4 = (int)SPI4_BASE
-} SPIName;
+#define DEVICE_RTC              1
 
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE,
-    I2C_3 = (int)I2C3_BASE,
-    FMPI2C_1 = (int)FMPI2C1_BASE
-} I2CName;
+#define DEVICE_PWMOUT           1
 
-typedef enum {
-    PWM_1  = (int)TIM1_BASE,
-    PWM_2  = (int)TIM2_BASE,
-    PWM_3  = (int)TIM3_BASE,
-    PWM_4  = (int)TIM4_BASE,
-    PWM_5  = (int)TIM5_BASE,
-    PWM_8  = (int)TIM8_BASE,
-    PWM_9  = (int)TIM9_BASE,
-    PWM_10 = (int)TIM10_BASE,
-    PWM_11 = (int)TIM11_BASE,
-    PWM_12 = (int)TIM12_BASE,
-    PWM_13 = (int)TIM13_BASE,
-    PWM_14 = (int)TIM14_BASE
-} PWMName;
+#define DEVICE_SLEEP            1
 
-typedef enum {
-    CAN_1 = (int)CAN1_BASE,
-    CAN_2 = (int)CAN2_BASE
-} CANName;
+#define DEVICE_CAN              1
 
-#ifdef __cplusplus
-}
-#endif
+//=======================================
+
+#define DEVICE_SEMIHOST         0
+#define DEVICE_LOCALFILESYSTEM  0
+#define DEVICE_ID_LENGTH       24
+
+#define DEVICE_DEBUG_AWARENESS  0
+
+#define DEVICE_STDIO_MESSAGES   1
+
+#define DEVICE_ERROR_RED        1
+#define LED_RED                 LED1
+
+#include "objects.h"
 
 #endif

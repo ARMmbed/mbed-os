@@ -1,6 +1,8 @@
-/* mbed Microcontroller Library
+/* mbed Microcontroller Library - stackheap
+ * Setup a fixed single stack/heap memory model, 
+ * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,76 +26,31 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  *******************************************************************************
  */
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
-
-#include "cmsis.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif 
 
-typedef enum {
-    ADC_1 = (int)ADC1_BASE,
-    ADC_3 = (int)ADC3_BASE
-} ADCName;
+#include <rt_misc.h>
+#include <stdint.h>
 
-typedef enum {
-    DAC_1 = (int)DAC_BASE
-} DACName;
+extern char Image$$RW_IRAM1$$ZI$$Limit[];
 
-typedef enum {
-    UART_1 = (int)USART1_BASE,
-    UART_2 = (int)USART2_BASE,
-    UART_3 = (int)USART3_BASE,
-    UART_4 = (int)UART4_BASE,
-    UART_5 = (int)UART5_BASE,
-    UART_6 = (int)USART6_BASE
-} UARTName;
+extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t sp_limit = __current_sp();
 
-#define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_3
-#define STDIO_UART     UART_2
+    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
 
-typedef enum {
-    SPI_1 = (int)SPI1_BASE,
-    SPI_2 = (int)SPI2_BASE,
-    SPI_3 = (int)SPI3_BASE,
-    SPI_4 = (int)SPI4_BASE
-} SPIName;
-
-typedef enum {
-    I2C_1 = (int)I2C1_BASE,
-    I2C_2 = (int)I2C2_BASE,
-    I2C_3 = (int)I2C3_BASE,
-    FMPI2C_1 = (int)FMPI2C1_BASE
-} I2CName;
-
-typedef enum {
-    PWM_1  = (int)TIM1_BASE,
-    PWM_2  = (int)TIM2_BASE,
-    PWM_3  = (int)TIM3_BASE,
-    PWM_4  = (int)TIM4_BASE,
-    PWM_5  = (int)TIM5_BASE,
-    PWM_8  = (int)TIM8_BASE,
-    PWM_9  = (int)TIM9_BASE,
-    PWM_10 = (int)TIM10_BASE,
-    PWM_11 = (int)TIM11_BASE,
-    PWM_12 = (int)TIM12_BASE,
-    PWM_13 = (int)TIM13_BASE,
-    PWM_14 = (int)TIM14_BASE
-} PWMName;
-
-typedef enum {
-    CAN_1 = (int)CAN1_BASE,
-    CAN_2 = (int)CAN2_BASE
-} CANName;
+    struct __initial_stackheap r;
+    r.heap_base = zi_limit;
+    r.heap_limit = sp_limit;
+    return r;
+}
 
 #ifdef __cplusplus
 }
-#endif
-
-#endif
+#endif 
