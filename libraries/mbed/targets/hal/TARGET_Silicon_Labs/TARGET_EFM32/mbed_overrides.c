@@ -47,6 +47,11 @@ void mbed_sdk_init()
 {
     CHIP_Init();
 
+#if defined(_SILICON_LABS_32B_PLATFORM_2)
+    EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
+    EMU_DCDCInit(&dcdcInit);
+#endif
+
     /* Set up the clock sources for this chip */
 #if( CORE_CLOCK_SOURCE == HFXO)
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFXO);
