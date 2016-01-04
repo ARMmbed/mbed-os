@@ -115,24 +115,12 @@ static void usart_init(spi_t *obj, uint32_t baudrate, USART_Databits_TypeDef dat
     init.msbf   = 1;
     init.clockMode = clockMode;
 
-    /* Determine the reference clock, because the correct clock is not set up at init time */
+    /* Determine the reference clock, because the correct clock may not be set up at init time (e.g. before main()) */
     init.refFreq = REFERENCE_FREQUENCY;
 
     USART_InitSync(obj->spi.spi, &init);
 }
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
-{
-    obj->spi.spi = serial_uart_allocate(UART_TYPE_USART);
-    MBED_ASSERT(obj->spi.spi);
-    if (cs != NC) { /* Slave mode */
-        obj->spi.master = false;
-    } else {
-        obj->spi.master = true;
-    }
-    obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
-}
-#else
+
 void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs)
 {
     SPIName spi_mosi = (SPIName) pinmap_peripheral(mosi, PinMap_SPI_MOSI);
@@ -151,6 +139,8 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
         obj->spi.master = true;
     }
 
+#if defined(_SILICON_LABS_32B_PLATFORM_1)
+    // On P1, we need to ensure all pins are on same location
     uint32_t loc_mosi = pin_location(mosi, PinMap_SPI_MOSI);
     uint32_t loc_miso = pin_location(miso, PinMap_SPI_MISO);
     uint32_t loc_clk = pin_location(clk, PinMap_SPI_CLK);
@@ -159,10 +149,11 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
     uint32_t loc_ctrl = pinmap_merge(loc_clk, loc_cs);
     obj->spi.location = pinmap_merge(loc_data, loc_ctrl);
     MBED_ASSERT(obj->spi.location != NC);
+#endif
 
     obj->spi.dmaOptionsTX.dmaUsageState = DMA_USAGE_OPPORTUNISTIC;
 }
-#endif
+
 void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, PinName clk, PinName cs)
 {
     if (enable) {
