@@ -12,11 +12,98 @@ from workspace_tools.utils import mkdir
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.targets import TARGET_MAP
 
+from project_generator.generate import Generator
+from project_generator.project import Project
+from project_generator.settings import ProjectSettings
+
 class OldLibrariesException(Exception): pass
 
-class Exporter():
+class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
+
+    # mapping mbed to progen targets
+    PROGEN_TARGETS = {
+        'LPC1768': 'mbed-lpc1768',
+        'LPC11U24': 'lpc11u24_201',
+        'LPC1347':'lpc1347',
+        'LPC1114':'lpc1114_102',
+        'LPC11C24':'lpc11c24_301',
+        'LPC4088':'lpc4088',
+        'LPC4088_DM':'lpc4088',
+        'LPC4330_M4':'lpc4330',
+        'LPC4337':'lpc4337',
+        'LPC812':'lpc812m101',
+        'LPC824': 'lpc824m201',
+        'LPC1549':'lpc1549',
+        'LPC11U68':'lpc11u68',
+        'LPC11U35_501':'lpc11u35_501',
+        'LPC11U35_401': 'lpc11u35_401',
+        'LPC11U37H_401':'lpc11u37_401',
+
+        'KL05Z':'frdm-kl05z',
+        'KL25Z':'frdm-kl25z',
+        'KL43Z':'frdm-kl43z',
+        'KL46Z':'frdm-kl46z',
+        'K64F': 'frdm-k64f',
+        'K22F': 'frdm-k22f',
+        'K20D50M': 'frdm-k20d50m',
+        'TEENSY3_1':'teensy-31',
+
+        'NUCLEO_F030R8':'nucleo-f030r8',
+        'NUCLEO_F031K6':'nucleo-f031k6',
+        'NUCLEO_F042K6':'nucleo-f042k6',
+        'NUCLEO_F070RB':'nucleo-f070rb',
+        'NUCLEO_F072RB':'nucleo-f072rb',
+        'NUCLEO_F091RC':'nucleo-f091rc',
+        'NUCLEO_F103RB':'nucleo-f103rb',
+        'NUCLEO_F302R8':'nucleo-f302r8',
+        'NUCLEO_F303K8':'nucleo-f303k8',
+        'NUCLEO_F303RE':'nucleo-f303re',
+        'NUCLEO_F334R8':'nucleo-f334r8',
+        'NUCLEO_F401RE':'nucleo-f401re',
+        'NUCLEO_F410RB':'nucleo-f410rb',
+        'NUCLEO_F411RE':'nucleo-f411re',
+        'NUCLEO_F446RE':'nucleo-f446re',
+        'NUCLEO_L053R8':'nucleo-l053r8',
+        'NUCLEO_L073RZ':'nucleo-l073rz',
+        'NUCLEO_L152RE':'nucleo-l152re',
+        'NUCLEO_L476RG':'nucleo-l476rg',
+
+        'DISCO_F407VG':'disco-f407vg',
+        'DISCO_F429ZI':'disco-f429zi',
+        'DISCO_L053C8':'disco-l053c8',
+        'DISCO_F334C8':'disco-f334c8',
+        'DISCO_F469NI':'disco-f469ni',
+        'DISCO_F746NG':'disco-f746ng',
+        'DISCO_L476VG':'disco-l476vg',
+
+        'UBLOX_C027':'ublox-c027',
+        'NRF51822':'mkit',
+        'HRM1017':'hrm1017',
+        'RBLAB_NRF51822':'rblab-nrf51822',
+        'ARCH_PRO':'arch-pro',
+        'ARCH_BLE':'arch-ble',
+        'MTS_GAMBIT':'mts-gambit',
+        'ARCH_MAX':'lpc1768',
+        'MTS_MDOT_F405RG':'mts-mdot-f405rg',
+        'MTS_MDOT_F411RE': 'mts-mdot-f411re',
+        'MTS_DRAGONFLY_F411RE': 'mts-dragonfly-f411re',
+        'NRF51_DK':'nrf51-dk',
+        'NRF51_DONGLE':'nrf51-dongle',
+        'SEEED_TINY_BLE':'seed-tinyble',
+
+        'DELTA_DFCM_NNN40':'dfcm-nnn40',
+        'MAXWSNENV':'maxwsnenv',
+        'MAX32600MBED':'max32600mbed',
+        'MOTE_L152RC':'stm32l151rc',
+        'NZ32SC151':'stm32l151rc',
+
+        'SAMR21G18A':'samr21g18a',
+        'SAMD21J18A':'samd21j18a',
+        'SAMD21G18A':'samd21g18a',
+        'SAML21J18A':'samr21j18a',
+    }
 
     def __init__(self, target, inputDir, program_name, build_url_resolver, extra_symbols=None):
         self.inputDir = inputDir
@@ -41,6 +128,32 @@ class Exporter():
             if r:
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
         return resources
+
+    def get_project_data(self):
+        """ Get ProGen project data  """
+        # provide default data, some tools don't require any additional
+        # tool specific settings
+        sources = []
+        for r_type in ['c_sources', 'cpp_sources', 's_sources']:
+            for file in getattr(self.resources, r_type):
+                sources.append(file)
+
+        project_data = {
+            'common': {
+                'sources': { 
+                    'Source Files': sources + self.resources.hex_files +
+                        self.resources.objects + self.resources.libraries,
+                },
+                'includes':  { 
+                    'Include Files': self.resources.headers,
+                },
+                'target': [self.PROGEN_TARGETS[self.target]],
+                'macros': self.get_symbols(),
+                'export_dir': [self.inputDir],
+                'linker_file': [self.resources.linker_script],
+            }
+        }
+        return project_data
 
     def __scan_all(self, path):
         resources = []
@@ -88,6 +201,12 @@ class Exporter():
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
         #    raise OldLibrariesException()
+
+    def gen_file_progen(self, tool_name, project_data):
+        """" Generate project using ProGen Project API """
+        settings = ProjectSettings()
+        project = Project(self.program_name, [project_data], settings)
+        project.generate(tool_name, copied=True)
 
     def gen_file(self, template_file, data, target_file):
         template_path = join(Exporter.TEMPLATE_DIR, template_file)
