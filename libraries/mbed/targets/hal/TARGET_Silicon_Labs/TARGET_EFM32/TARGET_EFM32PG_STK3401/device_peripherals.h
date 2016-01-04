@@ -61,23 +61,12 @@
 /** Core clock source.
  * Options:
  * 	* HFXO: external crystal, please define frequency.
- * 	* HFRCO: High-frequency internal RC oscillator. Please select band as well.
+ * 	* HFRCO: High-frequency internal RC oscillator. Please select frequency as well.
  */
 #define CORE_CLOCK_SOURCE		HFXO
 
-/** Select HFRCO frequency */
-#define PER_CMU_HFRCO_FREQ_1MHZ   1
-#define PER_CMU_HFRCO_FREQ_2MHZ   2
-#define PER_CMU_HFRCO_FREQ_4MHZ   3
-#define PER_CMU_HFRCO_FREQ_7MHZ   4
-#define PER_CMU_HFRCO_FREQ_13MHZ  5
-#define PER_CMU_HFRCO_FREQ_16MHZ  6
-#define PER_CMU_HFRCO_FREQ_19MHZ  7
-#define PER_CMU_HFRCO_FREQ_26MHZ  8
-#define PER_CMU_HFRCO_FREQ_32MHZ  9
-#define PER_CMU_HFRCO_FREQ_38MHZ  10
-
-#define HFRCO_FREQUENCY 		PER_CMU_HFRCO_FREQ_38MHZ
+#define HFRCO_FREQUENCY_ENUM            cmuHFRCOFreq_19M0Hz
+#define HFRCO_FREQUENCY                 19000000
 
 #define LFXO_FREQUENCY			32768
 #define HFXO_FREQUENCY			40000000

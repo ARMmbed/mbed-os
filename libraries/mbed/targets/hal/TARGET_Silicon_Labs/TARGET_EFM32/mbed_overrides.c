@@ -56,32 +56,7 @@ void mbed_sdk_init()
 # if defined _CMU_HFRCOCTRL_BAND_MASK
     CMU_HFRCOBandSet(HFRCO_FREQUENCY);
 # elif defined _CMU_HFRCOCTRL_FREQRANGE_MASK
-#  ifndef PER_CMU_HFRCO_FREQ_1MHZ
-#   error "Need PER_CMU_ definitions"
-#  endif
-#  if HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_1MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_1M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_2MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_2M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_4MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_4M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_7MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_7M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_13MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_13M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_16MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_16M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_19MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_19M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_26MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_26M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_32MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_32M0Hz);
-#  elif HFRCO_FREQUENCY == PER_CMU_HFRCO_FREQ_38MHZ
-    CMU_HFRCOFreqSet(cmuHFRCOFreq_38M0Hz);
-#  else
-#   error "Invalid HFRCO clock selection"
-#  endif
+    CMU_HFRCOFreqSet(HFRCO_FREQUENCY_ENUM);
 # else
 #  error "Can't set HFRCO frequency"
 # endif
@@ -114,10 +89,6 @@ void mbed_sdk_init()
 # endif
 # ifdef _CMU_LFECLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFRCO);
-# endif
-
-# if defined _CMU_HFRCOCTRL_BAND_MASK
-    CMU_HFRCOBandSet(HFRCO_FREQUENCY);
 # endif
 
 #elif( LOW_ENERGY_CLOCK_SOURCE == ULFRCO)
