@@ -383,14 +383,14 @@ int entropy_poll( void *ctx, unsigned char *output, size_t len,
                            size_t *olen )
 {
     //TODO: change to more secure random
-    srand(time(NULL));
+    randLIB_seed_random();
     char *c = (char*)ns_dyn_mem_temporary_alloc(len);
     if( !c ){
         return MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
     }
     memset(c, 0, len);
     for(uint16_t i=0; i < len; i++){
-        c[i] = rand() % 256;
+        c[i] = (char)randLIB_get_8bit;
     }
     memmove(output, c, len);
     *olen = len;
