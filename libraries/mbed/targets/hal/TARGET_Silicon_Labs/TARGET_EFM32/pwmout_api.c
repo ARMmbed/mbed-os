@@ -80,6 +80,69 @@ uint32_t pwmout_get_channel_route(pwmout_t *obj)
     }
 }
 
+/*
+* Disables the route location given. Returns true if it was enabled, false if it wasn't.
+*/
+bool pwmout_disable_channel_route(uint32_t routeloc) {
+#ifdef TIMER_ROUTEPEN_CC0PEN
+    if(PWM_TIMER->ROUTEPEN & routeloc) {
+        //This channel was in use, so disable
+        PWM_TIMER->ROUTEPEN &= ~routeloc;
+        return true;
+    }
+#else
+    if(PWM_TIMER->ROUTE & routeloc) {
+        //This channel was in use, so disable
+        PWM_TIMER->ROUTE &= ~routeloc;
+        return true;
+    }
+#endif
+    return false;
+}
+
+/*
+* Check if a channel is active
+*/
+bool pwmout_channel_route_active(uint32_t routeloc) {
+#ifdef TIMER_ROUTEPEN_CC0PEN
+    if(PWM_TIMER->ROUTEPEN & routeloc) {
+        return true;
+    }
+#else
+    if(PWM_TIMER->ROUTE & routeloc) {
+        return true;
+    }
+#endif
+    return false;
+}
+
+/*
+* Set the given route PEN flag
+*/
+void pwmout_set_channel_route(uint32_t routeloc) {
+#ifdef TIMER_ROUTEPEN_CC0PEN
+    PWM_TIMER->ROUTEPEN |= routeloc;
+#else
+    PWM_TIMER->ROUTE    |= routeloc;
+#endif
+}
+
+/*
+* Check if all routes are disabled
+*/
+bool pwmout_all_inactive(void) {
+#ifdef TIMER_ROUTEPEN_CC0PEN
+    if(PWM_TIMER->ROUTEPEN == _TIMER_ROUTEPEN_RESETVALUE) {
+        return true;
+    }
+#else
+    if(PWM_TIMER->ROUTE == PWM_ROUTE) {
+        return true;
+    }
+#endif
+    return false;
+}
+
 void pwmout_enable_pins(pwmout_t *obj, uint8_t enable)
 {
     if (enable) {
@@ -90,28 +153,16 @@ void pwmout_enable_pins(pwmout_t *obj, uint8_t enable)
     }
 }
 
-#ifdef _TIMER_CC_CTRL_MODE_DEFAULT
 void pwmout_enable(pwmout_t *obj, uint8_t enable){
-    PWM_TIMER->CC[obj->channel].CTRL = _TIMER_CC_CTRL_MODE_DEFAULT;
     if (enable) {
-        /* Set mode to PWM */
+        // Set mode to PWM
         PWM_TIMER->CC[obj->channel].CTRL = TIMER_CC_CTRL_MODE_PWM;
+    } else {
+        // Set mode to default (== disabled)
+        PWM_TIMER->CC[obj->channel].CTRL = _TIMER_CC_CTRL_MODE_DEFAULT;
     }
 }
-#else
-void pwmout_enable(pwmout_t *obj, uint8_t enable)
-{
-    /* Start with default CC (Compare/Capture) channel parameters */
-    TIMER_InitCC_TypeDef timerCCInit = TIMER_INITCC_DEFAULT;
-    if (enable) {
-        /* Set mode to PWM */
-        timerCCInit.mode = timerCCModePWM;
-    }
 
-    /* Configure CC channel */
-    TIMER_InitCC(PWM_TIMER, obj->channel, &timerCCInit);
-}
-#endif
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
     obj->channel = (PWMName) pinmap_peripheral(pin, PinMap_PWM);
@@ -127,13 +178,20 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         TIMER_Init(PWM_TIMER, &timerInit);
     }
 
-    /* Enable correct channel */
-    uint32_t routeloc = pwmout_get_channel_route(obj);
+    // Set route enable
+    if(pwmout_channel_route_active(pwmout_get_channel_route(obj))) {
+        //This channel was already in use
+        //TODO: gracefully handle this case. mbed_error?
+        return;
+    } else {
+        pwmout_set_channel_route(pwmout_get_channel_route(obj));
+        blockSleepMode(EM1);
+        pwmout_enable(obj, true);
+        pwmout_enable_pins(obj, true);
+    }
+
+    // Set route location
 #ifdef _TIMER_ROUTELOC0_CC0LOC_LOC0
-    PWM_TIMER->ROUTEPEN |= routeloc;
-    blockSleepMode(EM1);
-    pwmout_enable(obj, true);
-    pwmout_enable_pins(obj, true);
     switch (obj->channel) {
         case PWM_CH0:
             PWM_TIMER->ROUTELOC0 &= ~_TIMER_ROUTELOC0_CC0LOC_MASK;
@@ -155,58 +213,36 @@ void pwmout_init(pwmout_t *obj, PinName pin)
             MBED_ASSERT(false);
     }
 #else
-    if(PWM_TIMER->ROUTE & routeloc) {
-        //This channel was already in use
-        //TODO: gracefully handle this case
-    } else {
-        //This channel was unused up to now
-        PWM_TIMER->ROUTE |= routeloc;
-        blockSleepMode(EM1);
-
-        //TODO: check if any channel was up already, then don't re-init timer
-        pwmout_enable(obj, true);
-        pwmout_enable_pins(obj, true);
-    }
-
-    /* Route correct channel to location 1 */
+    // On P1, the route location is statically defined for the entire timer.
     PWM_TIMER->ROUTE &= ~_TIMER_ROUTE_LOCATION_MASK;
     PWM_TIMER->ROUTE |= PWM_ROUTE;
 #endif
-    /* Set default 20ms frequency and 0ms pulse width */
+
+    // Set default 20ms frequency and 0ms pulse width
     pwmout_period(obj, 0.02);
 }
 
-#ifdef TIMER_ROUTEPEN_CC0PEN
 void pwmout_free(pwmout_t *obj)
 {
-    uint32_t routeloc = pwmout_get_channel_route(obj);
-    if(PWM_TIMER->ROUTEPEN & routeloc) {
-        //This channel was in use, so disable
-        PWM_TIMER->ROUTEPEN &= ~routeloc;
-        pwmout_enable_pins(obj, false);
+    if(pwmout_disable_channel_route(pwmout_get_channel_route(obj))) {
+        //Channel was previously enabled, so do housekeeping
         unblockSleepMode(EM1);
-
-        //TODO: check if all channels are down, then switch off timer
     } else {
         //This channel was disabled already
     }
-}
-#else
-void pwmout_free(pwmout_t *obj)
-{
-    uint32_t routeloc = pwmout_get_channel_route(obj);
-    if(PWM_TIMER->ROUTE & routeloc) {
-        //This channel was in use, so disable
-        PWM_TIMER->ROUTE &= ~routeloc;
-        pwmout_enable_pins(obj, false);
-        unblockSleepMode(EM1);
-
-        //TODO: check if all channels are down, then switch off timer
-    } else {
-        //This channel was disabled already
+    
+    pwmout_enable_pins(obj, false);
+    
+    if(pwmout_all_inactive()) {
+        //Stop timer
+        PWM_TIMER->CMD = TIMER_CMD_STOP;
+        while(PWM_TIMER->STATUS & TIMER_STATUS_RUNNING);
+        
+        //Disable clock
+        CMU_ClockEnable(PWM_TIMER_CLOCK, false);
     }
 }
-#endif
+
 void pwmout_write(pwmout_t *obj, float value)
 {
     if (value < 0.0f) {
@@ -252,7 +288,7 @@ void pwmout_period(pwmout_t *obj, float seconds)
     //Set prescaler
     PWM_TIMER->CTRL = (PWM_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | (pwm_prescaler_div << _TIMER_CTRL_PRESC_SHIFT);
 
-    /* Set Top Value, which controls the PWM period */
+    //Set Top Value, which controls the PWM period
     TIMER_TopSet(PWM_TIMER, obj->period_cycles);
 }
 
