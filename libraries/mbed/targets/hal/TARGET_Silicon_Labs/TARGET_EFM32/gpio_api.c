@@ -104,18 +104,14 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 #ifdef _GPIO_P_DOUTSET_MASK
             GPIO->P[port].DOUTSET = pin;
 #else
-            if(!(GPIO->P[port].DOUT & pin)) {
-                GPIO->P[port].DOUTTGL = pin;
-            }
+            GPIO->P[port].DOUT |= pin;
 #endif
         } else {
             //Clear DOUT
 #ifdef _GPIO_P_DOUTCLR_MASK
             GPIO->P[port].DOUTCLR = pin;
 #else
-            if(GPIO->P[port].DOUT & pin) {
-                GPIO->P[port].DOUTTGL = pin;
-            }
+            GPIO->P[port].DOUT &= ~pin;
 #endif
         }
     } else {
