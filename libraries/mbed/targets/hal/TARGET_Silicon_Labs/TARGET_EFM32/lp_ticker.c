@@ -44,9 +44,23 @@ static int rtc_reserved = 0;
 
 void lp_ticker_init()
 {
-    rtc_init_real(RTC_INIT_LPTIMER);
-    rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
-    rtc_reserved = 1;
+    if(!rtc_reserved) {
+        INT_Disable();
+        rtc_init_real(RTC_INIT_LPTIMER);
+        rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
+        rtc_reserved = 1;
+        INT_Enable();
+    }
+}
+
+void lp_ticker_free()
+{
+    if(rtc_reserved) {
+        INT_Disable();
+        rtc_free_real(RTC_INIT_LPTIMER);
+        rtc_reserved = 0;
+        INT_Enable();
+    }
 }
 
 #ifndef RTCC_COUNT
@@ -62,12 +76,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     /* Initialize RTC */
     rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
 
-    INT_Disable();
-    if(!rtc_reserved) {
-        rtc_init_real(RTC_INIT_LPTIMER);
-        rtc_reserved = 1;
-    }
-    INT_Enable();
+    lp_ticker_init();
 
     /* calculate offset value */
     timestamp_t offset = timestamp - current_time;
@@ -94,13 +103,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 inline void lp_ticker_disable_interrupt()
 {
     RTC_IntDisable(RTC_IF_COMP0);
-
-    INT_Disable();
-    if(rtc_reserved) {
-        rtc_free_real(RTC_INIT_LPTIMER);
-        rtc_reserved = 0;
-    }
-    INT_Enable();
+    lp_ticker_free();
 }
 
 inline void lp_ticker_clear_interrupt()
@@ -110,12 +113,8 @@ inline void lp_ticker_clear_interrupt()
 
 timestamp_t lp_ticker_read()
 {
-    if(!rtc_reserved) {
-        INT_Disable();
-        rtc_init_real(RTC_INIT_LPTIMER);
-        rtc_reserved = 1;
-        INT_Enable();
-    }
+    lp_ticker_init();
+    
     uint64_t ticks_temp;
     uint64_t ticks = RTC_CounterGet();
 
@@ -141,12 +140,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     /* Initialize RTC */
     rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
 
-    INT_Disable();
-    if(!rtc_reserved) {
-        rtc_init_real(RTC_INIT_LPTIMER);
-        rtc_reserved = 1;
-    }
-    INT_Enable();
+    lp_ticker_init();
 
     /* calculate offset value */
     timestamp_t offset = timestamp - current_time;
@@ -180,13 +174,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 inline void lp_ticker_disable_interrupt()
 {
     RTCC_IntDisable(RTCC_IF_CC0);
-
-    INT_Disable();
-    if(rtc_reserved) {
-        rtc_free_real(RTC_INIT_LPTIMER);
-        rtc_reserved = 0;
-    }
-    INT_Enable();
+    lp_ticker_free();
 }
 
 inline void lp_ticker_clear_interrupt()
@@ -196,12 +184,8 @@ inline void lp_ticker_clear_interrupt()
 
 timestamp_t lp_ticker_read()
 {
-    if(!rtc_reserved) {
-        INT_Disable();
-        rtc_init_real(RTC_INIT_LPTIMER);
-        rtc_reserved = 1;
-        INT_Enable();
-    }
+    lp_ticker_init();
+    
     uint64_t ticks_temp;
     uint64_t ticks = RTCC_CounterGet();
 
