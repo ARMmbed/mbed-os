@@ -46,7 +46,7 @@ class Exporter(object):
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
         return resources
 
-    def get_project_data(self):
+    def progen_get_project_data(self):
         """ Get ProGen project data  """
         # provide default data, some tools don't require any additional
         # tool specific settings
@@ -64,13 +64,19 @@ class Exporter(object):
                 'includes':  { 
                     'Include Files': self.resources.headers,
                 },
-                'target': [self.target.progen_target],
+                'target': [TARGET_MAP[self.target].progen_target],
                 'macros': self.get_symbols(),
                 'export_dir': [self.inputDir],
                 'linker_file': [self.resources.linker_script],
             }
         }
         return project_data
+
+    def progen_gen_file(self, tool_name, project_data):
+        """" Generate project using ProGen Project API """
+        settings = ProjectSettings()
+        project = Project(self.program_name, [project_data], settings)
+        project.generate(tool_name, copied=True)
 
     def __scan_all(self, path):
         resources = []
@@ -118,12 +124,6 @@ class Exporter(object):
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
         #    raise OldLibrariesException()
-
-    def gen_file_progen(self, tool_name, project_data):
-        """" Generate project using ProGen Project API """
-        settings = ProjectSettings()
-        project = Project(self.program_name, [project_data], settings)
-        project.generate(tool_name, copied=True)
 
     def gen_file(self, template_file, data, target_file):
         template_path = join(Exporter.TEMPLATE_DIR, template_file)
