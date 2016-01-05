@@ -41,7 +41,7 @@ uint8_t sercom_setup_tx_channel(uint8_t sercom_index, uint8_t *tx_id)
             sercom_channels[sercom_index].tx_status = DMA_ALLOCATED;
         } else {
             /* Couldn't find a channel */
-            return DMA_ERROR_OUT_OF_CHANNELS;
+            return (uint8_t)DMA_ERROR_OUT_OF_CHANNELS;
         }
     }
     return *tx_id;
@@ -65,7 +65,7 @@ uint8_t sercom_setup_rx_channel(uint8_t sercom_index, uint8_t *rx_id)
             sercom_channels[sercom_index].rx_status = DMA_ALLOCATED;
         } else {
             /* Couldn't find a channel */
-            return DMA_ERROR_OUT_OF_CHANNELS;
+            return (uint8_t)DMA_ERROR_OUT_OF_CHANNELS;
         }
     }
     return *rx_id;

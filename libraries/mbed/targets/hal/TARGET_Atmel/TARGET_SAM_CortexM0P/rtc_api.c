@@ -22,7 +22,7 @@
 #include "rtc_count.h"
 
 #if !defined(RTC_CLOCK_SOURCE)
-#  warning  RTC_CLOCK_SOURCE is not defined, assuming RTC_CLOCK_SELECTION_ULP1K.
+//  warning  RTC_CLOCK_SOURCE is not defined, assuming RTC_CLOCK_SELECTION_ULP1K.
 #  define RTC_CLOCK_SOURCE RTC_CLOCK_SELECTION_ULP1K
 #endif
 

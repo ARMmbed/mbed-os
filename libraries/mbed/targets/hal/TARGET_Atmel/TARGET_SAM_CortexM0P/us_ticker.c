@@ -102,7 +102,7 @@ void us_ticker_init(void)
         prescaler = 5;
     }
 
-    config_tc.clock_prescaler = TC_CTRLA_PRESCALER(prescaler);
+    config_tc.clock_prescaler = (enum tc_clock_prescaler)TC_CTRLA_PRESCALER(prescaler);
     config_tc.counter_size = TC_COUNTER_SIZE_32BIT;
     config_tc.run_in_standby = true;
     config_tc.counter_32_bit.value = 0;

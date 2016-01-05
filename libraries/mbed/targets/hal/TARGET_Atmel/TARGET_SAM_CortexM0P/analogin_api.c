@@ -192,10 +192,10 @@ void analogin_init(analogin_t *obj, PinName pin)
     static uint8_t init_flag = 0;
 
     pos_input = pinmap_find_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(pos_input != NC);
+    MBED_ASSERT(pos_input != (uint32_t)NC);
 
     adc_get_config_defaults(&(obj->config_adc));
-    obj->config_adc.positive_input = pos_input;
+    obj->config_adc.positive_input = (enum adc_positive_input)pos_input;
     if (init_flag == 0) {  // ADC init and enable to be done only once.
         adc_init(&adc_instance, ADC, &(obj->config_adc));
         adc_enable(&adc_instance);

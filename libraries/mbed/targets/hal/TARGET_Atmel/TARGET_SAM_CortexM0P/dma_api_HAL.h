@@ -43,7 +43,7 @@ enum dma_status_flags {
 #define DMA_EVENT_ALL (DMA_TRANSFER_ERROR | DMA_TRANSFER_COMPLETE)
 
 
-COMPILER_ALIGNED(16)
+//COMPILER_ALIGNED(16)
 struct dma_instance_s {
     struct dma_resource resource;
     DmacDescriptor descriptor;

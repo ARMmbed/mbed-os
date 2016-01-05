@@ -18,6 +18,7 @@
 #include "gpio_api.h"
 #include "port.h"
 
+
 #if defined(TARGET_SAMR21G18A)
 #define PORTA_MASK	0xDBDFFFF3  // mask for available pins in Port A
 #define PORTB_MASK	0xC0C3C30D  // mask for available pins in Port B
@@ -39,7 +40,7 @@ uint32_t start_pin(PortName port)
     if(port < PortMax) { /* PortC value is 2*/
         return port * 32;
     } else {
-        return NC;
+        return (uint32_t)NC;
     }
 }
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
@@ -139,7 +140,7 @@ void port_dir(port_t *obj, PinDirection dir)
     if(start == NC)
         return;
     obj->direction = dir;
-    pin_conf.input_pull = obj->mode;
+    pin_conf.input_pull = (enum port_pin_pull)obj->mode;
     pin_conf.powersave  = obj->powersave;
 
     for (i = start, j = 0; j < 32; i++, j++) {
