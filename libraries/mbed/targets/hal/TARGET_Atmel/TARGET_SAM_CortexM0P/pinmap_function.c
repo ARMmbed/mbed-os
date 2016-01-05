@@ -47,9 +47,9 @@ static uint32_t pinmap_merge_pins(uint32_t a, uint32_t b)
  */
 uint32_t pinmap_find_peripheral_from_pad(PinName pin, enum sercom_pad_selection pad_select)
 {
-    uint32_t pin_sercom = NC;
+    uint32_t pin_sercom =(uint32_t)NC;
 
-    if (pin == NC) return NC;
+    if (pin == NC) return (uint32_t)NC;
 
     if (pad_select == SERCOM_USE_EXTENDED_PAD) {
         pin_sercom = pinmap_find_peripheral(pin, PinMap_SERCOM_PADEx);
@@ -99,7 +99,7 @@ uint32_t pinmap_find_sercom(PinName pin1, PinName pin2, PinName pin3, PinName pi
 {
     int i;
     uint32_t sercom_index[4];
-    uint32_t pin_com = NC;
+    uint32_t pin_com = (uint32_t)NC;
 
     sercom_index[0] = pinmap_find_peripheral_from_pad(pin1, SERCOM_USE_DEFAULT_PAD);
     sercom_index[1] = pinmap_find_peripheral_from_pad(pin2, SERCOM_USE_DEFAULT_PAD);
@@ -112,7 +112,7 @@ uint32_t pinmap_find_sercom(PinName pin1, PinName pin2, PinName pin3, PinName pi
             if (pin_com == (uint32_t)NC) {
                 pin_com = sercom_index[i] & 0x0F;
             } else if (pin_com != (sercom_index[i] & 0x0F)) {
-                return NC;
+                return (uint32_t)NC;
             }
         }
     }
@@ -128,12 +128,12 @@ uint32_t pinmap_find_sercom(PinName pin1, PinName pin2, PinName pin3, PinName pi
  */
 uint32_t pinmap_function_sercom(PinName pin, uint32_t sercom_index)
 {
-    uint32_t func = NC;
+    uint32_t func = (uint32_t)NC;
     uint32_t index;
     sercom_index &= 0x0F;
 
     if ((pin == NC) || (sercom_index >= SERCOM_INST_NUM)) {
-        return NC;
+        return (uint32_t)NC;
     }
     index = pinmap_peripheral(pin, PinMap_SERCOM_PAD);
     if ((index & 0x0F) == sercom_index) {
@@ -145,7 +145,7 @@ uint32_t pinmap_function_sercom(PinName pin, uint32_t sercom_index)
         func = pinmap_function(pin, PinMap_SERCOM_PADEx);
         return func;
     }
-    return NC;
+    return (uint32_t)NC;
 }
 
 /** Find the MUX pad of input pin specific to given SERCOM index
@@ -160,7 +160,7 @@ uint32_t pinmap_pad_sercom(PinName pin, uint32_t sercom_index)
     sercom_index &= 0x0F;
 
     if ((pin == NC) || (sercom_index >= SERCOM_INST_NUM)) {
-        return NC;
+        return (uint32_t)NC;
     }
     index = pinmap_peripheral(pin, PinMap_SERCOM_PAD);
     if ((index & 0x0F) == sercom_index) {
@@ -170,7 +170,7 @@ uint32_t pinmap_pad_sercom(PinName pin, uint32_t sercom_index)
     if ((index & 0x0F) == sercom_index) {
         return ((index >> 4) & 0x0F);
     }
-    return NC;
+    return (uint32_t)NC;
 }
 
 /** Find the MUX function of input pin specific to given SERCOM index
@@ -201,7 +201,7 @@ uint32_t pinmap_peripheral_sercom(PinName pin, uint32_t sercom_index)
     uint32_t index = sercom_index & 0x0F;
 
     if (index >= SERCOM_INST_NUM) {
-        return NC;
+        return (uint32_t)NC;
     }
     return sercom_address[(sercom_index&0x0F)];
 }
@@ -222,5 +222,5 @@ uint32_t pinmap_channel_pwm(PinName pin, PWMName pwm)
         }
         pwm_ch++;
     }
-    return NC;
+    return (uint32_t)NC;
 }
