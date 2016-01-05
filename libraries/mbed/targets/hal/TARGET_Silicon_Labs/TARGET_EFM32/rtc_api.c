@@ -272,7 +272,7 @@ void rtc_write(time_t t)
     do {
         time = rtc_read_uncompensated();
         time_base = t - time;
-    } while (time != rtc_read_uncompensated());
+    } while (time != (uint32_t)rtc_read_uncompensated());
 }
 
 #endif
