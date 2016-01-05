@@ -37,9 +37,6 @@
 /************ADC***************/
 extern const PinMap PinMap_ADC[];
 
-/************DAC***************/
-extern const PinMap PinMap_DAC[];
-
 /************I2C SCL***********/
 extern const PinMap PinMap_I2C_SCL[];
 
