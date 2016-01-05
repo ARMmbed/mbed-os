@@ -42,6 +42,8 @@
 #include "em_dac.h"
 #include "em_cmu.h"
 
+static uint8_t dac_initialized = 0;
+
 uint8_t analogout_get_index(dac_t *obj)
 {
     return 0;
@@ -54,12 +56,12 @@ void analogout_preinit(dac_t *obj, PinName pin)
 
     obj->channel = pin_location(pin, PinMap_DAC);
     MBED_ASSERT((int) obj->channel != NC);
+    
+    pin_mode(pin, Disabled);
 }
 
 void analogout_init(dac_t *obj, PinName pin)
 {
-    static uint8_t dac_initialized = 0;
-
     /* init in-memory structure */
     analogout_preinit(obj, pin);
 
@@ -87,14 +89,18 @@ void analogout_init(dac_t *obj, PinName pin)
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
 }
 
-void analogout_enable(dac_t *obj, uint8_t enable)
+void analogout_free(dac_t *obj)
 {
-    DAC_Enable(obj->dac, obj->channel, enable);
-}
-
-void analogout_pins_enable(dac_t *obj, uint8_t enable)
-{
-    //not avail for EFM32
+    //Reset channel by re-initializing
+    DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+    initChannel.enable = false;
+    DAC_InitChannel(obj->dac, &initChannel, obj->channel);
+    
+    //Check all channels to see if we can disable the DAC completely
+    if((DAC->CH0CTRL & DAC_CH0CTRL_EN) == 0 && (DAC->CH1CTRL & DAC_CH1CTRL_EN) == 0) {
+        CMU_ClockEnable(cmuClock_DAC0, false);
+        dac_initialized = 0;
+    }
 }
 
 static inline void dac_write(dac_t *obj, int value)
