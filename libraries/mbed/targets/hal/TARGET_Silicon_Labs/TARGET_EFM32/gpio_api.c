@@ -55,7 +55,7 @@ int gpio_read(gpio_t *obj)
 
 int gpio_is_connected(const gpio_t *obj)
 {
-    return (obj->pin | 0xFFFFFF00 )!= (PinName)NC;
+    return ((uint32_t)obj->pin | 0xFFFFFF00 ) != (uint32_t)((PinName)NC);
 }
 
 /*
