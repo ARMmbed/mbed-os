@@ -34,21 +34,32 @@
 /* The third "function" value is used to select the correct ADC channel */
 const PinMap PinMap_ADC[] = {
     {PA0,  ADC_0, adcPosSelAPORT3XCH8},
+    {PA1,  ADC_0, adcPosSelAPORT4XCH9},
     {PA2,  ADC_0, adcPosSelAPORT3XCH10},
+    {PA3,  ADC_0, adcPosSelAPORT4XCH11},
     {PA4,  ADC_0, adcPosSelAPORT3XCH12},
+    {PA5,  ADC_0, adcPosSelAPORT4XCH13},
+    
+    {PB11, ADC_0, adcPosSelAPORT4XCH27},
     {PB12, ADC_0, adcPosSelAPORT3XCH28},
     {PB14, ADC_0, adcPosSelAPORT3XCH30},
+    {PB15, ADC_0, adcPosSelAPORT4XCH31},
+    
     {PC6,  ADC_0, adcPosSelAPORT1XCH6},
     {PC7,  ADC_0, adcPosSelAPORT2XCH7},
     {PC8,  ADC_0, adcPosSelAPORT1XCH8},
     {PC9,  ADC_0, adcPosSelAPORT2XCH9},
     {PC10, ADC_0, adcPosSelAPORT1XCH10},
     {PC11, ADC_0, adcPosSelAPORT2XCH11},
+    
+    {PD9,  ADC_0, adcPosSelAPORT4XCH1},
     {PD10, ADC_0, adcPosSelAPORT3XCH2},
     {PD11, ADC_0, adcPosSelAPORT3YCH3},
     {PD12, ADC_0, adcPosSelAPORT3XCH4},
     {PD13, ADC_0, adcPosSelAPORT3YCH5},
     {PD14, ADC_0, adcPosSelAPORT3XCH6},
+    {PD15, ADC_0, adcPosSelAPORT4XCH7},
+    
     {PF0,  ADC_0, adcPosSelAPORT1XCH16},
     {PF1,  ADC_0, adcPosSelAPORT2XCH17},
     {PF2,  ADC_0, adcPosSelAPORT1XCH18},
@@ -58,11 +69,6 @@ const PinMap PinMap_ADC[] = {
     {PF6,  ADC_0, adcPosSelAPORT1XCH22},
     {PF7,  ADC_0, adcPosSelAPORT2XCH23},
     {NC ,  NC   , NC}
-};
-
-/************DAC***************/
-const PinMap PinMap_DAC[] = {
-    {NC  , NC   , NC}
 };
 
 /************I2C SCL***********/
@@ -147,37 +153,37 @@ const PinMap PinMap_I2C_SDA[] = {
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
     {PA0,  PWM_CH0,  0},
-    {PA1,  PWM_CH0,  1},
-    {PA2,  PWM_CH0,  2},
-    {PA3,  PWM_CH0,  3},
-    {PA4,  PWM_CH0,  4},
-    {PA5,  PWM_CH0,  5},
-    {PB11, PWM_CH0,  6},
-    {PB12, PWM_CH0,  7},
-    {PB13, PWM_CH0,  8},
+    {PA1,  PWM_CH1,  1},
+    {PA2,  PWM_CH2,  2},
+    {PA3,  PWM_CH3,  3},
+    {PA4,  PWM_CH2,  4},
+    {PA5,  PWM_CH3,  5},
+    {PB11, PWM_CH1,  6},
+    {PB12, PWM_CH2,  7},
+    {PB13, PWM_CH3,  8},
     {PB14, PWM_CH0,  9},
     {PB15, PWM_CH0, 10},
     {PC6,  PWM_CH0, 11},
-    {PC7,  PWM_CH0, 12},
-    {PC8,  PWM_CH0, 13},
-    {PC9,  PWM_CH0, 14},
-    {PC10, PWM_CH0, 15},
-    {PC11, PWM_CH0, 16},
+    {PC7,  PWM_CH1, 12},
+    {PC8,  PWM_CH2, 13},
+    {PC9,  PWM_CH3, 14},
+    {PC10, PWM_CH2, 15},
+    {PC11, PWM_CH3, 16},
 
     {PD10, PWM_CH0, 18},
-    {PD11, PWM_CH0, 19},
-    {PD12, PWM_CH0, 20},
-    {PD13, PWM_CH0, 21},
+    {PD11, PWM_CH1, 19},
+    {PD12, PWM_CH2, 20},
+    {PD13, PWM_CH3, 21},
     {PD14, PWM_CH0, 22},
-    {PD15, PWM_CH0, 23},
+    {PD15, PWM_CH1, 23},
     {PF0,  PWM_CH0, 24},
-    {PF1,  PWM_CH0, 25},
-    {PF2,  PWM_CH0, 26},
-    {PF3,  PWM_CH0, 27},
+    {PF1,  PWM_CH1, 25},
+    {PF2,  PWM_CH2, 26},
+    {PF3,  PWM_CH3, 27},
     {PF4,  PWM_CH0, 28},
-    {PF5,  PWM_CH0, 29},
-    {PF6,  PWM_CH0, 30},
-    {PF7,  PWM_CH0, 31},
+    {PF5,  PWM_CH1, 29},
+    {PF6,  PWM_CH2, 30},
+    {PF7,  PWM_CH3, 31},
 
     {NC  , NC     , NC}
 };
