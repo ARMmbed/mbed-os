@@ -39,8 +39,6 @@
 
 gpio_t bc_enable;
 
-void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask);
-
 /* Called before main - implement here if board needs it.
  * Otherwise, let the application override this if necessary */
 void mbed_sdk_init()
@@ -112,23 +110,4 @@ void mbed_sdk_init()
 
     /* Enable BC line driver to avoid garbage on CDC port */
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
-}
-
-void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask)
-{
-    uint32_t freq = 14000000, baudrate;
-    USART_OVS_TypeDef ovs;
-
-    if(CMU->HFPERCLKEN0 & clockmask) {
-        /* Different methods for sync vs async */
-        if(usart->CTRL & USART_CTRL_SYNC) {
-            ovs  = (USART_OVS_TypeDef) (usart->CTRL & _USART_CTRL_OVS_MASK);
-            baudrate = USART_BaudrateCalc(freq, usart->CLKDIV, true, ovs);
-            USART_BaudrateSyncSet(usart, 0, baudrate);
-        } else {
-            ovs  = (USART_OVS_TypeDef) (usart->CTRL & _USART_CTRL_OVS_MASK);
-            baudrate = USART_BaudrateCalc(freq, usart->CLKDIV, false, ovs);
-            USART_BaudrateAsyncSet(usart, 0, baudrate, ovs);
-        }
-    }
 }
