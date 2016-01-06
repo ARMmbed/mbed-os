@@ -41,26 +41,16 @@
 #include "em_adc.h"
 #include "em_cmu.h"
 
-uint8_t analogin_get_index(analogin_t *obj)
-{
-    return 0; //only one module availalbe
-}
-
-void analogin_preinit(analogin_t *obj, PinName pin)
-{
-    obj->adc = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->adc != NC);
-
-    obj->channel = pin_location(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->channel != NC);
-}
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
     static uint8_t adc_initialized = 0;
 
     /* Init structure */
-    analogin_preinit(obj, pin);
+    obj->adc = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT((int) obj->adc != NC);
+
+    obj->channel = pin_location(pin, PinMap_ADC);
+    MBED_ASSERT((int) obj->channel != NC);
 
     /* Only initialize the ADC once */
     if (!adc_initialized) {
@@ -83,31 +73,6 @@ void analogin_init(analogin_t *obj, PinName pin)
         ADC_InitSingle(obj->adc, &singleInit);
 
         adc_initialized = 1;
-    }
-}
-
-void analogin_enable(analogin_t *obj, uint8_t enable)
-{
-    //not avail for EFM32
-}
-
-void analogin_enable_pins(analogin_t *obj, uint8_t enable)
-{
-    //not avail for EFM32
-}
-
-void analogin_enable_interrupt(analogin_t *obj, uint32_t address, uint8_t enable)
-{
-    NVIC_SetVector(ADC0_IRQn, address);
-    if (enable) {
-        // enable end of conversion interrupt
-        ADC_IntEnable(obj->adc, ADC_IEN_SCAN);
-        ADC_IntSet(obj->adc, ADC_IF_SCAN);
-        NVIC_EnableIRQ(ADC0_IRQn);
-    } else {
-        ADC_IntDisable(obj->adc, ADC_IEN_SCAN);
-        ADC_IntClear(obj->adc, ADC_IF_SCAN);
-        NVIC_DisableIRQ(ADC0_IRQn);
     }
 }
 
