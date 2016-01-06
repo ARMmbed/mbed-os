@@ -109,8 +109,6 @@ struct gpio_irq_s {
 #endif
 
 #if DEVICE_SERIAL
-#define SERIAL_NUM_UARTS (7)
-
 struct serial_s {
     union {
         USART_TypeDef *uart;

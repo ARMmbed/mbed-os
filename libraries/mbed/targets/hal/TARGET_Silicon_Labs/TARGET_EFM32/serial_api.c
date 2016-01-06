@@ -69,7 +69,7 @@
 #endif
 
 /* Store IRQ id for each UART */
-static uint32_t serial_irq_ids[SERIAL_NUM_UARTS] = { 0 };
+static uint32_t serial_irq_ids[MODULES_SIZE_SERIAL] = { 0 };
 /* Interrupt handler from mbed common */
 static uart_irq_handler irq_handler;
 /* Keep track of incoming DMA IRQ's */
@@ -79,7 +79,7 @@ static bool serial_dma_irq_fired[DMACTRL_CH_CNT] = { false };
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-static void uart_irq(UARTName, int, SerialIrq);
+static void uart_irq(UARTName, SerialIrq);
 static uint8_t serial_get_index(serial_t *obj);
 static void serial_enable(serial_t *obj, uint8_t enable);
 static void serial_enable_pins(serial_t *obj, uint8_t enable);
@@ -95,34 +95,34 @@ static void serial_leuart_baud(serial_t *obj, int baudrate);
 
 /* ISRs for RX and TX events */
 #ifdef UART0
-static void uart0_rx_irq() { uart_irq(UART_0, 0, RxIrq); }
-static void uart0_tx_irq() { uart_irq(UART_0, 0, TxIrq); USART_IntClear((USART_TypeDef*)UART_0, USART_IFC_TXC);}
+static void uart0_rx_irq() { uart_irq(UART_0, RxIrq); }
+static void uart0_tx_irq() { uart_irq(UART_0, TxIrq); USART_IntClear((USART_TypeDef*)UART_0, USART_IFC_TXC);}
 #endif
 #ifdef UART1
-static void uart1_rx_irq() { uart_irq(UART_1, 1, RxIrq); }
-static void uart1_tx_irq() { uart_irq(UART_1, 1, TxIrq); USART_IntClear((USART_TypeDef*)UART_1, USART_IFC_TXC);}
+static void uart1_rx_irq() { uart_irq(UART_1, RxIrq); }
+static void uart1_tx_irq() { uart_irq(UART_1, TxIrq); USART_IntClear((USART_TypeDef*)UART_1, USART_IFC_TXC);}
 #endif
 #ifdef USART0
-static void usart0_rx_irq() { uart_irq(USART_0, 2, RxIrq); }
-static void usart0_tx_irq() { uart_irq(USART_0, 2, TxIrq); USART_IntClear((USART_TypeDef*)USART_0, USART_IFC_TXC);}
+static void usart0_rx_irq() { uart_irq(USART_0, RxIrq); }
+static void usart0_tx_irq() { uart_irq(USART_0, TxIrq); USART_IntClear((USART_TypeDef*)USART_0, USART_IFC_TXC);}
 #endif
 #ifdef USART1
-static void usart1_rx_irq() { uart_irq(USART_1, 3, RxIrq); }
-static void usart1_tx_irq() { uart_irq(USART_1, 3, TxIrq); USART_IntClear((USART_TypeDef*)USART_1, USART_IFC_TXC);}
+static void usart1_rx_irq() { uart_irq(USART_1, RxIrq); }
+static void usart1_tx_irq() { uart_irq(USART_1, TxIrq); USART_IntClear((USART_TypeDef*)USART_1, USART_IFC_TXC);}
 #endif
 #ifdef USART2
-static void usart2_rx_irq() { uart_irq(USART_2, 4, RxIrq); }
-static void usart2_tx_irq() { uart_irq(USART_2, 4, TxIrq); USART_IntClear((USART_TypeDef*)USART_2, USART_IFC_TXC);}
+static void usart2_rx_irq() { uart_irq(USART_2, RxIrq); }
+static void usart2_tx_irq() { uart_irq(USART_2, TxIrq); USART_IntClear((USART_TypeDef*)USART_2, USART_IFC_TXC);}
 #endif
 #ifdef LEUART0
 static void leuart0_irq()
 {
     if(LEUART_IntGetEnabled(LEUART0) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF)) {
-        uart_irq(LEUART_0, 5, RxIrq);
+        uart_irq(LEUART_0, RxIrq);
     }
 
     if(LEUART_IntGetEnabled(LEUART0) & (LEUART_IF_TXC | LEUART_IF_TXBL | LEUART_IF_TXOF)) {
-        uart_irq(LEUART_0, 5, TxIrq);
+        uart_irq(LEUART_0, TxIrq);
         LEUART_IntClear(LEUART0, LEUART_IFC_TXC);
     }
 }
@@ -131,11 +131,11 @@ static void leuart0_irq()
 static void leuart1_irq()
 {
     if(LEUART_IntGetEnabled(LEUART1) & (LEUART_IF_RXDATAV | LEUART_IF_FERR | LEUART_IF_PERR | LEUART_IF_RXOF)) {
-        uart_irq(LEUART_1, 6, RxIrq);
+        uart_irq(LEUART_1, RxIrq);
     }
 
     if(LEUART_IntGetEnabled(LEUART1) & (LEUART_IF_TXC | LEUART_IF_TXBL | LEUART_IF_TXOF)) {
-        uart_irq(LEUART_1, 6, TxIrq);
+        uart_irq(LEUART_1, TxIrq);
         LEUART_IntClear(LEUART1, LEUART_IFC_TXC);
     }
 }
@@ -215,46 +215,55 @@ static void uart_init(serial_t *obj, uint32_t baudrate, SerialParity parity, int
         USART_InitAsync(obj->serial.periph.uart, &init);
     }
 }
+/**
+* Get index of serial object, relating it to the physical peripheral.
+*
+* @param obj pointer to serial peripheral (= base address of periph)
+* @return internal index of U(S)ART peripheral
+*/
+static inline uint8_t serial_pointer_get_index(uint32_t serial_ptr)
+{
+    uint8_t index = 0;
+#ifdef UART0
+    if (serial_ptr == UART_0) return index;
+    index++;
+#endif
+#ifdef UART1
+    if (serial_ptr == UART_1) return index;
+    index++;
+#endif
+#ifdef USART0
+    if (serial_ptr == USART_0) return index;
+    index++;
+#endif
+#ifdef USART1
+    if (serial_ptr == USART_1) return index;
+    index++;
+#endif
+#ifdef USART2
+    if (serial_ptr == USART_2) return index;
+    index++;
+#endif
+#ifdef LEUART0
+    if (serial_ptr == LEUART_0) return index;
+    index++;
+#endif
+#ifdef LEUART1
+    if (serial_ptr == LEUART_1) return index;
+    index++;
+#endif
+    return 0;
+}
 
 /**
 * Get index of serial object, relating it to the physical peripheral.
 *
-* @param obj pointer to serial object
+* @param obj pointer to serial object (mbed object)
 * @return internal index of U(S)ART peripheral
 */
 static inline uint8_t serial_get_index(serial_t *obj)
 {
-    switch ((uint32_t)obj->serial.periph.uart) {
-#ifdef UART0
-        case UART_0:
-            return 0;
-#endif
-#ifdef UART1
-        case UART_1:
-            return 1;
-#endif
-#ifdef USART0
-        case USART_0:
-            return 2;
-#endif
-#ifdef USART1
-        case USART_1:
-            return 3;
-#endif
-#ifdef USART2
-        case USART_2:
-            return 4;
-#endif
-#ifdef LEUART0
-        case LEUART_0:
-            return 5;
-#endif
-#ifdef LEUART1
-        case LEUART_1:
-            return 6;
-#endif
-    }
-    return 0;
+    return serial_pointer_get_index((uint32_t)obj->serial.periph.uart);
 }
 
 /**
@@ -899,8 +908,9 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 /**
  * Generic ISR for all UARTs, both TX and RX
  */
-static void uart_irq(UARTName name, int index, SerialIrq irq)
+static void uart_irq(UARTName name, SerialIrq irq)
 {
+    uint8_t index = serial_pointer_get_index((uint32_t)name);
     if (serial_irq_ids[index] != 0) {
         /* Pass interrupt on to mbed common handler */
         irq_handler(serial_irq_ids[index], irq);
