@@ -278,7 +278,7 @@ def main(arguments):
 
     create_build_parser = subparsers.add_parser('create-build', help='create a new build')
     create_build_parser.add_argument('-b', '--build-number', required=True, help='build number')
-    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull_Request'], required=True, help='type of build')
+    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull_Request', 'Release'], required=True, help='type of build')
     create_build_parser.add_argument('-s', '--build-source', required=True, help='url to source of build')
     create_build_parser.add_argument('-p', '--property-file-format', action='store_true', help='print result in the property file format')
     create_build_parser.set_defaults(func=create_build)
