@@ -61,6 +61,20 @@ void SystemCoreClockUpdate(void)
 
 void SystemInit(void)
 {
+#if defined(TARGET_NRF_32MHZ_XTAL)
+    // For 32MHz external XTAL such as Taiyo Yuden
+    if (*(uint32_t *)0x10001008 == 0xFFFFFFFF)
+    {
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
+        *(uint32_t *)0x10001008 = 0xFFFFFF00;
+        NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Ren << NVMC_CONFIG_WEN_Pos;
+        while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
+        NVIC_SystemReset();
+        while (true){}
+    }
+#endif
+
     /* If desired, switch off the unused RAM to lower consumption by the use of RAMON register.
        It can also be done in the application main() function. */
 
