@@ -44,13 +44,9 @@
 
 static uint8_t dac_initialized = 0;
 
-uint8_t analogout_get_index(dac_t *obj)
+void analogout_init(dac_t *obj, PinName pin)
 {
-    return 0;
-}
-
-void analogout_preinit(dac_t *obj, PinName pin)
-{
+    /* init in-memory structure */
     obj->dac = (DAC_TypeDef *) pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT((int) obj->dac != NC);
 
@@ -58,12 +54,6 @@ void analogout_preinit(dac_t *obj, PinName pin)
     MBED_ASSERT((int) obj->channel != NC);
     
     pin_mode(pin, Disabled);
-}
-
-void analogout_init(dac_t *obj, PinName pin)
-{
-    /* init in-memory structure */
-    analogout_preinit(obj, pin);
 
     if (!dac_initialized) {
         /* Initialize the DAC. Will disable both DAC channels, so should only be done once */
