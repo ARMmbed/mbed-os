@@ -22,12 +22,13 @@
 using namespace utest::v1;
 
 static status_t greentea_unknown_test_setup_handler(const size_t);
-static void selftest_failure_handler(const failure_t reason);
+static void selftest_failure_handler(const failure_t failure);
+static void test_failure_handler(const failure_t failure);
 
 const handlers_t utest::v1::verbose_continue_handlers = {
     verbose_test_setup_handler,
     verbose_test_teardown_handler,
-    ignore_handler,
+    test_failure_handler,
     verbose_case_setup_handler,
     verbose_case_teardown_handler,
     verbose_case_failure_handler
@@ -35,7 +36,7 @@ const handlers_t utest::v1::verbose_continue_handlers = {
 const handlers_t utest::v1::greentea_abort_handlers = {
     greentea_unknown_test_setup_handler,
     greentea_test_teardown_handler,
-    ignore_handler,
+    test_failure_handler,
     greentea_case_setup_handler,
     greentea_case_teardown_handler,
     greentea_case_failure_abort_handler
@@ -43,7 +44,7 @@ const handlers_t utest::v1::greentea_abort_handlers = {
 const handlers_t utest::v1::greentea_continue_handlers = {
     greentea_unknown_test_setup_handler,
     greentea_test_teardown_handler,
-    ignore_handler,
+    test_failure_handler,
     greentea_case_setup_handler,
     greentea_case_teardown_handler,
     greentea_case_failure_continue_handler
@@ -65,9 +66,19 @@ static status_t greentea_unknown_test_setup_handler(const size_t) {
 
     return STATUS_ABORT;
 }
-static void selftest_failure_handler(const failure_t reason) {
-    if (reason == FAILURE_ASSERTION) {
-        printf(">>> failure with reason '%s (in selftest)'\n{{failure}}\n{{end}}\n", stringify(reason));
+static void selftest_failure_handler(const failure_t failure) {
+    if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN || failure.reason == REASON_ASSERTION) {
+        verbose_test_failure_handler(failure);
+    }
+    if (failure.reason == REASON_ASSERTION) {
+        printf("{{failure}}\n{{end}}\n");
+        while(1) ;
+    }
+}
+static void test_failure_handler(const failure_t failure) {
+    if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
+        verbose_test_failure_handler(failure);
+        printf("{{failure}}\n{{end}}\n");
         while(1) ;
     }
 }
@@ -82,17 +93,17 @@ status_t utest::v1::verbose_test_setup_handler(const size_t number_of_cases)
 void utest::v1::verbose_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
     printf("\n>>> Test cases: %u passed, %u failed", passed, failed);
-    if (failure == FAILURE_NONE) {
+    if (failure.reason == REASON_NONE) {
         printf("\n");
     } else  {
-        printf(" with reason '%s'\n", stringify(failure));
+        printf(" with reason '%s'\n", stringify(failure.reason));
     }
     if (failed) printf(">>> TESTS FAILED!\n");
 }
 
-void utest::v1::verbose_test_failure_handler(const failure_t reason)
+void utest::v1::verbose_test_failure_handler(const failure_t failure)
 {
-    printf(">>> failure with reason '%s'\n", stringify(reason));
+    printf(">>> failure with reason '%s' during '%s'\n", stringify(failure.reason), stringify(failure.location));
 }
 
 // --- VERBOSE CASE HANDLERS ---
@@ -105,21 +116,21 @@ status_t utest::v1::verbose_case_setup_handler(const Case *const source, const s
 status_t utest::v1::verbose_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     printf(">>> '%s': %u passed, %u failed", source->get_description(), passed, failed);
-    if (failure == FAILURE_NONE) {
+    if (failure.reason == REASON_NONE) {
         printf("\n");
     } else  {
-        printf(" with reason '%s'\n", stringify(failure));
+        printf(" with reason '%s'\n", stringify(failure.reason));
     }
     return STATUS_CONTINUE;
 }
 
-status_t utest::v1::verbose_case_failure_handler(const Case *const /*source*/, const failure_t reason)
+status_t utest::v1::verbose_case_failure_handler(const Case *const /*source*/, const failure_t failure)
 {
-    if (!(reason & FAILURE_ASSERTION)) {
-        verbose_test_failure_handler(reason);
+    if (!(failure.reason & REASON_ASSERTION)) {
+        verbose_test_failure_handler(failure);
     }
-    if (reason & FAILURE_TEARDOWN) return STATUS_ABORT;
-    if (reason & FAILURE_IGNORE)   return STATUS_IGNORE;
+    if (failure.reason & (REASON_TEST_TEARDOWN | REASON_CASE_TEARDOWN)) return STATUS_ABORT;
+    if (failure.reason & REASON_IGNORE) return STATUS_IGNORE;
     return STATUS_CONTINUE;
 }
 
@@ -133,7 +144,7 @@ status_t utest::v1::greentea_test_setup_handler(const size_t number_of_cases)
 void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
     verbose_test_teardown_handler(passed, failed, failure);
-    if (failed || (failure && !(failure & FAILURE_IGNORE))) {
+    if (failed || (failure.reason && !(failure.reason & REASON_IGNORE))) {
         printf("{{failure}}\n");
     } else {
         printf("{{success}}\n");
@@ -157,13 +168,13 @@ status_t utest::v1::greentea_case_teardown_handler(const Case *const source, con
     return verbose_case_teardown_handler(source, passed, failed, failure);
 }
 
-status_t utest::v1::greentea_case_failure_abort_handler(const Case *const source, const failure_t reason)
+status_t utest::v1::greentea_case_failure_abort_handler(const Case *const source, const failure_t failure)
 {
-    status_t status = verbose_case_failure_handler(source, reason);
+    status_t status = verbose_case_failure_handler(source, failure);
     return (status & STATUS_IGNORE) ? STATUS_IGNORE : STATUS_ABORT;
 }
 
-status_t utest::v1::greentea_case_failure_continue_handler(const Case *const source, const failure_t reason)
+status_t utest::v1::greentea_case_failure_continue_handler(const Case *const source, const failure_t failure)
 {
-    return verbose_case_failure_handler(source, reason);
+    return verbose_case_failure_handler(source, failure);
 }

@@ -76,7 +76,7 @@ namespace v1 {
 
         /// Raising a failure causes the failure to be counted and the failure handler to be called.
         /// Further action then depends on its return state.
-        static void raise_failure(const failure_t reason);
+        static void raise_failure(const failure_reason_t reason);
 
     protected:
         static void run_next_case();

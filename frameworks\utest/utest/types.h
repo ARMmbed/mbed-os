@@ -50,16 +50,45 @@ namespace v1 {
         STATUS_ABORT = 2        ///< stops testing
     };
 
-    enum failure_t {
-        FAILURE_NONE = 0,       ///< No failure occurred
-        FAILURE = 1,            ///< An unknown failure occurred
-        FAILURE_CASES = 2,      ///< A failure occurred in at least one test case
-        FAILURE_EMPTY_CASE = 4, ///< The test case contains only empty handlers
-        FAILURE_SETUP = 8,      ///< A failure occurred on setup
-        FAILURE_TEARDOWN = 16,  ///< A failure occurred on teardown
-        FAILURE_TIMEOUT = 32,   ///< An expected asynchronous call timed out
-        FAILURE_ASSERTION = 64, ///< An assertion failed
-        FAILURE_IGNORE = 0x8000 ///< A failure occurred, but may be ignored
+    enum failure_reason_t {
+        REASON_NONE          = 0,           ///< No failure occurred
+
+        REASON_UNKNOWN       = (1 << 0),    ///< An unknown failure occurred
+        REASON_CASES         = (1 << 1),    ///< A failure occurred in at least one test case
+        REASON_EMPTY_CASE    = (1 << 2),    ///< The test case contains only empty handlers
+        REASON_TIMEOUT       = (1 << 3),    ///< An expected asynchronous call timed out
+        REASON_ASSERTION     = (1 << 4),    ///< An assertion failed
+
+        REASON_TEST_SETUP    = (1 << 5),    ///< Test setup failed
+        REASON_TEST_TEARDOWN = (1 << 6),    ///< Test teardown failed
+        REASON_CASE_SETUP    = (1 << 7),    ///< Case setup failed
+        REASON_CASE_HANDLER  = (1 << 8),    ///< Case handler failed
+        REASON_CASE_TEARDOWN = (1 << 9),    ///< Case teardown failed
+
+        REASON_IGNORE        = 0x8000       ///< The failure may be ignored
+    };
+
+    enum location_t {
+        LOCATION_NONE = 0,      ///< No location information
+        LOCATION_TEST_SETUP,    ///< A failure occurred in the test setup
+        LOCATION_TEST_TEARDOWN, ///< A failure occurred in the test teardown
+        LOCATION_CASE_SETUP,    ///< A failure occurred in the case setup
+        LOCATION_CASE_HANDLER,  ///< A failure occurred in the case handler
+        LOCATION_CASE_TEARDOWN, ///< A failure occurred in the case teardown
+        LOCATION_UNKNOWN        ///< A failure occurred in an unknown location
+    };
+
+    struct failure_t {
+        failure_t(failure_reason_t reason) : reason(reason) {}
+        failure_t(location_t location) : location(location) {}
+        failure_t(failure_reason_t reason, location_t location) : reason(reason), location(location) {}
+
+        failure_t ignored() const {
+            return failure_t(failure_reason_t(reason | REASON_IGNORE), location);
+        }
+
+        failure_reason_t reason = REASON_NONE;
+        location_t location = LOCATION_NONE;
     };
 
     enum {
@@ -68,9 +97,13 @@ namespace v1 {
         TIMEOUT_FOREVER = uint32_t(-3)  ///< Never time out
     };
 
+    /// Stringifies a failure reason for understandable error messages.
+    const char* stringify(failure_reason_t reason);
     /// Stringifies a failure for understandable error messages.
     const char* stringify(failure_t failure);
-    /// Stringifies a status for understandable status messages.
+    /// Stringifies a location.
+    const char* stringify(location_t location);
+    /// Stringifies a status.
     const char* stringify(status_t status);
 
     /** Control class for specifying test case attributes
@@ -194,7 +227,7 @@ namespace v1 {
      *
      * @returns
      *    You can return `STATUS_ABORT` if you initialization failed and the test teardown handler will
-     *    then be called with the `FAILURE_SETUP`.
+     *    then be called with the `REASON_SETUP`.
      */
     typedef status_t (*test_setup_handler_t)(const size_t number_of_cases);
 
@@ -203,7 +236,7 @@ namespace v1 {
      * This handler is called after execution of all test case or if test execution is aborted.
      * You can use this handler to de-initialize your test environment and output test statistics.
      * The failure argument contains the immediate reason why this handler is called.
-     * If the test completed normally without failures, this will contain `FAILURE_NONE`.
+     * If the test completed normally without failures, this will contain `REASON_NONE`.
      *
      * After execution of this handler, the test harness will stop execution.
      *
@@ -232,7 +265,7 @@ namespace v1 {
      *
      * @returns
      *    You can return `STATUS_ABORT` to indicate that your setup failed, which will call the case
-     *    failure handler with `FAILURE_SETUP` and then the case teardown handler with `FAILURE_SETUP`.
+     *    failure handler with `REASON_SETUP` and then the case teardown handler with `REASON_SETUP`.
      *    This gives the teardown handler a chance to clean up a failed setup.
      */
     typedef status_t (*case_setup_handler_t)(const Case *const source, const size_t index_of_case);
@@ -279,7 +312,7 @@ namespace v1 {
      *
      * @returns
      *    You can return `STATUS_ABORT` to indicate that your teardown failed, which will call the case
-     *    failure handler with `FAILURE_TEARDOWN`.
+     *    failure handler with `REASON_TEARDOWN`.
      */
     typedef status_t (*case_teardown_handler_t)(const Case *const source, const size_t passed, const size_t failed, const failure_t reason);
 

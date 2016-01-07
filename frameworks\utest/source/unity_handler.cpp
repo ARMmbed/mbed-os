@@ -21,11 +21,11 @@
 extern "C"
 void utest_unity_assert_failure()
 {
-    utest::v1::Harness::raise_failure(utest::v1::FAILURE_ASSERTION);
+    utest::v1::Harness::raise_failure(utest::v1::REASON_ASSERTION);
 }
 
 extern "C"
 void utest_unity_ignore_failure()
 {
-    utest::v1::Harness::raise_failure(utest::v1::failure_t(utest::v1::FAILURE_ASSERTION | utest::v1::FAILURE_IGNORE));
+    utest::v1::Harness::raise_failure(utest::v1::failure_reason_t(utest::v1::REASON_ASSERTION | utest::v1::REASON_IGNORE));
 }

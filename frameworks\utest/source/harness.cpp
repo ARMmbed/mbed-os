@@ -46,6 +46,8 @@ namespace
 
     handlers_t defaults = default_handlers;
     handlers_t handlers = defaults;
+
+    location_t location = LOCATION_UNKNOWN;
 }
 
 static void die() {
@@ -82,10 +84,11 @@ bool Harness::run(const Specification& specification, std::size_t start_case)
     case_failed = 0;
     case_failed_before = 0;
     case_current = &test_cases[start_case];
+    location = LOCATION_TEST_SETUP;
 
     if (handlers.test_setup && (handlers.test_setup(test_length) != STATUS_CONTINUE)) {
-        if (handlers.test_failure) handlers.test_failure(FAILURE_SETUP);
-        if (handlers.test_teardown) handlers.test_teardown(0, 0, FAILURE_SETUP);
+        if (handlers.test_failure) handlers.test_failure(failure_t(REASON_TEST_SETUP, location));
+        if (handlers.test_teardown) handlers.test_teardown(0, 0, failure_t(REASON_TEST_SETUP, location));
         test_cases = NULL;
         return true;
     }
@@ -94,14 +97,14 @@ bool Harness::run(const Specification& specification, std::size_t start_case)
     return true;
 }
 
-void Harness::raise_failure(const failure_t reason)
+void Harness::raise_failure(const failure_reason_t reason)
 {
     status_t fail_status = STATUS_ABORT;
     {
         mbed::util::CriticalSectionLock lock;
 
-        if (handlers.test_failure) handlers.test_failure(reason);
-        if (handlers.case_failure) fail_status = handlers.case_failure(case_current, reason);
+        if (handlers.test_failure) handlers.test_failure(failure_t(reason, location));
+        if (handlers.case_failure) fail_status = handlers.case_failure(case_current, failure_t(reason, location));
         if (!(fail_status & STATUS_IGNORE)) case_failed++;
 
         if ((fail_status & STATUS_ABORT) && case_timeout_handle)
@@ -111,18 +114,22 @@ void Harness::raise_failure(const failure_t reason)
         }
     }
 
-    if (fail_status & STATUS_ABORT || reason & FAILURE_SETUP) {
-        if (handlers.case_teardown && !(reason & FAILURE_TEARDOWN)) {
-            status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, reason);
+    if (fail_status & STATUS_ABORT || reason & REASON_CASE_SETUP) {
+        if (handlers.case_teardown && location != LOCATION_CASE_TEARDOWN) {
+            location_t fail_loc(location);
+            location = LOCATION_CASE_TEARDOWN;
+            status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, failure_t(reason, fail_loc));
             if (teardown_status != STATUS_CONTINUE) {
-                raise_failure(FAILURE_TEARDOWN);
+                raise_failure(REASON_CASE_TEARDOWN);
             }
             else handlers.case_teardown = NULL;
         }
     }
     if (fail_status & STATUS_ABORT) {
         test_failed++;
-        if (handlers.test_teardown) handlers.test_teardown(test_passed, test_failed, reason);
+        failure_t fail(reason, location);
+        location = LOCATION_TEST_TEARDOWN;
+        if (handlers.test_teardown) handlers.test_teardown(test_passed, test_failed, fail);
         die();
     }
 }
@@ -134,10 +141,11 @@ void Harness::schedule_next_case()
     }
 
     if (case_control.repeat & REPEAT_SETUP_TEARDOWN || !(case_control.repeat & (REPEAT_ON_TIMEOUT | REPEAT_ON_VALIDATE))) {
+        location = LOCATION_CASE_TEARDOWN;
         if (handlers.case_teardown &&
             (handlers.case_teardown(case_current, case_passed, case_failed,
-                                     case_failed ? FAILURE_CASES : FAILURE_NONE) != STATUS_CONTINUE)) {
-            raise_failure(FAILURE_TEARDOWN);
+                    case_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE)) != STATUS_CONTINUE)) {
+            raise_failure(REASON_CASE_TEARDOWN);
         }
     }
 
@@ -167,7 +175,7 @@ void Harness::handle_timeout()
         }
     }
     if (case_timeout_occurred) {
-        raise_failure(failure_t(FAILURE_TIMEOUT | ((case_control.repeat & REPEAT_ON_TIMEOUT) ? FAILURE_IGNORE : 0)));
+        raise_failure(failure_reason_t(REASON_TIMEOUT | ((case_control.repeat & REPEAT_ON_TIMEOUT) ? REASON_IGNORE : 0)));
         minar::Scheduler::postCallback(schedule_next_case);
     }
 }
@@ -206,7 +214,8 @@ void Harness::run_next_case()
         handlers.case_failure  = defaults.get_handler(case_current->failure_handler);
 
         if (case_current->is_empty()) {
-            raise_failure(FAILURE_EMPTY_CASE);
+            location = LOCATION_UNKNOWN;
+            raise_failure(REASON_EMPTY_CASE);
             schedule_next_case();
             return;
         }
@@ -221,14 +230,16 @@ void Harness::run_next_case()
         }
 
         if (setup_repeat & REPEAT_SETUP_TEARDOWN) {
+            location = LOCATION_CASE_SETUP;
             if (handlers.case_setup && (handlers.case_setup(case_current, test_index_of_case) != STATUS_CONTINUE)) {
-                raise_failure(FAILURE_SETUP);
+                raise_failure(REASON_CASE_SETUP);
                 schedule_next_case();
                 return;
             }
         }
 
         case_failed_before = case_failed;
+        location = LOCATION_CASE_HANDLER;
 
         if (case_current->handler) {
             case_current->handler();
@@ -258,7 +269,8 @@ void Harness::run_next_case()
         }
     }
     else if (handlers.test_teardown) {
-        handlers.test_teardown(test_passed, test_failed, test_failed ? FAILURE_CASES : FAILURE_NONE);
+        location = LOCATION_TEST_TEARDOWN;
+        handlers.test_teardown(test_passed, test_failed, test_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
         test_cases = NULL;
     }
 }

@@ -18,40 +18,80 @@
 
  #include "utest/types.h"
 
-const char* utest::v1::stringify(utest::v1::failure_t failure)
+const char* utest::v1::stringify(utest::v1::failure_reason_t reason)
 {
     const char *string;
-    switch(failure & ~FAILURE_IGNORE)
+    switch(reason & ~REASON_IGNORE)
     {
-        case FAILURE_NONE:
+        case REASON_NONE:
             string = "Ignored: No Failure";
             break;
-        case FAILURE:
-            string = "Ignored: Unspecified Failure";
-            break;
-        case FAILURE_CASES:
+        case REASON_CASES:
             string = "Ignored: Test Cases Failed";
             break;
-        case FAILURE_EMPTY_CASE:
+        case REASON_EMPTY_CASE:
             string = "Ignored: Test Case is Empty";
             break;
-        case FAILURE_SETUP:
-            string = "Ignored: Setup Failed";
-            break;
-        case FAILURE_TEARDOWN:
-            string = "Ignored: Teardown Failed";
-            break;
-        case FAILURE_TIMEOUT:
+        case REASON_TIMEOUT:
             string = "Ignored: Timed Out";
             break;
-        case FAILURE_ASSERTION:
+        case REASON_ASSERTION:
             string = "Ignored: Assertion Failed";
             break;
+        case REASON_TEST_SETUP:
+            string = "Ignored: Test Setup Failed";
+            break;
+        case REASON_TEST_TEARDOWN:
+            string = "Ignored: Test Teardown Failed";
+            break;
+        case REASON_CASE_SETUP:
+            string = "Ignored: Case Setup Failed";
+            break;
+        case REASON_CASE_HANDLER:
+            string = "Ignored: Case Handler Failed";
+            break;
+        case REASON_CASE_TEARDOWN:
+            string = "Ignored: Case Teardown Failed";
+            break;
         default:
+        case REASON_UNKNOWN:
             string = "Ignored: Unknown Failure";
             break;
     }
-    if (!(failure & FAILURE_IGNORE)) string += 9;
+    if (!(reason & REASON_IGNORE)) string += 9;
+    return string;
+}
+
+const char* utest::v1::stringify(utest::v1::failure_t failure)
+{
+    return stringify(failure.reason);
+}
+
+const char* utest::v1::stringify(utest::v1::location_t location)
+{
+    const char *string;
+    switch(location)
+    {
+        case LOCATION_TEST_SETUP:
+            string = "Test Setup Handler";
+            break;
+        case LOCATION_TEST_TEARDOWN:
+            string = "Test Teardown Handler";
+            break;
+        case LOCATION_CASE_SETUP:
+            string = "Case Setup Handler";
+            break;
+        case LOCATION_CASE_HANDLER:
+            string = "Case Handler";
+            break;
+        case LOCATION_CASE_TEARDOWN:
+            string = "Case Teardown Handler";
+            break;
+        default:
+        case LOCATION_UNKNOWN:
+            string = "Unknown Location";
+            break;
+    }
     return string;
 }
 
