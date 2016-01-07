@@ -174,19 +174,20 @@ def add_project_run(projectRuns, project):
 
     elem[project['project']] = project
 
-def update_project_run_results(project_to_update, project):
-    project_to_update['pass'] = project['pass']
-    project_to_update['result'] = project['result']
-
-    if 'buildOutput' in project:
+def update_project_run_results(project_to_update, project, is_build):
+    if is_build:
+        project_to_update['buildPass'] = project['buildPass']
+        project_to_update['buildResult'] = project['buildResult']
         project_to_update['buildOutput'] = project['buildOutput']
     else:
+        project_to_update['testPass'] = project['testPass']
+        project_to_update['testResult'] = project['testResult']
         project_to_update['testOutput'] = project['testOutput']
 
-def update_project_run(projectRuns, project):
+def update_project_run(projectRuns, project, is_build):
     found_project = find_project_run(projectRuns, project)
     if found_project:
-        update_project_run_results(found_project, project)
+        update_project_run_results(found_project, project, is_build)
     else:
         add_project_run(projectRuns, project)
 
@@ -245,18 +246,27 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
 
                 errors = test_case.findall('error')
                 failures = test_case.findall('failure')
+                projectRunPass = None
+                result = None
 
                 if errors:
-                    projectRun['pass'] = False
-                    projectRun['result'] = errors[0].attrib['message']
+                    projectRunPass = False
+                    result = errors[0].attrib['message']
                 elif failures:
-                    projectRun['pass'] = False
-                    projectRun['result'] = failures[0].attrib['message']
+                    projectRunPass = False
+                    result = failures[0].attrib['message']
                 else:
-                    projectRun['pass'] = True
-                    projectRun['result'] = 'OK'
+                    projectRunPass = True
+                    result = 'OK'
 
-                update_project_run(project_run_data['projectRuns'], projectRun)
+                if is_build:
+                    projectRun['buildPass'] = projectRunPass
+                    projectRun['buildResult'] = result
+                else:
+                    projectRun['testPass'] = projectRunPass
+                    projectRun['testResult'] = result
+
+                update_project_run(project_run_data['projectRuns'], projectRun, is_build)
 
 def main(arguments):
     # Register and parse command line arguments
@@ -268,7 +278,7 @@ def main(arguments):
 
     create_build_parser = subparsers.add_parser('create-build', help='create a new build')
     create_build_parser.add_argument('-b', '--build-number', required=True, help='build number')
-    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull_Request'], required=True, help='type of build')
+    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull_Request', 'Release'], required=True, help='type of build')
     create_build_parser.add_argument('-s', '--build-source', required=True, help='url to source of build')
     create_build_parser.add_argument('-p', '--property-file-format', action='store_true', help='print result in the property file format')
     create_build_parser.set_defaults(func=create_build)

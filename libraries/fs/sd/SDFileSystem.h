@@ -54,10 +54,10 @@ public:
     SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs, const char* name);
     virtual int disk_initialize();
     virtual int disk_status();
-    virtual int disk_read(uint8_t* buffer, uint64_t block_number, uint8_t count);
-    virtual int disk_write(const uint8_t* buffer, uint64_t block_number, uint8_t count);
+    virtual int disk_read(uint8_t* buffer, uint32_t block_number, uint32_t count);
+    virtual int disk_write(const uint8_t* buffer, uint32_t block_number, uint32_t count);
     virtual int disk_sync();
-    virtual uint64_t disk_sectors();
+    virtual uint32_t disk_sectors();
 
 protected:
 
@@ -71,8 +71,8 @@ protected:
 
     int _read(uint8_t * buffer, uint32_t length);
     int _write(const uint8_t *buffer, uint32_t length);
-    uint64_t _sd_sectors();
-    uint64_t _sectors;
+    uint32_t _sd_sectors();
+    uint32_t _sectors;
 
     void set_init_sck(uint32_t sck) { _init_sck = sck; }
     // Note: The highest SPI clock rate is 20 MHz for MMC and 25 MHz for SD

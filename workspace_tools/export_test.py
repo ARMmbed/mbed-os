@@ -122,6 +122,7 @@ if __name__ == '__main__':
             ('uvision', 'LPC4337'),
             ('uvision', 'HRM1017'),
 
+            ('uvision', 'B96B_F446VE'),
             ('uvision', 'NUCLEO_F030R8'),
             ('uvision', 'NUCLEO_F031K6'),
             ('uvision', 'NUCLEO_F042K6'),
@@ -150,6 +151,7 @@ if __name__ == '__main__':
             ('uvision', 'DISCO_F746NG'),
             ('uvision', 'DISCO_F469NI'),
             ('uvision', 'DISCO_L476VG'),
+            ('uvision', 'MOTE_L152RC'),
 
             ('lpcxpresso', 'LPC1768'),
             ('lpcxpresso', 'LPC4088'),
@@ -178,6 +180,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'LPC824'),
             ('gcc_arm', 'SSCI824'),
 
+            ('gcc_arm', 'B96B_F446VE'),
             ('gcc_arm', 'STM32F407'),
             ('gcc_arm', 'DISCO_F100RB'),
             ('gcc_arm', 'DISCO_F051R8'),
@@ -231,6 +234,7 @@ if __name__ == '__main__':
             ('iar', 'LPC4088_DM'),
             ('iar', 'LPC1347'),
 
+            ('iar', 'B96B_F446VE'),
             ('iar', 'NUCLEO_F030R8'),
             ('iar', 'NUCLEO_F031K6'),
             ('iar', 'NUCLEO_F042K6'),
@@ -260,6 +264,7 @@ if __name__ == '__main__':
             ('iar', 'MTS_MDOT_F411RE'),
             ('iar', 'MAXWSNENV'),
             ('iar', 'MAX32600MBED'),
+            ('iar', 'MOTE_L152RC'),
 
             # Removed following item to avoid script error
             #(None, None),
