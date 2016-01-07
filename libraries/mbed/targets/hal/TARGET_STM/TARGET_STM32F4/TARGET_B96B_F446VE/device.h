@@ -40,8 +40,8 @@
 #define DEVICE_ANALOGOUT        1
 
 #define DEVICE_SERIAL            1
-#define DEVICE_SERIAL_ASYNCH     0
-#define DEVICE_SERIAL_ASYNCH_DMA 0
+#define DEVICE_SERIAL_ASYNCH     1
+#define DEVICE_SERIAL_ASYNCH_DMA 1
 #define DEVICE_SERIAL_FC         0
 
 #define DEVICE_I2C              1
