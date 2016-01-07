@@ -78,11 +78,13 @@ namespace v1 {
         LOCATION_UNKNOWN        ///< A failure occurred in an unknown location
     };
 
+    /// Contains the reason and location of the failure.
     struct failure_t {
         failure_t(failure_reason_t reason) : reason(reason) {}
         failure_t(location_t location) : location(location) {}
         failure_t(failure_reason_t reason, location_t location) : reason(reason), location(location) {}
 
+        /// @returns a copy of the failure with the reason ignored.
         failure_t ignored() const {
             return failure_t(failure_reason_t(reason | REASON_IGNORE), location);
         }
