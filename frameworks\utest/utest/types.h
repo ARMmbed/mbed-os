@@ -93,6 +93,7 @@ namespace v1 {
         location_t location = LOCATION_NONE;
     };
 
+
     enum {
         TIMEOUT_NONE    = uint32_t(-1), ///< Do not use a timeout
         TIMEOUT_UNDECLR = uint32_t(-2), ///< Timeout not explicitly specified, defaults to NONE
@@ -213,11 +214,6 @@ namespace v1 {
     /// repeats only the test case handler without calling teardown and setup handlers
     inline control_t CaseRepeatHandlerOnTimeout(uint32_t ms) { return control_t(REPEAT_HANDLER_ON_TIMEOUT, ms); }
 
-    __deprecated_message("Use CaseRepeatAll instead.")
-    const  control_t CaseRepeat = CaseRepeatAll;
-    __deprecated_message("Use CaseRepeatHandler instead.")
-    const  control_t CaseRepeatHandlerOnly = CaseRepeatHandler;
-
     class Case; // forward declaration
 
     /** Test setup handler.
@@ -331,6 +327,22 @@ namespace v1 {
      *    You may return `STATUS_IGNORE` which will cause the harness to ignore and not count the failure.
      */
     typedef status_t (*case_failure_handler_t)(const Case *const source, const failure_t reason);
+
+
+    // deprecations
+    __deprecated_message("Use CaseRepeatAll instead.")     const control_t CaseRepeat            = CaseRepeatAll;
+    __deprecated_message("Use CaseRepeatHandler instead.") const control_t CaseRepeatHandlerOnly = CaseRepeatHandler;
+
+    __deprecated_message("Use REASON_NONE instead.")          const failure_reason_t FAILURE_NONE       = REASON_NONE;
+    __deprecated_message("Use REASON_UNKNOWN instead.")       const failure_reason_t FAILURE_UNKNOWN    = REASON_UNKNOWN;
+    __deprecated_message("Use REASON_CASES instead.")         const failure_reason_t FAILURE_CASES      = REASON_CASES;
+    __deprecated_message("Use REASON_EMPTY_CASE instead.")    const failure_reason_t FAILURE_EMPTY_CASE = REASON_EMPTY_CASE;
+    __deprecated_message("Use REASON_TIMEOUT instead.")       const failure_reason_t FAILURE_TIMEOUT    = REASON_TIMEOUT;
+    __deprecated_message("Use REASON_ASSERTION instead.")     const failure_reason_t FAILURE_ASSERTION  = REASON_ASSERTION;
+    __deprecated_message("Use REASON_CASE_SETUP instead.")    const failure_reason_t FAILURE_SETUP      = REASON_CASE_SETUP;
+    __deprecated_message("Use REASON_CASE_TEARDOWN instead.") const failure_reason_t FAILURE_TEARDOWN   = REASON_CASE_TEARDOWN;
+    __deprecated_message("Use REASON_IGNORE instead.")        const failure_reason_t FAILURE_IGNORE     = REASON_IGNORE;
+
 
 }   // namespace v1
 }   // namespace utest
