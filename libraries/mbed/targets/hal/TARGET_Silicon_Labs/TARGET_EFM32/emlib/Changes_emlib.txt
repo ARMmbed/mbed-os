@@ -1,4 +1,31 @@
 ================ Revision history ============================================
+4.2.0:
+ - Updated I2C clock divider equation for platform 2 parts. Added constraints
+   to HFPER clock frequency in I2C_BusFreqSet().
+ - EMU EMU_EM23VregMode_TypeDef replaced with a bool.
+ - Added support for GPIO alternate drive strength and alternate control modes.
+ - DCDC setup is simplified. More tuning and optimization settings added to 
+   EMU_DCDCInit().
+ - Added member pinRetentionMode to EMU_EM4Init_TypeDef.
+ - Added function EMU_UnlatchPinRetention() to support unlatching of pin 
+   retention in EM4H/S.
+ - Fixed bug in ADC_InitScan() which caused a overwrite of single conversion 
+   mode calibration values.
+ - Added support for CRYPTO module on Pearl and Jade Geckos (em_crypto.c/h)
+
+4.1.1:
+ - EMU_DCDCInit() updated with new parameters for EM2 and 3. Current consumption
+   with DCDC at expected levels for EFR32 and EFM32PG revA1, A2 and B0.
+ - EMU_DCDCInit_TypeDef updated with more parameters. EMU_DcdcLpcmpBiasMode_TypeDef 
+   is removed.
+ - More assertions added to EMU_DCDCInit(). 
+ - HFXO default parameters updated.
+ - ADC defaults updated.
+ - RMU pin mode set fixed.
+ - Added missing define for cmuSelect_ULFRCO.
+ - Added missing functions for handling peripheral interrupts.
+ - Added support for VMON.
+
 4.1.0:
  - The typedef EMU_EM23Init_TypeDef which is a parameter to EMU_EM23Init()
    has got a new definition.
