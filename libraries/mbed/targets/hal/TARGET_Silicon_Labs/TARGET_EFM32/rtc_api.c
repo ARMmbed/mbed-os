@@ -156,7 +156,7 @@ void RTCC_IRQHandler(void)
 
     if (flags & RTCC_IF_OF) {
         RTCC_IntClear(RTCC_IF_OF);
-        /* RTC has overflowed (24 bits). Use time_extend as software counter for 32 more bits. */
+        /* RTC has overflowed (32 bits). Use time_extend as software counter for 32 more bits. */
         time_extend += 1;
     }
 
