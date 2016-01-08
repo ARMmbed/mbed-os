@@ -227,6 +227,9 @@ void SystemInit(void)
   /* Disable all interrupts */
   RCC->CIR = 0x00000000;
 
+  /* Enable SYSCFGENR in APB2EN, needed for 1st call of NVIC_SetVector, to copy vectors from flash to ram */
+  RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+  
   /* Configure the Cube driver */
   SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
   HAL_Init();
