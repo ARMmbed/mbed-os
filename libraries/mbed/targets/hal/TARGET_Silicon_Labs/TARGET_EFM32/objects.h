@@ -66,13 +66,6 @@ struct dac_s {
 #if DEVICE_I2C
 struct i2c_s {
     I2C_TypeDef *i2c;
-#ifndef _SILICON_LABS_32B_PLATFORM_2
-    int loc;
-#endif
-    uint8_t index;
-    PinName sda;
-    PinName scl;
-    uint32_t clock;
 #if DEVICE_I2C_ASYNCH
     uint32_t events;
     I2C_TransferSeq_TypeDef xfer;

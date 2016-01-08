@@ -100,28 +100,13 @@ static CMU_Clock_TypeDef i2c_get_clock(i2c_t *obj)
     return clock;
 }
 
-void i2c_preinit(i2c_t *obj, PinName sda, PinName scl)
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
+    /* Find out which I2C peripheral we're asked to use */
     I2CName i2c_sda = (I2CName) pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName) pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c.i2c = (I2C_TypeDef*) pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(((int) obj->i2c.i2c) != NC);
-
-#ifndef _SILICON_LABS_32B_PLATFORM_2
-    int loc_sda = pin_location(sda, PinMap_I2C_SDA);
-    int loc_scl = pin_location(scl, PinMap_I2C_SCL);
-    obj->i2c.loc = pinmap_merge(loc_sda, loc_scl);
-    MBED_ASSERT(obj->i2c.loc != NC);
-#endif
-
-    obj->i2c.sda = sda;
-    obj->i2c.scl = scl;
-}
-
-void i2c_init(i2c_t *obj, PinName sda, PinName scl)
-{
-    /* Assign mbed pins */
-    i2c_preinit(obj, sda, scl);
 
     /* Enable clock for the peripheral */
     CMU_ClockEnable(i2c_get_clock(obj), true);
@@ -133,13 +118,22 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     /* Enable pins at correct location */
 #ifdef I2C_ROUTE_SDAPEN
-    obj->i2c.i2c->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (obj->i2c.loc << _I2C_ROUTE_LOCATION_SHIFT);
+    /* Find common location in pinmap */
+    int loc_sda = pin_location(sda, PinMap_I2C_SDA);
+    int loc_scl = pin_location(scl, PinMap_I2C_SCL);
+    int loc = pinmap_merge(loc_sda, loc_scl);
+    MBED_ASSERT(loc != NC);
+    /* Set location */
+    obj->i2c.i2c->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (loc << _I2C_ROUTE_LOCATION_SHIFT);
 #else
     obj->i2c.i2c->ROUTEPEN  = I2C_ROUTEPEN_SDAPEN | I2C_ROUTEPEN_SCLPEN;
-    obj->i2c.i2c->ROUTELOC0 = (pin_location(obj->i2c.sda, PinMap_I2C_SDA) << _I2C_ROUTELOC0_SDALOC_SHIFT) |
-                              (pin_location(obj->i2c.scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
+    obj->i2c.i2c->ROUTELOC0 = (pin_location(sda, PinMap_I2C_SDA) << _I2C_ROUTELOC0_SDALOC_SHIFT) |
+                              (pin_location(scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
 #endif
-    i2c_enable_pins(obj, true);
+
+    /* Set up the pins for I2C use */
+    pin_mode(scl, WiredAndPullUp);
+    pin_mode(sda, WiredAndPullUp);
 
     /* Enable General Call Address Mode. That is; we respond to the general address (0x0) */
     obj->i2c.i2c->CTRL |= _I2C_CTRL_GCAMEN_MASK;
@@ -163,19 +157,6 @@ void i2c_enable(i2c_t *obj, uint8_t enable)
         if (obj->i2c.i2c->STATE & I2C_STATE_BUSY) {
             obj->i2c.i2c->CMD = I2C_CMD_ABORT;
         }
-
-    }
-}
-
-void i2c_enable_pins(i2c_t *obj, uint8_t enable)
-{
-    if (enable) {
-        pin_mode(obj->i2c.scl, WiredAndPullUp);
-        pin_mode(obj->i2c.sda, WiredAndPullUp);
-    } else {
-        // TODO_LP return PinMode to the previous state
-        pin_mode(obj->i2c.sda, Disabled);
-        pin_mode(obj->i2c.scl, Disabled);
     }
 }
 
