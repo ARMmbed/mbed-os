@@ -37,7 +37,18 @@
 extern "C" {
 #endif
 
+/*
+* Blocks all sleepmodes below the one passed as argument
+*
+* @param minimumMode The lowest-power sleep mode which must remain active
+*/
 void blockSleepMode(sleepstate_enum minimumMode);
+
+/*
+* Unblocks a previously-blocked sleep mode
+* 
+*@param minimumMode The same sleepmode that was previously passed to blockSleepMode
+*/
 void unblockSleepMode(sleepstate_enum minimumMode);
 
 #ifdef __cplusplus
