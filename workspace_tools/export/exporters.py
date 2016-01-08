@@ -12,9 +12,13 @@ from workspace_tools.utils import mkdir
 from workspace_tools.toolchains import TOOLCHAIN_CLASSES
 from workspace_tools.targets import TARGET_MAP
 
+from project_generator.generate import Generator
+from project_generator.project import Project
+from project_generator.settings import ProjectSettings
+
 class OldLibrariesException(Exception): pass
 
-class Exporter():
+class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
 
@@ -41,6 +45,38 @@ class Exporter():
             if r:
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
         return resources
+
+    def progen_get_project_data(self):
+        """ Get ProGen project data  """
+        # provide default data, some tools don't require any additional
+        # tool specific settings
+        sources = []
+        for r_type in ['c_sources', 'cpp_sources', 's_sources']:
+            for file in getattr(self.resources, r_type):
+                sources.append(file)
+
+        project_data = {
+            'common': {
+                'sources': { 
+                    'Source Files': sources + self.resources.hex_files +
+                        self.resources.objects + self.resources.libraries,
+                },
+                'includes':  { 
+                    'Include Files': self.resources.headers,
+                },
+                'target': [TARGET_MAP[self.target].progen_target],
+                'macros': self.get_symbols(),
+                'export_dir': [self.inputDir],
+                'linker_file': [self.resources.linker_script],
+            }
+        }
+        return project_data
+
+    def progen_gen_file(self, tool_name, project_data):
+        """" Generate project using ProGen Project API """
+        settings = ProjectSettings()
+        project = Project(self.program_name, [project_data], settings)
+        project.generate(tool_name, copied=True)
 
     def __scan_all(self, path):
         resources = []

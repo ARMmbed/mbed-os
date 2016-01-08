@@ -21,7 +21,9 @@ from shutil import copytree, rmtree, copy
 from workspace_tools.utils import mkdir
 from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
-from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP
+from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
+
+from project_generator_definitions.definitions import ProGenDef
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
@@ -60,7 +62,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
 
-    report = {'success': False}
+    report = {'success': False, 'errormsg':''}
     if ide is None or ide == "zip":
         # Simple ZIP exporter
         try:
@@ -73,13 +75,27 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
             report['errormsg'] = ERROR_MESSAGE_NOT_EXPORT_LIBS
     else:
         if ide not in EXPORTERS:
-            report['errormsg'] = "Unsupported toolchain"
+            report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
         else:
             Exporter = EXPORTERS[ide]
             target = EXPORT_MAP.get(target, target)
-            if target not in Exporter.TARGETS:
-                report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
+            # use progen targets or mbed exporters targets, check progen attribute
+            use_progen = False
+            supported = True
+            try:
+                if Exporter.PROGEN_ACTIVE:
+                    use_progen = True
+            except AttributeError:
+                pass
+            if use_progen:
+                if not ProGenDef(ide).is_supported(TARGET_MAP[target].progen_target):
+                    supported = False
             else:
+                if target not in Exporter.TARGETS:
+                    supported = False
+
+            if supported:
+                # target checked, export
                 try:
                     exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
                     exporter.scan_and_copy_resources(project_path, tempdir)
@@ -87,6 +103,8 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
                     report['success'] = True
                 except OldLibrariesException, e:
                     report['errormsg'] = ERROR_MESSAGE_NOT_EXPORT_LIBS
+            else:
+                report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
 
     zip_path = None
     if report['success']:
