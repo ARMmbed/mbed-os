@@ -51,7 +51,6 @@
 static uint16_t fill_word = SPI_FILL_WORD;
 
 #define SPI_LEAST_ACTIVE_SLEEPMODE EM1
-#define USE_UINT16_BUFFER
 
 static inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
 {
@@ -485,11 +484,7 @@ static void spi_buffer_tx_write(spi_t *obj)
         if (obj->tx_buff.buffer == (void *)0) {
             data = SPI_FILL_WORD;
         } else {
-#ifdef USE_UINT16_BUFFER
             uint16_t *tx = (uint16_t *)(obj->tx_buff.buffer);
-#else
-            uint32_t *tx = (uint16_t *)(obj->tx_buff.buffer);
-#endif
             data = tx[obj->tx_buff.pos] & 0xFFFF;
         }
         obj->tx_buff.pos += 1;
@@ -872,12 +867,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(txdata, target_addr, tx_length);
         if(obj->spi.bits >= 9){
-#ifdef USE_UINT16_BUFFER
             desc.xfer.size = ldmaCtrlSizeHalf;
-#else
-            desc.xfer.size = ldmaCtrlSizeHalf;
-            desc.xfer.srcInc = ldmaCtrlSrcIncTwo;
-#endif
         }
         LDMA_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
 
@@ -916,12 +906,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, rxdata, rx_length);
         if(obj->spi.bits >= 9){
-#ifdef USE_UINT16_BUFFER
             desc.xfer.size = ldmaCtrlSizeHalf;
-#else
-            desc.xfer.size = ldmaCtrlSizeHalf;
-            desc.xfer.srcInc = ldmaCtrlSrcIncTwo;
-#endif
         }
         LDMA_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
     }
