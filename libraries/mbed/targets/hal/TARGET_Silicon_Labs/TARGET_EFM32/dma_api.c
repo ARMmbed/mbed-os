@@ -83,11 +83,11 @@ void dma_init(void)
     ldmaInit.ldmaInitCtrlNumFixed = 0;     /* All channels round-robin */
     ldmaInit.ldmaInitCtrlSyncPrsClrEn = 0; /* Do not allow PRS to clear SYNCTRIG */
     ldmaInit.ldmaInitCtrlSyncPrsSetEn = 0; /* Do not allow PRS to set SYNCTRIG */
-    ldmaInit.ldmaInitIrqPriority = 1;      /* IRQ Priority - FIXME: correct value? */
+    ldmaInit.ldmaInitIrqPriority = 2;      /* IRQ Priority */
 
     LDMA_Init(&ldmaInit);
 #else
-#error no dma block?
+#error "Unrecognized DMA peripheral"
 #endif
 
     enabled = true;
