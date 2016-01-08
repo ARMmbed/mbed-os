@@ -74,8 +74,6 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     timestamp_t current_time = ((uint64_t)(current_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT));
 
     /* Initialize RTC */
-    rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
-
     lp_ticker_init();
 
     /* calculate offset value */
@@ -138,8 +136,6 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     timestamp_t current_time = ((uint64_t)(current_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT));
 
     /* Initialize RTC */
-    rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
-
     lp_ticker_init();
 
     /* calculate offset value */
