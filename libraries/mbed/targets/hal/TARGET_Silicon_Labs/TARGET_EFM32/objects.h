@@ -83,10 +83,6 @@ struct port_s {
 
 #if DEVICE_PWMOUT
 struct pwmout_s {
-    //The period of the pulse in clock cycles
-    uint16_t period_cycles;
-    //The width of the pulse in clock cycles
-    uint16_t width_cycles;
     //Channel on TIMER
     uint32_t channel;
     PinName pin;

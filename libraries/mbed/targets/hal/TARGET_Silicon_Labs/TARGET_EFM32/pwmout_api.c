@@ -46,11 +46,14 @@
 
 static int pwm_prescaler_div;
 
-uint32_t pwmout_get_channel_route(pwmout_t *obj)
-{
-    MBED_ASSERT(obj->channel != (PWMName) NC);
+float   pwmout_calculate_duty(uint32_t width_cycles, uint32_t period_cycles);
+void    pwmout_write_channel(uint32_t channel, float value);
 
-    switch (obj->channel) {
+uint32_t pwmout_get_channel_route(uint32_t channel)
+{
+    MBED_ASSERT(channel != (PWMName) NC);
+
+    switch (channel) {
 #ifdef TIMER_ROUTEPEN_CC0PEN
         case PWM_CH0:
             return TIMER_ROUTEPEN_CC0PEN;
@@ -179,12 +182,12 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     }
 
     // Set route enable
-    if(pwmout_channel_route_active(pwmout_get_channel_route(obj))) {
+    if(pwmout_channel_route_active(pwmout_get_channel_route(obj->channel))) {
         //This channel was already in use
         //TODO: gracefully handle this case. mbed_error?
         return;
     } else {
-        pwmout_set_channel_route(pwmout_get_channel_route(obj));
+        pwmout_set_channel_route(pwmout_get_channel_route(obj->channel));
         blockSleepMode(EM1);
         pwmout_enable(obj, true);
         pwmout_enable_pins(obj, true);
@@ -224,7 +227,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
 void pwmout_free(pwmout_t *obj)
 {
-    if(pwmout_disable_channel_route(pwmout_get_channel_route(obj))) {
+    if(pwmout_disable_channel_route(pwmout_get_channel_route(obj->channel))) {
         //Channel was previously enabled, so do housekeeping
         unblockSleepMode(EM1);
     } else {
@@ -245,22 +248,40 @@ void pwmout_free(pwmout_t *obj)
 
 void pwmout_write(pwmout_t *obj, float value)
 {
+    pwmout_write_channel(obj->channel, value);
+}
+
+void pwmout_write_channel(uint32_t channel, float value) {
+    uint32_t width_cycles = 0;
     if (value < 0.0f) {
-        value = 0;
-    } else if (value > 1.0f) {
-        value = 1;
+        width_cycles = 0;
+    } else if (value >= 1.0f) {
+        width_cycles = PWM_TIMER->TOPB + 1;
+    } else {
+       width_cycles = (uint16_t)((float)PWM_TIMER->TOPB * value);
     }
 
-    float pulse_period_in_s = obj->period_cycles / ((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div));
-    pwmout_pulsewidth(obj, value * pulse_period_in_s);
+    TIMER_CompareBufSet(PWM_TIMER, channel, width_cycles);
 }
 
 float pwmout_read(pwmout_t *obj)
 {
-    return obj->width_cycles / (float) obj->period_cycles;
+    return pwmout_calculate_duty(TIMER_CaptureGet(PWM_TIMER, obj->channel), TIMER_TopGet(PWM_TIMER));
 }
 
-// Set the PWM period, keeping the absolute pulse width the same.
+float pwmout_calculate_duty(uint32_t width_cycles, uint32_t period_cycles) {
+    if(width_cycles > period_cycles) {
+        return 1.0f;
+    }
+    else if (width_cycles == 0) {
+        return 0.0f;
+    }
+    else {
+        return (float) width_cycles / (float) period_cycles;
+    }
+}
+
+// Set the PWM period, keeping the duty cycle the same.
 void pwmout_period(pwmout_t *obj, float seconds)
 {
     // Find the lowest prescaler divider possible.
@@ -283,13 +304,27 @@ void pwmout_period(pwmout_t *obj, float seconds)
         }
     }
 
-    obj->period_cycles = cycles;
+    //Check if anything changed
+    if(((PWM_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) == (pwm_prescaler_div << _TIMER_CTRL_PRESC_SHIFT)) && (TIMER_TopGet(PWM_TIMER) == cycles)) return;
+
+    //Save previous period for recalculation of duty cycles
+    uint32_t previous_period_cycles = PWM_TIMER->TOPB;
 
     //Set prescaler
     PWM_TIMER->CTRL = (PWM_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) | (pwm_prescaler_div << _TIMER_CTRL_PRESC_SHIFT);
 
     //Set Top Value, which controls the PWM period
-    TIMER_TopSet(PWM_TIMER, obj->period_cycles);
+    TIMER_TopBufSet(PWM_TIMER, cycles);
+
+    //For each active channel, re-calculate the compare value
+    uint32_t channel = 0;
+    while(pwmout_get_channel_route(channel) != 0) {
+        if(pwmout_channel_route_active(channel)) {
+            //recalc and reset compare value
+            pwmout_write_channel(channel, pwmout_calculate_duty(PWM_TIMER->CC[channel].CCVB, previous_period_cycles));
+        }
+        channel++;
+    }
 }
 
 void pwmout_period_ms(pwmout_t *obj, int ms)
@@ -304,20 +339,20 @@ void pwmout_period_us(pwmout_t *obj, int us)
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
-    obj->width_cycles = (uint32_t) (((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div)) * seconds);
-    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
+    uint16_t width_cycles = (uint16_t) (((float) (REFERENCE_FREQUENCY >> pwm_prescaler_div)) * seconds);
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
 }
 
 void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
-    obj->width_cycles = (uint32_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000;
-    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
+    uint16_t width_cycles = (uint16_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * ms) / 1000;
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
 }
 
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
-    obj->width_cycles = (uint32_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * us) / 1000000;
-    TIMER_CompareBufSet(PWM_TIMER, obj->channel, obj->width_cycles);
+    uint16_t width_cycles = (uint16_t) ((REFERENCE_FREQUENCY >> pwm_prescaler_div) * us) / 1000000;
+    TIMER_CompareBufSet(PWM_TIMER, obj->channel, width_cycles);
 }
 
 #endif
