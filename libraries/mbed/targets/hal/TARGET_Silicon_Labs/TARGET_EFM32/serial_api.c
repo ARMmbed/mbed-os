@@ -993,14 +993,6 @@ int serial_getc(serial_t *obj)
  */
 void serial_putc(serial_t *obj, int c)
 {
-#ifdef _SILICON_LABS_32B_PLATFORM_2
-    if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
-        LEUART_Enable(obj->serial.periph.leuart, leuartEnable);
-    } else {
-        USART_Enable(obj->serial.periph.uart, usartEnable);
-    }
-#endif
-
     /* Emlib USART_Tx blocks until buffer is writable (non-full), so we don't
      * need to use serial_writable(). */
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
