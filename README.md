@@ -90,17 +90,17 @@ Renesas:
 * [RZ-A1H](http://developer.mbed.org/platforms/Renesas-GR-PEACH/) (Cortex-A9)
 
 Silicon Labs:
-* [EFM32 Zero Gecko] (https://developer.mbed.org/platforms/EFM32-Zero-Gecko/) (Cortex-M0+)
-* [EFM32 Happy Gecko] (https://developer.mbed.org/platforms/EFM32-Happy-Gecko/) (Cortex-M0+)
-* [EFM32 Leopard Gecko] (https://developer.mbed.org/platforms/EFM32-Leopard-Gecko/) (Cortex-M3)
-* [EFM32 Giant Gecko] (https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
-* [EFM32 Wonder Gecko] (https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
+* [EFM32 Zero Gecko](https://developer.mbed.org/platforms/EFM32-Zero-Gecko/) (Cortex-M0+)
+* [EFM32 Happy Gecko](https://developer.mbed.org/platforms/EFM32-Happy-Gecko/) (Cortex-M0+)
+* [EFM32 Leopard Gecko](https://developer.mbed.org/platforms/EFM32-Leopard-Gecko/) (Cortex-M3)
+* [EFM32 Giant Gecko](https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
+* [EFM32 Wonder Gecko](https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
 
 Atmel:
-* [SAM R21 XPRO] (https://developer.mbed.org/platforms/SAMR21-XPRO/) (Cortex-M0+)
-* [SAM L21 XPRO B] (https://developer.mbed.org/platforms/SAML21-XPRO/) (Cortex-M0+)
-* [SAM D21 XPRO] (https://developer.mbed.org/platforms/SAMD21-XPRO/) (Cortex-M0+)
-* [SAM W25 XPRO] (https://developer.mbed.org/platforms/SAMW25-XPRO/) (Cortex-M0+)
+* [SAM R21 XPRO](https://developer.mbed.org/platforms/SAMR21-XPRO/) (Cortex-M0+)
+* [SAM L21 XPRO](https://developer.mbed.org/platforms/SAML21-XPRO/) (Cortex-M0+)
+* [SAM D21 XPRO](https://developer.mbed.org/platforms/SAMD21-XPRO/) (Cortex-M0+)
+* [SAM W25 XPRO](https://developer.mbed.org/platforms/SAMW25-XPRO/) (Cortex-M0+)
 
 Supported Toolchains and IDEs
 -----------------------------
@@ -129,3 +129,30 @@ For discussing the development of the mbed SDK itself (Addition/support of micro
 For every topic regarding the use of the mbed SDK, rather than its development, please post on the [mbed.org forum](http://mbed.org/forum/), or the [mbed.org Q&A](http://mbed.org/questions/).
 
 For reporting issues in the mbed libraries please open a ticket on the issue tracker of the relevant [mbed official library](http://mbed.org/users/mbed_official/code/).
+
+Setup
+-----
+Skip any step where a compatible tool already exists
+
+1. Install [Python 2.7.9 or above](https://www.python.org/downloads/) and make sure it's added to path
+2. Install [Git](https://git-scm.com/downloads) and make sure it's added to path
+3. Install virtualenv in python
+
+```
+> git clone https://github.com/mbedmicro/mbed
+> pip install virtualenv
+> virtualenv venv
+> 
+```
+
+Develop
+-------
+1. Update dependencies and start virtual environment. This should be done everytime you pull new changes
+
+```
+> "venv/Scripts/activate"
+> python setup.py install
+> cd workspace_tools
+> ... do things ...
+> "venv/Scripts/deactivate"
+```
