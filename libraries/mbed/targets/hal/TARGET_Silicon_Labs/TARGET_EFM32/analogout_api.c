@@ -87,7 +87,7 @@ void analogout_free(dac_t *obj)
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
     
     //Check all channels to see if we can disable the DAC completely
-    if((DAC->CH0CTRL & DAC_CH0CTRL_EN) == 0 && (DAC->CH1CTRL & DAC_CH1CTRL_EN) == 0) {
+    if((DAC0->CH0CTRL & DAC_CH0CTRL_EN) == 0 && (DAC0->CH1CTRL & DAC_CH1CTRL_EN) == 0) {
         CMU_ClockEnable(cmuClock_DAC0, false);
         dac_initialized = 0;
     }
