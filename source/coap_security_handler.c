@@ -33,7 +33,7 @@ int entropy_poll( void *data, unsigned char *output, size_t len, size_t *olen );
 int f_send( void *ctx, const unsigned char *buf, size_t len );
 int f_recv(void *ctx, unsigned char *buf, size_t len);
 
-static int coap_security_handler_init(thread_security_t *sec){
+static int coap_security_handler_init(coap_security_t *sec){
     const char *pers = "dtls_client";
     mbedtls_ssl_init( &sec->_ssl );
     mbedtls_ssl_config_init( &sec->_conf );
@@ -61,7 +61,7 @@ static int coap_security_handler_init(thread_security_t *sec){
     return 0;
 }
 
-static void coap_security_handler_reset(thread_security_t *sec){
+static void coap_security_handler_reset(coap_security_t *sec){
     mbedtls_entropy_free( &sec->_entropy );
     mbedtls_ctr_drbg_free( &sec->_ctr_drbg );
     mbedtls_ssl_config_free(&sec->_conf);
@@ -69,7 +69,7 @@ static void coap_security_handler_reset(thread_security_t *sec){
 }
 
 
-thread_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
+coap_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
                                           send_cb *send_cb,
                                           receive_cb *receive_cb,
                                           start_timer_cb *start_timer_cb,
@@ -78,7 +78,7 @@ thread_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uin
     if( !address_ptr || send_cb == NULL || receive_cb == NULL || start_timer_cb == NULL || timer_status_cb == NULL){
         return NULL;
     }
-    thread_security_t *this = ns_dyn_mem_alloc(sizeof(thread_security_t));
+    coap_security_t *this = ns_dyn_mem_alloc(sizeof(coap_security_t));
     if( !this ){
         return NULL;
     }
@@ -88,6 +88,8 @@ thread_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uin
     }
     this->_remote_port = port;
     memcpy(this->_remote_address, address_ptr, 16);
+    memset(this->_pw, 0, 64);
+    this->_pw_len = 0;
     this->_socket_id = socket_id;
     this->_timer_id = timer_id;
     this->_send_cb = send_cb;
@@ -98,7 +100,7 @@ thread_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uin
     return this;
 }
 
-void thread_security_destroy(thread_security_t *sec){
+void thread_security_destroy(coap_security_t *sec){
     if( sec ){
         coap_security_handler_reset(sec);
         ns_dyn_mem_free(sec);
@@ -210,7 +212,7 @@ static int export_key_block(void *ctx,
  */
 static void set_timer(void *sec_obj, uint32_t int_ms, uint32_t fin_ms)
 {
-    thread_security_t *sec = (thread_security_t *)sec_obj;
+    coap_security_t *sec = (coap_security_t *)sec_obj;
     if( sec->_start_timer_cb ){
         sec->_start_timer_cb( sec->_timer_id, int_ms, fin_ms);
     }
@@ -225,14 +227,14 @@ static void set_timer(void *sec_obj, uint32_t int_ms, uint32_t fin_ms)
  */
 static int get_timer(void *sec_obj)
 {
-    thread_security_t *sec = (thread_security_t *)sec_obj;
+    coap_security_t *sec = (coap_security_t *)sec_obj;
     if( sec->_timer_status_cb ){
         return sec->_timer_status_cb(sec->_timer_id);
     }
     return -1;
 }
 
-int coap_security_handler_connect(thread_security_t *sec, bool is_server, const unsigned char *pw, uint8_t len){
+int coap_security_handler_connect(coap_security_t *sec, bool is_server, const unsigned char *pw, uint8_t len){
 
     if( !sec ){
         return -1;
@@ -303,7 +305,7 @@ int coap_security_handler_connect(thread_security_t *sec, bool is_server, const 
     return ret;
 }
 
-int coap_security_handler_continue_connecting(thread_security_t *sec){
+int coap_security_handler_continue_connecting(coap_security_t *sec){
     int ret=-1;
     while( ret != MBEDTLS_ERR_SSL_WANT_READ ){
         ret = mbedtls_ssl_handshake_step( &sec->_ssl );
@@ -333,7 +335,7 @@ int coap_security_handler_continue_connecting(thread_security_t *sec){
 }
 
 
-int coap_security_handler_send_message(thread_security_t *sec, unsigned char *message, size_t len){
+int coap_security_handler_send_message(coap_security_t *sec, unsigned char *message, size_t len){
     int ret=-1;
 
     if( sec ){
@@ -345,7 +347,7 @@ int coap_security_handler_send_message(thread_security_t *sec, unsigned char *me
     return ret; //bytes written
 }
 
-int thread_security_send_close_alert(thread_security_t *sec)
+int thread_security_send_close_alert(coap_security_t *sec)
 {
     if( !sec ){
         return -1;
@@ -356,7 +358,7 @@ int thread_security_send_close_alert(thread_security_t *sec)
     coap_security_handler_init(sec);
 }
 
-int coap_security_handler_read(thread_security_t *sec, unsigned char* buffer, size_t len){
+int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len){
     int ret=-1;
 
     if( sec && buffer ){
@@ -370,12 +372,12 @@ int coap_security_handler_read(thread_security_t *sec, unsigned char* buffer, si
 }
 
 int f_send( void *ctx, const unsigned char *buf, size_t len){
-    thread_security_t *sec = (thread_security_t *)ctx;
+    coap_security_t *sec = (coap_security_t *)ctx;
     return sec->_send_cb(sec->_socket_id, sec->_remote_address, sec->_remote_port, buf, len);
 }
 
 int f_recv(void *ctx, unsigned char *buf, size_t len){
-    thread_security_t *sec = (thread_security_t *)ctx;
+    coap_security_t *sec = (coap_security_t *)ctx;
     return sec->_receive_cb(sec->_socket_id, buf, len);
 }
 

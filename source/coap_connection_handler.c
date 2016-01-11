@@ -49,7 +49,7 @@ typedef struct secure_timer_s {
 } secure_timer_t;
 
 typedef struct secure_session {
-    thread_security_t *sec_handler; //owned
+    coap_security_t *sec_handler; //owned
     internal_socket_t *parent; //not owned
 
     secure_timer_t timer;
@@ -652,12 +652,17 @@ int coap_connection_handler_send_data(thread_conn_handler_t *handler, ns_address
             handler->socket->dest_addr.identifier = dest_addr->identifier;
             handler->socket->dest_addr.type = dest_addr->type;
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
+            if(!pw){
+                //todo: free secure session?
+                return -1;
+            }
             uint8_t pw_len;
             if( handler->_get_password_cb && 0 == handler->_get_password_cb(handler->socket->listen_socket, dest_addr->address, dest_addr->identifier, pw, &pw_len)){
                 coap_security_handler_connect(session->sec_handler, false, pw, pw_len);
                 ns_dyn_mem_free(pw);
                 return -2;
             }else{
+                //free secure session?
                 ns_dyn_mem_free(pw);
                 return -1;
             }

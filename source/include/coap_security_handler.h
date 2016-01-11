@@ -29,9 +29,9 @@ typedef void start_timer_cb(int8_t timer_id, uint32_t min, uint32_t fin);
 typedef int timer_status_cb(int8_t timer_id);
 
 typedef struct thread_security_s {
-
     mbedtls_ssl_config          _conf;
     mbedtls_ssl_context         _ssl;
+
     mbedtls_ctr_drbg_context    _ctr_drbg;
     mbedtls_entropy_context     _entropy;
     bool                        _is_started;
@@ -50,24 +50,25 @@ typedef struct thread_security_s {
     receive_cb                  *_receive_cb;
     start_timer_cb              *_start_timer_cb;
     timer_status_cb             *_timer_status_cb;
-} thread_security_t;
 
-thread_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
+} coap_security_t;
+
+coap_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
                                           send_cb *send_cb,
                                           receive_cb *receive_cb,
                                           start_timer_cb *start_timer_cb,
                                           timer_status_cb *timer_status_cb);
 
-void thread_security_destroy(thread_security_t *sec);
+void thread_security_destroy(coap_security_t *sec);
 
-int coap_security_handler_connect(thread_security_t *sec, bool is_server, const unsigned char *pw, uint8_t len);
+int coap_security_handler_connect(coap_security_t *sec, bool is_server, const unsigned char *pw, uint8_t len);
 
-int coap_security_handler_continue_connecting(thread_security_t *sec);
+int coap_security_handler_continue_connecting(coap_security_t *sec);
 
-int coap_security_handler_send_message(thread_security_t *sec, unsigned char *message, size_t len);
+int coap_security_handler_send_message(coap_security_t *sec, unsigned char *message, size_t len);
 
-int thread_security_send_close_alert(thread_security_t *sec);
+int thread_security_send_close_alert(coap_security_t *sec);
 
-int coap_security_handler_read(thread_security_t *sec, unsigned char* buffer, size_t len);
+int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len);
 
 #endif
