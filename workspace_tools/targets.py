@@ -852,7 +852,6 @@ class DISCO_F746NG(Target):
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
         self.detect_code = ["0815"]
 
 class DISCO_L476VG(Target):
