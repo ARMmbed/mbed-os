@@ -40,8 +40,6 @@ void rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
-    if((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {     // RTC initialization and status register (RTC_ISR), cold start (with no backup domain power) RTC reset value
-
         RtcHandle.Instance = RTC;
 
         // Enable Power clock
@@ -78,6 +76,8 @@ void rtc_init(void)
             // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
             rtc_freq = LSI_VALUE;
         }
+
+    if((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {     // RTC initialization and status register (RTC_ISR), cold start (with no backup domain power) RTC reset value
 
         // Enable RTC
         __HAL_RCC_RTC_ENABLE();

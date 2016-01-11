@@ -46,9 +46,6 @@ void rtc_init(void)
     rtc_inited = 1;
 
     RtcHandle.Instance = RTC;
-	
-    // Check if RTC is already initialized
-    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return;
 
     // Enable Power clock
     __PWR_CLK_ENABLE();
@@ -82,6 +79,9 @@ void rtc_init(void)
         // Note: The LSI clock can be measured precisely using a timer input capture.
         rtc_freq = LSI_VALUE;
     }
+
+    // Check if RTC is already initialized
+    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return;
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
