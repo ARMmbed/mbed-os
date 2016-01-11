@@ -47,7 +47,10 @@ int RawSerial::puts(const char *str) {
 int RawSerial::printf(const char *format, ...) {
     std::va_list arg;
     va_start(arg, format);
-    int len = vsnprintf(NULL, 0, format, arg);
+    // ARMCC microlib does not properly handle a size of 0.
+    // As a workaround supply a dummy buffer with a size of 1.
+    char dummy_buf[1];
+    int len = vsnprintf(dummy_buf, sizeof(dummy_buf), format, arg);
     if (len < STRING_STACK_LIMIT) {
         char temp[STRING_STACK_LIMIT];
         vsprintf(temp, format, arg);
