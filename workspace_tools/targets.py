@@ -21,10 +21,10 @@ CORE_LABELS = {
     "Cortex-M0+": ["M0P", "CORTEX_M"],
     "Cortex-M1" : ["M1", "CORTEX_M"],
     "Cortex-M3" : ["M3", "CORTEX_M"],
-    "Cortex-M4" : ["M4", "CORTEX_M"],
-    "Cortex-M4F" : ["M4", "CORTEX_M"],
-    "Cortex-M7" : ["M7", "CORTEX_M"],
-    "Cortex-M7F" : ["M7", "CORTEX_M"],
+    "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7"],
+    "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7"],
+    "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7"],
+    "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7"],
     "Cortex-A9" : ["A9", "CORTEX_A"]
 }
 
@@ -906,10 +906,9 @@ class DISCO_L053C8(Target):
 class DISCO_F746NG(Target):
     def __init__(self):
         Target.__init__(self)
-        self.core = "Cortex-M7"
+        self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
         self.detect_code = ["0815"]
         self.progen_target ='disco-f746ng'
 

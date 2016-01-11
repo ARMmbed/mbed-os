@@ -122,7 +122,6 @@ class Uvision4(Exporter):
         'DISCO_F334C8',
         'DISCO_F429ZI',
         'DISCO_F469NI',
-        'DISCO_F746NG',
         'DISCO_L053C8',
         'DISCO_L476VG',
         'B96B_F446VE',

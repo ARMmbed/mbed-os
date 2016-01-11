@@ -36,6 +36,8 @@
 
 #if defined (__CORTEX_M4) || defined (__CORTEX_M4F)
   #include "core_cm4.h"
+#elif defined (__CORTEX_M7) || defined (__CORTEX_M7F)
+  #include "core_cm7.h"
 #elif defined (__CORTEX_M3)
   #include "core_cm3.h"
 #elif defined (__CORTEX_M0)
