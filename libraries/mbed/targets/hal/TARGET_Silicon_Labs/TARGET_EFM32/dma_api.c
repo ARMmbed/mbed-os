@@ -32,6 +32,7 @@
 #include "dma_api_HAL.h"
 #include "em_device.h"
 #include "em_cmu.h"
+#include "em_int.h"
 
 #ifdef DMA_PRESENT
 #include "em_dma.h"
@@ -130,3 +131,81 @@ int dma_channel_free(int channelid)
 
     return 0;
 }
+
+#ifdef LDMA_PRESENT
+
+/* LDMA emlib API extensions */
+
+typedef struct {
+    LDMAx_CBFunc_t callback;
+    void *userdata;
+} LDMA_InternCallback_t;
+
+static LDMA_InternCallback_t ldmaCallback[DMA_CHAN_COUNT];
+
+void LDMAx_StartTransfer(  int ch,
+                           LDMA_TransferCfg_t *transfer,
+                           LDMA_Descriptor_t  *descriptor,
+                           LDMAx_CBFunc_t cbFunc,
+                           void *userData )
+{
+    ldmaCallback[ch].callback = cbFunc;
+    ldmaCallback[ch].userdata = userData;
+
+    LDMA_StartTransfer(ch, transfer, descriptor);
+}
+
+void LDMA_IRQHandler( void )
+{
+    uint32_t pending, chnum, chmask;
+
+    /* Get all pending and enabled interrupts */
+    pending  = LDMA->IF;
+    pending &= LDMA->IEN;
+
+    /* Check for LDMA error */
+    if ( pending & LDMA_IF_ERROR )
+    {
+        /* Loop here to enable the debugger to see what has happened */
+        while (1)
+            ;
+    }
+
+    /* Iterate over all LDMA channels. */
+    for ( chnum = 0,                chmask = 1;
+          chnum < DMA_CHAN_COUNT;
+          chnum++,                  chmask <<= 1 )
+    {
+        if ( pending & chmask )
+        {
+            /* Clear interrupt flag. */
+            LDMA->IFC = chmask;
+
+            /* Do more stuff here, execute callbacks etc. */
+            if ( ldmaCallback[chnum].callback )
+            {
+                ldmaCallback[chnum].callback(chnum, false, ldmaCallback[chnum].userdata);
+            }
+        }
+    }
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Check if LDMA channel is enabled.
+ *
+ * @param[in] ch
+ *   LDMA channel to check.
+ *
+ * @return
+ *   true if channel is enabled, false if not.
+ ******************************************************************************/
+bool LDMAx_ChannelEnabled( int ch )
+{
+    EFM_ASSERT(ch < DMA_CHAN_COUNT);
+    uint32_t chMask = 1 << ch;
+    return (bool)(LDMA->CHEN & chMask);
+    INT_Disable();
+}
+
+#endif /* LDMA_PRESENT */

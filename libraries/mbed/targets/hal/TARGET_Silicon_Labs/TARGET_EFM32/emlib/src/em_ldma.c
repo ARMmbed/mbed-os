@@ -202,13 +202,7 @@
   @endverbatim
  * @{ *************************************************************************/
 
-typedef struct {
-    LDMA_CBFunc_t callback;
-    void *userdata;
-} LDMA_InternCallback_t;
-
-static LDMA_InternCallback_t ldmaCallback[DMA_CHAN_COUNT];
-
+#if defined( LDMA_IRQ_HANDLER_TEMPLATE )
 /***************************************************************************//**
  * @brief
  *   Template for an LDMA IRQ handler.
@@ -240,13 +234,10 @@ void LDMA_IRQHandler( void )
       LDMA->IFC = chmask;
 
       /* Do more stuff here, execute callbacks etc. */
-      if ( ldmaCallback[chnum].callback )
-      {
-        ldmaCallback[chnum].callback(chnum, false, ldmaCallback[chnum].userdata);
-      }
     }
   }
 }
+#endif
 
 /***************************************************************************//**
  * @brief
@@ -317,9 +308,7 @@ void LDMA_Init( LDMA_Init_t *init )
  ******************************************************************************/
 void LDMA_StartTransfer(  int ch,
                           LDMA_TransferCfg_t *transfer,
-                          LDMA_Descriptor_t  *descriptor,
-                          LDMA_CBFunc_t cbFunc,
-                          void *userData )
+                          LDMA_Descriptor_t  *descriptor )
 {
   uint32_t tmp;
   uint32_t chMask = 1 << ch;
@@ -345,9 +334,6 @@ void LDMA_StartTransfer(  int ch,
                  & ~_LDMA_CH_CFG_DSTINCSIGN_MASK ) );
   EFM_ASSERT( !( ( transfer->ldmaLoopCnt << _LDMA_CH_LOOP_LOOPCNT_SHIFT )
                  & ~_LDMA_CH_LOOP_LOOPCNT_MASK ) );
-
-  ldmaCallback[ch].callback = cbFunc;
-  ldmaCallback[ch].userdata = userData;
 
   LDMA->CH[ ch ].REQSEL = transfer->ldmaReqSel;
 
@@ -506,24 +492,6 @@ uint32_t LDMA_TransferRemainingCount( int ch )
   }
 
   return remaining + 1;
-}
-
-/***************************************************************************//**
- * @brief
- *   Check if LDMA channel is enabled.
- *
- * @param[in] ch
- *   LDMA channel to check.
- *
- * @return
- *   true if channel is enabled, false if not.
- ******************************************************************************/
-bool LDMA_ChannelEnabled( int ch )
-{
-  EFM_ASSERT(ch < DMA_CHAN_COUNT);
-  uint32_t chMask = 1 << ch;
-  return (bool)(LDMA->CHEN & chMask);
-  INT_Disable();
 }
 
 /** @} (end addtogroup LDMA) */
