@@ -2,7 +2,7 @@
 ; * @file startup_efm32pg1b.s
 ; * @brief    CMSIS Core Device Startup File
 ; *           Silicon Labs EFM32PG1B Device Series
-; * @version 4.2.0
+; * @version 4.2.1
 ; * @date     30. January 2012
 ; *
 ; * @note

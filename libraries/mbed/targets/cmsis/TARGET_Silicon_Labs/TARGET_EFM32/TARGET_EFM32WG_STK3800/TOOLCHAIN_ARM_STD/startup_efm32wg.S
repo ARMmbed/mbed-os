@@ -2,7 +2,7 @@
 ; * @file startup_efm32wg.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32WG Device Series
-; * @version 4.1.0
+; * @version 4.2.1
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -34,6 +34,7 @@ Stack_Size      EQU     0x00000400
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
 __initial_sp    EQU     0x20008000
+
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
@@ -271,14 +272,6 @@ FPUEH_IRQHandler
 
 ; User Initial Stack & Heap
 
-                IF      :DEF:__MICROLIB
-
-                EXPORT  __initial_sp
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
-
-                ELSE
-
                 IMPORT  __use_two_region_memory
                 EXPORT  __user_initial_stackheap
 
@@ -291,7 +284,5 @@ __user_initial_stackheap PROC
                 ENDP
 
                 ALIGN
-
-                ENDIF
 
                 END
