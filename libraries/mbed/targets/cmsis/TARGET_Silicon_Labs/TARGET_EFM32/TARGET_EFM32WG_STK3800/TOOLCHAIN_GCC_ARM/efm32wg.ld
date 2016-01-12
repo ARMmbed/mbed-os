@@ -138,6 +138,7 @@ SECTIONS
   .data : AT (__etext)
   {
     __data_start__ = .;
+    *("dma")
     PROVIDE( __start_vector_table__ = .);
     . += __vector_size;
     PROVIDE( __end_vector_table__ = .);
