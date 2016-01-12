@@ -395,7 +395,7 @@ static void secure_recv_sckt_msg(void *cb_res)
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
             uint8_t pw_len;
             if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, src_address.address, src_address.identifier, pw, &pw_len)){
-                int ret = coap_security_handler_connect(session->sec_handler, true, pw, pw_len);
+                coap_security_handler_connect(session->sec_handler, true, pw, pw_len);
                 //TODO: error handling
             }
             ns_dyn_mem_free(pw);
@@ -484,7 +484,7 @@ int coap_connection_handler_virtual_recv(thread_conn_handler_t *handler, uint8_t
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
             uint8_t pw_len;
             if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, address, port, pw, &pw_len)){
-                int ret = coap_security_handler_connect(session->sec_handler, true, pw, pw_len);
+                coap_security_handler_connect(session->sec_handler, true, pw, pw_len);
                 //TODO: error handling
                 ns_dyn_mem_free(pw);
                 return 0;
