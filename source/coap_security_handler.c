@@ -352,10 +352,13 @@ int thread_security_send_close_alert(coap_security_t *sec)
     if( !sec ){
         return -1;
     }
-    return mbedtls_ssl_close_notify(&sec->_ssl);
 
-    coap_security_handler_reset(sec);
-    coap_security_handler_init(sec);
+    if(!mbedtls_ssl_close_notify(&sec->_ssl)){
+        coap_security_handler_reset(sec);
+        coap_security_handler_init(sec);
+        return 0;
+    }
+    return -1;
 }
 
 int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len){
@@ -392,7 +395,7 @@ int entropy_poll( void *ctx, unsigned char *output, size_t len,
     }
     memset(c, 0, len);
     for(uint16_t i=0; i < len; i++){
-        c[i] = (char)randLIB_get_8bit;
+        *(c + 1) = (char)randLIB_get_8bit();
     }
     memmove(output, c, len);
     *olen = len;

@@ -31,18 +31,6 @@ static void own_free(void *ptr)
 
 static NS_LIST_DEFINE(request_list, coap_transaction_t, link);
 
-static coap_transaction_t *transaction_find_client(uint16_t msg_id)
-{
-    coap_transaction_t *this = NULL;
-    ns_list_foreach(coap_transaction_t, cur_ptr, &request_list) {
-        if (cur_ptr->msg_id == msg_id && cur_ptr->client_request) {
-            this = cur_ptr;
-            break;
-        }
-    }
-    return this;
-}
-
 static coap_transaction_t *transaction_find_client_by_token(uint8_t token[4])
 {
     coap_transaction_t *this = NULL;
@@ -246,7 +234,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
 }
 
 uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16],
-                                   uint16_t destination_port, uint8_t msg_type, uint8_t msg_code, const char *uri,
+                                   uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, const char *uri,
                                    uint8_t cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_message_handler_response_recv *request_response_cb)
 {
     coap_transaction_t *transaction_ptr;
@@ -279,7 +267,7 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     request.msg_code = msg_code;
     request.uri_path_ptr = (uint8_t *)uri;
     request.uri_path_len = strlen(uri);
-    coap_service_build_content_format(&request, cont_type);
+    coap_service_build_content_format(&request, (sn_coap_content_format_e)cont_type);
 
     do{
         randLIB_get_n_bytes_random(token,4);
@@ -344,7 +332,7 @@ int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t ser
     }
     response->payload_len = payload_len;
     response->payload_ptr = (uint8_t *) payload_ptr;  // Cast away const and trust that nsdl doesn't modify...
-    coap_service_build_content_format(response, content_type);
+    coap_service_build_content_format(response, (sn_coap_content_format_e)content_type);
 
     data_len = sn_coap_builder_calc_needed_packet_data_size(response);
     data_ptr = own_alloc(data_len);
