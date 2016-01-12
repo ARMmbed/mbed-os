@@ -444,7 +444,7 @@ uint8_t spi_active(spi_t *obj)
         case DMA_USAGE_ALLOCATED:
             /* Check whether the allocated DMA channel is active */
 #ifdef LDMA_PRESENT
-            return(LDMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || LDMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
+            return(LDMAx_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || LDMAx_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
 #else
             return(DMA_ChannelEnabled(obj->spi.dmaOptionsTX.dmaChannel) || DMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel));
 #endif
@@ -869,7 +869,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         if(obj->spi.bits >= 9){
             desc.xfer.size = ldmaCtrlSizeHalf;
         }
-        LDMA_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
+        LDMAx_StartTransfer(obj->spi.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
 
     }
     if(rxdata) {
@@ -908,7 +908,7 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         if(obj->spi.bits >= 9){
             desc.xfer.size = ldmaCtrlSizeHalf;
         }
-        LDMA_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
+        LDMAx_StartTransfer(obj->spi.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete,obj->spi.dmaOptionsRX.dmaCallback.userPtr);
     }
 }
 
@@ -1139,7 +1139,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             return 0;
         }
         /* If there is an RX transfer ongoing, wait for it to finish */
-        if (LDMA_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel)) {
+        if (LDMAx_ChannelEnabled(obj->spi.dmaOptionsRX.dmaChannel)) {
             /* Check if we need to kick off TX transfer again to force more incoming data. */
             if (LDMA_TransferDone(obj->spi.dmaOptionsTX.dmaChannel) && (obj->tx_buff.pos < obj->rx_buff.length)) {
                 void* tx_pointer = (char*)obj->tx_buff.buffer + obj->tx_buff.pos;

@@ -1388,7 +1388,7 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
         // Start DMA transfer
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(buffer, target_addr, length);
-        LDMA_StartTransfer(obj->serial.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, NULL);
+        LDMAx_StartTransfer(obj->serial.dmaOptionsTX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, NULL);
 
     } else {
         volatile const void *source_addr;
@@ -1425,7 +1425,7 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
 
         LDMA_TransferCfg_t xferConf = LDMA_TRANSFER_CFG_PERIPHERAL(dma_periph);
         LDMA_Descriptor_t desc = LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(source_addr, buffer, length);
-        LDMA_StartTransfer(obj->serial.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, cb);
+        LDMAx_StartTransfer(obj->serial.dmaOptionsRX.dmaChannel, &xferConf, &desc, serial_dmaTransferComplete, cb);
     }
 }
 
