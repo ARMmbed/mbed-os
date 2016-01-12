@@ -28,18 +28,18 @@ volatile uint16_t us_ticker_interrupt_counter;
 volatile uint16_t us_ticker_interrupt_offset;
 volatile uint32_t overflow32bitcounter = 0;
 
-#define TICKER_COUNTER_uS        TC0
+#define TICKER_COUNTER_uS        TC1
 
-#define TICKER_COUNTER_CLK0      ID_TC0
-#define TICKER_COUNTER_CLK1      ID_TC1
+#define TICKER_COUNTER_CLK0      ID_TC3
+#define TICKER_COUNTER_CLK1      ID_TC4
 
 #define TICKER_COUNTER_CHANNEL0  0
-#define TICKER_COUNTER_IRQn0     TC0_IRQn
-#define TICKER_COUNTER_Handlr0   TC0_Handler
+#define TICKER_COUNTER_IRQn0     TC3_IRQn
+#define TICKER_COUNTER_Handlr0   TC3_Handler
 
 #define TICKER_COUNTER_CHANNEL1  1
-#define TICKER_COUNTER_IRQn1     TC1_IRQn
-#define TICKER_COUNTER_Handlr1   TC1_Handler
+#define TICKER_COUNTER_IRQn1     TC4_IRQn
+#define TICKER_COUNTER_Handlr1   TC4_Handler
 
 #define OVERFLOW_16bit_VALUE    0xFFFF
 
@@ -98,13 +98,13 @@ void us_ticker_init(void)
 #if SAMG55
     /* Enable PCK output */
     pmc_disable_pck(PMC_PCK_3);
-    pmc_switch_pck_to_mainck(PMC_PCK_3, PMC_PCK_PRES_CLK_8);
+    pmc_switch_pck_to_mck(PMC_PCK_3, PMC_PCK_PRES_CLK_1);
     pmc_enable_pck(PMC_PCK_3);
 #endif
 
     /* Init TC to Counter mode. */
-    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0, TC_CMR_TCCLKS_TIMER_CLOCK5);
-    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, TC_CMR_TCCLKS_TIMER_CLOCK5);
+    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL0, TC_CMR_TCCLKS_TIMER_CLOCK4);
+    tc_init(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, TC_CMR_TCCLKS_TIMER_CLOCK4);
 
 
     NVIC_DisableIRQ(TICKER_COUNTER_IRQn0);

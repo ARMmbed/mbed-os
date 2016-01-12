@@ -40,6 +40,7 @@ extern const PinMap PinMap_I2C_SCL[];
 
 /************PWM***************/
 extern const PinMap PinMap_PWM[];
+extern const PinMap PinMap_PWM_IO_Line[];
 
 
 
