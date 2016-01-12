@@ -6,7 +6,7 @@
 /*                                                                  */
 /* Silicon Laboratories, Inc. 2015                                  */
 /*                                                                  */
-/* Version 4.1.0 */
+/* Version 4.2.0 */
 /*                                                                  */
 
 MEMORY
@@ -14,7 +14,6 @@ MEMORY
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 262144
   RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 32768
 }
-
 /* MBED: mbed needs to be able to dynamically set the interrupt vector table.
  * We make room for the table at the very beginning of RAM, i.e. at
  * 0x20000000. We need (16+40) * sizeof(uint32_t) = 224 bytes for EFM32LG */

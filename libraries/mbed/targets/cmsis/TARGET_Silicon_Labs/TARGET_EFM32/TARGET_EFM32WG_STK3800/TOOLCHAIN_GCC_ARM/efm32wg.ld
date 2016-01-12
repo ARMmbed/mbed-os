@@ -6,7 +6,7 @@
 /*                                                                  */
 /* Silicon Laboratories, Inc. 2015                                  */
 /*                                                                  */
-/* Version 4.1.0 */
+/* Version 4.2.0 */
 /*                                                                  */
 
 MEMORY
@@ -73,7 +73,7 @@ SECTIONS
     *crtbegin?.o(.ctors)
     *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
     *(SORT(.ctors.*))
-        *(.ctors)
+    *(.ctors)
 
     /* .dtors */
     *crtbegin.o(.dtors)
