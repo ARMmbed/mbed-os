@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_emu.c
  * @brief Energy Management Unit (EMU) Peripheral API
- * @version 4.2.0
+ * @version 4.2.1
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -103,6 +103,13 @@
 /* DCDCTODVDD output range min/max */
 #define PWRCFG_DCDCTODVDD_VMIN          1200
 #define PWRCFG_DCDCTODVDD_VMAX          3000
+typedef enum
+{
+  errataFixDcdcHsInit,
+  errataFixDcdcHsTrimSet,
+  errataFixDcdcHsLnWaitDone
+} errataFixDcdcHs_TypeDef;
+errataFixDcdcHs_TypeDef errataFixDcdcHsState = errataFixDcdcHsInit;
 #endif
 
 /*******************************************************************************
@@ -333,6 +340,20 @@ void dcdcFetCntSet(bool lpModeSet)
     maxCurrentUpdate();
   }
 }
+
+void dcdcHsFixLnBlock(void)
+{
+#define EMU_DCDCSTATUS  (* (volatile uint32_t *)(EMU_BASE + 0x7C))
+  if (errataFixDcdcHsState == errataFixDcdcHsTrimSet)
+  {
+    /* Wait for LNRUNNING */
+    if ((EMU->DCDCCTRL & ~_EMU_DCDCCTRL_DCDCMODE_MASK) == EMU_DCDCCTRL_DCDCMODE_LOWNOISE)
+    {
+      while (!(EMU_DCDCSTATUS & (0x1 << 16)));
+    }
+    errataFixDcdcHsState = errataFixDcdcHsLnWaitDone;
+  }
+}
 #endif
 
 
@@ -423,6 +444,7 @@ void EMU_EnterEM2(bool restore)
 
 #if defined( _EMU_DCDCCTRL_MASK )
   dcdcFetCntSet(true);
+  dcdcHsFixLnBlock();
 #endif
 
   __WFI();
@@ -554,6 +576,7 @@ void EMU_EnterEM3(bool restore)
 
 #if defined( _EMU_DCDCCTRL_MASK )
   dcdcFetCntSet(true);
+  dcdcHsFixLnBlock();
 #endif
 
   __WFI();
@@ -627,6 +650,7 @@ void EMU_EnterEM4(void)
 
 #if defined( _EMU_DCDCCTRL_MASK )
   dcdcFetCntSet(true);
+  dcdcHsFixLnBlock();
 #endif
 
   for (i = 0; i < 4; i++)
@@ -972,6 +996,12 @@ static bool ConstCalibrationLoad(void)
  ******************************************************************************/
 void ValidatedConfigSet(void)
 {
+#define EMU_DCDCSMCTRL  (* (volatile uint32_t *)(EMU_BASE + 0x44))
+
+  uint32_t dcdcTiming;
+  SYSTEM_PartFamily_TypeDef family;
+  SYSTEM_ChipRevision_TypeDef rev;
+
   /* Enable duty cycling of the bias */
   EMU->DCDCLPCTRL |= EMU_DCDCLPCTRL_LPVREFDUTYEN;
 
@@ -987,6 +1017,31 @@ void ValidatedConfigSet(void)
 #endif
 
   EMU->DCDCTIMING &= ~_EMU_DCDCTIMING_DUTYSCALE_MASK;
+
+  family = SYSTEM_GetFamily();
+  SYSTEM_ChipRevisionGet(&rev);
+  if ((((family >= systemPartFamilyMighty1P)
+         && (family <= systemPartFamilyFlex1V))
+       || (family == systemPartFamilyEfm32Pearl1B)
+       || (family == systemPartFamilyEfm32Jade1B))
+      && ((rev.major == 1) && (rev.minor < 3))
+      && (errataFixDcdcHsState == errataFixDcdcHsInit))
+  {
+    /* LPCMPWAITDIS = 1 */
+    EMU_DCDCSMCTRL |= 1;
+
+    dcdcTiming = EMU->DCDCTIMING;
+    dcdcTiming &= ~(_EMU_DCDCTIMING_LPINITWAIT_MASK
+                    |_EMU_DCDCTIMING_LNWAIT_MASK
+                    |_EMU_DCDCTIMING_BYPWAIT_MASK);
+
+    dcdcTiming |= ((180 << _EMU_DCDCTIMING_LPINITWAIT_SHIFT)
+                   | (12 << _EMU_DCDCTIMING_LNWAIT_SHIFT)
+                   | (180 << _EMU_DCDCTIMING_BYPWAIT_SHIFT));
+    EMU->DCDCTIMING = dcdcTiming;
+
+    errataFixDcdcHsState = errataFixDcdcHsTrimSet;
+  }
 }
 
 
@@ -1127,7 +1182,7 @@ static bool LpCmpHystCalibrationLoad(bool lpAttenuation, uint32_t lpCmpBias)
 void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode)
 {
   while(EMU->DCDCSYNC & EMU_DCDCSYNC_DCDCCTRLBUSY);
-
+  BUS_RegBitWrite(&EMU->DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, dcdcMode == emuDcdcMode_Bypass ? 0 : 1);
   EMU->DCDCCTRL = (EMU->DCDCCTRL & ~_EMU_DCDCCTRL_DCDCMODE_MASK) | dcdcMode;
 }
 
@@ -1135,6 +1190,10 @@ void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode)
 /***************************************************************************//**
  * @brief
  *   Configure DCDC regulator
+ *
+ * @note
+ *   Use the function EMU_DCDCPowerDown() to if the power circuit is configured
+ *   for NODCDC as decribed in Section 11.3.4.3 in the Reference Manual.
  *
  * @param[in] dcdcInit
  *   DCDC initialization structure
@@ -1144,95 +1203,76 @@ void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode)
  ******************************************************************************/
 bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit)
 {
-#if defined( EMU_DCDCMISCCTRL_LPCMPBIASEM01 )
-  uint32_t em01lpCmpBiasSel;
-#endif
   uint32_t lpCmpBiasSel;
 
   /* Set external power configuration. This enables writing to the other
      DCDC registers. */
-  EMU->PWRCFG = (EMU->PWRCFG & ~_EMU_PWRCFG_PWRCFG_MASK) | dcdcInit->powerConfig;
+  EMU->PWRCFG = dcdcInit->powerConfig;
 
-  /* EMU->PWRCFG is write-once and POR/pin reset only. Check that
+  /* EMU->PWRCFG is write-once and POR reset only. Check that
      we could set the desired power configuration. */
   if ((EMU->PWRCFG & _EMU_PWRCFG_PWRCFG_MASK) != dcdcInit->powerConfig)
+  {
+    /* If this assert triggers unexpectedly, please power cycle the
+       kit to reset the power configuration. */
+    EFM_ASSERT(false);
+    /* Return when assertions are disabled */
+    return false;
+  }
+
+  /* Load DCDC calibration data from the DI page */
+  ConstCalibrationLoad();
+
+  /* Check current parameters */
+  EFM_ASSERT(dcdcInit->maxCurrent_mA <= 200);
+  EFM_ASSERT(dcdcInit->em01LoadCurrent_mA <= dcdcInit->maxCurrent_mA);
+
+  /* DCDC low-noise supports max 200mA */
+  if (dcdcInit->dcdcMode == emuDcdcMode_LowNoise)
+  {
+    EFM_ASSERT(dcdcInit->em01LoadCurrent_mA <= 200);
+  }
+
+  /* EM2, 3 and 4 current above 100uA is not supported */
+  EFM_ASSERT(dcdcInit->em234LoadCurrent_uA <= 100);
+
+  /* Decode LP comparator bias for EM0/1 and EM2/3 */
+  lpCmpBiasSel  = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS1;
+  if (dcdcInit->em234LoadCurrent_uA <= 10)
+  {
+    lpCmpBiasSel  = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS0;
+  }
+
+  /* Set DCDC low-power mode comparator bias selection */
+  EMU->DCDCMISCCTRL = (EMU->DCDCMISCCTRL & ~(_EMU_DCDCMISCCTRL_LPCMPBIAS_MASK
+                                             | _EMU_DCDCMISCCTRL_LNFORCECCM_MASK))
+                       | ((uint32_t)lpCmpBiasSel
+                          | (uint32_t)dcdcInit->lnTransientMode);
+
+  /* Set recommended and validated current optimization settings */
+  ValidatedConfigSet();
+
+  /* Set the maximum current that the DCDC can draw from the power source */
+  maxCurrentSet(dcdcInit->maxCurrent_mA);
+
+  /* Optimize LN slice based on given load current estimate */
+  EMU_DCDCOptimizeSlice(dcdcInit->em01LoadCurrent_mA);
+
+  /* Set DCDC output voltage */
+  dcdcOutput_mVout = dcdcInit->mVout;
+  if (!EMU_DCDCOutputVoltageSet(dcdcOutput_mVout, true, true))
   {
     EFM_ASSERT(false);
     /* Return when assertions are disabled */
     return false;
   }
 
-  if (dcdcInit->powerConfig == emuPowerConfig_NoDcdc)
-  {
-    /* Force bypass mode for NoDcdc power config */
-    EMU_DCDCModeSet(emuDcdcMode_Bypass);
-  }
-  else
-  {
-    /* Load DCDC calibration data from the DI page */
-    ConstCalibrationLoad();
+  /* Set EM0 DCDC operating mode. Output voltage set in EMU_DCDCOutputVoltageSet()
+     above takes effect if mode is changed from bypass here. */
+  EMU_DCDCModeSet(dcdcInit->dcdcMode);
 
-    /* Check current parameters */
-    EFM_ASSERT(dcdcInit->maxCurrent_mA <= 200);
-    EFM_ASSERT(dcdcInit->em01LoadCurrent_mA <= dcdcInit->maxCurrent_mA);
-
-
-    /* DCDC low-noise supports max 200mA */
-    if (dcdcInit->dcdcMode == emuDcdcMode_LowNoise)
-    {
-      EFM_ASSERT(dcdcInit->em01LoadCurrent_mA <= 200);
-    }
-    else
-    {
-      /* Unsupported DCDC mode */
-      EFM_ASSERT(false);
-    }
-
-    /* EM2, 3 and 4 current above 100uA is not supported */
-    EFM_ASSERT(dcdcInit->em234LoadCurrent_uA <= 100);
-
-    /* Decode LP comparator bias for EM0/1 and EM2/3 */
-#if defined( EMU_DCDCMISCCTRL_LPCMPBIASEM01 ) || !defined( _EMU_DCDCMISCCTRL_LPCMPBIAS_MASK )
-#warning "Update LPCMPBIAS handling"
-#endif
-
-    lpCmpBiasSel  = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS1;
-    if (dcdcInit->em234LoadCurrent_uA <= 10)
-    {
-      lpCmpBiasSel  = EMU_DCDCMISCCTRL_LPCMPBIAS_BIAS0;
-    }
-
-    /* Set DCDC low-power mode comparator bias selection */
-    EMU->DCDCMISCCTRL = (EMU->DCDCMISCCTRL & ~(_EMU_DCDCMISCCTRL_LPCMPBIAS_MASK
-                                               | _EMU_DCDCMISCCTRL_LNFORCECCM_MASK))
-                         | ((uint32_t)lpCmpBiasSel
-                            | (uint32_t)dcdcInit->lnTransientMode);
-
-    /* Set recommended and validated current optimization settings */
-    ValidatedConfigSet();
-
-    /* Set the maximum current that the DCDC can draw from the power source */
-    maxCurrentSet(dcdcInit->maxCurrent_mA);
-
-    /* Optimize LN slice based on given load current estimate */
-    EMU_DCDCOptimizeSlice(dcdcInit->em01LoadCurrent_mA);
-
-    /* Set DCDC output voltage */
-    dcdcOutput_mVout = dcdcInit->mVout;
-    if (!EMU_DCDCOutputVoltageSet(dcdcOutput_mVout, true, true))
-    {
-      EFM_ASSERT(false);
-      /* Return when assertions are disabled */
-      return false;
-    }
-
-    /* Set EM0 DCDC operating mode. Output voltage set in EMU_DCDCOutputVoltageSet()
-       above takes effect when mode is changed from bypass here. */
-    EMU_DCDCModeSet(dcdcInit->dcdcMode);
-
-    /* Select analog peripheral power supply */
-    BUS_RegBitWrite(&EMU->PWRCTRL, _EMU_PWRCTRL_ANASW_SHIFT, dcdcInit->anaPeripheralPower ? 1 : 0);
-  }
+  /* Select analog peripheral power supply */
+  BUS_RegBitWrite(&EMU->PWRCTRL, _EMU_PWRCTRL_ANASW_SHIFT, dcdcInit->anaPeripheralPower ? 1 : 0);
 
   return true;
 }
@@ -1255,7 +1295,6 @@ bool EMU_DCDCOutputVoltageSet(uint32_t mV,
 #if defined( _DEVINFO_DCDCLNVCTRL0_3V0LNATT1_MASK )
 
   bool validOutVoltage;
-  uint32_t pwrCfg;
   uint8_t lnMode;
   bool attSet;
   uint32_t attMask;
@@ -1268,19 +1307,10 @@ bool EMU_DCDCOutputVoltageSet(uint32_t mV,
   uint32_t lpcmpBias;
   volatile uint32_t* ctrlReg;
 
-  /* Get current power configuration and assert on invalid use-cases. */
-  pwrCfg = (EMU->PWRCFG & _EMU_PWRCFG_PWRCFG_MASK);
-  if (pwrCfg != EMU_PWRCFG_PWRCFG_DCDCTODVDD)
-  {
-    EFM_ASSERT(false);
-    /* Return when assertions are disabled */
-    return false;
-  }
-
   /* Check that the set voltage is within valid range.
      Voltages are obtained from the datasheet. */
   validOutVoltage = false;
-  if (pwrCfg == EMU_PWRCFG_PWRCFG_DCDCTODVDD)
+  if ((EMU->PWRCFG & _EMU_PWRCFG_PWRCFG_MASK) == EMU_PWRCFG_PWRCFG_DCDCTODVDD)
   {
     validOutVoltage = ((mV >= PWRCFG_DCDCTODVDD_VMIN)
                        && (mV <= PWRCFG_DCDCTODVDD_VMAX));
@@ -1546,6 +1576,35 @@ void EMU_DCDCLnRcoBandSet(EMU_DcdcLnRcoBand_TypeDef band)
 {
   EMU->DCDCLNFREQCTRL = (EMU->DCDCLNFREQCTRL & ~_EMU_DCDCLNFREQCTRL_RCOBAND_MASK)
                          | (band << _EMU_DCDCLNFREQCTRL_RCOBAND_SHIFT);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Power off the DCDC regulator.
+ *
+ * @details
+ *   This function powers off the DCDC controller. This function should only be
+ *   used if the external power circuit is wired for no DCDC. If the external power
+ *   circuit is wired for DCDC usage, then use EMU_DCDCInit() and set the
+ *   DCDC in bypass mode to disable DCDC.
+ *
+ * @return
+ *   Return false if the DCDC could not be disabled.
+ ******************************************************************************/
+bool EMU_DCDCPowerOff(void)
+{
+  /* Set power configuration to hard bypass */
+  EMU->PWRCFG = 0xF;
+  if ((EMU->PWRCFG & _EMU_PWRCFG_PWRCFG_MASK) != 0xF)
+  {
+    EFM_ASSERT(false);
+    /* Return when assertions are disabled */
+    return false;
+  }
+
+  /* Set DCDC to OFF and disable LP in EM2/3/4 */
+  EMU->DCDCCTRL = EMU_DCDCCTRL_DCDCMODE_OFF;
+  return true;
 }
 #endif
 
