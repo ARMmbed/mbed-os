@@ -26,6 +26,15 @@
 extern "C" {
 #endif
 
+struct waveconfig_t {
+    /** Internal clock signals selection. */
+    uint32_t ul_intclock;
+    /** Waveform frequency (in Hz). */
+    uint16_t us_frequency;
+    /** Duty cycle in percent (positive).*/
+    uint16_t us_dutycycle;
+};
+
 struct gpio_irq_s {
     uint32_t pin;
     uint32_t irqmask;
@@ -53,6 +62,11 @@ struct analogin_s {
 };
 
 struct pwmout_s {
+    uint32_t channel;
+    uint32_t ioline;
+    uint32_t pin;
+    uint32_t prescalarindex;
+    struct waveconfig_t waveconfig;
 };
 
 struct i2c_s {

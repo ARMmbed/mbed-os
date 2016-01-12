@@ -166,6 +166,24 @@ const PinMap PinMap_I2C_SCL[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
+    {PA00, TC0, 1},
+    {PA23, TC0, 1},
+    {PA21, TC0, 0},
+    {PA01, TC0, 1},
+    {PA16, TC0, 1},
+    {PA22, TC0, 0},
+    /* Not connected */
+    {NC  , NC   , NC}
+};
+
+/************PWM***************/
+const PinMap PinMap_PWM_IO_Line[] = {
+    {PA00, 0, 0},
+    {PA23, 1, 0},
+    {PA21, 2, 0},
+    {PA01, 0, 1},
+    {PA16, 1, 1},
+    {PA22, 2, 1},
     /* Not connected */
     {NC  , NC   , NC}
 };

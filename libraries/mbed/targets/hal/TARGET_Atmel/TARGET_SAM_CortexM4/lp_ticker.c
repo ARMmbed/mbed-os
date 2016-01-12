@@ -30,10 +30,10 @@ extern volatile uint32_t overflow32bitcounter;
 static uint16_t lp_ticker_interrupt_counter;
 static uint16_t lp_ticker_interrupt_offset;
 
-#define TICKER_COUNTER_lp        TC0
+#define TICKER_COUNTER_lp        TC1
 #define TICKER_COUNTER_CHANNEL2  2
-#define TICKER_COUNTER_IRQn2     TC2_IRQn
-#define TICKER_COUNTER_Handlr2   TC2_Handler
+#define TICKER_COUNTER_IRQn2     TC5_IRQn
+#define TICKER_COUNTER_Handlr2   TC5_Handler
 
 #define OVERFLOW_16bit_VALUE_LP    0xFFFF
 
