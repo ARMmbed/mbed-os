@@ -1692,10 +1692,10 @@ class EFM32HG_STK3400(Target):
 class EFM32PG_STK3401(Target):
     def __init__(self):
         Target.__init__(self)
-        self.core = "Cortex-M4"
+        self.core = "Cortex-M4F"
         self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32PG1B200F256GM32']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.macros = ['EFM32PG1B200F256GM48']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM", "IAR"]
         self.default_toolchain = "ARM"
 
 
