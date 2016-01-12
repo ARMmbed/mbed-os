@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_emu.h
  * @brief Energy management unit (EMU) peripheral API
- * @version 4.2.0
+ * @version 4.2.1
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -156,8 +156,6 @@ typedef enum
 /** Power configurations */
 typedef enum
 {
-  /** Disable DCDC */
-  emuPowerConfig_NoDcdc = EMU_PWRCFG_PWRCFG_NODCDC,
   /** DCDC is connected to DVDD */
   emuPowerConfig_DcdcToDvdd = EMU_PWRCFG_PWRCFG_DCDCTODVDD,
 } EMU_PowerConfig_TypeDef;
@@ -171,8 +169,6 @@ typedef enum
   emuDcdcMode_Bypass = EMU_DCDCCTRL_DCDCMODE_BYPASS,
   /** DCDC low-noise mode */
   emuDcdcMode_LowNoise = EMU_DCDCCTRL_DCDCMODE_LOWNOISE,
-  /** DCDC regulator is off */
-  emuDcdcMode_Off = EMU_DCDCCTRL_DCDCMODE_OFF,
 } EMU_DcdcMode_TypeDef;
 #endif
 
@@ -476,6 +472,7 @@ void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode);
 bool EMU_DCDCOutputVoltageSet(uint32_t mV, bool setLpVoltage, bool setLnVoltage);
 void EMU_DCDCOptimizeSlice(uint32_t mALoadCurrent);
 void EMU_DCDCLnRcoBandSet(EMU_DcdcLnRcoBand_TypeDef band);
+bool EMU_DCDCPowerOff(void);
 #endif
 #if defined( EMU_STATUS_VMONRDY )
 void EMU_VmonInit(EMU_VmonInit_TypeDef *vmonInit);
