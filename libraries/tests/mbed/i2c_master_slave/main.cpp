@@ -16,8 +16,10 @@
 //   pull-up resistors on both lines
 // ********************************************************
 
-I2CSlave slave(p9, p10);
-I2C master(p28, p27);
+#if defined(TARGET_SAMG55J19)
+	I2CSlave slave(PA10, PA09);
+	I2C master(PA13, PA12);
+#endif
 
 int main()
 {

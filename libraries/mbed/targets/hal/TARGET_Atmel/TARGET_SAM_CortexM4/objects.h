@@ -70,10 +70,21 @@ struct pwmout_s {
 };
 
 struct i2c_s {
+    Twi * i2c_base;
+    Flexcom * flexcom;
+    uint8_t is_slave;
+    uint8_t module_number;
+	uint32_t speed;
+	uint32_t master_clk;
+	uint32_t address;
 #if DEVICE_I2C_ASYNCH
-#endif
+    Pdc * pdc;
+    uint8_t dma_usage;
+    IRQn_Type irq_type;
+    uint32_t event;
+	uint32_t stop;
+#endif	
 };
-
 struct spi_s {
     Spi * spi_base;
     Flexcom * flexcom;
