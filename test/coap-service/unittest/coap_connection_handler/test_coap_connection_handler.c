@@ -122,8 +122,8 @@ bool test_coap_connection_handler_send_data()
 
     connection_handler_destroy(handler);
 
-    coap_security_handler_stub.sec_obj = (thread_security_t *)malloc(sizeof(thread_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(thread_security_t));
+    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
+    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
     coap_security_handler_stub.sec_obj->_remote_port = 22;
     memset(coap_security_handler_stub.sec_obj->_remote_address, 1, 16 );
 
@@ -199,8 +199,8 @@ bool test_coap_connection_handler_virtual_recv()
         return false;
 
     //handler->socket->data still in memory
-    coap_security_handler_stub.sec_obj = (thread_security_t *)malloc(sizeof(thread_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(thread_security_t));
+    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
+    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
     coap_security_handler_stub.sec_obj->_remote_port = 55;
     memset(coap_security_handler_stub.sec_obj->_remote_address, 4, 16 );
 
@@ -298,8 +298,8 @@ bool test_timer_callbacks()
         return false;
 
     //handler->socket->data still in memory
-    coap_security_handler_stub.sec_obj = (thread_security_t *)malloc(sizeof(thread_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(thread_security_t));
+    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
+    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
     coap_security_handler_stub.sec_obj->_remote_port = 55;
     memset(coap_security_handler_stub.sec_obj->_remote_address, 4, 16 );
     coap_security_handler_stub.sec_obj->_timer_id = 5;
@@ -351,8 +351,8 @@ bool test_socket_api_callbacks()
     socket_callback_t *sckt_data = (socket_callback_t *)malloc(sizeof(socket_callback_t));
     memset(sckt_data, 0, sizeof(socket_callback_t));
 
-    coap_security_handler_stub.sec_obj = (thread_security_t *)malloc(sizeof(thread_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(thread_security_t));
+    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
+    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
 
     socket_api_stub.int8_value = 0;
     nsdynmemlib_stub.returnCounter = 1;
@@ -431,8 +431,8 @@ bool test_security_callbacks()
     socket_callback_t *sckt_data = (socket_callback_t *)malloc(sizeof(socket_callback_t));
     memset(sckt_data, 0, sizeof(socket_callback_t));
 
-    coap_security_handler_stub.sec_obj = (thread_security_t *)malloc(sizeof(thread_security_t));
-    memset(coap_security_handler_stub.sec_obj, 0, sizeof(thread_security_t));
+    coap_security_handler_stub.sec_obj = (coap_security_t *)malloc(sizeof(coap_security_t));
+    memset(coap_security_handler_stub.sec_obj, 0, sizeof(coap_security_t));
 
     nsdynmemlib_stub.returnCounter = 1;
     thread_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);

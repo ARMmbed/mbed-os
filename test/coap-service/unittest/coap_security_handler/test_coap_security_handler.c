@@ -50,11 +50,11 @@ bool test_thread_security_create()
 
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    thread_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
-    ns_dyn_mem_free(handle);
+    thread_security_destroy(handle);
 
     return true;
 }
@@ -64,7 +64,7 @@ bool test_thread_security_destroy()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    thread_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -77,7 +77,7 @@ bool test_coap_security_handler_connect()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    thread_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -174,7 +174,7 @@ bool test_coap_security_handler_continue_connecting()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    thread_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -222,7 +222,7 @@ bool test_coap_security_handler_send_message()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    thread_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -243,7 +243,7 @@ bool test_thread_security_send_close_alert()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    thread_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -263,7 +263,7 @@ bool test_coap_security_handler_read()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    thread_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
