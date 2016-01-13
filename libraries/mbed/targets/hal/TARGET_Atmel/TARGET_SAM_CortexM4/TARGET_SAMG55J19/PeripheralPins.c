@@ -135,31 +135,31 @@ const PinMap PinMap_SPI_MISO[] = {
 
 /************I2C***************/
 const PinMap PinMap_I2C_SDA[] = {
-    {PA10, UART_0, 0},
-    {PB03, UART_1, 0},
-    {PA06, UART_2, 0},
-    {PA03, UART_3, 0},
-    {PB08, UART_4, 0},
-    {PB10, UART_4, 0},
-    {PA13, UART_5, 0},
-    {PB00, UART_6, 1},
-    {PB10, UART_6, 1},
-    {PA28, UART_7, 1},
+    {PA10, TWI0, 0},
+    {PB03, TWI1, 0},
+    {PA06, TWI2, 0},
+    {PA03, TWI3, 0},
+    {PB08, TWI4, 0},
+    {PB10, TWI4, 0},
+    {PA13, TWI5, 0},
+    {PB00, TWI6, 1},
+    {PB10, TWI6, 1},
+    {PA28, TWI7, 1},
     /* Not connected */
     {NC  , NC   , NC}
 };
 
 const PinMap PinMap_I2C_SCL[] = {
-    {PA09, UART_0, 0},
-    {PB02, UART_1, 0},
-    {PA05, UART_2, 0},
-    {PA04, UART_3, 0},
-    {PB09, UART_4, 0},
-    {PB11, UART_4, 0},
-    {PA12, UART_5, 0},
-    {PB01, UART_6, 1},
-    {PB11, UART_6, 1},
-    {PA27, UART_7, 1},
+    {PA09, TWI0, 0},
+    {PB02, TWI1, 0},
+    {PA05, TWI2, 0},
+    {PA04, TWI3, 0},
+    {PB09, TWI4, 0},
+    {PB11, TWI4, 0},
+    {PA12, TWI5, 0},
+    {PB01, TWI6, 1},
+    {PB11, TWI6, 1},
+    {PA27, TWI7, 1},
     /* Not connected */
     {NC  , NC   , NC}
 };

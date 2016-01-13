@@ -43,15 +43,6 @@
 /* Delay between consecutive transfers. */
 #define SPI_DLYBCT 0x10
 
-#define SPI0_Handler     FLEXCOM0_Handler
-#define SPI1_Handler     FLEXCOM1_Handler
-#define SPI2_Handler     FLEXCOM2_Handler
-#define SPI3_Handler     FLEXCOM3_Handler
-#define SPI4_Handler     FLEXCOM4_Handler
-#define SPI5_Handler     FLEXCOM5_Handler
-#define SPI6_Handler     FLEXCOM6_Handler
-#define SPI7_Handler     FLEXCOM7_Handler
-
 #define MAX_SPI	8
 
 volatile uint32_t gCallbackHandler[MAX_SPI];
