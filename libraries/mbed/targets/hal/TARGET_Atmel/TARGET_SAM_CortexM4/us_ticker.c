@@ -108,7 +108,6 @@ void us_ticker_init(void)
 
 
     NVIC_DisableIRQ(TICKER_COUNTER_IRQn0);
-    NVIC_SetVector(TICKER_COUNTER_IRQn0, (uint32_t)TICKER_COUNTER_Handlr0);
 
     NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn0);
     NVIC_SetPriority(TICKER_COUNTER_IRQn0, 0);
@@ -160,7 +159,6 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 
     NVIC_DisableIRQ(TICKER_COUNTER_IRQn1);
-    NVIC_SetVector(TICKER_COUNTER_IRQn1, (uint32_t)TICKER_COUNTER_Handlr1);
 
     tc_write_rc(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1, (uint32_t)interruptat);
 
