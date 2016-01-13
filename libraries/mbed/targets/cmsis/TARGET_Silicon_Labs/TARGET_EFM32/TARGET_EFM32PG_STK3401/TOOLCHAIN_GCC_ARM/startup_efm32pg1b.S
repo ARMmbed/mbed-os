@@ -113,11 +113,7 @@ __Vectors:
     .long       PCNT0_IRQHandler    /* 22 - PCNT0 */
     .long       CMU_IRQHandler    /* 23 - CMU */
     .long       MSC_IRQHandler    /* 24 - MSC */
-<<<<<<< HEAD
-    .long       Default_Handler    /* 25 - Reserved */
-=======
     .long       CRYPTO_IRQHandler    /* 25 - CRYPTO */
->>>>>>> SiLabs: Update emlib to 4.2.0
     .long       LETIMER0_IRQHandler    /* 26 - LETIMER0 */
     .long       Default_Handler    /* 27 - Reserved */
     .long       Default_Handler    /* 28 - Reserved */
