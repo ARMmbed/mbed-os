@@ -32,6 +32,9 @@
 #elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A)
 #define TEST_LED LED1
 
+#elif defined(TARGET_SAMG55J19)
+#define TEST_LED PA01 /*LED in board doesnt have PWM functionality*/
+      
 #else
   #error [NOT_SUPPORTED] This test is not supported on this target
 #endif

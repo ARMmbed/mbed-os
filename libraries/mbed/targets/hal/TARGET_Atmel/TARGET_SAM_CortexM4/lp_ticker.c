@@ -103,7 +103,6 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     }
 
     NVIC_DisableIRQ(TICKER_COUNTER_IRQn2);
-    NVIC_SetVector(TICKER_COUNTER_IRQn2, (uint32_t)TICKER_COUNTER_Handlr2);
 
     tc_write_rc(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, (uint32_t)interruptat);
 
