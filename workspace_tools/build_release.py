@@ -177,7 +177,7 @@ if __name__ == '__main__':
         if options.toolchains:
             print "Only building using the following toolchains: %s" % (options.toolchains)
             toolchainSet = set(toolchains)
-            toolchains = toolchainSet and set((options.toolchains).split(','))
+            toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
 
         for toolchain in toolchains:
             id = "%s::%s" % (target_name, toolchain)
