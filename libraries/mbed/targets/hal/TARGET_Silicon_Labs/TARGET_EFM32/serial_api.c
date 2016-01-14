@@ -477,12 +477,21 @@ static void serial_enable_pins(serial_t *obj, uint8_t enable)
 {
     if (enable) {
         /* Configure GPIO pins*/
-        pin_mode(obj->serial.rx_pin, Input);
-        /* 0x10 sets DOUT. Prevents false start. */
-        pin_mode(obj->serial.tx_pin, PushPull | 0x10);
+        if(obj->serial.rx_pin != NC) {
+            pin_mode(obj->serial.rx_pin, Input);
+        }
+        /* Set DOUT first to prevent glitches */
+        if(obj->serial.tx_pin != NC) {
+			GPIO_PinOutSet((GPIO_Port_TypeDef)(obj->serial.tx_pin >> 4 & 0xF), obj->serial.tx_pin & 0xF);
+            pin_mode(obj->serial.tx_pin, PushPull);
+        }
     } else {
-        pin_mode(obj->serial.rx_pin, Disabled);
-        pin_mode(obj->serial.tx_pin, Disabled);
+        if(obj->serial.rx_pin != NC) {
+            pin_mode(obj->serial.rx_pin, Disabled);
+        }
+        if(obj->serial.tx_pin != NC) {
+            pin_mode(obj->serial.tx_pin, Disabled);
+        }
     }
 }
 
@@ -513,7 +522,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     CMU_ClockEnable(serial_get_clock(obj), true);
 
     /* Limitations of board controller: CDC port only supports 115kbaud */
-    if((tx == STDIO_UART_TX) && (rx == STDIO_UART_RX)
+    if(((tx == STDIO_UART_TX) || (rx == STDIO_UART_RX))
        && (obj->serial.periph.uart == (USART_TypeDef*)STDIO_UART )
       ) {
         baudrate = 115200;
@@ -528,21 +537,53 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     /* Enable pins for UART at correct location */
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
 #ifdef _LEUART_ROUTE_LOCATION_SHIFT
-        obj->serial.periph.leuart->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
+        obj->serial.periph.leuart->ROUTE = (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
+        if(tx != (uint32_t)NC) {
+            obj->serial.periph.leuart->ROUTE |= LEUART_ROUTE_TXPEN;
+        }
+        if(rx != (uint32_t)NC) {
+            obj->serial.periph.leuart->ROUTE |= LEUART_ROUTE_RXPEN;
+        }
 #else
-        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location_tx << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
-                                               (obj->serial.location_rx << _LEUART_ROUTELOC0_RXLOC_SHIFT);
-        obj->serial.periph.leuart->ROUTEPEN = LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
+        if(obj->serial.location_tx != NC) {
+            obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.periph.leuart->ROUTELOC0 & (~_LEUART_ROUTELOC0_TXLOC_MASK)) | (obj->serial.location_tx << _LEUART_ROUTELOC0_TXLOC_SHIFT);
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_TXPEN_MASK)) | LEUART_ROUTEPEN_TXPEN;
+        } else {
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_TXPEN_MASK));
+        }
+        if(obj->serial.location_rx != NC) {
+            obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.periph.leuart->ROUTELOC0 & (~_LEUART_ROUTELOC0_RXLOC_MASK)) | (obj->serial.location_rx << _LEUART_ROUTELOC0_RXLOC_SHIFT);
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_RXPEN_MASK)) | LEUART_ROUTEPEN_RXPEN;
+        } else {
+            obj->serial.periph.leuart->CMD       = LEUART_CMD_RXBLOCKEN;
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_RXPEN_MASK));
+        }
 #endif
         obj->serial.periph.leuart->IFC = LEUART_IFC_TXC;
         obj->serial.periph.leuart->CTRL |= LEUART_CTRL_RXDMAWU | LEUART_CTRL_TXDMAWU;
     } else {
 #ifdef _USART_ROUTE_LOCATION_SHIFT
-        obj->serial.periph.uart->ROUTE = USART_ROUTE_RXPEN | USART_ROUTE_TXPEN | (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
+        obj->serial.periph.uart->ROUTE = (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
+        if(tx != (uint32_t)NC) {
+            obj->serial.periph.uart->ROUTE |= USART_ROUTE_TXPEN;
+        }
+        if(rx != (uint32_t)NC) {
+            obj->serial.periph.uart->ROUTE |= USART_ROUTE_RXPEN;
+        }
 #else
-        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT) |
-                                             (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
-        obj->serial.periph.uart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
+        if(obj->serial.location_tx != NC) {
+            obj->serial.periph.uart->ROUTELOC0 = (obj->serial.periph.uart->ROUTELOC0 & (~_USART_ROUTELOC0_TXLOC_MASK)) | (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT);
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_TXPEN_MASK)) | USART_ROUTEPEN_TXPEN;
+        } else {
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_TXPEN_MASK));
+        }
+        if(obj->serial.location_rx != NC) {
+            obj->serial.periph.uart->ROUTELOC0 = (obj->serial.periph.uart->ROUTELOC0 & (~_USART_ROUTELOC0_RXLOC_MASK)) | (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_RXPEN_MASK)) | USART_ROUTEPEN_RXPEN;
+        } else {
+            obj->serial.periph.uart->CMD       = USART_CMD_RXBLOCKEN;
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_RXPEN_MASK));
+        }
 #endif
         obj->serial.periph.uart->IFC = USART_IFC_TXC;
     }
@@ -571,6 +612,7 @@ void serial_free(serial_t *obj)
     } else {
         USART_Enable(obj->serial.periph.uart, usartDisable);
     }
+    serial_enable_pins(obj, false);
 }
 
 static void serial_enable(serial_t *obj, uint8_t enable)
@@ -599,7 +641,7 @@ void serial_baud(serial_t *obj, int baudrate)
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         serial_leuart_baud(obj, baudrate);
     } else {
-        USART_BaudrateAsyncSet(obj->serial.periph.uart, 0, (uint32_t)baudrate, usartOVS16);
+        USART_BaudrateAsyncSet(obj->serial.periph.uart, REFERENCE_FREQUENCY, (uint32_t)baudrate, usartOVS16);
     }
 }
 
@@ -720,11 +762,26 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
         /* Re-enable pins for UART at correct location */
 #ifdef _LEUART_ROUTE_LOCATION_SHIFT
-        obj->serial.periph.leuart->ROUTE = LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN | (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
+        obj->serial.periph.leuart->ROUTE = (obj->serial.location << _LEUART_ROUTE_LOCATION_SHIFT);
+        if(obj->serial.tx_pin != (uint32_t)NC) {
+            obj->serial.periph.leuart->ROUTE |= LEUART_ROUTE_TXPEN;
+        }
+        if(obj->serial.rx_pin != (uint32_t)NC) {
+            obj->serial.periph.leuart->ROUTE |= LEUART_ROUTE_RXPEN;
+        }
 #else
-        obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.location_tx << _LEUART_ROUTELOC0_TXLOC_SHIFT) |
-                                               (obj->serial.location_rx << _LEUART_ROUTELOC0_RXLOC_SHIFT);
-        obj->serial.periph.leuart->ROUTEPEN = LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
+        if(obj->serial.location_tx != NC) {
+            obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.periph.leuart->ROUTELOC0 & (~_LEUART_ROUTELOC0_TXLOC_MASK)) | (obj->serial.location_tx << _LEUART_ROUTELOC0_TXLOC_SHIFT);
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_TXPEN_MASK)) | LEUART_ROUTEPEN_TXPEN;
+        } else {
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_TXPEN_MASK));
+        }
+        if(obj->serial.location_rx != NC) {
+            obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.periph.leuart->ROUTELOC0 & (~_LEUART_ROUTELOC0_RXLOC_MASK)) | (obj->serial.location_rx << _LEUART_ROUTELOC0_RXLOC_SHIFT);
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_RXPEN_MASK)) | LEUART_ROUTEPEN_RXPEN;
+        } else {
+            obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_RXPEN_MASK));
+        }
 #endif
 
         /* Re-enable interrupts */
@@ -771,11 +828,26 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
         /* Re-enable pins for UART at correct location */
 #ifdef _USART_ROUTE_LOCATION_SHIFT
-        obj->serial.periph.uart->ROUTE = USART_ROUTE_RXPEN | USART_ROUTE_TXPEN | (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
+        obj->serial.periph.uart->ROUTE = (obj->serial.location << _USART_ROUTE_LOCATION_SHIFT);
+        if(obj->serial.tx_pin != (uint32_t)NC) {
+            obj->serial.periph.uart->ROUTE |= USART_ROUTE_TXPEN;
+        }
+        if(obj->serial.rx_pin != (uint32_t)NC) {
+            obj->serial.periph.uart->ROUTE |= USART_ROUTE_RXPEN;
+        }
 #else
-        obj->serial.periph.uart->ROUTELOC0 = (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT) |
-                                             (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
-        obj->serial.periph.uart->ROUTEPEN = USART_ROUTEPEN_RXPEN | USART_ROUTEPEN_TXPEN;
+        if(obj->serial.location_tx != NC) {
+            obj->serial.periph.uart->ROUTELOC0 = (obj->serial.periph.uart->ROUTELOC0 & (~_USART_ROUTELOC0_TXLOC_MASK)) | (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT);
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_TXPEN_MASK)) | USART_ROUTEPEN_TXPEN;
+        } else {
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_TXPEN_MASK));
+        }
+        if(obj->serial.location_rx != NC) {
+            obj->serial.periph.uart->ROUTELOC0 = (obj->serial.periph.uart->ROUTELOC0 & (~_USART_ROUTELOC0_RXLOC_MASK)) | (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_RXPEN_MASK)) | USART_ROUTEPEN_RXPEN;
+        } else {
+            obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_RXPEN_MASK));
+        }
 #endif
 
         /* Re-enable interrupts */
@@ -997,8 +1069,10 @@ void serial_putc(serial_t *obj, int c)
      * need to use serial_writable(). */
     if(LEUART_REF_VALID(obj->serial.periph.leuart)) {
         LEUART_Tx(obj->serial.periph.leuart, (uint8_t)(c));
+        while (!(obj->serial.periph.leuart->STATUS & LEUART_STATUS_TXC));
     } else {
         USART_Tx(obj->serial.periph.uart, (uint8_t)(c));
+        while (!(obj->serial.periph.uart->STATUS & USART_STATUS_TXC));
     }
 }
 
@@ -1418,7 +1492,7 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
                 break;
 #endif
             default:
-                EFM_ASSERT(0);
+                MBED_ASSERT(0);
                 while(1);
                 break;
         }
