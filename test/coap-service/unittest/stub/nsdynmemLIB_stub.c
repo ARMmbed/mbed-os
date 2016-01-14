@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2015 ARM Limited. All Rights Reserved.
  */
 #include "nsdynmemLIB_stub.h"
 #include <stdint.h>

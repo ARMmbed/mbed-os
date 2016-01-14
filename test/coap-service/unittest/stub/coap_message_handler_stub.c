@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
  */
 
 #include "coap_message_handler_stub.h"

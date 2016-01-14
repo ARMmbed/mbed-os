@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM. All rights reserved.
+ * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
  */
 #include "test_coap_security_handler.h"
 #include "coap_security_handler.h"

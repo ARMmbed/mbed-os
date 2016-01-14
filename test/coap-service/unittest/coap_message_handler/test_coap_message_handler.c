@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM. All rights reserved.
+ * Copyright (c) 2015 ARM Limited. All Rights Reserved.
  */
 #include "test_coap_message_handler.h"
 #include <string.h>
