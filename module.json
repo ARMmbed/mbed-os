@@ -1,12 +1,11 @@
 {
   "name": "coap-service",
-  "version": "0.0.11",
+  "version": "1.0.0",
   "description": "CoAP Service library",
   "keywords": [
     "coap",
     "service"
   ],
-  "author": "Erno Tormikoski <erno.tormikoski@arm.com>",
   "repository": {
     "url": "git@github.com:ARMmbed/coap-service.git",
     "type": "git"
@@ -21,8 +20,8 @@
   "dependencies": {
     "nanostack-libservice": "^3.0.0",
     "mbed-client-c": "^1.1.0",
-    "sal-stack-nanostack-eventloop": "^1.0.0",
-    "sal-stack-nanostack": "^3.0.0"
+    "sal-stack-nanostack": "^3.0.0",
+    "mbedtls": "^2.0.0"
   },
   "targetDependencies": {}
 }
