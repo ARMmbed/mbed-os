@@ -372,8 +372,8 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c)
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
     if(enable_slave) {
-        /* Datasheet note: DIV must be set to 1 during slave operation */
-        obj->i2c.i2c->DIV = 1;
+        /* Reference manual note: DIV must be set to 1 during slave operation */
+        obj->i2c.i2c->CLKDIV = 1;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_SLAVE_MASK;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_AUTOACK_MASK; //Slave implementation assumes auto acking
     } else {
