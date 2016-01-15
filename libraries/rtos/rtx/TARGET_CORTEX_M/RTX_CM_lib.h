@@ -310,7 +310,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F303K8)
 #define INITIAL_SP            (0x20003000UL)
 
-#elif defined(TARGET_STM32F746NG)
+#elif (defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG))
 #define INITIAL_SP            (0x20050000UL)
 
 #elif defined(TARGET_MAX32610) || defined(TARGET_MAX32600)
