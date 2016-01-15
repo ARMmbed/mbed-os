@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_dmactrl.h
  * @brief EFM32LG_DMACTRL register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 
 /**************************************************************************//**
  * @defgroup EFM32LG_DMACTRL_BitFields
@@ -77,11 +81,11 @@
 #define _DMA_CTRL_DST_PROT_CTRL_MASK                   0x00E00000UL  /**< Protection flag for destination, bit mask */
 #define _DMA_CTRL_DST_PROT_CTRL_SHIFT                  21            /**< Protection flag for destination, shift value */
 #define DMA_CTRL_DST_PROT_PRIVILEGED                   0x00200000UL  /**< Privileged mode for destination */
-#define DMA_CTRL_DST_PROT_NON_PRIVILEGED               0x00000000UL  /**< Non-privileged mode for estination */
+#define DMA_CTRL_DST_PROT_NON_PRIVILEGED               0x00000000UL  /**< Non-privileged mode for destination */
 #define _DMA_CTRL_SRC_PROT_CTRL_MASK                   0x001C0000UL  /**< Protection flag for source, bit mask */
 #define _DMA_CTRL_SRC_PROT_CTRL_SHIFT                  18            /**< Protection flag for source, shift value */
 #define DMA_CTRL_SRC_PROT_PRIVILEGED                   0x00040000UL  /**< Privileged mode for destination */
-#define DMA_CTRL_SRC_PROT_NON_PRIVILEGED               0x00000000UL  /**< Non-privileged mode for estination */
+#define DMA_CTRL_SRC_PROT_NON_PRIVILEGED               0x00000000UL  /**< Non-privileged mode for destination */
 #define _DMA_CTRL_PROT_NON_PRIVILEGED                  0x00          /**< Protection bits to indicate non-privileged access */
 #define _DMA_CTRL_PROT_PRIVILEGED                      0x01          /**< Protection bits to indicate privileged access */
 #define _DMA_CTRL_R_POWER_MASK                         0x0003C000UL  /**< DMA arbitration mask */
@@ -132,5 +136,5 @@
 #define DMA_CTRL_CYCLE_CTRL_PER_SCATTER_GATHER_ALT     0x000000007UL /**< Peripheral scatter gather cycle type using alternate structure */
 
 /** @} End of group EFM32LG_DMA */
-
+/** @} End of group Parts */
 

@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_cmu.h
  * @brief EFM32ZG_CMU register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32ZG_CMU
  * @{
@@ -60,6 +64,7 @@ typedef struct
   __IO uint32_t LFACLKEN0;    /**< Low Frequency A Clock Enable Register 0  (Async Reg)  */
   uint32_t      RESERVED1[1]; /**< Reserved for future use **/
   __IO uint32_t LFBCLKEN0;    /**< Low Frequency B Clock Enable Register 0 (Async Reg)  */
+
   uint32_t      RESERVED2[1]; /**< Reserved for future use **/
   __IO uint32_t LFAPRESC0;    /**< Low Frequency A Prescaler Register 0 (Async Reg)  */
   uint32_t      RESERVED3[1]; /**< Reserved for future use **/
@@ -79,7 +84,7 @@ typedef struct
 
 /* Bit fields for CMU CTRL */
 #define _CMU_CTRL_RESETVALUE                        0x000C262CUL                             /**< Default value for CMU_CTRL */
-#define _CMU_CTRL_MASK                              0x03FE3EEFUL                             /**< Mask for CMU_CTRL */
+#define _CMU_CTRL_MASK                              0x07FE3EEFUL                             /**< Mask for CMU_CTRL */
 #define _CMU_CTRL_HFXOMODE_SHIFT                    0                                        /**< Shift value for CMU_HFXOMODE */
 #define _CMU_CTRL_HFXOMODE_MASK                     0x3UL                                    /**< Bit mask for CMU_HFXOMODE */
 #define _CMU_CTRL_HFXOMODE_DEFAULT                  0x00000000UL                             /**< Mode DEFAULT for CMU_CTRL */
@@ -180,7 +185,7 @@ typedef struct
 #define CMU_CTRL_CLKOUTSEL0_ULFRCO                  (_CMU_CTRL_CLKOUTSEL0_ULFRCO << 20)      /**< Shifted mode ULFRCO for CMU_CTRL */
 #define CMU_CTRL_CLKOUTSEL0_AUXHFRCO                (_CMU_CTRL_CLKOUTSEL0_AUXHFRCO << 20)    /**< Shifted mode AUXHFRCO for CMU_CTRL */
 #define _CMU_CTRL_CLKOUTSEL1_SHIFT                  23                                       /**< Shift value for CMU_CLKOUTSEL1 */
-#define _CMU_CTRL_CLKOUTSEL1_MASK                   0x3800000UL                              /**< Bit mask for CMU_CLKOUTSEL1 */
+#define _CMU_CTRL_CLKOUTSEL1_MASK                   0x7800000UL                              /**< Bit mask for CMU_CLKOUTSEL1 */
 #define _CMU_CTRL_CLKOUTSEL1_DEFAULT                0x00000000UL                             /**< Mode DEFAULT for CMU_CTRL */
 #define _CMU_CTRL_CLKOUTSEL1_LFRCO                  0x00000000UL                             /**< Mode LFRCO for CMU_CTRL */
 #define _CMU_CTRL_CLKOUTSEL1_LFXO                   0x00000001UL                             /**< Mode LFXO for CMU_CTRL */
@@ -973,5 +978,5 @@ typedef struct
 #define CMU_LOCK_LOCKKEY_UNLOCK                     (_CMU_LOCK_LOCKKEY_UNLOCK << 0)   /**< Shifted mode UNLOCK for CMU_LOCK */
 
 /** @} End of group EFM32ZG_CMU */
-
+/** @} End of group Parts */
 

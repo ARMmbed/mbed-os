@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_dac.c
  * @brief Digital to Analog Coversion (DAC) Peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,12 +30,11 @@
  *
  ******************************************************************************/
 
-
 #include "em_dac.h"
 #if defined(DAC_COUNT) && (DAC_COUNT > 0)
 #include "em_cmu.h"
 #include "em_assert.h"
-#include "em_bitband.h"
+#include "em_bus.h"
 
 /***************************************************************************//**
  * @addtogroup EM_Library
@@ -95,7 +94,7 @@ void DAC_Enable(DAC_TypeDef *dac, unsigned int ch, bool enable)
     reg = &(dac->CH1CTRL);
   }
 
-  BITBAND_Peripheral(reg, _DAC_CH0CTRL_EN_SHIFT, (unsigned int)enable);
+  BUS_RegBitWrite(reg, _DAC_CH0CTRL_EN_SHIFT, enable);
 }
 
 
@@ -123,30 +122,31 @@ void DAC_Init(DAC_TypeDef *dac, const DAC_Init_TypeDef *init)
   EFM_ASSERT(DAC_REF_VALID(dac));
 
   /* Make sure both channels are disabled. */
-  BITBAND_Peripheral(&(dac->CH0CTRL), _DAC_CH0CTRL_EN_SHIFT, 0);
-  BITBAND_Peripheral(&(dac->CH1CTRL), _DAC_CH0CTRL_EN_SHIFT, 0);
+  BUS_RegBitWrite(&(dac->CH0CTRL), _DAC_CH0CTRL_EN_SHIFT, 0);
+  BUS_RegBitWrite(&(dac->CH1CTRL), _DAC_CH0CTRL_EN_SHIFT, 0);
 
   /* Load proper calibration data depending on selected reference */
   switch (init->reference)
   {
-  case dacRef2V5:
-    dac->CAL = DEVINFO->DAC0CAL1;
-    break;
+    case dacRef2V5:
+      dac->CAL = DEVINFO->DAC0CAL1;
+      break;
 
-  case dacRefVDD:
-    dac->CAL = DEVINFO->DAC0CAL2;
-    break;
+    case dacRefVDD:
+      dac->CAL = DEVINFO->DAC0CAL2;
+      break;
 
-  default: /* 1.25V */
-    dac->CAL = DEVINFO->DAC0CAL0;
-    break;
+    default: /* 1.25V */
+      dac->CAL = DEVINFO->DAC0CAL0;
+      break;
   }
 
-  tmp = ((uint32_t)(init->refresh) << _DAC_CTRL_REFRSEL_SHIFT) |
-        (((uint32_t)(init->prescale) << _DAC_CTRL_PRESC_SHIFT) & _DAC_CTRL_PRESC_MASK) |
-        ((uint32_t)(init->reference) << _DAC_CTRL_REFSEL_SHIFT) |
-        ((uint32_t)(init->outMode) << _DAC_CTRL_OUTMODE_SHIFT) |
-        ((uint32_t)(init->convMode) << _DAC_CTRL_CONVMODE_SHIFT);
+  tmp = ((uint32_t)(init->refresh)     << _DAC_CTRL_REFRSEL_SHIFT)
+        | (((uint32_t)(init->prescale) << _DAC_CTRL_PRESC_SHIFT)
+           & _DAC_CTRL_PRESC_MASK)
+        | ((uint32_t)(init->reference) << _DAC_CTRL_REFSEL_SHIFT)
+        | ((uint32_t)(init->outMode)   << _DAC_CTRL_OUTMODE_SHIFT)
+        | ((uint32_t)(init->convMode)  << _DAC_CTRL_CONVMODE_SHIFT);
 
   if (init->ch0ResetPre)
   {
@@ -245,15 +245,15 @@ void DAC_ChannelOutputSet( DAC_TypeDef *dac,
 {
   switch(channel)
   {
-  case 0:
-    DAC_Channel0OutputSet(dac, value);
-    break;
-  case 1:
-    DAC_Channel1OutputSet(dac, value);
-    break;
-  default:
-    EFM_ASSERT(0);
-    break;
+    case 0:
+      DAC_Channel0OutputSet(dac, value);
+      break;
+    case 1:
+      DAC_Channel1OutputSet(dac, value);
+      break;
+    default:
+      EFM_ASSERT(0);
+      break;
   }
 }
 
@@ -311,7 +311,7 @@ uint8_t DAC_PrescaleCalc(uint32_t dacFreq, uint32_t hfperFreq)
     ret = _DAC_CTRL_PRESC_MASK >> _DAC_CTRL_PRESC_SHIFT;
   }
 
-  return((uint8_t)ret);
+  return (uint8_t)ret;
 }
 
 

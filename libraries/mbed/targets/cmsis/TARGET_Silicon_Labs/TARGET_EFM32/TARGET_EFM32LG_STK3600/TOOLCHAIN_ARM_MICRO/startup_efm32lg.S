@@ -2,7 +2,7 @@
 ; * @file startup_efm32lg.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32LG Device Series
-; * @version 3.20.6
+; * @version 4.2.1
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -117,6 +117,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     AES_IRQHandler        ; 36: AES Interrupt
                 DCD     EBI_IRQHandler        ; 37: EBI Interrupt
                 DCD     EMU_IRQHandler        ; 38: EMU Interrupt
+                DCD     0                         ; 39: Reserved
 
 __Vectors_End
 __Vectors_Size  EQU     __Vectors_End - __Vectors
@@ -262,10 +263,7 @@ MSC_IRQHandler
 AES_IRQHandler
 EBI_IRQHandler
 EMU_IRQHandler
-
-
                 B       .
-
                 ENDP
 
                 ALIGN

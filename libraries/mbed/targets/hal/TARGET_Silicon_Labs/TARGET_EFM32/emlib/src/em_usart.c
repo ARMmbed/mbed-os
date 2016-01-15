@@ -2,10 +2,10 @@
  * @file em_usart.c
  * @brief Universal synchronous/asynchronous receiver/transmitter (USART/UART)
  *   Peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,11 +31,11 @@
  *
  ******************************************************************************/
 
-
 #include "em_usart.h"
 #if defined(USART_COUNT) && (USART_COUNT > 0)
 
 #include "em_cmu.h"
+#include "em_bus.h"
 #include "em_assert.h"
 
 /***************************************************************************//**
@@ -76,17 +76,33 @@
 #elif (USART_COUNT == 4)
 #define USART_REF_VALID(ref)    (((ref) == USART0) || ((ref) == USART1) || \
                                  ((ref) == USART2) || ((ref) == USART3))
+#elif (USART_COUNT == 5)
+#define USART_REF_VALID(ref)    (((ref) == USART0) || ((ref) == USART1) || \
+                                 ((ref) == USART2) || ((ref) == USART3) || \
+                                 ((ref) == USART4))
+#elif (USART_COUNT == 6)
+#define USART_REF_VALID(ref)    (((ref) == USART0) || ((ref) == USART1) || \
+                                 ((ref) == USART2) || ((ref) == USART3) || \
+                                 ((ref) == USART4) || ((ref) == USART5))
 #else
-#error Undefined number of USARTs.
+#error "Undefined number of USARTs."
 #endif
 
+#if defined(USARTRF_COUNT) && (USARTRF_COUNT > 0)
 #if (USARTRF_COUNT == 1) && defined(USARTRF0)
 #define USARTRF_REF_VALID(ref)  ((ref) == USARTRF0)
+#elif (USARTRF_COUNT == 1) && defined(USARTRF1)
+#define USARTRF_REF_VALID(ref)  ((ref) == USARTRF1)
+#else
+#define USARTRF_REF_VALID(ref)  (0)
+#endif
 #else
 #define USARTRF_REF_VALID(ref)  (0)
 #endif
 
-#if defined( _EFM32_HAPPY_FAMILY )
+#if defined(_EZR32_HAPPY_FAMILY)
+#define USART_IRDA_VALID(ref)    ((ref) == USART0)
+#elif defined(_EFM32_HAPPY_FAMILY)
 #define USART_IRDA_VALID(ref)    (((ref) == USART0) || ((ref) == USART1))
 #elif defined(USART0)
 #define USART_IRDA_VALID(ref)    ((ref) == USART0)
@@ -96,9 +112,11 @@
 #define USART_IRDA_VALID(ref)    (0)
 #endif
 
-#if defined( _EFM32_HAPPY_FAMILY )
+#if defined(_EZR32_HAPPY_FAMILY)
+#define USART_I2S_VALID(ref)    ((ref) == USART0)
+#elif defined(_EFM32_HAPPY_FAMILY)
 #define USART_I2S_VALID(ref)    (((ref) == USART0) || ((ref) == USART1))
-#elif defined(_EFM32_TINY_FAMILY) || defined(_EFM32_ZERO_FAMILY)
+#elif defined(_EFM32_TINY_FAMILY) || defined(_EFM32_ZERO_FAMILY) || defined(_SILICON_LABS_32B_PLATFORM_2)
 #define USART_I2S_VALID(ref)    ((ref) == USART1)
 #elif defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
 #define USART_I2S_VALID(ref)    (((ref) == USART1) || ((ref) == USART2))
@@ -169,10 +187,12 @@ void USART_BaudrateAsyncSet(USART_TypeDef *usart,
    * to make too harsh restrictions on max fHFPERCLK value either.
    *
    * One can possibly factorize 256 and oversample/br. However,
-   * since the last 6 bits of CLKDIV are don't care, we can base our
+   * since the last 6 or 3 bits of CLKDIV are don't care, we can base our
    * integer arithmetic on the below formula
    *
-   * CLKDIV / 64 = (4 * fHFPERCLK)/(oversample * br) - 4
+   * CLKDIV / 64 = (4 * fHFPERCLK)/(oversample * br) - 4 (3 bits dont care)
+   * or
+   * CLKDIV / 8  = (32 * fHFPERCLK)/(oversample * br) - 32 (6 bits dont care)
    *
    * and calculate 1/64 of CLKDIV first. This allows for fHFPERCLK
    * up to 1GHz without overflowing a 32 bit value!
@@ -187,30 +207,30 @@ void USART_BaudrateAsyncSet(USART_TypeDef *usart,
   /* Map oversampling */
   switch (ovs)
   {
-  case USART_CTRL_OVS_X16:
-    EFM_ASSERT(baudrate <= (refFreq / 16));
-    oversample = 16;
-    break;
+    case USART_CTRL_OVS_X16:
+      EFM_ASSERT(baudrate <= (refFreq / 16));
+      oversample = 16;
+      break;
 
-  case USART_CTRL_OVS_X8:
-    EFM_ASSERT(baudrate <= (refFreq / 8));
-    oversample = 8;
-    break;
+    case USART_CTRL_OVS_X8:
+      EFM_ASSERT(baudrate <= (refFreq / 8));
+      oversample = 8;
+      break;
 
-  case USART_CTRL_OVS_X6:
-    EFM_ASSERT(baudrate <= (refFreq / 6));
-    oversample = 6;
-    break;
+    case USART_CTRL_OVS_X6:
+      EFM_ASSERT(baudrate <= (refFreq / 6));
+      oversample = 6;
+      break;
 
-  case USART_CTRL_OVS_X4:
-    EFM_ASSERT(baudrate <= (refFreq / 4));
-    oversample = 4;
-    break;
+    case USART_CTRL_OVS_X4:
+      EFM_ASSERT(baudrate <= (refFreq / 4));
+      oversample = 4;
+      break;
 
-  default:
-    /* Invalid input */
-    EFM_ASSERT(0);
-    return;
+    default:
+      /* Invalid input */
+      EFM_ASSERT(0);
+      return;
   }
 
   /* Calculate and set CLKDIV with fractional bits.
@@ -218,16 +238,23 @@ void USART_BaudrateAsyncSet(USART_TypeDef *usart,
    * divisor up by half the divisor before the division in order to reduce the
    * integer division error, which consequently results in a higher baudrate
    * than desired. */
+#if defined(_USART_CLKDIV_DIV_MASK) && (_USART_CLKDIV_DIV_MASK >= 0x7FFFF8UL)
+  clkdiv  = 32 * refFreq + (oversample * baudrate) / 2;
+  clkdiv /= (oversample * baudrate);
+  clkdiv -= 32;
+  clkdiv *= 8;
+#else
   clkdiv  = 4 * refFreq + (oversample * baudrate) / 2;
   clkdiv /= (oversample * baudrate);
   clkdiv -= 4;
   clkdiv *= 64;
+#endif
 
   /* Verify that resulting clock divider is within limits */
-  EFM_ASSERT(clkdiv <= _USART_CLKDIV_MASK);
+  EFM_ASSERT(clkdiv <= _USART_CLKDIV_DIV_MASK);
 
   /* If EFM_ASSERT is not enabled, make sure we don't write to reserved bits */
-  clkdiv &= _USART_CLKDIV_MASK;
+  clkdiv &= _USART_CLKDIV_DIV_MASK;
 
   usart->CTRL  &= ~_USART_CTRL_OVS_MASK;
   usart->CTRL  |= ovs;
@@ -269,10 +296,10 @@ uint32_t USART_BaudrateCalc(uint32_t refFreq,
                             USART_OVS_TypeDef ovs)
 {
   uint32_t oversample;
-  uint32_t divisor;
-  uint32_t factor;
-  uint32_t remainder;
-  uint32_t quotient;
+  uint64_t divisor;
+  uint64_t factor;
+  uint64_t remainder;
+  uint64_t quotient;
   uint32_t br;
 
   /* Mask out unused bits */
@@ -313,31 +340,31 @@ uint32_t USART_BaudrateCalc(uint32_t refFreq,
 
     switch (ovs)
     {
-    case USART_CTRL_OVS_X16:
-      oversample = 1;
-      factor     = 256 / 16;
-      break;
+      case USART_CTRL_OVS_X16:
+        oversample = 1;
+        factor     = 256 / 16;
+        break;
 
-    case USART_CTRL_OVS_X8:
-      oversample = 1;
-      factor     = 256 / 8;
-      break;
+      case USART_CTRL_OVS_X8:
+        oversample = 1;
+        factor     = 256 / 8;
+        break;
 
-    case USART_CTRL_OVS_X6:
-      oversample = 3;
-      factor     = 256 / 2;
-      break;
+      case USART_CTRL_OVS_X6:
+        oversample = 3;
+        factor     = 256 / 2;
+        break;
 
-    default:
-      oversample = 1;
-      factor     = 256 / 4;
-      break;
+      default:
+        oversample = 1;
+        factor     = 256 / 4;
+        break;
     }
   }
 
   /*
    * The basic problem with integer division in the above formula is that
-   * the dividend (factor * fHFPERCLK) may become higher than max 32 bit
+   * the dividend (factor * fHFPERCLK) may become larger than a 32 bit
    * integer. Yet we want to evaluate dividend first before dividing in
    * order to get as small rounding effects as possible. We do not want
    * to make too harsh restrictions on max fHFPERCLK value either.
@@ -356,7 +383,7 @@ uint32_t USART_BaudrateCalc(uint32_t refFreq,
    * variable names.
    */
 
-  /* Divisor will never exceed max 32 bit value since clkdiv <= 0x1fffc0 */
+  /* Divisor will never exceed max 32 bit value since clkdiv <= 0xFFFFF8 */
   /* and 'oversample' has been reduced to <= 3. */
   divisor = oversample * (256 + clkdiv);
 
@@ -364,15 +391,16 @@ uint32_t USART_BaudrateCalc(uint32_t refFreq,
   remainder = refFreq % divisor;
 
   /* factor <= 128 and since divisor >= 256, the below cannot exceed max */
-  /* 32 bit value. */
-  br = factor * quotient;
+  /* 32 bit value. However, factor * remainder can become larger than 32-bit */
+  /* because of the size of _USART_CLKDIV_DIV_MASK on some families. */
+  br = (uint32_t)(factor * quotient);
 
   /*
    * factor <= 128 and remainder < (oversample*(256 + clkdiv)), which
    * means dividend (factor * remainder) worst case is
-   * 128*(3 * (256 + 0x1fffc0)) = 0x30012000.
+   * 128 * (3 * (256 + _USART_CLKDIV_DIV_MASK)) = 0x1_8001_7400.
    */
-  br += (factor * remainder) / divisor;
+  br += (uint32_t)((factor * remainder) / divisor);
 
   return br;
 }
@@ -409,7 +437,7 @@ uint32_t USART_BaudrateGet(USART_TypeDef *usart)
 
   /* HFPERCLK used to clock all USART/UART peripheral modules */
   freq = CMU_ClockFreqGet(cmuClock_HFPER);
-  ovs  = (USART_OVS_TypeDef) (usart->CTRL & _USART_CTRL_OVS_MASK);
+  ovs  = (USART_OVS_TypeDef)(usart->CTRL & _USART_CTRL_OVS_MASK);
   return USART_BaudrateCalc(freq, usart->CLKDIV, syncmode, ovs);
 }
 
@@ -443,35 +471,19 @@ uint32_t USART_BaudrateGet(USART_TypeDef *usart)
  ******************************************************************************/
 void USART_BaudrateSyncSet(USART_TypeDef *usart, uint32_t refFreq, uint32_t baudrate)
 {
+#if defined(_USART_CLKDIV_DIV_MASK) && (_USART_CLKDIV_DIV_MASK >= 0x7FFFF8UL)
+  uint64_t clkdiv;
+#else
   uint32_t clkdiv;
+#endif
 
   /* Inhibit divide by 0 */
   EFM_ASSERT(baudrate);
 
   /*
-   * We want to use integer division to avoid forcing in float division
-   * utils, and yet keep rounding effect errors to a minimum.
-   *
    * CLKDIV in synchronous mode is given by:
    *
    * CLKDIV = 256 * (fHFPERCLK/(2 * br) - 1)
-   * or
-   * CLKDIV = (256 * fHFPERCLK)/(2 * br) - 256 = (128 * fHFPERCLK)/br - 256
-   *
-   * The basic problem with integer division in the above formula is that
-   * the dividend (128 * fHFPERCLK) may become higher than max 32 bit
-   * integer. Yet, we want to evaluate dividend first before dividing in
-   * order to get as small rounding effects as possible. We do not want
-   * to make too harsh restrictions on max fHFPERCLK value either.
-   *
-   * One can possibly factorize 128 and br. However, since the last
-   * 6 bits of CLKDIV are don't care, we can base our integer arithmetic
-   * on the below formula without loosing any extra precision:
-   *
-   * CLKDIV / 64 = (2 * fHFPERCLK)/br - 4
-   *
-   * and calculate 1/64 of CLKDIV first. This allows for fHFPERCLK
-   * up to 2GHz without overflowing a 32 bit value!
    */
 
   /* HFPERCLK used to clock all USART/UART peripheral modules */
@@ -480,6 +492,14 @@ void USART_BaudrateSyncSet(USART_TypeDef *usart, uint32_t refFreq, uint32_t baud
     refFreq = CMU_ClockFreqGet(cmuClock_HFPER);
   }
 
+#if defined(_USART_CLKDIV_DIV_MASK) && (_USART_CLKDIV_DIV_MASK >= 0x7FFFF8UL)
+  /* Calculate and set CLKDIV without fractional bits */
+  clkdiv = 2 * baudrate;
+  clkdiv = (0x100ULL * (uint64_t)refFreq) / clkdiv;
+
+  /* Round up by not subtracting 256 and mask off fractional part */
+  clkdiv &= ~0xFF;
+#else
   /* Calculate and set CLKDIV with fractional bits */
   clkdiv  = 2 * refFreq;
   clkdiv += baudrate - 1;
@@ -491,14 +511,15 @@ void USART_BaudrateSyncSet(USART_TypeDef *usart, uint32_t refFreq, uint32_t baud
   /* specified value). */
   clkdiv += 0xc0;
   clkdiv &= 0xffffff00;
+#endif
 
   /* Verify that resulting clock divider is within limits */
-  EFM_ASSERT(clkdiv <= _USART_CLKDIV_MASK);
+  EFM_ASSERT(!(clkdiv & ~_USART_CLKDIV_DIV_MASK));
 
   /* If EFM_ASSERT is not enabled, make sure we don't write to reserved bits */
   clkdiv &= _USART_CLKDIV_DIV_MASK;
 
-  usart->CLKDIV = clkdiv;
+  BUS_RegMaskedWrite(&usart->CLKDIV, _USART_CLKDIV_DIV_MASK, clkdiv);
 }
 
 
@@ -584,15 +605,25 @@ void USART_InitAsync(USART_TypeDef *usart, const USART_InitAsync_TypeDef *init)
 #endif
 
   /* Configure databits, stopbits and parity */
-  usart->FRAME = (uint32_t) (init->databits) |
-                 (uint32_t) (init->stopbits) |
-                 (uint32_t) (init->parity);
+  usart->FRAME = (uint32_t)init->databits
+                 | (uint32_t)init->stopbits
+                 | (uint32_t)init->parity;
 
   /* Configure baudrate */
   USART_BaudrateAsyncSet(usart, init->refFreq, init->baudrate, init->oversampling);
 
+#if defined(_USART_TIMING_CSHOLD_MASK)
+  usart->TIMING = ((init->autoCsHold << _USART_TIMING_CSHOLD_SHIFT)
+                   & _USART_TIMING_CSHOLD_MASK)
+                  | ((init->autoCsSetup << _USART_TIMING_CSSETUP_SHIFT)
+                     & _USART_TIMING_CSSETUP_MASK);
+  if (init->autoCsEnable)
+  {
+    usart->CTRL |= USART_CTRL_AUTOCS;
+  }
+#endif
   /* Finally enable (as specified) */
-  usart->CMD = (uint32_t) (init->enable);
+  usart->CMD = (uint32_t)init->enable;
 }
 
 
@@ -629,19 +660,26 @@ void USART_InitSync(USART_TypeDef *usart, const USART_InitSync_TypeDef *init)
   USART_Reset(usart);
 
   /* Set bits for synchronous mode */
-  usart->CTRL |= (USART_CTRL_SYNC) |
-                 ((uint32_t) init->clockMode) |
-                 (init->msbf ? USART_CTRL_MSBF : 0);
+  usart->CTRL |= (USART_CTRL_SYNC)
+                 | (uint32_t)init->clockMode
+                 | (init->msbf ? USART_CTRL_MSBF : 0);
 
-#if defined(USART_INPUT_RXPRS) && defined(USART_TRIGCTRL_AUTOTXTEN)
-  usart->CTRL |= (init->prsRxEnable ? USART_INPUT_RXPRS : 0) |
-                 (init->autoTx      ? USART_CTRL_AUTOTX : 0);
+#if defined(_USART_CTRL_AUTOTX_MASK)
+  usart->CTRL |= init->autoTx ? USART_CTRL_AUTOTX : 0;
+#endif
+
+#if defined(_USART_INPUT_RXPRS_MASK)
+  /* Configure PRS input mode. */
+  if (init->prsRxEnable)
+  {
+    usart->INPUT = (uint32_t)init->prsRxCh | USART_INPUT_RXPRS;
+  }
 #endif
 
   /* Configure databits, leave stopbits and parity at reset default (not used) */
-  usart->FRAME = ((uint32_t) (init->databits)) |
-                 (USART_FRAME_STOPBITS_DEFAULT) |
-                 (USART_FRAME_PARITY_DEFAULT);
+  usart->FRAME = (uint32_t)init->databits
+                 | USART_FRAME_STOPBITS_DEFAULT
+                 | USART_FRAME_PARITY_DEFAULT;
 
   /* Configure baudrate */
   USART_BaudrateSyncSet(usart, init->refFreq, init->baudrate);
@@ -652,7 +690,18 @@ void USART_InitSync(USART_TypeDef *usart, const USART_InitSync_TypeDef *init)
     usart->CMD = USART_CMD_MASTEREN;
   }
 
-  usart->CMD = (uint32_t) (init->enable);
+#if defined(_USART_TIMING_CSHOLD_MASK)
+  usart->TIMING = ((init->autoCsHold << _USART_TIMING_CSHOLD_SHIFT)
+                   & _USART_TIMING_CSHOLD_MASK)
+                  | ((init->autoCsSetup << _USART_TIMING_CSSETUP_SHIFT)
+                     & _USART_TIMING_CSSETUP_MASK);
+  if (init->autoCsEnable)
+  {
+    usart->CTRL |= USART_CTRL_AUTOCS;
+  }
+#endif
+
+  usart->CMD = (uint32_t)init->enable;
 }
 
 
@@ -704,10 +753,10 @@ void USART_InitIrDA(const USART_InitIrDA_TypeDef *init)
   }
 
   /* Configure IrDA */
-  usart->IRCTRL |= (uint32_t) init->irPw |
-                   (uint32_t) init->irPrsSel |
-                   ((uint32_t) init->irFilt << _USART_IRCTRL_IRFILT_SHIFT) |
-                   ((uint32_t) init->irPrsEn << _USART_IRCTRL_IRPRSEN_SHIFT);
+  usart->IRCTRL |= (uint32_t)init->irPw
+                   | (uint32_t)init->irPrsSel
+                   | ((uint32_t)init->irFilt << _USART_IRCTRL_IRFILT_SHIFT)
+                   | ((uint32_t)init->irPrsEn << _USART_IRCTRL_IRPRSEN_SHIFT);
 
   /* Enable IrDA */
   usart->IRCTRL |= USART_IRCTRL_IREN;
@@ -760,12 +809,12 @@ void USART_InitI2s(USART_TypeDef *usart, USART_InitI2s_TypeDef *init)
   USART_InitSync(usart, &init->sync);
 
   /* Configure and enable I2CCTRL register acording to selected mode. */
-  usart->I2SCTRL = ((uint32_t) init->format) |
-                   ((uint32_t) init->justify) |
-                   (init->delay    ? USART_I2SCTRL_DELAY    : 0) |
-                   (init->dmaSplit ? USART_I2SCTRL_DMASPLIT : 0) |
-                   (init->mono     ? USART_I2SCTRL_MONO     : 0) |
-                   (USART_I2SCTRL_EN);
+  usart->I2SCTRL = (uint32_t)init->format
+                   | (uint32_t)init->justify
+                   | (init->delay    ? USART_I2SCTRL_DELAY    : 0)
+                   | (init->dmaSplit ? USART_I2SCTRL_DMASPLIT : 0)
+                   | (init->mono     ? USART_I2SCTRL_MONO     : 0)
+                   | USART_I2SCTRL_EN;
 
   if (enable != usartDisable)
   {
@@ -789,12 +838,12 @@ void USART_InitPrsTrigger(USART_TypeDef *usart, const USART_PrsTriggerInit_TypeD
   uint32_t trigctrl;
 
   /* Clear values that will be reconfigured  */
-  trigctrl = usart->TRIGCTRL & ~(_USART_TRIGCTRL_RXTEN_MASK |
-                                 _USART_TRIGCTRL_TXTEN_MASK |
+  trigctrl = usart->TRIGCTRL & ~(_USART_TRIGCTRL_RXTEN_MASK
+                                 | _USART_TRIGCTRL_TXTEN_MASK
 #if defined(USART_TRIGCTRL_AUTOTXTEN)
-                                 _USART_TRIGCTRL_AUTOTXTEN_MASK |
+                                 | _USART_TRIGCTRL_AUTOTXTEN_MASK
 #endif
-                                 _USART_TRIGCTRL_TSEL_MASK);
+                                 | _USART_TRIGCTRL_TSEL_MASK);
 
 #if defined(USART_TRIGCTRL_AUTOTXTEN)
   if (init->autoTxTriggerEnable)
@@ -832,15 +881,22 @@ void USART_Reset(USART_TypeDef *usart)
               || UART_REF_VALID(usart) );
 
   /* Make sure disabled first, before resetting other registers */
-  usart->CMD = USART_CMD_RXDIS | USART_CMD_TXDIS | USART_CMD_MASTERDIS |
-               USART_CMD_RXBLOCKDIS | USART_CMD_TXTRIDIS | USART_CMD_CLEARTX | USART_CMD_CLEARRX;
-  usart->CTRL     = _USART_CTRL_RESETVALUE;
-  usart->FRAME    = _USART_FRAME_RESETVALUE;
-  usart->TRIGCTRL = _USART_TRIGCTRL_RESETVALUE;
-  usart->CLKDIV   = _USART_CLKDIV_RESETVALUE;
-  usart->IEN      = _USART_IEN_RESETVALUE;
-  usart->IFC      = _USART_IFC_MASK;
-  usart->ROUTE    = _USART_ROUTE_RESETVALUE;
+  usart->CMD = USART_CMD_RXDIS | USART_CMD_TXDIS | USART_CMD_MASTERDIS
+               | USART_CMD_RXBLOCKDIS | USART_CMD_TXTRIDIS | USART_CMD_CLEARTX
+               | USART_CMD_CLEARRX;
+  usart->CTRL      = _USART_CTRL_RESETVALUE;
+  usart->FRAME     = _USART_FRAME_RESETVALUE;
+  usart->TRIGCTRL  = _USART_TRIGCTRL_RESETVALUE;
+  usart->CLKDIV    = _USART_CLKDIV_RESETVALUE;
+  usart->IEN       = _USART_IEN_RESETVALUE;
+  usart->IFC       = _USART_IFC_MASK;
+#if defined(_USART_ROUTEPEN_MASK) || defined(_UART_ROUTEPEN_MASK)
+  usart->ROUTEPEN  = _USART_ROUTEPEN_RESETVALUE;
+  usart->ROUTELOC0 = _USART_ROUTELOC0_RESETVALUE;
+  usart->ROUTELOC1 = _USART_ROUTELOC1_RESETVALUE;
+#else
+  usart->ROUTE     = _USART_ROUTE_RESETVALUE;
+#endif
 
   if (USART_IRDA_VALID(usart))
   {
@@ -889,7 +945,7 @@ uint8_t USART_Rx(USART_TypeDef *usart)
   while (!(usart->STATUS & USART_STATUS_RXDATAV))
     ;
 
-  return (uint8_t) (usart->RXDATA);
+  return (uint8_t)usart->RXDATA;
 }
 
 
@@ -922,7 +978,7 @@ uint16_t USART_RxDouble(USART_TypeDef *usart)
   while (!(usart->STATUS & USART_STATUS_RXFULL))
     ;
 
-  return (uint16_t) (usart->RXDOUBLE);
+  return (uint16_t)usart->RXDOUBLE;
 }
 
 
@@ -988,7 +1044,7 @@ uint16_t USART_RxExt(USART_TypeDef *usart)
   while (!(usart->STATUS & USART_STATUS_RXDATAV))
     ;
 
-  return (uint16_t) (usart->RXDATAX);
+  return (uint16_t)usart->RXDATAX;
 }
 
 
@@ -1015,10 +1071,10 @@ uint8_t USART_SpiTransfer(USART_TypeDef *usart, uint8_t data)
 {
   while (!(usart->STATUS & USART_STATUS_TXBL))
     ;
-  usart->TXDATA = (uint32_t) data;
+  usart->TXDATA = (uint32_t)data;
   while (!(usart->STATUS & USART_STATUS_TXC))
     ;
-  return (uint8_t) (usart->RXDATA);
+  return (uint8_t)usart->RXDATA;
 }
 
 
@@ -1050,7 +1106,7 @@ void USART_Tx(USART_TypeDef *usart, uint8_t data)
   /* Check that transmit buffer is empty */
   while (!(usart->STATUS & USART_STATUS_TXBL))
     ;
-  usart->TXDATA = (uint32_t) data;
+  usart->TXDATA = (uint32_t)data;
 }
 
 
@@ -1086,7 +1142,7 @@ void USART_TxDouble(USART_TypeDef *usart, uint16_t data)
   /* Check that transmit buffer is empty */
   while (!(usart->STATUS & USART_STATUS_TXBL))
     ;
-  usart->TXDOUBLE = (uint32_t) data;
+  usart->TXDOUBLE = (uint32_t)data;
 }
 
 
@@ -1113,7 +1169,7 @@ void USART_TxDouble(USART_TypeDef *usart, uint16_t data)
  *   If frame length is 10-16 bits, 8 data bits are taken from the least
  *   significant 16 bit word, and the remaining bits from the other 16 bit word.
  * @par
- *   Additional control bits are available as documented in the EFM32 reference
+ *   Additional control bits are available as documented in the reference
  *   manual (set to 0 if not used). For 10-16 bit frame length, these control
  *   bits are taken from the most significant 16 bit word.
  ******************************************************************************/
@@ -1143,14 +1199,14 @@ void USART_TxDoubleExt(USART_TypeDef *usart, uint32_t data)
  * @param[in] data
  *   Data to transmit with extended control. Least significant bits contains
  *   frame bits, and additional control bits are available as documented in
- *   the EFM32 reference manual (set to 0 if not used).
+ *   the reference manual (set to 0 if not used).
  ******************************************************************************/
 void USART_TxExt(USART_TypeDef *usart, uint16_t data)
 {
   /* Check that transmit buffer is empty */
   while (!(usart->STATUS & USART_STATUS_TXBL))
     ;
-  usart->TXDATAX = (uint32_t) data;
+  usart->TXDATAX = (uint32_t)data;
 }
 
 

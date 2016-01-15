@@ -2,10 +2,10 @@
  * @file em_wdog.c
  * @brief Watchdog (WDOG) peripheral API
  *   devices.
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,11 +31,17 @@
  *
  ******************************************************************************/
 
-
 #include "em_wdog.h"
 #if defined(WDOG_COUNT) && (WDOG_COUNT > 0)
 
-#include "em_bitband.h"
+#if defined(WDOG0)
+#define WDOG WDOG0
+#if (WDOG_COUNT > 1)
+#warning "Multiple watchdogs not supported"
+#endif
+#endif
+
+#include "em_bus.h"
 
 /***************************************************************************//**
  * @addtogroup EM_Library
@@ -75,7 +81,7 @@ void WDOG_Enable(bool enable)
     while (WDOG->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
       ;
   }
-  BITBAND_Peripheral(&(WDOG->CTRL), _WDOG_CTRL_EN_SHIFT, (unsigned int)enable);
+  BUS_RegBitWrite(&(WDOG->CTRL), _WDOG_CTRL_EN_SHIFT, enable);
 }
 
 
@@ -104,9 +110,10 @@ void WDOG_Feed(void)
   {
     return;
   }
-  /* Before writing to the WDOG_CMD register we also need to make sure that 
+  /* Before writing to the WDOG_CMD register we also need to make sure that
    * any previous write to WDOG_CTRL is complete. */
-  while ( WDOG->SYNCBUSY & WDOG_SYNCBUSY_CTRL );
+  while ( WDOG->SYNCBUSY & WDOG_SYNCBUSY_CTRL )
+    ;
 
   WDOG->CMD = WDOG_CMD_CLEAR;
 }
@@ -165,8 +172,8 @@ void WDOG_Init(const WDOG_Init_TypeDef *init)
     setting |= WDOG_CTRL_SWOSCBLOCK;
   }
 
-  setting |= ((uint32_t)(init->clkSel) << _WDOG_CTRL_CLKSEL_SHIFT) |
-             ((uint32_t)(init->perSel) << _WDOG_CTRL_PERSEL_SHIFT);
+  setting |= ((uint32_t)(init->clkSel)   << _WDOG_CTRL_CLKSEL_SHIFT)
+             | ((uint32_t)(init->perSel) << _WDOG_CTRL_PERSEL_SHIFT);
 
   /* Wait for any pending previous write operation to have been completed in */
   /* low frequency domain */
@@ -184,7 +191,7 @@ void WDOG_Init(const WDOG_Init_TypeDef *init)
     }
     else
     {
-      BITBAND_Peripheral(&(WDOG->CTRL), _WDOG_CTRL_LOCK_SHIFT, 1);
+      BUS_RegBitWrite(&(WDOG->CTRL), _WDOG_CTRL_LOCK_SHIFT, 1);
     }
   }
 }
@@ -216,7 +223,7 @@ void WDOG_Lock(void)
     ;
 
   /* Disable writing to the control register */
-  BITBAND_Peripheral(&(WDOG->CTRL), _WDOG_CTRL_LOCK_SHIFT, 1);
+  BUS_RegBitWrite(&(WDOG->CTRL), _WDOG_CTRL_LOCK_SHIFT, 1);
 }
 
 

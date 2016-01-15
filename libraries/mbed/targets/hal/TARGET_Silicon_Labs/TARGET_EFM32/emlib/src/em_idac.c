@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_idac.c
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,12 +30,11 @@
  *
  ******************************************************************************/
 
-
 #include "em_idac.h"
 #if defined(IDAC_COUNT) && (IDAC_COUNT > 0)
 #include "em_cmu.h"
 #include "em_assert.h"
-#include "em_bitband.h"
+#include "em_bus.h"
 
 /***************************************************************************//**
  * @addtogroup EM_Library
@@ -50,9 +49,7 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /* Fix for errata IDAC_E101 - IDAC output current degradation */
-#if defined(_EFM32_ZERO_FAMILY)
-#define ERRATA_FIX_IDAC_E101_EN
-#elif defined(_EFM32_HAPPY_FAMILY)
+#if defined(_EFM32_ZERO_FAMILY) || defined(_EFM32_HAPPY_FAMILY)
 #define ERRATA_FIX_IDAC_E101_EN
 #endif
 /** @endcond */
@@ -122,7 +119,7 @@ void IDAC_Enable(IDAC_TypeDef *idac, bool enable)
 
   reg = &(idac->CTRL);
 
-  BITBAND_Peripheral(reg, _IDAC_CTRL_EN_SHIFT, (unsigned int) enable);
+  BUS_RegBitWrite(reg, _IDAC_CTRL_EN_SHIFT, enable);
 }
 
 
@@ -139,7 +136,7 @@ void IDAC_Reset(IDAC_TypeDef *idac)
 
 #if defined(ERRATA_FIX_IDAC_E101_EN)
   /* Fix for errata IDAC_E101 - IDAC output current degradation:
-     Instead of disabling it we will put it in it’s lowest power state (50 nA)
+     Instead of disabling it we will put it in it's lowest power state (50 nA)
      to avoid degradation over time */
 
   /* Make sure IDAC is enabled with disabled output */
@@ -156,7 +153,9 @@ void IDAC_Reset(IDAC_TypeDef *idac)
   idac->CURPROG    = _IDAC_CURPROG_RESETVALUE;
   idac->DUTYCONFIG = _IDAC_DUTYCONFIG_RESETVALUE;
 #endif
+#if defined ( _IDAC_CAL_MASK )
   idac->CAL        = _IDAC_CAL_RESETVALUE;
+#endif
 }
 
 
@@ -178,7 +177,7 @@ void IDAC_MinimalOutputTransitionMode(IDAC_TypeDef *idac, bool enable)
 
   reg = &(idac->CTRL);
 
-  BITBAND_Peripheral(reg, _IDAC_CTRL_MINOUTTRANS_SHIFT, (unsigned int) enable);
+  BUS_RegBitWrite(reg, _IDAC_CTRL_MINOUTTRANS_SHIFT, enable);
 }
 
 
@@ -201,29 +200,121 @@ void IDAC_MinimalOutputTransitionMode(IDAC_TypeDef *idac, bool enable)
 void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range)
 {
   uint32_t tmp;
+#if defined( _IDAC_CURPROG_TUNING_MASK )
+  uint32_t diCal0;
+  uint32_t diCal1;
+#endif
 
   EFM_ASSERT(IDAC_REF_VALID(idac));
-  EFM_ASSERT((range >> _IDAC_CURPROG_RANGESEL_SHIFT) <= (_IDAC_CURPROG_RANGESEL_MASK >> _IDAC_CURPROG_RANGESEL_SHIFT));
+  EFM_ASSERT(((uint32_t)range >> _IDAC_CURPROG_RANGESEL_SHIFT)
+             <= (_IDAC_CURPROG_RANGESEL_MASK >> _IDAC_CURPROG_RANGESEL_SHIFT));
+
+#if defined ( _IDAC_CAL_MASK )
 
   /* Load proper calibration data depending on selected range */
-  switch ((IDAC_Range_TypeDef) range)
+  switch ((IDAC_Range_TypeDef)range)
   {
-  case idacCurrentRange0:
-    idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE0_MASK) >> _DEVINFO_IDAC0CAL0_RANGE0_SHIFT;
-    break;
-  case idacCurrentRange1:
-    idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE1_MASK) >> _DEVINFO_IDAC0CAL0_RANGE1_SHIFT;
-    break;
-  case idacCurrentRange2:
-    idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE2_MASK) >> _DEVINFO_IDAC0CAL0_RANGE2_SHIFT;
-    break;
-  case idacCurrentRange3:
-    idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE3_MASK) >> _DEVINFO_IDAC0CAL0_RANGE3_SHIFT;
-    break;
+    case idacCurrentRange0:
+      idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE0_MASK)
+                  >> _DEVINFO_IDAC0CAL0_RANGE0_SHIFT;
+      break;
+    case idacCurrentRange1:
+      idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE1_MASK)
+                  >> _DEVINFO_IDAC0CAL0_RANGE1_SHIFT;
+      break;
+    case idacCurrentRange2:
+      idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE2_MASK)
+                  >> _DEVINFO_IDAC0CAL0_RANGE2_SHIFT;
+      break;
+    case idacCurrentRange3:
+      idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE3_MASK)
+                  >> _DEVINFO_IDAC0CAL0_RANGE3_SHIFT;
+      break;
   }
 
   tmp  = idac->CURPROG & ~_IDAC_CURPROG_RANGESEL_MASK;
-  tmp |= (uint32_t) range;
+  tmp |= (uint32_t)range;
+
+#elif defined( _IDAC_CURPROG_TUNING_MASK )
+
+  /* Load calibration data depending on selected range and sink/source mode */
+  /* TUNING (calibration) field in CURPROG register. */
+  if (idac == IDAC0)
+  {
+    diCal0 = DEVINFO->IDAC0CAL0;
+    diCal1 = DEVINFO->IDAC0CAL1;
+  }
+  else
+  {
+    EFM_ASSERT(false);
+  }
+
+  tmp = idac->CURPROG & ~(_IDAC_CURPROG_TUNING_MASK
+                          | _IDAC_CURPROG_RANGESEL_MASK);
+  if (idac->CTRL & IDAC_CTRL_CURSINK)
+  {
+    switch (range)
+    {
+      case idacCurrentRange0:
+        tmp |= ((diCal1 & _DEVINFO_IDAC0CAL1_SINKRANGE0TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL1_SINKRANGE0TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+
+      case idacCurrentRange1:
+        tmp |= ((diCal1 & _DEVINFO_IDAC0CAL1_SINKRANGE1TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL1_SINKRANGE1TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+
+      case idacCurrentRange2:
+        tmp |= ((diCal1 & _DEVINFO_IDAC0CAL1_SINKRANGE2TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL1_SINKRANGE2TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+
+      case idacCurrentRange3:
+        tmp |= ((diCal1 & _DEVINFO_IDAC0CAL1_SINKRANGE3TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL1_SINKRANGE3TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+    }
+  }
+  else
+  {
+    switch (range)
+    {
+      case idacCurrentRange0:
+        tmp |= ((diCal0 & _DEVINFO_IDAC0CAL0_SOURCERANGE0TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL0_SOURCERANGE0TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+
+      case idacCurrentRange1:
+        tmp |= ((diCal0 & _DEVINFO_IDAC0CAL0_SOURCERANGE1TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL0_SOURCERANGE1TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+
+      case idacCurrentRange2:
+        tmp |= ((diCal0 & _DEVINFO_IDAC0CAL0_SOURCERANGE2TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL0_SOURCERANGE2TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+
+      case idacCurrentRange3:
+        tmp |= ((diCal0 & _DEVINFO_IDAC0CAL0_SOURCERANGE3TUNING_MASK)
+                >> _DEVINFO_IDAC0CAL0_SOURCERANGE3TUNING_SHIFT)
+               << _IDAC_CURPROG_TUNING_SHIFT;
+        break;
+    }
+  }
+
+  tmp |= (uint32_t)range;
+
+#else
+#warning "IDAC calibration register definition unknown."
+#endif
 
   idac->CURPROG = tmp;
 }
@@ -271,7 +362,7 @@ void IDAC_OutEnable(IDAC_TypeDef *idac, bool enable)
 
   reg = &(idac->CTRL);
 
-  BITBAND_Peripheral(reg, _IDAC_CTRL_OUTEN_SHIFT, (unsigned int) enable);
+  BUS_RegBitWrite(reg, _IDAC_CTRL_OUTEN_SHIFT, enable);
 }
 
 

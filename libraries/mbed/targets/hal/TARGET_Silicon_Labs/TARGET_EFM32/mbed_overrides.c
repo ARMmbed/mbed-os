@@ -39,13 +39,16 @@
 
 gpio_t bc_enable;
 
-void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask);
-
 /* Called before main - implement here if board needs it.
  * Otherwise, let the application override this if necessary */
 void mbed_sdk_init()
 {
     CHIP_Init();
+
+#if defined(_SILICON_LABS_32B_PLATFORM_2)
+    EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
+    EMU_DCDCInit(&dcdcInit);
+#endif
 
     /* Set up the clock sources for this chip */
 #if( CORE_CLOCK_SOURCE == HFXO)
@@ -53,72 +56,58 @@ void mbed_sdk_init()
     SystemHFXOClockSet(HFXO_FREQUENCY);
 #elif( CORE_CLOCK_SOURCE == HFRCO)
     CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
+# if defined _CMU_HFRCOCTRL_BAND_MASK
     CMU_HFRCOBandSet(HFRCO_FREQUENCY);
+# elif defined _CMU_HFRCOCTRL_FREQRANGE_MASK
+    CMU_HFRCOFreqSet(HFRCO_FREQUENCY_ENUM);
+# else
+#  error "Can't set HFRCO frequency"
+# endif
 #else
-#error "Core clock selection not valid (mbed_overrides.c)"
+# error "Core clock selection not valid (mbed_overrides.c)"
 #endif
 
     CMU_ClockEnable(cmuClock_CORELE, true);
 
 #if( LOW_ENERGY_CLOCK_SOURCE == LFXO )
-#ifdef CMU_LFACLKSEL_REG
+# ifdef _CMU_LFACLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFXO);
-#endif
-#ifdef CMU_LFBCLKSEL_REG
+# endif
+# ifdef _CMU_LFBCLKEN0_MASK
     /* cmuClock_LFB (to date) only has LEUART peripherals.
     *  This gets set automatically whenever you create serial objects using LEUART
     */
-#endif
-#ifdef CMU_LFECLKSEL_REG
+# endif
+# ifdef _CMU_LFECLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFXO);
-#endif
+# endif
     SystemLFXOClockSet(LFXO_FREQUENCY);
 
 #elif( LOW_ENERGY_CLOCK_SOURCE == LFRCO )
-#ifdef CMU_LFACLKSEL_REG
+# ifdef _CMU_LFACLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_LFRCO);
-#endif
-#ifdef CMU_LFBCLKSEL_REG
+# endif
+# ifdef _CMU_LFBCLKEN0_MASK
     //CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFRCO);
-#endif
-#ifdef CMU_LFECLKSEL_REG
+# endif
+# ifdef _CMU_LFECLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_LFRCO);
-#endif
-    CMU_HFRCOBandSet(HFRCO_FREQUENCY);
+# endif
 
 #elif( LOW_ENERGY_CLOCK_SOURCE == ULFRCO)
-#ifdef CMU_LFACLKSEL_REG
+# ifdef _CMU_LFACLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFA, cmuSelect_ULFRCO);
-#endif
-#ifdef CMU_LFBCLKSEL_REG
+# endif
+# ifdef _CMU_LFBCLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_ULFRCO);
-#endif
-#ifdef CMU_LFECLKSEL_REG
+# endif
+# ifdef _CMU_LFECLKEN0_MASK
     CMU_ClockSelectSet(cmuClock_LFE, cmuSelect_ULFRCO);
-#endif
+# endif
 #else
-#error "Low energy clock selection not valid"
+# error "Low energy clock selection not valid"
 #endif
 
     /* Enable BC line driver to avoid garbage on CDC port */
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
-}
-
-void check_usart_clock(USART_TypeDef* usart, uint32_t clockmask)
-{
-    uint32_t freq = 14000000, baudrate;
-    USART_OVS_TypeDef ovs;
-
-    if(CMU->HFPERCLKEN0 & clockmask) {
-        /* Different methods for sync vs async */
-        if(usart->CTRL & USART_CTRL_SYNC) {
-            ovs  = (USART_OVS_TypeDef) (usart->CTRL & _USART_CTRL_OVS_MASK);
-            baudrate = USART_BaudrateCalc(freq, usart->CLKDIV, true, ovs);
-            USART_BaudrateSyncSet(usart, 0, baudrate);
-        } else {
-            ovs  = (USART_OVS_TypeDef) (usart->CTRL & _USART_CTRL_OVS_MASK);
-            baudrate = USART_BaudrateCalc(freq, usart->CLKDIV, false, ovs);
-            USART_BaudrateAsyncSet(usart, 0, baudrate, ovs);
-        }
-    }
 }

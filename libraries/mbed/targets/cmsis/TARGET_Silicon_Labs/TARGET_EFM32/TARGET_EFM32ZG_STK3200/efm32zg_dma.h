@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_dma.h
  * @brief EFM32ZG_DMA register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32ZG_DMA
  * @{
@@ -67,7 +71,6 @@ typedef struct
   __IO uint32_t  IEN;            /**< Interrupt Enable register  */
 
   uint32_t       RESERVED4[60];  /**< Reserved registers */
-
   DMA_CH_TypeDef CH[4];          /**< Channel registers */
 } DMA_TypeDef;                   /** @} */
 
@@ -687,5 +690,5 @@ typedef struct
 #define DMA_CH_CTRL_SOURCESEL_AES                       (_DMA_CH_CTRL_SOURCESEL_AES << 16)            /**< Shifted mode AES for DMA_CH_CTRL */
 
 /** @} End of group EFM32ZG_DMA */
-
+/** @} End of group Parts */
 

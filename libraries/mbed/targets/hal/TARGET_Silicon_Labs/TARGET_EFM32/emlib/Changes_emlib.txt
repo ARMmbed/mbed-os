@@ -1,6 +1,65 @@
 ================ Revision history ============================================
+4.2.1:
+ - Added errata fix for an issue that may cause BOD resets in EM2 when using
+   DCDC-to-DVDD mode. The fix is implemented in EMU_DCDCInit().
+ - Added function EMU_DCDCPowerOff() for boards with physically disconnected DCDC.
+ - Current consumption is optimized for DCDC bypass mode. This update is
+   implemented in EMU_DCDCInit().
+
+4.2.0:
+ - Updated I2C clock divider equation for platform 2 parts. Added constraints
+   to HFPER clock frequency in I2C_BusFreqSet().
+ - EMU EMU_EM23VregMode_TypeDef replaced with a bool.
+ - Added support for GPIO alternate drive strength and alternate control modes.
+ - DCDC setup is simplified. More tuning and optimization settings added to
+   EMU_DCDCInit().
+ - Added member pinRetentionMode to EMU_EM4Init_TypeDef.
+ - Added function EMU_UnlatchPinRetention() to support unlatching of pin
+   retention in EM4H/S.
+ - Fixed bug in ADC_InitScan() which caused a overwrite of single conversion
+   mode calibration values.
+ - Added support for CRYPTO module on Pearl and Jade Geckos (em_crypto.c/h)
+
+4.1.1:
+ - EMU_DCDCInit() updated with new parameters for EM2 and 3. Current consumption
+   with DCDC at expected levels for EFR32 and EFM32PG revA1, A2 and B0.
+ - EMU_DCDCInit_TypeDef updated with more parameters. EMU_DcdcLpcmpBiasMode_TypeDef
+   is removed.
+ - More assertions added to EMU_DCDCInit().
+ - HFXO default parameters updated.
+ - ADC defaults updated.
+ - RMU pin mode set fixed.
+ - Added missing define for cmuSelect_ULFRCO.
+ - Added missing functions for handling peripheral interrupts.
+ - Added support for VMON.
+
+4.1.0:
+ - The typedef EMU_EM23Init_TypeDef which is a parameter to EMU_EM23Init()
+   has got a new definition.
+ - Initial support _SILICON_LABS_32B_PLATFORM_2 devices added
+
+4.0.0:
+ - Use ARM CMSIS version 4.2.0.
+ - New style version macros in em_version.h.
+
+3.20.14:
+ - USB release only.
+
+3.20.13:
+ - Added new style family #defines in em_system.h, including EZR32 families.
+ - Fixed I2C_FREQ_STANDARD_MAX macros.
+ - Fixed bug in MSC_WriteWord which called internal functions that were linked
+   to flash for armgcc. All subsequent calls of MSC_WriteWord should now be
+   linked to RAM for all supported compilers. The internals of MSC_WriteWord
+   will check the global variable SystemCoreClock in order to make sure the
+   frequency is high enough for flash operations. If the core clock frequency
+   is changed, software is responsible for calling MSC_Init or
+   SystemCoreClockGet in order to set the SystemCoreClock variable to the
+   correct value.
+ - Added errata fix IDAC_101.
+
 3.20.12:
- - Added errata fix EMU_108 and IDAC101.
+ - Added errata fix EMU_108.
  - #ifdef's now use register defines instead of a mix of register and family defines.
  - Added a case for when there are only 4 DMA channels available:
    Alignment was (correctly) defined at 7 bit, but got asserted for 8 bit, leading

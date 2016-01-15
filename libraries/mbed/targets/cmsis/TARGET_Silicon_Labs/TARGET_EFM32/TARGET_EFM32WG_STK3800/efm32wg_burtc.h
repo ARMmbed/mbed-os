@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_burtc.h
  * @brief EFM32WG_BURTC register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32WG_BURTC
  * @{
@@ -55,7 +59,6 @@ typedef struct
   __I uint32_t      SYNCBUSY;      /**< Synchronization Busy Register  */
 
   uint32_t          RESERVED0[48]; /**< Reserved registers */
-
   BURTC_RET_TypeDef RET[128];      /**< RetentionReg */
 } BURTC_TypeDef;                   /** @} */
 
@@ -373,5 +376,5 @@ typedef struct
 #define BURTC_RET_REG_REG_DEFAULT             (_BURTC_RET_REG_REG_DEFAULT << 0) /**< Shifted mode DEFAULT for BURTC_RET_REG */
 
 /** @} End of group EFM32WG_BURTC */
-
+/** @} End of group Parts */
 

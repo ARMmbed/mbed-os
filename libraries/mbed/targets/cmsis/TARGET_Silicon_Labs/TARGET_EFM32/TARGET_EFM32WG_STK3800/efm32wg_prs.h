@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_prs.h
  * @brief EFM32WG_PRS register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,6 +30,10 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @defgroup EFM32WG_PRS
  * @{
  * @brief EFM32WG_PRS Register Declaration
@@ -41,7 +45,6 @@ typedef struct
   __IO uint32_t  ROUTE;        /**< I/O Routing Register  */
 
   uint32_t       RESERVED0[1]; /**< Reserved registers */
-
   PRS_CH_TypeDef CH[12];       /**< Channel registers */
 } PRS_TypeDef;                 /** @} */
 
@@ -448,5 +451,5 @@ typedef struct
 #define PRS_CH_CTRL_ASYNC_DEFAULT               (_PRS_CH_CTRL_ASYNC_DEFAULT << 28)          /**< Shifted mode DEFAULT for PRS_CH_CTRL */
 
 /** @} End of group EFM32WG_PRS */
-
+/** @} End of group Parts */
 

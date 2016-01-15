@@ -55,7 +55,7 @@ int gpio_read(gpio_t *obj)
 
 int gpio_is_connected(const gpio_t *obj)
 {
-    return (obj->pin | 0xFFFFFF00 )!= (PinName)NC;
+    return ((uint32_t)obj->pin | 0xFFFFFF00 ) != (uint32_t)((PinName)NC);
 }
 
 /*
@@ -80,7 +80,10 @@ void gpio_init(gpio_t *obj, PinName pin)
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
-        if(obj->dir == PIN_INPUT) {
+    uint32_t pin = 1 << (obj->pin & 0xF);
+    uint32_t port = (obj->pin >> 4) & 0xF;
+
+    if(obj->dir == PIN_INPUT) {
         switch(mode) {
             case PullDefault:
                 mode = Input;
@@ -94,14 +97,22 @@ void gpio_mode(gpio_t *obj, PinMode mode)
             default:
                 break;
         }
-        
+
         //Handle DOUT setting
         if((mode & 0x10) != 0) {
             //Set DOUT
-            GPIO->P[(obj->pin >> 4) & 0xF].DOUTSET = 1 << (obj->pin & 0xF);
+#ifdef _GPIO_P_DOUTSET_MASK
+            GPIO->P[port].DOUTSET = pin;
+#else
+            GPIO->P[port].DOUT |= pin;
+#endif
         } else {
             //Clear DOUT
-            GPIO->P[(obj->pin >> 4) & 0xF].DOUTCLR = 1 << (obj->pin & 0xF);
+#ifdef _GPIO_P_DOUTCLR_MASK
+            GPIO->P[port].DOUTCLR = pin;
+#else
+            GPIO->P[port].DOUT &= ~pin;
+#endif
         }
     } else {
         switch(mode) {
@@ -118,7 +129,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
                 break;
         }
     }
-    
+
     obj->mode = mode; // Update object
     pin_mode(obj->pin, mode); // Update register
 }
