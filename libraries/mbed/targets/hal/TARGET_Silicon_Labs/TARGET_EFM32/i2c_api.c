@@ -107,6 +107,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     I2CName i2c_scl = (I2CName) pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c.i2c = (I2C_TypeDef*) pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(((int) obj->i2c.i2c) != NC);
+    
+    /* You need both SDA and SCL for I2C, so configuring one of them to NC is illegal */
+    MBED_ASSERT((uint32_t)sda != (uint32_t)NC);
+    MBED_ASSERT((uint32_t)scl != (uint32_t)NC);
 
     /* Enable clock for the peripheral */
     CMU_ClockEnable(i2c_get_clock(obj), true);
@@ -131,7 +135,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
                               (pin_location(scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
 #endif
 
-    /* Set up the pins for I2C use */
+    /* Set up the pins for I2C use: WiredAnd and high drive strength to reduce slew rate */
     pin_mode(scl, WiredAndPullUp);
     pin_mode(sda, WiredAndPullUp);
 
@@ -192,7 +196,23 @@ void i2c_frequency(i2c_t *obj, int hz)
 {
     /* Set frequency. As the second argument is 0,
      *  HFPER clock frequency is used as reference freq */
-    I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRStandard);
+    if (hz <= 0) return;
+    /* In I2C Normal mode (50% duty), we can go up to 100kHz */
+    if (hz <= 100000) {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRStandard);
+    }
+    /* In I2C Fast mode (6:3 ratio), we can go up to 400kHz */
+    else if (hz <= 400000) {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRAsymetric);
+    }
+    /* In I2C Fast+ mode (11:6 ratio), we can go up to 1 MHz */
+    else if (hz <= 1000000) {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRFast);
+    }
+    /* Cap requested frequency at 1MHz */
+    else {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, 1000000, i2cClockHLRFast);
+    }
 }
 
 /* Creates a start condition on the I2C bus */
@@ -352,11 +372,15 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c)
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
     if(enable_slave) {
+        /* Datasheet note: DIV must be set to 1 during slave operation */
+        obj->i2c.i2c->DIV = 1;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_SLAVE_MASK;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_AUTOACK_MASK; //Slave implementation assumes auto acking
     } else {
         obj->i2c.i2c->CTRL &= ~_I2C_CTRL_SLAVE_MASK;
         obj->i2c.i2c->CTRL &= ~_I2C_CTRL_AUTOACK_MASK; //Master implementation ACKs manually
+        /* function is only called with enable_slave = false through i2c_init(..), so frequency is
+           already guaranteed to be set */
     }
 }
 
