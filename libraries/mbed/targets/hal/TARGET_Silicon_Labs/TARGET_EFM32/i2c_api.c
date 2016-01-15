@@ -135,7 +135,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
                               (pin_location(scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
 #endif
 
-    /* Set up the pins for I2C use: WiredAnd and high drive strength to reduce slew rate */
+    /* Set up the pins for I2C use */
+    /* Note: Set up pins in higher drive strength to reduce slew rate */
+    /*   Though this requires user knowledge, since drive strength is controlled per port, not pin */
     pin_mode(scl, WiredAndPullUp);
     pin_mode(sda, WiredAndPullUp);
 
