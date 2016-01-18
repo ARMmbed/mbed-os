@@ -760,6 +760,15 @@ class B96B_F446VE(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0840"]
 
+class NUCLEO_F746ZG(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M7F"
+        self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746ZG']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.detect_code = ["0816"]
+        self.progen_target ='nucleo-f746zg'
+
 class NUCLEO_L053R8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1855,6 +1864,7 @@ TARGETS = [
     NUCLEO_F401RE(),
     NUCLEO_F410RB(),
     NUCLEO_F411RE(),
+    NUCLEO_F746ZG(),
     ELMO_F411RE(),
     NUCLEO_F446RE(),
     NUCLEO_L053R8(),
