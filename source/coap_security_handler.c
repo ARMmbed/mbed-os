@@ -395,7 +395,7 @@ int entropy_poll( void *ctx, unsigned char *output, size_t len,
     }
     memset(c, 0, len);
     for(uint16_t i=0; i < len; i++){
-        *(c + 1) = (char)randLIB_get_8bit();
+        *(c + i) = (char)randLIB_get_8bit();
     }
     memmove(output, c, len);
     *olen = len;
