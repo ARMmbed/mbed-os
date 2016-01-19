@@ -36,17 +36,6 @@ typedef enum {
 } UARTName;
 
 typedef enum {
-    SPI_0 = (int)0x4000C400U,
-    SPI_1 = (int)0x40020400U,
-    SPI_2 = (int)0x40024400U,
-    SPI_3 = (int)0x40018400U,
-    SPI_4 = (int)0x4001C400U,
-    SPI_5 = (int)0x40008400U,
-    SPI_6 = (int)0x40040400U,
-    SPI_7 = (int)0x40034400U,
-} SPIName;
-
-typedef enum {
     ADC_0 = (int)ADC_CHANNEL_0,
     ADC_1 = (int)ADC_CHANNEL_1,
     ADC_2 = (int)ADC_CHANNEL_2,

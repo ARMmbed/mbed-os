@@ -43,66 +43,98 @@ extern void SPI7_Handler(void);
 
 void FLEXCOM0_Handler  ( void )
 {
-	switch(FLEXCOM0->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C0_Handler();		break;		
-		case FLEXCOM_SPI:	SPI0_Handler();		break;		
-	}
+    switch(FLEXCOM0->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C0_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI0_Handler();
+            break;
+    }
 }
 
 void FLEXCOM1_Handler      ( void )
 {
-	switch(FLEXCOM1->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C1_Handler();		break;
-		case FLEXCOM_SPI:	SPI1_Handler();		break;
-	}
+    switch(FLEXCOM1->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C1_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI1_Handler();
+            break;
+    }
 }
 
 void FLEXCOM2_Handler      ( void )
 {
-	switch(FLEXCOM2->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C2_Handler();		break;
-		case FLEXCOM_SPI:	SPI2_Handler();		break;
-	}
+    switch(FLEXCOM2->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C2_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI2_Handler();
+            break;
+    }
 }
 
 void FLEXCOM3_Handler      ( void )
 {
-	switch(FLEXCOM3->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C3_Handler();		break;
-		case FLEXCOM_SPI:	SPI3_Handler();		break;
-	}
+    switch(FLEXCOM3->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C3_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI3_Handler();
+            break;
+    }
 }
 
 void FLEXCOM4_Handler      ( void )
 {
-	switch(FLEXCOM4->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C4_Handler();		break;
-		case FLEXCOM_SPI:	SPI4_Handler();		break;
-	}
+    switch(FLEXCOM4->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C4_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI4_Handler();
+            break;
+    }
 }
 
 void FLEXCOM5_Handler      ( void )
 {
-	switch(FLEXCOM5->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C5_Handler();		break;
-		case FLEXCOM_SPI:	SPI5_Handler();		break;
-	}
+    switch(FLEXCOM5->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C5_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI5_Handler();
+            break;
+    }
 }
 
 void FLEXCOM6_Handler      ( void )
 {
-	switch(FLEXCOM6->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C6_Handler();		break;
-		case FLEXCOM_SPI:	SPI6_Handler();		break;
-	}
+    switch(FLEXCOM6->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C6_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI6_Handler();
+            break;
+    }
 }
 
 void FLEXCOM7_Handler      ( void )
 {
-	switch(FLEXCOM7->FLEXCOM_MR){
-		case FLEXCOM_TWI: 	I2C7_Handler();		break;
-		case FLEXCOM_SPI:	SPI7_Handler();		break;
-	}
+    switch(FLEXCOM7->FLEXCOM_MR) {
+        case FLEXCOM_TWI:
+            I2C7_Handler();
+            break;
+        case FLEXCOM_SPI:
+            SPI7_Handler();
+            break;
+    }
 }
 
 #ifdef __cplusplus

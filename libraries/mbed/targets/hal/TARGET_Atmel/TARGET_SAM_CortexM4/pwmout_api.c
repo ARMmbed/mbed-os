@@ -174,6 +174,7 @@ void pwmout_free(pwmout_t* obj)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
+    tc_stop(TC, obj->channel);
 }
 
 /** Set the duty cycle of PWM Waveform
