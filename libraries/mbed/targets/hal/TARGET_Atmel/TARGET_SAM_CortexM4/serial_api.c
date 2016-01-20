@@ -174,13 +174,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     sysclk_enable_peripheral_clock(clockid);
 #endif
     /* Configure USART */
-    usart_init_rs232((Usart*)uart, &(pSERIAL_S(obj)->uart_serial_options),
+    usart_init_rs232((Usart*)uart, (sam_usart_opt_t*)&(pSERIAL_S(obj)->uart_serial_options),
                      sysclk_get_peripheral_hz());
 #endif
 #if (SAM4L)
     sysclk_enable_peripheral_clock(clockid);
     /* Configure USART */
-    usart_init_rs232((Usart*)uart,  &(pSERIAL_S(obj)->uart_serial_options, sysclk_get_peripheral_bus_hz((Usart*)uart));
+    usart_init_rs232((Usart*)uart,  (sam_usart_opt_t*)&(pSERIAL_S(obj)->uart_serial_options, sysclk_get_peripheral_bus_hz((Usart*)uart));
 #endif
                      /* Disable rx and tx in case 1 line only required to be configured for usart */
                      usart_disable_tx((Usart*)uart);
@@ -215,7 +215,7 @@ void serial_baud(serial_t *obj, int baudrate)
                 (baudrate == 57600) || (baudrate == 115200) || (baudrate == 230400) || (baudrate == 460800) || (baudrate == 921600) );
     uint32_t clockid = 0;
     clockid = get_usart_clock_id(pUSART_S(obj));
-    if (clockid != NC) {
+    if (clockid != (uint32_t)NC) {
         sysclk_disable_peripheral_clock(clockid);
     }
     pSERIAL_S(obj)->uart_serial_options.baudrate = baudrate;
@@ -255,6 +255,12 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
             break;
         case ParityEven:
             pSERIAL_S(obj)->uart_serial_options.paritytype = US_MR_PAR_EVEN;
+            break;
+        case ParityForced1: /*No Hardware Support*/
+            MBED_ASSERT(0);
+            break;
+        case ParityForced0: /*No Hardware Support*/
+            MBED_ASSERT(0);
             break;
     }
 
@@ -604,14 +610,12 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     MBED_ASSERT(tx != (void*)0);
     if(tx_length == 0) return 0;
     Pdc *pdc_base;
-    uint8_t index;
     IRQn_Type irq_n = (IRQn_Type)0;
     pdc_packet_t packet;
 
     pSERIAL_S(obj)->acttra = true; /* flag for active transmit transfer */
 
     irq_n = get_serial_irq_num(obj);
-    index = serial_get_index(obj);
 
     /* Get board USART PDC base address and enable transmitter. */
     pdc_base = usart_get_pdc_base(_USART(obj));
@@ -638,7 +642,6 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     MBED_ASSERT(rx != (void*)0);
     if(rx_length == 0) return 0;
     Pdc *pdc_base;
-    uint8_t index;
     IRQn_Type irq_n = (IRQn_Type)0;
     pdc_packet_t packet;
 
@@ -648,7 +651,6 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     }
 
     irq_n = get_serial_irq_num(obj);
-    index = serial_get_index(obj);
 
     serial_set_char_match(obj, char_match);
 
@@ -666,7 +668,6 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     NVIC_SetVector(irq_n, (uint32_t)handler);
     NVIC_EnableIRQ(irq_n);
 
-    return;
 }
 
 uint8_t serial_tx_active(serial_t *obj)

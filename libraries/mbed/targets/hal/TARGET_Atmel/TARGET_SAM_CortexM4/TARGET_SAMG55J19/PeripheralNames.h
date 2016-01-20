@@ -18,7 +18,6 @@
 
 #include "cmsis.h"
 #include "PinNames.h"
-#include "adc2.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,14 +35,14 @@ typedef enum {
 } UARTName;
 
 typedef enum {
-    ADC_0 = (int)ADC_CHANNEL_0,
-    ADC_1 = (int)ADC_CHANNEL_1,
-    ADC_2 = (int)ADC_CHANNEL_2,
-    ADC_3 = (int)ADC_CHANNEL_3,
-    ADC_4 = (int)ADC_CHANNEL_4,
-    ADC_5 = (int)ADC_CHANNEL_5,
-    ADC_6 = (int)ADC_CHANNEL_6,
-    ADC_7 = (int)ADC_CHANNEL_7,
+    ADC_0 = 0,
+    ADC_1,
+    ADC_2,
+    ADC_3,
+    ADC_4,
+    ADC_5,
+    ADC_6,
+    ADC_7,
 } ADCName;
 
 
