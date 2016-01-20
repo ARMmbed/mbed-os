@@ -21,6 +21,7 @@
 #include "PeripheralNames.h"
 #include "gpio_object.h"
 #include "serial_platform.h"
+#include "adc2.h"
 
 #ifdef __cplusplus
 extern "C" {
