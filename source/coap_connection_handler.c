@@ -79,12 +79,7 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_
         return NULL;
     }
 
-    SecureConnectionMode mode = PSK;
-#if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
-    mode = ECJPAKE;
-#endif
-
-    this->sec_handler = thread_security_create(parent->listen_socket, this->timer.id, address_ptr, port, mode,
+    this->sec_handler = thread_security_create(parent->listen_socket, this->timer.id, address_ptr, port, ECJPAKE,
                                                &send_to_socket, &receive_from_socket, &start_timer, &timer_status);
     if( !this->sec_handler ){
         ns_dyn_mem_free(this);
