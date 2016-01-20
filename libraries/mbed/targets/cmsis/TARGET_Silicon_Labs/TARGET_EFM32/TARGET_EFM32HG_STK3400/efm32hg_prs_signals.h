@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_prs_signals.h
  * @brief EFM32HG_PRS_SIGNALS register and bit field definitions
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @addtogroup EFM32HG_PRS_Signals
  * @{
@@ -83,5 +87,5 @@
 #define PRS_PCNT0_TCC         ((54 << 16) + 0) /**< PRS Triggered compare match */
 
 /** @} End of group EFM32HG_PRS */
-
+/** @} End of group Parts */
 

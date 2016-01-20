@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------     
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.  
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.  
 *     
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. October 2015
+* $Revision: 	V.1.4.5 a
 *     
 * Project:      CMSIS DSP Library  
 * Title:		arm_sqrt_q31.c     
@@ -98,7 +98,7 @@ arm_status arm_sqrt_q31(
     tempconv.floatval = temp_float1;
     bits_val1 = tempconv.fracval;
     /* Subtract the shifted value from the magic number to give intial guess */
-    bits_val1 = 0x5f3759df - (bits_val1 >> 1);  // gives initial guess  
+    bits_val1 = 0x5f3759df - (bits_val1 >> 1);  /* gives initial guess */
     /* Store as float */
     tempconv.fracval = bits_val1;
     temp_float1 = tempconv.floatval;

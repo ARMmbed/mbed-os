@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma2d.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of DMA2D HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,8 @@
  extern "C" {
 #endif
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F469xx) || defined(STM32F479xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -543,7 +544,7 @@ uint32_t               HAL_DMA2D_GetError(DMA2D_HandleTypeDef *hdma2d);
   * @}
   */
 
-#endif /* STM32F427xx || STM32F437xx  || STM32F429xx || STM32F439xx */
+#endif /* STM32F427xx || STM32F437xx  || STM32F429xx || STM32F439xx || STM32F469xx || STM32F479xx */
 
 #ifdef __cplusplus
 }

@@ -85,13 +85,7 @@ int i2c_stop(i2c_t *obj) {
     volatile uint32_t n = 0;
     obj->i2c->C1 &= ~I2C_C1_MST_MASK;
     obj->i2c->C1 &= ~I2C_C1_TX_MASK;
-
-    // It seems that there are timing problems
-    // when there is no waiting time after a STOP.
-    // This wait is also included on the samples
-    // code provided with the freedom board
-    for (n = 0; n < 100; n++)
-        __NOP();
+    while(obj->i2c->S & I2C_S_BUSY_MASK);
     return 0;
 }
 

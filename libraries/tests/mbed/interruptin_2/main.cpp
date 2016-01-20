@@ -56,6 +56,34 @@ InterruptIn button9(PA28);
 DigitalOut led(LED1);
 DigitalOut flash(PA27); /*1 LED Available*/
 
+#elif defined(TARGET_SAMD21G18A)
+InterruptIn button (PB23); /*SW0*/
+InterruptIn button1(PA02);
+InterruptIn button2(PA03);
+InterruptIn button3(PA10);
+InterruptIn button4(PA11);
+InterruptIn button5(PA20);
+InterruptIn button6(PA21);
+InterruptIn button7(PA09);
+InterruptIn button8(PA16);
+InterruptIn button9(PA17);
+DigitalOut led(LED1);
+DigitalOut flash(PA19); /*1 LED Available*/
+
+#elif defined(TARGET_SAML21J18A)
+InterruptIn button (PA02); /*SW0*/
+InterruptIn button1(PA16);
+InterruptIn button2(PA17);
+InterruptIn button3(PA15);
+InterruptIn button4(PA19);
+InterruptIn button5(PA04);
+InterruptIn button6(PA05);
+InterruptIn button7(PA06);
+InterruptIn button8(PA07);
+InterruptIn button9(PB08);
+DigitalOut led(LED1);
+DigitalOut flash(PA27); /*1 LED Available*/
+
 #else
 InterruptIn button(p30);
 InterruptIn button1(p29);

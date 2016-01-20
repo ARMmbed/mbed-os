@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_mean_q15.c    
@@ -125,7 +125,7 @@ void arm_mean_q15(
 
   /* C = (A[0] + A[1] + A[2] + ... + A[blockSize-1]) / blockSize  */
   /* Store the result to the destination */
-  *pResult = (q15_t) (sum / blockSize);
+  *pResult = (q15_t) (sum / (q31_t)blockSize);
 }
 
 /**    

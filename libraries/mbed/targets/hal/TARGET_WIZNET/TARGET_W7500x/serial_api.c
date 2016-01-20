@@ -39,9 +39,9 @@
 #include "PeripheralPins.h"
 #include "W7500x_uart.h"
 
-#define UART_NUM (2)
+#define UART_NUM (3)
 
-static uint32_t serial_irq_ids[UART_NUM] = {0, 0};
+static uint32_t serial_irq_ids[UART_NUM] = {0, 0, 0};
 
 
 static uart_irq_handler irq_handler;
@@ -55,23 +55,46 @@ serial_t stdio_uart;
 
 static void init_uart(serial_t *obj)
 {
-    UART = (UART_TypeDef *)(obj->uart);
-    UART_InitStructure.UART_BaudRate            = obj->baudrate;
-    UART_InitStructure.UART_WordLength          = obj->databits;
-    UART_InitStructure.UART_StopBits            = obj->stopbits;
-    UART_InitStructure.UART_Parity              = obj->parity;
-    UART_InitStructure.UART_HardwareFlowControl = UART_HardwareFlowControl_None;
+    if(obj->index == 2)        // For UART2, It is simple UART.
+    {
+        SystemCoreClockUpdate();
+        //S_UART_Init(obj->baudrate);
+        S_UART_SetCTRL((S_UART_CTRL_RX_EN|S_UART_CTRL_TX_EN), DISABLE);
+        S_UART_SetBaud(obj->baudrate);
 
-
-    if (obj->pin_rx == NC) {
-        UART_InitStructure.UART_Mode = UART_Mode_Tx;
-    } else if (obj->pin_tx == NC) {
-        UART_InitStructure.UART_Mode = UART_Mode_Rx;
-    } else {
-        UART_InitStructure.UART_Mode = (UART_Mode_Rx | UART_Mode_Tx);
+        if(obj->pin_rx == NC)
+        {
+            S_UART_SetCTRL(S_UART_CTRL_TX_EN, ENABLE);
+        }
+        else if(obj->pin_tx == NC)
+        {
+            S_UART_SetCTRL(S_UART_CTRL_RX_EN, ENABLE);
+        }
+        else
+        {
+            S_UART_SetCTRL((S_UART_CTRL_TX_EN|S_UART_CTRL_RX_EN),ENABLE);
+        }
     }
+    else                    // For UART0 and UART1.
+    {
+        UART = (UART_TypeDef *)(obj->uart);
+        UART_InitStructure.UART_BaudRate            = obj->baudrate;
+        UART_InitStructure.UART_WordLength          = obj->databits;
+        UART_InitStructure.UART_StopBits            = obj->stopbits;
+        UART_InitStructure.UART_Parity              = obj->parity;
+        UART_InitStructure.UART_HardwareFlowControl = UART_HardwareFlowControl_None;
 
-    UART_Init(UART,&UART_InitStructure);
+
+        if (obj->pin_rx == NC) {
+            UART_InitStructure.UART_Mode = UART_Mode_Tx;
+        } else if (obj->pin_tx == NC) {
+            UART_InitStructure.UART_Mode = UART_Mode_Rx;
+        } else {
+            UART_InitStructure.UART_Mode = (UART_Mode_Rx | UART_Mode_Tx);
+        }
+
+        UART_Init(UART,&UART_InitStructure);
+    }
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
@@ -92,6 +115,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     if (obj->uart == UART_1) {
         obj->index = 1;
+    }
+
+    if (obj->uart == UART_2) {
+    	obj->index = 2;
     }
 
     // Configure the UART pins
@@ -131,11 +158,8 @@ void serial_free(serial_t *obj)
 
     if (obj->uart == UART_1) {
     }
-
-
-    // Configure GPIOs
-//    pin_function(obj->pin_tx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-//    pin_function(obj->pin_rx, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    if (obj->uart == UART_2) {
+    }
 
     serial_irq_ids[obj->index] = 0;
 }
@@ -195,6 +219,20 @@ static void uart_irq(UARTName name, int id)
     }
 }
 
+static void uart2_irq()
+{
+    if(serial_irq_ids[2] != 0){
+        if( S_UART_GetITStatus(S_UART_INTSTATUS_TXI) != RESET ){
+            S_UART_ClearITPendingBit(S_UART_INTSTATUS_TXI);
+            irq_handler(serial_irq_ids[2], TxIrq);
+        }
+        if( S_UART_GetITStatus(S_UART_INTSTATUS_RXI) != RESET ) {
+            S_UART_ClearITPendingBit(S_UART_INTSTATUS_RXI);
+            irq_handler(serial_irq_ids[2], RxIrq);
+        }
+    }
+}
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -206,6 +244,11 @@ void UART0_Handler()
 void UART1_Handler()
 {
     uart_irq(UART_1, 1);
+}
+
+void UART2_Handler()
+{
+    uart2_irq();
 }
 #ifdef __cplusplus
 }
@@ -222,28 +265,49 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     IRQn_Type irq_n = (IRQn_Type)0;
 
-    UART = (UART_TypeDef *)(obj->uart);
 
-    if (obj->uart == UART_0) {
-        irq_n = UART0_IRQn;
+    if (obj->uart == UART_2)
+    {
+        irq_n = UART2_IRQn;
+
+        if (enable){
+            if (irq == RxIrq){
+                S_UART_ITConfig(S_UART_CTRL_RXI,ENABLE);
+            } else {
+                S_UART_ITConfig(S_UART_CTRL_TXI,ENABLE);
+            }
+            NVIC_ClearPendingIRQ(irq_n);
+            NVIC_EnableIRQ(irq_n);
+        } else { // disable
+            S_UART_ITConfig((S_UART_CTRL_RXI|S_UART_CTRL_TXI),DISABLE);
+            NVIC_DisableIRQ(irq_n);
+        }
     }
-
-    if (obj->uart == UART_1) {
-        irq_n = UART1_IRQn;
-    }
-
-    if (enable) {
-        if (irq == RxIrq) {
-            UART_ITConfig(UART,UART_IT_FLAG_RXI,ENABLE);
-        } else { // TxIrq
-            UART_ITConfig(UART,UART_IT_FLAG_TXI,ENABLE);
+    else
+    {
+        UART = (UART_TypeDef *)(obj->uart);
+        
+        if (obj->uart == UART_0) {
+            irq_n = UART0_IRQn;
         }
 
-        NVIC_ClearPendingIRQ(irq_n);
-        NVIC_EnableIRQ(irq_n);
-    } else { // disable
-        UART_ITConfig(UART,(UART_IT_FLAG_RXI|UART_IT_FLAG_TXI),DISABLE);
-        NVIC_DisableIRQ(irq_n);
+        if (obj->uart == UART_1) {
+            irq_n = UART1_IRQn;
+        }
+
+        if (enable) {
+            if (irq == RxIrq) {
+                UART_ITConfig(UART,UART_IT_FLAG_RXI,ENABLE);
+            } else { // TxIrq
+                UART_ITConfig(UART,UART_IT_FLAG_TXI,ENABLE);
+            }
+
+            NVIC_ClearPendingIRQ(irq_n);
+            NVIC_EnableIRQ(irq_n);
+        } else { // disable
+            UART_ITConfig(UART,(UART_IT_FLAG_RXI|UART_IT_FLAG_TXI),DISABLE);
+            NVIC_DisableIRQ(irq_n);
+        }
     }
 }
 
@@ -253,36 +317,74 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 int serial_getc(serial_t *obj)
 {
-    UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
-//    while(!serial_readable(obj));
-    while(uart->FR & UART_FR_RXFE);
+    if (obj->uart == UART_2)
+    {
+        S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
 
-    return (uart->DR & 0xFF);
+        while( (uart->STATE & S_UART_STATE_RX_BUF_FULL) == 0 );
+        return (uint16_t)(uart->DATA);
+    }
+    else
+    {
+        UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
+        while(uart->FR & UART_FR_RXFE);
+
+        return (uart->DR & 0xFF);
+    }
 }
 
 void serial_putc(serial_t *obj, int c)
 {
-    UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
+    if (obj->uart == UART_2)
+    {
+        S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
 
-    uart->DR = (uint32_t)(c & (uint16_t)0xFF);
-    while(uart->FR & UART_FR_BUSY);
+        while(uart->STATE & S_UART_STATE_TX_BUF_FULL);
+        uart->DATA = (uint32_t)(c & (uint16_t)0xFF);
+    }
+    else
+    {
+        UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
+
+        uart->DR = (uint32_t)(c & (uint16_t)0xFF);
+        while(uart->FR & UART_FR_BUSY);
+    }
 }
 
 int serial_readable(serial_t *obj)
 {
     int status;
-    UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
-    // Check if data is received
-    status = ((uart->FR & UART_FR_RXFE) ? 0: 1);
+
+    if (obj->uart == UART_2)
+    {
+        S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
+        status = ((uart->STATE & S_UART_STATE_RX_BUF_FULL) ? 1 : 0);
+    }
+    else
+    {
+        UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
+        // Check if data is received
+        status = ((uart->FR & UART_FR_RXFE) ? 0: 1);
+    }
+
     return status;
 }
 
 int serial_writable(serial_t *obj)
 {
     int status;
-    UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
-    // Check if data is transmitted
-    status = ((uart->FR & UART_FR_BUSY) ? 0: 1);
+
+    if (obj->uart == UART_2)
+    {
+        S_UART_TypeDef *uart = (S_UART_TypeDef *)(obj->uart);
+        status = ((uart->STATE & S_UART_STATE_TX_BUF_FULL) ? 0 : 1);
+    }
+    else
+    {
+        UART_TypeDef *uart = (UART_TypeDef *)(obj->uart);
+        // Check if data is transmitted
+        status = ((uart->FR & UART_FR_BUSY) ? 0: 1);
+    }
     return status;
 }
 

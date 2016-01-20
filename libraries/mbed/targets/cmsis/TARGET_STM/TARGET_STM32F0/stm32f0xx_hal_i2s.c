@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -108,7 +108,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -150,7 +150,7 @@
   * @{
   */
 
-/** @defgroup I2S I2S HAL module driver
+/** @defgroup I2S I2S
   * @brief I2S HAL module driver
   * @{
   */
@@ -238,6 +238,9 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   
   if(hi2s->State == HAL_I2S_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    hi2s->Lock = HAL_UNLOCKED;
+    
     /* Init the low level hardware : GPIO, CLOCK, CORTEX...etc */
     HAL_I2S_MspInit(hi2s);
   }
@@ -982,18 +985,18 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   hi2s->Instance->CR2 &= (uint16_t)(~SPI_CR2_TXDMAEN);
   hi2s->Instance->CR2 &= (uint16_t)(~SPI_CR2_RXDMAEN);
   
-  /* Disable the I2S DMA channel */
-  __HAL_DMA_DISABLE(hi2s->hdmatx);
-  __HAL_DMA_DISABLE(hi2s->hdmarx);
-  
   /* Abort the I2S DMA tx channel */
   if(hi2s->hdmatx != NULL)
   {
+    /* Disable the I2S DMA channel */
+    __HAL_DMA_DISABLE(hi2s->hdmatx);
     HAL_DMA_Abort(hi2s->hdmatx);
   }
   /* Abort the I2S DMA rx channel */
   if(hi2s->hdmarx != NULL)
   {
+    /* Disable the I2S DMA channel */
+    __HAL_DMA_DISABLE(hi2s->hdmarx);
     HAL_DMA_Abort(hi2s->hdmarx);
   }
 

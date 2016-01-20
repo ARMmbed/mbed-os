@@ -95,13 +95,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         obj->index = 2;
     }
 
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         __UART4_CLK_ENABLE();
         obj->index = 3;
     }
 #endif
-#if defined(USART5_BASE)
+#if defined(UART5_BASE)
     if (obj->uart == UART_5) {
         __UART5_CLK_ENABLE();
         obj->index = 4;
@@ -156,14 +156,14 @@ void serial_free(serial_t *obj)
         __USART3_CLK_DISABLE();
     }
 
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         __UART4_FORCE_RESET();
         __UART4_RELEASE_RESET();
         __UART4_CLK_DISABLE();
     }
 #endif
-#if defined(USART5_BASE)
+#if defined(UART5_BASE)
     if (obj->uart == UART_5) {
         __UART5_FORCE_RESET();
         __UART5_RELEASE_RESET();
@@ -231,6 +231,9 @@ static void uart_irq(UARTName name, int id)
             irq_handler(serial_irq_ids[id], RxIrq);
             __HAL_UART_CLEAR_FLAG(&UartHandle, UART_FLAG_RXNE);
         }
+        if (__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_ORE) != RESET) {
+            __HAL_UART_CLEAR_OREFLAG(&UartHandle);
+        }
     }
 }
 
@@ -249,14 +252,14 @@ static void uart3_irq(void)
     uart_irq(UART_3, 2);
 }
 
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
 static void uart4_irq(void)
 {
     uart_irq(UART_4, 3);
 }
 #endif
 
-#if defined(USART5_BASE)
+#if defined(UART5_BASE)
 static void uart5_irq(void)
 {
     uart_irq(UART_5, 4);
@@ -291,14 +294,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         vector = (uint32_t)&uart3_irq;
     }
 
-#if defined(USART4_BASE)
+#if defined(UART4_BASE)
     if (obj->uart == UART_4) {
         irq_n = UART4_IRQn;
         vector = (uint32_t)&uart4_irq;
     }
 #endif
 
-#if defined(USART5_BASE)
+#if defined(UART5_BASE)
     if (obj->uart == UART_5) {
         irq_n = UART5_IRQn;
         vector = (uint32_t)&uart5_irq;

@@ -81,6 +81,16 @@
 #define P2_2    (1 << 6)  // P4_6
 #define PORT_2  Port4
 
+#elif defined(TARGET_DISCO_F469NI)
+
+#define P1_1    (1 << 2)  // PC_2
+#define P1_2    (1 << 3)  // PC_3
+#define PORT_1  PortC
+
+#define P2_1    (1 << 1)  // PA_1
+#define P2_2    (1 << 2)  // PA_2
+#define PORT_2  PortA
+        
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
@@ -90,6 +100,7 @@
       defined(TARGET_NUCLEO_F303RE) || \
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F410RB) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
@@ -129,6 +140,15 @@
 #define P2_2    (1 << 2)  // PC2
 #define PORT_2  PortC
 
+#elif defined(TARGET_EFM32PG_STK3401)
+#define P1_1    (1 << 6)  // PC6
+#define P1_2    (1 << 7)  // PC7
+#define PORT_1  PortC
+
+#define P2_1    (1 << 3)  // PA3
+#define P2_2    (1 << 4)  // PA4
+#define PORT_2  PortA
+
 #elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
 #define P1_1    (1 << 6)  /*PA06*/
 #define P1_2    (1 << 7)  /*PA07*/
@@ -136,6 +156,24 @@
 
 #define P2_1    (1 << 2)  /*PB02*/
 #define P2_2    (1 << 3)  /*PB03*/
+#define PORT_2  PortB
+
+#elif defined(TARGET_SAMD21G18A)
+#define P1_1    (1 << 2)  /*PA02*/
+#define P1_2    (1 << 3)  /*PA03*/
+#define PORT_1  PortA
+
+#define P2_1    (1 << 2)  /*PB02*/
+#define P2_2    (1 << 3)  /*PB03*/
+#define PORT_2  PortB
+
+#elif defined(TARGET_SAML21J18A)
+#define P1_1    (1 << 4)  /*PA04*/
+#define P1_2    (1 << 5)  /*PA05*/
+#define PORT_1  PortA
+
+#define P2_1    (1 << 0)  /*PB00*/
+#define P2_2    (1 << 1)  /*PB01*/
 #define PORT_2  PortB
 
 #endif

@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_correlate_f32.c    
@@ -146,7 +146,7 @@ void arm_correlate_f32(
   /* and the destination pointer modifier, inc is set to -1 */
   /* If srcALen > srcBLen, zero pad has to be done to srcB to make the two inputs of same length */
   /* But to improve the performance,    
-   * we include zeroes in the output instead of zero padding either of the the inputs*/
+   * we assume zeroes in the output instead of zero padding either of the the inputs*/
   /* If srcALen > srcBLen,    
    * (srcALen - srcBLen) zeroes has to included in the starting of the output buffer */
   /* If srcALen < srcBLen,    
@@ -665,7 +665,7 @@ void arm_correlate_f32(
   /* So, when srcBLen > srcALen, output pointer is made to point to the end of the output buffer */
   /* and a varaible, inv is set to 1 */
   /* If lengths are not equal then zero pad has to be done to  make the two    
-   * inputs of same length. But to improve the performance, we include zeroes    
+   * inputs of same length. But to improve the performance, we assume zeroes    
    * in the output instead of zero padding either of the the inputs*/
   /* If srcALen > srcBLen, (srcALen - srcBLen) zeroes has to included in the    
    * starting of the output buffer */

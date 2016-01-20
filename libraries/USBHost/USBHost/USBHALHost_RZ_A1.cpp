@@ -261,17 +261,7 @@ void USBHALHost::UsbIrqhandler() {
 
                     //Root device disconnected
                     else {
-
-                        if (!(int_status & OR_INTR_STATUS_WDH)) {
-                            usb_hcca->DoneHead = 0;
-                        }
-
                         deviceDisconnected(0, 1, NULL, usb_hcca->DoneHead & 0xFFFFFFFE);
-
-                        if (int_status & OR_INTR_STATUS_WDH) {
-                            usb_hcca->DoneHead = 0;
-                            ohciwrapp_reg_w(OHCI_REG_INTERRUPTSTATUS, OR_INTR_STATUS_WDH);
-                        }
                     }
                 }
                 ohciwrapp_reg_w(OHCI_REG_RHPORTSTATUS1, OR_RH_PORT_CSC);

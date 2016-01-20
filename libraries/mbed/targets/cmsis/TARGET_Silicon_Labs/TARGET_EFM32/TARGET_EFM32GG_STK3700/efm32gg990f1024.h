@@ -2,10 +2,10 @@
  * @file efm32gg990f1024.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32GG990F1024
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  *****************************************************************************/
 
-#ifndef __EFM32GG990F1024_H
-#define __EFM32GG990F1024_H
+#ifndef EFM32GG990F1024_H
+#define EFM32GG990F1024_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ extern "C" {
 typedef enum IRQn
 {
 /******  Cortex-M3 Processor Exceptions Numbers *******************************************/
-  NonMaskableInt_IRQn   = -14,              /*!< 2 Non Maskable Interrupt                 */
+  NonMaskableInt_IRQn   = -14,              /*!< 2 Cortex-M3 Non Maskable Interrupt       */
   HardFault_IRQn        = -13,              /*!< 3 Cortex-M3 Hard Fault Interrupt         */
   MemoryManagement_IRQn = -12,              /*!< 4 Cortex-M3 Memory Management Interrupt  */
   BusFault_IRQn         = -11,              /*!< 5 Cortex-M3 Bus Fault Interrupt          */
@@ -121,8 +121,10 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_GIANT_FAMILY    1 /**< Giant/Leopard Gecko EFM32LG/GG MCU Family */
-#define _EFM_DEVICE              /**< Silicon Labs EFM-type microcontroller */
+#define _EFM32_GIANT_FAMILY             1 /**< Giant/Leopard Gecko EFM32LG/GG MCU Family */
+#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32GG990F1024)
@@ -474,4 +476,4 @@ typedef enum IRQn
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EFM32GG990F1024_H */
+#endif /* EFM32GG990F1024_H */

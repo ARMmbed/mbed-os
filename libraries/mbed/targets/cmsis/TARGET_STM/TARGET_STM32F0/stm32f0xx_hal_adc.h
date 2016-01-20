@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@
   * @note   The setting of these parameters with function HAL_ADC_Init() is conditioned to ADC state.
   *         ADC state can be either:
   *          - For all parameters: ADC disabled (this is the only possible ADC state to modify parameter 'ClockPrescaler')
-   *         - For all parameters except 'ClockPrescaler': ADC enabled without conversion on going on regular group.
+  *          - For all parameters except 'ClockPrescaler' and 'resolution': ADC enabled without conversion on going on regular group.
   *         If ADC is not in the appropriate state to modify some parameters, these parameters setting is bypassed
   *         without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fulfills the ADC state condition) on the fly).
   */
@@ -88,8 +88,8 @@ typedef struct
   uint32_t EOCSelection;          /*!< Specifies what EOC (End Of Conversion) flag is used for conversion by polling and interruption: end of conversion of each rank or complete sequence.
                                        This parameter can be a value of @ref ADC_EOCSelection. */ 
   uint32_t LowPowerAutoWait;      /*!< Selects the dynamic low power Auto Delay: new conversion start only when the previous
-                                       conversion (for regular group) or previous sequence (for injected group) has been treated by user software.
-                                       This feature automatically adapts the speed of ADC to the speed of the system that reads the data. Moreover, this avoids risk of overrun for low frequency applications. 
+                                       conversion (for regular group) has been treated by user software, using function HAL_ADC_GetValue().
+                                       This feature automatically adapts the ADC conversions trigs to the speed of the system that reads the data. Moreover, this avoids risk of overrun for low frequency applications. 
                                        This parameter can be set to ENABLE or DISABLE.
                                        Note: Do not use with interruption or DMA (HAL_ADC_Start_IT(), HAL_ADC_Start_DMA()) since they have to clear immediately the EOC flag to free the IRQ vector sequencer.
                                              Do use with polling: 1. Start conversion with HAL_ADC_Start(), 2. Later on, when conversion data is needed: use HAL_ADC_PollForConversion() to ensure that conversion is completed
@@ -119,6 +119,14 @@ typedef struct
   uint32_t Overrun;               /*!< Select the behaviour in case of overrun: data preserved or overwritten 
                                        This parameter has an effect on regular group only, including in DMA mode.
                                        This parameter can be a value of @ref ADC_Overrun */
+  uint32_t SamplingTimeCommon;    /*!< Sampling time value to be set for the selected channel.
+                                       Unit: ADC clock cycles
+                                       Conversion time is the addition of sampling time and processing time (12.5 ADC clock cycles at ADC resolution 12 bits, 10.5 cycles at 10 bits, 8.5 cycles at 8 bits, 6.5 cycles at 6 bits).
+                                       Note: On STM32F0 devices, the sampling time setting is common to all channels. On some other STM32 devices, this parameter in channel wise and is located into ADC channel initialization structure.
+                                       This parameter can be a value of @ref ADC_sampling_times
+                                       Note: In case of usage of internal measurement channels (VrefInt/Vbat/TempSensor),
+                                             sampling time constraints must be respected (sampling time can be adjusted in function of ADC clock frequency and sampling time setting)
+                                             Refer to device datasheet for timings values, parameters TS_vrefint, TS_vbat, TS_temp (values rough order: 5us to 17us). */
 }ADC_InitTypeDef;
 
 /** 
@@ -135,7 +143,7 @@ typedef struct
                                         This parameter can be a value of @ref ADC_channels
                                         Note: Depending on devices, some channels may not be available on package pins. Refer to device datasheet for channels availability. */
   uint32_t Rank;                   /*!< Add or remove the channel from ADC regular group sequencer. 
-                                        On STM32F0 devices, rank is defined by each channel number (channel 0 fixed on rank 0, channel 1 fixed on rank1, ...).
+                                        On STM32F0 devices,  number of ranks in the sequence is defined by number of channels enabled, rank of each channel is defined by channel number (channel 0 fixed on rank 0, channel 1 fixed on rank1, ...)..
                                         Despite the channel rank is fixed, this parameter allow an additional possibility: to remove the selected rank (selected channel) from sequencer.
                                         This parameter can be a value of @ref ADC_rank */
   uint32_t SamplingTime;           /*!< Sampling time value to be set for the selected channel.
@@ -143,6 +151,8 @@ typedef struct
                                         Conversion time is the addition of sampling time and processing time (12.5 ADC clock cycles at ADC resolution 12 bits, 10.5 cycles at 10 bits, 8.5 cycles at 8 bits, 6.5 cycles at 6 bits).
                                         This parameter can be a value of @ref ADC_sampling_times
                                         Caution: this setting impacts the entire regular group. Therefore, call of HAL_ADC_ConfigChannel() to configure a channel can impact the configuration of other channels previously set.
+                                        Caution: Obsolete parameter. Use parameter "SamplingTimeCommon" in ADC initialization structure.
+                                                 If parameter "SamplingTimeCommon" is set to a valid sampling time, parameter "SamplingTime" is discarded.
                                         Note: In case of usage of internal measurement channels (VrefInt/Vbat/TempSensor),
                                               sampling time constraints must be respected (sampling time can be adjusted in function of ADC clock frequency and sampling time setting)
                                               Refer to device datasheet for timings values, parameters TS_vrefint, TS_vbat, TS_temp (values rough order: 5us to 17us). */
@@ -169,26 +179,40 @@ typedef struct
 }ADC_AnalogWDGConfTypeDef;
 
 /** 
-  * @brief  HAL ADC state machine: ADC States structure definition  
+  * @brief  HAL ADC state machine: ADC states definition (bitfields)
   */ 
-typedef enum
-{
-  HAL_ADC_STATE_RESET                   = 0x00,    /*!< ADC not yet initialized or disabled */
-  HAL_ADC_STATE_READY                   = 0x01,    /*!< ADC peripheral ready for use */
-  HAL_ADC_STATE_BUSY                    = 0x02,    /*!< An internal process is ongoing */ 
-  HAL_ADC_STATE_BUSY_REG                = 0x12,    /*!< Regular conversion is ongoing */
-  HAL_ADC_STATE_BUSY_INJ                = 0x22,    /*!< Not used on STM32F0xx devices (kept for compatibility with other devices featuring an injected group) */
-  HAL_ADC_STATE_BUSY_INJ_REG            = 0x32,    /*!< Not used on STM32F0xx devices (kept for compatibility with other devices featuring an injected group) */
-  HAL_ADC_STATE_TIMEOUT                 = 0x03,    /*!< Timeout state */
-  HAL_ADC_STATE_ERROR                   = 0x04,    /*!< ADC state error */
-  HAL_ADC_STATE_EOC                     = 0x05,    /*!< Conversion is completed */
-  HAL_ADC_STATE_EOC_REG                 = 0x15,    /*!< Regular conversion is completed */
-  HAL_ADC_STATE_EOC_INJ                 = 0x25,    /*!< Not used on STM32F0xx devices (kept for compatibility with other devices featuring an injected group) */
-  HAL_ADC_STATE_EOC_INJ_REG             = 0x35,    /*!< Not used on STM32F0xx devices (kept for compatibility with other devices featuring an injected group) */
-  HAL_ADC_STATE_AWD                     = 0x06,    /*!< ADC state analog watchdog */
-  HAL_ADC_STATE_AWD2                    = 0x07,    /*!< Not used on STM32F0xx devices (kept for compatibility with other devices featuring several AWD) */
-  HAL_ADC_STATE_AWD3                    = 0x08,    /*!< Not used on STM32F0xx devices (kept for compatibility with other devices featuring several AWD) */ 
-}HAL_ADC_StateTypeDef;
+/* States of ADC global scope */
+#define HAL_ADC_STATE_RESET             ((uint32_t)0x00000000)    /*!< ADC not yet initialized or disabled */
+#define HAL_ADC_STATE_READY             ((uint32_t)0x00000001)    /*!< ADC peripheral ready for use */
+#define HAL_ADC_STATE_BUSY_INTERNAL     ((uint32_t)0x00000002)    /*!< ADC is busy to internal process (initialization, calibration) */
+#define HAL_ADC_STATE_TIMEOUT           ((uint32_t)0x00000004)    /*!< TimeOut occurrence */
+
+/* States of ADC errors */
+#define HAL_ADC_STATE_ERROR_INTERNAL    ((uint32_t)0x00000010)    /*!< Internal error occurrence */
+#define HAL_ADC_STATE_ERROR_CONFIG      ((uint32_t)0x00000020)    /*!< Configuration error occurrence */
+#define HAL_ADC_STATE_ERROR_DMA         ((uint32_t)0x00000040)    /*!< DMA error occurrence */
+
+/* States of ADC group regular */
+#define HAL_ADC_STATE_REG_BUSY          ((uint32_t)0x00000100)    /*!< A conversion on group regular is ongoing or can occur (either by continuous mode,
+                                                                       external trigger, low power auto power-on, multimode ADC master control) */
+#define HAL_ADC_STATE_REG_EOC           ((uint32_t)0x00000200)    /*!< Conversion data available on group regular */
+#define HAL_ADC_STATE_REG_OVR           ((uint32_t)0x00000400)    /*!< Overrun occurrence */
+#define HAL_ADC_STATE_REG_EOSMP         ((uint32_t)0x00000800)    /*!< Not available on STM32F0 device: End Of Sampling flag raised  */
+
+/* States of ADC group injected */
+#define HAL_ADC_STATE_INJ_BUSY          ((uint32_t)0x00001000)    /*!< Not available on STM32F0 device: A conversion on group injected is ongoing or can occur (either by auto-injection mode,
+                                                                       external trigger, low power auto power-on, multimode ADC master control) */
+#define HAL_ADC_STATE_INJ_EOC           ((uint32_t)0x00002000)    /*!< Not available on STM32F0 device: Conversion data available on group injected */
+#define HAL_ADC_STATE_INJ_JQOVF         ((uint32_t)0x00004000)    /*!< Not available on STM32F0 device: Not available on STM32F0 device: Injected queue overflow occurrence */
+
+/* States of ADC analog watchdogs */
+#define HAL_ADC_STATE_AWD1              ((uint32_t)0x00010000)    /*!< Out-of-window occurrence of analog watchdog 1 */
+#define HAL_ADC_STATE_AWD2              ((uint32_t)0x00020000)    /*!< Not available on STM32F0 device: Out-of-window occurrence of analog watchdog 2 */
+#define HAL_ADC_STATE_AWD3              ((uint32_t)0x00040000)    /*!< Not available on STM32F0 device: Out-of-window occurrence of analog watchdog 3 */
+
+/* States of ADC multi-mode */
+#define HAL_ADC_STATE_MULTIMODE_SLAVE   ((uint32_t)0x00100000)    /*!< Not available on STM32F0 device: ADC in multimode slave state, controlled by another ADC master ( */
+
 
 /** 
   * @brief  ADC handle Structure definition  
@@ -199,13 +223,11 @@ typedef struct
 
   ADC_InitTypeDef               Init;                   /*!< ADC required parameters */
 
-  __IO uint32_t                 NbrOfConversionRank ;   /*!< ADC conversion rank counter */
-
   DMA_HandleTypeDef             *DMA_Handle;            /*!< Pointer DMA Handler */
 
   HAL_LockTypeDef               Lock;                   /*!< ADC locking object */
 
-  __IO HAL_ADC_StateTypeDef     State;                  /*!< ADC communication state */
+  __IO uint32_t                 State;                  /*!< ADC communication state (bitmap of ADC states) */
 
   __IO uint32_t                 ErrorCode;              /*!< ADC Error code */
 }ADC_HandleTypeDef;
@@ -237,18 +259,11 @@ typedef struct
 /** @defgroup ADC_ClockPrescaler ADC ClockPrescaler
   * @{
   */     
-#define ADC_CLOCK_ASYNC               ((uint32_t)0x00000000)          /*!< ADC asynchronous clock derived from ADC dedicated HSI */
+#define ADC_CLOCK_ASYNC_DIV1          ((uint32_t)0x00000000)          /*!< ADC asynchronous clock derived from ADC dedicated HSI */
 
 #define ADC_CLOCK_SYNC_PCLK_DIV2      ((uint32_t)ADC_CFGR2_CKMODE_0)  /*!< ADC synchronous clock derived from AHB clock divided by a prescaler of 2 */
 #define ADC_CLOCK_SYNC_PCLK_DIV4      ((uint32_t)ADC_CFGR2_CKMODE_1)  /*!< ADC synchronous clock derived from AHB clock divided by a prescaler of 4 */
 
-#define ADC_CLOCKPRESCALER_PCLK_DIV2   ADC_CLOCK_SYNC_PCLK_DIV2   /* Obsolete naming, kept for compatibility with some other devices */
-#define ADC_CLOCKPRESCALER_PCLK_DIV4   ADC_CLOCK_SYNC_PCLK_DIV4   /* Obsolete naming, kept for compatibility with some other devices */
-
-#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK) (((ADC_CLOCK) == ADC_CLOCK_ASYNC)          || \
-                                          ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV2) || \
-                                          ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV4)   )
-  
 /**
   * @}
   */ 
@@ -256,15 +271,10 @@ typedef struct
 /** @defgroup ADC_Resolution ADC Resolution
   * @{
   */ 
-#define ADC_RESOLUTION12b      ((uint32_t)0x00000000)           /*!<  ADC 12-bit resolution */
-#define ADC_RESOLUTION10b      ((uint32_t)ADC_CFGR1_RES_0)      /*!<  ADC 10-bit resolution */
-#define ADC_RESOLUTION8b       ((uint32_t)ADC_CFGR1_RES_1)      /*!<  ADC 8-bit resolution */
-#define ADC_RESOLUTION6b       ((uint32_t)ADC_CFGR1_RES)        /*!<  ADC 6-bit resolution */
-
-#define IS_ADC_RESOLUTION(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION12b) || \
-                                       ((RESOLUTION) == ADC_RESOLUTION10b) || \
-                                       ((RESOLUTION) == ADC_RESOLUTION8b)  || \
-                                       ((RESOLUTION) == ADC_RESOLUTION6b)    )
+#define ADC_RESOLUTION_12B      ((uint32_t)0x00000000)           /*!<  ADC 12-bit resolution */
+#define ADC_RESOLUTION_10B      ((uint32_t)ADC_CFGR1_RES_0)      /*!<  ADC 10-bit resolution */
+#define ADC_RESOLUTION_8B       ((uint32_t)ADC_CFGR1_RES_1)      /*!<  ADC 8-bit resolution */
+#define ADC_RESOLUTION_6B       ((uint32_t)ADC_CFGR1_RES)        /*!<  ADC 6-bit resolution */
 /**
   * @}
   */ 
@@ -274,9 +284,6 @@ typedef struct
   */ 
 #define ADC_DATAALIGN_RIGHT      ((uint32_t)0x00000000)
 #define ADC_DATAALIGN_LEFT       ((uint32_t)ADC_CFGR1_ALIGN)
-
-#define IS_ADC_DATA_ALIGN(ALIGN) (((ALIGN) == ADC_DATAALIGN_RIGHT) || \
-                                  ((ALIGN) == ADC_DATAALIGN_LEFT)    )
 /**
   * @}
   */ 
@@ -300,8 +307,6 @@ typedef struct
 
 #define ADC_SCAN_ENABLE         ADC_SCAN_DIRECTION_FORWARD       /* For compatibility with other STM32 devices */
 
-#define IS_ADC_SCAN_MODE(SCAN_MODE) (((SCAN_MODE) == ADC_SCAN_DIRECTION_FORWARD) || \
-                                     ((SCAN_MODE) == ADC_SCAN_DIRECTION_BACKWARD)  )
 /**
   * @}
   */
@@ -313,51 +318,6 @@ typedef struct
 #define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CFGR1_EXTEN_0)         
 #define ADC_EXTERNALTRIGCONVEDGE_FALLING        ((uint32_t)ADC_CFGR1_EXTEN_1)
 #define ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING  ((uint32_t)ADC_CFGR1_EXTEN)
-
-#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGCONVEDGE_NONE)         || \
-                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISING)       || \
-                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_FALLING)      || \
-                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING)  )
-/**
-  * @}
-  */ 
-
-/** @defgroup ADC_External_trigger_source_Regular ADC External trigger source Regular
-  * @{
-  */
-/* List of external triggers with generic trigger name, sorted by trigger     */
-/* name:                                                                      */
-
-/* External triggers of regular group for ADC1 */
-#define ADC_EXTERNALTRIGCONV_T1_TRGO        ADC1_2_EXTERNALTRIG_T1_TRGO
-#define ADC_EXTERNALTRIGCONV_T1_CC4         ADC1_2_EXTERNALTRIG_T1_CC4
-#define ADC_EXTERNALTRIGCONV_T2_TRGO        ADC1_2_EXTERNALTRIG_T2_TRGO
-#define ADC_EXTERNALTRIGCONV_T3_TRGO        ADC1_2_EXTERNALTRIG_T3_TRGO
-#define ADC_EXTERNALTRIGCONV_T15_TRGO       ADC1_2_EXTERNALTRIG_T15_TRGO
-#define ADC_SOFTWARE_START                  ((uint32_t)0x00000010)
-
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC4)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
-/**
-  * @}
-  */ 
-
-/** @defgroup ADC_Internal_HAL_driver_Ext_trig_src_Regular ADC Internal HAL driver Ext trig src Regular
-  * @{
-  */
-
-/* List of external triggers of regular group for ADC1:                       */
-/* (used internally by HAL driver. To not use into HAL structure parameters)  */
-#define ADC1_2_EXTERNALTRIG_T1_TRGO           ((uint32_t)0x00000000)
-#define ADC1_2_EXTERNALTRIG_T1_CC4            ((uint32_t)ADC_CFGR1_EXTSEL_0)
-#define ADC1_2_EXTERNALTRIG_T2_TRGO           ((uint32_t)ADC_CFGR1_EXTSEL_1)
-#define ADC1_2_EXTERNALTRIG_T3_TRGO           ((uint32_t)(ADC_CFGR1_EXTSEL_1 | ADC_CFGR1_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T15_TRGO          ((uint32_t)ADC_CFGR1_EXTSEL_2)
-
 /**
   * @}
   */ 
@@ -365,13 +325,9 @@ typedef struct
 /** @defgroup ADC_EOCSelection ADC EOCSelection
   * @{
   */ 
-#define EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
-#define EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
-#define EOC_SINGLE_SEQ_CONV     ((uint32_t)(ADC_ISR_EOC | ADC_ISR_EOS))  /*!< reserved for future use */
-
-#define IS_ADC_EOC_SELECTION(EOC_SELECTION) (((EOC_SELECTION) == EOC_SINGLE_CONV)    || \
-                                             ((EOC_SELECTION) == EOC_SEQ_CONV)       || \
-                                             ((EOC_SELECTION) == EOC_SINGLE_SEQ_CONV)  )
+#define ADC_EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
+#define ADC_EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
+#define ADC_EOC_SINGLE_SEQ_CONV     ((uint32_t)(ADC_ISR_EOC | ADC_ISR_EOS))  /*!< reserved for future use */
 /**
   * @}
   */ 
@@ -379,68 +335,8 @@ typedef struct
 /** @defgroup ADC_Overrun ADC Overrun
   * @{
   */ 
-#define OVR_DATA_OVERWRITTEN            ((uint32_t)0x00000000)
-#define OVR_DATA_PRESERVED              ((uint32_t)0x00000001)
-
-#define IS_ADC_OVERRUN(OVR) (((OVR) == OVR_DATA_PRESERVED)  || \
-                             ((OVR) == OVR_DATA_OVERWRITTEN)  )
-/**
-  * @}
-  */ 
-
-/** @defgroup ADC_channels ADC channels
-  * @{
-  */
-/* Note: Depending on devices, some channels may not be available on package  */
-/*       pins. Refer to device datasheet for channels availability.           */
-/* Note: Channels are used by bitfields for setting of channel selection      */
-/* (register ADC_CHSELR) and used by number for setting of analog watchdog    */
-/* channel (bits AWDCH in register ADC_CFGR1).                                */
-/* Channels are defined with decimal numbers and converted them to bitfields  */
-/* when needed.                                                               */
-#define ADC_CHANNEL_0           ((uint32_t) 0x00000000)
-#define ADC_CHANNEL_1           ((uint32_t) 0x00000001)
-#define ADC_CHANNEL_2           ((uint32_t) 0x00000002)
-#define ADC_CHANNEL_3           ((uint32_t) 0x00000003)
-#define ADC_CHANNEL_4           ((uint32_t) 0x00000004)
-#define ADC_CHANNEL_5           ((uint32_t) 0x00000005)
-#define ADC_CHANNEL_6           ((uint32_t) 0x00000006)
-#define ADC_CHANNEL_7           ((uint32_t) 0x00000007)
-#define ADC_CHANNEL_8           ((uint32_t) 0x00000008)
-#define ADC_CHANNEL_9           ((uint32_t) 0x00000009)
-#define ADC_CHANNEL_10          ((uint32_t) 0x0000000A)
-#define ADC_CHANNEL_11          ((uint32_t) 0x0000000B)
-#define ADC_CHANNEL_12          ((uint32_t) 0x0000000C)
-#define ADC_CHANNEL_13          ((uint32_t) 0x0000000D)
-#define ADC_CHANNEL_14          ((uint32_t) 0x0000000E)
-#define ADC_CHANNEL_15          ((uint32_t) 0x0000000F)
-#define ADC_CHANNEL_16          ((uint32_t) 0x00000010)
-#define ADC_CHANNEL_17          ((uint32_t) 0x00000011)
-#define ADC_CHANNEL_18          ((uint32_t) 0x00000012)
-
-#define ADC_CHANNEL_TEMPSENSOR  ADC_CHANNEL_16
-#define ADC_CHANNEL_VREFINT     ADC_CHANNEL_17
-#define ADC_CHANNEL_VBAT        ADC_CHANNEL_18
-
-#define IS_ADC_CHANNEL(CHANNEL) (((CHANNEL) == ADC_CHANNEL_0)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_1)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_2)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_3)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_4)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_5)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_6)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_7)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_8)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_9)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_10)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_11)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_12)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_13)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_14)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_15)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_TEMPSENSOR)  || \
-                                 ((CHANNEL) == ADC_CHANNEL_VREFINT)     || \
-                                 ((CHANNEL) == ADC_CHANNEL_VBAT)          )
+#define ADC_OVR_DATA_OVERWRITTEN            ((uint32_t)0x00000000)
+#define ADC_OVR_DATA_PRESERVED              ((uint32_t)0x00000001)
 /**
   * @}
   */ 
@@ -448,19 +344,20 @@ typedef struct
 /** @defgroup ADC_rank ADC rank
   * @{
   */ 
-#define ADC_RANK_CHANNEL_NUMBER                 ((uint32_t)0x00001000)  /*!< Enable the rank of the selected channels. Rank is defined by each channel number (channel 0 fixed on rank 0, channel 1 fixed on rank1, ...) */
+#define ADC_RANK_CHANNEL_NUMBER                 ((uint32_t)0x00001000)  /*!< Enable the rank of the selected channels. Number of ranks in the sequence is defined by number of channels enabled, rank of each channel is defined by channel number (channel 0 fixed on rank 0, channel 1 fixed on rank1, ...) */
 #define ADC_RANK_NONE                           ((uint32_t)0x00001001)  /*!< Disable the selected rank (selected channel) from sequencer */
-
-#define IS_ADC_RANK(WATCHDOG) (((WATCHDOG) == ADC_RANK_CHANNEL_NUMBER) || \
-                               ((WATCHDOG) == ADC_RANK_NONE)             )
 /**
   * @}
   */
 
 /** @defgroup ADC_sampling_times ADC sampling times
   * @{
-  */ 
-#define ADC_SAMPLETIME_1CYCLE_5       ((uint32_t)0x00000000)                        /*!< Sampling time 1.5 ADC clock cycle */
+  */
+/* Note: Parameter "ADC_SAMPLETIME_1CYCLE_5" defined with a dummy bit         */
+/*       to distinguish this parameter versus reset value 0x00000000,         */
+/*       in the context of management of parameters "SamplingTimeCommon"      */
+/*       and "SamplingTime" (obsolete)).                                      */    
+#define ADC_SAMPLETIME_1CYCLE_5       ((uint32_t)0x10000000)                        /*!< Sampling time 1.5 ADC clock cycle */
 #define ADC_SAMPLETIME_7CYCLES_5      ((uint32_t) ADC_SMPR_SMP_0)                   /*!< Sampling time 7.5 ADC clock cycles */
 #define ADC_SAMPLETIME_13CYCLES_5     ((uint32_t) ADC_SMPR_SMP_1)                   /*!< Sampling time 13.5 ADC clock cycles */
 #define ADC_SAMPLETIME_28CYCLES_5     ((uint32_t)(ADC_SMPR_SMP_1 | ADC_SMPR_SMP_0)) /*!< Sampling time 28.5 ADC clock cycles */
@@ -468,15 +365,6 @@ typedef struct
 #define ADC_SAMPLETIME_55CYCLES_5     ((uint32_t)(ADC_SMPR_SMP_2 | ADC_SMPR_SMP_0)) /*!< Sampling time 55.5 ADC clock cycles */
 #define ADC_SAMPLETIME_71CYCLES_5     ((uint32_t)(ADC_SMPR_SMP_2 | ADC_SMPR_SMP_1)) /*!< Sampling time 71.5 ADC clock cycles */
 #define ADC_SAMPLETIME_239CYCLES_5    ((uint32_t) ADC_SMPR_SMP)                     /*!< Sampling time 239.5 ADC clock cycles */
-
-#define IS_ADC_SAMPLE_TIME(TIME) (((TIME) == ADC_SAMPLETIME_1CYCLE_5)    || \
-                                  ((TIME) == ADC_SAMPLETIME_7CYCLES_5)   || \
-                                  ((TIME) == ADC_SAMPLETIME_13CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_28CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_41CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_55CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_71CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_239CYCLES_5)   )
 /**
   * @}
   */ 
@@ -487,11 +375,6 @@ typedef struct
 #define ADC_ANALOGWATCHDOG_NONE                 ((uint32_t) 0x00000000)
 #define ADC_ANALOGWATCHDOG_SINGLE_REG           ((uint32_t)(ADC_CFGR1_AWDSGL | ADC_CFGR1_AWDEN))
 #define ADC_ANALOGWATCHDOG_ALL_REG              ((uint32_t) ADC_CFGR1_AWDEN)
-
-
-#define IS_ADC_ANALOG_WATCHDOG_MODE(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_NONE)             || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REG)       || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REG)            )
 /**
   * @}
   */ 
@@ -499,11 +382,8 @@ typedef struct
 /** @defgroup ADC_Event_type ADC Event type
   * @{
   */
-#define AWD_EVENT              ((uint32_t)ADC_FLAG_AWD)  /*!< ADC Analog watchdog 1 event */
-#define OVR_EVENT              ((uint32_t)ADC_FLAG_OVR)  /*!< ADC overrun event */
-    
-#define IS_ADC_EVENT_TYPE(EVENT) (((EVENT) == AWD_EVENT) || \
-                                  ((EVENT) == OVR_EVENT)   )
+#define ADC_AWD_EVENT              ((uint32_t)ADC_FLAG_AWD)  /*!< ADC Analog watchdog 1 event */
+#define ADC_OVR_EVENT              ((uint32_t)ADC_FLAG_OVR)  /*!< ADC overrun event */
 /**
   * @}
   */
@@ -530,54 +410,192 @@ typedef struct
 #define ADC_FLAG_EOC           ADC_ISR_EOC      /*!< ADC End of Regular Conversion flag */
 #define ADC_FLAG_EOSMP         ADC_ISR_EOSMP    /*!< ADC End of Sampling flag */
 #define ADC_FLAG_RDY           ADC_ISR_ADRDY    /*!< ADC Ready flag */
-
-#define ADC_FLAG_ALL    (ADC_FLAG_AWD   | ADC_FLAG_OVR | ADC_FLAG_EOS | ADC_FLAG_EOC | \
-                         ADC_FLAG_EOSMP | ADC_FLAG_RDY                                )
-
-/* Combination of all post-conversion flags bits: EOC/EOS, OVR, AWD */
-#define ADC_FLAG_POSTCONV_ALL    (ADC_FLAG_AWD | ADC_FLAG_OVR | ADC_FLAG_EOS | ADC_FLAG_EOC)
 /**
   * @}
   */
 
-/** @defgroup ADC_range_verification ADC range verification
-  * in function of ADC resolution selected (12, 10, 8 or 6 bits)
-  * @{
-  */ 
-#define IS_ADC_RANGE(RESOLUTION, ADC_VALUE)                                         \
-   ((((RESOLUTION) == ADC_RESOLUTION12b) && ((ADC_VALUE) <= ((uint32_t)0x0FFF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION10b) && ((ADC_VALUE) <= ((uint32_t)0x03FF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION8b)  && ((ADC_VALUE) <= ((uint32_t)0x00FF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION6b)  && ((ADC_VALUE) <= ((uint32_t)0x003F)))   )
 /**
   * @}
   */ 
 
-/** @defgroup ADC_regular_rank_verification ADC regular rank verification
+
+/* Private constants ---------------------------------------------------------*/
+
+/** @addtogroup ADC_Private_Constants ADC Private Constants
   * @{
-  */ 
-#define IS_ADC_REGULAR_RANK(RANK) (((RANK) >= ((uint32_t)1)) && ((RANK) <= ((uint32_t)16)))
+  */
+
+/** @defgroup ADC_Internal_HAL_driver_Ext_trig_src_Regular ADC Internal HAL driver Ext trig src Regular
+  * @{
+  */
+
+/* List of external triggers of regular group for ADC1:                       */
+/* (used internally by HAL driver. To not use into HAL structure parameters)  */
+#define ADC1_2_EXTERNALTRIG_T1_TRGO           ((uint32_t)0x00000000)
+#define ADC1_2_EXTERNALTRIG_T1_CC4            ((uint32_t)ADC_CFGR1_EXTSEL_0)
+#define ADC1_2_EXTERNALTRIG_T2_TRGO           ((uint32_t)ADC_CFGR1_EXTSEL_1)
+#define ADC1_2_EXTERNALTRIG_T3_TRGO           ((uint32_t)(ADC_CFGR1_EXTSEL_1 | ADC_CFGR1_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T15_TRGO          ((uint32_t)ADC_CFGR1_EXTSEL_2)
 /**
   * @}
   */ 
 
+/* Combination of all post-conversion flags bits: EOC/EOS, OVR, AWD */
+#define ADC_FLAG_POSTCONV_ALL    (ADC_FLAG_AWD | ADC_FLAG_OVR | ADC_FLAG_EOS | ADC_FLAG_EOC)
+
 /**
   * @}
-  */ 
-  
-/* Exported macros -----------------------------------------------------------*/
+  */
+
+
+/* Exported macro ------------------------------------------------------------*/
 
 /** @defgroup ADC_Exported_Macros ADC Exported Macros
   * @{
   */
+/* Macro for internal HAL driver usage, and possibly can be used into code of */
+/* final user.                                                                */
+
+/**
+  * @brief Enable the ADC peripheral
+  * @param __HANDLE__: ADC handle
+  * @retval None
+  */
+#define __HAL_ADC_ENABLE(__HANDLE__)                                           \
+  ((__HANDLE__)->Instance->CR |= ADC_CR_ADEN)
+
+/**
+  * @brief Disable the ADC peripheral
+  * @param __HANDLE__: ADC handle
+  * @retval None
+  */
+#define __HAL_ADC_DISABLE(__HANDLE__)                                          \
+  do{                                                                          \
+      (__HANDLE__)->Instance->CR |= ADC_CR_ADDIS;                              \
+      __HAL_ADC_CLEAR_FLAG((__HANDLE__), (ADC_FLAG_EOSMP | ADC_FLAG_RDY));     \
+  } while(0)
+
+/**
+  * @brief Enable the ADC end of conversion interrupt.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC Interrupt
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_EOS: ADC End of Regular sequence of Conversions interrupt source
+  *            @arg ADC_IT_AWD: ADC Analog watchdog interrupt source
+  *            @arg ADC_IT_OVR: ADC overrun interrupt source
+  *            @arg ADC_IT_EOSMP: ADC End of Sampling interrupt source
+  *            @arg ADC_IT_RDY: ADC Ready interrupt source
+  * @retval None
+  */
+#define __HAL_ADC_ENABLE_IT(__HANDLE__, __INTERRUPT__)                         \
+  (((__HANDLE__)->Instance->IER) |= (__INTERRUPT__))
+
+/**
+  * @brief Disable the ADC end of conversion interrupt.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC Interrupt
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_EOS: ADC End of Regular sequence of Conversions interrupt source
+  *            @arg ADC_IT_AWD: ADC Analog watchdog interrupt source
+  *            @arg ADC_IT_OVR: ADC overrun interrupt source
+  *            @arg ADC_IT_EOSMP: ADC End of Sampling interrupt source
+  *            @arg ADC_IT_RDY: ADC Ready interrupt source
+  * @retval None
+  */
+#define __HAL_ADC_DISABLE_IT(__HANDLE__, __INTERRUPT__)                        \
+  (((__HANDLE__)->Instance->IER) &= ~(__INTERRUPT__))
+
+/** @brief  Checks if the specified ADC interrupt source is enabled or disabled.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC interrupt source to check
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_EOS: ADC End of Regular sequence of Conversions interrupt source
+  *            @arg ADC_IT_AWD: ADC Analog watchdog interrupt source
+  *            @arg ADC_IT_OVR: ADC overrun interrupt source
+  *            @arg ADC_IT_EOSMP: ADC End of Sampling interrupt source
+  *            @arg ADC_IT_RDY: ADC Ready interrupt source
+  * @retval State ofinterruption (SET or RESET)
+  */
+#define __HAL_ADC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)                     \
+  (((__HANDLE__)->Instance->IER & (__INTERRUPT__)) == (__INTERRUPT__))
+    
+/**
+  * @brief Get the selected ADC's flag status.
+  * @param __HANDLE__: ADC handle
+  * @param __FLAG__: ADC flag
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_FLAG_EOC: ADC End of Regular conversion flag
+  *            @arg ADC_FLAG_EOS: ADC End of Regular sequence of Conversions flag
+  *            @arg ADC_FLAG_AWD: ADC Analog watchdog flag
+  *            @arg ADC_FLAG_OVR: ADC overrun flag
+  *            @arg ADC_FLAG_EOSMP: ADC End of Sampling flag
+  *            @arg ADC_FLAG_RDY: ADC Ready flag
+  * @retval None
+  */
+#define __HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__)                               \
+  ((((__HANDLE__)->Instance->ISR) & (__FLAG__)) == (__FLAG__))
+
+/**
+  * @brief Clear the ADC's pending flags
+  * @param __HANDLE__: ADC handle
+  * @param __FLAG__: ADC flag
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_FLAG_EOC: ADC End of Regular conversion flag
+  *            @arg ADC_FLAG_EOS: ADC End of Regular sequence of Conversions flag
+  *            @arg ADC_FLAG_AWD: ADC Analog watchdog flag
+  *            @arg ADC_FLAG_OVR: ADC overrun flag
+  *            @arg ADC_FLAG_EOSMP: ADC End of Sampling flag
+  *            @arg ADC_FLAG_RDY: ADC Ready flag
+  * @retval None
+  */
+/* Note: bit cleared bit by writing 1 (writing 0 has no effect on any bit of register ISR) */
+#define __HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__)                             \
+  (((__HANDLE__)->Instance->ISR) = (__FLAG__))
+
 /** @brief  Reset ADC handle state
   * @param  __HANDLE__: ADC handle
   * @retval None
   */
-#define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_ADC_STATE_RESET)
+#define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__)                               \
+  ((__HANDLE__)->State = HAL_ADC_STATE_RESET)
 
-/* Macro for internal HAL driver usage, and possibly can be used into code of */
-/* final user.                                                                */
+/**
+  * @}
+  */
+
+
+/* Private macro -------------------------------------------------------------*/
+
+/** @defgroup ADC_Private_Macros ADC Private Macros
+  * @{
+  */
+/* Macro reserved for internal HAL driver usage, not intended to be used in   */
+/* code of final user.                                                        */
+
+
+/**
+  * @brief Verification of hardware constraints before ADC can be enabled
+  * @param __HANDLE__: ADC handle
+  * @retval SET (ADC can be enabled) or RESET (ADC cannot be enabled)
+  */
+#define ADC_ENABLING_CONDITIONS(__HANDLE__)                                        \
+  (( ( ((__HANDLE__)->Instance->CR) &                                              \
+       (ADC_CR_ADCAL | ADC_CR_ADSTP | ADC_CR_ADSTART | ADC_CR_ADDIS | ADC_CR_ADEN) \
+      ) == RESET                                                                   \
+   ) ? SET : RESET)
+
+/**
+  * @brief Verification of hardware constraints before ADC can be disabled
+  * @param __HANDLE__: ADC handle
+  * @retval SET (ADC can be disabled) or RESET (ADC cannot be disabled)
+  */
+#define ADC_DISABLING_CONDITIONS(__HANDLE__)                                   \
+  (( ( ((__HANDLE__)->Instance->CR) &                                          \
+       (ADC_CR_ADSTART | ADC_CR_ADEN)) == ADC_CR_ADEN                          \
+   ) ? SET : RESET)
 
 /**
   * @brief Verification of ADC state: enabled or disabled
@@ -587,11 +605,11 @@ typedef struct
 /* Note: If low power mode AutoPowerOff is enabled, power-on/off phases are   */
 /*       performed automatically by hardware and flag ADC_FLAG_RDY is not     */
 /*       set.                                                                 */
-#define __HAL_ADC_IS_ENABLED(__HANDLE__)                                                     \
-       (( ((((__HANDLE__)->Instance->CR) & (ADC_CR_ADEN | ADC_CR_ADDIS)) == ADC_CR_ADEN)  && \
-          (((((__HANDLE__)->Instance->ISR) & ADC_FLAG_RDY) == ADC_FLAG_RDY)          ||      \
-           ((((__HANDLE__)->Instance->CFGR1) & ADC_CFGR1_AUTOFF) == ADC_CFGR1_AUTOFF)  )     \
-        ) ? SET : RESET)
+#define ADC_IS_ENABLE(__HANDLE__)                                                       \
+  (( ((((__HANDLE__)->Instance->CR) & (ADC_CR_ADEN | ADC_CR_ADDIS)) == ADC_CR_ADEN) &&  \
+     (((((__HANDLE__)->Instance->ISR) & ADC_FLAG_RDY) == ADC_FLAG_RDY)          ||      \
+      ((((__HANDLE__)->Instance->CFGR1) & ADC_CFGR1_AUTOFF) == ADC_CFGR1_AUTOFF)  )     \
+   ) ? SET : RESET)
 
 /**
   * @brief Test if conversion trigger of regular group is software start
@@ -599,17 +617,17 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval SET (software start) or RESET (external trigger)
   */
-#define __HAL_ADC_IS_SOFTWARE_START_REGULAR(__HANDLE__)                        \
-       (((__HANDLE__)->Instance->CFGR1 & ADC_CFGR1_EXTEN) == RESET)
+#define ADC_IS_SOFTWARE_START_REGULAR(__HANDLE__)                              \
+  (((__HANDLE__)->Instance->CFGR1 & ADC_CFGR1_EXTEN) == RESET)
 
 /**
   * @brief Check if no conversion on going on regular group
   * @param __HANDLE__: ADC handle
   * @retval SET (conversion is on going) or RESET (no conversion is on going)
   */
-#define __HAL_ADC_IS_CONVERSION_ONGOING_REGULAR(__HANDLE__)                    \
-       (( (((__HANDLE__)->Instance->CR) & ADC_CR_ADSTART) == RESET             \
-        ) ? RESET : SET)
+#define ADC_IS_CONVERSION_ONGOING_REGULAR(__HANDLE__)                          \
+  (( (((__HANDLE__)->Instance->CR) & ADC_CR_ADSTART) == RESET                  \
+  ) ? RESET : SET)
 
 /**
   * @brief Returns resolution bits in CFGR1 register: RES[1:0].
@@ -617,7 +635,8 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#define __HAL_ADC_GET_RESOLUTION(__HANDLE__) (((__HANDLE__)->Instance->CFGR1) & ADC_CFGR1_RES)
+#define ADC_GET_RESOLUTION(__HANDLE__)                                         \
+  (((__HANDLE__)->Instance->CFGR1) & ADC_CFGR1_RES)
 
 /**
   * @brief Returns ADC sample time bits in SMPR register: SMP[2:0].
@@ -625,57 +644,25 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#define __HAL_ADC_GET_SAMPLINGTIME(__HANDLE__) (((__HANDLE__)->Instance->SMPR) & ADC_SMPR_SMP)
-    
-/** @brief  Checks if the specified ADC interrupt source is enabled or disabled.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC interrupt source to check
-  * @retval State ofinterruption (SET or RESET)
-  */
-#define __HAL_ADC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)                     \
-    (( ((__HANDLE__)->Instance->IER & (__INTERRUPT__)) == (__INTERRUPT__)      \
-     )? SET : RESET                                                            \
-    )
+#define ADC_GET_SAMPLINGTIME(__HANDLE__)                                       \
+  (((__HANDLE__)->Instance->SMPR) & ADC_SMPR_SMP)
 
 /**
-  * @brief Enable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
+  * @brief Simultaneously clears and sets specific bits of the handle State
+  * @note: ADC_STATE_CLR_SET() macro is merely aliased to generic macro MODIFY_REG(),
+  *        the first parameter is the ADC handle State, the second parameter is the
+  *        bit field to clear, the third and last parameter is the bit field to set.
   * @retval None
   */
-#define __HAL_ADC_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->IER) |= (__INTERRUPT__))
-
-/**
-  * @brief Disable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
-  * @retval None
-  */
-#define __HAL_ADC_DISABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->IER) &= ~(__INTERRUPT__))
-
-/**
-  * @brief Get the selected ADC's flag status.
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
-  * @retval None
-  */
-#define __HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->Instance->ISR) & (__FLAG__)) == (__FLAG__))
-
-/**
-  * @brief Clear the ADC's pending flags
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
-  * @retval None
-  */
-/* Note: bit cleared bit by writing 1 (writing 0 has no effect on any bit of register ISR) */
-#define __HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->ISR) = (__FLAG__))
+#define ADC_STATE_CLR_SET MODIFY_REG
 
 /**
   * @brief Clear ADC error code (set it to error code: "no error")
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#define __HAL_ADC_CLEAR_ERRORCODE(__HANDLE__) ((__HANDLE__)->ErrorCode = HAL_ADC_ERROR_NONE)
+#define ADC_CLEAR_ERRORCODE(__HANDLE__)                                        \
+  ((__HANDLE__)->ErrorCode = HAL_ADC_ERROR_NONE)
 
 
 /**
@@ -705,52 +692,61 @@ typedef struct
         ADC_CHANNEL_17          ((uint32_t) ADC_CHSELR_CHSEL17)
         ADC_CHANNEL_18          ((uint32_t) ADC_CHSELR_CHSEL18)
 */
-#define __HAL_ADC_CHSELR_CHANNEL(_CHANNEL_) ( 1U << (_CHANNEL_))       
-      
-/**
-  * @}
-  */
+#define ADC_CHSELR_CHANNEL(_CHANNEL_)                                          \
+  ( 1U << (_CHANNEL_))       
 
-/** @defgroup ADC_Exported_Macro_internal_HAL_driver ADC Exported Macro internal HAL driver
-  * @{
+/**
+  * @brief Set the ADC's sample time
+  * @param _SAMPLETIME_: Sample time parameter.
+  * @retval None
   */
-/* Macro reserved for internal HAL driver usage, not intended to be used in   */
-/* code of final user.                                                        */
+/* Note: ADC sampling time set using mask ADC_SMPR_SMP due to parameter       */
+/*       "ADC_SAMPLETIME_1CYCLE_5" defined with a dummy bit (bit used to      */
+/*       distinguish this parameter versus reset value 0x00000000,            */
+/*       in the context of management of parameters "SamplingTimeCommon"      */
+/*       and "SamplingTime" (obsolete)).                                      */
+#define ADC_SMPR_SET(_SAMPLETIME_)                                             \
+  ((_SAMPLETIME_) & (ADC_SMPR_SMP))
 
 /**
   * @brief Set the Analog Watchdog 1 channel.
   * @param _CHANNEL_: channel to be monitored by Analog Watchdog 1.
   * @retval None
   */
-#define __HAL_ADC_CFGR_AWDCH(_CHANNEL_) ((_CHANNEL_) << 26)
+#define ADC_CFGR_AWDCH(_CHANNEL_)                                              \
+  ((_CHANNEL_) << 26)
 
 /**
   * @brief Enable ADC discontinuous conversion mode for regular group
   * @param _REG_DISCONTINUOUS_MODE_: Regular discontinuous mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_REG_DISCCONTINUOUS(_REG_DISCONTINUOUS_MODE_) ((_REG_DISCONTINUOUS_MODE_) << 16)
+#define ADC_CFGR1_REG_DISCCONTINUOUS(_REG_DISCONTINUOUS_MODE_)                 \
+  ((_REG_DISCONTINUOUS_MODE_) << 16)
   
 /**
   * @brief Enable the ADC auto off mode.
   * @param _AUTOOFF_: Auto off bit enable or disable.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_AUTOOFF(_AUTOOFF_) ((_AUTOOFF_) << 15)
+#define ADC_CFGR1_AUTOOFF(_AUTOOFF_)                                           \
+  ((_AUTOOFF_) << 15)
       
 /**
   * @brief Enable the ADC auto delay mode.
   * @param _AUTOWAIT_: Auto delay bit enable or disable.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_AUTOWAIT(_AUTOWAIT_) ((_AUTOWAIT_) << 14)
+#define ADC_CFGR1_AUTOWAIT(_AUTOWAIT_)                                         \
+  ((_AUTOWAIT_) << 14)
 
 /**
   * @brief Enable ADC continuous conversion mode.
   * @param _CONTINUOUS_MODE_: Continuous mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_CONTINUOUS(_CONTINUOUS_MODE_) ((_CONTINUOUS_MODE_) << 13)
+#define ADC_CFGR1_CONTINUOUS(_CONTINUOUS_MODE_)                                \
+  ((_CONTINUOUS_MODE_) << 13)
     
 /**
   * @brief Enable ADC overrun mode.
@@ -758,10 +754,10 @@ typedef struct
   * @retval Overun bit setting to be programmed into CFGR register
   */
 /* Note: Bit ADC_CFGR1_OVRMOD not used directly in constant                   */
-/* "OVR_DATA_OVERWRITTEN" to have this case defined to 0x00, to set it as the */
-/* default case to be compliant with other STM32 devices.                     */
-#define __HAL_ADC_CFGR1_OVERRUN(_OVERRUN_MODE_)                                \
-  ( ( (_OVERRUN_MODE_) != (OVR_DATA_PRESERVED)                                 \
+/* "ADC_OVR_DATA_OVERWRITTEN" to have this case defined to 0x00, to set it    */
+/* as the default case to be compliant with other STM32 devices.              */
+#define ADC_CFGR1_OVERRUN(_OVERRUN_MODE_)                                      \
+  ( ( (_OVERRUN_MODE_) != (ADC_OVR_DATA_PRESERVED)                             \
     )? (ADC_CFGR1_OVRMOD) : (0x00000000)                                       \
   )
 
@@ -770,65 +766,31 @@ typedef struct
   * @param _SCAN_MODE_: Scan conversion mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_SCANDIR(_SCAN_MODE_)                                   \
+/* Note: Scan mode set using this macro (instead of parameter direct set)     */
+/*       due to different modes on other STM32 devices: to avoid any          */
+/*       unwanted setting, the exact parameter corresponding to the device    */
+/*       must be passed to this macro.                                        */
+#define ADC_SCANDIR(_SCAN_MODE_)                                               \
   ( ( (_SCAN_MODE_) == (ADC_SCAN_DIRECTION_BACKWARD)                           \
     )? (ADC_CFGR1_SCANDIR) : (0x00000000)                                      \
   )
-    
+
 /**
   * @brief Enable the ADC DMA continuous request.
   * @param _DMACONTREQ_MODE_: DMA continuous request mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR1_DMACONTREQ(_DMACONTREQ_MODE_) ((_DMACONTREQ_MODE_) << 1)
+#define ADC_CFGR1_DMACONTREQ(_DMACONTREQ_MODE_)                                \
+  ((_DMACONTREQ_MODE_) << 1)
 
 /**
   * @brief Configure the analog watchdog high threshold into register TR.
   * @param _Threshold_: Threshold value
   * @retval None
   */
-#define __HAL_ADC_TRX_HIGHTHRESHOLD(_Threshold_) ((_Threshold_) << 16) 
-
-/**
-  * @brief Enable the ADC peripheral
-  * @param __HANDLE__: ADC handle
-  * @retval None
-  */
-#define __HAL_ADC_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR |= ADC_CR_ADEN)
-
-/**
-  * @brief Verification of hardware constraints before ADC can be enabled
-  * @param __HANDLE__: ADC handle
-  * @retval SET (ADC can be enabled) or RESET (ADC cannot be enabled)
-  */
-#define __HAL_ADC_ENABLING_CONDITIONS(__HANDLE__)                             \
-       (( ( ((__HANDLE__)->Instance->CR) &                                    \
-            (ADC_CR_ADCAL | ADC_CR_ADSTP |                                    \
-             ADC_CR_ADSTART | ADC_CR_ADDIS | ADC_CR_ADEN                    ) \
-           ) == RESET                                                         \
-        ) ? SET : RESET)
-         
-/**
-  * @brief Disable the ADC peripheral
-  * @param __HANDLE__: ADC handle
-  * @retval None
-  */
-#define __HAL_ADC_DISABLE(__HANDLE__)                                          \
-  do{                                                                          \
-         (__HANDLE__)->Instance->CR |= ADC_CR_ADDIS;                           \
-          __HAL_ADC_CLEAR_FLAG((__HANDLE__), (ADC_FLAG_EOSMP | ADC_FLAG_RDY)); \
-  } while(0)
-    
-/**
-  * @brief Verification of hardware constraints before ADC can be disabled
-  * @param __HANDLE__: ADC handle
-  * @retval SET (ADC can be disabled) or RESET (ADC cannot be disabled)
-  */
-#define __HAL_ADC_DISABLING_CONDITIONS(__HANDLE__)                             \
-       (( ( ((__HANDLE__)->Instance->CR) &                                     \
-            (ADC_CR_ADSTART | ADC_CR_ADEN)) == ADC_CR_ADEN   \
-        ) ? SET : RESET)
-         
+#define ADC_TRX_HIGHTHRESHOLD(_Threshold_)                                     \
+  ((_Threshold_) << 16) 
+  
 /**
   * @brief Shift the AWD threshold in function of the selected ADC resolution.
   *        Thresholds have to be left-aligned on bit 11, the LSB (right bits) are set to 0.
@@ -841,8 +803,76 @@ typedef struct
   * @param _Threshold_: Value to be shifted
   * @retval None
   */
-#define __HAL_ADC_AWD1THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_) \
-        ((_Threshold_) << ((((__HANDLE__)->Instance->CFGR1 & ADC_CFGR1_RES) >> 3)*2))
+#define ADC_AWD1THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_)            \
+  ((_Threshold_) << ((((__HANDLE__)->Instance->CFGR1 & ADC_CFGR1_RES) >> 3)*2))
+
+          
+#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK) (((ADC_CLOCK) == ADC_CLOCK_ASYNC_DIV1)     || \
+                                          ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV2) || \
+                                          ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV4)   )
+
+#define IS_ADC_RESOLUTION(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION_12B) || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_10B) || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_8B)  || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_6B)    )
+
+#define IS_ADC_DATA_ALIGN(ALIGN) (((ALIGN) == ADC_DATAALIGN_RIGHT) || \
+                                  ((ALIGN) == ADC_DATAALIGN_LEFT)    )
+
+#define IS_ADC_SCAN_MODE(SCAN_MODE) (((SCAN_MODE) == ADC_SCAN_DIRECTION_FORWARD) || \
+                                     ((SCAN_MODE) == ADC_SCAN_DIRECTION_BACKWARD)  )
+
+#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGCONVEDGE_NONE)         || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISING)       || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_FALLING)      || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING)  )
+
+#define IS_ADC_EOC_SELECTION(EOC_SELECTION) (((EOC_SELECTION) == ADC_EOC_SINGLE_CONV)    || \
+                                             ((EOC_SELECTION) == ADC_EOC_SEQ_CONV)       || \
+                                             ((EOC_SELECTION) == ADC_EOC_SINGLE_SEQ_CONV)  )
+
+#define IS_ADC_OVERRUN(OVR) (((OVR) == ADC_OVR_DATA_PRESERVED)  || \
+                             ((OVR) == ADC_OVR_DATA_OVERWRITTEN)  )
+
+#define IS_ADC_RANK(WATCHDOG) (((WATCHDOG) == ADC_RANK_CHANNEL_NUMBER) || \
+                               ((WATCHDOG) == ADC_RANK_NONE)             )
+
+#define IS_ADC_SAMPLE_TIME(TIME) (((TIME) == ADC_SAMPLETIME_1CYCLE_5)    || \
+                                  ((TIME) == ADC_SAMPLETIME_7CYCLES_5)   || \
+                                  ((TIME) == ADC_SAMPLETIME_13CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_28CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_41CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_55CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_71CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_239CYCLES_5)   )
+
+#define IS_ADC_ANALOG_WATCHDOG_MODE(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_NONE)             || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REG)       || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REG)            )
+
+#define IS_ADC_EVENT_TYPE(EVENT) (((EVENT) == ADC_AWD_EVENT) || \
+                                  ((EVENT) == ADC_OVR_EVENT)   )
+
+/** @defgroup ADC_range_verification ADC range verification
+  * in function of ADC resolution selected (12, 10, 8 or 6 bits)
+  * @{
+  */ 
+#define IS_ADC_RANGE(RESOLUTION, ADC_VALUE)                                         \
+   ((((RESOLUTION) == ADC_RESOLUTION_12B) && ((ADC_VALUE) <= ((uint32_t)0x0FFF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_10B) && ((ADC_VALUE) <= ((uint32_t)0x03FF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_8B)  && ((ADC_VALUE) <= ((uint32_t)0x00FF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_6B)  && ((ADC_VALUE) <= ((uint32_t)0x003F)))   )
+/**
+  * @}
+  */ 
+
+/** @defgroup ADC_regular_rank_verification ADC regular rank verification
+  * @{
+  */ 
+#define IS_ADC_REGULAR_RANK(RANK) (((RANK) >= ((uint32_t)1)) && ((RANK) <= ((uint32_t)16)))
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -920,7 +950,7 @@ HAL_StatusTypeDef       HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_Ana
 /** @addtogroup ADC_Exported_Functions_Group4
   * @{
   */
-HAL_ADC_StateTypeDef    HAL_ADC_GetState(ADC_HandleTypeDef* hadc);
+uint32_t                HAL_ADC_GetState(ADC_HandleTypeDef* hadc);
 uint32_t                HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
 /**
   * @}

@@ -96,10 +96,6 @@ void timer_oc_irq_handler(void)
 // Reconfigure the HAL tick using a standard timer instead of systick.
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
   
-    static uint32_t ticker_inited=0;  
-    if(ticker_inited)return HAL_OK;
-    ticker_inited=1;
-  
     // Enable timer clock
     TIM_MST_RCC;
 

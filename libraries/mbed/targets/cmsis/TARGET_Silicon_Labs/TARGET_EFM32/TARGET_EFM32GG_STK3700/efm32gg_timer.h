@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32gg_timer.h
  * @brief EFM32GG_TIMER register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,6 +30,10 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @defgroup EFM32GG_TIMER
  * @{
  * @brief EFM32GG_TIMER Register Declaration
@@ -49,7 +53,6 @@ typedef struct
   __IO uint32_t    ROUTE;        /**< I/O Routing Register  */
 
   uint32_t         RESERVED0[1]; /**< Reserved registers */
-
   TIMER_CC_TypeDef CC[3];        /**< Compare/Capture Channel */
 
   uint32_t         RESERVED1[4]; /**< Reserved for future use **/
@@ -181,7 +184,7 @@ typedef struct
 #define _TIMER_CTRL_ATI_MASK                       0x10000000UL                             /**< Bit mask for TIMER_ATI */
 #define _TIMER_CTRL_ATI_DEFAULT                    0x00000000UL                             /**< Mode DEFAULT for TIMER_CTRL */
 #define TIMER_CTRL_ATI_DEFAULT                     (_TIMER_CTRL_ATI_DEFAULT << 28)          /**< Shifted mode DEFAULT for TIMER_CTRL */
-#define TIMER_CTRL_RSSCOIST                        (0x1UL << 29)                            /**< Reload-Start Sets Compare Ouptut initial State */
+#define TIMER_CTRL_RSSCOIST                        (0x1UL << 29)                            /**< Reload-Start Sets Compare Output initial State */
 #define _TIMER_CTRL_RSSCOIST_SHIFT                 29                                       /**< Shift value for TIMER_RSSCOIST */
 #define _TIMER_CTRL_RSSCOIST_MASK                  0x20000000UL                             /**< Bit mask for TIMER_RSSCOIST */
 #define _TIMER_CTRL_RSSCOIST_DEFAULT               0x00000000UL                             /**< Mode DEFAULT for TIMER_CTRL */
@@ -516,15 +519,15 @@ typedef struct
 #define TIMER_ROUTE_CDTI2PEN_DEFAULT               (_TIMER_ROUTE_CDTI2PEN_DEFAULT << 10) /**< Shifted mode DEFAULT for TIMER_ROUTE */
 #define _TIMER_ROUTE_LOCATION_SHIFT                16                                    /**< Shift value for TIMER_LOCATION */
 #define _TIMER_ROUTE_LOCATION_MASK                 0x70000UL                             /**< Bit mask for TIMER_LOCATION */
-#define _TIMER_ROUTE_LOCATION_DEFAULT              0x00000000UL                          /**< Mode DEFAULT for TIMER_ROUTE */
 #define _TIMER_ROUTE_LOCATION_LOC0                 0x00000000UL                          /**< Mode LOC0 for TIMER_ROUTE */
+#define _TIMER_ROUTE_LOCATION_DEFAULT              0x00000000UL                          /**< Mode DEFAULT for TIMER_ROUTE */
 #define _TIMER_ROUTE_LOCATION_LOC1                 0x00000001UL                          /**< Mode LOC1 for TIMER_ROUTE */
 #define _TIMER_ROUTE_LOCATION_LOC2                 0x00000002UL                          /**< Mode LOC2 for TIMER_ROUTE */
 #define _TIMER_ROUTE_LOCATION_LOC3                 0x00000003UL                          /**< Mode LOC3 for TIMER_ROUTE */
 #define _TIMER_ROUTE_LOCATION_LOC4                 0x00000004UL                          /**< Mode LOC4 for TIMER_ROUTE */
 #define _TIMER_ROUTE_LOCATION_LOC5                 0x00000005UL                          /**< Mode LOC5 for TIMER_ROUTE */
-#define TIMER_ROUTE_LOCATION_DEFAULT               (_TIMER_ROUTE_LOCATION_DEFAULT << 16) /**< Shifted mode DEFAULT for TIMER_ROUTE */
 #define TIMER_ROUTE_LOCATION_LOC0                  (_TIMER_ROUTE_LOCATION_LOC0 << 16)    /**< Shifted mode LOC0 for TIMER_ROUTE */
+#define TIMER_ROUTE_LOCATION_DEFAULT               (_TIMER_ROUTE_LOCATION_DEFAULT << 16) /**< Shifted mode DEFAULT for TIMER_ROUTE */
 #define TIMER_ROUTE_LOCATION_LOC1                  (_TIMER_ROUTE_LOCATION_LOC1 << 16)    /**< Shifted mode LOC1 for TIMER_ROUTE */
 #define TIMER_ROUTE_LOCATION_LOC2                  (_TIMER_ROUTE_LOCATION_LOC2 << 16)    /**< Shifted mode LOC2 for TIMER_ROUTE */
 #define TIMER_ROUTE_LOCATION_LOC3                  (_TIMER_ROUTE_LOCATION_LOC3 << 16)    /**< Shifted mode LOC3 for TIMER_ROUTE */
@@ -961,5 +964,5 @@ typedef struct
 #define TIMER_DTLOCK_LOCKKEY_UNLOCK                (_TIMER_DTLOCK_LOCKKEY_UNLOCK << 0)   /**< Shifted mode UNLOCK for TIMER_DTLOCK */
 
 /** @} End of group EFM32GG_TIMER */
-
+/** @} End of group Parts */
 

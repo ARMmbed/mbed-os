@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,13 +34,13 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "mbed_error.h"
 
 ADC_HandleTypeDef AdcHandle;
 
 int adc_inited = 0;
 
-void analogin_init(analogin_t *obj, PinName pin)
-{
+void analogin_init(analogin_t *obj, PinName pin) {
     // Get the peripheral name from the pin and assign it to the object
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
@@ -73,15 +73,17 @@ void analogin_init(analogin_t *obj, PinName pin)
         AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
         AdcHandle.Init.DMAContinuousRequests = DISABLE;
         AdcHandle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
-        HAL_ADC_Init(&AdcHandle);
-
+        if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
+            error("Cannot initialize ADC");
+        }
         // Run the ADC calibration
-        HAL_ADCEx_Calibration_Start(&AdcHandle);
+        if (HAL_ADCEx_Calibration_Start(&AdcHandle) != HAL_OK) {
+            error("Cannot Start ADC_Calibration");
+        }
     }
 }
 
-static inline uint16_t adc_read(analogin_t *obj)
-{
+static inline uint16_t adc_read(analogin_t *obj) {
     ADC_ChannelConfTypeDef sConfig;
 
     AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
@@ -125,6 +127,7 @@ static inline uint16_t adc_read(analogin_t *obj)
         case PB_1:
             sConfig.Channel = ADC_CHANNEL_9;
             break;
+#if !defined (TARGET_STM32F031K6) && !defined (TARGET_STM32F042K6)
         case PC_0:
             sConfig.Channel = ADC_CHANNEL_10;
             break;
@@ -143,6 +146,7 @@ static inline uint16_t adc_read(analogin_t *obj)
         case PC_5:
             sConfig.Channel = ADC_CHANNEL_15;
             break;
+#endif
         default:
             return 0;
     }
@@ -162,16 +166,14 @@ static inline uint16_t adc_read(analogin_t *obj)
     }
 }
 
-uint16_t analogin_read_u16(analogin_t *obj)
-{
+uint16_t analogin_read_u16(analogin_t *obj) {
     uint16_t value = adc_read(obj);
     // 12-bit to 16-bit conversion
     value = ((value << 4) & (uint16_t)0xFFF0) | ((value >> 8) & (uint16_t)0x000F);
     return value;
 }
 
-float analogin_read(analogin_t *obj)
-{
+float analogin_read(analogin_t *obj) {
     uint16_t value = adc_read(obj);
     return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }

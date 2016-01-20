@@ -350,11 +350,18 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
         count++;
     } while (((status == 0x80) || (status == 0x90) ||
             (status == 0x060) || (status == 0x70)) && (count < length));
-    
+ 
+    // Clear old status and wait for Serial Interrupt. 
+    i2c_clear_SI(obj);
+    i2c_wait_SI(obj);
+ 
+    // Obtain new status.
+    status = i2c_status(obj);
+ 
     if(status != 0xA0) {
         i2c_stop(obj);
     }
-    
+ 
     i2c_clear_SI(obj);
     
     return count;

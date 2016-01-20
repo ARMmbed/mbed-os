@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_spi.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   SPI HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -2110,7 +2110,7 @@ static void SPI_DMAEndTransmitReceive(SPI_HandleTypeDef *hspi)
 /**
   * @brief DMA SPI transmit receive process complete callback 
   * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
-  *               the configuration information for the specified DMA module.
+  *                the configuration information for the specified DMA module.
   * @retval None
   */
 static void SPI_DMATransmitReceiveCplt(DMA_HandleTypeDef *hdma)

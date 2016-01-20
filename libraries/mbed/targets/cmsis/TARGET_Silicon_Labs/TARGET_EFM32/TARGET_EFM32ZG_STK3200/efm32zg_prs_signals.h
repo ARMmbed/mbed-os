@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_prs_signals.h
  * @brief EFM32ZG_PRS_SIGNALS register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,11 +30,14 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @addtogroup EFM32ZG_PRS_Signals
  * @{
  * @brief PRS Signal names
  *****************************************************************************/
-
 #define PRS_VCMP_OUT          ((1 << 16) + 0)  /**< PRS Voltage comparator output */
 #define PRS_ACMP0_OUT         ((2 << 16) + 0)  /**< PRS Analog comparator output */
 #define PRS_ADC0_SINGLE       ((8 << 16) + 0)  /**< PRS ADC single conversion done */
@@ -74,5 +77,5 @@
 #define PRS_PCNT0_TCC         ((54 << 16) + 0) /**< PRS Triggered compare match */
 
 /** @} End of group EFM32ZG_PRS */
-
+/** @} End of group Parts */
 

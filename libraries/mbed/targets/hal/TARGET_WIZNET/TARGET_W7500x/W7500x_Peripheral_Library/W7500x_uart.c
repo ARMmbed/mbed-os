@@ -208,13 +208,24 @@ void S_UART_DeInit()
 uint32_t S_UART_Init(uint32_t baud)
 {
     uint32_t tmpreg=0x00;
-    uint32_t uartclock = 0x00, integer_baud = 0x00;
 
-    assert_param(IS_UART_MODE(S_UART_InitStruct->UART_Mode));
+    S_UART_SetBaud(baud);
+
+    tmpreg = UART2->CTRL;
+    tmpreg &= ~(S_UART_CTRL_RX_EN | S_UART_CTRL_TX_EN);
+    tmpreg |= (S_UART_CTRL_RX_EN | S_UART_CTRL_TX_EN);
+    UART2->CTRL = tmpreg;
+
+    return 0;
+}
+
+void S_UART_SetBaud(uint32_t baud)
+{
+    uint32_t uartclock = 0x00, integer_baud = 0x00;
 
     if(CRG->FCLK_SSR == CRG_FCLK_SSR_RCLK)
     {
-        uartclock = INTERN_XTAL;  
+        uartclock = INTERN_XTAL;
     }
     else if(CRG->FCLK_SSR == CRG_FCLK_SSR_OCLK)
     {
@@ -227,18 +238,11 @@ uint32_t S_UART_Init(uint32_t baud)
 
     integer_baud = (uint32_t)(uartclock / baud);
     UART2->BAUDDIV = integer_baud;
-
-    tmpreg = UART2->CTRL;
-    tmpreg &= ~(S_UART_CTRL_RX_EN | S_UART_CTRL_TX_EN);
-    tmpreg |= (S_UART_CTRL_RX_EN | S_UART_CTRL_TX_EN);
-    UART2->CTRL = tmpreg;
-
-    return 0;
 }
 
 void S_UART_SendData(uint16_t Data)
 {
-    while(UART2->STATE & S_UART_STATE_TX_BUF_FULL); 
+    while(UART2->STATE & S_UART_STATE_TX_BUF_FULL);
     UART2->DATA = Data;
 }
 
@@ -248,13 +252,13 @@ uint16_t S_UART_ReceiveData()
 }
 
 
-FlagStatus S_UART_GetFlagStatus(uint16_t S_UART_FLAG)
+FlagStatus S_UART_GetFlagStatus(uint16_t S_UART_STATE)
 {
     FlagStatus bitstatus = RESET;
 
-    assert_param(IS_S_UART_FLAG(S_UART_FLAG));
+    assert_param(IS_S_UART_STATE(S_UART_STATE));
 
-    if ((UART2->STATE & S_UART_FLAG) != (uint16_t)RESET)
+    if ((UART2->STATE & S_UART_STATE) != (FlagStatus)RESET)
     {
         bitstatus = SET;
     }
@@ -266,28 +270,40 @@ FlagStatus S_UART_GetFlagStatus(uint16_t S_UART_FLAG)
     return bitstatus;
 }
 
-
-void S_UART_ITConfig(uint16_t S_UART_IT, FunctionalState NewState)
+void S_UART_SetCTRL(uint16_t S_UART_CTRL, FunctionalState NewState)
 {
-    assert_param(IS_S_UART_IT_FLAG(S_UART_IT));
+    if ( NewState != DISABLE )
+    {
+        UART2->CTRL |= S_UART_CTRL;
+    }
+    else
+    {
+        UART2->CTRL &= ~(S_UART_CTRL);
+    }
+}
+
+
+void S_UART_ITConfig(uint16_t S_UART_CTRL, FunctionalState NewState)
+{
+    assert_param(IS_S_UART_CTRL_FLAG(S_UART_CTRL));
 
     if ( NewState != DISABLE )
     {
-        UART2->CTRL |= S_UART_IT;
+        UART2->CTRL |= S_UART_CTRL;
     }
     else
     {
-        UART2->CTRL &= ~(S_UART_IT);
+        UART2->CTRL &= ~(S_UART_CTRL);
     }
 }
 
-ITStatus S_UART_GetITStatus(uint16_t S_UART_IT)
+ITStatus S_UART_GetITStatus(uint16_t S_UART_INTSTATUS)
 {
     ITStatus bitstatus = RESET;
 
-    assert_param(IS_S_UART_IT_FLAG(S_UART_IT));
+    assert_param(IS_S_UART_INTSATUS(S_UART_INTSTATUS));
 
-    if ((UART2->INT.STATUS & (S_UART_IT >> 2)) != (uint16_t) RESET)
+    if ((UART2->INT.STATUS & (S_UART_INTSTATUS)) != (uint16_t) RESET)
     {
         bitstatus = SET;
     }
@@ -299,11 +315,11 @@ ITStatus S_UART_GetITStatus(uint16_t S_UART_IT)
     return bitstatus;
 }
 
-void S_UART_ClearITPendingBit(uint16_t S_UART_IT)
+void S_UART_ClearITPendingBit(uint16_t S_UART_INTSTATUS)
 {
-    assert_param(IS_S_UART_IT_FLAG(S_UART_IT));
+    assert_param(IS_S_UART_INTSATUS(S_UART_INTSTATUS));
 
-    UART2->INT.CLEAR |= (S_UART_IT >> 2);
+    UART2->INT.CLEAR |= (S_UART_INTSTATUS);
 }
 
 

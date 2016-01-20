@@ -119,6 +119,16 @@ typedef struct {
 #define MXC_F_SPI_MSTR_CFG_ALT_SCK_LO_CLK_POS               24
 #define MXC_F_SPI_MSTR_CFG_ALT_SCK_LO_CLK                   ((uint32_t)(0x0000000FUL << MXC_F_SPI_MSTR_CFG_ALT_SCK_LO_CLK_POS))
 
+#define MXC_V_SPI_MSTR_CFG_PAGE_SIZE_4B                     ((uint32_t)0x00000000UL)
+#define MXC_V_SPI_MSTR_CFG_PAGE_SIZE_8B                     ((uint32_t)0x00000001UL)
+#define MXC_V_SPI_MSTR_CFG_PAGE_SIZE_16B                    ((uint32_t)0x00000002UL)
+#define MXC_V_SPI_MSTR_CFG_PAGE_SIZE_32B                    ((uint32_t)0x00000003UL)
+
+#define MXC_S_SPI_MSTR_CFG_PAGE_4B                          (MXC_V_SPI_MSTR_CFG_PAGE_SIZE_4B  << MXC_F_SPI_MSTR_CFG_PAGE_SIZE_POS)
+#define MXC_S_SPI_MSTR_CFG_PAGE_8B                          (MXC_V_SPI_MSTR_CFG_PAGE_SIZE_8B  << MXC_F_SPI_MSTR_CFG_PAGE_SIZE_POS)
+#define MXC_S_SPI_MSTR_CFG_PAGE_16B                         (MXC_V_SPI_MSTR_CFG_PAGE_SIZE_16B << MXC_F_SPI_MSTR_CFG_PAGE_SIZE_POS)
+#define MXC_S_SPI_MSTR_CFG_PAGE_32B                         (MXC_V_SPI_MSTR_CFG_PAGE_SIZE_32B << MXC_F_SPI_MSTR_CFG_PAGE_SIZE_POS)
+
 #define MXC_F_SPI_SS_SR_POLARITY_SS_POLARITY_POS            0
 #define MXC_F_SPI_SS_SR_POLARITY_SS_POLARITY                ((uint32_t)(0x000000FFUL << MXC_F_SPI_SS_SR_POLARITY_SS_POLARITY_POS))
 #define MXC_F_SPI_SS_SR_POLARITY_FC_POLARITY_POS            8

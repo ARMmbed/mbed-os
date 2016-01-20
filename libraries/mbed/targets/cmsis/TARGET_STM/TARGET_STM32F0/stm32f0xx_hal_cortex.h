@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,21 +50,14 @@
   * @{
   */
 
-/** @addtogroup CORTEX CORTEX HAL module driver
+/** @addtogroup CORTEX CORTEX
   * @{
   */ 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
+
 /** @defgroup CORTEX_Exported_Constants CORTEX Exported Constants
   * @{
-  */
-  
-/** @defgroup CORTEX_Priority CORTEX Priority
-  * @{
-  */
-#define IS_NVIC_PREEMPTION_PRIORITY(PRIORITY)  ((PRIORITY) < 0x4)
-/**
-  * @}
   */
   
 /** @defgroup CORTEX_SysTick_clock_source CORTEX SysTick clock source
@@ -72,8 +65,7 @@
   */
 #define SYSTICK_CLKSOURCE_HCLK_DIV8    ((uint32_t)0x00000000)
 #define SYSTICK_CLKSOURCE_HCLK         ((uint32_t)0x00000004)
-#define IS_SYSTICK_CLK_SOURCE(SOURCE) (((SOURCE) == SYSTICK_CLKSOURCE_HCLK) || \
-                                      ((SOURCE) == SYSTICK_CLKSOURCE_HCLK_DIV8))
+
 /**
   * @}
   */
@@ -143,6 +135,23 @@ void HAL_SYSTICK_Callback(void);
   * @}
   */ 
 
+/**
+  * @}
+  */ 
+
+/* Private types -------------------------------------------------------------*/ 
+/* Private variables ---------------------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup CORTEX_Private_Macros CORTEX Private Macros
+  * @{
+  */
+#define IS_NVIC_PREEMPTION_PRIORITY(PRIORITY)  ((PRIORITY) < 0x4)
+
+#define IS_NVIC_DEVICE_IRQ(IRQ)                ((IRQ) >= 0x00)
+
+#define IS_SYSTICK_CLK_SOURCE(SOURCE) (((SOURCE) == SYSTICK_CLKSOURCE_HCLK) || \
+                                      ((SOURCE) == SYSTICK_CLKSOURCE_HCLK_DIV8))
 /**
   * @}
   */ 

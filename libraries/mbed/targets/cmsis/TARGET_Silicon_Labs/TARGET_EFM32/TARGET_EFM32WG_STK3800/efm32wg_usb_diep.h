@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_usb_diep.h
  * @brief EFM32WG_USB_DIEP register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,6 +30,10 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @brief USB_DIEP EFM32WG USB DIEP
  *****************************************************************************/
 typedef struct
@@ -41,7 +45,9 @@ typedef struct
   __IO uint32_t TSIZ;         /**< Device IN Endpoint x+1 Transfer Size Register  */
   __IO uint32_t DMAADDR;      /**< Device IN Endpoint x+1 DMA Address Register  */
   __I uint32_t  TXFSTS;       /**< Device IN Endpoint x+1 Transmit FIFO Status Register  */
-
   uint32_t      RESERVED2[1]; /**< Reserved future */
 } USB_DIEP_TypeDef;
+
+/** @} End of group Parts */
+
 

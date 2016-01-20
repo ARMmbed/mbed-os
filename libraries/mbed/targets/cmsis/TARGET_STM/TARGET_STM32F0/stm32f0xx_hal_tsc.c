@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tsc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Touch Sensing Controller (TSC) peripheral:
   *           + Initialization and DeInitialization
@@ -47,10 +47,10 @@
                           ##### How to use this driver #####
 ================================================================================
   [..]
-    (#) Enable the TSC interface clock using __TSC_CLK_ENABLE() macro.
+    (#) Enable the TSC interface clock using __HAL_RCC_TSC_CLK_ENABLE() macro.
 
     (#) GPIO pins configuration
-      (++) Enable the clock for the TSC GPIOs using __GPIOx_CLK_ENABLE() macro.
+      (++) Enable the clock for the TSC GPIOs using __HAL_RCC_GPIOx_CLK_ENABLE() macro.
       (++) Configure the TSC pins used as sampling IOs in alternate function output Open-Drain mode,
            and TSC pins used as channel/shield IOs in alternate function output Push-Pull mode
            using HAL_GPIO_Init() function.
@@ -81,7 +81,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -121,7 +121,7 @@
   * @{
   */
 
-/** @defgroup TSC TSC HAL module driver
+/** @defgroup TSC TSC
   * @brief TSC HAL module driver
   * @{
   */
@@ -179,7 +179,13 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
   assert_param(IS_TSC_SYNC_POL(htsc->Init.SynchroPinPolarity));
   assert_param(IS_TSC_ACQ_MODE(htsc->Init.AcquisitionMode));
   assert_param(IS_TSC_MCE_IT(htsc->Init.MaxCountInterrupt));
-    
+
+  if(htsc->State == HAL_TSC_STATE_RESET)
+  {
+    /* Allocate lock resource and initialize it */
+    htsc->Lock = HAL_UNLOCKED;
+  }    
+
   /* Initialize the TSC state */
   htsc->State = HAL_TSC_STATE_BUSY;
 

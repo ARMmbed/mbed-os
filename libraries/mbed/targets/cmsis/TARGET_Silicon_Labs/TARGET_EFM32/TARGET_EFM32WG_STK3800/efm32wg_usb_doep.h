@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32wg_usb_doep.h
  * @brief EFM32WG_USB_DOEP register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,6 +30,10 @@
  *
  *****************************************************************************/
 /**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
+/**************************************************************************//**
  * @brief USB_DOEP EFM32WG USB DOEP
  *****************************************************************************/
 typedef struct
@@ -40,7 +44,9 @@ typedef struct
   uint32_t      RESERVED1[1]; /**< Reserved for future use **/
   __IO uint32_t TSIZ;         /**< Device OUT Endpoint x+1 Transfer Size Register  */
   __IO uint32_t DMAADDR;      /**< Device OUT Endpoint x+1 DMA Address Register  */
-
   uint32_t      RESERVED2[2]; /**< Reserved future */
 } USB_DOEP_TypeDef;
+
+/** @} End of group Parts */
+
 

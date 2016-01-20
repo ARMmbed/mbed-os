@@ -28,7 +28,6 @@ sys.path.insert(0, ROOT)
 
 
 from workspace_tools.toolchains import TOOLCHAINS
-from workspace_tools.toolchains import print_notify_verbose
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.options import get_default_options_parser
 from workspace_tools.build_api import build_mbed_libs, build_lib
@@ -49,6 +48,12 @@ if __name__ == '__main__':
                       dest="rtos",
                       default=False,
                       help="Compile the rtos")
+
+    parser.add_option("--rpc",
+                      action="store_true",
+                      dest="rpc",
+                      default=False,
+                      help="Compile the rpc library")
 
     parser.add_option("-e", "--eth",
                       action="store_true", dest="eth",
@@ -77,7 +82,7 @@ if __name__ == '__main__':
                       action="store_true",
                       dest="fat",
                       default=False,
-                      help="Compile FS ad SD card file system library")
+                      help="Compile FS and SD card file system library")
 
     parser.add_option("-b", "--ublox",
                       action="store_true",
@@ -169,6 +174,8 @@ if __name__ == '__main__':
     # Additional Libraries
     if options.rtos:
         libraries.extend(["rtx", "rtos"])
+    if options.rpc:
+        libraries.extend(["rpc"])
     if options.eth:
         libraries.append("eth")
     if options.usb:
@@ -183,8 +190,6 @@ if __name__ == '__main__':
         libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
     if options.cpputest_lib:
         libraries.extend(["cpputest"])
-
-    notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
 
     # Build results
     failures = []
@@ -203,7 +208,7 @@ if __name__ == '__main__':
                         # Static check for library
                         static_analysis_scan_lib(lib_id, mcu, toolchain, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT,
                                   options=options.options,
-                                  notify=notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
+                                  extra_verbose=options.extra_verbose_notify, verbose=options.verbose, jobs=options.jobs, clean=options.clean,
                                   macros=options.macros)
                         pass
                 except Exception, e:
@@ -221,17 +226,16 @@ if __name__ == '__main__':
                     mcu = TARGET_MAP[target]
                     lib_build_res = build_mbed_libs(mcu, toolchain,
                                                     options=options.options,
-                                                    notify=notify,
+                                                    extra_verbose=options.extra_verbose_notify,
                                                     verbose=options.verbose,
                                                     silent=options.silent,
                                                     jobs=options.jobs,
                                                     clean=options.clean,
                                                     macros=options.macros)
                     for lib_id in libraries:
-                        notify = print_notify_verbose if options.extra_verbose_notify else None  # Special notify for CI (more verbose)
                         build_lib(lib_id, mcu, toolchain,
                                   options=options.options,
-                                  notify=notify,
+                                  extra_verbose=options.extra_verbose_notify,
                                   verbose=options.verbose,
                                   silent=options.silent,
                                   clean=options.clean,

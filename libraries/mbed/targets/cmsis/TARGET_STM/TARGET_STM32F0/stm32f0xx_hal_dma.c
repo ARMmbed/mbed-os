@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 
@@ -73,7 +73,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -107,12 +107,13 @@
   * @{
   */
 
+#ifdef HAL_DMA_MODULE_ENABLED
+
 /** @defgroup DMA DMA
   * @brief DMA HAL module driver
   * @{
   */
 
-#ifdef HAL_DMA_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -125,6 +126,13 @@
   */
 
 /* Private macro -------------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
+/** @defgroup DMA_Private_Macros DMA Private Macros
+  * @{
+  */
+/**
+  * @}
+  */
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /** @defgroup DMA_Private_Functions DMA Private Functions
@@ -141,7 +149,7 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   * @{
   */
 
-/** @defgroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions 
+/** @defgroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief   Initialization and de-initialization functions 
  *
 @verbatim   
@@ -186,6 +194,12 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   assert_param(IS_DMA_MEMORY_DATA_SIZE(hdma->Init.MemDataAlignment));
   assert_param(IS_DMA_MODE(hdma->Init.Mode));
   assert_param(IS_DMA_PRIORITY(hdma->Init.Priority));
+
+  if(hdma->State == HAL_DMA_STATE_RESET)
+  {  
+    /* Allocate lock resource and initialize it */
+    hdma->Lock = HAL_UNLOCKED;
+  }
   
   /* Change DMA peripheral state */
   hdma->State = HAL_DMA_STATE_BUSY;
@@ -259,7 +273,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma));
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));
   
-  /* Initialise the error code */
+  /* Initialize the error code */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
   /* Initialize the DMA state */
@@ -386,7 +400,7 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   /* Disable the channel */
   __HAL_DMA_DISABLE(hdma);
   
-  /* Get timeout */
+  /* Get tick */
   tickstart = HAL_GetTick();
   
   /* Check if the DMA Channel is effectively disabled */
@@ -441,7 +455,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
     temp = __HAL_DMA_GET_HT_FLAG_INDEX(hdma);
   }
 
-  /* Get timeout */
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   while(__HAL_DMA_GET_FLAG(hdma, temp) == RESET)
@@ -649,7 +663,7 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @addtogroup DMA_Private_Functions DMA Private Functions
+/** @addtogroup DMA_Private_Functions
   * @{
   */
 
@@ -691,10 +705,10 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   * @}
   */
 
-#endif /* HAL_DMA_MODULE_ENABLED */
 /**
   * @}
   */
+#endif /* HAL_DMA_MODULE_ENABLED */
 
 /**
   * @}

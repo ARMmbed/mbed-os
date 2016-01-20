@@ -40,7 +40,7 @@ setup(name='mbed-tools',
       url='https://github.com/mbedmicro/mbed',
       packages=find_packages(),
       license=LICENSE,
-      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3", "colorama>=0.3.3", "Jinja2>=2.7.3"])
+      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3", "colorama>=0.3.3", "Jinja2>=2.7.3", "project-generator>=0.8.4,<0.9.0"])
 
 # Restore previous private_settings if needed
 if backup:
