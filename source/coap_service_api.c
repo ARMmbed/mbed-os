@@ -39,7 +39,7 @@ typedef struct coap_service {
     coap_service_security_start_cb *security_start_cb;
     coap_service_virtual_socket_send_cb *virtual_socket_send_cb;
     uri_registration_list_t uri_list;
-    thread_conn_handler_t *conn_handler;
+    coap_conn_handler_t *conn_handler;
     int8_t interface_id;
     int8_t service_id;
     int8_t listen_socket;

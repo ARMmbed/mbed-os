@@ -15,7 +15,7 @@
 #define TRACE_GROUP "ThCH"
 
 typedef struct internal_socket_s {
-    thread_conn_handler_t *parent;
+    coap_conn_handler_t *parent;
 
     uint16_t listen_port;
     int8_t listen_socket;
@@ -49,7 +49,7 @@ typedef struct secure_timer_s {
 } secure_timer_t;
 
 typedef struct secure_session {
-    thread_security_t *sec_handler; //owned
+    coap_security_t *sec_handler; //owned
     internal_socket_t *parent; //not owned
 
     secure_timer_t timer;
@@ -79,7 +79,7 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_
         return NULL;
     }
 
-    this->sec_handler = thread_security_create(parent->listen_socket, this->timer.id, address_ptr, port, ECJPAKE,
+    this->sec_handler = coap_security_create(parent->listen_socket, this->timer.id, address_ptr, port, ECJPAKE,
                                                &send_to_socket, &receive_from_socket, &start_timer, &timer_status);
     if( !this->sec_handler ){
         ns_dyn_mem_free(this);
@@ -98,7 +98,7 @@ static void secure_session_delete(secure_session_t *this)
     if (this) {
         ns_list_remove(&secure_session_list, this);
         if( this->sec_handler ){
-            thread_security_destroy(this->sec_handler);
+            coap_security_destroy(this->sec_handler);
             this->sec_handler = NULL;
         }
         ns_dyn_mem_free(this);
@@ -399,7 +399,7 @@ static void secure_recv_sckt_msg(void *cb_res)
             uint8_t pw_len;
             if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, src_address.address, src_address.identifier, pw, &pw_len)){
                 //TODO: get_password_cb should support certs and PSK also
-                thread_keys_t keys;
+                coap_security_keys_t keys;
                 keys._priv = pw;
                 keys._priv_len = pw_len;
                 coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys);
@@ -454,7 +454,7 @@ static void recv_sckt_msg(void *cb_res)
     }
 }
 
-int coap_connection_handler_virtual_recv(thread_conn_handler_t *handler, uint8_t address[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len)
+int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t address[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len)
 {
     if( !handler || !handler->socket ){
         return -1;
@@ -492,7 +492,7 @@ int coap_connection_handler_virtual_recv(thread_conn_handler_t *handler, uint8_t
             uint8_t pw_len;
             if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, address, port, pw, &pw_len)){
                 //TODO: get_password_cb should support certs and PSK also
-                thread_keys_t keys;
+                coap_security_keys_t keys;
                 keys._priv = pw;
                 keys._priv_len = pw_len;
                 coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys);
@@ -551,7 +551,7 @@ int coap_connection_handler_virtual_recv(thread_conn_handler_t *handler, uint8_t
     return -1;
 }
 
-thread_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from_cb,
+coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from_cb,
                                                  send_to_socket_cb *send_to_cb,
                                                  get_pw_cb *pw_cb,
                                                  security_done_cb *done_cb )
@@ -560,11 +560,11 @@ thread_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_fr
         return NULL;
     }
 
-    thread_conn_handler_t *handler = ns_dyn_mem_alloc(sizeof(thread_conn_handler_t));
+    coap_conn_handler_t *handler = ns_dyn_mem_alloc(sizeof(coap_conn_handler_t));
     if(!handler){
         return NULL;
     }
-    memset(handler, 0, sizeof(thread_conn_handler_t));
+    memset(handler, 0, sizeof(coap_conn_handler_t));
     handler->socket = NULL;
     handler->_recv_cb = recv_from_cb;
     handler->_send_cb = send_to_cb;
@@ -576,7 +576,7 @@ thread_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_fr
     return handler;
 }
 
-void connection_handler_destroy(thread_conn_handler_t *handler)
+void connection_handler_destroy(coap_conn_handler_t *handler)
 {
     if(handler){
         if( handler->socket && handler->socket->is_secure){
@@ -586,7 +586,7 @@ void connection_handler_destroy(thread_conn_handler_t *handler)
 
             while(session != NULL ){
                 if( session && handler->socket->usage_counter == 1){ //Last connection
-                    thread_security_send_close_alert( session->sec_handler );
+                    coap_security_send_close_alert( session->sec_handler );
                 }
 
                 if( session){
@@ -601,20 +601,20 @@ void connection_handler_destroy(thread_conn_handler_t *handler)
     }
 }
 
-void connection_handler_close_secure_connection( thread_conn_handler_t *handler, ns_address_t *dest_addr )
+void connection_handler_close_secure_connection( coap_conn_handler_t *handler, ns_address_t *dest_addr )
 {
     if(handler){
         if( handler->socket && handler->socket->is_secure){
             secure_session_t *session = secure_session_find( handler->socket, dest_addr->address,
                                                              dest_addr->identifier);
             if( session ){
-                thread_security_send_close_alert( session->sec_handler );
+                coap_security_send_close_alert( session->sec_handler );
             }
         }
     }
 }
 
-int coap_connection_handler_open_connection(thread_conn_handler_t *handler, uint16_t listen_port, bool use_ephemeral_port, bool is_secure, bool is_real_socket, bool bypassSec)
+int coap_connection_handler_open_connection(coap_conn_handler_t *handler, uint16_t listen_port, bool use_ephemeral_port, bool is_secure, bool is_real_socket, bool bypassSec)
 {
     if( !handler ){
         return -1;
@@ -643,7 +643,7 @@ int coap_connection_handler_open_connection(thread_conn_handler_t *handler, uint
     return 0;
 }
 
-int coap_connection_handler_send_data(thread_conn_handler_t *handler, ns_address_t *dest_addr, uint8_t *data_ptr, uint16_t data_len, bool bypass_link_sec)
+int coap_connection_handler_send_data(coap_conn_handler_t *handler, ns_address_t *dest_addr, uint8_t *data_ptr, uint16_t data_len, bool bypass_link_sec)
 {
     if( !handler || !handler->socket || !dest_addr){
         return -1;
@@ -670,7 +670,7 @@ int coap_connection_handler_send_data(thread_conn_handler_t *handler, ns_address
             uint8_t pw_len;
             if( handler->_get_password_cb && 0 == handler->_get_password_cb(handler->socket->listen_socket, dest_addr->address, dest_addr->identifier, pw, &pw_len)){
                 //TODO: get_password_cb should support certs and PSK also
-                thread_keys_t keys;
+                coap_security_keys_t keys;
                 keys._priv = pw;
                 keys._priv_len = pw_len;
                 coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, keys);
@@ -702,7 +702,7 @@ int coap_connection_handler_send_data(thread_conn_handler_t *handler, ns_address
     }
 }
 
-bool coap_connection_handler_socket_belongs_to(thread_conn_handler_t *handler, int8_t socket_id)
+bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int8_t socket_id)
 {
     if( !handler || !handler->socket){
         return false;

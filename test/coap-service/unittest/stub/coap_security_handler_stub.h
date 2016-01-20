@@ -22,7 +22,7 @@
 #include "coap_security_handler.h"
 
 typedef struct tsh{
-    thread_security_t *sec_obj;
+    coap_security_t *sec_obj;
     int int_value;
     int counter;
     int values[10];

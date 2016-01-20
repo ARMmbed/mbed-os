@@ -30,7 +30,7 @@ extern "C" {
 typedef struct {
     int int_value;
     bool bool_value;
-    thread_conn_handler_t *handler_obj;
+    coap_conn_handler_t *handler_obj;
 
     int (*send_to_sock_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, const unsigned char *, int);
     int (*receive_from_sock_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, unsigned char *, int);
