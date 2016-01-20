@@ -19,7 +19,7 @@ from os.path import join, exists, basename
 from shutil import copytree, rmtree, copy
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio
+from workspace_tools.export import uvision4, codesourcery, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
@@ -37,6 +37,7 @@ EXPORTERS = {
     'kds' : kds.KDS,
     'simplicityv3' : simplicityv3.SimplicityV3,
     'atmelstudio' : atmelstudio.AtmelStudio,
+    'sw4stm32'    : sw4stm32.Sw4STM32,
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -172,9 +173,9 @@ def mcu_ide_matrix(verbose_html=False, platform_filter=None):
         for ide in supported_ides:
             text = "-"
             if target in EXPORTERS[ide].TARGETS:
-                if verbose_html: 
-                    text = "&#10003;" 
-                else: 
+                if verbose_html:
+                    text = "&#10003;"
+                else:
                     text = "x"
                 perm_counter += 1
             row.append(text)
