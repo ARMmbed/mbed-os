@@ -49,7 +49,7 @@ typedef struct secure_timer_s {
 } secure_timer_t;
 
 typedef struct secure_session {
-    coap_security_t *sec_handler; //owned
+    thread_security_t *sec_handler; //owned
     internal_socket_t *parent; //not owned
 
     secure_timer_t timer;
@@ -79,8 +79,13 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_
         return NULL;
     }
 
-    this->sec_handler = thread_security_create(parent->listen_socket, this->timer.id, address_ptr, port, &send_to_socket,
-                                               &receive_from_socket, &start_timer, &timer_status);
+    SecureConnectionMode mode = PSK;
+#if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
+    mode = ECJPAKE;
+#endif
+
+    this->sec_handler = thread_security_create(parent->listen_socket, this->timer.id, address_ptr, port, mode,
+                                               &send_to_socket, &receive_from_socket, &start_timer, &timer_status);
     if( !this->sec_handler ){
         ns_dyn_mem_free(this);
         return NULL;
@@ -318,6 +323,9 @@ static void timer_cb(int8_t timer_id, uint16_t slots)
             /* Intermediate expiry */
             sec->timer.state = TIMER_STATE_INT_EXPIRY;
         }
+        //TODO: In case of DTLS and count == 1 || 4 we must call continue connecting of security so
+        //that mbedtls can handle timeout logic: resending etc...
+        //Not done, because timer should be refactored to be platform specific!
     }
 }
 
@@ -395,7 +403,11 @@ static void secure_recv_sckt_msg(void *cb_res)
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
             uint8_t pw_len;
             if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, src_address.address, src_address.identifier, pw, &pw_len)){
-                coap_security_handler_connect(session->sec_handler, true, pw, pw_len);
+                //TODO: get_password_cb should support certs and PSK also
+                thread_keys_t keys;
+                keys._priv = pw;
+                keys._priv_len = pw_len;
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys);
                 //TODO: error handling
             }
             ns_dyn_mem_free(pw);
@@ -484,7 +496,11 @@ int coap_connection_handler_virtual_recv(thread_conn_handler_t *handler, uint8_t
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
             uint8_t pw_len;
             if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->listen_socket, address, port, pw, &pw_len)){
-                coap_security_handler_connect(session->sec_handler, true, pw, pw_len);
+                //TODO: get_password_cb should support certs and PSK also
+                thread_keys_t keys;
+                keys._priv = pw;
+                keys._priv_len = pw_len;
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys);
                 //TODO: error handling
                 ns_dyn_mem_free(pw);
                 return 0;
@@ -658,7 +674,11 @@ int coap_connection_handler_send_data(thread_conn_handler_t *handler, ns_address
             }
             uint8_t pw_len;
             if( handler->_get_password_cb && 0 == handler->_get_password_cb(handler->socket->listen_socket, dest_addr->address, dest_addr->identifier, pw, &pw_len)){
-                coap_security_handler_connect(session->sec_handler, false, pw, pw_len);
+                //TODO: get_password_cb should support certs and PSK also
+                thread_keys_t keys;
+                keys._priv = pw;
+                keys._priv_len = pw_len;
+                coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, keys);
                 ns_dyn_mem_free(pw);
                 return -2;
             }else{

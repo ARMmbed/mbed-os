@@ -42,6 +42,26 @@ typedef int receive_cb(int8_t socket_id, unsigned char *, size_t);
 typedef void start_timer_cb(int8_t timer_id, uint32_t min, uint32_t fin);
 typedef int timer_status_cb(int8_t timer_id);
 
+typedef enum {
+    DTLS = 0,
+    TLS = 1
+}SecureSocketMode;
+
+typedef enum {
+    Certificate,
+    PSK,
+    ECJPAKE
+}SecureConnectionMode;
+
+typedef struct {
+    unsigned char *_server_cert;
+    uint8_t _server_cert_len;
+    unsigned char *_pub_cert_or_identifier;
+    uint8_t _pub_len;
+    unsigned char *_priv;
+    uint8_t _priv_len;
+} thread_keys_t;
+
 typedef struct thread_security_s {
     mbedtls_ssl_config          _conf;
     mbedtls_ssl_context         _ssl;
@@ -52,12 +72,20 @@ typedef struct thread_security_s {
     simple_cookie_t             _cookie;
     key_block_t                 _keyblk;
 
+    SecureConnectionMode        _conn_mode;
+#if defined(MBEDTLS_X509_CRT_PARSE_C)
+    mbedtls_x509_crt            _cacert;
+    mbedtls_x509_crt            _owncert;
+#endif
+    mbedtls_pk_context          _pkey;
+
     uint8_t                     _remote_address[16];
     uint16_t                    _remote_port;
 
     uint8_t                     _pw[64];
     uint8_t                     _pw_len;
 
+    bool                        _is_blocking;
     int8_t                      _socket_id;
     int8_t                      _timer_id;
     send_cb                     *_send_cb;
@@ -65,24 +93,27 @@ typedef struct thread_security_s {
     start_timer_cb              *_start_timer_cb;
     timer_status_cb             *_timer_status_cb;
 
-} coap_security_t;
+} thread_security_t;
 
-coap_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
+thread_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
+                                          SecureConnectionMode mode,
                                           send_cb *send_cb,
                                           receive_cb *receive_cb,
                                           start_timer_cb *start_timer_cb,
                                           timer_status_cb *timer_status_cb);
 
-void thread_security_destroy(coap_security_t *sec);
+void thread_security_destroy(thread_security_t *sec);
 
-int coap_security_handler_connect(coap_security_t *sec, bool is_server, const unsigned char *pw, uint8_t len);
+int coap_security_handler_connect(thread_security_t *sec, bool is_server, SecureSocketMode sock_mode, thread_keys_t keys);
 
-int coap_security_handler_continue_connecting(coap_security_t *sec);
+int coap_security_handler_connect_non_blocking(thread_security_t *sec, bool is_server, SecureSocketMode sock_mode, thread_keys_t keys);
 
-int coap_security_handler_send_message(coap_security_t *sec, unsigned char *message, size_t len);
+int coap_security_handler_continue_connecting(thread_security_t *sec);
 
-int thread_security_send_close_alert(coap_security_t *sec);
+int coap_security_handler_send_message(thread_security_t *sec, unsigned char *message, size_t len);
 
-int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len);
+int thread_security_send_close_alert(thread_security_t *sec);
+
+int coap_security_handler_read(thread_security_t *sec, unsigned char* buffer, size_t len);
 
 #endif
