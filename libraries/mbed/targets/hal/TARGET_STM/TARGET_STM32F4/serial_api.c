@@ -89,27 +89,30 @@ static void init_uart(serial_t *obj)
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 #if DEVICE_SERIAL_ASYNCH_DMA
-    // set DMA in the UartHandle
-    /* Configure the DMA handler for Transmission process */
-    hdma_tx.Instance                 = (DMA_Stream_TypeDef *)DMA_UartTx_Stream[SERIAL_OBJ(index)];
-    hdma_tx.Init.Channel             = DMA_UartTx_Channel[SERIAL_OBJ(index)];
-    hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-    hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
-    hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    hdma_tx.Init.Mode                = DMA_NORMAL;
-    hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
-    hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-    hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-    hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
-    hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
+    if (SERIAL_OBJ(pin_tx) != NC) {
+        // set DMA in the UartHandle
+        /* Configure the DMA handler for Transmission process */
+        hdma_tx.Instance                 = (DMA_Stream_TypeDef *)DMA_UartTx_Stream[SERIAL_OBJ(index)];
+        hdma_tx.Init.Channel             = DMA_UartTx_Channel[SERIAL_OBJ(index)];
+        hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+        hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+        hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+        hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+        hdma_tx.Init.Mode                = DMA_NORMAL;
+        hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+        hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+        hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+        hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
+        hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
 
     HAL_DMA_Init(&hdma_tx);
 
     /* Associate the initialized DMA handle to the UART handle */
     __HAL_LINKDMA(&UartHandle, hdmatx, hdma_tx);
-
+    }
+    
+    if (SERIAL_OBJ(pin_rx) != NC) {
     /* Configure the DMA handler for reception process */
     hdma_rx.Instance                 = (DMA_Stream_TypeDef *)DMA_UartRx_Stream[SERIAL_OBJ(index)];
     hdma_rx.Init.Channel             = DMA_UartRx_Channel[SERIAL_OBJ(index)];
@@ -129,6 +132,7 @@ static void init_uart(serial_t *obj)
 
     /* Associate the initialized DMA handle to the UART handle */
     __HAL_LINKDMA(&UartHandle, hdmarx, hdma_rx);
+    }
 #endif
 
     if (HAL_UART_Init(&UartHandle) != HAL_OK) {
