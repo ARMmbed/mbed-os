@@ -133,7 +133,7 @@ HAL_StatusTypeDef HAL_Init(void);
   */
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (0) /* Use external clock --> NOT USED ON THIS BOARD */ 
+#define USE_PLL_HSE_EXTC (1) /* Use external clock --> NOT USED ON THIS BOARD */ 
 #define USE_PLL_HSE_XTAL (1) /* Use external xtal */
 
 /**
@@ -607,10 +607,10 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   {
     RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External clock on OSC_IN */
   }
-  // Warning: this configuration is for a 25 MHz xtal clock only
+  // Warning: this configuration is for a 8 MHz xtal clock only
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM            = 25;            // VCO input clock = 1 MHz (25 MHz / 25)
+  RCC_OscInitStruct.PLL.PLLM            = 8;             // VCO input clock = 1 MHz (8 MHz / 8)
   RCC_OscInitStruct.PLL.PLLN            = 432;           // VCO output clock = 432 MHz (1 MHz * 432)
   RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2; // PLLCLK = 216 MHz (432 MHz / 2)
   RCC_OscInitStruct.PLL.PLLQ            = 9;             // USB clock = 48 MHz (432 MHz / 9) --> OK for USB
