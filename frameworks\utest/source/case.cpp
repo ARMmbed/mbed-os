@@ -147,5 +147,5 @@ Case::get_description() const {
 
 bool
 Case::is_empty() const {
-    return !(handler || repeat_count_handler || setup_handler || teardown_handler);
+    return !(handler || control_handler || repeat_count_handler || setup_handler || teardown_handler);
 }
