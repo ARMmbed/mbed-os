@@ -205,7 +205,7 @@ static int simple_cookie_check(void *ctx,
 /**** Key export function ****/
 
 static int export_key_block(void *ctx,
-                            const unsigned char *kb, const unsigned char *mk,
+                            const unsigned char *mk, const unsigned char *kb,
                             size_t maclen, size_t keylen, size_t ivlen)
 {
     key_block_t *p_key_block = (key_block_t *)ctx;
@@ -413,6 +413,9 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
                                   simple_cookie_check,
                                   &sec->_cookie);
 
+    mbedtls_ssl_conf_min_version(&sec->_conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
+    mbedtls_ssl_conf_max_version(&sec->_conf, MBEDTLS_SSL_MAJOR_VERSION_3, MBEDTLS_SSL_MAJOR_VERSION_3);
+	
     sec->_is_started = true;
 
     int ret = mbedtls_ssl_handshake_step( &sec->_ssl );
