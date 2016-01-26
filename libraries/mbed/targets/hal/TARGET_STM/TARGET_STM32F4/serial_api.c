@@ -106,32 +106,32 @@ static void init_uart(serial_t *obj)
         hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
         hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-    HAL_DMA_Init(&hdma_tx);
+        HAL_DMA_Init(&hdma_tx);
 
-    /* Associate the initialized DMA handle to the UART handle */
-    __HAL_LINKDMA(&UartHandle, hdmatx, hdma_tx);
+        /* Associate the initialized DMA handle to the UART handle */
+        __HAL_LINKDMA(&UartHandle, hdmatx, hdma_tx);
     }
     
     if (SERIAL_OBJ(pin_rx) != NC) {
-    /* Configure the DMA handler for reception process */
-    hdma_rx.Instance                 = (DMA_Stream_TypeDef *)DMA_UartRx_Stream[SERIAL_OBJ(index)];
-    hdma_rx.Init.Channel             = DMA_UartRx_Channel[SERIAL_OBJ(index)];
-    hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-    hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
-    hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    hdma_rx.Init.Mode                = DMA_NORMAL;
-    hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-    hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-    hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-    hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
-    hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4;
+        /* Configure the DMA handler for reception process */
+        hdma_rx.Instance                 = (DMA_Stream_TypeDef *)DMA_UartRx_Stream[SERIAL_OBJ(index)];
+        hdma_rx.Init.Channel             = DMA_UartRx_Channel[SERIAL_OBJ(index)];
+        hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+        hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
+        hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
+        hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+        hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+        hdma_rx.Init.Mode                = DMA_NORMAL;
+        hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
+        hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+        hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+        hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
+        hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-    HAL_DMA_Init(&hdma_rx);
+        HAL_DMA_Init(&hdma_rx);
 
-    /* Associate the initialized DMA handle to the UART handle */
-    __HAL_LINKDMA(&UartHandle, hdmarx, hdma_rx);
+        /* Associate the initialized DMA handle to the UART handle */
+        __HAL_LINKDMA(&UartHandle, hdmarx, hdma_rx);
     }
 #endif
 
@@ -1027,6 +1027,8 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     NVIC_EnableIRQ(irqn);
 
     UartHandle.Instance = (USART_TypeDef *)SERIAL_OBJ(uart);
+    // flush current data + error flags
+    __HAL_UART_CLEAR_PEFLAG(&UartHandle);
 #if DEVICE_SERIAL_ASYNCH_DMA
     // Enable DMA interrupt
     irqn = h_serial_rx_get_irqdma_index(obj);
@@ -1042,7 +1044,9 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     // following HAL function will enable the RXNE interrupt + error interrupts    
     HAL_UART_Receive_IT(&UartHandle, (uint8_t*)rx, rx_length);
 #endif
-    
+    /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
+    __HAL_UART_ENABLE_IT(&UartHandle, UART_IT_ERR);
+
     return;
 }
 
@@ -1078,8 +1082,9 @@ uint8_t serial_rx_active(serial_t *obj)
  */
 int serial_irq_handler_asynch(serial_t *obj)
 {
-  volatile int return_event = 0;
-  uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
+    volatile int return_event = 0;
+    uint8_t *buf = (uint8_t*)obj->rx_buff.buffer;
+    uint8_t i = 0;
 
   // Irq handler is common to Tx and Rx
     UartHandle.Instance = (USART_TypeDef *)(SERIAL_OBJ(uart));
@@ -1107,15 +1112,15 @@ int serial_irq_handler_asynch(serial_t *obj)
         __HAL_UART_CLEAR_FLAG(&UartHandle, HAL_UART_ERROR_PE);
         return_event |= SERIAL_EVENT_RX_PARITY_ERROR & obj->serial.events;
     }
-    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_NE)) {
+    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_NE)||(UartHandle.ErrorCode & HAL_UART_ERROR_NE)!=0) {
       __HAL_UART_CLEAR_FLAG(&UartHandle, HAL_UART_ERROR_NE);
       // not supported by mbed
     }
-    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_FE)) {
+    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_FE)||(UartHandle.ErrorCode & HAL_UART_ERROR_FE)!=0) {
       __HAL_UART_CLEAR_FLAG(&UartHandle, HAL_UART_ERROR_FE);
         return_event |= SERIAL_EVENT_RX_FRAMING_ERROR & obj->serial.events;
     }
-    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_ORE)) {
+    if (__HAL_UART_GET_FLAG(&UartHandle, HAL_UART_ERROR_ORE)||(UartHandle.ErrorCode & HAL_UART_ERROR_ORE)!=0) {
       __HAL_UART_CLEAR_FLAG(&UartHandle, HAL_UART_ERROR_ORE);
         return_event |= SERIAL_EVENT_RX_OVERRUN_ERROR & obj->serial.events;
     }
@@ -1128,8 +1133,18 @@ int serial_irq_handler_asynch(serial_t *obj)
     if ((UartHandle.RxXferCount==0)&&(obj->rx_buff.pos >= (obj->rx_buff.length - 1))) {
         return_event |= SERIAL_EVENT_RX_COMPLETE & obj->serial.events;
     }
-    if ((buf != NULL) && (buf[obj->rx_buff.pos-1] == obj->char_match) && (SERIAL_OBJ(events) & SERIAL_EVENT_RX_CHARACTER_MATCH)) {
-      return_event |= SERIAL_EVENT_RX_CHARACTER_MATCH & obj->serial.events;
+    // Chek if Char_match is present
+    if (SERIAL_OBJ(events) & SERIAL_EVENT_RX_CHARACTER_MATCH) {
+      if (buf != NULL){
+        while((buf[i] != obj->char_match)&&(i<UartHandle.RxXferSize)){//for (i=0;i<UartHandle.RxXferSize;i++){
+          i++;//if (buf[i] == obj->char_match{
+          //}
+        }
+        if (i<UartHandle.RxXferSize){
+            obj->rx_buff.pos = i;
+            return_event |= SERIAL_EVENT_RX_CHARACTER_MATCH & obj->serial.events;
+        }
+      }
     }
     return return_event;  
 }
