@@ -649,7 +649,7 @@ void serial_break_clear(serial_t *obj)
  * @param tx        The buffer for sending.
  * @param tx_length The number of words to transmit.
  */
-void h_serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
+static void h_serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t width)
 {
     // We only support byte buffers for now
     MBED_ASSERT(width == 8);
@@ -671,7 +671,7 @@ void h_serial_tx_buffer_set(serial_t *obj, void *tx, int tx_length, uint8_t widt
  * @param tx        The buffer for sending.
  * @param tx_length The number of words to transmit.
  */
-void h_serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
+static void h_serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t width)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -695,7 +695,7 @@ void h_serial_rx_buffer_set(serial_t *obj, void *rx, int rx_length, uint8_t widt
  * @param event  The logical OR of the TX events to configure
  * @param enable Set to non-zero to enable events, or zero to disable them
  */
-void h_serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
+static void h_serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
 {
     // Shouldn't have to enable TX interrupt here, just need to keep track of the requested events.
     if (enable) SERIAL_OBJ(events) |= event;
@@ -708,7 +708,7 @@ void h_serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
  * @param event  The logical OR of the RX events to configure
  * @param enable Set to non-zero to enable events, or zero to disable them
  */
-void h_serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
+static void h_serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
 {
     // Shouldn't have to enable RX interrupt here, just need to keep track of the requested events.
     if (enable) SERIAL_OBJ(events) |= event;
@@ -721,7 +721,7 @@ void h_serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
 * @param obj pointer to serial object
 * @return internal NVIC TX IRQ index of U(S)ART peripheral
 */
-IRQn_Type h_serial_get_irq_index(serial_t *obj)
+static IRQn_Type h_serial_get_irq_index(serial_t *obj)
 {
     IRQn_Type irq_n = (IRQn_Type)0;
 
@@ -782,7 +782,7 @@ IRQn_Type h_serial_get_irq_index(serial_t *obj)
  * @param obj The serial object
  * @return Returns event flags if a TX/RX transfer termination condition was met or 0 otherwise
  */
-void h_serial_txdma_irq_handler_asynch()
+static void h_serial_txdma_irq_handler_asynch()
 {
     HAL_DMA_IRQHandler(UartHandle.hdmatx);
 }
@@ -803,7 +803,7 @@ void h_serial_rxdma_irq_handler_asynch(serial_t *obj)
 * @param obj pointer to serial object
 * @return internal NVIC TX DMA IRQ index of U(S)ART peripheral
 */
-IRQn_Type h_serial_tx_get_irqdma_index(serial_t *obj)
+static IRQn_Type h_serial_tx_get_irqdma_index(serial_t *obj)
 {
     IRQn_Type irq_n = (IRQn_Type)0;
 
@@ -862,7 +862,7 @@ IRQn_Type h_serial_tx_get_irqdma_index(serial_t *obj)
 * @param obj pointer to serial object
 * @return internal NVIC RX DMA IRQ index of U(S)ART peripheral
 */
-IRQn_Type h_serial_rx_get_irqdma_index(serial_t *obj)
+static IRQn_Type h_serial_rx_get_irqdma_index(serial_t *obj)
 {
     IRQn_Type irq_n = (IRQn_Type)0;
 
