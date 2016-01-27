@@ -69,6 +69,34 @@ uint32_t getprescalarindex (uint16_t frequency)
     }
 }
 
+static void setregisterabc (pwmout_t* obj) 
+{
+    uint32_t ra, rb, rc;
+    /* Sanity check arguments */
+    MBED_ASSERT(obj);
+
+    /* Configure waveform frequency and duty cycle. */
+    rc = (sysclk_get_peripheral_bus_hz(TC) /
+          tc_prescalar_divider[obj->prescalarindex] )/
+         obj->waveconfig.us_frequency;
+    tc_write_rc(TC, obj->channel, rc);
+    switch (obj->ioline) {
+        case 0 :
+            ra = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
+            if(ra <= 0) ra = 1; /*non zero value only*/
+            tc_write_ra(TC, obj->channel, ra);
+            break;
+        case 1 :
+            rb = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
+            if(rb <= 0) rb = 1; /*non zero value only*/
+            tc_write_rb(TC, obj->channel, rb);
+            break;
+        default :
+            MBED_ASSERT(false);
+            break;
+    }
+}
+
 void pwmout_inithw(pwmout_t* obj)
 {
     uint32_t mode = 0;
@@ -112,7 +140,6 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    uint32_t ra, rb, rc;
     uint32_t ioline = NC;
     uint32_t channel = NC;
 
@@ -141,26 +168,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->waveconfig.ul_intclock = tc_prescalar[obj->prescalarindex];
     pwmout_inithw(obj);
 
-    /* Configure waveform frequency and duty cycle. */
-    rc = (sysclk_get_peripheral_bus_hz(TC) /
-          tc_prescalar_divider[obj->prescalarindex] )/
-         obj->waveconfig.us_frequency;
-    tc_write_rc(TC, channel, rc);
-    switch (ioline) {
-        case 0 :
-            ra = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(ra <= 0) ra = 1; /*non zero value only*/
-            tc_write_ra(TC, channel, ra);
-            break;
-        case 1 :
-            rb = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(rb <= 0) rb = 1; /*non zero value only*/
-            tc_write_rb(TC, channel, rb);
-            break;
-        default :
-            MBED_ASSERT(false);
-            break;
-    }
+    /*Set the registers a,b,c*/
+    setregisterabc(obj);
+
     /* Enable TC TC_CHANNEL_WAVEFORM. */
     tc_start(TC, channel);
 }
@@ -187,7 +197,6 @@ void pwmout_write(pwmout_t* obj, float value)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    uint32_t ra, rb, rc;
     if (value < 0.0f) {
         value = 0;
     } else if (value > 1.0f) {
@@ -196,26 +205,9 @@ void pwmout_write(pwmout_t* obj, float value)
     obj->waveconfig.us_dutycycle = (uint16_t)(value * 100);
     tc_stop(TC, obj->channel);
 
-    /* Configure waveform frequency and duty cycle. */
-    rc = (sysclk_get_peripheral_bus_hz(TC) /
-          tc_prescalar_divider[obj->prescalarindex] )/
-         obj->waveconfig.us_frequency;
-    tc_write_rc(TC, obj->channel, rc);
-    switch (obj->ioline) {
-        case 0 :
-            ra = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(ra <= 0) ra = 1; /*non zero value only*/
-            tc_write_ra(TC, obj->channel, ra);
-            break;
-        case 1 :
-            rb = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(rb <= 0) rb = 1; /*non zero value only*/
-            tc_write_rb(TC, obj->channel, rb);
-            break;
-        default :
-            MBED_ASSERT(false);
-            break;
-    }
+    /*Set the registers a,b,c*/
+    setregisterabc(obj);
+
     /* Enable TC TC_CHANNEL_WAVEFORM. */
     tc_start(TC, obj->channel);
 }
@@ -264,34 +256,16 @@ void pwmout_period_us(pwmout_t* obj, int us)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    float freq = 0;
-    uint32_t ra, rb, rc;
-    freq = ( 1.0 / us ) * 1000000.0;
+    float freq = ( 1.0 / us ) * 1000000.0;
+
     obj->waveconfig.us_frequency = (uint16_t) freq;
     obj->prescalarindex = getprescalarindex(obj->waveconfig.us_frequency);
     obj->waveconfig.ul_intclock = tc_prescalar[obj->prescalarindex];
     pwmout_inithw(obj);
 
-    /* Configure waveform frequency and duty cycle. */
-    rc = (sysclk_get_peripheral_bus_hz(TC) /
-          tc_prescalar_divider[obj->prescalarindex] ) /
-         obj->waveconfig.us_frequency;
-    tc_write_rc(TC, obj->channel, rc);
-    switch (obj->ioline) {
-        case 0 :
-            ra = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(ra <= 0) ra = 1; /*non zero value only*/
-            tc_write_ra(TC, obj->channel, ra);
-            break;
-        case 1 :
-            rb = (100 - obj->waveconfig.us_dutycycle) * rc / 100;
-            if(rb <= 0) rb = 1; /*non zero value only*/
-            tc_write_rb(TC, obj->channel, rb);
-            break;
-        default :
-            MBED_ASSERT(false);
-            break;
-    }
+    /*Set the registers a,b,c*/
+    setregisterabc(obj);
+
     /* Enable TC TC_CHANNEL_WAVEFORM. */
     tc_start(TC, obj->channel);
 }
@@ -328,7 +302,6 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
     /* Sanity check arguments */
     MBED_ASSERT(obj);
-    float new_duty;
-    new_duty = (us / 1000000.0) * (float)obj->waveconfig.us_frequency;
+    float new_duty = (us / 1000000.0) * (float)obj->waveconfig.us_frequency;
     pwmout_write(obj, new_duty);
 }
