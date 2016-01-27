@@ -113,6 +113,7 @@ bool test_coap_security_handler_connect()
         return false;
 
     simple_cookie_t c;
+    memset(&c, 0, sizeof(simple_cookie_t));
     mbedtls_stub.cookie_obj = &c;
     memset(&mbedtls_stub.cookie_value, 1, 8);
     mbedtls_stub.cookie_len = 2;

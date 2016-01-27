@@ -104,6 +104,7 @@ coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t
     if( !this ){
         return NULL;
     }
+    memset(this, 0, sizeof(coap_security_t));
     if( -1 == coap_security_handler_init(this) ){
         ns_dyn_mem_free(this);
         return NULL;
