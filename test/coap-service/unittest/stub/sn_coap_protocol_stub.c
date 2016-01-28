@@ -46,6 +46,7 @@ struct coap_s *sn_coap_protocol_init(void *(*used_malloc_func_ptr)(uint16_t), vo
     return sn_coap_protocol_stub.expectedCoap;
 }
 
+//Yotta is not yet updated to use mbed-client-c 2.x version(git is), so do not modify these 4 yet to contain handle
 int8_t sn_coap_protocol_set_block_size(uint16_t block_size)
 {
     return sn_coap_protocol_stub.expectedInt8;

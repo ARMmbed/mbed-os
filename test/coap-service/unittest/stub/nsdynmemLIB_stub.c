@@ -6,9 +6,7 @@
 #include <string.h>
 #include <nsdynmemLIB.h>
 #include "platform/arm_hal_interrupt.h"
-#ifdef STANDARD_MALLOC
 #include <stdlib.h>
-#endif
 
 nsdynmemlib_stub_data_t nsdynmemlib_stub;
 

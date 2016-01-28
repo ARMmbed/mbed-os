@@ -12,7 +12,7 @@
 
 thread_sec_def coap_security_handler_stub;
 
-coap_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port,
+coap_security_t *coap_security_create(int8_t socket_id, int8_t timer_id, uint8_t *address_ptr, uint16_t port, SecureConnectionMode mode,
                                           int (*send_cb)(int8_t socket_id, uint8_t *address_ptr, uint16_t port, const unsigned char *, size_t),
                                           int (*receive_cb)(int8_t socket_id, unsigned char *, size_t),
                                           void (*start_timer_cb)(int8_t timer_id, uint32_t min, uint32_t fin),
@@ -25,12 +25,12 @@ coap_security_t *thread_security_create(int8_t socket_id, int8_t timer_id, uint8
     return coap_security_handler_stub.sec_obj;
 }
 
-void thread_security_destroy(coap_security_t *sec)
+void coap_security_destroy(coap_security_t *sec)
 {
 
 }
 
-int coap_security_handler_connect(coap_security_t *sec, bool is_server, const unsigned char *pw, uint8_t len)
+int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys)
 {
     sec->_is_started = true;
     if( coap_security_handler_stub.counter >= 0){
@@ -57,7 +57,7 @@ int coap_security_handler_send_message(coap_security_t *sec, unsigned char *mess
     return coap_security_handler_stub.int_value;
 }
 
-int thread_security_send_close_alert(coap_security_t *sec)
+int coap_security_send_close_alert(coap_security_t *sec)
 {
     if( coap_security_handler_stub.counter >= 0){
         return coap_security_handler_stub.values[coap_security_handler_stub.counter--];

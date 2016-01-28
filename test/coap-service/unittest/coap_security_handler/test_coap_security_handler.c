@@ -31,30 +31,30 @@ static int timer_status_callback(int8_t timer_id)
 bool test_thread_security_create()
 {
     uint8_t buf[16];
-    if( NULL != thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, NULL) )
+    if( NULL != coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, NULL) )
         return false;
 
-    if( NULL != thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback) )
+    if( NULL != coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback) )
         return false;
 
     nsdynmemlib_stub.returnCounter = 1;
     mbedtls_stub.expected_int = -1;
-    if( NULL != thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback) )
+    if( NULL != coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback) )
         return false;
 
     mbedtls_stub.expected_int = 0;
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = -1;
-    if( NULL != thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback) )
+    if( NULL != coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback) )
         return false;
 
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
-    thread_security_destroy(handle);
+    coap_security_destroy(handle);
 
     return true;
 }
@@ -64,11 +64,11 @@ bool test_thread_security_destroy()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
-    thread_security_destroy(handle);
+    coap_security_destroy(handle);
     return true;
 }
 
@@ -77,11 +77,15 @@ bool test_coap_security_handler_connect()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
-    if( -1 != coap_security_handler_connect(NULL, true, "pwd", 3) )
+    unsigned char pw = "pwd";
+    coap_security_keys_t keys;
+    keys._priv = &pw;
+    keys._priv_len = 3;
+    if( -1 != coap_security_handler_connect_non_blocking(NULL, true, DTLS, keys) )
         return false;
     mbedtls_stub.useCounter = true;
     mbedtls_stub.counter = 0;
@@ -94,21 +98,22 @@ bool test_coap_security_handler_connect()
     mbedtls_stub.retArray[6] = -1;
     mbedtls_stub.retArray[7] = -1;
 
-    if( -1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[0] = 0;
-    if( -1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     mbedtls_stub.counter = 0;
 //    mbedtls_stub.retArray[0] = 0;
     mbedtls_stub.retArray[1] = 0;
-    if( -1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     simple_cookie_t c;
+    memset(&c, 0, sizeof(simple_cookie_t));
     mbedtls_stub.cookie_obj = &c;
     memset(&mbedtls_stub.cookie_value, 1, 8);
     mbedtls_stub.cookie_len = 2;
@@ -116,7 +121,7 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[0] = 0;
 //    mbedtls_stub.retArray[1] = 0;
     mbedtls_stub.retArray[2] = 0;
-    if( -1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     c.len = 8;
@@ -130,7 +135,7 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[1] = 0;
 //    mbedtls_stub.retArray[2] = 0;
     mbedtls_stub.retArray[3] = 0;
-    if( -1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     mbedtls_stub.counter = 0;
@@ -139,7 +144,7 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[2] = 0;
 //    mbedtls_stub.retArray[3] = 0;
     mbedtls_stub.retArray[4] = 0;
-    if( -1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     mbedtls_stub.counter = 0;
@@ -150,22 +155,22 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[4] = 0;
     mbedtls_stub.retArray[6] = 0;
     mbedtls_stub.retArray[7] = 0;
-    if( 1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( 1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[5] = MBEDTLS_ERR_SSL_BAD_HS_FINISHED;
 
-    if( -1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[5] = HANDSHAKE_FINISHED_VALUE;
 
-    if( 1 != coap_security_handler_connect(handle, true, "pwd", 3) )
+    if( 1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
         return false;
 
-    thread_security_destroy(handle);
+    coap_security_destroy(handle);
     return true;
 }
 
@@ -174,7 +179,7 @@ bool test_coap_security_handler_continue_connecting()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -213,7 +218,7 @@ bool test_coap_security_handler_continue_connecting()
     if( 0 != coap_security_handler_continue_connecting(handle) )
         return false;
 
-    thread_security_destroy(handle);
+    coap_security_destroy(handle);
     return true;
 }
 
@@ -222,7 +227,7 @@ bool test_coap_security_handler_send_message()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -234,7 +239,7 @@ bool test_coap_security_handler_send_message()
     if( 6 != coap_security_handler_send_message(handle, &cbuf, 6))
         return false;
 
-    thread_security_destroy(handle);
+    coap_security_destroy(handle);
     return true;
 }
 
@@ -243,18 +248,18 @@ bool test_thread_security_send_close_alert()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
-    if( -1 != thread_security_send_close_alert(NULL))
+    if( -1 != coap_security_send_close_alert(NULL))
         return false;
 
     mbedtls_stub.expected_int = 0;
-    if( 0 != thread_security_send_close_alert(handle))
+    if( 0 != coap_security_send_close_alert(handle))
         return false;
 
-    thread_security_destroy(handle);
+    coap_security_destroy(handle);
     return true;
 }
 
@@ -263,7 +268,7 @@ bool test_coap_security_handler_read()
     uint8_t buf[16];
     nsdynmemlib_stub.returnCounter = 2;
     mbedtls_stub.crt_expected_int = 0;
-    coap_security_t *handle = thread_security_create(1,2,&buf,12,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
+    coap_security_t *handle = coap_security_create(1,2,&buf,12,ECJPAKE,&send_to_socket, &receive_from_socket, &start_timer_callback, &timer_status_callback);
     if( NULL == handle )
         return false;
 
@@ -275,7 +280,7 @@ bool test_coap_security_handler_read()
     if( 6 != coap_security_handler_read(handle, &cbuf, 6))
         return false;
 
-    thread_security_destroy(handle);
+    coap_security_destroy(handle);
     return true;
 }
 
