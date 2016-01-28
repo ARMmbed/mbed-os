@@ -29,6 +29,13 @@ int mbedtls_ssl_close_notify( mbedtls_ssl_context *a )
 void mbedtls_ssl_init( mbedtls_ssl_context *a ){
 
 }
+void mbedtls_ssl_conf_min_version( mbedtls_ssl_config *conf, int major, int minor ){
+
+}
+
+void mbedtls_ssl_conf_max_version( mbedtls_ssl_config *conf, int major, int minor ){
+    
+}
 
 void mbedtls_ssl_config_init( mbedtls_ssl_config *a ){
 
