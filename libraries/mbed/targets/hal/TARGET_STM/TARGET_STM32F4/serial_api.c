@@ -934,8 +934,6 @@ static IRQn_Type h_serial_rx_get_irqdma_index(serial_t *obj)
  */
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    
-    uint32_t tmpstatus = 0;
   
     // Check buffer is ok
     MBED_ASSERT(tx != (void*)0);
@@ -983,10 +981,6 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
       return 0;
     }
 #endif
-
-    while ((tmpstatus == HAL_UART_STATE_BUSY_TX) || (tmpstatus == HAL_UART_STATE_BUSY_TX_RX)){
-      tmpstatus = HAL_UART_GetState(&UartHandle);
-    }
   
     return tx_length;
 }
