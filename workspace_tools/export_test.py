@@ -120,6 +120,8 @@ if __name__ == '__main__':
             ('uvision', 'LPC4088'),
             ('uvision', 'LPC4088_DM'),
             ('uvision', 'LPC4337'),
+            ('uvision', 'LPC824'),
+            ('uvision', 'SSCI824'),
             ('uvision', 'HRM1017'),
 
             ('uvision', 'B96B_F446VE'),
