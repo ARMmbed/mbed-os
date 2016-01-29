@@ -203,13 +203,7 @@ TEST(Serial_Asynchronous, rx_parity_error)
     while ((!tx_complete) || (!rx_complete));
 
     CHECK_EQUAL(SERIAL_EVENT_TX_COMPLETE, tx_event_flag);
-#if defined(TARGET_B96B_F446VE)
-    CHECK_EQUAL((SERIAL_EVENT_RX_COMPLETE|SERIAL_EVENT_RX_PARITY_ERROR), rx_event_flag);
-    serial_rx->format(8, SerialBase::None, 1);
-    serial_tx->format(8, SerialBase::None, 1);
-#else
     CHECK_EQUAL(SERIAL_EVENT_RX_PARITY_ERROR, rx_event_flag);
-#endif
 }
 
 TEST(Serial_Asynchronous, rx_framing_error)
@@ -223,12 +217,7 @@ TEST(Serial_Asynchronous, rx_framing_error)
    while ((!tx_complete) || (!rx_complete));
 
    CHECK_EQUAL(SERIAL_EVENT_TX_COMPLETE, tx_event_flag);
-#if defined(TARGET_B96B_F446VE)
-   CHECK_EQUAL((SERIAL_EVENT_RX_COMPLETE|SERIAL_EVENT_RX_FRAMING_ERROR), rx_event_flag);
-   serial_tx->baud(9600);
-#else
    CHECK_EQUAL(SERIAL_EVENT_RX_FRAMING_ERROR, rx_event_flag);
-#endif
 }
 
 TEST(Serial_Asynchronous, char_matching_success)
@@ -240,16 +229,9 @@ TEST(Serial_Asynchronous, char_matching_success)
     while ((!tx_complete) || (!rx_complete));
 
     CHECK_EQUAL(SERIAL_EVENT_TX_COMPLETE, tx_event_flag);
-#if defined(TARGET_B96B_F446VE)
-    // DMA is launched on LONG_XFR size. RX Complete event occurs.
-    CHECK_EQUAL((SERIAL_EVENT_RX_COMPLETE | SERIAL_EVENT_RX_CHARACTER_MATCH), rx_event_flag);
-
-    cmpnbuf(tx_buf, rx_buf, 0, LONG_XFR, __FILE__, __LINE__);
-#else
     CHECK_EQUAL(SERIAL_EVENT_RX_CHARACTER_MATCH, rx_event_flag);
 
     cmpnbufc(TEST_BYTE_RX, rx_buf, 5, sizeof(rx_buf), __FILE__, __LINE__);
-#endif
 }
 
 TEST(Serial_Asynchronous, char_matching_failed)
