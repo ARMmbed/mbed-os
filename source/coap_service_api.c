@@ -344,14 +344,14 @@ void coap_service_delete(int8_t service_id)
     return;
 }
 
-void coap_service_close_secure_connection(int8_t service_id, ns_address_t *dest_addr)
+extern void coap_service_close_secure_connection(int8_t service_id, uint8_t destination_addr_ptr[static 16], uint16_t port)
 {
     coap_service_t *this = service_find(service_id);
-    if (!this || !dest_addr) {
+    if (!this || !destination_addr_ptr) {
         return;
     }
     if (this->conn_handler){
-        connection_handler_close_secure_connection(this->conn_handler, dest_addr);
+        connection_handler_close_secure_connection(this->conn_handler, destination_addr_ptr, port);
     }
 }
 

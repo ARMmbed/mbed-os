@@ -82,6 +82,9 @@ static void transaction_delete(coap_transaction_t *this)
 {
     if (this) {
         ns_list_remove(&request_list, this);
+        if(this->data_ptr){
+            ns_dyn_mem_free(this->data_ptr);
+        }
         ns_dyn_mem_free(this);
     }
 

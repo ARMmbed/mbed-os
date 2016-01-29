@@ -112,6 +112,7 @@ static void clear_secure_sessions(internal_socket_t *this){
     if( this ){
         ns_list_foreach_safe(secure_session_t, cur_ptr, &secure_session_list) {
             if( cur_ptr->parent == this ){
+                coap_security_send_close_alert( cur_ptr->sec_handler );
                 secure_session_delete(cur_ptr);
             }
         }
@@ -579,34 +580,17 @@ coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from
 void connection_handler_destroy(coap_conn_handler_t *handler)
 {
     if(handler){
-        if( handler->socket && handler->socket->is_secure){
-            //If nothing is sent, there is no address to find.
-            //This case is handled in int_socket_delete.
-            secure_session_t *session = secure_session_find_by_parent( handler->socket);
-
-            while(session != NULL ){
-                if( session && handler->socket->usage_counter == 1){ //Last connection
-                    coap_security_send_close_alert( session->sec_handler );
-                }
-
-                if( session){
-                    secure_session_delete(session);
-                }
-                session = secure_session_find_by_parent( handler->socket);
-            }
-        }
         int_socket_delete(handler->socket);
         handler->socket = NULL;
         ns_dyn_mem_free(handler);
     }
 }
 
-void connection_handler_close_secure_connection( coap_conn_handler_t *handler, ns_address_t *dest_addr )
+void connection_handler_close_secure_connection( coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port )
 {
     if(handler){
         if( handler->socket && handler->socket->is_secure){
-            secure_session_t *session = secure_session_find( handler->socket, dest_addr->address,
-                                                             dest_addr->identifier);
+            secure_session_t *session = secure_session_find( handler->socket, destination_addr_ptr, port);
             if( session ){
                 coap_security_send_close_alert( session->sec_handler );
             }

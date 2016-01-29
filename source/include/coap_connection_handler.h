@@ -47,7 +47,7 @@ coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from
 
 void connection_handler_destroy( coap_conn_handler_t *handler );
 
-void connection_handler_close_secure_connection(coap_conn_handler_t *handler, ns_address_t *dest_addr);
+void connection_handler_close_secure_connection( coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port );
 
 int coap_connection_handler_open_connection(coap_conn_handler_t *handler, uint16_t listen_port, bool use_ephemeral_port, bool is_secure, bool real_socket, bool bypassSec);
 
