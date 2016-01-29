@@ -317,27 +317,28 @@ void can_monitor(can_t *obj, int silent)
 int can_mode(can_t *obj, CanMode mode) 
 {
     int success = 0;
-    CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);            
+    CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
     can->MCR |= CAN_MCR_INRQ ;
     while((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
     }
     switch (mode) {
         case MODE_NORMAL:
-            can->BTR &= ~(((uint32_t)1 << 31) | ((uint32_t)1 << 30));
+            can->BTR &= ~(CAN_BTR_SILM | CAN_BTR_LBKM);
             success = 1;
             break;
         case MODE_SILENT:
-            can->BTR |= ((uint32_t)1 << 31);
-                    can->BTR &= ~((uint32_t)1 << 30);
+            can->BTR |= CAN_BTR_SILM;
+            can->BTR &= ~CAN_BTR_LBKM;
             success = 1;
             break;
         case MODE_TEST_GLOBAL:
-            can->BTR |= ((uint32_t)1 << 30);
-            can->BTR &= ~((uint32_t)1 << 31);
+        case MODE_TEST_LOCAL:
+            can->BTR |= CAN_BTR_LBKM;
+            can->BTR &= ~CAN_BTR_SILM;
             success = 1;
             break;
         case MODE_TEST_SILENT:
-            can->BTR |= (((uint32_t)1 << 31) | ((uint32_t)1 << 30));
+            can->BTR |= (CAN_BTR_SILM | CAN_BTR_LBKM);
             success = 1;
             break;
         default:
@@ -352,7 +353,7 @@ int can_mode(can_t *obj, CanMode mode)
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle) 
 {
-    CanHandle.Instance = (CAN_TypeDef *)(obj->can);    
+    CanHandle.Instance = (CAN_TypeDef *)(obj->can);
     CAN_FilterConfTypeDef  sFilterConfig;
     
     sFilterConfig.FilterNumber = handle;
