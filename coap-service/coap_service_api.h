@@ -139,7 +139,7 @@ extern void coap_service_delete( int8_t service_id );
  *
  * \param service_id         Id number of the current service.
  */
-extern void coap_service_close_secure_connection(int8_t service_id, ns_address_t *dest_addr);
+extern void coap_service_close_secure_connection(int8_t service_id, uint8_t destination_addr_ptr[static 16], uint16_t port);
 
 /**
  * \brief Sets password for device

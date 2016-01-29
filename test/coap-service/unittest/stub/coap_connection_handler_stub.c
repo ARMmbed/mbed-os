@@ -36,8 +36,7 @@ void connection_handler_destroy(coap_conn_handler_t *handler)
 {
 
 }
-
-void connection_handler_close_secure_connection( coap_conn_handler_t *handler, ns_address_t *dest_addr )
+void connection_handler_close_secure_connection( coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port )
 {
 
 }
