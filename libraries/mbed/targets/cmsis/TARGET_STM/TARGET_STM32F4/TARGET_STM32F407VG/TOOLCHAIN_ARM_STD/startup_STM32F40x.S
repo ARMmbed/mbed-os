@@ -21,7 +21,7 @@
 
 
 
-__initial_sp        EQU     0x20020000  ; Top of RAM from LPC4088
+__initial_sp        EQU     0x20020000  ; Top of RAM 
 
                 PRESERVE8
                 THUMB
