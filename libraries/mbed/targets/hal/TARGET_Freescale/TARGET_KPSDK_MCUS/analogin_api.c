@@ -57,7 +57,8 @@ void analogin_init(analogin_t *obj, PinName pin) {
     ADC_HAL_SetHwTriggerCmd(adc_addrs[instance], false); /* sw trigger */
     ADC_HAL_SetHwAverageCmd(adc_addrs[instance], true);
     ADC_HAL_SetHwAverageMode(adc_addrs[instance], kAdcHwAverageCountOf4);
-    ADC_HAL_SetChnMuxMode(adc_addrs[instance], kAdcChnMuxOfB); /* only B channels are avail */
+    ADC_HAL_SetChnMuxMode(adc_addrs[instance],
+        obj->adc & (1 << ADC_B_CHANNEL_SHIFT) ? kAdcChnMuxOfB : kAdcChnMuxOfA);
 
     pinmap_pinout(pin, PinMap_ADC);
 }

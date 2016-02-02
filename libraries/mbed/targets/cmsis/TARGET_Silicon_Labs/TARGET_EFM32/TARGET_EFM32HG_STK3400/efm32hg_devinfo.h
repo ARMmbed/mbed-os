@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_devinfo.h
  * @brief EFM32HG_DEVINFO register and bit field definitions
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32HG_DEVINFO
  * @{
@@ -152,9 +156,10 @@ typedef struct
 #define _DEVINFO_PART_DEVICE_FAMILY_EFM32HG             77           /**< Happy Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_FAMILY_EZR32WG             120          /**< EZR Wonder Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_FAMILY_EZR32LG             121          /**< EZR Leopard Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EZR32HG             122          /**< EZR Happy Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_NUMBER_MASK                0x0000FFFFUL /**< Device number */
 #define _DEVINFO_PART_DEVICE_NUMBER_SHIFT               0            /**< Bit position for device number */
 
 /** @} End of group EFM32HG_DEVINFO */
-
+/** @} End of group Parts */
 

@@ -2,7 +2,7 @@
 ; * @file startup_efm32wg.s
 ; * @brief    CMSIS Core Device Startup File for
 ; *           Silicon Labs EFM32WG Device Series
-; * @version 3.20.6
+; * @version 4.2.1
 ; * @date     03. February 2012
 ; *
 ; * @note
@@ -265,10 +265,7 @@ AES_IRQHandler
 EBI_IRQHandler
 EMU_IRQHandler
 FPUEH_IRQHandler
-
-
                 B       .
-
                 ENDP
 
                 ALIGN

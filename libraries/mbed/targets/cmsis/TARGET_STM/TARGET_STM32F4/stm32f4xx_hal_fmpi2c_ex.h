@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_fmpi2c_ex.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of FMPI2C HAL Extension module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F446xx)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) 
    
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"  
@@ -140,7 +140,7 @@ void HAL_FMPI2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 /**
   * @}
   */
-#endif /* STM32F446xx */  
+#endif /* STM32F410xx || STM32F446xx  */  
 #ifdef __cplusplus
 }
 #endif

@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    RT_HAL_CM.H
  *      Purpose: Hardware Abstraction Layer for Cortex-M definitions
- *      Rev.:    V4.60
+ *      Rev.:    V4.70
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@
 
 #if defined (__CC_ARM)          /* ARM Compiler */
 
-#if ((__TARGET_ARCH_7_M || __TARGET_ARCH_7E_M) && !NO_EXCLUSIVE_ACCESS)
+#if ((__TARGET_ARCH_7_M || __TARGET_ARCH_7E_M) && !defined(NO_EXCLUSIVE_ACCESS))
  #define __USE_EXCLUSIVE_ACCESS
 #else
  #undef  __USE_EXCLUSIVE_ACCESS
@@ -228,6 +228,14 @@ __inline static void rt_systick_init (void) {
   NVIC_SYS_PRI3  |= 0xFF000000;
 }
 
+__inline static U32 rt_systick_val (void) {
+  return (os_trv - NVIC_ST_CURRENT);
+}
+
+__inline static U32 rt_systick_ovf (void) {
+  return ((NVIC_INT_CTRL >> 26) & 1);
+}
+
 __inline static void rt_svc_init (void) {
 #if !(__TARGET_ARCH_6S_M)
   int sh,prigroup;
@@ -262,7 +270,7 @@ extern void dbg_task_switch (U32 task_id);
 #ifdef DBG_MSG
 #define DBG_INIT() dbg_init()
 #define DBG_TASK_NOTIFY(p_tcb,create) if (dbg_msg) dbg_task_notify(p_tcb,create)
-#define DBG_TASK_SWITCH(task_id)      if (dbg_msg && (os_tsk.new!=os_tsk.run)) \
+#define DBG_TASK_SWITCH(task_id)      if (dbg_msg && (os_tsk.new_tsk!=os_tsk.run)) \
                                                    dbg_task_switch(task_id)
 #else
 #define DBG_INIT()

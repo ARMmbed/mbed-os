@@ -27,6 +27,7 @@ import random
 import optparse
 import datetime
 import threading
+import ctypes
 from types import ListType
 from colorama import Fore, Back, Style
 from prettytable import PrettyTable
@@ -49,7 +50,10 @@ from workspace_tools.test_db import BaseDBAccess
 from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
 from workspace_tools.build_api import get_target_supported_toolchains
 from workspace_tools.build_api import write_build_report
-from workspace_tools.build_api import print_build_results
+from workspace_tools.build_api import prep_report
+from workspace_tools.build_api import prep_properties
+from workspace_tools.build_api import create_result
+from workspace_tools.build_api import add_result_to_report
 from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
 from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
@@ -180,16 +184,12 @@ class SingleTestRunner(object):
                  _opts_jobs=None,
                  _opts_waterfall_test=None,
                  _opts_consolidate_waterfall_test=None,
-                 _opts_extend_test_timeout=None):
+                 _opts_extend_test_timeout=None,
+                 _opts_auto_detect=None):
         """ Let's try hard to init this object
         """
         from colorama import init
         init()
-
-        # Build results
-        build_failures = []
-        build_successes = []
-        build_skipped = []
 
         PATTERN = "\\{(" + "|".join(self.TEST_RESULT_MAPPING.keys()) + ")\\}"
         self.RE_DETECT_TESTCASE_RESULT = re.compile(PATTERN)
@@ -240,6 +240,7 @@ class SingleTestRunner(object):
         self.opts_consolidate_waterfall_test = _opts_consolidate_waterfall_test
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
+        self.opts_auto_detect = _opts_auto_detect
 
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
@@ -307,25 +308,19 @@ class SingleTestRunner(object):
     test_summary_ext = {}
     execute_thread_slice_lock = Lock()
 
-    def execute_thread_slice(self, q, target, toolchains, clean, test_ids, build_report):
+    def execute_thread_slice(self, q, target, toolchains, clean, test_ids, build_report, build_properties):
         for toolchain in toolchains:
             tt_id = "%s::%s" % (toolchain, target)
 
-            # Toolchain specific build successes and failures
-            build_report[toolchain] = {
-                "mbed_failure": False,
-                "library_failure": False,
-                "library_build_passing": [],
-                "library_build_failing": [],
-                "test_build_passing": [],
-                "test_build_failing": []
-            }
+            T = TARGET_MAP[target]
+
             # print target, toolchain
             # Test suite properties returned to external tools like CI
             test_suite_properties = {
                 'jobs': self.opts_jobs,
                 'clean': clean,
                 'target': target,
+                'vendor': T.extra_labels[0],
                 'test_ids': ', '.join(test_ids),
                 'toolchain': toolchain,
                 'shuffle_random_seed': self.shuffle_random_seed
@@ -338,7 +333,6 @@ class SingleTestRunner(object):
                 print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Target platform not found'% (target))
                 continue
 
-            T = TARGET_MAP[target]
             build_mbed_libs_options = ["analyze"] if self.opts_goanna_for_mbed_sdk else None
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
@@ -349,17 +343,15 @@ class SingleTestRunner(object):
                                                          options=build_mbed_libs_options,
                                                          clean=clean_mbed_libs_options,
                                                          verbose=self.opts_verbose,
-                                                         jobs=self.opts_jobs)
+                                                         jobs=self.opts_jobs,
+                                                         report=build_report,
+                                                         properties=build_properties)
 
                 if not build_mbed_libs_result:
-                    self.build_skipped.append(tt_id)
                     print self.logger.log_line(self.logger.LogType.NOTIF, 'Skipped tests for %s target. Toolchain %s is not yet supported for this target'% (T.name, toolchain))
                     continue
-                else:
-                    self.build_successes.append(tt_id)
+
             except ToolException:
-                self.build_failures.append(tt_id)
-                build_report[toolchain]["mbed_failure"] = True
                 print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building MBED libs for %s using %s'% (target, toolchain))
                 continue
 
@@ -398,15 +390,15 @@ class SingleTestRunner(object):
 
 
             # First pass through all tests and determine which libraries need to be built
-            libraries = set()
+            libraries = []
             for test_id in valid_test_map_keys:
                 test = TEST_MAP[test_id]
 
                 # Detect which lib should be added to test
                 # Some libs have to compiled like RTOS or ETH
                 for lib in LIBRARIES:
-                    if lib['build_dir'] in test.dependencies:
-                        libraries.add(lib['id'])
+                    if lib['build_dir'] in test.dependencies and lib['id'] not in libraries:
+                        libraries.append(lib['id'])
 
 
             build_project_options = ["analyze"] if self.opts_goanna_for_tests else None
@@ -421,14 +413,12 @@ class SingleTestRunner(object):
                               options=build_project_options,
                               verbose=self.opts_verbose,
                               clean=clean_mbed_libs_options,
-                              jobs=self.opts_jobs)
-
-                    build_report[toolchain]["library_build_passing"].append(lib_id)
+                              jobs=self.opts_jobs,
+                              report=build_report,
+                              properties=build_properties)
 
                 except ToolException:
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building library %s'% (lib_id))
-                    build_report[toolchain]["library_failure"] = True
-                    build_report[toolchain]["library_build_failing"].append(lib_id)
                     continue
 
 
@@ -453,10 +443,10 @@ class SingleTestRunner(object):
                 MACROS.append('TEST_SUITE_UUID="%s"'% str(test_uuid))
 
                 # Prepare extended test results data structure (it can be used to generate detailed test report)
-                if toolchain not in self.test_summary_ext:
-                    self.test_summary_ext[toolchain] = {}  # test_summary_ext : toolchain
-                if target not in self.test_summary_ext[toolchain]:
-                    self.test_summary_ext[toolchain][target] = {}    # test_summary_ext : toolchain : target
+                if target not in self.test_summary_ext:
+                    self.test_summary_ext[target] = {}  # test_summary_ext : toolchain
+                if toolchain not in self.test_summary_ext[target]:
+                    self.test_summary_ext[target][toolchain] = {}    # test_summary_ext : toolchain : target
 
                 tt_test_id = "%s::%s::%s" % (toolchain, target, test_id)    # For logging only
 
@@ -473,14 +463,15 @@ class SingleTestRunner(object):
                                      name=project_name,
                                      macros=MACROS,
                                      inc_dirs=INC_DIRS,
-                                     jobs=self.opts_jobs)
-                    build_report[toolchain]["test_build_passing"].append(test_id)
+                                     jobs=self.opts_jobs,
+                                     report=build_report,
+                                     properties=build_properties,
+                                     project_id=test_id,
+                                     project_description=test.get_description())
 
                 except ToolException:
                     project_name_str = project_name if project_name is not None else test_id
                     print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
-                    build_report[toolchain]["test_build_failing"].append(test_id)
-                    self.build_failures.append(tt_test_id)
 
                     # Append test results to global test summary
                     self.test_summary.append(
@@ -488,17 +479,17 @@ class SingleTestRunner(object):
                     )
 
                     # Add detailed test result to test summary structure
-                    if test_id not in self.test_summary_ext[toolchain][target]:
-                        self.test_summary_ext[toolchain][target][test_id] = []
+                    if test_id not in self.test_summary_ext[target][toolchain]:
+                        self.test_summary_ext[target][toolchain][test_id] = []
 
-                    self.test_summary_ext[toolchain][target][test_id].append({ 0: {
-                        'single_test_result' : self.TEST_RESULT_BUILD_FAILED,
-                        'single_test_output' : '',
+                    self.test_summary_ext[target][toolchain][test_id].append({ 0: {
+                        'result' : self.TEST_RESULT_BUILD_FAILED,
+                        'output' : '',
                         'target_name' : target,
                         'target_name_unique': target,
                         'toolchain_name' : toolchain,
-                        'test_id' : test_id,
-                        'test_description' : 'Toolchain build failed',
+                        'id' : test_id,
+                        'description' : 'Toolchain build failed',
                         'elapsed_time' : 0,
                         'duration' : 0,
                         'copy_method' : None
@@ -540,9 +531,9 @@ class SingleTestRunner(object):
                         self.test_summary.append(single_test_result)
 
                     # Add detailed test result to test summary structure
-                    if target not in self.test_summary_ext[toolchain][target]:
-                        if test_id not in self.test_summary_ext[toolchain][target]:
-                            self.test_summary_ext[toolchain][target][test_id] = []
+                    if target not in self.test_summary_ext[target][toolchain]:
+                        if test_id not in self.test_summary_ext[target][toolchain]:
+                            self.test_summary_ext[target][toolchain][test_id] = []
 
                         append_test_result = detailed_test_results
 
@@ -551,7 +542,7 @@ class SingleTestRunner(object):
                         if self.opts_waterfall_test and self.opts_consolidate_waterfall_test:
                             append_test_result = {0: detailed_test_results[len(detailed_test_results) - 1]}
 
-                        self.test_summary_ext[toolchain][target][test_id].append(append_test_result)
+                        self.test_summary_ext[target][toolchain][test_id].append(append_test_result)
 
             test_suite_properties['skipped'] = ', '.join(test_suite_properties['skipped'])
             self.test_suite_properties_ext[target][toolchain] = test_suite_properties
@@ -569,10 +560,8 @@ class SingleTestRunner(object):
         if self.opts_shuffle_test_seed is not None and self.is_shuffle_seed_float():
             self.shuffle_random_seed = round(float(self.opts_shuffle_test_seed), self.SHUFFLE_SEED_ROUND)
 
-        build_reports = []
-        self.build_failures = []
-        self.build_successes = []
-        self.build_skipped = []
+        build_report = {}
+        build_properties = {}
 
         if self.opts_parallel_test_exec:
             ###################################################################
@@ -586,9 +575,7 @@ class SingleTestRunner(object):
             # get information about available MUTs (per target).
             for target, toolchains in self.test_spec['targets'].iteritems():
                 self.test_suite_properties_ext[target] = {}
-                cur_build_report = {}
-                t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids, cur_build_report))
-                build_reports.append({ "target": target, "report": cur_build_report})
+                t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids, build_report, build_properties))
                 t.daemon = True
                 t.start()
                 execute_threads.append(t)
@@ -601,55 +588,8 @@ class SingleTestRunner(object):
                 if target not in self.test_suite_properties_ext:
                     self.test_suite_properties_ext[target] = {}
 
-                cur_build_report = {}
-                self.execute_thread_slice(q, target, toolchains, clean, test_ids, cur_build_report)
-                build_reports.append({ "target": target, "report": cur_build_report})
+                self.execute_thread_slice(q, target, toolchains, clean, test_ids, build_report, build_properties)
                 q.get()
-
-        build_report = []
-
-        for target_build_report in build_reports:
-            cur_report = {
-                "target": target_build_report["target"],
-                "passing": [],
-                "failing": []
-            }
-
-            for toolchain in sorted(target_build_report["report"], key=target_build_report["report"].get):
-                report = target_build_report["report"][toolchain]
-
-                if report["mbed_failure"]:
-                    cur_report["failing"].append({
-                        "toolchain": toolchain,
-                        "project": "mbed library"
-                    })
-                else:
-                    for passing_library in report["library_build_failing"]:
-                        cur_report["failing"].append({
-                            "toolchain": toolchain,
-                            "project": "Library::%s" % (passing_library)
-                        })
-
-                    for failing_library in report["library_build_passing"]:
-                        cur_report["passing"].append({
-                            "toolchain": toolchain,
-                            "project": "Library::%s" % (failing_library)
-                        })
-
-                    for passing_test in report["test_build_passing"]:
-                        cur_report["passing"].append({
-                            "toolchain": toolchain,
-                            "project": "Test::%s" % (passing_test)
-                        })
-
-                    for failing_test in report["test_build_failing"]:
-                        cur_report["failing"].append({
-                            "toolchain": toolchain,
-                            "project": "Test::%s" % (failing_test)
-                        })
-
-
-            build_report.append(cur_report)
 
         if self.db_logger:
             self.db_logger.reconnect();
@@ -657,7 +597,7 @@ class SingleTestRunner(object):
                 self.db_logger.update_build_id_info(self.db_logger_build_id, _status_fk=self.db_logger.BUILD_ID_STATUS_COMPLETED)
                 self.db_logger.disconnect();
 
-        return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext, build_report
+        return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext, build_report, build_properties
 
     def get_valid_tests(self, test_map_keys, target, toolchain, test_ids):
         valid_test_map_keys = []
@@ -855,25 +795,8 @@ class SingleTestRunner(object):
             print "Error: No Mbed available: MUT[%s]" % data['mcu']
             return None
 
-        disk = mut.get('disk')
-        port = mut.get('port')
-
-        if disk is None or port is None:
-            return None
-
-        target_by_mcu = TARGET_MAP[mut['mcu']]
-        target_name_unique = mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu']
-        # Some extra stuff can be declared in MUTs structure
-        reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
-        reset_tout = mut.get('reset_tout')  # COPY_IMAGE -> RESET_PROC -> SLEEP(RESET_TOUT)
-        image_dest = mut.get('image_dest')  # Image file destination DISK + IMAGE_DEST + BINARY_NAME
-        images_config = mut.get('images_config')    # Available images selection via config file
-        mobo_config = mut.get('mobo_config')        # Available board configuration selection e.g. core selection etc.
+        mcu = mut['mcu']
         copy_method = mut.get('copy_method')        # Available board configuration selection e.g. core selection etc.
-
-        # When the build and test system were separate, this was relative to a
-        # base network folder base path: join(NETWORK_BASE_PATH, )
-        image_path = image
 
         if self.db_logger:
             self.db_logger.reconnect()
@@ -886,6 +809,46 @@ class SingleTestRunner(object):
         detailed_test_results = {}  # { Loop_number: { results ... } }
 
         for test_index in range(test_loops):
+
+            # If mbedls is available and we are auto detecting MUT info,
+            # update MUT info (mounting may changed)
+            if get_module_avail('mbed_lstools') and self.opts_auto_detect:
+                platform_name_filter = [mcu]
+                muts_list = {}
+                found = False
+
+                for i in range(0, 60):
+                    print('Looking for %s with MBEDLS' % mcu)
+                    muts_list = get_autodetected_MUTS_list(platform_name_filter=platform_name_filter)
+
+                    if 1 not in muts_list:
+                        sleep(3)
+                    else:
+                        found = True
+                        break
+
+                if not found:
+                    print "Error: mbed not found with MBEDLS: %s" % data['mcu']
+                    return None
+                else:
+                    mut = muts_list[1]
+
+            disk = mut.get('disk')
+            port = mut.get('port')
+
+            if disk is None or port is None:
+                return None
+
+            target_by_mcu = TARGET_MAP[mut['mcu']]
+            target_name_unique = mut['mcu_unique'] if 'mcu_unique' in mut else mut['mcu']
+            # Some extra stuff can be declared in MUTs structure
+            reset_type = mut.get('reset_type')  # reboot.txt, reset.txt, shutdown.txt
+            reset_tout = mut.get('reset_tout')  # COPY_IMAGE -> RESET_PROC -> SLEEP(RESET_TOUT)
+
+            # When the build and test system were separate, this was relative to a
+            # base network folder base path: join(NETWORK_BASE_PATH, )
+            image_path = image
+
             # Host test execution
             start_host_exec_time = time()
 
@@ -919,13 +882,13 @@ class SingleTestRunner(object):
             elapsed_time = single_testduration  # TIme of single test case execution after reset
 
             detailed_test_results[test_index] = {
-                'single_test_result' : single_test_result,
-                'single_test_output' : single_test_output,
+                'result' : single_test_result,
+                'output' : single_test_output,
                 'target_name' : target_name,
                 'target_name_unique' : target_name_unique,
                 'toolchain_name' : toolchain_name,
-                'test_id' : test_id,
-                'test_description' : test_description,
+                'id' : test_id,
+                'description' : test_description,
                 'elapsed_time' : round(elapsed_time, 2),
                 'duration' : single_timeout,
                 'copy_method' : _copy_method,
@@ -955,7 +918,7 @@ class SingleTestRunner(object):
         if self.db_logger:
             self.db_logger.disconnect()
 
-        return (self.shape_global_test_loop_result(test_all_result),
+        return (self.shape_global_test_loop_result(test_all_result, self.opts_waterfall_test and self.opts_consolidate_waterfall_test),
                 target_name_unique,
                 toolchain_name,
                 test_id,
@@ -1003,12 +966,16 @@ class SingleTestRunner(object):
         test_loop_ok_result = test_all_result.count(self.TEST_RESULT_OK)
         return "%d/%d"% (test_loop_ok_result, test_loop_count)
 
-    def shape_global_test_loop_result(self, test_all_result):
+    def shape_global_test_loop_result(self, test_all_result, waterfall_and_consolidate):
         """ Reformats list of results to simple string
         """
         result = self.TEST_RESULT_FAIL
+
         if all(test_all_result[0] == res for res in test_all_result):
             result = test_all_result[0]
+        elif waterfall_and_consolidate and any(res == self.TEST_RESULT_OK for res in test_all_result):
+            result = self.TEST_RESULT_OK
+
         return result
 
     def run_host_test(self, name, image_path, disk, port, duration,
@@ -1065,6 +1032,9 @@ class SingleTestRunner(object):
                '-p', port,
                '-t', str(duration),
                '-C', str(program_cycle_s)]
+
+        if get_module_avail('mbed_lstools') and self.opts_auto_detect:
+            cmd += ['--auto']
 
         # Add extra parameters to host_test
         if copy_method is not None:
@@ -1490,7 +1460,7 @@ def singletest_in_cli_mode(single_test):
     """
     start = time()
     # Execute tests depending on options and filter applied
-    test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, build_report = single_test.execute()
+    test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, build_report, build_properties = single_test.execute()
     elapsed_time = time() - start
 
     # Human readable summary
@@ -1506,12 +1476,8 @@ def singletest_in_cli_mode(single_test):
     print
     # Write summary of the builds
 
-    for report, report_name in [(single_test.build_successes, "Build successes:"),
-                                (single_test.build_skipped, "Build skipped:"),
-                                (single_test.build_failures, "Build failures:"),
-                               ]:
-        if report:
-            print print_build_results(report, report_name)
+    print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
+    status = print_report_exporter.report(build_report)
 
     # Store extra reports in files
     if single_test.opts_report_html_file_name:
@@ -1524,10 +1490,11 @@ def singletest_in_cli_mode(single_test):
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
     if single_test.opts_report_build_file_name:
         # Export build results as html report to sparate file
-        write_build_report(build_report, 'tests_build/report.html', single_test.opts_report_build_file_name)
+        report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
+        report_exporter.report_to_file(build_report, single_test.opts_report_build_file_name, test_suite_properties=build_properties)
 
     # Returns True if no build failures of the test projects or their dependencies
-    return len(single_test.build_failures) == 0
+    return status
 
 class TestLogger():
     """ Super-class for logging and printing ongoing events for test suite pass
@@ -1642,6 +1609,20 @@ def get_module_avail(module_name):
     return module_name in sys.modules.keys()
 
 
+def get_autodetected_MUTS_list(platform_name_filter=None):
+    oldError = None
+    if os.name == 'nt':
+        # Disable Windows error box temporarily
+        oldError = ctypes.windll.kernel32.SetErrorMode(1) #note that SEM_FAILCRITICALERRORS = 1
+
+    mbeds = mbed_lstools.create()
+    detect_muts_list = mbeds.list_mbeds()
+
+    if os.name == 'nt':
+        ctypes.windll.kernel32.SetErrorMode(oldError)
+
+    return get_autodetected_MUTS(detect_muts_list, platform_name_filter=platform_name_filter)
+
 def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
     """ Function detects all connected to host mbed-enabled devices and generates artificial MUTS file.
         If function fails to auto-detect devices it will return empty dictionary.
@@ -1658,6 +1639,11 @@ def get_autodetected_MUTS(mbeds_list, platform_name_filter=None):
     # mbeds_list = [{'platform_name': 'NUCLEO_F302R8', 'mount_point': 'E:', 'target_id': '07050200623B61125D5EF72A', 'serial_port': u'COM34'}]
     index = 1
     for mut in mbeds_list:
+        # Filter the MUTS if a filter is specified
+
+        if platform_name_filter and not mut['platform_name'] in platform_name_filter:
+            continue
+
         # For mcu_unique - we are assigning 'platform_name_unique' value from  mbedls output (if its existing)
         # if not we  are creating our own unique value (last few chars from platform's target_id).
         m = {'mcu': mut['platform_name'],
@@ -1688,8 +1674,8 @@ def get_autodetected_TEST_SPEC(mbeds_list,
     result = {'targets': {} }
 
     for mut in mbeds_list:
-        mcu = mut['platform_name']
-        if platform_name_filter is None or (platform_name_filter and mut['platform_name'] in platform_name_filter):
+        mcu = mut['mcu']
+        if platform_name_filter is None or (platform_name_filter and mut['mcu'] in platform_name_filter):
             if mcu in TARGET_MAP:
                 default_toolchain = TARGET_MAP[mcu].default_toolchain
                 supported_toolchains = TARGET_MAP[mcu].supported_toolchains
@@ -1913,7 +1899,7 @@ def get_default_test_options_parser():
 
     parser.add_option("", "--report-build",
                       dest="report_build_file_name",
-                      help="Output the build results to an html file")
+                      help="Output the build results to a junit xml file")
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',

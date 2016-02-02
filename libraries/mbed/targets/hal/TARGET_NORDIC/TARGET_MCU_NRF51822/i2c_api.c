@@ -54,7 +54,6 @@ void twi_master_init(i2c_t *obj, PinName sda, PinName scl, int frequency)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
-    twi_master_init_and_clear();
     NRF_TWI_Type *i2c = NULL;
   
     if (i2c0_spi0_peripheral.usage == I2C_SPI_PERIPHERAL_FOR_I2C &&
@@ -87,6 +86,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         // No available peripheral
         error("No available I2C");
     }
+
+	twi_master_init_and_clear(i2c);
 
     obj->i2c               = i2c;
     obj->scl               = scl;

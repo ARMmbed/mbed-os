@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_usart.h
  * @brief EFM32LG_USART register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32LG_USART
  * @{
@@ -69,7 +73,7 @@ typedef struct
 
 /* Bit fields for USART CTRL */
 #define _USART_CTRL_RESETVALUE                0x00000000UL                             /**< Default value for USART_CTRL */
-#define _USART_CTRL_MASK                      0x7DFFFF7FUL                             /**< Mask for USART_CTRL */
+#define _USART_CTRL_MASK                      0xFFFFFF7FUL                             /**< Mask for USART_CTRL */
 #define USART_CTRL_SYNC                       (0x1UL << 0)                             /**< USART Synchronous Mode */
 #define _USART_CTRL_SYNC_SHIFT                0                                        /**< Shift value for USART_SYNC */
 #define _USART_CTRL_SYNC_MASK                 0x1UL                                    /**< Bit mask for USART_SYNC */
@@ -208,6 +212,11 @@ typedef struct
 #define _USART_CTRL_ERRSTX_MASK               0x1000000UL                              /**< Bit mask for USART_ERRSTX */
 #define _USART_CTRL_ERRSTX_DEFAULT            0x00000000UL                             /**< Mode DEFAULT for USART_CTRL */
 #define USART_CTRL_ERRSTX_DEFAULT             (_USART_CTRL_ERRSTX_DEFAULT << 24)       /**< Shifted mode DEFAULT for USART_CTRL */
+#define USART_CTRL_SSSEARLY                   (0x1UL << 25)                            /**< Synchronous Slave Setup Early */
+#define _USART_CTRL_SSSEARLY_SHIFT            25                                       /**< Shift value for USART_SSSEARLY */
+#define _USART_CTRL_SSSEARLY_MASK             0x2000000UL                              /**< Bit mask for USART_SSSEARLY */
+#define _USART_CTRL_SSSEARLY_DEFAULT          0x00000000UL                             /**< Mode DEFAULT for USART_CTRL */
+#define USART_CTRL_SSSEARLY_DEFAULT           (_USART_CTRL_SSSEARLY_DEFAULT << 25)     /**< Shifted mode DEFAULT for USART_CTRL */
 #define _USART_CTRL_TXDELAY_SHIFT             26                                       /**< Shift value for USART_TXDELAY */
 #define _USART_CTRL_TXDELAY_MASK              0xC000000UL                              /**< Bit mask for USART_TXDELAY */
 #define _USART_CTRL_TXDELAY_DEFAULT           0x00000000UL                             /**< Mode DEFAULT for USART_CTRL */
@@ -235,6 +244,11 @@ typedef struct
 #define _USART_CTRL_MVDIS_MASK                0x40000000UL                             /**< Bit mask for USART_MVDIS */
 #define _USART_CTRL_MVDIS_DEFAULT             0x00000000UL                             /**< Mode DEFAULT for USART_CTRL */
 #define USART_CTRL_MVDIS_DEFAULT              (_USART_CTRL_MVDIS_DEFAULT << 30)        /**< Shifted mode DEFAULT for USART_CTRL */
+#define USART_CTRL_SMSDELAY                   (0x1UL << 31)                            /**< Synchronous Master Sample Delay */
+#define _USART_CTRL_SMSDELAY_SHIFT            31                                       /**< Shift value for USART_SMSDELAY */
+#define _USART_CTRL_SMSDELAY_MASK             0x80000000UL                             /**< Bit mask for USART_SMSDELAY */
+#define _USART_CTRL_SMSDELAY_DEFAULT          0x00000000UL                             /**< Mode DEFAULT for USART_CTRL */
+#define USART_CTRL_SMSDELAY_DEFAULT           (_USART_CTRL_SMSDELAY_DEFAULT << 31)     /**< Shifted mode DEFAULT for USART_CTRL */
 
 /* Bit fields for USART FRAME */
 #define _USART_FRAME_RESETVALUE               0x00001005UL                              /**< Default value for USART_FRAME */
@@ -1145,5 +1159,5 @@ typedef struct
 #define USART_I2SCTRL_FORMAT_W8D8             (_USART_I2SCTRL_FORMAT_W8D8 << 8)      /**< Shifted mode W8D8 for USART_I2SCTRL */
 
 /** @} End of group EFM32LG_USART */
-
+/** @} End of group Parts */
 

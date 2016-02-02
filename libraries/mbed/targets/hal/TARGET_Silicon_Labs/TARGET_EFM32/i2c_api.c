@@ -1,18 +1,32 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file i2c_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
 
 #include "device.h"
 #include "clocking.h"
@@ -86,25 +100,17 @@ static CMU_Clock_TypeDef i2c_get_clock(i2c_t *obj)
     return clock;
 }
 
-void i2c_preinit(i2c_t *obj, PinName sda, PinName scl)
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
+    /* Find out which I2C peripheral we're asked to use */
     I2CName i2c_sda = (I2CName) pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName) pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c.i2c = (I2C_TypeDef*) pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT(((int) obj->i2c.i2c) != NC);
-
-    int loc_sda = pin_location(sda, PinMap_I2C_SDA);
-    int loc_scl = pin_location(scl, PinMap_I2C_SCL);
-    obj->i2c.loc = pinmap_merge(loc_sda, loc_scl);
-    MBED_ASSERT(obj->i2c.loc != NC);
-    obj->i2c.sda = sda;
-    obj->i2c.scl = scl;
-}
-
-void i2c_init(i2c_t *obj, PinName sda, PinName scl)
-{
-    /* Assign mbed pins */
-    i2c_preinit(obj, sda, scl);
+    
+    /* You need both SDA and SCL for I2C, so configuring one of them to NC is illegal */
+    MBED_ASSERT((uint32_t)sda != (uint32_t)NC);
+    MBED_ASSERT((uint32_t)scl != (uint32_t)NC);
 
     /* Enable clock for the peripheral */
     CMU_ClockEnable(i2c_get_clock(obj), true);
@@ -115,14 +121,34 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     I2C_Init(obj->i2c.i2c, &i2cInit);
 
     /* Enable pins at correct location */
-    obj->i2c.i2c->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (obj->i2c.loc << _I2C_ROUTE_LOCATION_SHIFT);
-    i2c_enable_pins(obj, true);
+#ifdef I2C_ROUTE_SDAPEN
+    /* Find common location in pinmap */
+    int loc_sda = pin_location(sda, PinMap_I2C_SDA);
+    int loc_scl = pin_location(scl, PinMap_I2C_SCL);
+    int loc = pinmap_merge(loc_sda, loc_scl);
+    MBED_ASSERT(loc != NC);
+    /* Set location */
+    obj->i2c.i2c->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (loc << _I2C_ROUTE_LOCATION_SHIFT);
+#else
+    obj->i2c.i2c->ROUTEPEN  = I2C_ROUTEPEN_SDAPEN | I2C_ROUTEPEN_SCLPEN;
+    obj->i2c.i2c->ROUTELOC0 = (pin_location(sda, PinMap_I2C_SDA) << _I2C_ROUTELOC0_SDALOC_SHIFT) |
+                              (pin_location(scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
+#endif
+
+    /* Set up the pins for I2C use */
+    /* Note: Set up pins in higher drive strength to reduce slew rate */
+    /*   Though this requires user knowledge, since drive strength is controlled per port, not pin */
+    pin_mode(scl, WiredAndPullUp);
+    pin_mode(sda, WiredAndPullUp);
 
     /* Enable General Call Address Mode. That is; we respond to the general address (0x0) */
     obj->i2c.i2c->CTRL |= _I2C_CTRL_GCAMEN_MASK;
 
     /* We are assuming that there is only one master. So disable automatic arbitration */
     obj->i2c.i2c->CTRL |= _I2C_CTRL_ARBDIS_MASK;
+
+    /* Set to master (needed if this I2C block was used previously as slave) */
+    i2c_slave_mode(obj, false);
 
     /* Enable i2c */
     i2c_enable(obj, true);
@@ -137,19 +163,6 @@ void i2c_enable(i2c_t *obj, uint8_t enable)
         if (obj->i2c.i2c->STATE & I2C_STATE_BUSY) {
             obj->i2c.i2c->CMD = I2C_CMD_ABORT;
         }
-
-    }
-}
-
-void i2c_enable_pins(i2c_t *obj, uint8_t enable)
-{
-    if (enable) {
-        pin_mode(obj->i2c.scl, WiredAndPullUp);
-        pin_mode(obj->i2c.sda, WiredAndPullUp);
-    } else {
-        // TODO_LP return PinMode to the previous state
-        pin_mode(obj->i2c.sda, Disabled);
-        pin_mode(obj->i2c.scl, Disabled);
     }
 }
 
@@ -185,7 +198,23 @@ void i2c_frequency(i2c_t *obj, int hz)
 {
     /* Set frequency. As the second argument is 0,
      *  HFPER clock frequency is used as reference freq */
-    I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRStandard);
+    if (hz <= 0) return;
+    /* In I2C Normal mode (50% duty), we can go up to 100kHz */
+    if (hz <= 100000) {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRStandard);
+    }
+    /* In I2C Fast mode (6:3 ratio), we can go up to 400kHz */
+    else if (hz <= 400000) {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRAsymetric);
+    }
+    /* In I2C Fast+ mode (11:6 ratio), we can go up to 1 MHz */
+    else if (hz <= 1000000) {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, hz, i2cClockHLRFast);
+    }
+    /* Cap requested frequency at 1MHz */
+    else {
+        I2C_BusFreqSet(obj->i2c.i2c, REFERENCE_FREQUENCY, 1000000, i2cClockHLRFast);
+    }
 }
 
 /* Creates a start condition on the I2C bus */
@@ -345,11 +374,15 @@ int block_and_wait_for_ack(I2C_TypeDef *i2c)
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
     if(enable_slave) {
+        /* Reference manual note: DIV must be set to 1 during slave operation */
+        obj->i2c.i2c->CLKDIV = 1;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_SLAVE_MASK;
         obj->i2c.i2c->CTRL |= _I2C_CTRL_AUTOACK_MASK; //Slave implementation assumes auto acking
     } else {
         obj->i2c.i2c->CTRL &= ~_I2C_CTRL_SLAVE_MASK;
         obj->i2c.i2c->CTRL &= ~_I2C_CTRL_AUTOACK_MASK; //Master implementation ACKs manually
+        /* function is only called with enable_slave = false through i2c_init(..), so frequency is
+           already guaranteed to be set */
     }
 }
 

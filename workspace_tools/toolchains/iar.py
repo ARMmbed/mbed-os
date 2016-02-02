@@ -30,8 +30,8 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent)
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         c_flags = [
             "--cpu=%s" % target.core, "--thumb",
@@ -94,7 +94,7 @@ class IAR(mbedToolchain):
     def parse_dependencies(self, dep_path):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
-                
+
     def assemble(self, source, object, includes):
         return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
 

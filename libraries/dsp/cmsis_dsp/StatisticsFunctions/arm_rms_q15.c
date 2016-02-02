@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5  
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_rms_q15.c    
@@ -116,19 +116,14 @@ void arm_rms_q15(
   }
 
   /* Truncating and saturating the accumulator to 1.15 format */
-  in = (q31_t)(sum >> 15);
-
-  in1 = __SSAT(in / blockSize, 16);
-
   /* Store the result in the destination */
-  arm_sqrt_q15(in1, pResult);
+  arm_sqrt_q15(__SSAT((sum / (q63_t)blockSize) >> 15, 16), pResult);
 
 #else
 
   /* Run the below code for Cortex-M0 */
 
   q15_t in;                                      /* temporary variable to store the input value */
-  q31_t tmp;                                     /* temporary variable to store the input value */
   uint32_t blkCnt;                               /* loop counter */
 
   /* Loop over blockSize number of values */
@@ -146,12 +141,8 @@ void arm_rms_q15(
   }
 
   /* Truncating and saturating the accumulator to 1.15 format */
-  tmp = (q31_t)(sum >> 15);
-
-  in = __SSAT(tmp / blockSize, 16);
-
   /* Store the result in the destination */
-  arm_sqrt_q15(in, pResult);
+  arm_sqrt_q15(__SSAT((sum / (q63_t)blockSize) >> 15, 16), pResult);
 
 #endif /* #ifndef ARM_MATH_CM0_FAMILY */
 

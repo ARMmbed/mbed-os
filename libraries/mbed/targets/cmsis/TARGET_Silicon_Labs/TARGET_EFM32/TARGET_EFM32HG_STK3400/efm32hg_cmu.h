@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_cmu.h
  * @brief EFM32HG_CMU register and bit field definitions
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32HG_CMU
  * @{
@@ -84,7 +88,7 @@ typedef struct
  *****************************************************************************/
 
 /* Bit fields for CMU CTRL */
-#define _CMU_CTRL_RESETVALUE                        0x000C062CUL                             /**< Default value for CMU_CTRL */
+#define _CMU_CTRL_RESETVALUE                        0x000C262CUL                             /**< Default value for CMU_CTRL */
 #define _CMU_CTRL_MASK                              0x07FFFEEFUL                             /**< Mask for CMU_CTRL */
 #define _CMU_CTRL_HFXOMODE_SHIFT                    0                                        /**< Shift value for CMU_HFXOMODE */
 #define _CMU_CTRL_HFXOMODE_MASK                     0x3UL                                    /**< Bit mask for CMU_HFXOMODE */
@@ -1198,5 +1202,5 @@ typedef struct
 #define CMU_USHFRCOCONF_USHFRCODIV2DIS_DEFAULT      (_CMU_USHFRCOCONF_USHFRCODIV2DIS_DEFAULT << 4) /**< Shifted mode DEFAULT for CMU_USHFRCOCONF */
 
 /** @} End of group EFM32HG_CMU */
-
+/** @} End of group Parts */
 

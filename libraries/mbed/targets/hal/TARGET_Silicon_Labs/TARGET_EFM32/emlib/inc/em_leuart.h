@@ -2,10 +2,10 @@
  * @file em_leuart.h
  * @brief Low Energy Universal Asynchronous Receiver/Transmitter (LEUART)
  *   peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,9 +31,8 @@
  *
  ******************************************************************************/
 
-
-#ifndef __SILICON_LABS_EM_LEUART_H_
-#define __SILICON_LABS_EM_LEUART_H_
+#ifndef __SILICON_LABS_EM_LEUART_H__
+#define __SILICON_LABS_EM_LEUART_H__
 
 #include "em_device.h"
 #if defined(LEUART_COUNT) && (LEUART_COUNT > 0)
@@ -130,14 +129,15 @@ typedef struct
 } LEUART_Init_TypeDef;
 
 /** Default config for LEUART init structure. */
-#define LEUART_INIT_DEFAULT                                                                   \
-  { leuartEnable,      /* Enable RX/TX when init completed. */                                \
-    0,                 /* Use current configured reference clock for configuring baudrate. */ \
-    9600,              /* 9600 bits/s. */                                                     \
-    leuartDatabits8,   /* 8 databits. */                                                      \
-    leuartNoParity,    /* No parity. */                                                       \
-    leuartStopbits1    /* 1 stopbit. */                                                       \
-  }
+#define LEUART_INIT_DEFAULT                                                                 \
+{                                                                                           \
+  leuartEnable,      /* Enable RX/TX when init completed. */                                \
+  0,                 /* Use current configured reference clock for configuring baudrate. */ \
+  9600,              /* 9600 bits/s. */                                                     \
+  leuartDatabits8,   /* 8 databits. */                                                      \
+  leuartNoParity,    /* No parity. */                                                       \
+  leuartStopbits1    /* 1 stopbit. */                                                       \
+}
 
 
 /*******************************************************************************
@@ -185,7 +185,7 @@ __STATIC_INLINE void LEUART_IntClear(LEUART_TypeDef *leuart, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void LEUART_IntDisable(LEUART_TypeDef *leuart, uint32_t flags)
 {
-  leuart->IEN &= ~(flags);
+  leuart->IEN &= ~flags;
 }
 
 
@@ -227,7 +227,39 @@ __STATIC_INLINE void LEUART_IntEnable(LEUART_TypeDef *leuart, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LEUART_IntGet(LEUART_TypeDef *leuart)
 {
-  return(leuart->IF);
+  return leuart->IF;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Get enabled and pending LEUART interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
+ *
+ * @param[in] leuart
+ *   Pointer to LEUART peripheral register block.
+ *
+ * @note
+ *   Interrupt flags are not cleared by the use of this function.
+ *
+ * @return
+ *   Pending and enabled LEUART interrupt sources.
+ *   The return value is the bitwise AND combination of
+ *   - the OR combination of enabled interrupt sources in LEUARTx_IEN_nnn
+ *     register (LEUARTx_IEN_nnn) and
+ *   - the OR combination of valid interrupt flags of the LEUART module
+ *     (LEUARTx_IF_nnn).
+ ******************************************************************************/
+__STATIC_INLINE uint32_t LEUART_IntGetEnabled(LEUART_TypeDef *leuart)
+{
+  uint32_t tmp;
+
+  /* Store LEUARTx->IEN in temporary variable in order to define explicit order
+   * of volatile accesses. */
+  tmp = leuart->IEN;
+
+  /* Bitwise AND of pending and enabled interrupts */
+  return leuart->IF & tmp;
 }
 
 
@@ -247,19 +279,21 @@ __STATIC_INLINE void LEUART_IntSet(LEUART_TypeDef *leuart, uint32_t flags)
   leuart->IFS = flags;
 }
 
+
+/***************************************************************************//**
+ * @brief
+ *   Get LEUART STATUS register.
+ *
+ * @param[in] leuart
+ *   Pointer to LEUART peripheral register block.
+ *
+ * @return
+ *  STATUS register value.
+ *
+ ******************************************************************************/
 __STATIC_INLINE uint32_t LEUART_StatusGet(LEUART_TypeDef *leuart)
 {
   return leuart->STATUS;
-}
-
-__STATIC_INLINE uint8_t LEUART_RxDataGet(LEUART_TypeDef *leuart)
-{
-  return (uint8_t)(leuart->RXDATA & 0xFF);
-}
-
-__STATIC_INLINE uint32_t LEUART_IntGetEnabled(LEUART_TypeDef *leuart)
-{
-  return(leuart->IF & leuart->IEN);
 }
 
 void LEUART_Reset(LEUART_TypeDef *leuart);
@@ -267,6 +301,74 @@ uint8_t LEUART_Rx(LEUART_TypeDef *leuart);
 uint16_t LEUART_RxExt(LEUART_TypeDef *leuart);
 void LEUART_Tx(LEUART_TypeDef *leuart, uint8_t data);
 void LEUART_TxExt(LEUART_TypeDef *leuart, uint16_t data);
+
+
+/***************************************************************************//**
+ * @brief
+ *   Receive one 8 bit frame, (or part of a 9 bit frame).
+ *
+ * @details
+ *   This function is used to quickly receive one 8 bit frame by reading the
+ *   RXDATA register directly, without checking the STATUS register for the
+ *   RXDATAV flag. This can be useful from the RXDATAV interrupt handler,
+ *   i.e. waiting is superfluous, in order to quickly read the received data.
+ *   Please refer to @ref LEUART_RxDataXGet() for reception of 9 bit frames.
+ *
+ * @note
+ *   Since this function does not check whether the RXDATA register actually
+ *   holds valid data, it should only be used in situations when it is certain
+ *   that there is valid data, ensured by some external program routine, e.g.
+ *   like when handling an RXDATAV interrupt. The @ref LEUART_Rx() is normally a
+ *   better choice if the validity of the RXDATA register is not certain.
+ *
+ * @note
+ *   Notice that possible parity/stop bits are not
+ *   considered part of specified frame bit length.
+ *
+ * @param[in] leuart
+ *   Pointer to LEUART peripheral register block.
+ *
+ * @return
+ *   Data received.
+ ******************************************************************************/
+__STATIC_INLINE uint8_t LEUART_RxDataGet(LEUART_TypeDef *leuart)
+{
+  return (uint8_t)leuart->RXDATA;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Receive one 8-9 bit frame, with extended information.
+ *
+ * @details
+ *   This function is used to quickly receive one 8-9 bit frame with extended
+ *   information by reading the RXDATAX register directly, without checking the
+ *   STATUS register for the RXDATAV flag. This can be useful from the RXDATAV
+ *   interrupt handler, i.e. waiting is superfluous, in order to quickly read
+ *   the received data.
+ *
+ * @note
+ *   Since this function does not check whether the RXDATAX register actually
+ *   holds valid data, it should only be used in situations when it is certain
+ *   that there is valid data, ensured by some external program routine, e.g.
+ *   like when handling an RXDATAV interrupt. The @ref LEUART_RxExt() is normally
+ *   a better choice if the validity of the RXDATAX register is not certain.
+ *
+ * @note
+ *   Notice that possible parity/stop bits are not
+ *   considered part of specified frame bit length.
+ *
+ * @param[in] leuart
+ *   Pointer to LEUART peripheral register block.
+ *
+ * @return
+ *   Data received.
+ ******************************************************************************/
+__STATIC_INLINE uint16_t LEUART_RxDataXGet(LEUART_TypeDef *leuart)
+{
+  return (uint16_t)leuart->RXDATAX;
+}
 
 
 /** @} (end addtogroup LEUART) */
@@ -277,5 +379,4 @@ void LEUART_TxExt(LEUART_TypeDef *leuart, uint16_t data);
 #endif
 
 #endif /* defined(LEUART_COUNT) && (LEUART_COUNT > 0) */
-
-#endif /* __SILICON_LABS_EM_LEUART_H_ */
+#endif /* __SILICON_LABS_EM_LEUART_H__ */

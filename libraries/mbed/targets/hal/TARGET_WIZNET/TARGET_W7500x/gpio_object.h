@@ -32,6 +32,7 @@
 #define MBED_GPIO_OBJECT_H
 
 #include "mbed_assert.h"
+#include "W7500x_gpio.h"
 
 #ifdef __cplusplus
 extern "C" {

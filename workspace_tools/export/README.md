@@ -648,7 +648,7 @@ Exporter IDE/Platform Support
         <td>&#10003;</td>
         <td>-</td>
         <td>&#10003;</td>
-        <td>-</td>
+        <td>&#10003;</td>
     </tr>
     <tr>
         <td>LPCCAPPUCCINO</td>
@@ -1051,12 +1051,12 @@ Exporter IDE/Platform Support
         <td>-</td>
         <td>-</td>
         <td>-</td>
+        <td>&#10003;</td>
+        <td>&#10003;</td>
         <td>-</td>
         <td>-</td>
         <td>-</td>
-        <td>-</td>
-        <td>-</td>
-        <td>-</td>
+        <td>&#10003;</td>
     </tr>
     <tr>
         <td>STM32F3XX</td>

@@ -17,6 +17,7 @@ limitations under the License.
 
 import os
 from host_test_plugins import HostTestPluginBase
+from time import sleep
 
 # Note: This plugin is not fully functional, needs improvements
 
@@ -27,16 +28,21 @@ class HostTestPluginResetMethod_MPS2(HostTestPluginBase):
          shutdown.txt - shutdown from run mode.
          reset.txt    - reset FPGA during run mode.
     """
-    def touch_file(self, path):
+    def touch_file(self, file):
         """ Touch file and set timestamp to items
         """
-        with open(path, 'a'):
-            os.utime(path, None)
+        tfile = file+'.tmp'
+        fhandle = open(tfile, 'a')
+        try:
+            fhandle.close()
+        finally:
+            os.rename(tfile, file)
+            return True
 
     # Plugin interface
     name = 'HostTestPluginResetMethod_MPS2'
     type = 'ResetMethod'
-    capabilities = ['reboot.txt', 'shutdown.txt', 'reset.txt']
+    capabilities = ['mps2-reboot', 'mps2-reset']
     required_parameters = ['disk']
 
     def setup(self, *args, **kwargs):
@@ -51,20 +57,18 @@ class HostTestPluginResetMethod_MPS2(HostTestPluginBase):
             Each capability may directly just call some command line
             program or execute building pythonic function
         """
+        return True
         result = False
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
+            disk = kwargs['disk']
+            
+            if capabilitity == 'mps2-reboot' and self.touch_file(disk + 'reboot.txt'):
+                sleep(20)
+                result = True
 
-            if capabilitity == 'reboot.txt':
-                # TODO: Implement touch file for reboot
-                pass
-
-            elif capabilitity == 'shutdown.txt':
-                # TODO: Implement touch file for shutdown
-                pass
-
-            elif capabilitity == 'reset.txt':
-                # TODO: Implement touch file for reset
-                pass
+            elif capabilitity == 'mps2-reset' and self.touch_file(disk + 'reboot.txt'):
+                sleep(20)
+                result = True
 
         return result
 

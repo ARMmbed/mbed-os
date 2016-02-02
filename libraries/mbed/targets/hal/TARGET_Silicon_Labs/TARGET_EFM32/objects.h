@@ -1,18 +1,33 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file objects.h
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
+
 #ifndef MBED_OBJECTS_H
 #define MBED_OBJECTS_H
 
@@ -51,11 +66,6 @@ struct dac_s {
 #if DEVICE_I2C
 struct i2c_s {
     I2C_TypeDef *i2c;
-    int loc;
-    uint8_t index;
-    PinName sda;
-    PinName scl;
-    uint32_t clock;
 #if DEVICE_I2C_ASYNCH
     uint32_t events;
     I2C_TransferSeq_TypeDef xfer;
@@ -73,10 +83,6 @@ struct port_s {
 
 #if DEVICE_PWMOUT
 struct pwmout_s {
-    //The period of the pulse in clock cycles
-    uint16_t period_cycles;
-    //The width of the pulse in clock cycles
-    uint16_t width_cycles;
     //Channel on TIMER
     uint32_t channel;
     PinName pin;
@@ -92,14 +98,17 @@ struct gpio_irq_s {
 #endif
 
 #if DEVICE_SERIAL
-#define SERIAL_NUM_UARTS (7)
-
 struct serial_s {
     union {
         USART_TypeDef *uart;
         LEUART_TypeDef *leuart;
     } periph;
+#ifndef _SILICON_LABS_32B_PLATFORM_2
     uint32_t location;
+#else
+    uint32_t location_tx;
+    uint32_t location_rx;
+#endif
     PinName rx_pin;
     PinName tx_pin;
 #if DEVICE_SERIAL_ASYNCH
@@ -107,6 +116,7 @@ struct serial_s {
     DMA_OPTIONS_t dmaOptionsTX;
     DMA_OPTIONS_t dmaOptionsRX;
 #endif
+    uint32_t sleep_blocked;
 };
 #endif
 

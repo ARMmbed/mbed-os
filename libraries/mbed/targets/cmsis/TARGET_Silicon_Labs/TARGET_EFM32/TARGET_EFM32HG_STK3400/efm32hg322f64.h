@@ -2,10 +2,10 @@
  * @file efm32hg322f64.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32HG322F64
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  *****************************************************************************/
 
-#ifndef __SILICON_LABS_EFM32HG322F64_H__
-#define __SILICON_LABS_EFM32HG322F64_H__
+#ifndef EFM32HG322F64_H
+#define EFM32HG322F64_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -224,6 +224,9 @@ typedef enum IRQn
 
 /** @} End of group EFM32HG322F64_Part */
 
+#ifndef ARM_MATH_CM0PLUS
+#define ARM_MATH_CM0PLUS
+#endif
 #include "arm_math.h"       /* To get __CLZ definitions etc. */
 #include "core_cm0plus.h"   /* Cortex-M0+ processor and core peripherals */
 #include "system_efm32hg.h" /* System Header */
@@ -396,4 +399,4 @@ typedef enum IRQn
 #ifdef __cplusplus
 }
 #endif
-#endif /* __SILICON_LABS_EFM32HG322F64_H__ */
+#endif /* EFM32HG322F64_H */

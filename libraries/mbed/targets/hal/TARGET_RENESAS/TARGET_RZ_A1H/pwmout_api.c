@@ -20,6 +20,7 @@
 #include "RZ_A1_Init.h"
 #include "cpg_iodefine.h"
 #include "pwm_iodefine.h"
+#include "gpio_addrdefine.h"
 
 #define MTU2_PWM_NUM            22
 #define MTU2_PWM_SIGNAL         2
@@ -254,6 +255,11 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         }
         // Wire pinout
         pinmap_pinout(pin, PinMap_PWM);
+
+        int bitmask = 1 << (pin  & 0xf);
+
+        *PMSR(PINGROUP(pin)) = (bitmask << 16) | 0;
+
         // default duty 0.0f
         pwmout_write(obj, 0);
         if (init_mtu2_period_ch[obj->ch] == 0) {

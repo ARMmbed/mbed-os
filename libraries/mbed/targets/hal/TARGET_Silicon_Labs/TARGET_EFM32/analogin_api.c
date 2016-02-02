@@ -1,18 +1,32 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file analogin_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
 
 #include "device.h"
 #if DEVICE_ANALOGIN
@@ -27,26 +41,16 @@
 #include "em_adc.h"
 #include "em_cmu.h"
 
-uint8_t analogin_get_index(analogin_t *obj)
-{
-    return 0; //only one module availalbe
-}
-
-void analogin_preinit(analogin_t *obj, PinName pin)
-{
-    obj->adc = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->adc != NC);
-
-    obj->channel = pin_location(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->channel != NC);
-}
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
     static uint8_t adc_initialized = 0;
 
     /* Init structure */
-    analogin_preinit(obj, pin);
+    obj->adc = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT((int) obj->adc != NC);
+
+    obj->channel = pin_location(pin, PinMap_ADC);
+    MBED_ASSERT((int) obj->channel != NC);
 
     /* Only initialize the ADC once */
     if (!adc_initialized) {
@@ -72,31 +76,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 }
 
-void analogin_enable(analogin_t *obj, uint8_t enable)
-{
-    //not avail for EFM32
-}
-
-void analogin_enable_pins(analogin_t *obj, uint8_t enable)
-{
-    //not avail for EFM32
-}
-
-void analogin_enable_interrupt(analogin_t *obj, uint32_t address, uint8_t enable)
-{
-    NVIC_SetVector(ADC0_IRQn, address);
-    if (enable) {
-        // enable end of conversion interrupt
-        ADC_IntEnable(obj->adc, ADC_IEN_SCAN);
-        ADC_IntSet(obj->adc, ADC_IF_SCAN);
-        NVIC_EnableIRQ(ADC0_IRQn);
-    } else {
-        ADC_IntDisable(obj->adc, ADC_IEN_SCAN);
-        ADC_IntClear(obj->adc, ADC_IF_SCAN);
-        NVIC_DisableIRQ(ADC0_IRQn);
-    }
-}
-
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     ADC_TypeDef *adc = obj->adc;
@@ -106,7 +85,11 @@ uint16_t analogin_read_u16(analogin_t *obj)
     adc->CMD = ADC_CMD_SINGLESTOP;
 
     // Make sure we are checking the correct channel
+#if defined _ADC_SINGLECTRL_INPUTSEL_MASK
     adc->SINGLECTRL = (adc->SINGLECTRL & ~_ADC_SINGLECTRL_INPUTSEL_MASK) | obj->channel;
+#elif _ADC_SINGLECTRL_POSSEL_MASK
+    adc->SINGLECTRL = (adc->SINGLECTRL & ~_ADC_SINGLECTRL_POSSEL_MASK) | obj->channel << _ADC_SINGLECTRL_POSSEL_SHIFT;
+#endif
 
     ADC_Start(adc, adcStartSingle);
 

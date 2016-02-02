@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    RTX_CM_LIB.H
  *      Purpose: RTX Kernel System Configuration
- *      Rev.:    V4.60
+ *      Rev.:    V4.73
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,14 +50,14 @@
 #define _declare_box(pool,size,cnt)  uint32_t pool[(((size)+3)/4)*(cnt) + 3]
 #define _declare_box8(pool,size,cnt) uint64_t pool[(((size)+7)/8)*(cnt) + 2]
 
-#define OS_TCB_SIZE     48
+#define OS_TCB_SIZE     52
 #define OS_TMR_SIZE     8
 
 #if defined (__CC_ARM) && !defined (__MICROLIB)
 
 typedef void    *OS_ID;
 typedef uint32_t OS_TID;
-typedef uint32_t OS_MUT[3];
+typedef uint32_t OS_MUT[4];
 typedef uint32_t OS_RESULT;
 
 #define runtask_id()    rt_tsk_self()
@@ -104,10 +104,15 @@ uint32_t const os_stackinfo  = (OS_STKCHECK<<24)| (OS_IDLESTKSIZE*4);
 uint32_t const os_stackinfo  = (OS_STKCHECK<<24)| (OS_PRIV_CNT<<16) | (OS_STKSIZE*4);
 #endif
 uint32_t const os_rrobin     = (OS_ROBIN << 16) | OS_ROBINTOUT;
+uint32_t const os_tickfreq   = OS_CLOCK;
+uint16_t const os_tickus_i   = OS_CLOCK/1000000;
+uint16_t const os_tickus_f   = (((uint64_t)(OS_CLOCK-1000000*(OS_CLOCK/1000000)))<<16)/1000000;
 uint32_t const os_trv        = OS_TRV;
 uint8_t  const os_flags      = OS_RUNPRIV;
 
 /* Export following defines to uVision debugger. */
+__USED uint32_t const CMSIS_RTOS_API_Version = osCMSIS;
+__USED uint32_t const CMSIS_RTOS_RTX_Version = osCMSIS_RTX;
 __USED uint32_t const os_clockrate = OS_TICK;
 __USED uint32_t const os_timernum  = 0;
 
@@ -257,7 +262,6 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1, 4*OS_
 #else
 osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1, 4*OS_MAINSTKSIZE };
 #endif
-
 
 #if defined (__CC_ARM)
 

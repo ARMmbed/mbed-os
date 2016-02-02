@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------------
  *      RL-ARM - RTX
  *----------------------------------------------------------------------------
- *      Name:    RT_HAL_CM.H
+ *      Name:    RT_HAL_CA.H
  *      Purpose: Hardware Abstraction Layer for Cortex-A definitions
- *      Rev.:    21 Aug 2013
+ *      Rev.:    14th Jan 2014
  *----------------------------------------------------------------------------
  *
  * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
@@ -167,6 +167,18 @@ __inline static U32 rt_inc_qi (U32 size, U8 *count, U8 *first) {
 __inline static void rt_systick_init (void) {
   /* Cortex-A doesn't have a Systick. User needs to provide an alternative timer using RTX_Conf_CM configuration */
   /* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c- */
+}
+
+__inline static U32 rt_systick_val (void) {
+  /* Cortex-A doesn't have a Systick. User needs to provide an alternative timer using RTX_Conf_CM configuration */
+  /* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c- */
+  return 0;
+}
+
+__inline static U32 rt_systick_ovf (void) {
+  /* Cortex-A doesn't have a Systick. User needs to provide an alternative timer using RTX_Conf_CM configuration */
+  /* HW initialization needs to be done in os_tick_init (void) -RTX_Conf_CM.c- */
+  return 0;
 }
 
 __inline static void rt_svc_init (void) {

@@ -1,18 +1,33 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file gpio_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
+
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "em_cmu.h"
@@ -40,7 +55,7 @@ int gpio_read(gpio_t *obj)
 
 int gpio_is_connected(const gpio_t *obj)
 {
-    return (obj->pin | 0xFFFFFF00 )!= (PinName)NC;
+    return ((uint32_t)obj->pin | 0xFFFFFF00 ) != (uint32_t)((PinName)NC);
 }
 
 /*
@@ -65,7 +80,10 @@ void gpio_init(gpio_t *obj, PinName pin)
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
-        if(obj->dir == PIN_INPUT) {
+    uint32_t pin = 1 << (obj->pin & 0xF);
+    uint32_t port = (obj->pin >> 4) & 0xF;
+
+    if(obj->dir == PIN_INPUT) {
         switch(mode) {
             case PullDefault:
                 mode = Input;
@@ -79,14 +97,22 @@ void gpio_mode(gpio_t *obj, PinMode mode)
             default:
                 break;
         }
-        
+
         //Handle DOUT setting
         if((mode & 0x10) != 0) {
             //Set DOUT
-            GPIO->P[(obj->pin >> 4) & 0xF].DOUTSET = 1 << (obj->pin & 0xF);
+#ifdef _GPIO_P_DOUTSET_MASK
+            GPIO->P[port].DOUTSET = pin;
+#else
+            GPIO->P[port].DOUT |= pin;
+#endif
         } else {
             //Clear DOUT
-            GPIO->P[(obj->pin >> 4) & 0xF].DOUTCLR = 1 << (obj->pin & 0xF);
+#ifdef _GPIO_P_DOUTCLR_MASK
+            GPIO->P[port].DOUTCLR = pin;
+#else
+            GPIO->P[port].DOUT &= ~pin;
+#endif
         }
     } else {
         switch(mode) {
@@ -103,7 +129,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
                 break;
         }
     }
-    
+
     obj->mode = mode; // Update object
     pin_mode(obj->pin, mode); // Update register
 }

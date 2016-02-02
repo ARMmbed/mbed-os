@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_i2c.h
  * @brief EFM32LG_I2C register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32LG_I2C
  * @{
@@ -697,5 +701,5 @@ typedef struct
 #define I2C_ROUTE_LOCATION_LOC6           (_I2C_ROUTE_LOCATION_LOC6 << 8)    /**< Shifted mode LOC6 for I2C_ROUTE */
 
 /** @} End of group EFM32LG_I2C */
-
+/** @} End of group Parts */
 

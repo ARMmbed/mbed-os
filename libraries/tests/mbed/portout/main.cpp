@@ -30,7 +30,26 @@
 #     define LED2       0 
 #     define LED3       0 
 #     define LED4       0
+# elif defined(TARGET_SAMD21J18A)
+#     define LED_PORT   PortB
+#     define LED1       (1 <<  30) /*PB30*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
+# elif defined(TARGET_SAMD21G18A)
+#     define LED_PORT   PortA
+#     define LED1       (1 <<  23) /*PA23*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
+# elif defined(TARGET_SAML21J18A)
+#     define LED_PORT   PortB
+#     define LED1       (1 <<  10) /*PB10*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
 # endif
+
 
 #define LED_MASK    (LED1|LED2|LED3|LED4)
 

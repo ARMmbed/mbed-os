@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   SAI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Serial Audio Interface (SAI) peripheral:
@@ -173,7 +173,8 @@
 
 #ifdef HAL_SAI_MODULE_ENABLED
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /** @defgroup SAI_Private_Typedefs  SAI Private Typedefs
@@ -420,7 +421,7 @@ HAL_StatusTypeDef HAL_SAI_Init(SAI_HandleTypeDef *hsai)
                             ((hsai->FrameInit.ActiveFrameLength - 1) << 8));  
   
   /* SAI Block_x SLOT Configuration ------------------------------------------*/
-  /* This register has no meaning in AC’97 and SPDIF audio protocol */
+  /* This register has no meaning in AC 97 and SPDIF audio protocol */
   hsai->Instance->SLOTR&= (~(SAI_xSLOTR_FBOFF | SAI_xSLOTR_SLOTSZ |            \
                              SAI_xSLOTR_NBSLOT | SAI_xSLOTR_SLOTEN ));
   
@@ -1603,7 +1604,7 @@ static uint32_t SAI_InterruptFlag(SAI_HandleTypeDef *hsai, uint32_t mode)
 }
 
 /**
-  * @brief  disabled the SAI and wait the disabling
+  * @brief  Disable the SAI and wait the disabling
   * @param  hsai : pointer to a SAI_HandleTypeDef structure that contains
   *                the configuration information for SAI module.
   * @retval None.
@@ -1895,7 +1896,7 @@ static void SAI_DMAError(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 #endif /* HAL_SAI_MODULE_ENABLED */
 /**
   * @}

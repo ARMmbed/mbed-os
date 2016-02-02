@@ -1,25 +1,49 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file dma_api.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
 
 #include <stdint.h>
 #include "dma_api_HAL.h"
-#include "em_dma.h"
+#include "em_device.h"
 #include "em_cmu.h"
+#include "em_int.h"
+
+#ifdef DMA_PRESENT
+#include "em_dma.h"
+#endif
+
+#ifdef LDMA_PRESENT
+#include "em_ldma.h"
+#endif
 
 /** DMA control block array, requires proper alignment. */
+#ifdef DMA_PRESENT
 #if defined (__ICCARM__)
 #pragma data_alignment=DMACTRL_ALIGNMENT
 DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2];
@@ -33,6 +57,7 @@ DMA_DESCRIPTOR_TypeDef dmaControlBlock[DMACTRL_CH_CNT * 2] __attribute__ ((align
 #else
 #error Undefined toolkit, need to define alignment
 #endif
+#endif /* DMA_PRESENT */
 
 uint32_t channels = 0; // Bit vector of taken channels
 bool enabled = false;
@@ -40,15 +65,32 @@ bool enabled = false;
 void dma_init(void)
 {
     if (enabled) return;
+
+#if defined DMA_PRESENT
+    CMU_ClockEnable(cmuClock_DMA, true);
+    CMU_ClockEnable(cmuClock_HFPER, true); // FIXME: DMA is clocked via HFCORECLK, why HFPERCLK?
+
     DMA_Init_TypeDef   dmaInit;
 
-    CMU_ClockEnable(cmuClock_DMA, true);
-    CMU_ClockEnable(cmuClock_HFPER, true);
-
-    /* Configure general DMA issues */
     dmaInit.hprot        = 0;
     dmaInit.controlBlock = dmaControlBlock;
     DMA_Init(&dmaInit);
+
+#elif defined LDMA_PRESENT
+    CMU_ClockEnable(cmuClock_LDMA, true);
+
+    LDMA_Init_t ldmaInit;
+
+    ldmaInit.ldmaInitCtrlNumFixed = 0;     /* All channels round-robin */
+    ldmaInit.ldmaInitCtrlSyncPrsClrEn = 0; /* Do not allow PRS to clear SYNCTRIG */
+    ldmaInit.ldmaInitCtrlSyncPrsSetEn = 0; /* Do not allow PRS to set SYNCTRIG */
+    ldmaInit.ldmaInitIrqPriority = 2;      /* IRQ Priority */
+
+    LDMA_Init(&ldmaInit);
+#else
+#error "Unrecognized DMA peripheral"
+#endif
+
     enabled = true;
 }
 
@@ -83,7 +125,87 @@ int dma_channel_allocate(uint32_t capabilities)
 
 int dma_channel_free(int channelid)
 {
-    channels &= ~(1 << channelid);
+    if( channelid >= 0 ) {
+        channels &= ~(1 << channelid);
+    }
+
     return 0;
 }
 
+#ifdef LDMA_PRESENT
+
+/* LDMA emlib API extensions */
+
+typedef struct {
+    LDMAx_CBFunc_t callback;
+    void *userdata;
+} LDMA_InternCallback_t;
+
+static LDMA_InternCallback_t ldmaCallback[DMA_CHAN_COUNT];
+
+void LDMAx_StartTransfer(  int ch,
+                           LDMA_TransferCfg_t *transfer,
+                           LDMA_Descriptor_t  *descriptor,
+                           LDMAx_CBFunc_t cbFunc,
+                           void *userData )
+{
+    ldmaCallback[ch].callback = cbFunc;
+    ldmaCallback[ch].userdata = userData;
+
+    LDMA_StartTransfer(ch, transfer, descriptor);
+}
+
+void LDMA_IRQHandler( void )
+{
+    uint32_t pending, chnum, chmask;
+
+    /* Get all pending and enabled interrupts */
+    pending  = LDMA->IF;
+    pending &= LDMA->IEN;
+
+    /* Check for LDMA error */
+    if ( pending & LDMA_IF_ERROR )
+    {
+        /* Loop here to enable the debugger to see what has happened */
+        while (1)
+            ;
+    }
+
+    /* Iterate over all LDMA channels. */
+    for ( chnum = 0,                chmask = 1;
+          chnum < DMA_CHAN_COUNT;
+          chnum++,                  chmask <<= 1 )
+    {
+        if ( pending & chmask )
+        {
+            /* Clear interrupt flag. */
+            LDMA->IFC = chmask;
+
+            /* Do more stuff here, execute callbacks etc. */
+            if ( ldmaCallback[chnum].callback )
+            {
+                ldmaCallback[chnum].callback(chnum, false, ldmaCallback[chnum].userdata);
+            }
+        }
+    }
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Check if LDMA channel is enabled.
+ *
+ * @param[in] ch
+ *   LDMA channel to check.
+ *
+ * @return
+ *   true if channel is enabled, false if not.
+ ******************************************************************************/
+bool LDMAx_ChannelEnabled( int ch )
+{
+    EFM_ASSERT(ch < DMA_CHAN_COUNT);
+    uint32_t chMask = 1 << ch;
+    return (bool)(LDMA->CHEN & chMask);
+    INT_Disable();
+}
+
+#endif /* LDMA_PRESENT */

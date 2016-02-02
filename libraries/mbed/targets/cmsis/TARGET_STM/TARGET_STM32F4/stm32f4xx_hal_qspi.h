@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_qspi.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of QSPI HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -777,7 +777,7 @@ void                  HAL_QSPI_SetTimeout(QSPI_HandleTypeDef *hqspi, uint32_t Ti
 /**
   * @}
   */
-#endif /* STM32F446xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx  */
 
 #ifdef __cplusplus
 }

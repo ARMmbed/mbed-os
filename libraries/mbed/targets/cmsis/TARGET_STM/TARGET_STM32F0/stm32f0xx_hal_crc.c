@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   CRC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
@@ -16,7 +16,7 @@
             ##### How to use this driver #####
  ===============================================================================
     [..]
-         (#) Enable CRC AHB clock using __CRC_CLK_ENABLE();
+         (#) Enable CRC AHB clock using __HAL_RCC_CRC_CLK_ENABLE();
          (#) Initialize CRC calculator
              (++)specify generating polynomial (IP default or non-default one)
              (++)specify initialization value (IP default or non-default one)
@@ -33,7 +33,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -67,7 +67,7 @@
   * @{
   */
 
-/** @defgroup CRC CRC HAL module driver 
+/** @defgroup CRC CRC 
   * @brief CRC HAL module driver.
   * @{
   */
@@ -130,6 +130,8 @@ HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
 
   if(hcrc->State == HAL_CRC_STATE_RESET)
   {   
+    /* Allocate lock resource and initialize it */
+    hcrc->Lock = HAL_UNLOCKED;
     /* Init the low level hardware */
     HAL_CRC_MspInit(hcrc);
   }

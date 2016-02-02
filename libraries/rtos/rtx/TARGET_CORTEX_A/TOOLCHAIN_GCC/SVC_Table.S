@@ -34,23 +34,20 @@
 
 
                 .section    SVC_TABLE @, CODE, READONLY
-                .align  5
 
                 .global  SVC_Count
 
 .EQU    SVC_Cnt,        (SVC_End-SVC_Table)/4
-
-SVC_Count:
-                .word   SVC_Cnt
+SVC_Count:      .word   SVC_Cnt
 
 @ Import user SVC functions here.
 @                .extern __SVC_1
+
                 .global SVC_Table
 SVC_Table:
 @ Insert user SVC functions here. SVC 0 used by RTL Kernel.
 @                .word   __SVC_1                 @ InitMemorySubsystem
 
-@SVC_End
 SVC_End:
 
                 .END

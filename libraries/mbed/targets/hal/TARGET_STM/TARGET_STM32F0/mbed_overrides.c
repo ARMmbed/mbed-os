@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,13 +28,11 @@
 #include "cmsis.h"
 
 // This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
+void mbed_sdk_init() {
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
 
-#if defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC)
     // Need to restart HAL driver after the RAM is initialized
     HAL_Init();
-#endif
+
 }

@@ -1,18 +1,32 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+/***************************************************************************//**
+ * @file analogout_aoi.c
+ *******************************************************************************
+ * @section License
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+ * DISCLAIMER OF WARRANTY/LIMITATION OF REMEDIES: Silicon Labs has no
+ * obligation to support this Software. Silicon Labs is providing the
+ * Software "AS IS", with no express or implied warranties of any kind,
+ * including, but not limited to, any implied warranties of merchantability
+ * or fitness for any particular purpose or warranties against infringement
+ * of any proprietary rights of a third party.
+ *
+ * Silicon Labs will not be liable for any consequential, incidental, or
+ * special damages, or any other relief, or for any claim by any third party,
+ * arising from your use of this Software.
+ *
+ ******************************************************************************/
 
 #include "device.h"
 #if DEVICE_ANALOGOUT
@@ -28,26 +42,18 @@
 #include "em_dac.h"
 #include "em_cmu.h"
 
-uint8_t analogout_get_index(dac_t *obj)
-{
-    return 0;
-}
+static uint8_t dac_initialized = 0;
 
-void analogout_preinit(dac_t *obj, PinName pin)
+void analogout_init(dac_t *obj, PinName pin)
 {
+    /* init in-memory structure */
     obj->dac = (DAC_TypeDef *) pinmap_peripheral(pin, PinMap_DAC);
     MBED_ASSERT((int) obj->dac != NC);
 
     obj->channel = pin_location(pin, PinMap_DAC);
     MBED_ASSERT((int) obj->channel != NC);
-}
-
-void analogout_init(dac_t *obj, PinName pin)
-{
-    static uint8_t dac_initialized = 0;
-
-    /* init in-memory structure */
-    analogout_preinit(obj, pin);
+    
+    pin_mode(pin, Disabled);
 
     if (!dac_initialized) {
         /* Initialize the DAC. Will disable both DAC channels, so should only be done once */
@@ -69,19 +75,22 @@ void analogout_init(dac_t *obj, PinName pin)
     }
     /* Use default channel settings */
     DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+    initChannel.enable = true;
     DAC_InitChannel(obj->dac, &initChannel, obj->channel);
-
-
 }
 
-void analogout_enable(dac_t *obj, uint8_t enable)
+void analogout_free(dac_t *obj)
 {
-    DAC_Enable(obj->dac, obj->channel, enable);
-}
-
-void analogout_pins_enable(dac_t *obj, uint8_t enable)
-{
-    //not avail for EFM32
+    //Reset channel by re-initializing
+    DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+    initChannel.enable = false;
+    DAC_InitChannel(obj->dac, &initChannel, obj->channel);
+    
+    //Check all channels to see if we can disable the DAC completely
+    if((DAC0->CH0CTRL & DAC_CH0CTRL_EN) == 0 && (DAC0->CH1CTRL & DAC_CH1CTRL_EN) == 0) {
+        CMU_ClockEnable(cmuClock_DAC0, false);
+        dac_initialized = 0;
+    }
 }
 
 static inline void dac_write(dac_t *obj, int value)

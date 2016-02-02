@@ -89,14 +89,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     // halt and clear the counter
     pwm->CTRL |= (1 << 2) | (1 << 3);
     
-    // System Clock -> us_ticker (1)MHz
-    pwm->CTRL &= ~(0x7F << 5);
-    pwm->CTRL |= (((SystemCoreClock/1000000 - 1) & 0x7F) << 5);
-    
-    // Match reload register
-    pwm->MATCHREL0 = 20000; // 20ms
-    pwm->MATCHREL1 = (pwm->MATCHREL0 / 4); // 50% duty
-    
     pwm->OUT0_SET = (1 << 0); // event 0
     pwm->OUT0_CLR = (1 << 1); // event 1
 
@@ -104,10 +96,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     pwm->EV0_STATE = 0xFFFFFFFF;
     pwm->EV1_CTRL  = (1 << 12) | (1 << 0);
     pwm->EV1_STATE = 0xFFFFFFFF;
-
-    // unhalt the counter:
-    //    - clearing bit 2 of the CTRL register
-    pwm->CTRL &= ~(1 << 2);
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
@@ -127,13 +115,19 @@ void pwmout_write(pwmout_t* obj, float value) {
     } else if (value > 1.0f) {
         value = 1.0;
     }
-    uint32_t t_on = (uint32_t)((float)(pwm->MATCHREL0) * value);
-    pwm->MATCHREL1 = t_on;
+    uint32_t t_on = (uint32_t)((float)(pwm->MATCHREL0 + 1) * value);
+    if (t_on > 0) {
+        pwm->MATCHREL1 = t_on - 1;
+        pwm->CTRL &= ~(1 << 2);
+    } else {
+        pwm->CTRL |= (1 << 2) | (1 << 3);
+        pwm->OUTPUT = 0x00000000;
+    }
 }
 
 float pwmout_read(pwmout_t* obj) {
-    uint32_t t_off = obj->pwm->MATCHREL0;
-    uint32_t t_on  = obj->pwm->MATCHREL1;
+    uint32_t t_off = obj->pwm->MATCHREL0 + 1;
+    uint32_t t_on  = obj->pwm->MATCHREL1 + 1;
     float v = (float)t_on/(float)t_off;
     return (v > 1.0f) ? (1.0f) : (v);
 }
@@ -149,11 +143,19 @@ void pwmout_period_ms(pwmout_t* obj, int ms) {
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us) {
     LPC_SCT0_Type* pwm = obj->pwm;
-    uint32_t t_off = pwm->MATCHREL0;
-    uint32_t t_on  = pwm->MATCHREL1;
+    uint32_t t_off = pwm->MATCHREL0 + 1;
+    uint32_t t_on  = pwm->MATCHREL1 + 1;
     float v = (float)t_on/(float)t_off;
-    pwm->MATCHREL0 = (uint32_t)us;
-    pwm->MATCHREL1 = (uint32_t)((float)us * (float)v);
+    uint32_t period_ticks = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000);
+    uint32_t pulsewidth_ticks = period_ticks * v;
+    pwm->MATCHREL0 = period_ticks - 1;
+    if (pulsewidth_ticks > 0) {
+        pwm->MATCHREL1 = pulsewidth_ticks - 1;
+        pwm->CTRL &= ~(1 << 2);
+    } else {
+        pwm->CTRL |= (1 << 2) | (1 << 3);
+        pwm->OUTPUT = 0x00000000;
+    }
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds) {
@@ -165,6 +167,13 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms) {
 }
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-    obj->pwm->MATCHREL1 = (uint32_t)us;
+    LPC_SCT0_Type* pwm = obj->pwm;
+    if (us > 0) {
+        pwm->MATCHREL1 = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000) - 1;
+        pwm->CTRL &= ~(1 << 2);
+    } else {
+        pwm->CTRL |= (1 << 2) | (1 << 3);
+        pwm->OUTPUT = 0x00000000;
+    }
 }
 

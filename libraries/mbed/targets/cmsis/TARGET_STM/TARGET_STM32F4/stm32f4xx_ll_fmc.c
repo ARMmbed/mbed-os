@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fmc.c
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   FMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -87,7 +87,7 @@
 
 #if defined (HAL_SRAM_MODULE_ENABLED) || defined(HAL_NOR_MODULE_ENABLED) || defined(HAL_NAND_MODULE_ENABLED) || defined(HAL_PCCARD_MODULE_ENABLED) || defined(HAL_SDRAM_MODULE_ENABLED)
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -160,9 +160,9 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
   assert_param(IS_FMC_NORSRAM_MEMORY_WIDTH(Init->MemoryDataWidth));
   assert_param(IS_FMC_BURSTMODE(Init->BurstAccessMode));
   assert_param(IS_FMC_WAIT_POLARITY(Init->WaitSignalPolarity));
-#if !defined (STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
   assert_param(IS_FMC_WRAP_MODE(Init->WrapMode));
-#endif /* !defined (STM32F446xx) */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
   assert_param(IS_FMC_WAIT_SIGNAL_ACTIVE(Init->WaitSignalActive));
   assert_param(IS_FMC_WRITE_OPERATION(Init->WriteOperation));
   assert_param(IS_FMC_WAITE_SIGNAL(Init->WaitSignal));
@@ -170,10 +170,10 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
   assert_param(IS_FMC_ASYNWAIT(Init->AsynchronousWait));
   assert_param(IS_FMC_WRITE_BURST(Init->WriteBurst));
   assert_param(IS_FMC_CONTINOUS_CLOCK(Init->ContinuousClock));
-#if defined (STM32F446xx)
+#if defined (STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
   assert_param(IS_FMC_WRITE_FIFO(Init->WriteFifo));
   assert_param(IS_FMC_PAGESIZE(Init->PageSize));
-#endif /* defined (STM32F446xx) */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
 
   /* Get the BTCR register value */
   tmpr = Device->BTCR[Init->NSBank];
@@ -201,7 +201,7 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
                     Init->AsynchronousWait     |\
                     Init->WriteBurst           |\
                     Init->ContinuousClock);
-#else /* defined(STM32F446xx) */
+#else /* defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) */
   /* Clear MBKEN, MUXEN, MTYP, MWID, FACCEN, BURSTEN, WAITPOL, CPSIZE, WAITCFG, WREN,
            WAITEN, EXTMOD, ASYNCWAIT, CBURSTRW, CCLKEN and WFDIS bits */
   tmpr &= ((uint32_t)~(FMC_BCR1_MBKEN     | FMC_BCR1_MUXEN    | FMC_BCR1_MTYP     | \
@@ -243,12 +243,12 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
                                                   Init->ContinuousClock);              
   }
 
-#if defined(STM32F446xx)  
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
   if(Init->NSBank != FMC_NORSRAM_BANK1)
   {
     Device->BTCR[FMC_NORSRAM_BANK1] |= (uint32_t)(Init->WriteFifo);              
   }
-#endif /* defined(STM32F446xx) */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
   
   return HAL_OK;
 }
@@ -365,10 +365,10 @@ HAL_StatusTypeDef  FMC_NORSRAM_Extended_Timing_Init(FMC_NORSRAM_EXTENDED_TypeDef
     assert_param(IS_FMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
     assert_param(IS_FMC_DATASETUP_TIME(Timing->DataSetupTime));
     assert_param(IS_FMC_TURNAROUND_TIME(Timing->BusTurnAroundDuration));
-#if !defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
     assert_param(IS_FMC_CLK_DIV(Timing->CLKDivision));
     assert_param(IS_FMC_DATA_LATENCY(Timing->DataLatency));
-#endif /* !defined(STM32F446xx) */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
     assert_param(IS_FMC_ACCESS_MODE(Timing->AccessMode));
     assert_param(IS_FMC_NORSRAM_BANK(Bank));  
     
@@ -388,7 +388,7 @@ HAL_StatusTypeDef  FMC_NORSRAM_Extended_Timing_Init(FMC_NORSRAM_EXTENDED_TypeDef
                       (((Timing->CLKDivision)-1) << 20)         |\
                       (((Timing->DataLatency)-2) << 24)         |\
                       (Timing->AccessMode));
-#else /* defined(STM32F446xx) */
+#else /* defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) */
     /* Clear ADDSET, ADDHLD, DATAST, BUSTURN and ACCMOD bits */
     tmpr &= ((uint32_t)~(FMC_BWTR1_ADDSET  | FMC_BWTR1_ADDHLD | FMC_BWTR1_DATAST | \
                          FMC_BWTR1_BUSTURN | FMC_BWTR1_ACCMOD));
@@ -496,7 +496,7 @@ HAL_StatusTypeDef FMC_NORSRAM_WriteOperation_Disable(FMC_NORSRAM_TypeDef *Device
   * @{
   */
  
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /** @defgroup HAL_FMC_NAND_Group1 Initialization/de-initialization functions 
  *  @brief    Initialization and Configuration functions 
  *
@@ -1108,7 +1108,7 @@ HAL_StatusTypeDef FMC_NAND_GetECC(FMC_NAND_TypeDef *Device, uint32_t *ECCval, ui
   * @}
   */
 
-#endif /* defined(STM32F446xx) */
+#endif /* defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) */
 /**
   * @}
   */
@@ -1635,16 +1635,16 @@ HAL_StatusTypeDef FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_Com
       {
         return HAL_TIMEOUT;
       }
-    }     
+    }
   }
-  
-  return HAL_OK;  
+
+  return HAL_OK;
 }
 
 /**
   * @brief  Program the SDRAM Memory Refresh rate.
   * @param  Device: Pointer to SDRAM device instance  
-  * @param  RefreshRate: The SDRAM refresh rate value.       
+  * @param  RefreshRate: The SDRAM refresh rate value.
   * @retval HAL state
   */
 HAL_StatusTypeDef FMC_SDRAM_ProgramRefreshRate(FMC_SDRAM_TypeDef *Device, uint32_t RefreshRate)
@@ -1719,7 +1719,7 @@ uint32_t FMC_SDRAM_GetModeStatus(FMC_SDRAM_TypeDef *Device, uint32_t Bank)
 /**
   * @}
   */
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 #endif /* HAL_SRAM_MODULE_ENABLED || HAL_NOR_MODULE_ENABLED || HAL_NAND_MODULE_ENABLED || HAL_PCCARD_MODULE_ENABLED || HAL_SDRAM_MODULE_ENABLED */
 
 /**

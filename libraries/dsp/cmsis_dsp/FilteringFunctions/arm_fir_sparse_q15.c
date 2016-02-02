@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_fir_sparse_q15.c    
@@ -169,7 +169,7 @@ void arm_fir_sparse_q15(
   }
 
   /* Loop over the number of taps. */
-  tapCnt = (uint32_t) numTaps - 1u;
+  tapCnt = (uint32_t) numTaps - 2u;
 
   while(tapCnt > 0u)
   {
@@ -231,6 +231,50 @@ void arm_fir_sparse_q15(
     /* Decrement the tap loop counter */
     tapCnt--;
   }
+	
+	/* Compute last tap without the final read of pTapDelay */		
+
+	/* Working pointer for state buffer is updated */
+	py = pState;
+
+	/* blockSize samples are read from the state buffer */
+	arm_circularRead_q15(py, delaySize, &readIndex, 1,
+											 pb, pb, blockSize, 1, blockSize);
+
+	/* Working pointer for the scratch buffer of state values */
+	px = pb;
+
+	/* Working pointer for scratch buffer of output values */
+	pScratchOut = pScr2;
+
+	/* Loop over the blockSize. Unroll by a factor of 4.    
+	 * Compute 4 MACS at a time. */
+	blkCnt = blockSize >> 2;
+
+	while(blkCnt > 0u)
+	{
+		/* Perform Multiply-Accumulate */
+		*pScratchOut++ += (q31_t) * px++ * coeff;
+		*pScratchOut++ += (q31_t) * px++ * coeff;
+		*pScratchOut++ += (q31_t) * px++ * coeff;
+		*pScratchOut++ += (q31_t) * px++ * coeff;
+
+		/* Decrement the loop counter */
+		blkCnt--;
+	}
+
+	/* If the blockSize is not a multiple of 4,    
+	 * compute the remaining samples */
+	blkCnt = blockSize % 0x4u;
+
+	while(blkCnt > 0u)
+	{
+		/* Perform Multiply-Accumulate */
+		*pScratchOut++ += (q31_t) * px++ * coeff;
+
+		/* Decrement the loop counter */
+		blkCnt--;
+	}
 
   /* All the output values are in pScratchOut buffer.    
      Convert them into 1.15 format, saturate and store in the destination buffer. */
@@ -346,7 +390,7 @@ void arm_fir_sparse_q15(
   }
 
   /* Loop over the number of taps. */
-  tapCnt = (uint32_t) numTaps - 1u;
+  tapCnt = (uint32_t) numTaps - 2u;
 
   while(tapCnt > 0u)
   {
@@ -390,6 +434,32 @@ void arm_fir_sparse_q15(
     /* Decrement the tap loop counter */
     tapCnt--;
   }
+	
+	/* Compute last tap without the final read of pTapDelay */	
+	
+	/* Working pointer for state buffer is updated */
+	py = pState;
+
+	/* blockSize samples are read from the state buffer */
+	arm_circularRead_q15(py, delaySize, &readIndex, 1,
+											 pb, pb, blockSize, 1, blockSize);
+
+	/* Working pointer for the scratch buffer of state values */
+	px = pb;
+
+	/* Working pointer for scratch buffer of output values */
+	pScratchOut = pScr2;
+
+	blkCnt = blockSize;
+
+	while(blkCnt > 0u)
+	{
+		/* Perform Multiply-Accumulate */
+		*pScratchOut++ += (q31_t) * px++ * coeff;
+
+		/* Decrement the loop counter */
+		blkCnt--;
+	}
 
   /* All the output values are in pScratchOut buffer.       
      Convert them into 1.15 format, saturate and store in the destination buffer. */

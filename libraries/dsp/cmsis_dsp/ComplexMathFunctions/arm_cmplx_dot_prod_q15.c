@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_cmplx_dot_prod_q15.c    
@@ -75,6 +75,7 @@ void arm_cmplx_dot_prod_q15(
   q31_t * imagResult)
 {
   q63_t real_sum = 0, imag_sum = 0;              /* Temporary result storage */
+  q15_t a0,b0,c0,d0;
 
 #ifndef ARM_MATH_CM0_FAMILY
 
@@ -89,23 +90,48 @@ void arm_cmplx_dot_prod_q15(
    ** a second loop below computes the remaining 1 to 3 samples. */
   while(blkCnt > 0u)
   {
-    /* CReal = A[0]* B[0] + A[2]* B[2] + A[4]* B[4] + .....+ A[numSamples-2]* B[numSamples-2] */
-    real_sum += ((q31_t) * pSrcA++ * *pSrcB++);
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += (q31_t)a0 * c0;
+      imag_sum += (q31_t)a0 * d0;
+      real_sum -= (q31_t)b0 * d0;
+      imag_sum += (q31_t)b0 * c0;
+      
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += (q31_t)a0 * c0;
+      imag_sum += (q31_t)a0 * d0;
+      real_sum -= (q31_t)b0 * d0;
+      imag_sum += (q31_t)b0 * c0;
+      
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += (q31_t)a0 * c0;
+      imag_sum += (q31_t)a0 * d0;
+      real_sum -= (q31_t)b0 * d0;
+      imag_sum += (q31_t)b0 * c0;
+      
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += (q31_t)a0 * c0;
+      imag_sum += (q31_t)a0 * d0;
+      real_sum -= (q31_t)b0 * d0;
+      imag_sum += (q31_t)b0 * c0;
 
-    /* CImag = A[1]* B[1] + A[3]* B[3] + A[5]* B[5] + .....+ A[numSamples-1]* B[numSamples-1] */
-    imag_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-
-    real_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-    imag_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-
-    real_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-    imag_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-
-    real_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-    imag_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-
-    /* Decrement the loop counter */
-    blkCnt--;
+      /* Decrement the loop counter */
+      blkCnt--;
   }
 
   /* If the numSamples is not a multiple of 4, compute any remaining output samples here.    
@@ -114,13 +140,18 @@ void arm_cmplx_dot_prod_q15(
 
   while(blkCnt > 0u)
   {
-    /* CReal = A[0]* B[0] + A[2]* B[2] + A[4]* B[4] + .....+ A[numSamples-2]* B[numSamples-2] */
-    real_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-    /* CImag = A[1]* B[1] + A[3]* B[3] + A[5]* B[5] + .....+ A[numSamples-1]* B[numSamples-1] */
-    imag_sum += ((q31_t) * pSrcA++ * *pSrcB++);
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += (q31_t)a0 * c0;
+      imag_sum += (q31_t)a0 * d0;
+      real_sum -= (q31_t)b0 * d0;
+      imag_sum += (q31_t)b0 * c0;
 
-    /* Decrement the loop counter */
-    blkCnt--;
+      /* Decrement the loop counter */
+      blkCnt--;
   }
 
 #else
@@ -129,22 +160,28 @@ void arm_cmplx_dot_prod_q15(
 
   while(numSamples > 0u)
   {
-    /* CReal = A[0]* B[0] + A[2]* B[2] + A[4]* B[4] + .....+ A[numSamples-2]* B[numSamples-2] */
-    real_sum += ((q31_t) * pSrcA++ * *pSrcB++);
-    /* CImag = A[1]* B[1] + A[3]* B[3] + A[5]* B[5] + .....+ A[numSamples-1]* B[numSamples-1] */
-    imag_sum += ((q31_t) * pSrcA++ * *pSrcB++);
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += a0 * c0;
+      imag_sum += a0 * d0;
+      real_sum -= b0 * d0;
+      imag_sum += b0 * c0;
 
-    /* Decrement the loop counter */
-    numSamples--;
+
+      /* Decrement the loop counter */
+      numSamples--;
   }
 
 #endif /* #ifndef ARM_MATH_CM0_FAMILY */
 
   /* Store the real and imaginary results in 8.24 format  */
   /* Convert real data in 34.30 to 8.24 by 6 right shifts */
-  *realResult = (q31_t) (real_sum) >> 6;
+  *realResult = (q31_t) (real_sum >> 6);
   /* Convert imaginary data in 34.30 to 8.24 by 6 right shifts */
-  *imagResult = (q31_t) (imag_sum) >> 6;
+  *imagResult = (q31_t) (imag_sum >> 6);
 }
 
 /**    
