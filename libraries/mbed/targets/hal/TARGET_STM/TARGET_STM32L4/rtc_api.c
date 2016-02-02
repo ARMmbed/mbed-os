@@ -33,8 +33,6 @@
 
 #include "mbed_error.h"
 
-static int rtc_inited = 0;
-
 static RTC_HandleTypeDef RtcHandle;
 
 void rtc_init(void)
@@ -42,9 +40,6 @@ void rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
     uint32_t rtc_freq = 0;
-
-    if (rtc_inited) return;
-    rtc_inited = 1;
 
     RtcHandle.Instance = RTC;
 
@@ -128,13 +123,15 @@ void rtc_free(void)
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
-    rtc_inited = 0;
 }
 
 int rtc_isenabled(void)
 {
-    return rtc_inited;
+    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS){
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /*
