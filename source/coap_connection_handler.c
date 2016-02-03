@@ -211,6 +211,7 @@ static void int_socket_delete(internal_socket_t *this)
         this->usage_counter--;
         if(this->usage_counter == 0){
             clear_secure_sessions(this);
+            socket_free(this->listen_socket);
             ns_list_remove(&socket_list, this);
             if( this->data ){
                 ns_dyn_mem_free(this->data);
