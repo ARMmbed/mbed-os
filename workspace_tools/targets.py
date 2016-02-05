@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2015 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@ limitations under the License.
 """
 
 CORE_LABELS = {
-    "ARM7TDMI-S": ["ARM7", "TARGET_LIKE_CORTEX_ARM7"],
-    "Cortex-M0" : ["M0", "CORTEX_M", "TARGET_LIKE_CORTEX_M0"],
-    "Cortex-M0+": ["M0P", "CORTEX_M", "TARGET_LIKE_CORTEX_M0"],
-    "Cortex-M1" : ["M1", "CORTEX_M", "TARGET_LIKE_CORTEX_M1"],
-    "Cortex-M3" : ["M3", "CORTEX_M", "TARGET_LIKE_CORTEX_M3"],
-    "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7", "TARGET_LIKE_CORTEX_M4"],
-    "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7", "TARGET_LIKE_CORTEX_M4"],
-    "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7", "TARGET_LIKE_CORTEX_M7"],
-    "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7", "TARGET_LIKE_CORTEX_M7"],
-    "Cortex-A9" : ["A9", "CORTEX_A", "TARGET_LIKE_CORTEX_A9"]
+    "ARM7TDMI-S": ["ARM7", "LIKE_CORTEX_ARM7"],
+    "Cortex-M0" : ["M0", "CORTEX_M", "LIKE_CORTEX_M0"],
+    "Cortex-M0+": ["M0P", "CORTEX_M", "LIKE_CORTEX_M0"],
+    "Cortex-M1" : ["M1", "CORTEX_M", "LIKE_CORTEX_M1"],
+    "Cortex-M3" : ["M3", "CORTEX_M", "LIKE_CORTEX_M3"],
+    "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
+    "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
+    "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
+    "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
+    "Cortex-A9" : ["A9", "CORTEX_A", "LIKE_CORTEX_A9"]
 }
 
 import os
