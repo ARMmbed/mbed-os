@@ -35,6 +35,7 @@ bool test_coap_service_initialize()
     if( -1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
         return false;
 
+
     nsdynmemlib_stub.returnCounter = 1;
     thread_conn_handler_stub.handler_obj = NULL;
     if( -1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
@@ -42,8 +43,17 @@ bool test_coap_service_initialize()
 
     thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
     memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
-    nsdynmemlib_stub.returnCounter = 1;
     coap_message_handler_stub.coap_ptr = NULL;
+
+    nsdynmemlib_stub.returnCounter = 1;
+    thread_conn_handler_stub.int_value = -1;
+    if( -1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
+            return false;
+
+    thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
+    memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
+    nsdynmemlib_stub.returnCounter = 1;
+    thread_conn_handler_stub.int_value = 0;
 
     if( 1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
         return false;
@@ -173,6 +183,7 @@ bool test_coap_service_unregister_uri()
     memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
     nsdynmemlib_stub.returnCounter = 1;
     coap_message_handler_stub.coap_ptr = NULL;
+    thread_conn_handler_stub.int_value = 0;
 
     if( 1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
         return false;

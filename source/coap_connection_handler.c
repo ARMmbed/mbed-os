@@ -193,6 +193,11 @@ static internal_socket_t *int_socket_create(uint16_t listen_port, bool use_ephem
         }else{
             this->listen_socket = socket_open(SOCKET_UDP, listen_port, secure_recv_sckt_msg);
         }
+        // Socket create failed
+        if(this->listen_socket < 0){
+            ns_dyn_mem_free(this);
+            return NULL;
+        }
         // XXX API for this? May want to get clever to do recommended first query = 1 hop, retries = whole PAN
         socket_setsockopt(this->listen_socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_MULTICAST_HOPS, &(const int16_t) {
             16
