@@ -60,10 +60,8 @@ static int coap_security_handler_init(coap_security_t *sec){
 
     sec->_is_started = false;
 
-    //TODO: Must have at least 1 strong entropy source, otherwise DTLS will fail.
-    //This is NOT strong even we say it is!
     if( mbedtls_entropy_add_source( &sec->_entropy, entropy_poll, NULL,
-                                128, 1 ) < 0 ){
+                                128, 0 ) < 0 ){
         return -1;
     }
 
