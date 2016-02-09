@@ -66,7 +66,7 @@ static void pwmout_set_period(pwmout_t* obj, int period_us)
         us_per_cycle = 1000000.00 / div_freq;
         max_period = us_per_cycle * count_max;
         if (max_period >= us_period) {
-            obj->clock_prescaler = tcc_prescaler[i];
+            obj->clock_prescaler = (enum tc_clock_prescaler)tcc_prescaler[i];
             obj->period = us_period / us_per_cycle;
             obj->us_per_cycle = us_per_cycle;
             break;
@@ -81,12 +81,12 @@ static void pwmout_set_period(pwmout_t* obj, int period_us)
  */
 bool pwmout_init_hw(pwmout_t* obj)
 {
-    uint32_t mux_func = NC;
-    uint32_t pwm = NC;
+    uint32_t mux_func = (uint32_t)NC;
+    uint32_t pwm = (uint32_t)NC;
     PinName pin;
-    uint32_t ch_index = NC;
+    uint32_t ch_index = (uint32_t)NC;
     struct tcc_config config_tcc;
-    uint32_t tcc_channel = NC;
+    uint32_t tcc_channel = (uint32_t)NC;
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);
@@ -96,7 +96,7 @@ bool pwmout_init_hw(pwmout_t* obj)
     if (pwm == (uint32_t)NC) return 0; /* Pin not supported */
 
     mux_func = pinmap_function(pin, PinMap_PWM);
-    ch_index = pinmap_channel_pwm(pin, pwm);
+    ch_index = pinmap_channel_pwm(pin, (PWMName) pwm);
     if ((mux_func == (uint32_t)NC) || (ch_index == (uint32_t)NC)) {
         /* Pin not supported */
         return 0;
@@ -114,7 +114,7 @@ bool pwmout_init_hw(pwmout_t* obj)
     tcc_get_config_defaults(&config_tcc, (Tcc*)pwm);
 
     config_tcc.counter.clock_source = obj->clock_source;
-    config_tcc.counter.clock_prescaler = obj->clock_prescaler;
+    config_tcc.counter.clock_prescaler = (enum tcc_clock_prescaler)obj->clock_prescaler;
 
     config_tcc.counter.period = obj->period;
     config_tcc.compare.wave_generation = TCC_WAVE_GENERATION_SINGLE_SLOPE_PWM;
@@ -147,7 +147,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->period = 0xFFFF;
     obj->duty_cycle = 1;
     obj->clock_source = GCLK_GENERATOR_0; /* 8Mhz input clock */
-    obj->clock_prescaler = TCC_CLOCK_PRESCALER_DIV8; /* Default to 1MHz for 8Mhz input clock */
+    obj->clock_prescaler = (enum tc_clock_prescaler)TCC_CLOCK_PRESCALER_DIV8; /* Default to 1MHz for 8Mhz input clock */
 
     /* Update the changes */
     if (pwmout_init_hw(obj)) {
