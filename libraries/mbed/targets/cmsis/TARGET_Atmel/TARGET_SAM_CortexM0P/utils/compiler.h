@@ -139,13 +139,14 @@
 #endif
 
 /* Define WEAK attribute */
-#if defined   ( __CC_ARM   )
-#   define WEAK __attribute__ ((weak))
-#elif defined ( __ICCARM__ )
-#   define WEAK __weak
-#elif defined (  __GNUC__  )
-#   define WEAK __attribute__ ((weak))
-#endif
+//defined in toochain.h
+//#if defined   ( __CC_ARM   )
+//#   define WEAK __attribute__ ((weak))
+//#elif defined ( __ICCARM__ )
+//#   define WEAK __weak
+//#elif defined (  __GNUC__  )
+//#   define WEAK __attribute__ ((weak))
+//#endif
 
 /* Define NO_INIT attribute */
 #if defined   ( __CC_ARM   )

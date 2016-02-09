@@ -72,7 +72,6 @@ void us_ticker_init(void)
     uint32_t			cycles_per_us;
     uint32_t			prescaler = 0;
     struct tc_config	config_tc;
-    enum status_code	ret_status;
 
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
@@ -109,7 +108,7 @@ void us_ticker_init(void)
     config_tc.counter_32_bit.compare_capture_channel[TC_COMPARE_CAPTURE_CHANNEL_0] = 0xFFFFFFFF;
 
     /* Initialize the timer */
-    ret_status = tc_init(&us_ticker_module, TICKER_COUNTER_uS, &config_tc);
+    tc_init(&us_ticker_module, TICKER_COUNTER_uS, &config_tc);
     MBED_ASSERT(ret_status == STATUS_OK);
 
     /* Register callback function */

@@ -508,7 +508,7 @@ enum status_code system_clock_source_write_calibration(
             SYSCTRL->OSCULP32K.bit.CALIB = calibration_value;
             break;
         default:
-            //Assert(false);
+            Assert(false);
             return STATUS_ERR_INVALID_ARG;
 	}
     return STATUS_OK;
