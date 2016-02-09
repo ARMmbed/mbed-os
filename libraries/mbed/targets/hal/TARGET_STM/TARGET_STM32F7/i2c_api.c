@@ -46,11 +46,10 @@
 I2C_HandleTypeDef I2cHandle;
 
 int i2c1_inited = 0;
-/* Ready for next F7 devices
 int i2c2_inited = 0;
 int i2c3_inited = 0;
 int i2c4_inited = 0;
-*/
+
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
@@ -73,7 +72,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
         pin_mode(scl, OpenDrain);
     }
 
-    /* Ready for next F7 devices
     #if defined(I2C2_BASE)
         if ((obj->i2c == I2C_2) && !i2c2_inited) {
             i2c2_inited = 1;
@@ -112,7 +110,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
             pin_mode(scl, OpenDrain);
         }
     #endif
-    */
 
     // Reset to clear pending flags if any
     i2c_reset(obj);
