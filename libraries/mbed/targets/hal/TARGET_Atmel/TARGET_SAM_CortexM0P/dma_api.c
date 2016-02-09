@@ -268,7 +268,6 @@ bool dma_start_transfer(int channelid)
  */
 bool dma_busy(int channelid)
 {
-    enum {res = 0};
     /* Sanity check arguments */
     MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
 
@@ -279,6 +278,7 @@ bool dma_busy(int channelid)
     if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
         /* This channel is not active! return zero for now */
         //res = 0;
+        return 0;
     }
 
     return dma_is_busy(&dma_channels[channel_index].resource);
@@ -292,7 +292,6 @@ bool dma_busy(int channelid)
  */
 bool dma_is_transfer_complete(int channelid)
 {
-    enum {res = 0};
     /* Sanity check arguments */
     MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
 
@@ -303,6 +302,7 @@ bool dma_is_transfer_complete(int channelid)
     if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
         /* This channel is not active! return zero for now */
        // res = 0;
+       return 0;
     }
 
     return (STATUS_OK == dma_get_job_status(&dma_channels[channel_index].resource));
