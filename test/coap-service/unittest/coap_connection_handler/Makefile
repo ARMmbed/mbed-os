@@ -13,6 +13,7 @@ TEST_SRC_FILES = \
 	../stub/ns_trace_stub.c \
 	../stub/ns_list_stub.c \
 	../stub/ns_timer_stub.c \
+	../stub/timeout_stub.c \
 	../stub/nsdynmemLIB_stub.c \
 	../stub/socket_api_stub.c \
 	../stub/coap_security_handler_stub.c \

@@ -227,6 +227,7 @@ bool test_coap_connection_handler_virtual_recv()
         return false;
 
     nsdynmemlib_stub.returnCounter = 1;
+    coap_security_handler_stub.int_value = 0;
     coap_security_handler_stub.sec_obj->_remote_port = 12;
     memset(coap_security_handler_stub.sec_obj->_remote_address, 1, 16 );
     if( 0 != coap_connection_handler_virtual_recv(handler2,buf, 12, &buf, 1) )
@@ -312,16 +313,16 @@ bool test_timer_callbacks()
 
     //Note next tests will affect ns_timer test (cycle & cycle_count
     if( coap_security_handler_stub.start_timer_cb ){
-        coap_security_handler_stub.start_timer_cb(5, 0, 0);
+        coap_security_handler_stub.start_timer_cb(1, 0, 0);
 
-        coap_security_handler_stub.start_timer_cb(5, 1, 2);
+        coap_security_handler_stub.start_timer_cb(1, 1, 2);
     }
 
     if( coap_security_handler_stub.timer_status_cb ){
         if( -1 != coap_security_handler_stub.timer_status_cb(4) )
             return false;
 
-        if( 0 != coap_security_handler_stub.timer_status_cb(5) )
+        if( 0 != coap_security_handler_stub.timer_status_cb(1) )
             return false;
     }
 

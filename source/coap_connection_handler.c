@@ -90,6 +90,7 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_
 
     while(secure_session_find_by_timer_id(timer_id)){
         if(timer_id == 0xff){
+            ns_dyn_mem_free(this);
             return NULL;
         }
         timer_id++;

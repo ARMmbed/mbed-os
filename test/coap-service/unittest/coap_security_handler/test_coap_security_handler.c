@@ -203,17 +203,17 @@ bool test_coap_security_handler_continue_connecting()
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[0] = MBEDTLS_ERR_SSL_BAD_HS_FINISHED;
 
-    if( MBEDTLS_ERR_SSL_TIMEOUT != coap_security_handler_continue_connecting(handle) )
+    if( MBEDTLS_ERR_SSL_BAD_HS_FINISHED != coap_security_handler_continue_connecting(handle) )
         return false;
 
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[0] = MBEDTLS_ERR_SSL_WANT_READ;
 
-    if( MBEDTLS_ERR_SSL_WANT_READ != coap_security_handler_continue_connecting(handle) )
+    if( 1 != coap_security_handler_continue_connecting(handle) )
         return false;
 
     mbedtls_stub.counter = 0;
-    mbedtls_stub.retArray[0] = HANDSHAKE_FINISHED_VALUE;
+    mbedtls_stub.retArray[0] = HANDSHAKE_FINISHED_VALUE_RETURN_ZERO;
 
     if( 0 != coap_security_handler_continue_connecting(handle) )
         return false;

@@ -32,6 +32,7 @@
 
 
 #define HANDSHAKE_FINISHED_VALUE 8888
+#define HANDSHAKE_FINISHED_VALUE_RETURN_ZERO 8889
 
 typedef struct {
     int crt_expected_int;
