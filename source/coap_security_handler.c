@@ -433,7 +433,8 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
 }
 
 int coap_security_handler_continue_connecting(coap_security_t *sec){
-    int ret=-1;
+    int ret = -1;
+
     while( ret != MBEDTLS_ERR_SSL_WANT_READ ){
         ret = mbedtls_ssl_handshake_step( &sec->_ssl );
 
@@ -446,22 +447,20 @@ int coap_security_handler_continue_connecting(coap_security_t *sec){
 #endif
             return 1;
         }
-        if(MBEDTLS_ERR_SSL_TIMEOUT == ret ||
-           MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO == ret ||
-           MBEDTLS_ERR_SSL_BAD_HS_CERTIFICATE == ret ||
-           MBEDTLS_ERR_SSL_BAD_HS_CERTIFICATE_REQUEST == ret ||
-           MBEDTLS_ERR_SSL_BAD_HS_SERVER_KEY_EXCHANGE == ret ||
-           MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO_DONE == ret ||
-           MBEDTLS_ERR_SSL_BAD_HS_CHANGE_CIPHER_SPEC == ret ||
-           MBEDTLS_ERR_SSL_BAD_HS_FINISHED == ret) {
-            return MBEDTLS_ERR_SSL_TIMEOUT;
+        else if(ret && (ret != MBEDTLS_ERR_SSL_WANT_READ && ret != MBEDTLS_ERR_SSL_WANT_WRITE)){
+            return ret;
         }
-        if( sec->_ssl.state == MBEDTLS_SSL_HANDSHAKE_OVER ){
 
+        if( sec->_ssl.state == MBEDTLS_SSL_HANDSHAKE_OVER ){
             return 0;
         }
     }
-    return ret;
+
+    if(ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE){
+        return 1;
+    }
+
+    return -1;
 }
 
 
@@ -500,7 +499,6 @@ int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size
         while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
                ret == MBEDTLS_ERR_SSL_WANT_WRITE );
     }
-
     return ret; //bytes read
 }
 

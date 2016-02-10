@@ -10,7 +10,7 @@
 #include "nsdynmemLIB.h"
 #include "socket_api.h"
 #include "net_interface.h"
-#include "eventOS_callback_timer.h"
+#include "eventOS_event_timer.h"
 
 #define TRACE_GROUP "ThCH"
 
@@ -35,17 +35,19 @@ typedef struct internal_socket_s {
 
 static NS_LIST_DEFINE(socket_list, internal_socket_t, link);
 
-static void timer_cb(int8_t timer_id, uint16_t slots);
-#define TIMER_FACTOR 20 /* mbedtls timer in ms, our timer in slots (50us), therefore 20 slots per ms */
+static void timer_cb(void* param);
+
 #define TIMER_STATE_CANCELLED -1 /* cancelled */
 #define TIMER_STATE_NO_EXPIRY 0 /* none of the delays is expired */
 #define TIMER_STATE_INT_EXPIRY 1 /* the intermediate delay only is expired */
 #define TIMER_STATE_FIN_EXPIRY 2 /* the final delay is expired */
+
 typedef struct secure_timer_s {
-    int8_t id;
+    uint8_t id;
+    timeout_t *timer;
     int8_t state;
-    uint8_t cycles;
-    uint8_t cycle_count;
+    uint32_t fin_ms;
+    uint32_t int_ms;
 } secure_timer_t;
 
 typedef struct secure_session {
@@ -64,6 +66,18 @@ static int receive_from_socket(int8_t socket_id, unsigned char *buf, size_t len)
 static void start_timer(int8_t timer_id, uint32_t int_ms, uint32_t fin_ms);
 static int timer_status(int8_t timer_id);
 
+static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
+{
+    secure_session_t *this = NULL;
+    ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
+        if (cur_ptr->timer.id == timer_id) {
+            this = cur_ptr;
+            break;
+        }
+    }
+    return this;
+}
+
 static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_t *address_ptr, uint16_t port)
 {
     secure_session_t *this = ns_dyn_mem_alloc(sizeof(secure_session_t));
@@ -72,12 +86,15 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_
     }
     memset(this, 0, sizeof(secure_session_t));
 
-    this->timer.id = eventOS_callback_timer_register(timer_cb);
-    if (this->timer.id == -1) {
-        tr_error("tasklet alloc failed");
-        ns_dyn_mem_free(this);
-        return NULL;
+    uint8_t timer_id = 1;
+
+    while(secure_session_find_by_timer_id(timer_id)){
+        if(timer_id == 0xff){
+            return NULL;
+        }
+        timer_id++;
     }
+    this->timer.id = timer_id;
 
     this->sec_handler = coap_security_create(parent->listen_socket, this->timer.id, address_ptr, port, ECJPAKE,
                                                &send_to_socket, &receive_from_socket, &start_timer, &timer_status);
@@ -101,6 +118,9 @@ static void secure_session_delete(secure_session_t *this)
             coap_security_destroy(this->sec_handler);
             this->sec_handler = NULL;
         }
+        if(this->timer.timer){
+            eventOS_timeout_cancel(this->timer.timer);
+        }
         ns_dyn_mem_free(this);
         this = NULL;
     }
@@ -117,32 +137,6 @@ static void clear_secure_sessions(internal_socket_t *this){
             }
         }
     }
-}
-
-static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
-{
-    secure_session_t *this = NULL;
-    ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
-        if (cur_ptr->timer.id == timer_id) {
-            this = cur_ptr;
-            break;
-        }
-    }
-    return this;
-}
-
-static secure_session_t *secure_session_find_by_parent(internal_socket_t *parent)
-{
-    secure_session_t *this = NULL;
-    ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
-        if( cur_ptr->sec_handler ){
-            if (cur_ptr->parent == parent ) {
-                this = cur_ptr;
-                break;
-            }
-        }
-    }
-    return this;
 }
 
 static secure_session_t *secure_session_find(internal_socket_t *parent, uint8_t *address_ptr, uint16_t port)
@@ -305,29 +299,36 @@ static int receive_from_socket(int8_t socket_id, unsigned char *buf, size_t len)
  * TODO - might be better to use an event timer in conjunction with
  * CoAP tasklet
  */
-static void timer_cb(int8_t timer_id, uint16_t slots)
+static void timer_cb(void *param)
 {
-    (void)slots; /* No need to look at slots */
-
-    secure_session_t *sec = secure_session_find_by_timer_id(timer_id);
+    secure_session_t *sec = param;
     if( sec ){
-        if (++sec->timer.cycle_count == sec->timer.cycles) {
-            /* We have counted the number of cycles - finish */
-            sec->timer.state = TIMER_STATE_FIN_EXPIRY;
-            /* Stop the timer as we no longer need it */
-            (void)eventOS_callback_timer_stop(sec->timer.id); /* We can ignore return; ID is valid */
+        if(sec->timer.fin_ms > sec->timer.int_ms){
+            /* Intermediate expiry */
+            sec->timer.fin_ms -= sec->timer.int_ms;
+            sec->timer.state = TIMER_STATE_INT_EXPIRY;
             int error = coap_security_handler_continue_connecting(sec->sec_handler);
             if(MBEDTLS_ERR_SSL_TIMEOUT == error) {
                 //TODO: How do we handle timeouts?
                 secure_session_delete(sec);
             }
-        } else {
-            /* Intermediate expiry */
-            sec->timer.state = TIMER_STATE_INT_EXPIRY;
+            else{
+                sec->timer.timer = eventOS_timeout_ms(timer_cb, sec->timer.int_ms, (void*)sec);
+            }
         }
-        //TODO: In case of DTLS and count == 1 || 4 we must call continue connecting of security so
-        //that mbedtls can handle timeout logic: resending etc...
-        //Not done, because timer should be refactored to be platform specific!
+        else{
+            /* We have counted the number of cycles - finish */
+            eventOS_timeout_cancel(sec->timer.timer);
+            sec->timer.fin_ms = 0;
+            sec->timer.int_ms = 0;
+            sec->timer.timer = NULL;
+            sec->timer.state = TIMER_STATE_FIN_EXPIRY;
+            int error = coap_security_handler_continue_connecting(sec->sec_handler);
+            if(MBEDTLS_ERR_SSL_TIMEOUT == error) {
+                //TODO: How do we handle timeouts?
+                secure_session_delete(sec);
+            }
+        }
     }
 }
 
@@ -336,15 +337,20 @@ static void start_timer(int8_t timer_id, uint32_t int_ms, uint32_t fin_ms)
     secure_session_t *sec = secure_session_find_by_timer_id(timer_id);
     if( sec ){
         if ((int_ms > 0) && (fin_ms > 0)) {
-            /* Note: as it stands, fin_ms is always 4 * int_ms, so cycles is always 4 but this may change */
-            sec->timer.cycles = fin_ms/int_ms;
-            sec->timer.cycle_count = 0;
+            sec->timer.int_ms = int_ms;
+            sec->timer.fin_ms = fin_ms;
             sec->timer.state = TIMER_STATE_NO_EXPIRY;
-            eventOS_callback_timer_start(sec->timer.id, int_ms * TIMER_FACTOR);
+            if(sec->timer.timer){
+                eventOS_timeout_cancel(sec->timer.timer);
+            }
+            sec->timer.timer = eventOS_timeout_ms(timer_cb, int_ms, sec);
         } else if (fin_ms == 0) {
             /* fin_ms == 0 means cancel the timer */
             sec->timer.state = TIMER_STATE_CANCELLED;
-            (void)eventOS_callback_timer_stop(sec->timer.id); /* We can ignore return; ID will be valid */
+            eventOS_timeout_cancel(sec->timer.timer);
+            sec->timer.fin_ms = 0;
+            sec->timer.int_ms = 0;
+            sec->timer.timer = NULL;
         }
     }
 }
@@ -390,17 +396,20 @@ static void secure_recv_sckt_msg(void *cb_res)
 
     if( sock && read_data(sckt_data, sock, &src_address) == 0 ){
         secure_session_t *session = secure_session_find(sock, src_address.address, src_address.identifier);
+
+        // Create session
         if( !session ){
             memcpy( sock->dest_addr.address, src_address.address, 16 );
             sock->dest_addr.identifier = src_address.identifier;
             sock->dest_addr.type = src_address.type;
             session = secure_session_create(sock, src_address.address, src_address.identifier);
         }
-
         if( !session ){
             tr_err("secure_recv_sckt_msg session creation failed - OOM");
             return;
         }
+
+        // Start handshake
         if( !session->sec_handler->_is_started ){
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
             uint8_t pw_len;
@@ -414,8 +423,13 @@ static void secure_recv_sckt_msg(void *cb_res)
             }
             ns_dyn_mem_free(pw);
         }else{
+            //Continue handshake
             if( !session->secure_done ){
-                if( coap_security_handler_continue_connecting(session->sec_handler) == 0){
+                int ret = coap_security_handler_continue_connecting(session->sec_handler);
+                // Handshake done
+                if(ret == 0){
+                    eventOS_timeout_cancel(session->timer.timer);
+                    session->timer.timer = NULL;
                     session->secure_done = true;
                     if( sock->parent->_security_done_cb ){
                         sock->parent->_security_done_cb(sock->listen_socket, src_address.address,
@@ -423,7 +437,12 @@ static void secure_recv_sckt_msg(void *cb_res)
                                                        session->sec_handler->_keyblk.value);
                     }
                 }
-                //TODO: error handling
+                else if (ret < 0){
+                    // error handling
+                    // TODO: here we also should clear CoAP retransmission buffer and inform that CoAP request sending is failed.
+                    secure_session_delete(session);
+                }
+            //Session valid
             }else{
                 unsigned char *data = ns_dyn_mem_temporary_alloc(sock->data_len);
                 int len = 0;
@@ -431,10 +450,7 @@ static void secure_recv_sckt_msg(void *cb_res)
                 if( len < 0 ){
                     ns_dyn_mem_free(data);
                     if( len == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY ){
-//                        if( sock->parent->sec_conn_closed_cb ){
-//                            sock->parent->sec_conn_closed_cb(sock->listen_socket);
                             secure_session_delete( session );
-//                        }
                     }
                 }else{
                     if( sock->parent->_recv_cb ){
