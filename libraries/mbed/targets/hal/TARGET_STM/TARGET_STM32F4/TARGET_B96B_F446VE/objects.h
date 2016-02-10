@@ -77,6 +77,11 @@ struct serial_s {
 #if DEVICE_SERIAL_ASYNCH
     uint32_t events;
 #endif
+#if DEVICE_SERIAL_FC
+    uint32_t hw_flow_ctl;
+    PinName pin_rts;
+    PinName pin_cts;
+#endif
 };
 
 struct spi_s {
