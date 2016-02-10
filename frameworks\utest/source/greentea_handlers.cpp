@@ -22,18 +22,6 @@
 
 using namespace utest::v1;
 
-/**
-
-extern const char* TEST_ENV_TESTCASE_COUNT;
-extern const char* TEST_ENV_TESTCASE_START;
-extern const char* TEST_ENV_TESTCASE_FINISH;
-
-void greentea_send_kv(const char *, const char *);
-void greentea_send_kv(const char *, const int);
-int greentea_parse_kv(char *, char *, const int, const int);
-
-
- */
 
 // --- GREENTEA HANDLERS ---
 status_t utest::v1::greentea_test_setup_handler(const size_t number_of_cases)
@@ -44,14 +32,15 @@ status_t utest::v1::greentea_test_setup_handler(const size_t number_of_cases)
 
 void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
+    greentea_send_kv(TEST_ENV_TESTCASE_SUMMARY, passed, failed);
     verbose_test_teardown_handler(passed, failed, failure);
     int result = !(failed || (failure.reason && !(failure.reason & REASON_IGNORE)));
     GREENTEA_TESTSUITE_RESULT(result);
 }
 
-void utest::v1::greentea_test_failure_handler(const failure_t)
+void utest::v1::greentea_test_failure_handler(const failure_t failure)
 {
-    // does nothing here
+    verbose_test_failure_handler(failure);
 }
 
 // --- GREENTEA CASE HANDLERS ---
