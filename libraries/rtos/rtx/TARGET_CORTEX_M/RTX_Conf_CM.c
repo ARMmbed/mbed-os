@@ -120,10 +120,10 @@
 //   <i> Defines the timer clock value.
 //   <i> Default: 6000000  (6MHz)
 #ifndef OS_CLOCK
-#  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368)
+#  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_TEENSY3_1)
 #    define OS_CLOCK       96000000
 
-#  elif defined(TARGET_LPC1347) || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) || defined(TARGET_STM32F303RE) || defined(TARGET_TEENSY3_1)
+#  elif defined(TARGET_LPC1347) || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) || defined(TARGET_STM32F303RE)
 #    define OS_CLOCK       72000000
 
 #  elif defined(TARGET_STM32F303K8)
