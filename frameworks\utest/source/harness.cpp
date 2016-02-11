@@ -111,16 +111,16 @@ void Harness::raise_failure(const failure_reason_t reason)
 
         if (handlers.test_failure) handlers.test_failure(failure_t(reason, location));
         if (handlers.case_failure) fail_status = handlers.case_failure(case_current, failure_t(reason, location));
-        if (!(fail_status & STATUS_IGNORE)) case_failed++;
+        if (fail_status != STATUS_IGNORE) case_failed++;
 
-        if ((fail_status & STATUS_ABORT) && case_timeout_handle)
+        if ((fail_status == STATUS_ABORT) && case_timeout_handle)
         {
             minar::Scheduler::cancelCallback(case_timeout_handle);
             case_timeout_handle = NULL;
         }
     }
 
-    if (fail_status & STATUS_ABORT || reason & REASON_CASE_SETUP) {
+    if (fail_status == STATUS_ABORT || reason & REASON_CASE_SETUP) {
         if (handlers.case_teardown && location != LOCATION_CASE_TEARDOWN) {
             location_t fail_loc(location);
             location = LOCATION_CASE_TEARDOWN;
@@ -131,7 +131,7 @@ void Harness::raise_failure(const failure_reason_t reason)
             else handlers.case_teardown = NULL;
         }
     }
-    if (fail_status & STATUS_ABORT) {
+    if (fail_status == STATUS_ABORT) {
         test_failed++;
         failure_t fail(reason, location);
         location = LOCATION_TEST_TEARDOWN;

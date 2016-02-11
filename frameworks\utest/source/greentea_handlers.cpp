@@ -118,7 +118,7 @@ status_t utest::v1::greentea_case_teardown_handler(const Case *const source, con
 status_t utest::v1::greentea_case_failure_abort_handler(const Case *const source, const failure_t failure)
 {
     status_t status = verbose_case_failure_handler(source, failure);
-    return (status & STATUS_IGNORE) ? STATUS_IGNORE : STATUS_ABORT;
+    return (status == STATUS_IGNORE) ? STATUS_IGNORE : STATUS_ABORT;
 }
 
 status_t utest::v1::greentea_case_failure_continue_handler(const Case *const source, const failure_t failure)
