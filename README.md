@@ -151,7 +151,7 @@ Develop
 
 ```
 > "venv/Scripts/activate"
-> python setup.py install
+> pip install -r requirements.txt
 > cd workspace_tools
 > ... do things ...
 > "venv/Scripts/deactivate"
