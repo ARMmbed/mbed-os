@@ -873,6 +873,7 @@ class DISCO_F407VG(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.progen_target ='disco-f407vg'
+        self.default_toolchain = "ARM"
 
 class DISCO_F429ZI(Target):
     def __init__(self):
