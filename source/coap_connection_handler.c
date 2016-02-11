@@ -529,7 +529,8 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
             }
         }else{
             if( !session->secure_done ){
-                if( coap_security_handler_continue_connecting(session->sec_handler) == 0){
+                int ret = coap_security_handler_continue_connecting(session->sec_handler);
+                if(ret == 0){
                     session->secure_done = true;
                     if( handler->_security_done_cb ){
                         handler->_security_done_cb(sock->listen_socket,
@@ -537,6 +538,12 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
                                                   session->sec_handler->_keyblk.value);
                     }
                     return 0;
+                }
+                else if(ret < 0)
+                {
+                    // error handling
+                    // TODO: here we also should clear CoAP retransmission buffer and inform that CoAP request sending is failed.
+                    secure_session_delete(session);
                 }
                 //TODO: error handling
             }else{
