@@ -329,17 +329,17 @@ Build successes:
 * If you’re unsure which platforms and toolchains are supported please use switch ```-S``` to print simple matrix of platform to compiler dependencies.
 ```
 $ python build.py -S
-+-------------------------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
-| Platform                |    ARM    |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  | GCC_CW_EWL | GCC_CW_NEWLIB |
-+-------------------------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
-| APPNEARME_MICRONFCBOARD | Supported |  Default  | Supported |     -     |     -     |     -      |       -       |
-| ARCH_BLE                |  Default  |     -     | Supported | Supported |     -     |     -      |       -       |
-| ARCH_GPRS               | Supported |  Default  | Supported | Supported | Supported |     -      |       -       |
++-------------------------+-----------+-----------+-----------+-----------+-----------+
+| Platform                |    ARM    |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  |
++-------------------------+-----------+-----------+-----------+-----------+-----------+
+| APPNEARME_MICRONFCBOARD | Supported |  Default  | Supported |     -     |     -     |
+| ARCH_BLE                |  Default  |     -     | Supported | Supported |     -     |
+| ARCH_GPRS               | Supported |  Default  | Supported | Supported | Supported |
 ...
-| UBLOX_C029              | Supported |  Default  | Supported | Supported |     -     |     -      |       -       |
-| WALLBOT_BLE             |  Default  |     -     | Supported | Supported |     -     |     -      |       -       |
-| XADOW_M0                | Supported |  Default  | Supported | Supported | Supported |     -      |       -       |
-+-------------------------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
+| UBLOX_C029              | Supported |  Default  | Supported | Supported |     -     |
+| WALLBOT_BLE             |  Default  |     -     | Supported | Supported |     -     |
+| XADOW_M0                | Supported |  Default  | Supported | Supported | Supported |
++-------------------------+-----------+-----------+-----------+-----------+-----------+
 *Default - default on-line compiler
 *Supported - supported off-line compiler
 
@@ -350,19 +350,19 @@ Total permutations: 297
 Above list can be overwhelming so please do not hesitate to use switch ```-f``` to filter ```Platform``` column.
 ```
 $ python build.py -S -f ^K
-+--------------+-----------+---------+-----------+-----------+--------+------------+---------------+
-| Platform     |    ARM    |   uARM  |  GCC_ARM  |    IAR    | GCC_CR | GCC_CW_EWL | GCC_CW_NEWLIB |
-+--------------+-----------+---------+-----------+-----------+--------+------------+---------------+
-| K20D50M      |  Default  |    -    | Supported | Supported |   -    |     -      |       -       |
-| K22F         |  Default  |    -    | Supported | Supported |   -    |     -      |       -       |
-| K64F         |  Default  |    -    | Supported | Supported |   -    |     -      |       -       |
-| KL05Z        | Supported | Default | Supported | Supported |   -    |     -      |       -       |
-| KL25Z        |  Default  |    -    | Supported | Supported |   -    | Supported  |   Supported   |
-| KL43Z        |  Default  |    -    | Supported |     -     |   -    |     -      |       -       |
-| KL46Z        |  Default  |    -    | Supported | Supported |   -    |     -      |       -       |
-| NRF51_DK     |  Default  |    -    | Supported | Supported |   -    |     -      |       -       |
-| NRF51_DK_OTA |  Default  |    -    | Supported |     -     |   -    |     -      |       -       |
-+--------------+-----------+---------+-----------+-----------+--------+------------+---------------+
++--------------+-----------+---------+-----------+-----------+--------+
+| Platform     |    ARM    |   uARM  |  GCC_ARM  |    IAR    | GCC_CR |
++--------------+-----------+---------+-----------+-----------+--------+
+| K20D50M      |  Default  |    -    | Supported | Supported |   -    |
+| K22F         |  Default  |    -    | Supported | Supported |   -    |
+| K64F         |  Default  |    -    | Supported | Supported |   -    |
+| KL05Z        | Supported | Default | Supported | Supported |   -    |
+| KL25Z        |  Default  |    -    | Supported | Supported |   -    |
+| KL43Z        |  Default  |    -    | Supported |     -     |   -    |
+| KL46Z        |  Default  |    -    | Supported | Supported |   -    |
+| NRF51_DK     |  Default  |    -    | Supported | Supported |   -    |
+| NRF51_DK_OTA |  Default  |    -    | Supported |     -     |   -    |
++--------------+-----------+---------+-----------+-----------+--------+
 *Default - default on-line compiler
 *Supported - supported off-line compiler
 
@@ -372,11 +372,11 @@ Total permutations: 28
 or just give platform name:
 ```
 $ python build.py -S -f LPC1768
-+----------+---------+-----------+-----------+-----------+-----------+------------+---------------+
-| Platform |   ARM   |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  | GCC_CW_EWL | GCC_CW_NEWLIB |
-+----------+---------+-----------+-----------+-----------+-----------+------------+---------------+
-| LPC1768  | Default | Supported | Supported | Supported | Supported |     -      |       -       |
-+----------+---------+-----------+-----------+-----------+-----------+------------+---------------+
++----------+---------+-----------+-----------+-----------+-----------+
+| Platform |   ARM   |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  |
++----------+---------+-----------+-----------+-----------+-----------+
+| LPC1768  | Default | Supported | Supported | Supported | Supported |
++----------+---------+-----------+-----------+-----------+-----------+
 *Default - default on-line compiler
 *Supported - supported off-line compiler
 

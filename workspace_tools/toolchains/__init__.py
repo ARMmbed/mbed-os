@@ -740,7 +740,7 @@ class mbedToolchain:
         self.notify({'type': 'var', 'key': key, 'val': value})
 
 from workspace_tools.settings import ARM_BIN
-from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, CW_EWL_PATH, CW_GCC_PATH
+from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH
 from workspace_tools.settings import IAR_PATH
 
 TOOLCHAIN_BIN_PATH = {
@@ -748,14 +748,11 @@ TOOLCHAIN_BIN_PATH = {
     'uARM': ARM_BIN,
     'GCC_ARM': GCC_ARM_PATH,
     'GCC_CR': GCC_CR_PATH,
-    'GCC_CW_EWL': CW_EWL_PATH,
-    'GCC_CW_NEWLIB': CW_GCC_PATH,
     'IAR': IAR_PATH
 }
 
 from workspace_tools.toolchains.arm import ARM_STD, ARM_MICRO
 from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CR
-from workspace_tools.toolchains.gcc import GCC_CW_EWL, GCC_CW_NEWLIB
 from workspace_tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
@@ -763,8 +760,6 @@ TOOLCHAIN_CLASSES = {
     'uARM': ARM_MICRO,
     'GCC_ARM': GCC_ARM,
     'GCC_CR': GCC_CR,
-    'GCC_CW_EWL': GCC_CW_EWL,
-    'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
     'IAR': IAR
 }
 
