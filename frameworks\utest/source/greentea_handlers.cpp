@@ -90,8 +90,8 @@ status_t utest::v1::greentea_test_setup_handler(const size_t number_of_cases)
 
 void utest::v1::greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
-    greentea_send_kv(TEST_ENV_TESTCASE_SUMMARY, passed, failed);
     verbose_test_teardown_handler(passed, failed, failure);
+    greentea_send_kv(TEST_ENV_TESTCASE_SUMMARY, passed, failed);
     int result = !(failed || (failure.reason && !(failure.reason & REASON_IGNORE)));
     GREENTEA_TESTSUITE_RESULT(result);
 }
@@ -104,8 +104,9 @@ void utest::v1::greentea_test_failure_handler(const failure_t failure)
 // --- GREENTEA CASE HANDLERS ---
 status_t utest::v1::greentea_case_setup_handler(const Case *const source, const size_t index_of_case)
 {
+    status_t status = verbose_case_setup_handler(source, index_of_case);
     greentea_send_kv(TEST_ENV_TESTCASE_START, source->get_description());
-    return verbose_case_setup_handler(source, index_of_case);
+    return status;
 }
 
 status_t utest::v1::greentea_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
