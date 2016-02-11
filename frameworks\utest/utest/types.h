@@ -65,6 +65,8 @@ namespace v1 {
         REASON_CASE_HANDLER  = (1 << 8),    ///< Case handler failed
         REASON_CASE_TEARDOWN = (1 << 9),    ///< Case teardown failed
 
+        REASON_CASE_INDEX    = (1 << 10),   ///< Case index out-of-range
+
         REASON_IGNORE        = 0x8000       ///< The failure may be ignored
     };
 
