@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_usb.h
  * @brief EFM32HG_USB register and bit field definitions
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32HG_USB
  * @{
@@ -802,7 +806,7 @@ typedef struct
 #define USB_DCFG_RESVALID_DEFAULT                  (_USB_DCFG_RESVALID_DEFAULT << 26)      /**< Shifted mode DEFAULT for USB_DCFG */
 
 /* Bit fields for USB DCTL */
-#define _USB_DCTL_RESETVALUE                       0x00000000UL                           /**< Default value for USB_DCTL */
+#define _USB_DCTL_RESETVALUE                       0x00000002UL                           /**< Default value for USB_DCTL */
 #define _USB_DCTL_MASK                             0x00018FFFUL                           /**< Mask for USB_DCTL */
 #define USB_DCTL_RMTWKUPSIG                        (0x1UL << 0)                           /**< Remote Wakeup Signaling */
 #define _USB_DCTL_RMTWKUPSIG_SHIFT                 0                                      /**< Shift value for USB_RMTWKUPSIG */
@@ -1789,5 +1793,5 @@ typedef struct
 #define USB_FIFORAM_FIFORAM_DEFAULT                (_USB_FIFORAM_FIFORAM_DEFAULT << 0) /**< Shifted mode DEFAULT for USB_FIFORAM */
 
 /** @} End of group EFM32HG_USB */
-
+/** @} End of group Parts */
 

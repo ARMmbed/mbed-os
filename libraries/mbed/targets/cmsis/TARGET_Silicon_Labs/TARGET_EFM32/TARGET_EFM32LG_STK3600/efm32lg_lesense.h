@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32lg_lesense.h
  * @brief EFM32LG_LESENSE register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32LG_LESENSE
  * @{
@@ -61,9 +65,10 @@ typedef struct
   __IO uint32_t       POWERDOWN;      /**< LESENSE RAM power-down register  */
 
   uint32_t            RESERVED0[105]; /**< Reserved registers */
-
   LESENSE_ST_TypeDef  ST[16];         /**< Decoding states */
+
   LESENSE_BUF_TypeDef BUF[16];        /**< Scanresult */
+
   LESENSE_CH_TypeDef  CH[16];         /**< Scanconfig */
 } LESENSE_TypeDef;                    /** @} */
 
@@ -1921,5 +1926,5 @@ typedef struct
 #define LESENSE_CH_EVAL_SCANRESINV_DEFAULT             (_LESENSE_CH_EVAL_SCANRESINV_DEFAULT << 19) /**< Shifted mode DEFAULT for LESENSE_CH_EVAL */
 
 /** @} End of group EFM32LG_LESENSE */
-
+/** @} End of group Parts */
 

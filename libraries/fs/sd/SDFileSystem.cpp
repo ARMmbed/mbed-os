@@ -223,12 +223,12 @@ int SDFileSystem::disk_initialize() {
     return 0;
 }
 
-int SDFileSystem::disk_write(const uint8_t* buffer, uint64_t block_number, uint8_t count) {
+int SDFileSystem::disk_write(const uint8_t* buffer, uint32_t block_number, uint32_t count) {
     if (!_is_initialized) {
         return -1;
     }
     
-    for (uint64_t b = block_number; b < block_number + count; b++) {
+    for (uint32_t b = block_number; b < block_number + count; b++) {
         // set write address for single block (CMD24)
         if (_cmd(24, b * cdv) != 0) {
             return 1;
@@ -242,12 +242,12 @@ int SDFileSystem::disk_write(const uint8_t* buffer, uint64_t block_number, uint8
     return 0;
 }
 
-int SDFileSystem::disk_read(uint8_t* buffer, uint64_t block_number, uint8_t count) {
+int SDFileSystem::disk_read(uint8_t* buffer, uint32_t block_number, uint32_t count) {
     if (!_is_initialized) {
         return -1;
     }
     
-    for (uint64_t b = block_number; b < block_number + count; b++) {
+    for (uint32_t b = block_number; b < block_number + count; b++) {
         // set read address for single block (CMD17)
         if (_cmd(17, b * cdv) != 0) {
             return 1;
@@ -271,7 +271,7 @@ int SDFileSystem::disk_status() {
 }
 
 int SDFileSystem::disk_sync() { return 0; }
-uint64_t SDFileSystem::disk_sectors() { return _sectors; }
+uint32_t SDFileSystem::disk_sectors() { return _sectors; }
 
 
 // PRIVATE FUNCTIONS
@@ -443,11 +443,11 @@ static uint32_t ext_bits(unsigned char *data, int msb, int lsb) {
     return bits;
 }
 
-uint64_t SDFileSystem::_sd_sectors() {
+uint32_t SDFileSystem::_sd_sectors() {
     uint32_t c_size, c_size_mult, read_bl_len;
     uint32_t block_len, mult, blocknr, capacity;
     uint32_t hc_c_size;
-    uint64_t blocks;
+    uint32_t blocks;
 
     // CMD9, Response R2 (R1 byte + 16-byte block read)
     if (_cmdx(9, 0) != 0) {

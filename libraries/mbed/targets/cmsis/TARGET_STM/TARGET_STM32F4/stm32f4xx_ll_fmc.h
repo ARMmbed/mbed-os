@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fmc.h
   * @author  MCD Application Team
-  * @version V1.3.2
-  * @date    26-June-2015
+  * @version V1.4.1
+  * @date    09-October-2015
   * @brief   Header file of FMC HAL module.
   ******************************************************************************
   * @attention
@@ -53,7 +53,8 @@
 /** @addtogroup FMC_LL
   * @{
   */ 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx)
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /* Private types -------------------------------------------------------------*/
 /** @defgroup FMC_LL_Private_Types FMC Private Types
   * @{
@@ -89,7 +90,7 @@ typedef struct
   uint32_t WrapMode;                     /*!< Enables or disables the Wrapped burst access mode for Flash
                                               memory, valid only when accessing Flash memories in burst mode.
                                               This parameter can be a value of @ref FMC_Wrap_Mode
-                                              This mode is not available for the STM32F446xx devices                    */
+                                              This mode is not available for the STM32F446/467/479xx devices                    */
 
   uint32_t WaitSignalActive;             /*!< Specifies if the wait signal is asserted by the memory one
                                               clock cycle before the wait state or during the wait state,
@@ -122,7 +123,7 @@ typedef struct
                                               This parameter is only enabled through the FMC_BCR1 register, and don't care 
                                               through FMC_BCR2..4 registers.
                                               This parameter can be a value of @ref FMC_Write_FIFO
-                                              This mode is available only for the STM32F446xx devices                    */
+                                              This mode is available only for the STM32F446/469/479xx devices                    */
 
   uint32_t PageSize;                     /*!< Specifies the memory page size.
                                               This parameter can be a value of @ref FMC_Page_Size 
@@ -420,7 +421,7 @@ typedef struct
 /** @defgroup FMC_Wrap_Mode FMC Wrap Mode 
   * @{
   */
-/** @note This mode is not available for the STM32F446xx devices
+/** @note This mode is not available for the STM32F446/469/479xx devices
   */
 #define FMC_WRAP_MODE_DISABLE                   ((uint32_t)0x00000000)
 #define FMC_WRAP_MODE_ENABLE                    ((uint32_t)0x00000400) 
@@ -474,7 +475,7 @@ typedef struct
   */  
 
 /** @defgroup FMC_Page_Size FMC Page Size
-  * @note  These values are available only for the STM32F446xx devices.
+  * @note  These values are available only for the STM32F446/469/479xx devices.
   * @{
   */
 #define FMC_PAGE_SIZE_NONE           ((uint32_t)0x00000000)
@@ -486,7 +487,7 @@ typedef struct
   */
 
 /** @defgroup FMC_Write_FIFO FMC Write FIFO 
-  * @note  These values are available only for the STM32F446xx devices.
+  * @note  These values are available only for the STM32F446/469/479xx devices.
   * @{
   */
 #define FMC_WRITE_FIFO_DISABLE           ((uint32_t)0x00000000)
@@ -760,23 +761,23 @@ typedef struct
 /** @defgroup FMC_LL_Alias_definition  FMC Alias definition
   * @{
   */
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
    #define FMC_NAND_TypeDef               FMC_Bank3_TypeDef
 #else 
    #define FMC_NAND_TypeDef               FMC_Bank2_3_TypeDef
    #define FMC_PCCARD_TypeDef             FMC_Bank4_TypeDef
-#endif /* defined(STM32F446xx) */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
    #define FMC_NORSRAM_TypeDef            FMC_Bank1_TypeDef
    #define FMC_NORSRAM_EXTENDED_TypeDef   FMC_Bank1E_TypeDef
    #define FMC_SDRAM_TypeDef              FMC_Bank5_6_TypeDef
 
 
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
    #define FMC_NAND_DEVICE                FMC_Bank3
 #else 
    #define FMC_NAND_DEVICE                FMC_Bank2_3
    #define FMC_PCCARD_DEVICE              FMC_Bank4
-#endif /* defined(STM32F446xx) */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
    #define FMC_NORSRAM_DEVICE             FMC_Bank1
    #define FMC_NORSRAM_EXTENDED_DEVICE    FMC_Bank1E
    #define FMC_SDRAM_DEVICE               FMC_Bank5_6
@@ -820,7 +821,7 @@ typedef struct
  *  @brief macros to handle NAND device enable/disable
  *  @{
  */
-#if defined(STM32F446xx) 
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
 /**
   * @brief  Enable the NAND device access.
   * @param  __INSTANCE__: FMC_NAND Instance
@@ -855,7 +856,7 @@ typedef struct
 #define __FMC_NAND_DISABLE(__INSTANCE__, __BANK__) (((__BANK__) == FMC_NAND_BANK2)? ((__INSTANCE__)->PCR2 &= ~FMC_PCR2_PBKEN): \
                                                    ((__INSTANCE__)->PCR3 &= ~FMC_PCR3_PBKEN))
 
-#endif /* defined(STM32F446xx)*/
+#endif /* defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) */
 /**
   * @}
   */ 
@@ -886,7 +887,7 @@ typedef struct
  *  @brief macros to handle FMC flags and interrupts
  * @{
  */ 
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /**
   * @brief  Enable the NAND device interrupt.
   * @param  __INSTANCE__:  FMC_NAND instance
@@ -996,7 +997,7 @@ typedef struct
   */
 #define __FMC_NAND_CLEAR_FLAG(__INSTANCE__, __BANK__, __FLAG__)  (((__BANK__) == FMC_NAND_BANK2)? ((__INSTANCE__)->SR2 &= ~(__FLAG__)): \
                                                                                                   ((__INSTANCE__)->SR3 &= ~(__FLAG__)))
-#endif /* defined(STM32F446xx) */
+#endif /* defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 /**
@@ -1164,10 +1165,10 @@ typedef struct
 #define IS_FMC_WAIT_POLARITY(__POLARITY__) (((__POLARITY__) == FMC_WAIT_SIGNAL_POLARITY_LOW) || \
                                              ((__POLARITY__) == FMC_WAIT_SIGNAL_POLARITY_HIGH))
 
-#if !defined (STM32F446xx)											 
+#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)											 
 #define IS_FMC_WRAP_MODE(__MODE__) (((__MODE__) == FMC_WRAP_MODE_DISABLE) || \
-                                     ((__MODE__) == FMC_WRAP_MODE_ENABLE))
-#endif /* !defined (STM32F446xx) */								 
+                                    ((__MODE__) == FMC_WRAP_MODE_ENABLE))
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */								 
 
 #define IS_FMC_WAIT_SIGNAL_ACTIVE(__ACTIVE__) (((__ACTIVE__) == FMC_WAIT_TIMING_BEFORE_WS) || \
                                                 ((__ACTIVE__) == FMC_WAIT_TIMING_DURING_WS)) 
@@ -1275,7 +1276,7 @@ typedef struct
 #define IS_FMC_WRITE_PROTECTION(WRITE) (((WRITE) == FMC_SDRAM_WRITE_PROTECTION_DISABLE) || \
                                         ((WRITE) == FMC_SDRAM_WRITE_PROTECTION_ENABLE))
 										
-#if defined (STM32F446xx)
+#if defined (STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 #define IS_FMC_PAGESIZE(SIZE) (((SIZE) == FMC_PAGE_SIZE_NONE) || \
                                ((SIZE) == FMC_PAGE_SIZE_128) || \
                                ((SIZE) == FMC_PAGE_SIZE_256) || \
@@ -1283,7 +1284,7 @@ typedef struct
 
 #define IS_FMC_WRITE_FIFO(FIFO) (((FIFO) == FMC_WRITE_FIFO_DISABLE) || \
                                  ((FIFO) == FMC_WRITE_FIFO_ENABLE))
-#endif /* defined (STM32F446xx) */									 
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx */									 
 
 /**
   * @}
@@ -1404,7 +1405,7 @@ uint32_t           FMC_SDRAM_GetModeStatus(FMC_SDRAM_TypeDef *Device, uint32_t B
   * @}
   */
 
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 /**
   * @}
   */

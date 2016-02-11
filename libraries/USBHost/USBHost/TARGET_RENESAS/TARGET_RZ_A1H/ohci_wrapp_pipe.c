@@ -51,12 +51,12 @@ Exported global variables and functions (to be accessed by other files)
 /* Endpoint Configuration Data Format                                                                   */
 /********************************************************************************************************/
 /*  LINE1: Pipe Window Select Register                                                                  */
-/*      CPU Access PIPE                 : PIPE1 to PIPE9                        [ ### SET ### ]         */
+/*      CPU Access PIPE                 : USB_HOST_PIPE1 to USB_HOST_PIPE9      [ ### SET ### ]         */
 /*  LINE2: Pipe Configuration Register                                                                  */
 /*      Transfer Type                   : USB_HOST_NONE                         [ USB_HOST_NONE    ]    */
 /*      Buffer Ready interrupt          : USB_HOST_NONE                         [ USB_HOST_NONE    ]    */
-/*      Double Buffer Mode              : USB_HOST_CNT_ON / USB_HOST_CNT_OFF    [ ### SET ### ]         */
-/*      Continuous Transmit:            : USB_HOST_CNT_ON / USB_HOST_CNT_OFF    [ ### SET ### ]         */
+/*      Double Buffer Mode              : USB_HOST_DBLBON / USB_HOST_DBLBOFF    [ ### SET ### ]         */
+/*      Continuous Transmit:            : USB_HOST_CNTMDON / USB_HOST_CNTMDOFF  [ ### SET ### ]         */
 /*      Short NAK                       : USB_HOST_NONE                         [ USB_HOST_NONE    ]    */
 /*      Transfer Direction              : USB_HOST_NONE                         [ USB_HOST_NONE    ]    */
 /*      Endpoint Number                 : USB_HOST_NONE                         [ USB_HOST_NONE    ]    */
@@ -72,8 +72,7 @@ Exported global variables and functions (to be accessed by other files)
 /*  LINE6: use FIFO port                                                                                */
 /*                                      : USB_HOST_CUSE                         [ ### SET ### ]         */
 /*                                      : USB_HOST_D0USE / USB_HOST_D1USE                               */
-/*                                      : USB_HOST_D0DMA    / USB_HOST_D0DMA                            */
-/*  LINE7: use FIFO port Endian         : USB_HOST_FIFO_BIG / USB_HOST_FIFO_LITTLE [ #SET# ]            */
+/*                                      : USB_HOST_D0DMA / USB_HOST_D0DMA                               */
 /********************************************************************************************************/
 
 /* Device Address 1 */
@@ -105,7 +104,7 @@ USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] =
     {
         USB_HOST_PIPE6,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
-        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBOFF | USB_HOST_CNTMDOFF | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
         (uint16_t)((uint16_t)(((64) / 64) - 1) << 10) | (uint16_t)(40),
         USB_HOST_NONE,
         USB_HOST_NONE,
@@ -115,7 +114,7 @@ USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] =
     {
         USB_HOST_PIPE7,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
-        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBOFF | USB_HOST_CNTMDOFF | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
         (uint16_t)((uint16_t)(((64) / 64) - 1) << 10) | (uint16_t)(41),
         USB_HOST_NONE,
         USB_HOST_NONE,
@@ -125,7 +124,7 @@ USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] =
     {
         USB_HOST_PIPE8,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
-        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBOFF | USB_HOST_CNTMDOFF | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
         (uint16_t)((uint16_t)(((64) / 64) - 1) << 10) | (uint16_t)(42),
         USB_HOST_NONE,
         USB_HOST_NONE,
@@ -135,7 +134,7 @@ USB_HOST_CFG_PIPETBL_t     usb_host_int_ep_tbl1[ ] =
     {
         USB_HOST_PIPE9,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
-        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBOFF | USB_HOST_CNTMDOFF | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
         (uint16_t)((uint16_t)(((64) / 64) - 1) << 10) | (uint16_t)(43),
         USB_HOST_NONE,
         USB_HOST_NONE,
@@ -158,7 +157,7 @@ USB_HOST_CFG_PIPETBL_t     usb_host_iso_ep_tbl1[ ] =
     {
         USB_HOST_PIPE1,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
-        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDOFF | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
         (uint16_t)((uint16_t)(((1024) / 64) - 1) << 10) | (uint16_t)(44),
         USB_HOST_NONE,
         USB_HOST_NONE,
@@ -168,8 +167,8 @@ USB_HOST_CFG_PIPETBL_t     usb_host_iso_ep_tbl1[ ] =
     {
         USB_HOST_PIPE2,
         /* TYPE       / BFRE           / DBLB            / CNTMD            / SHTNAK        / DIR           / EPNUM */
-        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDON | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
-        (uint16_t)((uint16_t)(((1024) / 64) - 1) << 10) | (uint16_t)(60),
+        USB_HOST_NONE | USB_HOST_NONE  | USB_HOST_DBLBON | USB_HOST_CNTMDOFF | USB_HOST_NONE | USB_HOST_NONE | USB_HOST_NONE,
+        (uint16_t)((uint16_t)(((1024) / 64) - 1) << 10) | (uint16_t)(76),
         USB_HOST_NONE,
         USB_HOST_NONE,
         USB_HOST_D1USE

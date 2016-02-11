@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_aes.c
- * @brief Advanced Encryption Standard (AES) accelerator peripheral API
- * @version 3.20.12
+ * @brief Advanced Encryption Standard (AES) accelerator peripheral API.
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,7 +30,6 @@
  *
  ******************************************************************************/
 
-
 #include "em_aes.h"
 #if defined(AES_COUNT) && (AES_COUNT > 0)
 
@@ -42,11 +41,10 @@
 
 /***************************************************************************//**
  * @addtogroup AES
- * @brief Advanced Encryption Standard Accelerator (AES) Peripheral API for
- *   EFM32
+ * @brief Advanced Encryption Standard Accelerator (AES) Peripheral API.
  * @details
- *   This API is intended for use on EFM32 target devices, and the following
- *   input/output notations should be noted:
+ *   This API is intended for use on Silicon Labs target devices, and the
+ *   following input/output notations should be noted:
  *
  *   @li Input/output data (plaintext, ciphertext, key etc) are treated as
  *     byte arrays, starting with most significant byte. Ie, 32 bytes of
@@ -58,7 +56,7 @@
  *
  *   @li Byte arrays should be word (32 bit) aligned for performance
  *     considerations, since the array is accessed with 32 bit access type.
- *     The EFM32 supports unaligned accesses, but with a performance penalty.
+ *     The Cortex-M supports unaligned accesses, but with a performance penalty.
  *
  *   @li It is possible to specify the same output buffer as input buffer
  *     as long as they point to the same address. In that case the provided input

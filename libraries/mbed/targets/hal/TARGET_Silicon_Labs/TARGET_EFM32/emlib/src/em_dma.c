@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_dma.c
  * @brief Direct memory access (DMA) module peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,13 +30,12 @@
  *
  ******************************************************************************/
 
-
 #include "em_dma.h"
 #if defined( DMA_PRESENT )
 
 #include "em_cmu.h"
 #include "em_assert.h"
-#include "em_bitband.h"
+#include "em_bus.h"
 
 /***************************************************************************//**
  * @addtogroup EM_Library
@@ -61,7 +60,7 @@
  *    buffers between memory and peripherals.
  *
  *  A basic understanding of the DMA controller is assumed. Please refer to
- *  the EFM32 reference manual for further details.
+ *  the reference manual for further details.
  *
  *  The term 'descriptor' is used as a synonym to the 'channel control data
  *  structure' term.
@@ -251,9 +250,9 @@ static void DMA_Prepare(unsigned int channel,
   }
 
   /* Set cycle control */
-  tmp         = descr->CTRL & ~(_DMA_CTRL_CYCLE_CTRL_MASK | _DMA_CTRL_N_MINUS_1_MASK);
-  tmp        |= nMinus1 << _DMA_CTRL_N_MINUS_1_SHIFT;
-  tmp        |= (uint32_t)cycleCtrl << _DMA_CTRL_CYCLE_CTRL_SHIFT;
+  tmp  = descr->CTRL & ~(_DMA_CTRL_CYCLE_CTRL_MASK | _DMA_CTRL_N_MINUS_1_MASK);
+  tmp |= nMinus1 << _DMA_CTRL_N_MINUS_1_SHIFT;
+  tmp |= (uint32_t)cycleCtrl << _DMA_CTRL_CYCLE_CTRL_SHIFT;
   descr->CTRL = tmp;
 }
 
@@ -629,8 +628,8 @@ void DMA_ActivateScatterGather(unsigned int channel,
   cycleCtrl  = altDescr->CTRL & _DMA_CTRL_CYCLE_CTRL_MASK;
   cycleCtrl &= ~(1 << _DMA_CTRL_CYCLE_CTRL_SHIFT);
 
-  EFM_ASSERT((cycleCtrl == dmaCycleCtrlMemScatterGather) ||
-             (cycleCtrl == dmaCycleCtrlPerScatterGather));
+  EFM_ASSERT((cycleCtrl == dmaCycleCtrlMemScatterGather)
+             || (cycleCtrl == dmaCycleCtrlPerScatterGather));
 
   /* Set last alternate descriptor to basic or auto-request cycle type in */
   /* order to have dma_done signal asserted when complete. Otherwise interrupt */
@@ -638,11 +637,13 @@ void DMA_ActivateScatterGather(unsigned int channel,
   altDescr[count - 1].CTRL &= ~_DMA_CTRL_CYCLE_CTRL_MASK;
   if (cycleCtrl == dmaCycleCtrlMemScatterGather)
   {
-    altDescr[count - 1].CTRL |= (uint32_t)dmaCycleCtrlAuto << _DMA_CTRL_CYCLE_CTRL_SHIFT;
+    altDescr[count - 1].CTRL |= (uint32_t)dmaCycleCtrlAuto
+                                << _DMA_CTRL_CYCLE_CTRL_SHIFT;
   }
   else
   {
-    altDescr[count - 1].CTRL |= (uint32_t)dmaCycleCtrlBasic << _DMA_CTRL_CYCLE_CTRL_SHIFT;
+    altDescr[count - 1].CTRL |= (uint32_t)dmaCycleCtrlBasic
+                                << _DMA_CTRL_CYCLE_CTRL_SHIFT;
   }
 
   /* If callback defined, update info on whether callback is issued for */
@@ -656,17 +657,16 @@ void DMA_ActivateScatterGather(unsigned int channel,
   }
 
   /* Configure primary descriptor control word */
-  descr->CTRL =
-    ((uint32_t)dmaDataInc4 << _DMA_CTRL_DST_INC_SHIFT) |
-    ((uint32_t)dmaDataSize4 << _DMA_CTRL_DST_SIZE_SHIFT) |
-    ((uint32_t)dmaDataInc4 << _DMA_CTRL_SRC_INC_SHIFT) |
-    ((uint32_t)dmaDataSize4 << _DMA_CTRL_SRC_SIZE_SHIFT) |
-    /* Use same protection scheme as for alternate descriptors */
-    (altDescr->CTRL & _DMA_CTRL_SRC_PROT_CTRL_MASK) |
-    ((uint32_t)dmaArbitrate4 << _DMA_CTRL_R_POWER_SHIFT) |
-    (((count * 4) - 1) << _DMA_CTRL_N_MINUS_1_SHIFT) |
-    (((uint32_t)useBurst & 1) << _DMA_CTRL_NEXT_USEBURST_SHIFT) |
-    cycleCtrl;
+  descr->CTRL =((uint32_t)dmaDataInc4 << _DMA_CTRL_DST_INC_SHIFT)
+               | ((uint32_t)dmaDataSize4 << _DMA_CTRL_DST_SIZE_SHIFT)
+               | ((uint32_t)dmaDataInc4 << _DMA_CTRL_SRC_INC_SHIFT)
+               | ((uint32_t)dmaDataSize4 << _DMA_CTRL_SRC_SIZE_SHIFT)
+               /* Use same protection scheme as for alternate descriptors */
+               | (altDescr->CTRL & _DMA_CTRL_SRC_PROT_CTRL_MASK)
+               | ((uint32_t)dmaArbitrate4 << _DMA_CTRL_R_POWER_SHIFT)
+               | (((count * 4) - 1) << _DMA_CTRL_N_MINUS_1_SHIFT)
+               | (((uint32_t)useBurst & 1) << _DMA_CTRL_NEXT_USEBURST_SHIFT)
+               | cycleCtrl;
 
   chBit = 1 << channel;
 
@@ -731,11 +731,11 @@ void DMA_CfgChannel(unsigned int channel, DMA_CfgChannel_TypeDef *cfg)
   if (cfg->enableInt)
   {
     DMA->IFC = (1 << channel);
-    BITBAND_Peripheral(&(DMA->IEN), channel, 1);
+    BUS_RegBitWrite(&(DMA->IEN), channel, 1);
   }
   else
   {
-    BITBAND_Peripheral(&(DMA->IEN), channel, 0);
+    BUS_RegBitWrite(&(DMA->IEN), channel, 0);
   }
 }
 
@@ -800,16 +800,15 @@ void DMA_CfgDescr(unsigned int channel,
 
   /* Prepare the descriptor */
   /* Source/destination end addresses set when started */
-  descr->CTRL =
-    (cfg->dstInc << _DMA_CTRL_DST_INC_SHIFT) |
-    (cfg->size << _DMA_CTRL_DST_SIZE_SHIFT) |
-    (cfg->srcInc << _DMA_CTRL_SRC_INC_SHIFT) |
-    (cfg->size << _DMA_CTRL_SRC_SIZE_SHIFT) |
-    ((uint32_t)(cfg->hprot) << _DMA_CTRL_SRC_PROT_CTRL_SHIFT) |
-    (cfg->arbRate << _DMA_CTRL_R_POWER_SHIFT) |
-    (0 << _DMA_CTRL_N_MINUS_1_SHIFT) |         /* Set when activated */
-    (0 << _DMA_CTRL_NEXT_USEBURST_SHIFT) |     /* Set when activated */
-    DMA_CTRL_CYCLE_CTRL_INVALID;               /* Set when activated */
+  descr->CTRL = (cfg->dstInc << _DMA_CTRL_DST_INC_SHIFT)
+                | (cfg->size << _DMA_CTRL_DST_SIZE_SHIFT)
+                | (cfg->srcInc << _DMA_CTRL_SRC_INC_SHIFT)
+                | (cfg->size << _DMA_CTRL_SRC_SIZE_SHIFT)
+                | ((uint32_t)(cfg->hprot) << _DMA_CTRL_SRC_PROT_CTRL_SHIFT)
+                | (cfg->arbRate << _DMA_CTRL_R_POWER_SHIFT)
+                | (0 << _DMA_CTRL_N_MINUS_1_SHIFT)     /* Set when activated */
+                | (0 << _DMA_CTRL_NEXT_USEBURST_SHIFT) /* Set when activated */
+                | DMA_CTRL_CYCLE_CTRL_INVALID;         /* Set when activated */
 }
 
 
@@ -836,12 +835,12 @@ void DMA_CfgLoop(unsigned int channel, DMA_CfgLoop_TypeDef *cfg)
   switch( channel )
   {
   case 0:
-    DMA->LOOP0 = (cfg->enable << _DMA_LOOP0_EN_SHIFT|
-                  cfg->nMinus1 << _DMA_LOOP0_WIDTH_SHIFT);
+    DMA->LOOP0 = (cfg->enable << _DMA_LOOP0_EN_SHIFT)
+                 | (cfg->nMinus1 << _DMA_LOOP0_WIDTH_SHIFT);
     break;
   case 1:
-    DMA->LOOP1 = (cfg->enable << _DMA_LOOP1_EN_SHIFT|
-                  cfg->nMinus1 << _DMA_LOOP1_WIDTH_SHIFT);
+    DMA->LOOP1 = (cfg->enable << _DMA_LOOP1_EN_SHIFT)
+                 | (cfg->nMinus1 << _DMA_LOOP1_WIDTH_SHIFT);
     break;
   }
 }
@@ -868,9 +867,9 @@ void DMA_CfgRect(unsigned int channel, DMA_CfgRect_TypeDef *cfg)
   EFM_ASSERT(cfg->height <= 1023);
 
   /* Configure rectangular/2D copy */
-  DMA->RECT0 = (cfg->dstStride << _DMA_RECT0_DSTSTRIDE_SHIFT|
-                cfg->srcStride << _DMA_RECT0_SRCSTRIDE_SHIFT|
-                cfg->height << _DMA_RECT0_HEIGHT_SHIFT);
+  DMA->RECT0 =  (cfg->dstStride << _DMA_RECT0_DSTSTRIDE_SHIFT)
+                | (cfg->srcStride << _DMA_RECT0_SRCSTRIDE_SHIFT)
+                | (cfg->height << _DMA_RECT0_HEIGHT_SHIFT);
 }
 #endif
 
@@ -919,7 +918,8 @@ void DMA_CfgDescrScatterGather(DMA_DESCRIPTOR_TypeDef *descr,
   }
   else
   {
-    descr->SRCEND = (void *)((uint32_t)(cfg->src) + ((uint32_t)(cfg->nMinus1) << cfg->srcInc));
+    descr->SRCEND = (void *)((uint32_t)(cfg->src)
+                             + ((uint32_t)(cfg->nMinus1) << cfg->srcInc));
   }
 
   if (cfg->dstInc == dmaDataIncNone)
@@ -928,7 +928,8 @@ void DMA_CfgDescrScatterGather(DMA_DESCRIPTOR_TypeDef *descr,
   }
   else
   {
-    descr->DSTEND = (void *)((uint32_t)(cfg->dst) + ((uint32_t)(cfg->nMinus1) << cfg->dstInc));
+    descr->DSTEND = (void *)((uint32_t)(cfg->dst)
+                             + ((uint32_t)(cfg->nMinus1) << cfg->dstInc));
   }
 
   /* User definable part not used */
@@ -943,20 +944,19 @@ void DMA_CfgDescrScatterGather(DMA_DESCRIPTOR_TypeDef *descr,
     cycleCtrl = (uint32_t)dmaCycleCtrlMemScatterGather + 1;
   }
 
-  descr->CTRL =
-    (cfg->dstInc << _DMA_CTRL_DST_INC_SHIFT) |
-    (cfg->size << _DMA_CTRL_DST_SIZE_SHIFT) |
-    (cfg->srcInc << _DMA_CTRL_SRC_INC_SHIFT) |
-    (cfg->size << _DMA_CTRL_SRC_SIZE_SHIFT) |
-    ((uint32_t)(cfg->hprot) << _DMA_CTRL_SRC_PROT_CTRL_SHIFT) |
-    (cfg->arbRate << _DMA_CTRL_R_POWER_SHIFT) |
-    ((uint32_t)(cfg->nMinus1) << _DMA_CTRL_N_MINUS_1_SHIFT) |
+  descr->CTRL =(cfg->dstInc << _DMA_CTRL_DST_INC_SHIFT)
+               | (cfg->size << _DMA_CTRL_DST_SIZE_SHIFT)
+               | (cfg->srcInc << _DMA_CTRL_SRC_INC_SHIFT)
+               | (cfg->size << _DMA_CTRL_SRC_SIZE_SHIFT)
+               | ((uint32_t)(cfg->hprot) << _DMA_CTRL_SRC_PROT_CTRL_SHIFT)
+               | (cfg->arbRate << _DMA_CTRL_R_POWER_SHIFT)
+               | ((uint32_t)(cfg->nMinus1) << _DMA_CTRL_N_MINUS_1_SHIFT)
     /* Never set next useburst bit, since the descriptor used after the */
     /* alternate descriptor is the primary descriptor which operates on */
     /* memory. If the alternate descriptors need to have useBurst set, this */
     /* done when setting up the primary descriptor, ie when activating. */
-    (0 << _DMA_CTRL_NEXT_USEBURST_SHIFT) |
-    (cycleCtrl << _DMA_CTRL_CYCLE_CTRL_SHIFT);
+               | (0 << _DMA_CTRL_NEXT_USEBURST_SHIFT)
+               | (cycleCtrl << _DMA_CTRL_CYCLE_CTRL_SHIFT);
 }
 
 
@@ -1062,7 +1062,8 @@ void DMA_Init(DMA_Init_TypeDef *init)
   DMA->CTRLBASE = (uint32_t)(init->controlBlock);
 
   /* Configure and enable the DMA controller */
-  DMA->CONFIG = ((uint32_t)(init->hprot) << _DMA_CONFIG_CHPROT_SHIFT) | DMA_CONFIG_EN;
+  DMA->CONFIG = ((uint32_t)(init->hprot) << _DMA_CONFIG_CHPROT_SHIFT)
+                | DMA_CONFIG_EN;
 }
 
 
@@ -1181,9 +1182,9 @@ void DMA_RefreshPingPong(unsigned int channel,
   }
 
   /* Set cycle control */
-  tmp         = descr->CTRL & ~(_DMA_CTRL_CYCLE_CTRL_MASK | _DMA_CTRL_N_MINUS_1_MASK);
-  tmp        |= nMinus1 << _DMA_CTRL_N_MINUS_1_SHIFT;
-  tmp        |= cycleCtrl << _DMA_CTRL_CYCLE_CTRL_SHIFT;
+  tmp  = descr->CTRL & ~(_DMA_CTRL_CYCLE_CTRL_MASK | _DMA_CTRL_N_MINUS_1_MASK);
+  tmp |= nMinus1 << _DMA_CTRL_N_MINUS_1_SHIFT;
+  tmp |= cycleCtrl << _DMA_CTRL_CYCLE_CTRL_SHIFT;
   descr->CTRL = tmp;
 }
 

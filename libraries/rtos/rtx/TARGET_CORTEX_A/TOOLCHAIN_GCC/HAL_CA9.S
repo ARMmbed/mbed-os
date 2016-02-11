@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    HAL_CA9.c
  *      Purpose: Hardware Abstraction Layer for Cortex-A9
- *      Rev.:    3 Sept 2013
+ *      Rev.:    8 April 2015
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 2012 - 2013 ARM Limited
+ * Copyright (c) 2012 - 2015 ARM Limited
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -36,9 +36,11 @@
     .global rt_get_PSP
     .global _alloc_box
     .global _free_box
+    .global SVC_Handler
     .global PendSV_Handler
     .global OS_Tick_Handler
 
+/* macro defines form rt_HAL_CA.h */
     .EQU CPSR_T_BIT,    0x20
     .EQU CPSR_I_BIT,    0x80
     .EQU CPSR_F_BIT,    0x40
@@ -51,9 +53,11 @@
     .EQU MODE_UND,      0x1B
     .EQU MODE_SYS,      0x1F
 
+/* macro defines form rt_TypeDef.h */
     .EQU TCB_TID,        3        /* 'task id' offset                        */
-    .EQU TCB_STACKF,    32        /* 'stack_frame' offset                    */
-    .EQU TCB_TSTACK,    36        /* 'tsk_stack' offset                      */
+    .EQU TCB_STACKF,    37        /* 'stack_frame' offset                    */
+    .EQU TCB_TSTACK,    44        /* 'tsk_stack' offset for LARGE_STACK      */
+
 
     .extern rt_alloc_box
     .extern os_tsk
@@ -62,14 +66,16 @@
     .extern os_tick_irqack
     .extern rt_systick
 
+    .text
+
 /*----------------------------------------------------------------------------
  *      Functions
  *---------------------------------------------------------------------------*/
-    .text
+
 @ For A-class, set USR/SYS stack
 @ __asm void rt_set_PSP (U32 stack) {
 rt_set_PSP:
-        .arm
+        .ARM
 
         MRS     R1, CPSR
         CPS     #MODE_SYS   @no effect in USR mode
@@ -84,7 +90,7 @@ rt_set_PSP:
 @ For A-class, get USR/SYS stack
 @ __asm U32 rt_get_PSP (void) {
 rt_get_PSP:
-        .arm
+        .ARM
 
         MRS     R1, CPSR
         CPS     #MODE_SYS   @no effect in USR mode
@@ -93,16 +99,15 @@ rt_get_PSP:
         MSR     CPSR_c, R1  @no effect in USR mode
         ISB
         BX      LR
-
 @ }
 
 /*--------------------------- _alloc_box ------------------------------------*/
 @ __asm void *_alloc_box (void *box_mem) {
 _alloc_box:
     /* Function wrapper for Unprivileged/Privileged mode. */
-        .arm
+        .ARM
 
-        LDR     R12,=rt_alloc_box       @ __cpp(rt_alloc_box)
+        LDR     R12,=rt_alloc_box
         MRS     R2, CPSR
         LSLS    R2, #28
         BXNE    R12
@@ -115,9 +120,9 @@ _alloc_box:
 @ __asm int _free_box (void *box_mem, void *box) {
 _free_box:
    /* Function wrapper for Unprivileged/Privileged mode. */
-        .arm
+        .ARM
 
-        LDR     R12,=rt_free_box        @ __cpp(rt_free_box)
+        LDR     R12,=rt_free_box
         MRS     R2, CPSR
         LSLS    R2, #28
         BXNE    R12
@@ -131,24 +136,22 @@ _free_box:
 @ #pragma push
 @ #pragma arm
 @ __asm void SVC_Handler (void) {
-
-        .type   SVC_Handler, %function
-        .global SVC_Handler
 SVC_Handler:
-@         PRESERVE8
-        .arm
+        .eabi_attribute Tag_ABI_align8_preserved,1
+        .ARM
+
         .extern  rt_tsk_lock
         .extern  rt_tsk_unlock
         .extern  SVC_Count
         .extern  SVC_Table
         .extern  rt_stk_check
         .extern  FPUEnable
+        .extern  scheduler_suspended   @ flag set by rt_suspend, cleared by rt_resume, read by SVC_Handler
 
         .EQU    Mode_SVC, 0x13
 
-        SRSDB   SP!, #Mode_SVC         @ Push LR_SVC and SPRS_SVC onto SVC mode stack
+        SRSDB   SP!, #Mode_SVC         @ Push LR_SVC and SPRS_SVC onto SVC mode stack  @ Use SRSDB because SRSFD isn't supported by GCC-ARM.
         PUSH    {R4}                   @ Push R4 so we can use it as a temp
-
 
         MRS     R4,SPSR                @ Get SPSR
         TST     R4,#CPSR_T_BIT         @ Check Thumb Bit
@@ -188,8 +191,8 @@ SVC_Handler:
 
         /* Here we will be in SVC mode (even if coming in from PendSV_Handler or OS_Tick_Handler) */
 Sys_Switch:
-        LDR     LR,=os_tsk              @ __cpp(&os_tsk)
-        LDM     LR,{R4,LR}              @ os_tsk.run, os_tsk.new
+        LDR     LR,=os_tsk
+        LDM     LR,{R4,LR}              @ os_tsk.run, os_tsk.new_tsk
         CMP     R4,LR
         BNE     switching
 
@@ -200,7 +203,13 @@ Sys_Switch:
         PUSH    {R12, LR}               @ Store stack adjustment and dummy LR to SVC stack
 
         CPSID   i
+        @ Do not unlock scheduler if it has just been suspended by rt_suspend()
+        LDR     R1,=scheduler_suspended
+        LDRB    R0, [R1]
+        CMP     R0, #1
+        BEQ     dont_unlock
         BLX     rt_tsk_unlock
+dont_unlock:
 
         POP     {R12, LR}               @ Get stack adjustment & discard dummy LR
         ADD     SP, SP, R12             @ Unadjust stack
@@ -218,7 +227,7 @@ switching:
 
         PUSH    {R8-R11} @ R4 and LR already stacked
         MOV     R10,R4                  @ Preserve os_tsk.run
-        MOV     R11,LR                  @ Preserve os_tsk.new
+        MOV     R11,LR                  @ Preserve os_tsk.new_tsk
 
         ADD     R8,SP,#16               @ Unstack R4,LR
         LDMIA   R8,{R4,LR}
@@ -234,21 +243,22 @@ switching:
         SUB     R8,R8,#4                @ No writeback for store of User LR
         STMDB   R8!,{R0-R3,R12}         @ User R0-R3,R12
         MOV     R3,R10                  @ os_tsk.run
-        MOV     LR,R11                  @ os_tsk.new
+        MOV     LR,R11                  @ os_tsk.new_tsk
         POP     {R9-R12}
         ADD     SP,SP,#12               @ Fix up SP for unstack of R4, LR & SPSR
         STMDB   R8!,{R4-R7,R9-R12}      @ User R4-R11
 
-        @ If applicable, stack VFP state
+        @ If applicable, stack VFP/NEON state
         MRC     p15,0,R1,c1,c0,2        @ VFP/NEON access enabled? (CPACR)
         AND     R2,R1,#0x00F00000
         CMP     R2,#0x00F00000
         BNE     no_outgoing_vfp
         VMRS    R2,FPSCR
         STMDB   R8!,{R2,R4}             @ Push FPSCR, maintain 8-byte alignment
-        VSTMDB  R8!,{S0-S31}
-        LDRB    R2,[R3,#TCB_STACKF]     @ Record in TCB that VFP state is stacked
-        ORR     R2,#2
+        VSTMDB  R8!,{D0-D15}
+        VSTMDB  R8!,{D16-D31}
+        LDRB    R2,[R3,#TCB_STACKF]     @ Record in TCB that NEON/D32 state is stacked
+        ORR     R2,#4
         STRB    R2,[R3,#TCB_STACKF]
 
 no_outgoing_vfp:
@@ -268,8 +278,8 @@ no_outgoing_vfp:
 
         MOV     LR,R4
 
-SVC_Next:  @ R4 == os_tsk.run, LR == os_tsk.new, R0-R3, R5-R12 corruptible
-        LDR     R1,=os_tsk              @ __cpp(&os_tsk), os_tsk.run = os_tsk.new
+SVC_Next:  @ R4 == os_tsk.run, LR == os_tsk.new_tsk, R0-R3, R5-R12 corruptible
+        LDR     R1,=os_tsk              @ os_tsk.run = os_tsk.new_tsk
         STR     LR,[R1]
         LDRB    R1,[LR,#TCB_TID]        @ os_tsk.run->task_id
         LSL     R1,#8                   @ Store PROCID
@@ -277,16 +287,17 @@ SVC_Next:  @ R4 == os_tsk.run, LR == os_tsk.new, R0-R3, R5-R12 corruptible
 
         LDR     R0,[LR,#TCB_TSTACK]     @ os_tsk.run->tsk_stack
 
-        @ Does incoming task have VFP state in stack?
+        @ Does incoming task have VFP/NEON state in stack?
         LDRB    R3,[LR,#TCB_STACKF]
-        TST     R3,#0x2
+        ANDS    R3, R3, #0x6
         MRC     p15,0,R1,c1,c0,2        @ Read CPACR
-        ANDEQ   R1,R1,#0xFF0FFFFF       @ Disable VFP access if incoming task does not have stacked VFP state
-        ORRNE   R1,R1,#0x00F00000       @ Enable VFP access if incoming task does have stacked VFP state
+        ANDEQ   R1,R1,#0xFF0FFFFF       @ Disable VFP/NEON access if incoming task does not have stacked VFP/NEON state
+        ORRNE   R1,R1,#0x00F00000       @ Enable VFP/NEON access if incoming task does have stacked VFP/NEON state
         MCR     p15,0,R1,c1,c0,2        @ Write CPACR
         BEQ     no_incoming_vfp
-        ISB                             @ We only need the sync if we enabled, otherwise we will context switch before next VFP instruction anyway
-        VLDMIA  R0!,{S0-S31}
+        ISB                             @ We only need the sync if we enabled, otherwise we will context switch before next VFP/NEON instruction anyway
+        VLDMIA  R0!,{D16-D31}
+        VLDMIA  R0!,{D0-D15}
         LDR     R2,[R0]
         VMSR    FPSCR,R2
         ADD     R0,R0,#8
@@ -364,20 +375,18 @@ SVC_Done:
         POP     {R0-R3,R12,LR}
         POP     {R4}
         RFEFD   SP!                     @ Return from exception
-
 @ }
-
 @ #pragma pop
-
 
 @ #pragma push
 @ #pragma arm
 @ __asm void PendSV_Handler (U32 IRQn) {
 PendSV_Handler:
-    .arm
+    .ARM
 
     .extern  rt_tsk_lock
-    .extern  IRQNestLevel
+    .extern  IRQNestLevel                @ Flag indicates whether inside an ISR, and the depth of nesting.  0 = not in ISR.
+    .extern  seen_id0_active             @ Flag used to workaround GIC 390 errata 733075 - set in startup_Renesas_RZ_A1.s
 
     ADD     SP,SP,#8 @ fix up stack pointer (R0 has been pushed and will never be popped, R1 was pushed for stack alignment)
 
@@ -385,16 +394,21 @@ PendSV_Handler:
     PUSH    {R0, R1}
     BLX     rt_tsk_lock
     POP     {R0, R1}
-    LDR     R1, =GICInterface_BASE      @ __cpp(&GICInterface_BASE)
+    LDR     R1, =GICInterface_BASE
     LDR     R1, [R1, #0]
     STR     R0, [R1, #0x10]
+
+    @ If it was interrupt ID0, clear the seen flag, otherwise return as normal
+    CMP     R0, #0
+    LDREQ   R1, =seen_id0_active
+    STREQB  R0, [R1]                    @ Clear the seen flag, using R0 (which is 0), to save loading another register
 
     LDR     R0, =IRQNestLevel           @ Get address of nesting counter
     LDR     R1, [R0]
     SUB     R1, R1, #1                  @ Decrement nesting counter
     STR     R1, [R0]
 
-    BLX     rt_pop_req                  @ __cpp(rt_pop_req)
+    BLX     rt_pop_req
 
     POP     {R1, LR}                @ Get stack adjustment & discard dummy LR
     ADD     SP, SP, R1              @ Unadjust stack
@@ -407,28 +421,38 @@ PendSV_Handler:
 @ }
 @ #pragma pop
 
+
 @ #pragma push
 @ #pragma arm
 @ __asm void OS_Tick_Handler (U32 IRQn) {
 OS_Tick_Handler:
-    .arm
+    .ARM
+
+    .extern  rt_tsk_lock
+    .extern  IRQNestLevel                @ Flag indicates whether inside an ISR, and the depth of nesting.  0 = not in ISR.
+    .extern  seen_id0_active             @ Flag used to workaround GIC 390 errata 733075 - set in startup_Renesas_RZ_A1.s
 
     ADD     SP,SP,#8 @ fix up stack pointer (R0 has been pushed and will never be popped, R1 was pushed for stack alignment)
 
     PUSH    {R0, R1}
     BLX     rt_tsk_lock
     POP     {R0, R1}
-    LDR     R1, =GICInterface_BASE      @ __cpp(&GICInterface_BASE)
+    LDR     R1, =GICInterface_BASE
     LDR     R1, [R1, #0]
     STR     R0, [R1, #0x10]
+
+    @ If it was interrupt ID0, clear the seen flag, otherwise return as normal
+    CMP     R0, #0
+    LDREQ   R1, =seen_id0_active
+    STREQB  R0, [R1]                    @ Clear the seen flag, using R0 (which is 0), to save loading another register
 
     LDR     R0, =IRQNestLevel           @ Get address of nesting counter
     LDR     R1, [R0]
     SUB     R1, R1, #1                  @ Decrement nesting counter
     STR     R1, [R0]
 
-    BLX      os_tick_irqack             @ __cpp(os_tick_irqack)
-    BLX      rt_systick                 @ __cpp(rt_systick)
+    BLX      os_tick_irqack
+    BLX      rt_systick
 
     POP     {R1, LR}                @ Get stack adjustment & discard dummy LR
     ADD     SP, SP, R1              @ Unadjust stack
@@ -441,32 +465,6 @@ OS_Tick_Handler:
 @ }
 @ #pragma pop
 
-    .global __set_PSP
-@ __STATIC_ASM void __set_PSP(uint32_t topOfProcStack)
-@ {
-__set_PSP:
-@     PRESERVE8
-    .arm
-
-    BIC     R0, R0, #7  @ensure stack is 8-byte aligned
-    MRS     R1, CPSR
-    CPS     #MODE_SYS   @no effect in USR mode
-    MOV     SP, R0
-    MSR     CPSR_c, R1  @no effect in USR mode
-    ISB
-    BX      LR
-
-@ }
-
-    .global __set_CPS_USR
-@ __STATIC_ASM void __set_CPS_USR(void)
-@ {
-__set_CPS_USR:
-    .arm
-
-    CPS  #MODE_USR
-    BX   LR
-@ }
 
     .END
 /*----------------------------------------------------------------------------

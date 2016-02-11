@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------   
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.   
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.   
 *   
-* $Date:        17. January 2013  
-* $Revision: 	V1.4.1  
+* $Date:        19. March 2015 
+* $Revision: 	V.1.4.5  
 *   
 * Project: 	    CMSIS DSP Library   
 * Title:	    arm_cfft_radix2_q31.c   
@@ -71,6 +71,7 @@ void arm_bitreversal_q31(
 /**   
 * @details   
 * @brief Processing function for the fixed-point CFFT/CIFFT.  
+* @deprecated Do not use this function.  It has been superseded by \ref arm_cfft_q31 and will be removed
 * @param[in]      *S    points to an instance of the fixed-point CFFT/CIFFT structure.  
 * @param[in, out] *pSrc points to the complex data buffer of size <code>2*fftLen</code>. Processing occurs in-place.  
 * @return none.  
@@ -126,12 +127,12 @@ uint16_t twidCoefModifier)
       ia = ia + twidCoefModifier;
 
       l = i + n2;
-      xt = (pSrc[2 * i] >> 2u) - (pSrc[2 * l] >> 2u);
-      pSrc[2 * i] = ((pSrc[2 * i] >> 2u) + (pSrc[2 * l] >> 2u)) >> 1u;
+      xt = (pSrc[2 * i] >> 1u) - (pSrc[2 * l] >> 1u);
+      pSrc[2 * i] = ((pSrc[2 * i] >> 1u) + (pSrc[2 * l] >> 1u)) >> 1u;
       
-      yt = (pSrc[2 * i + 1] >> 2u) - (pSrc[2 * l + 1] >> 2u);
+      yt = (pSrc[2 * i + 1] >> 1u) - (pSrc[2 * l + 1] >> 1u);
       pSrc[2 * i + 1] =
-        ((pSrc[2 * l + 1] >> 2u) + (pSrc[2 * i + 1] >> 2u)) >> 1u;
+        ((pSrc[2 * l + 1] >> 1u) + (pSrc[2 * i + 1] >> 1u)) >> 1u;
 
       mult_32x32_keep32_R(p0, xt, cosVal);
       mult_32x32_keep32_R(p1, yt, cosVal);
@@ -254,12 +255,12 @@ uint16_t twidCoefModifier)
       ia = ia + twidCoefModifier;
 
       l = i + n2;
-      xt = (pSrc[2 * i] >> 2u) - (pSrc[2 * l] >> 2u);
-      pSrc[2 * i] = ((pSrc[2 * i] >> 2u) + (pSrc[2 * l] >> 2u)) >> 1u;
+      xt = (pSrc[2 * i] >> 1u) - (pSrc[2 * l] >> 1u);
+      pSrc[2 * i] = ((pSrc[2 * i] >> 1u) + (pSrc[2 * l] >> 1u)) >> 1u;
       
-      yt = (pSrc[2 * i + 1] >> 2u) - (pSrc[2 * l + 1] >> 2u);
+      yt = (pSrc[2 * i + 1] >> 1u) - (pSrc[2 * l + 1] >> 1u);
       pSrc[2 * i + 1] =
-        ((pSrc[2 * l + 1] >> 2u) + (pSrc[2 * i + 1] >> 2u)) >> 1u;
+        ((pSrc[2 * l + 1] >> 1u) + (pSrc[2 * i + 1] >> 1u)) >> 1u;
 
       mult_32x32_keep32_R(p0, xt, cosVal);
       mult_32x32_keep32_R(p1, yt, cosVal);

@@ -91,18 +91,16 @@ void rt_init_stack (P_TCB p_TCB, FUNCP task_body) {
 
 static __inline U32 *rt_ret_regs (P_TCB p_TCB) {
   /* Get pointer to task return value registers (R0..R3) in Stack */
-#if (__TARGET_FPU_VFP)
-  if (p_TCB->stack_frame & 0x2) {
-    /* Extended Stack Frame: S0-31,FPSCR,Reserved,R4-R11,R0-R3,R12,LR,PC,xPSR */
-    return (U32 *)(p_TCB->tsk_stack + 8*4 + 34*4);
+  if (p_TCB->stack_frame & 0x4) {
+    /* NEON/D32 Stack Frame: D0-31,FPSCR,Reserved,R4-R11,R0-R3,R12,LR,PC,xPSR */
+    return (U32 *)(p_TCB->tsk_stack + 8*4 + 2*4 + 32*8);
+  } else if (p_TCB->stack_frame & 0x2) {
+    /* VFP/D16 Stack Frame: D0-D15/S0-31,FPSCR,Reserved,R4-R11,R0-R3,R12,LR,PC,xPSR */
+    return (U32 *)(p_TCB->tsk_stack + 8*4 + 2*4 + 32*4);
   } else {
     /* Basic Stack Frame: R4-R11,R0-R3,R12,LR,PC,xPSR */
     return (U32 *)(p_TCB->tsk_stack + 8*4);
   }
-#else
-  /* Stack Frame: R4-R11,R0-R3,R12,LR,PC,xPSR */
-  return (U32 *)(p_TCB->tsk_stack + 8*4);
-#endif
 }
 
 void rt_ret_val (P_TCB p_TCB, U32 v0) {

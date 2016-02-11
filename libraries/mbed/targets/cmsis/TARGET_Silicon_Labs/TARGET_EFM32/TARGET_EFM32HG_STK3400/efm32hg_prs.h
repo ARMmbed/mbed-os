@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_prs.h
  * @brief EFM32HG_PRS register and bit field definitions
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32HG_PRS
  * @{
@@ -350,5 +354,5 @@ typedef struct
 #define PRS_TRACECTRL_TSTOP_PRSCH5           (_PRS_TRACECTRL_TSTOP_PRSCH5 << 9)     /**< Shifted mode PRSCH5 for PRS_TRACECTRL */
 
 /** @} End of group EFM32HG_PRS */
-
+/** @} End of group Parts */
 

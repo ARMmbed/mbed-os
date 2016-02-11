@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_msc.h
  * @brief EFM32ZG_MSC register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32ZG_MSC
  * @{
@@ -408,5 +412,5 @@ typedef struct
 #define MSC_IRQLATENCY_IRQLATENCY_DEFAULT       (_MSC_IRQLATENCY_IRQLATENCY_DEFAULT << 0) /**< Shifted mode DEFAULT for MSC_IRQLATENCY */
 
 /** @} End of group EFM32ZG_MSC */
-
+/** @} End of group Parts */
 

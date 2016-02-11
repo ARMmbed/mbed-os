@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_acmp.h
  * @brief EFM32HG_ACMP register and bit field definitions
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32HG_ACMP
  * @{
@@ -325,5 +329,5 @@ typedef struct
 #define ACMP_ROUTE_LOCATION_LOC3           (_ACMP_ROUTE_LOCATION_LOC3 << 8)    /**< Shifted mode LOC3 for ACMP_ROUTE */
 
 /** @} End of group EFM32HG_ACMP */
-
+/** @} End of group Parts */
 

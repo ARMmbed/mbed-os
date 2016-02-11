@@ -16,8 +16,10 @@ limitations under the License.
 """
 
 import re
+import os, shutil
 from os.path import join
 from host_test_plugins import HostTestPluginBase
+from time import sleep
 
 
 class HostTestPluginCopyMethod_MPS2(HostTestPluginBase):
@@ -77,10 +79,36 @@ class HostTestPluginCopyMethod_MPS2(HostTestPluginBase):
         # TODO: implement USB MSD restart detection
         pass
 
+    def copy_file(self, file, disk):
+        if not file:
+            return
+            
+        _, ext = os.path.splitext(file)
+        ext = ext.lower()
+        dfile = disk + "/SOFTWARE/mbed" + ext
+        
+        if os.path.isfile(dfile):
+            print('Remove old binary %s' % dfile)
+            os.remove(dfile)
+
+        shutil.copy(file, dfile)
+        return True
+        
+    def touch_file(self, file):
+        """ Touch file and set timestamp to items
+        """
+        tfile = file+'.tmp'
+        fhandle = open(tfile, 'a')
+        try:
+            fhandle.close()
+        finally:
+            os.rename(tfile, file)
+            return True
+
     # Plugin interface
     name = 'HostTestPluginCopyMethod_MPS2'
     type = 'CopyMethod'
-    capabilities = ['mps2']
+    capabilities = ['mps2-copy']
     required_parameters = ['image_path', 'destination_disk']
 
     def setup(self, *args, **kwargs):
@@ -95,9 +123,24 @@ class HostTestPluginCopyMethod_MPS2(HostTestPluginBase):
         """
         result = False
         if self.check_parameters(capabilitity, *args, **kwargs) is True:
-            if capabilitity == 'mps2':
-                #  TODO: Implement MPS2 firmware setup here
-                pass
+            file = kwargs['image_path']
+            disk = kwargs['destination_disk']
+            
+            """ Add a delay in case there a test just finished
+                Prevents interface firmware hiccups
+            """
+            sleep(10)
+            if capabilitity == 'mps2-copy' and self.copy_file(file, disk):
+                sleep(1)
+                if self.touch_file(disk + 'reboot.txt'):
+                    """ Add a delay after the board was rebooted.
+                        The actual reboot time is 20 seconds, but using 15 seconds
+                        allows us to open the COM port and save a board reset.
+                        This also prevents interface firmware hiccups.
+                    """
+                    sleep(16)
+                    result = True
+                    
         return result
 
 

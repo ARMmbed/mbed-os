@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_emu.h
  * @brief EFM32ZG_EMU register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32ZG_EMU
  * @{
@@ -98,5 +102,5 @@ typedef struct
 #define EMU_AUXCTRL_HRCCLR_DEFAULT     (_EMU_AUXCTRL_HRCCLR_DEFAULT << 0) /**< Shifted mode DEFAULT for EMU_AUXCTRL */
 
 /** @} End of group EFM32ZG_EMU */
-
+/** @} End of group Parts */
 

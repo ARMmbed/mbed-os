@@ -21,13 +21,19 @@ import host_test_registry
 import module_copy_mbed
 import module_copy_shell
 import module_copy_silabs
+
+try:
+    import module_copy_smart
+except:
+    pass
+
 #import module_copy_firefox
-#import module_copy_mps2
+import module_copy_mps2
 
 # Plugins used to reset certain platform
 import module_reset_mbed
 import module_reset_silabs
-#import module_reset_mps2
+import module_reset_mps2
 
 
 # Plugin registry instance
@@ -37,12 +43,18 @@ HOST_TEST_PLUGIN_REGISTRY = host_test_registry.HostTestRegistry()
 # Some plugins are commented out if they are not stable or not commonly used
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mbed.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_shell.load_plugin())
+
+try:
+    HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_smart.load_plugin())
+except:
+    pass
+
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mbed.load_plugin())
 #HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_firefox.load_plugin())
 
 # Extra platforms support
-#HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mps2.load_plugin())
-#HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mps2.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_mps2.load_plugin())
+HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_mps2.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_copy_silabs.load_plugin())
 HOST_TEST_PLUGIN_REGISTRY.register_plugin(module_reset_silabs.load_plugin())
 

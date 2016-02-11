@@ -42,8 +42,7 @@ volatile uint32_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
 volatile uint16_t oc_rem_part = 0;
 
-void set_compare(uint16_t count)
-{
+void set_compare(uint16_t count) {
     TimMasterHandle.Instance = TIM_MST;
     // Set new output compare value
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
@@ -51,16 +50,14 @@ void set_compare(uint16_t count)
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_init(void)
-{
+void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
     HAL_InitTick(0); // The passed value is not used
 }
 
-uint32_t us_ticker_read()
-{
+uint32_t us_ticker_read() {
     uint32_t counter, counter2;
     if (!us_ticker_inited) us_ticker_init();
     // A situation might appear when Master overflows right after Slave is read and before the
@@ -81,8 +78,7 @@ uint32_t us_ticker_read()
     return counter2;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     int delta = (int)((uint32_t)timestamp - us_ticker_read());
     uint16_t cval = TIM_MST->CNT;
 
@@ -101,14 +97,12 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 }
 
-void us_ticker_disable_interrupt(void)
-{
+void us_ticker_disable_interrupt(void) {
     TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_clear_interrupt(void)
-{
+void us_ticker_clear_interrupt(void) {
     TimMasterHandle.Instance = TIM_MST;
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
@@ -131,8 +125,7 @@ static volatile uint32_t SlaveCounter = 0;
 static volatile uint32_t oc_int_part = 0;
 static volatile uint16_t oc_rem_part = 0;
 
-void set_compare(uint16_t count)
-{
+void set_compare(uint16_t count) {
     TimMasterHandle.Instance = TIM_MST;
 
     // Set new output compare value
@@ -142,8 +135,7 @@ void set_compare(uint16_t count)
 }
 
 // Used to increment the slave counter
-static void tim_update_irq_handler(void)
-{
+static void tim_update_irq_handler(void) {
     TimMasterHandle.Instance = TIM_MST;
 
     // Clear Update interrupt flag
@@ -154,8 +146,7 @@ static void tim_update_irq_handler(void)
 }
 
 // Used by interrupt system
-static void tim_oc_irq_handler(void)
-{
+static void tim_oc_irq_handler(void) {
     uint16_t cval = TIM_MST->CNT;
     TimMasterHandle.Instance = TIM_MST;
 
@@ -178,8 +169,7 @@ static void tim_oc_irq_handler(void)
 
 }
 
-void us_ticker_init(void)
-{
+void us_ticker_init(void) {
 
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
@@ -210,8 +200,7 @@ void us_ticker_init(void)
     HAL_TIM_Base_Start(&TimMasterHandle);
 }
 
-uint32_t us_ticker_read()
-{
+uint32_t us_ticker_read() {
     uint32_t counter, counter2;
     if (!us_ticker_inited) us_ticker_init();
     // A situation might appear when Master overflows right after Slave is read and before the
@@ -232,8 +221,7 @@ uint32_t us_ticker_read()
     return counter2;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     int delta = (int)((uint32_t)timestamp - us_ticker_read());
     uint16_t cval = TIM_MST->CNT;
 
@@ -252,14 +240,12 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 }
 
-void us_ticker_disable_interrupt(void)
-{
+void us_ticker_disable_interrupt(void) {
     TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_clear_interrupt(void)
-{
+void us_ticker_clear_interrupt(void) {
     TimMasterHandle.Instance = TIM_MST;
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
@@ -274,8 +260,7 @@ void us_ticker_clear_interrupt(void)
 static TIM_HandleTypeDef TimMasterHandle;
 static int us_ticker_inited = 0;
 
-void us_ticker_init(void)
-{
+void us_ticker_init(void) {
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 
@@ -284,27 +269,23 @@ void us_ticker_init(void)
     HAL_InitTick(0); // The passed value is not used
 }
 
-uint32_t us_ticker_read()
-{
+uint32_t us_ticker_read() {
     if (!us_ticker_inited) us_ticker_init();
     return TIM_MST->CNT;
 }
 
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
+void us_ticker_set_interrupt(timestamp_t timestamp) {
     // Set new output compare value
     __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
     // Enable IT
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_disable_interrupt(void)
-{
+void us_ticker_disable_interrupt(void) {
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-void us_ticker_clear_interrupt(void)
-{
+void us_ticker_clear_interrupt(void) {
     __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 #endif

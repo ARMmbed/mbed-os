@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_crc_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    11-December-2014
+  * @version V1.3.0
+  * @date    26-June-2015
   * @brief   Header file of CRC HAL extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup CRCEx CRCEx Extended HAL Module Driver 
+/** @addtogroup CRCEx CRCEx 
   * @{
   */ 
 
@@ -78,11 +78,11 @@
 /** @defgroup CRCEx_Output_Data_Inversion Output Data Inversion Modes
   * @{
   */
-#define CRC_OUTPUTDATA_INVERSION_DISABLED         ((uint32_t)0x00000000)
-#define CRC_OUTPUTDATA_INVERSION_ENABLED          ((uint32_t)CRC_CR_REV_OUT)
+#define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000)
+#define CRC_OUTPUTDATA_INVERSION_ENABLE          ((uint32_t)CRC_CR_REV_OUT)
 
-#define IS_CRC_OUTPUTDATA_INVERSION_MODE(MODE)    (((MODE) == CRC_OUTPUTDATA_INVERSION_DISABLED) || \
-                                                   ((MODE) == CRC_OUTPUTDATA_INVERSION_ENABLED))
+#define IS_CRC_OUTPUTDATA_INVERSION_MODE(MODE)    (((MODE) == CRC_OUTPUTDATA_INVERSION_DISABLE) || \
+                                                   ((MODE) == CRC_OUTPUTDATA_INVERSION_ENABLE))
 /**                                               
   * @}
   */

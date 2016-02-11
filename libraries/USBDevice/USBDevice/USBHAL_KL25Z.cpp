@@ -228,21 +228,21 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
         handshake_flag = USB_ENDPT_EPHSHK_MASK;
         if (IN_EP(endpoint)) {
             if (endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)] == NULL)
-                endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)] = (uint8_t *) malloc (64*2);
+                endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)] = (uint8_t *) malloc (64);
             buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)][0];
         } else {
             if (endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)] == NULL)
-                endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)] = (uint8_t *) malloc (64*2);
+                endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)] = (uint8_t *) malloc (64);
             buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)][0];
         }
     } else {
         if (IN_EP(endpoint)) {
             if (endpoint_buffer_iso[2] == NULL)
-                endpoint_buffer_iso[2] = (uint8_t *) malloc (1023*2);
+                endpoint_buffer_iso[2] = (uint8_t *) malloc (1023);
             buf = &endpoint_buffer_iso[2][0];
         } else {
             if (endpoint_buffer_iso[0] == NULL)
-                endpoint_buffer_iso[0] = (uint8_t *) malloc (1023*2);
+                endpoint_buffer_iso[0] = (uint8_t *) malloc (1023);
             buf = &endpoint_buffer_iso[0][0];
         }
     }
@@ -491,6 +491,7 @@ void USBHAL::usbisr(void) {
         uint32_t num  = (USB0->STAT >> 4) & 0x0F;
         uint32_t dir  = (USB0->STAT >> 3) & 0x01;
         uint32_t ev_odd = (USB0->STAT >> 2) & 0x01;
+        int endpoint = (num << 1) | dir;
 
         // setup packet
         if ((num == 0) && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == SETUP_TOKEN)) {
@@ -507,9 +508,9 @@ void USBHAL::usbisr(void) {
                 if (num == 0)
                     EP0out();
                 else {
-                    epComplete |= (1 << EP(num));
-                    if ((instance->*(epCallback[EP(num) - 2]))()) {
-                        epComplete &= ~(1 << EP(num));
+                    epComplete |= EP(endpoint);
+                    if ((instance->*(epCallback[endpoint - 2]))()) {
+                        epComplete &= ~EP(endpoint);
                     }
                 }
             }
@@ -524,9 +525,9 @@ void USBHAL::usbisr(void) {
                     }
                 }
                 else {
-                    epComplete |= (1 << (EP(num) + 1));
-                    if ((instance->*(epCallback[EP(num) + 1 - 2]))()) {
-                        epComplete &= ~(1 << (EP(num) + 1));
+                    epComplete |= EP(endpoint);
+                    if ((instance->*(epCallback[endpoint - 2]))()) {
+                        epComplete &= ~EP(endpoint);
                     }
                 }
             }

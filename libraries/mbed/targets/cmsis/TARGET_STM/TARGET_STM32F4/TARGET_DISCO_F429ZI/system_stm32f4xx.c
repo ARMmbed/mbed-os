@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32f4xx.c
   * @author  MCD Application Team
-  * @version V2.1.0
-  * @date    19-June-2014
+  * @version V2.4.0
+  * @date    14-August-2015
   * @brief   CMSIS Cortex-M4 Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -38,7 +38,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -106,9 +106,9 @@
   */
 
 /************************* Miscellaneous Configuration ************************/
-/*!< Uncomment the following line if you need to use external SRAM or SDRAM mounted
-     on STM324xG_EVAL/STM324x9I_EVAL boards as data memory  */
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
+/*!< Uncomment the following line if you need to use external SRAM or SDRAM as data memory  */
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)\
+ || defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
 /* #define DATA_IN_ExtSRAM */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
  
@@ -169,7 +169,7 @@ const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 
   static void SystemInit_ExtMemCtl(void); 
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
 
-void SystemClock_Config(void);
+void SetSysClock(void);
 /**
   * @}
   */
@@ -227,7 +227,7 @@ void SystemInit(void)
 
   /* Configure the System clock source, PLL Multiplier and Divider factors,
      AHB/APBx prescalers and Flash settings */
-  SystemClock_Config();
+  SetSysClock();
   SystemCoreClockUpdate();
   
   /* Reset the timer to avoid issues after the RAM initialization */
@@ -416,7 +416,7 @@ void SystemInit_ExtMemCtl(void)
   RCC->AHB3ENR |= 0x00000001;
   
   /* Configure and enable SDRAM bank1 */
-  FMC_Bank5_6->SDCR[0] = 0x000019E0;
+  FMC_Bank5_6->SDCR[0] = 0x000019E4;
   FMC_Bank5_6->SDTR[0] = 0x01115351;      
   
   /* SDRAM initialization sequence */
@@ -549,7 +549,7 @@ void SystemInit_ExtMemCtl(void)
  * generated code by STM32CubeMX 4.4.0 for board 32F429Discovery
  * and SYSCLK=168MHZ
  */
-void SystemClock_Config(void)
+void SetSysClock(void)
 {
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
@@ -576,6 +576,9 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+  
+  // HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_3);
+
 
 }
 
@@ -584,7 +587,7 @@ void SystemClock_Config(void)
  * generated code by STM32CubeMX 4.4.0 for board 32F429Discovery
  * and SYSCLK=180MHZ
  */
-void SystemClock_Config(void)
+void SetSysClock(void)
 {
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
@@ -613,6 +616,8 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
   HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
+
+  // HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_3);
 
 }
 #endif

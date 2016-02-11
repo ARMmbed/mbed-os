@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_vcmp.c
  * @brief Voltage Comparator (VCMP) peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,7 +29,6 @@
  * arising from your use of this Software.
  *
  ******************************************************************************/
-
 
 #include "em_vcmp.h"
 #if defined(VCMP_COUNT) && (VCMP_COUNT > 0)
@@ -101,14 +100,14 @@ void VCMP_Init(const VCMP_Init_TypeDef *vcmpInit)
   /* Configure hysteresis */
   switch (vcmpInit->hyst)
   {
-  case vcmpHyst20mV:
-    VCMP->CTRL |= VCMP_CTRL_HYSTEN;
-    break;
-  case vcmpHystNone:
-    VCMP->CTRL &= ~(VCMP_CTRL_HYSTEN);
-    break;
-  default:
-    break;
+    case vcmpHyst20mV:
+      VCMP->CTRL |= VCMP_CTRL_HYSTEN;
+      break;
+    case vcmpHystNone:
+      VCMP->CTRL &= ~(VCMP_CTRL_HYSTEN);
+      break;
+    default:
+      break;
   }
 
   /* Configure inactive output value */
@@ -157,7 +156,7 @@ void VCMP_LowPowerRefSet(bool enable)
   }
   else
   {
-    VCMP->INPUTSEL &= ~(VCMP_INPUTSEL_LPREF);
+    VCMP->INPUTSEL &= ~VCMP_INPUTSEL_LPREF;
   }
 }
 
@@ -175,8 +174,8 @@ void VCMP_TriggerSet(int level)
   EFM_ASSERT((level > 0) && (level < 64));
 
   /* Set trigger level */
-  VCMP->INPUTSEL = (VCMP->INPUTSEL & ~(_VCMP_INPUTSEL_TRIGLEVEL_MASK)) |
-                   (level << _VCMP_INPUTSEL_TRIGLEVEL_SHIFT);
+  VCMP->INPUTSEL = (VCMP->INPUTSEL & ~(_VCMP_INPUTSEL_TRIGLEVEL_MASK))
+                   | (level << _VCMP_INPUTSEL_TRIGLEVEL_SHIFT);
 }
 
 

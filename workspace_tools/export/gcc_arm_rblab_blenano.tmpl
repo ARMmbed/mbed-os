@@ -1,0 +1,14 @@
+{% extends "gcc_arm_common.tmpl" %}
+
+{% block additional_variables %}
+SOFTDEVICE = mbed/TARGET_RBLAB_BLENANO/TARGET_NORDIC/TARGET_MCU_NRF51822/Lib/s130_nrf51822_1_0_0/s130_nrf51_1.0.0_softdevice.hex
+{% endblock %}
+
+{% block additional_executables %}
+SREC_CAT = srec_cat
+{% endblock %}
+
+{% block additional_targets %}
+merge:
+	$(SREC_CAT) $(SOFTDEVICE) -intel $(PROJECT).hex -intel -o combined.hex -intel --line-length=44
+{% endblock %}

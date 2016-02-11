@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file system_efm32hg.c
  * @brief CMSIS Cortex-M0+ System Layer for EFM32HG devices.
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -54,9 +54,11 @@
 /* SW footprint. */
 
 #ifndef EFM32_HFXO_FREQ
-#define EFM32_HFXO_FREQ         (24000000UL)
-#define EFM32_HFRCO_MAX_FREQ    (21000000UL)
+#define EFM32_HFXO_FREQ (24000000UL)
 #endif
+
+#define EFM32_HFRCO_MAX_FREQ (21000000UL)
+
 /* Do not define variable if HF crystal oscillator not present */
 #if (EFM32_HFXO_FREQ > 0)
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
@@ -68,6 +70,7 @@ static uint32_t SystemHFXOClock = EFM32_HFXO_FREQ;
 #ifndef EFM32_LFXO_FREQ
 #define EFM32_LFXO_FREQ (EFM32_LFRCO_FREQ)
 #endif
+
 /* Do not define variable if LF crystal oscillator not present */
 #if (EFM32_LFXO_FREQ > 0)
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
@@ -156,9 +159,12 @@ uint32_t SystemHFClockGet(void)
 {
   uint32_t ret;
 
-  switch (CMU->STATUS & (CMU_STATUS_HFRCOSEL | CMU_STATUS_HFXOSEL |
-                         CMU_STATUS_LFRCOSEL | CMU_STATUS_LFXOSEL |
-                         CMU_STATUS_USHFRCODIV2SEL))
+  switch (CMU->STATUS & (CMU_STATUS_HFRCOSEL | CMU_STATUS_HFXOSEL
+                         | CMU_STATUS_LFRCOSEL | CMU_STATUS_LFXOSEL
+#if defined(CMU_STATUS_USHFRCODIV2SEL)
+                         | CMU_STATUS_USHFRCODIV2SEL
+#endif
+                        ))
   {
     case CMU_STATUS_LFXOSEL:
 #if (EFM32_LFXO_FREQ > 0)
@@ -184,9 +190,11 @@ uint32_t SystemHFClockGet(void)
 #endif
       break;
 
+#if defined(CMU_STATUS_USHFRCODIV2SEL)
     case CMU_STATUS_USHFRCODIV2SEL:
       ret = 24000000;
       break;
+#endif
 
     default: /* CMU_STATUS_HFRCOSEL */
       switch (CMU->HFRCOCTRL & _CMU_HFRCOCTRL_BAND_MASK)

@@ -1,10 +1,19 @@
 #include "mbed.h"
 #include "test_env.h"
 
+#if defined(TARGET_DISCO_F429ZI)
+#define LOOPCNT    2
+namespace {
+BusOut bus_out(LED1, LED2);
+PinName led_pins[2] = {LED1, LED2}; // Temp, used to map pins in bus_out
+}
+#else
+#define LOOPCNT    4
 namespace {
 BusOut bus_out(LED1, LED2, LED3, LED4);
 PinName led_pins[4] = {LED1, LED2, LED3, LED4}; // Temp, used to map pins in bus_out
 }
+#endif
 
 int main()
 {
@@ -17,8 +26,10 @@ int main()
         int led_mask = 0x00;
         if (LED1 != NC) led_mask |= 0x01;
         if (LED2 != NC) led_mask |= 0x02;
+#if !defined(TARGET_DISCO_F429ZI)
         if (LED3 != NC) led_mask |= 0x04;
         if (LED4 != NC) led_mask |= 0x08;
+#endif
 
         printf("MBED: BusIn mask: 0x%X\r\n", mask);
         printf("MBED: BusIn LED mask: 0x%X\r\n", led_mask);
@@ -29,7 +40,7 @@ int main()
         }
 
         // Checking if DigitalOut is correctly set as connected
-        for (int i=0; i < 4; i++) {
+        for (int i=0; i < LOOPCNT; i++) {
             printf("MBED: BusOut.bit[%d] is %s\r\n",
                 i,
                 (led_pins[i] != NC && bus_out[i].is_connected())
@@ -37,7 +48,7 @@ int main()
                     : "not connected");
         }
 
-        for (int i=0; i < 4; i++) {
+        for (int i=0; i < LOOPCNT; i++) {
             if (led_pins[i] != NC && bus_out[0].is_connected() == 0) {
                 break;
             }
@@ -61,7 +72,7 @@ int main()
     printf("MBED: Blinking LEDs: \r\n");
 
     // Just a quick LED blinking...
-    for (int i=0; i<4; i++) {
+    for (int i=0; i<LOOPCNT; i++) {
         if (led_pins[i] != NC && bus_out[i].is_connected()) {
             bus_out[i] = 1;
             printf("%c", 'A' + i);

@@ -262,8 +262,8 @@ typedef enum {
     A19 = PTC11,
     A20 = PTE0,
     
-    I2C_SCL = PTB3,
-    I2C_SDA = PTB2,
+    I2C_SCL = PTB2,
+    I2C_SDA = PTB3,
     
     SPI_SCK = PTC5,  // sclk
     SPI_DOUT = PTC6, // mosi

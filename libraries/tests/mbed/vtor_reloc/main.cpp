@@ -6,10 +6,15 @@
 #include "cmsis_nvic.h"
 #include <string.h>
 
-#if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
-#define PIN_IN      (PA06)
-#define PIN_OUT     (PA07)
+#if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) 
+#define PIN_IN      (PB02)
+#define PIN_OUT     (PB03)
 #define NUM_VECTORS (16+28)
+
+#elif defined(TARGET_SAML21J18A)
+#define PIN_IN      (PB00)
+#define PIN_OUT     (PB01)
+#define NUM_VECTORS (16+29)
 
 #else
 #define PIN_IN      (p5)
