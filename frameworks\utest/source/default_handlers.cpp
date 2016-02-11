@@ -16,12 +16,11 @@
  ****************************************************************************
  */
 
- #include "utest/default_handlers.h"
- #include "utest/case.h"
+#include "utest/default_handlers.h"
+#include "utest/case.h"
 
 using namespace utest::v1;
 
-static status_t greentea_unknown_test_setup_handler(const size_t);
 static void selftest_failure_handler(const failure_t failure);
 static void test_failure_handler(const failure_t failure);
 
@@ -33,39 +32,9 @@ const handlers_t utest::v1::verbose_continue_handlers = {
     verbose_case_teardown_handler,
     verbose_case_failure_handler
 };
-const handlers_t utest::v1::greentea_abort_handlers = {
-    greentea_unknown_test_setup_handler,
-    greentea_test_teardown_handler,
-    test_failure_handler,
-    greentea_case_setup_handler,
-    greentea_case_teardown_handler,
-    greentea_case_failure_abort_handler
-};
-const handlers_t utest::v1::greentea_continue_handlers = {
-    greentea_unknown_test_setup_handler,
-    greentea_test_teardown_handler,
-    test_failure_handler,
-    greentea_case_setup_handler,
-    greentea_case_teardown_handler,
-    greentea_case_failure_continue_handler
-};
 
-const handlers_t utest::v1::selftest_handlers = {
-    greentea_unknown_test_setup_handler,
-    greentea_test_teardown_handler,
-    selftest_failure_handler,
-    greentea_case_setup_handler,
-    greentea_case_teardown_handler,
-    greentea_case_failure_continue_handler
-};
 
 // --- SPECIAL HANDLERS ---
-static status_t greentea_unknown_test_setup_handler(const size_t) {
-    printf(">>> I do not know how to tell greentea that the test started, since\n");
-    printf(">>> you forgot to override the `test_setup_handler` in your specification.\n");
-
-    return STATUS_ABORT;
-}
 static void selftest_failure_handler(const failure_t failure) {
     if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN || failure.reason == REASON_ASSERTION) {
         verbose_test_failure_handler(failure);
@@ -75,6 +44,7 @@ static void selftest_failure_handler(const failure_t failure) {
         while(1) ;
     }
 }
+
 static void test_failure_handler(const failure_t failure) {
     if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
         verbose_test_failure_handler(failure);
