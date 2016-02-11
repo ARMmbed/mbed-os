@@ -53,9 +53,6 @@ MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 # GCC ARM
 GCC_ARM_PATH = ""
 
-# GCC CodeSourcery
-GCC_CS_PATH = "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin"
-
 # GCC CodeRed
 GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 

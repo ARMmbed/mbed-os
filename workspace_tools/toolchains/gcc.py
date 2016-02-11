@@ -18,7 +18,7 @@ import re
 from os.path import join, basename, splitext
 
 from workspace_tools.toolchains import mbedToolchain
-from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
+from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, CW_EWL_PATH, CW_GCC_PATH
 from workspace_tools.settings import GOANNA_PATH
 from workspace_tools.hooks import hook_tool
 
@@ -212,11 +212,6 @@ class GCC_CR(GCC):
         if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         self.ld += ["-nostdlib"]
-
-
-class GCC_CS(GCC):
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
-        GCC.__init__(self, target, options, notify, macros, silent, GCC_CS_PATH, extra_verbose=extra_verbose)
 
 
 class GCC_CW(GCC):

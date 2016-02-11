@@ -184,7 +184,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
-    toolchain: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR']
+    toolchain: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
     library_paths: List of paths to additional libraries
     clean: Rebuild everything if True
     notify: Notify function for logs
