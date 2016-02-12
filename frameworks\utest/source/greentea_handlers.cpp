@@ -18,7 +18,7 @@
 
 #include "utest/default_handlers.h"
 #include "utest/case.h"
-#include "mbed-drivers/test_env.h"
+#include "greentea-client/test_env.h"
 
 using namespace utest::v1;
 
