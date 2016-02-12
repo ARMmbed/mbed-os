@@ -10,8 +10,13 @@ mbedtls_stub_def mbedtls_stub;
 int mbedtls_ssl_handshake_step( mbedtls_ssl_context *ssl )
 {
     if( mbedtls_stub.useCounter ){
-        if( mbedtls_stub.retArray[mbedtls_stub.counter] == HANDSHAKE_FINISHED_VALUE){
+
+        if( mbedtls_stub.retArray[mbedtls_stub.counter] == HANDSHAKE_FINISHED_VALUE ||
+                mbedtls_stub.retArray[mbedtls_stub.counter] == HANDSHAKE_FINISHED_VALUE_RETURN_ZERO){
+
             ssl->state = MBEDTLS_SSL_HANDSHAKE_OVER;
+            if(mbedtls_stub.retArray[mbedtls_stub.counter] == HANDSHAKE_FINISHED_VALUE_RETURN_ZERO)
+                return 0;
         }
         return mbedtls_stub.retArray[mbedtls_stub.counter++];
     }
