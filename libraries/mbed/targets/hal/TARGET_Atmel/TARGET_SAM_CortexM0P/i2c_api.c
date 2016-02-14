@@ -924,20 +924,20 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
     uint32_t event_mask = pI2C_S(obj)->events;
 
     /* TODO: Current implementation is interrupt based only */
-    
+
     switch (pI2C_S(obj)->master.status) {
         case STATUS_OK:
             /* Transfer is complete */
             return (I2C_EVENT_TRANSFER_COMPLETE & event_mask);
-           
+
         case STATUS_ERR_BAD_ADDRESS:
             /* Received a NACK */
             return (I2C_EVENT_ERROR_NO_SLAVE & event_mask);
-        
+
         case STATUS_ERR_PACKET_COLLISION:
             /* An error occurred in between transfer */
             return (I2C_EVENT_ERROR & event_mask);
-       
+
         default:
             return 0;
     }

@@ -863,7 +863,7 @@ static enum status_code _spi_transceive_buffer(spi_t *obj)
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     uint16_t dummy_read;
-	(void) dummy_read; 
+    (void) dummy_read;
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 

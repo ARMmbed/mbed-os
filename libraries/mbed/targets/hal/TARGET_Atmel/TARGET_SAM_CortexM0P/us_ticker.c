@@ -109,7 +109,6 @@ void us_ticker_init(void)
 
     /* Initialize the timer */
     tc_init(&us_ticker_module, TICKER_COUNTER_uS, &config_tc);
-    MBED_ASSERT(ret_status == STATUS_OK);
 
     /* Register callback function */
     tc_register_callback(&us_ticker_module, (tc_callback_t)us_ticker_irq_handler_internal, TC_CALLBACK_CC_CHANNEL0);
