@@ -301,8 +301,8 @@ bool dma_is_transfer_complete(int channelid)
 
     if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
         /* This channel is not active! return zero for now */
-       // res = 0;
-       return 0;
+        // res = 0;
+        return 0;
     }
 
     return (STATUS_OK == dma_get_job_status(&dma_channels[channel_index].resource));

@@ -104,7 +104,7 @@ static inline void reset_usart(serial_t *obj)
 
     /* Reset module */
     _USART(obj).CTRLA.reg = SERCOM_USART_CTRLA_SWRST;
-	SUPPRESS_WARNING(reset_usart);
+    SUPPRESS_WARNING(reset_usart);
 }
 
 uint32_t serial_find_mux_settings (serial_t *obj)
