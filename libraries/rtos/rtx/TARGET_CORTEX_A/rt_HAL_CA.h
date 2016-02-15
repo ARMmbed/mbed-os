@@ -75,8 +75,6 @@
 
 #elif defined (__ICCARM__)      /* IAR Compiler */
 
-#error IAR Compiler support not implemented for Cortex-A
-
 #endif
 
 static U8 priority = 0xff;
@@ -99,12 +97,23 @@ extern const U32 GICInterface_BASE;
 #define SGI_PENDSV_BIT  ((U32)(1 << (SGI_PENDSV & 0xf)))
 
 //Increase priority filter to prevent timer and PendSV interrupts signaling. Guarantees that interrupts will not be forwarded.
+#if defined (__ICCARM__)
+#define OS_LOCK() int irq_dis = __disable_irq_iar();\
+                  priority = GICI_ICCPMR; \
+                  GICI_ICCPMR = 0xff; \
+                  GICI_ICCPMR = GICI_ICCPMR - 1; \
+                  __DSB();\
+                  if(!irq_dis) __enable_irq(); \
+
+#else
 #define OS_LOCK() int irq_dis = __disable_irq();\
                   priority = GICI_ICCPMR; \
                   GICI_ICCPMR = 0xff; \
                   GICI_ICCPMR = GICI_ICCPMR - 1; \
                   __DSB();\
                   if(!irq_dis) __enable_irq(); \
+
+#endif
 
 //Restore priority filter. Re-enable timer and PendSV signaling
 #define OS_UNLOCK() __DSB(); \
@@ -134,9 +143,14 @@ extern const U32 GICInterface_BASE;
  #define rt_inc(p)     while(__strex((__ldrex(p)+1),p))
  #define rt_dec(p)     while(__strex((__ldrex(p)-1),p))
 #else
+#if defined (__ICCARM__)
+ #define rt_inc(p)     { int irq_dis = __disable_irq_iar();(*p)++;if(!irq_dis) __enable_irq(); }
+ #define rt_dec(p)     { int irq_dis = __disable_irq_iar();(*p)--;if(!irq_dis) __enable_irq(); }
+#else
  #define rt_inc(p)     { int irq_dis = __disable_irq();(*p)++;if(!irq_dis) __enable_irq(); }
  #define rt_dec(p)     { int irq_dis = __disable_irq();(*p)--;if(!irq_dis) __enable_irq(); }
-#endif
+#endif /* __ICCARM__ */
+#endif /* __USE_EXCLUSIVE_ACCESS */
 
 __inline static U32 rt_inc_qi (U32 size, U8 *count, U8 *first) {
   U32 cnt,c2;
@@ -152,7 +166,11 @@ __inline static U32 rt_inc_qi (U32 size, U8 *count, U8 *first) {
   } while (__strex(c2, first));
 #else
   int irq_dis;
+ #if defined (__ICCARM__)
+  irq_dis = __disable_irq_iar();
+ #else
   irq_dis = __disable_irq();
+ #endif /* __ICCARM__ */
   if ((cnt = *count) < size) {
     *count = cnt+1;
     c2 = (cnt = *first) + 1;

@@ -133,6 +133,40 @@ void InitMemorySubsystem(void) {
        PL310_Enable(); 
     } 
 } 
+#elif defined ( __ICCARM__ )
+
+void InitMemorySubsystem(void) { 
+ 
+    /* This SVC is specific for reset where data / tlb / btac may contain undefined data, therefore before 
+     * enabling the cache you must invalidate the instruction cache, the data cache, TLB, and BTAC. 
+     * You are not required to invalidate the main TLB, even though it is recommended for safety 
+     * reasons. This ensures compatibility with future revisions of the processor. */ 
+ 
+    unsigned int l2_id; 
+ 
+    /* Invalidate undefined data */ 
+    __ca9u_inv_tlb_all(); 
+    __v7_inv_icache_all(); 
+    __v7_inv_dcache_all(); 
+    __v7_inv_btac(); 
+ 
+    /* Don't use this function during runtime since caches may contain valid data. For a correct cache maintenance you may need to execute a clean and 
+     * invalidate in order to flush the valid data to the next level cache. 
+     */ 
+    __enable_mmu();
+ 
+    /* After MMU is enabled and data has been invalidated, enable caches and BTAC */ 
+    __enable_caches(); 
+    __enable_btac(); 
+ 
+    /* If present, you may also need to Invalidate and Enable L2 cache here */ 
+    l2_id = PL310_GetID(); 
+    if (l2_id) 
+    { 
+       PL310_InvAllByWay(); 
+       PL310_Enable(); 
+    } 
+} 
 #else 
 
 #endif 

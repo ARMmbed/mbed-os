@@ -271,6 +271,7 @@ if __name__ == '__main__':
             ('iar', 'MAXWSNENV'),
             ('iar', 'MAX32600MBED'),
             ('iar', 'MOTE_L152RC'),
+            ('iar', 'RZ_A1H'),
 
             # ('sw4stm32', 'DISCO_F051R8'),
             # ('sw4stm32', 'DISCO_F100RB'),

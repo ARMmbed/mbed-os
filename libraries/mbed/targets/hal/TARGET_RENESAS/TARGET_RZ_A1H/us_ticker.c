@@ -85,7 +85,11 @@ uint32_t us_ticker_read() {
     uint64_t us_val64;
     int check_irq_masked;
 
+#if defined ( __ICCARM__)
+    check_irq_masked = __disable_irq_iar();
+#else
     check_irq_masked = __disable_irq();
+#endif /* __ICCARM__ */
 
     cnt_val64        = ticker_read_counter64();
     us_val64         = (cnt_val64 / count_clock);
