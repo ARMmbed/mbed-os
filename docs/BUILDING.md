@@ -104,7 +104,6 @@ Compiler               | Mbed SDK Abbreviation | Example Version
 -----------------------|-----------------------|-----------
 Keil ARM Compiler      | ARM, uARM             | ARM C/C++ Compiler, 5.03 [Build 117]
 GCC ARM                | GCC_ARM               | gcc version 4.8.3 20131129 (release)
-GCC CodeSourcery       | GCC_CS                | gcc version 4.8.1 (Sourcery CodeBench Lite 2013.11-24)
 GCC CodeRed            | GCC_CR                | gcc version 4.6.2 20121016 (release)
 IAR Embedded Workbench | IAR                   | IAR ANSI C/C++ Compiler V6.70.1.5641/W32 for ARM
 
@@ -174,9 +173,6 @@ MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 # GCC ARM
 GCC_ARM_PATH = "C:/Work/toolchains/gcc_arm_4_8/4_8_2013q4/bin"
  
-# GCC CodeSourcery
-GCC_CS_PATH = "C:/Work/toolchains/Sourcery_CodeBench_Lite_for_ARM_EABI/bin"
- 
 # GCC CodeRed
 GCC_CR_PATH = "C:/Work/toolchains/LPCXpresso_6.1.4_194/lpcxpresso/tools/bin"
  
@@ -194,17 +190,15 @@ MUTs = {
 Note: You need to provide the absolute path to your compiler(s) installed on your host machine. Replace corresponding variable values with paths to compilers installed in your system:
 * ```ARM_PATH``` for armcc compiler.
 * ```GCC_ARM_PATH``` for GCC ARM compiler.
-* ```GCC_CS_PATH``` for GCC CodeSourcery compiler.
 * ```GCC_CR_PATH``` for GCC CodeRed compiler.
 * ```IAR_PATH``` for IAR compiler. 
 
 If for example you do not use ```IAR``` compiler you do not have to modify anything. Workspace tools will use ```IAR_PATH`` variable only if you explicit ask for it from command line. So do not worry and replace only paths for your installed compilers.
 
-Note: Because this is a Python script and ```ARM_PATH```, ```GCC_ARM_PATH```, ```GCC_CS_PATH```, ```GCC_CR_PATH```, ```IAR_PATH``` are Python string variables please use double backlash or single slash as path's directories delimiter to avoid incorrect path format. For example:
+Note: Because this is a Python script and ```ARM_PATH```, ```GCC_ARM_PATH```, ```GCC_CR_PATH```, ```IAR_PATH``` are Python string variables please use double backlash or single slash as path's directories delimiter to avoid incorrect path format. For example:
 ```python
 ARM_PATH = "C:/Work/toolchains/ARMCompiler_5.03_117_Windows"
 GCC_ARM_PATH = "C:/Work/toolchains/gcc_arm_4_8/4_8_2013q4/bin"
-GCC_CS_PATH = "C:/Work/toolchains/Sourcery_CodeBench_Lite_for_ARM_EABI/bin"
 GCC_CR_PATH = "C:/Work/toolchains/LPCXpresso_6.1.4_194/lpcxpresso/tools/bin"
 IAR_PATH = "C:/Work/toolchains/iar_6_5/arm"
 ```
@@ -263,7 +257,7 @@ Volume serial number is 006C006F 6243:3EA9
 
 Note: Why ```LCP1768```? For this example we are using ```LPC1768``` because this platform supports all compilers so you are sure you only need to specify proper compiler.
 
-If you are not using ARM Compiler replace ```ARM``` with your compiler nickname: ```GCC_ARM```, ```GCC_CS```, ```GCC_CR``` or ```IAR```. For example if you are using IAR type command:
+If you are not using ARM Compiler replace ```ARM``` with your compiler nickname: ```GCC_ARM```, ```GCC_CR``` or ```IAR```. For example if you are using IAR type command:
 ```
 $ python build.py -m LPC1768 -t IAR
 ```
@@ -335,17 +329,17 @@ Build successes:
 * If you’re unsure which platforms and toolchains are supported please use switch ```-S``` to print simple matrix of platform to compiler dependencies.
 ```
 $ python build.py -S
-+-------------------------+-----------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
-| Platform                |    ARM    |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  |   GCC_CS  | GCC_CW_EWL | GCC_CW_NEWLIB |
-+-------------------------+-----------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
-| APPNEARME_MICRONFCBOARD | Supported |  Default  | Supported |     -     |     -     |     -     |     -      |       -       |
-| ARCH_BLE                |  Default  |     -     | Supported | Supported |     -     |     -     |     -      |       -       |
-| ARCH_GPRS               | Supported |  Default  | Supported | Supported | Supported |     -     |     -      |       -       |
++-------------------------+-----------+-----------+-----------+-----------+-----------+
+| Platform                |    ARM    |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  |
++-------------------------+-----------+-----------+-----------+-----------+-----------+
+| APPNEARME_MICRONFCBOARD | Supported |  Default  | Supported |     -     |     -     |
+| ARCH_BLE                |  Default  |     -     | Supported | Supported |     -     |
+| ARCH_GPRS               | Supported |  Default  | Supported | Supported | Supported |
 ...
-| UBLOX_C029              | Supported |  Default  | Supported | Supported |     -     |     -     |     -      |       -       |
-| WALLBOT_BLE             |  Default  |     -     | Supported | Supported |     -     |     -     |     -      |       -       |
-| XADOW_M0                | Supported |  Default  | Supported | Supported | Supported |     -     |     -      |       -       |
-+-------------------------+-----------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
+| UBLOX_C029              | Supported |  Default  | Supported | Supported |     -     |
+| WALLBOT_BLE             |  Default  |     -     | Supported | Supported |     -     |
+| XADOW_M0                | Supported |  Default  | Supported | Supported | Supported |
++-------------------------+-----------+-----------+-----------+-----------+-----------+
 *Default - default on-line compiler
 *Supported - supported off-line compiler
 
@@ -356,19 +350,19 @@ Total permutations: 297
 Above list can be overwhelming so please do not hesitate to use switch ```-f``` to filter ```Platform``` column.
 ```
 $ python build.py -S -f ^K
-+--------------+-----------+---------+-----------+-----------+--------+--------+------------+---------------+
-| Platform     |    ARM    |   uARM  |  GCC_ARM  |    IAR    | GCC_CR | GCC_CS | GCC_CW_EWL | GCC_CW_NEWLIB |
-+--------------+-----------+---------+-----------+-----------+--------+--------+------------+---------------+
-| K20D50M      |  Default  |    -    | Supported | Supported |   -    |   -    |     -      |       -       |
-| K22F         |  Default  |    -    | Supported | Supported |   -    |   -    |     -      |       -       |
-| K64F         |  Default  |    -    | Supported | Supported |   -    |   -    |     -      |       -       |
-| KL05Z        | Supported | Default | Supported | Supported |   -    |   -    |     -      |       -       |
-| KL25Z        |  Default  |    -    | Supported | Supported |   -    |   -    | Supported  |   Supported   |
-| KL43Z        |  Default  |    -    | Supported |     -     |   -    |   -    |     -      |       -       |
-| KL46Z        |  Default  |    -    | Supported | Supported |   -    |   -    |     -      |       -       |
-| NRF51_DK     |  Default  |    -    | Supported | Supported |   -    |   -    |     -      |       -       |
-| NRF51_DK_OTA |  Default  |    -    | Supported |     -     |   -    |   -    |     -      |       -       |
-+--------------+-----------+---------+-----------+-----------+--------+--------+------------+---------------+
++--------------+-----------+---------+-----------+-----------+--------+
+| Platform     |    ARM    |   uARM  |  GCC_ARM  |    IAR    | GCC_CR |
++--------------+-----------+---------+-----------+-----------+--------+
+| K20D50M      |  Default  |    -    | Supported | Supported |   -    |
+| K22F         |  Default  |    -    | Supported | Supported |   -    |
+| K64F         |  Default  |    -    | Supported | Supported |   -    |
+| KL05Z        | Supported | Default | Supported | Supported |   -    |
+| KL25Z        |  Default  |    -    | Supported | Supported |   -    |
+| KL43Z        |  Default  |    -    | Supported |     -     |   -    |
+| KL46Z        |  Default  |    -    | Supported | Supported |   -    |
+| NRF51_DK     |  Default  |    -    | Supported | Supported |   -    |
+| NRF51_DK_OTA |  Default  |    -    | Supported |     -     |   -    |
++--------------+-----------+---------+-----------+-----------+--------+
 *Default - default on-line compiler
 *Supported - supported off-line compiler
 
@@ -378,11 +372,11 @@ Total permutations: 28
 or just give platform name:
 ```
 $ python build.py -S -f LPC1768
-+----------+---------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
-| Platform |   ARM   |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  |   GCC_CS  | GCC_CW_EWL | GCC_CW_NEWLIB |
-+----------+---------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
-| LPC1768  | Default | Supported | Supported | Supported | Supported | Supported |     -      |       -       |
-+----------+---------+-----------+-----------+-----------+-----------+-----------+------------+---------------+
++----------+---------+-----------+-----------+-----------+-----------+
+| Platform |   ARM   |    uARM   |  GCC_ARM  |    IAR    |   GCC_CR  |
++----------+---------+-----------+-----------+-----------+-----------+
+| LPC1768  | Default | Supported | Supported | Supported | Supported |
++----------+---------+-----------+-----------+-----------+-----------+
 *Default - default on-line compiler
 *Supported - supported off-line compiler
 

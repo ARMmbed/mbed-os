@@ -31,9 +31,9 @@ from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
-    ('LPC1768',      ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
-    ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
-    ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR')),
+    ('LPC1768',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
+    ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
+    ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
     ('LPC2368',      ('ARM', 'GCC_ARM')),
     ('LPC2460',      ('GCC_ARM',)),
     ('LPC812',       ('uARM','IAR')),

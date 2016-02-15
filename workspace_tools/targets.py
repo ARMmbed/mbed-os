@@ -275,7 +275,7 @@ class LPC1768(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.detect_code = ["1010"]
         self.progen_target = 'mbed-lpc1768'
 
@@ -284,7 +284,7 @@ class ARCH_PRO(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
         self.progen_target ='arch-pro'
@@ -294,7 +294,7 @@ class UBLOX_C027(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
         self.progen_target ='ublox-c027'
@@ -304,7 +304,7 @@ class XBED_LPC1768(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X', 'XBED_LPC1768']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.detect_code = ["1010"]
 
@@ -466,7 +466,7 @@ class KL25Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM","IAR"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = ["0200"]

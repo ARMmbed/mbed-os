@@ -148,7 +148,7 @@ Below we can see how sample ```test_spec.json``` file content could look like. (
 ```json
 {
     "targets": {
-        "LPC1768" : ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"],
+        "LPC1768" : ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "KL25Z" : ["ARM", "GCC_ARM"],
         "NUCLEO_F103RB" : ["ARM", "uARM"]
      }
@@ -156,7 +156,7 @@ Below we can see how sample ```test_spec.json``` file content could look like. (
 ```
 Above example configuration will force tests for LPC1768, KL25Z, NUCLEO_F103RB platforms and:
 
-* Compilers: ```ARM```, ```uARM```, ```GCC_ARM```, ```GCC_CS```, ```GCC_CR``` and ```IAR``` will be used to compile tests for NXP's ```LPC1768```.
+* Compilers: ```ARM```, ```uARM```, ```GCC_ARM```, ```GCC_CR``` and ```IAR``` will be used to compile tests for NXP's ```LPC1768```.
 * Compilers: ```ARM``` and ```GCC_ARM``` will be used for Freescales' ```KL25Z``` platform.
 * Compilers: ```ARM``` and ```uARM``` will be used for STMicro's ```NUCLEO_F103RB``` platform.
 

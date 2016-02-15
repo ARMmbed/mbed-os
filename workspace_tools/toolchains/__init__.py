@@ -153,11 +153,11 @@ class Resources:
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
     'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
-    'ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR', 'uARM'
+    'ARM', 'GCC_ARM', 'GCC_CR', 'IAR', 'uARM'
 ])
 LEGACY_TOOLCHAIN_NAMES = {
     'ARM_STD':'ARM', 'ARM_MICRO': 'uARM',
-    'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR', 'GCC_CS': 'GCC_CS',
+    'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR',
     'IAR': 'IAR',
 }
 
@@ -740,33 +740,26 @@ class mbedToolchain:
         self.notify({'type': 'var', 'key': key, 'val': value})
 
 from workspace_tools.settings import ARM_BIN
-from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
+from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH
 from workspace_tools.settings import IAR_PATH
 
 TOOLCHAIN_BIN_PATH = {
     'ARM': ARM_BIN,
     'uARM': ARM_BIN,
     'GCC_ARM': GCC_ARM_PATH,
-    'GCC_CS': GCC_CS_PATH,
     'GCC_CR': GCC_CR_PATH,
-    'GCC_CW_EWL': CW_EWL_PATH,
-    'GCC_CW_NEWLIB': CW_GCC_PATH,
     'IAR': IAR_PATH
 }
 
 from workspace_tools.toolchains.arm import ARM_STD, ARM_MICRO
-from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CS, GCC_CR
-from workspace_tools.toolchains.gcc import GCC_CW_EWL, GCC_CW_NEWLIB
+from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CR
 from workspace_tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
     'ARM': ARM_STD,
     'uARM': ARM_MICRO,
     'GCC_ARM': GCC_ARM,
-    'GCC_CS': GCC_CS,
     'GCC_CR': GCC_CR,
-    'GCC_CW_EWL': GCC_CW_EWL,
-    'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
     'IAR': IAR
 }
 
