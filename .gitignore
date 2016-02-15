@@ -11,6 +11,7 @@ private_settings.py
 
 # Default Build Directory
 build/
+venv/
 
 # Eclipse Project Files
 .cproject

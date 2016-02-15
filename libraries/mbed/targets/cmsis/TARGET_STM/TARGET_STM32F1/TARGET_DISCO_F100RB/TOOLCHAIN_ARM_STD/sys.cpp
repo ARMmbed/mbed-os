@@ -1,5 +1,6 @@
-/* mbed Microcontroller Library
- * CMSIS-style functionality to support dynamic vectors
+/* mbed Microcontroller Library - stackheap
+ * Setup a fixed single stack/heap memory model, 
+ * between the top of the RW/ZI region and the stackpointer
  *******************************************************************************
  * Copyright (c) 2014, STMicroelectronics
  * All rights reserved.
@@ -25,32 +26,31 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  *******************************************************************************
- */ 
-
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
-
-// STM32F407VG
-// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 82 vectors = 328 bytes from 0x40 to ...
-// Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
-
-#define NVIC_NUM_VECTORS      98
-#define NVIC_USER_IRQ_OFFSET  16
-
-#include "cmsis.h"
+ */
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif 
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
+#include <rt_misc.h>
+#include <stdint.h>
+
+extern char Image$$RW_IRAM1$$ZI$$Limit[];
+
+extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t sp_limit = __current_sp();
+
+    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
+
+    struct __initial_stackheap r;
+    r.heap_base = zi_limit;
+    r.heap_limit = sp_limit;
+    return r;
+}
 
 #ifdef __cplusplus
 }
-#endif
-
-#endif
+#endif 

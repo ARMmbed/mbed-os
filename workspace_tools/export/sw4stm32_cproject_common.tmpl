@@ -24,7 +24,7 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.{{debug_tool_compiler_uid}}" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.{{uid}}" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false"/>
 								<option id="gnu.c.compiler.option.debugging.level.{{uid}}" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
-							<option id="gnu.c.compiler.option.include.paths.{{uid}}" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.{{uid}}" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									{% for path in include_paths %}
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
 									{% endfor %}
@@ -63,6 +63,21 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.{{uid}}" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker">
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script" value="${workspace_loc:/${ProjName}/{{linker_script}}}" valueType="string"/>
 								<option id="gnu.cpp.link.option.flags.{{uid}}" superClass="gnu.cpp.link.option.flags" value="--specs=nano.specs" valueType="string"/>
+								<option id="gnu.cpp.link.option.userobjs.{{uid}}" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+									{% for path in object_files %}
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
+									{% endfor %}
+								</option>
+								<option id="gnu.cpp.link.option.libs.{{uid}}" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									{% for lib in libraries %}
+									<listOptionValue builtIn="false" value="{{lib}}"/>
+									{% endfor %}
+								</option>
+								<option id="gnu.cpp.link.option.paths.{{uid}}" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									{% for path in library_paths %}
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
+									{% endfor %}
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.{{uid}}" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -122,6 +137,16 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.{{uid}}" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler">
 								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.{{uid}}" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.cpp.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.{{uid}}" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.include.paths.{{uid}}" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									{% for path in include_paths %}
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
+									{% endfor %}
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def{{uid}}" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
+								{% for s in symbols %}
+									<listOptionValue builtIn="false" value="{{s}}"/>
+								{% endfor %}
+								</option>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
 							</tool>
@@ -132,6 +157,23 @@
 								</inputType>
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.{{uid}}" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker">
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script" value="${workspace_loc:/${ProjName}/{{linker_script}}}" valueType="string"/>
+								<option id="gnu.cpp.link.option.flags.{{uid}}" superClass="gnu.cpp.link.option.flags" value="--specs=nano.specs" valueType="string"/>
+								<option id="gnu.cpp.link.option.userobjs.{{uid}}" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
+									{% for path in object_files %}
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
+									{% endfor %}
+								</option>
+								<option id="gnu.cpp.link.option.libs.{{uid}}" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									{% for lib in libraries %}
+									<listOptionValue builtIn="false" value="{{lib}}"/>
+									{% endfor %}
+								</option>
+								<option id="gnu.cpp.link.option.paths.{{uid}}" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+									{% for path in library_paths %}
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/{{path}}}&quot;"/>
+									{% endfor %}
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.{{uid}}" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

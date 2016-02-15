@@ -292,7 +292,7 @@ class mbedToolchain:
                 self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
 
             # Symbols defined by the on-line build.system
-            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, '__MBED__=1'])
+            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, 'TARGET_LIKE_MBED', '__MBED__=1'])
             if MBED_ORG_USER:
                 self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
