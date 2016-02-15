@@ -105,7 +105,7 @@ class GccArm(Exporter):
         'EFM32ZG_STK3200',
         'EFM32HG_STK3400',
         'EFM32PG_STK3401',
-        'NZ32SC151',
+        'NZ32_SC151',
         'SAMR21G18A',
         'TEENSY3_1',
         'SAMD21J18A',
