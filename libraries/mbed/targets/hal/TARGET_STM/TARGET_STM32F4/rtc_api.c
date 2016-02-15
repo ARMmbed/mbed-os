@@ -33,7 +33,9 @@
 
 #include "mbed_error.h"
 
+#if DEVICE_RTC_LSI
 static int rtc_inited = 0;
+#endif
 
 static RTC_HandleTypeDef RtcHandle;
 
@@ -42,8 +44,9 @@ void rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
-    if (rtc_inited) return;
+#if DEVICE_RTC_LSI
     rtc_inited = 1;
+#endif
 
     RtcHandle.Instance = RTC;
 
@@ -57,6 +60,7 @@ void rtc_init(void)
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
 
+#if !DEVICE_RTC_LSI
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; /* Mandatory, otherwise the PLL is reconfigured! */
@@ -66,7 +70,11 @@ void rtc_init(void)
         __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
         rtc_freq = LSE_VALUE;
-    } else {
+    }
+    else {
+      error("RTC error: LSE clock initialization failed.");
+    }
+#else
         // Enable LSI clock
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
@@ -80,10 +88,7 @@ void rtc_init(void)
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
         // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
         rtc_freq = LSI_VALUE;
-    }
-
-    // Check if RTC is already initialized
-    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return;
+#endif    
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
@@ -122,13 +127,19 @@ void rtc_free(void)
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
-
+#if DEVICE_RTC_LSI
     rtc_inited = 0;
+#endif
 }
 
 int rtc_isenabled(void)
 {
+#if DEVICE_RTC_LSI
     return rtc_inited;
+#else
+  if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return 1;
+  else return 0;
+#endif
 }
 
 /*

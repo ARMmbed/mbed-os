@@ -1217,7 +1217,7 @@ void HAL_RCC_CSSCallback(void);
 #define RCC_BDCR_BYTE0_ADDRESS     (PERIPH_BASE + RCC_BDCR_OFFSET)
 
 #define RCC_DBP_TIMEOUT_VALUE      ((uint32_t)100)
-#define RCC_LSE_TIMEOUT_VALUE      ((uint32_t)100)  /* 100 ms */
+#define RCC_LSE_TIMEOUT_VALUE      ((uint32_t)5000)  /* 5000 ms */
 
 #define HSE_TIMEOUT_VALUE          HSE_STARTUP_TIMEOUT
 #define HSI_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
