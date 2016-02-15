@@ -218,7 +218,7 @@ const struct pwm_pin_channel pwn_pins[] = {
     {PB31, PWM_0, 1},
 
     /* Not connected */
-    {NC  , NC   , NC}
+    {(PinName) NC  ,(PWMName) NC   ,(uint8_t) NC}
 };
 
 

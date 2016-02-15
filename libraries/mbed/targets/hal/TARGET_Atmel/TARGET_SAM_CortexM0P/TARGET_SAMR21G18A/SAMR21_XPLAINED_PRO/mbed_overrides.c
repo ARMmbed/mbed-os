@@ -17,6 +17,7 @@
 #include "compiler.h"
 #include "system.h"
 
+
 uint8_t g_sys_init = 0;
 
 //called before main - implement here if board needs it ortherwise, let

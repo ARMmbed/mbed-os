@@ -45,6 +45,7 @@
  */
 
 #include <system.h>
+#include <toolchain.h>
 
 /**
  * \internal

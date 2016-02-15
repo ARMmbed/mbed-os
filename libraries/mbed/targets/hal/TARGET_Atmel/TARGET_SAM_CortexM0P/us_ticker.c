@@ -72,7 +72,6 @@ void us_ticker_init(void)
     uint32_t			cycles_per_us;
     uint32_t			prescaler = 0;
     struct tc_config	config_tc;
-    enum status_code	ret_status;
 
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
@@ -102,15 +101,14 @@ void us_ticker_init(void)
         prescaler = 5;
     }
 
-    config_tc.clock_prescaler = TC_CTRLA_PRESCALER(prescaler);
+    config_tc.clock_prescaler = (enum tc_clock_prescaler)TC_CTRLA_PRESCALER(prescaler);
     config_tc.counter_size = TC_COUNTER_SIZE_32BIT;
     config_tc.run_in_standby = true;
     config_tc.counter_32_bit.value = 0;
     config_tc.counter_32_bit.compare_capture_channel[TC_COMPARE_CAPTURE_CHANNEL_0] = 0xFFFFFFFF;
 
     /* Initialize the timer */
-    ret_status = tc_init(&us_ticker_module, TICKER_COUNTER_uS, &config_tc);
-    MBED_ASSERT(ret_status == STATUS_OK);
+    tc_init(&us_ticker_module, TICKER_COUNTER_uS, &config_tc);
 
     /* Register callback function */
     tc_register_callback(&us_ticker_module, (tc_callback_t)us_ticker_irq_handler_internal, TC_CALLBACK_CC_CHANNEL0);
