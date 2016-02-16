@@ -39,9 +39,9 @@ void analogin_init(analogin_t *obj, PinName pin)
 #endif
         struct adc_config adc_cfg;
         adc_get_config_defaults(&adc_cfg);
-		adc_cfg.resolution = ADC_16_BITS;
+        adc_cfg.resolution = ADC_16_BITS;
         adc_init(ADC, &adc_cfg);
-		adc_average_on_single_trigger(ADC);
+        adc_average_on_single_trigger(ADC);
         adc_set_trigger(ADC, ADC_TRIG_SW);
         adc_start_calibration(ADC);
         adc_inited = 1;
@@ -52,10 +52,10 @@ void analogin_init(analogin_t *obj, PinName pin)
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     MBED_ASSERT(obj);
-	adc_channel_get_value(ADC, obj->channel); /*Dummy read of current value*/
+    adc_channel_get_value(ADC, obj->channel); /*Dummy read of current value*/
     adc_start_software_conversion(ADC);
     while (adc_get_interrupt_status(ADC) & (1 << obj->channel));
-	return (uint16_t)adc_channel_get_value(ADC, obj->channel);
+    return (uint16_t)adc_channel_get_value(ADC, obj->channel);
 }
 
 float analogin_read(analogin_t *obj)

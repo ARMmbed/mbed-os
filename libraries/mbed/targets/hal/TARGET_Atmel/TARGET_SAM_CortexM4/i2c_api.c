@@ -21,6 +21,9 @@
 #include "PeripheralPins.h"
 #include "twi.h"
 #include "pdc.h"
+#include "mbed_assert.h"
+#include "ioport.h"
+
 /**
  * \defgroup GeneralI2C I2C Configuration Functions
  * @{
@@ -31,12 +34,13 @@ extern uint8_t g_sys_init;
 
 #define TWI_CLK    (400000u)
 
-#define ADDR_LENGTH  1
+#define ADDR_LENGTH  0
 
 #define MAX_I2C		8
 
 volatile static uint32_t gI2CCallbackHandler[MAX_I2C];
 typedef void (*I2CHandler)(void);
+extern uint32_t twi_mk_addr(const uint8_t *addr, int len);
 
 
 
@@ -152,7 +156,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     if (g_sys_init == 0) {
         sysclk_init();
-        system_board_init();
+        board_init();
         g_sys_init = 1;
     }
 
@@ -175,6 +179,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
 #if (SAMG55)
     /* Enable the peripheral and set TWI mode. */
+    MBED_ASSERT((int)obj->i2c.flexcom!=NC);
     flexcom_enable(obj->i2c.flexcom);
     flexcom_set_opmode(obj->i2c.flexcom, FLEXCOM_TWI);
 #else
@@ -235,30 +240,12 @@ int  i2c_stop(i2c_t *obj)
 }
 
 
-static uint32_t twi_mk_addr(const uint8_t *addr, int len)
-{
-    uint32_t val;
-
-    if (len == 0)
-        return 0;
-
-    val = addr[0];
-    if (len > 1) {
-        val <<= 8;
-        val |= addr[1];
-    }
-    if (len > 2) {
-        val <<= 8;
-        val |= addr[2];
-    }
-    return val;
-}
-
-uint32_t twi_master_read_no_stop(Twi *p_twi, twi_packet_t *p_packet)
+uint32_t twi_master_read_no_stop(Twi *p_twi, twi_packet_t *p_packet, uint8_t stopena)
 {
     uint32_t status;
     uint32_t cnt = p_packet->length;
     uint8_t *buffer = p_packet->buffer;
+    uint8_t stop_sent = 0;
     uint32_t timeout = TWI_TIMEOUT;;
 
     /* Check argument */
@@ -272,17 +259,13 @@ uint32_t twi_master_read_no_stop(Twi *p_twi, twi_packet_t *p_packet)
                      ((p_packet->addr_length << TWI_MMR_IADRSZ_Pos) &
                       TWI_MMR_IADRSZ_Msk);
 
-    /* Set internal address for remote chip */
-    p_twi->TWI_IADR = 0;
-    p_twi->TWI_IADR = twi_mk_addr(p_packet->addr, p_packet->addr_length);
-
     /* Send a START condition */
-    if (cnt == 1) {
-        p_twi->TWI_CR = TWI_CR_START;// | TWI_CR_STOP;
-        //stop_sent = 1;
+    if ((cnt == 1) && (stopena == 1)) {
+        p_twi->TWI_CR = TWI_CR_START | TWI_CR_STOP;
+        stop_sent = 1;
     } else {
         p_twi->TWI_CR = TWI_CR_START;
-        //stop_sent = 0;
+        stop_sent = 0;
     }
 
     while (cnt > 0) {
@@ -296,12 +279,10 @@ uint32_t twi_master_read_no_stop(Twi *p_twi, twi_packet_t *p_packet)
         }
 
         /* Last byte ? */
-        /*
-        if (cnt == 1  && !stop_sent) {
-        	p_twi->TWI_CR = TWI_CR_STOP;
-        	stop_sent = 1;
+        if ((cnt == 1)  && (!stop_sent) && (stopena == 1)) {
+            p_twi->TWI_CR = TWI_CR_STOP;
+            stop_sent = 1;
         }
-        */
 
         if (!(status & TWI_SR_RXRDY)) {
             continue;
@@ -311,8 +292,9 @@ uint32_t twi_master_read_no_stop(Twi *p_twi, twi_packet_t *p_packet)
         cnt--;
         timeout = TWI_TIMEOUT;
     }
-
-    while (!(p_twi->TWI_SR & TWI_SR_TXCOMP)) {
+    if(stopena) {
+        while (!(p_twi->TWI_SR & TWI_SR_TXCOMP)) {
+        }
     }
 
     p_twi->TWI_SR;
@@ -338,18 +320,13 @@ int  i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     MBED_ASSERT(obj);
 
     twi_packet_t packet;
-    packet.chip=address & 0xFFFF;
-    packet.addr[0]=address>>16 & 0xFF;
-    packet.addr[1]=address>>24 & 0xFF;
+    packet.chip= (address>>1) & 0x7F;
     packet.addr_length=ADDR_LENGTH;
     packet.buffer=data;
     packet.length=length;
 
     uint8_t status;
-    if(stop)
-        status= twi_master_read(obj->i2c.i2c_base, &packet);
-    else
-        status= twi_master_read_no_stop(obj->i2c.i2c_base, &packet);
+    status= twi_master_read_no_stop(obj->i2c.i2c_base, &packet, stop);
 
     if(TWI_SUCCESS==status)
         return length;
@@ -358,7 +335,7 @@ int  i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 }
 
 
-uint32_t twi_master_write_no_stop(Twi *p_twi, twi_packet_t *p_packet)
+uint32_t twi_master_write_no_stop(Twi *p_twi, twi_packet_t *p_packet, uint8_t stopena)
 {
     uint32_t status;
     uint32_t cnt = p_packet->length;
@@ -375,9 +352,12 @@ uint32_t twi_master_write_no_stop(Twi *p_twi, twi_packet_t *p_packet)
                      ((p_packet->addr_length << TWI_MMR_IADRSZ_Pos) &
                       TWI_MMR_IADRSZ_Msk);
 
-    /* Set internal address for remote chip */
-    p_twi->TWI_IADR = 0;
-    p_twi->TWI_IADR = twi_mk_addr(p_packet->addr, p_packet->addr_length);
+    /* Send a START condition */
+    if ((cnt == 1) && (stopena == 1)) {
+        p_twi->TWI_CR = TWI_CR_START | TWI_CR_STOP;
+    } else {
+        p_twi->TWI_CR = TWI_CR_START;
+    }
 
     /* Send all bytes */
     while (cnt > 0) {
@@ -405,9 +385,9 @@ uint32_t twi_master_write_no_stop(Twi *p_twi, twi_packet_t *p_packet)
         }
     }
 
-    //p_twi->TWI_CR = TWI_CR_STOP;
-
-    while (!(p_twi->TWI_SR & TWI_SR_TXCOMP)) {
+    if (stopena) {
+        p_twi->TWI_CR = TWI_CR_STOP;
+        while (!(p_twi->TWI_SR & TWI_SR_TXCOMP));
     }
 
     return TWI_SUCCESS;
@@ -428,18 +408,13 @@ int  i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     MBED_ASSERT(obj);
 
     twi_packet_t packet;
-    packet.chip=address & 0xFFFF;
-    packet.addr[0]=address>>16 & 0xFF;
-    packet.addr[1]=address>>24 & 0xFF;
+    packet.chip= (address>>1) & 0x7F;
     packet.addr_length=ADDR_LENGTH;
     packet.buffer= (void *)data;
     packet.length=length;
 
     uint8_t status;
-    if(stop)
-        status= twi_master_write(obj->i2c.i2c_base,&packet);
-    else
-        status= twi_master_write_no_stop(obj->i2c.i2c_base,&packet);
+    status= twi_master_write_no_stop(obj->i2c.i2c_base,&packet, stop);
 
     if(TWI_SUCCESS==status)
         return length;
@@ -550,6 +525,30 @@ int  i2c_slave_receive(i2c_t *obj)
     return 0;
 }
 
+
+uint32_t twi_slave_read_n(Twi *p_twi, uint8_t *p_data, int length)
+{
+    uint32_t status, cnt = 0;
+
+    do {
+        status = p_twi->TWI_SR;
+        if (status & TWI_SR_SVACC) {
+            if (!(status & (TWI_SR_GACC| TWI_SR_SVREAD )) &&
+                    (status & TWI_SR_RXRDY)
+               ) {
+                *p_data++ = (uint8_t) p_twi->TWI_RHR;
+                cnt++;
+                if(cnt>=length) break;
+            }
+        } else if ((status & (TWI_SR_EOSACC | TWI_SR_TXCOMP))
+                   == (TWI_SR_EOSACC | TWI_SR_TXCOMP)) {
+            break;
+        }
+    } while (1);
+
+    return cnt;
+}
+
 /** Read I2C slave.
  *  @param obj The I2C object
  *  @return non-zero if a value is available
@@ -557,12 +556,33 @@ int  i2c_slave_receive(i2c_t *obj)
 int  i2c_slave_read(i2c_t *obj, char *data, int length)
 {
     MBED_ASSERT(obj);
-    int read= twi_slave_read(obj->i2c.i2c_base,(uint8_t *)  data);
-    if(read<length)
-        read=twi_slave_read(obj->i2c.i2c_base,(uint8_t *)  &data[read]) + read;  //TODO: Conform
-
+    int read= twi_slave_read_n(obj->i2c.i2c_base,(uint8_t *)  data,length);
     return read;
 }
+
+
+uint32_t twi_slave_write_n(Twi *p_twi, uint8_t *p_data, int length)
+{
+    uint32_t status, cnt = 0;
+
+    do {
+        status = p_twi->TWI_SR;
+        if (status & TWI_SR_SVACC) {
+            if ((status & TWI_SR_SVREAD) && !(status & TWI_SR_GACC) &&
+                    (status & TWI_SR_TXRDY)) {
+                p_twi->TWI_THR = *p_data++;
+                cnt++;
+                if(cnt>=length) break;
+            }
+        } else if ((status & (TWI_SR_EOSACC | TWI_SR_TXCOMP))
+                   == (TWI_SR_EOSACC | TWI_SR_TXCOMP)) {
+            break;
+        }
+    } while (1);
+
+    return cnt;
+}
+
 
 /** Write I2C as slave.
  *  @param obj The I2C object
@@ -571,10 +591,7 @@ int  i2c_slave_read(i2c_t *obj, char *data, int length)
 int  i2c_slave_write(i2c_t *obj, const char *data, int length)
 {
     MBED_ASSERT(obj);
-    int write= twi_slave_write(obj->i2c.i2c_base, (uint8_t *) data);
-    if(write <length)
-        write= twi_slave_write(obj->i2c.i2c_base, (uint8_t *) &data[write]) + write;
-
+    int write= twi_slave_write_n(obj->i2c.i2c_base, (uint8_t *) data,length);
     return write;
 }
 
@@ -587,8 +604,7 @@ int  i2c_slave_write(i2c_t *obj, const char *data, int length)
 void i2c_slave_address(i2c_t *obj, int idx/*not used*/, uint32_t address, uint32_t mask)
 {
     MBED_ASSERT(obj);
-    twi_set_slave_addr(obj->i2c.i2c_base, address);
-    //twi_mask_slave_addr(obj->i2c.i2c_base, mask);
+    twi_set_slave_addr(obj->i2c.i2c_base, (address>>1));
 }
 
 #endif
@@ -620,7 +636,15 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     uint32_t pdcenable=0;
 
     if(address) {
-        twi_set_slave_addr(obj->i2c.i2c_base, address & 0xFFFF);
+        twi_packet_t pdc_packet;
+        pdc_packet.chip=(address>>1) & 0x7F;
+        pdc_packet.addr_length=ADDR_LENGTH;
+
+        /* Set write mode, slave address and 3 internal address byte lengths */
+        obj->i2c.i2c_base->TWI_MMR = 0;
+        obj->i2c.i2c_base->TWI_MMR = TWI_MMR_DADR(pdc_packet.chip) |
+                                     ((pdc_packet.addr_length << TWI_MMR_IADRSZ_Pos) &
+                                      TWI_MMR_IADRSZ_Msk);
     }
 
     if(tx) {
