@@ -1748,7 +1748,7 @@ class WIZWIKI_W7500ECO(Target):
         self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500ECO']
         self.supported_toolchains = ["uARM", "ARM"]
         self.default_toolchain = "ARM"
-		
+
 class SAMR21G18A(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1788,6 +1788,16 @@ class SAML21J18A(Target):
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
         self.progen_target ='samr21j18a'
+
+class SAMG55J19(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels = ['Atmel', 'SAM_CortexM4', 'SAMG55']
+        self.macros = ['__SAMG55J19__', 'BOARD=75', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+        self.progen_target ='samg55j19'
 
 # Get a single instance for each target
 TARGETS = [
@@ -1952,7 +1962,7 @@ TARGETS = [
     EFM32WG_STK3800(),
     EFM32ZG_STK3200(),
     EFM32HG_STK3400(),
-	EFM32PG_STK3401(),
+    EFM32PG_STK3401(),
 
     ### WIZnet ###
     WIZWIKI_W7500(),
@@ -1964,6 +1974,8 @@ TARGETS = [
     SAMD21J18A(),
     SAMD21G18A(),
     SAML21J18A(),
+    SAMG55J19(),
+    
 ]
 
 # Map each target name to its unique instance

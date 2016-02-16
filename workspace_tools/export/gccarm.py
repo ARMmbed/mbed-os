@@ -111,6 +111,7 @@ class GccArm(Exporter):
         'SAMD21J18A',
         'SAMD21G18A',
         'SAML21J18A',
+        'SAMG55J19',
     ]
 
     DOT_IN_RELATIVE_PATH = True

@@ -6,6 +6,9 @@ DigitalOut latchpin(PB03);
 #elif defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A)
 SPI spi(PA18, PA16, PA19);   // mosi, miso, sclk
 DigitalOut latchpin(PA17);
+#elif defined(TARGET_SAMG55J19)
+SPI spi(PA10, PA09, PB00, PA25);   // mosi, miso, sclk  cs
+DigitalOut latchpin(PA25);
 #else
 SPI spi(p11, p12, p13);
 DigitalOut latchpin(p10);

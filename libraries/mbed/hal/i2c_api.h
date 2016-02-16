@@ -18,6 +18,7 @@
 
 #include "device.h"
 #include "buffer.h"
+#include "dma_api.h"
 
 #if DEVICE_I2C
 
