@@ -64,6 +64,10 @@ DigitalInOut d2(PC1);
 DigitalInOut d1(PE10);
 DigitalInOut d2(PC1);
 
+#elif defined(TARGET_EFM32PG_STK3401)
+DigitalInOut d1(PC6);
+DigitalInOut d2(PA3);
+
 #elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
 DigitalInOut d1(PB02);
 DigitalInOut d2(PB03);

@@ -39,6 +39,10 @@
 #define TEST_SERIAL_ONE_TX_PIN PE10 // usart0
 #define TEST_SERIAL_TWO_RX_PIN PC1  // usart1
 
+#elif defined(TARGET_B96B_F446VE)
+#define TEST_SERIAL_ONE_TX_PIN D1   // UART2
+#define TEST_SERIAL_TWO_RX_PIN D4   // UART5
+
 #else
 
 #error Target not supported

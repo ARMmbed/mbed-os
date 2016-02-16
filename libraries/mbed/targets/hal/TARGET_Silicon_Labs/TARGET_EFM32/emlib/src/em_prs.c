@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_prs.c
  * @brief Peripheral Reflex System (PRS) Peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,12 +30,10 @@
  *
  ******************************************************************************/
 
-
 #include "em_prs.h"
 #if defined(PRS_COUNT) && (PRS_COUNT > 0)
 
 #include "em_assert.h"
-#include "em_bitband.h"
 
 /***************************************************************************//**
  * @addtogroup EM_Library
@@ -76,9 +74,9 @@ void PRS_SourceSignalSet(unsigned int ch,
 {
   EFM_ASSERT(ch < PRS_CHAN_COUNT);
 
-  PRS->CH[ch].CTRL = (source & _PRS_CH_CTRL_SOURCESEL_MASK) |
-                     (signal & _PRS_CH_CTRL_SIGSEL_MASK) |
-                     (uint32_t)edge;
+  PRS->CH[ch].CTRL = (source & _PRS_CH_CTRL_SOURCESEL_MASK)
+                     | (signal & _PRS_CH_CTRL_SIGSEL_MASK)
+                     | (uint32_t)edge;
 }
 
 #if defined( PRS_CH_CTRL_ASYNC )
@@ -95,12 +93,7 @@ void PRS_SourceSignalSet(unsigned int ch,
  *   asynchronous signals and consumers.
  *
  * @note
- *   This function is supported on the following device families:
- *   @li Giant Gecko (EFM32GGxxxFxxx)
- *   @li Leopard Gecko (EFM32LGxxxFxxx)
- *   @li Tiny Gecko (EFM32TGxxxFxxx)
- *   @li Wonder Gecko (EFM32WGxxxFxxx)
- *   @li Zero Gecko (EFM32ZGxxxFxxx)
+ *   This function is not supported on EFM32GxxxFyyy parts.
  *   In asynchronous mode, the edge detector only works in EM0, hence it shall
  *   not be used. The EDSEL parameter in PRS_CHx_CTRL register is set to 0 (OFF)
  *   by default.
@@ -121,10 +114,10 @@ void PRS_SourceAsyncSignalSet(unsigned int ch,
 {
   EFM_ASSERT(ch < PRS_CHAN_COUNT);
 
-  PRS->CH[ch].CTRL = PRS_CH_CTRL_ASYNC |
-                     (source & _PRS_CH_CTRL_SOURCESEL_MASK) |
-                     (signal & _PRS_CH_CTRL_SIGSEL_MASK) |
-                     PRS_CH_CTRL_EDSEL_OFF;
+  PRS->CH[ch].CTRL = PRS_CH_CTRL_ASYNC
+                     | (source & _PRS_CH_CTRL_SOURCESEL_MASK)
+                     | (signal & _PRS_CH_CTRL_SIGSEL_MASK)
+                     | PRS_CH_CTRL_EDSEL_OFF;
 }
 #endif
 

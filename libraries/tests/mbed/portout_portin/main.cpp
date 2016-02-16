@@ -140,6 +140,15 @@
 #define P2_2    (1 << 2)  // PC2
 #define PORT_2  PortC
 
+#elif defined(TARGET_EFM32PG_STK3401)
+#define P1_1    (1 << 6)  // PC6
+#define P1_2    (1 << 7)  // PC7
+#define PORT_1  PortC
+
+#define P2_1    (1 << 3)  // PA3
+#define P2_2    (1 << 4)  // PA4
+#define PORT_2  PortA
+
 #elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
 #define P1_1    (1 << 6)  /*PA06*/
 #define P1_2    (1 << 7)  /*PA07*/

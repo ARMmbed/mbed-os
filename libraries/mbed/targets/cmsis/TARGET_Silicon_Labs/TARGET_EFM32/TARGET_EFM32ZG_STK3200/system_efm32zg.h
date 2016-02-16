@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file system_efm32zg.h
  * @brief CMSIS Cortex-M System Layer for EFM32 devices.
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,8 +30,8 @@
  *
  *****************************************************************************/
 
-#ifndef __SYSTEM_EFM32ZG_H
-#define __SYSTEM_EFM32ZG_H
+#ifndef SYSTEM_EFM32ZG_H
+#define SYSTEM_EFM32ZG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,6 +76,7 @@ void MSC_IRQHandler(void);
 void AES_IRQHandler(void);
 
 uint32_t SystemCoreClockGet(void);
+uint32_t SystemMaxCoreClockGet(void);
 
 /**************************************************************************//**
  * @brief
@@ -108,4 +109,4 @@ void SystemLFXOClockSet(uint32_t freq);
 #ifdef __cplusplus
 }
 #endif
-#endif /* __SYSTEM_EFM32ZG_H */
+#endif /* SYSTEM_EFM32ZG_H */

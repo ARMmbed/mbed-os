@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32hg_vcmp.h
  * @brief EFM32HG_VCMP register and bit field definitions
- * @version 3.20.12
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32HG_VCMP
  * @{
@@ -192,5 +196,5 @@ typedef struct
 #define VCMP_IFC_WARMUP_DEFAULT             (_VCMP_IFC_WARMUP_DEFAULT << 1) /**< Shifted mode DEFAULT for VCMP_IFC */
 
 /** @} End of group EFM32HG_VCMP */
-
+/** @} End of group Parts */
 

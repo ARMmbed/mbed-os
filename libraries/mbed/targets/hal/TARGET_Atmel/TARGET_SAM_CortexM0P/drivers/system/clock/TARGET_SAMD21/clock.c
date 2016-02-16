@@ -487,40 +487,29 @@ enum status_code system_clock_source_write_calibration(
 {
     switch (clock_source) {
         case SYSTEM_CLOCK_SOURCE_OSC8M:
-
                     if (calibration_value > 0xfff || freq_range > 4) {
                     return STATUS_ERR_INVALID_ARG;
                 }
-
             SYSCTRL->OSC8M.bit.CALIB  = calibration_value;
             SYSCTRL->OSC8M.bit.FRANGE = freq_range;
             break;
-
         case SYSTEM_CLOCK_SOURCE_OSC32K:
-
             if (calibration_value > 128) {
                 return STATUS_ERR_INVALID_ARG;
             }
-
             _system_osc32k_wait_for_sync();
             SYSCTRL->OSC32K.bit.CALIB = calibration_value;
             break;
-
         case SYSTEM_CLOCK_SOURCE_ULP32K:
-
             if (calibration_value > 32) {
                 return STATUS_ERR_INVALID_ARG;
             }
-
             SYSCTRL->OSCULP32K.bit.CALIB = calibration_value;
             break;
-
         default:
             Assert(false);
             return STATUS_ERR_INVALID_ARG;
-            break;
     }
-
     return STATUS_OK;
 }
 

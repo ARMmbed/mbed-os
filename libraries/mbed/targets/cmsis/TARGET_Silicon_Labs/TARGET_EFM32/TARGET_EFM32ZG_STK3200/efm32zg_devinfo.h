@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_devinfo.h
  * @brief EFM32ZG_DEVINFO register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32ZG_DEVINFO
  * @{
@@ -125,15 +129,28 @@ typedef struct
 #define _DEVINFO_PART_PROD_REV_SHIFT               24           /**< Bit position for production revision */
 #define _DEVINFO_PART_DEVICE_FAMILY_MASK           0x00FF0000UL /**< Device Family, 0x47 for Gecko */
 #define _DEVINFO_PART_DEVICE_FAMILY_SHIFT          16           /**< Bit position for device family */
+/* Legacy family #defines */
 #define _DEVINFO_PART_DEVICE_FAMILY_G              71           /**< Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_FAMILY_GG             72           /**< Giant Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_FAMILY_TG             73           /**< Tiny Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_FAMILY_LG             74           /**< Leopard Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_FAMILY_WG             75           /**< Wonder Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_FAMILY_ZG             76           /**< Zero Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_HG             77           /**< Happy Gecko Device Family */
+/* New style family #defines */
+#define _DEVINFO_PART_DEVICE_FAMILY_EFM32G         71           /**< Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EFM32GG        72           /**< Giant Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EFM32TG        73           /**< Tiny Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EFM32LG        74           /**< Leopard Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EFM32WG        75           /**< Wonder Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EFM32ZG        76           /**< Zero Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EFM32HG        77           /**< Happy Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EZR32WG        120          /**< EZR Wonder Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EZR32LG        121          /**< EZR Leopard Gecko Device Family */
+#define _DEVINFO_PART_DEVICE_FAMILY_EZR32HG        122          /**< EZR Happy Gecko Device Family */
 #define _DEVINFO_PART_DEVICE_NUMBER_MASK           0x0000FFFFUL /**< Device number */
 #define _DEVINFO_PART_DEVICE_NUMBER_SHIFT          0            /**< Bit position for device number */
 
 /** @} End of group EFM32ZG_DEVINFO */
-
+/** @} End of group Parts */
 

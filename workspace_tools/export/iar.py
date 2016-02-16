@@ -71,6 +71,7 @@ class IAREmbeddedWorkbench(Exporter):
         'DISCO_F469NI',
         'DISCO_F746NG',
         'DISCO_L476VG',
+        'B96B_F446VE',
         #'STM32F407', Fails to build same for GCC
         'MAXWSNENV',
         'MAX32600MBED',
@@ -85,6 +86,7 @@ class IAREmbeddedWorkbench(Exporter):
         'HRM1017',
         'ARCH_BLE',
         'MOTE_L152RC',
+        'EFM32PG_STK3401',
     ]
 
     def generate(self):

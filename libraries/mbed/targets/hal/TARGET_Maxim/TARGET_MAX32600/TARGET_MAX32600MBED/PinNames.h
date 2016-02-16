@@ -192,8 +192,8 @@ typedef enum {
     STDIO_UART_RX = USBRX,
 
     // I2C pins
-    I2C0_SCL = P2_4,
-    I2C0_SDA = P2_5,
+    I2C0_SCL = P2_5,
+    I2C0_SDA = P2_4,
 
     I2C1_SCL = P2_7,
     I2C1_SDA = P2_6,

@@ -88,7 +88,8 @@ typedef enum {
 
 #define STDIO_UART_TX     USBTX
 #define STDIO_UART_RX     USBRX
-#define STDIO_UART        UART_2
+#define STDIO_UART        UART_0
+#define STDIO_BAUD        9600
 
 // Default peripherals
 #define MBED_SPI0         SPI0_MOSI, SPI0_MISO, SPI0_SCK, SPI0_SSEL

@@ -2,10 +2,10 @@
  * @file efm32zg222f32.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32ZG222F32
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  *****************************************************************************/
 
-#ifndef __EFM32ZG222F32_H
-#define __EFM32ZG222F32_H
+#ifndef EFM32ZG222F32_H
+#define EFM32ZG222F32_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ extern "C" {
 typedef enum IRQn
 {
 /******  Cortex-M0+ Processor Exceptions Numbers *****************************************/
-  NonMaskableInt_IRQn = -14,                /*!< 2 Non Maskable Interrupt                */
+  NonMaskableInt_IRQn = -14,                /*!< 2 Cortex-M0+ Non Maskable Interrupt     */
   HardFault_IRQn      = -13,                /*!< 3 Cortex-M0+ Hard Fault Interrupt       */
   SVCall_IRQn         = -5,                 /*!< 11 Cortex-M0+ SV Call Interrupt         */
   PendSV_IRQn         = -2,                 /*!< 14 Cortex-M0+ Pend SV Interrupt         */
@@ -96,8 +96,10 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_ZERO_FAMILY    1 /**< Zero Gecko EFM32ZG MCU Family */
-#define _EFM_DEVICE             /**< Silicon Labs EFM-type microcontroller */
+#define _EFM32_ZERO_FAMILY              1 /**< Zero Gecko EFM32ZG MCU Family */
+#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32ZG222F32)
@@ -138,6 +140,7 @@ typedef enum IRQn
 #define __CM0PLUS_REV        0x001          /**< Cortex-M0+ Core revision r0p1 */
 #define PRS_CHAN_COUNT       4              /**< Number of PRS channels */
 #define DMA_CHAN_COUNT       4              /**< Number of DMA channels */
+
 /** AF channels connect the different on-chip peripherals with the af-mux */
 #define AFCHAN_MAX           33
 #define AFCHANLOC_MAX        7
@@ -198,7 +201,9 @@ typedef enum IRQn
 #define ANALOG_COUNT        1
 
 /** @} End of group EFM32ZG222F32_Part */
-
+#ifndef ARM_MATH_CM0PLUS
+#define ARM_MATH_CM0PLUS
+#endif
 #include "arm_math.h"       /* To get __CLZ definitions etc. */
 #include "core_cm0plus.h"   /* Cortex-M0+ processor and core peripherals */
 #include "system_efm32zg.h" /* System Header */
@@ -359,4 +364,4 @@ typedef enum IRQn
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EFM32ZG222F32_H */
+#endif /* EFM32ZG222F32_H */

@@ -43,7 +43,7 @@ void gpio_irq(void)
         if (extint_chan_is_detected(current_channel)) {
             extint_chan_clear_detected(current_channel);
             port_base = (PortGroup*)port_get_group_from_gpio_pin(ext_int_pins[current_channel]);
-            mask = gpio_set(ext_int_pins[current_channel]);
+            mask = gpio_set((PinName)ext_int_pins[current_channel]);
             if ((port_base->IN.reg & mask) != 0) {
                 event = IRQ_RISE;
             } else {

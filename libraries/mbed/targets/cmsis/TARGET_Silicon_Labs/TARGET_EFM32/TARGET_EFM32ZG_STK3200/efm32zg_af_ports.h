@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32zg_af_ports.h
  * @brief EFM32ZG_AF_PORTS register and bit field definitions
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -29,6 +29,10 @@
  * any third party, arising from your use of this Software.
  *
  *****************************************************************************/
+/**************************************************************************//**
+* @addtogroup Parts
+* @{
+******************************************************************************/
 /**************************************************************************//**
  * @defgroup EFM32ZG_AF_Ports
  * @{
@@ -68,5 +72,5 @@
 #define AF_DBG_SWCLK_PORT(i)       ((i) == 0 ? 5 :  -1)
 
 /** @} End of group EFM32ZG_AF_Ports */
-
+/** @} End of group Parts */
 

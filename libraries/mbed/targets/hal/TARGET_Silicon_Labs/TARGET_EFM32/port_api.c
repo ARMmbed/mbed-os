@@ -39,26 +39,17 @@
 
 #define PORT_NUM_PINS 16
 
-uint8_t port_get_index(port_t *obj)
-{
-    return 0;
-}
-
 PinName port_pin(PortName port, int pin_n)
 {
     return (PinName) (pin_n | port << 4); // Encode pin and port number in one uint32
 }
 
-void port_preinit(port_t *obj, PortName port, int mask, PinDirection dir)
+void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
     obj->mask = mask;
     obj->port = port;
     obj->dir = dir;
-}
-
-void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
-{
-    port_preinit(obj, port, mask, dir);
+    
     port_dir(obj, obj->dir);
 }
 
@@ -80,21 +71,17 @@ void port_dir(port_t *obj, PinDirection dir)
     /* Set default pin mode for pins given by mask */
     switch (dir) {
         case PIN_INPUT:
-            port_mode(obj, PullDefault);
+            port_mode(obj, Input);
             break;
         case PIN_OUTPUT:
-            port_mode(obj, PullNone);
+            port_mode(obj, PushPull);
             break;
     }
 }
 
 void port_write(port_t *obj, int value)
 {
-    if (value) {
-        GPIO_PortOutSet(obj->port, obj->mask);
-    } else {
-        GPIO_PortOutClear(obj->port, obj->mask);
-    }
+    GPIO_PortOutSetVal(obj->port, value, obj->mask);
 }
 
 int port_read(port_t *obj)

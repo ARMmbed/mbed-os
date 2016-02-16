@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_i2c.c
  * @brief Inter-integrated Circuit (I2C) Peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -30,13 +30,14 @@
  *
  ******************************************************************************/
 
-
 #include "em_i2c.h"
 #if defined(I2C_COUNT) && (I2C_COUNT > 0)
 
 #include "em_cmu.h"
-#include "em_bitband.h"
+#include "em_bus.h"
 #include "em_assert.h"
+
+ #include <limits.h>
 
 /***************************************************************************//**
  * @addtogroup EM_Library
@@ -55,13 +56,13 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
+/** Validation of I2C register block pointer reference for assert statements. */
 #if (I2C_COUNT == 1)
-/** Validation of I2C register block pointer reference for assert statements. */
 #define I2C_REF_VALID(ref)    ((ref) == I2C0)
-
 #elif (I2C_COUNT == 2)
-/** Validation of I2C register block pointer reference for assert statements. */
 #define I2C_REF_VALID(ref)    ((ref == I2C0) || (ref == I2C1))
+#elif (I2C_COUNT == 3)
+#define I2C_REF_VALID(ref)    ((ref == I2C0) || (ref == I2C1)|| (ref == I2C2))
 #endif
 
 /** Error flags indicating I2C transfer has failed somehow. */
@@ -70,6 +71,15 @@
 /* RXUF is only likely to occur with this SW if using a debugger peeking into */
 /* RXDATA register. Thus, we ignore those types of fault. */
 #define I2C_IF_ERRORS    (I2C_IF_BUSERR | I2C_IF_ARBLOST)
+
+/* Max I2C transmission rate constant  */
+#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#define I2C_CR_MAX       4
+#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#define I2C_CR_MAX       8
+#else
+#warning "Max I2C transmission rate constant is not defined"
+#endif
 
 /** @endcond */
 
@@ -159,14 +169,17 @@ static I2C_Transfer_TypeDef i2cTransfer[I2C_COUNT];
  ******************************************************************************/
 uint32_t I2C_BusFreqGet(I2C_TypeDef *i2c)
 {
-  uint32_t hfperclk;
+  uint32_t freqHfper;
   uint32_t n;
 
-  /* Max frequency is given by fSCL = fHFPERCLK/((Nlow + Nhigh)(DIV + 1) + 4) */
-  hfperclk = CMU_ClockFreqGet(cmuClock_HFPER);
+  /* Max frequency is given by freqScl = freqHfper/((Nlow + Nhigh)(DIV + 1) + I2C_CR_MAX)
+   * More details can be found in the reference manual,
+   * I2C Clock Generation chapter. */
+  freqHfper = CMU_ClockFreqGet(cmuClock_HFPER);
+  /* n = Nlow + Nhigh */
   n        = (uint32_t)(i2cNSum[(i2c->CTRL & _I2C_CTRL_CLHR_MASK) >> _I2C_CTRL_CLHR_SHIFT]);
 
-  return(hfperclk / ((n * (i2c->CLKDIV + 1)) + 4));
+  return (freqHfper / ((n * (i2c->CLKDIV + 1)) + I2C_CR_MAX));
 }
 
 
@@ -189,54 +202,108 @@ uint32_t I2C_BusFreqGet(I2C_TypeDef *i2c)
  * @param[in] i2c
  *   Pointer to I2C peripheral register block.
  *
- * @param[in] refFreq
+ * @param[in] freqRef
  *   I2C reference clock frequency in Hz that will be used. If set to 0,
- *   the currently configured reference clock is assumed. Setting it to a higher
- *   than actual configured value only has the consequence of reducing the real
- *   I2C frequency.
+ *   then HFPER clock is used. Setting it to a higher than actual configured
+ *   value only has the consequence of reducing the real I2C frequency.
  *
- * @param[in] freq
+ * @param[in] freqScl
  *   Bus frequency to set (actual bus speed may be lower due to integer
  *   prescaling). Safe (according to I2C specification) max frequencies for
  *   standard, fast and fast+ modes are available using I2C_FREQ_ defines.
  *   (Using I2C_FREQ_ defines requires corresponding setting of @p type.)
  *   Slowest slave device on bus must always be considered.
  *
- * @param[in] type
+ * @param[in] i2cMode
  *   Clock low to high ratio type to use. If not using i2cClockHLRStandard,
  *   make sure all devices on the bus support the specified mode. Using a
  *   non-standard ratio is useful to achieve higher bus clock in fast and
  *   fast+ modes.
  ******************************************************************************/
 void I2C_BusFreqSet(I2C_TypeDef *i2c,
-                    uint32_t refFreq,
-                    uint32_t freq,
-                    I2C_ClockHLR_TypeDef type)
+                    uint32_t freqRef,
+                    uint32_t freqScl,
+                    I2C_ClockHLR_TypeDef i2cMode)
 {
-  uint32_t n;
-  uint32_t div;
+  uint32_t n, minFreq;
+  int32_t div;
 
   /* Avoid divide by 0 */
-  EFM_ASSERT(freq);
-  if (!freq)
+  EFM_ASSERT(freqScl);
+  if (!freqScl)
   {
     return;
   }
 
   /* Set the CLHR (clock low to high ratio). */
   i2c->CTRL &= ~_I2C_CTRL_CLHR_MASK;
-  i2c->CTRL |= type <<_I2C_CTRL_CLHR_SHIFT;
+  BUS_RegMaskedWrite(&i2c->CTRL,
+                     _I2C_CTRL_CLHR_MASK,
+                     i2cMode <<_I2C_CTRL_CLHR_SHIFT);
 
-  /* Frequency is given by fSCL = fHFPERCLK/((Nlow + Nhigh)(DIV + 1) + 4), thus */
-  /* DIV = ((fHFPERCLK - 4fSCL)/((Nlow + Nhigh)fSCL)) - 1 */
-
-  if (!refFreq)
+  if (!freqRef)
   {
-    refFreq = CMU_ClockFreqGet(cmuClock_HFPER);
+    freqRef = CMU_ClockFreqGet(cmuClock_HFPER);
   }
-  n = (uint32_t)(i2cNSum[type]);
 
-  div = (refFreq - (4 * freq)) / (n * freq);
+    /* Check minumum HF peripheral clock */
+  minFreq = UINT_MAX;
+  if (i2c->CTRL & I2C_CTRL_SLAVE)
+  {
+    switch(i2cMode)
+    {
+      case i2cClockHLRStandard:
+#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+        minFreq = 4200000; break;
+#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+        minFreq = 2000000; break;
+#endif
+      case i2cClockHLRAsymetric:
+#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+        minFreq = 11000000; break;
+#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+        minFreq = 5000000; break;
+#endif
+      case i2cClockHLRFast:
+#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+        minFreq = 24400000; break;
+#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+        minFreq = 14000000; break;
+#endif
+    }
+  }
+  else
+  {
+    /* For master mode, platform 1 and 2 share the same
+       min frequencies */
+    switch(i2cMode)
+    {
+      case i2cClockHLRStandard:
+        minFreq = 2000000; break;
+      case i2cClockHLRAsymetric:
+        minFreq = 9000000; break;
+      case i2cClockHLRFast:
+        minFreq = 20000000; break;
+    }
+  }
+
+  /* Frequency most be larger-than */
+  EFM_ASSERT(freqRef > minFreq);
+
+  /* SCL frequency is given by
+   * freqScl = freqRef/((Nlow + Nhigh) * (DIV + 1) + I2C_C_MAX)
+   *
+   * Thus
+   * DIV = ((freqRef - (I2C_C_MAX * freqScl))/((Nlow + Nhigh) * freqScl)) - 1
+   *
+   * More details can be found in the reference manual,
+   * I2C Clock Generation chapter.  */
+
+  /* n = Nlow + Nhigh */
+  n = (uint32_t)(i2cNSum[i2cMode]);
+  div = ((freqRef - (I2C_CR_MAX * freqScl)) / (n * freqScl)) - 1;
+  EFM_ASSERT(div >= 0);
+  EFM_ASSERT((uint32_t)div <= _I2C_CLKDIV_DIV_MASK);
 
   /* Clock divisor must be at least 1 in slave mode according to reference */
   /* manual (in which case there is normally no need to set bus frequency). */
@@ -244,9 +311,7 @@ void I2C_BusFreqSet(I2C_TypeDef *i2c,
   {
     div = 1;
   }
-
-  EFM_ASSERT(div <= _I2C_CLKDIV_DIV_MASK);
-  i2c->CLKDIV = div;
+  i2c->CLKDIV = (uint32_t)div;
 }
 
 
@@ -267,7 +332,7 @@ void I2C_Enable(I2C_TypeDef *i2c, bool enable)
 {
   EFM_ASSERT(I2C_REF_VALID(i2c));
 
-  BITBAND_Peripheral(&(i2c->CTRL), _I2C_CTRL_EN_SHIFT, (unsigned int)enable);
+  BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_EN_SHIFT, enable);
 }
 
 
@@ -289,15 +354,11 @@ void I2C_Init(I2C_TypeDef *i2c, const I2C_Init_TypeDef *init)
   i2c->IFC = _I2C_IFC_MASK;
 
   /* Set SLAVE select mode */
-  BITBAND_Peripheral(&(i2c->CTRL),
-                     _I2C_CTRL_SLAVE_SHIFT,
-                     init->master ? 0 : 1);
+  BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_SLAVE_SHIFT, init->master ? 0 : 1);
 
   I2C_BusFreqSet(i2c, init->refFreq, init->freq, init->clhr);
 
-  BITBAND_Peripheral(&(i2c->CTRL),
-                     _I2C_CTRL_EN_SHIFT,
-                     (unsigned int)(init->enable));
+  BUS_RegBitWrite(&(i2c->CTRL), _I2C_CTRL_EN_SHIFT, init->enable);
 }
 
 
@@ -382,7 +443,7 @@ I2C_TransferReturn_TypeDef I2C_Transfer(I2C_TypeDef *i2c)
 #endif
   else
   {
-    return(i2cTransferUsageFault);
+    return i2cTransferUsageFault;
   }
 
   seq = transfer->seq;
@@ -707,7 +768,7 @@ I2C_TransferReturn_TypeDef I2C_Transfer(I2C_TypeDef *i2c)
   /* Until transfer is done keep returning i2cTransferInProgress */
   else
   {
-    return(i2cTransferInProgress);
+    return i2cTransferInProgress;
   }
 
   return transfer->result;
@@ -760,7 +821,7 @@ I2C_TransferReturn_TypeDef I2C_TransferInit(I2C_TypeDef *i2c,
 #endif
   else
   {
-    return(i2cTransferUsageFault);
+    return i2cTransferUsageFault;
   }
 
   /* Check if in busy state. Since this SW assumes single master, we can */
@@ -778,7 +839,7 @@ I2C_TransferReturn_TypeDef I2C_TransferInit(I2C_TypeDef *i2c,
       ((seq->flags & I2C_FLAG_WRITE_READ) && !(seq->buf[1].len))
       )
   {
-    return(i2cTransferUsageFault);
+    return i2cTransferUsageFault;
   }
 
   /* Prepare for a transfer */
@@ -805,7 +866,7 @@ I2C_TransferReturn_TypeDef I2C_TransferInit(I2C_TypeDef *i2c,
              I2C_IF_RXDATAV | I2C_IF_ERRORS;
 
   /* Start transfer */
-  return(I2C_Transfer(i2c));
+  return I2C_Transfer(i2c);
 }
 
 /** @} (end addtogroup I2C) */

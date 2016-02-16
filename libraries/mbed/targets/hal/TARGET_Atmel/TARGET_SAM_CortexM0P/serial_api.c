@@ -27,6 +27,7 @@
 #define USART_RXFLOW_INDEX	2
 #define USART_TXFLOW_INDEX	3
 
+
 #if DEVICE_SERIAL_ASYNCH
 #define pUSART_S(obj)			obj->serial.usart
 #define pSERIAL_S(obj)			((struct serial_s*)&(obj->serial))
@@ -36,17 +37,17 @@
 #endif
 #define _USART(obj)			pUSART_S(obj)->USART
 #define USART_NUM 6
-
+#define SUPPRESS_WARNING(a) (void)a
 
 uint8_t serial_get_index(serial_t *obj);
 IRQn_Type get_serial_irq_num (serial_t *obj);
 uint32_t get_serial_vector (serial_t *obj);
-void uart0_irq();
-void uart1_irq();
-void uart2_irq();
-void uart3_irq();
-void uart4_irq();
-void uart5_irq();
+void uart0_irq(void);
+void uart1_irq(void);
+void uart2_irq(void);
+void uart3_irq(void);
+void uart4_irq(void);
+void uart5_irq(void);
 
 static uint32_t serial_irq_ids[USART_NUM] = {0};
 static uart_irq_handler irq_handler;
@@ -103,6 +104,7 @@ static inline void reset_usart(serial_t *obj)
 
     /* Reset module */
     _USART(obj).CTRLA.reg = SERCOM_USART_CTRLA_SWRST;
+    SUPPRESS_WARNING(reset_usart);
 }
 
 uint32_t serial_find_mux_settings (serial_t *obj)
@@ -258,7 +260,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         return;
     }
     sercom_index &= 0x0F;
-    uart = pinmap_peripheral_sercom(NC, sercom_index);
+    uart = (UARTName)pinmap_peripheral_sercom(NC, sercom_index);
     pUSART_S(obj) = (Sercom *)uart;
 
     /* Disable USART module */
@@ -320,7 +322,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     for (uint8_t pad = 0; pad < 4; pad++) {
         uint32_t current_pin = pSERIAL_S(obj)->pins[pad];
         if (current_pin != (uint32_t)NC) {
-            pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
+            pin_conf.mux_position = pinmap_function_sercom((PinName)current_pin, sercom_index);
             if ((uint8_t)NC != pin_conf.mux_position) {
                 system_pinmux_pin_set_config(current_pin, &pin_conf);
             }
@@ -533,7 +535,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     for (uint8_t pad = 0; pad < 2; pad++) {  // setting for rx and tx
         uint32_t current_pin = pSERIAL_S(obj)->pins[pad];
         if (current_pin != (uint32_t)NC) {
-            pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
+            pin_conf.mux_position = pinmap_function_sercom((PinName)current_pin, sercom_index);
             if ((uint8_t)NC != pin_conf.mux_position) {
                 system_pinmux_pin_set_config(current_pin, &pin_conf);
             }

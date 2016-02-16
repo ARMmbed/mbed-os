@@ -55,7 +55,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
     struct port_config pin_conf;
 
     obj->mode = mode;
-    pin_conf.direction = obj->direction;
+    pin_conf.direction = (enum port_pin_dir)obj->direction;
     pin_conf.powersave  = obj->powersave;
     switch (mode) {
         case PullNone :
@@ -75,9 +75,8 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
 {
     MBED_ASSERT(obj->pin != (PinName)NC);
     struct port_config pin_conf;
-
     obj->direction = direction;
-    pin_conf.input_pull = obj->mode;
+    pin_conf.input_pull = (enum port_pin_pull)obj->mode;
     pin_conf.powersave  = obj->powersave;
     switch (direction) {
         case PIN_INPUT :

@@ -2,10 +2,10 @@
  * @file efm32wg990f256.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32WG990F256
- * @version 3.20.6
+ * @version 4.2.0
  ******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -31,8 +31,8 @@
  *
  *****************************************************************************/
 
-#ifndef __EFM32WG990F256_H
-#define __EFM32WG990F256_H
+#ifndef EFM32WG990F256_H
+#define EFM32WG990F256_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +52,7 @@ extern "C" {
 typedef enum IRQn
 {
 /******  Cortex-M4 Processor Exceptions Numbers *******************************************/
-  NonMaskableInt_IRQn   = -14,              /*!< 2 Non Maskable Interrupt                 */
+  NonMaskableInt_IRQn   = -14,              /*!< 2 Cortex-M4 Non Maskable Interrupt       */
   HardFault_IRQn        = -13,              /*!< 3 Cortex-M4 Hard Fault Interrupt         */
   MemoryManagement_IRQn = -12,              /*!< 4 Cortex-M4 Memory Management Interrupt  */
   BusFault_IRQn         = -11,              /*!< 5 Cortex-M4 Bus Fault Interrupt          */
@@ -123,8 +123,10 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_WONDER_FAMILY    1 /**< Wonder Gecko EFM32WG MCU Family */
-#define _EFM_DEVICE               /**< Silicon Labs EFM-type microcontroller */
+#define _EFM32_WONDER_FAMILY            1 /**< Wonder Gecko EFM32WG MCU Family */
+#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32WG990F256)
@@ -189,80 +191,81 @@ typedef enum IRQn
 #define AFACHAN_MAX          53
 
 /* Part number capabilities */
-#define USART_PRESENT          /**< USART is available in this part */
-#define USART_COUNT          3 /**< 3 USARTs available  */
-#define UART_PRESENT           /**< UART is available in this part */
-#define UART_COUNT           2 /**< 2 UARTs available  */
-#define TIMER_PRESENT          /**< TIMER is available in this part */
-#define TIMER_COUNT          4 /**< 4 TIMERs available  */
-#define ACMP_PRESENT           /**< ACMP is available in this part */
-#define ACMP_COUNT           2 /**< 2 ACMPs available  */
-#define LEUART_PRESENT         /**< LEUART is available in this part */
-#define LEUART_COUNT         2 /**< 2 LEUARTs available  */
-#define LETIMER_PRESENT        /**< LETIMER is available in this part */
-#define LETIMER_COUNT        1 /**< 1 LETIMERs available  */
-#define PCNT_PRESENT           /**< PCNT is available in this part */
-#define PCNT_COUNT           3 /**< 3 PCNTs available  */
-#define I2C_PRESENT            /**< I2C is available in this part */
-#define I2C_COUNT            2 /**< 2 I2Cs available  */
-#define ADC_PRESENT            /**< ADC is available in this part */
-#define ADC_COUNT            1 /**< 1 ADCs available  */
-#define DAC_PRESENT            /**< DAC is available in this part */
-#define DAC_COUNT            1 /**< 1 DACs available  */
+
+#define USART_PRESENT         /**< USART is available in this part */
+#define USART_COUNT         3 /**< 3 USARTs available  */
+#define UART_PRESENT          /**< UART is available in this part */
+#define UART_COUNT          2 /**< 2 UARTs available  */
+#define TIMER_PRESENT         /**< TIMER is available in this part */
+#define TIMER_COUNT         4 /**< 4 TIMERs available  */
+#define ACMP_PRESENT          /**< ACMP is available in this part */
+#define ACMP_COUNT          2 /**< 2 ACMPs available  */
+#define LEUART_PRESENT        /**< LEUART is available in this part */
+#define LEUART_COUNT        2 /**< 2 LEUARTs available  */
+#define LETIMER_PRESENT       /**< LETIMER is available in this part */
+#define LETIMER_COUNT       1 /**< 1 LETIMERs available  */
+#define PCNT_PRESENT          /**< PCNT is available in this part */
+#define PCNT_COUNT          3 /**< 3 PCNTs available  */
+#define I2C_PRESENT           /**< I2C is available in this part */
+#define I2C_COUNT           2 /**< 2 I2Cs available  */
+#define ADC_PRESENT           /**< ADC is available in this part */
+#define ADC_COUNT           1 /**< 1 ADCs available  */
+#define DAC_PRESENT           /**< DAC is available in this part */
+#define DAC_COUNT           1 /**< 1 DACs available  */
 #define DMA_PRESENT
-#define DMA_COUNT            1
+#define DMA_COUNT           1
 #define AES_PRESENT
-#define AES_COUNT            1
+#define AES_COUNT           1
 #define USBC_PRESENT
-#define USBC_COUNT           1
+#define USBC_COUNT          1
 #define USB_PRESENT
-#define USB_COUNT            1
+#define USB_COUNT           1
 #define LE_PRESENT
-#define LE_COUNT             1
+#define LE_COUNT            1
 #define MSC_PRESENT
-#define MSC_COUNT            1
+#define MSC_COUNT           1
 #define EMU_PRESENT
-#define EMU_COUNT            1
+#define EMU_COUNT           1
 #define RMU_PRESENT
-#define RMU_COUNT            1
+#define RMU_COUNT           1
 #define CMU_PRESENT
-#define CMU_COUNT            1
+#define CMU_COUNT           1
 #define LESENSE_PRESENT
-#define LESENSE_COUNT        1
+#define LESENSE_COUNT       1
 #define EBI_PRESENT
-#define EBI_COUNT            1
+#define EBI_COUNT           1
 #define FPUEH_PRESENT
-#define FPUEH_COUNT          1
+#define FPUEH_COUNT         1
 #define RTC_PRESENT
-#define RTC_COUNT            1
+#define RTC_COUNT           1
 #define GPIO_PRESENT
-#define GPIO_COUNT           1
+#define GPIO_COUNT          1
 #define VCMP_PRESENT
-#define VCMP_COUNT           1
+#define VCMP_COUNT          1
 #define PRS_PRESENT
-#define PRS_COUNT            1
+#define PRS_COUNT           1
 #define OPAMP_PRESENT
-#define OPAMP_COUNT          1
+#define OPAMP_COUNT         1
 #define BU_PRESENT
-#define BU_COUNT             1
+#define BU_COUNT            1
 #define LCD_PRESENT
-#define LCD_COUNT            1
+#define LCD_COUNT           1
 #define BURTC_PRESENT
-#define BURTC_COUNT          1
+#define BURTC_COUNT         1
 #define HFXTAL_PRESENT
-#define HFXTAL_COUNT         1
+#define HFXTAL_COUNT        1
 #define LFXTAL_PRESENT
-#define LFXTAL_COUNT         1
+#define LFXTAL_COUNT        1
 #define WDOG_PRESENT
-#define WDOG_COUNT           1
+#define WDOG_COUNT          1
 #define DBG_PRESENT
-#define DBG_COUNT            1
+#define DBG_COUNT           1
 #define ETM_PRESENT
-#define ETM_COUNT            1
+#define ETM_COUNT           1
 #define BOOTLOADER_PRESENT
-#define BOOTLOADER_COUNT     1
+#define BOOTLOADER_COUNT    1
 #define ANALOG_PRESENT
-#define ANALOG_COUNT         1
+#define ANALOG_COUNT        1
 
 #include "core_cm4.h"       /* Cortex-M4 processor and core peripherals */
 #include "system_efm32wg.h" /* System Header */
@@ -480,4 +483,4 @@ typedef enum IRQn
 #ifdef __cplusplus
 }
 #endif
-#endif /* __EFM32WG990F256_H */
+#endif /* EFM32WG990F256_H */

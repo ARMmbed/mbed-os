@@ -64,6 +64,7 @@ static uint32_t i2c_instances[SERCOM_INST_NUM] = {0};
 const uint32_t sercom_irq_handlers[SERCOM_INST_NUM] = {
     MREPEAT(SERCOM_INST_NUM, _SERCOM_INTERRUPT_HANDLERS, ~)
 };
+
 #endif
 
 /* Forward declaration */
@@ -330,7 +331,7 @@ int  i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     struct i2c_master_packet packet;
     packet.address = (address & 0xFF) >> 1;
     packet.data_length = length;
-    packet.data = data;
+    packet.data = (uint8_t *)data;
     packet.ten_bit_address = false;
     packet.high_speed = false;
 
@@ -596,7 +597,7 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
     uint32_t sercom_index = _sercom_get_sercom_inst_index(pI2C_S(obj)->master.hw);
     for (i=0; i<2; i++) {
         mux_func[i] = pinmap_function_sercom(pI2C_S(obj)->pins[0], sercom_index);
-        if (mux_func[i] == NC) return;
+        if (mux_func[i] == (uint32_t)NC) return;
     }
 
     if (enable_slave) {
@@ -721,7 +722,7 @@ int  i2c_slave_write(i2c_t *obj, const char *data, int length)
 
     struct i2c_slave_packet packet;
     packet.data_length = length;
-    packet.data = data;
+    packet.data = (uint8_t *)data;
 
     tmp_status = i2c_slave_write_packet_wait(&pI2C_S(obj)->slave, &packet);
 
@@ -731,6 +732,7 @@ int  i2c_slave_write(i2c_t *obj, const char *data, int length)
         /* Currently, no way to track no of bytes transmitted, so return 0 */
         return 0;
     }
+
 }
 
 /** Configure I2C slave address.
@@ -863,7 +865,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     /* Init i2c packet. */
     pI2C_S(obj)->wr_packet.address     = address >> 1;
     pI2C_S(obj)->wr_packet.data_length = tx_length;
-    pI2C_S(obj)->wr_packet.data        = tx;
+    pI2C_S(obj)->wr_packet.data        = (uint8_t *)tx;
 
     pI2C_S(obj)->rd_packet.address     = address >> 1;
     pI2C_S(obj)->rd_packet.data_length = rx_length;
@@ -877,8 +879,8 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
     /* Set interrupt handler to default handler of ASF */
     /* Enable interrupt */
-    NVIC_SetVector((SERCOM0_IRQn + sercom_index), sercom_irq_handlers[sercom_index]);
-    NVIC_EnableIRQ(SERCOM0_IRQn + sercom_index);
+    NVIC_SetVector((IRQn_Type)((uint32_t)SERCOM0_IRQn + sercom_index), sercom_irq_handlers[sercom_index]);
+    NVIC_EnableIRQ((IRQn_Type)((uint32_t)SERCOM0_IRQn + sercom_index));
 
     /* Register callbacks */
     i2c_master_register_callback(&pI2C_S(obj)->master, i2c_transfer_complete_callback, I2C_MASTER_CALLBACK_ERROR);
@@ -927,20 +929,20 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
         case STATUS_OK:
             /* Transfer is complete */
             return (I2C_EVENT_TRANSFER_COMPLETE & event_mask);
-            break;
+
         case STATUS_ERR_BAD_ADDRESS:
             /* Received a NACK */
             return (I2C_EVENT_ERROR_NO_SLAVE & event_mask);
-            break;
+
         case STATUS_ERR_PACKET_COLLISION:
             /* An error occurred in between transfer */
             return (I2C_EVENT_ERROR & event_mask);
-            break;
+
         default:
             return 0;
     }
 
-    return 0;
+    //return 0;
 }
 
 /** Attempts to determine if I2C peripheral is already in use.

@@ -33,7 +33,15 @@
 
 #include <stdint.h>
 #include "dma_api.h"
+#include "em_device.h"
+
+#ifdef DMA_PRESENT
 #include "em_dma.h"
+#endif
+
+#ifdef LDMA_PRESENT
+#include "em_ldma.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,10 +68,31 @@ extern "C" {
 #error "Unsupported DMA channel count (dma_api.c)."
 #endif
 
+#ifdef LDMA_PRESENT
+typedef void (*LDMAx_CBFunc_t)(unsigned int channel, bool primary, void *user);
+
+typedef struct
+{
+    LDMAx_CBFunc_t cbFunc;
+    void *userPtr;
+} LDMAx_Callback_t;
+
+void LDMAx_StartTransfer(  int ch,
+                           LDMA_TransferCfg_t *transfer,
+                           LDMA_Descriptor_t  *descriptor,
+                           LDMAx_CBFunc_t cbFunc,
+                           void *userData );
+bool LDMAx_ChannelEnabled( int ch );
+#endif
+
 typedef struct {
     DMAUsage dmaUsageState;
     int dmaChannel;
+#ifndef LDMA_PRESENT
     DMA_CB_TypeDef dmaCallback;
+#else
+    LDMAx_Callback_t dmaCallback;
+#endif
 } DMA_OPTIONS_t;
 
 typedef void (*DMACallback)(void);

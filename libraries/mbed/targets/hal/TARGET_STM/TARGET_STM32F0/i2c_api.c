@@ -133,6 +133,14 @@ inline int i2c_start(i2c_t *obj) {
     // Clear Acknowledge failure flag
     __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_AF);
 
+    // Wait the STOP condition has been previously correctly sent
+    timeout = FLAG_TIMEOUT;
+    while ((i2c->CR2 & I2C_CR2_STOP) == I2C_CR2_STOP){
+        if ((timeout--) == 0) {
+            return 1;
+        }
+    }
+
     // Generate the START condition
     i2c->CR2 |= I2C_CR2_START;
 

@@ -82,6 +82,9 @@ void rtc_init(void)
         rtc_freq = 40000;
     }
 
+    // Check if RTC is already initialized
+    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return;
+
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
 

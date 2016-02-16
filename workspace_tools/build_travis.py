@@ -35,6 +35,7 @@ build_list = (
 
     { "target": "LPC11U24_301",      "toolchains": "GCC_ARM", "libs": ["fat"] },
 
+    { "target": "B96B_F446VE",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_L053R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_L152RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "NUCLEO_F030R8",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
@@ -54,6 +55,8 @@ build_list = (
     { "target": "NUCLEO_L476RG",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_L073RZ",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NUCLEO_F446RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+
+    { "target": "MOTE_L152RC",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 
     { "target": "ELMO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
@@ -97,6 +100,7 @@ build_list = (
     { "target": "EFM32LG_STK3600",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
     { "target": "EFM32GG_STK3700",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
     { "target": "EFM32WG_STK3800",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+    { "target": "EFM32PG_STK3401",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
     { "target": "MAXWSNENV",    "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "MAX32600MBED", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },

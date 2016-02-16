@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file em_acmp.c
  * @brief Analog Comparator (ACMP) Peripheral API
- * @version 3.20.12
+ * @version 4.2.1
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2014 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -35,7 +35,7 @@
 #if defined(ACMP_COUNT) && (ACMP_COUNT > 0)
 
 #include <stdbool.h>
-#include "em_bitband.h"
+#include "em_bus.h"
 #include "em_assert.h"
 
 /***************************************************************************//**
@@ -64,6 +64,20 @@
 #define ACMP_REF_VALID(ref)    (((ref) == ACMP0) || ((ref) == ACMP1))
 #else
 #error Undefined number of analog comparators (ACMP).
+#endif
+
+/** The maximum value that can be inserted in the route location register
+ *  for the specific device. */
+#if defined(_ACMP_ROUTE_LOCATION_LOC3)
+#define _ACMP_ROUTE_LOCATION_MAX     _ACMP_ROUTE_LOCATION_LOC3
+#elif defined(_ACMP_ROUTE_LOCATION_LOC2)
+#define _ACMP_ROUTE_LOCATION_MAX     _ACMP_ROUTE_LOCATION_LOC2
+#elif defined(_ACMP_ROUTE_LOCATION_LOC1)
+#define _ACMP_ROUTE_LOCATION_MAX     _ACMP_ROUTE_LOCATION_LOC1
+#elif defined(_ACMP_ROUTELOC0_OUTLOC_LOC31)
+#define _ACMP_ROUTE_LOCATION_MAX     _ACMP_ROUTELOC0_OUTLOC_LOC31
+#else
+#error Undefined max route locations
 #endif
 
 /** @endcond */
@@ -99,31 +113,60 @@ void ACMP_CapsenseInit(ACMP_TypeDef *acmp, const ACMP_CapsenseInit_TypeDef *init
   EFM_ASSERT(ACMP_REF_VALID(acmp));
 
   /* Make sure that vddLevel is within bounds */
+#if defined(_ACMP_INPUTSEL_VDDLEVEL_MASK)
   EFM_ASSERT(init->vddLevel < 64);
+#else
+  EFM_ASSERT(init->vddLevelLow < 64);
+  EFM_ASSERT(init->vddLevelHigh < 64);
+#endif
 
   /* Make sure biasprog is within bounds */
-  EFM_ASSERT(init->biasProg < 16);
+  EFM_ASSERT(init->biasProg <=
+      (_ACMP_CTRL_BIASPROG_MASK >> _ACMP_CTRL_BIASPROG_SHIFT));
 
   /* Set control register. No need to set interrupt modes */
   acmp->CTRL = (init->fullBias << _ACMP_CTRL_FULLBIAS_SHIFT)
+#if defined(_ACMP_CTRL_HALFBIAS_MASK)
                | (init->halfBias << _ACMP_CTRL_HALFBIAS_SHIFT)
+#endif
                | (init->biasProg << _ACMP_CTRL_BIASPROG_SHIFT)
+#if defined(_ACMP_CTRL_WARMTIME_MASK)
                | (init->warmTime << _ACMP_CTRL_WARMTIME_SHIFT)
-               | (init->hysteresisLevel << _ACMP_CTRL_HYSTSEL_SHIFT);
+#endif
+#if defined(_ACMP_CTRL_HYSTSEL_MASK)
+               | (init->hysteresisLevel << _ACMP_CTRL_HYSTSEL_SHIFT)
+#endif
+#if defined(_ACMP_CTRL_ACCURACY_MASK)
+               | ACMP_CTRL_ACCURACY_HIGH
+#endif
+               ;
+
+#if defined(_ACMP_HYSTERESIS0_MASK)
+  acmp->HYSTERESIS0 = (init->vddLevelHigh      << _ACMP_HYSTERESIS0_DIVVA_SHIFT)
+                      | (init->hysteresisLevel_0 << _ACMP_HYSTERESIS0_HYST_SHIFT);
+  acmp->HYSTERESIS1 = (init->vddLevelLow       << _ACMP_HYSTERESIS1_DIVVA_SHIFT)
+                      | (init->hysteresisLevel_1 << _ACMP_HYSTERESIS1_HYST_SHIFT);
+#endif
 
   /* Select capacative sensing mode by selecting a resistor and enabling it */
   acmp->INPUTSEL = (init->resistor << _ACMP_INPUTSEL_CSRESSEL_SHIFT)
                    | ACMP_INPUTSEL_CSRESEN
+#if defined(_ACMP_INPUTSEL_LPREF_MASK)
                    | (init->lowPowerReferenceEnabled << _ACMP_INPUTSEL_LPREF_SHIFT)
+#endif
+#if defined(_ACMP_INPUTSEL_VDDLEVEL_MASK)
                    | (init->vddLevel << _ACMP_INPUTSEL_VDDLEVEL_SHIFT)
-                   | ACMP_INPUTSEL_NEGSEL_CAPSENSE;
+#endif
+#if defined(ACMP_INPUTSEL_NEGSEL_CAPSENSE)
+                   | ACMP_INPUTSEL_NEGSEL_CAPSENSE
+#else
+                   | ACMP_INPUTSEL_VASEL_VDD
+                   | ACMP_INPUTSEL_NEGSEL_VADIV
+#endif
+                   ;
 
-  /* Enable ACMP if requested.
-   * Note: BITBAND_Peripheral() function is used for setting/clearing single
-   * bit peripheral register bitfields. */
-  BITBAND_Peripheral(&(acmp->CTRL),
-                     (uint32_t)_ACMP_CTRL_EN_SHIFT,
-                     (uint32_t)init->enable);
+  /* Enable ACMP if requested. */
+  BUS_RegBitWrite(&(acmp->CTRL), _ACMP_CTRL_EN_SHIFT, init->enable);
 }
 
 /***************************************************************************//**
@@ -142,12 +185,20 @@ void ACMP_CapsenseInit(ACMP_TypeDef *acmp, const ACMP_CapsenseInit_TypeDef *init
  ******************************************************************************/
 void ACMP_CapsenseChannelSet(ACMP_TypeDef *acmp, ACMP_Channel_TypeDef channel)
 {
+  /* Make sure the module exists on the selected chip */
+  EFM_ASSERT(ACMP_REF_VALID(acmp));
+
+#if defined(_ACMP_INPUTSEL_POSSEL_CH7)
   /* Make sure that only external channels are used */
   EFM_ASSERT(channel <= _ACMP_INPUTSEL_POSSEL_CH7);
+#elif defined(_ACMP_INPUTSEL_POSSEL_BUS4XCH31)
+  /* Make sure that only external channels are used */
+  EFM_ASSERT(channel <= _ACMP_INPUTSEL_POSSEL_BUS4XCH31);
+#endif
 
   /* Set channel as positive channel in ACMP */
-  SET_BIT_FIELD(acmp->INPUTSEL, _ACMP_INPUTSEL_POSSEL_MASK, channel,
-                _ACMP_INPUTSEL_POSSEL_SHIFT);
+  BUS_RegMaskedWrite(&acmp->INPUTSEL, _ACMP_INPUTSEL_POSSEL_MASK,
+      channel << _ACMP_INPUTSEL_POSSEL_SHIFT);
 }
 
 /***************************************************************************//**
@@ -159,6 +210,9 @@ void ACMP_CapsenseChannelSet(ACMP_TypeDef *acmp, ACMP_Channel_TypeDef channel)
  ******************************************************************************/
 void ACMP_Disable(ACMP_TypeDef *acmp)
 {
+  /* Make sure the module exists on the selected chip */
+  EFM_ASSERT(ACMP_REF_VALID(acmp));
+
   acmp->CTRL &= ~ACMP_CTRL_EN;
 }
 
@@ -171,6 +225,9 @@ void ACMP_Disable(ACMP_TypeDef *acmp)
  ******************************************************************************/
 void ACMP_Enable(ACMP_TypeDef *acmp)
 {
+  /* Make sure the module exists on the selected chip */
+  EFM_ASSERT(ACMP_REF_VALID(acmp));
+
   acmp->CTRL |= ACMP_CTRL_EN;
 }
 
@@ -190,10 +247,14 @@ void ACMP_Reset(ACMP_TypeDef *acmp)
   /* Make sure the module exists on the selected chip */
   EFM_ASSERT(ACMP_REF_VALID(acmp));
 
-  acmp->CTRL     = _ACMP_CTRL_RESETVALUE;
-  acmp->INPUTSEL = _ACMP_INPUTSEL_RESETVALUE;
-  acmp->IEN      = _ACMP_IEN_RESETVALUE;
-  acmp->IFC      = _ACMP_IF_MASK;
+  acmp->CTRL        = _ACMP_CTRL_RESETVALUE;
+  acmp->INPUTSEL    = _ACMP_INPUTSEL_RESETVALUE;
+#if defined(_ACMP_HYSTERESIS0_HYST_MASK)
+  acmp->HYSTERESIS0 = _ACMP_HYSTERESIS0_RESETVALUE;
+  acmp->HYSTERESIS1 = _ACMP_HYSTERESIS1_RESETVALUE;
+#endif
+  acmp->IEN         = _ACMP_IEN_RESETVALUE;
+  acmp->IFC         = _ACMP_IF_MASK;
 }
 
 /***************************************************************************//**
@@ -218,27 +279,24 @@ void ACMP_Reset(ACMP_TypeDef *acmp)
  ******************************************************************************/
 void ACMP_GPIOSetup(ACMP_TypeDef *acmp, uint32_t location, bool enable, bool invert)
 {
+  /* Make sure the module exists on the selected chip */
+  EFM_ASSERT(ACMP_REF_VALID(acmp));
+
   /* Sanity checking of location */
-#if defined( _ACMP_ROUTE_LOCATION_LOC3 )
-  EFM_ASSERT(location <= _ACMP_ROUTE_LOCATION_LOC3);
-
-#elif defined( _ACMP_ROUTE_LOCATION_LOC2 )
-  EFM_ASSERT(location <= _ACMP_ROUTE_LOCATION_LOC2);
-
-#elif defined( _ACMP_ROUTE_LOCATION_LOC1 )
-  EFM_ASSERT(location <= _ACMP_ROUTE_LOCATION_LOC1);
-
-#else
-#error Illegal pin location (ACMP).
-#endif
-
+  EFM_ASSERT(location <= _ACMP_ROUTE_LOCATION_MAX);
 
   /* Set GPIO inversion */
-  SET_BIT_FIELD(acmp->CTRL, _ACMP_CTRL_GPIOINV_MASK, invert,
-                _ACMP_CTRL_GPIOINV_SHIFT);
+  BUS_RegMaskedWrite(&acmp->CTRL, _ACMP_CTRL_GPIOINV_MASK,
+      invert << _ACMP_CTRL_GPIOINV_SHIFT);
 
+#if defined(_ACMP_ROUTE_MASK)
   acmp->ROUTE = (location << _ACMP_ROUTE_LOCATION_SHIFT)
                 | (enable << _ACMP_ROUTE_ACMPPEN_SHIFT);
+#endif
+#if defined(_ACMP_ROUTELOC0_MASK)
+  acmp->ROUTELOC0 = location << _ACMP_ROUTELOC0_OUTLOC_SHIFT;
+  acmp->ROUTEPEN  = enable ? ACMP_ROUTEPEN_OUTPEN : 0;
+#endif
 }
 
 /***************************************************************************//**
@@ -257,26 +315,29 @@ void ACMP_GPIOSetup(ACMP_TypeDef *acmp, uint32_t location, bool enable, bool inv
 void ACMP_ChannelSet(ACMP_TypeDef *acmp, ACMP_Channel_TypeDef negSel,
                      ACMP_Channel_TypeDef posSel)
 {
-  /* Sanity checking of ACMP inputs */
-  EFM_ASSERT(posSel <= _ACMP_INPUTSEL_POSSEL_CH7);
+  /* Make sure the module exists on the selected chip */
+  EFM_ASSERT(ACMP_REF_VALID(acmp));
 
+  /* Make sure that posSel and negSel channel selectors are valid. */
 #if defined(_ACMP_INPUTSEL_NEGSEL_DAC0CH1)
   EFM_ASSERT(negSel <= _ACMP_INPUTSEL_NEGSEL_DAC0CH1);
 #elif defined(_ACMP_INPUTSEL_NEGSEL_CAPSENSE)
   EFM_ASSERT(negSel <= _ACMP_INPUTSEL_NEGSEL_CAPSENSE);
-#else
-#error Illegal negative input selection (ACMP).
 #endif
 
-  acmp->INPUTSEL = (acmp->INPUTSEL & ~(_ACMP_INPUTSEL_POSSEL_MASK |
-                                       _ACMP_INPUTSEL_NEGSEL_MASK))
+#if defined(_ACMP_INPUTSEL_POSSEL_CH7)
+  EFM_ASSERT(posSel <= _ACMP_INPUTSEL_POSSEL_CH7);
+#endif
+
+  acmp->INPUTSEL = (acmp->INPUTSEL & ~(_ACMP_INPUTSEL_POSSEL_MASK
+                                       | _ACMP_INPUTSEL_NEGSEL_MASK))
                    | (negSel << _ACMP_INPUTSEL_NEGSEL_SHIFT)
                    | (posSel << _ACMP_INPUTSEL_POSSEL_SHIFT);
 }
 
 /***************************************************************************//**
  * @brief
- *
+ *   Initialize ACMP.
  *
  * @param[in] acmp
  *   Pointer to the ACMP peripheral register block.
@@ -293,27 +354,102 @@ void ACMP_Init(ACMP_TypeDef *acmp, const ACMP_Init_TypeDef *init)
   /* Make sure biasprog is within bounds */
   EFM_ASSERT(init->biasProg < 16);
 
+  /* Make sure the ACMP is disable since we might be changing the
+   * ACMP power source */
+  BUS_RegBitWrite(&acmp->CTRL, _ACMP_CTRL_EN_SHIFT, 0);
+
   /* Set control register. No need to set interrupt modes */
   acmp->CTRL = (init->fullBias << _ACMP_CTRL_FULLBIAS_SHIFT)
+#if defined(_ACMP_CTRL_HALFBIAS_MASK)
                | (init->halfBias << _ACMP_CTRL_HALFBIAS_SHIFT)
+#endif
                | (init->biasProg << _ACMP_CTRL_BIASPROG_SHIFT)
                | (init->interruptOnFallingEdge << _ACMP_CTRL_IFALL_SHIFT)
                | (init->interruptOnRisingEdge << _ACMP_CTRL_IRISE_SHIFT)
+#if defined(_ACMP_CTRL_INPUTRANGE_MASK)
+               | (init->inputRange << _ACMP_CTRL_INPUTRANGE_SHIFT)
+#endif
+#if defined(_ACMP_CTRL_ACCURACY_MASK)
+               | (init->accuracy << _ACMP_CTRL_ACCURACY_SHIFT)
+#endif
+#if defined(_ACMP_CTRL_PWRSEL_MASK)
+               | (init->powerSource << _ACMP_CTRL_PWRSEL_SHIFT)
+#endif
+#if defined(_ACMP_CTRL_WARMTIME_MASK)
                | (init->warmTime << _ACMP_CTRL_WARMTIME_SHIFT)
+#endif
+#if defined(_ACMP_CTRL_HYSTSEL_MASK)
                | (init->hysteresisLevel << _ACMP_CTRL_HYSTSEL_SHIFT)
+#endif
                | (init->inactiveValue << _ACMP_CTRL_INACTVAL_SHIFT);
 
-  acmp->INPUTSEL = (init->lowPowerReferenceEnabled << _ACMP_INPUTSEL_LPREF_SHIFT)
-                   | (init->vddLevel << _ACMP_INPUTSEL_VDDLEVEL_SHIFT);
+  acmp->INPUTSEL = (0)
+#if defined(_ACMP_INPUTSEL_VLPSEL_MASK)
+               | (init->vlpInput << _ACMP_INPUTSEL_VLPSEL_SHIFT)
+#endif
+#if defined(_ACMP_INPUTSEL_LPREF_MASK)
+               | (init->lowPowerReferenceEnabled << _ACMP_INPUTSEL_LPREF_SHIFT)
+#endif
+#if defined(_ACMP_INPUTSEL_VDDLEVEL_MASK)
+               | (init->vddLevel << _ACMP_INPUTSEL_VDDLEVEL_SHIFT)
+#endif
+               ;
 
-  /* Enable ACMP if requested.
-   * Note: BITBAND_Peripheral() function is used for setting/clearing single
-   * bit peripheral register bitfields. */
-  BITBAND_Peripheral(&(acmp->CTRL),
-                     (uint32_t)_ACMP_CTRL_EN_SHIFT,
-                     (uint32_t)init->enable);
+  /* Enable ACMP if requested. */
+  BUS_RegBitWrite(&(acmp->CTRL), _ACMP_CTRL_EN_SHIFT, init->enable);
 }
 
+#if defined(_ACMP_INPUTSEL_VASEL_MASK)
+/***************************************************************************//**
+ * @brief
+ *   Setup the VA Source.
+ *
+ * @param[in] acmp
+ *   Pointer to the ACMP peripheral register block.
+ *
+ * @param[in] vaconfig
+ *   Pointer to the structure used to configure the VA source. This structure
+ *   contains the input source as well as the 2 divider values.
+ ******************************************************************************/
+void ACMP_VASetup(ACMP_TypeDef *acmp, const ACMP_VAConfig_TypeDef *vaconfig)
+{
+  EFM_ASSERT(vaconfig->div0 < 64);
+  EFM_ASSERT(vaconfig->div1 < 64);
+
+  BUS_RegMaskedWrite(&acmp->INPUTSEL, _ACMP_INPUTSEL_VASEL_MASK,
+      vaconfig->input << _ACMP_INPUTSEL_VASEL_SHIFT);
+  BUS_RegMaskedWrite(&acmp->HYSTERESIS0, _ACMP_HYSTERESIS0_DIVVA_MASK,
+      vaconfig->div0 << _ACMP_HYSTERESIS0_DIVVA_SHIFT);
+  BUS_RegMaskedWrite(&acmp->HYSTERESIS1, _ACMP_HYSTERESIS1_DIVVA_MASK,
+      vaconfig->div1 << _ACMP_HYSTERESIS1_DIVVA_SHIFT);
+}
+#endif
+
+#if defined(_ACMP_INPUTSEL_VBSEL_MASK)
+/***************************************************************************//**
+ * @brief
+ *   Setup the VB Source.
+ *
+ * @param[in] acmp
+ *   Pointer to the ACMP peripheral register block.
+ *
+ * @param[in] vbconfig
+ *   Pointer to the structure used to configure the VB source. This structure
+ *   contains the input source as well as the 2 divider values.
+ ******************************************************************************/
+void ACMP_VBSetup(ACMP_TypeDef *acmp, const ACMP_VBConfig_TypeDef *vbconfig)
+{
+  EFM_ASSERT(vbconfig->div0 < 64);
+  EFM_ASSERT(vbconfig->div1 < 64);
+
+  BUS_RegMaskedWrite(&acmp->INPUTSEL, _ACMP_INPUTSEL_VBSEL_MASK,
+      vbconfig->input << _ACMP_INPUTSEL_VBSEL_SHIFT);
+  BUS_RegMaskedWrite(&acmp->HYSTERESIS0, _ACMP_HYSTERESIS0_DIVVB_MASK,
+      vbconfig->div0 << _ACMP_HYSTERESIS0_DIVVB_SHIFT);
+  BUS_RegMaskedWrite(&acmp->HYSTERESIS1, _ACMP_HYSTERESIS1_DIVVB_MASK,
+      vbconfig->div1 << _ACMP_HYSTERESIS1_DIVVB_SHIFT);
+}
+#endif
 
 /** @} (end addtogroup ACMP) */
 /** @} (end addtogroup EM_Library) */

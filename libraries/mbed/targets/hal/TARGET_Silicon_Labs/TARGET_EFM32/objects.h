@@ -66,11 +66,6 @@ struct dac_s {
 #if DEVICE_I2C
 struct i2c_s {
     I2C_TypeDef *i2c;
-    int loc;
-    uint8_t index;
-    PinName sda;
-    PinName scl;
-    uint32_t clock;
 #if DEVICE_I2C_ASYNCH
     uint32_t events;
     I2C_TransferSeq_TypeDef xfer;
@@ -88,10 +83,6 @@ struct port_s {
 
 #if DEVICE_PWMOUT
 struct pwmout_s {
-    //The period of the pulse in clock cycles
-    uint16_t period_cycles;
-    //The width of the pulse in clock cycles
-    uint16_t width_cycles;
     //Channel on TIMER
     uint32_t channel;
     PinName pin;
@@ -107,14 +98,17 @@ struct gpio_irq_s {
 #endif
 
 #if DEVICE_SERIAL
-#define SERIAL_NUM_UARTS (7)
-
 struct serial_s {
     union {
         USART_TypeDef *uart;
         LEUART_TypeDef *leuart;
     } periph;
+#ifndef _SILICON_LABS_32B_PLATFORM_2
     uint32_t location;
+#else
+    uint32_t location_tx;
+    uint32_t location_rx;
+#endif
     PinName rx_pin;
     PinName tx_pin;
 #if DEVICE_SERIAL_ASYNCH
@@ -122,6 +116,7 @@ struct serial_s {
     DMA_OPTIONS_t dmaOptionsTX;
     DMA_OPTIONS_t dmaOptionsRX;
 #endif
+    uint32_t sleep_blocked;
 };
 #endif
 
