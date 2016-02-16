@@ -69,7 +69,7 @@ uint32_t getprescalarindex (uint16_t frequency)
     }
 }
 
-static void setregisterabc (pwmout_t* obj) 
+static void setregisterabc (pwmout_t* obj)
 {
     uint32_t ra, rb, rc;
     /* Sanity check arguments */
