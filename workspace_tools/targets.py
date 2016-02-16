@@ -2072,6 +2072,7 @@ class SAML21J18A(Target):
         self.progen = {
             "target":"samr21j18a",
         }
+        self.progen_target ='samr21j18a'
 
 class SAMG55J19(Target):
     def __init__(self):
@@ -2084,6 +2085,7 @@ class SAMG55J19(Target):
         self.progen = {
             "target":"samg55j19",
         }
+        self.progen_target ='samg55j19'
 
 # Get a single instance for each target
 TARGETS = [
