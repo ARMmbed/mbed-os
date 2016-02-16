@@ -1787,6 +1787,7 @@ class SAML21J18A(Target):
         self.macros = ['__SAML21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
+        self.progen_target ='samr21j18a'
 
 class SAMG55J19(Target):
     def __init__(self):
@@ -1796,7 +1797,7 @@ class SAMG55J19(Target):
         self.macros = ['__SAMG55J19__', 'BOARD=75', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
-        self.progen_target ='samr21j18a'
+        self.progen_target ='samg55j19'
 
 # Get a single instance for each target
 TARGETS = [
