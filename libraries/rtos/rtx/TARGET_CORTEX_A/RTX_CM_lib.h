@@ -526,10 +526,6 @@ __attribute__((naked)) void software_init_hook (void) {
 
 #elif defined (__ICCARM__)
 
-extern int  __low_level_init(void);
-extern void __iar_data_init3(void);
-extern void __iar_dynamic_initialization(void);
-extern void mbed_sdk_init(void);
 extern void exit(int arg);
 
 void mbed_main(void) {
