@@ -130,6 +130,8 @@ void SystemInit (void) {
 #if (DISABLE_WDOG)
   /* SIM_COPC: COPT=0,COPCLKS=0,COPW=0 */
   SIM->COPC = (uint32_t)0x00u;
+#else
+  SIM->COPC = (uint32_t)0x0cu;		// Set up watchdog timer for 1kHz clock and 1024ms operation COPT=11, COPCLKS=0, COPW=0
 #endif /* (DISABLE_WDOG) */
 
 #ifdef CLOCK_SETUP
