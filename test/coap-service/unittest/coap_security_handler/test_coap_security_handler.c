@@ -85,7 +85,7 @@ bool test_coap_security_handler_connect()
     coap_security_keys_t keys;
     keys._priv = &pw;
     keys._priv_len = 3;
-    if( -1 != coap_security_handler_connect_non_blocking(NULL, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(NULL, true, DTLS, keys, 0, 1) )
         return false;
     mbedtls_stub.useCounter = true;
     mbedtls_stub.counter = 0;
@@ -98,18 +98,18 @@ bool test_coap_security_handler_connect()
     mbedtls_stub.retArray[6] = -1;
     mbedtls_stub.retArray[7] = -1;
 
-    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[0] = 0;
-    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     mbedtls_stub.counter = 0;
 //    mbedtls_stub.retArray[0] = 0;
     mbedtls_stub.retArray[1] = 0;
-    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     simple_cookie_t c;
@@ -121,7 +121,7 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[0] = 0;
 //    mbedtls_stub.retArray[1] = 0;
     mbedtls_stub.retArray[2] = 0;
-    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     c.len = 8;
@@ -135,7 +135,7 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[1] = 0;
 //    mbedtls_stub.retArray[2] = 0;
     mbedtls_stub.retArray[3] = 0;
-    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     mbedtls_stub.counter = 0;
@@ -144,7 +144,7 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[2] = 0;
 //    mbedtls_stub.retArray[3] = 0;
     mbedtls_stub.retArray[4] = 0;
-    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     mbedtls_stub.counter = 0;
@@ -155,19 +155,19 @@ bool test_coap_security_handler_connect()
 //    mbedtls_stub.retArray[4] = 0;
     mbedtls_stub.retArray[6] = 0;
     mbedtls_stub.retArray[7] = 0;
-    if( 1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( 1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[5] = MBEDTLS_ERR_SSL_BAD_HS_FINISHED;
 
-    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( -1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     mbedtls_stub.counter = 0;
     mbedtls_stub.retArray[5] = HANDSHAKE_FINISHED_VALUE;
 
-    if( 1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys) )
+    if( 1 != coap_security_handler_connect_non_blocking(handle, true, DTLS, keys, 0, 1) )
         return false;
 
     coap_security_destroy(handle);

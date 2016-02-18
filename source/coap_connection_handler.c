@@ -17,6 +17,9 @@
 typedef struct internal_socket_s {
     coap_conn_handler_t *parent;
 
+    uint32_t timeout_min;
+    uint32_t timeout_max;
+
     uint16_t listen_port;
     int8_t listen_socket;
 
@@ -239,6 +242,8 @@ static internal_socket_t *int_socket_find_by_socket_id(int8_t id)
 
 static internal_socket_t *int_socket_find(uint16_t port, bool is_secure, bool is_real_socket, bool bypassSec)
 {
+    (void) bypassSec;
+
     internal_socket_t *this = NULL;
     ns_list_foreach(internal_socket_t, cur_ptr, &socket_list) {
         if( cur_ptr->listen_port == port && cur_ptr->real_socket == is_real_socket &&
@@ -419,7 +424,7 @@ static void secure_recv_sckt_msg(void *cb_res)
                 coap_security_keys_t keys;
                 keys._priv = pw;
                 keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys);
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, sock->timeout_min, sock->timeout_max);
                 //TODO: error handling
             }
             ns_dyn_mem_free(pw);
@@ -517,7 +522,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
                 coap_security_keys_t keys;
                 keys._priv = pw;
                 keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys);
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
                 //TODO: error handling
                 ns_dyn_mem_free(pw);
                 return 0;
@@ -680,7 +685,7 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, ns_address_t
                 coap_security_keys_t keys;
                 keys._priv = pw;
                 keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, keys);
+                coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
                 ns_dyn_mem_free(pw);
                 return -2;
             }else{
@@ -719,4 +724,15 @@ bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int
         return true;
     }
     return false;
+}
+
+int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_t min, uint32_t max)
+{
+    if(!handler || !handler->socket){
+        return -1;
+    }
+    handler->socket->timeout_max = max;
+    handler->socket->timeout_min = min;
+
+    return 0;
 }

@@ -275,6 +275,8 @@ static int get_passwd_cb(int8_t socket_id, uint8_t address[static 16], uint16_t 
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options,
                                  coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *security_done_cb)
 {
+    (void) interface_id;
+
     coap_service_t *this = ns_dyn_mem_alloc(sizeof(coap_service_t));
     if (!this) {
         return -1;
@@ -320,6 +322,7 @@ int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_
     }
 
     ns_list_add_to_start(&instance_list, this);
+
     return id;
 }
 
@@ -452,3 +455,12 @@ int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hd
     return coap_message_handler_response_send(coap_service_handle, service_id, options, request_ptr, message_code, content_type, payload_ptr, payload_len);
 }
 
+int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint32_t max)
+{
+    coap_service_t *this = service_find(service_id);
+    if(!this){
+        return -1;
+    }
+
+    return coap_connection_handler_set_timeout(this->conn_handler, min, max);
+}
