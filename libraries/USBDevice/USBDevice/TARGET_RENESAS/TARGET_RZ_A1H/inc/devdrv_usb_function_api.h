@@ -334,8 +334,8 @@ void     usb1_function_Vendor4(uint16_t type, uint16_t req, uint16_t value, uint
 void     usb1_function_Vendor5(uint16_t type, uint16_t req, uint16_t value, uint16_t index, uint16_t length);
 void     usb1_function_ResetDescriptor(uint16_t mode);
 
-uint16_t Userdef_USB_usb1_function_d0fifo_dmaintid(void);
-uint16_t Userdef_USB_usb1_function_d1fifo_dmaintid(void);
+IRQn_Type Userdef_USB_usb1_function_d0fifo_dmaintid(void);
+IRQn_Type Userdef_USB_usb1_function_d1fifo_dmaintid(void);
 void     Userdef_USB_usb1_function_attach(void);
 void     Userdef_USB_usb1_function_detach(void);
 void     Userdef_USB_usb1_function_delay_1ms(void);

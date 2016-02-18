@@ -304,7 +304,7 @@ void USBHost::transferCompleted(volatile uint32_t addr)
     do {
         volatile HCTD* td = (volatile HCTD*)addr;
         addr = (uint32_t)td->nextTD; //Dequeue from physical list
-        td->nextTD = tdList; //Enqueue into reversed list
+        td->nextTD = (hcTd*)tdList; //Enqueue into reversed list
         tdList = td;
     } while(addr);
 

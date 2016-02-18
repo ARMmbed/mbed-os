@@ -69,8 +69,17 @@ typedef struct OS_TCB {
 
   /* Hardware dependant part: specific for Cortex processor                  */
   U8     stack_frame;             /* Stack frame: 0x0 Basic, 0x1 Extended, 0x2 VFP/D16 stacked, 0x4 NEON/D32 stacked */
+#if defined (__ICCARM__)
+#ifndef __LARGE_PRIV_STACK
+  U16    priv_stack;              /* Private stack size, 0= system assigned  */
+#else
   U16    reserved;                /* Reserved (padding)                      */
   U32    priv_stack;              /* Private stack size for LARGE_STACK, 0= system assigned  */
+#endif /* __LARGE_PRIV_STACK */
+#else
+  U16    reserved;                /* Reserved (padding)                      */
+  U32    priv_stack;              /* Private stack size for LARGE_STACK, 0= system assigned  */
+#endif
   U32    tsk_stack;               /* Current task Stack pointer (R13)        */
   U32    *stack;                  /* Pointer to Task Stack memory block      */
 
@@ -79,7 +88,15 @@ typedef struct OS_TCB {
 } *P_TCB;
 #define TCB_TID          3        /* 'task id' offset                        */
 #define TCB_STACKF      37        /* 'stack_frame' offset                    */
+#if defined (__ICCARM__)
+#ifndef __LARGE_PRIV_STACK
+#define TCB_TSTACK      40        /* 'tsk_stack' offset                      */
+#else
 #define TCB_TSTACK      44        /* 'tsk_stack' offset for LARGE_STACK      */
+#endif /* __LARGE_PRIV_STACK */
+#else
+#define TCB_TSTACK      44        /* 'tsk_stack' offset for LARGE_STACK      */
+#endif
 
 typedef struct OS_PSFE {          /* Post Service Fifo Entry                 */
   void  *id;                      /* Object Identification                   */

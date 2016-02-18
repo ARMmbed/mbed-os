@@ -136,10 +136,10 @@ enum ENDPOINT_TYPE {
 #define CONFIGURATION_DESCRIPTOR_LENGTH     0x09
 
 // ------------ HostController Transfer Descriptor ------------
-typedef struct HCTD {
+typedef struct hcTd {
     __IO  uint32_t   control;        // Transfer descriptor control
     __IO  uint8_t *  currBufPtr;    // Physical address of current buffer pointer
-    __IO  HCTD *     nextTD;         // Physical pointer to next Transfer Descriptor
+    __IO  hcTd *     nextTD;         // Physical pointer to next Transfer Descriptor
     __IO  uint8_t *  bufEnd;        // Physical address of end of buffer
     void * ep;                      // ep address where a td is linked in
     uint32_t dummy[3];              // padding
