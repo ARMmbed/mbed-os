@@ -55,3 +55,8 @@ bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int
 {
     return thread_conn_handler_stub.bool_value;
 }
+
+int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_t min, uint32_t max)
+{
+    return 0;
+}

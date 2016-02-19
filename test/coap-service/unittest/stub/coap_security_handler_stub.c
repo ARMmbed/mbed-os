@@ -30,7 +30,7 @@ void coap_security_destroy(coap_security_t *sec)
 
 }
 
-int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys)
+int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys, uint32_t timeout_min, uint32_t timeout_max)
 {
     sec->_is_started = true;
     if( coap_security_handler_stub.counter >= 0){

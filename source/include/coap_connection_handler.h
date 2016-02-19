@@ -58,4 +58,6 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
 
 bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int8_t socket_id);
 
+int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_t min, uint32_t max);
+
 #endif

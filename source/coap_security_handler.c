@@ -356,7 +356,8 @@ int coap_security_handler_connect(coap_security_t *sec, bool is_server, SecureSo
     return ret;
 }
 
-int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys){
+int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys, uint32_t timeout_min, uint32_t timeout_max)
+{
 
     if( !sec ){
         return -1;
@@ -380,8 +381,13 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
         return -1;
     }
 
-    //TODO: This should probably be modifiable by service???
-    mbedtls_ssl_conf_handshake_timeout( &sec->_conf, 10000, 29000 );
+    if(!timeout_max && !timeout_min){
+        mbedtls_ssl_conf_handshake_timeout( &sec->_conf, 10000, 29000 );
+    }
+    else{
+        mbedtls_ssl_conf_handshake_timeout( &sec->_conf, timeout_min, timeout_max );
+    }
+
     mbedtls_ssl_conf_rng( &sec->_conf, mbedtls_ctr_drbg_random, &sec->_ctr_drbg );
 
     if( ( mbedtls_ssl_setup( &sec->_ssl, &sec->_conf ) ) != 0 )

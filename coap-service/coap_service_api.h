@@ -260,6 +260,7 @@ extern uint16_t coap_service_request_send(int8_t service_id, uint8_t options, co
  */
 extern int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type, const uint8_t *payload_ptr,uint16_t payload_len);
 
+extern int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint32_t max);
 #ifdef __cplusplus
 }
 #endif
