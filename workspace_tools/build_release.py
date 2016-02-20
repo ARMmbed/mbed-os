@@ -17,8 +17,9 @@ limitations under the License.
 """
 import sys
 from time import time
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, normpath
 from optparse import OptionParser
+import json
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -28,6 +29,10 @@ from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.build_api import write_build_report
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+from workspace_tools.test_api import SingleTestRunner
+from workspace_tools.test_api import singletest_in_cli_mode
+from workspace_tools.paths import TEST_DIR
+from workspace_tools.tests import TEST_MAP
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
@@ -153,51 +158,123 @@ if __name__ == '__main__':
 
     parser.add_option("-p", "--platforms", dest="platforms", default="", help="Build only for the platform namesseparated by comma")
 
+    parser.add_option("-L", "--list-config", action="store_true", dest="list_config",
+                      default=False, help="List the platforms and toolchains in the release in JSON")
+
     parser.add_option("", "--report-build", dest="report_build_file_name", help="Output the build results to an junit xml file")
+
+    parser.add_option("", "--build-tests", dest="build_tests", help="Build all tests in the given directories (relative to /libraries/tests)")
 
 
     options, args = parser.parse_args()
+
+
+
+    if options.list_config:
+        print json.dumps(OFFICIAL_MBED_LIBRARY_BUILD, indent=4)
+        sys.exit()
+
     start = time()
-    report = {}
-    properties = {}
+    build_report = {}
+    build_properties = {}
 
     platforms = None
     if options.platforms != "":
         platforms = set(options.platforms.split(","))
 
-    for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
-        if platforms is not None and not target_name in platforms:
-            print("Excluding %s from release" % target_name)
-            continue
+    if options.build_tests:
+        # Get all paths
+        directories = options.build_tests.split(',')
+        for i in range(len(directories)):
+            directories[i] = normpath(join(TEST_DIR, directories[i]))
 
-        if options.official_only:
-            toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
-        else:
-            toolchains = toolchain_list
+        test_names = []
 
-        if options.toolchains:
-            print "Only building using the following toolchains: %s" % (options.toolchains)
-            toolchainSet = set(toolchains)
-            toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
+        for test_id in TEST_MAP.keys():
+            # Prevents tests with multiple source dirs from being checked
+            if isinstance( TEST_MAP[test_id].source_dir, basestring):
+                test_path = normpath(TEST_MAP[test_id].source_dir)
+                for directory in directories:
+                    if directory in test_path:
+                        test_names.append(test_id)
 
-        for toolchain in toolchains:
-            id = "%s::%s" % (target_name, toolchain)
+        mut_counter = 1
+        mut = {}
+        test_spec = {
+            "targets": {}
+        }
 
-            try:
-                built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs, report=report, properties=properties)
+        for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
+            toolchains = None
+            if platforms is not None and not target_name in platforms:
+                print("Excluding %s from release" % target_name)
+                continue
 
-            except Exception, e:
-                print str(e)
+            if options.official_only:
+                toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
+            else:
+                toolchains = toolchain_list
+
+            if options.toolchains:
+                print "Only building using the following toolchains: %s" % (options.toolchains)
+                toolchainSet = set(toolchains)
+                toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
+
+            mut[str(mut_counter)] = {
+                "mcu": target_name
+            }
+
+            mut_counter += 1
+
+            test_spec["targets"][target_name] = toolchains
+
+            single_test = SingleTestRunner(_muts=mut,
+                                           _opts_report_build_file_name=options.report_build_file_name,
+                                           _test_spec=test_spec,
+                                           _opts_test_by_names=",".join(test_names),
+                                           _opts_verbose=options.verbose,
+                                           _opts_only_build_tests=True,
+                                           _opts_suppress_summary=True,
+                                           _opts_jobs=options.jobs,
+                                           _opts_include_non_automated=True,
+                                           _opts_build_report=build_report,
+                                           _opts_build_properties=build_properties)
+            # Runs test suite in CLI mode
+            test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, new_build_report, new_build_properties = single_test.execute()
+    else:
+        for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
+            if platforms is not None and not target_name in platforms:
+                print("Excluding %s from release" % target_name)
+                continue
+
+            if options.official_only:
+                toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
+            else:
+                toolchains = toolchain_list
+
+            if options.toolchains:
+                print "Only building using the following toolchains: %s" % (options.toolchains)
+                toolchainSet = set(toolchains)
+                toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
+
+            for toolchain in toolchains:
+                id = "%s::%s" % (target_name, toolchain)
+
+                try:
+                    built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name], toolchain, verbose=options.verbose, jobs=options.jobs, report=build_report, properties=build_properties)
+
+                except Exception, e:
+                    print str(e)
 
     # Write summary of the builds
     if options.report_build_file_name:
         file_report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
-        file_report_exporter.report_to_file(report, options.report_build_file_name, test_suite_properties=properties)
+        file_report_exporter.report_to_file(build_report, options.report_build_file_name, test_suite_properties=build_properties)
 
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
     print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
-    status = print_report_exporter.report(report)
+    status = print_report_exporter.report(build_report)
 
     if not status:
         sys.exit(1)
