@@ -37,8 +37,7 @@ typedef enum {
     IRQ_PASSIVE,
     IRQ_ARB,
     IRQ_BUS,
-    IRQ_READY,
-    IRQ_RX1
+    IRQ_READY
 } CanIrqType;
 
 
