@@ -14,19 +14,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from workspace_tools.export.exporters import Exporter
-from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
 import re
 import os
 from project_generator_definitions.definitions import ProGenDef
 
+from workspace_tools.export.exporters import Exporter
+from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
 
+# If you wish to add a new target, add it to project_generator_definitions, and then
+# define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
 class IAREmbeddedWorkbench(Exporter):
     """
-    Exporter class for IAR Systems.
+    Exporter class for IAR Systems. This class uses project generator.
     """
+    # These 2 are currently for exporters backward compatiblity
     NAME = 'IAR'
     TOOLCHAIN = 'IAR'
+    # PROGEN_ACTIVE contains information for exporter scripts that this is using progen
     PROGEN_ACTIVE = True
 
     # backward compatibility with our scripts
@@ -37,12 +41,14 @@ class IAREmbeddedWorkbench(Exporter):
                 ProGenDef('iar').is_supported(TARGET_MAP[target].progen_target)):
                 TARGETS.append(target)
         except AttributeError:
-            # not supported yet
+            # target is not supported yet
             continue
 
     def generate(self):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
+        # Expand tool specific settings by IAR specific settings which are required
+        # by the mbed projects
         tool_specific = {
             'iar': {
                 'misc': {
