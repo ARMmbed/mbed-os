@@ -105,8 +105,10 @@ void can_free(can_t *obj)
     }
 }
 
-// This table has the sampling points as close to 75% as possible. The first
-// value is TSEG1, the second TSEG2.
+// The following table is used to program bit_timing. It is an adjustment of the sample
+// point by synchronizing on the start-bit edge and resynchronizing on the following edges.
+// This table has the sampling points as close to 75% as possible (most commonly used).
+// The first value is TSEG1, the second TSEG2.
 static const int timing_pts[23][2] = {
     {0x0, 0x0},      // 2,  50%
     {0x1, 0x0},      // 3,  67%
