@@ -1,6 +1,6 @@
 {
   "name": "coap-service",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CoAP Service library",
   "keywords": [
     "coap",
