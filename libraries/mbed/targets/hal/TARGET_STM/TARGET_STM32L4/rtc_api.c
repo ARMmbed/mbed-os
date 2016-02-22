@@ -147,8 +147,11 @@ int rtc_isenabled(void)
 #if DEVICE_RTC_LSI
   return rtc_inited;
 #else
-  if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return 1;
-  else return 0;
+  if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {
+    return 1;
+  } else {
+    return 0;
+  }
 #endif
 }
 
