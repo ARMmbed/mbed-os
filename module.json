@@ -20,7 +20,7 @@
   "dependencies": {
     "nanostack-libservice": "^3.0.0",
     "mbed-client-c": "^2.0.0",
-    "sal-stack-nanostack": "^3.0.0",
+    "sal-stack-nanostack": "^4.0.0",
     "mbedtls": "^2.0.0"
   },
   "targetDependencies": {}
