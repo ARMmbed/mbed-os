@@ -40,59 +40,58 @@ void rtc_init(void)
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
-        RtcHandle.Instance = RTC;
+    RtcHandle.Instance = RTC;
 
-        // Enable Power clock
-        __PWR_CLK_ENABLE();
+    // Enable Power clock
+    __PWR_CLK_ENABLE();
 
-        // Enable access to Backup domain
-        HAL_PWR_EnableBkUpAccess();
+    // Enable access to Backup domain
+    HAL_PWR_EnableBkUpAccess();
 
-        // Reset Backup domain
-        __HAL_RCC_BACKUPRESET_FORCE();
-        __HAL_RCC_BACKUPRESET_RELEASE();
+    // Reset Backup domain
+    __HAL_RCC_BACKUPRESET_FORCE();
+    __HAL_RCC_BACKUPRESET_RELEASE();
 
-        // Enable LSE Oscillator
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    // Enable LSE Oscillator
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
+        // Connect LSE to RTC
+        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+        rtc_freq = LSE_VALUE;
+    } else {
+        // Enable LSI clock
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-        RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
-        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
-            // Connect LSE to RTC
-            __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
-            __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-            rtc_freq = LSE_VALUE;
-        } else {
-            // Enable LSI clock
-            RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-            RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-            RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-            RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-            if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-                error("RTC error: LSI clock initialization failed.");
-            }
-            // Connect LSI to RTC
-            __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
-            __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-            // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
-            rtc_freq = LSI_VALUE;
+        RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            error("RTC error: LSI clock initialization failed.");
         }
+        // Connect LSI to RTC
+        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+        // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
+        rtc_freq = LSI_VALUE;
+    }
 
-    if((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {     // RTC initialization and status register (RTC_ISR), cold start (with no backup domain power) RTC reset value
+    // Check if RTC is already initialized
+    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return;
 
-        // Enable RTC
-        __HAL_RCC_RTC_ENABLE();
+    // Enable RTC
+    __HAL_RCC_RTC_ENABLE();
 
-        RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
-        RtcHandle.Init.AsynchPrediv   = 127;
-        RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
-        RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
-        RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-        RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+    RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
+    RtcHandle.Init.AsynchPrediv   = 127;
+    RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
+    RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
+    RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
 
-        if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
-            error("RTC error: RTC initialization failed.");
-        }
-
+    if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
+        error("RTC error: RTC initialization failed.");
     }
 }
 
