@@ -15,8 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from workspace_tools.export.exporters import Exporter
+from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
 import re
 import os
+from project_generator_definitions.definitions import ProGenDef
+
 
 class IAREmbeddedWorkbench(Exporter):
     """
@@ -26,6 +29,17 @@ class IAREmbeddedWorkbench(Exporter):
     TOOLCHAIN = 'IAR'
     PROGEN_ACTIVE = True
 
+    # backward compatibility with our scripts
+    TARGETS = []
+    for target in TARGET_NAMES:
+        try:
+            if (ProGenDef('iar').is_supported(TARGET_MAP[target]) or
+                ProGenDef('iar').is_supported(TARGET_MAP[target].progen_target)):
+                TARGETS.append(target)
+        except AttributeError:
+            # not supported yet
+            continue
+
     def generate(self):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
@@ -34,6 +48,7 @@ class IAREmbeddedWorkbench(Exporter):
                 'misc': {
                     'cxx_flags': ['--no_rtti', '--no_exceptions'],
                     'c_flags': ['--diag_suppress=Pa050,Pa084,Pa093,Pa082'],
+                    'ld_flags': ['--skip_dynamic_initialization'],
                 }
             }
         }
