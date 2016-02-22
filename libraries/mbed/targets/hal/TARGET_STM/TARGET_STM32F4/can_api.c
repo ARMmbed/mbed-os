@@ -396,14 +396,6 @@ static void can_irq(CANName name, int id)
          irq_handler(can_irq_ids[id], IRQ_RX);
     }
   
-    tmp1 = __HAL_CAN_MSG_PENDING(&CanHandle, CAN_FIFO1);
-    tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_FMP1);
-  
-    if((tmp1 != 0) && tmp2) {
-         irq_handler(can_irq_ids[id], IRQ_RX1);
-    }
-      
-  
     tmp1 = __HAL_CAN_GET_FLAG(&CanHandle, CAN_FLAG_EPV);
     tmp2 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_EPV);
     tmp3 = __HAL_CAN_GET_IT_SOURCE(&CanHandle, CAN_IT_ERR); 
@@ -430,11 +422,6 @@ void CAN1_RX0_IRQHandler(void)
     can_irq(CAN_1, 0);
 }
 
-void CAN1_RX1_IRQHandler(void) 
-{
-    can_irq(CAN_1, 0);
-}
-
 void CAN1_TX_IRQHandler(void) 
 {
     can_irq(CAN_1, 0);
@@ -446,11 +433,6 @@ void CAN1_SCE_IRQHandler(void)
 }
 
 void CAN2_RX0_IRQHandler(void) 
-{
-    can_irq(CAN_2, 1);
-}
-
-void CAN2_RX1_IRQHandler(void)
 {
     can_irq(CAN_2, 1);
 }
@@ -480,11 +462,6 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 irq_n = CAN1_RX0_IRQn;
                 vector = (uint32_t)&CAN1_RX0_IRQHandler;
                 break;
-            case IRQ_RX1:      
-                ier = CAN_IT_FMP1;
-                irq_n = CAN1_RX1_IRQn;
-                vector = (uint32_t)&CAN1_RX1_IRQHandler;
-                break;                
             case IRQ_TX:      
                 ier = CAN_IT_TME;
                 irq_n = CAN1_TX_IRQn;
@@ -513,11 +490,6 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                   ier = CAN_IT_FMP0;
                   irq_n = CAN2_RX0_IRQn;
                   vector = (uint32_t)&CAN2_RX0_IRQHandler;
-                  break;
-              case IRQ_RX1:
-                  ier = CAN_IT_FMP1;
-                  irq_n = CAN2_RX1_IRQn;
-                  vector = (uint32_t)&CAN2_RX1_IRQHandler;
                   break;
               case IRQ_TX:      
                   ier = CAN_IT_TME;
