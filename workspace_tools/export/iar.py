@@ -55,7 +55,8 @@ class IAREmbeddedWorkbench(Exporter):
                     'cxx_flags': ['--no_rtti', '--no_exceptions'],
                     'c_flags': ['--diag_suppress=Pa050,Pa084,Pa093,Pa082'],
                     'ld_flags': ['--skip_dynamic_initialization'],
-                }
+                },
+                'template': ['workspace_tools/export/iar_template.ewp.tmpl'],
             }
         }
         project_data['tool_specific'] = {}
