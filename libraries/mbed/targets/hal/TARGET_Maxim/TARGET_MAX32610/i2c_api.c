@@ -227,6 +227,17 @@ int i2c_byte_write(i2c_t *obj, int data)
 
     obj->i2c->trans |= MXC_F_I2CM_TRANS_TX_START;
 
+    // Wait for the FIFO to be empty
+    while(!(obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_FIFO_EMPTY)) {}
+
+    if(obj->i2c->intfl & MXC_F_I2CM_INTFL_TX_NACKED) {
+        return 1;
+    }
+
+    if(obj->i2c->intfl & (MXC_F_I2CM_INTFL_TX_TIMEOUT | MXC_F_I2CM_INTFL_TX_LOST_ARBITR)) {
+        return 2;
+    }
+
     return 0;
 }
 
