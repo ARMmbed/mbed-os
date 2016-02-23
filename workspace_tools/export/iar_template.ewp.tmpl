@@ -3,7 +3,7 @@
 <project>
   <fileVersion>2</fileVersion>
   <configuration>
-    <name>MBED_12</name>
+    <name>Debug</name>
     <toolchain>
       <name>ARM</name>
     </toolchain>
@@ -12,24 +12,25 @@
       <name>General</name>
       <archiveVersion>3</archiveVersion>
       <data>
-        <version>24</version>
+        <version>22</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
-          <name>GRuntimeLibThreads</name>
-          <state>0</state>
-        </option>
-        <option>
           <name>ExePath</name>
-          <state>$PROJ_DIR$\build\Exe</state>
+          <state>Debug\Exe</state>
         </option>
         <option>
           <name>ObjPath</name>
-          <state>$PROJ_DIR$\build\Obj</state>
+          <state>Debug\Obj</state>
         </option>
         <option>
           <name>ListPath</name>
-          <state>$PROJ_DIR$\build\List</state>
+          <state>Debug\List</state>
+        </option>
+        <option>
+          <name>Variant</name>
+          <version>20</version>
+          <state>35</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -47,14 +48,19 @@
         <option>
           <name>Output variant</name>
           <version>2</version>
-          <state>3</state>
+          <state>1</state>
         </option>
         <option>
           <name>Output description</name>
-          <state>No specifier a, A.</state>
+          <state>Full formatting.</state>
         </option>
         <option>
           <name>GOutputBinary</name>
+          <state>0</state>
+        </option>
+        <option>
+          <name>FPU</name>
+          <version>2</version>
           <state>0</state>
         </option>
         <option>
@@ -77,11 +83,11 @@
         </option>
         <option>
           <name>OGProductVersion</name>
-          <state>5.10.0.159</state>
+          <state>7.10.1.6733</state>
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>7.50.3.10745</state>
+          <state>7.10.1.6733</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -93,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>LPC1768	NXP LPC1768</state>
+          <state>MKL25Z128xxx4	Freescale MKL25Z128xxx4</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -130,9 +136,14 @@
           <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Full.h</state>
         </option>
         <option>
+          <name>GFPUCoreSlave</name>
+          <version>20</version>
+          <state>35</state>
+        </option>
+        <option>
           <name>GBECoreSlave</name>
-          <version>22</version>
-          <state>38</state>
+          <version>20</version>
+          <state>35</state>
         </option>
         <option>
           <name>OGUseCmsis</name>
@@ -143,32 +154,8 @@
           <state>0</state>
         </option>
         <option>
-          <name>CoreVariant</name>
-          <version>22</version>
-          <state>38</state>
-        </option>
-        <option>
-          <name>GFPUDeviceSlave</name>
-          <state>LPC1768	NXP LPC1768</state>
-        </option>
-        <option>
-          <name>FPU2</name>
-          <version>0</version>
+          <name>GRuntimeLibThreads</name>
           <state>0</state>
-        </option>
-        <option>
-          <name>NrRegs</name>
-          <version>0</version>
-          <state>0</state>
-        </option>
-        <option>
-          <name>NEON</name>
-          <state>0</state>
-        </option>
-        <option>
-          <name>GFPUCoreSlave2</name>
-          <version>22</version>
-          <state>38</state>
         </option>
       </data>
     </settings>
@@ -176,28 +163,38 @@
       <name>ICCARM</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>31</version>
+        <version>30</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
-          <name>CCOptimizationNoSizeConstraints</name>
-          <state>0</state>
-        </option>
-        <option>
           <name>CCDefines</name>
-          <state>__CORTEX_M3</state>
-          <state>ARM_MATH_CM3</state>
-          <state>TARGET_LIKE_CORTEX_M3</state>
-          <state>TARGET_CORTEX_M</state>
-          <state>TARGET_LIKE_MBED</state>
-          <state>TARGET_LPC176X</state>
-          <state>TARGET_NXP</state>
-          <state>TARGET_LPC1768</state>
-          <state>MBED_BUILD_TIMESTAMP=1456180263.22</state>
-          <state>TARGET_M3</state>
-          <state>TOOLCHAIN_IAR</state>
-          <state>TARGET_MBED_LPC1768</state>
-          <state>__MBED__=1</state>
+          
+            <state>TARGET_FF_ARDUINO</state>
+          
+            <state>TARGET_KLXX</state>
+          
+            <state>TARGET_KL25Z</state>
+          
+            <state>TARGET_CORTEX_M</state>
+          
+            <state>TARGET_LIKE_MBED</state>
+          
+            <state>TARGET_M0P</state>
+          
+            <state>TARGET_Freescale</state>
+          
+            <state>__MBED__=1</state>
+          
+            <state>__CORTEX_M0PLUS</state>
+          
+            <state>TOOLCHAIN_IAR</state>
+          
+            <state>MBED_BUILD_TIMESTAMP=1456248884.8</state>
+          
+            <state>TARGET_LIKE_CORTEX_M0</state>
+          
+            <state>ARM_MATH_CM0PLUS</state>
+          
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -213,7 +210,7 @@
         </option>
         <option>
           <name>CCListCFile</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCListCMnemonics</name>
@@ -225,7 +222,7 @@
         </option>
         <option>
           <name>CCListAssFile</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>CCListAssSource</name>
@@ -237,7 +234,7 @@
         </option>
         <option>
           <name>CCDiagSuppress</name>
-          <state></state>
+          <state>Pa050,Pa084,Pa093,Pa082</state>
         </option>
         <option>
           <name>CCDiagRemark</name>
@@ -258,7 +255,7 @@
         <option>
           <name>CCAllowList</name>
           <version>1</version>
-          <state>00000000</state>
+          <state>11111110</state>
         </option>
         <option>
           <name>CCDebugInfo</name>
@@ -274,14 +271,11 @@
         </option>
         <option>
           <name>IExtraOptionsCheck</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>IExtraOptions</name>
           <state></state>
-          <state>--no_rtti</state>
-          <state>--no_exceptions</state>
-          <state>--diag_suppress=Pa050,Pa084,Pa093,Pa082</state>
         </option>
         <option>
           <name>CCLangConformance</name>
@@ -309,7 +303,7 @@
         </option>
         <option>
           <name>IFpuProcessor</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OutputFile</name>
@@ -317,7 +311,7 @@
         </option>
         <option>
           <name>CCLibConfigHeader</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>PreInclude</name>
@@ -329,13 +323,23 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-          <state>$PROJ_DIR$\env</state>
-          <state>$PROJ_DIR$\mbed</state>
-          <state>$PROJ_DIR$\mbed\TARGET_LPC1768</state>
-          <state>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X</state>
-          <state>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\TARGET_MBED_LPC1768</state>
+        
           <state>$PROJ_DIR$\.</state>
-          <state>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP</state>
+        
+          <state>$PROJ_DIR$\env</state>
+        
+          <state>$PROJ_DIR$\mbed</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale\TARGET_KLXX</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale\TARGET_KLXX\TARGET_KL25Z</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TOOLCHAIN_IAR</state>
+        
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -355,7 +359,7 @@
         </option>
         <option>
           <name>CCOptLevel</name>
-          <state>1</state>
+          <state>3</state>
         </option>
         <option>
           <name>CCOptStrategy</name>
@@ -364,7 +368,7 @@
         </option>
         <option>
           <name>CCOptLevelSlave</name>
-          <state>1</state>
+          <state>3</state>
         </option>
         <option>
           <name>CompilerMisraRules98</name>
@@ -429,6 +433,10 @@
           <state>0</state>
         </option>
         <option>
+          <name>CCOptimizationNoSizeConstraints</name>
+          <state>0</state>
+        </option>
+        <option>
           <name>CCNoLiteralPool</name>
           <state>0</state>
         </option>
@@ -436,10 +444,6 @@
           <name>CCOptStrategySlave</name>
           <version>0</version>
           <state>0</state>
-        </option>
-        <option>
-          <name>CCGuardCalls</name>
-          <state>1</state>
         </option>
       </data>
     </settings>
@@ -456,7 +460,7 @@
         </option>
         <option>
           <name>AEndian</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>ACaseSensitivity</name>
@@ -477,15 +481,15 @@
         </option>
         <option>
           <name>AWarnOne</name>
-          <state>0</state>
+          <state></state>
         </option>
         <option>
           <name>AWarnRange1</name>
-          <state>0</state>
+          <state></state>
         </option>
         <option>
           <name>AWarnRange2</name>
-          <state>0</state>
+          <state></state>
         </option>
         <option>
           <name>ADebug</name>
@@ -501,7 +505,7 @@
         </option>
         <option>
           <name>AList</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>AListHeader</name>
@@ -545,11 +549,11 @@
         </option>
         <option>
           <name>TabSpacing</name>
-          <state>4</state>
+          <state>8</state>
         </option>
         <option>
           <name>AXRef</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>AXRefDefines</name>
@@ -565,11 +569,11 @@
         </option>
         <option>
           <name>AProcessor</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>AFpuProcessor</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>AOutputFile</name>
@@ -589,7 +593,7 @@
         </option>
         <option>
           <name>AIgnoreStdInclude</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>AUserIncludes</name>
@@ -601,7 +605,7 @@
         </option>
         <option>
           <name>AExtraOptionsV2</name>
-          <state>0</state>
+          <state></state>
         </option>
         <option>
           <name>AsmNoLiteralPool</name>
@@ -618,8 +622,8 @@
         <debug>1</debug>
         <option>
           <name>OOCOutputFormat</name>
-          <version>3</version>
-          <state>3</state>
+          <version>2</version>
+          <state>2</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -631,7 +635,7 @@
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
@@ -645,7 +649,6 @@
       <data>
         <extensions></extensions>
         <cmdline></cmdline>
-        <hasPrio>0</hasPrio>
       </data>
     </settings>
     <settings>
@@ -665,13 +668,9 @@
       <name>ILINK</name>
       <archiveVersion>0</archiveVersion>
       <data>
-        <version>17</version>
+        <version>16</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
-        <option>
-          <name>IlinkOutputFile</name>
-          <state>mbed.out</state>
-        </option>
         <option>
           <name>IlinkLibIOConfig</name>
           <state>1</state>
@@ -683,6 +682,10 @@
         <option>
           <name>IlinkInputFileSlave</name>
           <state>0</state>
+        </option>
+        <option>
+          <name>IlinkOutputFile</name>
+          <state>cpp.out</state>
         </option>
         <option>
           <name>IlinkDebugInfoEnable</name>
@@ -746,7 +749,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\LPC17xx.icf</state>
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TOOLCHAIN_IAR\MKL25Z4.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -782,7 +785,6 @@
         </option>
         <option>
           <name>IlinkExtraOptions</name>
-          <state></state>
           <state>--skip_dynamic_initialization</state>
         </option>
         <option>
@@ -795,7 +797,7 @@
         </option>
         <option>
           <name>IlinkAdditionalLibs</name>
-          <state></state>
+          <state></state>        
         </option>
         <option>
           <name>IlinkOverrideProgramEntryLabel</name>
@@ -950,10 +952,6 @@
           <name>IlinkThreadsSlave</name>
           <state>1</state>
         </option>
-        <option>
-          <name>IlinkLogCallGraph</name>
-          <state>0</state>
-        </option>
       </data>
     </settings>
     <settings>
@@ -983,369 +981,15 @@
       <data/>
     </settings>
   </configuration>
-  <group>
-    <name>Include Files</name>
-    <file>
-      <name>$PROJ_DIR$\mbed\AnalogIn.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\analogin_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\AnalogOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\analogout_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\arm_common_tables.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\arm_const_structs.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\arm_math.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\buffer.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\BusIn.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\BusInOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\BusOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\CallChain.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\CAN.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\can_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\can_helper.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\CircularBuffer.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\cmsis.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\cmsis_nvic.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_ca9.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_ca_mmu.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_caFunc.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_caInstr.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cm0.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cm0plus.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cm3.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cm4.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cm4_simd.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cm7.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cmFunc.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cmInstr.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_cmSimd.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_sc000.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\core_sc300.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\CThunk.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\TARGET_MBED_LPC1768\device.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\DigitalIn.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\DigitalInOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\DigitalOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\DirHandle.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\dma_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\env</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\Ethernet.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\ethernet_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\FileBase.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\FileHandle.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\FileLike.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\FilePath.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\FileSystemLike.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\FunctionPointer.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\gpio_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\gpio_irq_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\gpio_object.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\I2C.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\i2c_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\I2CSlave.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\InterruptIn.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\InterruptManager.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\LocalFileSystem.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\LowPowerTicker.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\LowPowerTimeout.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\LowPowerTimer.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\lp_ticker_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\LPC17xx.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\mbed.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\mbed_assert.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\mbed_debug.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\mbed_error.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\mbed_interface.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\objects.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\PeripheralNames.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\pinmap.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\TARGET_MBED_LPC1768\PinNames.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\platform.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\port_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\PortIn.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\PortInOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\PortNames.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\PortOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\PwmOut.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\pwmout_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\RawSerial.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\TARGET_MBED_LPC1768\reserved_pins.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\rtc_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\rtc_time.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\semihost_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\Serial.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\serial_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\SerialBase.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\sleep_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\SPI.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\spi_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\SPISlave.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\Stream.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\system_LPC17xx.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP\TARGET_LPC176X\TARGET_MBED_LPC1768</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TARGET_NXP</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\env\test_env.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\Ticker.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\ticker_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\Timeout.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\Timer.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TimerEvent.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\toolchain.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\Transaction.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\us_ticker_api.h</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\wait_api.h</name>
-    </file>
-  </group>
-  <group>
-    <name>Source Files</name>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\board.o</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\cmain.o</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\cmsis_nvic.o</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\main.cpp</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\mbed.a</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\retarget.o</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\startup_LPC17xx.o</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\mbed\TARGET_LPC1768\TOOLCHAIN_IAR\system_LPC17xx.o</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\env\test_env.cpp</name>
-    </file>
-  </group>
-</project>
+  <file>
+<name>$PROJ_DIR$/main.cpp</name>
+</file>
+<group>
+<name>env</name>
+<file>
+<name>$PROJ_DIR$/env\test_env.cpp</name>
+</file>
+</group>
 
+</project>
 
