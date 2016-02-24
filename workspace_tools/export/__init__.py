@@ -88,7 +88,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
             except AttributeError:
                 pass
             if use_progen:
-                if not ProGenDef(ide).is_supported(TARGET_MAP[target].progen_target):
+                if not ProGenDef(ide).is_supported(TARGET_MAP[target].progen['target']):
                     supported = False
             else:
                 if target not in Exporter.TARGETS:
