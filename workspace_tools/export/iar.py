@@ -37,8 +37,8 @@ class IAREmbeddedWorkbench(Exporter):
     TARGETS = []
     for target in TARGET_NAMES:
         try:
-            if (ProGenDef('iar').is_supported(TARGET_MAP[target]) or
-                ProGenDef('iar').is_supported(TARGET_MAP[target].progen_target)):
+            if (ProGenDef('iar').is_supported(str(TARGET_MAP[target])) or
+                ProGenDef('iar').is_supported(TARGET_MAP[target].progen['target'])):
                 TARGETS.append(target)
         except AttributeError:
             # target is not supported yet
