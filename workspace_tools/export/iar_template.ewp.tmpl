@@ -30,7 +30,7 @@
         <option>
           <name>Variant</name>
           <version>20</version>
-          <state>40</state>
+          <state>35</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -61,7 +61,7 @@
         <option>
           <name>FPU</name>
           <version>2</version>
-          <state>5</state>
+          <state>0</state>
         </option>
         <option>
           <name>OGCoreOrChip</name>
@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>MK64FN1M0xxx12	Freescale MK64FN1M0xxx12</state>
+          <state>MKL25Z128xxx4	Freescale MKL25Z128xxx4</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -138,12 +138,12 @@
         <option>
           <name>GFPUCoreSlave</name>
           <version>20</version>
-          <state>40</state>
+          <state>35</state>
         </option>
         <option>
           <name>GBECoreSlave</name>
           <version>20</version>
-          <state>40</state>
+          <state>35</state>
         </option>
         <option>
           <name>OGUseCmsis</name>
@@ -168,9 +168,33 @@
         <debug>1</debug>
         <option>
           <name>CCDefines</name>
-          {% for s in symbols %}
-            <state>{{s}}</state>
-          {% endfor %}
+          
+            <state>TARGET_FF_ARDUINO</state>
+          
+            <state>TARGET_KLXX</state>
+          
+            <state>TARGET_KL25Z</state>
+          
+            <state>TARGET_CORTEX_M</state>
+          
+            <state>TARGET_LIKE_MBED</state>
+          
+            <state>TARGET_M0P</state>
+          
+            <state>TARGET_Freescale</state>
+          
+            <state>__MBED__=1</state>
+          
+            <state>__CORTEX_M0PLUS</state>
+          
+            <state>TOOLCHAIN_IAR</state>
+          
+            <state>MBED_BUILD_TIMESTAMP=1456248884.8</state>
+          
+            <state>TARGET_LIKE_CORTEX_M0</state>
+          
+            <state>ARM_MATH_CM0PLUS</state>
+          
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -299,9 +323,23 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-        {% for path in include_paths %}
-          <state>$PROJ_DIR$\{{path}}</state>
-        {% endfor %}
+        
+          <state>$PROJ_DIR$\.</state>
+        
+          <state>$PROJ_DIR$\env</state>
+        
+          <state>$PROJ_DIR$\mbed</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale\TARGET_KLXX</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TARGET_Freescale\TARGET_KLXX\TARGET_KL25Z</state>
+        
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TOOLCHAIN_IAR</state>
+        
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -593,7 +631,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>{{name}}.bin</state>
+          <state>MBED_12.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -711,7 +749,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$PROJ_DIR$\{{linker_script}}</state>
+          <state>$PROJ_DIR$\mbed\TARGET_KL25Z\TOOLCHAIN_IAR\MKL25Z4.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -759,12 +797,7 @@
         </option>
         <option>
           <name>IlinkAdditionalLibs</name>
-        {% for library in libraries %}
-          <state>$PROJ_DIR$\{{library}}</state>
-        {% endfor %}
-        {% for object in object_files %}
-          <state>$PROJ_DIR$\{{object}}</state>
-        {% endfor %}
+          <state></state>        
         </option>
         <option>
           <name>IlinkOverrideProgramEntryLabel</name>
@@ -948,7 +981,15 @@
       <data/>
     </settings>
   </configuration>
-  {{source_files}}	
-</project>
+  <file>
+<name>$PROJ_DIR$/main.cpp</name>
+</file>
+<group>
+<name>env</name>
+<file>
+<name>$PROJ_DIR$/env\test_env.cpp</name>
+</file>
+</group>
 
+</project>
 
