@@ -24,6 +24,8 @@ class Uvision4(Exporter):
     TARGETS = [
         'LPC1768',
         'LPC11U24',
+        'LPC11U35_401',
+        'LPC11U35_501',
         'KL05Z',
         'KL25Z',
         'KL43Z',
@@ -102,6 +104,8 @@ class Uvision4(Exporter):
 
     USING_MICROLIB = [
         'LPC11U24',
+        'LPC11U35_401',
+        'LPC11U35_501',
         'LPC1114',
         'LPC11C24',
         'LPC812',
