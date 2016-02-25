@@ -44,6 +44,7 @@ from workspace_tools.tests import TEST_MAP
 from workspace_tools.paths import BUILD_DIR
 from workspace_tools.paths import HOST_TESTS
 from workspace_tools.utils import ToolException
+from workspace_tools.utils import NotSupportedException
 from workspace_tools.utils import construct_enum
 from workspace_tools.targets import TARGET_MAP
 from workspace_tools.test_db import BaseDBAccess
@@ -130,6 +131,7 @@ class SingleTestRunner(object):
     TEST_RESULT_NO_IMAGE = "NO_IMAGE"
     TEST_RESULT_MBED_ASSERT = "MBED_ASSERT"
     TEST_RESULT_BUILD_FAILED = "BUILD_FAILED"
+    TEST_RESULT_NOT_SUPPORTED = "NOT_SUPPORTED"
 
     GLOBAL_LOOPS_COUNT = 1  # How many times each test should be repeated
     TEST_LOOPS_LIST = []    # We redefine no.of loops per test_id
@@ -149,7 +151,8 @@ class SingleTestRunner(object):
                            "no_image" : TEST_RESULT_NO_IMAGE,
                            "end" : TEST_RESULT_UNDEF,
                            "mbed_assert" : TEST_RESULT_MBED_ASSERT,
-                           "build_failed" : TEST_RESULT_BUILD_FAILED
+                           "build_failed" : TEST_RESULT_BUILD_FAILED,
+                           "not_supproted" : TEST_RESULT_NOT_SUPPORTED
     }
 
     def __init__(self,
@@ -476,13 +479,23 @@ class SingleTestRunner(object):
                                      project_id=test_id,
                                      project_description=test.get_description())
 
-                except ToolException:
+                except Exception, e:
                     project_name_str = project_name if project_name is not None else test_id
-                    print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
+
+
+                    test_result = self.TEST_RESULT_FAIL
+
+                    if isinstance(e, ToolException):
+                        print self.logger.log_line(self.logger.LogType.ERROR, 'There were errors while building project %s'% (project_name_str))
+                        test_result = self.TEST_RESULT_BUILD_FAILED
+                    elif isinstance(e, NotSupportedException):
+                        print self.logger.log_line(self.logger.LogType.INFO, 'The project %s is not supported'% (project_name_str))
+                        test_result = self.TEST_RESULT_NOT_SUPPORTED
+
 
                     # Append test results to global test summary
                     self.test_summary.append(
-                        (self.TEST_RESULT_BUILD_FAILED, target, toolchain, test_id, 'Toolchain build failed', 0, 0, '-')
+                        (test_result, target, toolchain, test_id, test.get_description(), 0, 0, '-')
                     )
 
                     # Add detailed test result to test summary structure
@@ -490,13 +503,13 @@ class SingleTestRunner(object):
                         self.test_summary_ext[target][toolchain][test_id] = []
 
                     self.test_summary_ext[target][toolchain][test_id].append({ 0: {
-                        'result' : self.TEST_RESULT_BUILD_FAILED,
+                        'result' : test_result,
                         'output' : '',
                         'target_name' : target,
                         'target_name_unique': target,
                         'toolchain_name' : toolchain,
                         'id' : test_id,
-                        'description' : 'Toolchain build failed',
+                        'description' : test.get_description(),
                         'elapsed_time' : 0,
                         'duration' : 0,
                         'copy_method' : None
@@ -736,7 +749,8 @@ class SingleTestRunner(object):
                        self.TEST_RESULT_NO_IMAGE : 0,
                        self.TEST_RESULT_TIMEOUT : 0,
                        self.TEST_RESULT_MBED_ASSERT : 0,
-                       self.TEST_RESULT_BUILD_FAILED : 0
+                       self.TEST_RESULT_BUILD_FAILED : 0,
+                       self.TEST_RESULT_NOT_SUPPORTED : 0
         }
 
         for test in test_summary:
