@@ -1762,6 +1762,10 @@ class RZ_A1H(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target": "gr-peach",
+            "iar": {
+                # rewrite generic template, this device needs futher support for FPU in progendef
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_rz_a1h.ewp.tmpl')],
+            }
         }
 
     def program_cycle_s(self):

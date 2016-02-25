@@ -47,19 +47,24 @@ class IAREmbeddedWorkbench(Exporter):
     def generate(self):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
+        tool_specific = {}
         # Expand tool specific settings by IAR specific settings which are required
-        # by the mbed projects
-        tool_specific = {
-            'iar': {
-                # We currently don't use misc, template sets those for us
-                # 'misc': {
-                #     'cxx_flags': ['--no_rtti', '--no_exceptions'],
-                #     'c_flags': ['--diag_suppress=Pa050,Pa084,Pa093,Pa082'],
-                #     'ld_flags': ['--skip_dynamic_initialization'],
-                # },
-                'template': [os.path.join(os.path.dirname(__file__),  'iar_template.ewp.tmpl')],
+        try:
+            if TARGET_MAP[self.target].progen['iar']['template']:
+                tool_specific['iar'] = TARGET_MAP[self.target].progen['iar']
+        except KeyError:
+            # use default template
+            # by the mbed projects
+            tool_specific['iar'] = {
+                    # We currently don't use misc, template sets those for us
+                    # 'misc': {
+                    #     'cxx_flags': ['--no_rtti', '--no_exceptions'],
+                    #     'c_flags': ['--diag_suppress=Pa050,Pa084,Pa093,Pa082'],
+                    #     'ld_flags': ['--skip_dynamic_initialization'],
+                    # },
+                    'template': [os.path.join(os.path.dirname(__file__),  'iar_template.ewp.tmpl')],
             }
-        }
+
         project_data['tool_specific'] = {}
         project_data['tool_specific'].update(tool_specific)
         self.progen_gen_file('iar_arm', project_data)
