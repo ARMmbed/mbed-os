@@ -518,7 +518,7 @@ enum status_code system_clock_source_write_calibration(
         default:
             Assert(false);
             return STATUS_ERR_INVALID_ARG;
-            break;
+
     }
 
     return STATUS_OK;

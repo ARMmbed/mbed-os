@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     for toolchain, target in [
             ('zip', 'LPC1768'),
-            
+
             ('emblocks', 'LPC1768'),
             ('emblocks', 'LPC1549'),
             ('emblocks', 'LPC1114'),
@@ -120,6 +120,8 @@ if __name__ == '__main__':
             ('uvision', 'LPC4088'),
             ('uvision', 'LPC4088_DM'),
             ('uvision', 'LPC4337'),
+            ('uvision', 'LPC824'),
+            ('uvision', 'SSCI824'),
             ('uvision', 'HRM1017'),
 
             ('uvision', 'B96B_F446VE'),
@@ -145,8 +147,12 @@ if __name__ == '__main__':
             ('uvision', 'MTS_MDOT_F405RG'),
             ('uvision', 'MAXWSNENV'),
             ('uvision', 'MAX32600MBED'),
+            ('uvision', 'DISCO_F051R8'),
+            ('uvision', 'DISCO_F103RB'),
+            ('uvision', 'DISCO_F303VC'),
             ('uvision', 'DISCO_L053C8'),
             ('uvision', 'DISCO_F334C8'),
+            ('uvision', 'DISCO_F407VG'),
             ('uvision', 'DISCO_F429ZI'),
             ('uvision', 'DISCO_F746NG'),
             ('uvision', 'DISCO_F469NI'),
@@ -162,9 +168,6 @@ if __name__ == '__main__':
             ('lpcxpresso', 'LPCCAPPUCCINO'),
             ('lpcxpresso', 'LPC1549'),
             ('lpcxpresso', 'LPC11U68'),
-            # Linux path: /home/emimon01/bin/gcc-cs/bin/
-            # Windows path: "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin/"
-            ('codesourcery', 'LPC1768'),
 
             # Linux path: /home/emimon01/bin/gcc-arm/bin/
             # Windows path: C:/arm-none-eabi-gcc-4_7/bin/
@@ -265,7 +268,42 @@ if __name__ == '__main__':
             ('iar', 'MAXWSNENV'),
             ('iar', 'MAX32600MBED'),
             ('iar', 'MOTE_L152RC'),
+            ('iar', 'RZ_A1H'),
 
+            # ('sw4stm32', 'DISCO_F051R8'),
+            # ('sw4stm32', 'DISCO_F100RB'),
+            ('sw4stm32', 'DISCO_F303VC'),
+            ('sw4stm32', 'DISCO_F334C8'),
+            # ('sw4stm32', 'DISCO_F401VC'),
+            ('sw4stm32', 'DISCO_F407VG'),
+            ('sw4stm32', 'DISCO_F429ZI'),
+            ('sw4stm32', 'DISCO_F469NI'),
+            ('sw4stm32', 'DISCO_F746NG'),
+            ('sw4stm32', 'DISCO_L053C8'),
+            ('sw4stm32', 'DISCO_L476VG'),
+            ('sw4stm32', 'NUCLEO_F030R8'),
+            ('sw4stm32', 'NUCLEO_F031K6'),
+            ('sw4stm32', 'NUCLEO_F042K6'),
+            ('sw4stm32', 'NUCLEO_F070RB'),
+            ('sw4stm32', 'NUCLEO_F072RB'),
+            ('sw4stm32', 'NUCLEO_F091RC'),
+            ('sw4stm32', 'NUCLEO_F103RB'),
+            ('sw4stm32', 'NUCLEO_F302R8'),
+            ('sw4stm32', 'NUCLEO_F303K8'),
+            ('sw4stm32', 'NUCLEO_F303RE'),
+            ('sw4stm32', 'NUCLEO_F334R8'),
+            ('sw4stm32', 'NUCLEO_F401RE'),
+            ('sw4stm32', 'NUCLEO_F410RB'),
+            ('sw4stm32', 'NUCLEO_F411RE'),
+            ('sw4stm32', 'NUCLEO_F446RE'),
+            ('sw4stm32', 'NUCLEO_L053R8'),
+            ('sw4stm32', 'NUCLEO_L073RZ'),
+            ('sw4stm32', 'NUCLEO_L152RE'),
+            ('sw4stm32', 'NUCLEO_L476RG'),
+            ('sw4stm32', 'NUCLEO_F031K6'),
+            ('sw4stm32', 'NUCLEO_F042K6'),
+            ('sw4stm32', 'NUCLEO_F303K8'),
+            ('sw4stm32', 'NUCLEO_F410RB'),
             # Removed following item to avoid script error
             #(None, None),
         ]:

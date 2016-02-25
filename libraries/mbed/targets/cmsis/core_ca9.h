@@ -89,6 +89,11 @@
   #define __STATIC_INLINE  static inline
   #define __STATIC_ASM     static __asm
 
+#include <stdint.h>
+inline uint32_t __get_PSR(void) {
+	__ASM("mrs r0, cpsr");
+}
+
 #elif defined ( __TMS470__ )
   #define __ASM            __asm                                      /*!< asm keyword for TI CCS Compiler       */
   #define __STATIC_INLINE  static inline

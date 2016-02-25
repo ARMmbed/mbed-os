@@ -90,27 +90,32 @@ Renesas:
 * [RZ-A1H](http://developer.mbed.org/platforms/Renesas-GR-PEACH/) (Cortex-A9)
 
 Silicon Labs:
-* [EFM32 Zero Gecko] (https://developer.mbed.org/platforms/EFM32-Zero-Gecko/) (Cortex-M0+)
-* [EFM32 Happy Gecko] (https://developer.mbed.org/platforms/EFM32-Happy-Gecko/) (Cortex-M0+)
-* [EFM32 Leopard Gecko] (https://developer.mbed.org/platforms/EFM32-Leopard-Gecko/) (Cortex-M3)
-* [EFM32 Giant Gecko] (https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
-* [EFM32 Wonder Gecko] (https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
+* [EFM32 Zero Gecko](https://developer.mbed.org/platforms/EFM32-Zero-Gecko/) (Cortex-M0+)
+* [EFM32 Happy Gecko](https://developer.mbed.org/platforms/EFM32-Happy-Gecko/) (Cortex-M0+)
+* [EFM32 Leopard Gecko](https://developer.mbed.org/platforms/EFM32-Leopard-Gecko/) (Cortex-M3)
+* [EFM32 Giant Gecko](https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
+* [EFM32 Wonder Gecko](https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
 
 Atmel:
-* [SAM R21 XPRO] (https://developer.mbed.org/platforms/SAMR21-XPRO/) (Cortex-M0+)
-* [SAM L21 XPRO B] (https://developer.mbed.org/platforms/SAML21-XPRO/) (Cortex-M0+)
-* [SAM D21 XPRO] (https://developer.mbed.org/platforms/SAMD21-XPRO/) (Cortex-M0+)
-* [SAM W25 XPRO] (https://developer.mbed.org/platforms/SAMW25-XPRO/) (Cortex-M0+)
+* [SAM R21 XPRO](https://developer.mbed.org/platforms/SAMR21-XPRO/) (Cortex-M0+)
+* [SAM L21 XPRO](https://developer.mbed.org/platforms/SAML21-XPRO/) (Cortex-M0+)
+* [SAM D21 XPRO](https://developer.mbed.org/platforms/SAMD21-XPRO/) (Cortex-M0+)
+* [SAM W25 XPRO](https://developer.mbed.org/platforms/SAMW25-XPRO/) (Cortex-M0+)
 
 Supported Toolchains and IDEs
 -----------------------------
-* GCC ARM: [GNU Tools for ARM Embedded Processors](https://launchpad.net/gcc-arm-embedded/4.7/4.7-2012-q4-major)
+* GCC ARM: [GNU Tools for ARM Embedded Processors](https://launchpad.net/gcc-arm-embedded/+milestone/4.9-2015-q3-update)
 * ARMCC (standard library and MicroLib): [uVision](http://www.keil.com/uvision/)
 * IAR: [IAR Embedded Workbench](http://www.iar.com/en/Products/IAR-Embedded-Workbench/ARM/)
 * GCC code_red: [Red Suite](http://www.code-red-tech.com/)
 * GCC CodeSourcery: [Sourcery CodeBench](http://www.mentor.com/embedded-software/codesourcery)
 * GCC ARM: [Em::Blocks](http://www.emblocks.org/web/)
 * GCC ARM: [CooCox CoIDE](http://www.coocox.org/)
+* GCC ARM: [NXP Knetis Design Studio](http://www.nxp.com/products/software-and-tools/run-time-software/kinetis-software-and-tools/ides-for-kinetis-mcus/kinetis-design-studio-integrated-development-environment-ide:KDS_IDE)
+* GCC ARM: [OpenSTM32](http://www.openstm32.org)
+* GCC ARM: [Atmel Studio 6](http://www.atmel.com/Microsite/atmel-studio)
+
+The current mbed exporters scripts (IDE support) will be replaced by [Project generator (=progen)](https://github.com/project-generator/project_generator). Any new IDEs support, should be implemented using progen API - add IDE to progen, use progen API to generate a mbed project.
 
 API Documentation
 -----------------
@@ -129,3 +134,30 @@ For discussing the development of the mbed SDK itself (Addition/support of micro
 For every topic regarding the use of the mbed SDK, rather than its development, please post on the [mbed.org forum](http://mbed.org/forum/), or the [mbed.org Q&A](http://mbed.org/questions/).
 
 For reporting issues in the mbed libraries please open a ticket on the issue tracker of the relevant [mbed official library](http://mbed.org/users/mbed_official/code/).
+
+Setup
+-----
+Skip any step where a compatible tool already exists
+
+1. Install [Python 2.7.9 or above](https://www.python.org/downloads/) and make sure it's added to path
+2. Install [Git](https://git-scm.com/downloads) and make sure it's added to path
+3. Install virtualenv in python
+
+```
+> git clone https://github.com/mbedmicro/mbed
+> pip install virtualenv
+> virtualenv venv
+> 
+```
+
+Develop
+-------
+1. Update dependencies and start virtual environment. This should be done everytime you pull new changes
+
+```
+> "venv/Scripts/activate"
+> pip install -r requirements.txt
+> cd workspace_tools
+> ... do things ...
+> "venv/Scripts/deactivate"
+```

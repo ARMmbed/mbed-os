@@ -39,9 +39,6 @@ def create_build(args):
     build['source'] = args.build_source
     build['status'] = 'running'
 
-    if build['buildType'] == 'Pull_Request':
-        build['buildType'] = 'Pull Request'
-
     r = requests.post(urlparse.urljoin(args.url, "api/builds"), headers=create_headers(args), json=build)
 
     if r.status_code < 400:
@@ -60,6 +57,13 @@ def finish_build(args):
 
     r = requests.put(urlparse.urljoin(args.url, "api/builds/" + args.build_id), headers=create_headers(args), json=data)
     finish_command('finish-build', r)
+
+def promote_build(args):
+    data = {}
+    data['buildType'] = 'Release'
+
+    r = requests.put(urlparse.urljoin(args.url, "api/builds/" + args.build_id), headers=create_headers(args), json=data)
+    finish_command('promote-build', r)
 
 def abort_build(args):
     data = {}
@@ -278,7 +282,7 @@ def main(arguments):
 
     create_build_parser = subparsers.add_parser('create-build', help='create a new build')
     create_build_parser.add_argument('-b', '--build-number', required=True, help='build number')
-    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull_Request', 'Release'], required=True, help='type of build')
+    create_build_parser.add_argument('-T', '--build-type', choices=['Nightly', 'Limited', 'Pull_Request', 'Release_Candidate'], required=True, help='type of build')
     create_build_parser.add_argument('-s', '--build-source', required=True, help='url to source of build')
     create_build_parser.add_argument('-p', '--property-file-format', action='store_true', help='print result in the property file format')
     create_build_parser.set_defaults(func=create_build)
@@ -286,6 +290,10 @@ def main(arguments):
     finish_build_parser = subparsers.add_parser('finish-build', help='finish a running build')
     finish_build_parser.add_argument('-b', '--build-id', required=True, help='build id')
     finish_build_parser.set_defaults(func=finish_build)
+
+    finish_build_parser = subparsers.add_parser('promote-build', help='promote a build to a release')
+    finish_build_parser.add_argument('-b', '--build-id', required=True, help='build id')
+    finish_build_parser.set_defaults(func=promote_build)
 
     abort_build_parser = subparsers.add_parser('abort-build', help='abort a running build')
     abort_build_parser.add_argument('-b', '--build-id', required=True, help='build id')

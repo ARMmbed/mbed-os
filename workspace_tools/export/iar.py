@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2011-2015 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,108 +14,57 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from workspace_tools.export.exporters import Exporter
 import re
 import os
+from project_generator_definitions.definitions import ProGenDef
+
+from workspace_tools.export.exporters import Exporter
+from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
+
+# If you wish to add a new target, add it to project_generator_definitions, and then
+# define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
 class IAREmbeddedWorkbench(Exporter):
     """
-    Exporter class for IAR Systems.
+    Exporter class for IAR Systems. This class uses project generator.
     """
+    # These 2 are currently for exporters backward compatiblity
     NAME = 'IAR'
     TOOLCHAIN = 'IAR'
+    # PROGEN_ACTIVE contains information for exporter scripts that this is using progen
+    PROGEN_ACTIVE = True
 
-    TARGETS = [
-        'LPC1768',
-        'LPC1347',
-        'LPC11U24',
-        'LPC11U35_401',
-        'LPC11U35_501',
-        #Removed LPCCAPPUCCINO linker file and startup file missing
-        #'LPCCAPPUCCINO',
-        'LPC1114',
-        'LPC1549',
-        'LPC812',
-        'LPC4088',
-        'LPC4088_DM',
-        'LPC824',
-        'UBLOX_C027',
-        'ARCH_PRO',
-        'K20D50M',
-        'KL05Z',
-        'KL25Z',
-        'KL46Z',
-        'K22F',
-        'K64F',
-        'NUCLEO_F030R8',
-        'NUCLEO_F031K6',
-        'NUCLEO_F042K6',
-        'NUCLEO_F070RB',
-        'NUCLEO_F072RB',
-        'NUCLEO_F091RC',
-        'NUCLEO_F103RB',
-        'NUCLEO_F302R8',
-        'NUCLEO_F303K8',
-        'NUCLEO_F303RE',
-        'NUCLEO_F334R8',
-        'NUCLEO_F401RE',
-        'NUCLEO_F410RB',
-        'NUCLEO_F411RE',
-        'NUCLEO_F446RE',
-        'NUCLEO_L053R8',
-        'NUCLEO_L073RZ',
-        'NUCLEO_L152RE',
-        'NUCLEO_L476RG',
-        'DISCO_F429ZI',
-        'DISCO_L053C8',
-        'DISCO_F334C8',
-        'DISCO_F469NI',
-        'DISCO_F746NG',
-        'DISCO_L476VG',
-        'B96B_F446VE',
-        #'STM32F407', Fails to build same for GCC
-        'MAXWSNENV',
-        'MAX32600MBED',
-        'MTS_MDOT_F405RG',
-        'MTS_MDOT_F411RE',
-        'MTS_DRAGONFLY_F411RE',
-        'NRF51822',
-        'NRF51_DK',
-        'NRF51_DONGLE',
-        'DELTA_DFCM_NNN40',
-        'SEEED_TINY_BLE',
-        'HRM1017',
-        'ARCH_BLE',
-        'MOTE_L152RC',
-        'EFM32PG_STK3401',
-    ]
+    # backward compatibility with our scripts
+    TARGETS = []
+    for target in TARGET_NAMES:
+        try:
+            if (ProGenDef('iar').is_supported(TARGET_MAP[target]) or
+                ProGenDef('iar').is_supported(TARGET_MAP[target].progen_target)):
+                TARGETS.append(target)
+        except AttributeError:
+            # target is not supported yet
+            continue
 
     def generate(self):
-        """
-        Generates the project files
-        """
-        sources = []
-        sources += self.resources.c_sources
-        sources += self.resources.cpp_sources
-        sources += self.resources.s_sources
-
-        iar_files = IarFolder("", "", [])
-        for source in sources:
-            iar_files.insert_file(source)
-
-        ctx = {
-            'name': self.program_name,
-            'include_paths': self.resources.inc_dirs,
-            'linker_script': self.resources.linker_script,
-            'object_files': self.resources.objects,
-            'libraries': self.resources.libraries,
-            'symbols': self.get_symbols(),
-            'source_files': iar_files.__str__(),
-            'binary_files': self.resources.bin_files,
+        """ Generates the project files """
+        project_data = self.progen_get_project_data()
+        # Expand tool specific settings by IAR specific settings which are required
+        # by the mbed projects
+        tool_specific = {
+            'iar': {
+                # We currently don't use misc, template sets those for us
+                # 'misc': {
+                #     'cxx_flags': ['--no_rtti', '--no_exceptions'],
+                #     'c_flags': ['--diag_suppress=Pa050,Pa084,Pa093,Pa082'],
+                #     'ld_flags': ['--skip_dynamic_initialization'],
+                # },
+                'template': [os.path.join(os.path.dirname(__file__),  'iar_template.ewp.tmpl')],
+            }
         }
-        self.gen_file('iar_%s.ewp.tmpl' % self.target.lower(), ctx, '%s.ewp' % self.program_name)
-        self.gen_file('iar.eww.tmpl', ctx, '%s.eww' % self.program_name)
-        self.gen_file('iar_%s.ewd.tmpl' % self.target.lower(), ctx, '%s.ewd' % self.program_name)
+        project_data['tool_specific'] = {}
+        project_data['tool_specific'].update(tool_specific)
+        self.progen_gen_file('iar_arm', project_data)
 
+# Currently not used, we should reuse folder_name to create virtual folders
 class IarFolder():
     """
     This is a recursive folder object.

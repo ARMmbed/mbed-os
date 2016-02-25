@@ -162,6 +162,8 @@ class SingleTestRunner(object):
                  _opts_report_html_file_name=None,
                  _opts_report_junit_file_name=None,
                  _opts_report_build_file_name=None,
+                 _opts_build_report={},
+                 _opts_build_properties={},
                  _test_spec={},
                  _opts_goanna_for_mbed_sdk=None,
                  _opts_goanna_for_tests=None,
@@ -185,7 +187,8 @@ class SingleTestRunner(object):
                  _opts_waterfall_test=None,
                  _opts_consolidate_waterfall_test=None,
                  _opts_extend_test_timeout=None,
-                 _opts_auto_detect=None):
+                 _opts_auto_detect=None,
+                 _opts_include_non_automated=False):
         """ Let's try hard to init this object
         """
         from colorama import init
@@ -241,6 +244,10 @@ class SingleTestRunner(object):
         self.opts_extend_test_timeout = _opts_extend_test_timeout
         self.opts_clean = _clean
         self.opts_auto_detect = _opts_auto_detect
+        self.opts_include_non_automated = _opts_include_non_automated
+
+        self.build_report = _opts_build_report
+        self.build_properties = _opts_build_properties
 
         # File / screen logger initialization
         self.logger = CLITestLogger(file_name=self.opts_log_file_name)  # Default test logger
@@ -382,7 +389,7 @@ class SingleTestRunner(object):
                     self.db_logger.update_build_id_info(self.db_logger_build_id, _extra=json.dumps(self.dump_options()))
                     self.db_logger.disconnect();
 
-            valid_test_map_keys = self.get_valid_tests(test_map_keys, target, toolchain, test_ids)
+            valid_test_map_keys = self.get_valid_tests(test_map_keys, target, toolchain, test_ids, self.opts_include_non_automated)
             skipped_test_map_keys = self.get_skipped_tests(test_map_keys, valid_test_map_keys)
 
             for skipped_test_id in skipped_test_map_keys:
@@ -560,8 +567,6 @@ class SingleTestRunner(object):
         if self.opts_shuffle_test_seed is not None and self.is_shuffle_seed_float():
             self.shuffle_random_seed = round(float(self.opts_shuffle_test_seed), self.SHUFFLE_SEED_ROUND)
 
-        build_report = {}
-        build_properties = {}
 
         if self.opts_parallel_test_exec:
             ###################################################################
@@ -575,7 +580,7 @@ class SingleTestRunner(object):
             # get information about available MUTs (per target).
             for target, toolchains in self.test_spec['targets'].iteritems():
                 self.test_suite_properties_ext[target] = {}
-                t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids, build_report, build_properties))
+                t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids, self.build_report, self.build_properties))
                 t.daemon = True
                 t.start()
                 execute_threads.append(t)
@@ -588,7 +593,7 @@ class SingleTestRunner(object):
                 if target not in self.test_suite_properties_ext:
                     self.test_suite_properties_ext[target] = {}
 
-                self.execute_thread_slice(q, target, toolchains, clean, test_ids, build_report, build_properties)
+                self.execute_thread_slice(q, target, toolchains, clean, test_ids, self.build_report, self.build_properties)
                 q.get()
 
         if self.db_logger:
@@ -597,9 +602,9 @@ class SingleTestRunner(object):
                 self.db_logger.update_build_id_info(self.db_logger_build_id, _status_fk=self.db_logger.BUILD_ID_STATUS_COMPLETED)
                 self.db_logger.disconnect();
 
-        return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext, build_report, build_properties
+        return self.test_summary, self.shuffle_random_seed, self.test_summary_ext, self.test_suite_properties_ext, self.build_report, self.build_properties
 
-    def get_valid_tests(self, test_map_keys, target, toolchain, test_ids):
+    def get_valid_tests(self, test_map_keys, target, toolchain, test_ids, include_non_automated):
         valid_test_map_keys = []
 
         for test_id in test_map_keys:
@@ -626,7 +631,12 @@ class SingleTestRunner(object):
                     print self.logger.log_line(self.logger.LogType.INFO, 'Peripheral test skipped for target %s'% (target))
                 continue
 
-            if test.automated and test.is_supported(target, toolchain):
+            if not include_non_automated and not test.automated:
+                if self.opts_verbose_skipped_tests:
+                    print self.logger.log_line(self.logger.LogType.INFO, 'Non automated test skipped for target %s'% (target))
+                continue
+
+            if test.is_supported(target, toolchain):
                 if test.peripherals is None and self.opts_only_build_tests:
                     # When users are using 'build only flag' and test do not have
                     # specified peripherals we can allow test building by default

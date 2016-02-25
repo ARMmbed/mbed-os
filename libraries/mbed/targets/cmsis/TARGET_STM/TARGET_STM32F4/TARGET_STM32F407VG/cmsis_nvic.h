@@ -32,11 +32,6 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-// STM32F401RE
-// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 85 vectors = 340 bytes from 0x40 to ...
-// Total: 101 vectors = 404 bytes (0x194) to be reserved in RAM
-
 // STM32F407VG
 // CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
 // MCU Peripherals: 82 vectors = 328 bytes from 0x40 to ...

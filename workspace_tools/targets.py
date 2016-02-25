@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2015 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@ limitations under the License.
 """
 
 CORE_LABELS = {
-    "ARM7TDMI-S": ["ARM7"],
-    "Cortex-M0" : ["M0", "CORTEX_M"],
-    "Cortex-M0+": ["M0P", "CORTEX_M"],
-    "Cortex-M1" : ["M1", "CORTEX_M"],
-    "Cortex-M3" : ["M3", "CORTEX_M"],
-    "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7"],
-    "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7"],
-    "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7"],
-    "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7"],
-    "Cortex-A9" : ["A9", "CORTEX_A"]
+    "ARM7TDMI-S": ["ARM7", "LIKE_CORTEX_ARM7"],
+    "Cortex-M0" : ["M0", "CORTEX_M", "LIKE_CORTEX_M0"],
+    "Cortex-M0+": ["M0P", "CORTEX_M", "LIKE_CORTEX_M0"],
+    "Cortex-M1" : ["M1", "CORTEX_M", "LIKE_CORTEX_M1"],
+    "Cortex-M3" : ["M3", "CORTEX_M", "LIKE_CORTEX_M3"],
+    "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
+    "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
+    "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
+    "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
+    "Cortex-A9" : ["A9", "CORTEX_A", "LIKE_CORTEX_A9"]
 }
 
 import os
@@ -275,7 +275,7 @@ class LPC1768(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.detect_code = ["1010"]
         self.progen_target = 'mbed-lpc1768'
 
@@ -284,7 +284,7 @@ class ARCH_PRO(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
         self.progen_target ='arch-pro'
@@ -294,7 +294,7 @@ class UBLOX_C027(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.supported_form_factors = ["ARDUINO"]
         self.progen_target ='ublox-c027'
@@ -304,7 +304,7 @@ class XBED_LPC1768(LPCTarget):
         LPCTarget.__init__(self)
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X', 'XBED_LPC1768']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CS", "GCC_CR", "IAR"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.detect_code = ["1010"]
 
@@ -466,7 +466,7 @@ class KL25Z(Target):
         Target.__init__(self)
         self.core = "Cortex-M0+"
         self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "GCC_CW_EWL", "GCC_CW_NEWLIB", "GCC_ARM","IAR"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
         self.detect_code = ["0200"]
@@ -873,6 +873,7 @@ class DISCO_F407VG(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.progen_target ='disco-f407vg'
+        self.default_toolchain = "ARM"
 
 class DISCO_F429ZI(Target):
     def __init__(self):
@@ -1045,7 +1046,7 @@ class UBLOX_C029(Target):
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
 
-class NZ32SC151(Target):
+class NZ32_SC151(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M3"
@@ -1629,7 +1630,7 @@ class RZ_A1H(Target):
         Target.__init__(self)
         self.core = "Cortex-A9"
         self.extra_labels = ['RENESAS', 'MBRZA1H']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
 
@@ -1880,7 +1881,7 @@ TARGETS = [
     MTS_DRAGONFLY_F411RE(),
     DISCO_F401VC(),
     UBLOX_C029(),       # STM32F439
-    NZ32SC151(),        # STM32L151
+    NZ32_SC151(),       # STM32L151
 
     ### Nordic ###
     NRF51822(),             # nRF51_16K

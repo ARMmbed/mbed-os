@@ -83,7 +83,7 @@ static void dma_handler(const struct dma_resource* const resource)
         return;
     }
 
-    callback_func = dma_channels[channel_index].handler;
+    callback_func = (void(*)(void))(dma_channels[channel_index].handler);
     if (callback_func) {
         callback_func();
     }
@@ -268,7 +268,6 @@ bool dma_start_transfer(int channelid)
  */
 bool dma_busy(int channelid)
 {
-    int res = 0;
     /* Sanity check arguments */
     MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
 
@@ -278,7 +277,8 @@ bool dma_busy(int channelid)
 
     if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
         /* This channel is not active! return zero for now */
-        res = 0;
+        //res = 0;
+        return 0;
     }
 
     return dma_is_busy(&dma_channels[channel_index].resource);
@@ -292,7 +292,6 @@ bool dma_busy(int channelid)
  */
 bool dma_is_transfer_complete(int channelid)
 {
-    int res = 0;
     /* Sanity check arguments */
     MBED_ASSERT(channelid < CONF_MAX_USED_CHANNEL_NUM);
 
@@ -302,7 +301,8 @@ bool dma_is_transfer_complete(int channelid)
 
     if (channel_index >= CONF_MAX_USED_CHANNEL_NUM) {
         /* This channel is not active! return zero for now */
-        res = 0;
+        // res = 0;
+        return 0;
     }
 
     return (STATUS_OK == dma_get_job_status(&dma_channels[channel_index].resource));
@@ -332,10 +332,10 @@ void dma_set_handler(int channelid, uint32_t handler, uint32_t event)
 
     dma_channels[channel_index].handler = handler;
     if (event & DMA_TRANSFER_ERROR) {
-        dma_register_callback(&dma_channels[channel_index].resource, dma_handler, DMA_CALLBACK_TRANSFER_ERROR);
+        dma_register_callback(&dma_channels[channel_index].resource, (dma_callback_t)dma_handler, DMA_CALLBACK_TRANSFER_ERROR);
     }
     if (event & DMA_TRANSFER_COMPLETE) {
-        dma_register_callback(&dma_channels[channel_index].resource, dma_handler, DMA_CALLBACK_TRANSFER_DONE);
+        dma_register_callback(&dma_channels[channel_index].resource, (dma_callback_t)dma_handler, DMA_CALLBACK_TRANSFER_DONE);
     }
 
     /* Set interrupt vector if someone have removed it */

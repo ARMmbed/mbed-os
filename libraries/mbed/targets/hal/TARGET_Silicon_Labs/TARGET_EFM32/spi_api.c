@@ -213,12 +213,12 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
     if (miso != NC) {
         route |= USART_ROUTEPEN_RXPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_RXLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(mosi, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_RXLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(miso, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_RXLOC_SHIFT;
     }
     if (!obj->spi.master) {
         route |= USART_ROUTEPEN_CSPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CSLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(mosi, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_CSLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(cs, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_CSLOC_SHIFT;
     }
     obj->spi.spi->ROUTEPEN = route;
 }

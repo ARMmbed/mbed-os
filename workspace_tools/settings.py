@@ -53,18 +53,11 @@ MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 # GCC ARM
 GCC_ARM_PATH = ""
 
-# GCC CodeSourcery
-GCC_CS_PATH = "C:/Program Files (x86)/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_EABI/bin"
-
 # GCC CodeRed
 GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 
 # IAR
 IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.0/arm"
-
-# GCC Code Warrior
-CW_GCC_PATH  = "C:/Freescale/CW MCU v10.3/Cross_Tools/arm-none-eabi-gcc-4_6_2/bin"
-CW_EWL_PATH = "C:/Freescale/CW MCU v10.3/MCU/ARM_GCC_Support/ewl/lib"
 
 # Goanna static analyser. Please overload it in private_settings.py
 GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"

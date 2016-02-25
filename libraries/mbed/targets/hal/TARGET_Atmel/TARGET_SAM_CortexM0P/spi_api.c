@@ -197,7 +197,7 @@ static uint32_t spi_find_mux_settings(spi_t *obj)
     if (pSPI_S(obj)->pins[i_dipo] != NC) {
         /* Set Data input MUX padding for master */
         mux_pad = pinmap_pad_sercom(pSPI_S(obj)->pins[i_dipo], sercom_index);
-        if (mux_pad != NC) {
+        if (mux_pad != (uint32_t)NC) {
             /* MUX pad value is same as DIPO value */
             dipo = mux_pad;
             mux_settings |= ((dipo << SERCOM_SPI_CTRLA_DIPO_Pos) & SERCOM_SPI_CTRLA_DIPO_Msk);
@@ -207,7 +207,7 @@ static uint32_t spi_find_mux_settings(spi_t *obj)
     if (pSPI_S(obj)->pins[i_dopo] != NC) {
         /* Set Data output MUX padding for master */
         mux_pad = pinmap_pad_sercom(pSPI_S(obj)->pins[i_dopo], sercom_index);
-        if (mux_pad != NC) {
+        if (mux_pad != (uint32_t)NC) {
             if (mux_pad != 0) {
                 dopo = mux_pad - 1;
             } else {
@@ -338,8 +338,8 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     /* Configure the SERCOM pins according to the user configuration */
     for (uint8_t pad = 0; pad < 4; pad++) {
         uint32_t current_pin = pSPI_S(obj)->pins[pad];
-        if (current_pin != NC) {
-            pin_conf.mux_position = pinmap_function_sercom(current_pin, sercom_index);
+        if (current_pin != (uint32_t)NC) {
+            pin_conf.mux_position = pinmap_function_sercom((PinName)current_pin, sercom_index);
             if ((uint8_t)NC != pin_conf.mux_position) {
                 system_pinmux_pin_set_config(current_pin, &pin_conf);
             }
@@ -775,8 +775,8 @@ static void _spi_clear_interrupts(spi_t *obj)
         SERCOM_SPI_INTFLAG_TXC |
         SERCOM_SPI_INTFLAG_RXC |
         SERCOM_SPI_INTFLAG_ERROR;
-    NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
-    NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
+    NVIC_DisableIRQ((IRQn_Type)((uint8_t)SERCOM0_IRQn + sercom_index));
+    NVIC_SetVector((IRQn_Type)((uint8_t)SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
 }
 
 /**
@@ -833,7 +833,7 @@ static enum status_code _spi_transceive_buffer(spi_t *obj)
         } else {
             obj->spi.status = STATUS_ERR_BAD_DATA;
         }
-        return obj->spi.status;
+        return (enum status_code)obj->spi.status;
     }
 
     if ((obj->tx_buff.pos >= obj->tx_buff.length) && (obj->rx_buff.pos >= obj->rx_buff.length) && (interrupt_status & SERCOM_SPI_INTFLAG_TXC)) {
@@ -845,7 +845,7 @@ static enum status_code _spi_transceive_buffer(spi_t *obj)
         obj->spi.status = STATUS_OK;
     }
 
-    return obj->spi.status;
+    return (enum status_code)(obj->spi.status);
 }
 
 /** Begin the SPI transfer. Buffer pointers and lengths are specified in tx_buff and rx_buff
@@ -863,13 +863,14 @@ static enum status_code _spi_transceive_buffer(spi_t *obj)
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     uint16_t dummy_read;
+    (void) dummy_read;
     /* Sanity check arguments */
     MBED_ASSERT(obj);
 
     uint8_t sercom_index = _sercom_get_sercom_inst_index(obj->spi.spi);
 
-    obj->spi.tx_buffer = tx;
-    obj->tx_buff.buffer = tx;
+    obj->spi.tx_buffer = (void *)tx;
+    obj->tx_buff.buffer =(void *)tx;
     obj->tx_buff.pos = 0;
     if (tx) {
         /* Only two bit rates supported now */
@@ -912,8 +913,8 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->spi.status = STATUS_BUSY;
 
     /* Enable interrupt */
-    NVIC_SetVector((SERCOM0_IRQn + sercom_index), handler);
-    NVIC_EnableIRQ(SERCOM0_IRQn + sercom_index);
+    NVIC_SetVector((IRQn_Type)((uint8_t)SERCOM0_IRQn + sercom_index), handler);
+    NVIC_EnableIRQ((IRQn_Type)((uint8_t)SERCOM0_IRQn + sercom_index));
 
     /* Clear all interrupts */
     _SPI(obj).INTENCLR.reg = SERCOM_SPI_INTFLAG_TXC | SERCOM_SPI_INTFLAG_RXC | SERCOM_SPI_INTFLAG_ERROR;
@@ -991,8 +992,8 @@ void spi_abort_asynch(spi_t *obj)
         SERCOM_SPI_INTFLAG_ERROR;
 
     // TODO: Disable and remove irq handler
-    NVIC_DisableIRQ(SERCOM0_IRQn + sercom_index);
-    NVIC_SetVector((SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
+    NVIC_DisableIRQ((IRQn_Type)((uint8_t)SERCOM0_IRQn + sercom_index));
+    NVIC_SetVector((IRQn_Type)((uint8_t)SERCOM0_IRQn + sercom_index), (uint32_t)NULL);
 
     obj->spi.status = STATUS_ABORTED;
 }
