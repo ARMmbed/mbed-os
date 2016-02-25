@@ -65,6 +65,14 @@ struct clcd_s {
     MPS2_SSP_TypeDef *clcd;
 };
 
+struct analogin_s {
+    ADCName adc;
+		MPS2_SSP_TypeDef *adc_spi;
+    PinName  pin;
+		uint32_t pin_number;
+    __IO uint32_t address;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

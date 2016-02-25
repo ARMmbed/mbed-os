@@ -19,7 +19,7 @@
 
 #define US_TICKER_TIMER1      CMSDK_DUALTIMER1
 #define US_TICKER_TIMER2      CMSDK_DUALTIMER2
-#define US_TICKER_TIMER_IRQn DUALTIMER_IRQn
+#define US_TICKER_TIMER_IRQn  DUALTIMER_IRQn
 
 int us_ticker_inited = 0;
 
@@ -51,7 +51,6 @@ uint32_t return_value = 0;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-uint32_t timer_value = 0;
 int delta = 0;
     if (!us_ticker_inited)
         us_ticker_init();
@@ -61,7 +60,6 @@ int delta = 0;
         us_ticker_irq_handler();
         return;
     }
-		timer_value = (delta)*25;
 		// enable interrupt
     US_TICKER_TIMER1->TimerControl = 0x0; // disable timer
     US_TICKER_TIMER1->TimerControl = 0x62; // enable interrupt and set to 32 bit counter and set to periodic mode

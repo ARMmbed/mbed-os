@@ -37,9 +37,9 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-    if (value == 1){
+    if (value){
 				*obj->reg_data |= (obj->mask); 
-		} else if (value == 0){
+		} else {
 				*obj->reg_data &= ~(obj->mask); 
 		}
 }

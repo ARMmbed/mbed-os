@@ -131,20 +131,95 @@ typedef enum {
     	CLCD_RD = 310,
     	CLCD_BL_CTRL = 311,
 		
+		//MPS2 shield 0 SPI
+		SHIELD_0_SPI_SCK = 320, 
+		SHIELD_0_SPI_MOSI = 321,
+		SHIELD_0_SPI_MISO = 322,
+		SHIELD_0_SPI_nCS = 323, 
+
+		//MPS2 shield 1 SPI
+		SHIELD_1_SPI_SCK = 331, 
+		SHIELD_1_SPI_MOSI = 332,
+		SHIELD_1_SPI_MISO = 333,
+		SHIELD_1_SPI_nCS = 334, 
+		
+		//MPS2 shield ADC SPI
+		ADC_MOSI = 650,
+		ADC_MISO = 651,
+		ADC_SCLK = 652,
+		ADC_SSEL = 653,
 		
 		//MPS2 Uart
 		USBTX  = 400,
 		USBRX  = 401,
-		UART_TX1 = 402,
-		UART_RX1 = 403,
+		XB_TX = 402,
+		XB_RX = 403,
 		UART_TX2 = 404,
 		UART_RX2 = 405,
+		SH0_TX = 406,
+		SH0_RX = 407,
+		SH1_TX = 408,
+		SH1_RX = 409,
 		
 		//MPS2 I2C touchscreen and audio
 		TSC_SDA = 500,
 		TSC_SCL = 501,
 		AUD_SDA = 502,
 		AUD_SCL = 503,
+    
+        //MPS2 I2C for shield
+		SHIELD_0_SDA = 504, 
+		SHIELD_0_SCL = 505, 
+        SHIELD_1_SDA = 506,
+        SHIELD_1_SCL = 507,
+		
+		//MPS2 shield Analog pins
+		A0_0 = 600,
+		A0_1 = 601,
+		A0_2 = 602,
+		A0_3 = 603,
+		A0_4 = 604,
+		A0_5 = 605,
+		A1_0 = 606,
+		A1_1 = 607,
+		A1_2 = 608,
+		A1_3 = 609,
+		A1_4 = 610,
+		A1_5 = 611,
+	    //MPS2 Shield Digital pins
+	    D0_0  = EXP0,
+	    D0_1  = EXP4,
+	    D0_2  = EXP2,
+	    D0_3  = EXP3,
+	    D0_4  = EXP1,
+	    D0_5  = EXP6,
+	    D0_6  = EXP7,
+	    D0_7  = EXP8,
+	    D0_8  = EXP9,
+	    D0_9  = EXP10,
+	    D0_10 = EXP12,
+	    D0_11 = EXP13,
+	    D0_12 = EXP14,
+	    D0_13 = EXP11,
+	    D0_14 = EXP15,
+	    D0_15 = EXP5,
+    
+	    D1_0  = EXP26,
+	    D1_1  = EXP30,
+	    D1_2  = EXP28,
+	    D1_3  = EXP29,
+	    D1_4  = EXP27,
+	    D1_5  = EXP32,
+	    D1_6  = EXP33,
+	    D1_7  = EXP34,
+	    D1_8  = EXP35,
+	    D1_9  = EXP36,
+	    D1_10 = EXP38,
+	    D1_11 = EXP39,
+	    D1_12 = EXP40,
+	    D1_13 = EXP44,
+	    D1_14 = EXP41,
+	    D1_15 = EXP31,
 		
 		// Not connected
 		NC = (int)0xFFFFFFFF,
