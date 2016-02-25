@@ -382,7 +382,7 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
     }
 
     if(!timeout_max && !timeout_min){
-        mbedtls_ssl_conf_handshake_timeout( &sec->_conf, 10000, 29000 );
+        mbedtls_ssl_conf_handshake_timeout( &sec->_conf, DTLS_HANDSHAKE_TIMEOUT_MIN, DTLS_HANDSHAKE_TIMEOUT_MAX );
     }
     else{
         mbedtls_ssl_conf_handshake_timeout( &sec->_conf, timeout_min, timeout_max );
