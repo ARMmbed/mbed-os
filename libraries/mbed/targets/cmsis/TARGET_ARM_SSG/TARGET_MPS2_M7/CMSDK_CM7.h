@@ -1,6 +1,6 @@
 /* MPS2 CMSIS Library
 *
-* Copyright (c) 2006-2015 ARM Limited
+* Copyright (c) 2006-2016 ARM Limited
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -32,10 +32,6 @@
 * @file     CMSDK_CM7.h
 * @brief    CMSIS Core Peripheral Access Layer Header File for
 *           CMSDK_CM7 Device
-* @version  V1.00
-* @date     27. August 2014
-*
-* @note     configured for CM7 without FPU
 *
 *******************************************************************************/
 
@@ -52,16 +48,16 @@ extern "C" {
 
 typedef enum IRQn
 {
-/* -------------------  CM7 Processor Exceptions Numbers  --------------------- */
-  NonMaskableInt_IRQn           = -14,     /*  2 Non Maskable Interrupt             */
-//  HardFault_IRQn                = -13,     /*  3 HardFault Interrupt                */
-  MemoryManagement_IRQn         = -12,     /*  4 Memory Management Interrupt        */
-  BusFault_IRQn                 = -11,     /*  5 Bus Fault Interrupt                */
-  UsageFault_IRQn               = -10,     /*  6 Usage Fault Interrupt              */
-  SVCall_IRQn                   =  -5,     /* 11 SV Call Interrupt                  */
-  DebugMonitor_IRQn             =  -4,     /* 12 Debug Monitor Interrupt            */
-  PendSV_IRQn                   =  -2,     /* 14 Pend SV Interrupt                  */
-  SysTick_IRQn                  =  -1,     /* 15 System Tick Interrupt              */
+/* -------------------  Cortex-M7 Processor Exceptions Numbers  ------------------- */
+  NonMaskableInt_IRQn           = -14,        /*  2 Non Maskable Interrupt          */
+  HardFault_IRQn                = -13,        /*  3 HardFault Interrupt             */
+  MemoryManagement_IRQn         = -12,        /*  4 Memory Management Interrupt     */
+  BusFault_IRQn                 = -11,        /*  5 Bus Fault Interrupt             */
+  UsageFault_IRQn               = -10,        /*  6 Usage Fault Interrupt           */
+  SVCall_IRQn                   =  -5,        /* 11 SV Call Interrupt               */
+  DebugMonitor_IRQn             =  -4,        /* 12 Debug Monitor Interrupt         */
+  PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
+  SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
 
 /* ----------------------  CMSDK_CM7 Specific Interrupt Numbers  -------------- */
   UARTRX0_IRQn                  = 0,       /* UART 0 RX Interrupt                   */
@@ -80,23 +76,22 @@ typedef enum IRQn
   ETHERNET_IRQn                 = 13,      /* Ethernet Interrupt                    */
   I2S_IRQn                      = 14,      /* I2S Interrupt                         */
   TSC_IRQn                      = 15,      /* Touch Screen Interrupt                */
-//  DMA_IRQn                      = 15,      /* PL230 DMA Done + Error Interrupt      */
-  PORT0_0_IRQn                  = 16,      /* All P0 I/O pins used as irq source    */
-  PORT0_1_IRQn                  = 17,      /* There are 16 pins in total            */
-  PORT0_2_IRQn                  = 18,
-  PORT0_3_IRQn                  = 19,
-  PORT0_4_IRQn                  = 20,
-  PORT0_5_IRQn                  = 21,
-  PORT0_6_IRQn                  = 22,
-  PORT0_7_IRQn                  = 23,
-  PORT0_8_IRQn                  = 24,
-  PORT0_9_IRQn                  = 25,
-  PORT0_10_IRQn                 = 26,
-  PORT0_11_IRQn                 = 27,
-  PORT0_12_IRQn                 = 28,
-  PORT0_13_IRQn                 = 29,
-  PORT0_14_IRQn                 = 30,
-  PORT0_15_IRQn                 = 31,
+  PORT2_ALL_IRQn                = 16,      /*< Port 2 combined Interrupt                         */
+  PORT3_ALL_IRQn                = 17,      /*< Port 3 combined Interrupt                         */
+  UARTRX3_IRQn                  = 18,      /*< UART 3 RX Interrupt                               */
+  UARTTX3_IRQn                  = 19,      /*< UART 3 TX Interrupt                               */
+  UARTRX4_IRQn                  = 20,      /*< UART 4 RX Interrupt                               */
+  UARTTX4_IRQn                  = 21,      /*< UART 4 TX Interrupt                               */
+  ADCSPI_IRQn                   = 22,      /*< SHIELD ADC SPI Interrupt                          */
+  SHIELDSPI_IRQn                = 23,      /*< SHIELD SPI Combined Interrupt                     */
+  PORT0_0_IRQn                  = 24,      /*<  GPIO Port 0 pin 0 Interrupt                      */
+  PORT0_1_IRQn                  = 25,      /*<  GPIO Port 0 pin 1 Interrupt                      */
+  PORT0_2_IRQn                  = 26,      /*<  GPIO Port 0 pin 2 Interrupt                      */
+  PORT0_3_IRQn                  = 27,      /*<  GPIO Port 0 pin 3 Interrupt                      */
+  PORT0_4_IRQn                  = 28,      /*<  GPIO Port 0 pin 4 Interrupt                      */
+  PORT0_5_IRQn                  = 29,      /*<  GPIO Port 0 pin 5 Interrupt                      */
+  PORT0_6_IRQn                  = 30,      /*<  GPIO Port 0 pin 6 Interrupt                      */
+  PORT0_7_IRQn                  = 31,      /*<  GPIO Port 0 pin 7 Interrupt                      */
 } IRQn_Type;
 
 
@@ -105,12 +100,12 @@ typedef enum IRQn
 /* ================================================================================ */
 
 /* --------  Configuration of the CM7 Processor and Core Peripherals  --------- */
-#define __CM4_REV                 0x0000      /* Core revision r0p0                              */
+#define __CM7_REV                 0x0101      /* Core revision r1p1                              */
 #define __MPU_PRESENT             1           /* MPU present or not                              */
 #define __NVIC_PRIO_BITS          3           /* Number of Bits used for Priority Levels         */
 #define __Vendor_SysTickConfig    0           /* Set to 1 if different SysTick Config is used    */
 #define __FPU_PRESENT             1           /* no FPU present                                  */
-#define __FPU_DP                  1          /* unused                                          */
+#define __FPU_DP                  1           /* unused                                          */
 #define __ICACHE_PRESENT          1
 #define __DCACHE_PRESENT          1
 
@@ -694,7 +689,9 @@ typedef struct
 #define CMSDK_UART0_BASE        (CMSDK_APB_BASE + 0x4000UL)
 #define CMSDK_UART1_BASE        (CMSDK_APB_BASE + 0x5000UL)
 #define CMSDK_UART2_BASE        (CMSDK_APB_BASE + 0x6000UL)
+#define CMSDK_UART3_BASE        (CMSDK_APB_BASE + 0x7000UL)
 #define CMSDK_WATCHDOG_BASE     (CMSDK_APB_BASE + 0x8000UL)
+#define CMSDK_UART4_BASE        (CMSDK_APB_BASE + 0x9000UL)
 #define CMSDK_PL230_BASE        (CMSDK_APB_BASE + 0xF000UL)
 
 /* AHB peripherals */
@@ -712,6 +709,8 @@ typedef struct
 #define CMSDK_UART0             ((CMSDK_UART_TypeDef   *) CMSDK_UART0_BASE   )
 #define CMSDK_UART1             ((CMSDK_UART_TypeDef   *) CMSDK_UART1_BASE   )
 #define CMSDK_UART2             ((CMSDK_UART_TypeDef   *) CMSDK_UART2_BASE   )
+#define CMSDK_UART3             ((CMSDK_UART_TypeDef   *) CMSDK_UART3_BASE   )
+#define CMSDK_UART4             ((CMSDK_UART_TypeDef   *) CMSDK_UART4_BASE   )
 #define CMSDK_TIMER0            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER0_BASE  )
 #define CMSDK_TIMER1            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER1_BASE  )
 #define CMSDK_DUALTIMER         ((CMSDK_DUALTIMER_BOTH_TypeDef  *) CMSDK_DUALTIMER_BASE )

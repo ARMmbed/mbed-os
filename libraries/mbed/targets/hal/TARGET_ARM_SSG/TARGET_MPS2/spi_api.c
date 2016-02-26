@@ -25,24 +25,36 @@
 static const PinMap PinMap_SPI_SCLK[] = {
     {SCLK_SPI , SPI_0, 0},
     {CLCD_SCLK , SPI_1, 0},
+    {ADC_SCLK , SPI_2, 0},
+    {SHIELD_0_SPI_SCK , SPI_3, 0},
+    {SHIELD_1_SPI_SCK , SPI_4, 0},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {MOSI_SPI, SPI_0, 0},
     {CLCD_MOSI, SPI_1, 0},
+    {ADC_MOSI, SPI_2, 0},
+    {SHIELD_0_SPI_MOSI, SPI_3, 0},
+    {SHIELD_1_SPI_MOSI, SPI_4, 0},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {MISO_SPI, SPI_0, 0},
     {CLCD_MISO, SPI_1, 0},
+    {ADC_MISO, SPI_2, 0},
+    {SHIELD_0_SPI_MISO, SPI_3, 0},
+    {SHIELD_1_SPI_MISO, SPI_4, 0},
     {NC   , NC   , 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
     {SSEL_SPI, SPI_0, 0},
     {CLCD_SSEL, SPI_1, 0},
+    {ADC_SSEL, SPI_2, 0},
+    {SHIELD_0_SPI_nCS, SPI_3, 0},
+    {SHIELD_1_SPI_nCS, SPI_4, 0},
     {NC   , NC   , 0}
 };
 
@@ -50,7 +62,9 @@ static inline int ssp_disable(spi_t *obj);
 static inline int ssp_enable(spi_t *obj);
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
-    // determine the SPI to use
+    
+		int altfunction[4];
+		// determine the SPI to use
     SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
     SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
@@ -64,7 +78,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     
     // enable power and clocking
     switch ((int)obj->spi) {
-        case (int)SPI_0: 
+      case (int)SPI_0: 
 			obj->spi->CR1   	= 0;
 			obj->spi->CR0   	= SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
 			obj->spi->CPSR  	= SSP_CPSR_DFLT; 
@@ -89,8 +103,53 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 			obj->spi->CR1   = ((1ul <<  1) |       /* Synchronous serial port enable   */
 								(0ul <<  2) );      /* Device configured as master      */
 			break;
+      case (int)SPI_2: 
+			obj->spi->CR1   	= 0;
+			obj->spi->CR0   	= SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
+			obj->spi->CPSR  	= SSP_CPSR_DFLT; 
+			obj->spi->IMSC  	= 0x8; 
+			obj->spi->DMACR 	= 0;
+			obj->spi->CR1   	= SSP_CR1_SSE_Msk;
+			obj->spi->ICR   	= 0x3;  
+			break;
+      case (int)SPI_3: 
+			obj->spi->CR1   	= 0;
+			obj->spi->CR0   	= SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
+			obj->spi->CPSR  	= SSP_CPSR_DFLT; 
+			obj->spi->IMSC  	= 0x8; 
+			obj->spi->DMACR 	= 0;
+			obj->spi->CR1   	= SSP_CR1_SSE_Msk;
+			obj->spi->ICR   	= 0x3;  
+			break;
+      case (int)SPI_4: 
+			obj->spi->CR1   	= 0;
+			obj->spi->CR0   	= SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
+			obj->spi->CPSR  	= SSP_CPSR_DFLT; 
+			obj->spi->IMSC  	= 0x8; 
+			obj->spi->DMACR 	= 0;
+			obj->spi->CR1   	= SSP_CR1_SSE_Msk;
+			obj->spi->ICR   	= 0x3;  
+			break;
     }
     
+		if(mosi != NC){ altfunction[0] = 1;}else{ altfunction[0] = 0;}
+		if(miso != NC){ altfunction[1] = 1;}else{ altfunction[1] = 0;}
+		if(sclk != NC){ altfunction[2] = 1;}else{ altfunction[2] = 0;}
+		if(ssel != NC){ altfunction[3] = 1;}else{ altfunction[3] = 0;}
+		
+    // enable alt function
+    switch ((int)obj->spi) {
+      case (int)SPI_2:
+				CMSDK_GPIO1->ALTFUNCSET |= (altfunction[2]<<3 | altfunction[0]<<2 | altfunction[1]<<1 | altfunction[3]);
+			break;
+      case (int)SPI_3:
+				CMSDK_GPIO0->ALTFUNCSET |= (altfunction[1]<<14 | altfunction[0]<<13 | altfunction[3]<<12 | altfunction[2]<<11);
+			break;
+      case (int)SPI_4:
+				CMSDK_GPIO2->ALTFUNCSET |= (altfunction[2]<<12 | altfunction[1]<<8 | altfunction[0]<<7 | altfunction[3]<<6);
+			break;
+		}
+		
     // set default format and frequency
     if (ssel == NC) {
         spi_format(obj, 8, 0, 0);  // 8 bits, mode 0, master
@@ -205,7 +264,7 @@ static inline int ssp_busy(spi_t *obj) {
 
 int spi_master_write(spi_t *obj, int value) {
     ssp_write(obj, value);
-    while (MPS2_SSP0->SR & SSP_SR_BSY_Msk);  /* Wait for send to finish      */
+    while (obj->spi->SR & SSP_SR_BSY_Msk);  /* Wait for send to finish      */
     return (ssp_read(obj));
 }
 

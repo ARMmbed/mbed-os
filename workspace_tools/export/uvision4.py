@@ -153,6 +153,12 @@ class Uvision4(Exporter):
         'SAMD21J18A',
         'SAMD21G18A',
         'SAML21J18A',
+        'ARM_IOTSS_BEID',
+        'ARM_MPS2_M0',
+        'ARM_MPS2_M0P',
+        'ARM_MPS2_M3',
+        'ARM_MPS2_M4',
+        'ARM_MPS2_M7',
     ]
 
     FILE_TYPES = {

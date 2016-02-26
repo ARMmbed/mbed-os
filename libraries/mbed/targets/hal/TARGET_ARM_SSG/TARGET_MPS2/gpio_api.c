@@ -57,6 +57,12 @@ void gpio_init(gpio_t *obj, PinName pin) {
 			pin_value = pin-305;
 		}else if (pin == 311){
 			pin_value = pin-305;
+		}else if (pin == 323){
+			pin_value = pin-315;
+		}else if (pin == 334){
+			pin_value = pin-325;
+		}else if (pin == 653){
+			pin_value = pin-646;
 		}
 		
 		obj->mask = 0x1 << pin_value;
@@ -96,6 +102,16 @@ void gpio_init(gpio_t *obj, PinName pin) {
 			obj->reg_data = &MPS2_FPGAIO->MISC; //spi chip select = 303, clcd chip select = 307
 		}else if (pin == 308 || pin == 309 || pin == 310 || pin == 311){
 			obj->reg_data = &MPS2_FPGAIO->MISC; //clcd control bits
+		}else if (pin == 323 || pin == 334 || pin == 653){ //spi 3 chip select = 323, spi 4 chip select = 334, adc chip select = 653
+			obj->reg_data = &MPS2_FPGAIO->MISC; //spi cs bits
+		}
+		
+		if (pin == 323){
+			CMSDK_GPIO0->ALTFUNCSET |= 0x1000;
+		}else if (pin == 334){
+			CMSDK_GPIO2->ALTFUNCSET |= 0x0040;
+		}else if (pin == 653){
+			CMSDK_GPIO1->ALTFUNCSET |= 0x0001;
 		}
 	}
 }
