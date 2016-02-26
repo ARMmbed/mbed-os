@@ -1,3 +1,7 @@
+#if !DEVICE_I2C
+  #error [NOT_SUPPORTED] I2C is not supported
+#endif
+
 #include "mbed.h"
 #include "test_env.h"
 

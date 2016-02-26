@@ -1,3 +1,7 @@
+#if !DEVICE_I2CSLAVE
+  #error [NOT_SUPPORTED] I2C Slave is not supported
+#endif
+
 #include "mbed.h"
 #include "test_env.h"
 
