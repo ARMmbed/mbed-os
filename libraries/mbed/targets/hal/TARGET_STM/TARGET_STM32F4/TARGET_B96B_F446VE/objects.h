@@ -111,6 +111,11 @@ struct pwmout_s {
     uint8_t inverted;
 };
 
+struct can_s {
+    CANName can;
+    int index; // Used by irq	
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
