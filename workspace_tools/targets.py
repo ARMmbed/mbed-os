@@ -1214,7 +1214,7 @@ class MCU_NRF51(Target):
         self.core = "Cortex-M0"
         self.extra_labels = ["NORDIC", "MCU_NRF51", "MCU_NRF51822"]
         self.macros = ['NRF51', 'TARGET_NRF51822']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.is_disk_virtual = True
         self.detect_code = ["1070"]
 
@@ -1222,12 +1222,12 @@ class MCU_NRF51(Target):
         return 6
 
     def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM', 'IAR']:
+        if toolchain_name in ['ARM_STD', 'GCC_ARM']:
             hook.hook_add_binary("post", self.binary_hook)
 
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-    
+
         # Scan to find the actual paths of soft device
         sdf = None
         for softdeviceAndOffsetEntry in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
@@ -1242,7 +1242,7 @@ class MCU_NRF51(Target):
         if sdf is None:
             t_self.debug("Hex file not found. Aborting.")
             return
-            
+
         # Look for bootloader file that matches this soft device or bootloader override image
         blf = None
         if t_self.target.MERGE_BOOTLOADER is True:
@@ -1274,7 +1274,7 @@ class MCU_NRF51(Target):
         with open(binf.replace(".bin", ".hex"), "w") as f:
             binh.tofile(f, format='hex')
 
-            
+
 # 16KB Nordic targets are tight on SRAM using S130 (default) so we
 # introduce two possible options:
 # 1) Use S130 (default) - for this derive from MCU_NRF51_16K
@@ -1551,7 +1551,6 @@ class WALLBOT_BLE_OTA(MCU_NRF51_16K_OTA):
 class DELTA_DFCM_NNN40(MCU_NRF51_32K):
     def __init__(self):
         MCU_NRF51_32K.__init__(self)
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.macros += ['TARGET_NRF_LFCLK_RC']
         self.progen = {
             "target":"dfcm-nnn40",
@@ -1562,7 +1561,6 @@ class DELTA_DFCM_NNN40(MCU_NRF51_32K):
 class DELTA_DFCM_NNN40_BOOT(MCU_NRF51_32K_BOOT):
     def __init__(self):
         MCU_NRF51_32K_BOOT.__init__(self)
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.extra_labels += ['DELTA_DFCM_NNN40']
         self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
     def program_cycle_s(self):
@@ -1571,7 +1569,6 @@ class DELTA_DFCM_NNN40_BOOT(MCU_NRF51_32K_BOOT):
 class DELTA_DFCM_NNN40_OTA(MCU_NRF51_32K_OTA):
     def __init__(self):
         MCU_NRF51_32K_OTA.__init__(self)
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.extra_labels += ['DELTA_DFCM_NNN40']
         self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
     def program_cycle_s(self):
@@ -1580,7 +1577,6 @@ class DELTA_DFCM_NNN40_OTA(MCU_NRF51_32K_OTA):
 class NRF51_DK(MCU_NRF51_32K):
     def __init__(self):
         MCU_NRF51_32K.__init__(self)
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"nrf51-dk",
@@ -1591,7 +1587,6 @@ class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
         MCU_NRF51_32K_BOOT.__init__(self)
         self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
 
 class NRF51_DK_OTA(MCU_NRF51_32K_OTA):
@@ -1599,7 +1594,6 @@ class NRF51_DK_OTA(MCU_NRF51_32K_OTA):
         MCU_NRF51_32K_OTA.__init__(self)
         self.extra_labels += ['NRF51_DK']
         self.macros += ['TARGET_NRF51_DK']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
 
 class NRF51_DONGLE(MCU_NRF51_32K):
@@ -1676,7 +1670,7 @@ class TY51822R3_OTA(MCU_NRF51_32K_OTA):
         self.macros += ['TARGET_TY51822R3', 'TARGET_NRF_32MHZ_XTAL']
         self.supported_toolchains = ["ARM", "GCC_ARM"]
 
-        
+
 ### ARM ###
 
 class ARM_MPS2_Target(Target):
@@ -1736,7 +1730,7 @@ class ARM_MPS2_M7(ARM_MPS2_Target):
         self.macros = ['CMSDK_CM7']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
-        
+
 class ARM_MPS2_BEID(ARM_MPS2_Target):
     def __init__(self):
         ARM_MPS2_Target.__init__(self)
@@ -1783,7 +1777,7 @@ class MAXWSNENV(Target):
         self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
         self.default_toolchain = "ARM"
         self.progen = {
-            "target": "maxwsnenv", 
+            "target": "maxwsnenv",
         }
 
 class MAX32600MBED(Target):
@@ -1795,7 +1789,7 @@ class MAX32600MBED(Target):
         self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
         self.default_toolchain = "ARM"
         self.progen = {
-            "target": "max32600mbed", 
+            "target": "max32600mbed",
         }
 
 ### Silicon Labs ###
@@ -1886,7 +1880,7 @@ class WIZWIKI_W7500ECO(Target):
         self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500ECO']
         self.supported_toolchains = ["uARM", "ARM"]
         self.default_toolchain = "ARM"
-		
+
 class SAMR21G18A(Target):
     def __init__(self):
         Target.__init__(self)
