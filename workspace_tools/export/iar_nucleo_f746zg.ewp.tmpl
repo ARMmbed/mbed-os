@@ -185,9 +185,7 @@
         </option>
         <option>
           <name>CCDefines</name>
-          {% for s in symbols %}
-            <state>{{s}}</state>
-          {% endfor %}
+            <state></state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -316,9 +314,7 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-        {% for path in include_paths %}
-          <state>$PROJ_DIR$\{{path}}</state>
-        {% endfor %}
+          <state></state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -610,7 +606,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>{{name}}.bin</state>
+          <state>name.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -729,7 +725,7 @@
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$PROJ_DIR$\{{linker_script}}</state>
+          <state></state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -777,12 +773,7 @@
         </option>
         <option>
           <name>IlinkAdditionalLibs</name>
-        {% for library in libraries %}
-          <state>$PROJ_DIR$\{{library}}</state>
-        {% endfor %}
-        {% for object in object_files %}
-          <state>$PROJ_DIR$\{{object}}</state>
-        {% endfor %}
+          <state></state>
         </option>
         <option>
           <name>IlinkOverrideProgramEntryLabel</name>
@@ -1921,7 +1912,6 @@
       <data/>
     </settings>
   </configuration>
-  {{source_files}}
 </project>
 
 
