@@ -848,7 +848,12 @@ class NUCLEO_F746ZG(Target):
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746ZG']
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.detect_code = ["0816"]
-        self.progen_target ='nucleo-f746zg'
+        self.progen = {
+            "target":"nucleo-f746zg",
+            "iar": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746cg.ewp.tmpl')],
+            }
+        }
 
 class NUCLEO_L053R8(Target):
     def __init__(self):
