@@ -123,6 +123,8 @@ def rel_path(path, base, dot=False):
 class ToolException(Exception):
     pass
 
+class NotSupportedException(Exception):
+    pass
 
 def split_path(path):
     base, file = split(path)
