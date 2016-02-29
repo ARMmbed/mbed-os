@@ -277,7 +277,7 @@
 */
 
 #define FLUSH_ON_NEW_CLUSTER    0   /* Sync the file on every new cluster */
-#define FLUSH_ON_NEW_SECTOR     1   /* Sync the file on every new sector */
+#define FLUSH_ON_NEW_SECTOR     0   /* Sync the file on every new sector */
 /* Only one of these two defines needs to be set to 1. If both are set to 0
    the file is only sync when closed.
    Clusters are group of sectors (eg: 8 sectors). Flushing on new cluster means
