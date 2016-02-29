@@ -305,17 +305,14 @@
 /*----------------------------------------------------------------------------
  *      OS Idle daemon
  *---------------------------------------------------------------------------*/
-void os_idle_demon (void) {
-  /* The idle demon is a system thread, running when no other thread is      */
-  /* ready to run.                                                           */
+#include "rtos_idle.h"
 
-  /* Sleep: ideally, we should put the chip to sleep.
-     Unfortunately, this usually requires disconnecting the interface chip (debugger).
-     This can be done, but it would break the local file system.
-  */
-  for (;;) {
-      // sleep();
-  }
+void os_idle_demon (void) {
+	/* The idle demon is a system thread, running when no other thread is      */
+	/* ready to run.                                                           */
+	for (;;) {
+        rtos_idle_hook_fptr();
+    }
 }
 
 /*----------------------------------------------------------------------------
