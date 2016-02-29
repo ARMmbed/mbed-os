@@ -234,9 +234,13 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
 
             project_run_data['names_set'].add(projectRun['project'])
 
-            skipped = test_case.findall('skipped')
+            should_skip = False
+            skips = test_case.findall('skipped')
 
-            if not skipped:
+            if skips:
+                should_skip = skips[0].attrib['message'] == 'SKIP'
+
+            if not should_skip:
                 system_outs = test_case.findall('system-out')
 
                 output = ""
@@ -259,6 +263,9 @@ def add_report(project_run_data, report_file, is_build, build_id, host_os):
                 elif failures:
                     projectRunPass = False
                     result = failures[0].attrib['message']
+                elif skips:
+                    projectRunPass = True
+                    result = skips[0].attrib['message']
                 else:
                     projectRunPass = True
                     result = 'OK'
