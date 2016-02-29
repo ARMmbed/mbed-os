@@ -521,22 +521,3 @@ int i2c_byte_read(i2c_t *obj, int last) {
 int i2c_byte_write(i2c_t *obj, int data) {
     return 0;
 }
-
-void i2c_slave_mode(i2c_t *obj, int enable_slave) {
-}
-
-int i2c_slave_receive(i2c_t *obj) {
-    return 0;
-}
-
-int i2c_slave_read(i2c_t *obj, char *data, int length) {
-    return 0;
-}
-
-int i2c_slave_write(i2c_t *obj, const char *data, int length) {
-    return 0;
-}
-
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
-}
-
