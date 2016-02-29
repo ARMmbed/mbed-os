@@ -16,6 +16,11 @@
 #define PIN_OUT     (PB01)
 #define NUM_VECTORS (16+29)
 
+#elif defined(TARGET_SAMG55J19)
+#define PIN_IN      (PA17)
+#define PIN_OUT     (PA18)
+#define NUM_VECTORS (16+50)
+
 #else
 #define PIN_IN      (p5)
 #define PIN_OUT     (p25)
