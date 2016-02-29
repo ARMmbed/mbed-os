@@ -1,39 +1,39 @@
-/**************************************************************************//**
- * @file     CMSDK_BEID.h
- * @brief    CMSIS Core Peripheral Access Layer Header File for
- *           CMSDK_BEID Device
- * @version  V3.02
- * @date     15. November 2013
- *
- * @note
- *
- ******************************************************************************/
-/* Copyright (c) 2011 - 2013 ARM LIMITED
-
-   All rights reserved.
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions are met:
-   - Redistributions of source code must retain the above copyright
-     notice, this list of conditions and the following disclaimer.
-   - Redistributions in binary form must reproduce the above copyright
-     notice, this list of conditions and the following disclaimer in the
-     documentation and/or other materials provided with the distribution.
-   - Neither the name of ARM nor the names of its contributors may be used
-     to endorse or promote products derived from this software without
-     specific prior written permission.
-   *
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-   ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
-   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-   POSSIBILITY OF SUCH DAMAGE.
-   ---------------------------------------------------------------------------*/
+/* MPS2 CMSIS Library
+*
+* Copyright (c) 2006-2016 ARM Limited
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+* 1. Redistributions of source code must retain the above copyright notice,
+* this list of conditions and the following disclaimer.
+*
+* 2. Redistributions in binary form must reproduce the above copyright notice,
+* this list of conditions and the following disclaimer in the documentation
+* and/or other materials provided with the distribution.
+*
+* 3. Neither the name of the copyright holder nor the names of its contributors
+* may be used to endorse or promote products derived from this software without
+* specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.
+*******************************************************************************
+* @file     CMSDK_BEID.h
+* @brief    CMSIS Core Peripheral Access Layer Header File for
+*           CMSDK_BEID Device
+*
+*******************************************************************************/
 
 
 #ifndef CMSDK_BEID_H
@@ -59,40 +59,61 @@ typedef enum IRQn
   PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
   SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
 
-/* ----------------------  CMSDK_BEID Specific Interrupt Numbers  ------------------ */
-  UARTRX0_IRQn                  = 0,       /* UART 0 RX Interrupt                   */
-  UARTTX0_IRQn                  = 1,       /* UART 0 TX Interrupt                   */
-  UARTRX1_IRQn                  = 2,       /* UART 1 RX Interrupt                   */
-  UARTTX1_IRQn                  = 3,       /* UART 1 TX Interrupt                   */
-  UARTRX2_IRQn                  = 4,       /* UART 2 RX Interrupt                   */
-  UARTTX2_IRQn                  = 5,       /* UART 2 TX Interrupt                   */
-  UARTRX3_IRQn                  = 6,       /* Was PORT0_ALL_IRQn Port 1 combined Interrupt             */
-  UARTTX3_IRQn                  = 7,       /* Was PORT1_ALL_IRQn Port 1 combined Interrupt             */
+/* ----------------------  CMSDK_CM3 Specific Interrupt Numbers  ------------------ */
+  UART0_IRQn                    = 0,       /* UART 0 RX and TX Combined Interrupt   */
+  Spare_IRQn                    = 1,       /* Undefined                             */
+  UART1_IRQn                    = 2,       /* UART 1 RX and TX Combined Interrupt   */
+  I2C0_IRQn                     = 3,       /* I2C 0 Interrupt                       */
+  I2C1_IRQn                     = 4,       /* I2C 1 Interrupt                       */
+  RTC_IRQn                      = 5,       /* RTC Interrupt                         */
+  PORT0_ALL_IRQn                = 6,       /* GPIO Port 0 combined Interrupt        */
+  PORT1_ALL_IRQn                = 7,       /* GPIO Port 1 combined Interrupt        */
   TIMER0_IRQn                   = 8,       /* TIMER 0 Interrupt                     */
   TIMER1_IRQn                   = 9,       /* TIMER 1 Interrupt                     */
   DUALTIMER_IRQn                = 10,      /* Dual Timer Interrupt                  */
-  SPI_IRQn                      = 11,      /* SPI Interrupt                         */
+  SPI0_IRQn                     = 11,      /* SPI 0 Interrupt                       */
   UARTOVF_IRQn                  = 12,      /* UART 0,1,2 Overflow Interrupt         */
-  ETHERNET_IRQn                 = 13,      /* Ethernet Interrupt                    */
-  I2S_IRQn                      = 14,      /* I2S Interrupt                         */
+  SPI1_IRQn                     = 13,      /* SPI 1 Interrupt                       */
+  RESERVED0_IRQn                = 14,      /* Reserved                              */
   TSC_IRQn                      = 15,      /* Touch Screen Interrupt                */
-//  DMA_IRQn                      = 15,      /* PL230 DMA Done + Error Interrupt      */
-  PORT0_0_IRQn                  = 16,      /* All P0 I/O pins used as irq source    */
-  PORT0_1_IRQn                  = 17,      /* There are 16 pins in total            */
-  PORT0_2_IRQn                  = 18,
-  PORT0_3_IRQn                  = 19,
-  PORT0_4_IRQn                  = 20,
-  PORT0_5_IRQn                  = 21,
-  PORT0_6_IRQn                  = 22,
-  PORT0_7_IRQn                  = 23,
-  PORT0_8_IRQn                  = 24,
-  PORT0_9_IRQn                  = 25,
-  PORT0_10_IRQn                 = 26,
-  PORT0_11_IRQn                 = 27,
-  PORT0_12_IRQn                 = 28,
-  PORT0_13_IRQn                 = 29,
-  PORT0_14_IRQn                 = 30,
-  PORT0_15_IRQn                 = 31,
+  PORT01_0_IRQn                 = 16,      /* GPIO Port 0 pin 0 Handler             */
+  PORT01_1_IRQn                 = 17,      /* GPIO Port 0 pin 1 Handler             */
+  PORT01_2_IRQn                 = 18,      /* GPIO Port 0 pin 2 Handler             */
+  PORT01_3_IRQn                 = 19,      /* GPIO Port 0 pin 3 Handler             */
+  PORT01_4_IRQn                 = 20,      /* GPIO Port 0 pin 4 Handler             */
+  PORT01_5_IRQn                 = 21,      /* GPIO Port 0 pin 5 Handler             */
+  PORT01_6_IRQn                 = 22,      /* GPIO Port 0 pin 6 Handler             */
+  PORT01_7_IRQn                 = 23,      /* GPIO Port 0 pin 7 Handler             */
+  PORT01_8_IRQn                 = 24,      /* GPIO Port 0 pin 8 Handler             */
+  PORT01_9_IRQn                 = 25,      /* GPIO Port 0 pin 9 Handler             */
+  PORT01_10_IRQn                = 26,      /* GPIO Port 0 pin 10 Handler            */
+  PORT01_11_IRQn                = 27,      /* GPIO Port 0 pin 11 Handler            */
+  PORT01_12_IRQn                = 28,      /* GPIO Port 0 pin 12 Handler            */
+  PORT01_13_IRQn                = 29,      /* GPIO Port 0 pin 13 Handler            */
+  PORT01_14_IRQn                = 30,      /* GPIO Port 0 pin 14 Handler            */
+  PORT01_15_IRQn                = 31,      /* GPIO Port 0 pin 15 Handler            */
+  SYSERROR_IRQn                 = 32,      /* System Error Interrupt                */
+  EFLASH_IRQn                   = 33,      /* Embedded Flash Interrupt              */
+  RESERVED1_IRQn                = 34,      /* Reserved                              */
+  RESERVED2_IRQn                = 35,      /* Reserved                              */
+  RESERVED3_IRQn                = 36,      /* Reserved                              */
+  RESERVED4_IRQn                = 37,      /* Reserved                              */
+  RESERVED5_IRQn                = 38,      /* Reserved                              */
+  RESERVED6_IRQn                = 39,      /* Reserved                              */
+  RESERVED7_IRQn                = 40,      /* Reserved                              */
+  RESERVED8_IRQn                = 41,      /* Reserved                              */
+  PORT2_ALL_IRQn                = 42,      /* GPIO Port 2 combined Interrupt        */
+  PORT3_ALL_IRQn                = 43,      /* GPIO Port 3 combined Interrupt        */
+  TRNG_IRQn                     = 44,      /* Random number generator Interrupt     */
+  UART2_IRQn                    = 45,      /* UART 2 RX and TX Combined Interrupt   */
+  UART3_IRQn                    = 46,      /* UART 3 RX and TX Combined Interrupt   */
+  ETHERNET_IRQn                 = 47,      /* Ethernet interrupt     t.b.a.         */
+  I2S_IRQn                      = 48,      /* I2S Interrupt                         */
+  MPS2_SPI0_IRQn                = 49,      /* SPI Interrupt (spi header)            */
+  MPS2_SPI1_IRQn                = 50,      /* SPI Interrupt (clcd)                  */
+  MPS2_SPI2_IRQn                = 51,      /* SPI Interrupt (spi 1 ADC replacement) */
+  MPS2_SPI3_IRQn                = 52,      /* SPI Interrupt (spi 0 shield 0 replacement) */
+  MPS2_SPI4_IRQn                = 53       /* SPI Interrupt  (shield 1)             */
 } IRQn_Type;
 
 
@@ -101,7 +122,7 @@ typedef enum IRQn
 /* ================================================================================ */
 
 /* --------  Configuration of the Cortex-M3 Processor and Core Peripherals  ------- */
-#define __CM3_REV                 0x0201      /* Core revision r2p1                              */
+#define __BEID_REV                 0x0201      /* Core revision r2p1                              */
 #define __MPU_PRESENT             1           /* MPU present or not                              */
 #define __NVIC_PRIO_BITS          3           /* Number of Bits used for Priority Levels         */
 #define __Vendor_SysTickConfig    0           /* Set to 1 if different SysTick Config is used    */
@@ -725,18 +746,19 @@ typedef struct
 #define CMSDK_DUALTIMER_BASE    (CMSDK_APB_BASE + 0x2000UL)
 #define CMSDK_DUALTIMER_1_BASE  (CMSDK_DUALTIMER_BASE)
 #define CMSDK_DUALTIMER_2_BASE  (CMSDK_DUALTIMER_BASE + 0x20UL)
-#define CMSDK_UART0_BASE        (CMSDK_APB_BASE + 0x5000UL)
-#define CMSDK_UART1_BASE        (CMSDK_APB_BASE + 0x4000UL)
-#define CMSDK_UART2_BASE        (CMSDK_APB_BASE + 0x6000UL)
-#define CMSDK_UART3_BASE        (CMSDK_APB_BASE + 0x7000UL)
+#define CMSDK_UART0_BASE        (CMSDK_APB_BASE + 0x4000UL)
+#define CMSDK_UART1_BASE        (CMSDK_APB_BASE + 0x5000UL)
+#define CMSDK_UART2_BASE        (0x4002C000UL)
+#define CMSDK_UART3_BASE        (0x4002D000UL)
 #define CMSDK_WATCHDOG_BASE     (CMSDK_APB_BASE + 0x8000UL)
-#define CMSDK_PL230_BASE        (CMSDK_APB_BASE + 0xF000UL)
 
 /* AHB peripherals                                                                  */
 #define CMSDK_GPIO0_BASE        (CMSDK_AHB_BASE + 0x0000UL)
 #define CMSDK_GPIO1_BASE        (CMSDK_AHB_BASE + 0x1000UL)
 #define CMSDK_GPIO2_BASE        (CMSDK_AHB_BASE + 0x2000UL)
 #define CMSDK_GPIO3_BASE        (CMSDK_AHB_BASE + 0x3000UL)
+#define CMSDK_GPIO4_BASE        (0x40030000UL)
+#define CMSDK_GPIO5_BASE        (0x40031000UL)
 #define CMSDK_SYSCTRL_BASE      (CMSDK_AHB_BASE + 0xF000UL)
 
 
@@ -745,7 +767,7 @@ typedef struct
 /* ================================================================================ */
 
 #define CMSDK_UART0             ((CMSDK_UART_TypeDef   *) CMSDK_UART0_BASE   )
-#define CMSDK_UART1             ((CMSDK_UART_TypeDef   *) CMSDK_UART1_BASE   )
+#define CMSDK_UART1            ((CMSDK_UART_TypeDef   *) CMSDK_UART1_BASE   )
 #define CMSDK_UART2             ((CMSDK_UART_TypeDef   *) CMSDK_UART2_BASE   )
 #define CMSDK_UART3             ((CMSDK_UART_TypeDef   *) CMSDK_UART3_BASE   )
 #define CMSDK_TIMER0            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER0_BASE  )
@@ -754,11 +776,13 @@ typedef struct
 #define CMSDK_DUALTIMER1        ((CMSDK_DUALTIMER_SINGLE_TypeDef  *) CMSDK_DUALTIMER_1_BASE )
 #define CMSDK_DUALTIMER2        ((CMSDK_DUALTIMER_SINGLE_TypeDef  *) CMSDK_DUALTIMER_2_BASE )
 #define CMSDK_WATCHDOG          ((CMSDK_WATCHDOG_TypeDef  *) CMSDK_WATCHDOG_BASE   )
-#define CMSDK_DMA               ((CMSDK_PL230_TypeDef  *) CMSDK_PL230_BASE   )
+//#define CMSDK_DMA               ((CMSDK_PL230_TypeDef  *) CMSDK_PL230_BASE   )
 #define CMSDK_GPIO0             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO0_BASE   )
 #define CMSDK_GPIO1             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO1_BASE   )
 #define CMSDK_GPIO2             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO2_BASE )
 #define CMSDK_GPIO3             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO3_BASE )
+#define CMSDK_GPIO4             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO4_BASE )
+#define CMSDK_GPIO5             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO5_BASE )
 #define CMSDK_SYSCON            ((CMSDK_SYSCON_TypeDef *) CMSDK_SYSCTRL_BASE )
 
 

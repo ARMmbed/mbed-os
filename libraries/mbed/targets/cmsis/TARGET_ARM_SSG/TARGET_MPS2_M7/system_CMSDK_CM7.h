@@ -1,6 +1,6 @@
 /* MPS2 CMSIS Library
 *
-* Copyright (c) 2006-2015 ARM Limited
+* Copyright (c) 2006-2016 ARM Limited
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without 
@@ -33,10 +33,6 @@
 * @file     system_CMSDK_CM7.h
 * @brief    CMSIS Device Peripheral Access Layer Header File for
 *           CMSDK_CM7 Device
-* @version  V1.00
-* @date     27. August 2014
-*
-* @note
 *
 ******************************************************************************/
 
