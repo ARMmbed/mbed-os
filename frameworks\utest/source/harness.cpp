@@ -99,6 +99,10 @@ bool Harness::run(const Specification& specification, std::size_t start_case)
 
 void Harness::raise_failure(const failure_reason_t reason)
 {
+    // ignore a failure, if the Harness has not been initialized.
+    // this allows using unity assertion macros without setting up utest.
+    if (test_cases == NULL) return;
+
     status_t fail_status = STATUS_ABORT;
     {
         mbed::util::CriticalSectionLock lock;
