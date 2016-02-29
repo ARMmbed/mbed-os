@@ -1,18 +1,37 @@
-/*
- * Copyright:
- * ----------------------------------------------------------------
- * This confidential and proprietary software may be used only as
- * authorised by a licensing agreement from ARM Limited
- *   (C) COPYRIGHT 2014 ARM Limited
- *       ALL RIGHTS RESERVED
- * The entire notice above must be reproduced on all authorised
- * copies and copies may only be made to the extent permitted
- * by a licensing agreement from ARM Limited.
- * ----------------------------------------------------------------
- * File:     smm_mps2.h
- * Release:  Version 1.0
- * ----------------------------------------------------------------
- */
+/* MPS2 CMSIS Library
+*
+* Copyright (c) 2006-2016 ARM Limited
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+* 1. Redistributions of source code must retain the above copyright notice,
+* this list of conditions and the following disclaimer.
+*
+* 2. Redistributions in binary form must reproduce the above copyright notice,
+* this list of conditions and the following disclaimer in the documentation
+* and/or other materials provided with the distribution.
+*
+* 3. Neither the name of the copyright holder nor the names of its contributors
+* may be used to endorse or promote products derived from this software without
+* specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.
+*******************************************************************************
+* File:     smm_mps2.h
+* Release:  Version 1.1
+*******************************************************************************/
 
 #ifndef __SMM_MPS2_H
 #define __SMM_MPS2_H
@@ -27,7 +46,7 @@
 /*                          FPGA System Register declaration                  */
 /******************************************************************************/
 
-typedef struct                   
+typedef struct
 {
   __IO uint32_t LED;             // Offset: 0x000 (R/W)  LED connections
                                  //                         [31:2] : Reserved
@@ -41,14 +60,13 @@ typedef struct
   __IO uint32_t CLK100HZ;        // Offset: 0x014 (R/W)  100Hz up counter
   __IO uint32_t COUNTER;         // Offset: 0x018 (R/W)  Cycle Up Counter
                                  //                         Increments when 32-bit prescale counter reach zero
-       uint32_t RESERVED3[1];
-  __IO uint32_t PRESCALE;        // Offset: 0x020 (R/W)  Prescaler
+  __IO uint32_t PRESCALE;        // Offset: 0x1C (R/W)  Prescaler
                                  //                         Bit[31:0] : reload value for prescale counter
-  __IO uint32_t PSCNTR;          // Offset: 0x024 (R/W)  32-bit Prescale counter
+  __IO uint32_t PSCNTR;          // Offset: 0x020 (R/W)  32-bit Prescale counter
                                  //                         current value of the pre-scaler counter
-								 //                         The Cycle Up Counter increment when the prescale down counter reach 0
-								 //                         The pre-scaler counter is reloaded with PRESCALE after reaching 0.
-       uint32_t RESERVED4[9];
+                                 //                         The Cycle Up Counter increment when the prescale down counter reach 0
+                                 //                         The pre-scaler counter is reloaded with PRESCALE after reaching 0.
+       uint32_t RESERVED4[10];
   __IO uint32_t MISC;            // Offset: 0x04C (R/W)  Misc control */
                                  //                         [31:10] : Reserved
                                  //                            [9] : SHIELD_1_SPI_nCS
@@ -88,7 +106,7 @@ typedef struct
 /*                        SCC Register declaration                            */
 /******************************************************************************/
 
-typedef struct                   // 
+typedef struct                   //
 {
   __IO uint32_t CFG_REG0;        // Offset: 0x000 (R/W)  Remaps block RAM to ZBT
                                  //                         [31:1] : Reserved
@@ -298,10 +316,10 @@ typedef struct                   // Document DDI0194G_ssp_pl022_r1p3_trm.pdf
 typedef struct
 {
   union {
-  __O   uint32_t  CONTROLS;     // Offset: 0x000 CONTROL Set Register     ( /W) 
-  __I   uint32_t  CONTROL;      // Offset: 0x000 CONTROL Status Register  (R/ ) 
+  __O   uint32_t  CONTROLS;     // Offset: 0x000 CONTROL Set Register     ( /W)
+  __I   uint32_t  CONTROL;      // Offset: 0x000 CONTROL Status Register  (R/ )
   };
-  __O    uint32_t  CONTROLC;     // Offset: 0x004 CONTROL Clear Register    ( /W)  
+  __O    uint32_t  CONTROLC;     // Offset: 0x004 CONTROL Clear Register    ( /W)
 } MPS2_I2C_TypeDef;
 
 #define SDA                1 << 1
@@ -336,7 +354,7 @@ typedef struct
                               //     <4=> Undefined!
                               //     <5=> Undefined!
                               //     <6=> Undefined!
-                              //     <7=> Undefined!  
+                              //     <7=> Undefined!
                               //   <o.14..12> RX Buffer Water Level
                               //     <0=> Undefined!
                               //     <1=> / IRQ triggers when less than 1 space available
@@ -345,7 +363,7 @@ typedef struct
                               //     <4=> / IRQ triggers when less than 4 space available
                               //     <5=> Undefined!
                               //     <6=> Undefined!
-                              //     <7=> Undefined!  
+                              //     <7=> Undefined!
                               //   <o.16> FIFO reset
                               //     <0=> Normal operation
                               //     <1=> FIFO reset
@@ -353,12 +371,12 @@ typedef struct
                               //     <0=> Normal operation
                               //     <1=> Assert audio Codec reset
   /*!< Offset: 0x004 STATUS Register     (R/ ) */
-  __I    uint32_t  STATUS;  // <h> STATUS </h> 
+  __I    uint32_t  STATUS;  // <h> STATUS </h>
                               //   <o.0> TX Buffer alert
                               //     <0=> TX buffer don't need service yet
                               //     <1=> TX buffer need service
                               //   <o.1> RX Buffer alert
-                              //     <0=> RX buffer don't need service yet 
+                              //     <0=> RX buffer don't need service yet
                               //     <1=> RX buffer need service
                               //   <o.2> TX Buffer Empty
                               //     <0=> TX buffer have data
@@ -373,33 +391,33 @@ typedef struct
                               //     <0=> RX buffer not full
                               //     <1=> RX buffer full
   union {
-   /*!< Offset: 0x008 Error Status Register (R/ ) */  
-    __I    uint32_t  ERROR;  // <h> ERROR </h> 
+   /*!< Offset: 0x008 Error Status Register (R/ ) */
+    __I    uint32_t  ERROR;  // <h> ERROR </h>
                               //   <o.0> TX error
                               //     <0=> Okay
                               //     <1=> TX overrun/underrun
                               //   <o.1> RX error
-                              //     <0=> Okay 
+                              //     <0=> Okay
                               //     <1=> RX overrun/underrun
-   /*!< Offset: 0x008 Error Clear Register  ( /W) */    
-    __O    uint32_t  ERRORCLR;  // <h> ERRORCLR </h> 
+   /*!< Offset: 0x008 Error Clear Register  ( /W) */
+    __O    uint32_t  ERRORCLR;  // <h> ERRORCLR </h>
                               //   <o.0> TX error
                               //     <0=> Okay
                               //     <1=> Clear TX error
                               //   <o.1> RX error
-                              //     <0=> Okay 
+                              //     <0=> Okay
                               //     <1=> Clear RX error
     };
-   /*!< Offset: 0x00C Divide ratio Register (R/W) */  
-  __IO   uint32_t  DIVIDE;  // <h> Divide ratio for Left/Right clock </h> 
-                              //   <o.9..0> TX error (default 0x80)			      
+   /*!< Offset: 0x00C Divide ratio Register (R/W) */
+  __IO   uint32_t  DIVIDE;  // <h> Divide ratio for Left/Right clock </h>
+                              //   <o.9..0> TX error (default 0x80)
    /*!< Offset: 0x010 Transmit Buffer       ( /W) */
-  __O    uint32_t  TXBUF;  // <h> Transmit buffer </h> 
-                              //   <o.15..0> Right channel			      
+  __O    uint32_t  TXBUF;  // <h> Transmit buffer </h>
+                              //   <o.15..0> Right channel
                               //   <o.31..16> Left channel
    /*!< Offset: 0x014 Receive Buffer        (R/ ) */
-  __I    uint32_t  RXBUF;  // <h> Receive buffer </h> 
-                              //   <o.15..0> Right channel			      
+  __I    uint32_t  RXBUF;  // <h> Receive buffer </h>
+                              //   <o.15..0> Right channel
                               //   <o.31..16> Left channel
          uint32_t  RESERVED1[186];
   __IO uint32_t ITCR;         // <h> Integration Test Control Register </h>
@@ -554,14 +572,10 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 #define MPS2_SHIELD1_I2C_BASE   (0x4002A000ul)       /* Audio Interface I2C Base Address */
 #define MPS2_SCC_BASE           (0x4002F000ul)       /* SCC Base Address    */
 
-#ifdef CORTEX_M7
-#define SMSC9220_BASE           (0xA0000000ul)       /* Ethernet SMSC9220 Base Address   */
-#else
 #define SMSC9220_BASE           (0x40200000ul)       /* Ethernet SMSC9220 Base Address   */
-#endif
 
-#define MPS2_VGA_BUFFER         (0x41100000ul)       /* VGA Buffer Base Address */
 #define MPS2_VGA_TEXT_BUFFER    (0x41000000ul)       /* VGA Text Buffer Address */
+#define MPS2_VGA_BUFFER         (0x41100000ul)       /* VGA Buffer Base Address */
 
 /******************************************************************************/
 /*                         Peripheral declaration                             */
@@ -577,40 +591,20 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 #define MPS2_SCC                ((MPS2_SCC_TypeDef      *) MPS2_SCC_BASE )
 #define MPS2_SSP0               ((MPS2_SSP_TypeDef      *) MPS2_SSP0_BASE )
 #define MPS2_SSP1               ((MPS2_SSP_TypeDef      *) MPS2_SSP1_BASE )
-#define MPS2_SSP2               ((MPS2_SSP_TypeDef      *) MPS2_SSP2_BASE )	
-#define MPS2_SSP3               ((MPS2_SSP_TypeDef      *) MPS2_SSP3_BASE )	
-#define MPS2_SSP4               ((MPS2_SSP_TypeDef      *) MPS2_SSP4_BASE )	
+#define MPS2_SSP2               ((MPS2_SSP_TypeDef      *) MPS2_SSP2_BASE )
+#define MPS2_SSP3               ((MPS2_SSP_TypeDef      *) MPS2_SSP3_BASE )
+#define MPS2_SSP4               ((MPS2_SSP_TypeDef      *) MPS2_SSP4_BASE )
 
-//******************************************************************************/
+/******************************************************************************/
+/*                     General Function Definitions                           */
+/******************************************************************************/
+
+
+/******************************************************************************/
 /*                     General MACRO Definitions                              */
 /******************************************************************************/
 
-//#define DEBUG
-//#ifdef DEBUG
-//    #define debug(...)      printf(__VA_ARGS__)
-//#else
-//    #define debug(...)
-//#endif  // ifdef DEBUG
 
-// Bit control macros
-//#define HW_REG(base,offset) *((volatile unsigned int *)((base) + (offset)))
-
-#define CREATE_MASK(msb, lsb)               (((1U << ((msb) - (lsb) + 1)) - 1) << (lsb))
-#define MASK_BITS(arg, msb, lsb)            ((arg) & CREATE_MASK(msb, lsb))
-#define EXTRACT_BITS(arg, msb, lsb)         (MASK_BITS(arg, msb, lsb) >> (lsb))
-#define INSERT_BITS(arg, msb, lsb, value) \
-    ((arg) = ((arg) & ~CREATE_MASK(msb, lsb)) | (((value) << (lsb)) & CREATE_MASK(msb, lsb)))
-
-#define MASK_FIELD(arg, field)              MASK_BITS(arg, field##_MSB, field##_LSB)
-#define EXTRACT_FIELD(arg, field)           EXTRACT_BITS(arg, field##_MSB, field##_LSB)
-#define INSERT_FIELD(arg, field, value)     INSERT_BITS(arg, field##_MSB, field##_LSB, value)
-
-#define SET_BIT(arg, bit)                   ((arg) |= (1 << (bit)))
-#define CLEAR_BIT(arg, bit)                 ((arg) &= ~(1 << (bit)))
-#define TEST_BIT(arg, bit)                  ((arg) & (1 << (bit)))
-
-#ifndef NoOfElements
-#define NoOfElements(array) (sizeof(array) / sizeof(array[0]))
-#endif
 
 #endif /* __SMM_MPS2_H */
+

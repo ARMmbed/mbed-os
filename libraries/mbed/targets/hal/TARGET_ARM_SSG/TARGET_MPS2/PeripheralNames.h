@@ -24,13 +24,17 @@ extern "C" {
 
 typedef enum {
     UART_0 = (int)CMSDK_UART0_BASE,
-    UART_1 = (int)CMSDK_UART1_BASE
+    UART_1 = (int)CMSDK_UART1_BASE,
+    UART_2 = (int)CMSDK_UART3_BASE,
+    UART_3 = (int)CMSDK_UART4_BASE
 } UARTName;
 
 typedef enum {
-    I2C_0 = (int)MPS2_TS_I2C,
-    I2C_1 = (int)MPS2_AAIC_I2C
-		
+    I2C_0 = (int)MPS2_TSC_I2C_BASE,
+    I2C_1 = (int)MPS2_AAIC_I2C_BASE,
+    I2C_2 = (int)MPS2_SHIELD0_I2C_BASE, 
+    I2C_3 = (int)MPS2_SHIELD1_I2C_BASE 
+        
 } I2CName;
 
 typedef enum {
@@ -41,12 +45,19 @@ typedef enum {
     ADC0_4,
     ADC0_5,
     ADC0_6,
-    ADC0_7
+    ADC0_7,
+    ADC0_8,
+    ADC0_9,
+    ADC0_10,
+    ADC0_11
 } ADCName;
 
 typedef enum {
-    SPI_0 = (int)MPS2_SSP1,
-    SPI_1 = (int)MPS2_SSP0
+    SPI_0 = (int)MPS2_SSP1_BASE,
+    SPI_1 = (int)MPS2_SSP0_BASE,
+      SPI_2 = (int)MPS2_SSP2_BASE,
+    SPI_3 = (int)MPS2_SSP3_BASE,
+    SPI_4 = (int)MPS2_SSP4_BASE
 } SPIName;
 
 typedef enum {
@@ -68,8 +79,9 @@ typedef enum {
 #define STDIO_UART        UART_0
 
 #define MBED_UART0        USBTX, USBRX
-#define MBED_UART1        UART_TX1, UART_RX1
-#define MBED_UART2        UART_TX2, UART_RX2
+#define MBED_UART1        XB_TX, XB_RX
+#define MBED_UART2        SH0_TX, SH0_RX
+#define MBED_UART3        SH1_TX, SH1_RX
 #define MBED_UARTUSB      USBTX, USBRX
 
 #ifdef __cplusplus
