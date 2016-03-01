@@ -1,3 +1,7 @@
+#if !DEVICE_SPISLAVE
+  #error [NOT_SUPPORTED] SPI Slave not supported
+#endif
+
 #include "mbed.h"
 
 #if defined(TARGET_KL25Z)

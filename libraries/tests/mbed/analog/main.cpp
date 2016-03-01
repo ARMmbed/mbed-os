@@ -1,3 +1,11 @@
+#if !DEVICE_ANALOGIN
+  #error [NOT_SUPPORTED] AnalogIn not supported
+#endif
+
+#if !DEVICE_ANALOGOUT
+  #error [NOT_SUPPORTED] AnalogOut not supported
+#endif
+
 #include "test_env.h"
 
 #if defined(TARGET_K64F) | defined (TARGET_K22F)

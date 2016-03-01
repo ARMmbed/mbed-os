@@ -1,3 +1,7 @@
+#if !DEVICE_CAN
+  #error [NOT_SUPPORTED] CAN not supported
+#endif
+
 #include "mbed.h"
 #include "test_env.h"
 

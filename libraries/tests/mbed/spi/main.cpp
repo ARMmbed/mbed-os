@@ -1,5 +1,9 @@
 #include "mbed.h"
 
+#if !DEVICE_SPI
+  #error [NOT_SUPPORTED] SPI is not supported
+#endif
+
 #if defined(TARGET_SAMR21G18A)
 SPI spi(PB22, PB02, PB23);   // mosi, miso, sclk
 DigitalOut latchpin(PB03);

@@ -1,3 +1,7 @@
+#if !DEVICE_ANALOGIN
+  #error [NOT_SUPPORTED] AnalogIn not supported
+#endif
+
 #include "mbed.h"
 #include "test_env.h"
 
@@ -15,11 +19,11 @@ int main(void) {
 
     bool result = false;
     float val1, val2;
-    
+
     for (int i = 0; i < TEST_ITERATIONS; i++) {
         val1 = pot1.read();
         val2 = pot2.read();
-        
+
         const char *succes_str = val1 > MEASURE_MIN || val2 > MEASURE_MIN ? "[OK]" : "[FAIL]";
         result = result || (val1 > MEASURE_MIN || val2 > MEASURE_MIN);
         printf("Pot values %f, %f\r\n", val1, val2);
