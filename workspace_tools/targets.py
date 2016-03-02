@@ -792,7 +792,7 @@ class NUCLEO_F410RB(Target):
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0740"]
         self.progen = {
-            "target":"",
+            "target":"nucleo-f410rb",
         }
 
 class NUCLEO_F411RE(Target):
