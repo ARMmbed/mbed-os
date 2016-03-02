@@ -62,7 +62,7 @@ class Exporter(object):
                         self.resources.objects + self.resources.libraries,
                 },
                 'includes':  { 
-                    'Include Files': self.resources.headers + self.resources.inc_dirs,
+                    'Include Files': self.resources.headers,
                 },
                 'target': [TARGET_MAP[self.target].progen['target']],
                 'macros': self.get_symbols(),
@@ -76,6 +76,9 @@ class Exporter(object):
         """" Generate project using ProGen Project API """
         settings = ProjectSettings()
         project = Project(self.program_name, [project_data], settings)
+        # TODO: Fix this, the inc_dirs are not valid (our scripts copy files), therefore progen
+        # thinks it is not dict but a file, and adds them to workspace.
+        project.project['common']['include_paths'] = self.resources.inc_dirs
         project.generate(tool_name, copied=True)
 
     def __scan_all(self, path):
