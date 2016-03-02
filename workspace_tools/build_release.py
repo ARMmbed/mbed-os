@@ -95,6 +95,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('DISCO_F746NG', ('ARM', 'uARM', 'GCC_ARM')),
     ('DISCO_L476VG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L476RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ('NUCLEO_F746ZG', ('ARM', 'uARM', 'GCC_ARM')),
 
     ('MOTE_L152RC', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
 
