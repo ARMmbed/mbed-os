@@ -1,3 +1,7 @@
+#if !DEVICE_INTERRUPTIN
+  #error [NOT_SUPPORTED] InterruptIn is not supported
+#endif
+
 #include "mbed.h"
 
 #if defined(TARGET_LPC4088)
