@@ -129,16 +129,16 @@ class HostTestPluginCopyMethod_MPS2(HostTestPluginBase):
             """ Add a delay in case there a test just finished
                 Prevents interface firmware hiccups
             """
-            sleep(10)
+            sleep(20)
             if capabilitity == 'mps2-copy' and self.copy_file(file, disk):
-                sleep(1)
+                sleep(3)
                 if self.touch_file(disk + 'reboot.txt'):
                     """ Add a delay after the board was rebooted.
                         The actual reboot time is 20 seconds, but using 15 seconds
                         allows us to open the COM port and save a board reset.
                         This also prevents interface firmware hiccups.
                     """
-                    sleep(16)
+                    sleep(7)
                     result = True
                     
         return result

@@ -35,9 +35,8 @@
  */
 
 #include <stdio.h>
-
+#include "wait_api.h"
 #include "ETH_MPS2.h"
-#include "fpga.h"
 
 // SMSC9220 low-level operations
 unsigned int smsc9220_mac_regread(unsigned char regoffset, unsigned int *data)
@@ -58,7 +57,7 @@ unsigned int smsc9220_mac_regread(unsigned char regoffset, unsigned int *data)
         timedout = 50;
         do {
             val = SMSC9220->BYTE_TEST;  // A no-op read.
-            Sleepms(1);
+            wait_ms(1);
             timedout--;
         } while(timedout && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
 
@@ -92,7 +91,7 @@ unsigned int smsc9220_mac_regwrite(unsigned char regoffset, unsigned int data)
         timedout = 50;
         do {
             read = SMSC9220->BYTE_TEST;     // A no-op read.
-            Sleepms(1);
+            wait_ms(1);
             timedout--;
         } while(timedout && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
 
@@ -126,7 +125,7 @@ unsigned int smsc9220_phy_regread(unsigned char regoffset, unsigned short *data)
         val = 0;
         timedout = 50;
         do {
-            Sleepms(1);
+            wait_ms(1);
             timedout--;
             smsc9220_mac_regread(SMSC9220_MAC_MII_ACC,&val);
         } while(timedout && (val & ((unsigned int)1 << 0)));
@@ -166,7 +165,7 @@ unsigned int smsc9220_phy_regwrite(unsigned char regoffset, unsigned short data)
 
         do {
 
-            Sleepms(1);
+            wait_ms(1);
             timedout--;
             smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &phycmd);
         } while(timedout && (phycmd & (1 << 0)));
@@ -197,7 +196,7 @@ unsigned int smsc9220_soft_reset(void)
     SMSC9220->HW_CFG |= 1;
 
     do {
-        Sleepms(1);
+        wait_ms(1);
         timedout--;
     } while(timedout && (SMSC9220->HW_CFG & 1));
 
@@ -224,7 +223,7 @@ unsigned int smsc9220_wait_eeprom(void)
     timedout = 50;
 
     do {
-        Sleepms(1);
+        wait_ms(1);
         timedout--;
 
     } while(timedout && (SMSC9220->E2P_CMD & ((unsigned int) 1 << 31)));
@@ -238,9 +237,9 @@ unsigned int smsc9220_wait_eeprom(void)
 /* initialise irqs */
 void smsc9220_init_irqs(void)
 {
-	SMSC9220->INT_EN    = 0x0;
-	SMSC9220->INT_STS   = 0xFFFFFFFF;   // clear all interrupts
-	SMSC9220->IRQ_CFG   = 0x22000100;   // irq deassertion at 220 usecs and master IRQ enable.
+    SMSC9220->INT_EN    = 0x0;
+    SMSC9220->INT_STS   = 0xFFFFFFFF;   // clear all interrupts
+    SMSC9220->IRQ_CFG   = 0x22000100;   // irq deassertion at 220 usecs and master IRQ enable.
 }
 
 unsigned int smsc9220_check_phy(void)

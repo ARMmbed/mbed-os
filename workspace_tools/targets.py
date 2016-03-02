@@ -1739,23 +1739,23 @@ class ARM_MPS2_M4(ARM_MPS2_Target):
 class ARM_MPS2_M7(ARM_MPS2_Target):
     def __init__(self):
         ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M4F"
+        self.core = "Cortex-M7"
         self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M7']
         self.macros = ['CMSDK_CM7']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
-
-class ARM_MPS2_BEID(ARM_MPS2_Target):
+        
+class ARM_IOTSS_Target(Target):
     def __init__(self):
-        ARM_MPS2_Target.__init__(self)
+        Target.__init__(self)
+class ARM_IOTSS_BEID(ARM_IOTSS_Target):
+    def __init__(self):
+        ARM_IOTSS_Target.__init__(self)
         self.core = "Cortex-M3"
-        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_BEID']
+        self.extra_labels = ['ARM_SSG', 'IOTSS', 'IOTSS_BEID']
         self.macros = ['CMSDK_BEID']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
-
-class ARM_MPS2(ARM_MPS2_M4):
-    pass
 
 
 ### Renesas ###
@@ -2091,8 +2091,8 @@ TARGETS = [
     ARM_MPS2_M3(),
     ARM_MPS2_M4(),
     ARM_MPS2_M7(),
-    ARM_MPS2_BEID(),
-    ARM_MPS2(),
+
+    ARM_IOTSS_BEID(),
 
     ### Renesas ###
     RZ_A1H(),
