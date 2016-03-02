@@ -491,8 +491,6 @@ int coap_security_send_close_alert(coap_security_t *sec)
     }
 
     if(!mbedtls_ssl_close_notify(&sec->_ssl)){
-        coap_security_handler_reset(sec);
-        coap_security_handler_init(sec);
         return 0;
     }
     return -1;
