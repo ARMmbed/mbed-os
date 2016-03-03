@@ -1,3 +1,7 @@
+#if !DEVICE_RTC
+  #error [NOT_SUPPORTED] RTC is not supported
+#endif
+
 #include "mbed.h"
 #include "test_env.h"
 

@@ -21,6 +21,8 @@ DigitalOut indicator(LED1);
 
 #else
 
+#error [NOT_SUPPORTED] This test is not supported on this target
+
 #endif
 
 uint8_t successes = 0;
