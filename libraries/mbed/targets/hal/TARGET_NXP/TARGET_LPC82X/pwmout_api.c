@@ -120,16 +120,21 @@ void pwmout_write(pwmout_t* obj, float value)
         value = 1.0f;
     }
     uint32_t t_on = (uint32_t)((float)(obj->pwm->MATCHREL[obj->pwm_ch * 2] + 1) * value);
-    if (t_on > 0) {
-        if (value != 1.0f) {
+    if (t_on > 0) { // duty is not 0%
+        if (value != 1.0f) { // duty is not 100%
             obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = t_on - 1;
+            // unhalt the counter
             obj->pwm->CTRL &= ~(1 << 2);
-        } else {
+        } else { // duty is 100%
+            // halt and clear the counter
             obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+            // output level tied to high
             obj->pwm->OUTPUT |= (1 << obj->pwm_ch);
         }
-    } else {
+    } else { // duty is 0%
+        // halt and clear the counter
         obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+        // output level tied to low
         obj->pwm->OUTPUT &= ~(1 << obj->pwm_ch);
     }
 }
@@ -155,15 +160,19 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us)
 {
+    // The period are off by one for MATCHREL, so +1 to get actual value
     uint32_t t_off = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] + 1;
     uint32_t t_on  = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] + 1;
     float v = (float)t_on/(float)t_off;
     obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] = (uint32_t)us - 1;
-    if (us > 0) {
+    if (us > 0) { // PWM period is not 0
         obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] =  (uint32_t)((float)us * (float)v) - 1;
+        // unhalt the counter
         obj->pwm->CTRL &= ~(1 << 2);
-    } else {
+    } else { // PWM period is 0
+        // halt and clear the counter
         obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+        // output level tied to low
         obj->pwm->OUTPUT &= ~(1 << obj->pwm_ch);
     }
 }
@@ -180,11 +189,13 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
-    if (us > 0) {
+    if (us > 0) { // PWM peried is not 0
         obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint32_t)us - 1;
         obj->pwm->CTRL &= ~(1 << 2);
-    } else {
+    } else { //PWM period is 0
+        // halt and clear the counter
         obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+        // output level tied to low
         obj->pwm->OUTPUT &= ~(1 << obj->pwm_ch);
     }
 }
