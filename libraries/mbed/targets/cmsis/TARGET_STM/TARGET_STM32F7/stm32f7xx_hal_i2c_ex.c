@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   I2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2C Extended peripheral:
@@ -90,7 +90,7 @@
                       ##### Extended features functions #####
  ===============================================================================  
     [..] This section provides functions allowing to:
-      (+) Configure Noise Filters 
+      (+) Configure Noise Filters
 
 @endverbatim
   * @{
@@ -172,7 +172,7 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
   tmpreg = hi2c->Instance->CR1;
   
   /* Reset I2Cx DNF bits [11:8] */
-  tmpreg &= ~(I2C_CR1_DFN);
+  tmpreg &= ~(I2C_CR1_DNF);
   
   /* Set I2Cx DNF coefficient */
   tmpreg |= DigitalFilter << 8;
@@ -188,7 +188,7 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
   __HAL_UNLOCK(hi2c);
 
   return HAL_OK; 
-}  
+}
 
 /**
   * @}

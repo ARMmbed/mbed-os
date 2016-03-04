@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_gpio_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of GPIO HAL Extension module.
   ******************************************************************************
   * @attention
@@ -96,7 +96,6 @@
 #define GPIO_AF3_LPTIM1        ((uint8_t)0x03)  /* LPTIM1 Alternate Function mapping */
 #define GPIO_AF3_CEC           ((uint8_t)0x03)  /* CEC Alternate Function mapping */
 
-
 /** 
   * @brief   AF 4 selection  
   */ 
@@ -132,7 +131,6 @@
 #define GPIO_AF7_SPDIFRX       ((uint8_t)0x07)  /* SPDIF-RX Alternate Function mapping   */
 #define GPIO_AF7_SPI2          ((uint8_t)0x07)  /* SPI2 Alternate Function mapping       */
 #define GPIO_AF7_SPI3          ((uint8_t)0x07)  /* SPI3 Alternate Function mapping       */
-
 /** 
   * @brief   AF 8 selection  
   */ 
@@ -154,9 +152,9 @@
 #define GPIO_AF9_TIM13         ((uint8_t)0x09)  /* TIM13 Alternate Function mapping   */
 #define GPIO_AF9_TIM14         ((uint8_t)0x09)  /* TIM14 Alternate Function mapping   */
 #define GPIO_AF9_QUADSPI       ((uint8_t)0x09)  /* QUADSPI Alternate Function mapping */
-#if defined(STM32F756xx) || defined(STM32F746xx)
+#if defined(STM32F746xx) || defined(STM32F756xx)
 #define GPIO_AF9_LTDC          ((uint8_t)0x09)  /* LCD-TFT Alternate Function mapping */
-#endif /* STM32F756xx || STM32F746xx */
+#endif /* STM32F746xx || STM32F756xx */
 /** 
   * @brief   AF 10 selection  
   */ 
@@ -182,12 +180,12 @@
   */ 
 #define GPIO_AF13_DCMI          ((uint8_t)0x0D)  /* DCMI Alternate Function mapping */
 
-#if defined(STM32F756xx) || defined(STM32F746xx)
+#if defined(STM32F746xx) || defined(STM32F756xx)
 /** 
   * @brief   AF 14 selection  
   */
 #define GPIO_AF14_LTDC          ((uint8_t)0x0E)  /* LCD-TFT Alternate Function mapping */
-#endif /* STM32F756xx || STM32F746xx */
+#endif /* STM32F746xx || STM32F756xx */
 /** 
   * @brief   AF 15 selection  
   */ 

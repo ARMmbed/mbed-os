@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -415,8 +415,8 @@ void HAL_FLASH_IRQHandler(void)
         temp = pFlash.Address;
         break;
       }
-			default :
-				break;
+    default :
+      break;
     }
     /*Save the Error code*/
     FLASH_SetErrorCode();
@@ -455,9 +455,11 @@ void HAL_FLASH_IRQHandler(void)
   */
 __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_FLASH_EndOfOperationCallback could be implemented in the user file
-   */ 
+  the HAL_FLASH_EndOfOperationCallback could be implemented in the user file
+  */ 
 }
 
 /**
@@ -471,8 +473,10 @@ __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
   */
 __weak void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_FLASH_OperationErrorCallback could be implemented in the user file
+  the HAL_FLASH_OperationErrorCallback could be implemented in the user file
    */ 
 }
 

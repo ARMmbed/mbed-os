@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
@@ -334,7 +334,7 @@ typedef struct
   */
 #define __HAL_I2S_CLEAR_OVRFLAG(__HANDLE__)     \
   do{                                           \
-    __IO uint32_t tmpreg;                       \
+  __IO uint32_t tmpreg = 0x00;                       \
     tmpreg = (__HANDLE__)->Instance->DR;        \
     tmpreg = (__HANDLE__)->Instance->SR;        \
     UNUSED(tmpreg);                             \
@@ -346,7 +346,7 @@ typedef struct
   */
 #define __HAL_I2S_CLEAR_UDRFLAG(__HANDLE__)     \
   do{                                             \
-  __IO uint32_t tmpreg;                         \
+__IO uint32_t tmpreg = 0x00;                         \
   tmpreg = (__HANDLE__)->Instance->SR;          \
   UNUSED(tmpreg);                               \
   } while(0)

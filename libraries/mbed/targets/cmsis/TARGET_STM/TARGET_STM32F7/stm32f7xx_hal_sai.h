@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_sai.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of SAI HAL module.
   ******************************************************************************
   * @attention
@@ -254,9 +254,8 @@ typedef struct __SAI_HandleTypeDef
   * @{
   */
 #define SAI_SYNCEXT_DISABLE           ((uint32_t)0x00000000)
-#define SAI_SYNCEXT_IN_ENABLE         ((uint32_t)0x00000001)
-#define SAI_SYNCEXT_OUTBLOCKA_ENABLE  ((uint32_t)0x00000002)
-#define SAI_SYNCEXT_OUTBLOCKB_ENABLE  ((uint32_t)0x00000004)
+#define SAI_SYNCEXT_OUTBLOCKA_ENABLE  ((uint32_t)0x00000001)
+#define SAI_SYNCEXT_OUTBLOCKB_ENABLE  ((uint32_t)0x00000002)
 /**
   * @}
   */
@@ -373,10 +372,10 @@ typedef struct __SAI_HandleTypeDef
 /** @defgroup SAI_Block_Synchronization SAI Block Synchronization
   * @{
   */
-#define SAI_ASYNCHRONOUS                  ((uint32_t)0x00000000)
-#define SAI_SYNCHRONOUS                   ((uint32_t)SAI_xCR1_SYNCEN_0)
-#define SAI_SYNCHRONOUS_EXT               ((uint32_t)SAI_xCR1_SYNCEN_1) 
-
+#define SAI_ASYNCHRONOUS                  ((uint32_t)0x00000000) /*!< Asynchronous */
+#define SAI_SYNCHRONOUS                   ((uint32_t)0x00000001) /*!< Synchronous with other block of same SAI */
+#define SAI_SYNCHRONOUS_EXT_SAI1          ((uint32_t)0x00000002) /*!< Synchronous with other SAI, SAI1 */
+#define SAI_SYNCHRONOUS_EXT_SAI2          ((uint32_t)0x00000003) /*!< Synchronous with other SAI, SAI2 */
 /**
   * @}
   */ 
@@ -447,23 +446,23 @@ typedef struct __SAI_HandleTypeDef
   * @{
   */
 #define SAI_SLOT_NOTACTIVE           ((uint32_t)0x00000000)
-#define SAI_SLOTACTIVE_0             ((uint32_t)0x00010000)
-#define SAI_SLOTACTIVE_1             ((uint32_t)0x00020000)
-#define SAI_SLOTACTIVE_2             ((uint32_t)0x00040000)
-#define SAI_SLOTACTIVE_3             ((uint32_t)0x00080000)
-#define SAI_SLOTACTIVE_4             ((uint32_t)0x00100000)
-#define SAI_SLOTACTIVE_5             ((uint32_t)0x00200000)
-#define SAI_SLOTACTIVE_6             ((uint32_t)0x00400000)
-#define SAI_SLOTACTIVE_7             ((uint32_t)0x00800000)
-#define SAI_SLOTACTIVE_8             ((uint32_t)0x01000000)
-#define SAI_SLOTACTIVE_9             ((uint32_t)0x02000000)
-#define SAI_SLOTACTIVE_10            ((uint32_t)0x04000000)
-#define SAI_SLOTACTIVE_11            ((uint32_t)0x08000000)
-#define SAI_SLOTACTIVE_12            ((uint32_t)0x10000000)
-#define SAI_SLOTACTIVE_13            ((uint32_t)0x20000000)
-#define SAI_SLOTACTIVE_14            ((uint32_t)0x40000000)
-#define SAI_SLOTACTIVE_15            ((uint32_t)0x80000000)
-#define SAI_SLOTACTIVE_ALL           ((uint32_t)0xFFFF0000)
+#define SAI_SLOTACTIVE_0             ((uint32_t)0x00000001)
+#define SAI_SLOTACTIVE_1             ((uint32_t)0x00000002)
+#define SAI_SLOTACTIVE_2             ((uint32_t)0x00000004)
+#define SAI_SLOTACTIVE_3             ((uint32_t)0x00000008)
+#define SAI_SLOTACTIVE_4             ((uint32_t)0x00000010)
+#define SAI_SLOTACTIVE_5             ((uint32_t)0x00000020)
+#define SAI_SLOTACTIVE_6             ((uint32_t)0x00000040)
+#define SAI_SLOTACTIVE_7             ((uint32_t)0x00000080)
+#define SAI_SLOTACTIVE_8             ((uint32_t)0x00000100)
+#define SAI_SLOTACTIVE_9             ((uint32_t)0x00000200)
+#define SAI_SLOTACTIVE_10            ((uint32_t)0x00000400)
+#define SAI_SLOTACTIVE_11            ((uint32_t)0x00000800)
+#define SAI_SLOTACTIVE_12            ((uint32_t)0x00001000)
+#define SAI_SLOTACTIVE_13            ((uint32_t)0x00002000)
+#define SAI_SLOTACTIVE_14            ((uint32_t)0x00004000)
+#define SAI_SLOTACTIVE_15            ((uint32_t)0x00008000)
+#define SAI_SLOTACTIVE_ALL           ((uint32_t)0x0000FFFF)
 
 /**
   * @}
@@ -762,7 +761,6 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
   * @{
   */
 #define IS_SAI_BLOCK_SYNCEXT(STATE)   (((STATE) == SAI_SYNCEXT_DISABLE)           ||\
-                                       ((STATE) == SAI_SYNCEXT_IN_ENABLE)         ||\
                                        ((STATE) == SAI_SYNCEXT_OUTBLOCKA_ENABLE)  ||\
                                        ((STATE) == SAI_SYNCEXT_OUTBLOCKB_ENABLE))
 
@@ -811,7 +809,8 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
 
 #define IS_SAI_BLOCK_SYNCHRO(SYNCHRO) (((SYNCHRO) == SAI_ASYNCHRONOUS) || \
                                        ((SYNCHRO) == SAI_SYNCHRONOUS)  || \
-                                       ((SYNCHRO) == SAI_SYNCHRONOUS_EXT))
+                                       ((SYNCHRO) == SAI_SYNCHRONOUS_EXT_SAI1) ||\
+                                       ((SYNCHRO) == SAI_SYNCHRONOUS_EXT_SAI2))
 
 #define IS_SAI_BLOCK_OUTPUT_DRIVE(DRIVE) (((DRIVE) == SAI_OUTPUTDRIVE_DISABLE) || \
                                           ((DRIVE) == SAI_OUTPUTDRIVE_ENABLE))
@@ -849,7 +848,7 @@ uint32_t HAL_SAI_GetError(SAI_HandleTypeDef *hsai);
 #define IS_SAI_MONO_STEREO_MODE(MODE) (((MODE) == SAI_MONOMODE) ||\
                                        ((MODE) == SAI_STEREOMODE)) 
 
-#define IS_SAI_SLOT_ACTIVE(ACTIVE)  ((((ACTIVE) >> 16 )  > 0) && (((ACTIVE) >> 16 )  <= (SAI_SLOTACTIVE_ALL >> 16)))
+#define IS_SAI_SLOT_ACTIVE(ACTIVE)  ((ACTIVE) <= SAI_SLOTACTIVE_ALL)
 
 #define IS_SAI_BLOCK_SLOT_NUMBER(NUMBER) ((1 <= (NUMBER)) && ((NUMBER) <= 16))  
 

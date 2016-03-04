@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_tim_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer extension peripheral:
@@ -266,6 +266,9 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIMEx_HallSensor_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIMEx_HallSensor_MspInit could be implemented in the user file
    */
@@ -279,6 +282,9 @@ __weak void HAL_TIMEx_HallSensor_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIMEx_HallSensor_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIMEx_HallSensor_MspDeInit could be implemented in the user file
    */
@@ -1643,9 +1649,6 @@ HAL_StatusTypeDef HAL_TIM_OC_ConfigChannel(TIM_HandleTypeDef *htim, TIM_OC_InitT
   assert_param(IS_TIM_CHANNELS(Channel)); 
   assert_param(IS_TIM_OC_MODE(sConfig->OCMode));
   assert_param(IS_TIM_OC_POLARITY(sConfig->OCPolarity));
-  assert_param(IS_TIM_OCN_POLARITY(sConfig->OCNPolarity));
-  assert_param(IS_TIM_OCNIDLE_STATE(sConfig->OCNIdleState));
-  assert_param(IS_TIM_OCIDLE_STATE(sConfig->OCIdleState));
   
   /* Check input state */
   __HAL_LOCK(htim); 
@@ -1749,10 +1752,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
   assert_param(IS_TIM_CHANNELS(Channel)); 
   assert_param(IS_TIM_PWM_MODE(sConfig->OCMode));
   assert_param(IS_TIM_OC_POLARITY(sConfig->OCPolarity));
-  assert_param(IS_TIM_OCN_POLARITY(sConfig->OCNPolarity));
   assert_param(IS_TIM_FAST_STATE(sConfig->OCFastMode));
-  assert_param(IS_TIM_OCNIDLE_STATE(sConfig->OCNIdleState));
-  assert_param(IS_TIM_OCIDLE_STATE(sConfig->OCIdleState));
   
   /* Check input state */
   __HAL_LOCK(htim);
@@ -2265,6 +2265,9 @@ HAL_StatusTypeDef HAL_TIMEx_GroupChannel5(TIM_HandleTypeDef *htim, uint32_t OCRe
   */
 __weak void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIMEx_CommutationCallback could be implemented in the user file
    */
@@ -2278,6 +2281,9 @@ __weak void HAL_TIMEx_CommutationCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIMEx_BreakCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIMEx_BreakCallback could be implemented in the user file
    */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of FLASH HAL module.
   ******************************************************************************
   * @attention
@@ -80,7 +80,7 @@ typedef struct
   
   __IO uint32_t               NbSectorsToErase;   /* Internal variable to save the remaining sectors to erase in IT context        */
   
-  __IO uint8_t                VoltageForErase;    /* Internal variable to provide voltage range selected by user in IT context    */
+  __IO uint8_t                VoltageForErase;    /* Internal variable to provide voltage range selected by user in IT context     */
   
   __IO uint32_t               Sector;             /* Internal variable to define the current sector which is erasing               */
   
@@ -88,7 +88,7 @@ typedef struct
   
   HAL_LockTypeDef             Lock;               /* FLASH locking object                                                          */
 
-  __IO uint32_t               ErrorCode;          /* FLASH error code                    */
+  __IO uint32_t               ErrorCode;          /* FLASH error code                                                              */
 
 }FLASH_ProcessTypeDef;
 
@@ -345,6 +345,11 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
 /** @defgroup FLASH_Private_Constants FLASH Private Constants
   * @{
   */
+
+/** 
+  * @brief   OPTCR register byte 1 (Bits[15:8]) base address  
+  */ 
+#define OPTCR_BYTE1_ADDRESS         ((uint32_t)0x40023C15)
 
 /**
   * @}

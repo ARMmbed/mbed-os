@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_iwdg.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   IWDG HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -207,7 +207,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   hiwdg->State = HAL_IWDG_STATE_BUSY;
 
   /* Enable write access to IWDG_PR, IWDG_RLR and IWDG_WINR registers */
-  /* by writing 0x5555 in KR */
+  /* by writing 0x00005555 in KR */
   IWDG_ENABLE_WRITE_ACCESS(hiwdg);
 
   /* Write to IWDG registers the IWDG_Prescaler & IWDG_Reload values to work with */
@@ -249,6 +249,9 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   */
 __weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hiwdg);
+  
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_IWDG_MspInit could be implemented in the user file
    */

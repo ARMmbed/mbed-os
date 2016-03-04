@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_eth.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of ETH HAL module.
   ******************************************************************************
   * @attention
@@ -66,10 +66,6 @@
                                   ((MODE) == ETH_MODE_HALFDUPLEX))
 #define IS_ETH_RX_MODE(MODE)    (((MODE) == ETH_RXPOLLING_MODE) || \
                                  ((MODE) == ETH_RXINTERRUPT_MODE)) 
-#define IS_ETH_RX_MODE(MODE)    (((MODE) == ETH_RXPOLLING_MODE) || \
-                                 ((MODE) == ETH_RXINTERRUPT_MODE))
-#define IS_ETH_RX_MODE(MODE)    (((MODE) == ETH_RXPOLLING_MODE) || \
-                                 ((MODE) == ETH_RXINTERRUPT_MODE))
 #define IS_ETH_CHECKSUM_MODE(MODE)    (((MODE) == ETH_CHECKSUM_BY_HARDWARE) || \
                                       ((MODE) == ETH_CHECKSUM_BY_SOFTWARE))
 #define IS_ETH_MEDIA_INTERFACE(MODE)         (((MODE) == ETH_MEDIA_INTERFACE_MII) || \

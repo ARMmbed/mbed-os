@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Extended FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the FLASH extension peripheral:
@@ -120,7 +120,7 @@ extern FLASH_ProcessTypeDef pFlash;
 static void               FLASH_MassErase(uint8_t VoltageRange);
 static HAL_StatusTypeDef  FLASH_OB_EnableWRP(uint32_t WRPSector);
 static HAL_StatusTypeDef  FLASH_OB_DisableWRP(uint32_t WRPSector);
-static HAL_StatusTypeDef  FLASH_OB_RDP_LevelConfig(uint32_t Level);
+static HAL_StatusTypeDef  FLASH_OB_RDP_LevelConfig(uint8_t Level);
 static HAL_StatusTypeDef  FLASH_OB_UserConfig(uint32_t Wwdg, uint32_t Iwdg, uint32_t Stop, uint32_t Stdby, uint32_t Iwdgstop, uint32_t Iwdgstdby);
 static HAL_StatusTypeDef  FLASH_OB_BOR_LevelConfig(uint8_t Level);
 static HAL_StatusTypeDef  FLASH_OB_BootAddressConfig(uint32_t BootOption, uint32_t Address);
@@ -281,7 +281,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
 }
 
 /**
-  * @brief   Program option bytes
+  * @brief  Program option bytes
   * @param  pOBInit: pointer to an FLASH_OBInitStruct structure that
   *         contains the configuration information for the programming.
   * 
@@ -364,7 +364,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
 void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
 {
   pOBInit->OptionType = OPTIONBYTE_WRP | OPTIONBYTE_RDP | OPTIONBYTE_USER |\
-	                      OPTIONBYTE_BOR | OPTIONBYTE_BOOTADDR_0 | OPTIONBYTE_BOOTADDR_1;
+	                OPTIONBYTE_BOR | OPTIONBYTE_BOOTADDR_0 | OPTIONBYTE_BOOTADDR_1;
 
   /*Get WRP*/
   pOBInit->WRPSector = FLASH_OB_GetWRP();
@@ -377,10 +377,10 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
 
   /*Get BOR Level*/
   pOBInit->BORLevel = FLASH_OB_GetBOR();
-	
-	/*Get Boot Address when Boot pin = 0 */
+  
+  /*Get Boot Address when Boot pin = 0 */
   pOBInit->BootAddr0 = FLASH_OB_GetBootAddress(OPTIONBYTE_BOOTADDR_0);
-	
+  
   /*Get Boot Address when Boot pin = 1 */
   pOBInit->BootAddr1 = FLASH_OB_GetBootAddress(OPTIONBYTE_BOOTADDR_1);
 }
@@ -406,16 +406,13 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
   */
 static void FLASH_MassErase(uint8_t VoltageRange)
 {
-  uint32_t tmp_psize = 0;
-  
   /* Check the parameters */
   assert_param(IS_VOLTAGERANGE(VoltageRange));
 
   /* if the previous operation is completed, proceed to erase all sectors */
   FLASH->CR &= CR_PSIZE_MASK;
-  FLASH->CR |= tmp_psize;
   FLASH->CR |= FLASH_CR_MER;
-  FLASH->CR |= FLASH_CR_STRT;
+  FLASH->CR |= FLASH_CR_STRT | (VoltageRange <<8);
   /* Data synchronous Barrier (DSB) Just after the write operation
      This will force the CPU to respect the sequence of instruction (no optimization).*/
   __DSB();
@@ -479,9 +476,8 @@ void FLASH_Erase_Sector(uint32_t Sector, uint8_t VoltageRange)
   * @brief  Enable the write protection of the desired bank1 or bank 2 sectors
   *
   * @note   When the memory read protection level is selected (RDP level = 1), 
-  *         it is not possible to program or erase the flash sector i if CortexM4  
-  *         debug features are connected or boot code is executed in RAM, even if nWRPi = 1 
-  * @note   Active value of nWRPi bits is inverted when PCROP mode is active (SPRMOD =1).   
+  *         it is not possible to program or erase the flash sector i if CortexM7  
+  *         debug features are connected or boot code is executed in RAM, even if nWRPi = 1    
   * 
   * @param  WRPSector: specifies the sector(s) to be write protected.
   *          This parameter can be one of the following values:
@@ -543,9 +539,6 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector)
   return status;
 }
 
-
-
-
 /**
   * @brief  Set the read protection level.
   * @param  Level: specifies the read protection level.
@@ -558,7 +551,7 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector)
   *    
   * @retval HAL Status
   */
-static HAL_StatusTypeDef FLASH_OB_RDP_LevelConfig(uint32_t Level)
+static HAL_StatusTypeDef FLASH_OB_RDP_LevelConfig(uint8_t Level)
 {
   HAL_StatusTypeDef status = HAL_OK;
   
@@ -570,7 +563,7 @@ static HAL_StatusTypeDef FLASH_OB_RDP_LevelConfig(uint32_t Level)
 
   if(status == HAL_OK)
   { 
-    MODIFY_REG(FLASH->OPTCR, FLASH_OPTCR_RDP, Level);
+    *(__IO uint8_t*)OPTCR_BYTE1_ADDRESS = Level;
   }
   
   return status;
@@ -604,7 +597,7 @@ static HAL_StatusTypeDef FLASH_OB_RDP_LevelConfig(uint32_t Level)
   *            @arg OB_IWDG_STDBY_ACTIVE: IWDG counter active in STANDBY           
   * @retval HAL Status
   */
-static HAL_StatusTypeDef FLASH_OB_UserConfig(uint32_t Wwdg, uint32_t Iwdg, uint32_t Stop, uint32_t Stdby, uint32_t Iwdgstop, uint32_t Iwdgstdby )
+static HAL_StatusTypeDef FLASH_OB_UserConfig(uint32_t Wwdg, uint32_t Iwdg, uint32_t Stop, uint32_t Stdby, uint32_t Iwdgstop, uint32_t Iwdgstdby)
 {
   uint32_t useroptionmask = 0x00;
   uint32_t useroptionvalue = 0x00;
@@ -687,17 +680,17 @@ static HAL_StatusTypeDef FLASH_OB_BootAddressConfig(uint32_t BootOption, uint32_
     
   /* Wait for last operation to be completed */
   status = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);
-
+  
   if(status == HAL_OK)
   {
     if(BootOption == OPTIONBYTE_BOOTADDR_0)
     {			
       MODIFY_REG(FLASH->OPTCR1, FLASH_OPTCR1_BOOT_ADD0, Address);
-	  }
-		else
-		{
-			MODIFY_REG(FLASH->OPTCR1, FLASH_OPTCR1_BOOT_ADD1, (Address << 16));
-		}
+    }
+    else
+    {
+      MODIFY_REG(FLASH->OPTCR1, FLASH_OPTCR1_BOOT_ADD1, (Address << 16));
+    }
   }
   
   return status;
@@ -736,11 +729,11 @@ static uint8_t FLASH_OB_GetRDP(void)
 {
   uint8_t readstatus = OB_RDP_LEVEL_0;
   
-  if (((FLASH->OPTCR & FLASH_OPTCR_RDP) >> 8) == OB_RDP_LEVEL_0)
+  if ((*(__IO uint8_t*)(OPTCR_BYTE1_ADDRESS)) == OB_RDP_LEVEL_0)
   {
     readstatus = OB_RDP_LEVEL_0;
   }
-  else if (((FLASH->OPTCR & FLASH_OPTCR_RDP) >> 8) == OB_RDP_LEVEL_2)
+  else if ((*(__IO uint8_t*)(OPTCR_BYTE1_ADDRESS)) == OB_RDP_LEVEL_2)
   {
     readstatus = OB_RDP_LEVEL_2;
   }
