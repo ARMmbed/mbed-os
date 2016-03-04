@@ -49,7 +49,7 @@ PinName parse_pins(const char *str) {
         return port_pin((PortName)port, pin);
 
 #elif defined(TARGET_KL25Z) || defined(TARGET_KL05Z) || defined(TARGET_KL46Z) || defined(TARGET_K64F)
-    if (str[0] == 'P' && str[1] == 'T') {   // PTxn
+	 if (str[0] == 'P' && str[1] == 'T') {   // PTxn
         uint32_t port = str[2] - 'A';
         uint32_t pin  = str[3] - '0';       // PTxn
         uint32_t pin2 = str[4] - '0';       // PTxnn
@@ -58,7 +58,21 @@ PinName parse_pins(const char *str) {
             pin = pin * 10 + pin2;
         }
         return port_pin((PortName)port, pin);
+
+#elif defined(TARGET_NUCLEO_F072RB) || defined(TARGET_NUCLEO_F411RE)
+    if (str[0] == 'P') {   // PX_XX e.g.PA_2 PC_15
+        uint32_t port = str[1] - 'A';
+        uint32_t pin  = str[3] - '0';       
+        uint32_t pin2 = str[4] - '0';       
+
+        if (pin2 <= 9) {
+            pin = pin * 10 + pin2;
+        }
+        return port_pin((PortName)port, pin);
+
 #endif
+
+
 
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
     } else if (str[0] == 'p') {       // pn
@@ -83,7 +97,6 @@ PinName parse_pins(const char *str) {
         }
         return pin_names[pin - 1];
 #endif
-
     } else if (str[0] == 'L') {  // LEDn
         switch (str[3]) {
             case '1' : return LED1;
@@ -101,5 +114,6 @@ PinName parse_pins(const char *str) {
 
     return NC;
 }
-
 }
+
+
