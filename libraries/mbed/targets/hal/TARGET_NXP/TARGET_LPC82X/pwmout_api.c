@@ -91,6 +91,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     pwm->CTRL &= ~(0x7F << 5);
     pwm->CTRL |= (((SystemCoreClock/1000000 - 1) & 0x7F) << 5);
 
+    // Set event number
     pwm->OUT[sct_n].SET = (1 << ((sct_n * 2) + 0));
     pwm->OUT[sct_n].CLR = (1 << ((sct_n * 2) + 1));
 
@@ -98,10 +99,6 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     pwm->EVENT[(sct_n * 2) + 0].STATE = 0xFFFFFFFF;
     pwm->EVENT[(sct_n * 2) + 1].CTRL  = (1 << 12) | ((sct_n * 2) + 1);
     pwm->EVENT[(sct_n * 2) + 1].STATE = 0xFFFFFFFF;
-
-    // unhalt the counter:
-    //    - clearing bit 2 of the CTRL register
-    pwm->CTRL &= ~(1 << 2);
 
     // default to 20ms: standard for servos, and fine for e.g. brightness control
     pwmout_period_ms(obj, 20);
@@ -120,16 +117,32 @@ void pwmout_write(pwmout_t* obj, float value)
     if (value < 0.0f) {
         value = 0.0;
     } else if (value > 1.0f) {
-        value = 1.0;
+        value = 1.0f;
     }
-    uint32_t t_on = (uint32_t)((float)(obj->pwm->MATCHREL[obj->pwm_ch * 2]) * value);
-    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = t_on;
+    uint32_t t_on = (uint32_t)((float)(obj->pwm->MATCHREL[obj->pwm_ch * 2] + 1) * value);
+    if (t_on > 0) { // duty is not 0%
+        if (value != 1.0f) { // duty is not 100%
+            obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = t_on - 1;
+            // unhalt the counter
+            obj->pwm->CTRL &= ~(1 << 2);
+        } else { // duty is 100%
+            // halt and clear the counter
+            obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+            // output level tied to high
+            obj->pwm->OUTPUT |= (1 << obj->pwm_ch);
+        }
+    } else { // duty is 0%
+        // halt and clear the counter
+        obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+        // output level tied to low
+        obj->pwm->OUTPUT &= ~(1 << obj->pwm_ch);
+    }
 }
 
 float pwmout_read(pwmout_t* obj)
 {
-    uint32_t t_off = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0];
-    uint32_t t_on  = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1];
+    uint32_t t_off = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] + 1;
+    uint32_t t_on  = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] + 1;
     float v = (float)t_on/(float)t_off;
     return (v > 1.0f) ? (1.0f) : (v);
 }
@@ -147,11 +160,21 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us)
 {
-    uint32_t t_off = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0];
-    uint32_t t_on  = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1];
+    // The period are off by one for MATCHREL, so +1 to get actual value
+    uint32_t t_off = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] + 1;
+    uint32_t t_on  = obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] + 1;
     float v = (float)t_on/(float)t_off;
-    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] = (uint32_t)us;
-    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint32_t)((float)us * (float)v);
+    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 0] = (uint32_t)us - 1;
+    if (us > 0) { // PWM period is not 0
+        obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] =  (uint32_t)((float)us * (float)v) - 1;
+        // unhalt the counter
+        obj->pwm->CTRL &= ~(1 << 2);
+    } else { // PWM period is 0
+        // halt and clear the counter
+        obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+        // output level tied to low
+        obj->pwm->OUTPUT &= ~(1 << obj->pwm_ch);
+    }
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds)
@@ -166,7 +189,15 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
-    obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint32_t)us;
+    if (us > 0) { // PWM peried is not 0
+        obj->pwm->MATCHREL[(obj->pwm_ch * 2) + 1] = (uint32_t)us - 1;
+        obj->pwm->CTRL &= ~(1 << 2);
+    } else { //PWM period is 0
+        // halt and clear the counter
+        obj->pwm->CTRL |= (1 << 2) | (1 << 3);
+        // output level tied to low
+        obj->pwm->OUTPUT &= ~(1 << obj->pwm_ch);
+    }
 }
 
 #endif
