@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * A generic CMSIS include header
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
