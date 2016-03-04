@@ -45,61 +45,11 @@
 
 #define MAX_SPI	8
 
-volatile uint32_t gCallbackHandler[MAX_SPI];
-typedef void (*SPIHandler)(void);
 /* SPI clock setting (Hz). */
 uint32_t gSPI_clock=500000;
 
 extern uint8_t g_sys_init;
 
-
-void SPI0_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM0_IRQn);
-    if(gCallbackHandler[0]) ((SPIHandler)gCallbackHandler[0])();
-}
-
-void SPI1_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM1_IRQn);
-    if(gCallbackHandler[1]) ((SPIHandler)gCallbackHandler[1])();
-}
-
-void SPI2_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM2_IRQn);
-    if(gCallbackHandler[2]) ((SPIHandler)gCallbackHandler[2])();
-}
-
-void SPI3_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM3_IRQn);
-    if(gCallbackHandler[3]) ((SPIHandler)gCallbackHandler[3])();
-}
-
-void SPI4_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM4_IRQn);
-    if(gCallbackHandler[4]) ((SPIHandler)gCallbackHandler[4])();
-}
-
-void SPI5_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM5_IRQn);
-    if(gCallbackHandler[5]) ((SPIHandler)gCallbackHandler[5])();
-}
-
-void SPI6_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM6_IRQn);
-    if(gCallbackHandler[6]) ((SPIHandler)gCallbackHandler[6])();
-}
-
-void SPI7_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM7_IRQn);
-    if(gCallbackHandler[7]) ((SPIHandler)gCallbackHandler[7])();
-}
 
 
 void pinmap_find_spi_info(Spi *sercombase, spi_t *obj)
@@ -464,11 +414,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->spi.dma_usage=hint;
     obj->spi.event=event;
 
-    gCallbackHandler[obj->spi.module_number]=handler;
-
     NVIC_ClearPendingIRQ(obj->spi.irq_type);
-
-    /* Enable SPI interrupt */
+    NVIC_DisableIRQ(obj->spi.irq_type);
+	NVIC_SetVector(obj->spi.irq_type,handler);
     NVIC_EnableIRQ(obj->spi.irq_type);
 
     /* Enable SPI IRQ */
@@ -491,10 +439,17 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
     uint32_t event=0;
 
     // Data transferred via DMA
-    if((obj->spi.spi_base->SPI_SR & SPI_IER_TXBUFE) || (obj->spi.spi_base->SPI_SR & SPI_IER_RXBUFF)) {
+    if((obj->spi.spi_base->SPI_SR & SPI_IER_TXBUFE)) {
+	    spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_TXBUFE | SPI_IDR_MODF | SPI_IDR_OVRES);
         if(obj->spi.event | SPI_EVENT_COMPLETE)
             event |=SPI_EVENT_COMPLETE;
     }
+	
+    if((obj->spi.spi_base->SPI_SR & SPI_IER_RXBUFF)) {
+	    spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_RXBUFF | SPI_IDR_MODF | SPI_IDR_OVRES);
+	    if(obj->spi.event | SPI_EVENT_COMPLETE)
+	    event |=SPI_EVENT_COMPLETE;
+    }	
 
     if(obj->spi.spi_base->SPI_SR & SPI_SR_MODF) {
         if(obj->spi.event | SPI_EVENT_ERROR)
