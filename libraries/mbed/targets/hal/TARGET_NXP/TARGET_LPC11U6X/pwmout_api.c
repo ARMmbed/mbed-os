@@ -137,11 +137,14 @@ void pwmout_write(pwmout_t* obj, float value) {
     uint32_t t_on = (uint32_t)((float)(pwm->MATCHREL0 + 1) * value);
     if (t_on > 0) {
         pwm->MATCHREL1 = t_on - 1;
+        
+        // Un-halt the timer and ensure the new pulse-width takes immediate effect if necessary
         if (pwm->CTRL & (1 << 2)) {
             pwm->MATCH1 = pwm->MATCHREL1;
             pwm->CTRL &= ~(1 << 2);
         }
     } else {
+        // Halt the timer and force the output low
         pwm->CTRL |= (1 << 2) | (1 << 3);
         pwm->OUTPUT = 0x00000000;
     }
@@ -174,15 +177,20 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     pwm->MATCHREL0 = period_ticks - 1;
     if (pulsewidth_ticks > 0) {
         pwm->MATCHREL1 = pulsewidth_ticks - 1;
+        
+        // Un-halt the timer and ensure the new period & pulse-width take immediate effect if necessary
         if (pwm->CTRL & (1 << 2)) {
             pwm->MATCH0 = pwm->MATCHREL0;
             pwm->MATCH1 = pwm->MATCHREL1;
             pwm->CTRL &= ~(1 << 2);
         }
     } else {
+        // Halt the timer and force the output low
         pwm->CTRL |= (1 << 2) | (1 << 3);
-        pwm->MATCH0 = pwm->MATCHREL0;
         pwm->OUTPUT = 0x00000000;
+        
+        // Ensure the new period will take immediate effect when the timer is un-halted
+        pwm->MATCH0 = pwm->MATCHREL0;
     }
 }
 
@@ -198,11 +206,14 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
     LPC_SCT0_Type* pwm = obj->pwm;
     if (us > 0) {
         pwm->MATCHREL1 = (uint32_t)(((uint64_t)SystemCoreClock * (uint64_t)us) / (uint64_t)1000000) - 1;
+        
+        // Un-halt the timer and ensure the new pulse-width takes immediate effect if necessary
         if (pwm->CTRL & (1 << 2)) {
             pwm->MATCH1 = pwm->MATCHREL1;
             pwm->CTRL &= ~(1 << 2);
         }
     } else {
+        // Halt the timer and force the output low
         pwm->CTRL |= (1 << 2) | (1 << 3);
         pwm->OUTPUT = 0x00000000;
     }
