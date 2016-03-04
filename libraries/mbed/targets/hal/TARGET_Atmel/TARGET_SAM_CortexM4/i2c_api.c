@@ -38,60 +38,7 @@ extern uint8_t g_sys_init;
 
 #define MAX_I2C		8
 
-volatile static uint32_t gI2CCallbackHandler[MAX_I2C];
-typedef void (*I2CHandler)(void);
 extern uint32_t twi_mk_addr(const uint8_t *addr, int len);
-
-
-
-void I2C0_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM0_IRQn);
-    if(gI2CCallbackHandler[0]) ((I2CHandler)gI2CCallbackHandler[0])();
-}
-
-void I2C1_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM1_IRQn);
-    if(gI2CCallbackHandler[1]) ((I2CHandler)gI2CCallbackHandler[1])();
-}
-
-void I2C2_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM2_IRQn);
-    if(gI2CCallbackHandler[2]) ((I2CHandler)gI2CCallbackHandler[2])();
-}
-
-void I2C3_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM3_IRQn);
-    if(gI2CCallbackHandler[3]) ((I2CHandler)gI2CCallbackHandler[3])();
-}
-
-void I2C4_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM4_IRQn);
-    if(gI2CCallbackHandler[4]) ((I2CHandler)gI2CCallbackHandler[4])();
-}
-
-void I2C5_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM5_IRQn);
-    if(gI2CCallbackHandler[5]) ((I2CHandler)gI2CCallbackHandler[5])();
-}
-
-void I2C6_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM6_IRQn);
-    if(gI2CCallbackHandler[6]) ((I2CHandler)gI2CCallbackHandler[6])();
-}
-
-void I2C7_Handler(void)
-{
-    NVIC_DisableIRQ(FLEXCOM7_IRQn);
-    if(gI2CCallbackHandler[7]) ((I2CHandler)gI2CCallbackHandler[7])();
-}
-
 
 void pinmap_find_i2c_info(Twi *sercombase, i2c_t *obj)
 {
@@ -673,11 +620,9 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->i2c.stop=stop;
     obj->i2c.address=address;
 
-    gI2CCallbackHandler[obj->i2c.module_number]=handler;
-
     NVIC_ClearPendingIRQ(obj->i2c.irq_type);
-
-    /* Enable TWI interrupt */
+    NVIC_DisableIRQ(obj->i2c.irq_type);
+    NVIC_SetVector(obj->i2c.irq_type,handler);
     NVIC_EnableIRQ(obj->i2c.irq_type);
 
     /* Enable TWI IRQ */
@@ -702,12 +647,18 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
 
     pdc_disable_transfer(obj->i2c.pdc, PERIPH_PTCR_RXTDIS| PERIPH_PTCR_TXTDIS);
     // Data transferred via DMA
-    if((obj->i2c.i2c_base->TWI_SR & TWI_IER_TXBUFE) || (obj->i2c.i2c_base->TWI_SR & TWI_IER_RXBUFF)) {
+    if((obj->i2c.i2c_base->TWI_SR & TWI_IER_TXBUFE)) {
+	    twi_disable_interrupt(obj->i2c.i2c_base, TWI_IDR_TXBUFE | TWI_IDR_UNRE | TWI_IDR_OVRE | TWI_IDR_PECERR);		
         if(obj->i2c.event | I2C_EVENT_TRANSFER_COMPLETE)
             event |=I2C_EVENT_TRANSFER_COMPLETE;
     }
-
-
+	
+    if((obj->i2c.i2c_base->TWI_SR & TWI_IER_RXBUFF)) {
+	    twi_disable_interrupt(obj->i2c.i2c_base, TWI_IDR_RXBUFF | TWI_IDR_UNRE | TWI_IDR_OVRE | TWI_IDR_PECERR);
+	    if(obj->i2c.event | I2C_EVENT_TRANSFER_COMPLETE)
+	    event |=I2C_EVENT_TRANSFER_COMPLETE;
+    }
+    
     if(obj->i2c.i2c_base->TWI_SR & TWI_IER_NACK) {
         if(obj->i2c.event | I2C_EVENT_TRANSFER_EARLY_NACK)
             event |=I2C_EVENT_TRANSFER_EARLY_NACK;
