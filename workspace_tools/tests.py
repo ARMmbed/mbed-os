@@ -25,6 +25,7 @@ BENCHMARKS_DIR = join(TEST_DIR, "benchmarks")
 
 SD = join(TEST_DIR, "sd")
 TMP102 = join(PERIPHERALS, 'TMP102')
+AT30TSE75X = join(PERIPHERALS, 'AT30TSE75X')
 
 """
 Wiring:
@@ -114,6 +115,13 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, TMP102],
         "automated": True,
         "peripherals": ["TMP102"]
+    },
+    {
+        "id": "MBED_AT30TSE75X", "description": "I2C Temperature Sensor / EEPROM",
+        "source_dir": join(TEST_DIR, "mbed", "i2c_at30tse75x"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, AT30TSE75X],
+        "automated": False,
+        "peripherals": ["AT30TSE75X"]
     },
     {
         "id": "MBED_A5", "description": "DigitalIn DigitalOut",
