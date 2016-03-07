@@ -49,7 +49,7 @@ PinName parse_pins(const char *str) {
         return port_pin((PortName)port, pin);
 
 #elif defined(TARGET_KL25Z) || defined(TARGET_KL05Z) || defined(TARGET_KL46Z) || defined(TARGET_K64F)
-        if (str[0] == 'P' && str[1] == 'T') {   // PTxn
+    if (str[0] == 'P' && str[1] == 'T') {   // PTxn
         uint32_t port = str[2] - 'A';
         uint32_t pin  = str[3] - '0';       // PTxn
         uint32_t pin2 = str[4] - '0';       // PTxnn
@@ -60,7 +60,7 @@ PinName parse_pins(const char *str) {
         return port_pin((PortName)port, pin);
 
 #elif defined(TARGET_NUCLEO_F072RB) || defined(TARGET_NUCLEO_F411RE)
-        if (str[0] == 'P') {   // PX_XX e.g.PA_2 PC_15
+    if (str[0] == 'P') {   // PX_XX e.g.PA_2 PC_15
         uint32_t port = str[1] - 'A';
         uint32_t pin  = str[3] - '0';       
         uint32_t pin2 = str[4] - '0';       
