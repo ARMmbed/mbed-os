@@ -125,7 +125,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARM_MPS2_M7'   ,     ('ARM',)),
     ('ARM_MPS2_BEID' ,     ('ARM',)),
 
-    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
+    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM', 'IAR')),
 
     ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
     ('EFM32HG_STK3400',     ('GCC_ARM', 'uARM')),
