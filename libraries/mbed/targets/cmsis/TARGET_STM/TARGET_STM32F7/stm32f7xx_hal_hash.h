@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_hash.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of HASH HAL module.
   ******************************************************************************
   * @attention
@@ -90,7 +90,7 @@ typedef enum
   HAL_HASH_STATE_BUSY      = 0x02,  /*!< HASH internal process is ongoing     */
   HAL_HASH_STATE_TIMEOUT   = 0x03,  /*!< HASH timeout state                   */
   HAL_HASH_STATE_ERROR     = 0x04   /*!< HASH error state                     */
-}HAL_HASH_STATETypeDef;
+}HAL_HASH_StateTypeDef;
 
 /** 
   * @}
@@ -130,13 +130,13 @@ typedef struct
 
       HAL_StatusTypeDef          Status;            /*!< HASH peripheral status         */
 
-      HAL_HASHPhaseTypeDef       Phase;             /*!< HASH peripheral phase          */
+      HAL_HASH_PhaseTypeDef       Phase;             /*!< HASH peripheral phase          */
 
       DMA_HandleTypeDef          *hdmain;           /*!< HASH In DMA handle parameters  */
 
       HAL_LockTypeDef            Lock;              /*!< HASH locking object            */
 
-     __IO HAL_HASH_STATETypeDef  State;             /*!< HASH peripheral state          */
+     __IO HAL_HASH_StateTypeDef  State;             /*!< HASH peripheral state          */
 } HASH_HandleTypeDef;
 
 /** 
@@ -352,7 +352,7 @@ void HAL_HASH_IRQHandler(HASH_HandleTypeDef *hhash);
 /** @addtogroup HASH_Exported_Functions_Group8
   * @{
   */
-HAL_HASH_STATETypeDef HAL_HASH_GetState(HASH_HandleTypeDef *hhash);
+HAL_HASH_StateTypeDef HAL_HASH_GetState(HASH_HandleTypeDef *hhash);
 void HAL_HASH_MspInit(HASH_HandleTypeDef *hhash);
 void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash);
 void HAL_HASH_InCpltCallback(HASH_HandleTypeDef *hhash);

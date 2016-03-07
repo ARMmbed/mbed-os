@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -68,11 +68,11 @@
   * @{
   */
 /**
- * @brief STM32F7xx HAL Driver version number V1.0.1
+ * @brief STM32F7xx HAL Driver version number V1.0.4
    */
 #define __STM32F7xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
 #define __STM32F7xx_HAL_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32F7xx_HAL_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
+#define __STM32F7xx_HAL_VERSION_SUB2   (0x04) /*!< [15:8]  sub2 version */
 #define __STM32F7xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F7xx_HAL_VERSION         ((__STM32F7xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F7xx_HAL_VERSION_SUB1 << 16)\
@@ -213,7 +213,7 @@ __weak void HAL_MspInit(void)
 }
 
 /**
-  * @brief  DeInitializes the MSP.  
+  * @brief  DeInitializes the MSP.
   * @retval None
   */
 __weak void HAL_MspDeInit(void)
@@ -309,7 +309,7 @@ __weak uint32_t HAL_GetTick(void)
   * @note In the default implementation , SysTick timer is the source of time base.
   *       It is used to generate interrupts at regular time intervals where uwTick
   *       is incremented.
-  * @note ThiS function is declared as __weak to be overwritten in case of other
+  * @note This function is declared as __weak to be overwritten in case of other
   *       implementations in user file.
   * @param Delay: specifies the delay time length, in milliseconds.
   * @retval None
@@ -327,7 +327,7 @@ __weak void HAL_Delay(__IO uint32_t Delay)
   * @brief Suspend Tick increment.
   * @note In the default implementation , SysTick timer is the source of time base. It is
   *       used to generate interrupts at regular time intervals. Once HAL_SuspendTick()
-  *       is called, the the SysTick interrupt will be disabled and so Tick increment 
+  *       is called, the SysTick interrupt will be disabled and so Tick increment 
   *       is suspended.
   * @note This function is declared as __weak to be overwritten in case of other
   *       implementations in user file.
@@ -343,7 +343,7 @@ __weak void HAL_SuspendTick(void)
   * @brief Resume Tick increment.
   * @note In the default implementation , SysTick timer is the source of time base. It is
   *       used to generate interrupts at regular time intervals. Once HAL_ResumeTick()
-  *       is called, the the SysTick interrupt will be enabled and so Tick increment 
+  *       is called, the SysTick interrupt will be enabled and so Tick increment 
   *       is resumed.
   * @note This function is declared as __weak to be overwritten in case of other
   *       implementations in user file.

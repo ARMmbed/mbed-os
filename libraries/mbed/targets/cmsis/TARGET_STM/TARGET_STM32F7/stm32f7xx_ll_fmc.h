@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_ll_fmc.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of FMC HAL module.
   ******************************************************************************
   * @attention
@@ -385,6 +385,7 @@
 #define IS_FMC_PAGESIZE(__SIZE__) (((__SIZE__) == FMC_PAGE_SIZE_NONE) || \
                                    ((__SIZE__) == FMC_PAGE_SIZE_128) || \
                                    ((__SIZE__) == FMC_PAGE_SIZE_256) || \
+                                   ((__SIZE__) == FMC_PAGE_SIZE_512) || \
                                    ((__SIZE__) == FMC_PAGE_SIZE_1024))
 
 #define IS_FMC_WRITE_FIFO(__FIFO__) (((__FIFO__) == FMC_WRITE_FIFO_DISABLE) || \
@@ -793,6 +794,7 @@ typedef struct
 #define FMC_PAGE_SIZE_NONE           ((uint32_t)0x00000000)
 #define FMC_PAGE_SIZE_128            ((uint32_t)FMC_BCR1_CPSIZE_0)
 #define FMC_PAGE_SIZE_256            ((uint32_t)FMC_BCR1_CPSIZE_1)
+#define FMC_PAGE_SIZE_512            ((uint32_t)(FMC_BCR1_CPSIZE_0 | FMC_BCR1_CPSIZE_1))
 #define FMC_PAGE_SIZE_1024           ((uint32_t)FMC_BCR1_CPSIZE_2)
 /**
   * @}
@@ -819,8 +821,8 @@ typedef struct
 /** @defgroup FMC_Write_FIFO FMC Write FIFO 
   * @{
   */
-#define FMC_WRITE_FIFO_DISABLE           ((uint32_t)0x00000000)
-#define FMC_WRITE_FIFO_ENABLE            ((uint32_t)FMC_BCR1_WFDIS)
+#define FMC_WRITE_FIFO_DISABLE           ((uint32_t)FMC_BCR1_WFDIS)
+#define FMC_WRITE_FIFO_ENABLE            ((uint32_t)0x00000000)
 /**
   * @}
   */

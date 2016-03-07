@@ -1,8 +1,8 @@
 ;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
 ;* File Name          : startup_stm32f746xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.0.0
-;* Date               : 28-April-2015
+;* Version            : V1.0.2
+;* Date               : 21-September-2015
 ;* Description        : STM32F746xx devices vector table for MDK-ARM toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -350,12 +350,12 @@ Default_Handler PROC
                 EXPORT  DMA2D_IRQHandler                  [WEAK]
                 EXPORT  SAI2_IRQHandler                   [WEAK]   
                 EXPORT  QUADSPI_IRQHandler                [WEAK]
-				EXPORT  LPTIM1_IRQHandler                 [WEAK]
+                EXPORT  LPTIM1_IRQHandler                 [WEAK]
                 EXPORT  CEC_IRQHandler                    [WEAK]   
                 EXPORT  I2C4_EV_IRQHandler                [WEAK]
-				EXPORT  I2C4_ER_IRQHandler                [WEAK] 
+                EXPORT  I2C4_ER_IRQHandler                [WEAK]
                 EXPORT  SPDIF_RX_IRQHandler               [WEAK]
-				
+
 WWDG_IRQHandler                                                       
 PVD_IRQHandler                                      
 TAMP_STAMP_IRQHandler                  

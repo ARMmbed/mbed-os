@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   WWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Window Watchdog (WWDG) peripheral:
@@ -16,7 +16,7 @@
   ==============================================================================
   [..] 
     Once enabled the WWDG generates a system reset on expiry of a programmed
-    time period, unless the program refreshes the counter (downcounter) 
+    time period, unless the program refreshes the counter (down-counter) 
     before reaching 0x3F value (i.e. a reset is generated when the counter
     value rolls over from 0x40 to 0x3F). 
        
@@ -234,6 +234,9 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+ 
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_MspInit could be implemented in the user file
    */
@@ -247,6 +250,9 @@ __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+ 
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_MspDeInit could be implemented in the user file
    */
@@ -399,6 +405,9 @@ void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+ 
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_WakeupCallback could be implemented in the user file
    */
