@@ -30,8 +30,6 @@ extern "C" {
 
 void rtos_attach_idle_hook(void (*fptr)(void));
 
-void rtos_idle_loop(void);
-
 #ifdef __cplusplus
 }
 #endif
