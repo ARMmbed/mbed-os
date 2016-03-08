@@ -59,16 +59,20 @@ static void netif_status_callback(struct netif *netif) {
     }
 }
 
-static void init_netif(ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gw) {
+static int init_netif(ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gw) {
     tcpip_init(tcpip_init_done, NULL);
     tcpip_inited.wait();
-    
     memset((void*) &netif, 0, sizeof(netif));
-    netif_add(&netif, ipaddr, netmask, gw, NULL, eth_arch_enetif_init, tcpip_input);
+    struct netif * ret;
+    ret = netif_add(&netif, ipaddr, netmask, gw, NULL, eth_arch_enetif_init, tcpip_input);
+    if( ret == NULL) {
+        return -1;
+    }
     netif_set_default(&netif);
     
     netif_set_link_callback  (&netif, netif_link_callback);
     netif_set_status_callback(&netif, netif_status_callback);
+    return 0;
 }
 
 static void set_mac_address(void) {
@@ -85,8 +89,7 @@ static void set_mac_address(void) {
 int EthernetInterface::init() {
     use_dhcp = true;
     set_mac_address();
-    init_netif(NULL, NULL, NULL);
-    return 0;
+    return init_netif(NULL, NULL, NULL);
 }
 
 int EthernetInterface::init(const char* ip, const char* mask, const char* gateway) {
@@ -99,9 +102,7 @@ int EthernetInterface::init(const char* ip, const char* mask, const char* gatewa
     inet_aton(ip, &ip_n);
     inet_aton(mask, &mask_n);
     inet_aton(gateway, &gateway_n);
-    init_netif(&ip_n, &mask_n, &gateway_n);
-    
-    return 0;
+    return init_netif(&ip_n, &mask_n, &gateway_n);
 }
 
 int EthernetInterface::connect(unsigned int timeout_ms) {
