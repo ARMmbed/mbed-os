@@ -25,7 +25,7 @@ from shutil import rmtree
 from os.path import join, exists, basename
 from time import time
 
-from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext
+from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.libraries import Library
@@ -139,12 +139,12 @@ def build_project(src_path, build_path, target, toolchain_name,
                 resources.inc_dirs.extend(inc_dirs)
             else:
                 resources.inc_dirs.append(inc_dirs)
-
         # Compile Sources
         for path in src_paths:
             src = toolchain.scan_resources(path)
             objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
             resources.objects.extend(objects)
+
 
         # Link Program
         res, needed_update = toolchain.link_program(resources, build_path, name)
@@ -162,7 +162,12 @@ def build_project(src_path, build_path, target, toolchain_name,
     except Exception, e:
         if report != None:
             end = time()
-            cur_result["result"] = "FAIL"
+
+            if isinstance(e, NotSupportedException):
+                cur_result["result"] = "NOT_SUPPORTED"
+            else:
+                cur_result["result"] = "FAIL"
+
             cur_result["elapsed_time"] = end - start
 
             toolchain_output = toolchain.get_output()

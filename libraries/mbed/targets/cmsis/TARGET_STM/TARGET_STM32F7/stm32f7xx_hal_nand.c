@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_nand.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   NAND HAL module driver.
   *          This file provides a generic firmware to drive NAND memories mounted 
   *          as external device.
@@ -196,6 +196,9 @@ HAL_StatusTypeDef HAL_NAND_DeInit(NAND_HandleTypeDef *hnand)
   */
 __weak void HAL_NAND_MspInit(NAND_HandleTypeDef *hnand)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnand);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NAND_MspInit could be implemented in the user file
    */ 
@@ -209,6 +212,9 @@ __weak void HAL_NAND_MspInit(NAND_HandleTypeDef *hnand)
   */
 __weak void HAL_NAND_MspDeInit(NAND_HandleTypeDef *hnand)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnand);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NAND_MspDeInit could be implemented in the user file
    */ 
@@ -273,6 +279,9 @@ void HAL_NAND_IRQHandler(NAND_HandleTypeDef *hnand)
   */
 __weak void HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnand);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NAND_ITCallback could be implemented in the user file
    */

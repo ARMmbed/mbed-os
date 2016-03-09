@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_qspi.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   QSPI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the QuadSPI interface (QSPI).
@@ -349,6 +349,9 @@ HAL_StatusTypeDef HAL_QSPI_DeInit(QSPI_HandleTypeDef *hqspi)
   */
  __weak void HAL_QSPI_MspInit(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_QSPI_MspInit can be implemented in the user file
    */ 
@@ -361,6 +364,9 @@ HAL_StatusTypeDef HAL_QSPI_DeInit(QSPI_HandleTypeDef *hqspi)
   */
  __weak void HAL_QSPI_MspDeInit(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_QSPI_MspDeInit can be implemented in the user file
    */ 
@@ -1168,28 +1174,28 @@ HAL_StatusTypeDef HAL_QSPI_AutoPolling(QSPI_HandleTypeDef *hqspi, QSPI_CommandTy
   assert_param(IS_QSPI_INSTRUCTION_MODE(cmd->InstructionMode));
   if (cmd->InstructionMode != QSPI_INSTRUCTION_NONE)
   {
-  assert_param(IS_QSPI_INSTRUCTION(cmd->Instruction));
+    assert_param(IS_QSPI_INSTRUCTION(cmd->Instruction));
   }
-
+  
   assert_param(IS_QSPI_ADDRESS_MODE(cmd->AddressMode));
   if (cmd->AddressMode != QSPI_ADDRESS_NONE)
   {
     assert_param(IS_QSPI_ADDRESS_SIZE(cmd->AddressSize));
   }
-
+  
   assert_param(IS_QSPI_ALTERNATE_BYTES_MODE(cmd->AlternateByteMode));
   if (cmd->AlternateByteMode != QSPI_ALTERNATE_BYTES_NONE)
   {
     assert_param(IS_QSPI_ALTERNATE_BYTES_SIZE(cmd->AlternateBytesSize));
   }
-
+  
   assert_param(IS_QSPI_DUMMY_CYCLES(cmd->DummyCycles));
   assert_param(IS_QSPI_DATA_MODE(cmd->DataMode));
-
+  
   assert_param(IS_QSPI_DDR_MODE(cmd->DdrMode));
   assert_param(IS_QSPI_DDR_HHC(cmd->DdrHoldHalfCycle));
   assert_param(IS_QSPI_SIOO_MODE(cmd->SIOOMode));
-
+  
   assert_param(IS_QSPI_INTERVAL(cfg->Interval));
   assert_param(IS_QSPI_STATUS_BYTES_SIZE(cfg->StatusBytesSize));
   assert_param(IS_QSPI_MATCH_MODE(cfg->MatchMode));
@@ -1199,48 +1205,48 @@ HAL_StatusTypeDef HAL_QSPI_AutoPolling(QSPI_HandleTypeDef *hqspi, QSPI_CommandTy
   
   if(hqspi->State == HAL_QSPI_STATE_READY)
   {
-  
-  hqspi->ErrorCode = HAL_QSPI_ERROR_NONE;
     
-  /* Update state */
-  hqspi->State = HAL_QSPI_STATE_BUSY_AUTO_POLLING;
-
-  /* Wait till BUSY flag reset */
-  status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_BUSY, RESET, Timeout);
-  
-  if (status == HAL_OK)
-  {
-    /* Configure QSPI: PSMAR register with the status match value */
-    WRITE_REG(hqspi->Instance->PSMAR, cfg->Match);
+    hqspi->ErrorCode = HAL_QSPI_ERROR_NONE;
     
-    /* Configure QSPI: PSMKR register with the status mask value */
-    WRITE_REG(hqspi->Instance->PSMKR, cfg->Mask);
+    /* Update state */
+    hqspi->State = HAL_QSPI_STATE_BUSY_AUTO_POLLING;
     
-    /* Configure QSPI: PIR register with the interval value */
-    WRITE_REG(hqspi->Instance->PIR, cfg->Interval);
+    /* Wait till BUSY flag reset */
+    status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_BUSY, RESET, Timeout);
     
-    /* Configure QSPI: CR register with Match mode and Automatic stop enabled 
-       (otherwise there will be an infinite loop in blocking mode) */
-    MODIFY_REG(hqspi->Instance->CR, (QUADSPI_CR_PMM | QUADSPI_CR_APMS), 
-               (cfg->MatchMode | QSPI_AUTOMATIC_STOP_ENABLE));
-
-    /* Call the configuration function */
-    cmd->NbData = cfg->StatusBytesSize;
-    QSPI_Config(hqspi, cmd, QSPI_FUNCTIONAL_MODE_AUTO_POLLING);
-
-    /* Wait until SM flag is set to go back in idle state */
-    if(QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_SM, SET, Timeout) != HAL_OK)
-    { 
-      status = HAL_TIMEOUT;
-    }
-    else
+    if (status == HAL_OK)
     {
-      __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_SM);
-
-      /* Update state */
-      hqspi->State = HAL_QSPI_STATE_READY;
+      /* Configure QSPI: PSMAR register with the status match value */
+      WRITE_REG(hqspi->Instance->PSMAR, cfg->Match);
+      
+      /* Configure QSPI: PSMKR register with the status mask value */
+      WRITE_REG(hqspi->Instance->PSMKR, cfg->Mask);
+      
+      /* Configure QSPI: PIR register with the interval value */
+      WRITE_REG(hqspi->Instance->PIR, cfg->Interval);
+      
+      /* Configure QSPI: CR register with Match mode and Automatic stop enabled 
+      (otherwise there will be an infinite loop in blocking mode) */
+      MODIFY_REG(hqspi->Instance->CR, (QUADSPI_CR_PMM | QUADSPI_CR_APMS), 
+                 (cfg->MatchMode | QSPI_AUTOMATIC_STOP_ENABLE));
+      
+      /* Call the configuration function */
+      cmd->NbData = cfg->StatusBytesSize;
+      QSPI_Config(hqspi, cmd, QSPI_FUNCTIONAL_MODE_AUTO_POLLING);
+      
+      /* Wait until SM flag is set to go back in idle state */
+      if(QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_SM, SET, Timeout) != HAL_OK)
+      { 
+        status = HAL_TIMEOUT;
+      }
+      else
+      {
+        __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_SM);
+        
+        /* Update state */
+        hqspi->State = HAL_QSPI_STATE_READY;
+      }
     }
-  }
   }
   else
   {
@@ -1254,13 +1260,13 @@ HAL_StatusTypeDef HAL_QSPI_AutoPolling(QSPI_HandleTypeDef *hqspi, QSPI_CommandTy
 }
 
 /**
-  * @brief  Configure the QSPI Automatic Polling Mode in non-blocking mode. 
-  * @param  hqspi: QSPI handle
-  * @param  cmd: structure that contains the command configuration information.
-  * @param  cfg: structure that contains the polling configuration information.
-  * @note   This function is used only in Automatic Polling Mode
-  * @retval HAL status
-  */
+* @brief  Configure the QSPI Automatic Polling Mode in non-blocking mode. 
+* @param  hqspi: QSPI handle
+* @param  cmd: structure that contains the command configuration information.
+* @param  cfg: structure that contains the polling configuration information.
+* @note   This function is used only in Automatic Polling Mode
+* @retval HAL status
+*/
 HAL_StatusTypeDef HAL_QSPI_AutoPolling_IT(QSPI_HandleTypeDef *hqspi, QSPI_CommandTypeDef *cmd, QSPI_AutoPollingTypeDef *cfg)
 {
   HAL_StatusTypeDef status = HAL_ERROR;
@@ -1271,26 +1277,26 @@ HAL_StatusTypeDef HAL_QSPI_AutoPolling_IT(QSPI_HandleTypeDef *hqspi, QSPI_Comman
   {
     assert_param(IS_QSPI_INSTRUCTION(cmd->Instruction));
   }
-
+  
   assert_param(IS_QSPI_ADDRESS_MODE(cmd->AddressMode));
   if (cmd->AddressMode != QSPI_ADDRESS_NONE)
   {
     assert_param(IS_QSPI_ADDRESS_SIZE(cmd->AddressSize));
   }
-
+  
   assert_param(IS_QSPI_ALTERNATE_BYTES_MODE(cmd->AlternateByteMode));
   if (cmd->AlternateByteMode != QSPI_ALTERNATE_BYTES_NONE)
   {
     assert_param(IS_QSPI_ALTERNATE_BYTES_SIZE(cmd->AlternateBytesSize));
   }
-
+  
   assert_param(IS_QSPI_DUMMY_CYCLES(cmd->DummyCycles));
   assert_param(IS_QSPI_DATA_MODE(cmd->DataMode));
-
+  
   assert_param(IS_QSPI_DDR_MODE(cmd->DdrMode));
   assert_param(IS_QSPI_DDR_HHC(cmd->DdrHoldHalfCycle));
   assert_param(IS_QSPI_SIOO_MODE(cmd->SIOOMode));
-
+  
   assert_param(IS_QSPI_INTERVAL(cfg->Interval));
   assert_param(IS_QSPI_STATUS_BYTES_SIZE(cfg->StatusBytesSize));
   assert_param(IS_QSPI_MATCH_MODE(cfg->MatchMode));
@@ -1299,7 +1305,7 @@ HAL_StatusTypeDef HAL_QSPI_AutoPolling_IT(QSPI_HandleTypeDef *hqspi, QSPI_Comman
   /* Process locked */
   __HAL_LOCK(hqspi);
   
-if(hqspi->State == HAL_QSPI_STATE_READY)
+  if(hqspi->State == HAL_QSPI_STATE_READY)
   {
     hqspi->ErrorCode = HAL_QSPI_ERROR_NONE;
     
@@ -1309,34 +1315,37 @@ if(hqspi->State == HAL_QSPI_STATE_READY)
     /* Wait till BUSY flag reset */
     status = QSPI_WaitFlagStateUntilTimeout(hqspi, QSPI_FLAG_BUSY, RESET, hqspi->Timeout);
     
-  if (status == HAL_OK)
-  {
-    /* Configure QSPI: PSMAR register with the status match value */
-    WRITE_REG(hqspi->Instance->PSMAR, cfg->Match);
-    
-    /* Configure QSPI: PSMKR register with the status mask value */
-    WRITE_REG(hqspi->Instance->PSMKR, cfg->Mask);
-    
-    /* Configure QSPI: PIR register with the interval value */
-    WRITE_REG(hqspi->Instance->PIR, cfg->Interval);
-    
-    /* Configure QSPI: CR register with Match mode and Automatic stop mode */
-    MODIFY_REG(hqspi->Instance->CR, (QUADSPI_CR_PMM | QUADSPI_CR_APMS), 
-               (cfg->MatchMode | cfg->AutomaticStop));
-
-    /* Call the configuration function */
-    cmd->NbData = cfg->StatusBytesSize;
-    QSPI_Config(hqspi, cmd, QSPI_FUNCTIONAL_MODE_AUTO_POLLING);
-
-    /* Enable the QSPI Transfer Error, FIFO threshold and status match Interrupt */
-    __HAL_QSPI_ENABLE_IT(hqspi, (QSPI_IT_FT | QSPI_IT_SM | QSPI_IT_TE));
-        }
+    if (status == HAL_OK)
+    {
+      /* Configure QSPI: PSMAR register with the status match value */
+      WRITE_REG(hqspi->Instance->PSMAR, cfg->Match);
+      
+      /* Configure QSPI: PSMKR register with the status mask value */
+      WRITE_REG(hqspi->Instance->PSMKR, cfg->Mask);
+      
+      /* Configure QSPI: PIR register with the interval value */
+      WRITE_REG(hqspi->Instance->PIR, cfg->Interval);
+      
+      /* Configure QSPI: CR register with Match mode and Automatic stop mode */
+      MODIFY_REG(hqspi->Instance->CR, (QUADSPI_CR_PMM | QUADSPI_CR_APMS), 
+                 (cfg->MatchMode | cfg->AutomaticStop));
+      
+      /* Clear interrupt */
+      __HAL_QSPI_CLEAR_FLAG(hqspi, QSPI_FLAG_TE | QSPI_FLAG_SM);
+      
+      /* Enable the QSPI Transfer Error and status match Interrupt */
+      __HAL_QSPI_ENABLE_IT(hqspi, (QSPI_IT_SM | QSPI_IT_TE));
+      
+      /* Call the configuration function */
+      cmd->NbData = cfg->StatusBytesSize;
+      QSPI_Config(hqspi, cmd, QSPI_FUNCTIONAL_MODE_AUTO_POLLING);
+    }
   }
   else
   {
     status = HAL_BUSY; 
   }
-
+  
   /* Process unlocked */
   __HAL_UNLOCK(hqspi);
   
@@ -1438,6 +1447,9 @@ HAL_StatusTypeDef HAL_QSPI_MemoryMapped(QSPI_HandleTypeDef *hqspi, QSPI_CommandT
   */
 __weak void HAL_QSPI_ErrorCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_QSPI_ErrorCallback could be implemented in the user file
    */
@@ -1450,6 +1462,9 @@ __weak void HAL_QSPI_ErrorCallback(QSPI_HandleTypeDef *hqspi)
   */
 __weak void HAL_QSPI_CmdCpltCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_QSPI_CmdCpltCallback could be implemented in the user file
    */
@@ -1462,6 +1477,9 @@ __weak void HAL_QSPI_CmdCpltCallback(QSPI_HandleTypeDef *hqspi)
   */
 __weak void HAL_QSPI_RxCpltCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_QSPI_RxCpltCallback could be implemented in the user file
    */
@@ -1474,6 +1492,9 @@ __weak void HAL_QSPI_RxCpltCallback(QSPI_HandleTypeDef *hqspi)
   */
  __weak void HAL_QSPI_TxCpltCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_QSPI_TxCpltCallback could be implemented in the user file
    */ 
@@ -1486,6 +1507,9 @@ __weak void HAL_QSPI_RxCpltCallback(QSPI_HandleTypeDef *hqspi)
   */
 __weak void HAL_QSPI_RxHalfCpltCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_QSPI_RxHalfCpltCallback could be implemented in the user file
    */
@@ -1498,6 +1522,9 @@ __weak void HAL_QSPI_RxHalfCpltCallback(QSPI_HandleTypeDef *hqspi)
   */
  __weak void HAL_QSPI_TxHalfCpltCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_QSPI_TxHalfCpltCallback could be implemented in the user file
    */ 
@@ -1510,6 +1537,9 @@ __weak void HAL_QSPI_RxHalfCpltCallback(QSPI_HandleTypeDef *hqspi)
   */
 __weak void HAL_QSPI_FifoThresholdCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_QSPI_FIFOThresholdCallback could be implemented in the user file
    */
@@ -1522,6 +1552,9 @@ __weak void HAL_QSPI_FifoThresholdCallback(QSPI_HandleTypeDef *hqspi)
   */
 __weak void HAL_QSPI_StatusMatchCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+    
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_QSPI_StatusMatchCallback could be implemented in the user file
    */
@@ -1534,6 +1567,9 @@ __weak void HAL_QSPI_StatusMatchCallback(QSPI_HandleTypeDef *hqspi)
   */
 __weak void HAL_QSPI_TimeOutCallback(QSPI_HandleTypeDef *hqspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hqspi);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_QSPI_TimeOutCallback could be implemented in the user file
    */

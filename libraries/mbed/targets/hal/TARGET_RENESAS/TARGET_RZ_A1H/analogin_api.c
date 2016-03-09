@@ -29,9 +29,9 @@ static const PinMap PinMap_ADC[] = {
     {P1_9,  AN1, 1},
     {P1_10, AN2, 1},
     {P1_11, AN3, 1},
-    {P1_12, AN3, 1},
+    {P1_12, AN4, 1},
     {P1_13, AN5, 1},
-    {P1_14, AN5, 1},
+    {P1_14, AN6, 1},
     {P1_15, AN7, 1},
     {NC,    NC,  0}
 };

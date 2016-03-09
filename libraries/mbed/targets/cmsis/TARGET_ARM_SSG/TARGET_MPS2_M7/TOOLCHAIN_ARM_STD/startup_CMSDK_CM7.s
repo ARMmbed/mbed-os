@@ -1,6 +1,6 @@
 ; MPS2 CMSIS Library
 ;
-; Copyright (c) 2006-2015 ARM Limited
+; Copyright (c) 2006-2016 ARM Limited
 ; All rights reserved.
 ; 
 ; Redistribution and use in source and binary forms, with or without 
@@ -32,10 +32,7 @@
 ; @file     startup_CMSDK_CM7.s
 ; @brief    CMSIS Core Device Startup File for
 ;           CMSDK_CM7 Device
-; @version  V1.00
-; @date     04. February 2015
 ;
-; @note
 ;******************************************************************************
 ;
 ;-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
@@ -110,22 +107,22 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     ETHERNET_Handler          ; Ethernet Overflow Handler
                 DCD     I2S_Handler               ; I2S Handler
                 DCD     TSC_Handler               ; Touch Screen handler
-                DCD     PORT0_0_Handler           ; GPIO Port 0 pin 0 Handler
-                DCD     PORT0_1_Handler           ; GPIO Port 0 pin 1 Handler
-                DCD     PORT0_2_Handler           ; GPIO Port 0 pin 2 Handler
-                DCD     PORT0_3_Handler           ; GPIO Port 0 pin 3 Handler
-                DCD     PORT0_4_Handler           ; GPIO Port 0 pin 4 Handler
-                DCD     PORT0_5_Handler           ; GPIO Port 0 pin 5 Handler
-                DCD     PORT0_6_Handler           ; GPIO Port 0 pin 6 Handler
-                DCD     PORT0_7_Handler           ; GPIO Port 0 pin 7 Handler
-                DCD     PORT0_8_Handler           ; GPIO Port 0 pin 8 Handler
-                DCD     PORT0_9_Handler           ; GPIO Port 0 pin 9 Handler
-                DCD     PORT0_10_Handler          ; GPIO Port 0 pin 10 Handler
-                DCD     PORT0_11_Handler          ; GPIO Port 0 pin 11 Handler
-                DCD     PORT0_12_Handler          ; GPIO Port 0 pin 12 Handler
-                DCD     PORT0_13_Handler          ; GPIO Port 0 pin 13 Handler
-                DCD     PORT0_14_Handler          ; GPIO Port 0 pin 14 Handler
-                DCD     PORT0_15_Handler          ; GPIO Port 0 pin 15 Handler
+                DCD     PORT2_COMB_Handler        ; GPIO Port 2 Combined Handler
+                DCD     PORT3_COMB_Handler        ; GPIO Port 3 Combined Handler
+                DCD     UARTRX3_Handler           ; UART 3 RX Handler
+                DCD     UARTTX3_Handler           ; UART 3 TX Handler
+                DCD     UARTRX4_Handler           ; UART 4 RX Handler
+                DCD     UARTTX4_Handler           ; UART 4 TX Handler
+                DCD     ADCSPI_Handler            ; SHIELD ADC SPI exceptions Handler
+                DCD     SHIELDSPI_Handler         ; SHIELD SPI exceptions Handler
+                DCD     PORT0_0_Handler           ; GPIO Port 0 pin 0 Handler                                     
+                DCD     PORT0_1_Handler           ; GPIO Port 0 pin 1 Handler                                     
+                DCD     PORT0_2_Handler           ; GPIO Port 0 pin 2 Handler                                     
+                DCD     PORT0_3_Handler           ; GPIO Port 0 pin 3 Handler                                     
+                DCD     PORT0_4_Handler           ; GPIO Port 0 pin 4 Handler                                     
+                DCD     PORT0_5_Handler           ; GPIO Port 0 pin 5 Handler                                     
+                DCD     PORT0_6_Handler           ; GPIO Port 0 pin 6 Handler                                     
+                DCD     PORT0_7_Handler           ; GPIO Port 0 pin 7 Handler                                     
 __Vectors_End
 
 __Vectors_Size  EQU     __Vectors_End - __Vectors
@@ -207,6 +204,14 @@ Default_Handler PROC
                 EXPORT ETHERNET_Handler           [WEAK]
                 EXPORT I2S_Handler                [WEAK]
                 EXPORT TSC_Handler                [WEAK]
+                EXPORT PORT2_COMB_Handler         [WEAK]
+                EXPORT PORT3_COMB_Handler         [WEAK]
+                EXPORT UARTRX3_Handler            [WEAK]
+                EXPORT UARTTX3_Handler            [WEAK]
+                EXPORT UARTRX4_Handler            [WEAK]
+                EXPORT UARTTX4_Handler            [WEAK]
+                EXPORT ADCSPI_Handler             [WEAK]
+                EXPORT SHIELDSPI_Handler          [WEAK]
                 EXPORT PORT0_0_Handler            [WEAK]
                 EXPORT PORT0_1_Handler            [WEAK]
                 EXPORT PORT0_2_Handler            [WEAK]
@@ -215,14 +220,6 @@ Default_Handler PROC
                 EXPORT PORT0_5_Handler            [WEAK]
                 EXPORT PORT0_6_Handler            [WEAK]
                 EXPORT PORT0_7_Handler            [WEAK]
-                EXPORT PORT0_8_Handler            [WEAK]
-                EXPORT PORT0_9_Handler            [WEAK]
-                EXPORT PORT0_10_Handler           [WEAK]
-                EXPORT PORT0_11_Handler           [WEAK]
-                EXPORT PORT0_12_Handler           [WEAK]
-                EXPORT PORT0_13_Handler           [WEAK]
-                EXPORT PORT0_14_Handler           [WEAK]
-                EXPORT PORT0_15_Handler           [WEAK]
 
 UARTRX0_Handler
 UARTTX0_Handler
@@ -240,22 +237,22 @@ UARTOVF_Handler
 ETHERNET_Handler
 I2S_Handler
 TSC_Handler
-PORT0_0_Handler
-PORT0_1_Handler
-PORT0_2_Handler
-PORT0_3_Handler
-PORT0_4_Handler
-PORT0_5_Handler
-PORT0_6_Handler
-PORT0_7_Handler
-PORT0_8_Handler
-PORT0_9_Handler
-PORT0_10_Handler
-PORT0_11_Handler
-PORT0_12_Handler
-PORT0_13_Handler
-PORT0_14_Handler
-PORT0_15_Handler
+PORT2_COMB_Handler        
+PORT3_COMB_Handler        
+UARTRX3_Handler           
+UARTTX3_Handler           
+UARTRX4_Handler           
+UARTTX4_Handler           
+ADCSPI_Handler            
+SHIELDSPI_Handler         
+PORT0_0_Handler                                    
+PORT0_1_Handler                                    
+PORT0_2_Handler                                    
+PORT0_3_Handler                                    
+PORT0_4_Handler                                    
+PORT0_5_Handler                                    
+PORT0_6_Handler                                    
+PORT0_7_Handler                                    
                 B       .
 
                 ENDP

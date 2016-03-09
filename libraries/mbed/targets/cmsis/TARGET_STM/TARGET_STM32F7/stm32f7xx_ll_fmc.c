@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_ll_fmc.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   FMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -1025,8 +1025,6 @@ HAL_StatusTypeDef FMC_SDRAM_SendCommand(FMC_SDRAM_TypeDef *Device, FMC_SDRAM_Com
         return HAL_TIMEOUT;
       }
     }     
-    
-    return HAL_ERROR;
   }
   
   return HAL_OK;  

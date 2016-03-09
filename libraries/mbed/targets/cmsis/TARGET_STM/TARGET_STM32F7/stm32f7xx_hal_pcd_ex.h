@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
@@ -63,7 +63,7 @@ typedef enum
 /* Exported constants --------------------------------------------------------*/
 /* Exported macros -----------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
+/** @addtogroup PCDEx_Exported_Functions PCD Extended Exported Functions
   * @{
   */
 /** @addtogroup PCDEx_Exported_Functions_Group1 Peripheral Control functions

@@ -48,7 +48,7 @@ int main() {
     printf("Initialize PWM on pin 24 with duty cycle: %.2f\n", pwm_dp24.read());
     printf("Initialize PWM on pin 18 with duty cycle: %.2f\n", pwm_dp18.read());
 
-#elif defined(TARGET_nRF51822)
+#elif defined(TARGET_NRF51822)
     PwmOut pwm_p24(p24);
     PwmOut pwm_p25(p25);
 
@@ -100,7 +100,7 @@ int main() {
 
     pwm_1.write(value);
     pwm_2.write(0.50);
-    
+
     float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
 
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
@@ -111,7 +111,7 @@ int main() {
     PwmOut pwm_1(PA_0);
 
     pwm_1.write(value);
-    
+
     float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
 
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
@@ -121,7 +121,7 @@ int main() {
     PwmOut pwm_1(PA_0);
 
     pwm_1.write(value);
-    
+
     float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
 
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
@@ -131,7 +131,7 @@ int main() {
     PwmOut pwm_1(PA_0);
 
     pwm_1.write(value);
-    
+
     float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
 
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
@@ -141,7 +141,7 @@ int main() {
     PwmOut pwm_1(PA_0);
 
     pwm_1.write(value);
-    
+
     float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
 
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
@@ -151,7 +151,7 @@ int main() {
     PwmOut pwm_1(PA_0);
 
     pwm_1.write(value);
-    
+
     float result = floor(pwm_1.read() * 100 + 0.5) / 100; // round it to 0.xx
 
     printf("Initialize PWM on pin PD_12 with duty cycle: %.2f\n", result);
@@ -177,7 +177,7 @@ int main() {
 
     notify_completion(result == value ? true : false);
 #else
-#error This test is not supported on this target.
+#error [NOT_SUPPORTED] This test is not supported on this target.
 #endif
 
     notify_completion(true);

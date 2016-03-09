@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_uart.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   UART HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Asynchronous Receiver Transmitter (UART) peripheral:
@@ -168,7 +168,6 @@
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define HAL_UART_TXDMA_TIMEOUTVALUE                      22000
 #define UART_CR1_FIELDS  ((uint32_t)(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | \
                                      USART_CR1_TE | USART_CR1_RE | USART_CR1_OVER8))
 /* Private macro -------------------------------------------------------------*/
@@ -524,6 +523,9 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_MspInit can be implemented in the user file
    */ 
@@ -536,6 +538,9 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_MspDeInit can be implemented in the user file
    */ 
@@ -1364,6 +1369,9 @@ static void UART_DMAError(DMA_HandleTypeDef *hdma)
   */
  __weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_TxCpltCallback can be implemented in the user file
    */ 
@@ -1376,6 +1384,9 @@ static void UART_DMAError(DMA_HandleTypeDef *hdma)
   */
  __weak void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+ 
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_UART_TxHalfCpltCallback can be implemented in the user file
    */ 
@@ -1388,6 +1399,9 @@ static void UART_DMAError(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_RxCpltCallback can be implemented in the user file
    */
@@ -1400,6 +1414,9 @@ __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   */
 __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+ 
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_UART_RxHalfCpltCallback can be implemented in the user file
    */
@@ -1412,6 +1429,9 @@ __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_ErrorCallback can be implemented in the user file
    */ 
@@ -1442,10 +1462,7 @@ static HAL_StatusTypeDef UART_Transmit_IT(UART_HandleTypeDef *huart)
         huart->State = HAL_UART_STATE_BUSY_RX;
       }
       else
-      {
-        /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-        __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
-        
+      {      
         huart->State = HAL_UART_STATE_READY;
       }
       
@@ -1501,9 +1518,6 @@ static HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart)
   }
   else
   {
-    /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-    __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
-
     huart->State = HAL_UART_STATE_READY;
   }
 

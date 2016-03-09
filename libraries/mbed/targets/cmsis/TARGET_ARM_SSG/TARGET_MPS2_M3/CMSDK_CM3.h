@@ -1,41 +1,37 @@
 /* MPS2 CMSIS Library
 *
-* Copyright (c) 2006-2015 ARM Limited
+* Copyright (c) 2006-2016 ARM Limited
 * All rights reserved.
-* 
-* Redistribution and use in source and binary forms, with or without 
+*
+* Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
-* 1. Redistributions of source code must retain the above copyright notice, 
+*
+* 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
-* 2. Redistributions in binary form must reproduce the above copyright notice, 
-* this list of conditions and the following disclaimer in the documentation 
+*
+* 2. Redistributions in binary form must reproduce the above copyright notice,
+* this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
-* 3. Neither the name of the copyright holder nor the names of its contributors 
-* may be used to endorse or promote products derived from this software without 
+*
+* 3. Neither the name of the copyright holder nor the names of its contributors
+* may be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
-* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-* POSSIBILITY OF SUCH DAMAGE. 
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************
 * @file     CMSDK_CM3.h
 * @brief    CMSIS Core Peripheral Access Layer Header File for
 *           CMSDK_CM3 Device
-* @version  V3.02
-* @date     15. November 2013
-*
-* @note     configured for CM7 without FPU
 *
 *******************************************************************************/
 
@@ -63,40 +59,39 @@ typedef enum IRQn
   PendSV_IRQn                   =  -2,        /* 14 Pend SV Interrupt               */
   SysTick_IRQn                  =  -1,        /* 15 System Tick Interrupt           */
 
-/* ----------------------  CMSDK_CM3 Specific Interrupt Numbers  ------------------ */
-  UARTRX0_IRQn                  = 0,       /* UART 0 RX Interrupt                   */
-  UARTTX0_IRQn                  = 1,       /* UART 0 TX Interrupt                   */
-  UARTRX1_IRQn                  = 2,       /* UART 1 RX Interrupt                   */
-  UARTTX1_IRQn                  = 3,       /* UART 1 TX Interrupt                   */
-  UARTRX2_IRQn                  = 4,       /* UART 2 RX Interrupt                   */
-  UARTTX2_IRQn                  = 5,       /* UART 2 TX Interrupt                   */
-  PORT0_ALL_IRQn                = 6,       /* Port 1 combined Interrupt             */
-  PORT1_ALL_IRQn                = 7,       /* Port 1 combined Interrupt             */
-  TIMER0_IRQn                   = 8,       /* TIMER 0 Interrupt                     */
-  TIMER1_IRQn                   = 9,       /* TIMER 1 Interrupt                     */
-  DUALTIMER_IRQn                = 10,      /* Dual Timer Interrupt                  */
-  SPI_IRQn                      = 11,      /* SPI Interrupt                         */
-  UARTOVF_IRQn                  = 12,      /* UART 0,1,2 Overflow Interrupt         */
-  ETHERNET_IRQn                 = 13,      /* Ethernet Interrupt                    */
-  I2S_IRQn                      = 14,      /* I2S Interrupt                         */
-  TSC_IRQn                      = 15,      /* Touch Screen Interrupt                */
-//  DMA_IRQn                      = 15,      /* PL230 DMA Done + Error Interrupt      */
-  PORT0_0_IRQn                  = 16,      /* All P0 I/O pins used as irq source    */
-  PORT0_1_IRQn                  = 17,      /* There are 16 pins in total            */
-  PORT0_2_IRQn                  = 18,
-  PORT0_3_IRQn                  = 19,
-  PORT0_4_IRQn                  = 20,
-  PORT0_5_IRQn                  = 21,
-  PORT0_6_IRQn                  = 22,
-  PORT0_7_IRQn                  = 23,
-  PORT0_8_IRQn                  = 24,
-  PORT0_9_IRQn                  = 25,
-  PORT0_10_IRQn                 = 26,
-  PORT0_11_IRQn                 = 27,
-  PORT0_12_IRQn                 = 28,
-  PORT0_13_IRQn                 = 29,
-  PORT0_14_IRQn                 = 30,
-  PORT0_15_IRQn                 = 31,
+/******  CMSDK Specific Interrupt Numbers *********************************************************/
+  UARTRX0_IRQn                  = 0,       /*!< UART 0 RX Interrupt                               */
+  UARTTX0_IRQn                  = 1,       /*!< UART 0 TX Interrupt                               */
+  UARTRX1_IRQn                  = 2,       /*!< UART 1 RX Interrupt                               */
+  UARTTX1_IRQn                  = 3,       /*!< UART 1 TX Interrupt                               */
+  UARTRX2_IRQn                  = 4,       /*!< UART 2 RX Interrupt                               */
+  UARTTX2_IRQn                  = 5,       /*!< UART 2 TX Interrupt                               */
+  PORT0_ALL_IRQn                = 6,       /*!< Port 0 combined Interrupt                         */
+  PORT1_ALL_IRQn                = 7,       /*!< Port 1 combined Interrupt                         */
+  TIMER0_IRQn                   = 8,       /*!< TIMER 0 Interrupt                                 */
+  TIMER1_IRQn                   = 9,       /*!< TIMER 1 Interrupt                                 */
+  DUALTIMER_IRQn                = 10,      /*!< Dual Timer Interrupt                              */
+  SPI_IRQn                      = 11,      /*!< SPI Interrupt                                     */
+  UARTOVF_IRQn                  = 12,      /*!< UART 0,1,2 Overflow Interrupt                     */
+  ETHERNET_IRQn                 = 13,      /*!< Ethernet Interrupt                                */
+  I2S_IRQn                      = 14,      /*!< I2S Interrupt                                     */
+  TSC_IRQn                      = 15,      /*!< Touch Screen Interrupt                            */
+  PORT2_ALL_IRQn                = 16,      /*!< Port 2 combined Interrupt                         */
+  PORT3_ALL_IRQn                = 17,      /*!< Port 3 combined Interrupt                         */
+  UARTRX3_IRQn                  = 18,      /*!< UART 3 RX Interrupt                               */
+  UARTTX3_IRQn                  = 19,      /*!< UART 3 TX Interrupt                               */
+  UARTRX4_IRQn                  = 20,      /*!< UART 4 RX Interrupt                               */
+  UARTTX4_IRQn                  = 21,      /*!< UART 4 TX Interrupt                               */
+  ADCSPI_IRQn                   = 22,      /*!< SHIELD ADC SPI Interrupt                          */
+  SHIELDSPI_IRQn                = 23,      /*!< SHIELD SPI Combined Interrupt                     */
+  PORT0_0_IRQn                  = 24,      /*!<  GPIO Port 0 pin 0 Interrupt                      */
+  PORT0_1_IRQn                  = 25,      /*!<  GPIO Port 0 pin 1 Interrupt                      */
+  PORT0_2_IRQn                  = 26,      /*!<  GPIO Port 0 pin 2 Interrupt                      */
+  PORT0_3_IRQn                  = 27,      /*!<  GPIO Port 0 pin 3 Interrupt                      */
+  PORT0_4_IRQn                  = 28,      /*!<  GPIO Port 0 pin 4 Interrupt                      */
+  PORT0_5_IRQn                  = 29,      /*!<  GPIO Port 0 pin 5 Interrupt                      */
+  PORT0_6_IRQn                  = 30,      /*!<  GPIO Port 0 pin 6 Interrupt                      */
+  PORT0_7_IRQn                  = 31,      /*!<  GPIO Port 0 pin 7 Interrupt                      */
 } IRQn_Type;
 
 
@@ -686,7 +681,9 @@ typedef struct
 #define CMSDK_UART0_BASE        (CMSDK_APB_BASE + 0x4000UL)
 #define CMSDK_UART1_BASE        (CMSDK_APB_BASE + 0x5000UL)
 #define CMSDK_UART2_BASE        (CMSDK_APB_BASE + 0x6000UL)
+#define CMSDK_UART3_BASE        (CMSDK_APB_BASE + 0x7000UL)
 #define CMSDK_WATCHDOG_BASE     (CMSDK_APB_BASE + 0x8000UL)
+#define CMSDK_UART4_BASE        (CMSDK_APB_BASE + 0x9000UL)
 #define CMSDK_PL230_BASE        (CMSDK_APB_BASE + 0xF000UL)
 
 /* AHB peripherals                                                                  */
@@ -704,6 +701,8 @@ typedef struct
 #define CMSDK_UART0             ((CMSDK_UART_TypeDef   *) CMSDK_UART0_BASE   )
 #define CMSDK_UART1             ((CMSDK_UART_TypeDef   *) CMSDK_UART1_BASE   )
 #define CMSDK_UART2             ((CMSDK_UART_TypeDef   *) CMSDK_UART2_BASE   )
+#define CMSDK_UART3             ((CMSDK_UART_TypeDef   *) CMSDK_UART3_BASE   )
+#define CMSDK_UART4             ((CMSDK_UART_TypeDef   *) CMSDK_UART4_BASE   )
 #define CMSDK_TIMER0            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER0_BASE  )
 #define CMSDK_TIMER1            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER1_BASE  )
 #define CMSDK_DUALTIMER         ((CMSDK_DUALTIMER_BOTH_TypeDef  *) CMSDK_DUALTIMER_BASE )

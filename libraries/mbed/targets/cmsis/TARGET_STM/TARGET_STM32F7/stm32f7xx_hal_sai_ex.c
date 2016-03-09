@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_sai_ex.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   SAI Extension HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of SAI extension peripheral:
@@ -111,20 +111,23 @@ void SAI_BlockSynchroConfig(SAI_HandleTypeDef *hsai)
   /* This setting must be done with both audio block (A & B) disabled     */
   switch(hsai->Init.SynchroExt)
   {
-  case SAI_SYNCEXT_DISABLE :
+    case SAI_SYNCEXT_DISABLE :
+      tmpregisterGCR = 0;
+      break;
+    case SAI_SYNCEXT_OUTBLOCKA_ENABLE :
+      tmpregisterGCR = SAI_GCR_SYNCOUT_0;
+      break;
+    case SAI_SYNCEXT_OUTBLOCKB_ENABLE :
+      tmpregisterGCR = SAI_GCR_SYNCOUT_1;
+      break;
+  default:
     tmpregisterGCR = 0;
     break;
-  case SAI_SYNCEXT_IN_ENABLE :
-    tmpregisterGCR = SAI_GCR_SYNCIN_0;
-    break;
-  case SAI_SYNCEXT_OUTBLOCKA_ENABLE :
-    tmpregisterGCR = SAI_GCR_SYNCOUT_0;
-    break;
-  case SAI_SYNCEXT_OUTBLOCKB_ENABLE :
-    tmpregisterGCR = SAI_GCR_SYNCOUT_1;
-    break;
-  default :
-    break;
+  }
+    
+  if((hsai->Init.Synchro) == SAI_SYNCHRONOUS_EXT_SAI2)
+  {
+        tmpregisterGCR |= SAI_GCR_SYNCIN_0;
   }
   
   if((hsai->Instance == SAI1_Block_A) || (hsai->Instance == SAI1_Block_B))

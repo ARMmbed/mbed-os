@@ -24,6 +24,8 @@ class Uvision4(Exporter):
     TARGETS = [
         'LPC1768',
         'LPC11U24',
+        'LPC11U35_401',
+        'LPC11U35_501',
         'KL05Z',
         'KL25Z',
         'KL43Z',
@@ -57,6 +59,7 @@ class Uvision4(Exporter):
         'NUCLEO_F410RB',
         'NUCLEO_F411RE',
         'NUCLEO_F446RE',
+        'NUCLEO_F746ZG',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
@@ -93,7 +96,7 @@ class Uvision4(Exporter):
         'MAXWSNENV',
         'MAX32600MBED',
         'MOTE_L152RC',
-        'NZ32SC151',
+        'NZ32_SC151',
         'SAMR21G18A',
         'SAMD21J18A',
         'SAMD21G18A',
@@ -102,6 +105,8 @@ class Uvision4(Exporter):
 
     USING_MICROLIB = [
         'LPC11U24',
+        'LPC11U35_401',
+        'LPC11U35_501',
         'LPC1114',
         'LPC11C24',
         'LPC812',
@@ -122,6 +127,7 @@ class Uvision4(Exporter):
         'NUCLEO_F410RB',
         'NUCLEO_F411RE',
         'NUCLEO_F446RE',
+        'NUCLEO_F746ZG',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L152RE',
@@ -142,11 +148,17 @@ class Uvision4(Exporter):
         'KL05Z',
         'LPC11U37H_401',
         'MOTE_L152RC',
-        'NZ32SC151',
+        'NZ32_SC151',
         'SAMR21G18A',
         'SAMD21J18A',
         'SAMD21G18A',
         'SAML21J18A',
+        'ARM_IOTSS_BEID',
+        'ARM_MPS2_M0',
+        'ARM_MPS2_M0P',
+        'ARM_MPS2_M3',
+        'ARM_MPS2_M4',
+        'ARM_MPS2_M7',
     ]
 
     FILE_TYPES = {

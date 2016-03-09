@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_gpio.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of GPIO HAL module.
   ******************************************************************************
   * @attention
@@ -157,10 +157,10 @@ typedef enum
   * @brief GPIO Output Maximum frequency
   * @{
   */  
-#define  GPIO_SPEED_LOW         ((uint32_t)0x00000000)  /*!< Low speed     */
-#define  GPIO_SPEED_MEDIUM      ((uint32_t)0x00000001)  /*!< Medium speed  */
-#define  GPIO_SPEED_FAST        ((uint32_t)0x00000002)  /*!< Fast speed    */
-#define  GPIO_SPEED_HIGH        ((uint32_t)0x00000003)  /*!< High speed    */
+#define  GPIO_SPEED_FREQ_LOW         ((uint32_t)0x00000000)  /*!< Low speed     */
+#define  GPIO_SPEED_FREQ_MEDIUM      ((uint32_t)0x00000001)  /*!< Medium speed  */
+#define  GPIO_SPEED_FREQ_HIGH        ((uint32_t)0x00000002)  /*!< Fast speed    */
+#define  GPIO_SPEED_FREQ_VERY_HIGH   ((uint32_t)0x00000003)  /*!< High speed    */
 /**
   * @}
   */

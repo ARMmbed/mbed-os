@@ -1,3 +1,7 @@
+#if !DEVICE_PORTOUT
+  #error [NOT_SUPPORTED] PortOut is not supported
+#endif
+
 #include "mbed.h"
 
 # if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
@@ -27,8 +31,8 @@
 # elif defined(TARGET_SAMR21G18A)
 #     define LED_PORT   PortA
 #     define LED1       (1 <<  19) /*PA19*/
-#     define LED2       0 
-#     define LED3       0 
+#     define LED2       0
+#     define LED3       0
 #     define LED4       0
 # elif defined(TARGET_SAMD21J18A)
 #     define LED_PORT   PortB
@@ -48,7 +52,9 @@
 #     define LED2       0
 #     define LED3       0
 #     define LED4       0
-# endif
+# else
+  #error [NOT_SUPPORTED] This test can't be ran on this target
+#endif
 
 
 #define LED_MASK    (LED1|LED2|LED3|LED4)

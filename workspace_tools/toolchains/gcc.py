@@ -118,6 +118,9 @@ class GCC(mbedToolchain):
                     dependencies = dependencies + [f.replace('\a', ' ') for f in file.split(" ")]
         return dependencies
 
+    def is_not_supported_error(self, output):
+        return "error: #error [NOT_SUPPORTED]" in output
+
     def parse_output(self, output):
         # The warning/error notification is multiline
         WHERE, WHAT = 0, 1

@@ -60,7 +60,7 @@
 #define PHY_READ                (2)
 #define MDC_WAIT                (6)        /* 400ns/4 */
 #define BASIC_STS_MSK_LINK      (0x0004)   /* Link Status */
-#define BASIC_STS_MSK_AUTO_CMP  (0x0010)   /* Auto-Negotiate Complete */
+#define BASIC_STS_MSK_AUTO_CMP  (0x0020)   /* Auto-Negotiate Complete */
 #define M_PHY_ID                (0xFFFFFFF0)
 #define PHY_ID_LAN8710A         (0x0007C0F0)
 /* ETHERPIR0 */
@@ -106,11 +106,20 @@ typedef struct tag_edmac_recv_desc {
 /* memory */
 /* The whole transmit/receive descriptors (must be allocated in 16-byte boundaries) */
 /* Transmit/receive buffers (must be allocated in 16-byte boundaries) */
-static uint8_t ehernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
+#if defined(__ICCARM__)
+#pragma data_alignment=16
+static uint8_t ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
+                                 (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
+                                 (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
+                                 (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]  //16 bytes aligned!
+                                 @ ".mirrorram";
+#else
+static uint8_t ethernet_nc_memory[(sizeof(edmac_send_desc_t) * NUM_OF_TX_DESCRIPTOR) +
                                  (sizeof(edmac_recv_desc_t) * NUM_OF_RX_DESCRIPTOR) +
                                  (NUM_OF_TX_DESCRIPTOR * SIZE_OF_BUFFER) +
                                  (NUM_OF_RX_DESCRIPTOR * SIZE_OF_BUFFER)]
                                  __attribute((section("NC_BSS"),aligned(16)));  //16 bytes aligned!
+#endif
 static int32_t            rx_read_offset;   /* read offset */
 static int32_t            tx_wite_offset;   /* write offset */
 static uint32_t           send_top_index;
@@ -208,7 +217,7 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     if (p_ethcfg->ether_mac != NULL) {
         (void)memcpy(mac_addr, p_ethcfg->ether_mac, sizeof(mac_addr));
     } else {
-		ethernet_address(mac_addr); /* Get MAC Address */
+        ethernet_address(mac_addr); /* Get MAC Address */
     }
 
     return 0;
@@ -401,7 +410,7 @@ int ethernet_read(char *data, int dlen) {
 
 void ethernet_address(char *mac) {
     if (mac != NULL) {
-		mbed_mac_address(mac); /* Get MAC Address */
+        mbed_mac_address(mac); /* Get MAC Address */
     }
 }
 
@@ -427,8 +436,8 @@ void ethernet_set_link(int speed, int duplex) {
     if ((speed < 0) || (speed > 1)) {
         data = 0x1000;      /* Auto-Negotiation Enable */
         phy_reg_write(BASIC_MODE_CONTROL_REG, data);
-        data = phy_reg_read(BASIC_MODE_STATUS_REG);
         for (i = 0; i < 1000; i++) {
+            data = phy_reg_read(BASIC_MODE_STATUS_REG);
             if (((uint32_t)data & BASIC_STS_MSK_AUTO_CMP) != 0) {
                 break;
             }
@@ -486,8 +495,8 @@ static void lan_desc_create(void) {
     int32_t i;
     uint8_t *p_memory_top;
 
-    (void)memset((void *)ehernet_nc_memory, 0, sizeof(ehernet_nc_memory));
-    p_memory_top = ehernet_nc_memory;
+    (void)memset((void *)ethernet_nc_memory, 0, sizeof(ethernet_nc_memory));
+    p_memory_top = ethernet_nc_memory;
 
     /* Descriptor area configuration */
     p_eth_desc_dsend  = (edmac_send_desc_t *)p_memory_top;

@@ -1,3 +1,7 @@
+#if !DEVICE_SPI
+  #error [NOT_SUPPORTED] SPI not supported
+#endif
+
 #include "mbed.h"
 #include "test_env.h"
 

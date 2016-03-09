@@ -16,7 +16,7 @@
 #elif defined(TARGET_SAML21J18A)
 #define TIMER_IRQ       TC0_IRQn
 #else
-#error This test can't run on this target.
+#error [NOT_SUPPORTED] This test can't run on this target.
 #endif
 
 Serial pc(USBTX, USBRX);

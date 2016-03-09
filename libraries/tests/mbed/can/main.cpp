@@ -1,3 +1,7 @@
+#if !DEVICE_CAN
+  #error [NOT_SUPPORTED] CAN not supported
+#endif
+
 #include "mbed.h"
 
 Ticker ticker;
@@ -7,6 +11,9 @@ DigitalOut led2(LED2);
 #if defined(TARGET_LPC1549)
 // LPC1549 support only single CAN channel
 CAN can1(D2, D3);
+#elif defined(TARGET_B96B_F446VE)
+// B96B_F446VE support only single CAN channel
+CAN can1(PD_0, PD_1);
 #else
 CAN can1(p9, p10);
 #endif
@@ -41,8 +48,8 @@ int main() {
     ticker.attach(&send, 1);
     CANMessage msg;
     while(1) {
-#if !defined(TARGET_LPC1549)
-        printf("loop()\n");
+#if (!defined (TARGET_LPC1549) && !defined(TARGET_B96B_F446VE))
+      printf("loop()\n");
         if(can2.read(msg)) {
             printmsg("Rx message:", &msg);
             led2 = !led2;
