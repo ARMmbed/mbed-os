@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of I2C HAL Extension module.
   ******************************************************************************
   * @attention
@@ -70,6 +70,7 @@
   * @}
   */
 
+ 
 /**
   * @}
   */ 
@@ -80,7 +81,6 @@
 /* Peripheral Control methods  ************************************************/
 HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter);
 HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter);
-
 /* Private constants ---------------------------------------------------------*/
 /** @defgroup I2C_Private_Constants I2C Private Constants
   * @{

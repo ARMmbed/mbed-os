@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_dma2d.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   DMA2D HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the DMA2D peripheral:
@@ -292,6 +292,9 @@ HAL_StatusTypeDef HAL_DMA2D_DeInit(DMA2D_HandleTypeDef *hdma2d)
   */
 __weak void HAL_DMA2D_MspInit(DMA2D_HandleTypeDef* hdma2d)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma2d);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DMA2D_MspInit could be implemented in the user file
    */ 
@@ -305,6 +308,9 @@ __weak void HAL_DMA2D_MspInit(DMA2D_HandleTypeDef* hdma2d)
   */
 __weak void HAL_DMA2D_MspDeInit(DMA2D_HandleTypeDef* hdma2d)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma2d);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DMA2D_MspDeInit could be implemented in the user file
    */ 

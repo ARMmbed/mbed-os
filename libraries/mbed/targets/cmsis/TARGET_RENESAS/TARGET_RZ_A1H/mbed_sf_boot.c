@@ -30,6 +30,8 @@
 #pragma arm section rodata = "BOOT_LOADER"
 const char boot_loader[]  __attribute__((used)) =
 
+#elif defined (__ICCARM__)
+__root const char boot_loader[] @ 0x18000000 =
 #else
 const char boot_loader[]  __attribute__ ((section(".boot_loader"), used)) =
 

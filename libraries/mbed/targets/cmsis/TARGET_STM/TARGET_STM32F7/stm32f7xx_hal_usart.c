@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   USART HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Synchronous/Asynchronous Receiver Transmitter
@@ -100,8 +100,6 @@
   */
 #define DUMMY_DATA                             ((uint16_t) 0xFFFF)
 #define TEACK_REACK_TIMEOUT                    ((uint32_t) 1000)
-#define USART_TXDMA_TIMEOUTVALUE            22000
-#define USART_TIMEOUT_VALUE                 22000
 #define USART_CR1_FIELDS  ((uint32_t)(USART_CR1_M | USART_CR1_PCE | USART_CR1_PS | \
                                      USART_CR1_TE | USART_CR1_RE  | USART_CR1_OVER8))
 #define USART_CR2_FIELDS       ((uint32_t)(USART_CR2_CPHA | USART_CR2_CPOL | \
@@ -269,6 +267,9 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_MspInit(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_USART_MspInit can be implemented in the user file
    */
@@ -281,6 +282,9 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_MspDeInit(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_USART_MspDeInit can be implemented in the user file
    */
@@ -1149,6 +1153,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_USART_TxCpltCallback can be implemented in the user file
    */ 
@@ -1161,6 +1168,9 @@ __weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_USART_TxHalfCpltCallback can be implemented in the user file
    */
@@ -1173,6 +1183,9 @@ __weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_USART_RxCpltCallback can be implemented in the user file
    */
@@ -1185,6 +1198,9 @@ __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_USART_RxHalfCpltCallback can be implemented in the user file
    */
@@ -1197,6 +1213,9 @@ __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_USART_TxRxCpltCallback can be implemented in the user file
    */
@@ -1209,6 +1228,9 @@ __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+ 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_USART_ErrorCallback can be implemented in the user file
    */ 

@@ -37,7 +37,7 @@
 
 #include "cmsis.h"
 
-#define NVIC_NUM_VECTORS      (16 + 32)
+#define NVIC_NUM_VECTORS      (16 + 48)
 #define NVIC_USER_IRQ_OFFSET  16
 
 #ifdef __cplusplus

@@ -238,7 +238,7 @@ class ReportExporter():
                     tc.add_failure_info(description, _stdout)
                 elif result == 'ERROR':
                     tc.add_error_info(description, _stdout)
-                elif result == 'SKIP':
+                elif result == 'SKIP' or result == 'NOT_SUPPORTED':
                     tc.add_skipped_info(description, _stdout)
 
                 test_cases.append(tc)
@@ -282,7 +282,7 @@ class ReportExporter():
                             message = test_result['result']
                             if test_result['result'] == 'FAIL':
                                 tc.add_failure_info(message, _stdout)
-                            elif test_result['result'] == 'SKIP':
+                            elif test_result['result'] == 'SKIP' or test_result["result"] == 'NOT_SUPPORTED':
                                 tc.add_skipped_info(message, _stdout)
                             elif test_result['result'] != 'OK':
                                 tc.add_error_info(message, _stdout)
@@ -319,7 +319,7 @@ class ReportExporter():
 
                         if test_run["result"] == "FAIL":
                             failures.append(test_run)
-                        elif test_run["result"] == "SKIP":
+                        elif test_run["result"] == "SKIP" or test_run["result"] == "NOT_SUPPORTED":
                             skips.append(test_run)
                         elif test_run["result"] == "OK":
                             successes.append(test_run)

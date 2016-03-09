@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_eth.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   ETH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Ethernet (ETH) peripheral:
@@ -114,8 +114,9 @@
 /** @defgroup ETH_Private_Constants ETH Private Constants
   * @{
   */
-#define LINKED_STATE_TIMEOUT_VALUE          ((uint32_t)2000)  /* 2000 ms */
-#define AUTONEGO_COMPLETED_TIMEOUT_VALUE    ((uint32_t)1000)  /* 1000 ms */
+#define ETH_TIMEOUT_SWRESET                 ((uint32_t)500)  
+#define ETH_TIMEOUT_LINKED_STATE          ((uint32_t)5000)  
+#define ETH_TIMEOUT_AUTONEGO_COMPLETED    ((uint32_t)5000) 
 
 /**
   * @}
@@ -208,9 +209,25 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
   /* After reset all the registers holds their respective reset values */
   (heth->Instance)->DMABMR |= ETH_DMABMR_SR;
   
+  /* Get tick */
+  tickstart = HAL_GetTick();
+  
   /* Wait for software reset */
   while (((heth->Instance)->DMABMR & ETH_DMABMR_SR) != (uint32_t)RESET)
   {
+    /* Check for the Timeout */
+    if((HAL_GetTick() - tickstart ) > ETH_TIMEOUT_SWRESET)
+    {     
+      heth->State= HAL_ETH_STATE_TIMEOUT;
+  
+      /* Process Unlocked */
+      __HAL_UNLOCK(heth);
+    
+      /* Note: The SWR is not performed if the ETH_RX_CLK or the ETH_TX_CLK are  
+         not available, please check your external PHY or the IO configuration */
+               
+      return HAL_TIMEOUT;
+    }
   }
   
   /*-------------------------------- MAC Initialization ----------------------*/
@@ -243,7 +260,7 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
     /* CSR Clock Range between 100-150 MHz */ 
     tempreg |= (uint32_t)ETH_MACMIIAR_CR_Div62;
   }
-  else /* ((hclk >= 150000000)&&(hclk <= 200000000)) */
+  else /* ((hclk >= 150000000)&&(hclk <= 216000000)) */
   {
     /* CSR Clock Range between 150-216 MHz */ 
     tempreg |= (uint32_t)ETH_MACMIIAR_CR_Div102;    
@@ -283,7 +300,7 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
       HAL_ETH_ReadPHYRegister(heth, PHY_BSR, &phyreg);
       
       /* Check for the Timeout */
-      if((HAL_GetTick() - tickstart ) > LINKED_STATE_TIMEOUT_VALUE)
+      if((HAL_GetTick() - tickstart ) > ETH_TIMEOUT_LINKED_STATE)
       {
         /* In case of write timeout */
         err = ETH_ERROR;
@@ -326,7 +343,7 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
       HAL_ETH_ReadPHYRegister(heth, PHY_BSR, &phyreg);
       
       /* Check for the Timeout */
-      if((HAL_GetTick() - tickstart ) > AUTONEGO_COMPLETED_TIMEOUT_VALUE)
+      if((HAL_GetTick() - tickstart ) > ETH_TIMEOUT_AUTONEGO_COMPLETED)
       {
         /* In case of write timeout */
         err = ETH_ERROR;
@@ -589,6 +606,9 @@ HAL_StatusTypeDef HAL_ETH_DMARxDescListInit(ETH_HandleTypeDef *heth, ETH_DMADesc
   */
 __weak void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(heth);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_ETH_MspInit could be implemented in the user file
   */
@@ -602,6 +622,9 @@ __weak void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
   */
 __weak void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(heth);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_ETH_MspDeInit could be implemented in the user file
   */
@@ -981,6 +1004,9 @@ void HAL_ETH_IRQHandler(ETH_HandleTypeDef *heth)
   */
 __weak void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(heth);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_ETH_TxCpltCallback could be implemented in the user file
   */ 
@@ -994,6 +1020,9 @@ __weak void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth)
   */
 __weak void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(heth);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_ETH_TxCpltCallback could be implemented in the user file
   */ 
@@ -1007,6 +1036,9 @@ __weak void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
   */
 __weak void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(heth);
+ 
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_ETH_TxCpltCallback could be implemented in the user file
   */ 

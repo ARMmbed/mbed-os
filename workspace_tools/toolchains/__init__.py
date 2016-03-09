@@ -26,7 +26,7 @@ from os.path import join, splitext, exists, relpath, dirname, basename, split
 from inspect import getmro
 
 from multiprocessing import Pool, cpu_count
-from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
+from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import workspace_tools.hooks as hooks
 
@@ -604,6 +604,9 @@ class mbedToolchain:
 
         return None
 
+    def is_not_supported_error(self, output):
+        return "#error directive: [NOT_SUPPORTED]" in output
+
     def compile_output(self, output=[]):
         _rc = output[0]
         _stderr = output[1]
@@ -621,7 +624,10 @@ class mbedToolchain:
             for line in _stderr.splitlines():
                 self.tool_error(line)
 
-            raise ToolException(_stderr)
+            if self.is_not_supported_error(_stderr):
+                raise NotSupportedException(_stderr)
+            else:
+                raise ToolException(_stderr)
 
     def compile(self, cc, source, object, includes):
         _, ext = splitext(source)

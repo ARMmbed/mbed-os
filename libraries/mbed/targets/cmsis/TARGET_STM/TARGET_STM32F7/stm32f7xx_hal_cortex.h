@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
@@ -266,29 +266,6 @@ typedef struct
 
 
 /* Exported Macros -----------------------------------------------------------*/
-/** @defgroup CORTEX_Exported_Macros CORTEX Exported Macros
-  * @{
-  */
-
-/** @brief Configures the SysTick clock source.
-  * @param __CLKSRC__: specifies the SysTick clock source.
-  *   This parameter can be one of the following values:
-  *     @arg SYSTICK_CLKSOURCE_HCLK_DIV8: AHB clock divided by 8 selected as SysTick clock source.
-  *     @arg SYSTICK_CLKSOURCE_HCLK: AHB clock selected as SysTick clock source.
-  * @retval None
-  */
-#define __HAL_CORTEX_SYSTICKCLK_CONFIG(__CLKSRC__)                             \
-                            do {                                               \
-                                 if ((__CLKSRC__) == SYSTICK_CLKSOURCE_HCLK)   \
-                                  {                                            \
-                                    SysTick->CTRL |= SYSTICK_CLKSOURCE_HCLK;   \
-                                  }                                            \
-                                 else                                          \
-                                    SysTick->CTRL &= ~SYSTICK_CLKSOURCE_HCLK;  \
-                                } while(0)
-/**
-  * @}
-  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup CORTEX_Exported_Functions

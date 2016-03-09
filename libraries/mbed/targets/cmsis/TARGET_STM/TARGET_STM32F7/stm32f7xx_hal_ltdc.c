@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_ltdc.c
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   LTDC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the LTDC peripheral:
@@ -102,7 +102,7 @@
 /** @addtogroup STM32F7xx_HAL_Driver
   * @{
   */
-#if defined(STM32F756xx) || defined(STM32F746xx)
+#if defined (STM32F746xx) || defined (STM32F756xx)
 
 /** @defgroup LTDC LTDC
   * @brief LTDC HAL module driver
@@ -263,6 +263,9 @@ HAL_StatusTypeDef HAL_LTDC_DeInit(LTDC_HandleTypeDef *hltdc)
   */
 __weak void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_MspInit could be implemented in the user file
    */ 
@@ -276,6 +279,9 @@ __weak void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc)
   */
 __weak void HAL_LTDC_MspDeInit(LTDC_HandleTypeDef* hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_MspDeInit could be implemented in the user file
    */
@@ -385,6 +391,9 @@ void HAL_LTDC_IRQHandler(LTDC_HandleTypeDef *hltdc)
   */
 __weak void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_ErrorCallback could be implemented in the user file
    */
@@ -398,6 +407,9 @@ __weak void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc)
   */
 __weak void HAL_LTDC_LineEvenCallback(LTDC_HandleTypeDef *hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
+  
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_LineEvenCallback could be implemented in the user file
    */
@@ -1184,7 +1196,7 @@ static void LTDC_SetConfig(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeDef *pLay
 /**
   * @}
   */
-#endif /* STM32F756xx || STM32F746xx */
+#endif /* STM32F746xx || STM32F756xx */
 
 /**
   * @}

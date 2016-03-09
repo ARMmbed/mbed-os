@@ -73,14 +73,14 @@
 //       <o.0..5> MSEL: Feedback Divider Selection
 //              <i> M = MSEL + 1
 //            <0-31>
-//       <o.5..7> PSEL: Post Divider Selection
+//       <o.6..7> PSEL: Post Divider Selection
 //              <i> Post divider ratio P. Division ratio is 2 * P
 //            <0=> P = 1
 //            <1=> P = 2
 //            <2=> P = 4
 //            <3=> P = 8
 //     </h>
-#define SYSPLLCTRL_Val        0x00000005              // Reset value: 0x000
+#define SYSPLLCTRL_Val        0x00000045              // Reset value: 0x000
 //
 //     <o.0..7>   System AHB Clock Divider (SYSAHBCLKDIV.DIV)
 //            <i> Divides main clock to provide system clock to core, memories, and peripherals.
@@ -156,7 +156,7 @@
 //            <2=> P = 4
 //            <3=> P = 8
 //     </h>
-#define SCTPLLCTRL_Val        0x00000005              // Reset value: 0x000
+#define SCTPLLCTRL_Val        0x00000045              // Reset value: 0x000
 //
 //     <o.0..1> SCT PLL Clock Source Select (SCTPLLCLKSEL.SEL)
 //                   <0=> IRC Oscillator

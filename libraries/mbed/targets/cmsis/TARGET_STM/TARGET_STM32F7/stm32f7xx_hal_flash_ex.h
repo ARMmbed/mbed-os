@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of FLASH HAL Extension module.
   ******************************************************************************
   * @attention
@@ -89,7 +89,7 @@ typedef struct
   uint32_t WRPState;     /*!< Write protection activation or deactivation.
                               This parameter can be a value of @ref FLASHEx_WRP_State */
 
-  uint32_t WRPSector;         /*!< Specifies the sector(s) to be write protected.
+  uint32_t WRPSector;    /*!< Specifies the sector(s) to be write protected.
                               The value of this parameter depend on device used within the same series */
 
   uint32_t RDPLevel;     /*!< Set the read protection level.
@@ -212,7 +212,7 @@ typedef struct
   * @{
   */
 #define OB_IWDG_STOP_FREEZE      ((uint32_t)0x00000000) /*!< Freeze IWDG counter in STOP mode */
-#define OB_IWDG_STOP_ACTIVE      ((uint32_t)0x40000000) /*!< IWDG counter active in STOP mode */
+#define OB_IWDG_STOP_ACTIVE      ((uint32_t)0x80000000) /*!< IWDG counter active in STOP mode */
 /**
   * @}
   */
@@ -248,7 +248,6 @@ typedef struct
 #define OB_BOOTADDR_DTCM_RAM         ((uint32_t)0x8000)  /*!< Boot from DTCM RAM (0x20000000)                 */
 #define OB_BOOTADDR_SRAM1            ((uint32_t)0x8004)  /*!< Boot from SRAM1 (0x20010000)                    */
 #define OB_BOOTADDR_SRAM2            ((uint32_t)0x8013)  /*!< Boot from SRAM2 (0x2004C000)                    */
-
 /**
   * @}
   */
@@ -312,8 +311,6 @@ typedef struct
 #define OB_WRP_SECTOR_6       ((uint32_t)0x00400000) /*!< Write protection of Sector6     */
 #define OB_WRP_SECTOR_7       ((uint32_t)0x00800000) /*!< Write protection of Sector7     */
 #define OB_WRP_SECTOR_All     ((uint32_t)0x00FF0000) /*!< Write protection of all Sectors */
-
-
 
 /**
   * @}
@@ -423,17 +420,17 @@ void              HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
                                    ((LATENCY) == FLASH_LATENCY_14) || \
                                    ((LATENCY) == FLASH_LATENCY_15))
 
+#define IS_FLASH_ADDRESS(ADDRESS) (((ADDRESS) >= FLASH_BASE) && ((ADDRESS) <= FLASH_END))
+
+#define IS_FLASH_NBSECTORS(NBSECTORS) (((NBSECTORS) != 0) && ((NBSECTORS) <= FLASH_SECTOR_TOTAL))
+
 #define IS_FLASH_SECTOR(SECTOR) (((SECTOR) == FLASH_SECTOR_0)   || ((SECTOR) == FLASH_SECTOR_1)   ||\
                                  ((SECTOR) == FLASH_SECTOR_2)   || ((SECTOR) == FLASH_SECTOR_3)   ||\
                                  ((SECTOR) == FLASH_SECTOR_4)   || ((SECTOR) == FLASH_SECTOR_5)   ||\
                                  ((SECTOR) == FLASH_SECTOR_6)   || ((SECTOR) == FLASH_SECTOR_7))
 
-
-#define IS_FLASH_ADDRESS(ADDRESS) (((ADDRESS) >= FLASH_BASE) && ((ADDRESS) <= FLASH_END))
-
-#define IS_FLASH_NBSECTORS(NBSECTORS) (((NBSECTORS) != 0) && ((NBSECTORS) <= FLASH_SECTOR_TOTAL))
-
 #define IS_OB_WRP_SECTOR(SECTOR)  ((((SECTOR) & (uint32_t)0xFF00FFFF) == 0x00000000) && ((SECTOR) != 0x00000000))
+
 /**
   * @}
   */

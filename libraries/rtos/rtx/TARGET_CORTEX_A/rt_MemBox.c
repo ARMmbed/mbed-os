@@ -101,7 +101,12 @@ void *rt_alloc_box (void *box_mem) {
 #ifndef __USE_EXCLUSIVE_ACCESS
   int  irq_dis;
 
+
+#if defined (__ICCARM__)
+  irq_dis = __disable_irq_iar();
+#else
   irq_dis = __disable_irq ();
+#endif /* __ICCARM__ */
   free = ((P_BM) box_mem)->free;
   if (free) {
     ((P_BM) box_mem)->free = *free;
@@ -152,7 +157,11 @@ int rt_free_box (void *box_mem, void *box) {
   }
 
 #ifndef __USE_EXCLUSIVE_ACCESS
+#if defined (__ICCARM__)
+  irq_dis = __disable_irq_iar();
+#else
   irq_dis = __disable_irq ();
+#endif /* __ICCARM__ */
   *((void **)box) = ((P_BM) box_mem)->free;
   ((P_BM) box_mem)->free = box;
   if (!irq_dis) __enable_irq ();

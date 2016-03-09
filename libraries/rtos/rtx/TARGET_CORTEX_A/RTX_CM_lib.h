@@ -76,6 +76,62 @@ extern OS_RESULT rt_mut_wait    (OS_ID mutex, uint16_t timeout);
 OS_RESULT _os_mut_release (uint32_t p, OS_ID mutex)                   __svc_indirect(0);
 OS_RESULT _os_mut_wait    (uint32_t p, OS_ID mutex, uint16_t timeout) __svc_indirect(0);
 
+#elif defined (__ICCARM__)
+
+typedef void    *OS_ID;
+typedef uint32_t OS_TID;
+typedef uint32_t OS_MUT[4];
+typedef uint32_t OS_RESULT;
+
+#define runtask_id()    rt_tsk_self()
+#define mutex_init(m)   rt_mut_init(m)
+#define mutex_del(m)    os_mut_delete(m)
+#define mutex_wait(m)   os_mut_wait(m,0xFFFF)
+#define mutex_rel(m)    os_mut_release(m)
+
+extern OS_TID    rt_tsk_self    (void);
+extern void      rt_mut_init    (OS_ID mutex);
+extern OS_RESULT rt_mut_delete  (OS_ID mutex);
+extern OS_RESULT rt_mut_release (OS_ID mutex);
+extern OS_RESULT rt_mut_wait    (OS_ID mutex, uint16_t timeout);
+
+#pragma swi_number=0
+__swi OS_RESULT _os_mut_delete  (OS_ID mutex);
+
+static inline OS_RESULT os_mut_delete(OS_ID mutex)
+{
+    __asm("mov r12,%0\n" :: "r"(&rt_mut_delete) : "r12" );
+    return _os_mut_delete(mutex);
+}
+
+#pragma swi_number=0
+__swi OS_RESULT _os_mut_release (OS_ID mutex);
+
+static inline OS_RESULT os_mut_release(OS_ID mutex)
+{
+    __asm("mov r12,%0\n" :: "r"(&rt_mut_release) : "r12" );
+    return _os_mut_release(mutex);
+}
+
+#pragma swi_number=0
+__swi OS_RESULT _os_mut_wait    (OS_ID mutex, uint16_t timeout);
+
+static inline OS_RESULT os_mut_wait(OS_ID mutex, uint16_t timeout)
+{
+    __asm("mov r12,%0\n" :: "r"(&rt_mut_wait) : "r12" );
+    return _os_mut_wait(mutex, timeout);
+}
+
+#include <yvals.h> /* for include DLib_Thread.h */
+
+void __iar_system_Mtxinit(__iar_Rmtx *);
+void __iar_system_Mtxdst(__iar_Rmtx *);
+void __iar_system_Mtxlock(__iar_Rmtx *);
+void __iar_system_Mtxunlock(__iar_Rmtx *);
+
+
+
+
 #endif
 
 
@@ -174,6 +230,14 @@ uint16_t const mp_tmr_size = 0;
  static OS_MUT   std_libmutex[OS_MUTEXCNT];
  static uint32_t nr_mutex;
  extern void  *__libspace_start;
+#elif defined (__ICCARM__)
+typedef struct os_mut_array {
+    OS_MUT   mutex;
+    uint32_t used;
+} os_mut_array_t;
+
+static os_mut_array_t std_libmutex[OS_MUTEXCNT];/* must be Zero clear */
+static uint32_t nr_mutex = 0;
 #endif
 
 
@@ -245,6 +309,82 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
     /* RTX running, release a mutex. */
     mutex_rel (*mutex);
   }
+}
+
+#elif defined (__ICCARM__)
+
+/*--------------------------- __iar_system_Mtxinit --------------------------*/
+
+void __iar_system_Mtxinit(__iar_Rmtx *mutex)
+{
+    /* Allocate and initialize a system mutex. */
+    int32_t idx;
+
+    for (idx = 0; idx < OS_MUTEXCNT; idx++)
+    {
+        if (std_libmutex[idx].used == 0)
+        {
+            std_libmutex[idx].used = 1;
+            *mutex = &std_libmutex[idx].mutex;
+            nr_mutex++;
+            break;
+        }
+    }
+    if (nr_mutex >= OS_MUTEXCNT)
+    {
+        /* If you are here, you need to increase the number OS_MUTEXCNT. */
+        for (;;);
+    }
+  
+    mutex_init (*mutex);
+}
+
+/*--------------------------- __iar_system_Mtxdst ---------------------------*/
+
+void __iar_system_Mtxdst(__iar_Rmtx *mutex)
+{
+    /* Free a system mutex. */
+    int32_t idx;
+
+    if (nr_mutex == 0)
+    {
+        for (;;);
+    }
+
+    idx = ((((uint32_t)mutex) - ((uint32_t)&std_libmutex[0].mutex))
+           / sizeof(os_mut_array_t));
+
+    if (idx >= OS_MUTEXCNT)
+    {
+        for (;;);
+    }
+
+    mutex_del (*mutex);
+    std_libmutex[idx].used = 0;
+}
+
+/*--------------------------- __iar_system_Mtxlock --------------------------*/
+
+void __iar_system_Mtxlock(__iar_Rmtx *mutex)
+{
+    /* Acquire a system mutex, lock stdlib resources. */
+    if (runtask_id ())
+    {
+        /* RTX running, acquire a mutex. */
+        mutex_wait (*mutex);
+    }
+}
+
+/*--------------------------- __iar_system_Mtxunlock ------------------------*/
+
+void __iar_system_Mtxunlock(__iar_Rmtx *mutex)
+{
+    /* Release a system mutex, unlock stdlib resources. */
+    if (runtask_id ())
+    {
+        /* RTX running, release a mutex. */
+        mutex_rel (*mutex);
+    }
 }
 
 #endif
@@ -386,16 +526,11 @@ __attribute__((naked)) void software_init_hook (void) {
 
 #elif defined (__ICCARM__)
 
-extern int  __low_level_init(void);
-extern void __iar_data_init3(void);
 extern void exit(int arg);
 
-__noreturn __stackless void __cmain(void) {
+void mbed_main(void) {
   int a;
 
-  if (__low_level_init() != 0) {
-    __iar_data_init3();
-  }
   osKernelInitialize();
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();

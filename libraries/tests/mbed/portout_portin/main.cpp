@@ -1,3 +1,11 @@
+#if !DEVICE_PORTIN
+  #error [NOT_SUPPORTED] PortIn is not supported
+#endif
+
+#if !DEVICE_PORTOUT
+  #error [NOT_SUPPORTED] PortOut is not supported
+#endif
+
 #include "test_env.h"
 
 #if defined(TARGET_K64F) || defined(TARGET_KL05Z)
@@ -90,7 +98,7 @@
 #define P2_1    (1 << 1)  // PA_1
 #define P2_2    (1 << 2)  // PA_2
 #define PORT_2  PortA
-        
+
 #elif defined(TARGET_NUCLEO_F030R8) || \
       defined(TARGET_NUCLEO_F070RB) || \
       defined(TARGET_NUCLEO_F072RB) || \
@@ -175,6 +183,9 @@
 #define P2_1    (1 << 0)  /*PB00*/
 #define P2_2    (1 << 1)  /*PB01*/
 #define PORT_2  PortB
+
+#else
+#error [NOT_SUPPORTED] This test is not supported on this target
 
 #endif
 
