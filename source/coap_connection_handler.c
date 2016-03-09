@@ -11,8 +11,15 @@
 #include "socket_api.h"
 #include "net_interface.h"
 #include "eventOS_event_timer.h"
+#include "coap_service_api_internal.h"
 
 #define TRACE_GROUP "ThCH"
+
+typedef enum session_state_e {
+    SECURE_SESSION_HANDSHAKE_ONGOING = 0,
+    SECURE_SESSION_OK,
+    SECURE_SESSION_ALERT_SENT
+}session_state_t;
 
 typedef struct internal_socket_s {
     coap_conn_handler_t *parent;
@@ -59,7 +66,8 @@ typedef struct secure_session {
 
     secure_timer_t timer;
 
-    bool secure_done;
+    session_state_t session_state;
+    uint32_t session_start_timestamp;
     ns_list_link_t link;
 } secure_session_t;
 
@@ -81,10 +89,49 @@ static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
     return this;
 }
 
+static void secure_session_delete(secure_session_t *this)
+{
+    if (this) {
+        ns_list_remove(&secure_session_list, this);
+        if( this->sec_handler ){
+            coap_security_destroy(this->sec_handler);
+            this->sec_handler = NULL;
+        }
+        if(this->timer.timer){
+            eventOS_timeout_cancel(this->timer.timer);
+        }
+        ns_dyn_mem_free(this);
+        this = NULL;
+    }
+
+    return;
+}
+
 static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_t *address_ptr, uint16_t port)
 {
+    if(!address_ptr){
+        return NULL;
+    }
+
+    if(MAX_SECURE_SESSION_COUNT <= ns_list_count(&secure_session_list)){
+        // Seek & destroy oldest session where close notify have been sent
+        secure_session_t *to_be_removed = NULL;
+        ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
+            if(cur_ptr->session_state == SECURE_SESSION_ALERT_SENT){
+                if(!to_be_removed || cur_ptr->session_start_timestamp < to_be_removed->session_start_timestamp){
+                    to_be_removed = cur_ptr;
+                }
+            }
+        }
+        if(!to_be_removed){
+            return NULL;
+        }
+
+        secure_session_delete(to_be_removed);
+    }
+
     secure_session_t *this = ns_dyn_mem_alloc(sizeof(secure_session_t));
-    if (!this || !address_ptr) {
+    if (!this) {
         return NULL;
     }
     memset(this, 0, sizeof(secure_session_t));
@@ -108,29 +155,12 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_
     }
     this->parent = parent;
 
-    this->secure_done = false;
+    this->session_state = SECURE_SESSION_HANDSHAKE_ONGOING;
     ns_list_add_to_start(&secure_session_list, this);
-//    hack_save_remote_address(address_ptr, port); //TODO not bad hack
+
     return this;
 }
 
-static void secure_session_delete(secure_session_t *this)
-{
-    if (this) {
-        ns_list_remove(&secure_session_list, this);
-        if( this->sec_handler ){
-            coap_security_destroy(this->sec_handler);
-            this->sec_handler = NULL;
-        }
-        if(this->timer.timer){
-            eventOS_timeout_cancel(this->timer.timer);
-        }
-        ns_dyn_mem_free(this);
-        this = NULL;
-    }
-
-    return;
-}
 
 static void clear_secure_sessions(internal_socket_t *this){
     if( this ){
@@ -220,12 +250,12 @@ static void int_socket_delete(internal_socket_t *this)
                 ns_dyn_mem_free(this->data);
                 this->data = NULL;
             }
+            if(this->parent){
+                ns_dyn_mem_free(this->parent);
+            }
             ns_dyn_mem_free(this);
-            this = NULL;
         }
     }
-
-    return;
 }
 
 static internal_socket_t *int_socket_find_by_socket_id(int8_t id)
@@ -414,7 +444,7 @@ static void secure_recv_sckt_msg(void *cb_res)
             tr_err("secure_recv_sckt_msg session creation failed - OOM");
             return;
         }
-
+        session->session_start_timestamp = coap_service_get_internal_timer_ticks();
         // Start handshake
         if( !session->sec_handler->_is_started ){
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
@@ -430,13 +460,13 @@ static void secure_recv_sckt_msg(void *cb_res)
             ns_dyn_mem_free(pw);
         }else{
             //Continue handshake
-            if( !session->secure_done ){
+            if(session->session_state == SECURE_SESSION_HANDSHAKE_ONGOING){
                 int ret = coap_security_handler_continue_connecting(session->sec_handler);
                 // Handshake done
                 if(ret == 0){
                     eventOS_timeout_cancel(session->timer.timer);
                     session->timer.timer = NULL;
-                    session->secure_done = true;
+                    session->session_state = SECURE_SESSION_OK;
                     if( sock->parent->_security_done_cb ){
                         sock->parent->_security_done_cb(sock->listen_socket, src_address.address,
                                                        src_address.identifier,
@@ -473,7 +503,7 @@ static void recv_sckt_msg(void *cb_res)
     internal_socket_t *sock = int_socket_find_by_socket_id(sckt_data->socket_id);
     ns_address_t src_address;
     if( sock && read_data(sckt_data, sock, &src_address) == 0 ){
-        if( sock->parent->_recv_cb ){
+        if(sock->parent && sock->parent->_recv_cb){
             sock->parent->_recv_cb(sock->listen_socket, src_address.address, src_address.identifier, sock->data, sock->data_len);
         }
         ns_dyn_mem_free(sock->data);
@@ -514,6 +544,9 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
             tr_err("coap_connection_handler_virtual_recv session creation failed - OOM");
             return -1;
         }
+
+        session->session_start_timestamp = coap_service_get_internal_timer_ticks();
+
         if( !session->sec_handler->_is_started ){
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
             uint8_t pw_len;
@@ -531,10 +564,10 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
                 return -1;
             }
         }else{
-            if( !session->secure_done ){
+            if(session->session_state == SECURE_SESSION_HANDSHAKE_ONGOING){
                 int ret = coap_security_handler_continue_connecting(session->sec_handler);
                 if(ret == 0){
-                    session->secure_done = true;
+                    session->session_state = SECURE_SESSION_OK;
                     if( handler->_security_done_cb ){
                         handler->_security_done_cb(sock->listen_socket,
                                                   address, port,
@@ -598,19 +631,16 @@ coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from
     handler->_recv_cb = recv_from_cb;
     handler->_send_cb = send_to_cb;
 
-//    handler->sec_conn_closed_cb = sec_conn_closed_cb;
     handler->_get_password_cb = pw_cb;
     handler->_security_done_cb = done_cb;
 
     return handler;
 }
-
 void connection_handler_destroy(coap_conn_handler_t *handler)
 {
     if(handler){
-        int_socket_delete(handler->socket);
-        handler->socket = NULL;
-        ns_dyn_mem_free(handler);
+       int_socket_delete(handler->socket);
+       ns_dyn_mem_free(handler);
     }
 }
 
@@ -621,6 +651,8 @@ void connection_handler_close_secure_connection( coap_conn_handler_t *handler, u
             secure_session_t *session = secure_session_find( handler->socket, destination_addr_ptr, port);
             if( session ){
                 coap_security_send_close_alert( session->sec_handler );
+                session->session_state = SECURE_SESSION_ALERT_SENT;
+                session->session_start_timestamp = coap_service_get_internal_timer_ticks();
             }
         }
     }
@@ -642,15 +674,18 @@ int coap_connection_handler_open_connection(coap_conn_handler_t *handler, uint16
     internal_socket_t *current = !use_ephemeral_port?int_socket_find(listen_port, is_secure, is_real_socket, bypassSec):NULL;
     if(!current){
         handler->socket = int_socket_create(listen_port, use_ephemeral_port, is_secure, is_real_socket, bypassSec);
-        if( !handler->socket ){
+        if(!handler->socket){
             return -1;
         }
-        handler->socket->parent = handler;
+        handler->socket->parent = ns_dyn_mem_alloc(sizeof(coap_conn_handler_t));
+        if(!handler->socket->parent){
+            int_socket_delete(handler->socket);
+            return -1;
+        }
+        *handler->socket->parent = *handler;
     }else{
         current->usage_counter++;
         handler->socket = current;
-        //handler->parent cannot be set here!
-        //this will be always problematic if 2 or more secure sockets try to share a same port!
     }
     return 0;
 }
@@ -665,12 +700,13 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, ns_address_t
         memcpy(handler->socket->dest_addr.address, dest_addr->address, 16);
         handler->socket->dest_addr.identifier = dest_addr->identifier;
         handler->socket->dest_addr.type = dest_addr->type;
-        secure_session_t *session = secure_session_find( handler->socket, dest_addr->address, dest_addr->identifier);
+        secure_session_t *session = secure_session_find(handler->socket, dest_addr->address, dest_addr->identifier);
         if( !session ){
             session = secure_session_create(handler->socket, dest_addr->address, dest_addr->identifier);
             if( !session ){
                 return -1;
             }
+            session->session_start_timestamp = coap_service_get_internal_timer_ticks();
             memcpy( handler->socket->dest_addr.address, dest_addr->address, 16 );
             handler->socket->dest_addr.identifier = dest_addr->identifier;
             handler->socket->dest_addr.type = dest_addr->type;
@@ -693,8 +729,9 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, ns_address_t
                 ns_dyn_mem_free(pw);
                 return -1;
             }
-        }else if( session->secure_done ){
+        }else if( session->session_state == SECURE_SESSION_OK ){
             if( coap_security_handler_send_message(session->sec_handler, data_ptr, data_len ) > 0 ){
+                session->session_start_timestamp = coap_service_get_internal_timer_ticks();
                 return 0;
             }
         }
@@ -735,4 +772,25 @@ int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_
     handler->socket->timeout_min = min;
 
     return 0;
+}
+
+/* No need to call every second - call rather like every minute (SECURE_SESSION_CLEAN_INTERVAL sets this) */
+void coap_connection_handler_exec(uint32_t time)
+{
+    if(ns_list_count(&secure_session_list)){
+        // Seek & destroy old sessions where close notify have been sent
+        ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
+            if(cur_ptr->session_state == SECURE_SESSION_ALERT_SENT ||
+                    cur_ptr->session_state == SECURE_SESSION_HANDSHAKE_ONGOING){
+                if((cur_ptr->session_start_timestamp +  CLOSED_SECURE_SESSION_TIMEOUT) <= time){
+                    secure_session_delete(cur_ptr);
+                }
+            }
+            if(cur_ptr->session_state == SECURE_SESSION_OK){
+                if((cur_ptr->session_start_timestamp +  OPEN_SECURE_SESSION_TIMEOUT) <= time){
+                    secure_session_delete(cur_ptr);
+                }
+            }
+        }
+    }
 }

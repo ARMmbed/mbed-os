@@ -60,3 +60,8 @@ int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_
 {
     return 0;
 }
+
+void coap_connection_handler_exec(uint32_t time)
+{
+
+}
