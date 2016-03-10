@@ -1,4 +1,8 @@
-#include "eventOS_event_timer.h"
+/*
+ * Copyright (c) 2016 ARM Limited. All Rights Reserved.
+ */
+
+ #include "eventOS_event_timer.h"
 
 // Timeout structure, already typedefed to timeout_t
 struct timeout_entry_t {
