@@ -33,9 +33,9 @@ class IAR(mbedToolchain):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
         if target.core == "Cortex-M7F":
-			cpuchoice = "Cortex-M7"
+            cpuchoice = "Cortex-M7"
         else:
-			cpuchoice = target.core
+            cpuchoice = target.core
         c_flags = [
             "--cpu=%s" % cpuchoice, "--thumb",
             "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),

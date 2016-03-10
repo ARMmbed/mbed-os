@@ -851,7 +851,7 @@ class NUCLEO_F746ZG(Target):
         self.progen = {
             "target":"nucleo-f746zg",
             "iar": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746cg.ewp.tmpl')],
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746zg.ewp.tmpl')],
             }
         }
 
