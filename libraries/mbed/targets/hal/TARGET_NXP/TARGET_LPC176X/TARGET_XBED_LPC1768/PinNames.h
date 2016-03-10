@@ -77,12 +77,12 @@ typedef enum {
     //USBRX = P0_3,
 
 	//xbed lpc1768 Pin Names
-	LED5 = P2_6,
-	BTN1 = P2_8,
-	SDA = P0_27,
-	SCL = P0_28,
-	ISP = P2_10,
-	CLK = P1_27,
+    LED5 = P2_6,
+    BTN1 = P2_8,
+    SDA = P0_27,
+    SCL = P0_28,
+    ISP = P2_10,
+    CLK = P1_27,
     USBTX = P2_0, //DIP26
     USBRX = P2_1, //DIP25
 
