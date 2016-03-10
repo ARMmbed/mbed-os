@@ -126,9 +126,6 @@ class LPC11C24(LPCTarget):
 
         self.progen = {
             "target":"lpc11c24_301",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class LPC1114(LPCTarget):
@@ -325,9 +322,6 @@ class LPC1347(LPCTarget):
         self.supported_toolchains = ["ARM", "GCC_ARM","IAR"]
         self.progen = {
             "target":"lpc1347",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class LPC1549(LPCTarget):
@@ -355,9 +349,6 @@ class LPC1768(LPCTarget):
         self.detect_code = ["1010"]
         self.progen = {
             "target":"mbed-lpc1768",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class ARCH_PRO(LPCTarget):
@@ -370,9 +361,6 @@ class ARCH_PRO(LPCTarget):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"arch-pro",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class UBLOX_C027(LPCTarget):
@@ -385,9 +373,6 @@ class UBLOX_C027(LPCTarget):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"ublox-c027",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class XBED_LPC1768(LPCTarget):
@@ -400,9 +385,6 @@ class XBED_LPC1768(LPCTarget):
         self.detect_code = ["1010"]
         self.progen = {
             "target":"lpc1768",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class LPC2368(LPCTarget):
@@ -413,9 +395,6 @@ class LPC2368(LPCTarget):
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
         self.progen = {
             "target":"lpc2368",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class LPC2460(LPCTarget):
@@ -426,9 +405,6 @@ class LPC2460(LPCTarget):
         self.supported_toolchains = ["GCC_ARM"]
         self.progen = {
             "target":"lpc2460",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class LPC810(LPCTarget):
@@ -503,9 +479,6 @@ class LPC4088(LPCTarget):
         self.is_disk_virtual = True
         self.progen = {
             "target":"lpc4088",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
     def init_hooks(self, hook, toolchain_name):
@@ -553,9 +526,6 @@ class LPC4330_M4(LPCTarget):
         self.supported_toolchains = ["ARM", "GCC_CR", "IAR", "GCC_ARM"]
         self.progen = {
             "target":"lpc4330",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class LPC4330_M0(LPCTarget):
@@ -573,9 +543,6 @@ class LPC4337(LPCTarget):
         self.supported_toolchains = ["ARM"]
         self.progen = {
             "target":"lpc4337",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class LPC1800(LPCTarget):
@@ -628,9 +595,6 @@ class KL25Z(Target):
         self.detect_code = ["0200"]
         self.progen = {
             "target":"frdm-kl25z",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class KL26Z(Target):
@@ -643,9 +607,6 @@ class KL26Z(Target):
         self.is_disk_virtual = True
         self.progen = {
             "target":"kl26z",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class KL43Z(Target):
@@ -658,9 +619,6 @@ class KL43Z(Target):
         self.is_disk_virtual = True
         self.progen = {
             "target":"frdm-kl43z",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class KL46Z(Target):
@@ -674,9 +632,6 @@ class KL46Z(Target):
         self.detect_code = ["0220"]
         self.progen = {
             "target":"frdm-kl46z",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class K20D50M(Target):
@@ -689,9 +644,6 @@ class K20D50M(Target):
         self.detect_code = ["0230"]
         self.progen = {
             "target":"frdm-k20d50m",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class TEENSY3_1(Target):
@@ -706,9 +658,6 @@ class TEENSY3_1(Target):
         self.detect_code = ["0230"]
         self.progen = {
             "target":"teensy-31",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
     def init_hooks(self, hook, toolchain_name):
@@ -736,9 +685,6 @@ class K22F(Target):
         self.detect_code = ["0201"]
         self.progen = {
             "target":"frdm-k22f",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class K64F(Target):
@@ -754,9 +700,6 @@ class K64F(Target):
         self.detect_code = ["0240"]
         self.progen = {
             "target":"frdm-k64f",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class MTS_GAMBIT(Target):
@@ -770,9 +713,6 @@ class MTS_GAMBIT(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"mts-gambit",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 ### STMicro ###
@@ -788,9 +728,6 @@ class NUCLEO_F030R8(Target):
         self.detect_code = ["0725"]
         self.progen = {
             "target":"nucleo-f030r8",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F031K6(Target):
@@ -804,9 +741,6 @@ class NUCLEO_F031K6(Target):
         self.detect_code = ["0791"]
         self.progen = {
             "target":"nucleo-f031k6",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F042K6(Target):
@@ -820,9 +754,6 @@ class NUCLEO_F042K6(Target):
         self.detect_code = ["0785"]
         self.progen = {
             "target":"nucleo-f042k6",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F070RB(Target):
@@ -836,9 +767,6 @@ class NUCLEO_F070RB(Target):
         self.detect_code = ["0755"]
         self.progen = {
             "target":"nucleo-f070rb",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F072RB(Target):
@@ -852,9 +780,6 @@ class NUCLEO_F072RB(Target):
         self.detect_code = ["0730"]
         self.progen = {
             "target":"nucleo-f072rb",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F091RC(Target):
@@ -868,9 +793,6 @@ class NUCLEO_F091RC(Target):
         self.detect_code = ["0750"]
         self.progen = {
             "target":"nucleo-f091rc",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F103RB(Target):
@@ -884,9 +806,6 @@ class NUCLEO_F103RB(Target):
         self.detect_code = ["0700"]
         self.progen = {
             "target":"nucleo-f103rb",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F302R8(Target):
@@ -900,9 +819,6 @@ class NUCLEO_F302R8(Target):
         self.detect_code = ["0705"]
         self.progen = {
             "target":"nucleo-f302r8",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F303K8(Target):
@@ -916,9 +832,6 @@ class NUCLEO_F303K8(Target):
         self.detect_code = ["0775"]
         self.progen = {
             "target":"nucleo-f303k8",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F303RE(Target):
@@ -932,9 +845,6 @@ class NUCLEO_F303RE(Target):
         self.detect_code = ["0745"]
         self.progen = {
             "target":"nucleo-f303re",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F334R8(Target):
@@ -948,9 +858,6 @@ class NUCLEO_F334R8(Target):
         self.detect_code = ["0735"]
         self.progen = {
             "target":"nucleo-f334r8",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F401RE(Target):
@@ -964,9 +871,6 @@ class NUCLEO_F401RE(Target):
         self.detect_code = ["0720"]
         self.progen = {
             "target":"nucleo-f401re",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F410RB(Target):
@@ -980,9 +884,6 @@ class NUCLEO_F410RB(Target):
         self.detect_code = ["0740"]
         self.progen = {
             "target":"nucleo-f410rb",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_F411RE(Target):
@@ -996,9 +897,6 @@ class NUCLEO_F411RE(Target):
         self.detect_code = ["0740"]
         self.progen = {
             "target":"nucleo-f411re",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class ELMO_F411RE(Target):
@@ -1022,9 +920,6 @@ class NUCLEO_F446RE(Target):
         self.detect_code = ["0777"]
         self.progen = {
             "target":"nucleo-f446re",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class B96B_F446VE(Target):
@@ -1046,9 +941,6 @@ class NUCLEO_F746ZG(Target):
         self.detect_code = ["0816"]
         self.progen = {
             "target":"nucleo-f746zg",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            },
             "iar": {
                 "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746cg.ewp.tmpl')],
             }
@@ -1065,9 +957,6 @@ class NUCLEO_L053R8(Target):
         self.detect_code = ["0715"]
         self.progen = {
             "target":"nucleo-l053r8",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_L073RZ(Target):
@@ -1081,9 +970,6 @@ class NUCLEO_L073RZ(Target):
         self.detect_code = ["0760"]
         self.progen = {
             "target":"nucleo-l073rz",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_L152RE(Target):
@@ -1097,9 +983,6 @@ class NUCLEO_L152RE(Target):
         self.detect_code = ["0710"]
         self.progen = {
             "target":"nucleo-l152re",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NUCLEO_L476RG(Target):
@@ -1113,9 +996,6 @@ class NUCLEO_L476RG(Target):
         self.detect_code = ["0765"]
         self.progen = {
             "target":"nucleo-l476rg",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class STM32F3XX(Target):
@@ -1143,9 +1023,6 @@ class ARCH_MAX(Target):
         self.macros = ['LSI_VALUE=32000']
         self.progen = {
             "target":"lpc1768",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
     def program_cycle_s(self):
         return 2
@@ -1184,9 +1061,6 @@ class DISCO_F334C8(Target):
         self.detect_code = ["0810"]
         self.progen = {
             "target":"disco-f334c8",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class DISCO_F407VG(Target):
@@ -1197,9 +1071,6 @@ class DISCO_F407VG(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.progen = {
             "target":"disco-f407vg",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
         self.default_toolchain = "ARM"
 
@@ -1212,9 +1083,6 @@ class DISCO_F429ZI(Target):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class DISCO_F469NI(Target):
@@ -1228,9 +1096,6 @@ class DISCO_F469NI(Target):
         self.detect_code = ["0788"]
         self.progen = {
             "target":"disco-f469ni",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class DISCO_L053C8(Target):
@@ -1242,9 +1107,6 @@ class DISCO_L053C8(Target):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"disco-l053c8",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class DISCO_F746NG(Target):
@@ -1256,9 +1118,6 @@ class DISCO_F746NG(Target):
         self.detect_code = ["0815"]
         self.progen = {
             "target":"disco-f746ng",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class DISCO_L476VG(Target):
@@ -1271,9 +1130,6 @@ class DISCO_L476VG(Target):
         self.detect_code = ["0820"]
         self.progen = {
             "target":"disco-l476vg",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class MTS_MDOT_F405RG(Target):
@@ -1287,9 +1143,6 @@ class MTS_MDOT_F405RG(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"mts-mdot-f405rg",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class MTS_MDOT_F411RE(Target):
@@ -1302,9 +1155,6 @@ class MTS_MDOT_F411RE(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"mts-mdot-f411re",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
     def init_hooks(self, hook, toolchain_name):
@@ -1349,9 +1199,6 @@ class MTS_DRAGONFLY_F411RE(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"mts-dragonfly-f411re",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
     def init_hooks(self, hook, toolchain_name):
@@ -1396,9 +1243,6 @@ class MOTE_L152RC(Target):
         self.detect_code = ["4100"]
         self.progen = {
             "target":"stm32l151rc",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 class DISCO_F401VC(Target):
     def __init__(self):
@@ -1427,9 +1271,6 @@ class NZ32_SC151(Target):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"stm32l151rc",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
     # After flashing device, how long to delay until we assume program is running
     def program_cycle_s(self):
@@ -1660,9 +1501,6 @@ class NRF51822(MCU_NRF51_16K):
         self.macros += ['TARGET_NRF51822_MKIT']
         self.progen = {
             "target":"mkit",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 class NRF51822_BOOT(MCU_NRF51_16K_BOOT):
     def __init__(self):
@@ -1682,9 +1520,6 @@ class ARCH_BLE(MCU_NRF51_16K):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"arch-ble",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class ARCH_BLE_BOOT(MCU_NRF51_16K_BOOT):
@@ -1727,9 +1562,6 @@ class SEEED_TINY_BLE(MCU_NRF51_16K):
         MCU_NRF51_16K.__init__(self)
         self.progen = {
             "target":"seed-tinyble",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class SEEED_TINY_BLE_BOOT(MCU_NRF51_16K_BOOT):
@@ -1750,9 +1582,6 @@ class HRM1017(MCU_NRF51_16K):
         self.macros += ['TARGET_NRF_LFCLK_RC']
         self.progen = {
             "target":"hrm1017",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 class HRM1017_BOOT(MCU_NRF51_16K_BOOT):
     def __init__(self):
@@ -1772,9 +1601,6 @@ class RBLAB_NRF51822(MCU_NRF51_16K):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"rblab-nrf51822",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class RBLAB_NRF51822_BOOT(MCU_NRF51_16K_BOOT):
@@ -1833,9 +1659,6 @@ class DELTA_DFCM_NNN40(MCU_NRF51_32K):
         self.macros += ['TARGET_NRF_LFCLK_RC']
         self.progen = {
             "target":"dfcm-nnn40",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
     def program_cycle_s(self):
         return 10
@@ -1862,9 +1685,6 @@ class NRF51_DK(MCU_NRF51_32K):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"nrf51-dk",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
@@ -1886,9 +1706,6 @@ class NRF51_DONGLE(MCU_NRF51_32K):
         MCU_NRF51_32K.__init__(self)
         self.progen = {
             "target":"nrf51-dongle",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class NRF51_DONGLE_BOOT(MCU_NRF51_32K_BOOT):
@@ -2066,9 +1883,6 @@ class MAXWSNENV(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target": "maxwsnenv",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class MAX32600MBED(Target):
@@ -2081,9 +1895,6 @@ class MAX32600MBED(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target": "max32600mbed",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 ### Silicon Labs ###
@@ -2098,9 +1909,6 @@ class EFM32GG_STK3700(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"efm32gg_stk3700", #TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 
@@ -2115,9 +1923,6 @@ class EFM32LG_STK3600(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"efm32lg_stk3600", #TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 
@@ -2132,9 +1937,6 @@ class EFM32WG_STK3800(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"efm32wg_stk3800", #TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 
@@ -2181,9 +1983,6 @@ class EFM32PG_STK3401(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"efm32pg_stk3401", #TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 
@@ -2200,9 +1999,6 @@ class WIZWIKI_W7500(Target):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"wizwiki_w7500",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class WIZWIKI_W7500P(Target):
@@ -2215,9 +2011,6 @@ class WIZWIKI_W7500P(Target):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"wizwiki_w7500p", # TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class WIZWIKI_W7500ECO(Target):
@@ -2229,9 +2022,6 @@ class WIZWIKI_W7500ECO(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"wizwiki_w7500eco", # TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 
@@ -2245,9 +2035,6 @@ class SAMR21G18A(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"samr21g18a",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class SAMD21J18A(Target):
@@ -2260,9 +2047,6 @@ class SAMD21J18A(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"samd21j18a",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class SAMD21G18A(Target):
@@ -2275,9 +2059,6 @@ class SAMD21G18A(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"samd21g18a",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 class SAML21J18A(Target):
@@ -2290,9 +2071,6 @@ class SAML21J18A(Target):
         self.default_toolchain = "ARM"
         self.progen = {
             "target":"samr21j18a",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision.uvproj.tmpl')],
-            }
         }
 
 # Get a single instance for each target
