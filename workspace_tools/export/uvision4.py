@@ -20,9 +20,12 @@ from project_generator_definitions.definitions import ProGenDef
 from workspace_tools.export.exporters import Exporter
 from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
 
+# If you wish to add a new target, add it to project_generator_definitions, and then
+# define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
+# There are 2 default mbed templates (predefined settings) uvision.uvproj and uvproj_microlib.uvproj.tmpl
 class Uvision4(Exporter):
     """
-    Exporter class for IAR Systems. This class uses project generator.
+    Exporter class for uvision. This class uses project generator.
     """
     # These 2 are currently for exporters backward compatiblity
     NAME = 'uVision4'
@@ -46,10 +49,10 @@ class Uvision4(Exporter):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
         tool_specific = {}
-        # Expand tool specific settings by uivison specific settings which are required
+        # Expand tool specific settings by uvision specific settings which are required
         try:
-            if TARGET_MAP[self.target].progen['uivison']['template']:
-                tool_specific['uivison'] = TARGET_MAP[self.target].progen['uivison']
+            if TARGET_MAP[self.target].progen['uvision']['template']:
+                tool_specific['uvision'] = TARGET_MAP[self.target].progen['uvision']
         except KeyError:
             # use default template
             # by the mbed projects
