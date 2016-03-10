@@ -72,8 +72,9 @@ typedef enum {
     LED3 = P1_21,
     LED4 = P1_23,
 
-    USBTX = P0_2,
-    USBRX = P0_3,
+    //For USB UART
+    //USBTX = P0_2,
+    //USBRX = P0_3,
 
 	//xbed lpc1768 Pin Names
 	LED5 = P2_6,
@@ -82,7 +83,8 @@ typedef enum {
 	SCL = P0_28,
 	ISP = P2_10,
 	CLK = P1_27,
-
+    USBTX = P2_0, //DIP26
+    USBRX = P2_1, //DIP25
 
 
     // Arch Pro Pin Names
