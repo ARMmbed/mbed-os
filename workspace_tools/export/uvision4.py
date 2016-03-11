@@ -57,7 +57,7 @@ class Uvision4(Exporter):
             # use default template
             # by the mbed projects
             tool_specific['uvision'] = {
-                    'template': [join(dirname(__file__),  'uvision.tmpl')],
+                    'template': [join(dirname(__file__),  'uvision.uvproj.tmpl')],
             }
 
         project_data['tool_specific'] = {}
