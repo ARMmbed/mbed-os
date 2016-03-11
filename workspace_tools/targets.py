@@ -846,7 +846,7 @@ class NUCLEO_F746ZG(Target):
         Target.__init__(self)
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746ZG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.detect_code = ["0816"]
         self.progen = {
             "target":"nucleo-f746zg",
@@ -1023,7 +1023,7 @@ class DISCO_F746NG(Target):
         Target.__init__(self)
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.detect_code = ["0815"]
         self.progen = {
             "target":"disco-f746ng",
