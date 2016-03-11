@@ -673,48 +673,6 @@ class TEENSY3_1(Target):
         with open(binf.replace(".bin", ".hex"), "w") as f:
             binh.tofile(f, format='hex')
 
-class K22F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
-        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0201"]
-        self.progen = {
-            "target":"frdm-k22f",
-        }
-
-class K64F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F', 'FRDM']
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0240"]
-        self.progen = {
-            "target":"frdm-k64f",
-        }
-
-class MTS_GAMBIT(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"mts-gambit",
-        }
-
 ### STMicro ###
 
 class NUCLEO_F030R8(Target):
@@ -2165,9 +2123,6 @@ TARGETS = [
     KL46Z(),
     K20D50M(),
     TEENSY3_1(),
-    K22F(),
-    K64F(),
-    MTS_GAMBIT(),       # FRDM K64F
 
     ### STMicro ###
     B96B_F446VE(),
