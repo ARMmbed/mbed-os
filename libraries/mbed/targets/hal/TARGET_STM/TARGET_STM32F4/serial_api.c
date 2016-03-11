@@ -451,6 +451,9 @@ static void uart_irq(int id)
             irq_handler(serial_irq_ids[id], RxIrq);
             __HAL_UART_CLEAR_FLAG(handle, UART_FLAG_RXNE);
         }
+        if (__HAL_UART_GET_FLAG(handle, UART_FLAG_ORE) != RESET) {
+            uint8_t c = handle->Instance->DR;
+        }
     }
 }
 
