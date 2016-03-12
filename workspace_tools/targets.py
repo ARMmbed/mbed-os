@@ -567,6 +567,20 @@ class LPC11U37H_401(LPCTarget):
             }
         }
 
+class K22F(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'FRDM']
+        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.detect_code = ["0231"]
+        self.progen = {
+            "target":"frdm-k22f",
+        }
+
 class K64F(Target):
     def __init__(self):
         Target.__init__(self)
@@ -2143,6 +2157,7 @@ TARGETS = [
     LPC4330_M0(),
     LPC4337(),
     LPC11U37H_401(),
+    K22F(),
     K64F(),
     MTS_GAMBIT(),       # FRDM K64F
 
