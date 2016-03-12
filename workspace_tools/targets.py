@@ -481,6 +481,35 @@ class LPC11U37H_401(LPCTarget):
         self.progen = {
             "target":"lpc11u37_401",
         }
+
+class K64F(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'FRDM']
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0240"]
+        self.progen = {
+            "target":"frdm-k64f",
+        }
+
+class MTS_GAMBIT(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'K64F']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"mts-gambit",
+        }
+
 ### Freescale ###
 
 class KL05Z(Target):
@@ -1939,6 +1968,8 @@ TARGETS = [
     LPC4330_M0(),
     LPC4337(),
     LPC11U37H_401(),
+    K64F(),
+    MTS_GAMBIT(),       # FRDM K64F
 
     ### Freescale ###
     KL05Z(),
