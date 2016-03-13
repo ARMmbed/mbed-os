@@ -31,27 +31,6 @@ int UDPSocket::open(NetworkInterface *iface)
     return Socket::open(iface, NSAPI_UDP);
 }
 
-int UDPSocket::bind(uint16_t port)
-{
-    SocketAddress addr(0, port);
-    return bind(addr);
-}
-
-int UDPSocket::bind(const char *address, uint16_t port)
-{
-    SocketAddress addr(address, port);
-    return bind(addr);
-}
-
-int UDPSocket::bind(const SocketAddress &address)
-{
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;
-    }
-
-    return _iface->socket_bind(_socket, address);
-}
-
 int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigned size)
 {
     SocketAddress addr(_iface, host, port);

@@ -58,6 +58,27 @@ int Socket::close()
     return _iface->socket_close(socket);
 }
 
+int Socket::bind(uint16_t port)
+{
+    SocketAddress addr(0, port);
+    return bind(addr);
+}
+
+int Socket::bind(const char *address, uint16_t port)
+{
+    SocketAddress addr(address, port);
+    return bind(addr);
+}
+
+int Socket::bind(const SocketAddress &address)
+{
+    if (!_socket) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    return _iface->socket_bind(_socket, address);
+}
+
 void Socket::set_blocking(bool blocking)
 {
     _blocking = blocking;

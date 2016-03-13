@@ -36,25 +36,6 @@ public:
      */
     virtual int open(NetworkInterface *iface);
     
-    /** Bind a TCP Server to a specific port
-     *  @param port     The port to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
-     */
-    int bind(uint16_t port);
-
-    /** Bind a TCP Server to a local address
-     *  @param address  The null-terminated address to listen for incoming connections on
-     *  @param port     The port to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
-     */
-    int bind(const char *address, uint16_t port);
-
-    /** Bind a TCP Server to a local address
-     *  @param address  The SocketAddress to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
-     */
-    int bind(const SocketAddress &address);
-    
     /** Start listening for incoming connections
      * @param backlog   Number of pending connections that can be queued up at any
      *                  one time [Default: 1]
