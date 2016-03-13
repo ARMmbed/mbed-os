@@ -89,22 +89,23 @@ void Socket::set_timeout(unsigned timeout)
     _timeout = timeout;
 }
 
-int Socket::set_option(int optname, const void *optval, unsigned int optlen)
+int Socket::setsockopt(int level, int optname, const void *optval, unsigned optlen)
 {
     if (!_socket) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    return _iface->socket_set_option(_socket, optname, optval, optlen);
+    return _iface->setsockopt(_socket, level, optname, optval, optlen);
 }
 
-int Socket::get_option(int optname, void *optval, unsigned int *optlen)
+int Socket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
 {
     if (!_socket) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    return _iface->socket_get_option(_socket, optname, optval, optlen);
+    return _iface->getsockopt(_socket, level, optname, optval, optlen);
+
 }
 
 void Socket::thunk(void *data)

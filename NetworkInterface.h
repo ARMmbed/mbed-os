@@ -36,12 +36,6 @@ enum nsapi_error_t {
     NSAPI_ERROR_AUTH_FAILURE  = -3009,     /*!< connection to access point faield */
     NSAPI_ERROR_DEVICE_ERROR  = -3010,     /*!< failure interfacing with the network procesor */
 };
-   
-/** Enum of available options
- *  @enum nsapi_opt_t
- */
-enum nsapi_opt_t {
-};
 
 /** Enum of socket protocols
  *  @enum protocol_t
@@ -93,6 +87,24 @@ public:
      */
     virtual int gethostbyname(SocketAddress *address, const char *name);
 
+    /*  Set stack options
+     *  @param level    Option level
+     *  @param optname  Option identifier
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
+     */    
+    virtual int setstackopt(int level, int optname, const void *optval, unsigned optlen);
+
+    /*  Get stack options
+     *  @param level    Option level
+     *  @param optname  Option identifier
+     *  @param optval   Buffer where to write option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
+     */    
+    virtual int getstackopt(int level, int optname, void *optval, unsigned *optlen);
+
 protected:
     friend class Socket;
     friend class UDPSocket;
@@ -113,24 +125,6 @@ protected:
      *        be cleaned up
      */
     virtual int socket_close(void *handle) = 0;
-
-    /** Set socket options
-     *  @param handle   Socket handle
-     *  @param optname  Option ID
-     *  @param optval   Option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
-     */    
-    virtual int socket_set_option(void *handle, int optname, const void *optval, unsigned int optlen) = 0;
-
-    /** Get socket options
-     *  @param handle   Socket handle
-     *  @param optname  Option ID
-     *  @param optval   Buffer pointer where to write the option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
-     */
-    virtual int socket_get_option(void *handle, int optname, void *optval, unsigned int *optlen) = 0;
 
     /** Bind a server socket to a specific port
      *  @param handle   Socket handle
@@ -220,6 +214,26 @@ protected:
      *  @note Callback may be called in an interrupt context.
      */
     virtual void socket_attach(void *handle, void (*callback)(void *), void *data) = 0;
+
+    /*  Set socket options
+     *  @param handle   Socket handle
+     *  @param level    Option level
+     *  @param optname  Option identifier
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
+     */    
+    virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
+
+    /*  Get socket options
+     *  @param handle   Socket handle
+     *  @param level    Option level
+     *  @param optname  Option identifier
+     *  @param optval   Buffer where to write option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
+     */    
+    virtual int getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
 };
 
 #endif

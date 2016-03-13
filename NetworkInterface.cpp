@@ -28,3 +28,23 @@ int NetworkInterface::gethostbyname(SocketAddress *address, const char *name)
     address->set_ip_address(buffer);
     return 0;
 }
+
+int NetworkInterface::setstackopt(int level, int optname, const void *optval, unsigned optlen)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+int NetworkInterface::getstackopt(int level, int optname, void *optval, unsigned *optlen)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+int NetworkInterface::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+int NetworkInterface::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
