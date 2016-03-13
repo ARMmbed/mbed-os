@@ -150,11 +150,11 @@ static void udp_recv_irq(
         void *arg, struct udp_pcb *upcb, struct pbuf *p,
         struct ip_addr *addr, uint16_t port);
 
-void *LWIPInterface::socket_create(nsapi_protocol_t proto)
+int LWIPInterface::socket_open(void **handle, nsapi_protocol_t proto)
 {
     struct lwip_socket *s = new struct lwip_socket;
     if (!s) {
-        return 0;
+        return NSAPI_ERROR_NO_SOCKET;
     }
 
     memset(s, 0, sizeof *s);
@@ -164,30 +164,43 @@ void *LWIPInterface::socket_create(nsapi_protocol_t proto)
             s->proto = proto;
             s->udp = udp_new();
             if (!s->udp) {
-                return 0;
+                return NSAPI_ERROR_NO_SOCKET;
             }
 
             udp_recv(s->udp, udp_recv_irq, s);
-            return s;
+            *handle = s;
 
         case NSAPI_TCP:
             s->proto = proto;
             s->tcp = tcp_new();
             if (!s->tcp) {
-                return 0;
+                return NSAPI_ERROR_NO_SOCKET;
             }
 
             tcp_arg(s->tcp, s);
             //tcp_err(s->tcp, tcp_error_irq);
-            return s;
+            *handle = s;
     }
 
-    return 0;
+    return NSAPI_ERROR_DEVICE_ERROR;
 }
 
-void LWIPInterface::socket_destroy(void *handle)
+int LWIPInterface::socket_close(void *handle)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
+    int err = 0;
+
+    switch (s->proto) {
+        case NSAPI_UDP:
+            udp_disconnect(s->udp);
+            break;
+
+        case NSAPI_TCP:
+            if (tcp_close(s->tcp)) {
+                err = NSAPI_ERROR_DEVICE_ERROR;
+            }
+            break;
+    }
 
     if (s->rx_chain) {
         pbuf_free(s->rx_chain);
@@ -195,7 +208,10 @@ void LWIPInterface::socket_destroy(void *handle)
     }
 
     delete s;
+
+    return err;
 }
+
 
 int LWIPInterface::socket_set_option(void *handle, int optname, const void *optval, unsigned optlen)
 {
@@ -273,7 +289,7 @@ bool LWIPInterface::socket_is_connected(void *handle)
     return true;
 }
 
-int LWIPInterface::socket_accept(void *handle, void **connection)
+int LWIPInterface::socket_accept(void **handle, void *server)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -478,26 +494,6 @@ int LWIPInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *buf,
     s->rx_chain = pbuf_consume(p, p->tot_len, true);
 
     return copied;
-}
-
-int LWIPInterface::socket_close(void *handle)
-{
-    struct lwip_socket *s = (struct lwip_socket *)handle;
-
-    switch (s->proto) {
-        case NSAPI_UDP:
-            udp_disconnect(s->udp);
-            return 0;
-
-        case NSAPI_TCP:
-            if (tcp_close(s->tcp)) {
-                return NSAPI_ERROR_DEVICE_ERROR;
-            }
-
-            return 0;
-    }
-
-    return NSAPI_ERROR_DEVICE_ERROR;
 }
 
 void LWIPInterface::socket_attach(void *handle, void (*callback)(void *), void *data)

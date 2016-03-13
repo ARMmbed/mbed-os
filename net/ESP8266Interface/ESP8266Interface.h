@@ -62,16 +62,20 @@ public:
     virtual const char *get_mac_address();
 
 protected:
-    /** Create a socket
-    /param proto    The type of socket to open, TCP or UDP
-    /return         The alocated socket or null on failure
-    */
-    virtual void *socket_create(nsapi_protocol_t proto);
+    /** Open a socket
+     *  @param handle   Handle in which to store new socket
+     *  @param proto    Type of socket to open, NSAPI_TCP or NSAPI_UDP
+     *  @return         0 on success, negative on failure
+     */
+    virtual int socket_open(void **handle, nsapi_protocol_t proto);
 
-    /** Destroy a socket
-    /param socket   Previously allocated socket
-    */
-    virtual void socket_destroy(void *handle);
+    /** Close the socket
+     *  @param handle   Socket handle
+     *  @return         0 on success, negative on failure
+     *  @note On failure, any memory associated with the socket must still 
+     *        be cleaned up
+     */
+    virtual int socket_close(void *handle);
 
     /** Set socket options
     \param handle   Socket handle
@@ -120,13 +124,13 @@ protected:
     virtual bool socket_is_connected(void *handle);
 
     /** Accept a new connection.
-    \param handle   Socket handle
-    \param socket   A TCPSocket instance that will handle the incoming connection.
-    \return         0 on success, negative on failure.
-    \note This call is not-blocking, if this call would block, must
-          immediately return NSAPI_ERROR_WOULD_WAIT
-    */
-    virtual int socket_accept(void *handle, void **connection);
+     *  @param handle   Handle in which to store new socket
+     *  @param server   Socket handle to server to accept from
+     *  @return         0 on success, negative on failure
+     *  @note This call is not-blocking, if this call would block, must
+     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     */
+    virtual int socket_accept(void **handle, void *server);
 
     /** Send data to the remote host
     \param handle   Socket handle
@@ -171,11 +175,6 @@ protected:
           immediately return NSAPI_ERROR_WOULD_WAIT
     */
     virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size);
-
-    /** Close the socket
-    \param handle   Socket handle
-    */
-    virtual int socket_close(void *handle);
 
     /** Register a callback on state change of the socket
      *  @param handle   Socket handle
