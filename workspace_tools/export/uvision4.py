@@ -62,6 +62,14 @@ class Uvision4(Exporter):
 
         project_data['tool_specific'] = {}
         project_data['tool_specific'].update(tool_specific)
+        # armasm does not like floating numbers in macros, timestamp to int
+        i = 0
+        for macro in project_data['common']['macros']:
+            if macro.startswith('MBED_BUILD_TIMESTAMP'):
+                timestamp = macro[len('MBED_BUILD_TIMESTAMP='):]
+                project_data['common']['macros'][i] = 'MBED_BUILD_TIMESTAMP=' + str(int(float(timestamp)))
+                break
+            i += 1
         project_data['common']['macros'].append('__ASSERT_MSG')
         self.progen_gen_file('uvision', project_data)
 
