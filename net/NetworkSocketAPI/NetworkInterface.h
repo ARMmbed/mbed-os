@@ -87,11 +87,11 @@ public:
     }
 
     /** Looks up the specified host's IP address
+     *  @param address  Destination for the host SocketAddress
      *  @param name     Hostname to lookup
-     *  @param dest     Destination for IP address, must have space for SocketAddress::IP_SIZE
      *  @return         0 on success, negative on failure
      */
-    virtual int gethostbyname(const char *name, char *dest);
+    virtual int gethostbyname(SocketAddress *address, const char *name);
 
 protected:
     friend class Socket;
