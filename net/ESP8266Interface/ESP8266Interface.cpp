@@ -207,7 +207,7 @@ int ESP8266Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *d
     return socket_recv(socket, data, size);
 }
 
-int ESP8266Interface::socket_close(void *handle, bool shutdown)
+int ESP8266Interface::socket_close(void *handle)
 {
     struct esp8266_socket *socket = (struct esp8266_socket *)handle;
     _esp.setTimeout(ESP8266_MISC_TIMEOUT);

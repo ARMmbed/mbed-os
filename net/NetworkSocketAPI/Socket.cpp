@@ -27,7 +27,7 @@ Socket::Socket()
 Socket::~Socket()
 {
     if (_socket) {
-        close(false);
+        close();
     }
 }
 
@@ -37,13 +37,13 @@ int Socket::open(NetworkInterface *iface, nsapi_protocol_t proto)
     _socket = _iface->socket_create(proto);
 }
 
-int Socket::close(bool shutdown)
+int Socket::close()
 {
     if (!_socket) {
         return 0;
     }
 
-    int err = _iface->socket_close(_socket, shutdown);
+    int err = _iface->socket_close(_socket);
     if (!err) {
         void *socket = _socket;
         _socket = 0;

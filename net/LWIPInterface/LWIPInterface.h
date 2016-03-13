@@ -161,9 +161,8 @@ protected:
 
     /** Close the socket
     \param handle   Socket handle
-    \param shutdown  free the left-over data in message queues
     */
-    virtual int socket_close(void *handle, bool shutdown);
+    virtual int socket_close(void *handle);
 
     /** Register a callback on when a new connection is ready
     \param handle   Socket handle

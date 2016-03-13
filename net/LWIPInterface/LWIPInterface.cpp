@@ -480,7 +480,7 @@ int LWIPInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *buf,
     return copied;
 }
 
-int LWIPInterface::socket_close(void *handle, bool shutdown)
+int LWIPInterface::socket_close(void *handle)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
 
@@ -490,10 +490,6 @@ int LWIPInterface::socket_close(void *handle, bool shutdown)
             return 0;
 
         case NSAPI_TCP:
-            if (shutdown) {
-                tcp_abort(s->tcp);
-            }
-
             if (tcp_close(s->tcp)) {
                 return NSAPI_ERROR_DEVICE_ERROR;
             }
