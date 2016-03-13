@@ -219,14 +219,6 @@ int ESP8266Interface::socket_close(void *handle)
     return 0;
 }
 
-void ESP8266Interface::socket_attach_accept(void *handle, void (*callback)(void *), void *id)
-{
-}
-
-void ESP8266Interface::socket_attach_send(void *handle, void (*callback)(void *), void *id)
-{
-}
-
-void ESP8266Interface::socket_attach_recv(void *handle, void (*callback)(void *), void *id)
+void ESP8266Interface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
 }

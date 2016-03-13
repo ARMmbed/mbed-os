@@ -75,35 +75,3 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
         }
     }
 }
-
-
-void UDPSocket::attach_send(FunctionPointer callback)
-{
-    _send_cb = callback;
-    if (_socket && _send_cb) {
-        return _iface->socket_attach_send(_socket, Socket::thunk, &_send_cb);
-    } else if (_socket) {
-        return _iface->socket_attach_send(_socket, 0, 0);
-    }
-}
-
-void UDPSocket::attach_recv(FunctionPointer callback)
-{
-    _recv_cb = callback;
-    if (_socket && _recv_cb) {
-        return _iface->socket_attach_recv(_socket, Socket::thunk, &_recv_cb);
-    } else if (_socket) {
-        return _iface->socket_attach_recv(_socket, 0, 0);
-    }
-}
-
-UDPSocket::~UDPSocket()
-{
-    if (_socket && _send_cb) {
-        _iface->socket_attach_send(_socket, 0, 0);
-    }
-
-    if (_socket && _recv_cb) {
-        _iface->socket_attach_recv(_socket, 0, 0);
-    }
-}

@@ -142,8 +142,8 @@ struct lwip_socket {
     struct pbuf *rx_chain;
     Semaphore *sem;
 
-    void (*send_cb)(void *); void *send_data;
-    void (*recv_cb)(void *); void *recv_data;
+    void (*callback)(void *);
+    void *data;
 };
 
 static void udp_recv_irq(
@@ -310,8 +310,8 @@ static struct pbuf *pbuf_consume(struct pbuf *p, size_t consume, bool free_parti
 static err_t tcp_sent_irq(void *handle, struct tcp_pcb *tpcb, uint16_t len)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
-    if (s->send_cb) {
-        s->send_cb(s->send_data);
+    if (s->callback) {
+        s->callback(s->data);
     }
 
     return ERR_OK;
@@ -357,8 +357,8 @@ static err_t tcp_recv_irq(void *handle, struct tcp_pcb *tpcb, struct pbuf *p, er
     }
     __enable_irq();
 
-    if (s->recv_cb) {
-        s->recv_cb(s->recv_data);
+    if (s->callback) {
+        s->callback(s->data);
     }
 
     return ERR_OK;
@@ -406,8 +406,8 @@ int LWIPInterface::socket_sendto(void *handle, const SocketAddress &addr, const 
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    if (s->send_cb) {
-        s->send_cb(s->send_data);
+    if (s->callback) {
+        s->callback(s->data);
     }
 
     return size;
@@ -432,8 +432,8 @@ static void udp_recv_irq(
     }
     __enable_irq();
 
-    if (s->recv_cb) {
-        s->recv_cb(s->recv_data);
+    if (s->callback) {
+        s->callback(s->data);
     }
 }
 
@@ -500,21 +500,9 @@ int LWIPInterface::socket_close(void *handle)
     return NSAPI_ERROR_DEVICE_ERROR;
 }
 
-void LWIPInterface::socket_attach_accept(void *handle, void (*callback)(void *), void *id)
-{
-}
-
-void LWIPInterface::socket_attach_send(void *handle, void (*callback)(void *), void *id)
+void LWIPInterface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
-    s->send_cb = callback;
-    s->send_data = id;
+    s->callback = callback;
+    s->data = data;
 }
-
-void LWIPInterface::socket_attach_recv(void *handle, void (*callback)(void *), void *id)
-{
-    struct lwip_socket *s = (struct lwip_socket *)handle;
-    s->recv_cb = callback;
-    s->recv_data = id;
-}
-

@@ -164,29 +164,13 @@ protected:
     */
     virtual int socket_close(void *handle);
 
-    /** Register a callback on when a new connection is ready
-    \param handle   Socket handle
-    \param callback Function to call when accept will succeed, may be called in
-                    interrupt context.
-    \param id       Argument to pass to callback
-    */
-    virtual void socket_attach_accept(void *handle, void (*callback)(void *), void *id);
-
-    /** Register a callback on when send is ready
-    \param handle   Socket handle
-    \param callback Function to call when accept will succeed, may be called in
-                    interrupt context.
-    \param id       Argument to pass to callback
-    */
-    virtual void socket_attach_send(void *handle, void (*callback)(void *), void *id);
-
-    /** Register a callback on when recv is ready
-    \param handle   Socket handle
-    \param callback Function to call when accept will succeed, may be called in
-                    interrupt context.
-    \param id       Argument to pass to callback
-    */
-    virtual void socket_attach_recv(void *handle, void (*callback)(void *), void *id);
+    /** Register a callback on state change of the socket
+     *  @param handle   Socket handle
+     *  @param callback Function to call on state change
+     *  @param data     Argument to pass to callback
+     *  @note Callback may be called in an interrupt context.
+     */
+    virtual void socket_attach(void *handle, void (*callback)(void *), void *data);
 };
 
 #endif
