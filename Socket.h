@@ -60,9 +60,8 @@ public:
     int get_option(int optname, void *optval, unsigned *optlen);
     
     /** Close the socket
-     *  @param shutdown free the left-over data in message queues
      */
-    int close(bool shutdown=true);
+    int close();
 
 protected:
     Socket();

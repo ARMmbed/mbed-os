@@ -201,9 +201,8 @@ protected:
 
     /** Close the socket
      *  @param handle   Socket handle
-     *  @param shutdown free the left-over data in message queues
      */
-    virtual int socket_close(void *handle, bool shutdown) = 0;
+    virtual int socket_close(void *handle) = 0;
 
     /** Register a callback on when a new connection is ready
      *  @param handle   Socket handle
