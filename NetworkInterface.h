@@ -20,6 +20,7 @@
 #include "mbed.h"
 #include "SocketAddress.h"
 
+
 /** Enum of standardized error codes
  *  @enum ns_error_t
  */
@@ -49,6 +50,15 @@ enum nsapi_protocol_t {
    NSAPI_TCP, /*!< Socket is of TCP type */
    NSAPI_UDP, /*!< Socket is of UDP type */
 };
+
+/** Maximum size of MAC address representation
+ */
+#define NSAPI_MAC_SIZE 18
+
+/** Maximum number of bytes for MAC address
+ */
+#define NSAPI_MAC_BYTES 6
+
 
 /** NetworkInterface class
  *  Common interface that is shared between all hardware that
