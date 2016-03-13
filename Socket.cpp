@@ -16,12 +16,12 @@
 
 #include "Socket.h"
 
-Socket::Socket(NetworkInterface *iface, nsapi_protocol_t proto)
-    : _iface(iface)
+Socket::Socket()
+    : _iface(0)
+    , _socket(0)
     , _blocking(true)
     , _timeout(0)
 {
-    _socket = _iface->socket_create(proto);
 }
 
 Socket::~Socket()
@@ -29,6 +29,28 @@ Socket::~Socket()
     if (_socket) {
         close(false);
     }
+}
+
+int Socket::open(NetworkInterface *iface, nsapi_protocol_t proto)
+{
+    _iface = iface;
+    _socket = _iface->socket_create(proto);
+}
+
+int Socket::close(bool shutdown)
+{
+    if (!_socket) {
+        return 0;
+    }
+
+    int err = _iface->socket_close(_socket, shutdown);
+    if (!err) {
+        void *socket = _socket;
+        _socket = 0;
+        _iface->socket_destroy(socket);
+    }
+
+    return err;
 }
 
 void Socket::set_blocking(bool blocking)
@@ -57,22 +79,6 @@ int Socket::get_option(int optname, void *optval, unsigned int *optlen)
     }
 
     return _iface->socket_get_option(_socket, optname, optval, optlen);
-}
-
-int Socket::close(bool shutdown)
-{
-    if (!_socket) {
-        return 0;
-    }
-
-    int err = _iface->socket_close(_socket, shutdown);
-    if (!err) {
-        void *socket = _socket;
-        _socket = 0;
-        _iface->socket_destroy(socket);
-    }
-
-    return err;
 }
 
 void Socket::thunk(void *p) 

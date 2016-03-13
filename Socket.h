@@ -27,6 +27,11 @@ public:
     /** Socket lifetime
      */
     virtual ~Socket();
+
+    /** Open the socket
+     *  @param iface    Interface to open socket on
+     */
+    virtual int open(NetworkInterface *iface) = 0;
     
     /** Set blocking or non-blocking mode of the socket
      *  @param blocking true for blocking mode, false for non-blocking mode.
@@ -60,7 +65,8 @@ public:
     int close(bool shutdown=true);
 
 protected:
-    Socket(NetworkInterface *iface, nsapi_protocol_t proto);
+    Socket();
+    int open(NetworkInterface *iface, nsapi_protocol_t proto);
 
     static void thunk(void *);
 

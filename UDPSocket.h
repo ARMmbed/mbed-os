@@ -26,8 +26,14 @@ class UDPSocket : public Socket {
 public:
     /** UDPSocket lifetime
      */
+    UDPSocket();
     UDPSocket(NetworkInterface *iface);
     virtual ~UDPSocket();
+
+    /** Open the socket
+     *  @param iface    Interface to open socket on
+     */
+    virtual int open(NetworkInterface *iface);
     
     /** Bind a UDP Server Socket to a specific port
      *  @param port     The port to listen for incoming connections on

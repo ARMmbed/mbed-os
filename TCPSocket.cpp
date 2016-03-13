@@ -17,9 +17,18 @@
 #include "TCPSocket.h"
 #include "Timer.h"
 
-TCPSocket::TCPSocket(NetworkInterface *iface)
-    : Socket(iface, NSAPI_TCP)
+TCPSocket::TCPSocket()
 {
+}
+
+TCPSocket::TCPSocket(NetworkInterface *iface)
+{
+    open(iface);
+}
+
+int TCPSocket::open(NetworkInterface *iface)
+{
+    return Socket::open(iface, NSAPI_TCP);
 }
 
 int TCPSocket::connect(const SocketAddress &addr)
