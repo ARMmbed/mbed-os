@@ -213,16 +213,6 @@ int LWIPInterface::socket_close(void *handle)
 }
 
 
-int LWIPInterface::socket_set_option(void *handle, int optname, const void *optval, unsigned optlen)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-int LWIPInterface::socket_get_option(void *handle, int optname, void *optval, unsigned *optlen)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
 int LWIPInterface::socket_bind(void *handle, const SocketAddress &address)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;

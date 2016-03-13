@@ -77,24 +77,6 @@ protected:
      */
     virtual int socket_close(void *handle);
 
-    /** Set socket options
-    \param handle   Socket handle
-    \param optname  Option ID
-    \param optval   Option value
-    \param optlen   Length of the option value
-    \return         0 on success, negative on failure
-    */    
-    virtual int socket_set_option(void *handle, int optname, const void *optval, unsigned int optlen);
-
-    /** Get socket options
-    \param handle   Socket handle
-    \param optname  Option ID
-    \param optval   Buffer pointer where to write the option value
-    \param optlen   Length of the option value
-    \return         0 on success, negative on failure
-    */
-    virtual int socket_get_option(void *handle, int optname, void *optval, unsigned int *optlen);
-
     /** Bind a server socket to a specific port
      *  @param handle   Socket handle
      *  @param address  Local address to listen for incoming connections on 

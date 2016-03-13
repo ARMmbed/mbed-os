@@ -128,16 +128,6 @@ int ESP8266Interface::socket_close(void *handle)
     return err;
 }
 
-int ESP8266Interface::socket_set_option(void *handle, int optname, const void *optval, unsigned optlen)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-int ESP8266Interface::socket_get_option(void *handle, int optname, void *optval, unsigned *optlen)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
 int ESP8266Interface::socket_bind(void *handle, const SocketAddress &address)
 {
     return NSAPI_ERROR_UNSUPPORTED;

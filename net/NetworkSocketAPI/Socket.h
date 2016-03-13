@@ -33,6 +33,10 @@ public:
      */
     virtual int open(NetworkInterface *iface) = 0;
     
+    /** Close the socket
+     */
+    int close();
+    
     /** Bind a socket to a specific port
      *  @param port     The port to listen for incoming connections on
      *  @return         0 on success, negative on failure.
@@ -63,24 +67,22 @@ public:
     void set_timeout(unsigned int timeout);
 
     /*  Set socket options
-     *  @param optname  Option ID
+     *  @param level    Option level
+     *  @param optname  Option identifier
      *  @param optval   Option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative on failure
-     */
-    int set_option(int optname, const void *optval, unsigned optlen);
-    
+     */    
+    int setsockopt(int level, int optname, const void *optval, unsigned optlen);
+
     /*  Get socket options
-     *  @param optname  Option ID
-     *  @param optval   Buffer pointer where to write the option value
+     *  @param level    Option level
+     *  @param optname  Option identifier
+     *  @param optval   Buffer where to write option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative on failure
-     */
-    int get_option(int optname, void *optval, unsigned *optlen);
-    
-    /** Close the socket
-     */
-    int close();
+     */    
+    int getsockopt(int level, int optname, void *optval, unsigned *optlen);
 
     /** Register a callback on state change of the socket
      *  @param callback Function to call on state change
