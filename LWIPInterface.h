@@ -83,11 +83,11 @@ protected:
     virtual int socket_get_option(void *handle, int optname, void *optval, unsigned int *optlen);
 
     /** Bind a server socket to a specific port
-    \param handle   Socket handle
-    \param port     The port to listen for incoming connections on
-    \return         0 on success, negative on failure.
-    */
-    virtual int socket_bind(void *handle, int port);
+     *  @param handle   Socket handle
+     *  @param address  Local address to listen for incoming connections on 
+     *  @return         0 on success, negative on failure.
+     */
+    virtual int socket_bind(void *handle, const SocketAddress &address);
 
     /** Start listening for incoming connections
     \param handle   Socket handle

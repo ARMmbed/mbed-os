@@ -223,20 +223,20 @@ int LWIPInterface::socket_get_option(void *handle, int optname, void *optval, un
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-int LWIPInterface::socket_bind(void *handle, int port)
+int LWIPInterface::socket_bind(void *handle, const SocketAddress &address)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
-    ip_addr_t ip_addr = ip_addr_any;
+    ip_addr_t ip_addr = ip_addr_any; // TODO use address
 
     switch (s->proto) {
         case NSAPI_UDP:
-            if (udp_bind(s->udp, &ip_addr, port)) {
+            if (udp_bind(s->udp, &ip_addr, address.get_port())) {
                 return NSAPI_ERROR_DEVICE_ERROR;
             }
             return 0;
 
         case NSAPI_TCP:
-            if (tcp_bind(s->tcp, &ip_addr, port)) {
+            if (tcp_bind(s->tcp, &ip_addr, address.get_port())) {
                 return NSAPI_ERROR_DEVICE_ERROR;
             }
             return 0;
