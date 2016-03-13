@@ -34,8 +34,17 @@ Socket::~Socket()
 int Socket::open(NetworkInterface *iface, nsapi_protocol_t proto)
 {
     _iface = iface;
-    _socket = _iface->socket_create(proto);
+
+    void *socket;
+    int err = _iface->socket_open(&socket, proto);
+    if (err) {
+        return err;
+    }
+
+    _socket = socket;
     _iface->socket_attach(_socket, &Socket::thunk, this);
+
+    return 0;
 }
 
 int Socket::close()
@@ -44,14 +53,9 @@ int Socket::close()
         return 0;
     }
 
-    int err = _iface->socket_close(_socket);
-    if (!err) {
-        void *socket = _socket;
-        _socket = 0;
-        _iface->socket_destroy(socket);
-    }
-
-    return err;
+    void *socket = _socket;
+    _socket = 0;
+    return _iface->socket_close(socket);
 }
 
 void Socket::set_blocking(bool blocking)
