@@ -33,25 +33,6 @@ public:
      *  @param iface    Interface to open socket on
      */
     virtual int open(NetworkInterface *iface);
-    
-    /** Bind a UDP Server Socket to a specific port
-     *  @param port     The port to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
-     */
-    int bind(uint16_t port);
-
-    /** Bind a UDP Server Socket to a local address
-     *  @param address  The null-terminated address to listen for incoming connections on
-     *  @param port     The port to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
-     */
-    int bind(const char *address, uint16_t port);
-
-    /** Bind a UDP Server Socket to a local address
-     *  @param address  The SocketAddress to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
-     */
-    int bind(const SocketAddress &address);
 
     /** Send a packet to a remote endpoint
      *  @param host     The host to connect to. It can either be an IP Address

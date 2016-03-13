@@ -31,27 +31,6 @@ int TCPServer::open(NetworkInterface *iface)
     return Socket::open(iface, NSAPI_TCP);
 }
 
-int TCPServer::bind(uint16_t port)
-{
-    SocketAddress addr(0, port);
-    return bind(addr);
-}
-
-int TCPServer::bind(const char *address, uint16_t port)
-{
-    SocketAddress addr(address, port);
-    return bind(addr);
-}
-
-int TCPServer::bind(const SocketAddress &address)
-{
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;
-    }
-
-    return _iface->socket_bind(_socket, address);
-}
-
 int TCPServer::listen(int backlog)
 {
     if (!_socket) {
