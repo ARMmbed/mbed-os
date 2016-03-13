@@ -43,7 +43,7 @@ int TCPSocket::connect(const SocketAddress &addr)
 int TCPSocket::connect(const char *host, uint16_t port)
 {
     SocketAddress addr(_iface, host, port);
-    if (!addr.get_ip_address()) {
+    if (!addr) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
 

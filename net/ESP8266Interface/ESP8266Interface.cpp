@@ -138,7 +138,7 @@ int ESP8266Interface::socket_get_option(void *handle, int optname, void *optval,
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-int ESP8266Interface::socket_bind(void *handle, int port)
+int ESP8266Interface::socket_bind(void *handle, const SocketAddress &address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

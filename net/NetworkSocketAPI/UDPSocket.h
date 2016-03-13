@@ -40,6 +40,29 @@ public:
      */
     int bind(uint16_t port);
 
+    /** Bind a UDP Server Socket to a local address
+     *  @param address  The null-terminated address to listen for incoming connections on
+     *  @param port     The port to listen for incoming connections on
+     *  @return         0 on success, negative on failure.
+     */
+    int bind(const char *address, uint16_t port);
+
+    /** Bind a UDP Server Socket to a local address
+     *  @param address  The SocketAddress to listen for incoming connections on
+     *  @return         0 on success, negative on failure.
+     */
+    int bind(const SocketAddress &address);
+
+    /** Send a packet to a remote endpoint
+     *  @param host     The host to connect to. It can either be an IP Address
+     *                  or a hostname that will be resolved with DNS
+     *  @param port     The remote port
+     *  @param data     The packet to be sent
+     *  @param size     The length of the packet to be sent
+     *  @return         The number of written bytes on success, negative on failure
+     */
+    int sendto(const char *host, uint16_t port, const void *data, unsigned size);
+
     /** Send a packet to a remote endpoint
      *  @param address  The remote SocketAddress
      *  @param data     The packet to be sent

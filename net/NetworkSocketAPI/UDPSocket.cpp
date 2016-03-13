@@ -33,11 +33,33 @@ int UDPSocket::open(NetworkInterface *iface)
 
 int UDPSocket::bind(uint16_t port)
 {
+    SocketAddress addr(0, port);
+    return bind(addr);
+}
+
+int UDPSocket::bind(const char *address, uint16_t port)
+{
+    SocketAddress addr(address, port);
+    return bind(addr);
+}
+
+int UDPSocket::bind(const SocketAddress &address)
+{
     if (!_socket) {
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    return _iface->socket_bind(_socket, port);
+    return _iface->socket_bind(_socket, address);
+}
+
+int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigned size)
+{
+    SocketAddress addr(_iface, host, port);
+    if (!addr) {
+        return NSAPI_ERROR_DNS_FAILURE;
+    }
+
+    return sendto(addr, data, size);
 }
 
 int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned size)
