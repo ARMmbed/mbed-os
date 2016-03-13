@@ -63,6 +63,19 @@ public:
      */
     int close();
 
+    /** Register a callback on state change of the socket
+     *  @param callback Function to call on state change
+     *  @note Callback may be called in an interrupt context.
+     *        The callback should not perform long operations 
+     *        such as recv or send calls.
+     */
+    void attach(FunctionPointer callback);
+
+    template <typename T, typename M>
+    void attach(T *tptr, M mptr) {
+        attach(FunctionPointer(tptr, mptr));
+    }
+
 protected:
     Socket();
     int open(NetworkInterface *iface, nsapi_protocol_t proto);
@@ -73,6 +86,7 @@ protected:
     void *_socket;
     bool _blocking;
     unsigned _timeout;
+    FunctionPointer _callback;
 };
 
 #endif

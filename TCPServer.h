@@ -54,20 +54,6 @@ public:
      * @return          0 on success, negative on failure.
      */
     int accept(TCPSocket *connection);
-
-    /** Register a callback on when a new connection is ready
-     * @param callback  Function to call when accept will succeed, may be called in
-     *                  interrupt context.
-     */
-    void attach_accept(FunctionPointer callback);
-
-    template <typename T, typename M>
-    void attach_accept(T *tptr, M mptr) {
-        attach_accept(FunctionPointer(tptr, mptr));
-    }
-
-private:
-    FunctionPointer _accept_cb;
 };
 
 #endif

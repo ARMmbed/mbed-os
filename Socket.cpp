@@ -35,6 +35,7 @@ int Socket::open(NetworkInterface *iface, nsapi_protocol_t proto)
 {
     _iface = iface;
     _socket = _iface->socket_create(proto);
+    _iface->socket_attach(_socket, &Socket::thunk, this);
 }
 
 int Socket::close()
@@ -81,8 +82,15 @@ int Socket::get_option(int optname, void *optval, unsigned int *optlen)
     return _iface->socket_get_option(_socket, optname, optval, optlen);
 }
 
-void Socket::thunk(void *p) 
+void Socket::thunk(void *data)
 {
-    FunctionPointer *fptr = (FunctionPointer *)p;
-    (*fptr)();
+    Socket *self = (Socket *)data;
+    if (self->_callback) {
+        self->_callback();
+    }
+}
+
+void Socket::attach(FunctionPointer callback)
+{
+    _callback = callback;
 }

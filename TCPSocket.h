@@ -28,7 +28,6 @@ public:
      */
     TCPSocket();
     TCPSocket(NetworkInterface *iface);
-    virtual ~TCPSocket();
 
     /** Open the socket
      *  @param iface    Interface to open socket on
@@ -68,33 +67,8 @@ public:
      */
     int recv(void *data, unsigned size);
 
-    /** Register a callback on when send is ready
-     *  @param callback Function to call when send will succeed, may be called in
-     *                  interrupt context.
-     */
-    void attach_send(FunctionPointer callback);
-
-    template <typename T, typename M>
-    void attach_send(T *tptr, M mptr) {
-        attach_send(FunctionPointer(tptr, mptr));
-    }
-
-    /** Register a callback on when recv is ready
-     *  @param callback Function to call when recv will succeed, may be called in
-     *                  interrupt context.
-     */
-    void attach_recv(FunctionPointer callback);
-
-    template <typename T, typename M>
-    void attach_recv(T *tptr, M mptr) {
-        attach_recv(FunctionPointer(tptr, mptr));
-    }
-
 private:
     friend class TCPServer;
-
-    FunctionPointer _send_cb;
-    FunctionPointer _recv_cb;
 };
 
 #endif

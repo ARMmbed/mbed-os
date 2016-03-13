@@ -76,22 +76,3 @@ int TCPServer::accept(TCPSocket *connection)
         }
     }
 }
-
-
-void TCPServer::attach_accept(FunctionPointer callback)
-{
-    _accept_cb = callback;
-
-    if (_socket && _accept_cb) {
-        return _iface->socket_attach_accept(_socket, Socket::thunk, &_accept_cb);
-    } else if (_socket) {
-        return _iface->socket_attach_accept(_socket, 0, 0);
-    }
-}
-
-TCPServer::~TCPServer()
-{
-    if (_socket && _accept_cb) {
-        _iface->socket_attach_accept(_socket, 0, 0);
-    }
-}

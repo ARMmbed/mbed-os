@@ -90,37 +90,3 @@ int TCPSocket::recv(void *data, unsigned size)
         }
     }
 }
-
-
-void TCPSocket::attach_send(FunctionPointer callback)
-{
-    _send_cb = callback;
-
-    if (_socket && _send_cb) {
-        return _iface->socket_attach_send(_socket, Socket::thunk, &_send_cb);
-    } else if (_socket) {
-        return _iface->socket_attach_send(_socket, 0, 0);
-    }
-}
-
-void TCPSocket::attach_recv(FunctionPointer callback)
-{
-    _recv_cb = callback;
-
-    if (_socket && _recv_cb) {
-        return _iface->socket_attach_recv(_socket, Socket::thunk, &_recv_cb);
-    } else if (_socket) {
-        return _iface->socket_attach_recv(_socket, 0, 0);
-    }
-}
-
-TCPSocket::~TCPSocket()
-{
-    if (_socket && _send_cb) {
-        _iface->socket_attach_send(_socket, 0, 0);
-    }
-
-    if (_socket && _recv_cb) {
-        _iface->socket_attach_recv(_socket, 0, 0);
-    }
-}
