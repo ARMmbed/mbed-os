@@ -98,10 +98,8 @@ SocketAddress::SocketAddress(NetworkInterface *iface, const char *host, uint16_t
         address_to_ipv4(_ip_bytes, host);
     } else {
         // DNS lookup
-        char addr[NSAPI_IP_SIZE];
-        int err = iface->gethostbyname(host, addr);
+        int err = iface->gethostbyname(this, host);
         if (!err) {
-            set_ip_address(addr);
             set_port(port);
         } else {
             _ip_version = NSAPI_IPv4;

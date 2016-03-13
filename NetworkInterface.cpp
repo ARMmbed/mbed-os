@@ -17,7 +17,14 @@
 #include "DnsQuery.h"
 #include "mbed.h"
 
-int NetworkInterface::gethostbyname(const char *name, char *dest)
+int NetworkInterface::gethostbyname(SocketAddress *address, const char *name)
 {
-    return dnsQuery(this, name, dest);
+    char buffer[NSAPI_IP_SIZE];
+    int err = dnsQuery(this, name, buffer);
+    if (err) {
+        return err;
+    }
+
+    address->set_ip_address(buffer);
+    return 0;
 }
