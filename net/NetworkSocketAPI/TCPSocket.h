@@ -26,8 +26,14 @@ class TCPSocket : public Socket {
 public:
     /** TCP socket lifetime
      */
+    TCPSocket();
     TCPSocket(NetworkInterface *iface);
     virtual ~TCPSocket();
+
+    /** Open the socket
+     *  @param iface    Interface to open socket on
+     */
+    virtual int open(NetworkInterface *iface);
     
     /** Connects this TCP socket to the server
      *  @param host     The host to connect to. It can either be an IP Address

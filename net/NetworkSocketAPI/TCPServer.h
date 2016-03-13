@@ -27,8 +27,14 @@ class TCPServer : public Socket {
 public:
     /** TCP Server lifetime
      */
+    TCPServer();
     TCPServer(NetworkInterface *iface);
     virtual ~TCPServer();
+
+    /** Open the socket
+     *  @param iface    Interface to open socket on
+     */
+    virtual int open(NetworkInterface *iface);
     
     /** Bind a socket to a specific port
      * @param port      The port to listen for incoming connections on

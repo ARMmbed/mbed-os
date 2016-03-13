@@ -17,9 +17,18 @@
 #include "UDPSocket.h"
 #include "Timer.h"
 
-UDPSocket::UDPSocket(NetworkInterface *iface)
-    : Socket(iface, NSAPI_UDP)
+UDPSocket::UDPSocket()
 {
+}
+
+UDPSocket::UDPSocket(NetworkInterface *iface)
+{
+    open(iface);
+}
+
+int UDPSocket::open(NetworkInterface *iface)
+{
+    return Socket::open(iface, NSAPI_UDP);
 }
 
 int UDPSocket::bind(uint16_t port)

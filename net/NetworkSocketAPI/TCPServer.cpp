@@ -17,9 +17,18 @@
 #include "TCPServer.h"
 #include "Timer.h"
 
-TCPServer::TCPServer(NetworkInterface *iface)
-    : Socket(iface, NSAPI_TCP)
+TCPServer::TCPServer()
 {
+}
+
+TCPServer::TCPServer(NetworkInterface *iface)
+{
+    open(iface);
+}
+
+int TCPServer::open(NetworkInterface *iface)
+{
+    return Socket::open(iface, NSAPI_TCP);
 }
 
 int TCPServer::bind(uint16_t port)
@@ -45,15 +54,16 @@ int TCPServer::accept(TCPSocket *connection)
     mbed::Timer timer;
     timer.start();
 
-    void *socket = connection->_socket;
-    connection->_socket = 0;
-    _iface->socket_destroy(socket);
+    if (connection->_socket) {
+        connection->close();
+    }
 
     while (true) {
         if (!_socket) {
             return NSAPI_ERROR_NO_SOCKET;   
         }
 
+        void *socket;
         int err = _iface->socket_accept(_socket, &socket);
 
         if (err > 0) {
