@@ -22,7 +22,7 @@
 
 
 /** Enum of standardized error codes
- *  @enum ns_error_t
+ *  @enum nsapi_error_t
  */
 enum nsapi_error_t {
     NSAPI_ERROR_WOULD_BLOCK   = -3001,     /*!< no data is not available but call is non-blocking */
@@ -38,9 +38,9 @@ enum nsapi_error_t {
 };
    
 /** Enum of available options
- *  @enum ns_opt_t
+ *  @enum nsapi_opt_t
  */
-enum ns_opt_t {
+enum nsapi_opt_t {
 };
 
 /** Enum of socket protocols
@@ -134,10 +134,10 @@ protected:
 
     /** Bind a server socket to a specific port
      *  @param handle   Socket handle
-     *  @param port     The port to listen for incoming connections on
+     *  @param address  Local address to listen for incoming connections on 
      *  @return         0 on success, negative on failure.
      */
-    virtual int socket_bind(void *handle, int port) = 0;
+    virtual int socket_bind(void *handle, const SocketAddress &address) = 0;
 
     /** Start listening for incoming connections
      *  @param handle   Socket handle
