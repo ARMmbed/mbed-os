@@ -20,7 +20,7 @@
 #include "NetworkInterface.h"
 
 /** Enum for WiFi encryption types
-*/
+ */
 enum nsapi_security_t {
     NSAPI_SECURITY_NONE = 0,   /*!< open access point */
     NSAPI_SECURITY_WEP,        /*!< phrase conforms to WEP */
@@ -35,16 +35,16 @@ class WiFiInterface : public NetworkInterface
 {
 public:
     /** Start the interface
-    /param ssid     Name of the network to connect to
-    /param pass     Security passphrase to connect to the network
-    /param security Type of encryption for connection
-    /return         0 on success, negative on failure
-    */
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection
+     *  @return          0 on success, negative on failure
+     */
     virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
 
     /** Stop the interface
-    /return     0 on success, negative on failure
-    */
+     *  @return          0 on success, negative on failure
+     */
     virtual int disconnect() = 0;
 };
 

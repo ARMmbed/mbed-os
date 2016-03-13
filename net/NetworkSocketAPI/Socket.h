@@ -29,34 +29,34 @@ public:
     virtual ~Socket();
     
     /** Set blocking or non-blocking mode of the socket
-    \param blocking  true for blocking mode, false for non-blocking mode.
-    */
+     *  @param blocking true for blocking mode, false for non-blocking mode.
+     */
     void set_blocking(bool blocking);
     
     /** Set timeout on a socket operation if blocking behaviour is enabled
-    \param timeout   timeout in ms
-    */
+     *  @param timeout  timeout in ms
+     */
     void set_timeout(unsigned int timeout);
 
-    /** Set socket options
-    \param optname  Option ID
-    \param optval   Option value
-    \param optlen   Length of the option value
-    \return         0 on success, negative on failure
-    */
+    /*  Set socket options
+     *  @param optname  Option ID
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
+     */
     int set_option(int optname, const void *optval, unsigned optlen);
     
-    /** Get socket options
-    \param optname  Option ID
-    \param optval   Buffer pointer where to write the option value
-    \param optlen   Length of the option value
-    \return         0 on success, negative on failure
-    */
+    /*  Get socket options
+     *  @param optname  Option ID
+     *  @param optval   Buffer pointer where to write the option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
+     */
     int get_option(int optname, void *optval, unsigned *optlen);
     
     /** Close the socket
-    \param shutdown  free the left-over data in message queues
-    */
+     *  @param shutdown free the left-over data in message queues
+     */
     int close(bool shutdown=true);
 
 protected:

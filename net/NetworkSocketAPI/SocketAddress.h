@@ -36,42 +36,42 @@ class NetworkInterface;
 class SocketAddress {
 public:
     /** SocketAddress construction using DNS resolution
-    /param iface    NetworkInterface to use for DNS resolution
-    /param addr     Null-terminated hostname that will be resolved
-    /param port     16-bit port
-    /note on failure, IP address and port will be set to null
-    */
+     * @param iface NetworkInterface to use for DNS resolution
+     * @param addr  Null-terminated hostname that will be resolved
+     * @param port  16-bit port
+     * @note on failure, IP address and port will be set to null
+     */
     SocketAddress(NetworkInterface *iface, const char *addr, uint16_t port = 0);
 
     /** SocketAddress construction
-    /param addr     Null-terminated IP address
-    /param port     16-bit port
-    /note on failure, IP address and port will be set to null
-    */
+     * @param addr  Null-terminated IP address
+     * @param port  16-bit port
+     * @note on failure, IP address and port will be set to null
+     */
     SocketAddress(const char *addr = 0, uint16_t port = 0);
 
     /** SocketAddress construction
-    /param addr     SocketAddress to copy
-    */
+     * @param addr  SocketAddress to copy
+     */
     SocketAddress(const SocketAddress &addr);
    
     /** Set the IP address
-    \param addr     Null-terminated string representing the IP address
+     * @param addr  Null-terminated string representing the IP address
      */
     void set_ip_address(const char *addr);
 
     /** Set the port
-    \param port     16-bit port
+     * @param port  16-bit port
      */
     void set_port(uint16_t port);
     
     /** Get the IP address
-    \return         The string representation of the IP Address
+     * @return      The string representation of the IP Address
      */
     const char *get_ip_address() const;
     
     /** Get the port
-    \return         The 16-bit port
+     * @return      The 16-bit port
      */
     uint16_t get_port(void) const;
 

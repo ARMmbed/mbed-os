@@ -26,33 +26,33 @@
 class TCPServer : public Socket {
 public:
     /** TCP Server lifetime
-    */
+     */
     TCPServer(NetworkInterface *iface);
     virtual ~TCPServer();
     
     /** Bind a socket to a specific port
-    \param port     The port to listen for incoming connections on
-    \return         0 on success, negative on failure
-    */
+     * @param port      The port to listen for incoming connections on
+     * @return          0 on success, negative on failure
+     */
     int bind(uint16_t port);
     
     /** Start listening for incoming connections
-    \param backlog  Number of pending connections that can be queued up at any
-                    one time [Default: 1]
-    \return         0 on success, negative on failure
-    */
+     * @param backlog   Number of pending connections that can be queued up at any
+     *                  one time [Default: 1]
+     * @return          0 on success, negative on failure
+     */
     int listen(int backlog=1);
     
     /** Accept a new connection.
-    \param socket   A TCPSocket instance that will handle the incoming connection.
-    \return         0 on success, negative on failure.
-    */
+     * @param socket    A TCPSocket instance that will handle the incoming connection.
+     * @return          0 on success, negative on failure.
+     */
     int accept(TCPSocket *connection);
 
     /** Register a callback on when a new connection is ready
-    \param callback Function to call when accept will succeed, may be called in
-                    interrupt context.
-    */
+     * @param callback  Function to call when accept will succeed, may be called in
+     *                  interrupt context.
+     */
     void attach_accept(FunctionPointer callback);
 
     template <typename T, typename M>
