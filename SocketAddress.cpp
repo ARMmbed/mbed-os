@@ -19,7 +19,8 @@
 #include <string.h>
 #include "mbed.h"
 
-static bool address_is_ipv4(const char *addr)
+
+static bool ipv4_is_valid(const char *addr)
 {
     int i = 0;
 
@@ -38,7 +39,7 @@ static bool address_is_ipv4(const char *addr)
     return true;
 }
 
-static bool address_is_ipv6(const char *addr)
+static bool ipv6_is_valid(const char *addr)
 {
     // Check each digit for [0-9a-fA-F:]
     for (int i = 0; addr[i]; i++) {
@@ -53,20 +54,57 @@ static bool address_is_ipv6(const char *addr)
     return true;
 }
 
-static void address_to_ipv4(uint8_t *bytes, const char *addr)
+static void ipv4_from_address(uint8_t *bytes, const char *addr)
 {
-    sscanf(addr, "%hhd.%hhd.%hhd.%hhd", &bytes[0], &bytes[1], &bytes[2], &bytes[3]);
+    sscanf(addr, "%hhu.%hhu.%hhu.%hhu", &bytes[0], &bytes[1], &bytes[2], &bytes[3]);
 }
 
-static void address_to_ipv6(uint8_t *bytes, const char *addr)
-{
-    // TODO support short form (::1, 2001::ffee:100a)
-    // Use a more intellegent algorithm
-    uint16_t shorts[NSAPI_IPv6_BYTES/2];
-    sscanf(addr, "%hx:%hx:%hx:%hx:%hx:%hx:%hx:%hx",
-            &shorts[0], &shorts[1], &shorts[2], &shorts[3],
-            &shorts[4], &shorts[5], &shorts[6], &shorts[7]);
+static int ipv6_scan_chunk(uint16_t *shorts, const char *chunk) {
+    int count = 0;
+    int i = 0;
 
+    for (; count < NSAPI_IPv6_BYTES/2; count++) {
+        int scanned = sscanf(&chunk[i], "%hx", &shorts[count]);
+        if (scanned < 1) {
+            return count;
+        }
+
+        for (; chunk[i] != ':'; i++) {
+            if (!chunk[i]) {
+                return count+1;
+            }
+        }
+
+        i++;
+    }
+
+    return count;
+}
+
+static void ipv6_from_address(uint8_t *bytes, const char *addr)
+{
+    // Start with zeroed address
+    uint16_t shorts[NSAPI_IPv6_BYTES/2];
+    memset(shorts, 0, sizeof shorts);
+
+    int suffix = 0;
+
+    // Find double colons and scan suffix
+    for (int i = 0; addr[i]; i++) {
+        if (addr[i] == ':' && addr[i+1] == ':') {
+            suffix = ipv6_scan_chunk(shorts, &addr[i+2]);
+            break;
+        }
+    }
+
+    // Move suffix to end
+    memmove(&shorts[NSAPI_IPv6_BYTES/2-suffix], &shorts[0],
+            suffix*sizeof(uint16_t));
+
+    // Scan prefix
+    ipv6_scan_chunk(shorts, &addr[0]);
+
+    // Flip bytes
     for (int i = 0; i < NSAPI_IPv6_BYTES/2; i++) {
         bytes[2*i+0] = (uint8_t)(shorts[i] >> 8);
         bytes[2*i+1] = (uint8_t)(shorts[i] >> 0);
@@ -80,31 +118,23 @@ static void ipv4_to_address(char *addr, const uint8_t *bytes)
 
 static void ipv6_to_address(char *addr, const uint8_t *bytes)
 {
-    int pos = 0;
-    for (int i = 0; i < NSAPI_IPv6_BYTES; i+=2) {
-        int ret = sprintf(&addr[pos], "%02x%02x", bytes[i], bytes[i+1]);
-        if (ret < 0) {
-            memset(addr, 0, NSAPI_IPv6_SIZE + 1);
-            return;
-        }
-        pos += ret;
-
-        addr[pos++] = ':';
+    for (int i = 0; i < NSAPI_IPv6_BYTES/2; i++) {
+        sprintf(&addr[5*i], "%02x%02x", bytes[2*i], bytes[2*i+1]);
+        addr[5*i+4] = ':';
     }
-    pos -= 1; // Overwrite last ':'
-    addr[pos++] = '\0';
-    MBED_ASSERT(NSAPI_IPv6_SIZE == pos);
+    addr[NSAPI_IPv6_SIZE-1] = '\0';
 }
+
 
 SocketAddress::SocketAddress(NetworkInterface *iface, const char *host, uint16_t port)
 {
     // Check for valid IP addresses
-    if (host && address_is_ipv4(host)) {
+    if (host && ipv4_is_valid(host)) {
         _ip_version = NSAPI_IPv4;
-        address_to_ipv4(_ip_bytes, host);
-    } else if (host && address_is_ipv6(host)) {
+        ipv4_from_address(_ip_bytes, host);
+    } else if (host && ipv6_is_valid(host)) {
         _ip_version = NSAPI_IPv6;
-        address_to_ipv4(_ip_bytes, host);
+        ipv4_from_address(_ip_bytes, host);
     } else {
         // DNS lookup
         int err = iface->gethostbyname(this, host);
@@ -140,12 +170,12 @@ void SocketAddress::set_ip_address(const char *addr)
 {
     _ip_address[0] = '\0';
 
-    if (addr && address_is_ipv4(addr)) {
+    if (addr && ipv4_is_valid(addr)) {
         _ip_version = NSAPI_IPv4;
-        address_to_ipv4(_ip_bytes, addr);
-    } else if (addr && address_is_ipv6(addr)) {
+        ipv4_from_address(_ip_bytes, addr);
+    } else if (addr && ipv6_is_valid(addr)) {
         _ip_version = NSAPI_IPv6;
-        address_to_ipv6(_ip_bytes, addr);
+        ipv6_from_address(_ip_bytes, addr);
     } else {
         _ip_version = NSAPI_IPv4;
         memset(_ip_bytes, 0, NSAPI_IPv4_BYTES);
