@@ -1,8 +1,8 @@
+#include "test_env.h"
+
 #if !DEVICE_INTERRUPTIN
   #error [NOT_SUPPORTED] InterruptIn is not supported
 #endif
-
-#include "test_env.h"
 
 DigitalOut myled(LED1);
 DigitalOut led2(LED2);

@@ -1,9 +1,9 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_ANALOGIN
   #error [NOT_SUPPORTED] AnalogIn not supported
 #endif
-
-#include "mbed.h"
-#include "test_env.h"
 
 AnalogIn pot1(A0);
 AnalogIn pot2(A1);

@@ -1,8 +1,8 @@
+#include "mbed.h"
+
 #if !DEVICE_PORTOUT
   #error [NOT_SUPPORTED] PortOut is not supported
 #endif
-
-#include "mbed.h"
 
 # if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
 #     define LED_PORT   Port1
