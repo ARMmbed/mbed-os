@@ -1,8 +1,8 @@
+#include "test_env.h"
+
 #if !DEVICE_SLEEP
   #error [NOT_SUPPORTED] Sleep is not supported
 #endif
-
-#include "test_env.h"
 
 #if defined(TARGET_LPC4088)
 InterruptIn wkp(P2_10);

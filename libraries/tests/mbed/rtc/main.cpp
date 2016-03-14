@@ -1,9 +1,9 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_RTC
   #error [NOT_SUPPORTED] RTC is not supported
 #endif
-
-#include "mbed.h"
-#include "test_env.h"
 
 #define CUSTOM_TIME  1256729737
 

@@ -1,3 +1,5 @@
+#include "test_env.h"
+
 #if !DEVICE_PORTIN
   #error [NOT_SUPPORTED] PortIn is not supported
 #endif
@@ -5,8 +7,6 @@
 #if !DEVICE_PORTOUT
   #error [NOT_SUPPORTED] PortOut is not supported
 #endif
-
-#include "test_env.h"
 
 #if defined(TARGET_K64F) || defined(TARGET_KL05Z)
 #define P1_1    (1 << 16)

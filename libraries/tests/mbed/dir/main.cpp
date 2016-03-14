@@ -1,8 +1,8 @@
+#include "mbed.h"
+
 #if !DEVICE_LOCALFILESYSTEM
   #error [NOT_SUPPORTED] LocalFileSystem not supported
 #endif
-
-#include "mbed.h"
 
 void led_blink(PinName led) {
     DigitalOut myled(led);

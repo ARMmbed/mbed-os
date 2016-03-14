@@ -1,9 +1,9 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_CAN
   #error [NOT_SUPPORTED] CAN not supported
 #endif
-
-#include "mbed.h"
-#include "test_env.h"
 
 #if defined(TARGET_LPC1549)
 CAN can1(D9, D8);
