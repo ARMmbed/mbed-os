@@ -18,7 +18,7 @@
 typedef enum session_state_e {
     SECURE_SESSION_HANDSHAKE_ONGOING = 0,
     SECURE_SESSION_OK,
-    SECURE_SESSION_ALERT_SENT
+    SECURE_SESSION_CLOSED
 }session_state_t;
 
 typedef struct internal_socket_s {
@@ -67,7 +67,7 @@ typedef struct secure_session {
     secure_timer_t timer;
 
     session_state_t session_state;
-    uint32_t session_start_timestamp;
+    uint32_t last_contact_time;
     ns_list_link_t link;
 } secure_session_t;
 
@@ -117,8 +117,8 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, uint8_
         // Seek & destroy oldest session where close notify have been sent
         secure_session_t *to_be_removed = NULL;
         ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
-            if(cur_ptr->session_state == SECURE_SESSION_ALERT_SENT){
-                if(!to_be_removed || cur_ptr->session_start_timestamp < to_be_removed->session_start_timestamp){
+            if(cur_ptr->session_state == SECURE_SESSION_CLOSED){
+                if(!to_be_removed || cur_ptr->last_contact_time < to_be_removed->last_contact_time){
                     to_be_removed = cur_ptr;
                 }
             }
@@ -444,7 +444,7 @@ static void secure_recv_sckt_msg(void *cb_res)
             tr_err("secure_recv_sckt_msg session creation failed - OOM");
             return;
         }
-        session->session_start_timestamp = coap_service_get_internal_timer_ticks();
+        session->last_contact_time = coap_service_get_internal_timer_ticks();
         // Start handshake
         if( !session->sec_handler->_is_started ){
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
@@ -545,7 +545,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
             return -1;
         }
 
-        session->session_start_timestamp = coap_service_get_internal_timer_ticks();
+        session->last_contact_time = coap_service_get_internal_timer_ticks();
 
         if( !session->sec_handler->_is_started ){
             uint8_t *pw = (uint8_t *)ns_dyn_mem_alloc(64);
@@ -651,8 +651,8 @@ void connection_handler_close_secure_connection( coap_conn_handler_t *handler, u
             secure_session_t *session = secure_session_find( handler->socket, destination_addr_ptr, port);
             if( session ){
                 coap_security_send_close_alert( session->sec_handler );
-                session->session_state = SECURE_SESSION_ALERT_SENT;
-                session->session_start_timestamp = coap_service_get_internal_timer_ticks();
+                session->session_state = SECURE_SESSION_CLOSED;
+                session->last_contact_time = coap_service_get_internal_timer_ticks();
             }
         }
     }
@@ -706,7 +706,7 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, ns_address_t
             if( !session ){
                 return -1;
             }
-            session->session_start_timestamp = coap_service_get_internal_timer_ticks();
+            session->last_contact_time = coap_service_get_internal_timer_ticks();
             memcpy( handler->socket->dest_addr.address, dest_addr->address, 16 );
             handler->socket->dest_addr.identifier = dest_addr->identifier;
             handler->socket->dest_addr.type = dest_addr->type;
@@ -731,7 +731,7 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, ns_address_t
             }
         }else if( session->session_state == SECURE_SESSION_OK ){
             if( coap_security_handler_send_message(session->sec_handler, data_ptr, data_len ) > 0 ){
-                session->session_start_timestamp = coap_service_get_internal_timer_ticks();
+                session->last_contact_time = coap_service_get_internal_timer_ticks();
                 return 0;
             }
         }
@@ -780,14 +780,14 @@ void coap_connection_handler_exec(uint32_t time)
     if(ns_list_count(&secure_session_list)){
         // Seek & destroy old sessions where close notify have been sent
         ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
-            if(cur_ptr->session_state == SECURE_SESSION_ALERT_SENT ||
+            if(cur_ptr->session_state == SECURE_SESSION_CLOSED ||
                     cur_ptr->session_state == SECURE_SESSION_HANDSHAKE_ONGOING){
-                if((cur_ptr->session_start_timestamp +  CLOSED_SECURE_SESSION_TIMEOUT) <= time){
+                if((cur_ptr->last_contact_time +  CLOSED_SECURE_SESSION_TIMEOUT) <= time){
                     secure_session_delete(cur_ptr);
                 }
             }
             if(cur_ptr->session_state == SECURE_SESSION_OK){
-                if((cur_ptr->session_start_timestamp +  OPEN_SECURE_SESSION_TIMEOUT) <= time){
+                if((cur_ptr->last_contact_time +  OPEN_SECURE_SESSION_TIMEOUT) <= time){
                     secure_session_delete(cur_ptr);
                 }
             }
