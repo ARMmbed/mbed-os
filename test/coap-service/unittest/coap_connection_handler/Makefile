@@ -17,8 +17,9 @@ TEST_SRC_FILES = \
 	../stub/nsdynmemLIB_stub.c \
 	../stub/socket_api_stub.c \
 	../stub/coap_security_handler_stub.c \
+	../stub/coap_service_api_stub.c \
 
 include ../MakefileWorker.mk
 
-CPPUTESTFLAGS += -DFEA_TRACE_SUPPORT
+CPPUTESTFLAGS += -DFEA_TRACE_SUPPORT -DHAVE_THREAD
 

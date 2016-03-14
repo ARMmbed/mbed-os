@@ -23,6 +23,12 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "ns_address.h"
+#include "coap_service_api_internal.h"
+
+#define MAX_SECURE_SESSION_COUNT 3
+#define CLOSED_SECURE_SESSION_TIMEOUT 3600          // Seconds
+#define OPEN_SECURE_SESSION_TIMEOUT 18000            // Seconds
+#define SECURE_SESSION_CLEAN_INTERVAL 60            // Seconds
 
 struct internal_socket_s;
 
@@ -59,5 +65,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
 bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int8_t socket_id);
 
 int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_t min, uint32_t max);
+
+void coap_connection_handler_exec(uint32_t time);
 
 #endif

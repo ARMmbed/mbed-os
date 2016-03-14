@@ -2,9 +2,6 @@
  * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
  */
 
-
-#include "config.h"
-#ifdef HAVE_THREAD
 #include <string.h>
 
 #include "ns_types.h"
@@ -60,4 +57,7 @@ int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hd
     return 0;
 }
 
-#endif
+uint32_t coap_service_get_internal_timer_ticks(void)
+{
+    return 1;
+}

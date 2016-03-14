@@ -20,6 +20,7 @@
 #include "common_functions.h"
 #include "coap_connection_handler.h"
 #include "net_interface.h"
+#include "coap_service_api_internal.h"
 
 static int16_t coap_service_coap_msg_process(int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port, uint8_t *data_ptr, uint16_t data_len);
 static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr);
@@ -159,12 +160,14 @@ static void service_event_handler(arm_event_s *event)
     if (event->event_type == ARM_LIB_TASKLET_INIT_EVENT) {
         tr_debug("service tasklet initialised");
         /*initialize coap service and listen socket*/
-        eventOS_event_timer_request((uint8_t)COAP_TICK_TIMER, ARM_LIB_SYSTEM_TIMER_EVENT, tasklet_id, 1000);
     }
     if (event->event_type == ARM_LIB_SYSTEM_TIMER_EVENT && event->event_id == COAP_TICK_TIMER) {
         coap_message_handler_exec(coap_service_handle, coap_ticks++);
-        eventOS_event_timer_request((uint8_t)COAP_TICK_TIMER, ARM_LIB_SYSTEM_TIMER_EVENT, tasklet_id, 1000);
+        if(coap_ticks && !coap_ticks % SECURE_SESSION_CLEAN_INTERVAL){
+            coap_connection_handler_exec(coap_ticks);
+        }
     }
+    eventOS_event_timer_request((uint8_t)COAP_TICK_TIMER, ARM_LIB_SYSTEM_TIMER_EVENT, tasklet_id, 1000);
 }
 
 static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr)
@@ -299,11 +302,12 @@ int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_
         tasklet_id = eventOS_event_handler_create(&service_event_handler, ARM_LIB_TASKLET_INIT_EVENT);
     }
 
-    this->conn_handler = connection_handler_create(recv_cb, send_cb/*, sec_conn_closed_cb*/, get_passwd_cb, sec_done_cb);
+    this->conn_handler = connection_handler_create(recv_cb, send_cb, get_passwd_cb, sec_done_cb);
     if(!this->conn_handler){
         ns_dyn_mem_free(this);
         return -1;
     }
+
     if (0 > coap_connection_handler_open_connection(this->conn_handler, listen_port, ((this->service_options & COAP_SERVICE_OPTIONS_EPHEMERAL_PORT) == COAP_SERVICE_OPTIONS_EPHEMERAL_PORT),
                                               ((this->service_options & COAP_SERVICE_OPTIONS_SECURE) == COAP_SERVICE_OPTIONS_SECURE),
                                               ((this->service_options & COAP_SERVICE_OPTIONS_VIRTUAL_SOCKET) != COAP_SERVICE_OPTIONS_VIRTUAL_SOCKET),
@@ -333,10 +337,8 @@ void coap_service_delete(int8_t service_id)
         return;
     }
 
-    //TODO: There might be an issue with shared sockets, when deleting!!
     if (this->conn_handler){
         connection_handler_destroy(this->conn_handler);
-        this->conn_handler = NULL;
     }
 
     //TODO clear all transactions
@@ -463,4 +465,9 @@ int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint3
     }
 
     return coap_connection_handler_set_timeout(this->conn_handler, min, max);
+}
+
+uint32_t coap_service_get_internal_timer_ticks(void)
+{
+    return coap_ticks;
 }
