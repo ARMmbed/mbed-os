@@ -751,7 +751,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             NVIC_EnableIRQ(irq_n);
 #endif
         } else { // TxIrq
-            __HAL_UART_ENABLE_IT(handle, UART_IT_TC);
+            __HAL_UART_ENABLE_IT(handle, UART_IT_TXE);
             NVIC_SetVector(irq_n, vector);
             NVIC_EnableIRQ(irq_n);
 #if DEVICE_SERIAL_ASYNCH_DMA
