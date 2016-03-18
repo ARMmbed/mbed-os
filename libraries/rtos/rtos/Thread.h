@@ -131,6 +131,11 @@ public:
       @return  thread ID for reference by other functions or NULL in case of error.
     */
     static osThreadId gettid();
+    
+    /** Attach a function to be called by the RTOS idle task
+      @param   fptr  pointer to the function to be called
+    */
+    static void attach_idle_hook(void (*fptr)(void));
 
     virtual ~Thread();
 

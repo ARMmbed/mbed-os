@@ -48,6 +48,7 @@
 #define DEVICE_SPISLAVE         1
 
 #define DEVICE_RTC              0 // MAMM Not present on this module 1
+#define DEVICE_RTC_LSI          0
 
 #define DEVICE_PWMOUT           1
 

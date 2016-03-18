@@ -223,14 +223,12 @@
  *---------------------------------------------------------------------------*/
 
 /*--------------------------- os_idle_demon ---------------------------------*/
+extern void rtos_idle_loop(void);
 
 void os_idle_demon (void) {
   /* The idle demon is a system thread, running when no other thread is      */
   /* ready to run.                                                           */
-
-  for (;;) {
-    /* HERE: include optional user code to be executed when no thread runs.*/
-  }
+  rtos_idle_loop();
 }
 
 #if (OS_SYSTICK == 0)   // Functions for alternative timer as RTX kernel timer

@@ -73,6 +73,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 #if defined(ADC1)
     if ((obj->adc == ADC_1) && adc1_inited) return;
     if (obj->adc == ADC_1) {
+        AdcHandle.State = HAL_ADC_STATE_RESET;
         __ADC1_CLK_ENABLE();
         adc1_inited = 1;
     }
@@ -80,6 +81,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 #if defined(ADC2)
     if ((obj->adc == ADC_2) && adc2_inited) return;
     if (obj->adc == ADC_2) {
+        AdcHandle.State = HAL_ADC_STATE_RESET;
         __ADC2_CLK_ENABLE();
         adc2_inited = 1;
     }
@@ -87,6 +89,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 #if defined(ADC3)
     if ((obj->adc == ADC_3) && adc3_inited) return;
     if (obj->adc == ADC_3) {
+        AdcHandle.State = HAL_ADC_STATE_RESET;
         __ADC34_CLK_ENABLE();
         adc3_inited = 1;
     }
@@ -94,6 +97,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 #if defined(ADC4)
     if ((obj->adc == ADC_4) && adc4_inited) return;
     if (obj->adc == ADC_4) {
+        AdcHandle.State = HAL_ADC_STATE_RESET;
         __ADC34_CLK_ENABLE();
         adc4_inited = 1;
     }

@@ -1,9 +1,9 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_SPI
   #error [NOT_SUPPORTED] SPI not supported
 #endif
-
-#include "mbed.h"
-#include "test_env.h"
 
 #if defined(TARGET_KL25Z)
 SPI spi(PTD2, PTD3, PTD1);   // mosi, miso, sclk

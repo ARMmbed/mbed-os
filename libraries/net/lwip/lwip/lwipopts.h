@@ -51,7 +51,9 @@
 #define PBUF_POOL_SIZE              5
 #define MEMP_NUM_TCP_PCB_LISTEN     4
 #define MEMP_NUM_TCP_PCB            4
+#define MEMP_NUM_UDP_PCB            4
 #define MEMP_NUM_PBUF               8
+#define MEMP_NUM_NETBUF             8
 
 #define TCP_QUEUE_OOSEQ             0
 #define TCP_OVERSIZE                0

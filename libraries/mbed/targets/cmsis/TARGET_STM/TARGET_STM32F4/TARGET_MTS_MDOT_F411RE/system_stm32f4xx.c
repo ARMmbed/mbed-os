@@ -694,6 +694,15 @@ uint8_t SetSysClock_PLL_HSI(void)
   return 1; // OK
 }
 
+/******************************************************************************/
+/*            Hard Fault Handler                                              */
+/******************************************************************************/
+void HardFault_Handler(void)
+{
+  printf("Hard Fault\n");
+  NVIC_SystemReset();
+}
+
 /**
   * @}
   */
