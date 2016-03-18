@@ -21,7 +21,6 @@
 
 using namespace utest::v1;
 
-static void selftest_failure_handler(const failure_t failure);
 static void test_failure_handler(const failure_t failure);
 
 const handlers_t utest::v1::verbose_continue_handlers = {
@@ -35,16 +34,6 @@ const handlers_t utest::v1::verbose_continue_handlers = {
 
 
 // --- SPECIAL HANDLERS ---
-static void selftest_failure_handler(const failure_t failure) {
-    if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN || failure.reason == REASON_ASSERTION) {
-        verbose_test_failure_handler(failure);
-    }
-    if (failure.reason == REASON_ASSERTION) {
-        printf("{{failure}}\n{{end}}\n");
-        while(1) ;
-    }
-}
-
 static void test_failure_handler(const failure_t failure) {
     if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
         verbose_test_failure_handler(failure);
