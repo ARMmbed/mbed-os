@@ -26,6 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "cmsis.h"
+extern void wait_ms(int ms);
 
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()
@@ -34,4 +35,20 @@ void mbed_sdk_init()
     SystemCoreClockUpdate();
     // Need to restart HAL driver after the RAM is initialized
     HAL_Init();
+}
+
+/**
+  * @brief This function provides accurate delay (in milliseconds) based 
+  *        on variable incremented.
+  * @note In the default implementation , SysTick timer is the source of time base.
+  *       It is used to generate interrupts at regular time intervals where uwTick
+  *       is incremented.
+  * @note This function is the modified version of the __weak version contained in 
+  *       stm32f4xx_hal.c
+  * @param Delay: specifies the delay time length, in milliseconds.
+  * @retval None
+  */
+void HAL_Delay(__IO uint32_t Delay)
+{
+    wait_ms((int)Delay);
 }
