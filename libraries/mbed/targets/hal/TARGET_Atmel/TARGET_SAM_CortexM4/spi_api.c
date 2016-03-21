@@ -403,6 +403,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         pdc_packet_rx.ul_addr=(uint32_t)rx;
         pdc_packet_rx.ul_size=rx_length;
         pdcenable|=PERIPH_PTCR_RXTEN;
+        char *rxbuffer=(char *)rx;
+        for(uint8_t index=0; index<rx_length; index++, rxbuffer++)
+            *rxbuffer=SPI_FILL_WORD;
 
         /* Configure PDC for data receive */
         pdc_rx_init(obj->spi.pdc, &pdc_packet_rx, NULL);
@@ -435,7 +438,6 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
     uint32_t event=0;
 
-    pdc_disable_transfer(obj->spi.pdc, PERIPH_PTCR_RXTDIS| PERIPH_PTCR_TXTDIS);
     // Data transferred via DMA
     if((obj->spi.spi_base->SPI_SR & SPI_IER_TXBUFE)) {
 	    spi_disable_interrupt(obj->spi.spi_base, SPI_IDR_TXBUFE | SPI_IDR_MODF | SPI_IDR_OVRES);
