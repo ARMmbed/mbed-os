@@ -66,6 +66,7 @@ namespace v1 {
         REASON_CASE_TEARDOWN = (1 << 9),    ///< Case teardown failed
 
         REASON_CASE_INDEX    = (1 << 10),   ///< Case index out-of-range
+        REASON_SCHEDULER     = (1 << 11),   ///< Asynchronous callback scheduling failed
 
         REASON_IGNORE        = 0x8000       ///< The failure may be ignored
     };

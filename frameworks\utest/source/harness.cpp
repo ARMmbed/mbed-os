@@ -311,6 +311,10 @@ void Harness::run_next_case()
                 // if await validation _with_ timeout
                 if (case_control.timeout < TIMEOUT_FOREVER) {
                     case_timeout_handle = scheduler.post(handle_timeout, case_control.timeout);
+                    if (case_timeout_handle == NULL) {
+                        raise_failure(REASON_SCHEDULER);
+                        schedule_next_case();
+                    }
                 }
             }
             else {

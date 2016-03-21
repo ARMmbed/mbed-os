@@ -56,6 +56,9 @@ const char* utest::v1::stringify(utest::v1::failure_reason_t reason)
         case REASON_CASE_INDEX:
             string = "Ignored: Case Index Invalid";
             break;
+        case REASON_SCHEDULER:
+            string = "Ignored: Scheduling Asynchronous Callback Failed";
+            break;
         default:
         case REASON_UNKNOWN:
             string = "Ignored: Unknown Failure";
