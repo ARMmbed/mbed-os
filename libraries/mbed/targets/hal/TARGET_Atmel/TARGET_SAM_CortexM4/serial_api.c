@@ -718,6 +718,7 @@ int serial_rx_irq_handler_asynch(serial_t *obj)
         return SERIAL_EVENT_RX_PARITY_ERROR;
     }
     if ((ul_status & (US_IER_RXBUFF | US_IER_CMP)) ==  (US_IER_RXBUFF | US_IER_CMP)) { /* Character match in last character in transfer*/
+        usart_disable_interrupt(_USART(obj), US_IDR_CMP);
         serial_rx_abort_asynch(obj);
         return SERIAL_EVENT_RX_COMPLETE|SERIAL_EVENT_RX_CHARACTER_MATCH;
     }
@@ -769,12 +770,16 @@ void serial_tx_abort_asynch(serial_t *obj)
 
 void serial_rx_abort_asynch(serial_t *obj)
 {
+    IRQn_Type irq_n = (IRQn_Type)0;
     /* Sanity check arguments */
     MBED_ASSERT(obj);
     Pdc *pdc_base;
     usart_disable_interrupt(_USART(obj), US_IER_RXBUFF);
     pdc_base = usart_get_pdc_base(_USART(obj));
     pdc_disable_transfer(pdc_base, PERIPH_PTCR_RXTEN);
+    irq_n = get_serial_irq_num(obj);
+    NVIC_ClearPendingIRQ(irq_n);
+    NVIC_DisableIRQ(irq_n);
     pSERIAL_S(obj)->actrec = false;
 }
 

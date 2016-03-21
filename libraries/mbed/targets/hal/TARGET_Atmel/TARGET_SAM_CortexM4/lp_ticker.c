@@ -15,6 +15,7 @@
  */
 
 #include "cmsis.h"
+#include <stddef.h>
 #include "lp_ticker_api.h"
 #include "mbed_assert.h"
 #include "sleep_api.h"
@@ -24,18 +25,23 @@
 #include "us_ticker_api.h"
 
 uint8_t lp_ticker_inited = 0;
-extern uint8_t us_ticker_inited;
+extern volatile uint8_t us_ticker_inited;
 extern uint8_t g_sys_init;
 extern volatile uint32_t overflow32bitcounter;
-static uint16_t lp_ticker_interrupt_counter;
-static uint16_t lp_ticker_interrupt_offset;
+volatile uint16_t lp_ticker_16bit_counter;
+volatile uint16_t lp_ticker_interrupt_counter;
+volatile uint16_t lp_ticker_interrupt_offset;
+volatile uint32_t lpoverflow32bitcounter = 0;
 
-#define TICKER_COUNTER_lp        TC1
-#define TICKER_COUNTER_CHANNEL2  2
-#define TICKER_COUNTER_IRQn2     TC5_IRQn
-#define TICKER_COUNTER_Handlr2   TC5_Handler
+#define TICKER_COUNTER_lp		TC0
 
-#define OVERFLOW_16bit_VALUE_LP    0xFFFF
+#define TICKER_COUNTER_CLK2     ID_TC2
+
+#define TICKER_COUNTER_CHANNEL2 2
+#define TICKER_COUNTER_IRQn2	TC2_IRQn
+#define TICKER_COUNTER_Handlr2  TC2_Handler
+
+#define OVERFLOW_16bit_VALUE    0xFFFF
 
 
 void TICKER_COUNTER_Handlr2(void)
@@ -65,8 +71,8 @@ void lp_ticker_init(void)
         return;
     if (!us_ticker_inited)
         us_ticker_init();
-
-    tc_init(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_CMR_TCCLKS_TIMER_CLOCK5);
+    sysclk_enable_peripheral_clock(TICKER_COUNTER_CLK2);
+    tc_init(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_CMR_TCCLKS_TIMER_CLOCK4);
     lp_ticker_inited = 1;
 }
 
@@ -82,7 +88,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cur_time;
     int32_t delta;
 
-    cur_time = us_ticker_read();
+    cur_time = lp_ticker_read();
     delta = (int32_t)((uint32_t)timestamp - cur_time);
     if (delta < 0) {
         /* Event already occurred in past */
@@ -92,10 +98,10 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     uint16_t interruptat=0;
 
-    if(delta > OVERFLOW_16bit_VALUE_LP) {
-        lp_ticker_interrupt_counter= (delta/OVERFLOW_16bit_VALUE_LP) -1;
-        lp_ticker_interrupt_offset=delta%OVERFLOW_16bit_VALUE_LP;
-        interruptat=OVERFLOW_16bit_VALUE_LP;
+    if(delta > OVERFLOW_16bit_VALUE) {
+        lp_ticker_interrupt_counter= (delta/OVERFLOW_16bit_VALUE) -1;
+        lp_ticker_interrupt_offset=delta%OVERFLOW_16bit_VALUE;
+        interruptat=OVERFLOW_16bit_VALUE;
     } else {
         lp_ticker_interrupt_counter=0;
         lp_ticker_interrupt_offset=0;
