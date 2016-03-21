@@ -34,23 +34,15 @@ namespace v1 {
      * This type automatically casts itself into the appropriate handler type, when possible.
      * Use the constants to default a handler unambigously.
      */
-    const struct
+    static const struct
     {
-        const test_setup_handler_t    test_setup    = test_setup_handler_t(1);
-        const test_teardown_handler_t test_teardown = test_teardown_handler_t(1);
-        const test_failure_handler_t  test_failure  = test_failure_handler_t(1);
+        operator test_setup_handler_t()    const { return test_setup_handler_t(1); }
+        operator test_teardown_handler_t() const { return test_teardown_handler_t(1); }
+        operator test_failure_handler_t()  const { return test_failure_handler_t(1); }
 
-        const case_setup_handler_t    case_setup    = case_setup_handler_t(1);
-        const case_teardown_handler_t case_teardown = case_teardown_handler_t(1);
-        const case_failure_handler_t  case_failure  = case_failure_handler_t(1);
-
-        operator test_setup_handler_t()    const { return test_setup; }
-        operator test_teardown_handler_t() const { return test_teardown; }
-        operator test_failure_handler_t()  const { return test_failure; }
-
-        operator case_setup_handler_t()    const { return case_setup; }
-        operator case_teardown_handler_t() const { return case_teardown; }
-        operator case_failure_handler_t()  const { return case_failure; }
+        operator case_setup_handler_t()    const { return case_setup_handler_t(1); }
+        operator case_teardown_handler_t() const { return case_teardown_handler_t(1); }
+        operator case_failure_handler_t()  const { return case_failure_handler_t(1); }
     } default_handler;
 
     /** Ignore handler hint.
@@ -59,31 +51,19 @@ namespace v1 {
      * This type automatically casts itself into the appropriate handler type, when possible.
      * Use the constants to ignore a handler unambigously.
      */
-    const struct
+    static const struct
     {
-        const case_handler_t            handler    = case_handler_t(NULL);
-        const case_control_handler_t    control    = case_control_handler_t(NULL);
-        const case_call_count_handler_t call_count = case_call_count_handler_t(NULL);
+        operator case_handler_t()            const { return case_handler_t(NULL); }
+        operator case_control_handler_t()    const { return case_control_handler_t(NULL); }
+        operator case_call_count_handler_t() const { return case_call_count_handler_t(NULL); }
 
-        const test_setup_handler_t    test_setup    = test_setup_handler_t(NULL);
-        const test_teardown_handler_t test_teardown = test_teardown_handler_t(NULL);
-        const test_failure_handler_t  test_failure  = test_failure_handler_t(NULL);
+        operator test_setup_handler_t()    const { return test_setup_handler_t(NULL); }
+        operator test_teardown_handler_t() const { return test_teardown_handler_t(NULL); }
+        operator test_failure_handler_t()  const { return test_failure_handler_t(NULL); }
 
-        const case_setup_handler_t    case_setup    = case_setup_handler_t(NULL);
-        const case_teardown_handler_t case_teardown = case_teardown_handler_t(NULL);
-        const case_failure_handler_t  case_failure  = case_failure_handler_t(NULL);
-
-        operator case_handler_t()            const { return handler; }
-        operator case_control_handler_t()    const { return control; }
-        operator case_call_count_handler_t() const { return call_count; }
-
-        operator test_setup_handler_t()    const { return test_setup; }
-        operator test_teardown_handler_t() const { return test_teardown; }
-        operator test_failure_handler_t()  const { return test_failure; }
-
-        operator case_setup_handler_t()    const { return case_setup; }
-        operator case_teardown_handler_t() const { return case_teardown; }
-        operator case_failure_handler_t()  const { return case_failure; }
+        operator case_setup_handler_t()    const { return case_setup_handler_t(NULL); }
+        operator case_teardown_handler_t() const { return case_teardown_handler_t(NULL); }
+        operator case_failure_handler_t()  const { return case_failure_handler_t(NULL); }
     } ignore_handler;
 
     /** A table of handlers.
