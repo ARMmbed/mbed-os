@@ -159,8 +159,7 @@ namespace v1 {
     /// Prints the reason of the failure and continues, unless the teardown handler failed, for which it aborts.
     status_t verbose_case_failure_handler (const Case *const source, const failure_t reason);
 
-    /// Prints a helpful error message and aborts.
-    /// This function **NEEDS** to be overridden by the user when using greentea.
+    /// Requests the start test case from greentea and continues.
     status_t greentea_test_setup_handler   (const size_t number_of_cases);
     /// Reports the test results to greentea.
     void     greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure);
