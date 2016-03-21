@@ -54,6 +54,7 @@ namespace
     size_t test_failed = 0;
 
     const Case *case_current = NULL;
+    size_t case_index = 0;
     control_t case_control = control_t(REPEAT_SETUP_TEARDOWN);
     size_t case_repeat_count = 1;
 
@@ -138,7 +139,8 @@ bool Harness::run(const Specification& specification)
         return true;
     }
 
-    case_current = &test_cases[setup_status];
+    case_index = setup_status;
+    case_current = &test_cases[case_index];
 
     scheduler.post(run_next_case, 0);
     return true;
@@ -169,11 +171,13 @@ void Harness::raise_failure(const failure_reason_t reason)
         if (handlers.case_teardown && location != LOCATION_CASE_TEARDOWN) {
             location_t fail_loc(location);
             location = LOCATION_CASE_TEARDOWN;
+
             status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, failure_t(reason, fail_loc));
-            if (teardown_status != STATUS_CONTINUE) {
-                raise_failure(REASON_CASE_TEARDOWN);
-            }
-            else handlers.case_teardown = NULL;
+            if (teardown_status < STATUS_CONTINUE) raise_failure(REASON_CASE_TEARDOWN);
+            else if (teardown_status > signed(test_length)) raise_failure(REASON_CASE_INDEX);
+            else if (teardown_status >= 0) case_index = teardown_status - 1;
+
+            handlers.case_teardown = NULL;
         }
     }
     if (fail_status == STATUS_ABORT) {
@@ -194,10 +198,13 @@ void Harness::schedule_next_case()
 
     if (case_control.repeat & REPEAT_SETUP_TEARDOWN || !(case_control.repeat & (REPEAT_ON_TIMEOUT | REPEAT_ON_VALIDATE))) {
         location = LOCATION_CASE_TEARDOWN;
-        if (handlers.case_teardown &&
-            (handlers.case_teardown(case_current, case_passed, case_failed,
-                    case_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE)) != STATUS_CONTINUE)) {
-            raise_failure(REASON_CASE_TEARDOWN);
+
+        if (handlers.case_teardown) {
+            status_t status = handlers.case_teardown(case_current, case_passed, case_failed,
+                                                     case_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
+            if (status < STATUS_CONTINUE)          raise_failure(REASON_CASE_TEARDOWN);
+            else if (status > signed(test_length)) raise_failure(REASON_CASE_INDEX);
+            else if (status >= 0) case_index = status - 1;
         }
     }
 
@@ -206,7 +213,8 @@ void Harness::schedule_next_case()
         else test_passed++;
 
         case_control = control_t(REPEAT_SETUP_TEARDOWN);
-        case_current++;
+        case_index++;
+        case_current = &test_cases[case_index];
         case_passed = 0;
         case_failed = 0;
         case_failed_before = 0;
