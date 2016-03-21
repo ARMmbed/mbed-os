@@ -27,6 +27,7 @@
 #include "case.h"
 #include "default_handlers.h"
 #include "specification.h"
+#include "scheduler.h"
 
 
 namespace utest {
@@ -38,7 +39,12 @@ namespace v1 {
      * The harness executes the test specification in an asynchronous fashion, therefore
      * `run()` returns immediately.
      *
-     * @note: In case of an test abort, the harness will busy-wait and never finish.
+     * By default, this harness uses the MINAR scheduler for asynchronous callbacks.
+     * If you wamt to provide your own custom scheduler, set `config.utest.use_custom_scheduler` to `true`
+     * inside your yotta config and set a custom scheduler implementation using the `set_scheduler()` function.
+     * You must set the scheduler before running a specification.
+     *
+     * @note In case of an test abort, the harness will busy-wait and never finish.
      */
     class Harness
     {
@@ -48,14 +54,17 @@ namespace v1 {
         /// @retval `false` if another specification is currently running
         static bool run(const Specification& specification);
 
-        /// Runs a test specification starting at the specified case index
-        /// @warning if the start index is out of bounds, the call has no effect!
-        /// @retval `true`  if the specification can be run
-        /// @retval `false` if another specification is currently running, or the start index was out of bounds
+        /// @cond
+        __deprecated_message("Start case selection is done by returning the index from the test setup handler!")
         static bool run(const Specification& specification, size_t start_case);
+        /// @endcond
 
         /// @returns `true` if a test specification is being executed, `false` otherwise
         static bool is_busy();
+
+        /// Sets the scheduler to be used.
+        /// @return `true` if scheduler is properly specified (all functions non-null).
+        static bool set_scheduler(utest_v1_scheduler_t scheduler);
 
         /** Call this function in the asynchronous callback that you have been waiting for.
          *

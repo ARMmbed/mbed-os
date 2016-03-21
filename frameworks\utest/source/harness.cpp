@@ -17,9 +17,29 @@
  */
 
 #include "utest/harness.h"
-#include "minar/minar.h"
-#include "core-util/CriticalSectionLock.h"
 #include <stdlib.h>
+#include "core-util/CriticalSectionLock.h"
+
+
+#ifndef YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER
+#include "minar/minar.h"
+
+static void *utest_minar_post(const utest_v1_harness_callback_t callback, const uint32_t delay_ms)
+{
+    void *handle = minar::Scheduler::postCallback(callback).delay(minar::milliseconds(delay_ms)).getHandle();
+    return handle;
+}
+static int32_t utest_minar_cancel(void *handle)
+{
+    int32_t ret = minar::Scheduler::cancelCallback(handle);
+    return ret;
+}
+static const utest_v1_scheduler_t utest_minar_scheduler =
+{
+    utest_minar_post,
+    utest_minar_cancel
+};
+#endif
 
 using namespace utest::v1;
 
@@ -37,7 +57,7 @@ namespace
     control_t case_control = control_t(REPEAT_SETUP_TEARDOWN);
     size_t case_repeat_count = 1;
 
-    minar::callback_handle_t case_timeout_handle = NULL;
+    void *case_timeout_handle = NULL;
     size_t case_validation_count = 0;
     bool case_timeout_occurred = false;
 
@@ -49,21 +69,39 @@ namespace
     handlers_t handlers = defaults;
 
     location_t location = LOCATION_UNKNOWN;
+
+#ifndef YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER
+    utest_v1_scheduler_t scheduler = utest_minar_scheduler;
+#else
+    utest_v1_scheduler_t scheduler = {NULL, NULL};
+#endif
 }
 
 static void die() {
     while(1) ;
 }
 
-bool Harness::run(const Specification& specification)
+bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
 {
-    return run(specification, 0);
+    if (!scheduler.post || !scheduler.cancel)
+        return false;
+
+    ::scheduler = scheduler;
+    return true;
 }
 
 bool Harness::run(const Specification& specification, std::size_t)
 {
+    return run(specification);
+}
+
+bool Harness::run(const Specification& specification)
+{
     // check if a specification is currently running
     if (is_busy())
+        return false;
+
+    if (!scheduler.post || !scheduler.cancel)
         return false;
 
     test_cases  = specification.cases;
@@ -102,7 +140,7 @@ bool Harness::run(const Specification& specification, std::size_t)
 
     case_current = &test_cases[setup_status];
 
-    minar::Scheduler::postCallback(run_next_case);
+    scheduler.post(run_next_case, 0);
     return true;
 }
 
@@ -122,7 +160,7 @@ void Harness::raise_failure(const failure_reason_t reason)
 
         if ((fail_status == STATUS_ABORT) && case_timeout_handle)
         {
-            minar::Scheduler::cancelCallback(case_timeout_handle);
+            scheduler.cancel(case_timeout_handle);
             case_timeout_handle = NULL;
         }
     }
@@ -175,7 +213,7 @@ void Harness::schedule_next_case()
         case_repeat_count = 1;
         test_index_of_case++;
     }
-    minar::Scheduler::postCallback(run_next_case);
+    scheduler.post(run_next_case, 0);
 }
 
 void Harness::handle_timeout()
@@ -190,7 +228,7 @@ void Harness::handle_timeout()
     }
     if (case_timeout_occurred) {
         raise_failure(failure_reason_t(REASON_TIMEOUT | ((case_control.repeat & REPEAT_ON_TIMEOUT) ? REASON_IGNORE : 0)));
-        minar::Scheduler::postCallback(schedule_next_case);
+        scheduler.post(schedule_next_case, 0);
     }
 }
 
@@ -201,12 +239,12 @@ void Harness::validate_callback(const control_t control)
 
     if (case_timeout_handle != NULL || case_control.timeout == TIMEOUT_FOREVER)
     {
-        minar::Scheduler::cancelCallback(case_timeout_handle);
+        scheduler.cancel(case_timeout_handle);
         case_timeout_handle = NULL;
         control_t merged_control = case_control + control;
         case_control.repeat = repeat_t(merged_control.repeat & ~REPEAT_ON_TIMEOUT);
         case_control.timeout = TIMEOUT_NONE;
-        minar::Scheduler::postCallback(schedule_next_case);
+        scheduler.post(schedule_next_case, 0);
     }
 }
 
@@ -272,13 +310,11 @@ void Harness::run_next_case()
             if (case_control.timeout < TIMEOUT_UNDECLR && case_validation_count == 0) {
                 // if await validation _with_ timeout
                 if (case_control.timeout < TIMEOUT_FOREVER) {
-                    case_timeout_handle = minar::Scheduler::postCallback(handle_timeout)
-                                                .delay(minar::milliseconds(case_control.timeout))
-                                                .getHandle();
+                    case_timeout_handle = scheduler.post(handle_timeout, case_control.timeout);
                 }
             }
             else {
-                minar::Scheduler::postCallback(schedule_next_case);
+                scheduler.post(schedule_next_case, 0);
             }
         }
     }
