@@ -28,6 +28,7 @@
 #include "fsl_uart.h"
 #include "peripheral_clock_defines.h"
 #include "PeripheralPins.h"
+#include "fsl_clock_config.h"
 
 static uint32_t serial_irq_ids[FSL_FEATURE_SOC_UART_COUNT] = {0};
 static uart_irq_handler irq_handler;
@@ -45,6 +46,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     uint32_t uart_rx = pinmap_peripheral(rx, PinMap_UART_RX);
     obj->index = pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT((int)obj->index != NC);
+
+    // Need to initialize the clocks here as ticker init gets called before mbed_sdk_init
+    if (SystemCoreClock == DEFAULT_SYSTEM_CLOCK)
+        BOARD_BootClockRUN();
 
     uart_config_t config;
 
