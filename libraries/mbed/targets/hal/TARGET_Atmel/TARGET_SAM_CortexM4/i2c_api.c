@@ -605,6 +605,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     }
 
     if(rx) {
+        obj->i2c.i2c_base->TWI_MMR |= TWI_MMR_MREAD;
         pdc_rx_clear_cnt(obj->i2c.pdc);
         pdc_packet_t pdc_packet_rx;
         pdc_packet_rx.ul_addr=(uint32_t)rx;
@@ -645,7 +646,6 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
         i2c_stop(obj);
     }
 
-    pdc_disable_transfer(obj->i2c.pdc, PERIPH_PTCR_RXTDIS| PERIPH_PTCR_TXTDIS);
     // Data transferred via DMA
     if((obj->i2c.i2c_base->TWI_SR & TWI_IER_TXBUFE)) {
 	    twi_disable_interrupt(obj->i2c.i2c_base, TWI_IDR_TXBUFE | TWI_IDR_UNRE | TWI_IDR_OVRE | TWI_IDR_PECERR);		
