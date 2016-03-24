@@ -39,18 +39,8 @@
 ; 
 ;*******************************************************************************
 
-; Amount of memory (in bytes) allocated for Stack
-; Tailor this value to your application needs
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Stack_Size      EQU     0x00000400
-
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
                 EXPORT  __initial_sp
-                
-Stack_Mem       SPACE   Stack_Size
 
 __initial_sp    EQU     0x10008000 ; Top of RAM, L4-ECC-SRAM2 retained in standby
 
@@ -58,7 +48,7 @@ __initial_sp    EQU     0x10008000 ; Top of RAM, L4-ECC-SRAM2 retained in standb
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x00000400
+Heap_Size       EQU     0x8000 ; 32KB
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
                 EXPORT  __heap_base
@@ -66,11 +56,10 @@ Heap_Size       EQU     0x00000400
                 
 __heap_base
 Heap_Mem        SPACE   Heap_Size
-__heap_limit    EQU (__initial_sp - Stack_Size)
+__heap_limit
 
                 PRESERVE8
                 THUMB
-
 
 ; Vector Table Mapped to Address 0 at Reset
                 AREA    RESET, DATA, READONLY
@@ -415,3 +404,4 @@ FPU_IRQHandler
                 END
 
 ;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****
+
