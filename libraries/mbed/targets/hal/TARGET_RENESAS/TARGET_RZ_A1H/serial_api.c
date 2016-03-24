@@ -602,7 +602,11 @@ int serial_getc(serial_t *obj) {
     int data;
     int was_masked;
 
+#if defined ( __ICCARM__ )
+    was_masked = __disable_irq_iar();
+#else
     was_masked = __disable_irq();
+#endif /* __ICCARM__ */
     if (obj->serial.uart->SCFSR & 0x93) {
         err_read = obj->serial.uart->SCFSR;
         obj->serial.uart->SCFSR = (err_read & ~0x93);
@@ -619,7 +623,11 @@ int serial_getc(serial_t *obj) {
     while (!serial_readable(obj));
     data = obj->serial.uart->SCFRDR & 0xff;
 
+#if defined ( __ICCARM__ )
+    was_masked = __disable_irq_iar();
+#else
     was_masked = __disable_irq();
+#endif /* __ICCARM__ */
     err_read = obj->serial.uart->SCFSR;
     obj->serial.uart->SCFSR = (err_read & 0xfffD);     // Clear RDF
     if (!was_masked) {
@@ -636,7 +644,11 @@ static void serial_put_prepare(serial_t *obj)
 {
     int was_masked;
 
+#if defined ( __ICCARM__ )
+    was_masked = __disable_irq_iar();
+#else
     was_masked = __disable_irq();
+#endif /* __ICCARM__ */
     obj->serial.uart->SCSCR |= 0x0080;     // Set TIE
     if (!was_masked) {
         __enable_irq();
@@ -655,7 +667,11 @@ static void serial_put_done(serial_t *obj)
 {
     int was_masked;
     uint16_t dummy_read;
+#if defined ( __ICCARM__ )
+    was_masked = __disable_irq_iar();
+#else
     was_masked = __disable_irq();
+#endif /* __ICCARM__ */
     dummy_read = obj->serial.uart->SCFSR;
     obj->serial.uart->SCFSR = (dummy_read & 0xff9f);  // Clear TEND/TDFE
     if (!was_masked) {
@@ -673,7 +689,11 @@ int serial_writable(serial_t *obj) {
 
 void serial_clear(serial_t *obj) {
     int was_masked;
+#if defined ( __ICCARM__ )
+    was_masked = __disable_irq_iar();
+#else
     was_masked = __disable_irq();
+#endif /* __ICCARM__ */
 
     obj->serial.uart->SCFCR |=  0x06;          // TFRST = 1, RFRST = 1
     obj->serial.uart->SCFCR &= ~0x06;          // TFRST = 0, RFRST = 0
@@ -690,7 +710,11 @@ void serial_pinout_tx(PinName tx) {
 
 void serial_break_set(serial_t *obj) {
     int was_masked;
+#if defined ( __ICCARM__ )
+    was_masked = __disable_irq_iar();
+#else
     was_masked = __disable_irq();
+#endif /* __ICCARM__ */
     // TxD Output(L)
     obj->serial.uart->SCSPTR &= ~0x0001u;  // SPB2DT = 0
     obj->serial.uart->SCSCR &= ~0x0020u;   // TE = 0 (Output disable)
@@ -701,7 +725,11 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
     int was_masked;
+#if defined ( __ICCARM__ )
+    was_masked = __disable_irq_iar();
+#else
     was_masked = __disable_irq();
+#endif /* __ICCARM__ */
     obj->serial.uart->SCSCR |= 0x0020u; // TE = 1 (Output enable)
     obj->serial.uart->SCSPTR |= 0x0001u; // SPB2DT = 1
     if (!was_masked) {
@@ -716,7 +744,11 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     serial_flow_irq_set(obj, 0);
 
     if (type == FlowControlRTSCTS) {
+#if defined ( __ICCARM__ )
+        was_masked = __disable_irq_iar();
+#else
         was_masked = __disable_irq();
+#endif /* __ICCARM__ */
         obj->serial.uart->SCFCR = 0x0008u;   // CTS/RTS enable
         if (!was_masked) {
             __enable_irq();
@@ -724,7 +756,11 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
         pinmap_pinout(rxflow, PinMap_UART_RTS);
         pinmap_pinout(txflow, PinMap_UART_CTS);
     } else {
+#if defined ( __ICCARM__ )
+        was_masked = __disable_irq_iar();
+#else
         was_masked = __disable_irq();
+#endif /* __ICCARM__ */
         obj->serial.uart->SCFCR = 0x0000u; // CTS/RTS diable
         if (!was_masked) {
             __enable_irq();
