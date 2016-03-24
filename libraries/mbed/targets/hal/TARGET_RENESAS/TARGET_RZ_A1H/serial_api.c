@@ -52,6 +52,9 @@ static void uart5_rx_irq(void);
 static void uart6_rx_irq(void);
 static void uart7_rx_irq(void);
 
+static void serial_put_prepare(serial_t *obj);
+static void serial_put_done(serial_t *obj);
+static uint8_t serial_available_buffer(serial_t *obj);
 
 static const PinMap PinMap_UART_TX[] = {
     {P2_14 , UART0, 6},
@@ -116,6 +119,9 @@ struct serial_global_data_s {
     uint32_t serial_irq_id;
     gpio_t sw_rts, sw_cts;
     uint8_t count, rx_irq_set_flow, rx_irq_set_api;
+    serial_t *tranferring_obj, *receiving_obj;
+    uint32_t async_tx_callback, async_rx_callback;
+    int event, wanted_rx_events;
 };
 
 static struct serial_global_data_s uart_data[UART_NUM];
@@ -129,6 +135,17 @@ static const IRQn_Type irq_set_tbl[UART_NUM][IRQ_NUM] = {
     {SCIFRXI5_IRQn, SCIFTXI5_IRQn},
     {SCIFRXI6_IRQn, SCIFTXI6_IRQn},
     {SCIFRXI7_IRQn, SCIFTXI7_IRQn}
+};
+
+static const IRQn_Type irq_rx_err_tbl[UART_NUM][IRQ_NUM] = {
+    {SCIFBRI0_IRQn, SCIFERI0_IRQn},
+    {SCIFBRI1_IRQn, SCIFERI1_IRQn},
+    {SCIFBRI2_IRQn, SCIFERI2_IRQn},
+    {SCIFBRI3_IRQn, SCIFERI3_IRQn},
+    {SCIFBRI4_IRQn, SCIFERI4_IRQn},
+    {SCIFBRI5_IRQn, SCIFERI5_IRQn},
+    {SCIFBRI6_IRQn, SCIFERI6_IRQn},
+    {SCIFBRI7_IRQn, SCIFERI7_IRQn}
 };
 
 static const IRQHandler hander_set_tbl[UART_NUM][IRQ_NUM] = {
@@ -175,7 +192,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     MBED_ASSERT((int)uart != NC);
 
-    obj->uart = (struct st_scif *)SCIF[uart];
+    obj->serial.uart = (struct st_scif *)SCIF[uart];
     // enable power
     switch (uart) {
     case UART0:
@@ -208,42 +225,42 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     /* ==== SCIF initial setting ==== */
     /* ---- Serial control register (SCSCR) setting ---- */
     /* B'00 : Internal CLK */
-    obj->uart->SCSCR = 0x0000u;          /* SCIF transmitting and receiving operations stop */
+    obj->serial.uart->SCSCR = 0x0000u;          /* SCIF transmitting and receiving operations stop */
 
     /* ---- FIFO control register (SCFCR) setting ---- */
     /* Transmit FIFO reset & Receive FIFO data register reset */
-    obj->uart->SCFCR = 0x0006;
+    obj->serial.uart->SCFCR = 0x0006;
 
     /* ---- Serial status register (SCFSR) setting ---- */
-    dummy = obj->uart->SCFSR;
-    obj->uart->SCFSR = (dummy & 0xFF6Cu);         /* ER,BRK,DR bit clear */
+    dummy = obj->serial.uart->SCFSR;
+    obj->serial.uart->SCFSR = (dummy & 0xFF6Cu);         /* ER,BRK,DR bit clear */
 
     /* ---- Line status register (SCLSR) setting ---- */
     /* ORER bit clear */
-    obj->uart->SCLSR = 0;
+    obj->serial.uart->SCLSR = 0;
 
     /* ---- Serial extension mode register (SCEMR) setting ----
     b7 BGDM - Baud rate generator double-speed mode  : Normal mode
     b0 ABCS - Base clock select in asynchronous mode : Base clock is 16 times the bit rate */
-    obj->uart->SCEMR = 0x0000u;
+    obj->serial.uart->SCEMR = 0x0000u;
 
     /* ---- Bit rate register (SCBRR) setting ---- */
     serial_baud  (obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
 
     /* ---- FIFO control register (SCFCR) setting ---- */
-    obj->uart->SCFCR = 0x0030u;
+    obj->serial.uart->SCFCR = 0x0030u;
 
     /* ---- Serial port register (SCSPTR) setting ----
     b1 SPB2IO - Serial port break output : disabled
     b0 SPB2DT - Serial port break data   : High-level */
-    obj->uart->SCSPTR = 0x0003u;    // SPB2IO = 1, SPB2DT = 1
+    obj->serial.uart->SCSPTR = 0x0003u;    // SPB2IO = 1, SPB2DT = 1
 
     /* ---- Line status register (SCLSR) setting ----
     b0 ORER - Overrun error detect : clear */
 
-    if (obj->uart->SCLSR & 0x0001) {
-        obj->uart->SCLSR = 0u;      // ORER clear
+    if (obj->serial.uart->SCLSR & 0x0001) {
+        obj->serial.uart->SCLSR = 0u;      // ORER clear
     }
 
     // pinout the chosen uart
@@ -252,36 +269,36 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     switch (uart) {
     case UART0:
-        obj->index = 0;
+        obj->serial.index = 0;
         break;
     case UART1:
-        obj->index = 1;
+        obj->serial.index = 1;
         break;
     case UART2:
-        obj->index = 2;
+        obj->serial.index = 2;
         break;
     case UART3:
-        obj->index = 3;
+        obj->serial.index = 3;
         break;
     case UART4:
-        obj->index = 4;
+        obj->serial.index = 4;
         break;
     case UART5:
-        obj->index = 5;
+        obj->serial.index = 5;
         break;
     case UART6:
-        obj->index = 6;
+        obj->serial.index = 6;
         break;
     case UART7:
-        obj->index = 7;
+        obj->serial.index = 7;
         break;
     }
-    uart_data[obj->index].sw_rts.pin = NC;
-    uart_data[obj->index].sw_cts.pin = NC;
+    uart_data[obj->serial.index].sw_rts.pin = NC;
+    uart_data[obj->serial.index].sw_cts.pin = NC;
 
     /* ---- Serial control register (SCSCR) setting ---- */
     /* Setting the TE and RE bits enables the TxD and RxD pins to be used. */
-    obj->uart->SCSCR = 0x00F0;
+    obj->serial.uart->SCSCR = 0x00F0;
 
     is_stdio_uart = (uart == STDIO_UART) ? (1) : (0);
 
@@ -292,7 +309,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 }
 
 void serial_free(serial_t *obj) {
-    uart_data[obj->index].serial_irq_id = 0;
+    uart_data[obj->serial.index].serial_irq_id = 0;
 }
 
 // serial_baud
@@ -300,49 +317,49 @@ void serial_free(serial_t *obj) {
 void serial_baud(serial_t *obj, int baudrate) {
     uint16_t DL;
 
-    obj->uart->SCSMR &= ~0x0003;
+    obj->serial.uart->SCSMR &= ~0x0003;
 
     if (baudrate > 32552) {
-        obj->uart->SCEMR = 0x0081;  // BGDM = 1, ABCS = 1
+        obj->serial.uart->SCEMR = 0x0081;  // BGDM = 1, ABCS = 1
         DL = PCLK / (8 * baudrate);
         if (DL > 0) {
             DL--;
         }
-        obj->uart->SCBRR = (uint8_t)DL;
+        obj->serial.uart->SCBRR = (uint8_t)DL;
     } else if (baudrate > 16276) {
-        obj->uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->uart->SCBRR = PCLK / (16 * baudrate) - 1;
+        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
+        obj->serial.uart->SCBRR = PCLK / (16 * baudrate) - 1;
     } else if (baudrate > 8138) {
-        obj->uart->SCEMR = 0x0000;
-        obj->uart->SCBRR = PCLK / (32 * baudrate) - 1;
+        obj->serial.uart->SCEMR = 0x0000;
+        obj->serial.uart->SCBRR = PCLK / (32 * baudrate) - 1;
     } else if (baudrate > 4169) {
-        obj->uart->SCSMR |= 0x0001;
-        obj->uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->uart->SCBRR = PCLK / (64 * baudrate) - 1;
+        obj->serial.uart->SCSMR |= 0x0001;
+        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
+        obj->serial.uart->SCBRR = PCLK / (64 * baudrate) - 1;
     } else if (baudrate > 2034) {
-        obj->uart->SCSMR |= 0x0001;
-        obj->uart->SCEMR = 0x0000;
-        obj->uart->SCBRR = PCLK / (128 * baudrate) - 1;
+        obj->serial.uart->SCSMR |= 0x0001;
+        obj->serial.uart->SCEMR = 0x0000;
+        obj->serial.uart->SCBRR = PCLK / (128 * baudrate) - 1;
     } else if (baudrate > 1017) {
-        obj->uart->SCSMR |= 0x0002;
-        obj->uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->uart->SCBRR = PCLK / (256 * baudrate) - 1;
+        obj->serial.uart->SCSMR |= 0x0002;
+        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
+        obj->serial.uart->SCBRR = PCLK / (256 * baudrate) - 1;
     } else if (baudrate > 508) {
-        obj->uart->SCSMR |= 0x0002;
-        obj->uart->SCEMR = 0x0000;
-        obj->uart->SCBRR = PCLK / (512 * baudrate) - 1;
+        obj->serial.uart->SCSMR |= 0x0002;
+        obj->serial.uart->SCEMR = 0x0000;
+        obj->serial.uart->SCBRR = PCLK / (512 * baudrate) - 1;
     } else if (baudrate > 254) {
-        obj->uart->SCSMR |= 0x0003;
-        obj->uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->uart->SCBRR = PCLK / (1024 * baudrate) - 1;
+        obj->serial.uart->SCSMR |= 0x0003;
+        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
+        obj->serial.uart->SCBRR = PCLK / (1024 * baudrate) - 1;
     } else if (baudrate > 127) {
-        obj->uart->SCSMR |= 0x0003;
-        obj->uart->SCEMR = 0x0000;
-        obj->uart->SCBRR = PCLK / (2048 * baudrate) - 1;
+        obj->serial.uart->SCSMR |= 0x0003;
+        obj->serial.uart->SCEMR = 0x0000;
+        obj->serial.uart->SCBRR = PCLK / (2048 * baudrate) - 1;
     } else {
-        obj->uart->SCSMR |= 0x0003;
-        obj->uart->SCEMR = 0x0000;
-        obj->uart->SCBRR = 0xFFu;
+        obj->serial.uart->SCSMR |= 0x0003;
+        obj->serial.uart->SCEMR = 0x0000;
+        obj->serial.uart->SCBRR = 0xFFu;
     }
 }
 
@@ -384,7 +401,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         break;
     }
 
-    obj->uart->SCSMR = data_bits          << 6
+    obj->serial.uart->SCSMR = data_bits          << 6
                        | parity_enable    << 5
                        | parity_select    << 4
                        | stop_bits        << 3;
@@ -397,11 +414,34 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 static void uart_tx_irq(IRQn_Type irq_num, uint32_t index) {
     __IO uint16_t *dmy_rd_scscr;
     __IO uint16_t *dmy_rd_scfsr;
+    serial_t *obj;
+    size_t i;
 
     dmy_rd_scscr = SCSCR_MATCH[index];
     *dmy_rd_scscr &= 0x007B;                    // Clear TIE and Write to bit15~8,2 is always 0
     dmy_rd_scfsr = SCFSR_MATCH[index];
-    *dmy_rd_scfsr = (*dmy_rd_scfsr & ~0x0020);  // Clear TDFE
+    *dmy_rd_scfsr = (*dmy_rd_scfsr & ~0x0020);  // Set TEND
+    
+    obj = uart_data[index].tranferring_obj;
+    if (obj) {
+        i = obj->tx_buff.length - obj->tx_buff.pos;
+        if (0 < i) {
+            serial_put_prepare(obj);
+            if (serial_available_buffer(obj) < i) {
+                i = serial_available_buffer(obj);
+            }
+            do {
+                obj->serial.uart->SCFTDR = *(uint8_t *)obj->tx_buff.buffer;
+                obj->tx_buff.buffer = (uint8_t *)obj->tx_buff.buffer + 1;
+                ++obj->tx_buff.pos;
+            } while (--i);
+            serial_put_done(obj);
+        } else {
+            uart_data[index].tranferring_obj = NULL;
+            uart_data[index].event = SERIAL_EVENT_TX_COMPLETE;
+            ((void (*)())uart_data[index].async_tx_callback)();
+        }
+    }
 
     irq_handler(uart_data[index].serial_irq_id, TxIrq);
 }
@@ -409,11 +449,56 @@ static void uart_tx_irq(IRQn_Type irq_num, uint32_t index) {
 static void uart_rx_irq(IRQn_Type irq_num, uint32_t index) {
     __IO uint16_t *dmy_rd_scscr;
     __IO uint16_t *dmy_rd_scfsr;
+    serial_t *obj;
+    int c;
 
     dmy_rd_scscr = SCSCR_MATCH[index];
     *dmy_rd_scscr &= 0x00B3;                    // Clear RIE,REIE and Write to bit15~8,2 is always 0
     dmy_rd_scfsr = SCFSR_MATCH[index];
     *dmy_rd_scfsr = (*dmy_rd_scfsr & ~0x0003);  // Clear RDF,DR
+    
+    obj = uart_data[index].receiving_obj;
+    if (obj) {
+        if (obj->serial.uart->SCLSR & 1) {
+            if (uart_data[index].wanted_rx_events & SERIAL_EVENT_RX_OVERRUN_ERROR) {
+                serial_rx_abort_asynch(obj);
+                uart_data[index].event = SERIAL_EVENT_RX_OVERRUN_ERROR;
+                ((void (*)())uart_data[index].async_rx_callback)();
+            }
+            return;
+        }
+        c = serial_getc(obj);
+        if (c != -1) {
+            if (c == obj->char_match) {
+                obj->char_found = 1;
+            }
+            *(uint8_t *)obj->rx_buff.buffer = c;
+            ++obj->rx_buff.pos;
+            if (obj->rx_buff.pos == obj->rx_buff.length) {
+                uart_data[index].receiving_obj = NULL;
+                if (uart_data[index].wanted_rx_events & (SERIAL_EVENT_RX_COMPLETE | SERIAL_EVENT_RX_CHARACTER_MATCH)) {
+                    uart_data[index].event = SERIAL_EVENT_RX_COMPLETE;
+                    if (obj->char_found) {
+                        uart_data[index].event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
+                    }
+                    ((void (*)())uart_data[index].async_rx_callback)();
+                }
+            } else {
+                obj->rx_buff.buffer = (uint8_t *)obj->rx_buff.buffer + 1;
+            }
+        } else {
+            serial_rx_abort_asynch(obj);
+            if (uart_data[index].wanted_rx_events & (SERIAL_EVENT_RX_PARITY_ERROR | SERIAL_EVENT_RX_FRAMING_ERROR)) {
+                if (obj->serial.uart->SCFSR & 1 << 2) {
+                    uart_data[index].event = SERIAL_EVENT_RX_PARITY_ERROR;
+                } else if (obj->serial.uart->SCFSR & 1 << 3) {
+                    uart_data[index].event = SERIAL_EVENT_RX_FRAMING_ERROR;
+                }
+                ((void (*)())uart_data[index].async_rx_callback)();
+            }
+            return;
+        }
+    }
 
     irq_handler(uart_data[index].serial_irq_id, RxIrq);
 }
@@ -471,36 +556,41 @@ static void uart7_rx_irq(void)  {
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
-    uart_data[obj->index].serial_irq_id = id;
+    uart_data[obj->serial.index].serial_irq_id = id;
+}
+
+static void serial_irq_set_irq(IRQn_Type IRQn, IRQHandler handler, uint32_t enable)
+{
+    if (enable) {
+        InterruptHandlerRegister(IRQn, (void (*)(uint32_t))handler);
+        GIC_SetPriority(IRQn, 5);
+        GIC_EnableIRQ(IRQn);
+    } else {
+        GIC_DisableIRQ(IRQn);
+    }
 }
 
 static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type IRQn;
     IRQHandler handler;
 
-    IRQn = irq_set_tbl[obj->index][irq];
-    handler = hander_set_tbl[obj->index][irq];
+    IRQn = irq_set_tbl[obj->serial.index][irq];
+    handler = hander_set_tbl[obj->serial.index][irq];
 
-    if ((obj->index >= 0) && (obj->index <= 7)) {
-        if (enable) {
-            InterruptHandlerRegister(IRQn, (void (*)(uint32_t))handler);
-            GIC_SetPriority(IRQn, 5);
-            GIC_EnableIRQ(IRQn);
-        } else {
-            GIC_DisableIRQ(IRQn);
-        }
+    if ((obj->serial.index >= 0) && (obj->serial.index <= 7)) {
+        serial_irq_set_irq(IRQn, handler, enable);
     }
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     if (RxIrq == irq) {
-        uart_data[obj->index].rx_irq_set_api = enable;
+        uart_data[obj->serial.index].rx_irq_set_api = enable;
     }
     serial_irq_set_internal(obj, irq, enable);
 }
 
 static void serial_flow_irq_set(serial_t *obj, uint32_t enable) {
-    uart_data[obj->index].rx_irq_set_flow = enable;
+    uart_data[obj->serial.index].rx_irq_set_flow = enable;
     serial_irq_set_internal(obj, RxIrq, enable);
 }
 
@@ -512,34 +602,26 @@ int serial_getc(serial_t *obj) {
     int data;
     int was_masked;
 
-#if defined ( __ICCARM__ )
-    was_masked = __disable_irq_iar();
-#else
     was_masked = __disable_irq();
-#endif /* __ICCARM__ */
-    if (obj->uart->SCFSR & 0x93) {
-        err_read = obj->uart->SCFSR;
-        obj->uart->SCFSR = (err_read & ~0x93);
+    if (obj->serial.uart->SCFSR & 0x93) {
+        err_read = obj->serial.uart->SCFSR;
+        obj->serial.uart->SCFSR = (err_read & ~0x93);
     }
-    obj->uart->SCSCR |= 0x0040;     // Set RIE
+    obj->serial.uart->SCSCR |= 0x0040;     // Set RIE
     if (!was_masked) {
         __enable_irq();
     }
 
-    if (obj->uart->SCLSR & 0x0001) {
-        obj->uart->SCLSR = 0u;      // ORER clear
+    if (obj->serial.uart->SCLSR & 0x0001) {
+        obj->serial.uart->SCLSR = 0u;      // ORER clear
     }
 
     while (!serial_readable(obj));
-    data = obj->uart->SCFRDR & 0xff;
+    data = obj->serial.uart->SCFRDR & 0xff;
 
-#if defined ( __ICCARM__ )
-    was_masked = __disable_irq_iar();
-#else
     was_masked = __disable_irq();
-#endif /* __ICCARM__ */
-    err_read = obj->uart->SCFSR;
-    obj->uart->SCFSR = (err_read & 0xfffD);     // Clear RDF
+    err_read = obj->serial.uart->SCFSR;
+    obj->serial.uart->SCFSR = (err_read & 0xfffD);     // Clear RDF
     if (!was_masked) {
         __enable_irq();
     }
@@ -550,53 +632,52 @@ int serial_getc(serial_t *obj) {
     return data;
 }
 
-void serial_putc(serial_t *obj, int c) {
-    uint16_t dummy_read;
+static void serial_put_prepare(serial_t *obj)
+{
     int was_masked;
 
-#if defined ( __ICCARM__ )
-    was_masked = __disable_irq_iar();
-#else
     was_masked = __disable_irq();
-#endif /* __ICCARM__ */
-    obj->uart->SCSCR |= 0x0080;     // Set TIE
+    obj->serial.uart->SCSCR |= 0x0080;     // Set TIE
     if (!was_masked) {
         __enable_irq();
     }
     while (!serial_writable(obj));
-    obj->uart->SCFTDR = c;
-#if defined ( __ICCARM__ )
-    was_masked = __disable_irq_iar();
-#else
+}
+
+void serial_putc(serial_t *obj, int c) {
+    serial_put_prepare(obj);
+    obj->serial.uart->SCFTDR = c;
+    serial_put_done(obj);
+    uart_data[obj->serial.index].count++;
+}
+
+static void serial_put_done(serial_t *obj)
+{
+    int was_masked;
+    uint16_t dummy_read;
     was_masked = __disable_irq();
-#endif /* __ICCARM__ */
-    dummy_read = obj->uart->SCFSR;
-    obj->uart->SCFSR = (dummy_read & 0xff9f);  // Clear TEND/TDFE
+    dummy_read = obj->serial.uart->SCFSR;
+    obj->serial.uart->SCFSR = (dummy_read & 0xff9f);  // Clear TEND/TDFE
     if (!was_masked) {
         __enable_irq();
     }
-    uart_data[obj->index].count++;
 }
 
 int serial_readable(serial_t *obj) {
-    return ((obj->uart->SCFSR & 0x02) != 0);  // RDF
+    return ((obj->serial.uart->SCFSR & 0x02) != 0);  // RDF
 }
 
 int serial_writable(serial_t *obj) {
-    return ((obj->uart->SCFSR & 0x20) != 0);  // TDFE
+    return ((obj->serial.uart->SCFSR & 0x20) != 0);  // TDFE
 }
 
 void serial_clear(serial_t *obj) {
     int was_masked;
-#if defined ( __ICCARM__ )
-    was_masked = __disable_irq_iar();
-#else
     was_masked = __disable_irq();
-#endif /* __ICCARM__ */
 
-    obj->uart->SCFCR |=  0x06;          // TFRST = 1, RFRST = 1
-    obj->uart->SCFCR &= ~0x06;          // TFRST = 0, RFRST = 0
-    obj->uart->SCFSR &= ~0x0093u;       // ER, BRK, RDF, DR = 0
+    obj->serial.uart->SCFCR |=  0x06;          // TFRST = 1, RFRST = 1
+    obj->serial.uart->SCFCR &= ~0x06;          // TFRST = 0, RFRST = 0
+    obj->serial.uart->SCFSR &= ~0x0093u;       // ER, BRK, RDF, DR = 0
 
     if (!was_masked) {
         __enable_irq();
@@ -609,14 +690,10 @@ void serial_pinout_tx(PinName tx) {
 
 void serial_break_set(serial_t *obj) {
     int was_masked;
-#if defined ( __ICCARM__ )
-    was_masked = __disable_irq_iar();
-#else
     was_masked = __disable_irq();
-#endif /* __ICCARM__ */
     // TxD Output(L)
-    obj->uart->SCSPTR &= ~0x0001u;  // SPB2DT = 0
-    obj->uart->SCSCR &= ~0x0020u;   // TE = 0 (Output disable)
+    obj->serial.uart->SCSPTR &= ~0x0001u;  // SPB2DT = 0
+    obj->serial.uart->SCSCR &= ~0x0020u;   // TE = 0 (Output disable)
     if (!was_masked) {
         __enable_irq();
     }
@@ -624,13 +701,9 @@ void serial_break_set(serial_t *obj) {
 
 void serial_break_clear(serial_t *obj) {
     int was_masked;
-#if defined ( __ICCARM__ )
-    was_masked = __disable_irq_iar();
-#else
     was_masked = __disable_irq();
-#endif /* __ICCARM__ */
-    obj->uart->SCSCR |= 0x0020u; // TE = 1 (Output enable)
-    obj->uart->SCSPTR |= 0x0001u; // SPB2DT = 1
+    obj->serial.uart->SCSCR |= 0x0020u; // TE = 1 (Output enable)
+    obj->serial.uart->SCSPTR |= 0x0001u; // SPB2DT = 1
     if (!was_masked) {
         __enable_irq();
     }
@@ -643,30 +716,127 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
     serial_flow_irq_set(obj, 0);
 
     if (type == FlowControlRTSCTS) {
-#if defined ( __ICCARM__ )
-        was_masked = __disable_irq_iar();
-#else
         was_masked = __disable_irq();
-#endif /* __ICCARM__ */
-        obj->uart->SCFCR = 0x0008u;   // CTS/RTS enable
+        obj->serial.uart->SCFCR = 0x0008u;   // CTS/RTS enable
         if (!was_masked) {
             __enable_irq();
         }
         pinmap_pinout(rxflow, PinMap_UART_RTS);
         pinmap_pinout(txflow, PinMap_UART_CTS);
     } else {
-#if defined ( __ICCARM__ )
-        was_masked = __disable_irq_iar();
-#else
         was_masked = __disable_irq();
-#endif /* __ICCARM__ */
-        obj->uart->SCFCR = 0x0000u; // CTS/RTS diable
+        obj->serial.uart->SCFCR = 0x0000u; // CTS/RTS diable
         if (!was_masked) {
             __enable_irq();
         }
     }
 }
 
+static uint8_t serial_available_buffer(serial_t *obj)
+{
+#if defined(__ARMCC_VERSION)
+    return 1;
+#else
+    uint16_t ret = 16 - ((obj->serial.uart->SCFDR >> 8) & 0x1F);
+    while (ret == 0) {
+        ret = 16 - ((obj->serial.uart->SCFDR >> 8) & 0x1F);
+    }
+    MBED_ASSERT(0 < ret && ret <= 16);
+    return ret;
+#endif
+}
 
+#if DEVICE_SERIAL_ASYNCH
 
+/******************************************************************************
+ * ASYNCHRONOUS HAL
+ ******************************************************************************/
 
+int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    int i;
+    buffer_t *buf = &obj->tx_buff;
+    struct serial_global_data_s *data = uart_data + obj->serial.index;
+    
+    if (tx_length == 0) {
+        return 0;
+    }
+    
+    buf->buffer = (void *)tx;
+    buf->length = tx_length * tx_width / 8;
+    buf->pos = 0;
+    buf->width = tx_width;
+    data->tranferring_obj = obj;
+    data->async_tx_callback = handler;
+    serial_irq_set(obj, TxIrq, 1);
+    
+    serial_put_prepare(obj);
+    i = buf->length;
+    if (serial_available_buffer(obj) < i) {
+        i = serial_available_buffer(obj);
+    }
+    do {
+        obj->serial.uart->SCFTDR = *(uint8_t *)buf->buffer;
+        obj->tx_buff.buffer = (uint8_t *)obj->tx_buff.buffer + 1;
+        ++buf->pos;
+    } while (--i);
+    serial_put_done(obj);
+    
+    return buf->length;
+}
+
+void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
+{
+    buffer_t *buf = &obj->rx_buff;
+    struct serial_global_data_s *data = uart_data + obj->serial.index;
+    
+    if (rx_length == 0) {
+        return;
+    }
+    
+    buf->buffer = rx;
+    buf->length = rx_length * rx_width / 8;
+    buf->pos = 0;
+    buf->width = rx_width;
+    obj->char_match = char_match;
+    obj->char_found = 0;
+    data->receiving_obj = obj;
+    data->async_rx_callback = handler;
+    data->event = 0;
+    data->wanted_rx_events = event;
+    
+    serial_irq_set(obj, RxIrq, 1);
+    serial_irq_set_irq(irq_rx_err_tbl[obj->serial.index][0], hander_set_tbl[obj->serial.index][RxIrq], 1);
+    serial_irq_set_irq(irq_rx_err_tbl[obj->serial.index][1], hander_set_tbl[obj->serial.index][RxIrq], 1);
+}
+
+uint8_t serial_tx_active(serial_t *obj)
+{
+    return uart_data[obj->serial.index].tranferring_obj != NULL;
+}
+
+uint8_t serial_rx_active(serial_t *obj)
+{
+    return uart_data[obj->serial.index].receiving_obj != NULL;
+}
+
+int serial_irq_handler_asynch(serial_t *obj)
+{
+    return uart_data[obj->serial.index].event;
+}
+
+void serial_tx_abort_asynch(serial_t *obj)
+{
+    uart_data[obj->serial.index].tranferring_obj = NULL;
+    obj->serial.uart->SCFCR |= 1 << 2;
+    obj->serial.uart->SCFCR &= ~(1 << 2);
+}
+
+void serial_rx_abort_asynch(serial_t *obj)
+{
+    uart_data[obj->serial.index].receiving_obj = NULL;
+    obj->serial.uart->SCFCR |= 1 << 1;
+    obj->serial.uart->SCFCR &= ~(1 << 1);
+}
+
+#endif

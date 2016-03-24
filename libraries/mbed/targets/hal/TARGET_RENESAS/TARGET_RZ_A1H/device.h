@@ -35,12 +35,15 @@
 
 #define DEVICE_SERIAL           1
 #define DEVICE_SERIAL_FC        1
+#define DEVICE_SERIAL_ASYNCH    1
 
 #define DEVICE_I2C              1
 #define DEVICE_I2CSLAVE         1
+#define DEVICE_I2C_ASYNCH       1
 
 #define DEVICE_SPI              1
 #define DEVICE_SPISLAVE         1
+#define DEVICE_SPI_ASYNCH       1
 
 #define DEVICE_CAN              1
 
@@ -59,10 +62,11 @@
 
 #define DEVICE_DEBUG_AWARENESS  0
 
-#define DEVICE_STDIO_MESSAGES   1
+#define DEVICE_STDIO_MESSAGES   0
 
-#define DEVICE_ERROR_PATTERN    1
+#define DEVICE_ERROR_PATTERN    0
 
 #include "objects.h"
+#include "dma_api.h"
 
 #endif
