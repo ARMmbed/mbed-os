@@ -72,22 +72,22 @@ void rtc_init(void)
         __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
         rtc_freq = LSE_VALUE;
     } else {
-	    error("Cannot initialize RTC with LSE\n");
+        error("Cannot initialize RTC with LSE\n");
     }
 #else
-	// Enable LSI clock
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-	RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-	RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-	RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-		error("RTC error: LSI clock initialization failed.");
-	}
-	// Connect LSI to RTC
-	__HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
-	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-	// This value is LSI typical value. To be measured precisely using a timer input capture for example.
-	rtc_freq = 38000;
+    // Enable LSI clock
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        error("RTC error: LSI clock initialization failed.");
+    }
+    // Connect LSI to RTC
+    __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
+    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+    // This value is LSI typical value. To be measured precisely using a timer input capture for example.
+    rtc_freq = 38000;
 #endif
 
     // Enable RTC
