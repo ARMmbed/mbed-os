@@ -34,6 +34,9 @@ const int i2c_delay_us = 0;
 #if defined(TARGET_KL25Z)
 I2C i2c(PTC9, PTC8);
 
+#elif defined(TARGET_KL27Z)
+I2C i2c(PTD6, PTD7);
+
 #elif defined(TARGET_KL46Z)
 I2C i2c(PTC9, PTC8);
 

@@ -496,6 +496,21 @@ class K22F(Target):
             "target":"frdm-k22f",
         }
 
+class KL27Z(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'FRDM']
+        self.macros = ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0261"]
+        self.progen_target = {
+            "target":"frdm-kl27z",
+        }
+
 class K64F(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1997,6 +2012,7 @@ TARGETS = [
     LPC4337(),
     LPC11U37H_401(),
     K22F(),
+    KL27Z(),
     K64F(),       # FRDM K64F
     MTS_GAMBIT(),
     HEXIWEAR(),
