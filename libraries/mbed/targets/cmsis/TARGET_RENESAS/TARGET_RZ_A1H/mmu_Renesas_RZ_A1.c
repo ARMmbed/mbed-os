@@ -209,7 +209,7 @@ void create_translation_table(void)
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_RO);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
+    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_SH);
 #endif
 
 #if defined( __CC_ARM )
