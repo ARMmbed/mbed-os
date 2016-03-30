@@ -498,12 +498,15 @@ int coap_security_send_close_alert(coap_security_t *sec)
 
 int coap_security_handler_read(coap_security_t *sec, unsigned char* buffer, size_t len){
     int ret=-1;
+    int max_loops = 100;
 
     if( sec && buffer ){
         memset( buffer, 0, len );
-        do ret = mbedtls_ssl_read( &sec->_ssl, buffer, len );
-        while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
-               ret == MBEDTLS_ERR_SSL_WANT_WRITE );
+        do {
+            ret = mbedtls_ssl_read( &sec->_ssl, buffer, len );
+        } while( (ret == MBEDTLS_ERR_SSL_WANT_READ ||
+                  ret == MBEDTLS_ERR_SSL_WANT_WRITE)
+                && --max_loops);
     }
     return ret; //bytes read
 }
