@@ -321,11 +321,10 @@ static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
         spi_async_read(obj);
     } else {
         if (obj->rx_buff.buffer && obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
-            spi_data[obj->spi.index].event = SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW;
-            spi_abort_asynch(obj);
-            if (spi_data[obj->spi.index].wanted_events & (SPI_EVENT_ERROR | SPI_EVENT_RX_OVERFLOW)) {
-                ((void (*)())spi_data[obj->spi.index].async_callback)();
-            }
+            spi_data[obj->spi.index].event = SPI_EVENT_COMPLETE;
+            spi_irqs_set(obj, 0);
+            spi_data[obj->spi.index].async_obj = NULL;
+            ((void (*)())spi_data[obj->spi.index].async_callback)();
             return;
         }
         spi_read(obj);
@@ -335,9 +334,7 @@ static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
             spi_data[obj->spi.index].event = SPI_EVENT_COMPLETE;
             spi_irqs_set(obj, 0);
             spi_data[obj->spi.index].async_obj = NULL;
-            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
-                ((void (*)())spi_data[obj->spi.index].async_callback)();
-            }
+            ((void (*)())spi_data[obj->spi.index].async_callback)();
         } else {
             spi_async_write(obj);
         }
@@ -346,9 +343,7 @@ static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
             spi_data[obj->spi.index].event = SPI_EVENT_COMPLETE;
             spi_irqs_set(obj, 0);
             spi_data[obj->spi.index].async_obj = NULL;
-            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
-                ((void (*)())spi_data[obj->spi.index].async_callback)();
-            }
+            ((void (*)())spi_data[obj->spi.index].async_callback)();
         } else {
             spi_async_write(obj);
         }
@@ -470,7 +465,7 @@ static void spi_async_write(spi_t *obj)
                 break;
         }
     } else {
-        spi_write(obj, 0);
+        spi_write(obj, SPI_FILL_WORD);
     }
 }
 
@@ -514,21 +509,33 @@ static void spi_async_read(spi_t *obj)
 
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
+    int i;
     MBED_ASSERT(obj);
     MBED_ASSERT(tx || rx);
-    MBED_ASSERT(tx ? tx_length : 1);
-    MBED_ASSERT(rx ? rx_length : 1);
+    MBED_ASSERT(tx && ! rx ? tx_length : 1);
+    MBED_ASSERT(rx && ! tx ? rx_length : 1);
     MBED_ASSERT(obj->spi.spi->SPCR & (1 << 3)); /* Slave mode */
     MBED_ASSERT(bit_width == 8 || bit_width == 16 || bit_width == 32);
     
-    obj->tx_buff.buffer = (void *)tx;
+    if (tx_length) {
+        obj->tx_buff.buffer = (void *)tx;
+    } else {
+        obj->tx_buff.buffer = NULL;
+    }
     obj->tx_buff.length = tx_length * bit_width / 8;
     obj->tx_buff.pos = 0;
     obj->tx_buff.width = bit_width;
-    obj->rx_buff.buffer = rx;
+    if (rx_length) {
+        obj->rx_buff.buffer = rx;
+    } else {
+        obj->rx_buff.buffer = NULL;
+    }
     obj->rx_buff.length = rx_length * bit_width / 8;
     obj->rx_buff.pos = 0;
     obj->rx_buff.width = bit_width;
+    for (i = 0; i < obj->rx_buff.length; i++) {
+        ((uint8_t *)obj->rx_buff.buffer)[i] = SPI_FILL_WORD;
+    }
     
     spi_data[obj->spi.index].async_callback = handler;
     spi_data[obj->spi.index].async_obj = obj;
