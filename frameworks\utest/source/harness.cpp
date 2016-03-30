@@ -16,9 +16,10 @@
  ****************************************************************************
  */
 
- #include "utest/harness.h"
- #include "minar/minar.h"
- #include "core-util/CriticalSectionLock.h"
+#include "utest/harness.h"
+#include "minar/minar.h"
+#include "core-util/CriticalSectionLock.h"
+#include <stdlib.h>
 
 using namespace utest::v1;
 
@@ -276,5 +277,8 @@ void Harness::run_next_case()
         location = LOCATION_TEST_TEARDOWN;
         handlers.test_teardown(test_passed, test_failed, test_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
         test_cases = NULL;
+        exit(test_failed);
+    } else {
+        exit(test_failed);
     }
 }
