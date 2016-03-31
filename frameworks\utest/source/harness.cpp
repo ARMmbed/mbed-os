@@ -91,6 +91,7 @@ bool Harness::run(const Specification& specification, std::size_t start_case)
         if (handlers.test_failure) handlers.test_failure(failure_t(REASON_TEST_SETUP, location));
         if (handlers.test_teardown) handlers.test_teardown(0, 0, failure_t(REASON_TEST_SETUP, location));
         test_cases = NULL;
+        exit(1);
         return true;
     }
 
@@ -135,6 +136,7 @@ void Harness::raise_failure(const failure_reason_t reason)
         failure_t fail(reason, location);
         location = LOCATION_TEST_TEARDOWN;
         if (handlers.test_teardown) handlers.test_teardown(test_passed, test_failed, fail);
+        exit(test_failed);
         die();
     }
 }
