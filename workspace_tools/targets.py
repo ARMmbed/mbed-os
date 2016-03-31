@@ -1870,6 +1870,23 @@ class RZ_A1H(Target):
     def program_cycle_s(self):
         return 2
 
+class VK_RZ_A1H(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-A9"
+        self.extra_labels = ['RENESAS', 'VKRZA1H']
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target": "vk-rza1h",
+            "iar": {
+                # rewrite generic template, this device needs futher support for FPU in progendef
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_rz_a1h.ewp.tmpl')],
+            }
+        }
+
+    def program_cycle_s(self):
+        return 2
 
 ### Maxim Integrated ###
 
@@ -2240,6 +2257,7 @@ TARGETS = [
 
     ### Renesas ###
     RZ_A1H(),
+    VK_RZ_A1H(),
 
     ### Maxim Integrated ###
     MAXWSNENV(),

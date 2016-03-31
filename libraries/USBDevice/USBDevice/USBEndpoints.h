@@ -45,7 +45,7 @@ typedef enum {
 #include "USBEndpoints_KL25Z.h"
 #elif defined (TARGET_STM32F4)
 #include "USBEndpoints_STM32F4.h"
-#elif defined (TARGET_RZ_A1H)
+#elif defined (TARGET_RZ_A1H) || defined (TARGET_VK_RZ_A1H)
 #include "USBEndpoints_RZ_A1H.h"
 #elif defined(TARGET_Maxim)
 #include "USBEndpoints_Maxim.h"

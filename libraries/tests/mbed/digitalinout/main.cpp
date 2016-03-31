@@ -80,6 +80,10 @@ DigitalInOut d2(PA07);
 DigitalInOut d1(PA18);
 DigitalInOut d2(PA17);
 
+#elif defined(TARGET_VK_RZ_A1H)
+DigitalInOut d1(P3_2);
+DigitalInOut d2(P5_6);
+
 #else
 DigitalInOut d1(p5);
 DigitalInOut d2(p25);
