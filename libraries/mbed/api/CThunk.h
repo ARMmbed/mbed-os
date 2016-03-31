@@ -194,6 +194,18 @@ class CThunk
             m_thunk.callback = (uint32_t)&m_callback;
             m_thunk.trampoline = (uint32_t)&trampoline;
 
+#if defined(__CORTEX_A9)
+            /* Data cache clean */
+            {
+                uint32_t start_addr = (uint32_t)&m_thunk & 0xFFFFFFE0;
+                uint32_t end_addr   = ((uint32_t)&m_thunk + sizeof(m_thunk));
+                uint32_t addr;
+                
+                for (addr = start_addr; addr < end_addr; addr += 0x20) {
+                    __v7_clean_dcache_mva((void *)addr);
+                }
+            }
+#endif
             __ISB();
             __DSB();
         }
