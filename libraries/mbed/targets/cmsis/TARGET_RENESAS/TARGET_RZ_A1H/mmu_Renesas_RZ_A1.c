@@ -115,7 +115,6 @@ static uint32_t Sect_Normal_NC;  //non-shareable, non-executable, rw, domain 0, 
 static uint32_t Sect_Normal_Cod; //outer & inner wb/wa, non-shareable, executable, ro, domain 0, base addr 0
 static uint32_t Sect_Normal_RO;  //as Sect_Normal_Cod, but not executable
 static uint32_t Sect_Normal_RW;  //as Sect_Normal_Cod, but writeable and not executable
-static uint32_t Sect_Normal_SH;  //as Sect_Normal_Cod, but writeable and shareable
 static uint32_t Sect_Device_RO;  //device, non-shareable, non-executable, ro, domain 0, base addr 0
 static uint32_t Sect_Device_RW;  //as Sect_Device_RO, but writeable
 
@@ -169,7 +168,6 @@ void create_translation_table(void)
     section_device_ro(Sect_Device_RO, region);
     section_device_rw(Sect_Device_RW, region);
     section_normal_nc(Sect_Normal_NC, region);
-    section_normal_sh(Sect_Normal_SH, region);
     //Create descriptors for 64k pages
     page64k_device_rw(Page_L1_64k, Page_64k_Device_RW, region);
     //Create descriptors for 4k pages
@@ -192,7 +190,7 @@ void create_translation_table(void)
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_USER_AREA1        , 64, Sect_Normal_RW);
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_IO0           , 64, Sect_Normal_RO);
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_IO1           , 64, Sect_Normal_RO);
-    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_BASE  , 10, Sect_Normal_SH);
+    __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_ONCHIP_SRAM_BASE  , 10, Sect_Normal_RW);
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_SPI_MIO_BASE      ,  1, Sect_Device_RW);
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_BSC_BASE          ,  1, Sect_Device_RW);
     __TTSection (&Image$$TTB$$ZI$$Base, Renesas_RZ_A1_PERIPH_BASE0      ,  3, Sect_Device_RW);
@@ -203,13 +201,13 @@ void create_translation_table(void)
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_RO);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_SH);
+    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
 #else
     //Define Image
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RO_DATA$$Base, RO_DATA_SIZE, Sect_Normal_RO);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$VECTORS$$Base, VECTORS_SIZE, Sect_Normal_Cod);
     __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$RW_DATA$$Base, RW_DATA_SIZE, Sect_Normal_RW);
-    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_SH);
+    __TTSection (&Image$$TTB$$ZI$$Base, (uint32_t)&Image$$ZI_DATA$$Base, ZI_DATA_SIZE, Sect_Normal_RW);
 #endif
 
 #if defined( __CC_ARM )

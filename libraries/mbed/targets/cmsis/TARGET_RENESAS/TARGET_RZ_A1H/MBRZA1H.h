@@ -754,25 +754,10 @@ typedef enum IRQn
                                    region.outer_norm_t = WB_WA; \
                                    region.mem_t = NORMAL; \
                                    region.sec_t = NON_SECURE; \
-                                   region.xn_t = NON_EXECUTE; \
-                                   region.priv_t = RW; \
-                                   region.user_t = RW; \
-                                   region.sh_t = NON_SHARED; \
-                                   __get_section_descriptor(&descriptor_l1, region);
-    
-//Sect_Normal_SH. Sect_Normal_Cod, but writeable and shareable
-#define section_normal_sh(descriptor_l1, region)     region.rg_t = SECTION; \
-                                   region.domain = 0x0; \
-                                   region.e_t = ECC_DISABLED; \
-                                   region.g_t = GLOBAL; \
-                                   region.inner_norm_t = WB_WA; \
-                                   region.outer_norm_t = WB_WA; \
-                                   region.mem_t = NORMAL; \
-                                   region.sec_t = NON_SECURE; \
                                    region.xn_t = EXECUTE; \
                                    region.priv_t = RW; \
                                    region.user_t = RW; \
-                                   region.sh_t = SHARED; \
+                                   region.sh_t = NON_SHARED; \
                                    __get_section_descriptor(&descriptor_l1, region);
 
 //Sect_SO. Strongly-ordered (therefore shareable), not executable, rw, domain 0, base addr 0
