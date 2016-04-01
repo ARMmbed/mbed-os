@@ -804,7 +804,6 @@ static void i2c_transfer_finished(i2c_t *obj)
     uint32_t index = obj->i2c.i2c;
     i2c_data[index].event = I2C_EVENT_TRANSFER_COMPLETE;
     i2c_data[index].async_obj = NULL;
-    i2c_irqs_set(obj, 0);
     ((void (*)())i2c_data[index].async_callback)();
 }
 
@@ -817,6 +816,7 @@ static void i2c_tx_irq(IRQn_Type irq_num, uint32_t index)
         i2c_data[index].event = I2C_EVENT_ERROR | I2C_EVENT_TRANSFER_EARLY_NACK;
         i2c_abort_asynch(obj);
         ((void (*)())i2c_data[index].async_callback)();
+        return;
     }
     if (obj->tx_buff.pos == obj->tx_buff.length) {
         /* All datas have tranferred */
@@ -1070,7 +1070,6 @@ static void i2c_irqs_set(i2c_t *obj, uint32_t enable)
 void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     MBED_ASSERT(obj);
-    MBED_ASSERT(tx || rx);
     MBED_ASSERT(tx ? tx_length : 1);
     MBED_ASSERT(rx ? rx_length : 1);
     MBED_ASSERT((REG(SER.UINT32) & SER_SAR0E) == 0); /* Slave mode */
@@ -1102,7 +1101,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     }
     obj->i2c.last_stop_flag = stop;
     
-    if (tx_length == 0) {
+    if (rx_length && tx_length == 0) {
         /* Ready to read */
         i2c_set_MR3_ACK(obj);
         
