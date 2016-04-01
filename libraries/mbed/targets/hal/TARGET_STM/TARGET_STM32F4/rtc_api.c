@@ -50,16 +50,6 @@ void rtc_init(void)
 
     RtcHandle.Instance = RTC;
 
-    // Enable Power clock
-    __PWR_CLK_ENABLE();
-
-    // Enable access to Backup domain
-    HAL_PWR_EnableBkUpAccess();
-
-    // Reset Backup domain
-    __HAL_RCC_BACKUPRESET_FORCE();
-    __HAL_RCC_BACKUPRESET_RELEASE();
-
 #if !DEVICE_RTC_LSI
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
@@ -75,19 +65,29 @@ void rtc_init(void)
       error("RTC error: LSE clock initialization failed.");
     }
 #else
-        // Enable LSI clock
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-        RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-            error("RTC error: LSI clock initialization failed.");
-        }
-        // Connect LSI to RTC
-        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
-        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-        // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
-        rtc_freq = LSI_VALUE;
+    // Enable Power clock
+    __PWR_CLK_ENABLE();
+
+    // Enable access to Backup domain
+    HAL_PWR_EnableBkUpAccess();
+
+    // Reset Backup domain
+    __HAL_RCC_BACKUPRESET_FORCE();
+    __HAL_RCC_BACKUPRESET_RELEASE();	
+
+	// Enable LSI clock
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+	RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+	RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+	RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		error("RTC error: LSI clock initialization failed.");
+	}
+	// Connect LSI to RTC
+	__HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
+	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+	// [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
+	rtc_freq = LSI_VALUE;
 #endif    
 
     // Enable RTC
@@ -107,6 +107,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
+#if DEVICE_RTC_LSI
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -119,6 +120,7 @@ void rtc_free(void)
 
     // Disable access to Backup domain
     HAL_PWR_DisableBkUpAccess();
+#endif
 
     // Disable LSI and LSE clocks
     RCC_OscInitTypeDef RCC_OscInitStruct;
