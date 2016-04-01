@@ -52,16 +52,6 @@ void rtc_init(void)
 
     RtcHandle.Instance = RTC;
 
-    // Enable Power clock
-    __HAL_RCC_PWR_CLK_ENABLE();
-
-    // Enable access to Backup domain
-    HAL_PWR_EnableBkUpAccess();
-
-    // Reset Backup domain
-    __HAL_RCC_BACKUPRESET_FORCE();
-    __HAL_RCC_BACKUPRESET_RELEASE();
-
 #if !DEVICE_RTC_LSI
     // Enable LSE Oscillator
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
@@ -78,6 +68,16 @@ void rtc_init(void)
 	    error("Cannot initialize RTC with LSE\n");
     }
 #else	
+    // Enable Power clock
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+    // Enable access to Backup domain
+    HAL_PWR_EnableBkUpAccess();
+
+    // Reset Backup domain
+    __HAL_RCC_BACKUPRESET_FORCE();
+    __HAL_RCC_BACKUPRESET_RELEASE();
+
 	// Enable LSI clock
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
 	RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
@@ -116,6 +116,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
+#if DEVICE_RTC_LSI
     // Enable Power clock
     __HAL_RCC_PWR_CLK_ENABLE();
 
@@ -128,6 +129,7 @@ void rtc_free(void)
 
     // Disable access to Backup domain
     HAL_PWR_DisableBkUpAccess();
+#endif
 
     // Disable LSI and LSE clocks
     RCC_OscInitTypeDef RCC_OscInitStruct;
