@@ -164,7 +164,7 @@ typedef struct
   * @{
   */  
 /* LSE state change timeout */
-#define LSE_TIMEOUT_VALUE          ((uint32_t)100) /* 5 s    */
+#define LSE_TIMEOUT_VALUE          ((uint32_t)5000) /* 5 s    */
 
 /* Disable Backup domain write protection state change timeout */
 #define DBP_TIMEOUT_VALUE          ((uint32_t)100)  /* 100 ms */
