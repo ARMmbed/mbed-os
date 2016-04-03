@@ -68,8 +68,11 @@ void us_ticker_clear_interrupt(void) {
 void us_ticker_set_interrupt(timestamp_t timestamp) {
     int delta = (int)(timestamp - us_ticker_read());
     if (delta <= 0) {
-        // This event was in the past:
-        us_ticker_irq_handler();
+        // This event was in the past.
+        // Set the interrupt as pending, but don't process it here.
+        // This prevents a recurive loop under heavy load
+        // which can lead to a stack overflow.
+        NVIC_SetPendingIRQ(PIT3_IRQn);
         return;
     }
  
