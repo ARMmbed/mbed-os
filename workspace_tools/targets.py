@@ -567,77 +567,6 @@ class LPC11U37H_401(LPCTarget):
             }
         }
 
-class K22F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'FRDM']
-        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0231"]
-        self.progen = {
-            "target":"frdm-k22f",
-        }
-
-class KL27Z(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'FRDM']
-        self.macros = ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0261"]
-        self.progen_target = {
-            "target":"frdm-kl27z",
-        }
-
-class K64F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'FRDM']
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0240"]
-        self.progen = {
-            "target":"frdm-k64f",
-        }
-
-class MTS_GAMBIT(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"mts-gambit",
-        }
-
-class HEXIWEAR(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'KPSDK2_MCUS', 'K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0240"]
-        self.progen = {
-            "target":"hexiwear-k64f",
-        }
-
 ### Freescale ###
 
 class KL05Z(Target):
@@ -716,6 +645,77 @@ class K20D50M(Target):
         self.detect_code = ["0230"]
         self.progen = {
             "target":"frdm-k20d50m",
+        }
+
+class K22F(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
+        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.detect_code = ["0231"]
+        self.progen = {
+            "target":"frdm-k22f",
+        }
+
+class KL27Z(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
+        self.macros = ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0261"]
+        self.progen_target = {
+            "target":"frdm-kl27z",
+        }
+
+class K64F(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0240"]
+        self.progen = {
+            "target":"frdm-k64f",
+        }
+
+class MTS_GAMBIT(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"mts-gambit",
+        }
+
+class HEXIWEAR(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F']
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0240"]
+        self.progen = {
+            "target":"hexiwear-k64f",
         }
 
 class TEENSY3_1(Target):
@@ -2186,11 +2186,6 @@ TARGETS = [
     LPC4330_M0(),
     LPC4337(),
     LPC11U37H_401(),
-    K22F(),
-    KL27Z(),
-    K64F(),       # FRDM K64F
-    MTS_GAMBIT(),
-    HEXIWEAR(),
 
     ### Freescale ###
     KL05Z(),
@@ -2199,6 +2194,11 @@ TARGETS = [
     KL43Z(),
     KL46Z(),
     K20D50M(),
+    K22F(),
+    KL27Z(),
+    K64F(),       # FRDM K64F
+    MTS_GAMBIT(),
+    HEXIWEAR(),
     TEENSY3_1(),
 
     ### STMicro ###
