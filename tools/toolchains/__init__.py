@@ -366,7 +366,8 @@ class mbedToolchain:
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
-                    (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN'])):
+                    (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
+                    (d == 'TESTS')):
                     dirs.remove(d)
 
             # Add root to include paths
