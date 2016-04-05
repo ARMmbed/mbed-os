@@ -702,6 +702,13 @@ class K64F(Target):
             "target":"frdm-k64f",
         }
 
+class K64F_UV(K64F):
+    def __init__(self):
+        K64F.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels += ['K64F']
+        self.macros += ['TARGET_K64F']
+
 class MTS_GAMBIT(Target):
     def __init__(self):
         Target.__init__(self)
@@ -2122,6 +2129,7 @@ TARGETS = [
     TEENSY3_1(),
     K22F(),
     K64F(),
+    K64F_UV(),
     MTS_GAMBIT(),       # FRDM K64F
 
     ### STMicro ###
