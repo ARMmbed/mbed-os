@@ -84,14 +84,14 @@ static void die() {
 
 bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
 {
-    if (!scheduler.post || !scheduler.cancel)
+    if (!scheduler.init || !scheduler.post || !scheduler.cancel || !scheduler.run)
         return false;
 
     ::scheduler = scheduler;
     return true;
 }
 
-bool Harness::run(const Specification& specification, std::size_t)
+bool Harness::run(const Specification& specification, size_t)
 {
     return run(specification);
 }
@@ -102,7 +102,10 @@ bool Harness::run(const Specification& specification)
     if (is_busy())
         return false;
 
-    if (!scheduler.post || !scheduler.cancel)
+    if (!scheduler.init || !scheduler.post || !scheduler.cancel || !scheduler.run)
+        return false;
+
+    if (scheduler.init() != 0)
         return false;
 
     test_cases  = specification.cases;
@@ -143,6 +146,14 @@ bool Harness::run(const Specification& specification)
     case_current = &test_cases[case_index];
 
     scheduler.post(run_next_case, 0);
+    if (scheduler.run() != 0) {
+        failure.reason = REASON_SCHEDULER;
+        if (handlers.test_failure) handlers.test_failure(failure);
+        if (handlers.test_teardown) handlers.test_teardown(0, 0, failure);
+        test_cases = NULL;
+        exit(1);
+        return true;
+    }
     return true;
 }
 
