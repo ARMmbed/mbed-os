@@ -16,7 +16,7 @@ limitations under the License.
 """
 from exporters import Exporter
 from os.path import splitext, basename
-from workspace_tools.targets import TARGETS
+from tools.targets import TARGETS
 
 # filter all the GCC_ARM targets out of the target list
 gccTargets = []

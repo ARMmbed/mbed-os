@@ -56,32 +56,32 @@ sys.path.insert(0, ROOT)
 
 
 # Check: Extra modules which are required by core test suite
-from workspace_tools.utils import check_required_modules
+from tools.utils import check_required_modules
 check_required_modules(['prettytable', 'serial'])
 
 # Imports related to mbed build api
-from workspace_tools.build_api import mcu_toolchain_matrix
+from tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
-from workspace_tools.test_api import SingleTestRunner
-from workspace_tools.test_api import singletest_in_cli_mode
-from workspace_tools.test_api import detect_database_verbose
-from workspace_tools.test_api import get_json_data_from_file
-from workspace_tools.test_api import get_avail_tests_summary_table
-from workspace_tools.test_api import get_default_test_options_parser
-from workspace_tools.test_api import print_muts_configuration_from_json
-from workspace_tools.test_api import print_test_configuration_from_json
-from workspace_tools.test_api import get_autodetected_MUTS_list
-from workspace_tools.test_api import get_autodetected_TEST_SPEC
-from workspace_tools.test_api import get_module_avail
-from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+from tools.test_api import SingleTestRunner
+from tools.test_api import singletest_in_cli_mode
+from tools.test_api import detect_database_verbose
+from tools.test_api import get_json_data_from_file
+from tools.test_api import get_avail_tests_summary_table
+from tools.test_api import get_default_test_options_parser
+from tools.test_api import print_muts_configuration_from_json
+from tools.test_api import print_test_configuration_from_json
+from tools.test_api import get_autodetected_MUTS_list
+from tools.test_api import get_autodetected_TEST_SPEC
+from tools.test_api import get_module_avail
+from tools.test_exporters import ReportExporter, ResultExporterType
 
 
 # Importing extra modules which can be not installed but if available they can extend test suite functionality
 try:
     import mbed_lstools
-    from workspace_tools.compliance.ioper_runner import IOperTestRunner
-    from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
+    from tools.compliance.ioper_runner import IOperTestRunner
+    from tools.compliance.ioper_runner import get_available_oper_test_scopes
 except:
     pass
 

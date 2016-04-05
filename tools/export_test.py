@@ -22,9 +22,9 @@ sys.path.insert(0, ROOT)
 
 from shutil import move
 
-from workspace_tools.paths import *
-from workspace_tools.utils import mkdir, cmd
-from workspace_tools.export import export, setup_user_prj
+from tools.paths import *
+from tools.utils import mkdir, cmd
+from tools.export import export, setup_user_prj
 
 
 USR_PRJ_NAME = "usr_prj"

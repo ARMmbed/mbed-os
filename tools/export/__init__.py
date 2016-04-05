@@ -19,10 +19,10 @@ from os.path import join, exists, basename
 from shutil import copytree, rmtree, copy
 import yaml
 
-from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32
-from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
-from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
+from tools.utils import mkdir
+from tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32
+from tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
+from tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
 from project_generator_definitions.definitions import ProGenDef
 

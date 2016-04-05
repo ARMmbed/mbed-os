@@ -6,16 +6,16 @@ sys.path.insert(0, ROOT)
 from shutil import move, rmtree
 from optparse import OptionParser
 
-from workspace_tools.paths import EXPORT_DIR, EXPORT_WORKSPACE, EXPORT_TMP
-from workspace_tools.paths import MBED_BASE, MBED_LIBRARIES
-from workspace_tools.export import export, setup_user_prj, EXPORTERS, mcu_ide_matrix
-from workspace_tools.utils import args_error
-from workspace_tools.tests import TESTS, Test, TEST_MAP
-from workspace_tools.targets import TARGET_NAMES
-from workspace_tools.libraries import LIBRARIES
+from tools.paths import EXPORT_DIR, EXPORT_WORKSPACE, EXPORT_TMP
+from tools.paths import MBED_BASE, MBED_LIBRARIES
+from tools.export import export, setup_user_prj, EXPORTERS, mcu_ide_matrix
+from tools.utils import args_error
+from tools.tests import TESTS, Test, TEST_MAP
+from tools.targets import TARGET_NAMES
+from tools.libraries import LIBRARIES
 
 try:
-    import workspace_tools.private_settings as ps
+    import tools.private_settings as ps
 except:
     ps = object()
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
                       action="store_true",
                       dest="supported_ides_html",
                       default=False,
-                      help="writes workspace_tools/export/README.md")
+                      help="writes tools/export/README.md")
 
     (options, args) = parser.parse_args()
 

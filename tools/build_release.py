@@ -25,14 +25,14 @@ import json
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from workspace_tools.build_api import build_mbed_libs
-from workspace_tools.build_api import write_build_report
-from workspace_tools.targets import TARGET_MAP
-from workspace_tools.test_exporters import ReportExporter, ResultExporterType
-from workspace_tools.test_api import SingleTestRunner
-from workspace_tools.test_api import singletest_in_cli_mode
-from workspace_tools.paths import TEST_DIR
-from workspace_tools.tests import TEST_MAP
+from tools.build_api import build_mbed_libs
+from tools.build_api import write_build_report
+from tools.targets import TARGET_MAP
+from tools.test_exporters import ReportExporter, ResultExporterType
+from tools.test_api import SingleTestRunner
+from tools.test_api import singletest_in_cli_mode
+from tools.paths import TEST_DIR
+from tools.tests import TEST_MAP
 
 OFFICIAL_MBED_LIBRARY_BUILD = (
     ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),

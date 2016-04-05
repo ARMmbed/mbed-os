@@ -21,7 +21,7 @@ import re
 import MySQLdb as mdb
 
 # Imports from TEST API
-from workspace_tools.test_db import BaseDBAccess
+from tools.test_db import BaseDBAccess
 
 
 class MySQLDBAccess(BaseDBAccess):

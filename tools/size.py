@@ -23,10 +23,10 @@ from collections import defaultdict
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from workspace_tools.paths import BUILD_DIR, TOOLS_DATA
-from workspace_tools.settings import GCC_ARM_PATH
-from workspace_tools.tests import TEST_MAP
-from workspace_tools.build_api import build_mbed_libs, build_project
+from tools.paths import BUILD_DIR, TOOLS_DATA
+from tools.settings import GCC_ARM_PATH
+from tools.tests import TEST_MAP
+from tools.build_api import build_mbed_libs, build_project
 
 SIZE = join(GCC_ARM_PATH, 'arm-none-eabi-size')
 

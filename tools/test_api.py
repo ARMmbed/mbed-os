@@ -39,31 +39,31 @@ from threading import Thread, Lock
 from subprocess import Popen, PIPE
 
 # Imports related to mbed build api
-from workspace_tools.tests import TESTS
-from workspace_tools.tests import TEST_MAP
-from workspace_tools.paths import BUILD_DIR
-from workspace_tools.paths import HOST_TESTS
-from workspace_tools.utils import ToolException
-from workspace_tools.utils import NotSupportedException
-from workspace_tools.utils import construct_enum
-from workspace_tools.targets import TARGET_MAP
-from workspace_tools.test_db import BaseDBAccess
-from workspace_tools.build_api import build_project, build_mbed_libs, build_lib
-from workspace_tools.build_api import get_target_supported_toolchains
-from workspace_tools.build_api import write_build_report
-from workspace_tools.build_api import prep_report
-from workspace_tools.build_api import prep_properties
-from workspace_tools.build_api import create_result
-from workspace_tools.build_api import add_result_to_report
-from workspace_tools.libraries import LIBRARIES, LIBRARY_MAP
-from workspace_tools.toolchains import TOOLCHAIN_BIN_PATH
-from workspace_tools.test_exporters import ReportExporter, ResultExporterType
+from tools.tests import TESTS
+from tools.tests import TEST_MAP
+from tools.paths import BUILD_DIR
+from tools.paths import HOST_TESTS
+from tools.utils import ToolException
+from tools.utils import NotSupportedException
+from tools.utils import construct_enum
+from tools.targets import TARGET_MAP
+from tools.test_db import BaseDBAccess
+from tools.build_api import build_project, build_mbed_libs, build_lib
+from tools.build_api import get_target_supported_toolchains
+from tools.build_api import write_build_report
+from tools.build_api import prep_report
+from tools.build_api import prep_properties
+from tools.build_api import create_result
+from tools.build_api import add_result_to_report
+from tools.libraries import LIBRARIES, LIBRARY_MAP
+from tools.toolchains import TOOLCHAIN_BIN_PATH
+from tools.test_exporters import ReportExporter, ResultExporterType
 
-import workspace_tools.host_tests.host_tests_plugins as host_tests_plugins
+import tools.host_tests.host_tests_plugins as host_tests_plugins
 
 try:
     import mbed_lstools
-    from workspace_tools.compliance.ioper_runner import get_available_oper_test_scopes
+    from tools.compliance.ioper_runner import get_available_oper_test_scopes
 except:
     pass
 
@@ -1592,7 +1592,7 @@ def factory_db_logger(db_url):
     """ Factory database driver depending on database type supplied in database connection string db_url
     """
     if db_url is not None:
-        from workspace_tools.test_mysql import MySQLDBAccess
+        from tools.test_mysql import MySQLDBAccess
         connection_info = BaseDBAccess().parse_db_connection_string(db_url)
         if connection_info is not None:
             (db_type, username, password, host, db_name) = BaseDBAccess().parse_db_connection_string(db_url)

@@ -17,10 +17,10 @@ limitations under the License.
 import re
 from os.path import join, basename, splitext
 
-from workspace_tools.toolchains import mbedToolchain
-from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH
-from workspace_tools.settings import GOANNA_PATH
-from workspace_tools.hooks import hook_tool
+from tools.toolchains import mbedToolchain
+from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
+from tools.settings import GOANNA_PATH
+from tools.hooks import hook_tool
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'

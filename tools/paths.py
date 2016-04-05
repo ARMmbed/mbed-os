@@ -26,7 +26,7 @@ BUILD_DIR = getenv("MBED_BUILD_DIR") or BUILD_DIR
 # Embedded Libraries Sources
 LIB_DIR = join(ROOT, "libraries")
 
-TOOLS = join(ROOT, "workspace_tools")
+TOOLS = join(ROOT, "tools")
 TOOLS_DATA = join(TOOLS, "data")
 TOOLS_BOOTLOADERS = join(TOOLS, "bootloaders")
 
@@ -42,7 +42,7 @@ MBED_LIBRARIES = join(BUILD_DIR, "mbed")
 
 # Tests
 TEST_DIR = join(LIB_DIR, "tests")
-HOST_TESTS = join(ROOT, "workspace_tools", "host_tests")
+HOST_TESTS = join(ROOT, "tools", "host_tests")
 
 # mbed RPC
 MBED_RPC = join(LIB_DIR, "rpc")

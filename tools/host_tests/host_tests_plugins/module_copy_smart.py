@@ -22,7 +22,7 @@ from time import sleep
 from host_test_plugins import HostTestPluginBase
 
 sys.path.append(abspath(join(dirname(__file__), "../../../")))
-from workspace_tools.test_api import get_autodetected_MUTS_list
+from tools.test_api import get_autodetected_MUTS_list
 
 class HostTestPluginCopyMethod_Smart(HostTestPluginBase):
 

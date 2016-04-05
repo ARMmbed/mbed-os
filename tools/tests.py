@@ -14,8 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from workspace_tools.paths import *
-from workspace_tools.data.support import *
+from tools.paths import *
+from tools.data.support import *
 
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")
@@ -1082,7 +1082,7 @@ GROUPS["automated"] = [test["id"] for test in TESTS if test.get("automated", Fal
 # Look for 'TEST_GROUPS' in private_settings.py and update the GROUPS dictionary
 # with the information in test_groups if found
 try:
-    from workspace_tools.private_settings import TEST_GROUPS
+    from tools.private_settings import TEST_GROUPS
 except:
     TEST_GROUPS = {}
 GROUPS.update(TEST_GROUPS)

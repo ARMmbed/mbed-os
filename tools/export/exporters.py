@@ -8,9 +8,9 @@ from jinja2.environment import Environment
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from workspace_tools.utils import mkdir
-from workspace_tools.toolchains import TOOLCHAIN_CLASSES
-from workspace_tools.targets import TARGET_MAP
+from tools.utils import mkdir
+from tools.toolchains import TOOLCHAIN_CLASSES
+from tools.targets import TARGET_MAP
 
 from project_generator.generate import Generator
 from project_generator.project import Project

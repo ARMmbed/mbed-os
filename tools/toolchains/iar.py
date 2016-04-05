@@ -18,10 +18,10 @@ import re
 from os import remove
 from os.path import join, exists
 
-from workspace_tools.toolchains import mbedToolchain
-from workspace_tools.settings import IAR_PATH
-from workspace_tools.settings import GOANNA_PATH
-from workspace_tools.hooks import hook_tool
+from tools.toolchains import mbedToolchain
+from tools.settings import IAR_PATH
+from tools.settings import GOANNA_PATH
+from tools.hooks import hook_tool
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'

@@ -17,8 +17,8 @@ limitations under the License.
 from os.path import basename, join, dirname
 from project_generator_definitions.definitions import ProGenDef
 
-from workspace_tools.export.exporters import Exporter
-from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
+from tools.export.exporters import Exporter
+from tools.targets import TARGET_MAP, TARGET_NAMES
 
 # If you wish to add a new target, add it to project_generator_definitions, and then
 # define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)

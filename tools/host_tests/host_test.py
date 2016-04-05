@@ -35,8 +35,8 @@ import host_tests_plugins
 # we can find packages we want from the same level as other files do
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from workspace_tools.test_api import get_autodetected_MUTS_list
-from workspace_tools.test_api import get_module_avail
+from tools.test_api import get_autodetected_MUTS_list
+from tools.test_api import get_module_avail
 
 
 class Mbed:
@@ -313,7 +313,7 @@ class HostTestResults:
         self.RESULT_MBED_ASSERT = "mbed_assert"
 
 
-import workspace_tools.host_tests as host_tests
+import tools.host_tests as host_tests
 
 
 class Test(HostTestResults):

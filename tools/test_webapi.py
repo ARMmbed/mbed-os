@@ -28,8 +28,8 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 # Imports related to mbed build api
-from workspace_tools.utils import construct_enum
-from workspace_tools.build_api import mcu_toolchain_matrix
+from tools.utils import construct_enum
+from tools.build_api import mcu_toolchain_matrix
 
 # Imports from TEST API
 from test_api import SingleTestRunner

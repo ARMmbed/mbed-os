@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from optparse import OptionParser
-from workspace_tools.toolchains import TOOLCHAINS
-from workspace_tools.targets import TARGET_NAMES
+from tools.toolchains import TOOLCHAINS
+from tools.targets import TARGET_NAMES
 
 
 def get_default_options_parser():

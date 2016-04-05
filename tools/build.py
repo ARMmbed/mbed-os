@@ -27,14 +27,14 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 
-from workspace_tools.toolchains import TOOLCHAINS
-from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
-from workspace_tools.options import get_default_options_parser
-from workspace_tools.build_api import build_mbed_libs, build_lib
-from workspace_tools.build_api import mcu_toolchain_matrix
-from workspace_tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
-from workspace_tools.build_api import print_build_results
-from workspace_tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
+from tools.toolchains import TOOLCHAINS
+from tools.targets import TARGET_NAMES, TARGET_MAP
+from tools.options import get_default_options_parser
+from tools.build_api import build_mbed_libs, build_lib
+from tools.build_api import mcu_toolchain_matrix
+from tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
+from tools.build_api import print_build_results
+from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 
 if __name__ == '__main__':
     start = time()

@@ -32,7 +32,7 @@ import os
 import binascii
 import struct
 import shutil
-from workspace_tools.patch import patch
+from tools.patch import patch
 from paths import TOOLS_BOOTLOADERS
 
 class Target:

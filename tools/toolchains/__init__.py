@@ -26,9 +26,9 @@ from os.path import join, splitext, exists, relpath, dirname, basename, split
 from inspect import getmro
 
 from multiprocessing import Pool, cpu_count
-from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
-from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
-import workspace_tools.hooks as hooks
+from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
+from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
+import tools.hooks as hooks
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -745,9 +745,9 @@ class mbedToolchain:
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
 
-from workspace_tools.settings import ARM_BIN
-from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH
-from workspace_tools.settings import IAR_PATH
+from tools.settings import ARM_BIN
+from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
+from tools.settings import IAR_PATH
 
 TOOLCHAIN_BIN_PATH = {
     'ARM': ARM_BIN,
@@ -757,9 +757,9 @@ TOOLCHAIN_BIN_PATH = {
     'IAR': IAR_PATH
 }
 
-from workspace_tools.toolchains.arm import ARM_STD, ARM_MICRO
-from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CR
-from workspace_tools.toolchains.iar import IAR
+from tools.toolchains.arm import ARM_STD, ARM_MICRO
+from tools.toolchains.gcc import GCC_ARM, GCC_CR
+from tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
     'ARM': ARM_STD,

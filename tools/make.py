@@ -27,22 +27,22 @@ from os.path import join, abspath, dirname
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from workspace_tools.utils import args_error
-from workspace_tools.paths import BUILD_DIR
-from workspace_tools.paths import RTOS_LIBRARIES
-from workspace_tools.paths import RPC_LIBRARY
-from workspace_tools.paths import ETH_LIBRARY
-from workspace_tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
-from workspace_tools.paths import DSP_LIBRARIES
-from workspace_tools.paths import FS_LIBRARY
-from workspace_tools.paths import UBLOX_LIBRARY
-from workspace_tools.tests import TESTS, Test, TEST_MAP
-from workspace_tools.tests import TEST_MBED_LIB
-from workspace_tools.targets import TARGET_MAP
-from workspace_tools.options import get_default_options_parser
-from workspace_tools.build_api import build_project
+from tools.utils import args_error
+from tools.paths import BUILD_DIR
+from tools.paths import RTOS_LIBRARIES
+from tools.paths import RPC_LIBRARY
+from tools.paths import ETH_LIBRARY
+from tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
+from tools.paths import DSP_LIBRARIES
+from tools.paths import FS_LIBRARY
+from tools.paths import UBLOX_LIBRARY
+from tools.tests import TESTS, Test, TEST_MAP
+from tools.tests import TEST_MBED_LIB
+from tools.targets import TARGET_MAP
+from tools.options import get_default_options_parser
+from tools.build_api import build_project
 try:
-    import workspace_tools.private_settings as ps
+    import tools.private_settings as ps
 except:
     ps = object()
 

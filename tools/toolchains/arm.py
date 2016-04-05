@@ -17,10 +17,10 @@ limitations under the License.
 import re
 from os.path import join
 
-from workspace_tools.toolchains import mbedToolchain
-from workspace_tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
-from workspace_tools.hooks import hook_tool
-from workspace_tools.settings import GOANNA_PATH
+from tools.toolchains import mbedToolchain
+from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
+from tools.hooks import hook_tool
+from tools.settings import GOANNA_PATH
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'

@@ -25,11 +25,11 @@ from shutil import rmtree
 from os.path import join, exists, basename
 from time import time
 
-from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
-from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
-from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
-from workspace_tools.libraries import Library
-from workspace_tools.toolchains import TOOLCHAIN_CLASSES
+from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
+from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
+from tools.targets import TARGET_NAMES, TARGET_MAP
+from tools.libraries import Library
+from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 

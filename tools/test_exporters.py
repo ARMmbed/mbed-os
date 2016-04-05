@@ -17,7 +17,7 @@ limitations under the License.
 Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
-from workspace_tools.utils import construct_enum
+from tools.utils import construct_enum
 
 
 ResultExporterType = construct_enum(HTML='Html_Exporter',

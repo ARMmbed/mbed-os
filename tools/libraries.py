@@ -14,9 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from workspace_tools.paths import *
-from workspace_tools.data.support import *
-from workspace_tools.tests import TEST_MBED_LIB
+from tools.paths import *
+from tools.data.support import *
+from tools.tests import TEST_MBED_LIB
 
 
 LIBRARIES = [

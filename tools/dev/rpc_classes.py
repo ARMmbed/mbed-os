@@ -17,7 +17,7 @@ limitations under the License.
 from os.path import join
 from jinja2 import Template
 
-from workspace_tools.paths import TOOLS_DATA, MBED_RPC
+from tools.paths import TOOLS_DATA, MBED_RPC
 
 RPC_TEMPLATES_PATH = join(TOOLS_DATA, "rpc")
 

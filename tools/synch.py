@@ -31,9 +31,9 @@ import string
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from workspace_tools.settings import MBED_ORG_PATH, MBED_ORG_USER, BUILD_DIR
-from workspace_tools.paths import LIB_DIR
-from workspace_tools.utils import run_cmd
+from tools.settings import MBED_ORG_PATH, MBED_ORG_USER, BUILD_DIR
+from tools.paths import LIB_DIR
+from tools.utils import run_cmd
 
 MBED_URL = "mbed.org"
 MBED_USER = "mbed_official"

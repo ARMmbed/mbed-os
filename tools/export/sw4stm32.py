@@ -17,7 +17,7 @@ limitations under the License.
 from exporters import Exporter
 from os.path import splitext, basename, join
 from random import randint
-from workspace_tools.utils import mkdir
+from tools.utils import mkdir
 
 
 class Sw4STM32(Exporter):
