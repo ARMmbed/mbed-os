@@ -20,6 +20,7 @@
 #define TEST_LED D3
 
 #elif defined (TARGET_K22F) || \
+      defined(TARGET_KL27Z) || \
       defined (TARGET_LPC824)
 #define TEST_LED LED_GREEN
 
