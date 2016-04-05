@@ -148,3 +148,47 @@ const PinMap PinMap_SPI_SSEL[] = {
     {PTD4  , SPI_1, 2},
     {NC   , NC   , 0}
 };
+
+/************PWM***************/
+const PinMap PinMap_PWM[] = {
+    {PTE29, PWM_3 , 3},
+    {PTE30, PWM_4 , 3},
+    {PTE31, PWM_5 , 3},
+    {PTE24, PWM_1 , 3},
+    {PTE25, PWM_2 , 3},
+    {PTA0 , PWM_6 , 3},
+    {PTA3 , PWM_1 , 3},
+    {PTA4 , PWM_2 , 3},
+    {PTA5 , PWM_3 , 3},
+    {PTC1 , PWM_1 , 4},
+    {PTC2 , PWM_2 , 4},
+    {PTC3 , PWM_3 , 4},
+    {PTC4 , PWM_4 , 4},
+    {PTC8 , PWM_5 , 3},
+    {PTC9 , PWM_6 , 3},
+    {PTD0 , PWM_1 , 4},
+    {PTD1 , PWM_2 , 4},
+    {PTD2 , PWM_3 , 4},
+    {PTD3 , PWM_4 , 4},
+    {PTD4 , PWM_5 , 4},
+    {PTD5 , PWM_6 , 4},
+
+    {PTE20, PWM_7 , 3},
+    {PTE21, PWM_8 , 3},
+    {PTA12, PWM_7 , 3},
+    {PTA13, PWM_8 , 3},
+    {PTB0,  PWM_7 , 3},
+    {PTB1,  PWM_8 , 3},
+
+    {PTE22, PWM_9 , 3},
+    {PTE23, PWM_10, 3},
+    {PTA1 , PWM_9 , 3},
+    {PTA2 , PWM_10, 3},
+    {PTB2 , PWM_9 , 3},
+    {PTB3 , PWM_10, 3},
+    {PTB18, PWM_9 , 3},
+    {PTB19, PWM_10, 3},
+
+    {NC   , NC    , 0}
+};
+
