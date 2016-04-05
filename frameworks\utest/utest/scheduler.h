@@ -34,6 +34,15 @@ extern "C" {
 typedef void (*utest_v1_harness_callback_t)(void);
 
 /**
+ * utest calls this function before running the test specification.
+ * Use this function to initialize your scheduler before the first callback is requested.
+ *
+ * @retval  `0` if success
+ * @retval  non-zero if failure
+ */
+typedef int32_t (*utest_v1_scheduler_init_callback_t)(void);
+
+/**
  * utest calls this function when it needs to schedule a callback with a delay in milliseconds.
  * `delay_ms` will only be non-zero if an asynchronous test case exists in the test specification.
  * @note If your scheduler cannot provide asynchronous callbacks (which probably require a hardware timer),
@@ -67,12 +76,24 @@ typedef void *(*utest_v1_scheduler_post_callback_t)(const utest_v1_harness_callb
 typedef int32_t (*utest_v1_scheduler_cancel_callback_t)(void *handle);
 
 /**
+ * utest calls this function at the end of the `Harness::run()` function, after (!) the first callback has been requested.
+ * This function is meant to implement an optional event loop, which may very well be blocking (if your scheduler works with that).
+ * This assumes that `Harness::run()` will be called on the main stack (ie. not in an interrupt!).
+ *
+ * @retval  `0` if success
+ * @retval  non-zero if failure
+ */
+typedef int32_t (*utest_v1_scheduler_run_callback_t)(void);
+
+/**
  * The scheduler interface consists out of the `post` and `cancel` functions,
  * which you must implement to use `utest`.
  */
 typedef struct {
+    utest_v1_scheduler_init_callback_t init;
     utest_v1_scheduler_post_callback_t post;
     utest_v1_scheduler_cancel_callback_t cancel;
+    utest_v1_scheduler_run_callback_t run;
 } utest_v1_scheduler_t;
 
 #ifdef __cplusplus
