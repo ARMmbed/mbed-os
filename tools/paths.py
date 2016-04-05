@@ -31,7 +31,7 @@ TOOLS_DATA = join(TOOLS, "data")
 TOOLS_BOOTLOADERS = join(TOOLS, "bootloaders")
 
 # mbed libraries
-MBED_BASE = join(LIB_DIR, "mbed")
+MBED_BASE = join(ROOT, "sdk")
 
 MBED_API = join(MBED_BASE, "api")
 MBED_COMMON = join(MBED_BASE, "common")
