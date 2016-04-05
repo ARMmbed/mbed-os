@@ -312,7 +312,7 @@ class mbedToolchain:
             toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
-                'TARGET': self.target.get_labels(),
+                'TARGET': self.target.get_labels() + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
                 'TOOLCHAIN': toolchain_labels
             }
         return self.labels
