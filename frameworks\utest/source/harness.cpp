@@ -139,7 +139,7 @@ void Harness::raise_failure(const failure_reason_t reason)
 
     status_t fail_status = STATUS_ABORT;
     {
-        mbed::util::CriticalSectionLock lock;
+        UTEST_ENTER_CRITICAL_SECTION;
 
         if (handlers.test_failure) handlers.test_failure(failure_t(reason, location));
         if (handlers.case_failure) fail_status = handlers.case_failure(case_current, failure_t(reason, location));
@@ -150,6 +150,7 @@ void Harness::raise_failure(const failure_reason_t reason)
             scheduler.cancel(case_timeout_handle);
             case_timeout_handle = NULL;
         }
+        UTEST_LEAVE_CRITICAL_SECTION;
     }
 
     if (fail_status == STATUS_ABORT || reason & REASON_CASE_SETUP) {
@@ -212,12 +213,13 @@ void Harness::schedule_next_case()
 void Harness::handle_timeout()
 {
     {
-        mbed::util::CriticalSectionLock lock;
+        UTEST_ENTER_CRITICAL_SECTION;
 
         if (case_timeout_handle != NULL) {
             case_timeout_handle = NULL;
             case_timeout_occurred = true;
         }
+        UTEST_LEAVE_CRITICAL_SECTION;
     }
     if (case_timeout_occurred) {
         raise_failure(failure_reason_t(REASON_TIMEOUT | ((case_control.repeat & REPEAT_ON_TIMEOUT) ? REASON_IGNORE : 0)));
@@ -227,7 +229,7 @@ void Harness::handle_timeout()
 
 void Harness::validate_callback(const control_t control)
 {
-    mbed::util::CriticalSectionLock lock;
+    UTEST_ENTER_CRITICAL_SECTION;
     case_validation_count++;
 
     if (case_timeout_handle != NULL || case_control.timeout == TIMEOUT_FOREVER)
@@ -239,15 +241,18 @@ void Harness::validate_callback(const control_t control)
         case_control.timeout = TIMEOUT_NONE;
         scheduler.post(schedule_next_case, 0);
     }
+    UTEST_LEAVE_CRITICAL_SECTION;
 }
 
 bool Harness::is_busy()
 {
-    mbed::util::CriticalSectionLock lock;
+    UTEST_ENTER_CRITICAL_SECTION;
     if (!test_cases)   return false;
     if (!case_current) return false;
 
-    return (case_current < (test_cases + test_length));
+    bool res = (case_current < (test_cases + test_length));
+    UTEST_LEAVE_CRITICAL_SECTION;
+    return res;
 }
 
 void Harness::run_next_case()
@@ -267,11 +272,12 @@ void Harness::run_next_case()
 
         repeat_t setup_repeat;
         {
-            mbed::util::CriticalSectionLock lock;
+            UTEST_ENTER_CRITICAL_SECTION;
             case_validation_count = 0;
             case_timeout_occurred = false;
             setup_repeat = case_control.repeat;
             case_control = control_t();
+            UTEST_LEAVE_CRITICAL_SECTION;
         }
 
         if (setup_repeat & REPEAT_SETUP_TEARDOWN) {
@@ -296,7 +302,7 @@ void Harness::run_next_case()
         case_repeat_count++;
 
         {
-            mbed::util::CriticalSectionLock lock;
+            UTEST_ENTER_CRITICAL_SECTION;
             if (case_validation_count) case_control.repeat = repeat_t(case_control.repeat & ~REPEAT_ON_TIMEOUT);
 
             // if timeout valid
@@ -313,6 +319,7 @@ void Harness::run_next_case()
             else {
                 scheduler.post(schedule_next_case, 0);
             }
+            UTEST_LEAVE_CRITICAL_SECTION;
         }
     }
     else if (handlers.test_teardown) {
