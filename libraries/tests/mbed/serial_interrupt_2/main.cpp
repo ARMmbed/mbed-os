@@ -8,6 +8,8 @@ Serial uart(P4_22, P4_23);
 Serial uart(P0_1, P0_0);
 #elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
 Serial uart(PA16, PA17);
+#elif defined(TARGET_SAMG55J19)
+Serial uart(PB10, PB11);
 #else
 Serial uart(p9, p10);
 #endif
