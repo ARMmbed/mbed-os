@@ -1,5 +1,5 @@
 import sys
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, dirname, exists, basename
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
@@ -77,6 +77,16 @@ if __name__ == '__main__':
                       default=False,
                       help="writes tools/export/README.md")
 
+    parser.add_option("--source",
+                      dest="source_dir",
+                      default=None,
+                      help="The source (input) directory")
+
+    parser.add_option("-D", "",
+                      action="append",
+                      dest="macros",
+                      help="Add a macro definition")
+
     (options, args) = parser.parse_args()
 
     # Print available tests in order and exit
@@ -123,63 +133,79 @@ if __name__ == '__main__':
     # Export results
     successes = []
     failures = []
+    zip = True
+    clean = True
 
     for mcu in mcus.split(','):
         # Program Number or name
-        p, n = options.program, options.program_name
+        p, n, src = options.program, options.program_name, options.source_dir
 
-        if n is not None and p is not None:
-            args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
-        if n:
-            if not n in TEST_MAP.keys():
-                # Check if there is an alias for this in private_settings.py
-                if getattr(ps, "test_alias", None) is not None:
-                    alias = ps.test_alias.get(n, "")
-                    if not alias in TEST_MAP.keys():
-                        args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+        if src is not None:
+            # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
+            project_dir = options.source_dir
+            project_name = basename(project_dir)
+            project_temp = project_dir
+            lib_symbols = [] + options.macros
+            zip = False   # don't create zip
+            clean = False # don't cleanup because we use the actual source tree to generate IDE files
+        else:
+            if n is not None and p is not None:
+                args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
+            if n:
+                if not n in TEST_MAP.keys():
+                    # Check if there is an alias for this in private_settings.py
+                    if getattr(ps, "test_alias", None) is not None:
+                        alias = ps.test_alias.get(n, "")
+                        if not alias in TEST_MAP.keys():
+                            args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+                        else:
+                            n = alias
                     else:
-                        n = alias
-                else:
-                    args_error(parser, "[ERROR] Program with name '%s' not found" % n)
-            p = TEST_MAP[n].n
-        if p is None or (p < 0) or (p > (len(TESTS)-1)):
-            message = "[ERROR] You have to specify one of the following tests:\n"
-            message += '\n'.join(map(str, sorted(TEST_MAP.values())))
-            args_error(parser, message)
+                        args_error(parser, "[ERROR] Program with name '%s' not found" % n)
+                p = TEST_MAP[n].n
+                
+            if p is None or (p < 0) or (p > (len(TESTS)-1)):
+                message = "[ERROR] You have to specify one of the following tests:\n"
+                message += '\n'.join(map(str, sorted(TEST_MAP.values())))
+                args_error(parser, message)
 
-        # Project
-        if p is None or (p < 0) or (p > (len(TESTS)-1)):
-            message = "[ERROR] You have to specify one of the following tests:\n"
-            message += '\n'.join(map(str, sorted(TEST_MAP.values())))
-            args_error(parser, message)
-        test = Test(p)
+            # Project
+            if p is None or (p < 0) or (p > (len(TESTS)-1)):
+                message = "[ERROR] You have to specify one of the following tests:\n"
+                message += '\n'.join(map(str, sorted(TEST_MAP.values())))
+                args_error(parser, message)
+            test = Test(p)
 
-        # Some libraries have extra macros (called by exporter symbols) to we need to pass
-        # them to maintain compilation macros integrity between compiled library and
-        # header files we might use with it
-        lib_symbols = []
-        for lib in LIBRARIES:
-            if lib['build_dir'] in test.dependencies:
-                lib_macros = lib.get('macros', None)
-                if lib_macros is not None:
-                    lib_symbols.extend(lib_macros)
+            # Some libraries have extra macros (called by exporter symbols) to we need to pass
+            # them to maintain compilation macros integrity between compiled library and
+            # header files we might use with it
+            lib_symbols = [] + options.macros
+            for lib in LIBRARIES:
+                if lib['build_dir'] in test.dependencies:
+                    lib_macros = lib.get('macros', None)
+                    if lib_macros is not None:
+                        lib_symbols.extend(lib_macros)
 
-        if not options.build:
-            # Substitute the library builds with the sources
-            # TODO: Substitute also the other library build paths
-            if MBED_LIBRARIES in test.dependencies:
-                test.dependencies.remove(MBED_LIBRARIES)
-                test.dependencies.append(MBED_BASE)
+            if not options.build:
+                # Substitute the library builds with the sources
+                # TODO: Substitute also the other library build paths
+                if MBED_LIBRARIES in test.dependencies:
+                    test.dependencies.remove(MBED_LIBRARIES)
+                    test.dependencies.append(MBED_BASE)
 
-        # Build the project with the same directory structure of the mbed online IDE
-        project_dir = join(EXPORT_WORKSPACE, test.id)
-        setup_user_prj(project_dir, test.source_dir, test.dependencies)
+            # Build the project with the same directory structure of the mbed online IDE
+            project_name = test.id
+            project_dir = join(EXPORT_WORKSPACE, project_name)
+            project_temp = EXPORT_TMP
+            setup_user_prj(project_dir, test.source_dir, test.dependencies)
 
         # Export to selected toolchain
-        tmp_path, report = export(project_dir, test.id, ide, mcu, EXPORT_WORKSPACE, EXPORT_TMP, extra_symbols=lib_symbols)
+        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir, project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols)
+        print tmp_path
         if report['success']:
-            zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (test.id, ide, mcu))
-            move(tmp_path, zip_path)
+            zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
+            if zip:
+                move(tmp_path, zip_path)
             successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
         else:
             failures.append("%s::%s\t%s"% (mcu, ide, report['errormsg']))
