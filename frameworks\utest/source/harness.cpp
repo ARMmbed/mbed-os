@@ -18,28 +18,6 @@
 
 #include "utest/harness.h"
 #include <stdlib.h>
-#include "core-util/CriticalSectionLock.h"
-
-
-#ifndef YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER
-#include "minar/minar.h"
-
-static void *utest_minar_post(const utest_v1_harness_callback_t callback, const uint32_t delay_ms)
-{
-    void *handle = minar::Scheduler::postCallback(callback).delay(minar::milliseconds(delay_ms)).getHandle();
-    return handle;
-}
-static int32_t utest_minar_cancel(void *handle)
-{
-    int32_t ret = minar::Scheduler::cancelCallback(handle);
-    return ret;
-}
-static const utest_v1_scheduler_t utest_minar_scheduler =
-{
-    utest_minar_post,
-    utest_minar_cancel
-};
-#endif
 
 using namespace utest::v1;
 
@@ -71,11 +49,7 @@ namespace
 
     location_t location = LOCATION_UNKNOWN;
 
-#ifndef YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER
-    utest_v1_scheduler_t scheduler = utest_minar_scheduler;
-#else
-    utest_v1_scheduler_t scheduler = {NULL, NULL};
-#endif
+    utest_v1_scheduler_t scheduler = utest_v1_scheduler;
 }
 
 static void die() {

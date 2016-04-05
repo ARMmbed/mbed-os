@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "compiler-polyfill/attributes.h"
+#include "shim.h"
 
 namespace utest {
 namespace v1 {
