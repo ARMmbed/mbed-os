@@ -18,7 +18,6 @@
 
 #include "utest/shim.h"
 
-
 #if UTEST_SHIM_SCHEDULER_USE_MINAR
 #include "minar/minar.h"
 
@@ -40,20 +39,26 @@ static int32_t utest_minar_run()
 {
     return 0;
 }
-extern "C" const utest_v1_scheduler_t utest_v1_scheduler =
+extern "C" {
+static const utest_v1_scheduler_t utest_v1_scheduler =
 {
     utest_minar_init,
     utest_minar_post,
     utest_minar_cancel,
     utest_minar_run
 };
+utest_v1_scheduler_t utest_v1_get_scheduler()
+{
+    return utest_v1_scheduler;
+}
+}
 
 #elif UTEST_SHIM_SCHEDULER_USE_US_TICKER
 // only one callback is active at any given time
-volatile utest_v1_harness_callback_t minimal_callback;
-volatile utest_v1_harness_callback_t ticker_callback;
-const ticker_data_t *ticker_data;
-ticker_event_t ticker_event;
+static volatile utest_v1_harness_callback_t minimal_callback;
+static volatile utest_v1_harness_callback_t ticker_callback;
+static const ticker_data_t *ticker_data;
+static ticker_event_t ticker_event;
 
 static void ticker_handler(uint32_t)
 {
@@ -64,6 +69,7 @@ static void ticker_handler(uint32_t)
 static int32_t utest_us_ticker_init()
 {
     ticker_data = get_us_ticker_data();
+    ticker_set_handler(ticker_data, ticker_handler);
     return 0;
 }
 static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, const uint32_t delay_ms)
@@ -71,8 +77,6 @@ static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, co
     // printf("\t\t>>> Schedule %p with %ums delay => %p.\n", callback, (unsigned int)delay_ms, (void*)1);
     if (delay_ms) {
         ticker_callback = callback;
-        // setup ticker to call the handler manually
-        ticker_set_handler(ticker_data, ticker_handler);
         // fire the interrupt in 1000us * delay_ms
         ticker_insert_event(ticker_data, &ticker_event, ticker_read(ticker_data) + delay_ms * 1000, 0);
     } else {
@@ -107,19 +111,23 @@ static int32_t utest_us_ticker_run()
     }
     return 0;
 }
-const utest_v1_scheduler_t utest_v1_scheduler =
+extern "C" {
+static const utest_v1_scheduler_t utest_v1_scheduler =
 {
     utest_us_ticker_init,
     utest_us_ticker_post,
     utest_us_ticker_cancel,
     utest_us_ticker_run
 };
-#else
-const utest_v1_scheduler_t utest_v1_scheduler =
+utest_v1_scheduler_t utest_v1_get_scheduler()
 {
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
+    return utest_v1_scheduler;
+}
+}
+#endif
+
+#ifdef YOTTA_CORE_UTIL_VERSION_STRING
+// their functionality is implemented using the CriticalSectionLock class
+void utest_v1_enter_critical_section(void) {}
+void utest_v1_leave_critical_section(void) {}
 #endif

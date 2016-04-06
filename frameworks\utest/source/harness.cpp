@@ -49,20 +49,25 @@ namespace
 
     location_t location = LOCATION_UNKNOWN;
 
-    utest_v1_scheduler_t scheduler = utest_v1_scheduler;
+    utest_v1_scheduler_t scheduler = {NULL, NULL, NULL, NULL};
 }
 
 static void die() {
     while(1) ;
 }
 
+static bool is_scheduler_valid(const utest_v1_scheduler_t scheduler)
+{
+    return (scheduler.init && scheduler.post && scheduler.cancel && scheduler.run);
+}
+
 bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
 {
-    if (!scheduler.init || !scheduler.post || !scheduler.cancel || !scheduler.run)
-        return false;
-
-    ::scheduler = scheduler;
-    return true;
+    if (is_scheduler_valid(scheduler)) {
+        ::scheduler = scheduler;
+        return true;
+    }
+    return false;
 }
 
 bool Harness::run(const Specification& specification, size_t)
@@ -76,9 +81,13 @@ bool Harness::run(const Specification& specification)
     if (is_busy())
         return false;
 
-    if (!scheduler.init || !scheduler.post || !scheduler.cancel || !scheduler.run)
+    // if the scheduler is invalid, this is the first time we are calling
+    if (!is_scheduler_valid(scheduler))
+        scheduler = utest_v1_get_scheduler();
+    // if the scheduler is still invalid, abort
+    if (!is_scheduler_valid(scheduler))
         return false;
-
+    // if the scheduler failed to initialize, abort
     if (scheduler.init() != 0)
         return false;
 

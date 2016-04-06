@@ -42,10 +42,10 @@
 #   define UTEST_LEAVE_CRITICAL_SECTION
 #else
 #   ifndef UTEST_ENTER_CRITICAL_SECTION
-#       error "You must provide a UTEST_ENTER_CRITICAL_SECTION implementation!"
+#   	define UTEST_ENTER_CRITICAL_SECTION utest_v1_enter_critical_section()
 #   endif
 #   ifndef UTEST_LEAVE_CRITICAL_SECTION
-#       error "You must provide a UTEST_LEAVE_CRITICAL_SECTION implementation!"
+#   	define UTEST_LEAVE_CRITICAL_SECTION utest_v1_leave_critical_section()
 #   endif
 #endif
 
@@ -67,8 +67,12 @@
 extern "C" {
 #endif
 
+/// must be implemented by the port
+void utest_v1_enter_critical_section(void);
+void utest_v1_leave_critical_section(void);
+
 /// This is the default scheduler implementation used by the harness.
-extern const utest_v1_scheduler_t utest_v1_scheduler;
+utest_v1_scheduler_t utest_v1_get_scheduler(void);
 
 #ifdef __cplusplus
 }
