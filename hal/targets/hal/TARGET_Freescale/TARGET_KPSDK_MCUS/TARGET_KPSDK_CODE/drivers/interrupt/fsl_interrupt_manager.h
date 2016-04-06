@@ -89,7 +89,7 @@ static inline void INT_SYS_EnableIRQ(IRQn_Type irqNumber)
     assert(irqNumber <= FSL_FEATURE_INTERRUPT_IRQ_MAX);
 
     /* call core API to enable the IRQ*/
-    NVIC_EnableIRQ(irqNumber);
+    vIRQ_EnableIRQ(irqNumber);
 }
 
 /*!
@@ -108,7 +108,7 @@ static inline void INT_SYS_DisableIRQ(IRQn_Type irqNumber)
     assert(irqNumber <= FSL_FEATURE_INTERRUPT_IRQ_MAX);
 
     /* call core API to disable the IRQ*/
-    NVIC_DisableIRQ(irqNumber);
+    vIRQ_DisableIRQ(irqNumber);
 }
 
 /*!
