@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RTX_CM_LIB.H
  *      Purpose: RTX Kernel System Configuration
- *      Rev.:    V4.60
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,21 +51,22 @@
 #define _declare_box(pool,size,cnt)  uint32_t pool[(((size)+3)/4)*(cnt) + 3]
 #define _declare_box8(pool,size,cnt) uint64_t pool[(((size)+7)/8)*(cnt) + 2]
 
-#define OS_TCB_SIZE     48
+#define OS_TCB_SIZE     52
 #define OS_TMR_SIZE     8
 
 #if defined (__CC_ARM) && !defined (__MICROLIB)
 
 typedef void    *OS_ID;
 typedef uint32_t OS_TID;
-typedef uint32_t OS_MUT[3];
+typedef uint32_t OS_MUT[4];
 typedef uint32_t OS_RESULT;
 
 #define runtask_id()    rt_tsk_self()
 #define mutex_init(m)   rt_mut_init(m)
-#define mutex_wait(m)   os_mut_wait(m,0xFFFF)
+#define mutex_wait(m)   os_mut_wait(m,0xFFFFU)
 #define mutex_rel(m)    os_mut_release(m)
 
+extern uint8_t   os_running;
 extern OS_TID    rt_tsk_self    (void);
 extern void      rt_mut_init    (OS_ID mutex);
 extern OS_RESULT rt_mut_release (OS_ID mutex);
@@ -86,22 +87,54 @@ OS_RESULT _os_mut_wait    (uint32_t p, OS_ID mutex, uint16_t timeout) __svc_indi
 
 #if (OS_TIMERS != 0)
 #define OS_TASK_CNT (OS_TASKCNT + 1)
+#ifndef __MBED_CMSIS_RTOS_CM
+#define OS_PRIV_CNT (OS_PRIVCNT + 2)
+#define OS_STACK_SZ (4*(OS_PRIVSTKSIZE+OS_MAINSTKSIZE+OS_TIMERSTKSZ))
+#endif
 #else
 #define OS_TASK_CNT  OS_TASKCNT
+#ifndef __MBED_CMSIS_RTOS_CM
+#define OS_PRIV_CNT (OS_PRIVCNT + 1)
+#define OS_STACK_SZ (4*(OS_PRIVSTKSIZE+OS_MAINSTKSIZE))
+#endif
 #endif
 
 uint16_t const os_maxtaskrun = OS_TASK_CNT;
+#ifdef __MBED_CMSIS_RTOS_CM
+uint32_t const os_stackinfo  = (OS_STKCHECK<<24)| (OS_IDLESTKSIZE*4);
+#else
+uint32_t const os_stackinfo  = (OS_STKCHECK<<24)| (OS_PRIV_CNT<<16) | (OS_STKSIZE*4);
+#endif
 uint32_t const os_rrobin     = (OS_ROBIN << 16) | OS_ROBINTOUT;
+uint32_t const os_tickfreq   = OS_CLOCK;
+uint16_t const os_tickus_i   = OS_CLOCK/1000000;
+uint16_t const os_tickus_f   = (((uint64_t)(OS_CLOCK-1000000*(OS_CLOCK/1000000)))<<16)/1000000;
 uint32_t const os_trv        = OS_TRV;
 uint8_t  const os_flags      = OS_RUNPRIV;
 
 /* Export following defines to uVision debugger. */
+__USED uint32_t const CMSIS_RTOS_API_Version = osCMSIS;
+__USED uint32_t const CMSIS_RTOS_RTX_Version = osCMSIS_RTX;
 __USED uint32_t const os_clockrate = OS_TICK;
-__USED uint32_t const os_timernum  = 0;
+__USED uint32_t const os_timernum  = 0U;
 
-/* Stack for the os_idle_demon */
-unsigned int idle_task_stack[OS_IDLESTKSIZE];
-unsigned short const idle_task_stack_size = OS_IDLESTKSIZE;
+/* Memory pool for TCB allocation    */
+_declare_box  (mp_tcb, OS_TCB_SIZE, OS_TASK_CNT);
+uint16_t const mp_tcb_size = sizeof(mp_tcb);
+
+#ifdef __MBED_CMSIS_RTOS_CM
+/* Memory pool for os_idle_demon stack allocation. */
+_declare_box8 (mp_stk, OS_IDLESTKSIZE*4, 1);
+uint32_t const mp_stk_size = sizeof(mp_stk);
+#else
+/* Memory pool for System stack allocation (+os_idle_demon). */
+_declare_box8 (mp_stk, OS_STKSIZE*4, OS_TASK_CNT-OS_PRIV_CNT+1);
+uint32_t const mp_stk_size = sizeof(mp_stk);
+
+/* Memory pool for user specified stack allocation (+main, +timer) */
+uint64_t       os_stack_mem[2+OS_PRIV_CNT+(OS_STACK_SZ/8)];
+uint32_t const os_stack_sz = sizeof(os_stack_mem);
+#endif
 
 #ifndef OS_FIFOSZ
  #define OS_FIFOSZ      16
@@ -117,15 +150,32 @@ void *os_active_TCB[OS_TASK_CNT];
 /* User Timers Resources */
 #if (OS_TIMERS != 0)
 extern void osTimerThread (void const *argument);
+#ifdef __MBED_CMSIS_RTOS_CM
 osThreadDef(osTimerThread, (osPriority)(OS_TIMERPRIO-3), 4*OS_TIMERSTKSZ);
+#else
+osThreadDef(osTimerThread, (osPriority)(OS_TIMERPRIO-3), 1, 4*OS_TIMERSTKSZ);
+#endif
 osThreadId osThreadId_osTimerThread;
 osMessageQDef(osTimerMessageQ, OS_TIMERCBQS, void *);
 osMessageQId osMessageQId_osTimerMessageQ;
 #else
 osThreadDef_t os_thread_def_osTimerThread = { NULL };
 osThreadId osThreadId_osTimerThread;
-osMessageQDef(osTimerMessageQ, 0, void *);
+osMessageQDef(osTimerMessageQ, 0U, void *);
 osMessageQId osMessageQId_osTimerMessageQ;
+#endif
+
+/* Legacy RTX User Timers not used */
+uint32_t       os_tmr = 0U; 
+uint32_t const *m_tmr = NULL;
+uint16_t const mp_tmr_size = 0U;
+
+#if defined (__CC_ARM) && !defined (__MICROLIB)
+ /* A memory space for arm standard library. */
+ static uint32_t std_libspace[OS_TASK_CNT][96/4];
+ static OS_MUT   std_libmutex[OS_MUTEXCNT];
+ static uint32_t nr_mutex;
+ extern void  *__libspace_start;
 #endif
 
 
@@ -148,10 +198,22 @@ osMessageQId osMessageQId_osTimerMessageQ;
  *---------------------------------------------------------------------------*/
 
 #if defined (__CC_ARM) && !defined (__MICROLIB)
- static OS_MUT   std_libmutex[OS_MUTEXCNT];
- static uint32_t nr_mutex;
 
- /*--------------------------- _mutex_initialize -----------------------------*/
+/*--------------------------- __user_perthread_libspace ---------------------*/
+
+void *__user_perthread_libspace (void) {
+  /* Provide a separate libspace for each task. */
+  uint32_t idx;
+
+  idx = (os_running != 0U) ? runtask_id () : 0U;
+  if (idx == 0U) {
+    /* RTX not running yet. */
+    return (&__libspace_start);
+  }
+  return ((void *)&std_libspace[idx-1]);
+}
+
+/*--------------------------- _mutex_initialize -----------------------------*/
 
 int _mutex_initialize (OS_ID *mutex) {
   /* Allocate and initialize a system mutex. */
@@ -170,7 +232,7 @@ int _mutex_initialize (OS_ID *mutex) {
 
 __attribute__((used)) void _mutex_acquire (OS_ID *mutex) {
   /* Acquire a system mutex, lock stdlib resources. */
-  if (runtask_id ()) {
+  if (os_running) {
     /* RTX running, acquire a mutex. */
     mutex_wait (*mutex);
   }
@@ -181,7 +243,7 @@ __attribute__((used)) void _mutex_acquire (OS_ID *mutex) {
 
 __attribute__((used)) void _mutex_release (OS_ID *mutex) {
   /* Release a system mutex, unlock stdlib resources. */
-  if (runtask_id ()) {
+  if (os_running) {
     /* RTX running, release a mutex. */
     mutex_rel (*mutex);
   }
@@ -196,7 +258,7 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
 
 /* Main Thread definition */
 extern int main (void);
-osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL};
+osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1U, 0U, NULL};
 
 // This define should be probably moved to the CMSIS layer
 #if   defined(TARGET_LPC1768)
@@ -364,16 +426,19 @@ void set_main_stack(void) {
     // That is the bottom of the main stack block: no collision detection
     os_thread_def_main.stack_pointer = HEAP_START;
 
-    // Leave OS_SCHEDULERSTKSIZE words for the scheduler and interrupts
-    os_thread_def_main.stacksize = (INITIAL_SP - (unsigned int)HEAP_START) - (OS_SCHEDULERSTKSIZE * 4);
+    // Leave OS_MAINSTKSIZE words for the scheduler and interrupts
+    os_thread_def_main.stacksize = (INITIAL_SP - (unsigned int)HEAP_START) - (OS_MAINSTKSIZE * 4);
 }
 
 #if defined (__CC_ARM)
+
 #ifdef __MICROLIB
 void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
 void _main_init (void) {
   osKernelInitialize();
+#ifdef __MBED_CMSIS_RTOS_CM
   set_main_stack();
+#endif
   osThreadCreate(&os_thread_def_main, NULL);
   osKernelStart();
   for (;;);
@@ -394,7 +459,9 @@ __asm void __rt_entry (void) {
   IMPORT  __rt_lib_init
   IMPORT  os_thread_def_main
   IMPORT  osKernelInitialize
+#ifdef __MBED_CMSIS_RTOS_CM
   IMPORT  set_main_stack
+#endif
   IMPORT  osKernelStart
   IMPORT  osThreadCreate
   IMPORT  exit
@@ -403,7 +470,9 @@ __asm void __rt_entry (void) {
   MOV     R1,R2
   BL      __rt_lib_init
   BL      osKernelInitialize
+#ifdef __MBED_CMSIS_RTOS_CM
   BL      set_main_stack
+#endif
   LDR     R0,=os_thread_def_main
   MOVS    R1,#0
   BL      osThreadCreate
@@ -412,6 +481,7 @@ __asm void __rt_entry (void) {
 
   ALIGN
 }
+
 #endif
 
 #elif defined (__GNUC__)
@@ -462,7 +532,9 @@ __attribute ((noreturn)) void __cs3_start_c (void){
   __libc_init_array ();
 
   osKernelInitialize();
+#ifdef __MBED_CMSIS_RTOS_CM
   set_main_stack();
+#endif
   osThreadCreate(&os_thread_def_main, NULL);
   osKernelStart();
   for (;;);
@@ -484,7 +556,9 @@ __attribute__((naked)) void software_init_hook (void) {
     "mov  r0,r4\n"
     "mov  r1,r5\n"
     "bl   osKernelInitialize\n"
+#ifdef
     "bl   set_main_stack\n"
+#endif
     "ldr  r0,=os_thread_def_main\n"
     "movs r1,#0\n"
     "bl   osThreadCreate\n"
@@ -509,6 +583,7 @@ extern void exit(int arg);
 #pragma required=__vector_table
 void __iar_program_start( void )
 {
+#ifdef __MBED_CMSIS_RTOS_CM
   __iar_init_core();
   __iar_init_vfp();
 
@@ -519,8 +594,11 @@ void __iar_program_start( void )
     mbed_sdk_init();
     __iar_dynamic_initialization();
   }
+#endif
   osKernelInitialize();
+#ifdef __MBED_CMSIS_RTOS_CM
   set_main_stack();
+#endif
   osThreadCreate(&os_thread_def_main, NULL);
   a = osKernelStart();
   exit(a);

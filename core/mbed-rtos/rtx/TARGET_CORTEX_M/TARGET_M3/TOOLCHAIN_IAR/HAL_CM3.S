@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    HAL_CM3.S
  *      Purpose: Hardware Abstraction Layer for Cortex-M3
@@ -119,7 +119,7 @@ _alloc_box:
 
 /*--------------------------- _free_box -------------------------------------*/
 
-;       int _free_box (void *box_mem, void *box);
+;       U32 _free_box (void *box_mem, void *box);
         /* Function wrapper for Unprivileged/Privileged mode. */
 
         PUBLIC  _free_box
