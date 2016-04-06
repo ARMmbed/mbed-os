@@ -21,544 +21,29 @@
 
 namespace mbed {
 
-// Reusable FuncPtr class based on template specialization
-template <typename F>
-class FuncPtr;
-
-/** A class for storing and calling a pointer to a static or member function
- */
-template <typename R, typename A1, typename A2, typename A3, typename A4>
-class FuncPtr<R(A1, A2, A3, A4)> {
-public:
-    /** Create a FuncPtr, attaching a static function
-     *
-     *  @param function The static function to attach (default is none)
-     */
-    FuncPtr(R (*function)(A1, A2, A3, A4) = 0) {
-        attach(function);
-    }
-
-    /** Create a FuncPtr, attaching a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (*function)(T*, A1, A2, A3, A4)) {
-        attach(object, function);
-    }
-
-    /** Create a FuncPtr, attaching a member function
-     *
-     *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (T::*member)(A1, A2, A3, A4)) {
-        attach(object, member);
-    }
-
-    /** Create a FuncPtr, attaching a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    FuncPtr(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Create a FuncPtr from another FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    FuncPtr(const FuncPtr<R(A1, A2, A3, A4)> &func) {
-        attach(func);
-    }
-
-    /** Attach a static function
-     *
-     *  @param function The static function to attach (default is none)
-     */
-    void attach(R (*function)(A1, A2, A3, A4)) {
-        _object = 0;
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::staticthunk;
-    }
-
-    /** Attach a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template <typename T>
-    void attach(T *object, R (*function)(T*, A1, A2, A3, A4)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::boundthunk<T>;
-    }
-
-    /** Attach a member function
-     *
-     *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
-     */
-    template<typename T>
-    void attach(T *object, R (T::*method)(A1, A2, A3, A4)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &method, sizeof method);
-        _thunk = &FuncPtr::methodthunk<T>;
-    }
-
-    /** Attach a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    void attach(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Attach a FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    void attach(const FuncPtr<R(A1, A2, A3, A4)> &func) {
-        _object = func._object;
-        memcpy(&_function, &func._function, sizeof _function);
-        _thunk = func._thunk;
-    }
-
-    /** Call the attached static or member function
-     */
-    R call(A1 a1, A2 a2, A3 a3, A4 a4) {
-        return _thunk(_object, _function, a1, a2, a3, a4);
-    }
-
-    /** Get registered static function
-     */
-    R (*get_function(A1, A2, A3, A4))() {
-        return reinterpret_cast<R (*)(A1, A2, A3, A4)>(_object ? 0 : _function);
-    }
-
-#ifdef MBED_OPERATORS
-    R operator ()(A1 a1, A2 a2, A3 a3, A4 a4) {
-        return call(a1, a2, a3, a4);
-    }
-    operator bool(void) const {
-        return static_cast<bool>(_function);
-    }
-#endif
-private:
-    // Static thunks for various function types
-    static R staticthunk(void*, void *func, A1 a1, A2 a2, A3 a3, A4 a4) {
-        R (*f)(A1, A2, A3, A4) = *reinterpret_cast<R (**)(A1, A2, A3, A4)>(func);
-        return f(a1, a2, a3, a4);
-    }
-
-    template<typename T>
-    static R boundthunk(void *object, void *func, A1 a1, A2 a2, A3 a3, A4 a4) {
-        T *o = static_cast<T*>(object);
-        R (*f)(T*, A1, A2, A3, A4) = *reinterpret_cast<R (**)(T*, A1, A2, A3, A4)>(func);
-        return f(o, a1);
-    }
-
-    template<typename T>
-    static R methodthunk(void *object, void *member, A1 a1, A2 a2, A3 a3, A4 a4) {
-        T* o = static_cast<T*>(object);
-        R (T::*m)(A1, A2, A3, A4) = *reinterpret_cast<R (T::**)(A1, A2, A3, A4)>(member);
-        return (o->*m)(a1, a2, a3, a4);
-    }
-
-    // Forward declaration of an unknown class
-    // this kind of declaration is authorized by the standard (see 8.3.3/2 of C++ 03 standard).  
-    // As a result, the compiler will allocate for UnknownFunctionMember_t the biggest size 
-    // and biggest alignment possible for member function. 
-    // This type can be used inside unions, it will help to provide the storage 
-    // with the proper size and alignment guarantees 
-    class UnknownClass;
-
-    // object this pointer
-    void *_object;
-
-    // aligned raw member function pointer storage - converted back by registered thunk
-    char _function[sizeof(void (UnknownClass::*)())];
-
-    // registered function to convert back and call _m.member on _object
-    R (*_thunk)(void*, void*, A1, A2, A3, A4); 
-};
-
-/** A class for storing and calling a pointer to a static or member function
- */
-template <typename R, typename A1, typename A2, typename A3>
-class FuncPtr<R(A1, A2, A3)> {
-public:
-    /** Create a FuncPtr, attaching a static function
-     *
-     *  @param function The static function to attach (default is none)
-     */
-    FuncPtr(R (*function)(A1, A2, A3) = 0) {
-        attach(function);
-    }
-
-    /** Create a FuncPtr, attaching a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (*function)(T*, A1, A2, A3)) {
-        attach(object, function);
-    }
-
-    /** Create a FuncPtr, attaching a member function
-     *
-     *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (T::*member)(A1, A2, A3)) {
-        attach(object, member);
-    }
-
-    /** Create a FuncPtr, attaching a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    FuncPtr(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Create a FuncPtr from another FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    FuncPtr(const FuncPtr<R(A1, A2, A3)> &func) {
-        attach(func);
-    }
-
-    /** Attach a static function
-     *
-     *  @param function The static function to attach (default is none)
-     */
-    void attach(R (*function)(A1, A2, A3)) {
-        _object = 0;
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::staticthunk;
-    }
-
-    /** Attach a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template <typename T>
-    void attach(T *object, R (*function)(T*, A1, A2, A3)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::boundthunk<T>;
-    }
-
-    /** Attach a member function
-     *
-     *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
-     */
-    template<typename T>
-    void attach(T *object, R (T::*method)(A1, A2, A3)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &method, sizeof method);
-        _thunk = &FuncPtr::methodthunk<T>;
-    }
-
-    /** Attach a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    void attach(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Attach a FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    void attach(const FuncPtr<R(A1, A2, A3)> &func) {
-        _object = func._object;
-        memcpy(&_function, &func._function, sizeof _function);
-        _thunk = func._thunk;
-    }
-
-    /** Call the attached static or member function
-     */
-    R call(A1 a1, A2 a2, A3 a3) {
-        return _thunk(_object, _function, a1, a2, a3);
-    }
-
-    /** Get registered static function
-     */
-    R (*get_function(A1, A2, A3))() {
-        return reinterpret_cast<R (*)(A1, A2, A3)>(_object ? 0 : _function);
-    }
-
-#ifdef MBED_OPERATORS
-    R operator ()(A1 a1, A2 a2, A3 a3) {
-        return call(a1, a2, a3);
-    }
-    operator bool(void) const {
-        return static_cast<bool>(_function);
-    }
-#endif
-private:
-    // Static thunks for various function types
-    static R staticthunk(void*, void *func, A1 a1, A2 a2, A3 a3) {
-        R (*f)(A1, A2, A3) = *reinterpret_cast<R (**)(A1, A2, A3)>(func);
-        return f(a1, a2, a3);
-    }
-
-    template<typename T>
-    static R boundthunk(void *object, void *func, A1 a1, A2 a2, A3 a3) {
-        T *o = static_cast<T*>(object);
-        R (*f)(T*, A1, A2, A3) = *reinterpret_cast<R (**)(T*, A1, A2, A3)>(func);
-        return f(o, a1);
-    }
-
-    template<typename T>
-    static R methodthunk(void *object, void *member, A1 a1, A2 a2, A3 a3) {
-        T* o = static_cast<T*>(object);
-        R (T::*m)(A1, A2, A3) = *reinterpret_cast<R (T::**)(A1, A2, A3)>(member);
-        return (o->*m)(a1, a2, a3);
-    }
-
-    // Forward declaration of an unknown class
-    // this kind of declaration is authorized by the standard (see 8.3.3/2 of C++ 03 standard).  
-    // As a result, the compiler will allocate for UnknownFunctionMember_t the biggest size 
-    // and biggest alignment possible for member function. 
-    // This type can be used inside unions, it will help to provide the storage 
-    // with the proper size and alignment guarantees 
-    class UnknownClass;
-
-    // object this pointer
-    void *_object;
-
-    // aligned raw member function pointer storage - converted back by registered thunk
-    char _function[sizeof(void (UnknownClass::*)())];
-
-    // registered function to convert back and call _m.member on _object
-    R (*_thunk)(void*, void*, A1, A2, A3); 
-};
-
-/** A class for storing and calling a pointer to a static or member function
- */
-template <typename R, typename A1, typename A2>
-class FuncPtr<R(A1, A2)> {
-public:
-    /** Create a FuncPtr, attaching a static function
-     *
-     *  @param function The static function to attach (default is none)
-     */
-    FuncPtr(R (*function)(A1, A2) = 0) {
-        attach(function);
-    }
-
-    /** Create a FuncPtr, attaching a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (*function)(T*, A1, A2)) {
-        attach(object, function);
-    }
-
-    /** Create a FuncPtr, attaching a member function
-     *
-     *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (T::*member)(A1, A2)) {
-        attach(object, member);
-    }
-
-    /** Create a FuncPtr, attaching a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    FuncPtr(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Create a FuncPtr from another FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    FuncPtr(const FuncPtr<R(A1, A2)> &func) {
-        attach(func);
-    }
-
-    /** Attach a static function
-     *
-     *  @param function The static function to attach (default is none)
-     */
-    void attach(R (*function)(A1, A2)) {
-        _object = 0;
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::staticthunk;
-    }
-
-    /** Attach a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template <typename T>
-    void attach(T *object, R (*function)(T*, A1, A2)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::boundthunk<T>;
-    }
-
-    /** Attach a member function
-     *
-     *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
-     */
-    template<typename T>
-    void attach(T *object, R (T::*method)(A1, A2)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &method, sizeof method);
-        _thunk = &FuncPtr::methodthunk<T>;
-    }
-
-    /** Attach a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    void attach(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Attach a FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    void attach(const FuncPtr<R(A1, A2)> &func) {
-        _object = func._object;
-        memcpy(&_function, &func._function, sizeof _function);
-        _thunk = func._thunk;
-    }
-
-    /** Call the attached static or member function
-     */
-    R call(A1 a1, A2 a2) {
-        return _thunk(_object, _function, a1, a2);
-    }
-
-    /** Get registered static function
-     */
-    R (*get_function(A1, A2))() {
-        return reinterpret_cast<R (*)(A1, A2)>(_object ? 0 : _function);
-    }
-
-#ifdef MBED_OPERATORS
-    R operator ()(A1 a1, A2 a2) {
-        return call(a1, a2);
-    }
-    operator bool(void) const {
-        return static_cast<bool>(_function);
-    }
-#endif
-private:
-    // Static thunks for various function types
-    static R staticthunk(void*, void *func, A1 a1, A2 a2) {
-        R (*f)(A1, A2) = *reinterpret_cast<R (**)(A1, A2)>(func);
-        return f(a1, a2);
-    }
-
-    template<typename T>
-    static R boundthunk(void *object, void *func, A1 a1, A2 a2) {
-        T *o = static_cast<T*>(object);
-        R (*f)(T*, A1, A2) = *reinterpret_cast<R (**)(T*, A1, A2)>(func);
-        return f(o, a1);
-    }
-
-    template<typename T>
-    static R methodthunk(void *object, void *member, A1 a1, A2 a2) {
-        T* o = static_cast<T*>(object);
-        R (T::*m)(A1, A2) = *reinterpret_cast<R (T::**)(A1, A2)>(member);
-        return (o->*m)(a1, a2);
-    }
-
-    // Forward declaration of an unknown class
-    // this kind of declaration is authorized by the standard (see 8.3.3/2 of C++ 03 standard).  
-    // As a result, the compiler will allocate for UnknownFunctionMember_t the biggest size 
-    // and biggest alignment possible for member function. 
-    // This type can be used inside unions, it will help to provide the storage 
-    // with the proper size and alignment guarantees 
-    class UnknownClass;
-
-    // object this pointer
-    void *_object;
-
-    // aligned raw member function pointer storage - converted back by registered thunk
-    char _function[sizeof(void (UnknownClass::*)())];
-
-    // registered function to convert back and call _m.member on _object
-    R (*_thunk)(void*, void*, A1, A2); 
-};
+/* If we had variaditic templates, this wouldn't be a problem, but until C++11 is enabled, we are stuck with multiple classes... */
 
 /** A class for storing and calling a pointer to a static or member function
  */
 template <typename R, typename A1>
-class FuncPtr<R(A1)> {
+class FunctionPointerArg1{
 public:
-    /** Create a FuncPtr, attaching a static function
+    /** Create a FunctionPointer, attaching a static function
      *
      *  @param function The static function to attach (default is none)
      */
-    FuncPtr(R (*function)(A1) = 0) {
+    FunctionPointerArg1(R (*function)(A1) = 0) {
         attach(function);
     }
 
-    /** Create a FuncPtr, attaching a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (*function)(T*, A1)) {
-        attach(object, function);
-    }
-
-    /** Create a FuncPtr, attaching a member function
+    /** Create a FunctionPointer, attaching a member function
      *
      *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
      *  @param function The address of the member function to attach
      */
     template<typename T>
-    FuncPtr(T *object, R (T::*member)(A1)) {
+    FunctionPointerArg1(T *object, R (T::*member)(A1)) {
         attach(object, member);
-    }
-
-    /** Create a FuncPtr, attaching a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    FuncPtr(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Create a FuncPtr from another FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    FuncPtr(const FuncPtr<R(A1)> &func) {
-        attach(func);
     }
 
     /** Attach a static function
@@ -566,21 +51,8 @@ public:
      *  @param function The static function to attach (default is none)
      */
     void attach(R (*function)(A1)) {
-        _object = 0;
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::staticthunk;
-    }
-
-    /** Attach a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template <typename T>
-    void attach(T *object, R (*function)(T*, A1)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::boundthunk<T>;
+        _p.function = function;
+        _membercaller = 0;
     }
 
     /** Attach a member function
@@ -589,258 +61,141 @@ public:
      *  @param function The address of the member function to attach
      */
     template<typename T>
-    void attach(T *object, R (T::*method)(A1)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &method, sizeof method);
-        _thunk = &FuncPtr::methodthunk<T>;
-    }
-
-    /** Attach a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    void attach(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Attach a FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    void attach(const FuncPtr<R(A1)> &func) {
-        _object = func._object;
-        memcpy(&_function, &func._function, sizeof _function);
-        _thunk = func._thunk;
+    void attach(T *object, R (T::*member)(A1)) {
+        _p.object = static_cast<void*>(object);
+        *reinterpret_cast<R (T::**)(A1)>(_member) = member;
+        _membercaller = &FunctionPointerArg1::membercaller<T>;
     }
 
     /** Call the attached static or member function
      */
-    R call(A1 a1) {
-        return _thunk(_object, _function, a1);
+    R call(A1 a) {
+        if (_membercaller == 0 && _p.function) {
+           return _p.function(a);
+        } else if (_membercaller && _p.object) {
+           return _membercaller(_p.object, _member, a);
+        }
+        return (R)0;
     }
 
     /** Get registered static function
      */
-    R (*get_function(A1))() {
-        return reinterpret_cast<R (*)(A1)>(_object ? 0 : _function);
+    R(*get_function(A1))() {
+        return _membercaller ? (R(*)(A1))0 : (R(*)(A1))_p.function;
     }
 
 #ifdef MBED_OPERATORS
-    R operator ()(A1 a1) {
-        return call(a1);
+    R operator ()(A1 a) {
+        return call(a);
     }
     operator bool(void) const {
-        return static_cast<bool>(_function);
+        return (_membercaller != NULL ? _p.object : (void*)_p.function) != NULL;
     }
 #endif
 private:
-    // Static thunks for various function types
-    static R staticthunk(void*, void *func, A1 a1) {
-        R (*f)(A1) = *reinterpret_cast<R (**)(A1)>(func);
-        return f(a1);
-    }
-
     template<typename T>
-    static R boundthunk(void *object, void *func, A1 a1) {
-        T *o = static_cast<T*>(object);
-        R (*f)(T*, A1) = *reinterpret_cast<R (**)(T*, A1)>(func);
-        return f(o, a1);
-    }
-
-    template<typename T>
-    static R methodthunk(void *object, void *member, A1 a1) {
+    static R membercaller(void *object, uintptr_t *member, A1 a) {
         T* o = static_cast<T*>(object);
-        R (T::*m)(A1) = *reinterpret_cast<R (T::**)(A1)>(member);
-        return (o->*m)(a1);
+        R (T::**m)(A1) = reinterpret_cast<R (T::**)(A1)>(member);
+        return (o->**m)(a);
     }
 
-    // Forward declaration of an unknown class
-    // this kind of declaration is authorized by the standard (see 8.3.3/2 of C++ 03 standard).  
-    // As a result, the compiler will allocate for UnknownFunctionMember_t the biggest size 
-    // and biggest alignment possible for member function. 
-    // This type can be used inside unions, it will help to provide the storage 
-    // with the proper size and alignment guarantees 
-    class UnknownClass;
-
-    // object this pointer
-    void *_object;
-
-    // aligned raw member function pointer storage - converted back by registered thunk
-    char _function[sizeof(void (UnknownClass::*)())];
-
-    // registered function to convert back and call _m.member on _object
-    R (*_thunk)(void*, void*, A1); 
+    union {
+        R (*function)(A1); // static function pointer
+        void *object;      // object this pointer
+    } _p;
+    uintptr_t _member[4]; // aligned raw member function pointer storage - converted back by registered _membercaller
+    R (*_membercaller)(void*, uintptr_t*, A1); // registered membercaller function to convert back and call _m.member on _object
 };
 
-/** A class for storing and calling a pointer to a static or member function
+/** A class for storing and calling a pointer to a static or member function (R ()(void))
  */
 template <typename R>
-class FuncPtr<R()> {
+class FunctionPointerArg1<R, void>{
 public:
-    /** Create a FuncPtr, attaching a static function
+    /** Create a FunctionPointer, attaching a static function
      *
      *  @param function The static function to attach (default is none)
      */
-    FuncPtr(R (*function)() = 0) {
+    FunctionPointerArg1(R (*function)(void) = 0) {
         attach(function);
     }
 
-    /** Create a FuncPtr, attaching a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template<typename T>
-    FuncPtr(T *object, R (*function)(T*)) {
-        attach(object, function);
-    }
-
-    /** Create a FuncPtr, attaching a member function
+    /** Create a FunctionPointer, attaching a member function
      *
      *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
+     *  @param function The address of the void member function to attach
      */
     template<typename T>
-    FuncPtr(T *object, R (T::*member)()) {
+    FunctionPointerArg1(T *object, R (T::*member)(void)) {
         attach(object, member);
-    }
-
-    /** Create a FuncPtr, attaching a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    FuncPtr(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Create a FuncPtr from another FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    FuncPtr(const FuncPtr<R()> &func) {
-        attach(func);
     }
 
     /** Attach a static function
      *
-     *  @param function The static function to attach (default is none)
+     *  @param function The void static function to attach (default is none)
      */
-    void attach(R (*function)()) {
-        _object = 0;
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::staticthunk;
-    }
-
-    /** Attach a static function with bound pointer
-     *
-     *  @param object Pointer to object to bind to function
-     *  @param function The static function to attach
-     */
-    template <typename T>
-    void attach(T *object, R (*function)(T*)) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &function, sizeof function);
-        _thunk = &FuncPtr::boundthunk<T>;
+    void attach(R (*function)(void)) {
+        _p.function = function;
+        _membercaller = 0;
     }
 
     /** Attach a member function
      *
      *  @param object The object pointer to invoke the member function on (i.e. the this pointer)
-     *  @param function The address of the member function to attach
+     *  @param function The address of the void member function to attach
      */
     template<typename T>
-    void attach(T *object, R (T::*method)()) {
-        _object = static_cast<void*>(object);
-        memcpy(&_function, &method, sizeof method);
-        _thunk = &FuncPtr::methodthunk<T>;
-    }
-
-    /** Attach a function object
-     *
-     *  @param object Pointer to a function object to attach
-     */
-    template<typename T>
-    void attach(T *object) {
-        attach(object, &T::operator());
-    }
-
-    /** Attach a FuncPtr
-     *
-     *  @param func The func to attach
-     */
-    void attach(const FuncPtr<R()> &func) {
-        _object = func._object;
-        memcpy(&_function, &func._function, sizeof _function);
-        _thunk = func._thunk;
+    void attach(T *object, R (T::*member)(void)) {
+        _p.object = static_cast<void*>(object);
+        *reinterpret_cast<R (T::**)(void)>(_member) = member;
+        _membercaller = &FunctionPointerArg1::membercaller<T>;
     }
 
     /** Call the attached static or member function
      */
-    R call() {
-        return _thunk(_object, _function);
+    R call(){
+        if (_membercaller == 0 && _p.function) {
+            return _p.function();
+        } else if (_membercaller && _p.object) {
+            return _membercaller(_p.object, _member);
+        }
+        return (R)0;
     }
 
     /** Get registered static function
      */
-    R (*get_function())() {
-        return reinterpret_cast<R (*)()>(_object ? 0 : _function);
+    R(*get_function())() {
+        return _membercaller ? (R(*)())0 : (R(*)())_p.function;
     }
 
 #ifdef MBED_OPERATORS
-    R operator ()() {
+    R operator ()(void) {
         return call();
     }
     operator bool(void) const {
-        return static_cast<bool>(_function);
+        return (_membercaller != NULL ? _p.object : (void*)_p.function) != NULL;
     }
 #endif
+
 private:
-    // Static thunks for various function types
-    static R staticthunk(void*, void *func) {
-        R (*f)() = *reinterpret_cast<R (**)()>(func);
-        return f();
-    }
-
     template<typename T>
-    static R boundthunk(void *object, void *func) {
-        T *o = static_cast<T*>(object);
-        R (*f)(T*) = *reinterpret_cast<R (**)(T*)>(func);
-        return f(o);
-    }
-
-    template<typename T>
-    static R methodthunk(void *object, void *member) {
+    static R membercaller(void *object, uintptr_t *member) {
         T* o = static_cast<T*>(object);
-        R (T::*m)() = *reinterpret_cast<R (T::**)()>(member);
-        return (o->*m)();
+        R (T::**m)(void) = reinterpret_cast<R (T::**)(void)>(member);
+        return (o->**m)();
     }
 
-    // Forward declaration of an unknown class
-    // this kind of declaration is authorized by the standard (see 8.3.3/2 of C++ 03 standard).  
-    // As a result, the compiler will allocate for UnknownFunctionMember_t the biggest size 
-    // and biggest alignment possible for member function. 
-    // This type can be used inside unions, it will help to provide the storage 
-    // with the proper size and alignment guarantees 
-    class UnknownClass;
-
-    // object this pointer
-    void *_object;
-
-    // aligned raw member function pointer storage - converted back by registered thunk
     union {
-        char _function[sizeof(void (UnknownClass::*)())];
-        void (UnknownClass::*_unknownMethod)();
-    };
-
-    // registered function to convert back and call _m.member on _object
-    R (*_thunk)(void*, void*); 
+        R (*function)(void); // static function pointer
+        void *object;        // object this pointer
+    } _p;
+    uintptr_t _member[4]; // aligned raw member function pointer storage - converted back by registered _membercaller
+    R (*_membercaller)(void*, uintptr_t*); // registered membercaller function to convert back and call _m.member on _object
 };
 
-// Overloads for backwards compatibility
-typedef FuncPtr<void()> FunctionPointer;
-typedef FuncPtr<void(int)> event_callback_t;
+typedef FunctionPointerArg1<void, void> FunctionPointer;
+typedef FunctionPointerArg1<void, int> event_callback_t;
 
 } // namespace mbed
 

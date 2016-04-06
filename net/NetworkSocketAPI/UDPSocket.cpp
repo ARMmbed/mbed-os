@@ -68,7 +68,7 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
 }
 
 
-void UDPSocket::attach_send(mbed::FuncPtr<void()> callback)
+void UDPSocket::attach_send(FunctionPointer callback)
 {
     _send_cb = callback;
     if (_socket && _send_cb) {
@@ -78,7 +78,7 @@ void UDPSocket::attach_send(mbed::FuncPtr<void()> callback)
     }
 }
 
-void UDPSocket::attach_recv(mbed::FuncPtr<void()> callback)
+void UDPSocket::attach_recv(FunctionPointer callback)
 {
     _recv_cb = callback;
     if (_socket && _recv_cb) {
