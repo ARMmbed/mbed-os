@@ -1,4 +1,8 @@
+ifeq ($(shell uname -s),Linux)
+SRCS := $(wildcard linux/*)
+else
 SRCS := $(wildcard source/*)
+endif
 LIB := librand.a
 EXPORT_HEADERS := mbed-client-randlib
 
