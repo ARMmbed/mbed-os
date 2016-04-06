@@ -186,6 +186,19 @@ SECTIONS
         __uvisor_secure_end = .;
     } >FLASH
 
+    /* Uninitialized memory section
+     * The C/C++ library initialization will not touch this section. Data
+     * written here will keep its value on reboots (assuming no power loss). */
+    .uninitialized (NOLOAD):
+    {
+        . = ALIGN(32);
+        __uninitialized_start = .;
+        *(.uninitialized)
+        KEEP(*(.keep.uninitialized))
+        . = ALIGN(32);
+        __uninitialized_end = .;
+    } > RAM
+
     .bss :
     {
         __bss_start__ = .;
