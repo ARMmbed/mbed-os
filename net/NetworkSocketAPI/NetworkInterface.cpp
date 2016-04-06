@@ -1,4 +1,4 @@
-/* NetworkInterface Base Class
+/* Socket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-#include "NetworkInterface.h"
 #include "DnsQuery.h"
+#include "mbed.h"
 
-
-bool NetworkInterface::isConnected()
+int NetworkInterface::gethostbyname(const char *name, char *dest)
 {
-    return getIPAddress() != 0;
-}
-
-int32_t NetworkInterface::getHostByName(const char *name, char *ip)
-{
-    return dnsQuery(this, name, ip);
+    return dnsQuery(this, name, dest);
 }

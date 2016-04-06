@@ -1,4 +1,4 @@
-/* EthernetInterface Base Class
+/* Socket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,14 +26,14 @@ class EthernetInterface : public NetworkInterface
 {
 public:
     /** Start the interface
-     *  @return 0 on success
+     *  @return     0 on success, negative on failure
      */
-    virtual int32_t connect() = 0;
+    virtual int connect() = 0;
 
     /** Stop the interface
-     *  @return 0 on success
+     *  @return     0 on success, negative on failure
      */
-    virtual int32_t disconnect() = 0;
+    virtual int disconnect() = 0;
 };
 
 #endif

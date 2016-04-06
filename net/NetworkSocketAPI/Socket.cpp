@@ -15,116 +15,68 @@
  */
 
 #include "Socket.h"
-#include <string.h>
 
-Socket::Socket(NetworkInterface *iface, ns_protocol_t proto)
+Socket::Socket(NetworkInterface *iface, nsapi_protocol_t proto)
     : _iface(iface)
-    , _proto(proto)
-    , _socket(0)
+    , _blocking(true)
+    , _timeout(0)
 {
-    memset(_ip_address, 0, NS_IP_SIZE);
-    _port = 0;
+    _socket = _iface->socket_create(proto);
 }
 
 Socket::~Socket()
 {
     if (_socket) {
-        close();
+        close(false);
     }
 }
 
-
-int32_t Socket::open(const char *address, uint16_t port)
+void Socket::set_blocking(bool blocking)
 {
-    int32_t err;
-
-    err = close();
-    if (err) {
-        return err;
-    }
-
-    err = _iface->getHostByName(address, _ip_address);
-    _port = port;
-    if (err) {
-        return err;
-    }
-
-    _socket = _iface->createSocket(_proto);
-    if (!_socket) {
-        return NS_ERROR_NO_SOCKET;
-    }
-
-    err = _socket->open(_ip_address, _port);
-
-    if (err) {
-        _iface->destroySocket(_socket);
-        _socket = 0;
-    }
-
-    return err;
+    _blocking = blocking;
 }
 
-int32_t Socket::close()
+void Socket::set_timeout(unsigned timeout)
+{
+    _timeout = timeout;
+}
+
+int Socket::set_option(int optname, const void *optval, unsigned int optlen)
+{
+    if (!_socket) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    return _iface->socket_set_option(_socket, optname, optval, optlen);
+}
+
+int Socket::get_option(int optname, void *optval, unsigned int *optlen)
+{
+    if (!_socket) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    return _iface->socket_get_option(_socket, optname, optval, optlen);
+}
+
+int Socket::close(bool shutdown)
 {
     if (!_socket) {
         return 0;
     }
-    
-    SocketInterface *socket = _socket;
-    _socket = 0;
 
-    int32_t err = socket->close();
+    int err = _iface->socket_close(_socket, shutdown);
     if (!err) {
-        _iface->destroySocket(socket);
+        void *socket = _socket;
+        _socket = 0;
+        _iface->socket_destroy(socket);
     }
 
     return err;
 }
 
-int32_t Socket::send(const void *data, uint32_t size)
+void Socket::thunk(void *p) 
 {
-    if (!_socket) {
-        return NS_ERROR_NO_CONNECTION;
-    }
-    return _socket->send(data, size);
+    mbed::FuncPtr<void()> *fptr = (mbed::FuncPtr<void()> *)p;
+    (*fptr)();
 }
-
-int32_t Socket::recv(void *data, uint32_t size, bool blocking)
-{
-    while (true) {
-        if (!_socket) {
-            return NS_ERROR_NO_CONNECTION;
-        }
-        
-        int32_t recv = _socket->recv(data, size);
-
-        if (recv != NS_ERROR_WOULD_BLOCK || !blocking) {
-            return recv;
-        }
-    }
-}
-
-
-const char *Socket::getIPAddress() const
-{
-    if (_ip_address[0]) {
-        return _ip_address;
-    } else {
-        return 0;
-    }
-}
-
-uint16_t Socket::getPort() const
-{
-    return _port;
-}
-
-bool Socket::isConnected()
-{
-    if (!_socket) {
-        return false;
-    }
-
-    return _socket->isConnected();
-}
-
