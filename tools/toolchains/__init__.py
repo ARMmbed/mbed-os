@@ -496,7 +496,6 @@ class mbedToolchain:
         for source in files_to_compile:
             _, name, _ = split_path(source)
             object = self.relative_object_path(build_path, base_path, source)
-            print object
 
             # Queue mode (multiprocessing)
             commands = self.compile_command(source, object, inc_paths)

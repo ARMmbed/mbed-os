@@ -23,6 +23,7 @@ import colorama
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, basename
+from os import getcwd
 from time import time
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
@@ -91,15 +92,15 @@ def build_project(src_path, build_path, target, toolchain_name,
     # We need to remove all paths which are repeated to avoid
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
-    PROJECT_BASENAME = basename(src_paths[0])
+    project_name = basename(src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd())
 
     if name is None:
         # We will use default project name based on project folder name
-        name = PROJECT_BASENAME
-        toolchain.info("Building project %s (%s, %s)" % (PROJECT_BASENAME.upper(), target.name, toolchain_name))
+        name = project_name
+        toolchain.info("Building project %s (%s, %s)" % (project_name, target.name, toolchain_name))
     else:
         # User used custom global project name to have the same name for the
-        toolchain.info("Building project %s to %s (%s, %s)" % (PROJECT_BASENAME.upper(), name, target.name, toolchain_name))
+        toolchain.info("Building project %s to %s (%s, %s)" % (project_name, name, target.name, toolchain_name))
 
 
     if report != None:
