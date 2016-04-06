@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#include "mbed.h"
 #include "LWIPInterface.h"
 
-#include "mbed.h"
 #include "lwip/inet.h"
 #include "lwip/netif.h"
 #include "lwip/dhcp.h"
@@ -26,15 +26,11 @@
 #include "netif/etharp.h"
 #include "eth_arch.h"
 
-
-#define LWIP_TIMEOUT 15000
-
-
 /* TCP/IP and Network Interface Initialisation */
 static struct netif netif;
 
-static char ip_addr[NS_IP_SIZE] = "\0";
-static char mac_addr[NS_MAC_SIZE] = "\0";
+static char ip_addr[NSAPI_IP_SIZE] = "\0";
+static char mac_addr[NSAPI_MAC_SIZE] = "\0";
 
 static Semaphore tcpip_inited(0);
 static Semaphore netif_linked(0);
@@ -86,8 +82,7 @@ static void set_mac_address(void)
 }
 
 
-// LWIPInterface implementation
-int32_t LWIPInterface::connect()
+int LWIPInterface::connect()
 {
     // Set up network
     set_mac_address();
@@ -100,14 +95,14 @@ int32_t LWIPInterface::connect()
 
     // Wait for an IP Address
     // -1: error, 0: timeout
-    if (netif_up.wait(LWIP_TIMEOUT) < 0) {
-        return NS_ERROR_TIMEOUT;
+    if (netif_up.wait(1500) < 0) {
+        return NSAPI_ERROR_DHCP_FAILURE;
     }
 
     return 0;
 }
 
-int32_t LWIPInterface::disconnect()
+int LWIPInterface::disconnect()
 {
     dhcp_release(&netif);
     dhcp_stop(&netif);
@@ -117,90 +112,204 @@ int32_t LWIPInterface::disconnect()
     return 0;
 }
 
-const char *LWIPInterface::getIPAddress()
+const char *LWIPInterface::get_ip_address()
 {
     return ip_addr;
 }
 
-const char *LWIPInterface::getMACAddress()
+const char *LWIPInterface::get_mac_address()
 {
     return mac_addr;
 }
 
-SocketInterface *LWIPInterface::createSocket(ns_protocol_t proto)
+void *LWIPInterface::socket_create(nsapi_protocol_t proto)
 {
-    int type = (proto == NS_UDP) ? SOCK_DGRAM : SOCK_STREAM;
+    int type = (proto == NSAPI_UDP) ? SOCK_DGRAM : SOCK_STREAM;
     int fd = lwip_socket(AF_INET, type, 0);
     if (fd < 0) {
         return 0;
     }
 
-    return new LWIPSocket(fd);
+    return (void *)(fd+1);
 }
 
-void LWIPInterface::destroySocket(SocketInterface *siface)
+void LWIPInterface::socket_destroy(void *handle)
 {
-    LWIPSocket *socket = (LWIPSocket *)siface;
-    lwip_close(socket->fd);
-
-    delete socket;
+    int fd = (int)handle-1;
+    lwip_close(fd);
+    
 }
 
-
-// TCP SocketInterface implementation
-int32_t LWIPInterface::LWIPSocket::open(const char *ip, uint16_t port)
+int LWIPInterface::socket_set_option(void *handle, int optname, const void *optval, unsigned optlen)
 {
-    struct sockaddr_in host;
-    memset(&host, 0, sizeof host);
-    inet_aton(ip, &host.sin_addr);
-    host.sin_family = AF_INET;
-    host.sin_port = htons(port);
+    int fd = (int)handle-1;
+    return lwip_setsockopt(fd, SOL_SOCKET, optname, optval, (socklen_t)optlen);
+}
 
-    if (lwip_connect(fd, (const struct sockaddr *)&host, sizeof host) < 0) {
-        return NS_ERROR_NO_CONNECTION;
+int LWIPInterface::socket_get_option(void *handle, int optname, void *optval, unsigned *optlen)
+{
+    int fd = (int)handle-1;
+    return lwip_getsockopt(fd, SOL_SOCKET, optname, optval, (socklen_t*)optlen);
+}
+
+int LWIPInterface::socket_bind(void *handle, int port)
+{
+    int fd = (int)handle-1;
+    struct sockaddr_in sa;
+    memset(&sa, 0, sizeof sa);
+    
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(port);
+    sa.sin_addr.s_addr = INADDR_ANY;
+    
+    if (lwip_bind(fd, (const struct sockaddr *)&sa, sizeof sa) < 0) {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    
+    return 0;
+}
+
+int LWIPInterface::socket_listen(void *handle, int backlog)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+int LWIPInterface::socket_connect(void *handle, const SocketAddress &addr)
+{
+    int fd = (int)handle-1;
+    struct sockaddr_in sa;
+    memset(&sa, 0, sizeof sa);
+    inet_aton(addr.get_ip_address(), &sa.sin_addr);
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(addr.get_port());
+
+    if (lwip_connect(fd, (const struct sockaddr *)&sa, sizeof sa) < 0) {
+        return NSAPI_ERROR_NO_CONNECTION;
     }
 
     return 0;
 }
-
-int32_t LWIPInterface::LWIPSocket::close()
+    
+bool LWIPInterface::socket_is_connected(void *handle)
 {
-    return 0;
+    return true;
 }
 
-int32_t LWIPInterface::LWIPSocket::send(const void *voiddata, uint32_t size)
+int LWIPInterface::socket_accept(void *handle, void **connection)
 {
-    uint8_t *data = (uint8_t *)voiddata;
-    uint32_t writtenLen = 0;
+    return NSAPI_ERROR_UNSUPPORTED;
+}
 
-    while (writtenLen < size) {
-        int ret = lwip_send(fd, data + writtenLen, size - writtenLen, 0);
+int LWIPInterface::socket_send(void *handle, const void *p, unsigned size)
+{
+    int fd = (int)handle-1;
+    uint8_t *data = (uint8_t *)p;
+    unsigned written = 0;
+
+    while (written < size) {
+        int ret = lwip_send(fd, data + written, size - written, 0);
 
         if (ret > 0) {
-            writtenLen += ret;
+            written += ret;
         } else if (ret == 0) {
-            return NS_ERROR_NO_CONNECTION;
+            return NSAPI_ERROR_NO_CONNECTION;
         } else {
-            return NS_ERROR_DEVICE_ERROR;
+            return NSAPI_ERROR_DEVICE_ERROR;
         }
     }
 
-    return writtenLen;
+    return written;
 }
 
-int32_t LWIPInterface::LWIPSocket::recv(void *data, uint32_t size)
+int LWIPInterface::socket_recv(void *handle, void *data, unsigned size)
 {
+    int fd = (int)handle-1;
     int ret = lwip_recv(fd, data, size, MSG_DONTWAIT);
 
     if (ret > 0) {
         return ret;
     } else if (ret == 0) {
-        return NS_ERROR_NO_CONNECTION;
+        return NSAPI_ERROR_NO_CONNECTION;
     } else if (ret == -1) {
-        return NS_ERROR_WOULD_BLOCK;
+        return NSAPI_ERROR_WOULD_BLOCK;
     } else {
-        return NS_ERROR_DEVICE_ERROR;
+        return NSAPI_ERROR_DEVICE_ERROR;
     }
 }
 
+int LWIPInterface::socket_sendto(void *handle, const SocketAddress &addr, const void *p, unsigned size)
+{
+    int fd = (int)handle-1;
+    uint8_t *data = (uint8_t *)p;
+    unsigned written = 0;
+
+    struct sockaddr_in sa;
+    memset(&sa, 0, sizeof sa);
+    inet_aton(addr.get_ip_address(), &sa.sin_addr);
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(addr.get_port());
+
+    while (written < size) {
+        int ret = lwip_sendto(fd, data + written, size - written, 0,
+            (const struct sockaddr *)&sa, sizeof sa);
+
+        if (ret > 0) {
+            written += ret;
+        } else if (ret == 0) {
+            return NSAPI_ERROR_NO_CONNECTION;
+        } else {
+            return NSAPI_ERROR_DEVICE_ERROR;
+        }
+    }
+
+    return written;
+}
+
+int LWIPInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *data, unsigned size)
+{
+    int fd = (int)handle-1;
+    struct sockaddr_in sa;
+    socklen_t sa_len = sizeof sa;
+
+    int ret = lwip_recvfrom(fd, data, size, MSG_DONTWAIT, 
+        (struct sockaddr *)&sa, &sa_len);
+
+    if (ret > 0 && addr) {
+        addr->set_ip_address(inet_ntoa(sa.sin_addr));
+        addr->set_port(ntohs(sa.sin_port));
+    }
+
+    if (ret > 0) {    
+        return ret;
+    } else if (ret == 0) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    } else if (ret == -1) {
+        return NSAPI_ERROR_WOULD_BLOCK;
+    } else {
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+}
+
+int LWIPInterface::socket_close(void *handle, bool shutdown)
+{
+    int fd = (int)handle-1;
+    if (shutdown) {
+        lwip_shutdown(fd, SHUT_RDWR);
+    }
+
+    lwip_close(fd);
+    return 0;
+}
+
+void LWIPInterface::socket_attach_accept(void *handle, void (*callback)(void *), void *id)
+{
+}
+
+void LWIPInterface::socket_attach_send(void *handle, void (*callback)(void *), void *id)
+{
+}
+
+void LWIPInterface::socket_attach_recv(void *handle, void (*callback)(void *), void *id)
+{
+}
 
