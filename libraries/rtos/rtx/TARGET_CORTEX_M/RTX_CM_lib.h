@@ -571,7 +571,7 @@ __attribute__((naked)) void software_init_hook (void) {
     "mov  r0,r4\n"
     "mov  r1,r5\n"
     "bl   osKernelInitialize\n"
-#ifdef
+#ifdef __MBED_CMSIS_RTOS_CM
     "bl   set_main_stack\n"
 #endif
     "ldr  r0,=os_thread_def_main\n"
