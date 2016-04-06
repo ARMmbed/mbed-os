@@ -17,7 +17,7 @@ limitations under the License.
 
 import re
 import sys
-from os import stat, walk
+from os import stat, walk, getcwd
 from copy import copy
 from time import time, sleep
 from types import ListType
@@ -460,7 +460,13 @@ class mbedToolchain:
 
     def relative_object_path(self, build_path, base_dir, source):
         source_dir, name, _ = split_path(source)
-        obj_dir = join(build_path, relpath(source_dir, base_dir))
+        
+        if build_path.startswith(base_dir):
+            # absolute path
+            obj_dir = join(build_path, relpath(source_dir, base_dir))
+        else:
+            # relative path
+            obj_dir = join(base_dir, build_path)
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
 
@@ -485,15 +491,12 @@ class mbedToolchain:
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
         files_to_compile.sort()
+        work_dir = getcwd()
+
         for source in files_to_compile:
             _, name, _ = split_path(source)
             object = self.relative_object_path(build_path, base_path, source)
-
-            # Avoid multiple mkdir() calls on same work directory
-            work_dir = dirname(object)
-            if work_dir is not prev_dir:
-                prev_dir = work_dir
-                mkdir(work_dir)
+            print object
 
             # Queue mode (multiprocessing)
             commands = self.compile_command(source, object, inc_paths)
