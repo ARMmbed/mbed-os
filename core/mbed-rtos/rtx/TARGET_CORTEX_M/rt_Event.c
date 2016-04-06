@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_EVENT.C
  *      Purpose: Implements waits and wake-ups for event flags
- *      Rev.:    V4.60
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "rt_TypeDef.h"
-#include "RTX_Conf.h"
+#include "RTX_Config.h"
 #include "rt_System.h"
 #include "rt_Event.h"
 #include "rt_List.h"
@@ -86,7 +86,7 @@ void rt_evt_set (U16 event_flags, OS_TID task_id) {
   /* Set one or more event flags of a selectable task. */
   P_TCB p_tcb;
 
-  p_tcb = os_active_TCB[task_id-1];
+  p_tcb = os_active_TCB[task_id-1U];
   if (p_tcb == NULL) {
     return;
   }
@@ -108,7 +108,7 @@ wkup: p_tcb->events &= ~event_flags;
       rt_rmv_dly (p_tcb);
       p_tcb->state   = READY;
 #ifdef __CMSIS_RTOS
-      rt_ret_val2(p_tcb, 0x08/*osEventSignal*/, p_tcb->waits);
+      rt_ret_val2(p_tcb, 0x08U/*osEventSignal*/, p_tcb->waits);
 #else
       rt_ret_val (p_tcb, OS_R_EVT);
 #endif
@@ -123,7 +123,7 @@ wkup: p_tcb->events &= ~event_flags;
 void rt_evt_clr (U16 clear_flags, OS_TID task_id) {
   /* Clear one or more event flags (identified by "clear_flags") of a */
   /* selectable task (identified by "task"). */
-  P_TCB task = os_active_TCB[task_id-1];
+  P_TCB task = os_active_TCB[task_id-1U];
 
   if (task == NULL) {
     return;
@@ -136,7 +136,7 @@ void rt_evt_clr (U16 clear_flags, OS_TID task_id) {
 
 void isr_evt_set (U16 event_flags, OS_TID task_id) {
   /* Same function as "os_evt_set", but to be called by ISRs. */
-  P_TCB p_tcb = os_active_TCB[task_id-1];
+  P_TCB p_tcb = os_active_TCB[task_id-1U];
 
   if (p_tcb == NULL) {
     return;
@@ -176,7 +176,7 @@ rdy:  p_CB->events &= ~event_flags;
       rt_rmv_dly (p_CB);
       p_CB->state   = READY;
 #ifdef __CMSIS_RTOS
-      rt_ret_val2(p_CB, 0x08/*osEventSignal*/, p_CB->waits);
+      rt_ret_val2(p_CB, 0x08U/*osEventSignal*/, p_CB->waits); 
 #else
       rt_ret_val (p_CB, OS_R_EVT);
 #endif
