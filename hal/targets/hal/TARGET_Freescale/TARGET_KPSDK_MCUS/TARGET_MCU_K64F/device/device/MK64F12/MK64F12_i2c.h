@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -138,8 +145,8 @@ typedef union _hw_i2c_a1
 #define HW_I2C_A1_ADDR(x)        ((x) + 0x0U)
 
 #define HW_I2C_A1(x)             (*(__IO hw_i2c_a1_t *) HW_I2C_A1_ADDR(x))
-#define HW_I2C_A1_RD(x)          (HW_I2C_A1(x).U)
-#define HW_I2C_A1_WR(x, v)       (HW_I2C_A1(x).U = (v))
+#define HW_I2C_A1_RD(x)          (ADDRESS_READ(hw_i2c_a1_t, HW_I2C_A1_ADDR(x)))
+#define HW_I2C_A1_WR(x, v)       (ADDRESS_WRITE(hw_i2c_a1_t, HW_I2C_A1_ADDR(x), v))
 #define HW_I2C_A1_SET(x, v)      (HW_I2C_A1_WR(x, HW_I2C_A1_RD(x) |  (v)))
 #define HW_I2C_A1_CLR(x, v)      (HW_I2C_A1_WR(x, HW_I2C_A1_RD(x) & ~(v)))
 #define HW_I2C_A1_TOG(x, v)      (HW_I2C_A1_WR(x, HW_I2C_A1_RD(x) ^  (v)))
@@ -162,7 +169,7 @@ typedef union _hw_i2c_a1
 #define BS_I2C_A1_AD         (7U)          /*!< Bit field size in bits for I2C_A1_AD. */
 
 /*! @brief Read current value of the I2C_A1_AD field. */
-#define BR_I2C_A1_AD(x)      (HW_I2C_A1(x).B.AD)
+#define BR_I2C_A1_AD(x)      (UNION_READ(hw_i2c_a1_t, HW_I2C_A1_ADDR(x), U, B.AD))
 
 /*! @brief Format value for bitfield I2C_A1_AD. */
 #define BF_I2C_A1_AD(v)      ((uint8_t)((uint8_t)(v) << BP_I2C_A1_AD) & BM_I2C_A1_AD)
@@ -197,8 +204,8 @@ typedef union _hw_i2c_f
 #define HW_I2C_F_ADDR(x)         ((x) + 0x1U)
 
 #define HW_I2C_F(x)              (*(__IO hw_i2c_f_t *) HW_I2C_F_ADDR(x))
-#define HW_I2C_F_RD(x)           (HW_I2C_F(x).U)
-#define HW_I2C_F_WR(x, v)        (HW_I2C_F(x).U = (v))
+#define HW_I2C_F_RD(x)           (ADDRESS_READ(hw_i2c_f_t, HW_I2C_F_ADDR(x)))
+#define HW_I2C_F_WR(x, v)        (ADDRESS_WRITE(hw_i2c_f_t, HW_I2C_F_ADDR(x), v))
 #define HW_I2C_F_SET(x, v)       (HW_I2C_F_WR(x, HW_I2C_F_RD(x) |  (v)))
 #define HW_I2C_F_CLR(x, v)       (HW_I2C_F_WR(x, HW_I2C_F_RD(x) & ~(v)))
 #define HW_I2C_F_TOG(x, v)       (HW_I2C_F_WR(x, HW_I2C_F_RD(x) ^  (v)))
@@ -237,7 +244,7 @@ typedef union _hw_i2c_f
 #define BS_I2C_F_ICR         (6U)          /*!< Bit field size in bits for I2C_F_ICR. */
 
 /*! @brief Read current value of the I2C_F_ICR field. */
-#define BR_I2C_F_ICR(x)      (HW_I2C_F(x).B.ICR)
+#define BR_I2C_F_ICR(x)      (UNION_READ(hw_i2c_f_t, HW_I2C_F_ADDR(x), U, B.ICR))
 
 /*! @brief Format value for bitfield I2C_F_ICR. */
 #define BF_I2C_F_ICR(v)      ((uint8_t)((uint8_t)(v) << BP_I2C_F_ICR) & BM_I2C_F_ICR)
@@ -264,7 +271,7 @@ typedef union _hw_i2c_f
 #define BS_I2C_F_MULT        (2U)          /*!< Bit field size in bits for I2C_F_MULT. */
 
 /*! @brief Read current value of the I2C_F_MULT field. */
-#define BR_I2C_F_MULT(x)     (HW_I2C_F(x).B.MULT)
+#define BR_I2C_F_MULT(x)     (UNION_READ(hw_i2c_f_t, HW_I2C_F_ADDR(x), U, B.MULT))
 
 /*! @brief Format value for bitfield I2C_F_MULT. */
 #define BF_I2C_F_MULT(v)     ((uint8_t)((uint8_t)(v) << BP_I2C_F_MULT) & BM_I2C_F_MULT)
@@ -305,8 +312,8 @@ typedef union _hw_i2c_c1
 #define HW_I2C_C1_ADDR(x)        ((x) + 0x2U)
 
 #define HW_I2C_C1(x)             (*(__IO hw_i2c_c1_t *) HW_I2C_C1_ADDR(x))
-#define HW_I2C_C1_RD(x)          (HW_I2C_C1(x).U)
-#define HW_I2C_C1_WR(x, v)       (HW_I2C_C1(x).U = (v))
+#define HW_I2C_C1_RD(x)          (ADDRESS_READ(hw_i2c_c1_t, HW_I2C_C1_ADDR(x)))
+#define HW_I2C_C1_WR(x, v)       (ADDRESS_WRITE(hw_i2c_c1_t, HW_I2C_C1_ADDR(x), v))
 #define HW_I2C_C1_SET(x, v)      (HW_I2C_C1_WR(x, HW_I2C_C1_RD(x) |  (v)))
 #define HW_I2C_C1_CLR(x, v)      (HW_I2C_C1_WR(x, HW_I2C_C1_RD(x) & ~(v)))
 #define HW_I2C_C1_TOG(x, v)      (HW_I2C_C1_WR(x, HW_I2C_C1_RD(x) ^  (v)))
@@ -340,13 +347,13 @@ typedef union _hw_i2c_c1
 #define BS_I2C_C1_DMAEN      (1U)          /*!< Bit field size in bits for I2C_C1_DMAEN. */
 
 /*! @brief Read current value of the I2C_C1_DMAEN field. */
-#define BR_I2C_C1_DMAEN(x)   (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_DMAEN))
+#define BR_I2C_C1_DMAEN(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_DMAEN)))
 
 /*! @brief Format value for bitfield I2C_C1_DMAEN. */
 #define BF_I2C_C1_DMAEN(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_C1_DMAEN) & BM_I2C_C1_DMAEN)
 
 /*! @brief Set the DMAEN field to a new value. */
-#define BW_I2C_C1_DMAEN(x, v) (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_DMAEN) = (v))
+#define BW_I2C_C1_DMAEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_DMAEN), v))
 /*@}*/
 
 /*!
@@ -366,13 +373,13 @@ typedef union _hw_i2c_c1
 #define BS_I2C_C1_WUEN       (1U)          /*!< Bit field size in bits for I2C_C1_WUEN. */
 
 /*! @brief Read current value of the I2C_C1_WUEN field. */
-#define BR_I2C_C1_WUEN(x)    (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_WUEN))
+#define BR_I2C_C1_WUEN(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_WUEN)))
 
 /*! @brief Format value for bitfield I2C_C1_WUEN. */
 #define BF_I2C_C1_WUEN(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_C1_WUEN) & BM_I2C_C1_WUEN)
 
 /*! @brief Set the WUEN field to a new value. */
-#define BW_I2C_C1_WUEN(x, v) (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_WUEN) = (v))
+#define BW_I2C_C1_WUEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_WUEN), v))
 /*@}*/
 
 /*!
@@ -391,7 +398,7 @@ typedef union _hw_i2c_c1
 #define BF_I2C_C1_RSTA(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_C1_RSTA) & BM_I2C_C1_RSTA)
 
 /*! @brief Set the RSTA field to a new value. */
-#define BW_I2C_C1_RSTA(x, v) (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_RSTA) = (v))
+#define BW_I2C_C1_RSTA(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_RSTA), v))
 /*@}*/
 
 /*!
@@ -414,13 +421,13 @@ typedef union _hw_i2c_c1
 #define BS_I2C_C1_TXAK       (1U)          /*!< Bit field size in bits for I2C_C1_TXAK. */
 
 /*! @brief Read current value of the I2C_C1_TXAK field. */
-#define BR_I2C_C1_TXAK(x)    (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TXAK))
+#define BR_I2C_C1_TXAK(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TXAK)))
 
 /*! @brief Format value for bitfield I2C_C1_TXAK. */
 #define BF_I2C_C1_TXAK(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_C1_TXAK) & BM_I2C_C1_TXAK)
 
 /*! @brief Set the TXAK field to a new value. */
-#define BW_I2C_C1_TXAK(x, v) (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TXAK) = (v))
+#define BW_I2C_C1_TXAK(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TXAK), v))
 /*@}*/
 
 /*!
@@ -441,13 +448,13 @@ typedef union _hw_i2c_c1
 #define BS_I2C_C1_TX         (1U)          /*!< Bit field size in bits for I2C_C1_TX. */
 
 /*! @brief Read current value of the I2C_C1_TX field. */
-#define BR_I2C_C1_TX(x)      (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TX))
+#define BR_I2C_C1_TX(x)      (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TX)))
 
 /*! @brief Format value for bitfield I2C_C1_TX. */
 #define BF_I2C_C1_TX(v)      ((uint8_t)((uint8_t)(v) << BP_I2C_C1_TX) & BM_I2C_C1_TX)
 
 /*! @brief Set the TX field to a new value. */
-#define BW_I2C_C1_TX(x, v)   (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TX) = (v))
+#define BW_I2C_C1_TX(x, v)   (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_TX), v))
 /*@}*/
 
 /*!
@@ -467,13 +474,13 @@ typedef union _hw_i2c_c1
 #define BS_I2C_C1_MST        (1U)          /*!< Bit field size in bits for I2C_C1_MST. */
 
 /*! @brief Read current value of the I2C_C1_MST field. */
-#define BR_I2C_C1_MST(x)     (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_MST))
+#define BR_I2C_C1_MST(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_MST)))
 
 /*! @brief Format value for bitfield I2C_C1_MST. */
 #define BF_I2C_C1_MST(v)     ((uint8_t)((uint8_t)(v) << BP_I2C_C1_MST) & BM_I2C_C1_MST)
 
 /*! @brief Set the MST field to a new value. */
-#define BW_I2C_C1_MST(x, v)  (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_MST) = (v))
+#define BW_I2C_C1_MST(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_MST), v))
 /*@}*/
 
 /*!
@@ -491,13 +498,13 @@ typedef union _hw_i2c_c1
 #define BS_I2C_C1_IICIE      (1U)          /*!< Bit field size in bits for I2C_C1_IICIE. */
 
 /*! @brief Read current value of the I2C_C1_IICIE field. */
-#define BR_I2C_C1_IICIE(x)   (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICIE))
+#define BR_I2C_C1_IICIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICIE)))
 
 /*! @brief Format value for bitfield I2C_C1_IICIE. */
 #define BF_I2C_C1_IICIE(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_C1_IICIE) & BM_I2C_C1_IICIE)
 
 /*! @brief Set the IICIE field to a new value. */
-#define BW_I2C_C1_IICIE(x, v) (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICIE) = (v))
+#define BW_I2C_C1_IICIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICIE), v))
 /*@}*/
 
 /*!
@@ -515,13 +522,13 @@ typedef union _hw_i2c_c1
 #define BS_I2C_C1_IICEN      (1U)          /*!< Bit field size in bits for I2C_C1_IICEN. */
 
 /*! @brief Read current value of the I2C_C1_IICEN field. */
-#define BR_I2C_C1_IICEN(x)   (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICEN))
+#define BR_I2C_C1_IICEN(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICEN)))
 
 /*! @brief Format value for bitfield I2C_C1_IICEN. */
 #define BF_I2C_C1_IICEN(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_C1_IICEN) & BM_I2C_C1_IICEN)
 
 /*! @brief Set the IICEN field to a new value. */
-#define BW_I2C_C1_IICEN(x, v) (BITBAND_ACCESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICEN) = (v))
+#define BW_I2C_C1_IICEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C1_ADDR(x), BP_I2C_C1_IICEN), v))
 /*@}*/
 
 /*******************************************************************************
@@ -556,8 +563,8 @@ typedef union _hw_i2c_s
 #define HW_I2C_S_ADDR(x)         ((x) + 0x3U)
 
 #define HW_I2C_S(x)              (*(__IO hw_i2c_s_t *) HW_I2C_S_ADDR(x))
-#define HW_I2C_S_RD(x)           (HW_I2C_S(x).U)
-#define HW_I2C_S_WR(x, v)        (HW_I2C_S(x).U = (v))
+#define HW_I2C_S_RD(x)           (ADDRESS_READ(hw_i2c_s_t, HW_I2C_S_ADDR(x)))
+#define HW_I2C_S_WR(x, v)        (ADDRESS_WRITE(hw_i2c_s_t, HW_I2C_S_ADDR(x), v))
 #define HW_I2C_S_SET(x, v)       (HW_I2C_S_WR(x, HW_I2C_S_RD(x) |  (v)))
 #define HW_I2C_S_CLR(x, v)       (HW_I2C_S_WR(x, HW_I2C_S_RD(x) & ~(v)))
 #define HW_I2C_S_TOG(x, v)       (HW_I2C_S_WR(x, HW_I2C_S_RD(x) ^  (v)))
@@ -581,7 +588,7 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_RXAK        (1U)          /*!< Bit field size in bits for I2C_S_RXAK. */
 
 /*! @brief Read current value of the I2C_S_RXAK field. */
-#define BR_I2C_S_RXAK(x)     (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_RXAK))
+#define BR_I2C_S_RXAK(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_RXAK)))
 /*@}*/
 
 /*!
@@ -612,13 +619,13 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_IICIF       (1U)          /*!< Bit field size in bits for I2C_S_IICIF. */
 
 /*! @brief Read current value of the I2C_S_IICIF field. */
-#define BR_I2C_S_IICIF(x)    (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IICIF))
+#define BR_I2C_S_IICIF(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IICIF)))
 
 /*! @brief Format value for bitfield I2C_S_IICIF. */
 #define BF_I2C_S_IICIF(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_S_IICIF) & BM_I2C_S_IICIF)
 
 /*! @brief Set the IICIF field to a new value. */
-#define BW_I2C_S_IICIF(x, v) (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IICIF) = (v))
+#define BW_I2C_S_IICIF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IICIF), v))
 /*@}*/
 
 /*!
@@ -637,7 +644,7 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_SRW         (1U)          /*!< Bit field size in bits for I2C_S_SRW. */
 
 /*! @brief Read current value of the I2C_S_SRW field. */
-#define BR_I2C_S_SRW(x)      (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_SRW))
+#define BR_I2C_S_SRW(x)      (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_SRW)))
 /*@}*/
 
 /*!
@@ -659,13 +666,13 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_RAM         (1U)          /*!< Bit field size in bits for I2C_S_RAM. */
 
 /*! @brief Read current value of the I2C_S_RAM field. */
-#define BR_I2C_S_RAM(x)      (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_RAM))
+#define BR_I2C_S_RAM(x)      (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_RAM)))
 
 /*! @brief Format value for bitfield I2C_S_RAM. */
 #define BF_I2C_S_RAM(v)      ((uint8_t)((uint8_t)(v) << BP_I2C_S_RAM) & BM_I2C_S_RAM)
 
 /*! @brief Set the RAM field to a new value. */
-#define BW_I2C_S_RAM(x, v)   (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_RAM) = (v))
+#define BW_I2C_S_RAM(x, v)   (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_RAM), v))
 /*@}*/
 
 /*!
@@ -684,13 +691,13 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_ARBL        (1U)          /*!< Bit field size in bits for I2C_S_ARBL. */
 
 /*! @brief Read current value of the I2C_S_ARBL field. */
-#define BR_I2C_S_ARBL(x)     (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_ARBL))
+#define BR_I2C_S_ARBL(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_ARBL)))
 
 /*! @brief Format value for bitfield I2C_S_ARBL. */
 #define BF_I2C_S_ARBL(v)     ((uint8_t)((uint8_t)(v) << BP_I2C_S_ARBL) & BM_I2C_S_ARBL)
 
 /*! @brief Set the ARBL field to a new value. */
-#define BW_I2C_S_ARBL(x, v)  (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_ARBL) = (v))
+#define BW_I2C_S_ARBL(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_ARBL), v))
 /*@}*/
 
 /*!
@@ -710,7 +717,7 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_BUSY        (1U)          /*!< Bit field size in bits for I2C_S_BUSY. */
 
 /*! @brief Read current value of the I2C_S_BUSY field. */
-#define BR_I2C_S_BUSY(x)     (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_BUSY))
+#define BR_I2C_S_BUSY(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_BUSY)))
 /*@}*/
 
 /*!
@@ -737,13 +744,13 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_IAAS        (1U)          /*!< Bit field size in bits for I2C_S_IAAS. */
 
 /*! @brief Read current value of the I2C_S_IAAS field. */
-#define BR_I2C_S_IAAS(x)     (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IAAS))
+#define BR_I2C_S_IAAS(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IAAS)))
 
 /*! @brief Format value for bitfield I2C_S_IAAS. */
 #define BF_I2C_S_IAAS(v)     ((uint8_t)((uint8_t)(v) << BP_I2C_S_IAAS) & BM_I2C_S_IAAS)
 
 /*! @brief Set the IAAS field to a new value. */
-#define BW_I2C_S_IAAS(x, v)  (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IAAS) = (v))
+#define BW_I2C_S_IAAS(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_IAAS), v))
 /*@}*/
 
 /*!
@@ -764,7 +771,7 @@ typedef union _hw_i2c_s
 #define BS_I2C_S_TCF         (1U)          /*!< Bit field size in bits for I2C_S_TCF. */
 
 /*! @brief Read current value of the I2C_S_TCF field. */
-#define BR_I2C_S_TCF(x)      (BITBAND_ACCESS8(HW_I2C_S_ADDR(x), BP_I2C_S_TCF))
+#define BR_I2C_S_TCF(x)      (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_S_ADDR(x), BP_I2C_S_TCF)))
 /*@}*/
 
 /*******************************************************************************
@@ -792,8 +799,8 @@ typedef union _hw_i2c_d
 #define HW_I2C_D_ADDR(x)         ((x) + 0x4U)
 
 #define HW_I2C_D(x)              (*(__IO hw_i2c_d_t *) HW_I2C_D_ADDR(x))
-#define HW_I2C_D_RD(x)           (HW_I2C_D(x).U)
-#define HW_I2C_D_WR(x, v)        (HW_I2C_D(x).U = (v))
+#define HW_I2C_D_RD(x)           (ADDRESS_READ(hw_i2c_d_t, HW_I2C_D_ADDR(x)))
+#define HW_I2C_D_WR(x, v)        (ADDRESS_WRITE(hw_i2c_d_t, HW_I2C_D_ADDR(x), v))
 #define HW_I2C_D_SET(x, v)       (HW_I2C_D_WR(x, HW_I2C_D_RD(x) |  (v)))
 #define HW_I2C_D_CLR(x, v)       (HW_I2C_D_WR(x, HW_I2C_D_RD(x) & ~(v)))
 #define HW_I2C_D_TOG(x, v)       (HW_I2C_D_WR(x, HW_I2C_D_RD(x) ^  (v)))
@@ -870,8 +877,8 @@ typedef union _hw_i2c_c2
 #define HW_I2C_C2_ADDR(x)        ((x) + 0x5U)
 
 #define HW_I2C_C2(x)             (*(__IO hw_i2c_c2_t *) HW_I2C_C2_ADDR(x))
-#define HW_I2C_C2_RD(x)          (HW_I2C_C2(x).U)
-#define HW_I2C_C2_WR(x, v)       (HW_I2C_C2(x).U = (v))
+#define HW_I2C_C2_RD(x)          (ADDRESS_READ(hw_i2c_c2_t, HW_I2C_C2_ADDR(x)))
+#define HW_I2C_C2_WR(x, v)       (ADDRESS_WRITE(hw_i2c_c2_t, HW_I2C_C2_ADDR(x), v))
 #define HW_I2C_C2_SET(x, v)      (HW_I2C_C2_WR(x, HW_I2C_C2_RD(x) |  (v)))
 #define HW_I2C_C2_CLR(x, v)      (HW_I2C_C2_WR(x, HW_I2C_C2_RD(x) & ~(v)))
 #define HW_I2C_C2_TOG(x, v)      (HW_I2C_C2_WR(x, HW_I2C_C2_RD(x) ^  (v)))
@@ -893,7 +900,7 @@ typedef union _hw_i2c_c2
 #define BS_I2C_C2_AD         (3U)          /*!< Bit field size in bits for I2C_C2_AD. */
 
 /*! @brief Read current value of the I2C_C2_AD field. */
-#define BR_I2C_C2_AD(x)      (HW_I2C_C2(x).B.AD)
+#define BR_I2C_C2_AD(x)      (UNION_READ(hw_i2c_c2_t, HW_I2C_C2_ADDR(x), U, B.AD))
 
 /*! @brief Format value for bitfield I2C_C2_AD. */
 #define BF_I2C_C2_AD(v)      ((uint8_t)((uint8_t)(v) << BP_I2C_C2_AD) & BM_I2C_C2_AD)
@@ -922,13 +929,13 @@ typedef union _hw_i2c_c2
 #define BS_I2C_C2_RMEN       (1U)          /*!< Bit field size in bits for I2C_C2_RMEN. */
 
 /*! @brief Read current value of the I2C_C2_RMEN field. */
-#define BR_I2C_C2_RMEN(x)    (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_RMEN))
+#define BR_I2C_C2_RMEN(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_RMEN)))
 
 /*! @brief Format value for bitfield I2C_C2_RMEN. */
 #define BF_I2C_C2_RMEN(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_C2_RMEN) & BM_I2C_C2_RMEN)
 
 /*! @brief Set the RMEN field to a new value. */
-#define BW_I2C_C2_RMEN(x, v) (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_RMEN) = (v))
+#define BW_I2C_C2_RMEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_RMEN), v))
 /*@}*/
 
 /*!
@@ -950,13 +957,13 @@ typedef union _hw_i2c_c2
 #define BS_I2C_C2_SBRC       (1U)          /*!< Bit field size in bits for I2C_C2_SBRC. */
 
 /*! @brief Read current value of the I2C_C2_SBRC field. */
-#define BR_I2C_C2_SBRC(x)    (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_SBRC))
+#define BR_I2C_C2_SBRC(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_SBRC)))
 
 /*! @brief Format value for bitfield I2C_C2_SBRC. */
 #define BF_I2C_C2_SBRC(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_C2_SBRC) & BM_I2C_C2_SBRC)
 
 /*! @brief Set the SBRC field to a new value. */
-#define BW_I2C_C2_SBRC(x, v) (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_SBRC) = (v))
+#define BW_I2C_C2_SBRC(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_SBRC), v))
 /*@}*/
 
 /*!
@@ -974,13 +981,13 @@ typedef union _hw_i2c_c2
 #define BS_I2C_C2_HDRS       (1U)          /*!< Bit field size in bits for I2C_C2_HDRS. */
 
 /*! @brief Read current value of the I2C_C2_HDRS field. */
-#define BR_I2C_C2_HDRS(x)    (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_HDRS))
+#define BR_I2C_C2_HDRS(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_HDRS)))
 
 /*! @brief Format value for bitfield I2C_C2_HDRS. */
 #define BF_I2C_C2_HDRS(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_C2_HDRS) & BM_I2C_C2_HDRS)
 
 /*! @brief Set the HDRS field to a new value. */
-#define BW_I2C_C2_HDRS(x, v) (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_HDRS) = (v))
+#define BW_I2C_C2_HDRS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_HDRS), v))
 /*@}*/
 
 /*!
@@ -998,13 +1005,13 @@ typedef union _hw_i2c_c2
 #define BS_I2C_C2_ADEXT      (1U)          /*!< Bit field size in bits for I2C_C2_ADEXT. */
 
 /*! @brief Read current value of the I2C_C2_ADEXT field. */
-#define BR_I2C_C2_ADEXT(x)   (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_ADEXT))
+#define BR_I2C_C2_ADEXT(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_ADEXT)))
 
 /*! @brief Format value for bitfield I2C_C2_ADEXT. */
 #define BF_I2C_C2_ADEXT(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_C2_ADEXT) & BM_I2C_C2_ADEXT)
 
 /*! @brief Set the ADEXT field to a new value. */
-#define BW_I2C_C2_ADEXT(x, v) (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_ADEXT) = (v))
+#define BW_I2C_C2_ADEXT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_ADEXT), v))
 /*@}*/
 
 /*!
@@ -1022,13 +1029,13 @@ typedef union _hw_i2c_c2
 #define BS_I2C_C2_GCAEN      (1U)          /*!< Bit field size in bits for I2C_C2_GCAEN. */
 
 /*! @brief Read current value of the I2C_C2_GCAEN field. */
-#define BR_I2C_C2_GCAEN(x)   (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_GCAEN))
+#define BR_I2C_C2_GCAEN(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_GCAEN)))
 
 /*! @brief Format value for bitfield I2C_C2_GCAEN. */
 #define BF_I2C_C2_GCAEN(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_C2_GCAEN) & BM_I2C_C2_GCAEN)
 
 /*! @brief Set the GCAEN field to a new value. */
-#define BW_I2C_C2_GCAEN(x, v) (BITBAND_ACCESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_GCAEN) = (v))
+#define BW_I2C_C2_GCAEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_C2_ADDR(x), BP_I2C_C2_GCAEN), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1060,8 +1067,8 @@ typedef union _hw_i2c_flt
 #define HW_I2C_FLT_ADDR(x)       ((x) + 0x6U)
 
 #define HW_I2C_FLT(x)            (*(__IO hw_i2c_flt_t *) HW_I2C_FLT_ADDR(x))
-#define HW_I2C_FLT_RD(x)         (HW_I2C_FLT(x).U)
-#define HW_I2C_FLT_WR(x, v)      (HW_I2C_FLT(x).U = (v))
+#define HW_I2C_FLT_RD(x)         (ADDRESS_READ(hw_i2c_flt_t, HW_I2C_FLT_ADDR(x)))
+#define HW_I2C_FLT_WR(x, v)      (ADDRESS_WRITE(hw_i2c_flt_t, HW_I2C_FLT_ADDR(x), v))
 #define HW_I2C_FLT_SET(x, v)     (HW_I2C_FLT_WR(x, HW_I2C_FLT_RD(x) |  (v)))
 #define HW_I2C_FLT_CLR(x, v)     (HW_I2C_FLT_WR(x, HW_I2C_FLT_RD(x) & ~(v)))
 #define HW_I2C_FLT_TOG(x, v)     (HW_I2C_FLT_WR(x, HW_I2C_FLT_RD(x) ^  (v)))
@@ -1087,7 +1094,7 @@ typedef union _hw_i2c_flt
 #define BS_I2C_FLT_FLT       (4U)          /*!< Bit field size in bits for I2C_FLT_FLT. */
 
 /*! @brief Read current value of the I2C_FLT_FLT field. */
-#define BR_I2C_FLT_FLT(x)    (HW_I2C_FLT(x).B.FLT)
+#define BR_I2C_FLT_FLT(x)    (UNION_READ(hw_i2c_flt_t, HW_I2C_FLT_ADDR(x), U, B.FLT))
 
 /*! @brief Format value for bitfield I2C_FLT_FLT. */
 #define BF_I2C_FLT_FLT(v)    ((uint8_t)((uint8_t)(v) << BP_I2C_FLT_FLT) & BM_I2C_FLT_FLT)
@@ -1112,13 +1119,13 @@ typedef union _hw_i2c_flt
 #define BS_I2C_FLT_STARTF    (1U)          /*!< Bit field size in bits for I2C_FLT_STARTF. */
 
 /*! @brief Read current value of the I2C_FLT_STARTF field. */
-#define BR_I2C_FLT_STARTF(x) (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STARTF))
+#define BR_I2C_FLT_STARTF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STARTF)))
 
 /*! @brief Format value for bitfield I2C_FLT_STARTF. */
 #define BF_I2C_FLT_STARTF(v) ((uint8_t)((uint8_t)(v) << BP_I2C_FLT_STARTF) & BM_I2C_FLT_STARTF)
 
 /*! @brief Set the STARTF field to a new value. */
-#define BW_I2C_FLT_STARTF(x, v) (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STARTF) = (v))
+#define BW_I2C_FLT_STARTF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STARTF), v))
 /*@}*/
 
 /*!
@@ -1140,13 +1147,13 @@ typedef union _hw_i2c_flt
 #define BS_I2C_FLT_SSIE      (1U)          /*!< Bit field size in bits for I2C_FLT_SSIE. */
 
 /*! @brief Read current value of the I2C_FLT_SSIE field. */
-#define BR_I2C_FLT_SSIE(x)   (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SSIE))
+#define BR_I2C_FLT_SSIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SSIE)))
 
 /*! @brief Format value for bitfield I2C_FLT_SSIE. */
 #define BF_I2C_FLT_SSIE(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_FLT_SSIE) & BM_I2C_FLT_SSIE)
 
 /*! @brief Set the SSIE field to a new value. */
-#define BW_I2C_FLT_SSIE(x, v) (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SSIE) = (v))
+#define BW_I2C_FLT_SSIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SSIE), v))
 /*@}*/
 
 /*!
@@ -1165,13 +1172,13 @@ typedef union _hw_i2c_flt
 #define BS_I2C_FLT_STOPF     (1U)          /*!< Bit field size in bits for I2C_FLT_STOPF. */
 
 /*! @brief Read current value of the I2C_FLT_STOPF field. */
-#define BR_I2C_FLT_STOPF(x)  (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STOPF))
+#define BR_I2C_FLT_STOPF(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STOPF)))
 
 /*! @brief Format value for bitfield I2C_FLT_STOPF. */
 #define BF_I2C_FLT_STOPF(v)  ((uint8_t)((uint8_t)(v) << BP_I2C_FLT_STOPF) & BM_I2C_FLT_STOPF)
 
 /*! @brief Set the STOPF field to a new value. */
-#define BW_I2C_FLT_STOPF(x, v) (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STOPF) = (v))
+#define BW_I2C_FLT_STOPF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_STOPF), v))
 /*@}*/
 
 /*!
@@ -1206,13 +1213,13 @@ typedef union _hw_i2c_flt
 #define BS_I2C_FLT_SHEN      (1U)          /*!< Bit field size in bits for I2C_FLT_SHEN. */
 
 /*! @brief Read current value of the I2C_FLT_SHEN field. */
-#define BR_I2C_FLT_SHEN(x)   (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SHEN))
+#define BR_I2C_FLT_SHEN(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SHEN)))
 
 /*! @brief Format value for bitfield I2C_FLT_SHEN. */
 #define BF_I2C_FLT_SHEN(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_FLT_SHEN) & BM_I2C_FLT_SHEN)
 
 /*! @brief Set the SHEN field to a new value. */
-#define BW_I2C_FLT_SHEN(x, v) (BITBAND_ACCESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SHEN) = (v))
+#define BW_I2C_FLT_SHEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_FLT_ADDR(x), BP_I2C_FLT_SHEN), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1241,8 +1248,8 @@ typedef union _hw_i2c_ra
 #define HW_I2C_RA_ADDR(x)        ((x) + 0x7U)
 
 #define HW_I2C_RA(x)             (*(__IO hw_i2c_ra_t *) HW_I2C_RA_ADDR(x))
-#define HW_I2C_RA_RD(x)          (HW_I2C_RA(x).U)
-#define HW_I2C_RA_WR(x, v)       (HW_I2C_RA(x).U = (v))
+#define HW_I2C_RA_RD(x)          (ADDRESS_READ(hw_i2c_ra_t, HW_I2C_RA_ADDR(x)))
+#define HW_I2C_RA_WR(x, v)       (ADDRESS_WRITE(hw_i2c_ra_t, HW_I2C_RA_ADDR(x), v))
 #define HW_I2C_RA_SET(x, v)      (HW_I2C_RA_WR(x, HW_I2C_RA_RD(x) |  (v)))
 #define HW_I2C_RA_CLR(x, v)      (HW_I2C_RA_WR(x, HW_I2C_RA_RD(x) & ~(v)))
 #define HW_I2C_RA_TOG(x, v)      (HW_I2C_RA_WR(x, HW_I2C_RA_RD(x) ^  (v)))
@@ -1266,7 +1273,7 @@ typedef union _hw_i2c_ra
 #define BS_I2C_RA_RAD        (7U)          /*!< Bit field size in bits for I2C_RA_RAD. */
 
 /*! @brief Read current value of the I2C_RA_RAD field. */
-#define BR_I2C_RA_RAD(x)     (HW_I2C_RA(x).B.RAD)
+#define BR_I2C_RA_RAD(x)     (UNION_READ(hw_i2c_ra_t, HW_I2C_RA_ADDR(x), U, B.RAD))
 
 /*! @brief Format value for bitfield I2C_RA_RAD. */
 #define BF_I2C_RA_RAD(v)     ((uint8_t)((uint8_t)(v) << BP_I2C_RA_RAD) & BM_I2C_RA_RAD)
@@ -1315,8 +1322,8 @@ typedef union _hw_i2c_smb
 #define HW_I2C_SMB_ADDR(x)       ((x) + 0x8U)
 
 #define HW_I2C_SMB(x)            (*(__IO hw_i2c_smb_t *) HW_I2C_SMB_ADDR(x))
-#define HW_I2C_SMB_RD(x)         (HW_I2C_SMB(x).U)
-#define HW_I2C_SMB_WR(x, v)      (HW_I2C_SMB(x).U = (v))
+#define HW_I2C_SMB_RD(x)         (ADDRESS_READ(hw_i2c_smb_t, HW_I2C_SMB_ADDR(x)))
+#define HW_I2C_SMB_WR(x, v)      (ADDRESS_WRITE(hw_i2c_smb_t, HW_I2C_SMB_ADDR(x), v))
 #define HW_I2C_SMB_SET(x, v)     (HW_I2C_SMB_WR(x, HW_I2C_SMB_RD(x) |  (v)))
 #define HW_I2C_SMB_CLR(x, v)     (HW_I2C_SMB_WR(x, HW_I2C_SMB_RD(x) & ~(v)))
 #define HW_I2C_SMB_TOG(x, v)     (HW_I2C_SMB_WR(x, HW_I2C_SMB_RD(x) ^  (v)))
@@ -1341,13 +1348,13 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_SHTF2IE   (1U)          /*!< Bit field size in bits for I2C_SMB_SHTF2IE. */
 
 /*! @brief Read current value of the I2C_SMB_SHTF2IE field. */
-#define BR_I2C_SMB_SHTF2IE(x) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2IE))
+#define BR_I2C_SMB_SHTF2IE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2IE)))
 
 /*! @brief Format value for bitfield I2C_SMB_SHTF2IE. */
 #define BF_I2C_SMB_SHTF2IE(v) ((uint8_t)((uint8_t)(v) << BP_I2C_SMB_SHTF2IE) & BM_I2C_SMB_SHTF2IE)
 
 /*! @brief Set the SHTF2IE field to a new value. */
-#define BW_I2C_SMB_SHTF2IE(x, v) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2IE) = (v))
+#define BW_I2C_SMB_SHTF2IE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2IE), v))
 /*@}*/
 
 /*!
@@ -1366,13 +1373,13 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_SHTF2     (1U)          /*!< Bit field size in bits for I2C_SMB_SHTF2. */
 
 /*! @brief Read current value of the I2C_SMB_SHTF2 field. */
-#define BR_I2C_SMB_SHTF2(x)  (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2))
+#define BR_I2C_SMB_SHTF2(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2)))
 
 /*! @brief Format value for bitfield I2C_SMB_SHTF2. */
 #define BF_I2C_SMB_SHTF2(v)  ((uint8_t)((uint8_t)(v) << BP_I2C_SMB_SHTF2) & BM_I2C_SMB_SHTF2)
 
 /*! @brief Set the SHTF2 field to a new value. */
-#define BW_I2C_SMB_SHTF2(x, v) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2) = (v))
+#define BW_I2C_SMB_SHTF2(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF2), v))
 /*@}*/
 
 /*!
@@ -1391,7 +1398,7 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_SHTF1     (1U)          /*!< Bit field size in bits for I2C_SMB_SHTF1. */
 
 /*! @brief Read current value of the I2C_SMB_SHTF1 field. */
-#define BR_I2C_SMB_SHTF1(x)  (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF1))
+#define BR_I2C_SMB_SHTF1(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SHTF1)))
 /*@}*/
 
 /*!
@@ -1412,13 +1419,13 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_SLTF      (1U)          /*!< Bit field size in bits for I2C_SMB_SLTF. */
 
 /*! @brief Read current value of the I2C_SMB_SLTF field. */
-#define BR_I2C_SMB_SLTF(x)   (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SLTF))
+#define BR_I2C_SMB_SLTF(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SLTF)))
 
 /*! @brief Format value for bitfield I2C_SMB_SLTF. */
 #define BF_I2C_SMB_SLTF(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_SMB_SLTF) & BM_I2C_SMB_SLTF)
 
 /*! @brief Set the SLTF field to a new value. */
-#define BW_I2C_SMB_SLTF(x, v) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SLTF) = (v))
+#define BW_I2C_SMB_SLTF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SLTF), v))
 /*@}*/
 
 /*!
@@ -1436,13 +1443,13 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_TCKSEL    (1U)          /*!< Bit field size in bits for I2C_SMB_TCKSEL. */
 
 /*! @brief Read current value of the I2C_SMB_TCKSEL field. */
-#define BR_I2C_SMB_TCKSEL(x) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_TCKSEL))
+#define BR_I2C_SMB_TCKSEL(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_TCKSEL)))
 
 /*! @brief Format value for bitfield I2C_SMB_TCKSEL. */
 #define BF_I2C_SMB_TCKSEL(v) ((uint8_t)((uint8_t)(v) << BP_I2C_SMB_TCKSEL) & BM_I2C_SMB_TCKSEL)
 
 /*! @brief Set the TCKSEL field to a new value. */
-#define BW_I2C_SMB_TCKSEL(x, v) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_TCKSEL) = (v))
+#define BW_I2C_SMB_TCKSEL(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_TCKSEL), v))
 /*@}*/
 
 /*!
@@ -1460,13 +1467,13 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_SIICAEN   (1U)          /*!< Bit field size in bits for I2C_SMB_SIICAEN. */
 
 /*! @brief Read current value of the I2C_SMB_SIICAEN field. */
-#define BR_I2C_SMB_SIICAEN(x) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SIICAEN))
+#define BR_I2C_SMB_SIICAEN(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SIICAEN)))
 
 /*! @brief Format value for bitfield I2C_SMB_SIICAEN. */
 #define BF_I2C_SMB_SIICAEN(v) ((uint8_t)((uint8_t)(v) << BP_I2C_SMB_SIICAEN) & BM_I2C_SMB_SIICAEN)
 
 /*! @brief Set the SIICAEN field to a new value. */
-#define BW_I2C_SMB_SIICAEN(x, v) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SIICAEN) = (v))
+#define BW_I2C_SMB_SIICAEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_SIICAEN), v))
 /*@}*/
 
 /*!
@@ -1487,13 +1494,13 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_ALERTEN   (1U)          /*!< Bit field size in bits for I2C_SMB_ALERTEN. */
 
 /*! @brief Read current value of the I2C_SMB_ALERTEN field. */
-#define BR_I2C_SMB_ALERTEN(x) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_ALERTEN))
+#define BR_I2C_SMB_ALERTEN(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_ALERTEN)))
 
 /*! @brief Format value for bitfield I2C_SMB_ALERTEN. */
 #define BF_I2C_SMB_ALERTEN(v) ((uint8_t)((uint8_t)(v) << BP_I2C_SMB_ALERTEN) & BM_I2C_SMB_ALERTEN)
 
 /*! @brief Set the ALERTEN field to a new value. */
-#define BW_I2C_SMB_ALERTEN(x, v) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_ALERTEN) = (v))
+#define BW_I2C_SMB_ALERTEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_ALERTEN), v))
 /*@}*/
 
 /*!
@@ -1513,13 +1520,13 @@ typedef union _hw_i2c_smb
 #define BS_I2C_SMB_FACK      (1U)          /*!< Bit field size in bits for I2C_SMB_FACK. */
 
 /*! @brief Read current value of the I2C_SMB_FACK field. */
-#define BR_I2C_SMB_FACK(x)   (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_FACK))
+#define BR_I2C_SMB_FACK(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_FACK)))
 
 /*! @brief Format value for bitfield I2C_SMB_FACK. */
 #define BF_I2C_SMB_FACK(v)   ((uint8_t)((uint8_t)(v) << BP_I2C_SMB_FACK) & BM_I2C_SMB_FACK)
 
 /*! @brief Set the FACK field to a new value. */
-#define BW_I2C_SMB_FACK(x, v) (BITBAND_ACCESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_FACK) = (v))
+#define BW_I2C_SMB_FACK(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_I2C_SMB_ADDR(x), BP_I2C_SMB_FACK), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1548,8 +1555,8 @@ typedef union _hw_i2c_a2
 #define HW_I2C_A2_ADDR(x)        ((x) + 0x9U)
 
 #define HW_I2C_A2(x)             (*(__IO hw_i2c_a2_t *) HW_I2C_A2_ADDR(x))
-#define HW_I2C_A2_RD(x)          (HW_I2C_A2(x).U)
-#define HW_I2C_A2_WR(x, v)       (HW_I2C_A2(x).U = (v))
+#define HW_I2C_A2_RD(x)          (ADDRESS_READ(hw_i2c_a2_t, HW_I2C_A2_ADDR(x)))
+#define HW_I2C_A2_WR(x, v)       (ADDRESS_WRITE(hw_i2c_a2_t, HW_I2C_A2_ADDR(x), v))
 #define HW_I2C_A2_SET(x, v)      (HW_I2C_A2_WR(x, HW_I2C_A2_RD(x) |  (v)))
 #define HW_I2C_A2_CLR(x, v)      (HW_I2C_A2_WR(x, HW_I2C_A2_RD(x) & ~(v)))
 #define HW_I2C_A2_TOG(x, v)      (HW_I2C_A2_WR(x, HW_I2C_A2_RD(x) ^  (v)))
@@ -1571,7 +1578,7 @@ typedef union _hw_i2c_a2
 #define BS_I2C_A2_SAD        (7U)          /*!< Bit field size in bits for I2C_A2_SAD. */
 
 /*! @brief Read current value of the I2C_A2_SAD field. */
-#define BR_I2C_A2_SAD(x)     (HW_I2C_A2(x).B.SAD)
+#define BR_I2C_A2_SAD(x)     (UNION_READ(hw_i2c_a2_t, HW_I2C_A2_ADDR(x), U, B.SAD))
 
 /*! @brief Format value for bitfield I2C_A2_SAD. */
 #define BF_I2C_A2_SAD(v)     ((uint8_t)((uint8_t)(v) << BP_I2C_A2_SAD) & BM_I2C_A2_SAD)
@@ -1605,8 +1612,8 @@ typedef union _hw_i2c_slth
 #define HW_I2C_SLTH_ADDR(x)      ((x) + 0xAU)
 
 #define HW_I2C_SLTH(x)           (*(__IO hw_i2c_slth_t *) HW_I2C_SLTH_ADDR(x))
-#define HW_I2C_SLTH_RD(x)        (HW_I2C_SLTH(x).U)
-#define HW_I2C_SLTH_WR(x, v)     (HW_I2C_SLTH(x).U = (v))
+#define HW_I2C_SLTH_RD(x)        (ADDRESS_READ(hw_i2c_slth_t, HW_I2C_SLTH_ADDR(x)))
+#define HW_I2C_SLTH_WR(x, v)     (ADDRESS_WRITE(hw_i2c_slth_t, HW_I2C_SLTH_ADDR(x), v))
 #define HW_I2C_SLTH_SET(x, v)    (HW_I2C_SLTH_WR(x, HW_I2C_SLTH_RD(x) |  (v)))
 #define HW_I2C_SLTH_CLR(x, v)    (HW_I2C_SLTH_WR(x, HW_I2C_SLTH_RD(x) & ~(v)))
 #define HW_I2C_SLTH_TOG(x, v)    (HW_I2C_SLTH_WR(x, HW_I2C_SLTH_RD(x) ^  (v)))
@@ -1662,8 +1669,8 @@ typedef union _hw_i2c_sltl
 #define HW_I2C_SLTL_ADDR(x)      ((x) + 0xBU)
 
 #define HW_I2C_SLTL(x)           (*(__IO hw_i2c_sltl_t *) HW_I2C_SLTL_ADDR(x))
-#define HW_I2C_SLTL_RD(x)        (HW_I2C_SLTL(x).U)
-#define HW_I2C_SLTL_WR(x, v)     (HW_I2C_SLTL(x).U = (v))
+#define HW_I2C_SLTL_RD(x)        (ADDRESS_READ(hw_i2c_sltl_t, HW_I2C_SLTL_ADDR(x)))
+#define HW_I2C_SLTL_WR(x, v)     (ADDRESS_WRITE(hw_i2c_sltl_t, HW_I2C_SLTL_ADDR(x), v))
 #define HW_I2C_SLTL_SET(x, v)    (HW_I2C_SLTL_WR(x, HW_I2C_SLTL_RD(x) |  (v)))
 #define HW_I2C_SLTL_CLR(x, v)    (HW_I2C_SLTL_WR(x, HW_I2C_SLTL_RD(x) & ~(v)))
 #define HW_I2C_SLTL_TOG(x, v)    (HW_I2C_SLTL_WR(x, HW_I2C_SLTL_RD(x) ^  (v)))

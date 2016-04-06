@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -139,7 +146,7 @@ typedef union _hw_rcm_srs0
 #define HW_RCM_SRS0_ADDR(x)      ((x) + 0x0U)
 
 #define HW_RCM_SRS0(x)           (*(__I hw_rcm_srs0_t *) HW_RCM_SRS0_ADDR(x))
-#define HW_RCM_SRS0_RD(x)        (HW_RCM_SRS0(x).U)
+#define HW_RCM_SRS0_RD(x)        (ADDRESS_READ(hw_rcm_srs0_t, HW_RCM_SRS0_ADDR(x)))
 /*@}*/
 
 /*
@@ -164,7 +171,7 @@ typedef union _hw_rcm_srs0
 #define BS_RCM_SRS0_WAKEUP   (1U)          /*!< Bit field size in bits for RCM_SRS0_WAKEUP. */
 
 /*! @brief Read current value of the RCM_SRS0_WAKEUP field. */
-#define BR_RCM_SRS0_WAKEUP(x) (BITBAND_ACCESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_WAKEUP))
+#define BR_RCM_SRS0_WAKEUP(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_WAKEUP)))
 /*@}*/
 
 /*!
@@ -183,7 +190,7 @@ typedef union _hw_rcm_srs0
 #define BS_RCM_SRS0_LVD      (1U)          /*!< Bit field size in bits for RCM_SRS0_LVD. */
 
 /*! @brief Read current value of the RCM_SRS0_LVD field. */
-#define BR_RCM_SRS0_LVD(x)   (BITBAND_ACCESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_LVD))
+#define BR_RCM_SRS0_LVD(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_LVD)))
 /*@}*/
 
 /*!
@@ -203,7 +210,7 @@ typedef union _hw_rcm_srs0
 #define BS_RCM_SRS0_LOC      (1U)          /*!< Bit field size in bits for RCM_SRS0_LOC. */
 
 /*! @brief Read current value of the RCM_SRS0_LOC field. */
-#define BR_RCM_SRS0_LOC(x)   (BITBAND_ACCESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_LOC))
+#define BR_RCM_SRS0_LOC(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_LOC)))
 /*@}*/
 
 /*!
@@ -222,7 +229,7 @@ typedef union _hw_rcm_srs0
 #define BS_RCM_SRS0_LOL      (1U)          /*!< Bit field size in bits for RCM_SRS0_LOL. */
 
 /*! @brief Read current value of the RCM_SRS0_LOL field. */
-#define BR_RCM_SRS0_LOL(x)   (BITBAND_ACCESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_LOL))
+#define BR_RCM_SRS0_LOL(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_LOL)))
 /*@}*/
 
 /*!
@@ -242,7 +249,7 @@ typedef union _hw_rcm_srs0
 #define BS_RCM_SRS0_WDOG     (1U)          /*!< Bit field size in bits for RCM_SRS0_WDOG. */
 
 /*! @brief Read current value of the RCM_SRS0_WDOG field. */
-#define BR_RCM_SRS0_WDOG(x)  (BITBAND_ACCESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_WDOG))
+#define BR_RCM_SRS0_WDOG(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_WDOG)))
 /*@}*/
 
 /*!
@@ -261,7 +268,7 @@ typedef union _hw_rcm_srs0
 #define BS_RCM_SRS0_PIN      (1U)          /*!< Bit field size in bits for RCM_SRS0_PIN. */
 
 /*! @brief Read current value of the RCM_SRS0_PIN field. */
-#define BR_RCM_SRS0_PIN(x)   (BITBAND_ACCESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_PIN))
+#define BR_RCM_SRS0_PIN(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_PIN)))
 /*@}*/
 
 /*!
@@ -282,7 +289,7 @@ typedef union _hw_rcm_srs0
 #define BS_RCM_SRS0_POR      (1U)          /*!< Bit field size in bits for RCM_SRS0_POR. */
 
 /*! @brief Read current value of the RCM_SRS0_POR field. */
-#define BR_RCM_SRS0_POR(x)   (BITBAND_ACCESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_POR))
+#define BR_RCM_SRS0_POR(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS0_ADDR(x), BP_RCM_SRS0_POR)))
 /*@}*/
 
 /*******************************************************************************
@@ -322,7 +329,7 @@ typedef union _hw_rcm_srs1
 #define HW_RCM_SRS1_ADDR(x)      ((x) + 0x1U)
 
 #define HW_RCM_SRS1(x)           (*(__I hw_rcm_srs1_t *) HW_RCM_SRS1_ADDR(x))
-#define HW_RCM_SRS1_RD(x)        (HW_RCM_SRS1(x).U)
+#define HW_RCM_SRS1_RD(x)        (ADDRESS_READ(hw_rcm_srs1_t, HW_RCM_SRS1_ADDR(x)))
 /*@}*/
 
 /*
@@ -345,7 +352,7 @@ typedef union _hw_rcm_srs1
 #define BS_RCM_SRS1_JTAG     (1U)          /*!< Bit field size in bits for RCM_SRS1_JTAG. */
 
 /*! @brief Read current value of the RCM_SRS1_JTAG field. */
-#define BR_RCM_SRS1_JTAG(x)  (BITBAND_ACCESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_JTAG))
+#define BR_RCM_SRS1_JTAG(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_JTAG)))
 /*@}*/
 
 /*!
@@ -364,7 +371,7 @@ typedef union _hw_rcm_srs1
 #define BS_RCM_SRS1_LOCKUP   (1U)          /*!< Bit field size in bits for RCM_SRS1_LOCKUP. */
 
 /*! @brief Read current value of the RCM_SRS1_LOCKUP field. */
-#define BR_RCM_SRS1_LOCKUP(x) (BITBAND_ACCESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_LOCKUP))
+#define BR_RCM_SRS1_LOCKUP(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_LOCKUP)))
 /*@}*/
 
 /*!
@@ -383,7 +390,7 @@ typedef union _hw_rcm_srs1
 #define BS_RCM_SRS1_SW       (1U)          /*!< Bit field size in bits for RCM_SRS1_SW. */
 
 /*! @brief Read current value of the RCM_SRS1_SW field. */
-#define BR_RCM_SRS1_SW(x)    (BITBAND_ACCESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_SW))
+#define BR_RCM_SRS1_SW(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_SW)))
 /*@}*/
 
 /*!
@@ -404,7 +411,7 @@ typedef union _hw_rcm_srs1
 #define BS_RCM_SRS1_MDM_AP   (1U)          /*!< Bit field size in bits for RCM_SRS1_MDM_AP. */
 
 /*! @brief Read current value of the RCM_SRS1_MDM_AP field. */
-#define BR_RCM_SRS1_MDM_AP(x) (BITBAND_ACCESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_MDM_AP))
+#define BR_RCM_SRS1_MDM_AP(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_MDM_AP)))
 /*@}*/
 
 /*!
@@ -425,7 +432,7 @@ typedef union _hw_rcm_srs1
 #define BS_RCM_SRS1_EZPT     (1U)          /*!< Bit field size in bits for RCM_SRS1_EZPT. */
 
 /*! @brief Read current value of the RCM_SRS1_EZPT field. */
-#define BR_RCM_SRS1_EZPT(x)  (BITBAND_ACCESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_EZPT))
+#define BR_RCM_SRS1_EZPT(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_EZPT)))
 /*@}*/
 
 /*!
@@ -447,7 +454,7 @@ typedef union _hw_rcm_srs1
 #define BS_RCM_SRS1_SACKERR  (1U)          /*!< Bit field size in bits for RCM_SRS1_SACKERR. */
 
 /*! @brief Read current value of the RCM_SRS1_SACKERR field. */
-#define BR_RCM_SRS1_SACKERR(x) (BITBAND_ACCESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_SACKERR))
+#define BR_RCM_SRS1_SACKERR(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_SRS1_ADDR(x), BP_RCM_SRS1_SACKERR)))
 /*@}*/
 
 /*******************************************************************************
@@ -483,8 +490,8 @@ typedef union _hw_rcm_rpfc
 #define HW_RCM_RPFC_ADDR(x)      ((x) + 0x4U)
 
 #define HW_RCM_RPFC(x)           (*(__IO hw_rcm_rpfc_t *) HW_RCM_RPFC_ADDR(x))
-#define HW_RCM_RPFC_RD(x)        (HW_RCM_RPFC(x).U)
-#define HW_RCM_RPFC_WR(x, v)     (HW_RCM_RPFC(x).U = (v))
+#define HW_RCM_RPFC_RD(x)        (ADDRESS_READ(hw_rcm_rpfc_t, HW_RCM_RPFC_ADDR(x)))
+#define HW_RCM_RPFC_WR(x, v)     (ADDRESS_WRITE(hw_rcm_rpfc_t, HW_RCM_RPFC_ADDR(x), v))
 #define HW_RCM_RPFC_SET(x, v)    (HW_RCM_RPFC_WR(x, HW_RCM_RPFC_RD(x) |  (v)))
 #define HW_RCM_RPFC_CLR(x, v)    (HW_RCM_RPFC_WR(x, HW_RCM_RPFC_RD(x) & ~(v)))
 #define HW_RCM_RPFC_TOG(x, v)    (HW_RCM_RPFC_WR(x, HW_RCM_RPFC_RD(x) ^  (v)))
@@ -511,7 +518,7 @@ typedef union _hw_rcm_rpfc
 #define BS_RCM_RPFC_RSTFLTSRW (2U)         /*!< Bit field size in bits for RCM_RPFC_RSTFLTSRW. */
 
 /*! @brief Read current value of the RCM_RPFC_RSTFLTSRW field. */
-#define BR_RCM_RPFC_RSTFLTSRW(x) (HW_RCM_RPFC(x).B.RSTFLTSRW)
+#define BR_RCM_RPFC_RSTFLTSRW(x) (UNION_READ(hw_rcm_rpfc_t, HW_RCM_RPFC_ADDR(x), U, B.RSTFLTSRW))
 
 /*! @brief Format value for bitfield RCM_RPFC_RSTFLTSRW. */
 #define BF_RCM_RPFC_RSTFLTSRW(v) ((uint8_t)((uint8_t)(v) << BP_RCM_RPFC_RSTFLTSRW) & BM_RCM_RPFC_RSTFLTSRW)
@@ -535,13 +542,13 @@ typedef union _hw_rcm_rpfc
 #define BS_RCM_RPFC_RSTFLTSS (1U)          /*!< Bit field size in bits for RCM_RPFC_RSTFLTSS. */
 
 /*! @brief Read current value of the RCM_RPFC_RSTFLTSS field. */
-#define BR_RCM_RPFC_RSTFLTSS(x) (BITBAND_ACCESS8(HW_RCM_RPFC_ADDR(x), BP_RCM_RPFC_RSTFLTSS))
+#define BR_RCM_RPFC_RSTFLTSS(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_RPFC_ADDR(x), BP_RCM_RPFC_RSTFLTSS)))
 
 /*! @brief Format value for bitfield RCM_RPFC_RSTFLTSS. */
 #define BF_RCM_RPFC_RSTFLTSS(v) ((uint8_t)((uint8_t)(v) << BP_RCM_RPFC_RSTFLTSS) & BM_RCM_RPFC_RSTFLTSS)
 
 /*! @brief Set the RSTFLTSS field to a new value. */
-#define BW_RCM_RPFC_RSTFLTSS(x, v) (BITBAND_ACCESS8(HW_RCM_RPFC_ADDR(x), BP_RCM_RPFC_RSTFLTSS) = (v))
+#define BW_RCM_RPFC_RSTFLTSS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_RCM_RPFC_ADDR(x), BP_RCM_RPFC_RSTFLTSS), v))
 /*@}*/
 
 /*******************************************************************************
@@ -573,8 +580,8 @@ typedef union _hw_rcm_rpfw
 #define HW_RCM_RPFW_ADDR(x)      ((x) + 0x5U)
 
 #define HW_RCM_RPFW(x)           (*(__IO hw_rcm_rpfw_t *) HW_RCM_RPFW_ADDR(x))
-#define HW_RCM_RPFW_RD(x)        (HW_RCM_RPFW(x).U)
-#define HW_RCM_RPFW_WR(x, v)     (HW_RCM_RPFW(x).U = (v))
+#define HW_RCM_RPFW_RD(x)        (ADDRESS_READ(hw_rcm_rpfw_t, HW_RCM_RPFW_ADDR(x)))
+#define HW_RCM_RPFW_WR(x, v)     (ADDRESS_WRITE(hw_rcm_rpfw_t, HW_RCM_RPFW_ADDR(x), v))
 #define HW_RCM_RPFW_SET(x, v)    (HW_RCM_RPFW_WR(x, HW_RCM_RPFW_RD(x) |  (v)))
 #define HW_RCM_RPFW_CLR(x, v)    (HW_RCM_RPFW_WR(x, HW_RCM_RPFW_RD(x) & ~(v)))
 #define HW_RCM_RPFW_TOG(x, v)    (HW_RCM_RPFW_WR(x, HW_RCM_RPFW_RD(x) ^  (v)))
@@ -629,7 +636,7 @@ typedef union _hw_rcm_rpfw
 #define BS_RCM_RPFW_RSTFLTSEL (5U)         /*!< Bit field size in bits for RCM_RPFW_RSTFLTSEL. */
 
 /*! @brief Read current value of the RCM_RPFW_RSTFLTSEL field. */
-#define BR_RCM_RPFW_RSTFLTSEL(x) (HW_RCM_RPFW(x).B.RSTFLTSEL)
+#define BR_RCM_RPFW_RSTFLTSEL(x) (UNION_READ(hw_rcm_rpfw_t, HW_RCM_RPFW_ADDR(x), U, B.RSTFLTSEL))
 
 /*! @brief Format value for bitfield RCM_RPFW_RSTFLTSEL. */
 #define BF_RCM_RPFW_RSTFLTSEL(v) ((uint8_t)((uint8_t)(v) << BP_RCM_RPFW_RSTFLTSEL) & BM_RCM_RPFW_RSTFLTSEL)
@@ -668,7 +675,7 @@ typedef union _hw_rcm_mr
 #define HW_RCM_MR_ADDR(x)        ((x) + 0x7U)
 
 #define HW_RCM_MR(x)             (*(__I hw_rcm_mr_t *) HW_RCM_MR_ADDR(x))
-#define HW_RCM_MR_RD(x)          (HW_RCM_MR(x).U)
+#define HW_RCM_MR_RD(x)          (ADDRESS_READ(hw_rcm_mr_t, HW_RCM_MR_ADDR(x)))
 /*@}*/
 
 /*
@@ -690,7 +697,7 @@ typedef union _hw_rcm_mr
 #define BS_RCM_MR_EZP_MS     (1U)          /*!< Bit field size in bits for RCM_MR_EZP_MS. */
 
 /*! @brief Read current value of the RCM_MR_EZP_MS field. */
-#define BR_RCM_MR_EZP_MS(x)  (BITBAND_ACCESS8(HW_RCM_MR_ADDR(x), BP_RCM_MR_EZP_MS))
+#define BR_RCM_MR_EZP_MS(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_RCM_MR_ADDR(x), BP_RCM_MR_EZP_MS)))
 /*@}*/
 
 /*******************************************************************************

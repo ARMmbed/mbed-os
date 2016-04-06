@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -224,7 +231,7 @@ typedef union _hw_cau_direct0
 #define HW_CAU_DIRECT0_ADDR(x)   ((x) + 0x0U)
 
 #define HW_CAU_DIRECT0(x)        (*(__O hw_cau_direct0_t *) HW_CAU_DIRECT0_ADDR(x))
-#define HW_CAU_DIRECT0_WR(x, v)  (HW_CAU_DIRECT0(x).U = (v))
+#define HW_CAU_DIRECT0_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct0_t, HW_CAU_DIRECT0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -268,7 +275,7 @@ typedef union _hw_cau_direct1
 #define HW_CAU_DIRECT1_ADDR(x)   ((x) + 0x4U)
 
 #define HW_CAU_DIRECT1(x)        (*(__O hw_cau_direct1_t *) HW_CAU_DIRECT1_ADDR(x))
-#define HW_CAU_DIRECT1_WR(x, v)  (HW_CAU_DIRECT1(x).U = (v))
+#define HW_CAU_DIRECT1_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct1_t, HW_CAU_DIRECT1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -312,7 +319,7 @@ typedef union _hw_cau_direct2
 #define HW_CAU_DIRECT2_ADDR(x)   ((x) + 0x8U)
 
 #define HW_CAU_DIRECT2(x)        (*(__O hw_cau_direct2_t *) HW_CAU_DIRECT2_ADDR(x))
-#define HW_CAU_DIRECT2_WR(x, v)  (HW_CAU_DIRECT2(x).U = (v))
+#define HW_CAU_DIRECT2_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct2_t, HW_CAU_DIRECT2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -356,7 +363,7 @@ typedef union _hw_cau_direct3
 #define HW_CAU_DIRECT3_ADDR(x)   ((x) + 0xCU)
 
 #define HW_CAU_DIRECT3(x)        (*(__O hw_cau_direct3_t *) HW_CAU_DIRECT3_ADDR(x))
-#define HW_CAU_DIRECT3_WR(x, v)  (HW_CAU_DIRECT3(x).U = (v))
+#define HW_CAU_DIRECT3_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct3_t, HW_CAU_DIRECT3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -400,7 +407,7 @@ typedef union _hw_cau_direct4
 #define HW_CAU_DIRECT4_ADDR(x)   ((x) + 0x10U)
 
 #define HW_CAU_DIRECT4(x)        (*(__O hw_cau_direct4_t *) HW_CAU_DIRECT4_ADDR(x))
-#define HW_CAU_DIRECT4_WR(x, v)  (HW_CAU_DIRECT4(x).U = (v))
+#define HW_CAU_DIRECT4_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct4_t, HW_CAU_DIRECT4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -444,7 +451,7 @@ typedef union _hw_cau_direct5
 #define HW_CAU_DIRECT5_ADDR(x)   ((x) + 0x14U)
 
 #define HW_CAU_DIRECT5(x)        (*(__O hw_cau_direct5_t *) HW_CAU_DIRECT5_ADDR(x))
-#define HW_CAU_DIRECT5_WR(x, v)  (HW_CAU_DIRECT5(x).U = (v))
+#define HW_CAU_DIRECT5_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct5_t, HW_CAU_DIRECT5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -488,7 +495,7 @@ typedef union _hw_cau_direct6
 #define HW_CAU_DIRECT6_ADDR(x)   ((x) + 0x18U)
 
 #define HW_CAU_DIRECT6(x)        (*(__O hw_cau_direct6_t *) HW_CAU_DIRECT6_ADDR(x))
-#define HW_CAU_DIRECT6_WR(x, v)  (HW_CAU_DIRECT6(x).U = (v))
+#define HW_CAU_DIRECT6_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct6_t, HW_CAU_DIRECT6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -532,7 +539,7 @@ typedef union _hw_cau_direct7
 #define HW_CAU_DIRECT7_ADDR(x)   ((x) + 0x1CU)
 
 #define HW_CAU_DIRECT7(x)        (*(__O hw_cau_direct7_t *) HW_CAU_DIRECT7_ADDR(x))
-#define HW_CAU_DIRECT7_WR(x, v)  (HW_CAU_DIRECT7(x).U = (v))
+#define HW_CAU_DIRECT7_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct7_t, HW_CAU_DIRECT7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -576,7 +583,7 @@ typedef union _hw_cau_direct8
 #define HW_CAU_DIRECT8_ADDR(x)   ((x) + 0x20U)
 
 #define HW_CAU_DIRECT8(x)        (*(__O hw_cau_direct8_t *) HW_CAU_DIRECT8_ADDR(x))
-#define HW_CAU_DIRECT8_WR(x, v)  (HW_CAU_DIRECT8(x).U = (v))
+#define HW_CAU_DIRECT8_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct8_t, HW_CAU_DIRECT8_ADDR(x), v))
 /*@}*/
 
 /*
@@ -620,7 +627,7 @@ typedef union _hw_cau_direct9
 #define HW_CAU_DIRECT9_ADDR(x)   ((x) + 0x24U)
 
 #define HW_CAU_DIRECT9(x)        (*(__O hw_cau_direct9_t *) HW_CAU_DIRECT9_ADDR(x))
-#define HW_CAU_DIRECT9_WR(x, v)  (HW_CAU_DIRECT9(x).U = (v))
+#define HW_CAU_DIRECT9_WR(x, v)  (ADDRESS_WRITE(hw_cau_direct9_t, HW_CAU_DIRECT9_ADDR(x), v))
 /*@}*/
 
 /*
@@ -664,7 +671,7 @@ typedef union _hw_cau_direct10
 #define HW_CAU_DIRECT10_ADDR(x)  ((x) + 0x28U)
 
 #define HW_CAU_DIRECT10(x)       (*(__O hw_cau_direct10_t *) HW_CAU_DIRECT10_ADDR(x))
-#define HW_CAU_DIRECT10_WR(x, v) (HW_CAU_DIRECT10(x).U = (v))
+#define HW_CAU_DIRECT10_WR(x, v) (ADDRESS_WRITE(hw_cau_direct10_t, HW_CAU_DIRECT10_ADDR(x), v))
 /*@}*/
 
 /*
@@ -708,7 +715,7 @@ typedef union _hw_cau_direct11
 #define HW_CAU_DIRECT11_ADDR(x)  ((x) + 0x2CU)
 
 #define HW_CAU_DIRECT11(x)       (*(__O hw_cau_direct11_t *) HW_CAU_DIRECT11_ADDR(x))
-#define HW_CAU_DIRECT11_WR(x, v) (HW_CAU_DIRECT11(x).U = (v))
+#define HW_CAU_DIRECT11_WR(x, v) (ADDRESS_WRITE(hw_cau_direct11_t, HW_CAU_DIRECT11_ADDR(x), v))
 /*@}*/
 
 /*
@@ -752,7 +759,7 @@ typedef union _hw_cau_direct12
 #define HW_CAU_DIRECT12_ADDR(x)  ((x) + 0x30U)
 
 #define HW_CAU_DIRECT12(x)       (*(__O hw_cau_direct12_t *) HW_CAU_DIRECT12_ADDR(x))
-#define HW_CAU_DIRECT12_WR(x, v) (HW_CAU_DIRECT12(x).U = (v))
+#define HW_CAU_DIRECT12_WR(x, v) (ADDRESS_WRITE(hw_cau_direct12_t, HW_CAU_DIRECT12_ADDR(x), v))
 /*@}*/
 
 /*
@@ -796,7 +803,7 @@ typedef union _hw_cau_direct13
 #define HW_CAU_DIRECT13_ADDR(x)  ((x) + 0x34U)
 
 #define HW_CAU_DIRECT13(x)       (*(__O hw_cau_direct13_t *) HW_CAU_DIRECT13_ADDR(x))
-#define HW_CAU_DIRECT13_WR(x, v) (HW_CAU_DIRECT13(x).U = (v))
+#define HW_CAU_DIRECT13_WR(x, v) (ADDRESS_WRITE(hw_cau_direct13_t, HW_CAU_DIRECT13_ADDR(x), v))
 /*@}*/
 
 /*
@@ -840,7 +847,7 @@ typedef union _hw_cau_direct14
 #define HW_CAU_DIRECT14_ADDR(x)  ((x) + 0x38U)
 
 #define HW_CAU_DIRECT14(x)       (*(__O hw_cau_direct14_t *) HW_CAU_DIRECT14_ADDR(x))
-#define HW_CAU_DIRECT14_WR(x, v) (HW_CAU_DIRECT14(x).U = (v))
+#define HW_CAU_DIRECT14_WR(x, v) (ADDRESS_WRITE(hw_cau_direct14_t, HW_CAU_DIRECT14_ADDR(x), v))
 /*@}*/
 
 /*
@@ -884,7 +891,7 @@ typedef union _hw_cau_direct15
 #define HW_CAU_DIRECT15_ADDR(x)  ((x) + 0x3CU)
 
 #define HW_CAU_DIRECT15(x)       (*(__O hw_cau_direct15_t *) HW_CAU_DIRECT15_ADDR(x))
-#define HW_CAU_DIRECT15_WR(x, v) (HW_CAU_DIRECT15(x).U = (v))
+#define HW_CAU_DIRECT15_WR(x, v) (ADDRESS_WRITE(hw_cau_direct15_t, HW_CAU_DIRECT15_ADDR(x), v))
 /*@}*/
 
 /*
@@ -931,7 +938,7 @@ typedef union _hw_cau_ldr_casr
 #define HW_CAU_LDR_CASR_ADDR(x)  ((x) + 0x840U)
 
 #define HW_CAU_LDR_CASR(x)       (*(__O hw_cau_ldr_casr_t *) HW_CAU_LDR_CASR_ADDR(x))
-#define HW_CAU_LDR_CASR_WR(x, v) (HW_CAU_LDR_CASR(x).U = (v))
+#define HW_CAU_LDR_CASR_WR(x, v) (ADDRESS_WRITE(hw_cau_ldr_casr_t, HW_CAU_LDR_CASR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1012,7 +1019,7 @@ typedef union _hw_cau_ldr_caa
 #define HW_CAU_LDR_CAA_ADDR(x)   ((x) + 0x844U)
 
 #define HW_CAU_LDR_CAA(x)        (*(__O hw_cau_ldr_caa_t *) HW_CAU_LDR_CAA_ADDR(x))
-#define HW_CAU_LDR_CAA_WR(x, v)  (HW_CAU_LDR_CAA(x).U = (v))
+#define HW_CAU_LDR_CAA_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_caa_t, HW_CAU_LDR_CAA_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1056,7 +1063,7 @@ typedef union _hw_cau_ldr_ca0
 #define HW_CAU_LDR_CA0_ADDR(x)   ((x) + 0x848U)
 
 #define HW_CAU_LDR_CA0(x)        (*(__O hw_cau_ldr_ca0_t *) HW_CAU_LDR_CA0_ADDR(x))
-#define HW_CAU_LDR_CA0_WR(x, v)  (HW_CAU_LDR_CA0(x).U = (v))
+#define HW_CAU_LDR_CA0_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca0_t, HW_CAU_LDR_CA0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1100,7 +1107,7 @@ typedef union _hw_cau_ldr_ca1
 #define HW_CAU_LDR_CA1_ADDR(x)   ((x) + 0x84CU)
 
 #define HW_CAU_LDR_CA1(x)        (*(__O hw_cau_ldr_ca1_t *) HW_CAU_LDR_CA1_ADDR(x))
-#define HW_CAU_LDR_CA1_WR(x, v)  (HW_CAU_LDR_CA1(x).U = (v))
+#define HW_CAU_LDR_CA1_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca1_t, HW_CAU_LDR_CA1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1144,7 +1151,7 @@ typedef union _hw_cau_ldr_ca2
 #define HW_CAU_LDR_CA2_ADDR(x)   ((x) + 0x850U)
 
 #define HW_CAU_LDR_CA2(x)        (*(__O hw_cau_ldr_ca2_t *) HW_CAU_LDR_CA2_ADDR(x))
-#define HW_CAU_LDR_CA2_WR(x, v)  (HW_CAU_LDR_CA2(x).U = (v))
+#define HW_CAU_LDR_CA2_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca2_t, HW_CAU_LDR_CA2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1188,7 +1195,7 @@ typedef union _hw_cau_ldr_ca3
 #define HW_CAU_LDR_CA3_ADDR(x)   ((x) + 0x854U)
 
 #define HW_CAU_LDR_CA3(x)        (*(__O hw_cau_ldr_ca3_t *) HW_CAU_LDR_CA3_ADDR(x))
-#define HW_CAU_LDR_CA3_WR(x, v)  (HW_CAU_LDR_CA3(x).U = (v))
+#define HW_CAU_LDR_CA3_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca3_t, HW_CAU_LDR_CA3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1232,7 +1239,7 @@ typedef union _hw_cau_ldr_ca4
 #define HW_CAU_LDR_CA4_ADDR(x)   ((x) + 0x858U)
 
 #define HW_CAU_LDR_CA4(x)        (*(__O hw_cau_ldr_ca4_t *) HW_CAU_LDR_CA4_ADDR(x))
-#define HW_CAU_LDR_CA4_WR(x, v)  (HW_CAU_LDR_CA4(x).U = (v))
+#define HW_CAU_LDR_CA4_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca4_t, HW_CAU_LDR_CA4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1276,7 +1283,7 @@ typedef union _hw_cau_ldr_ca5
 #define HW_CAU_LDR_CA5_ADDR(x)   ((x) + 0x85CU)
 
 #define HW_CAU_LDR_CA5(x)        (*(__O hw_cau_ldr_ca5_t *) HW_CAU_LDR_CA5_ADDR(x))
-#define HW_CAU_LDR_CA5_WR(x, v)  (HW_CAU_LDR_CA5(x).U = (v))
+#define HW_CAU_LDR_CA5_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca5_t, HW_CAU_LDR_CA5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1320,7 +1327,7 @@ typedef union _hw_cau_ldr_ca6
 #define HW_CAU_LDR_CA6_ADDR(x)   ((x) + 0x860U)
 
 #define HW_CAU_LDR_CA6(x)        (*(__O hw_cau_ldr_ca6_t *) HW_CAU_LDR_CA6_ADDR(x))
-#define HW_CAU_LDR_CA6_WR(x, v)  (HW_CAU_LDR_CA6(x).U = (v))
+#define HW_CAU_LDR_CA6_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca6_t, HW_CAU_LDR_CA6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1364,7 +1371,7 @@ typedef union _hw_cau_ldr_ca7
 #define HW_CAU_LDR_CA7_ADDR(x)   ((x) + 0x864U)
 
 #define HW_CAU_LDR_CA7(x)        (*(__O hw_cau_ldr_ca7_t *) HW_CAU_LDR_CA7_ADDR(x))
-#define HW_CAU_LDR_CA7_WR(x, v)  (HW_CAU_LDR_CA7(x).U = (v))
+#define HW_CAU_LDR_CA7_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca7_t, HW_CAU_LDR_CA7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1408,7 +1415,7 @@ typedef union _hw_cau_ldr_ca8
 #define HW_CAU_LDR_CA8_ADDR(x)   ((x) + 0x868U)
 
 #define HW_CAU_LDR_CA8(x)        (*(__O hw_cau_ldr_ca8_t *) HW_CAU_LDR_CA8_ADDR(x))
-#define HW_CAU_LDR_CA8_WR(x, v)  (HW_CAU_LDR_CA8(x).U = (v))
+#define HW_CAU_LDR_CA8_WR(x, v)  (ADDRESS_WRITE(hw_cau_ldr_ca8_t, HW_CAU_LDR_CA8_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1455,7 +1462,7 @@ typedef union _hw_cau_str_casr
 #define HW_CAU_STR_CASR_ADDR(x)  ((x) + 0x880U)
 
 #define HW_CAU_STR_CASR(x)       (*(__I hw_cau_str_casr_t *) HW_CAU_STR_CASR_ADDR(x))
-#define HW_CAU_STR_CASR_RD(x)    (HW_CAU_STR_CASR(x).U)
+#define HW_CAU_STR_CASR_RD(x)    (ADDRESS_READ(hw_cau_str_casr_t, HW_CAU_STR_CASR_ADDR(x)))
 /*@}*/
 
 /*
@@ -1475,7 +1482,7 @@ typedef union _hw_cau_str_casr
 #define BS_CAU_STR_CASR_IC   (1U)          /*!< Bit field size in bits for CAU_STR_CASR_IC. */
 
 /*! @brief Read current value of the CAU_STR_CASR_IC field. */
-#define BR_CAU_STR_CASR_IC(x) (HW_CAU_STR_CASR(x).B.IC)
+#define BR_CAU_STR_CASR_IC(x) (UNION_READ(hw_cau_str_casr_t, HW_CAU_STR_CASR_ADDR(x), U, B.IC))
 /*@}*/
 
 /*!
@@ -1491,7 +1498,7 @@ typedef union _hw_cau_str_casr
 #define BS_CAU_STR_CASR_DPE  (1U)          /*!< Bit field size in bits for CAU_STR_CASR_DPE. */
 
 /*! @brief Read current value of the CAU_STR_CASR_DPE field. */
-#define BR_CAU_STR_CASR_DPE(x) (HW_CAU_STR_CASR(x).B.DPE)
+#define BR_CAU_STR_CASR_DPE(x) (UNION_READ(hw_cau_str_casr_t, HW_CAU_STR_CASR_ADDR(x), U, B.DPE))
 /*@}*/
 
 /*!
@@ -1508,7 +1515,7 @@ typedef union _hw_cau_str_casr
 #define BS_CAU_STR_CASR_VER  (4U)          /*!< Bit field size in bits for CAU_STR_CASR_VER. */
 
 /*! @brief Read current value of the CAU_STR_CASR_VER field. */
-#define BR_CAU_STR_CASR_VER(x) (HW_CAU_STR_CASR(x).B.VER)
+#define BR_CAU_STR_CASR_VER(x) (UNION_READ(hw_cau_str_casr_t, HW_CAU_STR_CASR_ADDR(x), U, B.VER))
 /*@}*/
 
 /*******************************************************************************
@@ -1536,7 +1543,7 @@ typedef union _hw_cau_str_caa
 #define HW_CAU_STR_CAA_ADDR(x)   ((x) + 0x884U)
 
 #define HW_CAU_STR_CAA(x)        (*(__I hw_cau_str_caa_t *) HW_CAU_STR_CAA_ADDR(x))
-#define HW_CAU_STR_CAA_RD(x)     (HW_CAU_STR_CAA(x).U)
+#define HW_CAU_STR_CAA_RD(x)     (ADDRESS_READ(hw_cau_str_caa_t, HW_CAU_STR_CAA_ADDR(x)))
 /*@}*/
 
 /*
@@ -1580,7 +1587,7 @@ typedef union _hw_cau_str_ca0
 #define HW_CAU_STR_CA0_ADDR(x)   ((x) + 0x888U)
 
 #define HW_CAU_STR_CA0(x)        (*(__I hw_cau_str_ca0_t *) HW_CAU_STR_CA0_ADDR(x))
-#define HW_CAU_STR_CA0_RD(x)     (HW_CAU_STR_CA0(x).U)
+#define HW_CAU_STR_CA0_RD(x)     (ADDRESS_READ(hw_cau_str_ca0_t, HW_CAU_STR_CA0_ADDR(x)))
 /*@}*/
 
 /*
@@ -1624,7 +1631,7 @@ typedef union _hw_cau_str_ca1
 #define HW_CAU_STR_CA1_ADDR(x)   ((x) + 0x88CU)
 
 #define HW_CAU_STR_CA1(x)        (*(__I hw_cau_str_ca1_t *) HW_CAU_STR_CA1_ADDR(x))
-#define HW_CAU_STR_CA1_RD(x)     (HW_CAU_STR_CA1(x).U)
+#define HW_CAU_STR_CA1_RD(x)     (ADDRESS_READ(hw_cau_str_ca1_t, HW_CAU_STR_CA1_ADDR(x)))
 /*@}*/
 
 /*
@@ -1668,7 +1675,7 @@ typedef union _hw_cau_str_ca2
 #define HW_CAU_STR_CA2_ADDR(x)   ((x) + 0x890U)
 
 #define HW_CAU_STR_CA2(x)        (*(__I hw_cau_str_ca2_t *) HW_CAU_STR_CA2_ADDR(x))
-#define HW_CAU_STR_CA2_RD(x)     (HW_CAU_STR_CA2(x).U)
+#define HW_CAU_STR_CA2_RD(x)     (ADDRESS_READ(hw_cau_str_ca2_t, HW_CAU_STR_CA2_ADDR(x)))
 /*@}*/
 
 /*
@@ -1712,7 +1719,7 @@ typedef union _hw_cau_str_ca3
 #define HW_CAU_STR_CA3_ADDR(x)   ((x) + 0x894U)
 
 #define HW_CAU_STR_CA3(x)        (*(__I hw_cau_str_ca3_t *) HW_CAU_STR_CA3_ADDR(x))
-#define HW_CAU_STR_CA3_RD(x)     (HW_CAU_STR_CA3(x).U)
+#define HW_CAU_STR_CA3_RD(x)     (ADDRESS_READ(hw_cau_str_ca3_t, HW_CAU_STR_CA3_ADDR(x)))
 /*@}*/
 
 /*
@@ -1756,7 +1763,7 @@ typedef union _hw_cau_str_ca4
 #define HW_CAU_STR_CA4_ADDR(x)   ((x) + 0x898U)
 
 #define HW_CAU_STR_CA4(x)        (*(__I hw_cau_str_ca4_t *) HW_CAU_STR_CA4_ADDR(x))
-#define HW_CAU_STR_CA4_RD(x)     (HW_CAU_STR_CA4(x).U)
+#define HW_CAU_STR_CA4_RD(x)     (ADDRESS_READ(hw_cau_str_ca4_t, HW_CAU_STR_CA4_ADDR(x)))
 /*@}*/
 
 /*
@@ -1800,7 +1807,7 @@ typedef union _hw_cau_str_ca5
 #define HW_CAU_STR_CA5_ADDR(x)   ((x) + 0x89CU)
 
 #define HW_CAU_STR_CA5(x)        (*(__I hw_cau_str_ca5_t *) HW_CAU_STR_CA5_ADDR(x))
-#define HW_CAU_STR_CA5_RD(x)     (HW_CAU_STR_CA5(x).U)
+#define HW_CAU_STR_CA5_RD(x)     (ADDRESS_READ(hw_cau_str_ca5_t, HW_CAU_STR_CA5_ADDR(x)))
 /*@}*/
 
 /*
@@ -1844,7 +1851,7 @@ typedef union _hw_cau_str_ca6
 #define HW_CAU_STR_CA6_ADDR(x)   ((x) + 0x8A0U)
 
 #define HW_CAU_STR_CA6(x)        (*(__I hw_cau_str_ca6_t *) HW_CAU_STR_CA6_ADDR(x))
-#define HW_CAU_STR_CA6_RD(x)     (HW_CAU_STR_CA6(x).U)
+#define HW_CAU_STR_CA6_RD(x)     (ADDRESS_READ(hw_cau_str_ca6_t, HW_CAU_STR_CA6_ADDR(x)))
 /*@}*/
 
 /*
@@ -1888,7 +1895,7 @@ typedef union _hw_cau_str_ca7
 #define HW_CAU_STR_CA7_ADDR(x)   ((x) + 0x8A4U)
 
 #define HW_CAU_STR_CA7(x)        (*(__I hw_cau_str_ca7_t *) HW_CAU_STR_CA7_ADDR(x))
-#define HW_CAU_STR_CA7_RD(x)     (HW_CAU_STR_CA7(x).U)
+#define HW_CAU_STR_CA7_RD(x)     (ADDRESS_READ(hw_cau_str_ca7_t, HW_CAU_STR_CA7_ADDR(x)))
 /*@}*/
 
 /*
@@ -1932,7 +1939,7 @@ typedef union _hw_cau_str_ca8
 #define HW_CAU_STR_CA8_ADDR(x)   ((x) + 0x8A8U)
 
 #define HW_CAU_STR_CA8(x)        (*(__I hw_cau_str_ca8_t *) HW_CAU_STR_CA8_ADDR(x))
-#define HW_CAU_STR_CA8_RD(x)     (HW_CAU_STR_CA8(x).U)
+#define HW_CAU_STR_CA8_RD(x)     (ADDRESS_READ(hw_cau_str_ca8_t, HW_CAU_STR_CA8_ADDR(x)))
 /*@}*/
 
 /*
@@ -1979,7 +1986,7 @@ typedef union _hw_cau_adr_casr
 #define HW_CAU_ADR_CASR_ADDR(x)  ((x) + 0x8C0U)
 
 #define HW_CAU_ADR_CASR(x)       (*(__O hw_cau_adr_casr_t *) HW_CAU_ADR_CASR_ADDR(x))
-#define HW_CAU_ADR_CASR_WR(x, v) (HW_CAU_ADR_CASR(x).U = (v))
+#define HW_CAU_ADR_CASR_WR(x, v) (ADDRESS_WRITE(hw_cau_adr_casr_t, HW_CAU_ADR_CASR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2060,7 +2067,7 @@ typedef union _hw_cau_adr_caa
 #define HW_CAU_ADR_CAA_ADDR(x)   ((x) + 0x8C4U)
 
 #define HW_CAU_ADR_CAA(x)        (*(__O hw_cau_adr_caa_t *) HW_CAU_ADR_CAA_ADDR(x))
-#define HW_CAU_ADR_CAA_WR(x, v)  (HW_CAU_ADR_CAA(x).U = (v))
+#define HW_CAU_ADR_CAA_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_caa_t, HW_CAU_ADR_CAA_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2104,7 +2111,7 @@ typedef union _hw_cau_adr_ca0
 #define HW_CAU_ADR_CA0_ADDR(x)   ((x) + 0x8C8U)
 
 #define HW_CAU_ADR_CA0(x)        (*(__O hw_cau_adr_ca0_t *) HW_CAU_ADR_CA0_ADDR(x))
-#define HW_CAU_ADR_CA0_WR(x, v)  (HW_CAU_ADR_CA0(x).U = (v))
+#define HW_CAU_ADR_CA0_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca0_t, HW_CAU_ADR_CA0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2148,7 +2155,7 @@ typedef union _hw_cau_adr_ca1
 #define HW_CAU_ADR_CA1_ADDR(x)   ((x) + 0x8CCU)
 
 #define HW_CAU_ADR_CA1(x)        (*(__O hw_cau_adr_ca1_t *) HW_CAU_ADR_CA1_ADDR(x))
-#define HW_CAU_ADR_CA1_WR(x, v)  (HW_CAU_ADR_CA1(x).U = (v))
+#define HW_CAU_ADR_CA1_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca1_t, HW_CAU_ADR_CA1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2192,7 +2199,7 @@ typedef union _hw_cau_adr_ca2
 #define HW_CAU_ADR_CA2_ADDR(x)   ((x) + 0x8D0U)
 
 #define HW_CAU_ADR_CA2(x)        (*(__O hw_cau_adr_ca2_t *) HW_CAU_ADR_CA2_ADDR(x))
-#define HW_CAU_ADR_CA2_WR(x, v)  (HW_CAU_ADR_CA2(x).U = (v))
+#define HW_CAU_ADR_CA2_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca2_t, HW_CAU_ADR_CA2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2236,7 +2243,7 @@ typedef union _hw_cau_adr_ca3
 #define HW_CAU_ADR_CA3_ADDR(x)   ((x) + 0x8D4U)
 
 #define HW_CAU_ADR_CA3(x)        (*(__O hw_cau_adr_ca3_t *) HW_CAU_ADR_CA3_ADDR(x))
-#define HW_CAU_ADR_CA3_WR(x, v)  (HW_CAU_ADR_CA3(x).U = (v))
+#define HW_CAU_ADR_CA3_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca3_t, HW_CAU_ADR_CA3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2280,7 +2287,7 @@ typedef union _hw_cau_adr_ca4
 #define HW_CAU_ADR_CA4_ADDR(x)   ((x) + 0x8D8U)
 
 #define HW_CAU_ADR_CA4(x)        (*(__O hw_cau_adr_ca4_t *) HW_CAU_ADR_CA4_ADDR(x))
-#define HW_CAU_ADR_CA4_WR(x, v)  (HW_CAU_ADR_CA4(x).U = (v))
+#define HW_CAU_ADR_CA4_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca4_t, HW_CAU_ADR_CA4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2324,7 +2331,7 @@ typedef union _hw_cau_adr_ca5
 #define HW_CAU_ADR_CA5_ADDR(x)   ((x) + 0x8DCU)
 
 #define HW_CAU_ADR_CA5(x)        (*(__O hw_cau_adr_ca5_t *) HW_CAU_ADR_CA5_ADDR(x))
-#define HW_CAU_ADR_CA5_WR(x, v)  (HW_CAU_ADR_CA5(x).U = (v))
+#define HW_CAU_ADR_CA5_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca5_t, HW_CAU_ADR_CA5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2368,7 +2375,7 @@ typedef union _hw_cau_adr_ca6
 #define HW_CAU_ADR_CA6_ADDR(x)   ((x) + 0x8E0U)
 
 #define HW_CAU_ADR_CA6(x)        (*(__O hw_cau_adr_ca6_t *) HW_CAU_ADR_CA6_ADDR(x))
-#define HW_CAU_ADR_CA6_WR(x, v)  (HW_CAU_ADR_CA6(x).U = (v))
+#define HW_CAU_ADR_CA6_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca6_t, HW_CAU_ADR_CA6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2412,7 +2419,7 @@ typedef union _hw_cau_adr_ca7
 #define HW_CAU_ADR_CA7_ADDR(x)   ((x) + 0x8E4U)
 
 #define HW_CAU_ADR_CA7(x)        (*(__O hw_cau_adr_ca7_t *) HW_CAU_ADR_CA7_ADDR(x))
-#define HW_CAU_ADR_CA7_WR(x, v)  (HW_CAU_ADR_CA7(x).U = (v))
+#define HW_CAU_ADR_CA7_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca7_t, HW_CAU_ADR_CA7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2456,7 +2463,7 @@ typedef union _hw_cau_adr_ca8
 #define HW_CAU_ADR_CA8_ADDR(x)   ((x) + 0x8E8U)
 
 #define HW_CAU_ADR_CA8(x)        (*(__O hw_cau_adr_ca8_t *) HW_CAU_ADR_CA8_ADDR(x))
-#define HW_CAU_ADR_CA8_WR(x, v)  (HW_CAU_ADR_CA8(x).U = (v))
+#define HW_CAU_ADR_CA8_WR(x, v)  (ADDRESS_WRITE(hw_cau_adr_ca8_t, HW_CAU_ADR_CA8_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2503,7 +2510,7 @@ typedef union _hw_cau_radr_casr
 #define HW_CAU_RADR_CASR_ADDR(x) ((x) + 0x900U)
 
 #define HW_CAU_RADR_CASR(x)      (*(__O hw_cau_radr_casr_t *) HW_CAU_RADR_CASR_ADDR(x))
-#define HW_CAU_RADR_CASR_WR(x, v) (HW_CAU_RADR_CASR(x).U = (v))
+#define HW_CAU_RADR_CASR_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_casr_t, HW_CAU_RADR_CASR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2584,7 +2591,7 @@ typedef union _hw_cau_radr_caa
 #define HW_CAU_RADR_CAA_ADDR(x)  ((x) + 0x904U)
 
 #define HW_CAU_RADR_CAA(x)       (*(__O hw_cau_radr_caa_t *) HW_CAU_RADR_CAA_ADDR(x))
-#define HW_CAU_RADR_CAA_WR(x, v) (HW_CAU_RADR_CAA(x).U = (v))
+#define HW_CAU_RADR_CAA_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_caa_t, HW_CAU_RADR_CAA_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2628,7 +2635,7 @@ typedef union _hw_cau_radr_ca0
 #define HW_CAU_RADR_CA0_ADDR(x)  ((x) + 0x908U)
 
 #define HW_CAU_RADR_CA0(x)       (*(__O hw_cau_radr_ca0_t *) HW_CAU_RADR_CA0_ADDR(x))
-#define HW_CAU_RADR_CA0_WR(x, v) (HW_CAU_RADR_CA0(x).U = (v))
+#define HW_CAU_RADR_CA0_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca0_t, HW_CAU_RADR_CA0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2672,7 +2679,7 @@ typedef union _hw_cau_radr_ca1
 #define HW_CAU_RADR_CA1_ADDR(x)  ((x) + 0x90CU)
 
 #define HW_CAU_RADR_CA1(x)       (*(__O hw_cau_radr_ca1_t *) HW_CAU_RADR_CA1_ADDR(x))
-#define HW_CAU_RADR_CA1_WR(x, v) (HW_CAU_RADR_CA1(x).U = (v))
+#define HW_CAU_RADR_CA1_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca1_t, HW_CAU_RADR_CA1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2716,7 +2723,7 @@ typedef union _hw_cau_radr_ca2
 #define HW_CAU_RADR_CA2_ADDR(x)  ((x) + 0x910U)
 
 #define HW_CAU_RADR_CA2(x)       (*(__O hw_cau_radr_ca2_t *) HW_CAU_RADR_CA2_ADDR(x))
-#define HW_CAU_RADR_CA2_WR(x, v) (HW_CAU_RADR_CA2(x).U = (v))
+#define HW_CAU_RADR_CA2_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca2_t, HW_CAU_RADR_CA2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2760,7 +2767,7 @@ typedef union _hw_cau_radr_ca3
 #define HW_CAU_RADR_CA3_ADDR(x)  ((x) + 0x914U)
 
 #define HW_CAU_RADR_CA3(x)       (*(__O hw_cau_radr_ca3_t *) HW_CAU_RADR_CA3_ADDR(x))
-#define HW_CAU_RADR_CA3_WR(x, v) (HW_CAU_RADR_CA3(x).U = (v))
+#define HW_CAU_RADR_CA3_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca3_t, HW_CAU_RADR_CA3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2804,7 +2811,7 @@ typedef union _hw_cau_radr_ca4
 #define HW_CAU_RADR_CA4_ADDR(x)  ((x) + 0x918U)
 
 #define HW_CAU_RADR_CA4(x)       (*(__O hw_cau_radr_ca4_t *) HW_CAU_RADR_CA4_ADDR(x))
-#define HW_CAU_RADR_CA4_WR(x, v) (HW_CAU_RADR_CA4(x).U = (v))
+#define HW_CAU_RADR_CA4_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca4_t, HW_CAU_RADR_CA4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2848,7 +2855,7 @@ typedef union _hw_cau_radr_ca5
 #define HW_CAU_RADR_CA5_ADDR(x)  ((x) + 0x91CU)
 
 #define HW_CAU_RADR_CA5(x)       (*(__O hw_cau_radr_ca5_t *) HW_CAU_RADR_CA5_ADDR(x))
-#define HW_CAU_RADR_CA5_WR(x, v) (HW_CAU_RADR_CA5(x).U = (v))
+#define HW_CAU_RADR_CA5_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca5_t, HW_CAU_RADR_CA5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2892,7 +2899,7 @@ typedef union _hw_cau_radr_ca6
 #define HW_CAU_RADR_CA6_ADDR(x)  ((x) + 0x920U)
 
 #define HW_CAU_RADR_CA6(x)       (*(__O hw_cau_radr_ca6_t *) HW_CAU_RADR_CA6_ADDR(x))
-#define HW_CAU_RADR_CA6_WR(x, v) (HW_CAU_RADR_CA6(x).U = (v))
+#define HW_CAU_RADR_CA6_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca6_t, HW_CAU_RADR_CA6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2936,7 +2943,7 @@ typedef union _hw_cau_radr_ca7
 #define HW_CAU_RADR_CA7_ADDR(x)  ((x) + 0x924U)
 
 #define HW_CAU_RADR_CA7(x)       (*(__O hw_cau_radr_ca7_t *) HW_CAU_RADR_CA7_ADDR(x))
-#define HW_CAU_RADR_CA7_WR(x, v) (HW_CAU_RADR_CA7(x).U = (v))
+#define HW_CAU_RADR_CA7_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca7_t, HW_CAU_RADR_CA7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2980,7 +2987,7 @@ typedef union _hw_cau_radr_ca8
 #define HW_CAU_RADR_CA8_ADDR(x)  ((x) + 0x928U)
 
 #define HW_CAU_RADR_CA8(x)       (*(__O hw_cau_radr_ca8_t *) HW_CAU_RADR_CA8_ADDR(x))
-#define HW_CAU_RADR_CA8_WR(x, v) (HW_CAU_RADR_CA8(x).U = (v))
+#define HW_CAU_RADR_CA8_WR(x, v) (ADDRESS_WRITE(hw_cau_radr_ca8_t, HW_CAU_RADR_CA8_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3027,7 +3034,7 @@ typedef union _hw_cau_xor_casr
 #define HW_CAU_XOR_CASR_ADDR(x)  ((x) + 0x980U)
 
 #define HW_CAU_XOR_CASR(x)       (*(__O hw_cau_xor_casr_t *) HW_CAU_XOR_CASR_ADDR(x))
-#define HW_CAU_XOR_CASR_WR(x, v) (HW_CAU_XOR_CASR(x).U = (v))
+#define HW_CAU_XOR_CASR_WR(x, v) (ADDRESS_WRITE(hw_cau_xor_casr_t, HW_CAU_XOR_CASR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3108,7 +3115,7 @@ typedef union _hw_cau_xor_caa
 #define HW_CAU_XOR_CAA_ADDR(x)   ((x) + 0x984U)
 
 #define HW_CAU_XOR_CAA(x)        (*(__O hw_cau_xor_caa_t *) HW_CAU_XOR_CAA_ADDR(x))
-#define HW_CAU_XOR_CAA_WR(x, v)  (HW_CAU_XOR_CAA(x).U = (v))
+#define HW_CAU_XOR_CAA_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_caa_t, HW_CAU_XOR_CAA_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3152,7 +3159,7 @@ typedef union _hw_cau_xor_ca0
 #define HW_CAU_XOR_CA0_ADDR(x)   ((x) + 0x988U)
 
 #define HW_CAU_XOR_CA0(x)        (*(__O hw_cau_xor_ca0_t *) HW_CAU_XOR_CA0_ADDR(x))
-#define HW_CAU_XOR_CA0_WR(x, v)  (HW_CAU_XOR_CA0(x).U = (v))
+#define HW_CAU_XOR_CA0_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca0_t, HW_CAU_XOR_CA0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3196,7 +3203,7 @@ typedef union _hw_cau_xor_ca1
 #define HW_CAU_XOR_CA1_ADDR(x)   ((x) + 0x98CU)
 
 #define HW_CAU_XOR_CA1(x)        (*(__O hw_cau_xor_ca1_t *) HW_CAU_XOR_CA1_ADDR(x))
-#define HW_CAU_XOR_CA1_WR(x, v)  (HW_CAU_XOR_CA1(x).U = (v))
+#define HW_CAU_XOR_CA1_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca1_t, HW_CAU_XOR_CA1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3240,7 +3247,7 @@ typedef union _hw_cau_xor_ca2
 #define HW_CAU_XOR_CA2_ADDR(x)   ((x) + 0x990U)
 
 #define HW_CAU_XOR_CA2(x)        (*(__O hw_cau_xor_ca2_t *) HW_CAU_XOR_CA2_ADDR(x))
-#define HW_CAU_XOR_CA2_WR(x, v)  (HW_CAU_XOR_CA2(x).U = (v))
+#define HW_CAU_XOR_CA2_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca2_t, HW_CAU_XOR_CA2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3284,7 +3291,7 @@ typedef union _hw_cau_xor_ca3
 #define HW_CAU_XOR_CA3_ADDR(x)   ((x) + 0x994U)
 
 #define HW_CAU_XOR_CA3(x)        (*(__O hw_cau_xor_ca3_t *) HW_CAU_XOR_CA3_ADDR(x))
-#define HW_CAU_XOR_CA3_WR(x, v)  (HW_CAU_XOR_CA3(x).U = (v))
+#define HW_CAU_XOR_CA3_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca3_t, HW_CAU_XOR_CA3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3328,7 +3335,7 @@ typedef union _hw_cau_xor_ca4
 #define HW_CAU_XOR_CA4_ADDR(x)   ((x) + 0x998U)
 
 #define HW_CAU_XOR_CA4(x)        (*(__O hw_cau_xor_ca4_t *) HW_CAU_XOR_CA4_ADDR(x))
-#define HW_CAU_XOR_CA4_WR(x, v)  (HW_CAU_XOR_CA4(x).U = (v))
+#define HW_CAU_XOR_CA4_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca4_t, HW_CAU_XOR_CA4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3372,7 +3379,7 @@ typedef union _hw_cau_xor_ca5
 #define HW_CAU_XOR_CA5_ADDR(x)   ((x) + 0x99CU)
 
 #define HW_CAU_XOR_CA5(x)        (*(__O hw_cau_xor_ca5_t *) HW_CAU_XOR_CA5_ADDR(x))
-#define HW_CAU_XOR_CA5_WR(x, v)  (HW_CAU_XOR_CA5(x).U = (v))
+#define HW_CAU_XOR_CA5_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca5_t, HW_CAU_XOR_CA5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3416,7 +3423,7 @@ typedef union _hw_cau_xor_ca6
 #define HW_CAU_XOR_CA6_ADDR(x)   ((x) + 0x9A0U)
 
 #define HW_CAU_XOR_CA6(x)        (*(__O hw_cau_xor_ca6_t *) HW_CAU_XOR_CA6_ADDR(x))
-#define HW_CAU_XOR_CA6_WR(x, v)  (HW_CAU_XOR_CA6(x).U = (v))
+#define HW_CAU_XOR_CA6_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca6_t, HW_CAU_XOR_CA6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3460,7 +3467,7 @@ typedef union _hw_cau_xor_ca7
 #define HW_CAU_XOR_CA7_ADDR(x)   ((x) + 0x9A4U)
 
 #define HW_CAU_XOR_CA7(x)        (*(__O hw_cau_xor_ca7_t *) HW_CAU_XOR_CA7_ADDR(x))
-#define HW_CAU_XOR_CA7_WR(x, v)  (HW_CAU_XOR_CA7(x).U = (v))
+#define HW_CAU_XOR_CA7_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca7_t, HW_CAU_XOR_CA7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3504,7 +3511,7 @@ typedef union _hw_cau_xor_ca8
 #define HW_CAU_XOR_CA8_ADDR(x)   ((x) + 0x9A8U)
 
 #define HW_CAU_XOR_CA8(x)        (*(__O hw_cau_xor_ca8_t *) HW_CAU_XOR_CA8_ADDR(x))
-#define HW_CAU_XOR_CA8_WR(x, v)  (HW_CAU_XOR_CA8(x).U = (v))
+#define HW_CAU_XOR_CA8_WR(x, v)  (ADDRESS_WRITE(hw_cau_xor_ca8_t, HW_CAU_XOR_CA8_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3551,7 +3558,7 @@ typedef union _hw_cau_rotl_casr
 #define HW_CAU_ROTL_CASR_ADDR(x) ((x) + 0x9C0U)
 
 #define HW_CAU_ROTL_CASR(x)      (*(__O hw_cau_rotl_casr_t *) HW_CAU_ROTL_CASR_ADDR(x))
-#define HW_CAU_ROTL_CASR_WR(x, v) (HW_CAU_ROTL_CASR(x).U = (v))
+#define HW_CAU_ROTL_CASR_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_casr_t, HW_CAU_ROTL_CASR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3632,7 +3639,7 @@ typedef union _hw_cau_rotl_caa
 #define HW_CAU_ROTL_CAA_ADDR(x)  ((x) + 0x9C4U)
 
 #define HW_CAU_ROTL_CAA(x)       (*(__O hw_cau_rotl_caa_t *) HW_CAU_ROTL_CAA_ADDR(x))
-#define HW_CAU_ROTL_CAA_WR(x, v) (HW_CAU_ROTL_CAA(x).U = (v))
+#define HW_CAU_ROTL_CAA_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_caa_t, HW_CAU_ROTL_CAA_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3676,7 +3683,7 @@ typedef union _hw_cau_rotl_ca0
 #define HW_CAU_ROTL_CA0_ADDR(x)  ((x) + 0x9C8U)
 
 #define HW_CAU_ROTL_CA0(x)       (*(__O hw_cau_rotl_ca0_t *) HW_CAU_ROTL_CA0_ADDR(x))
-#define HW_CAU_ROTL_CA0_WR(x, v) (HW_CAU_ROTL_CA0(x).U = (v))
+#define HW_CAU_ROTL_CA0_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca0_t, HW_CAU_ROTL_CA0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3720,7 +3727,7 @@ typedef union _hw_cau_rotl_ca1
 #define HW_CAU_ROTL_CA1_ADDR(x)  ((x) + 0x9CCU)
 
 #define HW_CAU_ROTL_CA1(x)       (*(__O hw_cau_rotl_ca1_t *) HW_CAU_ROTL_CA1_ADDR(x))
-#define HW_CAU_ROTL_CA1_WR(x, v) (HW_CAU_ROTL_CA1(x).U = (v))
+#define HW_CAU_ROTL_CA1_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca1_t, HW_CAU_ROTL_CA1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3764,7 +3771,7 @@ typedef union _hw_cau_rotl_ca2
 #define HW_CAU_ROTL_CA2_ADDR(x)  ((x) + 0x9D0U)
 
 #define HW_CAU_ROTL_CA2(x)       (*(__O hw_cau_rotl_ca2_t *) HW_CAU_ROTL_CA2_ADDR(x))
-#define HW_CAU_ROTL_CA2_WR(x, v) (HW_CAU_ROTL_CA2(x).U = (v))
+#define HW_CAU_ROTL_CA2_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca2_t, HW_CAU_ROTL_CA2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3808,7 +3815,7 @@ typedef union _hw_cau_rotl_ca3
 #define HW_CAU_ROTL_CA3_ADDR(x)  ((x) + 0x9D4U)
 
 #define HW_CAU_ROTL_CA3(x)       (*(__O hw_cau_rotl_ca3_t *) HW_CAU_ROTL_CA3_ADDR(x))
-#define HW_CAU_ROTL_CA3_WR(x, v) (HW_CAU_ROTL_CA3(x).U = (v))
+#define HW_CAU_ROTL_CA3_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca3_t, HW_CAU_ROTL_CA3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3852,7 +3859,7 @@ typedef union _hw_cau_rotl_ca4
 #define HW_CAU_ROTL_CA4_ADDR(x)  ((x) + 0x9D8U)
 
 #define HW_CAU_ROTL_CA4(x)       (*(__O hw_cau_rotl_ca4_t *) HW_CAU_ROTL_CA4_ADDR(x))
-#define HW_CAU_ROTL_CA4_WR(x, v) (HW_CAU_ROTL_CA4(x).U = (v))
+#define HW_CAU_ROTL_CA4_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca4_t, HW_CAU_ROTL_CA4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3896,7 +3903,7 @@ typedef union _hw_cau_rotl_ca5
 #define HW_CAU_ROTL_CA5_ADDR(x)  ((x) + 0x9DCU)
 
 #define HW_CAU_ROTL_CA5(x)       (*(__O hw_cau_rotl_ca5_t *) HW_CAU_ROTL_CA5_ADDR(x))
-#define HW_CAU_ROTL_CA5_WR(x, v) (HW_CAU_ROTL_CA5(x).U = (v))
+#define HW_CAU_ROTL_CA5_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca5_t, HW_CAU_ROTL_CA5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3940,7 +3947,7 @@ typedef union _hw_cau_rotl_ca6
 #define HW_CAU_ROTL_CA6_ADDR(x)  ((x) + 0x9E0U)
 
 #define HW_CAU_ROTL_CA6(x)       (*(__O hw_cau_rotl_ca6_t *) HW_CAU_ROTL_CA6_ADDR(x))
-#define HW_CAU_ROTL_CA6_WR(x, v) (HW_CAU_ROTL_CA6(x).U = (v))
+#define HW_CAU_ROTL_CA6_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca6_t, HW_CAU_ROTL_CA6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -3984,7 +3991,7 @@ typedef union _hw_cau_rotl_ca7
 #define HW_CAU_ROTL_CA7_ADDR(x)  ((x) + 0x9E4U)
 
 #define HW_CAU_ROTL_CA7(x)       (*(__O hw_cau_rotl_ca7_t *) HW_CAU_ROTL_CA7_ADDR(x))
-#define HW_CAU_ROTL_CA7_WR(x, v) (HW_CAU_ROTL_CA7(x).U = (v))
+#define HW_CAU_ROTL_CA7_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca7_t, HW_CAU_ROTL_CA7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4028,7 +4035,7 @@ typedef union _hw_cau_rotl_ca8
 #define HW_CAU_ROTL_CA8_ADDR(x)  ((x) + 0x9E8U)
 
 #define HW_CAU_ROTL_CA8(x)       (*(__O hw_cau_rotl_ca8_t *) HW_CAU_ROTL_CA8_ADDR(x))
-#define HW_CAU_ROTL_CA8_WR(x, v) (HW_CAU_ROTL_CA8(x).U = (v))
+#define HW_CAU_ROTL_CA8_WR(x, v) (ADDRESS_WRITE(hw_cau_rotl_ca8_t, HW_CAU_ROTL_CA8_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4075,7 +4082,7 @@ typedef union _hw_cau_aesc_casr
 #define HW_CAU_AESC_CASR_ADDR(x) ((x) + 0xB00U)
 
 #define HW_CAU_AESC_CASR(x)      (*(__O hw_cau_aesc_casr_t *) HW_CAU_AESC_CASR_ADDR(x))
-#define HW_CAU_AESC_CASR_WR(x, v) (HW_CAU_AESC_CASR(x).U = (v))
+#define HW_CAU_AESC_CASR_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_casr_t, HW_CAU_AESC_CASR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4156,7 +4163,7 @@ typedef union _hw_cau_aesc_caa
 #define HW_CAU_AESC_CAA_ADDR(x)  ((x) + 0xB04U)
 
 #define HW_CAU_AESC_CAA(x)       (*(__O hw_cau_aesc_caa_t *) HW_CAU_AESC_CAA_ADDR(x))
-#define HW_CAU_AESC_CAA_WR(x, v) (HW_CAU_AESC_CAA(x).U = (v))
+#define HW_CAU_AESC_CAA_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_caa_t, HW_CAU_AESC_CAA_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4200,7 +4207,7 @@ typedef union _hw_cau_aesc_ca0
 #define HW_CAU_AESC_CA0_ADDR(x)  ((x) + 0xB08U)
 
 #define HW_CAU_AESC_CA0(x)       (*(__O hw_cau_aesc_ca0_t *) HW_CAU_AESC_CA0_ADDR(x))
-#define HW_CAU_AESC_CA0_WR(x, v) (HW_CAU_AESC_CA0(x).U = (v))
+#define HW_CAU_AESC_CA0_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca0_t, HW_CAU_AESC_CA0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4244,7 +4251,7 @@ typedef union _hw_cau_aesc_ca1
 #define HW_CAU_AESC_CA1_ADDR(x)  ((x) + 0xB0CU)
 
 #define HW_CAU_AESC_CA1(x)       (*(__O hw_cau_aesc_ca1_t *) HW_CAU_AESC_CA1_ADDR(x))
-#define HW_CAU_AESC_CA1_WR(x, v) (HW_CAU_AESC_CA1(x).U = (v))
+#define HW_CAU_AESC_CA1_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca1_t, HW_CAU_AESC_CA1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4288,7 +4295,7 @@ typedef union _hw_cau_aesc_ca2
 #define HW_CAU_AESC_CA2_ADDR(x)  ((x) + 0xB10U)
 
 #define HW_CAU_AESC_CA2(x)       (*(__O hw_cau_aesc_ca2_t *) HW_CAU_AESC_CA2_ADDR(x))
-#define HW_CAU_AESC_CA2_WR(x, v) (HW_CAU_AESC_CA2(x).U = (v))
+#define HW_CAU_AESC_CA2_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca2_t, HW_CAU_AESC_CA2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4332,7 +4339,7 @@ typedef union _hw_cau_aesc_ca3
 #define HW_CAU_AESC_CA3_ADDR(x)  ((x) + 0xB14U)
 
 #define HW_CAU_AESC_CA3(x)       (*(__O hw_cau_aesc_ca3_t *) HW_CAU_AESC_CA3_ADDR(x))
-#define HW_CAU_AESC_CA3_WR(x, v) (HW_CAU_AESC_CA3(x).U = (v))
+#define HW_CAU_AESC_CA3_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca3_t, HW_CAU_AESC_CA3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4376,7 +4383,7 @@ typedef union _hw_cau_aesc_ca4
 #define HW_CAU_AESC_CA4_ADDR(x)  ((x) + 0xB18U)
 
 #define HW_CAU_AESC_CA4(x)       (*(__O hw_cau_aesc_ca4_t *) HW_CAU_AESC_CA4_ADDR(x))
-#define HW_CAU_AESC_CA4_WR(x, v) (HW_CAU_AESC_CA4(x).U = (v))
+#define HW_CAU_AESC_CA4_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca4_t, HW_CAU_AESC_CA4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4420,7 +4427,7 @@ typedef union _hw_cau_aesc_ca5
 #define HW_CAU_AESC_CA5_ADDR(x)  ((x) + 0xB1CU)
 
 #define HW_CAU_AESC_CA5(x)       (*(__O hw_cau_aesc_ca5_t *) HW_CAU_AESC_CA5_ADDR(x))
-#define HW_CAU_AESC_CA5_WR(x, v) (HW_CAU_AESC_CA5(x).U = (v))
+#define HW_CAU_AESC_CA5_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca5_t, HW_CAU_AESC_CA5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4464,7 +4471,7 @@ typedef union _hw_cau_aesc_ca6
 #define HW_CAU_AESC_CA6_ADDR(x)  ((x) + 0xB20U)
 
 #define HW_CAU_AESC_CA6(x)       (*(__O hw_cau_aesc_ca6_t *) HW_CAU_AESC_CA6_ADDR(x))
-#define HW_CAU_AESC_CA6_WR(x, v) (HW_CAU_AESC_CA6(x).U = (v))
+#define HW_CAU_AESC_CA6_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca6_t, HW_CAU_AESC_CA6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4508,7 +4515,7 @@ typedef union _hw_cau_aesc_ca7
 #define HW_CAU_AESC_CA7_ADDR(x)  ((x) + 0xB24U)
 
 #define HW_CAU_AESC_CA7(x)       (*(__O hw_cau_aesc_ca7_t *) HW_CAU_AESC_CA7_ADDR(x))
-#define HW_CAU_AESC_CA7_WR(x, v) (HW_CAU_AESC_CA7(x).U = (v))
+#define HW_CAU_AESC_CA7_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca7_t, HW_CAU_AESC_CA7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4552,7 +4559,7 @@ typedef union _hw_cau_aesc_ca8
 #define HW_CAU_AESC_CA8_ADDR(x)  ((x) + 0xB28U)
 
 #define HW_CAU_AESC_CA8(x)       (*(__O hw_cau_aesc_ca8_t *) HW_CAU_AESC_CA8_ADDR(x))
-#define HW_CAU_AESC_CA8_WR(x, v) (HW_CAU_AESC_CA8(x).U = (v))
+#define HW_CAU_AESC_CA8_WR(x, v) (ADDRESS_WRITE(hw_cau_aesc_ca8_t, HW_CAU_AESC_CA8_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4599,7 +4606,7 @@ typedef union _hw_cau_aesic_casr
 #define HW_CAU_AESIC_CASR_ADDR(x) ((x) + 0xB40U)
 
 #define HW_CAU_AESIC_CASR(x)     (*(__O hw_cau_aesic_casr_t *) HW_CAU_AESIC_CASR_ADDR(x))
-#define HW_CAU_AESIC_CASR_WR(x, v) (HW_CAU_AESIC_CASR(x).U = (v))
+#define HW_CAU_AESIC_CASR_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_casr_t, HW_CAU_AESIC_CASR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4680,7 +4687,7 @@ typedef union _hw_cau_aesic_caa
 #define HW_CAU_AESIC_CAA_ADDR(x) ((x) + 0xB44U)
 
 #define HW_CAU_AESIC_CAA(x)      (*(__O hw_cau_aesic_caa_t *) HW_CAU_AESIC_CAA_ADDR(x))
-#define HW_CAU_AESIC_CAA_WR(x, v) (HW_CAU_AESIC_CAA(x).U = (v))
+#define HW_CAU_AESIC_CAA_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_caa_t, HW_CAU_AESIC_CAA_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4724,7 +4731,7 @@ typedef union _hw_cau_aesic_ca0
 #define HW_CAU_AESIC_CA0_ADDR(x) ((x) + 0xB48U)
 
 #define HW_CAU_AESIC_CA0(x)      (*(__O hw_cau_aesic_ca0_t *) HW_CAU_AESIC_CA0_ADDR(x))
-#define HW_CAU_AESIC_CA0_WR(x, v) (HW_CAU_AESIC_CA0(x).U = (v))
+#define HW_CAU_AESIC_CA0_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca0_t, HW_CAU_AESIC_CA0_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4768,7 +4775,7 @@ typedef union _hw_cau_aesic_ca1
 #define HW_CAU_AESIC_CA1_ADDR(x) ((x) + 0xB4CU)
 
 #define HW_CAU_AESIC_CA1(x)      (*(__O hw_cau_aesic_ca1_t *) HW_CAU_AESIC_CA1_ADDR(x))
-#define HW_CAU_AESIC_CA1_WR(x, v) (HW_CAU_AESIC_CA1(x).U = (v))
+#define HW_CAU_AESIC_CA1_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca1_t, HW_CAU_AESIC_CA1_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4812,7 +4819,7 @@ typedef union _hw_cau_aesic_ca2
 #define HW_CAU_AESIC_CA2_ADDR(x) ((x) + 0xB50U)
 
 #define HW_CAU_AESIC_CA2(x)      (*(__O hw_cau_aesic_ca2_t *) HW_CAU_AESIC_CA2_ADDR(x))
-#define HW_CAU_AESIC_CA2_WR(x, v) (HW_CAU_AESIC_CA2(x).U = (v))
+#define HW_CAU_AESIC_CA2_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca2_t, HW_CAU_AESIC_CA2_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4856,7 +4863,7 @@ typedef union _hw_cau_aesic_ca3
 #define HW_CAU_AESIC_CA3_ADDR(x) ((x) + 0xB54U)
 
 #define HW_CAU_AESIC_CA3(x)      (*(__O hw_cau_aesic_ca3_t *) HW_CAU_AESIC_CA3_ADDR(x))
-#define HW_CAU_AESIC_CA3_WR(x, v) (HW_CAU_AESIC_CA3(x).U = (v))
+#define HW_CAU_AESIC_CA3_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca3_t, HW_CAU_AESIC_CA3_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4900,7 +4907,7 @@ typedef union _hw_cau_aesic_ca4
 #define HW_CAU_AESIC_CA4_ADDR(x) ((x) + 0xB58U)
 
 #define HW_CAU_AESIC_CA4(x)      (*(__O hw_cau_aesic_ca4_t *) HW_CAU_AESIC_CA4_ADDR(x))
-#define HW_CAU_AESIC_CA4_WR(x, v) (HW_CAU_AESIC_CA4(x).U = (v))
+#define HW_CAU_AESIC_CA4_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca4_t, HW_CAU_AESIC_CA4_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4944,7 +4951,7 @@ typedef union _hw_cau_aesic_ca5
 #define HW_CAU_AESIC_CA5_ADDR(x) ((x) + 0xB5CU)
 
 #define HW_CAU_AESIC_CA5(x)      (*(__O hw_cau_aesic_ca5_t *) HW_CAU_AESIC_CA5_ADDR(x))
-#define HW_CAU_AESIC_CA5_WR(x, v) (HW_CAU_AESIC_CA5(x).U = (v))
+#define HW_CAU_AESIC_CA5_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca5_t, HW_CAU_AESIC_CA5_ADDR(x), v))
 /*@}*/
 
 /*
@@ -4988,7 +4995,7 @@ typedef union _hw_cau_aesic_ca6
 #define HW_CAU_AESIC_CA6_ADDR(x) ((x) + 0xB60U)
 
 #define HW_CAU_AESIC_CA6(x)      (*(__O hw_cau_aesic_ca6_t *) HW_CAU_AESIC_CA6_ADDR(x))
-#define HW_CAU_AESIC_CA6_WR(x, v) (HW_CAU_AESIC_CA6(x).U = (v))
+#define HW_CAU_AESIC_CA6_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca6_t, HW_CAU_AESIC_CA6_ADDR(x), v))
 /*@}*/
 
 /*
@@ -5032,7 +5039,7 @@ typedef union _hw_cau_aesic_ca7
 #define HW_CAU_AESIC_CA7_ADDR(x) ((x) + 0xB64U)
 
 #define HW_CAU_AESIC_CA7(x)      (*(__O hw_cau_aesic_ca7_t *) HW_CAU_AESIC_CA7_ADDR(x))
-#define HW_CAU_AESIC_CA7_WR(x, v) (HW_CAU_AESIC_CA7(x).U = (v))
+#define HW_CAU_AESIC_CA7_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca7_t, HW_CAU_AESIC_CA7_ADDR(x), v))
 /*@}*/
 
 /*
@@ -5076,7 +5083,7 @@ typedef union _hw_cau_aesic_ca8
 #define HW_CAU_AESIC_CA8_ADDR(x) ((x) + 0xB68U)
 
 #define HW_CAU_AESIC_CA8(x)      (*(__O hw_cau_aesic_ca8_t *) HW_CAU_AESIC_CA8_ADDR(x))
-#define HW_CAU_AESIC_CA8_WR(x, v) (HW_CAU_AESIC_CA8(x).U = (v))
+#define HW_CAU_AESIC_CA8_WR(x, v) (ADDRESS_WRITE(hw_cau_aesic_ca8_t, HW_CAU_AESIC_CA8_ADDR(x), v))
 /*@}*/
 
 /*

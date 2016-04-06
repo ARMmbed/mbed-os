@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -161,8 +168,8 @@ typedef union _hw_i2s_tcsr
 #define HW_I2S_TCSR_ADDR(x)      ((x) + 0x0U)
 
 #define HW_I2S_TCSR(x)           (*(__IO hw_i2s_tcsr_t *) HW_I2S_TCSR_ADDR(x))
-#define HW_I2S_TCSR_RD(x)        (HW_I2S_TCSR(x).U)
-#define HW_I2S_TCSR_WR(x, v)     (HW_I2S_TCSR(x).U = (v))
+#define HW_I2S_TCSR_RD(x)        (ADDRESS_READ(hw_i2s_tcsr_t, HW_I2S_TCSR_ADDR(x)))
+#define HW_I2S_TCSR_WR(x, v)     (ADDRESS_WRITE(hw_i2s_tcsr_t, HW_I2S_TCSR_ADDR(x), v))
 #define HW_I2S_TCSR_SET(x, v)    (HW_I2S_TCSR_WR(x, HW_I2S_TCSR_RD(x) |  (v)))
 #define HW_I2S_TCSR_CLR(x, v)    (HW_I2S_TCSR_WR(x, HW_I2S_TCSR_RD(x) & ~(v)))
 #define HW_I2S_TCSR_TOG(x, v)    (HW_I2S_TCSR_WR(x, HW_I2S_TCSR_RD(x) ^  (v)))
@@ -187,13 +194,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FRDE     (1U)          /*!< Bit field size in bits for I2S_TCSR_FRDE. */
 
 /*! @brief Read current value of the I2S_TCSR_FRDE field. */
-#define BR_I2S_TCSR_FRDE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRDE))
+#define BR_I2S_TCSR_FRDE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRDE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_FRDE. */
 #define BF_I2S_TCSR_FRDE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_FRDE) & BM_I2S_TCSR_FRDE)
 
 /*! @brief Set the FRDE field to a new value. */
-#define BW_I2S_TCSR_FRDE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRDE) = (v))
+#define BW_I2S_TCSR_FRDE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRDE), v))
 /*@}*/
 
 /*!
@@ -211,13 +218,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FWDE     (1U)          /*!< Bit field size in bits for I2S_TCSR_FWDE. */
 
 /*! @brief Read current value of the I2S_TCSR_FWDE field. */
-#define BR_I2S_TCSR_FWDE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWDE))
+#define BR_I2S_TCSR_FWDE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWDE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_FWDE. */
 #define BF_I2S_TCSR_FWDE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_FWDE) & BM_I2S_TCSR_FWDE)
 
 /*! @brief Set the FWDE field to a new value. */
-#define BW_I2S_TCSR_FWDE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWDE) = (v))
+#define BW_I2S_TCSR_FWDE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWDE), v))
 /*@}*/
 
 /*!
@@ -235,13 +242,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FRIE     (1U)          /*!< Bit field size in bits for I2S_TCSR_FRIE. */
 
 /*! @brief Read current value of the I2S_TCSR_FRIE field. */
-#define BR_I2S_TCSR_FRIE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRIE))
+#define BR_I2S_TCSR_FRIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRIE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_FRIE. */
 #define BF_I2S_TCSR_FRIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_FRIE) & BM_I2S_TCSR_FRIE)
 
 /*! @brief Set the FRIE field to a new value. */
-#define BW_I2S_TCSR_FRIE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRIE) = (v))
+#define BW_I2S_TCSR_FRIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRIE), v))
 /*@}*/
 
 /*!
@@ -259,13 +266,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FWIE     (1U)          /*!< Bit field size in bits for I2S_TCSR_FWIE. */
 
 /*! @brief Read current value of the I2S_TCSR_FWIE field. */
-#define BR_I2S_TCSR_FWIE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWIE))
+#define BR_I2S_TCSR_FWIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWIE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_FWIE. */
 #define BF_I2S_TCSR_FWIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_FWIE) & BM_I2S_TCSR_FWIE)
 
 /*! @brief Set the FWIE field to a new value. */
-#define BW_I2S_TCSR_FWIE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWIE) = (v))
+#define BW_I2S_TCSR_FWIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWIE), v))
 /*@}*/
 
 /*!
@@ -283,13 +290,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FEIE     (1U)          /*!< Bit field size in bits for I2S_TCSR_FEIE. */
 
 /*! @brief Read current value of the I2S_TCSR_FEIE field. */
-#define BR_I2S_TCSR_FEIE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEIE))
+#define BR_I2S_TCSR_FEIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEIE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_FEIE. */
 #define BF_I2S_TCSR_FEIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_FEIE) & BM_I2S_TCSR_FEIE)
 
 /*! @brief Set the FEIE field to a new value. */
-#define BW_I2S_TCSR_FEIE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEIE) = (v))
+#define BW_I2S_TCSR_FEIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEIE), v))
 /*@}*/
 
 /*!
@@ -307,13 +314,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_SEIE     (1U)          /*!< Bit field size in bits for I2S_TCSR_SEIE. */
 
 /*! @brief Read current value of the I2S_TCSR_SEIE field. */
-#define BR_I2S_TCSR_SEIE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEIE))
+#define BR_I2S_TCSR_SEIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEIE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_SEIE. */
 #define BF_I2S_TCSR_SEIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_SEIE) & BM_I2S_TCSR_SEIE)
 
 /*! @brief Set the SEIE field to a new value. */
-#define BW_I2S_TCSR_SEIE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEIE) = (v))
+#define BW_I2S_TCSR_SEIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEIE), v))
 /*@}*/
 
 /*!
@@ -331,13 +338,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_WSIE     (1U)          /*!< Bit field size in bits for I2S_TCSR_WSIE. */
 
 /*! @brief Read current value of the I2S_TCSR_WSIE field. */
-#define BR_I2S_TCSR_WSIE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSIE))
+#define BR_I2S_TCSR_WSIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSIE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_WSIE. */
 #define BF_I2S_TCSR_WSIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_WSIE) & BM_I2S_TCSR_WSIE)
 
 /*! @brief Set the WSIE field to a new value. */
-#define BW_I2S_TCSR_WSIE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSIE) = (v))
+#define BW_I2S_TCSR_WSIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSIE), v))
 /*@}*/
 
 /*!
@@ -356,7 +363,7 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FRF      (1U)          /*!< Bit field size in bits for I2S_TCSR_FRF. */
 
 /*! @brief Read current value of the I2S_TCSR_FRF field. */
-#define BR_I2S_TCSR_FRF(x)   (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRF))
+#define BR_I2S_TCSR_FRF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FRF)))
 /*@}*/
 
 /*!
@@ -374,7 +381,7 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FWF      (1U)          /*!< Bit field size in bits for I2S_TCSR_FWF. */
 
 /*! @brief Read current value of the I2S_TCSR_FWF field. */
-#define BR_I2S_TCSR_FWF(x)   (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWF))
+#define BR_I2S_TCSR_FWF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FWF)))
 /*@}*/
 
 /*!
@@ -393,13 +400,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_FEF      (1U)          /*!< Bit field size in bits for I2S_TCSR_FEF. */
 
 /*! @brief Read current value of the I2S_TCSR_FEF field. */
-#define BR_I2S_TCSR_FEF(x)   (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEF))
+#define BR_I2S_TCSR_FEF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEF)))
 
 /*! @brief Format value for bitfield I2S_TCSR_FEF. */
 #define BF_I2S_TCSR_FEF(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_FEF) & BM_I2S_TCSR_FEF)
 
 /*! @brief Set the FEF field to a new value. */
-#define BW_I2S_TCSR_FEF(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEF) = (v))
+#define BW_I2S_TCSR_FEF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FEF), v))
 /*@}*/
 
 /*!
@@ -418,13 +425,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_SEF      (1U)          /*!< Bit field size in bits for I2S_TCSR_SEF. */
 
 /*! @brief Read current value of the I2S_TCSR_SEF field. */
-#define BR_I2S_TCSR_SEF(x)   (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEF))
+#define BR_I2S_TCSR_SEF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEF)))
 
 /*! @brief Format value for bitfield I2S_TCSR_SEF. */
 #define BF_I2S_TCSR_SEF(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_SEF) & BM_I2S_TCSR_SEF)
 
 /*! @brief Set the SEF field to a new value. */
-#define BW_I2S_TCSR_SEF(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEF) = (v))
+#define BW_I2S_TCSR_SEF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SEF), v))
 /*@}*/
 
 /*!
@@ -443,13 +450,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_WSF      (1U)          /*!< Bit field size in bits for I2S_TCSR_WSF. */
 
 /*! @brief Read current value of the I2S_TCSR_WSF field. */
-#define BR_I2S_TCSR_WSF(x)   (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSF))
+#define BR_I2S_TCSR_WSF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSF)))
 
 /*! @brief Format value for bitfield I2S_TCSR_WSF. */
 #define BF_I2S_TCSR_WSF(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_WSF) & BM_I2S_TCSR_WSF)
 
 /*! @brief Set the WSF field to a new value. */
-#define BW_I2S_TCSR_WSF(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSF) = (v))
+#define BW_I2S_TCSR_WSF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_WSF), v))
 /*@}*/
 
 /*!
@@ -468,13 +475,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_SR       (1U)          /*!< Bit field size in bits for I2S_TCSR_SR. */
 
 /*! @brief Read current value of the I2S_TCSR_SR field. */
-#define BR_I2S_TCSR_SR(x)    (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SR))
+#define BR_I2S_TCSR_SR(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SR)))
 
 /*! @brief Format value for bitfield I2S_TCSR_SR. */
 #define BF_I2S_TCSR_SR(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_SR) & BM_I2S_TCSR_SR)
 
 /*! @brief Set the SR field to a new value. */
-#define BW_I2S_TCSR_SR(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SR) = (v))
+#define BW_I2S_TCSR_SR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_SR), v))
 /*@}*/
 
 /*!
@@ -497,7 +504,7 @@ typedef union _hw_i2s_tcsr
 #define BF_I2S_TCSR_FR(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_FR) & BM_I2S_TCSR_FR)
 
 /*! @brief Set the FR field to a new value. */
-#define BW_I2S_TCSR_FR(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FR) = (v))
+#define BW_I2S_TCSR_FR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_FR), v))
 /*@}*/
 
 /*!
@@ -518,13 +525,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_BCE      (1U)          /*!< Bit field size in bits for I2S_TCSR_BCE. */
 
 /*! @brief Read current value of the I2S_TCSR_BCE field. */
-#define BR_I2S_TCSR_BCE(x)   (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_BCE))
+#define BR_I2S_TCSR_BCE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_BCE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_BCE. */
 #define BF_I2S_TCSR_BCE(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_BCE) & BM_I2S_TCSR_BCE)
 
 /*! @brief Set the BCE field to a new value. */
-#define BW_I2S_TCSR_BCE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_BCE) = (v))
+#define BW_I2S_TCSR_BCE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_BCE), v))
 /*@}*/
 
 /*!
@@ -544,13 +551,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_DBGE     (1U)          /*!< Bit field size in bits for I2S_TCSR_DBGE. */
 
 /*! @brief Read current value of the I2S_TCSR_DBGE field. */
-#define BR_I2S_TCSR_DBGE(x)  (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_DBGE))
+#define BR_I2S_TCSR_DBGE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_DBGE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_DBGE. */
 #define BF_I2S_TCSR_DBGE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_DBGE) & BM_I2S_TCSR_DBGE)
 
 /*! @brief Set the DBGE field to a new value. */
-#define BW_I2S_TCSR_DBGE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_DBGE) = (v))
+#define BW_I2S_TCSR_DBGE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_DBGE), v))
 /*@}*/
 
 /*!
@@ -569,13 +576,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_STOPE    (1U)          /*!< Bit field size in bits for I2S_TCSR_STOPE. */
 
 /*! @brief Read current value of the I2S_TCSR_STOPE field. */
-#define BR_I2S_TCSR_STOPE(x) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_STOPE))
+#define BR_I2S_TCSR_STOPE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_STOPE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_STOPE. */
 #define BF_I2S_TCSR_STOPE(v) ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_STOPE) & BM_I2S_TCSR_STOPE)
 
 /*! @brief Set the STOPE field to a new value. */
-#define BW_I2S_TCSR_STOPE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_STOPE) = (v))
+#define BW_I2S_TCSR_STOPE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_STOPE), v))
 /*@}*/
 
 /*!
@@ -596,13 +603,13 @@ typedef union _hw_i2s_tcsr
 #define BS_I2S_TCSR_TE       (1U)          /*!< Bit field size in bits for I2S_TCSR_TE. */
 
 /*! @brief Read current value of the I2S_TCSR_TE field. */
-#define BR_I2S_TCSR_TE(x)    (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_TE))
+#define BR_I2S_TCSR_TE(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_TE)))
 
 /*! @brief Format value for bitfield I2S_TCSR_TE. */
 #define BF_I2S_TCSR_TE(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_TCSR_TE) & BM_I2S_TCSR_TE)
 
 /*! @brief Set the TE field to a new value. */
-#define BW_I2S_TCSR_TE(x, v) (BITBAND_ACCESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_TE) = (v))
+#define BW_I2S_TCSR_TE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCSR_ADDR(x), BP_I2S_TCSR_TE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -631,8 +638,8 @@ typedef union _hw_i2s_tcr1
 #define HW_I2S_TCR1_ADDR(x)      ((x) + 0x4U)
 
 #define HW_I2S_TCR1(x)           (*(__IO hw_i2s_tcr1_t *) HW_I2S_TCR1_ADDR(x))
-#define HW_I2S_TCR1_RD(x)        (HW_I2S_TCR1(x).U)
-#define HW_I2S_TCR1_WR(x, v)     (HW_I2S_TCR1(x).U = (v))
+#define HW_I2S_TCR1_RD(x)        (ADDRESS_READ(hw_i2s_tcr1_t, HW_I2S_TCR1_ADDR(x)))
+#define HW_I2S_TCR1_WR(x, v)     (ADDRESS_WRITE(hw_i2s_tcr1_t, HW_I2S_TCR1_ADDR(x), v))
 #define HW_I2S_TCR1_SET(x, v)    (HW_I2S_TCR1_WR(x, HW_I2S_TCR1_RD(x) |  (v)))
 #define HW_I2S_TCR1_CLR(x, v)    (HW_I2S_TCR1_WR(x, HW_I2S_TCR1_RD(x) & ~(v)))
 #define HW_I2S_TCR1_TOG(x, v)    (HW_I2S_TCR1_WR(x, HW_I2S_TCR1_RD(x) ^  (v)))
@@ -653,7 +660,7 @@ typedef union _hw_i2s_tcr1
 #define BS_I2S_TCR1_TFW      (3U)          /*!< Bit field size in bits for I2S_TCR1_TFW. */
 
 /*! @brief Read current value of the I2S_TCR1_TFW field. */
-#define BR_I2S_TCR1_TFW(x)   (HW_I2S_TCR1(x).B.TFW)
+#define BR_I2S_TCR1_TFW(x)   (UNION_READ(hw_i2s_tcr1_t, HW_I2S_TCR1_ADDR(x), U, B.TFW))
 
 /*! @brief Format value for bitfield I2S_TCR1_TFW. */
 #define BF_I2S_TCR1_TFW(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR1_TFW) & BM_I2S_TCR1_TFW)
@@ -696,8 +703,8 @@ typedef union _hw_i2s_tcr2
 #define HW_I2S_TCR2_ADDR(x)      ((x) + 0x8U)
 
 #define HW_I2S_TCR2(x)           (*(__IO hw_i2s_tcr2_t *) HW_I2S_TCR2_ADDR(x))
-#define HW_I2S_TCR2_RD(x)        (HW_I2S_TCR2(x).U)
-#define HW_I2S_TCR2_WR(x, v)     (HW_I2S_TCR2(x).U = (v))
+#define HW_I2S_TCR2_RD(x)        (ADDRESS_READ(hw_i2s_tcr2_t, HW_I2S_TCR2_ADDR(x)))
+#define HW_I2S_TCR2_WR(x, v)     (ADDRESS_WRITE(hw_i2s_tcr2_t, HW_I2S_TCR2_ADDR(x), v))
 #define HW_I2S_TCR2_SET(x, v)    (HW_I2S_TCR2_WR(x, HW_I2S_TCR2_RD(x) |  (v)))
 #define HW_I2S_TCR2_CLR(x, v)    (HW_I2S_TCR2_WR(x, HW_I2S_TCR2_RD(x) & ~(v)))
 #define HW_I2S_TCR2_TOG(x, v)    (HW_I2S_TCR2_WR(x, HW_I2S_TCR2_RD(x) ^  (v)))
@@ -719,7 +726,7 @@ typedef union _hw_i2s_tcr2
 #define BS_I2S_TCR2_DIV      (8U)          /*!< Bit field size in bits for I2S_TCR2_DIV. */
 
 /*! @brief Read current value of the I2S_TCR2_DIV field. */
-#define BR_I2S_TCR2_DIV(x)   (HW_I2S_TCR2(x).B.DIV)
+#define BR_I2S_TCR2_DIV(x)   (UNION_READ(hw_i2s_tcr2_t, HW_I2S_TCR2_ADDR(x), U, B.DIV))
 
 /*! @brief Format value for bitfield I2S_TCR2_DIV. */
 #define BF_I2S_TCR2_DIV(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR2_DIV) & BM_I2S_TCR2_DIV)
@@ -743,13 +750,13 @@ typedef union _hw_i2s_tcr2
 #define BS_I2S_TCR2_BCD      (1U)          /*!< Bit field size in bits for I2S_TCR2_BCD. */
 
 /*! @brief Read current value of the I2S_TCR2_BCD field. */
-#define BR_I2S_TCR2_BCD(x)   (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCD))
+#define BR_I2S_TCR2_BCD(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCD)))
 
 /*! @brief Format value for bitfield I2S_TCR2_BCD. */
 #define BF_I2S_TCR2_BCD(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR2_BCD) & BM_I2S_TCR2_BCD)
 
 /*! @brief Set the BCD field to a new value. */
-#define BW_I2S_TCR2_BCD(x, v) (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCD) = (v))
+#define BW_I2S_TCR2_BCD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCD), v))
 /*@}*/
 
 /*!
@@ -769,13 +776,13 @@ typedef union _hw_i2s_tcr2
 #define BS_I2S_TCR2_BCP      (1U)          /*!< Bit field size in bits for I2S_TCR2_BCP. */
 
 /*! @brief Read current value of the I2S_TCR2_BCP field. */
-#define BR_I2S_TCR2_BCP(x)   (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCP))
+#define BR_I2S_TCR2_BCP(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCP)))
 
 /*! @brief Format value for bitfield I2S_TCR2_BCP. */
 #define BF_I2S_TCR2_BCP(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR2_BCP) & BM_I2S_TCR2_BCP)
 
 /*! @brief Set the BCP field to a new value. */
-#define BW_I2S_TCR2_BCP(x, v) (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCP) = (v))
+#define BW_I2S_TCR2_BCP(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCP), v))
 /*@}*/
 
 /*!
@@ -799,7 +806,7 @@ typedef union _hw_i2s_tcr2
 #define BS_I2S_TCR2_MSEL     (2U)          /*!< Bit field size in bits for I2S_TCR2_MSEL. */
 
 /*! @brief Read current value of the I2S_TCR2_MSEL field. */
-#define BR_I2S_TCR2_MSEL(x)  (HW_I2S_TCR2(x).B.MSEL)
+#define BR_I2S_TCR2_MSEL(x)  (UNION_READ(hw_i2s_tcr2_t, HW_I2S_TCR2_ADDR(x), U, B.MSEL))
 
 /*! @brief Format value for bitfield I2S_TCR2_MSEL. */
 #define BF_I2S_TCR2_MSEL(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCR2_MSEL) & BM_I2S_TCR2_MSEL)
@@ -832,13 +839,13 @@ typedef union _hw_i2s_tcr2
 #define BS_I2S_TCR2_BCI      (1U)          /*!< Bit field size in bits for I2S_TCR2_BCI. */
 
 /*! @brief Read current value of the I2S_TCR2_BCI field. */
-#define BR_I2S_TCR2_BCI(x)   (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCI))
+#define BR_I2S_TCR2_BCI(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCI)))
 
 /*! @brief Format value for bitfield I2S_TCR2_BCI. */
 #define BF_I2S_TCR2_BCI(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR2_BCI) & BM_I2S_TCR2_BCI)
 
 /*! @brief Set the BCI field to a new value. */
-#define BW_I2S_TCR2_BCI(x, v) (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCI) = (v))
+#define BW_I2S_TCR2_BCI(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCI), v))
 /*@}*/
 
 /*!
@@ -865,13 +872,13 @@ typedef union _hw_i2s_tcr2
 #define BS_I2S_TCR2_BCS      (1U)          /*!< Bit field size in bits for I2S_TCR2_BCS. */
 
 /*! @brief Read current value of the I2S_TCR2_BCS field. */
-#define BR_I2S_TCR2_BCS(x)   (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCS))
+#define BR_I2S_TCR2_BCS(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCS)))
 
 /*! @brief Format value for bitfield I2S_TCR2_BCS. */
 #define BF_I2S_TCR2_BCS(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR2_BCS) & BM_I2S_TCR2_BCS)
 
 /*! @brief Set the BCS field to a new value. */
-#define BW_I2S_TCR2_BCS(x, v) (BITBAND_ACCESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCS) = (v))
+#define BW_I2S_TCR2_BCS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR2_ADDR(x), BP_I2S_TCR2_BCS), v))
 /*@}*/
 
 /*!
@@ -893,7 +900,7 @@ typedef union _hw_i2s_tcr2
 #define BS_I2S_TCR2_SYNC     (2U)          /*!< Bit field size in bits for I2S_TCR2_SYNC. */
 
 /*! @brief Read current value of the I2S_TCR2_SYNC field. */
-#define BR_I2S_TCR2_SYNC(x)  (HW_I2S_TCR2(x).B.SYNC)
+#define BR_I2S_TCR2_SYNC(x)  (UNION_READ(hw_i2s_tcr2_t, HW_I2S_TCR2_ADDR(x), U, B.SYNC))
 
 /*! @brief Format value for bitfield I2S_TCR2_SYNC. */
 #define BF_I2S_TCR2_SYNC(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCR2_SYNC) & BM_I2S_TCR2_SYNC)
@@ -932,8 +939,8 @@ typedef union _hw_i2s_tcr3
 #define HW_I2S_TCR3_ADDR(x)      ((x) + 0xCU)
 
 #define HW_I2S_TCR3(x)           (*(__IO hw_i2s_tcr3_t *) HW_I2S_TCR3_ADDR(x))
-#define HW_I2S_TCR3_RD(x)        (HW_I2S_TCR3(x).U)
-#define HW_I2S_TCR3_WR(x, v)     (HW_I2S_TCR3(x).U = (v))
+#define HW_I2S_TCR3_RD(x)        (ADDRESS_READ(hw_i2s_tcr3_t, HW_I2S_TCR3_ADDR(x)))
+#define HW_I2S_TCR3_WR(x, v)     (ADDRESS_WRITE(hw_i2s_tcr3_t, HW_I2S_TCR3_ADDR(x), v))
 #define HW_I2S_TCR3_SET(x, v)    (HW_I2S_TCR3_WR(x, HW_I2S_TCR3_RD(x) |  (v)))
 #define HW_I2S_TCR3_CLR(x, v)    (HW_I2S_TCR3_WR(x, HW_I2S_TCR3_RD(x) & ~(v)))
 #define HW_I2S_TCR3_TOG(x, v)    (HW_I2S_TCR3_WR(x, HW_I2S_TCR3_RD(x) ^  (v)))
@@ -957,7 +964,7 @@ typedef union _hw_i2s_tcr3
 #define BS_I2S_TCR3_WDFL     (5U)          /*!< Bit field size in bits for I2S_TCR3_WDFL. */
 
 /*! @brief Read current value of the I2S_TCR3_WDFL field. */
-#define BR_I2S_TCR3_WDFL(x)  (HW_I2S_TCR3(x).B.WDFL)
+#define BR_I2S_TCR3_WDFL(x)  (UNION_READ(hw_i2s_tcr3_t, HW_I2S_TCR3_ADDR(x), U, B.WDFL))
 
 /*! @brief Format value for bitfield I2S_TCR3_WDFL. */
 #define BF_I2S_TCR3_WDFL(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCR3_WDFL) & BM_I2S_TCR3_WDFL)
@@ -982,7 +989,7 @@ typedef union _hw_i2s_tcr3
 #define BS_I2S_TCR3_TCE      (2U)          /*!< Bit field size in bits for I2S_TCR3_TCE. */
 
 /*! @brief Read current value of the I2S_TCR3_TCE field. */
-#define BR_I2S_TCR3_TCE(x)   (HW_I2S_TCR3(x).B.TCE)
+#define BR_I2S_TCR3_TCE(x)   (UNION_READ(hw_i2s_tcr3_t, HW_I2S_TCR3_ADDR(x), U, B.TCE))
 
 /*! @brief Format value for bitfield I2S_TCR3_TCE. */
 #define BF_I2S_TCR3_TCE(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR3_TCE) & BM_I2S_TCR3_TCE)
@@ -1027,8 +1034,8 @@ typedef union _hw_i2s_tcr4
 #define HW_I2S_TCR4_ADDR(x)      ((x) + 0x10U)
 
 #define HW_I2S_TCR4(x)           (*(__IO hw_i2s_tcr4_t *) HW_I2S_TCR4_ADDR(x))
-#define HW_I2S_TCR4_RD(x)        (HW_I2S_TCR4(x).U)
-#define HW_I2S_TCR4_WR(x, v)     (HW_I2S_TCR4(x).U = (v))
+#define HW_I2S_TCR4_RD(x)        (ADDRESS_READ(hw_i2s_tcr4_t, HW_I2S_TCR4_ADDR(x)))
+#define HW_I2S_TCR4_WR(x, v)     (ADDRESS_WRITE(hw_i2s_tcr4_t, HW_I2S_TCR4_ADDR(x), v))
 #define HW_I2S_TCR4_SET(x, v)    (HW_I2S_TCR4_WR(x, HW_I2S_TCR4_RD(x) |  (v)))
 #define HW_I2S_TCR4_CLR(x, v)    (HW_I2S_TCR4_WR(x, HW_I2S_TCR4_RD(x) & ~(v)))
 #define HW_I2S_TCR4_TOG(x, v)    (HW_I2S_TCR4_WR(x, HW_I2S_TCR4_RD(x) ^  (v)))
@@ -1053,13 +1060,13 @@ typedef union _hw_i2s_tcr4
 #define BS_I2S_TCR4_FSD      (1U)          /*!< Bit field size in bits for I2S_TCR4_FSD. */
 
 /*! @brief Read current value of the I2S_TCR4_FSD field. */
-#define BR_I2S_TCR4_FSD(x)   (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSD))
+#define BR_I2S_TCR4_FSD(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSD)))
 
 /*! @brief Format value for bitfield I2S_TCR4_FSD. */
 #define BF_I2S_TCR4_FSD(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR4_FSD) & BM_I2S_TCR4_FSD)
 
 /*! @brief Set the FSD field to a new value. */
-#define BW_I2S_TCR4_FSD(x, v) (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSD) = (v))
+#define BW_I2S_TCR4_FSD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSD), v))
 /*@}*/
 
 /*!
@@ -1077,13 +1084,13 @@ typedef union _hw_i2s_tcr4
 #define BS_I2S_TCR4_FSP      (1U)          /*!< Bit field size in bits for I2S_TCR4_FSP. */
 
 /*! @brief Read current value of the I2S_TCR4_FSP field. */
-#define BR_I2S_TCR4_FSP(x)   (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSP))
+#define BR_I2S_TCR4_FSP(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSP)))
 
 /*! @brief Format value for bitfield I2S_TCR4_FSP. */
 #define BF_I2S_TCR4_FSP(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR4_FSP) & BM_I2S_TCR4_FSP)
 
 /*! @brief Set the FSP field to a new value. */
-#define BW_I2S_TCR4_FSP(x, v) (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSP) = (v))
+#define BW_I2S_TCR4_FSP(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSP), v))
 /*@}*/
 
 /*!
@@ -1099,13 +1106,13 @@ typedef union _hw_i2s_tcr4
 #define BS_I2S_TCR4_FSE      (1U)          /*!< Bit field size in bits for I2S_TCR4_FSE. */
 
 /*! @brief Read current value of the I2S_TCR4_FSE field. */
-#define BR_I2S_TCR4_FSE(x)   (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSE))
+#define BR_I2S_TCR4_FSE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSE)))
 
 /*! @brief Format value for bitfield I2S_TCR4_FSE. */
 #define BF_I2S_TCR4_FSE(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR4_FSE) & BM_I2S_TCR4_FSE)
 
 /*! @brief Set the FSE field to a new value. */
-#define BW_I2S_TCR4_FSE(x, v) (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSE) = (v))
+#define BW_I2S_TCR4_FSE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_FSE), v))
 /*@}*/
 
 /*!
@@ -1123,13 +1130,13 @@ typedef union _hw_i2s_tcr4
 #define BS_I2S_TCR4_MF       (1U)          /*!< Bit field size in bits for I2S_TCR4_MF. */
 
 /*! @brief Read current value of the I2S_TCR4_MF field. */
-#define BR_I2S_TCR4_MF(x)    (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_MF))
+#define BR_I2S_TCR4_MF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_MF)))
 
 /*! @brief Format value for bitfield I2S_TCR4_MF. */
 #define BF_I2S_TCR4_MF(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_TCR4_MF) & BM_I2S_TCR4_MF)
 
 /*! @brief Set the MF field to a new value. */
-#define BW_I2S_TCR4_MF(x, v) (BITBAND_ACCESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_MF) = (v))
+#define BW_I2S_TCR4_MF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_TCR4_ADDR(x), BP_I2S_TCR4_MF), v))
 /*@}*/
 
 /*!
@@ -1146,7 +1153,7 @@ typedef union _hw_i2s_tcr4
 #define BS_I2S_TCR4_SYWD     (5U)          /*!< Bit field size in bits for I2S_TCR4_SYWD. */
 
 /*! @brief Read current value of the I2S_TCR4_SYWD field. */
-#define BR_I2S_TCR4_SYWD(x)  (HW_I2S_TCR4(x).B.SYWD)
+#define BR_I2S_TCR4_SYWD(x)  (UNION_READ(hw_i2s_tcr4_t, HW_I2S_TCR4_ADDR(x), U, B.SYWD))
 
 /*! @brief Format value for bitfield I2S_TCR4_SYWD. */
 #define BF_I2S_TCR4_SYWD(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCR4_SYWD) & BM_I2S_TCR4_SYWD)
@@ -1168,7 +1175,7 @@ typedef union _hw_i2s_tcr4
 #define BS_I2S_TCR4_FRSZ     (5U)          /*!< Bit field size in bits for I2S_TCR4_FRSZ. */
 
 /*! @brief Read current value of the I2S_TCR4_FRSZ field. */
-#define BR_I2S_TCR4_FRSZ(x)  (HW_I2S_TCR4(x).B.FRSZ)
+#define BR_I2S_TCR4_FRSZ(x)  (UNION_READ(hw_i2s_tcr4_t, HW_I2S_TCR4_ADDR(x), U, B.FRSZ))
 
 /*! @brief Format value for bitfield I2S_TCR4_FRSZ. */
 #define BF_I2S_TCR4_FRSZ(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_TCR4_FRSZ) & BM_I2S_TCR4_FRSZ)
@@ -1210,8 +1217,8 @@ typedef union _hw_i2s_tcr5
 #define HW_I2S_TCR5_ADDR(x)      ((x) + 0x14U)
 
 #define HW_I2S_TCR5(x)           (*(__IO hw_i2s_tcr5_t *) HW_I2S_TCR5_ADDR(x))
-#define HW_I2S_TCR5_RD(x)        (HW_I2S_TCR5(x).U)
-#define HW_I2S_TCR5_WR(x, v)     (HW_I2S_TCR5(x).U = (v))
+#define HW_I2S_TCR5_RD(x)        (ADDRESS_READ(hw_i2s_tcr5_t, HW_I2S_TCR5_ADDR(x)))
+#define HW_I2S_TCR5_WR(x, v)     (ADDRESS_WRITE(hw_i2s_tcr5_t, HW_I2S_TCR5_ADDR(x), v))
 #define HW_I2S_TCR5_SET(x, v)    (HW_I2S_TCR5_WR(x, HW_I2S_TCR5_RD(x) |  (v)))
 #define HW_I2S_TCR5_CLR(x, v)    (HW_I2S_TCR5_WR(x, HW_I2S_TCR5_RD(x) & ~(v)))
 #define HW_I2S_TCR5_TOG(x, v)    (HW_I2S_TCR5_WR(x, HW_I2S_TCR5_RD(x) ^  (v)))
@@ -1238,7 +1245,7 @@ typedef union _hw_i2s_tcr5
 #define BS_I2S_TCR5_FBT      (5U)          /*!< Bit field size in bits for I2S_TCR5_FBT. */
 
 /*! @brief Read current value of the I2S_TCR5_FBT field. */
-#define BR_I2S_TCR5_FBT(x)   (HW_I2S_TCR5(x).B.FBT)
+#define BR_I2S_TCR5_FBT(x)   (UNION_READ(hw_i2s_tcr5_t, HW_I2S_TCR5_ADDR(x), U, B.FBT))
 
 /*! @brief Format value for bitfield I2S_TCR5_FBT. */
 #define BF_I2S_TCR5_FBT(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR5_FBT) & BM_I2S_TCR5_FBT)
@@ -1260,7 +1267,7 @@ typedef union _hw_i2s_tcr5
 #define BS_I2S_TCR5_W0W      (5U)          /*!< Bit field size in bits for I2S_TCR5_W0W. */
 
 /*! @brief Read current value of the I2S_TCR5_W0W field. */
-#define BR_I2S_TCR5_W0W(x)   (HW_I2S_TCR5(x).B.W0W)
+#define BR_I2S_TCR5_W0W(x)   (UNION_READ(hw_i2s_tcr5_t, HW_I2S_TCR5_ADDR(x), U, B.W0W))
 
 /*! @brief Format value for bitfield I2S_TCR5_W0W. */
 #define BF_I2S_TCR5_W0W(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR5_W0W) & BM_I2S_TCR5_W0W)
@@ -1282,7 +1289,7 @@ typedef union _hw_i2s_tcr5
 #define BS_I2S_TCR5_WNW      (5U)          /*!< Bit field size in bits for I2S_TCR5_WNW. */
 
 /*! @brief Read current value of the I2S_TCR5_WNW field. */
-#define BR_I2S_TCR5_WNW(x)   (HW_I2S_TCR5(x).B.WNW)
+#define BR_I2S_TCR5_WNW(x)   (UNION_READ(hw_i2s_tcr5_t, HW_I2S_TCR5_ADDR(x), U, B.WNW))
 
 /*! @brief Format value for bitfield I2S_TCR5_WNW. */
 #define BF_I2S_TCR5_WNW(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_TCR5_WNW) & BM_I2S_TCR5_WNW)
@@ -1318,8 +1325,8 @@ typedef union _hw_i2s_tdrn
 #define HW_I2S_TDRn_ADDR(x, n)   ((x) + 0x20U + (0x4U * (n)))
 
 #define HW_I2S_TDRn(x, n)        (*(__O hw_i2s_tdrn_t *) HW_I2S_TDRn_ADDR(x, n))
-#define HW_I2S_TDRn_RD(x, n)     (HW_I2S_TDRn(x, n).U)
-#define HW_I2S_TDRn_WR(x, n, v)  (HW_I2S_TDRn(x, n).U = (v))
+#define HW_I2S_TDRn_RD(x, n)     (ADDRESS_READ(hw_i2s_tdrn_t, HW_I2S_TDRn_ADDR(x, n)))
+#define HW_I2S_TDRn_WR(x, n, v)  (ADDRESS_WRITE(hw_i2s_tdrn_t, HW_I2S_TDRn_ADDR(x, n), v))
 /*@}*/
 
 /*
@@ -1381,7 +1388,7 @@ typedef union _hw_i2s_tfrn
 #define HW_I2S_TFRn_ADDR(x, n)   ((x) + 0x40U + (0x4U * (n)))
 
 #define HW_I2S_TFRn(x, n)        (*(__I hw_i2s_tfrn_t *) HW_I2S_TFRn_ADDR(x, n))
-#define HW_I2S_TFRn_RD(x, n)     (HW_I2S_TFRn(x, n).U)
+#define HW_I2S_TFRn_RD(x, n)     (ADDRESS_READ(hw_i2s_tfrn_t, HW_I2S_TFRn_ADDR(x, n)))
 /*@}*/
 
 /*
@@ -1399,7 +1406,7 @@ typedef union _hw_i2s_tfrn
 #define BS_I2S_TFRn_RFP      (4U)          /*!< Bit field size in bits for I2S_TFRn_RFP. */
 
 /*! @brief Read current value of the I2S_TFRn_RFP field. */
-#define BR_I2S_TFRn_RFP(x, n) (HW_I2S_TFRn(x, n).B.RFP)
+#define BR_I2S_TFRn_RFP(x, n) (UNION_READ(hw_i2s_tfrn_t, HW_I2S_TFRn_ADDR(x, n), U, B.RFP))
 /*@}*/
 
 /*!
@@ -1413,7 +1420,7 @@ typedef union _hw_i2s_tfrn
 #define BS_I2S_TFRn_WFP      (4U)          /*!< Bit field size in bits for I2S_TFRn_WFP. */
 
 /*! @brief Read current value of the I2S_TFRn_WFP field. */
-#define BR_I2S_TFRn_WFP(x, n) (HW_I2S_TFRn(x, n).B.WFP)
+#define BR_I2S_TFRn_WFP(x, n) (UNION_READ(hw_i2s_tfrn_t, HW_I2S_TFRn_ADDR(x, n), U, B.WFP))
 /*@}*/
 
 /*******************************************************************************
@@ -1445,8 +1452,8 @@ typedef union _hw_i2s_tmr
 #define HW_I2S_TMR_ADDR(x)       ((x) + 0x60U)
 
 #define HW_I2S_TMR(x)            (*(__IO hw_i2s_tmr_t *) HW_I2S_TMR_ADDR(x))
-#define HW_I2S_TMR_RD(x)         (HW_I2S_TMR(x).U)
-#define HW_I2S_TMR_WR(x, v)      (HW_I2S_TMR(x).U = (v))
+#define HW_I2S_TMR_RD(x)         (ADDRESS_READ(hw_i2s_tmr_t, HW_I2S_TMR_ADDR(x)))
+#define HW_I2S_TMR_WR(x, v)      (ADDRESS_WRITE(hw_i2s_tmr_t, HW_I2S_TMR_ADDR(x), v))
 #define HW_I2S_TMR_SET(x, v)     (HW_I2S_TMR_WR(x, HW_I2S_TMR_RD(x) |  (v)))
 #define HW_I2S_TMR_CLR(x, v)     (HW_I2S_TMR_WR(x, HW_I2S_TMR_RD(x) & ~(v)))
 #define HW_I2S_TMR_TOG(x, v)     (HW_I2S_TMR_WR(x, HW_I2S_TMR_RD(x) ^  (v)))
@@ -1527,8 +1534,8 @@ typedef union _hw_i2s_rcsr
 #define HW_I2S_RCSR_ADDR(x)      ((x) + 0x80U)
 
 #define HW_I2S_RCSR(x)           (*(__IO hw_i2s_rcsr_t *) HW_I2S_RCSR_ADDR(x))
-#define HW_I2S_RCSR_RD(x)        (HW_I2S_RCSR(x).U)
-#define HW_I2S_RCSR_WR(x, v)     (HW_I2S_RCSR(x).U = (v))
+#define HW_I2S_RCSR_RD(x)        (ADDRESS_READ(hw_i2s_rcsr_t, HW_I2S_RCSR_ADDR(x)))
+#define HW_I2S_RCSR_WR(x, v)     (ADDRESS_WRITE(hw_i2s_rcsr_t, HW_I2S_RCSR_ADDR(x), v))
 #define HW_I2S_RCSR_SET(x, v)    (HW_I2S_RCSR_WR(x, HW_I2S_RCSR_RD(x) |  (v)))
 #define HW_I2S_RCSR_CLR(x, v)    (HW_I2S_RCSR_WR(x, HW_I2S_RCSR_RD(x) & ~(v)))
 #define HW_I2S_RCSR_TOG(x, v)    (HW_I2S_RCSR_WR(x, HW_I2S_RCSR_RD(x) ^  (v)))
@@ -1553,13 +1560,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FRDE     (1U)          /*!< Bit field size in bits for I2S_RCSR_FRDE. */
 
 /*! @brief Read current value of the I2S_RCSR_FRDE field. */
-#define BR_I2S_RCSR_FRDE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRDE))
+#define BR_I2S_RCSR_FRDE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRDE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_FRDE. */
 #define BF_I2S_RCSR_FRDE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_FRDE) & BM_I2S_RCSR_FRDE)
 
 /*! @brief Set the FRDE field to a new value. */
-#define BW_I2S_RCSR_FRDE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRDE) = (v))
+#define BW_I2S_RCSR_FRDE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRDE), v))
 /*@}*/
 
 /*!
@@ -1577,13 +1584,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FWDE     (1U)          /*!< Bit field size in bits for I2S_RCSR_FWDE. */
 
 /*! @brief Read current value of the I2S_RCSR_FWDE field. */
-#define BR_I2S_RCSR_FWDE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWDE))
+#define BR_I2S_RCSR_FWDE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWDE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_FWDE. */
 #define BF_I2S_RCSR_FWDE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_FWDE) & BM_I2S_RCSR_FWDE)
 
 /*! @brief Set the FWDE field to a new value. */
-#define BW_I2S_RCSR_FWDE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWDE) = (v))
+#define BW_I2S_RCSR_FWDE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWDE), v))
 /*@}*/
 
 /*!
@@ -1601,13 +1608,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FRIE     (1U)          /*!< Bit field size in bits for I2S_RCSR_FRIE. */
 
 /*! @brief Read current value of the I2S_RCSR_FRIE field. */
-#define BR_I2S_RCSR_FRIE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRIE))
+#define BR_I2S_RCSR_FRIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRIE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_FRIE. */
 #define BF_I2S_RCSR_FRIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_FRIE) & BM_I2S_RCSR_FRIE)
 
 /*! @brief Set the FRIE field to a new value. */
-#define BW_I2S_RCSR_FRIE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRIE) = (v))
+#define BW_I2S_RCSR_FRIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRIE), v))
 /*@}*/
 
 /*!
@@ -1625,13 +1632,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FWIE     (1U)          /*!< Bit field size in bits for I2S_RCSR_FWIE. */
 
 /*! @brief Read current value of the I2S_RCSR_FWIE field. */
-#define BR_I2S_RCSR_FWIE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWIE))
+#define BR_I2S_RCSR_FWIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWIE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_FWIE. */
 #define BF_I2S_RCSR_FWIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_FWIE) & BM_I2S_RCSR_FWIE)
 
 /*! @brief Set the FWIE field to a new value. */
-#define BW_I2S_RCSR_FWIE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWIE) = (v))
+#define BW_I2S_RCSR_FWIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWIE), v))
 /*@}*/
 
 /*!
@@ -1649,13 +1656,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FEIE     (1U)          /*!< Bit field size in bits for I2S_RCSR_FEIE. */
 
 /*! @brief Read current value of the I2S_RCSR_FEIE field. */
-#define BR_I2S_RCSR_FEIE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEIE))
+#define BR_I2S_RCSR_FEIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEIE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_FEIE. */
 #define BF_I2S_RCSR_FEIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_FEIE) & BM_I2S_RCSR_FEIE)
 
 /*! @brief Set the FEIE field to a new value. */
-#define BW_I2S_RCSR_FEIE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEIE) = (v))
+#define BW_I2S_RCSR_FEIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEIE), v))
 /*@}*/
 
 /*!
@@ -1673,13 +1680,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_SEIE     (1U)          /*!< Bit field size in bits for I2S_RCSR_SEIE. */
 
 /*! @brief Read current value of the I2S_RCSR_SEIE field. */
-#define BR_I2S_RCSR_SEIE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEIE))
+#define BR_I2S_RCSR_SEIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEIE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_SEIE. */
 #define BF_I2S_RCSR_SEIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_SEIE) & BM_I2S_RCSR_SEIE)
 
 /*! @brief Set the SEIE field to a new value. */
-#define BW_I2S_RCSR_SEIE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEIE) = (v))
+#define BW_I2S_RCSR_SEIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEIE), v))
 /*@}*/
 
 /*!
@@ -1697,13 +1704,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_WSIE     (1U)          /*!< Bit field size in bits for I2S_RCSR_WSIE. */
 
 /*! @brief Read current value of the I2S_RCSR_WSIE field. */
-#define BR_I2S_RCSR_WSIE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSIE))
+#define BR_I2S_RCSR_WSIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSIE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_WSIE. */
 #define BF_I2S_RCSR_WSIE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_WSIE) & BM_I2S_RCSR_WSIE)
 
 /*! @brief Set the WSIE field to a new value. */
-#define BW_I2S_RCSR_WSIE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSIE) = (v))
+#define BW_I2S_RCSR_WSIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSIE), v))
 /*@}*/
 
 /*!
@@ -1722,7 +1729,7 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FRF      (1U)          /*!< Bit field size in bits for I2S_RCSR_FRF. */
 
 /*! @brief Read current value of the I2S_RCSR_FRF field. */
-#define BR_I2S_RCSR_FRF(x)   (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRF))
+#define BR_I2S_RCSR_FRF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FRF)))
 /*@}*/
 
 /*!
@@ -1740,7 +1747,7 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FWF      (1U)          /*!< Bit field size in bits for I2S_RCSR_FWF. */
 
 /*! @brief Read current value of the I2S_RCSR_FWF field. */
-#define BR_I2S_RCSR_FWF(x)   (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWF))
+#define BR_I2S_RCSR_FWF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FWF)))
 /*@}*/
 
 /*!
@@ -1759,13 +1766,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_FEF      (1U)          /*!< Bit field size in bits for I2S_RCSR_FEF. */
 
 /*! @brief Read current value of the I2S_RCSR_FEF field. */
-#define BR_I2S_RCSR_FEF(x)   (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEF))
+#define BR_I2S_RCSR_FEF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEF)))
 
 /*! @brief Format value for bitfield I2S_RCSR_FEF. */
 #define BF_I2S_RCSR_FEF(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_FEF) & BM_I2S_RCSR_FEF)
 
 /*! @brief Set the FEF field to a new value. */
-#define BW_I2S_RCSR_FEF(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEF) = (v))
+#define BW_I2S_RCSR_FEF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FEF), v))
 /*@}*/
 
 /*!
@@ -1784,13 +1791,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_SEF      (1U)          /*!< Bit field size in bits for I2S_RCSR_SEF. */
 
 /*! @brief Read current value of the I2S_RCSR_SEF field. */
-#define BR_I2S_RCSR_SEF(x)   (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEF))
+#define BR_I2S_RCSR_SEF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEF)))
 
 /*! @brief Format value for bitfield I2S_RCSR_SEF. */
 #define BF_I2S_RCSR_SEF(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_SEF) & BM_I2S_RCSR_SEF)
 
 /*! @brief Set the SEF field to a new value. */
-#define BW_I2S_RCSR_SEF(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEF) = (v))
+#define BW_I2S_RCSR_SEF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SEF), v))
 /*@}*/
 
 /*!
@@ -1809,13 +1816,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_WSF      (1U)          /*!< Bit field size in bits for I2S_RCSR_WSF. */
 
 /*! @brief Read current value of the I2S_RCSR_WSF field. */
-#define BR_I2S_RCSR_WSF(x)   (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSF))
+#define BR_I2S_RCSR_WSF(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSF)))
 
 /*! @brief Format value for bitfield I2S_RCSR_WSF. */
 #define BF_I2S_RCSR_WSF(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_WSF) & BM_I2S_RCSR_WSF)
 
 /*! @brief Set the WSF field to a new value. */
-#define BW_I2S_RCSR_WSF(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSF) = (v))
+#define BW_I2S_RCSR_WSF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_WSF), v))
 /*@}*/
 
 /*!
@@ -1834,13 +1841,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_SR       (1U)          /*!< Bit field size in bits for I2S_RCSR_SR. */
 
 /*! @brief Read current value of the I2S_RCSR_SR field. */
-#define BR_I2S_RCSR_SR(x)    (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SR))
+#define BR_I2S_RCSR_SR(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SR)))
 
 /*! @brief Format value for bitfield I2S_RCSR_SR. */
 #define BF_I2S_RCSR_SR(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_SR) & BM_I2S_RCSR_SR)
 
 /*! @brief Set the SR field to a new value. */
-#define BW_I2S_RCSR_SR(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SR) = (v))
+#define BW_I2S_RCSR_SR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_SR), v))
 /*@}*/
 
 /*!
@@ -1863,7 +1870,7 @@ typedef union _hw_i2s_rcsr
 #define BF_I2S_RCSR_FR(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_FR) & BM_I2S_RCSR_FR)
 
 /*! @brief Set the FR field to a new value. */
-#define BW_I2S_RCSR_FR(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FR) = (v))
+#define BW_I2S_RCSR_FR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_FR), v))
 /*@}*/
 
 /*!
@@ -1884,13 +1891,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_BCE      (1U)          /*!< Bit field size in bits for I2S_RCSR_BCE. */
 
 /*! @brief Read current value of the I2S_RCSR_BCE field. */
-#define BR_I2S_RCSR_BCE(x)   (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_BCE))
+#define BR_I2S_RCSR_BCE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_BCE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_BCE. */
 #define BF_I2S_RCSR_BCE(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_BCE) & BM_I2S_RCSR_BCE)
 
 /*! @brief Set the BCE field to a new value. */
-#define BW_I2S_RCSR_BCE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_BCE) = (v))
+#define BW_I2S_RCSR_BCE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_BCE), v))
 /*@}*/
 
 /*!
@@ -1909,13 +1916,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_DBGE     (1U)          /*!< Bit field size in bits for I2S_RCSR_DBGE. */
 
 /*! @brief Read current value of the I2S_RCSR_DBGE field. */
-#define BR_I2S_RCSR_DBGE(x)  (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_DBGE))
+#define BR_I2S_RCSR_DBGE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_DBGE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_DBGE. */
 #define BF_I2S_RCSR_DBGE(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_DBGE) & BM_I2S_RCSR_DBGE)
 
 /*! @brief Set the DBGE field to a new value. */
-#define BW_I2S_RCSR_DBGE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_DBGE) = (v))
+#define BW_I2S_RCSR_DBGE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_DBGE), v))
 /*@}*/
 
 /*!
@@ -1934,13 +1941,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_STOPE    (1U)          /*!< Bit field size in bits for I2S_RCSR_STOPE. */
 
 /*! @brief Read current value of the I2S_RCSR_STOPE field. */
-#define BR_I2S_RCSR_STOPE(x) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_STOPE))
+#define BR_I2S_RCSR_STOPE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_STOPE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_STOPE. */
 #define BF_I2S_RCSR_STOPE(v) ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_STOPE) & BM_I2S_RCSR_STOPE)
 
 /*! @brief Set the STOPE field to a new value. */
-#define BW_I2S_RCSR_STOPE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_STOPE) = (v))
+#define BW_I2S_RCSR_STOPE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_STOPE), v))
 /*@}*/
 
 /*!
@@ -1960,13 +1967,13 @@ typedef union _hw_i2s_rcsr
 #define BS_I2S_RCSR_RE       (1U)          /*!< Bit field size in bits for I2S_RCSR_RE. */
 
 /*! @brief Read current value of the I2S_RCSR_RE field. */
-#define BR_I2S_RCSR_RE(x)    (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_RE))
+#define BR_I2S_RCSR_RE(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_RE)))
 
 /*! @brief Format value for bitfield I2S_RCSR_RE. */
 #define BF_I2S_RCSR_RE(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_RCSR_RE) & BM_I2S_RCSR_RE)
 
 /*! @brief Set the RE field to a new value. */
-#define BW_I2S_RCSR_RE(x, v) (BITBAND_ACCESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_RE) = (v))
+#define BW_I2S_RCSR_RE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCSR_ADDR(x), BP_I2S_RCSR_RE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1995,8 +2002,8 @@ typedef union _hw_i2s_rcr1
 #define HW_I2S_RCR1_ADDR(x)      ((x) + 0x84U)
 
 #define HW_I2S_RCR1(x)           (*(__IO hw_i2s_rcr1_t *) HW_I2S_RCR1_ADDR(x))
-#define HW_I2S_RCR1_RD(x)        (HW_I2S_RCR1(x).U)
-#define HW_I2S_RCR1_WR(x, v)     (HW_I2S_RCR1(x).U = (v))
+#define HW_I2S_RCR1_RD(x)        (ADDRESS_READ(hw_i2s_rcr1_t, HW_I2S_RCR1_ADDR(x)))
+#define HW_I2S_RCR1_WR(x, v)     (ADDRESS_WRITE(hw_i2s_rcr1_t, HW_I2S_RCR1_ADDR(x), v))
 #define HW_I2S_RCR1_SET(x, v)    (HW_I2S_RCR1_WR(x, HW_I2S_RCR1_RD(x) |  (v)))
 #define HW_I2S_RCR1_CLR(x, v)    (HW_I2S_RCR1_WR(x, HW_I2S_RCR1_RD(x) & ~(v)))
 #define HW_I2S_RCR1_TOG(x, v)    (HW_I2S_RCR1_WR(x, HW_I2S_RCR1_RD(x) ^  (v)))
@@ -2017,7 +2024,7 @@ typedef union _hw_i2s_rcr1
 #define BS_I2S_RCR1_RFW      (3U)          /*!< Bit field size in bits for I2S_RCR1_RFW. */
 
 /*! @brief Read current value of the I2S_RCR1_RFW field. */
-#define BR_I2S_RCR1_RFW(x)   (HW_I2S_RCR1(x).B.RFW)
+#define BR_I2S_RCR1_RFW(x)   (UNION_READ(hw_i2s_rcr1_t, HW_I2S_RCR1_ADDR(x), U, B.RFW))
 
 /*! @brief Format value for bitfield I2S_RCR1_RFW. */
 #define BF_I2S_RCR1_RFW(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR1_RFW) & BM_I2S_RCR1_RFW)
@@ -2060,8 +2067,8 @@ typedef union _hw_i2s_rcr2
 #define HW_I2S_RCR2_ADDR(x)      ((x) + 0x88U)
 
 #define HW_I2S_RCR2(x)           (*(__IO hw_i2s_rcr2_t *) HW_I2S_RCR2_ADDR(x))
-#define HW_I2S_RCR2_RD(x)        (HW_I2S_RCR2(x).U)
-#define HW_I2S_RCR2_WR(x, v)     (HW_I2S_RCR2(x).U = (v))
+#define HW_I2S_RCR2_RD(x)        (ADDRESS_READ(hw_i2s_rcr2_t, HW_I2S_RCR2_ADDR(x)))
+#define HW_I2S_RCR2_WR(x, v)     (ADDRESS_WRITE(hw_i2s_rcr2_t, HW_I2S_RCR2_ADDR(x), v))
 #define HW_I2S_RCR2_SET(x, v)    (HW_I2S_RCR2_WR(x, HW_I2S_RCR2_RD(x) |  (v)))
 #define HW_I2S_RCR2_CLR(x, v)    (HW_I2S_RCR2_WR(x, HW_I2S_RCR2_RD(x) & ~(v)))
 #define HW_I2S_RCR2_TOG(x, v)    (HW_I2S_RCR2_WR(x, HW_I2S_RCR2_RD(x) ^  (v)))
@@ -2083,7 +2090,7 @@ typedef union _hw_i2s_rcr2
 #define BS_I2S_RCR2_DIV      (8U)          /*!< Bit field size in bits for I2S_RCR2_DIV. */
 
 /*! @brief Read current value of the I2S_RCR2_DIV field. */
-#define BR_I2S_RCR2_DIV(x)   (HW_I2S_RCR2(x).B.DIV)
+#define BR_I2S_RCR2_DIV(x)   (UNION_READ(hw_i2s_rcr2_t, HW_I2S_RCR2_ADDR(x), U, B.DIV))
 
 /*! @brief Format value for bitfield I2S_RCR2_DIV. */
 #define BF_I2S_RCR2_DIV(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR2_DIV) & BM_I2S_RCR2_DIV)
@@ -2107,13 +2114,13 @@ typedef union _hw_i2s_rcr2
 #define BS_I2S_RCR2_BCD      (1U)          /*!< Bit field size in bits for I2S_RCR2_BCD. */
 
 /*! @brief Read current value of the I2S_RCR2_BCD field. */
-#define BR_I2S_RCR2_BCD(x)   (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCD))
+#define BR_I2S_RCR2_BCD(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCD)))
 
 /*! @brief Format value for bitfield I2S_RCR2_BCD. */
 #define BF_I2S_RCR2_BCD(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR2_BCD) & BM_I2S_RCR2_BCD)
 
 /*! @brief Set the BCD field to a new value. */
-#define BW_I2S_RCR2_BCD(x, v) (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCD) = (v))
+#define BW_I2S_RCR2_BCD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCD), v))
 /*@}*/
 
 /*!
@@ -2133,13 +2140,13 @@ typedef union _hw_i2s_rcr2
 #define BS_I2S_RCR2_BCP      (1U)          /*!< Bit field size in bits for I2S_RCR2_BCP. */
 
 /*! @brief Read current value of the I2S_RCR2_BCP field. */
-#define BR_I2S_RCR2_BCP(x)   (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCP))
+#define BR_I2S_RCR2_BCP(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCP)))
 
 /*! @brief Format value for bitfield I2S_RCR2_BCP. */
 #define BF_I2S_RCR2_BCP(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR2_BCP) & BM_I2S_RCR2_BCP)
 
 /*! @brief Set the BCP field to a new value. */
-#define BW_I2S_RCR2_BCP(x, v) (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCP) = (v))
+#define BW_I2S_RCR2_BCP(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCP), v))
 /*@}*/
 
 /*!
@@ -2163,7 +2170,7 @@ typedef union _hw_i2s_rcr2
 #define BS_I2S_RCR2_MSEL     (2U)          /*!< Bit field size in bits for I2S_RCR2_MSEL. */
 
 /*! @brief Read current value of the I2S_RCR2_MSEL field. */
-#define BR_I2S_RCR2_MSEL(x)  (HW_I2S_RCR2(x).B.MSEL)
+#define BR_I2S_RCR2_MSEL(x)  (UNION_READ(hw_i2s_rcr2_t, HW_I2S_RCR2_ADDR(x), U, B.MSEL))
 
 /*! @brief Format value for bitfield I2S_RCR2_MSEL. */
 #define BF_I2S_RCR2_MSEL(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCR2_MSEL) & BM_I2S_RCR2_MSEL)
@@ -2196,13 +2203,13 @@ typedef union _hw_i2s_rcr2
 #define BS_I2S_RCR2_BCI      (1U)          /*!< Bit field size in bits for I2S_RCR2_BCI. */
 
 /*! @brief Read current value of the I2S_RCR2_BCI field. */
-#define BR_I2S_RCR2_BCI(x)   (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCI))
+#define BR_I2S_RCR2_BCI(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCI)))
 
 /*! @brief Format value for bitfield I2S_RCR2_BCI. */
 #define BF_I2S_RCR2_BCI(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR2_BCI) & BM_I2S_RCR2_BCI)
 
 /*! @brief Set the BCI field to a new value. */
-#define BW_I2S_RCR2_BCI(x, v) (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCI) = (v))
+#define BW_I2S_RCR2_BCI(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCI), v))
 /*@}*/
 
 /*!
@@ -2228,13 +2235,13 @@ typedef union _hw_i2s_rcr2
 #define BS_I2S_RCR2_BCS      (1U)          /*!< Bit field size in bits for I2S_RCR2_BCS. */
 
 /*! @brief Read current value of the I2S_RCR2_BCS field. */
-#define BR_I2S_RCR2_BCS(x)   (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCS))
+#define BR_I2S_RCR2_BCS(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCS)))
 
 /*! @brief Format value for bitfield I2S_RCR2_BCS. */
 #define BF_I2S_RCR2_BCS(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR2_BCS) & BM_I2S_RCR2_BCS)
 
 /*! @brief Set the BCS field to a new value. */
-#define BW_I2S_RCR2_BCS(x, v) (BITBAND_ACCESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCS) = (v))
+#define BW_I2S_RCR2_BCS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR2_ADDR(x), BP_I2S_RCR2_BCS), v))
 /*@}*/
 
 /*!
@@ -2256,7 +2263,7 @@ typedef union _hw_i2s_rcr2
 #define BS_I2S_RCR2_SYNC     (2U)          /*!< Bit field size in bits for I2S_RCR2_SYNC. */
 
 /*! @brief Read current value of the I2S_RCR2_SYNC field. */
-#define BR_I2S_RCR2_SYNC(x)  (HW_I2S_RCR2(x).B.SYNC)
+#define BR_I2S_RCR2_SYNC(x)  (UNION_READ(hw_i2s_rcr2_t, HW_I2S_RCR2_ADDR(x), U, B.SYNC))
 
 /*! @brief Format value for bitfield I2S_RCR2_SYNC. */
 #define BF_I2S_RCR2_SYNC(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCR2_SYNC) & BM_I2S_RCR2_SYNC)
@@ -2295,8 +2302,8 @@ typedef union _hw_i2s_rcr3
 #define HW_I2S_RCR3_ADDR(x)      ((x) + 0x8CU)
 
 #define HW_I2S_RCR3(x)           (*(__IO hw_i2s_rcr3_t *) HW_I2S_RCR3_ADDR(x))
-#define HW_I2S_RCR3_RD(x)        (HW_I2S_RCR3(x).U)
-#define HW_I2S_RCR3_WR(x, v)     (HW_I2S_RCR3(x).U = (v))
+#define HW_I2S_RCR3_RD(x)        (ADDRESS_READ(hw_i2s_rcr3_t, HW_I2S_RCR3_ADDR(x)))
+#define HW_I2S_RCR3_WR(x, v)     (ADDRESS_WRITE(hw_i2s_rcr3_t, HW_I2S_RCR3_ADDR(x), v))
 #define HW_I2S_RCR3_SET(x, v)    (HW_I2S_RCR3_WR(x, HW_I2S_RCR3_RD(x) |  (v)))
 #define HW_I2S_RCR3_CLR(x, v)    (HW_I2S_RCR3_WR(x, HW_I2S_RCR3_RD(x) & ~(v)))
 #define HW_I2S_RCR3_TOG(x, v)    (HW_I2S_RCR3_WR(x, HW_I2S_RCR3_RD(x) ^  (v)))
@@ -2320,7 +2327,7 @@ typedef union _hw_i2s_rcr3
 #define BS_I2S_RCR3_WDFL     (5U)          /*!< Bit field size in bits for I2S_RCR3_WDFL. */
 
 /*! @brief Read current value of the I2S_RCR3_WDFL field. */
-#define BR_I2S_RCR3_WDFL(x)  (HW_I2S_RCR3(x).B.WDFL)
+#define BR_I2S_RCR3_WDFL(x)  (UNION_READ(hw_i2s_rcr3_t, HW_I2S_RCR3_ADDR(x), U, B.WDFL))
 
 /*! @brief Format value for bitfield I2S_RCR3_WDFL. */
 #define BF_I2S_RCR3_WDFL(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCR3_WDFL) & BM_I2S_RCR3_WDFL)
@@ -2345,7 +2352,7 @@ typedef union _hw_i2s_rcr3
 #define BS_I2S_RCR3_RCE      (2U)          /*!< Bit field size in bits for I2S_RCR3_RCE. */
 
 /*! @brief Read current value of the I2S_RCR3_RCE field. */
-#define BR_I2S_RCR3_RCE(x)   (HW_I2S_RCR3(x).B.RCE)
+#define BR_I2S_RCR3_RCE(x)   (UNION_READ(hw_i2s_rcr3_t, HW_I2S_RCR3_ADDR(x), U, B.RCE))
 
 /*! @brief Format value for bitfield I2S_RCR3_RCE. */
 #define BF_I2S_RCR3_RCE(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR3_RCE) & BM_I2S_RCR3_RCE)
@@ -2390,8 +2397,8 @@ typedef union _hw_i2s_rcr4
 #define HW_I2S_RCR4_ADDR(x)      ((x) + 0x90U)
 
 #define HW_I2S_RCR4(x)           (*(__IO hw_i2s_rcr4_t *) HW_I2S_RCR4_ADDR(x))
-#define HW_I2S_RCR4_RD(x)        (HW_I2S_RCR4(x).U)
-#define HW_I2S_RCR4_WR(x, v)     (HW_I2S_RCR4(x).U = (v))
+#define HW_I2S_RCR4_RD(x)        (ADDRESS_READ(hw_i2s_rcr4_t, HW_I2S_RCR4_ADDR(x)))
+#define HW_I2S_RCR4_WR(x, v)     (ADDRESS_WRITE(hw_i2s_rcr4_t, HW_I2S_RCR4_ADDR(x), v))
 #define HW_I2S_RCR4_SET(x, v)    (HW_I2S_RCR4_WR(x, HW_I2S_RCR4_RD(x) |  (v)))
 #define HW_I2S_RCR4_CLR(x, v)    (HW_I2S_RCR4_WR(x, HW_I2S_RCR4_RD(x) & ~(v)))
 #define HW_I2S_RCR4_TOG(x, v)    (HW_I2S_RCR4_WR(x, HW_I2S_RCR4_RD(x) ^  (v)))
@@ -2416,13 +2423,13 @@ typedef union _hw_i2s_rcr4
 #define BS_I2S_RCR4_FSD      (1U)          /*!< Bit field size in bits for I2S_RCR4_FSD. */
 
 /*! @brief Read current value of the I2S_RCR4_FSD field. */
-#define BR_I2S_RCR4_FSD(x)   (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSD))
+#define BR_I2S_RCR4_FSD(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSD)))
 
 /*! @brief Format value for bitfield I2S_RCR4_FSD. */
 #define BF_I2S_RCR4_FSD(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR4_FSD) & BM_I2S_RCR4_FSD)
 
 /*! @brief Set the FSD field to a new value. */
-#define BW_I2S_RCR4_FSD(x, v) (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSD) = (v))
+#define BW_I2S_RCR4_FSD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSD), v))
 /*@}*/
 
 /*!
@@ -2440,13 +2447,13 @@ typedef union _hw_i2s_rcr4
 #define BS_I2S_RCR4_FSP      (1U)          /*!< Bit field size in bits for I2S_RCR4_FSP. */
 
 /*! @brief Read current value of the I2S_RCR4_FSP field. */
-#define BR_I2S_RCR4_FSP(x)   (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSP))
+#define BR_I2S_RCR4_FSP(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSP)))
 
 /*! @brief Format value for bitfield I2S_RCR4_FSP. */
 #define BF_I2S_RCR4_FSP(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR4_FSP) & BM_I2S_RCR4_FSP)
 
 /*! @brief Set the FSP field to a new value. */
-#define BW_I2S_RCR4_FSP(x, v) (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSP) = (v))
+#define BW_I2S_RCR4_FSP(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSP), v))
 /*@}*/
 
 /*!
@@ -2462,13 +2469,13 @@ typedef union _hw_i2s_rcr4
 #define BS_I2S_RCR4_FSE      (1U)          /*!< Bit field size in bits for I2S_RCR4_FSE. */
 
 /*! @brief Read current value of the I2S_RCR4_FSE field. */
-#define BR_I2S_RCR4_FSE(x)   (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSE))
+#define BR_I2S_RCR4_FSE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSE)))
 
 /*! @brief Format value for bitfield I2S_RCR4_FSE. */
 #define BF_I2S_RCR4_FSE(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR4_FSE) & BM_I2S_RCR4_FSE)
 
 /*! @brief Set the FSE field to a new value. */
-#define BW_I2S_RCR4_FSE(x, v) (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSE) = (v))
+#define BW_I2S_RCR4_FSE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_FSE), v))
 /*@}*/
 
 /*!
@@ -2486,13 +2493,13 @@ typedef union _hw_i2s_rcr4
 #define BS_I2S_RCR4_MF       (1U)          /*!< Bit field size in bits for I2S_RCR4_MF. */
 
 /*! @brief Read current value of the I2S_RCR4_MF field. */
-#define BR_I2S_RCR4_MF(x)    (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_MF))
+#define BR_I2S_RCR4_MF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_MF)))
 
 /*! @brief Format value for bitfield I2S_RCR4_MF. */
 #define BF_I2S_RCR4_MF(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_RCR4_MF) & BM_I2S_RCR4_MF)
 
 /*! @brief Set the MF field to a new value. */
-#define BW_I2S_RCR4_MF(x, v) (BITBAND_ACCESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_MF) = (v))
+#define BW_I2S_RCR4_MF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_RCR4_ADDR(x), BP_I2S_RCR4_MF), v))
 /*@}*/
 
 /*!
@@ -2509,7 +2516,7 @@ typedef union _hw_i2s_rcr4
 #define BS_I2S_RCR4_SYWD     (5U)          /*!< Bit field size in bits for I2S_RCR4_SYWD. */
 
 /*! @brief Read current value of the I2S_RCR4_SYWD field. */
-#define BR_I2S_RCR4_SYWD(x)  (HW_I2S_RCR4(x).B.SYWD)
+#define BR_I2S_RCR4_SYWD(x)  (UNION_READ(hw_i2s_rcr4_t, HW_I2S_RCR4_ADDR(x), U, B.SYWD))
 
 /*! @brief Format value for bitfield I2S_RCR4_SYWD. */
 #define BF_I2S_RCR4_SYWD(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCR4_SYWD) & BM_I2S_RCR4_SYWD)
@@ -2531,7 +2538,7 @@ typedef union _hw_i2s_rcr4
 #define BS_I2S_RCR4_FRSZ     (5U)          /*!< Bit field size in bits for I2S_RCR4_FRSZ. */
 
 /*! @brief Read current value of the I2S_RCR4_FRSZ field. */
-#define BR_I2S_RCR4_FRSZ(x)  (HW_I2S_RCR4(x).B.FRSZ)
+#define BR_I2S_RCR4_FRSZ(x)  (UNION_READ(hw_i2s_rcr4_t, HW_I2S_RCR4_ADDR(x), U, B.FRSZ))
 
 /*! @brief Format value for bitfield I2S_RCR4_FRSZ. */
 #define BF_I2S_RCR4_FRSZ(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_RCR4_FRSZ) & BM_I2S_RCR4_FRSZ)
@@ -2573,8 +2580,8 @@ typedef union _hw_i2s_rcr5
 #define HW_I2S_RCR5_ADDR(x)      ((x) + 0x94U)
 
 #define HW_I2S_RCR5(x)           (*(__IO hw_i2s_rcr5_t *) HW_I2S_RCR5_ADDR(x))
-#define HW_I2S_RCR5_RD(x)        (HW_I2S_RCR5(x).U)
-#define HW_I2S_RCR5_WR(x, v)     (HW_I2S_RCR5(x).U = (v))
+#define HW_I2S_RCR5_RD(x)        (ADDRESS_READ(hw_i2s_rcr5_t, HW_I2S_RCR5_ADDR(x)))
+#define HW_I2S_RCR5_WR(x, v)     (ADDRESS_WRITE(hw_i2s_rcr5_t, HW_I2S_RCR5_ADDR(x), v))
 #define HW_I2S_RCR5_SET(x, v)    (HW_I2S_RCR5_WR(x, HW_I2S_RCR5_RD(x) |  (v)))
 #define HW_I2S_RCR5_CLR(x, v)    (HW_I2S_RCR5_WR(x, HW_I2S_RCR5_RD(x) & ~(v)))
 #define HW_I2S_RCR5_TOG(x, v)    (HW_I2S_RCR5_WR(x, HW_I2S_RCR5_RD(x) ^  (v)))
@@ -2601,7 +2608,7 @@ typedef union _hw_i2s_rcr5
 #define BS_I2S_RCR5_FBT      (5U)          /*!< Bit field size in bits for I2S_RCR5_FBT. */
 
 /*! @brief Read current value of the I2S_RCR5_FBT field. */
-#define BR_I2S_RCR5_FBT(x)   (HW_I2S_RCR5(x).B.FBT)
+#define BR_I2S_RCR5_FBT(x)   (UNION_READ(hw_i2s_rcr5_t, HW_I2S_RCR5_ADDR(x), U, B.FBT))
 
 /*! @brief Format value for bitfield I2S_RCR5_FBT. */
 #define BF_I2S_RCR5_FBT(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR5_FBT) & BM_I2S_RCR5_FBT)
@@ -2623,7 +2630,7 @@ typedef union _hw_i2s_rcr5
 #define BS_I2S_RCR5_W0W      (5U)          /*!< Bit field size in bits for I2S_RCR5_W0W. */
 
 /*! @brief Read current value of the I2S_RCR5_W0W field. */
-#define BR_I2S_RCR5_W0W(x)   (HW_I2S_RCR5(x).B.W0W)
+#define BR_I2S_RCR5_W0W(x)   (UNION_READ(hw_i2s_rcr5_t, HW_I2S_RCR5_ADDR(x), U, B.W0W))
 
 /*! @brief Format value for bitfield I2S_RCR5_W0W. */
 #define BF_I2S_RCR5_W0W(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR5_W0W) & BM_I2S_RCR5_W0W)
@@ -2645,7 +2652,7 @@ typedef union _hw_i2s_rcr5
 #define BS_I2S_RCR5_WNW      (5U)          /*!< Bit field size in bits for I2S_RCR5_WNW. */
 
 /*! @brief Read current value of the I2S_RCR5_WNW field. */
-#define BR_I2S_RCR5_WNW(x)   (HW_I2S_RCR5(x).B.WNW)
+#define BR_I2S_RCR5_WNW(x)   (UNION_READ(hw_i2s_rcr5_t, HW_I2S_RCR5_ADDR(x), U, B.WNW))
 
 /*! @brief Format value for bitfield I2S_RCR5_WNW. */
 #define BF_I2S_RCR5_WNW(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_RCR5_WNW) & BM_I2S_RCR5_WNW)
@@ -2684,7 +2691,7 @@ typedef union _hw_i2s_rdrn
 #define HW_I2S_RDRn_ADDR(x, n)   ((x) + 0xA0U + (0x4U * (n)))
 
 #define HW_I2S_RDRn(x, n)        (*(__I hw_i2s_rdrn_t *) HW_I2S_RDRn_ADDR(x, n))
-#define HW_I2S_RDRn_RD(x, n)     (HW_I2S_RDRn(x, n).U)
+#define HW_I2S_RDRn_RD(x, n)     (ADDRESS_READ(hw_i2s_rdrn_t, HW_I2S_RDRn_ADDR(x, n)))
 /*@}*/
 
 /*
@@ -2743,7 +2750,7 @@ typedef union _hw_i2s_rfrn
 #define HW_I2S_RFRn_ADDR(x, n)   ((x) + 0xC0U + (0x4U * (n)))
 
 #define HW_I2S_RFRn(x, n)        (*(__I hw_i2s_rfrn_t *) HW_I2S_RFRn_ADDR(x, n))
-#define HW_I2S_RFRn_RD(x, n)     (HW_I2S_RFRn(x, n).U)
+#define HW_I2S_RFRn_RD(x, n)     (ADDRESS_READ(hw_i2s_rfrn_t, HW_I2S_RFRn_ADDR(x, n)))
 /*@}*/
 
 /*
@@ -2761,7 +2768,7 @@ typedef union _hw_i2s_rfrn
 #define BS_I2S_RFRn_RFP      (4U)          /*!< Bit field size in bits for I2S_RFRn_RFP. */
 
 /*! @brief Read current value of the I2S_RFRn_RFP field. */
-#define BR_I2S_RFRn_RFP(x, n) (HW_I2S_RFRn(x, n).B.RFP)
+#define BR_I2S_RFRn_RFP(x, n) (UNION_READ(hw_i2s_rfrn_t, HW_I2S_RFRn_ADDR(x, n), U, B.RFP))
 /*@}*/
 
 /*!
@@ -2775,7 +2782,7 @@ typedef union _hw_i2s_rfrn
 #define BS_I2S_RFRn_WFP      (4U)          /*!< Bit field size in bits for I2S_RFRn_WFP. */
 
 /*! @brief Read current value of the I2S_RFRn_WFP field. */
-#define BR_I2S_RFRn_WFP(x, n) (HW_I2S_RFRn(x, n).B.WFP)
+#define BR_I2S_RFRn_WFP(x, n) (UNION_READ(hw_i2s_rfrn_t, HW_I2S_RFRn_ADDR(x, n), U, B.WFP))
 /*@}*/
 
 /*******************************************************************************
@@ -2807,8 +2814,8 @@ typedef union _hw_i2s_rmr
 #define HW_I2S_RMR_ADDR(x)       ((x) + 0xE0U)
 
 #define HW_I2S_RMR(x)            (*(__IO hw_i2s_rmr_t *) HW_I2S_RMR_ADDR(x))
-#define HW_I2S_RMR_RD(x)         (HW_I2S_RMR(x).U)
-#define HW_I2S_RMR_WR(x, v)      (HW_I2S_RMR(x).U = (v))
+#define HW_I2S_RMR_RD(x)         (ADDRESS_READ(hw_i2s_rmr_t, HW_I2S_RMR_ADDR(x)))
+#define HW_I2S_RMR_WR(x, v)      (ADDRESS_WRITE(hw_i2s_rmr_t, HW_I2S_RMR_ADDR(x), v))
 #define HW_I2S_RMR_SET(x, v)     (HW_I2S_RMR_WR(x, HW_I2S_RMR_RD(x) |  (v)))
 #define HW_I2S_RMR_CLR(x, v)     (HW_I2S_RMR_WR(x, HW_I2S_RMR_RD(x) & ~(v)))
 #define HW_I2S_RMR_TOG(x, v)     (HW_I2S_RMR_WR(x, HW_I2S_RMR_RD(x) ^  (v)))
@@ -2875,8 +2882,8 @@ typedef union _hw_i2s_mcr
 #define HW_I2S_MCR_ADDR(x)       ((x) + 0x100U)
 
 #define HW_I2S_MCR(x)            (*(__IO hw_i2s_mcr_t *) HW_I2S_MCR_ADDR(x))
-#define HW_I2S_MCR_RD(x)         (HW_I2S_MCR(x).U)
-#define HW_I2S_MCR_WR(x, v)      (HW_I2S_MCR(x).U = (v))
+#define HW_I2S_MCR_RD(x)         (ADDRESS_READ(hw_i2s_mcr_t, HW_I2S_MCR_ADDR(x)))
+#define HW_I2S_MCR_WR(x, v)      (ADDRESS_WRITE(hw_i2s_mcr_t, HW_I2S_MCR_ADDR(x), v))
 #define HW_I2S_MCR_SET(x, v)     (HW_I2S_MCR_WR(x, HW_I2S_MCR_RD(x) |  (v)))
 #define HW_I2S_MCR_CLR(x, v)     (HW_I2S_MCR_WR(x, HW_I2S_MCR_RD(x) & ~(v)))
 #define HW_I2S_MCR_TOG(x, v)     (HW_I2S_MCR_WR(x, HW_I2S_MCR_RD(x) ^  (v)))
@@ -2905,7 +2912,7 @@ typedef union _hw_i2s_mcr
 #define BS_I2S_MCR_MICS      (2U)          /*!< Bit field size in bits for I2S_MCR_MICS. */
 
 /*! @brief Read current value of the I2S_MCR_MICS field. */
-#define BR_I2S_MCR_MICS(x)   (HW_I2S_MCR(x).B.MICS)
+#define BR_I2S_MCR_MICS(x)   (UNION_READ(hw_i2s_mcr_t, HW_I2S_MCR_ADDR(x), U, B.MICS))
 
 /*! @brief Format value for bitfield I2S_MCR_MICS. */
 #define BF_I2S_MCR_MICS(v)   ((uint32_t)((uint32_t)(v) << BP_I2S_MCR_MICS) & BM_I2S_MCR_MICS)
@@ -2933,13 +2940,13 @@ typedef union _hw_i2s_mcr
 #define BS_I2S_MCR_MOE       (1U)          /*!< Bit field size in bits for I2S_MCR_MOE. */
 
 /*! @brief Read current value of the I2S_MCR_MOE field. */
-#define BR_I2S_MCR_MOE(x)    (BITBAND_ACCESS32(HW_I2S_MCR_ADDR(x), BP_I2S_MCR_MOE))
+#define BR_I2S_MCR_MOE(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_MCR_ADDR(x), BP_I2S_MCR_MOE)))
 
 /*! @brief Format value for bitfield I2S_MCR_MOE. */
 #define BF_I2S_MCR_MOE(v)    ((uint32_t)((uint32_t)(v) << BP_I2S_MCR_MOE) & BM_I2S_MCR_MOE)
 
 /*! @brief Set the MOE field to a new value. */
-#define BW_I2S_MCR_MOE(x, v) (BITBAND_ACCESS32(HW_I2S_MCR_ADDR(x), BP_I2S_MCR_MOE) = (v))
+#define BW_I2S_MCR_MOE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_I2S_MCR_ADDR(x), BP_I2S_MCR_MOE), v))
 /*@}*/
 
 /*!
@@ -2958,7 +2965,7 @@ typedef union _hw_i2s_mcr
 #define BS_I2S_MCR_DUF       (1U)          /*!< Bit field size in bits for I2S_MCR_DUF. */
 
 /*! @brief Read current value of the I2S_MCR_DUF field. */
-#define BR_I2S_MCR_DUF(x)    (BITBAND_ACCESS32(HW_I2S_MCR_ADDR(x), BP_I2S_MCR_DUF))
+#define BR_I2S_MCR_DUF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_I2S_MCR_ADDR(x), BP_I2S_MCR_DUF)))
 /*@}*/
 
 /*******************************************************************************
@@ -2993,8 +3000,8 @@ typedef union _hw_i2s_mdr
 #define HW_I2S_MDR_ADDR(x)       ((x) + 0x104U)
 
 #define HW_I2S_MDR(x)            (*(__IO hw_i2s_mdr_t *) HW_I2S_MDR_ADDR(x))
-#define HW_I2S_MDR_RD(x)         (HW_I2S_MDR(x).U)
-#define HW_I2S_MDR_WR(x, v)      (HW_I2S_MDR(x).U = (v))
+#define HW_I2S_MDR_RD(x)         (ADDRESS_READ(hw_i2s_mdr_t, HW_I2S_MDR_ADDR(x)))
+#define HW_I2S_MDR_WR(x, v)      (ADDRESS_WRITE(hw_i2s_mdr_t, HW_I2S_MDR_ADDR(x), v))
 #define HW_I2S_MDR_SET(x, v)     (HW_I2S_MDR_WR(x, HW_I2S_MDR_RD(x) |  (v)))
 #define HW_I2S_MDR_CLR(x, v)     (HW_I2S_MDR_WR(x, HW_I2S_MDR_RD(x) & ~(v)))
 #define HW_I2S_MDR_TOG(x, v)     (HW_I2S_MDR_WR(x, HW_I2S_MDR_RD(x) ^  (v)))
@@ -3017,7 +3024,7 @@ typedef union _hw_i2s_mdr
 #define BS_I2S_MDR_DIVIDE    (12U)         /*!< Bit field size in bits for I2S_MDR_DIVIDE. */
 
 /*! @brief Read current value of the I2S_MDR_DIVIDE field. */
-#define BR_I2S_MDR_DIVIDE(x) (HW_I2S_MDR(x).B.DIVIDE)
+#define BR_I2S_MDR_DIVIDE(x) (UNION_READ(hw_i2s_mdr_t, HW_I2S_MDR_ADDR(x), U, B.DIVIDE))
 
 /*! @brief Format value for bitfield I2S_MDR_DIVIDE. */
 #define BF_I2S_MDR_DIVIDE(v) ((uint32_t)((uint32_t)(v) << BP_I2S_MDR_DIVIDE) & BM_I2S_MDR_DIVIDE)
@@ -3039,7 +3046,7 @@ typedef union _hw_i2s_mdr
 #define BS_I2S_MDR_FRACT     (8U)          /*!< Bit field size in bits for I2S_MDR_FRACT. */
 
 /*! @brief Read current value of the I2S_MDR_FRACT field. */
-#define BR_I2S_MDR_FRACT(x)  (HW_I2S_MDR(x).B.FRACT)
+#define BR_I2S_MDR_FRACT(x)  (UNION_READ(hw_i2s_mdr_t, HW_I2S_MDR_ADDR(x), U, B.FRACT))
 
 /*! @brief Format value for bitfield I2S_MDR_FRACT. */
 #define BF_I2S_MDR_FRACT(v)  ((uint32_t)((uint32_t)(v) << BP_I2S_MDR_FRACT) & BM_I2S_MDR_FRACT)

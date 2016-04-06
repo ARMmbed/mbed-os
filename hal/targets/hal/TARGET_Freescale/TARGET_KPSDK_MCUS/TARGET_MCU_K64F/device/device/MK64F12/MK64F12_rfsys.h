@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -128,8 +135,8 @@ typedef union _hw_rfsys_regn
 #define HW_RFSYS_REGn_ADDR(x, n) ((x) + 0x0U + (0x4U * (n)))
 
 #define HW_RFSYS_REGn(x, n)      (*(__IO hw_rfsys_regn_t *) HW_RFSYS_REGn_ADDR(x, n))
-#define HW_RFSYS_REGn_RD(x, n)   (HW_RFSYS_REGn(x, n).U)
-#define HW_RFSYS_REGn_WR(x, n, v) (HW_RFSYS_REGn(x, n).U = (v))
+#define HW_RFSYS_REGn_RD(x, n)   (ADDRESS_READ(hw_rfsys_regn_t, HW_RFSYS_REGn_ADDR(x, n)))
+#define HW_RFSYS_REGn_WR(x, n, v) (ADDRESS_WRITE(hw_rfsys_regn_t, HW_RFSYS_REGn_ADDR(x, n), v))
 #define HW_RFSYS_REGn_SET(x, n, v) (HW_RFSYS_REGn_WR(x, n, HW_RFSYS_REGn_RD(x, n) |  (v)))
 #define HW_RFSYS_REGn_CLR(x, n, v) (HW_RFSYS_REGn_WR(x, n, HW_RFSYS_REGn_RD(x, n) & ~(v)))
 #define HW_RFSYS_REGn_TOG(x, n, v) (HW_RFSYS_REGn_WR(x, n, HW_RFSYS_REGn_RD(x, n) ^  (v)))
@@ -150,7 +157,7 @@ typedef union _hw_rfsys_regn
 #define BS_RFSYS_REGn_LL     (8U)          /*!< Bit field size in bits for RFSYS_REGn_LL. */
 
 /*! @brief Read current value of the RFSYS_REGn_LL field. */
-#define BR_RFSYS_REGn_LL(x, n) (HW_RFSYS_REGn(x, n).B.LL)
+#define BR_RFSYS_REGn_LL(x, n) (UNION_READ(hw_rfsys_regn_t, HW_RFSYS_REGn_ADDR(x, n), U, B.LL))
 
 /*! @brief Format value for bitfield RFSYS_REGn_LL. */
 #define BF_RFSYS_REGn_LL(v)  ((uint32_t)((uint32_t)(v) << BP_RFSYS_REGn_LL) & BM_RFSYS_REGn_LL)
@@ -170,7 +177,7 @@ typedef union _hw_rfsys_regn
 #define BS_RFSYS_REGn_LH     (8U)          /*!< Bit field size in bits for RFSYS_REGn_LH. */
 
 /*! @brief Read current value of the RFSYS_REGn_LH field. */
-#define BR_RFSYS_REGn_LH(x, n) (HW_RFSYS_REGn(x, n).B.LH)
+#define BR_RFSYS_REGn_LH(x, n) (UNION_READ(hw_rfsys_regn_t, HW_RFSYS_REGn_ADDR(x, n), U, B.LH))
 
 /*! @brief Format value for bitfield RFSYS_REGn_LH. */
 #define BF_RFSYS_REGn_LH(v)  ((uint32_t)((uint32_t)(v) << BP_RFSYS_REGn_LH) & BM_RFSYS_REGn_LH)
@@ -190,7 +197,7 @@ typedef union _hw_rfsys_regn
 #define BS_RFSYS_REGn_HL     (8U)          /*!< Bit field size in bits for RFSYS_REGn_HL. */
 
 /*! @brief Read current value of the RFSYS_REGn_HL field. */
-#define BR_RFSYS_REGn_HL(x, n) (HW_RFSYS_REGn(x, n).B.HL)
+#define BR_RFSYS_REGn_HL(x, n) (UNION_READ(hw_rfsys_regn_t, HW_RFSYS_REGn_ADDR(x, n), U, B.HL))
 
 /*! @brief Format value for bitfield RFSYS_REGn_HL. */
 #define BF_RFSYS_REGn_HL(v)  ((uint32_t)((uint32_t)(v) << BP_RFSYS_REGn_HL) & BM_RFSYS_REGn_HL)
@@ -210,7 +217,7 @@ typedef union _hw_rfsys_regn
 #define BS_RFSYS_REGn_HH     (8U)          /*!< Bit field size in bits for RFSYS_REGn_HH. */
 
 /*! @brief Read current value of the RFSYS_REGn_HH field. */
-#define BR_RFSYS_REGn_HH(x, n) (HW_RFSYS_REGn(x, n).B.HH)
+#define BR_RFSYS_REGn_HH(x, n) (UNION_READ(hw_rfsys_regn_t, HW_RFSYS_REGn_ADDR(x, n), U, B.HH))
 
 /*! @brief Format value for bitfield RFSYS_REGn_HH. */
 #define BF_RFSYS_REGn_HH(v)  ((uint32_t)((uint32_t)(v) << BP_RFSYS_REGn_HH) & BM_RFSYS_REGn_HH)

@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -133,8 +140,8 @@ typedef union _hw_cmp_cr0
 #define HW_CMP_CR0_ADDR(x)       ((x) + 0x0U)
 
 #define HW_CMP_CR0(x)            (*(__IO hw_cmp_cr0_t *) HW_CMP_CR0_ADDR(x))
-#define HW_CMP_CR0_RD(x)         (HW_CMP_CR0(x).U)
-#define HW_CMP_CR0_WR(x, v)      (HW_CMP_CR0(x).U = (v))
+#define HW_CMP_CR0_RD(x)         (ADDRESS_READ(hw_cmp_cr0_t, HW_CMP_CR0_ADDR(x)))
+#define HW_CMP_CR0_WR(x, v)      (ADDRESS_WRITE(hw_cmp_cr0_t, HW_CMP_CR0_ADDR(x), v))
 #define HW_CMP_CR0_SET(x, v)     (HW_CMP_CR0_WR(x, HW_CMP_CR0_RD(x) |  (v)))
 #define HW_CMP_CR0_CLR(x, v)     (HW_CMP_CR0_WR(x, HW_CMP_CR0_RD(x) & ~(v)))
 #define HW_CMP_CR0_TOG(x, v)     (HW_CMP_CR0_WR(x, HW_CMP_CR0_RD(x) ^  (v)))
@@ -163,7 +170,7 @@ typedef union _hw_cmp_cr0
 #define BS_CMP_CR0_HYSTCTR   (2U)          /*!< Bit field size in bits for CMP_CR0_HYSTCTR. */
 
 /*! @brief Read current value of the CMP_CR0_HYSTCTR field. */
-#define BR_CMP_CR0_HYSTCTR(x) (HW_CMP_CR0(x).B.HYSTCTR)
+#define BR_CMP_CR0_HYSTCTR(x) (UNION_READ(hw_cmp_cr0_t, HW_CMP_CR0_ADDR(x), U, B.HYSTCTR))
 
 /*! @brief Format value for bitfield CMP_CR0_HYSTCTR. */
 #define BF_CMP_CR0_HYSTCTR(v) ((uint8_t)((uint8_t)(v) << BP_CMP_CR0_HYSTCTR) & BM_CMP_CR0_HYSTCTR)
@@ -197,7 +204,7 @@ typedef union _hw_cmp_cr0
 #define BS_CMP_CR0_FILTER_CNT (3U)         /*!< Bit field size in bits for CMP_CR0_FILTER_CNT. */
 
 /*! @brief Read current value of the CMP_CR0_FILTER_CNT field. */
-#define BR_CMP_CR0_FILTER_CNT(x) (HW_CMP_CR0(x).B.FILTER_CNT)
+#define BR_CMP_CR0_FILTER_CNT(x) (UNION_READ(hw_cmp_cr0_t, HW_CMP_CR0_ADDR(x), U, B.FILTER_CNT))
 
 /*! @brief Format value for bitfield CMP_CR0_FILTER_CNT. */
 #define BF_CMP_CR0_FILTER_CNT(v) ((uint8_t)((uint8_t)(v) << BP_CMP_CR0_FILTER_CNT) & BM_CMP_CR0_FILTER_CNT)
@@ -238,8 +245,8 @@ typedef union _hw_cmp_cr1
 #define HW_CMP_CR1_ADDR(x)       ((x) + 0x1U)
 
 #define HW_CMP_CR1(x)            (*(__IO hw_cmp_cr1_t *) HW_CMP_CR1_ADDR(x))
-#define HW_CMP_CR1_RD(x)         (HW_CMP_CR1(x).U)
-#define HW_CMP_CR1_WR(x, v)      (HW_CMP_CR1(x).U = (v))
+#define HW_CMP_CR1_RD(x)         (ADDRESS_READ(hw_cmp_cr1_t, HW_CMP_CR1_ADDR(x)))
+#define HW_CMP_CR1_WR(x, v)      (ADDRESS_WRITE(hw_cmp_cr1_t, HW_CMP_CR1_ADDR(x), v))
 #define HW_CMP_CR1_SET(x, v)     (HW_CMP_CR1_WR(x, HW_CMP_CR1_RD(x) |  (v)))
 #define HW_CMP_CR1_CLR(x, v)     (HW_CMP_CR1_WR(x, HW_CMP_CR1_RD(x) & ~(v)))
 #define HW_CMP_CR1_TOG(x, v)     (HW_CMP_CR1_WR(x, HW_CMP_CR1_RD(x) ^  (v)))
@@ -267,13 +274,13 @@ typedef union _hw_cmp_cr1
 #define BS_CMP_CR1_EN        (1U)          /*!< Bit field size in bits for CMP_CR1_EN. */
 
 /*! @brief Read current value of the CMP_CR1_EN field. */
-#define BR_CMP_CR1_EN(x)     (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_EN))
+#define BR_CMP_CR1_EN(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_EN)))
 
 /*! @brief Format value for bitfield CMP_CR1_EN. */
 #define BF_CMP_CR1_EN(v)     ((uint8_t)((uint8_t)(v) << BP_CMP_CR1_EN) & BM_CMP_CR1_EN)
 
 /*! @brief Set the EN field to a new value. */
-#define BW_CMP_CR1_EN(x, v)  (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_EN) = (v))
+#define BW_CMP_CR1_EN(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_EN), v))
 /*@}*/
 
 /*!
@@ -293,13 +300,13 @@ typedef union _hw_cmp_cr1
 #define BS_CMP_CR1_OPE       (1U)          /*!< Bit field size in bits for CMP_CR1_OPE. */
 
 /*! @brief Read current value of the CMP_CR1_OPE field. */
-#define BR_CMP_CR1_OPE(x)    (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_OPE))
+#define BR_CMP_CR1_OPE(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_OPE)))
 
 /*! @brief Format value for bitfield CMP_CR1_OPE. */
 #define BF_CMP_CR1_OPE(v)    ((uint8_t)((uint8_t)(v) << BP_CMP_CR1_OPE) & BM_CMP_CR1_OPE)
 
 /*! @brief Set the OPE field to a new value. */
-#define BW_CMP_CR1_OPE(x, v) (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_OPE) = (v))
+#define BW_CMP_CR1_OPE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_OPE), v))
 /*@}*/
 
 /*!
@@ -315,13 +322,13 @@ typedef union _hw_cmp_cr1
 #define BS_CMP_CR1_COS       (1U)          /*!< Bit field size in bits for CMP_CR1_COS. */
 
 /*! @brief Read current value of the CMP_CR1_COS field. */
-#define BR_CMP_CR1_COS(x)    (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_COS))
+#define BR_CMP_CR1_COS(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_COS)))
 
 /*! @brief Format value for bitfield CMP_CR1_COS. */
 #define BF_CMP_CR1_COS(v)    ((uint8_t)((uint8_t)(v) << BP_CMP_CR1_COS) & BM_CMP_CR1_COS)
 
 /*! @brief Set the COS field to a new value. */
-#define BW_CMP_CR1_COS(x, v) (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_COS) = (v))
+#define BW_CMP_CR1_COS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_COS), v))
 /*@}*/
 
 /*!
@@ -341,13 +348,13 @@ typedef union _hw_cmp_cr1
 #define BS_CMP_CR1_INV       (1U)          /*!< Bit field size in bits for CMP_CR1_INV. */
 
 /*! @brief Read current value of the CMP_CR1_INV field. */
-#define BR_CMP_CR1_INV(x)    (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_INV))
+#define BR_CMP_CR1_INV(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_INV)))
 
 /*! @brief Format value for bitfield CMP_CR1_INV. */
 #define BF_CMP_CR1_INV(v)    ((uint8_t)((uint8_t)(v) << BP_CMP_CR1_INV) & BM_CMP_CR1_INV)
 
 /*! @brief Set the INV field to a new value. */
-#define BW_CMP_CR1_INV(x, v) (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_INV) = (v))
+#define BW_CMP_CR1_INV(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_INV), v))
 /*@}*/
 
 /*!
@@ -367,13 +374,13 @@ typedef union _hw_cmp_cr1
 #define BS_CMP_CR1_PMODE     (1U)          /*!< Bit field size in bits for CMP_CR1_PMODE. */
 
 /*! @brief Read current value of the CMP_CR1_PMODE field. */
-#define BR_CMP_CR1_PMODE(x)  (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_PMODE))
+#define BR_CMP_CR1_PMODE(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_PMODE)))
 
 /*! @brief Format value for bitfield CMP_CR1_PMODE. */
 #define BF_CMP_CR1_PMODE(v)  ((uint8_t)((uint8_t)(v) << BP_CMP_CR1_PMODE) & BM_CMP_CR1_PMODE)
 
 /*! @brief Set the PMODE field to a new value. */
-#define BW_CMP_CR1_PMODE(x, v) (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_PMODE) = (v))
+#define BW_CMP_CR1_PMODE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_PMODE), v))
 /*@}*/
 
 /*!
@@ -394,13 +401,13 @@ typedef union _hw_cmp_cr1
 #define BS_CMP_CR1_WE        (1U)          /*!< Bit field size in bits for CMP_CR1_WE. */
 
 /*! @brief Read current value of the CMP_CR1_WE field. */
-#define BR_CMP_CR1_WE(x)     (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_WE))
+#define BR_CMP_CR1_WE(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_WE)))
 
 /*! @brief Format value for bitfield CMP_CR1_WE. */
 #define BF_CMP_CR1_WE(v)     ((uint8_t)((uint8_t)(v) << BP_CMP_CR1_WE) & BM_CMP_CR1_WE)
 
 /*! @brief Set the WE field to a new value. */
-#define BW_CMP_CR1_WE(x, v)  (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_WE) = (v))
+#define BW_CMP_CR1_WE(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_WE), v))
 /*@}*/
 
 /*!
@@ -421,13 +428,13 @@ typedef union _hw_cmp_cr1
 #define BS_CMP_CR1_SE        (1U)          /*!< Bit field size in bits for CMP_CR1_SE. */
 
 /*! @brief Read current value of the CMP_CR1_SE field. */
-#define BR_CMP_CR1_SE(x)     (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_SE))
+#define BR_CMP_CR1_SE(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_SE)))
 
 /*! @brief Format value for bitfield CMP_CR1_SE. */
 #define BF_CMP_CR1_SE(v)     ((uint8_t)((uint8_t)(v) << BP_CMP_CR1_SE) & BM_CMP_CR1_SE)
 
 /*! @brief Set the SE field to a new value. */
-#define BW_CMP_CR1_SE(x, v)  (BITBAND_ACCESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_SE) = (v))
+#define BW_CMP_CR1_SE(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_CR1_ADDR(x), BP_CMP_CR1_SE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -455,8 +462,8 @@ typedef union _hw_cmp_fpr
 #define HW_CMP_FPR_ADDR(x)       ((x) + 0x2U)
 
 #define HW_CMP_FPR(x)            (*(__IO hw_cmp_fpr_t *) HW_CMP_FPR_ADDR(x))
-#define HW_CMP_FPR_RD(x)         (HW_CMP_FPR(x).U)
-#define HW_CMP_FPR_WR(x, v)      (HW_CMP_FPR(x).U = (v))
+#define HW_CMP_FPR_RD(x)         (ADDRESS_READ(hw_cmp_fpr_t, HW_CMP_FPR_ADDR(x)))
+#define HW_CMP_FPR_WR(x, v)      (ADDRESS_WRITE(hw_cmp_fpr_t, HW_CMP_FPR_ADDR(x), v))
 #define HW_CMP_FPR_SET(x, v)     (HW_CMP_FPR_WR(x, HW_CMP_FPR_RD(x) |  (v)))
 #define HW_CMP_FPR_CLR(x, v)     (HW_CMP_FPR_WR(x, HW_CMP_FPR_RD(x) & ~(v)))
 #define HW_CMP_FPR_TOG(x, v)     (HW_CMP_FPR_WR(x, HW_CMP_FPR_RD(x) ^  (v)))
@@ -523,8 +530,8 @@ typedef union _hw_cmp_scr
 #define HW_CMP_SCR_ADDR(x)       ((x) + 0x3U)
 
 #define HW_CMP_SCR(x)            (*(__IO hw_cmp_scr_t *) HW_CMP_SCR_ADDR(x))
-#define HW_CMP_SCR_RD(x)         (HW_CMP_SCR(x).U)
-#define HW_CMP_SCR_WR(x, v)      (HW_CMP_SCR(x).U = (v))
+#define HW_CMP_SCR_RD(x)         (ADDRESS_READ(hw_cmp_scr_t, HW_CMP_SCR_ADDR(x)))
+#define HW_CMP_SCR_WR(x, v)      (ADDRESS_WRITE(hw_cmp_scr_t, HW_CMP_SCR_ADDR(x), v))
 #define HW_CMP_SCR_SET(x, v)     (HW_CMP_SCR_WR(x, HW_CMP_SCR_RD(x) |  (v)))
 #define HW_CMP_SCR_CLR(x, v)     (HW_CMP_SCR_WR(x, HW_CMP_SCR_RD(x) & ~(v)))
 #define HW_CMP_SCR_TOG(x, v)     (HW_CMP_SCR_WR(x, HW_CMP_SCR_RD(x) ^  (v)))
@@ -547,7 +554,7 @@ typedef union _hw_cmp_scr
 #define BS_CMP_SCR_COUT      (1U)          /*!< Bit field size in bits for CMP_SCR_COUT. */
 
 /*! @brief Read current value of the CMP_SCR_COUT field. */
-#define BR_CMP_SCR_COUT(x)   (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_COUT))
+#define BR_CMP_SCR_COUT(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_COUT)))
 /*@}*/
 
 /*!
@@ -567,13 +574,13 @@ typedef union _hw_cmp_scr
 #define BS_CMP_SCR_CFF       (1U)          /*!< Bit field size in bits for CMP_SCR_CFF. */
 
 /*! @brief Read current value of the CMP_SCR_CFF field. */
-#define BR_CMP_SCR_CFF(x)    (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFF))
+#define BR_CMP_SCR_CFF(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFF)))
 
 /*! @brief Format value for bitfield CMP_SCR_CFF. */
 #define BF_CMP_SCR_CFF(v)    ((uint8_t)((uint8_t)(v) << BP_CMP_SCR_CFF) & BM_CMP_SCR_CFF)
 
 /*! @brief Set the CFF field to a new value. */
-#define BW_CMP_SCR_CFF(x, v) (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFF) = (v))
+#define BW_CMP_SCR_CFF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFF), v))
 /*@}*/
 
 /*!
@@ -593,13 +600,13 @@ typedef union _hw_cmp_scr
 #define BS_CMP_SCR_CFR       (1U)          /*!< Bit field size in bits for CMP_SCR_CFR. */
 
 /*! @brief Read current value of the CMP_SCR_CFR field. */
-#define BR_CMP_SCR_CFR(x)    (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFR))
+#define BR_CMP_SCR_CFR(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFR)))
 
 /*! @brief Format value for bitfield CMP_SCR_CFR. */
 #define BF_CMP_SCR_CFR(v)    ((uint8_t)((uint8_t)(v) << BP_CMP_SCR_CFR) & BM_CMP_SCR_CFR)
 
 /*! @brief Set the CFR field to a new value. */
-#define BW_CMP_SCR_CFR(x, v) (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFR) = (v))
+#define BW_CMP_SCR_CFR(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_CFR), v))
 /*@}*/
 
 /*!
@@ -618,13 +625,13 @@ typedef union _hw_cmp_scr
 #define BS_CMP_SCR_IEF       (1U)          /*!< Bit field size in bits for CMP_SCR_IEF. */
 
 /*! @brief Read current value of the CMP_SCR_IEF field. */
-#define BR_CMP_SCR_IEF(x)    (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IEF))
+#define BR_CMP_SCR_IEF(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IEF)))
 
 /*! @brief Format value for bitfield CMP_SCR_IEF. */
 #define BF_CMP_SCR_IEF(v)    ((uint8_t)((uint8_t)(v) << BP_CMP_SCR_IEF) & BM_CMP_SCR_IEF)
 
 /*! @brief Set the IEF field to a new value. */
-#define BW_CMP_SCR_IEF(x, v) (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IEF) = (v))
+#define BW_CMP_SCR_IEF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IEF), v))
 /*@}*/
 
 /*!
@@ -643,13 +650,13 @@ typedef union _hw_cmp_scr
 #define BS_CMP_SCR_IER       (1U)          /*!< Bit field size in bits for CMP_SCR_IER. */
 
 /*! @brief Read current value of the CMP_SCR_IER field. */
-#define BR_CMP_SCR_IER(x)    (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IER))
+#define BR_CMP_SCR_IER(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IER)))
 
 /*! @brief Format value for bitfield CMP_SCR_IER. */
 #define BF_CMP_SCR_IER(v)    ((uint8_t)((uint8_t)(v) << BP_CMP_SCR_IER) & BM_CMP_SCR_IER)
 
 /*! @brief Set the IER field to a new value. */
-#define BW_CMP_SCR_IER(x, v) (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IER) = (v))
+#define BW_CMP_SCR_IER(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_IER), v))
 /*@}*/
 
 /*!
@@ -668,13 +675,13 @@ typedef union _hw_cmp_scr
 #define BS_CMP_SCR_DMAEN     (1U)          /*!< Bit field size in bits for CMP_SCR_DMAEN. */
 
 /*! @brief Read current value of the CMP_SCR_DMAEN field. */
-#define BR_CMP_SCR_DMAEN(x)  (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_DMAEN))
+#define BR_CMP_SCR_DMAEN(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_DMAEN)))
 
 /*! @brief Format value for bitfield CMP_SCR_DMAEN. */
 #define BF_CMP_SCR_DMAEN(v)  ((uint8_t)((uint8_t)(v) << BP_CMP_SCR_DMAEN) & BM_CMP_SCR_DMAEN)
 
 /*! @brief Set the DMAEN field to a new value. */
-#define BW_CMP_SCR_DMAEN(x, v) (BITBAND_ACCESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_DMAEN) = (v))
+#define BW_CMP_SCR_DMAEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_SCR_ADDR(x), BP_CMP_SCR_DMAEN), v))
 /*@}*/
 
 /*******************************************************************************
@@ -704,8 +711,8 @@ typedef union _hw_cmp_daccr
 #define HW_CMP_DACCR_ADDR(x)     ((x) + 0x4U)
 
 #define HW_CMP_DACCR(x)          (*(__IO hw_cmp_daccr_t *) HW_CMP_DACCR_ADDR(x))
-#define HW_CMP_DACCR_RD(x)       (HW_CMP_DACCR(x).U)
-#define HW_CMP_DACCR_WR(x, v)    (HW_CMP_DACCR(x).U = (v))
+#define HW_CMP_DACCR_RD(x)       (ADDRESS_READ(hw_cmp_daccr_t, HW_CMP_DACCR_ADDR(x)))
+#define HW_CMP_DACCR_WR(x, v)    (ADDRESS_WRITE(hw_cmp_daccr_t, HW_CMP_DACCR_ADDR(x), v))
 #define HW_CMP_DACCR_SET(x, v)   (HW_CMP_DACCR_WR(x, HW_CMP_DACCR_RD(x) |  (v)))
 #define HW_CMP_DACCR_CLR(x, v)   (HW_CMP_DACCR_WR(x, HW_CMP_DACCR_RD(x) & ~(v)))
 #define HW_CMP_DACCR_TOG(x, v)   (HW_CMP_DACCR_WR(x, HW_CMP_DACCR_RD(x) ^  (v)))
@@ -727,7 +734,7 @@ typedef union _hw_cmp_daccr
 #define BS_CMP_DACCR_VOSEL   (6U)          /*!< Bit field size in bits for CMP_DACCR_VOSEL. */
 
 /*! @brief Read current value of the CMP_DACCR_VOSEL field. */
-#define BR_CMP_DACCR_VOSEL(x) (HW_CMP_DACCR(x).B.VOSEL)
+#define BR_CMP_DACCR_VOSEL(x) (UNION_READ(hw_cmp_daccr_t, HW_CMP_DACCR_ADDR(x), U, B.VOSEL))
 
 /*! @brief Format value for bitfield CMP_DACCR_VOSEL. */
 #define BF_CMP_DACCR_VOSEL(v) ((uint8_t)((uint8_t)(v) << BP_CMP_DACCR_VOSEL) & BM_CMP_DACCR_VOSEL)
@@ -749,13 +756,13 @@ typedef union _hw_cmp_daccr
 #define BS_CMP_DACCR_VRSEL   (1U)          /*!< Bit field size in bits for CMP_DACCR_VRSEL. */
 
 /*! @brief Read current value of the CMP_DACCR_VRSEL field. */
-#define BR_CMP_DACCR_VRSEL(x) (BITBAND_ACCESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_VRSEL))
+#define BR_CMP_DACCR_VRSEL(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_VRSEL)))
 
 /*! @brief Format value for bitfield CMP_DACCR_VRSEL. */
 #define BF_CMP_DACCR_VRSEL(v) ((uint8_t)((uint8_t)(v) << BP_CMP_DACCR_VRSEL) & BM_CMP_DACCR_VRSEL)
 
 /*! @brief Set the VRSEL field to a new value. */
-#define BW_CMP_DACCR_VRSEL(x, v) (BITBAND_ACCESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_VRSEL) = (v))
+#define BW_CMP_DACCR_VRSEL(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_VRSEL), v))
 /*@}*/
 
 /*!
@@ -774,13 +781,13 @@ typedef union _hw_cmp_daccr
 #define BS_CMP_DACCR_DACEN   (1U)          /*!< Bit field size in bits for CMP_DACCR_DACEN. */
 
 /*! @brief Read current value of the CMP_DACCR_DACEN field. */
-#define BR_CMP_DACCR_DACEN(x) (BITBAND_ACCESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_DACEN))
+#define BR_CMP_DACCR_DACEN(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_DACEN)))
 
 /*! @brief Format value for bitfield CMP_DACCR_DACEN. */
 #define BF_CMP_DACCR_DACEN(v) ((uint8_t)((uint8_t)(v) << BP_CMP_DACCR_DACEN) & BM_CMP_DACCR_DACEN)
 
 /*! @brief Set the DACEN field to a new value. */
-#define BW_CMP_DACCR_DACEN(x, v) (BITBAND_ACCESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_DACEN) = (v))
+#define BW_CMP_DACCR_DACEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_DACCR_ADDR(x), BP_CMP_DACCR_DACEN), v))
 /*@}*/
 
 /*******************************************************************************
@@ -811,8 +818,8 @@ typedef union _hw_cmp_muxcr
 #define HW_CMP_MUXCR_ADDR(x)     ((x) + 0x5U)
 
 #define HW_CMP_MUXCR(x)          (*(__IO hw_cmp_muxcr_t *) HW_CMP_MUXCR_ADDR(x))
-#define HW_CMP_MUXCR_RD(x)       (HW_CMP_MUXCR(x).U)
-#define HW_CMP_MUXCR_WR(x, v)    (HW_CMP_MUXCR(x).U = (v))
+#define HW_CMP_MUXCR_RD(x)       (ADDRESS_READ(hw_cmp_muxcr_t, HW_CMP_MUXCR_ADDR(x)))
+#define HW_CMP_MUXCR_WR(x, v)    (ADDRESS_WRITE(hw_cmp_muxcr_t, HW_CMP_MUXCR_ADDR(x), v))
 #define HW_CMP_MUXCR_SET(x, v)   (HW_CMP_MUXCR_WR(x, HW_CMP_MUXCR_RD(x) |  (v)))
 #define HW_CMP_MUXCR_CLR(x, v)   (HW_CMP_MUXCR_WR(x, HW_CMP_MUXCR_RD(x) & ~(v)))
 #define HW_CMP_MUXCR_TOG(x, v)   (HW_CMP_MUXCR_WR(x, HW_CMP_MUXCR_RD(x) ^  (v)))
@@ -846,7 +853,7 @@ typedef union _hw_cmp_muxcr
 #define BS_CMP_MUXCR_MSEL    (3U)          /*!< Bit field size in bits for CMP_MUXCR_MSEL. */
 
 /*! @brief Read current value of the CMP_MUXCR_MSEL field. */
-#define BR_CMP_MUXCR_MSEL(x) (HW_CMP_MUXCR(x).B.MSEL)
+#define BR_CMP_MUXCR_MSEL(x) (UNION_READ(hw_cmp_muxcr_t, HW_CMP_MUXCR_ADDR(x), U, B.MSEL))
 
 /*! @brief Format value for bitfield CMP_MUXCR_MSEL. */
 #define BF_CMP_MUXCR_MSEL(v) ((uint8_t)((uint8_t)(v) << BP_CMP_MUXCR_MSEL) & BM_CMP_MUXCR_MSEL)
@@ -879,7 +886,7 @@ typedef union _hw_cmp_muxcr
 #define BS_CMP_MUXCR_PSEL    (3U)          /*!< Bit field size in bits for CMP_MUXCR_PSEL. */
 
 /*! @brief Read current value of the CMP_MUXCR_PSEL field. */
-#define BR_CMP_MUXCR_PSEL(x) (HW_CMP_MUXCR(x).B.PSEL)
+#define BR_CMP_MUXCR_PSEL(x) (UNION_READ(hw_cmp_muxcr_t, HW_CMP_MUXCR_ADDR(x), U, B.PSEL))
 
 /*! @brief Format value for bitfield CMP_MUXCR_PSEL. */
 #define BF_CMP_MUXCR_PSEL(v) ((uint8_t)((uint8_t)(v) << BP_CMP_MUXCR_PSEL) & BM_CMP_MUXCR_PSEL)
@@ -905,13 +912,13 @@ typedef union _hw_cmp_muxcr
 #define BS_CMP_MUXCR_PSTM    (1U)          /*!< Bit field size in bits for CMP_MUXCR_PSTM. */
 
 /*! @brief Read current value of the CMP_MUXCR_PSTM field. */
-#define BR_CMP_MUXCR_PSTM(x) (BITBAND_ACCESS8(HW_CMP_MUXCR_ADDR(x), BP_CMP_MUXCR_PSTM))
+#define BR_CMP_MUXCR_PSTM(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_CMP_MUXCR_ADDR(x), BP_CMP_MUXCR_PSTM)))
 
 /*! @brief Format value for bitfield CMP_MUXCR_PSTM. */
 #define BF_CMP_MUXCR_PSTM(v) ((uint8_t)((uint8_t)(v) << BP_CMP_MUXCR_PSTM) & BM_CMP_MUXCR_PSTM)
 
 /*! @brief Set the PSTM field to a new value. */
-#define BW_CMP_MUXCR_PSTM(x, v) (BITBAND_ACCESS8(HW_CMP_MUXCR_ADDR(x), BP_CMP_MUXCR_PSTM) = (v))
+#define BW_CMP_MUXCR_PSTM(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_CMP_MUXCR_ADDR(x), BP_CMP_MUXCR_PSTM), v))
 /*@}*/
 
 /*******************************************************************************

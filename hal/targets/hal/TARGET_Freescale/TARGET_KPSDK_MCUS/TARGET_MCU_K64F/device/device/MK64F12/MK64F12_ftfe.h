@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -155,8 +162,8 @@ typedef union _hw_ftfe_fstat
 #define HW_FTFE_FSTAT_ADDR(x)    ((x) + 0x0U)
 
 #define HW_FTFE_FSTAT(x)         (*(__IO hw_ftfe_fstat_t *) HW_FTFE_FSTAT_ADDR(x))
-#define HW_FTFE_FSTAT_RD(x)      (HW_FTFE_FSTAT(x).U)
-#define HW_FTFE_FSTAT_WR(x, v)   (HW_FTFE_FSTAT(x).U = (v))
+#define HW_FTFE_FSTAT_RD(x)      (ADDRESS_READ(hw_ftfe_fstat_t, HW_FTFE_FSTAT_ADDR(x)))
+#define HW_FTFE_FSTAT_WR(x, v)   (ADDRESS_WRITE(hw_ftfe_fstat_t, HW_FTFE_FSTAT_ADDR(x), v))
 #define HW_FTFE_FSTAT_SET(x, v)  (HW_FTFE_FSTAT_WR(x, HW_FTFE_FSTAT_RD(x) |  (v)))
 #define HW_FTFE_FSTAT_CLR(x, v)  (HW_FTFE_FSTAT_WR(x, HW_FTFE_FSTAT_RD(x) & ~(v)))
 #define HW_FTFE_FSTAT_TOG(x, v)  (HW_FTFE_FSTAT_WR(x, HW_FTFE_FSTAT_RD(x) ^  (v)))
@@ -183,7 +190,7 @@ typedef union _hw_ftfe_fstat
 #define BS_FTFE_FSTAT_MGSTAT0 (1U)         /*!< Bit field size in bits for FTFE_FSTAT_MGSTAT0. */
 
 /*! @brief Read current value of the FTFE_FSTAT_MGSTAT0 field. */
-#define BR_FTFE_FSTAT_MGSTAT0(x) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_MGSTAT0))
+#define BR_FTFE_FSTAT_MGSTAT0(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_MGSTAT0)))
 /*@}*/
 
 /*!
@@ -206,13 +213,13 @@ typedef union _hw_ftfe_fstat
 #define BS_FTFE_FSTAT_FPVIOL (1U)          /*!< Bit field size in bits for FTFE_FSTAT_FPVIOL. */
 
 /*! @brief Read current value of the FTFE_FSTAT_FPVIOL field. */
-#define BR_FTFE_FSTAT_FPVIOL(x) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_FPVIOL))
+#define BR_FTFE_FSTAT_FPVIOL(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_FPVIOL)))
 
 /*! @brief Format value for bitfield FTFE_FSTAT_FPVIOL. */
 #define BF_FTFE_FSTAT_FPVIOL(v) ((uint8_t)((uint8_t)(v) << BP_FTFE_FSTAT_FPVIOL) & BM_FTFE_FSTAT_FPVIOL)
 
 /*! @brief Set the FPVIOL field to a new value. */
-#define BW_FTFE_FSTAT_FPVIOL(x, v) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_FPVIOL) = (v))
+#define BW_FTFE_FSTAT_FPVIOL(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_FPVIOL), v))
 /*@}*/
 
 /*!
@@ -234,13 +241,13 @@ typedef union _hw_ftfe_fstat
 #define BS_FTFE_FSTAT_ACCERR (1U)          /*!< Bit field size in bits for FTFE_FSTAT_ACCERR. */
 
 /*! @brief Read current value of the FTFE_FSTAT_ACCERR field. */
-#define BR_FTFE_FSTAT_ACCERR(x) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_ACCERR))
+#define BR_FTFE_FSTAT_ACCERR(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_ACCERR)))
 
 /*! @brief Format value for bitfield FTFE_FSTAT_ACCERR. */
 #define BF_FTFE_FSTAT_ACCERR(v) ((uint8_t)((uint8_t)(v) << BP_FTFE_FSTAT_ACCERR) & BM_FTFE_FSTAT_ACCERR)
 
 /*! @brief Set the ACCERR field to a new value. */
-#define BW_FTFE_FSTAT_ACCERR(x, v) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_ACCERR) = (v))
+#define BW_FTFE_FSTAT_ACCERR(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_ACCERR), v))
 /*@}*/
 
 /*!
@@ -262,13 +269,13 @@ typedef union _hw_ftfe_fstat
 #define BS_FTFE_FSTAT_RDCOLERR (1U)        /*!< Bit field size in bits for FTFE_FSTAT_RDCOLERR. */
 
 /*! @brief Read current value of the FTFE_FSTAT_RDCOLERR field. */
-#define BR_FTFE_FSTAT_RDCOLERR(x) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_RDCOLERR))
+#define BR_FTFE_FSTAT_RDCOLERR(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_RDCOLERR)))
 
 /*! @brief Format value for bitfield FTFE_FSTAT_RDCOLERR. */
 #define BF_FTFE_FSTAT_RDCOLERR(v) ((uint8_t)((uint8_t)(v) << BP_FTFE_FSTAT_RDCOLERR) & BM_FTFE_FSTAT_RDCOLERR)
 
 /*! @brief Set the RDCOLERR field to a new value. */
-#define BW_FTFE_FSTAT_RDCOLERR(x, v) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_RDCOLERR) = (v))
+#define BW_FTFE_FSTAT_RDCOLERR(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_RDCOLERR), v))
 /*@}*/
 
 /*!
@@ -294,13 +301,13 @@ typedef union _hw_ftfe_fstat
 #define BS_FTFE_FSTAT_CCIF   (1U)          /*!< Bit field size in bits for FTFE_FSTAT_CCIF. */
 
 /*! @brief Read current value of the FTFE_FSTAT_CCIF field. */
-#define BR_FTFE_FSTAT_CCIF(x) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_CCIF))
+#define BR_FTFE_FSTAT_CCIF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_CCIF)))
 
 /*! @brief Format value for bitfield FTFE_FSTAT_CCIF. */
 #define BF_FTFE_FSTAT_CCIF(v) ((uint8_t)((uint8_t)(v) << BP_FTFE_FSTAT_CCIF) & BM_FTFE_FSTAT_CCIF)
 
 /*! @brief Set the CCIF field to a new value. */
-#define BW_FTFE_FSTAT_CCIF(x, v) (BITBAND_ACCESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_CCIF) = (v))
+#define BW_FTFE_FSTAT_CCIF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FSTAT_ADDR(x), BP_FTFE_FSTAT_CCIF), v))
 /*@}*/
 
 /*******************************************************************************
@@ -342,8 +349,8 @@ typedef union _hw_ftfe_fcnfg
 #define HW_FTFE_FCNFG_ADDR(x)    ((x) + 0x1U)
 
 #define HW_FTFE_FCNFG(x)         (*(__IO hw_ftfe_fcnfg_t *) HW_FTFE_FCNFG_ADDR(x))
-#define HW_FTFE_FCNFG_RD(x)      (HW_FTFE_FCNFG(x).U)
-#define HW_FTFE_FCNFG_WR(x, v)   (HW_FTFE_FCNFG(x).U = (v))
+#define HW_FTFE_FCNFG_RD(x)      (ADDRESS_READ(hw_ftfe_fcnfg_t, HW_FTFE_FCNFG_ADDR(x)))
+#define HW_FTFE_FCNFG_WR(x, v)   (ADDRESS_WRITE(hw_ftfe_fcnfg_t, HW_FTFE_FCNFG_ADDR(x), v))
 #define HW_FTFE_FCNFG_SET(x, v)  (HW_FTFE_FCNFG_WR(x, HW_FTFE_FCNFG_RD(x) |  (v)))
 #define HW_FTFE_FCNFG_CLR(x, v)  (HW_FTFE_FCNFG_WR(x, HW_FTFE_FCNFG_RD(x) & ~(v)))
 #define HW_FTFE_FCNFG_TOG(x, v)  (HW_FTFE_FCNFG_WR(x, HW_FTFE_FCNFG_RD(x) ^  (v)))
@@ -375,7 +382,7 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_EEERDY (1U)          /*!< Bit field size in bits for FTFE_FCNFG_EEERDY. */
 
 /*! @brief Read current value of the FTFE_FCNFG_EEERDY field. */
-#define BR_FTFE_FCNFG_EEERDY(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_EEERDY))
+#define BR_FTFE_FCNFG_EEERDY(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_EEERDY)))
 /*@}*/
 
 /*!
@@ -405,7 +412,7 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_RAMRDY (1U)          /*!< Bit field size in bits for FTFE_FCNFG_RAMRDY. */
 
 /*! @brief Read current value of the FTFE_FCNFG_RAMRDY field. */
-#define BR_FTFE_FCNFG_RAMRDY(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_RAMRDY))
+#define BR_FTFE_FCNFG_RAMRDY(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_RAMRDY)))
 /*@}*/
 
 /*!
@@ -424,7 +431,7 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_PFLSH  (1U)          /*!< Bit field size in bits for FTFE_FCNFG_PFLSH. */
 
 /*! @brief Read current value of the FTFE_FCNFG_PFLSH field. */
-#define BR_FTFE_FCNFG_PFLSH(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_PFLSH))
+#define BR_FTFE_FCNFG_PFLSH(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_PFLSH)))
 /*@}*/
 
 /*!
@@ -447,7 +454,7 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_SWAP   (1U)          /*!< Bit field size in bits for FTFE_FCNFG_SWAP. */
 
 /*! @brief Read current value of the FTFE_FCNFG_SWAP field. */
-#define BR_FTFE_FCNFG_SWAP(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_SWAP))
+#define BR_FTFE_FCNFG_SWAP(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_SWAP)))
 /*@}*/
 
 /*!
@@ -466,13 +473,13 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_ERSSUSP (1U)         /*!< Bit field size in bits for FTFE_FCNFG_ERSSUSP. */
 
 /*! @brief Read current value of the FTFE_FCNFG_ERSSUSP field. */
-#define BR_FTFE_FCNFG_ERSSUSP(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_ERSSUSP))
+#define BR_FTFE_FCNFG_ERSSUSP(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_ERSSUSP)))
 
 /*! @brief Format value for bitfield FTFE_FCNFG_ERSSUSP. */
 #define BF_FTFE_FCNFG_ERSSUSP(v) ((uint8_t)((uint8_t)(v) << BP_FTFE_FCNFG_ERSSUSP) & BM_FTFE_FCNFG_ERSSUSP)
 
 /*! @brief Set the ERSSUSP field to a new value. */
-#define BW_FTFE_FCNFG_ERSSUSP(x, v) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_ERSSUSP) = (v))
+#define BW_FTFE_FCNFG_ERSSUSP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_ERSSUSP), v))
 /*@}*/
 
 /*!
@@ -498,7 +505,7 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_ERSAREQ (1U)         /*!< Bit field size in bits for FTFE_FCNFG_ERSAREQ. */
 
 /*! @brief Read current value of the FTFE_FCNFG_ERSAREQ field. */
-#define BR_FTFE_FCNFG_ERSAREQ(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_ERSAREQ))
+#define BR_FTFE_FCNFG_ERSAREQ(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_ERSAREQ)))
 /*@}*/
 
 /*!
@@ -519,13 +526,13 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_RDCOLLIE (1U)        /*!< Bit field size in bits for FTFE_FCNFG_RDCOLLIE. */
 
 /*! @brief Read current value of the FTFE_FCNFG_RDCOLLIE field. */
-#define BR_FTFE_FCNFG_RDCOLLIE(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_RDCOLLIE))
+#define BR_FTFE_FCNFG_RDCOLLIE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_RDCOLLIE)))
 
 /*! @brief Format value for bitfield FTFE_FCNFG_RDCOLLIE. */
 #define BF_FTFE_FCNFG_RDCOLLIE(v) ((uint8_t)((uint8_t)(v) << BP_FTFE_FCNFG_RDCOLLIE) & BM_FTFE_FCNFG_RDCOLLIE)
 
 /*! @brief Set the RDCOLLIE field to a new value. */
-#define BW_FTFE_FCNFG_RDCOLLIE(x, v) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_RDCOLLIE) = (v))
+#define BW_FTFE_FCNFG_RDCOLLIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_RDCOLLIE), v))
 /*@}*/
 
 /*!
@@ -544,13 +551,13 @@ typedef union _hw_ftfe_fcnfg
 #define BS_FTFE_FCNFG_CCIE   (1U)          /*!< Bit field size in bits for FTFE_FCNFG_CCIE. */
 
 /*! @brief Read current value of the FTFE_FCNFG_CCIE field. */
-#define BR_FTFE_FCNFG_CCIE(x) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_CCIE))
+#define BR_FTFE_FCNFG_CCIE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_CCIE)))
 
 /*! @brief Format value for bitfield FTFE_FCNFG_CCIE. */
 #define BF_FTFE_FCNFG_CCIE(v) ((uint8_t)((uint8_t)(v) << BP_FTFE_FCNFG_CCIE) & BM_FTFE_FCNFG_CCIE)
 
 /*! @brief Set the CCIE field to a new value. */
-#define BW_FTFE_FCNFG_CCIE(x, v) (BITBAND_ACCESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_CCIE) = (v))
+#define BW_FTFE_FCNFG_CCIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_FTFE_FCNFG_ADDR(x), BP_FTFE_FCNFG_CCIE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -588,7 +595,7 @@ typedef union _hw_ftfe_fsec
 #define HW_FTFE_FSEC_ADDR(x)     ((x) + 0x2U)
 
 #define HW_FTFE_FSEC(x)          (*(__I hw_ftfe_fsec_t *) HW_FTFE_FSEC_ADDR(x))
-#define HW_FTFE_FSEC_RD(x)       (HW_FTFE_FSEC(x).U)
+#define HW_FTFE_FSEC_RD(x)       (ADDRESS_READ(hw_ftfe_fsec_t, HW_FTFE_FSEC_ADDR(x)))
 /*@}*/
 
 /*
@@ -616,7 +623,7 @@ typedef union _hw_ftfe_fsec
 #define BS_FTFE_FSEC_SEC     (2U)          /*!< Bit field size in bits for FTFE_FSEC_SEC. */
 
 /*! @brief Read current value of the FTFE_FSEC_SEC field. */
-#define BR_FTFE_FSEC_SEC(x)  (HW_FTFE_FSEC(x).B.SEC)
+#define BR_FTFE_FSEC_SEC(x)  (UNION_READ(hw_ftfe_fsec_t, HW_FTFE_FSEC_ADDR(x), U, B.SEC))
 /*@}*/
 
 /*!
@@ -644,7 +651,7 @@ typedef union _hw_ftfe_fsec
 #define BS_FTFE_FSEC_FSLACC  (2U)          /*!< Bit field size in bits for FTFE_FSEC_FSLACC. */
 
 /*! @brief Read current value of the FTFE_FSEC_FSLACC field. */
-#define BR_FTFE_FSEC_FSLACC(x) (HW_FTFE_FSEC(x).B.FSLACC)
+#define BR_FTFE_FSEC_FSLACC(x) (UNION_READ(hw_ftfe_fsec_t, HW_FTFE_FSEC_ADDR(x), U, B.FSLACC))
 /*@}*/
 
 /*!
@@ -667,7 +674,7 @@ typedef union _hw_ftfe_fsec
 #define BS_FTFE_FSEC_MEEN    (2U)          /*!< Bit field size in bits for FTFE_FSEC_MEEN. */
 
 /*! @brief Read current value of the FTFE_FSEC_MEEN field. */
-#define BR_FTFE_FSEC_MEEN(x) (HW_FTFE_FSEC(x).B.MEEN)
+#define BR_FTFE_FSEC_MEEN(x) (UNION_READ(hw_ftfe_fsec_t, HW_FTFE_FSEC_ADDR(x), U, B.MEEN))
 /*@}*/
 
 /*!
@@ -688,7 +695,7 @@ typedef union _hw_ftfe_fsec
 #define BS_FTFE_FSEC_KEYEN   (2U)          /*!< Bit field size in bits for FTFE_FSEC_KEYEN. */
 
 /*! @brief Read current value of the FTFE_FSEC_KEYEN field. */
-#define BR_FTFE_FSEC_KEYEN(x) (HW_FTFE_FSEC(x).B.KEYEN)
+#define BR_FTFE_FSEC_KEYEN(x) (UNION_READ(hw_ftfe_fsec_t, HW_FTFE_FSEC_ADDR(x), U, B.KEYEN))
 /*@}*/
 
 /*******************************************************************************
@@ -724,7 +731,7 @@ typedef union _hw_ftfe_fopt
 #define HW_FTFE_FOPT_ADDR(x)     ((x) + 0x3U)
 
 #define HW_FTFE_FOPT(x)          (*(__I hw_ftfe_fopt_t *) HW_FTFE_FOPT_ADDR(x))
-#define HW_FTFE_FOPT_RD(x)       (HW_FTFE_FOPT(x).U)
+#define HW_FTFE_FOPT_RD(x)       (ADDRESS_READ(hw_ftfe_fopt_t, HW_FTFE_FOPT_ADDR(x)))
 /*@}*/
 
 /*
@@ -775,8 +782,8 @@ typedef union _hw_ftfe_fccob3
 #define HW_FTFE_FCCOB3_ADDR(x)   ((x) + 0x4U)
 
 #define HW_FTFE_FCCOB3(x)        (*(__IO hw_ftfe_fccob3_t *) HW_FTFE_FCCOB3_ADDR(x))
-#define HW_FTFE_FCCOB3_RD(x)     (HW_FTFE_FCCOB3(x).U)
-#define HW_FTFE_FCCOB3_WR(x, v)  (HW_FTFE_FCCOB3(x).U = (v))
+#define HW_FTFE_FCCOB3_RD(x)     (ADDRESS_READ(hw_ftfe_fccob3_t, HW_FTFE_FCCOB3_ADDR(x)))
+#define HW_FTFE_FCCOB3_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob3_t, HW_FTFE_FCCOB3_ADDR(x), v))
 #define HW_FTFE_FCCOB3_SET(x, v) (HW_FTFE_FCCOB3_WR(x, HW_FTFE_FCCOB3_RD(x) |  (v)))
 #define HW_FTFE_FCCOB3_CLR(x, v) (HW_FTFE_FCCOB3_WR(x, HW_FTFE_FCCOB3_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB3_TOG(x, v) (HW_FTFE_FCCOB3_WR(x, HW_FTFE_FCCOB3_RD(x) ^  (v)))
@@ -860,8 +867,8 @@ typedef union _hw_ftfe_fccob2
 #define HW_FTFE_FCCOB2_ADDR(x)   ((x) + 0x5U)
 
 #define HW_FTFE_FCCOB2(x)        (*(__IO hw_ftfe_fccob2_t *) HW_FTFE_FCCOB2_ADDR(x))
-#define HW_FTFE_FCCOB2_RD(x)     (HW_FTFE_FCCOB2(x).U)
-#define HW_FTFE_FCCOB2_WR(x, v)  (HW_FTFE_FCCOB2(x).U = (v))
+#define HW_FTFE_FCCOB2_RD(x)     (ADDRESS_READ(hw_ftfe_fccob2_t, HW_FTFE_FCCOB2_ADDR(x)))
+#define HW_FTFE_FCCOB2_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob2_t, HW_FTFE_FCCOB2_ADDR(x), v))
 #define HW_FTFE_FCCOB2_SET(x, v) (HW_FTFE_FCCOB2_WR(x, HW_FTFE_FCCOB2_RD(x) |  (v)))
 #define HW_FTFE_FCCOB2_CLR(x, v) (HW_FTFE_FCCOB2_WR(x, HW_FTFE_FCCOB2_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB2_TOG(x, v) (HW_FTFE_FCCOB2_WR(x, HW_FTFE_FCCOB2_RD(x) ^  (v)))
@@ -945,8 +952,8 @@ typedef union _hw_ftfe_fccob1
 #define HW_FTFE_FCCOB1_ADDR(x)   ((x) + 0x6U)
 
 #define HW_FTFE_FCCOB1(x)        (*(__IO hw_ftfe_fccob1_t *) HW_FTFE_FCCOB1_ADDR(x))
-#define HW_FTFE_FCCOB1_RD(x)     (HW_FTFE_FCCOB1(x).U)
-#define HW_FTFE_FCCOB1_WR(x, v)  (HW_FTFE_FCCOB1(x).U = (v))
+#define HW_FTFE_FCCOB1_RD(x)     (ADDRESS_READ(hw_ftfe_fccob1_t, HW_FTFE_FCCOB1_ADDR(x)))
+#define HW_FTFE_FCCOB1_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob1_t, HW_FTFE_FCCOB1_ADDR(x), v))
 #define HW_FTFE_FCCOB1_SET(x, v) (HW_FTFE_FCCOB1_WR(x, HW_FTFE_FCCOB1_RD(x) |  (v)))
 #define HW_FTFE_FCCOB1_CLR(x, v) (HW_FTFE_FCCOB1_WR(x, HW_FTFE_FCCOB1_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB1_TOG(x, v) (HW_FTFE_FCCOB1_WR(x, HW_FTFE_FCCOB1_RD(x) ^  (v)))
@@ -1030,8 +1037,8 @@ typedef union _hw_ftfe_fccob0
 #define HW_FTFE_FCCOB0_ADDR(x)   ((x) + 0x7U)
 
 #define HW_FTFE_FCCOB0(x)        (*(__IO hw_ftfe_fccob0_t *) HW_FTFE_FCCOB0_ADDR(x))
-#define HW_FTFE_FCCOB0_RD(x)     (HW_FTFE_FCCOB0(x).U)
-#define HW_FTFE_FCCOB0_WR(x, v)  (HW_FTFE_FCCOB0(x).U = (v))
+#define HW_FTFE_FCCOB0_RD(x)     (ADDRESS_READ(hw_ftfe_fccob0_t, HW_FTFE_FCCOB0_ADDR(x)))
+#define HW_FTFE_FCCOB0_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob0_t, HW_FTFE_FCCOB0_ADDR(x), v))
 #define HW_FTFE_FCCOB0_SET(x, v) (HW_FTFE_FCCOB0_WR(x, HW_FTFE_FCCOB0_RD(x) |  (v)))
 #define HW_FTFE_FCCOB0_CLR(x, v) (HW_FTFE_FCCOB0_WR(x, HW_FTFE_FCCOB0_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB0_TOG(x, v) (HW_FTFE_FCCOB0_WR(x, HW_FTFE_FCCOB0_RD(x) ^  (v)))
@@ -1115,8 +1122,8 @@ typedef union _hw_ftfe_fccob7
 #define HW_FTFE_FCCOB7_ADDR(x)   ((x) + 0x8U)
 
 #define HW_FTFE_FCCOB7(x)        (*(__IO hw_ftfe_fccob7_t *) HW_FTFE_FCCOB7_ADDR(x))
-#define HW_FTFE_FCCOB7_RD(x)     (HW_FTFE_FCCOB7(x).U)
-#define HW_FTFE_FCCOB7_WR(x, v)  (HW_FTFE_FCCOB7(x).U = (v))
+#define HW_FTFE_FCCOB7_RD(x)     (ADDRESS_READ(hw_ftfe_fccob7_t, HW_FTFE_FCCOB7_ADDR(x)))
+#define HW_FTFE_FCCOB7_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob7_t, HW_FTFE_FCCOB7_ADDR(x), v))
 #define HW_FTFE_FCCOB7_SET(x, v) (HW_FTFE_FCCOB7_WR(x, HW_FTFE_FCCOB7_RD(x) |  (v)))
 #define HW_FTFE_FCCOB7_CLR(x, v) (HW_FTFE_FCCOB7_WR(x, HW_FTFE_FCCOB7_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB7_TOG(x, v) (HW_FTFE_FCCOB7_WR(x, HW_FTFE_FCCOB7_RD(x) ^  (v)))
@@ -1200,8 +1207,8 @@ typedef union _hw_ftfe_fccob6
 #define HW_FTFE_FCCOB6_ADDR(x)   ((x) + 0x9U)
 
 #define HW_FTFE_FCCOB6(x)        (*(__IO hw_ftfe_fccob6_t *) HW_FTFE_FCCOB6_ADDR(x))
-#define HW_FTFE_FCCOB6_RD(x)     (HW_FTFE_FCCOB6(x).U)
-#define HW_FTFE_FCCOB6_WR(x, v)  (HW_FTFE_FCCOB6(x).U = (v))
+#define HW_FTFE_FCCOB6_RD(x)     (ADDRESS_READ(hw_ftfe_fccob6_t, HW_FTFE_FCCOB6_ADDR(x)))
+#define HW_FTFE_FCCOB6_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob6_t, HW_FTFE_FCCOB6_ADDR(x), v))
 #define HW_FTFE_FCCOB6_SET(x, v) (HW_FTFE_FCCOB6_WR(x, HW_FTFE_FCCOB6_RD(x) |  (v)))
 #define HW_FTFE_FCCOB6_CLR(x, v) (HW_FTFE_FCCOB6_WR(x, HW_FTFE_FCCOB6_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB6_TOG(x, v) (HW_FTFE_FCCOB6_WR(x, HW_FTFE_FCCOB6_RD(x) ^  (v)))
@@ -1285,8 +1292,8 @@ typedef union _hw_ftfe_fccob5
 #define HW_FTFE_FCCOB5_ADDR(x)   ((x) + 0xAU)
 
 #define HW_FTFE_FCCOB5(x)        (*(__IO hw_ftfe_fccob5_t *) HW_FTFE_FCCOB5_ADDR(x))
-#define HW_FTFE_FCCOB5_RD(x)     (HW_FTFE_FCCOB5(x).U)
-#define HW_FTFE_FCCOB5_WR(x, v)  (HW_FTFE_FCCOB5(x).U = (v))
+#define HW_FTFE_FCCOB5_RD(x)     (ADDRESS_READ(hw_ftfe_fccob5_t, HW_FTFE_FCCOB5_ADDR(x)))
+#define HW_FTFE_FCCOB5_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob5_t, HW_FTFE_FCCOB5_ADDR(x), v))
 #define HW_FTFE_FCCOB5_SET(x, v) (HW_FTFE_FCCOB5_WR(x, HW_FTFE_FCCOB5_RD(x) |  (v)))
 #define HW_FTFE_FCCOB5_CLR(x, v) (HW_FTFE_FCCOB5_WR(x, HW_FTFE_FCCOB5_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB5_TOG(x, v) (HW_FTFE_FCCOB5_WR(x, HW_FTFE_FCCOB5_RD(x) ^  (v)))
@@ -1370,8 +1377,8 @@ typedef union _hw_ftfe_fccob4
 #define HW_FTFE_FCCOB4_ADDR(x)   ((x) + 0xBU)
 
 #define HW_FTFE_FCCOB4(x)        (*(__IO hw_ftfe_fccob4_t *) HW_FTFE_FCCOB4_ADDR(x))
-#define HW_FTFE_FCCOB4_RD(x)     (HW_FTFE_FCCOB4(x).U)
-#define HW_FTFE_FCCOB4_WR(x, v)  (HW_FTFE_FCCOB4(x).U = (v))
+#define HW_FTFE_FCCOB4_RD(x)     (ADDRESS_READ(hw_ftfe_fccob4_t, HW_FTFE_FCCOB4_ADDR(x)))
+#define HW_FTFE_FCCOB4_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob4_t, HW_FTFE_FCCOB4_ADDR(x), v))
 #define HW_FTFE_FCCOB4_SET(x, v) (HW_FTFE_FCCOB4_WR(x, HW_FTFE_FCCOB4_RD(x) |  (v)))
 #define HW_FTFE_FCCOB4_CLR(x, v) (HW_FTFE_FCCOB4_WR(x, HW_FTFE_FCCOB4_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB4_TOG(x, v) (HW_FTFE_FCCOB4_WR(x, HW_FTFE_FCCOB4_RD(x) ^  (v)))
@@ -1455,8 +1462,8 @@ typedef union _hw_ftfe_fccobb
 #define HW_FTFE_FCCOBB_ADDR(x)   ((x) + 0xCU)
 
 #define HW_FTFE_FCCOBB(x)        (*(__IO hw_ftfe_fccobb_t *) HW_FTFE_FCCOBB_ADDR(x))
-#define HW_FTFE_FCCOBB_RD(x)     (HW_FTFE_FCCOBB(x).U)
-#define HW_FTFE_FCCOBB_WR(x, v)  (HW_FTFE_FCCOBB(x).U = (v))
+#define HW_FTFE_FCCOBB_RD(x)     (ADDRESS_READ(hw_ftfe_fccobb_t, HW_FTFE_FCCOBB_ADDR(x)))
+#define HW_FTFE_FCCOBB_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccobb_t, HW_FTFE_FCCOBB_ADDR(x), v))
 #define HW_FTFE_FCCOBB_SET(x, v) (HW_FTFE_FCCOBB_WR(x, HW_FTFE_FCCOBB_RD(x) |  (v)))
 #define HW_FTFE_FCCOBB_CLR(x, v) (HW_FTFE_FCCOBB_WR(x, HW_FTFE_FCCOBB_RD(x) & ~(v)))
 #define HW_FTFE_FCCOBB_TOG(x, v) (HW_FTFE_FCCOBB_WR(x, HW_FTFE_FCCOBB_RD(x) ^  (v)))
@@ -1540,8 +1547,8 @@ typedef union _hw_ftfe_fccoba
 #define HW_FTFE_FCCOBA_ADDR(x)   ((x) + 0xDU)
 
 #define HW_FTFE_FCCOBA(x)        (*(__IO hw_ftfe_fccoba_t *) HW_FTFE_FCCOBA_ADDR(x))
-#define HW_FTFE_FCCOBA_RD(x)     (HW_FTFE_FCCOBA(x).U)
-#define HW_FTFE_FCCOBA_WR(x, v)  (HW_FTFE_FCCOBA(x).U = (v))
+#define HW_FTFE_FCCOBA_RD(x)     (ADDRESS_READ(hw_ftfe_fccoba_t, HW_FTFE_FCCOBA_ADDR(x)))
+#define HW_FTFE_FCCOBA_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccoba_t, HW_FTFE_FCCOBA_ADDR(x), v))
 #define HW_FTFE_FCCOBA_SET(x, v) (HW_FTFE_FCCOBA_WR(x, HW_FTFE_FCCOBA_RD(x) |  (v)))
 #define HW_FTFE_FCCOBA_CLR(x, v) (HW_FTFE_FCCOBA_WR(x, HW_FTFE_FCCOBA_RD(x) & ~(v)))
 #define HW_FTFE_FCCOBA_TOG(x, v) (HW_FTFE_FCCOBA_WR(x, HW_FTFE_FCCOBA_RD(x) ^  (v)))
@@ -1625,8 +1632,8 @@ typedef union _hw_ftfe_fccob9
 #define HW_FTFE_FCCOB9_ADDR(x)   ((x) + 0xEU)
 
 #define HW_FTFE_FCCOB9(x)        (*(__IO hw_ftfe_fccob9_t *) HW_FTFE_FCCOB9_ADDR(x))
-#define HW_FTFE_FCCOB9_RD(x)     (HW_FTFE_FCCOB9(x).U)
-#define HW_FTFE_FCCOB9_WR(x, v)  (HW_FTFE_FCCOB9(x).U = (v))
+#define HW_FTFE_FCCOB9_RD(x)     (ADDRESS_READ(hw_ftfe_fccob9_t, HW_FTFE_FCCOB9_ADDR(x)))
+#define HW_FTFE_FCCOB9_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob9_t, HW_FTFE_FCCOB9_ADDR(x), v))
 #define HW_FTFE_FCCOB9_SET(x, v) (HW_FTFE_FCCOB9_WR(x, HW_FTFE_FCCOB9_RD(x) |  (v)))
 #define HW_FTFE_FCCOB9_CLR(x, v) (HW_FTFE_FCCOB9_WR(x, HW_FTFE_FCCOB9_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB9_TOG(x, v) (HW_FTFE_FCCOB9_WR(x, HW_FTFE_FCCOB9_RD(x) ^  (v)))
@@ -1710,8 +1717,8 @@ typedef union _hw_ftfe_fccob8
 #define HW_FTFE_FCCOB8_ADDR(x)   ((x) + 0xFU)
 
 #define HW_FTFE_FCCOB8(x)        (*(__IO hw_ftfe_fccob8_t *) HW_FTFE_FCCOB8_ADDR(x))
-#define HW_FTFE_FCCOB8_RD(x)     (HW_FTFE_FCCOB8(x).U)
-#define HW_FTFE_FCCOB8_WR(x, v)  (HW_FTFE_FCCOB8(x).U = (v))
+#define HW_FTFE_FCCOB8_RD(x)     (ADDRESS_READ(hw_ftfe_fccob8_t, HW_FTFE_FCCOB8_ADDR(x)))
+#define HW_FTFE_FCCOB8_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fccob8_t, HW_FTFE_FCCOB8_ADDR(x), v))
 #define HW_FTFE_FCCOB8_SET(x, v) (HW_FTFE_FCCOB8_WR(x, HW_FTFE_FCCOB8_RD(x) |  (v)))
 #define HW_FTFE_FCCOB8_CLR(x, v) (HW_FTFE_FCCOB8_WR(x, HW_FTFE_FCCOB8_RD(x) & ~(v)))
 #define HW_FTFE_FCCOB8_TOG(x, v) (HW_FTFE_FCCOB8_WR(x, HW_FTFE_FCCOB8_RD(x) ^  (v)))
@@ -1806,8 +1813,8 @@ typedef union _hw_ftfe_fprot3
 #define HW_FTFE_FPROT3_ADDR(x)   ((x) + 0x10U)
 
 #define HW_FTFE_FPROT3(x)        (*(__IO hw_ftfe_fprot3_t *) HW_FTFE_FPROT3_ADDR(x))
-#define HW_FTFE_FPROT3_RD(x)     (HW_FTFE_FPROT3(x).U)
-#define HW_FTFE_FPROT3_WR(x, v)  (HW_FTFE_FPROT3(x).U = (v))
+#define HW_FTFE_FPROT3_RD(x)     (ADDRESS_READ(hw_ftfe_fprot3_t, HW_FTFE_FPROT3_ADDR(x)))
+#define HW_FTFE_FPROT3_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fprot3_t, HW_FTFE_FPROT3_ADDR(x), v))
 #define HW_FTFE_FPROT3_SET(x, v) (HW_FTFE_FPROT3_WR(x, HW_FTFE_FPROT3_RD(x) |  (v)))
 #define HW_FTFE_FPROT3_CLR(x, v) (HW_FTFE_FPROT3_WR(x, HW_FTFE_FPROT3_RD(x) & ~(v)))
 #define HW_FTFE_FPROT3_TOG(x, v) (HW_FTFE_FPROT3_WR(x, HW_FTFE_FPROT3_RD(x) ^  (v)))
@@ -1894,8 +1901,8 @@ typedef union _hw_ftfe_fprot2
 #define HW_FTFE_FPROT2_ADDR(x)   ((x) + 0x11U)
 
 #define HW_FTFE_FPROT2(x)        (*(__IO hw_ftfe_fprot2_t *) HW_FTFE_FPROT2_ADDR(x))
-#define HW_FTFE_FPROT2_RD(x)     (HW_FTFE_FPROT2(x).U)
-#define HW_FTFE_FPROT2_WR(x, v)  (HW_FTFE_FPROT2(x).U = (v))
+#define HW_FTFE_FPROT2_RD(x)     (ADDRESS_READ(hw_ftfe_fprot2_t, HW_FTFE_FPROT2_ADDR(x)))
+#define HW_FTFE_FPROT2_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fprot2_t, HW_FTFE_FPROT2_ADDR(x), v))
 #define HW_FTFE_FPROT2_SET(x, v) (HW_FTFE_FPROT2_WR(x, HW_FTFE_FPROT2_RD(x) |  (v)))
 #define HW_FTFE_FPROT2_CLR(x, v) (HW_FTFE_FPROT2_WR(x, HW_FTFE_FPROT2_RD(x) & ~(v)))
 #define HW_FTFE_FPROT2_TOG(x, v) (HW_FTFE_FPROT2_WR(x, HW_FTFE_FPROT2_RD(x) ^  (v)))
@@ -1982,8 +1989,8 @@ typedef union _hw_ftfe_fprot1
 #define HW_FTFE_FPROT1_ADDR(x)   ((x) + 0x12U)
 
 #define HW_FTFE_FPROT1(x)        (*(__IO hw_ftfe_fprot1_t *) HW_FTFE_FPROT1_ADDR(x))
-#define HW_FTFE_FPROT1_RD(x)     (HW_FTFE_FPROT1(x).U)
-#define HW_FTFE_FPROT1_WR(x, v)  (HW_FTFE_FPROT1(x).U = (v))
+#define HW_FTFE_FPROT1_RD(x)     (ADDRESS_READ(hw_ftfe_fprot1_t, HW_FTFE_FPROT1_ADDR(x)))
+#define HW_FTFE_FPROT1_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fprot1_t, HW_FTFE_FPROT1_ADDR(x), v))
 #define HW_FTFE_FPROT1_SET(x, v) (HW_FTFE_FPROT1_WR(x, HW_FTFE_FPROT1_RD(x) |  (v)))
 #define HW_FTFE_FPROT1_CLR(x, v) (HW_FTFE_FPROT1_WR(x, HW_FTFE_FPROT1_RD(x) & ~(v)))
 #define HW_FTFE_FPROT1_TOG(x, v) (HW_FTFE_FPROT1_WR(x, HW_FTFE_FPROT1_RD(x) ^  (v)))
@@ -2070,8 +2077,8 @@ typedef union _hw_ftfe_fprot0
 #define HW_FTFE_FPROT0_ADDR(x)   ((x) + 0x13U)
 
 #define HW_FTFE_FPROT0(x)        (*(__IO hw_ftfe_fprot0_t *) HW_FTFE_FPROT0_ADDR(x))
-#define HW_FTFE_FPROT0_RD(x)     (HW_FTFE_FPROT0(x).U)
-#define HW_FTFE_FPROT0_WR(x, v)  (HW_FTFE_FPROT0(x).U = (v))
+#define HW_FTFE_FPROT0_RD(x)     (ADDRESS_READ(hw_ftfe_fprot0_t, HW_FTFE_FPROT0_ADDR(x)))
+#define HW_FTFE_FPROT0_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fprot0_t, HW_FTFE_FPROT0_ADDR(x), v))
 #define HW_FTFE_FPROT0_SET(x, v) (HW_FTFE_FPROT0_WR(x, HW_FTFE_FPROT0_RD(x) |  (v)))
 #define HW_FTFE_FPROT0_CLR(x, v) (HW_FTFE_FPROT0_WR(x, HW_FTFE_FPROT0_RD(x) & ~(v)))
 #define HW_FTFE_FPROT0_TOG(x, v) (HW_FTFE_FPROT0_WR(x, HW_FTFE_FPROT0_RD(x) ^  (v)))
@@ -2149,8 +2156,8 @@ typedef union _hw_ftfe_feprot
 #define HW_FTFE_FEPROT_ADDR(x)   ((x) + 0x16U)
 
 #define HW_FTFE_FEPROT(x)        (*(__IO hw_ftfe_feprot_t *) HW_FTFE_FEPROT_ADDR(x))
-#define HW_FTFE_FEPROT_RD(x)     (HW_FTFE_FEPROT(x).U)
-#define HW_FTFE_FEPROT_WR(x, v)  (HW_FTFE_FEPROT(x).U = (v))
+#define HW_FTFE_FEPROT_RD(x)     (ADDRESS_READ(hw_ftfe_feprot_t, HW_FTFE_FEPROT_ADDR(x)))
+#define HW_FTFE_FEPROT_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_feprot_t, HW_FTFE_FEPROT_ADDR(x), v))
 #define HW_FTFE_FEPROT_SET(x, v) (HW_FTFE_FEPROT_WR(x, HW_FTFE_FEPROT_RD(x) |  (v)))
 #define HW_FTFE_FEPROT_CLR(x, v) (HW_FTFE_FEPROT_WR(x, HW_FTFE_FEPROT_RD(x) & ~(v)))
 #define HW_FTFE_FEPROT_TOG(x, v) (HW_FTFE_FEPROT_WR(x, HW_FTFE_FEPROT_RD(x) ^  (v)))
@@ -2239,8 +2246,8 @@ typedef union _hw_ftfe_fdprot
 #define HW_FTFE_FDPROT_ADDR(x)   ((x) + 0x17U)
 
 #define HW_FTFE_FDPROT(x)        (*(__IO hw_ftfe_fdprot_t *) HW_FTFE_FDPROT_ADDR(x))
-#define HW_FTFE_FDPROT_RD(x)     (HW_FTFE_FDPROT(x).U)
-#define HW_FTFE_FDPROT_WR(x, v)  (HW_FTFE_FDPROT(x).U = (v))
+#define HW_FTFE_FDPROT_RD(x)     (ADDRESS_READ(hw_ftfe_fdprot_t, HW_FTFE_FDPROT_ADDR(x)))
+#define HW_FTFE_FDPROT_WR(x, v)  (ADDRESS_WRITE(hw_ftfe_fdprot_t, HW_FTFE_FDPROT_ADDR(x), v))
 #define HW_FTFE_FDPROT_SET(x, v) (HW_FTFE_FDPROT_WR(x, HW_FTFE_FDPROT_RD(x) |  (v)))
 #define HW_FTFE_FDPROT_CLR(x, v) (HW_FTFE_FDPROT_WR(x, HW_FTFE_FDPROT_RD(x) & ~(v)))
 #define HW_FTFE_FDPROT_TOG(x, v) (HW_FTFE_FDPROT_WR(x, HW_FTFE_FDPROT_RD(x) ^  (v)))

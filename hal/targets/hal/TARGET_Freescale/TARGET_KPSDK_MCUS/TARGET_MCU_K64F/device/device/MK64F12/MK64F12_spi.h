@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -157,8 +164,8 @@ typedef union _hw_spi_mcr
 #define HW_SPI_MCR_ADDR(x)       ((x) + 0x0U)
 
 #define HW_SPI_MCR(x)            (*(__IO hw_spi_mcr_t *) HW_SPI_MCR_ADDR(x))
-#define HW_SPI_MCR_RD(x)         (HW_SPI_MCR(x).U)
-#define HW_SPI_MCR_WR(x, v)      (HW_SPI_MCR(x).U = (v))
+#define HW_SPI_MCR_RD(x)         (ADDRESS_READ(hw_spi_mcr_t, HW_SPI_MCR_ADDR(x)))
+#define HW_SPI_MCR_WR(x, v)      (ADDRESS_WRITE(hw_spi_mcr_t, HW_SPI_MCR_ADDR(x), v))
 #define HW_SPI_MCR_SET(x, v)     (HW_SPI_MCR_WR(x, HW_SPI_MCR_RD(x) |  (v)))
 #define HW_SPI_MCR_CLR(x, v)     (HW_SPI_MCR_WR(x, HW_SPI_MCR_RD(x) & ~(v)))
 #define HW_SPI_MCR_TOG(x, v)     (HW_SPI_MCR_WR(x, HW_SPI_MCR_RD(x) ^  (v)))
@@ -184,13 +191,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_HALT      (1U)          /*!< Bit field size in bits for SPI_MCR_HALT. */
 
 /*! @brief Read current value of the SPI_MCR_HALT field. */
-#define BR_SPI_MCR_HALT(x)   (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_HALT))
+#define BR_SPI_MCR_HALT(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_HALT)))
 
 /*! @brief Format value for bitfield SPI_MCR_HALT. */
 #define BF_SPI_MCR_HALT(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_HALT) & BM_SPI_MCR_HALT)
 
 /*! @brief Set the HALT field to a new value. */
-#define BW_SPI_MCR_HALT(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_HALT) = (v))
+#define BW_SPI_MCR_HALT(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_HALT), v))
 /*@}*/
 
 /*!
@@ -211,7 +218,7 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_SMPL_PT   (2U)          /*!< Bit field size in bits for SPI_MCR_SMPL_PT. */
 
 /*! @brief Read current value of the SPI_MCR_SMPL_PT field. */
-#define BR_SPI_MCR_SMPL_PT(x) (HW_SPI_MCR(x).B.SMPL_PT)
+#define BR_SPI_MCR_SMPL_PT(x) (UNION_READ(hw_spi_mcr_t, HW_SPI_MCR_ADDR(x), U, B.SMPL_PT))
 
 /*! @brief Format value for bitfield SPI_MCR_SMPL_PT. */
 #define BF_SPI_MCR_SMPL_PT(v) ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_SMPL_PT) & BM_SPI_MCR_SMPL_PT)
@@ -239,7 +246,7 @@ typedef union _hw_spi_mcr
 #define BF_SPI_MCR_CLR_RXF(v) ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_CLR_RXF) & BM_SPI_MCR_CLR_RXF)
 
 /*! @brief Set the CLR_RXF field to a new value. */
-#define BW_SPI_MCR_CLR_RXF(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CLR_RXF) = (v))
+#define BW_SPI_MCR_CLR_RXF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CLR_RXF), v))
 /*@}*/
 
 /*!
@@ -261,7 +268,7 @@ typedef union _hw_spi_mcr
 #define BF_SPI_MCR_CLR_TXF(v) ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_CLR_TXF) & BM_SPI_MCR_CLR_TXF)
 
 /*! @brief Set the CLR_TXF field to a new value. */
-#define BW_SPI_MCR_CLR_TXF(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CLR_TXF) = (v))
+#define BW_SPI_MCR_CLR_TXF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CLR_TXF), v))
 /*@}*/
 
 /*!
@@ -281,13 +288,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_DIS_RXF   (1U)          /*!< Bit field size in bits for SPI_MCR_DIS_RXF. */
 
 /*! @brief Read current value of the SPI_MCR_DIS_RXF field. */
-#define BR_SPI_MCR_DIS_RXF(x) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_RXF))
+#define BR_SPI_MCR_DIS_RXF(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_RXF)))
 
 /*! @brief Format value for bitfield SPI_MCR_DIS_RXF. */
 #define BF_SPI_MCR_DIS_RXF(v) ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_DIS_RXF) & BM_SPI_MCR_DIS_RXF)
 
 /*! @brief Set the DIS_RXF field to a new value. */
-#define BW_SPI_MCR_DIS_RXF(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_RXF) = (v))
+#define BW_SPI_MCR_DIS_RXF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_RXF), v))
 /*@}*/
 
 /*!
@@ -307,13 +314,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_DIS_TXF   (1U)          /*!< Bit field size in bits for SPI_MCR_DIS_TXF. */
 
 /*! @brief Read current value of the SPI_MCR_DIS_TXF field. */
-#define BR_SPI_MCR_DIS_TXF(x) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_TXF))
+#define BR_SPI_MCR_DIS_TXF(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_TXF)))
 
 /*! @brief Format value for bitfield SPI_MCR_DIS_TXF. */
 #define BF_SPI_MCR_DIS_TXF(v) ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_DIS_TXF) & BM_SPI_MCR_DIS_TXF)
 
 /*! @brief Set the DIS_TXF field to a new value. */
-#define BW_SPI_MCR_DIS_TXF(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_TXF) = (v))
+#define BW_SPI_MCR_DIS_TXF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DIS_TXF), v))
 /*@}*/
 
 /*!
@@ -335,13 +342,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_MDIS      (1U)          /*!< Bit field size in bits for SPI_MCR_MDIS. */
 
 /*! @brief Read current value of the SPI_MCR_MDIS field. */
-#define BR_SPI_MCR_MDIS(x)   (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MDIS))
+#define BR_SPI_MCR_MDIS(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MDIS)))
 
 /*! @brief Format value for bitfield SPI_MCR_MDIS. */
 #define BF_SPI_MCR_MDIS(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_MDIS) & BM_SPI_MCR_MDIS)
 
 /*! @brief Set the MDIS field to a new value. */
-#define BW_SPI_MCR_MDIS(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MDIS) = (v))
+#define BW_SPI_MCR_MDIS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MDIS), v))
 /*@}*/
 
 /*!
@@ -360,13 +367,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_DOZE      (1U)          /*!< Bit field size in bits for SPI_MCR_DOZE. */
 
 /*! @brief Read current value of the SPI_MCR_DOZE field. */
-#define BR_SPI_MCR_DOZE(x)   (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DOZE))
+#define BR_SPI_MCR_DOZE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DOZE)))
 
 /*! @brief Format value for bitfield SPI_MCR_DOZE. */
 #define BF_SPI_MCR_DOZE(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_DOZE) & BM_SPI_MCR_DOZE)
 
 /*! @brief Set the DOZE field to a new value. */
-#define BW_SPI_MCR_DOZE(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DOZE) = (v))
+#define BW_SPI_MCR_DOZE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_DOZE), v))
 /*@}*/
 
 /*!
@@ -384,7 +391,7 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_PCSIS     (6U)          /*!< Bit field size in bits for SPI_MCR_PCSIS. */
 
 /*! @brief Read current value of the SPI_MCR_PCSIS field. */
-#define BR_SPI_MCR_PCSIS(x)  (HW_SPI_MCR(x).B.PCSIS)
+#define BR_SPI_MCR_PCSIS(x)  (UNION_READ(hw_spi_mcr_t, HW_SPI_MCR_ADDR(x), U, B.PCSIS))
 
 /*! @brief Format value for bitfield SPI_MCR_PCSIS. */
 #define BF_SPI_MCR_PCSIS(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_PCSIS) & BM_SPI_MCR_PCSIS)
@@ -411,13 +418,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_ROOE      (1U)          /*!< Bit field size in bits for SPI_MCR_ROOE. */
 
 /*! @brief Read current value of the SPI_MCR_ROOE field. */
-#define BR_SPI_MCR_ROOE(x)   (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_ROOE))
+#define BR_SPI_MCR_ROOE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_ROOE)))
 
 /*! @brief Format value for bitfield SPI_MCR_ROOE. */
 #define BF_SPI_MCR_ROOE(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_ROOE) & BM_SPI_MCR_ROOE)
 
 /*! @brief Set the ROOE field to a new value. */
-#define BW_SPI_MCR_ROOE(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_ROOE) = (v))
+#define BW_SPI_MCR_ROOE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_ROOE), v))
 /*@}*/
 
 /*!
@@ -435,13 +442,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_PCSSE     (1U)          /*!< Bit field size in bits for SPI_MCR_PCSSE. */
 
 /*! @brief Read current value of the SPI_MCR_PCSSE field. */
-#define BR_SPI_MCR_PCSSE(x)  (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_PCSSE))
+#define BR_SPI_MCR_PCSSE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_PCSSE)))
 
 /*! @brief Format value for bitfield SPI_MCR_PCSSE. */
 #define BF_SPI_MCR_PCSSE(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_PCSSE) & BM_SPI_MCR_PCSSE)
 
 /*! @brief Set the PCSSE field to a new value. */
-#define BW_SPI_MCR_PCSSE(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_PCSSE) = (v))
+#define BW_SPI_MCR_PCSSE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_PCSSE), v))
 /*@}*/
 
 /*!
@@ -459,13 +466,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_MTFE      (1U)          /*!< Bit field size in bits for SPI_MCR_MTFE. */
 
 /*! @brief Read current value of the SPI_MCR_MTFE field. */
-#define BR_SPI_MCR_MTFE(x)   (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MTFE))
+#define BR_SPI_MCR_MTFE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MTFE)))
 
 /*! @brief Format value for bitfield SPI_MCR_MTFE. */
 #define BF_SPI_MCR_MTFE(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_MTFE) & BM_SPI_MCR_MTFE)
 
 /*! @brief Set the MTFE field to a new value. */
-#define BW_SPI_MCR_MTFE(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MTFE) = (v))
+#define BW_SPI_MCR_MTFE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MTFE), v))
 /*@}*/
 
 /*!
@@ -484,13 +491,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_FRZ       (1U)          /*!< Bit field size in bits for SPI_MCR_FRZ. */
 
 /*! @brief Read current value of the SPI_MCR_FRZ field. */
-#define BR_SPI_MCR_FRZ(x)    (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_FRZ))
+#define BR_SPI_MCR_FRZ(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_FRZ)))
 
 /*! @brief Format value for bitfield SPI_MCR_FRZ. */
 #define BF_SPI_MCR_FRZ(v)    ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_FRZ) & BM_SPI_MCR_FRZ)
 
 /*! @brief Set the FRZ field to a new value. */
-#define BW_SPI_MCR_FRZ(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_FRZ) = (v))
+#define BW_SPI_MCR_FRZ(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_FRZ), v))
 /*@}*/
 
 /*!
@@ -510,7 +517,7 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_DCONF     (2U)          /*!< Bit field size in bits for SPI_MCR_DCONF. */
 
 /*! @brief Read current value of the SPI_MCR_DCONF field. */
-#define BR_SPI_MCR_DCONF(x)  (HW_SPI_MCR(x).B.DCONF)
+#define BR_SPI_MCR_DCONF(x)  (UNION_READ(hw_spi_mcr_t, HW_SPI_MCR_ADDR(x), U, B.DCONF))
 /*@}*/
 
 /*!
@@ -528,13 +535,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_CONT_SCKE (1U)          /*!< Bit field size in bits for SPI_MCR_CONT_SCKE. */
 
 /*! @brief Read current value of the SPI_MCR_CONT_SCKE field. */
-#define BR_SPI_MCR_CONT_SCKE(x) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CONT_SCKE))
+#define BR_SPI_MCR_CONT_SCKE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CONT_SCKE)))
 
 /*! @brief Format value for bitfield SPI_MCR_CONT_SCKE. */
 #define BF_SPI_MCR_CONT_SCKE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_CONT_SCKE) & BM_SPI_MCR_CONT_SCKE)
 
 /*! @brief Set the CONT_SCKE field to a new value. */
-#define BW_SPI_MCR_CONT_SCKE(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CONT_SCKE) = (v))
+#define BW_SPI_MCR_CONT_SCKE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_CONT_SCKE), v))
 /*@}*/
 
 /*!
@@ -553,13 +560,13 @@ typedef union _hw_spi_mcr
 #define BS_SPI_MCR_MSTR      (1U)          /*!< Bit field size in bits for SPI_MCR_MSTR. */
 
 /*! @brief Read current value of the SPI_MCR_MSTR field. */
-#define BR_SPI_MCR_MSTR(x)   (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MSTR))
+#define BR_SPI_MCR_MSTR(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MSTR)))
 
 /*! @brief Format value for bitfield SPI_MCR_MSTR. */
 #define BF_SPI_MCR_MSTR(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_MCR_MSTR) & BM_SPI_MCR_MSTR)
 
 /*! @brief Set the MSTR field to a new value. */
-#define BW_SPI_MCR_MSTR(x, v) (BITBAND_ACCESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MSTR) = (v))
+#define BW_SPI_MCR_MSTR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_MCR_ADDR(x), BP_SPI_MCR_MSTR), v))
 /*@}*/
 
 /*******************************************************************************
@@ -592,8 +599,8 @@ typedef union _hw_spi_tcr
 #define HW_SPI_TCR_ADDR(x)       ((x) + 0x8U)
 
 #define HW_SPI_TCR(x)            (*(__IO hw_spi_tcr_t *) HW_SPI_TCR_ADDR(x))
-#define HW_SPI_TCR_RD(x)         (HW_SPI_TCR(x).U)
-#define HW_SPI_TCR_WR(x, v)      (HW_SPI_TCR(x).U = (v))
+#define HW_SPI_TCR_RD(x)         (ADDRESS_READ(hw_spi_tcr_t, HW_SPI_TCR_ADDR(x)))
+#define HW_SPI_TCR_WR(x, v)      (ADDRESS_WRITE(hw_spi_tcr_t, HW_SPI_TCR_ADDR(x), v))
 #define HW_SPI_TCR_SET(x, v)     (HW_SPI_TCR_WR(x, HW_SPI_TCR_RD(x) |  (v)))
 #define HW_SPI_TCR_CLR(x, v)     (HW_SPI_TCR_WR(x, HW_SPI_TCR_RD(x) & ~(v)))
 #define HW_SPI_TCR_TOG(x, v)     (HW_SPI_TCR_WR(x, HW_SPI_TCR_RD(x) ^  (v)))
@@ -619,7 +626,7 @@ typedef union _hw_spi_tcr
 #define BS_SPI_TCR_SPI_TCNT  (16U)         /*!< Bit field size in bits for SPI_TCR_SPI_TCNT. */
 
 /*! @brief Read current value of the SPI_TCR_SPI_TCNT field. */
-#define BR_SPI_TCR_SPI_TCNT(x) (HW_SPI_TCR(x).B.SPI_TCNT)
+#define BR_SPI_TCR_SPI_TCNT(x) (UNION_READ(hw_spi_tcr_t, HW_SPI_TCR_ADDR(x), U, B.SPI_TCNT))
 
 /*! @brief Format value for bitfield SPI_TCR_SPI_TCNT. */
 #define BF_SPI_TCR_SPI_TCNT(v) ((uint32_t)((uint32_t)(v) << BP_SPI_TCR_SPI_TCNT) & BM_SPI_TCR_SPI_TCNT)
@@ -677,8 +684,8 @@ typedef union _hw_spi_ctarn
 #define HW_SPI_CTARn_ADDR(x, n)  ((x) + 0xCU + (0x4U * (n)))
 
 #define HW_SPI_CTARn(x, n)       (*(__IO hw_spi_ctarn_t *) HW_SPI_CTARn_ADDR(x, n))
-#define HW_SPI_CTARn_RD(x, n)    (HW_SPI_CTARn(x, n).U)
-#define HW_SPI_CTARn_WR(x, n, v) (HW_SPI_CTARn(x, n).U = (v))
+#define HW_SPI_CTARn_RD(x, n)    (ADDRESS_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n)))
+#define HW_SPI_CTARn_WR(x, n, v) (ADDRESS_WRITE(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), v))
 #define HW_SPI_CTARn_SET(x, n, v) (HW_SPI_CTARn_WR(x, n, HW_SPI_CTARn_RD(x, n) |  (v)))
 #define HW_SPI_CTARn_CLR(x, n, v) (HW_SPI_CTARn_WR(x, n, HW_SPI_CTARn_RD(x, n) & ~(v)))
 #define HW_SPI_CTARn_TOG(x, n, v) (HW_SPI_CTARn_WR(x, n, HW_SPI_CTARn_RD(x, n) ^  (v)))
@@ -705,7 +712,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_BR      (4U)          /*!< Bit field size in bits for SPI_CTARn_BR. */
 
 /*! @brief Read current value of the SPI_CTARn_BR field. */
-#define BR_SPI_CTARn_BR(x, n) (HW_SPI_CTARn(x, n).B.BR)
+#define BR_SPI_CTARn_BR(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.BR))
 
 /*! @brief Format value for bitfield SPI_CTARn_BR. */
 #define BF_SPI_CTARn_BR(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_BR) & BM_SPI_CTARn_BR)
@@ -732,7 +739,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_DT      (4U)          /*!< Bit field size in bits for SPI_CTARn_DT. */
 
 /*! @brief Read current value of the SPI_CTARn_DT field. */
-#define BR_SPI_CTARn_DT(x, n) (HW_SPI_CTARn(x, n).B.DT)
+#define BR_SPI_CTARn_DT(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.DT))
 
 /*! @brief Format value for bitfield SPI_CTARn_DT. */
 #define BF_SPI_CTARn_DT(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_DT) & BM_SPI_CTARn_DT)
@@ -757,7 +764,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_ASC     (4U)          /*!< Bit field size in bits for SPI_CTARn_ASC. */
 
 /*! @brief Read current value of the SPI_CTARn_ASC field. */
-#define BR_SPI_CTARn_ASC(x, n) (HW_SPI_CTARn(x, n).B.ASC)
+#define BR_SPI_CTARn_ASC(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.ASC))
 
 /*! @brief Format value for bitfield SPI_CTARn_ASC. */
 #define BF_SPI_CTARn_ASC(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_ASC) & BM_SPI_CTARn_ASC)
@@ -785,7 +792,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_CSSCK   (4U)          /*!< Bit field size in bits for SPI_CTARn_CSSCK. */
 
 /*! @brief Read current value of the SPI_CTARn_CSSCK field. */
-#define BR_SPI_CTARn_CSSCK(x, n) (HW_SPI_CTARn(x, n).B.CSSCK)
+#define BR_SPI_CTARn_CSSCK(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.CSSCK))
 
 /*! @brief Format value for bitfield SPI_CTARn_CSSCK. */
 #define BF_SPI_CTARn_CSSCK(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_CSSCK) & BM_SPI_CTARn_CSSCK)
@@ -814,7 +821,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_PBR     (2U)          /*!< Bit field size in bits for SPI_CTARn_PBR. */
 
 /*! @brief Read current value of the SPI_CTARn_PBR field. */
-#define BR_SPI_CTARn_PBR(x, n) (HW_SPI_CTARn(x, n).B.PBR)
+#define BR_SPI_CTARn_PBR(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.PBR))
 
 /*! @brief Format value for bitfield SPI_CTARn_PBR. */
 #define BF_SPI_CTARn_PBR(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_PBR) & BM_SPI_CTARn_PBR)
@@ -844,7 +851,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_PDT     (2U)          /*!< Bit field size in bits for SPI_CTARn_PDT. */
 
 /*! @brief Read current value of the SPI_CTARn_PDT field. */
-#define BR_SPI_CTARn_PDT(x, n) (HW_SPI_CTARn(x, n).B.PDT)
+#define BR_SPI_CTARn_PDT(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.PDT))
 
 /*! @brief Format value for bitfield SPI_CTARn_PDT. */
 #define BF_SPI_CTARn_PDT(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_PDT) & BM_SPI_CTARn_PDT)
@@ -872,7 +879,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_PASC    (2U)          /*!< Bit field size in bits for SPI_CTARn_PASC. */
 
 /*! @brief Read current value of the SPI_CTARn_PASC field. */
-#define BR_SPI_CTARn_PASC(x, n) (HW_SPI_CTARn(x, n).B.PASC)
+#define BR_SPI_CTARn_PASC(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.PASC))
 
 /*! @brief Format value for bitfield SPI_CTARn_PASC. */
 #define BF_SPI_CTARn_PASC(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_PASC) & BM_SPI_CTARn_PASC)
@@ -900,7 +907,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_PCSSCK  (2U)          /*!< Bit field size in bits for SPI_CTARn_PCSSCK. */
 
 /*! @brief Read current value of the SPI_CTARn_PCSSCK field. */
-#define BR_SPI_CTARn_PCSSCK(x, n) (HW_SPI_CTARn(x, n).B.PCSSCK)
+#define BR_SPI_CTARn_PCSSCK(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.PCSSCK))
 
 /*! @brief Format value for bitfield SPI_CTARn_PCSSCK. */
 #define BF_SPI_CTARn_PCSSCK(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_PCSSCK) & BM_SPI_CTARn_PCSSCK)
@@ -924,13 +931,13 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_LSBFE   (1U)          /*!< Bit field size in bits for SPI_CTARn_LSBFE. */
 
 /*! @brief Read current value of the SPI_CTARn_LSBFE field. */
-#define BR_SPI_CTARn_LSBFE(x, n) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_LSBFE))
+#define BR_SPI_CTARn_LSBFE(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_LSBFE)))
 
 /*! @brief Format value for bitfield SPI_CTARn_LSBFE. */
 #define BF_SPI_CTARn_LSBFE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_LSBFE) & BM_SPI_CTARn_LSBFE)
 
 /*! @brief Set the LSBFE field to a new value. */
-#define BW_SPI_CTARn_LSBFE(x, n, v) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_LSBFE) = (v))
+#define BW_SPI_CTARn_LSBFE(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_LSBFE), v))
 /*@}*/
 
 /*!
@@ -954,13 +961,13 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_CPHA    (1U)          /*!< Bit field size in bits for SPI_CTARn_CPHA. */
 
 /*! @brief Read current value of the SPI_CTARn_CPHA field. */
-#define BR_SPI_CTARn_CPHA(x, n) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPHA))
+#define BR_SPI_CTARn_CPHA(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPHA)))
 
 /*! @brief Format value for bitfield SPI_CTARn_CPHA. */
 #define BF_SPI_CTARn_CPHA(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_CPHA) & BM_SPI_CTARn_CPHA)
 
 /*! @brief Set the CPHA field to a new value. */
-#define BW_SPI_CTARn_CPHA(x, n, v) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPHA) = (v))
+#define BW_SPI_CTARn_CPHA(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPHA), v))
 /*@}*/
 
 /*!
@@ -985,13 +992,13 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_CPOL    (1U)          /*!< Bit field size in bits for SPI_CTARn_CPOL. */
 
 /*! @brief Read current value of the SPI_CTARn_CPOL field. */
-#define BR_SPI_CTARn_CPOL(x, n) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPOL))
+#define BR_SPI_CTARn_CPOL(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPOL)))
 
 /*! @brief Format value for bitfield SPI_CTARn_CPOL. */
 #define BF_SPI_CTARn_CPOL(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_CPOL) & BM_SPI_CTARn_CPOL)
 
 /*! @brief Set the CPOL field to a new value. */
-#define BW_SPI_CTARn_CPOL(x, n, v) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPOL) = (v))
+#define BW_SPI_CTARn_CPOL(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_CPOL), v))
 /*@}*/
 
 /*!
@@ -1006,7 +1013,7 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_FMSZ    (4U)          /*!< Bit field size in bits for SPI_CTARn_FMSZ. */
 
 /*! @brief Read current value of the SPI_CTARn_FMSZ field. */
-#define BR_SPI_CTARn_FMSZ(x, n) (HW_SPI_CTARn(x, n).B.FMSZ)
+#define BR_SPI_CTARn_FMSZ(x, n) (UNION_READ(hw_spi_ctarn_t, HW_SPI_CTARn_ADDR(x, n), U, B.FMSZ))
 
 /*! @brief Format value for bitfield SPI_CTARn_FMSZ. */
 #define BF_SPI_CTARn_FMSZ(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_FMSZ) & BM_SPI_CTARn_FMSZ)
@@ -1039,13 +1046,13 @@ typedef union _hw_spi_ctarn
 #define BS_SPI_CTARn_DBR     (1U)          /*!< Bit field size in bits for SPI_CTARn_DBR. */
 
 /*! @brief Read current value of the SPI_CTARn_DBR field. */
-#define BR_SPI_CTARn_DBR(x, n) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_DBR))
+#define BR_SPI_CTARn_DBR(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_DBR)))
 
 /*! @brief Format value for bitfield SPI_CTARn_DBR. */
 #define BF_SPI_CTARn_DBR(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_DBR) & BM_SPI_CTARn_DBR)
 
 /*! @brief Set the DBR field to a new value. */
-#define BW_SPI_CTARn_DBR(x, n, v) (BITBAND_ACCESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_DBR) = (v))
+#define BW_SPI_CTARn_DBR(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_ADDR(x, n), BP_SPI_CTARn_DBR), v))
 /*@}*/
 /*******************************************************************************
  * HW_SPI_CTARn_SLAVE - Clock and Transfer Attributes Register (In Slave Mode)
@@ -1079,8 +1086,8 @@ typedef union _hw_spi_ctarn_slave
 #define HW_SPI_CTARn_SLAVE_ADDR(x, n) ((x) + 0xCU + (0x4U * (n)))
 
 #define HW_SPI_CTARn_SLAVE(x, n) (*(__IO hw_spi_ctarn_slave_t *) HW_SPI_CTARn_SLAVE_ADDR(x, n))
-#define HW_SPI_CTARn_SLAVE_RD(x, n) (HW_SPI_CTARn_SLAVE(x, n).U)
-#define HW_SPI_CTARn_SLAVE_WR(x, n, v) (HW_SPI_CTARn_SLAVE(x, n).U = (v))
+#define HW_SPI_CTARn_SLAVE_RD(x, n) (ADDRESS_READ(hw_spi_ctarn_slave_t, HW_SPI_CTARn_SLAVE_ADDR(x, n)))
+#define HW_SPI_CTARn_SLAVE_WR(x, n, v) (ADDRESS_WRITE(hw_spi_ctarn_slave_t, HW_SPI_CTARn_SLAVE_ADDR(x, n), v))
 #define HW_SPI_CTARn_SLAVE_SET(x, n, v) (HW_SPI_CTARn_SLAVE_WR(x, n, HW_SPI_CTARn_SLAVE_RD(x, n) |  (v)))
 #define HW_SPI_CTARn_SLAVE_CLR(x, n, v) (HW_SPI_CTARn_SLAVE_WR(x, n, HW_SPI_CTARn_SLAVE_RD(x, n) & ~(v)))
 #define HW_SPI_CTARn_SLAVE_TOG(x, n, v) (HW_SPI_CTARn_SLAVE_WR(x, n, HW_SPI_CTARn_SLAVE_RD(x, n) ^  (v)))
@@ -1111,13 +1118,13 @@ typedef union _hw_spi_ctarn_slave
 #define BS_SPI_CTARn_SLAVE_CPHA (1U)       /*!< Bit field size in bits for SPI_CTARn_SLAVE_CPHA. */
 
 /*! @brief Read current value of the SPI_CTARn_SLAVE_CPHA field. */
-#define BR_SPI_CTARn_SLAVE_CPHA(x, n) (BITBAND_ACCESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPHA))
+#define BR_SPI_CTARn_SLAVE_CPHA(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPHA)))
 
 /*! @brief Format value for bitfield SPI_CTARn_SLAVE_CPHA. */
 #define BF_SPI_CTARn_SLAVE_CPHA(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_SLAVE_CPHA) & BM_SPI_CTARn_SLAVE_CPHA)
 
 /*! @brief Set the CPHA field to a new value. */
-#define BW_SPI_CTARn_SLAVE_CPHA(x, n, v) (BITBAND_ACCESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPHA) = (v))
+#define BW_SPI_CTARn_SLAVE_CPHA(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPHA), v))
 /*@}*/
 
 /*!
@@ -1137,13 +1144,13 @@ typedef union _hw_spi_ctarn_slave
 #define BS_SPI_CTARn_SLAVE_CPOL (1U)       /*!< Bit field size in bits for SPI_CTARn_SLAVE_CPOL. */
 
 /*! @brief Read current value of the SPI_CTARn_SLAVE_CPOL field. */
-#define BR_SPI_CTARn_SLAVE_CPOL(x, n) (BITBAND_ACCESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPOL))
+#define BR_SPI_CTARn_SLAVE_CPOL(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPOL)))
 
 /*! @brief Format value for bitfield SPI_CTARn_SLAVE_CPOL. */
 #define BF_SPI_CTARn_SLAVE_CPOL(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_SLAVE_CPOL) & BM_SPI_CTARn_SLAVE_CPOL)
 
 /*! @brief Set the CPOL field to a new value. */
-#define BW_SPI_CTARn_SLAVE_CPOL(x, n, v) (BITBAND_ACCESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPOL) = (v))
+#define BW_SPI_CTARn_SLAVE_CPOL(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_CTARn_SLAVE_ADDR(x, n), BP_SPI_CTARn_SLAVE_CPOL), v))
 /*@}*/
 
 /*!
@@ -1158,7 +1165,7 @@ typedef union _hw_spi_ctarn_slave
 #define BS_SPI_CTARn_SLAVE_FMSZ (5U)       /*!< Bit field size in bits for SPI_CTARn_SLAVE_FMSZ. */
 
 /*! @brief Read current value of the SPI_CTARn_SLAVE_FMSZ field. */
-#define BR_SPI_CTARn_SLAVE_FMSZ(x, n) (HW_SPI_CTARn_SLAVE(x, n).B.FMSZ)
+#define BR_SPI_CTARn_SLAVE_FMSZ(x, n) (UNION_READ(hw_spi_ctarn_slave_t, HW_SPI_CTARn_SLAVE_ADDR(x, n), U, B.FMSZ))
 
 /*! @brief Format value for bitfield SPI_CTARn_SLAVE_FMSZ. */
 #define BF_SPI_CTARn_SLAVE_FMSZ(v) ((uint32_t)((uint32_t)(v) << BP_SPI_CTARn_SLAVE_FMSZ) & BM_SPI_CTARn_SLAVE_FMSZ)
@@ -1213,8 +1220,8 @@ typedef union _hw_spi_sr
 #define HW_SPI_SR_ADDR(x)        ((x) + 0x2CU)
 
 #define HW_SPI_SR(x)             (*(__IO hw_spi_sr_t *) HW_SPI_SR_ADDR(x))
-#define HW_SPI_SR_RD(x)          (HW_SPI_SR(x).U)
-#define HW_SPI_SR_WR(x, v)       (HW_SPI_SR(x).U = (v))
+#define HW_SPI_SR_RD(x)          (ADDRESS_READ(hw_spi_sr_t, HW_SPI_SR_ADDR(x)))
+#define HW_SPI_SR_WR(x, v)       (ADDRESS_WRITE(hw_spi_sr_t, HW_SPI_SR_ADDR(x), v))
 #define HW_SPI_SR_SET(x, v)      (HW_SPI_SR_WR(x, HW_SPI_SR_RD(x) |  (v)))
 #define HW_SPI_SR_CLR(x, v)      (HW_SPI_SR_WR(x, HW_SPI_SR_RD(x) & ~(v)))
 #define HW_SPI_SR_TOG(x, v)      (HW_SPI_SR_WR(x, HW_SPI_SR_RD(x) ^  (v)))
@@ -1236,7 +1243,7 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_POPNXTPTR  (4U)          /*!< Bit field size in bits for SPI_SR_POPNXTPTR. */
 
 /*! @brief Read current value of the SPI_SR_POPNXTPTR field. */
-#define BR_SPI_SR_POPNXTPTR(x) (HW_SPI_SR(x).B.POPNXTPTR)
+#define BR_SPI_SR_POPNXTPTR(x) (UNION_READ(hw_spi_sr_t, HW_SPI_SR_ADDR(x), U, B.POPNXTPTR))
 /*@}*/
 
 /*!
@@ -1252,7 +1259,7 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_RXCTR      (4U)          /*!< Bit field size in bits for SPI_SR_RXCTR. */
 
 /*! @brief Read current value of the SPI_SR_RXCTR field. */
-#define BR_SPI_SR_RXCTR(x)   (HW_SPI_SR(x).B.RXCTR)
+#define BR_SPI_SR_RXCTR(x)   (UNION_READ(hw_spi_sr_t, HW_SPI_SR_ADDR(x), U, B.RXCTR))
 /*@}*/
 
 /*!
@@ -1268,7 +1275,7 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_TXNXTPTR   (4U)          /*!< Bit field size in bits for SPI_SR_TXNXTPTR. */
 
 /*! @brief Read current value of the SPI_SR_TXNXTPTR field. */
-#define BR_SPI_SR_TXNXTPTR(x) (HW_SPI_SR(x).B.TXNXTPTR)
+#define BR_SPI_SR_TXNXTPTR(x) (UNION_READ(hw_spi_sr_t, HW_SPI_SR_ADDR(x), U, B.TXNXTPTR))
 /*@}*/
 
 /*!
@@ -1284,7 +1291,7 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_TXCTR      (4U)          /*!< Bit field size in bits for SPI_SR_TXCTR. */
 
 /*! @brief Read current value of the SPI_SR_TXCTR field. */
-#define BR_SPI_SR_TXCTR(x)   (HW_SPI_SR(x).B.TXCTR)
+#define BR_SPI_SR_TXCTR(x)   (UNION_READ(hw_spi_sr_t, HW_SPI_SR_ADDR(x), U, B.TXCTR))
 /*@}*/
 
 /*!
@@ -1305,13 +1312,13 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_RFDF       (1U)          /*!< Bit field size in bits for SPI_SR_RFDF. */
 
 /*! @brief Read current value of the SPI_SR_RFDF field. */
-#define BR_SPI_SR_RFDF(x)    (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFDF))
+#define BR_SPI_SR_RFDF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFDF)))
 
 /*! @brief Format value for bitfield SPI_SR_RFDF. */
 #define BF_SPI_SR_RFDF(v)    ((uint32_t)((uint32_t)(v) << BP_SPI_SR_RFDF) & BM_SPI_SR_RFDF)
 
 /*! @brief Set the RFDF field to a new value. */
-#define BW_SPI_SR_RFDF(x, v) (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFDF) = (v))
+#define BW_SPI_SR_RFDF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFDF), v))
 /*@}*/
 
 /*!
@@ -1331,13 +1338,13 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_RFOF       (1U)          /*!< Bit field size in bits for SPI_SR_RFOF. */
 
 /*! @brief Read current value of the SPI_SR_RFOF field. */
-#define BR_SPI_SR_RFOF(x)    (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFOF))
+#define BR_SPI_SR_RFOF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFOF)))
 
 /*! @brief Format value for bitfield SPI_SR_RFOF. */
 #define BF_SPI_SR_RFOF(v)    ((uint32_t)((uint32_t)(v) << BP_SPI_SR_RFOF) & BM_SPI_SR_RFOF)
 
 /*! @brief Set the RFOF field to a new value. */
-#define BW_SPI_SR_RFOF(x, v) (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFOF) = (v))
+#define BW_SPI_SR_RFOF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_RFOF), v))
 /*@}*/
 
 /*!
@@ -1358,13 +1365,13 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_TFFF       (1U)          /*!< Bit field size in bits for SPI_SR_TFFF. */
 
 /*! @brief Read current value of the SPI_SR_TFFF field. */
-#define BR_SPI_SR_TFFF(x)    (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFFF))
+#define BR_SPI_SR_TFFF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFFF)))
 
 /*! @brief Format value for bitfield SPI_SR_TFFF. */
 #define BF_SPI_SR_TFFF(v)    ((uint32_t)((uint32_t)(v) << BP_SPI_SR_TFFF) & BM_SPI_SR_TFFF)
 
 /*! @brief Set the TFFF field to a new value. */
-#define BW_SPI_SR_TFFF(x, v) (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFFF) = (v))
+#define BW_SPI_SR_TFFF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFFF), v))
 /*@}*/
 
 /*!
@@ -1386,13 +1393,13 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_TFUF       (1U)          /*!< Bit field size in bits for SPI_SR_TFUF. */
 
 /*! @brief Read current value of the SPI_SR_TFUF field. */
-#define BR_SPI_SR_TFUF(x)    (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFUF))
+#define BR_SPI_SR_TFUF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFUF)))
 
 /*! @brief Format value for bitfield SPI_SR_TFUF. */
 #define BF_SPI_SR_TFUF(v)    ((uint32_t)((uint32_t)(v) << BP_SPI_SR_TFUF) & BM_SPI_SR_TFUF)
 
 /*! @brief Set the TFUF field to a new value. */
-#define BW_SPI_SR_TFUF(x, v) (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFUF) = (v))
+#define BW_SPI_SR_TFUF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TFUF), v))
 /*@}*/
 
 /*!
@@ -1414,13 +1421,13 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_EOQF       (1U)          /*!< Bit field size in bits for SPI_SR_EOQF. */
 
 /*! @brief Read current value of the SPI_SR_EOQF field. */
-#define BR_SPI_SR_EOQF(x)    (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_EOQF))
+#define BR_SPI_SR_EOQF(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_EOQF)))
 
 /*! @brief Format value for bitfield SPI_SR_EOQF. */
 #define BF_SPI_SR_EOQF(v)    ((uint32_t)((uint32_t)(v) << BP_SPI_SR_EOQF) & BM_SPI_SR_EOQF)
 
 /*! @brief Set the EOQF field to a new value. */
-#define BW_SPI_SR_EOQF(x, v) (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_EOQF) = (v))
+#define BW_SPI_SR_EOQF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_EOQF), v))
 /*@}*/
 
 /*!
@@ -1440,13 +1447,13 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_TXRXS      (1U)          /*!< Bit field size in bits for SPI_SR_TXRXS. */
 
 /*! @brief Read current value of the SPI_SR_TXRXS field. */
-#define BR_SPI_SR_TXRXS(x)   (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TXRXS))
+#define BR_SPI_SR_TXRXS(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TXRXS)))
 
 /*! @brief Format value for bitfield SPI_SR_TXRXS. */
 #define BF_SPI_SR_TXRXS(v)   ((uint32_t)((uint32_t)(v) << BP_SPI_SR_TXRXS) & BM_SPI_SR_TXRXS)
 
 /*! @brief Set the TXRXS field to a new value. */
-#define BW_SPI_SR_TXRXS(x, v) (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TXRXS) = (v))
+#define BW_SPI_SR_TXRXS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TXRXS), v))
 /*@}*/
 
 /*!
@@ -1465,13 +1472,13 @@ typedef union _hw_spi_sr
 #define BS_SPI_SR_TCF        (1U)          /*!< Bit field size in bits for SPI_SR_TCF. */
 
 /*! @brief Read current value of the SPI_SR_TCF field. */
-#define BR_SPI_SR_TCF(x)     (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TCF))
+#define BR_SPI_SR_TCF(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TCF)))
 
 /*! @brief Format value for bitfield SPI_SR_TCF. */
 #define BF_SPI_SR_TCF(v)     ((uint32_t)((uint32_t)(v) << BP_SPI_SR_TCF) & BM_SPI_SR_TCF)
 
 /*! @brief Set the TCF field to a new value. */
-#define BW_SPI_SR_TCF(x, v)  (BITBAND_ACCESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TCF) = (v))
+#define BW_SPI_SR_TCF(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_SR_ADDR(x), BP_SPI_SR_TCF), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1518,8 +1525,8 @@ typedef union _hw_spi_rser
 #define HW_SPI_RSER_ADDR(x)      ((x) + 0x30U)
 
 #define HW_SPI_RSER(x)           (*(__IO hw_spi_rser_t *) HW_SPI_RSER_ADDR(x))
-#define HW_SPI_RSER_RD(x)        (HW_SPI_RSER(x).U)
-#define HW_SPI_RSER_WR(x, v)     (HW_SPI_RSER(x).U = (v))
+#define HW_SPI_RSER_RD(x)        (ADDRESS_READ(hw_spi_rser_t, HW_SPI_RSER_ADDR(x)))
+#define HW_SPI_RSER_WR(x, v)     (ADDRESS_WRITE(hw_spi_rser_t, HW_SPI_RSER_ADDR(x), v))
 #define HW_SPI_RSER_SET(x, v)    (HW_SPI_RSER_WR(x, HW_SPI_RSER_RD(x) |  (v)))
 #define HW_SPI_RSER_CLR(x, v)    (HW_SPI_RSER_WR(x, HW_SPI_RSER_RD(x) & ~(v)))
 #define HW_SPI_RSER_TOG(x, v)    (HW_SPI_RSER_WR(x, HW_SPI_RSER_RD(x) ^  (v)))
@@ -1546,13 +1553,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_RFDF_DIRS (1U)         /*!< Bit field size in bits for SPI_RSER_RFDF_DIRS. */
 
 /*! @brief Read current value of the SPI_RSER_RFDF_DIRS field. */
-#define BR_SPI_RSER_RFDF_DIRS(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_DIRS))
+#define BR_SPI_RSER_RFDF_DIRS(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_DIRS)))
 
 /*! @brief Format value for bitfield SPI_RSER_RFDF_DIRS. */
 #define BF_SPI_RSER_RFDF_DIRS(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_RFDF_DIRS) & BM_SPI_RSER_RFDF_DIRS)
 
 /*! @brief Set the RFDF_DIRS field to a new value. */
-#define BW_SPI_RSER_RFDF_DIRS(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_DIRS) = (v))
+#define BW_SPI_RSER_RFDF_DIRS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_DIRS), v))
 /*@}*/
 
 /*!
@@ -1571,13 +1578,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_RFDF_RE  (1U)          /*!< Bit field size in bits for SPI_RSER_RFDF_RE. */
 
 /*! @brief Read current value of the SPI_RSER_RFDF_RE field. */
-#define BR_SPI_RSER_RFDF_RE(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_RE))
+#define BR_SPI_RSER_RFDF_RE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_RE)))
 
 /*! @brief Format value for bitfield SPI_RSER_RFDF_RE. */
 #define BF_SPI_RSER_RFDF_RE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_RFDF_RE) & BM_SPI_RSER_RFDF_RE)
 
 /*! @brief Set the RFDF_RE field to a new value. */
-#define BW_SPI_RSER_RFDF_RE(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_RE) = (v))
+#define BW_SPI_RSER_RFDF_RE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFDF_RE), v))
 /*@}*/
 
 /*!
@@ -1595,13 +1602,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_RFOF_RE  (1U)          /*!< Bit field size in bits for SPI_RSER_RFOF_RE. */
 
 /*! @brief Read current value of the SPI_RSER_RFOF_RE field. */
-#define BR_SPI_RSER_RFOF_RE(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFOF_RE))
+#define BR_SPI_RSER_RFOF_RE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFOF_RE)))
 
 /*! @brief Format value for bitfield SPI_RSER_RFOF_RE. */
 #define BF_SPI_RSER_RFOF_RE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_RFOF_RE) & BM_SPI_RSER_RFOF_RE)
 
 /*! @brief Set the RFOF_RE field to a new value. */
-#define BW_SPI_RSER_RFOF_RE(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFOF_RE) = (v))
+#define BW_SPI_RSER_RFOF_RE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_RFOF_RE), v))
 /*@}*/
 
 /*!
@@ -1621,13 +1628,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_TFFF_DIRS (1U)         /*!< Bit field size in bits for SPI_RSER_TFFF_DIRS. */
 
 /*! @brief Read current value of the SPI_RSER_TFFF_DIRS field. */
-#define BR_SPI_RSER_TFFF_DIRS(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_DIRS))
+#define BR_SPI_RSER_TFFF_DIRS(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_DIRS)))
 
 /*! @brief Format value for bitfield SPI_RSER_TFFF_DIRS. */
 #define BF_SPI_RSER_TFFF_DIRS(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_TFFF_DIRS) & BM_SPI_RSER_TFFF_DIRS)
 
 /*! @brief Set the TFFF_DIRS field to a new value. */
-#define BW_SPI_RSER_TFFF_DIRS(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_DIRS) = (v))
+#define BW_SPI_RSER_TFFF_DIRS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_DIRS), v))
 /*@}*/
 
 /*!
@@ -1646,13 +1653,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_TFFF_RE  (1U)          /*!< Bit field size in bits for SPI_RSER_TFFF_RE. */
 
 /*! @brief Read current value of the SPI_RSER_TFFF_RE field. */
-#define BR_SPI_RSER_TFFF_RE(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_RE))
+#define BR_SPI_RSER_TFFF_RE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_RE)))
 
 /*! @brief Format value for bitfield SPI_RSER_TFFF_RE. */
 #define BF_SPI_RSER_TFFF_RE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_TFFF_RE) & BM_SPI_RSER_TFFF_RE)
 
 /*! @brief Set the TFFF_RE field to a new value. */
-#define BW_SPI_RSER_TFFF_RE(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_RE) = (v))
+#define BW_SPI_RSER_TFFF_RE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFFF_RE), v))
 /*@}*/
 
 /*!
@@ -1670,13 +1677,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_TFUF_RE  (1U)          /*!< Bit field size in bits for SPI_RSER_TFUF_RE. */
 
 /*! @brief Read current value of the SPI_RSER_TFUF_RE field. */
-#define BR_SPI_RSER_TFUF_RE(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFUF_RE))
+#define BR_SPI_RSER_TFUF_RE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFUF_RE)))
 
 /*! @brief Format value for bitfield SPI_RSER_TFUF_RE. */
 #define BF_SPI_RSER_TFUF_RE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_TFUF_RE) & BM_SPI_RSER_TFUF_RE)
 
 /*! @brief Set the TFUF_RE field to a new value. */
-#define BW_SPI_RSER_TFUF_RE(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFUF_RE) = (v))
+#define BW_SPI_RSER_TFUF_RE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TFUF_RE), v))
 /*@}*/
 
 /*!
@@ -1694,13 +1701,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_EOQF_RE  (1U)          /*!< Bit field size in bits for SPI_RSER_EOQF_RE. */
 
 /*! @brief Read current value of the SPI_RSER_EOQF_RE field. */
-#define BR_SPI_RSER_EOQF_RE(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_EOQF_RE))
+#define BR_SPI_RSER_EOQF_RE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_EOQF_RE)))
 
 /*! @brief Format value for bitfield SPI_RSER_EOQF_RE. */
 #define BF_SPI_RSER_EOQF_RE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_EOQF_RE) & BM_SPI_RSER_EOQF_RE)
 
 /*! @brief Set the EOQF_RE field to a new value. */
-#define BW_SPI_RSER_EOQF_RE(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_EOQF_RE) = (v))
+#define BW_SPI_RSER_EOQF_RE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_EOQF_RE), v))
 /*@}*/
 
 /*!
@@ -1718,13 +1725,13 @@ typedef union _hw_spi_rser
 #define BS_SPI_RSER_TCF_RE   (1U)          /*!< Bit field size in bits for SPI_RSER_TCF_RE. */
 
 /*! @brief Read current value of the SPI_RSER_TCF_RE field. */
-#define BR_SPI_RSER_TCF_RE(x) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TCF_RE))
+#define BR_SPI_RSER_TCF_RE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TCF_RE)))
 
 /*! @brief Format value for bitfield SPI_RSER_TCF_RE. */
 #define BF_SPI_RSER_TCF_RE(v) ((uint32_t)((uint32_t)(v) << BP_SPI_RSER_TCF_RE) & BM_SPI_RSER_TCF_RE)
 
 /*! @brief Set the TCF_RE field to a new value. */
-#define BW_SPI_RSER_TCF_RE(x, v) (BITBAND_ACCESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TCF_RE) = (v))
+#define BW_SPI_RSER_TCF_RE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_RSER_ADDR(x), BP_SPI_RSER_TCF_RE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1769,8 +1776,8 @@ typedef union _hw_spi_pushr
 #define HW_SPI_PUSHR_ADDR(x)     ((x) + 0x34U)
 
 #define HW_SPI_PUSHR(x)          (*(__IO hw_spi_pushr_t *) HW_SPI_PUSHR_ADDR(x))
-#define HW_SPI_PUSHR_RD(x)       (HW_SPI_PUSHR(x).U)
-#define HW_SPI_PUSHR_WR(x, v)    (HW_SPI_PUSHR(x).U = (v))
+#define HW_SPI_PUSHR_RD(x)       (ADDRESS_READ(hw_spi_pushr_t, HW_SPI_PUSHR_ADDR(x)))
+#define HW_SPI_PUSHR_WR(x, v)    (ADDRESS_WRITE(hw_spi_pushr_t, HW_SPI_PUSHR_ADDR(x), v))
 #define HW_SPI_PUSHR_SET(x, v)   (HW_SPI_PUSHR_WR(x, HW_SPI_PUSHR_RD(x) |  (v)))
 #define HW_SPI_PUSHR_CLR(x, v)   (HW_SPI_PUSHR_WR(x, HW_SPI_PUSHR_RD(x) & ~(v)))
 #define HW_SPI_PUSHR_TOG(x, v)   (HW_SPI_PUSHR_WR(x, HW_SPI_PUSHR_RD(x) ^  (v)))
@@ -1791,7 +1798,7 @@ typedef union _hw_spi_pushr
 #define BS_SPI_PUSHR_TXDATA  (16U)         /*!< Bit field size in bits for SPI_PUSHR_TXDATA. */
 
 /*! @brief Read current value of the SPI_PUSHR_TXDATA field. */
-#define BR_SPI_PUSHR_TXDATA(x) (HW_SPI_PUSHR(x).B.TXDATA)
+#define BR_SPI_PUSHR_TXDATA(x) (UNION_READ(hw_spi_pushr_t, HW_SPI_PUSHR_ADDR(x), U, B.TXDATA))
 
 /*! @brief Format value for bitfield SPI_PUSHR_TXDATA. */
 #define BF_SPI_PUSHR_TXDATA(v) ((uint32_t)((uint32_t)(v) << BP_SPI_PUSHR_TXDATA) & BM_SPI_PUSHR_TXDATA)
@@ -1816,7 +1823,7 @@ typedef union _hw_spi_pushr
 #define BS_SPI_PUSHR_PCS     (6U)          /*!< Bit field size in bits for SPI_PUSHR_PCS. */
 
 /*! @brief Read current value of the SPI_PUSHR_PCS field. */
-#define BR_SPI_PUSHR_PCS(x)  (HW_SPI_PUSHR(x).B.PCS)
+#define BR_SPI_PUSHR_PCS(x)  (UNION_READ(hw_spi_pushr_t, HW_SPI_PUSHR_ADDR(x), U, B.PCS))
 
 /*! @brief Format value for bitfield SPI_PUSHR_PCS. */
 #define BF_SPI_PUSHR_PCS(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_PUSHR_PCS) & BM_SPI_PUSHR_PCS)
@@ -1841,13 +1848,13 @@ typedef union _hw_spi_pushr
 #define BS_SPI_PUSHR_CTCNT   (1U)          /*!< Bit field size in bits for SPI_PUSHR_CTCNT. */
 
 /*! @brief Read current value of the SPI_PUSHR_CTCNT field. */
-#define BR_SPI_PUSHR_CTCNT(x) (BITBAND_ACCESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CTCNT))
+#define BR_SPI_PUSHR_CTCNT(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CTCNT)))
 
 /*! @brief Format value for bitfield SPI_PUSHR_CTCNT. */
 #define BF_SPI_PUSHR_CTCNT(v) ((uint32_t)((uint32_t)(v) << BP_SPI_PUSHR_CTCNT) & BM_SPI_PUSHR_CTCNT)
 
 /*! @brief Set the CTCNT field to a new value. */
-#define BW_SPI_PUSHR_CTCNT(x, v) (BITBAND_ACCESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CTCNT) = (v))
+#define BW_SPI_PUSHR_CTCNT(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CTCNT), v))
 /*@}*/
 
 /*!
@@ -1867,13 +1874,13 @@ typedef union _hw_spi_pushr
 #define BS_SPI_PUSHR_EOQ     (1U)          /*!< Bit field size in bits for SPI_PUSHR_EOQ. */
 
 /*! @brief Read current value of the SPI_PUSHR_EOQ field. */
-#define BR_SPI_PUSHR_EOQ(x)  (BITBAND_ACCESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_EOQ))
+#define BR_SPI_PUSHR_EOQ(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_EOQ)))
 
 /*! @brief Format value for bitfield SPI_PUSHR_EOQ. */
 #define BF_SPI_PUSHR_EOQ(v)  ((uint32_t)((uint32_t)(v) << BP_SPI_PUSHR_EOQ) & BM_SPI_PUSHR_EOQ)
 
 /*! @brief Set the EOQ field to a new value. */
-#define BW_SPI_PUSHR_EOQ(x, v) (BITBAND_ACCESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_EOQ) = (v))
+#define BW_SPI_PUSHR_EOQ(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_EOQ), v))
 /*@}*/
 
 /*!
@@ -1900,7 +1907,7 @@ typedef union _hw_spi_pushr
 #define BS_SPI_PUSHR_CTAS    (3U)          /*!< Bit field size in bits for SPI_PUSHR_CTAS. */
 
 /*! @brief Read current value of the SPI_PUSHR_CTAS field. */
-#define BR_SPI_PUSHR_CTAS(x) (HW_SPI_PUSHR(x).B.CTAS)
+#define BR_SPI_PUSHR_CTAS(x) (UNION_READ(hw_spi_pushr_t, HW_SPI_PUSHR_ADDR(x), U, B.CTAS))
 
 /*! @brief Format value for bitfield SPI_PUSHR_CTAS. */
 #define BF_SPI_PUSHR_CTAS(v) ((uint32_t)((uint32_t)(v) << BP_SPI_PUSHR_CTAS) & BM_SPI_PUSHR_CTAS)
@@ -1925,13 +1932,13 @@ typedef union _hw_spi_pushr
 #define BS_SPI_PUSHR_CONT    (1U)          /*!< Bit field size in bits for SPI_PUSHR_CONT. */
 
 /*! @brief Read current value of the SPI_PUSHR_CONT field. */
-#define BR_SPI_PUSHR_CONT(x) (BITBAND_ACCESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CONT))
+#define BR_SPI_PUSHR_CONT(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CONT)))
 
 /*! @brief Format value for bitfield SPI_PUSHR_CONT. */
 #define BF_SPI_PUSHR_CONT(v) ((uint32_t)((uint32_t)(v) << BP_SPI_PUSHR_CONT) & BM_SPI_PUSHR_CONT)
 
 /*! @brief Set the CONT field to a new value. */
-#define BW_SPI_PUSHR_CONT(x, v) (BITBAND_ACCESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CONT) = (v))
+#define BW_SPI_PUSHR_CONT(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_SPI_PUSHR_ADDR(x), BP_SPI_PUSHR_CONT), v))
 /*@}*/
 /*******************************************************************************
  * HW_SPI_PUSHR_SLAVE - PUSH TX FIFO Register In Slave Mode
@@ -1964,8 +1971,8 @@ typedef union _hw_spi_pushr_slave
 #define HW_SPI_PUSHR_SLAVE_ADDR(x) ((x) + 0x34U)
 
 #define HW_SPI_PUSHR_SLAVE(x)    (*(__IO hw_spi_pushr_slave_t *) HW_SPI_PUSHR_SLAVE_ADDR(x))
-#define HW_SPI_PUSHR_SLAVE_RD(x) (HW_SPI_PUSHR_SLAVE(x).U)
-#define HW_SPI_PUSHR_SLAVE_WR(x, v) (HW_SPI_PUSHR_SLAVE(x).U = (v))
+#define HW_SPI_PUSHR_SLAVE_RD(x) (ADDRESS_READ(hw_spi_pushr_slave_t, HW_SPI_PUSHR_SLAVE_ADDR(x)))
+#define HW_SPI_PUSHR_SLAVE_WR(x, v) (ADDRESS_WRITE(hw_spi_pushr_slave_t, HW_SPI_PUSHR_SLAVE_ADDR(x), v))
 #define HW_SPI_PUSHR_SLAVE_SET(x, v) (HW_SPI_PUSHR_SLAVE_WR(x, HW_SPI_PUSHR_SLAVE_RD(x) |  (v)))
 #define HW_SPI_PUSHR_SLAVE_CLR(x, v) (HW_SPI_PUSHR_SLAVE_WR(x, HW_SPI_PUSHR_SLAVE_RD(x) & ~(v)))
 #define HW_SPI_PUSHR_SLAVE_TOG(x, v) (HW_SPI_PUSHR_SLAVE_WR(x, HW_SPI_PUSHR_SLAVE_RD(x) ^  (v)))
@@ -2024,7 +2031,7 @@ typedef union _hw_spi_popr
 #define HW_SPI_POPR_ADDR(x)      ((x) + 0x38U)
 
 #define HW_SPI_POPR(x)           (*(__I hw_spi_popr_t *) HW_SPI_POPR_ADDR(x))
-#define HW_SPI_POPR_RD(x)        (HW_SPI_POPR(x).U)
+#define HW_SPI_POPR_RD(x)        (ADDRESS_READ(hw_spi_popr_t, HW_SPI_POPR_ADDR(x)))
 /*@}*/
 
 /*
@@ -2080,7 +2087,7 @@ typedef union _hw_spi_txfrn
 #define HW_SPI_TXFRn_ADDR(x, n)  ((x) + 0x3CU + (0x4U * (n)))
 
 #define HW_SPI_TXFRn(x, n)       (*(__I hw_spi_txfrn_t *) HW_SPI_TXFRn_ADDR(x, n))
-#define HW_SPI_TXFRn_RD(x, n)    (HW_SPI_TXFRn(x, n).U)
+#define HW_SPI_TXFRn_RD(x, n)    (ADDRESS_READ(hw_spi_txfrn_t, HW_SPI_TXFRn_ADDR(x, n)))
 /*@}*/
 
 /*
@@ -2098,7 +2105,7 @@ typedef union _hw_spi_txfrn
 #define BS_SPI_TXFRn_TXDATA  (16U)         /*!< Bit field size in bits for SPI_TXFRn_TXDATA. */
 
 /*! @brief Read current value of the SPI_TXFRn_TXDATA field. */
-#define BR_SPI_TXFRn_TXDATA(x, n) (HW_SPI_TXFRn(x, n).B.TXDATA)
+#define BR_SPI_TXFRn_TXDATA(x, n) (UNION_READ(hw_spi_txfrn_t, HW_SPI_TXFRn_ADDR(x, n), U, B.TXDATA))
 /*@}*/
 
 /*!
@@ -2114,7 +2121,7 @@ typedef union _hw_spi_txfrn
 #define BS_SPI_TXFRn_TXCMD_TXDATA (16U)    /*!< Bit field size in bits for SPI_TXFRn_TXCMD_TXDATA. */
 
 /*! @brief Read current value of the SPI_TXFRn_TXCMD_TXDATA field. */
-#define BR_SPI_TXFRn_TXCMD_TXDATA(x, n) (HW_SPI_TXFRn(x, n).B.TXCMD_TXDATA)
+#define BR_SPI_TXFRn_TXCMD_TXDATA(x, n) (UNION_READ(hw_spi_txfrn_t, HW_SPI_TXFRn_ADDR(x, n), U, B.TXCMD_TXDATA))
 /*@}*/
 
 /*******************************************************************************
@@ -2148,7 +2155,7 @@ typedef union _hw_spi_rxfrn
 #define HW_SPI_RXFRn_ADDR(x, n)  ((x) + 0x7CU + (0x4U * (n)))
 
 #define HW_SPI_RXFRn(x, n)       (*(__I hw_spi_rxfrn_t *) HW_SPI_RXFRn_ADDR(x, n))
-#define HW_SPI_RXFRn_RD(x, n)    (HW_SPI_RXFRn(x, n).U)
+#define HW_SPI_RXFRn_RD(x, n)    (ADDRESS_READ(hw_spi_rxfrn_t, HW_SPI_RXFRn_ADDR(x, n)))
 /*@}*/
 
 /*
