@@ -14,10 +14,26 @@
  * limitations under the License.
  */
 
-#include "DnsQuery.h"
-#include "mbed.h"
+#ifndef MESH_INTERFACE_H
+#define MESH_INTERFACE_H
 
-int NetworkInterface::gethostbyname(const char *name, char *dest)
+#include "NetworkInterface.h"
+
+/** MeshInterface class
+ *  Common interface that is shared between ethernet hardware
+ */
+class MeshInterface : public NetworkInterface
 {
-    return dnsQuery(this, name, dest);
-}
+public:
+    /** Start the interface
+     *  @return     0 on success, negative on failure
+     */
+    virtual int connect() = 0;
+
+    /** Stop the interface
+     *  @return     0 on success, negative on failure
+     */
+    virtual int disconnect() = 0;
+};
+
+#endif

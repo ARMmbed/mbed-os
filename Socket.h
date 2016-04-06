@@ -17,69 +17,57 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include "SocketAddress.h"
 #include "NetworkInterface.h"
 
 /** Abstract socket class
- *  API for handling general sockets. Supports IP address operations
- *  and sending/recieving data.
  */
-class Socket
-{
+class Socket {
 public:
-    ~Socket();
-
-    /** Open a connection to the underlying address
-     *  @param address URL or IP address to connect to
-     *  @param port Port to connect to
-     *  @return 0 on success
+    /** Socket lifetime
      */
-    int32_t open(const char *address, uint16_t port);
-
-    /** Close an open connection
-     *  @return 0 on success
+    virtual ~Socket();
+    
+    /** Set blocking or non-blocking mode of the socket
+     *  @param blocking true for blocking mode, false for non-blocking mode.
      */
-    int32_t close();
-
-    /** Send data over the socket
-     *  @param data Buffer of data to send
-     *  @param size Size of data to send
-     *  @return Number of bytes sent or a negative value on failure
+    void set_blocking(bool blocking);
+    
+    /** Set timeout on a socket operation if blocking behaviour is enabled
+     *  @param timeout  timeout in ms
      */
-    int32_t send(const void *data, uint32_t size);
+    void set_timeout(unsigned int timeout);
 
-    /** Recieve data over the socket
-     *  @param data Buffer to store recieved data
-     *  @param size Size of provided buffer
-     *  @param blocking If true wait for data, otherwise return NS_ERROR_WOULD_BLOCK
-     *  @return Number of bytes recieved or a negative value on failure
+    /*  Set socket options
+     *  @param optname  Option ID
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
      */
-    int32_t recv(void *data, uint32_t size, bool blocking = true);
-
-    /** Gets the IP address
-     *  @return IP address to connect to
+    int set_option(int optname, const void *optval, unsigned optlen);
+    
+    /*  Get socket options
+     *  @param optname  Option ID
+     *  @param optval   Buffer pointer where to write the option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative on failure
      */
-    const char *getIPAddress() const;
-
-    /** Gets the port
-     *  @return Port to connect to
+    int get_option(int optname, void *optval, unsigned *optlen);
+    
+    /** Close the socket
+     *  @param shutdown free the left-over data in message queues
      */
-    uint16_t getPort() const;
-
-    /** Returns status of socket
-     *  @return true if connected
-     */
-    bool isConnected();
+    int close(bool shutdown=true);
 
 protected:
-    Socket(NetworkInterface *iface, ns_protocol_t proto);
+    Socket(NetworkInterface *iface, nsapi_protocol_t proto);
 
-private:
+    static void thunk(void *);
+
     NetworkInterface *_iface;
-    ns_protocol_t _proto;
-    SocketInterface *_socket;
-
-    char _ip_address[NS_IP_SIZE];
-    uint16_t _port;
+    void *_socket;
+    bool _blocking;
+    unsigned _timeout;
 };
 
 #endif

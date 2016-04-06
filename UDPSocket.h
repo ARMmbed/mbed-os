@@ -1,4 +1,4 @@
-/* UDPSocket
+/* Socket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,26 +14,70 @@
  * limitations under the License.
  */
 
-#ifndef UDP_SOCKET_H
-#define UDP_SOCKET_H
+#ifndef UDPSOCKET_H
+#define UDPSOCKET_H
 
 #include "Socket.h"
+#include "NetworkInterface.h"
 
-/** UDPSocket class
- *  API for handling UDP sockets. The implementation is determined
- *  by the interface passed during construction.
+/** UDP Socket
  */
-class UDPSocket : public Socket
-{
+class UDPSocket : public Socket {
 public:
-    /** Create a socket using the specified network interface
-     *  No network operations are performed until the socket is actually used
-     *  @param iface The network interface to use
-     *  @param ip Optional URL to connect to, copied internally
-     *  @param port Optional port to connect to
+    /** UDPSocket lifetime
      */
-    UDPSocket(NetworkInterface *iface)
-        : Socket(iface, NS_UDP) {}
+    UDPSocket(NetworkInterface *iface);
+    virtual ~UDPSocket();
+    
+    /** Bind a UDP Server Socket to a specific port
+     *  @param port     The port to listen for incoming connections on
+     *  @return         0 on success, negative on failure.
+     */
+    int bind(uint16_t port);
+
+    /** Send a packet to a remote endpoint
+     *  @param address  The remote SocketAddress
+     *  @param data     The packet to be sent
+     *  @param size     The length of the packet to be sent
+     *  @return         The number of written bytes on success, negative on failure
+     */
+    int sendto(const SocketAddress &address, const void *data, unsigned size);
+
+    /** Receive a packet from a remote endpoint
+     *  @param address  Destination for the remote SocketAddress or null
+     *  @param buffer   The buffer for storing the incoming packet data
+     *                  If a packet is too long to fit in the supplied buffer,
+     *                  excess bytes are discarded
+     *  @param size     The length of the buffer
+     *  @return         The number of received bytes on success, negative on failure
+     */
+    int recvfrom(SocketAddress *address, void *buffer, unsigned size);
+
+    /** Register a callback on when send is ready
+     *  @param callback Function to call when send will succeed, may be called in
+     *                  interrupt context.
+     */
+    void attach_send(FunctionPointer callback);
+
+    template <typename T, typename M>
+    void attach_send(T *tptr, M mptr) {
+        attach_send(FunctionPointer(tptr, mptr));
+    }
+
+    /** Register a callback on when recv is ready
+     *  @param callback Function to call when recv will succeed, may be called in
+     *                  interrupt context.
+     */
+    void attach_recv(FunctionPointer callback);
+
+    template <typename T, typename M>
+    void attach_recv(T *tptr, M mptr) {
+        attach_recv(FunctionPointer(tptr, mptr));
+    }
+
+private:
+    FunctionPointer _send_cb;
+    FunctionPointer _recv_cb;
 };
 
 #endif
