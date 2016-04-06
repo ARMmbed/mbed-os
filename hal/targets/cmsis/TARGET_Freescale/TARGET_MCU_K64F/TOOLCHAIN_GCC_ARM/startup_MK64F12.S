@@ -229,6 +229,8 @@ disable_watchdog:
 
     ldr   r0, =SystemInit
     blx   r0
+    ldr   r0, =uvisor_init
+    blx   r0
     ldr   r0, =_start
     bx    r0
     .pool
