@@ -94,7 +94,7 @@ if __name__ == '__main__':
     parser.add_option("--dep", dest="dependencies",
                       default=None, help="Dependencies")
     parser.add_option("--source", dest="source_dir",
-                      default=None, help="The source (input) directory")
+                      default=None, help="The source (input) directory", action="append")
     parser.add_option("--duration", type="int", dest="duration",
                       default=None, help="Duration of the test")
     parser.add_option("--build", dest="build_dir",
