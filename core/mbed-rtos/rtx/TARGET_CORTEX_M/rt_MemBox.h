@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_MEMBOX.H
  *      Purpose: Interface functions for fixed memory block management system
- *      Rev.:    V4.60
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,12 +35,11 @@
 /* Functions */
 #define rt_init_box     _init_box
 #define rt_calloc_box   _calloc_box
-extern int     _init_box   (void *box_mem, U32 box_size, U32 blk_size);
+extern U32     _init_box   (void *box_mem, U32 box_size, U32 blk_size);
 extern void *rt_alloc_box  (void *box_mem);
 extern void *  _calloc_box (void *box_mem);
-extern int   rt_free_box   (void *box_mem, void *box);
+extern U32   rt_free_box   (void *box_mem, void *box);
 
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
-

@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_LIST.H
  *      Purpose: Functions for the management of different lists
- *      Rev.:    V4.60
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -35,11 +35,11 @@
 /* Definitions */
 
 /* Values for 'cb_type' */
-#define TCB             0
-#define MCB             1
-#define SCB             2
-#define MUCB            3
-#define HCB             4
+#define TCB             0U
+#define MCB             1U
+#define SCB             2U
+#define MUCB            3U
+#define HCB             4U
 
 /* Variables */
 extern struct OS_XCB os_rdy;
