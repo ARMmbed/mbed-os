@@ -61,10 +61,8 @@ public:
 private:
     osTimerId _timer_id;
     osTimerDef_t _timer;
-#if defined(CMSIS_OS_RTX) && !defined(__MBED_CMSIS_RTOS_CM)
+#ifdef CMSIS_OS_RTX
     uint32_t _timer_data[5];
-#else
-    uint32_t _timer_data[6];
 #endif
 };
 

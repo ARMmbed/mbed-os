@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      CMSIS-RTOS  -  RTX
+ *      RL-ARM - RTX
  *----------------------------------------------------------------------------
  *      Name:    HAL_CM3.S
  *      Purpose: Hardware Abstraction Layer for Cortex-M3
- *      Rev.:    V4.70
+ *      Rev.:    V4.60
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -141,7 +141,7 @@ _alloc_box:
 
 /*--------------------------- _free_box -------------------------------------*/
 
-#       U32 _free_box (void *box_mem, void *box);
+#       int _free_box (void *box_mem, void *box);
         /* Function wrapper for Unprivileged/Privileged mode. */
 
         .thumb_func
@@ -175,10 +175,6 @@ _free_box:
         .type   SVC_Handler, %function
         .global SVC_Handler
 SVC_Handler:
-        .ifdef  IFX_XMC4XXX
-        .global SVC_Handler_Veneer
-SVC_Handler_Veneer:
-        .endif
         .fnstart
         .cantunwind
 
@@ -215,12 +211,7 @@ SVC_Next:
 
 SVC_Exit:
         MVN     LR,#~0xFFFFFFFD         /* set EXC_RETURN value */
-        .ifdef  IFX_XMC4XXX
-        PUSH    {LR}
-        POP     {PC}
-        .else
         BX      LR
-        .endif
 
         /*------------------- User SVC ------------------------------*/
 
@@ -255,10 +246,6 @@ SVC_Done:
         .global PendSV_Handler
         .global Sys_Switch
 PendSV_Handler:
-        .ifdef  IFX_XMC4XXX
-        .global PendSV_Handler_Veneer
-PendSV_Handler_Veneer:
-        .endif
         .fnstart
         .cantunwind
 
@@ -286,12 +273,7 @@ Sys_Switch:
 
 Sys_Exit:
         MVN     LR,#~0xFFFFFFFD         /* set EXC_RETURN value */
-        .ifdef  IFX_XMC4XXX
-        PUSH    {LR}
-        POP     {PC}
-        .else
         BX      LR                      /* Return to Thread Mode */
-        .endif
 
         .fnend
         .size   PendSV_Handler, .-PendSV_Handler
@@ -305,10 +287,6 @@ Sys_Exit:
         .type   SysTick_Handler, %function
         .global SysTick_Handler
 SysTick_Handler:
-        .ifdef  IFX_XMC4XXX
-        .global SysTick_Handler_Veneer
-SysTick_Handler_Veneer:
-        .endif
         .fnstart
         .cantunwind
 
