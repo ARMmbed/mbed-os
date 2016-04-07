@@ -461,9 +461,7 @@ extern "C" void __iar_argc_argv() {
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" int __end__;
 
-#if defined(TARGET_CORTEX_A)
 extern "C" uint32_t  __HeapLimit;
-#endif
 
 // Turn off the errno macro and use actual global variable instead.
 #undef errno
@@ -486,11 +484,7 @@ extern "C" caddr_t _sbrk(int incr) {
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
 
-#if defined(TARGET_CORTEX_A)
     if (new_heap >= (unsigned char*)&__HeapLimit) {     /* __HeapLimit is end of heap section */
-#else
-    if (new_heap >= (unsigned char*)__current_sp()) {
-#endif
         errno = ENOMEM;
         return (caddr_t)-1;
     }
