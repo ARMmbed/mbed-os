@@ -64,6 +64,7 @@ class Exporter(object):
                 'includes':  { 
                     'Include Files': self.resources.headers,
                 },
+                'build_dir':'.build',
                 'target': [TARGET_MAP[self.target].progen['target']],
                 'macros': self.get_symbols(),
                 'export_dir': [self.inputDir],
