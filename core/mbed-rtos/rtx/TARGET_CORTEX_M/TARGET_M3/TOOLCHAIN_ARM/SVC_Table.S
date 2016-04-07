@@ -1,12 +1,12 @@
 ;/*----------------------------------------------------------------------------
-; *      CMSIS-RTOS  -  RTX
+; *      RL-ARM - RTX
 ; *----------------------------------------------------------------------------
 ; *      Name:    SVC_TABLE.S
 ; *      Purpose: Pre-defined SVC Table for Cortex-M
-; *      Rev.:    V4.70
+; *      Rev.:    V4.60
 ; *----------------------------------------------------------------------------
 ; *
-; * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+; * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
 ; * All rights reserved.
 ; * Redistribution and use in source and binary forms, with or without
 ; * modification, are permitted provided that the following conditions are met:

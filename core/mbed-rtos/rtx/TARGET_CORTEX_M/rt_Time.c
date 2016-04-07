@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      CMSIS-RTOS  -  RTX
+ *      RL-ARM - RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_TIME.C
  *      Purpose: Delay and interval wait functions
- *      Rev.:    V4.79
+ *      Rev.:    V4.60
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "rt_TypeDef.h"
-#include "RTX_Config.h"
+#include "RTX_Conf.h"
 #include "rt_Task.h"
 #include "rt_Time.h"
 
@@ -83,7 +83,7 @@ void rt_itv_wait (void) {
 
   delta = os_tsk.run->delta_time - (U16)os_time;
   os_tsk.run->delta_time += os_tsk.run->interval_time;
-  if ((delta & 0x8000U) == 0U) {
+  if ((delta & 0x8000) == 0) {
     rt_block (delta, WAIT_ITV);
   }
 }
@@ -91,3 +91,4 @@ void rt_itv_wait (void) {
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
+
