@@ -38,10 +38,7 @@ void queue_thread(void const *argument) {
 }
 
 int main (void) {
-    MBED_HOSTTEST_TIMEOUT(20);
-    MBED_HOSTTEST_SELECT(default_auto);
-    MBED_HOSTTEST_DESCRIPTION(ISR (Queue));
-    MBED_HOSTTEST_START("RTOS_8");
+    GREENTEA_SETUP(20, "default_auto");
 
     Thread thread(queue_thread, NULL, osPriorityNormal, STACK_SIZE);
     Ticker ticker;
@@ -66,6 +63,6 @@ int main (void) {
         }
     }
 
-    MBED_HOSTTEST_RESULT(result);
+    GREENTEA_TESTSUITE_RESULT(result);
     return 0;
 }

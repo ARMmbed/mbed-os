@@ -32,10 +32,7 @@ void led_thread(void const *argument) {
 }
 
 int main (void) {
-    MBED_HOSTTEST_TIMEOUT(20);
-    MBED_HOSTTEST_SELECT(default_auto);
-    MBED_HOSTTEST_DESCRIPTION(Signals messaging);
-    MBED_HOSTTEST_START("RTOS_4");
+    GREENTEA_SETUP(20, "default_auto");
 
     Thread thread(led_thread, NULL, osPriorityNormal, STACK_SIZE);
     bool result = true;
@@ -48,6 +45,6 @@ int main (void) {
             break;
         }
     }
-    MBED_HOSTTEST_RESULT(result);
+    GREENTEA_TESTSUITE_RESULT(result);
     return 0;
 }

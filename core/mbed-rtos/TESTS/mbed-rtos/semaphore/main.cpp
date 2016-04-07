@@ -64,10 +64,7 @@ void test_thread(void const *delay) {
 }
 
 int main (void) {
-    MBED_HOSTTEST_TIMEOUT(20);
-    MBED_HOSTTEST_SELECT(default_auto);
-    MBED_HOSTTEST_DESCRIPTION(Semaphore resource lock);
-    MBED_HOSTTEST_START("RTOS_3");
+    GREENTEA_SETUP(20, "default_auto");
 
     const int t1_delay = THREAD_DELAY * 1;
     const int t2_delay = THREAD_DELAY * 2;
@@ -86,6 +83,6 @@ int main (void) {
     }
 
     fflush(stdout);
-    MBED_HOSTTEST_RESULT(!sem_defect);
+    GREENTEA_TESTSUITE_RESULT(!sem_defect);
     return 0;
 }
