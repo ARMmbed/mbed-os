@@ -101,7 +101,9 @@ class GCC(mbedToolchain):
 
     def parse_dependencies(self, dep_path):
         dependencies = []
-        for line in open(dep_path).readlines()[1:]:
+        buff = open(dep_path).readlines()
+        buff[0] = re.sub('^(.*?)\: ', '', buff[0])
+        for line in buff:
             file = line.replace('\\\n', '').strip()
             if file:
                 # GCC might list more than one dependency on a single line, in this case
