@@ -17,10 +17,7 @@
 #ifndef NETWORK_INTERFACE_H
 #define NETWORK_INTERFACE_H
 
-#ifndef MBED_OPERATORS
-#define MBED_OPERATORS
-#endif
-#include "FunctionPointer.h"
+#include "mbed.h"
 #include "SocketAddress.h"
 
 /**

@@ -68,7 +68,7 @@ int TCPServer::accept(TCPSocket *connection)
 }
 
 
-void TCPServer::attach_accept(mbed::FuncPtr<void()> callback)
+void TCPServer::attach_accept(FunctionPointer callback)
 {
     _accept_cb = callback;
 

@@ -77,6 +77,6 @@ int Socket::close(bool shutdown)
 
 void Socket::thunk(void *p) 
 {
-    mbed::FuncPtr<void()> *fptr = (mbed::FuncPtr<void()> *)p;
+    FunctionPointer *fptr = (FunctionPointer *)p;
     (*fptr)();
 }

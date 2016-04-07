@@ -83,7 +83,7 @@ int TCPSocket::recv(void *data, unsigned size)
 }
 
 
-void TCPSocket::attach_send(mbed::FuncPtr<void()> callback)
+void TCPSocket::attach_send(FunctionPointer callback)
 {
     _send_cb = callback;
 
@@ -94,7 +94,7 @@ void TCPSocket::attach_send(mbed::FuncPtr<void()> callback)
     }
 }
 
-void TCPSocket::attach_recv(mbed::FuncPtr<void()> callback)
+void TCPSocket::attach_recv(FunctionPointer callback)
 {
     _recv_cb = callback;
 
