@@ -164,8 +164,8 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
             case RxIrq: UART_HAL_SetRxDataRegFullIntCmd(uart_addrs[obj->index], true); break;
             case TxIrq: UART_HAL_SetTxDataRegEmptyIntCmd(uart_addrs[obj->index], true); break;
         }
-        NVIC_SetVector(irq_n, vector);
-        NVIC_EnableIRQ(irq_n);
+        vIRQ_SetVector(irq_n, vector);
+        vIRQ_EnableIRQ(irq_n);
 
     } else { // disable
         int all_disabled = 0;
@@ -179,7 +179,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
             case TxIrq: all_disabled = UART_HAL_GetTxDataRegEmptyIntCmd(uart_addrs[obj->index]) == 0; break;
         }
         if (all_disabled)
-            NVIC_DisableIRQ(irq_n);
+            vIRQ_DisableIRQ(irq_n);
     }
 }
 

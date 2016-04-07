@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -170,8 +177,8 @@ typedef union _hw_uart_bdh
 #define HW_UART_BDH_ADDR(x)      ((x) + 0x0U)
 
 #define HW_UART_BDH(x)           (*(__IO hw_uart_bdh_t *) HW_UART_BDH_ADDR(x))
-#define HW_UART_BDH_RD(x)        (HW_UART_BDH(x).U)
-#define HW_UART_BDH_WR(x, v)     (HW_UART_BDH(x).U = (v))
+#define HW_UART_BDH_RD(x)        (ADDRESS_READ(hw_uart_bdh_t, HW_UART_BDH_ADDR(x)))
+#define HW_UART_BDH_WR(x, v)     (ADDRESS_WRITE(hw_uart_bdh_t, HW_UART_BDH_ADDR(x), v))
 #define HW_UART_BDH_SET(x, v)    (HW_UART_BDH_WR(x, HW_UART_BDH_RD(x) |  (v)))
 #define HW_UART_BDH_CLR(x, v)    (HW_UART_BDH_WR(x, HW_UART_BDH_RD(x) & ~(v)))
 #define HW_UART_BDH_TOG(x, v)    (HW_UART_BDH_WR(x, HW_UART_BDH_RD(x) ^  (v)))
@@ -196,7 +203,7 @@ typedef union _hw_uart_bdh
 #define BS_UART_BDH_SBR      (5U)          /*!< Bit field size in bits for UART_BDH_SBR. */
 
 /*! @brief Read current value of the UART_BDH_SBR field. */
-#define BR_UART_BDH_SBR(x)   (HW_UART_BDH(x).B.SBR)
+#define BR_UART_BDH_SBR(x)   (UNION_READ(hw_uart_bdh_t, HW_UART_BDH_ADDR(x), U, B.SBR))
 
 /*! @brief Format value for bitfield UART_BDH_SBR. */
 #define BF_UART_BDH_SBR(v)   ((uint8_t)((uint8_t)(v) << BP_UART_BDH_SBR) & BM_UART_BDH_SBR)
@@ -222,13 +229,13 @@ typedef union _hw_uart_bdh
 #define BS_UART_BDH_SBNS     (1U)          /*!< Bit field size in bits for UART_BDH_SBNS. */
 
 /*! @brief Read current value of the UART_BDH_SBNS field. */
-#define BR_UART_BDH_SBNS(x)  (BITBAND_ACCESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_SBNS))
+#define BR_UART_BDH_SBNS(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_SBNS)))
 
 /*! @brief Format value for bitfield UART_BDH_SBNS. */
 #define BF_UART_BDH_SBNS(v)  ((uint8_t)((uint8_t)(v) << BP_UART_BDH_SBNS) & BM_UART_BDH_SBNS)
 
 /*! @brief Set the SBNS field to a new value. */
-#define BW_UART_BDH_SBNS(x, v) (BITBAND_ACCESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_SBNS) = (v))
+#define BW_UART_BDH_SBNS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_SBNS), v))
 /*@}*/
 
 /*!
@@ -247,13 +254,13 @@ typedef union _hw_uart_bdh
 #define BS_UART_BDH_RXEDGIE  (1U)          /*!< Bit field size in bits for UART_BDH_RXEDGIE. */
 
 /*! @brief Read current value of the UART_BDH_RXEDGIE field. */
-#define BR_UART_BDH_RXEDGIE(x) (BITBAND_ACCESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_RXEDGIE))
+#define BR_UART_BDH_RXEDGIE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_RXEDGIE)))
 
 /*! @brief Format value for bitfield UART_BDH_RXEDGIE. */
 #define BF_UART_BDH_RXEDGIE(v) ((uint8_t)((uint8_t)(v) << BP_UART_BDH_RXEDGIE) & BM_UART_BDH_RXEDGIE)
 
 /*! @brief Set the RXEDGIE field to a new value. */
-#define BW_UART_BDH_RXEDGIE(x, v) (BITBAND_ACCESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_RXEDGIE) = (v))
+#define BW_UART_BDH_RXEDGIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_RXEDGIE), v))
 /*@}*/
 
 /*!
@@ -272,13 +279,13 @@ typedef union _hw_uart_bdh
 #define BS_UART_BDH_LBKDIE   (1U)          /*!< Bit field size in bits for UART_BDH_LBKDIE. */
 
 /*! @brief Read current value of the UART_BDH_LBKDIE field. */
-#define BR_UART_BDH_LBKDIE(x) (BITBAND_ACCESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_LBKDIE))
+#define BR_UART_BDH_LBKDIE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_LBKDIE)))
 
 /*! @brief Format value for bitfield UART_BDH_LBKDIE. */
 #define BF_UART_BDH_LBKDIE(v) ((uint8_t)((uint8_t)(v) << BP_UART_BDH_LBKDIE) & BM_UART_BDH_LBKDIE)
 
 /*! @brief Set the LBKDIE field to a new value. */
-#define BW_UART_BDH_LBKDIE(x, v) (BITBAND_ACCESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_LBKDIE) = (v))
+#define BW_UART_BDH_LBKDIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_BDH_ADDR(x), BP_UART_BDH_LBKDIE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -314,8 +321,8 @@ typedef union _hw_uart_bdl
 #define HW_UART_BDL_ADDR(x)      ((x) + 0x1U)
 
 #define HW_UART_BDL(x)           (*(__IO hw_uart_bdl_t *) HW_UART_BDL_ADDR(x))
-#define HW_UART_BDL_RD(x)        (HW_UART_BDL(x).U)
-#define HW_UART_BDL_WR(x, v)     (HW_UART_BDL(x).U = (v))
+#define HW_UART_BDL_RD(x)        (ADDRESS_READ(hw_uart_bdl_t, HW_UART_BDL_ADDR(x)))
+#define HW_UART_BDL_WR(x, v)     (ADDRESS_WRITE(hw_uart_bdl_t, HW_UART_BDL_ADDR(x), v))
 #define HW_UART_BDL_SET(x, v)    (HW_UART_BDL_WR(x, HW_UART_BDL_RD(x) |  (v)))
 #define HW_UART_BDL_CLR(x, v)    (HW_UART_BDL_WR(x, HW_UART_BDL_RD(x) & ~(v)))
 #define HW_UART_BDL_TOG(x, v)    (HW_UART_BDL_WR(x, HW_UART_BDL_RD(x) ^  (v)))
@@ -387,8 +394,8 @@ typedef union _hw_uart_c1
 #define HW_UART_C1_ADDR(x)       ((x) + 0x2U)
 
 #define HW_UART_C1(x)            (*(__IO hw_uart_c1_t *) HW_UART_C1_ADDR(x))
-#define HW_UART_C1_RD(x)         (HW_UART_C1(x).U)
-#define HW_UART_C1_WR(x, v)      (HW_UART_C1(x).U = (v))
+#define HW_UART_C1_RD(x)         (ADDRESS_READ(hw_uart_c1_t, HW_UART_C1_ADDR(x)))
+#define HW_UART_C1_WR(x, v)      (ADDRESS_WRITE(hw_uart_c1_t, HW_UART_C1_ADDR(x), v))
 #define HW_UART_C1_SET(x, v)     (HW_UART_C1_WR(x, HW_UART_C1_RD(x) |  (v)))
 #define HW_UART_C1_CLR(x, v)     (HW_UART_C1_WR(x, HW_UART_C1_RD(x) & ~(v)))
 #define HW_UART_C1_TOG(x, v)     (HW_UART_C1_WR(x, HW_UART_C1_RD(x) ^  (v)))
@@ -417,13 +424,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_PT        (1U)          /*!< Bit field size in bits for UART_C1_PT. */
 
 /*! @brief Read current value of the UART_C1_PT field. */
-#define BR_UART_C1_PT(x)     (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PT))
+#define BR_UART_C1_PT(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PT)))
 
 /*! @brief Format value for bitfield UART_C1_PT. */
 #define BF_UART_C1_PT(v)     ((uint8_t)((uint8_t)(v) << BP_UART_C1_PT) & BM_UART_C1_PT)
 
 /*! @brief Set the PT field to a new value. */
-#define BW_UART_C1_PT(x, v)  (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PT) = (v))
+#define BW_UART_C1_PT(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PT), v))
 /*@}*/
 
 /*!
@@ -443,13 +450,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_PE        (1U)          /*!< Bit field size in bits for UART_C1_PE. */
 
 /*! @brief Read current value of the UART_C1_PE field. */
-#define BR_UART_C1_PE(x)     (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PE))
+#define BR_UART_C1_PE(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PE)))
 
 /*! @brief Format value for bitfield UART_C1_PE. */
 #define BF_UART_C1_PE(v)     ((uint8_t)((uint8_t)(v) << BP_UART_C1_PE) & BM_UART_C1_PE)
 
 /*! @brief Set the PE field to a new value. */
-#define BW_UART_C1_PE(x, v)  (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PE) = (v))
+#define BW_UART_C1_PE(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_PE), v))
 /*@}*/
 
 /*!
@@ -478,13 +485,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_ILT       (1U)          /*!< Bit field size in bits for UART_C1_ILT. */
 
 /*! @brief Read current value of the UART_C1_ILT field. */
-#define BR_UART_C1_ILT(x)    (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_ILT))
+#define BR_UART_C1_ILT(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_ILT)))
 
 /*! @brief Format value for bitfield UART_C1_ILT. */
 #define BF_UART_C1_ILT(v)    ((uint8_t)((uint8_t)(v) << BP_UART_C1_ILT) & BM_UART_C1_ILT)
 
 /*! @brief Set the ILT field to a new value. */
-#define BW_UART_C1_ILT(x, v) (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_ILT) = (v))
+#define BW_UART_C1_ILT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_ILT), v))
 /*@}*/
 
 /*!
@@ -504,13 +511,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_WAKE      (1U)          /*!< Bit field size in bits for UART_C1_WAKE. */
 
 /*! @brief Read current value of the UART_C1_WAKE field. */
-#define BR_UART_C1_WAKE(x)   (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_WAKE))
+#define BR_UART_C1_WAKE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_WAKE)))
 
 /*! @brief Format value for bitfield UART_C1_WAKE. */
 #define BF_UART_C1_WAKE(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C1_WAKE) & BM_UART_C1_WAKE)
 
 /*! @brief Set the WAKE field to a new value. */
-#define BW_UART_C1_WAKE(x, v) (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_WAKE) = (v))
+#define BW_UART_C1_WAKE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_WAKE), v))
 /*@}*/
 
 /*!
@@ -528,13 +535,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_M         (1U)          /*!< Bit field size in bits for UART_C1_M. */
 
 /*! @brief Read current value of the UART_C1_M field. */
-#define BR_UART_C1_M(x)      (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_M))
+#define BR_UART_C1_M(x)      (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_M)))
 
 /*! @brief Format value for bitfield UART_C1_M. */
 #define BF_UART_C1_M(v)      ((uint8_t)((uint8_t)(v) << BP_UART_C1_M) & BM_UART_C1_M)
 
 /*! @brief Set the M field to a new value. */
-#define BW_UART_C1_M(x, v)   (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_M) = (v))
+#define BW_UART_C1_M(x, v)   (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_M), v))
 /*@}*/
 
 /*!
@@ -556,13 +563,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_RSRC      (1U)          /*!< Bit field size in bits for UART_C1_RSRC. */
 
 /*! @brief Read current value of the UART_C1_RSRC field. */
-#define BR_UART_C1_RSRC(x)   (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_RSRC))
+#define BR_UART_C1_RSRC(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_RSRC)))
 
 /*! @brief Format value for bitfield UART_C1_RSRC. */
 #define BF_UART_C1_RSRC(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C1_RSRC) & BM_UART_C1_RSRC)
 
 /*! @brief Set the RSRC field to a new value. */
-#define BW_UART_C1_RSRC(x, v) (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_RSRC) = (v))
+#define BW_UART_C1_RSRC(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_RSRC), v))
 /*@}*/
 
 /*!
@@ -578,13 +585,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_UARTSWAI  (1U)          /*!< Bit field size in bits for UART_C1_UARTSWAI. */
 
 /*! @brief Read current value of the UART_C1_UARTSWAI field. */
-#define BR_UART_C1_UARTSWAI(x) (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_UARTSWAI))
+#define BR_UART_C1_UARTSWAI(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_UARTSWAI)))
 
 /*! @brief Format value for bitfield UART_C1_UARTSWAI. */
 #define BF_UART_C1_UARTSWAI(v) ((uint8_t)((uint8_t)(v) << BP_UART_C1_UARTSWAI) & BM_UART_C1_UARTSWAI)
 
 /*! @brief Set the UARTSWAI field to a new value. */
-#define BW_UART_C1_UARTSWAI(x, v) (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_UARTSWAI) = (v))
+#define BW_UART_C1_UARTSWAI(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_UARTSWAI), v))
 /*@}*/
 
 /*!
@@ -605,13 +612,13 @@ typedef union _hw_uart_c1
 #define BS_UART_C1_LOOPS     (1U)          /*!< Bit field size in bits for UART_C1_LOOPS. */
 
 /*! @brief Read current value of the UART_C1_LOOPS field. */
-#define BR_UART_C1_LOOPS(x)  (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_LOOPS))
+#define BR_UART_C1_LOOPS(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_LOOPS)))
 
 /*! @brief Format value for bitfield UART_C1_LOOPS. */
 #define BF_UART_C1_LOOPS(v)  ((uint8_t)((uint8_t)(v) << BP_UART_C1_LOOPS) & BM_UART_C1_LOOPS)
 
 /*! @brief Set the LOOPS field to a new value. */
-#define BW_UART_C1_LOOPS(x, v) (BITBAND_ACCESS8(HW_UART_C1_ADDR(x), BP_UART_C1_LOOPS) = (v))
+#define BW_UART_C1_LOOPS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C1_ADDR(x), BP_UART_C1_LOOPS), v))
 /*@}*/
 
 /*******************************************************************************
@@ -651,8 +658,8 @@ typedef union _hw_uart_c2
 #define HW_UART_C2_ADDR(x)       ((x) + 0x3U)
 
 #define HW_UART_C2(x)            (*(__IO hw_uart_c2_t *) HW_UART_C2_ADDR(x))
-#define HW_UART_C2_RD(x)         (HW_UART_C2(x).U)
-#define HW_UART_C2_WR(x, v)      (HW_UART_C2(x).U = (v))
+#define HW_UART_C2_RD(x)         (ADDRESS_READ(hw_uart_c2_t, HW_UART_C2_ADDR(x)))
+#define HW_UART_C2_WR(x, v)      (ADDRESS_WRITE(hw_uart_c2_t, HW_UART_C2_ADDR(x), v))
 #define HW_UART_C2_SET(x, v)     (HW_UART_C2_WR(x, HW_UART_C2_RD(x) |  (v)))
 #define HW_UART_C2_CLR(x, v)     (HW_UART_C2_WR(x, HW_UART_C2_RD(x) & ~(v)))
 #define HW_UART_C2_TOG(x, v)     (HW_UART_C2_WR(x, HW_UART_C2_RD(x) ^  (v)))
@@ -685,13 +692,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_SBK       (1U)          /*!< Bit field size in bits for UART_C2_SBK. */
 
 /*! @brief Read current value of the UART_C2_SBK field. */
-#define BR_UART_C2_SBK(x)    (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_SBK))
+#define BR_UART_C2_SBK(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_SBK)))
 
 /*! @brief Format value for bitfield UART_C2_SBK. */
 #define BF_UART_C2_SBK(v)    ((uint8_t)((uint8_t)(v) << BP_UART_C2_SBK) & BM_UART_C2_SBK)
 
 /*! @brief Set the SBK field to a new value. */
-#define BW_UART_C2_SBK(x, v) (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_SBK) = (v))
+#define BW_UART_C2_SBK(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_SBK), v))
 /*@}*/
 
 /*!
@@ -719,13 +726,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_RWU       (1U)          /*!< Bit field size in bits for UART_C2_RWU. */
 
 /*! @brief Read current value of the UART_C2_RWU field. */
-#define BR_UART_C2_RWU(x)    (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RWU))
+#define BR_UART_C2_RWU(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RWU)))
 
 /*! @brief Format value for bitfield UART_C2_RWU. */
 #define BF_UART_C2_RWU(v)    ((uint8_t)((uint8_t)(v) << BP_UART_C2_RWU) & BM_UART_C2_RWU)
 
 /*! @brief Set the RWU field to a new value. */
-#define BW_UART_C2_RWU(x, v) (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RWU) = (v))
+#define BW_UART_C2_RWU(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RWU), v))
 /*@}*/
 
 /*!
@@ -743,13 +750,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_RE        (1U)          /*!< Bit field size in bits for UART_C2_RE. */
 
 /*! @brief Read current value of the UART_C2_RE field. */
-#define BR_UART_C2_RE(x)     (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RE))
+#define BR_UART_C2_RE(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RE)))
 
 /*! @brief Format value for bitfield UART_C2_RE. */
 #define BF_UART_C2_RE(v)     ((uint8_t)((uint8_t)(v) << BP_UART_C2_RE) & BM_UART_C2_RE)
 
 /*! @brief Set the RE field to a new value. */
-#define BW_UART_C2_RE(x, v)  (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RE) = (v))
+#define BW_UART_C2_RE(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RE), v))
 /*@}*/
 
 /*!
@@ -771,13 +778,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_TE        (1U)          /*!< Bit field size in bits for UART_C2_TE. */
 
 /*! @brief Read current value of the UART_C2_TE field. */
-#define BR_UART_C2_TE(x)     (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TE))
+#define BR_UART_C2_TE(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TE)))
 
 /*! @brief Format value for bitfield UART_C2_TE. */
 #define BF_UART_C2_TE(v)     ((uint8_t)((uint8_t)(v) << BP_UART_C2_TE) & BM_UART_C2_TE)
 
 /*! @brief Set the TE field to a new value. */
-#define BW_UART_C2_TE(x, v)  (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TE) = (v))
+#define BW_UART_C2_TE(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TE), v))
 /*@}*/
 
 /*!
@@ -796,13 +803,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_ILIE      (1U)          /*!< Bit field size in bits for UART_C2_ILIE. */
 
 /*! @brief Read current value of the UART_C2_ILIE field. */
-#define BR_UART_C2_ILIE(x)   (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_ILIE))
+#define BR_UART_C2_ILIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_ILIE)))
 
 /*! @brief Format value for bitfield UART_C2_ILIE. */
 #define BF_UART_C2_ILIE(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C2_ILIE) & BM_UART_C2_ILIE)
 
 /*! @brief Set the ILIE field to a new value. */
-#define BW_UART_C2_ILIE(x, v) (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_ILIE) = (v))
+#define BW_UART_C2_ILIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_ILIE), v))
 /*@}*/
 
 /*!
@@ -821,13 +828,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_RIE       (1U)          /*!< Bit field size in bits for UART_C2_RIE. */
 
 /*! @brief Read current value of the UART_C2_RIE field. */
-#define BR_UART_C2_RIE(x)    (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RIE))
+#define BR_UART_C2_RIE(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RIE)))
 
 /*! @brief Format value for bitfield UART_C2_RIE. */
 #define BF_UART_C2_RIE(v)    ((uint8_t)((uint8_t)(v) << BP_UART_C2_RIE) & BM_UART_C2_RIE)
 
 /*! @brief Set the RIE field to a new value. */
-#define BW_UART_C2_RIE(x, v) (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RIE) = (v))
+#define BW_UART_C2_RIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_RIE), v))
 /*@}*/
 
 /*!
@@ -848,13 +855,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_TCIE      (1U)          /*!< Bit field size in bits for UART_C2_TCIE. */
 
 /*! @brief Read current value of the UART_C2_TCIE field. */
-#define BR_UART_C2_TCIE(x)   (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TCIE))
+#define BR_UART_C2_TCIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TCIE)))
 
 /*! @brief Format value for bitfield UART_C2_TCIE. */
 #define BF_UART_C2_TCIE(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C2_TCIE) & BM_UART_C2_TCIE)
 
 /*! @brief Set the TCIE field to a new value. */
-#define BW_UART_C2_TCIE(x, v) (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TCIE) = (v))
+#define BW_UART_C2_TCIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TCIE), v))
 /*@}*/
 
 /*!
@@ -874,13 +881,13 @@ typedef union _hw_uart_c2
 #define BS_UART_C2_TIE       (1U)          /*!< Bit field size in bits for UART_C2_TIE. */
 
 /*! @brief Read current value of the UART_C2_TIE field. */
-#define BR_UART_C2_TIE(x)    (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TIE))
+#define BR_UART_C2_TIE(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TIE)))
 
 /*! @brief Format value for bitfield UART_C2_TIE. */
 #define BF_UART_C2_TIE(v)    ((uint8_t)((uint8_t)(v) << BP_UART_C2_TIE) & BM_UART_C2_TIE)
 
 /*! @brief Set the TIE field to a new value. */
-#define BW_UART_C2_TIE(x, v) (BITBAND_ACCESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TIE) = (v))
+#define BW_UART_C2_TIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C2_ADDR(x), BP_UART_C2_TIE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -933,7 +940,7 @@ typedef union _hw_uart_s1
 #define HW_UART_S1_ADDR(x)       ((x) + 0x4U)
 
 #define HW_UART_S1(x)            (*(__I hw_uart_s1_t *) HW_UART_S1_ADDR(x))
-#define HW_UART_S1_RD(x)         (HW_UART_S1(x).U)
+#define HW_UART_S1_RD(x)         (ADDRESS_READ(hw_uart_s1_t, HW_UART_S1_ADDR(x)))
 /*@}*/
 
 /*
@@ -967,7 +974,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_PF        (1U)          /*!< Bit field size in bits for UART_S1_PF. */
 
 /*! @brief Read current value of the UART_S1_PF field. */
-#define BR_UART_S1_PF(x)     (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_PF))
+#define BR_UART_S1_PF(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_PF)))
 /*@}*/
 
 /*!
@@ -992,7 +999,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_FE        (1U)          /*!< Bit field size in bits for UART_S1_FE. */
 
 /*! @brief Read current value of the UART_S1_FE field. */
-#define BR_UART_S1_FE(x)     (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_FE))
+#define BR_UART_S1_FE(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_FE)))
 /*@}*/
 
 /*!
@@ -1019,7 +1026,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_NF        (1U)          /*!< Bit field size in bits for UART_S1_NF. */
 
 /*! @brief Read current value of the UART_S1_NF field. */
-#define BR_UART_S1_NF(x)     (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_NF))
+#define BR_UART_S1_NF(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_NF)))
 /*@}*/
 
 /*!
@@ -1050,7 +1057,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_OR        (1U)          /*!< Bit field size in bits for UART_S1_OR. */
 
 /*! @brief Read current value of the UART_S1_OR field. */
-#define BR_UART_S1_OR(x)     (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_OR))
+#define BR_UART_S1_OR(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_OR)))
 /*@}*/
 
 /*!
@@ -1079,7 +1086,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_IDLE      (1U)          /*!< Bit field size in bits for UART_S1_IDLE. */
 
 /*! @brief Read current value of the UART_S1_IDLE field. */
-#define BR_UART_S1_IDLE(x)   (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_IDLE))
+#define BR_UART_S1_IDLE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_IDLE)))
 /*@}*/
 
 /*!
@@ -1109,7 +1116,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_RDRF      (1U)          /*!< Bit field size in bits for UART_S1_RDRF. */
 
 /*! @brief Read current value of the UART_S1_RDRF field. */
-#define BR_UART_S1_RDRF(x)   (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_RDRF))
+#define BR_UART_S1_RDRF(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_RDRF)))
 /*@}*/
 
 /*!
@@ -1134,7 +1141,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_TC        (1U)          /*!< Bit field size in bits for UART_S1_TC. */
 
 /*! @brief Read current value of the UART_S1_TC field. */
-#define BR_UART_S1_TC(x)     (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_TC))
+#define BR_UART_S1_TC(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_TC)))
 /*@}*/
 
 /*!
@@ -1164,7 +1171,7 @@ typedef union _hw_uart_s1
 #define BS_UART_S1_TDRE      (1U)          /*!< Bit field size in bits for UART_S1_TDRE. */
 
 /*! @brief Read current value of the UART_S1_TDRE field. */
-#define BR_UART_S1_TDRE(x)   (BITBAND_ACCESS8(HW_UART_S1_ADDR(x), BP_UART_S1_TDRE))
+#define BR_UART_S1_TDRE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S1_ADDR(x), BP_UART_S1_TDRE)))
 /*@}*/
 
 /*******************************************************************************
@@ -1205,8 +1212,8 @@ typedef union _hw_uart_s2
 #define HW_UART_S2_ADDR(x)       ((x) + 0x5U)
 
 #define HW_UART_S2(x)            (*(__IO hw_uart_s2_t *) HW_UART_S2_ADDR(x))
-#define HW_UART_S2_RD(x)         (HW_UART_S2(x).U)
-#define HW_UART_S2_WR(x, v)      (HW_UART_S2(x).U = (v))
+#define HW_UART_S2_RD(x)         (ADDRESS_READ(hw_uart_s2_t, HW_UART_S2_ADDR(x)))
+#define HW_UART_S2_WR(x, v)      (ADDRESS_WRITE(hw_uart_s2_t, HW_UART_S2_ADDR(x), v))
 #define HW_UART_S2_SET(x, v)     (HW_UART_S2_WR(x, HW_UART_S2_RD(x) |  (v)))
 #define HW_UART_S2_CLR(x, v)     (HW_UART_S2_WR(x, HW_UART_S2_RD(x) & ~(v)))
 #define HW_UART_S2_TOG(x, v)     (HW_UART_S2_WR(x, HW_UART_S2_RD(x) ^  (v)))
@@ -1239,7 +1246,7 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_RAF       (1U)          /*!< Bit field size in bits for UART_S2_RAF. */
 
 /*! @brief Read current value of the UART_S2_RAF field. */
-#define BR_UART_S2_RAF(x)    (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RAF))
+#define BR_UART_S2_RAF(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RAF)))
 /*@}*/
 
 /*!
@@ -1260,13 +1267,13 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_LBKDE     (1U)          /*!< Bit field size in bits for UART_S2_LBKDE. */
 
 /*! @brief Read current value of the UART_S2_LBKDE field. */
-#define BR_UART_S2_LBKDE(x)  (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDE))
+#define BR_UART_S2_LBKDE(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDE)))
 
 /*! @brief Format value for bitfield UART_S2_LBKDE. */
 #define BF_UART_S2_LBKDE(v)  ((uint8_t)((uint8_t)(v) << BP_UART_S2_LBKDE) & BM_UART_S2_LBKDE)
 
 /*! @brief Set the LBKDE field to a new value. */
-#define BW_UART_S2_LBKDE(x, v) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDE) = (v))
+#define BW_UART_S2_LBKDE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDE), v))
 /*@}*/
 
 /*!
@@ -1287,13 +1294,13 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_BRK13     (1U)          /*!< Bit field size in bits for UART_S2_BRK13. */
 
 /*! @brief Read current value of the UART_S2_BRK13 field. */
-#define BR_UART_S2_BRK13(x)  (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_BRK13))
+#define BR_UART_S2_BRK13(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_BRK13)))
 
 /*! @brief Format value for bitfield UART_S2_BRK13. */
 #define BF_UART_S2_BRK13(v)  ((uint8_t)((uint8_t)(v) << BP_UART_S2_BRK13) & BM_UART_S2_BRK13)
 
 /*! @brief Set the BRK13 field to a new value. */
-#define BW_UART_S2_BRK13(x, v) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_BRK13) = (v))
+#define BW_UART_S2_BRK13(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_BRK13), v))
 /*@}*/
 
 /*!
@@ -1313,13 +1320,13 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_RWUID     (1U)          /*!< Bit field size in bits for UART_S2_RWUID. */
 
 /*! @brief Read current value of the UART_S2_RWUID field. */
-#define BR_UART_S2_RWUID(x)  (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RWUID))
+#define BR_UART_S2_RWUID(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RWUID)))
 
 /*! @brief Format value for bitfield UART_S2_RWUID. */
 #define BF_UART_S2_RWUID(v)  ((uint8_t)((uint8_t)(v) << BP_UART_S2_RWUID) & BM_UART_S2_RWUID)
 
 /*! @brief Set the RWUID field to a new value. */
-#define BW_UART_S2_RWUID(x, v) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RWUID) = (v))
+#define BW_UART_S2_RWUID(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RWUID), v))
 /*@}*/
 
 /*!
@@ -1347,13 +1354,13 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_RXINV     (1U)          /*!< Bit field size in bits for UART_S2_RXINV. */
 
 /*! @brief Read current value of the UART_S2_RXINV field. */
-#define BR_UART_S2_RXINV(x)  (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXINV))
+#define BR_UART_S2_RXINV(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXINV)))
 
 /*! @brief Format value for bitfield UART_S2_RXINV. */
 #define BF_UART_S2_RXINV(v)  ((uint8_t)((uint8_t)(v) << BP_UART_S2_RXINV) & BM_UART_S2_RXINV)
 
 /*! @brief Set the RXINV field to a new value. */
-#define BW_UART_S2_RXINV(x, v) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXINV) = (v))
+#define BW_UART_S2_RXINV(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXINV), v))
 /*@}*/
 
 /*!
@@ -1380,13 +1387,13 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_MSBF      (1U)          /*!< Bit field size in bits for UART_S2_MSBF. */
 
 /*! @brief Read current value of the UART_S2_MSBF field. */
-#define BR_UART_S2_MSBF(x)   (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_MSBF))
+#define BR_UART_S2_MSBF(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_MSBF)))
 
 /*! @brief Format value for bitfield UART_S2_MSBF. */
 #define BF_UART_S2_MSBF(v)   ((uint8_t)((uint8_t)(v) << BP_UART_S2_MSBF) & BM_UART_S2_MSBF)
 
 /*! @brief Set the MSBF field to a new value. */
-#define BW_UART_S2_MSBF(x, v) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_MSBF) = (v))
+#define BW_UART_S2_MSBF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_MSBF), v))
 /*@}*/
 
 /*!
@@ -1407,13 +1414,13 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_RXEDGIF   (1U)          /*!< Bit field size in bits for UART_S2_RXEDGIF. */
 
 /*! @brief Read current value of the UART_S2_RXEDGIF field. */
-#define BR_UART_S2_RXEDGIF(x) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXEDGIF))
+#define BR_UART_S2_RXEDGIF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXEDGIF)))
 
 /*! @brief Format value for bitfield UART_S2_RXEDGIF. */
 #define BF_UART_S2_RXEDGIF(v) ((uint8_t)((uint8_t)(v) << BP_UART_S2_RXEDGIF) & BM_UART_S2_RXEDGIF)
 
 /*! @brief Set the RXEDGIF field to a new value. */
-#define BW_UART_S2_RXEDGIF(x, v) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXEDGIF) = (v))
+#define BW_UART_S2_RXEDGIF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_RXEDGIF), v))
 /*@}*/
 
 /*!
@@ -1434,13 +1441,13 @@ typedef union _hw_uart_s2
 #define BS_UART_S2_LBKDIF    (1U)          /*!< Bit field size in bits for UART_S2_LBKDIF. */
 
 /*! @brief Read current value of the UART_S2_LBKDIF field. */
-#define BR_UART_S2_LBKDIF(x) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDIF))
+#define BR_UART_S2_LBKDIF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDIF)))
 
 /*! @brief Format value for bitfield UART_S2_LBKDIF. */
 #define BF_UART_S2_LBKDIF(v) ((uint8_t)((uint8_t)(v) << BP_UART_S2_LBKDIF) & BM_UART_S2_LBKDIF)
 
 /*! @brief Set the LBKDIF field to a new value. */
-#define BW_UART_S2_LBKDIF(x, v) (BITBAND_ACCESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDIF) = (v))
+#define BW_UART_S2_LBKDIF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_S2_ADDR(x), BP_UART_S2_LBKDIF), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1479,8 +1486,8 @@ typedef union _hw_uart_c3
 #define HW_UART_C3_ADDR(x)       ((x) + 0x6U)
 
 #define HW_UART_C3(x)            (*(__IO hw_uart_c3_t *) HW_UART_C3_ADDR(x))
-#define HW_UART_C3_RD(x)         (HW_UART_C3(x).U)
-#define HW_UART_C3_WR(x, v)      (HW_UART_C3(x).U = (v))
+#define HW_UART_C3_RD(x)         (ADDRESS_READ(hw_uart_c3_t, HW_UART_C3_ADDR(x)))
+#define HW_UART_C3_WR(x, v)      (ADDRESS_WRITE(hw_uart_c3_t, HW_UART_C3_ADDR(x), v))
 #define HW_UART_C3_SET(x, v)     (HW_UART_C3_WR(x, HW_UART_C3_RD(x) |  (v)))
 #define HW_UART_C3_CLR(x, v)     (HW_UART_C3_WR(x, HW_UART_C3_RD(x) & ~(v)))
 #define HW_UART_C3_TOG(x, v)     (HW_UART_C3_WR(x, HW_UART_C3_RD(x) ^  (v)))
@@ -1505,13 +1512,13 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_PEIE      (1U)          /*!< Bit field size in bits for UART_C3_PEIE. */
 
 /*! @brief Read current value of the UART_C3_PEIE field. */
-#define BR_UART_C3_PEIE(x)   (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_PEIE))
+#define BR_UART_C3_PEIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_PEIE)))
 
 /*! @brief Format value for bitfield UART_C3_PEIE. */
 #define BF_UART_C3_PEIE(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C3_PEIE) & BM_UART_C3_PEIE)
 
 /*! @brief Set the PEIE field to a new value. */
-#define BW_UART_C3_PEIE(x, v) (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_PEIE) = (v))
+#define BW_UART_C3_PEIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_PEIE), v))
 /*@}*/
 
 /*!
@@ -1529,13 +1536,13 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_FEIE      (1U)          /*!< Bit field size in bits for UART_C3_FEIE. */
 
 /*! @brief Read current value of the UART_C3_FEIE field. */
-#define BR_UART_C3_FEIE(x)   (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_FEIE))
+#define BR_UART_C3_FEIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_FEIE)))
 
 /*! @brief Format value for bitfield UART_C3_FEIE. */
 #define BF_UART_C3_FEIE(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C3_FEIE) & BM_UART_C3_FEIE)
 
 /*! @brief Set the FEIE field to a new value. */
-#define BW_UART_C3_FEIE(x, v) (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_FEIE) = (v))
+#define BW_UART_C3_FEIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_FEIE), v))
 /*@}*/
 
 /*!
@@ -1553,13 +1560,13 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_NEIE      (1U)          /*!< Bit field size in bits for UART_C3_NEIE. */
 
 /*! @brief Read current value of the UART_C3_NEIE field. */
-#define BR_UART_C3_NEIE(x)   (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_NEIE))
+#define BR_UART_C3_NEIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_NEIE)))
 
 /*! @brief Format value for bitfield UART_C3_NEIE. */
 #define BF_UART_C3_NEIE(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C3_NEIE) & BM_UART_C3_NEIE)
 
 /*! @brief Set the NEIE field to a new value. */
-#define BW_UART_C3_NEIE(x, v) (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_NEIE) = (v))
+#define BW_UART_C3_NEIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_NEIE), v))
 /*@}*/
 
 /*!
@@ -1577,13 +1584,13 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_ORIE      (1U)          /*!< Bit field size in bits for UART_C3_ORIE. */
 
 /*! @brief Read current value of the UART_C3_ORIE field. */
-#define BR_UART_C3_ORIE(x)   (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_ORIE))
+#define BR_UART_C3_ORIE(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_ORIE)))
 
 /*! @brief Format value for bitfield UART_C3_ORIE. */
 #define BF_UART_C3_ORIE(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C3_ORIE) & BM_UART_C3_ORIE)
 
 /*! @brief Set the ORIE field to a new value. */
-#define BW_UART_C3_ORIE(x, v) (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_ORIE) = (v))
+#define BW_UART_C3_ORIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_ORIE), v))
 /*@}*/
 
 /*!
@@ -1612,13 +1619,13 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_TXINV     (1U)          /*!< Bit field size in bits for UART_C3_TXINV. */
 
 /*! @brief Read current value of the UART_C3_TXINV field. */
-#define BR_UART_C3_TXINV(x)  (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXINV))
+#define BR_UART_C3_TXINV(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXINV)))
 
 /*! @brief Format value for bitfield UART_C3_TXINV. */
 #define BF_UART_C3_TXINV(v)  ((uint8_t)((uint8_t)(v) << BP_UART_C3_TXINV) & BM_UART_C3_TXINV)
 
 /*! @brief Set the TXINV field to a new value. */
-#define BW_UART_C3_TXINV(x, v) (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXINV) = (v))
+#define BW_UART_C3_TXINV(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXINV), v))
 /*@}*/
 
 /*!
@@ -1644,13 +1651,13 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_TXDIR     (1U)          /*!< Bit field size in bits for UART_C3_TXDIR. */
 
 /*! @brief Read current value of the UART_C3_TXDIR field. */
-#define BR_UART_C3_TXDIR(x)  (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXDIR))
+#define BR_UART_C3_TXDIR(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXDIR)))
 
 /*! @brief Format value for bitfield UART_C3_TXDIR. */
 #define BF_UART_C3_TXDIR(v)  ((uint8_t)((uint8_t)(v) << BP_UART_C3_TXDIR) & BM_UART_C3_TXDIR)
 
 /*! @brief Set the TXDIR field to a new value. */
-#define BW_UART_C3_TXDIR(x, v) (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXDIR) = (v))
+#define BW_UART_C3_TXDIR(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_TXDIR), v))
 /*@}*/
 
 /*!
@@ -1669,13 +1676,13 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_T8        (1U)          /*!< Bit field size in bits for UART_C3_T8. */
 
 /*! @brief Read current value of the UART_C3_T8 field. */
-#define BR_UART_C3_T8(x)     (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_T8))
+#define BR_UART_C3_T8(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_T8)))
 
 /*! @brief Format value for bitfield UART_C3_T8. */
 #define BF_UART_C3_T8(v)     ((uint8_t)((uint8_t)(v) << BP_UART_C3_T8) & BM_UART_C3_T8)
 
 /*! @brief Set the T8 field to a new value. */
-#define BW_UART_C3_T8(x, v)  (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_T8) = (v))
+#define BW_UART_C3_T8(x, v)  (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_T8), v))
 /*@}*/
 
 /*!
@@ -1692,7 +1699,7 @@ typedef union _hw_uart_c3
 #define BS_UART_C3_R8        (1U)          /*!< Bit field size in bits for UART_C3_R8. */
 
 /*! @brief Read current value of the UART_C3_R8 field. */
-#define BR_UART_C3_R8(x)     (BITBAND_ACCESS8(HW_UART_C3_ADDR(x), BP_UART_C3_R8))
+#define BR_UART_C3_R8(x)     (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C3_ADDR(x), BP_UART_C3_R8)))
 /*@}*/
 
 /*******************************************************************************
@@ -1737,8 +1744,8 @@ typedef union _hw_uart_d
 #define HW_UART_D_ADDR(x)        ((x) + 0x7U)
 
 #define HW_UART_D(x)             (*(__IO hw_uart_d_t *) HW_UART_D_ADDR(x))
-#define HW_UART_D_RD(x)          (HW_UART_D(x).U)
-#define HW_UART_D_WR(x, v)       (HW_UART_D(x).U = (v))
+#define HW_UART_D_RD(x)          (ADDRESS_READ(hw_uart_d_t, HW_UART_D_ADDR(x)))
+#define HW_UART_D_WR(x, v)       (ADDRESS_WRITE(hw_uart_d_t, HW_UART_D_ADDR(x), v))
 #define HW_UART_D_SET(x, v)      (HW_UART_D_WR(x, HW_UART_D_RD(x) |  (v)))
 #define HW_UART_D_CLR(x, v)      (HW_UART_D_WR(x, HW_UART_D_RD(x) & ~(v)))
 #define HW_UART_D_TOG(x, v)      (HW_UART_D_WR(x, HW_UART_D_RD(x) ^  (v)))
@@ -1800,8 +1807,8 @@ typedef union _hw_uart_ma1
 #define HW_UART_MA1_ADDR(x)      ((x) + 0x8U)
 
 #define HW_UART_MA1(x)           (*(__IO hw_uart_ma1_t *) HW_UART_MA1_ADDR(x))
-#define HW_UART_MA1_RD(x)        (HW_UART_MA1(x).U)
-#define HW_UART_MA1_WR(x, v)     (HW_UART_MA1(x).U = (v))
+#define HW_UART_MA1_RD(x)        (ADDRESS_READ(hw_uart_ma1_t, HW_UART_MA1_ADDR(x)))
+#define HW_UART_MA1_WR(x, v)     (ADDRESS_WRITE(hw_uart_ma1_t, HW_UART_MA1_ADDR(x), v))
 #define HW_UART_MA1_SET(x, v)    (HW_UART_MA1_WR(x, HW_UART_MA1_RD(x) |  (v)))
 #define HW_UART_MA1_CLR(x, v)    (HW_UART_MA1_WR(x, HW_UART_MA1_RD(x) & ~(v)))
 #define HW_UART_MA1_TOG(x, v)    (HW_UART_MA1_WR(x, HW_UART_MA1_RD(x) ^  (v)))
@@ -1860,8 +1867,8 @@ typedef union _hw_uart_ma2
 #define HW_UART_MA2_ADDR(x)      ((x) + 0x9U)
 
 #define HW_UART_MA2(x)           (*(__IO hw_uart_ma2_t *) HW_UART_MA2_ADDR(x))
-#define HW_UART_MA2_RD(x)        (HW_UART_MA2(x).U)
-#define HW_UART_MA2_WR(x, v)     (HW_UART_MA2(x).U = (v))
+#define HW_UART_MA2_RD(x)        (ADDRESS_READ(hw_uart_ma2_t, HW_UART_MA2_ADDR(x)))
+#define HW_UART_MA2_WR(x, v)     (ADDRESS_WRITE(hw_uart_ma2_t, HW_UART_MA2_ADDR(x), v))
 #define HW_UART_MA2_SET(x, v)    (HW_UART_MA2_WR(x, HW_UART_MA2_RD(x) |  (v)))
 #define HW_UART_MA2_CLR(x, v)    (HW_UART_MA2_WR(x, HW_UART_MA2_RD(x) & ~(v)))
 #define HW_UART_MA2_TOG(x, v)    (HW_UART_MA2_WR(x, HW_UART_MA2_RD(x) ^  (v)))
@@ -1917,8 +1924,8 @@ typedef union _hw_uart_c4
 #define HW_UART_C4_ADDR(x)       ((x) + 0xAU)
 
 #define HW_UART_C4(x)            (*(__IO hw_uart_c4_t *) HW_UART_C4_ADDR(x))
-#define HW_UART_C4_RD(x)         (HW_UART_C4(x).U)
-#define HW_UART_C4_WR(x, v)      (HW_UART_C4(x).U = (v))
+#define HW_UART_C4_RD(x)         (ADDRESS_READ(hw_uart_c4_t, HW_UART_C4_ADDR(x)))
+#define HW_UART_C4_WR(x, v)      (ADDRESS_WRITE(hw_uart_c4_t, HW_UART_C4_ADDR(x), v))
 #define HW_UART_C4_SET(x, v)     (HW_UART_C4_WR(x, HW_UART_C4_RD(x) |  (v)))
 #define HW_UART_C4_CLR(x, v)     (HW_UART_C4_WR(x, HW_UART_C4_RD(x) & ~(v)))
 #define HW_UART_C4_TOG(x, v)     (HW_UART_C4_WR(x, HW_UART_C4_RD(x) ^  (v)))
@@ -1940,7 +1947,7 @@ typedef union _hw_uart_c4
 #define BS_UART_C4_BRFA      (5U)          /*!< Bit field size in bits for UART_C4_BRFA. */
 
 /*! @brief Read current value of the UART_C4_BRFA field. */
-#define BR_UART_C4_BRFA(x)   (HW_UART_C4(x).B.BRFA)
+#define BR_UART_C4_BRFA(x)   (UNION_READ(hw_uart_c4_t, HW_UART_C4_ADDR(x), U, B.BRFA))
 
 /*! @brief Format value for bitfield UART_C4_BRFA. */
 #define BF_UART_C4_BRFA(v)   ((uint8_t)((uint8_t)(v) << BP_UART_C4_BRFA) & BM_UART_C4_BRFA)
@@ -1968,13 +1975,13 @@ typedef union _hw_uart_c4
 #define BS_UART_C4_M10       (1U)          /*!< Bit field size in bits for UART_C4_M10. */
 
 /*! @brief Read current value of the UART_C4_M10 field. */
-#define BR_UART_C4_M10(x)    (BITBAND_ACCESS8(HW_UART_C4_ADDR(x), BP_UART_C4_M10))
+#define BR_UART_C4_M10(x)    (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C4_ADDR(x), BP_UART_C4_M10)))
 
 /*! @brief Format value for bitfield UART_C4_M10. */
 #define BF_UART_C4_M10(v)    ((uint8_t)((uint8_t)(v) << BP_UART_C4_M10) & BM_UART_C4_M10)
 
 /*! @brief Set the M10 field to a new value. */
-#define BW_UART_C4_M10(x, v) (BITBAND_ACCESS8(HW_UART_C4_ADDR(x), BP_UART_C4_M10) = (v))
+#define BW_UART_C4_M10(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C4_ADDR(x), BP_UART_C4_M10), v))
 /*@}*/
 
 /*!
@@ -1996,13 +2003,13 @@ typedef union _hw_uart_c4
 #define BS_UART_C4_MAEN2     (1U)          /*!< Bit field size in bits for UART_C4_MAEN2. */
 
 /*! @brief Read current value of the UART_C4_MAEN2 field. */
-#define BR_UART_C4_MAEN2(x)  (BITBAND_ACCESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN2))
+#define BR_UART_C4_MAEN2(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN2)))
 
 /*! @brief Format value for bitfield UART_C4_MAEN2. */
 #define BF_UART_C4_MAEN2(v)  ((uint8_t)((uint8_t)(v) << BP_UART_C4_MAEN2) & BM_UART_C4_MAEN2)
 
 /*! @brief Set the MAEN2 field to a new value. */
-#define BW_UART_C4_MAEN2(x, v) (BITBAND_ACCESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN2) = (v))
+#define BW_UART_C4_MAEN2(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN2), v))
 /*@}*/
 
 /*!
@@ -2024,13 +2031,13 @@ typedef union _hw_uart_c4
 #define BS_UART_C4_MAEN1     (1U)          /*!< Bit field size in bits for UART_C4_MAEN1. */
 
 /*! @brief Read current value of the UART_C4_MAEN1 field. */
-#define BR_UART_C4_MAEN1(x)  (BITBAND_ACCESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN1))
+#define BR_UART_C4_MAEN1(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN1)))
 
 /*! @brief Format value for bitfield UART_C4_MAEN1. */
 #define BF_UART_C4_MAEN1(v)  ((uint8_t)((uint8_t)(v) << BP_UART_C4_MAEN1) & BM_UART_C4_MAEN1)
 
 /*! @brief Set the MAEN1 field to a new value. */
-#define BW_UART_C4_MAEN1(x, v) (BITBAND_ACCESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN1) = (v))
+#define BW_UART_C4_MAEN1(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C4_ADDR(x), BP_UART_C4_MAEN1), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2063,8 +2070,8 @@ typedef union _hw_uart_c5
 #define HW_UART_C5_ADDR(x)       ((x) + 0xBU)
 
 #define HW_UART_C5(x)            (*(__IO hw_uart_c5_t *) HW_UART_C5_ADDR(x))
-#define HW_UART_C5_RD(x)         (HW_UART_C5(x).U)
-#define HW_UART_C5_WR(x, v)      (HW_UART_C5(x).U = (v))
+#define HW_UART_C5_RD(x)         (ADDRESS_READ(hw_uart_c5_t, HW_UART_C5_ADDR(x)))
+#define HW_UART_C5_WR(x, v)      (ADDRESS_WRITE(hw_uart_c5_t, HW_UART_C5_ADDR(x), v))
 #define HW_UART_C5_SET(x, v)     (HW_UART_C5_WR(x, HW_UART_C5_RD(x) |  (v)))
 #define HW_UART_C5_CLR(x, v)     (HW_UART_C5_WR(x, HW_UART_C5_RD(x) & ~(v)))
 #define HW_UART_C5_TOG(x, v)     (HW_UART_C5_WR(x, HW_UART_C5_RD(x) ^  (v)))
@@ -2094,13 +2101,13 @@ typedef union _hw_uart_c5
 #define BS_UART_C5_LBKDDMAS  (1U)          /*!< Bit field size in bits for UART_C5_LBKDDMAS. */
 
 /*! @brief Read current value of the UART_C5_LBKDDMAS field. */
-#define BR_UART_C5_LBKDDMAS(x) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_LBKDDMAS))
+#define BR_UART_C5_LBKDDMAS(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_LBKDDMAS)))
 
 /*! @brief Format value for bitfield UART_C5_LBKDDMAS. */
 #define BF_UART_C5_LBKDDMAS(v) ((uint8_t)((uint8_t)(v) << BP_UART_C5_LBKDDMAS) & BM_UART_C5_LBKDDMAS)
 
 /*! @brief Set the LBKDDMAS field to a new value. */
-#define BW_UART_C5_LBKDDMAS(x, v) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_LBKDDMAS) = (v))
+#define BW_UART_C5_LBKDDMAS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_LBKDDMAS), v))
 /*@}*/
 
 /*!
@@ -2123,13 +2130,13 @@ typedef union _hw_uart_c5
 #define BS_UART_C5_ILDMAS    (1U)          /*!< Bit field size in bits for UART_C5_ILDMAS. */
 
 /*! @brief Read current value of the UART_C5_ILDMAS field. */
-#define BR_UART_C5_ILDMAS(x) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_ILDMAS))
+#define BR_UART_C5_ILDMAS(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_ILDMAS)))
 
 /*! @brief Format value for bitfield UART_C5_ILDMAS. */
 #define BF_UART_C5_ILDMAS(v) ((uint8_t)((uint8_t)(v) << BP_UART_C5_ILDMAS) & BM_UART_C5_ILDMAS)
 
 /*! @brief Set the ILDMAS field to a new value. */
-#define BW_UART_C5_ILDMAS(x, v) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_ILDMAS) = (v))
+#define BW_UART_C5_ILDMAS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_ILDMAS), v))
 /*@}*/
 
 /*!
@@ -2152,13 +2159,13 @@ typedef union _hw_uart_c5
 #define BS_UART_C5_RDMAS     (1U)          /*!< Bit field size in bits for UART_C5_RDMAS. */
 
 /*! @brief Read current value of the UART_C5_RDMAS field. */
-#define BR_UART_C5_RDMAS(x)  (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_RDMAS))
+#define BR_UART_C5_RDMAS(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_RDMAS)))
 
 /*! @brief Format value for bitfield UART_C5_RDMAS. */
 #define BF_UART_C5_RDMAS(v)  ((uint8_t)((uint8_t)(v) << BP_UART_C5_RDMAS) & BM_UART_C5_RDMAS)
 
 /*! @brief Set the RDMAS field to a new value. */
-#define BW_UART_C5_RDMAS(x, v) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_RDMAS) = (v))
+#define BW_UART_C5_RDMAS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_RDMAS), v))
 /*@}*/
 
 /*!
@@ -2182,13 +2189,13 @@ typedef union _hw_uart_c5
 #define BS_UART_C5_TCDMAS    (1U)          /*!< Bit field size in bits for UART_C5_TCDMAS. */
 
 /*! @brief Read current value of the UART_C5_TCDMAS field. */
-#define BR_UART_C5_TCDMAS(x) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TCDMAS))
+#define BR_UART_C5_TCDMAS(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TCDMAS)))
 
 /*! @brief Format value for bitfield UART_C5_TCDMAS. */
 #define BF_UART_C5_TCDMAS(v) ((uint8_t)((uint8_t)(v) << BP_UART_C5_TCDMAS) & BM_UART_C5_TCDMAS)
 
 /*! @brief Set the TCDMAS field to a new value. */
-#define BW_UART_C5_TCDMAS(x, v) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TCDMAS) = (v))
+#define BW_UART_C5_TCDMAS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TCDMAS), v))
 /*@}*/
 
 /*!
@@ -2213,13 +2220,13 @@ typedef union _hw_uart_c5
 #define BS_UART_C5_TDMAS     (1U)          /*!< Bit field size in bits for UART_C5_TDMAS. */
 
 /*! @brief Read current value of the UART_C5_TDMAS field. */
-#define BR_UART_C5_TDMAS(x)  (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TDMAS))
+#define BR_UART_C5_TDMAS(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TDMAS)))
 
 /*! @brief Format value for bitfield UART_C5_TDMAS. */
 #define BF_UART_C5_TDMAS(v)  ((uint8_t)((uint8_t)(v) << BP_UART_C5_TDMAS) & BM_UART_C5_TDMAS)
 
 /*! @brief Set the TDMAS field to a new value. */
-#define BW_UART_C5_TDMAS(x, v) (BITBAND_ACCESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TDMAS) = (v))
+#define BW_UART_C5_TDMAS(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C5_ADDR(x), BP_UART_C5_TDMAS), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2259,7 +2266,7 @@ typedef union _hw_uart_ed
 #define HW_UART_ED_ADDR(x)       ((x) + 0xCU)
 
 #define HW_UART_ED(x)            (*(__I hw_uart_ed_t *) HW_UART_ED_ADDR(x))
-#define HW_UART_ED_RD(x)         (HW_UART_ED(x).U)
+#define HW_UART_ED_RD(x)         (ADDRESS_READ(hw_uart_ed_t, HW_UART_ED_ADDR(x)))
 /*@}*/
 
 /*
@@ -2282,7 +2289,7 @@ typedef union _hw_uart_ed
 #define BS_UART_ED_PARITYE   (1U)          /*!< Bit field size in bits for UART_ED_PARITYE. */
 
 /*! @brief Read current value of the UART_ED_PARITYE field. */
-#define BR_UART_ED_PARITYE(x) (BITBAND_ACCESS8(HW_UART_ED_ADDR(x), BP_UART_ED_PARITYE))
+#define BR_UART_ED_PARITYE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_ED_ADDR(x), BP_UART_ED_PARITYE)))
 /*@}*/
 
 /*!
@@ -2301,7 +2308,7 @@ typedef union _hw_uart_ed
 #define BS_UART_ED_NOISY     (1U)          /*!< Bit field size in bits for UART_ED_NOISY. */
 
 /*! @brief Read current value of the UART_ED_NOISY field. */
-#define BR_UART_ED_NOISY(x)  (BITBAND_ACCESS8(HW_UART_ED_ADDR(x), BP_UART_ED_NOISY))
+#define BR_UART_ED_NOISY(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_ED_ADDR(x), BP_UART_ED_NOISY)))
 /*@}*/
 
 /*******************************************************************************
@@ -2338,8 +2345,8 @@ typedef union _hw_uart_modem
 #define HW_UART_MODEM_ADDR(x)    ((x) + 0xDU)
 
 #define HW_UART_MODEM(x)         (*(__IO hw_uart_modem_t *) HW_UART_MODEM_ADDR(x))
-#define HW_UART_MODEM_RD(x)      (HW_UART_MODEM(x).U)
-#define HW_UART_MODEM_WR(x, v)   (HW_UART_MODEM(x).U = (v))
+#define HW_UART_MODEM_RD(x)      (ADDRESS_READ(hw_uart_modem_t, HW_UART_MODEM_ADDR(x)))
+#define HW_UART_MODEM_WR(x, v)   (ADDRESS_WRITE(hw_uart_modem_t, HW_UART_MODEM_ADDR(x), v))
 #define HW_UART_MODEM_SET(x, v)  (HW_UART_MODEM_WR(x, HW_UART_MODEM_RD(x) |  (v)))
 #define HW_UART_MODEM_CLR(x, v)  (HW_UART_MODEM_WR(x, HW_UART_MODEM_RD(x) & ~(v)))
 #define HW_UART_MODEM_TOG(x, v)  (HW_UART_MODEM_WR(x, HW_UART_MODEM_RD(x) ^  (v)))
@@ -2369,13 +2376,13 @@ typedef union _hw_uart_modem
 #define BS_UART_MODEM_TXCTSE (1U)          /*!< Bit field size in bits for UART_MODEM_TXCTSE. */
 
 /*! @brief Read current value of the UART_MODEM_TXCTSE field. */
-#define BR_UART_MODEM_TXCTSE(x) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXCTSE))
+#define BR_UART_MODEM_TXCTSE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXCTSE)))
 
 /*! @brief Format value for bitfield UART_MODEM_TXCTSE. */
 #define BF_UART_MODEM_TXCTSE(v) ((uint8_t)((uint8_t)(v) << BP_UART_MODEM_TXCTSE) & BM_UART_MODEM_TXCTSE)
 
 /*! @brief Set the TXCTSE field to a new value. */
-#define BW_UART_MODEM_TXCTSE(x, v) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXCTSE) = (v))
+#define BW_UART_MODEM_TXCTSE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXCTSE), v))
 /*@}*/
 
 /*!
@@ -2396,13 +2403,13 @@ typedef union _hw_uart_modem
 #define BS_UART_MODEM_TXRTSE (1U)          /*!< Bit field size in bits for UART_MODEM_TXRTSE. */
 
 /*! @brief Read current value of the UART_MODEM_TXRTSE field. */
-#define BR_UART_MODEM_TXRTSE(x) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSE))
+#define BR_UART_MODEM_TXRTSE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSE)))
 
 /*! @brief Format value for bitfield UART_MODEM_TXRTSE. */
 #define BF_UART_MODEM_TXRTSE(v) ((uint8_t)((uint8_t)(v) << BP_UART_MODEM_TXRTSE) & BM_UART_MODEM_TXRTSE)
 
 /*! @brief Set the TXRTSE field to a new value. */
-#define BW_UART_MODEM_TXRTSE(x, v) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSE) = (v))
+#define BW_UART_MODEM_TXRTSE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSE), v))
 /*@}*/
 
 /*!
@@ -2422,13 +2429,13 @@ typedef union _hw_uart_modem
 #define BS_UART_MODEM_TXRTSPOL (1U)        /*!< Bit field size in bits for UART_MODEM_TXRTSPOL. */
 
 /*! @brief Read current value of the UART_MODEM_TXRTSPOL field. */
-#define BR_UART_MODEM_TXRTSPOL(x) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSPOL))
+#define BR_UART_MODEM_TXRTSPOL(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSPOL)))
 
 /*! @brief Format value for bitfield UART_MODEM_TXRTSPOL. */
 #define BF_UART_MODEM_TXRTSPOL(v) ((uint8_t)((uint8_t)(v) << BP_UART_MODEM_TXRTSPOL) & BM_UART_MODEM_TXRTSPOL)
 
 /*! @brief Set the TXRTSPOL field to a new value. */
-#define BW_UART_MODEM_TXRTSPOL(x, v) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSPOL) = (v))
+#define BW_UART_MODEM_TXRTSPOL(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_TXRTSPOL), v))
 /*@}*/
 
 /*!
@@ -2450,13 +2457,13 @@ typedef union _hw_uart_modem
 #define BS_UART_MODEM_RXRTSE (1U)          /*!< Bit field size in bits for UART_MODEM_RXRTSE. */
 
 /*! @brief Read current value of the UART_MODEM_RXRTSE field. */
-#define BR_UART_MODEM_RXRTSE(x) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_RXRTSE))
+#define BR_UART_MODEM_RXRTSE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_RXRTSE)))
 
 /*! @brief Format value for bitfield UART_MODEM_RXRTSE. */
 #define BF_UART_MODEM_RXRTSE(v) ((uint8_t)((uint8_t)(v) << BP_UART_MODEM_RXRTSE) & BM_UART_MODEM_RXRTSE)
 
 /*! @brief Set the RXRTSE field to a new value. */
-#define BW_UART_MODEM_RXRTSE(x, v) (BITBAND_ACCESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_RXRTSE) = (v))
+#define BW_UART_MODEM_RXRTSE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_MODEM_ADDR(x), BP_UART_MODEM_RXRTSE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2488,8 +2495,8 @@ typedef union _hw_uart_ir
 #define HW_UART_IR_ADDR(x)       ((x) + 0xEU)
 
 #define HW_UART_IR(x)            (*(__IO hw_uart_ir_t *) HW_UART_IR_ADDR(x))
-#define HW_UART_IR_RD(x)         (HW_UART_IR(x).U)
-#define HW_UART_IR_WR(x, v)      (HW_UART_IR(x).U = (v))
+#define HW_UART_IR_RD(x)         (ADDRESS_READ(hw_uart_ir_t, HW_UART_IR_ADDR(x)))
+#define HW_UART_IR_WR(x, v)      (ADDRESS_WRITE(hw_uart_ir_t, HW_UART_IR_ADDR(x), v))
 #define HW_UART_IR_SET(x, v)     (HW_UART_IR_WR(x, HW_UART_IR_RD(x) |  (v)))
 #define HW_UART_IR_CLR(x, v)     (HW_UART_IR_WR(x, HW_UART_IR_RD(x) & ~(v)))
 #define HW_UART_IR_TOG(x, v)     (HW_UART_IR_WR(x, HW_UART_IR_RD(x) ^  (v)))
@@ -2516,7 +2523,7 @@ typedef union _hw_uart_ir
 #define BS_UART_IR_TNP       (2U)          /*!< Bit field size in bits for UART_IR_TNP. */
 
 /*! @brief Read current value of the UART_IR_TNP field. */
-#define BR_UART_IR_TNP(x)    (HW_UART_IR(x).B.TNP)
+#define BR_UART_IR_TNP(x)    (UNION_READ(hw_uart_ir_t, HW_UART_IR_ADDR(x), U, B.TNP))
 
 /*! @brief Format value for bitfield UART_IR_TNP. */
 #define BF_UART_IR_TNP(v)    ((uint8_t)((uint8_t)(v) << BP_UART_IR_TNP) & BM_UART_IR_TNP)
@@ -2540,13 +2547,13 @@ typedef union _hw_uart_ir
 #define BS_UART_IR_IREN      (1U)          /*!< Bit field size in bits for UART_IR_IREN. */
 
 /*! @brief Read current value of the UART_IR_IREN field. */
-#define BR_UART_IR_IREN(x)   (BITBAND_ACCESS8(HW_UART_IR_ADDR(x), BP_UART_IR_IREN))
+#define BR_UART_IR_IREN(x)   (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IR_ADDR(x), BP_UART_IR_IREN)))
 
 /*! @brief Format value for bitfield UART_IR_IREN. */
 #define BF_UART_IR_IREN(v)   ((uint8_t)((uint8_t)(v) << BP_UART_IR_IREN) & BM_UART_IR_IREN)
 
 /*! @brief Set the IREN field to a new value. */
-#define BW_UART_IR_IREN(x, v) (BITBAND_ACCESS8(HW_UART_IR_ADDR(x), BP_UART_IR_IREN) = (v))
+#define BW_UART_IR_IREN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IR_ADDR(x), BP_UART_IR_IREN), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2583,8 +2590,8 @@ typedef union _hw_uart_pfifo
 #define HW_UART_PFIFO_ADDR(x)    ((x) + 0x10U)
 
 #define HW_UART_PFIFO(x)         (*(__IO hw_uart_pfifo_t *) HW_UART_PFIFO_ADDR(x))
-#define HW_UART_PFIFO_RD(x)      (HW_UART_PFIFO(x).U)
-#define HW_UART_PFIFO_WR(x, v)   (HW_UART_PFIFO(x).U = (v))
+#define HW_UART_PFIFO_RD(x)      (ADDRESS_READ(hw_uart_pfifo_t, HW_UART_PFIFO_ADDR(x)))
+#define HW_UART_PFIFO_WR(x, v)   (ADDRESS_WRITE(hw_uart_pfifo_t, HW_UART_PFIFO_ADDR(x), v))
 #define HW_UART_PFIFO_SET(x, v)  (HW_UART_PFIFO_WR(x, HW_UART_PFIFO_RD(x) |  (v)))
 #define HW_UART_PFIFO_CLR(x, v)  (HW_UART_PFIFO_WR(x, HW_UART_PFIFO_RD(x) & ~(v)))
 #define HW_UART_PFIFO_TOG(x, v)  (HW_UART_PFIFO_WR(x, HW_UART_PFIFO_RD(x) ^  (v)))
@@ -2616,7 +2623,7 @@ typedef union _hw_uart_pfifo
 #define BS_UART_PFIFO_RXFIFOSIZE (3U)      /*!< Bit field size in bits for UART_PFIFO_RXFIFOSIZE. */
 
 /*! @brief Read current value of the UART_PFIFO_RXFIFOSIZE field. */
-#define BR_UART_PFIFO_RXFIFOSIZE(x) (HW_UART_PFIFO(x).B.RXFIFOSIZE)
+#define BR_UART_PFIFO_RXFIFOSIZE(x) (UNION_READ(hw_uart_pfifo_t, HW_UART_PFIFO_ADDR(x), U, B.RXFIFOSIZE))
 /*@}*/
 
 /*!
@@ -2639,13 +2646,13 @@ typedef union _hw_uart_pfifo
 #define BS_UART_PFIFO_RXFE   (1U)          /*!< Bit field size in bits for UART_PFIFO_RXFE. */
 
 /*! @brief Read current value of the UART_PFIFO_RXFE field. */
-#define BR_UART_PFIFO_RXFE(x) (BITBAND_ACCESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_RXFE))
+#define BR_UART_PFIFO_RXFE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_RXFE)))
 
 /*! @brief Format value for bitfield UART_PFIFO_RXFE. */
 #define BF_UART_PFIFO_RXFE(v) ((uint8_t)((uint8_t)(v) << BP_UART_PFIFO_RXFE) & BM_UART_PFIFO_RXFE)
 
 /*! @brief Set the RXFE field to a new value. */
-#define BW_UART_PFIFO_RXFE(x, v) (BITBAND_ACCESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_RXFE) = (v))
+#define BW_UART_PFIFO_RXFE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_RXFE), v))
 /*@}*/
 
 /*!
@@ -2670,7 +2677,7 @@ typedef union _hw_uart_pfifo
 #define BS_UART_PFIFO_TXFIFOSIZE (3U)      /*!< Bit field size in bits for UART_PFIFO_TXFIFOSIZE. */
 
 /*! @brief Read current value of the UART_PFIFO_TXFIFOSIZE field. */
-#define BR_UART_PFIFO_TXFIFOSIZE(x) (HW_UART_PFIFO(x).B.TXFIFOSIZE)
+#define BR_UART_PFIFO_TXFIFOSIZE(x) (UNION_READ(hw_uart_pfifo_t, HW_UART_PFIFO_ADDR(x), U, B.TXFIFOSIZE))
 /*@}*/
 
 /*!
@@ -2693,13 +2700,13 @@ typedef union _hw_uart_pfifo
 #define BS_UART_PFIFO_TXFE   (1U)          /*!< Bit field size in bits for UART_PFIFO_TXFE. */
 
 /*! @brief Read current value of the UART_PFIFO_TXFE field. */
-#define BR_UART_PFIFO_TXFE(x) (BITBAND_ACCESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_TXFE))
+#define BR_UART_PFIFO_TXFE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_TXFE)))
 
 /*! @brief Format value for bitfield UART_PFIFO_TXFE. */
 #define BF_UART_PFIFO_TXFE(v) ((uint8_t)((uint8_t)(v) << BP_UART_PFIFO_TXFE) & BM_UART_PFIFO_TXFE)
 
 /*! @brief Set the TXFE field to a new value. */
-#define BW_UART_PFIFO_TXFE(x, v) (BITBAND_ACCESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_TXFE) = (v))
+#define BW_UART_PFIFO_TXFE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_PFIFO_ADDR(x), BP_UART_PFIFO_TXFE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2738,8 +2745,8 @@ typedef union _hw_uart_cfifo
 #define HW_UART_CFIFO_ADDR(x)    ((x) + 0x11U)
 
 #define HW_UART_CFIFO(x)         (*(__IO hw_uart_cfifo_t *) HW_UART_CFIFO_ADDR(x))
-#define HW_UART_CFIFO_RD(x)      (HW_UART_CFIFO(x).U)
-#define HW_UART_CFIFO_WR(x, v)   (HW_UART_CFIFO(x).U = (v))
+#define HW_UART_CFIFO_RD(x)      (ADDRESS_READ(hw_uart_cfifo_t, HW_UART_CFIFO_ADDR(x)))
+#define HW_UART_CFIFO_WR(x, v)   (ADDRESS_WRITE(hw_uart_cfifo_t, HW_UART_CFIFO_ADDR(x), v))
 #define HW_UART_CFIFO_SET(x, v)  (HW_UART_CFIFO_WR(x, HW_UART_CFIFO_RD(x) |  (v)))
 #define HW_UART_CFIFO_CLR(x, v)  (HW_UART_CFIFO_WR(x, HW_UART_CFIFO_RD(x) & ~(v)))
 #define HW_UART_CFIFO_TOG(x, v)  (HW_UART_CFIFO_WR(x, HW_UART_CFIFO_RD(x) ^  (v)))
@@ -2764,13 +2771,13 @@ typedef union _hw_uart_cfifo
 #define BS_UART_CFIFO_RXUFE  (1U)          /*!< Bit field size in bits for UART_CFIFO_RXUFE. */
 
 /*! @brief Read current value of the UART_CFIFO_RXUFE field. */
-#define BR_UART_CFIFO_RXUFE(x) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXUFE))
+#define BR_UART_CFIFO_RXUFE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXUFE)))
 
 /*! @brief Format value for bitfield UART_CFIFO_RXUFE. */
 #define BF_UART_CFIFO_RXUFE(v) ((uint8_t)((uint8_t)(v) << BP_UART_CFIFO_RXUFE) & BM_UART_CFIFO_RXUFE)
 
 /*! @brief Set the RXUFE field to a new value. */
-#define BW_UART_CFIFO_RXUFE(x, v) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXUFE) = (v))
+#define BW_UART_CFIFO_RXUFE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXUFE), v))
 /*@}*/
 
 /*!
@@ -2788,13 +2795,13 @@ typedef union _hw_uart_cfifo
 #define BS_UART_CFIFO_TXOFE  (1U)          /*!< Bit field size in bits for UART_CFIFO_TXOFE. */
 
 /*! @brief Read current value of the UART_CFIFO_TXOFE field. */
-#define BR_UART_CFIFO_TXOFE(x) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_TXOFE))
+#define BR_UART_CFIFO_TXOFE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_TXOFE)))
 
 /*! @brief Format value for bitfield UART_CFIFO_TXOFE. */
 #define BF_UART_CFIFO_TXOFE(v) ((uint8_t)((uint8_t)(v) << BP_UART_CFIFO_TXOFE) & BM_UART_CFIFO_TXOFE)
 
 /*! @brief Set the TXOFE field to a new value. */
-#define BW_UART_CFIFO_TXOFE(x, v) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_TXOFE) = (v))
+#define BW_UART_CFIFO_TXOFE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_TXOFE), v))
 /*@}*/
 
 /*!
@@ -2812,13 +2819,13 @@ typedef union _hw_uart_cfifo
 #define BS_UART_CFIFO_RXOFE  (1U)          /*!< Bit field size in bits for UART_CFIFO_RXOFE. */
 
 /*! @brief Read current value of the UART_CFIFO_RXOFE field. */
-#define BR_UART_CFIFO_RXOFE(x) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXOFE))
+#define BR_UART_CFIFO_RXOFE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXOFE)))
 
 /*! @brief Format value for bitfield UART_CFIFO_RXOFE. */
 #define BF_UART_CFIFO_RXOFE(v) ((uint8_t)((uint8_t)(v) << BP_UART_CFIFO_RXOFE) & BM_UART_CFIFO_RXOFE)
 
 /*! @brief Set the RXOFE field to a new value. */
-#define BW_UART_CFIFO_RXOFE(x, v) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXOFE) = (v))
+#define BW_UART_CFIFO_RXOFE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXOFE), v))
 /*@}*/
 
 /*!
@@ -2841,7 +2848,7 @@ typedef union _hw_uart_cfifo
 #define BF_UART_CFIFO_RXFLUSH(v) ((uint8_t)((uint8_t)(v) << BP_UART_CFIFO_RXFLUSH) & BM_UART_CFIFO_RXFLUSH)
 
 /*! @brief Set the RXFLUSH field to a new value. */
-#define BW_UART_CFIFO_RXFLUSH(x, v) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXFLUSH) = (v))
+#define BW_UART_CFIFO_RXFLUSH(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_RXFLUSH), v))
 /*@}*/
 
 /*!
@@ -2864,7 +2871,7 @@ typedef union _hw_uart_cfifo
 #define BF_UART_CFIFO_TXFLUSH(v) ((uint8_t)((uint8_t)(v) << BP_UART_CFIFO_TXFLUSH) & BM_UART_CFIFO_TXFLUSH)
 
 /*! @brief Set the TXFLUSH field to a new value. */
-#define BW_UART_CFIFO_TXFLUSH(x, v) (BITBAND_ACCESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_TXFLUSH) = (v))
+#define BW_UART_CFIFO_TXFLUSH(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_CFIFO_ADDR(x), BP_UART_CFIFO_TXFLUSH), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2901,8 +2908,8 @@ typedef union _hw_uart_sfifo
 #define HW_UART_SFIFO_ADDR(x)    ((x) + 0x12U)
 
 #define HW_UART_SFIFO(x)         (*(__IO hw_uart_sfifo_t *) HW_UART_SFIFO_ADDR(x))
-#define HW_UART_SFIFO_RD(x)      (HW_UART_SFIFO(x).U)
-#define HW_UART_SFIFO_WR(x, v)   (HW_UART_SFIFO(x).U = (v))
+#define HW_UART_SFIFO_RD(x)      (ADDRESS_READ(hw_uart_sfifo_t, HW_UART_SFIFO_ADDR(x)))
+#define HW_UART_SFIFO_WR(x, v)   (ADDRESS_WRITE(hw_uart_sfifo_t, HW_UART_SFIFO_ADDR(x), v))
 #define HW_UART_SFIFO_SET(x, v)  (HW_UART_SFIFO_WR(x, HW_UART_SFIFO_RD(x) |  (v)))
 #define HW_UART_SFIFO_CLR(x, v)  (HW_UART_SFIFO_WR(x, HW_UART_SFIFO_RD(x) & ~(v)))
 #define HW_UART_SFIFO_TOG(x, v)  (HW_UART_SFIFO_WR(x, HW_UART_SFIFO_RD(x) ^  (v)))
@@ -2932,13 +2939,13 @@ typedef union _hw_uart_sfifo
 #define BS_UART_SFIFO_RXUF   (1U)          /*!< Bit field size in bits for UART_SFIFO_RXUF. */
 
 /*! @brief Read current value of the UART_SFIFO_RXUF field. */
-#define BR_UART_SFIFO_RXUF(x) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXUF))
+#define BR_UART_SFIFO_RXUF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXUF)))
 
 /*! @brief Format value for bitfield UART_SFIFO_RXUF. */
 #define BF_UART_SFIFO_RXUF(v) ((uint8_t)((uint8_t)(v) << BP_UART_SFIFO_RXUF) & BM_UART_SFIFO_RXUF)
 
 /*! @brief Set the RXUF field to a new value. */
-#define BW_UART_SFIFO_RXUF(x, v) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXUF) = (v))
+#define BW_UART_SFIFO_RXUF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXUF), v))
 /*@}*/
 
 /*!
@@ -2961,13 +2968,13 @@ typedef union _hw_uart_sfifo
 #define BS_UART_SFIFO_TXOF   (1U)          /*!< Bit field size in bits for UART_SFIFO_TXOF. */
 
 /*! @brief Read current value of the UART_SFIFO_TXOF field. */
-#define BR_UART_SFIFO_TXOF(x) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_TXOF))
+#define BR_UART_SFIFO_TXOF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_TXOF)))
 
 /*! @brief Format value for bitfield UART_SFIFO_TXOF. */
 #define BF_UART_SFIFO_TXOF(v) ((uint8_t)((uint8_t)(v) << BP_UART_SFIFO_TXOF) & BM_UART_SFIFO_TXOF)
 
 /*! @brief Set the TXOF field to a new value. */
-#define BW_UART_SFIFO_TXOF(x, v) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_TXOF) = (v))
+#define BW_UART_SFIFO_TXOF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_TXOF), v))
 /*@}*/
 
 /*!
@@ -2990,13 +2997,13 @@ typedef union _hw_uart_sfifo
 #define BS_UART_SFIFO_RXOF   (1U)          /*!< Bit field size in bits for UART_SFIFO_RXOF. */
 
 /*! @brief Read current value of the UART_SFIFO_RXOF field. */
-#define BR_UART_SFIFO_RXOF(x) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXOF))
+#define BR_UART_SFIFO_RXOF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXOF)))
 
 /*! @brief Format value for bitfield UART_SFIFO_RXOF. */
 #define BF_UART_SFIFO_RXOF(v) ((uint8_t)((uint8_t)(v) << BP_UART_SFIFO_RXOF) & BM_UART_SFIFO_RXOF)
 
 /*! @brief Set the RXOF field to a new value. */
-#define BW_UART_SFIFO_RXOF(x, v) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXOF) = (v))
+#define BW_UART_SFIFO_RXOF(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXOF), v))
 /*@}*/
 
 /*!
@@ -3015,7 +3022,7 @@ typedef union _hw_uart_sfifo
 #define BS_UART_SFIFO_RXEMPT (1U)          /*!< Bit field size in bits for UART_SFIFO_RXEMPT. */
 
 /*! @brief Read current value of the UART_SFIFO_RXEMPT field. */
-#define BR_UART_SFIFO_RXEMPT(x) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXEMPT))
+#define BR_UART_SFIFO_RXEMPT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_RXEMPT)))
 /*@}*/
 
 /*!
@@ -3034,7 +3041,7 @@ typedef union _hw_uart_sfifo
 #define BS_UART_SFIFO_TXEMPT (1U)          /*!< Bit field size in bits for UART_SFIFO_TXEMPT. */
 
 /*! @brief Read current value of the UART_SFIFO_TXEMPT field. */
-#define BR_UART_SFIFO_TXEMPT(x) (BITBAND_ACCESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_TXEMPT))
+#define BR_UART_SFIFO_TXEMPT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_SFIFO_ADDR(x), BP_UART_SFIFO_TXEMPT)))
 /*@}*/
 
 /*******************************************************************************
@@ -3067,8 +3074,8 @@ typedef union _hw_uart_twfifo
 #define HW_UART_TWFIFO_ADDR(x)   ((x) + 0x13U)
 
 #define HW_UART_TWFIFO(x)        (*(__IO hw_uart_twfifo_t *) HW_UART_TWFIFO_ADDR(x))
-#define HW_UART_TWFIFO_RD(x)     (HW_UART_TWFIFO(x).U)
-#define HW_UART_TWFIFO_WR(x, v)  (HW_UART_TWFIFO(x).U = (v))
+#define HW_UART_TWFIFO_RD(x)     (ADDRESS_READ(hw_uart_twfifo_t, HW_UART_TWFIFO_ADDR(x)))
+#define HW_UART_TWFIFO_WR(x, v)  (ADDRESS_WRITE(hw_uart_twfifo_t, HW_UART_TWFIFO_ADDR(x), v))
 #define HW_UART_TWFIFO_SET(x, v) (HW_UART_TWFIFO_WR(x, HW_UART_TWFIFO_RD(x) |  (v)))
 #define HW_UART_TWFIFO_CLR(x, v) (HW_UART_TWFIFO_WR(x, HW_UART_TWFIFO_RD(x) & ~(v)))
 #define HW_UART_TWFIFO_TOG(x, v) (HW_UART_TWFIFO_WR(x, HW_UART_TWFIFO_RD(x) ^  (v)))
@@ -3130,7 +3137,7 @@ typedef union _hw_uart_tcfifo
 #define HW_UART_TCFIFO_ADDR(x)   ((x) + 0x14U)
 
 #define HW_UART_TCFIFO(x)        (*(__I hw_uart_tcfifo_t *) HW_UART_TCFIFO_ADDR(x))
-#define HW_UART_TCFIFO_RD(x)     (HW_UART_TCFIFO(x).U)
+#define HW_UART_TCFIFO_RD(x)     (ADDRESS_READ(hw_uart_tcfifo_t, HW_UART_TCFIFO_ADDR(x)))
 /*@}*/
 
 /*
@@ -3185,8 +3192,8 @@ typedef union _hw_uart_rwfifo
 #define HW_UART_RWFIFO_ADDR(x)   ((x) + 0x15U)
 
 #define HW_UART_RWFIFO(x)        (*(__IO hw_uart_rwfifo_t *) HW_UART_RWFIFO_ADDR(x))
-#define HW_UART_RWFIFO_RD(x)     (HW_UART_RWFIFO(x).U)
-#define HW_UART_RWFIFO_WR(x, v)  (HW_UART_RWFIFO(x).U = (v))
+#define HW_UART_RWFIFO_RD(x)     (ADDRESS_READ(hw_uart_rwfifo_t, HW_UART_RWFIFO_ADDR(x)))
+#define HW_UART_RWFIFO_WR(x, v)  (ADDRESS_WRITE(hw_uart_rwfifo_t, HW_UART_RWFIFO_ADDR(x), v))
 #define HW_UART_RWFIFO_SET(x, v) (HW_UART_RWFIFO_WR(x, HW_UART_RWFIFO_RD(x) |  (v)))
 #define HW_UART_RWFIFO_CLR(x, v) (HW_UART_RWFIFO_WR(x, HW_UART_RWFIFO_RD(x) & ~(v)))
 #define HW_UART_RWFIFO_TOG(x, v) (HW_UART_RWFIFO_WR(x, HW_UART_RWFIFO_RD(x) ^  (v)))
@@ -3249,7 +3256,7 @@ typedef union _hw_uart_rcfifo
 #define HW_UART_RCFIFO_ADDR(x)   ((x) + 0x16U)
 
 #define HW_UART_RCFIFO(x)        (*(__I hw_uart_rcfifo_t *) HW_UART_RCFIFO_ADDR(x))
-#define HW_UART_RCFIFO_RD(x)     (HW_UART_RCFIFO(x).U)
+#define HW_UART_RCFIFO_RD(x)     (ADDRESS_READ(hw_uart_rcfifo_t, HW_UART_RCFIFO_ADDR(x)))
 /*@}*/
 
 /*
@@ -3310,8 +3317,8 @@ typedef union _hw_uart_c7816
 #define HW_UART_C7816_ADDR(x)    ((x) + 0x18U)
 
 #define HW_UART_C7816(x)         (*(__IO hw_uart_c7816_t *) HW_UART_C7816_ADDR(x))
-#define HW_UART_C7816_RD(x)      (HW_UART_C7816(x).U)
-#define HW_UART_C7816_WR(x, v)   (HW_UART_C7816(x).U = (v))
+#define HW_UART_C7816_RD(x)      (ADDRESS_READ(hw_uart_c7816_t, HW_UART_C7816_ADDR(x)))
+#define HW_UART_C7816_WR(x, v)   (ADDRESS_WRITE(hw_uart_c7816_t, HW_UART_C7816_ADDR(x), v))
 #define HW_UART_C7816_SET(x, v)  (HW_UART_C7816_WR(x, HW_UART_C7816_RD(x) |  (v)))
 #define HW_UART_C7816_CLR(x, v)  (HW_UART_C7816_WR(x, HW_UART_C7816_RD(x) & ~(v)))
 #define HW_UART_C7816_TOG(x, v)  (HW_UART_C7816_WR(x, HW_UART_C7816_RD(x) ^  (v)))
@@ -3339,13 +3346,13 @@ typedef union _hw_uart_c7816
 #define BS_UART_C7816_ISO_7816E (1U)       /*!< Bit field size in bits for UART_C7816_ISO_7816E. */
 
 /*! @brief Read current value of the UART_C7816_ISO_7816E field. */
-#define BR_UART_C7816_ISO_7816E(x) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ISO_7816E))
+#define BR_UART_C7816_ISO_7816E(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ISO_7816E)))
 
 /*! @brief Format value for bitfield UART_C7816_ISO_7816E. */
 #define BF_UART_C7816_ISO_7816E(v) ((uint8_t)((uint8_t)(v) << BP_UART_C7816_ISO_7816E) & BM_UART_C7816_ISO_7816E)
 
 /*! @brief Set the ISO_7816E field to a new value. */
-#define BW_UART_C7816_ISO_7816E(x, v) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ISO_7816E) = (v))
+#define BW_UART_C7816_ISO_7816E(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ISO_7816E), v))
 /*@}*/
 
 /*!
@@ -3364,13 +3371,13 @@ typedef union _hw_uart_c7816
 #define BS_UART_C7816_TTYPE  (1U)          /*!< Bit field size in bits for UART_C7816_TTYPE. */
 
 /*! @brief Read current value of the UART_C7816_TTYPE field. */
-#define BR_UART_C7816_TTYPE(x) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_TTYPE))
+#define BR_UART_C7816_TTYPE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_TTYPE)))
 
 /*! @brief Format value for bitfield UART_C7816_TTYPE. */
 #define BF_UART_C7816_TTYPE(v) ((uint8_t)((uint8_t)(v) << BP_UART_C7816_TTYPE) & BM_UART_C7816_TTYPE)
 
 /*! @brief Set the TTYPE field to a new value. */
-#define BW_UART_C7816_TTYPE(x, v) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_TTYPE) = (v))
+#define BW_UART_C7816_TTYPE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_TTYPE), v))
 /*@}*/
 
 /*!
@@ -3400,13 +3407,13 @@ typedef union _hw_uart_c7816
 #define BS_UART_C7816_INIT   (1U)          /*!< Bit field size in bits for UART_C7816_INIT. */
 
 /*! @brief Read current value of the UART_C7816_INIT field. */
-#define BR_UART_C7816_INIT(x) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_INIT))
+#define BR_UART_C7816_INIT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_INIT)))
 
 /*! @brief Format value for bitfield UART_C7816_INIT. */
 #define BF_UART_C7816_INIT(v) ((uint8_t)((uint8_t)(v) << BP_UART_C7816_INIT) & BM_UART_C7816_INIT)
 
 /*! @brief Set the INIT field to a new value. */
-#define BW_UART_C7816_INIT(x, v) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_INIT) = (v))
+#define BW_UART_C7816_INIT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_INIT), v))
 /*@}*/
 
 /*!
@@ -3429,13 +3436,13 @@ typedef union _hw_uart_c7816
 #define BS_UART_C7816_ANACK  (1U)          /*!< Bit field size in bits for UART_C7816_ANACK. */
 
 /*! @brief Read current value of the UART_C7816_ANACK field. */
-#define BR_UART_C7816_ANACK(x) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ANACK))
+#define BR_UART_C7816_ANACK(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ANACK)))
 
 /*! @brief Format value for bitfield UART_C7816_ANACK. */
 #define BF_UART_C7816_ANACK(v) ((uint8_t)((uint8_t)(v) << BP_UART_C7816_ANACK) & BM_UART_C7816_ANACK)
 
 /*! @brief Set the ANACK field to a new value. */
-#define BW_UART_C7816_ANACK(x, v) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ANACK) = (v))
+#define BW_UART_C7816_ANACK(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ANACK), v))
 /*@}*/
 
 /*!
@@ -3460,13 +3467,13 @@ typedef union _hw_uart_c7816
 #define BS_UART_C7816_ONACK  (1U)          /*!< Bit field size in bits for UART_C7816_ONACK. */
 
 /*! @brief Read current value of the UART_C7816_ONACK field. */
-#define BR_UART_C7816_ONACK(x) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ONACK))
+#define BR_UART_C7816_ONACK(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ONACK)))
 
 /*! @brief Format value for bitfield UART_C7816_ONACK. */
 #define BF_UART_C7816_ONACK(v) ((uint8_t)((uint8_t)(v) << BP_UART_C7816_ONACK) & BM_UART_C7816_ONACK)
 
 /*! @brief Set the ONACK field to a new value. */
-#define BW_UART_C7816_ONACK(x, v) (BITBAND_ACCESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ONACK) = (v))
+#define BW_UART_C7816_ONACK(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_C7816_ADDR(x), BP_UART_C7816_ONACK), v))
 /*@}*/
 
 /*******************************************************************************
@@ -3510,8 +3517,8 @@ typedef union _hw_uart_ie7816
 #define HW_UART_IE7816_ADDR(x)   ((x) + 0x19U)
 
 #define HW_UART_IE7816(x)        (*(__IO hw_uart_ie7816_t *) HW_UART_IE7816_ADDR(x))
-#define HW_UART_IE7816_RD(x)     (HW_UART_IE7816(x).U)
-#define HW_UART_IE7816_WR(x, v)  (HW_UART_IE7816(x).U = (v))
+#define HW_UART_IE7816_RD(x)     (ADDRESS_READ(hw_uart_ie7816_t, HW_UART_IE7816_ADDR(x)))
+#define HW_UART_IE7816_WR(x, v)  (ADDRESS_WRITE(hw_uart_ie7816_t, HW_UART_IE7816_ADDR(x), v))
 #define HW_UART_IE7816_SET(x, v) (HW_UART_IE7816_WR(x, HW_UART_IE7816_RD(x) |  (v)))
 #define HW_UART_IE7816_CLR(x, v) (HW_UART_IE7816_WR(x, HW_UART_IE7816_RD(x) & ~(v)))
 #define HW_UART_IE7816_TOG(x, v) (HW_UART_IE7816_WR(x, HW_UART_IE7816_RD(x) ^  (v)))
@@ -3535,13 +3542,13 @@ typedef union _hw_uart_ie7816
 #define BS_UART_IE7816_RXTE  (1U)          /*!< Bit field size in bits for UART_IE7816_RXTE. */
 
 /*! @brief Read current value of the UART_IE7816_RXTE field. */
-#define BR_UART_IE7816_RXTE(x) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_RXTE))
+#define BR_UART_IE7816_RXTE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_RXTE)))
 
 /*! @brief Format value for bitfield UART_IE7816_RXTE. */
 #define BF_UART_IE7816_RXTE(v) ((uint8_t)((uint8_t)(v) << BP_UART_IE7816_RXTE) & BM_UART_IE7816_RXTE)
 
 /*! @brief Set the RXTE field to a new value. */
-#define BW_UART_IE7816_RXTE(x, v) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_RXTE) = (v))
+#define BW_UART_IE7816_RXTE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_RXTE), v))
 /*@}*/
 
 /*!
@@ -3558,13 +3565,13 @@ typedef union _hw_uart_ie7816
 #define BS_UART_IE7816_TXTE  (1U)          /*!< Bit field size in bits for UART_IE7816_TXTE. */
 
 /*! @brief Read current value of the UART_IE7816_TXTE field. */
-#define BR_UART_IE7816_TXTE(x) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_TXTE))
+#define BR_UART_IE7816_TXTE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_TXTE)))
 
 /*! @brief Format value for bitfield UART_IE7816_TXTE. */
 #define BF_UART_IE7816_TXTE(v) ((uint8_t)((uint8_t)(v) << BP_UART_IE7816_TXTE) & BM_UART_IE7816_TXTE)
 
 /*! @brief Set the TXTE field to a new value. */
-#define BW_UART_IE7816_TXTE(x, v) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_TXTE) = (v))
+#define BW_UART_IE7816_TXTE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_TXTE), v))
 /*@}*/
 
 /*!
@@ -3581,13 +3588,13 @@ typedef union _hw_uart_ie7816
 #define BS_UART_IE7816_GTVE  (1U)          /*!< Bit field size in bits for UART_IE7816_GTVE. */
 
 /*! @brief Read current value of the UART_IE7816_GTVE field. */
-#define BR_UART_IE7816_GTVE(x) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_GTVE))
+#define BR_UART_IE7816_GTVE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_GTVE)))
 
 /*! @brief Format value for bitfield UART_IE7816_GTVE. */
 #define BF_UART_IE7816_GTVE(v) ((uint8_t)((uint8_t)(v) << BP_UART_IE7816_GTVE) & BM_UART_IE7816_GTVE)
 
 /*! @brief Set the GTVE field to a new value. */
-#define BW_UART_IE7816_GTVE(x, v) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_GTVE) = (v))
+#define BW_UART_IE7816_GTVE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_GTVE), v))
 /*@}*/
 
 /*!
@@ -3605,13 +3612,13 @@ typedef union _hw_uart_ie7816
 #define BS_UART_IE7816_INITDE (1U)         /*!< Bit field size in bits for UART_IE7816_INITDE. */
 
 /*! @brief Read current value of the UART_IE7816_INITDE field. */
-#define BR_UART_IE7816_INITDE(x) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_INITDE))
+#define BR_UART_IE7816_INITDE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_INITDE)))
 
 /*! @brief Format value for bitfield UART_IE7816_INITDE. */
 #define BF_UART_IE7816_INITDE(v) ((uint8_t)((uint8_t)(v) << BP_UART_IE7816_INITDE) & BM_UART_IE7816_INITDE)
 
 /*! @brief Set the INITDE field to a new value. */
-#define BW_UART_IE7816_INITDE(x, v) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_INITDE) = (v))
+#define BW_UART_IE7816_INITDE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_INITDE), v))
 /*@}*/
 
 /*!
@@ -3628,13 +3635,13 @@ typedef union _hw_uart_ie7816
 #define BS_UART_IE7816_BWTE  (1U)          /*!< Bit field size in bits for UART_IE7816_BWTE. */
 
 /*! @brief Read current value of the UART_IE7816_BWTE field. */
-#define BR_UART_IE7816_BWTE(x) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_BWTE))
+#define BR_UART_IE7816_BWTE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_BWTE)))
 
 /*! @brief Format value for bitfield UART_IE7816_BWTE. */
 #define BF_UART_IE7816_BWTE(v) ((uint8_t)((uint8_t)(v) << BP_UART_IE7816_BWTE) & BM_UART_IE7816_BWTE)
 
 /*! @brief Set the BWTE field to a new value. */
-#define BW_UART_IE7816_BWTE(x, v) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_BWTE) = (v))
+#define BW_UART_IE7816_BWTE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_BWTE), v))
 /*@}*/
 
 /*!
@@ -3651,13 +3658,13 @@ typedef union _hw_uart_ie7816
 #define BS_UART_IE7816_CWTE  (1U)          /*!< Bit field size in bits for UART_IE7816_CWTE. */
 
 /*! @brief Read current value of the UART_IE7816_CWTE field. */
-#define BR_UART_IE7816_CWTE(x) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_CWTE))
+#define BR_UART_IE7816_CWTE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_CWTE)))
 
 /*! @brief Format value for bitfield UART_IE7816_CWTE. */
 #define BF_UART_IE7816_CWTE(v) ((uint8_t)((uint8_t)(v) << BP_UART_IE7816_CWTE) & BM_UART_IE7816_CWTE)
 
 /*! @brief Set the CWTE field to a new value. */
-#define BW_UART_IE7816_CWTE(x, v) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_CWTE) = (v))
+#define BW_UART_IE7816_CWTE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_CWTE), v))
 /*@}*/
 
 /*!
@@ -3674,13 +3681,13 @@ typedef union _hw_uart_ie7816
 #define BS_UART_IE7816_WTE   (1U)          /*!< Bit field size in bits for UART_IE7816_WTE. */
 
 /*! @brief Read current value of the UART_IE7816_WTE field. */
-#define BR_UART_IE7816_WTE(x) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_WTE))
+#define BR_UART_IE7816_WTE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_WTE)))
 
 /*! @brief Format value for bitfield UART_IE7816_WTE. */
 #define BF_UART_IE7816_WTE(v) ((uint8_t)((uint8_t)(v) << BP_UART_IE7816_WTE) & BM_UART_IE7816_WTE)
 
 /*! @brief Set the WTE field to a new value. */
-#define BW_UART_IE7816_WTE(x, v) (BITBAND_ACCESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_WTE) = (v))
+#define BW_UART_IE7816_WTE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IE7816_ADDR(x), BP_UART_IE7816_WTE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -3726,8 +3733,8 @@ typedef union _hw_uart_is7816
 #define HW_UART_IS7816_ADDR(x)   ((x) + 0x1AU)
 
 #define HW_UART_IS7816(x)        (*(__IO hw_uart_is7816_t *) HW_UART_IS7816_ADDR(x))
-#define HW_UART_IS7816_RD(x)     (HW_UART_IS7816(x).U)
-#define HW_UART_IS7816_WR(x, v)  (HW_UART_IS7816(x).U = (v))
+#define HW_UART_IS7816_RD(x)     (ADDRESS_READ(hw_uart_is7816_t, HW_UART_IS7816_ADDR(x)))
+#define HW_UART_IS7816_WR(x, v)  (ADDRESS_WRITE(hw_uart_is7816_t, HW_UART_IS7816_ADDR(x), v))
 #define HW_UART_IS7816_SET(x, v) (HW_UART_IS7816_WR(x, HW_UART_IS7816_RD(x) |  (v)))
 #define HW_UART_IS7816_CLR(x, v) (HW_UART_IS7816_WR(x, HW_UART_IS7816_RD(x) & ~(v)))
 #define HW_UART_IS7816_TOG(x, v) (HW_UART_IS7816_WR(x, HW_UART_IS7816_RD(x) ^  (v)))
@@ -3763,13 +3770,13 @@ typedef union _hw_uart_is7816
 #define BS_UART_IS7816_RXT   (1U)          /*!< Bit field size in bits for UART_IS7816_RXT. */
 
 /*! @brief Read current value of the UART_IS7816_RXT field. */
-#define BR_UART_IS7816_RXT(x) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_RXT))
+#define BR_UART_IS7816_RXT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_RXT)))
 
 /*! @brief Format value for bitfield UART_IS7816_RXT. */
 #define BF_UART_IS7816_RXT(v) ((uint8_t)((uint8_t)(v) << BP_UART_IS7816_RXT) & BM_UART_IS7816_RXT)
 
 /*! @brief Set the RXT field to a new value. */
-#define BW_UART_IS7816_RXT(x, v) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_RXT) = (v))
+#define BW_UART_IS7816_RXT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_RXT), v))
 /*@}*/
 
 /*!
@@ -3795,13 +3802,13 @@ typedef union _hw_uart_is7816
 #define BS_UART_IS7816_TXT   (1U)          /*!< Bit field size in bits for UART_IS7816_TXT. */
 
 /*! @brief Read current value of the UART_IS7816_TXT field. */
-#define BR_UART_IS7816_TXT(x) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_TXT))
+#define BR_UART_IS7816_TXT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_TXT)))
 
 /*! @brief Format value for bitfield UART_IS7816_TXT. */
 #define BF_UART_IS7816_TXT(v) ((uint8_t)((uint8_t)(v) << BP_UART_IS7816_TXT) & BM_UART_IS7816_TXT)
 
 /*! @brief Set the TXT field to a new value. */
-#define BW_UART_IS7816_TXT(x, v) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_TXT) = (v))
+#define BW_UART_IS7816_TXT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_TXT), v))
 /*@}*/
 
 /*!
@@ -3820,13 +3827,13 @@ typedef union _hw_uart_is7816
 #define BS_UART_IS7816_GTV   (1U)          /*!< Bit field size in bits for UART_IS7816_GTV. */
 
 /*! @brief Read current value of the UART_IS7816_GTV field. */
-#define BR_UART_IS7816_GTV(x) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_GTV))
+#define BR_UART_IS7816_GTV(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_GTV)))
 
 /*! @brief Format value for bitfield UART_IS7816_GTV. */
 #define BF_UART_IS7816_GTV(v) ((uint8_t)((uint8_t)(v) << BP_UART_IS7816_GTV) & BM_UART_IS7816_GTV)
 
 /*! @brief Set the GTV field to a new value. */
-#define BW_UART_IS7816_GTV(x, v) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_GTV) = (v))
+#define BW_UART_IS7816_GTV(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_GTV), v))
 /*@}*/
 
 /*!
@@ -3845,13 +3852,13 @@ typedef union _hw_uart_is7816
 #define BS_UART_IS7816_INITD (1U)          /*!< Bit field size in bits for UART_IS7816_INITD. */
 
 /*! @brief Read current value of the UART_IS7816_INITD field. */
-#define BR_UART_IS7816_INITD(x) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_INITD))
+#define BR_UART_IS7816_INITD(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_INITD)))
 
 /*! @brief Format value for bitfield UART_IS7816_INITD. */
 #define BF_UART_IS7816_INITD(v) ((uint8_t)((uint8_t)(v) << BP_UART_IS7816_INITD) & BM_UART_IS7816_INITD)
 
 /*! @brief Set the INITD field to a new value. */
-#define BW_UART_IS7816_INITD(x, v) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_INITD) = (v))
+#define BW_UART_IS7816_INITD(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_INITD), v))
 /*@}*/
 
 /*!
@@ -3872,13 +3879,13 @@ typedef union _hw_uart_is7816
 #define BS_UART_IS7816_BWT   (1U)          /*!< Bit field size in bits for UART_IS7816_BWT. */
 
 /*! @brief Read current value of the UART_IS7816_BWT field. */
-#define BR_UART_IS7816_BWT(x) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_BWT))
+#define BR_UART_IS7816_BWT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_BWT)))
 
 /*! @brief Format value for bitfield UART_IS7816_BWT. */
 #define BF_UART_IS7816_BWT(v) ((uint8_t)((uint8_t)(v) << BP_UART_IS7816_BWT) & BM_UART_IS7816_BWT)
 
 /*! @brief Set the BWT field to a new value. */
-#define BW_UART_IS7816_BWT(x, v) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_BWT) = (v))
+#define BW_UART_IS7816_BWT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_BWT), v))
 /*@}*/
 
 /*!
@@ -3899,13 +3906,13 @@ typedef union _hw_uart_is7816
 #define BS_UART_IS7816_CWT   (1U)          /*!< Bit field size in bits for UART_IS7816_CWT. */
 
 /*! @brief Read current value of the UART_IS7816_CWT field. */
-#define BR_UART_IS7816_CWT(x) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_CWT))
+#define BR_UART_IS7816_CWT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_CWT)))
 
 /*! @brief Format value for bitfield UART_IS7816_CWT. */
 #define BF_UART_IS7816_CWT(v) ((uint8_t)((uint8_t)(v) << BP_UART_IS7816_CWT) & BM_UART_IS7816_CWT)
 
 /*! @brief Set the CWT field to a new value. */
-#define BW_UART_IS7816_CWT(x, v) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_CWT) = (v))
+#define BW_UART_IS7816_CWT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_CWT), v))
 /*@}*/
 
 /*!
@@ -3926,13 +3933,13 @@ typedef union _hw_uart_is7816
 #define BS_UART_IS7816_WT    (1U)          /*!< Bit field size in bits for UART_IS7816_WT. */
 
 /*! @brief Read current value of the UART_IS7816_WT field. */
-#define BR_UART_IS7816_WT(x) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_WT))
+#define BR_UART_IS7816_WT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_WT)))
 
 /*! @brief Format value for bitfield UART_IS7816_WT. */
 #define BF_UART_IS7816_WT(v) ((uint8_t)((uint8_t)(v) << BP_UART_IS7816_WT) & BM_UART_IS7816_WT)
 
 /*! @brief Set the WT field to a new value. */
-#define BW_UART_IS7816_WT(x, v) (BITBAND_ACCESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_WT) = (v))
+#define BW_UART_IS7816_WT(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_UART_IS7816_ADDR(x), BP_UART_IS7816_WT), v))
 /*@}*/
 
 /*******************************************************************************
@@ -3965,8 +3972,8 @@ typedef union _hw_uart_wp7816t0
 #define HW_UART_WP7816T0_ADDR(x) ((x) + 0x1BU)
 
 #define HW_UART_WP7816T0(x)      (*(__IO hw_uart_wp7816t0_t *) HW_UART_WP7816T0_ADDR(x))
-#define HW_UART_WP7816T0_RD(x)   (HW_UART_WP7816T0(x).U)
-#define HW_UART_WP7816T0_WR(x, v) (HW_UART_WP7816T0(x).U = (v))
+#define HW_UART_WP7816T0_RD(x)   (ADDRESS_READ(hw_uart_wp7816t0_t, HW_UART_WP7816T0_ADDR(x)))
+#define HW_UART_WP7816T0_WR(x, v) (ADDRESS_WRITE(hw_uart_wp7816t0_t, HW_UART_WP7816T0_ADDR(x), v))
 #define HW_UART_WP7816T0_SET(x, v) (HW_UART_WP7816T0_WR(x, HW_UART_WP7816T0_RD(x) |  (v)))
 #define HW_UART_WP7816T0_CLR(x, v) (HW_UART_WP7816T0_WR(x, HW_UART_WP7816T0_RD(x) & ~(v)))
 #define HW_UART_WP7816T0_TOG(x, v) (HW_UART_WP7816T0_WR(x, HW_UART_WP7816T0_RD(x) ^  (v)))
@@ -4030,8 +4037,8 @@ typedef union _hw_uart_wp7816t1
 #define HW_UART_WP7816T1_ADDR(x) ((x) + 0x1BU)
 
 #define HW_UART_WP7816T1(x)      (*(__IO hw_uart_wp7816t1_t *) HW_UART_WP7816T1_ADDR(x))
-#define HW_UART_WP7816T1_RD(x)   (HW_UART_WP7816T1(x).U)
-#define HW_UART_WP7816T1_WR(x, v) (HW_UART_WP7816T1(x).U = (v))
+#define HW_UART_WP7816T1_RD(x)   (ADDRESS_READ(hw_uart_wp7816t1_t, HW_UART_WP7816T1_ADDR(x)))
+#define HW_UART_WP7816T1_WR(x, v) (ADDRESS_WRITE(hw_uart_wp7816t1_t, HW_UART_WP7816T1_ADDR(x), v))
 #define HW_UART_WP7816T1_SET(x, v) (HW_UART_WP7816T1_WR(x, HW_UART_WP7816T1_RD(x) |  (v)))
 #define HW_UART_WP7816T1_CLR(x, v) (HW_UART_WP7816T1_WR(x, HW_UART_WP7816T1_RD(x) & ~(v)))
 #define HW_UART_WP7816T1_TOG(x, v) (HW_UART_WP7816T1_WR(x, HW_UART_WP7816T1_RD(x) ^  (v)))
@@ -4054,7 +4061,7 @@ typedef union _hw_uart_wp7816t1
 #define BS_UART_WP7816T1_BWI (4U)          /*!< Bit field size in bits for UART_WP7816T1_BWI. */
 
 /*! @brief Read current value of the UART_WP7816T1_BWI field. */
-#define BR_UART_WP7816T1_BWI(x) (HW_UART_WP7816T1(x).B.BWI)
+#define BR_UART_WP7816T1_BWI(x) (UNION_READ(hw_uart_wp7816t1_t, HW_UART_WP7816T1_ADDR(x), U, B.BWI))
 
 /*! @brief Format value for bitfield UART_WP7816T1_BWI. */
 #define BF_UART_WP7816T1_BWI(v) ((uint8_t)((uint8_t)(v) << BP_UART_WP7816T1_BWI) & BM_UART_WP7816T1_BWI)
@@ -4076,7 +4083,7 @@ typedef union _hw_uart_wp7816t1
 #define BS_UART_WP7816T1_CWI (4U)          /*!< Bit field size in bits for UART_WP7816T1_CWI. */
 
 /*! @brief Read current value of the UART_WP7816T1_CWI field. */
-#define BR_UART_WP7816T1_CWI(x) (HW_UART_WP7816T1(x).B.CWI)
+#define BR_UART_WP7816T1_CWI(x) (UNION_READ(hw_uart_wp7816t1_t, HW_UART_WP7816T1_ADDR(x), U, B.CWI))
 
 /*! @brief Format value for bitfield UART_WP7816T1_CWI. */
 #define BF_UART_WP7816T1_CWI(v) ((uint8_t)((uint8_t)(v) << BP_UART_WP7816T1_CWI) & BM_UART_WP7816T1_CWI)
@@ -4114,8 +4121,8 @@ typedef union _hw_uart_wn7816
 #define HW_UART_WN7816_ADDR(x)   ((x) + 0x1CU)
 
 #define HW_UART_WN7816(x)        (*(__IO hw_uart_wn7816_t *) HW_UART_WN7816_ADDR(x))
-#define HW_UART_WN7816_RD(x)     (HW_UART_WN7816(x).U)
-#define HW_UART_WN7816_WR(x, v)  (HW_UART_WN7816(x).U = (v))
+#define HW_UART_WN7816_RD(x)     (ADDRESS_READ(hw_uart_wn7816_t, HW_UART_WN7816_ADDR(x)))
+#define HW_UART_WN7816_WR(x, v)  (ADDRESS_WRITE(hw_uart_wn7816_t, HW_UART_WN7816_ADDR(x), v))
 #define HW_UART_WN7816_SET(x, v) (HW_UART_WN7816_WR(x, HW_UART_WN7816_RD(x) |  (v)))
 #define HW_UART_WN7816_CLR(x, v) (HW_UART_WN7816_WR(x, HW_UART_WN7816_RD(x) & ~(v)))
 #define HW_UART_WN7816_TOG(x, v) (HW_UART_WN7816_WR(x, HW_UART_WN7816_RD(x) ^  (v)))
@@ -4176,8 +4183,8 @@ typedef union _hw_uart_wf7816
 #define HW_UART_WF7816_ADDR(x)   ((x) + 0x1DU)
 
 #define HW_UART_WF7816(x)        (*(__IO hw_uart_wf7816_t *) HW_UART_WF7816_ADDR(x))
-#define HW_UART_WF7816_RD(x)     (HW_UART_WF7816(x).U)
-#define HW_UART_WF7816_WR(x, v)  (HW_UART_WF7816(x).U = (v))
+#define HW_UART_WF7816_RD(x)     (ADDRESS_READ(hw_uart_wf7816_t, HW_UART_WF7816_ADDR(x)))
+#define HW_UART_WF7816_WR(x, v)  (ADDRESS_WRITE(hw_uart_wf7816_t, HW_UART_WF7816_ADDR(x), v))
 #define HW_UART_WF7816_SET(x, v) (HW_UART_WF7816_WR(x, HW_UART_WF7816_RD(x) |  (v)))
 #define HW_UART_WF7816_CLR(x, v) (HW_UART_WF7816_WR(x, HW_UART_WF7816_RD(x) & ~(v)))
 #define HW_UART_WF7816_TOG(x, v) (HW_UART_WF7816_WR(x, HW_UART_WF7816_RD(x) ^  (v)))
@@ -4241,8 +4248,8 @@ typedef union _hw_uart_et7816
 #define HW_UART_ET7816_ADDR(x)   ((x) + 0x1EU)
 
 #define HW_UART_ET7816(x)        (*(__IO hw_uart_et7816_t *) HW_UART_ET7816_ADDR(x))
-#define HW_UART_ET7816_RD(x)     (HW_UART_ET7816(x).U)
-#define HW_UART_ET7816_WR(x, v)  (HW_UART_ET7816(x).U = (v))
+#define HW_UART_ET7816_RD(x)     (ADDRESS_READ(hw_uart_et7816_t, HW_UART_ET7816_ADDR(x)))
+#define HW_UART_ET7816_WR(x, v)  (ADDRESS_WRITE(hw_uart_et7816_t, HW_UART_ET7816_ADDR(x), v))
 #define HW_UART_ET7816_SET(x, v) (HW_UART_ET7816_WR(x, HW_UART_ET7816_RD(x) |  (v)))
 #define HW_UART_ET7816_CLR(x, v) (HW_UART_ET7816_WR(x, HW_UART_ET7816_RD(x) & ~(v)))
 #define HW_UART_ET7816_TOG(x, v) (HW_UART_ET7816_WR(x, HW_UART_ET7816_RD(x) ^  (v)))
@@ -4271,7 +4278,7 @@ typedef union _hw_uart_et7816
 #define BS_UART_ET7816_RXTHRESHOLD (4U)    /*!< Bit field size in bits for UART_ET7816_RXTHRESHOLD. */
 
 /*! @brief Read current value of the UART_ET7816_RXTHRESHOLD field. */
-#define BR_UART_ET7816_RXTHRESHOLD(x) (HW_UART_ET7816(x).B.RXTHRESHOLD)
+#define BR_UART_ET7816_RXTHRESHOLD(x) (UNION_READ(hw_uart_et7816_t, HW_UART_ET7816_ADDR(x), U, B.RXTHRESHOLD))
 
 /*! @brief Format value for bitfield UART_ET7816_RXTHRESHOLD. */
 #define BF_UART_ET7816_RXTHRESHOLD(v) ((uint8_t)((uint8_t)(v) << BP_UART_ET7816_RXTHRESHOLD) & BM_UART_ET7816_RXTHRESHOLD)
@@ -4303,7 +4310,7 @@ typedef union _hw_uart_et7816
 #define BS_UART_ET7816_TXTHRESHOLD (4U)    /*!< Bit field size in bits for UART_ET7816_TXTHRESHOLD. */
 
 /*! @brief Read current value of the UART_ET7816_TXTHRESHOLD field. */
-#define BR_UART_ET7816_TXTHRESHOLD(x) (HW_UART_ET7816(x).B.TXTHRESHOLD)
+#define BR_UART_ET7816_TXTHRESHOLD(x) (UNION_READ(hw_uart_et7816_t, HW_UART_ET7816_ADDR(x), U, B.TXTHRESHOLD))
 
 /*! @brief Format value for bitfield UART_ET7816_TXTHRESHOLD. */
 #define BF_UART_ET7816_TXTHRESHOLD(v) ((uint8_t)((uint8_t)(v) << BP_UART_ET7816_TXTHRESHOLD) & BM_UART_ET7816_TXTHRESHOLD)
@@ -4342,8 +4349,8 @@ typedef union _hw_uart_tl7816
 #define HW_UART_TL7816_ADDR(x)   ((x) + 0x1FU)
 
 #define HW_UART_TL7816(x)        (*(__IO hw_uart_tl7816_t *) HW_UART_TL7816_ADDR(x))
-#define HW_UART_TL7816_RD(x)     (HW_UART_TL7816(x).U)
-#define HW_UART_TL7816_WR(x, v)  (HW_UART_TL7816(x).U = (v))
+#define HW_UART_TL7816_RD(x)     (ADDRESS_READ(hw_uart_tl7816_t, HW_UART_TL7816_ADDR(x)))
+#define HW_UART_TL7816_WR(x, v)  (ADDRESS_WRITE(hw_uart_tl7816_t, HW_UART_TL7816_ADDR(x), v))
 #define HW_UART_TL7816_SET(x, v) (HW_UART_TL7816_WR(x, HW_UART_TL7816_RD(x) |  (v)))
 #define HW_UART_TL7816_CLR(x, v) (HW_UART_TL7816_WR(x, HW_UART_TL7816_RD(x) & ~(v)))
 #define HW_UART_TL7816_TOG(x, v) (HW_UART_TL7816_WR(x, HW_UART_TL7816_RD(x) ^  (v)))

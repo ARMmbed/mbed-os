@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -132,8 +139,8 @@ typedef union _hw_ewm_ctrl
 #define HW_EWM_CTRL_ADDR(x)      ((x) + 0x0U)
 
 #define HW_EWM_CTRL(x)           (*(__IO hw_ewm_ctrl_t *) HW_EWM_CTRL_ADDR(x))
-#define HW_EWM_CTRL_RD(x)        (HW_EWM_CTRL(x).U)
-#define HW_EWM_CTRL_WR(x, v)     (HW_EWM_CTRL(x).U = (v))
+#define HW_EWM_CTRL_RD(x)        (ADDRESS_READ(hw_ewm_ctrl_t, HW_EWM_CTRL_ADDR(x)))
+#define HW_EWM_CTRL_WR(x, v)     (ADDRESS_WRITE(hw_ewm_ctrl_t, HW_EWM_CTRL_ADDR(x), v))
 #define HW_EWM_CTRL_SET(x, v)    (HW_EWM_CTRL_WR(x, HW_EWM_CTRL_RD(x) |  (v)))
 #define HW_EWM_CTRL_CLR(x, v)    (HW_EWM_CTRL_WR(x, HW_EWM_CTRL_RD(x) & ~(v)))
 #define HW_EWM_CTRL_TOG(x, v)    (HW_EWM_CTRL_WR(x, HW_EWM_CTRL_RD(x) ^  (v)))
@@ -157,13 +164,13 @@ typedef union _hw_ewm_ctrl
 #define BS_EWM_CTRL_EWMEN    (1U)          /*!< Bit field size in bits for EWM_CTRL_EWMEN. */
 
 /*! @brief Read current value of the EWM_CTRL_EWMEN field. */
-#define BR_EWM_CTRL_EWMEN(x) (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_EWMEN))
+#define BR_EWM_CTRL_EWMEN(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_EWMEN)))
 
 /*! @brief Format value for bitfield EWM_CTRL_EWMEN. */
 #define BF_EWM_CTRL_EWMEN(v) ((uint8_t)((uint8_t)(v) << BP_EWM_CTRL_EWMEN) & BM_EWM_CTRL_EWMEN)
 
 /*! @brief Set the EWMEN field to a new value. */
-#define BW_EWM_CTRL_EWMEN(x, v) (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_EWMEN) = (v))
+#define BW_EWM_CTRL_EWMEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_EWMEN), v))
 /*@}*/
 
 /*!
@@ -178,13 +185,13 @@ typedef union _hw_ewm_ctrl
 #define BS_EWM_CTRL_ASSIN    (1U)          /*!< Bit field size in bits for EWM_CTRL_ASSIN. */
 
 /*! @brief Read current value of the EWM_CTRL_ASSIN field. */
-#define BR_EWM_CTRL_ASSIN(x) (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_ASSIN))
+#define BR_EWM_CTRL_ASSIN(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_ASSIN)))
 
 /*! @brief Format value for bitfield EWM_CTRL_ASSIN. */
 #define BF_EWM_CTRL_ASSIN(v) ((uint8_t)((uint8_t)(v) << BP_EWM_CTRL_ASSIN) & BM_EWM_CTRL_ASSIN)
 
 /*! @brief Set the ASSIN field to a new value. */
-#define BW_EWM_CTRL_ASSIN(x, v) (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_ASSIN) = (v))
+#define BW_EWM_CTRL_ASSIN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_ASSIN), v))
 /*@}*/
 
 /*!
@@ -198,13 +205,13 @@ typedef union _hw_ewm_ctrl
 #define BS_EWM_CTRL_INEN     (1U)          /*!< Bit field size in bits for EWM_CTRL_INEN. */
 
 /*! @brief Read current value of the EWM_CTRL_INEN field. */
-#define BR_EWM_CTRL_INEN(x)  (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INEN))
+#define BR_EWM_CTRL_INEN(x)  (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INEN)))
 
 /*! @brief Format value for bitfield EWM_CTRL_INEN. */
 #define BF_EWM_CTRL_INEN(v)  ((uint8_t)((uint8_t)(v) << BP_EWM_CTRL_INEN) & BM_EWM_CTRL_INEN)
 
 /*! @brief Set the INEN field to a new value. */
-#define BW_EWM_CTRL_INEN(x, v) (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INEN) = (v))
+#define BW_EWM_CTRL_INEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INEN), v))
 /*@}*/
 
 /*!
@@ -219,13 +226,13 @@ typedef union _hw_ewm_ctrl
 #define BS_EWM_CTRL_INTEN    (1U)          /*!< Bit field size in bits for EWM_CTRL_INTEN. */
 
 /*! @brief Read current value of the EWM_CTRL_INTEN field. */
-#define BR_EWM_CTRL_INTEN(x) (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INTEN))
+#define BR_EWM_CTRL_INTEN(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INTEN)))
 
 /*! @brief Format value for bitfield EWM_CTRL_INTEN. */
 #define BF_EWM_CTRL_INTEN(v) ((uint8_t)((uint8_t)(v) << BP_EWM_CTRL_INTEN) & BM_EWM_CTRL_INTEN)
 
 /*! @brief Set the INTEN field to a new value. */
-#define BW_EWM_CTRL_INTEN(x, v) (BITBAND_ACCESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INTEN) = (v))
+#define BW_EWM_CTRL_INTEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_EWM_CTRL_ADDR(x), BP_EWM_CTRL_INTEN), v))
 /*@}*/
 
 /*******************************************************************************
@@ -256,8 +263,8 @@ typedef union _hw_ewm_serv
 #define HW_EWM_SERV_ADDR(x)      ((x) + 0x1U)
 
 #define HW_EWM_SERV(x)           (*(__O hw_ewm_serv_t *) HW_EWM_SERV_ADDR(x))
-#define HW_EWM_SERV_RD(x)        (HW_EWM_SERV(x).U)
-#define HW_EWM_SERV_WR(x, v)     (HW_EWM_SERV(x).U = (v))
+#define HW_EWM_SERV_RD(x)        (ADDRESS_READ(hw_ewm_serv_t, HW_EWM_SERV_ADDR(x)))
+#define HW_EWM_SERV_WR(x, v)     (ADDRESS_WRITE(hw_ewm_serv_t, HW_EWM_SERV_ADDR(x), v))
 /*@}*/
 
 /*
@@ -316,8 +323,8 @@ typedef union _hw_ewm_cmpl
 #define HW_EWM_CMPL_ADDR(x)      ((x) + 0x2U)
 
 #define HW_EWM_CMPL(x)           (*(__IO hw_ewm_cmpl_t *) HW_EWM_CMPL_ADDR(x))
-#define HW_EWM_CMPL_RD(x)        (HW_EWM_CMPL(x).U)
-#define HW_EWM_CMPL_WR(x, v)     (HW_EWM_CMPL(x).U = (v))
+#define HW_EWM_CMPL_RD(x)        (ADDRESS_READ(hw_ewm_cmpl_t, HW_EWM_CMPL_ADDR(x)))
+#define HW_EWM_CMPL_WR(x, v)     (ADDRESS_WRITE(hw_ewm_cmpl_t, HW_EWM_CMPL_ADDR(x), v))
 #define HW_EWM_CMPL_SET(x, v)    (HW_EWM_CMPL_WR(x, HW_EWM_CMPL_RD(x) |  (v)))
 #define HW_EWM_CMPL_CLR(x, v)    (HW_EWM_CMPL_WR(x, HW_EWM_CMPL_RD(x) & ~(v)))
 #define HW_EWM_CMPL_TOG(x, v)    (HW_EWM_CMPL_WR(x, HW_EWM_CMPL_RD(x) ^  (v)))
@@ -381,8 +388,8 @@ typedef union _hw_ewm_cmph
 #define HW_EWM_CMPH_ADDR(x)      ((x) + 0x3U)
 
 #define HW_EWM_CMPH(x)           (*(__IO hw_ewm_cmph_t *) HW_EWM_CMPH_ADDR(x))
-#define HW_EWM_CMPH_RD(x)        (HW_EWM_CMPH(x).U)
-#define HW_EWM_CMPH_WR(x, v)     (HW_EWM_CMPH(x).U = (v))
+#define HW_EWM_CMPH_RD(x)        (ADDRESS_READ(hw_ewm_cmph_t, HW_EWM_CMPH_ADDR(x)))
+#define HW_EWM_CMPH_WR(x, v)     (ADDRESS_WRITE(hw_ewm_cmph_t, HW_EWM_CMPH_ADDR(x), v))
 #define HW_EWM_CMPH_SET(x, v)    (HW_EWM_CMPH_WR(x, HW_EWM_CMPH_RD(x) |  (v)))
 #define HW_EWM_CMPH_CLR(x, v)    (HW_EWM_CMPH_WR(x, HW_EWM_CMPH_RD(x) & ~(v)))
 #define HW_EWM_CMPH_TOG(x, v)    (HW_EWM_CMPH_WR(x, HW_EWM_CMPH_RD(x) ^  (v)))

@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -140,8 +147,8 @@ typedef union _hw_pmc_lvdsc1
 #define HW_PMC_LVDSC1_ADDR(x)    ((x) + 0x0U)
 
 #define HW_PMC_LVDSC1(x)         (*(__IO hw_pmc_lvdsc1_t *) HW_PMC_LVDSC1_ADDR(x))
-#define HW_PMC_LVDSC1_RD(x)      (HW_PMC_LVDSC1(x).U)
-#define HW_PMC_LVDSC1_WR(x, v)   (HW_PMC_LVDSC1(x).U = (v))
+#define HW_PMC_LVDSC1_RD(x)      (ADDRESS_READ(hw_pmc_lvdsc1_t, HW_PMC_LVDSC1_ADDR(x)))
+#define HW_PMC_LVDSC1_WR(x, v)   (ADDRESS_WRITE(hw_pmc_lvdsc1_t, HW_PMC_LVDSC1_ADDR(x), v))
 #define HW_PMC_LVDSC1_SET(x, v)  (HW_PMC_LVDSC1_WR(x, HW_PMC_LVDSC1_RD(x) |  (v)))
 #define HW_PMC_LVDSC1_CLR(x, v)  (HW_PMC_LVDSC1_WR(x, HW_PMC_LVDSC1_RD(x) & ~(v)))
 #define HW_PMC_LVDSC1_TOG(x, v)  (HW_PMC_LVDSC1_WR(x, HW_PMC_LVDSC1_RD(x) ^  (v)))
@@ -168,7 +175,7 @@ typedef union _hw_pmc_lvdsc1
 #define BS_PMC_LVDSC1_LVDV   (2U)          /*!< Bit field size in bits for PMC_LVDSC1_LVDV. */
 
 /*! @brief Read current value of the PMC_LVDSC1_LVDV field. */
-#define BR_PMC_LVDSC1_LVDV(x) (HW_PMC_LVDSC1(x).B.LVDV)
+#define BR_PMC_LVDSC1_LVDV(x) (UNION_READ(hw_pmc_lvdsc1_t, HW_PMC_LVDSC1_ADDR(x), U, B.LVDV))
 
 /*! @brief Format value for bitfield PMC_LVDSC1_LVDV. */
 #define BF_PMC_LVDSC1_LVDV(v) ((uint8_t)((uint8_t)(v) << BP_PMC_LVDSC1_LVDV) & BM_PMC_LVDSC1_LVDV)
@@ -193,13 +200,13 @@ typedef union _hw_pmc_lvdsc1
 #define BS_PMC_LVDSC1_LVDRE  (1U)          /*!< Bit field size in bits for PMC_LVDSC1_LVDRE. */
 
 /*! @brief Read current value of the PMC_LVDSC1_LVDRE field. */
-#define BR_PMC_LVDSC1_LVDRE(x) (BITBAND_ACCESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDRE))
+#define BR_PMC_LVDSC1_LVDRE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDRE)))
 
 /*! @brief Format value for bitfield PMC_LVDSC1_LVDRE. */
 #define BF_PMC_LVDSC1_LVDRE(v) ((uint8_t)((uint8_t)(v) << BP_PMC_LVDSC1_LVDRE) & BM_PMC_LVDSC1_LVDRE)
 
 /*! @brief Set the LVDRE field to a new value. */
-#define BW_PMC_LVDSC1_LVDRE(x, v) (BITBAND_ACCESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDRE) = (v))
+#define BW_PMC_LVDSC1_LVDRE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDRE), v))
 /*@}*/
 
 /*!
@@ -217,13 +224,13 @@ typedef union _hw_pmc_lvdsc1
 #define BS_PMC_LVDSC1_LVDIE  (1U)          /*!< Bit field size in bits for PMC_LVDSC1_LVDIE. */
 
 /*! @brief Read current value of the PMC_LVDSC1_LVDIE field. */
-#define BR_PMC_LVDSC1_LVDIE(x) (BITBAND_ACCESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDIE))
+#define BR_PMC_LVDSC1_LVDIE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDIE)))
 
 /*! @brief Format value for bitfield PMC_LVDSC1_LVDIE. */
 #define BF_PMC_LVDSC1_LVDIE(v) ((uint8_t)((uint8_t)(v) << BP_PMC_LVDSC1_LVDIE) & BM_PMC_LVDSC1_LVDIE)
 
 /*! @brief Set the LVDIE field to a new value. */
-#define BW_PMC_LVDSC1_LVDIE(x, v) (BITBAND_ACCESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDIE) = (v))
+#define BW_PMC_LVDSC1_LVDIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDIE), v))
 /*@}*/
 
 /*!
@@ -241,7 +248,7 @@ typedef union _hw_pmc_lvdsc1
 #define BF_PMC_LVDSC1_LVDACK(v) ((uint8_t)((uint8_t)(v) << BP_PMC_LVDSC1_LVDACK) & BM_PMC_LVDSC1_LVDACK)
 
 /*! @brief Set the LVDACK field to a new value. */
-#define BW_PMC_LVDSC1_LVDACK(x, v) (BITBAND_ACCESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDACK) = (v))
+#define BW_PMC_LVDSC1_LVDACK(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDACK), v))
 /*@}*/
 
 /*!
@@ -259,7 +266,7 @@ typedef union _hw_pmc_lvdsc1
 #define BS_PMC_LVDSC1_LVDF   (1U)          /*!< Bit field size in bits for PMC_LVDSC1_LVDF. */
 
 /*! @brief Read current value of the PMC_LVDSC1_LVDF field. */
-#define BR_PMC_LVDSC1_LVDF(x) (BITBAND_ACCESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDF))
+#define BR_PMC_LVDSC1_LVDF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC1_ADDR(x), BP_PMC_LVDSC1_LVDF)))
 /*@}*/
 
 /*******************************************************************************
@@ -299,8 +306,8 @@ typedef union _hw_pmc_lvdsc2
 #define HW_PMC_LVDSC2_ADDR(x)    ((x) + 0x1U)
 
 #define HW_PMC_LVDSC2(x)         (*(__IO hw_pmc_lvdsc2_t *) HW_PMC_LVDSC2_ADDR(x))
-#define HW_PMC_LVDSC2_RD(x)      (HW_PMC_LVDSC2(x).U)
-#define HW_PMC_LVDSC2_WR(x, v)   (HW_PMC_LVDSC2(x).U = (v))
+#define HW_PMC_LVDSC2_RD(x)      (ADDRESS_READ(hw_pmc_lvdsc2_t, HW_PMC_LVDSC2_ADDR(x)))
+#define HW_PMC_LVDSC2_WR(x, v)   (ADDRESS_WRITE(hw_pmc_lvdsc2_t, HW_PMC_LVDSC2_ADDR(x), v))
 #define HW_PMC_LVDSC2_SET(x, v)  (HW_PMC_LVDSC2_WR(x, HW_PMC_LVDSC2_RD(x) |  (v)))
 #define HW_PMC_LVDSC2_CLR(x, v)  (HW_PMC_LVDSC2_WR(x, HW_PMC_LVDSC2_RD(x) & ~(v)))
 #define HW_PMC_LVDSC2_TOG(x, v)  (HW_PMC_LVDSC2_WR(x, HW_PMC_LVDSC2_RD(x) ^  (v)))
@@ -328,7 +335,7 @@ typedef union _hw_pmc_lvdsc2
 #define BS_PMC_LVDSC2_LVWV   (2U)          /*!< Bit field size in bits for PMC_LVDSC2_LVWV. */
 
 /*! @brief Read current value of the PMC_LVDSC2_LVWV field. */
-#define BR_PMC_LVDSC2_LVWV(x) (HW_PMC_LVDSC2(x).B.LVWV)
+#define BR_PMC_LVDSC2_LVWV(x) (UNION_READ(hw_pmc_lvdsc2_t, HW_PMC_LVDSC2_ADDR(x), U, B.LVWV))
 
 /*! @brief Format value for bitfield PMC_LVDSC2_LVWV. */
 #define BF_PMC_LVDSC2_LVWV(v) ((uint8_t)((uint8_t)(v) << BP_PMC_LVDSC2_LVWV) & BM_PMC_LVDSC2_LVWV)
@@ -352,13 +359,13 @@ typedef union _hw_pmc_lvdsc2
 #define BS_PMC_LVDSC2_LVWIE  (1U)          /*!< Bit field size in bits for PMC_LVDSC2_LVWIE. */
 
 /*! @brief Read current value of the PMC_LVDSC2_LVWIE field. */
-#define BR_PMC_LVDSC2_LVWIE(x) (BITBAND_ACCESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWIE))
+#define BR_PMC_LVDSC2_LVWIE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWIE)))
 
 /*! @brief Format value for bitfield PMC_LVDSC2_LVWIE. */
 #define BF_PMC_LVDSC2_LVWIE(v) ((uint8_t)((uint8_t)(v) << BP_PMC_LVDSC2_LVWIE) & BM_PMC_LVDSC2_LVWIE)
 
 /*! @brief Set the LVWIE field to a new value. */
-#define BW_PMC_LVDSC2_LVWIE(x, v) (BITBAND_ACCESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWIE) = (v))
+#define BW_PMC_LVDSC2_LVWIE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWIE), v))
 /*@}*/
 
 /*!
@@ -376,7 +383,7 @@ typedef union _hw_pmc_lvdsc2
 #define BF_PMC_LVDSC2_LVWACK(v) ((uint8_t)((uint8_t)(v) << BP_PMC_LVDSC2_LVWACK) & BM_PMC_LVDSC2_LVWACK)
 
 /*! @brief Set the LVWACK field to a new value. */
-#define BW_PMC_LVDSC2_LVWACK(x, v) (BITBAND_ACCESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWACK) = (v))
+#define BW_PMC_LVDSC2_LVWACK(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWACK), v))
 /*@}*/
 
 /*!
@@ -398,7 +405,7 @@ typedef union _hw_pmc_lvdsc2
 #define BS_PMC_LVDSC2_LVWF   (1U)          /*!< Bit field size in bits for PMC_LVDSC2_LVWF. */
 
 /*! @brief Read current value of the PMC_LVDSC2_LVWF field. */
-#define BR_PMC_LVDSC2_LVWF(x) (BITBAND_ACCESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWF))
+#define BR_PMC_LVDSC2_LVWF(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_LVDSC2_ADDR(x), BP_PMC_LVDSC2_LVWF)))
 /*@}*/
 
 /*******************************************************************************
@@ -438,8 +445,8 @@ typedef union _hw_pmc_regsc
 #define HW_PMC_REGSC_ADDR(x)     ((x) + 0x2U)
 
 #define HW_PMC_REGSC(x)          (*(__IO hw_pmc_regsc_t *) HW_PMC_REGSC_ADDR(x))
-#define HW_PMC_REGSC_RD(x)       (HW_PMC_REGSC(x).U)
-#define HW_PMC_REGSC_WR(x, v)    (HW_PMC_REGSC(x).U = (v))
+#define HW_PMC_REGSC_RD(x)       (ADDRESS_READ(hw_pmc_regsc_t, HW_PMC_REGSC_ADDR(x)))
+#define HW_PMC_REGSC_WR(x, v)    (ADDRESS_WRITE(hw_pmc_regsc_t, HW_PMC_REGSC_ADDR(x), v))
 #define HW_PMC_REGSC_SET(x, v)   (HW_PMC_REGSC_WR(x, HW_PMC_REGSC_RD(x) |  (v)))
 #define HW_PMC_REGSC_CLR(x, v)   (HW_PMC_REGSC_WR(x, HW_PMC_REGSC_RD(x) & ~(v)))
 #define HW_PMC_REGSC_TOG(x, v)   (HW_PMC_REGSC_WR(x, HW_PMC_REGSC_RD(x) ^  (v)))
@@ -464,13 +471,13 @@ typedef union _hw_pmc_regsc
 #define BS_PMC_REGSC_BGBE    (1U)          /*!< Bit field size in bits for PMC_REGSC_BGBE. */
 
 /*! @brief Read current value of the PMC_REGSC_BGBE field. */
-#define BR_PMC_REGSC_BGBE(x) (BITBAND_ACCESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGBE))
+#define BR_PMC_REGSC_BGBE(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGBE)))
 
 /*! @brief Format value for bitfield PMC_REGSC_BGBE. */
 #define BF_PMC_REGSC_BGBE(v) ((uint8_t)((uint8_t)(v) << BP_PMC_REGSC_BGBE) & BM_PMC_REGSC_BGBE)
 
 /*! @brief Set the BGBE field to a new value. */
-#define BW_PMC_REGSC_BGBE(x, v) (BITBAND_ACCESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGBE) = (v))
+#define BW_PMC_REGSC_BGBE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGBE), v))
 /*@}*/
 
 /*!
@@ -489,7 +496,7 @@ typedef union _hw_pmc_regsc
 #define BS_PMC_REGSC_REGONS  (1U)          /*!< Bit field size in bits for PMC_REGSC_REGONS. */
 
 /*! @brief Read current value of the PMC_REGSC_REGONS field. */
-#define BR_PMC_REGSC_REGONS(x) (BITBAND_ACCESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_REGONS))
+#define BR_PMC_REGSC_REGONS(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_REGONS)))
 /*@}*/
 
 /*!
@@ -513,13 +520,13 @@ typedef union _hw_pmc_regsc
 #define BS_PMC_REGSC_ACKISO  (1U)          /*!< Bit field size in bits for PMC_REGSC_ACKISO. */
 
 /*! @brief Read current value of the PMC_REGSC_ACKISO field. */
-#define BR_PMC_REGSC_ACKISO(x) (BITBAND_ACCESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_ACKISO))
+#define BR_PMC_REGSC_ACKISO(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_ACKISO)))
 
 /*! @brief Format value for bitfield PMC_REGSC_ACKISO. */
 #define BF_PMC_REGSC_ACKISO(v) ((uint8_t)((uint8_t)(v) << BP_PMC_REGSC_ACKISO) & BM_PMC_REGSC_ACKISO)
 
 /*! @brief Set the ACKISO field to a new value. */
-#define BW_PMC_REGSC_ACKISO(x, v) (BITBAND_ACCESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_ACKISO) = (v))
+#define BW_PMC_REGSC_ACKISO(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_ACKISO), v))
 /*@}*/
 
 /*!
@@ -541,13 +548,13 @@ typedef union _hw_pmc_regsc
 #define BS_PMC_REGSC_BGEN    (1U)          /*!< Bit field size in bits for PMC_REGSC_BGEN. */
 
 /*! @brief Read current value of the PMC_REGSC_BGEN field. */
-#define BR_PMC_REGSC_BGEN(x) (BITBAND_ACCESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGEN))
+#define BR_PMC_REGSC_BGEN(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGEN)))
 
 /*! @brief Format value for bitfield PMC_REGSC_BGEN. */
 #define BF_PMC_REGSC_BGEN(v) ((uint8_t)((uint8_t)(v) << BP_PMC_REGSC_BGEN) & BM_PMC_REGSC_BGEN)
 
 /*! @brief Set the BGEN field to a new value. */
-#define BW_PMC_REGSC_BGEN(x, v) (BITBAND_ACCESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGEN) = (v))
+#define BW_PMC_REGSC_BGEN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_PMC_REGSC_ADDR(x), BP_PMC_REGSC_BGEN), v))
 /*@}*/
 
 /*******************************************************************************

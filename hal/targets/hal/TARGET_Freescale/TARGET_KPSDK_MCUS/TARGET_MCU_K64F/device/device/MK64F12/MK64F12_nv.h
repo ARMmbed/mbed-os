@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -136,7 +143,7 @@ typedef union _hw_nv_backkey3
 #define HW_NV_BACKKEY3_ADDR(x)   ((x) + 0x0U)
 
 #define HW_NV_BACKKEY3(x)        (*(__I hw_nv_backkey3_t *) HW_NV_BACKKEY3_ADDR(x))
-#define HW_NV_BACKKEY3_RD(x)     (HW_NV_BACKKEY3(x).U)
+#define HW_NV_BACKKEY3_RD(x)     (ADDRESS_READ(hw_nv_backkey3_t, HW_NV_BACKKEY3_ADDR(x)))
 /*@}*/
 
 /*
@@ -180,7 +187,7 @@ typedef union _hw_nv_backkey2
 #define HW_NV_BACKKEY2_ADDR(x)   ((x) + 0x1U)
 
 #define HW_NV_BACKKEY2(x)        (*(__I hw_nv_backkey2_t *) HW_NV_BACKKEY2_ADDR(x))
-#define HW_NV_BACKKEY2_RD(x)     (HW_NV_BACKKEY2(x).U)
+#define HW_NV_BACKKEY2_RD(x)     (ADDRESS_READ(hw_nv_backkey2_t, HW_NV_BACKKEY2_ADDR(x)))
 /*@}*/
 
 /*
@@ -224,7 +231,7 @@ typedef union _hw_nv_backkey1
 #define HW_NV_BACKKEY1_ADDR(x)   ((x) + 0x2U)
 
 #define HW_NV_BACKKEY1(x)        (*(__I hw_nv_backkey1_t *) HW_NV_BACKKEY1_ADDR(x))
-#define HW_NV_BACKKEY1_RD(x)     (HW_NV_BACKKEY1(x).U)
+#define HW_NV_BACKKEY1_RD(x)     (ADDRESS_READ(hw_nv_backkey1_t, HW_NV_BACKKEY1_ADDR(x)))
 /*@}*/
 
 /*
@@ -268,7 +275,7 @@ typedef union _hw_nv_backkey0
 #define HW_NV_BACKKEY0_ADDR(x)   ((x) + 0x3U)
 
 #define HW_NV_BACKKEY0(x)        (*(__I hw_nv_backkey0_t *) HW_NV_BACKKEY0_ADDR(x))
-#define HW_NV_BACKKEY0_RD(x)     (HW_NV_BACKKEY0(x).U)
+#define HW_NV_BACKKEY0_RD(x)     (ADDRESS_READ(hw_nv_backkey0_t, HW_NV_BACKKEY0_ADDR(x)))
 /*@}*/
 
 /*
@@ -312,7 +319,7 @@ typedef union _hw_nv_backkey7
 #define HW_NV_BACKKEY7_ADDR(x)   ((x) + 0x4U)
 
 #define HW_NV_BACKKEY7(x)        (*(__I hw_nv_backkey7_t *) HW_NV_BACKKEY7_ADDR(x))
-#define HW_NV_BACKKEY7_RD(x)     (HW_NV_BACKKEY7(x).U)
+#define HW_NV_BACKKEY7_RD(x)     (ADDRESS_READ(hw_nv_backkey7_t, HW_NV_BACKKEY7_ADDR(x)))
 /*@}*/
 
 /*
@@ -356,7 +363,7 @@ typedef union _hw_nv_backkey6
 #define HW_NV_BACKKEY6_ADDR(x)   ((x) + 0x5U)
 
 #define HW_NV_BACKKEY6(x)        (*(__I hw_nv_backkey6_t *) HW_NV_BACKKEY6_ADDR(x))
-#define HW_NV_BACKKEY6_RD(x)     (HW_NV_BACKKEY6(x).U)
+#define HW_NV_BACKKEY6_RD(x)     (ADDRESS_READ(hw_nv_backkey6_t, HW_NV_BACKKEY6_ADDR(x)))
 /*@}*/
 
 /*
@@ -400,7 +407,7 @@ typedef union _hw_nv_backkey5
 #define HW_NV_BACKKEY5_ADDR(x)   ((x) + 0x6U)
 
 #define HW_NV_BACKKEY5(x)        (*(__I hw_nv_backkey5_t *) HW_NV_BACKKEY5_ADDR(x))
-#define HW_NV_BACKKEY5_RD(x)     (HW_NV_BACKKEY5(x).U)
+#define HW_NV_BACKKEY5_RD(x)     (ADDRESS_READ(hw_nv_backkey5_t, HW_NV_BACKKEY5_ADDR(x)))
 /*@}*/
 
 /*
@@ -444,7 +451,7 @@ typedef union _hw_nv_backkey4
 #define HW_NV_BACKKEY4_ADDR(x)   ((x) + 0x7U)
 
 #define HW_NV_BACKKEY4(x)        (*(__I hw_nv_backkey4_t *) HW_NV_BACKKEY4_ADDR(x))
-#define HW_NV_BACKKEY4_RD(x)     (HW_NV_BACKKEY4(x).U)
+#define HW_NV_BACKKEY4_RD(x)     (ADDRESS_READ(hw_nv_backkey4_t, HW_NV_BACKKEY4_ADDR(x)))
 /*@}*/
 
 /*
@@ -488,7 +495,7 @@ typedef union _hw_nv_fprot3
 #define HW_NV_FPROT3_ADDR(x)     ((x) + 0x8U)
 
 #define HW_NV_FPROT3(x)          (*(__I hw_nv_fprot3_t *) HW_NV_FPROT3_ADDR(x))
-#define HW_NV_FPROT3_RD(x)       (HW_NV_FPROT3(x).U)
+#define HW_NV_FPROT3_RD(x)       (ADDRESS_READ(hw_nv_fprot3_t, HW_NV_FPROT3_ADDR(x)))
 /*@}*/
 
 /*
@@ -532,7 +539,7 @@ typedef union _hw_nv_fprot2
 #define HW_NV_FPROT2_ADDR(x)     ((x) + 0x9U)
 
 #define HW_NV_FPROT2(x)          (*(__I hw_nv_fprot2_t *) HW_NV_FPROT2_ADDR(x))
-#define HW_NV_FPROT2_RD(x)       (HW_NV_FPROT2(x).U)
+#define HW_NV_FPROT2_RD(x)       (ADDRESS_READ(hw_nv_fprot2_t, HW_NV_FPROT2_ADDR(x)))
 /*@}*/
 
 /*
@@ -576,7 +583,7 @@ typedef union _hw_nv_fprot1
 #define HW_NV_FPROT1_ADDR(x)     ((x) + 0xAU)
 
 #define HW_NV_FPROT1(x)          (*(__I hw_nv_fprot1_t *) HW_NV_FPROT1_ADDR(x))
-#define HW_NV_FPROT1_RD(x)       (HW_NV_FPROT1(x).U)
+#define HW_NV_FPROT1_RD(x)       (ADDRESS_READ(hw_nv_fprot1_t, HW_NV_FPROT1_ADDR(x)))
 /*@}*/
 
 /*
@@ -620,7 +627,7 @@ typedef union _hw_nv_fprot0
 #define HW_NV_FPROT0_ADDR(x)     ((x) + 0xBU)
 
 #define HW_NV_FPROT0(x)          (*(__I hw_nv_fprot0_t *) HW_NV_FPROT0_ADDR(x))
-#define HW_NV_FPROT0_RD(x)       (HW_NV_FPROT0(x).U)
+#define HW_NV_FPROT0_RD(x)       (ADDRESS_READ(hw_nv_fprot0_t, HW_NV_FPROT0_ADDR(x)))
 /*@}*/
 
 /*
@@ -670,7 +677,7 @@ typedef union _hw_nv_fsec
 #define HW_NV_FSEC_ADDR(x)       ((x) + 0xCU)
 
 #define HW_NV_FSEC(x)            (*(__I hw_nv_fsec_t *) HW_NV_FSEC_ADDR(x))
-#define HW_NV_FSEC_RD(x)         (HW_NV_FSEC(x).U)
+#define HW_NV_FSEC_RD(x)         (ADDRESS_READ(hw_nv_fsec_t, HW_NV_FSEC_ADDR(x)))
 /*@}*/
 
 /*
@@ -690,7 +697,7 @@ typedef union _hw_nv_fsec
 #define BS_NV_FSEC_SEC       (2U)          /*!< Bit field size in bits for NV_FSEC_SEC. */
 
 /*! @brief Read current value of the NV_FSEC_SEC field. */
-#define BR_NV_FSEC_SEC(x)    (HW_NV_FSEC(x).B.SEC)
+#define BR_NV_FSEC_SEC(x)    (UNION_READ(hw_nv_fsec_t, HW_NV_FSEC_ADDR(x), U, B.SEC))
 /*@}*/
 
 /*!
@@ -706,7 +713,7 @@ typedef union _hw_nv_fsec
 #define BS_NV_FSEC_FSLACC    (2U)          /*!< Bit field size in bits for NV_FSEC_FSLACC. */
 
 /*! @brief Read current value of the NV_FSEC_FSLACC field. */
-#define BR_NV_FSEC_FSLACC(x) (HW_NV_FSEC(x).B.FSLACC)
+#define BR_NV_FSEC_FSLACC(x) (UNION_READ(hw_nv_fsec_t, HW_NV_FSEC_ADDR(x), U, B.FSLACC))
 /*@}*/
 
 /*!
@@ -722,7 +729,7 @@ typedef union _hw_nv_fsec
 #define BS_NV_FSEC_MEEN      (2U)          /*!< Bit field size in bits for NV_FSEC_MEEN. */
 
 /*! @brief Read current value of the NV_FSEC_MEEN field. */
-#define BR_NV_FSEC_MEEN(x)   (HW_NV_FSEC(x).B.MEEN)
+#define BR_NV_FSEC_MEEN(x)   (UNION_READ(hw_nv_fsec_t, HW_NV_FSEC_ADDR(x), U, B.MEEN))
 /*@}*/
 
 /*!
@@ -738,7 +745,7 @@ typedef union _hw_nv_fsec
 #define BS_NV_FSEC_KEYEN     (2U)          /*!< Bit field size in bits for NV_FSEC_KEYEN. */
 
 /*! @brief Read current value of the NV_FSEC_KEYEN field. */
-#define BR_NV_FSEC_KEYEN(x)  (HW_NV_FSEC(x).B.KEYEN)
+#define BR_NV_FSEC_KEYEN(x)  (UNION_READ(hw_nv_fsec_t, HW_NV_FSEC_ADDR(x), U, B.KEYEN))
 /*@}*/
 
 /*******************************************************************************
@@ -768,7 +775,7 @@ typedef union _hw_nv_fopt
 #define HW_NV_FOPT_ADDR(x)       ((x) + 0xDU)
 
 #define HW_NV_FOPT(x)            (*(__I hw_nv_fopt_t *) HW_NV_FOPT_ADDR(x))
-#define HW_NV_FOPT_RD(x)         (HW_NV_FOPT(x).U)
+#define HW_NV_FOPT_RD(x)         (ADDRESS_READ(hw_nv_fopt_t, HW_NV_FOPT_ADDR(x)))
 /*@}*/
 
 /*
@@ -788,7 +795,7 @@ typedef union _hw_nv_fopt
 #define BS_NV_FOPT_LPBOOT    (1U)          /*!< Bit field size in bits for NV_FOPT_LPBOOT. */
 
 /*! @brief Read current value of the NV_FOPT_LPBOOT field. */
-#define BR_NV_FOPT_LPBOOT(x) (BITBAND_ACCESS8(HW_NV_FOPT_ADDR(x), BP_NV_FOPT_LPBOOT))
+#define BR_NV_FOPT_LPBOOT(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_NV_FOPT_ADDR(x), BP_NV_FOPT_LPBOOT)))
 /*@}*/
 
 /*!
@@ -800,7 +807,7 @@ typedef union _hw_nv_fopt
 #define BS_NV_FOPT_EZPORT_DIS (1U)         /*!< Bit field size in bits for NV_FOPT_EZPORT_DIS. */
 
 /*! @brief Read current value of the NV_FOPT_EZPORT_DIS field. */
-#define BR_NV_FOPT_EZPORT_DIS(x) (BITBAND_ACCESS8(HW_NV_FOPT_ADDR(x), BP_NV_FOPT_EZPORT_DIS))
+#define BR_NV_FOPT_EZPORT_DIS(x) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_NV_FOPT_ADDR(x), BP_NV_FOPT_EZPORT_DIS)))
 /*@}*/
 
 /*******************************************************************************
@@ -828,7 +835,7 @@ typedef union _hw_nv_feprot
 #define HW_NV_FEPROT_ADDR(x)     ((x) + 0xEU)
 
 #define HW_NV_FEPROT(x)          (*(__I hw_nv_feprot_t *) HW_NV_FEPROT_ADDR(x))
-#define HW_NV_FEPROT_RD(x)       (HW_NV_FEPROT(x).U)
+#define HW_NV_FEPROT_RD(x)       (ADDRESS_READ(hw_nv_feprot_t, HW_NV_FEPROT_ADDR(x)))
 /*@}*/
 
 /*
@@ -872,7 +879,7 @@ typedef union _hw_nv_fdprot
 #define HW_NV_FDPROT_ADDR(x)     ((x) + 0xFU)
 
 #define HW_NV_FDPROT(x)          (*(__I hw_nv_fdprot_t *) HW_NV_FDPROT_ADDR(x))
-#define HW_NV_FDPROT_RD(x)       (HW_NV_FDPROT(x).U)
+#define HW_NV_FDPROT_RD(x)       (ADDRESS_READ(hw_nv_fdprot_t, HW_NV_FDPROT_ADDR(x)))
 /*@}*/
 
 /*

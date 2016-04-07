@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -130,8 +137,8 @@ typedef union _hw_rtc_tsr
 #define HW_RTC_TSR_ADDR(x)       ((x) + 0x0U)
 
 #define HW_RTC_TSR(x)            (*(__IO hw_rtc_tsr_t *) HW_RTC_TSR_ADDR(x))
-#define HW_RTC_TSR_RD(x)         (HW_RTC_TSR(x).U)
-#define HW_RTC_TSR_WR(x, v)      (HW_RTC_TSR(x).U = (v))
+#define HW_RTC_TSR_RD(x)         (ADDRESS_READ(hw_rtc_tsr_t, HW_RTC_TSR_ADDR(x)))
+#define HW_RTC_TSR_WR(x, v)      (ADDRESS_WRITE(hw_rtc_tsr_t, HW_RTC_TSR_ADDR(x), v))
 #define HW_RTC_TSR_SET(x, v)     (HW_RTC_TSR_WR(x, HW_RTC_TSR_RD(x) |  (v)))
 #define HW_RTC_TSR_CLR(x, v)     (HW_RTC_TSR_WR(x, HW_RTC_TSR_RD(x) & ~(v)))
 #define HW_RTC_TSR_TOG(x, v)     (HW_RTC_TSR_WR(x, HW_RTC_TSR_RD(x) ^  (v)))
@@ -193,8 +200,8 @@ typedef union _hw_rtc_tpr
 #define HW_RTC_TPR_ADDR(x)       ((x) + 0x4U)
 
 #define HW_RTC_TPR(x)            (*(__IO hw_rtc_tpr_t *) HW_RTC_TPR_ADDR(x))
-#define HW_RTC_TPR_RD(x)         (HW_RTC_TPR(x).U)
-#define HW_RTC_TPR_WR(x, v)      (HW_RTC_TPR(x).U = (v))
+#define HW_RTC_TPR_RD(x)         (ADDRESS_READ(hw_rtc_tpr_t, HW_RTC_TPR_ADDR(x)))
+#define HW_RTC_TPR_WR(x, v)      (ADDRESS_WRITE(hw_rtc_tpr_t, HW_RTC_TPR_ADDR(x), v))
 #define HW_RTC_TPR_SET(x, v)     (HW_RTC_TPR_WR(x, HW_RTC_TPR_RD(x) |  (v)))
 #define HW_RTC_TPR_CLR(x, v)     (HW_RTC_TPR_WR(x, HW_RTC_TPR_RD(x) & ~(v)))
 #define HW_RTC_TPR_TOG(x, v)     (HW_RTC_TPR_WR(x, HW_RTC_TPR_RD(x) ^  (v)))
@@ -219,7 +226,7 @@ typedef union _hw_rtc_tpr
 #define BS_RTC_TPR_TPR       (16U)         /*!< Bit field size in bits for RTC_TPR_TPR. */
 
 /*! @brief Read current value of the RTC_TPR_TPR field. */
-#define BR_RTC_TPR_TPR(x)    (HW_RTC_TPR(x).B.TPR)
+#define BR_RTC_TPR_TPR(x)    (UNION_READ(hw_rtc_tpr_t, HW_RTC_TPR_ADDR(x), U, B.TPR))
 
 /*! @brief Format value for bitfield RTC_TPR_TPR. */
 #define BF_RTC_TPR_TPR(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_TPR_TPR) & BM_RTC_TPR_TPR)
@@ -253,8 +260,8 @@ typedef union _hw_rtc_tar
 #define HW_RTC_TAR_ADDR(x)       ((x) + 0x8U)
 
 #define HW_RTC_TAR(x)            (*(__IO hw_rtc_tar_t *) HW_RTC_TAR_ADDR(x))
-#define HW_RTC_TAR_RD(x)         (HW_RTC_TAR(x).U)
-#define HW_RTC_TAR_WR(x, v)      (HW_RTC_TAR(x).U = (v))
+#define HW_RTC_TAR_RD(x)         (ADDRESS_READ(hw_rtc_tar_t, HW_RTC_TAR_ADDR(x)))
+#define HW_RTC_TAR_WR(x, v)      (ADDRESS_WRITE(hw_rtc_tar_t, HW_RTC_TAR_ADDR(x), v))
 #define HW_RTC_TAR_SET(x, v)     (HW_RTC_TAR_WR(x, HW_RTC_TAR_RD(x) |  (v)))
 #define HW_RTC_TAR_CLR(x, v)     (HW_RTC_TAR_WR(x, HW_RTC_TAR_RD(x) & ~(v)))
 #define HW_RTC_TAR_TOG(x, v)     (HW_RTC_TAR_WR(x, HW_RTC_TAR_RD(x) ^  (v)))
@@ -314,8 +321,8 @@ typedef union _hw_rtc_tcr
 #define HW_RTC_TCR_ADDR(x)       ((x) + 0xCU)
 
 #define HW_RTC_TCR(x)            (*(__IO hw_rtc_tcr_t *) HW_RTC_TCR_ADDR(x))
-#define HW_RTC_TCR_RD(x)         (HW_RTC_TCR(x).U)
-#define HW_RTC_TCR_WR(x, v)      (HW_RTC_TCR(x).U = (v))
+#define HW_RTC_TCR_RD(x)         (ADDRESS_READ(hw_rtc_tcr_t, HW_RTC_TCR_ADDR(x)))
+#define HW_RTC_TCR_WR(x, v)      (ADDRESS_WRITE(hw_rtc_tcr_t, HW_RTC_TCR_ADDR(x), v))
 #define HW_RTC_TCR_SET(x, v)     (HW_RTC_TCR_WR(x, HW_RTC_TCR_RD(x) |  (v)))
 #define HW_RTC_TCR_CLR(x, v)     (HW_RTC_TCR_WR(x, HW_RTC_TCR_RD(x) & ~(v)))
 #define HW_RTC_TCR_TOG(x, v)     (HW_RTC_TCR_WR(x, HW_RTC_TCR_RD(x) ^  (v)))
@@ -345,7 +352,7 @@ typedef union _hw_rtc_tcr
 #define BS_RTC_TCR_TCR       (8U)          /*!< Bit field size in bits for RTC_TCR_TCR. */
 
 /*! @brief Read current value of the RTC_TCR_TCR field. */
-#define BR_RTC_TCR_TCR(x)    (HW_RTC_TCR(x).B.TCR)
+#define BR_RTC_TCR_TCR(x)    (UNION_READ(hw_rtc_tcr_t, HW_RTC_TCR_ADDR(x), U, B.TCR))
 
 /*! @brief Format value for bitfield RTC_TCR_TCR. */
 #define BF_RTC_TCR_TCR(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_TCR_TCR) & BM_RTC_TCR_TCR)
@@ -370,7 +377,7 @@ typedef union _hw_rtc_tcr
 #define BS_RTC_TCR_CIR       (8U)          /*!< Bit field size in bits for RTC_TCR_CIR. */
 
 /*! @brief Read current value of the RTC_TCR_CIR field. */
-#define BR_RTC_TCR_CIR(x)    (HW_RTC_TCR(x).B.CIR)
+#define BR_RTC_TCR_CIR(x)    (UNION_READ(hw_rtc_tcr_t, HW_RTC_TCR_ADDR(x), U, B.CIR))
 
 /*! @brief Format value for bitfield RTC_TCR_CIR. */
 #define BF_RTC_TCR_CIR(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_TCR_CIR) & BM_RTC_TCR_CIR)
@@ -393,7 +400,7 @@ typedef union _hw_rtc_tcr
 #define BS_RTC_TCR_TCV       (8U)          /*!< Bit field size in bits for RTC_TCR_TCV. */
 
 /*! @brief Read current value of the RTC_TCR_TCV field. */
-#define BR_RTC_TCR_TCV(x)    (HW_RTC_TCR(x).B.TCV)
+#define BR_RTC_TCR_TCV(x)    (UNION_READ(hw_rtc_tcr_t, HW_RTC_TCR_ADDR(x), U, B.TCV))
 /*@}*/
 
 /*!
@@ -409,7 +416,7 @@ typedef union _hw_rtc_tcr
 #define BS_RTC_TCR_CIC       (8U)          /*!< Bit field size in bits for RTC_TCR_CIC. */
 
 /*! @brief Read current value of the RTC_TCR_CIC field. */
-#define BR_RTC_TCR_CIC(x)    (HW_RTC_TCR(x).B.CIC)
+#define BR_RTC_TCR_CIC(x)    (UNION_READ(hw_rtc_tcr_t, HW_RTC_TCR_ADDR(x), U, B.CIC))
 /*@}*/
 
 /*******************************************************************************
@@ -449,8 +456,8 @@ typedef union _hw_rtc_cr
 #define HW_RTC_CR_ADDR(x)        ((x) + 0x10U)
 
 #define HW_RTC_CR(x)             (*(__IO hw_rtc_cr_t *) HW_RTC_CR_ADDR(x))
-#define HW_RTC_CR_RD(x)          (HW_RTC_CR(x).U)
-#define HW_RTC_CR_WR(x, v)       (HW_RTC_CR(x).U = (v))
+#define HW_RTC_CR_RD(x)          (ADDRESS_READ(hw_rtc_cr_t, HW_RTC_CR_ADDR(x)))
+#define HW_RTC_CR_WR(x, v)       (ADDRESS_WRITE(hw_rtc_cr_t, HW_RTC_CR_ADDR(x), v))
 #define HW_RTC_CR_SET(x, v)      (HW_RTC_CR_WR(x, HW_RTC_CR_RD(x) |  (v)))
 #define HW_RTC_CR_CLR(x, v)      (HW_RTC_CR_WR(x, HW_RTC_CR_RD(x) & ~(v)))
 #define HW_RTC_CR_TOG(x, v)      (HW_RTC_CR_WR(x, HW_RTC_CR_RD(x) ^  (v)))
@@ -475,13 +482,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_SWR        (1U)          /*!< Bit field size in bits for RTC_CR_SWR. */
 
 /*! @brief Read current value of the RTC_CR_SWR field. */
-#define BR_RTC_CR_SWR(x)     (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SWR))
+#define BR_RTC_CR_SWR(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SWR)))
 
 /*! @brief Format value for bitfield RTC_CR_SWR. */
 #define BF_RTC_CR_SWR(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_CR_SWR) & BM_RTC_CR_SWR)
 
 /*! @brief Set the SWR field to a new value. */
-#define BW_RTC_CR_SWR(x, v)  (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SWR) = (v))
+#define BW_RTC_CR_SWR(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SWR), v))
 /*@}*/
 
 /*!
@@ -500,13 +507,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_WPE        (1U)          /*!< Bit field size in bits for RTC_CR_WPE. */
 
 /*! @brief Read current value of the RTC_CR_WPE field. */
-#define BR_RTC_CR_WPE(x)     (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPE))
+#define BR_RTC_CR_WPE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPE)))
 
 /*! @brief Format value for bitfield RTC_CR_WPE. */
 #define BF_RTC_CR_WPE(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_CR_WPE) & BM_RTC_CR_WPE)
 
 /*! @brief Set the WPE field to a new value. */
-#define BW_RTC_CR_WPE(x, v)  (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPE) = (v))
+#define BW_RTC_CR_WPE(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPE), v))
 /*@}*/
 
 /*!
@@ -523,13 +530,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_SUP        (1U)          /*!< Bit field size in bits for RTC_CR_SUP. */
 
 /*! @brief Read current value of the RTC_CR_SUP field. */
-#define BR_RTC_CR_SUP(x)     (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SUP))
+#define BR_RTC_CR_SUP(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SUP)))
 
 /*! @brief Format value for bitfield RTC_CR_SUP. */
 #define BF_RTC_CR_SUP(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_CR_SUP) & BM_RTC_CR_SUP)
 
 /*! @brief Set the SUP field to a new value. */
-#define BW_RTC_CR_SUP(x, v)  (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SUP) = (v))
+#define BW_RTC_CR_SUP(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SUP), v))
 /*@}*/
 
 /*!
@@ -549,13 +556,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_UM         (1U)          /*!< Bit field size in bits for RTC_CR_UM. */
 
 /*! @brief Read current value of the RTC_CR_UM field. */
-#define BR_RTC_CR_UM(x)      (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_UM))
+#define BR_RTC_CR_UM(x)      (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_UM)))
 
 /*! @brief Format value for bitfield RTC_CR_UM. */
 #define BF_RTC_CR_UM(v)      ((uint32_t)((uint32_t)(v) << BP_RTC_CR_UM) & BM_RTC_CR_UM)
 
 /*! @brief Set the UM field to a new value. */
-#define BW_RTC_CR_UM(x, v)   (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_UM) = (v))
+#define BW_RTC_CR_UM(x, v)   (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_UM), v))
 /*@}*/
 
 /*!
@@ -575,13 +582,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_WPS        (1U)          /*!< Bit field size in bits for RTC_CR_WPS. */
 
 /*! @brief Read current value of the RTC_CR_WPS field. */
-#define BR_RTC_CR_WPS(x)     (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPS))
+#define BR_RTC_CR_WPS(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPS)))
 
 /*! @brief Format value for bitfield RTC_CR_WPS. */
 #define BF_RTC_CR_WPS(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_CR_WPS) & BM_RTC_CR_WPS)
 
 /*! @brief Set the WPS field to a new value. */
-#define BW_RTC_CR_WPS(x, v)  (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPS) = (v))
+#define BW_RTC_CR_WPS(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_WPS), v))
 /*@}*/
 
 /*!
@@ -599,13 +606,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_OSCE       (1U)          /*!< Bit field size in bits for RTC_CR_OSCE. */
 
 /*! @brief Read current value of the RTC_CR_OSCE field. */
-#define BR_RTC_CR_OSCE(x)    (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_OSCE))
+#define BR_RTC_CR_OSCE(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_OSCE)))
 
 /*! @brief Format value for bitfield RTC_CR_OSCE. */
 #define BF_RTC_CR_OSCE(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_CR_OSCE) & BM_RTC_CR_OSCE)
 
 /*! @brief Set the OSCE field to a new value. */
-#define BW_RTC_CR_OSCE(x, v) (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_OSCE) = (v))
+#define BW_RTC_CR_OSCE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_OSCE), v))
 /*@}*/
 
 /*!
@@ -621,13 +628,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_CLKO       (1U)          /*!< Bit field size in bits for RTC_CR_CLKO. */
 
 /*! @brief Read current value of the RTC_CR_CLKO field. */
-#define BR_RTC_CR_CLKO(x)    (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_CLKO))
+#define BR_RTC_CR_CLKO(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_CLKO)))
 
 /*! @brief Format value for bitfield RTC_CR_CLKO. */
 #define BF_RTC_CR_CLKO(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_CR_CLKO) & BM_RTC_CR_CLKO)
 
 /*! @brief Set the CLKO field to a new value. */
-#define BW_RTC_CR_CLKO(x, v) (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_CLKO) = (v))
+#define BW_RTC_CR_CLKO(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_CLKO), v))
 /*@}*/
 
 /*!
@@ -643,13 +650,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_SC16P      (1U)          /*!< Bit field size in bits for RTC_CR_SC16P. */
 
 /*! @brief Read current value of the RTC_CR_SC16P field. */
-#define BR_RTC_CR_SC16P(x)   (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC16P))
+#define BR_RTC_CR_SC16P(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC16P)))
 
 /*! @brief Format value for bitfield RTC_CR_SC16P. */
 #define BF_RTC_CR_SC16P(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_CR_SC16P) & BM_RTC_CR_SC16P)
 
 /*! @brief Set the SC16P field to a new value. */
-#define BW_RTC_CR_SC16P(x, v) (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC16P) = (v))
+#define BW_RTC_CR_SC16P(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC16P), v))
 /*@}*/
 
 /*!
@@ -665,13 +672,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_SC8P       (1U)          /*!< Bit field size in bits for RTC_CR_SC8P. */
 
 /*! @brief Read current value of the RTC_CR_SC8P field. */
-#define BR_RTC_CR_SC8P(x)    (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC8P))
+#define BR_RTC_CR_SC8P(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC8P)))
 
 /*! @brief Format value for bitfield RTC_CR_SC8P. */
 #define BF_RTC_CR_SC8P(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_CR_SC8P) & BM_RTC_CR_SC8P)
 
 /*! @brief Set the SC8P field to a new value. */
-#define BW_RTC_CR_SC8P(x, v) (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC8P) = (v))
+#define BW_RTC_CR_SC8P(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC8P), v))
 /*@}*/
 
 /*!
@@ -687,13 +694,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_SC4P       (1U)          /*!< Bit field size in bits for RTC_CR_SC4P. */
 
 /*! @brief Read current value of the RTC_CR_SC4P field. */
-#define BR_RTC_CR_SC4P(x)    (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC4P))
+#define BR_RTC_CR_SC4P(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC4P)))
 
 /*! @brief Format value for bitfield RTC_CR_SC4P. */
 #define BF_RTC_CR_SC4P(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_CR_SC4P) & BM_RTC_CR_SC4P)
 
 /*! @brief Set the SC4P field to a new value. */
-#define BW_RTC_CR_SC4P(x, v) (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC4P) = (v))
+#define BW_RTC_CR_SC4P(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC4P), v))
 /*@}*/
 
 /*!
@@ -709,13 +716,13 @@ typedef union _hw_rtc_cr
 #define BS_RTC_CR_SC2P       (1U)          /*!< Bit field size in bits for RTC_CR_SC2P. */
 
 /*! @brief Read current value of the RTC_CR_SC2P field. */
-#define BR_RTC_CR_SC2P(x)    (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC2P))
+#define BR_RTC_CR_SC2P(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC2P)))
 
 /*! @brief Format value for bitfield RTC_CR_SC2P. */
 #define BF_RTC_CR_SC2P(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_CR_SC2P) & BM_RTC_CR_SC2P)
 
 /*! @brief Set the SC2P field to a new value. */
-#define BW_RTC_CR_SC2P(x, v) (BITBAND_ACCESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC2P) = (v))
+#define BW_RTC_CR_SC2P(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_CR_ADDR(x), BP_RTC_CR_SC2P), v))
 /*@}*/
 
 /*******************************************************************************
@@ -748,8 +755,8 @@ typedef union _hw_rtc_sr
 #define HW_RTC_SR_ADDR(x)        ((x) + 0x14U)
 
 #define HW_RTC_SR(x)             (*(__IO hw_rtc_sr_t *) HW_RTC_SR_ADDR(x))
-#define HW_RTC_SR_RD(x)          (HW_RTC_SR(x).U)
-#define HW_RTC_SR_WR(x, v)       (HW_RTC_SR(x).U = (v))
+#define HW_RTC_SR_RD(x)          (ADDRESS_READ(hw_rtc_sr_t, HW_RTC_SR_ADDR(x)))
+#define HW_RTC_SR_WR(x, v)       (ADDRESS_WRITE(hw_rtc_sr_t, HW_RTC_SR_ADDR(x), v))
 #define HW_RTC_SR_SET(x, v)      (HW_RTC_SR_WR(x, HW_RTC_SR_RD(x) |  (v)))
 #define HW_RTC_SR_CLR(x, v)      (HW_RTC_SR_WR(x, HW_RTC_SR_RD(x) & ~(v)))
 #define HW_RTC_SR_TOG(x, v)      (HW_RTC_SR_WR(x, HW_RTC_SR_RD(x) ^  (v)))
@@ -776,7 +783,7 @@ typedef union _hw_rtc_sr
 #define BS_RTC_SR_TIF        (1U)          /*!< Bit field size in bits for RTC_SR_TIF. */
 
 /*! @brief Read current value of the RTC_SR_TIF field. */
-#define BR_RTC_SR_TIF(x)     (BITBAND_ACCESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TIF))
+#define BR_RTC_SR_TIF(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TIF)))
 /*@}*/
 
 /*!
@@ -796,7 +803,7 @@ typedef union _hw_rtc_sr
 #define BS_RTC_SR_TOF        (1U)          /*!< Bit field size in bits for RTC_SR_TOF. */
 
 /*! @brief Read current value of the RTC_SR_TOF field. */
-#define BR_RTC_SR_TOF(x)     (BITBAND_ACCESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TOF))
+#define BR_RTC_SR_TOF(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TOF)))
 /*@}*/
 
 /*!
@@ -815,7 +822,7 @@ typedef union _hw_rtc_sr
 #define BS_RTC_SR_TAF        (1U)          /*!< Bit field size in bits for RTC_SR_TAF. */
 
 /*! @brief Read current value of the RTC_SR_TAF field. */
-#define BR_RTC_SR_TAF(x)     (BITBAND_ACCESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TAF))
+#define BR_RTC_SR_TAF(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TAF)))
 /*@}*/
 
 /*!
@@ -835,13 +842,13 @@ typedef union _hw_rtc_sr
 #define BS_RTC_SR_TCE        (1U)          /*!< Bit field size in bits for RTC_SR_TCE. */
 
 /*! @brief Read current value of the RTC_SR_TCE field. */
-#define BR_RTC_SR_TCE(x)     (BITBAND_ACCESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TCE))
+#define BR_RTC_SR_TCE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TCE)))
 
 /*! @brief Format value for bitfield RTC_SR_TCE. */
 #define BF_RTC_SR_TCE(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_SR_TCE) & BM_RTC_SR_TCE)
 
 /*! @brief Set the TCE field to a new value. */
-#define BW_RTC_SR_TCE(x, v)  (BITBAND_ACCESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TCE) = (v))
+#define BW_RTC_SR_TCE(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_SR_ADDR(x), BP_RTC_SR_TCE), v))
 /*@}*/
 
 /*******************************************************************************
@@ -874,8 +881,8 @@ typedef union _hw_rtc_lr
 #define HW_RTC_LR_ADDR(x)        ((x) + 0x18U)
 
 #define HW_RTC_LR(x)             (*(__IO hw_rtc_lr_t *) HW_RTC_LR_ADDR(x))
-#define HW_RTC_LR_RD(x)          (HW_RTC_LR(x).U)
-#define HW_RTC_LR_WR(x, v)       (HW_RTC_LR(x).U = (v))
+#define HW_RTC_LR_RD(x)          (ADDRESS_READ(hw_rtc_lr_t, HW_RTC_LR_ADDR(x)))
+#define HW_RTC_LR_WR(x, v)       (ADDRESS_WRITE(hw_rtc_lr_t, HW_RTC_LR_ADDR(x), v))
 #define HW_RTC_LR_SET(x, v)      (HW_RTC_LR_WR(x, HW_RTC_LR_RD(x) |  (v)))
 #define HW_RTC_LR_CLR(x, v)      (HW_RTC_LR_WR(x, HW_RTC_LR_RD(x) & ~(v)))
 #define HW_RTC_LR_TOG(x, v)      (HW_RTC_LR_WR(x, HW_RTC_LR_RD(x) ^  (v)))
@@ -900,13 +907,13 @@ typedef union _hw_rtc_lr
 #define BS_RTC_LR_TCL        (1U)          /*!< Bit field size in bits for RTC_LR_TCL. */
 
 /*! @brief Read current value of the RTC_LR_TCL field. */
-#define BR_RTC_LR_TCL(x)     (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_TCL))
+#define BR_RTC_LR_TCL(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_TCL)))
 
 /*! @brief Format value for bitfield RTC_LR_TCL. */
 #define BF_RTC_LR_TCL(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_LR_TCL) & BM_RTC_LR_TCL)
 
 /*! @brief Set the TCL field to a new value. */
-#define BW_RTC_LR_TCL(x, v)  (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_TCL) = (v))
+#define BW_RTC_LR_TCL(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_TCL), v))
 /*@}*/
 
 /*!
@@ -924,13 +931,13 @@ typedef union _hw_rtc_lr
 #define BS_RTC_LR_CRL        (1U)          /*!< Bit field size in bits for RTC_LR_CRL. */
 
 /*! @brief Read current value of the RTC_LR_CRL field. */
-#define BR_RTC_LR_CRL(x)     (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_CRL))
+#define BR_RTC_LR_CRL(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_CRL)))
 
 /*! @brief Format value for bitfield RTC_LR_CRL. */
 #define BF_RTC_LR_CRL(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_LR_CRL) & BM_RTC_LR_CRL)
 
 /*! @brief Set the CRL field to a new value. */
-#define BW_RTC_LR_CRL(x, v)  (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_CRL) = (v))
+#define BW_RTC_LR_CRL(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_CRL), v))
 /*@}*/
 
 /*!
@@ -948,13 +955,13 @@ typedef union _hw_rtc_lr
 #define BS_RTC_LR_SRL        (1U)          /*!< Bit field size in bits for RTC_LR_SRL. */
 
 /*! @brief Read current value of the RTC_LR_SRL field. */
-#define BR_RTC_LR_SRL(x)     (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_SRL))
+#define BR_RTC_LR_SRL(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_SRL)))
 
 /*! @brief Format value for bitfield RTC_LR_SRL. */
 #define BF_RTC_LR_SRL(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_LR_SRL) & BM_RTC_LR_SRL)
 
 /*! @brief Set the SRL field to a new value. */
-#define BW_RTC_LR_SRL(x, v)  (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_SRL) = (v))
+#define BW_RTC_LR_SRL(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_SRL), v))
 /*@}*/
 
 /*!
@@ -972,13 +979,13 @@ typedef union _hw_rtc_lr
 #define BS_RTC_LR_LRL        (1U)          /*!< Bit field size in bits for RTC_LR_LRL. */
 
 /*! @brief Read current value of the RTC_LR_LRL field. */
-#define BR_RTC_LR_LRL(x)     (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_LRL))
+#define BR_RTC_LR_LRL(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_LRL)))
 
 /*! @brief Format value for bitfield RTC_LR_LRL. */
 #define BF_RTC_LR_LRL(v)     ((uint32_t)((uint32_t)(v) << BP_RTC_LR_LRL) & BM_RTC_LR_LRL)
 
 /*! @brief Set the LRL field to a new value. */
-#define BW_RTC_LR_LRL(x, v)  (BITBAND_ACCESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_LRL) = (v))
+#define BW_RTC_LR_LRL(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_LR_ADDR(x), BP_RTC_LR_LRL), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1013,8 +1020,8 @@ typedef union _hw_rtc_ier
 #define HW_RTC_IER_ADDR(x)       ((x) + 0x1CU)
 
 #define HW_RTC_IER(x)            (*(__IO hw_rtc_ier_t *) HW_RTC_IER_ADDR(x))
-#define HW_RTC_IER_RD(x)         (HW_RTC_IER(x).U)
-#define HW_RTC_IER_WR(x, v)      (HW_RTC_IER(x).U = (v))
+#define HW_RTC_IER_RD(x)         (ADDRESS_READ(hw_rtc_ier_t, HW_RTC_IER_ADDR(x)))
+#define HW_RTC_IER_WR(x, v)      (ADDRESS_WRITE(hw_rtc_ier_t, HW_RTC_IER_ADDR(x), v))
 #define HW_RTC_IER_SET(x, v)     (HW_RTC_IER_WR(x, HW_RTC_IER_RD(x) |  (v)))
 #define HW_RTC_IER_CLR(x, v)     (HW_RTC_IER_WR(x, HW_RTC_IER_RD(x) & ~(v)))
 #define HW_RTC_IER_TOG(x, v)     (HW_RTC_IER_WR(x, HW_RTC_IER_RD(x) ^  (v)))
@@ -1037,13 +1044,13 @@ typedef union _hw_rtc_ier
 #define BS_RTC_IER_TIIE      (1U)          /*!< Bit field size in bits for RTC_IER_TIIE. */
 
 /*! @brief Read current value of the RTC_IER_TIIE field. */
-#define BR_RTC_IER_TIIE(x)   (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TIIE))
+#define BR_RTC_IER_TIIE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TIIE)))
 
 /*! @brief Format value for bitfield RTC_IER_TIIE. */
 #define BF_RTC_IER_TIIE(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_IER_TIIE) & BM_RTC_IER_TIIE)
 
 /*! @brief Set the TIIE field to a new value. */
-#define BW_RTC_IER_TIIE(x, v) (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TIIE) = (v))
+#define BW_RTC_IER_TIIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TIIE), v))
 /*@}*/
 
 /*!
@@ -1059,13 +1066,13 @@ typedef union _hw_rtc_ier
 #define BS_RTC_IER_TOIE      (1U)          /*!< Bit field size in bits for RTC_IER_TOIE. */
 
 /*! @brief Read current value of the RTC_IER_TOIE field. */
-#define BR_RTC_IER_TOIE(x)   (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TOIE))
+#define BR_RTC_IER_TOIE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TOIE)))
 
 /*! @brief Format value for bitfield RTC_IER_TOIE. */
 #define BF_RTC_IER_TOIE(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_IER_TOIE) & BM_RTC_IER_TOIE)
 
 /*! @brief Set the TOIE field to a new value. */
-#define BW_RTC_IER_TOIE(x, v) (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TOIE) = (v))
+#define BW_RTC_IER_TOIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TOIE), v))
 /*@}*/
 
 /*!
@@ -1081,13 +1088,13 @@ typedef union _hw_rtc_ier
 #define BS_RTC_IER_TAIE      (1U)          /*!< Bit field size in bits for RTC_IER_TAIE. */
 
 /*! @brief Read current value of the RTC_IER_TAIE field. */
-#define BR_RTC_IER_TAIE(x)   (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TAIE))
+#define BR_RTC_IER_TAIE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TAIE)))
 
 /*! @brief Format value for bitfield RTC_IER_TAIE. */
 #define BF_RTC_IER_TAIE(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_IER_TAIE) & BM_RTC_IER_TAIE)
 
 /*! @brief Set the TAIE field to a new value. */
-#define BW_RTC_IER_TAIE(x, v) (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TAIE) = (v))
+#define BW_RTC_IER_TAIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TAIE), v))
 /*@}*/
 
 /*!
@@ -1107,13 +1114,13 @@ typedef union _hw_rtc_ier
 #define BS_RTC_IER_TSIE      (1U)          /*!< Bit field size in bits for RTC_IER_TSIE. */
 
 /*! @brief Read current value of the RTC_IER_TSIE field. */
-#define BR_RTC_IER_TSIE(x)   (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TSIE))
+#define BR_RTC_IER_TSIE(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TSIE)))
 
 /*! @brief Format value for bitfield RTC_IER_TSIE. */
 #define BF_RTC_IER_TSIE(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_IER_TSIE) & BM_RTC_IER_TSIE)
 
 /*! @brief Set the TSIE field to a new value. */
-#define BW_RTC_IER_TSIE(x, v) (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TSIE) = (v))
+#define BW_RTC_IER_TSIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_TSIE), v))
 /*@}*/
 
 /*!
@@ -1132,13 +1139,13 @@ typedef union _hw_rtc_ier
 #define BS_RTC_IER_WPON      (1U)          /*!< Bit field size in bits for RTC_IER_WPON. */
 
 /*! @brief Read current value of the RTC_IER_WPON field. */
-#define BR_RTC_IER_WPON(x)   (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_WPON))
+#define BR_RTC_IER_WPON(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_WPON)))
 
 /*! @brief Format value for bitfield RTC_IER_WPON. */
 #define BF_RTC_IER_WPON(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_IER_WPON) & BM_RTC_IER_WPON)
 
 /*! @brief Set the WPON field to a new value. */
-#define BW_RTC_IER_WPON(x, v) (BITBAND_ACCESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_WPON) = (v))
+#define BW_RTC_IER_WPON(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_IER_ADDR(x), BP_RTC_IER_WPON), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1174,8 +1181,8 @@ typedef union _hw_rtc_war
 #define HW_RTC_WAR_ADDR(x)       ((x) + 0x800U)
 
 #define HW_RTC_WAR(x)            (*(__IO hw_rtc_war_t *) HW_RTC_WAR_ADDR(x))
-#define HW_RTC_WAR_RD(x)         (HW_RTC_WAR(x).U)
-#define HW_RTC_WAR_WR(x, v)      (HW_RTC_WAR(x).U = (v))
+#define HW_RTC_WAR_RD(x)         (ADDRESS_READ(hw_rtc_war_t, HW_RTC_WAR_ADDR(x)))
+#define HW_RTC_WAR_WR(x, v)      (ADDRESS_WRITE(hw_rtc_war_t, HW_RTC_WAR_ADDR(x), v))
 #define HW_RTC_WAR_SET(x, v)     (HW_RTC_WAR_WR(x, HW_RTC_WAR_RD(x) |  (v)))
 #define HW_RTC_WAR_CLR(x, v)     (HW_RTC_WAR_WR(x, HW_RTC_WAR_RD(x) & ~(v)))
 #define HW_RTC_WAR_TOG(x, v)     (HW_RTC_WAR_WR(x, HW_RTC_WAR_RD(x) ^  (v)))
@@ -1201,13 +1208,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_TSRW      (1U)          /*!< Bit field size in bits for RTC_WAR_TSRW. */
 
 /*! @brief Read current value of the RTC_WAR_TSRW field. */
-#define BR_RTC_WAR_TSRW(x)   (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TSRW))
+#define BR_RTC_WAR_TSRW(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TSRW)))
 
 /*! @brief Format value for bitfield RTC_WAR_TSRW. */
 #define BF_RTC_WAR_TSRW(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_TSRW) & BM_RTC_WAR_TSRW)
 
 /*! @brief Set the TSRW field to a new value. */
-#define BW_RTC_WAR_TSRW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TSRW) = (v))
+#define BW_RTC_WAR_TSRW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TSRW), v))
 /*@}*/
 
 /*!
@@ -1226,13 +1233,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_TPRW      (1U)          /*!< Bit field size in bits for RTC_WAR_TPRW. */
 
 /*! @brief Read current value of the RTC_WAR_TPRW field. */
-#define BR_RTC_WAR_TPRW(x)   (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TPRW))
+#define BR_RTC_WAR_TPRW(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TPRW)))
 
 /*! @brief Format value for bitfield RTC_WAR_TPRW. */
 #define BF_RTC_WAR_TPRW(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_TPRW) & BM_RTC_WAR_TPRW)
 
 /*! @brief Set the TPRW field to a new value. */
-#define BW_RTC_WAR_TPRW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TPRW) = (v))
+#define BW_RTC_WAR_TPRW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TPRW), v))
 /*@}*/
 
 /*!
@@ -1251,13 +1258,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_TARW      (1U)          /*!< Bit field size in bits for RTC_WAR_TARW. */
 
 /*! @brief Read current value of the RTC_WAR_TARW field. */
-#define BR_RTC_WAR_TARW(x)   (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TARW))
+#define BR_RTC_WAR_TARW(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TARW)))
 
 /*! @brief Format value for bitfield RTC_WAR_TARW. */
 #define BF_RTC_WAR_TARW(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_TARW) & BM_RTC_WAR_TARW)
 
 /*! @brief Set the TARW field to a new value. */
-#define BW_RTC_WAR_TARW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TARW) = (v))
+#define BW_RTC_WAR_TARW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TARW), v))
 /*@}*/
 
 /*!
@@ -1276,13 +1283,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_TCRW      (1U)          /*!< Bit field size in bits for RTC_WAR_TCRW. */
 
 /*! @brief Read current value of the RTC_WAR_TCRW field. */
-#define BR_RTC_WAR_TCRW(x)   (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TCRW))
+#define BR_RTC_WAR_TCRW(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TCRW)))
 
 /*! @brief Format value for bitfield RTC_WAR_TCRW. */
 #define BF_RTC_WAR_TCRW(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_TCRW) & BM_RTC_WAR_TCRW)
 
 /*! @brief Set the TCRW field to a new value. */
-#define BW_RTC_WAR_TCRW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TCRW) = (v))
+#define BW_RTC_WAR_TCRW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_TCRW), v))
 /*@}*/
 
 /*!
@@ -1301,13 +1308,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_CRW       (1U)          /*!< Bit field size in bits for RTC_WAR_CRW. */
 
 /*! @brief Read current value of the RTC_WAR_CRW field. */
-#define BR_RTC_WAR_CRW(x)    (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_CRW))
+#define BR_RTC_WAR_CRW(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_CRW)))
 
 /*! @brief Format value for bitfield RTC_WAR_CRW. */
 #define BF_RTC_WAR_CRW(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_CRW) & BM_RTC_WAR_CRW)
 
 /*! @brief Set the CRW field to a new value. */
-#define BW_RTC_WAR_CRW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_CRW) = (v))
+#define BW_RTC_WAR_CRW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_CRW), v))
 /*@}*/
 
 /*!
@@ -1326,13 +1333,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_SRW       (1U)          /*!< Bit field size in bits for RTC_WAR_SRW. */
 
 /*! @brief Read current value of the RTC_WAR_SRW field. */
-#define BR_RTC_WAR_SRW(x)    (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_SRW))
+#define BR_RTC_WAR_SRW(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_SRW)))
 
 /*! @brief Format value for bitfield RTC_WAR_SRW. */
 #define BF_RTC_WAR_SRW(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_SRW) & BM_RTC_WAR_SRW)
 
 /*! @brief Set the SRW field to a new value. */
-#define BW_RTC_WAR_SRW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_SRW) = (v))
+#define BW_RTC_WAR_SRW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_SRW), v))
 /*@}*/
 
 /*!
@@ -1351,13 +1358,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_LRW       (1U)          /*!< Bit field size in bits for RTC_WAR_LRW. */
 
 /*! @brief Read current value of the RTC_WAR_LRW field. */
-#define BR_RTC_WAR_LRW(x)    (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_LRW))
+#define BR_RTC_WAR_LRW(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_LRW)))
 
 /*! @brief Format value for bitfield RTC_WAR_LRW. */
 #define BF_RTC_WAR_LRW(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_LRW) & BM_RTC_WAR_LRW)
 
 /*! @brief Set the LRW field to a new value. */
-#define BW_RTC_WAR_LRW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_LRW) = (v))
+#define BW_RTC_WAR_LRW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_LRW), v))
 /*@}*/
 
 /*!
@@ -1376,13 +1383,13 @@ typedef union _hw_rtc_war
 #define BS_RTC_WAR_IERW      (1U)          /*!< Bit field size in bits for RTC_WAR_IERW. */
 
 /*! @brief Read current value of the RTC_WAR_IERW field. */
-#define BR_RTC_WAR_IERW(x)   (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_IERW))
+#define BR_RTC_WAR_IERW(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_IERW)))
 
 /*! @brief Format value for bitfield RTC_WAR_IERW. */
 #define BF_RTC_WAR_IERW(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_WAR_IERW) & BM_RTC_WAR_IERW)
 
 /*! @brief Set the IERW field to a new value. */
-#define BW_RTC_WAR_IERW(x, v) (BITBAND_ACCESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_IERW) = (v))
+#define BW_RTC_WAR_IERW(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_WAR_ADDR(x), BP_RTC_WAR_IERW), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1418,8 +1425,8 @@ typedef union _hw_rtc_rar
 #define HW_RTC_RAR_ADDR(x)       ((x) + 0x804U)
 
 #define HW_RTC_RAR(x)            (*(__IO hw_rtc_rar_t *) HW_RTC_RAR_ADDR(x))
-#define HW_RTC_RAR_RD(x)         (HW_RTC_RAR(x).U)
-#define HW_RTC_RAR_WR(x, v)      (HW_RTC_RAR(x).U = (v))
+#define HW_RTC_RAR_RD(x)         (ADDRESS_READ(hw_rtc_rar_t, HW_RTC_RAR_ADDR(x)))
+#define HW_RTC_RAR_WR(x, v)      (ADDRESS_WRITE(hw_rtc_rar_t, HW_RTC_RAR_ADDR(x), v))
 #define HW_RTC_RAR_SET(x, v)     (HW_RTC_RAR_WR(x, HW_RTC_RAR_RD(x) |  (v)))
 #define HW_RTC_RAR_CLR(x, v)     (HW_RTC_RAR_WR(x, HW_RTC_RAR_RD(x) & ~(v)))
 #define HW_RTC_RAR_TOG(x, v)     (HW_RTC_RAR_WR(x, HW_RTC_RAR_RD(x) ^  (v)))
@@ -1445,13 +1452,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_TSRR      (1U)          /*!< Bit field size in bits for RTC_RAR_TSRR. */
 
 /*! @brief Read current value of the RTC_RAR_TSRR field. */
-#define BR_RTC_RAR_TSRR(x)   (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TSRR))
+#define BR_RTC_RAR_TSRR(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TSRR)))
 
 /*! @brief Format value for bitfield RTC_RAR_TSRR. */
 #define BF_RTC_RAR_TSRR(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_TSRR) & BM_RTC_RAR_TSRR)
 
 /*! @brief Set the TSRR field to a new value. */
-#define BW_RTC_RAR_TSRR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TSRR) = (v))
+#define BW_RTC_RAR_TSRR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TSRR), v))
 /*@}*/
 
 /*!
@@ -1470,13 +1477,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_TPRR      (1U)          /*!< Bit field size in bits for RTC_RAR_TPRR. */
 
 /*! @brief Read current value of the RTC_RAR_TPRR field. */
-#define BR_RTC_RAR_TPRR(x)   (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TPRR))
+#define BR_RTC_RAR_TPRR(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TPRR)))
 
 /*! @brief Format value for bitfield RTC_RAR_TPRR. */
 #define BF_RTC_RAR_TPRR(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_TPRR) & BM_RTC_RAR_TPRR)
 
 /*! @brief Set the TPRR field to a new value. */
-#define BW_RTC_RAR_TPRR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TPRR) = (v))
+#define BW_RTC_RAR_TPRR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TPRR), v))
 /*@}*/
 
 /*!
@@ -1495,13 +1502,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_TARR      (1U)          /*!< Bit field size in bits for RTC_RAR_TARR. */
 
 /*! @brief Read current value of the RTC_RAR_TARR field. */
-#define BR_RTC_RAR_TARR(x)   (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TARR))
+#define BR_RTC_RAR_TARR(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TARR)))
 
 /*! @brief Format value for bitfield RTC_RAR_TARR. */
 #define BF_RTC_RAR_TARR(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_TARR) & BM_RTC_RAR_TARR)
 
 /*! @brief Set the TARR field to a new value. */
-#define BW_RTC_RAR_TARR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TARR) = (v))
+#define BW_RTC_RAR_TARR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TARR), v))
 /*@}*/
 
 /*!
@@ -1520,13 +1527,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_TCRR      (1U)          /*!< Bit field size in bits for RTC_RAR_TCRR. */
 
 /*! @brief Read current value of the RTC_RAR_TCRR field. */
-#define BR_RTC_RAR_TCRR(x)   (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TCRR))
+#define BR_RTC_RAR_TCRR(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TCRR)))
 
 /*! @brief Format value for bitfield RTC_RAR_TCRR. */
 #define BF_RTC_RAR_TCRR(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_TCRR) & BM_RTC_RAR_TCRR)
 
 /*! @brief Set the TCRR field to a new value. */
-#define BW_RTC_RAR_TCRR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TCRR) = (v))
+#define BW_RTC_RAR_TCRR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_TCRR), v))
 /*@}*/
 
 /*!
@@ -1545,13 +1552,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_CRR       (1U)          /*!< Bit field size in bits for RTC_RAR_CRR. */
 
 /*! @brief Read current value of the RTC_RAR_CRR field. */
-#define BR_RTC_RAR_CRR(x)    (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_CRR))
+#define BR_RTC_RAR_CRR(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_CRR)))
 
 /*! @brief Format value for bitfield RTC_RAR_CRR. */
 #define BF_RTC_RAR_CRR(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_CRR) & BM_RTC_RAR_CRR)
 
 /*! @brief Set the CRR field to a new value. */
-#define BW_RTC_RAR_CRR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_CRR) = (v))
+#define BW_RTC_RAR_CRR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_CRR), v))
 /*@}*/
 
 /*!
@@ -1570,13 +1577,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_SRR       (1U)          /*!< Bit field size in bits for RTC_RAR_SRR. */
 
 /*! @brief Read current value of the RTC_RAR_SRR field. */
-#define BR_RTC_RAR_SRR(x)    (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_SRR))
+#define BR_RTC_RAR_SRR(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_SRR)))
 
 /*! @brief Format value for bitfield RTC_RAR_SRR. */
 #define BF_RTC_RAR_SRR(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_SRR) & BM_RTC_RAR_SRR)
 
 /*! @brief Set the SRR field to a new value. */
-#define BW_RTC_RAR_SRR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_SRR) = (v))
+#define BW_RTC_RAR_SRR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_SRR), v))
 /*@}*/
 
 /*!
@@ -1595,13 +1602,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_LRR       (1U)          /*!< Bit field size in bits for RTC_RAR_LRR. */
 
 /*! @brief Read current value of the RTC_RAR_LRR field. */
-#define BR_RTC_RAR_LRR(x)    (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_LRR))
+#define BR_RTC_RAR_LRR(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_LRR)))
 
 /*! @brief Format value for bitfield RTC_RAR_LRR. */
 #define BF_RTC_RAR_LRR(v)    ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_LRR) & BM_RTC_RAR_LRR)
 
 /*! @brief Set the LRR field to a new value. */
-#define BW_RTC_RAR_LRR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_LRR) = (v))
+#define BW_RTC_RAR_LRR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_LRR), v))
 /*@}*/
 
 /*!
@@ -1620,13 +1627,13 @@ typedef union _hw_rtc_rar
 #define BS_RTC_RAR_IERR      (1U)          /*!< Bit field size in bits for RTC_RAR_IERR. */
 
 /*! @brief Read current value of the RTC_RAR_IERR field. */
-#define BR_RTC_RAR_IERR(x)   (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_IERR))
+#define BR_RTC_RAR_IERR(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_IERR)))
 
 /*! @brief Format value for bitfield RTC_RAR_IERR. */
 #define BF_RTC_RAR_IERR(v)   ((uint32_t)((uint32_t)(v) << BP_RTC_RAR_IERR) & BM_RTC_RAR_IERR)
 
 /*! @brief Set the IERR field to a new value. */
-#define BW_RTC_RAR_IERR(x, v) (BITBAND_ACCESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_IERR) = (v))
+#define BW_RTC_RAR_IERR(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_RTC_RAR_ADDR(x), BP_RTC_RAR_IERR), v))
 /*@}*/
 
 /*******************************************************************************
