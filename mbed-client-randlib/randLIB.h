@@ -30,10 +30,12 @@
 
 #ifndef RANDLIB_H_
 #define RANDLIB_H_
+
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /**
  * This library is made for getting random numbers for Timing needs in protocols.
