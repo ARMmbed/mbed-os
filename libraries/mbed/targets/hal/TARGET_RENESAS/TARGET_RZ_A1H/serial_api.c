@@ -440,6 +440,7 @@ static void uart_tx_irq(IRQn_Type irq_num, uint32_t index) {
             uart_data[index].event = SERIAL_EVENT_TX_COMPLETE;
             ((void (*)())uart_data[index].async_tx_callback)();
         }
+        __v7_inv_icache_all();
     }
     
     irq_handler(uart_data[index].serial_irq_id, TxIrq);
@@ -491,6 +492,7 @@ static void uart_rx_irq(IRQn_Type irq_num, uint32_t index) {
                     ((void (*)())uart_data[index].async_rx_callback)();
                 }
             }
+            __v7_inv_icache_all();
         } else {
             serial_rx_abort_asynch(obj);
             if (uart_data[index].wanted_rx_events & (SERIAL_EVENT_RX_PARITY_ERROR | SERIAL_EVENT_RX_FRAMING_ERROR)) {
