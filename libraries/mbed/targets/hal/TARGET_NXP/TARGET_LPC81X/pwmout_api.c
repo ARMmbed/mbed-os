@@ -37,7 +37,6 @@ static int get_available_sct() {
 // Find available output channel 0..3
 // Also need one Match register per channel
     for (i = 0; i < CONFIG_SCT_nOU; i++) {
-//    for (i = 0; i < 4; i++) {
         if ((sct_used & (1 << i)) == 0)
             return i;
     }
@@ -47,7 +46,7 @@ static int get_available_sct() {
 // Any Port pin may be used for PWM.
 // Max number of PWM outputs is 4
 void pwmout_init(pwmout_t* obj, PinName pin) {
-    MBED_ASSERT(pin != (uint32_t)NC);
+    MBED_ASSERT(pin != (PinName)NC);
 
     int sct_n = get_available_sct();
     if (sct_n == -1) {
@@ -72,8 +71,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
       LPC_SYSCON->PRESETCTRL |=  (1 << 8);
 
       // Two 16-bit counters, autolimit (ie reset on Match_0)
-      //pwm->CONFIG &= ~(0x1);
-      //pwm->CONFIG |= (1 << 17);
       pwm->CONFIG |= ((0x3 << 17) | 0x01);
 
       // halt and clear the counter
@@ -90,9 +87,6 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
       //    - clearing bit 2 of the CTRL register
       pwm->CTRL_U &= ~(1 << 2);
       
-      // Not using IRQs 
-      //NVIC_SetVector(PWM_IRQn, (uint32_t)pwm_irq_handler);
-      //NVIC_EnableIRQ(PWM_IRQn);    
     }
 
     // LPC81x has only one SCT and 4 Outputs
@@ -157,6 +151,14 @@ void pwmout_write(pwmout_t* obj, float value) {
     // Match_0 is PWM period. Compute new endtime of pulse for current channel
     uint32_t t_off = (uint32_t)((float)(obj->pwm->MATCHREL[0].U) * value);
     obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = t_off; // New endtime
+
+    if (value == 0.0f) { // duty is 0%
+        // Set CLR event to be same as SET event, makes output to be 0 (low)
+        obj->pwm->OUT[(obj->pwm_ch)].CLR = (1 << 0);
+    } else {
+        // Use normal CLR event (current SCT ch + 1)
+        obj->pwm->OUT[(obj->pwm_ch)].CLR = (1 << ((obj->pwm_ch) + 1));
+    }
 }
 
 // Get dutycycle (0.0 .. 1.0)
@@ -190,20 +192,26 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     uint32_t t_period = obj->pwm->MATCHREL[0].U;  // Current PWM period
     obj->pwm->MATCHREL[0].U = (uint32_t)us;       // New PWM period
 
-    //Keep the dutycycle for the new PWM period
-    //Should really do this for all active channels!!
-    //This problem exists in all mbed libs.
-
-    //Sanity check
+    // Sanity check
     if (t_period == 0) {
-      return;
-//      obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L = 0; // New endtime for this channel     
+        return;
     }
-    else {    
-      uint32_t t_off  = obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U;
-      float v = (float)t_off/(float)t_period;
-      obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = (uint32_t)((float)us * (float)v); // New endtime for this channel
-    }   
+    else {
+        int cnt = sct_used;
+        int ch = 0;
+        // Update match period for exising PWM channels
+        do {
+            // Get current pulse width
+            uint32_t t_off  = obj->pwm->MATCHREL[ch + 1].U;
+            // Get the duty
+            float v = (float)t_off/(float)t_period;
+            // Update pulse width for this channel
+            obj->pwm->MATCHREL[ch + 1].U = (uint32_t)((float)us * (float)v);
+            // Get next used SCT channel
+            cnt = cnt >> 1;
+            ch++;
+        } while (cnt != 0);
+    }
 }
 
 
@@ -219,7 +227,13 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms){
 
 //Set pulsewidth
 void pwmout_pulsewidth_us(pwmout_t* obj, int us) {
-
+    if (us == 0) {  // pulse width is 0
+        // Set CLR event to be same as SET event, makes output to be 0 (low)
+        obj->pwm->OUT[(obj->pwm_ch)].CLR = (1 << 0);
+    } else {
+        // Use normal CLR event (current SCT ch + 1)
+        obj->pwm->OUT[(obj->pwm_ch)].CLR = (1 << ((obj->pwm_ch) + 1));
+    }
 //Should add Sanity check to make sure pulsewidth < period!
     obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = (uint32_t)us; // New endtime for this channel
 }
