@@ -192,20 +192,26 @@ void pwmout_period_us(pwmout_t* obj, int us) {
     uint32_t t_period = obj->pwm->MATCHREL[0].U;  // Current PWM period
     obj->pwm->MATCHREL[0].U = (uint32_t)us;       // New PWM period
 
-    //Keep the dutycycle for the new PWM period
-    //Should really do this for all active channels!!
-    //This problem exists in all mbed libs.
-
-    //Sanity check
+    // Sanity check
     if (t_period == 0) {
-      return;
-//      obj->pwm->MATCHREL[(obj->pwm_ch) + 1].L = 0; // New endtime for this channel     
+        return;
     }
-    else {    
-      uint32_t t_off  = obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U;
-      float v = (float)t_off/(float)t_period;
-      obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = (uint32_t)((float)us * (float)v); // New endtime for this channel
-    }   
+    else {
+        int cnt = sct_used;
+        int ch = 0;
+        // Update match period for exising PWM channels
+        do {
+            // Get current pulse width
+            uint32_t t_off  = obj->pwm->MATCHREL[ch + 1].U;
+            // Get the duty
+            float v = (float)t_off/(float)t_period;
+            // Update pulse width for this channel
+            obj->pwm->MATCHREL[ch + 1].U = (uint32_t)((float)us * (float)v);
+            // Get next used SCT channel
+            cnt = cnt >> 1;
+            ch++;
+        } while (cnt != 0);
+    }
 }
 
 
