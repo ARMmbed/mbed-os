@@ -285,7 +285,7 @@ void sys_sem_free(sys_sem_t *sem) {}
  * @return a new mutex */
 err_t sys_mutex_new(sys_mutex_t *mutex) {
 #ifdef CMSIS_OS_RTX
-#ifdef __MBED_CMSIS_RTOS_CA9
+#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
     memset(mutex->data, 0, sizeof(int32_t)*4);
 #else
     memset(mutex->data, 0, sizeof(int32_t)*3);
