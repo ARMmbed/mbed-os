@@ -306,6 +306,8 @@ if __name__ == '__main__':
             ('sw4stm32', 'NUCLEO_F042K6'),
             ('sw4stm32', 'NUCLEO_F303K8'),
             ('sw4stm32', 'NUCLEO_F410RB'),
+            
+            ('e2studio', 'RZ_A1H'),
             # Removed following item to avoid script error
             #(None, None),
         ]:

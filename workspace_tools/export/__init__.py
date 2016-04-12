@@ -20,7 +20,7 @@ from shutil import copytree, rmtree, copy
 import yaml
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32
+from workspace_tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32, e2studio
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
@@ -38,6 +38,7 @@ EXPORTERS = {
     'simplicityv3' : simplicityv3.SimplicityV3,
     'atmelstudio' : atmelstudio.AtmelStudio,
     'sw4stm32'    : sw4stm32.Sw4STM32,
+    'e2studio' : e2studio.E2Studio,
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
