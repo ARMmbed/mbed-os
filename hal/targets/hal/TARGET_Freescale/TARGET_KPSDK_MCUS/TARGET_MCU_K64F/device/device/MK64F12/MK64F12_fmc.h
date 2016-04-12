@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -151,8 +158,8 @@ typedef union _hw_fmc_pfapr
 #define HW_FMC_PFAPR_ADDR(x)     ((x) + 0x0U)
 
 #define HW_FMC_PFAPR(x)          (*(__IO hw_fmc_pfapr_t *) HW_FMC_PFAPR_ADDR(x))
-#define HW_FMC_PFAPR_RD(x)       (HW_FMC_PFAPR(x).U)
-#define HW_FMC_PFAPR_WR(x, v)    (HW_FMC_PFAPR(x).U = (v))
+#define HW_FMC_PFAPR_RD(x)       (ADDRESS_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x)))
+#define HW_FMC_PFAPR_WR(x, v)    (ADDRESS_WRITE(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), v))
 #define HW_FMC_PFAPR_SET(x, v)   (HW_FMC_PFAPR_WR(x, HW_FMC_PFAPR_RD(x) |  (v)))
 #define HW_FMC_PFAPR_CLR(x, v)   (HW_FMC_PFAPR_WR(x, HW_FMC_PFAPR_RD(x) & ~(v)))
 #define HW_FMC_PFAPR_TOG(x, v)   (HW_FMC_PFAPR_WR(x, HW_FMC_PFAPR_RD(x) ^  (v)))
@@ -180,7 +187,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M0AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M0AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M0AP field. */
-#define BR_FMC_PFAPR_M0AP(x) (HW_FMC_PFAPR(x).B.M0AP)
+#define BR_FMC_PFAPR_M0AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M0AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M0AP. */
 #define BF_FMC_PFAPR_M0AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M0AP) & BM_FMC_PFAPR_M0AP)
@@ -207,7 +214,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M1AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M1AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M1AP field. */
-#define BR_FMC_PFAPR_M1AP(x) (HW_FMC_PFAPR(x).B.M1AP)
+#define BR_FMC_PFAPR_M1AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M1AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M1AP. */
 #define BF_FMC_PFAPR_M1AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M1AP) & BM_FMC_PFAPR_M1AP)
@@ -234,7 +241,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M2AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M2AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M2AP field. */
-#define BR_FMC_PFAPR_M2AP(x) (HW_FMC_PFAPR(x).B.M2AP)
+#define BR_FMC_PFAPR_M2AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M2AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M2AP. */
 #define BF_FMC_PFAPR_M2AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M2AP) & BM_FMC_PFAPR_M2AP)
@@ -261,7 +268,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M3AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M3AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M3AP field. */
-#define BR_FMC_PFAPR_M3AP(x) (HW_FMC_PFAPR(x).B.M3AP)
+#define BR_FMC_PFAPR_M3AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M3AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M3AP. */
 #define BF_FMC_PFAPR_M3AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M3AP) & BM_FMC_PFAPR_M3AP)
@@ -288,7 +295,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M4AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M4AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M4AP field. */
-#define BR_FMC_PFAPR_M4AP(x) (HW_FMC_PFAPR(x).B.M4AP)
+#define BR_FMC_PFAPR_M4AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M4AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M4AP. */
 #define BF_FMC_PFAPR_M4AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M4AP) & BM_FMC_PFAPR_M4AP)
@@ -315,7 +322,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M5AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M5AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M5AP field. */
-#define BR_FMC_PFAPR_M5AP(x) (HW_FMC_PFAPR(x).B.M5AP)
+#define BR_FMC_PFAPR_M5AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M5AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M5AP. */
 #define BF_FMC_PFAPR_M5AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M5AP) & BM_FMC_PFAPR_M5AP)
@@ -342,7 +349,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M6AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M6AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M6AP field. */
-#define BR_FMC_PFAPR_M6AP(x) (HW_FMC_PFAPR(x).B.M6AP)
+#define BR_FMC_PFAPR_M6AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M6AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M6AP. */
 #define BF_FMC_PFAPR_M6AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M6AP) & BM_FMC_PFAPR_M6AP)
@@ -369,7 +376,7 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M7AP    (2U)          /*!< Bit field size in bits for FMC_PFAPR_M7AP. */
 
 /*! @brief Read current value of the FMC_PFAPR_M7AP field. */
-#define BR_FMC_PFAPR_M7AP(x) (HW_FMC_PFAPR(x).B.M7AP)
+#define BR_FMC_PFAPR_M7AP(x) (UNION_READ(hw_fmc_pfapr_t, HW_FMC_PFAPR_ADDR(x), U, B.M7AP))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M7AP. */
 #define BF_FMC_PFAPR_M7AP(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M7AP) & BM_FMC_PFAPR_M7AP)
@@ -395,13 +402,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M0PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M0PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M0PFD field. */
-#define BR_FMC_PFAPR_M0PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M0PFD))
+#define BR_FMC_PFAPR_M0PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M0PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M0PFD. */
 #define BF_FMC_PFAPR_M0PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M0PFD) & BM_FMC_PFAPR_M0PFD)
 
 /*! @brief Set the M0PFD field to a new value. */
-#define BW_FMC_PFAPR_M0PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M0PFD) = (v))
+#define BW_FMC_PFAPR_M0PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M0PFD), v))
 /*@}*/
 
 /*!
@@ -421,13 +428,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M1PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M1PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M1PFD field. */
-#define BR_FMC_PFAPR_M1PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M1PFD))
+#define BR_FMC_PFAPR_M1PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M1PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M1PFD. */
 #define BF_FMC_PFAPR_M1PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M1PFD) & BM_FMC_PFAPR_M1PFD)
 
 /*! @brief Set the M1PFD field to a new value. */
-#define BW_FMC_PFAPR_M1PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M1PFD) = (v))
+#define BW_FMC_PFAPR_M1PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M1PFD), v))
 /*@}*/
 
 /*!
@@ -447,13 +454,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M2PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M2PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M2PFD field. */
-#define BR_FMC_PFAPR_M2PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M2PFD))
+#define BR_FMC_PFAPR_M2PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M2PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M2PFD. */
 #define BF_FMC_PFAPR_M2PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M2PFD) & BM_FMC_PFAPR_M2PFD)
 
 /*! @brief Set the M2PFD field to a new value. */
-#define BW_FMC_PFAPR_M2PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M2PFD) = (v))
+#define BW_FMC_PFAPR_M2PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M2PFD), v))
 /*@}*/
 
 /*!
@@ -473,13 +480,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M3PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M3PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M3PFD field. */
-#define BR_FMC_PFAPR_M3PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M3PFD))
+#define BR_FMC_PFAPR_M3PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M3PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M3PFD. */
 #define BF_FMC_PFAPR_M3PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M3PFD) & BM_FMC_PFAPR_M3PFD)
 
 /*! @brief Set the M3PFD field to a new value. */
-#define BW_FMC_PFAPR_M3PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M3PFD) = (v))
+#define BW_FMC_PFAPR_M3PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M3PFD), v))
 /*@}*/
 
 /*!
@@ -499,13 +506,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M4PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M4PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M4PFD field. */
-#define BR_FMC_PFAPR_M4PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M4PFD))
+#define BR_FMC_PFAPR_M4PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M4PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M4PFD. */
 #define BF_FMC_PFAPR_M4PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M4PFD) & BM_FMC_PFAPR_M4PFD)
 
 /*! @brief Set the M4PFD field to a new value. */
-#define BW_FMC_PFAPR_M4PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M4PFD) = (v))
+#define BW_FMC_PFAPR_M4PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M4PFD), v))
 /*@}*/
 
 /*!
@@ -525,13 +532,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M5PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M5PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M5PFD field. */
-#define BR_FMC_PFAPR_M5PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M5PFD))
+#define BR_FMC_PFAPR_M5PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M5PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M5PFD. */
 #define BF_FMC_PFAPR_M5PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M5PFD) & BM_FMC_PFAPR_M5PFD)
 
 /*! @brief Set the M5PFD field to a new value. */
-#define BW_FMC_PFAPR_M5PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M5PFD) = (v))
+#define BW_FMC_PFAPR_M5PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M5PFD), v))
 /*@}*/
 
 /*!
@@ -551,13 +558,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M6PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M6PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M6PFD field. */
-#define BR_FMC_PFAPR_M6PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M6PFD))
+#define BR_FMC_PFAPR_M6PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M6PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M6PFD. */
 #define BF_FMC_PFAPR_M6PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M6PFD) & BM_FMC_PFAPR_M6PFD)
 
 /*! @brief Set the M6PFD field to a new value. */
-#define BW_FMC_PFAPR_M6PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M6PFD) = (v))
+#define BW_FMC_PFAPR_M6PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M6PFD), v))
 /*@}*/
 
 /*!
@@ -577,13 +584,13 @@ typedef union _hw_fmc_pfapr
 #define BS_FMC_PFAPR_M7PFD   (1U)          /*!< Bit field size in bits for FMC_PFAPR_M7PFD. */
 
 /*! @brief Read current value of the FMC_PFAPR_M7PFD field. */
-#define BR_FMC_PFAPR_M7PFD(x) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M7PFD))
+#define BR_FMC_PFAPR_M7PFD(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M7PFD)))
 
 /*! @brief Format value for bitfield FMC_PFAPR_M7PFD. */
 #define BF_FMC_PFAPR_M7PFD(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFAPR_M7PFD) & BM_FMC_PFAPR_M7PFD)
 
 /*! @brief Set the M7PFD field to a new value. */
-#define BW_FMC_PFAPR_M7PFD(x, v) (BITBAND_ACCESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M7PFD) = (v))
+#define BW_FMC_PFAPR_M7PFD(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFAPR_ADDR(x), BP_FMC_PFAPR_M7PFD), v))
 /*@}*/
 
 /*******************************************************************************
@@ -623,8 +630,8 @@ typedef union _hw_fmc_pfb0cr
 #define HW_FMC_PFB0CR_ADDR(x)    ((x) + 0x4U)
 
 #define HW_FMC_PFB0CR(x)         (*(__IO hw_fmc_pfb0cr_t *) HW_FMC_PFB0CR_ADDR(x))
-#define HW_FMC_PFB0CR_RD(x)      (HW_FMC_PFB0CR(x).U)
-#define HW_FMC_PFB0CR_WR(x, v)   (HW_FMC_PFB0CR(x).U = (v))
+#define HW_FMC_PFB0CR_RD(x)      (ADDRESS_READ(hw_fmc_pfb0cr_t, HW_FMC_PFB0CR_ADDR(x)))
+#define HW_FMC_PFB0CR_WR(x, v)   (ADDRESS_WRITE(hw_fmc_pfb0cr_t, HW_FMC_PFB0CR_ADDR(x), v))
 #define HW_FMC_PFB0CR_SET(x, v)  (HW_FMC_PFB0CR_WR(x, HW_FMC_PFB0CR_RD(x) |  (v)))
 #define HW_FMC_PFB0CR_CLR(x, v)  (HW_FMC_PFB0CR_WR(x, HW_FMC_PFB0CR_RD(x) & ~(v)))
 #define HW_FMC_PFB0CR_TOG(x, v)  (HW_FMC_PFB0CR_WR(x, HW_FMC_PFB0CR_RD(x) ^  (v)))
@@ -651,13 +658,13 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_B0SEBE (1U)          /*!< Bit field size in bits for FMC_PFB0CR_B0SEBE. */
 
 /*! @brief Read current value of the FMC_PFB0CR_B0SEBE field. */
-#define BR_FMC_PFB0CR_B0SEBE(x) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0SEBE))
+#define BR_FMC_PFB0CR_B0SEBE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0SEBE)))
 
 /*! @brief Format value for bitfield FMC_PFB0CR_B0SEBE. */
 #define BF_FMC_PFB0CR_B0SEBE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_B0SEBE) & BM_FMC_PFB0CR_B0SEBE)
 
 /*! @brief Set the B0SEBE field to a new value. */
-#define BW_FMC_PFB0CR_B0SEBE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0SEBE) = (v))
+#define BW_FMC_PFB0CR_B0SEBE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0SEBE), v))
 /*@}*/
 
 /*!
@@ -676,13 +683,13 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_B0IPE  (1U)          /*!< Bit field size in bits for FMC_PFB0CR_B0IPE. */
 
 /*! @brief Read current value of the FMC_PFB0CR_B0IPE field. */
-#define BR_FMC_PFB0CR_B0IPE(x) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0IPE))
+#define BR_FMC_PFB0CR_B0IPE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0IPE)))
 
 /*! @brief Format value for bitfield FMC_PFB0CR_B0IPE. */
 #define BF_FMC_PFB0CR_B0IPE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_B0IPE) & BM_FMC_PFB0CR_B0IPE)
 
 /*! @brief Set the B0IPE field to a new value. */
-#define BW_FMC_PFB0CR_B0IPE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0IPE) = (v))
+#define BW_FMC_PFB0CR_B0IPE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0IPE), v))
 /*@}*/
 
 /*!
@@ -701,13 +708,13 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_B0DPE  (1U)          /*!< Bit field size in bits for FMC_PFB0CR_B0DPE. */
 
 /*! @brief Read current value of the FMC_PFB0CR_B0DPE field. */
-#define BR_FMC_PFB0CR_B0DPE(x) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DPE))
+#define BR_FMC_PFB0CR_B0DPE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DPE)))
 
 /*! @brief Format value for bitfield FMC_PFB0CR_B0DPE. */
 #define BF_FMC_PFB0CR_B0DPE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_B0DPE) & BM_FMC_PFB0CR_B0DPE)
 
 /*! @brief Set the B0DPE field to a new value. */
-#define BW_FMC_PFB0CR_B0DPE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DPE) = (v))
+#define BW_FMC_PFB0CR_B0DPE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DPE), v))
 /*@}*/
 
 /*!
@@ -725,13 +732,13 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_B0ICE  (1U)          /*!< Bit field size in bits for FMC_PFB0CR_B0ICE. */
 
 /*! @brief Read current value of the FMC_PFB0CR_B0ICE field. */
-#define BR_FMC_PFB0CR_B0ICE(x) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0ICE))
+#define BR_FMC_PFB0CR_B0ICE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0ICE)))
 
 /*! @brief Format value for bitfield FMC_PFB0CR_B0ICE. */
 #define BF_FMC_PFB0CR_B0ICE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_B0ICE) & BM_FMC_PFB0CR_B0ICE)
 
 /*! @brief Set the B0ICE field to a new value. */
-#define BW_FMC_PFB0CR_B0ICE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0ICE) = (v))
+#define BW_FMC_PFB0CR_B0ICE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0ICE), v))
 /*@}*/
 
 /*!
@@ -749,13 +756,13 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_B0DCE  (1U)          /*!< Bit field size in bits for FMC_PFB0CR_B0DCE. */
 
 /*! @brief Read current value of the FMC_PFB0CR_B0DCE field. */
-#define BR_FMC_PFB0CR_B0DCE(x) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DCE))
+#define BR_FMC_PFB0CR_B0DCE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DCE)))
 
 /*! @brief Format value for bitfield FMC_PFB0CR_B0DCE. */
 #define BF_FMC_PFB0CR_B0DCE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_B0DCE) & BM_FMC_PFB0CR_B0DCE)
 
 /*! @brief Set the B0DCE field to a new value. */
-#define BW_FMC_PFB0CR_B0DCE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DCE) = (v))
+#define BW_FMC_PFB0CR_B0DCE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_B0DCE), v))
 /*@}*/
 
 /*!
@@ -777,7 +784,7 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_CRC    (3U)          /*!< Bit field size in bits for FMC_PFB0CR_CRC. */
 
 /*! @brief Read current value of the FMC_PFB0CR_CRC field. */
-#define BR_FMC_PFB0CR_CRC(x) (HW_FMC_PFB0CR(x).B.CRC)
+#define BR_FMC_PFB0CR_CRC(x) (UNION_READ(hw_fmc_pfb0cr_t, HW_FMC_PFB0CR_ADDR(x), U, B.CRC))
 
 /*! @brief Format value for bitfield FMC_PFB0CR_CRC. */
 #define BF_FMC_PFB0CR_CRC(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_CRC) & BM_FMC_PFB0CR_CRC)
@@ -803,7 +810,7 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_B0MW   (2U)          /*!< Bit field size in bits for FMC_PFB0CR_B0MW. */
 
 /*! @brief Read current value of the FMC_PFB0CR_B0MW field. */
-#define BR_FMC_PFB0CR_B0MW(x) (HW_FMC_PFB0CR(x).B.B0MW)
+#define BR_FMC_PFB0CR_B0MW(x) (UNION_READ(hw_fmc_pfb0cr_t, HW_FMC_PFB0CR_ADDR(x), U, B.B0MW))
 /*@}*/
 
 /*!
@@ -827,7 +834,7 @@ typedef union _hw_fmc_pfb0cr
 #define BF_FMC_PFB0CR_S_B_INV(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_S_B_INV) & BM_FMC_PFB0CR_S_B_INV)
 
 /*! @brief Set the S_B_INV field to a new value. */
-#define BW_FMC_PFB0CR_S_B_INV(x, v) (BITBAND_ACCESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_S_B_INV) = (v))
+#define BW_FMC_PFB0CR_S_B_INV(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB0CR_ADDR(x), BP_FMC_PFB0CR_S_B_INV), v))
 /*@}*/
 
 /*!
@@ -877,7 +884,7 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_CLCK_WAY (4U)        /*!< Bit field size in bits for FMC_PFB0CR_CLCK_WAY. */
 
 /*! @brief Read current value of the FMC_PFB0CR_CLCK_WAY field. */
-#define BR_FMC_PFB0CR_CLCK_WAY(x) (HW_FMC_PFB0CR(x).B.CLCK_WAY)
+#define BR_FMC_PFB0CR_CLCK_WAY(x) (UNION_READ(hw_fmc_pfb0cr_t, HW_FMC_PFB0CR_ADDR(x), U, B.CLCK_WAY))
 
 /*! @brief Format value for bitfield FMC_PFB0CR_CLCK_WAY. */
 #define BF_FMC_PFB0CR_CLCK_WAY(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB0CR_CLCK_WAY) & BM_FMC_PFB0CR_CLCK_WAY)
@@ -902,7 +909,7 @@ typedef union _hw_fmc_pfb0cr
 #define BS_FMC_PFB0CR_B0RWSC (4U)          /*!< Bit field size in bits for FMC_PFB0CR_B0RWSC. */
 
 /*! @brief Read current value of the FMC_PFB0CR_B0RWSC field. */
-#define BR_FMC_PFB0CR_B0RWSC(x) (HW_FMC_PFB0CR(x).B.B0RWSC)
+#define BR_FMC_PFB0CR_B0RWSC(x) (UNION_READ(hw_fmc_pfb0cr_t, HW_FMC_PFB0CR_ADDR(x), U, B.B0RWSC))
 /*@}*/
 
 /*******************************************************************************
@@ -941,8 +948,8 @@ typedef union _hw_fmc_pfb1cr
 #define HW_FMC_PFB1CR_ADDR(x)    ((x) + 0x8U)
 
 #define HW_FMC_PFB1CR(x)         (*(__IO hw_fmc_pfb1cr_t *) HW_FMC_PFB1CR_ADDR(x))
-#define HW_FMC_PFB1CR_RD(x)      (HW_FMC_PFB1CR(x).U)
-#define HW_FMC_PFB1CR_WR(x, v)   (HW_FMC_PFB1CR(x).U = (v))
+#define HW_FMC_PFB1CR_RD(x)      (ADDRESS_READ(hw_fmc_pfb1cr_t, HW_FMC_PFB1CR_ADDR(x)))
+#define HW_FMC_PFB1CR_WR(x, v)   (ADDRESS_WRITE(hw_fmc_pfb1cr_t, HW_FMC_PFB1CR_ADDR(x), v))
 #define HW_FMC_PFB1CR_SET(x, v)  (HW_FMC_PFB1CR_WR(x, HW_FMC_PFB1CR_RD(x) |  (v)))
 #define HW_FMC_PFB1CR_CLR(x, v)  (HW_FMC_PFB1CR_WR(x, HW_FMC_PFB1CR_RD(x) & ~(v)))
 #define HW_FMC_PFB1CR_TOG(x, v)  (HW_FMC_PFB1CR_WR(x, HW_FMC_PFB1CR_RD(x) ^  (v)))
@@ -969,13 +976,13 @@ typedef union _hw_fmc_pfb1cr
 #define BS_FMC_PFB1CR_B1SEBE (1U)          /*!< Bit field size in bits for FMC_PFB1CR_B1SEBE. */
 
 /*! @brief Read current value of the FMC_PFB1CR_B1SEBE field. */
-#define BR_FMC_PFB1CR_B1SEBE(x) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1SEBE))
+#define BR_FMC_PFB1CR_B1SEBE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1SEBE)))
 
 /*! @brief Format value for bitfield FMC_PFB1CR_B1SEBE. */
 #define BF_FMC_PFB1CR_B1SEBE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB1CR_B1SEBE) & BM_FMC_PFB1CR_B1SEBE)
 
 /*! @brief Set the B1SEBE field to a new value. */
-#define BW_FMC_PFB1CR_B1SEBE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1SEBE) = (v))
+#define BW_FMC_PFB1CR_B1SEBE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1SEBE), v))
 /*@}*/
 
 /*!
@@ -994,13 +1001,13 @@ typedef union _hw_fmc_pfb1cr
 #define BS_FMC_PFB1CR_B1IPE  (1U)          /*!< Bit field size in bits for FMC_PFB1CR_B1IPE. */
 
 /*! @brief Read current value of the FMC_PFB1CR_B1IPE field. */
-#define BR_FMC_PFB1CR_B1IPE(x) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1IPE))
+#define BR_FMC_PFB1CR_B1IPE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1IPE)))
 
 /*! @brief Format value for bitfield FMC_PFB1CR_B1IPE. */
 #define BF_FMC_PFB1CR_B1IPE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB1CR_B1IPE) & BM_FMC_PFB1CR_B1IPE)
 
 /*! @brief Set the B1IPE field to a new value. */
-#define BW_FMC_PFB1CR_B1IPE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1IPE) = (v))
+#define BW_FMC_PFB1CR_B1IPE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1IPE), v))
 /*@}*/
 
 /*!
@@ -1019,13 +1026,13 @@ typedef union _hw_fmc_pfb1cr
 #define BS_FMC_PFB1CR_B1DPE  (1U)          /*!< Bit field size in bits for FMC_PFB1CR_B1DPE. */
 
 /*! @brief Read current value of the FMC_PFB1CR_B1DPE field. */
-#define BR_FMC_PFB1CR_B1DPE(x) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DPE))
+#define BR_FMC_PFB1CR_B1DPE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DPE)))
 
 /*! @brief Format value for bitfield FMC_PFB1CR_B1DPE. */
 #define BF_FMC_PFB1CR_B1DPE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB1CR_B1DPE) & BM_FMC_PFB1CR_B1DPE)
 
 /*! @brief Set the B1DPE field to a new value. */
-#define BW_FMC_PFB1CR_B1DPE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DPE) = (v))
+#define BW_FMC_PFB1CR_B1DPE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DPE), v))
 /*@}*/
 
 /*!
@@ -1043,13 +1050,13 @@ typedef union _hw_fmc_pfb1cr
 #define BS_FMC_PFB1CR_B1ICE  (1U)          /*!< Bit field size in bits for FMC_PFB1CR_B1ICE. */
 
 /*! @brief Read current value of the FMC_PFB1CR_B1ICE field. */
-#define BR_FMC_PFB1CR_B1ICE(x) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1ICE))
+#define BR_FMC_PFB1CR_B1ICE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1ICE)))
 
 /*! @brief Format value for bitfield FMC_PFB1CR_B1ICE. */
 #define BF_FMC_PFB1CR_B1ICE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB1CR_B1ICE) & BM_FMC_PFB1CR_B1ICE)
 
 /*! @brief Set the B1ICE field to a new value. */
-#define BW_FMC_PFB1CR_B1ICE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1ICE) = (v))
+#define BW_FMC_PFB1CR_B1ICE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1ICE), v))
 /*@}*/
 
 /*!
@@ -1067,13 +1074,13 @@ typedef union _hw_fmc_pfb1cr
 #define BS_FMC_PFB1CR_B1DCE  (1U)          /*!< Bit field size in bits for FMC_PFB1CR_B1DCE. */
 
 /*! @brief Read current value of the FMC_PFB1CR_B1DCE field. */
-#define BR_FMC_PFB1CR_B1DCE(x) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DCE))
+#define BR_FMC_PFB1CR_B1DCE(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DCE)))
 
 /*! @brief Format value for bitfield FMC_PFB1CR_B1DCE. */
 #define BF_FMC_PFB1CR_B1DCE(v) ((uint32_t)((uint32_t)(v) << BP_FMC_PFB1CR_B1DCE) & BM_FMC_PFB1CR_B1DCE)
 
 /*! @brief Set the B1DCE field to a new value. */
-#define BW_FMC_PFB1CR_B1DCE(x, v) (BITBAND_ACCESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DCE) = (v))
+#define BW_FMC_PFB1CR_B1DCE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_PFB1CR_ADDR(x), BP_FMC_PFB1CR_B1DCE), v))
 /*@}*/
 
 /*!
@@ -1093,7 +1100,7 @@ typedef union _hw_fmc_pfb1cr
 #define BS_FMC_PFB1CR_B1MW   (2U)          /*!< Bit field size in bits for FMC_PFB1CR_B1MW. */
 
 /*! @brief Read current value of the FMC_PFB1CR_B1MW field. */
-#define BR_FMC_PFB1CR_B1MW(x) (HW_FMC_PFB1CR(x).B.B1MW)
+#define BR_FMC_PFB1CR_B1MW(x) (UNION_READ(hw_fmc_pfb1cr_t, HW_FMC_PFB1CR_ADDR(x), U, B.B1MW))
 /*@}*/
 
 /*!
@@ -1112,7 +1119,7 @@ typedef union _hw_fmc_pfb1cr
 #define BS_FMC_PFB1CR_B1RWSC (4U)          /*!< Bit field size in bits for FMC_PFB1CR_B1RWSC. */
 
 /*! @brief Read current value of the FMC_PFB1CR_B1RWSC field. */
-#define BR_FMC_PFB1CR_B1RWSC(x) (HW_FMC_PFB1CR(x).B.B1RWSC)
+#define BR_FMC_PFB1CR_B1RWSC(x) (UNION_READ(hw_fmc_pfb1cr_t, HW_FMC_PFB1CR_ADDR(x), U, B.B1RWSC))
 /*@}*/
 
 /*******************************************************************************
@@ -1150,8 +1157,8 @@ typedef union _hw_fmc_tagvdw0sn
 #define HW_FMC_TAGVDW0Sn_ADDR(x, n) ((x) + 0x100U + (0x4U * (n)))
 
 #define HW_FMC_TAGVDW0Sn(x, n)   (*(__IO hw_fmc_tagvdw0sn_t *) HW_FMC_TAGVDW0Sn_ADDR(x, n))
-#define HW_FMC_TAGVDW0Sn_RD(x, n) (HW_FMC_TAGVDW0Sn(x, n).U)
-#define HW_FMC_TAGVDW0Sn_WR(x, n, v) (HW_FMC_TAGVDW0Sn(x, n).U = (v))
+#define HW_FMC_TAGVDW0Sn_RD(x, n) (ADDRESS_READ(hw_fmc_tagvdw0sn_t, HW_FMC_TAGVDW0Sn_ADDR(x, n)))
+#define HW_FMC_TAGVDW0Sn_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_tagvdw0sn_t, HW_FMC_TAGVDW0Sn_ADDR(x, n), v))
 #define HW_FMC_TAGVDW0Sn_SET(x, n, v) (HW_FMC_TAGVDW0Sn_WR(x, n, HW_FMC_TAGVDW0Sn_RD(x, n) |  (v)))
 #define HW_FMC_TAGVDW0Sn_CLR(x, n, v) (HW_FMC_TAGVDW0Sn_WR(x, n, HW_FMC_TAGVDW0Sn_RD(x, n) & ~(v)))
 #define HW_FMC_TAGVDW0Sn_TOG(x, n, v) (HW_FMC_TAGVDW0Sn_WR(x, n, HW_FMC_TAGVDW0Sn_RD(x, n) ^  (v)))
@@ -1170,13 +1177,13 @@ typedef union _hw_fmc_tagvdw0sn
 #define BS_FMC_TAGVDW0Sn_valid (1U)        /*!< Bit field size in bits for FMC_TAGVDW0Sn_valid. */
 
 /*! @brief Read current value of the FMC_TAGVDW0Sn_valid field. */
-#define BR_FMC_TAGVDW0Sn_valid(x, n) (BITBAND_ACCESS32(HW_FMC_TAGVDW0Sn_ADDR(x, n), BP_FMC_TAGVDW0Sn_valid))
+#define BR_FMC_TAGVDW0Sn_valid(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW0Sn_ADDR(x, n), BP_FMC_TAGVDW0Sn_valid)))
 
 /*! @brief Format value for bitfield FMC_TAGVDW0Sn_valid. */
 #define BF_FMC_TAGVDW0Sn_valid(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW0Sn_valid) & BM_FMC_TAGVDW0Sn_valid)
 
 /*! @brief Set the valid field to a new value. */
-#define BW_FMC_TAGVDW0Sn_valid(x, n, v) (BITBAND_ACCESS32(HW_FMC_TAGVDW0Sn_ADDR(x, n), BP_FMC_TAGVDW0Sn_valid) = (v))
+#define BW_FMC_TAGVDW0Sn_valid(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW0Sn_ADDR(x, n), BP_FMC_TAGVDW0Sn_valid), v))
 /*@}*/
 
 /*!
@@ -1188,7 +1195,7 @@ typedef union _hw_fmc_tagvdw0sn
 #define BS_FMC_TAGVDW0Sn_tag (14U)         /*!< Bit field size in bits for FMC_TAGVDW0Sn_tag. */
 
 /*! @brief Read current value of the FMC_TAGVDW0Sn_tag field. */
-#define BR_FMC_TAGVDW0Sn_tag(x, n) (HW_FMC_TAGVDW0Sn(x, n).B.tag)
+#define BR_FMC_TAGVDW0Sn_tag(x, n) (UNION_READ(hw_fmc_tagvdw0sn_t, HW_FMC_TAGVDW0Sn_ADDR(x, n), U, B.tag))
 
 /*! @brief Format value for bitfield FMC_TAGVDW0Sn_tag. */
 #define BF_FMC_TAGVDW0Sn_tag(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW0Sn_tag) & BM_FMC_TAGVDW0Sn_tag)
@@ -1232,8 +1239,8 @@ typedef union _hw_fmc_tagvdw1sn
 #define HW_FMC_TAGVDW1Sn_ADDR(x, n) ((x) + 0x110U + (0x4U * (n)))
 
 #define HW_FMC_TAGVDW1Sn(x, n)   (*(__IO hw_fmc_tagvdw1sn_t *) HW_FMC_TAGVDW1Sn_ADDR(x, n))
-#define HW_FMC_TAGVDW1Sn_RD(x, n) (HW_FMC_TAGVDW1Sn(x, n).U)
-#define HW_FMC_TAGVDW1Sn_WR(x, n, v) (HW_FMC_TAGVDW1Sn(x, n).U = (v))
+#define HW_FMC_TAGVDW1Sn_RD(x, n) (ADDRESS_READ(hw_fmc_tagvdw1sn_t, HW_FMC_TAGVDW1Sn_ADDR(x, n)))
+#define HW_FMC_TAGVDW1Sn_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_tagvdw1sn_t, HW_FMC_TAGVDW1Sn_ADDR(x, n), v))
 #define HW_FMC_TAGVDW1Sn_SET(x, n, v) (HW_FMC_TAGVDW1Sn_WR(x, n, HW_FMC_TAGVDW1Sn_RD(x, n) |  (v)))
 #define HW_FMC_TAGVDW1Sn_CLR(x, n, v) (HW_FMC_TAGVDW1Sn_WR(x, n, HW_FMC_TAGVDW1Sn_RD(x, n) & ~(v)))
 #define HW_FMC_TAGVDW1Sn_TOG(x, n, v) (HW_FMC_TAGVDW1Sn_WR(x, n, HW_FMC_TAGVDW1Sn_RD(x, n) ^  (v)))
@@ -1252,13 +1259,13 @@ typedef union _hw_fmc_tagvdw1sn
 #define BS_FMC_TAGVDW1Sn_valid (1U)        /*!< Bit field size in bits for FMC_TAGVDW1Sn_valid. */
 
 /*! @brief Read current value of the FMC_TAGVDW1Sn_valid field. */
-#define BR_FMC_TAGVDW1Sn_valid(x, n) (BITBAND_ACCESS32(HW_FMC_TAGVDW1Sn_ADDR(x, n), BP_FMC_TAGVDW1Sn_valid))
+#define BR_FMC_TAGVDW1Sn_valid(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW1Sn_ADDR(x, n), BP_FMC_TAGVDW1Sn_valid)))
 
 /*! @brief Format value for bitfield FMC_TAGVDW1Sn_valid. */
 #define BF_FMC_TAGVDW1Sn_valid(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW1Sn_valid) & BM_FMC_TAGVDW1Sn_valid)
 
 /*! @brief Set the valid field to a new value. */
-#define BW_FMC_TAGVDW1Sn_valid(x, n, v) (BITBAND_ACCESS32(HW_FMC_TAGVDW1Sn_ADDR(x, n), BP_FMC_TAGVDW1Sn_valid) = (v))
+#define BW_FMC_TAGVDW1Sn_valid(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW1Sn_ADDR(x, n), BP_FMC_TAGVDW1Sn_valid), v))
 /*@}*/
 
 /*!
@@ -1270,7 +1277,7 @@ typedef union _hw_fmc_tagvdw1sn
 #define BS_FMC_TAGVDW1Sn_tag (14U)         /*!< Bit field size in bits for FMC_TAGVDW1Sn_tag. */
 
 /*! @brief Read current value of the FMC_TAGVDW1Sn_tag field. */
-#define BR_FMC_TAGVDW1Sn_tag(x, n) (HW_FMC_TAGVDW1Sn(x, n).B.tag)
+#define BR_FMC_TAGVDW1Sn_tag(x, n) (UNION_READ(hw_fmc_tagvdw1sn_t, HW_FMC_TAGVDW1Sn_ADDR(x, n), U, B.tag))
 
 /*! @brief Format value for bitfield FMC_TAGVDW1Sn_tag. */
 #define BF_FMC_TAGVDW1Sn_tag(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW1Sn_tag) & BM_FMC_TAGVDW1Sn_tag)
@@ -1314,8 +1321,8 @@ typedef union _hw_fmc_tagvdw2sn
 #define HW_FMC_TAGVDW2Sn_ADDR(x, n) ((x) + 0x120U + (0x4U * (n)))
 
 #define HW_FMC_TAGVDW2Sn(x, n)   (*(__IO hw_fmc_tagvdw2sn_t *) HW_FMC_TAGVDW2Sn_ADDR(x, n))
-#define HW_FMC_TAGVDW2Sn_RD(x, n) (HW_FMC_TAGVDW2Sn(x, n).U)
-#define HW_FMC_TAGVDW2Sn_WR(x, n, v) (HW_FMC_TAGVDW2Sn(x, n).U = (v))
+#define HW_FMC_TAGVDW2Sn_RD(x, n) (ADDRESS_READ(hw_fmc_tagvdw2sn_t, HW_FMC_TAGVDW2Sn_ADDR(x, n)))
+#define HW_FMC_TAGVDW2Sn_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_tagvdw2sn_t, HW_FMC_TAGVDW2Sn_ADDR(x, n), v))
 #define HW_FMC_TAGVDW2Sn_SET(x, n, v) (HW_FMC_TAGVDW2Sn_WR(x, n, HW_FMC_TAGVDW2Sn_RD(x, n) |  (v)))
 #define HW_FMC_TAGVDW2Sn_CLR(x, n, v) (HW_FMC_TAGVDW2Sn_WR(x, n, HW_FMC_TAGVDW2Sn_RD(x, n) & ~(v)))
 #define HW_FMC_TAGVDW2Sn_TOG(x, n, v) (HW_FMC_TAGVDW2Sn_WR(x, n, HW_FMC_TAGVDW2Sn_RD(x, n) ^  (v)))
@@ -1334,13 +1341,13 @@ typedef union _hw_fmc_tagvdw2sn
 #define BS_FMC_TAGVDW2Sn_valid (1U)        /*!< Bit field size in bits for FMC_TAGVDW2Sn_valid. */
 
 /*! @brief Read current value of the FMC_TAGVDW2Sn_valid field. */
-#define BR_FMC_TAGVDW2Sn_valid(x, n) (BITBAND_ACCESS32(HW_FMC_TAGVDW2Sn_ADDR(x, n), BP_FMC_TAGVDW2Sn_valid))
+#define BR_FMC_TAGVDW2Sn_valid(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW2Sn_ADDR(x, n), BP_FMC_TAGVDW2Sn_valid)))
 
 /*! @brief Format value for bitfield FMC_TAGVDW2Sn_valid. */
 #define BF_FMC_TAGVDW2Sn_valid(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW2Sn_valid) & BM_FMC_TAGVDW2Sn_valid)
 
 /*! @brief Set the valid field to a new value. */
-#define BW_FMC_TAGVDW2Sn_valid(x, n, v) (BITBAND_ACCESS32(HW_FMC_TAGVDW2Sn_ADDR(x, n), BP_FMC_TAGVDW2Sn_valid) = (v))
+#define BW_FMC_TAGVDW2Sn_valid(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW2Sn_ADDR(x, n), BP_FMC_TAGVDW2Sn_valid), v))
 /*@}*/
 
 /*!
@@ -1352,7 +1359,7 @@ typedef union _hw_fmc_tagvdw2sn
 #define BS_FMC_TAGVDW2Sn_tag (14U)         /*!< Bit field size in bits for FMC_TAGVDW2Sn_tag. */
 
 /*! @brief Read current value of the FMC_TAGVDW2Sn_tag field. */
-#define BR_FMC_TAGVDW2Sn_tag(x, n) (HW_FMC_TAGVDW2Sn(x, n).B.tag)
+#define BR_FMC_TAGVDW2Sn_tag(x, n) (UNION_READ(hw_fmc_tagvdw2sn_t, HW_FMC_TAGVDW2Sn_ADDR(x, n), U, B.tag))
 
 /*! @brief Format value for bitfield FMC_TAGVDW2Sn_tag. */
 #define BF_FMC_TAGVDW2Sn_tag(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW2Sn_tag) & BM_FMC_TAGVDW2Sn_tag)
@@ -1396,8 +1403,8 @@ typedef union _hw_fmc_tagvdw3sn
 #define HW_FMC_TAGVDW3Sn_ADDR(x, n) ((x) + 0x130U + (0x4U * (n)))
 
 #define HW_FMC_TAGVDW3Sn(x, n)   (*(__IO hw_fmc_tagvdw3sn_t *) HW_FMC_TAGVDW3Sn_ADDR(x, n))
-#define HW_FMC_TAGVDW3Sn_RD(x, n) (HW_FMC_TAGVDW3Sn(x, n).U)
-#define HW_FMC_TAGVDW3Sn_WR(x, n, v) (HW_FMC_TAGVDW3Sn(x, n).U = (v))
+#define HW_FMC_TAGVDW3Sn_RD(x, n) (ADDRESS_READ(hw_fmc_tagvdw3sn_t, HW_FMC_TAGVDW3Sn_ADDR(x, n)))
+#define HW_FMC_TAGVDW3Sn_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_tagvdw3sn_t, HW_FMC_TAGVDW3Sn_ADDR(x, n), v))
 #define HW_FMC_TAGVDW3Sn_SET(x, n, v) (HW_FMC_TAGVDW3Sn_WR(x, n, HW_FMC_TAGVDW3Sn_RD(x, n) |  (v)))
 #define HW_FMC_TAGVDW3Sn_CLR(x, n, v) (HW_FMC_TAGVDW3Sn_WR(x, n, HW_FMC_TAGVDW3Sn_RD(x, n) & ~(v)))
 #define HW_FMC_TAGVDW3Sn_TOG(x, n, v) (HW_FMC_TAGVDW3Sn_WR(x, n, HW_FMC_TAGVDW3Sn_RD(x, n) ^  (v)))
@@ -1416,13 +1423,13 @@ typedef union _hw_fmc_tagvdw3sn
 #define BS_FMC_TAGVDW3Sn_valid (1U)        /*!< Bit field size in bits for FMC_TAGVDW3Sn_valid. */
 
 /*! @brief Read current value of the FMC_TAGVDW3Sn_valid field. */
-#define BR_FMC_TAGVDW3Sn_valid(x, n) (BITBAND_ACCESS32(HW_FMC_TAGVDW3Sn_ADDR(x, n), BP_FMC_TAGVDW3Sn_valid))
+#define BR_FMC_TAGVDW3Sn_valid(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW3Sn_ADDR(x, n), BP_FMC_TAGVDW3Sn_valid)))
 
 /*! @brief Format value for bitfield FMC_TAGVDW3Sn_valid. */
 #define BF_FMC_TAGVDW3Sn_valid(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW3Sn_valid) & BM_FMC_TAGVDW3Sn_valid)
 
 /*! @brief Set the valid field to a new value. */
-#define BW_FMC_TAGVDW3Sn_valid(x, n, v) (BITBAND_ACCESS32(HW_FMC_TAGVDW3Sn_ADDR(x, n), BP_FMC_TAGVDW3Sn_valid) = (v))
+#define BW_FMC_TAGVDW3Sn_valid(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_FMC_TAGVDW3Sn_ADDR(x, n), BP_FMC_TAGVDW3Sn_valid), v))
 /*@}*/
 
 /*!
@@ -1434,7 +1441,7 @@ typedef union _hw_fmc_tagvdw3sn
 #define BS_FMC_TAGVDW3Sn_tag (14U)         /*!< Bit field size in bits for FMC_TAGVDW3Sn_tag. */
 
 /*! @brief Read current value of the FMC_TAGVDW3Sn_tag field. */
-#define BR_FMC_TAGVDW3Sn_tag(x, n) (HW_FMC_TAGVDW3Sn(x, n).B.tag)
+#define BR_FMC_TAGVDW3Sn_tag(x, n) (UNION_READ(hw_fmc_tagvdw3sn_t, HW_FMC_TAGVDW3Sn_ADDR(x, n), U, B.tag))
 
 /*! @brief Format value for bitfield FMC_TAGVDW3Sn_tag. */
 #define BF_FMC_TAGVDW3Sn_tag(v) ((uint32_t)((uint32_t)(v) << BP_FMC_TAGVDW3Sn_tag) & BM_FMC_TAGVDW3Sn_tag)
@@ -1476,8 +1483,8 @@ typedef union _hw_fmc_dataw0snu
 #define HW_FMC_DATAW0SnU_ADDR(x, n) ((x) + 0x200U + (0x8U * (n)))
 
 #define HW_FMC_DATAW0SnU(x, n)   (*(__IO hw_fmc_dataw0snu_t *) HW_FMC_DATAW0SnU_ADDR(x, n))
-#define HW_FMC_DATAW0SnU_RD(x, n) (HW_FMC_DATAW0SnU(x, n).U)
-#define HW_FMC_DATAW0SnU_WR(x, n, v) (HW_FMC_DATAW0SnU(x, n).U = (v))
+#define HW_FMC_DATAW0SnU_RD(x, n) (ADDRESS_READ(hw_fmc_dataw0snu_t, HW_FMC_DATAW0SnU_ADDR(x, n)))
+#define HW_FMC_DATAW0SnU_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw0snu_t, HW_FMC_DATAW0SnU_ADDR(x, n), v))
 #define HW_FMC_DATAW0SnU_SET(x, n, v) (HW_FMC_DATAW0SnU_WR(x, n, HW_FMC_DATAW0SnU_RD(x, n) |  (v)))
 #define HW_FMC_DATAW0SnU_CLR(x, n, v) (HW_FMC_DATAW0SnU_WR(x, n, HW_FMC_DATAW0SnU_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW0SnU_TOG(x, n, v) (HW_FMC_DATAW0SnU_WR(x, n, HW_FMC_DATAW0SnU_RD(x, n) ^  (v)))
@@ -1537,8 +1544,8 @@ typedef union _hw_fmc_dataw0snl
 #define HW_FMC_DATAW0SnL_ADDR(x, n) ((x) + 0x204U + (0x8U * (n)))
 
 #define HW_FMC_DATAW0SnL(x, n)   (*(__IO hw_fmc_dataw0snl_t *) HW_FMC_DATAW0SnL_ADDR(x, n))
-#define HW_FMC_DATAW0SnL_RD(x, n) (HW_FMC_DATAW0SnL(x, n).U)
-#define HW_FMC_DATAW0SnL_WR(x, n, v) (HW_FMC_DATAW0SnL(x, n).U = (v))
+#define HW_FMC_DATAW0SnL_RD(x, n) (ADDRESS_READ(hw_fmc_dataw0snl_t, HW_FMC_DATAW0SnL_ADDR(x, n)))
+#define HW_FMC_DATAW0SnL_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw0snl_t, HW_FMC_DATAW0SnL_ADDR(x, n), v))
 #define HW_FMC_DATAW0SnL_SET(x, n, v) (HW_FMC_DATAW0SnL_WR(x, n, HW_FMC_DATAW0SnL_RD(x, n) |  (v)))
 #define HW_FMC_DATAW0SnL_CLR(x, n, v) (HW_FMC_DATAW0SnL_WR(x, n, HW_FMC_DATAW0SnL_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW0SnL_TOG(x, n, v) (HW_FMC_DATAW0SnL_WR(x, n, HW_FMC_DATAW0SnL_RD(x, n) ^  (v)))
@@ -1599,8 +1606,8 @@ typedef union _hw_fmc_dataw1snu
 #define HW_FMC_DATAW1SnU_ADDR(x, n) ((x) + 0x220U + (0x8U * (n)))
 
 #define HW_FMC_DATAW1SnU(x, n)   (*(__IO hw_fmc_dataw1snu_t *) HW_FMC_DATAW1SnU_ADDR(x, n))
-#define HW_FMC_DATAW1SnU_RD(x, n) (HW_FMC_DATAW1SnU(x, n).U)
-#define HW_FMC_DATAW1SnU_WR(x, n, v) (HW_FMC_DATAW1SnU(x, n).U = (v))
+#define HW_FMC_DATAW1SnU_RD(x, n) (ADDRESS_READ(hw_fmc_dataw1snu_t, HW_FMC_DATAW1SnU_ADDR(x, n)))
+#define HW_FMC_DATAW1SnU_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw1snu_t, HW_FMC_DATAW1SnU_ADDR(x, n), v))
 #define HW_FMC_DATAW1SnU_SET(x, n, v) (HW_FMC_DATAW1SnU_WR(x, n, HW_FMC_DATAW1SnU_RD(x, n) |  (v)))
 #define HW_FMC_DATAW1SnU_CLR(x, n, v) (HW_FMC_DATAW1SnU_WR(x, n, HW_FMC_DATAW1SnU_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW1SnU_TOG(x, n, v) (HW_FMC_DATAW1SnU_WR(x, n, HW_FMC_DATAW1SnU_RD(x, n) ^  (v)))
@@ -1660,8 +1667,8 @@ typedef union _hw_fmc_dataw1snl
 #define HW_FMC_DATAW1SnL_ADDR(x, n) ((x) + 0x224U + (0x8U * (n)))
 
 #define HW_FMC_DATAW1SnL(x, n)   (*(__IO hw_fmc_dataw1snl_t *) HW_FMC_DATAW1SnL_ADDR(x, n))
-#define HW_FMC_DATAW1SnL_RD(x, n) (HW_FMC_DATAW1SnL(x, n).U)
-#define HW_FMC_DATAW1SnL_WR(x, n, v) (HW_FMC_DATAW1SnL(x, n).U = (v))
+#define HW_FMC_DATAW1SnL_RD(x, n) (ADDRESS_READ(hw_fmc_dataw1snl_t, HW_FMC_DATAW1SnL_ADDR(x, n)))
+#define HW_FMC_DATAW1SnL_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw1snl_t, HW_FMC_DATAW1SnL_ADDR(x, n), v))
 #define HW_FMC_DATAW1SnL_SET(x, n, v) (HW_FMC_DATAW1SnL_WR(x, n, HW_FMC_DATAW1SnL_RD(x, n) |  (v)))
 #define HW_FMC_DATAW1SnL_CLR(x, n, v) (HW_FMC_DATAW1SnL_WR(x, n, HW_FMC_DATAW1SnL_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW1SnL_TOG(x, n, v) (HW_FMC_DATAW1SnL_WR(x, n, HW_FMC_DATAW1SnL_RD(x, n) ^  (v)))
@@ -1722,8 +1729,8 @@ typedef union _hw_fmc_dataw2snu
 #define HW_FMC_DATAW2SnU_ADDR(x, n) ((x) + 0x240U + (0x8U * (n)))
 
 #define HW_FMC_DATAW2SnU(x, n)   (*(__IO hw_fmc_dataw2snu_t *) HW_FMC_DATAW2SnU_ADDR(x, n))
-#define HW_FMC_DATAW2SnU_RD(x, n) (HW_FMC_DATAW2SnU(x, n).U)
-#define HW_FMC_DATAW2SnU_WR(x, n, v) (HW_FMC_DATAW2SnU(x, n).U = (v))
+#define HW_FMC_DATAW2SnU_RD(x, n) (ADDRESS_READ(hw_fmc_dataw2snu_t, HW_FMC_DATAW2SnU_ADDR(x, n)))
+#define HW_FMC_DATAW2SnU_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw2snu_t, HW_FMC_DATAW2SnU_ADDR(x, n), v))
 #define HW_FMC_DATAW2SnU_SET(x, n, v) (HW_FMC_DATAW2SnU_WR(x, n, HW_FMC_DATAW2SnU_RD(x, n) |  (v)))
 #define HW_FMC_DATAW2SnU_CLR(x, n, v) (HW_FMC_DATAW2SnU_WR(x, n, HW_FMC_DATAW2SnU_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW2SnU_TOG(x, n, v) (HW_FMC_DATAW2SnU_WR(x, n, HW_FMC_DATAW2SnU_RD(x, n) ^  (v)))
@@ -1783,8 +1790,8 @@ typedef union _hw_fmc_dataw2snl
 #define HW_FMC_DATAW2SnL_ADDR(x, n) ((x) + 0x244U + (0x8U * (n)))
 
 #define HW_FMC_DATAW2SnL(x, n)   (*(__IO hw_fmc_dataw2snl_t *) HW_FMC_DATAW2SnL_ADDR(x, n))
-#define HW_FMC_DATAW2SnL_RD(x, n) (HW_FMC_DATAW2SnL(x, n).U)
-#define HW_FMC_DATAW2SnL_WR(x, n, v) (HW_FMC_DATAW2SnL(x, n).U = (v))
+#define HW_FMC_DATAW2SnL_RD(x, n) (ADDRESS_READ(hw_fmc_dataw2snl_t, HW_FMC_DATAW2SnL_ADDR(x, n)))
+#define HW_FMC_DATAW2SnL_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw2snl_t, HW_FMC_DATAW2SnL_ADDR(x, n), v))
 #define HW_FMC_DATAW2SnL_SET(x, n, v) (HW_FMC_DATAW2SnL_WR(x, n, HW_FMC_DATAW2SnL_RD(x, n) |  (v)))
 #define HW_FMC_DATAW2SnL_CLR(x, n, v) (HW_FMC_DATAW2SnL_WR(x, n, HW_FMC_DATAW2SnL_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW2SnL_TOG(x, n, v) (HW_FMC_DATAW2SnL_WR(x, n, HW_FMC_DATAW2SnL_RD(x, n) ^  (v)))
@@ -1845,8 +1852,8 @@ typedef union _hw_fmc_dataw3snu
 #define HW_FMC_DATAW3SnU_ADDR(x, n) ((x) + 0x260U + (0x8U * (n)))
 
 #define HW_FMC_DATAW3SnU(x, n)   (*(__IO hw_fmc_dataw3snu_t *) HW_FMC_DATAW3SnU_ADDR(x, n))
-#define HW_FMC_DATAW3SnU_RD(x, n) (HW_FMC_DATAW3SnU(x, n).U)
-#define HW_FMC_DATAW3SnU_WR(x, n, v) (HW_FMC_DATAW3SnU(x, n).U = (v))
+#define HW_FMC_DATAW3SnU_RD(x, n) (ADDRESS_READ(hw_fmc_dataw3snu_t, HW_FMC_DATAW3SnU_ADDR(x, n)))
+#define HW_FMC_DATAW3SnU_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw3snu_t, HW_FMC_DATAW3SnU_ADDR(x, n), v))
 #define HW_FMC_DATAW3SnU_SET(x, n, v) (HW_FMC_DATAW3SnU_WR(x, n, HW_FMC_DATAW3SnU_RD(x, n) |  (v)))
 #define HW_FMC_DATAW3SnU_CLR(x, n, v) (HW_FMC_DATAW3SnU_WR(x, n, HW_FMC_DATAW3SnU_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW3SnU_TOG(x, n, v) (HW_FMC_DATAW3SnU_WR(x, n, HW_FMC_DATAW3SnU_RD(x, n) ^  (v)))
@@ -1906,8 +1913,8 @@ typedef union _hw_fmc_dataw3snl
 #define HW_FMC_DATAW3SnL_ADDR(x, n) ((x) + 0x264U + (0x8U * (n)))
 
 #define HW_FMC_DATAW3SnL(x, n)   (*(__IO hw_fmc_dataw3snl_t *) HW_FMC_DATAW3SnL_ADDR(x, n))
-#define HW_FMC_DATAW3SnL_RD(x, n) (HW_FMC_DATAW3SnL(x, n).U)
-#define HW_FMC_DATAW3SnL_WR(x, n, v) (HW_FMC_DATAW3SnL(x, n).U = (v))
+#define HW_FMC_DATAW3SnL_RD(x, n) (ADDRESS_READ(hw_fmc_dataw3snl_t, HW_FMC_DATAW3SnL_ADDR(x, n)))
+#define HW_FMC_DATAW3SnL_WR(x, n, v) (ADDRESS_WRITE(hw_fmc_dataw3snl_t, HW_FMC_DATAW3SnL_ADDR(x, n), v))
 #define HW_FMC_DATAW3SnL_SET(x, n, v) (HW_FMC_DATAW3SnL_WR(x, n, HW_FMC_DATAW3SnL_RD(x, n) |  (v)))
 #define HW_FMC_DATAW3SnL_CLR(x, n, v) (HW_FMC_DATAW3SnL_WR(x, n, HW_FMC_DATAW3SnL_RD(x, n) & ~(v)))
 #define HW_FMC_DATAW3SnL_TOG(x, n, v) (HW_FMC_DATAW3SnL_WR(x, n, HW_FMC_DATAW3SnL_RD(x, n) ^  (v)))

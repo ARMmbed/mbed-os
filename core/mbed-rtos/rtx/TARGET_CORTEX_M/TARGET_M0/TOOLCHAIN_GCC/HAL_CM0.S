@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      CMSIS-RTOS  -  RTX
+ *      RL-ARM - RTX
  *----------------------------------------------------------------------------
  *      Name:    HAL_CM0.S
  *      Purpose: Hardware Abstraction Layer for Cortex-M0
- *      Rev.:    V4.70
+ *      Rev.:    V4.60
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -145,7 +145,7 @@ PrivilegedA:
 
 /*--------------------------- _free_box -------------------------------------*/
 
-#       U32 _free_box (void *box_mem, void *box);
+#       int _free_box (void *box_mem, void *box);
         /* Function wrapper for Unprivileged/Privileged mode. */
 
         .thumb_func

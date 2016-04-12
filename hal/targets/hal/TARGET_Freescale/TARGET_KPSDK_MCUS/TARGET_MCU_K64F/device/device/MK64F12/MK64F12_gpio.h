@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -136,8 +143,8 @@ typedef union _hw_gpio_pdor
 #define HW_GPIO_PDOR_ADDR(x)     ((x) + 0x0U)
 
 #define HW_GPIO_PDOR(x)          (*(__IO hw_gpio_pdor_t *) HW_GPIO_PDOR_ADDR(x))
-#define HW_GPIO_PDOR_RD(x)       (HW_GPIO_PDOR(x).U)
-#define HW_GPIO_PDOR_WR(x, v)    (HW_GPIO_PDOR(x).U = (v))
+#define HW_GPIO_PDOR_RD(x)       (ADDRESS_READ(hw_gpio_pdor_t, HW_GPIO_PDOR_ADDR(x)))
+#define HW_GPIO_PDOR_WR(x, v)    (ADDRESS_WRITE(hw_gpio_pdor_t, HW_GPIO_PDOR_ADDR(x), v))
 #define HW_GPIO_PDOR_SET(x, v)   (HW_GPIO_PDOR_WR(x, HW_GPIO_PDOR_RD(x) |  (v)))
 #define HW_GPIO_PDOR_CLR(x, v)   (HW_GPIO_PDOR_WR(x, HW_GPIO_PDOR_RD(x) & ~(v)))
 #define HW_GPIO_PDOR_TOG(x, v)   (HW_GPIO_PDOR_WR(x, HW_GPIO_PDOR_RD(x) ^  (v)))
@@ -200,8 +207,8 @@ typedef union _hw_gpio_psor
 #define HW_GPIO_PSOR_ADDR(x)     ((x) + 0x4U)
 
 #define HW_GPIO_PSOR(x)          (*(__O hw_gpio_psor_t *) HW_GPIO_PSOR_ADDR(x))
-#define HW_GPIO_PSOR_RD(x)       (HW_GPIO_PSOR(x).U)
-#define HW_GPIO_PSOR_WR(x, v)    (HW_GPIO_PSOR(x).U = (v))
+#define HW_GPIO_PSOR_RD(x)       (ADDRESS_READ(hw_gpio_psor_t, HW_GPIO_PSOR_ADDR(x)))
+#define HW_GPIO_PSOR_WR(x, v)    (ADDRESS_WRITE(hw_gpio_psor_t, HW_GPIO_PSOR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -257,8 +264,8 @@ typedef union _hw_gpio_pcor
 #define HW_GPIO_PCOR_ADDR(x)     ((x) + 0x8U)
 
 #define HW_GPIO_PCOR(x)          (*(__O hw_gpio_pcor_t *) HW_GPIO_PCOR_ADDR(x))
-#define HW_GPIO_PCOR_RD(x)       (HW_GPIO_PCOR(x).U)
-#define HW_GPIO_PCOR_WR(x, v)    (HW_GPIO_PCOR(x).U = (v))
+#define HW_GPIO_PCOR_RD(x)       (ADDRESS_READ(hw_gpio_pcor_t, HW_GPIO_PCOR_ADDR(x)))
+#define HW_GPIO_PCOR_WR(x, v)    (ADDRESS_WRITE(hw_gpio_pcor_t, HW_GPIO_PCOR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -312,8 +319,8 @@ typedef union _hw_gpio_ptor
 #define HW_GPIO_PTOR_ADDR(x)     ((x) + 0xCU)
 
 #define HW_GPIO_PTOR(x)          (*(__O hw_gpio_ptor_t *) HW_GPIO_PTOR_ADDR(x))
-#define HW_GPIO_PTOR_RD(x)       (HW_GPIO_PTOR(x).U)
-#define HW_GPIO_PTOR_WR(x, v)    (HW_GPIO_PTOR(x).U = (v))
+#define HW_GPIO_PTOR_RD(x)       (ADDRESS_READ(hw_gpio_ptor_t, HW_GPIO_PTOR_ADDR(x)))
+#define HW_GPIO_PTOR_WR(x, v)    (ADDRESS_WRITE(hw_gpio_ptor_t, HW_GPIO_PTOR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -372,7 +379,7 @@ typedef union _hw_gpio_pdir
 #define HW_GPIO_PDIR_ADDR(x)     ((x) + 0x10U)
 
 #define HW_GPIO_PDIR(x)          (*(__I hw_gpio_pdir_t *) HW_GPIO_PDIR_ADDR(x))
-#define HW_GPIO_PDIR_RD(x)       (HW_GPIO_PDIR(x).U)
+#define HW_GPIO_PDIR_RD(x)       (ADDRESS_READ(hw_gpio_pdir_t, HW_GPIO_PDIR_ADDR(x)))
 /*@}*/
 
 /*
@@ -427,8 +434,8 @@ typedef union _hw_gpio_pddr
 #define HW_GPIO_PDDR_ADDR(x)     ((x) + 0x14U)
 
 #define HW_GPIO_PDDR(x)          (*(__IO hw_gpio_pddr_t *) HW_GPIO_PDDR_ADDR(x))
-#define HW_GPIO_PDDR_RD(x)       (HW_GPIO_PDDR(x).U)
-#define HW_GPIO_PDDR_WR(x, v)    (HW_GPIO_PDDR(x).U = (v))
+#define HW_GPIO_PDDR_RD(x)       (ADDRESS_READ(hw_gpio_pddr_t, HW_GPIO_PDDR_ADDR(x)))
+#define HW_GPIO_PDDR_WR(x, v)    (ADDRESS_WRITE(hw_gpio_pddr_t, HW_GPIO_PDDR_ADDR(x), v))
 #define HW_GPIO_PDDR_SET(x, v)   (HW_GPIO_PDDR_WR(x, HW_GPIO_PDDR_RD(x) |  (v)))
 #define HW_GPIO_PDDR_CLR(x, v)   (HW_GPIO_PDDR_WR(x, HW_GPIO_PDDR_RD(x) & ~(v)))
 #define HW_GPIO_PDDR_TOG(x, v)   (HW_GPIO_PDDR_WR(x, HW_GPIO_PDDR_RD(x) ^  (v)))

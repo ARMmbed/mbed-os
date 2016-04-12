@@ -64,7 +64,7 @@ __StackTop:
 #ifdef __HEAP_SIZE
     .equ    Heap_Size, __HEAP_SIZE
 #else
-    .equ    Heap_Size, 0x400
+    .equ    Heap_Size, 0x20000
 #endif
     .globl    __HeapBase
     .globl    __HeapLimit
@@ -228,6 +228,8 @@ disable_watchdog:
 .Lflash_to_ram_loop_end:
 
     ldr   r0, =SystemInit
+    blx   r0
+    ldr   r0, =uvisor_init
     blx   r0
     ldr   r0, =_start
     bx    r0

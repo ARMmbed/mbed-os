@@ -24,6 +24,10 @@
 typedef int FILEHANDLE;
 #endif
 
+#ifndef EXTERN
+#define EXTERN extern
+#endif
+
 #if defined (__ICCARM__)
 #   define WEAK     __weak
 #   define PACKED   __packed

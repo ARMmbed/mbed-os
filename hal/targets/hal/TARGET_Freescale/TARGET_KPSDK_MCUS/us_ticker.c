@@ -44,8 +44,8 @@ void us_ticker_init(void) {
     //Ticker
     PIT_HAL_SetTimerPeriodByCount(PIT_BASE, 2, busClock / 1000000 - 1);
     PIT_HAL_SetTimerChainCmd(PIT_BASE, 3, true);
-    NVIC_SetVector(PIT3_IRQn, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ(PIT3_IRQn);
+    vIRQ_SetVector(PIT3_IRQn, (uint32_t)us_ticker_irq_handler);
+    vIRQ_EnableIRQ(PIT3_IRQn);
 }
 
 

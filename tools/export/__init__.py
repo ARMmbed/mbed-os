@@ -55,7 +55,7 @@ def online_build_url_resolver(url):
 
 
 def export(project_path, project_name, ide, target, destination='/tmp/',
-           tempdir=None, clean=True, extra_symbols=None, build_url_resolver=online_build_url_resolver):
+           tempdir=None, clean=True, extra_symbols=None, zip=True, build_url_resolver=online_build_url_resolver):
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
         target = target.upper()
@@ -131,8 +131,13 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
         # add readme file to every offline export.
         open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/Getting-Started-mbed-Exporters#%s"/>'% (ide))
         # copy .hgignore file to exported direcotry as well.
-        copy(os.path.join(exporter.TEMPLATE_DIR,'.hgignore'),tempdir)
-        zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
+        if exists(os.path.join(exporter.TEMPLATE_DIR,'.hgignore')):
+            copy(os.path.join(exporter.TEMPLATE_DIR,'.hgignore'),tempdir)
+
+        if zip:
+            zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
+        else:
+            zip_path = destination
 
     return zip_path, report
 

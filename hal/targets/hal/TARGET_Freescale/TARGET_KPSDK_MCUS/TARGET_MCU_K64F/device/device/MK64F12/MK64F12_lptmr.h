@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -131,8 +138,8 @@ typedef union _hw_lptmr_csr
 #define HW_LPTMR_CSR_ADDR(x)     ((x) + 0x0U)
 
 #define HW_LPTMR_CSR(x)          (*(__IO hw_lptmr_csr_t *) HW_LPTMR_CSR_ADDR(x))
-#define HW_LPTMR_CSR_RD(x)       (HW_LPTMR_CSR(x).U)
-#define HW_LPTMR_CSR_WR(x, v)    (HW_LPTMR_CSR(x).U = (v))
+#define HW_LPTMR_CSR_RD(x)       (ADDRESS_READ(hw_lptmr_csr_t, HW_LPTMR_CSR_ADDR(x)))
+#define HW_LPTMR_CSR_WR(x, v)    (ADDRESS_WRITE(hw_lptmr_csr_t, HW_LPTMR_CSR_ADDR(x), v))
 #define HW_LPTMR_CSR_SET(x, v)   (HW_LPTMR_CSR_WR(x, HW_LPTMR_CSR_RD(x) |  (v)))
 #define HW_LPTMR_CSR_CLR(x, v)   (HW_LPTMR_CSR_WR(x, HW_LPTMR_CSR_RD(x) & ~(v)))
 #define HW_LPTMR_CSR_TOG(x, v)   (HW_LPTMR_CSR_WR(x, HW_LPTMR_CSR_RD(x) ^  (v)))
@@ -159,13 +166,13 @@ typedef union _hw_lptmr_csr
 #define BS_LPTMR_CSR_TEN     (1U)          /*!< Bit field size in bits for LPTMR_CSR_TEN. */
 
 /*! @brief Read current value of the LPTMR_CSR_TEN field. */
-#define BR_LPTMR_CSR_TEN(x)  (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TEN))
+#define BR_LPTMR_CSR_TEN(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TEN)))
 
 /*! @brief Format value for bitfield LPTMR_CSR_TEN. */
 #define BF_LPTMR_CSR_TEN(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_CSR_TEN) & BM_LPTMR_CSR_TEN)
 
 /*! @brief Set the TEN field to a new value. */
-#define BW_LPTMR_CSR_TEN(x, v) (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TEN) = (v))
+#define BW_LPTMR_CSR_TEN(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TEN), v))
 /*@}*/
 
 /*!
@@ -184,13 +191,13 @@ typedef union _hw_lptmr_csr
 #define BS_LPTMR_CSR_TMS     (1U)          /*!< Bit field size in bits for LPTMR_CSR_TMS. */
 
 /*! @brief Read current value of the LPTMR_CSR_TMS field. */
-#define BR_LPTMR_CSR_TMS(x)  (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TMS))
+#define BR_LPTMR_CSR_TMS(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TMS)))
 
 /*! @brief Format value for bitfield LPTMR_CSR_TMS. */
 #define BF_LPTMR_CSR_TMS(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_CSR_TMS) & BM_LPTMR_CSR_TMS)
 
 /*! @brief Set the TMS field to a new value. */
-#define BW_LPTMR_CSR_TMS(x, v) (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TMS) = (v))
+#define BW_LPTMR_CSR_TMS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TMS), v))
 /*@}*/
 
 /*!
@@ -210,13 +217,13 @@ typedef union _hw_lptmr_csr
 #define BS_LPTMR_CSR_TFC     (1U)          /*!< Bit field size in bits for LPTMR_CSR_TFC. */
 
 /*! @brief Read current value of the LPTMR_CSR_TFC field. */
-#define BR_LPTMR_CSR_TFC(x)  (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TFC))
+#define BR_LPTMR_CSR_TFC(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TFC)))
 
 /*! @brief Format value for bitfield LPTMR_CSR_TFC. */
 #define BF_LPTMR_CSR_TFC(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_CSR_TFC) & BM_LPTMR_CSR_TFC)
 
 /*! @brief Set the TFC field to a new value. */
-#define BW_LPTMR_CSR_TFC(x, v) (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TFC) = (v))
+#define BW_LPTMR_CSR_TFC(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TFC), v))
 /*@}*/
 
 /*!
@@ -237,13 +244,13 @@ typedef union _hw_lptmr_csr
 #define BS_LPTMR_CSR_TPP     (1U)          /*!< Bit field size in bits for LPTMR_CSR_TPP. */
 
 /*! @brief Read current value of the LPTMR_CSR_TPP field. */
-#define BR_LPTMR_CSR_TPP(x)  (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TPP))
+#define BR_LPTMR_CSR_TPP(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TPP)))
 
 /*! @brief Format value for bitfield LPTMR_CSR_TPP. */
 #define BF_LPTMR_CSR_TPP(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_CSR_TPP) & BM_LPTMR_CSR_TPP)
 
 /*! @brief Set the TPP field to a new value. */
-#define BW_LPTMR_CSR_TPP(x, v) (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TPP) = (v))
+#define BW_LPTMR_CSR_TPP(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TPP), v))
 /*@}*/
 
 /*!
@@ -266,7 +273,7 @@ typedef union _hw_lptmr_csr
 #define BS_LPTMR_CSR_TPS     (2U)          /*!< Bit field size in bits for LPTMR_CSR_TPS. */
 
 /*! @brief Read current value of the LPTMR_CSR_TPS field. */
-#define BR_LPTMR_CSR_TPS(x)  (HW_LPTMR_CSR(x).B.TPS)
+#define BR_LPTMR_CSR_TPS(x)  (UNION_READ(hw_lptmr_csr_t, HW_LPTMR_CSR_ADDR(x), U, B.TPS))
 
 /*! @brief Format value for bitfield LPTMR_CSR_TPS. */
 #define BF_LPTMR_CSR_TPS(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_CSR_TPS) & BM_LPTMR_CSR_TPS)
@@ -290,13 +297,13 @@ typedef union _hw_lptmr_csr
 #define BS_LPTMR_CSR_TIE     (1U)          /*!< Bit field size in bits for LPTMR_CSR_TIE. */
 
 /*! @brief Read current value of the LPTMR_CSR_TIE field. */
-#define BR_LPTMR_CSR_TIE(x)  (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TIE))
+#define BR_LPTMR_CSR_TIE(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TIE)))
 
 /*! @brief Format value for bitfield LPTMR_CSR_TIE. */
 #define BF_LPTMR_CSR_TIE(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_CSR_TIE) & BM_LPTMR_CSR_TIE)
 
 /*! @brief Set the TIE field to a new value. */
-#define BW_LPTMR_CSR_TIE(x, v) (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TIE) = (v))
+#define BW_LPTMR_CSR_TIE(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TIE), v))
 /*@}*/
 
 /*!
@@ -315,13 +322,13 @@ typedef union _hw_lptmr_csr
 #define BS_LPTMR_CSR_TCF     (1U)          /*!< Bit field size in bits for LPTMR_CSR_TCF. */
 
 /*! @brief Read current value of the LPTMR_CSR_TCF field. */
-#define BR_LPTMR_CSR_TCF(x)  (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TCF))
+#define BR_LPTMR_CSR_TCF(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TCF)))
 
 /*! @brief Format value for bitfield LPTMR_CSR_TCF. */
 #define BF_LPTMR_CSR_TCF(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_CSR_TCF) & BM_LPTMR_CSR_TCF)
 
 /*! @brief Set the TCF field to a new value. */
-#define BW_LPTMR_CSR_TCF(x, v) (BITBAND_ACCESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TCF) = (v))
+#define BW_LPTMR_CSR_TCF(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_CSR_ADDR(x), BP_LPTMR_CSR_TCF), v))
 /*@}*/
 
 /*******************************************************************************
@@ -352,8 +359,8 @@ typedef union _hw_lptmr_psr
 #define HW_LPTMR_PSR_ADDR(x)     ((x) + 0x4U)
 
 #define HW_LPTMR_PSR(x)          (*(__IO hw_lptmr_psr_t *) HW_LPTMR_PSR_ADDR(x))
-#define HW_LPTMR_PSR_RD(x)       (HW_LPTMR_PSR(x).U)
-#define HW_LPTMR_PSR_WR(x, v)    (HW_LPTMR_PSR(x).U = (v))
+#define HW_LPTMR_PSR_RD(x)       (ADDRESS_READ(hw_lptmr_psr_t, HW_LPTMR_PSR_ADDR(x)))
+#define HW_LPTMR_PSR_WR(x, v)    (ADDRESS_WRITE(hw_lptmr_psr_t, HW_LPTMR_PSR_ADDR(x), v))
 #define HW_LPTMR_PSR_SET(x, v)   (HW_LPTMR_PSR_WR(x, HW_LPTMR_PSR_RD(x) |  (v)))
 #define HW_LPTMR_PSR_CLR(x, v)   (HW_LPTMR_PSR_WR(x, HW_LPTMR_PSR_RD(x) & ~(v)))
 #define HW_LPTMR_PSR_TOG(x, v)   (HW_LPTMR_PSR_WR(x, HW_LPTMR_PSR_RD(x) ^  (v)))
@@ -383,7 +390,7 @@ typedef union _hw_lptmr_psr
 #define BS_LPTMR_PSR_PCS     (2U)          /*!< Bit field size in bits for LPTMR_PSR_PCS. */
 
 /*! @brief Read current value of the LPTMR_PSR_PCS field. */
-#define BR_LPTMR_PSR_PCS(x)  (HW_LPTMR_PSR(x).B.PCS)
+#define BR_LPTMR_PSR_PCS(x)  (UNION_READ(hw_lptmr_psr_t, HW_LPTMR_PSR_ADDR(x), U, B.PCS))
 
 /*! @brief Format value for bitfield LPTMR_PSR_PCS. */
 #define BF_LPTMR_PSR_PCS(v)  ((uint32_t)((uint32_t)(v) << BP_LPTMR_PSR_PCS) & BM_LPTMR_PSR_PCS)
@@ -410,13 +417,13 @@ typedef union _hw_lptmr_psr
 #define BS_LPTMR_PSR_PBYP    (1U)          /*!< Bit field size in bits for LPTMR_PSR_PBYP. */
 
 /*! @brief Read current value of the LPTMR_PSR_PBYP field. */
-#define BR_LPTMR_PSR_PBYP(x) (BITBAND_ACCESS32(HW_LPTMR_PSR_ADDR(x), BP_LPTMR_PSR_PBYP))
+#define BR_LPTMR_PSR_PBYP(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_PSR_ADDR(x), BP_LPTMR_PSR_PBYP)))
 
 /*! @brief Format value for bitfield LPTMR_PSR_PBYP. */
 #define BF_LPTMR_PSR_PBYP(v) ((uint32_t)((uint32_t)(v) << BP_LPTMR_PSR_PBYP) & BM_LPTMR_PSR_PBYP)
 
 /*! @brief Set the PBYP field to a new value. */
-#define BW_LPTMR_PSR_PBYP(x, v) (BITBAND_ACCESS32(HW_LPTMR_PSR_ADDR(x), BP_LPTMR_PSR_PBYP) = (v))
+#define BW_LPTMR_PSR_PBYP(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_LPTMR_PSR_ADDR(x), BP_LPTMR_PSR_PBYP), v))
 /*@}*/
 
 /*!
@@ -466,7 +473,7 @@ typedef union _hw_lptmr_psr
 #define BS_LPTMR_PSR_PRESCALE (4U)         /*!< Bit field size in bits for LPTMR_PSR_PRESCALE. */
 
 /*! @brief Read current value of the LPTMR_PSR_PRESCALE field. */
-#define BR_LPTMR_PSR_PRESCALE(x) (HW_LPTMR_PSR(x).B.PRESCALE)
+#define BR_LPTMR_PSR_PRESCALE(x) (UNION_READ(hw_lptmr_psr_t, HW_LPTMR_PSR_ADDR(x), U, B.PRESCALE))
 
 /*! @brief Format value for bitfield LPTMR_PSR_PRESCALE. */
 #define BF_LPTMR_PSR_PRESCALE(v) ((uint32_t)((uint32_t)(v) << BP_LPTMR_PSR_PRESCALE) & BM_LPTMR_PSR_PRESCALE)
@@ -501,8 +508,8 @@ typedef union _hw_lptmr_cmr
 #define HW_LPTMR_CMR_ADDR(x)     ((x) + 0x8U)
 
 #define HW_LPTMR_CMR(x)          (*(__IO hw_lptmr_cmr_t *) HW_LPTMR_CMR_ADDR(x))
-#define HW_LPTMR_CMR_RD(x)       (HW_LPTMR_CMR(x).U)
-#define HW_LPTMR_CMR_WR(x, v)    (HW_LPTMR_CMR(x).U = (v))
+#define HW_LPTMR_CMR_RD(x)       (ADDRESS_READ(hw_lptmr_cmr_t, HW_LPTMR_CMR_ADDR(x)))
+#define HW_LPTMR_CMR_WR(x, v)    (ADDRESS_WRITE(hw_lptmr_cmr_t, HW_LPTMR_CMR_ADDR(x), v))
 #define HW_LPTMR_CMR_SET(x, v)   (HW_LPTMR_CMR_WR(x, HW_LPTMR_CMR_RD(x) |  (v)))
 #define HW_LPTMR_CMR_CLR(x, v)   (HW_LPTMR_CMR_WR(x, HW_LPTMR_CMR_RD(x) & ~(v)))
 #define HW_LPTMR_CMR_TOG(x, v)   (HW_LPTMR_CMR_WR(x, HW_LPTMR_CMR_RD(x) ^  (v)))
@@ -527,7 +534,7 @@ typedef union _hw_lptmr_cmr
 #define BS_LPTMR_CMR_COMPARE (16U)         /*!< Bit field size in bits for LPTMR_CMR_COMPARE. */
 
 /*! @brief Read current value of the LPTMR_CMR_COMPARE field. */
-#define BR_LPTMR_CMR_COMPARE(x) (HW_LPTMR_CMR(x).B.COMPARE)
+#define BR_LPTMR_CMR_COMPARE(x) (UNION_READ(hw_lptmr_cmr_t, HW_LPTMR_CMR_ADDR(x), U, B.COMPARE))
 
 /*! @brief Format value for bitfield LPTMR_CMR_COMPARE. */
 #define BF_LPTMR_CMR_COMPARE(v) ((uint32_t)((uint32_t)(v) << BP_LPTMR_CMR_COMPARE) & BM_LPTMR_CMR_COMPARE)
@@ -562,8 +569,8 @@ typedef union _hw_lptmr_cnr
 #define HW_LPTMR_CNR_ADDR(x)     ((x) + 0xCU)
 
 #define HW_LPTMR_CNR(x)          (*(__IO hw_lptmr_cnr_t *) HW_LPTMR_CNR_ADDR(x))
-#define HW_LPTMR_CNR_RD(x)       (HW_LPTMR_CNR(x).U)
-#define HW_LPTMR_CNR_WR(x, v)    (HW_LPTMR_CNR(x).U = (v))
+#define HW_LPTMR_CNR_RD(x)       (ADDRESS_READ(hw_lptmr_cnr_t, HW_LPTMR_CNR_ADDR(x)))
+#define HW_LPTMR_CNR_WR(x, v)    (ADDRESS_WRITE(hw_lptmr_cnr_t, HW_LPTMR_CNR_ADDR(x), v))
 #define HW_LPTMR_CNR_SET(x, v)   (HW_LPTMR_CNR_WR(x, HW_LPTMR_CNR_RD(x) |  (v)))
 #define HW_LPTMR_CNR_CLR(x, v)   (HW_LPTMR_CNR_WR(x, HW_LPTMR_CNR_RD(x) & ~(v)))
 #define HW_LPTMR_CNR_TOG(x, v)   (HW_LPTMR_CNR_WR(x, HW_LPTMR_CNR_RD(x) ^  (v)))
@@ -582,7 +589,7 @@ typedef union _hw_lptmr_cnr
 #define BS_LPTMR_CNR_COUNTER (16U)         /*!< Bit field size in bits for LPTMR_CNR_COUNTER. */
 
 /*! @brief Read current value of the LPTMR_CNR_COUNTER field. */
-#define BR_LPTMR_CNR_COUNTER(x) (HW_LPTMR_CNR(x).B.COUNTER)
+#define BR_LPTMR_CNR_COUNTER(x) (UNION_READ(hw_lptmr_cnr_t, HW_LPTMR_CNR_ADDR(x), U, B.COUNTER))
 
 /*! @brief Format value for bitfield LPTMR_CNR_COUNTER. */
 #define BF_LPTMR_CNR_COUNTER(v) ((uint32_t)((uint32_t)(v) << BP_LPTMR_CNR_COUNTER) & BM_LPTMR_CNR_COUNTER)

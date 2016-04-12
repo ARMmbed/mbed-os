@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -132,8 +139,8 @@ typedef union _hw_dmamux_chcfgn
 #define HW_DMAMUX_CHCFGn_ADDR(x, n) ((x) + 0x0U + (0x1U * (n)))
 
 #define HW_DMAMUX_CHCFGn(x, n)   (*(__IO hw_dmamux_chcfgn_t *) HW_DMAMUX_CHCFGn_ADDR(x, n))
-#define HW_DMAMUX_CHCFGn_RD(x, n) (HW_DMAMUX_CHCFGn(x, n).U)
-#define HW_DMAMUX_CHCFGn_WR(x, n, v) (HW_DMAMUX_CHCFGn(x, n).U = (v))
+#define HW_DMAMUX_CHCFGn_RD(x, n) (ADDRESS_READ(hw_dmamux_chcfgn_t, HW_DMAMUX_CHCFGn_ADDR(x, n)))
+#define HW_DMAMUX_CHCFGn_WR(x, n, v) (ADDRESS_WRITE(hw_dmamux_chcfgn_t, HW_DMAMUX_CHCFGn_ADDR(x, n), v))
 #define HW_DMAMUX_CHCFGn_SET(x, n, v) (HW_DMAMUX_CHCFGn_WR(x, n, HW_DMAMUX_CHCFGn_RD(x, n) |  (v)))
 #define HW_DMAMUX_CHCFGn_CLR(x, n, v) (HW_DMAMUX_CHCFGn_WR(x, n, HW_DMAMUX_CHCFGn_RD(x, n) & ~(v)))
 #define HW_DMAMUX_CHCFGn_TOG(x, n, v) (HW_DMAMUX_CHCFGn_WR(x, n, HW_DMAMUX_CHCFGn_RD(x, n) ^  (v)))
@@ -156,7 +163,7 @@ typedef union _hw_dmamux_chcfgn
 #define BS_DMAMUX_CHCFGn_SOURCE (6U)       /*!< Bit field size in bits for DMAMUX_CHCFGn_SOURCE. */
 
 /*! @brief Read current value of the DMAMUX_CHCFGn_SOURCE field. */
-#define BR_DMAMUX_CHCFGn_SOURCE(x, n) (HW_DMAMUX_CHCFGn(x, n).B.SOURCE)
+#define BR_DMAMUX_CHCFGn_SOURCE(x, n) (UNION_READ(hw_dmamux_chcfgn_t, HW_DMAMUX_CHCFGn_ADDR(x, n), U, B.SOURCE))
 
 /*! @brief Format value for bitfield DMAMUX_CHCFGn_SOURCE. */
 #define BF_DMAMUX_CHCFGn_SOURCE(v) ((uint8_t)((uint8_t)(v) << BP_DMAMUX_CHCFGn_SOURCE) & BM_DMAMUX_CHCFGn_SOURCE)
@@ -183,13 +190,13 @@ typedef union _hw_dmamux_chcfgn
 #define BS_DMAMUX_CHCFGn_TRIG (1U)         /*!< Bit field size in bits for DMAMUX_CHCFGn_TRIG. */
 
 /*! @brief Read current value of the DMAMUX_CHCFGn_TRIG field. */
-#define BR_DMAMUX_CHCFGn_TRIG(x, n) (BITBAND_ACCESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_TRIG))
+#define BR_DMAMUX_CHCFGn_TRIG(x, n) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_TRIG)))
 
 /*! @brief Format value for bitfield DMAMUX_CHCFGn_TRIG. */
 #define BF_DMAMUX_CHCFGn_TRIG(v) ((uint8_t)((uint8_t)(v) << BP_DMAMUX_CHCFGn_TRIG) & BM_DMAMUX_CHCFGn_TRIG)
 
 /*! @brief Set the TRIG field to a new value. */
-#define BW_DMAMUX_CHCFGn_TRIG(x, n, v) (BITBAND_ACCESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_TRIG) = (v))
+#define BW_DMAMUX_CHCFGn_TRIG(x, n, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_TRIG), v))
 /*@}*/
 
 /*!
@@ -209,13 +216,13 @@ typedef union _hw_dmamux_chcfgn
 #define BS_DMAMUX_CHCFGn_ENBL (1U)         /*!< Bit field size in bits for DMAMUX_CHCFGn_ENBL. */
 
 /*! @brief Read current value of the DMAMUX_CHCFGn_ENBL field. */
-#define BR_DMAMUX_CHCFGn_ENBL(x, n) (BITBAND_ACCESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_ENBL))
+#define BR_DMAMUX_CHCFGn_ENBL(x, n) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_ENBL)))
 
 /*! @brief Format value for bitfield DMAMUX_CHCFGn_ENBL. */
 #define BF_DMAMUX_CHCFGn_ENBL(v) ((uint8_t)((uint8_t)(v) << BP_DMAMUX_CHCFGn_ENBL) & BM_DMAMUX_CHCFGn_ENBL)
 
 /*! @brief Set the ENBL field to a new value. */
-#define BW_DMAMUX_CHCFGn_ENBL(x, n, v) (BITBAND_ACCESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_ENBL) = (v))
+#define BW_DMAMUX_CHCFGn_ENBL(x, n, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMAMUX_CHCFGn_ADDR(x, n), BP_DMAMUX_CHCFGn_ENBL), v))
 /*@}*/
 
 /*******************************************************************************

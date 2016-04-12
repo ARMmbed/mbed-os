@@ -1,0 +1,17 @@
+test:
+    override:
+        - cd ../testproject
+        - python ../neo/neo.py compile -m K64F -t GCC_ARM -j 0 --source=mbed-os\TESTS\integration\basic
+
+dependencies:
+    pre:
+        - cd ../
+        - ls
+        - git clone https://github.com/ARMmbed/neo.git
+        - mkdir testproject
+        - mv mbed-os testproject
+        - cd testproject
+        - git init
+        - sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa
+        - sudo apt-get update
+        - sudo apt-get install gcc-arm-embedded

@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -173,8 +180,8 @@ typedef union _hw_aips_mpra
 #define HW_AIPS_MPRA_ADDR(x)     ((x) + 0x0U)
 
 #define HW_AIPS_MPRA(x)          (*(__IO hw_aips_mpra_t *) HW_AIPS_MPRA_ADDR(x))
-#define HW_AIPS_MPRA_RD(x)       (HW_AIPS_MPRA(x).U)
-#define HW_AIPS_MPRA_WR(x, v)    (HW_AIPS_MPRA(x).U = (v))
+#define HW_AIPS_MPRA_RD(x)       (ADDRESS_READ(hw_aips_mpra_t, HW_AIPS_MPRA_ADDR(x)))
+#define HW_AIPS_MPRA_WR(x, v)    (ADDRESS_WRITE(hw_aips_mpra_t, HW_AIPS_MPRA_ADDR(x), v))
 #define HW_AIPS_MPRA_SET(x, v)   (HW_AIPS_MPRA_WR(x, HW_AIPS_MPRA_RD(x) |  (v)))
 #define HW_AIPS_MPRA_CLR(x, v)   (HW_AIPS_MPRA_WR(x, HW_AIPS_MPRA_RD(x) & ~(v)))
 #define HW_AIPS_MPRA_TOG(x, v)   (HW_AIPS_MPRA_WR(x, HW_AIPS_MPRA_RD(x) ^  (v)))
@@ -199,13 +206,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MPL5    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MPL5. */
 
 /*! @brief Read current value of the AIPS_MPRA_MPL5 field. */
-#define BR_AIPS_MPRA_MPL5(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL5))
+#define BR_AIPS_MPRA_MPL5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL5)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MPL5. */
 #define BF_AIPS_MPRA_MPL5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MPL5) & BM_AIPS_MPRA_MPL5)
 
 /*! @brief Set the MPL5 field to a new value. */
-#define BW_AIPS_MPRA_MPL5(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL5) = (v))
+#define BW_AIPS_MPRA_MPL5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL5), v))
 /*@}*/
 
 /*!
@@ -223,13 +230,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTW5    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTW5. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTW5 field. */
-#define BR_AIPS_MPRA_MTW5(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW5))
+#define BR_AIPS_MPRA_MTW5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW5)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTW5. */
 #define BF_AIPS_MPRA_MTW5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTW5) & BM_AIPS_MPRA_MTW5)
 
 /*! @brief Set the MTW5 field to a new value. */
-#define BW_AIPS_MPRA_MTW5(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW5) = (v))
+#define BW_AIPS_MPRA_MTW5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW5), v))
 /*@}*/
 
 /*!
@@ -247,13 +254,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTR5    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTR5. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTR5 field. */
-#define BR_AIPS_MPRA_MTR5(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR5))
+#define BR_AIPS_MPRA_MTR5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR5)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTR5. */
 #define BF_AIPS_MPRA_MTR5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTR5) & BM_AIPS_MPRA_MTR5)
 
 /*! @brief Set the MTR5 field to a new value. */
-#define BW_AIPS_MPRA_MTR5(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR5) = (v))
+#define BW_AIPS_MPRA_MTR5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR5), v))
 /*@}*/
 
 /*!
@@ -271,13 +278,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MPL4    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MPL4. */
 
 /*! @brief Read current value of the AIPS_MPRA_MPL4 field. */
-#define BR_AIPS_MPRA_MPL4(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL4))
+#define BR_AIPS_MPRA_MPL4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL4)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MPL4. */
 #define BF_AIPS_MPRA_MPL4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MPL4) & BM_AIPS_MPRA_MPL4)
 
 /*! @brief Set the MPL4 field to a new value. */
-#define BW_AIPS_MPRA_MPL4(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL4) = (v))
+#define BW_AIPS_MPRA_MPL4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL4), v))
 /*@}*/
 
 /*!
@@ -295,13 +302,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTW4    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTW4. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTW4 field. */
-#define BR_AIPS_MPRA_MTW4(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW4))
+#define BR_AIPS_MPRA_MTW4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW4)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTW4. */
 #define BF_AIPS_MPRA_MTW4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTW4) & BM_AIPS_MPRA_MTW4)
 
 /*! @brief Set the MTW4 field to a new value. */
-#define BW_AIPS_MPRA_MTW4(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW4) = (v))
+#define BW_AIPS_MPRA_MTW4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW4), v))
 /*@}*/
 
 /*!
@@ -319,13 +326,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTR4    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTR4. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTR4 field. */
-#define BR_AIPS_MPRA_MTR4(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR4))
+#define BR_AIPS_MPRA_MTR4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR4)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTR4. */
 #define BF_AIPS_MPRA_MTR4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTR4) & BM_AIPS_MPRA_MTR4)
 
 /*! @brief Set the MTR4 field to a new value. */
-#define BW_AIPS_MPRA_MTR4(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR4) = (v))
+#define BW_AIPS_MPRA_MTR4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR4), v))
 /*@}*/
 
 /*!
@@ -343,13 +350,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MPL3    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MPL3. */
 
 /*! @brief Read current value of the AIPS_MPRA_MPL3 field. */
-#define BR_AIPS_MPRA_MPL3(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL3))
+#define BR_AIPS_MPRA_MPL3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL3)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MPL3. */
 #define BF_AIPS_MPRA_MPL3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MPL3) & BM_AIPS_MPRA_MPL3)
 
 /*! @brief Set the MPL3 field to a new value. */
-#define BW_AIPS_MPRA_MPL3(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL3) = (v))
+#define BW_AIPS_MPRA_MPL3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL3), v))
 /*@}*/
 
 /*!
@@ -367,13 +374,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTW3    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTW3. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTW3 field. */
-#define BR_AIPS_MPRA_MTW3(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW3))
+#define BR_AIPS_MPRA_MTW3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW3)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTW3. */
 #define BF_AIPS_MPRA_MTW3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTW3) & BM_AIPS_MPRA_MTW3)
 
 /*! @brief Set the MTW3 field to a new value. */
-#define BW_AIPS_MPRA_MTW3(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW3) = (v))
+#define BW_AIPS_MPRA_MTW3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW3), v))
 /*@}*/
 
 /*!
@@ -391,13 +398,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTR3    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTR3. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTR3 field. */
-#define BR_AIPS_MPRA_MTR3(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR3))
+#define BR_AIPS_MPRA_MTR3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR3)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTR3. */
 #define BF_AIPS_MPRA_MTR3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTR3) & BM_AIPS_MPRA_MTR3)
 
 /*! @brief Set the MTR3 field to a new value. */
-#define BW_AIPS_MPRA_MTR3(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR3) = (v))
+#define BW_AIPS_MPRA_MTR3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR3), v))
 /*@}*/
 
 /*!
@@ -415,13 +422,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MPL2    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MPL2. */
 
 /*! @brief Read current value of the AIPS_MPRA_MPL2 field. */
-#define BR_AIPS_MPRA_MPL2(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL2))
+#define BR_AIPS_MPRA_MPL2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL2)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MPL2. */
 #define BF_AIPS_MPRA_MPL2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MPL2) & BM_AIPS_MPRA_MPL2)
 
 /*! @brief Set the MPL2 field to a new value. */
-#define BW_AIPS_MPRA_MPL2(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL2) = (v))
+#define BW_AIPS_MPRA_MPL2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL2), v))
 /*@}*/
 
 /*!
@@ -439,13 +446,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTW2    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTW2. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTW2 field. */
-#define BR_AIPS_MPRA_MTW2(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW2))
+#define BR_AIPS_MPRA_MTW2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW2)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTW2. */
 #define BF_AIPS_MPRA_MTW2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTW2) & BM_AIPS_MPRA_MTW2)
 
 /*! @brief Set the MTW2 field to a new value. */
-#define BW_AIPS_MPRA_MTW2(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW2) = (v))
+#define BW_AIPS_MPRA_MTW2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW2), v))
 /*@}*/
 
 /*!
@@ -463,13 +470,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTR2    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTR2. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTR2 field. */
-#define BR_AIPS_MPRA_MTR2(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR2))
+#define BR_AIPS_MPRA_MTR2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR2)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTR2. */
 #define BF_AIPS_MPRA_MTR2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTR2) & BM_AIPS_MPRA_MTR2)
 
 /*! @brief Set the MTR2 field to a new value. */
-#define BW_AIPS_MPRA_MTR2(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR2) = (v))
+#define BW_AIPS_MPRA_MTR2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR2), v))
 /*@}*/
 
 /*!
@@ -487,13 +494,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MPL1    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MPL1. */
 
 /*! @brief Read current value of the AIPS_MPRA_MPL1 field. */
-#define BR_AIPS_MPRA_MPL1(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL1))
+#define BR_AIPS_MPRA_MPL1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL1)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MPL1. */
 #define BF_AIPS_MPRA_MPL1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MPL1) & BM_AIPS_MPRA_MPL1)
 
 /*! @brief Set the MPL1 field to a new value. */
-#define BW_AIPS_MPRA_MPL1(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL1) = (v))
+#define BW_AIPS_MPRA_MPL1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL1), v))
 /*@}*/
 
 /*!
@@ -511,13 +518,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTW1    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTW1. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTW1 field. */
-#define BR_AIPS_MPRA_MTW1(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW1))
+#define BR_AIPS_MPRA_MTW1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW1)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTW1. */
 #define BF_AIPS_MPRA_MTW1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTW1) & BM_AIPS_MPRA_MTW1)
 
 /*! @brief Set the MTW1 field to a new value. */
-#define BW_AIPS_MPRA_MTW1(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW1) = (v))
+#define BW_AIPS_MPRA_MTW1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW1), v))
 /*@}*/
 
 /*!
@@ -535,13 +542,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTR1    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTR1. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTR1 field. */
-#define BR_AIPS_MPRA_MTR1(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR1))
+#define BR_AIPS_MPRA_MTR1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR1)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTR1. */
 #define BF_AIPS_MPRA_MTR1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTR1) & BM_AIPS_MPRA_MTR1)
 
 /*! @brief Set the MTR1 field to a new value. */
-#define BW_AIPS_MPRA_MTR1(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR1) = (v))
+#define BW_AIPS_MPRA_MTR1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR1), v))
 /*@}*/
 
 /*!
@@ -559,13 +566,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MPL0    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MPL0. */
 
 /*! @brief Read current value of the AIPS_MPRA_MPL0 field. */
-#define BR_AIPS_MPRA_MPL0(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL0))
+#define BR_AIPS_MPRA_MPL0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL0)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MPL0. */
 #define BF_AIPS_MPRA_MPL0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MPL0) & BM_AIPS_MPRA_MPL0)
 
 /*! @brief Set the MPL0 field to a new value. */
-#define BW_AIPS_MPRA_MPL0(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL0) = (v))
+#define BW_AIPS_MPRA_MPL0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MPL0), v))
 /*@}*/
 
 /*!
@@ -583,13 +590,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTW0    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTW0. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTW0 field. */
-#define BR_AIPS_MPRA_MTW0(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW0))
+#define BR_AIPS_MPRA_MTW0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW0)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTW0. */
 #define BF_AIPS_MPRA_MTW0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTW0) & BM_AIPS_MPRA_MTW0)
 
 /*! @brief Set the MTW0 field to a new value. */
-#define BW_AIPS_MPRA_MTW0(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW0) = (v))
+#define BW_AIPS_MPRA_MTW0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTW0), v))
 /*@}*/
 
 /*!
@@ -607,13 +614,13 @@ typedef union _hw_aips_mpra
 #define BS_AIPS_MPRA_MTR0    (1U)          /*!< Bit field size in bits for AIPS_MPRA_MTR0. */
 
 /*! @brief Read current value of the AIPS_MPRA_MTR0 field. */
-#define BR_AIPS_MPRA_MTR0(x) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR0))
+#define BR_AIPS_MPRA_MTR0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR0)))
 
 /*! @brief Format value for bitfield AIPS_MPRA_MTR0. */
 #define BF_AIPS_MPRA_MTR0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_MPRA_MTR0) & BM_AIPS_MPRA_MTR0)
 
 /*! @brief Set the MTR0 field to a new value. */
-#define BW_AIPS_MPRA_MTR0(x, v) (BITBAND_ACCESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR0) = (v))
+#define BW_AIPS_MPRA_MTR0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_MPRA_ADDR(x), BP_AIPS_MPRA_MTR0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -700,8 +707,8 @@ typedef union _hw_aips_pacra
 #define HW_AIPS_PACRA_ADDR(x)    ((x) + 0x20U)
 
 #define HW_AIPS_PACRA(x)         (*(__IO hw_aips_pacra_t *) HW_AIPS_PACRA_ADDR(x))
-#define HW_AIPS_PACRA_RD(x)      (HW_AIPS_PACRA(x).U)
-#define HW_AIPS_PACRA_WR(x, v)   (HW_AIPS_PACRA(x).U = (v))
+#define HW_AIPS_PACRA_RD(x)      (ADDRESS_READ(hw_aips_pacra_t, HW_AIPS_PACRA_ADDR(x)))
+#define HW_AIPS_PACRA_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacra_t, HW_AIPS_PACRA_ADDR(x), v))
 #define HW_AIPS_PACRA_SET(x, v)  (HW_AIPS_PACRA_WR(x, HW_AIPS_PACRA_RD(x) |  (v)))
 #define HW_AIPS_PACRA_CLR(x, v)  (HW_AIPS_PACRA_WR(x, HW_AIPS_PACRA_RD(x) & ~(v)))
 #define HW_AIPS_PACRA_TOG(x, v)  (HW_AIPS_PACRA_WR(x, HW_AIPS_PACRA_RD(x) ^  (v)))
@@ -728,13 +735,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP7 field. */
-#define BR_AIPS_PACRA_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP7))
+#define BR_AIPS_PACRA_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP7. */
 #define BF_AIPS_PACRA_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP7) & BM_AIPS_PACRA_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRA_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP7) = (v))
+#define BW_AIPS_PACRA_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP7), v))
 /*@}*/
 
 /*!
@@ -754,13 +761,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP7 field. */
-#define BR_AIPS_PACRA_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP7))
+#define BR_AIPS_PACRA_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP7. */
 #define BF_AIPS_PACRA_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP7) & BM_AIPS_PACRA_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRA_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP7) = (v))
+#define BW_AIPS_PACRA_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP7), v))
 /*@}*/
 
 /*!
@@ -783,13 +790,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP7 field. */
-#define BR_AIPS_PACRA_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP7))
+#define BR_AIPS_PACRA_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP7. */
 #define BF_AIPS_PACRA_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP7) & BM_AIPS_PACRA_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRA_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP7) = (v))
+#define BW_AIPS_PACRA_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP7), v))
 /*@}*/
 
 /*!
@@ -809,13 +816,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP6 field. */
-#define BR_AIPS_PACRA_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP6))
+#define BR_AIPS_PACRA_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP6. */
 #define BF_AIPS_PACRA_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP6) & BM_AIPS_PACRA_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRA_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP6) = (v))
+#define BW_AIPS_PACRA_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP6), v))
 /*@}*/
 
 /*!
@@ -835,13 +842,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP6 field. */
-#define BR_AIPS_PACRA_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP6))
+#define BR_AIPS_PACRA_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP6. */
 #define BF_AIPS_PACRA_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP6) & BM_AIPS_PACRA_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRA_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP6) = (v))
+#define BW_AIPS_PACRA_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP6), v))
 /*@}*/
 
 /*!
@@ -864,13 +871,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP6 field. */
-#define BR_AIPS_PACRA_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP6))
+#define BR_AIPS_PACRA_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP6. */
 #define BF_AIPS_PACRA_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP6) & BM_AIPS_PACRA_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRA_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP6) = (v))
+#define BW_AIPS_PACRA_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP6), v))
 /*@}*/
 
 /*!
@@ -890,13 +897,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP5 field. */
-#define BR_AIPS_PACRA_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP5))
+#define BR_AIPS_PACRA_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP5. */
 #define BF_AIPS_PACRA_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP5) & BM_AIPS_PACRA_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRA_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP5) = (v))
+#define BW_AIPS_PACRA_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP5), v))
 /*@}*/
 
 /*!
@@ -916,13 +923,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP5 field. */
-#define BR_AIPS_PACRA_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP5))
+#define BR_AIPS_PACRA_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP5. */
 #define BF_AIPS_PACRA_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP5) & BM_AIPS_PACRA_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRA_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP5) = (v))
+#define BW_AIPS_PACRA_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP5), v))
 /*@}*/
 
 /*!
@@ -945,13 +952,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP5 field. */
-#define BR_AIPS_PACRA_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP5))
+#define BR_AIPS_PACRA_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP5. */
 #define BF_AIPS_PACRA_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP5) & BM_AIPS_PACRA_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRA_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP5) = (v))
+#define BW_AIPS_PACRA_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP5), v))
 /*@}*/
 
 /*!
@@ -971,13 +978,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP4 field. */
-#define BR_AIPS_PACRA_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP4))
+#define BR_AIPS_PACRA_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP4. */
 #define BF_AIPS_PACRA_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP4) & BM_AIPS_PACRA_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRA_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP4) = (v))
+#define BW_AIPS_PACRA_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP4), v))
 /*@}*/
 
 /*!
@@ -997,13 +1004,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP4 field. */
-#define BR_AIPS_PACRA_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP4))
+#define BR_AIPS_PACRA_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP4. */
 #define BF_AIPS_PACRA_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP4) & BM_AIPS_PACRA_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRA_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP4) = (v))
+#define BW_AIPS_PACRA_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP4), v))
 /*@}*/
 
 /*!
@@ -1026,13 +1033,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP4 field. */
-#define BR_AIPS_PACRA_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP4))
+#define BR_AIPS_PACRA_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP4. */
 #define BF_AIPS_PACRA_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP4) & BM_AIPS_PACRA_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRA_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP4) = (v))
+#define BW_AIPS_PACRA_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP4), v))
 /*@}*/
 
 /*!
@@ -1052,13 +1059,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP3 field. */
-#define BR_AIPS_PACRA_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP3))
+#define BR_AIPS_PACRA_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP3. */
 #define BF_AIPS_PACRA_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP3) & BM_AIPS_PACRA_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRA_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP3) = (v))
+#define BW_AIPS_PACRA_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP3), v))
 /*@}*/
 
 /*!
@@ -1078,13 +1085,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP3 field. */
-#define BR_AIPS_PACRA_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP3))
+#define BR_AIPS_PACRA_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP3. */
 #define BF_AIPS_PACRA_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP3) & BM_AIPS_PACRA_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRA_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP3) = (v))
+#define BW_AIPS_PACRA_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP3), v))
 /*@}*/
 
 /*!
@@ -1107,13 +1114,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP3 field. */
-#define BR_AIPS_PACRA_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP3))
+#define BR_AIPS_PACRA_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP3. */
 #define BF_AIPS_PACRA_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP3) & BM_AIPS_PACRA_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRA_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP3) = (v))
+#define BW_AIPS_PACRA_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP3), v))
 /*@}*/
 
 /*!
@@ -1133,13 +1140,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP2 field. */
-#define BR_AIPS_PACRA_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP2))
+#define BR_AIPS_PACRA_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP2. */
 #define BF_AIPS_PACRA_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP2) & BM_AIPS_PACRA_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRA_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP2) = (v))
+#define BW_AIPS_PACRA_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP2), v))
 /*@}*/
 
 /*!
@@ -1159,13 +1166,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP2 field. */
-#define BR_AIPS_PACRA_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP2))
+#define BR_AIPS_PACRA_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP2. */
 #define BF_AIPS_PACRA_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP2) & BM_AIPS_PACRA_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRA_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP2) = (v))
+#define BW_AIPS_PACRA_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP2), v))
 /*@}*/
 
 /*!
@@ -1188,13 +1195,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP2 field. */
-#define BR_AIPS_PACRA_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP2))
+#define BR_AIPS_PACRA_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP2. */
 #define BF_AIPS_PACRA_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP2) & BM_AIPS_PACRA_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRA_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP2) = (v))
+#define BW_AIPS_PACRA_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP2), v))
 /*@}*/
 
 /*!
@@ -1214,13 +1221,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP1 field. */
-#define BR_AIPS_PACRA_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP1))
+#define BR_AIPS_PACRA_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP1. */
 #define BF_AIPS_PACRA_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP1) & BM_AIPS_PACRA_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRA_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP1) = (v))
+#define BW_AIPS_PACRA_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP1), v))
 /*@}*/
 
 /*!
@@ -1240,13 +1247,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP1 field. */
-#define BR_AIPS_PACRA_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP1))
+#define BR_AIPS_PACRA_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP1. */
 #define BF_AIPS_PACRA_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP1) & BM_AIPS_PACRA_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRA_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP1) = (v))
+#define BW_AIPS_PACRA_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP1), v))
 /*@}*/
 
 /*!
@@ -1269,13 +1276,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP1 field. */
-#define BR_AIPS_PACRA_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP1))
+#define BR_AIPS_PACRA_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP1. */
 #define BF_AIPS_PACRA_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP1) & BM_AIPS_PACRA_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRA_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP1) = (v))
+#define BW_AIPS_PACRA_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP1), v))
 /*@}*/
 
 /*!
@@ -1295,13 +1302,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRA_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRA_TP0 field. */
-#define BR_AIPS_PACRA_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP0))
+#define BR_AIPS_PACRA_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_TP0. */
 #define BF_AIPS_PACRA_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_TP0) & BM_AIPS_PACRA_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRA_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP0) = (v))
+#define BW_AIPS_PACRA_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_TP0), v))
 /*@}*/
 
 /*!
@@ -1321,13 +1328,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRA_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRA_WP0 field. */
-#define BR_AIPS_PACRA_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP0))
+#define BR_AIPS_PACRA_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_WP0. */
 #define BF_AIPS_PACRA_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_WP0) & BM_AIPS_PACRA_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRA_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP0) = (v))
+#define BW_AIPS_PACRA_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_WP0), v))
 /*@}*/
 
 /*!
@@ -1350,13 +1357,13 @@ typedef union _hw_aips_pacra
 #define BS_AIPS_PACRA_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRA_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRA_SP0 field. */
-#define BR_AIPS_PACRA_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP0))
+#define BR_AIPS_PACRA_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRA_SP0. */
 #define BF_AIPS_PACRA_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRA_SP0) & BM_AIPS_PACRA_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRA_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP0) = (v))
+#define BW_AIPS_PACRA_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRA_ADDR(x), BP_AIPS_PACRA_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1443,8 +1450,8 @@ typedef union _hw_aips_pacrb
 #define HW_AIPS_PACRB_ADDR(x)    ((x) + 0x24U)
 
 #define HW_AIPS_PACRB(x)         (*(__IO hw_aips_pacrb_t *) HW_AIPS_PACRB_ADDR(x))
-#define HW_AIPS_PACRB_RD(x)      (HW_AIPS_PACRB(x).U)
-#define HW_AIPS_PACRB_WR(x, v)   (HW_AIPS_PACRB(x).U = (v))
+#define HW_AIPS_PACRB_RD(x)      (ADDRESS_READ(hw_aips_pacrb_t, HW_AIPS_PACRB_ADDR(x)))
+#define HW_AIPS_PACRB_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrb_t, HW_AIPS_PACRB_ADDR(x), v))
 #define HW_AIPS_PACRB_SET(x, v)  (HW_AIPS_PACRB_WR(x, HW_AIPS_PACRB_RD(x) |  (v)))
 #define HW_AIPS_PACRB_CLR(x, v)  (HW_AIPS_PACRB_WR(x, HW_AIPS_PACRB_RD(x) & ~(v)))
 #define HW_AIPS_PACRB_TOG(x, v)  (HW_AIPS_PACRB_WR(x, HW_AIPS_PACRB_RD(x) ^  (v)))
@@ -1471,13 +1478,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP7 field. */
-#define BR_AIPS_PACRB_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP7))
+#define BR_AIPS_PACRB_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP7. */
 #define BF_AIPS_PACRB_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP7) & BM_AIPS_PACRB_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRB_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP7) = (v))
+#define BW_AIPS_PACRB_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP7), v))
 /*@}*/
 
 /*!
@@ -1497,13 +1504,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP7 field. */
-#define BR_AIPS_PACRB_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP7))
+#define BR_AIPS_PACRB_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP7. */
 #define BF_AIPS_PACRB_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP7) & BM_AIPS_PACRB_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRB_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP7) = (v))
+#define BW_AIPS_PACRB_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP7), v))
 /*@}*/
 
 /*!
@@ -1526,13 +1533,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP7 field. */
-#define BR_AIPS_PACRB_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP7))
+#define BR_AIPS_PACRB_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP7. */
 #define BF_AIPS_PACRB_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP7) & BM_AIPS_PACRB_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRB_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP7) = (v))
+#define BW_AIPS_PACRB_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP7), v))
 /*@}*/
 
 /*!
@@ -1552,13 +1559,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP6 field. */
-#define BR_AIPS_PACRB_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP6))
+#define BR_AIPS_PACRB_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP6. */
 #define BF_AIPS_PACRB_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP6) & BM_AIPS_PACRB_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRB_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP6) = (v))
+#define BW_AIPS_PACRB_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP6), v))
 /*@}*/
 
 /*!
@@ -1578,13 +1585,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP6 field. */
-#define BR_AIPS_PACRB_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP6))
+#define BR_AIPS_PACRB_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP6. */
 #define BF_AIPS_PACRB_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP6) & BM_AIPS_PACRB_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRB_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP6) = (v))
+#define BW_AIPS_PACRB_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP6), v))
 /*@}*/
 
 /*!
@@ -1607,13 +1614,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP6 field. */
-#define BR_AIPS_PACRB_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP6))
+#define BR_AIPS_PACRB_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP6. */
 #define BF_AIPS_PACRB_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP6) & BM_AIPS_PACRB_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRB_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP6) = (v))
+#define BW_AIPS_PACRB_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP6), v))
 /*@}*/
 
 /*!
@@ -1633,13 +1640,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP5 field. */
-#define BR_AIPS_PACRB_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP5))
+#define BR_AIPS_PACRB_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP5. */
 #define BF_AIPS_PACRB_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP5) & BM_AIPS_PACRB_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRB_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP5) = (v))
+#define BW_AIPS_PACRB_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP5), v))
 /*@}*/
 
 /*!
@@ -1659,13 +1666,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP5 field. */
-#define BR_AIPS_PACRB_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP5))
+#define BR_AIPS_PACRB_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP5. */
 #define BF_AIPS_PACRB_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP5) & BM_AIPS_PACRB_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRB_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP5) = (v))
+#define BW_AIPS_PACRB_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP5), v))
 /*@}*/
 
 /*!
@@ -1688,13 +1695,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP5 field. */
-#define BR_AIPS_PACRB_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP5))
+#define BR_AIPS_PACRB_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP5. */
 #define BF_AIPS_PACRB_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP5) & BM_AIPS_PACRB_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRB_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP5) = (v))
+#define BW_AIPS_PACRB_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP5), v))
 /*@}*/
 
 /*!
@@ -1714,13 +1721,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP4 field. */
-#define BR_AIPS_PACRB_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP4))
+#define BR_AIPS_PACRB_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP4. */
 #define BF_AIPS_PACRB_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP4) & BM_AIPS_PACRB_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRB_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP4) = (v))
+#define BW_AIPS_PACRB_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP4), v))
 /*@}*/
 
 /*!
@@ -1740,13 +1747,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP4 field. */
-#define BR_AIPS_PACRB_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP4))
+#define BR_AIPS_PACRB_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP4. */
 #define BF_AIPS_PACRB_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP4) & BM_AIPS_PACRB_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRB_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP4) = (v))
+#define BW_AIPS_PACRB_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP4), v))
 /*@}*/
 
 /*!
@@ -1769,13 +1776,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP4 field. */
-#define BR_AIPS_PACRB_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP4))
+#define BR_AIPS_PACRB_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP4. */
 #define BF_AIPS_PACRB_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP4) & BM_AIPS_PACRB_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRB_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP4) = (v))
+#define BW_AIPS_PACRB_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP4), v))
 /*@}*/
 
 /*!
@@ -1795,13 +1802,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP3 field. */
-#define BR_AIPS_PACRB_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP3))
+#define BR_AIPS_PACRB_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP3. */
 #define BF_AIPS_PACRB_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP3) & BM_AIPS_PACRB_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRB_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP3) = (v))
+#define BW_AIPS_PACRB_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP3), v))
 /*@}*/
 
 /*!
@@ -1821,13 +1828,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP3 field. */
-#define BR_AIPS_PACRB_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP3))
+#define BR_AIPS_PACRB_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP3. */
 #define BF_AIPS_PACRB_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP3) & BM_AIPS_PACRB_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRB_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP3) = (v))
+#define BW_AIPS_PACRB_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP3), v))
 /*@}*/
 
 /*!
@@ -1850,13 +1857,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP3 field. */
-#define BR_AIPS_PACRB_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP3))
+#define BR_AIPS_PACRB_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP3. */
 #define BF_AIPS_PACRB_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP3) & BM_AIPS_PACRB_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRB_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP3) = (v))
+#define BW_AIPS_PACRB_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP3), v))
 /*@}*/
 
 /*!
@@ -1876,13 +1883,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP2 field. */
-#define BR_AIPS_PACRB_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP2))
+#define BR_AIPS_PACRB_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP2. */
 #define BF_AIPS_PACRB_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP2) & BM_AIPS_PACRB_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRB_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP2) = (v))
+#define BW_AIPS_PACRB_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP2), v))
 /*@}*/
 
 /*!
@@ -1902,13 +1909,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP2 field. */
-#define BR_AIPS_PACRB_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP2))
+#define BR_AIPS_PACRB_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP2. */
 #define BF_AIPS_PACRB_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP2) & BM_AIPS_PACRB_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRB_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP2) = (v))
+#define BW_AIPS_PACRB_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP2), v))
 /*@}*/
 
 /*!
@@ -1931,13 +1938,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP2 field. */
-#define BR_AIPS_PACRB_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP2))
+#define BR_AIPS_PACRB_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP2. */
 #define BF_AIPS_PACRB_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP2) & BM_AIPS_PACRB_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRB_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP2) = (v))
+#define BW_AIPS_PACRB_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP2), v))
 /*@}*/
 
 /*!
@@ -1957,13 +1964,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP1 field. */
-#define BR_AIPS_PACRB_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP1))
+#define BR_AIPS_PACRB_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP1. */
 #define BF_AIPS_PACRB_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP1) & BM_AIPS_PACRB_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRB_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP1) = (v))
+#define BW_AIPS_PACRB_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP1), v))
 /*@}*/
 
 /*!
@@ -1983,13 +1990,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP1 field. */
-#define BR_AIPS_PACRB_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP1))
+#define BR_AIPS_PACRB_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP1. */
 #define BF_AIPS_PACRB_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP1) & BM_AIPS_PACRB_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRB_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP1) = (v))
+#define BW_AIPS_PACRB_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP1), v))
 /*@}*/
 
 /*!
@@ -2012,13 +2019,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP1 field. */
-#define BR_AIPS_PACRB_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP1))
+#define BR_AIPS_PACRB_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP1. */
 #define BF_AIPS_PACRB_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP1) & BM_AIPS_PACRB_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRB_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP1) = (v))
+#define BW_AIPS_PACRB_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP1), v))
 /*@}*/
 
 /*!
@@ -2038,13 +2045,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRB_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRB_TP0 field. */
-#define BR_AIPS_PACRB_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP0))
+#define BR_AIPS_PACRB_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_TP0. */
 #define BF_AIPS_PACRB_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_TP0) & BM_AIPS_PACRB_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRB_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP0) = (v))
+#define BW_AIPS_PACRB_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_TP0), v))
 /*@}*/
 
 /*!
@@ -2064,13 +2071,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRB_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRB_WP0 field. */
-#define BR_AIPS_PACRB_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP0))
+#define BR_AIPS_PACRB_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_WP0. */
 #define BF_AIPS_PACRB_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_WP0) & BM_AIPS_PACRB_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRB_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP0) = (v))
+#define BW_AIPS_PACRB_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_WP0), v))
 /*@}*/
 
 /*!
@@ -2093,13 +2100,13 @@ typedef union _hw_aips_pacrb
 #define BS_AIPS_PACRB_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRB_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRB_SP0 field. */
-#define BR_AIPS_PACRB_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP0))
+#define BR_AIPS_PACRB_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRB_SP0. */
 #define BF_AIPS_PACRB_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRB_SP0) & BM_AIPS_PACRB_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRB_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP0) = (v))
+#define BW_AIPS_PACRB_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRB_ADDR(x), BP_AIPS_PACRB_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2186,8 +2193,8 @@ typedef union _hw_aips_pacrc
 #define HW_AIPS_PACRC_ADDR(x)    ((x) + 0x28U)
 
 #define HW_AIPS_PACRC(x)         (*(__IO hw_aips_pacrc_t *) HW_AIPS_PACRC_ADDR(x))
-#define HW_AIPS_PACRC_RD(x)      (HW_AIPS_PACRC(x).U)
-#define HW_AIPS_PACRC_WR(x, v)   (HW_AIPS_PACRC(x).U = (v))
+#define HW_AIPS_PACRC_RD(x)      (ADDRESS_READ(hw_aips_pacrc_t, HW_AIPS_PACRC_ADDR(x)))
+#define HW_AIPS_PACRC_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrc_t, HW_AIPS_PACRC_ADDR(x), v))
 #define HW_AIPS_PACRC_SET(x, v)  (HW_AIPS_PACRC_WR(x, HW_AIPS_PACRC_RD(x) |  (v)))
 #define HW_AIPS_PACRC_CLR(x, v)  (HW_AIPS_PACRC_WR(x, HW_AIPS_PACRC_RD(x) & ~(v)))
 #define HW_AIPS_PACRC_TOG(x, v)  (HW_AIPS_PACRC_WR(x, HW_AIPS_PACRC_RD(x) ^  (v)))
@@ -2214,13 +2221,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP7 field. */
-#define BR_AIPS_PACRC_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP7))
+#define BR_AIPS_PACRC_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP7. */
 #define BF_AIPS_PACRC_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP7) & BM_AIPS_PACRC_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRC_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP7) = (v))
+#define BW_AIPS_PACRC_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP7), v))
 /*@}*/
 
 /*!
@@ -2240,13 +2247,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP7 field. */
-#define BR_AIPS_PACRC_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP7))
+#define BR_AIPS_PACRC_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP7. */
 #define BF_AIPS_PACRC_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP7) & BM_AIPS_PACRC_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRC_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP7) = (v))
+#define BW_AIPS_PACRC_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP7), v))
 /*@}*/
 
 /*!
@@ -2269,13 +2276,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP7 field. */
-#define BR_AIPS_PACRC_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP7))
+#define BR_AIPS_PACRC_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP7. */
 #define BF_AIPS_PACRC_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP7) & BM_AIPS_PACRC_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRC_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP7) = (v))
+#define BW_AIPS_PACRC_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP7), v))
 /*@}*/
 
 /*!
@@ -2295,13 +2302,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP6 field. */
-#define BR_AIPS_PACRC_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP6))
+#define BR_AIPS_PACRC_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP6. */
 #define BF_AIPS_PACRC_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP6) & BM_AIPS_PACRC_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRC_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP6) = (v))
+#define BW_AIPS_PACRC_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP6), v))
 /*@}*/
 
 /*!
@@ -2321,13 +2328,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP6 field. */
-#define BR_AIPS_PACRC_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP6))
+#define BR_AIPS_PACRC_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP6. */
 #define BF_AIPS_PACRC_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP6) & BM_AIPS_PACRC_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRC_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP6) = (v))
+#define BW_AIPS_PACRC_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP6), v))
 /*@}*/
 
 /*!
@@ -2350,13 +2357,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP6 field. */
-#define BR_AIPS_PACRC_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP6))
+#define BR_AIPS_PACRC_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP6. */
 #define BF_AIPS_PACRC_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP6) & BM_AIPS_PACRC_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRC_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP6) = (v))
+#define BW_AIPS_PACRC_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP6), v))
 /*@}*/
 
 /*!
@@ -2376,13 +2383,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP5 field. */
-#define BR_AIPS_PACRC_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP5))
+#define BR_AIPS_PACRC_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP5. */
 #define BF_AIPS_PACRC_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP5) & BM_AIPS_PACRC_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRC_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP5) = (v))
+#define BW_AIPS_PACRC_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP5), v))
 /*@}*/
 
 /*!
@@ -2402,13 +2409,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP5 field. */
-#define BR_AIPS_PACRC_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP5))
+#define BR_AIPS_PACRC_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP5. */
 #define BF_AIPS_PACRC_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP5) & BM_AIPS_PACRC_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRC_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP5) = (v))
+#define BW_AIPS_PACRC_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP5), v))
 /*@}*/
 
 /*!
@@ -2431,13 +2438,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP5 field. */
-#define BR_AIPS_PACRC_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP5))
+#define BR_AIPS_PACRC_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP5. */
 #define BF_AIPS_PACRC_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP5) & BM_AIPS_PACRC_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRC_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP5) = (v))
+#define BW_AIPS_PACRC_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP5), v))
 /*@}*/
 
 /*!
@@ -2457,13 +2464,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP4 field. */
-#define BR_AIPS_PACRC_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP4))
+#define BR_AIPS_PACRC_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP4. */
 #define BF_AIPS_PACRC_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP4) & BM_AIPS_PACRC_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRC_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP4) = (v))
+#define BW_AIPS_PACRC_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP4), v))
 /*@}*/
 
 /*!
@@ -2483,13 +2490,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP4 field. */
-#define BR_AIPS_PACRC_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP4))
+#define BR_AIPS_PACRC_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP4. */
 #define BF_AIPS_PACRC_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP4) & BM_AIPS_PACRC_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRC_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP4) = (v))
+#define BW_AIPS_PACRC_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP4), v))
 /*@}*/
 
 /*!
@@ -2512,13 +2519,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP4 field. */
-#define BR_AIPS_PACRC_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP4))
+#define BR_AIPS_PACRC_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP4. */
 #define BF_AIPS_PACRC_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP4) & BM_AIPS_PACRC_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRC_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP4) = (v))
+#define BW_AIPS_PACRC_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP4), v))
 /*@}*/
 
 /*!
@@ -2538,13 +2545,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP3 field. */
-#define BR_AIPS_PACRC_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP3))
+#define BR_AIPS_PACRC_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP3. */
 #define BF_AIPS_PACRC_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP3) & BM_AIPS_PACRC_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRC_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP3) = (v))
+#define BW_AIPS_PACRC_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP3), v))
 /*@}*/
 
 /*!
@@ -2564,13 +2571,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP3 field. */
-#define BR_AIPS_PACRC_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP3))
+#define BR_AIPS_PACRC_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP3. */
 #define BF_AIPS_PACRC_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP3) & BM_AIPS_PACRC_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRC_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP3) = (v))
+#define BW_AIPS_PACRC_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP3), v))
 /*@}*/
 
 /*!
@@ -2593,13 +2600,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP3 field. */
-#define BR_AIPS_PACRC_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP3))
+#define BR_AIPS_PACRC_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP3. */
 #define BF_AIPS_PACRC_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP3) & BM_AIPS_PACRC_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRC_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP3) = (v))
+#define BW_AIPS_PACRC_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP3), v))
 /*@}*/
 
 /*!
@@ -2619,13 +2626,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP2 field. */
-#define BR_AIPS_PACRC_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP2))
+#define BR_AIPS_PACRC_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP2. */
 #define BF_AIPS_PACRC_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP2) & BM_AIPS_PACRC_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRC_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP2) = (v))
+#define BW_AIPS_PACRC_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP2), v))
 /*@}*/
 
 /*!
@@ -2645,13 +2652,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP2 field. */
-#define BR_AIPS_PACRC_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP2))
+#define BR_AIPS_PACRC_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP2. */
 #define BF_AIPS_PACRC_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP2) & BM_AIPS_PACRC_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRC_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP2) = (v))
+#define BW_AIPS_PACRC_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP2), v))
 /*@}*/
 
 /*!
@@ -2674,13 +2681,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP2 field. */
-#define BR_AIPS_PACRC_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP2))
+#define BR_AIPS_PACRC_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP2. */
 #define BF_AIPS_PACRC_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP2) & BM_AIPS_PACRC_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRC_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP2) = (v))
+#define BW_AIPS_PACRC_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP2), v))
 /*@}*/
 
 /*!
@@ -2700,13 +2707,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP1 field. */
-#define BR_AIPS_PACRC_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP1))
+#define BR_AIPS_PACRC_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP1. */
 #define BF_AIPS_PACRC_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP1) & BM_AIPS_PACRC_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRC_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP1) = (v))
+#define BW_AIPS_PACRC_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP1), v))
 /*@}*/
 
 /*!
@@ -2726,13 +2733,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP1 field. */
-#define BR_AIPS_PACRC_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP1))
+#define BR_AIPS_PACRC_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP1. */
 #define BF_AIPS_PACRC_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP1) & BM_AIPS_PACRC_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRC_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP1) = (v))
+#define BW_AIPS_PACRC_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP1), v))
 /*@}*/
 
 /*!
@@ -2755,13 +2762,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP1 field. */
-#define BR_AIPS_PACRC_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP1))
+#define BR_AIPS_PACRC_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP1. */
 #define BF_AIPS_PACRC_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP1) & BM_AIPS_PACRC_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRC_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP1) = (v))
+#define BW_AIPS_PACRC_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP1), v))
 /*@}*/
 
 /*!
@@ -2781,13 +2788,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRC_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRC_TP0 field. */
-#define BR_AIPS_PACRC_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP0))
+#define BR_AIPS_PACRC_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_TP0. */
 #define BF_AIPS_PACRC_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_TP0) & BM_AIPS_PACRC_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRC_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP0) = (v))
+#define BW_AIPS_PACRC_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_TP0), v))
 /*@}*/
 
 /*!
@@ -2807,13 +2814,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRC_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRC_WP0 field. */
-#define BR_AIPS_PACRC_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP0))
+#define BR_AIPS_PACRC_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_WP0. */
 #define BF_AIPS_PACRC_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_WP0) & BM_AIPS_PACRC_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRC_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP0) = (v))
+#define BW_AIPS_PACRC_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_WP0), v))
 /*@}*/
 
 /*!
@@ -2836,13 +2843,13 @@ typedef union _hw_aips_pacrc
 #define BS_AIPS_PACRC_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRC_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRC_SP0 field. */
-#define BR_AIPS_PACRC_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP0))
+#define BR_AIPS_PACRC_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRC_SP0. */
 #define BF_AIPS_PACRC_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRC_SP0) & BM_AIPS_PACRC_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRC_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP0) = (v))
+#define BW_AIPS_PACRC_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRC_ADDR(x), BP_AIPS_PACRC_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2929,8 +2936,8 @@ typedef union _hw_aips_pacrd
 #define HW_AIPS_PACRD_ADDR(x)    ((x) + 0x2CU)
 
 #define HW_AIPS_PACRD(x)         (*(__IO hw_aips_pacrd_t *) HW_AIPS_PACRD_ADDR(x))
-#define HW_AIPS_PACRD_RD(x)      (HW_AIPS_PACRD(x).U)
-#define HW_AIPS_PACRD_WR(x, v)   (HW_AIPS_PACRD(x).U = (v))
+#define HW_AIPS_PACRD_RD(x)      (ADDRESS_READ(hw_aips_pacrd_t, HW_AIPS_PACRD_ADDR(x)))
+#define HW_AIPS_PACRD_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrd_t, HW_AIPS_PACRD_ADDR(x), v))
 #define HW_AIPS_PACRD_SET(x, v)  (HW_AIPS_PACRD_WR(x, HW_AIPS_PACRD_RD(x) |  (v)))
 #define HW_AIPS_PACRD_CLR(x, v)  (HW_AIPS_PACRD_WR(x, HW_AIPS_PACRD_RD(x) & ~(v)))
 #define HW_AIPS_PACRD_TOG(x, v)  (HW_AIPS_PACRD_WR(x, HW_AIPS_PACRD_RD(x) ^  (v)))
@@ -2957,13 +2964,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP7 field. */
-#define BR_AIPS_PACRD_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP7))
+#define BR_AIPS_PACRD_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP7. */
 #define BF_AIPS_PACRD_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP7) & BM_AIPS_PACRD_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRD_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP7) = (v))
+#define BW_AIPS_PACRD_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP7), v))
 /*@}*/
 
 /*!
@@ -2983,13 +2990,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP7 field. */
-#define BR_AIPS_PACRD_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP7))
+#define BR_AIPS_PACRD_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP7. */
 #define BF_AIPS_PACRD_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP7) & BM_AIPS_PACRD_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRD_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP7) = (v))
+#define BW_AIPS_PACRD_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP7), v))
 /*@}*/
 
 /*!
@@ -3012,13 +3019,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP7 field. */
-#define BR_AIPS_PACRD_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP7))
+#define BR_AIPS_PACRD_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP7. */
 #define BF_AIPS_PACRD_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP7) & BM_AIPS_PACRD_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRD_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP7) = (v))
+#define BW_AIPS_PACRD_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP7), v))
 /*@}*/
 
 /*!
@@ -3038,13 +3045,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP6 field. */
-#define BR_AIPS_PACRD_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP6))
+#define BR_AIPS_PACRD_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP6. */
 #define BF_AIPS_PACRD_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP6) & BM_AIPS_PACRD_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRD_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP6) = (v))
+#define BW_AIPS_PACRD_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP6), v))
 /*@}*/
 
 /*!
@@ -3064,13 +3071,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP6 field. */
-#define BR_AIPS_PACRD_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP6))
+#define BR_AIPS_PACRD_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP6. */
 #define BF_AIPS_PACRD_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP6) & BM_AIPS_PACRD_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRD_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP6) = (v))
+#define BW_AIPS_PACRD_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP6), v))
 /*@}*/
 
 /*!
@@ -3093,13 +3100,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP6 field. */
-#define BR_AIPS_PACRD_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP6))
+#define BR_AIPS_PACRD_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP6. */
 #define BF_AIPS_PACRD_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP6) & BM_AIPS_PACRD_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRD_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP6) = (v))
+#define BW_AIPS_PACRD_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP6), v))
 /*@}*/
 
 /*!
@@ -3119,13 +3126,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP5 field. */
-#define BR_AIPS_PACRD_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP5))
+#define BR_AIPS_PACRD_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP5. */
 #define BF_AIPS_PACRD_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP5) & BM_AIPS_PACRD_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRD_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP5) = (v))
+#define BW_AIPS_PACRD_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP5), v))
 /*@}*/
 
 /*!
@@ -3145,13 +3152,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP5 field. */
-#define BR_AIPS_PACRD_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP5))
+#define BR_AIPS_PACRD_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP5. */
 #define BF_AIPS_PACRD_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP5) & BM_AIPS_PACRD_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRD_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP5) = (v))
+#define BW_AIPS_PACRD_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP5), v))
 /*@}*/
 
 /*!
@@ -3174,13 +3181,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP5 field. */
-#define BR_AIPS_PACRD_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP5))
+#define BR_AIPS_PACRD_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP5. */
 #define BF_AIPS_PACRD_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP5) & BM_AIPS_PACRD_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRD_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP5) = (v))
+#define BW_AIPS_PACRD_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP5), v))
 /*@}*/
 
 /*!
@@ -3200,13 +3207,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP4 field. */
-#define BR_AIPS_PACRD_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP4))
+#define BR_AIPS_PACRD_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP4. */
 #define BF_AIPS_PACRD_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP4) & BM_AIPS_PACRD_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRD_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP4) = (v))
+#define BW_AIPS_PACRD_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP4), v))
 /*@}*/
 
 /*!
@@ -3226,13 +3233,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP4 field. */
-#define BR_AIPS_PACRD_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP4))
+#define BR_AIPS_PACRD_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP4. */
 #define BF_AIPS_PACRD_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP4) & BM_AIPS_PACRD_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRD_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP4) = (v))
+#define BW_AIPS_PACRD_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP4), v))
 /*@}*/
 
 /*!
@@ -3255,13 +3262,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP4 field. */
-#define BR_AIPS_PACRD_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP4))
+#define BR_AIPS_PACRD_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP4. */
 #define BF_AIPS_PACRD_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP4) & BM_AIPS_PACRD_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRD_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP4) = (v))
+#define BW_AIPS_PACRD_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP4), v))
 /*@}*/
 
 /*!
@@ -3281,13 +3288,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP3 field. */
-#define BR_AIPS_PACRD_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP3))
+#define BR_AIPS_PACRD_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP3. */
 #define BF_AIPS_PACRD_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP3) & BM_AIPS_PACRD_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRD_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP3) = (v))
+#define BW_AIPS_PACRD_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP3), v))
 /*@}*/
 
 /*!
@@ -3307,13 +3314,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP3 field. */
-#define BR_AIPS_PACRD_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP3))
+#define BR_AIPS_PACRD_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP3. */
 #define BF_AIPS_PACRD_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP3) & BM_AIPS_PACRD_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRD_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP3) = (v))
+#define BW_AIPS_PACRD_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP3), v))
 /*@}*/
 
 /*!
@@ -3336,13 +3343,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP3 field. */
-#define BR_AIPS_PACRD_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP3))
+#define BR_AIPS_PACRD_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP3. */
 #define BF_AIPS_PACRD_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP3) & BM_AIPS_PACRD_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRD_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP3) = (v))
+#define BW_AIPS_PACRD_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP3), v))
 /*@}*/
 
 /*!
@@ -3362,13 +3369,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP2 field. */
-#define BR_AIPS_PACRD_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP2))
+#define BR_AIPS_PACRD_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP2. */
 #define BF_AIPS_PACRD_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP2) & BM_AIPS_PACRD_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRD_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP2) = (v))
+#define BW_AIPS_PACRD_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP2), v))
 /*@}*/
 
 /*!
@@ -3388,13 +3395,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP2 field. */
-#define BR_AIPS_PACRD_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP2))
+#define BR_AIPS_PACRD_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP2. */
 #define BF_AIPS_PACRD_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP2) & BM_AIPS_PACRD_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRD_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP2) = (v))
+#define BW_AIPS_PACRD_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP2), v))
 /*@}*/
 
 /*!
@@ -3417,13 +3424,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP2 field. */
-#define BR_AIPS_PACRD_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP2))
+#define BR_AIPS_PACRD_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP2. */
 #define BF_AIPS_PACRD_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP2) & BM_AIPS_PACRD_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRD_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP2) = (v))
+#define BW_AIPS_PACRD_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP2), v))
 /*@}*/
 
 /*!
@@ -3443,13 +3450,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP1 field. */
-#define BR_AIPS_PACRD_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP1))
+#define BR_AIPS_PACRD_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP1. */
 #define BF_AIPS_PACRD_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP1) & BM_AIPS_PACRD_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRD_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP1) = (v))
+#define BW_AIPS_PACRD_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP1), v))
 /*@}*/
 
 /*!
@@ -3469,13 +3476,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP1 field. */
-#define BR_AIPS_PACRD_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP1))
+#define BR_AIPS_PACRD_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP1. */
 #define BF_AIPS_PACRD_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP1) & BM_AIPS_PACRD_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRD_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP1) = (v))
+#define BW_AIPS_PACRD_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP1), v))
 /*@}*/
 
 /*!
@@ -3498,13 +3505,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP1 field. */
-#define BR_AIPS_PACRD_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP1))
+#define BR_AIPS_PACRD_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP1. */
 #define BF_AIPS_PACRD_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP1) & BM_AIPS_PACRD_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRD_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP1) = (v))
+#define BW_AIPS_PACRD_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP1), v))
 /*@}*/
 
 /*!
@@ -3524,13 +3531,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRD_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRD_TP0 field. */
-#define BR_AIPS_PACRD_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP0))
+#define BR_AIPS_PACRD_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_TP0. */
 #define BF_AIPS_PACRD_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_TP0) & BM_AIPS_PACRD_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRD_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP0) = (v))
+#define BW_AIPS_PACRD_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_TP0), v))
 /*@}*/
 
 /*!
@@ -3550,13 +3557,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRD_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRD_WP0 field. */
-#define BR_AIPS_PACRD_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP0))
+#define BR_AIPS_PACRD_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_WP0. */
 #define BF_AIPS_PACRD_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_WP0) & BM_AIPS_PACRD_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRD_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP0) = (v))
+#define BW_AIPS_PACRD_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_WP0), v))
 /*@}*/
 
 /*!
@@ -3579,13 +3586,13 @@ typedef union _hw_aips_pacrd
 #define BS_AIPS_PACRD_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRD_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRD_SP0 field. */
-#define BR_AIPS_PACRD_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP0))
+#define BR_AIPS_PACRD_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRD_SP0. */
 #define BF_AIPS_PACRD_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRD_SP0) & BM_AIPS_PACRD_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRD_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP0) = (v))
+#define BW_AIPS_PACRD_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRD_ADDR(x), BP_AIPS_PACRD_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -3648,8 +3655,8 @@ typedef union _hw_aips_pacre
 #define HW_AIPS_PACRE_ADDR(x)    ((x) + 0x40U)
 
 #define HW_AIPS_PACRE(x)         (*(__IO hw_aips_pacre_t *) HW_AIPS_PACRE_ADDR(x))
-#define HW_AIPS_PACRE_RD(x)      (HW_AIPS_PACRE(x).U)
-#define HW_AIPS_PACRE_WR(x, v)   (HW_AIPS_PACRE(x).U = (v))
+#define HW_AIPS_PACRE_RD(x)      (ADDRESS_READ(hw_aips_pacre_t, HW_AIPS_PACRE_ADDR(x)))
+#define HW_AIPS_PACRE_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacre_t, HW_AIPS_PACRE_ADDR(x), v))
 #define HW_AIPS_PACRE_SET(x, v)  (HW_AIPS_PACRE_WR(x, HW_AIPS_PACRE_RD(x) |  (v)))
 #define HW_AIPS_PACRE_CLR(x, v)  (HW_AIPS_PACRE_WR(x, HW_AIPS_PACRE_RD(x) & ~(v)))
 #define HW_AIPS_PACRE_TOG(x, v)  (HW_AIPS_PACRE_WR(x, HW_AIPS_PACRE_RD(x) ^  (v)))
@@ -3676,13 +3683,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP7 field. */
-#define BR_AIPS_PACRE_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP7))
+#define BR_AIPS_PACRE_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP7. */
 #define BF_AIPS_PACRE_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP7) & BM_AIPS_PACRE_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRE_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP7) = (v))
+#define BW_AIPS_PACRE_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP7), v))
 /*@}*/
 
 /*!
@@ -3702,13 +3709,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP7 field. */
-#define BR_AIPS_PACRE_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP7))
+#define BR_AIPS_PACRE_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP7. */
 #define BF_AIPS_PACRE_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP7) & BM_AIPS_PACRE_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRE_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP7) = (v))
+#define BW_AIPS_PACRE_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP7), v))
 /*@}*/
 
 /*!
@@ -3731,13 +3738,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP7 field. */
-#define BR_AIPS_PACRE_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP7))
+#define BR_AIPS_PACRE_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP7. */
 #define BF_AIPS_PACRE_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP7) & BM_AIPS_PACRE_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRE_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP7) = (v))
+#define BW_AIPS_PACRE_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP7), v))
 /*@}*/
 
 /*!
@@ -3757,13 +3764,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP6 field. */
-#define BR_AIPS_PACRE_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP6))
+#define BR_AIPS_PACRE_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP6. */
 #define BF_AIPS_PACRE_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP6) & BM_AIPS_PACRE_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRE_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP6) = (v))
+#define BW_AIPS_PACRE_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP6), v))
 /*@}*/
 
 /*!
@@ -3783,13 +3790,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP6 field. */
-#define BR_AIPS_PACRE_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP6))
+#define BR_AIPS_PACRE_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP6. */
 #define BF_AIPS_PACRE_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP6) & BM_AIPS_PACRE_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRE_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP6) = (v))
+#define BW_AIPS_PACRE_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP6), v))
 /*@}*/
 
 /*!
@@ -3812,13 +3819,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP6 field. */
-#define BR_AIPS_PACRE_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP6))
+#define BR_AIPS_PACRE_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP6. */
 #define BF_AIPS_PACRE_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP6) & BM_AIPS_PACRE_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRE_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP6) = (v))
+#define BW_AIPS_PACRE_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP6), v))
 /*@}*/
 
 /*!
@@ -3838,13 +3845,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP5 field. */
-#define BR_AIPS_PACRE_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP5))
+#define BR_AIPS_PACRE_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP5. */
 #define BF_AIPS_PACRE_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP5) & BM_AIPS_PACRE_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRE_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP5) = (v))
+#define BW_AIPS_PACRE_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP5), v))
 /*@}*/
 
 /*!
@@ -3864,13 +3871,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP5 field. */
-#define BR_AIPS_PACRE_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP5))
+#define BR_AIPS_PACRE_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP5. */
 #define BF_AIPS_PACRE_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP5) & BM_AIPS_PACRE_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRE_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP5) = (v))
+#define BW_AIPS_PACRE_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP5), v))
 /*@}*/
 
 /*!
@@ -3893,13 +3900,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP5 field. */
-#define BR_AIPS_PACRE_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP5))
+#define BR_AIPS_PACRE_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP5. */
 #define BF_AIPS_PACRE_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP5) & BM_AIPS_PACRE_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRE_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP5) = (v))
+#define BW_AIPS_PACRE_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP5), v))
 /*@}*/
 
 /*!
@@ -3919,13 +3926,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP4 field. */
-#define BR_AIPS_PACRE_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP4))
+#define BR_AIPS_PACRE_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP4. */
 #define BF_AIPS_PACRE_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP4) & BM_AIPS_PACRE_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRE_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP4) = (v))
+#define BW_AIPS_PACRE_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP4), v))
 /*@}*/
 
 /*!
@@ -3945,13 +3952,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP4 field. */
-#define BR_AIPS_PACRE_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP4))
+#define BR_AIPS_PACRE_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP4. */
 #define BF_AIPS_PACRE_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP4) & BM_AIPS_PACRE_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRE_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP4) = (v))
+#define BW_AIPS_PACRE_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP4), v))
 /*@}*/
 
 /*!
@@ -3974,13 +3981,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP4 field. */
-#define BR_AIPS_PACRE_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP4))
+#define BR_AIPS_PACRE_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP4. */
 #define BF_AIPS_PACRE_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP4) & BM_AIPS_PACRE_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRE_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP4) = (v))
+#define BW_AIPS_PACRE_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP4), v))
 /*@}*/
 
 /*!
@@ -4000,13 +4007,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP3 field. */
-#define BR_AIPS_PACRE_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP3))
+#define BR_AIPS_PACRE_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP3. */
 #define BF_AIPS_PACRE_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP3) & BM_AIPS_PACRE_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRE_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP3) = (v))
+#define BW_AIPS_PACRE_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP3), v))
 /*@}*/
 
 /*!
@@ -4026,13 +4033,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP3 field. */
-#define BR_AIPS_PACRE_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP3))
+#define BR_AIPS_PACRE_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP3. */
 #define BF_AIPS_PACRE_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP3) & BM_AIPS_PACRE_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRE_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP3) = (v))
+#define BW_AIPS_PACRE_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP3), v))
 /*@}*/
 
 /*!
@@ -4055,13 +4062,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP3 field. */
-#define BR_AIPS_PACRE_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP3))
+#define BR_AIPS_PACRE_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP3. */
 #define BF_AIPS_PACRE_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP3) & BM_AIPS_PACRE_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRE_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP3) = (v))
+#define BW_AIPS_PACRE_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP3), v))
 /*@}*/
 
 /*!
@@ -4081,13 +4088,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP2 field. */
-#define BR_AIPS_PACRE_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP2))
+#define BR_AIPS_PACRE_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP2. */
 #define BF_AIPS_PACRE_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP2) & BM_AIPS_PACRE_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRE_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP2) = (v))
+#define BW_AIPS_PACRE_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP2), v))
 /*@}*/
 
 /*!
@@ -4107,13 +4114,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP2 field. */
-#define BR_AIPS_PACRE_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP2))
+#define BR_AIPS_PACRE_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP2. */
 #define BF_AIPS_PACRE_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP2) & BM_AIPS_PACRE_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRE_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP2) = (v))
+#define BW_AIPS_PACRE_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP2), v))
 /*@}*/
 
 /*!
@@ -4136,13 +4143,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP2 field. */
-#define BR_AIPS_PACRE_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP2))
+#define BR_AIPS_PACRE_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP2. */
 #define BF_AIPS_PACRE_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP2) & BM_AIPS_PACRE_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRE_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP2) = (v))
+#define BW_AIPS_PACRE_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP2), v))
 /*@}*/
 
 /*!
@@ -4162,13 +4169,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP1 field. */
-#define BR_AIPS_PACRE_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP1))
+#define BR_AIPS_PACRE_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP1. */
 #define BF_AIPS_PACRE_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP1) & BM_AIPS_PACRE_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRE_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP1) = (v))
+#define BW_AIPS_PACRE_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP1), v))
 /*@}*/
 
 /*!
@@ -4188,13 +4195,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP1 field. */
-#define BR_AIPS_PACRE_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP1))
+#define BR_AIPS_PACRE_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP1. */
 #define BF_AIPS_PACRE_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP1) & BM_AIPS_PACRE_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRE_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP1) = (v))
+#define BW_AIPS_PACRE_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP1), v))
 /*@}*/
 
 /*!
@@ -4217,13 +4224,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP1 field. */
-#define BR_AIPS_PACRE_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP1))
+#define BR_AIPS_PACRE_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP1. */
 #define BF_AIPS_PACRE_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP1) & BM_AIPS_PACRE_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRE_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP1) = (v))
+#define BW_AIPS_PACRE_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP1), v))
 /*@}*/
 
 /*!
@@ -4243,13 +4250,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRE_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRE_TP0 field. */
-#define BR_AIPS_PACRE_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP0))
+#define BR_AIPS_PACRE_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_TP0. */
 #define BF_AIPS_PACRE_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_TP0) & BM_AIPS_PACRE_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRE_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP0) = (v))
+#define BW_AIPS_PACRE_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_TP0), v))
 /*@}*/
 
 /*!
@@ -4269,13 +4276,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRE_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRE_WP0 field. */
-#define BR_AIPS_PACRE_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP0))
+#define BR_AIPS_PACRE_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_WP0. */
 #define BF_AIPS_PACRE_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_WP0) & BM_AIPS_PACRE_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRE_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP0) = (v))
+#define BW_AIPS_PACRE_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_WP0), v))
 /*@}*/
 
 /*!
@@ -4298,13 +4305,13 @@ typedef union _hw_aips_pacre
 #define BS_AIPS_PACRE_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRE_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRE_SP0 field. */
-#define BR_AIPS_PACRE_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP0))
+#define BR_AIPS_PACRE_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRE_SP0. */
 #define BF_AIPS_PACRE_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRE_SP0) & BM_AIPS_PACRE_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRE_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP0) = (v))
+#define BW_AIPS_PACRE_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRE_ADDR(x), BP_AIPS_PACRE_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -4367,8 +4374,8 @@ typedef union _hw_aips_pacrf
 #define HW_AIPS_PACRF_ADDR(x)    ((x) + 0x44U)
 
 #define HW_AIPS_PACRF(x)         (*(__IO hw_aips_pacrf_t *) HW_AIPS_PACRF_ADDR(x))
-#define HW_AIPS_PACRF_RD(x)      (HW_AIPS_PACRF(x).U)
-#define HW_AIPS_PACRF_WR(x, v)   (HW_AIPS_PACRF(x).U = (v))
+#define HW_AIPS_PACRF_RD(x)      (ADDRESS_READ(hw_aips_pacrf_t, HW_AIPS_PACRF_ADDR(x)))
+#define HW_AIPS_PACRF_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrf_t, HW_AIPS_PACRF_ADDR(x), v))
 #define HW_AIPS_PACRF_SET(x, v)  (HW_AIPS_PACRF_WR(x, HW_AIPS_PACRF_RD(x) |  (v)))
 #define HW_AIPS_PACRF_CLR(x, v)  (HW_AIPS_PACRF_WR(x, HW_AIPS_PACRF_RD(x) & ~(v)))
 #define HW_AIPS_PACRF_TOG(x, v)  (HW_AIPS_PACRF_WR(x, HW_AIPS_PACRF_RD(x) ^  (v)))
@@ -4395,13 +4402,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP7 field. */
-#define BR_AIPS_PACRF_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP7))
+#define BR_AIPS_PACRF_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP7. */
 #define BF_AIPS_PACRF_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP7) & BM_AIPS_PACRF_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRF_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP7) = (v))
+#define BW_AIPS_PACRF_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP7), v))
 /*@}*/
 
 /*!
@@ -4421,13 +4428,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP7 field. */
-#define BR_AIPS_PACRF_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP7))
+#define BR_AIPS_PACRF_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP7. */
 #define BF_AIPS_PACRF_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP7) & BM_AIPS_PACRF_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRF_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP7) = (v))
+#define BW_AIPS_PACRF_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP7), v))
 /*@}*/
 
 /*!
@@ -4450,13 +4457,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP7 field. */
-#define BR_AIPS_PACRF_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP7))
+#define BR_AIPS_PACRF_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP7. */
 #define BF_AIPS_PACRF_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP7) & BM_AIPS_PACRF_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRF_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP7) = (v))
+#define BW_AIPS_PACRF_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP7), v))
 /*@}*/
 
 /*!
@@ -4476,13 +4483,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP6 field. */
-#define BR_AIPS_PACRF_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP6))
+#define BR_AIPS_PACRF_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP6. */
 #define BF_AIPS_PACRF_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP6) & BM_AIPS_PACRF_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRF_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP6) = (v))
+#define BW_AIPS_PACRF_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP6), v))
 /*@}*/
 
 /*!
@@ -4502,13 +4509,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP6 field. */
-#define BR_AIPS_PACRF_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP6))
+#define BR_AIPS_PACRF_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP6. */
 #define BF_AIPS_PACRF_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP6) & BM_AIPS_PACRF_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRF_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP6) = (v))
+#define BW_AIPS_PACRF_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP6), v))
 /*@}*/
 
 /*!
@@ -4531,13 +4538,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP6 field. */
-#define BR_AIPS_PACRF_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP6))
+#define BR_AIPS_PACRF_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP6. */
 #define BF_AIPS_PACRF_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP6) & BM_AIPS_PACRF_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRF_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP6) = (v))
+#define BW_AIPS_PACRF_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP6), v))
 /*@}*/
 
 /*!
@@ -4557,13 +4564,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP5 field. */
-#define BR_AIPS_PACRF_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP5))
+#define BR_AIPS_PACRF_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP5. */
 #define BF_AIPS_PACRF_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP5) & BM_AIPS_PACRF_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRF_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP5) = (v))
+#define BW_AIPS_PACRF_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP5), v))
 /*@}*/
 
 /*!
@@ -4583,13 +4590,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP5 field. */
-#define BR_AIPS_PACRF_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP5))
+#define BR_AIPS_PACRF_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP5. */
 #define BF_AIPS_PACRF_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP5) & BM_AIPS_PACRF_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRF_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP5) = (v))
+#define BW_AIPS_PACRF_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP5), v))
 /*@}*/
 
 /*!
@@ -4612,13 +4619,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP5 field. */
-#define BR_AIPS_PACRF_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP5))
+#define BR_AIPS_PACRF_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP5. */
 #define BF_AIPS_PACRF_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP5) & BM_AIPS_PACRF_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRF_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP5) = (v))
+#define BW_AIPS_PACRF_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP5), v))
 /*@}*/
 
 /*!
@@ -4638,13 +4645,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP4 field. */
-#define BR_AIPS_PACRF_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP4))
+#define BR_AIPS_PACRF_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP4. */
 #define BF_AIPS_PACRF_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP4) & BM_AIPS_PACRF_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRF_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP4) = (v))
+#define BW_AIPS_PACRF_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP4), v))
 /*@}*/
 
 /*!
@@ -4664,13 +4671,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP4 field. */
-#define BR_AIPS_PACRF_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP4))
+#define BR_AIPS_PACRF_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP4. */
 #define BF_AIPS_PACRF_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP4) & BM_AIPS_PACRF_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRF_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP4) = (v))
+#define BW_AIPS_PACRF_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP4), v))
 /*@}*/
 
 /*!
@@ -4693,13 +4700,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP4 field. */
-#define BR_AIPS_PACRF_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP4))
+#define BR_AIPS_PACRF_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP4. */
 #define BF_AIPS_PACRF_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP4) & BM_AIPS_PACRF_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRF_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP4) = (v))
+#define BW_AIPS_PACRF_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP4), v))
 /*@}*/
 
 /*!
@@ -4719,13 +4726,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP3 field. */
-#define BR_AIPS_PACRF_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP3))
+#define BR_AIPS_PACRF_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP3. */
 #define BF_AIPS_PACRF_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP3) & BM_AIPS_PACRF_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRF_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP3) = (v))
+#define BW_AIPS_PACRF_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP3), v))
 /*@}*/
 
 /*!
@@ -4745,13 +4752,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP3 field. */
-#define BR_AIPS_PACRF_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP3))
+#define BR_AIPS_PACRF_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP3. */
 #define BF_AIPS_PACRF_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP3) & BM_AIPS_PACRF_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRF_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP3) = (v))
+#define BW_AIPS_PACRF_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP3), v))
 /*@}*/
 
 /*!
@@ -4774,13 +4781,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP3 field. */
-#define BR_AIPS_PACRF_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP3))
+#define BR_AIPS_PACRF_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP3. */
 #define BF_AIPS_PACRF_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP3) & BM_AIPS_PACRF_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRF_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP3) = (v))
+#define BW_AIPS_PACRF_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP3), v))
 /*@}*/
 
 /*!
@@ -4800,13 +4807,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP2 field. */
-#define BR_AIPS_PACRF_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP2))
+#define BR_AIPS_PACRF_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP2. */
 #define BF_AIPS_PACRF_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP2) & BM_AIPS_PACRF_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRF_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP2) = (v))
+#define BW_AIPS_PACRF_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP2), v))
 /*@}*/
 
 /*!
@@ -4826,13 +4833,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP2 field. */
-#define BR_AIPS_PACRF_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP2))
+#define BR_AIPS_PACRF_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP2. */
 #define BF_AIPS_PACRF_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP2) & BM_AIPS_PACRF_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRF_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP2) = (v))
+#define BW_AIPS_PACRF_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP2), v))
 /*@}*/
 
 /*!
@@ -4855,13 +4862,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP2 field. */
-#define BR_AIPS_PACRF_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP2))
+#define BR_AIPS_PACRF_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP2. */
 #define BF_AIPS_PACRF_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP2) & BM_AIPS_PACRF_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRF_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP2) = (v))
+#define BW_AIPS_PACRF_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP2), v))
 /*@}*/
 
 /*!
@@ -4881,13 +4888,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP1 field. */
-#define BR_AIPS_PACRF_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP1))
+#define BR_AIPS_PACRF_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP1. */
 #define BF_AIPS_PACRF_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP1) & BM_AIPS_PACRF_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRF_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP1) = (v))
+#define BW_AIPS_PACRF_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP1), v))
 /*@}*/
 
 /*!
@@ -4907,13 +4914,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP1 field. */
-#define BR_AIPS_PACRF_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP1))
+#define BR_AIPS_PACRF_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP1. */
 #define BF_AIPS_PACRF_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP1) & BM_AIPS_PACRF_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRF_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP1) = (v))
+#define BW_AIPS_PACRF_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP1), v))
 /*@}*/
 
 /*!
@@ -4936,13 +4943,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP1 field. */
-#define BR_AIPS_PACRF_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP1))
+#define BR_AIPS_PACRF_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP1. */
 #define BF_AIPS_PACRF_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP1) & BM_AIPS_PACRF_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRF_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP1) = (v))
+#define BW_AIPS_PACRF_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP1), v))
 /*@}*/
 
 /*!
@@ -4962,13 +4969,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRF_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRF_TP0 field. */
-#define BR_AIPS_PACRF_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP0))
+#define BR_AIPS_PACRF_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_TP0. */
 #define BF_AIPS_PACRF_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_TP0) & BM_AIPS_PACRF_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRF_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP0) = (v))
+#define BW_AIPS_PACRF_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_TP0), v))
 /*@}*/
 
 /*!
@@ -4988,13 +4995,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRF_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRF_WP0 field. */
-#define BR_AIPS_PACRF_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP0))
+#define BR_AIPS_PACRF_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_WP0. */
 #define BF_AIPS_PACRF_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_WP0) & BM_AIPS_PACRF_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRF_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP0) = (v))
+#define BW_AIPS_PACRF_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_WP0), v))
 /*@}*/
 
 /*!
@@ -5017,13 +5024,13 @@ typedef union _hw_aips_pacrf
 #define BS_AIPS_PACRF_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRF_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRF_SP0 field. */
-#define BR_AIPS_PACRF_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP0))
+#define BR_AIPS_PACRF_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRF_SP0. */
 #define BF_AIPS_PACRF_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRF_SP0) & BM_AIPS_PACRF_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRF_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP0) = (v))
+#define BW_AIPS_PACRF_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRF_ADDR(x), BP_AIPS_PACRF_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -5086,8 +5093,8 @@ typedef union _hw_aips_pacrg
 #define HW_AIPS_PACRG_ADDR(x)    ((x) + 0x48U)
 
 #define HW_AIPS_PACRG(x)         (*(__IO hw_aips_pacrg_t *) HW_AIPS_PACRG_ADDR(x))
-#define HW_AIPS_PACRG_RD(x)      (HW_AIPS_PACRG(x).U)
-#define HW_AIPS_PACRG_WR(x, v)   (HW_AIPS_PACRG(x).U = (v))
+#define HW_AIPS_PACRG_RD(x)      (ADDRESS_READ(hw_aips_pacrg_t, HW_AIPS_PACRG_ADDR(x)))
+#define HW_AIPS_PACRG_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrg_t, HW_AIPS_PACRG_ADDR(x), v))
 #define HW_AIPS_PACRG_SET(x, v)  (HW_AIPS_PACRG_WR(x, HW_AIPS_PACRG_RD(x) |  (v)))
 #define HW_AIPS_PACRG_CLR(x, v)  (HW_AIPS_PACRG_WR(x, HW_AIPS_PACRG_RD(x) & ~(v)))
 #define HW_AIPS_PACRG_TOG(x, v)  (HW_AIPS_PACRG_WR(x, HW_AIPS_PACRG_RD(x) ^  (v)))
@@ -5114,13 +5121,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP7 field. */
-#define BR_AIPS_PACRG_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP7))
+#define BR_AIPS_PACRG_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP7. */
 #define BF_AIPS_PACRG_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP7) & BM_AIPS_PACRG_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRG_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP7) = (v))
+#define BW_AIPS_PACRG_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP7), v))
 /*@}*/
 
 /*!
@@ -5140,13 +5147,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP7 field. */
-#define BR_AIPS_PACRG_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP7))
+#define BR_AIPS_PACRG_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP7. */
 #define BF_AIPS_PACRG_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP7) & BM_AIPS_PACRG_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRG_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP7) = (v))
+#define BW_AIPS_PACRG_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP7), v))
 /*@}*/
 
 /*!
@@ -5169,13 +5176,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP7 field. */
-#define BR_AIPS_PACRG_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP7))
+#define BR_AIPS_PACRG_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP7. */
 #define BF_AIPS_PACRG_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP7) & BM_AIPS_PACRG_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRG_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP7) = (v))
+#define BW_AIPS_PACRG_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP7), v))
 /*@}*/
 
 /*!
@@ -5195,13 +5202,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP6 field. */
-#define BR_AIPS_PACRG_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP6))
+#define BR_AIPS_PACRG_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP6. */
 #define BF_AIPS_PACRG_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP6) & BM_AIPS_PACRG_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRG_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP6) = (v))
+#define BW_AIPS_PACRG_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP6), v))
 /*@}*/
 
 /*!
@@ -5221,13 +5228,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP6 field. */
-#define BR_AIPS_PACRG_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP6))
+#define BR_AIPS_PACRG_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP6. */
 #define BF_AIPS_PACRG_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP6) & BM_AIPS_PACRG_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRG_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP6) = (v))
+#define BW_AIPS_PACRG_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP6), v))
 /*@}*/
 
 /*!
@@ -5250,13 +5257,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP6 field. */
-#define BR_AIPS_PACRG_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP6))
+#define BR_AIPS_PACRG_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP6. */
 #define BF_AIPS_PACRG_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP6) & BM_AIPS_PACRG_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRG_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP6) = (v))
+#define BW_AIPS_PACRG_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP6), v))
 /*@}*/
 
 /*!
@@ -5276,13 +5283,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP5 field. */
-#define BR_AIPS_PACRG_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP5))
+#define BR_AIPS_PACRG_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP5. */
 #define BF_AIPS_PACRG_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP5) & BM_AIPS_PACRG_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRG_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP5) = (v))
+#define BW_AIPS_PACRG_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP5), v))
 /*@}*/
 
 /*!
@@ -5302,13 +5309,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP5 field. */
-#define BR_AIPS_PACRG_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP5))
+#define BR_AIPS_PACRG_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP5. */
 #define BF_AIPS_PACRG_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP5) & BM_AIPS_PACRG_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRG_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP5) = (v))
+#define BW_AIPS_PACRG_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP5), v))
 /*@}*/
 
 /*!
@@ -5331,13 +5338,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP5 field. */
-#define BR_AIPS_PACRG_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP5))
+#define BR_AIPS_PACRG_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP5. */
 #define BF_AIPS_PACRG_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP5) & BM_AIPS_PACRG_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRG_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP5) = (v))
+#define BW_AIPS_PACRG_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP5), v))
 /*@}*/
 
 /*!
@@ -5357,13 +5364,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP4 field. */
-#define BR_AIPS_PACRG_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP4))
+#define BR_AIPS_PACRG_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP4. */
 #define BF_AIPS_PACRG_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP4) & BM_AIPS_PACRG_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRG_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP4) = (v))
+#define BW_AIPS_PACRG_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP4), v))
 /*@}*/
 
 /*!
@@ -5383,13 +5390,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP4 field. */
-#define BR_AIPS_PACRG_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP4))
+#define BR_AIPS_PACRG_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP4. */
 #define BF_AIPS_PACRG_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP4) & BM_AIPS_PACRG_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRG_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP4) = (v))
+#define BW_AIPS_PACRG_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP4), v))
 /*@}*/
 
 /*!
@@ -5412,13 +5419,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP4 field. */
-#define BR_AIPS_PACRG_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP4))
+#define BR_AIPS_PACRG_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP4. */
 #define BF_AIPS_PACRG_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP4) & BM_AIPS_PACRG_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRG_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP4) = (v))
+#define BW_AIPS_PACRG_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP4), v))
 /*@}*/
 
 /*!
@@ -5438,13 +5445,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP3 field. */
-#define BR_AIPS_PACRG_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP3))
+#define BR_AIPS_PACRG_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP3. */
 #define BF_AIPS_PACRG_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP3) & BM_AIPS_PACRG_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRG_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP3) = (v))
+#define BW_AIPS_PACRG_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP3), v))
 /*@}*/
 
 /*!
@@ -5464,13 +5471,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP3 field. */
-#define BR_AIPS_PACRG_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP3))
+#define BR_AIPS_PACRG_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP3. */
 #define BF_AIPS_PACRG_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP3) & BM_AIPS_PACRG_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRG_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP3) = (v))
+#define BW_AIPS_PACRG_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP3), v))
 /*@}*/
 
 /*!
@@ -5493,13 +5500,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP3 field. */
-#define BR_AIPS_PACRG_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP3))
+#define BR_AIPS_PACRG_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP3. */
 #define BF_AIPS_PACRG_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP3) & BM_AIPS_PACRG_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRG_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP3) = (v))
+#define BW_AIPS_PACRG_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP3), v))
 /*@}*/
 
 /*!
@@ -5519,13 +5526,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP2 field. */
-#define BR_AIPS_PACRG_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP2))
+#define BR_AIPS_PACRG_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP2. */
 #define BF_AIPS_PACRG_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP2) & BM_AIPS_PACRG_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRG_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP2) = (v))
+#define BW_AIPS_PACRG_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP2), v))
 /*@}*/
 
 /*!
@@ -5545,13 +5552,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP2 field. */
-#define BR_AIPS_PACRG_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP2))
+#define BR_AIPS_PACRG_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP2. */
 #define BF_AIPS_PACRG_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP2) & BM_AIPS_PACRG_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRG_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP2) = (v))
+#define BW_AIPS_PACRG_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP2), v))
 /*@}*/
 
 /*!
@@ -5574,13 +5581,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP2 field. */
-#define BR_AIPS_PACRG_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP2))
+#define BR_AIPS_PACRG_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP2. */
 #define BF_AIPS_PACRG_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP2) & BM_AIPS_PACRG_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRG_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP2) = (v))
+#define BW_AIPS_PACRG_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP2), v))
 /*@}*/
 
 /*!
@@ -5600,13 +5607,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP1 field. */
-#define BR_AIPS_PACRG_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP1))
+#define BR_AIPS_PACRG_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP1. */
 #define BF_AIPS_PACRG_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP1) & BM_AIPS_PACRG_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRG_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP1) = (v))
+#define BW_AIPS_PACRG_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP1), v))
 /*@}*/
 
 /*!
@@ -5626,13 +5633,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP1 field. */
-#define BR_AIPS_PACRG_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP1))
+#define BR_AIPS_PACRG_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP1. */
 #define BF_AIPS_PACRG_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP1) & BM_AIPS_PACRG_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRG_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP1) = (v))
+#define BW_AIPS_PACRG_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP1), v))
 /*@}*/
 
 /*!
@@ -5655,13 +5662,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP1 field. */
-#define BR_AIPS_PACRG_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP1))
+#define BR_AIPS_PACRG_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP1. */
 #define BF_AIPS_PACRG_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP1) & BM_AIPS_PACRG_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRG_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP1) = (v))
+#define BW_AIPS_PACRG_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP1), v))
 /*@}*/
 
 /*!
@@ -5681,13 +5688,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRG_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRG_TP0 field. */
-#define BR_AIPS_PACRG_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP0))
+#define BR_AIPS_PACRG_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_TP0. */
 #define BF_AIPS_PACRG_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_TP0) & BM_AIPS_PACRG_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRG_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP0) = (v))
+#define BW_AIPS_PACRG_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_TP0), v))
 /*@}*/
 
 /*!
@@ -5707,13 +5714,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRG_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRG_WP0 field. */
-#define BR_AIPS_PACRG_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP0))
+#define BR_AIPS_PACRG_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_WP0. */
 #define BF_AIPS_PACRG_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_WP0) & BM_AIPS_PACRG_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRG_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP0) = (v))
+#define BW_AIPS_PACRG_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_WP0), v))
 /*@}*/
 
 /*!
@@ -5736,13 +5743,13 @@ typedef union _hw_aips_pacrg
 #define BS_AIPS_PACRG_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRG_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRG_SP0 field. */
-#define BR_AIPS_PACRG_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP0))
+#define BR_AIPS_PACRG_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRG_SP0. */
 #define BF_AIPS_PACRG_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRG_SP0) & BM_AIPS_PACRG_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRG_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP0) = (v))
+#define BW_AIPS_PACRG_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRG_ADDR(x), BP_AIPS_PACRG_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -5805,8 +5812,8 @@ typedef union _hw_aips_pacrh
 #define HW_AIPS_PACRH_ADDR(x)    ((x) + 0x4CU)
 
 #define HW_AIPS_PACRH(x)         (*(__IO hw_aips_pacrh_t *) HW_AIPS_PACRH_ADDR(x))
-#define HW_AIPS_PACRH_RD(x)      (HW_AIPS_PACRH(x).U)
-#define HW_AIPS_PACRH_WR(x, v)   (HW_AIPS_PACRH(x).U = (v))
+#define HW_AIPS_PACRH_RD(x)      (ADDRESS_READ(hw_aips_pacrh_t, HW_AIPS_PACRH_ADDR(x)))
+#define HW_AIPS_PACRH_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrh_t, HW_AIPS_PACRH_ADDR(x), v))
 #define HW_AIPS_PACRH_SET(x, v)  (HW_AIPS_PACRH_WR(x, HW_AIPS_PACRH_RD(x) |  (v)))
 #define HW_AIPS_PACRH_CLR(x, v)  (HW_AIPS_PACRH_WR(x, HW_AIPS_PACRH_RD(x) & ~(v)))
 #define HW_AIPS_PACRH_TOG(x, v)  (HW_AIPS_PACRH_WR(x, HW_AIPS_PACRH_RD(x) ^  (v)))
@@ -5833,13 +5840,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP7 field. */
-#define BR_AIPS_PACRH_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP7))
+#define BR_AIPS_PACRH_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP7. */
 #define BF_AIPS_PACRH_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP7) & BM_AIPS_PACRH_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRH_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP7) = (v))
+#define BW_AIPS_PACRH_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP7), v))
 /*@}*/
 
 /*!
@@ -5859,13 +5866,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP7 field. */
-#define BR_AIPS_PACRH_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP7))
+#define BR_AIPS_PACRH_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP7. */
 #define BF_AIPS_PACRH_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP7) & BM_AIPS_PACRH_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRH_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP7) = (v))
+#define BW_AIPS_PACRH_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP7), v))
 /*@}*/
 
 /*!
@@ -5888,13 +5895,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP7 field. */
-#define BR_AIPS_PACRH_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP7))
+#define BR_AIPS_PACRH_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP7. */
 #define BF_AIPS_PACRH_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP7) & BM_AIPS_PACRH_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRH_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP7) = (v))
+#define BW_AIPS_PACRH_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP7), v))
 /*@}*/
 
 /*!
@@ -5914,13 +5921,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP6 field. */
-#define BR_AIPS_PACRH_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP6))
+#define BR_AIPS_PACRH_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP6. */
 #define BF_AIPS_PACRH_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP6) & BM_AIPS_PACRH_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRH_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP6) = (v))
+#define BW_AIPS_PACRH_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP6), v))
 /*@}*/
 
 /*!
@@ -5940,13 +5947,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP6 field. */
-#define BR_AIPS_PACRH_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP6))
+#define BR_AIPS_PACRH_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP6. */
 #define BF_AIPS_PACRH_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP6) & BM_AIPS_PACRH_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRH_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP6) = (v))
+#define BW_AIPS_PACRH_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP6), v))
 /*@}*/
 
 /*!
@@ -5969,13 +5976,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP6 field. */
-#define BR_AIPS_PACRH_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP6))
+#define BR_AIPS_PACRH_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP6. */
 #define BF_AIPS_PACRH_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP6) & BM_AIPS_PACRH_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRH_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP6) = (v))
+#define BW_AIPS_PACRH_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP6), v))
 /*@}*/
 
 /*!
@@ -5995,13 +6002,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP5 field. */
-#define BR_AIPS_PACRH_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP5))
+#define BR_AIPS_PACRH_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP5. */
 #define BF_AIPS_PACRH_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP5) & BM_AIPS_PACRH_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRH_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP5) = (v))
+#define BW_AIPS_PACRH_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP5), v))
 /*@}*/
 
 /*!
@@ -6021,13 +6028,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP5 field. */
-#define BR_AIPS_PACRH_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP5))
+#define BR_AIPS_PACRH_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP5. */
 #define BF_AIPS_PACRH_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP5) & BM_AIPS_PACRH_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRH_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP5) = (v))
+#define BW_AIPS_PACRH_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP5), v))
 /*@}*/
 
 /*!
@@ -6050,13 +6057,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP5 field. */
-#define BR_AIPS_PACRH_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP5))
+#define BR_AIPS_PACRH_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP5. */
 #define BF_AIPS_PACRH_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP5) & BM_AIPS_PACRH_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRH_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP5) = (v))
+#define BW_AIPS_PACRH_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP5), v))
 /*@}*/
 
 /*!
@@ -6076,13 +6083,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP4 field. */
-#define BR_AIPS_PACRH_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP4))
+#define BR_AIPS_PACRH_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP4. */
 #define BF_AIPS_PACRH_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP4) & BM_AIPS_PACRH_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRH_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP4) = (v))
+#define BW_AIPS_PACRH_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP4), v))
 /*@}*/
 
 /*!
@@ -6102,13 +6109,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP4 field. */
-#define BR_AIPS_PACRH_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP4))
+#define BR_AIPS_PACRH_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP4. */
 #define BF_AIPS_PACRH_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP4) & BM_AIPS_PACRH_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRH_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP4) = (v))
+#define BW_AIPS_PACRH_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP4), v))
 /*@}*/
 
 /*!
@@ -6131,13 +6138,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP4 field. */
-#define BR_AIPS_PACRH_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP4))
+#define BR_AIPS_PACRH_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP4. */
 #define BF_AIPS_PACRH_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP4) & BM_AIPS_PACRH_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRH_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP4) = (v))
+#define BW_AIPS_PACRH_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP4), v))
 /*@}*/
 
 /*!
@@ -6157,13 +6164,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP3 field. */
-#define BR_AIPS_PACRH_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP3))
+#define BR_AIPS_PACRH_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP3. */
 #define BF_AIPS_PACRH_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP3) & BM_AIPS_PACRH_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRH_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP3) = (v))
+#define BW_AIPS_PACRH_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP3), v))
 /*@}*/
 
 /*!
@@ -6183,13 +6190,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP3 field. */
-#define BR_AIPS_PACRH_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP3))
+#define BR_AIPS_PACRH_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP3. */
 #define BF_AIPS_PACRH_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP3) & BM_AIPS_PACRH_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRH_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP3) = (v))
+#define BW_AIPS_PACRH_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP3), v))
 /*@}*/
 
 /*!
@@ -6212,13 +6219,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP3 field. */
-#define BR_AIPS_PACRH_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP3))
+#define BR_AIPS_PACRH_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP3. */
 #define BF_AIPS_PACRH_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP3) & BM_AIPS_PACRH_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRH_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP3) = (v))
+#define BW_AIPS_PACRH_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP3), v))
 /*@}*/
 
 /*!
@@ -6238,13 +6245,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP2 field. */
-#define BR_AIPS_PACRH_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP2))
+#define BR_AIPS_PACRH_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP2. */
 #define BF_AIPS_PACRH_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP2) & BM_AIPS_PACRH_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRH_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP2) = (v))
+#define BW_AIPS_PACRH_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP2), v))
 /*@}*/
 
 /*!
@@ -6264,13 +6271,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP2 field. */
-#define BR_AIPS_PACRH_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP2))
+#define BR_AIPS_PACRH_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP2. */
 #define BF_AIPS_PACRH_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP2) & BM_AIPS_PACRH_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRH_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP2) = (v))
+#define BW_AIPS_PACRH_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP2), v))
 /*@}*/
 
 /*!
@@ -6293,13 +6300,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP2 field. */
-#define BR_AIPS_PACRH_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP2))
+#define BR_AIPS_PACRH_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP2. */
 #define BF_AIPS_PACRH_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP2) & BM_AIPS_PACRH_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRH_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP2) = (v))
+#define BW_AIPS_PACRH_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP2), v))
 /*@}*/
 
 /*!
@@ -6319,13 +6326,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP1 field. */
-#define BR_AIPS_PACRH_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP1))
+#define BR_AIPS_PACRH_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP1. */
 #define BF_AIPS_PACRH_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP1) & BM_AIPS_PACRH_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRH_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP1) = (v))
+#define BW_AIPS_PACRH_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP1), v))
 /*@}*/
 
 /*!
@@ -6345,13 +6352,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP1 field. */
-#define BR_AIPS_PACRH_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP1))
+#define BR_AIPS_PACRH_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP1. */
 #define BF_AIPS_PACRH_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP1) & BM_AIPS_PACRH_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRH_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP1) = (v))
+#define BW_AIPS_PACRH_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP1), v))
 /*@}*/
 
 /*!
@@ -6374,13 +6381,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP1 field. */
-#define BR_AIPS_PACRH_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP1))
+#define BR_AIPS_PACRH_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP1. */
 #define BF_AIPS_PACRH_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP1) & BM_AIPS_PACRH_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRH_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP1) = (v))
+#define BW_AIPS_PACRH_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP1), v))
 /*@}*/
 
 /*!
@@ -6400,13 +6407,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRH_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRH_TP0 field. */
-#define BR_AIPS_PACRH_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP0))
+#define BR_AIPS_PACRH_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_TP0. */
 #define BF_AIPS_PACRH_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_TP0) & BM_AIPS_PACRH_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRH_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP0) = (v))
+#define BW_AIPS_PACRH_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_TP0), v))
 /*@}*/
 
 /*!
@@ -6426,13 +6433,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRH_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRH_WP0 field. */
-#define BR_AIPS_PACRH_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP0))
+#define BR_AIPS_PACRH_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_WP0. */
 #define BF_AIPS_PACRH_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_WP0) & BM_AIPS_PACRH_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRH_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP0) = (v))
+#define BW_AIPS_PACRH_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_WP0), v))
 /*@}*/
 
 /*!
@@ -6455,13 +6462,13 @@ typedef union _hw_aips_pacrh
 #define BS_AIPS_PACRH_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRH_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRH_SP0 field. */
-#define BR_AIPS_PACRH_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP0))
+#define BR_AIPS_PACRH_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRH_SP0. */
 #define BF_AIPS_PACRH_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRH_SP0) & BM_AIPS_PACRH_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRH_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP0) = (v))
+#define BW_AIPS_PACRH_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRH_ADDR(x), BP_AIPS_PACRH_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -6524,8 +6531,8 @@ typedef union _hw_aips_pacri
 #define HW_AIPS_PACRI_ADDR(x)    ((x) + 0x50U)
 
 #define HW_AIPS_PACRI(x)         (*(__IO hw_aips_pacri_t *) HW_AIPS_PACRI_ADDR(x))
-#define HW_AIPS_PACRI_RD(x)      (HW_AIPS_PACRI(x).U)
-#define HW_AIPS_PACRI_WR(x, v)   (HW_AIPS_PACRI(x).U = (v))
+#define HW_AIPS_PACRI_RD(x)      (ADDRESS_READ(hw_aips_pacri_t, HW_AIPS_PACRI_ADDR(x)))
+#define HW_AIPS_PACRI_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacri_t, HW_AIPS_PACRI_ADDR(x), v))
 #define HW_AIPS_PACRI_SET(x, v)  (HW_AIPS_PACRI_WR(x, HW_AIPS_PACRI_RD(x) |  (v)))
 #define HW_AIPS_PACRI_CLR(x, v)  (HW_AIPS_PACRI_WR(x, HW_AIPS_PACRI_RD(x) & ~(v)))
 #define HW_AIPS_PACRI_TOG(x, v)  (HW_AIPS_PACRI_WR(x, HW_AIPS_PACRI_RD(x) ^  (v)))
@@ -6552,13 +6559,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP7 field. */
-#define BR_AIPS_PACRI_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP7))
+#define BR_AIPS_PACRI_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP7. */
 #define BF_AIPS_PACRI_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP7) & BM_AIPS_PACRI_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRI_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP7) = (v))
+#define BW_AIPS_PACRI_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP7), v))
 /*@}*/
 
 /*!
@@ -6578,13 +6585,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP7 field. */
-#define BR_AIPS_PACRI_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP7))
+#define BR_AIPS_PACRI_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP7. */
 #define BF_AIPS_PACRI_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP7) & BM_AIPS_PACRI_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRI_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP7) = (v))
+#define BW_AIPS_PACRI_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP7), v))
 /*@}*/
 
 /*!
@@ -6607,13 +6614,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP7 field. */
-#define BR_AIPS_PACRI_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP7))
+#define BR_AIPS_PACRI_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP7. */
 #define BF_AIPS_PACRI_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP7) & BM_AIPS_PACRI_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRI_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP7) = (v))
+#define BW_AIPS_PACRI_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP7), v))
 /*@}*/
 
 /*!
@@ -6633,13 +6640,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP6 field. */
-#define BR_AIPS_PACRI_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP6))
+#define BR_AIPS_PACRI_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP6. */
 #define BF_AIPS_PACRI_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP6) & BM_AIPS_PACRI_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRI_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP6) = (v))
+#define BW_AIPS_PACRI_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP6), v))
 /*@}*/
 
 /*!
@@ -6659,13 +6666,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP6 field. */
-#define BR_AIPS_PACRI_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP6))
+#define BR_AIPS_PACRI_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP6. */
 #define BF_AIPS_PACRI_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP6) & BM_AIPS_PACRI_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRI_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP6) = (v))
+#define BW_AIPS_PACRI_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP6), v))
 /*@}*/
 
 /*!
@@ -6688,13 +6695,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP6 field. */
-#define BR_AIPS_PACRI_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP6))
+#define BR_AIPS_PACRI_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP6. */
 #define BF_AIPS_PACRI_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP6) & BM_AIPS_PACRI_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRI_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP6) = (v))
+#define BW_AIPS_PACRI_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP6), v))
 /*@}*/
 
 /*!
@@ -6714,13 +6721,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP5 field. */
-#define BR_AIPS_PACRI_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP5))
+#define BR_AIPS_PACRI_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP5. */
 #define BF_AIPS_PACRI_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP5) & BM_AIPS_PACRI_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRI_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP5) = (v))
+#define BW_AIPS_PACRI_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP5), v))
 /*@}*/
 
 /*!
@@ -6740,13 +6747,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP5 field. */
-#define BR_AIPS_PACRI_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP5))
+#define BR_AIPS_PACRI_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP5. */
 #define BF_AIPS_PACRI_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP5) & BM_AIPS_PACRI_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRI_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP5) = (v))
+#define BW_AIPS_PACRI_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP5), v))
 /*@}*/
 
 /*!
@@ -6769,13 +6776,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP5 field. */
-#define BR_AIPS_PACRI_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP5))
+#define BR_AIPS_PACRI_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP5. */
 #define BF_AIPS_PACRI_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP5) & BM_AIPS_PACRI_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRI_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP5) = (v))
+#define BW_AIPS_PACRI_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP5), v))
 /*@}*/
 
 /*!
@@ -6795,13 +6802,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP4 field. */
-#define BR_AIPS_PACRI_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP4))
+#define BR_AIPS_PACRI_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP4. */
 #define BF_AIPS_PACRI_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP4) & BM_AIPS_PACRI_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRI_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP4) = (v))
+#define BW_AIPS_PACRI_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP4), v))
 /*@}*/
 
 /*!
@@ -6821,13 +6828,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP4 field. */
-#define BR_AIPS_PACRI_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP4))
+#define BR_AIPS_PACRI_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP4. */
 #define BF_AIPS_PACRI_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP4) & BM_AIPS_PACRI_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRI_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP4) = (v))
+#define BW_AIPS_PACRI_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP4), v))
 /*@}*/
 
 /*!
@@ -6850,13 +6857,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP4 field. */
-#define BR_AIPS_PACRI_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP4))
+#define BR_AIPS_PACRI_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP4. */
 #define BF_AIPS_PACRI_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP4) & BM_AIPS_PACRI_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRI_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP4) = (v))
+#define BW_AIPS_PACRI_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP4), v))
 /*@}*/
 
 /*!
@@ -6876,13 +6883,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP3 field. */
-#define BR_AIPS_PACRI_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP3))
+#define BR_AIPS_PACRI_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP3. */
 #define BF_AIPS_PACRI_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP3) & BM_AIPS_PACRI_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRI_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP3) = (v))
+#define BW_AIPS_PACRI_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP3), v))
 /*@}*/
 
 /*!
@@ -6902,13 +6909,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP3 field. */
-#define BR_AIPS_PACRI_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP3))
+#define BR_AIPS_PACRI_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP3. */
 #define BF_AIPS_PACRI_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP3) & BM_AIPS_PACRI_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRI_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP3) = (v))
+#define BW_AIPS_PACRI_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP3), v))
 /*@}*/
 
 /*!
@@ -6931,13 +6938,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP3 field. */
-#define BR_AIPS_PACRI_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP3))
+#define BR_AIPS_PACRI_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP3. */
 #define BF_AIPS_PACRI_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP3) & BM_AIPS_PACRI_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRI_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP3) = (v))
+#define BW_AIPS_PACRI_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP3), v))
 /*@}*/
 
 /*!
@@ -6957,13 +6964,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP2 field. */
-#define BR_AIPS_PACRI_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP2))
+#define BR_AIPS_PACRI_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP2. */
 #define BF_AIPS_PACRI_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP2) & BM_AIPS_PACRI_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRI_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP2) = (v))
+#define BW_AIPS_PACRI_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP2), v))
 /*@}*/
 
 /*!
@@ -6983,13 +6990,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP2 field. */
-#define BR_AIPS_PACRI_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP2))
+#define BR_AIPS_PACRI_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP2. */
 #define BF_AIPS_PACRI_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP2) & BM_AIPS_PACRI_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRI_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP2) = (v))
+#define BW_AIPS_PACRI_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP2), v))
 /*@}*/
 
 /*!
@@ -7012,13 +7019,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP2 field. */
-#define BR_AIPS_PACRI_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP2))
+#define BR_AIPS_PACRI_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP2. */
 #define BF_AIPS_PACRI_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP2) & BM_AIPS_PACRI_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRI_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP2) = (v))
+#define BW_AIPS_PACRI_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP2), v))
 /*@}*/
 
 /*!
@@ -7038,13 +7045,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP1 field. */
-#define BR_AIPS_PACRI_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP1))
+#define BR_AIPS_PACRI_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP1. */
 #define BF_AIPS_PACRI_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP1) & BM_AIPS_PACRI_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRI_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP1) = (v))
+#define BW_AIPS_PACRI_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP1), v))
 /*@}*/
 
 /*!
@@ -7064,13 +7071,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP1 field. */
-#define BR_AIPS_PACRI_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP1))
+#define BR_AIPS_PACRI_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP1. */
 #define BF_AIPS_PACRI_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP1) & BM_AIPS_PACRI_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRI_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP1) = (v))
+#define BW_AIPS_PACRI_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP1), v))
 /*@}*/
 
 /*!
@@ -7093,13 +7100,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP1 field. */
-#define BR_AIPS_PACRI_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP1))
+#define BR_AIPS_PACRI_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP1. */
 #define BF_AIPS_PACRI_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP1) & BM_AIPS_PACRI_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRI_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP1) = (v))
+#define BW_AIPS_PACRI_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP1), v))
 /*@}*/
 
 /*!
@@ -7119,13 +7126,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRI_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRI_TP0 field. */
-#define BR_AIPS_PACRI_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP0))
+#define BR_AIPS_PACRI_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_TP0. */
 #define BF_AIPS_PACRI_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_TP0) & BM_AIPS_PACRI_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRI_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP0) = (v))
+#define BW_AIPS_PACRI_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_TP0), v))
 /*@}*/
 
 /*!
@@ -7145,13 +7152,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRI_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRI_WP0 field. */
-#define BR_AIPS_PACRI_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP0))
+#define BR_AIPS_PACRI_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_WP0. */
 #define BF_AIPS_PACRI_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_WP0) & BM_AIPS_PACRI_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRI_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP0) = (v))
+#define BW_AIPS_PACRI_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_WP0), v))
 /*@}*/
 
 /*!
@@ -7174,13 +7181,13 @@ typedef union _hw_aips_pacri
 #define BS_AIPS_PACRI_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRI_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRI_SP0 field. */
-#define BR_AIPS_PACRI_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP0))
+#define BR_AIPS_PACRI_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRI_SP0. */
 #define BF_AIPS_PACRI_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRI_SP0) & BM_AIPS_PACRI_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRI_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP0) = (v))
+#define BW_AIPS_PACRI_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRI_ADDR(x), BP_AIPS_PACRI_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -7243,8 +7250,8 @@ typedef union _hw_aips_pacrj
 #define HW_AIPS_PACRJ_ADDR(x)    ((x) + 0x54U)
 
 #define HW_AIPS_PACRJ(x)         (*(__IO hw_aips_pacrj_t *) HW_AIPS_PACRJ_ADDR(x))
-#define HW_AIPS_PACRJ_RD(x)      (HW_AIPS_PACRJ(x).U)
-#define HW_AIPS_PACRJ_WR(x, v)   (HW_AIPS_PACRJ(x).U = (v))
+#define HW_AIPS_PACRJ_RD(x)      (ADDRESS_READ(hw_aips_pacrj_t, HW_AIPS_PACRJ_ADDR(x)))
+#define HW_AIPS_PACRJ_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrj_t, HW_AIPS_PACRJ_ADDR(x), v))
 #define HW_AIPS_PACRJ_SET(x, v)  (HW_AIPS_PACRJ_WR(x, HW_AIPS_PACRJ_RD(x) |  (v)))
 #define HW_AIPS_PACRJ_CLR(x, v)  (HW_AIPS_PACRJ_WR(x, HW_AIPS_PACRJ_RD(x) & ~(v)))
 #define HW_AIPS_PACRJ_TOG(x, v)  (HW_AIPS_PACRJ_WR(x, HW_AIPS_PACRJ_RD(x) ^  (v)))
@@ -7271,13 +7278,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP7 field. */
-#define BR_AIPS_PACRJ_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP7))
+#define BR_AIPS_PACRJ_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP7. */
 #define BF_AIPS_PACRJ_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP7) & BM_AIPS_PACRJ_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRJ_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP7) = (v))
+#define BW_AIPS_PACRJ_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP7), v))
 /*@}*/
 
 /*!
@@ -7297,13 +7304,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP7 field. */
-#define BR_AIPS_PACRJ_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP7))
+#define BR_AIPS_PACRJ_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP7. */
 #define BF_AIPS_PACRJ_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP7) & BM_AIPS_PACRJ_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRJ_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP7) = (v))
+#define BW_AIPS_PACRJ_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP7), v))
 /*@}*/
 
 /*!
@@ -7326,13 +7333,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP7 field. */
-#define BR_AIPS_PACRJ_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP7))
+#define BR_AIPS_PACRJ_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP7. */
 #define BF_AIPS_PACRJ_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP7) & BM_AIPS_PACRJ_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRJ_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP7) = (v))
+#define BW_AIPS_PACRJ_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP7), v))
 /*@}*/
 
 /*!
@@ -7352,13 +7359,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP6 field. */
-#define BR_AIPS_PACRJ_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP6))
+#define BR_AIPS_PACRJ_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP6. */
 #define BF_AIPS_PACRJ_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP6) & BM_AIPS_PACRJ_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRJ_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP6) = (v))
+#define BW_AIPS_PACRJ_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP6), v))
 /*@}*/
 
 /*!
@@ -7378,13 +7385,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP6 field. */
-#define BR_AIPS_PACRJ_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP6))
+#define BR_AIPS_PACRJ_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP6. */
 #define BF_AIPS_PACRJ_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP6) & BM_AIPS_PACRJ_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRJ_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP6) = (v))
+#define BW_AIPS_PACRJ_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP6), v))
 /*@}*/
 
 /*!
@@ -7407,13 +7414,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP6 field. */
-#define BR_AIPS_PACRJ_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP6))
+#define BR_AIPS_PACRJ_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP6. */
 #define BF_AIPS_PACRJ_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP6) & BM_AIPS_PACRJ_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRJ_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP6) = (v))
+#define BW_AIPS_PACRJ_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP6), v))
 /*@}*/
 
 /*!
@@ -7433,13 +7440,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP5 field. */
-#define BR_AIPS_PACRJ_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP5))
+#define BR_AIPS_PACRJ_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP5. */
 #define BF_AIPS_PACRJ_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP5) & BM_AIPS_PACRJ_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRJ_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP5) = (v))
+#define BW_AIPS_PACRJ_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP5), v))
 /*@}*/
 
 /*!
@@ -7459,13 +7466,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP5 field. */
-#define BR_AIPS_PACRJ_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP5))
+#define BR_AIPS_PACRJ_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP5. */
 #define BF_AIPS_PACRJ_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP5) & BM_AIPS_PACRJ_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRJ_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP5) = (v))
+#define BW_AIPS_PACRJ_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP5), v))
 /*@}*/
 
 /*!
@@ -7488,13 +7495,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP5 field. */
-#define BR_AIPS_PACRJ_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP5))
+#define BR_AIPS_PACRJ_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP5. */
 #define BF_AIPS_PACRJ_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP5) & BM_AIPS_PACRJ_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRJ_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP5) = (v))
+#define BW_AIPS_PACRJ_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP5), v))
 /*@}*/
 
 /*!
@@ -7514,13 +7521,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP4 field. */
-#define BR_AIPS_PACRJ_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP4))
+#define BR_AIPS_PACRJ_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP4. */
 #define BF_AIPS_PACRJ_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP4) & BM_AIPS_PACRJ_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRJ_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP4) = (v))
+#define BW_AIPS_PACRJ_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP4), v))
 /*@}*/
 
 /*!
@@ -7540,13 +7547,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP4 field. */
-#define BR_AIPS_PACRJ_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP4))
+#define BR_AIPS_PACRJ_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP4. */
 #define BF_AIPS_PACRJ_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP4) & BM_AIPS_PACRJ_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRJ_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP4) = (v))
+#define BW_AIPS_PACRJ_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP4), v))
 /*@}*/
 
 /*!
@@ -7569,13 +7576,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP4 field. */
-#define BR_AIPS_PACRJ_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP4))
+#define BR_AIPS_PACRJ_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP4. */
 #define BF_AIPS_PACRJ_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP4) & BM_AIPS_PACRJ_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRJ_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP4) = (v))
+#define BW_AIPS_PACRJ_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP4), v))
 /*@}*/
 
 /*!
@@ -7595,13 +7602,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP3 field. */
-#define BR_AIPS_PACRJ_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP3))
+#define BR_AIPS_PACRJ_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP3. */
 #define BF_AIPS_PACRJ_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP3) & BM_AIPS_PACRJ_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRJ_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP3) = (v))
+#define BW_AIPS_PACRJ_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP3), v))
 /*@}*/
 
 /*!
@@ -7621,13 +7628,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP3 field. */
-#define BR_AIPS_PACRJ_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP3))
+#define BR_AIPS_PACRJ_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP3. */
 #define BF_AIPS_PACRJ_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP3) & BM_AIPS_PACRJ_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRJ_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP3) = (v))
+#define BW_AIPS_PACRJ_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP3), v))
 /*@}*/
 
 /*!
@@ -7650,13 +7657,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP3 field. */
-#define BR_AIPS_PACRJ_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP3))
+#define BR_AIPS_PACRJ_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP3. */
 #define BF_AIPS_PACRJ_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP3) & BM_AIPS_PACRJ_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRJ_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP3) = (v))
+#define BW_AIPS_PACRJ_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP3), v))
 /*@}*/
 
 /*!
@@ -7676,13 +7683,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP2 field. */
-#define BR_AIPS_PACRJ_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP2))
+#define BR_AIPS_PACRJ_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP2. */
 #define BF_AIPS_PACRJ_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP2) & BM_AIPS_PACRJ_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRJ_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP2) = (v))
+#define BW_AIPS_PACRJ_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP2), v))
 /*@}*/
 
 /*!
@@ -7702,13 +7709,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP2 field. */
-#define BR_AIPS_PACRJ_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP2))
+#define BR_AIPS_PACRJ_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP2. */
 #define BF_AIPS_PACRJ_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP2) & BM_AIPS_PACRJ_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRJ_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP2) = (v))
+#define BW_AIPS_PACRJ_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP2), v))
 /*@}*/
 
 /*!
@@ -7731,13 +7738,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP2 field. */
-#define BR_AIPS_PACRJ_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP2))
+#define BR_AIPS_PACRJ_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP2. */
 #define BF_AIPS_PACRJ_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP2) & BM_AIPS_PACRJ_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRJ_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP2) = (v))
+#define BW_AIPS_PACRJ_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP2), v))
 /*@}*/
 
 /*!
@@ -7757,13 +7764,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP1 field. */
-#define BR_AIPS_PACRJ_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP1))
+#define BR_AIPS_PACRJ_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP1. */
 #define BF_AIPS_PACRJ_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP1) & BM_AIPS_PACRJ_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRJ_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP1) = (v))
+#define BW_AIPS_PACRJ_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP1), v))
 /*@}*/
 
 /*!
@@ -7783,13 +7790,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP1 field. */
-#define BR_AIPS_PACRJ_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP1))
+#define BR_AIPS_PACRJ_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP1. */
 #define BF_AIPS_PACRJ_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP1) & BM_AIPS_PACRJ_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRJ_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP1) = (v))
+#define BW_AIPS_PACRJ_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP1), v))
 /*@}*/
 
 /*!
@@ -7812,13 +7819,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP1 field. */
-#define BR_AIPS_PACRJ_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP1))
+#define BR_AIPS_PACRJ_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP1. */
 #define BF_AIPS_PACRJ_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP1) & BM_AIPS_PACRJ_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRJ_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP1) = (v))
+#define BW_AIPS_PACRJ_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP1), v))
 /*@}*/
 
 /*!
@@ -7838,13 +7845,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRJ_TP0 field. */
-#define BR_AIPS_PACRJ_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP0))
+#define BR_AIPS_PACRJ_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_TP0. */
 #define BF_AIPS_PACRJ_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_TP0) & BM_AIPS_PACRJ_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRJ_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP0) = (v))
+#define BW_AIPS_PACRJ_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_TP0), v))
 /*@}*/
 
 /*!
@@ -7864,13 +7871,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRJ_WP0 field. */
-#define BR_AIPS_PACRJ_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP0))
+#define BR_AIPS_PACRJ_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_WP0. */
 #define BF_AIPS_PACRJ_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_WP0) & BM_AIPS_PACRJ_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRJ_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP0) = (v))
+#define BW_AIPS_PACRJ_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_WP0), v))
 /*@}*/
 
 /*!
@@ -7893,13 +7900,13 @@ typedef union _hw_aips_pacrj
 #define BS_AIPS_PACRJ_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRJ_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRJ_SP0 field. */
-#define BR_AIPS_PACRJ_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP0))
+#define BR_AIPS_PACRJ_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRJ_SP0. */
 #define BF_AIPS_PACRJ_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRJ_SP0) & BM_AIPS_PACRJ_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRJ_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP0) = (v))
+#define BW_AIPS_PACRJ_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRJ_ADDR(x), BP_AIPS_PACRJ_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -7962,8 +7969,8 @@ typedef union _hw_aips_pacrk
 #define HW_AIPS_PACRK_ADDR(x)    ((x) + 0x58U)
 
 #define HW_AIPS_PACRK(x)         (*(__IO hw_aips_pacrk_t *) HW_AIPS_PACRK_ADDR(x))
-#define HW_AIPS_PACRK_RD(x)      (HW_AIPS_PACRK(x).U)
-#define HW_AIPS_PACRK_WR(x, v)   (HW_AIPS_PACRK(x).U = (v))
+#define HW_AIPS_PACRK_RD(x)      (ADDRESS_READ(hw_aips_pacrk_t, HW_AIPS_PACRK_ADDR(x)))
+#define HW_AIPS_PACRK_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrk_t, HW_AIPS_PACRK_ADDR(x), v))
 #define HW_AIPS_PACRK_SET(x, v)  (HW_AIPS_PACRK_WR(x, HW_AIPS_PACRK_RD(x) |  (v)))
 #define HW_AIPS_PACRK_CLR(x, v)  (HW_AIPS_PACRK_WR(x, HW_AIPS_PACRK_RD(x) & ~(v)))
 #define HW_AIPS_PACRK_TOG(x, v)  (HW_AIPS_PACRK_WR(x, HW_AIPS_PACRK_RD(x) ^  (v)))
@@ -7990,13 +7997,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP7 field. */
-#define BR_AIPS_PACRK_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP7))
+#define BR_AIPS_PACRK_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP7. */
 #define BF_AIPS_PACRK_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP7) & BM_AIPS_PACRK_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRK_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP7) = (v))
+#define BW_AIPS_PACRK_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP7), v))
 /*@}*/
 
 /*!
@@ -8016,13 +8023,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP7 field. */
-#define BR_AIPS_PACRK_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP7))
+#define BR_AIPS_PACRK_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP7. */
 #define BF_AIPS_PACRK_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP7) & BM_AIPS_PACRK_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRK_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP7) = (v))
+#define BW_AIPS_PACRK_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP7), v))
 /*@}*/
 
 /*!
@@ -8045,13 +8052,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP7 field. */
-#define BR_AIPS_PACRK_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP7))
+#define BR_AIPS_PACRK_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP7. */
 #define BF_AIPS_PACRK_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP7) & BM_AIPS_PACRK_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRK_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP7) = (v))
+#define BW_AIPS_PACRK_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP7), v))
 /*@}*/
 
 /*!
@@ -8071,13 +8078,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP6 field. */
-#define BR_AIPS_PACRK_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP6))
+#define BR_AIPS_PACRK_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP6. */
 #define BF_AIPS_PACRK_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP6) & BM_AIPS_PACRK_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRK_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP6) = (v))
+#define BW_AIPS_PACRK_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP6), v))
 /*@}*/
 
 /*!
@@ -8097,13 +8104,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP6 field. */
-#define BR_AIPS_PACRK_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP6))
+#define BR_AIPS_PACRK_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP6. */
 #define BF_AIPS_PACRK_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP6) & BM_AIPS_PACRK_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRK_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP6) = (v))
+#define BW_AIPS_PACRK_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP6), v))
 /*@}*/
 
 /*!
@@ -8126,13 +8133,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP6 field. */
-#define BR_AIPS_PACRK_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP6))
+#define BR_AIPS_PACRK_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP6. */
 #define BF_AIPS_PACRK_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP6) & BM_AIPS_PACRK_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRK_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP6) = (v))
+#define BW_AIPS_PACRK_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP6), v))
 /*@}*/
 
 /*!
@@ -8152,13 +8159,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP5 field. */
-#define BR_AIPS_PACRK_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP5))
+#define BR_AIPS_PACRK_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP5. */
 #define BF_AIPS_PACRK_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP5) & BM_AIPS_PACRK_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRK_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP5) = (v))
+#define BW_AIPS_PACRK_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP5), v))
 /*@}*/
 
 /*!
@@ -8178,13 +8185,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP5 field. */
-#define BR_AIPS_PACRK_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP5))
+#define BR_AIPS_PACRK_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP5. */
 #define BF_AIPS_PACRK_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP5) & BM_AIPS_PACRK_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRK_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP5) = (v))
+#define BW_AIPS_PACRK_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP5), v))
 /*@}*/
 
 /*!
@@ -8207,13 +8214,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP5 field. */
-#define BR_AIPS_PACRK_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP5))
+#define BR_AIPS_PACRK_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP5. */
 #define BF_AIPS_PACRK_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP5) & BM_AIPS_PACRK_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRK_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP5) = (v))
+#define BW_AIPS_PACRK_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP5), v))
 /*@}*/
 
 /*!
@@ -8233,13 +8240,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP4 field. */
-#define BR_AIPS_PACRK_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP4))
+#define BR_AIPS_PACRK_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP4. */
 #define BF_AIPS_PACRK_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP4) & BM_AIPS_PACRK_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRK_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP4) = (v))
+#define BW_AIPS_PACRK_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP4), v))
 /*@}*/
 
 /*!
@@ -8259,13 +8266,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP4 field. */
-#define BR_AIPS_PACRK_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP4))
+#define BR_AIPS_PACRK_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP4. */
 #define BF_AIPS_PACRK_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP4) & BM_AIPS_PACRK_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRK_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP4) = (v))
+#define BW_AIPS_PACRK_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP4), v))
 /*@}*/
 
 /*!
@@ -8288,13 +8295,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP4 field. */
-#define BR_AIPS_PACRK_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP4))
+#define BR_AIPS_PACRK_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP4. */
 #define BF_AIPS_PACRK_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP4) & BM_AIPS_PACRK_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRK_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP4) = (v))
+#define BW_AIPS_PACRK_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP4), v))
 /*@}*/
 
 /*!
@@ -8314,13 +8321,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP3 field. */
-#define BR_AIPS_PACRK_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP3))
+#define BR_AIPS_PACRK_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP3. */
 #define BF_AIPS_PACRK_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP3) & BM_AIPS_PACRK_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRK_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP3) = (v))
+#define BW_AIPS_PACRK_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP3), v))
 /*@}*/
 
 /*!
@@ -8340,13 +8347,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP3 field. */
-#define BR_AIPS_PACRK_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP3))
+#define BR_AIPS_PACRK_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP3. */
 #define BF_AIPS_PACRK_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP3) & BM_AIPS_PACRK_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRK_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP3) = (v))
+#define BW_AIPS_PACRK_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP3), v))
 /*@}*/
 
 /*!
@@ -8369,13 +8376,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP3 field. */
-#define BR_AIPS_PACRK_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP3))
+#define BR_AIPS_PACRK_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP3. */
 #define BF_AIPS_PACRK_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP3) & BM_AIPS_PACRK_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRK_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP3) = (v))
+#define BW_AIPS_PACRK_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP3), v))
 /*@}*/
 
 /*!
@@ -8395,13 +8402,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP2 field. */
-#define BR_AIPS_PACRK_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP2))
+#define BR_AIPS_PACRK_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP2. */
 #define BF_AIPS_PACRK_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP2) & BM_AIPS_PACRK_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRK_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP2) = (v))
+#define BW_AIPS_PACRK_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP2), v))
 /*@}*/
 
 /*!
@@ -8421,13 +8428,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP2 field. */
-#define BR_AIPS_PACRK_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP2))
+#define BR_AIPS_PACRK_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP2. */
 #define BF_AIPS_PACRK_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP2) & BM_AIPS_PACRK_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRK_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP2) = (v))
+#define BW_AIPS_PACRK_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP2), v))
 /*@}*/
 
 /*!
@@ -8450,13 +8457,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP2 field. */
-#define BR_AIPS_PACRK_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP2))
+#define BR_AIPS_PACRK_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP2. */
 #define BF_AIPS_PACRK_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP2) & BM_AIPS_PACRK_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRK_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP2) = (v))
+#define BW_AIPS_PACRK_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP2), v))
 /*@}*/
 
 /*!
@@ -8476,13 +8483,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP1 field. */
-#define BR_AIPS_PACRK_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP1))
+#define BR_AIPS_PACRK_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP1. */
 #define BF_AIPS_PACRK_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP1) & BM_AIPS_PACRK_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRK_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP1) = (v))
+#define BW_AIPS_PACRK_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP1), v))
 /*@}*/
 
 /*!
@@ -8502,13 +8509,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP1 field. */
-#define BR_AIPS_PACRK_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP1))
+#define BR_AIPS_PACRK_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP1. */
 #define BF_AIPS_PACRK_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP1) & BM_AIPS_PACRK_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRK_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP1) = (v))
+#define BW_AIPS_PACRK_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP1), v))
 /*@}*/
 
 /*!
@@ -8531,13 +8538,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP1 field. */
-#define BR_AIPS_PACRK_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP1))
+#define BR_AIPS_PACRK_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP1. */
 #define BF_AIPS_PACRK_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP1) & BM_AIPS_PACRK_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRK_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP1) = (v))
+#define BW_AIPS_PACRK_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP1), v))
 /*@}*/
 
 /*!
@@ -8557,13 +8564,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRK_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRK_TP0 field. */
-#define BR_AIPS_PACRK_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP0))
+#define BR_AIPS_PACRK_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_TP0. */
 #define BF_AIPS_PACRK_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_TP0) & BM_AIPS_PACRK_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRK_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP0) = (v))
+#define BW_AIPS_PACRK_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_TP0), v))
 /*@}*/
 
 /*!
@@ -8583,13 +8590,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRK_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRK_WP0 field. */
-#define BR_AIPS_PACRK_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP0))
+#define BR_AIPS_PACRK_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_WP0. */
 #define BF_AIPS_PACRK_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_WP0) & BM_AIPS_PACRK_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRK_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP0) = (v))
+#define BW_AIPS_PACRK_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_WP0), v))
 /*@}*/
 
 /*!
@@ -8612,13 +8619,13 @@ typedef union _hw_aips_pacrk
 #define BS_AIPS_PACRK_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRK_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRK_SP0 field. */
-#define BR_AIPS_PACRK_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP0))
+#define BR_AIPS_PACRK_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRK_SP0. */
 #define BF_AIPS_PACRK_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRK_SP0) & BM_AIPS_PACRK_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRK_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP0) = (v))
+#define BW_AIPS_PACRK_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRK_ADDR(x), BP_AIPS_PACRK_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -8681,8 +8688,8 @@ typedef union _hw_aips_pacrl
 #define HW_AIPS_PACRL_ADDR(x)    ((x) + 0x5CU)
 
 #define HW_AIPS_PACRL(x)         (*(__IO hw_aips_pacrl_t *) HW_AIPS_PACRL_ADDR(x))
-#define HW_AIPS_PACRL_RD(x)      (HW_AIPS_PACRL(x).U)
-#define HW_AIPS_PACRL_WR(x, v)   (HW_AIPS_PACRL(x).U = (v))
+#define HW_AIPS_PACRL_RD(x)      (ADDRESS_READ(hw_aips_pacrl_t, HW_AIPS_PACRL_ADDR(x)))
+#define HW_AIPS_PACRL_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrl_t, HW_AIPS_PACRL_ADDR(x), v))
 #define HW_AIPS_PACRL_SET(x, v)  (HW_AIPS_PACRL_WR(x, HW_AIPS_PACRL_RD(x) |  (v)))
 #define HW_AIPS_PACRL_CLR(x, v)  (HW_AIPS_PACRL_WR(x, HW_AIPS_PACRL_RD(x) & ~(v)))
 #define HW_AIPS_PACRL_TOG(x, v)  (HW_AIPS_PACRL_WR(x, HW_AIPS_PACRL_RD(x) ^  (v)))
@@ -8709,13 +8716,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP7 field. */
-#define BR_AIPS_PACRL_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP7))
+#define BR_AIPS_PACRL_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP7. */
 #define BF_AIPS_PACRL_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP7) & BM_AIPS_PACRL_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRL_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP7) = (v))
+#define BW_AIPS_PACRL_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP7), v))
 /*@}*/
 
 /*!
@@ -8735,13 +8742,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP7 field. */
-#define BR_AIPS_PACRL_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP7))
+#define BR_AIPS_PACRL_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP7. */
 #define BF_AIPS_PACRL_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP7) & BM_AIPS_PACRL_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRL_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP7) = (v))
+#define BW_AIPS_PACRL_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP7), v))
 /*@}*/
 
 /*!
@@ -8764,13 +8771,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP7 field. */
-#define BR_AIPS_PACRL_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP7))
+#define BR_AIPS_PACRL_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP7. */
 #define BF_AIPS_PACRL_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP7) & BM_AIPS_PACRL_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRL_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP7) = (v))
+#define BW_AIPS_PACRL_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP7), v))
 /*@}*/
 
 /*!
@@ -8790,13 +8797,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP6 field. */
-#define BR_AIPS_PACRL_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP6))
+#define BR_AIPS_PACRL_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP6. */
 #define BF_AIPS_PACRL_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP6) & BM_AIPS_PACRL_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRL_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP6) = (v))
+#define BW_AIPS_PACRL_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP6), v))
 /*@}*/
 
 /*!
@@ -8816,13 +8823,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP6 field. */
-#define BR_AIPS_PACRL_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP6))
+#define BR_AIPS_PACRL_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP6. */
 #define BF_AIPS_PACRL_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP6) & BM_AIPS_PACRL_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRL_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP6) = (v))
+#define BW_AIPS_PACRL_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP6), v))
 /*@}*/
 
 /*!
@@ -8845,13 +8852,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP6 field. */
-#define BR_AIPS_PACRL_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP6))
+#define BR_AIPS_PACRL_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP6. */
 #define BF_AIPS_PACRL_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP6) & BM_AIPS_PACRL_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRL_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP6) = (v))
+#define BW_AIPS_PACRL_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP6), v))
 /*@}*/
 
 /*!
@@ -8871,13 +8878,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP5 field. */
-#define BR_AIPS_PACRL_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP5))
+#define BR_AIPS_PACRL_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP5. */
 #define BF_AIPS_PACRL_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP5) & BM_AIPS_PACRL_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRL_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP5) = (v))
+#define BW_AIPS_PACRL_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP5), v))
 /*@}*/
 
 /*!
@@ -8897,13 +8904,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP5 field. */
-#define BR_AIPS_PACRL_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP5))
+#define BR_AIPS_PACRL_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP5. */
 #define BF_AIPS_PACRL_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP5) & BM_AIPS_PACRL_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRL_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP5) = (v))
+#define BW_AIPS_PACRL_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP5), v))
 /*@}*/
 
 /*!
@@ -8926,13 +8933,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP5 field. */
-#define BR_AIPS_PACRL_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP5))
+#define BR_AIPS_PACRL_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP5. */
 #define BF_AIPS_PACRL_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP5) & BM_AIPS_PACRL_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRL_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP5) = (v))
+#define BW_AIPS_PACRL_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP5), v))
 /*@}*/
 
 /*!
@@ -8952,13 +8959,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP4 field. */
-#define BR_AIPS_PACRL_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP4))
+#define BR_AIPS_PACRL_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP4. */
 #define BF_AIPS_PACRL_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP4) & BM_AIPS_PACRL_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRL_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP4) = (v))
+#define BW_AIPS_PACRL_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP4), v))
 /*@}*/
 
 /*!
@@ -8978,13 +8985,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP4 field. */
-#define BR_AIPS_PACRL_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP4))
+#define BR_AIPS_PACRL_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP4. */
 #define BF_AIPS_PACRL_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP4) & BM_AIPS_PACRL_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRL_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP4) = (v))
+#define BW_AIPS_PACRL_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP4), v))
 /*@}*/
 
 /*!
@@ -9007,13 +9014,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP4 field. */
-#define BR_AIPS_PACRL_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP4))
+#define BR_AIPS_PACRL_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP4. */
 #define BF_AIPS_PACRL_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP4) & BM_AIPS_PACRL_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRL_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP4) = (v))
+#define BW_AIPS_PACRL_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP4), v))
 /*@}*/
 
 /*!
@@ -9033,13 +9040,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP3 field. */
-#define BR_AIPS_PACRL_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP3))
+#define BR_AIPS_PACRL_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP3. */
 #define BF_AIPS_PACRL_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP3) & BM_AIPS_PACRL_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRL_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP3) = (v))
+#define BW_AIPS_PACRL_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP3), v))
 /*@}*/
 
 /*!
@@ -9059,13 +9066,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP3 field. */
-#define BR_AIPS_PACRL_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP3))
+#define BR_AIPS_PACRL_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP3. */
 #define BF_AIPS_PACRL_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP3) & BM_AIPS_PACRL_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRL_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP3) = (v))
+#define BW_AIPS_PACRL_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP3), v))
 /*@}*/
 
 /*!
@@ -9088,13 +9095,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP3 field. */
-#define BR_AIPS_PACRL_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP3))
+#define BR_AIPS_PACRL_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP3. */
 #define BF_AIPS_PACRL_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP3) & BM_AIPS_PACRL_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRL_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP3) = (v))
+#define BW_AIPS_PACRL_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP3), v))
 /*@}*/
 
 /*!
@@ -9114,13 +9121,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP2 field. */
-#define BR_AIPS_PACRL_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP2))
+#define BR_AIPS_PACRL_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP2. */
 #define BF_AIPS_PACRL_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP2) & BM_AIPS_PACRL_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRL_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP2) = (v))
+#define BW_AIPS_PACRL_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP2), v))
 /*@}*/
 
 /*!
@@ -9140,13 +9147,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP2 field. */
-#define BR_AIPS_PACRL_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP2))
+#define BR_AIPS_PACRL_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP2. */
 #define BF_AIPS_PACRL_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP2) & BM_AIPS_PACRL_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRL_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP2) = (v))
+#define BW_AIPS_PACRL_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP2), v))
 /*@}*/
 
 /*!
@@ -9169,13 +9176,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP2 field. */
-#define BR_AIPS_PACRL_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP2))
+#define BR_AIPS_PACRL_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP2. */
 #define BF_AIPS_PACRL_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP2) & BM_AIPS_PACRL_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRL_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP2) = (v))
+#define BW_AIPS_PACRL_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP2), v))
 /*@}*/
 
 /*!
@@ -9195,13 +9202,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP1 field. */
-#define BR_AIPS_PACRL_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP1))
+#define BR_AIPS_PACRL_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP1. */
 #define BF_AIPS_PACRL_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP1) & BM_AIPS_PACRL_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRL_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP1) = (v))
+#define BW_AIPS_PACRL_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP1), v))
 /*@}*/
 
 /*!
@@ -9221,13 +9228,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP1 field. */
-#define BR_AIPS_PACRL_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP1))
+#define BR_AIPS_PACRL_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP1. */
 #define BF_AIPS_PACRL_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP1) & BM_AIPS_PACRL_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRL_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP1) = (v))
+#define BW_AIPS_PACRL_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP1), v))
 /*@}*/
 
 /*!
@@ -9250,13 +9257,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP1 field. */
-#define BR_AIPS_PACRL_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP1))
+#define BR_AIPS_PACRL_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP1. */
 #define BF_AIPS_PACRL_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP1) & BM_AIPS_PACRL_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRL_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP1) = (v))
+#define BW_AIPS_PACRL_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP1), v))
 /*@}*/
 
 /*!
@@ -9276,13 +9283,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRL_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRL_TP0 field. */
-#define BR_AIPS_PACRL_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP0))
+#define BR_AIPS_PACRL_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_TP0. */
 #define BF_AIPS_PACRL_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_TP0) & BM_AIPS_PACRL_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRL_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP0) = (v))
+#define BW_AIPS_PACRL_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_TP0), v))
 /*@}*/
 
 /*!
@@ -9302,13 +9309,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRL_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRL_WP0 field. */
-#define BR_AIPS_PACRL_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP0))
+#define BR_AIPS_PACRL_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_WP0. */
 #define BF_AIPS_PACRL_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_WP0) & BM_AIPS_PACRL_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRL_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP0) = (v))
+#define BW_AIPS_PACRL_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_WP0), v))
 /*@}*/
 
 /*!
@@ -9331,13 +9338,13 @@ typedef union _hw_aips_pacrl
 #define BS_AIPS_PACRL_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRL_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRL_SP0 field. */
-#define BR_AIPS_PACRL_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP0))
+#define BR_AIPS_PACRL_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRL_SP0. */
 #define BF_AIPS_PACRL_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRL_SP0) & BM_AIPS_PACRL_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRL_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP0) = (v))
+#define BW_AIPS_PACRL_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRL_ADDR(x), BP_AIPS_PACRL_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -9400,8 +9407,8 @@ typedef union _hw_aips_pacrm
 #define HW_AIPS_PACRM_ADDR(x)    ((x) + 0x60U)
 
 #define HW_AIPS_PACRM(x)         (*(__IO hw_aips_pacrm_t *) HW_AIPS_PACRM_ADDR(x))
-#define HW_AIPS_PACRM_RD(x)      (HW_AIPS_PACRM(x).U)
-#define HW_AIPS_PACRM_WR(x, v)   (HW_AIPS_PACRM(x).U = (v))
+#define HW_AIPS_PACRM_RD(x)      (ADDRESS_READ(hw_aips_pacrm_t, HW_AIPS_PACRM_ADDR(x)))
+#define HW_AIPS_PACRM_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrm_t, HW_AIPS_PACRM_ADDR(x), v))
 #define HW_AIPS_PACRM_SET(x, v)  (HW_AIPS_PACRM_WR(x, HW_AIPS_PACRM_RD(x) |  (v)))
 #define HW_AIPS_PACRM_CLR(x, v)  (HW_AIPS_PACRM_WR(x, HW_AIPS_PACRM_RD(x) & ~(v)))
 #define HW_AIPS_PACRM_TOG(x, v)  (HW_AIPS_PACRM_WR(x, HW_AIPS_PACRM_RD(x) ^  (v)))
@@ -9428,13 +9435,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP7 field. */
-#define BR_AIPS_PACRM_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP7))
+#define BR_AIPS_PACRM_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP7. */
 #define BF_AIPS_PACRM_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP7) & BM_AIPS_PACRM_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRM_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP7) = (v))
+#define BW_AIPS_PACRM_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP7), v))
 /*@}*/
 
 /*!
@@ -9454,13 +9461,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP7 field. */
-#define BR_AIPS_PACRM_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP7))
+#define BR_AIPS_PACRM_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP7. */
 #define BF_AIPS_PACRM_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP7) & BM_AIPS_PACRM_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRM_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP7) = (v))
+#define BW_AIPS_PACRM_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP7), v))
 /*@}*/
 
 /*!
@@ -9483,13 +9490,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP7 field. */
-#define BR_AIPS_PACRM_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP7))
+#define BR_AIPS_PACRM_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP7. */
 #define BF_AIPS_PACRM_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP7) & BM_AIPS_PACRM_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRM_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP7) = (v))
+#define BW_AIPS_PACRM_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP7), v))
 /*@}*/
 
 /*!
@@ -9509,13 +9516,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP6 field. */
-#define BR_AIPS_PACRM_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP6))
+#define BR_AIPS_PACRM_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP6. */
 #define BF_AIPS_PACRM_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP6) & BM_AIPS_PACRM_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRM_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP6) = (v))
+#define BW_AIPS_PACRM_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP6), v))
 /*@}*/
 
 /*!
@@ -9535,13 +9542,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP6 field. */
-#define BR_AIPS_PACRM_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP6))
+#define BR_AIPS_PACRM_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP6. */
 #define BF_AIPS_PACRM_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP6) & BM_AIPS_PACRM_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRM_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP6) = (v))
+#define BW_AIPS_PACRM_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP6), v))
 /*@}*/
 
 /*!
@@ -9564,13 +9571,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP6 field. */
-#define BR_AIPS_PACRM_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP6))
+#define BR_AIPS_PACRM_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP6. */
 #define BF_AIPS_PACRM_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP6) & BM_AIPS_PACRM_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRM_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP6) = (v))
+#define BW_AIPS_PACRM_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP6), v))
 /*@}*/
 
 /*!
@@ -9590,13 +9597,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP5 field. */
-#define BR_AIPS_PACRM_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP5))
+#define BR_AIPS_PACRM_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP5. */
 #define BF_AIPS_PACRM_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP5) & BM_AIPS_PACRM_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRM_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP5) = (v))
+#define BW_AIPS_PACRM_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP5), v))
 /*@}*/
 
 /*!
@@ -9616,13 +9623,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP5 field. */
-#define BR_AIPS_PACRM_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP5))
+#define BR_AIPS_PACRM_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP5. */
 #define BF_AIPS_PACRM_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP5) & BM_AIPS_PACRM_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRM_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP5) = (v))
+#define BW_AIPS_PACRM_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP5), v))
 /*@}*/
 
 /*!
@@ -9645,13 +9652,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP5 field. */
-#define BR_AIPS_PACRM_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP5))
+#define BR_AIPS_PACRM_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP5. */
 #define BF_AIPS_PACRM_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP5) & BM_AIPS_PACRM_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRM_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP5) = (v))
+#define BW_AIPS_PACRM_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP5), v))
 /*@}*/
 
 /*!
@@ -9671,13 +9678,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP4 field. */
-#define BR_AIPS_PACRM_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP4))
+#define BR_AIPS_PACRM_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP4. */
 #define BF_AIPS_PACRM_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP4) & BM_AIPS_PACRM_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRM_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP4) = (v))
+#define BW_AIPS_PACRM_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP4), v))
 /*@}*/
 
 /*!
@@ -9697,13 +9704,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP4 field. */
-#define BR_AIPS_PACRM_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP4))
+#define BR_AIPS_PACRM_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP4. */
 #define BF_AIPS_PACRM_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP4) & BM_AIPS_PACRM_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRM_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP4) = (v))
+#define BW_AIPS_PACRM_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP4), v))
 /*@}*/
 
 /*!
@@ -9726,13 +9733,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP4 field. */
-#define BR_AIPS_PACRM_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP4))
+#define BR_AIPS_PACRM_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP4. */
 #define BF_AIPS_PACRM_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP4) & BM_AIPS_PACRM_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRM_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP4) = (v))
+#define BW_AIPS_PACRM_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP4), v))
 /*@}*/
 
 /*!
@@ -9752,13 +9759,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP3 field. */
-#define BR_AIPS_PACRM_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP3))
+#define BR_AIPS_PACRM_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP3. */
 #define BF_AIPS_PACRM_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP3) & BM_AIPS_PACRM_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRM_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP3) = (v))
+#define BW_AIPS_PACRM_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP3), v))
 /*@}*/
 
 /*!
@@ -9778,13 +9785,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP3 field. */
-#define BR_AIPS_PACRM_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP3))
+#define BR_AIPS_PACRM_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP3. */
 #define BF_AIPS_PACRM_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP3) & BM_AIPS_PACRM_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRM_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP3) = (v))
+#define BW_AIPS_PACRM_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP3), v))
 /*@}*/
 
 /*!
@@ -9807,13 +9814,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP3 field. */
-#define BR_AIPS_PACRM_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP3))
+#define BR_AIPS_PACRM_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP3. */
 #define BF_AIPS_PACRM_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP3) & BM_AIPS_PACRM_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRM_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP3) = (v))
+#define BW_AIPS_PACRM_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP3), v))
 /*@}*/
 
 /*!
@@ -9833,13 +9840,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP2 field. */
-#define BR_AIPS_PACRM_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP2))
+#define BR_AIPS_PACRM_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP2. */
 #define BF_AIPS_PACRM_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP2) & BM_AIPS_PACRM_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRM_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP2) = (v))
+#define BW_AIPS_PACRM_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP2), v))
 /*@}*/
 
 /*!
@@ -9859,13 +9866,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP2 field. */
-#define BR_AIPS_PACRM_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP2))
+#define BR_AIPS_PACRM_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP2. */
 #define BF_AIPS_PACRM_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP2) & BM_AIPS_PACRM_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRM_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP2) = (v))
+#define BW_AIPS_PACRM_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP2), v))
 /*@}*/
 
 /*!
@@ -9888,13 +9895,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP2 field. */
-#define BR_AIPS_PACRM_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP2))
+#define BR_AIPS_PACRM_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP2. */
 #define BF_AIPS_PACRM_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP2) & BM_AIPS_PACRM_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRM_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP2) = (v))
+#define BW_AIPS_PACRM_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP2), v))
 /*@}*/
 
 /*!
@@ -9914,13 +9921,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP1 field. */
-#define BR_AIPS_PACRM_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP1))
+#define BR_AIPS_PACRM_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP1. */
 #define BF_AIPS_PACRM_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP1) & BM_AIPS_PACRM_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRM_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP1) = (v))
+#define BW_AIPS_PACRM_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP1), v))
 /*@}*/
 
 /*!
@@ -9940,13 +9947,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP1 field. */
-#define BR_AIPS_PACRM_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP1))
+#define BR_AIPS_PACRM_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP1. */
 #define BF_AIPS_PACRM_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP1) & BM_AIPS_PACRM_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRM_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP1) = (v))
+#define BW_AIPS_PACRM_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP1), v))
 /*@}*/
 
 /*!
@@ -9969,13 +9976,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP1 field. */
-#define BR_AIPS_PACRM_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP1))
+#define BR_AIPS_PACRM_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP1. */
 #define BF_AIPS_PACRM_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP1) & BM_AIPS_PACRM_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRM_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP1) = (v))
+#define BW_AIPS_PACRM_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP1), v))
 /*@}*/
 
 /*!
@@ -9995,13 +10002,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRM_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRM_TP0 field. */
-#define BR_AIPS_PACRM_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP0))
+#define BR_AIPS_PACRM_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_TP0. */
 #define BF_AIPS_PACRM_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_TP0) & BM_AIPS_PACRM_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRM_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP0) = (v))
+#define BW_AIPS_PACRM_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_TP0), v))
 /*@}*/
 
 /*!
@@ -10021,13 +10028,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRM_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRM_WP0 field. */
-#define BR_AIPS_PACRM_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP0))
+#define BR_AIPS_PACRM_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_WP0. */
 #define BF_AIPS_PACRM_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_WP0) & BM_AIPS_PACRM_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRM_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP0) = (v))
+#define BW_AIPS_PACRM_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_WP0), v))
 /*@}*/
 
 /*!
@@ -10050,13 +10057,13 @@ typedef union _hw_aips_pacrm
 #define BS_AIPS_PACRM_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRM_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRM_SP0 field. */
-#define BR_AIPS_PACRM_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP0))
+#define BR_AIPS_PACRM_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRM_SP0. */
 #define BF_AIPS_PACRM_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRM_SP0) & BM_AIPS_PACRM_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRM_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP0) = (v))
+#define BW_AIPS_PACRM_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRM_ADDR(x), BP_AIPS_PACRM_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -10119,8 +10126,8 @@ typedef union _hw_aips_pacrn
 #define HW_AIPS_PACRN_ADDR(x)    ((x) + 0x64U)
 
 #define HW_AIPS_PACRN(x)         (*(__IO hw_aips_pacrn_t *) HW_AIPS_PACRN_ADDR(x))
-#define HW_AIPS_PACRN_RD(x)      (HW_AIPS_PACRN(x).U)
-#define HW_AIPS_PACRN_WR(x, v)   (HW_AIPS_PACRN(x).U = (v))
+#define HW_AIPS_PACRN_RD(x)      (ADDRESS_READ(hw_aips_pacrn_t, HW_AIPS_PACRN_ADDR(x)))
+#define HW_AIPS_PACRN_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrn_t, HW_AIPS_PACRN_ADDR(x), v))
 #define HW_AIPS_PACRN_SET(x, v)  (HW_AIPS_PACRN_WR(x, HW_AIPS_PACRN_RD(x) |  (v)))
 #define HW_AIPS_PACRN_CLR(x, v)  (HW_AIPS_PACRN_WR(x, HW_AIPS_PACRN_RD(x) & ~(v)))
 #define HW_AIPS_PACRN_TOG(x, v)  (HW_AIPS_PACRN_WR(x, HW_AIPS_PACRN_RD(x) ^  (v)))
@@ -10147,13 +10154,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP7 field. */
-#define BR_AIPS_PACRN_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP7))
+#define BR_AIPS_PACRN_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP7. */
 #define BF_AIPS_PACRN_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP7) & BM_AIPS_PACRN_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRN_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP7) = (v))
+#define BW_AIPS_PACRN_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP7), v))
 /*@}*/
 
 /*!
@@ -10173,13 +10180,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP7 field. */
-#define BR_AIPS_PACRN_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP7))
+#define BR_AIPS_PACRN_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP7. */
 #define BF_AIPS_PACRN_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP7) & BM_AIPS_PACRN_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRN_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP7) = (v))
+#define BW_AIPS_PACRN_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP7), v))
 /*@}*/
 
 /*!
@@ -10202,13 +10209,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP7 field. */
-#define BR_AIPS_PACRN_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP7))
+#define BR_AIPS_PACRN_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP7. */
 #define BF_AIPS_PACRN_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP7) & BM_AIPS_PACRN_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRN_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP7) = (v))
+#define BW_AIPS_PACRN_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP7), v))
 /*@}*/
 
 /*!
@@ -10228,13 +10235,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP6 field. */
-#define BR_AIPS_PACRN_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP6))
+#define BR_AIPS_PACRN_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP6. */
 #define BF_AIPS_PACRN_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP6) & BM_AIPS_PACRN_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRN_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP6) = (v))
+#define BW_AIPS_PACRN_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP6), v))
 /*@}*/
 
 /*!
@@ -10254,13 +10261,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP6 field. */
-#define BR_AIPS_PACRN_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP6))
+#define BR_AIPS_PACRN_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP6. */
 #define BF_AIPS_PACRN_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP6) & BM_AIPS_PACRN_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRN_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP6) = (v))
+#define BW_AIPS_PACRN_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP6), v))
 /*@}*/
 
 /*!
@@ -10283,13 +10290,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP6 field. */
-#define BR_AIPS_PACRN_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP6))
+#define BR_AIPS_PACRN_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP6. */
 #define BF_AIPS_PACRN_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP6) & BM_AIPS_PACRN_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRN_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP6) = (v))
+#define BW_AIPS_PACRN_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP6), v))
 /*@}*/
 
 /*!
@@ -10309,13 +10316,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP5 field. */
-#define BR_AIPS_PACRN_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP5))
+#define BR_AIPS_PACRN_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP5. */
 #define BF_AIPS_PACRN_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP5) & BM_AIPS_PACRN_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRN_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP5) = (v))
+#define BW_AIPS_PACRN_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP5), v))
 /*@}*/
 
 /*!
@@ -10335,13 +10342,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP5 field. */
-#define BR_AIPS_PACRN_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP5))
+#define BR_AIPS_PACRN_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP5. */
 #define BF_AIPS_PACRN_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP5) & BM_AIPS_PACRN_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRN_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP5) = (v))
+#define BW_AIPS_PACRN_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP5), v))
 /*@}*/
 
 /*!
@@ -10364,13 +10371,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP5 field. */
-#define BR_AIPS_PACRN_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP5))
+#define BR_AIPS_PACRN_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP5. */
 #define BF_AIPS_PACRN_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP5) & BM_AIPS_PACRN_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRN_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP5) = (v))
+#define BW_AIPS_PACRN_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP5), v))
 /*@}*/
 
 /*!
@@ -10390,13 +10397,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP4 field. */
-#define BR_AIPS_PACRN_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP4))
+#define BR_AIPS_PACRN_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP4. */
 #define BF_AIPS_PACRN_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP4) & BM_AIPS_PACRN_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRN_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP4) = (v))
+#define BW_AIPS_PACRN_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP4), v))
 /*@}*/
 
 /*!
@@ -10416,13 +10423,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP4 field. */
-#define BR_AIPS_PACRN_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP4))
+#define BR_AIPS_PACRN_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP4. */
 #define BF_AIPS_PACRN_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP4) & BM_AIPS_PACRN_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRN_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP4) = (v))
+#define BW_AIPS_PACRN_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP4), v))
 /*@}*/
 
 /*!
@@ -10445,13 +10452,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP4 field. */
-#define BR_AIPS_PACRN_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP4))
+#define BR_AIPS_PACRN_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP4. */
 #define BF_AIPS_PACRN_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP4) & BM_AIPS_PACRN_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRN_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP4) = (v))
+#define BW_AIPS_PACRN_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP4), v))
 /*@}*/
 
 /*!
@@ -10471,13 +10478,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP3 field. */
-#define BR_AIPS_PACRN_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP3))
+#define BR_AIPS_PACRN_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP3. */
 #define BF_AIPS_PACRN_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP3) & BM_AIPS_PACRN_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRN_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP3) = (v))
+#define BW_AIPS_PACRN_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP3), v))
 /*@}*/
 
 /*!
@@ -10497,13 +10504,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP3 field. */
-#define BR_AIPS_PACRN_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP3))
+#define BR_AIPS_PACRN_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP3. */
 #define BF_AIPS_PACRN_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP3) & BM_AIPS_PACRN_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRN_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP3) = (v))
+#define BW_AIPS_PACRN_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP3), v))
 /*@}*/
 
 /*!
@@ -10526,13 +10533,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP3 field. */
-#define BR_AIPS_PACRN_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP3))
+#define BR_AIPS_PACRN_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP3. */
 #define BF_AIPS_PACRN_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP3) & BM_AIPS_PACRN_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRN_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP3) = (v))
+#define BW_AIPS_PACRN_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP3), v))
 /*@}*/
 
 /*!
@@ -10552,13 +10559,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP2 field. */
-#define BR_AIPS_PACRN_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP2))
+#define BR_AIPS_PACRN_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP2. */
 #define BF_AIPS_PACRN_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP2) & BM_AIPS_PACRN_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRN_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP2) = (v))
+#define BW_AIPS_PACRN_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP2), v))
 /*@}*/
 
 /*!
@@ -10578,13 +10585,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP2 field. */
-#define BR_AIPS_PACRN_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP2))
+#define BR_AIPS_PACRN_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP2. */
 #define BF_AIPS_PACRN_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP2) & BM_AIPS_PACRN_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRN_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP2) = (v))
+#define BW_AIPS_PACRN_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP2), v))
 /*@}*/
 
 /*!
@@ -10607,13 +10614,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP2 field. */
-#define BR_AIPS_PACRN_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP2))
+#define BR_AIPS_PACRN_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP2. */
 #define BF_AIPS_PACRN_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP2) & BM_AIPS_PACRN_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRN_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP2) = (v))
+#define BW_AIPS_PACRN_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP2), v))
 /*@}*/
 
 /*!
@@ -10633,13 +10640,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP1 field. */
-#define BR_AIPS_PACRN_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP1))
+#define BR_AIPS_PACRN_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP1. */
 #define BF_AIPS_PACRN_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP1) & BM_AIPS_PACRN_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRN_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP1) = (v))
+#define BW_AIPS_PACRN_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP1), v))
 /*@}*/
 
 /*!
@@ -10659,13 +10666,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP1 field. */
-#define BR_AIPS_PACRN_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP1))
+#define BR_AIPS_PACRN_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP1. */
 #define BF_AIPS_PACRN_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP1) & BM_AIPS_PACRN_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRN_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP1) = (v))
+#define BW_AIPS_PACRN_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP1), v))
 /*@}*/
 
 /*!
@@ -10688,13 +10695,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP1 field. */
-#define BR_AIPS_PACRN_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP1))
+#define BR_AIPS_PACRN_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP1. */
 #define BF_AIPS_PACRN_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP1) & BM_AIPS_PACRN_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRN_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP1) = (v))
+#define BW_AIPS_PACRN_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP1), v))
 /*@}*/
 
 /*!
@@ -10714,13 +10721,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRN_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRN_TP0 field. */
-#define BR_AIPS_PACRN_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP0))
+#define BR_AIPS_PACRN_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_TP0. */
 #define BF_AIPS_PACRN_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_TP0) & BM_AIPS_PACRN_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRN_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP0) = (v))
+#define BW_AIPS_PACRN_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_TP0), v))
 /*@}*/
 
 /*!
@@ -10740,13 +10747,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRN_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRN_WP0 field. */
-#define BR_AIPS_PACRN_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP0))
+#define BR_AIPS_PACRN_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_WP0. */
 #define BF_AIPS_PACRN_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_WP0) & BM_AIPS_PACRN_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRN_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP0) = (v))
+#define BW_AIPS_PACRN_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_WP0), v))
 /*@}*/
 
 /*!
@@ -10769,13 +10776,13 @@ typedef union _hw_aips_pacrn
 #define BS_AIPS_PACRN_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRN_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRN_SP0 field. */
-#define BR_AIPS_PACRN_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP0))
+#define BR_AIPS_PACRN_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRN_SP0. */
 #define BF_AIPS_PACRN_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRN_SP0) & BM_AIPS_PACRN_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRN_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP0) = (v))
+#define BW_AIPS_PACRN_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRN_ADDR(x), BP_AIPS_PACRN_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -10838,8 +10845,8 @@ typedef union _hw_aips_pacro
 #define HW_AIPS_PACRO_ADDR(x)    ((x) + 0x68U)
 
 #define HW_AIPS_PACRO(x)         (*(__IO hw_aips_pacro_t *) HW_AIPS_PACRO_ADDR(x))
-#define HW_AIPS_PACRO_RD(x)      (HW_AIPS_PACRO(x).U)
-#define HW_AIPS_PACRO_WR(x, v)   (HW_AIPS_PACRO(x).U = (v))
+#define HW_AIPS_PACRO_RD(x)      (ADDRESS_READ(hw_aips_pacro_t, HW_AIPS_PACRO_ADDR(x)))
+#define HW_AIPS_PACRO_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacro_t, HW_AIPS_PACRO_ADDR(x), v))
 #define HW_AIPS_PACRO_SET(x, v)  (HW_AIPS_PACRO_WR(x, HW_AIPS_PACRO_RD(x) |  (v)))
 #define HW_AIPS_PACRO_CLR(x, v)  (HW_AIPS_PACRO_WR(x, HW_AIPS_PACRO_RD(x) & ~(v)))
 #define HW_AIPS_PACRO_TOG(x, v)  (HW_AIPS_PACRO_WR(x, HW_AIPS_PACRO_RD(x) ^  (v)))
@@ -10866,13 +10873,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP7 field. */
-#define BR_AIPS_PACRO_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP7))
+#define BR_AIPS_PACRO_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP7. */
 #define BF_AIPS_PACRO_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP7) & BM_AIPS_PACRO_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRO_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP7) = (v))
+#define BW_AIPS_PACRO_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP7), v))
 /*@}*/
 
 /*!
@@ -10892,13 +10899,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP7 field. */
-#define BR_AIPS_PACRO_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP7))
+#define BR_AIPS_PACRO_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP7. */
 #define BF_AIPS_PACRO_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP7) & BM_AIPS_PACRO_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRO_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP7) = (v))
+#define BW_AIPS_PACRO_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP7), v))
 /*@}*/
 
 /*!
@@ -10921,13 +10928,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP7 field. */
-#define BR_AIPS_PACRO_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP7))
+#define BR_AIPS_PACRO_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP7. */
 #define BF_AIPS_PACRO_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP7) & BM_AIPS_PACRO_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRO_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP7) = (v))
+#define BW_AIPS_PACRO_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP7), v))
 /*@}*/
 
 /*!
@@ -10947,13 +10954,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP6 field. */
-#define BR_AIPS_PACRO_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP6))
+#define BR_AIPS_PACRO_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP6. */
 #define BF_AIPS_PACRO_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP6) & BM_AIPS_PACRO_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRO_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP6) = (v))
+#define BW_AIPS_PACRO_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP6), v))
 /*@}*/
 
 /*!
@@ -10973,13 +10980,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP6 field. */
-#define BR_AIPS_PACRO_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP6))
+#define BR_AIPS_PACRO_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP6. */
 #define BF_AIPS_PACRO_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP6) & BM_AIPS_PACRO_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRO_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP6) = (v))
+#define BW_AIPS_PACRO_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP6), v))
 /*@}*/
 
 /*!
@@ -11002,13 +11009,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP6 field. */
-#define BR_AIPS_PACRO_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP6))
+#define BR_AIPS_PACRO_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP6. */
 #define BF_AIPS_PACRO_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP6) & BM_AIPS_PACRO_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRO_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP6) = (v))
+#define BW_AIPS_PACRO_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP6), v))
 /*@}*/
 
 /*!
@@ -11028,13 +11035,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP5 field. */
-#define BR_AIPS_PACRO_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP5))
+#define BR_AIPS_PACRO_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP5. */
 #define BF_AIPS_PACRO_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP5) & BM_AIPS_PACRO_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRO_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP5) = (v))
+#define BW_AIPS_PACRO_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP5), v))
 /*@}*/
 
 /*!
@@ -11054,13 +11061,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP5 field. */
-#define BR_AIPS_PACRO_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP5))
+#define BR_AIPS_PACRO_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP5. */
 #define BF_AIPS_PACRO_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP5) & BM_AIPS_PACRO_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRO_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP5) = (v))
+#define BW_AIPS_PACRO_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP5), v))
 /*@}*/
 
 /*!
@@ -11083,13 +11090,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP5 field. */
-#define BR_AIPS_PACRO_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP5))
+#define BR_AIPS_PACRO_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP5. */
 #define BF_AIPS_PACRO_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP5) & BM_AIPS_PACRO_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRO_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP5) = (v))
+#define BW_AIPS_PACRO_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP5), v))
 /*@}*/
 
 /*!
@@ -11109,13 +11116,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP4 field. */
-#define BR_AIPS_PACRO_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP4))
+#define BR_AIPS_PACRO_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP4. */
 #define BF_AIPS_PACRO_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP4) & BM_AIPS_PACRO_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRO_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP4) = (v))
+#define BW_AIPS_PACRO_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP4), v))
 /*@}*/
 
 /*!
@@ -11135,13 +11142,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP4 field. */
-#define BR_AIPS_PACRO_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP4))
+#define BR_AIPS_PACRO_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP4. */
 #define BF_AIPS_PACRO_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP4) & BM_AIPS_PACRO_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRO_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP4) = (v))
+#define BW_AIPS_PACRO_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP4), v))
 /*@}*/
 
 /*!
@@ -11164,13 +11171,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP4 field. */
-#define BR_AIPS_PACRO_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP4))
+#define BR_AIPS_PACRO_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP4. */
 #define BF_AIPS_PACRO_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP4) & BM_AIPS_PACRO_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRO_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP4) = (v))
+#define BW_AIPS_PACRO_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP4), v))
 /*@}*/
 
 /*!
@@ -11190,13 +11197,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP3 field. */
-#define BR_AIPS_PACRO_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP3))
+#define BR_AIPS_PACRO_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP3. */
 #define BF_AIPS_PACRO_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP3) & BM_AIPS_PACRO_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRO_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP3) = (v))
+#define BW_AIPS_PACRO_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP3), v))
 /*@}*/
 
 /*!
@@ -11216,13 +11223,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP3 field. */
-#define BR_AIPS_PACRO_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP3))
+#define BR_AIPS_PACRO_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP3. */
 #define BF_AIPS_PACRO_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP3) & BM_AIPS_PACRO_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRO_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP3) = (v))
+#define BW_AIPS_PACRO_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP3), v))
 /*@}*/
 
 /*!
@@ -11245,13 +11252,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP3 field. */
-#define BR_AIPS_PACRO_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP3))
+#define BR_AIPS_PACRO_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP3. */
 #define BF_AIPS_PACRO_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP3) & BM_AIPS_PACRO_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRO_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP3) = (v))
+#define BW_AIPS_PACRO_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP3), v))
 /*@}*/
 
 /*!
@@ -11271,13 +11278,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP2 field. */
-#define BR_AIPS_PACRO_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP2))
+#define BR_AIPS_PACRO_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP2. */
 #define BF_AIPS_PACRO_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP2) & BM_AIPS_PACRO_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRO_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP2) = (v))
+#define BW_AIPS_PACRO_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP2), v))
 /*@}*/
 
 /*!
@@ -11297,13 +11304,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP2 field. */
-#define BR_AIPS_PACRO_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP2))
+#define BR_AIPS_PACRO_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP2. */
 #define BF_AIPS_PACRO_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP2) & BM_AIPS_PACRO_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRO_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP2) = (v))
+#define BW_AIPS_PACRO_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP2), v))
 /*@}*/
 
 /*!
@@ -11326,13 +11333,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP2 field. */
-#define BR_AIPS_PACRO_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP2))
+#define BR_AIPS_PACRO_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP2. */
 #define BF_AIPS_PACRO_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP2) & BM_AIPS_PACRO_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRO_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP2) = (v))
+#define BW_AIPS_PACRO_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP2), v))
 /*@}*/
 
 /*!
@@ -11352,13 +11359,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP1 field. */
-#define BR_AIPS_PACRO_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP1))
+#define BR_AIPS_PACRO_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP1. */
 #define BF_AIPS_PACRO_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP1) & BM_AIPS_PACRO_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRO_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP1) = (v))
+#define BW_AIPS_PACRO_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP1), v))
 /*@}*/
 
 /*!
@@ -11378,13 +11385,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP1 field. */
-#define BR_AIPS_PACRO_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP1))
+#define BR_AIPS_PACRO_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP1. */
 #define BF_AIPS_PACRO_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP1) & BM_AIPS_PACRO_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRO_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP1) = (v))
+#define BW_AIPS_PACRO_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP1), v))
 /*@}*/
 
 /*!
@@ -11407,13 +11414,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP1 field. */
-#define BR_AIPS_PACRO_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP1))
+#define BR_AIPS_PACRO_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP1. */
 #define BF_AIPS_PACRO_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP1) & BM_AIPS_PACRO_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRO_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP1) = (v))
+#define BW_AIPS_PACRO_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP1), v))
 /*@}*/
 
 /*!
@@ -11433,13 +11440,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRO_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRO_TP0 field. */
-#define BR_AIPS_PACRO_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP0))
+#define BR_AIPS_PACRO_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_TP0. */
 #define BF_AIPS_PACRO_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_TP0) & BM_AIPS_PACRO_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRO_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP0) = (v))
+#define BW_AIPS_PACRO_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_TP0), v))
 /*@}*/
 
 /*!
@@ -11459,13 +11466,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRO_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRO_WP0 field. */
-#define BR_AIPS_PACRO_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP0))
+#define BR_AIPS_PACRO_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_WP0. */
 #define BF_AIPS_PACRO_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_WP0) & BM_AIPS_PACRO_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRO_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP0) = (v))
+#define BW_AIPS_PACRO_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_WP0), v))
 /*@}*/
 
 /*!
@@ -11488,13 +11495,13 @@ typedef union _hw_aips_pacro
 #define BS_AIPS_PACRO_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRO_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRO_SP0 field. */
-#define BR_AIPS_PACRO_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP0))
+#define BR_AIPS_PACRO_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRO_SP0. */
 #define BF_AIPS_PACRO_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRO_SP0) & BM_AIPS_PACRO_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRO_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP0) = (v))
+#define BW_AIPS_PACRO_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRO_ADDR(x), BP_AIPS_PACRO_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -11557,8 +11564,8 @@ typedef union _hw_aips_pacrp
 #define HW_AIPS_PACRP_ADDR(x)    ((x) + 0x6CU)
 
 #define HW_AIPS_PACRP(x)         (*(__IO hw_aips_pacrp_t *) HW_AIPS_PACRP_ADDR(x))
-#define HW_AIPS_PACRP_RD(x)      (HW_AIPS_PACRP(x).U)
-#define HW_AIPS_PACRP_WR(x, v)   (HW_AIPS_PACRP(x).U = (v))
+#define HW_AIPS_PACRP_RD(x)      (ADDRESS_READ(hw_aips_pacrp_t, HW_AIPS_PACRP_ADDR(x)))
+#define HW_AIPS_PACRP_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacrp_t, HW_AIPS_PACRP_ADDR(x), v))
 #define HW_AIPS_PACRP_SET(x, v)  (HW_AIPS_PACRP_WR(x, HW_AIPS_PACRP_RD(x) |  (v)))
 #define HW_AIPS_PACRP_CLR(x, v)  (HW_AIPS_PACRP_WR(x, HW_AIPS_PACRP_RD(x) & ~(v)))
 #define HW_AIPS_PACRP_TOG(x, v)  (HW_AIPS_PACRP_WR(x, HW_AIPS_PACRP_RD(x) ^  (v)))
@@ -11585,13 +11592,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP7    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP7. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP7 field. */
-#define BR_AIPS_PACRP_TP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP7))
+#define BR_AIPS_PACRP_TP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP7. */
 #define BF_AIPS_PACRP_TP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP7) & BM_AIPS_PACRP_TP7)
 
 /*! @brief Set the TP7 field to a new value. */
-#define BW_AIPS_PACRP_TP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP7) = (v))
+#define BW_AIPS_PACRP_TP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP7), v))
 /*@}*/
 
 /*!
@@ -11611,13 +11618,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP7    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP7. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP7 field. */
-#define BR_AIPS_PACRP_WP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP7))
+#define BR_AIPS_PACRP_WP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP7. */
 #define BF_AIPS_PACRP_WP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP7) & BM_AIPS_PACRP_WP7)
 
 /*! @brief Set the WP7 field to a new value. */
-#define BW_AIPS_PACRP_WP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP7) = (v))
+#define BW_AIPS_PACRP_WP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP7), v))
 /*@}*/
 
 /*!
@@ -11640,13 +11647,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP7    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP7. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP7 field. */
-#define BR_AIPS_PACRP_SP7(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP7))
+#define BR_AIPS_PACRP_SP7(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP7)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP7. */
 #define BF_AIPS_PACRP_SP7(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP7) & BM_AIPS_PACRP_SP7)
 
 /*! @brief Set the SP7 field to a new value. */
-#define BW_AIPS_PACRP_SP7(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP7) = (v))
+#define BW_AIPS_PACRP_SP7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP7), v))
 /*@}*/
 
 /*!
@@ -11666,13 +11673,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP6    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP6. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP6 field. */
-#define BR_AIPS_PACRP_TP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP6))
+#define BR_AIPS_PACRP_TP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP6. */
 #define BF_AIPS_PACRP_TP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP6) & BM_AIPS_PACRP_TP6)
 
 /*! @brief Set the TP6 field to a new value. */
-#define BW_AIPS_PACRP_TP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP6) = (v))
+#define BW_AIPS_PACRP_TP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP6), v))
 /*@}*/
 
 /*!
@@ -11692,13 +11699,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP6    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP6. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP6 field. */
-#define BR_AIPS_PACRP_WP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP6))
+#define BR_AIPS_PACRP_WP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP6. */
 #define BF_AIPS_PACRP_WP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP6) & BM_AIPS_PACRP_WP6)
 
 /*! @brief Set the WP6 field to a new value. */
-#define BW_AIPS_PACRP_WP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP6) = (v))
+#define BW_AIPS_PACRP_WP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP6), v))
 /*@}*/
 
 /*!
@@ -11721,13 +11728,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP6    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP6. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP6 field. */
-#define BR_AIPS_PACRP_SP6(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP6))
+#define BR_AIPS_PACRP_SP6(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP6)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP6. */
 #define BF_AIPS_PACRP_SP6(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP6) & BM_AIPS_PACRP_SP6)
 
 /*! @brief Set the SP6 field to a new value. */
-#define BW_AIPS_PACRP_SP6(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP6) = (v))
+#define BW_AIPS_PACRP_SP6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP6), v))
 /*@}*/
 
 /*!
@@ -11747,13 +11754,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP5    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP5. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP5 field. */
-#define BR_AIPS_PACRP_TP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP5))
+#define BR_AIPS_PACRP_TP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP5. */
 #define BF_AIPS_PACRP_TP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP5) & BM_AIPS_PACRP_TP5)
 
 /*! @brief Set the TP5 field to a new value. */
-#define BW_AIPS_PACRP_TP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP5) = (v))
+#define BW_AIPS_PACRP_TP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP5), v))
 /*@}*/
 
 /*!
@@ -11773,13 +11780,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP5    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP5. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP5 field. */
-#define BR_AIPS_PACRP_WP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP5))
+#define BR_AIPS_PACRP_WP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP5. */
 #define BF_AIPS_PACRP_WP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP5) & BM_AIPS_PACRP_WP5)
 
 /*! @brief Set the WP5 field to a new value. */
-#define BW_AIPS_PACRP_WP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP5) = (v))
+#define BW_AIPS_PACRP_WP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP5), v))
 /*@}*/
 
 /*!
@@ -11802,13 +11809,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP5    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP5. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP5 field. */
-#define BR_AIPS_PACRP_SP5(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP5))
+#define BR_AIPS_PACRP_SP5(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP5)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP5. */
 #define BF_AIPS_PACRP_SP5(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP5) & BM_AIPS_PACRP_SP5)
 
 /*! @brief Set the SP5 field to a new value. */
-#define BW_AIPS_PACRP_SP5(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP5) = (v))
+#define BW_AIPS_PACRP_SP5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP5), v))
 /*@}*/
 
 /*!
@@ -11828,13 +11835,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP4    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP4. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP4 field. */
-#define BR_AIPS_PACRP_TP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP4))
+#define BR_AIPS_PACRP_TP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP4. */
 #define BF_AIPS_PACRP_TP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP4) & BM_AIPS_PACRP_TP4)
 
 /*! @brief Set the TP4 field to a new value. */
-#define BW_AIPS_PACRP_TP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP4) = (v))
+#define BW_AIPS_PACRP_TP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP4), v))
 /*@}*/
 
 /*!
@@ -11854,13 +11861,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP4    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP4. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP4 field. */
-#define BR_AIPS_PACRP_WP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP4))
+#define BR_AIPS_PACRP_WP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP4. */
 #define BF_AIPS_PACRP_WP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP4) & BM_AIPS_PACRP_WP4)
 
 /*! @brief Set the WP4 field to a new value. */
-#define BW_AIPS_PACRP_WP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP4) = (v))
+#define BW_AIPS_PACRP_WP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP4), v))
 /*@}*/
 
 /*!
@@ -11883,13 +11890,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP4    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP4. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP4 field. */
-#define BR_AIPS_PACRP_SP4(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP4))
+#define BR_AIPS_PACRP_SP4(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP4)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP4. */
 #define BF_AIPS_PACRP_SP4(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP4) & BM_AIPS_PACRP_SP4)
 
 /*! @brief Set the SP4 field to a new value. */
-#define BW_AIPS_PACRP_SP4(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP4) = (v))
+#define BW_AIPS_PACRP_SP4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP4), v))
 /*@}*/
 
 /*!
@@ -11909,13 +11916,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP3    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP3. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP3 field. */
-#define BR_AIPS_PACRP_TP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP3))
+#define BR_AIPS_PACRP_TP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP3. */
 #define BF_AIPS_PACRP_TP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP3) & BM_AIPS_PACRP_TP3)
 
 /*! @brief Set the TP3 field to a new value. */
-#define BW_AIPS_PACRP_TP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP3) = (v))
+#define BW_AIPS_PACRP_TP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP3), v))
 /*@}*/
 
 /*!
@@ -11935,13 +11942,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP3    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP3. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP3 field. */
-#define BR_AIPS_PACRP_WP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP3))
+#define BR_AIPS_PACRP_WP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP3. */
 #define BF_AIPS_PACRP_WP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP3) & BM_AIPS_PACRP_WP3)
 
 /*! @brief Set the WP3 field to a new value. */
-#define BW_AIPS_PACRP_WP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP3) = (v))
+#define BW_AIPS_PACRP_WP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP3), v))
 /*@}*/
 
 /*!
@@ -11964,13 +11971,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP3    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP3. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP3 field. */
-#define BR_AIPS_PACRP_SP3(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP3))
+#define BR_AIPS_PACRP_SP3(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP3)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP3. */
 #define BF_AIPS_PACRP_SP3(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP3) & BM_AIPS_PACRP_SP3)
 
 /*! @brief Set the SP3 field to a new value. */
-#define BW_AIPS_PACRP_SP3(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP3) = (v))
+#define BW_AIPS_PACRP_SP3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP3), v))
 /*@}*/
 
 /*!
@@ -11990,13 +11997,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP2    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP2. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP2 field. */
-#define BR_AIPS_PACRP_TP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP2))
+#define BR_AIPS_PACRP_TP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP2. */
 #define BF_AIPS_PACRP_TP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP2) & BM_AIPS_PACRP_TP2)
 
 /*! @brief Set the TP2 field to a new value. */
-#define BW_AIPS_PACRP_TP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP2) = (v))
+#define BW_AIPS_PACRP_TP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP2), v))
 /*@}*/
 
 /*!
@@ -12016,13 +12023,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP2    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP2. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP2 field. */
-#define BR_AIPS_PACRP_WP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP2))
+#define BR_AIPS_PACRP_WP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP2. */
 #define BF_AIPS_PACRP_WP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP2) & BM_AIPS_PACRP_WP2)
 
 /*! @brief Set the WP2 field to a new value. */
-#define BW_AIPS_PACRP_WP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP2) = (v))
+#define BW_AIPS_PACRP_WP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP2), v))
 /*@}*/
 
 /*!
@@ -12045,13 +12052,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP2    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP2. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP2 field. */
-#define BR_AIPS_PACRP_SP2(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP2))
+#define BR_AIPS_PACRP_SP2(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP2)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP2. */
 #define BF_AIPS_PACRP_SP2(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP2) & BM_AIPS_PACRP_SP2)
 
 /*! @brief Set the SP2 field to a new value. */
-#define BW_AIPS_PACRP_SP2(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP2) = (v))
+#define BW_AIPS_PACRP_SP2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP2), v))
 /*@}*/
 
 /*!
@@ -12071,13 +12078,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP1 field. */
-#define BR_AIPS_PACRP_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP1))
+#define BR_AIPS_PACRP_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP1. */
 #define BF_AIPS_PACRP_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP1) & BM_AIPS_PACRP_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRP_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP1) = (v))
+#define BW_AIPS_PACRP_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP1), v))
 /*@}*/
 
 /*!
@@ -12097,13 +12104,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP1 field. */
-#define BR_AIPS_PACRP_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP1))
+#define BR_AIPS_PACRP_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP1. */
 #define BF_AIPS_PACRP_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP1) & BM_AIPS_PACRP_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRP_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP1) = (v))
+#define BW_AIPS_PACRP_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP1), v))
 /*@}*/
 
 /*!
@@ -12126,13 +12133,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP1 field. */
-#define BR_AIPS_PACRP_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP1))
+#define BR_AIPS_PACRP_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP1. */
 #define BF_AIPS_PACRP_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP1) & BM_AIPS_PACRP_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRP_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP1) = (v))
+#define BW_AIPS_PACRP_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP1), v))
 /*@}*/
 
 /*!
@@ -12152,13 +12159,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRP_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRP_TP0 field. */
-#define BR_AIPS_PACRP_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP0))
+#define BR_AIPS_PACRP_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_TP0. */
 #define BF_AIPS_PACRP_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_TP0) & BM_AIPS_PACRP_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRP_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP0) = (v))
+#define BW_AIPS_PACRP_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_TP0), v))
 /*@}*/
 
 /*!
@@ -12178,13 +12185,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRP_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRP_WP0 field. */
-#define BR_AIPS_PACRP_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP0))
+#define BR_AIPS_PACRP_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_WP0. */
 #define BF_AIPS_PACRP_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_WP0) & BM_AIPS_PACRP_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRP_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP0) = (v))
+#define BW_AIPS_PACRP_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_WP0), v))
 /*@}*/
 
 /*!
@@ -12207,13 +12214,13 @@ typedef union _hw_aips_pacrp
 #define BS_AIPS_PACRP_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRP_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRP_SP0 field. */
-#define BR_AIPS_PACRP_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP0))
+#define BR_AIPS_PACRP_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRP_SP0. */
 #define BF_AIPS_PACRP_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRP_SP0) & BM_AIPS_PACRP_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRP_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP0) = (v))
+#define BW_AIPS_PACRP_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRP_ADDR(x), BP_AIPS_PACRP_SP0), v))
 /*@}*/
 
 /*******************************************************************************
@@ -12251,8 +12258,8 @@ typedef union _hw_aips_pacru
 #define HW_AIPS_PACRU_ADDR(x)    ((x) + 0x80U)
 
 #define HW_AIPS_PACRU(x)         (*(__IO hw_aips_pacru_t *) HW_AIPS_PACRU_ADDR(x))
-#define HW_AIPS_PACRU_RD(x)      (HW_AIPS_PACRU(x).U)
-#define HW_AIPS_PACRU_WR(x, v)   (HW_AIPS_PACRU(x).U = (v))
+#define HW_AIPS_PACRU_RD(x)      (ADDRESS_READ(hw_aips_pacru_t, HW_AIPS_PACRU_ADDR(x)))
+#define HW_AIPS_PACRU_WR(x, v)   (ADDRESS_WRITE(hw_aips_pacru_t, HW_AIPS_PACRU_ADDR(x), v))
 #define HW_AIPS_PACRU_SET(x, v)  (HW_AIPS_PACRU_WR(x, HW_AIPS_PACRU_RD(x) |  (v)))
 #define HW_AIPS_PACRU_CLR(x, v)  (HW_AIPS_PACRU_WR(x, HW_AIPS_PACRU_RD(x) & ~(v)))
 #define HW_AIPS_PACRU_TOG(x, v)  (HW_AIPS_PACRU_WR(x, HW_AIPS_PACRU_RD(x) ^  (v)))
@@ -12279,13 +12286,13 @@ typedef union _hw_aips_pacru
 #define BS_AIPS_PACRU_TP1    (1U)          /*!< Bit field size in bits for AIPS_PACRU_TP1. */
 
 /*! @brief Read current value of the AIPS_PACRU_TP1 field. */
-#define BR_AIPS_PACRU_TP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP1))
+#define BR_AIPS_PACRU_TP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRU_TP1. */
 #define BF_AIPS_PACRU_TP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRU_TP1) & BM_AIPS_PACRU_TP1)
 
 /*! @brief Set the TP1 field to a new value. */
-#define BW_AIPS_PACRU_TP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP1) = (v))
+#define BW_AIPS_PACRU_TP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP1), v))
 /*@}*/
 
 /*!
@@ -12305,13 +12312,13 @@ typedef union _hw_aips_pacru
 #define BS_AIPS_PACRU_WP1    (1U)          /*!< Bit field size in bits for AIPS_PACRU_WP1. */
 
 /*! @brief Read current value of the AIPS_PACRU_WP1 field. */
-#define BR_AIPS_PACRU_WP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP1))
+#define BR_AIPS_PACRU_WP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRU_WP1. */
 #define BF_AIPS_PACRU_WP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRU_WP1) & BM_AIPS_PACRU_WP1)
 
 /*! @brief Set the WP1 field to a new value. */
-#define BW_AIPS_PACRU_WP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP1) = (v))
+#define BW_AIPS_PACRU_WP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP1), v))
 /*@}*/
 
 /*!
@@ -12334,13 +12341,13 @@ typedef union _hw_aips_pacru
 #define BS_AIPS_PACRU_SP1    (1U)          /*!< Bit field size in bits for AIPS_PACRU_SP1. */
 
 /*! @brief Read current value of the AIPS_PACRU_SP1 field. */
-#define BR_AIPS_PACRU_SP1(x) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP1))
+#define BR_AIPS_PACRU_SP1(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP1)))
 
 /*! @brief Format value for bitfield AIPS_PACRU_SP1. */
 #define BF_AIPS_PACRU_SP1(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRU_SP1) & BM_AIPS_PACRU_SP1)
 
 /*! @brief Set the SP1 field to a new value. */
-#define BW_AIPS_PACRU_SP1(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP1) = (v))
+#define BW_AIPS_PACRU_SP1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP1), v))
 /*@}*/
 
 /*!
@@ -12360,13 +12367,13 @@ typedef union _hw_aips_pacru
 #define BS_AIPS_PACRU_TP0    (1U)          /*!< Bit field size in bits for AIPS_PACRU_TP0. */
 
 /*! @brief Read current value of the AIPS_PACRU_TP0 field. */
-#define BR_AIPS_PACRU_TP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP0))
+#define BR_AIPS_PACRU_TP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRU_TP0. */
 #define BF_AIPS_PACRU_TP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRU_TP0) & BM_AIPS_PACRU_TP0)
 
 /*! @brief Set the TP0 field to a new value. */
-#define BW_AIPS_PACRU_TP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP0) = (v))
+#define BW_AIPS_PACRU_TP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_TP0), v))
 /*@}*/
 
 /*!
@@ -12386,13 +12393,13 @@ typedef union _hw_aips_pacru
 #define BS_AIPS_PACRU_WP0    (1U)          /*!< Bit field size in bits for AIPS_PACRU_WP0. */
 
 /*! @brief Read current value of the AIPS_PACRU_WP0 field. */
-#define BR_AIPS_PACRU_WP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP0))
+#define BR_AIPS_PACRU_WP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRU_WP0. */
 #define BF_AIPS_PACRU_WP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRU_WP0) & BM_AIPS_PACRU_WP0)
 
 /*! @brief Set the WP0 field to a new value. */
-#define BW_AIPS_PACRU_WP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP0) = (v))
+#define BW_AIPS_PACRU_WP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_WP0), v))
 /*@}*/
 
 /*!
@@ -12415,13 +12422,13 @@ typedef union _hw_aips_pacru
 #define BS_AIPS_PACRU_SP0    (1U)          /*!< Bit field size in bits for AIPS_PACRU_SP0. */
 
 /*! @brief Read current value of the AIPS_PACRU_SP0 field. */
-#define BR_AIPS_PACRU_SP0(x) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP0))
+#define BR_AIPS_PACRU_SP0(x) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP0)))
 
 /*! @brief Format value for bitfield AIPS_PACRU_SP0. */
 #define BF_AIPS_PACRU_SP0(v) ((uint32_t)((uint32_t)(v) << BP_AIPS_PACRU_SP0) & BM_AIPS_PACRU_SP0)
 
 /*! @brief Set the SP0 field to a new value. */
-#define BW_AIPS_PACRU_SP0(x, v) (BITBAND_ACCESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP0) = (v))
+#define BW_AIPS_PACRU_SP0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_AIPS_PACRU_ADDR(x), BP_AIPS_PACRU_SP0), v))
 /*@}*/
 
 /*******************************************************************************

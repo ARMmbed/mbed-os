@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -191,8 +198,8 @@ typedef union _hw_dma_cr
 #define HW_DMA_CR_ADDR(x)        ((x) + 0x0U)
 
 #define HW_DMA_CR(x)             (*(__IO hw_dma_cr_t *) HW_DMA_CR_ADDR(x))
-#define HW_DMA_CR_RD(x)          (HW_DMA_CR(x).U)
-#define HW_DMA_CR_WR(x, v)       (HW_DMA_CR(x).U = (v))
+#define HW_DMA_CR_RD(x)          (ADDRESS_READ(hw_dma_cr_t, HW_DMA_CR_ADDR(x)))
+#define HW_DMA_CR_WR(x, v)       (ADDRESS_WRITE(hw_dma_cr_t, HW_DMA_CR_ADDR(x), v))
 #define HW_DMA_CR_SET(x, v)      (HW_DMA_CR_WR(x, HW_DMA_CR_RD(x) |  (v)))
 #define HW_DMA_CR_CLR(x, v)      (HW_DMA_CR_WR(x, HW_DMA_CR_RD(x) & ~(v)))
 #define HW_DMA_CR_TOG(x, v)      (HW_DMA_CR_WR(x, HW_DMA_CR_RD(x) ^  (v)))
@@ -217,13 +224,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_EDBG       (1U)          /*!< Bit field size in bits for DMA_CR_EDBG. */
 
 /*! @brief Read current value of the DMA_CR_EDBG field. */
-#define BR_DMA_CR_EDBG(x)    (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EDBG))
+#define BR_DMA_CR_EDBG(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EDBG)))
 
 /*! @brief Format value for bitfield DMA_CR_EDBG. */
 #define BF_DMA_CR_EDBG(v)    ((uint32_t)((uint32_t)(v) << BP_DMA_CR_EDBG) & BM_DMA_CR_EDBG)
 
 /*! @brief Set the EDBG field to a new value. */
-#define BW_DMA_CR_EDBG(x, v) (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EDBG) = (v))
+#define BW_DMA_CR_EDBG(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EDBG), v))
 /*@}*/
 
 /*!
@@ -239,13 +246,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_ERCA       (1U)          /*!< Bit field size in bits for DMA_CR_ERCA. */
 
 /*! @brief Read current value of the DMA_CR_ERCA field. */
-#define BR_DMA_CR_ERCA(x)    (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ERCA))
+#define BR_DMA_CR_ERCA(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ERCA)))
 
 /*! @brief Format value for bitfield DMA_CR_ERCA. */
 #define BF_DMA_CR_ERCA(v)    ((uint32_t)((uint32_t)(v) << BP_DMA_CR_ERCA) & BM_DMA_CR_ERCA)
 
 /*! @brief Set the ERCA field to a new value. */
-#define BW_DMA_CR_ERCA(x, v) (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ERCA) = (v))
+#define BW_DMA_CR_ERCA(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ERCA), v))
 /*@}*/
 
 /*!
@@ -262,13 +269,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_HOE        (1U)          /*!< Bit field size in bits for DMA_CR_HOE. */
 
 /*! @brief Read current value of the DMA_CR_HOE field. */
-#define BR_DMA_CR_HOE(x)     (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HOE))
+#define BR_DMA_CR_HOE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HOE)))
 
 /*! @brief Format value for bitfield DMA_CR_HOE. */
 #define BF_DMA_CR_HOE(v)     ((uint32_t)((uint32_t)(v) << BP_DMA_CR_HOE) & BM_DMA_CR_HOE)
 
 /*! @brief Set the HOE field to a new value. */
-#define BW_DMA_CR_HOE(x, v)  (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HOE) = (v))
+#define BW_DMA_CR_HOE(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HOE), v))
 /*@}*/
 
 /*!
@@ -285,13 +292,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_HALT       (1U)          /*!< Bit field size in bits for DMA_CR_HALT. */
 
 /*! @brief Read current value of the DMA_CR_HALT field. */
-#define BR_DMA_CR_HALT(x)    (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HALT))
+#define BR_DMA_CR_HALT(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HALT)))
 
 /*! @brief Format value for bitfield DMA_CR_HALT. */
 #define BF_DMA_CR_HALT(v)    ((uint32_t)((uint32_t)(v) << BP_DMA_CR_HALT) & BM_DMA_CR_HALT)
 
 /*! @brief Set the HALT field to a new value. */
-#define BW_DMA_CR_HALT(x, v) (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HALT) = (v))
+#define BW_DMA_CR_HALT(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_HALT), v))
 /*@}*/
 
 /*!
@@ -312,13 +319,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_CLM        (1U)          /*!< Bit field size in bits for DMA_CR_CLM. */
 
 /*! @brief Read current value of the DMA_CR_CLM field. */
-#define BR_DMA_CR_CLM(x)     (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CLM))
+#define BR_DMA_CR_CLM(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CLM)))
 
 /*! @brief Format value for bitfield DMA_CR_CLM. */
 #define BF_DMA_CR_CLM(v)     ((uint32_t)((uint32_t)(v) << BP_DMA_CR_CLM) & BM_DMA_CR_CLM)
 
 /*! @brief Set the CLM field to a new value. */
-#define BW_DMA_CR_CLM(x, v)  (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CLM) = (v))
+#define BW_DMA_CR_CLM(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CLM), v))
 /*@}*/
 
 /*!
@@ -338,13 +345,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_EMLM       (1U)          /*!< Bit field size in bits for DMA_CR_EMLM. */
 
 /*! @brief Read current value of the DMA_CR_EMLM field. */
-#define BR_DMA_CR_EMLM(x)    (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EMLM))
+#define BR_DMA_CR_EMLM(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EMLM)))
 
 /*! @brief Format value for bitfield DMA_CR_EMLM. */
 #define BF_DMA_CR_EMLM(v)    ((uint32_t)((uint32_t)(v) << BP_DMA_CR_EMLM) & BM_DMA_CR_EMLM)
 
 /*! @brief Set the EMLM field to a new value. */
-#define BW_DMA_CR_EMLM(x, v) (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EMLM) = (v))
+#define BW_DMA_CR_EMLM(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_EMLM), v))
 /*@}*/
 
 /*!
@@ -366,13 +373,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_ECX        (1U)          /*!< Bit field size in bits for DMA_CR_ECX. */
 
 /*! @brief Read current value of the DMA_CR_ECX field. */
-#define BR_DMA_CR_ECX(x)     (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ECX))
+#define BR_DMA_CR_ECX(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ECX)))
 
 /*! @brief Format value for bitfield DMA_CR_ECX. */
 #define BF_DMA_CR_ECX(v)     ((uint32_t)((uint32_t)(v) << BP_DMA_CR_ECX) & BM_DMA_CR_ECX)
 
 /*! @brief Set the ECX field to a new value. */
-#define BW_DMA_CR_ECX(x, v)  (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ECX) = (v))
+#define BW_DMA_CR_ECX(x, v)  (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_ECX), v))
 /*@}*/
 
 /*!
@@ -392,13 +399,13 @@ typedef union _hw_dma_cr
 #define BS_DMA_CR_CX         (1U)          /*!< Bit field size in bits for DMA_CR_CX. */
 
 /*! @brief Read current value of the DMA_CR_CX field. */
-#define BR_DMA_CR_CX(x)      (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CX))
+#define BR_DMA_CR_CX(x)      (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CX)))
 
 /*! @brief Format value for bitfield DMA_CR_CX. */
 #define BF_DMA_CR_CX(v)      ((uint32_t)((uint32_t)(v) << BP_DMA_CR_CX) & BM_DMA_CR_CX)
 
 /*! @brief Set the CX field to a new value. */
-#define BW_DMA_CR_CX(x, v)   (BITBAND_ACCESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CX) = (v))
+#define BW_DMA_CR_CX(x, v)   (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_CR_ADDR(x), BP_DMA_CR_CX), v))
 /*@}*/
 
 /*******************************************************************************
@@ -447,7 +454,7 @@ typedef union _hw_dma_es
 #define HW_DMA_ES_ADDR(x)        ((x) + 0x4U)
 
 #define HW_DMA_ES(x)             (*(__I hw_dma_es_t *) HW_DMA_ES_ADDR(x))
-#define HW_DMA_ES_RD(x)          (HW_DMA_ES(x).U)
+#define HW_DMA_ES_RD(x)          (ADDRESS_READ(hw_dma_es_t, HW_DMA_ES_ADDR(x)))
 /*@}*/
 
 /*
@@ -467,7 +474,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_DBE        (1U)          /*!< Bit field size in bits for DMA_ES_DBE. */
 
 /*! @brief Read current value of the DMA_ES_DBE field. */
-#define BR_DMA_ES_DBE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_DBE))
+#define BR_DMA_ES_DBE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_DBE)))
 /*@}*/
 
 /*!
@@ -483,7 +490,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_SBE        (1U)          /*!< Bit field size in bits for DMA_ES_SBE. */
 
 /*! @brief Read current value of the DMA_ES_SBE field. */
-#define BR_DMA_ES_SBE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SBE))
+#define BR_DMA_ES_SBE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SBE)))
 /*@}*/
 
 /*!
@@ -502,7 +509,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_SGE        (1U)          /*!< Bit field size in bits for DMA_ES_SGE. */
 
 /*! @brief Read current value of the DMA_ES_SGE field. */
-#define BR_DMA_ES_SGE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SGE))
+#define BR_DMA_ES_SGE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SGE)))
 /*@}*/
 
 /*!
@@ -521,7 +528,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_NCE        (1U)          /*!< Bit field size in bits for DMA_ES_NCE. */
 
 /*! @brief Read current value of the DMA_ES_NCE field. */
-#define BR_DMA_ES_NCE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_NCE))
+#define BR_DMA_ES_NCE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_NCE)))
 /*@}*/
 
 /*!
@@ -538,7 +545,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_DOE        (1U)          /*!< Bit field size in bits for DMA_ES_DOE. */
 
 /*! @brief Read current value of the DMA_ES_DOE field. */
-#define BR_DMA_ES_DOE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_DOE))
+#define BR_DMA_ES_DOE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_DOE)))
 /*@}*/
 
 /*!
@@ -555,7 +562,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_DAE        (1U)          /*!< Bit field size in bits for DMA_ES_DAE. */
 
 /*! @brief Read current value of the DMA_ES_DAE field. */
-#define BR_DMA_ES_DAE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_DAE))
+#define BR_DMA_ES_DAE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_DAE)))
 /*@}*/
 
 /*!
@@ -572,7 +579,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_SOE        (1U)          /*!< Bit field size in bits for DMA_ES_SOE. */
 
 /*! @brief Read current value of the DMA_ES_SOE field. */
-#define BR_DMA_ES_SOE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SOE))
+#define BR_DMA_ES_SOE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SOE)))
 /*@}*/
 
 /*!
@@ -589,7 +596,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_SAE        (1U)          /*!< Bit field size in bits for DMA_ES_SAE. */
 
 /*! @brief Read current value of the DMA_ES_SAE field. */
-#define BR_DMA_ES_SAE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SAE))
+#define BR_DMA_ES_SAE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_SAE)))
 /*@}*/
 
 /*!
@@ -604,7 +611,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_ERRCHN     (4U)          /*!< Bit field size in bits for DMA_ES_ERRCHN. */
 
 /*! @brief Read current value of the DMA_ES_ERRCHN field. */
-#define BR_DMA_ES_ERRCHN(x)  (HW_DMA_ES(x).B.ERRCHN)
+#define BR_DMA_ES_ERRCHN(x)  (UNION_READ(hw_dma_es_t, HW_DMA_ES_ADDR(x), U, B.ERRCHN))
 /*@}*/
 
 /*!
@@ -621,7 +628,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_CPE        (1U)          /*!< Bit field size in bits for DMA_ES_CPE. */
 
 /*! @brief Read current value of the DMA_ES_CPE field. */
-#define BR_DMA_ES_CPE(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_CPE))
+#define BR_DMA_ES_CPE(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_CPE)))
 /*@}*/
 
 /*!
@@ -638,7 +645,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_ECX        (1U)          /*!< Bit field size in bits for DMA_ES_ECX. */
 
 /*! @brief Read current value of the DMA_ES_ECX field. */
-#define BR_DMA_ES_ECX(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_ECX))
+#define BR_DMA_ES_ECX(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_ECX)))
 /*@}*/
 
 /*!
@@ -657,7 +664,7 @@ typedef union _hw_dma_es
 #define BS_DMA_ES_VLD        (1U)          /*!< Bit field size in bits for DMA_ES_VLD. */
 
 /*! @brief Read current value of the DMA_ES_VLD field. */
-#define BR_DMA_ES_VLD(x)     (BITBAND_ACCESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_VLD))
+#define BR_DMA_ES_VLD(x)     (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ES_ADDR(x), BP_DMA_ES_VLD)))
 /*@}*/
 
 /*******************************************************************************
@@ -711,8 +718,8 @@ typedef union _hw_dma_erq
 #define HW_DMA_ERQ_ADDR(x)       ((x) + 0xCU)
 
 #define HW_DMA_ERQ(x)            (*(__IO hw_dma_erq_t *) HW_DMA_ERQ_ADDR(x))
-#define HW_DMA_ERQ_RD(x)         (HW_DMA_ERQ(x).U)
-#define HW_DMA_ERQ_WR(x, v)      (HW_DMA_ERQ(x).U = (v))
+#define HW_DMA_ERQ_RD(x)         (ADDRESS_READ(hw_dma_erq_t, HW_DMA_ERQ_ADDR(x)))
+#define HW_DMA_ERQ_WR(x, v)      (ADDRESS_WRITE(hw_dma_erq_t, HW_DMA_ERQ_ADDR(x), v))
 #define HW_DMA_ERQ_SET(x, v)     (HW_DMA_ERQ_WR(x, HW_DMA_ERQ_RD(x) |  (v)))
 #define HW_DMA_ERQ_CLR(x, v)     (HW_DMA_ERQ_WR(x, HW_DMA_ERQ_RD(x) & ~(v)))
 #define HW_DMA_ERQ_TOG(x, v)     (HW_DMA_ERQ_WR(x, HW_DMA_ERQ_RD(x) ^  (v)))
@@ -735,13 +742,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ0      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ0. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ0 field. */
-#define BR_DMA_ERQ_ERQ0(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ0))
+#define BR_DMA_ERQ_ERQ0(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ0)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ0. */
 #define BF_DMA_ERQ_ERQ0(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ0) & BM_DMA_ERQ_ERQ0)
 
 /*! @brief Set the ERQ0 field to a new value. */
-#define BW_DMA_ERQ_ERQ0(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ0) = (v))
+#define BW_DMA_ERQ_ERQ0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ0), v))
 /*@}*/
 
 /*!
@@ -757,13 +764,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ1      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ1. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ1 field. */
-#define BR_DMA_ERQ_ERQ1(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ1))
+#define BR_DMA_ERQ_ERQ1(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ1)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ1. */
 #define BF_DMA_ERQ_ERQ1(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ1) & BM_DMA_ERQ_ERQ1)
 
 /*! @brief Set the ERQ1 field to a new value. */
-#define BW_DMA_ERQ_ERQ1(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ1) = (v))
+#define BW_DMA_ERQ_ERQ1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ1), v))
 /*@}*/
 
 /*!
@@ -779,13 +786,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ2      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ2. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ2 field. */
-#define BR_DMA_ERQ_ERQ2(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ2))
+#define BR_DMA_ERQ_ERQ2(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ2)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ2. */
 #define BF_DMA_ERQ_ERQ2(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ2) & BM_DMA_ERQ_ERQ2)
 
 /*! @brief Set the ERQ2 field to a new value. */
-#define BW_DMA_ERQ_ERQ2(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ2) = (v))
+#define BW_DMA_ERQ_ERQ2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ2), v))
 /*@}*/
 
 /*!
@@ -801,13 +808,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ3      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ3. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ3 field. */
-#define BR_DMA_ERQ_ERQ3(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ3))
+#define BR_DMA_ERQ_ERQ3(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ3)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ3. */
 #define BF_DMA_ERQ_ERQ3(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ3) & BM_DMA_ERQ_ERQ3)
 
 /*! @brief Set the ERQ3 field to a new value. */
-#define BW_DMA_ERQ_ERQ3(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ3) = (v))
+#define BW_DMA_ERQ_ERQ3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ3), v))
 /*@}*/
 
 /*!
@@ -823,13 +830,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ4      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ4. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ4 field. */
-#define BR_DMA_ERQ_ERQ4(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ4))
+#define BR_DMA_ERQ_ERQ4(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ4)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ4. */
 #define BF_DMA_ERQ_ERQ4(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ4) & BM_DMA_ERQ_ERQ4)
 
 /*! @brief Set the ERQ4 field to a new value. */
-#define BW_DMA_ERQ_ERQ4(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ4) = (v))
+#define BW_DMA_ERQ_ERQ4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ4), v))
 /*@}*/
 
 /*!
@@ -845,13 +852,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ5      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ5. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ5 field. */
-#define BR_DMA_ERQ_ERQ5(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ5))
+#define BR_DMA_ERQ_ERQ5(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ5)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ5. */
 #define BF_DMA_ERQ_ERQ5(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ5) & BM_DMA_ERQ_ERQ5)
 
 /*! @brief Set the ERQ5 field to a new value. */
-#define BW_DMA_ERQ_ERQ5(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ5) = (v))
+#define BW_DMA_ERQ_ERQ5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ5), v))
 /*@}*/
 
 /*!
@@ -867,13 +874,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ6      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ6. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ6 field. */
-#define BR_DMA_ERQ_ERQ6(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ6))
+#define BR_DMA_ERQ_ERQ6(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ6)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ6. */
 #define BF_DMA_ERQ_ERQ6(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ6) & BM_DMA_ERQ_ERQ6)
 
 /*! @brief Set the ERQ6 field to a new value. */
-#define BW_DMA_ERQ_ERQ6(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ6) = (v))
+#define BW_DMA_ERQ_ERQ6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ6), v))
 /*@}*/
 
 /*!
@@ -889,13 +896,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ7      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ7. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ7 field. */
-#define BR_DMA_ERQ_ERQ7(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ7))
+#define BR_DMA_ERQ_ERQ7(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ7)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ7. */
 #define BF_DMA_ERQ_ERQ7(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ7) & BM_DMA_ERQ_ERQ7)
 
 /*! @brief Set the ERQ7 field to a new value. */
-#define BW_DMA_ERQ_ERQ7(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ7) = (v))
+#define BW_DMA_ERQ_ERQ7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ7), v))
 /*@}*/
 
 /*!
@@ -911,13 +918,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ8      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ8. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ8 field. */
-#define BR_DMA_ERQ_ERQ8(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ8))
+#define BR_DMA_ERQ_ERQ8(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ8)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ8. */
 #define BF_DMA_ERQ_ERQ8(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ8) & BM_DMA_ERQ_ERQ8)
 
 /*! @brief Set the ERQ8 field to a new value. */
-#define BW_DMA_ERQ_ERQ8(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ8) = (v))
+#define BW_DMA_ERQ_ERQ8(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ8), v))
 /*@}*/
 
 /*!
@@ -933,13 +940,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ9      (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ9. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ9 field. */
-#define BR_DMA_ERQ_ERQ9(x)   (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ9))
+#define BR_DMA_ERQ_ERQ9(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ9)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ9. */
 #define BF_DMA_ERQ_ERQ9(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ9) & BM_DMA_ERQ_ERQ9)
 
 /*! @brief Set the ERQ9 field to a new value. */
-#define BW_DMA_ERQ_ERQ9(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ9) = (v))
+#define BW_DMA_ERQ_ERQ9(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ9), v))
 /*@}*/
 
 /*!
@@ -955,13 +962,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ10     (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ10. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ10 field. */
-#define BR_DMA_ERQ_ERQ10(x)  (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ10))
+#define BR_DMA_ERQ_ERQ10(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ10)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ10. */
 #define BF_DMA_ERQ_ERQ10(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ10) & BM_DMA_ERQ_ERQ10)
 
 /*! @brief Set the ERQ10 field to a new value. */
-#define BW_DMA_ERQ_ERQ10(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ10) = (v))
+#define BW_DMA_ERQ_ERQ10(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ10), v))
 /*@}*/
 
 /*!
@@ -977,13 +984,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ11     (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ11. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ11 field. */
-#define BR_DMA_ERQ_ERQ11(x)  (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ11))
+#define BR_DMA_ERQ_ERQ11(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ11)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ11. */
 #define BF_DMA_ERQ_ERQ11(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ11) & BM_DMA_ERQ_ERQ11)
 
 /*! @brief Set the ERQ11 field to a new value. */
-#define BW_DMA_ERQ_ERQ11(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ11) = (v))
+#define BW_DMA_ERQ_ERQ11(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ11), v))
 /*@}*/
 
 /*!
@@ -999,13 +1006,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ12     (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ12. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ12 field. */
-#define BR_DMA_ERQ_ERQ12(x)  (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ12))
+#define BR_DMA_ERQ_ERQ12(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ12)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ12. */
 #define BF_DMA_ERQ_ERQ12(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ12) & BM_DMA_ERQ_ERQ12)
 
 /*! @brief Set the ERQ12 field to a new value. */
-#define BW_DMA_ERQ_ERQ12(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ12) = (v))
+#define BW_DMA_ERQ_ERQ12(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ12), v))
 /*@}*/
 
 /*!
@@ -1021,13 +1028,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ13     (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ13. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ13 field. */
-#define BR_DMA_ERQ_ERQ13(x)  (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ13))
+#define BR_DMA_ERQ_ERQ13(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ13)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ13. */
 #define BF_DMA_ERQ_ERQ13(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ13) & BM_DMA_ERQ_ERQ13)
 
 /*! @brief Set the ERQ13 field to a new value. */
-#define BW_DMA_ERQ_ERQ13(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ13) = (v))
+#define BW_DMA_ERQ_ERQ13(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ13), v))
 /*@}*/
 
 /*!
@@ -1043,13 +1050,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ14     (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ14. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ14 field. */
-#define BR_DMA_ERQ_ERQ14(x)  (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ14))
+#define BR_DMA_ERQ_ERQ14(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ14)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ14. */
 #define BF_DMA_ERQ_ERQ14(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ14) & BM_DMA_ERQ_ERQ14)
 
 /*! @brief Set the ERQ14 field to a new value. */
-#define BW_DMA_ERQ_ERQ14(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ14) = (v))
+#define BW_DMA_ERQ_ERQ14(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ14), v))
 /*@}*/
 
 /*!
@@ -1065,13 +1072,13 @@ typedef union _hw_dma_erq
 #define BS_DMA_ERQ_ERQ15     (1U)          /*!< Bit field size in bits for DMA_ERQ_ERQ15. */
 
 /*! @brief Read current value of the DMA_ERQ_ERQ15 field. */
-#define BR_DMA_ERQ_ERQ15(x)  (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ15))
+#define BR_DMA_ERQ_ERQ15(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ15)))
 
 /*! @brief Format value for bitfield DMA_ERQ_ERQ15. */
 #define BF_DMA_ERQ_ERQ15(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERQ_ERQ15) & BM_DMA_ERQ_ERQ15)
 
 /*! @brief Set the ERQ15 field to a new value. */
-#define BW_DMA_ERQ_ERQ15(x, v) (BITBAND_ACCESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ15) = (v))
+#define BW_DMA_ERQ_ERQ15(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERQ_ADDR(x), BP_DMA_ERQ_ERQ15), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1124,8 +1131,8 @@ typedef union _hw_dma_eei
 #define HW_DMA_EEI_ADDR(x)       ((x) + 0x14U)
 
 #define HW_DMA_EEI(x)            (*(__IO hw_dma_eei_t *) HW_DMA_EEI_ADDR(x))
-#define HW_DMA_EEI_RD(x)         (HW_DMA_EEI(x).U)
-#define HW_DMA_EEI_WR(x, v)      (HW_DMA_EEI(x).U = (v))
+#define HW_DMA_EEI_RD(x)         (ADDRESS_READ(hw_dma_eei_t, HW_DMA_EEI_ADDR(x)))
+#define HW_DMA_EEI_WR(x, v)      (ADDRESS_WRITE(hw_dma_eei_t, HW_DMA_EEI_ADDR(x), v))
 #define HW_DMA_EEI_SET(x, v)     (HW_DMA_EEI_WR(x, HW_DMA_EEI_RD(x) |  (v)))
 #define HW_DMA_EEI_CLR(x, v)     (HW_DMA_EEI_WR(x, HW_DMA_EEI_RD(x) & ~(v)))
 #define HW_DMA_EEI_TOG(x, v)     (HW_DMA_EEI_WR(x, HW_DMA_EEI_RD(x) ^  (v)))
@@ -1150,13 +1157,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI0      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI0. */
 
 /*! @brief Read current value of the DMA_EEI_EEI0 field. */
-#define BR_DMA_EEI_EEI0(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI0))
+#define BR_DMA_EEI_EEI0(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI0)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI0. */
 #define BF_DMA_EEI_EEI0(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI0) & BM_DMA_EEI_EEI0)
 
 /*! @brief Set the EEI0 field to a new value. */
-#define BW_DMA_EEI_EEI0(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI0) = (v))
+#define BW_DMA_EEI_EEI0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI0), v))
 /*@}*/
 
 /*!
@@ -1174,13 +1181,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI1      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI1. */
 
 /*! @brief Read current value of the DMA_EEI_EEI1 field. */
-#define BR_DMA_EEI_EEI1(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI1))
+#define BR_DMA_EEI_EEI1(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI1)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI1. */
 #define BF_DMA_EEI_EEI1(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI1) & BM_DMA_EEI_EEI1)
 
 /*! @brief Set the EEI1 field to a new value. */
-#define BW_DMA_EEI_EEI1(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI1) = (v))
+#define BW_DMA_EEI_EEI1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI1), v))
 /*@}*/
 
 /*!
@@ -1198,13 +1205,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI2      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI2. */
 
 /*! @brief Read current value of the DMA_EEI_EEI2 field. */
-#define BR_DMA_EEI_EEI2(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI2))
+#define BR_DMA_EEI_EEI2(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI2)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI2. */
 #define BF_DMA_EEI_EEI2(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI2) & BM_DMA_EEI_EEI2)
 
 /*! @brief Set the EEI2 field to a new value. */
-#define BW_DMA_EEI_EEI2(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI2) = (v))
+#define BW_DMA_EEI_EEI2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI2), v))
 /*@}*/
 
 /*!
@@ -1222,13 +1229,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI3      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI3. */
 
 /*! @brief Read current value of the DMA_EEI_EEI3 field. */
-#define BR_DMA_EEI_EEI3(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI3))
+#define BR_DMA_EEI_EEI3(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI3)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI3. */
 #define BF_DMA_EEI_EEI3(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI3) & BM_DMA_EEI_EEI3)
 
 /*! @brief Set the EEI3 field to a new value. */
-#define BW_DMA_EEI_EEI3(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI3) = (v))
+#define BW_DMA_EEI_EEI3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI3), v))
 /*@}*/
 
 /*!
@@ -1246,13 +1253,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI4      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI4. */
 
 /*! @brief Read current value of the DMA_EEI_EEI4 field. */
-#define BR_DMA_EEI_EEI4(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI4))
+#define BR_DMA_EEI_EEI4(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI4)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI4. */
 #define BF_DMA_EEI_EEI4(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI4) & BM_DMA_EEI_EEI4)
 
 /*! @brief Set the EEI4 field to a new value. */
-#define BW_DMA_EEI_EEI4(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI4) = (v))
+#define BW_DMA_EEI_EEI4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI4), v))
 /*@}*/
 
 /*!
@@ -1270,13 +1277,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI5      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI5. */
 
 /*! @brief Read current value of the DMA_EEI_EEI5 field. */
-#define BR_DMA_EEI_EEI5(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI5))
+#define BR_DMA_EEI_EEI5(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI5)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI5. */
 #define BF_DMA_EEI_EEI5(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI5) & BM_DMA_EEI_EEI5)
 
 /*! @brief Set the EEI5 field to a new value. */
-#define BW_DMA_EEI_EEI5(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI5) = (v))
+#define BW_DMA_EEI_EEI5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI5), v))
 /*@}*/
 
 /*!
@@ -1294,13 +1301,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI6      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI6. */
 
 /*! @brief Read current value of the DMA_EEI_EEI6 field. */
-#define BR_DMA_EEI_EEI6(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI6))
+#define BR_DMA_EEI_EEI6(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI6)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI6. */
 #define BF_DMA_EEI_EEI6(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI6) & BM_DMA_EEI_EEI6)
 
 /*! @brief Set the EEI6 field to a new value. */
-#define BW_DMA_EEI_EEI6(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI6) = (v))
+#define BW_DMA_EEI_EEI6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI6), v))
 /*@}*/
 
 /*!
@@ -1318,13 +1325,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI7      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI7. */
 
 /*! @brief Read current value of the DMA_EEI_EEI7 field. */
-#define BR_DMA_EEI_EEI7(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI7))
+#define BR_DMA_EEI_EEI7(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI7)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI7. */
 #define BF_DMA_EEI_EEI7(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI7) & BM_DMA_EEI_EEI7)
 
 /*! @brief Set the EEI7 field to a new value. */
-#define BW_DMA_EEI_EEI7(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI7) = (v))
+#define BW_DMA_EEI_EEI7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI7), v))
 /*@}*/
 
 /*!
@@ -1342,13 +1349,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI8      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI8. */
 
 /*! @brief Read current value of the DMA_EEI_EEI8 field. */
-#define BR_DMA_EEI_EEI8(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI8))
+#define BR_DMA_EEI_EEI8(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI8)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI8. */
 #define BF_DMA_EEI_EEI8(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI8) & BM_DMA_EEI_EEI8)
 
 /*! @brief Set the EEI8 field to a new value. */
-#define BW_DMA_EEI_EEI8(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI8) = (v))
+#define BW_DMA_EEI_EEI8(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI8), v))
 /*@}*/
 
 /*!
@@ -1366,13 +1373,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI9      (1U)          /*!< Bit field size in bits for DMA_EEI_EEI9. */
 
 /*! @brief Read current value of the DMA_EEI_EEI9 field. */
-#define BR_DMA_EEI_EEI9(x)   (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI9))
+#define BR_DMA_EEI_EEI9(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI9)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI9. */
 #define BF_DMA_EEI_EEI9(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI9) & BM_DMA_EEI_EEI9)
 
 /*! @brief Set the EEI9 field to a new value. */
-#define BW_DMA_EEI_EEI9(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI9) = (v))
+#define BW_DMA_EEI_EEI9(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI9), v))
 /*@}*/
 
 /*!
@@ -1390,13 +1397,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI10     (1U)          /*!< Bit field size in bits for DMA_EEI_EEI10. */
 
 /*! @brief Read current value of the DMA_EEI_EEI10 field. */
-#define BR_DMA_EEI_EEI10(x)  (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI10))
+#define BR_DMA_EEI_EEI10(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI10)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI10. */
 #define BF_DMA_EEI_EEI10(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI10) & BM_DMA_EEI_EEI10)
 
 /*! @brief Set the EEI10 field to a new value. */
-#define BW_DMA_EEI_EEI10(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI10) = (v))
+#define BW_DMA_EEI_EEI10(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI10), v))
 /*@}*/
 
 /*!
@@ -1414,13 +1421,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI11     (1U)          /*!< Bit field size in bits for DMA_EEI_EEI11. */
 
 /*! @brief Read current value of the DMA_EEI_EEI11 field. */
-#define BR_DMA_EEI_EEI11(x)  (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI11))
+#define BR_DMA_EEI_EEI11(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI11)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI11. */
 #define BF_DMA_EEI_EEI11(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI11) & BM_DMA_EEI_EEI11)
 
 /*! @brief Set the EEI11 field to a new value. */
-#define BW_DMA_EEI_EEI11(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI11) = (v))
+#define BW_DMA_EEI_EEI11(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI11), v))
 /*@}*/
 
 /*!
@@ -1438,13 +1445,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI12     (1U)          /*!< Bit field size in bits for DMA_EEI_EEI12. */
 
 /*! @brief Read current value of the DMA_EEI_EEI12 field. */
-#define BR_DMA_EEI_EEI12(x)  (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI12))
+#define BR_DMA_EEI_EEI12(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI12)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI12. */
 #define BF_DMA_EEI_EEI12(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI12) & BM_DMA_EEI_EEI12)
 
 /*! @brief Set the EEI12 field to a new value. */
-#define BW_DMA_EEI_EEI12(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI12) = (v))
+#define BW_DMA_EEI_EEI12(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI12), v))
 /*@}*/
 
 /*!
@@ -1462,13 +1469,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI13     (1U)          /*!< Bit field size in bits for DMA_EEI_EEI13. */
 
 /*! @brief Read current value of the DMA_EEI_EEI13 field. */
-#define BR_DMA_EEI_EEI13(x)  (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI13))
+#define BR_DMA_EEI_EEI13(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI13)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI13. */
 #define BF_DMA_EEI_EEI13(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI13) & BM_DMA_EEI_EEI13)
 
 /*! @brief Set the EEI13 field to a new value. */
-#define BW_DMA_EEI_EEI13(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI13) = (v))
+#define BW_DMA_EEI_EEI13(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI13), v))
 /*@}*/
 
 /*!
@@ -1486,13 +1493,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI14     (1U)          /*!< Bit field size in bits for DMA_EEI_EEI14. */
 
 /*! @brief Read current value of the DMA_EEI_EEI14 field. */
-#define BR_DMA_EEI_EEI14(x)  (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI14))
+#define BR_DMA_EEI_EEI14(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI14)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI14. */
 #define BF_DMA_EEI_EEI14(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI14) & BM_DMA_EEI_EEI14)
 
 /*! @brief Set the EEI14 field to a new value. */
-#define BW_DMA_EEI_EEI14(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI14) = (v))
+#define BW_DMA_EEI_EEI14(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI14), v))
 /*@}*/
 
 /*!
@@ -1510,13 +1517,13 @@ typedef union _hw_dma_eei
 #define BS_DMA_EEI_EEI15     (1U)          /*!< Bit field size in bits for DMA_EEI_EEI15. */
 
 /*! @brief Read current value of the DMA_EEI_EEI15 field. */
-#define BR_DMA_EEI_EEI15(x)  (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI15))
+#define BR_DMA_EEI_EEI15(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI15)))
 
 /*! @brief Format value for bitfield DMA_EEI_EEI15. */
 #define BF_DMA_EEI_EEI15(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_EEI_EEI15) & BM_DMA_EEI_EEI15)
 
 /*! @brief Set the EEI15 field to a new value. */
-#define BW_DMA_EEI_EEI15(x, v) (BITBAND_ACCESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI15) = (v))
+#define BW_DMA_EEI_EEI15(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_EEI_ADDR(x), BP_DMA_EEI_EEI15), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1555,8 +1562,8 @@ typedef union _hw_dma_ceei
 #define HW_DMA_CEEI_ADDR(x)      ((x) + 0x18U)
 
 #define HW_DMA_CEEI(x)           (*(__O hw_dma_ceei_t *) HW_DMA_CEEI_ADDR(x))
-#define HW_DMA_CEEI_RD(x)        (HW_DMA_CEEI(x).U)
-#define HW_DMA_CEEI_WR(x, v)     (HW_DMA_CEEI(x).U = (v))
+#define HW_DMA_CEEI_RD(x)        (ADDRESS_READ(hw_dma_ceei_t, HW_DMA_CEEI_ADDR(x)))
+#define HW_DMA_CEEI_WR(x, v)     (ADDRESS_WRITE(hw_dma_ceei_t, HW_DMA_CEEI_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1596,7 +1603,7 @@ typedef union _hw_dma_ceei
 #define BF_DMA_CEEI_CAEE(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_CEEI_CAEE) & BM_DMA_CEEI_CAEE)
 
 /*! @brief Set the CAEE field to a new value. */
-#define BW_DMA_CEEI_CAEE(x, v) (BITBAND_ACCESS8(HW_DMA_CEEI_ADDR(x), BP_DMA_CEEI_CAEE) = (v))
+#define BW_DMA_CEEI_CAEE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CEEI_ADDR(x), BP_DMA_CEEI_CAEE), v))
 /*@}*/
 
 /*!
@@ -1615,7 +1622,7 @@ typedef union _hw_dma_ceei
 #define BF_DMA_CEEI_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_CEEI_NOP) & BM_DMA_CEEI_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_CEEI_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_CEEI_ADDR(x), BP_DMA_CEEI_NOP) = (v))
+#define BW_DMA_CEEI_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CEEI_ADDR(x), BP_DMA_CEEI_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1654,8 +1661,8 @@ typedef union _hw_dma_seei
 #define HW_DMA_SEEI_ADDR(x)      ((x) + 0x19U)
 
 #define HW_DMA_SEEI(x)           (*(__O hw_dma_seei_t *) HW_DMA_SEEI_ADDR(x))
-#define HW_DMA_SEEI_RD(x)        (HW_DMA_SEEI(x).U)
-#define HW_DMA_SEEI_WR(x, v)     (HW_DMA_SEEI(x).U = (v))
+#define HW_DMA_SEEI_RD(x)        (ADDRESS_READ(hw_dma_seei_t, HW_DMA_SEEI_ADDR(x)))
+#define HW_DMA_SEEI_WR(x, v)     (ADDRESS_WRITE(hw_dma_seei_t, HW_DMA_SEEI_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1695,7 +1702,7 @@ typedef union _hw_dma_seei
 #define BF_DMA_SEEI_SAEE(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_SEEI_SAEE) & BM_DMA_SEEI_SAEE)
 
 /*! @brief Set the SAEE field to a new value. */
-#define BW_DMA_SEEI_SAEE(x, v) (BITBAND_ACCESS8(HW_DMA_SEEI_ADDR(x), BP_DMA_SEEI_SAEE) = (v))
+#define BW_DMA_SEEI_SAEE(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_SEEI_ADDR(x), BP_DMA_SEEI_SAEE), v))
 /*@}*/
 
 /*!
@@ -1714,7 +1721,7 @@ typedef union _hw_dma_seei
 #define BF_DMA_SEEI_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_SEEI_NOP) & BM_DMA_SEEI_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_SEEI_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_SEEI_ADDR(x), BP_DMA_SEEI_NOP) = (v))
+#define BW_DMA_SEEI_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_SEEI_ADDR(x), BP_DMA_SEEI_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1753,8 +1760,8 @@ typedef union _hw_dma_cerq
 #define HW_DMA_CERQ_ADDR(x)      ((x) + 0x1AU)
 
 #define HW_DMA_CERQ(x)           (*(__O hw_dma_cerq_t *) HW_DMA_CERQ_ADDR(x))
-#define HW_DMA_CERQ_RD(x)        (HW_DMA_CERQ(x).U)
-#define HW_DMA_CERQ_WR(x, v)     (HW_DMA_CERQ(x).U = (v))
+#define HW_DMA_CERQ_RD(x)        (ADDRESS_READ(hw_dma_cerq_t, HW_DMA_CERQ_ADDR(x)))
+#define HW_DMA_CERQ_WR(x, v)     (ADDRESS_WRITE(hw_dma_cerq_t, HW_DMA_CERQ_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1794,7 +1801,7 @@ typedef union _hw_dma_cerq
 #define BF_DMA_CERQ_CAER(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_CERQ_CAER) & BM_DMA_CERQ_CAER)
 
 /*! @brief Set the CAER field to a new value. */
-#define BW_DMA_CERQ_CAER(x, v) (BITBAND_ACCESS8(HW_DMA_CERQ_ADDR(x), BP_DMA_CERQ_CAER) = (v))
+#define BW_DMA_CERQ_CAER(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CERQ_ADDR(x), BP_DMA_CERQ_CAER), v))
 /*@}*/
 
 /*!
@@ -1813,7 +1820,7 @@ typedef union _hw_dma_cerq
 #define BF_DMA_CERQ_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_CERQ_NOP) & BM_DMA_CERQ_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_CERQ_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_CERQ_ADDR(x), BP_DMA_CERQ_NOP) = (v))
+#define BW_DMA_CERQ_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CERQ_ADDR(x), BP_DMA_CERQ_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1851,8 +1858,8 @@ typedef union _hw_dma_serq
 #define HW_DMA_SERQ_ADDR(x)      ((x) + 0x1BU)
 
 #define HW_DMA_SERQ(x)           (*(__O hw_dma_serq_t *) HW_DMA_SERQ_ADDR(x))
-#define HW_DMA_SERQ_RD(x)        (HW_DMA_SERQ(x).U)
-#define HW_DMA_SERQ_WR(x, v)     (HW_DMA_SERQ(x).U = (v))
+#define HW_DMA_SERQ_RD(x)        (ADDRESS_READ(hw_dma_serq_t, HW_DMA_SERQ_ADDR(x)))
+#define HW_DMA_SERQ_WR(x, v)     (ADDRESS_WRITE(hw_dma_serq_t, HW_DMA_SERQ_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1892,7 +1899,7 @@ typedef union _hw_dma_serq
 #define BF_DMA_SERQ_SAER(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_SERQ_SAER) & BM_DMA_SERQ_SAER)
 
 /*! @brief Set the SAER field to a new value. */
-#define BW_DMA_SERQ_SAER(x, v) (BITBAND_ACCESS8(HW_DMA_SERQ_ADDR(x), BP_DMA_SERQ_SAER) = (v))
+#define BW_DMA_SERQ_SAER(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_SERQ_ADDR(x), BP_DMA_SERQ_SAER), v))
 /*@}*/
 
 /*!
@@ -1911,7 +1918,7 @@ typedef union _hw_dma_serq
 #define BF_DMA_SERQ_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_SERQ_NOP) & BM_DMA_SERQ_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_SERQ_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_SERQ_ADDR(x), BP_DMA_SERQ_NOP) = (v))
+#define BW_DMA_SERQ_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_SERQ_ADDR(x), BP_DMA_SERQ_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -1950,8 +1957,8 @@ typedef union _hw_dma_cdne
 #define HW_DMA_CDNE_ADDR(x)      ((x) + 0x1CU)
 
 #define HW_DMA_CDNE(x)           (*(__O hw_dma_cdne_t *) HW_DMA_CDNE_ADDR(x))
-#define HW_DMA_CDNE_RD(x)        (HW_DMA_CDNE(x).U)
-#define HW_DMA_CDNE_WR(x, v)     (HW_DMA_CDNE(x).U = (v))
+#define HW_DMA_CDNE_RD(x)        (ADDRESS_READ(hw_dma_cdne_t, HW_DMA_CDNE_ADDR(x)))
+#define HW_DMA_CDNE_WR(x, v)     (ADDRESS_WRITE(hw_dma_cdne_t, HW_DMA_CDNE_ADDR(x), v))
 /*@}*/
 
 /*
@@ -1991,7 +1998,7 @@ typedef union _hw_dma_cdne
 #define BF_DMA_CDNE_CADN(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_CDNE_CADN) & BM_DMA_CDNE_CADN)
 
 /*! @brief Set the CADN field to a new value. */
-#define BW_DMA_CDNE_CADN(x, v) (BITBAND_ACCESS8(HW_DMA_CDNE_ADDR(x), BP_DMA_CDNE_CADN) = (v))
+#define BW_DMA_CDNE_CADN(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CDNE_ADDR(x), BP_DMA_CDNE_CADN), v))
 /*@}*/
 
 /*!
@@ -2010,7 +2017,7 @@ typedef union _hw_dma_cdne
 #define BF_DMA_CDNE_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_CDNE_NOP) & BM_DMA_CDNE_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_CDNE_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_CDNE_ADDR(x), BP_DMA_CDNE_NOP) = (v))
+#define BW_DMA_CDNE_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CDNE_ADDR(x), BP_DMA_CDNE_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2049,8 +2056,8 @@ typedef union _hw_dma_ssrt
 #define HW_DMA_SSRT_ADDR(x)      ((x) + 0x1DU)
 
 #define HW_DMA_SSRT(x)           (*(__O hw_dma_ssrt_t *) HW_DMA_SSRT_ADDR(x))
-#define HW_DMA_SSRT_RD(x)        (HW_DMA_SSRT(x).U)
-#define HW_DMA_SSRT_WR(x, v)     (HW_DMA_SSRT(x).U = (v))
+#define HW_DMA_SSRT_RD(x)        (ADDRESS_READ(hw_dma_ssrt_t, HW_DMA_SSRT_ADDR(x)))
+#define HW_DMA_SSRT_WR(x, v)     (ADDRESS_WRITE(hw_dma_ssrt_t, HW_DMA_SSRT_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2090,7 +2097,7 @@ typedef union _hw_dma_ssrt
 #define BF_DMA_SSRT_SAST(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_SSRT_SAST) & BM_DMA_SSRT_SAST)
 
 /*! @brief Set the SAST field to a new value. */
-#define BW_DMA_SSRT_SAST(x, v) (BITBAND_ACCESS8(HW_DMA_SSRT_ADDR(x), BP_DMA_SSRT_SAST) = (v))
+#define BW_DMA_SSRT_SAST(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_SSRT_ADDR(x), BP_DMA_SSRT_SAST), v))
 /*@}*/
 
 /*!
@@ -2109,7 +2116,7 @@ typedef union _hw_dma_ssrt
 #define BF_DMA_SSRT_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_SSRT_NOP) & BM_DMA_SSRT_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_SSRT_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_SSRT_ADDR(x), BP_DMA_SSRT_NOP) = (v))
+#define BW_DMA_SSRT_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_SSRT_ADDR(x), BP_DMA_SSRT_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2148,8 +2155,8 @@ typedef union _hw_dma_cerr
 #define HW_DMA_CERR_ADDR(x)      ((x) + 0x1EU)
 
 #define HW_DMA_CERR(x)           (*(__O hw_dma_cerr_t *) HW_DMA_CERR_ADDR(x))
-#define HW_DMA_CERR_RD(x)        (HW_DMA_CERR(x).U)
-#define HW_DMA_CERR_WR(x, v)     (HW_DMA_CERR(x).U = (v))
+#define HW_DMA_CERR_RD(x)        (ADDRESS_READ(hw_dma_cerr_t, HW_DMA_CERR_ADDR(x)))
+#define HW_DMA_CERR_WR(x, v)     (ADDRESS_WRITE(hw_dma_cerr_t, HW_DMA_CERR_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2189,7 +2196,7 @@ typedef union _hw_dma_cerr
 #define BF_DMA_CERR_CAEI(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_CERR_CAEI) & BM_DMA_CERR_CAEI)
 
 /*! @brief Set the CAEI field to a new value. */
-#define BW_DMA_CERR_CAEI(x, v) (BITBAND_ACCESS8(HW_DMA_CERR_ADDR(x), BP_DMA_CERR_CAEI) = (v))
+#define BW_DMA_CERR_CAEI(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CERR_ADDR(x), BP_DMA_CERR_CAEI), v))
 /*@}*/
 
 /*!
@@ -2208,7 +2215,7 @@ typedef union _hw_dma_cerr
 #define BF_DMA_CERR_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_CERR_NOP) & BM_DMA_CERR_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_CERR_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_CERR_ADDR(x), BP_DMA_CERR_NOP) = (v))
+#define BW_DMA_CERR_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CERR_ADDR(x), BP_DMA_CERR_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2247,8 +2254,8 @@ typedef union _hw_dma_cint
 #define HW_DMA_CINT_ADDR(x)      ((x) + 0x1FU)
 
 #define HW_DMA_CINT(x)           (*(__O hw_dma_cint_t *) HW_DMA_CINT_ADDR(x))
-#define HW_DMA_CINT_RD(x)        (HW_DMA_CINT(x).U)
-#define HW_DMA_CINT_WR(x, v)     (HW_DMA_CINT(x).U = (v))
+#define HW_DMA_CINT_RD(x)        (ADDRESS_READ(hw_dma_cint_t, HW_DMA_CINT_ADDR(x)))
+#define HW_DMA_CINT_WR(x, v)     (ADDRESS_WRITE(hw_dma_cint_t, HW_DMA_CINT_ADDR(x), v))
 /*@}*/
 
 /*
@@ -2288,7 +2295,7 @@ typedef union _hw_dma_cint
 #define BF_DMA_CINT_CAIR(v)  ((uint8_t)((uint8_t)(v) << BP_DMA_CINT_CAIR) & BM_DMA_CINT_CAIR)
 
 /*! @brief Set the CAIR field to a new value. */
-#define BW_DMA_CINT_CAIR(x, v) (BITBAND_ACCESS8(HW_DMA_CINT_ADDR(x), BP_DMA_CINT_CAIR) = (v))
+#define BW_DMA_CINT_CAIR(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CINT_ADDR(x), BP_DMA_CINT_CAIR), v))
 /*@}*/
 
 /*!
@@ -2307,7 +2314,7 @@ typedef union _hw_dma_cint
 #define BF_DMA_CINT_NOP(v)   ((uint8_t)((uint8_t)(v) << BP_DMA_CINT_NOP) & BM_DMA_CINT_NOP)
 
 /*! @brief Set the NOP field to a new value. */
-#define BW_DMA_CINT_NOP(x, v) (BITBAND_ACCESS8(HW_DMA_CINT_ADDR(x), BP_DMA_CINT_NOP) = (v))
+#define BW_DMA_CINT_NOP(x, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_CINT_ADDR(x), BP_DMA_CINT_NOP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2367,8 +2374,8 @@ typedef union _hw_dma_int
 #define HW_DMA_INT_ADDR(x)       ((x) + 0x24U)
 
 #define HW_DMA_INT(x)            (*(__IO hw_dma_int_t *) HW_DMA_INT_ADDR(x))
-#define HW_DMA_INT_RD(x)         (HW_DMA_INT(x).U)
-#define HW_DMA_INT_WR(x, v)      (HW_DMA_INT(x).U = (v))
+#define HW_DMA_INT_RD(x)         (ADDRESS_READ(hw_dma_int_t, HW_DMA_INT_ADDR(x)))
+#define HW_DMA_INT_WR(x, v)      (ADDRESS_WRITE(hw_dma_int_t, HW_DMA_INT_ADDR(x), v))
 #define HW_DMA_INT_SET(x, v)     (HW_DMA_INT_WR(x, HW_DMA_INT_RD(x) |  (v)))
 #define HW_DMA_INT_CLR(x, v)     (HW_DMA_INT_WR(x, HW_DMA_INT_RD(x) & ~(v)))
 #define HW_DMA_INT_TOG(x, v)     (HW_DMA_INT_WR(x, HW_DMA_INT_RD(x) ^  (v)))
@@ -2391,13 +2398,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT0      (1U)          /*!< Bit field size in bits for DMA_INT_INT0. */
 
 /*! @brief Read current value of the DMA_INT_INT0 field. */
-#define BR_DMA_INT_INT0(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT0))
+#define BR_DMA_INT_INT0(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT0)))
 
 /*! @brief Format value for bitfield DMA_INT_INT0. */
 #define BF_DMA_INT_INT0(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT0) & BM_DMA_INT_INT0)
 
 /*! @brief Set the INT0 field to a new value. */
-#define BW_DMA_INT_INT0(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT0) = (v))
+#define BW_DMA_INT_INT0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT0), v))
 /*@}*/
 
 /*!
@@ -2413,13 +2420,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT1      (1U)          /*!< Bit field size in bits for DMA_INT_INT1. */
 
 /*! @brief Read current value of the DMA_INT_INT1 field. */
-#define BR_DMA_INT_INT1(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT1))
+#define BR_DMA_INT_INT1(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT1)))
 
 /*! @brief Format value for bitfield DMA_INT_INT1. */
 #define BF_DMA_INT_INT1(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT1) & BM_DMA_INT_INT1)
 
 /*! @brief Set the INT1 field to a new value. */
-#define BW_DMA_INT_INT1(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT1) = (v))
+#define BW_DMA_INT_INT1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT1), v))
 /*@}*/
 
 /*!
@@ -2435,13 +2442,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT2      (1U)          /*!< Bit field size in bits for DMA_INT_INT2. */
 
 /*! @brief Read current value of the DMA_INT_INT2 field. */
-#define BR_DMA_INT_INT2(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT2))
+#define BR_DMA_INT_INT2(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT2)))
 
 /*! @brief Format value for bitfield DMA_INT_INT2. */
 #define BF_DMA_INT_INT2(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT2) & BM_DMA_INT_INT2)
 
 /*! @brief Set the INT2 field to a new value. */
-#define BW_DMA_INT_INT2(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT2) = (v))
+#define BW_DMA_INT_INT2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT2), v))
 /*@}*/
 
 /*!
@@ -2457,13 +2464,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT3      (1U)          /*!< Bit field size in bits for DMA_INT_INT3. */
 
 /*! @brief Read current value of the DMA_INT_INT3 field. */
-#define BR_DMA_INT_INT3(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT3))
+#define BR_DMA_INT_INT3(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT3)))
 
 /*! @brief Format value for bitfield DMA_INT_INT3. */
 #define BF_DMA_INT_INT3(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT3) & BM_DMA_INT_INT3)
 
 /*! @brief Set the INT3 field to a new value. */
-#define BW_DMA_INT_INT3(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT3) = (v))
+#define BW_DMA_INT_INT3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT3), v))
 /*@}*/
 
 /*!
@@ -2479,13 +2486,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT4      (1U)          /*!< Bit field size in bits for DMA_INT_INT4. */
 
 /*! @brief Read current value of the DMA_INT_INT4 field. */
-#define BR_DMA_INT_INT4(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT4))
+#define BR_DMA_INT_INT4(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT4)))
 
 /*! @brief Format value for bitfield DMA_INT_INT4. */
 #define BF_DMA_INT_INT4(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT4) & BM_DMA_INT_INT4)
 
 /*! @brief Set the INT4 field to a new value. */
-#define BW_DMA_INT_INT4(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT4) = (v))
+#define BW_DMA_INT_INT4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT4), v))
 /*@}*/
 
 /*!
@@ -2501,13 +2508,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT5      (1U)          /*!< Bit field size in bits for DMA_INT_INT5. */
 
 /*! @brief Read current value of the DMA_INT_INT5 field. */
-#define BR_DMA_INT_INT5(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT5))
+#define BR_DMA_INT_INT5(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT5)))
 
 /*! @brief Format value for bitfield DMA_INT_INT5. */
 #define BF_DMA_INT_INT5(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT5) & BM_DMA_INT_INT5)
 
 /*! @brief Set the INT5 field to a new value. */
-#define BW_DMA_INT_INT5(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT5) = (v))
+#define BW_DMA_INT_INT5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT5), v))
 /*@}*/
 
 /*!
@@ -2523,13 +2530,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT6      (1U)          /*!< Bit field size in bits for DMA_INT_INT6. */
 
 /*! @brief Read current value of the DMA_INT_INT6 field. */
-#define BR_DMA_INT_INT6(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT6))
+#define BR_DMA_INT_INT6(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT6)))
 
 /*! @brief Format value for bitfield DMA_INT_INT6. */
 #define BF_DMA_INT_INT6(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT6) & BM_DMA_INT_INT6)
 
 /*! @brief Set the INT6 field to a new value. */
-#define BW_DMA_INT_INT6(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT6) = (v))
+#define BW_DMA_INT_INT6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT6), v))
 /*@}*/
 
 /*!
@@ -2545,13 +2552,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT7      (1U)          /*!< Bit field size in bits for DMA_INT_INT7. */
 
 /*! @brief Read current value of the DMA_INT_INT7 field. */
-#define BR_DMA_INT_INT7(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT7))
+#define BR_DMA_INT_INT7(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT7)))
 
 /*! @brief Format value for bitfield DMA_INT_INT7. */
 #define BF_DMA_INT_INT7(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT7) & BM_DMA_INT_INT7)
 
 /*! @brief Set the INT7 field to a new value. */
-#define BW_DMA_INT_INT7(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT7) = (v))
+#define BW_DMA_INT_INT7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT7), v))
 /*@}*/
 
 /*!
@@ -2567,13 +2574,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT8      (1U)          /*!< Bit field size in bits for DMA_INT_INT8. */
 
 /*! @brief Read current value of the DMA_INT_INT8 field. */
-#define BR_DMA_INT_INT8(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT8))
+#define BR_DMA_INT_INT8(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT8)))
 
 /*! @brief Format value for bitfield DMA_INT_INT8. */
 #define BF_DMA_INT_INT8(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT8) & BM_DMA_INT_INT8)
 
 /*! @brief Set the INT8 field to a new value. */
-#define BW_DMA_INT_INT8(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT8) = (v))
+#define BW_DMA_INT_INT8(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT8), v))
 /*@}*/
 
 /*!
@@ -2589,13 +2596,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT9      (1U)          /*!< Bit field size in bits for DMA_INT_INT9. */
 
 /*! @brief Read current value of the DMA_INT_INT9 field. */
-#define BR_DMA_INT_INT9(x)   (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT9))
+#define BR_DMA_INT_INT9(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT9)))
 
 /*! @brief Format value for bitfield DMA_INT_INT9. */
 #define BF_DMA_INT_INT9(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT9) & BM_DMA_INT_INT9)
 
 /*! @brief Set the INT9 field to a new value. */
-#define BW_DMA_INT_INT9(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT9) = (v))
+#define BW_DMA_INT_INT9(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT9), v))
 /*@}*/
 
 /*!
@@ -2611,13 +2618,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT10     (1U)          /*!< Bit field size in bits for DMA_INT_INT10. */
 
 /*! @brief Read current value of the DMA_INT_INT10 field. */
-#define BR_DMA_INT_INT10(x)  (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT10))
+#define BR_DMA_INT_INT10(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT10)))
 
 /*! @brief Format value for bitfield DMA_INT_INT10. */
 #define BF_DMA_INT_INT10(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT10) & BM_DMA_INT_INT10)
 
 /*! @brief Set the INT10 field to a new value. */
-#define BW_DMA_INT_INT10(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT10) = (v))
+#define BW_DMA_INT_INT10(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT10), v))
 /*@}*/
 
 /*!
@@ -2633,13 +2640,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT11     (1U)          /*!< Bit field size in bits for DMA_INT_INT11. */
 
 /*! @brief Read current value of the DMA_INT_INT11 field. */
-#define BR_DMA_INT_INT11(x)  (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT11))
+#define BR_DMA_INT_INT11(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT11)))
 
 /*! @brief Format value for bitfield DMA_INT_INT11. */
 #define BF_DMA_INT_INT11(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT11) & BM_DMA_INT_INT11)
 
 /*! @brief Set the INT11 field to a new value. */
-#define BW_DMA_INT_INT11(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT11) = (v))
+#define BW_DMA_INT_INT11(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT11), v))
 /*@}*/
 
 /*!
@@ -2655,13 +2662,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT12     (1U)          /*!< Bit field size in bits for DMA_INT_INT12. */
 
 /*! @brief Read current value of the DMA_INT_INT12 field. */
-#define BR_DMA_INT_INT12(x)  (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT12))
+#define BR_DMA_INT_INT12(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT12)))
 
 /*! @brief Format value for bitfield DMA_INT_INT12. */
 #define BF_DMA_INT_INT12(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT12) & BM_DMA_INT_INT12)
 
 /*! @brief Set the INT12 field to a new value. */
-#define BW_DMA_INT_INT12(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT12) = (v))
+#define BW_DMA_INT_INT12(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT12), v))
 /*@}*/
 
 /*!
@@ -2677,13 +2684,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT13     (1U)          /*!< Bit field size in bits for DMA_INT_INT13. */
 
 /*! @brief Read current value of the DMA_INT_INT13 field. */
-#define BR_DMA_INT_INT13(x)  (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT13))
+#define BR_DMA_INT_INT13(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT13)))
 
 /*! @brief Format value for bitfield DMA_INT_INT13. */
 #define BF_DMA_INT_INT13(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT13) & BM_DMA_INT_INT13)
 
 /*! @brief Set the INT13 field to a new value. */
-#define BW_DMA_INT_INT13(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT13) = (v))
+#define BW_DMA_INT_INT13(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT13), v))
 /*@}*/
 
 /*!
@@ -2699,13 +2706,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT14     (1U)          /*!< Bit field size in bits for DMA_INT_INT14. */
 
 /*! @brief Read current value of the DMA_INT_INT14 field. */
-#define BR_DMA_INT_INT14(x)  (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT14))
+#define BR_DMA_INT_INT14(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT14)))
 
 /*! @brief Format value for bitfield DMA_INT_INT14. */
 #define BF_DMA_INT_INT14(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT14) & BM_DMA_INT_INT14)
 
 /*! @brief Set the INT14 field to a new value. */
-#define BW_DMA_INT_INT14(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT14) = (v))
+#define BW_DMA_INT_INT14(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT14), v))
 /*@}*/
 
 /*!
@@ -2721,13 +2728,13 @@ typedef union _hw_dma_int
 #define BS_DMA_INT_INT15     (1U)          /*!< Bit field size in bits for DMA_INT_INT15. */
 
 /*! @brief Read current value of the DMA_INT_INT15 field. */
-#define BR_DMA_INT_INT15(x)  (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT15))
+#define BR_DMA_INT_INT15(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT15)))
 
 /*! @brief Format value for bitfield DMA_INT_INT15. */
 #define BF_DMA_INT_INT15(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_INT_INT15) & BM_DMA_INT_INT15)
 
 /*! @brief Set the INT15 field to a new value. */
-#define BW_DMA_INT_INT15(x, v) (BITBAND_ACCESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT15) = (v))
+#define BW_DMA_INT_INT15(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_INT_ADDR(x), BP_DMA_INT_INT15), v))
 /*@}*/
 
 /*******************************************************************************
@@ -2790,8 +2797,8 @@ typedef union _hw_dma_err
 #define HW_DMA_ERR_ADDR(x)       ((x) + 0x2CU)
 
 #define HW_DMA_ERR(x)            (*(__IO hw_dma_err_t *) HW_DMA_ERR_ADDR(x))
-#define HW_DMA_ERR_RD(x)         (HW_DMA_ERR(x).U)
-#define HW_DMA_ERR_WR(x, v)      (HW_DMA_ERR(x).U = (v))
+#define HW_DMA_ERR_RD(x)         (ADDRESS_READ(hw_dma_err_t, HW_DMA_ERR_ADDR(x)))
+#define HW_DMA_ERR_WR(x, v)      (ADDRESS_WRITE(hw_dma_err_t, HW_DMA_ERR_ADDR(x), v))
 #define HW_DMA_ERR_SET(x, v)     (HW_DMA_ERR_WR(x, HW_DMA_ERR_RD(x) |  (v)))
 #define HW_DMA_ERR_CLR(x, v)     (HW_DMA_ERR_WR(x, HW_DMA_ERR_RD(x) & ~(v)))
 #define HW_DMA_ERR_TOG(x, v)     (HW_DMA_ERR_WR(x, HW_DMA_ERR_RD(x) ^  (v)))
@@ -2814,13 +2821,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR0      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR0. */
 
 /*! @brief Read current value of the DMA_ERR_ERR0 field. */
-#define BR_DMA_ERR_ERR0(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR0))
+#define BR_DMA_ERR_ERR0(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR0)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR0. */
 #define BF_DMA_ERR_ERR0(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR0) & BM_DMA_ERR_ERR0)
 
 /*! @brief Set the ERR0 field to a new value. */
-#define BW_DMA_ERR_ERR0(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR0) = (v))
+#define BW_DMA_ERR_ERR0(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR0), v))
 /*@}*/
 
 /*!
@@ -2836,13 +2843,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR1      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR1. */
 
 /*! @brief Read current value of the DMA_ERR_ERR1 field. */
-#define BR_DMA_ERR_ERR1(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR1))
+#define BR_DMA_ERR_ERR1(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR1)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR1. */
 #define BF_DMA_ERR_ERR1(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR1) & BM_DMA_ERR_ERR1)
 
 /*! @brief Set the ERR1 field to a new value. */
-#define BW_DMA_ERR_ERR1(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR1) = (v))
+#define BW_DMA_ERR_ERR1(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR1), v))
 /*@}*/
 
 /*!
@@ -2858,13 +2865,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR2      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR2. */
 
 /*! @brief Read current value of the DMA_ERR_ERR2 field. */
-#define BR_DMA_ERR_ERR2(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR2))
+#define BR_DMA_ERR_ERR2(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR2)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR2. */
 #define BF_DMA_ERR_ERR2(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR2) & BM_DMA_ERR_ERR2)
 
 /*! @brief Set the ERR2 field to a new value. */
-#define BW_DMA_ERR_ERR2(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR2) = (v))
+#define BW_DMA_ERR_ERR2(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR2), v))
 /*@}*/
 
 /*!
@@ -2880,13 +2887,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR3      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR3. */
 
 /*! @brief Read current value of the DMA_ERR_ERR3 field. */
-#define BR_DMA_ERR_ERR3(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR3))
+#define BR_DMA_ERR_ERR3(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR3)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR3. */
 #define BF_DMA_ERR_ERR3(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR3) & BM_DMA_ERR_ERR3)
 
 /*! @brief Set the ERR3 field to a new value. */
-#define BW_DMA_ERR_ERR3(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR3) = (v))
+#define BW_DMA_ERR_ERR3(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR3), v))
 /*@}*/
 
 /*!
@@ -2902,13 +2909,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR4      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR4. */
 
 /*! @brief Read current value of the DMA_ERR_ERR4 field. */
-#define BR_DMA_ERR_ERR4(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR4))
+#define BR_DMA_ERR_ERR4(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR4)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR4. */
 #define BF_DMA_ERR_ERR4(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR4) & BM_DMA_ERR_ERR4)
 
 /*! @brief Set the ERR4 field to a new value. */
-#define BW_DMA_ERR_ERR4(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR4) = (v))
+#define BW_DMA_ERR_ERR4(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR4), v))
 /*@}*/
 
 /*!
@@ -2924,13 +2931,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR5      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR5. */
 
 /*! @brief Read current value of the DMA_ERR_ERR5 field. */
-#define BR_DMA_ERR_ERR5(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR5))
+#define BR_DMA_ERR_ERR5(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR5)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR5. */
 #define BF_DMA_ERR_ERR5(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR5) & BM_DMA_ERR_ERR5)
 
 /*! @brief Set the ERR5 field to a new value. */
-#define BW_DMA_ERR_ERR5(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR5) = (v))
+#define BW_DMA_ERR_ERR5(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR5), v))
 /*@}*/
 
 /*!
@@ -2946,13 +2953,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR6      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR6. */
 
 /*! @brief Read current value of the DMA_ERR_ERR6 field. */
-#define BR_DMA_ERR_ERR6(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR6))
+#define BR_DMA_ERR_ERR6(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR6)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR6. */
 #define BF_DMA_ERR_ERR6(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR6) & BM_DMA_ERR_ERR6)
 
 /*! @brief Set the ERR6 field to a new value. */
-#define BW_DMA_ERR_ERR6(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR6) = (v))
+#define BW_DMA_ERR_ERR6(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR6), v))
 /*@}*/
 
 /*!
@@ -2968,13 +2975,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR7      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR7. */
 
 /*! @brief Read current value of the DMA_ERR_ERR7 field. */
-#define BR_DMA_ERR_ERR7(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR7))
+#define BR_DMA_ERR_ERR7(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR7)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR7. */
 #define BF_DMA_ERR_ERR7(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR7) & BM_DMA_ERR_ERR7)
 
 /*! @brief Set the ERR7 field to a new value. */
-#define BW_DMA_ERR_ERR7(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR7) = (v))
+#define BW_DMA_ERR_ERR7(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR7), v))
 /*@}*/
 
 /*!
@@ -2990,13 +2997,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR8      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR8. */
 
 /*! @brief Read current value of the DMA_ERR_ERR8 field. */
-#define BR_DMA_ERR_ERR8(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR8))
+#define BR_DMA_ERR_ERR8(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR8)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR8. */
 #define BF_DMA_ERR_ERR8(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR8) & BM_DMA_ERR_ERR8)
 
 /*! @brief Set the ERR8 field to a new value. */
-#define BW_DMA_ERR_ERR8(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR8) = (v))
+#define BW_DMA_ERR_ERR8(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR8), v))
 /*@}*/
 
 /*!
@@ -3012,13 +3019,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR9      (1U)          /*!< Bit field size in bits for DMA_ERR_ERR9. */
 
 /*! @brief Read current value of the DMA_ERR_ERR9 field. */
-#define BR_DMA_ERR_ERR9(x)   (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR9))
+#define BR_DMA_ERR_ERR9(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR9)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR9. */
 #define BF_DMA_ERR_ERR9(v)   ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR9) & BM_DMA_ERR_ERR9)
 
 /*! @brief Set the ERR9 field to a new value. */
-#define BW_DMA_ERR_ERR9(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR9) = (v))
+#define BW_DMA_ERR_ERR9(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR9), v))
 /*@}*/
 
 /*!
@@ -3034,13 +3041,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR10     (1U)          /*!< Bit field size in bits for DMA_ERR_ERR10. */
 
 /*! @brief Read current value of the DMA_ERR_ERR10 field. */
-#define BR_DMA_ERR_ERR10(x)  (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR10))
+#define BR_DMA_ERR_ERR10(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR10)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR10. */
 #define BF_DMA_ERR_ERR10(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR10) & BM_DMA_ERR_ERR10)
 
 /*! @brief Set the ERR10 field to a new value. */
-#define BW_DMA_ERR_ERR10(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR10) = (v))
+#define BW_DMA_ERR_ERR10(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR10), v))
 /*@}*/
 
 /*!
@@ -3056,13 +3063,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR11     (1U)          /*!< Bit field size in bits for DMA_ERR_ERR11. */
 
 /*! @brief Read current value of the DMA_ERR_ERR11 field. */
-#define BR_DMA_ERR_ERR11(x)  (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR11))
+#define BR_DMA_ERR_ERR11(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR11)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR11. */
 #define BF_DMA_ERR_ERR11(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR11) & BM_DMA_ERR_ERR11)
 
 /*! @brief Set the ERR11 field to a new value. */
-#define BW_DMA_ERR_ERR11(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR11) = (v))
+#define BW_DMA_ERR_ERR11(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR11), v))
 /*@}*/
 
 /*!
@@ -3078,13 +3085,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR12     (1U)          /*!< Bit field size in bits for DMA_ERR_ERR12. */
 
 /*! @brief Read current value of the DMA_ERR_ERR12 field. */
-#define BR_DMA_ERR_ERR12(x)  (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR12))
+#define BR_DMA_ERR_ERR12(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR12)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR12. */
 #define BF_DMA_ERR_ERR12(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR12) & BM_DMA_ERR_ERR12)
 
 /*! @brief Set the ERR12 field to a new value. */
-#define BW_DMA_ERR_ERR12(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR12) = (v))
+#define BW_DMA_ERR_ERR12(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR12), v))
 /*@}*/
 
 /*!
@@ -3100,13 +3107,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR13     (1U)          /*!< Bit field size in bits for DMA_ERR_ERR13. */
 
 /*! @brief Read current value of the DMA_ERR_ERR13 field. */
-#define BR_DMA_ERR_ERR13(x)  (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR13))
+#define BR_DMA_ERR_ERR13(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR13)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR13. */
 #define BF_DMA_ERR_ERR13(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR13) & BM_DMA_ERR_ERR13)
 
 /*! @brief Set the ERR13 field to a new value. */
-#define BW_DMA_ERR_ERR13(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR13) = (v))
+#define BW_DMA_ERR_ERR13(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR13), v))
 /*@}*/
 
 /*!
@@ -3122,13 +3129,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR14     (1U)          /*!< Bit field size in bits for DMA_ERR_ERR14. */
 
 /*! @brief Read current value of the DMA_ERR_ERR14 field. */
-#define BR_DMA_ERR_ERR14(x)  (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR14))
+#define BR_DMA_ERR_ERR14(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR14)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR14. */
 #define BF_DMA_ERR_ERR14(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR14) & BM_DMA_ERR_ERR14)
 
 /*! @brief Set the ERR14 field to a new value. */
-#define BW_DMA_ERR_ERR14(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR14) = (v))
+#define BW_DMA_ERR_ERR14(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR14), v))
 /*@}*/
 
 /*!
@@ -3144,13 +3151,13 @@ typedef union _hw_dma_err
 #define BS_DMA_ERR_ERR15     (1U)          /*!< Bit field size in bits for DMA_ERR_ERR15. */
 
 /*! @brief Read current value of the DMA_ERR_ERR15 field. */
-#define BR_DMA_ERR_ERR15(x)  (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR15))
+#define BR_DMA_ERR_ERR15(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR15)))
 
 /*! @brief Format value for bitfield DMA_ERR_ERR15. */
 #define BF_DMA_ERR_ERR15(v)  ((uint32_t)((uint32_t)(v) << BP_DMA_ERR_ERR15) & BM_DMA_ERR_ERR15)
 
 /*! @brief Set the ERR15 field to a new value. */
-#define BW_DMA_ERR_ERR15(x, v) (BITBAND_ACCESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR15) = (v))
+#define BW_DMA_ERR_ERR15(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_ERR_ADDR(x), BP_DMA_ERR_ERR15), v))
 /*@}*/
 
 /*******************************************************************************
@@ -3202,7 +3209,7 @@ typedef union _hw_dma_hrs
 #define HW_DMA_HRS_ADDR(x)       ((x) + 0x34U)
 
 #define HW_DMA_HRS(x)            (*(__I hw_dma_hrs_t *) HW_DMA_HRS_ADDR(x))
-#define HW_DMA_HRS_RD(x)         (HW_DMA_HRS(x).U)
+#define HW_DMA_HRS_RD(x)         (ADDRESS_READ(hw_dma_hrs_t, HW_DMA_HRS_ADDR(x)))
 /*@}*/
 
 /*
@@ -3226,7 +3233,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS0      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS0. */
 
 /*! @brief Read current value of the DMA_HRS_HRS0 field. */
-#define BR_DMA_HRS_HRS0(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS0))
+#define BR_DMA_HRS_HRS0(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS0)))
 /*@}*/
 
 /*!
@@ -3246,7 +3253,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS1      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS1. */
 
 /*! @brief Read current value of the DMA_HRS_HRS1 field. */
-#define BR_DMA_HRS_HRS1(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS1))
+#define BR_DMA_HRS_HRS1(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS1)))
 /*@}*/
 
 /*!
@@ -3266,7 +3273,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS2      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS2. */
 
 /*! @brief Read current value of the DMA_HRS_HRS2 field. */
-#define BR_DMA_HRS_HRS2(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS2))
+#define BR_DMA_HRS_HRS2(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS2)))
 /*@}*/
 
 /*!
@@ -3286,7 +3293,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS3      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS3. */
 
 /*! @brief Read current value of the DMA_HRS_HRS3 field. */
-#define BR_DMA_HRS_HRS3(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS3))
+#define BR_DMA_HRS_HRS3(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS3)))
 /*@}*/
 
 /*!
@@ -3306,7 +3313,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS4      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS4. */
 
 /*! @brief Read current value of the DMA_HRS_HRS4 field. */
-#define BR_DMA_HRS_HRS4(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS4))
+#define BR_DMA_HRS_HRS4(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS4)))
 /*@}*/
 
 /*!
@@ -3326,7 +3333,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS5      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS5. */
 
 /*! @brief Read current value of the DMA_HRS_HRS5 field. */
-#define BR_DMA_HRS_HRS5(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS5))
+#define BR_DMA_HRS_HRS5(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS5)))
 /*@}*/
 
 /*!
@@ -3346,7 +3353,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS6      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS6. */
 
 /*! @brief Read current value of the DMA_HRS_HRS6 field. */
-#define BR_DMA_HRS_HRS6(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS6))
+#define BR_DMA_HRS_HRS6(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS6)))
 /*@}*/
 
 /*!
@@ -3366,7 +3373,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS7      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS7. */
 
 /*! @brief Read current value of the DMA_HRS_HRS7 field. */
-#define BR_DMA_HRS_HRS7(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS7))
+#define BR_DMA_HRS_HRS7(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS7)))
 /*@}*/
 
 /*!
@@ -3386,7 +3393,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS8      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS8. */
 
 /*! @brief Read current value of the DMA_HRS_HRS8 field. */
-#define BR_DMA_HRS_HRS8(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS8))
+#define BR_DMA_HRS_HRS8(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS8)))
 /*@}*/
 
 /*!
@@ -3406,7 +3413,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS9      (1U)          /*!< Bit field size in bits for DMA_HRS_HRS9. */
 
 /*! @brief Read current value of the DMA_HRS_HRS9 field. */
-#define BR_DMA_HRS_HRS9(x)   (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS9))
+#define BR_DMA_HRS_HRS9(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS9)))
 /*@}*/
 
 /*!
@@ -3426,7 +3433,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS10     (1U)          /*!< Bit field size in bits for DMA_HRS_HRS10. */
 
 /*! @brief Read current value of the DMA_HRS_HRS10 field. */
-#define BR_DMA_HRS_HRS10(x)  (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS10))
+#define BR_DMA_HRS_HRS10(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS10)))
 /*@}*/
 
 /*!
@@ -3446,7 +3453,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS11     (1U)          /*!< Bit field size in bits for DMA_HRS_HRS11. */
 
 /*! @brief Read current value of the DMA_HRS_HRS11 field. */
-#define BR_DMA_HRS_HRS11(x)  (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS11))
+#define BR_DMA_HRS_HRS11(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS11)))
 /*@}*/
 
 /*!
@@ -3466,7 +3473,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS12     (1U)          /*!< Bit field size in bits for DMA_HRS_HRS12. */
 
 /*! @brief Read current value of the DMA_HRS_HRS12 field. */
-#define BR_DMA_HRS_HRS12(x)  (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS12))
+#define BR_DMA_HRS_HRS12(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS12)))
 /*@}*/
 
 /*!
@@ -3486,7 +3493,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS13     (1U)          /*!< Bit field size in bits for DMA_HRS_HRS13. */
 
 /*! @brief Read current value of the DMA_HRS_HRS13 field. */
-#define BR_DMA_HRS_HRS13(x)  (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS13))
+#define BR_DMA_HRS_HRS13(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS13)))
 /*@}*/
 
 /*!
@@ -3506,7 +3513,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS14     (1U)          /*!< Bit field size in bits for DMA_HRS_HRS14. */
 
 /*! @brief Read current value of the DMA_HRS_HRS14 field. */
-#define BR_DMA_HRS_HRS14(x)  (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS14))
+#define BR_DMA_HRS_HRS14(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS14)))
 /*@}*/
 
 /*!
@@ -3526,7 +3533,7 @@ typedef union _hw_dma_hrs
 #define BS_DMA_HRS_HRS15     (1U)          /*!< Bit field size in bits for DMA_HRS_HRS15. */
 
 /*! @brief Read current value of the DMA_HRS_HRS15 field. */
-#define BR_DMA_HRS_HRS15(x)  (BITBAND_ACCESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS15))
+#define BR_DMA_HRS_HRS15(x)  (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_HRS_ADDR(x), BP_DMA_HRS_HRS15)))
 /*@}*/
 
 /*******************************************************************************
@@ -3570,8 +3577,8 @@ typedef union _hw_dma_dchprin
 #define HW_DMA_DCHPRIn_CHANNEL(n) (((n) & ~0x03U) | (3 - ((n) & 0x03U)))
 
 #define HW_DMA_DCHPRIn(x, n)     (*(__IO hw_dma_dchprin_t *) HW_DMA_DCHPRIn_ADDR(x, n))
-#define HW_DMA_DCHPRIn_RD(x, n)  (HW_DMA_DCHPRIn(x, n).U)
-#define HW_DMA_DCHPRIn_WR(x, n, v) (HW_DMA_DCHPRIn(x, n).U = (v))
+#define HW_DMA_DCHPRIn_RD(x, n)  (ADDRESS_READ(hw_dma_dchprin_t, HW_DMA_DCHPRIn_ADDR(x, n)))
+#define HW_DMA_DCHPRIn_WR(x, n, v) (ADDRESS_WRITE(hw_dma_dchprin_t, HW_DMA_DCHPRIn_ADDR(x, n), v))
 #define HW_DMA_DCHPRIn_SET(x, n, v) (HW_DMA_DCHPRIn_WR(x, n, HW_DMA_DCHPRIn_RD(x, n) |  (v)))
 #define HW_DMA_DCHPRIn_CLR(x, n, v) (HW_DMA_DCHPRIn_WR(x, n, HW_DMA_DCHPRIn_RD(x, n) & ~(v)))
 #define HW_DMA_DCHPRIn_TOG(x, n, v) (HW_DMA_DCHPRIn_WR(x, n, HW_DMA_DCHPRIn_RD(x, n) ^  (v)))
@@ -3594,7 +3601,7 @@ typedef union _hw_dma_dchprin
 #define BS_DMA_DCHPRIn_CHPRI (4U)          /*!< Bit field size in bits for DMA_DCHPRIn_CHPRI. */
 
 /*! @brief Read current value of the DMA_DCHPRIn_CHPRI field. */
-#define BR_DMA_DCHPRIn_CHPRI(x, n) (HW_DMA_DCHPRIn(x, n).B.CHPRI)
+#define BR_DMA_DCHPRIn_CHPRI(x, n) (UNION_READ(hw_dma_dchprin_t, HW_DMA_DCHPRIn_ADDR(x, n), U, B.CHPRI))
 
 /*! @brief Format value for bitfield DMA_DCHPRIn_CHPRI. */
 #define BF_DMA_DCHPRIn_CHPRI(v) ((uint8_t)((uint8_t)(v) << BP_DMA_DCHPRIn_CHPRI) & BM_DMA_DCHPRIn_CHPRI)
@@ -3616,13 +3623,13 @@ typedef union _hw_dma_dchprin
 #define BS_DMA_DCHPRIn_DPA   (1U)          /*!< Bit field size in bits for DMA_DCHPRIn_DPA. */
 
 /*! @brief Read current value of the DMA_DCHPRIn_DPA field. */
-#define BR_DMA_DCHPRIn_DPA(x, n) (BITBAND_ACCESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_DPA))
+#define BR_DMA_DCHPRIn_DPA(x, n) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_DPA)))
 
 /*! @brief Format value for bitfield DMA_DCHPRIn_DPA. */
 #define BF_DMA_DCHPRIn_DPA(v) ((uint8_t)((uint8_t)(v) << BP_DMA_DCHPRIn_DPA) & BM_DMA_DCHPRIn_DPA)
 
 /*! @brief Set the DPA field to a new value. */
-#define BW_DMA_DCHPRIn_DPA(x, n, v) (BITBAND_ACCESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_DPA) = (v))
+#define BW_DMA_DCHPRIn_DPA(x, n, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_DPA), v))
 /*@}*/
 
 /*!
@@ -3640,13 +3647,13 @@ typedef union _hw_dma_dchprin
 #define BS_DMA_DCHPRIn_ECP   (1U)          /*!< Bit field size in bits for DMA_DCHPRIn_ECP. */
 
 /*! @brief Read current value of the DMA_DCHPRIn_ECP field. */
-#define BR_DMA_DCHPRIn_ECP(x, n) (BITBAND_ACCESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_ECP))
+#define BR_DMA_DCHPRIn_ECP(x, n) (ADDRESS_READ(uint8_t, BITBAND_ADDRESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_ECP)))
 
 /*! @brief Format value for bitfield DMA_DCHPRIn_ECP. */
 #define BF_DMA_DCHPRIn_ECP(v) ((uint8_t)((uint8_t)(v) << BP_DMA_DCHPRIn_ECP) & BM_DMA_DCHPRIn_ECP)
 
 /*! @brief Set the ECP field to a new value. */
-#define BW_DMA_DCHPRIn_ECP(x, n, v) (BITBAND_ACCESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_ECP) = (v))
+#define BW_DMA_DCHPRIn_ECP(x, n, v) (ADDRESS_WRITE(uint8_t, BITBAND_ADDRESS8(HW_DMA_DCHPRIn_ADDR(x, n), BP_DMA_DCHPRIn_ECP), v))
 /*@}*/
 
 /*******************************************************************************
@@ -3676,8 +3683,8 @@ typedef union _hw_dma_tcdn_saddr
 #define HW_DMA_TCDn_SADDR_ADDR(x, n) ((x) + 0x1000U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_SADDR(x, n)  (*(__IO hw_dma_tcdn_saddr_t *) HW_DMA_TCDn_SADDR_ADDR(x, n))
-#define HW_DMA_TCDn_SADDR_RD(x, n) (HW_DMA_TCDn_SADDR(x, n).U)
-#define HW_DMA_TCDn_SADDR_WR(x, n, v) (HW_DMA_TCDn_SADDR(x, n).U = (v))
+#define HW_DMA_TCDn_SADDR_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_saddr_t, HW_DMA_TCDn_SADDR_ADDR(x, n)))
+#define HW_DMA_TCDn_SADDR_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_saddr_t, HW_DMA_TCDn_SADDR_ADDR(x, n), v))
 #define HW_DMA_TCDn_SADDR_SET(x, n, v) (HW_DMA_TCDn_SADDR_WR(x, n, HW_DMA_TCDn_SADDR_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_SADDR_CLR(x, n, v) (HW_DMA_TCDn_SADDR_WR(x, n, HW_DMA_TCDn_SADDR_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_SADDR_TOG(x, n, v) (HW_DMA_TCDn_SADDR_WR(x, n, HW_DMA_TCDn_SADDR_RD(x, n) ^  (v)))
@@ -3733,8 +3740,8 @@ typedef union _hw_dma_tcdn_soff
 #define HW_DMA_TCDn_SOFF_ADDR(x, n) ((x) + 0x1004U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_SOFF(x, n)   (*(__IO hw_dma_tcdn_soff_t *) HW_DMA_TCDn_SOFF_ADDR(x, n))
-#define HW_DMA_TCDn_SOFF_RD(x, n) (HW_DMA_TCDn_SOFF(x, n).U)
-#define HW_DMA_TCDn_SOFF_WR(x, n, v) (HW_DMA_TCDn_SOFF(x, n).U = (v))
+#define HW_DMA_TCDn_SOFF_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_soff_t, HW_DMA_TCDn_SOFF_ADDR(x, n)))
+#define HW_DMA_TCDn_SOFF_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_soff_t, HW_DMA_TCDn_SOFF_ADDR(x, n), v))
 #define HW_DMA_TCDn_SOFF_SET(x, n, v) (HW_DMA_TCDn_SOFF_WR(x, n, HW_DMA_TCDn_SOFF_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_SOFF_CLR(x, n, v) (HW_DMA_TCDn_SOFF_WR(x, n, HW_DMA_TCDn_SOFF_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_SOFF_TOG(x, n, v) (HW_DMA_TCDn_SOFF_WR(x, n, HW_DMA_TCDn_SOFF_RD(x, n) ^  (v)))
@@ -3794,8 +3801,8 @@ typedef union _hw_dma_tcdn_attr
 #define HW_DMA_TCDn_ATTR_ADDR(x, n) ((x) + 0x1006U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_ATTR(x, n)   (*(__IO hw_dma_tcdn_attr_t *) HW_DMA_TCDn_ATTR_ADDR(x, n))
-#define HW_DMA_TCDn_ATTR_RD(x, n) (HW_DMA_TCDn_ATTR(x, n).U)
-#define HW_DMA_TCDn_ATTR_WR(x, n, v) (HW_DMA_TCDn_ATTR(x, n).U = (v))
+#define HW_DMA_TCDn_ATTR_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_attr_t, HW_DMA_TCDn_ATTR_ADDR(x, n)))
+#define HW_DMA_TCDn_ATTR_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_attr_t, HW_DMA_TCDn_ATTR_ADDR(x, n), v))
 #define HW_DMA_TCDn_ATTR_SET(x, n, v) (HW_DMA_TCDn_ATTR_WR(x, n, HW_DMA_TCDn_ATTR_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_ATTR_CLR(x, n, v) (HW_DMA_TCDn_ATTR_WR(x, n, HW_DMA_TCDn_ATTR_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_ATTR_TOG(x, n, v) (HW_DMA_TCDn_ATTR_WR(x, n, HW_DMA_TCDn_ATTR_RD(x, n) ^  (v)))
@@ -3816,7 +3823,7 @@ typedef union _hw_dma_tcdn_attr
 #define BS_DMA_TCDn_ATTR_DSIZE (3U)        /*!< Bit field size in bits for DMA_TCDn_ATTR_DSIZE. */
 
 /*! @brief Read current value of the DMA_TCDn_ATTR_DSIZE field. */
-#define BR_DMA_TCDn_ATTR_DSIZE(x, n) (HW_DMA_TCDn_ATTR(x, n).B.DSIZE)
+#define BR_DMA_TCDn_ATTR_DSIZE(x, n) (UNION_READ(hw_dma_tcdn_attr_t, HW_DMA_TCDn_ATTR_ADDR(x, n), U, B.DSIZE))
 
 /*! @brief Format value for bitfield DMA_TCDn_ATTR_DSIZE. */
 #define BF_DMA_TCDn_ATTR_DSIZE(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_ATTR_DSIZE) & BM_DMA_TCDn_ATTR_DSIZE)
@@ -3836,7 +3843,7 @@ typedef union _hw_dma_tcdn_attr
 #define BS_DMA_TCDn_ATTR_DMOD (5U)         /*!< Bit field size in bits for DMA_TCDn_ATTR_DMOD. */
 
 /*! @brief Read current value of the DMA_TCDn_ATTR_DMOD field. */
-#define BR_DMA_TCDn_ATTR_DMOD(x, n) (HW_DMA_TCDn_ATTR(x, n).B.DMOD)
+#define BR_DMA_TCDn_ATTR_DMOD(x, n) (UNION_READ(hw_dma_tcdn_attr_t, HW_DMA_TCDn_ATTR_ADDR(x, n), U, B.DMOD))
 
 /*! @brief Format value for bitfield DMA_TCDn_ATTR_DMOD. */
 #define BF_DMA_TCDn_ATTR_DMOD(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_ATTR_DMOD) & BM_DMA_TCDn_ATTR_DMOD)
@@ -3866,7 +3873,7 @@ typedef union _hw_dma_tcdn_attr
 #define BS_DMA_TCDn_ATTR_SSIZE (3U)        /*!< Bit field size in bits for DMA_TCDn_ATTR_SSIZE. */
 
 /*! @brief Read current value of the DMA_TCDn_ATTR_SSIZE field. */
-#define BR_DMA_TCDn_ATTR_SSIZE(x, n) (HW_DMA_TCDn_ATTR(x, n).B.SSIZE)
+#define BR_DMA_TCDn_ATTR_SSIZE(x, n) (UNION_READ(hw_dma_tcdn_attr_t, HW_DMA_TCDn_ATTR_ADDR(x, n), U, B.SSIZE))
 
 /*! @brief Format value for bitfield DMA_TCDn_ATTR_SSIZE. */
 #define BF_DMA_TCDn_ATTR_SSIZE(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_ATTR_SSIZE) & BM_DMA_TCDn_ATTR_SSIZE)
@@ -3887,7 +3894,7 @@ typedef union _hw_dma_tcdn_attr
 #define BS_DMA_TCDn_ATTR_SMOD (5U)         /*!< Bit field size in bits for DMA_TCDn_ATTR_SMOD. */
 
 /*! @brief Read current value of the DMA_TCDn_ATTR_SMOD field. */
-#define BR_DMA_TCDn_ATTR_SMOD(x, n) (HW_DMA_TCDn_ATTR(x, n).B.SMOD)
+#define BR_DMA_TCDn_ATTR_SMOD(x, n) (UNION_READ(hw_dma_tcdn_attr_t, HW_DMA_TCDn_ATTR_ADDR(x, n), U, B.SMOD))
 
 /*! @brief Format value for bitfield DMA_TCDn_ATTR_SMOD. */
 #define BF_DMA_TCDn_ATTR_SMOD(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_ATTR_SMOD) & BM_DMA_TCDn_ATTR_SMOD)
@@ -3930,8 +3937,8 @@ typedef union _hw_dma_tcdn_nbytes_mlno
 #define HW_DMA_TCDn_NBYTES_MLNO_ADDR(x, n) ((x) + 0x1008U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_NBYTES_MLNO(x, n) (*(__IO hw_dma_tcdn_nbytes_mlno_t *) HW_DMA_TCDn_NBYTES_MLNO_ADDR(x, n))
-#define HW_DMA_TCDn_NBYTES_MLNO_RD(x, n) (HW_DMA_TCDn_NBYTES_MLNO(x, n).U)
-#define HW_DMA_TCDn_NBYTES_MLNO_WR(x, n, v) (HW_DMA_TCDn_NBYTES_MLNO(x, n).U = (v))
+#define HW_DMA_TCDn_NBYTES_MLNO_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_nbytes_mlno_t, HW_DMA_TCDn_NBYTES_MLNO_ADDR(x, n)))
+#define HW_DMA_TCDn_NBYTES_MLNO_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_nbytes_mlno_t, HW_DMA_TCDn_NBYTES_MLNO_ADDR(x, n), v))
 #define HW_DMA_TCDn_NBYTES_MLNO_SET(x, n, v) (HW_DMA_TCDn_NBYTES_MLNO_WR(x, n, HW_DMA_TCDn_NBYTES_MLNO_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_NBYTES_MLNO_CLR(x, n, v) (HW_DMA_TCDn_NBYTES_MLNO_WR(x, n, HW_DMA_TCDn_NBYTES_MLNO_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_NBYTES_MLNO_TOG(x, n, v) (HW_DMA_TCDn_NBYTES_MLNO_WR(x, n, HW_DMA_TCDn_NBYTES_MLNO_RD(x, n) ^  (v)))
@@ -4007,8 +4014,8 @@ typedef union _hw_dma_tcdn_nbytes_mloffno
 #define HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n) ((x) + 0x1008U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_NBYTES_MLOFFNO(x, n) (*(__IO hw_dma_tcdn_nbytes_mloffno_t *) HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n))
-#define HW_DMA_TCDn_NBYTES_MLOFFNO_RD(x, n) (HW_DMA_TCDn_NBYTES_MLOFFNO(x, n).U)
-#define HW_DMA_TCDn_NBYTES_MLOFFNO_WR(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFNO(x, n).U = (v))
+#define HW_DMA_TCDn_NBYTES_MLOFFNO_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_nbytes_mloffno_t, HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n)))
+#define HW_DMA_TCDn_NBYTES_MLOFFNO_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_nbytes_mloffno_t, HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), v))
 #define HW_DMA_TCDn_NBYTES_MLOFFNO_SET(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFNO_WR(x, n, HW_DMA_TCDn_NBYTES_MLOFFNO_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_NBYTES_MLOFFNO_CLR(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFNO_WR(x, n, HW_DMA_TCDn_NBYTES_MLOFFNO_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_NBYTES_MLOFFNO_TOG(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFNO_WR(x, n, HW_DMA_TCDn_NBYTES_MLOFFNO_RD(x, n) ^  (v)))
@@ -4037,7 +4044,7 @@ typedef union _hw_dma_tcdn_nbytes_mloffno
 #define BS_DMA_TCDn_NBYTES_MLOFFNO_NBYTES (30U) /*!< Bit field size in bits for DMA_TCDn_NBYTES_MLOFFNO_NBYTES. */
 
 /*! @brief Read current value of the DMA_TCDn_NBYTES_MLOFFNO_NBYTES field. */
-#define BR_DMA_TCDn_NBYTES_MLOFFNO_NBYTES(x, n) (HW_DMA_TCDn_NBYTES_MLOFFNO(x, n).B.NBYTES)
+#define BR_DMA_TCDn_NBYTES_MLOFFNO_NBYTES(x, n) (UNION_READ(hw_dma_tcdn_nbytes_mloffno_t, HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), U, B.NBYTES))
 
 /*! @brief Format value for bitfield DMA_TCDn_NBYTES_MLOFFNO_NBYTES. */
 #define BF_DMA_TCDn_NBYTES_MLOFFNO_NBYTES(v) ((uint32_t)((uint32_t)(v) << BP_DMA_TCDn_NBYTES_MLOFFNO_NBYTES) & BM_DMA_TCDn_NBYTES_MLOFFNO_NBYTES)
@@ -4062,13 +4069,13 @@ typedef union _hw_dma_tcdn_nbytes_mloffno
 #define BS_DMA_TCDn_NBYTES_MLOFFNO_DMLOE (1U) /*!< Bit field size in bits for DMA_TCDn_NBYTES_MLOFFNO_DMLOE. */
 
 /*! @brief Read current value of the DMA_TCDn_NBYTES_MLOFFNO_DMLOE field. */
-#define BR_DMA_TCDn_NBYTES_MLOFFNO_DMLOE(x, n) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_DMLOE))
+#define BR_DMA_TCDn_NBYTES_MLOFFNO_DMLOE(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_DMLOE)))
 
 /*! @brief Format value for bitfield DMA_TCDn_NBYTES_MLOFFNO_DMLOE. */
 #define BF_DMA_TCDn_NBYTES_MLOFFNO_DMLOE(v) ((uint32_t)((uint32_t)(v) << BP_DMA_TCDn_NBYTES_MLOFFNO_DMLOE) & BM_DMA_TCDn_NBYTES_MLOFFNO_DMLOE)
 
 /*! @brief Set the DMLOE field to a new value. */
-#define BW_DMA_TCDn_NBYTES_MLOFFNO_DMLOE(x, n, v) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_DMLOE) = (v))
+#define BW_DMA_TCDn_NBYTES_MLOFFNO_DMLOE(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_DMLOE), v))
 /*@}*/
 
 /*!
@@ -4087,13 +4094,13 @@ typedef union _hw_dma_tcdn_nbytes_mloffno
 #define BS_DMA_TCDn_NBYTES_MLOFFNO_SMLOE (1U) /*!< Bit field size in bits for DMA_TCDn_NBYTES_MLOFFNO_SMLOE. */
 
 /*! @brief Read current value of the DMA_TCDn_NBYTES_MLOFFNO_SMLOE field. */
-#define BR_DMA_TCDn_NBYTES_MLOFFNO_SMLOE(x, n) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_SMLOE))
+#define BR_DMA_TCDn_NBYTES_MLOFFNO_SMLOE(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_SMLOE)))
 
 /*! @brief Format value for bitfield DMA_TCDn_NBYTES_MLOFFNO_SMLOE. */
 #define BF_DMA_TCDn_NBYTES_MLOFFNO_SMLOE(v) ((uint32_t)((uint32_t)(v) << BP_DMA_TCDn_NBYTES_MLOFFNO_SMLOE) & BM_DMA_TCDn_NBYTES_MLOFFNO_SMLOE)
 
 /*! @brief Set the SMLOE field to a new value. */
-#define BW_DMA_TCDn_NBYTES_MLOFFNO_SMLOE(x, n, v) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_SMLOE) = (v))
+#define BW_DMA_TCDn_NBYTES_MLOFFNO_SMLOE(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFNO_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFNO_SMLOE), v))
 /*@}*/
 /*******************************************************************************
  * HW_DMA_TCDn_NBYTES_MLOFFYES - TCD Signed Minor Loop Offset (Minor Loop and Offset Enabled)
@@ -4136,8 +4143,8 @@ typedef union _hw_dma_tcdn_nbytes_mloffyes
 #define HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n) ((x) + 0x1008U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_NBYTES_MLOFFYES(x, n) (*(__IO hw_dma_tcdn_nbytes_mloffyes_t *) HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n))
-#define HW_DMA_TCDn_NBYTES_MLOFFYES_RD(x, n) (HW_DMA_TCDn_NBYTES_MLOFFYES(x, n).U)
-#define HW_DMA_TCDn_NBYTES_MLOFFYES_WR(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFYES(x, n).U = (v))
+#define HW_DMA_TCDn_NBYTES_MLOFFYES_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_nbytes_mloffyes_t, HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n)))
+#define HW_DMA_TCDn_NBYTES_MLOFFYES_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_nbytes_mloffyes_t, HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), v))
 #define HW_DMA_TCDn_NBYTES_MLOFFYES_SET(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFYES_WR(x, n, HW_DMA_TCDn_NBYTES_MLOFFYES_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_NBYTES_MLOFFYES_CLR(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFYES_WR(x, n, HW_DMA_TCDn_NBYTES_MLOFFYES_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_NBYTES_MLOFFYES_TOG(x, n, v) (HW_DMA_TCDn_NBYTES_MLOFFYES_WR(x, n, HW_DMA_TCDn_NBYTES_MLOFFYES_RD(x, n) ^  (v)))
@@ -4166,7 +4173,7 @@ typedef union _hw_dma_tcdn_nbytes_mloffyes
 #define BS_DMA_TCDn_NBYTES_MLOFFYES_NBYTES (10U) /*!< Bit field size in bits for DMA_TCDn_NBYTES_MLOFFYES_NBYTES. */
 
 /*! @brief Read current value of the DMA_TCDn_NBYTES_MLOFFYES_NBYTES field. */
-#define BR_DMA_TCDn_NBYTES_MLOFFYES_NBYTES(x, n) (HW_DMA_TCDn_NBYTES_MLOFFYES(x, n).B.NBYTES)
+#define BR_DMA_TCDn_NBYTES_MLOFFYES_NBYTES(x, n) (UNION_READ(hw_dma_tcdn_nbytes_mloffyes_t, HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), U, B.NBYTES))
 
 /*! @brief Format value for bitfield DMA_TCDn_NBYTES_MLOFFYES_NBYTES. */
 #define BF_DMA_TCDn_NBYTES_MLOFFYES_NBYTES(v) ((uint32_t)((uint32_t)(v) << BP_DMA_TCDn_NBYTES_MLOFFYES_NBYTES) & BM_DMA_TCDn_NBYTES_MLOFFYES_NBYTES)
@@ -4184,7 +4191,7 @@ typedef union _hw_dma_tcdn_nbytes_mloffyes
 #define BS_DMA_TCDn_NBYTES_MLOFFYES_MLOFF (20U) /*!< Bit field size in bits for DMA_TCDn_NBYTES_MLOFFYES_MLOFF. */
 
 /*! @brief Read current value of the DMA_TCDn_NBYTES_MLOFFYES_MLOFF field. */
-#define BR_DMA_TCDn_NBYTES_MLOFFYES_MLOFF(x, n) (HW_DMA_TCDn_NBYTES_MLOFFYES(x, n).B.MLOFF)
+#define BR_DMA_TCDn_NBYTES_MLOFFYES_MLOFF(x, n) (UNION_READ(hw_dma_tcdn_nbytes_mloffyes_t, HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), U, B.MLOFF))
 
 /*! @brief Format value for bitfield DMA_TCDn_NBYTES_MLOFFYES_MLOFF. */
 #define BF_DMA_TCDn_NBYTES_MLOFFYES_MLOFF(v) ((uint32_t)((uint32_t)(v) << BP_DMA_TCDn_NBYTES_MLOFFYES_MLOFF) & BM_DMA_TCDn_NBYTES_MLOFFYES_MLOFF)
@@ -4209,13 +4216,13 @@ typedef union _hw_dma_tcdn_nbytes_mloffyes
 #define BS_DMA_TCDn_NBYTES_MLOFFYES_DMLOE (1U) /*!< Bit field size in bits for DMA_TCDn_NBYTES_MLOFFYES_DMLOE. */
 
 /*! @brief Read current value of the DMA_TCDn_NBYTES_MLOFFYES_DMLOE field. */
-#define BR_DMA_TCDn_NBYTES_MLOFFYES_DMLOE(x, n) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_DMLOE))
+#define BR_DMA_TCDn_NBYTES_MLOFFYES_DMLOE(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_DMLOE)))
 
 /*! @brief Format value for bitfield DMA_TCDn_NBYTES_MLOFFYES_DMLOE. */
 #define BF_DMA_TCDn_NBYTES_MLOFFYES_DMLOE(v) ((uint32_t)((uint32_t)(v) << BP_DMA_TCDn_NBYTES_MLOFFYES_DMLOE) & BM_DMA_TCDn_NBYTES_MLOFFYES_DMLOE)
 
 /*! @brief Set the DMLOE field to a new value. */
-#define BW_DMA_TCDn_NBYTES_MLOFFYES_DMLOE(x, n, v) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_DMLOE) = (v))
+#define BW_DMA_TCDn_NBYTES_MLOFFYES_DMLOE(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_DMLOE), v))
 /*@}*/
 
 /*!
@@ -4234,13 +4241,13 @@ typedef union _hw_dma_tcdn_nbytes_mloffyes
 #define BS_DMA_TCDn_NBYTES_MLOFFYES_SMLOE (1U) /*!< Bit field size in bits for DMA_TCDn_NBYTES_MLOFFYES_SMLOE. */
 
 /*! @brief Read current value of the DMA_TCDn_NBYTES_MLOFFYES_SMLOE field. */
-#define BR_DMA_TCDn_NBYTES_MLOFFYES_SMLOE(x, n) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_SMLOE))
+#define BR_DMA_TCDn_NBYTES_MLOFFYES_SMLOE(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_SMLOE)))
 
 /*! @brief Format value for bitfield DMA_TCDn_NBYTES_MLOFFYES_SMLOE. */
 #define BF_DMA_TCDn_NBYTES_MLOFFYES_SMLOE(v) ((uint32_t)((uint32_t)(v) << BP_DMA_TCDn_NBYTES_MLOFFYES_SMLOE) & BM_DMA_TCDn_NBYTES_MLOFFYES_SMLOE)
 
 /*! @brief Set the SMLOE field to a new value. */
-#define BW_DMA_TCDn_NBYTES_MLOFFYES_SMLOE(x, n, v) (BITBAND_ACCESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_SMLOE) = (v))
+#define BW_DMA_TCDn_NBYTES_MLOFFYES_SMLOE(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_DMA_TCDn_NBYTES_MLOFFYES_ADDR(x, n), BP_DMA_TCDn_NBYTES_MLOFFYES_SMLOE), v))
 /*@}*/
 /*******************************************************************************
  * HW_DMA_TCDn_SLAST - TCD Last Source Address Adjustment
@@ -4269,8 +4276,8 @@ typedef union _hw_dma_tcdn_slast
 #define HW_DMA_TCDn_SLAST_ADDR(x, n) ((x) + 0x100CU + (0x20U * (n)))
 
 #define HW_DMA_TCDn_SLAST(x, n)  (*(__IO hw_dma_tcdn_slast_t *) HW_DMA_TCDn_SLAST_ADDR(x, n))
-#define HW_DMA_TCDn_SLAST_RD(x, n) (HW_DMA_TCDn_SLAST(x, n).U)
-#define HW_DMA_TCDn_SLAST_WR(x, n, v) (HW_DMA_TCDn_SLAST(x, n).U = (v))
+#define HW_DMA_TCDn_SLAST_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_slast_t, HW_DMA_TCDn_SLAST_ADDR(x, n)))
+#define HW_DMA_TCDn_SLAST_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_slast_t, HW_DMA_TCDn_SLAST_ADDR(x, n), v))
 #define HW_DMA_TCDn_SLAST_SET(x, n, v) (HW_DMA_TCDn_SLAST_WR(x, n, HW_DMA_TCDn_SLAST_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_SLAST_CLR(x, n, v) (HW_DMA_TCDn_SLAST_WR(x, n, HW_DMA_TCDn_SLAST_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_SLAST_TOG(x, n, v) (HW_DMA_TCDn_SLAST_WR(x, n, HW_DMA_TCDn_SLAST_RD(x, n) ^  (v)))
@@ -4329,8 +4336,8 @@ typedef union _hw_dma_tcdn_daddr
 #define HW_DMA_TCDn_DADDR_ADDR(x, n) ((x) + 0x1010U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_DADDR(x, n)  (*(__IO hw_dma_tcdn_daddr_t *) HW_DMA_TCDn_DADDR_ADDR(x, n))
-#define HW_DMA_TCDn_DADDR_RD(x, n) (HW_DMA_TCDn_DADDR(x, n).U)
-#define HW_DMA_TCDn_DADDR_WR(x, n, v) (HW_DMA_TCDn_DADDR(x, n).U = (v))
+#define HW_DMA_TCDn_DADDR_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_daddr_t, HW_DMA_TCDn_DADDR_ADDR(x, n)))
+#define HW_DMA_TCDn_DADDR_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_daddr_t, HW_DMA_TCDn_DADDR_ADDR(x, n), v))
 #define HW_DMA_TCDn_DADDR_SET(x, n, v) (HW_DMA_TCDn_DADDR_WR(x, n, HW_DMA_TCDn_DADDR_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_DADDR_CLR(x, n, v) (HW_DMA_TCDn_DADDR_WR(x, n, HW_DMA_TCDn_DADDR_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_DADDR_TOG(x, n, v) (HW_DMA_TCDn_DADDR_WR(x, n, HW_DMA_TCDn_DADDR_RD(x, n) ^  (v)))
@@ -4386,8 +4393,8 @@ typedef union _hw_dma_tcdn_doff
 #define HW_DMA_TCDn_DOFF_ADDR(x, n) ((x) + 0x1014U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_DOFF(x, n)   (*(__IO hw_dma_tcdn_doff_t *) HW_DMA_TCDn_DOFF_ADDR(x, n))
-#define HW_DMA_TCDn_DOFF_RD(x, n) (HW_DMA_TCDn_DOFF(x, n).U)
-#define HW_DMA_TCDn_DOFF_WR(x, n, v) (HW_DMA_TCDn_DOFF(x, n).U = (v))
+#define HW_DMA_TCDn_DOFF_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_doff_t, HW_DMA_TCDn_DOFF_ADDR(x, n)))
+#define HW_DMA_TCDn_DOFF_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_doff_t, HW_DMA_TCDn_DOFF_ADDR(x, n), v))
 #define HW_DMA_TCDn_DOFF_SET(x, n, v) (HW_DMA_TCDn_DOFF_WR(x, n, HW_DMA_TCDn_DOFF_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_DOFF_CLR(x, n, v) (HW_DMA_TCDn_DOFF_WR(x, n, HW_DMA_TCDn_DOFF_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_DOFF_TOG(x, n, v) (HW_DMA_TCDn_DOFF_WR(x, n, HW_DMA_TCDn_DOFF_RD(x, n) ^  (v)))
@@ -4449,8 +4456,8 @@ typedef union _hw_dma_tcdn_citer_elinkno
 #define HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n) ((x) + 0x1016U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_CITER_ELINKNO(x, n) (*(__IO hw_dma_tcdn_citer_elinkno_t *) HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n))
-#define HW_DMA_TCDn_CITER_ELINKNO_RD(x, n) (HW_DMA_TCDn_CITER_ELINKNO(x, n).U)
-#define HW_DMA_TCDn_CITER_ELINKNO_WR(x, n, v) (HW_DMA_TCDn_CITER_ELINKNO(x, n).U = (v))
+#define HW_DMA_TCDn_CITER_ELINKNO_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_citer_elinkno_t, HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n)))
+#define HW_DMA_TCDn_CITER_ELINKNO_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_citer_elinkno_t, HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n), v))
 #define HW_DMA_TCDn_CITER_ELINKNO_SET(x, n, v) (HW_DMA_TCDn_CITER_ELINKNO_WR(x, n, HW_DMA_TCDn_CITER_ELINKNO_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_CITER_ELINKNO_CLR(x, n, v) (HW_DMA_TCDn_CITER_ELINKNO_WR(x, n, HW_DMA_TCDn_CITER_ELINKNO_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_CITER_ELINKNO_TOG(x, n, v) (HW_DMA_TCDn_CITER_ELINKNO_WR(x, n, HW_DMA_TCDn_CITER_ELINKNO_RD(x, n) ^  (v)))
@@ -4480,7 +4487,7 @@ typedef union _hw_dma_tcdn_citer_elinkno
 #define BS_DMA_TCDn_CITER_ELINKNO_CITER (15U) /*!< Bit field size in bits for DMA_TCDn_CITER_ELINKNO_CITER. */
 
 /*! @brief Read current value of the DMA_TCDn_CITER_ELINKNO_CITER field. */
-#define BR_DMA_TCDn_CITER_ELINKNO_CITER(x, n) (HW_DMA_TCDn_CITER_ELINKNO(x, n).B.CITER)
+#define BR_DMA_TCDn_CITER_ELINKNO_CITER(x, n) (UNION_READ(hw_dma_tcdn_citer_elinkno_t, HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n), U, B.CITER))
 
 /*! @brief Format value for bitfield DMA_TCDn_CITER_ELINKNO_CITER. */
 #define BF_DMA_TCDn_CITER_ELINKNO_CITER(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CITER_ELINKNO_CITER) & BM_DMA_TCDn_CITER_ELINKNO_CITER)
@@ -4511,13 +4518,13 @@ typedef union _hw_dma_tcdn_citer_elinkno
 #define BS_DMA_TCDn_CITER_ELINKNO_ELINK (1U) /*!< Bit field size in bits for DMA_TCDn_CITER_ELINKNO_ELINK. */
 
 /*! @brief Read current value of the DMA_TCDn_CITER_ELINKNO_ELINK field. */
-#define BR_DMA_TCDn_CITER_ELINKNO_ELINK(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKNO_ELINK))
+#define BR_DMA_TCDn_CITER_ELINKNO_ELINK(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKNO_ELINK)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CITER_ELINKNO_ELINK. */
 #define BF_DMA_TCDn_CITER_ELINKNO_ELINK(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CITER_ELINKNO_ELINK) & BM_DMA_TCDn_CITER_ELINKNO_ELINK)
 
 /*! @brief Set the ELINK field to a new value. */
-#define BW_DMA_TCDn_CITER_ELINKNO_ELINK(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKNO_ELINK) = (v))
+#define BW_DMA_TCDn_CITER_ELINKNO_ELINK(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKNO_ELINK), v))
 /*@}*/
 /*******************************************************************************
  * HW_DMA_TCDn_CITER_ELINKYES - TCD Current Minor Loop Link, Major Loop Count (Channel Linking Enabled)
@@ -4552,8 +4559,8 @@ typedef union _hw_dma_tcdn_citer_elinkyes
 #define HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n) ((x) + 0x1016U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_CITER_ELINKYES(x, n) (*(__IO hw_dma_tcdn_citer_elinkyes_t *) HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n))
-#define HW_DMA_TCDn_CITER_ELINKYES_RD(x, n) (HW_DMA_TCDn_CITER_ELINKYES(x, n).U)
-#define HW_DMA_TCDn_CITER_ELINKYES_WR(x, n, v) (HW_DMA_TCDn_CITER_ELINKYES(x, n).U = (v))
+#define HW_DMA_TCDn_CITER_ELINKYES_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_citer_elinkyes_t, HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n)))
+#define HW_DMA_TCDn_CITER_ELINKYES_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_citer_elinkyes_t, HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n), v))
 #define HW_DMA_TCDn_CITER_ELINKYES_SET(x, n, v) (HW_DMA_TCDn_CITER_ELINKYES_WR(x, n, HW_DMA_TCDn_CITER_ELINKYES_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_CITER_ELINKYES_CLR(x, n, v) (HW_DMA_TCDn_CITER_ELINKYES_WR(x, n, HW_DMA_TCDn_CITER_ELINKYES_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_CITER_ELINKYES_TOG(x, n, v) (HW_DMA_TCDn_CITER_ELINKYES_WR(x, n, HW_DMA_TCDn_CITER_ELINKYES_RD(x, n) ^  (v)))
@@ -4583,7 +4590,7 @@ typedef union _hw_dma_tcdn_citer_elinkyes
 #define BS_DMA_TCDn_CITER_ELINKYES_CITER (9U) /*!< Bit field size in bits for DMA_TCDn_CITER_ELINKYES_CITER. */
 
 /*! @brief Read current value of the DMA_TCDn_CITER_ELINKYES_CITER field. */
-#define BR_DMA_TCDn_CITER_ELINKYES_CITER(x, n) (HW_DMA_TCDn_CITER_ELINKYES(x, n).B.CITER)
+#define BR_DMA_TCDn_CITER_ELINKYES_CITER(x, n) (UNION_READ(hw_dma_tcdn_citer_elinkyes_t, HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n), U, B.CITER))
 
 /*! @brief Format value for bitfield DMA_TCDn_CITER_ELINKYES_CITER. */
 #define BF_DMA_TCDn_CITER_ELINKYES_CITER(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CITER_ELINKYES_CITER) & BM_DMA_TCDn_CITER_ELINKYES_CITER)
@@ -4605,7 +4612,7 @@ typedef union _hw_dma_tcdn_citer_elinkyes
 #define BS_DMA_TCDn_CITER_ELINKYES_LINKCH (4U) /*!< Bit field size in bits for DMA_TCDn_CITER_ELINKYES_LINKCH. */
 
 /*! @brief Read current value of the DMA_TCDn_CITER_ELINKYES_LINKCH field. */
-#define BR_DMA_TCDn_CITER_ELINKYES_LINKCH(x, n) (HW_DMA_TCDn_CITER_ELINKYES(x, n).B.LINKCH)
+#define BR_DMA_TCDn_CITER_ELINKYES_LINKCH(x, n) (UNION_READ(hw_dma_tcdn_citer_elinkyes_t, HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n), U, B.LINKCH))
 
 /*! @brief Format value for bitfield DMA_TCDn_CITER_ELINKYES_LINKCH. */
 #define BF_DMA_TCDn_CITER_ELINKYES_LINKCH(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CITER_ELINKYES_LINKCH) & BM_DMA_TCDn_CITER_ELINKYES_LINKCH)
@@ -4636,13 +4643,13 @@ typedef union _hw_dma_tcdn_citer_elinkyes
 #define BS_DMA_TCDn_CITER_ELINKYES_ELINK (1U) /*!< Bit field size in bits for DMA_TCDn_CITER_ELINKYES_ELINK. */
 
 /*! @brief Read current value of the DMA_TCDn_CITER_ELINKYES_ELINK field. */
-#define BR_DMA_TCDn_CITER_ELINKYES_ELINK(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKYES_ELINK))
+#define BR_DMA_TCDn_CITER_ELINKYES_ELINK(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKYES_ELINK)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CITER_ELINKYES_ELINK. */
 #define BF_DMA_TCDn_CITER_ELINKYES_ELINK(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CITER_ELINKYES_ELINK) & BM_DMA_TCDn_CITER_ELINKYES_ELINK)
 
 /*! @brief Set the ELINK field to a new value. */
-#define BW_DMA_TCDn_CITER_ELINKYES_ELINK(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKYES_ELINK) = (v))
+#define BW_DMA_TCDn_CITER_ELINKYES_ELINK(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_CITER_ELINKYES_ELINK), v))
 /*@}*/
 /*******************************************************************************
  * HW_DMA_TCDn_DLASTSGA - TCD Last Destination Address Adjustment/Scatter Gather Address
@@ -4671,8 +4678,8 @@ typedef union _hw_dma_tcdn_dlastsga
 #define HW_DMA_TCDn_DLASTSGA_ADDR(x, n) ((x) + 0x1018U + (0x20U * (n)))
 
 #define HW_DMA_TCDn_DLASTSGA(x, n) (*(__IO hw_dma_tcdn_dlastsga_t *) HW_DMA_TCDn_DLASTSGA_ADDR(x, n))
-#define HW_DMA_TCDn_DLASTSGA_RD(x, n) (HW_DMA_TCDn_DLASTSGA(x, n).U)
-#define HW_DMA_TCDn_DLASTSGA_WR(x, n, v) (HW_DMA_TCDn_DLASTSGA(x, n).U = (v))
+#define HW_DMA_TCDn_DLASTSGA_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_dlastsga_t, HW_DMA_TCDn_DLASTSGA_ADDR(x, n)))
+#define HW_DMA_TCDn_DLASTSGA_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_dlastsga_t, HW_DMA_TCDn_DLASTSGA_ADDR(x, n), v))
 #define HW_DMA_TCDn_DLASTSGA_SET(x, n, v) (HW_DMA_TCDn_DLASTSGA_WR(x, n, HW_DMA_TCDn_DLASTSGA_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_DLASTSGA_CLR(x, n, v) (HW_DMA_TCDn_DLASTSGA_WR(x, n, HW_DMA_TCDn_DLASTSGA_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_DLASTSGA_TOG(x, n, v) (HW_DMA_TCDn_DLASTSGA_WR(x, n, HW_DMA_TCDn_DLASTSGA_RD(x, n) ^  (v)))
@@ -4751,8 +4758,8 @@ typedef union _hw_dma_tcdn_csr
 #define HW_DMA_TCDn_CSR_ADDR(x, n) ((x) + 0x101CU + (0x20U * (n)))
 
 #define HW_DMA_TCDn_CSR(x, n)    (*(__IO hw_dma_tcdn_csr_t *) HW_DMA_TCDn_CSR_ADDR(x, n))
-#define HW_DMA_TCDn_CSR_RD(x, n) (HW_DMA_TCDn_CSR(x, n).U)
-#define HW_DMA_TCDn_CSR_WR(x, n, v) (HW_DMA_TCDn_CSR(x, n).U = (v))
+#define HW_DMA_TCDn_CSR_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_csr_t, HW_DMA_TCDn_CSR_ADDR(x, n)))
+#define HW_DMA_TCDn_CSR_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_csr_t, HW_DMA_TCDn_CSR_ADDR(x, n), v))
 #define HW_DMA_TCDn_CSR_SET(x, n, v) (HW_DMA_TCDn_CSR_WR(x, n, HW_DMA_TCDn_CSR_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_CSR_CLR(x, n, v) (HW_DMA_TCDn_CSR_WR(x, n, HW_DMA_TCDn_CSR_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_CSR_TOG(x, n, v) (HW_DMA_TCDn_CSR_WR(x, n, HW_DMA_TCDn_CSR_RD(x, n) ^  (v)))
@@ -4779,13 +4786,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_START (1U)         /*!< Bit field size in bits for DMA_TCDn_CSR_START. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_START field. */
-#define BR_DMA_TCDn_CSR_START(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_START))
+#define BR_DMA_TCDn_CSR_START(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_START)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_START. */
 #define BF_DMA_TCDn_CSR_START(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_START) & BM_DMA_TCDn_CSR_START)
 
 /*! @brief Set the START field to a new value. */
-#define BW_DMA_TCDn_CSR_START(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_START) = (v))
+#define BW_DMA_TCDn_CSR_START(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_START), v))
 /*@}*/
 
 /*!
@@ -4805,13 +4812,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_INTMAJOR (1U)      /*!< Bit field size in bits for DMA_TCDn_CSR_INTMAJOR. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_INTMAJOR field. */
-#define BR_DMA_TCDn_CSR_INTMAJOR(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTMAJOR))
+#define BR_DMA_TCDn_CSR_INTMAJOR(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTMAJOR)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_INTMAJOR. */
 #define BF_DMA_TCDn_CSR_INTMAJOR(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_INTMAJOR) & BM_DMA_TCDn_CSR_INTMAJOR)
 
 /*! @brief Set the INTMAJOR field to a new value. */
-#define BW_DMA_TCDn_CSR_INTMAJOR(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTMAJOR) = (v))
+#define BW_DMA_TCDn_CSR_INTMAJOR(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTMAJOR), v))
 /*@}*/
 
 /*!
@@ -4835,13 +4842,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_INTHALF (1U)       /*!< Bit field size in bits for DMA_TCDn_CSR_INTHALF. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_INTHALF field. */
-#define BR_DMA_TCDn_CSR_INTHALF(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTHALF))
+#define BR_DMA_TCDn_CSR_INTHALF(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTHALF)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_INTHALF. */
 #define BF_DMA_TCDn_CSR_INTHALF(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_INTHALF) & BM_DMA_TCDn_CSR_INTHALF)
 
 /*! @brief Set the INTHALF field to a new value. */
-#define BW_DMA_TCDn_CSR_INTHALF(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTHALF) = (v))
+#define BW_DMA_TCDn_CSR_INTHALF(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_INTHALF), v))
 /*@}*/
 
 /*!
@@ -4860,13 +4867,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_DREQ (1U)          /*!< Bit field size in bits for DMA_TCDn_CSR_DREQ. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_DREQ field. */
-#define BR_DMA_TCDn_CSR_DREQ(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DREQ))
+#define BR_DMA_TCDn_CSR_DREQ(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DREQ)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_DREQ. */
 #define BF_DMA_TCDn_CSR_DREQ(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_DREQ) & BM_DMA_TCDn_CSR_DREQ)
 
 /*! @brief Set the DREQ field to a new value. */
-#define BW_DMA_TCDn_CSR_DREQ(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DREQ) = (v))
+#define BW_DMA_TCDn_CSR_DREQ(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DREQ), v))
 /*@}*/
 
 /*!
@@ -4891,13 +4898,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_ESG  (1U)          /*!< Bit field size in bits for DMA_TCDn_CSR_ESG. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_ESG field. */
-#define BR_DMA_TCDn_CSR_ESG(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ESG))
+#define BR_DMA_TCDn_CSR_ESG(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ESG)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_ESG. */
 #define BF_DMA_TCDn_CSR_ESG(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_ESG) & BM_DMA_TCDn_CSR_ESG)
 
 /*! @brief Set the ESG field to a new value. */
-#define BW_DMA_TCDn_CSR_ESG(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ESG) = (v))
+#define BW_DMA_TCDn_CSR_ESG(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ESG), v))
 /*@}*/
 
 /*!
@@ -4919,13 +4926,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_MAJORELINK (1U)    /*!< Bit field size in bits for DMA_TCDn_CSR_MAJORELINK. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_MAJORELINK field. */
-#define BR_DMA_TCDn_CSR_MAJORELINK(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_MAJORELINK))
+#define BR_DMA_TCDn_CSR_MAJORELINK(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_MAJORELINK)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_MAJORELINK. */
 #define BF_DMA_TCDn_CSR_MAJORELINK(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_MAJORELINK) & BM_DMA_TCDn_CSR_MAJORELINK)
 
 /*! @brief Set the MAJORELINK field to a new value. */
-#define BW_DMA_TCDn_CSR_MAJORELINK(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_MAJORELINK) = (v))
+#define BW_DMA_TCDn_CSR_MAJORELINK(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_MAJORELINK), v))
 /*@}*/
 
 /*!
@@ -4941,13 +4948,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_ACTIVE (1U)        /*!< Bit field size in bits for DMA_TCDn_CSR_ACTIVE. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_ACTIVE field. */
-#define BR_DMA_TCDn_CSR_ACTIVE(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ACTIVE))
+#define BR_DMA_TCDn_CSR_ACTIVE(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ACTIVE)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_ACTIVE. */
 #define BF_DMA_TCDn_CSR_ACTIVE(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_ACTIVE) & BM_DMA_TCDn_CSR_ACTIVE)
 
 /*! @brief Set the ACTIVE field to a new value. */
-#define BW_DMA_TCDn_CSR_ACTIVE(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ACTIVE) = (v))
+#define BW_DMA_TCDn_CSR_ACTIVE(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_ACTIVE), v))
 /*@}*/
 
 /*!
@@ -4964,13 +4971,13 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_DONE (1U)          /*!< Bit field size in bits for DMA_TCDn_CSR_DONE. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_DONE field. */
-#define BR_DMA_TCDn_CSR_DONE(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DONE))
+#define BR_DMA_TCDn_CSR_DONE(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DONE)))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_DONE. */
 #define BF_DMA_TCDn_CSR_DONE(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_DONE) & BM_DMA_TCDn_CSR_DONE)
 
 /*! @brief Set the DONE field to a new value. */
-#define BW_DMA_TCDn_CSR_DONE(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DONE) = (v))
+#define BW_DMA_TCDn_CSR_DONE(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_CSR_ADDR(x, n), BP_DMA_TCDn_CSR_DONE), v))
 /*@}*/
 
 /*!
@@ -4987,7 +4994,7 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_MAJORLINKCH (4U)   /*!< Bit field size in bits for DMA_TCDn_CSR_MAJORLINKCH. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_MAJORLINKCH field. */
-#define BR_DMA_TCDn_CSR_MAJORLINKCH(x, n) (HW_DMA_TCDn_CSR(x, n).B.MAJORLINKCH)
+#define BR_DMA_TCDn_CSR_MAJORLINKCH(x, n) (UNION_READ(hw_dma_tcdn_csr_t, HW_DMA_TCDn_CSR_ADDR(x, n), U, B.MAJORLINKCH))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_MAJORLINKCH. */
 #define BF_DMA_TCDn_CSR_MAJORLINKCH(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_MAJORLINKCH) & BM_DMA_TCDn_CSR_MAJORLINKCH)
@@ -5020,7 +5027,7 @@ typedef union _hw_dma_tcdn_csr
 #define BS_DMA_TCDn_CSR_BWC  (2U)          /*!< Bit field size in bits for DMA_TCDn_CSR_BWC. */
 
 /*! @brief Read current value of the DMA_TCDn_CSR_BWC field. */
-#define BR_DMA_TCDn_CSR_BWC(x, n) (HW_DMA_TCDn_CSR(x, n).B.BWC)
+#define BR_DMA_TCDn_CSR_BWC(x, n) (UNION_READ(hw_dma_tcdn_csr_t, HW_DMA_TCDn_CSR_ADDR(x, n), U, B.BWC))
 
 /*! @brief Format value for bitfield DMA_TCDn_CSR_BWC. */
 #define BF_DMA_TCDn_CSR_BWC(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_CSR_BWC) & BM_DMA_TCDn_CSR_BWC)
@@ -5060,8 +5067,8 @@ typedef union _hw_dma_tcdn_biter_elinkno
 #define HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n) ((x) + 0x101EU + (0x20U * (n)))
 
 #define HW_DMA_TCDn_BITER_ELINKNO(x, n) (*(__IO hw_dma_tcdn_biter_elinkno_t *) HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n))
-#define HW_DMA_TCDn_BITER_ELINKNO_RD(x, n) (HW_DMA_TCDn_BITER_ELINKNO(x, n).U)
-#define HW_DMA_TCDn_BITER_ELINKNO_WR(x, n, v) (HW_DMA_TCDn_BITER_ELINKNO(x, n).U = (v))
+#define HW_DMA_TCDn_BITER_ELINKNO_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_biter_elinkno_t, HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n)))
+#define HW_DMA_TCDn_BITER_ELINKNO_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_biter_elinkno_t, HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n), v))
 #define HW_DMA_TCDn_BITER_ELINKNO_SET(x, n, v) (HW_DMA_TCDn_BITER_ELINKNO_WR(x, n, HW_DMA_TCDn_BITER_ELINKNO_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_BITER_ELINKNO_CLR(x, n, v) (HW_DMA_TCDn_BITER_ELINKNO_WR(x, n, HW_DMA_TCDn_BITER_ELINKNO_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_BITER_ELINKNO_TOG(x, n, v) (HW_DMA_TCDn_BITER_ELINKNO_WR(x, n, HW_DMA_TCDn_BITER_ELINKNO_RD(x, n) ^  (v)))
@@ -5090,7 +5097,7 @@ typedef union _hw_dma_tcdn_biter_elinkno
 #define BS_DMA_TCDn_BITER_ELINKNO_BITER (15U) /*!< Bit field size in bits for DMA_TCDn_BITER_ELINKNO_BITER. */
 
 /*! @brief Read current value of the DMA_TCDn_BITER_ELINKNO_BITER field. */
-#define BR_DMA_TCDn_BITER_ELINKNO_BITER(x, n) (HW_DMA_TCDn_BITER_ELINKNO(x, n).B.BITER)
+#define BR_DMA_TCDn_BITER_ELINKNO_BITER(x, n) (UNION_READ(hw_dma_tcdn_biter_elinkno_t, HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n), U, B.BITER))
 
 /*! @brief Format value for bitfield DMA_TCDn_BITER_ELINKNO_BITER. */
 #define BF_DMA_TCDn_BITER_ELINKNO_BITER(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_BITER_ELINKNO_BITER) & BM_DMA_TCDn_BITER_ELINKNO_BITER)
@@ -5123,13 +5130,13 @@ typedef union _hw_dma_tcdn_biter_elinkno
 #define BS_DMA_TCDn_BITER_ELINKNO_ELINK (1U) /*!< Bit field size in bits for DMA_TCDn_BITER_ELINKNO_ELINK. */
 
 /*! @brief Read current value of the DMA_TCDn_BITER_ELINKNO_ELINK field. */
-#define BR_DMA_TCDn_BITER_ELINKNO_ELINK(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKNO_ELINK))
+#define BR_DMA_TCDn_BITER_ELINKNO_ELINK(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKNO_ELINK)))
 
 /*! @brief Format value for bitfield DMA_TCDn_BITER_ELINKNO_ELINK. */
 #define BF_DMA_TCDn_BITER_ELINKNO_ELINK(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_BITER_ELINKNO_ELINK) & BM_DMA_TCDn_BITER_ELINKNO_ELINK)
 
 /*! @brief Set the ELINK field to a new value. */
-#define BW_DMA_TCDn_BITER_ELINKNO_ELINK(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKNO_ELINK) = (v))
+#define BW_DMA_TCDn_BITER_ELINKNO_ELINK(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_BITER_ELINKNO_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKNO_ELINK), v))
 /*@}*/
 /*******************************************************************************
  * HW_DMA_TCDn_BITER_ELINKYES - TCD Beginning Minor Loop Link, Major Loop Count (Channel Linking Enabled)
@@ -5165,8 +5172,8 @@ typedef union _hw_dma_tcdn_biter_elinkyes
 #define HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n) ((x) + 0x101EU + (0x20U * (n)))
 
 #define HW_DMA_TCDn_BITER_ELINKYES(x, n) (*(__IO hw_dma_tcdn_biter_elinkyes_t *) HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n))
-#define HW_DMA_TCDn_BITER_ELINKYES_RD(x, n) (HW_DMA_TCDn_BITER_ELINKYES(x, n).U)
-#define HW_DMA_TCDn_BITER_ELINKYES_WR(x, n, v) (HW_DMA_TCDn_BITER_ELINKYES(x, n).U = (v))
+#define HW_DMA_TCDn_BITER_ELINKYES_RD(x, n) (ADDRESS_READ(hw_dma_tcdn_biter_elinkyes_t, HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n)))
+#define HW_DMA_TCDn_BITER_ELINKYES_WR(x, n, v) (ADDRESS_WRITE(hw_dma_tcdn_biter_elinkyes_t, HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n), v))
 #define HW_DMA_TCDn_BITER_ELINKYES_SET(x, n, v) (HW_DMA_TCDn_BITER_ELINKYES_WR(x, n, HW_DMA_TCDn_BITER_ELINKYES_RD(x, n) |  (v)))
 #define HW_DMA_TCDn_BITER_ELINKYES_CLR(x, n, v) (HW_DMA_TCDn_BITER_ELINKYES_WR(x, n, HW_DMA_TCDn_BITER_ELINKYES_RD(x, n) & ~(v)))
 #define HW_DMA_TCDn_BITER_ELINKYES_TOG(x, n, v) (HW_DMA_TCDn_BITER_ELINKYES_WR(x, n, HW_DMA_TCDn_BITER_ELINKYES_RD(x, n) ^  (v)))
@@ -5195,7 +5202,7 @@ typedef union _hw_dma_tcdn_biter_elinkyes
 #define BS_DMA_TCDn_BITER_ELINKYES_BITER (9U) /*!< Bit field size in bits for DMA_TCDn_BITER_ELINKYES_BITER. */
 
 /*! @brief Read current value of the DMA_TCDn_BITER_ELINKYES_BITER field. */
-#define BR_DMA_TCDn_BITER_ELINKYES_BITER(x, n) (HW_DMA_TCDn_BITER_ELINKYES(x, n).B.BITER)
+#define BR_DMA_TCDn_BITER_ELINKYES_BITER(x, n) (UNION_READ(hw_dma_tcdn_biter_elinkyes_t, HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n), U, B.BITER))
 
 /*! @brief Format value for bitfield DMA_TCDn_BITER_ELINKYES_BITER. */
 #define BF_DMA_TCDn_BITER_ELINKYES_BITER(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_BITER_ELINKYES_BITER) & BM_DMA_TCDn_BITER_ELINKYES_BITER)
@@ -5221,7 +5228,7 @@ typedef union _hw_dma_tcdn_biter_elinkyes
 #define BS_DMA_TCDn_BITER_ELINKYES_LINKCH (4U) /*!< Bit field size in bits for DMA_TCDn_BITER_ELINKYES_LINKCH. */
 
 /*! @brief Read current value of the DMA_TCDn_BITER_ELINKYES_LINKCH field. */
-#define BR_DMA_TCDn_BITER_ELINKYES_LINKCH(x, n) (HW_DMA_TCDn_BITER_ELINKYES(x, n).B.LINKCH)
+#define BR_DMA_TCDn_BITER_ELINKYES_LINKCH(x, n) (UNION_READ(hw_dma_tcdn_biter_elinkyes_t, HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n), U, B.LINKCH))
 
 /*! @brief Format value for bitfield DMA_TCDn_BITER_ELINKYES_LINKCH. */
 #define BF_DMA_TCDn_BITER_ELINKYES_LINKCH(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_BITER_ELINKYES_LINKCH) & BM_DMA_TCDn_BITER_ELINKYES_LINKCH)
@@ -5254,13 +5261,13 @@ typedef union _hw_dma_tcdn_biter_elinkyes
 #define BS_DMA_TCDn_BITER_ELINKYES_ELINK (1U) /*!< Bit field size in bits for DMA_TCDn_BITER_ELINKYES_ELINK. */
 
 /*! @brief Read current value of the DMA_TCDn_BITER_ELINKYES_ELINK field. */
-#define BR_DMA_TCDn_BITER_ELINKYES_ELINK(x, n) (BITBAND_ACCESS16(HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKYES_ELINK))
+#define BR_DMA_TCDn_BITER_ELINKYES_ELINK(x, n) (ADDRESS_READ(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKYES_ELINK)))
 
 /*! @brief Format value for bitfield DMA_TCDn_BITER_ELINKYES_ELINK. */
 #define BF_DMA_TCDn_BITER_ELINKYES_ELINK(v) ((uint16_t)((uint16_t)(v) << BP_DMA_TCDn_BITER_ELINKYES_ELINK) & BM_DMA_TCDn_BITER_ELINKYES_ELINK)
 
 /*! @brief Set the ELINK field to a new value. */
-#define BW_DMA_TCDn_BITER_ELINKYES_ELINK(x, n, v) (BITBAND_ACCESS16(HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKYES_ELINK) = (v))
+#define BW_DMA_TCDn_BITER_ELINKYES_ELINK(x, n, v) (ADDRESS_WRITE(uint16_t, BITBAND_ADDRESS16(HW_DMA_TCDn_BITER_ELINKYES_ADDR(x, n), BP_DMA_TCDn_BITER_ELINKYES_ELINK), v))
 /*@}*/
 
 /*

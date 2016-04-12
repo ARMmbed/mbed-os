@@ -109,33 +109,7 @@ static bool resolve(unsigned char *resp, char *ipaddress)
     return false;
 }
 
-
-int32_t dnsQuery(NetworkInterface *iface, const char *host, char *ip)
-{
-    if (isIP(host)) {
-        strcpy(ip, host);
-        return 0;
-    }
-
-    UDPSocket sock(iface);
-    int32_t err;
-
-    for (unsigned i = 0; i < DNS_COUNT; i++) {
-        err = sock.open(DNS_IPS[0], 53);
-        if (err < 0) {
-            return err;
-        }
-
-        err = dnsQuery(&sock, host, ip);
-        sock.close();
-        return err;
-    }
-
-    sock.close();
-    return NS_ERROR_DNS_FAILURE;
-}
-
-int32_t dnsQuery(UDPSocket *socket, const char *hostname, char *ipaddress)
+static int32_t query(UDPSocket *socket, const SocketAddress &addr, const char *hostname, char *ipaddress)
 {
     int len = 0;
     if (hostname == NULL) {
@@ -184,7 +158,7 @@ int32_t dnsQuery(UDPSocket *socket, const char *hostname, char *ipaddress)
     packet[c++] = 1;
 
 
-    if (socket->send(packet, packetlen) < 0) {
+    if (socket->sendto(addr, packet, packetlen) < 0) {
         delete packet;
         return false;
     }
@@ -194,21 +168,49 @@ int32_t dnsQuery(UDPSocket *socket, const char *hostname, char *ipaddress)
 
     //  Receive the answer from DNS
     int response_length = 0;
-    response_length = socket->recv(packet, 1024);
+    response_length = socket->recvfrom(NULL, packet, 1024);
 
     if (response_length > 0 ) {
         if (!resolve(packet, ipaddress)) {
             delete packet;
-            return NS_ERROR_DNS_FAILURE;
+            return NSAPI_ERROR_DNS_FAILURE;
         }
-
+        
         //  cleanup and return
         delete packet;
         return 0;
     }
     
     delete packet;
-    return NS_ERROR_DNS_FAILURE;
+    return NSAPI_ERROR_DNS_FAILURE;
 }
 
+int32_t dnsQuery(NetworkInterface *iface, const char *host, char *ip)
+{
+    if (isIP(host)) {
+        strcpy(ip, host);
+        return 0;
+    }
 
+    UDPSocket sock(iface);
+
+    for (unsigned i = 0; i < DNS_COUNT; i++) {
+        return query(&sock, SocketAddress(DNS_IPS[0], 53), host, ip);
+    }
+
+    return NSAPI_ERROR_DNS_FAILURE;
+}
+
+int32_t dnsQuery(UDPSocket *socket, const char *host, char *ip)
+{
+    if (isIP(host)) {
+        strcpy(ip, host);
+        return 0;
+    }
+
+    for (unsigned i = 0; i < DNS_COUNT; i++) {
+        return query(socket, SocketAddress(DNS_IPS[0], 53), host, ip);
+    }
+
+    return NSAPI_ERROR_DNS_FAILURE;
+}

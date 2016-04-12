@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      CMSIS-RTOS  -  RTX
+ *      RL-ARM - RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_TASK.C
  *      Purpose: Task functions and system start up.
- *      Rev.:    V4.80
+ *      Rev.:    V4.60
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "rt_TypeDef.h"
-#include "RTX_Config.h"
+#include "RTX_Conf.h"
 #include "rt_System.h"
 #include "rt_Task.h"
 #include "rt_List.h"
@@ -56,41 +56,48 @@ struct OS_TCB os_idle_TCB;
  *      Local Functions
  *---------------------------------------------------------------------------*/
 
-static OS_TID rt_get_TID (void) {
+OS_TID rt_get_TID (void) {
   U32 tid;
 
-  for (tid = 1U; tid <= os_maxtaskrun; tid++) {
-    if (os_active_TCB[tid-1U] == NULL) {
+  for (tid = 1; tid <= os_maxtaskrun; tid++) {
+    if (os_active_TCB[tid-1] == NULL) {
       return ((OS_TID)tid);
     }
   }
-  return (0U);
+  return (0);
 }
 
+#if defined (__CC_ARM) && !defined (__MICROLIB)
+/*--------------------------- __user_perthread_libspace ---------------------*/
+extern void  *__libspace_start;
+
+void *__user_perthread_libspace (void) {
+  /* Provide a separate libspace for each task. */
+  if (os_tsk.run == NULL) {
+    /* RTX not running yet. */
+    return (&__libspace_start);
+  }
+  return (void *)(os_tsk.run->std_libspace);
+}
+#endif
 
 /*--------------------------- rt_init_context -------------------------------*/
 
-static void rt_init_context (P_TCB p_TCB, U8 priority, FUNCP task_body) {
+void rt_init_context (P_TCB p_TCB, U8 priority, FUNCP task_body) {
   /* Initialize general part of the Task Control Block. */
-  p_TCB->cb_type   = TCB;
-  p_TCB->state     = READY;
-  p_TCB->prio      = priority;
-  p_TCB->prio_base = priority;
-  p_TCB->p_lnk     = NULL;
-  p_TCB->p_rlnk    = NULL;
-  p_TCB->p_dlnk    = NULL;
-  p_TCB->p_blnk    = NULL;
-  p_TCB->p_mlnk    = NULL;
-  p_TCB->delta_time    = 0U;
-  p_TCB->interval_time = 0U;
-  p_TCB->events  = 0U;
-  p_TCB->waits   = 0U;
-  p_TCB->stack_frame = 0U;
+  p_TCB->cb_type = TCB;
+  p_TCB->state   = READY;
+  p_TCB->prio    = priority;
+  p_TCB->p_lnk   = NULL;
+  p_TCB->p_rlnk  = NULL;
+  p_TCB->p_dlnk  = NULL;
+  p_TCB->p_blnk  = NULL;
+  p_TCB->delta_time    = 0;
+  p_TCB->interval_time = 0;
+  p_TCB->events  = 0;
+  p_TCB->waits   = 0;
+  p_TCB->stack_frame = 0;
 
-  if (p_TCB->priv_stack == 0U) {
-    /* Allocate the memory space for the stack. */
-    p_TCB->stack = rt_alloc_box (mp_stk);
-  }
   rt_init_stack (p_TCB, task_body);
 }
 
@@ -99,7 +106,7 @@ static void rt_init_context (P_TCB p_TCB, U8 priority, FUNCP task_body) {
 
 void rt_switch_req (P_TCB p_new) {
   /* Switch to next task (identified by "p_new"). */
-  os_tsk.new   = p_new;
+  os_tsk.new_tsk   = p_new;
   p_new->state = RUNNING;
   DBG_TASK_SWITCH(p_new->task_id);
 }
@@ -141,7 +148,7 @@ void rt_block (U16 timeout, U8 block_state) {
   P_TCB next_TCB;
 
   if (timeout) {
-    if (timeout < 0xFFFFU) {
+    if (timeout < 0xffff) {
       rt_put_dly (os_tsk.run, timeout);
     }
     os_tsk.run->state = block_state;
@@ -171,9 +178,9 @@ void rt_tsk_pass (void) {
 OS_TID rt_tsk_self (void) {
   /* Return own task identifier value. */
   if (os_tsk.run == NULL) {
-    return (0U);
+    return (0);
   }
-  return ((OS_TID)os_tsk.run->task_id);
+  return (os_tsk.run->task_id);
 }
 
 
@@ -183,10 +190,9 @@ OS_RESULT rt_tsk_prio (OS_TID task_id, U8 new_prio) {
   /* Change execution priority of a task to "new_prio". */
   P_TCB p_task;
 
-  if (task_id == 0U) {
+  if (task_id == 0) {
     /* Change execution priority of calling task. */
-    os_tsk.run->prio      = new_prio;
-    os_tsk.run->prio_base = new_prio;
+    os_tsk.run->prio = new_prio;
 run:if (rt_rdy_prio() > new_prio) {
       rt_put_prio (&os_rdy, os_tsk.run);
       os_tsk.run->state   = READY;
@@ -196,13 +202,12 @@ run:if (rt_rdy_prio() > new_prio) {
   }
 
   /* Find the task in the "os_active_TCB" array. */
-  if ((task_id > os_maxtaskrun) || (os_active_TCB[task_id-1U] == NULL)) {
+  if (task_id > os_maxtaskrun || os_active_TCB[task_id-1] == NULL) {
     /* Task with "task_id" not found or not started. */
     return (OS_R_NOK);
   }
-  p_task = os_active_TCB[task_id-1U];
-  p_task->prio      = new_prio;
-  p_task->prio_base = new_prio;
+  p_task = os_active_TCB[task_id-1];
+  p_task->prio = new_prio;
   if (p_task == os_tsk.run) {
     goto run;
   }
@@ -215,145 +220,38 @@ run:if (rt_rdy_prio() > new_prio) {
   return (OS_R_OK);
 }
 
-
-/*--------------------------- rt_tsk_create ---------------------------------*/
-
-OS_TID rt_tsk_create (FUNCP task, U32 prio_stksz, void *stk, void *argv) {
-  /* Start a new task declared with "task". */
-  P_TCB task_context;
-  U32 i;
-
-  /* Priority 0 is reserved for idle task! */
-  if ((prio_stksz & 0xFFU) == 0U) {
-    prio_stksz += 1U;
-  }
-  task_context = rt_alloc_box (mp_tcb);
-  if (task_context == NULL) {
-    return (0U);
-  }
-  /* If "size != 0" use a private user provided stack. */
-  task_context->stack      = stk;
-  task_context->priv_stack = (U16)(prio_stksz >> 8);
-  /* Pass parameter 'argv' to 'rt_init_context' */
-  task_context->msg = argv;
-  /* For 'size == 0' system allocates the user stack from the memory pool. */
-  rt_init_context (task_context, (U8)(prio_stksz & 0xFFU), task);
-
-  /* Find a free entry in 'os_active_TCB' table. */
-  i = rt_get_TID ();
-  if (i == 0U) {
-    return (0U);
-  }
-  os_active_TCB[i-1U] = task_context;
-  task_context->task_id = (U8)i;
-  DBG_TASK_NOTIFY(task_context, __TRUE);
-  rt_dispatch (task_context);
-  return ((OS_TID)i);
-}
-
-
 /*--------------------------- rt_tsk_delete ---------------------------------*/
 
 OS_RESULT rt_tsk_delete (OS_TID task_id) {
   /* Terminate the task identified with "task_id". */
-  P_TCB  task_context;
-  P_TCB  p_TCB;
-  P_MUCB p_MCB, p_MCB0;
+  P_TCB task_context;
 
-  if ((task_id == 0U) || (task_id == os_tsk.run->task_id)) {
+  if (task_id == 0 || task_id == os_tsk.run->task_id) {
     /* Terminate itself. */
     os_tsk.run->state     = INACTIVE;
     os_tsk.run->tsk_stack = rt_get_PSP ();
     rt_stk_check ();
-    p_MCB = os_tsk.run->p_mlnk;
-    while (p_MCB) {
-      /* Release mutexes owned by this task */
-      if (p_MCB->p_lnk) {
-        /* A task is waiting for mutex. */
-        p_TCB = rt_get_first ((P_XCB)p_MCB);
-#ifdef __CMSIS_RTOS
-        rt_ret_val (p_TCB, 0U/*osOK*/);
-#else
-        rt_ret_val (p_TCB, OS_R_MUT); 
-#endif
-        rt_rmv_dly (p_TCB);
-        p_TCB->state = READY;
-        rt_put_prio (&os_rdy, p_TCB);
-        /* A waiting task becomes the owner of this mutex. */
-        p_MCB0 = p_MCB->p_mlnk;
-        p_MCB->level  = 1U;
-        p_MCB->owner  = p_TCB;
-        p_MCB->p_mlnk = p_TCB->p_mlnk;
-        p_TCB->p_mlnk = p_MCB; 
-        p_MCB = p_MCB0;
-      }
-      else {
-        p_MCB0 = p_MCB->p_mlnk;
-        p_MCB->level  = 0U;
-        p_MCB->owner  = NULL;
-        p_MCB->p_mlnk = NULL;
-        p_MCB = p_MCB0;
-      }
-    }
-    os_active_TCB[os_tsk.run->task_id-1U] = NULL;
-    rt_free_box (mp_stk, os_tsk.run->stack);
+    os_active_TCB[os_tsk.run->task_id-1] = NULL;
+
     os_tsk.run->stack = NULL;
     DBG_TASK_NOTIFY(os_tsk.run, __FALSE);
-    rt_free_box (mp_tcb, os_tsk.run);
     os_tsk.run = NULL;
     rt_dispatch (NULL);
     /* The program should never come to this point. */
   }
   else {
     /* Find the task in the "os_active_TCB" array. */
-    if ((task_id > os_maxtaskrun) || (os_active_TCB[task_id-1U] == NULL)) {
+    if (task_id > os_maxtaskrun || os_active_TCB[task_id-1] == NULL) {
       /* Task with "task_id" not found or not started. */
       return (OS_R_NOK);
     }
-    task_context = os_active_TCB[task_id-1U];
+    task_context = os_active_TCB[task_id-1];
     rt_rmv_list (task_context);
     rt_rmv_dly (task_context);
-    p_MCB = task_context->p_mlnk;
-    while (p_MCB) {
-      /* Release mutexes owned by this task */
-      if (p_MCB->p_lnk) {
-        /* A task is waiting for mutex. */
-        p_TCB = rt_get_first ((P_XCB)p_MCB);
-#ifdef __CMSIS_RTOS
-        rt_ret_val (p_TCB, 0U/*osOK*/);
-#else
-        rt_ret_val (p_TCB, OS_R_MUT); 
-#endif
-        rt_rmv_dly (p_TCB);
-        p_TCB->state = READY;
-        rt_put_prio (&os_rdy, p_TCB);
-        /* A waiting task becomes the owner of this mutex. */
-        p_MCB0 = p_MCB->p_mlnk;
-        p_MCB->level  = 1U;
-        p_MCB->owner  = p_TCB;
-        p_MCB->p_mlnk = p_TCB->p_mlnk;
-        p_TCB->p_mlnk = p_MCB; 
-        p_MCB = p_MCB0;
-      }
-      else {
-        p_MCB0 = p_MCB->p_mlnk;
-        p_MCB->level  = 0U;
-        p_MCB->owner  = NULL;
-        p_MCB->p_mlnk = NULL;
-        p_MCB = p_MCB0;
-      }
-    }
-    os_active_TCB[task_id-1U] = NULL;
-    rt_free_box (mp_stk, task_context->stack);
+    os_active_TCB[task_id-1] = NULL;
+
     task_context->stack = NULL;
     DBG_TASK_NOTIFY(task_context, __FALSE);
-    rt_free_box (mp_tcb, task_context);
-    if (rt_rdy_prio() > os_tsk.run->prio) {
-      /* Ready task has higher priority than running task. */
-      os_tsk.run->state = READY;
-      rt_put_prio (&os_rdy, os_tsk.run);
-      rt_dispatch (NULL);
-    }
   }
   return (OS_R_OK);
 }
@@ -372,17 +270,15 @@ void rt_sys_init (FUNCP first_task, U32 prio_stksz, void *stk) {
   DBG_INIT();
 
   /* Initialize dynamic memory and task TCB pointers to NULL. */
-  for (i = 0U; i < os_maxtaskrun; i++) {
+  for (i = 0; i < os_maxtaskrun; i++) {
     os_active_TCB[i] = NULL;
   }
-  rt_init_box (mp_tcb, (U32)mp_tcb_size, sizeof(struct OS_TCB));
-  rt_init_box (mp_stk, mp_stk_size, BOX_ALIGN_8 | (U16)(os_stackinfo));
-  rt_init_box ((U32 *)m_tmr, (U32)mp_tmr_size, sizeof(struct OS_TMR));
 
   /* Set up TCB of idle demon */
-  os_idle_TCB.task_id    = 255U;
-  os_idle_TCB.priv_stack = 0U;
-  rt_init_context (&os_idle_TCB, 0U, os_idle_demon);
+  os_idle_TCB.task_id = 255;
+  os_idle_TCB.priv_stack = idle_task_stack_size;
+  os_idle_TCB.stack = idle_task_stack;
+  rt_init_context (&os_idle_TCB, 0, os_idle_demon);
 
   /* Set up ready list: initially empty */
   os_rdy.cb_type = HCB;
@@ -391,31 +287,31 @@ void rt_sys_init (FUNCP first_task, U32 prio_stksz, void *stk) {
   os_dly.cb_type = HCB;
   os_dly.p_dlnk  = NULL;
   os_dly.p_blnk  = NULL;
-  os_dly.delta_time = 0U;
+  os_dly.delta_time = 0;
 
-  /* Fix SP and system variables to assume idle task is running */
+  /* Fix SP and systemvariables to assume idle task is running  */
   /* Transform main program into idle task by assuming idle TCB */
 #ifndef __CMSIS_RTOS
-  rt_set_PSP (os_idle_TCB.tsk_stack+32U);
+  rt_set_PSP (os_idle_TCB.tsk_stack+32);
 #endif
   os_tsk.run = &os_idle_TCB;
   os_tsk.run->state = RUNNING;
 
   /* Initialize ps queue */
-  os_psq->first = 0U;
-  os_psq->last  = 0U;
+  os_psq->first = 0;
+  os_psq->last  = 0;
   os_psq->size  = os_fifo_size;
 
   rt_init_robin ();
 
-#ifndef __CMSIS_RTOS
-  /* Initialize SVC and PendSV */
+  /* Intitialize SVC and PendSV */
   rt_svc_init ();
 
-  /* Initialize and start system clock timer */
+#ifndef __CMSIS_RTOS
+  /* Intitialize and start system clock timer */
   os_tick_irqn = os_tick_init ();
   if (os_tick_irqn >= 0) {
-    OS_X_INIT((U32)os_tick_irqn);
+    OS_X_INIT(os_tick_irqn);
   }
 
   /* Start up first user task before entering the endless loop */
@@ -430,13 +326,10 @@ void rt_sys_init (FUNCP first_task, U32 prio_stksz, void *stk) {
 void rt_sys_start (void) {
   /* Start system */
 
-  /* Initialize SVC and PendSV */
-  rt_svc_init ();
-
-  /* Initialize and start system clock timer */
+  /* Intitialize and start system clock timer */
   os_tick_irqn = os_tick_init ();
   if (os_tick_irqn >= 0) {
-    OS_X_INIT((U32)os_tick_irqn);
+    OS_X_INIT(os_tick_irqn);
   }
 }
 #endif

@@ -1,4 +1,4 @@
-/* TCPSocket
+/* Socket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,26 +14,82 @@
  * limitations under the License.
  */
 
-#ifndef TCP_SOCKET_H
-#define TCP_SOCKET_H
+#ifndef TCPSOCKET_H
+#define TCPSOCKET_H
 
 #include "Socket.h"
+#include "NetworkInterface.h"
 
-/** TCPSocket class
- *  API for handling TCP sockets. The implementation is determined
- *  by the interface passed during construction.
- */
-class TCPSocket : public Socket
-{
+/**
+TCP socket connection
+*/
+class TCPSocket : public Socket {
 public:
-    /** Create a socket using the specified network interface
-     *  No network operations are performed until the socket is actually used
-     *  @param iface The network interface to use
-     *  @param url Optional URL to connect to, copied internally
-     *  @param port Optional port to connect to
-     */
-    TCPSocket(NetworkInterface *iface)
-        : Socket(iface, NS_TCP) {}
+    /** TCP socket lifetime
+    */
+    TCPSocket(NetworkInterface *iface);
+    virtual ~TCPSocket();
+    
+    /** Connects this TCP socket to the server
+    \param host     The host to connect to. It can either be an IP Address
+                    or a hostname that will be resolved with DNS
+    \param port     The host's port to connect to
+    \return         0 on success, negative on failure
+    */
+    int connect(const char *host, uint16_t port);
+
+    /** Connects this TCP socket to the server
+    \param address  SocketAddress to connect to
+    \return         0 on success, negative on failure
+    */
+    int connect(const SocketAddress &address);
+    
+    /** Check if the socket is connected
+    \return         true if connected, false otherwise
+    */
+    bool is_connected();
+    
+    /** Send data to the remote host
+    \param data     The buffer to send to the host
+    \param size     The length of the buffer to send
+    \return         Number of written bytes on success, negative on failure
+    */
+    int send(const void *data, unsigned size);
+    
+    /** Receive data from the remote host
+    \param data     The buffer in which to store the data received from the host
+    \param size     The maximum length of the buffer
+    \return         Number of received bytes on success, negative on failure
+    */
+    int recv(void *data, unsigned size);
+
+    /** Register a callback on when send is ready
+    \param callback Function to call when send will succeed, may be called in
+                    interrupt context.
+    */
+    void attach_send(FunctionPointer callback);
+
+    template <typename T, typename M>
+    void attach_send(T *tptr, M mptr) {
+        attach_send(FunctionPointer(tptr, mptr));
+    }
+
+    /** Register a callback on when recv is ready
+    \param callback Function to call when recv will succeed, may be called in
+                    interrupt context.
+    */
+    void attach_recv(FunctionPointer callback);
+
+    template <typename T, typename M>
+    void attach_recv(T *tptr, M mptr) {
+        attach_recv(FunctionPointer(tptr, mptr));
+    }
+
+private:
+    friend class TCPServer;
+
+    FunctionPointer _send_cb;
+    FunctionPointer _recv_cb;
 };
 
 #endif

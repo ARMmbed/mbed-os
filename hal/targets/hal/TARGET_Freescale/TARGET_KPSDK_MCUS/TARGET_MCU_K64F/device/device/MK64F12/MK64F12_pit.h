@@ -15,6 +15,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -68,6 +71,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-08-03) (ARM)
+**         All accesses to memory are replaced by equivalent macros; this allows
+**         memory read/write operations to be re-defined if needed (for example,
+**         to implement new security features
 **
 ** ###################################################################
 */
@@ -130,8 +137,8 @@ typedef union _hw_pit_mcr
 #define HW_PIT_MCR_ADDR(x)       ((x) + 0x0U)
 
 #define HW_PIT_MCR(x)            (*(__IO hw_pit_mcr_t *) HW_PIT_MCR_ADDR(x))
-#define HW_PIT_MCR_RD(x)         (HW_PIT_MCR(x).U)
-#define HW_PIT_MCR_WR(x, v)      (HW_PIT_MCR(x).U = (v))
+#define HW_PIT_MCR_RD(x)         (ADDRESS_READ(hw_pit_mcr_t, HW_PIT_MCR_ADDR(x)))
+#define HW_PIT_MCR_WR(x, v)      (ADDRESS_WRITE(hw_pit_mcr_t, HW_PIT_MCR_ADDR(x), v))
 #define HW_PIT_MCR_SET(x, v)     (HW_PIT_MCR_WR(x, HW_PIT_MCR_RD(x) |  (v)))
 #define HW_PIT_MCR_CLR(x, v)     (HW_PIT_MCR_WR(x, HW_PIT_MCR_RD(x) & ~(v)))
 #define HW_PIT_MCR_TOG(x, v)     (HW_PIT_MCR_WR(x, HW_PIT_MCR_RD(x) ^  (v)))
@@ -156,13 +163,13 @@ typedef union _hw_pit_mcr
 #define BS_PIT_MCR_FRZ       (1U)          /*!< Bit field size in bits for PIT_MCR_FRZ. */
 
 /*! @brief Read current value of the PIT_MCR_FRZ field. */
-#define BR_PIT_MCR_FRZ(x)    (BITBAND_ACCESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_FRZ))
+#define BR_PIT_MCR_FRZ(x)    (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_FRZ)))
 
 /*! @brief Format value for bitfield PIT_MCR_FRZ. */
 #define BF_PIT_MCR_FRZ(v)    ((uint32_t)((uint32_t)(v) << BP_PIT_MCR_FRZ) & BM_PIT_MCR_FRZ)
 
 /*! @brief Set the FRZ field to a new value. */
-#define BW_PIT_MCR_FRZ(x, v) (BITBAND_ACCESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_FRZ) = (v))
+#define BW_PIT_MCR_FRZ(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_FRZ), v))
 /*@}*/
 
 /*!
@@ -181,13 +188,13 @@ typedef union _hw_pit_mcr
 #define BS_PIT_MCR_MDIS      (1U)          /*!< Bit field size in bits for PIT_MCR_MDIS. */
 
 /*! @brief Read current value of the PIT_MCR_MDIS field. */
-#define BR_PIT_MCR_MDIS(x)   (BITBAND_ACCESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_MDIS))
+#define BR_PIT_MCR_MDIS(x)   (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_MDIS)))
 
 /*! @brief Format value for bitfield PIT_MCR_MDIS. */
 #define BF_PIT_MCR_MDIS(v)   ((uint32_t)((uint32_t)(v) << BP_PIT_MCR_MDIS) & BM_PIT_MCR_MDIS)
 
 /*! @brief Set the MDIS field to a new value. */
-#define BW_PIT_MCR_MDIS(x, v) (BITBAND_ACCESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_MDIS) = (v))
+#define BW_PIT_MCR_MDIS(x, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_PIT_MCR_ADDR(x), BP_PIT_MCR_MDIS), v))
 /*@}*/
 
 /*******************************************************************************
@@ -219,8 +226,8 @@ typedef union _hw_pit_ldvaln
 #define HW_PIT_LDVALn_ADDR(x, n) ((x) + 0x100U + (0x10U * (n)))
 
 #define HW_PIT_LDVALn(x, n)      (*(__IO hw_pit_ldvaln_t *) HW_PIT_LDVALn_ADDR(x, n))
-#define HW_PIT_LDVALn_RD(x, n)   (HW_PIT_LDVALn(x, n).U)
-#define HW_PIT_LDVALn_WR(x, n, v) (HW_PIT_LDVALn(x, n).U = (v))
+#define HW_PIT_LDVALn_RD(x, n)   (ADDRESS_READ(hw_pit_ldvaln_t, HW_PIT_LDVALn_ADDR(x, n)))
+#define HW_PIT_LDVALn_WR(x, n, v) (ADDRESS_WRITE(hw_pit_ldvaln_t, HW_PIT_LDVALn_ADDR(x, n), v))
 #define HW_PIT_LDVALn_SET(x, n, v) (HW_PIT_LDVALn_WR(x, n, HW_PIT_LDVALn_RD(x, n) |  (v)))
 #define HW_PIT_LDVALn_CLR(x, n, v) (HW_PIT_LDVALn_WR(x, n, HW_PIT_LDVALn_RD(x, n) & ~(v)))
 #define HW_PIT_LDVALn_TOG(x, n, v) (HW_PIT_LDVALn_WR(x, n, HW_PIT_LDVALn_RD(x, n) ^  (v)))
@@ -282,7 +289,7 @@ typedef union _hw_pit_cvaln
 #define HW_PIT_CVALn_ADDR(x, n)  ((x) + 0x104U + (0x10U * (n)))
 
 #define HW_PIT_CVALn(x, n)       (*(__I hw_pit_cvaln_t *) HW_PIT_CVALn_ADDR(x, n))
-#define HW_PIT_CVALn_RD(x, n)    (HW_PIT_CVALn(x, n).U)
+#define HW_PIT_CVALn_RD(x, n)    (ADDRESS_READ(hw_pit_cvaln_t, HW_PIT_CVALn_ADDR(x, n)))
 /*@}*/
 
 /*
@@ -336,8 +343,8 @@ typedef union _hw_pit_tctrln
 #define HW_PIT_TCTRLn_ADDR(x, n) ((x) + 0x108U + (0x10U * (n)))
 
 #define HW_PIT_TCTRLn(x, n)      (*(__IO hw_pit_tctrln_t *) HW_PIT_TCTRLn_ADDR(x, n))
-#define HW_PIT_TCTRLn_RD(x, n)   (HW_PIT_TCTRLn(x, n).U)
-#define HW_PIT_TCTRLn_WR(x, n, v) (HW_PIT_TCTRLn(x, n).U = (v))
+#define HW_PIT_TCTRLn_RD(x, n)   (ADDRESS_READ(hw_pit_tctrln_t, HW_PIT_TCTRLn_ADDR(x, n)))
+#define HW_PIT_TCTRLn_WR(x, n, v) (ADDRESS_WRITE(hw_pit_tctrln_t, HW_PIT_TCTRLn_ADDR(x, n), v))
 #define HW_PIT_TCTRLn_SET(x, n, v) (HW_PIT_TCTRLn_WR(x, n, HW_PIT_TCTRLn_RD(x, n) |  (v)))
 #define HW_PIT_TCTRLn_CLR(x, n, v) (HW_PIT_TCTRLn_WR(x, n, HW_PIT_TCTRLn_RD(x, n) & ~(v)))
 #define HW_PIT_TCTRLn_TOG(x, n, v) (HW_PIT_TCTRLn_WR(x, n, HW_PIT_TCTRLn_RD(x, n) ^  (v)))
@@ -362,13 +369,13 @@ typedef union _hw_pit_tctrln
 #define BS_PIT_TCTRLn_TEN    (1U)          /*!< Bit field size in bits for PIT_TCTRLn_TEN. */
 
 /*! @brief Read current value of the PIT_TCTRLn_TEN field. */
-#define BR_PIT_TCTRLn_TEN(x, n) (BITBAND_ACCESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TEN))
+#define BR_PIT_TCTRLn_TEN(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TEN)))
 
 /*! @brief Format value for bitfield PIT_TCTRLn_TEN. */
 #define BF_PIT_TCTRLn_TEN(v) ((uint32_t)((uint32_t)(v) << BP_PIT_TCTRLn_TEN) & BM_PIT_TCTRLn_TEN)
 
 /*! @brief Set the TEN field to a new value. */
-#define BW_PIT_TCTRLn_TEN(x, n, v) (BITBAND_ACCESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TEN) = (v))
+#define BW_PIT_TCTRLn_TEN(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TEN), v))
 /*@}*/
 
 /*!
@@ -388,13 +395,13 @@ typedef union _hw_pit_tctrln
 #define BS_PIT_TCTRLn_TIE    (1U)          /*!< Bit field size in bits for PIT_TCTRLn_TIE. */
 
 /*! @brief Read current value of the PIT_TCTRLn_TIE field. */
-#define BR_PIT_TCTRLn_TIE(x, n) (BITBAND_ACCESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TIE))
+#define BR_PIT_TCTRLn_TIE(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TIE)))
 
 /*! @brief Format value for bitfield PIT_TCTRLn_TIE. */
 #define BF_PIT_TCTRLn_TIE(v) ((uint32_t)((uint32_t)(v) << BP_PIT_TCTRLn_TIE) & BM_PIT_TCTRLn_TIE)
 
 /*! @brief Set the TIE field to a new value. */
-#define BW_PIT_TCTRLn_TIE(x, n, v) (BITBAND_ACCESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TIE) = (v))
+#define BW_PIT_TCTRLn_TIE(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_TIE), v))
 /*@}*/
 
 /*!
@@ -414,13 +421,13 @@ typedef union _hw_pit_tctrln
 #define BS_PIT_TCTRLn_CHN    (1U)          /*!< Bit field size in bits for PIT_TCTRLn_CHN. */
 
 /*! @brief Read current value of the PIT_TCTRLn_CHN field. */
-#define BR_PIT_TCTRLn_CHN(x, n) (BITBAND_ACCESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_CHN))
+#define BR_PIT_TCTRLn_CHN(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_CHN)))
 
 /*! @brief Format value for bitfield PIT_TCTRLn_CHN. */
 #define BF_PIT_TCTRLn_CHN(v) ((uint32_t)((uint32_t)(v) << BP_PIT_TCTRLn_CHN) & BM_PIT_TCTRLn_CHN)
 
 /*! @brief Set the CHN field to a new value. */
-#define BW_PIT_TCTRLn_CHN(x, n, v) (BITBAND_ACCESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_CHN) = (v))
+#define BW_PIT_TCTRLn_CHN(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_PIT_TCTRLn_ADDR(x, n), BP_PIT_TCTRLn_CHN), v))
 /*@}*/
 /*******************************************************************************
  * HW_PIT_TFLGn - Timer Flag Register
@@ -452,8 +459,8 @@ typedef union _hw_pit_tflgn
 #define HW_PIT_TFLGn_ADDR(x, n)  ((x) + 0x10CU + (0x10U * (n)))
 
 #define HW_PIT_TFLGn(x, n)       (*(__IO hw_pit_tflgn_t *) HW_PIT_TFLGn_ADDR(x, n))
-#define HW_PIT_TFLGn_RD(x, n)    (HW_PIT_TFLGn(x, n).U)
-#define HW_PIT_TFLGn_WR(x, n, v) (HW_PIT_TFLGn(x, n).U = (v))
+#define HW_PIT_TFLGn_RD(x, n)    (ADDRESS_READ(hw_pit_tflgn_t, HW_PIT_TFLGn_ADDR(x, n)))
+#define HW_PIT_TFLGn_WR(x, n, v) (ADDRESS_WRITE(hw_pit_tflgn_t, HW_PIT_TFLGn_ADDR(x, n), v))
 #define HW_PIT_TFLGn_SET(x, n, v) (HW_PIT_TFLGn_WR(x, n, HW_PIT_TFLGn_RD(x, n) |  (v)))
 #define HW_PIT_TFLGn_CLR(x, n, v) (HW_PIT_TFLGn_WR(x, n, HW_PIT_TFLGn_RD(x, n) & ~(v)))
 #define HW_PIT_TFLGn_TOG(x, n, v) (HW_PIT_TFLGn_WR(x, n, HW_PIT_TFLGn_RD(x, n) ^  (v)))
@@ -480,13 +487,13 @@ typedef union _hw_pit_tflgn
 #define BS_PIT_TFLGn_TIF     (1U)          /*!< Bit field size in bits for PIT_TFLGn_TIF. */
 
 /*! @brief Read current value of the PIT_TFLGn_TIF field. */
-#define BR_PIT_TFLGn_TIF(x, n) (BITBAND_ACCESS32(HW_PIT_TFLGn_ADDR(x, n), BP_PIT_TFLGn_TIF))
+#define BR_PIT_TFLGn_TIF(x, n) (ADDRESS_READ(uint32_t, BITBAND_ADDRESS32(HW_PIT_TFLGn_ADDR(x, n), BP_PIT_TFLGn_TIF)))
 
 /*! @brief Format value for bitfield PIT_TFLGn_TIF. */
 #define BF_PIT_TFLGn_TIF(v)  ((uint32_t)((uint32_t)(v) << BP_PIT_TFLGn_TIF) & BM_PIT_TFLGn_TIF)
 
 /*! @brief Set the TIF field to a new value. */
-#define BW_PIT_TFLGn_TIF(x, n, v) (BITBAND_ACCESS32(HW_PIT_TFLGn_ADDR(x, n), BP_PIT_TFLGn_TIF) = (v))
+#define BW_PIT_TFLGn_TIF(x, n, v) (ADDRESS_WRITE(uint32_t, BITBAND_ADDRESS32(HW_PIT_TFLGn_ADDR(x, n), BP_PIT_TFLGn_TIF), v))
 /*@}*/
 
 /*******************************************************************************

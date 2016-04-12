@@ -461,16 +461,22 @@ extern "C" void __iar_argc_argv() {
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" int __end__;
 
-#if defined(TARGET_CORTEX_A)
 extern "C" uint32_t  __HeapLimit;
-#endif
 
 // Turn off the errno macro and use actual global variable instead.
 #undef errno
 extern "C" int errno;
 
-// For ARM7 only
-register unsigned char * stack_ptr __asm ("sp");
+// Stack pointer handling
+#ifdef  __ICCARM__
+#define __current_sp() __get_SP()
+#else
+static inline unsigned int __current_sp(void)
+{
+    register unsigned sp asm("sp");
+    return sp;
+}
+#endif /* __ICCARM__ */
 
 // Dynamic memory allocation related syscall.
 extern "C" caddr_t _sbrk(int incr) {
@@ -478,13 +484,7 @@ extern "C" caddr_t _sbrk(int incr) {
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
 
-#if defined(TARGET_ARM7)
-    if (new_heap >= stack_ptr) {
-#elif defined(TARGET_CORTEX_A)
     if (new_heap >= (unsigned char*)&__HeapLimit) {     /* __HeapLimit is end of heap section */
-#else
-    if (new_heap >= (unsigned char*)__get_MSP()) {
-#endif
         errno = ENOMEM;
         return (caddr_t)-1;
     }

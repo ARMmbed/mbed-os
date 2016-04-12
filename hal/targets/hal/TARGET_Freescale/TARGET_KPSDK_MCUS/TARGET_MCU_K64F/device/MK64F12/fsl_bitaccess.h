@@ -9,6 +9,9 @@
 **     Copyright (c) 2014 Freescale Semiconductor, Inc.
 **     All rights reserved.
 **
+**     (C) COPYRIGHT 2015-2015 ARM Limited
+**     ALL RIGHTS RESERVED
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -62,6 +65,10 @@
 **         The declaration of clock configurations has been moved to separate header file system_MK64F12.h
 **         Update of SystemInit() and SystemCoreClockUpdate() functions.
 **         Module access macro module_BASES replaced by module_BASE_PTRS.
+**     - rev. 2.6 (2015-07-30) (ARM)
+**         Macros for bitband address calculation have been decoupled from the
+**         actual address de-referencing in BITBAND_ACCESSxx macros;
+**         Added fallback macros for default read/write operations
 **
 ** ###################################################################
 */
@@ -72,6 +79,51 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "uvisor-lib/uvisor-lib.h"
+
+/*
+ * Fallback macros for write/read operations
+ */
+#ifndef ADDRESS_READ
+/* the conditional statement will be optimised away since the compiler already
+ * knows the sizeof(type) */
+#define ADDRESS_READ(type, addr) \
+    (sizeof(type) == 4 ? *((volatile uint32_t *) (addr)) : \
+     sizeof(type) == 2 ? *((volatile uint16_t *) (addr)) : \
+     sizeof(type) == 1 ? *((volatile uint8_t  *) (addr)) : 0)
+#endif
+
+#ifndef ADDRESS_WRITE
+/* the switch statement will be optimised away since the compiler already knows
+ * the sizeof(type) */
+#define ADDRESS_WRITE(type, addr, val) \
+    { \
+        switch(sizeof(type)) \
+        { \
+            case 4: \
+                *((volatile uint32_t *) (addr)) = (uint32_t) (val); \
+                break; \
+            case 2: \
+                *((volatile uint16_t *) (addr)) = (uint16_t) (val); \
+                break; \
+            case 1: \
+                *((volatile uint8_t  *) (addr)) = (uint8_t ) (val); \
+                break; \
+        } \
+    }
+#endif
+
+#ifndef UNION_READ
+#define UNION_READ(type, addr, fieldU, fieldB) ((*((volatile type *) (addr))).fieldB)
+#endif
+
+/*
+ * Macros to translate a pair of regular address and bit to their bit band alias
+ */
+#define BITBAND_ADDRESS(Reg,Bit)   (0x42000000u + (32u*((uint32_t)(Reg) - (uint32_t)0x40000000u)) + (4u*((uint32_t)(Bit))))
+#define BITBAND_ADDRESS32(Reg,Bit) ((uint32_t volatile*)BITBAND_ADDRESS(Reg,Bit))
+#define BITBAND_ADDRESS16(Reg,Bit) ((uint16_t volatile*)BITBAND_ADDRESS(Reg,Bit))
+#define BITBAND_ADDRESS8(Reg,Bit)  ((uint8_t  volatile*)BITBAND_ADDRESS(Reg,Bit))
 
 /**
  * @brief Macro to access a single bit of a 32-bit peripheral register (bit band region
@@ -80,7 +132,7 @@
  * @param Bit Bit number to access.
  * @return Value of the targeted bit in the bit band region.
  */
-#define BITBAND_ACCESS32(Reg,Bit) (*((uint32_t volatile*)(0x42000000u + (32u*((uint32_t)(Reg) - (uint32_t)0x40000000u)) + (4u*((uint32_t)(Bit))))))
+#define BITBAND_ACCESS32(Reg,Bit) (*BITBAND_ADDRESS32(Reg,Bit))
 
 /**
  * @brief Macro to access a single bit of a 16-bit peripheral register (bit band region
@@ -89,7 +141,7 @@
  * @param Bit Bit number to access.
  * @return Value of the targeted bit in the bit band region.
  */
-#define BITBAND_ACCESS16(Reg,Bit) (*((uint16_t volatile*)(0x42000000u + (32u*((uint32_t)(Reg) - (uint32_t)0x40000000u)) + (4u*((uint32_t)(Bit))))))
+#define BITBAND_ACCESS16(Reg,Bit) (*BITBAND_ADDRESS16(Reg,Bit))
 
 /**
  * @brief Macro to access a single bit of an 8-bit peripheral register (bit band region
@@ -98,7 +150,7 @@
  * @param Bit Bit number to access.
  * @return Value of the targeted bit in the bit band region.
  */
-#define BITBAND_ACCESS8(Reg,Bit) (*((uint8_t volatile*)(0x42000000u + (32u*((uint32_t)(Reg) - (uint32_t)0x40000000u)) + (4u*((uint32_t)(Bit))))))
+#define BITBAND_ACCESS8(Reg,Bit) (*BITBAND_ADDRESS8(Reg,Bit))
 
 /*
  * Macros for single instance registers

@@ -145,7 +145,9 @@ if __name__ == '__main__':
             project_dir = options.source_dir
             project_name = basename(project_dir)
             project_temp = project_dir
-            lib_symbols = [] + options.macros
+            lib_symbols = []
+            if options.macros:
+                lib_symbols += options.macros
             zip = False   # don't create zip
             clean = False # don't cleanup because we use the actual source tree to generate IDE files
         else:
@@ -179,7 +181,9 @@ if __name__ == '__main__':
             # Some libraries have extra macros (called by exporter symbols) to we need to pass
             # them to maintain compilation macros integrity between compiled library and
             # header files we might use with it
-            lib_symbols = [] + options.macros
+            lib_symbols = []
+            if options.macros:
+                lib_symbols += options.macros
             for lib in LIBRARIES:
                 if lib['build_dir'] in test.dependencies:
                     lib_macros = lib.get('macros', None)

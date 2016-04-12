@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join
+from os.path import join, dirname
 
 from tools.toolchains import mbedToolchain
 from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
@@ -53,10 +53,11 @@ class ARM(mbedToolchain):
             common.extend(["--asm", "--interleave"])
 
         if "debug-info" in self.options:
-            common.append("-g")
             common.append("-O0")
         else:
             common.append("-O3")
+        # add debug symbols for all builds
+        common.append("-g")
 
         common_c = [
             "--md", "--no_depend_system_headers",
@@ -81,14 +82,6 @@ class ARM(mbedToolchain):
         for tool in [self.asm, self.cc, self.cppc]:
             if option in tool:
                 tool.remove(option)
-
-    def assemble(self, source, object, includes):
-        # Preprocess first, then assemble
-        tempfile = object + '.E.s'
-        return [
-            self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source],
-            self.hook.get_cmdline_assembler(self.asm + ["-o", object, tempfile])
-        ]
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -125,6 +118,26 @@ class ARM(mbedToolchain):
     def archive(self, objects, lib_path):
         self.default_cmd([self.ar, '-r', lib_path] + objects)
 
+    @hook_tool
+    def assemble(self, source, object, includes):
+        # Preprocess first, then assemble
+        tempfile = object + '.E.s'
+        
+        # Build preprocess assemble command
+        cmd_pre = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source]
+        
+        # Build main assemble command
+        cmd = self.asm + ["-o", object, tempfile]
+
+        # Call cmdline hook
+        cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
+        cmd = self.hook.get_cmdline_assembler(cmd)
+       
+        # Return command array, don't execute
+        return [cmd_pre, cmd]
+
+
+    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         if len(lib_dirs):
             args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt"]
@@ -134,26 +147,43 @@ class ARM(mbedToolchain):
         if mem_map:
             args.extend(["--scatter", mem_map])
 
-        if hasattr(self.target, "link_cmdline_hook"):
-            args = self.target.link_cmdline_hook(self.__class__.__name__, args)
+        # Build linker command
+        cmd = self.ld + args + objects + libraries + self.sys_libs
 
-        self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_linker(cmd)
+
+        # Split link command to linker executable + response file
+        link_files = join(dirname(output), ".link_files.txt")
+        with open(link_files, "wb") as f:
+            cmd_linker = cmd[0]
+            cmd_list = []
+            for c in cmd[1:]:
+                cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
+            string = " ".join(cmd_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([cmd_linker, '--via', link_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):
-        args = [self.elf2bin, '--bin', '-o', bin, elf]
+        # Build binary command
+        cmd = [self.elf2bin, '--bin', '-o', bin, elf]
 
-        if hasattr(self.target, "binary_cmdline_hook"):
-            args = self.target.binary_cmdline_hook(self.__class__.__name__, args)
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_binary(cmd)
 
-        self.default_cmd(args)
+        # Exec command
+        self.default_cmd(cmd)
+
 
 class ARM_STD(ARM):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
         self.cc   += ["-D__ASSERT_MSG"]
         self.cppc += ["-D__ASSERT_MSG"]
-        self.ld.append("--libpath=%s" % ARM_LIB)
+        self.ld.extend(["--libpath", ARM_LIB])
 
 
 class ARM_MICRO(ARM):
@@ -184,4 +214,4 @@ class ARM_MICRO(ARM):
             elif target.core in ["Cortex-M0", "Cortex-M0+"]:
                 self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
         else:
-            self.ld.append("--libpath=%s" % ARM_LIB)
+            self.ld.extend(["--libpath", ARM_LIB])
