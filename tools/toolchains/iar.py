@@ -105,11 +105,13 @@ class IAR(mbedToolchain):
     def assemble(self, source, object, includes):
         return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
 
+    @hook_tool
     def archive(self, objects, lib_path):
         if exists(lib_path):
             remove(lib_path)
         self.default_cmd([self.ar, lib_path] + objects)
 
+    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         args = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization"]
         self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
