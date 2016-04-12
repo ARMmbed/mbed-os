@@ -16,7 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, exists
+from os.path import join, exists, dirname
 
 from tools.toolchains import mbedToolchain
 from tools.settings import IAR_PATH
@@ -103,8 +103,16 @@ class IAR(mbedToolchain):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
 
+    @hook_tool
     def assemble(self, source, object, includes):
-        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
+        # Build assemble command
+        cmd = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_assembler(cmd)
+
+        # Return command array, don't execute
+        return [cmd]
 
     @hook_tool
     def archive(self, objects, lib_path):
@@ -114,9 +122,32 @@ class IAR(mbedToolchain):
 
     @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization"]
-        self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
+        # Build linker command
+        cmd = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization"] + objects + libraries
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_linker(cmd)
+
+        # Split link command to linker executable + response file
+        link_files = join(dirname(output), ".link_files.txt")
+        with open(link_files, "wb") as f:
+            cmd_linker = cmd[0]
+            cmd_list = []
+            for c in cmd[1:]:
+                cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
+            string = " ".join(cmd_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([cmd_linker, '-f', link_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):
-        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', elf, bin]))
+        # Build binary command
+        cmd = [self.elf2bin, "--bin", elf, bin]
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_binary(cmd)
+
+        # Exec command
+        self.default_cmd(cmd)

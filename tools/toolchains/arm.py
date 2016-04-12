@@ -149,7 +149,6 @@ class ARM(mbedToolchain):
 
         # Build linker command
         cmd = self.ld + args + objects + libraries + self.sys_libs
-        print self.ld
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_linker(cmd)
