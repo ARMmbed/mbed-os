@@ -291,3 +291,5 @@ if __name__ == '__main__':
                 traceback.print_exc(file=sys.stdout)
             else:
                 print "[ERROR] %s" % str(e)
+            
+            sys.exit(1)
