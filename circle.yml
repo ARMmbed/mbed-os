@@ -1,17 +1,20 @@
 test:
     override:
-        - cd ../testproject
-        - python ../neo/neo.py compile -m K64F -t GCC_ARM -j 0 --source=mbed-os\TESTS\integration\basic
+        - cd ../testproject && python ../neo/neo.py deploy
+        - cd ../testproject && python ../neo/neo.py compile -m K64F -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && python ../neo/neo.py compile -m LPC1768 -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && python ../neo/neo.py compile -m NUCLEO_F401RE -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && python ../neo/neo.py compile -m NRF51822 -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
 
 dependencies:
     pre:
-        - cd ../
-        - ls
-        - git clone https://github.com/ARMmbed/neo.git
-        - mkdir testproject
-        - mv mbed-os testproject
-        - cd testproject
-        - git init
-        - sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa
-        - sudo apt-get update
-        - sudo apt-get install gcc-arm-embedded
+        - cd ../ && ls
+        - cd ../ && git clone https://github.com/ARMmbed/neo.git
+        - cd ../ && mkdir testproject
+        - cd ../ && cp -r mbed-os testproject
+        - cd ../testproject && git init
+        - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+        - sudo apt-get -y update
+        - sudo apt-get -y install  gcc-arm-embedded
+    override:
+        - cd ../testproject/mbed-os && pip install -r requirements.txt
