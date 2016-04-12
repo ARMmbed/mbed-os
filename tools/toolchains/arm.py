@@ -53,10 +53,11 @@ class ARM(mbedToolchain):
             common.extend(["--asm", "--interleave"])
 
         if "debug-info" in self.options:
-            common.append("-g")
             common.append("-O0")
         else:
             common.append("-O3")
+        # add debug symbols for all builds
+        common.append("-g")
 
         common_c = [
             "--md", "--no_depend_system_headers",
