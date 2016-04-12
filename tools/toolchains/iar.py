@@ -53,10 +53,11 @@ class IAR(mbedToolchain):
                 
 
         if "debug-info" in self.options:
-            c_flags.append("-r")
             c_flags.append("-On")
         else:
             c_flags.append("-Oh")
+        # add debug symbols for all builds
+        c_flags.append("-r")
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
