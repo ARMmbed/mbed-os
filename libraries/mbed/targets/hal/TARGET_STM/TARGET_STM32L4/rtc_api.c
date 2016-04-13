@@ -92,8 +92,8 @@ void rtc_init(void)
 	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
 		error("Cannot initialize RTC with LSI\n");
 	}
-	// This value is LSI typical value. To be measured precisely using a timer input capture for example.
-	rtc_freq = 40000;
+	// This value is LSI typical value (see device datasheet)
+	rtc_freq = 32000;
 #endif
 
     // Check if RTC is already initialized
