@@ -52,6 +52,12 @@
 #     define LED2       0
 #     define LED3       0
 #     define LED4       0
+# elif defined(TARGET_SAMG55J19)
+#     define LED_PORT   PortA
+#     define LED1       (1 <<  6) /*PA06*/
+#     define LED2       0
+#     define LED3       0
+#     define LED4       0
 # else
   #error [NOT_SUPPORTED] This test can't be ran on this target
 #endif

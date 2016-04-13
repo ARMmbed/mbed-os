@@ -17,6 +17,7 @@ limitations under the License.
 import os, tempfile
 from os.path import join, exists, basename
 from shutil import copytree, rmtree, copy
+import yaml
 
 from workspace_tools.utils import mkdir
 from workspace_tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32
@@ -108,6 +109,25 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
 
     zip_path = None
     if report['success']:
+        # readme.txt to contain more exported data
+        exporter_yaml = { 
+            'project_generator': {
+                'active' : False,
+            }
+        }
+        if use_progen:
+            try:
+                import pkg_resources
+                version = pkg_resources.get_distribution('project_generator').version
+                exporter_yaml['project_generator']['version'] = version
+                exporter_yaml['project_generator']['active'] =  True;
+                exporter_yaml['project_generator_definitions'] = {}
+                version = pkg_resources.get_distribution('project_generator_definitions').version
+                exporter_yaml['project_generator_definitions']['version'] = version
+            except ImportError:
+                pass
+        with open(os.path.join(tempdir, 'exporter.yaml'), 'w') as outfile:
+            yaml.dump(exporter_yaml, outfile, default_flow_style=False)
         # add readme file to every offline export.
         open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/Getting-Started-mbed-Exporters#%s"/>'% (ide))
         # copy .hgignore file to exported direcotry as well.
