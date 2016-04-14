@@ -406,6 +406,10 @@ void rt_sys_init (FUNCP first_task, U32 prio_stksz, void *stk) {
   os_tsk.run = &os_idle_TCB;
   os_tsk.run->state = RUNNING;
 
+  /* Set the current thread to idle, so that on exit from this SVCall we do not
+   * de-reference a NULL TCB. */
+  rt_switch_req(&os_idle_TCB);
+
   /* Initialize ps queue */
   os_psq->first = 0U;
   os_psq->last  = 0U;
