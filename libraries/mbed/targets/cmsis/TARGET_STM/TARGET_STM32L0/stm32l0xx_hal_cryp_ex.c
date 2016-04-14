@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   CRYPEx HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -40,16 +40,17 @@
   ******************************************************************************  
   */ 
 
-#if defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+#if defined (STM32L021xx) ||defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
-#ifdef HAL_CRYP_MODULE_ENABLED
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
+#ifdef HAL_CRYP_MODULE_ENABLED
 
-/** @defgroup CRYPEx CRYPEx
+
+/** @addtogroup CRYPEx
   * @brief CRYP HAL Extended module driver.
   * @{
   */
@@ -62,12 +63,12 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup CRYPEx_Exported_Functions CRYPEx Exported Functions
+/** @addtogroup CRYPEx_Exported_Functions
   * @{
   */
 
 
-/** @defgroup CRYPEx_Exported_Functions_Group1 Extended features functions 
+/** @addtogroup CRYPEx_Exported_Functions_Group1
  *  @brief    Extended features functions. 
  *
 @verbatim   
@@ -89,6 +90,9 @@
   */
 __weak void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcryp);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CRYP_ComputationCpltCallback could be implemented in the user file
    */ 
@@ -106,11 +110,11 @@ __weak void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp)
   * @}
   */
 
+#endif /* HAL_CRYP_MODULE_ENABLED */
+
 /**
   * @}
   */
-
-#endif /* HAL_CRYP_MODULE_ENABLED */
-#endif /* STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
+#endif /* STM32L021xx || STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

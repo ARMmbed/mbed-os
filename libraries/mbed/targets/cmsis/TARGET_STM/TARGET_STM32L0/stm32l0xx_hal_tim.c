@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   TIM HAL module driver.
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
@@ -101,7 +101,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -135,13 +135,16 @@
   * @{
   */
 
+#ifdef HAL_TIM_MODULE_ENABLED
+
 /** @addtogroup TIM
   * @brief TIM HAL module driver
   * @{
   */
 
-#ifdef HAL_TIM_MODULE_ENABLED
-
+/** @addtogroup TIM_Private
+  * @{
+  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -164,6 +167,9 @@ static void TIM_CCxChannelCmd(TIM_TypeDef* TIMx, uint32_t Channel, uint32_t Chan
 static void TIM_DMAPeriodElapsedCplt(DMA_HandleTypeDef *hdma);
 static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma);
 static void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,TIM_SlaveConfigTypeDef * sSlaveConfig);
+/**
+  * @}
+  */
 
 /*******************************************************************************/
 /* Exported functions ---------------------------------------------------------*/
@@ -217,6 +223,9 @@ HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
   
   if(htim->State == HAL_TIM_STATE_RESET)
   {  
+    /* Allocate lock resource and initialize it */
+    htim->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC */
     HAL_TIM_Base_MspInit(htim);
   }
@@ -267,6 +276,9 @@ HAL_StatusTypeDef HAL_TIM_Base_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Base_MspInit could be implemented in the user file
    */
@@ -279,6 +291,9 @@ __weak void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Base_MspDeInit could be implemented in the user file
    */
@@ -487,6 +502,9 @@ HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef* htim)
 
   if(htim->State == HAL_TIM_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    htim->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA*/
     HAL_TIM_OC_MspInit(htim);
   }
@@ -536,6 +554,9 @@ HAL_StatusTypeDef HAL_TIM_OC_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OC_MspInit could be implemented in the user file
    */
@@ -548,6 +569,9 @@ __weak void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OC_MspDeInit could be implemented in the user file
    */
@@ -951,6 +975,9 @@ HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
 
   if(htim->State == HAL_TIM_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    htim->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_PWM_MspInit(htim);
   }
@@ -1001,6 +1028,9 @@ HAL_StatusTypeDef HAL_TIM_PWM_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_PWM_MspInit could be implemented in the user file
    */
@@ -1013,6 +1043,9 @@ __weak void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_PWM_MspDeInit could be implemented in the user file
    */
@@ -1418,6 +1451,9 @@ HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
 
   if(htim->State == HAL_TIM_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    htim->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_IC_MspInit(htim);
   }
@@ -1468,6 +1504,9 @@ HAL_StatusTypeDef HAL_TIM_IC_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_IC_MspInit could be implemented in the user file
    */
@@ -1480,6 +1519,9 @@ __weak void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_IC_MspDeInit could be implemented in the user file
    */
@@ -1887,6 +1929,9 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePul
 
   if(htim->State == HAL_TIM_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    htim->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_OnePulse_MspInit(htim);
   }
@@ -1943,6 +1988,9 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OnePulse_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OnePulse_MspInit could be implemented in the user file
    */
@@ -1955,6 +2003,9 @@ __weak void HAL_TIM_OnePulse_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OnePulse_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OnePulse_MspDeInit could be implemented in the user file
    */
@@ -2137,6 +2188,9 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim,  TIM_Encoder_Ini
 
   if(htim->State == HAL_TIM_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    htim->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_Encoder_MspInit(htim);
   }
@@ -2227,6 +2281,9 @@ HAL_StatusTypeDef HAL_TIM_Encoder_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Encoder_MspInit could be implemented in the user file
    */
@@ -2240,6 +2297,9 @@ __weak void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Encoder_MspDeInit could be implemented in the user file
    */
@@ -3604,6 +3664,9 @@ HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim, TIM_ClearInp
                       sClearInputConfig->ClearInputPrescaler,
                       sClearInputConfig->ClearInputPolarity,
                       sClearInputConfig->ClearInputFilter);
+
+      /* Set the OCREF clear selection bit */
+      htim->Instance->SMCR |= TIM_SMCR_OCCS;
   }
 
   switch (Channel)
@@ -3694,11 +3757,8 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
   
   htim->State = HAL_TIM_STATE_BUSY;
   
-  /* Check the parameters */
+  /* Check the clock source */
   assert_param(IS_TIM_CLOCKSOURCE(sClockSourceConfig->ClockSource));
-  assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
-  assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
-  assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
   
   /* Reset the SMS, TS, ECE, ETPS and ETRF bits */
   tmpsmcr = htim->Instance->SMCR;
@@ -3719,6 +3779,9 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
     case TIM_CLOCKSOURCE_ETRMODE1:
     {
       assert_param(IS_TIM_ETR_INSTANCE(htim->Instance));
+      assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
       /* Configure the ETR Clock source */
       TIM_ETR_SetConfig(htim->Instance, 
                         sClockSourceConfig->ClockPrescaler, 
@@ -3738,6 +3801,9 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
     case TIM_CLOCKSOURCE_ETRMODE2:
     {
       assert_param(IS_TIM_ETR_INSTANCE(htim->Instance));
+      assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
       /* Configure the ETR Clock source */
       TIM_ETR_SetConfig(htim->Instance, 
                         sClockSourceConfig->ClockPrescaler, 
@@ -3751,6 +3817,8 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
     case TIM_CLOCKSOURCE_TI1:
     {
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
       TIM_TI1_ConfigInputStage(htim->Instance, 
                         sClockSourceConfig->ClockPolarity, 
                         sClockSourceConfig->ClockFilter);
@@ -3760,6 +3828,8 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
     case TIM_CLOCKSOURCE_TI2:
     {
       assert_param(IS_TIM_CC2_INSTANCE(htim->Instance));
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
       TIM_TI2_ConfigInputStage(htim->Instance, 
                         sClockSourceConfig->ClockPolarity, 
                         sClockSourceConfig->ClockFilter);
@@ -3769,6 +3839,8 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
     case TIM_CLOCKSOURCE_TI1ED:
     {
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
       TIM_TI1_ConfigInputStage(htim->Instance, 
                         sClockSourceConfig->ClockPolarity,
                         sClockSourceConfig->ClockFilter);
@@ -4018,6 +4090,9 @@ uint32_t HAL_TIM_ReadCapturedValue(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 __weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_PeriodElapsedCallback could be implemented in the user file
    */
@@ -4030,6 +4105,9 @@ __weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_OC_DelayElapsedCallback could be implemented in the user file
    */
@@ -4041,6 +4119,9 @@ __weak void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_IC_CaptureCallback could be implemented in the user file
    */
@@ -4053,6 +4134,9 @@ __weak void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_PWM_PulseFinishedCallback could be implemented in the user file
    */
@@ -4065,6 +4149,9 @@ __weak void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_TriggerCallback could be implemented in the user file
    */
@@ -4077,6 +4164,9 @@ __weak void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_ErrorCallback could be implemented in the user file
    */
@@ -4256,7 +4346,7 @@ void TIM_DMACaptureCplt(DMA_HandleTypeDef *hdma)
 /* Private functions                                         */
 /*************************************************************/
 
-/** @defgroup TIM_Private_Functions TIM Private Functions
+/** @addtogroup TIM_Private TIM Private
   * @{
   */
 /**
@@ -5009,10 +5099,11 @@ static void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
   * @}
   */
 
-#endif /* HAL_TIM_MODULE_ENABLED */
 /**
   * @}
   */ 
+
+#endif /* HAL_TIM_MODULE_ENABLED */
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Extended DAC HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of DAC extension peripheral:
@@ -25,7 +25,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@
   */
 
 
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
@@ -62,11 +62,14 @@
   * @{
   */
 
-/** @defgroup DACEx DACEx
+/** @addtogroup DACEx DACEx
   * @brief DAC driver modules
   * @{
   */
 
+/** @addtogroup DACEx_Private
+  * @{
+  */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -74,9 +77,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-/** @addtogroup DACEx_Private_Functions
-  * @{
-  */ 
+
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
 static void DAC_DMAConvCpltCh2(DMA_HandleTypeDef *hdma);
 static void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma);
@@ -85,16 +86,15 @@ static void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma);
 static void DAC_DMAConvCpltCh1(DMA_HandleTypeDef *hdma);
 static void DAC_DMAErrorCh1(DMA_HandleTypeDef *hdma);
 static void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma);
-
 /**
   * @}
   */
 
-/** @defgroup DACEx_Exported_Functions DACEx Exported Functions
+/** @addtogroup DACEx_Exported_Functions
   * @{
   */
 
-/** @defgroup DACEx_Exported_Functions_Group1 Extended features functions
+/** @addtogroup DACEx_Exported_Functions_Group1
  *  @brief    Extended features functions 
  *
 
@@ -256,7 +256,7 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   }
   
   tmp = (uint32_t)hdac->Instance;
-  tmp += __DAC_DHR12RD_ALIGNEMENT(Alignment);
+  tmp += DAC_DHR12RD_ALIGNEMENT(Alignment);
 
   /* Set the dual DAC selected data holding register */
   *(__IO uint32_t *)tmp = data;
@@ -274,6 +274,9 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   */
 __weak void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DACEx_ConvCpltCallbackCh2 could be implemented in the user file
    */
@@ -287,6 +290,9 @@ __weak void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DACEx_ConvHalfCpltCallbackCh2 could be implemented in the user file
    */
@@ -300,6 +306,9 @@ __weak void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DACEx_ErrorCallbackCh2(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DACEx_ErrorCallbackCh2 could be implemented in the user file
    */
@@ -313,6 +322,9 @@ __weak void HAL_DACEx_ErrorCallbackCh2(DAC_HandleTypeDef *hdac)
   */
 __weak void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_DMAUnderrunCallbackCh2 could be implemented in the user file
    */
@@ -656,11 +668,11 @@ HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, ui
   tmp = (uint32_t)hdac->Instance; 
   if(Channel == DAC_CHANNEL_1)
   {
-    tmp += __DAC_DHR12R1_ALIGNEMENT(Alignment);
+    tmp += DAC_DHR12R1_ALIGNEMENT(Alignment);
   }
   else
   {
-    tmp += __DAC_DHR12R2_ALIGNEMENT(Alignment);
+    tmp += DAC_DHR12R2_ALIGNEMENT(Alignment);
   }
 
   /* Set the DAC channel selected data holding register */
@@ -906,7 +918,7 @@ HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, ui
   assert_param(IS_DAC_DATA(Data));
 
   tmp = (uint32_t)hdac->Instance; 
-  tmp += __DAC_DHR12R1_ALIGNEMENT(Alignment);
+  tmp += DAC_DHR12R1_ALIGNEMENT(Alignment);
 
   /* Set the DAC channel selected data holding register */
   *(__IO uint32_t *) tmp = Data;
@@ -925,7 +937,7 @@ HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, ui
   * @}
   */
 
-/** @defgroup DACEx_Private_Functions DACEx Private Functions
+/** @addtogroup DACEx_Private
   * @{
   */
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
@@ -1026,8 +1038,6 @@ static void DAC_DMAErrorCh1(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-
-
 /**
   * @}
   */
@@ -1036,6 +1046,6 @@ static void DAC_DMAErrorCh1(DMA_HandleTypeDef *hdma)
   * @}
   */
 #endif /* HAL_DAC_MODULE_ENABLED */
-#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
+#endif /* #if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

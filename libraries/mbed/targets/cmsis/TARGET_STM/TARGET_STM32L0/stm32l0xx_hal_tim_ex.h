@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,12 +50,14 @@
   * @{
   */
 
-/** @defgroup TIMEx TIMEx (Timer extended)
+/** @defgroup TIMEx TIMEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/
-
+ /** @defgroup TIM_Exported_Types TIM Exported Types
+  * @{
+  */
 /** 
   * @brief  TIM Master configuration Structure definition  
   */ 
@@ -66,7 +68,9 @@ typedef struct {
                                       This parameter can be a value of @ref TIM_Master_Slave_Mode */
 }TIM_MasterConfigTypeDef;
 
-
+/**
+  * @}
+  */
 
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup TIMEx_Exported_Constants TIMEx Exported Constants
@@ -101,12 +105,36 @@ typedef struct {
 /** @defgroup TIMEx_Remap Remaping
   * @{
   */
+#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) \
+    || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+
+#define TIM2_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM2_ETR_HSI48                    TIM2_OR_ETR_RMP_2
+#define TIM2_ETR_HSI16                    (TIM2_OR_ETR_RMP_1 | TIM2_OR_ETR_RMP_0)
+#define TIM2_ETR_LSE                      (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_0)
+#define TIM2_ETR_COMP2_OUT                (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_1)
+#define TIM2_ETR_COMP1_OUT                TIM2_OR_ETR_RMP
+
+#elif defined (STM32L011xx) || defined (STM32L021xx) || defined (STM32L031xx) || defined (STM32L041xx)
+
+#define TIM2_ETR_GPIO                     ((uint32_t)0x0)
+#define TIM2_ETR_HSI16                    (TIM2_OR_ETR_RMP_1 | TIM2_OR_ETR_RMP_0)
+#define TIM2_ETR_LSE                      (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_0)
+#define TIM2_ETR_COMP2_OUT                (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_1)
+#define TIM2_ETR_COMP1_OUT                TIM2_OR_ETR_RMP
+
+#else
 
 #define TIM2_ETR_GPIO                     ((uint32_t)0x0)
 #define TIM2_ETR_HSI48                    TIM2_OR_ETR_RMP_2
 #define TIM2_ETR_LSE                      (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_0)
 #define TIM2_ETR_COMP2_OUT                (TIM2_OR_ETR_RMP_2 | TIM2_OR_ETR_RMP_1)
 #define TIM2_ETR_COMP1_OUT                TIM2_OR_ETR_RMP
+
+#endif
+
+
+
 #define TIM2_TI4_GPIO                     ((uint32_t)0x0)
 #define TIM2_TI4_COMP2                    TIM2_OR_TI4_RMP_0
 #define TIM2_TI4_COMP1                    TIM2_OR_TI4_RMP_1
@@ -126,6 +154,7 @@ typedef struct {
 #define TIM21_TI2_GPIO                    ((uint32_t)0x0)
 #define TIM21_TI2_COMP2_OUT               TIM21_OR_TI2_RMP
 
+#if !defined(STM32L011xx) && !defined(STM32L021xx)
 #define TIM22_ETR_LSE                     ((uint32_t)0x0)
 #define TIM22_ETR_COMP2_OUT               TIM22_OR_ETR_RMP_0
 #define TIM22_ETR_COMP1_OUT               TIM22_OR_ETR_RMP_1
@@ -134,6 +163,7 @@ typedef struct {
 #define TIM22_TI1_COMP2_OUT               TIM22_OR_TI1_RMP_0
 #define TIM22_TI1_COMP1_OUT               TIM22_OR_TI1_RMP_1
 #define TIM22_TI1_GPIO2                   TIM22_OR_TI1_RMP
+#endif
 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) \
     || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
@@ -148,8 +178,7 @@ typedef struct {
 #define TIM3_ETR_HSI                      TIM3_OR_ETR_RMP_1
 
 #endif /*defined (STM32L07Xxx) or defined (STM32L08Xxx) */
-
-
+      
 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) \
     || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
@@ -174,7 +203,21 @@ typedef struct {
                                         ((__CHANNEL__) == TIM_CHANNEL_2))) ||   \
           ((__INSTANCE__ == TIM22) &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_2))))
+									
+#elif defined (STM32L011xx) || defined (STM32L021xx)
 
+#define IS_TIM_REMAP(__INSTANCE__, __TIM_REMAP__)               \
+        (((__INSTANCE__ == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
+         ((__INSTANCE__ == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))))
+
+#define IS_CHANNEL_AVAILABLE(__INSTANCE__, __CHANNEL__)     \
+        (((__INSTANCE__ == TIM2)   &&   (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_2)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_3)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_4))) || \
+          ((__INSTANCE__ == TIM21)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+                                         ((__CHANNEL__) == TIM_CHANNEL_2))))
+										 
 #else
 
 #define IS_TIM_REMAP(__INSTANCE__, __TIM_REMAP__)               \
@@ -226,10 +269,6 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
 /**
   * @}
   */
-
-/**
-  * @}
-  */ 
 
 /**
   * @}

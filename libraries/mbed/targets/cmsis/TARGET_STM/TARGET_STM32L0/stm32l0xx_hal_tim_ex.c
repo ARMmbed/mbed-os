@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   TIM HAL module driver.
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
@@ -55,7 +55,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -183,6 +183,7 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   *                                    GPIOA(0)_AF5 or GPIOA(5)_AF2 or
   *                                    GPIOA(15)_AF2 or GPIOE(9)_AF2
   *           @arg TIM2_ETR_HSI48:     TIM2  ETR connected to HSI48
+  *           @arg TIM2_ETR_HSI16:     TIM2  ETR connected to HSI16
   *           @arg TIM2_ETR_LSE:       TIM2  ETR connected to LSE
   *           @arg TIM2_ETR_COMP2_OUT: TIM2  ETR connected to COMP2 output
   *           @arg TIM2_ETR_COMP1_OUT: TIM2  ETR connected to COMP1 output
@@ -248,6 +249,114 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   *
   * @retval HAL status
   */
+#elif defined (STM32L031xx) || defined (STM32L041xx) 
+  /**
+  * @brief  Configures the remapping of the TIM2, TIM21 and TIM22 inputs.
+  *         The channel inputs (T1..T4) and the Trigger input (ETR) of the
+  *         timers can be remaped thanks to this function. When an input is
+  *         mapped, on a GPIO, refer yourself to the GPIO alternate functions
+  *         for more details.
+  *
+  * @param  htim: pointer to a TIM_HandleTypeDef structure that contains
+  *               the configuration information for TIM module.
+  * @param  Remap: specifies the TIM input remapping source.
+  *                This parameter is a combination of the following values
+  *                depending on TIM instance:
+  *
+  *         For TIM2, the parameter can have the following values:
+  *           @arg TIM2_ETR_GPIO:      TIM2  ETR connected to GPIO (default):
+  *                                    GPIOA(0)_AF5 or GPIOA(5)_AF2 or
+  *                                    GPIOA(15)_AF2
+  *           @arg TIM2_ETR_HSI16:     TIM2  ETR connected to HS16 (HSIOUT)
+  *           @arg TIM2_ETR_LSE:       TIM2  ETR connected to LSE
+  *           @arg TIM2_ETR_COMP2_OUT: TIM2  ETR connected to COMP2 output
+  *           @arg TIM2_ETR_COMP1_OUT: TIM2  ETR connected to COMP1 output
+  *           @arg TIM2_TI4_GPIO :     TIM2  TI4 connected to GPIO (default):
+  *                                    GPIOA(3)_AF2 or GPIOB(11)_AF2 or
+  *                                    GPIOB(1)_AF5
+  *           @arg TIM2_TI4_COMP1_OUT: TIM2  TI4 connected to COMP1 output
+  *           @arg TIM2_TI4_COMP2_OUT: TIM2  TI4 connected to COMP2 output
+  *
+  *         For TIM21, the parameter can have the following values:
+  *           @arg TIM21_ETR_GPIO:     TIM21 ETR connected to GPIO(default) :
+  *                                    APB2_PA(1)_AF5
+  *           @arg TIM21_ETR_COMP2_OUT:TIM21 ETR connected to COMP2 output
+  *           @arg TIM21_ETR_COMP1_OUT:TIM21 ETR connected to COMP1 output
+  *           @arg TIM21_ETR_LSE:      TIM21 ETR connected to LSE
+  *           @arg TIM21_TI1_MCO:      TIM21 TI1 connected to MCO
+  *           @arg TIM21_TI1_RTC_WKUT_IT: TIM21 TI1 connected to RTC WAKEUP interrupt
+  *           @arg TIM21_TI1_HSE_RTC:  TIM21 TI1 connected to HSE_RTC
+  *           @arg TIM21_TI1_MSI:      TIM21 TI1 connected to MSI clock
+  *           @arg TIM21_TI1_LSE:      TIM21 TI1 connected to LSE
+  *           @arg TIM21_TI1_LSI:      TIM21 TI1 connected to LSI
+  *           @arg TIM21_TI1_COMP1_OUT:TIM21 TI1 connected to COMP1_OUT
+  *           @arg TIM21_TI2_GPIO:     TIM21 TI2 connected to GPIO(default):
+  *                                    GPIOA(3)_AF0 or GPIOB(14)_AF6
+  *           @arg TIM21_TI2_COMP2_OUT:TIM21 TI2 connected to COMP2 output
+  *
+  *         For TIM22, the parameter can have the following values:
+  *           @arg TIM22_ETR_LSE:      TIM22 ETR connected to LSE
+  *           @arg TIM22_ETR_COMP2_OUT:TIM22 ETR connected to COMP2 output
+  *           @arg TIM22_ETR_COMP1_OUT:TIM22 ETR connected to COMP1 output
+  *           @arg TIM22_ETR_GPIO:     TIM22 ETR connected to GPIO(default):
+  *                                    GPIOA(4)_AF5
+  *           @arg TIM22_TI1_GPIO1:    TIM22 TI1 connected to GPIO(default):
+  *                                    GPIOC(0)_AF6 or GPIOA(5)_AF6 or
+  *                                    GPIOB(4)_AF4
+  *           @arg TIM22_TI1_COMP2_OUT:TIM22 TI1 connected to COMP2 output
+  *           @arg TIM22_TI1_COMP1_OUT:TIM22 TI1 connected to COMP1 output
+  *           @arg TIM22_TI1_GPIO2:    TIM22 TI1 connected to GPIO:
+  *                                    GPIOA(6)_AF5 or GPIOB(4)_AF4
+  *
+  * @retval HAL status
+  */      
+#elif defined (STM32L011xx) || defined (STM32L021xx) 
+  /**
+  * @brief  Configures the remapping of the TIM2 and TIM21 inputs.
+  *         The channel inputs (T1..T4) and the Trigger input (ETR) of the
+  *         timers can be remaped thanks to this function. When an input is
+  *         mapped, on a GPIO, refer yourself to the GPIO alternate functions
+  *         for more details.
+  *
+  * @param  htim: pointer to a TIM_HandleTypeDef structure that contains
+  *               the configuration information for TIM module.
+  * @param  Remap: specifies the TIM input remapping source.
+  *                This parameter is a combination of the following values
+  *                depending on TIM instance:
+  *
+  *         For TIM2, the parameter can have the following values:
+  *           @arg TIM2_ETR_GPIO:      TIM2  ETR connected to GPIO (default):
+  *                                    GPIOA(0)_AF5 or GPIOA(5)_AF2 or
+  *                                    GPIOA(15)_AF2
+  *           @arg TIM2_ETR_HSI16:     TIM2  ETR connected to HS16 (HSIOUT)
+  *           @arg TIM2_ETR_LSE:       TIM2  ETR connected to LSE
+  *           @arg TIM2_ETR_COMP2_OUT: TIM2  ETR connected to COMP2 output
+  *           @arg TIM2_ETR_COMP1_OUT: TIM2  ETR connected to COMP1 output
+  *           @arg TIM2_TI4_GPIO :     TIM2  TI4 connected to GPIO (default):
+  *                                    GPIOA(3)_AF2 or GPIOB(11)_AF2 or
+  *                                    GPIOB(1)_AF5
+  *           @arg TIM2_TI4_COMP1_OUT: TIM2  TI4 connected to COMP1 output
+  *           @arg TIM2_TI4_COMP2_OUT: TIM2  TI4 connected to COMP2 output
+  *
+  *         For TIM21, the parameter can have the following values:
+  *           @arg TIM21_ETR_GPIO:     TIM21 ETR connected to GPIO(default) :
+  *                                    APB2_PA(1)_AF5
+  *           @arg TIM21_ETR_COMP2_OUT:TIM21 ETR connected to COMP2 output
+  *           @arg TIM21_ETR_COMP1_OUT:TIM21 ETR connected to COMP1 output
+  *           @arg TIM21_ETR_LSE:      TIM21 ETR connected to LSE
+  *           @arg TIM21_TI1_MCO:      TIM21 TI1 connected to MCO
+  *           @arg TIM21_TI1_RTC_WKUT_IT: TIM21 TI1 connected to RTC WAKEUP interrupt
+  *           @arg TIM21_TI1_HSE_RTC:  TIM21 TI1 connected to HSE_RTC
+  *           @arg TIM21_TI1_MSI:      TIM21 TI1 connected to MSI clock
+  *           @arg TIM21_TI1_LSE:      TIM21 TI1 connected to LSE
+  *           @arg TIM21_TI1_LSI:      TIM21 TI1 connected to LSI
+  *           @arg TIM21_TI1_COMP1_OUT:TIM21 TI1 connected to COMP1_OUT
+  *           @arg TIM21_TI2_GPIO:     TIM21 TI2 connected to GPIO(default):
+  *                                    GPIOA(3)_AF0 or GPIOB(14)_AF6
+  *           @arg TIM21_TI2_COMP2_OUT:TIM21 TI2 connected to COMP2 output
+  *
+  * @retval HAL status
+  */      
 #else
 /**
   * @brief  Configures the remapping of the TIM2, TIM21 and TIM22 inputs.

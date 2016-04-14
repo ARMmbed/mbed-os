@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides extended firmware functions to manage the following 
@@ -25,7 +25,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -59,12 +59,14 @@
   * @{
   */
 
+#ifdef HAL_SMARTCARD_MODULE_ENABLED
+
+
 /** @addtogroup SMARTCARDEx
   * @brief SMARTCARD Extended HAL module driver
   * @{
   */
-#ifdef HAL_SMARTCARD_MODULE_ENABLED
-    
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -172,11 +174,10 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef
   * @}
   */
 
-#endif /* HAL_SMARTCARD_MODULE_ENABLED */
 /**
   * @}
   */
-
+#endif /* HAL_SMARTCARD_MODULE_ENABLED */
 /**
   * @}
   */

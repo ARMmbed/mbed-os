@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of UART HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @defgroup UARTEx UARTEx Extended HAL module driver
+/** @defgroup UARTEx UARTEx
   * @{
   */
 
@@ -96,9 +96,9 @@ typedef struct
 /** @defgroup UARTEx_Word_Length  Word length definition
   * @{
   */
-#define UART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M_1)
+#define UART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
 #define UART_WORDLENGTH_8B                  ((uint32_t)0x0000)
-#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M_0)
+#define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_UART_WORD_LENGTH(LENGTH) (((LENGTH) == UART_WORDLENGTH_7B) || \
                                      ((LENGTH) == UART_WORDLENGTH_8B) || \
                                      ((LENGTH) == UART_WORDLENGTH_9B))
@@ -159,7 +159,7 @@ typedef struct
   * @param  __CLOCKSOURCE__ : output variable   
   * @retval UART clocking source, written in __CLOCKSOURCE__.
   */
-#if defined (STM32L031xx) || defined (STM32L041xx)
+#if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
 #define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                        \
     if((__HANDLE__)->Instance == USART2)                      \
@@ -204,7 +204,7 @@ typedef struct
     }                                                         \
   } while(0)
 
-#else /* (STM32L031xx) || defined (STM32L041xx) */
+#else /* (STM32L031xx) || defined (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
 #define UART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                        \
@@ -269,7 +269,7 @@ typedef struct
        }                                                      \
     }                                                         \
   } while(0)
-#endif /* (STM32L031xx) || (STM32L041xx) */
+#endif /* (STM32L031xx) || (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
 /** @brief  Reports the UART mask to apply to retrieve the received data
   *         according to the word length and to the parity bits activation.
@@ -348,9 +348,6 @@ void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart);
 
 /* Peripheral State functions  ************************************************/
 HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *huart, uint32_t AddressLength);
-/**
-  * @}
-  */
 
 /**
   * @}
@@ -359,6 +356,16 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup UARTEx_Private UARTEx Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l0xx.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer System Source File.
   *
   *   This file provides two functions and one global variable to be called from 
@@ -40,7 +40,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -146,8 +146,8 @@
                variable is updated automatically.
   */
 uint32_t SystemCoreClock = 32000000;
-const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-const uint8_t PLLMulTable_2[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
+  const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+  const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 
 /**
   * @}
@@ -280,7 +280,7 @@ void SystemCoreClockUpdate (void)
       /* Get PLL clock source and multiplication factor ----------------------*/
       pllmul = RCC->CFGR & RCC_CFGR_PLLMUL;
       plldiv = RCC->CFGR & RCC_CFGR_PLLDIV;
-      pllmul = PLLMulTable_2[(pllmul >> 18)];
+      pllmul = PLLMulTable[(pllmul >> 18)];
       plldiv = (plldiv >> 22) + 1;
       
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
@@ -376,7 +376,10 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 8 MHz clock on OSC_IN */
   }
   RCC_OscInitStruct.HSIState            = RCC_HSI_OFF;
+#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined(STM32L051xx) && !defined(STM32L061xx) && !defined(STM32L071xx)  && !defined(STM32L081xx) && \
+  !defined (STM32L011xx) && !defined (STM32L021xx)
   RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON; /* For USB and RNG clock */
+#endif
   // PLLCLK = (8 MHz * 8)/2 = 32 MHz
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
@@ -426,7 +429,10 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
   RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined(STM32L051xx) && !defined(STM32L061xx) && !defined(STM32L071xx)  && !defined(STM32L081xx) && \
+  !defined (STM32L011xx) && !defined (STM32L021xx)
   RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON; /* For USB and RNG clock */
+#endif
   // PLLCLK = (16 MHz * 4)/2 = 32 MHz
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;

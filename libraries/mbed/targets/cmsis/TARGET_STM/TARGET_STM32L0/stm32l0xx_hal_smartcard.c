@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   SMARTCARD HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -60,7 +60,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -94,12 +94,16 @@
   * @{
   */
 
+#ifdef HAL_SMARTCARD_MODULE_ENABLED
+
 /** @addtogroup SMARTCARD
   * @brief HAL SMARTCARD module driver
   * @{
   */
-#ifdef HAL_SMARTCARD_MODULE_ENABLED
-    
+
+/** @addtogroup SMARTCARD_Private  SMARTCARD Private
+  * @{
+  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define TEACK_REACK_TIMEOUT               1000
@@ -122,6 +126,9 @@ static HAL_StatusTypeDef SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsc);
 static HAL_StatusTypeDef SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc);
 static void SMARTCARD_AdvFeatureConfig(SMARTCARD_HandleTypeDef *hsc);
 /* Private functions ---------------------------------------------------------*/
+/**
+  * @}
+  */
 
 /** @addtogroup SMARTCARD_Exported_Functions
   * @{
@@ -191,6 +198,9 @@ HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsc)
   
   if(hsc->State == HAL_SMARTCARD_STATE_RESET)
   {  
+    /* Allocate lock resource and initialize it */
+    hsc->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, CORTEX */
     HAL_SMARTCARD_MspInit(hsc);
   }
@@ -261,6 +271,9 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_MspInit(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMARTCARD_MspInit could be implenetd in the user file
    */ 
@@ -273,6 +286,9 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_MspDeInit(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMARTCARD_MspDeInit could be implenetd in the user file
    */ 
@@ -780,6 +796,9 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_TxCpltCallback(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMARTCARD_TxCpltCallback could be implemented in the user file
    */ 
@@ -792,6 +811,9 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   */
 __weak void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMARTCARD_TxCpltCallback could be implemented in the user file
    */
@@ -804,6 +826,9 @@ __weak void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_ErrorCallback(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMARTCARD_ErrorCallback could be implemented in the user file
    */
@@ -994,7 +1019,7 @@ static void SMARTCARD_SetConfig(SMARTCARD_HandleTypeDef *hsc)
   MODIFY_REG(hsc->Instance->CR1, USART_CR1_FIELDS, tmpreg);
 
   /*-------------------------- USART CR2 Configuration -----------------------*/
-  /* Stop bits are forced to 1.5 (STOP = 11) */
+  /* Stop bits allowed in smartcard mode are 0.5 (receiving mode only) and 1.5 */
   tmpreg = hsc->Init.StopBits;
   /* Synchronous mode is activated by default */
   tmpreg |= (uint32_t) USART_CR2_CLKEN | hsc->Init.CLKPolarity; 
@@ -1279,10 +1304,11 @@ static void SMARTCARD_DMAError(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-#endif /* HAL_SMARTCARD_MODULE_ENABLED */
 /**
   * @}
   */
+
+#endif /* HAL_SMARTCARD_MODULE_ENABLED */
 
 /**
   * @}

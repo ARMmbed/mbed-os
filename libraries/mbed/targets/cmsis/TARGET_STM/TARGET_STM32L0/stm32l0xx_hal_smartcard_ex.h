@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,13 +57,16 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-   
+/* Exported functions --------------------------------------------------------*/
+/** @defgroup SMARTCARDEx_Exported_Macros SMARTCARDEx Exported Macros
+  * @{
+  */
 /** @brief  Reports the SMARTCARD clock source.
   * @param  __HANDLE__: specifies the USART Handle
   * @param  __CLOCKSOURCE__ : output variable   
   * @retval the USART clocking source, written in __CLOCKSOURCE__.
   */
-#if defined (STM32L031xx) || defined (STM32L041xx)
+#if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
 #define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                             \
     if((__HANDLE__)->Instance == USART2)                      \
@@ -88,7 +91,7 @@
     }                                                              \
   } while(0)
 
-#else /* (STM32L031xx) || defined (STM32L041xx) */
+#else /* (STM32L031xx) || defined (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
 #define SMARTCARD_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                             \
@@ -133,10 +136,14 @@
        }                                                           \
     }                                                              \
   } while(0)
-#endif /* (STM32L031xx) || (STM32L041xx) */
+#endif /* (STM32L031xx) || (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
+
+/**
+  * @}
+  */
 
 /* Exported functions --------------------------------------------------------*/
-/** @defgroup SMARTCARDEx_Exported_Functions SMARTCARD Extended Exported functions
+/** @defgroup SMARTCARDEx_Exported_Functions SMARTCARDEx Exported Functions
   * @{
   */
 /* Initialization/de-initialization functions  ********************************/

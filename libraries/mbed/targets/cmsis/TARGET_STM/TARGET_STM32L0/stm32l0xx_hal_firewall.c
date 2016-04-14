@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_firewall.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   FIREWALL HAL module driver.
-  *
   *          This file provides firmware functions to manage the Firewall
   *          Peripheral initialization and enabling.
   *
@@ -35,7 +34,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -61,6 +60,7 @@
   *
   ******************************************************************************  
   */
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
@@ -69,25 +69,20 @@
   * @{
   */
 
-/** @defgroup FIREWALL FIREWALL 
+#ifdef HAL_FIREWALL_MODULE_ENABLED
+
+/** @addtogroup FIREWALL
   * @brief HAL FIREWALL module driver
   * @{
   */
-#ifdef HAL_FIREWALL_MODULE_ENABLED
+
     
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
-
-/** @defgroup FIREWALL_Exported_Functions FIREWALL Exported Functions
+/** @addtogroup FIREWALL_Exported_Functions
   * @{
   */
 
-/** @defgroup FIREWALL_Exported_Functions_Group1 Initialization Functions 
+/** @addtogroup FIREWALL_Exported_Functions_Group1
   * @brief    Initialization and Configuration Functions 
   *
 @verbatim    
@@ -164,23 +159,23 @@ HAL_StatusTypeDef HAL_FIREWALL_Config(FIREWALL_InitTypeDef * fw_init)
    /* Configuration */
   
   /* Protected code segment start address configuration */
-  WRITE_REG(FW->CSSA, (FW_CSSA_ADD & fw_init->CodeSegmentStartAddress));
+  WRITE_REG(FIREWALL->CSSA, (FW_CSSA_ADD & fw_init->CodeSegmentStartAddress));
 	/* Protected code segment length configuration */
-  WRITE_REG(FW->CSL, (FW_CSL_LENG & fw_init->CodeSegmentLength));
+  WRITE_REG(FIREWALL->CSL, (FW_CSL_LENG & fw_init->CodeSegmentLength));
   
   /* Protected non volatile data segment start address configuration */
-  WRITE_REG(FW->NVDSSA, (FW_NVDSSA_ADD & fw_init->NonVDataSegmentStartAddress));
+  WRITE_REG(FIREWALL->NVDSSA, (FW_NVDSSA_ADD & fw_init->NonVDataSegmentStartAddress));
 	/* Protected non volatile data segment length configuration */
-  WRITE_REG(FW->NVDSL, (FW_NVDSL_LENG & fw_init->NonVDataSegmentLength));
+  WRITE_REG(FIREWALL->NVDSL, (FW_NVDSL_LENG & fw_init->NonVDataSegmentLength));
   
   /* Protected volatile data segment start address configuration */
-  WRITE_REG(FW->VDSSA, (FW_VDSSA_ADD & fw_init->VDataSegmentStartAddress));
+  WRITE_REG(FIREWALL->VDSSA, (FW_VDSSA_ADD & fw_init->VDataSegmentStartAddress));
 	/* Protected volatile data segment length configuration */
-  WRITE_REG(FW->VDSL, (FW_VDSL_LENG & fw_init->VDataSegmentLength));  
+  WRITE_REG(FIREWALL->VDSL, (FW_VDSL_LENG & fw_init->VDataSegmentLength));  
   
   /* Set Firewall Configuration Register VDE and VDS bits
      (volatile data execution and shared configuration) */  
-  MODIFY_REG(FW->CR, FW_CR_VDS|FW_CR_VDE, fw_init->VolatileDataExecution|fw_init->VolatileDataShared);
+  MODIFY_REG(FIREWALL->CR, FW_CR_VDS|FW_CR_VDE, fw_init->VolatileDataExecution|fw_init->VolatileDataShared);
   
   return HAL_OK;
 }
@@ -203,22 +198,22 @@ void HAL_FIREWALL_GetConfig(FIREWALL_InitTypeDef * fw_config)
   __HAL_RCC_FIREWALL_CLK_ENABLE();
 
   /* Retrieve code segment protection setting */
-  fw_config->CodeSegmentStartAddress = (READ_REG(FW->CSSA) & FW_CSSA_ADD);
-  fw_config->CodeSegmentLength = (READ_REG(FW->CSL) & FW_CSL_LENG);
+  fw_config->CodeSegmentStartAddress = (READ_REG(FIREWALL->CSSA) & FW_CSSA_ADD);
+  fw_config->CodeSegmentLength = (READ_REG(FIREWALL->CSL) & FW_CSL_LENG);
   
   /* Retrieve non volatile data segment protection setting */
-  fw_config->NonVDataSegmentStartAddress = (READ_REG(FW->NVDSSA) & FW_NVDSSA_ADD);
-  fw_config->NonVDataSegmentLength = (READ_REG(FW->NVDSL) & FW_NVDSL_LENG);
+  fw_config->NonVDataSegmentStartAddress = (READ_REG(FIREWALL->NVDSSA) & FW_NVDSSA_ADD);
+  fw_config->NonVDataSegmentLength = (READ_REG(FIREWALL->NVDSL) & FW_NVDSL_LENG);
   
   /* Retrieve volatile data segment protection setting */
-  fw_config->VDataSegmentStartAddress = (READ_REG(FW->VDSSA) & FW_VDSSA_ADD);
-  fw_config->VDataSegmentLength = (READ_REG(FW->VDSL) & FW_VDSL_LENG);     
+  fw_config->VDataSegmentStartAddress = (READ_REG(FIREWALL->VDSSA) & FW_VDSSA_ADD);
+  fw_config->VDataSegmentLength = (READ_REG(FIREWALL->VDSL) & FW_VDSL_LENG);     
   
   /* Retrieve volatile data execution setting */
-  fw_config->VolatileDataExecution = (READ_REG(FW->CR) & FW_CR_VDE);
+  fw_config->VolatileDataExecution = (READ_REG(FIREWALL->CR) & FW_CR_VDE);
   
   /* Retrieve volatile data shared setting */
-  fw_config->VolatileDataShared = (READ_REG(FW->CR) & FW_CR_VDS);
+  fw_config->VolatileDataShared = (READ_REG(FIREWALL->CR) & FW_CR_VDS);
   
   return;
 }
@@ -245,14 +240,13 @@ void HAL_FIREWALL_EnableFirewall(void)
   *       will close the Firewall. 
   * @note This API provides the same service as __HAL_FIREWALL_PREARM_ENABLE() macro
   *       but can't be executed inside a code area protected by the Firewall. 
-  * @note -- When the Firewall is disabled, user can resort to 
-  *          HAL_FIREWALL_EnablePreArmFlag() API any time.   
-  *       -- When the Firewall is enabled and NVDSL register is equal to 0 (that is, 
+  * @note When the Firewall is disabled, user can resort to HAL_FIREWALL_EnablePreArmFlag() API any time.   
+  * @note When the Firewall is enabled and NVDSL register is equal to 0 (that is, 
   *          when the non volatile data segment is not defined),
   *          **  this API can be executed when the Firewall is closed
   *          **  when the Firewall is opened, user should resort to 
   *              __HAL_FIREWALL_PREARM_ENABLE() macro instead
-  *       -- When the Firewall is enabled and  NVDSL register is different from 0
+  * @note When the Firewall is enabled and  NVDSL register is different from 0
   *          (that is, when the non volatile data segment is defined)
   *          **  FW_CR register can be accessed only when the Firewall is opened: 
   *              user should resort to  __HAL_FIREWALL_PREARM_ENABLE() macro instead.               
@@ -261,7 +255,7 @@ void HAL_FIREWALL_EnableFirewall(void)
 void HAL_FIREWALL_EnablePreArmFlag(void)
 {
   /* Set FPA bit */
-  SET_BIT(FW->CR, FW_CR_FPA);
+  SET_BIT(FIREWALL->CR, FW_CR_FPA);
 }
 
 
@@ -271,14 +265,13 @@ void HAL_FIREWALL_EnablePreArmFlag(void)
   *       when the Firewall is opened will generate a system reset.
   * @note This API provides the same service as __HAL_FIREWALL_PREARM_DISABLE() macro
   *       but can't be executed inside a code area protected by the Firewall.
-  * @note -- When the Firewall is disabled, user can resort to 
-  *          HAL_FIREWALL_EnablePreArmFlag() API any time.   
-  *       -- When the Firewall is enabled and NVDSL register is equal to 0 (that is, 
+  * @note When the Firewall is disabled, user can resort to HAL_FIREWALL_EnablePreArmFlag() API any time.   
+  * @note When the Firewall is enabled and NVDSL register is equal to 0 (that is, 
   *          when the non volatile data segment is not defined),
   *          **  this API can be executed when the Firewall is closed
   *          **  when the Firewall is opened, user should resort to 
   *              __HAL_FIREWALL_PREARM_DISABLE() macro instead
-  *       -- When the Firewall is enabled and  NVDSL register is different from 0
+  * @note When the Firewall is enabled and  NVDSL register is different from 0
   *          (that is, when the non volatile data segment is defined)
   *          **  FW_CR register can be accessed only when the Firewall is opened: 
   *              user should resort to  __HAL_FIREWALL_PREARM_DISABLE() macro instead.               
@@ -288,8 +281,12 @@ void HAL_FIREWALL_EnablePreArmFlag(void)
 void HAL_FIREWALL_DisablePreArmFlag(void)
 {
   /* Clear FPA bit */
-  CLEAR_BIT(FW->CR, FW_CR_FPA);
+  CLEAR_BIT(FIREWALL->CR, FW_CR_FPA);
 }
+
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -300,12 +297,11 @@ void HAL_FIREWALL_DisablePreArmFlag(void)
   */
 
 #endif /* HAL_FIREWALL_MODULE_ENABLED */
-/**
-  * @}
-  */
 
 /**
   * @}
   */
+
+#endif /* #if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

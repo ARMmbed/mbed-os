@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -579,15 +579,6 @@ __IO HAL_TIM_StateTypeDef  State;         /*!< TIM operation state              
 /**
   * @}
   */
-#define IS_TIM_IT(__IT__) ((((__IT__) & 0xFFFFFFA0) == 0x00000000) && ((__IT__) != 0x00000000))
-
-#define IS_TIM_GET_IT(__IT__) (((__IT__) == TIM_IT_UPDATE)  || \
-                               ((__IT__) == TIM_IT_CC1)     || \
-                               ((__IT__) == TIM_IT_CC2)     || \
-                               ((__IT__) == TIM_IT_CC3)     || \
-                               ((__IT__) == TIM_IT_CC4)     || \
-                               ((__IT__) == TIM_IT_TRIGGER))
-
 
 /** @defgroup TIM_DMA_sources DMA sources
   * @{
@@ -636,17 +627,6 @@ __IO HAL_TIM_StateTypeDef  State;         /*!< TIM operation state              
 /**
   * @}
   */
-#define IS_TIM_FLAG(__FLAG__) (((__FLAG__) == TIM_FLAG_UPDATE) || \
-                               ((__FLAG__) == TIM_FLAG_CC1)     || \
-                               ((__FLAG__) == TIM_FLAG_CC2)     || \
-                               ((__FLAG__) == TIM_FLAG_CC3)     || \
-                               ((__FLAG__) == TIM_FLAG_CC4)     || \
-                               ((__FLAG__) == TIM_FLAG_TRIGGER) || \
-                               ((__FLAG__) == TIM_FLAG_CC1OF)   || \
-                               ((__FLAG__) == TIM_FLAG_CC2OF)   || \
-                               ((__FLAG__) == TIM_FLAG_CC3OF)   || \
-                               ((__FLAG__) == TIM_FLAG_CC4OF))
-
 
 /** @defgroup TIM_Clock_Source Clock source
   * @{
@@ -1228,9 +1208,9 @@ __IO HAL_TIM_StateTypeDef  State;         /*!< TIM operation state              
   * @note  When the URS bit of the TIMx_CR1 register is reset, any of the
   *        following events generate an update interrupt or DMA request (if
   *        enabled):
-  *          – Counter overflow/underflow
-  *          – Setting the UG bit
-  *          – Update generation through the slave mode controller
+  *            Counter overflow/underflow
+  *            Setting the UG bit
+  *            Update generation through the slave mode controller
   * @retval None
   */
 #define __HAL_TIM_URS_DISABLE(__HANDLE__) \
@@ -1492,6 +1472,16 @@ void TIM_DMACaptureCplt(DMA_HandleTypeDef *hdma);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup TIM_Private TIM Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

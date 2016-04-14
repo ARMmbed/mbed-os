@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lptim_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of LPTIM Extended HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@
 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup LPTIMEx_Exported_Constants LPTIM Extended Exported constants
+/** @defgroup LPTIMEx_Exported_Constants LPTIMEx Exported Constants
   * @{
   */
 
@@ -72,7 +72,8 @@
 #define LPTIM_TRIGSOURCE_4                      LPTIM_CFGR_TRIGSEL_2
 
 #if defined (STM32L083xx) || defined (STM32L082xx) || defined (STM32L081xx) || \
-    defined (STM32L073xx) || defined (STM32L072xx) || defined (STM32L071xx)
+    defined (STM32L073xx) || defined (STM32L072xx) || defined (STM32L071xx) || \
+    defined (STM32L031xx) || defined (STM32L041xx)
 #define LPTIM_TRIGSOURCE_5                      ((uint32_t)LPTIM_CFGR_TRIGSEL_0 | LPTIM_CFGR_TRIGSEL_2)
 #endif
 
@@ -82,8 +83,16 @@
   * @}
   */
 
+ /**
+  * @}
+  */
+
+   /** @addtogroup LPTIMEx_Private
+  * @{
+  */
 #if defined (STM32L083xx) || defined (STM32L082xx) || defined (STM32L081xx) || \
-  defined (STM32L073xx) || defined (STM32L072xx) || defined (STM32L071xx)
+  defined (STM32L073xx) || defined (STM32L072xx) || defined (STM32L071xx) || \
+  defined (STM32L031xx) || defined (STM32L041xx)
 
 #define IS_LPTIM_TRG_SOURCE(__TRIG__)           (((__TRIG__) == LPTIM_TRIGSOURCE_SOFTWARE) || \
                                                  ((__TRIG__) == LPTIM_TRIGSOURCE_0) || \
@@ -104,10 +113,9 @@
                                                  ((__TRIG__) == LPTIM_TRIGSOURCE_6) || \
                                                  ((__TRIG__) == LPTIM_TRIGSOURCE_7))
 #endif
-
 /**
   * @}
-  */ 
+  */
 
 /**
   * @}

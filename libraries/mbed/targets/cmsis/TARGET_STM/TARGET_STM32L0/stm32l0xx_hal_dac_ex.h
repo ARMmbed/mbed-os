@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of DAC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
    
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
@@ -52,7 +52,7 @@
   * @{
   */
 
-/** @addtogroup DACEx
+/** @defgroup DACEx DACEx
   * @{
   */
 
@@ -129,11 +129,11 @@
 
 /* Exported functions --------------------------------------------------------*/  
 
-/** @addtogroup DACEx_Exported_Functions
+/** @defgroup DACEx_Exported_Functions DACEx Exported Functions
   * @{
   */
 
-/** @addtogroup DACEx_Exported_Functions_Group1
+/** @defgroup DACEx_Exported_Functions_Group1  Extended features functions
   * @{
   */
 /* Extension features functions ***********************************************/
@@ -156,6 +156,15 @@ void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef* hdac);
 /**
   * @}
   */
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup DACEx_Private DACEx Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}
@@ -164,7 +173,7 @@ void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef* hdac);
 /**
   * @}
   */
-#endif /* STM32L031xx && STM32L041xx && !STM32L051xx && !STM32L061xx && !STM32L071xx && !STM32L081xx*/
+#endif /* !STM32L011xx && !STM32L021xx && !STM32L031xx && !STM32L041xx && !STM32L051xx && !STM32L061xx && !STM32L071xx && !STM32L081xx*/
   
 #ifdef __cplusplus
 }

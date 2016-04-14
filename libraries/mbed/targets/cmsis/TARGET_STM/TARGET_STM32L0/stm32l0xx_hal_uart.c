@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   UART HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -126,7 +126,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -160,12 +160,17 @@
   * @{
   */
 
+#ifdef HAL_UART_MODULE_ENABLED
+
+
 /** @addtogroup UART
   * @brief UART module driver
   * @{
   */
-#ifdef HAL_UART_MODULE_ENABLED
-    
+
+/** @addtogroup UART_Private
+  * @{
+  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define UART_TIMEOUT_VALUE       ((uint32_t) 22000)
@@ -183,7 +188,9 @@ static HAL_StatusTypeDef UART_Transmit_IT(UART_HandleTypeDef *huart);
 static HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart);
 static HAL_StatusTypeDef UART_Receive_IT(UART_HandleTypeDef *huart);
 
-
+/**
+  * @}
+  */
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -272,7 +279,10 @@ HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
   }
   
   if(huart->State == HAL_UART_STATE_RESET)
-  {  
+  {
+    /* Allocate lock resource and initialize it */
+    huart->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, CORTEX */
     HAL_UART_MspInit(huart);
   }
@@ -539,6 +549,9 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_MspInit can be implemented in the user file
    */ 
@@ -551,6 +564,9 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_MspDeInit can be implemented in the user file
    */ 
@@ -810,9 +826,6 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
     
     /* Enable the UART Parity Error Interrupt */
     __HAL_UART_ENABLE_IT(huart, UART_IT_PE);
-    
-    /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-    __HAL_UART_ENABLE_IT(huart, UART_IT_ERR);
     
     /* Process Unlocked */
     __HAL_UNLOCK(huart);    
@@ -1134,7 +1147,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
 
   if((__HAL_UART_GET_IT(huart, UART_IT_PE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_PE) != RESET))
   { 
-    __HAL_UART_CLEAR_PEFLAG(huart);
+    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_PEF);
     
     huart->ErrorCode |= HAL_UART_ERROR_PE;
     /* Set the UART state ready to be able to start again the process */
@@ -1144,7 +1157,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   /* UART frame error interrupt occured --------------------------------------*/
   if((__HAL_UART_GET_IT(huart, UART_IT_FE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
   { 
-    __HAL_UART_CLEAR_FEFLAG(huart);
+    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_FEF);
     
     huart->ErrorCode |= HAL_UART_ERROR_FE;
     /* Set the UART state ready to be able to start again the process */
@@ -1154,7 +1167,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   /* UART noise error interrupt occured --------------------------------------*/
   if((__HAL_UART_GET_IT(huart, UART_IT_NE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
   { 
-    __HAL_UART_CLEAR_NEFLAG(huart);
+    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_NEF);
     
     huart->ErrorCode |= HAL_UART_ERROR_NE;
     /* Set the UART state ready to be able to start again the process */
@@ -1164,7 +1177,7 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   /* UART Over-Run interrupt occured -----------------------------------------*/
   if((__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
   { 
-    __HAL_UART_CLEAR_OREFLAG(huart);
+    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_OREF);
     
     huart->ErrorCode |= HAL_UART_ERROR_ORE;
     /* Set the UART state ready to be able to start again the process */
@@ -1203,11 +1216,6 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   {
     UART_EndTransmit_IT(huart);
   }    
-
-  if(huart->ErrorCode != HAL_UART_ERROR_NONE)
-  {
-    HAL_UART_ErrorCallback(huart);
-  }
 }
 
 /**
@@ -1217,6 +1225,9 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_UART_TxCpltCallback could be implemented in the user file
    */ 
@@ -1229,6 +1240,9 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_UART_TxCpltCallback could be implemented in the user file
    */ 
@@ -1241,6 +1255,9 @@ void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
   */
 __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_UART_TxCpltCallback could be implemented in the user file
    */
@@ -1253,6 +1270,9 @@ __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   */
 __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_UART_TxCpltCallback could be implemented in the user file
    */
@@ -1265,6 +1285,9 @@ __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_ErrorCallback can be implemented in the user file
    */ 
@@ -1404,7 +1427,7 @@ HAL_StatusTypeDef HAL_HalfDuplex_EnableReceiver(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart)
 {
   /* Check the parameters */
-  assert_param(IS_UART_INSTANCE(huart->Instance));
+  assert_param(IS_UART_LIN_INSTANCE(huart->Instance));
   
   /* Process Locked */
   __HAL_LOCK(huart);
@@ -1447,10 +1470,17 @@ uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart)
   * @}
   */
 
+/**
+  * @}
+  */
+
 /***************************************************************
  * Private functions...
  *
  ***************************************************************/
+/** @addtogroup UART_Private
+  * @{
+  */
 /**
   * @brief DMA UART transmit process complete callback 
   * @param hdma: DMA handle
@@ -1459,14 +1489,24 @@ uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart)
 static void UART_DMATransmitCplt(DMA_HandleTypeDef *hdma)     
 {
   UART_HandleTypeDef* huart = ( UART_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  huart->TxXferCount = 0;
 
-  /* Disable the DMA transfer for transmit request by resetting the DMAT bit
-  in the UART CR3 register */
-  huart->Instance->CR3 &= (uint32_t)~((uint32_t)USART_CR3_DMAT);
+  /* DMA Normal mode */
+  if ( HAL_IS_BIT_CLR(hdma->Instance->CCR, DMA_CCR_CIRC) )
+  {
+    huart->TxXferCount = 0;
 
-  /* Enable the UART Transmit Complete Interrupt */
-  __HAL_UART_ENABLE_IT(huart, UART_IT_TC);
+    /* Disable the DMA transfer for transmit request by resetting the DMAT bit
+    in the UART CR3 register */
+    huart->Instance->CR3 &= (uint32_t)~((uint32_t)USART_CR3_DMAT);
+
+    /* Enable the UART Transmit Complete Interrupt */
+    __HAL_UART_ENABLE_IT(huart, UART_IT_TC);
+  }
+  /* DMA Circular mode */
+  else
+  {
+    HAL_UART_TxCpltCallback(huart);
+  }
 
 }
 
@@ -1606,9 +1646,6 @@ static HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart)
   }
   else
   {
-    /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-    __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
-    
     huart->State = HAL_UART_STATE_READY;
   }
   
@@ -1689,13 +1726,21 @@ void UART_SetConfig(UART_HandleTypeDef *huart)
   uint16_t usartdiv = 0x0000;
   
   /* Check the parameters */ 
-  assert_param(IS_UART_BAUDRATE(huart->Init.BaudRate));  
+  assert_param(IS_UART_BAUDRATE(huart->Init.BaudRate));
   assert_param(IS_UART_WORD_LENGTH(huart->Init.WordLength));
-  assert_param(IS_UART_STOPBITS(huart->Init.StopBits));
+  if(UART_INSTANCE_LOWPOWER(huart))
+  {
+    assert_param(IS_LPUART_STOPBITS(huart->Init.StopBits));
+  }
+  else
+  {
+    assert_param(IS_UART_STOPBITS(huart->Init.StopBits));
+    assert_param(IS_UART_ONE_BIT_SAMPLE(huart->Init.OneBitSampling));
+  }
+
   assert_param(IS_UART_PARITY(huart->Init.Parity));
   assert_param(IS_UART_MODE(huart->Init.Mode));
   assert_param(IS_UART_HARDWARE_FLOW_CONTROL(huart->Init.HwFlowCtl));
-  assert_param(IS_UART_ONE_BIT_SAMPLE(huart->Init.OneBitSampling));
   assert_param(IS_UART_OVERSAMPLING(huart->Init.OverSampling));
 
   /*-------------------------- USART CR1 Configuration -----------------------*/
@@ -1719,14 +1764,18 @@ void UART_SetConfig(UART_HandleTypeDef *huart)
    *   to huart->Init.HwFlowCtl value 
    * - one-bit sampling method versus three samples' majority rule according
    *   to huart->Init.OneBitSampling */
-  tmpreg = (uint32_t)huart->Init.HwFlowCtl | huart->Init.OneBitSampling ;
+  tmpreg = (uint32_t)huart->Init.HwFlowCtl;
+  if (!(UART_INSTANCE_LOWPOWER(huart)))
+  {
+    tmpreg |= huart->Init.OneBitSampling;
+  }
   MODIFY_REG(huart->Instance->CR3, (USART_CR3_RTSE | USART_CR3_CTSE | USART_CR3_ONEBIT), tmpreg);
-  
+
   /*-------------------------- USART BRR Configuration -----------------------*/
   UART_GETCLOCKSOURCE(huart, clocksource);
   
   /* Check LPUART instace */
-  if(huart->Instance == LPUART1)
+  if(UART_INSTANCE_LOWPOWER(huart))
   {
     switch (clocksource)
     {
@@ -1734,7 +1783,14 @@ void UART_SetConfig(UART_HandleTypeDef *huart)
       huart->Instance->BRR = (uint32_t)(__DIV_LPUART(HAL_RCC_GetPCLK1Freq(), huart->Init.BaudRate));
       break;
     case UART_CLOCKSOURCE_HSI: 
-      huart->Instance->BRR = (uint32_t)(__DIV_LPUART(HSI_VALUE, huart->Init.BaudRate)); 
+      if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIDIV) != 0)
+      {    
+        huart->Instance->BRR = (uint32_t)(__DIV_LPUART((HSI_VALUE >> 2), huart->Init.BaudRate)); 
+      }
+      else 
+      {
+        huart->Instance->BRR = (uint32_t)(__DIV_LPUART(HSI_VALUE, huart->Init.BaudRate)); 
+      }
       break; 
     case UART_CLOCKSOURCE_SYSCLK:  
       huart->Instance->BRR = (uint32_t)(__DIV_LPUART(HAL_RCC_GetSysClockFreq(), huart->Init.BaudRate));
@@ -1758,10 +1814,17 @@ void UART_SetConfig(UART_HandleTypeDef *huart)
       usartdiv = (uint32_t)(UART_DIV_SAMPLING8(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate));
       break;
     case UART_CLOCKSOURCE_HSI:
-      usartdiv = (uint32_t)(UART_DIV_SAMPLING8(HSI_VALUE, huart->Init.BaudRate));
+      if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIDIV) != 0)
+      {    
+        usartdiv = (uint32_t)(UART_DIV_SAMPLING8((HSI_VALUE >> 2), huart->Init.BaudRate)); 
+      }
+      else 
+      {
+        usartdiv = (uint32_t)(UART_DIV_SAMPLING8(HSI_VALUE, huart->Init.BaudRate)); 
+      }
       break;
     case UART_CLOCKSOURCE_SYSCLK:
-      huart->Instance->BRR = (uint32_t)(UART_DIV_SAMPLING8(HAL_RCC_GetSysClockFreq(), huart->Init.BaudRate));
+      usartdiv = (uint32_t)(UART_DIV_SAMPLING8(HAL_RCC_GetSysClockFreq(), huart->Init.BaudRate));
       break;
     case UART_CLOCKSOURCE_LSE:
       usartdiv = (uint32_t)(UART_DIV_SAMPLING8(LSE_VALUE, huart->Init.BaudRate));
@@ -1785,7 +1848,14 @@ void UART_SetConfig(UART_HandleTypeDef *huart)
       huart->Instance->BRR = (uint32_t)(UART_DIV_SAMPLING16(HAL_RCC_GetPCLK2Freq(), huart->Init.BaudRate));
       break;
     case UART_CLOCKSOURCE_HSI: 
-      huart->Instance->BRR = (uint32_t)(UART_DIV_SAMPLING16(HSI_VALUE, huart->Init.BaudRate));
+      if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIDIV) != 0)
+      {    
+        huart->Instance->BRR = (uint32_t)(UART_DIV_SAMPLING16((HSI_VALUE >> 2), huart->Init.BaudRate)); 
+      }
+      else 
+      {
+        huart->Instance->BRR = (uint32_t)(UART_DIV_SAMPLING16(HSI_VALUE, huart->Init.BaudRate)); 
+      }
       break; 
     case UART_CLOCKSOURCE_SYSCLK:  
       huart->Instance->BRR = (uint32_t)(UART_DIV_SAMPLING16(HAL_RCC_GetSysClockFreq(), huart->Init.BaudRate));
@@ -1980,10 +2050,11 @@ HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, uint32_
   * @}
   */
 
-#endif /* HAL_UART_MODULE_ENABLED */
 /**
   * @}
   */
+
+#endif /* HAL_UART_MODULE_ENABLED */
 
 /**
   * @}

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_usart_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of USART HAL Extension module.
   ******************************************************************************
   * @attention
   *                               
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
-/** @defgroup USARTEx USARTEx Extended USART
+/** @defgroup USARTEx USARTEx
   * @{
   */
 
@@ -62,9 +62,9 @@
 /** @defgroup USARTEx_Word_Length Word length definition
   * @{
   */
-#define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M_1)
+#define USART_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
 #define USART_WORDLENGTH_8B                  ((uint32_t)0x00000000)
-#define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M_0)
+#define USART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_USART_WORD_LENGTH(LENGTH) (((LENGTH) == USART_WORDLENGTH_7B) || \
                                       ((LENGTH) == USART_WORDLENGTH_8B) || \
                                       ((LENGTH) == USART_WORDLENGTH_9B))                                 
@@ -86,7 +86,7 @@
   * @param  __CLOCKSOURCE__ : output variable   
   * @retval the USART clocking source, written in __CLOCKSOURCE__.
   */
-#if defined (STM32L031xx) || defined (STM32L041xx)
+#if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
 #define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                         \
     if((__HANDLE__)->Instance == USART2)                       \
@@ -111,7 +111,7 @@
     }                                                          \
   } while(0)
 
-#else /* (STM32L031xx) || defined (STM32L041xx) */
+#else /* (STM32L031xx) || defined (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
 #define USART_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__)       \
   do {                                                         \
@@ -156,7 +156,7 @@
        }                                                       \
     }                                                          \
   } while(0)
-#endif /* (STM32L031xx) || (STM32L041xx) */
+#endif /* (STM32L031xx) || (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
 /** @brief  Reports the USART mask to apply to retrieve the received data
   *         according to the word length and to the parity bits activation.

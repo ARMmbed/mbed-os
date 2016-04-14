@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,7 +54,7 @@
 /** @defgroup HAL HAL
   * @{
   */ 
-/** @defgroup HAL_Exported_Constants HAL Exported constants
+/** @defgroup HAL_Exported_Constants HAL Exported Constants
   * @{
   */ 
 
@@ -62,14 +62,14 @@
   * @{
   */
 #define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000)
-#define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_MEM_MODE_0)
+#define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_BOOT_MODE_0)
 #define SYSCFG_BOOT_SRAM               ((uint32_t)SYSCFG_CFGR1_BOOT_MODE)     
 
 /**
   * @}
   */ 
 
-/** @defgroup DBGMCU_Low_Power_Config 
+/** @defgroup DBGMCU_Low_Power_Config DBGMCU Low Power Configuration
   * @{
   */
 #define DBGMCU_SLEEP                 DBGMCU_CR_DBG_SLEEP
@@ -82,7 +82,8 @@
   * @}
   */
   
-/** @defgroup HAL_SYSCFG_LCD_EXT_CAPA 
+#if defined (LCD_BASE) /* STM32L0x3xx only */
+/** @defgroup SYSCFG_LCD_EXT_CAPA SYSCFG LCD External Capacitors
   * @{
   */
 #define SYSCFG_LCD_EXT_CAPA             SYSCFG_CFGR2_CAPA /*!< Connection of internal Vlcd rail to external capacitors */
@@ -99,8 +100,9 @@
 /**
   * @}
   */
+#endif
 
-/** @defgroup HAL_SYSCFG_VREFINT_OUT_SELECT 
+/** @defgroup SYSCFG_VREFINT_OUT_SELECT SYSCFG VREFINT Out Selection
   * @{
   */ 
 #define SYSCFG_VREFINT_OUT_NONE          ((uint32_t)0x00000000) /* no pad connected */  
@@ -116,7 +118,7 @@
   * @}
   */ 
 
-/** @defgroup HAL_SYSCFG_flags_definition 
+/** @defgroup SYSCFG_flags_definition SYSCFG Flags Definition
   * @{
   */
 #define SYSCFG_FLAG_VREFINT_READY      SYSCFG_CFGR3_VREFINT_RDYF
@@ -126,6 +128,32 @@
 /**
   * @}
   */
+  
+/** @defgroup SYSCFG_FastModePlus_GPIO Fast Mode Plus on GPIO 
+  * @{
+  */ 
+/** @brief  Fast mode Plus driving capability on a specific GPIO  
+  */  
+#if defined (SYSCFG_CFGR2_I2C_PB6_FMP)
+#define SYSCFG_FASTMODEPLUS_PB6       SYSCFG_CFGR2_I2C_PB6_FMP  /* Enable Fast Mode Plus on PB6 */
+#endif
+#if defined (SYSCFG_CFGR2_I2C_PB7_FMP)
+#define SYSCFG_FASTMODEPLUS_PB7       SYSCFG_CFGR2_I2C_PB7_FMP  /* Enable Fast Mode Plus on PB7 */
+#endif
+#if defined (SYSCFG_CFGR2_I2C_PB8_FMP)
+#define SYSCFG_FASTMODEPLUS_PB8       SYSCFG_CFGR2_I2C_PB8_FMP  /* Enable Fast Mode Plus on PB8 */
+#endif
+#if defined (SYSCFG_CFGR2_I2C_PB9_FMP)
+#define SYSCFG_FASTMODEPLUS_PB9       SYSCFG_CFGR2_I2C_PB9_FMP  /* Enable Fast Mode Plus on PB9 */
+#endif
+
+#define IS_SYSCFG_FASTMODEPLUS(PIN) ((((PIN) & (SYSCFG_FASTMODEPLUS_PB6)) == SYSCFG_FASTMODEPLUS_PB6)  || \
+                                     (((PIN) & (SYSCFG_FASTMODEPLUS_PB7)) == SYSCFG_FASTMODEPLUS_PB7)  || \
+                                     (((PIN) & (SYSCFG_FASTMODEPLUS_PB8)) == SYSCFG_FASTMODEPLUS_PB8)  || \
+                                     (((PIN) & (SYSCFG_FASTMODEPLUS_PB9)) == SYSCFG_FASTMODEPLUS_PB9)  )
+/**
+ * @}
+ */
  /**
   * @}
   */ 
@@ -255,24 +283,52 @@
 
 /** @brief  Configuration of the DBG Low Power mode.
   * @param  __DBGLPMODE__: bit field to indicate in wich Low Power mode DBG is still active.
-  *         This parameter can be a value of @ref HAL_DBGMCU_Low_Power_Config
+  *         This parameter can be a value of
+  *         - DBGMCU_SLEEP
+  *         - DBGMCU_STOP
+  *         - DBGMCU_STANDBY
   */
 #define __HAL_SYSCFG_DBG_LP_CONFIG(__DBGLPMODE__)    do {assert_param(IS_DBGMCU_PERIPH(__DBGLPMODE__)); \
                                                        MODIFY_REG(DBGMCU->CR, DBGMCU_CR_DBG, (__DBGLPMODE__)); \
                                                      } while (0) 
 /**
   * @brief  Returns the boot mode as configured by user.
-  * @retval The boot mode as configured by user. The returned can be a value of @ref HAL_SYSCFG_BootMode 
+  * @retval The boot mode as configured by user. The returned can be a value of :
+  *     - SYSCFG_BOOT_MAINFLASH
+  *     - SYSCFG_BOOT_SYSTEMFLASH
+  *     - SYSCFG_BOOT_SRAM
   */
 #define __HAL_SYSCFG_GET_BOOT_MODE()          READ_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_BOOT_MODE)
 
 
 /** @brief  Check whether the specified SYSCFG flag is set or not.
   * @param  __FLAG__: specifies the flag to check.
-  *         This parameter can a value of @ref HAL_SYSCFG_flags_definition
+  *         The only parameter supported is SYSCFG_FLAG_VREFINT_READY
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
 #define __HAL_SYSCFG_GET_FLAG(__FLAG__) (((SYSCFG->CFGR3) & (__FLAG__)) == (__FLAG__))
+
+/** @brief  Fast mode Plus driving capability enable macro
+  * @param __FASTMODEPLUS__: This parameter can be a value of : 
+  *     @arg SYSCFG_FASTMODEPLUS_PB6
+  *     @arg SYSCFG_FASTMODEPLUS_PB7
+  *     @arg SYSCFG_FASTMODEPLUS_PB8
+  *     @arg SYSCFG_FASTMODEPLUS_PB9
+  */
+#define __HAL_SYSCFG_FASTMODEPLUS_ENABLE(__FASTMODEPLUS__)  do {assert_param(IS_SYSCFG_FASTMODEPLUS((__FASTMODEPLUS__))); \
+                                                                SET_BIT(SYSCFG->CFGR2, __FASTMODEPLUS__);                 \
+                                                               }while(0)
+/** @brief  Fast mode Plus driving capability disable macro
+  * @param __FASTMODEPLUS__: This parameter can be a value of : 
+  *     @arg SYSCFG_FASTMODEPLUS_PB6
+  *     @arg SYSCFG_FASTMODEPLUS_PB7
+  *     @arg SYSCFG_FASTMODEPLUS_PB8
+  *     @arg SYSCFG_FASTMODEPLUS_PB9
+  */
+#define __HAL_SYSCFG_FASTMODEPLUS_DISABLE(__FASTMODEPLUS__) do {assert_param(IS_SYSCFG_FASTMODEPLUS((__FASTMODEPLUS__))); \
+                                                                CLEAR_BIT(SYSCFG->CFGR2, __FASTMODEPLUS__);               \
+                                                               }while(0)
+
 
 /**                  
   * @}
@@ -328,6 +384,17 @@ void HAL_SYSCFG_VREFINT_OutputSelect(uint32_t SYSCFG_Vrefint_OUTPUT);
 /**                  
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup HAL_Private HAL Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
+
 
 /**
   * @}

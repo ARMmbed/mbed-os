@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_gpio.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   GPIO HAL module driver.  
   *          This file provides firmware functions to manage the following 
   *          functionalities of the General Purpose Input/Output (GPIO) peripheral:
@@ -98,7 +98,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -132,16 +132,17 @@
   * @{
   */
 
+#ifdef HAL_GPIO_MODULE_ENABLED
+
 /** @addtogroup GPIO
   * @brief GPIO HAL module driver
   * @{
   */
 
-#ifdef HAL_GPIO_MODULE_ENABLED
-
-/* Private typedef -----------------------------------------------------------*/
+/** @addtogroup GPIO_Private
+  * @{
+  */
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
 
  
 #define GPIO_MODE             ((uint32_t)0x00000003)
@@ -153,10 +154,10 @@
 #define GPIO_OUTPUT_TYPE      ((uint32_t)0x00000010)
 
 #define GPIO_NUMBER           ((uint32_t)16)
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
 
+/**
+  * @}
+  */
 /** @addtogroup GPIO_Exported_Functions
   * @{
   */
@@ -184,7 +185,6 @@
 void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 {
   uint32_t position = 0x00;
-  uint32_t ioposition = 0x00;
   uint32_t iocurrent = 0x00;
   uint32_t temp = 0x00;
  
@@ -194,21 +194,17 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
   assert_param(IS_GPIO_PIN_AVAILABLE(GPIOx,(GPIO_Init->Pin)));
 
   /* Configure the port pins */
-  for(position = 0; position < GPIO_NUMBER; position++)
+  while ((GPIO_Init->Pin) >> position)
   {
     /* Get the IO position */
-    ioposition = ((uint32_t)0x01) << position;
-    /* Get the current IO position */
-    iocurrent = (uint32_t)(GPIO_Init->Pin) & ioposition;
+    iocurrent = (GPIO_Init->Pin) & (1 << position);
     
-    if(iocurrent == ioposition)
+    if(iocurrent)
     {
       /*--------------------- GPIO Mode Configuration ------------------------*/
       /* In case of Alternate function mode selection */
       if((GPIO_Init->Mode == GPIO_MODE_AF_PP) || (GPIO_Init->Mode == GPIO_MODE_AF_OD)) 
       {
-        /* Check the Alternate function parameter */
-        assert_param(IS_GPIO_AF(GPIO_Init->Alternate));
         /* Check if the Alternate function is compliant with the GPIO in use */
         assert_param(IS_GPIO_AF_AVAILABLE(GPIOx,(GPIO_Init->Alternate)));
         /* Configure Alternate function mapped with the current IO */ 
@@ -296,6 +292,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
         EXTI->FTSR = temp;
       }
     }
+    position++;
   }
 }
 
@@ -311,22 +308,19 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
 { 
   uint32_t position = 0x00;
-  uint32_t ioposition = 0x00;
   uint32_t iocurrent = 0x00;
   uint32_t tmp = 0x00;
 
   /* Check the parameters */
-   assert_param(IS_GPIO_PIN_AVAILABLE(GPIOx,GPIO_Pin));
+  assert_param(IS_GPIO_PIN_AVAILABLE(GPIOx,GPIO_Pin));
 
   /* Configure the port pins */
-  for(position = 0; position < GPIO_NUMBER; position++)
+  while (GPIO_Pin >> position)
   {
     /* Get the IO position */
-    ioposition = ((uint32_t)0x01) << position;
-    /* Get the current IO position */
-    iocurrent = (GPIO_Pin) & ioposition;
-    
-    if(iocurrent == ioposition)
+    iocurrent = (GPIO_Pin) & (1 << position);
+
+    if(iocurrent)
     {
       /*------------------------- GPIO Mode Configuration --------------------*/
       /* Configure IO Direction in Input Floting Mode */
@@ -344,20 +338,26 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
       /* Deactivate the Pull-up oand Pull-down resistor for the current IO */
       GPIOx->PUPDR &= ~(GPIO_PUPDR_PUPD0 << (position * 2));
       
-      
       /*------------------------- EXTI Mode Configuration --------------------*/
-      /* Configure the External Interrupt or event for the current IO */
-      tmp = ((uint32_t)0x0F) << (4 * (position & 0x03));
-      SYSCFG->EXTICR[position >> 2] &= ~tmp;
+      /* Clear the External Interrupt or Event for the current IO */
       
-      /* Clear EXTI line configuration */
-      EXTI->IMR &= ~((uint32_t)iocurrent);
-      EXTI->EMR &= ~((uint32_t)iocurrent);
-      
-      /* Clear Rising Falling edge configuration */
-      EXTI->RTSR &= ~((uint32_t)iocurrent);
-      EXTI->FTSR &= ~((uint32_t)iocurrent);
+      tmp = SYSCFG->EXTICR[position >> 2];
+      tmp &= (((uint32_t)0x0F) << (4 * (position & 0x03)));
+      if(tmp == (GPIO_GET_INDEX(GPIOx) << (4 * (position & 0x03))))
+      {
+        tmp = ((uint32_t)0x0F) << (4 * (position & 0x03));
+        SYSCFG->EXTICR[position >> 2] &= ~tmp;
+
+        /* Clear EXTI line configuration */
+        EXTI->IMR &= ~((uint32_t)iocurrent);
+        EXTI->EMR &= ~((uint32_t)iocurrent);
+
+        /* Clear Rising Falling edge configuration */
+        EXTI->RTSR &= ~((uint32_t)iocurrent);
+        EXTI->FTSR &= ~((uint32_t)iocurrent);
+      }
     }
+     position++;
   }
 }
 
@@ -516,6 +516,9 @@ void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
   */
 __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_GPIO_EXTI_Callback could be implemented in the user file
    */ 
@@ -530,10 +533,11 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   * @}
   */
 
-#endif /* HAL_GPIO_MODULE_ENABLED */
 /**
   * @}
   */
+
+#endif /* HAL_GPIO_MODULE_ENABLED */
 
 /**
   * @}

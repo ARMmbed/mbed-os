@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -52,10 +52,18 @@
   * @{
   */
 
-/** @defgroup PWR_Extended_TimeOut_Value PWR Extended Flag Setting Time Out Value
+/** @addtogroup PWREx_Private
+  * @{
+  */
+
+/** @defgroup PWR_Extended_TimeOut_Value PWREx Flag Setting Time Out Value
   * @{
   */ 
-#define PWR_FLAG_SETTING_DELAY_US   50
+#define PWR_FLAG_SETTING_DELAY_US 50
+/**
+  * @}
+  */
+
 /**
   * @}
   */

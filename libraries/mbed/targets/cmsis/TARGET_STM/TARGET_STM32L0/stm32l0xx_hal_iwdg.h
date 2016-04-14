@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_iwdg.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of IWDG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @defgroup IWDG
+/** @defgroup IWDG IWDG
   * @{
   */
 
@@ -161,10 +161,6 @@ typedef struct
 /**
   * @}
   */
-#define IS_IWDG_FLAG(__FLAG__) (((__FLAG__) == IWDG_FLAG_PVU) || \
-                                ((__FLAG__) == IWDG_FLAG_RVU) || \
-                                ((__FLAG__) == IWDG_FLAG_WVU))
-
 
 /** @defgroup IWDG_Prescaler IWDG Prescaler
   * @{
@@ -206,7 +202,7 @@ typedef struct
   * @}
   */
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup IWDG_Exported_Macro IWDG Exported Macro
+/** @defgroup IWDG_Exported_Macro IWDG Exported Macros
   * @{
   */
 
@@ -262,7 +258,7 @@ typedef struct
   */
 
 /* Exported functions --------------------------------------------------------*/
-/** @defgroup IWDG_Exported_Functions
+/** @defgroup IWDG_Exported_Functions IWDG Exported Functions
   * @{
   */
 
@@ -295,6 +291,16 @@ HAL_IWDG_StateTypeDef HAL_IWDG_GetState(IWDG_HandleTypeDef *hiwdg);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup IWDG_Private IWDG Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

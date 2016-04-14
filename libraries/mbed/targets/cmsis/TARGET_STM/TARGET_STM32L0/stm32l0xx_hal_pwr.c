@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   PWR HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -14,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@
   * @{
   */
 
-/** @addtogroup PWR_Private_Defines
+/** @addtogroup PWR_Private
   * @{
   */
   
@@ -521,7 +521,11 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   * @note When the voltage regulator operates in low power mode, an additional
   *         startup delay is incurred when waking up from Stop mode. 
   *         By keeping the internal regulator ON during Stop mode, the consumption
-  *         is higher although the startup time is reduced.    
+  *         is higher although the startup time is reduced.
+  * @note Before entering in this function, it is important to ensure that the WUF
+  *       wakeup flag is cleared. To perform this action, it is possible to call the
+  *       following macro : __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU)
+  *
   * @param Regulator: Specifies the regulator state in Stop mode.
   *          This parameter can be one of the following values:
   *            @arg PWR_MAINREGULATOR_ON: Stop mode with regulator ON
