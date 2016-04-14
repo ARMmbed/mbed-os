@@ -42,6 +42,7 @@ static RTC_HandleTypeDef RtcHandle;
 void rtc_init(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
     uint32_t rtc_freq = 0;
 
 #if DEVICE_RTC_LSI
@@ -51,26 +52,30 @@ void rtc_init(void)
 
     RtcHandle.Instance = RTC;
 
-#if !DEVICE_RTC_LSI
-    // Enable LSE Oscillator
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
-        // Connect LSE to RTC
-        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
-        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-        rtc_freq = LSE_VALUE;
-    } else {
-        error("Cannot initialize RTC with LSE\n");
-    }
-#else
+    // Note : Due to a change inside stm32l0xx_hal_rcc.c (v1.2 to v1.5) the bit DBP of the register
+    // PWR_CR is now reset by the fonction HAL_RCC_OscConfig().
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
     // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();
 
+#if !DEVICE_RTC_LSI
+    // Enable LSE Oscillator
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        error("Cannot initialize RTC with LSE\n");
+    }
+    // Connect LSE to RTC
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+    PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+  		error("Cannot initialize RTC with LSI\n");
+  	}
+    rtc_freq = LSE_VALUE;
+#else
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
@@ -84,8 +89,11 @@ void rtc_init(void)
         error("RTC error: LSI clock initialization failed.");
     }
     // Connect LSI to RTC
-    __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
-    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+  		error("Cannot initialize RTC with LSI\n");
+  	}
     // This value is LSI typical value. To be measured precisely using a timer input capture for example.
     rtc_freq = 38000;
 #endif
@@ -186,6 +194,8 @@ time_t rtc_read(void)
     timeinfo.tm_hour = timeStruct.Hours;
     timeinfo.tm_min  = timeStruct.Minutes;
     timeinfo.tm_sec  = timeStruct.Seconds;
+    // Daylight Saving Time information is not available
+    timeinfo.tm_isdst = -1;
 
     // Convert to timestamp
     time_t t = mktime(&timeinfo);
