@@ -67,7 +67,7 @@ void rtc_init(void)
     } else {
         error("Cannot initialize RTC with LSE\n");
     }
-#else    
+#else
     // Enable Power clock
     __HAL_RCC_PWR_CLK_ENABLE();
 
@@ -141,7 +141,7 @@ void rtc_free(void)
 
 #if DEVICE_RTC_LSI
     rtc_inited = 0;
-#endif    
+#endif
 }
 
 int rtc_isenabled(void)
