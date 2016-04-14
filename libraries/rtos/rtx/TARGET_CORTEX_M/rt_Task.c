@@ -233,7 +233,7 @@ OS_TID rt_tsk_create (FUNCP task, U32 prio_stksz, void *stk, void *argv) {
   }
   /* If "size != 0" use a private user provided stack. */
   task_context->stack      = stk;
-  task_context->priv_stack = (U16)(prio_stksz >> 8);
+  task_context->priv_stack = prio_stksz >> 8;
   /* Pass parameter 'argv' to 'rt_init_context' */
   task_context->msg = argv;
   /* For 'size == 0' system allocates the user stack from the memory pool. */
