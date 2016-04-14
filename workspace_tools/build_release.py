@@ -133,6 +133,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32PG_STK3401',     ('ARM', 'GCC_ARM', 'uARM')),
 
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
     ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
