@@ -34,7 +34,7 @@
 
         NAME    HAL_CM3.S
 
-        #define TCB_TSTACK 40
+        #define TCB_TSTACK 44
 
         EXTERN  os_flags
         EXTERN  os_tsk

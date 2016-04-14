@@ -36,7 +36,7 @@
         .syntax unified
 
         .equ    TCB_STACKF, 37
-        .equ    TCB_TSTACK, 40
+        .equ    TCB_TSTACK, 44
 
 
 /*----------------------------------------------------------------------------
