@@ -63,7 +63,10 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
 
+    use_progen = False
+    supported = True
     report = {'success': False, 'errormsg':''}
+    
     if ide is None or ide == "zip":
         # Simple ZIP exporter
         try:
@@ -80,9 +83,6 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
         else:
             Exporter = EXPORTERS[ide]
             target = EXPORT_MAP.get(target, target)
-            # use progen targets or mbed exporters targets, check progen attribute
-            use_progen = False
-            supported = True
             try:
                 if Exporter.PROGEN_ACTIVE:
                     use_progen = True
