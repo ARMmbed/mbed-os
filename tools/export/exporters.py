@@ -46,24 +46,39 @@ class Exporter(object):
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
         return resources
 
+    @staticmethod
+    def _get_dir_grouped_files(files):
+        """ Get grouped files based on the dirname """
+        files_grouped = {}
+        for file in files:
+            rel_path = os.path.relpath(file, os.getcwd())
+            dir_path = os.path.dirname(rel_path)
+            if dir_path == '':
+                # all files within the current dir go into Source_Files
+                dir_path = 'Source_Files'
+            if not dir_path in files_grouped.keys():
+                files_grouped[dir_path] = []
+            files_grouped[dir_path].append(file)
+        return files_grouped
+
     def progen_get_project_data(self):
         """ Get ProGen project data  """
         # provide default data, some tools don't require any additional
         # tool specific settings
-        sources = []
+        code_files = []
         for r_type in ['c_sources', 'cpp_sources', 's_sources']:
             for file in getattr(self.resources, r_type):
-                sources.append(file)
+                code_files.append(file)
+
+        sources_files = code_files + self.resources.hex_files + self.resources.objects + \
+            self.resources.libraries
+        sources_grouped = Exporter._get_dir_grouped_files(sources_files)
+        headers_grouped = Exporter._get_dir_grouped_files(self.resources.headers)
 
         project_data = {
             'common': {
-                'sources': { 
-                    'Source Files': sources + self.resources.hex_files +
-                        self.resources.objects + self.resources.libraries,
-                },
-                'includes':  { 
-                    'Include Files': self.resources.headers,
-                },
+                'sources': sources_grouped,
+                'includes': headers_grouped,
                 'build_dir':'.build',
                 'target': [TARGET_MAP[self.target].progen['target']],
                 'macros': self.get_symbols(),
