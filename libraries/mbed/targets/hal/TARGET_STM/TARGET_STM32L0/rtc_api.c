@@ -72,8 +72,8 @@ void rtc_init(void)
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
-  		error("Cannot initialize RTC with LSI\n");
-  	}
+        error("Cannot initialize RTC with LSI\n");
+    }
     rtc_freq = LSE_VALUE;
 #else
     // Reset Backup domain
@@ -90,10 +90,10 @@ void rtc_init(void)
     }
     // Connect LSI to RTC
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-  	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
-  	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
-  		error("Cannot initialize RTC with LSI\n");
-  	}
+    PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+        error("Cannot initialize RTC with LSI\n");
+    }
     // This value is LSI typical value. To be measured precisely using a timer input capture for example.
     rtc_freq = 38000;
 #endif
