@@ -108,7 +108,7 @@ const PinMap PinMap_UART_RX[] = {
     {PTC3 , UART_1, 3},
     {PTC14, UART_4, 3},
     {PTD2 , UART_2, 3},
-    {PTC6 , UART_0, 3},
+    {PTD6 , UART_0, 3},
     {NC  ,  NC    , 0}
 };
 
