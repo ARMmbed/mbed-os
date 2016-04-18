@@ -3,10 +3,10 @@
  *----------------------------------------------------------------------------
  *      Name:    HAL_CM4.S
  *      Purpose: Hardware Abstraction Layer for Cortex-M4
- *      Rev.:    V4.70
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,8 +34,8 @@
 
         NAME    HAL_CM4.S
 
-        #define TCB_STACKF 32
-        #define TCB_TSTACK 40
+        #define TCB_STACKF 37
+        #define TCB_TSTACK 44
 
         EXTERN  os_flags
         EXTERN  os_tsk
@@ -120,7 +120,7 @@ _alloc_box:
 
 /*--------------------------- _free_box -------------------------------------*/
 
-;       int _free_box (void *box_mem, void *box);
+;       U32 _free_box (void *box_mem, void *box);
         /* Function wrapper for Unprivileged/Privileged mode. */
 
         PUBLIC  _free_box
@@ -176,7 +176,17 @@ SVC_Handler_Veneer:
         BXEQ    LR                      /* RETI, no task switch */
 #endif
 
-        CBZ     R1,SVC_Next             /* Runtask deleted? */
+        CBNZ    R1,SVC_ContextSave      /* Runtask not deleted? */
+
+        TST     LR,#0x10                /* is it extended frame? */
+        BNE     SVC_ContextRestore
+        LDR     R1,=0xE000EF34
+        LDR     R0,[R1]                 /* Load FPCCR */
+        BIC     R0,R0,#1                /* Clear LSPACT (Lazy state) */
+        STR     R0,[R1]                 /* Store FPCCR */
+        B       SVC_ContextRestore
+
+SVC_ContextSave:
         TST     LR,#0x10                /* is it extended frame? */
         ITTE    EQ
         VSTMDBEQ R12!,{S16-S31}         /* yes, stack also VFP hi-regs */
@@ -190,17 +200,17 @@ SVC_Handler_Veneer:
         BL      rt_stk_check            /* Check for Stack overflow */
         POP     {R2,R3}
 
-SVC_Next:
+SVC_ContextRestore:
         STR     R2,[R3]                 /* os_tsk.run = os_tsk.new */
 
         LDR     R12,[R2,#TCB_TSTACK]    /* os_tsk.new->tsk_stack */
         LDMIA   R12!,{R4-R11}           /* Restore New Context */
         LDRB    R0,[R2,#TCB_STACKF]     /* Stack Frame */
         CMP     R0,#0                   /* Basic/Extended Stack Frame */
-        ITTE    NE
+        ITEE    EQ
+        MVNEQ   LR,#~0xFFFFFFFD         /* set EXC_RETURN value */
+        MVNNE   LR,#~0xFFFFFFED
         VLDMIANE R12!,{S16-S31}         /* restore VFP hi-registers */
-        MVNNE   LR,#~0xFFFFFFED         /* set EXC_RETURN value */
-        MVNEQ   LR,#~0xFFFFFFFD
         MSR     PSP,R12                 /* Write PSP */
 
 SVC_Exit:
@@ -282,10 +292,10 @@ Sys_Switch:
         LDMIA   R12!,{R4-R11}           /* Restore New Context */
         LDRB    R0,[R2,#TCB_STACKF]     /* Stack Frame */
         CMP     R0,#0                   /* Basic/Extended Stack Frame */
-        ITTE    NE
+        ITEE    EQ
+        MVNEQ   LR,#~0xFFFFFFFD         /* set EXC_RETURN value */
+        MVNNE   LR,#~0xFFFFFFED
         VLDMIANE R12!,{S16-S31}         /* restore VFP hi-registers */
-        MVNNE   LR,#~0xFFFFFFED         /* set EXC_RETURN value */
-        MVNEQ   LR,#~0xFFFFFFFD
         MSR     PSP,R12                 /* Write PSP */
 
 Sys_Exit:

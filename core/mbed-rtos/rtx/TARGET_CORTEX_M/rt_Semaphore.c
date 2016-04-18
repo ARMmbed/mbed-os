@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_SEMAPHORE.C
  *      Purpose: Implements binary and counting semaphores
- *      Rev.:    V4.60
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "rt_TypeDef.h"
-#include "RTX_Conf.h"
+#include "RTX_Config.h"
 #include "rt_System.h"
 #include "rt_List.h"
 #include "rt_Task.h"
@@ -69,20 +69,20 @@ OS_RESULT rt_sem_delete (OS_ID semaphore) {
   while (p_SCB->p_lnk != NULL) {
     /* A task is waiting for token */
     p_TCB = rt_get_first ((P_XCB)p_SCB);
-    rt_ret_val(p_TCB, 0);
+    rt_ret_val(p_TCB, 0U);
     rt_rmv_dly(p_TCB);
     p_TCB->state = READY;
     rt_put_prio (&os_rdy, p_TCB);
   }
 
-  if (os_rdy.p_lnk && (os_rdy.p_lnk->prio > os_tsk.run->prio)) {
+  if ((os_rdy.p_lnk != NULL) && (os_rdy.p_lnk->prio > os_tsk.run->prio)) {
     /* preempt running task */
     rt_put_prio (&os_rdy, os_tsk.run);
     os_tsk.run->state = READY;
     rt_dispatch (NULL);
   }
 
-  p_SCB->cb_type = 0;
+  p_SCB->cb_type = 0U;
 
   return (OS_R_OK);
 }
@@ -100,7 +100,7 @@ OS_RESULT rt_sem_send (OS_ID semaphore) {
     /* A task is waiting for token */
     p_TCB = rt_get_first ((P_XCB)p_SCB);
 #ifdef __CMSIS_RTOS
-    rt_ret_val(p_TCB, 1);
+    rt_ret_val(p_TCB, 1U);
 #else
     rt_ret_val(p_TCB, OS_R_SEM);
 #endif
@@ -126,7 +126,7 @@ OS_RESULT rt_sem_wait (OS_ID semaphore, U16 timeout) {
     return (OS_R_OK);
   }
   /* No token available: wait for one */
-  if (timeout == 0) {
+  if (timeout == 0U) {
     return (OS_R_TMO);
   }
   if (p_SCB->p_lnk != NULL) {
@@ -145,10 +145,10 @@ OS_RESULT rt_sem_wait (OS_ID semaphore, U16 timeout) {
 /*--------------------------- isr_sem_send ----------------------------------*/
 
 void isr_sem_send (OS_ID semaphore) {
-  /* Same function as "os_sem"send", but to be called by ISRs */
+  /* Same function as "os_sem_send", but to be called by ISRs */
   P_SCB p_SCB = semaphore;
 
-  rt_psq_enq (p_SCB, 0);
+  rt_psq_enq (p_SCB, 0U);
   rt_psh_req ();
 }
 
@@ -165,7 +165,7 @@ void rt_sem_psh (P_SCB p_CB) {
     rt_rmv_dly (p_TCB);
     p_TCB->state   = READY;
 #ifdef __CMSIS_RTOS
-    rt_ret_val(p_TCB, 1);
+    rt_ret_val(p_TCB, 1U);
 #else
     rt_ret_val(p_TCB, OS_R_SEM);
 #endif
@@ -180,4 +180,3 @@ void rt_sem_psh (P_SCB p_CB) {
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
-

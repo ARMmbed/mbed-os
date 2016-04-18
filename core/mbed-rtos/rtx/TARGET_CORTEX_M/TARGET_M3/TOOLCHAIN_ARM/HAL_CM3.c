@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    HAL_CM3.C
  *      Purpose: Hardware Abstraction Layer for Cortex-M3
- *      Rev.:    V4.60
+ *      Rev.:    V4.70
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "rt_TypeDef.h"
-#include "RTX_Conf.h"
+#include "RTX_Config.h"
 #include "rt_System.h"
 #include "rt_HAL_CM.h"
 #include "rt_Task.h"
@@ -99,7 +99,7 @@ __asm void *_alloc_box (void *box_mem) {
 
 /*--------------------------- _free_box -------------------------------------*/
 
-__asm int _free_box (void *box_mem, void *box) {
+__asm U32 _free_box (void *box_mem, void *box) {
    /* Function wrapper for Unprivileged/Privileged mode. */
         LDR     R12,=__cpp(rt_free_box)
         MRS     R3,IPSR
@@ -123,6 +123,11 @@ __asm void SVC_Handler (void) {
         IMPORT  SVC_Count
         IMPORT  SVC_Table
         IMPORT  rt_stk_check
+
+#ifdef  IFX_XMC4XXX
+        EXPORT  SVC_Handler_Veneer
+SVC_Handler_Veneer        
+#endif
 
         MRS     R0,PSP                  ; Read PSP
         LDR     R1,[R0,#24]             ; Read Saved PC from Stack
@@ -157,7 +162,12 @@ SVC_Next
 
 SVC_Exit
         MVN     LR,#:NOT:0xFFFFFFFD     ; set EXC_RETURN value
+#ifdef  IFX_XMC4XXX
+        PUSH    {LR}
+        POP     {PC}
+#else
         BX      LR
+#endif
 
         /*------------------- User SVC ------------------------------*/
 
@@ -188,6 +198,11 @@ SVC_Done
 __asm void PendSV_Handler (void) {
         PRESERVE8
 
+#ifdef  IFX_XMC4XXX
+        EXPORT  PendSV_Handler_Veneer
+PendSV_Handler_Veneer        
+#endif
+
         BL      __cpp(rt_pop_req)
 
 Sys_Switch
@@ -212,7 +227,12 @@ Sys_Switch
 
 Sys_Exit
         MVN     LR,#:NOT:0xFFFFFFFD     ; set EXC_RETURN value
+#ifdef  IFX_XMC4XXX
+        PUSH    {LR}
+        POP     {PC}
+#else
         BX      LR                      ; Return to Thread Mode
+#endif
 
         ALIGN
 }
@@ -222,6 +242,11 @@ Sys_Exit
 
 __asm void SysTick_Handler (void) {
         PRESERVE8
+
+#ifdef  IFX_XMC4XXX
+        EXPORT  SysTick_Handler_Veneer
+SysTick_Handler_Veneer        
+#endif
 
         BL      __cpp(rt_systick)
         B       Sys_Switch
