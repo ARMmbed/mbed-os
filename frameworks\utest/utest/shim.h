@@ -59,7 +59,11 @@
 #       define UTEST_SHIM_SCHEDULER_USE_MINAR UTEST_MINAR_AVAILABLE
 #   endif
 #   ifndef UTEST_SHIM_SCHEDULER_USE_US_TICKER
-#       define UTEST_SHIM_SCHEDULER_USE_US_TICKER 0
+#       ifdef __MBED__
+#           define UTEST_SHIM_SCHEDULER_USE_US_TICKER 1
+#       else
+#           define UTEST_SHIM_SCHEDULER_USE_US_TICKER 0
+#       endif
 #   endif
 #endif  // YOTTA_CFG_UTEST_USE_CUSTOM_SCHEDULER
 
