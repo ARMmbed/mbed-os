@@ -459,7 +459,7 @@ SVC_0_1(svcKernelRunning,    int32_t,  RET_int32_t)
 SVC_0_1(svcKernelSysTick,    uint32_t, RET_uint32_t)
 
 static void  sysThreadError   (osStatus status);
-osThreadId   svcThreadCreate  (const osThreadDef_t *thread_def, void *argument);
+osThreadId   svcThreadCreate  (const osThreadDef_t *thread_def, void *argument, void *context);
 osMessageQId svcMessageCreate (const osMessageQDef_t *queue_def, osThreadId thread_id);
 
 // Kernel Control Service Calls
@@ -489,7 +489,7 @@ osStatus svcKernelInitialize (void) {
   if (os_initialized == 0U) {
     // Create OS Timers resources (Message Queue & Thread)
     osMessageQId_osTimerMessageQ = svcMessageCreate (&os_messageQ_def_osTimerMessageQ, NULL);
-    osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL);
+    osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL, NULL);
   }
 
   sysThreadError(osOK);
@@ -621,7 +621,7 @@ static void sysThreadError (osStatus status) {
 __NO_RETURN void osThreadExit (void);
 
 // Thread Service Calls declarations
-SVC_2_1(svcThreadCreate,      osThreadId, const osThreadDef_t *, void *,     RET_pointer)
+SVC_3_1(svcThreadCreate,      osThreadId, const osThreadDef_t *, void *, void *, RET_pointer)
 SVC_0_1(svcThreadGetId,       osThreadId,                                    RET_pointer)
 SVC_1_1(svcThreadTerminate,   osStatus,         osThreadId,                  RET_osStatus)
 SVC_0_1(svcThreadYield,       osStatus,                                      RET_osStatus)
@@ -631,7 +631,7 @@ SVC_1_1(svcThreadGetPriority, osPriority,       osThreadId,                  RET
 // Thread Service Calls
 
 /// Create a thread and add it to Active Threads and set it to state READY
-osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
+osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument, void *context) {
   P_TCB  ptcb;
   OS_TID tsk;
   void  *stk;
@@ -791,14 +791,17 @@ osPriority svcThreadGetPriority (osThreadId thread_id) {
 
 /// Create a thread and add it to Active Threads and set it to state READY
 osThreadId osThreadCreate (const osThreadDef_t *thread_def, void *argument) {
-  if (__get_IPSR() != 0U) { 
+  return osThreadContextCreate(thread_def, argument, NULL);
+}
+osThreadId osThreadContextCreate (const osThreadDef_t *thread_def, void *argument, void *context) {
+  if (__get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
     // Privileged and not running
-    return   svcThreadCreate(thread_def, argument);
+    return   svcThreadCreate(thread_def, argument, context);
   } else {
-    return __svcThreadCreate(thread_def, argument);
+    return __svcThreadCreate(thread_def, argument, context);
   }
 }
 
