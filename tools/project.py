@@ -148,7 +148,7 @@ if __name__ == '__main__':
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
             project_dir = options.source_dir
             project_name = basename(project_dir)
-            project_temp = options.source_dir
+            project_temp = path.join(options.source_dir, 'projectfiles', ide)
             mkdir(project_temp)
             lib_symbols = []
             if options.macros:
