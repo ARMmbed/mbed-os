@@ -80,11 +80,20 @@ static void ipv4_to_address(char *addr, const uint8_t *bytes)
 
 static void ipv6_to_address(char *addr, const uint8_t *bytes)
 {
+    int pos = 0;
     for (int i = 0; i < NSAPI_IPv6_BYTES; i+=2) {
-        sprintf(&addr[5*i], "%02x%02x", bytes[i], bytes[i+1]);
-        addr[5*i+4] = ':';
+        int ret = sprintf(&addr[pos], "%02x%02x", bytes[i], bytes[i+1]);
+        if (ret < 0) {
+            memset(addr, 0, NSAPI_IPv6_SIZE + 1);
+            return;
+        }
+        pos += ret;
+
+        addr[pos++] = ':';
     }
-    addr[NSAPI_IPv6_BYTES-1] = '\0';
+    pos -= 1; // Overwrite last ':'
+    addr[pos++] = '\0';
+    MBED_ASSERT(NSAPI_IPv6_SIZE == pos);
 }
 
 SocketAddress::SocketAddress(NetworkInterface *iface, const char *host, uint16_t port)
@@ -136,7 +145,7 @@ void SocketAddress::set_ip_address(const char *addr)
         address_to_ipv4(_ip_bytes, addr);
     } else if (addr && address_is_ipv6(addr)) {
         _ip_version = NSAPI_IPv6;
-        address_to_ipv4(_ip_bytes, addr);
+        address_to_ipv6(_ip_bytes, addr);
     } else {
         _ip_version = NSAPI_IPv4;
         memset(_ip_bytes, 0, NSAPI_IPv4_BYTES);
@@ -171,7 +180,7 @@ const char *SocketAddress::get_ip_address() const
     if (!ip_address[0]) {
         if (_ip_version == NSAPI_IPv4) {
             ipv4_to_address(ip_address, _ip_bytes);
-        } else if (_ip_version == NSAPI_IPv4) {
+        } else if (_ip_version == NSAPI_IPv6) {
             ipv6_to_address(ip_address, _ip_bytes);
         }
     }
