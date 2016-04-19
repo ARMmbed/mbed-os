@@ -15,7 +15,8 @@ CAN can1(D2, D3);
 // B96B_F446VE support only single CAN channel
 CAN can1(PD_0, PD_1);
 #elif defined(TARGET_NUCLEO_F091RC) || defined(TARGET_NUCLEO_F072RB) || \
-      defined(TARGET_NUCLEO_F042K6) || defined(TARGET_NUCLEO_F334R8)
+      defined(TARGET_NUCLEO_F042K6) || defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F303RE)
 CAN can1(PA_11, PA_12);
 #else
 CAN can1(p9, p10);
@@ -48,7 +49,8 @@ void send() {
 
 #if (!defined (TARGET_LPC1549) && !defined(TARGET_B96B_F446VE) && \
      !defined(TARGET_NUCLEO_F091RC) && !defined(TARGET_NUCLEO_F072RB) && \
-     !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8))
+     !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8) && \
+     !defined(TARGET_NUCLEO_F303RE))
 void read() {
     CANMessage msg;
     printf("rx()\n");
@@ -64,7 +66,8 @@ int main() {
     ticker.attach(&send, 1);
 #if (!defined (TARGET_LPC1549) && !defined(TARGET_B96B_F446VE) && \
      !defined(TARGET_NUCLEO_F091RC) && !defined(TARGET_NUCLEO_F072RB) && \
-     !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8))
+     !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8) && \
+     !defined(TARGET_NUCLEO_F303RE))
     can2.attach(&read);
 #endif
     while(1) {
