@@ -21,12 +21,12 @@ TCPSocket::TCPSocket()
 {
 }
 
-TCPSocket::TCPSocket(NetworkInterface *iface)
+TCPSocket::TCPSocket(NetworkStack *iface)
 {
     open(iface);
 }
 
-int TCPSocket::open(NetworkInterface *iface)
+int TCPSocket::open(NetworkStack *iface)
 {
     return Socket::open(iface, NSAPI_TCP);
 }

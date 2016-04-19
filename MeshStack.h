@@ -1,4 +1,4 @@
-/* EthernetInterface
+/* MeshStack
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-#ifndef ETHERNET_INTERFACE_H
-#define ETHERNET_INTERFACE_H
+#ifndef MESH_INTERFACE_H
+#define MESH_INTERFACE_H
 
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 
-/** EthernetInterface class
+/** MeshStack class
  *
- *  Common interface that is shared between ethernet hardware.
+ *  Common interface that is shared between mesh hardware
  */
-class EthernetInterface : public NetworkInterface
+class MeshStack : public NetworkStack
 {
 public:
     /** Start the interface
      *
-     *  @return     0 on success, negative error code on failure
+     *  @return     0 on success, negative on failure
      */
     virtual int connect() = 0;
 
     /** Stop the interface
      *
-     *  @return     0 on success, negative error code on failure
+     *  @return     0 on success, negative on failure
      */
     virtual int disconnect() = 0;
 };

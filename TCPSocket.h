@@ -18,7 +18,7 @@
 #define TCPSOCKET_H
 
 #include "Socket.h"
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 
 /** TCP socket connection
  */
@@ -36,7 +36,7 @@ public:
      *
      *  @param iface    Network stack as target for socket
      */
-    TCPSocket(NetworkInterface *iface);
+    TCPSocket(NetworkStack *iface);
 
     /** Opens a socket
      *
@@ -46,7 +46,7 @@ public:
      *  @param iface    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkInterface *iface);
+    virtual int open(NetworkStack *iface);
 
     /** Connects TCP socket to a remote host
      *

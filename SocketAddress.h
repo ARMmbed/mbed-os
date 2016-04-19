@@ -56,7 +56,7 @@ enum nsapi_version_t {
 #define NSAPI_IPv6_BYTES 16
 
 // Predeclared classes
-class NetworkInterface;
+class NetworkStack;
 
 
 /** SocketAddress class
@@ -76,7 +76,7 @@ public:
      *  @param host     Hostname to resolve
      *  @param port     Optional 16-bit port
      */
-    SocketAddress(NetworkInterface *iface, const char *host, uint16_t port = 0);
+    SocketAddress(NetworkStack *iface, const char *host, uint16_t port = 0);
 
     /** Create a SocketAddress from an IP address and port
      *

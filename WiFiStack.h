@@ -1,4 +1,4 @@
-/* WiFiInterface
+/* WiFiStack
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 
 /** Enum of WiFi encryption types
  *
@@ -33,11 +33,11 @@ enum nsapi_security_t {
     NSAPI_SECURITY_WPA2,       /*!< phrase conforms to WPA2 */
 };
 
-/** WiFiInterface class
+/** WiFiStack class
  *
  *  Common interface that is shared between WiFi devices
  */
-class WiFiInterface : public NetworkInterface
+class WiFiStack : public NetworkStack
 {
 public:
     /** Start the interface

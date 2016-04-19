@@ -15,7 +15,7 @@
  */
 
 #include "SocketAddress.h"
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 #include <string.h>
 #include "mbed.h"
 
@@ -126,7 +126,7 @@ static void ipv6_to_address(char *addr, const uint8_t *bytes)
 }
 
 
-SocketAddress::SocketAddress(NetworkInterface *iface, const char *host, uint16_t port)
+SocketAddress::SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
 {
     // Check for valid IP addresses
     if (host && ipv4_is_valid(host)) {

@@ -18,7 +18,7 @@
 #define UDPSOCKET_H
 
 #include "Socket.h"
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 
 /** UDP socket
  */
@@ -36,7 +36,7 @@ public:
      *
      *  @param iface    Network stack as target for socket
      */
-    UDPSocket(NetworkInterface *iface);
+    UDPSocket(NetworkStack *iface);
 
     /** Opens a socket
      *
@@ -46,7 +46,7 @@ public:
      *  @param iface    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkInterface *iface);
+    virtual int open(NetworkStack *iface);
 
     /** Send a packet over a UDP socket
      *
