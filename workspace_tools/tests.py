@@ -94,6 +94,7 @@ Wiring:
      * NUCLEO_F091RC: (RX=PA_11, TX=PA_12)
      * NUCLEO_F072RB: (RX=PA_11, TX=PA_12)
      * NUCLEO_F042K6: (RX=PA_11, TX=PA_12)
+     * NUCLEO_F334R8: (RX=PA_11, TX=PA_12)
 
 """
 TESTS = [
@@ -300,7 +301,7 @@ TESTS = [
         "duration": 20,
         "peripherals": ["can_transceiver"],
         "mcu": ["LPC1549", "LPC1768","B96B_F446VE", "VK_RZ_A1H",
-		"NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6"],
+		"NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8"],
     },
     {
         "id": "MBED_BLINKY", "description": "Blinky",
@@ -572,14 +573,14 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "can"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
-                "NUCLEO_F072RB", "NUCLEO_F042K6"]
+                "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8"]
     },
     {
         "id": "MBED_30", "description": "CAN network test using interrupts",
         "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
-                "NUCLEO_F072RB", "NUCLEO_F042K6"]
+                "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8"]
     },
     {
         "id": "MBED_31", "description": "PWM LED test",
