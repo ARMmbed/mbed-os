@@ -18,7 +18,7 @@
 #define SOCKET_H
 
 #include "SocketAddress.h"
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 
 /** Abstract socket class
  */
@@ -38,7 +38,7 @@ public:
      *  @param iface    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkInterface *iface) = 0;
+    virtual int open(NetworkStack *iface) = 0;
     
     /** Close the socket
      *
@@ -160,11 +160,11 @@ public:
 
 protected:
     Socket();
-    int open(NetworkInterface *iface, nsapi_protocol_t proto);
+    int open(NetworkStack *iface, nsapi_protocol_t proto);
 
     static void thunk(void *);
 
-    NetworkInterface *_iface;
+    NetworkStack *_iface;
     void *_socket;
     bool _blocking;
     unsigned _timeout;

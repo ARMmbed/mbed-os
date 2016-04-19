@@ -31,7 +31,7 @@ Socket::~Socket()
     }
 }
 
-int Socket::open(NetworkInterface *iface, nsapi_protocol_t proto)
+int Socket::open(NetworkStack *iface, nsapi_protocol_t proto)
 {
     _iface = iface;
 

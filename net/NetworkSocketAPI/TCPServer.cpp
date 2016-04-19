@@ -21,12 +21,12 @@ TCPServer::TCPServer()
 {
 }
 
-TCPServer::TCPServer(NetworkInterface *iface)
+TCPServer::TCPServer(NetworkStack *iface)
 {
     open(iface);
 }
 
-int TCPServer::open(NetworkInterface *iface)
+int TCPServer::open(NetworkStack *iface)
 {
     return Socket::open(iface, NSAPI_TCP);
 }

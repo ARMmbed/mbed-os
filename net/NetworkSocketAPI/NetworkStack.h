@@ -1,4 +1,4 @@
-/* NetworkInterface
+/* NetworkStack
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -62,17 +62,17 @@ enum nsapi_protocol_t {
 #define NSAPI_MAC_BYTES 6
 
 
-/** NetworkInterface class
+/** NetworkStack class
  *
  *  Common interface that is shared between hardware that
  *  can connect to a network over IP. By implementing the
- *  NetworkInterface, a network stack can be used as a target
+ *  NetworkStack, a network stack can be used as a target
  *  for instantiating network sockets.
  */
-class NetworkInterface
+class NetworkStack
 {
 public:
-    virtual ~NetworkInterface() {};
+    virtual ~NetworkStack() {};
 
     /** Get the local IP address
      *

@@ -21,12 +21,12 @@ UDPSocket::UDPSocket()
 {
 }
 
-UDPSocket::UDPSocket(NetworkInterface *iface)
+UDPSocket::UDPSocket(NetworkStack *iface)
 {
     open(iface);
 }
 
-int UDPSocket::open(NetworkInterface *iface)
+int UDPSocket::open(NetworkStack *iface)
 {
     return Socket::open(iface, NSAPI_UDP);
 }

@@ -17,7 +17,7 @@
 #include "DnsQuery.h"
 #include "mbed.h"
 
-int NetworkInterface::gethostbyname(SocketAddress *address, const char *name)
+int NetworkStack::gethostbyname(SocketAddress *address, const char *name)
 {
     char buffer[NSAPI_IP_SIZE];
     int err = dnsQuery(this, name, buffer);
@@ -29,22 +29,22 @@ int NetworkInterface::gethostbyname(SocketAddress *address, const char *name)
     return 0;
 }
 
-int NetworkInterface::setstackopt(int level, int optname, const void *optval, unsigned optlen)
+int NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-int NetworkInterface::getstackopt(int level, int optname, void *optval, unsigned *optlen)
+int NetworkStack::getstackopt(int level, int optname, void *optval, unsigned *optlen)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-int NetworkInterface::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen)
+int NetworkStack::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
-int NetworkInterface::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)
+int NetworkStack::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }

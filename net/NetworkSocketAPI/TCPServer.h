@@ -19,7 +19,7 @@
 
 #include "Socket.h"
 #include "TCPSocket.h"
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 
 /** TCP socket server
   */
@@ -37,7 +37,7 @@ public:
      *
      *  @param iface    Network stack as target for socket
      */
-    TCPServer(NetworkInterface *iface);
+    TCPServer(NetworkStack *iface);
 
     /** Opens a socket
      *
@@ -47,7 +47,7 @@ public:
      *  @param iface    Network stack as target for socket
      *  @return         0 on success, negative error code on failure
      */
-    virtual int open(NetworkInterface *iface);
+    virtual int open(NetworkStack *iface);
     
     /** Listen for connections on a TCP socket
      *

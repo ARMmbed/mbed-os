@@ -185,7 +185,7 @@ static int32_t query(UDPSocket *socket, const SocketAddress &addr, const char *h
     return NSAPI_ERROR_DNS_FAILURE;
 }
 
-int32_t dnsQuery(NetworkInterface *iface, const char *host, char *ip)
+int32_t dnsQuery(NetworkStack *iface, const char *host, char *ip)
 {
     if (isIP(host)) {
         strcpy(ip, host);

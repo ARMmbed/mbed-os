@@ -1,4 +1,4 @@
-/* CellularInterface
+/* CellularStack
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,13 +17,13 @@
 #ifndef CELLULAR_INTERFACE_H
 #define CELLULAR_INTERFACE_H
  
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
  
-/** CellularInterface class
+/** CellularStack class
  *
  *  Common interface that is shared between ethernet hardware
  */
-class CellularInterface : public NetworkInterface
+class CellularStack : public NetworkStack
 {
 public:
     /** Start the interface

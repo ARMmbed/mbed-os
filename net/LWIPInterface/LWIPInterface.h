@@ -17,15 +17,15 @@
 #ifndef LWIP_INTERFACE_H
 #define LWIP_INTERFACE_H
 
-#include "EthernetInterface.h"
+#include "EthernetStack.h"
 #include "rtos.h"
 #include "lwip/netif.h"
 
 
 /** LWIPInterface class
- *  Implementation of the NetworkInterface for LWIP
+ *  Implementation of the NetworkStack for LWIP
  */
-class LWIPInterface : public EthernetInterface
+class LWIPInterface : public EthernetStack
 {
 public:
     /** Start the interface
