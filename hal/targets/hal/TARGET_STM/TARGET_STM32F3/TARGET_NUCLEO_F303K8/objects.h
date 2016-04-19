@@ -106,6 +106,11 @@ struct pwmout_s {
     uint32_t inverted;
 };
 
+struct can_s {
+    CANName can;
+    int index;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
