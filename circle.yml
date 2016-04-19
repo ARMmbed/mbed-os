@@ -13,8 +13,8 @@ dependencies:
         - cd ../ && mkdir testproject
         - cd ../ && cp -r mbed-os testproject
         - cd ../testproject && git init
-        - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
+        - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
         - sudo apt-get -y update
-        - sudo apt-get -y install gcc-arm-embedded=4.9-2015-q3-update
+        - sudo apt-get -y install gcc-arm-none-eabi=4.9.3.2015q3-1precise1
     override:
         - cd ../testproject/mbed-os && pip install -r requirements.txt
