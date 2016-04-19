@@ -24,74 +24,135 @@
  */
 class Socket {
 public:
-    /** Socket lifetime
+    /** Destroy a socket
+     *
+     *  Closes socket if the socket is still open
      */
     virtual ~Socket();
 
-    /** Open the socket
-     *  @param iface    Interface to open socket on
+    /** Opens a socket
+     *
+     *  Creates a network socket on the specified network stack.
+     *  Not needed if stack is passed to the socket's constructor.
+     *
+     *  @param iface    Network stack as target for socket
+     *  @return         0 on success, negative error code on failure
      */
     virtual int open(NetworkInterface *iface) = 0;
     
     /** Close the socket
+     *
+     *  Closes any open connection and deallocates any memory associated
+     *  with the socket. Called from destructor if socket is not closed.
+     *
+     *  @return         0 on success, negative error code on failure
      */
     int close();
     
-    /** Bind a socket to a specific port
-     *  @param port     The port to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
+    /** Bind a specific address to a socket
+     *
+     *  Binding a socket specifies the address and port on which to recieve
+     *  data.
+     *
+     *  @param port     Local port to bind
+     *  @return         0 on success, negative error code on failure.
      */
     int bind(uint16_t port);
 
-    /** Bind a socket to a specific port
-     *  @param address  The null-terminated address to listen for incoming connections on
-     *  @param port     The port to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
+    /** Bind a specific address to a socket
+     *
+     *  Binding a socket specifies the address and port on which to recieve
+     *  data. If the IP address is zeroed, only the port is bound.
+     *
+     *  @param address  Null-terminated local address to bind
+     *  @param port     Local port to bind
+     *  @return         0 on success, negative error code on failure.
      */
     int bind(const char *address, uint16_t port);
 
-    /** Bind a socket to a specific port
-     *  @param address  The SocketAddress to listen for incoming connections on
-     *  @return         0 on success, negative on failure.
+    /** Bind a specific address to a socket
+     *
+     *  Binding a socket specifies the address and port on which to recieve
+     *  data. If the IP address is zeroed, only the port is bound.
+     *
+     *  @param address  Local address to bind
+     *  @return         0 on success, negative error code on failure.
      */
     int bind(const SocketAddress &address);
     
     /** Set blocking or non-blocking mode of the socket
-     *  @param blocking true for blocking mode, false for non-blocking mode.
+     *
+     *  Initially all sockets are in blocking mode. In non-blocking mode
+     *  blocking operations such as send/recv/accept return
+     *  NSAPI_ERROR_WOULD_BLOCK if they can not continue.
+     *
+     *  @param blocking True for blocking mode, false for non-blocking mode.
      */
     void set_blocking(bool blocking);
     
-    /** Set timeout on a socket operation if blocking behaviour is enabled
-     *  @param timeout  timeout in ms
+    /** Set timeout on blocking socket operations
+     *
+     *  Initially all sockets have unbounded timeouts. NSAPI_ERROR_WOULD_BLOCK
+     *  is returned if a blocking operation takes longer than the specified
+     *  timeout. A timeout of 0 removes a timeout from the socket.
+     *
+     *  @param timeout  Timeout in milliseconds
      */
     void set_timeout(unsigned int timeout);
 
-    /*  Set socket options
-     *  @param level    Option level
-     *  @param optname  Option identifier
+    /*  Set stack-specific socket options
+     *
+     *  The setsockopt allow an application to pass stack-specific hints
+     *  to the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
+     *
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
      *  @param optval   Option value
      *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
+     *  @return         0 on success, negative error code on failure
      */    
     int setsockopt(int level, int optname, const void *optval, unsigned optlen);
 
-    /*  Get socket options
-     *  @param level    Option level
-     *  @param optname  Option identifier
-     *  @param optval   Buffer where to write option value
+    /*  Get stack-specific socket options
+     *
+     *  The getstackopt allow an application to retrieve stack-specific hints
+     *  from the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+     *
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
+     *  @return         0 on success, negative error code on failure
      */    
     int getsockopt(int level, int optname, void *optval, unsigned *optlen);
 
     /** Register a callback on state change of the socket
+     *
+     *  The specified callback will be called on state changes such as when
+     *  the socket can recv/send/accept successfully and on when an error
+     *  occurs. The callback may also be called spuriously without reason.
+     *
+     *  The callback may be called in an interrupt context and should not
+     *  perform expensive operations such as recv/send calls.
+     *
      *  @param callback Function to call on state change
-     *  @note Callback may be called in an interrupt context.
-     *        The callback should not perform long operations 
-     *        such as recv or send calls.
      */
     void attach(FunctionPointer callback);
 
+    /** Register a callback on state change of the socket
+     *
+     *  The specified callback will be called on state changes such as when
+     *  the socket can recv/send/accept successfully and on when an error
+     *  occurs. The callback may also be called spuriously without reason.
+     *
+     *  The callback may be called in an interrupt context and should not
+     *  perform expensive operations such as recv/send calls.
+     *
+     *  @param tptr     Pointer to object to call method on
+     *  @param mptr     Method to call on state change
+     */
     template <typename T, typename M>
     void attach(T *tptr, M mptr) {
         attach(FunctionPointer(tptr, mptr));

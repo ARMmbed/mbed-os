@@ -20,47 +20,86 @@
 #include "Socket.h"
 #include "NetworkInterface.h"
 
-/** UDP Socket
+/** UDP socket
  */
 class UDPSocket : public Socket {
 public:
-    /** UDPSocket lifetime
+    /** Create an uninitialized socket
+     *
+     *  Must call open to initialize the socket on a network stack.
      */
     UDPSocket();
+
+    /** Create a socket on a network stack
+     *
+     *  Creates and opens a socket on the specified network stack.
+     *
+     *  @param iface    Network stack as target for socket
+     */
     UDPSocket(NetworkInterface *iface);
 
-    /** Open the socket
-     *  @param iface    Interface to open socket on
+    /** Opens a socket
+     *
+     *  Creates a network socket on the specified network stack.
+     *  Not needed if stack is passed to the socket's constructor.
+     *
+     *  @param iface    Network stack as target for socket
+     *  @return         0 on success, negative error code on failure
      */
     virtual int open(NetworkInterface *iface);
 
-    /** Send a packet to a remote endpoint
-     *  @param host     The host to connect to. It can either be an IP Address
-     *                  or a hostname that will be resolved with DNS
-     *  @param port     The remote port
-     *  @param data     The packet to be sent
-     *  @param size     The length of the packet to be sent
-     *  @return         The number of written bytes on success, negative on failure
+    /** Send a packet over a UDP socket
+     *
+     *  Sends data to the specified address specified by either a domain name
+     *  or an IP address and port. Returns the number of bytes sent from the
+     *  buffer.
+     *
+     *  By default, sendto blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param host     Host name of the remote host
+     *  @param port     Port of the remote host
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
      */
     int sendto(const char *host, uint16_t port, const void *data, unsigned size);
 
-    /** Send a packet to a remote endpoint
-     *  @param address  The remote SocketAddress
-     *  @param data     The packet to be sent
-     *  @param size     The length of the packet to be sent
-     *  @return         The number of written bytes on success, negative on failure
+    /** Send a packet over a UDP socket
+     *
+     *  Sends data to the specified address. Returns the number of bytes
+     *  sent from the buffer.
+     *
+     *  By default, sendto blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param address  The SocketAddress of the remote host
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
      */
     int sendto(const SocketAddress &address, const void *data, unsigned size);
 
-    /** Receive a packet from a remote endpoint
-     *  @param address  Destination for the remote SocketAddress or null
-     *  @param buffer   The buffer for storing the incoming packet data
-     *                  If a packet is too long to fit in the supplied buffer,
-     *                  excess bytes are discarded
-     *  @param size     The length of the buffer
-     *  @return         The number of received bytes on success, negative on failure
+    /** Receive a packet over a UDP socket
+     *
+     *  Receives data and stores the source address in address if address
+     *  is not NULL. Returns the number of bytes received into the buffer.
+     *
+     *  By default, recvfrom blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param address  Destination for the source address or NULL
+     *  @param data     Destination buffer for data received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
      */
-    int recvfrom(SocketAddress *address, void *buffer, unsigned size);
+    int recvfrom(SocketAddress *address, void *data, unsigned size);
 };
 
 #endif

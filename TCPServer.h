@@ -21,31 +21,57 @@
 #include "TCPSocket.h"
 #include "NetworkInterface.h"
 
-/** TCP Server.
+/** TCP socket server
   */
 class TCPServer : public Socket {
 public:
-    /** TCP Server lifetime
+    /** Create an uninitialized socket
+     *
+     *  Must call open to initialize the socket on a network stack.
      */
     TCPServer();
-    TCPServer(NetworkInterface *iface);
-    virtual ~TCPServer();
 
-    /** Open the socket
-     *  @param iface    Interface to open socket on
+    /** Create a socket on a network stack
+     *
+     *  Creates and opens a socket on the specified network stack.
+     *
+     *  @param iface    Network stack as target for socket
+     */
+    TCPServer(NetworkInterface *iface);
+
+    /** Opens a socket
+     *
+     *  Creates a network socket on the specified network stack.
+     *  Not needed if stack is passed to the socket's constructor.
+     *
+     *  @param iface    Network stack as target for socket
+     *  @return         0 on success, negative error code on failure
      */
     virtual int open(NetworkInterface *iface);
     
-    /** Start listening for incoming connections
-     * @param backlog   Number of pending connections that can be queued up at any
-     *                  one time [Default: 1]
-     * @return          0 on success, negative on failure
+    /** Listen for connections on a TCP socket
+     *
+     *  Marks the socket as a passive socket that can be used to accept
+     *  incoming connections.
+     *
+     *  @param backlog  Number of pending connections that can be queued
+     *                  simultaneously, defaults to 1
+     *  @return         0 on success, negative error code on failure
      */
-    int listen(int backlog=1);
+    int listen(int backlog = 1);
     
-    /** Accept a new connection.
-     * @param socket    A TCPSocket instance that will handle the incoming connection.
-     * @return          0 on success, negative on failure.
+    /** Accepts a connection on a TCP socket
+     *
+     *  The server socket must be bound and set to listen for connections.
+     *  On a new connection, creates a network socket using the specified
+     *  socket instance.
+     *
+     *  By default, accept blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param socket   TCPSocket instance that will handle the incoming connection.
+     *  @return         0 on success, negative error code on failure
      */
     int accept(TCPSocket *connection);
 };
