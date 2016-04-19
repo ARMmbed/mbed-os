@@ -48,11 +48,6 @@ public:
      */
     int connect(const SocketAddress &address);
     
-    /** Check if the socket is connected
-     *  @return         true if connected, false otherwise
-     */
-    bool is_connected();
-    
     /** Send data to the remote host
      *  @param data     The buffer to send to the host
      *  @param size     The length of the buffer to send
