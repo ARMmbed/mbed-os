@@ -21,7 +21,11 @@
 #include "SocketAddress.h"
 
 
-/** Enum of standardized error codes
+/** Enum of standardized error codes 
+ *
+ *  Valid error codes have negative values and may
+ *  be returned by any network operation.
+ *
  *  @enum nsapi_error_t
  */
 enum nsapi_error_t {
@@ -38,6 +42,10 @@ enum nsapi_error_t {
 };
 
 /** Enum of socket protocols
+ *
+ *  The socket protocol specifies a particular protocol to
+ *  be used with a newly created socket. 
+ *
  *  @enum protocol_t
  */
 enum nsapi_protocol_t {
@@ -55,8 +63,11 @@ enum nsapi_protocol_t {
 
 
 /** NetworkInterface class
- *  Common interface that is shared between all hardware that
- *  can connect to a network over IP.
+ *
+ *  Common interface that is shared between hardware that
+ *  can connect to a network over IP. By implementing the
+ *  NetworkInterface, a network stack can be used as a target
+ *  for instantiating network sockets.
  */
 class NetworkInterface
 {
@@ -64,44 +75,54 @@ public:
     virtual ~NetworkInterface() {};
 
     /** Get the internally stored IP address
+     *
      *  @return         IP address of the interface or null if not yet connected
      */
     virtual const char *get_ip_address() = 0;
 
     /** Get the internally stored MAC address
+     *
      *  @return         MAC address of the interface
      */
     virtual const char *get_mac_address() = 0;
 
-    /** Get the current status of the interface
-     *  @return         true if connected
-     */
-    virtual bool is_connected() {
-        return get_ip_address() != NULL;
-    }
-
-    /** Looks up the specified host's IP address
+    /** Translates a host name to an IP address
+     *
+     *  The host name may be either a domain name or an IP address.
+     *  If no stack-specific DNS resolution is provided, the host name
+     *  will be resolve using a UDP socket on the stack. 
+     *
      *  @param address  Destination for the host SocketAddress
-     *  @param name     Hostname to lookup
-     *  @return         0 on success, negative on failure
+     *  @param host     Host name to lookup
+     *  @return         0 on success, negative error code on failure
      */
-    virtual int gethostbyname(SocketAddress *address, const char *name);
+    virtual int gethostbyname(SocketAddress *address, const char *host);
 
-    /*  Set stack options
-     *  @param level    Option level
-     *  @param optname  Option identifier
+    /*  Set stack-specific stack options
+     *
+     *  The setstackopt allow an application to pass stack-specific hints
+     *  to the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and the stack is unmodified.
+     *
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
      *  @param optval   Option value
      *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
+     *  @return         0 on success, negative error code on failure
      */    
     virtual int setstackopt(int level, int optname, const void *optval, unsigned optlen);
 
-    /*  Get stack options
-     *  @param level    Option level
-     *  @param optname  Option identifier
-     *  @param optval   Buffer where to write option value
+    /*  Get stack-specific stack options
+     *
+     *  The getstackopt allow an application to retrieve stack-specific hints
+     *  from the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+     *
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
+     *  @return         0 on success, negative error code on failure
      */    
     virtual int getstackopt(int level, int optname, void *optval, unsigned *optlen);
 
@@ -111,127 +132,190 @@ protected:
     friend class TCPSocket;
     friend class TCPServer;
 
-    /** Open a socket
-     *  @param handle   Handle in which to store new socket
-     *  @param proto    Type of socket to open, NSAPI_TCP or NSAPI_UDP
-     *  @return         0 on success, negative on failure
+    /** Opens a socket
+     *
+     *  Creates a socket for communication and stores it in the specified
+     *  handle. The handle must be passed to following calls on the socket.
+     *
+     *  A stack may have a finite number of sockets, in this case
+     *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
+     *
+     *  @param handle   Destination for the handle to a newly created socket
+     *  @param proto    Protocol of socket to open, NSAPI_TCP or NSAPI_UDP
+     *  @return         0 on success, negative error code on failure
      */
     virtual int socket_open(void **handle, nsapi_protocol_t proto) = 0;
 
     /** Close the socket
+     *
+     *  Closes any open connection and deallocates any memory associated with
+     *  the socket.
+     *
      *  @param handle   Socket handle
-     *  @return         0 on success, negative on failure
-     *  @note On failure, any memory associated with the socket must still 
-     *        be cleaned up
+     *  @return         0 on success, negative error code on failure
      */
     virtual int socket_close(void *handle) = 0;
 
-    /** Bind a server socket to a specific port
+    /** Bind a specific address to a socket
+     *
+     *  Binding a socket specifies the address and port on which to recieve
+     *  data. If the IP address is zeroed, only the port is bound.
+     *
      *  @param handle   Socket handle
-     *  @param address  Local address to listen for incoming connections on 
-     *  @return         0 on success, negative on failure.
+     *  @param address  Local address to bind
+     *  @return         0 on success, negative error code on failure.
      */
     virtual int socket_bind(void *handle, const SocketAddress &address) = 0;
 
-    /** Start listening for incoming connections
+    /** Listen for connections on a TCP socket
+     *
+     *  Marks the socket as a passive socket that can be used to accept
+     *  incoming connections.
+     *
      *  @param handle   Socket handle
-     *  @param backlog  Number of pending connections that can be queued up at any
-     *                  one time [Default: 1]
-     *  @return         0 on success, negative on failure
+     *  @param backlog  Number of pending connections that can be queued
+     *                  simultaneously, defaults to 1
+     *  @return         0 on success, negative error code on failure
      */
     virtual int socket_listen(void *handle, int backlog) = 0;
 
-    /** Connects this TCP socket to the server
+    /** Connects TCP socket to a remote host
+     *
+     *  Initiates a connection to a remote server specified by the
+     *  indicated address.
+     *
      *  @param handle   Socket handle
-     *  @param address  SocketAddress to connect to
-     *  @return         0 on success, negative on failure
+     *  @param address  The SocketAddress of the remote host
+     *  @return         0 on success, negative error code on failure
      */
     virtual int socket_connect(void *handle, const SocketAddress &address) = 0;
-    
-    /** Check if the socket is connected
-     *  @param handle   Socket handle
-     *  @return         true if connected, false otherwise
-     */
-    virtual bool socket_is_connected(void *handle) = 0;
 
-    /** Accept a new connection.
-     *  @param handle   Handle in which to store new socket
+    /** Accepts a connection on a TCP socket
+     *
+     *  The server socket must be bound and set to listen for connections.
+     *  On a new connection, creates a socket stores it in the specified
+     *  handle. The handle must be passed to following calls on the socket.
+     *
+     *  A stack may have a finite number of sockets, in this case
+     *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
+     *
+     *  This call is non-blocking. If accept would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
+     *  @param handle   Destination for a handle to the newly created sockey
      *  @param server   Socket handle to server to accept from
-     *  @return         0 on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     *  @return         0 on success, negative error code on failure
      */
     virtual int socket_accept(void **handle, void *server) = 0;
 
-    /** Send data to the remote host
+    /** Send data over a TCP socket
+     *
+     *  The socket must be connected to a remote host. Returns the number of
+     *  bytes sent from the buffer.
+     *
+     *  This call is non-blocking. If send would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
      *  @param handle   Socket handle
-     *  @param data     The buffer to send to the host
-     *  @param size     The length of the buffer to send
-     *  @return         Number of written bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
      */
     virtual int socket_send(void *handle, const void *data, unsigned size) = 0;
 
-    /** Receive data from the remote host
+    /** Receive data over a TCP socket
+     *
+     *  The socket must be connected to a remote host. Returns the number of
+     *  bytes received into the buffer.
+     *
+     *  This call is non-blocking. If recv would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
      *  @param handle   Socket handle
-     *  @param data     The buffer in which to store the data received from the host
-     *  @param size     The maximum length of the buffer
-     *  @return         Number of received bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     *  @param data     Destination buffer for data received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
      */
     virtual int socket_recv(void *handle, void *data, unsigned size) = 0;
 
-    /** Send a packet to a remote endpoint
+    /** Send a packet over a UDP socket
+     *
+     *  Sends data to the specified address. Returns the number of bytes
+     *  sent from the buffer.
+     *
+     *  This call is non-blocking. If sendto would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
      *  @param handle   Socket handle
-     *  @param address  The remote SocketAddress
-     *  @param data     The packet to be sent
-     *  @param size     The length of the packet to be sent
-     *  @return         the number of written bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     *  @param address  The SocketAddress of the remote host
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
      */
     virtual int socket_sendto(void *handle, const SocketAddress &address, const void *data, unsigned size) = 0;
 
-    /** Receive a packet from a remote endpoint
+    /** Receive a packet over a UDP socket
+     *
+     *  Receives data and stores the source address in address if address
+     *  is not NULL. Returns the number of bytes received into the buffer.
+     *
+     *  This call is non-blocking. If recvfrom would block,
+     *  NSAPI_ERROR_WOULD_BLOCK is returned immediately.
+     *
      *  @param handle   Socket handle
-     *  @param address  Destination for the remote SocketAddress or null
-     *  @param buffer   The buffer for storing the incoming packet data
-     *                  If a packet is too long to fit in the supplied buffer,
-     *                  excess bytes are discarded
-     *  @param size     The length of the buffer
-     *  @return         the number of received bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     *  @param address  Destination for the source address or NULL
+     *  @param data     Destination buffer for data received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
      */
     virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size) = 0;
 
     /** Register a callback on state change of the socket
+     *
+     *  The specified callback will be called on state changes such as when
+     *  the socket can recv/send/accept successfully and on when an error
+     *  occurs. The callback may also be called spuriously without reason.
+     *
+     *  The callback may be called in an interrupt context and should not
+     *  perform expensive operations such as recv/send calls.
+     *
      *  @param handle   Socket handle
      *  @param callback Function to call on state change
      *  @param data     Argument to pass to callback
-     *  @note Callback may be called in an interrupt context.
      */
     virtual void socket_attach(void *handle, void (*callback)(void *), void *data) = 0;
 
-    /*  Set socket options
+    /*  Set stack-specific socked options
+     *
+     *  The setsockopt allow an application to pass stack-specific hints
+     *  to the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
+     *
      *  @param handle   Socket handle
-     *  @param level    Option level
-     *  @param optname  Option identifier
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
      *  @param optval   Option value
      *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
+     *  @return         0 on success, negative error code on failure
      */    
     virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
 
-    /*  Get socket options
+    /*  Get stack-specific socket options
+     *
+     *  The getstackopt allow an application to retrieve stack-specific hints
+     *  from the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
+     *
      *  @param handle   Socket handle
-     *  @param level    Option level
-     *  @param optname  Option identifier
-     *  @param optval   Buffer where to write option value
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
-     *  @return         0 on success, negative on failure
+     *  @return         0 on success, negative error code on failure
      */    
     virtual int getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
 };
