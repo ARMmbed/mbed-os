@@ -1,4 +1,4 @@
-/* Socket
+/* EthernetInterface
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,18 +20,21 @@
 #include "NetworkInterface.h"
 
 /** EthernetInterface class
- *  Common interface that is shared between ethernet hardware
+ *
+ *  Common interface that is shared between ethernet hardware.
  */
 class EthernetInterface : public NetworkInterface
 {
 public:
     /** Start the interface
-     *  @return     0 on success, negative on failure
+     *
+     *  @return     0 on success, negative error code on failure
      */
     virtual int connect() = 0;
 
     /** Stop the interface
-     *  @return     0 on success, negative on failure
+     *
+     *  @return     0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
 };

@@ -1,4 +1,4 @@
-/* Socket
+/* WiFiInterface
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,12 @@
 
 #include "NetworkInterface.h"
 
-/** Enum for WiFi encryption types
+/** Enum of WiFi encryption types
+ *
+ *  The security type specifies a particular security to use when
+ *  connected to a WiFi network
+ *
+ *  @enum nsapi_protocol_t
  */
 enum nsapi_security_t {
     NSAPI_SECURITY_NONE = 0,   /*!< open access point */
@@ -29,21 +34,27 @@ enum nsapi_security_t {
 };
 
 /** WiFiInterface class
+ *
  *  Common interface that is shared between WiFi devices
  */
 class WiFiInterface : public NetworkInterface
 {
 public:
     /** Start the interface
+     *
+     *  Attempts to connect to a WiFi network. If passphrase is invalid,
+     *  NSAPI_ERROR_AUTH_ERROR is returned.
+     *
      *  @param ssid      Name of the network to connect to
      *  @param pass      Security passphrase to connect to the network
      *  @param security  Type of encryption for connection
-     *  @return          0 on success, negative on failure
+     *  @return          0 on success, negative error code on failure
      */
     virtual int connect(const char *ssid, const char *pass, nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
 
     /** Stop the interface
-     *  @return          0 on success, negative on failure
+     *
+     *  @return          0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
 };

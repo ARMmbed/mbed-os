@@ -1,4 +1,4 @@
-/* Socket
+/* UDPSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,7 +58,7 @@ public:
      *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
      *  immediately.
      *
-     *  @param host     Host name of the remote host
+     *  @param host     Hostname of the remote host
      *  @param port     Port of the remote host
      *  @param data     Buffer of data to send to the host
      *  @param size     Size of the buffer in bytes
