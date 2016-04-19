@@ -1,4 +1,4 @@
-/* Socket
+/* NetworkInterface
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -134,8 +134,8 @@ protected:
 
     /** Opens a socket
      *
-     *  Creates a socket for communication and stores it in the specified
-     *  handle. The handle must be passed to following calls on the socket.
+     *  Creates a network socket and stores it in the specified handle.
+     *  The handle must be passed to following calls on the socket.
      *
      *  A stack may have a finite number of sockets, in this case
      *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
@@ -148,8 +148,8 @@ protected:
 
     /** Close the socket
      *
-     *  Closes any open connection and deallocates any memory associated with
-     *  the socket.
+     *  Closes any open connection and deallocates any memory associated
+     *  with the socket.
      *
      *  @param handle   Socket handle
      *  @return         0 on success, negative error code on failure
@@ -174,7 +174,7 @@ protected:
      *
      *  @param handle   Socket handle
      *  @param backlog  Number of pending connections that can be queued
-     *                  simultaneously, defaults to 1
+     *                  simultaneously
      *  @return         0 on success, negative error code on failure
      */
     virtual int socket_listen(void *handle, int backlog) = 0;
@@ -193,8 +193,9 @@ protected:
     /** Accepts a connection on a TCP socket
      *
      *  The server socket must be bound and set to listen for connections.
-     *  On a new connection, creates a socket stores it in the specified
-     *  handle. The handle must be passed to following calls on the socket.
+     *  On a new connection, creates a network socket and stores it in the
+     *  specified handle. The handle must be passed to following calls on
+     *  the socket.
      *
      *  A stack may have a finite number of sockets, in this case
      *  NSAPI_ERROR_NO_SOCKET is returned if no socket is available.
@@ -289,7 +290,7 @@ protected:
      */
     virtual void socket_attach(void *handle, void (*callback)(void *), void *data) = 0;
 
-    /*  Set stack-specific socked options
+    /*  Set stack-specific socket options
      *
      *  The setsockopt allow an application to pass stack-specific hints
      *  to the underlying stack. For unsupported options,
