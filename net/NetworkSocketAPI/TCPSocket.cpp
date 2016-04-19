@@ -50,11 +50,6 @@ int TCPSocket::connect(const char *host, uint16_t port)
     return connect(addr);
 }
 
-bool TCPSocket::is_connected()
-{
-    return _socket && _iface->socket_is_connected(_socket);
-}
-
 int TCPSocket::send(const void *data, unsigned size)
 {
     mbed::Timer timer;
