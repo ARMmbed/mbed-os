@@ -5,11 +5,12 @@ sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
 from optparse import OptionParser
+from os import path
 
 from tools.paths import EXPORT_DIR, EXPORT_WORKSPACE, EXPORT_TMP
 from tools.paths import MBED_BASE, MBED_LIBRARIES
 from tools.export import export, setup_user_prj, EXPORTERS, mcu_ide_matrix
-from tools.utils import args_error
+from tools.utils import args_error, mkdir
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.targets import TARGET_NAMES
 from tools.libraries import LIBRARIES
@@ -136,15 +137,19 @@ if __name__ == '__main__':
     zip = True
     clean = True
 
+    # source_dir = use relative paths, otherwise sources are copied
+    sources_relative = True if options.source_dir else False
+
     for mcu in mcus.split(','):
         # Program Number or name
-        p, n, src = options.program, options.program_name, options.source_dir
+        p, n, src, ide = options.program, options.program_name, options.source_dir, options.ide
 
         if src is not None:
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
             project_dir = options.source_dir
             project_name = basename(project_dir)
-            project_temp = project_dir
+            project_temp = options.source_dir
+            mkdir(project_temp)
             lib_symbols = []
             if options.macros:
                 lib_symbols += options.macros
@@ -204,7 +209,7 @@ if __name__ == '__main__':
             setup_user_prj(project_dir, test.source_dir, test.dependencies)
 
         # Export to selected toolchain
-        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir, project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols)
+        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir, project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols, relative=sources_relative)
         print tmp_path
         if report['success']:
             zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
