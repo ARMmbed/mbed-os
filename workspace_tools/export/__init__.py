@@ -20,7 +20,7 @@ from shutil import copytree, rmtree, copy
 import yaml
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32, e2studio
+from workspace_tools.export import uvision4, uvision5, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32, e2studio
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
@@ -28,6 +28,7 @@ from project_generator_definitions.definitions import ProGenDef
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
+    'uvision5': uvision5.Uvision5,
     'lpcxpresso': codered.CodeRed,
     'gcc_arm': gccarm.GccArm,
     'ds5_5': ds5_5.DS5_5,
