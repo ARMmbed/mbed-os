@@ -1,8 +1,8 @@
-;/******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
+;/******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
 ;* File Name          : startup_stm32l053xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.2.0
-;* Date               : 06-February-2015
+;* Version            : V1.5.0
+;* Date               : 8-January-2016
 ;* Description        : STM32L053xx Ultra Low Power Devices vector 
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -82,7 +82,7 @@ __vector_table
         DCD     0                         ; Reserved
         DCD     0                         ; Reserved
         DCD     SVC_Handler               ; SVCall Handler
-        DCD     DebugMon_Handler          ; Debug Monitor Handler
+        DCD     0                         ; Reserved
         DCD     0                         ; Reserved
         DCD     PendSV_Handler            ; PendSV Handler
         DCD     SysTick_Handler           ; SysTick Handler
@@ -150,12 +150,6 @@ HardFault_Handler
         SECTION .text:CODE:NOROOT:REORDER(1)
 SVC_Handler
         B SVC_Handler
-        
-        
-        PUBWEAK DebugMon_Handler
-        SECTION .text:CODE:NOROOT:REORDER(1)
-DebugMon_Handler
-        B DebugMon_Handler
         
         
         PUBWEAK PendSV_Handler

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup SPI
+/** @defgroup SPI SPI
   * @{
   */
 
@@ -581,12 +581,12 @@ typedef struct __SPI_HandleTypeDef
   */
 
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup SPI_Exported_Functions
+/** @defgroup SPI_Exported_Functions SPI Exported Functions
   * @{
   */
 
 /* Initialization/de-initialization functions  **********************************/
-/** @addtogroup SPI_Exported_Functions_Group1
+/** @defgroup SPI_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi);
@@ -598,7 +598,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi);
   */
 
 /* I/O operation functions  *****************************************************/
-/** @addtogroup SPI_Exported_Functions_Group2
+/** @defgroup SPI_Exported_Functions_Group2 IO operation functions
   * @{
   */
 HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint16_t Size, uint32_t Timeout);
@@ -628,7 +628,7 @@ void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi);
 
 
 /* Peripheral State and Control functions  **************************************/
-/** @addtogroup SPI_Exported_Functions_Group3
+/** @defgroup SPI_Exported_Functions_Group3 Peripheral State and Errors functions
   * @{
   */
 HAL_SPI_StateTypeDef HAL_SPI_GetState(SPI_HandleTypeDef *hspi);
@@ -642,6 +642,23 @@ uint32_t HAL_SPI_GetError(SPI_HandleTypeDef *hspi);
   * @}
   */
 
+/* Private group definition ------------------------------------------------------*/
+/** @defgroup SPI_Private_Macros SPI Private Macros
+  * @{
+  */
+/**
+  * @}
+  */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup SPI_Private SPI Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

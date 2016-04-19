@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -157,7 +157,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -185,7 +185,7 @@
   */
 
 
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
@@ -194,7 +194,7 @@
   * @{
   */
 
-/** @defgroup DAC DAC HAL module driver
+/** @addtogroup DAC
   * @brief DAC driver modules
   * @{
   */
@@ -208,11 +208,11 @@
 
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup DAC_Exported_Functions DAC Exported Functions
+/** @addtogroup DAC_Exported_Functions
   * @{
   */
 
-/** @defgroup DAC_Exported_Functions_Group1 Initialization and de-initialization functions 
+/** @addtogroup DAC_Exported_Functions_Group1
  *  @brief    Initialization and Configuration functions
  *
 @verbatim
@@ -245,7 +245,10 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
   assert_param(IS_DAC_ALL_INSTANCE(hdac->Instance));
 
   if(hdac->State == HAL_DAC_STATE_RESET)
-  {  
+  {
+    /* Allocate lock resource and initialize it */
+    hdac->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware */
     HAL_DAC_MspInit(hdac);
   }
@@ -307,6 +310,9 @@ HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspInit could be implemented in the user file
    */
@@ -320,6 +326,9 @@ __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspDeInit could be implemented in the user file
    */
@@ -329,7 +338,7 @@ __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
   * @}
   */
 
-/** @defgroup DAC_Exported_Functions_Group2 IO operation functions
+/** @addtogroup DAC_Exported_Functions_Group2
  *  @brief    IO operation functions 
  *
 @verbatim
@@ -360,6 +369,10 @@ __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
   */
 __weak HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+  UNUSED(Channel);
+
   /* Note : This function is defined into this file for library reference. */
   /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
   
@@ -411,6 +424,13 @@ HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 __weak HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+  UNUSED(Channel);
+  UNUSED(pData);
+  UNUSED(Length);
+  UNUSED(Alignment);
+
   /* Note : This function is defined into this file for library reference. */
   /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
 
@@ -430,6 +450,10 @@ __weak HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Cha
   */
 __weak HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+  UNUSED(Channel);
+
   /* Note : This function is defined into this file for library reference. */
   /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
 
@@ -449,6 +473,10 @@ __weak HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Chan
   */
 __weak uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+  UNUSED(Channel);
+
   /* Note : This function is defined into this file for library reference. */
   /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
 
@@ -464,6 +492,9 @@ __weak uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 __weak void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* Note : This function is defined into this file for library reference. */
   /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
 
@@ -477,6 +508,9 @@ __weak void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvCpltCallbackCh1 could be implemented in the user file
    */
@@ -490,6 +524,9 @@ __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvHalfCpltCallbackCh1 could be implemented in the user file
    */
@@ -503,6 +540,9 @@ __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ErrorCallbackCh1 could be implemented in the user file
    */
@@ -516,6 +556,9 @@ __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
   */
 __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_DMAUnderrunCallbackCh1 could be implemented in the user file
    */
@@ -525,7 +568,7 @@ __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
   * @}
   */
   
-/** @defgroup DAC_Exported_Functions_Group3 Peripheral Control functions
+/** @addtogroup DAC_Exported_Functions_Group3
  *  @brief    Peripheral Control functions 
  *
 @verbatim
@@ -591,35 +634,10 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
 }
 
 /**
-  * @brief  Set the specified data holding register value for DAC channel.
-  * @param  hdac: pointer to a DAC_HandleTypeDef structure that contains
-  *         the configuration information for the specified DAC.
-  * @param  Channel: The selected DAC channel. 
-  *          This parameter can be one of the following values:
-  *            @arg DAC_CHANNEL_1: DAC Channel1 selected
-  *            @arg DAC_CHANNEL_2: DAC Channel2 selected (STM32L07x/STM32L08x only)
-  * @param  Alignment: Specifies the data alignment.
-  *          This parameter can be one of the following values:
-  *            @arg DAC_ALIGN_8B_R: 8bit right data alignment selected
-  *            @arg DAC_ALIGN_12B_L: 12bit left data alignment selected
-  *            @arg DAC_ALIGN_12B_R: 12bit right data alignment selected
-  * @param  Data: Data to be loaded in the selected data holding register.
-  * @retval HAL status
-  */
-__weak HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data)
-{
-  /* Note : This function is defined into this file for library reference. */
-  /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
-
-  /* Return function status */
-  return HAL_OK;
-}
-
-/**
   * @}
   */
 
-/** @defgroup DAC_Exported_Functions_Group4 Peripheral State and Errors functions
+/** @addtogroup DAC_Exported_Functions_Group4
  *  @brief   Peripheral State and Errors functions 
  *
 @verbatim
@@ -660,17 +678,37 @@ uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac)
 }
 
 /**
-  * @}
+  * @brief  Set the specified data holding register value for DAC channel.
+  * @param  hdac: pointer to a DAC_HandleTypeDef structure that contains
+  *         the configuration information for the specified DAC.
+  * @param  Channel: The selected DAC channel.
+  *          This parameter can be one of the following values:
+  *            @arg DAC_CHANNEL_1: DAC Channel1 selected
+  *            @arg DAC_CHANNEL_2: DAC Channel2 selected (STM32L07x/STM32L08x only)
+  * @param  Alignment: Specifies the data alignment.
+  *          This parameter can be one of the following values:
+  *            @arg DAC_ALIGN_8B_R: 8bit right data alignment selected
+  *            @arg DAC_ALIGN_12B_L: 12bit left data alignment selected
+  *            @arg DAC_ALIGN_12B_R: 12bit right data alignment selected
+  * @param  Data: Data to be loaded in the selected data holding register.
+  * @retval HAL status
   */
+__weak HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+  UNUSED(Channel);
+  UNUSED(Alignment);
+  UNUSED(Data);
+  /* Note : This function is defined into this file for library reference. */
+  /*        Function content is located into file stm32l0xx_hal_dac_ex.c   */
 
+  /* Return function status */
+  return HAL_OK;
+}
 /**
   * @}
   */
-
-/** @addtogroup DAC_Private_Functions
-  * @{
-  */
-
 
 /**
   * @}
@@ -684,7 +722,7 @@ uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac)
   * @}
   */
 #endif /* HAL_DAC_MODULE_ENABLED */
-#endif /* !STM32L031xx && !STM32L041xx && !STM32L051xx && !STM32L061xx&& !STM32L071xx&& !STM32L081xx*/
+#endif /* !STM32L011xx && STM32L021xx && !STM32L031xx && !STM32L041xx && !STM32L051xx && !STM32L061xx&& !STM32L071xx&& !STM32L081xx*/
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -37,7 +37,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -71,18 +71,21 @@
   * @{
   */
 
+#ifdef HAL_FLASH_MODULE_ENABLED
+
 /** @addtogroup FLASHEx
   * @brief FLASH HAL Extension module driver
   * @{
   */
-
-#ifdef HAL_FLASH_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @addtogroup FLASHEx_Private
+  * @{
+  */ 
 static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP);
 static HAL_StatusTypeDef FLASH_OB_BORConfig(uint8_t OB_BOR);
 static uint8_t           FLASH_OB_GetUser(void);
@@ -104,6 +107,9 @@ static HAL_StatusTypeDef FLASH_OB_BOOTBit1Config(uint8_t OB_BOOT_Bit1);
 #if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
 static HAL_StatusTypeDef FLASH_OB_BFB2Config(uint8_t OB_BFB2);
 #endif
+/**
+  * @}
+  */
     
 /* Exported functions ---------------------------------------------------------*/
 
@@ -222,26 +228,32 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   /* Process Locked */
   __HAL_LOCK(&ProcFlash);
 
-  /* Enable End of FLASH Operation interrupt */
-  __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP);
+  /* Wait for last operation to be completed */
+  status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
+
+  if (status == HAL_OK)
+  {
+    /* Enable End of FLASH Operation interrupt */
+    __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP);
+    
+    /* Enable Error source interrupt */
+    __HAL_FLASH_ENABLE_IT(FLASH_IT_ERR);
   
-  /* Enable Error source interrupt */
-  __HAL_FLASH_ENABLE_IT(FLASH_IT_ERR);
-
-  /* Check the parameters */
-  assert_param(IS_NBPAGES(pEraseInit->NbPages));
-  assert_param(IS_FLASH_TYPEERASE(pEraseInit->TypeErase));
-  assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress));
-  assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1));
-
-  /* Clean the error context */
-  ProcFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
-  ProcFlash.ProcedureOnGoing = FLASH_PROC_PAGEERASE;
-  ProcFlash.NbPagesToErase = pEraseInit->NbPages;
-  ProcFlash.Page = pEraseInit->PageAddress;
-
-  /* Erase 1st page and wait for IT */
-  FLASH_ErasePage(pEraseInit->PageAddress);
+    /* Check the parameters */
+    assert_param(IS_NBPAGES(pEraseInit->NbPages));
+    assert_param(IS_FLASH_TYPEERASE(pEraseInit->TypeErase));
+    assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress));
+    assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1));
+  
+    /* Clean the error context */
+    ProcFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
+    ProcFlash.ProcedureOnGoing = FLASH_PROC_PAGEERASE;
+    ProcFlash.NbPagesToErase = pEraseInit->NbPages;
+    ProcFlash.Page = pEraseInit->PageAddress;
+  
+    /* Erase 1st page and wait for IT */
+    FLASH_ErasePage(pEraseInit->PageAddress);
+  }
   return status;
 }
 
@@ -463,7 +475,6 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
   * @brief  Select the Protection Mode (WPRMOD).
   * @note   Once WPRMOD bit is active, unprotection of a protected sector is not possible 
   * @note   Read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
-  * @param  None
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
@@ -475,7 +486,6 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
   * @brief  Deselect the Protection Mode (WPRMOD).
   * @note   Once WPRMOD bit is active, unprotection of a protected sector is not possible 
   * @note   Read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
-  * @param  None
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
@@ -514,7 +524,6 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
   */
 /**
   * @brief  Unlocks the data memory and FLASH_PECR register access.
-  * @param  None
   * @retval HAL_StatusTypeDef HAL Status
   */
 HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Unlock(void)
@@ -534,7 +543,6 @@ HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Unlock(void)
 
 /**
   * @brief  Locks the Data memory and FLASH_PECR register access.
-  * @param  None
   * @retval HAL_StatusTypeDef HAL Status
   */
 HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Lock(void)
@@ -571,7 +579,10 @@ HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Erase(uint32_t Address)
 
     /* Write "00000000h" to valid address in the data memory" */
       *(__IO uint32_t *) Address = 0x00000000;
-    }
+
+    status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
+  }
+  
   return status;
 }  
 
@@ -655,8 +666,15 @@ void HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void)
   */
 
 /**
+  * @}
+  */
+
+/** @addtogroup FLASHEx_Private
+  * @{
+  */ 
+
+/**
   * @brief  Returns the FLASH User Option Bytes values.
-  * @param  None
   * @retval The FLASH User Option Bytes.
   */
 static uint8_t FLASH_OB_GetUser(void)
@@ -667,7 +685,6 @@ static uint8_t FLASH_OB_GetUser(void)
 
 /**
   * @brief  Returns the FLASH Read out Protection Level.
-  * @param  None
   * @retval FLASH RDP level.
   */
 static uint8_t FLASH_OB_GetRDP(void)
@@ -677,7 +694,6 @@ static uint8_t FLASH_OB_GetRDP(void)
 
 /**
   * @brief  Returns the FLASH BOR level.
-  * @param  None
   * @retval The BOR level Option Bytes.
   */
 static uint8_t FLASH_OB_GetBOR(void)
@@ -688,7 +704,6 @@ static uint8_t FLASH_OB_GetBOR(void)
 
 /**
   * @brief  Returns the FLASH BOOT bit1 value.
-  * @param  None
   * @retval The BOOT bit 1 value Option Bytes.
   */
 static uint8_t FLASH_OB_GetBOOTBit1(void)
@@ -700,7 +715,6 @@ static uint8_t FLASH_OB_GetBOOTBit1(void)
 
 /**
   * @brief  Returns the FLASH Write Protection Option Bytes value.
-  * @param  None
   * @retval The FLASH Write Protection Option Bytes value.
   */
 static uint32_t FLASH_OB_GetWRP(void)
@@ -712,7 +726,6 @@ static uint32_t FLASH_OB_GetWRP(void)
 #if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
 /**
   * @brief  Returns the FLASH Write Protection Option Bytes value.
-  * @param  None
   * @retval The FLASH Write Protection Option Bytes value.
   */
 static uint32_t FLASH_OB_GetWRP2(void)
@@ -779,11 +792,11 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, u
   *         must be called before.
   * @param  OB_RDP: specifies the read protection level. 
   *   This parameter can be:
-  *     @arg OB_RDP_LEVEL0: No protection
-  *     @arg OB_RDP_LEVEL1: Read protection of the memory
-  *     @arg OB_RDP_LEVEL2: Chip protection
+  *     @arg OB_RDP_LEVEL_0: No protection
+  *     @arg OB_RDP_LEVEL_1: Read protection of the memory
+  *     @arg OB_RDP_LEVEL_2: Chip protection
   * 
-  *  !!!Warning!!! When enabling OB_RDP_LEVEL2 it's no more possible to go back to level 1 or 0
+  *  !!!Warning!!! When enabling OB_RDP_LEVEL_2 it's no more possible to go back to level 1 or 0
   *   
   * @retval HAL status
   */
@@ -901,7 +914,7 @@ static HAL_StatusTypeDef FLASH_OB_BOOTBit1Config(uint8_t OB_BOOT_BIT1)
   * @brief  Select the Protection Mode (WPRMOD).
   * @note   Once WPRMOD bit is active, unprotection of a protected sector is not possible 
   * @note   Read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
-  * @param  OB_PcROP: Select the Protection Mode of WPR bits. 
+  * @param  WPRMOD: Select the Protection Mode of WPR bits.
   *   This parameter can be:
   *     @arg OB_PCROP_SELECTED: nWRP control the  read&write protection (PcROP) of respective user sectors.
   *     @arg OB_PCROP_DESELECTED: nWRP control the write protection of respective user sectors.
@@ -938,7 +951,7 @@ static HAL_StatusTypeDef FLASH_OB_PCROPSelectionConfig(uint32_t WPRMOD)
 #if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
 /**
   * @brief  Sets or resets the BFB2 option bit.
-  * @param  BFB2: Set or Reset the BFB2 option bit.
+  * @param  OB_BFB2: Set or Reset the BFB2 option bit.
   *          This parameter can be one of the following values:
   *             @arg OB_BOOT_BANK1: BFB2 option bit reset
   *             @arg OB_BOOT_BANK2: BFB2 option bit set
@@ -977,17 +990,25 @@ static HAL_StatusTypeDef FLASH_OB_BFB2Config(uint8_t OB_BFB2)
 }
 #endif
 
+
+#if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)
 /**
   * @brief  Write Option Byte of the desired pages of the Flash.
   * @param  Sector: specifies the sectors to be write protected.
-  * @param  Sector2: specifies the sectors to be write protected only stm32l07xxx and stm32l08xxx devices
+  * @param  Sector2: specifies the sectors to be write protected (only stm32l07xxx and stm32l08xxx devices)
   * @param  NewState: new state of the specified FLASH Pages Wite protection.
   *   This parameter can be: ENABLE or DISABLE.
   * @retval HAL_StatusTypeDef
   */
-#if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
 static HAL_StatusTypeDef FLASH_OB_ProtectedSectorsConfig(uint32_t Sector, uint32_t Sector2, uint32_t NewState)
 #else
+/**
+  * @brief  Write Option Byte of the desired pages of the Flash.
+  * @param  Sector: specifies the sectors to be write protected.
+  * @param  NewState: new state of the specified FLASH Pages Wite protection.
+  *   This parameter can be: ENABLE or DISABLE.
+  * @retval HAL_StatusTypeDef
+  */
 static HAL_StatusTypeDef FLASH_OB_ProtectedSectorsConfig(uint32_t Sector, uint32_t NewState)
 #endif
 {
@@ -1060,6 +1081,13 @@ static HAL_StatusTypeDef FLASH_OB_ProtectedSectorsConfig(uint32_t Sector, uint32
 /**
   * @}
   */
-#endif /* HAL_FLASH_MODULE_ENABLED */
 
+/**
+  * @}
+  */
+
+#endif /* HAL_FLASH_MODULE_ENABLED */
+/**
+  * @}
+  */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   USART HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -53,7 +53,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -87,11 +87,17 @@
   * @{
   */
 
+#ifdef HAL_USART_MODULE_ENABLED
+
 /** @addtogroup USART
   * @brief USART Synchronous module driver
   * @{
   */
-#ifdef HAL_USART_MODULE_ENABLED
+
+/** @addtogroup USART_Private
+  * @{
+  */
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define DUMMY_DATA                             ((uint16_t) 0xFFFF)
@@ -112,13 +118,16 @@ static void USART_DMAReceiveCplt(DMA_HandleTypeDef *hdma);
 static void USART_DMARxHalfCplt(DMA_HandleTypeDef *hdma);
 static void USART_DMAError(DMA_HandleTypeDef *hdma); 
 static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husart, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
-static void USART_SetConfig (USART_HandleTypeDef *husart);
+static HAL_StatusTypeDef USART_SetConfig (USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_EndTransmit_IT(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_Receive_IT(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
-/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @}
+  */
 
 
 /** @addtogroup USART_Exported_Functions
@@ -186,6 +195,9 @@ HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart)
 
   if(husart->State == HAL_USART_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    husart->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, CORTEX */
     HAL_USART_MspInit(husart);
   }
@@ -196,7 +208,10 @@ HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart)
   __HAL_USART_DISABLE(husart);
   
   /* Set the Usart Communication parameters */
-  USART_SetConfig(husart);
+  if (USART_SetConfig(husart) == HAL_ERROR)
+  {
+    return HAL_ERROR;
+  }
   
   /* In Synchronous mode, the following bits must be kept cleared: 
   - LINEN bit in the USART_CR2 register
@@ -252,6 +267,9 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_MspInit(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_MspInit could be implenetd in the user file
    */ 
@@ -264,6 +282,9 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_MspDeInit(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_MspDeInit could be implenetd in the user file
    */ 
@@ -1097,6 +1118,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1109,6 +1133,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1121,6 +1148,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1133,6 +1163,9 @@ __weak void HAL_USART_RxCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1145,6 +1178,9 @@ __weak void HAL_USART_RxHalfCpltCallback(USART_HandleTypeDef *husart)
   */
 __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_TxCpltCallback could be implemented in the user file
    */
@@ -1157,6 +1193,9 @@ __weak void HAL_USART_TxRxCpltCallback(USART_HandleTypeDef *husart)
   */
  __weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_USART_ErrorCallback could be implemented in the user file
    */ 
@@ -1209,6 +1248,13 @@ uint32_t HAL_USART_GetError(USART_HandleTypeDef *husart)
   * @}
   */
 
+/**
+  * @}
+  */
+
+/** @addtogroup USART_Private
+  * @{
+  */
 /**
   * @brief  This function handles USART Communication Timeout.
   * @param  husart: USART handle
@@ -1285,23 +1331,29 @@ static void USART_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 {
   USART_HandleTypeDef* husart = ( USART_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
 
-  husart->TxXferCount = 0;
-
-  if(husart->State == HAL_USART_STATE_BUSY_TX)
+  /* DMA Normal mode */
+  if ( HAL_IS_BIT_CLR(hdma->Instance->CCR, DMA_CCR_CIRC) )
   {
-    /* Disable the DMA transfer for transmit request by resetting the DMAT bit
-       in the USART CR3 register */
-    husart->Instance->CR3 &= ~(USART_CR3_DMAT);
+    husart->TxXferCount = 0;
 
-    /* Enable the USART Transmit Complete Interrupt */
-    __HAL_USART_ENABLE_IT(husart, USART_IT_TC);
+    if(husart->State == HAL_USART_STATE_BUSY_TX)
+    {
+      /* Disable the DMA transfer for transmit request by resetting the DMAT bit
+         in the USART CR3 register */
+      husart->Instance->CR3 &= ~(USART_CR3_DMAT);
+
+      /* Enable the USART Transmit Complete Interrupt */
+      __HAL_USART_ENABLE_IT(husart, USART_IT_TC);
+    }
   }
-  /* the usart state is HAL_USART_STATE_BUSY_TX_RX*/
+  /* DMA Circular mode */
   else
   {
-    husart->State= HAL_USART_STATE_BUSY_RX;
+    if(husart->State == HAL_USART_STATE_BUSY_TX)
+    {
     HAL_USART_TxCpltCallback(husart);
-  }
+   }
+ }
 }
 
 /**
@@ -1612,12 +1664,16 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart)
 /**
   * @brief Configure the USART peripheral 
   * @param husart: USART handle
-  * @retval None
+  * @retval HAL status
   */
-static void USART_SetConfig(USART_HandleTypeDef *husart)
+static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
 {
-  uint32_t tmpreg      = 0x0;
-  uint32_t clocksource = 0x0;
+  uint32_t tmpreg       = 0x0;
+  uint32_t clocksource  = 0x0;
+  HAL_StatusTypeDef ret = HAL_OK;
+  uint16_t brrtemp      = 0x0000;
+  uint16_t usartdiv     = 0x0000;
+
   
   /* Check the parameters */
   assert_param(IS_USART_INSTANCE(husart->Instance));
@@ -1659,24 +1715,32 @@ static void USART_SetConfig(USART_HandleTypeDef *husart)
   USART_GETCLOCKSOURCE(husart, clocksource);
   switch (clocksource)
   {
-  case USART_CLOCKSOURCE_PCLK1: 
-    husart->Instance->BRR = (uint16_t)((2 * HAL_RCC_GetPCLK1Freq())/ husart->Init.BaudRate);
-    break;
-  case USART_CLOCKSOURCE_PCLK2: 
-    husart->Instance->BRR = (uint16_t)((2 * HAL_RCC_GetPCLK2Freq()) / husart->Init.BaudRate);
-    break;
-  case USART_CLOCKSOURCE_HSI: 
-    husart->Instance->BRR = (uint16_t)((2 * HSI_VALUE) / husart->Init.BaudRate);
-    break; 
-  case USART_CLOCKSOURCE_SYSCLK:  
-    husart->Instance->BRR = (uint16_t)(( 2 * HAL_RCC_GetSysClockFreq()) / husart->Init.BaudRate);
-    break;  
-  case USART_CLOCKSOURCE_LSE:                
-    husart->Instance->BRR = (uint16_t)((2 * LSE_VALUE) / husart->Init.BaudRate);
-    break;
-  default:
-    break;    
-  } 
+    case USART_CLOCKSOURCE_PCLK1:
+      usartdiv = (uint16_t)((2*HAL_RCC_GetPCLK1Freq()) / husart->Init.BaudRate);
+      break;
+    case USART_CLOCKSOURCE_PCLK2:
+      usartdiv = (uint16_t)((2*HAL_RCC_GetPCLK2Freq()) / husart->Init.BaudRate);
+      break;
+    case USART_CLOCKSOURCE_HSI:
+      usartdiv = (uint16_t)((2*HSI_VALUE) / husart->Init.BaudRate);
+      break;
+    case USART_CLOCKSOURCE_SYSCLK:
+      usartdiv = (uint16_t)((2*HAL_RCC_GetSysClockFreq()) / husart->Init.BaudRate);
+      break;
+    case USART_CLOCKSOURCE_LSE:
+      usartdiv = (uint16_t)((2*LSE_VALUE) / husart->Init.BaudRate);
+      break;
+    case USART_CLOCKSOURCE_UNDEFINED:
+    default:
+      ret = HAL_ERROR;
+      break;
+  }
+
+  brrtemp = usartdiv & 0xFFF0;
+  brrtemp |= (uint16_t)((usartdiv & (uint16_t)0x000F) >> 1U);
+  husart->Instance->BRR = brrtemp;
+
+    return ret;
 }
 
 /**
@@ -1719,14 +1783,16 @@ static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart)
   return HAL_OK;  
 }
 
+
+/**
+  * @}
+  */
+
 /**
   * @}
   */
 
 #endif /* HAL_USART_MODULE_ENABLED */
-/**
-  * @}
-  */
 
 /**
   * @}

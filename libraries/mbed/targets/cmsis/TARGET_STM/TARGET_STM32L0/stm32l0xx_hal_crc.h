@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,6 +54,9 @@
   * @{
   */ 
 
+   /** @defgroup CRC_Exported_Types CRC Exported Types
+  * @{
+  */
 /* Exported types ------------------------------------------------------------*/ 
 
 /** 
@@ -136,8 +139,12 @@ typedef struct
                                            must occur if InputBufferFormat is not one of the three values listed above  */ 
 }CRC_HandleTypeDef;
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup CRC_Exported_Constants   CRC exported constants
+/** @defgroup CRC_Exported_Constants   CRC Exported Constants
   * @{
   */
   
@@ -165,9 +172,6 @@ typedef struct
 #define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00)
 #define DEFAULT_POLYNOMIAL_DISABLE      ((uint8_t)0x01)
 
-#define IS_DEFAULT_POLYNOMIAL(__DEFAULT__) (((__DEFAULT__) == DEFAULT_POLYNOMIAL_ENABLE) || \
-                                            ((__DEFAULT__) == DEFAULT_POLYNOMIAL_DISABLE))
-
 /**
   * @}
   */
@@ -178,8 +182,6 @@ typedef struct
 #define DEFAULT_INIT_VALUE_ENABLE      ((uint8_t)0x00)
 #define DEFAULT_INIT_VALUE_DISABLE     ((uint8_t)0x01)
 
-#define IS_DEFAULT_INIT_VALUE(__VALUE__)  (((__VALUE__) == DEFAULT_INIT_VALUE_ENABLE) || \
-                                           ((__VALUE__) == DEFAULT_INIT_VALUE_DISABLE))
 
 /**
   * @}
@@ -192,10 +194,6 @@ typedef struct
 #define CRC_POLYLENGTH_16B                  ((uint32_t)CRC_CR_POLYSIZE_0)
 #define CRC_POLYLENGTH_8B                   ((uint32_t)CRC_CR_POLYSIZE_1)
 #define CRC_POLYLENGTH_7B                   ((uint32_t)CRC_CR_POLYSIZE)
-#define IS_CRC_POL_LENGTH(__LENGTH__)     (((__LENGTH__) == CRC_POLYLENGTH_32B) || \
-                                           ((__LENGTH__) == CRC_POLYLENGTH_16B) || \
-                                           ((__LENGTH__) == CRC_POLYLENGTH_8B)  || \
-                                           ((__LENGTH__) == CRC_POLYLENGTH_7B))
 /**
   * @}
   */
@@ -224,9 +222,6 @@ typedef struct
 #define CRC_INPUTDATA_FORMAT_HALFWORDS             ((uint32_t)0x00000002)
 #define CRC_INPUTDATA_FORMAT_WORDS                 ((uint32_t)0x00000003)
 
-#define IS_CRC_INPUTDATA_FORMAT(__FORMAT__)       (((__FORMAT__) == CRC_INPUTDATA_FORMAT_BYTES) || \
-                                                   ((__FORMAT__) == CRC_INPUTDATA_FORMAT_HALFWORDS) || \
-                                                   ((__FORMAT__) == CRC_INPUTDATA_FORMAT_WORDS))
 /** 
   * @}
   */   
@@ -236,7 +231,7 @@ typedef struct
   */ 
 /* Exported macros -----------------------------------------------------------*/
 
-/** @defgroup CRC_Exported_Macros CRC exported macros
+/** @defgroup CRC_Exported_Macros CRC Exported Macros
   * @{
   */
 
@@ -267,7 +262,7 @@ typedef struct
   * @param __VALUE__: 8-bit value to be stored in the ID register
   * @retval None
   */
-#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (MODIFY_REG((__HANDLE__)->Instance->IDR, CRC_IDR_IDR, (__VALUE__))
+#define __HAL_CRC_SET_IDR(__HANDLE__, __VALUE__) (WRITE_REG((__HANDLE__)->Instance->IDR, (__VALUE__)))
 
 /**
   * @brief Returns the 8-bit data stored in the Independent Data(ID) register.
@@ -279,9 +274,46 @@ typedef struct
   * @}
   */
 
+/* Private macros --------------------------------------------------------*/
+/** @defgroup  CRC_Private_Macros   CRC Private Macros
+  * @{
+  */
 
+#define IS_DEFAULT_POLYNOMIAL(__DEFAULT__) (((__DEFAULT__) == DEFAULT_POLYNOMIAL_ENABLE) || \
+                                            ((__DEFAULT__) == DEFAULT_POLYNOMIAL_DISABLE))
+                                   
+
+#define IS_DEFAULT_INIT_VALUE(__VALUE__)  (((__VALUE__) == DEFAULT_INIT_VALUE_ENABLE) || \
+                                           ((__VALUE__) == DEFAULT_INIT_VALUE_DISABLE))
+                                      
+#define IS_CRC_POL_LENGTH(__LENGTH__)     (((__LENGTH__) == CRC_POLYLENGTH_32B) || \
+                                           ((__LENGTH__) == CRC_POLYLENGTH_16B) || \
+                                           ((__LENGTH__) == CRC_POLYLENGTH_8B)  || \
+                                           ((__LENGTH__) == CRC_POLYLENGTH_7B))
+ 
+
+#define IS_CRC_INPUTDATA_FORMAT(__FORMAT__)       (((__FORMAT__) == CRC_INPUTDATA_FORMAT_BYTES) || \
+                                                   ((__FORMAT__) == CRC_INPUTDATA_FORMAT_HALFWORDS) || \
+                                                   ((__FORMAT__) == CRC_INPUTDATA_FORMAT_WORDS))
+
+/**
+  * @}
+  */
+  
 /* Include CRC HAL Extension module */
 #include "stm32l0xx_hal_crc_ex.h"  
+
+/** @defgroup CRC_Exported_Constants   CRC Exported Constants
+  * @{
+  */
+
+/* Aliases for inter STM32 series compatibility */
+#define HAL_CRC_Input_Data_Reverse   HAL_CRCEx_Input_Data_Reverse
+#define HAL_CRC_Output_Data_Reverse  HAL_CRCEx_Output_Data_Reverse
+
+/**
+  * @}
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @defgroup CRC_Exported_Functions CRC Exported Functions
@@ -299,10 +331,6 @@ void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc);
 /**
   * @}
   */
-
-/* Aliases for inter STM32 series compatibility */
-#define HAL_CRC_Input_Data_Reverse   HAL_CRCEx_Input_Data_Reverse
-#define HAL_CRC_Output_Data_Reverse  HAL_CRCEx_Output_Data_Reverse
 
 /** @defgroup CRC_Exported_Functions_Group2 Peripheral Control functions
   * @{
@@ -326,6 +354,16 @@ HAL_CRC_StateTypeDef HAL_CRC_GetState(CRC_HandleTypeDef *hcrc);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup CRC_Private CRC Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 
 /**

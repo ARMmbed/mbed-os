@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lcd.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   LCD Controller HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the LCD Controller (LCD) peripheral:
@@ -15,56 +15,52 @@
   ==============================================================================
                         ##### How to use this driver #####
   ==============================================================================   
-      [..] The LCD HAL driver can be used as follows:
+      [..] The LCD HAL driver can be used as follow:
     
       (#) Declare a LCD_HandleTypeDef handle structure.
 
-      (#) Initialize the LCD low level resources by implement the HAL_LCD_MspInit() API:
-          (##) Enable the LCDCLK (same as RTCCLK): to configure the RTCCLK/LCDCLK, proceed as follows:
-               (+) Use RCC function HAL_RCCEx_PeriphCLKConfig in indicating RCC_PERIPHCLK_LCD and 
-                  selected clock source (HSE, LSI or LSE)
-             
-      -@- The frequency generator allows you to achieve various LCD frame rates 
-            starting from an LCD input clock frequency (LCDCLK) which can vary 
-            from 32 kHz up to 1 MHz.
+      (#) Prepare the initialization of the LCD low level resources by implementing your HAL_LCD_MspInit() API:
+          (##) Enable the LCDCLK (same as RTCCLK): to configure the RTCCLK/LCDCLK, use the RCC function 
+               HAL_RCCEx_PeriphCLKConfig, indicating here RCC_PERIPHCLK_LCD and the selected clock 
+               source (HSE, LSI or LSE)
+          (##) The frequency generator allows you to achieve various LCD frame rates starting from an 
+               LCD input clock frequency (LCDCLK) which can vary from 32 kHz up to 1 MHz.
           (##) LCD pins configuration:
-              (+) Enable the clock for the LCD GPIOs.
-              (+) Configure these LCD pins as alternate function no-pull.
+              - Enable the clock for the LCD GPIOs
+              - Configure these LCD pins as alternate function no-pull.
           (##) Enable the LCD interface clock.
 
-      (#) Program the Prescaler, Divider, Blink mode, Blink Frequency Duty, Bias,
-           Voltage Source, Dead Time, Pulse On Duration and Contrast in the hlcd Init structure.
+      (#) Set the Prescaler, Divider, Blink mode, Blink Frequency Duty, Bias, Voltage Source, 
+          Dead Time, Pulse On Duration and Contrast in the hlcd Init structure.
 
       (#) Initialize the LCD registers by calling the HAL_LCD_Init() API.
-
-      -@- The HAL_LCD_Init() API configures also the low level Hardware GPIO, CLOCK, ...etc)
-          by calling the custumed HAL_LCD_MspInit() API.
-      -@- After calling the HAL_LCD_Init() the LCD RAM memory is cleared
+          (##) The HAL_LCD_Init() API configures the low level Hardware (GPIO, CLOCK, ...etc)
+               by calling the user customized HAL_LCD_MspInit() API.
+      (#) After calling the HAL_LCD_Init() the LCD RAM memory is cleared
 
       (#) Optionally you can update the LCD configuration using these macros:
-              (+) LCD High Drive using the __HAL_LCD_HIGHDRIVER_ENABLE() and __HAL_LCD_HIGHDRIVER_DISABLE() macros
-              (+) LCD Pulse ON Duration using the __HAL_LCD_PULSEONDURATION_CONFIG() macro
-              (+) LCD Dead Time using the __HAL_LCD_DEADTIME_CONFIG() macro  
-              (+) The LCD Blink mode and frequency using the __HAL_LCD_BLINK_CONFIG() macro
-              (+) The LCD Contrast using the __HAL_LCD_CONTRAST_CONFIG() macro  
+           (##) LCD High Drive using the __HAL_LCD_HIGHDRIVER_ENABLE() and __HAL_LCD_HIGHDRIVER_DISABLE() macros
+           (##) LCD Pulse ON Duration using the __HAL_LCD_PULSEONDURATION_CONFIG() macro
+           (##) LCD Dead Time using the __HAL_LCD_DEADTIME_CONFIG() macro  
+           (##) The LCD Blink mode and frequency using the __HAL_LCD_BLINK_CONFIG() macro
+           (##) The LCD Contrast using the __HAL_LCD_CONTRAST_CONFIG() macro  
 
       (#) Write to the LCD RAM memory using the HAL_LCD_Write() API, this API can be called
-          more time to update the different LCD RAM registers before calling 
+          several times to update the different LCD RAM registers before calling 
           HAL_LCD_UpdateDisplayRequest() API.
 
       (#) The HAL_LCD_Clear() API can be used to clear the LCD RAM memory.
 
-      (#) When LCD RAM memory is updated enable the update display request using
+      (#) When the LCD RAM memory is updated, enable the update display request calling
           the HAL_LCD_UpdateDisplayRequest() API.
 
-      [..] LCD and low power modes:
-           (#) The LCD remain active during STOP mode.
+      [..] LCD and low power modes: The LCD remain active during STOP mode.
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,14 +98,14 @@
 
 #ifdef HAL_LCD_MODULE_ENABLED
 
-/** @defgroup LCD LCD
+/** @addtogroup LCD
   * @brief LCD HAL module driver
   * @{
   */
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/** @defgroup LCD_Private_Defines LCD Private Defines
+/** @addtogroup LCD_Private
   * @{
   */
 #define LCD_TIMEOUT_VALUE             1000
@@ -121,11 +117,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup LCD_Exported_Functions LCD Exported Functions
+/** @addtogroup LCD_Exported_Functions
   * @{
   */
 
-/** @defgroup LCD_Exported_Functions_Group1 Initialization/de-initialization methods 
+/** @addtogroup LCD_Exported_Functions_Group1
   *  @brief    Initialization and Configuration functions 
   *
 @verbatim    
@@ -212,9 +208,13 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   assert_param(IS_LCD_CONTRAST(hlcd->Init.Contrast)); 
   assert_param(IS_LCD_BLINK_FREQUENCY(hlcd->Init.BlinkFrequency)); 
   assert_param(IS_LCD_BLINK_MODE(hlcd->Init.BlinkMode)); 
+  assert_param(IS_LCD_MUXSEGMENT(hlcd->Init.MuxSegment));
   
   if(hlcd->State == HAL_LCD_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    __HAL_UNLOCK(hlcd);
+
     /* Initialize the low level hardware (MSP) */
     HAL_LCD_MspInit(hlcd);
   }
@@ -257,10 +257,11 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   /* Configure the LCD Duty, Bias, Voltage Source, Dead Time:
      Set DUTY[2:0] bits according to hlcd->Init.Duty value 
      Set BIAS[1:0] bits according to hlcd->Init.Bias value
-     Set VSEL bits according to hlcd->Init.VoltageSource value */
+     Set VSEL bit according to hlcd->Init.VoltageSource value
+     Set MUX_SEG bit according to hlcd->Init.MuxSegment value */
   MODIFY_REG(hlcd->Instance->CR, \
-             (LCD_CR_DUTY | LCD_CR_BIAS | LCD_CR_VSEL), \
-             (hlcd->Init.Duty | hlcd->Init.Bias | hlcd->Init.VoltageSource));
+             (LCD_CR_DUTY | LCD_CR_BIAS | LCD_CR_VSEL | LCD_CR_MUX_SEG), \
+             (hlcd->Init.Duty | hlcd->Init.Bias | hlcd->Init.VoltageSource | hlcd->Init.MuxSegment));
   
   /* Enable the peripheral */
   __HAL_LCD_ENABLE(hlcd);
@@ -305,6 +306,9 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   */
  __weak void HAL_LCD_MspDeInit(LCD_HandleTypeDef *hlcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlcd);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_LCD_MspDeInit could be implemented in the user file
    */ 
@@ -317,6 +321,9 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   */
  __weak void HAL_LCD_MspInit(LCD_HandleTypeDef *hlcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlcd);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_LCD_MspInit could be implemented in the user file
    */ 
@@ -326,7 +333,7 @@ HAL_StatusTypeDef HAL_LCD_Init(LCD_HandleTypeDef *hlcd)
   * @}
   */
 
-/** @defgroup LCD_Exported_Functions_Group2 IO operation methods 
+/** @addtogroup LCD_Exported_Functions_Group2
   *  @brief LCD RAM functions 
   *
 @verbatim   
@@ -529,7 +536,7 @@ HAL_StatusTypeDef HAL_LCD_UpdateDisplayRequest(LCD_HandleTypeDef *hlcd)
   * @}
   */
 
-/** @defgroup LCD_Exported_Functions_Group3 Peripheral State methods 
+/** @addtogroup LCD_Exported_Functions_Group3
   *  @brief   LCD State functions 
   *
 @verbatim   
@@ -572,7 +579,7 @@ uint32_t HAL_LCD_GetError(LCD_HandleTypeDef *hlcd)
   * @}
   */
   
-/** @defgroup LCD_Private_Functions LCD Private Functions
+/** @addtogroup LCD_Private
   * @{
   */
 

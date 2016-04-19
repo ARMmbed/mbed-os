@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -53,7 +53,9 @@
 /** @defgroup SMARTCARD SMARTCARD
   * @{
   */
-
+/** @defgroup SMARTCARD_Exported_Types SMARTCARD Exported Types
+  * @{
+  */
 /* Exported types ------------------------------------------------------------*/
 /** 
   * @brief SMARTCARD Init Structure definition
@@ -68,7 +70,7 @@ typedef struct
                                            This parameter @ref SMARTCARD_Word_Length can only be set to 9 (8 data + 1 parity bits). */
 
   uint32_t StopBits;                  /*!< Specifies the number of stop bits @ref SMARTCARD_Stop_Bits. 
-                                           Only 1.5 stop bits are authorized in SmartCard mode. */
+                                           Only 0.5 or 1.5 stop bits are authorized in SmartCard mode. */
 
   uint32_t Parity;                    /*!< Specifies the parity mode.
                                            This parameter can be a value of @ref SMARTCARD_Parity
@@ -165,17 +167,6 @@ typedef enum
   HAL_SMARTCARD_STATE_ERROR             = 0x04     /*!< Error */
 }HAL_SMARTCARD_StateTypeDef;
 
-/** 
-  * @brief  HAL SMARTCARD Error Code definition
-  */
-
-#define HAL_SMARTCARD_ERROR_NONE      ((uint32_t)0x00)    /*!< No error                */
-#define HAL_SMARTCARD_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error            */
-#define HAL_SMARTCARD_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error             */
-#define HAL_SMARTCARD_ERROR_FE        ((uint32_t)0x04)    /*!< frame error             */
-#define HAL_SMARTCARD_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error           */
-#define HAL_SMARTCARD_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error      */
-#define HAL_SMARTCARD_ERROR_RTO       ((uint32_t)0x20)    /*!< Receiver TimeOut error  */
 
 
 /**
@@ -225,15 +216,37 @@ typedef struct
 
 }SMARTCARD_HandleTypeDef;
 
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup SMARTCARD_Exported_Constants SMARTCARD Exported Constants
   * @{
   */
 
+/**
+  * @brief  HAL SMARTCARD Error Code definition
+  */
+/** @defgroup SMARTCARD_Error_Code SMARTCARD Error Code
+  * @{
+  */
+#define HAL_SMARTCARD_ERROR_NONE      ((uint32_t)0x00)    /*!< No error                */
+#define HAL_SMARTCARD_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error            */
+#define HAL_SMARTCARD_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error             */
+#define HAL_SMARTCARD_ERROR_FE        ((uint32_t)0x04)    /*!< frame error             */
+#define HAL_SMARTCARD_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error           */
+#define HAL_SMARTCARD_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error      */
+#define HAL_SMARTCARD_ERROR_RTO       ((uint32_t)0x20)    /*!< Receiver TimeOut error  */
+
+/**
+  * @}
+  */
+
 /** @defgroup SMARTCARD_Word_Length SMARTCARD Word Length
   * @{
   */
-#define SMARTCARD_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M_0)
+#define SMARTCARD_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_SMARTCARD_WORD_LENGTH(LENGTH) ((LENGTH) == SMARTCARD_WORDLENGTH_9B) 
 /**
   * @}
@@ -242,8 +255,10 @@ typedef struct
 /** @defgroup SMARTCARD_Stop_Bits SMARTCARD Stop Bits
   * @{
   */
+#define SMARTCARD_STOPBITS_0_5                   ((uint32_t)(USART_CR2_STOP_0))
 #define SMARTCARD_STOPBITS_1_5                   ((uint32_t)(USART_CR2_STOP))
-#define IS_SMARTCARD_STOPBITS(STOPBITS) ((STOPBITS) == SMARTCARD_STOPBITS_1_5)
+#define IS_SMARTCARD_STOPBITS(STOPBITS) (((STOPBITS) == SMARTCARD_STOPBITS_0_5) || \
+                                         ((STOPBITS) == SMARTCARD_STOPBITS_1_5))
 /**
   * @}
   */   
@@ -451,18 +466,20 @@ typedef struct
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
   */
-#define SMARTCARD_FLAG_REACK                     ((uint32_t)0x00400000)
-#define SMARTCARD_FLAG_TEACK                     ((uint32_t)0x00200000)
-#define SMARTCARD_FLAG_BUSY                      ((uint32_t)0x00010000)
-#define SMARTCARD_FLAG_EOBF                      ((uint32_t)0x00001000)
-#define SMARTCARD_FLAG_RTOF                      ((uint32_t)0x00000800)
-#define SMARTCARD_FLAG_TXE                       ((uint32_t)0x00000080)
-#define SMARTCARD_FLAG_TC                        ((uint32_t)0x00000040)
-#define SMARTCARD_FLAG_RXNE                      ((uint32_t)0x00000020)
-#define SMARTCARD_FLAG_ORE                       ((uint32_t)0x00000008)
-#define SMARTCARD_FLAG_NE                        ((uint32_t)0x00000004)
-#define SMARTCARD_FLAG_FE                        ((uint32_t)0x00000002)
-#define SMARTCARD_FLAG_PE                        ((uint32_t)0x00000001)
+#define SMARTCARD_FLAG_REACK          USART_ISR_REACK      /*!< SMARTCARD receive enable acknowledge flag  */
+#define SMARTCARD_FLAG_TEACK          USART_ISR_TEACK      /*!< SMARTCARD transmit enable acknowledge flag */
+#define SMARTCARD_FLAG_BUSY           USART_ISR_BUSY       /*!< SMARTCARD busy flag                        */
+#define SMARTCARD_FLAG_EOBF           USART_ISR_EOBF       /*!< SMARTCARD end of block flag                */
+#define SMARTCARD_FLAG_RTOF           USART_ISR_RTOF       /*!< SMARTCARD receiver timeout flag            */
+#define SMARTCARD_FLAG_TXE            USART_ISR_TXE        /*!< SMARTCARD transmit data register empty     */
+#define SMARTCARD_FLAG_TC             USART_ISR_TC         /*!< SMARTCARD transmission complete            */
+#define SMARTCARD_FLAG_RXNE           USART_ISR_RXNE       /*!< SMARTCARD read data register not empty     */
+#define SMARTCARD_FLAG_IDLE           USART_ISR_IDLE       /*!< SMARTCARD idle line detection              */
+#define SMARTCARD_FLAG_ORE            USART_ISR_ORE        /*!< SMARTCARD overrun error                    */
+#define SMARTCARD_FLAG_NE             USART_ISR_NE         /*!< SMARTCARD noise error                      */
+#define SMARTCARD_FLAG_FE             USART_ISR_FE         /*!< SMARTCARD frame error                      */
+#define SMARTCARD_FLAG_PE             USART_ISR_PE         /*!< SMARTCARD parity error                     */
+
 /**
   * @}
   */
@@ -478,18 +495,19 @@ typedef struct
   * @{
   */
   
-#define SMARTCARD_IT_PE                          ((uint16_t)0x0028)
-#define SMARTCARD_IT_TXE                         ((uint16_t)0x0727)
-#define SMARTCARD_IT_TC                          ((uint16_t)0x0626)
-#define SMARTCARD_IT_RXNE                        ((uint16_t)0x0525)
+#define SMARTCARD_IT_PE                          ((uint16_t)0x0028)    /*!< SMARTCARD parity error interruption                 */
+#define SMARTCARD_IT_TXE                         ((uint16_t)0x0727)    /*!< SMARTCARD transmit data register empty interruption */
+#define SMARTCARD_IT_TC                          ((uint16_t)0x0626)    /*!< SMARTCARD transmission complete interruption        */
+#define SMARTCARD_IT_RXNE                        ((uint16_t)0x0525)    /*!< SMARTCARD read data register not empty interruption */
+#define SMARTCARD_IT_IDLE                        ((uint16_t)0x0424)    /*!< SMARTCARD idle line detection interruption          */
 
-#define SMARTCARD_IT_ERR                         ((uint16_t)0x0060)
-#define SMARTCARD_IT_ORE                         ((uint16_t)0x0300)
-#define SMARTCARD_IT_NE                          ((uint16_t)0x0200)
-#define SMARTCARD_IT_FE                          ((uint16_t)0x0100)
+#define SMARTCARD_IT_ERR                         ((uint16_t)0x0060)    /*!< SMARTCARD error interruption         */
+#define SMARTCARD_IT_ORE                         ((uint16_t)0x0300)    /*!< SMARTCARD overrun error interruption */
+#define SMARTCARD_IT_NE                          ((uint16_t)0x0200)    /*!< SMARTCARD noise error interruption   */
+#define SMARTCARD_IT_FE                          ((uint16_t)0x0100)    /*!< SMARTCARD frame error interruption   */
 
-#define SMARTCARD_IT_EOB                         ((uint16_t)0x0C3B)
-#define SMARTCARD_IT_RTO                         ((uint16_t)0x0B3A)
+#define SMARTCARD_IT_EOB                         ((uint16_t)0x0C3B)    /*!< SMARTCARD end of block interruption     */
+#define SMARTCARD_IT_RTO                         ((uint16_t)0x0B3A)    /*!< SMARTCARD receiver timeout interruption */
 /**
   * @}
   */ 
@@ -594,7 +612,7 @@ typedef struct
   *            @arg SMARTCARD_CLEAR_EOBF
   * @retval None
   */
-#define __HAL_SMARTCARD_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ~(__FLAG__))
+#define __HAL_SMARTCARD_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = (__FLAG__))
 
 /** @brief  Clear the SMARTCARD PE pending flag.
   * @param  __HANDLE__: specifies the SMARTCARD Handle.
@@ -640,6 +658,7 @@ typedef struct
   *            @arg SMARTCARD_FLAG_TXE:   Transmit data register empty flag
   *            @arg SMARTCARD_FLAG_TC:    Transmission Complete flag
   *            @arg SMARTCARD_FLAG_RXNE:  Receive data register not empty flag
+  *            @arg SMARTCARD_FLAG_IDLE:  Idle line detection flag
   *            @arg SMARTCARD_FLAG_ORE:   OverRun Error flag
   *            @arg SMARTCARD_FLAG_NE:    Noise Error flag
   *            @arg SMARTCARD_FLAG_FE:    Framing Error flag
@@ -653,11 +672,12 @@ typedef struct
   *         The Handle Instance which can be USART1 or USART2.
   * @param  __INTERRUPT__: specifies the SMARTCARD interrupt to enable.
   *          This parameter can be one of the following values:
-  *            @arg SMARTCARD_IT_EOBF: End Of Block interrupt
-  *            @arg SMARTCARD_IT_RTOF: Receive TimeOut interrupt
+  *            @arg SMARTCARD_IT_EOB: End Of Block interrupt
+  *            @arg SMARTCARD_IT_RTO: Receive TimeOut interrupt
   *            @arg SMARTCARD_IT_TXE:  Transmit Data Register empty interrupt
   *            @arg SMARTCARD_IT_TC:   Transmission complete interrupt
   *            @arg SMARTCARD_IT_RXNE: Receive Data register not empty interrupt
+  *            @arg SMARTCARD_IT_IDLE:  Idle line detection interrupt
   *            @arg SMARTCARD_IT_PE:   Parity Error interrupt
   *            @arg SMARTCARD_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
   * @retval None
@@ -670,11 +690,12 @@ typedef struct
   *         The Handle Instance which can be USART1 or USART2.
   * @param  __INTERRUPT__: specifies the SMARTCARD interrupt to enable.
   *          This parameter can be one of the following values:
-  *            @arg SMARTCARD_IT_EOBF: End Of Block interrupt
-  *            @arg SMARTCARD_IT_RTOF: Receive TimeOut interrupt
+  *            @arg SMARTCARD_IT_EOB:  End Of Block interrupt
+  *            @arg SMARTCARD_IT_RTO:  Receive TimeOut interrupt
   *            @arg SMARTCARD_IT_TXE:  Transmit Data Register empty interrupt
   *            @arg SMARTCARD_IT_TC:   Transmission complete interrupt
   *            @arg SMARTCARD_IT_RXNE: Receive Data register not empty interrupt
+  *            @arg SMARTCARD_IT_IDLE: Idle line detection interrupt
   *            @arg SMARTCARD_IT_PE:   Parity Error interrupt
   *            @arg SMARTCARD_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
   * @retval None
@@ -688,11 +709,12 @@ typedef struct
   *         The Handle Instance which can be USART1 or USART2.
   * @param  __IT__: specifies the SMARTCARD interrupt to check.
   *          This parameter can be one of the following values:
-  *            @arg SMARTCARD_IT_EOBF: End Of Block interrupt
-  *            @arg SMARTCARD_IT_RTOF: Receive TimeOut interrupt  
+  *            @arg SMARTCARD_IT_EOB:  End Of Block interrupt
+  *            @arg SMARTCARD_IT_RTO:  Receive TimeOut interrupt
   *            @arg SMARTCARD_IT_TXE:  Transmit Data Register empty interrupt
   *            @arg SMARTCARD_IT_TC:   Transmission complete interrupt
   *            @arg SMARTCARD_IT_RXNE: Receive Data register not empty interrupt
+  *            @arg SMARTCARD_IT_IDLE: Idle line detection interrupt
   *            @arg SMARTCARD_IT_ORE:  OverRun Error interrupt
   *            @arg SMARTCARD_IT_NE:   Noise Error interrupt
   *            @arg SMARTCARD_IT_FE:   Framing Error interrupt
@@ -706,11 +728,12 @@ typedef struct
   *         The Handle Instance which can be USART1 or USART2.
   * @param  __IT__: specifies the SMARTCARD interrupt source to check.
   *          This parameter can be one of the following values:
-  *            @arg SMARTCARD_IT_EOBF: End Of Block interrupt
-  *            @arg SMARTCARD_IT_RTOF: Receive TimeOut interrupt  
+  *            @arg SMARTCARD_IT_EOB:  End Of Block interrupt
+  *            @arg SMARTCARD_IT_RTO:  Receive TimeOut interrupt
   *            @arg SMARTCARD_IT_TXE:  Transmit Data Register empty interrupt
   *            @arg SMARTCARD_IT_TC:   Transmission complete interrupt
   *            @arg SMARTCARD_IT_RXNE: Receive Data register not empty interrupt
+  *            @arg SMARTCARD_IT_IDLE: Idle line detection interrupt
   *            @arg SMARTCARD_IT_ORE:  OverRun Error interrupt
   *            @arg SMARTCARD_IT_NE:   Noise Error interrupt
   *            @arg SMARTCARD_IT_FE:   Framing Error interrupt
@@ -728,13 +751,14 @@ typedef struct
   * @param  __IT_CLEAR__: specifies the interrupt clear register flag that needs to be set
   *                       to clear the corresponding interrupt
   *          This parameter can be one of the following values:
-  *            @arg USART_CLEAR_PEF: Parity Error Clear Flag
-  *            @arg USART_CLEAR_FEF: Framing Error Clear Flag
-  *            @arg USART_CLEAR_NEF: Noise detected Clear Flag
-  *            @arg USART_CLEAR_OREF: OverRun Error Clear Flag
-  *            @arg USART_CLEAR_TCF: Transmission Complete Clear Flag
-  *            @arg USART_CLEAR_RTOF: Receiver Time Out Clear Flag
-  *            @arg USART_CLEAR_EOBF: End Of Block Clear Flag 
+  *            @arg SMARTCARD_CLEAR_PEF:    Parity error clear flag
+  *            @arg SMARTCARD_CLEAR_FEF:    Framing error clear flag
+  *            @arg SMARTCARD_CLEAR_NEF:    Noise detected clear flag
+  *            @arg SMARTCARD_CLEAR_OREF:   OverRun error clear flag
+  *            @arg SMARTCARD_CLEAR_IDLEF:  Idle line detection clear flag
+  *            @arg SMARTCARD_CLEAR_TCF:    Transmission complete clear flag
+  *            @arg SMARTCARD_CLEAR_RTOF:   Receiver timeout clear flag
+  *            @arg SMARTCARD_CLEAR_EOBF:   End of block clear flag
   * @retval None
   */
 #define __HAL_SMARTCARD_CLEAR_IT(__HANDLE__, __IT_CLEAR__) ((__HANDLE__)->Instance->ICR = (uint32_t)(__IT_CLEAR__)) 
@@ -870,6 +894,16 @@ uint32_t HAL_SMARTCARD_GetError(SMARTCARD_HandleTypeDef *hsc);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup SMARTCARD_Private SMARTCARD Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

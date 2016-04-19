@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
    
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
    
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
@@ -52,7 +52,7 @@
   * @{
   */
 
-/** @addtogroup DAC
+/** @defgroup DAC DAC
   * @{
   */
 
@@ -135,33 +135,35 @@ typedef struct
 /** @defgroup DAC_trigger_selection DAC trigger selection
   * @{
   */
-#define DAC_TRIGGER_NONE      ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC1_DHRxxxx register has been loaded, and not by external trigger */
-#define DAC_TRIGGER_T6_TRGO   ((uint32_t)                                                    DAC_CR_TEN1)  /*!< TIM6 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_TRIGGER_T21_TRGO  ((uint32_t)(                 DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM21 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_TRIGGER_T2_TRGO   ((uint32_t)(DAC_CR_TSEL1_2 |                                   DAC_CR_TEN1)) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
-#define DAC_TRIGGER_EXT_IT9   ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 |                  DAC_CR_TEN1)) /*!< EXTI Line9 event selected as external conversion trigger for DAC channel */
-#define DAC_TRIGGER_SOFTWARE  ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< Conversion started by software trigger for DAC channel */
+#define DAC_TRIGGER_NONE       ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC1_DHRxxxx register has been loaded, and not by external trigger */
+#define DAC_TRIGGER_T6_TRGO    ((uint32_t)                                                    DAC_CR_TEN1)  /*!< TIM6 TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_T21_TRGO   ((uint32_t)(                 DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM21 TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_T2_TRGO    ((uint32_t)(DAC_CR_TSEL1_2 |                                   DAC_CR_TEN1)) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_EXT_IT9    ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 |                  DAC_CR_TEN1)) /*!< EXTI Line9 event selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_SOFTWARE   ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 | DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< Conversion started by software trigger for DAC channel */
 
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define DAC_TRIGGER_T3_TRGO   ((uint32_t)(                                  DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM3  TRGO selected as external conversion trigger for DAC channel */
-#define DAC_TRIGGER_T7_TRGO   ((uint32_t)(DAC_CR_TSEL1_2 |                  DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM7  TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_T3_TRGO    ((uint32_t)(                                  DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM3  TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_T3_CH3     ((uint32_t)(                 DAC_CR_TSEL1_1 |                  DAC_CR_TEN1)) /*!< TIM3  CH3  selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_T7_TRGO    ((uint32_t)(DAC_CR_TSEL1_2 |                  DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM7  TRGO selected as external conversion trigger for DAC channel */
 #endif
 
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE)     || \
-                                 ((TRIGGER) == DAC_TRIGGER_T6_TRGO)  || \
-                                 ((TRIGGER) == DAC_TRIGGER_T3_TRGO)  || \
-                                 ((TRIGGER) == DAC_TRIGGER_T7_TRGO)  || \
-                                 ((TRIGGER) == DAC_TRIGGER_T21_TRGO) || \
-                                 ((TRIGGER) == DAC_TRIGGER_T2_TRGO)  || \
-                                 ((TRIGGER) == DAC_TRIGGER_EXT_IT9)  || \
+#define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE)       || \
+                                 ((TRIGGER) == DAC_TRIGGER_T6_TRGO)    || \
+                                 ((TRIGGER) == DAC_TRIGGER_T3_TRGO)    || \
+                                 ((TRIGGER) == DAC_TRIGGER_T3_CH3)     || \
+                                 ((TRIGGER) == DAC_TRIGGER_T7_TRGO)    || \
+                                 ((TRIGGER) == DAC_TRIGGER_T21_TRGO)   || \
+                                 ((TRIGGER) == DAC_TRIGGER_T2_TRGO)    || \
+                                 ((TRIGGER) == DAC_TRIGGER_EXT_IT9)    || \
                                  ((TRIGGER) == DAC_TRIGGER_SOFTWARE))
 #else /* STM32L072xx || STM32L073xx || STM32L082xx || STM32L083xx */
-#define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE)     || \
-                                 ((TRIGGER) == DAC_TRIGGER_T6_TRGO)  || \
-                                 ((TRIGGER) == DAC_TRIGGER_T21_TRGO) || \
-                                 ((TRIGGER) == DAC_TRIGGER_T2_TRGO)  || \
-                                 ((TRIGGER) == DAC_TRIGGER_EXT_IT9)  || \
+#define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE)       || \
+                                 ((TRIGGER) == DAC_TRIGGER_T6_TRGO)    || \
+                                 ((TRIGGER) == DAC_TRIGGER_T21_TRGO)   || \
+                                 ((TRIGGER) == DAC_TRIGGER_T2_TRGO)    || \
+                                 ((TRIGGER) == DAC_TRIGGER_EXT_IT9)    || \
                                  ((TRIGGER) == DAC_TRIGGER_SOFTWARE))
 #endif /* STM32L072xx || STM32L073xx || STM32L082xx || STM32L083xx */
 /**
@@ -228,12 +230,6 @@ typedef struct
 #define DAC_FLAG_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)   
 #endif
 
-#if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define IS_DAC_FLAG(FLAG) (((FLAG) == DAC_FLAG_DMAUDR1) || \
-                           ((FLAG) == DAC_FLAG_DMAUDR2))  
-#else
-#define IS_DAC_FLAG(FLAG)  ((FLAG) == DAC_FLAG_DMAUDR1)
-#endif
 /**
   * @}
   */
@@ -244,13 +240,6 @@ typedef struct
 #define DAC_IT_DMAUDR1                   ((uint32_t)DAC_SR_DMAUDR1)
 #if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
 #define DAC_IT_DMAUDR2                   ((uint32_t)DAC_SR_DMAUDR2)   
-#endif
-
-#if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define IS_DAC_IT(IT) (((IT) == DAC_IT_DMAUDR1) || \
-                       ((IT) == DAC_IT_DMAUDR2))  
-#else
-#define IS_DAC_IT(IT) ((IT) == DAC_IT_DMAUDR1)  
 #endif
 
 /**
@@ -289,29 +278,7 @@ SET_BIT((__HANDLE__)->Instance->CR, (DAC_CR_EN1 << (__DAC_CHANNEL__)))
 #define __HAL_DAC_DISABLE(__HANDLE__, __DAC_CHANNEL__) \
 CLEAR_BIT((__HANDLE__)->Instance->CR, (DAC_CR_EN1 << (__DAC_CHANNEL__)))
 
-/** @brief Set DHR12R1 alignment
-  * @param  __ALIGNEMENT__: specifies the DAC alignement
-  * @retval None
-  */
-#define __DAC_DHR12R1_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000008) + (__ALIGNEMENT__))
-
-/** @brief  Set DHR12R2 alignment
-  * @param  __ALIGNEMENT__: specifies the DAC alignement
-  * @retval None
-  */
-#define __DAC_DHR12R2_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000014) + (__ALIGNEMENT__))
-
-/** @brief  Set DHR12RD alignment
-  * @param  __ALIGNEMENT__: specifies the DAC alignement
-  * @retval None
-  */
-#define __DAC_DHR12RD_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000020) + (__ALIGNEMENT__))
-
-/** @brief Enable the DAC interrupt
-  * @param  __HANDLE__: specifies the DAC handle
-  * @param  __INTERRUPT__: specifies the DAC interrupt.
-  * @retval None
-  */
+  
 #define __HAL_DAC_ENABLE_IT(__HANDLE__, __INTERRUPT__) \
 SET_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
 
@@ -324,21 +291,67 @@ SET_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
 #define __HAL_DAC_DISABLE_IT(__HANDLE__, __INTERRUPT__) \
 CLEAR_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
 
+/** @brief  Check whether the specified DAC interrupt source is enabled or not.
+  * @param __HANDLE__: DAC handle
+  * @param __INTERRUPT__: DAC interrupt source to check
+  *          This parameter can be any combination of the following values:
+  *            @arg DAC_IT_DMAUDR1: DAC channel 1 DMA underrun interrupt
+  *            @arg DAC_IT_DMAUDR2: DAC channel 2 DMA underrun interrupt (STM32L072xx STM32L073xx STM32L082xx STM32L083xx only)
+  * @retval State of interruption (SET or RESET)
+  */
+#define __HAL_DAC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) \
+(((__HANDLE__)->Instance->CR & (__INTERRUPT__)) == (__INTERRUPT__))
 
 /** @brief  Get the selected DAC's flag status.
   * @param  __HANDLE__: specifies the DAC handle.
   * @param  __FLAG__: specifies the FLAG.
   * @retval None
   */
-#define __HAL_DAC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->Instance->SR) & (__FLAG__)) == (__FLAG__))
+#define __HAL_DAC_GET_FLAG(__HANDLE__, __FLAG__)  \
+((((__HANDLE__)->Instance->SR) & (__FLAG__)) == (__FLAG__))
 
 /** @brief  Clear the DAC's flag.
   * @param  __HANDLE__: specifies the DAC handle.
   * @param  __FLAG__: specifies the FLAG.
   * @retval None
   */
-#define __HAL_DAC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR) = (__FLAG__))
+#define __HAL_DAC_CLEAR_FLAG(__HANDLE__, __FLAG__) \
+(((__HANDLE__)->Instance->SR) = (__FLAG__))
 
+/**
+  * @}
+  */ 
+
+/* Private macro ------------------------------------------------------------*/
+
+/** @defgroup DAC_Private_Macros DAC Private Macros
+  * @{
+  */
+
+/** @brief Set DHR12R1 alignment
+  * @param  __ALIGNEMENT__: specifies the DAC alignement
+  * @retval None
+  */
+#define DAC_DHR12R1_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000008) + (__ALIGNEMENT__))
+
+/** @brief  Set DHR12R2 alignment
+  * @param  __ALIGNEMENT__: specifies the DAC alignement
+  * @retval None
+  */
+#define DAC_DHR12R2_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000014) + (__ALIGNEMENT__))
+
+/** @brief  Set DHR12RD alignment
+  * @param  __ALIGNEMENT__: specifies the DAC alignement
+  * @retval None
+  */
+#define DAC_DHR12RD_ALIGNEMENT(__ALIGNEMENT__) (((uint32_t)0x00000020) + (__ALIGNEMENT__))
+
+/** @brief Enable the DAC interrupt
+  * @param  __HANDLE__: specifies the DAC handle
+  * @param  __INTERRUPT__: specifies the DAC interrupt.
+  * @retval None
+  */
+  
 /**
   * @}
   */ 
@@ -349,11 +362,11 @@ CLEAR_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
 
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup DAC_Exported_Functions
+/** @defgroup DAC_Exported_Functions DAC Exported Functions
   * @{
   */
 
-/** @addtogroup DAC_Exported_Functions_Group1
+/** @defgroup DAC_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */ 
 /* Initialization and de-initialization functions *****************************/
@@ -366,7 +379,7 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac);
   * @}
   */
 
-/** @addtogroup DAC_Exported_Functions_Group2
+/** @defgroup DAC_Exported_Functions_Group2 IO operation functions
   * @{
   */
 /* IO operation functions *****************************************************/
@@ -376,29 +389,7 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
 HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel);
 HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t Alignment, uint32_t Data);
 uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel);
-
-/**
-  * @}
-  */
-
-/** @addtogroup DAC_Exported_Functions_Group2
-  * @{
-  */
-/* Peripheral Control functions ***********************************************/
-HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel);
-
-/**
-  * @}
-  */
-
-/** @addtogroup DAC_Exported_Functions_Group2
-  * @{
-  */
-/* Peripheral State functions ***************************************************/
-HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef* hdac);
 void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac);
-uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
-
 void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac);
 void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac);
 void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac);
@@ -408,10 +399,22 @@ void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
   * @}
   */
 
+/** @defgroup DAC_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
+/* Peripheral Control functions ***********************************************/
+HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel);
+
 /**
   * @}
   */
 
+/** @defgroup DAC_Exported_Functions_Group4 Peripheral State and Errors functions
+  * @{
+  */
+/* Peripheral State functions ***************************************************/
+HAL_DAC_StateTypeDef HAL_DAC_GetState(DAC_HandleTypeDef* hdac);
+uint32_t HAL_DAC_GetError(DAC_HandleTypeDef *hdac);
 
 /**
   * @}
@@ -421,7 +424,15 @@ void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac);
   * @}
   */
 
-#endif /* STM32L031xx && STM32L041xx && STM32L061xx && STM32L071xx && STM32L081xx*/
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+#endif /* STM32L011xx && STM32L021xx && STM32L031xx && STM32L041xx && STM32L061xx && STM32L071xx && STM32L081xx*/
   
 #ifdef __cplusplus
 }

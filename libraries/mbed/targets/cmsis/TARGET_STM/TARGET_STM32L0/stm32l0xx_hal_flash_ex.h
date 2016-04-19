@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of FLash HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,7 +54,7 @@
   * @{
   */ 
 
-/** @defgroup FLASHEx_Exported_Types FLASH Exported Types
+/** @defgroup FLASHEx_Exported_Types FLASHEx Exported Types
   * @{
   */  
 
@@ -123,7 +123,7 @@ typedef struct
   * @{
   */  
 
-/** @defgroup FLASHEx_Type_Erase FLASHEx_Type_Erase
+/** @defgroup FLASHEx_Type_Erase FLASH Type Erase
   * @{
   */  
 #define FLASH_TYPEERASE_PAGES       ((uint32_t)0x00)  /*!< Page erase only */
@@ -131,7 +131,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Type FLASHEx Option Type
+/** @defgroup FLASHEx_Option_Type FLASH Option Type
   * @{
   */
 #define OPTIONBYTE_WRP        ((uint32_t)0x01)  /*!< WRP option byte configuration */
@@ -143,7 +143,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_WRP_State FLASHEx WRP State
+/** @defgroup FLASHEx_WRP_State FLASH WRP State
   * @{
   */
 #define OB_WRPSTATE_DISABLE      ((uint32_t)0x00)  /*!< Disable the write protection of the desired sectors */
@@ -152,7 +152,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Bytes_ReadWrite_Mask FLASHEx Option Bytes Write Mask
+/** @defgroup FLASHEx_Option_Bytes_ReadWrite_Mask FLASH Option Bytes Write Mask
   * @{
   */ 
 #define WRP_MASK_LOW          ((uint32_t)0x0000FFFF)
@@ -161,8 +161,8 @@ typedef struct
   * @}
   */
 
-#if defined (STM32L031xx) || defined (STM32L041xx) 
-/** @defgroup FLASHEx_Option_Bytes_Write_Protection FLASHEx Option Bytes Write Protection
+#if defined (STM32L011xx) || defined (STM32L021xx) || defined (STM32L031xx) || defined (STM32L041xx) 
+/** @defgroup FLASHEx_Option_Bytes_Write_Protection FLASH Option Bytes Write Protection
   * @{
   */
 #define OB_WRP_Pages0to31          ((uint32_t)0x00000001) /* Write protection of Sector0 */
@@ -178,7 +178,7 @@ typedef struct
   * @}
   */
 #elif defined (STM32L051xx) || defined (STM32L052xx) || defined (STM32L053xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx)
-/** @defgroup FLASHEx_Option_Bytes_Write_Protection FLASHEx Option Bytes Write Protection
+/** @defgroup FLASHEx_Option_Bytes_Write_Protection FLASH Option Bytes Write Protection
   * @{
   */
 #define OB_WRP_Pages0to31          ((uint32_t)0x00000001) /* Write protection of Sector0 */
@@ -203,7 +203,7 @@ typedef struct
   */
 
 #elif defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
-/** @defgroup FLASHEx_Option_Bytes_Write_Protection FLASHEx Option Bytes Write ProtectionP
+/** @defgroup FLASHEx_Option_Bytes_Write_Protection FLASH Option Bytes Write ProtectionP
   * @{
   */
 #define OB_WRP_Pages0to31          ((uint32_t)0x00000001) /* Write protection of Sector0 */
@@ -243,7 +243,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Bytes_Write_Protection2 FLASHEx Option Bytes Write Protection
+/** @defgroup FLASHEx_Option_Bytes_Write_Protection2 FLASH Option Bytes Write Protection
   * @{
   */
 #define OB_WRP2_Pages1024to1055    ((uint32_t)0x00000001) /* Write protection of Sector32 */
@@ -268,18 +268,18 @@ typedef struct
   */
 #endif /* STM32L071xx || STM32L072xx || (STM32L073xx) || (STM32L081xx) || (STM32L082xx) || (STM32L083xx) */ 
 
-/** @defgroup FLASHEx_Option_Bytes_Read_Protection FLASHEx Option Bytes Read Protection
+/** @defgroup FLASHEx_Option_Bytes_Read_Protection FLASH Option Bytes Read Protection
   * @{
   */ 
-#define OB_RDP_LEVEL0         ((uint8_t)0xAA)
-#define OB_RDP_LEVEL1         ((uint8_t)0xBB)
-#define OB_RDP_LEVEL2         ((uint8_t)0xCC) /* Warning: When enabling read protection level 2 
+#define OB_RDP_LEVEL_0         ((uint8_t)0xAA)
+#define OB_RDP_LEVEL_1         ((uint8_t)0xBB)
+#define OB_RDP_LEVEL_2         ((uint8_t)0xCC) /* Warning: When enabling read protection level 2 
                                                 it is no more possible to go back to level 1 or 0 */
 /**
   * @}
   */ 
 
-/** @defgroup FLASHEx_Option_Bytes_BOR_Level FLASHEx Option Bytes BOR Level
+/** @defgroup FLASHEx_Option_Bytes_BOR_Level FLASH Option Bytes BOR Level
   * @{
   */
 #define OB_BOR_OFF            ((uint8_t)0x00) /*!< BOR is disabled at power down, the reset is asserted when the VDD 
@@ -293,7 +293,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Bytes_IWatchdog FLASHEx Option Bytes IWatchdog
+/** @defgroup FLASHEx_Option_Bytes_IWatchdog FLASH Option Bytes IWatchdog
   * @{
   */
 #define OB_IWDG_SW            ((uint8_t)0x10)  /*!< Software WDG selected */
@@ -311,7 +311,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Bytes_nRST_STDBY FLASHEx Option Bytes nRST_STDBY
+/** @defgroup FLASHEx_Option_Bytes_nRST_STDBY FLASH Option Bytes nRST_STDBY
   * @{
   */
 #define OB_STDBY_NORST        ((uint8_t)0x40) /*!< No reset generated when entering in STANDBY */
@@ -321,7 +321,7 @@ typedef struct
   */
 
 
-/** @defgroup FLASHEx_PCROP_State
+/** @defgroup FLASHEx_PCROP_State FLASH PCROP State
   * @{
   */ 
 #define OB_PCROP_STATE_DISABLE    ((uint8_t)0x00)  /*!< Disable PCROP */
@@ -331,7 +331,7 @@ typedef struct
   */
 
 
-/** @defgroup FLASHEx_OptionAdv_Type
+/** @defgroup FLASHEx_OptionAdv_Type FLASH Option Byte
   * @{
   */ 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
@@ -344,7 +344,7 @@ typedef struct
   * @}
   */
 
-#if defined (STM32L031xx) || defined (STM32L041xx) 
+#if defined (STM32L011xx) || defined (STM32L021xx) ||  defined (STM32L031xx) || defined (STM32L041xx) 
 /** @defgroup FLASHEx_Option_Bytes_PC_ReadWrite_Protection FLASHEx Option Bytes PC Read/Write Protection
   * @{
   */
@@ -387,7 +387,7 @@ typedef struct
 #endif
 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
-/** @defgroup FLASHEx_Option_Bytes_PC_ReadWrite_Protection FLASHEx Option Bytes PC Read/Write Protection
+/** @defgroup FLASHEx_Option_Bytes_PC_ReadWrite_Protection FLASH Option Bytes PC Read/Write Protection
   * @{
   */
 #define OB_PCROP_Pages0to31          ((uint32_t)0x00000001) /* PC Read/Write protection of Sector0 */
@@ -427,7 +427,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Bytes_ReadWrite_Protection2 FLASHEx Option Bytes Read Write Protection
+/** @defgroup FLASHEx_Option_Bytes_PC_ReadWrite_Protection2 FLASH Option Bytes PC Read/Write Protection (Sector 2)
   * @{
   */
 #define OB_PCROP2_Pages1024to1055    ((uint32_t)0x00000001) /* PC Read/Write protection of Sector32 */
@@ -452,7 +452,7 @@ typedef struct
   */
 #endif /* if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
   
-/** @defgroup FLASHEx_Option_Bytes_BOOTBit1
+/** @defgroup FLASHEx_Option_Bytes_BOOTBit1 FLASH Option Bytes BOOT Bit1 Setup
   * @{
   */
 #define OB_BOOT_BIT1_RESET      (uint8_t)(0x00) /*!< BOOT Bit 1 Reset */
@@ -462,20 +462,19 @@ typedef struct
   */
 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
-/** @defgroup FLASHEx_Option_Bytes_BOOT_BANK FLASHEx Option Bytes BOOT BANK
+/** @defgroup FLASHEx_Option_Bytes_BOOT_BANK FLASH Option Bytes BOOT BANK
   * @{
   */
 #define OB_BOOT_BANK1                 ((uint8_t)0x00) /*!<  At startup, if boot pin 0 and BOOT1 bit are set in boot from user Flash position
-                                                            and this parameter is selected the device will boot from Bank 2 
-                                                            or Bank 1, depending on the activation of the bank */
+                                                            and this parameter is selected the device will boot from Bank 1 (Default)*/
 #define OB_BOOT_BANK2                 (uint8_t)(0x01) /*!< At startup, if boot pin 0 and BOOT1 bit are set in boot from user Flash position
-                                                            and this parameter is selected the device will boot from Bank1(Default) */
+                                                            and this parameter is selected the device will boot from Bank 2 */
 /**
   * @}
   */
 #endif /* if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
 
-/** @defgroup FLASHEx_Type_Program_Data FLASHEx Type Program Data
+/** @defgroup FLASHEx_Type_Program_Data FLASH Type Program Data
   * @{
   */
 #define FLASH_TYPEPROGRAMDATA_BYTE            ((uint32_t)0x00)  /*!< Program byte (8-bit) at a specified address.*/
@@ -501,7 +500,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Exported_Macros macros to control FLASH features 
+/** @defgroup FLASHEx_Exported_Macros FLASHEx Exported Macros 
  *  @brief 
  *  @{
  */
@@ -516,6 +515,15 @@ typedef struct
   */ 
 #define __HAL_FLASH_SET_LATENCY(__LATENCY__) \
                   MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(__LATENCY__))
+
+/**
+  * @brief Get the FLASH Latency.
+  * @retval FLASH Latency 
+  * This parameter can be one of the following values:
+  * @arg FLASH_LATENCY_0: FLASH Zero Latency cycle
+  * @arg FLASH_LATENCY_1: FLASH One Latency cycle
+*/ 
+#define __HAL_FLASH_GET_LATENCY() (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))
 
 /**
   * @brief  Enable/Disable the FLASH prefetch buffer.
@@ -569,7 +577,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASHEx_Exported_Functions FLASHEx Exported functions
+/** @defgroup FLASHEx_Exported_Functions FLASHEx Exported Functions
   * @{
   */
 
@@ -613,7 +621,7 @@ void              HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void);
   * @}
   */ 
   
-/** @addtogroup FLASH_Private_Macros FLASH Private Macros
+/** @addtogroup FLASHEx_Private
   * @{
   */
 #define IS_FLASH_TYPEERASE(__VALUE__)  (((__VALUE__) == FLASH_TYPEERASE_PAGES))
@@ -626,9 +634,9 @@ void              HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void);
 
 #define IS_OB_WRP(PAGE) (((PAGE) != 0x0000000))
 
-#define IS_OB_RDP(__LEVEL__) (((__LEVEL__) == OB_RDP_LEVEL0)||\
-                             ((__LEVEL__) == OB_RDP_LEVEL1)||\
-                             ((__LEVEL__) == OB_RDP_LEVEL2))
+#define IS_OB_RDP(__LEVEL__) (((__LEVEL__) == OB_RDP_LEVEL_0)||\
+                             ((__LEVEL__) == OB_RDP_LEVEL_1)||\
+                             ((__LEVEL__) == OB_RDP_LEVEL_2))
 
 #define IS_OB_BOR_LEVEL(__LEVEL__)  ( ((__LEVEL__) == OB_BOR_OFF)     || \
                                       ((__LEVEL__) == OB_BOR_LEVEL1)  || \
@@ -673,6 +681,16 @@ void              HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void);
 /**
   * @}
   */ 
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup FLASHEx_Private FLASHEx Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

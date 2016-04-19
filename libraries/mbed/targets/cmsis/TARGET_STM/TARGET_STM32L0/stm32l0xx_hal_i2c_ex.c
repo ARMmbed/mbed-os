@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   I2C Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2C Extended peripheral:
@@ -36,7 +36,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -69,13 +69,12 @@
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
+#ifdef HAL_I2C_MODULE_ENABLED
 
-/** @defgroup I2CEx I2C Extended HAL module driver
+/** @addtogroup I2CEx
   * @brief I2C Extended HAL module driver
   * @{
   */
-
-#ifdef HAL_I2C_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -84,11 +83,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup I2CEx_Exported_Functions I2C Extended Exported Functions
+/** @addtogroup I2CEx_Exported_Functions
   * @{
   */
 
-/** @defgroup I2CEx_Exported_Functions_Group1 Extended features functions
+/** @addtogroup I2CEx_Exported_Functions_Group1
   * @brief    Extended features functions
  *
 @verbatim   
@@ -178,7 +177,7 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
   tmpreg = hi2c->Instance->CR1;
   
   /* Reset I2Cx DNF bits [11:8] */
-  tmpreg &= ~(I2C_CR1_DFN);
+  tmpreg &= ~(I2C_CR1_DNF);
   
   /* Set I2Cx DNF coefficient */
   tmpreg |= DigitalFilter << 8;
@@ -335,10 +334,11 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus)
   * @}
   */  
 
-#endif /* HAL_I2C_MODULE_ENABLED */
 /**
   * @}
   */
+
+#endif /* HAL_I2C_MODULE_ENABLED */
 
 /**
   * @}

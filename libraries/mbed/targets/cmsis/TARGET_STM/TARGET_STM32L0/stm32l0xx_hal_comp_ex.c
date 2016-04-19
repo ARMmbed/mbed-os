@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Extended COMP HAL module driver.
   * @brief   This file provides firmware functions to manage the VREFINT
   *          which can act as input to the comparator.
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,13 +57,12 @@
   * @{
   */
 
+#ifdef HAL_COMP_MODULE_ENABLED
+
 /** @addtogroup COMPEx
   * @brief Extended COMP HAL module driver
   * @{
   */
-
-#ifdef HAL_COMP_MODULE_ENABLED
-
 
 /** @addtogroup COMPEx_Exported_Functions
   * @{
@@ -108,11 +107,11 @@ void HAL_COMPEx_DisableVREFINT(void)
   * @}
   */
 
-
-#endif /* HAL_COMP_MODULE_ENABLED */
 /**
   * @}
   */ 
+
+#endif /* HAL_COMP_MODULE_ENABLED */
 
 /**
   * @}

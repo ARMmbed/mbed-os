@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_irda_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of IRDA HAL Extension module.
   ******************************************************************************
   * @attention
@@ -50,22 +50,22 @@
   * @{
   */
 
-/** @addtogroup IRDAEx
+/** @defgroup IRDAEx IRDAEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup IRDAEx_Extended_Exported_Constants IRDA Extended Exported Constants
+/** @defgroup IRDAEx_Extended_Exported_Constants IRDAEx Exported Constants
   * @{
   */
   
 /** @defgroup IRDAEx_Word_Length IRDAEx Word length
   * @{
   */
-#define IRDA_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M_1)
+#define IRDA_WORDLENGTH_7B                  ((uint32_t)USART_CR1_M1)
 #define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000)
-#define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M_0)
+#define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M0)
 #define IS_IRDA_WORD_LENGTH(LENGTH) (((LENGTH) == IRDA_WORDLENGTH_7B) || \
                                      ((LENGTH) == IRDA_WORDLENGTH_8B) || \
                                      ((LENGTH) == IRDA_WORDLENGTH_9B))
@@ -80,7 +80,7 @@
   
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup IRDAEx_Extended_Exported_Macros IRDA Extended Exported Macros
+/** @defgroup IRDAEx_Extended_Exported_Macros IRDAEx Exported Macros
   * @{
   */
 /** @brief  Reports the IRDA clock source.
@@ -88,7 +88,7 @@
   * @param  __CLOCKSOURCE__ : output variable   
   * @retval IRDA clocking source, written in __CLOCKSOURCE__.
   */
-#if defined (STM32L031xx) || defined (STM32L041xx)
+#if defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L011xx) || defined (STM32L021xx)
 #define IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
     if((__HANDLE__)->Instance == USART2)                      \
@@ -133,7 +133,7 @@
     }                                                         \
   } while(0)
 
-#else /* (STM32L031xx) || defined (STM32L041xx) */
+#else /* (STM32L031xx) || defined (STM32L041xx) || (STM32L011xx) || defined (STM32L021xx) */
 
 #define IRDA_GETCLOCKSOURCE(__HANDLE__,__CLOCKSOURCE__) \
   do {                                                        \
@@ -198,7 +198,7 @@
        }                                                      \
     }                                                         \
   } while(0)
-#endif /* (STM32L031xx) || (STM32L041xx) */
+#endif /* (STM32L031xx) || (STM32L041xx) || (STM32L011xx) || (STM32L021xx) */
     
 /** @brief  Reports the mask to apply to retrieve the received data
   *         according to the word length and to the parity bits activation.
@@ -250,7 +250,6 @@
 /* IO operation methods *******************************************************/
 /* Peripheral Control methods  ************************************************/
 /* Peripheral State methods  **************************************************/
-
 
 /**
   * @}

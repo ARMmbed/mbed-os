@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Extended PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -12,7 +12,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@
   ******************************************************************************
   */ 
 
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 #ifdef HAL_PCD_MODULE_ENABLED
@@ -47,7 +47,7 @@
   * @{
   */
 
-/** @defgroup PCDEx 
+/** @addtogroup PCDEx
   * @brief PCDEx HAL module driver
   * @{
   */
@@ -62,11 +62,11 @@
 /* Private functions ---------------------------------------------------------*/
 
 
-/** @defgroup PCDEx_Private_Functions
+/** @addtogroup PCDEx_Exported_Functions PCDEx Exported Functions
   * @{
   */
 
-/** @defgroup PCDEx_Group1 Initialization and de-initialization functions 
+/** @addtogroup PCDEx__Exported_Functions_Group1
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -79,9 +79,9 @@
 
 /**
   * @brief Configure PMA for EP
-  * @param  pdev : Device instance
+  * @param  hpcd : Device instance
   * @param  ep_addr: endpoint address
-  * @param  ep_Kind: endpoint Kind
+  * @param  ep_kind: endpoint Kind
   *                  USB_SNG_BUF: Single Buffer used
   *                  USB_DBL_BUF: Double Buffer used
   * @param  pmaadress: EP address in The PMA: In case of single buffer endpoint
@@ -93,6 +93,7 @@
   *                   in the MSB part of 32-bit value.
   * @retval : status
   */
+
 
 HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
                         uint16_t ep_addr,
@@ -148,5 +149,5 @@ HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
   * @}
   */
 #endif /* HAL_PCD_MODULE_ENABLED */
-#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
+#endif /* #if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

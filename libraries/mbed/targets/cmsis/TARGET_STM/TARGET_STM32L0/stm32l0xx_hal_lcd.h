@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lcd.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of LCD Controller HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@
   * @{
   */
 
-/** @addtogroup LCD LCD
+/** @defgroup LCD LCD
   * @{
   */ 
 
@@ -90,6 +90,8 @@ typedef struct
                                  This parameter can be one value of @ref LCD_BlinkMode */
   uint32_t BlinkFrequency;  /*!< Configures the LCD Blink frequency.
                                  This parameter can be one value of @ref LCD_BlinkFrequency */
+  uint32_t MuxSegment;      /*!< Enable or disable mux segment.
+                                 This parameter can be one value of @ref LCD_MuxSegment */
 }LCD_InitTypeDef;
 
 /** 
@@ -420,6 +422,19 @@ typedef struct
   * @}
   */
       
+/** @defgroup LCD_MuxSegment LCD Mux Segment
+  * @{
+  */
+
+#define LCD_MUXSEGMENT_DISABLE            ((uint32_t)0x00000000)        /*!< SEG pin multiplexing disabled */
+#define LCD_MUXSEGMENT_ENABLE             (LCD_CR_MUX_SEG)              /*!< SEG[31:28] are multiplexed with SEG[43:40]    */
+
+#define IS_LCD_MUXSEGMENT(__VALUE__) (((__VALUE__) == LCD_MUXSEGMENT_ENABLE) || \
+                                      ((__VALUE__) == LCD_MUXSEGMENT_DISABLE))
+/**
+  * @}
+  */
+      
 /** @defgroup LCD_Flag LCD Flag
   * @{
   */
@@ -683,11 +698,11 @@ typedef struct
   
 /* Exported functions ------------------------------------------------------- */
 
-/** @addtogroup LCD_Exported_Functions
+/** @defgroup LCD_Exported_Functions LCD Exported Functions
   * @{
   */
 
-/** @addtogroup LCD_Exported_Functions_Group1
+/** @defgroup LCD_Exported_Functions_Group1 Initialization and de-initialization methods
   * @{
   */
 
@@ -701,7 +716,7 @@ void                  HAL_LCD_MspDeInit(LCD_HandleTypeDef *hlcd);
   * @}
   */
 
-/** @addtogroup LCD_Exported_Functions_Group2
+/** @defgroup LCD_Exported_Functions_Group2 IO operation methods
   * @{
   */
 
@@ -714,7 +729,7 @@ HAL_StatusTypeDef     HAL_LCD_UpdateDisplayRequest(LCD_HandleTypeDef *hlcd);
   * @}
   */
 
-/** @addtogroup LCD_Exported_Functions_Group3
+/** @defgroup LCD_Exported_Functions_Group3 Peripheral State methods
   * @{
   */
 
@@ -730,7 +745,7 @@ uint32_t              HAL_LCD_GetError(LCD_HandleTypeDef *hlcd);
   * @}
   */
 
-/** @addtogroup LCD_Private_Functions
+/** @addtogroup LCD_Private
   * @{
   */
 
@@ -740,6 +755,16 @@ HAL_StatusTypeDef     LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup LCD_Private LCD Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}
@@ -758,5 +783,5 @@ HAL_StatusTypeDef     LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd);
 
 #endif /* STM32L053xx || STM32L063xx || STM32L073xx || STM32L083xx */
 
-/******************* (C) COPYRIGHT 2015 STMicroelectronics *****END OF FILE****/
+/******************* (C) COPYRIGHT 2016 STMicroelectronics *****END OF FILE****/
 

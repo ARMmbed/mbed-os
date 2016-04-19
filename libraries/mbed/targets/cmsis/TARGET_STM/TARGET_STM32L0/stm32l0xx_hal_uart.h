@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -263,10 +263,16 @@ typedef struct
 /** @defgroup UART_Stop_Bits UART stop bit definition
   * @{
   */
-#define UART_STOPBITS_1                     ((uint32_t)0x0000)
-#define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
-#define IS_UART_STOPBITS(STOPBITS) (((STOPBITS) == UART_STOPBITS_1) || \
+#define UART_STOPBITS_1                     ((uint32_t)0x0000)                      /*!< USART frame with 1 stop bit    */
+#define UART_STOPBITS_1_5                   (USART_CR2_STOP_0 | USART_CR2_STOP_1)   /*!< USART frame with 1.5 stop bits */
+#define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)            /*!< USART frame with 2 stop bits   */
+#define IS_UART_STOPBITS(STOPBITS) (((STOPBITS) == UART_STOPBITS_1)   ||  \
+                                    ((STOPBITS) == UART_STOPBITS_1_5) || \
                                     ((STOPBITS) == UART_STOPBITS_2))
+
+#define IS_LPUART_STOPBITS(__STOPBITS__) (((__STOPBITS__) == UART_STOPBITS_1) || \
+                                          ((__STOPBITS__) == UART_STOPBITS_2))
+
 /**
   * @}
   */ 
@@ -418,28 +424,28 @@ typedef struct
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
   */
-#define UART_FLAG_REACK                     ((uint32_t)0x00400000)
-#define UART_FLAG_TEACK                     ((uint32_t)0x00200000)  
-#define UART_FLAG_WUF                       ((uint32_t)0x00100000)
-#define UART_FLAG_RWU                       ((uint32_t)0x00080000)
-#define UART_FLAG_SBKF                      ((uint32_t)0x00040000
-#define UART_FLAG_CMF                       ((uint32_t)0x00020000)
-#define UART_FLAG_BUSY                      ((uint32_t)0x00010000)
-#define UART_FLAG_ABRF                      ((uint32_t)0x00008000)  
-#define UART_FLAG_ABRE                      ((uint32_t)0x00004000)
-#define UART_FLAG_EOBF                      ((uint32_t)0x00001000)
-#define UART_FLAG_RTOF                      ((uint32_t)0x00000800)
-#define UART_FLAG_CTS                       ((uint32_t)0x00000400)
-#define UART_FLAG_CTSIF                     ((uint32_t)0x00000200)
-#define UART_FLAG_LBDF                      ((uint32_t)0x00000100)
-#define UART_FLAG_TXE                       ((uint32_t)0x00000080)
-#define UART_FLAG_TC                        ((uint32_t)0x00000040)
-#define UART_FLAG_RXNE                      ((uint32_t)0x00000020)
-#define UART_FLAG_IDLE                      ((uint32_t)0x00000010)
-#define UART_FLAG_ORE                       ((uint32_t)0x00000008)
-#define UART_FLAG_NE                        ((uint32_t)0x00000004)
-#define UART_FLAG_FE                        ((uint32_t)0x00000002)
-#define UART_FLAG_PE                        ((uint32_t)0x00000001)
+#define UART_FLAG_REACK                     USART_ISR_REACK   /*!< Receive Enable Acknowledge Flag */
+#define UART_FLAG_TEACK                     USART_ISR_TEACK   /*!< Transmit Enable Acknowledge Flag */
+#define UART_FLAG_WUF                       USART_ISR_WUF     /*!< Wake Up from stop mode Flag */
+#define UART_FLAG_RWU                       USART_ISR_RWU     /*!< Receive Wake Up from mute mode Flag */
+#define UART_FLAG_SBKF                      USART_ISR_SBKF    /*!< Send Break Flag */
+#define UART_FLAG_CMF                       USART_ISR_CMF     /*!< Character Match Flag */
+#define UART_FLAG_BUSY                      USART_ISR_BUSY    /*!< Busy Flag */
+#define UART_FLAG_ABRF                      USART_ISR_ABRF    /*!< Auto-Baud Rate Flag */
+#define UART_FLAG_ABRE                      USART_ISR_ABRE    /*!< Auto-Baud Rate Error */
+#define UART_FLAG_EOBF                      USART_ISR_EOBF    /*!< End Of Block Flag */
+#define UART_FLAG_RTOF                      USART_ISR_RTOF    /*!< Receiver Time Out */
+#define UART_FLAG_CTS                       USART_ISR_CTS     /*!< CTS flag */
+#define UART_FLAG_CTSIF                     USART_ISR_CTSIF   /*!< CTS interrupt flag */
+#define UART_FLAG_LBDF                      USART_ISR_LBDF    /*!< LIN Break Detection Flag */
+#define UART_FLAG_TXE                       USART_ISR_TXE     /*!< Transmit Data Register Empty */
+#define UART_FLAG_TC                        USART_ISR_TC      /*!< Transmission Complete */
+#define UART_FLAG_RXNE                      USART_ISR_RXNE    /*!< Read Data Register Not Empty */
+#define UART_FLAG_IDLE                      USART_ISR_IDLE    /*!< IDLE line detected */
+#define UART_FLAG_ORE                       USART_ISR_ORE     /*!< OverRun Error */
+#define UART_FLAG_NE                        USART_ISR_NE      /*!< Noise detected Flag */
+#define UART_FLAG_FE                        USART_ISR_FE      /*!< Framing Error */
+#define UART_FLAG_PE                        USART_ISR_PE      /*!< Parity Error */
 /**
   * @}
   */ 
@@ -754,7 +760,8 @@ typedef struct
   *            @arg UART_CLEAR_WUF
   * @retval None
   */
-#define __HAL_UART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ~(__FLAG__))
+#define __HAL_UART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = (__FLAG__))
+
 
 /** @brief  Clear the UART PE pending flag.
   * @param  __HANDLE__: specifies the UART Handle.
@@ -1037,11 +1044,16 @@ typedef struct
     (__HANDLE__)->Init.HwFlowCtl &= ~(USART_CR3_RTSE);     \
   } while(0)
 
-/** @brief  macros to enables or disables the UART's one bit sampling method
+/** @brief  macros to enable the UART's one bit sampling method
   * @param  __HANDLE__: specifies the UART Handle.
   * @retval None
   */
 #define __HAL_UART_ONE_BIT_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3|= USART_CR3_ONEBIT)
+
+/** @brief  macros to disable the UART's one bit sampling method
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval None
+  */
 #define __HAL_UART_ONE_BIT_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR3 &= (uint16_t)~((uint16_t)USART_CR3_ONEBIT))
 
 
@@ -1050,8 +1062,8 @@ typedef struct
   * @param  _BAUD_: Baud rate set by the user
   * @retval Division result
   */
-#define __DIV_LPUART(_PCLK_, _BAUD_)                (((_PCLK_)*256)/((_BAUD_)))
-
+#define __DIV_LPUART(_PCLK_, _BAUD_)                ((uint32_t)(((((uint64_t)_PCLK_)*256.0))/(((uint64_t)_BAUD_))))
+    
 /** @brief  BRR division operation to set BRR register in 8-bit oversampling mode
   * @param  _PCLK_: UART clock
   * @param  _BAUD_: Baud rate set by the user
@@ -1065,6 +1077,12 @@ typedef struct
   * @retval Division result
   */
 #define UART_DIV_SAMPLING16(_PCLK_, _BAUD_)             (((_PCLK_))/((_BAUD_)))
+
+/** @brief  Check whether or not UART instance is Low Power UART.
+  * @param  __HANDLE__: specifies the UART Handle.
+  * @retval SET (instance is LPUART) or RESET (instance isn't LPUART)
+  */
+#define UART_INSTANCE_LOWPOWER(__HANDLE__) (((__HANDLE__)->Instance == LPUART1) ? SET : RESET )
 
 /** @brief  Check UART Baud rate
   * @param  BAUDRATE: Baudrate specified by the user
@@ -1164,14 +1182,31 @@ uint32_t HAL_UART_GetError(UART_HandleTypeDef *huart);
 /**
   * @}
   */
+/**
+  * @}
+  */
+
+/** @addtogroup UART_Private
+  * @{
+  */
 void UART_SetConfig(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef UART_CheckIdleState(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
 void UART_AdvFeatureConfig(UART_HandleTypeDef *huart);
-
 /**
   * @}
   */
+
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup UART_Private UART Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

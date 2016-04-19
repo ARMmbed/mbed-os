@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if !defined (STM32L031xx) && !defined (STM32L041xx)
+#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L011xx) && !defined (STM32L021xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"  
 
@@ -51,7 +51,7 @@
   * @{
   */
 
-/** @addtogroup I2S
+/** @defgroup I2S I2S
   * @{
   */ 
 
@@ -270,7 +270,7 @@ typedef struct
   */ 
   
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup I2S_Exported_macros I2S Exported Macros
+/** @defgroup I2S_Exported_Macros I2S Exported Macros
   * @{
   */
 
@@ -358,11 +358,11 @@ typedef struct
   */ 
                                                 
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup I2S_Exported_Functions
+/** @defgroup I2S_Exported_Functions I2S Exported Functions
   * @{
   */
                                                 
-/** @addtogroup I2S_Exported_Functions_Group1
+/** @defgroup I2S_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 /* Initialization/de-initialization functions  ********************************/
@@ -374,7 +374,7 @@ void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s);
   * @}
   */
 
-/** @addtogroup I2S_Exported_Functions_Group2
+/** @defgroup I2S_Exported_Functions_Group2 IO operation functions
   * @{
   */
 /* I/O operation functions  ***************************************************/
@@ -405,7 +405,7 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
   * @}
   */
 
-/** @addtogroup I2S_Exported_Functions_Group3
+/** @defgroup I2S_Exported_Functions_Group3 Peripheral Control and State functions
   * @{
   */
 /* Peripheral Control and State functions  ************************************/
@@ -420,7 +420,7 @@ uint32_t HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
   */
 
 /* Private macros ------------------------------------------------------------*/
-/** @defgroup I2S_Private_Macros I2S Private Macros
+/** @defgroup I2S_Private I2S Private
   * @{
   */
 #define IS_I2S_MODE(MODE) (((MODE) == I2S_MODE_SLAVE_TX)  || \
@@ -452,14 +452,15 @@ uint32_t HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
   * @}
   */
 
-/* Private Fonctions ---------------------------------------------------------*/
-/** @defgroup I2S_Private_Functions I2S Private Functions
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup I2S_Private I2S Private
   * @{
   */
-/* Private functions are defined in stm32f1xx_hal_i2s.c file */
 /**
   * @}
   */
+/**************************************************************/
 
 /**
   * @}
@@ -468,11 +469,12 @@ uint32_t HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
 /**
   * @}
   */
+
+#endif /* !STM32L031xx && !STM32L041xx && !STM32L011xx && !STM32L021xx */
+
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* !STM32L031xx && !STM32L041xx */
 
 #endif /* __STM32L0xx_HAL_I2S_H */
 

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup I2C
+/** @defgroup I2C I2C
   * @{
   */ 
 
@@ -420,15 +420,75 @@ typedef struct
   * @}
   */ 
 
+/**
+  * @}
+  */
+
 /* Include I2C HAL Extension module */
 #include "stm32l0xx_hal_i2c_ex.h"
 
-/* Exported functions --------------------------------------------------------*/
-/** @addtogroup I2C_Exported_Functions
+/* Private macros ------------------------------------------------------------*/
+/** @addtogroup I2C_Private
   * @{
   */
 
-/** @addtogroup I2C_Exported_Functions_Group1 Initialization and de-initialization functions
+#define IS_I2C_ADDRESSING_MODE(MODE)    (((MODE) == I2C_ADDRESSINGMODE_7BIT) || \
+                                          ((MODE) == I2C_ADDRESSINGMODE_10BIT))
+
+#define IS_I2C_DUAL_ADDRESS(ADDRESS)    (((ADDRESS) == I2C_DUALADDRESS_DISABLE) || \
+                                          ((ADDRESS) == I2C_DUALADDRESS_ENABLE))
+
+#define IS_I2C_OWN_ADDRESS2_MASK(MASK)  (((MASK) == I2C_OA2_NOMASK)  || \
+                                          ((MASK) == I2C_OA2_MASK01) || \
+                                          ((MASK) == I2C_OA2_MASK02) || \
+                                          ((MASK) == I2C_OA2_MASK03) || \
+                                          ((MASK) == I2C_OA2_MASK04) || \
+                                          ((MASK) == I2C_OA2_MASK05) || \
+                                          ((MASK) == I2C_OA2_MASK06) || \
+                                          ((MASK) == I2C_OA2_MASK07))
+
+#define IS_I2C_GENERAL_CALL(CALL)       (((CALL) == I2C_GENERALCALL_DISABLE) || \
+                                          ((CALL) == I2C_GENERALCALL_ENABLE))
+
+#define IS_I2C_NO_STRETCH(STRETCH)      (((STRETCH) == I2C_NOSTRETCH_DISABLE) || \
+                                          ((STRETCH) == I2C_NOSTRETCH_ENABLE))
+
+#define IS_I2C_MEMADD_SIZE(SIZE)        (((SIZE) == I2C_MEMADD_SIZE_8BIT) || \
+                                          ((SIZE) == I2C_MEMADD_SIZE_16BIT))
+
+
+#define IS_TRANSFER_MODE(MODE)          (((MODE) == I2C_RELOAD_MODE)   || \
+                                          ((MODE) == I2C_AUTOEND_MODE) || \
+                                          ((MODE) == I2C_SOFTEND_MODE))
+
+#define IS_TRANSFER_REQUEST(REQUEST)    (((REQUEST) == I2C_GENERATE_STOP)         || \
+                                          ((REQUEST) == I2C_GENERATE_START_READ)  || \
+                                          ((REQUEST) == I2C_GENERATE_START_WRITE) || \
+                                          ((REQUEST) == I2C_NO_STARTSTOP))
+
+
+#define __I2C_RESET_CR2(__HANDLE__)     ((__HANDLE__)->Instance->CR2 &= (uint32_t)~((uint32_t)(I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_RD_WRN)))
+
+#define IS_I2C_OWN_ADDRESS1(ADDRESS1)   ((ADDRESS1) <= (uint32_t)0x000003FF)
+#define IS_I2C_OWN_ADDRESS2(ADDRESS2)   ((ADDRESS2) <= (uint16_t)0x00FF)
+
+#define __I2C_MEM_ADD_MSB(__ADDRESS__)  ((uint8_t)((uint16_t)(((uint16_t)((__ADDRESS__) & (uint16_t)(0xFF00))) >> 8)))
+#define __I2C_MEM_ADD_LSB(__ADDRESS__)  ((uint8_t)((uint16_t)((__ADDRESS__) & (uint16_t)(0x00FF))))
+
+#define __I2C_GENERATE_START(__ADDMODE__,__ADDRESS__)   (((__ADDMODE__) == I2C_ADDRESSINGMODE_7BIT) ? (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_START) | (I2C_CR2_AUTOEND)) & (~I2C_CR2_RD_WRN)) : \
+                                                          (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_ADD10) | (I2C_CR2_START)) & (~I2C_CR2_RD_WRN)))
+/**
+  * @}
+  */
+
+
+
+/* Exported functions --------------------------------------------------------*/
+/** @defgroup I2C_Exported_Functions I2C Exported Functions
+  * @{
+  */
+
+/** @defgroup I2C_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 /* Initialization and de-initialization functions******************************/
@@ -440,7 +500,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c);
   * @}
   */ 
 
-/** @addtogroup I2C_Exported_Functions_Group2 Input and Output operation functions
+/** @defgroup I2C_Exported_Functions_Group2 Input and Output operation functions
   * @{
   */
 /* IO operation functions  ****************************************************/
@@ -472,7 +532,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAddr
   * @}
   */ 
 
-/** @addtogroup IRQ_Handler_and_Callbacks IRQ Handler and Callbacks
+/** @defgroup IRQ_Handler_and_Callbacks RQ Handler and Callbacks
  * @{
  */   
  /******* I2C IRQHandler and Callbacks used in non blocking modes (Interrupt and DMA) */
@@ -489,7 +549,7 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c);
   * @}
   */ 
 
-/** @addtogroup I2C_Exported_Functions_Group3 Peripheral State and Errors functions
+/** @defgroup I2C_Exported_Functions_Group3 Peripheral State and Errors functions
   * @{
   */
 /* Peripheral State and Errors functions  *************************************/
@@ -504,77 +564,16 @@ uint32_t             HAL_I2C_GetError(I2C_HandleTypeDef *hi2c);
   * @}
   */ 
   
-/* Private constants ---------------------------------------------------------*/
-/** @defgroup I2C_Private_Constants I2C Private Constants
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup I2C_Private I2C Private
   * @{
   */
-
 /**
   * @}
-  */ 
-
-/* Private macros ------------------------------------------------------------*/
-/** @defgroup I2C_Private_Macro I2C Private Macros
-  * @{
   */
-
-#define IS_I2C_ADDRESSING_MODE(MODE)    (((MODE) == I2C_ADDRESSINGMODE_7BIT) || \
-                                          ((MODE) == I2C_ADDRESSINGMODE_10BIT))
-
-#define IS_I2C_DUAL_ADDRESS(ADDRESS)    (((ADDRESS) == I2C_DUALADDRESS_DISABLE) || \
-                                          ((ADDRESS) == I2C_DUALADDRESS_ENABLE))
-
-#define IS_I2C_OWN_ADDRESS2_MASK(MASK)  (((MASK) == I2C_OA2_NOMASK)  || \
-                                          ((MASK) == I2C_OA2_MASK01) || \
-                                          ((MASK) == I2C_OA2_MASK02) || \
-                                          ((MASK) == I2C_OA2_MASK03) || \
-                                          ((MASK) == I2C_OA2_MASK04) || \
-                                          ((MASK) == I2C_OA2_MASK05) || \
-                                          ((MASK) == I2C_OA2_MASK06) || \
-                                          ((MASK) == I2C_OA2_MASK07))  
-
-#define IS_I2C_GENERAL_CALL(CALL)       (((CALL) == I2C_GENERALCALL_DISABLE) || \
-                                          ((CALL) == I2C_GENERALCALL_ENABLE))
-
-#define IS_I2C_NO_STRETCH(STRETCH)      (((STRETCH) == I2C_NOSTRETCH_DISABLE) || \
-                                          ((STRETCH) == I2C_NOSTRETCH_ENABLE))
-
-#define IS_I2C_MEMADD_SIZE(SIZE)        (((SIZE) == I2C_MEMADD_SIZE_8BIT) || \
-                                          ((SIZE) == I2C_MEMADD_SIZE_16BIT))
-                              
-
-#define IS_TRANSFER_MODE(MODE)          (((MODE) == I2C_RELOAD_MODE)   || \
-                                          ((MODE) == I2C_AUTOEND_MODE) || \
-                                          ((MODE) == I2C_SOFTEND_MODE))
-
-#define IS_TRANSFER_REQUEST(REQUEST)    (((REQUEST) == I2C_GENERATE_STOP)         || \
-                                          ((REQUEST) == I2C_GENERATE_START_READ)  || \
-                                          ((REQUEST) == I2C_GENERATE_START_WRITE) || \
-                                          ((REQUEST) == I2C_NO_STARTSTOP))
-                               
-
-#define __I2C_RESET_CR2(__HANDLE__)     ((__HANDLE__)->Instance->CR2 &= (uint32_t)~((uint32_t)(I2C_CR2_SADD | I2C_CR2_HEAD10R | I2C_CR2_NBYTES | I2C_CR2_RELOAD | I2C_CR2_RD_WRN)))
-
-#define IS_I2C_OWN_ADDRESS1(ADDRESS1)   ((ADDRESS1) <= (uint32_t)0x000003FF)
-#define IS_I2C_OWN_ADDRESS2(ADDRESS2)   ((ADDRESS2) <= (uint16_t)0x00FF)
-
-#define __I2C_MEM_ADD_MSB(__ADDRESS__)  ((uint8_t)((uint16_t)(((uint16_t)((__ADDRESS__) & (uint16_t)(0xFF00))) >> 8)))
-#define __I2C_MEM_ADD_LSB(__ADDRESS__)  ((uint8_t)((uint16_t)((__ADDRESS__) & (uint16_t)(0x00FF))))
-
-#define __I2C_GENERATE_START(__ADDMODE__,__ADDRESS__)   (((__ADDMODE__) == I2C_ADDRESSINGMODE_7BIT) ? (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_START) | (I2C_CR2_AUTOEND)) & (~I2C_CR2_RD_WRN)) : \
-                                                          (uint32_t)((((uint32_t)(__ADDRESS__) & (I2C_CR2_SADD)) | (I2C_CR2_ADD10) | (I2C_CR2_START)) & (~I2C_CR2_RD_WRN)))
-/**
-  * @}
-  */ 
-
-/* Private Fonctions ---------------------------------------------------------*/
-/** @defgroup I2C_Private_Functions I2C Private Functions
-  * @{
-  */
-/* Private functions are defined in stm32l0xx_hal_i2c.c file */
-/**
-  * @}
-  */ 
+/**************************************************************/
 
 /**
   * @}

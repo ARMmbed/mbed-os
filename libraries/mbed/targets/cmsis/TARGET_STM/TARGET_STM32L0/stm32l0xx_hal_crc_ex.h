@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_crc_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of CRC HAL extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup CRCEx_Exported_Constants CRC Extended exported constants
+/** @defgroup CRCEx_Exported_Constants CRCEx Exported constants
  * @{
  */
 
@@ -69,10 +69,6 @@
 #define CRC_INPUTDATA_INVERSION_HALFWORD          ((uint32_t)CRC_CR_REV_IN_1)
 #define CRC_INPUTDATA_INVERSION_WORD              ((uint32_t)CRC_CR_REV_IN)
 
-#define IS_CRC_INPUTDATA_INVERSION_MODE(__MODE__)     (((__MODE__) == CRC_INPUTDATA_INVERSION_NONE) || \
-                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_BYTE) || \
-                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_HALFWORD) || \
-                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_WORD))
 /**
   * @}
   */
@@ -82,9 +78,6 @@
   */
 #define CRC_OUTPUTDATA_INVERSION_DISABLE         ((uint32_t)0x00000000)
 #define CRC_OUTPUTDATA_INVERSION_ENABLE          ((uint32_t)CRC_CR_REV_OUT)
-
-#define IS_CRC_OUTPUTDATA_INVERSION_MODE(__MODE__)    (((__MODE__) == CRC_OUTPUTDATA_INVERSION_DISABLE) || \
-                                                       ((__MODE__) == CRC_OUTPUTDATA_INVERSION_ENABLE))
 /**                                               
   * @}
   */
@@ -95,7 +88,7 @@
  */
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup CRCEx_Exported_Macros CRC Extended exported macros
+/** @defgroup CRCEx_Exported_Macros CRCEx Exported Macros
   * @{
   */
     
@@ -125,8 +118,23 @@
   * @}
   */
 
+/** @defgroup  CRCEx_Private_Macros   CRCEx Private Macros
+  * @{
+  */
+  
+#define IS_CRC_INPUTDATA_INVERSION_MODE(__MODE__)     (((__MODE__) == CRC_INPUTDATA_INVERSION_NONE) || \
+                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_BYTE) || \
+                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_HALFWORD) || \
+                                                       ((__MODE__) == CRC_INPUTDATA_INVERSION_WORD))
+                                                 
 
-/** @defgroup CRCEx_Exported_Functions CRC Extended Exported Functions
+#define IS_CRC_OUTPUTDATA_INVERSION_MODE(__MODE__)    (((__MODE__) == CRC_OUTPUTDATA_INVERSION_DISABLE) || \
+                                                       ((__MODE__) == CRC_OUTPUTDATA_INVERSION_ENABLE))
+
+/**
+  * @}
+  */
+/** @defgroup CRCEx_Exported_Functions CRCEx Exported Functions
   * @{
   */
 
@@ -149,7 +157,6 @@ HAL_StatusTypeDef HAL_CRCEx_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_
 /**
   * @}
   */
-
 
 /**
   * @}

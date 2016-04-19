@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tsc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Touch Sensing Controller (TSC) peripheral:
   *           + Initialization and DeInitialization
@@ -81,7 +81,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -109,7 +109,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 #include "stm32l0xx_hal.h"
 
 #ifdef HAL_TSC_MODULE_ENABLED
@@ -117,25 +117,30 @@
   * @{
   */
 
-/** @defgroup TSC
+/** @addtogroup TSC
   * @brief HAL TSC module driver
   * @{
   */
 
-    
+/** @addtogroup TSC_Private TSC Private
+  * @{
+  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+
 static uint32_t TSC_extract_groups(uint32_t iomask);
 /* Private functions ---------------------------------------------------------*/
-
-/** @defgroup TSC_Private_Functions
+/**
+  * @}
+  */
+/** @addtogroup TSC_Exported_Functions TSC Exported Functions
   * @{
   */ 
 
-/** @defgroup TSC_Group1 Initialization/de-initialization functions 
+/** @addtogroup HAL_TSC_Exported_Functions_Group1
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim    
@@ -176,7 +181,13 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
   assert_param(IS_TSC_SYNC_POL(htsc->Init.SynchroPinPolarity));
   assert_param(IS_TSC_ACQ_MODE(htsc->Init.AcquisitionMode));
   assert_param(IS_TSC_MCE_IT(htsc->Init.MaxCountInterrupt));
-    
+
+  if(htsc->State == HAL_TSC_STATE_RESET)
+  {
+    /* Allocate lock resource and initialize it */
+    htsc->Lock = HAL_UNLOCKED;
+  }
+
   /* Initialize the TSC state */
   htsc->State = HAL_TSC_STATE_BUSY;
 
@@ -196,7 +207,6 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
                          htsc->Init.SpreadSpectrumPrescaler |
                          htsc->Init.PulseGeneratorPrescaler |
                          htsc->Init.MaxCountValue |
-                         htsc->Init.IODefaultMode |
                          htsc->Init.SynchroPinPolarity |
                          htsc->Init.AcquisitionMode);
 
@@ -222,7 +232,7 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
   htsc->Instance->IER &= (uint32_t)(~(TSC_IT_EOA | TSC_IT_MCE));
   
   /* Clear flags */
-  htsc->Instance->ICR |= (TSC_FLAG_EOA | TSC_FLAG_MCE);
+  htsc->Instance->ICR = (TSC_FLAG_EOA | TSC_FLAG_MCE);
 
   /*--------------------------------------------------------------------------*/
   
@@ -273,6 +283,9 @@ HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_MspInit could be implemented in the user file.
    */ 
@@ -286,6 +299,9 @@ __weak void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_MspDeInit could be implemented in the user file.
    */ 
@@ -295,12 +311,12 @@ __weak void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc)
   * @}
   */
 
-/** @defgroup HAL_TSC_Group2 IO operation functions
+/** @addtogroup HAL_TSC_Exported_Functions_Group2
  *  @brief    IO operation functions 
  *
 @verbatim   
  ===============================================================================
-             ##### I/O Operation functions #####
+             ##### IO Operation functions #####
  ===============================================================================  
     [..]  This section provides functions allowing to:
       (+) Start acquisition in polling mode.
@@ -336,8 +352,15 @@ HAL_StatusTypeDef HAL_TSC_Start(TSC_HandleTypeDef* htsc)
   /* Clear flags */
   __HAL_TSC_CLEAR_FLAG(htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
 
-  /* Stop discharging the IOs */
-  __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  /* Set touch sensing IOs not acquired to the specified IODefaultMode */
+  if (htsc->Init.IODefaultMode == TSC_IODEF_OUT_PP_LOW)
+  {
+    __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
+  }
+  else
+  {
+    __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  }
   
   /* Launch the acquisition */
   __HAL_TSC_START_ACQ(htsc);
@@ -383,8 +406,15 @@ HAL_StatusTypeDef HAL_TSC_Start_IT(TSC_HandleTypeDef* htsc)
   /* Clear flags */
   __HAL_TSC_CLEAR_FLAG(htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
   
-  /* Stop discharging the IOs */
-  __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  /* Set touch sensing IOs not acquired to the specified IODefaultMode */
+  if (htsc->Init.IODefaultMode == TSC_IODEF_OUT_PP_LOW)
+  {
+    __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
+  }
+  else
+  {
+    __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  }
   
   /* Launch the acquisition */
   __HAL_TSC_START_ACQ(htsc);
@@ -413,6 +443,9 @@ HAL_StatusTypeDef HAL_TSC_Stop(TSC_HandleTypeDef* htsc)
   /* Stop the acquisition */
   __HAL_TSC_STOP_ACQ(htsc);
 
+  /* Set touch sensing IOs in low power mode (output push-pull) */
+  __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
+  
   /* Clear flags */
   __HAL_TSC_CLEAR_FLAG(htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
   
@@ -443,6 +476,9 @@ HAL_StatusTypeDef HAL_TSC_Stop_IT(TSC_HandleTypeDef* htsc)
   /* Stop the acquisition */
   __HAL_TSC_STOP_ACQ(htsc);
   
+  /* Set touch sensing IOs in low power mode (output push-pull) */
+  __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
+  
   /* Disable interrupts */
   __HAL_TSC_DISABLE_IT(htsc, (TSC_IT_EOA | TSC_IT_MCE));
 
@@ -470,7 +506,7 @@ TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(TSC_HandleTypeDef* htsc, uint32_t 
 {
   /* Check the parameters */
   assert_param(IS_TSC_ALL_INSTANCE(htsc->Instance));
-  assert_param(IS_GROUP_INDEX(gx_index));
+  assert_param(IS_TSC_GROUP_INDEX(gx_index));
 
   /* Return the group status */ 
   return(__HAL_TSC_GET_GROUP_STATUS(htsc, gx_index));
@@ -487,7 +523,7 @@ uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index)
 {       
   /* Check the parameters */
   assert_param(IS_TSC_ALL_INSTANCE(htsc->Instance));
-  assert_param(IS_GROUP_INDEX(gx_index));
+  assert_param(IS_TSC_GROUP_INDEX(gx_index));
 
   /* Return the group acquisition counter */ 
   return htsc->Instance->IOGXCR[gx_index];
@@ -497,7 +533,7 @@ uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index)
   * @}
   */
   
-/** @defgroup HAL_TSC_Group3 Peripheral Control functions
+/** @addtogroup HAL_TSC_Exported_Functions_Group3
  *  @brief    Peripheral Control functions 
  *
 @verbatim   
@@ -583,7 +619,7 @@ HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice)
   * @}
   */
 
-/** @defgroup HAL_TSC_Group4 State functions
+/** @addtogroup HAL_TSC_Exported_Functions_Group4
  *  @brief   State functions 
  *
 @verbatim   
@@ -700,10 +736,6 @@ void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc)
 }
 
 /**
-  * @}
-  */
-
-/**
   * @brief  Acquisition completed callback in non blocking mode 
   * @param  htsc: pointer to a TSC_HandleTypeDef structure that contains
   *         the configuration information for the specified TSC.
@@ -711,6 +743,9 @@ void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_ConvCpltCallback could be implemented in the user file.
    */
@@ -724,10 +759,25 @@ __weak void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_ErrorCallback could be implemented in the user file.
    */
 }
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/** @addtogroup TSC_Private
+  * @{
+  */
 
 /**
   * @brief  Utility function used to set the acquired groups mask
@@ -763,7 +813,7 @@ static uint32_t TSC_extract_groups(uint32_t iomask)
   * @}
   */ 
 #endif /* HAL_TSC_MODULE_ENABLED */
-#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
+#endif /* #if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
