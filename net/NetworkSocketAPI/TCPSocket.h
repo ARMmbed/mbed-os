@@ -1,4 +1,4 @@
-/* Socket
+/* TCPSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -53,7 +53,7 @@ public:
      *  Initiates a connection to a remote server specified by either
      *  a domain name or an IP address and a port.
      *
-     *  @param host     Host name of the remote host
+     *  @param host     Hostname of the remote host
      *  @param port     Port of the remote host
      *  @return         0 on success, negative error code on failure
      */

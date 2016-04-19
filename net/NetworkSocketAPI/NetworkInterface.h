@@ -46,7 +46,7 @@ enum nsapi_error_t {
  *  The socket protocol specifies a particular protocol to
  *  be used with a newly created socket. 
  *
- *  @enum protocol_t
+ *  @enum nsapi_protocol_t
  */
 enum nsapi_protocol_t {
    NSAPI_TCP, /*!< Socket is of TCP type */
@@ -74,26 +74,29 @@ class NetworkInterface
 public:
     virtual ~NetworkInterface() {};
 
-    /** Get the internally stored IP address
+    /** Get the local IP address
      *
-     *  @return         IP address of the interface or null if not yet connected
+     *  @return         Null-terminated representation of the local IP address
+     *                  or null if not yet connected
      */
     virtual const char *get_ip_address() = 0;
 
-    /** Get the internally stored MAC address
+    /** Get the local MAC address
      *
-     *  @return         MAC address of the interface
+     *  @return         Null-terminated representation of the local MAC address
      */
     virtual const char *get_mac_address() = 0;
 
-    /** Translates a host name to an IP address
+    /** Translates a hostname to an IP address
      *
-     *  The host name may be either a domain name or an IP address.
-     *  If no stack-specific DNS resolution is provided, the host name
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *  
+     *  If no stack-specific DNS resolution is provided, the hostname
      *  will be resolve using a UDP socket on the stack. 
      *
      *  @param address  Destination for the host SocketAddress
-     *  @param host     Host name to lookup
+     *  @param host     Hostname to resolve
      *  @return         0 on success, negative error code on failure
      */
     virtual int gethostbyname(SocketAddress *address, const char *host);
