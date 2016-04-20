@@ -1082,7 +1082,7 @@ class DISCO_F429ZI(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
-            "target":"",
+            "target":"disco-f429zi",
         }
 
 class DISCO_F469NI(Target):
