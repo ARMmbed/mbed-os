@@ -60,7 +60,8 @@ void send() {
      !defined(TARGET_NUCLEO_F091RC) && !defined(TARGET_NUCLEO_F072RB) && \
      !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8) && \
      !defined(TARGET_NUCLEO_F303RE) && !defined(TARGET_NUCLEO_F303K8) && \
-     !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB))
+     !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB) && \
+     !defined(TARGET_DISCO_L476VG))
 void read() {
     CANMessage msg;
     printf("rx()\n");
@@ -78,7 +79,8 @@ int main() {
      !defined(TARGET_NUCLEO_F091RC) && !defined(TARGET_NUCLEO_F072RB) && \
      !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8) && \
      !defined(TARGET_NUCLEO_F303RE) && !defined(TARGET_NUCLEO_F303K8) && \
-     !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB))
+     !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB) && \
+     !defined(TARGET_DISCO_L476VG))
     can2.attach(&read);
 #endif
     while(1) {

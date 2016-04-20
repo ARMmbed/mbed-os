@@ -65,7 +65,8 @@ int main() {
      !defined(TARGET_NUCLEO_F091RC) && !defined(TARGET_NUCLEO_F072RB) && \
      !defined(TARGET_NUCLEO_F042K6) && !defined(TARGET_NUCLEO_F334R8) && \
      !defined(TARGET_NUCLEO_F303RE) && !defined(TARGET_NUCLEO_F303K8) && \
-     !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB))
+     !defined(TARGET_NUCLEO_F302R8) && !defined(TARGET_NUCLEO_F103RB) && \
+     !defined(TARGET_DISCO_L476VG))
       printf("loop()\n");
         if(can2.read(msg)) {
             printmsg("Rx message:", &msg);
