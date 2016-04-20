@@ -56,7 +56,23 @@ static bool ipv6_is_valid(const char *addr)
 
 static void ipv4_from_address(uint8_t *bytes, const char *addr)
 {
-    sscanf(addr, "%hhu.%hhu.%hhu.%hhu", &bytes[0], &bytes[1], &bytes[2], &bytes[3]);
+    int count = 0;
+    int i = 0;
+
+    for (; count < NSAPI_IPv4_BYTES; count++) {
+        int scanned = sscanf(&addr[i], "%hhu", &bytes[count]);
+        if (scanned < 1) {
+            return;
+        }
+
+        for (; addr[i] != '.'; i++) {
+            if (!addr[i]) {
+                return;
+            }
+        }
+
+        i++;
+    }
 }
 
 static int ipv6_scan_chunk(uint16_t *shorts, const char *chunk) {
