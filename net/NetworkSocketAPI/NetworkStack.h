@@ -77,14 +77,6 @@ enum nsapi_option_t {
     NSAPI_RCVBUF,    /*!< Sets recv buffer size */
 };
 
-/** Maximum size of MAC address representation
- */
-#define NSAPI_MAC_SIZE 18
-
-/** Maximum number of bytes for MAC address
- */
-#define NSAPI_MAC_BYTES 6
-
 
 /** NetworkStack class
  *
@@ -104,12 +96,6 @@ public:
      *                  or null if not yet connected
      */
     virtual const char *get_ip_address() = 0;
-
-    /** Get the local MAC address
-     *
-     *  @return         Null-terminated representation of the local MAC address
-     */
-    virtual const char *get_mac_address() = 0;
 
     /** Translates a hostname to an IP address
      *

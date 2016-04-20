@@ -17,7 +17,7 @@
 #ifndef LWIP_INTERFACE_H
 #define LWIP_INTERFACE_H
 
-#include "EthernetStack.h"
+#include "EthernetInterface.h"
 #include "rtos.h"
 #include "lwip/netif.h"
 
@@ -25,7 +25,7 @@
 /** LWIPInterface class
  *  Implementation of the NetworkStack for LWIP
  */
-class LWIPInterface : public EthernetStack
+class LWIPInterface : public NetworkStack, public EthernetInterface
 {
 public:
     /** Start the interface

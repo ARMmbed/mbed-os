@@ -17,7 +17,7 @@
 #ifndef ESP8266_INTERFACE_H
 #define ESP8266_INTERFACE_H
 
-#include "WiFiStack.h"
+#include "WiFiInterface.h"
 #include "ESP8266.h"
 
 #define ESP8266_SOCKET_COUNT 5
@@ -25,7 +25,7 @@
 /** ESP8266Interface class
  *  Implementation of the NetworkStack for the ESP8266
  */
-class ESP8266Interface : public WiFiStack
+class ESP8266Interface : public NetworkStack, public WiFiInterface
 {
 public:
     /** ESP8266Interface lifetime

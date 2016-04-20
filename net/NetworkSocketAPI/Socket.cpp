@@ -52,9 +52,9 @@ int Socket::close()
     if (!_socket) {
         return 0;
     }
-
+    
     _iface->socket_attach(_socket, 0, 0);
-
+    
     void *volatile socket = _socket;
     _socket = 0;
     return _iface->socket_close(socket);
