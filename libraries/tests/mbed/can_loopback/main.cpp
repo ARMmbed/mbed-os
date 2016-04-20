@@ -13,6 +13,8 @@ CAN can1(p9, p10);
 CAN can1(PD_0, PD_1);
 #elif defined(TARGET_VK_RZ_A1H)
 CAN can1(P5_9, P5_10);
+#elif defined(TARGET_NUCLEO_F091RC)
+CAN can1(PA_11, PA_12);
 #endif
 
 #define TEST_ITERATIONS     127
