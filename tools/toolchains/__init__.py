@@ -341,7 +341,7 @@ class mbedToolchain:
 
         return False
 
-    def scan_resources(self, path, exclude_path=None):
+    def scan_resources(self, path, exclude_paths=None):
         labels = self.get_labels()
         resources = Resources(path)
         self.has_config = False
@@ -367,9 +367,12 @@ class mbedToolchain:
                 
                 should_exclude_path = False
                 
-                if exclude_path:
-                    rel_path = relpath(dir_path, exclude_path)
-                    should_exclude_path = not (rel_path.startswith('..'))
+                if exclude_paths:
+                    for exclude_path in exclude_paths:
+                        rel_path = relpath(dir_path, exclude_path)
+                        if not (rel_path.startswith('..')):
+                            should_exclude_path = True
+                            break
 
                 if ((should_exclude_path) or
                     (d.startswith('.') or d in self.legacy_ignore_dirs) or
