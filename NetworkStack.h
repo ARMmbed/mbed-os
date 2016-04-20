@@ -53,6 +53,30 @@ enum nsapi_protocol_t {
    NSAPI_UDP, /*!< Socket is of UDP type */
 };
 
+/*  Enum of standardized stack option levels
+ *
+ *  @enum nsapi_level_t
+ */
+enum nsapi_level_t {
+    NSAPI_STACK,  /*!< Stack option level */
+    NSAPI_SOCKET, /*!< Socket option level */
+};
+
+/*  Enum of standardized stack options
+ *
+ *  These options may not be supported on all stacks, in which
+ *  case NSAPI_ERROR_UNSUPPORTED may be returned from setsockopt.
+ *
+ *  @enum nsapi_option_t
+ */
+enum nsapi_option_t {
+    NSAPI_REUSEADDR, /*!< Allow bind to reuse local addresses */
+    NSAPI_KEEPALIVE, /*!< Enables sending of keepalive messages */
+    NSAPI_LINGER,    /*!< Keeps close from returning until queues empty */
+    NSAPI_SNDBUF,    /*!< Sets send buffer size */
+    NSAPI_RCVBUF,    /*!< Sets recv buffer size */
+};
+
 /** Maximum size of MAC address representation
  */
 #define NSAPI_MAC_SIZE 18
