@@ -240,7 +240,12 @@ if __name__ == '__main__':
         if options.build_dir is not None:
             build_dir = options.build_dir
 
-        target = TARGET_MAP[mcu]
+        try:
+            target = TARGET_MAP[mcu]
+        except KeyError:
+            print "[ERROR] Target %s not supported" % mcu
+            sys.exit(1)
+
         try:
             bin_file = build_project(test.source_dir, build_dir, target, toolchain, test.dependencies, options.options,
                                      linker_script=options.linker_script,
