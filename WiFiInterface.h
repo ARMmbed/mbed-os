@@ -1,4 +1,4 @@
-/* WiFiStack
+/* WiFiInterface
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,11 +33,11 @@ enum nsapi_security_t {
     NSAPI_SECURITY_WPA2,       /*!< phrase conforms to WPA2 */
 };
 
-/** WiFiStack class
+/** WiFiInterface class
  *
  *  Common interface that is shared between WiFi devices
  */
-class WiFiStack : public NetworkStack
+class WiFiInterface
 {
 public:
     /** Start the interface
@@ -57,6 +57,12 @@ public:
      *  @return          0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
+
+    /** Get the local MAC address
+     *
+     *  @return         Null-terminated representation of the local MAC address
+     */
+    virtual const char *get_mac_address() = 0;
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* CellularStack
+/* CellularInterface
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,11 +19,11 @@
  
 #include "NetworkStack.h"
  
-/** CellularStack class
+/** CellularInterface class
  *
  *  Common interface that is shared between ethernet hardware
  */
-class CellularStack : public NetworkStack
+class CellularInterface
 {
 public:
     /** Start the interface
@@ -40,6 +40,12 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
+
+    /** Get the local MAC address
+     *
+     *  @return         Null-terminated representation of the local MAC address
+     */
+    virtual const char *get_mac_address() = 0;
 };
  
 #endif

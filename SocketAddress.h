@@ -28,6 +28,14 @@
  */
 #define NSAPI_IP_BYTES NSAPI_IPv6_BYTES
 
+/** Maximum size of MAC address representation
+ */
+#define NSAPI_MAC_SIZE 18
+
+/** Maximum number of bytes for MAC address
+ */
+#define NSAPI_MAC_BYTES 6
+
 /** Enum of IP address versions
  *
  *  The IP version specifies the type of an IP address.
