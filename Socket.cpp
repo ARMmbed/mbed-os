@@ -53,7 +53,9 @@ int Socket::close()
         return 0;
     }
 
-    void *socket = _socket;
+    _iface->socket_attach(_socket, 0, 0);
+
+    void *volatile socket = _socket;
     _socket = 0;
     return _iface->socket_close(socket);
 }
