@@ -83,7 +83,11 @@ def build_project(src_path, build_path, target, toolchain_name,
     """ This function builds project. Project can be for example one test / UT
     """
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    try:
+        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    except KeyError as e:
+        raise KeyError("Toolchain %s not supported" % toolchain_name)
+
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
