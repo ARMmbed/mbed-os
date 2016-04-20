@@ -14,7 +14,7 @@ CAN can1(D2, D3);
 #elif defined(TARGET_B96B_F446VE)
 // B96B_F446VE support only single CAN channel
 CAN can1(PD_0, PD_1);
-#elif defined(TARGET_NUCLEO_F091RC)
+#elif defined(TARGET_NUCLEO_F091RC) || defined(TARGET_NUCLEO_F072RB)
 CAN can1(PA_11, PA_12);
 #else
 CAN can1(p9, p10);
@@ -50,7 +50,8 @@ int main() {
     ticker.attach(&send, 1);
     CANMessage msg;
     while(1) {
-#if (!defined (TARGET_LPC1549) && !defined(TARGET_B96B_F446VE) && !defined(TARGET_NUCLEO_F091RC))
+#if (!defined (TARGET_LPC1549) && !defined(TARGET_B96B_F446VE) && \
+     !defined(TARGET_NUCLEO_F091RC) && !defined(TARGET_NUCLEO_F072RB))
       printf("loop()\n");
         if(can2.read(msg)) {
             printmsg("Rx message:", &msg);
