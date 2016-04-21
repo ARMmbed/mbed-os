@@ -467,7 +467,6 @@ static void spi_async_write(spi_t *obj)
     } else {
         spi_write(obj, SPI_FILL_WORD);
     }
-    __v7_clean_dcache_all();
 }
 
 static void spi_async_read(spi_t *obj)
