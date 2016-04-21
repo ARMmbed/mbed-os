@@ -292,7 +292,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_STM32F429ZI)
 #define INITIAL_SP            (0x20030000UL)
 
-#elif defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
+#elif defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8)
 #define INITIAL_SP            (0x20002000UL)
 
 #elif defined(TARGET_STM32F072RB)
@@ -325,7 +325,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL}
 #elif defined(TARGET_NZ32_SC151)
 #define INITIAL_SP            (0x20008000UL)
 
-#elif (defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE)) 
+#elif (defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE))
 #define INITIAL_SP            (0x20020000UL)
 
 #elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F030R8)
@@ -533,5 +533,3 @@ void __iar_program_start( void )
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
-
-
