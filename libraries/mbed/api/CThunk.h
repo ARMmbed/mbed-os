@@ -202,7 +202,7 @@ class CThunk
                 uint32_t addr;
                 
                 for (addr = start_addr; addr < end_addr; addr += 0x20) {
-                    __v7_clean_dcache_mva((void *)addr);
+                    __v7_clean_inv_dcache_mva((void *)addr);
                 }
             }
 #endif
