@@ -91,10 +91,12 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     MBED_ASSERT(obj->uart != (UARTName)NC);
 
     // Enable UART clock
+#if defined(USART1_BASE)
     if (obj->uart == UART_1) {
         __HAL_RCC_USART1_CLK_ENABLE();
         obj->index = 0;
     }
+#endif
 
     if (obj->uart == UART_2) {
         __HAL_RCC_USART2_CLK_ENABLE();
@@ -150,11 +152,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 void serial_free(serial_t *obj)
 {
     // Reset UART and disable clock
+#if defined(USART1_BASE)
     if (obj->uart == UART_1) {
         __HAL_RCC_USART1_FORCE_RESET();
         __HAL_RCC_USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_DISABLE();
     }
+#endif
 
     if (obj->uart == UART_2) {
         __HAL_RCC_USART2_FORCE_RESET();
@@ -247,10 +251,12 @@ static void uart_irq(UARTName name, int id)
     }
 }
 
+#if defined(USART1_BASE)
 static void uart1_irq(void)
 {
     uart_irq(UART_1, 0);
 }
+#endif
 
 static void uart2_irq(void)
 {
@@ -289,10 +295,12 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
+#if defined(USART1_BASE)
     if (obj->uart == UART_1) {
         irq_n = USART1_IRQn;
         vector = (uint32_t)&uart1_irq;
     }
+#endif
 
     if (obj->uart == UART_2) {
         irq_n = USART2_IRQn;
