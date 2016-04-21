@@ -29,7 +29,8 @@ DigitalInOut d1(PC_7);
 DigitalInOut d2(PB_8);
 
 #elif defined(TARGET_NUCLEO_F031K6) || \
-      defined(TARGET_NUCLEO_F042K6)
+      defined(TARGET_NUCLEO_F042K6) || \
+      defined(TARGET_NUCLEO_L031K6)
 DigitalInOut d1(A4);
 DigitalInOut d2(A5);
 

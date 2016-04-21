@@ -58,7 +58,8 @@ void in_handler() {
 #define PIN_OUT     PC_7
 
 #elif defined(TARGET_NUCLEO_F031K6) || \
-      defined(TARGET_NUCLEO_F042K6)
+      defined(TARGET_NUCLEO_F042K6) || \
+      defined(TARGET_NUCLEO_L031K6)
 #define PIN_IN      A4
 #define PIN_OUT     A5
 
