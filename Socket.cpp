@@ -109,6 +109,10 @@ int Socket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
 
 }
 
+void Socket::wakeup()
+{
+}
+
 void Socket::thunk(void *data)
 {
     Socket *self = (Socket *)data;

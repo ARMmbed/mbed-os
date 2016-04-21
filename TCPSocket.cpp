@@ -54,6 +54,10 @@ int TCPSocket::send(const void *data, unsigned size)
 {
     mbed::Timer timer;
     timer.start();
+    mbed::Timeout timeout;
+    if (_timeout >= 0) {
+        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    }
 
     while (true) {
         if (!_socket) {
@@ -62,10 +66,11 @@ int TCPSocket::send(const void *data, unsigned size)
 
         int sent = _iface->socket_send(_socket, data, size);
         if (sent != NSAPI_ERROR_WOULD_BLOCK
-            || _timeout < 0
-            || timer.read_ms() > _timeout) {
+            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
             return sent;
         }
+
+        __WFI();
     }
 }
 
@@ -73,6 +78,10 @@ int TCPSocket::recv(void *data, unsigned size)
 {
     mbed::Timer timer;
     timer.start();
+    mbed::Timeout timeout;
+    if (_timeout >= 0) {
+        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    }
 
     while (true) {
         if (!_socket) {
@@ -81,9 +90,10 @@ int TCPSocket::recv(void *data, unsigned size)
     
         int recv = _iface->socket_recv(_socket, data, size);
         if (recv != NSAPI_ERROR_WOULD_BLOCK
-            || _timeout < 0
-            || timer.read_ms() > _timeout) {
+            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
             return recv;
         }
+
+        __WFI();
     }
 }

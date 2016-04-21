@@ -169,6 +169,7 @@ protected:
     int open(NetworkStack *iface, nsapi_protocol_t proto);
 
     static void thunk(void *);
+    static void wakeup();
 
     NetworkStack *_iface;
     void *_socket;

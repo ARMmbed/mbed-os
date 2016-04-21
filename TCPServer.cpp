@@ -44,6 +44,10 @@ int TCPServer::accept(TCPSocket *connection)
 {
     mbed::Timer timer;
     timer.start();
+    mbed::Timeout timeout;
+    if (_timeout >= 0) {
+        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    }
 
     if (connection->_socket) {
         connection->close();
@@ -61,9 +65,10 @@ int TCPServer::accept(TCPSocket *connection)
         }
 
         if (err != NSAPI_ERROR_WOULD_BLOCK
-            || _timeout < 0
-            || timer.read_ms() > _timeout) {
+            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
             return err;
         }
+
+        __WFI();
     }
 }
