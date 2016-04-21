@@ -61,8 +61,9 @@ int TCPSocket::send(const void *data, unsigned size)
         }
 
         int sent = _iface->socket_send(_socket, data, size);
-        if (sent != NSAPI_ERROR_WOULD_BLOCK || !_blocking || 
-            (_timeout && timer.read_ms() > _timeout)) {
+        if (sent != NSAPI_ERROR_WOULD_BLOCK
+            || _timeout < 0
+            || timer.read_ms() > _timeout) {
             return sent;
         }
     }
@@ -79,8 +80,9 @@ int TCPSocket::recv(void *data, unsigned size)
         }
     
         int recv = _iface->socket_recv(_socket, data, size);
-        if (recv != NSAPI_ERROR_WOULD_BLOCK || !_blocking || 
-            (_timeout && timer.read_ms() > _timeout)) {
+        if (recv != NSAPI_ERROR_WOULD_BLOCK
+            || _timeout < 0
+            || timer.read_ms() > _timeout) {
             return recv;
         }
     }

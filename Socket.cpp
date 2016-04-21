@@ -19,8 +19,7 @@
 Socket::Socket()
     : _iface(0)
     , _socket(0)
-    , _blocking(true)
-    , _timeout(0)
+    , _timeout(-1)
 {
 }
 
@@ -83,10 +82,10 @@ int Socket::bind(const SocketAddress &address)
 
 void Socket::set_blocking(bool blocking)
 {
-    _blocking = blocking;
+    set_timeout(blocking ? -1 : 0);
 }
 
-void Socket::set_timeout(unsigned timeout)
+void Socket::set_timeout(int timeout)
 {
     _timeout = timeout;
 }
