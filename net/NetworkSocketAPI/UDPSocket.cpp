@@ -45,6 +45,10 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
 {
     mbed::Timer timer;
     timer.start();
+    mbed::Timeout timeout;
+    if (_timeout >= 0) {
+        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    }
 
     while (true) {
         if (!_socket) {
@@ -53,10 +57,11 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
     
         int sent = _iface->socket_sendto(_socket, address, data, size);
         if (sent != NSAPI_ERROR_WOULD_BLOCK
-            || _timeout < 0
-            || timer.read_ms() > _timeout) {
+            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
             return sent;
         }
+
+        __WFI();
     }
 }
 
@@ -64,6 +69,10 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
 {
     mbed::Timer timer;
     timer.start();
+    mbed::Timeout timeout;
+    if (_timeout >= 0) {
+        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    }
 
     while (true) {
         if (!_socket) {
@@ -72,9 +81,10 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
     
         int recv = _iface->socket_recvfrom(_socket, address, buffer, size);
         if (recv != NSAPI_ERROR_WOULD_BLOCK
-            || _timeout < 0
-            || timer.read_ms() > _timeout) {
+            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
             return recv;
         }
+
+        __WFI();
     }
 }
