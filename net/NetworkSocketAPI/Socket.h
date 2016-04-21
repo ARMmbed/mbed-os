@@ -86,7 +86,10 @@ public:
      *  blocking operations such as send/recv/accept return
      *  NSAPI_ERROR_WOULD_BLOCK if they can not continue.
      *
-     *  @param blocking True for blocking mode, false for non-blocking mode.
+     *  set_blocking(false) is equivalent to set_timeout(-1)
+     *  set_blocking(true) is equivalent to set_timeout(0)
+     *
+     *  @param blocking true for blocking mode, false for non-blocking mode.
      */
     void set_blocking(bool blocking);
     
@@ -94,11 +97,14 @@ public:
      *
      *  Initially all sockets have unbounded timeouts. NSAPI_ERROR_WOULD_BLOCK
      *  is returned if a blocking operation takes longer than the specified
-     *  timeout. A timeout of 0 removes a timeout from the socket.
+     *  timeout. A timeout of -1 removes the timeout from the socket.
+     *
+     *  set_timeout(-1) is equivalent to set_blocking(false)
+     *  set_timeout(0) is equivalent to set_blocking(true)
      *
      *  @param timeout  Timeout in milliseconds
      */
-    void set_timeout(unsigned int timeout);
+    void set_timeout(int timeout);
 
     /*  Set stack-specific socket options
      *
@@ -166,8 +172,7 @@ protected:
 
     NetworkStack *_iface;
     void *_socket;
-    bool _blocking;
-    unsigned _timeout;
+    int _timeout;
     FunctionPointer _callback;
 };
 

@@ -60,8 +60,9 @@ int TCPServer::accept(TCPSocket *connection)
             connection->_socket = socket;
         }
 
-        if (err != NSAPI_ERROR_WOULD_BLOCK || !_blocking || 
-            (_timeout && timer.read_ms() > _timeout)) {
+        if (err != NSAPI_ERROR_WOULD_BLOCK
+            || _timeout < 0
+            || timer.read_ms() > _timeout) {
             return err;
         }
     }

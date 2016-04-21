@@ -52,8 +52,9 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
         }
     
         int sent = _iface->socket_sendto(_socket, address, data, size);
-        if (sent != NSAPI_ERROR_WOULD_BLOCK || !_blocking || 
-            (_timeout && timer.read_ms() > _timeout)) {
+        if (sent != NSAPI_ERROR_WOULD_BLOCK
+            || _timeout < 0
+            || timer.read_ms() > _timeout) {
             return sent;
         }
     }
@@ -70,8 +71,9 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
         }
     
         int recv = _iface->socket_recvfrom(_socket, address, buffer, size);
-        if (recv != NSAPI_ERROR_WOULD_BLOCK || !_blocking || 
-            (_timeout && timer.read_ms() > _timeout)) {
+        if (recv != NSAPI_ERROR_WOULD_BLOCK
+            || _timeout < 0
+            || timer.read_ms() > _timeout) {
             return recv;
         }
     }
