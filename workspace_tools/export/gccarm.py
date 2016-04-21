@@ -95,6 +95,7 @@ class GccArm(Exporter):
         'NUCLEO_L152RE',
         'NRF51_DK',
         'NRF51_DONGLE',
+        'NRF51_MICROBIT',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
         'DELTA_DFCM_NNN40',
