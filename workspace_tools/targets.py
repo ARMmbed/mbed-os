@@ -946,6 +946,19 @@ class NUCLEO_F746ZG(Target):
             }
         }
 
+class NUCLEO_L031K6(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['STM', 'STM32L0', 'STM32L031K6']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["0790"]
+        self.progen = {
+            "target":"nucleo-l031k6",
+        }
+
 class NUCLEO_L053R8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -971,6 +984,7 @@ class NUCLEO_L073RZ(Target):
         self.progen = {
             "target":"nucleo-l073rz",
         }
+
 
 class NUCLEO_L152RE(Target):
     def __init__(self):
@@ -1835,7 +1849,7 @@ class ARM_MPS2_M7(ARM_MPS2_Target):
         self.macros = ['CMSDK_CM7']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
-        
+
 class ARM_IOTSS_Target(Target):
     def __init__(self):
         Target.__init__(self)
@@ -2157,6 +2171,7 @@ TARGETS = [
     NUCLEO_F746ZG(),
     ELMO_F411RE(),
     NUCLEO_F446RE(),
+    NUCLEO_L031K6(),
     NUCLEO_L053R8(),
     NUCLEO_L073RZ(),
     NUCLEO_L152RE(),
@@ -2264,7 +2279,7 @@ TARGETS = [
     SAMD21G18A(),
     SAML21J18A(),
     SAMG55J19(),
-    
+
 ]
 
 # Map each target name to its unique instance
