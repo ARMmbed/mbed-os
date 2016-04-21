@@ -99,6 +99,8 @@ if __name__ == '__main__':
                       default=None, help="Duration of the test")
     parser.add_option("--build", dest="build_dir",
                       default=None, help="The build (output) directory")
+    parser.add_option("-N", "--artifact-name", dest="artifact_name",
+                      default=None, help="The built project's name")
     parser.add_option("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
     parser.add_option("-s", "--serial", dest="serial",
@@ -253,7 +255,8 @@ if __name__ == '__main__':
                                      verbose=options.verbose,
                                      silent=options.silent,
                                      macros=options.macros,
-                                     jobs=options.jobs)
+                                     jobs=options.jobs,
+                                     name=options.artifact_name)
             print 'Image: %s'% bin_file
 
             if options.disk:
