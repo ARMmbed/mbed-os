@@ -59,6 +59,11 @@ public:
                    uint32_t stack_size=DEFAULT_STACK_SIZE,
                    unsigned char *stack_pointer=NULL);
 
+    /** Wait for thread to terminate
+      @return  status code that indicates the execution status of the function.
+    */
+    osStatus join();
+
     /** Terminate execution of a thread and remove it from Active Threads
       @return  status code that indicates the execution status of the function.
     */

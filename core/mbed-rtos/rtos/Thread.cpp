@@ -39,7 +39,7 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
 osStatus Thread::start(void (*task)(void const *argument), void *argument,
         osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
     if (_tid != NULL) {
-        return osErrorResource;
+        return osErrorParameter;
     }
 
 #ifdef __MBED_CMSIS_RTOS_CM
@@ -71,6 +71,20 @@ osStatus Thread::start(void (*task)(void const *argument), void *argument,
 
 osStatus Thread::terminate() {
     return osThreadTerminate(_tid);
+}
+
+osStatus Thread::join() {
+    while (true) {
+        uint8_t state = get_state();
+        if (state == Thread::Inactive || state == osErrorParameter) {
+            return osOK;
+        }
+
+        osStatus status = yield();
+        if (status != osOK) {
+            return status;
+        }
+    }
 }
 
 osStatus Thread::set_priority(osPriority priority) {
