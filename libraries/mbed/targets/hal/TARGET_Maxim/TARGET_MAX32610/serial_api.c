@@ -35,7 +35,9 @@
 #include "mbed_assert.h"
 #include "cmsis.h"
 #include "serial_api.h"
+#include "gpio_api.h"
 #include "uart_regs.h"
+#include "ioman_regs.h"
 #include "PeripheralPins.h"
 
 #define UART_NUM 2
@@ -290,23 +292,76 @@ void serial_clear(serial_t *obj)
     obj->uart->ctrl |= (MXC_F_UART_CTRL_TX_FIFO_FLUSH  | MXC_F_UART_CTRL_RX_FIFO_FLUSH );
 }
 
-
 //******************************************************************************
 void serial_break_set(serial_t *obj)
 {
     // Make sure that nothing is being sent
-    while(obj->uart->status & MXC_F_UART_STATUS_RX_BUSY) {}
+    while (!(obj->uart->status & MXC_F_UART_STATUS_TX_FIFO_EMPTY));
+    while (obj->uart->status & MXC_F_UART_STATUS_TX_BUSY);
 
-    // Disable the clock to pause any transmission
-    obj->uart->ctrl &= ~MXC_F_UART_CTRL_BAUD_CLK_EN ;
+    // Configure the GPIO to outpu 0
+    gpio_t tx_gpio;
+    switch (((UARTName)(obj->uart))) {
+        case UART_0:
+            gpio_init_out(&tx_gpio, UART0_TX);
+            break;
+        case UART_1:
+            gpio_init_out(&tx_gpio, UART1_TX);
+            break;
+        default:
+            gpio_init_out(&tx_gpio, (PinName)NC);
+            break;
+    }
+
+    gpio_write(&tx_gpio, 0);
+
+    // GPIO is setup now, but we need to maps gpio to the pin
+    switch (((UARTName)(obj->uart))) {
+        case UART_0:
+            MXC_IOMAN->uart0_req &= ~MXC_F_IOMAN_UART_CORE_IO;
+            MBED_ASSERT((MXC_IOMAN->uart0_ack & (MXC_F_IOMAN_UART_CORE_IO | MXC_F_IOMAN_UART_CORE_IO)) == 0);
+            break;
+        case UART_1:
+            MXC_IOMAN->uart1_req &= ~MXC_F_IOMAN_UART_CORE_IO;
+            MBED_ASSERT((MXC_IOMAN->uart1_ack & (MXC_F_IOMAN_UART_CORE_IO | MXC_F_IOMAN_UART_CORE_IO)) == 0);
+            break;
+        default:
+            break;
+    }
 }
 
 //******************************************************************************
 void serial_break_clear(serial_t *obj)
 {
-    obj->uart->ctrl |= MXC_F_UART_CTRL_BAUD_CLK_EN;
-}
+    // Configure the GPIO to output 1
+    gpio_t tx_gpio;
+    switch (((UARTName)(obj->uart))) {
+        case UART_0:
+            gpio_init_out(&tx_gpio, UART0_TX);
+            break;
+        case UART_1:
+            gpio_init_out(&tx_gpio, UART1_TX);
+            break;
+        default:
+            gpio_init_out(&tx_gpio, (PinName)NC);
+            break;
+    }
 
+    gpio_write(&tx_gpio, 1);
+
+    // Renable UART
+    switch (((UARTName)(obj->uart))) {
+        case UART_0:
+            serial_pinout_tx(UART0_TX);
+            break;
+        case UART_1:
+            serial_pinout_tx(UART1_TX);
+            break;
+        default:
+            serial_pinout_tx((PinName)NC);
+            break;
+    }
+}
 
 //******************************************************************************
 void serial_pinout_tx(PinName tx)
