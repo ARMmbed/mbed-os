@@ -32,32 +32,80 @@ extern "C" P_TCB rt_tid2ptcb(osThreadId thread_id);
 
 namespace rtos {
 
-Thread::Thread(void (*task)(void const *argument), void *argument,
-        osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
+Thread::Thread(osPriority priority,
+        uint32_t stack_size, unsigned char *stack_pointer):
+        _tid(NULL), _dynamic_stack(stack_pointer == NULL) {
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    _thread_def.pthread = task;
     _thread_def.tpriority = priority;
     _thread_def.stacksize = stack_size;
-    if (stack_pointer != NULL) {
-        _thread_def.stack_pointer = (uint32_t*)stack_pointer;
-        _dynamic_stack = false;
-    } else {
-        _thread_def.stack_pointer = new uint32_t[stack_size/sizeof(uint32_t)];
-        if (_thread_def.stack_pointer == NULL)
+    _thread_def.stack_pointer = (uint32_t*)stack_pointer;
+#endif
+}
+
+Thread::Thread(void (*task)(void const *argument), void *argument,
+        osPriority priority, uint32_t stack_size, unsigned char *stack_pointer):
+        _tid(NULL), _dynamic_stack(stack_pointer == NULL) {
+#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
+    _thread_def.tpriority = priority;
+    _thread_def.stacksize = stack_size;
+    _thread_def.stack_pointer = (uint32_t*)stack_pointer;
+#endif
+    switch (start(task, argument)) {
+        case osErrorResource:
+            error("OS ran out of threads!\n");
+            break;
+        case osErrorParameter:
+            error("Thread already running!\n");
+            break;
+        case osErrorNoMemory:
             error("Error allocating the stack memory\n");
-        _dynamic_stack = true;
+        default:
+            break;
     }
-    
+}
+
+osStatus Thread::start(void (*task)(void const *argument), void *argument) {
+    if (_tid != NULL) {
+        return osErrorParameter;
+    }
+
+#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
+    _thread_def.pthread = task;
+    if (_thread_def.stack_pointer == NULL) {
+        _thread_def.stack_pointer = new uint32_t[_thread_def.stacksize/sizeof(uint32_t)];
+        if (_thread_def.stack_pointer == NULL)
+            return osErrorNoMemory;
+    }
+
     //Fill the stack with a magic word for maximum usage checking
-    for (uint32_t i = 0; i < (stack_size / sizeof(uint32_t)); i++) {
+    for (uint32_t i = 0; i < (_thread_def.stacksize / sizeof(uint32_t)); i++) {
         _thread_def.stack_pointer[i] = 0xE25A2EA5;
     }
 #endif
     _tid = osThreadCreate(&_thread_def, argument);
+    if (_tid == NULL) {
+        if (_dynamic_stack) delete[] (_thread_def.stack_pointer);
+        return osErrorResource;
+    }
+    return osOK;
 }
 
 osStatus Thread::terminate() {
     return osThreadTerminate(_tid);
+}
+
+osStatus Thread::join() {
+    while (true) {
+        uint8_t state = get_state();
+        if (state == Thread::Inactive || state == osErrorParameter) {
+            return osOK;
+        }
+
+        osStatus status = yield();
+        if (status != osOK) {
+            return status;
+        }
+    }
 }
 
 osStatus Thread::set_priority(osPriority priority) {
