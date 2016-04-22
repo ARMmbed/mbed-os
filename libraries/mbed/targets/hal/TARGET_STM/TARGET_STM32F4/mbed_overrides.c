@@ -26,7 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "cmsis.h"
-extern void wait_ms(int ms);
+#include "us_ticker_api.h"
 
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()
@@ -38,17 +38,16 @@ void mbed_sdk_init()
 }
 
 /**
-  * @brief This function provides accurate delay (in milliseconds) based 
+  * @brief This function provides accurate delay (in milliseconds) based
   *        on variable incremented.
-  * @note In the default implementation , SysTick timer is the source of time base.
-  *       It is used to generate interrupts at regular time intervals where uwTick
-  *       is incremented.
-  * @note This function is the modified version of the __weak version contained in 
-  *       stm32f4xx_hal.c
+  * @note This function is the modified version of the __weak version contained in
+  *       stm32f4xx_hal.c, using us_ticker
   * @param Delay: specifies the delay time length, in milliseconds.
   * @retval None
   */
 void HAL_Delay(__IO uint32_t Delay)
 {
-    wait_ms((int)Delay);
+    uint32_t start = us_ticker_read();
+    while ((us_ticker_read() - start) < (uint32_t)(Delay * 1000));
 }
+
