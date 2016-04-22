@@ -30,6 +30,10 @@ namespace rtos {
 /** The Thread class allow defining, creating, and controlling thread functions in the system. */
 class Thread {
 public:
+    /** Allocate a new thread without starting execution
+    */
+    Thread();
+
     /** Create a new thread, and start it executing the specified function.
       @param   task           function to be executed by this thread.
       @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
@@ -41,6 +45,19 @@ public:
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
            unsigned char *stack_pointer=NULL);
+
+    /** Starts a thread executing the specified function.
+      @param   task           function to be executed by this thread.
+      @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
+      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
+      @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
+      @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+      @return  status code that indicates the execution status of the function.
+    */
+    osStatus start(void (*task)(void const *argument), void *argument=NULL,
+                   osPriority priority=osPriorityNormal,
+                   uint32_t stack_size=DEFAULT_STACK_SIZE,
+                   unsigned char *stack_pointer=NULL);
 
     /** Terminate execution of a thread and remove it from Active Threads
       @return  status code that indicates the execution status of the function.

@@ -26,8 +26,22 @@
 
 namespace rtos {
 
+Thread::Thread() {
+    _tid = NULL;
+}
+
 Thread::Thread(void (*task)(void const *argument), void *argument,
         osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
+    _tid = NULL;
+    start(task, argument, priority, stack_size, stack_pointer);
+}
+
+osStatus Thread::start(void (*task)(void const *argument), void *argument,
+        osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
+    if (_tid != NULL) {
+        return osErrorResource;
+    }
+
 #ifdef __MBED_CMSIS_RTOS_CM
     _thread_def.pthread = task;
     _thread_def.tpriority = priority;
@@ -48,6 +62,11 @@ Thread::Thread(void (*task)(void const *argument), void *argument,
     }
 #endif
     _tid = osThreadCreate(&_thread_def, argument);
+    if (_tid == NULL) {
+        return osErrorResource;
+    }
+
+    return osOK;
 }
 
 osStatus Thread::terminate() {
