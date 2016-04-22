@@ -38,8 +38,8 @@ typedef enum {
     PortA = 0,
     PortB = 1,
     PortC = 2,
-		PortD = 3,
-		PortH = 7
+    PortD = 3,
+    PortH = 7
 } PortName;
 
 #ifdef __cplusplus

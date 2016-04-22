@@ -83,7 +83,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == SPI_1) {
         __SPI1_CLK_ENABLE();
     }
-		
+
 #if defined(SPI2_BASE)
     if (obj->spi == SPI_2) {
         __SPI2_CLK_ENABLE();
