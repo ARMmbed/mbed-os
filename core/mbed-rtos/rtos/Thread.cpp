@@ -26,38 +26,42 @@
 
 namespace rtos {
 
-Thread::Thread() {
+Thread::Thread(osPriority priority,
+        uint32_t stack_size, unsigned char *stack_pointer) {
     _tid = NULL;
+    _priority = priority;
+    _stack_size = stack_size;
+    _stack_pointer = stack_pointer;
 }
 
 Thread::Thread(void (*task)(void const *argument), void *argument,
         osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
     _tid = NULL;
-    start(task, argument, priority, stack_size, stack_pointer);
+    _priority = priority;
+    _stack_size = stack_size;
+    _stack_pointer = stack_pointer;
+    start(task, argument);
 }
 
-osStatus Thread::start(void (*task)(void const *argument), void *argument,
-        osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
+osStatus Thread::start(void (*task)(void const *argument), void *argument) {
     if (_tid != NULL) {
         return osErrorParameter;
     }
 
 #ifdef __MBED_CMSIS_RTOS_CM
     _thread_def.pthread = task;
-    _thread_def.tpriority = priority;
-    _thread_def.stacksize = stack_size;
-    if (stack_pointer != NULL) {
-        _thread_def.stack_pointer = (uint32_t*)stack_pointer;
-        _dynamic_stack = false;
+    _thread_def.tpriority = _priority;
+    _thread_def.stacksize = _stack_size;
+    if (_stack_pointer != NULL) {
+        _thread_def.stack_pointer = (uint32_t*)_stack_pointer;
     } else {
-        _thread_def.stack_pointer = new uint32_t[stack_size/sizeof(uint32_t)];
+        _thread_def.stack_pointer = new uint32_t[_stack_size/sizeof(uint32_t)];
         if (_thread_def.stack_pointer == NULL)
             error("Error allocating the stack memory\n");
-        _dynamic_stack = true;
     }
     
     //Fill the stack with a magic word for maximum usage checking
-    for (uint32_t i = 0; i < (stack_size / sizeof(uint32_t)); i++) {
+    for (uint32_t i = 0; i < (_stack_size / sizeof(uint32_t)); i++) {
         _thread_def.stack_pointer[i] = 0xE25A2EA5;
     }
 #endif
@@ -191,7 +195,7 @@ void Thread::attach_idle_hook(void (*fptr)(void)) {
 Thread::~Thread() {
     terminate();
 #ifdef __MBED_CMSIS_RTOS_CM
-    if (_dynamic_stack) {
+    if (_stack_pointer == NULL) {
         delete[] (_thread_def.stack_pointer);
     }
 #endif
