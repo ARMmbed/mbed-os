@@ -566,6 +566,23 @@ class LPC11U37H_401(LPCTarget):
                 "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
             }
         }
+
+class ELEKTOR_COCORICO(LPCTarget):
+    def __init__(self):
+        LPCTarget.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['NXP', 'LPC81X']
+        self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.is_disk_virtual = True
+        # ??? do I need a detect code? self.detect_code = ["1050"]
+        self.progen = {
+            "target":"CoCo-ri-Co!",  # all characters acceptable?
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
+
 ### Freescale ###
 
 class KL05Z(Target):
@@ -2125,6 +2142,7 @@ TARGETS = [
     LPC4330_M0(),
     LPC4337(),
     LPC11U37H_401(),
+    ELEKTOR_COCORICO(),     # LPC812
 
     ### Freescale ###
     KL05Z(),
