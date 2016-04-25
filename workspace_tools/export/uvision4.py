@@ -44,6 +44,8 @@ class Uvision4(Exporter):
             # target is not supported yet
             continue
 
+    def get_toolchain(self):
+        return TARGET_MAP[self.target].default_toolchain
 
     def generate(self):
         """ Generates the project files """
