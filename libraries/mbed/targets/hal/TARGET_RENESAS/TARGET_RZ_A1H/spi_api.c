@@ -321,7 +321,10 @@ static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
         spi_async_read(obj);
     } else {
         if (obj->rx_buff.buffer && obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
-            spi_data[obj->spi.index].event = SPI_EVENT_COMPLETE;
+            spi_data[obj->spi.index].event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
+                spi_data[obj->spi.index].event |= SPI_EVENT_COMPLETE;
+            }
             spi_irqs_set(obj, 0);
             spi_data[obj->spi.index].async_obj = NULL;
             ((void (*)())spi_data[obj->spi.index].async_callback)();
@@ -331,7 +334,10 @@ static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
     }
     if (obj->tx_buff.buffer) {
         if (obj->tx_buff.pos == obj->tx_buff.length) {
-            spi_data[obj->spi.index].event = SPI_EVENT_COMPLETE;
+            spi_data[obj->spi.index].event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
+                spi_data[obj->spi.index].event |= SPI_EVENT_COMPLETE;
+            }
             spi_irqs_set(obj, 0);
             spi_data[obj->spi.index].async_obj = NULL;
             ((void (*)())spi_data[obj->spi.index].async_callback)();
@@ -340,7 +346,10 @@ static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
         }
     } else {
         if (obj->rx_buff.pos == obj->rx_buff.length) {
-            spi_data[obj->spi.index].event = SPI_EVENT_COMPLETE;
+            spi_data[obj->spi.index].event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
+                spi_data[obj->spi.index].event |= SPI_EVENT_COMPLETE;
+            }
             spi_irqs_set(obj, 0);
             spi_data[obj->spi.index].async_obj = NULL;
             ((void (*)())spi_data[obj->spi.index].async_callback)();
