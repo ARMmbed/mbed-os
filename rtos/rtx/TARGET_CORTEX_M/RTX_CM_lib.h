@@ -538,19 +538,27 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
+__attribute__((naked)) void pre_main (void) {
+  __asm (
+    ".syntax unified\n"
+    ".thumb\n"
+    /* Save link register (keep 8 byte alignment with dummy r4) */
+    "push    {r4, lr}\n"
+    "ldr  r0,= __libc_fini_array\n"
+    "bl   atexit\n"
+    "bl   __libc_init_array\n"
+    /* Restore link register and branch so when main returns it
+    * goes to the thread destroy function.
+    */
+    "pop     {r4, lr}\n"
+    "b    main\n"
+  );
+}
+
 __attribute__((naked)) void software_init_hook (void) {
   __asm (
     ".syntax unified\n"
     ".thumb\n"
-    "movs r0,#0\n"
-    "movs r1,#0\n"
-    "mov  r4,r0\n"
-    "mov  r5,r1\n"
-    "ldr  r0,= __libc_fini_array\n"
-    "bl   atexit\n"
-    "bl   __libc_init_array\n"
-    "mov  r0,r4\n"
-    "mov  r1,r5\n"
     "bl   osKernelInitialize\n"
 #ifdef __MBED_CMSIS_RTOS_CM
     "bl   set_main_stack\n"
@@ -559,7 +567,8 @@ __attribute__((naked)) void software_init_hook (void) {
     "movs r1,#0\n"
     "bl   osThreadCreate\n"
     "bl   osKernelStart\n"
-    "bl   exit\n"
+    /* osKernelStart should not return */
+    "B       .\n"
   );
 }
 
