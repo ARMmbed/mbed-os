@@ -124,7 +124,7 @@ int  i2c_byte_read(i2c_t *obj, int last);
 /** Write one byte.
  *  @param obj The i2c object
  *  @param data Byte to be written
- *  @return 1 if NAK was received, 0 if ACK was received, 2 for timeout.
+ *  @return 0 if NAK was received, 1 if ACK was received, 2 for timeout.
  */
 int  i2c_byte_write(i2c_t *obj, int data);
 
