@@ -28,53 +28,57 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fsl_port_hal.h"
-#include "fsl_clock_manager.h"
-#include "fsl_device_registers.h"
-#include "fsl_sim_hal.h"
+#include "fsl_port.h"
 
 /*******************************************************************************
  * Code
  ******************************************************************************/
 void k64f_init_eth_hardware(void)
 {
-    uint8_t count;
+    port_pin_config_t configENET = {0};
 
-    /* Disable the mpu*/
-    BW_MPU_CESR_VLD(MPU_BASE, 0);
-    
-    /* Open POTR clock gate*/
-    for (count = 0; count < HW_PORT_INSTANCE_COUNT; count++)
-    {
-        CLOCK_SYS_EnablePortClock(count);
-    }
+    /* Disable MPU. */
+    MPU->CESR &= ~MPU_CESR_VLD_MASK;
 
-    /* Configure gpio*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 12, kPortMuxAlt4);  /*!< ENET RMII0_RXD1/MII0_RXD1*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 13, kPortMuxAlt4);  /*!< ENET RMII0_RXD0/MII0_RXD0*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 14, kPortMuxAlt4);  /*!< ENET RMII0_CRS_DV/MII0_RXDV*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 15, kPortMuxAlt4);  /*!< ENET RMII0_TXEN/MII0_TXEN*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 16, kPortMuxAlt4);  /*!< ENET RMII0_TXD0/MII0_TXD0*/
-    PORT_HAL_SetMuxMode(PORTA_BASE, 17, kPortMuxAlt4);  /*!< ENET RMII0_TXD01/MII0_TXD1*/
-    PORT_HAL_SetMuxMode(PORTB_BASE, 0, kPortMuxAlt4);   /*!< ENET RMII0_MDIO/MII0_MDIO*/
-    PORT_HAL_SetOpenDrainCmd(PORTB_BASE,0, true);   /*!< ENET RMII0_MDC/MII0_MDC*/
+    CLOCK_EnableClock(kCLOCK_PortC);
+    /* Affects PORTC_PCR16 register */
+    PORT_SetPinMux(PORTC, 16u, kPORT_MuxAlt4);
+    /* Affects PORTC_PCR17 register */
+    PORT_SetPinMux(PORTC, 17u, kPORT_MuxAlt4);
+    /* Affects PORTC_PCR18 register */
+    PORT_SetPinMux(PORTC, 18u, kPORT_MuxAlt4);
+    /* Affects PORTC_PCR19 register */
+    PORT_SetPinMux(PORTC, 19u, kPORT_MuxAlt4);
+    /* Affects PORTB_PCR1 register */
+    PORT_SetPinMux(PORTB, 1u, kPORT_MuxAlt4);
 
-    // Added for FRDM-K64F
-    PORT_HAL_SetPullMode(PORTB_BASE, 0, kPortPullUp);
-    PORT_HAL_SetPullCmd(PORTB_BASE, 0, true);
-  
-    PORT_HAL_SetMuxMode(PORTB_BASE, 1, kPortMuxAlt4);
-    
-#if FSL_FEATURE_ENET_SUPPORT_PTP
-    PORT_HAL_SetMuxMode(PORTC_BASE, (16 + ENET_TIMER_CHANNEL_NUM), kPortMuxAlt4); /* ENET ENET0_1588_TMR0*/
-    PORT_HAL_SetDriveStrengthMode(PORTC_BASE, (16 + ENET_TIMER_CHANNEL_NUM), kPortHighDriveStrength);
-#endif
+    configENET.openDrainEnable = kPORT_OpenDrainEnable;
+    configENET.mux = kPORT_MuxAlt4;
+    configENET.pullSelect = kPORT_PullUp;
+    /* Ungate the port clock */
+    CLOCK_EnableClock(kCLOCK_PortA);
+    /* Affects PORTB_PCR0 register */
+    PORT_SetPinConfig(PORTB, 0u, &configENET);
 
-    /* Open ENET clock gate*/
-    CLOCK_SYS_EnableEnetClock( 0U);
+    /* Affects PORTA_PCR13 register */
+    PORT_SetPinMux(PORTA, 13u, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR12 register */
+    PORT_SetPinMux(PORTA, 12u, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR14 register */
+    PORT_SetPinMux(PORTA, 14u, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR5 register */
+    PORT_SetPinMux(PORTA, 5u, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR16 register */
+    PORT_SetPinMux(PORTA, 16u, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR17 register */
+    PORT_SetPinMux(PORTA, 17u, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR15 register */
+    PORT_SetPinMux(PORTA, 15u, kPORT_MuxAlt4);
+    /* Affects PORTA_PCR28 register */
+    PORT_SetPinMux(PORTA, 28u, kPORT_MuxAlt4);
 
-    /* Select the ptp timer  outclk*/
-    CLOCK_HAL_SetSource(g_simBaseAddr[0], kClockTimeSrc, 2);
+    /* Select the Ethernet timestamp clock source */
+    CLOCK_SetEnetTime0Clock(0x2);
 }
 
 /*******************************************************************************

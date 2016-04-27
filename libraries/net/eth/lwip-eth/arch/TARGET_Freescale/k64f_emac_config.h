@@ -29,18 +29,11 @@
  */
 #ifndef K64F_EMAC_CONFIG_H__
 #define K64F_EMAC_CONFIG_H__
- 
+
+#include "fsl_enet.h"
+
 #define ENET_RX_RING_LEN              (16)
 #define ENET_TX_RING_LEN              (8)
-#define ENET_RX_LARGE_BUFFER_NUM      (0)
-#define ENET_RX_BUFFER_ALIGNMENT      (16)  
-#define ENET_TX_BUFFER_ALIGNMENT      (16)
-#define ENET_BD_ALIGNMENT             (16)
-#define ENET_MII_CLOCK                (2500000L)
-#define RX_BUF_ALIGNMENT              (16)
-#define TX_BUF_ALIGNMENT              (8)
-#define BOARD_DEBUG_ENET_INSTANCE     (0)
-#define BOARD_DEBUG_ENET_INSTANCE_ADDR (ENET_BASE)
 
 #define ENET_ETH_MAX_FLEN             (1522) // recommended size for a VLAN frame
 

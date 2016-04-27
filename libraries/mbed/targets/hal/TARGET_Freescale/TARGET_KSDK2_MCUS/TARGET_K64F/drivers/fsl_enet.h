@@ -506,6 +506,7 @@ struct _enet_handle
     volatile enet_rx_bd_struct_t *rxBdDirty;   /*!< The dirty receive buffer descriptor needed to be updated from. */
     volatile enet_tx_bd_struct_t *txBdBase;    /*!< Transmit buffer descriptor base address pointer. */
     volatile enet_tx_bd_struct_t *txBdCurrent; /*!< The current available transmit buffer descriptor pointer. */
+    volatile enet_tx_bd_struct_t *txBdDirty;   /*!< The dirty transmit buffer descriptor needed to be updated from. */
     uint32_t rxBuffSizeAlign;                  /*!< Receive buffer size alignment. */
     uint32_t txBuffSizeAlign;                  /*!< Transmit buffer size alignment. */
     enet_callback_t callback;                  /*!< Callback function. */

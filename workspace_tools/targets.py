@@ -713,7 +713,7 @@ class HEXIWEAR(Target):
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
         self.is_disk_virtual = True
         self.default_toolchain = "ARM"
-        self.detect_code = ["0240"]
+        self.detect_code = ["0214"]
         self.progen = {
             "target":"hexiwear-k64f",
         }

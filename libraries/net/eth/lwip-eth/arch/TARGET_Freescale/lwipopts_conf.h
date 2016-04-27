@@ -24,6 +24,6 @@
 #define LWIP_TRANSPORT_ETHERNET       1
 #define ETH_PAD_SIZE                  2
 
-#define MEM_SIZE                      (ENET_RX_RING_LEN * (ENET_ETH_MAX_FLEN + RX_BUF_ALIGNMENT) + ENET_TX_RING_LEN * ENET_ETH_MAX_FLEN)
+#define MEM_SIZE                      (ENET_RX_RING_LEN * (ENET_ETH_MAX_FLEN + ENET_BUFF_ALIGNMENT) + ENET_TX_RING_LEN * ENET_ETH_MAX_FLEN)
 
 #endif
