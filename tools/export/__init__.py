@@ -55,7 +55,7 @@ def online_build_url_resolver(url):
 
 
 def export(project_path, project_name, ide, target, destination='/tmp/',
-           tempdir=None, clean=True, extra_symbols=None, zip=True, build_url_resolver=online_build_url_resolver):
+           tempdir=None, clean=True, extra_symbols=None, zip=True, build_url_resolver=online_build_url_resolver, relative=False):
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
         target = target.upper()
@@ -99,7 +99,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
                 # target checked, export
                 try:
                     exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
-                    exporter.scan_and_copy_resources(project_path, tempdir)
+                    exporter.scan_and_copy_resources(project_path, tempdir, relative)
                     exporter.generate()
                     report['success'] = True
                 except OldLibrariesException, e:

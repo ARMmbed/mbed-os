@@ -111,7 +111,7 @@ class Exporter(object):
 
         return resources
 
-    def scan_and_copy_resources(self, prj_path, trg_path):
+    def scan_and_copy_resources(self, prj_path, trg_path, relative=False):
         # Copy only the file for the required target and toolchain
         lib_builds = []
         for src in ['lib', 'src']:
@@ -136,9 +136,13 @@ class Exporter(object):
             fhandle = file(join(hgdir, 'keep.me'), 'a')
             fhandle.close()
 
-        # Final scan of the actual exported resources
-        self.resources = self.toolchain.scan_resources(trg_path)
-        self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
+        if not relative:
+            # Final scan of the actual exported resources
+            self.resources = self.toolchain.scan_resources(trg_path)
+            self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
+        else:
+            # use the prj_dir (source, not destination)
+            self.resources = self.toolchain.scan_resources(prj_path)
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
