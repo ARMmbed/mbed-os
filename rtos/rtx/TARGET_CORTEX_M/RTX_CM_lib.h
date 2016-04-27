@@ -269,8 +269,8 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
  *---------------------------------------------------------------------------*/
 
 /* Main Thread definition */
-extern int main (void);
-osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 1U, 0U, NULL};
+extern void pre_main (void);
+osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 0U, NULL};
 
 // This define should be probably moved to the CMSIS layer
 #if   defined(TARGET_LPC1768)
@@ -460,6 +460,32 @@ void _main_init (void) {
 }
 #else
 
+void * armcc_heap_base;
+void * armcc_heap_top;
+
+__asm void pre_main (void)
+{
+  IMPORT  __rt_lib_init
+  IMPORT  main
+  IMPORT  armcc_heap_base
+  IMPORT  armcc_heap_top
+
+  LDR     R0,=armcc_heap_base
+  LDR     R1,=armcc_heap_top
+  LDR     R0,[R0]
+  LDR     R1,[R1]
+  /* Save link register (keep 8 byte alignment with dummy r4) */
+  push    {r4, lr}
+  BL      __rt_lib_init
+  /* Restore link register and branch so when main returns it
+   * goes to the thread destroy function.
+   */
+  pop     {r4, lr}
+  B       main
+
+  ALIGN
+}
+
 /* The single memory model is checking for stack collision at run time, verifing
    that the heap pointer is underneath the stack pointer.
 
@@ -471,7 +497,8 @@ void _main_init (void) {
 __asm void __rt_entry (void) {
 
   IMPORT  __user_setup_stackheap
-  IMPORT  __rt_lib_init
+  IMPORT  armcc_heap_base
+  IMPORT  armcc_heap_top
   IMPORT  os_thread_def_main
   IMPORT  osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
@@ -479,11 +506,20 @@ __asm void __rt_entry (void) {
 #endif
   IMPORT  osKernelStart
   IMPORT  osThreadCreate
-  IMPORT  exit
 
+  /* __user_setup_stackheap returns:
+   * - Heap base in r0 (if the program uses the heap).
+   * - Stack base in sp.
+   * - Heap limit in r2 (if the program uses the heap and uses two-region memory).
+   *
+   * More info can be found in:
+   * ARM Compiler ARM C and C++ Libraries and Floating-Point Support User Guide
+   */
   BL      __user_setup_stackheap
-  MOV     R1,R2
-  BL      __rt_lib_init
+  LDR     R3,=armcc_heap_base
+  LDR     R4,=armcc_heap_top
+  STR     R0,[R3]
+  STR     R2,[R4]
   BL      osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
   BL      set_main_stack
@@ -492,7 +528,8 @@ __asm void __rt_entry (void) {
   MOVS    R1,#0
   BL      osThreadCreate
   BL      osKernelStart
-  BL      exit
+  /* osKernelStart should not return */
+  B       .
 
   ALIGN
 }
