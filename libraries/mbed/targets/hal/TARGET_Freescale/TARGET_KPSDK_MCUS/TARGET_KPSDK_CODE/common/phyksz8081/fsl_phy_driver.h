@@ -58,7 +58,7 @@ typedef enum _phy_status
 /*! @brief Defines the ENET timeout.*/
 typedef enum _phy_timeout
 {
-    kPhyTimeout = 0x10000, /*!< ENET resets timeout.*/
+    kPhyTimeout = 0x800, /*!< ENET resets timeout: 0x800 represents around 2 seconds */
 } phy_timeout_t;
 
 /*! @brief Defines the PHY register.*/

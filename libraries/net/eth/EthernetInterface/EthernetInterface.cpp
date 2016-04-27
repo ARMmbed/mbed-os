@@ -22,6 +22,7 @@
 #include "lwip/netif.h"
 #include "netif/etharp.h"
 #include "lwip/dhcp.h"
+#include "lwip/dns.h"
 #include "eth_arch.h"
 #include "lwip/tcpip.h"
 
@@ -33,8 +34,10 @@ static struct netif netif;
 static char mac_addr[19];
 static char ip_addr[17] = "\0";
 static char gateway[17] = "\0";
+static char dns_addr[17] = "\0";
 static char networkmask[17] = "\0";
 static bool use_dhcp = false;
+static bool set_dns = false;
 
 static Semaphore tcpip_inited(0);
 static Semaphore netif_linked(0);
@@ -59,16 +62,19 @@ static void netif_status_callback(struct netif *netif) {
     }
 }
 
-static void init_netif(ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gw) {
+static int init_netif(ip_addr_t *ipaddr, ip_addr_t *netmask, ip_addr_t *gw) {
     tcpip_init(tcpip_init_done, NULL);
     tcpip_inited.wait();
-    
     memset((void*) &netif, 0, sizeof(netif));
-    netif_add(&netif, ipaddr, netmask, gw, NULL, eth_arch_enetif_init, tcpip_input);
+    struct netif * ret;
+    ret = netif_add(&netif, ipaddr, netmask, gw, NULL, eth_arch_enetif_init, tcpip_input);
+    if( ret == NULL) {
+        return -1;
+    }
     netif_set_default(&netif);
-    
     netif_set_link_callback  (&netif, netif_link_callback);
     netif_set_status_callback(&netif, netif_status_callback);
+    return 0;
 }
 
 static void set_mac_address(void) {
@@ -85,23 +91,23 @@ static void set_mac_address(void) {
 int EthernetInterface::init() {
     use_dhcp = true;
     set_mac_address();
-    init_netif(NULL, NULL, NULL);
-    return 0;
+    return init_netif(NULL, NULL, NULL);
 }
 
-int EthernetInterface::init(const char* ip, const char* mask, const char* gateway) {
+int EthernetInterface::init(const char* ip, const char* mask, const char* gateway, const char * dns) {
     use_dhcp = false;
     
     set_mac_address();
     strcpy(ip_addr, ip);
-    
+    if (dns != NULL) {
+        set_dns = true;
+        strcpy(dns_addr, dns);
+    }
     ip_addr_t ip_n, mask_n, gateway_n;
     inet_aton(ip, &ip_n);
     inet_aton(mask, &mask_n);
     inet_aton(gateway, &gateway_n);
-    init_netif(&ip_n, &mask_n, &gateway_n);
-    
-    return 0;
+    return init_netif(&ip_n, &mask_n, &gateway_n);
 }
 
 int EthernetInterface::connect(unsigned int timeout_ms) {
@@ -116,11 +122,22 @@ int EthernetInterface::connect(unsigned int timeout_ms) {
         inited = netif_up.wait(timeout_ms);
     } else {
         netif_set_up(&netif);
-        
         // Wait for the link up
-        inited = netif_linked.wait(timeout_ms);
+        Timer timeout;
+        timeout.start();
+        while(timeout.read_ms() < timeout_ms) {
+            if (netif.flags & NETIF_FLAG_LINK_UP) {
+                inited = 1;
+                break;
+            }
+        }
+        if (set_dns) {
+            ip_addr_t dns_n;
+            inet_aton(dns_addr, &dns_n);
+            dns_setserver(0, &dns_n);
+        }
     }
-    
+
     return (inited > 0) ? (0) : (-1);
 }
 

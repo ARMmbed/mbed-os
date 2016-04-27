@@ -45,7 +45,7 @@ public:
   * \param gateway the gateway to use
   * \return 0 on success, a negative number on failure
   */
-  static int init(const char* ip, const char* mask, const char* gateway);
+  static int init(const char* ip, const char* mask, const char* gateway, const char * dns = NULL);
 
   /** Connect
   * Bring the interface up, start DHCP if needed.
