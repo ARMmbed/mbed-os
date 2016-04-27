@@ -590,7 +590,7 @@ class K64F(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "ENET_ENHANCEDBUFFERDESCRIPTOR_MODE"]
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True

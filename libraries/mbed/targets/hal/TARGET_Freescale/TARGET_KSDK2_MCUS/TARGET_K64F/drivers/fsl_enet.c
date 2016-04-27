@@ -295,20 +295,7 @@ void ENET_Init(ENET_Type *base,
     assert(bufferConfig->rxBdStartAddrAlign);
     assert(bufferConfig->txBdStartAddrAlign);
     assert(bufferConfig->rxBufferAlign);
-    assert(bufferConfig->txBufferAlign);
     assert(macAddr);
-    assert(bufferConfig->rxBuffSizeAlign >= ENET_RX_MIN_BUFFERSIZE);
-
-    /* Make sure the buffers should be have the capability of process at least one maximum frame. */
-    if (config->macSpecialConfig & kENET_ControlVLANTagEnable)
-    {
-        assert(bufferConfig->txBuffSizeAlign * bufferConfig->txBdNumber > ENET_FRAME_MAX_VALNFRAMELEN);
-    }
-    else
-    {
-        assert(bufferConfig->txBuffSizeAlign * bufferConfig->txBdNumber > ENET_FRAME_MAX_FRAMELEN);
-        assert(bufferConfig->rxBuffSizeAlign * bufferConfig->rxBdNumber > config->rxMaxFrameLen);
-    }
 
     uint32_t instance = ENET_GetInstance(base);
 
@@ -339,6 +326,7 @@ void ENET_Init(ENET_Type *base,
     handle->rxBdDirty = bufferConfig->rxBdStartAddrAlign;
     handle->txBdBase = bufferConfig->txBdStartAddrAlign;
     handle->txBdCurrent = bufferConfig->txBdStartAddrAlign;
+    handle->txBdDirty = bufferConfig->txBdStartAddrAlign;
     handle->rxBuffSizeAlign = bufferConfig->rxBuffSizeAlign;
     handle->txBuffSizeAlign = bufferConfig->txBuffSizeAlign;
 
@@ -496,15 +484,22 @@ static void ENET_SetTxBufferDescriptors(volatile enet_tx_bd_struct_t *txBdStartA
                                         uint32_t txBdNumber)
 {
     assert(txBdStartAlign);
-    assert(txBuffStartAlign);
 
     uint32_t count;
     volatile enet_tx_bd_struct_t *curBuffDescrip = txBdStartAlign;
 
     for (count = 0; count < txBdNumber; count++)
     {
-        /* Set data buffer address. */
-        curBuffDescrip->buffer = (uint8_t *)((uint32_t)&txBuffStartAlign[count * txBuffSizeAlign]);
+        if (txBuffSizeAlign != NULL)
+        {
+            /* Set data buffer address. */
+            curBuffDescrip->buffer = (uint8_t *)((uint32_t)&txBuffStartAlign[count * txBuffSizeAlign]);
+        }
+        else
+        {
+            /* User should provide the transmit buffer at a later time */
+            curBuffDescrip->buffer = NULL;
+        }
         /* Initializes data length. */
         curBuffDescrip->length = 0;
         /* Sets the crc. */
@@ -540,7 +535,7 @@ static void ENET_SetRxBufferDescriptors(volatile enet_rx_bd_struct_t *rxBdStartA
     for (count = 0; count < rxBdNumber; count++)
     {
         /* Set data buffer and the length. */
-        curBuffDescrip->buffer = (uint8_t *)((uint32_t)&rxBuffStartAlign[count * rxBuffSizeAlign]);
+        curBuffDescrip->buffer = (uint8_t *)(*((uint32_t *)(rxBuffStartAlign + count * 4)));
         curBuffDescrip->length = 0;
 
         /* Initializes the buffer descriptors with empty bit. */
