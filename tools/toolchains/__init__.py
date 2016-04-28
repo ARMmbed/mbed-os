@@ -356,7 +356,7 @@ class mbedToolchain:
         bottom-up mode the directories in dirnames are generated before dirpath
         itself is generated.
         """
-        for root, dirs, files in walk(path):
+        for root, dirs, files in walk(path, followlinks=True):
             # Remove ignored directories
             for d in copy(dirs):
                 dir_path = join(root, d)
