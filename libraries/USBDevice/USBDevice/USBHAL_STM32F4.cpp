@@ -367,7 +367,7 @@ void USBHAL::usbisr(void) {
             else {
                 epComplete |= (1 << endpoint);
                 if ((instance->*(epCallback[endpoint - 2]))()) {
-                    epComplete &= (1 << endpoint);
+                    epComplete &= ~(1 << endpoint);
                 }
             }
         }
