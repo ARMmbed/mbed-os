@@ -575,9 +575,9 @@ class ELEKTOR_COCORICO(LPCTarget):
         self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
-        # ??? do I need a detect code? self.detect_code = ["1050"]
+        self.detect_code = ["1050"]
         self.progen = {
-            "target":"CoCo-ri-Co!",  # all characters acceptable?
+            "target":"cocorico",
             "uvision": {
                 "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
             }
