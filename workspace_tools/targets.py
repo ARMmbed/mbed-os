@@ -575,7 +575,7 @@ class ELEKTOR_COCORICO(LPCTarget):
         self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
-        self.detect_code = ["1050"]
+        self.detect_code = ["C000"]
         self.progen = {
             "target":"cocorico",
             "uvision": {
