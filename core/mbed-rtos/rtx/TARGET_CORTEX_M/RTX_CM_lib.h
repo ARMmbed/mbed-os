@@ -568,6 +568,15 @@ extern void __iar_dynamic_initialization(void);
 extern void mbed_sdk_init(void);
 extern void exit(int arg);
 
+static uint8_t low_level_init_needed;
+
+void pre_main(void) {
+    if (low_level_init_needed) {
+        __iar_dynamic_initialization();
+    }
+    main();
+}
+
 #pragma required=__vector_table
 void __iar_program_start( void )
 {
@@ -575,22 +584,24 @@ void __iar_program_start( void )
   __iar_init_core();
   __iar_init_vfp();
 
-  int a;
+  uint8_t low_level_init_needed_local;
 
-  if (__low_level_init() != 0) {
+  low_level_init_needed_local = __low_level_init();
+  if (low_level_init_needed_local) {
     __iar_data_init3();
     mbed_sdk_init();
-    __iar_dynamic_initialization();
   }
+  /* Store in a global variable after RAM has been initialized */
+  low_level_init_needed = low_level_init_needed_local;
 #endif
   osKernelInitialize();
 #ifdef __MBED_CMSIS_RTOS_CM
   set_main_stack();
 #endif
   osThreadCreate(&os_thread_def_main, NULL);
-  a = osKernelStart();
-  exit(a);
-
+  osKernelStart();
+  /* osKernelStart should not return */
+  while (1);
 }
 
 #endif
