@@ -433,7 +433,11 @@ void set_main_stack(void) {
 #if defined (__CC_ARM)
 
 #ifdef __MICROLIB
+
+int main(void);
 void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
+void $Super$$__cpp_initialize__aeabi_(void);
+
 void _main_init (void) {
   osKernelInitialize();
 #ifdef __MBED_CMSIS_RTOS_CM
@@ -443,6 +447,19 @@ void _main_init (void) {
   osKernelStart();
   for (;;);
 }
+
+void $Sub$$__cpp_initialize__aeabi_(void)
+{
+  // this should invoke C++ initializers prior _main_init, we keep this empty and
+  // invoke them after _main_init (=starts RTX kernel)
+}
+
+void pre_main()
+{
+  $Super$$__cpp_initialize__aeabi_();
+  main();
+}
+
 #else
 
 void * armcc_heap_base;
