@@ -685,7 +685,12 @@ class mbedToolchain:
             if self.target.OUTPUT_NAMING == "8.3":
                 name = name[0:8]
                 ext = ext[0:3]
-
+        
+        # Create destination directory
+        head, tail =  split(name)
+        new_path = join(tmp_path, head)
+        mkdir(new_path)
+        
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
