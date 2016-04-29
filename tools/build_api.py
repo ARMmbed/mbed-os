@@ -22,7 +22,7 @@ import colorama
 
 from types import ListType
 from shutil import rmtree
-from os.path import join, exists, basename
+from os.path import join, exists, basename, abspath
 from os import getcwd
 from time import time
 
@@ -188,7 +188,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
 
 def build_library(src_paths, build_path, target, toolchain_name,
-         dependencies_paths=None, options=None, name=None, clean=False,
+         dependencies_paths=None, options=None, name=None, clean=False, archive=True,
          notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None,
          jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
     """ src_path: the path of the source directory
@@ -206,7 +206,10 @@ def build_library(src_paths, build_path, target, toolchain_name,
         src_paths = [src_paths]
 
     # The first path will give the name to the library
-    name = basename(src_paths[0])
+    project_name = basename(src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd())
+    if name is None:
+        # We will use default project name based on project folder name
+        name = project_name
 
     if report != None:
         start = time()
@@ -238,7 +241,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.jobs = jobs
         toolchain.build_all = clean
 
-        toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+        toolchain.info("Building library %s (%s, %s)" % (name, target.name, toolchain_name))
 
         # Scan Resources
         resources = []
@@ -262,23 +265,28 @@ def build_library(src_paths, build_path, target, toolchain_name,
         if inc_dirs:
             dependencies_include_dir.extend(inc_dirs)
 
-        # Create the desired build directory structure
-        bin_path = join(build_path, toolchain.obj_path)
-        mkdir(bin_path)
-        tmp_path = join(build_path, '.temp', toolchain.obj_path)
-        mkdir(tmp_path)
+        if archive:
+            # Use temp path when building archive
+            tmp_path = join(build_path, '.temp')
+            mkdir(tmp_path)
+        else:
+            tmp_path = build_path
 
         # Copy Headers
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-        dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+            if resource.linker_script:
+                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
 
         # Compile Sources
         objects = []
         for resource in resources:
-            objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies_include_dir))
+            objects.extend(toolchain.compile_sources(resource, abspath(tmp_path), dependencies_include_dir))
 
-        needed_update = toolchain.build_library(objects, bin_path, name)
+        if archive:
+            needed_update = toolchain.build_library(objects, build_path, name)
+        else:
+            needed_update = True
 
         if report != None and needed_update:
             end = time()

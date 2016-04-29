@@ -63,7 +63,7 @@ if __name__ == '__main__':
                       type="int",
                       dest="jobs",
                       default=1,
-                      help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
+                      help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
     parser.add_option("-v", "--verbose",
                       action="store_true",

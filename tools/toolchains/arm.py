@@ -15,12 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, dirname
+from os.path import join, dirname, basename
 
 from tools.toolchains import mbedToolchain
-from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
+from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB, GOANNA_PATH
 from tools.hooks import hook_tool
-from tools.settings import GOANNA_PATH
+from tools.utils import mkdir
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -115,13 +115,12 @@ class ARM(mbedToolchain):
     def get_dep_opt(self, dep_path):
         return ["--depend", dep_path]
 
-    def archive(self, objects, lib_path):
-        self.default_cmd([self.ar, '-r', lib_path] + objects)
-
     @hook_tool
     def assemble(self, source, object, includes):
         # Preprocess first, then assemble
-        tempfile = object + '.E.s'
+        dir = join(dirname(object), '.temp')
+        mkdir(dir)
+        tempfile = join(dir, basename(object) + '.E.s')
         
         # Build preprocess assemble command
         cmd_pre = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source]
@@ -159,12 +158,26 @@ class ARM(mbedToolchain):
             cmd_linker = cmd[0]
             cmd_list = []
             for c in cmd[1:]:
-                cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
+                if c:
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
             string = " ".join(cmd_list).replace("\\", "/")
             f.write(string)
 
         # Exec command
         self.default_cmd([cmd_linker, '--via', link_files])
+
+    @hook_tool
+    def archive(self, objects, lib_path):
+        archive_files = join(dirname(lib_path), ".archive_files.txt")
+        with open(archive_files, "wb") as f:
+            o_list = []
+            for o in objects:
+                o_list.append('"%s"' % o)                    
+            string = " ".join(o_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([self.ar, '-r', lib_path, '--via', archive_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):

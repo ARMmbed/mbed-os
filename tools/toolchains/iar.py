@@ -115,15 +115,12 @@ class IAR(mbedToolchain):
         return [cmd]
 
     @hook_tool
-    def archive(self, objects, lib_path):
-        if exists(lib_path):
-            remove(lib_path)
-        self.default_cmd([self.ar, lib_path] + objects)
-
-    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
-        cmd = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization"] + objects + libraries
+        cmd = [self.ld, "-o", output, "--skip_dynamic_initialization"] + objects + libraries
+
+        if mem_map:
+            args.extend(["--config", mem_map])
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_linker(cmd)
@@ -134,12 +131,28 @@ class IAR(mbedToolchain):
             cmd_linker = cmd[0]
             cmd_list = []
             for c in cmd[1:]:
-                cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
+                if c:
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
             string = " ".join(cmd_list).replace("\\", "/")
             f.write(string)
 
         # Exec command
         self.default_cmd([cmd_linker, '-f', link_files])
+
+    @hook_tool
+    def archive(self, objects, lib_path):
+        archive_files = join(dirname(lib_path), ".archive_files.txt")
+        with open(archive_files, "wb") as f:
+            o_list = []
+            for o in objects:
+                o_list.append('"%s"' % o)                    
+            string = " ".join(o_list).replace("\\", "/")
+            f.write(string)
+
+        if exists(lib_path):
+            remove(lib_path)
+
+        self.default_cmd([self.ar, lib_path, '-f', archive_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):

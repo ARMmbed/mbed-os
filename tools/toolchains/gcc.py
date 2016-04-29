@@ -161,13 +161,6 @@ class GCC(mbedToolchain):
                     message + match.group('message')
                 )
 
-    def archive(self, objects, lib_path):
-        # Build archive command
-        cmd = [self.ar, "rcs", lib_path] + objects
-        
-        # Exec cmd
-        self.default_cmd(cmd)
-
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
@@ -195,7 +188,11 @@ class GCC(mbedToolchain):
             libs.extend(libs)
         
         # Build linker command
-        cmd = self.ld + ["-T", mem_map, "-o", output] + objects
+        cmd = self.ld + ["-o", output] + objects
+        
+        if mem_map:
+            cmd.extend(['-T', mem_map])
+            
         for L in lib_dirs:
             cmd.extend(['-L', L])
         cmd.extend(libs)
@@ -209,12 +206,26 @@ class GCC(mbedToolchain):
             cmd_linker = cmd[0]
             cmd_list = []
             for c in cmd[1:]:
-                cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)   
+                if c:
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)   
             string = " ".join(cmd_list).replace("\\", "/")
             f.write(string)
 
         # Exec command
         self.default_cmd([cmd_linker, "@%s" % link_files])
+
+    @hook_tool
+    def archive(self, objects, lib_path):
+        archive_files = join(dirname(lib_path), ".archive_files.txt")
+        with open(archive_files, "wb") as f:
+            o_list = []
+            for o in objects:
+                o_list.append('"%s"' % o)                    
+            string = " ".join(o_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([self.ar, 'rcs', lib_path, "@%s" % archive_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):

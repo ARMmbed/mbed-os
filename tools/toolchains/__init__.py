@@ -472,12 +472,7 @@ class mbedToolchain:
     def relative_object_path(self, build_path, base_dir, source):
         source_dir, name, _ = split_path(source)
         
-        if build_path.startswith(base_dir):
-            # absolute path
-            obj_dir = join(build_path, relpath(source_dir, base_dir))
-        else:
-            # relative path
-            obj_dir = join(base_dir, build_path)
+        obj_dir = join(build_path, relpath(source_dir, base_dir))
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
 
