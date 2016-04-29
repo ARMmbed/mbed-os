@@ -1,7 +1,13 @@
 #include "mbed.h"
 #include "test_env.h"
 
-#if defined(TARGET_DISCO_F429ZI)
+#if defined(TARGET_VK_RZ_A1H)
+#define LOOPCNT    1
+namespace {
+BusOut bus_out(LED1);
+PinName led_pins[1] = {LED1}; // Temp, used to map pins in bus_out
+}
+#elif defined(TARGET_DISCO_F429ZI)
 #define LOOPCNT    2
 namespace {
 BusOut bus_out(LED1, LED2);
@@ -25,10 +31,12 @@ int main()
         const int mask = bus_out.mask();
         int led_mask = 0x00;
         if (LED1 != NC) led_mask |= 0x01;
+#if !defined(TARGET_VK_RZ_A1H)
         if (LED2 != NC) led_mask |= 0x02;
 #if !defined(TARGET_DISCO_F429ZI)
         if (LED3 != NC) led_mask |= 0x04;
         if (LED4 != NC) led_mask |= 0x08;
+#endif
 #endif
 
         printf("MBED: BusIn mask: 0x%X\r\n", mask);

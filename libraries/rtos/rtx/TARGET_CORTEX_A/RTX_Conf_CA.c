@@ -117,7 +117,7 @@
 //   <i> Defines the timer clock value.
 //   <i> Default: 12000000  (12MHz)
 #ifndef OS_CLOCK
-#  if defined(TARGET_RZ_A1H)
+#  if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
  #define OS_CLOCK       12000000
 #  else
 #    error "no target defined"
@@ -234,7 +234,7 @@ void os_idle_demon (void) {
 #if (OS_SYSTICK == 0)   // Functions for alternative timer as RTX kernel timer
 
 /*--------------------------- os_tick_init ----------------------------------*/
-#ifdef TARGET_RZ_A1H
+#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
 #define OSTM0   (0xFCFEC000uL) /* OSTM0 */
 #define OSTM1   (0xFCFEC400uL) /* OSTM1 */
 #define CPG     (0xFCFE0410uL) /* CPG */
@@ -275,7 +275,7 @@ extern uint32_t InterruptHandlerRegister (IRQn_Type irq, IRQHandler handler);
 // Initialize alternative hardware timer as RTX kernel timer
 // Return: IRQ number of the alternative hardware timer
 int os_tick_init (void) {
-#ifdef TARGET_RZ_A1H
+#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
   CPGSTBCR5 &= ~(CPG_STBCR5_BIT_MSTP51); /* enable OSTM0 clock */
 
   OSTM0TT   = 0x1;    /* Stop the counter and clears the OSTM0TE bit.     */
