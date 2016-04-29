@@ -145,7 +145,7 @@ typedef enum {
     SPI_MISO    = PB_4,
     SPI_SCK     = PB_3,
     SPI_CS      = PA_11,
-    PWM_OUT     = PB_3,
+    PWM_OUT     = PB_0,
 
     // Not connected
     NC = (int)0xFFFFFFFF
