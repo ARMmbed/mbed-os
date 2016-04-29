@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -181,7 +181,7 @@ typedef struct
   * @retval None
   */
 #define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
-                                                            __IO uint32_t tmpreg;                               \
+                                                          __IO uint32_t tmpreg = 0x00;                               \
                                                             MODIFY_REG(PWR->CR1, PWR_CR1_VOS, (__REGULATOR__)); \
                                                             /* Delay after an RCC peripheral clock enabling */  \
                                                             tmpreg = READ_BIT(PWR->CR1, PWR_CR1_VOS);           \

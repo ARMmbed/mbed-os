@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,11 +50,11 @@
   * @{
   */
 
-/** @defgroup PWREx PWR extented module
+/** @defgroup PWREx PWREx
   * @{
   */
 
-/** @defgroup PWREx_Exported_Macros PWRex exported macros
+/** @defgroup PWREx_Exported_Macros PWREx Exported Macros
  * @{
  */
 
@@ -75,7 +75,7 @@
   * @}
   */
 
-/** @defgroup PWREx_Exported_Functions PWRex exported functions
+/** @defgroup PWREx_Exported_Functions PWREx Exported Functions
  * @{
  */
 void HAL_PWREx_EnableFastWakeUp(void);
@@ -87,6 +87,16 @@ HAL_StatusTypeDef HAL_PWREx_DisableLowPowerRunMode(void);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup PWREx_Private PWREx Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

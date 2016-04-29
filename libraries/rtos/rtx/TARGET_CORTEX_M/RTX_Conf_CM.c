@@ -57,7 +57,7 @@
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_STM32F303RE) || defined(TARGET_STM32F303K8) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO) || defined(TARGET_LPC1114) \
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL26Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) \
-   || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
+   || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
    || defined(TARGET_SSCI824)  || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)
 #    define OS_TASKCNT         6
 #  else
@@ -77,7 +77,7 @@
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
    || defined(TARGET_SSCI824) || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)
 #      define OS_SCHEDULERSTKSIZE    128
-#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ)
+#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ)
 #      define OS_SCHEDULERSTKSIZE    112
 #  else
 #    error "no target defined"
@@ -172,7 +172,7 @@
 #elif defined(TARGET_STM32F302R8)
 #    define OS_CLOCK       72000000
 
-#elif defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ)
+#elif defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ)
 #    define OS_CLOCK       32000000
 
 #elif defined(TARGET_STM32F401VC)
@@ -305,17 +305,12 @@
 /*----------------------------------------------------------------------------
  *      OS Idle daemon
  *---------------------------------------------------------------------------*/
-void os_idle_demon (void) {
-  /* The idle demon is a system thread, running when no other thread is      */
-  /* ready to run.                                                           */
+extern void rtos_idle_loop(void);
 
-  /* Sleep: ideally, we should put the chip to sleep.
-     Unfortunately, this usually requires disconnecting the interface chip (debugger).
-     This can be done, but it would break the local file system.
-  */
-  for (;;) {
-      // sleep();
-  }
+void os_idle_demon (void) {
+    /* The idle demon is a system thread, running when no other thread is      */
+    /* ready to run.                                                           */
+    rtos_idle_loop();
 }
 
 /*----------------------------------------------------------------------------
@@ -344,4 +339,3 @@ void sysThreadError(osStatus status) {
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
-

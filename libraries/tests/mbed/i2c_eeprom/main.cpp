@@ -62,7 +62,8 @@ I2C i2c(I2C_SDA0, I2C_SCL0);
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE) || \
-      defined(TARGET_FF_ARDUINO)
+      defined(TARGET_FF_ARDUINO)    || \
+      defined(TARGET_VK_RZ_A1H)
 I2C i2c(I2C_SDA, I2C_SCL);
 
 #else

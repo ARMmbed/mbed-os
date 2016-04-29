@@ -124,7 +124,12 @@ int SPI::queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, i
     if (_transaction_buffer.full()) {
         return -1; // the buffer is full
     } else {
+        __disable_irq();
         _transaction_buffer.push(transaction);
+        if (!spi_active(&_spi)) {
+            dequeue_transaction();
+        }
+        __enable_irq();
         return 0;
     }
 #else

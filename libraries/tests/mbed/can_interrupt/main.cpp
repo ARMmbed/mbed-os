@@ -1,8 +1,8 @@
+#include "mbed.h"
+
 #if !DEVICE_CAN
   #error [NOT_SUPPORTED] CAN not supported
 #endif
-
-#include "mbed.h"
 
 Ticker ticker;
 DigitalOut led1(LED1);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of TIM HAL Extension module.
   ******************************************************************************
   * @attention
@@ -123,8 +123,7 @@ typedef struct
 
 /**
   * @}
-  */
-  
+  */  
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup TIMEx_Exported_Constants  TIMEx Exported Constants
   * @{
@@ -261,6 +260,7 @@ typedef struct
 /**
   * @}
   */
+
 /**
   * @}
   */
@@ -291,7 +291,7 @@ typedef struct
  ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCR3 = (__COMPARE__)) :\
  ((__CHANNEL__) == TIM_CHANNEL_4) ? ((__HANDLE__)->Instance->CCR4 = (__COMPARE__)) :\
  ((__CHANNEL__) == TIM_CHANNEL_5) ? ((__HANDLE__)->Instance->CCR5 = (__COMPARE__)) :\
- ((__HANDLE__)->Instance->CCR6 |= (__COMPARE__)))
+ ((__HANDLE__)->Instance->CCR6 = (__COMPARE__)))
 
 /**
   * @brief  Gets the TIM Capture Compare Register value on runtime

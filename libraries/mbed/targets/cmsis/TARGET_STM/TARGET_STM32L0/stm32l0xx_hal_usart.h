@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -156,11 +156,12 @@ typedef enum
   */
 typedef enum
 {
-  USART_CLOCKSOURCE_PCLK1      = 0x00,    /*!< PCLK1 clock source  */
-  USART_CLOCKSOURCE_PCLK2      = 0x01,    /*!< PCLK2 clock source  */
-  USART_CLOCKSOURCE_HSI        = 0x02,    /*!< HSI clock source    */
-  USART_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source */
-  USART_CLOCKSOURCE_LSE        = 0x08     /*!< LSE clock source     */
+  USART_CLOCKSOURCE_PCLK1      = 0x00,    /*!< PCLK1 clock source    */
+  USART_CLOCKSOURCE_PCLK2      = 0x01,    /*!< PCLK2 clock source    */
+  USART_CLOCKSOURCE_HSI        = 0x02,    /*!< HSI clock source      */
+  USART_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source   */
+  USART_CLOCKSOURCE_LSE        = 0x08,    /*!< LSE clock source      */
+  USART_CLOCKSOURCE_UNDEFINED  = 0x10     /*!< Undefined clock source */
 }USART_ClockSourceTypeDef;
 /**
   * @}
@@ -219,11 +220,9 @@ typedef struct
   * @{
   */
 #define USART_STOPBITS_1                     ((uint32_t)0x0000)
-#define USART_STOPBITS_0_5                   ((uint32_t)USART_CR2_STOP_0)
 #define USART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
 #define USART_STOPBITS_1_5                   ((uint32_t)(USART_CR2_STOP_0 | USART_CR2_STOP_1))
 #define IS_USART_STOPBITS(STOPBITS) (((STOPBITS) == USART_STOPBITS_1) || \
-                                         ((STOPBITS) == USART_STOPBITS_0_5) || \
                                          ((STOPBITS) == USART_STOPBITS_1_5) || \
                                          ((STOPBITS) == USART_STOPBITS_2))
 /**
@@ -304,20 +303,20 @@ typedef struct
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
   */
-#define USART_FLAG_REACK                     ((uint32_t)0x00400000)
-#define USART_FLAG_TEACK                     ((uint32_t)0x00200000)  
-#define USART_FLAG_BUSY                      ((uint32_t)0x00010000)
-#define USART_FLAG_CTS                       ((uint32_t)0x00000400)
-#define USART_FLAG_CTSIF                     ((uint32_t)0x00000200)
-#define USART_FLAG_LBDF                      ((uint32_t)0x00000100)
-#define USART_FLAG_TXE                       ((uint32_t)0x00000080)
-#define USART_FLAG_TC                        ((uint32_t)0x00000040)
-#define USART_FLAG_RXNE                      ((uint32_t)0x00000020)
-#define USART_FLAG_IDLE                      ((uint32_t)0x00000010)
-#define USART_FLAG_ORE                       ((uint32_t)0x00000008)
-#define USART_FLAG_NE                        ((uint32_t)0x00000004)
-#define USART_FLAG_FE                        ((uint32_t)0x00000002)
-#define USART_FLAG_PE                        ((uint32_t)0x00000001)
+#define USART_FLAG_REACK                     USART_ISR_REACK /*!< Receive Enable Acknowledge Flag */
+#define USART_FLAG_TEACK                     USART_ISR_TEACK /*!< Transmit Enable Acknowledge Flag */
+#define USART_FLAG_BUSY                      USART_ISR_BUSY  /*!< Busy Flag */
+#define USART_FLAG_CTS                       USART_ISR_CTS   /*!< CTS flag */
+#define USART_FLAG_CTSIF                     USART_ISR_CTSIF /*!< CTS interrupt flag */
+#define USART_FLAG_LBDF                      USART_ISR_LBDF  /*!< LIN Break Detection Flag */
+#define USART_FLAG_TXE                       USART_ISR_TXE   /*!< Transmit Data Register Empty */
+#define USART_FLAG_TC                        USART_ISR_TC    /*!< Transmission Complete */
+#define USART_FLAG_RXNE                      USART_ISR_RXNE  /*!< Read Data Register Not Empty */
+#define USART_FLAG_IDLE                      USART_ISR_IDLE  /*!< IDLE line detected */
+#define USART_FLAG_ORE                       USART_ISR_ORE   /*!< OverRun Error */
+#define USART_FLAG_NE                        USART_ISR_NE    /*!< Noise detected Flag */
+#define USART_FLAG_FE                        USART_ISR_FE    /*!< Framing Error */
+#define USART_FLAG_PE                        USART_ISR_PE    /*!< Parity Error */
 /**
   * @}
   */
@@ -446,7 +445,7 @@ typedef struct
   *            @arg USART_CLEAR_WUF
   * @retval None
   */
-#define __HAL_USART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ~(__FLAG__))
+#define __HAL_USART_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = (__FLAG__))
 
 /** @brief  Clear the USART PE pending flag.
   * @param  __HANDLE__: specifies the UART Handle.
@@ -664,12 +663,25 @@ uint32_t               HAL_USART_GetError(USART_HandleTypeDef *husart);
 /**
   * @}
   */
+
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup USART_Private USART Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
+
 /**
   * @}
   */ 
+
 /**
   * @}
   */

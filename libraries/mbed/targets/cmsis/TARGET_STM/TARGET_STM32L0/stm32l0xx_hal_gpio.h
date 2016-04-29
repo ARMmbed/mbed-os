@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_gpio.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of GPIO HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,12 +102,13 @@ typedef enum
 /**
   * @}
   */
-/**
-  * @}
-  */
+
 
 #define IS_GPIO_PIN_ACTION(__ACTION__) (((__ACTION__) == GPIO_PIN_RESET) || ((__ACTION__) == GPIO_PIN_SET))
 
+/**
+  * @}
+  */
 /******************************************************************************/
 /* Exported constants --------------------------------------------------------*/
 /******************************************************************************/
@@ -191,17 +192,17 @@ typedef enum
   * @brief GPIO Output Maximum frequency
   * @{
   */  
-#define  GPIO_SPEED_LOW         ((uint32_t)0x00000000)  /*!< Low speed     */
-#define  GPIO_SPEED_MEDIUM      ((uint32_t)0x00000001)  /*!< Medium speed  */
-#define  GPIO_SPEED_FAST        ((uint32_t)0x00000002)  /*!< Fast speed    */
-#define  GPIO_SPEED_HIGH        ((uint32_t)0x00000003)  /*!< High speed    */
+#define  GPIO_SPEED_FREQ_LOW              ((uint32_t)0x00000000)  /*!< range up to 0.4 MHz, please refer to the product datasheet */
+#define  GPIO_SPEED_FREQ_MEDIUM           ((uint32_t)0x00000001)  /*!< range 0.4 MHz to 2 MHz, please refer to the product datasheet */
+#define  GPIO_SPEED_FREQ_HIGH             ((uint32_t)0x00000002)  /*!< range   2 MHz to 10 MHz, please refer to the product datasheet */
+#define  GPIO_SPEED_FREQ_VERY_HIGH        ((uint32_t)0x00000003)  /*!< range  10 MHz to 35 MHz, please refer to the product datasheet */
 
 /**
   * @}
   */
 
-#define IS_GPIO_SPEED(__SPEED__) (((__SPEED__) == GPIO_SPEED_LOW)  || ((__SPEED__) == GPIO_SPEED_MEDIUM) || \
-                                  ((__SPEED__) == GPIO_SPEED_FAST) || ((__SPEED__) == GPIO_SPEED_HIGH))
+#define IS_GPIO_SPEED(__SPEED__) (((__SPEED__) == GPIO_SPEED_FREQ_LOW     )  || ((__SPEED__) == GPIO_SPEED_FREQ_MEDIUM     ) || \
+                                  ((__SPEED__) == GPIO_SPEED_FREQ_HIGH  ) || ((__SPEED__) == GPIO_SPEED_FREQ_VERY_HIGH))
 
 
  /** @defgroup GPIO_pull_define Pull definition
@@ -227,7 +228,7 @@ typedef enum
 /* Exported macro ------------------------------------------------------------*/
 /******************************************************************************/
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup GPIO_Exported_Macro GPIO Exported Macro
+/** @defgroup GPIO_Exported_Macro GPIO Exported Macros
   * @{
   */
 /**
@@ -312,6 +313,18 @@ void          HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup GPIO_Private GPIO Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
+
+
 /**
   * @}
   */ 

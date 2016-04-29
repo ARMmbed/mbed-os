@@ -103,6 +103,11 @@ uint32_t SystemCoreClock = DEFAULT_SYSTEM_CLOCK;
    -- SystemInit()
    ---------------------------------------------------------------------------- */
 
+static void busy_delay(uint32_t delay) {
+  volatile uint32_t i = delay;
+  while (i--);
+}
+
 void SystemInit (void) {
 #if (DISABLE_WDOG)
   /* Disable the WDOG module */
@@ -189,6 +194,13 @@ void SystemInit (void) {
   while((MCG->S & MCG_S_IRCST_MASK) == 0x00U) { /* Check that the fast external reference clock is selected. */
   }
 #endif /* (CLOCK_SETUP == 2) */
+  // Give the FLL time to stabilize
+  // This can take up to 1ms according to the KL05 datasheet
+  // Note: Without this delay the UART's baud can be wrong for the
+  // first byte sent in some cases.  A delay of 1000 fixes this
+  // problem even under optimizations.  The delay of 10,000 is used
+  // to add a saftey margin.
+  busy_delay(10000);
 }
 
 /* ----------------------------------------------------------------------------

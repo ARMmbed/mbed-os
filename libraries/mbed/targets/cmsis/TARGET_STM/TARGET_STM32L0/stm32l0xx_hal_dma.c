@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   DMA HAL module driver.
   *    
   *         This file provides firmware functions to manage the following 
@@ -59,7 +59,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -92,29 +92,21 @@
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
+#ifdef HAL_DMA_MODULE_ENABLED
 
 /** @addtogroup DMA DMA
   * @brief DMA HAL module driver
   * @{
   */
 
-#ifdef HAL_DMA_MODULE_ENABLED
-
 /* Private typedef -----------------------------------------------------------*/  
-/** @defgroup DMA_Private_Types DMA Private Types
+/** @addtogroup DMA_Private
   *
   * @{
   */
 #define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
 
-/**
-  * @}
-  */
 
-/* Private function prototypes -----------------------------------------------*/  
-/** @defgroup DMA_Private_Functions DMA Private Functions
-  * @{
-  */
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 /**
   * @}
@@ -157,7 +149,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   }
 
   /* Check the parameters */
-  assert_param(IS_DMA_ALL_PERIPH(hdma->Instance));
+  assert_param(IS_DMA_ALL_INSTANCE(hdma->Instance));
   assert_param(IS_DMA_ALL_REQUEST(hdma->Init.Request));
   assert_param(IS_DMA_DIRECTION(hdma->Init.Direction));
   assert_param(IS_DMA_PERIPHERAL_INC_STATE(hdma->Init.PeriphInc));
@@ -167,6 +159,12 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   assert_param(IS_DMA_MODE(hdma->Init.Mode));
   assert_param(IS_DMA_PRIORITY(hdma->Init.Priority));
   
+  if(hdma->State == HAL_DMA_STATE_RESET)
+  {
+    /* Allocate lock resource and initialize it */
+    hdma->Lock = HAL_UNLOCKED;
+  }
+
   /* Change DMA peripheral state */
   hdma->State = HAL_DMA_STATE_BUSY;
 
@@ -228,6 +226,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     /* Configure request selection for DMA1 Channel5 */
     DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 16);
   }
+#if !defined (STM32L011xx) && !defined (STM32L021xx)
   else if (hdma->Instance == DMA1_Channel6)
   {
     /*Reset request selection for DMA1 Channel6*/
@@ -244,7 +243,7 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
     /* Configure request selection for DMA1 Channel7 */
     DMA1_CSELR->CSELR |= (uint32_t) (hdma->Init.Request << 24);
   }
-   
+#endif   
   /* Initialize the DMA state*/
   hdma->State  = HAL_DMA_STATE_READY;
   
@@ -318,6 +317,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
     /*Reset DMA request*/
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C5S;
   }
+#if !defined (STM32L011xx) && !defined (STM32L021xx)
   else if (hdma->Instance == DMA1_Channel6)
   {
     /*Reset DMA request*/
@@ -328,7 +328,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
     /*Reset DMA request*/
     DMA1_CSELR->CSELR &= ~DMA_CSELR_C7S;
   }
-  
+#endif  
   /* Initialise the error code */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
@@ -441,7 +441,6 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
   * @brief  Aborts the DMA Transfer.
   * @param  hdma  : pointer to a DMA_HandleTypeDef structure that contains
   *                 the configuration information for the specified DMA Channel.
-  * @param  Timeout: Timeout duration
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
@@ -719,7 +718,7 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
 
 
 /* Private function prototypes -----------------------------------------------*/  
-/** @addtogroup DMA_Private_Functions DMA Private Functions
+/** @addtogroup DMA_Private
   * @{
   */
   
@@ -760,11 +759,11 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   * @}
   */
 
-#endif /* HAL_DMA_MODULE_ENABLED */
 /**
   * @}
   */
 
+#endif /* HAL_DMA_MODULE_ENABLED */
 /**
   * @}
   */

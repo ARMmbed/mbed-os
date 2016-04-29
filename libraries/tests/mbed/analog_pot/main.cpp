@@ -1,12 +1,17 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_ANALOGIN
   #error [NOT_SUPPORTED] AnalogIn not supported
 #endif
 
-#include "mbed.h"
-#include "test_env.h"
-
+#if defined(TARGET_VK_RZ_A1H)
+AnalogIn pot1(P1_8);
+AnalogIn pot2(P1_9);
+#else
 AnalogIn pot1(A0);
 AnalogIn pot2(A1);
+#endif
 
 #define TEST_ITERATIONS     20
 #define MEASURE_MIN         0.01

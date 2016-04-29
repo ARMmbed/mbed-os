@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -86,7 +86,7 @@ typedef struct
                                     to adjust the speed/consumption.
                                     This parameter can be a value of @ref COMP_Mode */
 
-  uint32_t WindowMode;         /*!< Selects the window mode of the comparator 2.
+  uint32_t WindowMode;         /*!< Selects the window mode of the comparator.
                                     This parameter can be a value of @ref COMP_WindowMode */
 
   uint32_t TriggerMode;        /*!< Selects the trigger mode of the comparator (interrupt mode).
@@ -194,18 +194,16 @@ typedef struct
 #define COMP_NONINVERTINGINPUT_IO3                 ((uint32_t)0x00000200) /*!< I/O3 (PB5) connected to comparator non inverting input */
 #define COMP_NONINVERTINGINPUT_IO4                 ((uint32_t)0x00000300) /*!< I/O1 (PB6) connected to comparator non inverting input */
 #define COMP_NONINVERTINGINPUT_IO5                 ((uint32_t)0x00000400) /*!< I/O3 (PB7) connected to comparator non inverting input */
-#define COMP_NONINVERTINGINPUT_IO6                 ((uint32_t)0x00000500) /*!< I/O3 (PB7) connected to comparator non inverting input */
-#define COMP_NONINVERTINGINPUT_IO7                 ((uint32_t)0x00000600) /*!< I/O3 (PB7) connected to comparator non inverting input */
-#define COMP_NONINVERTINGINPUT_IO8                 ((uint32_t)0x00000700) /*!< I/O3 (PB7) connected to comparator non inverting input */
+#define COMP_NONINVERTINGINPUT_IO6                 ((uint32_t)0x00000500) /*!< I/O3 (PA7) connected to comparator non inverting input */
+#define COMP_NONINVERTINGINPUT_IO7                 ((uint32_t)0x00000600) /*!< Reserved                                               */
+#define COMP_NONINVERTINGINPUT_IO8                 ((uint32_t)0x00000700) /*!< Reserved                                               */
 
 #define IS_COMP_NONINVERTINGINPUT(INPUT) (((INPUT) == COMP_NONINVERTINGINPUT_IO1) || \
                                            ((INPUT) == COMP_NONINVERTINGINPUT_IO2) || \
                                            ((INPUT) == COMP_NONINVERTINGINPUT_IO3) || \
                                            ((INPUT) == COMP_NONINVERTINGINPUT_IO4) || \
                                            ((INPUT) == COMP_NONINVERTINGINPUT_IO5) || \
-                                           ((INPUT) == COMP_NONINVERTINGINPUT_IO6) || \
-                                           ((INPUT) == COMP_NONINVERTINGINPUT_IO7) || \
-                                           ((INPUT) == COMP_NONINVERTINGINPUT_IO8))
+                                           ((INPUT) == COMP_NONINVERTINGINPUT_IO6))
 /**
   * @}
   */ 
@@ -233,12 +231,8 @@ typedef struct
 #define IS_COMP_WINDOWMODE(WINDOWMODE) (((WINDOWMODE) == COMP_WINDOWMODE_DISABLE) || \
                                         ((WINDOWMODE) == COMP_WINDOWMODE_ENABLE))
 
-#if defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define IS_COMP_WINDOWMODE_INSTANCE(INSTANCE) (((INSTANCE) == COMP1) ||\
-                                               ((INSTANCE) == COMP2))
-#else
 #define IS_COMP_WINDOWMODE_INSTANCE(INSTANCE) ((INSTANCE) == COMP1)
-#endif
+
 /**
   * @}
   */
@@ -246,11 +240,20 @@ typedef struct
 /** @defgroup COMP_LPTIMConnection COMP Low power timer connection definition
   * @{
   */
-#define COMP_LPTIMCONNECTION_DISABLED               ((uint32_t)0x00000000)  /*!< COMPx signal is gated */
-#define COMP_LPTIMCONNECTION_ENABLED                COMP_CSR_COMP1LPTIM1IN1    /*!< COMPx signal is connected to LPTIM */
-#define IS_COMP_LPTIMCONNECTION(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
-                                                    ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_ENABLED))
 
+#define COMP_LPTIMCONNECTION_DISABLED               ((uint32_t)0x00000000)    /*!< COMPx signal is gated */
+#define COMP_LPTIMCONNECTION_IN1_ENABLED            ((uint32_t)0x00000001)    /*!< COMPx signal is connected to LPTIM input 1 */
+#define COMP_LPTIMCONNECTION_IN2_ENABLED            ((uint32_t)0x00000002)    /*!< COMPx signal is connected to LPTIM input 2 */
+
+#define IS_COMP1_LPTIMCONNECTION(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
+                                                     ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN1_ENABLED))
+
+#define IS_COMP2_LPTIMCONNECTION(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
+                                                     ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN1_ENABLED) || \
+                                                     ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN2_ENABLED))
+
+#define IS_COMP2_LPTIMCONNECTION_RESTRICTED(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
+                                                                ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN2_ENABLED))
 /**
   * @}
   */
@@ -279,12 +282,15 @@ typedef struct
 /** @defgroup COMP_TriggerMode COMP trigger mode definition
   * @{
   */
+#define COMP_TRIGGERMODE_NONE                  ((uint32_t)0x00000000)   /*!< No External Interrupt trigger detection */
 #define COMP_TRIGGERMODE_IT_RISING             ((uint32_t)0x00000001)   /*!< External Interrupt Mode with Rising edge trigger detection */
 #define COMP_TRIGGERMODE_IT_FALLING            ((uint32_t)0x00000002)   /*!< External Interrupt Mode with Falling edge trigger detection */
 #define COMP_TRIGGERMODE_IT_RISING_FALLING     ((uint32_t)0x00000003)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
-#define IS_COMP_TRIGGERMODE(MODE)  (((MODE) == COMP_TRIGGERMODE_IT_RISING)  || \
-                                    ((MODE) == COMP_TRIGGERMODE_IT_FALLING) || \
-                                    ((MODE) == COMP_TRIGGERMODE_IT_RISING_FALLING))
+
+#define COMP_TRIGGERMODE_EVENT_RISING          ((uint32_t)0x00000010)   /*!< Event Mode with Rising edge trigger detection */
+#define COMP_TRIGGERMODE_EVENT_FALLING         ((uint32_t)0x00000020)   /*!< Event Mode with Falling edge trigger detection */
+#define COMP_TRIGGERMODE_EVENT_RISING_FALLING  ((uint32_t)0x00000030)   /*!< Event Mode with Rising/Falling edge trigger detection */
+
 /**
   * @}
   */ 
@@ -293,8 +299,8 @@ typedef struct
   * @{
   */
 
-#define COMP_EXTI_LINE_COMP2             ((uint32_t)0x00400000)  /*!< External interrupt line 22 Connected to COMP2 */
-#define COMP_EXTI_LINE_COMP1             ((uint32_t)0x00200000)  /*!< External interrupt line 21 Connected to COMP1 */
+#define COMP_EXTI_LINE_COMP2             (EXTI_IMR_IM22)  /*!< External interrupt line 22 Connected to COMP2 */
+#define COMP_EXTI_LINE_COMP1             (EXTI_IMR_IM21)  /*!< External interrupt line 21 Connected to COMP1 */
 
 
 /**
@@ -310,7 +316,7 @@ typedef struct
   * @retval None
   */
 
-/** @defgroup COMP_Exported_Macro COMP Exported Macro
+/** @defgroup COMP_Exported_Macro COMP Exported Macros
   * @{
   */
 /**
@@ -538,6 +544,16 @@ HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup COMP_Private COMP Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

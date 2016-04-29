@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,6 +54,9 @@
   * @{
   */ 
 
+   /** @defgroup IRDA_Exported_Types IRDA Exported Types
+  * @{
+  */
 /* Exported types ------------------------------------------------------------*/ 
 
 /** 
@@ -76,7 +79,7 @@ typedef struct
                                                  word length is set to 8 data bits). */
  
   uint16_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
-                                           This parameter can be a value of @ref IRDA_Mode */
+                                           This parameter can be a value of @ref IRDA_Transfer_Mode */
   
   uint8_t  Prescaler;                 /*!< Specifies the Prescaler value for dividing the UART/USART source clock
                                            to achieve low-power frequency.
@@ -101,28 +104,8 @@ typedef enum
   HAL_IRDA_STATE_ERROR             = 0x04     /*!< Error */
 }HAL_IRDA_StateTypeDef;
 
-/** 
-  * @brief  HAL IRDA Error Code definition
-  */ 
 
-#define  HAL_IRDA_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
-#define  HAL_IRDA_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
-#define  HAL_IRDA_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
-#define  HAL_IRDA_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
-#define  HAL_IRDA_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
-#define  HAL_IRDA_ERROR_DMA       ((uint32_t)0x10)     /*!< DMA transfer error  */
 
-/**
-  * @brief IRDA clock sources definition
-  */
-typedef enum
-{
-  IRDA_CLOCKSOURCE_PCLK1      = 0x00,    /*!< PCLK1 clock source  */
-  IRDA_CLOCKSOURCE_PCLK2      = 0x01,    /*!< PCLK2 clock source  */
-  IRDA_CLOCKSOURCE_HSI        = 0x02,    /*!< HSI clock source    */
-  IRDA_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source */
-  IRDA_CLOCKSOURCE_LSE        = 0x08     /*!< LSE clock source     */
-}IRDA_ClockSourceTypeDef;
 
 /** 
   * @brief  IRDA handle Structure definition  
@@ -159,6 +142,10 @@ typedef struct
 
 }IRDA_HandleTypeDef;
 
+/**
+  * @}
+  */
+
 /** 
   * @brief  IRDA Configuration enumeration values definition  
   */
@@ -167,6 +154,29 @@ typedef struct
 /** @defgroup IRDA_Exported_Constants  IRDA Exported Constants
   * @{
   */
+
+/**
+  * @brief  HAL IRDA Error Code definition
+  */
+
+#define  HAL_IRDA_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
+#define  HAL_IRDA_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
+#define  HAL_IRDA_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
+#define  HAL_IRDA_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
+#define  HAL_IRDA_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
+#define  HAL_IRDA_ERROR_DMA       ((uint32_t)0x10)     /*!< DMA transfer error  */
+
+/**
+  * @brief IRDA clock sources definition
+  */
+typedef enum
+{
+  IRDA_CLOCKSOURCE_PCLK1      = 0x00,    /*!< PCLK1 clock source  */
+  IRDA_CLOCKSOURCE_PCLK2      = 0x01,    /*!< PCLK2 clock source  */
+  IRDA_CLOCKSOURCE_HSI        = 0x02,    /*!< HSI clock source    */
+  IRDA_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source */
+  IRDA_CLOCKSOURCE_LSE        = 0x08     /*!< LSE clock source     */
+}IRDA_ClockSourceTypeDef;
 
 /** @defgroup IRDA_Parity IRDA Parity
   * @{
@@ -264,18 +274,18 @@ typedef struct
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
   */
-#define IRDA_FLAG_REACK                     ((uint32_t)0x00400000)
-#define IRDA_FLAG_TEACK                     ((uint32_t)0x00200000)  
-#define IRDA_FLAG_BUSY                      ((uint32_t)0x00010000)
-#define IRDA_FLAG_ABRF                      ((uint32_t)0x00008000)  
-#define IRDA_FLAG_ABRE                      ((uint32_t)0x00004000)
-#define IRDA_FLAG_TXE                       ((uint32_t)0x00000080)
-#define IRDA_FLAG_TC                        ((uint32_t)0x00000040)
-#define IRDA_FLAG_RXNE                      ((uint32_t)0x00000020)
-#define IRDA_FLAG_ORE                       ((uint32_t)0x00000008)
-#define IRDA_FLAG_NE                        ((uint32_t)0x00000004)
-#define IRDA_FLAG_FE                        ((uint32_t)0x00000002)
-#define IRDA_FLAG_PE                        ((uint32_t)0x00000001)
+#define IRDA_FLAG_REACK                     USART_ISR_REACK  /*!< Receive Enable Acknowledge Flag */
+#define IRDA_FLAG_TEACK                     USART_ISR_TEACK  /*!< Transmit Enable Acknowledge Flag */
+#define IRDA_FLAG_BUSY                      USART_ISR_BUSY   /*!< Busy Flag */
+#define IRDA_FLAG_ABRF                      USART_ISR_ABRF   /*!< Auto-Baud Rate Flag */
+#define IRDA_FLAG_ABRE                      USART_ISR_ABRE   /*!< Auto-Baud Rate Error */
+#define IRDA_FLAG_TXE                       USART_ISR_TXE    /*!< Transmit Data Register Empty */
+#define IRDA_FLAG_TC                        USART_ISR_TC     /*!< Transmission Complete */
+#define IRDA_FLAG_RXNE                      USART_ISR_RXNE   /*!< Read Data Register Not Empty */
+#define IRDA_FLAG_ORE                       USART_ISR_ORE    /*!< OverRun Error */
+#define IRDA_FLAG_NE                        USART_ISR_NE     /*!< Noise detected Flag */
+#define IRDA_FLAG_FE                        USART_ISR_FE     /*!< Framing Error */
+#define IRDA_FLAG_PE                        USART_ISR_PE     /*!< Parity Error */
 /**
   * @}
   */ 
@@ -396,7 +406,8 @@ typedef struct
   *            @arg IRDA_CLEAR_IDLEF
   * @retval None
   */
-#define __HAL_IRDA_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ~(__FLAG__))
+#define __HAL_IRDA_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = (__FLAG__))
+
 
 /** @brief  Clear the IRDA PE pending flag.
   * @param  __HANDLE__: specifies the IRDA Handle.
@@ -650,7 +661,17 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 
 /**
   * @}
-  */ 
+  */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup IRDA_Private IRDA Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

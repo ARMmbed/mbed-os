@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32f746xx.s
   * @author    MCD Application Team
-  * Version    V1.0.0
-  * Date       28-April-2015
+  * @Version    V1.0.2
+  * @Date       21-September-2015
   * @brief     STM32F746xx Devices vector table for GCC based toolchain. 
   *            This module performs:
   *                - Set the initial SP

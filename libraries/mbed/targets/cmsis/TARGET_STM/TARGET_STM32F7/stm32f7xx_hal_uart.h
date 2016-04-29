@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.0.1
-  * @date    25-June-2015
+  * @version V1.0.4
+  * @date    09-December-2015
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
@@ -102,7 +102,7 @@ typedef struct
 }UART_InitTypeDef;
 
 /**
-  * @brief  UART Advanced Features initalization structure definition
+  * @brief  UART Advanced Features initialization structure definition
   */
 typedef struct
 {
@@ -653,7 +653,7 @@ typedef struct
   *            @arg UART_CLEAR_CMF: Character Match Clear Flag
   * @retval None
   */
-#define __HAL_UART_CLEAR_IT(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = ~(__FLAG__))
+#define __HAL_UART_CLEAR_IT(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = (uint32_t)(__FLAG__))
 
 /** @brief  Clear the UART PE pending flag.
   * @param  __HANDLE__: specifies the UART Handle.

@@ -137,6 +137,9 @@ class LPC1114(LPCTarget):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"lpc1114_102",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class LPC11U24(LPCTarget):
@@ -149,6 +152,9 @@ class LPC11U24(LPCTarget):
         self.detect_code = ["1040"]
         self.progen = {
             "target":"lpc11u24_201",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class OC_MBUINO(LPC11U24):
@@ -161,6 +167,9 @@ class OC_MBUINO(LPC11U24):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"lpc11u24_201",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class LPC11U24_301(LPCTarget):
@@ -195,6 +204,9 @@ class LPC11U35_401(LPCTarget):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"lpc11u35_401",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class LPC11U35_501(LPCTarget):
@@ -206,7 +218,11 @@ class LPC11U35_501(LPCTarget):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"lpc11u35_501",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
+
 class LPC11U35_501_IBDAP(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -214,6 +230,12 @@ class LPC11U35_501_IBDAP(LPCTarget):
         self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
+        self.progen = {
+            "target":"lpc11u35_501",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
 
 class XADOW_M0(LPCTarget):
     def __init__(self):
@@ -222,6 +244,12 @@ class XADOW_M0(LPCTarget):
         self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
+        self.progen = {
+            "target":"lpc11u35_501",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
 
 class LPC11U35_Y5_MBUG(LPCTarget):
     def __init__(self):
@@ -230,6 +258,12 @@ class LPC11U35_Y5_MBUG(LPCTarget):
         self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
+        self.progen = {
+            "target":"lpc11u35_501",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
 
 class LPC11U37_501(LPCTarget):
     def __init__(self):
@@ -238,6 +272,12 @@ class LPC11U37_501(LPCTarget):
         self.extra_labels = ['NXP', 'LPC11UXX']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
+        self.progen = {
+            "target":"lpc11u37_501",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
 
 class LPCCAPPUCCINO(LPC11U37_501):
     def __init__(self):
@@ -251,6 +291,12 @@ class ARCH_GPRS(LPCTarget):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.progen = {
+            "target":"lpc11u37_501",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
 
 class LPC11U68(LPCTarget):
     def __init__(self):
@@ -263,7 +309,11 @@ class LPC11U68(LPCTarget):
         self.detect_code = ["1168"]
         self.progen = {
             "target":"lpc11u68",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
+
 class LPC1347(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -285,7 +335,11 @@ class LPC1549(LPCTarget):
         self.detect_code = ["1549"]
         self.progen = {
             "target":"lpc1549",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
+
 class LPC1768(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -329,6 +383,9 @@ class XBED_LPC1768(LPCTarget):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.macros = ['TARGET_LPC1768']
         self.detect_code = ["1010"]
+        self.progen = {
+            "target":"lpc1768",
+        }
 
 class LPC2368(LPCTarget):
     def __init__(self):
@@ -336,6 +393,9 @@ class LPC2368(LPCTarget):
         self.core = "ARM7TDMI-S"
         self.extra_labels = ['NXP', 'LPC23XX']
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
+        self.progen = {
+            "target":"lpc2368",
+        }
 
 class LPC2460(LPCTarget):
     def __init__(self):
@@ -343,6 +403,9 @@ class LPC2460(LPCTarget):
         self.core = "ARM7TDMI-S"
         self.extra_labels = ['NXP', 'LPC2460']
         self.supported_toolchains = ["GCC_ARM"]
+        self.progen = {
+            "target":"lpc2460",
+        }
 
 class LPC810(LPCTarget):
     def __init__(self):
@@ -352,6 +415,12 @@ class LPC810(LPCTarget):
         self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
+        self.progen = {
+            "target":"lpc810",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
 
 class LPC812(LPCTarget):
     def __init__(self):
@@ -365,6 +434,9 @@ class LPC812(LPCTarget):
         self.detect_code = ["1050"]
         self.progen = {
             "target":"lpc812m101",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class LPC824(LPCTarget):
@@ -378,6 +450,9 @@ class LPC824(LPCTarget):
         self.is_disk_virtual = True
         self.progen = {
             "target":"lpc824m201",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class SSCI824(LPCTarget):
@@ -388,6 +463,12 @@ class SSCI824(LPCTarget):
         self.supported_toolchains = ["uARM", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.is_disk_virtual = True
+        self.progen = {
+            "target":"ssci824",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
 
 class LPC4088(LPCTarget):
     def __init__(self):
@@ -463,6 +544,7 @@ class LPC4337(LPCTarget):
         self.progen = {
             "target":"lpc4337",
         }
+
 class LPC1800(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
@@ -480,6 +562,9 @@ class LPC11U37H_401(LPCTarget):
         self.supported_form_factors = ["ARDUINO"]
         self.progen = {
             "target":"lpc11u37_401",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 ### Freescale ###
 
@@ -494,6 +579,9 @@ class KL05Z(Target):
         self.is_disk_virtual = True
         self.progen = {
             "target":"frdm-kl05z",
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class KL25Z(Target):
@@ -517,6 +605,9 @@ class KL26Z(Target):
         self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
+        self.progen = {
+            "target":"kl26z",
+        }
 
 class KL43Z(Target):
     def __init__(self):
@@ -846,13 +937,26 @@ class NUCLEO_F746ZG(Target):
         Target.__init__(self)
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746ZG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.detect_code = ["0816"]
         self.progen = {
             "target":"nucleo-f746zg",
             "iar": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746cg.ewp.tmpl')],
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746zg.ewp.tmpl')],
             }
+        }
+
+class NUCLEO_L031K6(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['STM', 'STM32L0', 'STM32L031K6']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["0790"]
+        self.progen = {
+            "target":"nucleo-l031k6",
         }
 
 class NUCLEO_L053R8(Target):
@@ -880,6 +984,7 @@ class NUCLEO_L073RZ(Target):
         self.progen = {
             "target":"nucleo-l073rz",
         }
+
 
 class NUCLEO_L152RE(Target):
     def __init__(self):
@@ -991,7 +1096,7 @@ class DISCO_F429ZI(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
-            "target":"",
+            "target":"disco-f429zi",
         }
 
 class DISCO_F469NI(Target):
@@ -1023,7 +1128,7 @@ class DISCO_F746NG(Target):
         Target.__init__(self)
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.detect_code = ["0815"]
         self.progen = {
             "target":"disco-f746ng",
@@ -1744,7 +1849,7 @@ class ARM_MPS2_M7(ARM_MPS2_Target):
         self.macros = ['CMSDK_CM7']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
-        
+
 class ARM_IOTSS_Target(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1779,6 +1884,23 @@ class RZ_A1H(Target):
     def program_cycle_s(self):
         return 2
 
+class VK_RZ_A1H(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-A9"
+        self.extra_labels = ['RENESAS', 'VKRZA1H']
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target": "vk-rza1h",
+            "iar": {
+                # rewrite generic template, this device needs futher support for FPU in progendef
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_rz_a1h.ewp.tmpl')],
+            }
+        }
+
+    def program_cycle_s(self):
+        return 2
 
 ### Maxim Integrated ###
 
@@ -1816,6 +1938,10 @@ class EFM32GG_STK3700(Target):
         self.macros = ['EFM32GG990F1024']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"efm32gg_stk3700", #TODO: add to progen
+        }
+
 
 
 class EFM32LG_STK3600(Target):
@@ -1826,6 +1952,10 @@ class EFM32LG_STK3600(Target):
         self.macros = ['EFM32LG990F256']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"efm32lg_stk3600", #TODO: add to progen
+        }
+
 
 
 class EFM32WG_STK3800(Target):
@@ -1836,6 +1966,10 @@ class EFM32WG_STK3800(Target):
         self.macros = ['EFM32WG990F256']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
         self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"efm32wg_stk3800", #TODO: add to progen
+        }
+
 
 
 class EFM32ZG_STK3200(Target):
@@ -1846,6 +1980,13 @@ class EFM32ZG_STK3200(Target):
         self.macros = ['EFM32ZG222F32']
         self.supported_toolchains = ["GCC_ARM", "uARM"]
         self.default_toolchain = "uARM"
+        self.progen = {
+            "target":"efm32zg_stk3200", #TODO: add to progen
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
+
 
 class EFM32HG_STK3400(Target):
     def __init__(self):
@@ -1855,6 +1996,13 @@ class EFM32HG_STK3400(Target):
         self.macros = ['EFM32HG322F64']
         self.supported_toolchains = ["GCC_ARM", "uARM"]
         self.default_toolchain = "uARM"
+        self.progen = {
+            "target":"efm32hg_stk3400", #TODO: add to progen
+            "uvision": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
+        }
+
 
 class EFM32PG_STK3401(Target):
     def __init__(self):
@@ -1864,6 +2012,9 @@ class EFM32PG_STK3401(Target):
         self.macros = ['EFM32PG1B200F256GM48']
         self.supported_toolchains = ["GCC_ARM", "ARM", "uARM", "IAR"]
         self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"efm32pg_stk3401", #TODO: add to progen
+        }
 
 
 
@@ -1877,6 +2028,9 @@ class WIZWIKI_W7500(Target):
         self.supported_toolchains = ["uARM", "ARM"]
         self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.progen = {
+            "target":"wizwiki_w7500",
+        }
 
 class WIZWIKI_W7500P(Target):
     def __init__(self):
@@ -1886,6 +2040,9 @@ class WIZWIKI_W7500P(Target):
         self.supported_toolchains = ["uARM", "ARM"]
         self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.progen = {
+            "target":"wizwiki_w7500p", # TODO: add to progen
+        }
 
 class WIZWIKI_W7500ECO(Target):
     def __init__(self):
@@ -1894,6 +2051,10 @@ class WIZWIKI_W7500ECO(Target):
         self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500ECO']
         self.supported_toolchains = ["uARM", "ARM"]
         self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"wizwiki_w7500eco", # TODO: add to progen
+        }
+
 
 class SAMR21G18A(Target):
     def __init__(self):
@@ -1942,6 +2103,20 @@ class SAML21J18A(Target):
         self.progen = {
             "target":"samr21j18a",
         }
+        self.progen_target ='samr21j18a'
+
+class SAMG55J19(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels = ['Atmel', 'SAM_CortexM4', 'SAMG55']
+        self.macros = ['__SAMG55J19__', 'BOARD=75', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"samg55j19",
+        }
+        self.progen_target ='samg55j19'
 
 # Get a single instance for each target
 TARGETS = [
@@ -2013,6 +2188,7 @@ TARGETS = [
     NUCLEO_F746ZG(),
     ELMO_F411RE(),
     NUCLEO_F446RE(),
+    NUCLEO_L031K6(),
     NUCLEO_L053R8(),
     NUCLEO_L073RZ(),
     NUCLEO_L152RE(),
@@ -2096,6 +2272,7 @@ TARGETS = [
 
     ### Renesas ###
     RZ_A1H(),
+    VK_RZ_A1H(),
 
     ### Maxim Integrated ###
     MAXWSNENV(),
@@ -2119,6 +2296,8 @@ TARGETS = [
     SAMD21J18A(),
     SAMD21G18A(),
     SAML21J18A(),
+    SAMG55J19(),
+
 ]
 
 # Map each target name to its unique instance

@@ -1,9 +1,9 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_CAN
   #error [NOT_SUPPORTED] CAN not supported
 #endif
-
-#include "mbed.h"
-#include "test_env.h"
 
 #if defined(TARGET_LPC1549)
 CAN can1(D9, D8);
@@ -11,6 +11,8 @@ CAN can1(D9, D8);
 CAN can1(p9, p10);
 #elif defined(TARGET_B96B_F446VE)
 CAN can1(PD_0, PD_1);
+#elif defined(TARGET_VK_RZ_A1H)
+CAN can1(P5_9, P5_10);
 #endif
 
 #define TEST_ITERATIONS     127
@@ -21,7 +23,9 @@ int main() {
     MBED_HOSTTEST_DESCRIPTION(CAN Loopback);
     MBED_HOSTTEST_START("MBED_A27");
 
+#if !defined(TARGET_VK_RZ_A1H)
     can1.mode(CAN::Reset);
+#endif
 
     if (!can1.mode(CAN::LocalTest)) {
         printf("Mode change failed\n");

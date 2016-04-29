@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   CRYP HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -70,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -97,7 +97,7 @@
   ******************************************************************************  
   */ 
 
-#if defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+#if defined (STM32L021xx) || defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
@@ -106,7 +106,7 @@
   * @{
   */
 
-/** @defgroup CRYP CRYP
+/** @addtogroup CRYP
   * @brief CRYP HAL module driver.
   * @{
   */
@@ -115,7 +115,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 
-/** @defgroup CRYP_Private_Defines CRYP Private Defines
+/** @addtogroup CRYP_Private CRYP Private
   * @{
   */
 
@@ -129,7 +129,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
-/** @defgroup CRYP_Private_Functions CRYP Private Functions
+/** @addtogroup CRYP_Private
   * @{
   */
 
@@ -148,11 +148,11 @@ static void               CRYP_SetDMAConfig(CRYP_HandleTypeDef *hcryp, uint32_t 
 
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup CRYP_Exported_Functions CRYP Exported Functions
+/** @addtogroup CRYP_Exported_Functions
   * @{
   */
 
-/** @defgroup CRYP_Exported_Functions_Group1 Initialization and de-initialization functions 
+/** @addtogroup CRYP_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions. 
  *
 @verbatim    
@@ -279,6 +279,9 @@ HAL_StatusTypeDef HAL_CRYP_DeInit(CRYP_HandleTypeDef *hcryp)
   */
 __weak void HAL_CRYP_MspInit(CRYP_HandleTypeDef *hcryp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcryp);
+
   /* NOTE : This function should not be modified; when the callback is needed, 
             the HAL_CRYP_MspInit can be implemented in the user file */
 }
@@ -291,6 +294,9 @@ __weak void HAL_CRYP_MspInit(CRYP_HandleTypeDef *hcryp)
   */
 __weak void HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcryp);
+
   /* NOTE : This function should not be modified; when the callback is needed, 
             the HAL_CRYP_MspDeInit can be implemented in the user file */
 }
@@ -299,7 +305,7 @@ __weak void HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp)
   * @}
   */
 
-/** @defgroup CRYP_Exported_Functions_Group2 AES processing functions 
+/** @addtogroup CRYP_Exported_Functions_Group2
  *  @brief   processing functions. 
  *
 @verbatim   
@@ -1718,7 +1724,7 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   * @}
   */
 
-/** @defgroup CRYP_Exported_Functions_Group3 DMA callback functions 
+/** @addtogroup CRYP_Exported_Functions_Group3
  *  @brief   DMA callback functions. 
  *
 @verbatim   
@@ -1742,6 +1748,9 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   */
  __weak void HAL_CRYP_ErrorCallback(CRYP_HandleTypeDef *hcryp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcryp);
+
   /* NOTE : This function should not be modified; when the callback is needed, 
             the HAL_CRYP_ErrorCallback can be implemented in the user file
    */ 
@@ -1755,6 +1764,9 @@ HAL_StatusTypeDef HAL_CRYP_AESCTR_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uint8_t
   */
 __weak void HAL_CRYP_InCpltCallback(CRYP_HandleTypeDef *hcryp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcryp);
+
   /* NOTE : This function should not be modified; when the callback is needed, 
             the HAL_CRYP_InCpltCallback can be implemented in the user file
    */ 
@@ -1768,6 +1780,9 @@ __weak void HAL_CRYP_InCpltCallback(CRYP_HandleTypeDef *hcryp)
   */
 __weak void HAL_CRYP_OutCpltCallback(CRYP_HandleTypeDef *hcryp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcryp);
+
   /* NOTE : This function should not be modified; when the callback is needed, 
             the HAL_CRYP_OutCpltCallback can be implemented in the user file
    */ 
@@ -1777,7 +1792,7 @@ __weak void HAL_CRYP_OutCpltCallback(CRYP_HandleTypeDef *hcryp)
   * @}
   */
 
-/** @defgroup CRYP_Exported_Functions_Group4 CRYP IRQ handler 
+/** @addtogroup CRYP_Exported_Functions_Group4
  *  @brief   CRYP IRQ handler.
  *
 @verbatim   
@@ -1843,7 +1858,7 @@ void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp)
   * @}
   */
 
-/** @defgroup CRYP_Exported_Functions_Group5 Peripheral State functions 
+/** @addtogroup CRYP_Exported_Functions_Group5
  *  @brief   Peripheral State functions. 
  *
 @verbatim   
@@ -1876,7 +1891,7 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp)
   * @}
   */
 
-/** @addtogroup CRYP_Private_Functions
+/** @addtogroup CRYP_Private
   * @{
   */
 
@@ -2159,6 +2174,6 @@ static void CRYP_SetDMAConfig(CRYP_HandleTypeDef *hcryp, uint32_t inputaddr, uin
   */
 
 #endif /* HAL_CRYP_MODULE_ENABLED */
-#endif /* STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
+#endif /* STM32L021xx || STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

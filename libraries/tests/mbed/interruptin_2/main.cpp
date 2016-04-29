@@ -1,8 +1,8 @@
+#include "mbed.h"
+
 #if !DEVICE_INTERRUPTIN
   #error [NOT_SUPPORTED] InterruptIn is not supported
 #endif
-
-#include "mbed.h"
 
 #if defined(TARGET_LPC4088)
 InterruptIn button(p18);
@@ -87,6 +87,20 @@ InterruptIn button8(PA07);
 InterruptIn button9(PB08);
 DigitalOut led(LED1);
 DigitalOut flash(PA27); /*1 LED Available*/
+
+#elif defined(TARGET_SAMG55J19)
+InterruptIn button (PA02); /*SW0*/
+InterruptIn button1(PA17);
+InterruptIn button2(PA26);
+InterruptIn button3(PA25);
+InterruptIn button4(PA00);
+InterruptIn button5(PA23);
+InterruptIn button6(PA24);
+InterruptIn button7(PA29);
+InterruptIn button8(PB10);
+InterruptIn button9(PA10);
+DigitalOut led(LED1);
+DigitalOut flash(PA14); /*1 LED Available*/
 
 #else
 InterruptIn button(p30);

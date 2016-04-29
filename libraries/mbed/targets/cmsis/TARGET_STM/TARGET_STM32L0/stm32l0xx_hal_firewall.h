@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_firewall.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of FIREWALL HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,6 +43,8 @@
  extern "C" {
 #endif
 
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx)
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
 
@@ -50,7 +52,7 @@
   * @{
   */
 
-/** @addtogroup FIREWALL  FIREWALL
+/** @defgroup FIREWALL  FIREWALL
   * @{
   */ 
 
@@ -136,17 +138,17 @@ typedef struct
   */
   
 /* Private macros --------------------------------------------------------*/
-/** @defgroup FIREWALL_Private_Macros   FIREWALL Private Macros
+/** @addtogroup FIREWALL_Private
   * @{
   */
-#define IS_FIREWALL_CODE_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= 0x08000000) && ((ADDRESS) <= 0x080FFFFF))                                                   
-#define IS_FIREWALL_CODE_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= 0x080FFFFF) 
+#define IS_FIREWALL_CODE_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= FLASH_BASE) && ((ADDRESS) < (FLASH_BASE + FLASH_SIZE)))                                                   
+#define IS_FIREWALL_CODE_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= (FLASH_BASE + FLASH_SIZE))
 
-#define IS_FIREWALL_NONVOLATILEDATA_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= 0x08000000) && ((ADDRESS) <= 0x080FFFFF))                                                   
-#define IS_FIREWALL_NONVOLATILEDATA_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= 0x080FFFFF) 
+#define IS_FIREWALL_NONVOLATILEDATA_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= FLASH_BASE) && ((ADDRESS) < (FLASH_BASE + FLASH_SIZE)))                                                   
+#define IS_FIREWALL_NONVOLATILEDATA_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= (FLASH_BASE + FLASH_SIZE)) 
 
-#define IS_FIREWALL_VOLATILEDATA_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= 0x20000000) && ((ADDRESS) <= 0x20017FFF))                                                   
-#define IS_FIREWALL_VOLATILEDATA_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= 0x20017FFF)                                                       
+#define IS_FIREWALL_VOLATILEDATA_SEGMENT_ADDRESS(ADDRESS)        (((ADDRESS) >= SRAM_BASE) && ((ADDRESS) < (SRAM_BASE + SRAM1_SIZE_MAX)))
+#define IS_FIREWALL_VOLATILEDATA_SEGMENT_LENGTH(ADDRESS, LENGTH) (((ADDRESS) + (LENGTH)) <= (SRAM_BASE + SRAM_SIZE_MAX))                                                        
     
   
 #define IS_FIREWALL_VOLATILEDATA_SHARE(SHARE) (((SHARE) == FIREWALL_VOLATILEDATA_NOT_SHARED) || \
@@ -164,7 +166,7 @@ typedef struct
   * @{
   */
 
-/** @brief  Check whether or not the FIREWALL is enabled
+/** @brief  Check whether the FIREWALL is enabled or not.
   * @retval FIREWALL enabling status (TRUE or FALSE).
   */            
 #define  __HAL_FIREWALL_IS_ENABLED()  HAL_IS_BIT_CLR(SYSCFG->CFGR2, SYSCFG_CFGR2_FWDISEN)  
@@ -183,10 +185,10 @@ typedef struct
 #define __HAL_FIREWALL_PREARM_ENABLE()                                         \
              do {                                                              \
                   __IO uint32_t tmpreg;                                        \
-                  SET_BIT(FW->CR, FW_CR_FPA) ;                           \
+                  SET_BIT(FIREWALL->CR, FW_CR_FPA) ;                           \
                   /* Read bit back to ensure it is taken into account by IP */ \
                   /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FW->CR, FW_CR_FPA) ;                 \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_FPA) ;                 \
                   UNUSED(tmpreg);                                              \
                 } while(0)
 
@@ -205,10 +207,10 @@ typedef struct
 #define __HAL_FIREWALL_PREARM_DISABLE()                                        \
              do {                                                              \
                   __IO uint32_t tmpreg;                                        \
-                  CLEAR_BIT(FW->CR, FW_CR_FPA) ;                         \
+                  CLEAR_BIT(FIREWALL->CR, FW_CR_FPA) ;                         \
                   /* Read bit back to ensure it is taken into account by IP */ \
                   /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FW->CR, FW_CR_FPA) ;                 \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_FPA) ;                 \
                   UNUSED(tmpreg);                                              \
                 } while(0)
 
@@ -224,10 +226,10 @@ typedef struct
 #define __HAL_FIREWALL_VOLATILEDATA_SHARED_ENABLE()                            \
              do {                                                              \
                   __IO uint32_t tmpreg;                                        \
-                  SET_BIT(FW->CR, FW_CR_VDS) ;                           \
+                  SET_BIT(FIREWALL->CR, FW_CR_VDS) ;                           \
                   /* Read bit back to ensure it is taken into account by IP */ \
                   /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FW->CR, FW_CR_VDS) ;                 \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDS) ;                 \
                   UNUSED(tmpreg);                                              \
                 } while(0)
 
@@ -244,10 +246,10 @@ typedef struct
 #define __HAL_FIREWALL_VOLATILEDATA_SHARED_DISABLE()                           \
              do {                                                              \
                   __IO uint32_t tmpreg;                                        \
-                  CLEAR_BIT(FW->CR, FW_CR_VDS) ;                         \
+                  CLEAR_BIT(FIREWALL->CR, FW_CR_VDS) ;                         \
                   /* Read bit back to ensure it is taken into account by IP */ \
                   /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FW->CR, FW_CR_VDS) ;                 \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDS) ;                 \
                   UNUSED(tmpreg);                                              \
                 } while(0)
 
@@ -266,10 +268,10 @@ typedef struct
 #define __HAL_FIREWALL_VOLATILEDATA_EXECUTION_ENABLE()                         \
              do {                                                              \
                   __IO uint32_t tmpreg;                                        \
-                  SET_BIT(FW->CR, FW_CR_VDE) ;                           \
+                  SET_BIT(FIREWALL->CR, FW_CR_VDE) ;                           \
                   /* Read bit back to ensure it is taken into account by IP */ \
                   /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FW->CR, FW_CR_VDE) ;                 \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDE) ;                 \
                   UNUSED(tmpreg);                                              \
                 } while(0)
 
@@ -286,10 +288,10 @@ typedef struct
 #define __HAL_FIREWALL_VOLATILEDATA_EXECUTION_DISABLE()                           \
              do {                                                              \
                   __IO uint32_t tmpreg;                                        \
-                  CLEAR_BIT(FW->CR, FW_CR_VDE) ;                         \
+                  CLEAR_BIT(FIREWALL->CR, FW_CR_VDE) ;                         \
                   /* Read bit back to ensure it is taken into account by IP */ \
                   /* (introduce proper delay inside macro execution) */        \
-                  tmpreg = READ_BIT(FW->CR, FW_CR_VDE) ;                 \
+                  tmpreg = READ_BIT(FIREWALL->CR, FW_CR_VDE) ;                 \
                   UNUSED(tmpreg);                                              \
                 } while(0)   
 
@@ -302,7 +304,7 @@ typedef struct
   *       executed only when the Firewall is opened.      
   * @retval VDS bit setting status (TRUE or FALSE).
   */
-#define __HAL_FIREWALL_GET_VOLATILEDATA_SHARED() ((FW->CR & FW_CR_VDS) == FW_CR_VDS)
+#define __HAL_FIREWALL_GET_VOLATILEDATA_SHARED() ((FIREWALL->CR & FW_CR_VDS) == FW_CR_VDS)
 
 /** @brief Check whether or not the volatile data segment is declared executable.
   * @note This macro can be executed inside a code area protected by the Firewall.
@@ -312,7 +314,7 @@ typedef struct
   *       executed only when the Firewall is opened.      
   * @retval VDE bit setting status (TRUE or FALSE).
   */
-#define __HAL_FIREWALL_GET_VOLATILEDATA_EXECUTION() ((FW->CR & FW_CR_VDE) == FW_CR_VDE)
+#define __HAL_FIREWALL_GET_VOLATILEDATA_EXECUTION() ((FIREWALL->CR & FW_CR_VDE) == FW_CR_VDE)
 
 /** @brief Check whether or not the Firewall pre arm bit is set.
   * @note This macro can be executed inside a code area protected by the Firewall.
@@ -322,7 +324,7 @@ typedef struct
   *       executed only when the Firewall is opened.      
   * @retval FPA bit setting status (TRUE or FALSE).
   */
-#define __HAL_FIREWALL_GET_PREARM() ((FW->CR & FW_CR_FPA) == FW_CR_FPA)
+#define __HAL_FIREWALL_GET_PREARM() ((FIREWALL->CR & FW_CR_FPA) == FW_CR_FPA)
 
 
 /**
@@ -331,11 +333,11 @@ typedef struct
 
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup FIREWALL_Exported_Functions FIREWALL Exported Functions
+/** @defgroup FIREWALL_Exported_Functions FIREWALL Exported Functions
   * @{
   */
   
-/** @addtogroup FIREWALL_Exported_Functions_Group1 Initialization Functions
+/** @defgroup FIREWALL_Exported_Functions_Group1 Initialization Functions
   * @brief    Initialization and Configuration Functions  
   * @{
   */  
@@ -354,6 +356,15 @@ void HAL_FIREWALL_DisablePreArmFlag(void);
 /**
   * @}
   */   
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup FIREWALL_Private FIREWALL Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}
@@ -363,6 +374,9 @@ void HAL_FIREWALL_DisablePreArmFlag(void);
   * @}
   */ 
   
+
+#endif /* #if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) */
+
 #ifdef __cplusplus
 }
 #endif

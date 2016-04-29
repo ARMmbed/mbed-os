@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ramfunc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   FLASH RAMFUNC driver.
   *          This file provides a Flash firmware functions which should be 
   *          executed from internal SRAM
@@ -32,7 +32,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -62,13 +62,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
-#ifdef HAL_FLASH_MODULE_ENABLED
 /** @addtogroup STM32L0xx_HAL_Driver
   * @{
   */
 
-/** @addtogroup FLASHRamfunc
+#ifdef HAL_FLASH_MODULE_ENABLED
+
+
+/** @addtogroup FLASH_RAMFUNC
   * @brief FLASH functions executed from RAM
+  * @{
+  */
+/** @addtogroup FLASH_RAMFUNC_Private
   * @{
   */
 
@@ -79,9 +84,12 @@
 /* Private function prototypes -----------------------------------------------*/
 static __RAM_FUNC FLASHRAM_WaitForLastOperation(uint32_t Timeout);
 static __RAM_FUNC FLASHRAM_SetErrorCode(void);
+/**
+  * @}
+  */
 
 
-/** @addtogroup FLASHRamfunc_Exported_Functions
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions
  *
 @verbatim   
  ===============================================================================
@@ -95,15 +103,14 @@ static __RAM_FUNC FLASHRAM_SetErrorCode(void);
   * @{
   */
 
-/** @addtogroup FLASHRamfunc_Exported_Functions_Group1
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group1
   * @{
   */  
 
 /**
   * @brief  Enable  the power down mode during RUN mode.
   * @note   This function can be used only when the user code is running from Internal SRAM.
-  * @param  None
-  * @retval None
+  * @retval HAL Status
   */
 __RAM_FUNC HAL_FLASHEx_EnableRunPowerDown(void)
 {
@@ -115,8 +122,7 @@ __RAM_FUNC HAL_FLASHEx_EnableRunPowerDown(void)
 /**
   * @brief  Disable the power down mode during RUN mode.
   * @note   This function can be used only when the user code is running from Internal SRAM.
-  * @param  None
-  * @retval None
+  * @retval HAL Status
   */
 __RAM_FUNC HAL_FLASHEx_DisableRunPowerDown(void)
 {
@@ -129,14 +135,15 @@ __RAM_FUNC HAL_FLASHEx_DisableRunPowerDown(void)
   * @}
   */
 
-/** @addtogroup FLASHRamfunc_Exported_Functions_Group2
+#if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)
+
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group2
  *
 @verbatim  
 @endverbatim
   * @{
   */
 
-#if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
 /**
   * @brief  Erases a specified 2 pages in program memory in parallel.
   * @note   This function can be used only for STM32L07xxx/STM32L08xxx  devices.
@@ -274,8 +281,15 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
   /* Return the Write Status */
   return status;
 }
+/**
+  * @}
+  */
 #endif /* STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
-  
+
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group1
+ *
+  * @{
+  */
 /**
   * @brief  Program a half page in program memory. 
   * @param  Address: specifies the address to be written.
@@ -352,6 +366,7 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t *pBuffer)
   *            @arg HAL_FLASH_ERROR_OPTV: FLASH Option valid error flag 
   *            @arg HAL_FLASH_ERROR_FWWERR: FLASH Write or Errase operation aborted
   *            @arg HAL_FLASH_ERROR_NOTZERO: FLASH Write operation is done in a not-erased region 
+  * @retval HAL Status
   */
 __RAM_FUNC HAL_FLASHRAM_GetError(uint32_t * error)
 { 
@@ -359,8 +374,6 @@ __RAM_FUNC HAL_FLASHRAM_GetError(uint32_t * error)
   return HAL_OK;  
 }
 
-
-
 /**
   * @}
   */
@@ -369,14 +382,13 @@ __RAM_FUNC HAL_FLASHRAM_GetError(uint32_t * error)
   * @}
   */
 
-/** @defgroup FLASHRamfunc_Private_Functions FLASH RAM Private Functions
+/** @addtogroup FLASH_RAMFUNC_Private
   * @{
   */ 
 
 /**
   * @brief  Set the specific FLASH error flag.
-  * @param  None
-  * @retval None
+  * @retval HAL Status
   */
 static __RAM_FUNC FLASHRAM_SetErrorCode(void)
 {  
@@ -394,6 +406,14 @@ static __RAM_FUNC FLASHRAM_SetErrorCode(void)
   }
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR))
   { 
+    /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+     *           (RevID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+     *           as expected. If the user run an application using the first
+     *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+     *           device, this error should be ignored. The RevID of the device
+     *           can be retrieved via the HAL_GetREVID() function.
+     *
+     */
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_OPTV;
   }
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR))
@@ -410,6 +430,7 @@ static __RAM_FUNC FLASHRAM_SetErrorCode(void)
   }
   
   /* Errors are now stored, clear errors flags */
+
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR |
                          FLASH_FLAG_OPTVERR | FLASH_FLAG_RDERR | FLASH_FLAG_FWWERR | 
                          FLASH_FLAG_NOTZEROERR);
@@ -447,6 +468,16 @@ static __RAM_FUNC FLASHRAM_WaitForLastOperation(uint32_t Timeout)
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_NOTZEROERR) != RESET) )
     {
       /*Save the error code*/
+
+      /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+       *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+       *           as expected. If the user run an application using the first
+       *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+       *           device, this error should be ignored. The revId of the device
+       *           can be retrieved via the HAL_GetREVID() function.
+       *
+       */
+
       FLASHRAM_SetErrorCode();
       return HAL_ERROR;
     }
@@ -463,10 +494,12 @@ static __RAM_FUNC FLASHRAM_WaitForLastOperation(uint32_t Timeout)
   * @}
   */
 
+#endif /* HAL_FLASH_MODULE_ENABLED */
+
 /**
   * @}
   */
-#endif /* HAL_FLASH_MODULE_ENABLED */
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

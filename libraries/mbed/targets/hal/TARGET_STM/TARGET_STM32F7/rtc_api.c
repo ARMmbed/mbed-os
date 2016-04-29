@@ -33,6 +33,10 @@
 
 #include "mbed_error.h"
 
+#if DEVICE_RTC_LSI
+static int rtc_inited = 0;
+#endif
+
 static RTC_HandleTypeDef RtcHandle;
 
 void rtc_init(void)
@@ -42,6 +46,21 @@ void rtc_init(void)
 
     RtcHandle.Instance = RTC;
 
+#if !DEVICE_RTC_LSI
+    // Enable LSE Oscillator
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+    RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) { // Check if LSE has started correctly
+        // Connect LSE to RTC
+        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+        rtc_freq = LSE_VALUE;
+    } else {
+	    error("Cannot initialize RTC with LSE\n");
+    }
+#else	
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -52,33 +71,20 @@ void rtc_init(void)
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
 
-    // Enable LSE Oscillator
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
-        // Connect LSE to RTC
-        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
-        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-        rtc_freq = LSE_VALUE;
-    } else {
-        // Enable LSI clock
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-        RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-            error("RTC error: LSI clock initialization failed.");
-        }
-        // Connect LSI to RTC
-        __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
-        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-        // [TODO] This value is LSI typical value. To be measured precisely using a timer input capture
-        rtc_freq = LSI_VALUE;
-    }
-
-    // Check if RTC is already initialized
-    if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) return;
+	// Enable LSI clock
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+	RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+	RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+	RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		error("Cannot initialize RTC with LSI\n");
+	}
+	// Connect LSI to RTC
+    __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
+    __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+	// This value is LSI typical value. To be measured precisely using a timer input capture for example.
+	rtc_freq = LSI_VALUE;
+#endif
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
@@ -97,6 +103,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
+#if DEVICE_RTC_LSI
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -109,6 +116,7 @@ void rtc_free(void)
 
     // Disable access to Backup domain
     HAL_PWR_DisableBkUpAccess();
+#endif
 
     // Disable LSI and LSE clocks
     RCC_OscInitTypeDef RCC_OscInitStruct;
@@ -117,15 +125,23 @@ void rtc_free(void)
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+#if DEVICE_RTC_LSI
+    rtc_inited = 0;
+#endif
 }
 
 int rtc_isenabled(void)
 {
-    if(RTC->ISR != 7) {
-        return 1;
-    } else {
-        return 0;
-    }
+#if DEVICE_RTC_LSI
+  return rtc_inited;
+#else
+  if ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) {
+    return 1;
+  } else {
+    return 0;
+  }
+#endif
 }
 
 /*

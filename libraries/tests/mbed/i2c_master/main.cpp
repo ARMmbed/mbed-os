@@ -1,9 +1,9 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_I2C
   #error [NOT_SUPPORTED] I2C is not supported
 #endif
-
-#include "mbed.h"
-#include "test_env.h"
 
 #define SIZE (10)
 #define ADDR (0x90)
@@ -36,6 +36,10 @@ I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 #elif defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A)
 #define TEST_SDA_PIN PA08
+#define TEST_SCL_PIN PA09
+I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
+#elif defined(TARGET_SAMG55J19)
+#define TEST_SDA_PIN PA10
 #define TEST_SCL_PIN PA09
 I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 #else

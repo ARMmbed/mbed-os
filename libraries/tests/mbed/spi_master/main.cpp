@@ -1,9 +1,9 @@
+#include "mbed.h"
+#include "test_env.h"
+
 #if !DEVICE_SPI
   #error [NOT_SUPPORTED] SPI not supported
 #endif
-
-#include "mbed.h"
-#include "test_env.h"
 
 #if defined(TARGET_KL25Z)
 SPI spi(PTD2, PTD3, PTD1);   // mosi, miso, sclk
@@ -38,6 +38,9 @@ DigitalOut cs(PB03);
 #elif defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A)
 SPI spi(PA18, PA16, PA19);   // mosi, miso, sclk
 DigitalOut cs(PA17);
+#elif defined(TARGET_SAMG55J19)
+SPI spi(PA10, PA09, PB00, PA25);   // mosi, miso, sclk  cs
+DigitalOut cs(PA25);
 #else
 SPI spi(p5, p6, p7); // mosi, miso, sclk
 DigitalOut cs(p8);

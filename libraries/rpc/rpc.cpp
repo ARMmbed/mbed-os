@@ -148,7 +148,6 @@ bool RPC::call(const char *request, char *reply) {
             for (; cur_method->name != NULL; cur_method++) {
                 if (strcmp(cur_method->name, args.method_name) == 0) {
                     (cur_method->method_caller)(p, &args, &r);
-                    r.putData<const char*>(cur_method->name);
                     return true;
                 }
             }

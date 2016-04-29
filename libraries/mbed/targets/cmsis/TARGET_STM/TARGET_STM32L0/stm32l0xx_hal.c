@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,33 +57,26 @@
   * @{
   */
 
-/** @addgroup HAL 
+#ifdef HAL_MODULE_ENABLED
+
+/** @addtogroup HAL 
   * @brief HAL module driver.
   * @{
   */
-#ifdef HAL_MODULE_ENABLED
-
 
 /** @addtogroup HAL_Exported_Constants
-  *
   * @{
   */
 
 /** @defgroup HAL_Version HAL Version
   * @{
   */
-#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000)
-#define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_CFGR1_MEM_MODE_0)
-#define SYSCFG_BOOT_SRAM               ((uint32_t)SYSCFG_CFGR1_BOOT_MODE)     
-
-
-#define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
 
 /**
- * @brief STM32L0xx HAL Driver version number V1.2.0
-   */
+ * @brief STM32L0xx HAL Driver version number V1.5.0
+ */
 #define __STM32L0xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L0xx_HAL_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
+#define __STM32L0xx_HAL_VERSION_SUB1   (0x05) /*!< [23:16] sub1 version */
 #define __STM32L0xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32L0xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32L0xx_HAL_VERSION         ((__STM32L0xx_HAL_VERSION_MAIN << 24)\
@@ -100,7 +93,7 @@
 /**
   * @}
   */
-/** @defgroup HAL_Private_Data
+/** @defgroup HAL_Private HAL Private
   * @{
   */ 
 static __IO uint32_t uwTick;
@@ -113,7 +106,7 @@ static __IO uint32_t uwTick;
   * @{
   */
 
-/** @addtogroup HAL_Exported_Functions_Group1 Initialization and de-initialization Functions 
+/** @addtogroup HAL_Exported_Functions_Group1
  *  @brief    Initialization and de-initialization functions
  *
 @verbatim
@@ -156,7 +149,6 @@ static __IO uint32_t uwTick;
   *       Once done, time base tick start incrementing.
   *        In the default implementation,Systick is used as source of time base.
   *        the tick variable is incremented each 1ms in its ISR.
-  * @param None
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_Init(void)
@@ -189,7 +181,6 @@ HAL_StatusTypeDef HAL_Init(void)
   * @brief This function de-Initializes common part of the HAL and stops the source
   *        of time base.
   * @note This function is optional.
-  * @param None
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DeInit(void)
@@ -216,7 +207,6 @@ HAL_StatusTypeDef HAL_DeInit(void)
 
 /**
   * @brief  Initializes the MSP.
-  * @param  None
   * @retval None
   */
 __weak void HAL_MspInit(void)
@@ -228,7 +218,6 @@ __weak void HAL_MspInit(void)
 
 /**
   * @brief  DeInitializes the MSP.
-  * @param  None  
   * @retval None
   */
 __weak void HAL_MspDeInit(void)
@@ -286,8 +275,8 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
       (+) Get the HAL API driver version
       (+) Get the device identifier
       (+) Get the device revision identifier
-      (+) Configures low power mode behavior when the MCU is in Debug mode
-      (+) Manages the VEREFINT feature (activation, lock, output selection)
+      (+) Configure low power mode behavior when the MCU is in Debug mode
+      (+) Manage the VEREFINT feature (activation, lock, output selection)
       
 @endverbatim
   * @{
@@ -300,7 +289,6 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   *       in Systick ISR.
  * @note This function is declared as __weak to be overwritten in case of other 
   *      implementations in user file.
-  * @param None
   * @retval None
   */
 __weak void HAL_IncTick(void)
@@ -312,7 +300,6 @@ __weak void HAL_IncTick(void)
   * @brief Provides a tick value in millisecond.
   * @note This function is declared as __weak to be overwritten in case of other 
   *       implementations in user file.
-  * @param None
   * @retval tick value
   */
 __weak uint32_t HAL_GetTick(void)
@@ -340,14 +327,13 @@ __weak void HAL_Delay(__IO uint32_t Delay)
 }
 
 /**
-  * @brief Suspend Tick increment.
+  * @brief Suspends the Tick increment.
   * @note In the default implementation , SysTick timer is the source of time base. It is
   *       used to generate interrupts at regular time intervals. Once HAL_SuspendTick()
   *       is called, the the SysTick interrupt will be disabled and so Tick increment 
   *       is suspended.
   * @note This function is declared as __weak to be overwritten in case of other
   *       implementations in user file.
-  * @param None
   * @retval None
   */
 __weak void HAL_SuspendTick(void)
@@ -357,14 +343,13 @@ __weak void HAL_SuspendTick(void)
 }
 
 /**
-  * @brief Resume Tick increment.
+  * @brief Resumes the Tick increment.
   * @note In the default implementation , SysTick timer is the source of time base. It is
   *       used to generate interrupts at regular time intervals. Once HAL_ResumeTick()
   *       is called, the the SysTick interrupt will be enabled and so Tick increment 
   *       is resumed.
   * @note This function is declared as __weak to be overwritten in case of other
   *       implementations in user file.
-  * @param None
   * @retval None
   */
 __weak void HAL_ResumeTick(void)
@@ -375,7 +360,6 @@ __weak void HAL_ResumeTick(void)
 
 /**
   * @brief Returns the HAL revision
-  * @param None
   * @retval version: 0xXYZR (8bits for each decimal, R for RC)
   */
 uint32_t HAL_GetHalVersion(void)
@@ -385,7 +369,6 @@ uint32_t HAL_GetHalVersion(void)
 
 /**
   * @brief Returns the device revision identifier.
-  * @param None
   * @retval Device revision identifier
   */
 uint32_t HAL_GetREVID(void)
@@ -395,7 +378,6 @@ uint32_t HAL_GetREVID(void)
 
 /**
   * @brief  Returns the device identifier.
-  * @param  None
   * @retval Device identifier
   */
 uint32_t HAL_GetDEVID(void)
@@ -404,8 +386,7 @@ uint32_t HAL_GetDEVID(void)
 }
 
 /**
-  * @brief  Enable the Debug Module during SLEEP mode
-  * @param  None
+  * @brief  Enables the Debug Module during SLEEP mode
   * @retval None
   */
 void HAL_DBGMCU_EnableDBGSleepMode(void)
@@ -414,8 +395,7 @@ void HAL_DBGMCU_EnableDBGSleepMode(void)
 }
 
 /**
-  * @brief  Disable the Debug Module during SLEEP mode
-  * @param  None
+  * @brief  Disables the Debug Module during SLEEP mode
   * @retval None
   */
 void HAL_DBGMCU_DisableDBGSleepMode(void)
@@ -424,8 +404,7 @@ void HAL_DBGMCU_DisableDBGSleepMode(void)
 }
 
 /**
-  * @brief  Enable the Debug Module during STOP mode
-  * @param  None
+  * @brief  Enables the Debug Module during STOP mode
   * @retval None
   */
 void HAL_DBGMCU_EnableDBGStopMode(void)
@@ -434,8 +413,7 @@ void HAL_DBGMCU_EnableDBGStopMode(void)
 }
 
 /**
-  * @brief  Disable the Debug Module during STOP mode
-  * @param  None
+  * @brief  Disables the Debug Module during STOP mode
   * @retval None
   */
 void HAL_DBGMCU_DisableDBGStopMode(void)
@@ -444,8 +422,7 @@ void HAL_DBGMCU_DisableDBGStopMode(void)
 }
 
 /**
-  * @brief  Enable the Debug Module during STANDBY mode
-  * @param  None
+  * @brief  Enables the Debug Module during STANDBY mode
   * @retval None
   */
 void HAL_DBGMCU_EnableDBGStandbyMode(void)
@@ -454,8 +431,7 @@ void HAL_DBGMCU_EnableDBGStandbyMode(void)
 }
 
 /**
-  * @brief  Disable the Debug Module during STANDBY mode
-  * @param  None
+  * @brief  Disables the Debug Module during STANDBY mode
   * @retval None
   */
 void HAL_DBGMCU_DisableDBGStandbyMode(void)
@@ -500,12 +476,11 @@ void HAL_DBGMCU_DBG_DisableLowPowerConfig(uint32_t Periph)
 
 /**
   * @brief  Returns the boot mode as configured by user.
-  * @param  None.
   * @retval The boot mode as configured by user. The returned value can be one 
   *         of the following values:
-  *              - 0x00000000: Boot is configured in Main Flash memory
-  *              - 0x00000100: Boot is configured in System Flash memory
-  *              - 0x00000300: Boot is configured in Embedded SRAM memory
+  *              - 0x00000000 : Boot is configured in Main Flash memory 
+  *              - 0x00000100 : Boot is configured in System Flash memory 
+  *              - 0x00000300 : Boot is configured in Embedded SRAM memory 
   */
 uint32_t  HAL_SYSCFG_GetBootMode(void)
 {
@@ -514,7 +489,6 @@ uint32_t  HAL_SYSCFG_GetBootMode(void)
 
 /**
   * @brief Enables the VREFINT.
-  * @param None
   * @retval None
   */
 void HAL_SYSCFG_EnableVREFINT(void)
@@ -525,7 +499,6 @@ void HAL_SYSCFG_EnableVREFINT(void)
 
 /**
   * @brief Disables the VREFINT.
-  * @param None.
   * @retval None
   */
 void HAL_SYSCFG_DisableVREFINT(void)
@@ -537,10 +510,6 @@ void HAL_SYSCFG_DisableVREFINT(void)
   * @brief Selects the output of internal reference voltage (VREFINT).
   *        The VREFINT output can be routed to(PB0) or
   *        (PB1) or both.
-  * @note   Kept for backward compatibility
-  *         We recommend to use the MACRO 
-  *         __HAL_SYSCFG_VREFINT_OUTPUT_SELECT(__VREFINT_OUTPUT__)
-  *         rather than this function
   * @param SYSCFG_Vrefint_OUTPUT: new state of the Vrefint output.
   *        This parameter can be one of the following values:
   *     @arg SYSCFG_VREFINT_OUT_NONE
@@ -587,11 +556,10 @@ void HAL_SYSCFG_Disable_Lock_VREFINT(void)
   * @}
   */
 
-#endif /* HAL_MODULE_ENABLED */
 /**
   * @}
   */
-
+#endif /* HAL_MODULE_ENABLED */
 /**
   * @}
   */

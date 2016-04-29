@@ -121,6 +121,8 @@ static inline int openmode_to_posix(int openmode) {
     if (openmode & _LLIO_CREAT ) posix |= O_CREAT;
     if (openmode & _LLIO_APPEND) posix |= O_APPEND;
     if (openmode & _LLIO_TRUNC ) posix |= O_TRUNC;
+#elif defined(TOOLCHAIN_GCC)
+    posix &= ~O_BINARY;
 #endif
     return posix;
 }

@@ -3,13 +3,13 @@
   * @file    stm32l0xx_hal_rng.h
 
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of RNG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -280,67 +280,15 @@ HAL_RNG_StateTypeDef HAL_RNG_GetState(RNG_HandleTypeDef *hrng);
   * @}
   */ 
 
-/* Private types -------------------------------------------------------------*/
-/** @defgroup RNG_Private_Types RNG Private Types
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup RNG_Private RNG Private
   * @{
   */
-
-/**
-  * @}
-  */ 
-
-/* Private defines -----------------------------------------------------------*/
-/** @defgroup RNG_Private_Defines RNG Private Defines
-  * @{
-  */
-
-/**
-  * @}
-  */ 
-          
-/* Private variables ---------------------------------------------------------*/
-/** @defgroup RNG_Private_Variables RNG Private Variables
-  * @{
-  */
-
-/**
-  * @}
-  */ 
-
-/* Private constants ---------------------------------------------------------*/
-/** @defgroup RNG_Private_Constants RNG Private Constants
-  * @{
-  */
-
-/**
-  * @}
-  */ 
-/* Private macros ------------------------------------------------------------*/
-/** @defgroup RNG_Private_Macros RNG Private Macros
-  * @{
-  */
-
-/**
-  * @}
-  */ 
-
-/* Private functions prototypes ----------------------------------------------*/
-/** @defgroup RNG_Private_Functions_Prototypes RNG Private Functions Prototypes
-  * @{
-  */
-
 /**
   * @}
   */
-
-/* Private functions ---------------------------------------------------------*/
-/** @defgroup RNG_Private_Functions RNG Private Functions
-  * @{
-  */
-
-/**
-  * @}
-  */
+/**************************************************************/
 
 /**
   * @}

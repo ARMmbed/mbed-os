@@ -4,3 +4,7 @@ prettytable
 Jinja2
 IntelHex
 mbed-ls
+project-generator>=0.8.11,<0.9.0
+junit-xml
+requests
+pyYAML

@@ -23,7 +23,7 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_RZ_A1H)
+#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
 
 /*
   This class can use the pipe1, pipe3 and pipe6 only. You should

@@ -75,6 +75,11 @@ struct serial_s {
     uint32_t parity;
     PinName  pin_tx;
     PinName  pin_rx;
+#if DEVICE_SERIAL_FC
+    uint32_t hw_flow_ctl;
+    PinName pin_rts;
+    PinName pin_cts;
+#endif
 };
 
 struct spi_s {

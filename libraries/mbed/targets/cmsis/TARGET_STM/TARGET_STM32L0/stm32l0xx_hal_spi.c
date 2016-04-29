@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_spi.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   SPI HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -118,7 +118,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -152,29 +152,24 @@
   * @{
   */
 
-/** @defgroup SPI SPI
+#ifdef HAL_SPI_MODULE_ENABLED
+
+/** @addtogroup SPI
   * @brief SPI HAL module driver
   * @{
   */
 
-#ifdef HAL_SPI_MODULE_ENABLED
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/** @defgroup SPI_Private_Constants SPI Private Constants
+/** @addtogroup SPI_Private
   * @{
   */
 #define SPI_TIMEOUT_VALUE  10
-/**
-  * @}
-  */
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/** @defgroup SPI_Private_Functions SPI Private Functions
-  * @{
-  */
+
 static void SPI_TxCloseIRQHandler(SPI_HandleTypeDef *hspi);
 static void SPI_TxISR(SPI_HandleTypeDef *hspi);
 static void SPI_RxCloseIRQHandler(SPI_HandleTypeDef *hspi);
@@ -194,11 +189,11 @@ static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uin
 
 /* Exported functions ---------------------------------------------------------*/
 
-/** @defgroup SPI_Exported_Functions SPI Exported Functions
+/** @addtogroup SPI_Exported_Functions SPI Exported Functions
   * @{
   */
 
-/** @defgroup SPI_Exported_Functions_Group1 Initialization and de-initialization functions 
+/** @addtogroup SPI_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief    Initialization and Configuration functions 
  *
 @verbatim
@@ -262,6 +257,9 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
 
   if(hspi->State == HAL_SPI_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    hspi->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC... */
     HAL_SPI_MspInit(hspi);
   }
@@ -285,9 +283,11 @@ HAL_StatusTypeDef HAL_SPI_Init(SPI_HandleTypeDef *hspi)
   /* Configure : CRC Polynomial */
   WRITE_REG(hspi->Instance->CRCPR, hspi->Init.CRCPolynomial);
   
+#if !defined(STM32L011xx) && !defined(STM32L021xx) && !defined(STM32L031xx) && !defined(STM32L041xx)
   /* Activate the SPI mode (Make sure that I2SMOD bit in I2SCFGR register is reset) */
   CLEAR_BIT(hspi->Instance->I2SCFGR, SPI_I2SCFGR_I2SMOD);
-
+#endif
+  
   hspi->ErrorCode = HAL_SPI_ERROR_NONE;
   hspi->State = HAL_SPI_STATE_READY;
   
@@ -333,9 +333,12 @@ HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
   */
  __weak void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
  {
-   /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
+  /* NOTE : This function Should not be modified, when the callback is needed,
              the HAL_SPI_MspInit could be implenetd in the user file
-   */
+  */
 }
 
 /**
@@ -346,6 +349,9 @@ HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
   */
  __weak void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SPI_MspDeInit could be implenetd in the user file
    */
@@ -355,7 +361,7 @@ HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
   * @}
   */
 
-/** @defgroup SPI_Exported_Functions_Group2 IO operation functions
+/** @addtogroup SPI_Exported_Functions_Group2
  *  @brief   Data transfers functions
  *
 @verbatim
@@ -1656,6 +1662,9 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SPI_TxCpltCallback could be implenetd in the user file
    */
@@ -1669,6 +1678,9 @@ __weak void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SPI_RxCpltCallback() could be implenetd in the user file
    */
@@ -1682,6 +1694,9 @@ __weak void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SPI_TxRxCpltCallback() could be implenetd in the user file
    */
@@ -1695,6 +1710,9 @@ __weak void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SPI_TxHalfCpltCallback could be implenetd in the user file
    */
@@ -1708,6 +1726,9 @@ __weak void HAL_SPI_TxHalfCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SPI_RxHalfCpltCallback() could be implenetd in the user file
    */
@@ -1721,6 +1742,9 @@ __weak void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SPI_TxRxHalfCpltCallback() could be implenetd in the user file
    */
@@ -1734,6 +1758,9 @@ __weak void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi)
   */
  __weak void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : - This function Should not be modified, when the callback is needed,
             the HAL_SPI_ErrorCallback() could be implenetd in the user file.
             - The ErrorCode parameter in the hspi handle is updated by the SPI processes
@@ -1745,7 +1772,7 @@ __weak void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi)
   * @}
   */
 
-/** @defgroup SPI_Exported_Functions_Group3 Peripheral State and Errors functions 
+/** @addtogroup SPI_Exported_Functions_Group3 Peripheral State and Errors functions
   *  @brief   SPI control functions 
   *
 @verbatim
@@ -1792,7 +1819,7 @@ uint32_t HAL_SPI_GetError(SPI_HandleTypeDef *hspi)
 
 
 
-/** @addtogroup SPI_Private_Functions
+/** @addtogroup SPI_Private
     * @{
     */
 
@@ -2376,10 +2403,11 @@ static HAL_StatusTypeDef SPI_WaitOnFlagUntilTimeout(SPI_HandleTypeDef *hspi, uin
   * @}
   */
 
-#endif /* HAL_SPI_MODULE_ENABLED */
 /**
   * @}
   */
+
+#endif /* HAL_SPI_MODULE_ENABLED */
 
 /**
   * @}

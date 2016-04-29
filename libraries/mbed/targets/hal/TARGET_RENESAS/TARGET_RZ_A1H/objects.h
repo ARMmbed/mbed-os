@@ -41,6 +41,7 @@ struct i2c_s {
 struct spi_s {
     struct st_rspi *spi;
     uint32_t       bits;
+    int            index;
 };
 
 struct gpio_irq_s {

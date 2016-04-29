@@ -1,8 +1,8 @@
+#include "mbed.h"
+
 #if !DEVICE_SEMIHOST
   #error [NOT_SUPPORTED] Semihost not supported
 #endif
-
-#include "mbed.h"
 
 Serial pc(USBTX, USBRX);
 

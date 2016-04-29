@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of CRYPEx HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
    
-#if defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+#if defined (STM32L021xx) || defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
@@ -52,7 +52,7 @@
   * @{
   */
 
-/** @addtogroup CRYPEx
+/** @defgroup CRYPEx CRYPEx
   * @{
   */ 
 
@@ -60,11 +60,11 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup CRYPEx_Exported_Functions
+/** @defgroup CRYPEx_Exported_Functions CRYPEx Exported Functions
   * @{
   */
 
-/** @addtogroup CRYPEx_Exported_Functions_Group1
+/** @defgroup CRYPEx_Exported_Functions_Group1 Extended features functions
   * @{
   */
 
@@ -77,8 +77,7 @@ void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp);
 
 /**
   * @}
-  */ 
-
+  */
 
 /**
   * @}
@@ -88,7 +87,7 @@ void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
   
-#endif /* STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
+#endif /* STM32L021xx || STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
 
 #ifdef __cplusplus
 }
