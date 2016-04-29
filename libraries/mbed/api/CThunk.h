@@ -24,7 +24,7 @@
 
 #define CTHUNK_ADDRESS 1
 
-#if defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__thumb2__)
+#if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__thumb2__)) && ! defined(__CORTEX_A9)
 #define CTHUNK_VARIABLES volatile uint32_t code[1]
 /**
 * CTHUNK disassembly for Cortex-M3/M4 (thumb2):
@@ -38,7 +38,7 @@
 */
 #define CTHUNK_ASSIGMENT m_thunk.code[0] = 0x8007E89F
 
-#elif defined(__CORTEX_M0PLUS) || defined(__CORTEX_M0)
+#elif defined(__CORTEX_M0PLUS) || defined(__CORTEX_M0) || defined(__CORTEX_A9)
 /*
 * CTHUNK disassembly for Cortex M0 (thumb):
 * * push {r0,r1,r2,r3,r4,lr} save touched registers and return address
@@ -194,6 +194,24 @@ class CThunk
             m_thunk.callback = (uint32_t)&m_callback;
             m_thunk.trampoline = (uint32_t)&trampoline;
 
+#if defined(__CORTEX_A9)
+            /* Data cache clean */
+            /* Cache control */
+            {
+                uint32_t start_addr = (uint32_t)&m_thunk & 0xFFFFFFE0;
+                uint32_t end_addr   = (uint32_t)&m_thunk + sizeof(m_thunk);
+                uint32_t addr;
+                
+                /* Data cache clean and invalid */
+                for (addr = start_addr; addr < end_addr; addr += 0x20) {
+                    __v7_clean_inv_dcache_mva((void *)addr);
+                }
+                /* Instruction cache invalid */
+                __v7_inv_icache_all();
+                __ca9u_inv_tlb_all();
+                __v7_inv_btac();
+            }
+#endif
             __ISB();
             __DSB();
         }

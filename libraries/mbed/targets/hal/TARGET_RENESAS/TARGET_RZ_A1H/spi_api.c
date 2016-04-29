@@ -76,11 +76,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
     uint32_t spi      = pinmap_merge(spi_data, spi_cntl);
-
+    
     MBED_ASSERT((int)spi != NC);
-
-    obj->spi = (struct st_rspi *)RSPI[spi];
-
+    
+    obj->spi.spi = (struct st_rspi *)RSPI[spi];
+    obj->spi.index = spi;
+    
     // enable power and clocking
     switch (spi) {
         case SPI_0: CPGSTBCR10 &= ~(0x80); break;
@@ -89,18 +90,18 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         case SPI_3: CPGSTBCR10 &= ~(0x10); break;
     }
     dummy = CPGSTBCR10;
-
-    obj->spi->SPCR   = 0x00;  // CTRL to 0
-    obj->spi->SPSCR  = 0x00;  // no sequential operation
-    obj->spi->SSLP   = 0x00;  // SSL 'L' active 
-    obj->spi->SPDCR  = 0x20;  // byte access
-    obj->spi->SPCKD  = 0x00;  // SSL -> enable CLK delay : 1RSPCK
-    obj->spi->SSLND  = 0x00;  // CLK end -> SSL neg delay : 1RSPCK
-    obj->spi->SPND   = 0x00;  // delay between CMD : 1RSPCK + 2P1CLK
-    obj->spi->SPPCR  = 0x20;  // MOSI Idle fixed value equals 0
-    obj->spi->SPBFCR = 0xf0;  // and set trigger count: read 1, write 1
-    obj->spi->SPBFCR = 0x30;  // and reset buffer
-
+    
+    obj->spi.spi->SPCR   = 0x00;  // CTRL to 0
+    obj->spi.spi->SPSCR  = 0x00;  // no sequential operation
+    obj->spi.spi->SSLP   = 0x00;  // SSL 'L' active
+    obj->spi.spi->SPDCR  = 0x20;  // byte access
+    obj->spi.spi->SPCKD  = 0x00;  // SSL -> enable CLK delay : 1RSPCK
+    obj->spi.spi->SSLND  = 0x00;  // CLK end -> SSL neg delay : 1RSPCK
+    obj->spi.spi->SPND   = 0x00;  // delay between CMD : 1RSPCK + 2P1CLK
+    obj->spi.spi->SPPCR  = 0x20;  // MOSI Idle fixed value equals 0
+    obj->spi.spi->SPBFCR = 0xf0;  // and set trigger count: read 1, write 1
+    obj->spi.spi->SPBFCR = 0x30;  // and reset buffer
+    
     // pin out the spi pins
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
@@ -120,7 +121,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     uint16_t mask      = 0xf03;
     uint16_t wk_spcmd0;
     uint8_t  splw;
-
+    
     switch (mode) {
         case 0:
         case 1:
@@ -132,7 +133,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
             error("SPI format error");
             return;
     }
-
+    
     switch (bits) {
         case 8:
             DSS  = 0x7;
@@ -153,18 +154,18 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     tmp |= phase;
     tmp |= (polarity << 1);
     tmp |= (DSS << 8);
-    obj->bits = bits;
-
+    obj->spi.bits = bits;
+    
     spi_disable(obj);
-    wk_spcmd0 = obj->spi->SPCMD0;
+    wk_spcmd0 = obj->spi.spi->SPCMD0;
     wk_spcmd0 &= ~mask;
     wk_spcmd0 |= (mask & tmp);
-    obj->spi->SPCMD0 = wk_spcmd0;
-    obj->spi->SPDCR   = splw;
+    obj->spi.spi->SPCMD0 = wk_spcmd0;
+    obj->spi.spi->SPDCR   = splw;
     if (slave) {
-        obj->spi->SPCR &=~(1 << 3);  // MSTR to 0
+        obj->spi.spi->SPCR &=~(1 << 3);  // MSTR to 0
     } else {
-        obj->spi->SPCR |= (1 << 3);  // MSTR to 1
+        obj->spi.spi->SPCR |= (1 << 3);  // MSTR to 1
     }
     spi_enable(obj);
 }
@@ -177,21 +178,21 @@ void spi_frequency(spi_t *obj, int hz) {
     uint32_t  hz_min;
     uint16_t  mask = 0x000c;
     uint16_t  wk_spcmd0;
-
+    
     /* set PCLK */
     if (RZ_A1_IsClockMode0() == false) {
         pclk_base = CM1_RENESAS_RZ_A1_P1_CLK;
     } else {
         pclk_base = CM0_RENESAS_RZ_A1_P1_CLK;
     }
-
+    
     hz_min = pclk_base / 2 / 256 / 8;
     hz_max = pclk_base / 2;
     if ((hz < hz_min) || (hz > hz_max)) {
         error("Couldn't setup requested SPI frequency");
         return;
     }
-
+    
     div = (pclk_base / hz / 2);
     while (div > 256) {
         div >>= 1;
@@ -199,53 +200,53 @@ void spi_frequency(spi_t *obj, int hz) {
     }
     div  -= 1;
     brdv  = (brdv << 2);
-
+    
     spi_disable(obj);
-    obj->spi->SPBR = div;
-    wk_spcmd0 = obj->spi->SPCMD0;
+    obj->spi.spi->SPBR = div;
+    wk_spcmd0 = obj->spi.spi->SPCMD0;
     wk_spcmd0 &= ~mask;
     wk_spcmd0 |= (mask & brdv);
-    obj->spi->SPCMD0 = wk_spcmd0;
+    obj->spi.spi->SPCMD0 = wk_spcmd0;
     spi_enable(obj);
 }
 
 static inline void spi_disable(spi_t *obj) {
-    obj->spi->SPCR &= ~(1 << 6);       // SPE to 0
+    obj->spi.spi->SPCR &= ~(1 << 6);       // SPE to 0
 }
 
 static inline void spi_enable(spi_t *obj) {
-    obj->spi->SPCR |=  (1 << 6);       // SPE to 1
+    obj->spi.spi->SPCR |=  (1 << 6);       // SPE to 1
 }
 
 static inline int spi_readable(spi_t *obj) {
-    return obj->spi->SPSR & (1 << 7);  // SPRF
+    return obj->spi.spi->SPSR & (1 << 7);  // SPRF
 }
 
 static inline int spi_tend(spi_t *obj) {
-    return obj->spi->SPSR & (1 << 6);  // TEND
+    return obj->spi.spi->SPSR & (1 << 6);  // TEND
 }
 
 static inline void spi_write(spi_t *obj, int value) {
-    if (obj->bits == 8) {
-        obj->spi->SPDR.UINT8[0]  = (uint8_t)value;
-    } else if (obj->bits == 16) {
-        obj->spi->SPDR.UINT16[0] = (uint16_t)value;
+    if (obj->spi.bits == 8) {
+        obj->spi.spi->SPDR.UINT8[0]  = (uint8_t)value;
+    } else if (obj->spi.bits == 16) {
+        obj->spi.spi->SPDR.UINT16[0] = (uint16_t)value;
     } else {
-        obj->spi->SPDR.UINT32    = (uint32_t)value;
+        obj->spi.spi->SPDR.UINT32    = (uint32_t)value;
     }
 }
 
 static inline int spi_read(spi_t *obj) {
     int read_data;
-
-    if (obj->bits == 8) {
-        read_data = obj->spi->SPDR.UINT8[0];
-    } else if (obj->bits == 16) {
-        read_data = obj->spi->SPDR.UINT16[0];
+    
+    if (obj->spi.bits == 8) {
+        read_data = obj->spi.spi->SPDR.UINT8[0];
+    } else if (obj->spi.bits == 16) {
+        read_data = obj->spi.spi->SPDR.UINT16[0];
     } else {
-        read_data = obj->spi->SPDR.UINT32;
+        read_data = obj->spi.spi->SPDR.UINT32;
     }
-
+    
     return read_data;
 }
 
@@ -270,3 +271,307 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return 0;
 }
+
+#if DEVICE_SPI_ASYNCH
+
+#define IRQ_NUM 2
+
+static void spi_irqs_set(spi_t *obj, uint32_t enable);
+static void spi_async_write(spi_t *obj);
+static void spi_async_read(spi_t *obj);
+
+static void spi0_rx_irq(void);
+static void spi1_rx_irq(void);
+static void spi2_rx_irq(void);
+static void spi3_rx_irq(void);
+static void spi4_rx_irq(void);
+static void spi0_er_irq(void);
+static void spi1_er_irq(void);
+static void spi2_er_irq(void);
+static void spi3_er_irq(void);
+static void spi4_er_irq(void);
+
+static const IRQn_Type irq_set_tbl[RSPI_COUNT][IRQ_NUM] = {
+    {RSPISPRI0_IRQn, RSPISPEI0_IRQn},
+    {RSPISPRI1_IRQn, RSPISPEI1_IRQn},
+    {RSPISPRI2_IRQn, RSPISPEI2_IRQn},
+    {RSPISPRI3_IRQn, RSPISPEI3_IRQn},
+    {RSPISPRI4_IRQn, RSPISPEI4_IRQn}
+};
+
+static const IRQHandler hander_set_tbl[RSPI_COUNT][IRQ_NUM] = {
+    {spi0_rx_irq, spi0_er_irq},
+    {spi1_rx_irq, spi1_er_irq},
+    {spi2_rx_irq, spi2_er_irq},
+    {spi3_rx_irq, spi3_er_irq},
+    {spi4_rx_irq, spi4_er_irq}
+};
+
+struct spi_global_data_s {
+    spi_t *async_obj;
+    uint32_t async_callback, event, wanted_events;
+};
+
+static struct spi_global_data_s spi_data[RSPI_COUNT];
+
+static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
+{
+    spi_t *obj = spi_data[index].async_obj;
+    if (obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length) {
+        spi_async_read(obj);
+    } else {
+        if (obj->rx_buff.buffer && obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) {
+            spi_data[obj->spi.index].event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
+                spi_data[obj->spi.index].event |= SPI_EVENT_COMPLETE;
+            }
+            spi_irqs_set(obj, 0);
+            spi_data[obj->spi.index].async_obj = NULL;
+            ((void (*)())spi_data[obj->spi.index].async_callback)();
+            return;
+        }
+        spi_read(obj);
+    }
+    if (obj->tx_buff.buffer) {
+        if (obj->tx_buff.pos == obj->tx_buff.length) {
+            spi_data[obj->spi.index].event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
+                spi_data[obj->spi.index].event |= SPI_EVENT_COMPLETE;
+            }
+            spi_irqs_set(obj, 0);
+            spi_data[obj->spi.index].async_obj = NULL;
+            ((void (*)())spi_data[obj->spi.index].async_callback)();
+        } else {
+            spi_async_write(obj);
+        }
+    } else {
+        if (obj->rx_buff.pos == obj->rx_buff.length) {
+            spi_data[obj->spi.index].event = SPI_EVENT_INTERNAL_TRANSFER_COMPLETE;
+            if (spi_data[obj->spi.index].wanted_events & SPI_EVENT_COMPLETE) {
+                spi_data[obj->spi.index].event |= SPI_EVENT_COMPLETE;
+            }
+            spi_irqs_set(obj, 0);
+            spi_data[obj->spi.index].async_obj = NULL;
+            ((void (*)())spi_data[obj->spi.index].async_callback)();
+        } else {
+            spi_async_write(obj);
+        }
+    }
+}
+
+static void spi_err_irq(IRQn_Type irq_num, uint32_t index)
+{
+    spi_t *obj = spi_data[index].async_obj;
+    spi_abort_asynch(obj);
+    spi_data[index].event = SPI_EVENT_ERROR;
+    if (spi_data[index].wanted_events & SPI_EVENT_ERROR) {
+        ((void (*)())spi_data[index].async_callback)();
+    }
+}
+
+static void spi0_rx_irq(void)
+{
+    spi_rx_irq(RSPISPRI0_IRQn, 0);
+}
+
+static void spi1_rx_irq(void)
+{
+    spi_rx_irq(RSPISPRI1_IRQn, 1);
+}
+
+static void spi2_rx_irq(void)
+{
+    spi_rx_irq(RSPISPRI2_IRQn, 2);
+}
+
+static void spi3_rx_irq(void)
+{
+    spi_rx_irq(RSPISPRI3_IRQn, 3);
+}
+
+static void spi4_rx_irq(void)
+{
+    spi_rx_irq(RSPISPRI4_IRQn, 4);
+}
+
+static void spi0_er_irq(void)
+{
+    spi_err_irq(RSPISPEI0_IRQn, 0);
+}
+
+static void spi1_er_irq(void)
+{
+    spi_err_irq(RSPISPEI1_IRQn, 1);
+}
+
+static void spi2_er_irq(void)
+{
+    spi_err_irq(RSPISPEI2_IRQn, 2);
+}
+
+static void spi3_er_irq(void)
+{
+    spi_err_irq(RSPISPEI3_IRQn, 3);
+}
+
+static void spi4_er_irq(void)
+{
+    spi_err_irq(RSPISPEI4_IRQn, 4);
+}
+
+static void spi_irqs_set(spi_t *obj, uint32_t enable)
+{
+    int i;
+    const IRQn_Type *irqTable = irq_set_tbl[obj->spi.index];
+    const IRQHandler *handlerTable = hander_set_tbl[obj->spi.index];
+    for (i = 0; i < IRQ_NUM; ++i) {
+        if (enable) {
+            InterruptHandlerRegister(irqTable[i], handlerTable[i]);
+            GIC_SetPriority(irqTable[i], 5);
+            GIC_EnableIRQ(irqTable[i]);
+        } else {
+            GIC_DisableIRQ(irqTable[i]);
+        }
+    }
+    if (enable) {
+        obj->spi.spi->SPCR |= (1 << 4) | (1 << 7);
+    } else {
+        obj->spi.spi->SPCR &= ~((1 << 4) | (1 << 7));
+    }
+}
+
+static void spi_async_write(spi_t *obj)
+{
+    uint8_t **width8;
+    uint16_t **width16;
+    uint32_t **width32;
+    
+    if (obj->tx_buff.buffer) {
+        switch (obj->tx_buff.width) {
+            case 8:
+                width8 = (uint8_t **)&obj->tx_buff.buffer;
+                spi_write(obj, **width8);
+                ++*width8;
+                obj->tx_buff.pos += sizeof(uint8_t);
+                break;
+                
+            case 16:
+                width16 = (uint16_t **)&obj->tx_buff.buffer;
+                spi_write(obj, **width16);
+                ++*width16;
+                obj->tx_buff.pos += sizeof(uint16_t);
+                break;
+                
+            case 32:
+                width32 = (uint32_t **)&obj->tx_buff.buffer;
+                spi_write(obj, **width32);
+                ++*width32;
+                obj->tx_buff.pos += sizeof(uint32_t);
+                break;
+                
+            default:
+                MBED_ASSERT(0);
+                break;
+        }
+    } else {
+        spi_write(obj, SPI_FILL_WORD);
+    }
+}
+
+static void spi_async_read(spi_t *obj)
+{
+    uint8_t **width8;
+    uint16_t **width16;
+    uint32_t **width32;
+    
+    switch (obj->rx_buff.width) {
+        case 8:
+            width8 = (uint8_t **)&obj->rx_buff.buffer;
+            **width8 = spi_read(obj);
+            ++*width8;
+            obj->rx_buff.pos += sizeof(uint8_t);
+            break;
+            
+        case 16:
+            width16 = (uint16_t **)&obj->rx_buff.buffer;
+            **width16 = spi_read(obj);
+            ++*width16;
+            obj->rx_buff.pos += sizeof(uint16_t);
+            break;
+            
+        case 32:
+            width32 = (uint32_t **)&obj->rx_buff.buffer;
+            **width32 = spi_read(obj);
+            ++*width32;
+            obj->rx_buff.pos += sizeof(uint32_t);
+            break;
+            
+        default:
+            MBED_ASSERT(0);
+            break;
+    }
+}
+
+/******************************************************************************
+ * ASYNCHRONOUS HAL
+ ******************************************************************************/
+
+void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    int i;
+    MBED_ASSERT(obj);
+    MBED_ASSERT(tx || rx);
+    MBED_ASSERT(tx && ! rx ? tx_length : 1);
+    MBED_ASSERT(rx && ! tx ? rx_length : 1);
+    MBED_ASSERT(obj->spi.spi->SPCR & (1 << 3)); /* Slave mode */
+    MBED_ASSERT(bit_width == 8 || bit_width == 16 || bit_width == 32);
+    
+    if (tx_length) {
+        obj->tx_buff.buffer = (void *)tx;
+    } else {
+        obj->tx_buff.buffer = NULL;
+    }
+    obj->tx_buff.length = tx_length * bit_width / 8;
+    obj->tx_buff.pos = 0;
+    obj->tx_buff.width = bit_width;
+    if (rx_length) {
+        obj->rx_buff.buffer = rx;
+    } else {
+        obj->rx_buff.buffer = NULL;
+    }
+    obj->rx_buff.length = rx_length * bit_width / 8;
+    obj->rx_buff.pos = 0;
+    obj->rx_buff.width = bit_width;
+    for (i = 0; i < obj->rx_buff.length; i++) {
+        ((uint8_t *)obj->rx_buff.buffer)[i] = SPI_FILL_WORD;
+    }
+    
+    spi_data[obj->spi.index].async_callback = handler;
+    spi_data[obj->spi.index].async_obj = obj;
+    spi_data[obj->spi.index].event = 0;
+    spi_data[obj->spi.index].wanted_events = event;
+    
+    spi_irqs_set(obj, 1);
+    
+    spi_async_write(obj);
+}
+
+uint32_t spi_irq_handler_asynch(spi_t *obj)
+{
+    return spi_data[obj->spi.index].event;
+}
+
+uint8_t spi_active(spi_t *obj)
+{
+    return spi_data[obj->spi.index].async_obj != NULL;
+}
+
+void spi_abort_asynch(spi_t *obj)
+{
+    spi_disable(obj);
+    spi_irqs_set(obj, 0);
+    spi_data[obj->spi.index].async_obj = NULL;
+    spi_enable(obj);
+}
+
+#endif
