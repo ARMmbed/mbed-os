@@ -25,6 +25,8 @@ from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split
 from inspect import getmro
 
+from elftools.elf.elffile import ELFFile
+
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
@@ -701,6 +703,11 @@ class mbedToolchain:
 
             self.binary(r, elf, bin)
 
+        self.info("Memory sections sizes:")
+        size_dict = self.static_sizes(elf)
+        for section, size in size_dict.iteritems():
+            print("{:20} {}".format(section, size))
+
         self.var("compile_succeded", True)
         self.var("binary", filename)
 
@@ -756,6 +763,41 @@ class mbedToolchain:
 
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
+
+    def static_sizes(self, elf):
+        """Accepts elf, returns a dict sizes per section (text, data, bss)"""
+        section_sizes = {}
+
+        SHF_WRITE = 0x1
+        SHF_ALLOC = 0x2
+        SHF_EXECINSTR = 0x4
+        SHT_PROGBITS = "SHT_PROGBITS"
+        SHT_NOBITS = "SHT_NOBITS"
+
+        text = 0
+        data = 0
+        bss = 0
+        with open(elf, 'rb') as f:
+            elffile = ELFFile(f)
+            for section in elffile.iter_sections():
+                flags = section['sh_flags']
+                size = section['sh_size']
+                if (flags & SHF_ALLOC) == 0:
+                    # Section has no relevant data so ignore it
+                    continue
+                if (flags & SHF_EXECINSTR) or not (flags & SHF_WRITE):
+                    # Executable code or read only data
+                    text += size
+                elif section['sh_type'] != SHT_NOBITS:
+                    # Non-zero read/write data
+                    data += size
+                else:
+                    # Zero init read/write data
+                    bss += size
+        section_sizes["text"] = text
+        section_sizes["data"] = data
+        section_sizes["bss"] = bss
+        return section_sizes
 
 from tools.settings import ARM_BIN
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
