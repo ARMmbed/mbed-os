@@ -31,6 +31,7 @@ static can_irq_handler irq_handler;
 
 void can_init(can_t *obj, PinName rd, PinName td) 
 {
+    uint32_t filter_number;
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
     obj->can = (CANName)pinmap_merge(can_rd, can_td);
@@ -71,7 +72,10 @@ void can_init(can_t *obj, PinName rd, PinName td)
     if (HAL_CAN_Init(&CanHandle) != HAL_OK) {
        error("Cannot initialize CAN");
     }
-    can_filter(obj, 0, 0, CANStandard, 0);
+
+    filter_number = (obj->can == CAN_1) ? 0 : 14;
+
+    can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) 
