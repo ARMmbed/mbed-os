@@ -2024,3 +2024,61 @@ def print_tests(tests, format="list"):
     else:
         print "Unknown format '%s'" % format
         sys.exit(1)
+
+def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
+        options=None, clean=False, notify=None, verbose=False, jobs=1,
+        silent=False, report=None, properties=None):
+    """Given the data structure from 'find_tests' and the typical build parameters,
+    build all the tests and return a test build data structure"""
+    
+    test_build = {
+        "platform": target.name,
+        "toolchain": toolchain_name,
+        "base_path": build_path,
+        "baud_rate": 9600,
+        "binary_type": "bootable",
+        "tests": {}
+    }
+    
+    for test_name, test_path in tests.iteritems():
+        src_path = base_source_paths + [test_path]
+        artifact_name = os.path.join(test_path, test_name)
+        bin_file = build_project(src_path, build_path, target, toolchain_name,
+                                 options=options,
+                                 jobs=jobs,
+                                 clean=clean,
+                                 name=artifact_name,
+                                 report=report,
+                                 properties=properties,
+                                 verbose=verbose)
+        
+        # If a clean build was carried out last time, disable it for the next build.
+        # Otherwise the previously built test will be deleted.
+        if clean:
+            clean = False
+        
+        # Normalize the path
+        bin_file = os.path.normpath(bin_file)
+        
+        test_build['tests'][test_name] = {
+            "binaries": [
+                {
+                    "path": bin_file
+                }
+            ]
+        }
+        
+        print 'Image: %s'% bin_file
+    
+    test_builds = {}
+    test_builds["%s-%s" % (target.name, toolchain_name)] = test_build
+    
+    
+    return test_builds
+    
+
+def test_spec_from_test_build(test_builds):
+    return {
+        "builds": test_builds
+    }
+    
