@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_hcd.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   HCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -42,7 +42,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -138,7 +138,7 @@ HAL_StatusTypeDef HAL_HCD_Init(HCD_HandleTypeDef *hhcd)
   if(hhcd->State == HAL_HCD_STATE_RESET)
   {  
     /* Allocate lock resource and initialize it */
-    hhcd-> Lock = HAL_UNLOCKED;
+    hhcd->Lock = HAL_UNLOCKED;
 
     /* Init the low level hardware : GPIO, CLOCK, NVIC... */
     HAL_HCD_MspInit(hhcd);
@@ -267,6 +267,8 @@ HAL_StatusTypeDef HAL_HCD_DeInit(HCD_HandleTypeDef *hhcd)
   */
 __weak void  HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_MspInit could be implemented in the user file
    */
@@ -279,6 +281,8 @@ __weak void  HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd)
   */
 __weak void  HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_MspDeInit could be implemented in the user file
    */
@@ -557,6 +561,8 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
   */
 __weak void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_SOF_Callback could be implemented in the user file
    */
@@ -569,6 +575,8 @@ __weak void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd)
   */
 __weak void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_Connect_Callback could be implemented in the user file
    */
@@ -581,6 +589,8 @@ __weak void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
   */
 __weak void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_Disconnect_Callback could be implemented in the user file
    */
@@ -603,6 +613,10 @@ __weak void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
   */
 __weak void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum, HCD_URBStateTypeDef urb_state)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
+  UNUSED(chnum);
+  UNUSED(urb_state);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_HC_NotifyURBChange_Callback could be implemented in the user file
    */
@@ -788,6 +802,7 @@ uint32_t HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd)
 static void HCD_HC_IN_IRQHandler (HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+  uint32_t tmpreg = 0;
   
   if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_AHBERR)
   {
@@ -872,8 +887,10 @@ static void HCD_HC_IN_IRQHandler (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       }
       
       /* re-activate the channel  */
-      USBx_HC(chnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
-      USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+      tmpreg = USBx_HC(chnum)->HCCHAR;
+      tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+      tmpreg |= USB_OTG_HCCHAR_CHENA;
+      USBx_HC(chnum)->HCCHAR = tmpreg;
     }
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_CHH);
     HAL_HCD_HC_NotifyURBChange_Callback(hhcd, chnum, hhcd->hc[chnum].urb_state);
@@ -898,9 +915,10 @@ static void HCD_HC_IN_IRQHandler (HCD_HandleTypeDef *hhcd, uint8_t chnum)
               (hhcd->hc[chnum].ep_type == EP_TYPE_BULK))
     {
       /* re-activate the channel  */
-      USBx_HC(chnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
-      USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
-     
+      tmpreg = USBx_HC(chnum)->HCCHAR;
+      tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+      tmpreg |= USB_OTG_HCCHAR_CHENA;
+      USBx_HC(chnum)->HCCHAR = tmpreg;
     }
     hhcd->hc[chnum].state = HC_NAK;
      __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_NAK);
@@ -917,6 +935,7 @@ static void HCD_HC_IN_IRQHandler (HCD_HandleTypeDef *hhcd, uint8_t chnum)
 static void HCD_HC_OUT_IRQHandler (HCD_HandleTypeDef *hhcd, uint8_t chnum)
 {
   USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+  uint32_t tmpreg = 0;
   
   if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_AHBERR)
   {
@@ -1030,8 +1049,10 @@ static void HCD_HC_OUT_IRQHandler (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       }
       
       /* re-activate the channel  */
-      USBx_HC(chnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
-      USBx_HC(chnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+      tmpreg = USBx_HC(chnum)->HCCHAR;
+      tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+      tmpreg |= USB_OTG_HCCHAR_CHENA;
+      USBx_HC(chnum)->HCCHAR = tmpreg;
     }
     
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_CHH);
@@ -1051,6 +1072,7 @@ static void HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
   uint32_t                      pktsts;
   uint32_t                      pktcnt; 
   uint32_t                      temp = 0;
+  uint32_t tmpreg = 0;
   
   temp = hhcd->Instance->GRXSTSP;
   channelnum = temp &  USB_OTG_GRXSTSP_EPNUM;
@@ -1072,8 +1094,10 @@ static void HCD_RXQLVL_IRQHandler  (HCD_HandleTypeDef *hhcd)
       if((USBx_HC(channelnum)->HCTSIZ & USB_OTG_HCTSIZ_PKTCNT) > 0)
       {
         /* re-activate the channel when more packets are expected */
-        USBx_HC(channelnum)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS; 
-        USBx_HC(channelnum)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+        tmpreg = USBx_HC(channelnum)->HCCHAR;
+        tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+        tmpreg |= USB_OTG_HCCHAR_CHENA;
+        USBx_HC(channelnum)->HCCHAR = tmpreg;
         hhcd->hc[channelnum].toggle_in ^= 1;
       }
     }

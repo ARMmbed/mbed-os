@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of ADC HAL extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -207,7 +207,7 @@ typedef struct
 #if defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC)
 /*!< Note: TIM8_TRGO is available on ADC1 and ADC2 only in high-density and   */
 /*         XL-density devices.                                                */
-/*         To use it on ADC or ADC2, a rempap of trigger must be done from    */
+/*         To use it on ADC or ADC2, a remap of trigger must be done from     */
 /*         EXTI line 11 to TIM8_TRGO with macro:                              */
 /*           __HAL_AFIO_REMAP_ADC1_ETRGREG_ENABLE()                           */
 /*           __HAL_AFIO_REMAP_ADC2_ETRGREG_ENABLE()                           */
@@ -251,8 +251,8 @@ typedef struct
 #if defined (STM32F101xE) || defined (STM32F101xG) || defined (STM32F103xE) || defined (STM32F103xG) || defined (STM32F105xC) || defined (STM32F107xC)
 /*!< Note: TIM8_CC4 is available on ADC1 and ADC2 only in high-density and    */
 /*         XL-density devices.                                                */
-/*         To use it on ADC or ADC2, a rempap of trigger must be done from    */
-/*         EXTI line 11 to TIM8_TRGO with macro:                              */
+/*         To use it on ADC1 or ADC2, a remap of trigger must be done from    */
+/*         EXTI line 11 to TIM8_CC4 with macro:                               */
 /*           __HAL_AFIO_REMAP_ADC1_ETRGINJ_ENABLE()                           */
 /*           __HAL_AFIO_REMAP_ADC2_ETRGINJ_ENABLE()                           */
 
@@ -272,15 +272,15 @@ typedef struct
   * @{
   */
 #define ADC_MODE_INDEPENDENT                  ((uint32_t)(0x00000000)) /*!< ADC dual mode disabled (ADC independent mode) */
-#define ADC_DUALMODE_REGSIMULT_INJECSIMULT    ((uint32_t)(                                                            ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Combined regular simultaneous + injected simultaneous mode */
-#define ADC_DUALMODE_REGSIMULT_ALTERTRIG      ((uint32_t)(                                        ADC_CR1_DUALMOD_1                    )) /*!< ADC dual mode enabled: Combined regular simultaneous + alternate trigger mode */
-#define ADC_DUALMODE_INJECSIMULT_INTERLFAST   ((uint32_t)(                                        ADC_CR1_DUALMOD_1 | ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Combined injected simultaneous + fast interleaved mode (delay between ADC sampling phases: 7 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
-#define ADC_DUALMODE_INJECSIMULT_INTERLSLOW   ((uint32_t)(                    ADC_CR1_DUALMOD_2                                        )) /*!< ADC dual mode enabled: Combined injected simultaneous + slow Interleaved mode (delay between ADC sampling phases: 14 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
-#define ADC_DUALMODE_INJECSIMULT              ((uint32_t)(                    ADC_CR1_DUALMOD_2 |                     ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Injected simultaneous mode only */
-#define ADC_DUALMODE_REGSIMULT                ((uint32_t)(                    ADC_CR1_DUALMOD_2 | ADC_CR1_DUALMOD_1                    )) /*!< ADC dual mode enabled: Regular simultaneous mode only */
-#define ADC_DUALMODE_INTERLFAST               ((uint32_t)(                    ADC_CR1_DUALMOD_2 | ADC_CR1_DUALMOD_1 | ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Fast interleaved mode only (delay between ADC sampling phases: 7 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
-#define ADC_DUALMODE_INTERLSLOW               ((uint32_t)(ADC_CR1_DUALMOD_3                                                            )) /*!< ADC dual mode enabled: Slow interleaved mode only (delay between ADC sampling phases: 14 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
-#define ADC_DUALMODE_ALTERTRIG                ((uint32_t)(ADC_CR1_DUALMOD_3 |                                         ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Alternate trigger mode only */
+#define ADC_DUALMODE_REGSIMULT_INJECSIMULT    ((uint32_t)(                                                            ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Combined regular simultaneous + injected simultaneous mode, on groups regular and injected */
+#define ADC_DUALMODE_REGSIMULT_ALTERTRIG      ((uint32_t)(                                        ADC_CR1_DUALMOD_1                    )) /*!< ADC dual mode enabled: Combined regular simultaneous + alternate trigger mode, on groups regular and injected */
+#define ADC_DUALMODE_INJECSIMULT_INTERLFAST   ((uint32_t)(                                        ADC_CR1_DUALMOD_1 | ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Combined injected simultaneous + fast interleaved mode, on groups regular and injected (delay between ADC sampling phases: 7 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
+#define ADC_DUALMODE_INJECSIMULT_INTERLSLOW   ((uint32_t)(                    ADC_CR1_DUALMOD_2                                        )) /*!< ADC dual mode enabled: Combined injected simultaneous + slow Interleaved mode, on groups regular and injected (delay between ADC sampling phases: 14 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
+#define ADC_DUALMODE_INJECSIMULT              ((uint32_t)(                    ADC_CR1_DUALMOD_2 |                     ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Injected simultaneous mode, on group injected */
+#define ADC_DUALMODE_REGSIMULT                ((uint32_t)(                    ADC_CR1_DUALMOD_2 | ADC_CR1_DUALMOD_1                    )) /*!< ADC dual mode enabled: Regular simultaneous mode, on group regular */
+#define ADC_DUALMODE_INTERLFAST               ((uint32_t)(                    ADC_CR1_DUALMOD_2 | ADC_CR1_DUALMOD_1 | ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Fast interleaved mode, on group regular (delay between ADC sampling phases: 7 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
+#define ADC_DUALMODE_INTERLSLOW               ((uint32_t)(ADC_CR1_DUALMOD_3                                                            )) /*!< ADC dual mode enabled: Slow interleaved mode, on group regular (delay between ADC sampling phases: 14 ADC clock cycles (equivalent to parameter "TwoSamplingDelay" set to "ADC_TWOSAMPLINGDELAY_7CYCLES" on other STM32 devices)) */
+#define ADC_DUALMODE_ALTERTRIG                ((uint32_t)(ADC_CR1_DUALMOD_3 |                                         ADC_CR1_DUALMOD_0)) /*!< ADC dual mode enabled: Alternate trigger mode, on group injected */
 /**
   * @}
   */
@@ -301,7 +301,7 @@ typedef struct
   * @{
   */
 /* List of external triggers of regular group for ADC1, ADC2, ADC3 (if ADC    */
-/* instance is availble on the selected device).                              */
+/* instance is available on the selected device).                             */
 /* (used internally by HAL driver. To not use into HAL structure parameters)  */
 
 /* External triggers of regular group for ADC1&ADC2 (if ADCx available) */
@@ -338,7 +338,7 @@ typedef struct
   * @{
   */
 /* List of external triggers of injected group for ADC1, ADC2, ADC3 (if ADC    */
-/* instance is availble on the selected device).                              */
+/* instance is available on the selected device).                             */
 /* (used internally by HAL driver. To not use into HAL structure parameters)  */
 
 /* External triggers of injected group for ADC1&ADC2 (if ADCx available) */
@@ -468,15 +468,33 @@ typedef struct
   */
 #if defined (STM32F101xG) || defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F105xC) || defined (STM32F107xC) || defined (STM32F103xE) || defined (STM32F103xG)
 #define ADC_NONMULTIMODE_OR_MULTIMODEMASTER(__HANDLE__)                        \
- (( (((__HANDLE__)->Instance) == ADC2)                                         \
-  )?                                                                           \
-   ((ADC1->CR1 & ADC_CR1_DUALMOD) == RESET)                                    \
-   :                                                                           \
-   (!RESET)                                                                    \
- )
+  (( (((__HANDLE__)->Instance) == ADC2)                                        \
+   )?                                                                          \
+    ((ADC1->CR1 & ADC_CR1_DUALMOD) == RESET)                                   \
+    :                                                                          \
+    (!RESET)                                                                   \
+  )
 #else
 #define ADC_NONMULTIMODE_OR_MULTIMODEMASTER(__HANDLE__)                        \
   (!RESET)
+#endif /* STM32F101xG || defined STM32F103x6 || defined STM32F103xB || defined STM32F105xC || defined STM32F107xC || defined STM32F103xE || defined STM32F103xG */
+
+/**
+  * @brief Check ADC multimode setting: In case of multimode, check whether ADC master of the selected ADC has feature auto-injection enabled (applicable for devices with several ADCs)
+  * @param __HANDLE__: ADC handle
+  * @retval None
+  */
+#if defined (STM32F101xG) || defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F105xC) || defined (STM32F107xC) || defined (STM32F103xE) || defined (STM32F103xG)
+#define ADC_MULTIMODE_AUTO_INJECTED(__HANDLE__)                                \
+  (( (((__HANDLE__)->Instance) == ADC1) || (((__HANDLE__)->Instance) == ADC2)  \
+   )?                                                                          \
+    (ADC1->CR1 & ADC_CR1_JAUTO)                                                \
+    :                                                                          \
+    (RESET)                                                                    \
+  )
+#else
+#define ADC_MULTIMODE_AUTO_INJECTED(__HANDLE__)                                \
+  (RESET)
 #endif /* STM32F101xG || defined STM32F103x6 || defined STM32F103xB || defined STM32F105xC || defined STM32F107xC || defined STM32F103xE || defined STM32F103xG */
 
 #if defined (STM32F101xG) || defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F105xC) || defined (STM32F107xC) || defined (STM32F103xE) || defined (STM32F103xG)

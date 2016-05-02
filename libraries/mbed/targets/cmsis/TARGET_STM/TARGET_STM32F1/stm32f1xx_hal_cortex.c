@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   CORTEX HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -74,10 +74,9 @@
         (++) Enables the SysTick Interrupt.
         (++) Starts the SysTick Counter.
     
-   (+) You can change the SysTick Clock source to be HCLK_Div8 by calling the macro
-       __HAL_CORTEX_SYSTICKCLK_CONFIG(SYSTICK_CLKSOURCE_HCLK_DIV8) just after the
-       HAL_SYSTICK_Config() function call. The __HAL_CORTEX_SYSTICKCLK_CONFIG() macro is defined
-       inside the stm32f1xx_hal_cortex.h file.
+   (+) You can change the SysTick Clock source to be HCLK_Div8 by calling the function
+       HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK_DIV8) just after the
+       HAL_SYSTICK_Config() function call.
 
    (+) You can change the SysTick IRQ priority by calling the
        HAL_NVIC_SetPriority(SysTick_IRQn,...) function just after the HAL_SYSTICK_Config() function 
@@ -93,7 +92,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -285,12 +284,59 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
   ==============================================================================
     [..]
       This subsection provides a set of functions allowing to control the CORTEX
-      (NVIC, SYSTICK) functionalities. 
+      (NVIC, SYSTICK, MPU) functionalities. 
  
       
 @endverbatim
   * @{
   */
+
+#if (__MPU_PRESENT == 1)
+/**
+  * @brief  Initializes and configures the Region and the memory to be protected.
+  * @param  MPU_Init: Pointer to a MPU_Region_InitTypeDef structure that contains
+  *                the initialization and configuration information.
+  * @retval None
+  */
+void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init)
+{
+  /* Check the parameters */
+  assert_param(IS_MPU_REGION_NUMBER(MPU_Init->Number));
+  assert_param(IS_MPU_REGION_ENABLE(MPU_Init->Enable));
+
+  /* Set the Region number */
+  MPU->RNR = MPU_Init->Number;
+
+  if ((MPU_Init->Enable) != RESET)
+  {
+    /* Check the parameters */
+    assert_param(IS_MPU_INSTRUCTION_ACCESS(MPU_Init->DisableExec));
+    assert_param(IS_MPU_REGION_PERMISSION_ATTRIBUTE(MPU_Init->AccessPermission));
+    assert_param(IS_MPU_TEX_LEVEL(MPU_Init->TypeExtField));
+    assert_param(IS_MPU_ACCESS_SHAREABLE(MPU_Init->IsShareable));
+    assert_param(IS_MPU_ACCESS_CACHEABLE(MPU_Init->IsCacheable));
+    assert_param(IS_MPU_ACCESS_BUFFERABLE(MPU_Init->IsBufferable));
+    assert_param(IS_MPU_SUB_REGION_DISABLE(MPU_Init->SubRegionDisable));
+    assert_param(IS_MPU_REGION_SIZE(MPU_Init->Size));
+    
+    MPU->RBAR = MPU_Init->BaseAddress;
+    MPU->RASR = ((uint32_t)MPU_Init->DisableExec             << MPU_RASR_XN_Pos)   |
+                ((uint32_t)MPU_Init->AccessPermission        << MPU_RASR_AP_Pos)   |
+                ((uint32_t)MPU_Init->TypeExtField            << MPU_RASR_TEX_Pos)  |
+                ((uint32_t)MPU_Init->IsShareable             << MPU_RASR_S_Pos)    |
+                ((uint32_t)MPU_Init->IsCacheable             << MPU_RASR_C_Pos)    |
+                ((uint32_t)MPU_Init->IsBufferable            << MPU_RASR_B_Pos)    |
+                ((uint32_t)MPU_Init->SubRegionDisable        << MPU_RASR_SRD_Pos)  |
+                ((uint32_t)MPU_Init->Size                    << MPU_RASR_SIZE_Pos) |
+                ((uint32_t)MPU_Init->Enable                  << MPU_RASR_ENABLE_Pos);
+  }
+  else
+  {
+    MPU->RBAR = 0x00;
+    MPU->RASR = 0x00;
+  }
+}
+#endif /* __MPU_PRESENT */
 
 /**
   * @brief  Gets the priority grouping field from the NVIC Interrupt Controller.

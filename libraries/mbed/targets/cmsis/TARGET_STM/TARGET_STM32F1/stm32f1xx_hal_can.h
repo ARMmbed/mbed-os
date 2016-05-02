@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -139,7 +139,7 @@ typedef struct
   uint32_t DLC;      /*!< Specifies the length of the frame that will be transmitted.
                           This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
 
-  uint32_t Data[8];  /*!< Contains the data to be transmitted. 
+  uint8_t Data[8];   /*!< Contains the data to be transmitted. 
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF. */
    
 }CanTxMsgTypeDef;
@@ -164,7 +164,7 @@ typedef struct
   uint32_t DLC;         /*!< Specifies the length of the frame that will be received.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 8. */
 
-  uint32_t Data[8];     /*!< Contains the data to be received. 
+  uint8_t Data[8];      /*!< Contains the data to be received. 
                              This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF. */
 
   uint32_t FMI;         /*!< Specifies the index of the filter the message stored in the mailbox passes through.

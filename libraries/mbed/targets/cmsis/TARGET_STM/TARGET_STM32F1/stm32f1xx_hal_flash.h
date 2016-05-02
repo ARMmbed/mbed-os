@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -67,9 +67,17 @@
   */
 
 #define IS_FLASH_TYPEPROGRAM(VALUE)  (((VALUE) == FLASH_TYPEPROGRAM_HALFWORD) || \
-                                ((VALUE) == FLASH_TYPEPROGRAM_WORD)     || \
-                                ((VALUE) == FLASH_TYPEPROGRAM_DOUBLEWORD))  
+                                      ((VALUE) == FLASH_TYPEPROGRAM_WORD)     || \
+                                      ((VALUE) == FLASH_TYPEPROGRAM_DOUBLEWORD))  
 
+#if   defined(FLASH_ACR_LATENCY)
+#define IS_FLASH_LATENCY(__LATENCY__) (((__LATENCY__) == FLASH_LATENCY_0) || \
+                                       ((__LATENCY__) == FLASH_LATENCY_1) || \
+                                       ((__LATENCY__) == FLASH_LATENCY_2))
+
+#else
+#define IS_FLASH_LATENCY(__LATENCY__)   ((__LATENCY__) == FLASH_LATENCY_0)
+#endif /* FLASH_ACR_LATENCY */
 /**
   * @}
   */  
@@ -98,18 +106,18 @@ typedef enum
   */
 typedef struct
 {
-  __IO FLASH_ProcedureTypeDef ProcedureOnGoing; /* Internal variable to indicate which procedure is ongoing or not in IT context */
+  __IO FLASH_ProcedureTypeDef ProcedureOnGoing; /*!< Internal variable to indicate which procedure is ongoing or not in IT context */
   
-  __IO uint32_t               DataRemaining;    /* Internal variable to save the remaining pages to erase or half-word to program in IT context */
-  
-  __IO uint32_t               Address;          /* Internal variable to save address selected for program or erase */
-  
-  __IO uint64_t               Data;             /* Internal variable to save data to be programmed */
+  __IO uint32_t               DataRemaining;    /*!< Internal variable to save the remaining pages to erase or half-word to program in IT context */
 
-  HAL_LockTypeDef             Lock;             /* FLASH locking object                */
+  __IO uint32_t               Address;          /*!< Internal variable to save address selected for program or erase */
 
-  __IO uint32_t               ErrorCode;        /* FLASH error code                    */
+  __IO uint64_t               Data;             /*!< Internal variable to save data to be programmed */
 
+  HAL_LockTypeDef             Lock;             /*!< FLASH locking object                */
+
+  __IO uint32_t               ErrorCode;        /*!< FLASH error code                    
+                                                     This parameter can be a value of @ref FLASH_Error_Codes  */
 } FLASH_ProcessTypeDef;
 
 /**
@@ -124,18 +132,17 @@ typedef struct
 /** @defgroup FLASH_Error_Codes FLASH Error Codes
   * @{
   */
- 
-#define HAL_FLASH_ERROR_NONE      ((uint32_t)0x00)
-#define HAL_FLASH_ERROR_PROG        ((uint32_t)0x01)
-#define HAL_FLASH_ERROR_WRP       ((uint32_t)0x02)
-#define HAL_FLASH_ERROR_OPTV      ((uint32_t)0x04)
+
+#define HAL_FLASH_ERROR_NONE      ((uint32_t)0x00)  /*!< No error */
+#define HAL_FLASH_ERROR_PROG      ((uint32_t)0x01)  /*!< Programming error */
+#define HAL_FLASH_ERROR_WRP       ((uint32_t)0x02)  /*!< Write protection error */
+#define HAL_FLASH_ERROR_OPTV      ((uint32_t)0x04)  /*!< Option validity error */
 
 /**
   * @}
   */
 
-
-/** @defgroup FLASH_Type_Program Type Program
+/** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */ 
 #define FLASH_TYPEPROGRAM_HALFWORD   ((uint32_t)0x01)  /*!<Program a half-word (16-bit) at a specified address.*/
@@ -146,6 +153,29 @@ typedef struct
   * @}
   */
 
+#if   defined(FLASH_ACR_LATENCY)
+/** @defgroup FLASH_Latency FLASH Latency
+  * @{
+  */
+#define FLASH_LATENCY_0            ((uint32_t)0x00000000)    /*!< FLASH Zero Latency cycle */
+#define FLASH_LATENCY_1            FLASH_ACR_LATENCY_0       /*!< FLASH One Latency cycle */
+#define FLASH_LATENCY_2            FLASH_ACR_LATENCY_1       /*!< FLASH Two Latency cycles */
+
+/**
+  * @}
+  */
+
+#else
+/** @defgroup FLASH_Latency FLASH Latency
+  * @{
+  */
+#define FLASH_LATENCY_0            ((uint32_t)0x00000000)    /*!< FLASH Zero Latency cycle */
+
+/**
+  * @}
+  */
+
+#endif /* FLASH_ACR_LATENCY */
 /**
   * @}
   */  
@@ -157,9 +187,14 @@ typedef struct
  *  @{
  */
  
+/** @defgroup FLASH_Half_Cycle FLASH Half Cycle
+ *  @brief macros to handle FLASH half cycle
+ * @{
+ */
+
 /**
   * @brief  Enable the FLASH half cycle access.
-  * @note   halfcycle access can only be used with a low-frequency clock of less than
+  * @note   half cycle access can only be used with a low-frequency clock of less than
             8 MHz that can be obtained with the use of HSI or HSE but not of PLL.
   * @retval None
   */
@@ -167,12 +202,63 @@ typedef struct
 
 /**
   * @brief  Disable the FLASH half cycle access.
-  * @note   halfcycle access can only be used with a low-frequency clock of less than
+  * @note   half cycle access can only be used with a low-frequency clock of less than
             8 MHz that can be obtained with the use of HSI or HSE but not of PLL.
   * @retval None
   */
 #define __HAL_FLASH_HALF_CYCLE_ACCESS_DISABLE() (FLASH->ACR &= (~FLASH_ACR_HLFCYA))
 
+/**
+  * @}
+  */
+
+#if defined(FLASH_ACR_LATENCY)
+/** @defgroup FLASH_EM_Latency FLASH Latency
+ *  @brief macros to handle FLASH Latency
+ * @{
+ */ 
+  
+/**
+  * @brief  Set the FLASH Latency.
+  * @param  __LATENCY__ FLASH Latency                   
+  *         The value of this parameter depend on device used within the same series
+  * @retval None
+  */ 
+#define __HAL_FLASH_SET_LATENCY(__LATENCY__)    (FLASH->ACR = (FLASH->ACR&(~FLASH_ACR_LATENCY)) | (__LATENCY__))
+
+
+/**
+  * @brief  Get the FLASH Latency.
+  * @retval FLASH Latency                   
+  *         The value of this parameter depend on device used within the same series
+  */ 
+#define __HAL_FLASH_GET_LATENCY()     (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))
+
+/**
+  * @}
+  */
+
+#endif /* FLASH_ACR_LATENCY */
+/** @defgroup FLASH_Prefetch FLASH Prefetch
+ *  @brief macros to handle FLASH Prefetch buffer
+ * @{
+ */   
+/**
+  * @brief  Enable the FLASH prefetch buffer.
+  * @retval None
+  */ 
+#define __HAL_FLASH_PREFETCH_BUFFER_ENABLE()    (FLASH->ACR |= FLASH_ACR_PRFTBE)
+
+/**
+  * @brief  Disable the FLASH prefetch buffer.
+  * @retval None
+  */
+#define __HAL_FLASH_PREFETCH_BUFFER_DISABLE()   (FLASH->ACR &= (~FLASH_ACR_PRFTBE))
+
+/**
+  * @}
+  */
+  
 /**
   * @}
   */ 
@@ -192,7 +278,7 @@ typedef struct
 HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
 HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
 
-/* FLASH IRQ handler method */
+/* FLASH IRQ handler function */
 void       HAL_FLASH_IRQHandler(void);
 /* Callbacks in non blocking modes */ 
 void       HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue);
@@ -236,8 +322,9 @@ uint32_t HAL_FLASH_GetError(void);
  */
 void                    FLASH_PageErase(uint32_t PageAddress);
 HAL_StatusTypeDef       FLASH_WaitForLastOperation(uint32_t Timeout);
-void                    FLASH_SetErrorCode(void);
-void                    FLASH_Program_HalfWord(uint32_t Address, uint16_t Data);
+#if defined(FLASH_BANK2_END)
+HAL_StatusTypeDef       FLASH_WaitForLastOperationBank2(uint32_t Timeout);
+#endif /* FLASH_BANK2_END */
 
 /**
   * @}
