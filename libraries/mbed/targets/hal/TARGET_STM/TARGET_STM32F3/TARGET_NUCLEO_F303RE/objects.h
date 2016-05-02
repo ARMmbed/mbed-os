@@ -99,6 +99,7 @@ struct i2c_s {
 struct pwmout_s {
     PWMName pwm;
     PinName pin;
+    uint32_t prescaler;
     uint32_t period;
     uint32_t pulse;
     uint32_t channel;
