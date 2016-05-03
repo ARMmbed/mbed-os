@@ -98,7 +98,7 @@ typedef struct OS_PSQ {           /* Post Service Queue                      */
 
 typedef struct OS_TSK {
   P_TCB  run;                     /* Current running task                    */
-  P_TCB  new;                     /* Scheduled task to run                   */
+  P_TCB  new_tsk;                /* Scheduled task to run                   */
 } *P_TSK;
 
 typedef struct OS_ROBIN {         /* Round Robin Control                     */

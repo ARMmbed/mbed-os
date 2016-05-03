@@ -24,6 +24,12 @@
 #include "mbed_error.h"
 #include "rtos_idle.h"
 
+// rt_tid2ptcb is an internal function which we exposed to get TCB for thread id
+#undef NULL  //Workaround for conflicting macros in rt_TypeDef.h and stdio.h
+#include "rt_TypeDef.h"
+
+extern "C" P_TCB rt_tid2ptcb(osThreadId thread_id);
+
 namespace rtos {
 
 Thread::Thread(void (*task)(void const *argument), void *argument,
@@ -87,7 +93,8 @@ uint32_t Thread::stack_size() {
 #if defined(CMSIS_OS_RTX) && !defined(__MBED_CMSIS_RTOS_CM)
     return _thread_def.tcb.priv_stack;
 #else
-    return 0;
+    P_TCB tcb = rt_tid2ptcb(_tid);
+    return tcb->priv_stack;
 #endif
 #else
     return 0;
@@ -100,7 +107,9 @@ uint32_t Thread::free_stack() {
     uint32_t bottom = (uint32_t)_thread_def.tcb.stack;
     return _thread_def.tcb.tsk_stack - bottom;
 #else
-    return 0;
+    P_TCB tcb = rt_tid2ptcb(_tid);
+    uint32_t bottom = (uint32_t)tcb->stack;
+    return tcb->tsk_stack - bottom;
 #endif
 #else
     return 0;
@@ -113,7 +122,9 @@ uint32_t Thread::used_stack() {
     uint32_t top = (uint32_t)_thread_def.tcb.stack + _thread_def.tcb.priv_stack;
     return top - _thread_def.tcb.tsk_stack;
 #else
-    return 0;
+    P_TCB tcb = rt_tid2ptcb(_tid);
+    uint32_t top = (uint32_t)tcb->stack + tcb->priv_stack;
+    return top - tcb->tsk_stack;
 #endif
 #else
     return 0;
@@ -128,7 +139,11 @@ uint32_t Thread::max_stack() {
         high_mark++;
     return _thread_def.tcb.priv_stack - (high_mark * 4);
 #else
-    return 0;
+    P_TCB tcb = rt_tid2ptcb(_tid);
+    uint32_t high_mark = 0;
+    while (tcb->stack[high_mark] == 0xE25A2EA5)
+        high_mark++;
+    return tcb->priv_stack - (high_mark * 4);
 #endif
 #else
     return 0;

@@ -276,7 +276,7 @@ extern void dbg_task_switch (U32 task_id);
 #ifdef DBG_MSG
 #define DBG_INIT() dbg_init()
 #define DBG_TASK_NOTIFY(p_tcb,create) if (dbg_msg) dbg_task_notify(p_tcb,create)
-#define DBG_TASK_SWITCH(task_id)      if (dbg_msg && (os_tsk.new!=os_tsk.run)) \
+#define DBG_TASK_SWITCH(task_id)      if (dbg_msg && (os_tsk.new_tsk!=os_tsk.run)) \
                                         dbg_task_switch(task_id)
 #else
 #define DBG_INIT()
