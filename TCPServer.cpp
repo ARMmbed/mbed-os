@@ -17,11 +17,11 @@
 #include "TCPServer.h"
 #include "Timer.h"
 
-TCPServer::TCPServer()
+TCPServer::TCPServer(): _accept_sem(0)
 {
 }
 
-TCPServer::TCPServer(NetworkStack *iface)
+TCPServer::TCPServer(NetworkStack *iface): _accept_sem(0)
 {
     open(iface);
 }
@@ -33,43 +33,69 @@ int TCPServer::open(NetworkStack *iface)
 
 int TCPServer::listen(int backlog)
 {
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;   
+    _lock.lock();
+
+    int ret = NSAPI_ERROR_NO_SOCKET;
+    if (_socket) {
+        ret = _iface->socket_listen(_socket, backlog);
     }
 
-    return _iface->socket_listen(_socket, backlog);
+    _lock.unlock();
+    return ret;
 }
 
 int TCPServer::accept(TCPSocket *connection)
 {
-    mbed::Timer timer;
-    timer.start();
-    mbed::Timeout timeout;
-    if (_timeout >= 0) {
-        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
-    }
+    _lock.lock();
 
-    if (connection->_socket) {
-        connection->close();
-    }
-
+    int ret = NSAPI_ERROR_NO_SOCKET;
     while (true) {
         if (!_socket) {
-            return NSAPI_ERROR_NO_SOCKET;   
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
         }
 
         void *socket;
-        int err = _iface->socket_accept(&socket, _socket);
-        if (!err) {
+        ret = _iface->socket_accept(&socket, _socket);
+        if (0 == ret) {
+            connection->_lock.lock();
+
+            if (connection->_socket) {
+                connection->close();
+            }
+
             connection->_iface = _iface;
             connection->_socket = socket;
+            _iface->socket_attach(socket, &Socket::thunk, connection);
+
+            connection->_lock.unlock();
+            break;
         }
 
-        if (err != NSAPI_ERROR_WOULD_BLOCK
-            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
-            return err;
-        }
+        if (NSAPI_ERROR_WOULD_BLOCK == ret) {
+            int32_t count;
 
-        __WFI();
+            _lock.unlock();
+            count = _accept_sem.wait(_timeout);
+            _lock.lock();
+
+            if (count < 1) {
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
     }
+
+    _lock.unlock();
+    return ret;
+}
+
+void TCPServer::socket_event()
+{
+    int32_t status = _accept_sem.wait(0);
+    if (status <= 1) {
+        _accept_sem.release();
+    }
+
+    Socket::socket_event();
 }

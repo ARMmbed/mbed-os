@@ -17,83 +17,140 @@
 #include "TCPSocket.h"
 #include "Timer.h"
 
-TCPSocket::TCPSocket()
+TCPSocket::TCPSocket(): _read_sem(0), _write_sem(0)
 {
 }
 
-TCPSocket::TCPSocket(NetworkStack *iface)
+TCPSocket::TCPSocket(NetworkStack *iface): _read_sem(0), _write_sem(0)
 {
+    // TCPSocket::open is thread safe
     open(iface);
 }
 
 int TCPSocket::open(NetworkStack *iface)
 {
+    // Socket::open is thread safe
     return Socket::open(iface, NSAPI_TCP);
 }
 
 int TCPSocket::connect(const SocketAddress &addr)
 {
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;
+    _lock.lock();
+
+    int ret = NSAPI_ERROR_NO_SOCKET;
+    if (_socket) {
+        ret = _iface->socket_connect(_socket, addr);
     }
 
-    return _iface->socket_connect(_socket, addr);
+    _lock.unlock();
+    return ret;
 }
 
 int TCPSocket::connect(const char *host, uint16_t port)
 {
+    _lock.lock();
+
     SocketAddress addr(_iface, host, port);
-    if (!addr) {
-        return NSAPI_ERROR_DNS_FAILURE;
+    int ret = NSAPI_ERROR_DNS_FAILURE;
+    if (addr) {
+        ret = connect(addr);
     }
 
-    return connect(addr);
+    _lock.unlock();
+    return ret;
 }
 
 int TCPSocket::send(const void *data, unsigned size)
 {
-    mbed::Timer timer;
-    timer.start();
-    mbed::Timeout timeout;
-    if (_timeout >= 0) {
-        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    if (osOK != _write_lock.lock(_timeout)) {
+        return NSAPI_ERROR_WOULD_BLOCK;
     }
+    _lock.lock();
 
+    int ret;
     while (true) {
         if (!_socket) {
-            return NSAPI_ERROR_NO_SOCKET;
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
         }
 
         int sent = _iface->socket_send(_socket, data, size);
-        if (sent != NSAPI_ERROR_WOULD_BLOCK
-            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
-            return sent;
-        }
+        if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
+            ret = sent;
+            break;
+        } else {
+            int32_t count;
 
-        __WFI();
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
+            _lock.unlock();
+            count = _write_sem.wait(_timeout);
+            _lock.lock();
+
+            if (count < 1) {
+                // Semaphore wait timed out so break out and return
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
     }
+
+    _lock.unlock();
+    _write_lock.unlock();
+    return ret;
 }
 
 int TCPSocket::recv(void *data, unsigned size)
 {
-    mbed::Timer timer;
-    timer.start();
-    mbed::Timeout timeout;
-    if (_timeout >= 0) {
-        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    if (osOK != _read_lock.lock(_timeout)) {
+        return NSAPI_ERROR_WOULD_BLOCK;
     }
+    _lock.lock();
 
+    int ret;
     while (true) {
         if (!_socket) {
-            return NSAPI_ERROR_NO_SOCKET;
-        }
-    
-        int recv = _iface->socket_recv(_socket, data, size);
-        if (recv != NSAPI_ERROR_WOULD_BLOCK
-            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
-            return recv;
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
         }
 
-        __WFI();
+        int recv = _iface->socket_recv(_socket, data, size);
+        if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
+            ret = recv;
+            break;
+        } else {
+            int32_t count;
+
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
+            _lock.unlock();
+            count = _read_sem.wait(_timeout);
+            _lock.lock();
+
+            if (count < 1) {
+                // Semaphore wait timed out so break out and return
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
     }
+
+    _lock.unlock();
+    _read_lock.unlock();
+    return ret;
+}
+
+void TCPSocket::socket_event()
+{
+    int32_t count;
+    count = _write_sem.wait(0);
+    if (count <= 1) {
+        _write_sem.release();
+    }
+    count = _read_sem.wait(0);
+    if (count <= 1) {
+        _read_sem.release();
+    }
+
+    Socket::socket_event();
 }

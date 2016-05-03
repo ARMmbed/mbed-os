@@ -17,11 +17,11 @@
 #include "UDPSocket.h"
 #include "Timer.h"
 
-UDPSocket::UDPSocket()
+UDPSocket::UDPSocket(): _read_sem(0), _write_sem(0)
 {
 }
 
-UDPSocket::UDPSocket(NetworkStack *iface)
+UDPSocket::UDPSocket(NetworkStack *iface): _read_sem(0), _write_sem(0)
 {
     open(iface);
 }
@@ -38,53 +38,103 @@ int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigne
         return NSAPI_ERROR_DNS_FAILURE;
     }
 
-    return sendto(addr, data, size);
+    // sendto is thread safe
+    int ret = sendto(addr, data, size);
+
+    return ret;
 }
 
 int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned size)
 {
-    mbed::Timer timer;
-    timer.start();
-    mbed::Timeout timeout;
-    if (_timeout >= 0) {
-        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    if (osOK != _write_lock.lock(_timeout)) {
+        return NSAPI_ERROR_WOULD_BLOCK;
     }
+    _lock.lock();
 
+    int ret;
     while (true) {
         if (!_socket) {
-            return NSAPI_ERROR_NO_SOCKET;
-        }
-    
-        int sent = _iface->socket_sendto(_socket, address, data, size);
-        if (sent != NSAPI_ERROR_WOULD_BLOCK
-            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
-            return sent;
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
         }
 
-        __WFI();
+        int sent = _iface->socket_sendto(_socket, address, data, size);
+        if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
+            ret = sent;
+            break;
+        } else {
+            int32_t count;
+
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
+            _lock.unlock();
+            count = _write_sem.wait(_timeout);
+            _lock.lock();
+
+            if (count < 1) {
+                // Semaphore wait timed out so break out and return
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
     }
+
+    _lock.unlock();
+    _write_lock.unlock();
+    return ret;
 }
 
 int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
 {
-    mbed::Timer timer;
-    timer.start();
-    mbed::Timeout timeout;
-    if (_timeout >= 0) {
-        timeout.attach_us(&Socket::wakeup, _timeout * 1000);
+    if (osOK != _read_lock.lock(_timeout)) {
+        return NSAPI_ERROR_WOULD_BLOCK;
     }
+    _lock.lock();
 
+    int ret;
     while (true) {
         if (!_socket) {
-            return NSAPI_ERROR_NO_SOCKET;
-        }
-    
-        int recv = _iface->socket_recvfrom(_socket, address, buffer, size);
-        if (recv != NSAPI_ERROR_WOULD_BLOCK
-            || (_timeout >= 0 && timer.read_ms() >= _timeout)) {
-            return recv;
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
         }
 
-        __WFI();
+        int recv = _iface->socket_recvfrom(_socket, address, buffer, size);
+        if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
+            ret = recv;
+            break;
+        } else {
+            int32_t count;
+
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
+            _lock.unlock();
+            count = _read_sem.wait(_timeout);
+            _lock.lock();
+
+            if (count < 1) {
+                // Semaphore wait timed out so break out and return
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
     }
+
+    _lock.unlock();
+    _read_lock.unlock();
+    return ret;
+}
+
+void UDPSocket::socket_event()
+{
+    int32_t count;
+    count = _write_sem.wait(0);
+    if (count <= 1) {
+        _write_sem.release();
+    }
+    count = _read_sem.wait(0);
+    if (count <= 1) {
+        _read_sem.release();
+    }
+
+    Socket::socket_event();
 }

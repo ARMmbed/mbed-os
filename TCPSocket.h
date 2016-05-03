@@ -19,6 +19,7 @@
 
 #include "Socket.h"
 #include "NetworkStack.h"
+#include "Semaphore.h"
 
 /** TCP socket connection
  */
@@ -101,7 +102,12 @@ public:
      */
     int recv(void *data, unsigned size);
 
-private:
+protected:
+    virtual void socket_event(void);
+    rtos::Mutex _read_lock;
+    rtos::Semaphore _read_sem;
+    rtos::Mutex _write_lock;
+    rtos::Semaphore _write_sem;
     friend class TCPServer;
 };
 

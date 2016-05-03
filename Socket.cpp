@@ -19,109 +19,153 @@
 Socket::Socket()
     : _iface(0)
     , _socket(0)
-    , _timeout(-1)
+    , _timeout(osWaitForever)
 {
 }
 
 Socket::~Socket()
 {
-    if (_socket) {
-        close();
-    }
+    // Underlying close is thread safe
+    close();
 }
 
 int Socket::open(NetworkStack *iface, nsapi_protocol_t proto)
 {
+    _lock.lock();
+
+    if (_iface != NULL) {
+        _lock.unlock();
+        return NSAPI_ERROR_PARAMETER;
+    }
     _iface = iface;
 
     void *socket;
     int err = _iface->socket_open(&socket, proto);
     if (err) {
+        _lock.unlock();
         return err;
     }
 
     _socket = socket;
     _iface->socket_attach(_socket, &Socket::thunk, this);
 
+    _lock.unlock();
+
     return 0;
 }
 
 int Socket::close()
 {
-    if (!_socket) {
-        return 0;
+    _lock.lock();
+
+    int ret = 0;
+    if (_socket) {
+        _iface->socket_attach(_socket, 0, 0);
+
+        void * socket = _socket;
+        _socket = 0;
+        ret = _iface->socket_close(socket);
     }
-    
-    _iface->socket_attach(_socket, 0, 0);
-    
-    void *volatile socket = _socket;
-    _socket = 0;
-    return _iface->socket_close(socket);
+
+    // Wakeup anything in a blocking operation
+    // on this socket
+    socket_event();
+
+    _lock.unlock();
+    return ret;
 }
 
 int Socket::bind(uint16_t port)
 {
+    // Underlying bind is thread safe
     SocketAddress addr(0, port);
     return bind(addr);
 }
 
 int Socket::bind(const char *address, uint16_t port)
 {
+    // Underlying bind is thread safe
     SocketAddress addr(address, port);
     return bind(addr);
 }
 
 int Socket::bind(const SocketAddress &address)
 {
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;
+    _lock.lock();
+
+    int ret = NSAPI_ERROR_NO_SOCKET;
+    if (_socket) {
+        ret = _iface->socket_bind(_socket, address);
     }
 
-    return _iface->socket_bind(_socket, address);
+    _lock.unlock();
+    return ret;
 }
 
 void Socket::set_blocking(bool blocking)
 {
+    // Socket::set_timeout is thread safe
     set_timeout(blocking ? -1 : 0);
 }
 
 void Socket::set_timeout(int timeout)
 {
-    _timeout = timeout;
+    _lock.lock();
+
+    if (timeout >= 0) {
+        _timeout = (uint32_t)timeout;
+    } else {
+        _timeout = osWaitForever;
+    }
+
+    _lock.unlock();
 }
 
 int Socket::setsockopt(int level, int optname, const void *optval, unsigned optlen)
 {
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;
+    _lock.lock();
+
+    int ret = NSAPI_ERROR_NO_SOCKET;
+    if (_socket) {
+        ret = _iface->setsockopt(_socket, level, optname, optval, optlen);
     }
 
-    return _iface->setsockopt(_socket, level, optname, optval, optlen);
+    _lock.unlock();
+    return ret;
 }
 
 int Socket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
 {
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;
+    _lock.lock();
+
+    int ret = NSAPI_ERROR_NO_SOCKET;
+    if (_socket) {
+        ret = _iface->getsockopt(_socket, level, optname, optval, optlen);
     }
 
-    return _iface->getsockopt(_socket, level, optname, optval, optlen);
+    _lock.unlock();
+    return ret;
 
 }
 
-void Socket::wakeup()
+void Socket::attach(FunctionPointer callback)
 {
+    _lock.lock();
+
+    _callback = callback;
+
+    _lock.unlock();
 }
 
 void Socket::thunk(void *data)
 {
     Socket *self = (Socket *)data;
-    if (self->_callback) {
-        self->_callback();
-    }
+    self->socket_event();
 }
 
-void Socket::attach(FunctionPointer callback)
+void Socket::socket_event(void)
 {
-    _callback = callback;
+    if (_callback) {
+        _callback();
+    }
 }
