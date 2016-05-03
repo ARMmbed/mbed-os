@@ -64,6 +64,16 @@ class Uvision4(Exporter):
 
         project_data['tool_specific'] = {}
         project_data['tool_specific'].update(tool_specific)
+
+        # get flags from toolchain and apply
+        project_data['tool_specific']['uvision']['misc'] = {}
+        project_data['tool_specific']['uvision']['misc']['asm_flags'] = self.toolchain.flags['common'] + self.toolchain.flags['asm']
+        project_data['tool_specific']['uvision']['misc']['c_flags'] = self.toolchain.flags['common'] + self.toolchain.flags['c']
+        # not compatible with c99 flag set in the template
+        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--c99")
+        project_data['tool_specific']['uvision']['misc']['cxx_flags'] = self.toolchain.flags['common'] + self.toolchain.flags['ld']
+        project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.toolchain.flags['ld']
+
         i = 0
         for macro in project_data['common']['macros']:
             # armasm does not like floating numbers in macros, timestamp to int

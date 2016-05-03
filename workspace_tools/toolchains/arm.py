@@ -30,6 +30,16 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
+    DEFAULT_FLAGS = {
+        'common': ["-c", "--gnu", "-Otime", "--split_sections", "--apcs=interwork",
+            "--brief_diagnostics", "--restrict", "--multibyte_chars"],
+        'asm': ['-I%s' % ARM_INC],
+        'c': ["--md", "--no_depend_system_headers", '-I%s' % ARM_INC,
+            "--c99", "-D__ASSERT_MSG" ],
+        'cxx': ["--cpp", "--no_rtti", "-D__ASSERT_MSG"],
+        'ld': [],
+    }
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
@@ -43,33 +53,25 @@ class ARM(mbedToolchain):
             cpu = target.core
 
         main_cc = join(ARM_BIN, "armcc")
-        common = ["-c",
-            "--cpu=%s" % cpu, "--gnu",
-            "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars"
-        ]
 
+        self.flags = self.DEFAULT_FLAGS
+        self.flags['common'] += ["--cpu=%s" % cpu]
         if "save-asm" in self.options:
-            common.extend(["--asm", "--interleave"])
+            self.flags['common'].extend(["--asm", "--interleave"])
 
         if "debug-info" in self.options:
-            common.append("-g")
-            common.append("-O0")
+            self.flags['common'].append("-g")
+            self.flags['common'].append("-O0")
         else:
-            common.append("-O3")
+            self.flags['common'].append("-O3")
 
-        common_c = [
-            "--md", "--no_depend_system_headers",
-            '-I%s' % ARM_INC
-        ]
-
-        self.asm = [main_cc] + common + ['-I%s' % ARM_INC]
+        self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
         if not "analyze" in self.options:
-            self.cc = [main_cc] + common + common_c + ["--c99"]
-            self.cppc = [main_cc] + common + common_c + ["--cpp", "--no_rtti"]
+            self.cc = [main_cc] + self.flags['common'] + self.flags['c']
+            self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
         else:
-            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--c99"]
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--cpp", "--no_rtti"]
+            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + self.flags['common'] + self.flags['c'] 
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
 
         self.ld = [join(ARM_BIN, "armlink")]
         self.sys_libs = []
@@ -151,8 +153,6 @@ class ARM(mbedToolchain):
 class ARM_STD(ARM):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
-        self.cc   += ["-D__ASSERT_MSG"]
-        self.cppc += ["-D__ASSERT_MSG"]
         self.ld.append("--libpath=%s" % ARM_LIB)
 
 
@@ -163,17 +163,17 @@ class ARM_MICRO(ARM):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         # Compiler
-        self.asm  += ["-D__MICROLIB"]
-        self.cc   += ["--library_type=microlib", "-D__MICROLIB", "-D__ASSERT_MSG"]
-        self.cppc += ["--library_type=microlib", "-D__MICROLIB", "-D__ASSERT_MSG"]
+        self.flags['asm']  += ["-D__MICROLIB"]
+        self.flags['c']   += ["--library_type=microlib", "-D__MICROLIB"]
+        self.flags['cxx'] += ["--library_type=microlib", "-D__MICROLIB"]
 
         # Linker
-        self.ld.append("--library_type=microlib")
+        self.flags['ld'].append("--library_type=microlib")
 
         # We had to patch microlib to add C++ support
         # In later releases this patch should have entered mainline
         if ARM_MICRO.PATCHED_LIBRARY:
-            self.ld.append("--noscanlib")
+            self.flags['ld'].append("--noscanlib")
 
             # System Libraries
             self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
