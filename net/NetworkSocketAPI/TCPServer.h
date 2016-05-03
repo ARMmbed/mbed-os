@@ -20,6 +20,7 @@
 #include "Socket.h"
 #include "TCPSocket.h"
 #include "NetworkStack.h"
+#include "Semaphore.h"
 
 /** TCP socket server
   */
@@ -74,6 +75,9 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     int accept(TCPSocket *connection);
+protected:
+    virtual void socket_event(void);
+    rtos::Semaphore _accept_sem;
 };
 
 #endif

@@ -19,6 +19,7 @@
 
 #include "Socket.h"
 #include "NetworkStack.h"
+#include "Semaphore.h"
 
 /** UDP socket
  */
@@ -100,6 +101,12 @@ public:
      *                  code on failure
      */
     int recvfrom(SocketAddress *address, void *data, unsigned size);
+protected:
+    virtual void socket_event(void);
+    rtos::Mutex _read_lock;
+    rtos::Semaphore _read_sem;
+    rtos::Mutex _write_lock;
+    rtos::Semaphore _write_sem;
 };
 
 #endif

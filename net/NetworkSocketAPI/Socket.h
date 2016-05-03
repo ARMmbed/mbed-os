@@ -19,6 +19,7 @@
 
 #include "SocketAddress.h"
 #include "NetworkStack.h"
+#include "Mutex.h"
 
 /** Abstract socket class
  */
@@ -97,10 +98,11 @@ public:
      *
      *  Initially all sockets have unbounded timeouts. NSAPI_ERROR_WOULD_BLOCK
      *  is returned if a blocking operation takes longer than the specified
-     *  timeout. A timeout of -1 removes the timeout from the socket.
+     *  timeout. A timeout of 0 removes the timeout from the socket. A negative
+     *  value give the socket an unbounded timeout.
      *
-     *  set_timeout(-1) is equivalent to set_blocking(false)
-     *  set_timeout(0) is equivalent to set_blocking(true)
+     *  set_timeout(0) is equivalent to set_blocking(false)
+     *  set_timeout(-1) is equivalent to set_blocking(true)
      *
      *  @param timeout  Timeout in milliseconds
      */
@@ -169,12 +171,13 @@ protected:
     int open(NetworkStack *iface, nsapi_protocol_t proto);
 
     static void thunk(void *);
-    static void wakeup();
+    virtual void socket_event(void);
 
     NetworkStack *_iface;
     void *_socket;
-    int _timeout;
+    uint32_t _timeout;
     FunctionPointer _callback;
+    rtos::Mutex _lock;
 };
 
 #endif
