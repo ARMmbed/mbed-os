@@ -101,6 +101,7 @@ serial_t stdio_uart;
 
 static void init_uart(serial_t *obj, UARTName instance)
 {
+    int dummywrite = 0;
 
     UART_HandleTypeDef *handle = &UartHandle[SERIAL_OBJ(index)];
     handle->Instance = (USART_TypeDef *)instance;
@@ -186,6 +187,9 @@ static void init_uart(serial_t *obj, UARTName instance)
     if (HAL_UART_Init(handle) != HAL_OK) {
         error("Cannot initialize UART\n");
     }
+
+    /* DUMMY write in Transmit register to clear its content */
+    handle->Instance->DR = (uint8_t)(dummywrite & (uint8_t)0xFF);
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)

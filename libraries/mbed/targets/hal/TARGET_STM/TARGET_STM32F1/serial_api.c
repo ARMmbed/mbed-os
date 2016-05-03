@@ -50,6 +50,8 @@ serial_t stdio_uart;
 
 static void init_uart(serial_t *obj)
 {
+    int dummywrite = 0;
+
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
     UartHandle.Init.BaudRate   = obj->baudrate;
@@ -67,6 +69,9 @@ static void init_uart(serial_t *obj)
     }
 
     HAL_UART_Init(&UartHandle);
+
+    /* DUMMY write in Transmit register to clear its content */
+    UartHandle.Instance->DR = (uint8_t)(dummywrite & (uint8_t)0xFF);
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
