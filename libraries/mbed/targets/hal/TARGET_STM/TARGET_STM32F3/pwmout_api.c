@@ -174,10 +174,12 @@ void pwmout_period_us(pwmout_t* obj, int us)
     }
     TimHandle.Init.Prescaler     = ((SystemCoreClock / 1000000) * obj->prescaler) - 1;
 
-    MBED_ASSERT(TimHandle.Init.Prescaler < 0xFFFF);
+    if (TimHandle.Init.Prescaler > 0xFFFF)
+        error("PWM: out of range prescaler");
 
     TimHandle.Init.Period        = (us - 1) / obj->prescaler;
-    MBED_ASSERT(TimHandle.Init.Period < 0xFFFF);
+    if (TimHandle.Init.Period > 0xFFFF)
+        error("PWM: out of range period");
 
     TimHandle.Init.ClockDivision = 0;
     TimHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
