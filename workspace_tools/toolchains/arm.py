@@ -16,6 +16,7 @@ limitations under the License.
 """
 import re
 from os.path import join
+import copy
 
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
@@ -54,7 +55,7 @@ class ARM(mbedToolchain):
 
         main_cc = join(ARM_BIN, "armcc")
 
-        self.flags = self.DEFAULT_FLAGS
+        self.flags = copy.deepcopy(self.DEFAULT_FLAGS)
         self.flags['common'] += ["--cpu=%s" % cpu]
         if "save-asm" in self.options:
             self.flags['common'].extend(["--asm", "--interleave"])
@@ -65,7 +66,7 @@ class ARM(mbedToolchain):
         else:
             self.flags['c'].append("-O3")
 
-        self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
+        self.asm = [main_cc] + self.flags['common'] + self.flags['asm'] + self.flags['c']
         if not "analyze" in self.options:
             self.cc = [main_cc] + self.flags['common'] + self.flags['c']
             self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
