@@ -19,13 +19,13 @@ float value = 0.75;
 int main() {
 #if defined(TARGET_FF_ARDUINO)
     PwmOut pwm(D9);
-    int period_us = 40000; // allows to test various periods
+    int period_ms = 10;
 
-    pwm.period_us(period_us);
+    pwm.period_ms(period_ms);
     pwm.write(value);
 
     float result = floor(pwm.read() * 100 + 0.5) / 100; // round it to 0.xx
-    printf("PWM period = %dus with duty cycle: %d%%\n", period_us, (int) (result * 100));
+    printf("PWM period = %dms with duty cycle: %d%%\n", period_ms, (int) (result * 100));
 
     notify_completion(result == value ? true : false);
 #elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
