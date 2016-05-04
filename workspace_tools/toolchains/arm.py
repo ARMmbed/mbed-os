@@ -163,12 +163,14 @@ class ARM_MICRO(ARM):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
-        # Compiler
-        self.flags['asm']  += ["-D__MICROLIB"]
-        self.flags['c']   += ["--library_type=microlib", "-D__MICROLIB"]
-        self.flags['cxx'] += ["--library_type=microlib", "-D__MICROLIB"]
+        # add microlib to the command line flags
+        self.asm  += ["-D__MICROLIB"]
+        self.cc += ["--library_type=microlib", "-D__MICROLIB"]
+        self.cppc += ["--library_type=microlib", "-D__MICROLIB"]
 
-        # Linker
+        # the exporter uses --library_type flag to set microlib
+        self.flags['c']   += ["--library_type=microlib"]
+        self.flags['cxx'] += ["--library_type=microlib"]
         self.flags['ld'].append("--library_type=microlib")
 
         # We had to patch microlib to add C++ support
