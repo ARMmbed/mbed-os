@@ -15,7 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext, dirname
+from os.path import join, basename, splitext, dirname, exists
+from hashlib import md5
 
 from tools.toolchains import mbedToolchain
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
@@ -164,13 +165,61 @@ class GCC(mbedToolchain):
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
+        cmd = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros]
+        
+        inc_str = ' '.join(includes)
+        if len(inc_str) > 16000:
+            sum = md5(inc_str).hexdigest()
+            include_files = join(self.temp_dir, "includes_%s.txt" % sum)
+            if not exists(include_files):
+                with open(include_files, "wb") as f:
+                    cmd_list = []
+                    for c in includes:
+                        if c:
+                            cmd_list.append(('-I"%s"' % c) if not c.startswith('-') else c)                    
+                    string = " ".join(cmd_list).replace("\\", "/")
+                    f.write(string)
+            cmd.extend(['@%s' % include_files])
+        else:
+            cmd.extend(['-I"%s"' % i for i in includes])
+        
+        cmd.extend(["-o", object, source])
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
 
         # Return command array, don't execute
         return [cmd]
+
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        cmd = cc + ['-D%s' % s for s in self.get_symbols()]
+
+        inc_str = ' '.join(includes)
+        if len(inc_str) > 16000:
+            sum = md5(inc_str).hexdigest()
+            include_files = join(self.temp_dir, "includes_%s.txt" % sum)
+            if not exists(include_files):
+                with open(include_files, "wb") as f:
+                    cmd_list = []
+                    for c in includes:
+                        if c:
+                            cmd_list.append(('-I"%s"' % c) if not c.startswith('-') else c)                    
+                    string = " ".join(cmd_list).replace("\\", "/")
+                    f.write(string)
+            cmd.extend(['@%s' % include_files])
+        else:
+            cmd.extend(['-I"%s"' % i for i in includes])
+
+        cmd.extend(["-o", object, source])
+
+        return [cmd]
+
+    def compile_c(self, source, object, includes):
+        return self.compile(self.cc, source, object, includes)
+
+    def compile_cpp(self, source, object, includes):
+        return self.compile(self.cppc, source, object, includes)
 
     @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):

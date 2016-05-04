@@ -24,6 +24,7 @@ from types import ListType
 from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split
 from inspect import getmro
+from tempfile import mkdtemp
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
@@ -211,6 +212,7 @@ class mbedToolchain:
 
         self.build_all = False
         self.timestamp = time()
+        self.temp_dir = None
         self.jobs = 1
 
         self.CHROOT = None
@@ -481,6 +483,7 @@ class mbedToolchain:
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
+        self.temp_dir = build_path
 
         #for i in self.build_params:
         #    self.debug(i)
@@ -640,28 +643,6 @@ class mbedToolchain:
                 raise NotSupportedException(_stderr)
             else:
                 raise ToolException(_stderr)
-
-    def compile(self, cc, source, object, includes):
-        _, ext = splitext(source)
-        ext = ext.lower()
-
-        command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
-
-        if hasattr(self, "get_dep_opt"):
-            base, _ = splitext(object)
-            dep_path = base + '.d'
-            command.extend(self.get_dep_opt(dep_path))
-
-        if hasattr(self, "cc_extra"):
-            command.extend(self.cc_extra(base))
-
-        return [command]
-
-    def compile_c(self, source, object, includes):
-        return self.compile(self.cc, source, object, includes)
-
-    def compile_cpp(self, source, object, includes):
-        return self.compile(self.cppc, source, object, includes)
 
     def build_library(self, objects, dir, name):
         needed_update = False

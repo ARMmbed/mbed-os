@@ -15,7 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, dirname, basename
+from os.path import join, dirname, splitext, basename, exists
+from hashlib import md5
 
 from tools.toolchains import mbedToolchain
 from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB, GOANNA_PATH
@@ -123,8 +124,27 @@ class ARM(mbedToolchain):
         tempfile = join(dir, basename(object) + '.E.s')
         
         # Build preprocess assemble command
-        cmd_pre = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source]
-        
+        cmd_pre = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros]
+
+        # Response file
+        inc_str = ' '.join(includes)
+        if len(inc_str) > 16000:
+            sum = md5(inc_str).hexdigest()
+            include_files = join(self.temp_dir, "includes_%s.txt" % sum)
+            if not exists(include_files):
+                with open(include_files, "wb") as f:
+                    cmd_list = []
+                    for c in includes:
+                        if c:
+                            cmd_list.append(('-I"%s"' % c) if not c.startswith('-') else c)
+                    string = " ".join(cmd_list).replace("\\", "/")
+                    f.write(string)
+            cmd_pre.extend(['--via', include_files])
+        else:
+            cmd_pre.extend(['-I"%s"' % i for i in includes])
+
+        cmd_pre.extend(["-E", "-o", tempfile, source])
+
         # Build main assemble command
         cmd = self.asm + ["-o", object, tempfile]
 
@@ -135,6 +155,40 @@ class ARM(mbedToolchain):
         # Return command array, don't execute
         return [cmd_pre, cmd]
 
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        cmd = cc + ['-D %s' % s for s in self.get_symbols()]
+
+        inc_str = ' '.join(includes)
+        if len(inc_str) > 16000:
+            sum = md5(inc_str).hexdigest()
+            include_files = join(self.temp_dir, "includes_%s.txt" % sum)
+            if not exists(include_files):
+                with open(include_files, "wb") as f:
+                    cmd_list = []
+                    for c in includes:
+                        if c:
+                            cmd_list.append(('-I"%s"' % c) if not c.startswith('-') else c)
+                    string = " ".join(cmd_list).replace("\\", "/")
+                    f.write(string)
+            cmd.extend(['--via', include_files])
+        else:
+            cmd.extend(['-I"%s"' % i for i in includes])
+
+        
+        base, _ = splitext(object)
+        dep_path = base + '.d'
+        cmd.extend(self.get_dep_opt(dep_path))
+            
+        cmd.extend(["-o", object, source])
+
+        return [cmd]
+
+    def compile_c(self, source, object, includes):
+        return self.compile(self.cc, source, object, includes)
+
+    def compile_cpp(self, source, object, includes):
+        return self.compile(self.cppc, source, object, includes)
 
     @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
