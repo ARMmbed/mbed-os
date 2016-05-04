@@ -1,15 +1,16 @@
 test:
     override:
-        - cd ../testproject && python ../neo/neo.py deploy
-        - cd ../testproject && python ../neo/neo.py compile -m K64F -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
-        - cd ../testproject && python ../neo/neo.py compile -m LPC1768 -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
-        - cd ../testproject && python ../neo/neo.py compile -m NUCLEO_F401RE -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
-        - cd ../testproject && python ../neo/neo.py compile -m NRF51822 -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && mbed deploy
+        - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && mbed compile -m LPC1768 -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && mbed compile -m NUCLEO_F401RE -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && mbed compile -m NRF51822 -t GCC_ARM -j 0 --source=mbed-os/TESTS/integration/basic
 
 dependencies:
     pre:
         - cd ../ && ls
-        - cd ../ && git clone https://github.com/ARMmbed/neo.git
+        - cd ../ && git clone https://github.com/ARMmbed/mbed-cli.git
+        - cd ../mbed-cli && pip install -e .
         - cd ../ && mkdir testproject
         - cd ../ && cp -r mbed-os testproject
         - cd ../testproject && git init
