@@ -272,9 +272,11 @@ def build_library(src_paths, build_path, target, toolchain_name,
         else:
             tmp_path = build_path
 
-        # Copy Headers
+        # Copy headers, objects and static libraries
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
             if resource.linker_script:
                 toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
 
