@@ -31,10 +31,10 @@ class ARM(mbedToolchain):
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
     DEFAULT_FLAGS = {
-        'common': ["-c", "--gnu", "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars"],
+        'common': ["--apcs=interwork",
+            "--brief_diagnostics"],
         'asm': ['-I%s' % ARM_INC],
-        'c': ["--md", "--no_depend_system_headers", '-I%s' % ARM_INC,
+        'c': ["-c", "--gnu", "-Otime", "--restrict", "--multibyte_chars", "--split_sections", "--md", "--no_depend_system_headers", '-I%s' % ARM_INC,
             "--c99", "-D__ASSERT_MSG" ],
         'cxx': ["--cpp", "--no_rtti", "-D__ASSERT_MSG"],
         'ld': [],
@@ -61,9 +61,9 @@ class ARM(mbedToolchain):
 
         if "debug-info" in self.options:
             self.flags['common'].append("-g")
-            self.flags['common'].append("-O0")
+            self.flags['c'].append("-O0")
         else:
-            self.flags['common'].append("-O3")
+            self.flags['c'].append("-O3")
 
         self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
         if not "analyze" in self.options:
