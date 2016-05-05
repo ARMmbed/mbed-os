@@ -104,10 +104,31 @@ class IAR(mbedToolchain):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
 
+    def get_compile_options(self, defines, includes):
+        cmd = []
+        
+        str = (' '.join(defines))+"|"+(' '.join(includes))
+        if len(str) > 160:
+            sum = md5(str).hexdigest()
+            options_file = join(self.temp_dir, "options_%s.txt" % sum)
+            if not exists(options_file):
+                with open(options_file, "wb") as f:
+                    cmd_list = ['-D%s' % d for d in defines]
+                    for c in includes:
+                        if c:
+                            cmd_list.append(('-I%s' % c) if not c.startswith('-') else c)                    
+                    string = " ".join(cmd_list).replace("\\", "/")
+                    f.write(string)
+            cmd.extend(['-f', options_file])
+        else:
+            cmd.extend(['-D%s' % d for d in defines] + ['-I%s' % i for i in includes])
+        
+        return cmd
+
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
@@ -117,23 +138,8 @@ class IAR(mbedToolchain):
 
     @hook_tool
     def compile(self, cc, source, object, includes):
-        cmd = cc + ['-D%s' % s for s in self.get_symbols()]
-
-        inc_str = ' '.join(includes)
-        if len(inc_str) > 1000:
-            sum = md5(inc_str).hexdigest()
-            include_files = join(self.temp_dir, "includes_%s.txt" % sum)
-            if not exists(include_files):
-                with open(include_files, "wb") as f:
-                    cmd_list = []
-                    for c in includes:
-                        if c:
-                            cmd_list.append(('-I"%s"' % c) if not c.startswith('-') else c)                    
-                    string = " ".join(cmd_list).replace("\\", "/")
-                    f.write(string)
-            cmd.extend(['-f', include_files])
-        else:
-            cmd.extend(['-I"%s"' % i for i in includes])
+        # Build compile command
+        cmd = cc +  self.get_compile_options(self.get_symbols(), includes)
 
         base, _ = splitext(object)
         dep_path = base + '.d'
@@ -142,6 +148,9 @@ class IAR(mbedToolchain):
         cmd.extend(self.cc_extra(base))
         
         cmd.extend(["-o", object, source])
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_compiler(cmd)
 
         return [cmd]
 

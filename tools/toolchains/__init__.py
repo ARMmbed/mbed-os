@@ -688,12 +688,12 @@ class mbedToolchain:
         return bin, needed_update
 
     def default_cmd(self, command):
+        self.debug("Command: %s"% ' '.join(command))
         _stdout, _stderr, _rc = run_cmd(command)
         # Print all warning / erros from stderr to console output
         for error_line in _stderr.splitlines():
             print error_line
 
-        self.debug("Command: %s"% ' '.join(command))
         self.debug("Return: %s"% _rc)
 
         for output_line in _stdout.splitlines():

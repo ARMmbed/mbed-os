@@ -34,8 +34,12 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
 
 def run_cmd(command, wd=None, redirect=False):
     assert is_cmd_valid(command[0])
-    p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
-    _stdout, _stderr = p.communicate()
+    try:
+        p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
+        _stdout, _stderr = p.communicate()
+    except:
+        print "[OS ERROR] Command: "+(' '.join(command))
+        raise
     return _stdout, _stderr, p.returncode
 
 
