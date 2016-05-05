@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser.add_option("-j", "--jobs",
                       type="int",
                       dest="jobs",
-                      default=1,
+                      default=0,
                       help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
     parser.add_option("-v", "--verbose",
