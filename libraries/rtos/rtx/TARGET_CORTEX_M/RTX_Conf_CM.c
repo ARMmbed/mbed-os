@@ -357,18 +357,17 @@ void os_idle_demon (void) {
 extern void error(const char* format, ...);
 extern osThreadId svcThreadGetId (void);
 
-#include "stdio.h"
-
 void os_error (uint32_t err_code) {
     /* This function is called when a runtime error is detected. Parameter     */
     /* 'err_code' holds the runtime error code (defined in RTX_Config.h).      */
     osThreadId err_task = svcThreadGetId();
-    error("CMSIS RTX error code: 0x%08X, task ID: 0x%08X\n", err_code, (uint32_t)err_task);
+    error("RTX error code: 0x%08X, task ID: 0x%08X\n", err_code, err_task);
 }
 
 void sysThreadError(osStatus status) {
     if (status != osOK) {
-        mbed_die();
+        osThreadId err_task = svcThreadGetId();
+        error("CMSIS-RTOS error status: 0x%08X, task ID: 0x%08X\n", status, err_task);
     }
 }
 
