@@ -234,18 +234,19 @@ OS_TID rt_tsk_create (FUNCP task, U32 prio_stksz, void *stk, void *argv) {
   /* If "size != 0" use a private user provided stack. */
   task_context->stack      = stk;
   task_context->priv_stack = prio_stksz >> 8;
-  /* Pass parameter 'argv' to 'rt_init_context' */
-  task_context->msg = argv;
-  /* For 'size == 0' system allocates the user stack from the memory pool. */
-  rt_init_context (task_context, (U8)(prio_stksz & 0xFFU), task);
 
   /* Find a free entry in 'os_active_TCB' table. */
   i = rt_get_TID ();
   if (i == 0U) {
     return (0U);
   }
-  os_active_TCB[i-1U] = task_context;
   task_context->task_id = (U8)i;
+  /* Pass parameter 'argv' to 'rt_init_context' */
+  task_context->msg = argv;
+  /* For 'size == 0' system allocates the user stack from the memory pool. */
+  rt_init_context (task_context, (U8)(prio_stksz & 0xFFU), task);
+
+  os_active_TCB[i-1U] = task_context;
   DBG_TASK_NOTIFY(task_context, __TRUE);
   rt_dispatch (task_context);
   return ((OS_TID)i);
