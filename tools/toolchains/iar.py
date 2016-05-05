@@ -107,21 +107,17 @@ class IAR(mbedToolchain):
     def get_compile_options(self, defines, includes):
         cmd = []
         
-        str = (' '.join(defines))+"|"+(' '.join(includes))
-        if len(str) > 160:
-            sum = md5(str).hexdigest()
-            options_file = join(self.temp_dir, "options_%s.txt" % sum)
-            if not exists(options_file):
-                with open(options_file, "wb") as f:
-                    cmd_list = ['-D%s' % d for d in defines]
-                    for c in includes:
-                        if c:
-                            cmd_list.append(('-I%s' % c) if not c.startswith('-') else c)                    
-                    string = " ".join(cmd_list).replace("\\", "/")
-                    f.write(string)
-            cmd.extend(['-f', options_file])
-        else:
-            cmd.extend(['-D%s' % d for d in defines] + ['-I%s' % i for i in includes])
+        sum = md5(' '.join(includes)).hexdigest()
+        options_file = join(self.temp_dir, "options_%s.txt" % sum)
+        if not exists(options_file):
+            with open(options_file, "wb") as f:
+                cmd_list = ['-D%s' % d for d in defines]
+                for c in includes:
+                    if c:
+                        cmd_list.append(('-I%s' % c) if not c.startswith('-') else c)                    
+                string = " ".join(cmd_list).replace("\\", "/")
+                f.write(string)
+        cmd.extend(['-f', options_file])
         
         return cmd
 
