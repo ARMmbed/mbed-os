@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    HAL_CM4.C
  *      Purpose: Hardware Abstraction Layer for Cortex-M4
- *      Rev.:    V4.70
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #include "rt_TypeDef.h"
-#include "RTX_Conf.h"
+#include "RTX_Config.h"
 #include "rt_System.h"
 #include "rt_HAL_CM.h"
 #include "rt_Task.h"
@@ -99,7 +99,7 @@ __asm void *_alloc_box (void *box_mem) {
 
 /*--------------------------- _free_box -------------------------------------*/
 
-__asm int _free_box (void *box_mem, void *box) {
+__asm U32 _free_box (void *box_mem, void *box) {
    /* Function wrapper for Unprivileged/Privileged mode. */
         LDR     R12,=__cpp(rt_free_box)
         MRS     R3,IPSR
@@ -152,7 +152,17 @@ SVC_Handler_Veneer
         BXEQ    LR                      ; RETI, no task switch
 #endif
 
-        CBZ     R1,SVC_Next             ; Runtask deleted?
+        CBNZ    R1,SVC_ContextSave      ; Runtask not deleted?
+
+        TST     LR,#0x10                ; is it extended frame?
+        BNE     SVC_ContextRestore
+        LDR     R1,=0xE000EF34
+        LDR     R0,[R1]                 ; Load FPCCR
+        BIC     R0,#1                   ; Clear LSPACT (Lazy state)
+        STR     R0,[R1]                 ; Store FPCCR
+        B       SVC_ContextRestore
+
+SVC_ContextSave
         TST     LR,#0x10                ; is it extended frame?
         VSTMDBEQ R12!,{S16-S31}         ; yes, stack also VFP hi-regs
         MOVEQ   R0,#0x01                ; os_tsk->stack_frame val
@@ -165,16 +175,16 @@ SVC_Handler_Veneer
         BL      rt_stk_check            ; Check for Stack overflow
         POP     {R2,R3}
 
-SVC_Next
+SVC_ContextRestore
         STR     R2,[R3]                 ; os_tsk.run = os_tsk.new
 
         LDR     R12,[R2,#TCB_TSTACK]    ; os_tsk.new->tsk_stack
         LDMIA   R12!,{R4-R11}           ; Restore New Context
         LDRB    R0,[R2,#TCB_STACKF]     ; Stack Frame
         CMP     R0,#0                   ; Basic/Extended Stack Frame
+        MVNEQ   LR,#:NOT:0xFFFFFFFD     ; set EXC_RETURN value
+        MVNNE   LR,#:NOT:0xFFFFFFED
         VLDMIANE R12!,{S16-S31}         ; restore VFP hi-registers
-        MVNNE   LR,#:NOT:0xFFFFFFED     ; set EXC_RETURN value
-        MVNEQ   LR,#:NOT:0xFFFFFFFD
         MSR     PSP,R12                 ; Write PSP
 
 SVC_Exit
@@ -254,9 +264,9 @@ Sys_Switch
         LDMIA   R12!,{R4-R11}           ; Restore New Context
         LDRB    R0,[R2,#TCB_STACKF]     ; Stack Frame
         CMP     R0,#0                   ; Basic/Extended Stack Frame
+        MVNEQ   LR,#:NOT:0xFFFFFFFD     ; set EXC_RETURN value
+        MVNNE   LR,#:NOT:0xFFFFFFED
         VLDMIANE R12!,{S16-S31}         ; restore VFP hi-regs
-        MVNNE   LR,#:NOT:0xFFFFFFED     ; set EXC_RETURN value
-        MVNEQ   LR,#:NOT:0xFFFFFFFD
         MSR     PSP,R12                 ; Write PSP
 
 Sys_Exit
