@@ -24,7 +24,6 @@ from types import ListType
 from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split
 from inspect import getmro
-from tempfile import mkdtemp
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
@@ -212,8 +211,8 @@ class mbedToolchain:
         self.has_config = False
 
         self.build_all = False
+        self.build_dir = None
         self.timestamp = time()
-        self.temp_dir = None
         self.jobs = 1
 
         self.CHROOT = None
@@ -480,7 +479,7 @@ class mbedToolchain:
         return join(obj_dir, name + '.o')
 
     def get_inc_file(self, includes):
-        include_file = join(self.temp_dir, "includes_%s.txt" % self.inc_md5)
+        include_file = join(self.build_dir, "includes_%s.txt" % self.inc_md5)
         if not exists(include_file):
             with open(include_file, "wb") as f:
                 cmd_list = []
@@ -507,7 +506,7 @@ class mbedToolchain:
         # Unique id of all include paths
         self.inc_md5 = md5(' '.join(inc_paths)).hexdigest()
         # Where to store response files
-        self.temp_dir = build_path
+        self.build_dir = build_path
 
         objects = []
         queue = []
