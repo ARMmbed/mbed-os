@@ -16,7 +16,6 @@ limitations under the License.
 """
 import re
 from os.path import join, basename, splitext, dirname, exists
-from hashlib import md5
 
 from tools.toolchains import mbedToolchain
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
@@ -69,7 +68,7 @@ class GCC(mbedToolchain):
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
-            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
+            "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
             ] + self.cpu
 
         if "save-asm" in self.options:
@@ -162,22 +161,13 @@ class GCC(mbedToolchain):
                     message + match.group('message')
                 )
 
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
+        return ["-MD", "-MF", dep_path]
+
     def get_compile_options(self, defines, includes):
-        cmd = []
-        
-        sum = md5(' '.join(includes)).hexdigest()
-        options_file = join(self.temp_dir, "options_%s.txt" % sum)
-        if not exists(options_file):
-            with open(options_file, "wb") as f:
-                cmd_list = ['-D%s' % d for d in defines]
-                for c in includes:
-                    if c:
-                        cmd_list.append(('-I%s' % c) if not c.startswith('-') else c)                    
-                string = " ".join(cmd_list).replace("\\", "/")
-                f.write(string)
-        cmd.extend(['@%s' % options_file])
-        
-        return cmd
+        return ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
 
     @hook_tool
     def assemble(self, source, object, includes):
@@ -193,8 +183,12 @@ class GCC(mbedToolchain):
     @hook_tool
     def compile(self, cc, source, object, includes):
         # Build compile command
-        cmd = cc + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
+        cmd = cc + self.get_compile_options(self.get_symbols(), includes)
 
+        cmd.extend(self.get_dep_option(object))
+
+        cmd.extend(["-o", object, source])
+        
         # Call cmdline hook
         cmd = self.hook.get_cmdline_compiler(cmd)
 

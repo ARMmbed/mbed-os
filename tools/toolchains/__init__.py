@@ -30,6 +30,7 @@ from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
+from hashlib import md5
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -478,18 +479,35 @@ class mbedToolchain:
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
 
+    def get_inc_file(self, includes):
+        include_file = join(self.temp_dir, "includes_%s.txt" % self.inc_md5)
+        if not exists(include_file):
+            with open(include_file, "wb") as f:
+                cmd_list = []
+                for c in includes:
+                    if c:
+                        cmd_list.append(('-I%s' % c).replace("\\", "/"))                    
+                string = " ".join(cmd_list)
+                f.write(string)
+        return include_file
+
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
-        self.temp_dir = build_path
 
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
-        # De-duplicate include paths and sort for consistency
+        # De-duplicate include paths
+        inc_paths = set(inc_paths)
+        # Sort include paths for consistency
         inc_paths = sorted(set(inc_paths))
+        # Unique id of all include paths
+        self.inc_md5 = md5(' '.join(inc_paths)).hexdigest()
+        # Where to store response files
+        self.temp_dir = build_path
 
         objects = []
         queue = []

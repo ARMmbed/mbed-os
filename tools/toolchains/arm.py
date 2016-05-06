@@ -16,7 +16,6 @@ limitations under the License.
 """
 import re
 from os.path import join, dirname, splitext, basename, exists
-from hashlib import md5
 
 from tools.toolchains import mbedToolchain
 from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB, GOANNA_PATH
@@ -79,11 +78,6 @@ class ARM(mbedToolchain):
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
 
-    def remove_option(self, option):
-        for tool in [self.asm, self.cc, self.cppc]:
-            if option in tool:
-                tool.remove(option)
-
     def parse_dependencies(self, dep_path):
         dependencies = []
         for line in open(dep_path).readlines():
@@ -113,25 +107,13 @@ class ARM(mbedToolchain):
                     match.group('message')
                 )
 
-    def get_dep_opt(self, dep_path):
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
         return ["--depend", dep_path]
 
-    def get_compile_options(self, defines, includes):
-        cmd = []
-        
-        sum = md5(' '.join(includes)).hexdigest()
-        options_file = join(self.temp_dir, "options_%s.txt" % sum)
-        if not exists(options_file):
-            with open(options_file, "wb") as f:
-                cmd_list = ['-D%s' % d for d in defines]
-                for c in includes:
-                    if c:
-                        cmd_list.append(('-I%s' % c) if not c.startswith('-') else c)                    
-                string = " ".join(cmd_list).replace("\\", "/")
-                f.write(string)
-        cmd.extend(['--via', options_file])
-        
-        return cmd
+    def get_compile_options(self, defines, includes):        
+        return ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
 
     @hook_tool
     def assemble(self, source, object, includes):
@@ -158,9 +140,7 @@ class ARM(mbedToolchain):
         # Build compile command
         cmd = cc + self.get_compile_options(self.get_symbols(), includes)
         
-        base, _ = splitext(object)
-        dep_path = base + '.d'
-        cmd.extend(self.get_dep_opt(dep_path))
+        cmd.extend(self.get_dep_option(object))
             
         cmd.extend(["-o", object, source])
 

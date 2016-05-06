@@ -17,7 +17,6 @@ limitations under the License.
 import re
 from os import remove
 from os.path import join, exists, dirname, splitext, exists
-from hashlib import md5
 
 from tools.toolchains import mbedToolchain
 from tools.settings import IAR_PATH
@@ -73,6 +72,10 @@ class IAR(mbedToolchain):
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
 
+    def parse_dependencies(self, dep_path):
+        return [path.strip() for path in open(dep_path).readlines()
+                if (path and not path.isspace())]
+
     def parse_output(self, output):
         for line in output.splitlines():
             match = IAR.DIAGNOSTIC_PATTERN.match(line)
@@ -94,32 +97,17 @@ class IAR(mbedToolchain):
                     match.group('message')
                 )
 
-    def get_dep_opt(self, dep_path):
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
         return ["--dependencies", dep_path]
 
-    def cc_extra(self, base):
+    def cc_extra(self, object):
+        base, _ = splitext(object)
         return ["-l", base + '.s']
 
-    def parse_dependencies(self, dep_path):
-        return [path.strip() for path in open(dep_path).readlines()
-                if (path and not path.isspace())]
-
     def get_compile_options(self, defines, includes):
-        cmd = []
-        
-        sum = md5(' '.join(includes)).hexdigest()
-        options_file = join(self.temp_dir, "options_%s.txt" % sum)
-        if not exists(options_file):
-            with open(options_file, "wb") as f:
-                cmd_list = ['-D%s' % d for d in defines]
-                for c in includes:
-                    if c:
-                        cmd_list.append(('-I%s' % c) if not c.startswith('-') else c)                    
-                string = " ".join(cmd_list).replace("\\", "/")
-                f.write(string)
-        cmd.extend(['-f', options_file])
-        
-        return cmd
+        return ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
 
     @hook_tool
     def assemble(self, source, object, includes):
@@ -137,11 +125,9 @@ class IAR(mbedToolchain):
         # Build compile command
         cmd = cc +  self.get_compile_options(self.get_symbols(), includes)
 
-        base, _ = splitext(object)
-        dep_path = base + '.d'
-        cmd.extend(self.get_dep_opt(dep_path))
+        cmd.extend(self.get_dep_option(object))
 
-        cmd.extend(self.cc_extra(base))
+        cmd.extend(self.cc_extra(object))
         
         cmd.extend(["-o", object, source])
 
