@@ -485,13 +485,11 @@ class mbedToolchain:
         self.compiled = 0
         self.temp_dir = build_path
 
-        #for i in self.build_params:
-        #    self.debug(i)
-        #    self.debug("%s" % self.build_params[i])
-
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
+        # De-duplicate include paths and sort for consistency
+        inc_paths = sorted(set(inc_paths))
 
         objects = []
         queue = []
@@ -499,6 +497,7 @@ class mbedToolchain:
 
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
+        # Sort compile queue for consistency
         files_to_compile.sort()
         work_dir = getcwd()
 
