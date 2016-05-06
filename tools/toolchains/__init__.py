@@ -479,7 +479,7 @@ class mbedToolchain:
         return join(obj_dir, name + '.o')
 
     def get_inc_file(self, includes):
-        include_file = join(self.build_dir, "includes_%s.txt" % self.inc_md5)
+        include_file = join(self.build_dir, ".includes_%s.txt" % self.inc_md5)
         if not exists(include_file):
             with open(include_file, "wb") as f:
                 cmd_list = []
