@@ -56,6 +56,11 @@
 
 #define CMSIS_OS_RTX
 
+// __MBED_CMSIS_RTOS_CM captures our changes to the RTX kernel
+#define __MBED_CMSIS_RTOS_CM
+// we use __CMSIS_RTOS version, which changes some API in the kernel
+#define __CMSIS_RTOS
+
 // The stack space occupied is mainly dependent on the underling C standard library
 #if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
 #    define WORDS_STACK_SIZE   512
