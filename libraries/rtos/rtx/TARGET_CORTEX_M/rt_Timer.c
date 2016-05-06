@@ -36,6 +36,7 @@
 #include "RTX_Config.h"
 #include "rt_Timer.h"
 #include "rt_MemBox.h"
+#include "cmsis_os.h"
 
 #ifndef __CMSIS_RTOS
 
