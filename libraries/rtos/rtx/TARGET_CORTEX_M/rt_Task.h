@@ -34,6 +34,8 @@
 
 /* Definitions */
 
+#include "cmsis_os.h"
+
 /* Values for 'state'   */
 #define INACTIVE        0U
 #define READY           1U

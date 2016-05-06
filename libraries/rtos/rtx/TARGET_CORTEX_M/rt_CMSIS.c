@@ -48,6 +48,10 @@
   #error "Missing __CORTEX_Mx definition"
 #endif
 
+// This affects cmsis_os only, as it's not used anywhere else. This was left by kernel team
+// to suppress the warning in rt_tid2ptcb about incompatible pointer assignment.
+#define os_thread_cb OS_TCB
+
 #include "rt_TypeDef.h"
 #include "RTX_Config.h"
 #include "rt_System.h"
@@ -61,8 +65,6 @@
 #include "rt_MemBox.h"
 #include "rt_Memory.h"
 #include "rt_HAL_CM.h"
-
-#define os_thread_cb OS_TCB
 
 #include "cmsis_os.h"
 
