@@ -1129,6 +1129,13 @@ class DISCO_F429ZI(Target):
             "target":"disco-f429zi",
         }
 
+class DISCO_F429ZI_QEMU(DISCO_F429ZI):
+    def __init__(self):
+        DISCO_F429ZI.__init__(self)
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F429', 'STM32F429ZI', 'DISCO_F429ZI']
+        self.core = "Cortex-M4"
+        
+
 class DISCO_F469NI(Target):
     def __init__(self):
         Target.__init__(self)
@@ -2235,6 +2242,7 @@ TARGETS = [
     DISCO_F407VG(),     # STM32F407
     ARCH_MAX(),         # STM32F407
     DISCO_F429ZI(),
+    DISCO_F429ZI_QEMU(),
     DISCO_F469NI(),
     DISCO_L053C8(),
     DISCO_L476VG(),
