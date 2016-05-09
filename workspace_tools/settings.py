@@ -30,13 +30,13 @@ BUILD_DIR = abspath(join(ROOT, ".build"))
 armcc = "standalone" # "keil", or "standalone", or "ds-5"
 
 if armcc == "keil":
-    ARM_PATH = "C:/Keil_4_54/ARM"
-    ARM_BIN = join(ARM_PATH, "BIN40")
-    ARM_INC = join(ARM_PATH, "RV31", "INC")
-    ARM_LIB = join(ARM_PATH, "RV31", "LIB")
+    ARM_PATH = "C:/Keil_v5/ARM/ARMCC"
+    ARM_BIN = join(ARM_PATH, "bin")
+    ARM_INC = join(ARM_PATH, "incldue")
+    ARM_LIB = join(ARM_PATH, "lib")
 
 elif armcc == "standalone":
-    ARM_PATH = "C:/Program Files/ARM/armcc_4.1_791"
+    ARM_PATH = "C:/Program Files (x86)/ARM_Compiler_5.06u1"
     ARM_BIN = join(ARM_PATH, "bin")
     ARM_INC = join(ARM_PATH, "include")
     ARM_LIB = join(ARM_PATH, "lib")
@@ -51,13 +51,13 @@ ARM_CPPLIB = join(ARM_LIB, "cpplib")
 MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 
 # GCC ARM
-GCC_ARM_PATH = ""
+GCC_ARM_PATH = "C:/Program Files (x86)/GNU Tools ARM Embedded/4.9 2015q3/bin"
 
 # GCC CodeRed
 GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 
 # IAR
-IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.0/arm"
+IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.3/arm"
 
 # Goanna static analyser. Please overload it in private_settings.py
 GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"
