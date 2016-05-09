@@ -50,7 +50,6 @@ serial_t stdio_uart;
 
 static void init_uart(serial_t *obj)
 {
-    int dummywrite = 0;
 
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
 
@@ -70,8 +69,6 @@ static void init_uart(serial_t *obj)
 
     HAL_UART_Init(&UartHandle);
 
-    /* DUMMY write in Transmit register to clear its content */
-    UartHandle.Instance->DR = (uint8_t)(dummywrite & (uint8_t)0xFF);
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
@@ -86,14 +83,20 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     // Enable UART clock
     if (obj->uart == UART_1) {
+    	__USART1_FORCE_RESET();
+    	__USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_ENABLE();
         obj->index = 0;
     }
     if (obj->uart == UART_2) {
+    	__USART2_FORCE_RESET();
+    	__USART2_RELEASE_RESET();
         __HAL_RCC_USART2_CLK_ENABLE();
         obj->index = 1;
     }
     if (obj->uart == UART_3) {
+    	__USART3_FORCE_RESET();
+    	__USART3_RELEASE_RESET();
         __HAL_RCC_USART3_CLK_ENABLE();
         obj->index = 2;
     }
