@@ -209,6 +209,9 @@ if __name__ == '__main__':
             "targets": {}
         }
 
+        if options.toolchains:
+            print "Only building using the following toolchains: %s" % (options.toolchains)
+
         for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
             toolchains = None
             if platforms is not None and not target_name in platforms:
@@ -221,7 +224,6 @@ if __name__ == '__main__':
                 toolchains = toolchain_list
 
             if options.toolchains:
-                print "Only building using the following toolchains: %s" % (options.toolchains)
                 toolchainSet = set(toolchains)
                 toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
 
@@ -233,19 +235,19 @@ if __name__ == '__main__':
 
             test_spec["targets"][target_name] = toolchains
 
-            single_test = SingleTestRunner(_muts=mut,
-                                           _opts_report_build_file_name=options.report_build_file_name,
-                                           _test_spec=test_spec,
-                                           _opts_test_by_names=",".join(test_names),
-                                           _opts_verbose=options.verbose,
-                                           _opts_only_build_tests=True,
-                                           _opts_suppress_summary=True,
-                                           _opts_jobs=options.jobs,
-                                           _opts_include_non_automated=True,
-                                           _opts_build_report=build_report,
-                                           _opts_build_properties=build_properties)
-            # Runs test suite in CLI mode
-            test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, new_build_report, new_build_properties = single_test.execute()
+        single_test = SingleTestRunner(_muts=mut,
+                                       _opts_report_build_file_name=options.report_build_file_name,
+                                       _test_spec=test_spec,
+                                       _opts_test_by_names=",".join(test_names),
+                                       _opts_verbose=options.verbose,
+                                       _opts_only_build_tests=True,
+                                       _opts_suppress_summary=True,
+                                       _opts_jobs=options.jobs,
+                                       _opts_include_non_automated=True,
+                                       _opts_build_report=build_report,
+                                       _opts_build_properties=build_properties)
+        # Runs test suite in CLI mode
+        test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, new_build_report, new_build_properties = single_test.execute()
     else:
         for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
             if platforms is not None and not target_name in platforms:
