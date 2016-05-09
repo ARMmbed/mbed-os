@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_gpio.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   GPIO HAL module driver.
   *         This file provides firmware functions to manage the following 
   *          functionalities of the General Purpose Input/Output (GPIO) peripheral:
@@ -51,7 +51,7 @@
                      ##### How to use this driver #####
   ==============================================================================  
  [..]             
-   (#) Enable the GPIO APB2 clock using the following function : __HAL_GPIOx_CLK_ENABLE(). 
+   (#) Enable the GPIO APB2 clock using the following function : __HAL_RCC_GPIOx_CLK_ENABLE(). 
    
    (#) Configure the GPIO pin(s) using HAL_GPIO_Init().
        (++) Configure the IO mode using "Mode" member from GPIO_InitTypeDef structure
@@ -92,7 +92,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -207,7 +207,6 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
   assert_param(IS_GPIO_ALL_INSTANCE(GPIOx));
   assert_param(IS_GPIO_PIN(GPIO_Init->Pin));
   assert_param(IS_GPIO_MODE(GPIO_Init->Mode));
-  assert_param(IS_GPIO_PULL(GPIO_Init->Pull)); 
 
   /* Configure the port pins */
   for (position = 0; position < GPIO_NUMBER; position++)
@@ -570,6 +569,8 @@ void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
   */
 __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(GPIO_Pin);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_GPIO_EXTI_Callback could be implemented in the user file
    */ 

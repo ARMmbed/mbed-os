@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_nand.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of NAND HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,18 +102,18 @@
   * @param  __HANDLE__ : NAND handle.
   * @retval NAND Raw address value
   */
-#define __ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) (((__ADDRESS__)->Page) + \
-                         (((__ADDRESS__)->Block + (((__ADDRESS__)->Zone) * ((__HANDLE__)->Info.ZoneSize)))* ((__HANDLE__)->Info.BlockSize * ((__HANDLE__)->Info.PageSize + (__HANDLE__)->Info.SpareAreaSize))))
-
+#define ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) ((__ADDRESS__)->Page + \
+                         (((__ADDRESS__)->Block + (((__ADDRESS__)->Zone) * ((__HANDLE__)->Info.ZoneSize)))* ((__HANDLE__)->Info.BlockSize)))
+   
 /**
   * @brief  NAND memory address cycling.
   * @param  __ADDRESS__: NAND memory address.
   * @retval NAND address cycling value.
   */
-#define __ADDR_1st_CYCLE(__ADDRESS__)       (uint8_t)(__ADDRESS__)              /* 1st addressing cycle */
-#define __ADDR_2nd_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 8)       /* 2nd addressing cycle */
-#define __ADDR_3rd_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 16)      /* 3rd addressing cycle */
-#define __ADDR_4th_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 24)      /* 4th addressing cycle */
+#define ADDR_1st_CYCLE(__ADDRESS__)       (uint8_t)(__ADDRESS__)              /* 1st addressing cycle */
+#define ADDR_2nd_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 8)       /* 2nd addressing cycle */
+#define ADDR_3rd_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 16)      /* 3rd addressing cycle */
+#define ADDR_4th_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 24)      /* 4th addressing cycle */
 
 /**
   * @}

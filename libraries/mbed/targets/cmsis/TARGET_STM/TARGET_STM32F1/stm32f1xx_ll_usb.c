@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_ll_usb.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   USB Low Layer HAL module driver.
   *
   *          This file provides firmware functions to manage the following 
@@ -28,7 +28,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -205,12 +205,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   
   /*Activate VBUS Sensing B */
   USBx->GCCFG |= USB_OTG_GCCFG_VBUSBSEN;
-  
-  if (cfg.vbus_sensing_enable == 0)
-  {
-    USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
-  }
-  
+
   /* Restart the Phy Clock */
   USBx_PCGCCTL = 0;
   
@@ -302,7 +297,7 @@ HAL_StatusTypeDef USB_FlushTxFifo (USB_OTG_GlobalTypeDef *USBx, uint32_t num )
 {
   uint32_t count = 0;
   
-  USBx->GRSTCTL = ( USB_OTG_GRSTCTL_TXFFLSH |(uint32_t)( num << 5 )); 
+  USBx->GRSTCTL = ( USB_OTG_GRSTCTL_TXFFLSH |(uint32_t)( num << 6)); 
   
   do
   {
@@ -939,7 +934,6 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   /* no VBUS sensing*/
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSASEN);
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSBSEN);
-  USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
   
   /* Disable the FS/LS support mode only */
   if((cfg.speed == USB_OTG_SPEED_FULL)&&
@@ -1214,6 +1208,7 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
   uint16_t len_words = 0;
   uint16_t num_packets = 0;
   uint16_t max_hc_pkt_count = 256;
+  uint32_t tmpreg = 0;
   
   /* Compute the expected number of packets associated to the transfer */
   if (hc->xfer_len > 0)
@@ -1245,8 +1240,10 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
   USBx_HC(hc->ch_num)->HCCHAR |= (is_oddframe << 29);
   
   /* Set host channel enable */
-  USBx_HC(hc->ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
-  USBx_HC(hc->ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+  tmpreg = USBx_HC(hc->ch_num)->HCCHAR;
+  tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+  tmpreg |= USB_OTG_HCCHAR_CHENA;
+  USBx_HC(hc->ch_num)->HCCHAR = tmpreg;
   
   if((hc->ep_is_in == 0) && (hc->xfer_len > 0))
   {
@@ -1370,13 +1367,16 @@ HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
 HAL_StatusTypeDef USB_DoPing(USB_OTG_GlobalTypeDef *USBx , uint8_t ch_num)
 {
   uint8_t  num_packets = 1;
+  uint32_t tmpreg = 0;
   
   USBx_HC(ch_num)->HCTSIZ = ((num_packets << 19) & USB_OTG_HCTSIZ_PKTCNT) |\
                                 USB_OTG_HCTSIZ_DOPING;
   
   /* Set host channel enable */
-  USBx_HC(ch_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHDIS;
-  USBx_HC(ch_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+  tmpreg = USBx_HC(ch_num)->HCCHAR;
+  tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+  tmpreg |= USB_OTG_HCCHAR_CHENA;
+  USBx_HC(ch_num)->HCCHAR = tmpreg;
   
   return HAL_OK;  
 }
@@ -1770,16 +1770,17 @@ HAL_StatusTypeDef USB_EPStartXfer(USB_TypeDef *USBx , USB_EPTypeDef *ep)
     }
     else
     {
-      /*Set the Double buffer counter*/
-      PCD_SET_EP_DBUF1_CNT(USBx, ep->num, ep->is_in, len);
-      
-      /*Write the data to the USB endpoint*/
+      /* Write the data to the USB endpoint */
       if (PCD_GET_ENDPOINT(USBx, ep->num)& USB_EP_DTOG_TX)
       {
+        /* Set the Double buffer counter for pmabuffer1 */
+        PCD_SET_EP_DBUF1_CNT(USBx, ep->num, ep->is_in, len);
         pmabuffer = ep->pmaaddr1;
       }
       else
       {
+        /* Set the Double buffer counter for pmabuffer0 */
+        PCD_SET_EP_DBUF0_CNT(USBx, ep->num, ep->is_in, len);
         pmabuffer = ep->pmaaddr0;
       }
       USB_WritePMA(USBx, ep->xfer_buff, pmabuffer, len);
@@ -1811,7 +1812,7 @@ HAL_StatusTypeDef USB_EPStartXfer(USB_TypeDef *USBx , USB_EPTypeDef *ep)
     else
     {
       /*Set the Double buffer counter*/
-      PCD_SET_EP_DBUF1_CNT(USBx, ep->num, ep->is_in, len);
+      PCD_SET_EP_DBUF_CNT(USBx, ep->num, ep->is_in, len);
     }
     
     PCD_SET_EP_RX_STATUS(USBx, ep->num, USB_EP_RX_VALID);

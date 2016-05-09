@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_gpio.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of GPIO HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -160,9 +160,9 @@ typedef enum
   * @brief GPIO Output Maximum frequency
   * @{
   */  
-#define  GPIO_SPEED_LOW              (GPIO_CRL_MODE0_1) /*!< Low speed */
-#define  GPIO_SPEED_MEDIUM           (GPIO_CRL_MODE0_0) /*!< Medium speed */
-#define  GPIO_SPEED_HIGH             (GPIO_CRL_MODE0)   /*!< High speed */
+#define  GPIO_SPEED_FREQ_LOW              (GPIO_CRL_MODE0_1) /*!< Low speed */
+#define  GPIO_SPEED_FREQ_MEDIUM           (GPIO_CRL_MODE0_0) /*!< Medium speed */
+#define  GPIO_SPEED_FREQ_HIGH             (GPIO_CRL_MODE0)   /*!< High speed */
 
 /**
   * @}
@@ -198,8 +198,8 @@ typedef enum
 #define IS_GPIO_PULL(PULL) (((PULL) == GPIO_NOPULL) || ((PULL) == GPIO_PULLUP) || \
                             ((PULL) == GPIO_PULLDOWN))
                             
-#define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_SPEED_LOW) || \
-                              ((SPEED) == GPIO_SPEED_MEDIUM) || ((SPEED) == GPIO_SPEED_HIGH))
+#define IS_GPIO_SPEED(SPEED) (((SPEED) == GPIO_SPEED_FREQ_LOW) || \
+                              ((SPEED) == GPIO_SPEED_FREQ_MEDIUM) || ((SPEED) == GPIO_SPEED_FREQ_HIGH))
 
 #define IS_GPIO_MODE(MODE) (((MODE) == GPIO_MODE_INPUT)              ||\
                             ((MODE) == GPIO_MODE_OUTPUT_PP)          ||\

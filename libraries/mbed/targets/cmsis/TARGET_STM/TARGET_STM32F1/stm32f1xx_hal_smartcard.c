@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_smartcard.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   SMARTCARD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the SMARTCARD peripheral:
@@ -103,7 +103,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -194,11 +194,6 @@ static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDe
       (++) Word Length => Should be 9 bits (8 bits + parity)
       (++) Stop Bit
       (++) Parity: => Should be enabled 
-   +-------------------------------------------------------------+
-   |   M bit |  PCE bit  |        SMARTCARD frame                |
-   |---------------------|---------------------------------------|
-   |    1    |    1      |    | SB | 8 bit data | PB | STB |     |
-   +-------------------------------------------------------------+
       (++) USART polarity
       (++) USART phase
       (++) USART LastBit
@@ -216,7 +211,7 @@ static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDe
   [..]
   Please refer to the ISO 7816-3 specification for more details.
 
-    -@- It is also possible to choose 0.5 stop bit for receiving but it is recommended 
+    (@) It is also possible to choose 0.5 stop bit for receiving but it is recommended 
         to use 1.5 stop bits for both transmitting and receiving to avoid switching 
         between the two configurations.
   [..]
@@ -227,6 +222,15 @@ static HAL_StatusTypeDef SMARTCARD_WaitOnFlagUntilTimeout(SMARTCARD_HandleTypeDe
 @endverbatim
   * @{
   */
+
+/*
+  Additionnal remark on the smartcard frame:
+   +-------------------------------------------------------------+
+   |   M bit |  PCE bit  |        SMARTCARD frame                |
+   |---------------------|---------------------------------------|
+   |    1    |    1      |    | SB | 8 bit data | PB | STB |     |
+   +-------------------------------------------------------------+
+*/
 
 /**
   * @brief  Initializes the SmartCard mode according to the specified
@@ -259,7 +263,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Init(SMARTCARD_HandleTypeDef *hsc)
   if(hsc->State == HAL_SMARTCARD_STATE_RESET)
   {  
     /* Allocate lock resource and initialize it */
-    hsc-> Lock = HAL_UNLOCKED;
+    hsc->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware */
     HAL_SMARTCARD_MspInit(hsc);
@@ -349,6 +353,8 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_MspInit(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_SMARTCARD_MspInit can be implemented in the user file
    */ 
@@ -362,6 +368,8 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_MspDeInit(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_SMARTCARD_MspDeInit can be implemented in the user file
    */ 
@@ -382,11 +390,12 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsc)
     This subsection provides a set of functions allowing to manage the SMARTCARD data transfers.
 
   [..]
-    Smartcard is a single wire half duplex communication protocol. 
+    (#) Smartcard is a single wire half duplex communication protocol. 
     The Smartcard interface is designed to support asynchronous protocol Smartcards as
-    defined in the ISO 7816-3 standard. The USART should be configured as:
-    (+) 8 bits plus parity: where M=1 and PCE=1 in the USART_CR1 register
-    (+) 1.5 stop bits when transmitting and receiving: where STOP=11 in the USART_CR2 register.
+    defined in the ISO 7816-3 standard. 
+    (#) The USART should be configured as:
+        (++) 8 bits plus parity: where M=1 and PCE=1 in the USART_CR1 register
+        (++) 1.5 stop bits when transmitting and receiving: where STOP=11 in the USART_CR2 register.
 
     (#) There are two modes of transfer:
         (++) Blocking mode: The communication is performed in polling mode. 
@@ -825,7 +834,6 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   /* SMARTCARD parity error interrupt occurred -----------------------------------*/
   if((tmp_flag != RESET) && (tmp_it_source != RESET))
   {
-    __HAL_SMARTCARD_CLEAR_PEFLAG(hsc);
     hsc->ErrorCode |= HAL_SMARTCARD_ERROR_PE;
   }
 
@@ -834,7 +842,6 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   /* SMARTCARD frame error interrupt occurred ------------------------------------*/
   if((tmp_flag != RESET) && (tmp_it_source != RESET))
   {
-    __HAL_SMARTCARD_CLEAR_FEFLAG(hsc);
     hsc->ErrorCode |= HAL_SMARTCARD_ERROR_FE;
   }
 
@@ -842,7 +849,6 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   /* SMARTCARD noise error interrupt occurred ------------------------------------*/
   if((tmp_flag != RESET) && (tmp_it_source != RESET))
   {
-    __HAL_SMARTCARD_CLEAR_NEFLAG(hsc);
     hsc->ErrorCode |= HAL_SMARTCARD_ERROR_NE;
   }
 
@@ -850,7 +856,6 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   /* SMARTCARD Over-Run interrupt occurred ---------------------------------------*/
   if((tmp_flag != RESET) && (tmp_it_source != RESET))
   {
-    __HAL_SMARTCARD_CLEAR_OREFLAG(hsc);
     hsc->ErrorCode |= HAL_SMARTCARD_ERROR_ORE;
   }
   
@@ -881,6 +886,9 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   /* Call the Error call Back in case of Errors */
   if(hsc->ErrorCode != HAL_SMARTCARD_ERROR_NONE)
   {
+    /* Clear all the error flag at once */
+    __HAL_SMARTCARD_CLEAR_PEFLAG(hsc);
+
     /* Set the SMARTCARD state ready to be able to start again the process */
     hsc->State= HAL_SMARTCARD_STATE_READY;
     HAL_SMARTCARD_ErrorCallback(hsc);
@@ -895,6 +903,8 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_TxCpltCallback(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_SMARTCARD_TxCpltCallback can be implemented in the user file
    */
@@ -908,6 +918,8 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc)
   */
 __weak void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_SMARTCARD_RxCpltCallback can be implemented in the user file
    */
@@ -921,6 +933,8 @@ __weak void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsc)
   */
  __weak void HAL_SMARTCARD_ErrorCallback(SMARTCARD_HandleTypeDef *hsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsc);
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_SMARTCARD_ErrorCallback can be implemented in the user file
    */ 

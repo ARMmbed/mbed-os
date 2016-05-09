@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -97,12 +97,11 @@ typedef struct
                                            This parameter can be a value of @ref SMARTCARD_Last_Bit */
 
   uint32_t Prescaler;                 /*!< Specifies the SmartCard Prescaler value used for dividing the system clock 
-                                           to provide the smartcard clock
+                                           to provide the smartcard clock. The value given in the register (5 significant bits)
+                                           is multiplied by 2 to give the division factor of the source clock frequency.
                                            This parameter can be a value of @ref SMARTCARD_Prescaler */
 
-  uint32_t GuardTime;                 /*!< Specifies the SmartCard Guard Time value in terms of number of baud clocks
-                                           The value given in the register (5 significant bits) is multiplied by 2 
-                                           to give the division factor of the source clock frequency */
+  uint32_t GuardTime;                 /*!< Specifies the SmartCard Guard Time value in terms of number of baud clocks */
 
   uint32_t NACKState;                 /*!< Specifies the SmartCard NACK Transmission state
                                            This parameter can be a value of @ref SMARTCARD_NACK_State */
@@ -549,7 +548,11 @@ do{                                                        \
 #define SMARTCARD_DIV(__PCLK__, __BAUD__)                (((__PCLK__)*25)/(4*(__BAUD__)))
 #define SMARTCARD_DIVMANT(__PCLK__, __BAUD__)            (SMARTCARD_DIV((__PCLK__), (__BAUD__))/100)
 #define SMARTCARD_DIVFRAQ(__PCLK__, __BAUD__)            (((SMARTCARD_DIV((__PCLK__), (__BAUD__)) - (SMARTCARD_DIVMANT((__PCLK__), (__BAUD__)) * 100)) * 16 + 50) / 100)
-#define SMARTCARD_BRR(__PCLK__, __BAUD__)                ((SMARTCARD_DIVMANT((__PCLK__), (__BAUD__)) << 4)|(SMARTCARD_DIVFRAQ((__PCLK__), (__BAUD__)) & 0x0F))
+/* UART BRR = mantissa + overflow + fraction
+            = (UART DIVMANT << 4) + (UART DIVFRAQ & 0xF0) + (UART DIVFRAQ & 0x0F) */
+#define SMARTCARD_BRR(_PCLK_, _BAUD_)            (((SMARTCARD_DIVMANT((_PCLK_), (_BAUD_)) << 4) + \
+                                                  (SMARTCARD_DIVFRAQ((_PCLK_), (_BAUD_)) & 0xF0)) + \
+                                                  (SMARTCARD_DIVFRAQ((_PCLK_), (_BAUD_)) & 0x0F))
 
 /** Check the Baud rate range.
   *         The maximum Baud Rate is derived from the maximum clock on APB (i.e. 72 MHz) 

@@ -2,12 +2,12 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dma.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   DMA HAL module driver.
   *    
-  *         This file provides firmware functions to manage the following 
-  *         functionalities of the Direct Memory Access (DMA) peripheral:
+  *          This file provides firmware functions to manage the following 
+  *          functionalities of the Direct Memory Access (DMA) peripheral:
   *           + Initialization and de-initialization functions
   *           + IO operation functions
   *           + Peripheral State and errors functions
@@ -19,7 +19,7 @@
    (#) Enable and configure the peripheral to be connected to the DMA Channel
        (except for internal SRAM / FLASH memories: no initialization is 
        necessary) please refer to Reference manual for connection between peripherals
-       and DMA requests .
+       and DMA requests.
 
    (#) For a given Channel, program the required configuration through the following parameters:   
        Transfer Direction, Source and Destination data formats, 
@@ -73,7 +73,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -119,7 +119,7 @@
 /** @defgroup DMA_Private_Constants DMA Private Constants
   * @{
   */
-#define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s  */
+#define HAL_TIMEOUT_DMA_ABORT    ((uint32_t)1000)  /* 1s */
 /**
   * @}
   */
@@ -141,7 +141,7 @@ static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t
   * @{
   */
 
-/** @defgroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions 
+/** @defgroup DMA_Exported_Functions_Group1 Initialization and de-initialization functions
  *  @brief   Initialization and de-initialization functions 
  *
 @verbatim   
@@ -186,11 +186,11 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   assert_param(IS_DMA_MEMORY_DATA_SIZE(hdma->Init.MemDataAlignment));
   assert_param(IS_DMA_MODE(hdma->Init.Mode));
   assert_param(IS_DMA_PRIORITY(hdma->Init.Priority));
-
+  
   if(hdma->State == HAL_DMA_STATE_RESET)
   {  
     /* Allocate lock resource and initialize it */
-    hdma-> Lock = HAL_UNLOCKED;
+    hdma->Lock = HAL_UNLOCKED;
   }
   
   /* Change DMA peripheral state */
@@ -217,11 +217,11 @@ HAL_StatusTypeDef HAL_DMA_Init(DMA_HandleTypeDef *hdma)
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
   /* Initialize the DMA state*/
-  hdma->State  = HAL_DMA_STATE_READY;
+  hdma->State = HAL_DMA_STATE_READY;
   
   return HAL_OK;
-}  
-  
+}
+
 /**
   * @brief  DeInitializes the DMA peripheral 
   * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
@@ -265,7 +265,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma));
   __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));
   
-  /* Initialise the error code */
+  /* Initialize the error code */
   hdma->ErrorCode = HAL_DMA_ERROR_NONE;
 
   /* Initialize the DMA state */
@@ -310,27 +310,27 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma)
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DMA_Start(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength)
-{ 
+{
   /* Process locked */
-  __HAL_LOCK(hdma);  
+  __HAL_LOCK(hdma);
 
-  /* Change DMA peripheral state */  
-  hdma->State = HAL_DMA_STATE_BUSY;  
+  /* Change DMA peripheral state */
+  hdma->State = HAL_DMA_STATE_BUSY;
 
    /* Check the parameters */
   assert_param(IS_DMA_BUFFER_SIZE(DataLength));
   
   /* Disable the peripheral */
-  __HAL_DMA_DISABLE(hdma);  
+  __HAL_DMA_DISABLE(hdma);
   
   /* Configure the source, destination address and the data length */
   DMA_SetConfig(hdma, SrcAddress, DstAddress, DataLength);
 
   /* Enable the Peripheral */
-  __HAL_DMA_ENABLE(hdma);  
+  __HAL_DMA_ENABLE(hdma);
 
   return HAL_OK; 
-} 
+}
 
 /**
   * @brief  Start the DMA Transfer with interrupt enabled.
@@ -346,8 +346,8 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
   /* Process locked */
   __HAL_LOCK(hdma);
 
-  /* Change DMA peripheral state */  
-  hdma->State = HAL_DMA_STATE_BUSY;  
+  /* Change DMA peripheral state */
+  hdma->State = HAL_DMA_STATE_BUSY;
 
    /* Check the parameters */
   assert_param(IS_DMA_BUFFER_SIZE(DataLength));
@@ -355,7 +355,7 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
   /* Disable the peripheral */
   __HAL_DMA_DISABLE(hdma);
   
-  /* Configure the source, destination address and the data length */  
+  /* Configure the source, destination address and the data length */
   DMA_SetConfig(hdma, SrcAddress, DstAddress, DataLength);
   
   /* Enable the transfer complete interrupt */
@@ -368,9 +368,9 @@ HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress,
   __HAL_DMA_ENABLE_IT(hdma, DMA_IT_TE);
   
    /* Enable the Peripheral */
-  __HAL_DMA_ENABLE(hdma);   
+  __HAL_DMA_ENABLE(hdma);
   
-  return HAL_OK;    
+  return HAL_OK;
 } 
 
 /**
@@ -391,12 +391,12 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
   
   /* Disable the channel */
   __HAL_DMA_DISABLE(hdma);
-  
-  /* Get timeout */
+
+  /* Get tick */
   tickstart = HAL_GetTick();
   
   /* Check if the DMA Channel is effectively disabled */
-  while((hdma->Instance->CCR & DMA_CCR_EN) != 0) 
+  while((hdma->Instance->CCR & DMA_CCR_EN) != 0)
   {
     /* Check for the Timeout */
     if((HAL_GetTick() - tickstart) > HAL_TIMEOUT_DMA_ABORT)
@@ -413,13 +413,13 @@ HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma)
       return HAL_TIMEOUT;
     }
   }
-  /* Change the DMA state*/
-  hdma->State = HAL_DMA_STATE_READY; 
+  /* Change the DMA state */
+  hdma->State = HAL_DMA_STATE_READY;
   
   /* Process Unlocked */
   __HAL_UNLOCK(hdma);
   
-  return HAL_OK; 
+  return HAL_OK;
 }
 
 /**
@@ -447,7 +447,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
     temp = __HAL_DMA_GET_HT_FLAG_INDEX(hdma);
   }
 
-  /* Get timeout */
+  /* Get tick */
   tickstart = HAL_GetTick();
 
   while(__HAL_DMA_GET_FLAG(hdma, temp) == RESET)
@@ -461,13 +461,13 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
       SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);
 
       /* Change the DMA state */
-      hdma->State= HAL_DMA_STATE_ERROR;       
+      hdma->State= HAL_DMA_STATE_ERROR;
       
       /* Process Unlocked */
       __HAL_UNLOCK(hdma);
       
-      return HAL_ERROR;      
-    }      
+      return HAL_ERROR;
+    }
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
@@ -481,7 +481,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
 
         /* Process Unlocked */
         __HAL_UNLOCK(hdma);
-
+        
         return HAL_TIMEOUT;
       }
     }
@@ -508,7 +508,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
   }
   
   /* Process unlocked */
-  __HAL_UNLOCK(hdma);  
+  __HAL_UNLOCK(hdma);
 
   return HAL_OK;
 }
@@ -520,7 +520,7 @@ HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t Comp
   * @retval None
   */
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
-{        
+{
   /* Transfer Error Interrupt management ***************************************/
   if(__HAL_DMA_GET_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma)) != RESET)
   {
@@ -528,19 +528,19 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
     {
       /* Disable the transfer error interrupt */
       __HAL_DMA_DISABLE_IT(hdma, DMA_IT_TE);
-    
+      
       /* Clear the transfer error flag */
       __HAL_DMA_CLEAR_FLAG(hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma));
-    
+      
       /* Update error code */
       SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_TE);
-
+      
       /* Change the DMA state */
-      hdma->State = HAL_DMA_STATE_ERROR;    
-    
+      hdma->State = HAL_DMA_STATE_ERROR;
+      
       /* Process Unlocked */
       __HAL_UNLOCK(hdma); 
-    
+      
       if (hdma->XferErrorCallback != NULL)
       {
         /* Transfer error callback */
@@ -591,7 +591,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       SET_BIT(hdma->ErrorCode, HAL_DMA_ERROR_NONE);
 
       /* Change the DMA state */
-      hdma->State = HAL_DMA_STATE_READY;    
+      hdma->State = HAL_DMA_STATE_READY;
     
       /* Process Unlocked */
       __HAL_UNLOCK(hdma);
@@ -603,7 +603,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
       }
     }
   }
-}  
+}
 
 /**
   * @}
@@ -615,7 +615,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 @verbatim   
  ===============================================================================
                     ##### State and Errors functions #####
- ===============================================================================  
+ ===============================================================================
     [..]
     This subsection provides functions allowing to
       (+) Check the DMA state
@@ -623,7 +623,7 @@ void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma)
 
 @endverbatim
   * @{
-  */  
+  */
 
 /**
   * @brief  Returns the DMA state.
@@ -669,13 +669,13 @@ uint32_t HAL_DMA_GetError(DMA_HandleTypeDef *hdma)
   * @retval HAL status
   */
 static void DMA_SetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength)
-{  
+{
   /* Configure DMA Channel data length */
   hdma->Instance->CNDTR = DataLength;
   
   /* Peripheral to Memory */
   if((hdma->Init.Direction) == DMA_MEMORY_TO_PERIPH)
-  {   
+  {
     /* Configure DMA Channel destination address */
     hdma->Instance->CPAR = DstAddress;
     

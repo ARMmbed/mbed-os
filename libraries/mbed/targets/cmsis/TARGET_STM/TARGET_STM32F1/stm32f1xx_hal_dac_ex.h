@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dac_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of DAC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -63,16 +63,6 @@
 /** @defgroup DACEx_Exported_Constants DACEx Exported Constants
   * @{
   */ 
-   
-/** @defgroup DACEx_wave_generation DACEx wave generation
-  * @{
-  */
-#define DAC_WAVEGENERATION_NOISE           ((uint32_t)DAC_CR_WAVE1_0)
-#define DAC_WAVEGENERATION_TRIANGLE        ((uint32_t)DAC_CR_WAVE1_1)
-
-/**
-  * @}
-  */
 
 /** @defgroup DACEx_lfsrunmask_triangleamplitude DACEx lfsrunmask triangleamplitude
   * @{
@@ -232,7 +222,7 @@
     
 /** @brief  Get the selected DAC's flag status.
   * @param  __HANDLE__: specifies the DAC handle.
-  * @param  __FLAG__: specifies the FLASH flag to get.
+  * @param  __FLAG__: specifies the DAC flag to get.
   *          This parameter can be any combination of the following values:
   *            @arg DAC_FLAG_DMAUDR1: DAC channel 1 DMA underrun flag
   *            @arg DAC_FLAG_DMAUDR2: DAC channel 2 DMA underrun flag
@@ -295,9 +285,6 @@
                                  ((TRIGGER) == DAC_TRIGGER_SOFTWARE))
 #endif /* STM32F100xB */
 
-#define IS_DAC_GENERATE_WAVE(WAVE) (((WAVE) == DAC_WAVEGENERATION_NOISE) || \
-                                    ((WAVE) == DAC_WAVEGENERATION_TRIANGLE))
-
 #define IS_DAC_LFSR_UNMASK_TRIANGLE_AMPLITUDE(VALUE) (((VALUE) == DAC_LFSRUNMASK_BIT0) || \
                                                       ((VALUE) == DAC_LFSRUNMASK_BITS1_0) || \
                                                       ((VALUE) == DAC_LFSRUNMASK_BITS2_0) || \
@@ -322,9 +309,6 @@
                                                       ((VALUE) == DAC_TRIANGLEAMPLITUDE_1023) || \
                                                       ((VALUE) == DAC_TRIANGLEAMPLITUDE_2047) || \
                                                       ((VALUE) == DAC_TRIANGLEAMPLITUDE_4095))
-
-#define IS_DAC_WAVE(WAVE) (((WAVE) == DAC_WAVE_NOISE) || \
-                           ((WAVE) == DAC_WAVE_TRIANGLE))
 
 /**
   * @}

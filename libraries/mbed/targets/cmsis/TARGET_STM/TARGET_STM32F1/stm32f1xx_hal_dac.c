@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following 
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -114,7 +114,7 @@
        DMA requests are mapped as following:
          (#) DAC channel1 :
              For STM32F100x low-density, medium-density, high-density with DAC
-             DMA remap: 
+             DMA remap:
                             mapped on DMA1 channel3 which must be
              already configured
              For STM32F100x high-density without DAC DMA remap and other  
@@ -123,7 +123,7 @@
              already configured
          (#) DAC channel2 :
              For STM32F100x low-density, medium-density, high-density with DAC
-             DMA remap: 
+             DMA remap:
                             mapped on DMA1 channel4 which must be
              already configured
              For STM32F100x high-density without DAC DMA remap and other  
@@ -185,7 +185,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -274,7 +274,7 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
   if(hdac->State == HAL_DAC_STATE_RESET)
   {  
     /* Allocate lock resource and initialize it */
-    hdac-> Lock = HAL_UNLOCKED;
+    hdac->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware */
     HAL_DAC_MspInit(hdac);
@@ -337,6 +337,8 @@ HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspInit could be implemented in the user file
    */ 
@@ -350,6 +352,8 @@ __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspDeInit could be implemented in the user file
    */ 
@@ -404,7 +408,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   if(Channel == DAC_CHANNEL_1)
   {
     /* Check if software trigger enabled */
-    if(HAL_IS_BIT_SET(hdac->Instance->CR, (DAC_CR_TEN1 | DAC_CR_TSEL1)))
+    if((hdac->Instance->CR & (DAC_CR_TEN1 | DAC_CR_TSEL1)) == (DAC_CR_TEN1 | DAC_CR_TSEL1))
     {
       /* Enable the selected DAC software conversion */
       SET_BIT(hdac->Instance->SWTRIGR, DAC_SWTRIGR_SWTRIG1);
@@ -413,7 +417,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   else
   {
     /* Check if software trigger enabled */
-    if(HAL_IS_BIT_SET(hdac->Instance->CR, (DAC_CR_TEN2 | DAC_CR_TSEL2)))
+    if((hdac->Instance->CR & (DAC_CR_TEN2 | DAC_CR_TSEL2)) == (DAC_CR_TEN2 | DAC_CR_TSEL2))
     {
       /* Enable the selected DAC software conversion*/
       SET_BIT(hdac->Instance->SWTRIGR, DAC_SWTRIGR_SWTRIG2);
@@ -429,7 +433,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   /* Return function status */
   return HAL_OK;
 }
-  
+
 /**
   * @brief  Disables DAC and stop conversion of channel.
   * @param  hdac: pointer to a DAC_HandleTypeDef structure that contains
@@ -530,7 +534,7 @@ __weak HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Cha
     
     /* Set the DMA half transfer complete callback for channel2 */
     hdac->DMA_Handle2->XferHalfCpltCallback = DAC_DMAHalfConvCpltCh2;
-       
+    
     /* Set the DMA error callback for channel2 */
     hdac->DMA_Handle2->XferErrorCallback = DAC_DMAErrorCh2;
     
@@ -667,6 +671,8 @@ uint32_t HAL_DAC_GetValue(DAC_HandleTypeDef* hdac, uint32_t Channel)
   */
 __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvCpltCallbackCh1 could be implemented in the user file
    */
@@ -680,6 +686,8 @@ __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvHalfCpltCallbackCh1 could be implemented in the user file
    */
@@ -693,6 +701,8 @@ __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ErrorCallbackCh1 could be implemented in the user file
    */
@@ -736,7 +746,7 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   assert_param(IS_DAC_TRIGGER(sConfig->DAC_Trigger));
   assert_param(IS_DAC_OUTPUT_BUFFER_STATE(sConfig->DAC_OutputBuffer));
   assert_param(IS_DAC_CHANNEL(Channel));
- 
+  
   /* Process locked */
   __HAL_LOCK(hdac);
   

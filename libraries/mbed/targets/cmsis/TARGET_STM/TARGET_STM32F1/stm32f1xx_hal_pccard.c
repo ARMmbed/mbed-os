@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_pccard.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   PCCARD HAL module driver.
   *          This file provides a generic firmware to drive PCCARD memories mounted 
   *          as external device.
@@ -47,7 +47,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -149,7 +149,7 @@ HAL_StatusTypeDef HAL_PCCARD_Init(PCCARD_HandleTypeDef *hpccard, FSMC_NAND_PCC_T
   if(hpccard->State == HAL_PCCARD_STATE_RESET)
   {  
     /* Allocate lock resource and initialize it */
-    hpccard-> Lock = HAL_UNLOCKED;
+    hpccard->Lock = HAL_UNLOCKED;
     
     /* Initialize the low level hardware (MSP) */
     HAL_PCCARD_MspInit(hpccard);
@@ -211,6 +211,8 @@ HAL_StatusTypeDef  HAL_PCCARD_DeInit(PCCARD_HandleTypeDef *hpccard)
   */
 __weak void HAL_PCCARD_MspInit(PCCARD_HandleTypeDef *hpccard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpccard);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCCARD_MspInit could be implemented in the user file
    */ 
@@ -224,6 +226,8 @@ __weak void HAL_PCCARD_MspInit(PCCARD_HandleTypeDef *hpccard)
   */
 __weak void HAL_PCCARD_MspDeInit(PCCARD_HandleTypeDef *hpccard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpccard);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCCARD_MspDeInit could be implemented in the user file
    */ 
@@ -615,6 +619,8 @@ void HAL_PCCARD_IRQHandler(PCCARD_HandleTypeDef *hpccard)
   */
 __weak void HAL_PCCARD_ITCallback(PCCARD_HandleTypeDef *hpccard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpccard);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCCARD_ITCallback could be implemented in the user file
    */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx.h
   * @author  MCD Application Team
-  * @version V4.0.0
-  * @date    16-December-2014
+  * @version V4.1.0
+  * @date    29-April-2016
   * @brief   CMSIS STM32F1xx Device Peripheral Access Layer Header File. 
   *
   *          The file is the unique include file that the application programmer
@@ -18,7 +18,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -110,14 +110,14 @@
 /**
   * @brief CMSIS Device version number V4.0.0
   */
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_MAIN   (0x04) /*!< [31:24] main version */                                  
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
-#define __STM32F1xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM32F1xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN     << 24)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB1 << 16)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB2 << 8 )\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_RC))
+#define __STM32F1_CMSIS_VERSION_MAIN   (0x04) /*!< [31:24] main version */                                  
+#define __STM32F1_CMSIS_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
+#define __STM32F1_CMSIS_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32F1_CMSIS_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
+#define __STM32F1_CMSIS_VERSION        ((__STM32F1_CMSIS_VERSION_MAIN << 24)\
+                                       |(__STM32F1_CMSIS_VERSION_SUB1 << 16)\
+                                       |(__STM32F1_CMSIS_VERSION_SUB2 << 8 )\
+                                       |(__STM32F1_CMSIS_VERSION_RC))
 
 /**
   * @}

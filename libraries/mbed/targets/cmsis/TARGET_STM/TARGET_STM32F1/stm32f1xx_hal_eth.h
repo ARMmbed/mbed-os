@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_eth.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of ETH HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -65,12 +65,6 @@
                              ((SPEED) == ETH_SPEED_100M))
 #define IS_ETH_DUPLEX_MODE(MODE)  (((MODE) == ETH_MODE_FULLDUPLEX) || \
                                   ((MODE) == ETH_MODE_HALFDUPLEX))
-#define IS_ETH_DUPLEX_MODE(MODE)  (((MODE) == ETH_MODE_FULLDUPLEX) || \
-                                  ((MODE) == ETH_MODE_HALFDUPLEX))
-#define IS_ETH_RX_MODE(MODE)    (((MODE) == ETH_RXPOLLING_MODE) || \
-                                 ((MODE) == ETH_RXINTERRUPT_MODE)) 
-#define IS_ETH_RX_MODE(MODE)    (((MODE) == ETH_RXPOLLING_MODE) || \
-                                 ((MODE) == ETH_RXINTERRUPT_MODE))
 #define IS_ETH_RX_MODE(MODE)    (((MODE) == ETH_RXPOLLING_MODE) || \
                                  ((MODE) == ETH_RXINTERRUPT_MODE))
 #define IS_ETH_CHECKSUM_MODE(MODE)    (((MODE) == ETH_CHECKSUM_BY_HARDWARE) || \
@@ -1151,7 +1145,7 @@ typedef struct
 #define ETH_MAC_READCONTROLLER_IDLE            ((uint32_t)0x00000060)  /* Rx FIFO read controller IDLE state */
 #define ETH_MAC_READCONTROLLER_READING_DATA    ((uint32_t)0x00000060)  /* Rx FIFO read controller Reading frame data */
 #define ETH_MAC_READCONTROLLER_READING_STATUS  ((uint32_t)0x00000060)  /* Rx FIFO read controller Reading frame status (or time-stamp) */
-#define ETH_MAC_READCONTROLLER_ FLUSHING       ((uint32_t)0x00000060)  /* Rx FIFO read controller Flushing the frame data and status */
+#define ETH_MAC_READCONTROLLER_FLUSHING        ((uint32_t)0x00000060)  /* Rx FIFO read controller Flushing the frame data and status */
 #define ETH_MAC_RXFIFO_WRITE_ACTIVE     ((uint32_t)0x00000010)  /* Rx FIFO write controller active */
 #define ETH_MAC_SMALL_FIFO_NOTACTIVE    ((uint32_t)0x00000000)  /* MAC small FIFO read / write controllers not active */
 #define ETH_MAC_SMALL_FIFO_READ_ACTIVE  ((uint32_t)0x00000002)  /* MAC small FIFO read controller active */
@@ -2022,15 +2016,21 @@ typedef struct
   * @brief  Enables rising/falling edge trigger to the ETH External interrupt line.
   * @retval None
   */
-#define __HAL_ETH_WAKEUP_EXTI_ENABLE_FALLINGRISING_TRIGGER()  EXTI->RTSR |= ETH_EXTI_LINE_WAKEUP;\
-                                                              EXTI->FTSR |= ETH_EXTI_LINE_WAKEUP
+#define __HAL_ETH_WAKEUP_EXTI_ENABLE_FALLINGRISING_TRIGGER()   \
+                        do{                                    \
+                            EXTI->RTSR |= ETH_EXTI_LINE_WAKEUP;\
+                            EXTI->FTSR |= ETH_EXTI_LINE_WAKEUP;\
+                          } while(0)
 
 /**
   * @brief  Disables rising/falling edge trigger to the ETH External interrupt line.
   * @retval None
   */
-#define __HAL_ETH_WAKEUP_EXTI_DISABLE_FALLINGRISING_TRIGGER()  EXTI->RTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
-                                                               EXTI->FTSR &= ~(ETH_EXTI_LINE_WAKEUP)
+#define __HAL_ETH_WAKEUP_EXTI_DISABLE_FALLINGRISING_TRIGGER()     \
+                        do{                                       \
+                            EXTI->RTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
+                            EXTI->FTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
+                          } while(0)
 
 /**
   * @brief Generate a Software interrupt on selected EXTI line.

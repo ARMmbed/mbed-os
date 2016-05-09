@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -863,10 +863,6 @@ typedef struct
 /** @defgroup TIM_Private_Constants TIM Private Constants
   * @{
   */
-
-/* The counter of a timer instance is disabled only if all the CCx
-   channels have been disabled */
-#define TIM_CCER_CCxE_MASK ((uint32_t)(TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E))
 
 /* The counter of a timer instance is disabled only if all the CCx and CCxN
    channels have been disabled */

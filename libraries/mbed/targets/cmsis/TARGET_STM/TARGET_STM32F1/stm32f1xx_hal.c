@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -72,11 +72,11 @@
   */
 
 /**
- * @brief STM32F1xx HAL Driver version number V1.0.0
+ * @brief STM32F1xx HAL Driver version number
    */
 #define __STM32F1xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
 #define __STM32F1xx_HAL_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32F1xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32F1xx_HAL_VERSION_SUB2   (0x04) /*!< [15:8]  sub2 version */
 #define __STM32F1xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32F1xx_HAL_VERSION         ((__STM32F1xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F1xx_HAL_VERSION_SUB1 << 16)\
@@ -103,7 +103,7 @@ static __IO uint32_t uwTick;
   */
 
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
 /** @defgroup HAL_Exported_Functions HAL Exported Functions
   * @{
@@ -146,12 +146,12 @@ static __IO uint32_t uwTick;
 /**
   * @brief This function configures the Flash prefetch, 
   *        Configures time base source, NVIC and Low level hardware
-  * Note: This function is called at the beginning of program after reset and before 
+  * @note This function is called at the beginning of program after reset and before 
   *       the clock configuration
-  * Note: The time base configuration is based on MSI clock when exiting from Reset.
+  * @note The time base configuration is based on MSI clock when exiting from Reset.
   *       Once done, time base tick start incrementing.
   *        In the default implementation,Systick is used as source of time base.
-  *        the tick variable is incremented each 1ms in its ISR.
+  *       The tick variable is incremented each 1ms in its ISR.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_Init(void)
@@ -184,7 +184,7 @@ HAL_StatusTypeDef HAL_Init(void)
 /**
   * @brief This function de-Initializes common part of the HAL and stops the source
   *        of time base.
-  * Note: This function is optional.
+  * @note This function is optional.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_DeInit(void)
@@ -234,9 +234,9 @@ __weak void HAL_MspDeInit(void)
   * @brief This function configures the source of the time base. 
   *        The time source is configured  to have 1ms time base with a dedicated 
   *        Tick interrupt priority.
-  * Note: This function is called  automatically at the beginning of program after
+  * @note This function is called  automatically at the beginning of program after
   *       reset by HAL_Init() or at any time when clock is reconfigured  by HAL_RCC_ClockConfig(). 
-  * Note: In the default implementation, SysTick timer is the source of time base. 
+  * @note In the default implementation, SysTick timer is the source of time base. 
   *       It is used to generate interrupts at regular time intervals. 
   *       Care must be taken if HAL_Delay() is called from a peripheral ISR process, 
   *       The the SysTick interrupt must have higher priority (numerically lower) 
@@ -288,9 +288,9 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 /**
   * @brief This function is called to increment  a global variable "uwTick"
   *        used as application time base.
-  * Note: In the default implementation, this variable is incremented each 1ms
+  * @note In the default implementation, this variable is incremented each 1ms
   *       in Systick ISR.
- * Note: This function is declared as __weak to be overwritten in case of other 
+  * @note This function is declared as __weak to be overwritten in case of other 
   *      implementations in user file.
   * @retval None
   */
@@ -301,7 +301,7 @@ __weak void HAL_IncTick(void)
 
 /**
   * @brief Provides a tick value in millisecond.
-  * Note: This function is declared as __weak to be overwritten in case of other 
+  * @note   This function is declared as __weak  to be overwritten  in case of other 
   *       implementations in user file.
   * @retval tick value
   */
@@ -313,10 +313,10 @@ __weak uint32_t HAL_GetTick(void)
 /**
   * @brief This function provides accurate delay (in milliseconds) based 
   *        on variable incremented.
-  * Note: In the default implementation , SysTick timer is the source of time base.
+  * @note In the default implementation , SysTick timer is the source of time base.
   *       It is used to generate interrupts at regular time intervals where uwTick
   *       is incremented.
-  * Note: ThiS function is declared as __weak to be overwritten in case of other
+  * @note ThiS function is declared as __weak to be overwritten in case of other
   *       implementations in user file.
   * @param Delay: specifies the delay time length, in milliseconds.
   * @retval None
@@ -332,11 +332,11 @@ __weak void HAL_Delay(__IO uint32_t Delay)
 
 /**
   * @brief Suspend Tick increment.
-  * Note: In the default implementation , SysTick timer is the source of time base. It is
+  * @note In the default implementation , SysTick timer is the source of time base. It is
   *       used to generate interrupts at regular time intervals. Once HAL_SuspendTick()
   *       is called, the the SysTick interrupt will be disabled and so Tick increment 
   *       is suspended.
-  * Note: This function is declared as __weak to be overwritten in case of other
+  * @note This function is declared as __weak to be overwritten in case of other
   *       implementations in user file.
   * @retval None
   */
@@ -348,11 +348,11 @@ __weak void HAL_SuspendTick(void)
 
 /**
   * @brief Resume Tick increment.
-  * Note: In the default implementation , SysTick timer is the source of time base. It is
+  * @note In the default implementation , SysTick timer is the source of time base. It is
   *       used to generate interrupts at regular time intervals. Once HAL_ResumeTick()
   *       is called, the the SysTick interrupt will be enabled and so Tick increment 
   *       is resumed.
-  * Note: This function is declared as __weak to be overwritten in case of other
+  * @note This function is declared as __weak  to be overwritten  in case of other
   *       implementations in user file.
   * @retval None
   */
@@ -363,7 +363,7 @@ __weak void HAL_ResumeTick(void)
 }
 
 /**
-  * @brief Returns the HAL revision
+  * @brief  This method returns the HAL revision
   * @retval version: 0xXYZR (8bits for each decimal, R for RC)
   */
 uint32_t HAL_GetHalVersion(void)

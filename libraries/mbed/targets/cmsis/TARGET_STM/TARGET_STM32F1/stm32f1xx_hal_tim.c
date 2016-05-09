@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
-  * @brief   TIM HAL module driver.
+  * @version V1.0.4
+  * @date    29-April-2016
+  * @brief   TIM HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
   *           + Time Base Initialization
@@ -61,7 +61,7 @@
         (##) Enable the TIM interface clock using __HAL_RCC_TIMx_CLK_ENABLE();
         (##) TIM pins configuration
             (+++) Enable the clock for the TIM GPIOs using the following function:
-             __HAL_GPIOx_CLK_ENABLE();
+             __HAL_RCC_GPIOx_CLK_ENABLE();
             (+++) Configure these TIM pins in Alternate function mode using HAL_GPIO_Init();
 
      (#) The external Clock can be configured, if needed (the default clock is the 
@@ -98,7 +98,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -144,7 +144,6 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-
 /** @defgroup TIM_Private_Functions TIM Private Functions
   * @{
   */
@@ -220,7 +219,7 @@ HAL_StatusTypeDef HAL_TIM_Base_Init(TIM_HandleTypeDef *htim)
   if(htim->State == HAL_TIM_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
-    htim-> Lock = HAL_UNLOCKED;
+    htim->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware : GPIO, CLOCK, NVIC */
     HAL_TIM_Base_MspInit(htim);
@@ -272,6 +271,8 @@ HAL_StatusTypeDef HAL_TIM_Base_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Base_MspInit could be implemented in the user file
    */
@@ -284,6 +285,8 @@ __weak void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Base_MspDeInit could be implemented in the user file
    */
@@ -491,7 +494,7 @@ HAL_StatusTypeDef HAL_TIM_OC_Init(TIM_HandleTypeDef* htim)
   if(htim->State == HAL_TIM_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
-    htim-> Lock = HAL_UNLOCKED;
+    htim->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_OC_MspInit(htim);
@@ -543,6 +546,8 @@ HAL_StatusTypeDef HAL_TIM_OC_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OC_MspInit could be implemented in the user file
    */
@@ -555,6 +560,8 @@ __weak void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OC_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OC_MspDeInit could be implemented in the user file
    */
@@ -991,7 +998,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Init(TIM_HandleTypeDef *htim)
   if(htim->State == HAL_TIM_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
-    htim-> Lock = HAL_UNLOCKED;
+    htim->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_PWM_MspInit(htim);
@@ -1043,6 +1050,8 @@ HAL_StatusTypeDef HAL_TIM_PWM_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_PWM_MspInit could be implemented in the user file
    */
@@ -1055,6 +1064,8 @@ __weak void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_PWM_MspDeInit could be implemented in the user file
    */
@@ -1494,7 +1505,7 @@ HAL_StatusTypeDef HAL_TIM_IC_Init(TIM_HandleTypeDef *htim)
   if(htim->State == HAL_TIM_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
-    htim-> Lock = HAL_UNLOCKED;
+    htim->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_IC_MspInit(htim);
@@ -1546,6 +1557,8 @@ HAL_StatusTypeDef HAL_TIM_IC_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_IC_MspInit could be implemented in the user file
    */
@@ -1558,6 +1571,8 @@ __weak void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_IC_MspDeInit could be implemented in the user file
    */
@@ -1964,7 +1979,7 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_Init(TIM_HandleTypeDef *htim, uint32_t OnePul
   if(htim->State == HAL_TIM_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
-    htim-> Lock = HAL_UNLOCKED;
+    htim->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_OnePulse_MspInit(htim);
@@ -2022,6 +2037,8 @@ HAL_StatusTypeDef HAL_TIM_OnePulse_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OnePulse_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OnePulse_MspInit could be implemented in the user file
    */
@@ -2034,6 +2051,8 @@ __weak void HAL_TIM_OnePulse_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OnePulse_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_OnePulse_MspDeInit could be implemented in the user file
    */
@@ -2240,7 +2259,7 @@ HAL_StatusTypeDef HAL_TIM_Encoder_Init(TIM_HandleTypeDef *htim,  TIM_Encoder_Ini
   if(htim->State == HAL_TIM_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
-    htim-> Lock = HAL_UNLOCKED;
+    htim->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
     HAL_TIM_Encoder_MspInit(htim);
@@ -2332,6 +2351,8 @@ HAL_StatusTypeDef HAL_TIM_Encoder_DeInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Encoder_MspInit could be implemented in the user file
    */
@@ -2344,6 +2365,8 @@ __weak void HAL_TIM_Encoder_MspInit(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_Encoder_MspDeInit(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_Encoder_MspDeInit could be implemented in the user file
    */
@@ -2895,9 +2918,6 @@ HAL_StatusTypeDef HAL_TIM_OC_ConfigChannel(TIM_HandleTypeDef *htim, TIM_OC_InitT
   assert_param(IS_TIM_CHANNELS(Channel));
   assert_param(IS_TIM_OC_MODE(sConfig->OCMode));
   assert_param(IS_TIM_OC_POLARITY(sConfig->OCPolarity));
-  assert_param(IS_TIM_OCN_POLARITY(sConfig->OCNPolarity));
-  assert_param(IS_TIM_OCNIDLE_STATE(sConfig->OCNIdleState));
-  assert_param(IS_TIM_OCIDLE_STATE(sConfig->OCIdleState));
 
   /* Check input state */
   __HAL_LOCK(htim);
@@ -3065,10 +3085,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim, TIM_OC_Init
   assert_param(IS_TIM_CHANNELS(Channel));
   assert_param(IS_TIM_PWM_MODE(sConfig->OCMode));
   assert_param(IS_TIM_OC_POLARITY(sConfig->OCPolarity));
-  assert_param(IS_TIM_OCN_POLARITY(sConfig->OCNPolarity));
   assert_param(IS_TIM_FAST_STATE(sConfig->OCFastMode));
-  assert_param(IS_TIM_OCNIDLE_STATE(sConfig->OCNIdleState));
-  assert_param(IS_TIM_OCIDLE_STATE(sConfig->OCIdleState));
 
   htim->State = HAL_TIM_STATE_BUSY;
 
@@ -3754,10 +3771,10 @@ HAL_StatusTypeDef HAL_TIM_GenerateEvent(TIM_HandleTypeDef *htim, uint32_t EventS
   *         contains the OCREF clear feature and parameters for the TIM peripheral.
   * @param  Channel : specifies the TIM Channel
   *          This parameter can be one of the following values:
-  *            @arg TIM_Channel_1: TIM Channel 1
-  *            @arg TIM_Channel_2: TIM Channel 2
-  *            @arg TIM_Channel_3: TIM Channel 3
-  *            @arg TIM_Channel_4: TIM Channel 4
+  *            @arg TIM_CHANNEL_1: TIM Channel 1
+  *            @arg TIM_CHANNEL_2: TIM Channel 2
+  *            @arg TIM_CHANNEL_3: TIM Channel 3
+  *            @arg TIM_CHANNEL_4: TIM Channel 4
   * @retval HAL status
   */ 
 HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim, TIM_ClearInputConfigTypeDef * sClearInputConfig, uint32_t Channel)
@@ -3896,9 +3913,6 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
 
   /* Check the parameters */
   assert_param(IS_TIM_CLOCKSOURCE(sClockSourceConfig->ClockSource));
-  assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
-  assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
-  assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
 
   /* Reset the SMS, TS, ECE, ETPS and ETRF bits */
   tmpsmcr = htim->Instance->SMCR;
@@ -3921,6 +3935,11 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
       /* Check whether or not the timer instance supports external trigger input mode 1 (ETRF)*/
       assert_param(IS_TIM_CLOCKSOURCE_ETRMODE1_INSTANCE(htim->Instance));
 
+      /* Check ETR input conditioning related parameters */
+      assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
+      
       /* Configure the ETR Clock source */
       TIM_ETR_SetConfig(htim->Instance,
                         sClockSourceConfig->ClockPrescaler,
@@ -3942,6 +3961,11 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
       /* Check whether or not the timer instance supports external trigger input mode 2 (ETRF)*/
       assert_param(IS_TIM_CLOCKSOURCE_ETRMODE2_INSTANCE(htim->Instance));
 
+      /* Check ETR input conditioning related parameters */
+      assert_param(IS_TIM_CLOCKPRESCALER(sClockSourceConfig->ClockPrescaler));
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
+      
       /* Configure the ETR Clock source */
       TIM_ETR_SetConfig(htim->Instance,
                         sClockSourceConfig->ClockPrescaler,
@@ -3957,6 +3981,10 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
       /* Check whether or not the timer instance supports external clock mode 1 */
       assert_param(IS_TIM_CLOCKSOURCE_TIX_INSTANCE(htim->Instance));
 
+      /* Check TI1 input conditioning related parameters */
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
+      
       TIM_TI1_ConfigInputStage(htim->Instance,
                                sClockSourceConfig->ClockPolarity,
                                sClockSourceConfig->ClockFilter);
@@ -3968,6 +3996,10 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
       /* Check whether or not the timer instance supports external clock mode 1 (ETRF)*/
       assert_param(IS_TIM_CLOCKSOURCE_TIX_INSTANCE(htim->Instance));
 
+       /* Check TI2 input conditioning related parameters */
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
+
       TIM_TI2_ConfigInputStage(htim->Instance,
                                sClockSourceConfig->ClockPolarity,
                                sClockSourceConfig->ClockFilter);
@@ -3978,6 +4010,10 @@ HAL_StatusTypeDef HAL_TIM_ConfigClockSource(TIM_HandleTypeDef *htim, TIM_ClockCo
     {
       /* Check whether or not the timer instance supports external clock mode 1 */
       assert_param(IS_TIM_CLOCKSOURCE_TIX_INSTANCE(htim->Instance));
+
+      /* Check TI1 input conditioning related parameters */
+      assert_param(IS_TIM_CLOCKPOLARITY(sClockSourceConfig->ClockPolarity));
+      assert_param(IS_TIM_CLOCKFILTER(sClockSourceConfig->ClockFilter));
 
       TIM_TI1_ConfigInputStage(htim->Instance,
                                sClockSourceConfig->ClockPolarity,
@@ -4234,6 +4270,8 @@ uint32_t HAL_TIM_ReadCapturedValue(TIM_HandleTypeDef *htim, uint32_t Channel)
   */
 __weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_PeriodElapsedCallback could be implemented in the user file
    */
@@ -4246,6 +4284,8 @@ __weak void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_OC_DelayElapsedCallback could be implemented in the user file
    */
@@ -4257,6 +4297,8 @@ __weak void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_IC_CaptureCallback could be implemented in the user file
    */
@@ -4269,6 +4311,8 @@ __weak void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the __HAL_TIM_PWM_PulseFinishedCallback could be implemented in the user file
    */
@@ -4281,6 +4325,8 @@ __weak void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_TriggerCallback could be implemented in the user file
    */
@@ -4293,6 +4339,8 @@ __weak void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim)
   */
 __weak void HAL_TIM_ErrorCallback(TIM_HandleTypeDef *htim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_TIM_ErrorCallback could be implemented in the user file
    */
@@ -4385,7 +4433,7 @@ HAL_TIM_StateTypeDef HAL_TIM_Encoder_GetState(TIM_HandleTypeDef *htim)
   * @}
   */
 
-/** @addtogroup TIM_Private_Functions TIM_Private_Functions
+/** @addtogroup TIM_Private_Functions
   * @{
   */
 
@@ -4653,8 +4701,6 @@ void TIM_OC2_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
   if(IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_2))
   {
     assert_param(IS_TIM_OCN_POLARITY(OC_Config->OCNPolarity));
-    assert_param(IS_TIM_OCNIDLE_STATE(OC_Config->OCNIdleState));
-    assert_param(IS_TIM_OCIDLE_STATE(OC_Config->OCIdleState));
 
     /* Reset the Output N Polarity level */
     tmpccer &= ~TIM_CCER_CC2NP;
@@ -4730,8 +4776,6 @@ static void TIM_OC3_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
   if(IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_3))
   {
     assert_param(IS_TIM_OCN_POLARITY(OC_Config->OCNPolarity));
-    assert_param(IS_TIM_OCNIDLE_STATE(OC_Config->OCNIdleState));
-    assert_param(IS_TIM_OCIDLE_STATE(OC_Config->OCIdleState));
 
     /* Reset the Output N Polarity level */
     tmpccer &= ~TIM_CCER_CC3NP;
@@ -4827,6 +4871,14 @@ static void TIM_OC4_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
   TIMx->CCER = tmpccer;
 }
 
+
+/**
+  * @brief  Time Slave configuration
+  * @param  htim: pointer to a TIM_HandleTypeDef structure that contains
+  *                the configuration information for TIM module.
+  * @param  sSlaveConfig: The slave configuration structure
+  * @retval None
+  */
 static void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
                               TIM_SlaveConfigTypeDef * sSlaveConfig)
 {
@@ -4872,7 +4924,6 @@ static void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
     {
       /* Check the parameters */
       assert_param(IS_TIM_CC1_INSTANCE(htim->Instance));
-      assert_param(IS_TIM_TRIGGERPOLARITY(sSlaveConfig->TriggerPolarity));
       assert_param(IS_TIM_TRIGGERFILTER(sSlaveConfig->TriggerFilter));
 
       /* Disable the Channel 1: Reset the CC1E Bit */
@@ -4957,14 +5008,14 @@ static void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
   * @param  TIMx  to select the TIM peripheral.
   * @param  TIM_ICPolarity : The Input Polarity.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICPolarity_Rising
-  *            @arg TIM_ICPolarity_Falling
-  *            @arg TIM_ICPolarity_BothEdge 
+  *            @arg TIM_ICPOLARITY_RISING
+  *            @arg TIM_ICPOLARITY_FALLING
+  *            @arg TIM_ICPOLARITY_BOTHEDGE
   * @param  TIM_ICSelection : specifies the input to be used.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICSelection_DirectTI : TIM Input 1 is selected to be connected to IC1.
-  *            @arg TIM_ICSelection_IndirectTI : TIM Input 1 is selected to be connected to IC2.
-  *            @arg TIM_ICSelection_TRC : TIM Input 1 is selected to be connected to TRC.
+  *            @arg TIM_ICSELECTION_DIRECTTI:    TIM Input 1 is selected to be connected to IC1.
+  *            @arg TIM_ICSELECTION_INDIRECTTI:  TIM Input 1 is selected to be connected to IC2.
+  *            @arg TIM_ICSELECTION_TRC:         TIM Input 1 is selected to be connected to TRC.
   * @param  TIM_ICFilter : Specifies the Input Capture Filter.
   *          This parameter must be a value between 0x00 and 0x0F.
   * @retval None
@@ -5012,9 +5063,9 @@ void TIM_TI1_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_
   * @param  TIMx  to select the TIM peripheral.
   * @param  TIM_ICPolarity : The Input Polarity.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICPolarity_Rising
-  *            @arg TIM_ICPolarity_Falling
-  *            @arg TIM_ICPolarity_BothEdge
+  *            @arg TIM_ICPOLARITY_RISING   
+  *            @arg TIM_ICPOLARITY_FALLING  
+  *            @arg TIM_ICPOLARITY_BOTHEDGE 
   * @param  TIM_ICFilter : Specifies the Input Capture Filter.
   *          This parameter must be a value between 0x00 and 0x0F.
   * @retval None
@@ -5047,14 +5098,14 @@ static void TIM_TI1_ConfigInputStage(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity,
   * @param  TIMx  to select the TIM peripheral
   * @param  TIM_ICPolarity : The Input Polarity.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICPolarity_Rising
-  *            @arg TIM_ICPolarity_Falling
-  *            @arg TIM_ICPolarity_BothEdge 
+  *            @arg TIM_ICPOLARITY_RISING   
+  *            @arg TIM_ICPOLARITY_FALLING  
+  *            @arg TIM_ICPOLARITY_BOTHEDGE 
   * @param  TIM_ICSelection : specifies the input to be used.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICSelection_DirectTI : TIM Input 2 is selected to be connected to IC2.
-  *            @arg TIM_ICSelection_IndirectTI : TIM Input 2 is selected to be connected to IC1.
-  *            @arg TIM_ICSelection_TRC : TIM Input 2 is selected to be connected to TRC.
+  *            @arg TIM_ICSELECTION_DIRECTTI:   TIM Input 2 is selected to be connected to IC2.
+  *            @arg TIM_ICSELECTION_INDIRECTTI: TIM Input 2 is selected to be connected to IC1.
+  *            @arg TIM_ICSELECTION_TRC:        TIM Input 2 is selected to be connected to TRC.
   * @param  TIM_ICFilter : Specifies the Input Capture Filter.
   *          This parameter must be a value between 0x00 and 0x0F.
   * @retval None
@@ -5095,9 +5146,9 @@ static void TIM_TI2_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   * @param  TIMx  to select the TIM peripheral.
   * @param  TIM_ICPolarity : The Input Polarity.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICPolarity_Rising
-  *            @arg TIM_ICPolarity_Falling
-  *            @arg TIM_ICPolarity_BothEdge
+  *            @arg TIM_ICPOLARITY_RISING  
+  *            @arg TIM_ICPOLARITY_FALLING 
+  *            @arg TIM_ICPOLARITY_BOTHEDGE
   * @param  TIM_ICFilter : Specifies the Input Capture Filter.
   *          This parameter must be a value between 0x00 and 0x0F.
   * @retval None
@@ -5130,14 +5181,14 @@ static void TIM_TI2_ConfigInputStage(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity,
   * @param  TIMx  to select the TIM peripheral
   * @param  TIM_ICPolarity : The Input Polarity.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICPolarity_Rising
-  *            @arg TIM_ICPolarity_Falling
-  *            @arg TIM_ICPolarity_BothEdge 
+  *            @arg TIM_ICPOLARITY_RISING  
+  *            @arg TIM_ICPOLARITY_FALLING 
+  *            @arg TIM_ICPOLARITY_BOTHEDGE
   * @param  TIM_ICSelection : specifies the input to be used.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICSelection_DirectTI : TIM Input 3 is selected to be connected to IC3.
-  *            @arg TIM_ICSelection_IndirectTI : TIM Input 3 is selected to be connected to IC4.
-  *            @arg TIM_ICSelection_TRC : TIM Input 3 is selected to be connected to TRC.
+  *            @arg TIM_ICSELECTION_DIRECTTI:   TIM Input 3 is selected to be connected to IC3.
+  *            @arg TIM_ICSELECTION_INDIRECTTI: TIM Input 3 is selected to be connected to IC4.
+  *            @arg TIM_ICSELECTION_TRC:        TIM Input 3 is selected to be connected to TRC.
   * @param  TIM_ICFilter : Specifies the Input Capture Filter.
   *          This parameter must be a value between 0x00 and 0x0F.
   * @retval None
@@ -5178,14 +5229,14 @@ static void TIM_TI3_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
   * @param  TIMx to select the TIM peripheral
   * @param  TIM_ICPolarity : The Input Polarity.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICPolarity_Rising
-  *            @arg TIM_ICPolarity_Falling
-  *            @arg TIM_ICPolarity_BothEdge 
+  *            @arg TIM_ICPOLARITY_RISING  
+  *            @arg TIM_ICPOLARITY_FALLING 
+  *            @arg TIM_ICPOLARITY_BOTHEDGE
   * @param  TIM_ICSelection : specifies the input to be used.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ICSelection_DirectTI : TIM Input 4 is selected to be connected to IC4.
-  *            @arg TIM_ICSelection_IndirectTI : TIM Input 4 is selected to be connected to IC3.
-  *            @arg TIM_ICSelection_TRC : TIM Input 4 is selected to be connected to TRC.
+  *            @arg TIM_ICSELECTION_DIRECTTI:   TIM Input 4 is selected to be connected to IC4.
+  *            @arg TIM_ICSELECTION_INDIRECTTI: TIM Input 4 is selected to be connected to IC3.
+  *            @arg TIM_ICSELECTION_TRC:        TIM Input 4 is selected to be connected to TRC.
   * @param  TIM_ICFilter : Specifies the Input Capture Filter.
   *          This parameter must be a value between 0x00 and 0x0F.
   * @note TIM_ICFilter and TIM_ICPolarity are not used in INDIRECT mode as TI4FP3 
@@ -5254,14 +5305,14 @@ static void TIM_ITRx_SetConfig(TIM_TypeDef *TIMx, uint16_t InputTriggerSource)
   * @param  TIMx  to select the TIM peripheral
   * @param  TIM_ExtTRGPrescaler : The external Trigger Prescaler.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ExtTRGPSC_DIV1 : ETRP Prescaler OFF.
-  *            @arg TIM_ExtTRGPSC_DIV2 : ETRP frequency divided by 2.
-  *            @arg TIM_ExtTRGPSC_DIV4 : ETRP frequency divided by 4.
-  *            @arg TIM_ExtTRGPSC_DIV8 : ETRP frequency divided by 8.
+  *            @arg TIM_ETRPRESCALER_DIV1: ETRP Prescaler OFF.
+  *            @arg TIM_ETRPRESCALER_DIV2: ETRP frequency divided by 2.
+  *            @arg TIM_ETRPRESCALER_DIV4: ETRP frequency divided by 4.
+  *            @arg TIM_ETRPRESCALER_DIV8: ETRP frequency divided by 8.
   * @param  TIM_ExtTRGPolarity : The external Trigger Polarity.
   *          This parameter can be one of the following values:
-  *            @arg TIM_ExtTRGPolarity_Inverted : active low or falling edge active.
-  *            @arg TIM_ExtTRGPolarity_NonInverted : active high or rising edge active.
+  *            @arg TIM_ETRPOLARITY_INVERTED: active low or falling edge active.
+  *            @arg TIM_ETRPOLARITY_NONINVERTED: active high or rising edge active.
   * @param  ExtTRGFilter : External Trigger Filter.
   *          This parameter must be a value between 0x00 and 0x0F
   * @retval None
@@ -5288,10 +5339,10 @@ static void TIM_ETR_SetConfig(TIM_TypeDef* TIMx, uint32_t TIM_ExtTRGPrescaler,
   * @param  TIMx  to select the TIM peripheral
   * @param  Channel : specifies the TIM Channel
   *          This parameter can be one of the following values:
-  *            @arg TIM_Channel_1 : TIM Channel 1
-  *            @arg TIM_Channel_2 : TIM Channel 2
-  *            @arg TIM_Channel_3 : TIM Channel 3
-  *            @arg TIM_Channel_4 : TIM Channel 4
+  *            @arg TIM_CHANNEL_1: TIM Channel 1
+  *            @arg TIM_CHANNEL_2: TIM Channel 2
+  *            @arg TIM_CHANNEL_3: TIM Channel 3
+  *            @arg TIM_CHANNEL_4: TIM Channel 4
   * @param  ChannelState : specifies the TIM Channel CCxE bit new state.
   *          This parameter can be: TIM_CCx_ENABLE or TIM_CCx_Disable.
   * @retval None
@@ -5312,7 +5363,6 @@ void TIM_CCxChannelCmd(TIM_TypeDef* TIMx, uint32_t Channel, uint32_t ChannelStat
   /* Set or reset the CCxE Bit */
   TIMx->CCER |=  (uint32_t)(ChannelState << Channel);
 }
-
 
 /**
   * @}

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of TIM HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -59,9 +59,6 @@
   * @{
   */
 
-#if defined (STM32F100xB) || defined (STM32F100xE) ||                                                   \
-    defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F103xE) || defined (STM32F103xG) || \
-    defined (STM32F105xC) || defined (STM32F107xC)
 
 /** 
   * @brief  TIM Hall sensor Configuration Structure definition  
@@ -81,6 +78,11 @@ typedef struct
   uint32_t Commutation_Delay;  /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
                                     This parameter can be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF */                              
 } TIM_HallSensor_InitTypeDef;
+
+
+#if defined (STM32F100xB) || defined (STM32F100xE) ||                                                   \
+    defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F103xE) || defined (STM32F103xG) || \
+    defined (STM32F105xC) || defined (STM32F107xC)
 
 /** 
   * @brief  TIM Break and Dead time configuration Structure definition  
@@ -151,10 +153,6 @@ typedef struct {
   * @{
   */
 
-#if defined (STM32F100xB) || defined (STM32F100xE) ||                                                   \
-    defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F103xE) || defined (STM32F103xG) || \
-    defined (STM32F105xC) || defined (STM32F107xC)
-
 /** @addtogroup TIMEx_Exported_Functions_Group1
   * @{
  */
@@ -177,6 +175,10 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop_DMA(TIM_HandleTypeDef *htim);
 /**
   * @}
   */
+
+#if defined (STM32F100xB) || defined (STM32F100xE) ||                                                   \
+    defined (STM32F103x6) || defined (STM32F103xB) || defined (STM32F103xE) || defined (STM32F103xG) || \
+    defined (STM32F105xC) || defined (STM32F107xC)
 
 /** @addtogroup TIMEx_Exported_Functions_Group2
  * @{
