@@ -61,6 +61,7 @@ int TCPServer::accept(TCPSocket *connection)
         void *socket;
         int err = _iface->socket_accept(&socket, _socket);
         if (!err) {
+            connection->_iface = _iface;
             connection->_socket = socket;
         }
 

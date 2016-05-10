@@ -144,13 +144,17 @@ static void ipv6_to_address(char *addr, const uint8_t *bytes)
 
 SocketAddress::SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
 {
+    memset(&_ip_address, 0, sizeof _ip_address);
+
     // Check for valid IP addresses
     if (host && ipv4_is_valid(host)) {
         _ip_version = NSAPI_IPv4;
         ipv4_from_address(_ip_bytes, host);
+        set_port(port);
     } else if (host && ipv6_is_valid(host)) {
         _ip_version = NSAPI_IPv6;
         ipv4_from_address(_ip_bytes, host);
+        set_port(port);
     } else {
         // DNS lookup
         int err = iface->gethostbyname(this, host);
@@ -166,18 +170,21 @@ SocketAddress::SocketAddress(NetworkStack *iface, const char *host, uint16_t por
 
 SocketAddress::SocketAddress(const char *addr, uint16_t port)
 {
+    memset(&_ip_address, 0, sizeof _ip_address);
     set_ip_address(addr);
     set_port(port);
 }
 
 SocketAddress::SocketAddress(const void *bytes, nsapi_version_t version, uint16_t port)
 {
+    memset(&_ip_address, 0, sizeof _ip_address);
     set_ip_bytes(bytes, version);
     set_port(port);
 }
 
 SocketAddress::SocketAddress(const SocketAddress &addr)
 {
+    memset(&_ip_address, 0, sizeof _ip_address);
     set_ip_bytes(addr.get_ip_bytes(), addr.get_ip_version());
     set_port(addr.get_port());
 }
@@ -202,10 +209,10 @@ void SocketAddress::set_ip_bytes(const void *bytes, nsapi_version_t version)
 {
     _ip_address[0] = '\0';
 
-    if (_ip_version == NSAPI_IPv4) {
+    if (version == NSAPI_IPv4) {
         _ip_version = NSAPI_IPv4;
         memcpy(_ip_bytes, bytes, NSAPI_IPv4_BYTES);
-    } else if (_ip_version == NSAPI_IPv6) {
+    } else if (version == NSAPI_IPv6) {
         _ip_version = NSAPI_IPv6;
         memcpy(_ip_bytes, bytes, NSAPI_IPv6_BYTES);
     } else {
