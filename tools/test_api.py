@@ -2041,13 +2041,13 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     }
     
     for test_name, test_path in tests.iteritems():
+        test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
-        artifact_name = os.path.join(test_path, test_name)
-        bin_file = build_project(src_path, build_path, target, toolchain_name,
+        bin_file = build_project(src_path, test_build_path, target, toolchain_name,
                                  options=options,
                                  jobs=jobs,
                                  clean=clean,
-                                 name=artifact_name,
+                                 name=test_name,
                                  report=report,
                                  properties=properties,
                                  verbose=verbose)
