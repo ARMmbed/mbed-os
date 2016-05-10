@@ -85,12 +85,6 @@ protected:
      *  @return             0 on success, negative on failure
      */
     virtual int socket_connect(void *handle, const SocketAddress &address);
-    
-    /** Check if the socket is connected
-     *  @param handle       Socket handle
-     *  @return             true if connected, false otherwise
-     */
-    virtual bool socket_is_connected(void *handle);
 
     /** Accept a new connection.
      *  @param handle       Handle in which to store new socket
