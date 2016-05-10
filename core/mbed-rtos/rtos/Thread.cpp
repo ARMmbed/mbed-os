@@ -27,20 +27,35 @@
 namespace rtos {
 
 Thread::Thread(osPriority priority,
-        uint32_t stack_size, unsigned char *stack_pointer) {
-    _tid = NULL;
-    _priority = priority;
-    _stack_size = stack_size;
-    _stack_pointer = stack_pointer;
+        uint32_t stack_size, unsigned char *stack_pointer):
+        _tid(NULL), _dynamic_stack(stack_pointer == NULL) {
+#ifdef __MBED_CMSIS_RTOS_CM
+    _thread_def.tpriority = priority;
+    _thread_def.stacksize = stack_size;
+    _thread_def.stack_pointer = (uint32_t*)stack_pointer;
+#endif
 }
 
 Thread::Thread(void (*task)(void const *argument), void *argument,
-        osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
-    _tid = NULL;
-    _priority = priority;
-    _stack_size = stack_size;
-    _stack_pointer = stack_pointer;
-    start(task, argument);
+        osPriority priority, uint32_t stack_size, unsigned char *stack_pointer):
+        _tid(NULL), _dynamic_stack(stack_pointer == NULL) {
+#ifdef __MBED_CMSIS_RTOS_CM
+    _thread_def.tpriority = priority;
+    _thread_def.stacksize = stack_size;
+    _thread_def.stack_pointer = (uint32_t*)stack_pointer;
+#endif
+    switch(start(task, argument)) {
+        case osErrorResource:
+            error("OS ran out of threads!\n");
+            break;
+        case osErrorParameter:
+            error("Thread already running!\n");
+            break;
+        case osErrorNoMemory:
+            error("Error allocating the stack memory\n");
+        default:
+            break;
+    }
 }
 
 osStatus Thread::start(void (*task)(void const *argument), void *argument) {
@@ -50,26 +65,22 @@ osStatus Thread::start(void (*task)(void const *argument), void *argument) {
 
 #ifdef __MBED_CMSIS_RTOS_CM
     _thread_def.pthread = task;
-    _thread_def.tpriority = _priority;
-    _thread_def.stacksize = _stack_size;
-    if (_stack_pointer != NULL) {
-        _thread_def.stack_pointer = (uint32_t*)_stack_pointer;
-    } else {
-        _thread_def.stack_pointer = new uint32_t[_stack_size/sizeof(uint32_t)];
+    if (_thread_def.stack_pointer == NULL) {
+        _thread_def.stack_pointer = new uint32_t[_thread_def.stacksize/sizeof(uint32_t)];
         if (_thread_def.stack_pointer == NULL)
-            error("Error allocating the stack memory\n");
+            return osErrorNoMemory;
     }
-    
+
     //Fill the stack with a magic word for maximum usage checking
-    for (uint32_t i = 0; i < (_stack_size / sizeof(uint32_t)); i++) {
+    for (uint32_t i = 0; i < (_thread_def.stacksize / sizeof(uint32_t)); i++) {
         _thread_def.stack_pointer[i] = 0xE25A2EA5;
     }
 #endif
     _tid = osThreadCreate(&_thread_def, argument);
     if (_tid == NULL) {
+        if (_dynamic_stack) delete[] (_thread_def.stack_pointer);
         return osErrorResource;
     }
-
     return osOK;
 }
 
@@ -195,7 +206,7 @@ void Thread::attach_idle_hook(void (*fptr)(void)) {
 Thread::~Thread() {
     terminate();
 #ifdef __MBED_CMSIS_RTOS_CM
-    if (_stack_pointer == NULL) {
+    if (_dynamic_stack) {
         delete[] (_thread_def.stack_pointer);
     }
 #endif

@@ -167,10 +167,7 @@ public:
 private:
     osThreadId _tid;
     osThreadDef_t _thread_def;
-
-    osPriority _priority;
-    uint32_t _stack_size;
-    unsigned char *_stack_pointer;
+    bool _dynamic_stack;
 };
 
 }
