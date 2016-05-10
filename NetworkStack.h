@@ -30,15 +30,16 @@
  */
 enum nsapi_error_t {
     NSAPI_ERROR_WOULD_BLOCK   = -3001,     /*!< no data is not available but call is non-blocking */
-    NSAPI_ERROR_UNSUPPORTED   = -3002,     /*!< unsupported configuration */
-    NSAPI_ERROR_NO_CONNECTION = -3003,     /*!< not connected to a network */
-    NSAPI_ERROR_NO_SOCKET     = -3004,     /*!< socket not available for use */
-    NSAPI_ERROR_NO_ADDRESS    = -3005,     /*!< IP address is not known */
-    NSAPI_ERROR_NO_MEMORY     = -3006,     /*!< memory resource not available */
-    NSAPI_ERROR_DNS_FAILURE   = -3007,     /*!< DNS failed to complete successfully */
-    NSAPI_ERROR_DHCP_FAILURE  = -3008,     /*!< DHCP failed to complete successfully */
-    NSAPI_ERROR_AUTH_FAILURE  = -3009,     /*!< connection to access point faield */
-    NSAPI_ERROR_DEVICE_ERROR  = -3010,     /*!< failure interfacing with the network procesor */
+    NSAPI_ERROR_UNSUPPORTED   = -3002,     /*!< unsupported functionality */
+    NSAPI_ERROR_PARAMETER     = -3003,     /*!< invalid configuration */
+    NSAPI_ERROR_NO_CONNECTION = -3004,     /*!< not connected to a network */
+    NSAPI_ERROR_NO_SOCKET     = -3005,     /*!< socket not available for use */
+    NSAPI_ERROR_NO_ADDRESS    = -3006,     /*!< IP address is not known */
+    NSAPI_ERROR_NO_MEMORY     = -3007,     /*!< memory resource not available */
+    NSAPI_ERROR_DNS_FAILURE   = -3008,     /*!< DNS failed to complete successfully */
+    NSAPI_ERROR_DHCP_FAILURE  = -3009,     /*!< DHCP failed to complete successfully */
+    NSAPI_ERROR_AUTH_FAILURE  = -3010,     /*!< connection to access point faield */
+    NSAPI_ERROR_DEVICE_ERROR  = -3011,     /*!< failure interfacing with the network procesor */
 };
 
 /** Enum of socket protocols
