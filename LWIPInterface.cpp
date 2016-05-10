@@ -169,6 +169,7 @@ int LWIPInterface::socket_open(void **handle, nsapi_protocol_t proto)
 
             udp_recv(s->udp, udp_recv_irq, s);
             *handle = s;
+            return 0;
 
         case NSAPI_TCP:
             s->proto = proto;
@@ -180,6 +181,7 @@ int LWIPInterface::socket_open(void **handle, nsapi_protocol_t proto)
             tcp_arg(s->tcp, s);
             //tcp_err(s->tcp, tcp_error_irq);
             *handle = s;
+            return 0;
     }
 
     return NSAPI_ERROR_DEVICE_ERROR;
@@ -193,6 +195,7 @@ int LWIPInterface::socket_close(void *handle)
     switch (s->proto) {
         case NSAPI_UDP:
             udp_disconnect(s->udp);
+            udp_remove(s->udp);
             break;
 
         case NSAPI_TCP:
@@ -272,11 +275,6 @@ int LWIPInterface::socket_connect(void *handle, const SocketAddress &addr)
     }
 
     return 0;
-}
-    
-bool LWIPInterface::socket_is_connected(void *handle)
-{
-    return true;
 }
 
 int LWIPInterface::socket_accept(void **handle, void *server)
