@@ -27,7 +27,7 @@ sys.path.insert(0, ROOT)
 
 from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.build_api import write_build_report
-from workspace_tools.targets import TARGET_MAP
+from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 from workspace_tools.test_api import SingleTestRunner
 from workspace_tools.test_api import singletest_in_cli_mode
@@ -126,7 +126,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARM_MPS2_M3'   ,     ('ARM',)),
     ('ARM_MPS2_M4'   ,     ('ARM',)),
     ('ARM_MPS2_M7'   ,     ('ARM',)),
-    ('ARM_MPS2_BEID' ,     ('ARM',)),
+    ('ARM_IOTSS_BEID' ,     ('ARM',)),
 
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM', 'IAR')),
 
@@ -217,6 +217,10 @@ if __name__ == '__main__':
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
                 continue
+            
+            if target_name not in TARGET_NAMES:
+                print "Target '%s' is not a valid target. Excluding from release"
+                continue
 
             if options.official_only:
                 toolchains = (getattr(TARGET_MAP[target_name], 'default_toolchain', 'ARM'),)
@@ -252,6 +256,10 @@ if __name__ == '__main__':
         for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
+                continue
+            
+            if target_name not in TARGET_NAMES:
+                print "Target '%s' is not a valid target. Excluding from release"
                 continue
 
             if options.official_only:
