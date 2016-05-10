@@ -139,6 +139,7 @@ struct lwip_socket {
         struct tcp_pcb *tcp;
     };
 
+    struct tcp_pcb *npcb;
     struct pbuf *rx_chain;
     Semaphore *sem;
 
@@ -238,9 +239,25 @@ int LWIPInterface::socket_bind(void *handle, const SocketAddress &address)
     return NSAPI_ERROR_DEVICE_ERROR;
 }
 
+static err_t tcp_accept_irq(void *arg, struct tcp_pcb *tpcb, err_t err);
+
 int LWIPInterface::socket_listen(void *handle, int backlog)
 {
-    return NSAPI_ERROR_UNSUPPORTED;
+    struct lwip_socket *s = (struct lwip_socket *)handle;
+
+    if (s->tcp->state != LISTEN) {
+        struct tcp_pcb *server = tcp_listen(s->tcp);
+        if (!server) {
+            return NSAPI_ERROR_NO_SOCKET;
+        }
+
+        s->tcp = server;
+        s->npcb = 0;
+    }
+
+    tcp_arg(s->tcp, s);
+    tcp_accept(s->tcp, tcp_accept_irq);
+    return 0;
 }
 
 static err_t tcp_sent_irq(void *arg, struct tcp_pcb *tpcb, uint16_t len);
@@ -277,9 +294,53 @@ int LWIPInterface::socket_connect(void *handle, const SocketAddress &addr)
     return 0;
 }
 
+static err_t tcp_refuse_irq(void *handle, struct tcp_pcb *tpcb, struct pbuf *p, err_t err)
+{
+    return ERR_WOULDBLOCK;
+}
+
+static err_t tcp_accept_irq(void *handle, struct tcp_pcb *npcb, err_t err)
+{
+    struct lwip_socket *s = (struct lwip_socket *)handle;
+    if (s->npcb) {
+        tcp_abort(npcb);
+        return ERR_ABRT;
+    }
+
+    tcp_recv(npcb, tcp_refuse_irq);
+    s->npcb = npcb;
+
+    if (s->callback) {
+        s->callback(s->data);
+    }
+
+    return ERR_OK;
+}
+
 int LWIPInterface::socket_accept(void **handle, void *server)
 {
-    return NSAPI_ERROR_UNSUPPORTED;
+    struct lwip_socket *s = (struct lwip_socket *)server;
+    if (!s->npcb) {
+        return NSAPI_ERROR_WOULD_BLOCK;
+    }
+
+    struct lwip_socket *ns = new struct lwip_socket;
+    if (!ns) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    memset(ns, 0, sizeof *ns);
+
+    ns->tcp = s->npcb;
+    s->npcb = 0;
+
+    tcp_accepted(ns->tcp);
+    tcp_arg(ns->tcp, ns);
+    //tcp_err(ns->tcp, tcp_error_irq);
+    tcp_sent(ns->tcp, tcp_sent_irq);
+    tcp_recv(ns->tcp, tcp_recv_irq);
+    *handle = ns;
+    return 0;
 }
 
 static struct pbuf *pbuf_consume(struct pbuf *p, size_t consume, bool free_partial)
