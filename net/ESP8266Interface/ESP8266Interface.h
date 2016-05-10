@@ -29,17 +29,21 @@ class ESP8266Interface : public NetworkStack, public WiFiInterface
 {
 public:
     /** ESP8266Interface lifetime
-     *  @param tx           TX pin
-     *  @param rx           RX pin
-     *  @param debug        Enable debugging
+     * @param tx        TX pin
+     * @param rx        RX pin
+     * @param debug     Enable debugging
      */
     ESP8266Interface(PinName tx, PinName rx, bool debug = false);
 
     /** Start the interface
-     *  @param ssid         Name of the network to connect to
-     *  @param pass         Security passphrase to connect to the network
-     *  @param security     Type of encryption for connection
-     *  @return             0 on success, negative on failure
+     *
+     *  Attempts to connect to a WiFi network. If passphrase is invalid,
+     *  NSAPI_ERROR_AUTH_ERROR is returned.
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection
+     *  @return          0 on success, negative error code on failure
      */
     virtual int connect(
         const char *ssid,
@@ -98,12 +102,6 @@ protected:
      *  @return             0 on success, negative on failure
      */
     virtual int socket_connect(void *handle, const SocketAddress &address);
-    
-    /** Check if the socket is connected
-     *  @param handle       Socket handle
-     *  @return             true if connected, false otherwise
-     */
-    virtual bool socket_is_connected(void *handle);
 
     /** Accept a new connection.
      *  @param handle       Handle in which to store new socket
@@ -139,7 +137,7 @@ protected:
      *  @param address      The remote SocketAddress
      *  @param data         The packet to be sent
      *  @param size         The length of the packet to be sent
-     *  @return             the number of written bytes on success, negative on failure
+     *  @return             The number of written bytes on success, negative on failure
      *  @note This call is not-blocking, if this call would block, must
      *        immediately return NSAPI_ERROR_WOULD_WAIT
      */
@@ -152,7 +150,7 @@ protected:
      *                      If a packet is too long to fit in the supplied buffer,
      *                      excess bytes are discarded
      *  @param size         The length of the buffer
-     *  @return             the number of received bytes on success, negative on failure
+     *  @return             The number of received bytes on success, negative on failure
      *  @note This call is not-blocking, if this call would block, must
      *        immediately return NSAPI_ERROR_WOULD_WAIT
      */
@@ -172,4 +170,3 @@ private:
 };
 
 #endif
-

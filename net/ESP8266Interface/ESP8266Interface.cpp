@@ -152,11 +152,6 @@ int ESP8266Interface::socket_connect(void *handle, const SocketAddress &addr)
     return 0;
 }
     
-bool ESP8266Interface::socket_is_connected(void *handle)
-{
-    return true;
-}
-
 int ESP8266Interface::socket_accept(void **handle, void *server)
 {
     return NSAPI_ERROR_UNSUPPORTED;
