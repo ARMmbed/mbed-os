@@ -16,7 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, exists, dirname
+from os.path import join, exists, dirname, splitext, exists
 
 from tools.toolchains import mbedToolchain
 from tools.settings import IAR_PATH
@@ -72,6 +72,10 @@ class IAR(mbedToolchain):
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
 
+    def parse_dependencies(self, dep_path):
+        return [path.strip() for path in open(dep_path).readlines()
+                if (path and not path.isspace())]
+
     def parse_output(self, output):
         for line in output.splitlines():
             match = IAR.DIAGNOSTIC_PATTERN.match(line)
@@ -93,26 +97,50 @@ class IAR(mbedToolchain):
                     match.group('message')
                 )
 
-    def get_dep_opt(self, dep_path):
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
         return ["--dependencies", dep_path]
 
-    def cc_extra(self, base):
+    def cc_extra(self, object):
+        base, _ = splitext(object)
         return ["-l", base + '.s']
 
-    def parse_dependencies(self, dep_path):
-        return [path.strip() for path in open(dep_path).readlines()
-                if (path and not path.isspace())]
+    def get_compile_options(self, defines, includes):
+        return ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
 
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
 
         # Return command array, don't execute
         return [cmd]
+
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        # Build compile command
+        cmd = cc +  self.get_compile_options(self.get_symbols(), includes)
+
+        cmd.extend(self.get_dep_option(object))
+
+        cmd.extend(self.cc_extra(object))
+        
+        cmd.extend(["-o", object, source])
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_compiler(cmd)
+
+        return [cmd]
+
+    def compile_c(self, source, object, includes):
+        return self.compile(self.cc, source, object, includes)
+
+    def compile_cpp(self, source, object, includes):
+        return self.compile(self.cppc, source, object, includes)
 
     @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):

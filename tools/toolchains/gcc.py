@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext, dirname
+from os.path import join, basename, splitext, dirname, exists
 
 from tools.toolchains import mbedToolchain
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
@@ -68,7 +68,7 @@ class GCC(mbedToolchain):
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
-            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
+            "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
             ] + self.cpu
 
         if "save-asm" in self.options:
@@ -161,16 +161,44 @@ class GCC(mbedToolchain):
                     message + match.group('message')
                 )
 
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
+        return ["-MD", "-MF", dep_path]
+
+    def get_compile_options(self, defines, includes):
+        return ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
 
         # Return command array, don't execute
         return [cmd]
+
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        # Build compile command
+        cmd = cc + self.get_compile_options(self.get_symbols(), includes)
+
+        cmd.extend(self.get_dep_option(object))
+
+        cmd.extend(["-o", object, source])
+        
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_compiler(cmd)
+
+        return [cmd]
+
+    def compile_c(self, source, object, includes):
+        return self.compile(self.cc, source, object, includes)
+
+    def compile_cpp(self, source, object, includes):
+        return self.compile(self.cppc, source, object, includes)
 
     @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
