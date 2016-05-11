@@ -561,14 +561,14 @@ __attribute__((naked)) void pre_main (void) {
     ".thumb\n"
     /* Save link register (keep 8 byte alignment with dummy r4) */
     "push    {r4, r5}\n"
-    "mov     r4, lr\n"
+    "movs    r4, lr\n"
     "ldr  r0,= __libc_fini_array\n"
     "bl   atexit\n"
     "bl   __libc_init_array\n"
     /* Restore link register and branch so when main returns it
     * goes to the thread destroy function.
     */
-    "mov     lr, r4\n"
+    "movs    lr, r4\n"
     "pop     {r4, r5}\n"
     "ldr     r0,=main\n"
     "bx      r0\n"
