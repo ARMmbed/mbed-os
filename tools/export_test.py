@@ -161,6 +161,7 @@ if __name__ == '__main__':
             ('uvision', 'DISCO_F469NI'),
             ('uvision', 'DISCO_L476VG'),
             ('uvision', 'MOTE_L152RC'),
+            ('uvision', 'ARM_BEETLE_SOC'),
 
             ('lpcxpresso', 'LPC1768'),
             ('lpcxpresso', 'LPC4088'),
