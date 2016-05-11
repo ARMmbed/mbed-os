@@ -555,21 +555,14 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
-__attribute__((naked)) void pre_main (void) {
-  __asm (
-    ".syntax unified\n"
-    ".thumb\n"
-    /* Save link register (keep 8 byte alignment with dummy r4) */
-    "push    {r4, lr}\n"
-    "ldr  r0,= __libc_fini_array\n"
-    "bl   atexit\n"
-    "bl   __libc_init_array\n"
-    /* Restore link register and branch so when main returns it
-    * goes to the thread destroy function.
-    */
-    "pop     {r4, lr}\n"
-    "b    main\n"
-  );
+extern void __libc_fini_array(void);
+extern void __libc_init_array (void);
+extern int main(int argc, char **argv);
+
+void pre_main(void) {
+    atexit(__libc_fini_array);
+    __libc_init_array();
+    main(0, NULL);
 }
 
 __attribute__((naked)) void software_init_hook (void) {
