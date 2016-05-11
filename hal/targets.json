@@ -1532,6 +1532,15 @@
         "macros": ["CMSDK_BEID"],
         "device_has": ["AACI", "ANALOGIN", "CLCD", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"]
     },
+    "ARM_BEETLE_SOC": {
+        "inherits": ["ARM_IOTSS_Target"],
+        "core": "Cortex-M3",
+        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "default_toolchain": "ARM",
+        "extra_labels": ["ARM_SSG", "BEETLE"],
+        "macros": ["CMSDK_BEETLE", "WSF_MS_PER_TICK=20", "WSF_TOKEN_ENABLED=FALSE", "WSF_TRACE_ENABLED=TRUE", "WSF_ASSERT_ENABLED=FALSE", "WSF_PRINTF_MAX_LEN=128", "ASIC", "CONFIG_HOST_REV=0x20", "CONFIG_ALLOW_DEEP_SLEEP=FALSE", "HCI_VS_TARGET", "CONFIG_ALLOW_SETTING_WRITE=TRUE", "WSF_MAX_HANDLERS=20", "NO_LEDS"],
+        "device_has": ["ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI"]
+    },
     "RZ_A1H": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-A9",
