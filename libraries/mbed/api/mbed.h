@@ -1,4 +1,3 @@
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -17,7 +16,7 @@
 #ifndef MBED_H
 #define MBED_H
 
-#define MBED_LIBRARY_VERSION 119
+#define MBED_LIBRARY_VERSION 120
 
 #include "platform.h"
 
