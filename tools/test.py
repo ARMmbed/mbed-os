@@ -30,6 +30,7 @@ from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir
+from tools.test_exporters import ReportExporter, ResultExporterType
 
 if __name__ == '__main__':
     try:
@@ -65,6 +66,9 @@ if __name__ == '__main__':
                           
         parser.add_option("--test-spec", dest="test_spec",
                           default=None, help="Destination path for a test spec file that can be used by the Greentea automated test tool")
+        
+        parser.add_option("--build-report-junit", dest="build_report_junit",
+                          default=None, help="Destination path for a build report in the JUnit xml format")
         
         parser.add_option("-v", "--verbose",
                           action="store_true",
@@ -118,16 +122,25 @@ if __name__ == '__main__':
             
             target = TARGET_MAP[options.mcu]
             
+            build_report = {}
+            build_properties = {}
+            
+            # Build sources
             lib_build_res = build_library(base_source_paths, options.build_dir, target, options.tool,
                                             options=options.options,
                                             jobs=options.jobs,
                                             clean=options.clean,
+                                            report=build_report,
+                                            properties=build_properties,
+                                            name="mbed-os",
                                             archive=False)
             
             # Build all the tests
             test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
                     options=options.options,
                     clean=options.clean,
+                    report=build_report,
+                    properties=build_properties,
                     jobs=options.jobs)
             
             # If a path to a test spec is provided, write it to a file
@@ -147,6 +160,10 @@ if __name__ == '__main__':
                     print "[ERROR] Error writing test spec to file"
                     print e
             
+            # If a path to a JUnit build report spec is provided, write it to a file
+            if options.build_report_junit:
+                report_exporter = ReportExporter(ResultExporterType.JUNIT)
+                report_exporter.report_to_file(build_report, options.build_report_junit, test_suite_properties=build_properties)
         sys.exit()
 
     except KeyboardInterrupt, e:
