@@ -75,6 +75,9 @@ void can_init(can_t *obj, PinName rd, PinName td)
 
     filter_number = (obj->can == CAN_1) ? 0 : 14;
 
+    // Set initial CAN frequency to 100kb/s
+    can_frequency(obj, 100000);
+
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
@@ -177,7 +180,7 @@ static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned cha
 
 int can_frequency(can_t *obj, int f) 
 {
-    int pclk ; //= PeripheralClock;
+    int pclk = HAL_RCC_GetPCLK1Freq();
     int btr = can_speed(pclk, (unsigned int)f, 1);
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 
