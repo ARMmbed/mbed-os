@@ -42,7 +42,7 @@ void can_init(can_t *obj, PinName rd, PinName td)
         obj->index = 0;
     } else {
         __HAL_RCC_CAN2_CLK_ENABLE();
-        obj->index = 0;
+        obj->index = 1;
     }
 
     // Configure the CAN pins
