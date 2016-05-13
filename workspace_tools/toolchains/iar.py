@@ -60,7 +60,10 @@ class IAR(mbedToolchain):
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
-        self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
+        if target.core == "Cortex-M7F":
+            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice] + ["--fpu", "VFPv5_sp"]
+        else:
+            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
         if not "analyze" in self.options:
             self.cc   = [main_cc] + c_flags
             self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
