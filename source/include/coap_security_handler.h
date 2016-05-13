@@ -43,7 +43,7 @@ typedef void start_timer_cb(int8_t timer_id, uint32_t min, uint32_t fin);
 typedef int timer_status_cb(int8_t timer_id);
 
 #define DTLS_HANDSHAKE_TIMEOUT_MIN 25000
-#define DTLS_HANDSHAKE_TIMEOUT_MAX 125000
+#define DTLS_HANDSHAKE_TIMEOUT_MAX 201000
 
 typedef enum {
     DTLS = 0,
