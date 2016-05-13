@@ -195,8 +195,8 @@ __attribute__((used)) void _mutex_release (OS_ID *mutex) {
  *---------------------------------------------------------------------------*/
 
 /* Main Thread definition */
-extern int main (void);
-osThreadDef_t os_thread_def_main = {(os_pthread)main, osPriorityNormal, 0, NULL};
+extern void pre_main (void);
+osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 0, NULL};
 
 // This define should be probably moved to the CMSIS layer
 
@@ -230,7 +230,11 @@ void set_main_stack(void) {
 
 #if defined (__CC_ARM)
 #ifdef __MICROLIB
+
+int main(void);
 void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
+void $Super$$__cpp_initialize__aeabi_(void);
+
 void _main_init (void) {
   osKernelInitialize();
   set_main_stack();
@@ -238,7 +242,44 @@ void _main_init (void) {
   osKernelStart();
   for (;;);
 }
+
+void $Sub$$__cpp_initialize__aeabi_(void)
+{
+  // this should invoke C++ initializers prior _main_init, we keep this empty and
+  // invoke them after _main_init (=starts RTX kernel)
+}
+
+void pre_main()
+{
+  $Super$$__cpp_initialize__aeabi_();
+  main();
+}
+
 #else
+
+void * armcc_heap_base;
+void * armcc_heap_top;
+
+__asm void pre_main (void)
+{
+  IMPORT  __rt_lib_init
+  IMPORT  main
+  IMPORT  armcc_heap_base
+  IMPORT  armcc_heap_top
+
+  LDR     R0,=armcc_heap_base
+  LDR     R1,=armcc_heap_top
+  LDR     R0,[R0]
+  LDR     R1,[R1]
+  /* Save link register (keep 8 byte alignment with dummy R4) */
+  PUSH    {R4, LR}
+  BL      __rt_lib_init
+  BL       main
+  /* Return to the thread destroy function.
+   */
+  POP     {R4, PC}
+  ALIGN
+}
 
 /* The single memory model is checking for stack collision at run time, verifing
    that the heap pointer is underneath the stack pointer.
@@ -251,71 +292,109 @@ void _main_init (void) {
 __asm void __rt_entry (void) {
 
   IMPORT  __user_setup_stackheap
-  IMPORT  __rt_lib_init
+  IMPORT  armcc_heap_base
+  IMPORT  armcc_heap_top
   IMPORT  os_thread_def_main
   IMPORT  osKernelInitialize
   IMPORT  set_main_stack
   IMPORT  osKernelStart
   IMPORT  osThreadCreate
-  IMPORT  exit
 
+  /* __user_setup_stackheap returns:
+   * - Heap base in r0 (if the program uses the heap).
+   * - Stack base in sp.
+   * - Heap limit in r2 (if the program uses the heap and uses two-region memory).
+   *
+   * More info can be found in:
+   * ARM Compiler ARM C and C++ Libraries and Floating-Point Support User Guide
+   */
   BL      __user_setup_stackheap
-  MOV     R1,R2
-  BL      __rt_lib_init
+  LDR     R3,=armcc_heap_base
+  LDR     R4,=armcc_heap_top
+  STR     R0,[R3]
+  STR     R2,[R4]
   BL      osKernelInitialize
   BL      set_main_stack
   LDR     R0,=os_thread_def_main
   MOVS    R1,#0
   BL      osThreadCreate
   BL      osKernelStart
-  BL      exit
+  /* osKernelStart should not return */
+  B       .
 
   ALIGN
 }
+
 #endif
 
 #elif defined (__GNUC__)
+
+extern void __libc_fini_array(void);
+extern void __libc_init_array (void);
+extern int main(int argc, char **argv);
+
+void pre_main(void) {
+    atexit(__libc_fini_array);
+    __libc_init_array();
+    main(0, NULL);
+}
 
 __attribute__((naked)) void software_init_hook (void) {
   __asm (
     ".syntax unified\n"
     ".thumb\n"
-    "movs r0,#0\n"
-    "movs r1,#0\n"
-    "mov  r8,r0\n"
-    "mov  r9,r1\n"
-    "ldr  r0,= __libc_fini_array\n"
-    "bl   atexit\n"
-    "bl   __libc_init_array\n"
-    "mov  r0,r8\n"
-    "mov  r1,r9\n"
     "bl   osKernelInitialize\n"
     "bl   set_main_stack\n"
     "ldr  r0,=os_thread_def_main\n"
     "movs r1,#0\n"
     "bl   osThreadCreate\n"
     "bl   osKernelStart\n"
-    "bl   exit\n"
+    /* osKernelStart should not return */
+    "B       .\n"
   );
 }
 
 #elif defined (__ICCARM__)
 
+extern void* __vector_table;
 extern int  __low_level_init(void);
 extern void __iar_data_init3(void);
+extern __weak void __iar_init_core( void );
+extern __weak void __iar_init_vfp( void );
+extern void __iar_dynamic_initialization(void);
+extern void mbed_sdk_init(void);
 extern void exit(int arg);
 
-__noreturn __stackless void __cmain(void) {
-  int a;
+static uint8_t low_level_init_needed;
 
-  if (__low_level_init() != 0) {
+void pre_main(void) {
+    if (low_level_init_needed) {
+        __iar_dynamic_initialization();
+    }
+    main();
+}
+
+#pragma required=__vector_table
+void __iar_program_start( void )
+{
+  __iar_init_core();
+  __iar_init_vfp();
+
+  uint8_t low_level_init_needed_local;
+
+  low_level_init_needed_local = __low_level_init();
+  if (low_level_init_needed_local) {
     __iar_data_init3();
+    mbed_sdk_init();
   }
+  /* Store in a global variable after RAM has been initialized */
+  low_level_init_needed = low_level_init_needed_local;
   osKernelInitialize();
   set_main_stack();
   osThreadCreate(&os_thread_def_main, NULL);
-  a = osKernelStart();
-  exit(a);
+  osKernelStart();
+  /* osKernelStart should not return */
+  while (1);
 }
 
 #endif
