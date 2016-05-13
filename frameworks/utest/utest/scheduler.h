@@ -19,6 +19,7 @@
 #ifndef UTEST_SCHEDULER_H
 #define UTEST_SCHEDULER_H
 
+#include "mbed.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -60,7 +61,7 @@ typedef int32_t (*utest_v1_scheduler_init_callback_t)(void);
  * @param   delay_ms    the delay in milliseconds after which the callback should be executed
  * @return  A handle to identify the scheduled callback, or `NULL` for failure.
  */
-typedef void *(*utest_v1_scheduler_post_callback_t)(const utest_v1_harness_callback_t callback, const uint32_t delay_ms);
+typedef void *(*utest_v1_scheduler_post_callback_t)(const utest_v1_harness_callback_t callback, timestamp_t delay_ms);
 
 /**
  * utest needs to cancel callbacks with a non-zero delay some time later.

@@ -17,6 +17,8 @@
  */
 
 #include "utest/harness.h"
+#include "utest/stack_trace.h"
+
 #include <stdlib.h>
 
 using namespace utest::v1;
@@ -53,16 +55,19 @@ namespace
 }
 
 static void die() {
+    UTEST_LOG_FUNCTION
     while(1) ;
 }
 
 static bool is_scheduler_valid(const utest_v1_scheduler_t scheduler)
 {
+    UTEST_LOG_FUNCTION
     return (scheduler.init && scheduler.post && scheduler.cancel && scheduler.run);
 }
 
 bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
 {
+    UTEST_LOG_FUNCTION
     if (is_scheduler_valid(scheduler)) {
         ::scheduler = scheduler;
         return true;
@@ -72,11 +77,13 @@ bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
 
 bool Harness::run(const Specification& specification, size_t)
 {
+    UTEST_LOG_FUNCTION
     return run(specification);
 }
 
 bool Harness::run(const Specification& specification)
 {
+    UTEST_LOG_FUNCTION
     // check if a specification is currently running
     if (is_busy())
         return false;
@@ -142,6 +149,7 @@ bool Harness::run(const Specification& specification)
 
 void Harness::raise_failure(const failure_reason_t reason)
 {
+    UTEST_LOG_FUNCTION
     // ignore a failure, if the Harness has not been initialized.
     // this allows using unity assertion macros without setting up utest.
     if (test_cases == NULL) return;
@@ -187,6 +195,7 @@ void Harness::raise_failure(const failure_reason_t reason)
 
 void Harness::schedule_next_case()
 {
+    UTEST_LOG_FUNCTION
     if (!case_timeout_occurred && case_failed_before == case_failed) {
         case_passed++;
     }
@@ -195,6 +204,7 @@ void Harness::schedule_next_case()
         location = LOCATION_CASE_TEARDOWN;
 
         if (handlers.case_teardown) {
+            // printf("Schedule next case: case_passed = %d, case_failed = %d\n", case_passed, case_failed);    
             status_t status = handlers.case_teardown(case_current, case_passed, case_failed,
                                                      case_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
             if (status < STATUS_CONTINUE)          raise_failure(REASON_CASE_TEARDOWN);
@@ -221,6 +231,7 @@ void Harness::schedule_next_case()
 
 void Harness::handle_timeout()
 {
+    UTEST_LOG_FUNCTION
     {
         UTEST_ENTER_CRITICAL_SECTION;
 
@@ -238,11 +249,14 @@ void Harness::handle_timeout()
 
 void Harness::validate_callback(const control_t control)
 {
+    UTEST_LOG_FUNCTION
     UTEST_ENTER_CRITICAL_SECTION;
     case_validation_count++;
 
+    // printf("validate_callback: case_validation_count = %d\n", case_validation_count);    
     if (case_timeout_handle != NULL || case_control.timeout == TIMEOUT_FOREVER)
     {
+        // printf("Cancelling scheduled callback\n");        
         scheduler.cancel(case_timeout_handle);
         case_timeout_handle = NULL;
         control_t merged_control = case_control + control;
@@ -255,6 +269,7 @@ void Harness::validate_callback(const control_t control)
 
 bool Harness::is_busy()
 {
+    UTEST_LOG_FUNCTION
     UTEST_ENTER_CRITICAL_SECTION;
     if (!test_cases)   return false;
     if (!case_current) return false;
@@ -266,6 +281,7 @@ bool Harness::is_busy()
 
 void Harness::run_next_case()
 {
+    UTEST_LOG_FUNCTION
     if(case_current < (test_cases + test_length))
     {
         handlers.case_setup    = defaults.get_handler(case_current->setup_handler);

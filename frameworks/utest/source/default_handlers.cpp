@@ -18,6 +18,8 @@
 
 #include "utest/default_handlers.h"
 #include "utest/case.h"
+#include "utest/stack_trace.h"
+
 
 using namespace utest::v1;
 
@@ -35,6 +37,7 @@ const handlers_t utest::v1::verbose_continue_handlers = {
 
 // --- SPECIAL HANDLERS ---
 static void test_failure_handler(const failure_t failure) {
+    UTEST_LOG_FUNCTION
     if (failure.location == LOCATION_TEST_SETUP || failure.location == LOCATION_TEST_TEARDOWN) {
         verbose_test_failure_handler(failure);
         printf("{{failure}}\n{{end}}\n");
@@ -45,12 +48,14 @@ static void test_failure_handler(const failure_t failure) {
 // --- VERBOSE TEST HANDLERS ---
 status_t utest::v1::verbose_test_setup_handler(const size_t number_of_cases)
 {
+    UTEST_LOG_FUNCTION
     printf(">>> Running %u test cases...\n", number_of_cases);
     return STATUS_CONTINUE;
 }
 
 void utest::v1::verbose_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure)
 {
+    UTEST_LOG_FUNCTION
     printf("\n>>> Test cases: %u passed, %u failed", passed, failed);
     if (failure.reason == REASON_NONE) {
         printf("\n");
@@ -63,17 +68,20 @@ void utest::v1::verbose_test_teardown_handler(const size_t passed, const size_t 
 void utest::v1::verbose_test_failure_handler(const failure_t failure)
 {
     printf(">>> failure with reason '%s' during '%s'\n", stringify(failure.reason), stringify(failure.location));
+   
 }
 
 // --- VERBOSE CASE HANDLERS ---
 status_t utest::v1::verbose_case_setup_handler(const Case *const source, const size_t index_of_case)
 {
+    UTEST_LOG_FUNCTION
     printf("\n>>> Running case #%u: '%s'...\n", index_of_case + 1, source->get_description());
     return STATUS_CONTINUE;
 }
 
 status_t utest::v1::verbose_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
+    UTEST_LOG_FUNCTION
     printf(">>> '%s': %u passed, %u failed", source->get_description(), passed, failed);
     if (failure.reason == REASON_NONE) {
         printf("\n");
@@ -85,6 +93,7 @@ status_t utest::v1::verbose_case_teardown_handler(const Case *const source, cons
 
 status_t utest::v1::verbose_case_failure_handler(const Case *const /*source*/, const failure_t failure)
 {
+    UTEST_LOG_FUNCTION
     if (!(failure.reason & REASON_ASSERTION)) {
         verbose_test_failure_handler(failure);
     }

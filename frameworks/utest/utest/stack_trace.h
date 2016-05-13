@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2015, ARM Limited, All Rights Reserved
+ * Copyright (c) 2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,20 +16,29 @@
  ****************************************************************************
  */
 
- #include "utest/harness.h"
- #include "utest/stack_trace.h"
+#ifndef UTEST_STACK_TRACE_H
+#define UTEST_STACK_TRACE_H
 
+#ifdef UTEST_STACK_TRACE
+#include <string>
 
-extern "C"
-void utest_unity_assert_failure()
-{
-    UTEST_LOG_FUNCTION
-    utest::v1::Harness::raise_failure(utest::v1::REASON_ASSERTION);
-}
+#define UTEST_MAX_BACKTRACE 100
+extern std::string utest_trace[UTEST_MAX_BACKTRACE];
 
-extern "C"
-void utest_unity_ignore_failure()
-{
-    UTEST_LOG_FUNCTION
-    utest::v1::Harness::raise_failure(utest::v1::failure_reason_t(utest::v1::REASON_ASSERTION | utest::v1::REASON_IGNORE));
-}
+extern void utest_trace_initialise();
+extern void utest_add_to_trace(char *func_name);
+extern void utest_dump_trace();
+
+#define UTEST_LOG_FUNCTION utest_add_to_trace((char *)__func__);
+#define UTEST_TRACE_START utest_trace_initialise();
+#define UTEST_DUMP_TRACE utest_dump_trace();
+
+#else
+
+#define UTEST_LOG_FUNCTION 
+#define UTEST_TRACE_START
+#define UTEST_DUMP_TRACE
+
+#endif // UTEST_STACK_TRACE
+
+#endif // UTEST_STACK_TRACE_H
