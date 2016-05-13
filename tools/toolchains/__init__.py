@@ -29,6 +29,7 @@ from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
+from hashlib import md5
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -210,6 +211,7 @@ class mbedToolchain:
         self.has_config = False
 
         self.build_all = False
+        self.build_dir = None
         self.timestamp = time()
         self.jobs = 1
 
@@ -476,19 +478,35 @@ class mbedToolchain:
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
 
+    def get_inc_file(self, includes):
+        include_file = join(self.build_dir, ".includes_%s.txt" % self.inc_md5)
+        if not exists(include_file):
+            with open(include_file, "wb") as f:
+                cmd_list = []
+                for c in includes:
+                    if c:
+                        cmd_list.append(('-I%s' % c).replace("\\", "/"))                    
+                string = " ".join(cmd_list)
+                f.write(string)
+        return include_file
+
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
         files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
 
-        #for i in self.build_params:
-        #    self.debug(i)
-        #    self.debug("%s" % self.build_params[i])
-
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
+        # De-duplicate include paths
+        inc_paths = set(inc_paths)
+        # Sort include paths for consistency
+        inc_paths = sorted(set(inc_paths))
+        # Unique id of all include paths
+        self.inc_md5 = md5(' '.join(inc_paths)).hexdigest()
+        # Where to store response files
+        self.build_dir = build_path
 
         objects = []
         queue = []
@@ -496,6 +514,7 @@ class mbedToolchain:
 
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
+        # Sort compile queue for consistency
         files_to_compile.sort()
         work_dir = getcwd()
 
@@ -641,28 +660,6 @@ class mbedToolchain:
             else:
                 raise ToolException(_stderr)
 
-    def compile(self, cc, source, object, includes):
-        _, ext = splitext(source)
-        ext = ext.lower()
-
-        command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
-
-        if hasattr(self, "get_dep_opt"):
-            base, _ = splitext(object)
-            dep_path = base + '.d'
-            command.extend(self.get_dep_opt(dep_path))
-
-        if hasattr(self, "cc_extra"):
-            command.extend(self.cc_extra(base))
-
-        return [command]
-
-    def compile_c(self, source, object, includes):
-        return self.compile(self.cc, source, object, includes)
-
-    def compile_cpp(self, source, object, includes):
-        return self.compile(self.cppc, source, object, includes)
-
     def build_library(self, objects, dir, name):
         needed_update = False
         lib = self.STD_LIB_NAME % name
@@ -712,12 +709,12 @@ class mbedToolchain:
         return bin, needed_update
 
     def default_cmd(self, command):
+        self.debug("Command: %s"% ' '.join(command))
         _stdout, _stderr, _rc = run_cmd(command)
         # Print all warning / erros from stderr to console output
         for error_line in _stderr.splitlines():
             print error_line
 
-        self.debug("Command: %s"% ' '.join(command))
         self.debug("Return: %s"% _rc)
 
         for output_line in _stdout.splitlines():

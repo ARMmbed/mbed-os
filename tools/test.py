@@ -27,7 +27,7 @@ sys.path.insert(0, ROOT)
 
 from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_build
 from tools.options import get_default_options_parser
-from tools.build_api import build_project
+from tools.build_api import build_project, build_library
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir
 
@@ -115,10 +115,17 @@ if __name__ == '__main__':
             if not base_source_paths:
                 base_source_paths = ['.']
             
+            
             target = TARGET_MAP[options.mcu]
             
+            lib_build_res = build_library(base_source_paths, options.build_dir, target, options.tool,
+                                            options=options.options,
+                                            jobs=options.jobs,
+                                            clean=options.clean,
+                                            archive=False)
+            
             # Build all the tests
-            test_build = build_tests(tests, base_source_paths, options.build_dir, target, options.tool,
+            test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
                     options=options.options,
                     clean=options.clean,
                     jobs=options.jobs)
