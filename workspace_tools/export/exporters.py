@@ -73,7 +73,7 @@ class Exporter(object):
         return project_data
 
     def progen_gen_file(self, tool_name, project_data):
-        """" Generate project using ProGen Project API """
+        """ Generate project using ProGen Project API """
         settings = ProjectSettings()
         project = Project(self.program_name, [project_data], settings)
         # TODO: Fix this, the inc_dirs are not valid (our scripts copy files), therefore progen
