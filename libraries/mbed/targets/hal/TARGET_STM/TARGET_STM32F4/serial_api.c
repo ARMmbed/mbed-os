@@ -101,7 +101,6 @@ serial_t stdio_uart;
 
 static void init_uart(serial_t *obj, UARTName instance)
 {
-
     UART_HandleTypeDef *handle = &UartHandle[SERIAL_OBJ(index)];
     handle->Instance = (USART_TypeDef *)instance;
 
@@ -186,6 +185,7 @@ static void init_uart(serial_t *obj, UARTName instance)
     if (HAL_UART_Init(handle) != HAL_OK) {
         error("Cannot initialize UART\n");
     }
+
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
@@ -202,6 +202,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Enable USART clock
     switch (instance) {
         case UART_1:
+        	__USART1_FORCE_RESET();
+        	__USART1_RELEASE_RESET();
             __HAL_RCC_USART1_CLK_ENABLE();
             SERIAL_OBJ(index) = 0;
 #if DEVICE_SERIAL_ASYNCH_DMA
@@ -209,6 +211,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
             break;
         case UART_2:
+        	__USART2_FORCE_RESET();
+        	__USART2_RELEASE_RESET();
             __HAL_RCC_USART2_CLK_ENABLE();
             SERIAL_OBJ(index) = 1;
 #if DEVICE_SERIAL_ASYNCH_DMA
@@ -217,6 +221,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             break;
 #if defined(USART3_BASE)
         case UART_3:
+        	__USART3_FORCE_RESET();
+        	__USART3_RELEASE_RESET();
             __HAL_RCC_USART3_CLK_ENABLE();
             SERIAL_OBJ(index) = 2;
 #if DEVICE_SERIAL_ASYNCH_DMA
@@ -226,6 +232,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
 #if defined(UART4_BASE)
         case UART_4:
+        	__USART4_FORCE_RESET();
+        	__USART4_RELEASE_RESET();
             __HAL_RCC_UART4_CLK_ENABLE();
             SERIAL_OBJ(index) = 3;
 #if DEVICE_SERIAL_ASYNCH_DMA
@@ -235,6 +243,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
 #if defined(UART5_BASE)
         case UART_5:
+        	__USART5_FORCE_RESET();
+        	__USART5_RELEASE_RESET();
             __HAL_RCC_UART5_CLK_ENABLE();
             SERIAL_OBJ(index) = 4;
 #if DEVICE_SERIAL_ASYNCH_DMA
@@ -244,6 +254,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
 #if defined(USART6_BASE)
         case UART_6:
+        	__USART6_FORCE_RESET();
+        	__USART6_RELEASE_RESET();
             __HAL_RCC_USART6_CLK_ENABLE();
             SERIAL_OBJ(index) = 5;
 #if DEVICE_SERIAL_ASYNCH_DMA
@@ -253,6 +265,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
 #if defined(UART7_BASE)
         case UART_7:
+        	__USART8_FORCE_RESET();
+        	__USART8_RELEASE_RESET();
             __HAL_RCC_UART7_CLK_ENABLE();
             SERIAL_OBJ(index) = 6;
 #if DEVICE_SERIAL_ASYNCH_DMA
@@ -262,6 +276,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #endif
 #if defined(UART8_BASE)
         case UART_8:
+        	__USART8_FORCE_RESET();
+        	__USART8_RELEASE_RESET();
             __HAL_RCC_UART8_CLK_ENABLE();
             SERIAL_OBJ(index) = 7;
 #if DEVICE_SERIAL_ASYNCH_DMA
