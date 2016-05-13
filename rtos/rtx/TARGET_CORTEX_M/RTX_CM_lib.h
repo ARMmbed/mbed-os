@@ -491,15 +491,13 @@ __asm void pre_main (void)
   LDR     R1,=armcc_heap_top
   LDR     R0,[R0]
   LDR     R1,[R1]
-  /* Save link register (keep 8 byte alignment with dummy r4) */
-  push    {r4, lr}
+  /* Save link register (keep 8 byte alignment with dummy R4) */
+  PUSH    {R4, LR}
   BL      __rt_lib_init
-  /* Restore link register and branch so when main returns it
-   * goes to the thread destroy function.
+  BL       main
+  /* Return to the thread destroy function.
    */
-  pop     {r4, lr}
-  B       main
-
+  POP     {R4, PC}
   ALIGN
 }
 
