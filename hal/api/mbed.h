@@ -66,6 +66,7 @@
 
 // mbed Non-hardware components
 #include "Callback.h"
+#include "FunctionPointer.h"
 
 using namespace mbed;
 using namespace std;

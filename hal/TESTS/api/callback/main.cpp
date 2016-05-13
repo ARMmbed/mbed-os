@@ -211,6 +211,22 @@ void test_dispatch0() {
     Verifier<T>::verify0((void*)&callback, &Callback<T()>::thunk);
 }
 
+template <typename T>
+void test_fparg1() {
+    Thing<T> thing;
+    FunctionPointerArg1<T,T> fp(static_func1<T>);
+    Verifier<T>::verify1(fp);
+    Verifier<T>::verify1(fp.get_function());
+}
+
+template <typename T>
+void test_fparg0() {
+    Thing<T> thing;
+    FunctionPointerArg1<T,void> fp(static_func0<T>);
+    Verifier<T>::verify0(fp);
+    Verifier<T>::verify0(fp.get_function());
+}
+
 
 // Test setup
 status_t test_setup(const size_t number_of_cases) {
@@ -239,6 +255,9 @@ Case cases[] = {
     Case("Testing callbacks with 2 uint64s", test_dispatch2<uint64_t>),
     Case("Testing callbacks with 1 uint64s", test_dispatch1<uint64_t>),
     Case("Testing callbacks with 0 uint64s", test_dispatch0<uint64_t>),
+
+    Case("Testing FunctionPointerArg1 compatibility", test_fparg1<int>),
+    Case("Testing FunctionPointer compatibility", test_fparg0<int>),
 };
 
 Specification specification(test_setup, cases);
