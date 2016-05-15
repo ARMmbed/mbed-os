@@ -17,7 +17,7 @@
 #define MBED_TICKER_H
 
 #include "TimerEvent.h"
-#include "FunctionPointer.h"
+#include "Callback.h"
 
 namespace mbed {
 
@@ -65,22 +65,22 @@ public:
 
     /** Attach a function to be called by the Ticker, specifiying the interval in seconds
      *
-     *  @param fptr pointer to the function to be called
+     *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach(void (*fptr)(void), float t) {
-        attach_us(fptr, t * 1000000.0f);
+    void attach(Callback<void()> func, float t) {
+        attach_us(func, t * 1000000.0f);
     }
 
     /** Attach a member function to be called by the Ticker, specifiying the interval in seconds
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      *  @param t the time between calls in seconds
      */
-    template<typename T>
-    void attach(T* tptr, void (T::*mptr)(void), float t) {
-        attach_us(tptr, mptr, t * 1000000.0f);
+    template<typename T, typename M>
+    void attach(T *obj, M method, float t) {
+        attach(Callback<void()>(obj, method), t);
     }
 
     /** Attach a function to be called by the Ticker, specifiying the interval in micro-seconds
@@ -88,8 +88,8 @@ public:
      *  @param fptr pointer to the function to be called
      *  @param t the time between calls in micro-seconds
      */
-    void attach_us(void (*fptr)(void), timestamp_t t) {
-        _function.attach(fptr);
+    void attach_us(Callback<void()> func, timestamp_t t) {
+        _function.attach(func);
         setup(t);
     }
 
@@ -99,10 +99,9 @@ public:
      *  @param mptr pointer to the member function to be called
      *  @param t the time between calls in micro-seconds
      */
-    template<typename T>
-    void attach_us(T* tptr, void (T::*mptr)(void), timestamp_t t) {
-        _function.attach(tptr, mptr);
-        setup(t);
+    template<typename T, typename M>
+    void attach_us(T *obj, M method, timestamp_t t) {
+        attach_us(Callback<void()>(obj, method), t);
     }
 
     virtual ~Ticker() {
@@ -118,8 +117,8 @@ protected:
     virtual void handler();
 
 protected:
-    timestamp_t     _delay;     /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
-    FunctionPointer _function;  /**< Callback. */
+    timestamp_t         _delay;     /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
+    Callback<void()>    _function;  /**< Callback. */
 };
 
 } // namespace mbed

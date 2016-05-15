@@ -66,13 +66,6 @@ bool InterruptManager::remove_handler(pFunctionPointer_t handler, IRQn_Type irq)
         return false;
     if (!_chains[irq_pos]->remove(handler))
         return false;
-    // If there's a single function left in the chain, swith the interrupt vector
-    // to call that function directly. This way we save both time and space.
-    if (_chains[irq_pos]->size() == 1 && NULL != _chains[irq_pos]->get(0)->get_function()) {
-        NVIC_SetVector(irq, (uint32_t)_chains[irq_pos]->get(0)->get_function());
-        delete _chains[irq_pos];
-        _chains[irq_pos] = (CallChain*) NULL;
-    }
     return true;
 }
 
