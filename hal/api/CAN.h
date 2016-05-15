@@ -22,7 +22,7 @@
 
 #include "can_api.h"
 #include "can_helper.h"
-#include "FunctionPointer.h"
+#include "Callback.h"
 
 namespace mbed {
 
@@ -206,34 +206,40 @@ public:
     /** Attach a function to call whenever a CAN frame received interrupt is
      *  generated.
      *
-     *  @param fptr A pointer to a void function, or 0 to set as none
+     *  @param func A pointer to a void function, or 0 to set as none
      *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
-    void attach(void (*fptr)(void), IrqType type=RxIrq);
+    void attach(Callback<void()> func, IrqType type=RxIrq);
 
    /** Attach a member function to call whenever a CAN frame received interrupt
     *  is generated.
     *
-    *  @param tptr pointer to the object to call the member function on
-    *  @param mptr pointer to the member function to be called
+    *  @param obj pointer to the object to call the member function on
+    *  @param method pointer to the member function to be called
     *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
     */
-   template<typename T>
-   void attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
-        if((mptr != NULL) && (tptr != NULL)) {
-            _irq[type].attach(tptr, mptr);
-            can_irq_set(&_can, (CanIrqType)type, 1);
-        }
-        else {
-            can_irq_set(&_can, (CanIrqType)type, 0);
-        }
+    template<typename T>
+    void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
+        attach(Callback<void()>(obj, method), type);
+    }
+
+   /** Attach a member function to call whenever a CAN frame received interrupt
+    *  is generated.
+    *
+    *  @param obj pointer to the object to call the member function on
+    *  @param method pointer to the member function to be called
+    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    */
+    template<typename T>
+    void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {
+        attach(Callback<void()>(obj, method), type);
     }
 
     static void _irq_handler(uint32_t id, CanIrqType type);
 
 protected:
-    can_t           _can;
-    FunctionPointer _irq[9];
+    can_t               _can;
+    Callback<void()>    _irq[9];
 };
 
 } // namespace mbed
