@@ -784,6 +784,9 @@ class NUCLEO_F042K6(Target):
         self.detect_code = ["0785"]
         self.progen = {
             "target":"nucleo-f042k6",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib_crossmoduleoptim.uvproj.tmpl')],    ## template with Cross M
+            }
         }
 
 class NUCLEO_F070RB(Target):
@@ -862,6 +865,9 @@ class NUCLEO_F303K8(Target):
         self.detect_code = ["0775"]
         self.progen = {
             "target":"nucleo-f303k8",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class NUCLEO_F303RE(Target):
@@ -875,6 +881,9 @@ class NUCLEO_F303RE(Target):
         self.detect_code = ["0745"]
         self.progen = {
             "target":"nucleo-f303re",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class NUCLEO_F334R8(Target):
@@ -901,6 +910,9 @@ class NUCLEO_F401RE(Target):
         self.detect_code = ["0720"]
         self.progen = {
             "target":"nucleo-f401re",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class NUCLEO_F410RB(Target):
@@ -914,6 +926,9 @@ class NUCLEO_F410RB(Target):
         self.detect_code = ["0740"]
         self.progen = {
             "target":"nucleo-f410rb",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class NUCLEO_F411RE(Target):
@@ -927,6 +942,9 @@ class NUCLEO_F411RE(Target):
         self.detect_code = ["0740"]
         self.progen = {
             "target":"nucleo-f411re",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class ELMO_F411RE(Target):
@@ -950,6 +968,9 @@ class NUCLEO_F446RE(Target):
         self.detect_code = ["0777"]
         self.progen = {
             "target":"nucleo-f446re",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class B96B_F446VE(Target):
@@ -968,11 +989,15 @@ class NUCLEO_F746ZG(Target):
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746ZG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "uARM"
         self.detect_code = ["0816"]
         self.progen = {
             "target":"nucleo-f746zg",
             "iar": {
                 "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746zg.ewp.tmpl')],
+            },
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
             }
         }
 
@@ -987,6 +1012,9 @@ class NUCLEO_L031K6(Target):
         self.detect_code = ["0790"]
         self.progen = {
             "target":"nucleo-l031k6",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class NUCLEO_L053R8(Target):
@@ -1113,10 +1141,13 @@ class DISCO_F407VG(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.default_toolchain = "uARM"
         self.progen = {
             "target":"disco-f407vg",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
-        self.default_toolchain = "ARM"
 
 class DISCO_F429ZI(Target):
     def __init__(self):
@@ -1127,6 +1158,9 @@ class DISCO_F429ZI(Target):
         self.default_toolchain = "uARM"
         self.progen = {
             "target":"disco-f429zi",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class DISCO_F469NI(Target):
@@ -1159,9 +1193,13 @@ class DISCO_F746NG(Target):
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "uARM"
         self.detect_code = ["0815"]
         self.progen = {
             "target":"disco-f746ng",
+            "uvision5": {
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
+            }
         }
 
 class DISCO_L476VG(Target):
