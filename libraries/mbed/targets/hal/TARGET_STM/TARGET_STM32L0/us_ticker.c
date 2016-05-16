@@ -26,6 +26,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stddef.h>
+#include <stdbool.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 
@@ -34,8 +35,9 @@
 
 static TIM_HandleTypeDef TimMasterHandle;
 static int us_ticker_inited = 0;
+static bool us_ticker_stabilized = false;
 
-volatile uint32_t SlaveCounter = 0;
+volatile uint16_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
 volatile uint16_t oc_rem_part = 0;
 
@@ -58,24 +60,39 @@ void us_ticker_init(void)
 
 uint32_t us_ticker_read()
 {
-    uint32_t counter, counter2;
+    volatile uint16_t cntH_old, cntH, cntL;
+
     if (!us_ticker_inited) us_ticker_init();
-    // A situation might appear when Master overflows right after Slave is read and before the
-    // new (overflowed) value of Master is read. Which would make the code below consider the
-    // previous (incorrect) value of Slave and the new value of Master, which would return a
-    // value in the past. Avoid this by computing consecutive values of the timer until they
-    // are properly ordered.
-    counter = (uint32_t)(SlaveCounter << 16);
-    counter += TIM_MST->CNT;
-    while (1) {
-        counter2 = (uint32_t)(SlaveCounter << 16);
-        counter2 += TIM_MST->CNT;
-        if (counter2 > counter) {
-            break;
-        }
-        counter = counter2;
-    }
-    return counter2;
+
+    // There's a situation where the first tick still may overflow and to avoid
+    // it we need to check if our ticker has stabilized and due to that we need
+    // to return only the lower part of your 32 bit software timer.
+    if (us_ticker_stabilized) {
+        do {
+            // For some reason on L0xx series we need to read and clear the 
+            // overflow flag which give extra time to propelry handle possible
+            // hiccup after ~60s
+            if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
+                __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
+            }
+            cntH_old = SlaveCounter;
+            if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+             cntH_old += 1;
+            }
+            cntL = TIM_MST->CNT;
+ 
+            cntH = SlaveCounter;
+            if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
+                cntH += 1;
+            }
+        } while(cntH_old != cntH);
+    } else {
+        us_ticker_stabilized = true;
+        return (uint32_t) TIM_MST->CNT;
+    } 
+    
+    // Glue the upper and lower part together to get a 32 bit timer
+    return (uint32_t)(cntH << 16 | cntL);
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
