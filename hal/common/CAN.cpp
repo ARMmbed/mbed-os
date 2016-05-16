@@ -67,9 +67,9 @@ int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle
     return can_filter(&_can, id, mask, format, handle);
 }
 
-void CAN::attach(void (*fptr)(void), IrqType type) {
-    if (fptr) {
-        _irq[(CanIrqType)type].attach(fptr);
+void CAN::attach(Callback<void()> func, IrqType type) {
+    if (func) {
+        _irq[(CanIrqType)type].attach(func);
         can_irq_set(&_can, (CanIrqType)type, 1);
     } else {
         can_irq_set(&_can, (CanIrqType)type, 0);

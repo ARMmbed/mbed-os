@@ -21,7 +21,7 @@
 #if DEVICE_SERIAL
 
 #include "Stream.h"
-#include "FunctionPointer.h"
+#include "Callback.h"
 #include "serial_api.h"
 
 #if DEVICE_SERIAL_ASYNCH
@@ -89,25 +89,20 @@ public:
 
     /** Attach a function to call whenever a serial interrupt is generated
      *
-     *  @param fptr A pointer to a void function, or 0 to set as none
+     *  @param func A pointer to a void function, or 0 to set as none
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      */
-    void attach(void (*fptr)(void), IrqType type=RxIrq);
+    void attach(Callback<void()> func, IrqType type=RxIrq);
 
     /** Attach a member function to call whenever a serial interrupt is generated
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      */
-    template<typename T>
-    void attach(T* tptr, void (T::*mptr)(void), IrqType type=RxIrq) {
-        if((mptr != NULL) && (tptr != NULL)) {
-            _irq[type].attach(tptr, mptr);
-            serial_irq_set(&_serial, (SerialIrq)type, 1);
-        } else {
-            serial_irq_set(&_serial, (SerialIrq)type, 0);
-        }
+    template<typename T, typename M>
+    void attach(T *obj, M method, IrqType type=RxIrq) {
+        attach(Callback<void()>(obj, method), type);
     }
 
     /** Generate a break condition on the serial line
@@ -210,9 +205,9 @@ protected:
     DMAUsage _rx_usage;
 #endif
 
-    serial_t        _serial;
-    FunctionPointer _irq[2];
-    int             _baud;
+    serial_t         _serial;
+    Callback<void()> _irq[2];
+    int              _baud;
 
 };
 

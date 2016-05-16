@@ -64,6 +64,10 @@
 #include "sleep_api.h"
 #include "rtc_time.h"
 
+// mbed Non-hardware components
+#include "Callback.h"
+#include "FunctionPointer.h"
+
 using namespace mbed;
 using namespace std;
 
