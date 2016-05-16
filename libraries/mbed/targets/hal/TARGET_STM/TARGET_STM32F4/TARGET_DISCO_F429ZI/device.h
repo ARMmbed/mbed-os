@@ -55,9 +55,14 @@
 #define DEVICE_SLEEP            1
 
 //=======================================
-
+// Allow these to be overiden with compile time defines passed to build.py using -D
+#ifndef DEVICE_SEMIHOST
 #define DEVICE_SEMIHOST         0
+#endif
+#ifndef DEVICE_LOCALFILESYSTEM
 #define DEVICE_LOCALFILESYSTEM  0
+#endif
+
 #define DEVICE_ID_LENGTH       24
 
 #define DEVICE_DEBUG_AWARENESS  0
