@@ -148,7 +148,7 @@ int Socket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
 
 }
 
-void Socket::attach(FunctionPointer callback)
+void Socket::attach(Callback<void()> callback)
 {
     _lock.lock();
 
