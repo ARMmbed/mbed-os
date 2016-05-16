@@ -145,9 +145,9 @@ public:
      *  The callback may be called in an interrupt context and should not
      *  perform expensive operations such as recv/send calls.
      *
-     *  @param callback Function to call on state change
+     *  @param func     Function to call on state change
      */
-    void attach(FunctionPointer callback);
+    void attach(Callback<void()> func);
 
     /** Register a callback on state change of the socket
      *
@@ -158,12 +158,12 @@ public:
      *  The callback may be called in an interrupt context and should not
      *  perform expensive operations such as recv/send calls.
      *
-     *  @param tptr     Pointer to object to call method on
-     *  @param mptr     Method to call on state change
+     *  @param obj      Pointer to object to call method on
+     *  @param method   Method to call on state change
      */
     template <typename T, typename M>
-    void attach(T *tptr, M mptr) {
-        attach(FunctionPointer(tptr, mptr));
+    void attach(T *obj, M method) {
+        attach(Callback<void()>(obj, method));
     }
 
 protected:
@@ -176,7 +176,7 @@ protected:
     NetworkStack *_iface;
     void *_socket;
     uint32_t _timeout;
-    FunctionPointer _callback;
+    Callback<void()> _callback;
     rtos::Mutex _lock;
 };
 
