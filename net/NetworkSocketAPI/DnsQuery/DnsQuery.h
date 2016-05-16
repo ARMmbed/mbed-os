@@ -18,7 +18,7 @@
 #ifndef __DNSQUERY_H__
 #define __DNSQUERY_H__
 
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 #include "UDPSocket.h"
 
 
@@ -34,7 +34,7 @@
   * @returns 0 on succes, NS_DNS_FAILURE if host is not found,
   *     or a negative value for other errors.
   */
-int32_t dnsQuery(NetworkInterface *iface, const char *host, char *ip);
+int32_t dnsQuery(NetworkStack *iface, const char *host, char *ip);
 int32_t dnsQuery(UDPSocket *sock, const char *host, char *ip);
 
 

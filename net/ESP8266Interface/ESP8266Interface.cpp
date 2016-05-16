@@ -84,7 +84,7 @@ struct esp8266_socket {
     bool connected;
 };
 
-void *ESP8266Interface::socket_create(nsapi_protocol_t proto)
+int ESP8266Interface::socket_open(void **handle, nsapi_protocol_t proto)
 {
     // Look for an unused socket
     int id = -1;
@@ -98,38 +98,37 @@ void *ESP8266Interface::socket_create(nsapi_protocol_t proto)
     }
  
     if (id == -1) {
-        return 0;
+        return NSAPI_ERROR_NO_SOCKET;
     }
     
     struct esp8266_socket *socket = new struct esp8266_socket;
     if (!socket) {
-        return 0;
+        return NSAPI_ERROR_NO_SOCKET;
     }
     
     socket->id = id;
     socket->proto = proto;
     socket->connected = false;
-    return socket;
+    *handle = socket;
+    return 0;
 }
 
-void ESP8266Interface::socket_destroy(void *handle)
+int ESP8266Interface::socket_close(void *handle)
 {
     struct esp8266_socket *socket = (struct esp8266_socket *)handle;
+    int err = 0;
+    _esp.setTimeout(ESP8266_MISC_TIMEOUT);
+ 
+    if (!_esp.close(socket->id)) {
+        err = NSAPI_ERROR_DEVICE_ERROR;
+    }
+
     _ids[socket->id] = false;
     delete socket;
+    return err;
 }
 
-int ESP8266Interface::socket_set_option(void *handle, int optname, const void *optval, unsigned optlen)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-int ESP8266Interface::socket_get_option(void *handle, int optname, void *optval, unsigned *optlen)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-int ESP8266Interface::socket_bind(void *handle, int port)
+int ESP8266Interface::socket_bind(void *handle, const SocketAddress &address)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -153,12 +152,7 @@ int ESP8266Interface::socket_connect(void *handle, const SocketAddress &addr)
     return 0;
 }
     
-bool ESP8266Interface::socket_is_connected(void *handle)
-{
-    return true;
-}
-
-int ESP8266Interface::socket_accept(void *handle, void **connection)
+int ESP8266Interface::socket_accept(void **handle, void *server)
 {
     return NSAPI_ERROR_UNSUPPORTED;
 }
@@ -207,26 +201,6 @@ int ESP8266Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *d
     return socket_recv(socket, data, size);
 }
 
-int ESP8266Interface::socket_close(void *handle, bool shutdown)
-{
-    struct esp8266_socket *socket = (struct esp8266_socket *)handle;
-    _esp.setTimeout(ESP8266_MISC_TIMEOUT);
- 
-    if (!_esp.close(socket->id)) {
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
- 
-    return 0;
-}
-
-void ESP8266Interface::socket_attach_accept(void *handle, void (*callback)(void *), void *id)
-{
-}
-
-void ESP8266Interface::socket_attach_send(void *handle, void (*callback)(void *), void *id)
-{
-}
-
-void ESP8266Interface::socket_attach_recv(void *handle, void (*callback)(void *), void *id)
+void ESP8266Interface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
 }

@@ -17,71 +17,85 @@
 #include "TCPServer.h"
 #include "Timer.h"
 
-TCPServer::TCPServer(NetworkInterface *iface)
-    : Socket(iface, NSAPI_TCP)
+TCPServer::TCPServer(): _accept_sem(0)
 {
 }
 
-int TCPServer::bind(uint16_t port)
+TCPServer::TCPServer(NetworkStack *iface): _accept_sem(0)
 {
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;   
-    }
+    open(iface);
+}
 
-    return _iface->socket_bind(_socket, port);
+int TCPServer::open(NetworkStack *iface)
+{
+    return Socket::open(iface, NSAPI_TCP);
 }
 
 int TCPServer::listen(int backlog)
 {
-    if (!_socket) {
-        return NSAPI_ERROR_NO_SOCKET;   
+    _lock.lock();
+
+    int ret = NSAPI_ERROR_NO_SOCKET;
+    if (_socket) {
+        ret = _iface->socket_listen(_socket, backlog);
     }
 
-    return _iface->socket_listen(_socket, backlog);
+    _lock.unlock();
+    return ret;
 }
 
 int TCPServer::accept(TCPSocket *connection)
 {
-    mbed::Timer timer;
-    timer.start();
+    _lock.lock();
 
-    void *socket = connection->_socket;
-    connection->_socket = 0;
-    _iface->socket_destroy(socket);
-
+    int ret = NSAPI_ERROR_NO_SOCKET;
     while (true) {
         if (!_socket) {
-            return NSAPI_ERROR_NO_SOCKET;   
+            ret = NSAPI_ERROR_NO_SOCKET;
+            break;
         }
 
-        int err = _iface->socket_accept(_socket, &socket);
+        void *socket;
+        ret = _iface->socket_accept(&socket, _socket);
+        if (0 == ret) {
+            connection->_lock.lock();
 
-        if (err > 0) {
+            if (connection->_socket) {
+                connection->close();
+            }
+
+            connection->_iface = _iface;
             connection->_socket = socket;
+            _iface->socket_attach(socket, &Socket::thunk, connection);
+
+            connection->_lock.unlock();
+            break;
         }
 
-        if (err != NSAPI_ERROR_WOULD_BLOCK || !_blocking || 
-            (_timeout && timer.read_ms() > _timeout)) {
-            return err;
+        if (NSAPI_ERROR_WOULD_BLOCK == ret) {
+            int32_t count;
+
+            _lock.unlock();
+            count = _accept_sem.wait(_timeout);
+            _lock.lock();
+
+            if (count < 1) {
+                ret = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
         }
     }
+
+    _lock.unlock();
+    return ret;
 }
 
-
-void TCPServer::attach_accept(FunctionPointer callback)
+void TCPServer::socket_event()
 {
-    _accept_cb = callback;
-
-    if (_socket && _accept_cb) {
-        return _iface->socket_attach_accept(_socket, Socket::thunk, &_accept_cb);
-    } else if (_socket) {
-        return _iface->socket_attach_accept(_socket, 0, 0);
+    int32_t status = _accept_sem.wait(0);
+    if (status <= 1) {
+        _accept_sem.release();
     }
-}
 
-TCPServer::~TCPServer()
-{
-    if (_socket && _accept_cb) {
-        _iface->socket_attach_accept(_socket, 0, 0);
-    }
+    Socket::socket_event();
 }

@@ -1,4 +1,4 @@
-/* Socket
+/* UDPSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,67 +18,95 @@
 #define UDPSOCKET_H
 
 #include "Socket.h"
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
+#include "Semaphore.h"
 
-/**
-UDP Socket
-*/
+/** UDP socket
+ */
 class UDPSocket : public Socket {
 public:
-    /** UDPSocket lifetime
-    */
-    UDPSocket(NetworkInterface *iface);
-    virtual ~UDPSocket();
-    
-    /** Bind a UDP Server Socket to a specific port
-    \param port The port to listen for incoming connections on
-    \return 0 on success, negative on failure.
-    */
-    int bind(uint16_t port);
+    /** Create an uninitialized socket
+     *
+     *  Must call open to initialize the socket on a network stack.
+     */
+    UDPSocket();
 
-    /** Send a packet to a remote endpoint
-    \param address  The remote SocketAddress
-    \param data     The packet to be sent
-    \param size     The length of the packet to be sent
-    \return the number of written bytes on success, negative on failure
-    */
+    /** Create a socket on a network stack
+     *
+     *  Creates and opens a socket on the specified network stack.
+     *
+     *  @param iface    Network stack as target for socket
+     */
+    UDPSocket(NetworkStack *iface);
+
+    /** Opens a socket
+     *
+     *  Creates a network socket on the specified network stack.
+     *  Not needed if stack is passed to the socket's constructor.
+     *
+     *  @param iface    Network stack as target for socket
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int open(NetworkStack *iface);
+
+    /** Send a packet over a UDP socket
+     *
+     *  Sends data to the specified address specified by either a domain name
+     *  or an IP address and port. Returns the number of bytes sent from the
+     *  buffer.
+     *
+     *  By default, sendto blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param host     Hostname of the remote host
+     *  @param port     Port of the remote host
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
+     */
+    int sendto(const char *host, uint16_t port, const void *data, unsigned size);
+
+    /** Send a packet over a UDP socket
+     *
+     *  Sends data to the specified address. Returns the number of bytes
+     *  sent from the buffer.
+     *
+     *  By default, sendto blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param address  The SocketAddress of the remote host
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
+     */
     int sendto(const SocketAddress &address, const void *data, unsigned size);
 
-    /** Receive a packet from a remote endpoint
-    \param address  Destination for the remote SocketAddress or null
-    \param buffer   The buffer for storing the incoming packet data
-                    If a packet is too long to fit in the supplied buffer,
-                    excess bytes are discarded
-    \param size     The length of the buffer
-    \return the number of received bytes on success, negative on failure
-    */
-    int recvfrom(SocketAddress *address, void *buffer, unsigned size);
-
-    /** Register a callback on when send is ready
-    \param callback Function to call when send will succeed, may be called in
-                    interrupt context.
-    */
-    void attach_send(FunctionPointer callback);
-
-    template <typename T, typename M>
-    void attach_send(T *tptr, M mptr) {
-        attach_send(FunctionPointer(tptr, mptr));
-    }
-
-    /** Register a callback on when recv is ready
-    \param callback Function to call when recv will succeed, may be called in
-                    interrupt context.
-    */
-    void attach_recv(FunctionPointer callback);
-
-    template <typename T, typename M>
-    void attach_recv(T *tptr, M mptr) {
-        attach_recv(FunctionPointer(tptr, mptr));
-    }
-
-private:
-    FunctionPointer _send_cb;
-    FunctionPointer _recv_cb;
+    /** Receive a packet over a UDP socket
+     *
+     *  Receives data and stores the source address in address if address
+     *  is not NULL. Returns the number of bytes received into the buffer.
+     *
+     *  By default, recvfrom blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param address  Destination for the source address or NULL
+     *  @param data     Destination buffer for data received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
+     */
+    int recvfrom(SocketAddress *address, void *data, unsigned size);
+protected:
+    virtual void socket_event(void);
+    rtos::Mutex _read_lock;
+    rtos::Semaphore _read_sem;
+    rtos::Mutex _write_lock;
+    rtos::Semaphore _write_sem;
 };
 
 #endif

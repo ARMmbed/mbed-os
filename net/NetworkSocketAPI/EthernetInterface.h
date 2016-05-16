@@ -1,4 +1,4 @@
-/* Socket
+/* EthernetInterface
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,23 +17,32 @@
 #ifndef ETHERNET_INTERFACE_H
 #define ETHERNET_INTERFACE_H
 
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
 
 /** EthernetInterface class
- *  Common interface that is shared between ethernet hardware
+ *
+ *  Common interface that is shared between ethernet hardware.
  */
-class EthernetInterface : public NetworkInterface
+class EthernetInterface
 {
 public:
     /** Start the interface
-     *  @return     0 on success, negative on failure
+     *
+     *  @return     0 on success, negative error code on failure
      */
     virtual int connect() = 0;
 
     /** Stop the interface
-     *  @return     0 on success, negative on failure
+     *
+     *  @return     0 on success, negative error code on failure
      */
     virtual int disconnect() = 0;
+
+    /** Get the local MAC address
+     *
+     *  @return         Null-terminated representation of the local MAC address
+     */
+    virtual const char *get_mac_address() = 0;
 };
 
 #endif

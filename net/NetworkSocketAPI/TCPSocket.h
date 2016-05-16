@@ -1,4 +1,4 @@
-/* Socket
+/* TCPSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,78 +18,97 @@
 #define TCPSOCKET_H
 
 #include "Socket.h"
-#include "NetworkInterface.h"
+#include "NetworkStack.h"
+#include "Semaphore.h"
 
-/**
-TCP socket connection
-*/
+/** TCP socket connection
+ */
 class TCPSocket : public Socket {
 public:
-    /** TCP socket lifetime
-    */
-    TCPSocket(NetworkInterface *iface);
-    virtual ~TCPSocket();
-    
-    /** Connects this TCP socket to the server
-    \param host     The host to connect to. It can either be an IP Address
-                    or a hostname that will be resolved with DNS
-    \param port     The host's port to connect to
-    \return         0 on success, negative on failure
-    */
+    /** Create an uninitialized socket
+     *
+     *  Must call open to initialize the socket on a network stack.
+     */
+    TCPSocket();
+
+    /** Create a socket on a network stack
+     *
+     *  Creates and opens a socket on the specified network stack.
+     *
+     *  @param iface    Network stack as target for socket
+     */
+    TCPSocket(NetworkStack *iface);
+
+    /** Opens a socket
+     *
+     *  Creates a network socket on the specified network stack.
+     *  Not needed if stack is passed to the socket's constructor.
+     *
+     *  @param iface    Network stack as target for socket
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int open(NetworkStack *iface);
+
+    /** Connects TCP socket to a remote host
+     *
+     *  Initiates a connection to a remote server specified by either
+     *  a domain name or an IP address and a port.
+     *
+     *  @param host     Hostname of the remote host
+     *  @param port     Port of the remote host
+     *  @return         0 on success, negative error code on failure
+     */
     int connect(const char *host, uint16_t port);
 
-    /** Connects this TCP socket to the server
-    \param address  SocketAddress to connect to
-    \return         0 on success, negative on failure
-    */
+    /** Connects TCP socket to a remote host
+     *
+     *  Initiates a connection to a remote server specified by the
+     *  indicated address.
+     *
+     *  @param address  The SocketAddress of the remote host
+     *  @return         0 on success, negative error code on failure
+     */
     int connect(const SocketAddress &address);
     
-    /** Check if the socket is connected
-    \return         true if connected, false otherwise
-    */
-    bool is_connected();
-    
-    /** Send data to the remote host
-    \param data     The buffer to send to the host
-    \param size     The length of the buffer to send
-    \return         Number of written bytes on success, negative on failure
-    */
+    /** Send data over a TCP socket
+     *
+     *  The socket must be connected to a remote host. Returns the number of
+     *  bytes sent from the buffer.
+     *
+     *  By default, send blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
+     */
     int send(const void *data, unsigned size);
     
-    /** Receive data from the remote host
-    \param data     The buffer in which to store the data received from the host
-    \param size     The maximum length of the buffer
-    \return         Number of received bytes on success, negative on failure
-    */
+    /** Receive data over a TCP socket
+     *
+     *  The socket must be connected to a remote host. Returns the number of
+     *  bytes received into the buffer.
+     *
+     *  By default, recv blocks until data is sent. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  immediately.
+     *
+     *  @param data     Destination buffer for data received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
+     */
     int recv(void *data, unsigned size);
 
-    /** Register a callback on when send is ready
-    \param callback Function to call when send will succeed, may be called in
-                    interrupt context.
-    */
-    void attach_send(FunctionPointer callback);
-
-    template <typename T, typename M>
-    void attach_send(T *tptr, M mptr) {
-        attach_send(FunctionPointer(tptr, mptr));
-    }
-
-    /** Register a callback on when recv is ready
-    \param callback Function to call when recv will succeed, may be called in
-                    interrupt context.
-    */
-    void attach_recv(FunctionPointer callback);
-
-    template <typename T, typename M>
-    void attach_recv(T *tptr, M mptr) {
-        attach_recv(FunctionPointer(tptr, mptr));
-    }
-
-private:
+protected:
+    virtual void socket_event(void);
+    rtos::Mutex _read_lock;
+    rtos::Semaphore _read_sem;
+    rtos::Mutex _write_lock;
+    rtos::Semaphore _write_sem;
     friend class TCPServer;
-
-    FunctionPointer _send_cb;
-    FunctionPointer _recv_cb;
 };
 
 #endif
