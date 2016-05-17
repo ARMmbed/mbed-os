@@ -16,6 +16,7 @@
 
 #include "C027Interface.h"
 #include "mbed.h"
+#include "rtos.h"
 
 
 // C027Interface implementation
@@ -85,7 +86,31 @@ struct c027_socket {
     MDMParser::IpProtocol proto;
     MDMParser::IP ip;
     int port;
+
+    MDMSerial *mdm;
+    Thread thread;
+    Mutex mutex;
+    volatile bool running;
+    void (*callback)(void *);
+    void *data;
 };
+
+static void socket_poll(struct c027_socket *socket) {
+    bool was_readable = false;
+
+    while (socket->running) {
+        socket->mutex.lock();
+        bool is_readable = !!socket->mdm->socketReadable(socket->socket);
+
+        if (is_readable != was_readable) {
+            if (socket->callback) {
+                socket->callback(socket->data);
+            }
+            was_readable = is_readable;
+        }
+        socket->mutex.unlock();
+    }
+}
 
 int C027Interface::socket_open(void **handle, nsapi_protocol_t proto)
 {
@@ -103,6 +128,11 @@ int C027Interface::socket_open(void **handle, nsapi_protocol_t proto)
 
     socket->socket = fd;
     socket->proto = mdmproto;
+    socket->mdm = _mdm;
+
+    socket->running = true;
+    socket->thread.start(socket, socket_poll);
+
     *handle = socket;
     return 0;
 }
@@ -110,6 +140,10 @@ int C027Interface::socket_open(void **handle, nsapi_protocol_t proto)
 int C027Interface::socket_close(void *handle)
 {
     struct c027_socket *socket = (struct c027_socket *)handle;
+
+    socket->running = false;
+    socket->thread.join();
+
     _mdm->socketFree(socket->socket);
 
     delete socket;
@@ -129,8 +163,12 @@ int C027Interface::socket_listen(void *handle, int backlog)
 int C027Interface::socket_connect(void *handle, const SocketAddress &addr)
 {
     struct c027_socket *socket = (struct c027_socket *)handle;
-    
-    if (!_mdm->socketConnect(socket->socket, addr.get_ip_address(), addr.get_port())) {
+
+    socket->mutex.lock(); 
+    bool success = _mdm->socketConnect(socket->socket, addr.get_ip_address(), addr.get_port());
+    socket->mutex.unlock();
+   
+    if (!success) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     
@@ -146,7 +184,10 @@ int C027Interface::socket_send(void *handle, const void *data, unsigned size)
 {
     struct c027_socket *socket = (struct c027_socket *)handle;
 
+    socket->mutex.lock(); 
     int sent = _mdm->socketSend(socket->socket, (const char *)data, size);
+    socket->mutex.unlock(); 
+
     if (sent == SOCKET_ERROR) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
@@ -157,11 +198,16 @@ int C027Interface::socket_send(void *handle, const void *data, unsigned size)
 int C027Interface::socket_recv(void *handle, void *data, unsigned size)
 {
     struct c027_socket *socket = (struct c027_socket *)handle;
+
+    socket->mutex.lock();
     if (!_mdm->socketReadable(socket->socket)) {
+        socket->mutex.unlock();
         return NSAPI_ERROR_WOULD_BLOCK;
     }
     
     int recv = _mdm->socketRecv(socket->socket, (char *)data, size);
+    socket->mutex.unlock();
+
     if (recv == SOCKET_ERROR) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
@@ -173,9 +219,11 @@ int C027Interface::socket_sendto(void *handle, const SocketAddress &addr, const 
 {
     struct c027_socket *socket = (struct c027_socket *)handle;
 
+    socket->mutex.lock();
     int sent = _mdm->socketSendTo(socket->socket,
             *(MDMParser::IP *)addr.get_ip_bytes(), addr.get_port(),
             (const char *)data, size);
+    socket->mutex.unlock();
             
     if (sent == SOCKET_ERROR) {
         return NSAPI_ERROR_DEVICE_ERROR;
@@ -187,7 +235,10 @@ int C027Interface::socket_sendto(void *handle, const SocketAddress &addr, const 
 int C027Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *data, unsigned size)
 {
     struct c027_socket *socket = (struct c027_socket *)handle;
+
+    socket->mutex.lock();
     if (!_mdm->socketReadable(socket->socket)) {
+        socket->mutex.unlock();
         return NSAPI_ERROR_WOULD_BLOCK;
     }
     
@@ -195,6 +246,8 @@ int C027Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *data
     int port;
 
     int recv = _mdm->socketRecvFrom(socket->socket, &ip, &port, (char *)data, size);
+    socket->mutex.unlock();
+
     if (recv == SOCKET_ERROR) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
@@ -209,4 +262,9 @@ int C027Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *data
 
 void C027Interface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
+    struct c027_socket *socket = (struct c027_socket *)handle;
+    socket->mutex.lock();
+    socket->callback = callback;
+    socket->data = data;
+    socket->mutex.unlock();
 }
