@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_smbus.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   SMBUS HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -38,7 +38,7 @@
         Peripheral mode and Packet Error Check mode in the hsmbus Init structure.
 
     (#) Initialize the SMBUS registers by calling the HAL_SMBUS_Init() API:
-        (+) These API's configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
+        (+) These API configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
             by calling the customed HAL_SMBUS_MspInit(&hsmbus) API.
 
     (#) To check if target device is ready for communication, use the function HAL_SMBUS_IsDeviceReady()
@@ -98,7 +98,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -132,14 +132,18 @@
   * @{
   */
 
-/** @defgroup SMBUS
+
+#ifdef HAL_SMBUS_MODULE_ENABLED
+
+/** @addtogroup SMBUS
   * @brief SMBUS HAL module driver
   * @{
   */
 
-#ifdef HAL_SMBUS_MODULE_ENABLED
-
 /* Private typedef -----------------------------------------------------------*/
+/** @addtogroup SMBUS_Private
+  * @{
+  */
 /* Private define ------------------------------------------------------------*/
 #define TIMING_CLEAR_MASK   ((uint32_t)0xF0FFFFFF)      /*<! SMBUS TIMING clear register Mask */
 #define HAL_TIMEOUT_ADDR    ((uint32_t)10000)           /* 10 s  */
@@ -166,14 +170,17 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus);
 static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus);
 
 static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddress, uint8_t Size, uint32_t Mode, uint32_t Request);
+/**
+  * @}
+  */
 
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup SMBUS_Private_Functions
+/** @addtogroup SMBUS_Exported_Functions SMBUS Exported Functions
   * @{
   */
 
-/** @defgroup SMBUS_Group1 Initialization and de-initialization functions
+/** @addtogroup SMBUS_Exported_Functions_Group1 Initialization and de-initialization functions
   *  @brief    Initialization and Configuration functions 
   *
 @verbatim    
@@ -238,6 +245,9 @@ HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 
   if(hsmbus->State == HAL_SMBUS_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    hsmbus->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC */
     HAL_SMBUS_MspInit(hsmbus);
   }
@@ -348,6 +358,9 @@ HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
   */
  __weak void HAL_SMBUS_MspInit(SMBUS_HandleTypeDef *hsmbus)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_MspInit could be implemented in the user file
    */ 
@@ -361,6 +374,9 @@ HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
   */
  __weak void HAL_SMBUS_MspDeInit(SMBUS_HandleTypeDef *hsmbus)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_MspDeInit could be implemented in the user file
    */ 
@@ -370,7 +386,7 @@ HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
   * @}
   */
 
-/** @defgroup SMBUS_Group2 IO operation functions
+/** @addtogroup SMBUS_Exported_Functions_Group2
  *  @brief   Data transfers functions 
  *
 @verbatim   
@@ -1111,6 +1127,9 @@ void HAL_SMBUS_ER_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
   */
  __weak void HAL_SMBUS_MasterTxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_TxCpltCallback could be implemented in the user file
    */ 
@@ -1124,6 +1143,9 @@ void HAL_SMBUS_ER_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
   */
 __weak void HAL_SMBUS_MasterRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_TxCpltCallback could be implemented in the user file
    */
@@ -1136,6 +1158,9 @@ __weak void HAL_SMBUS_MasterRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   */
  __weak void HAL_SMBUS_SlaveTxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_TxCpltCallback could be implemented in the user file
    */ 
@@ -1149,6 +1174,9 @@ __weak void HAL_SMBUS_MasterRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   */
 __weak void HAL_SMBUS_SlaveRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
+   /* Prevent unused argument(s) compilation warning */
+   UNUSED(hsmbus);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_TxCpltCallback could be implemented in the user file
    */
@@ -1164,6 +1192,11 @@ __weak void HAL_SMBUS_SlaveRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   */
 __weak void HAL_SMBUS_AddrCallback(SMBUS_HandleTypeDef *hsmbus, uint8_t TransferDirection, uint16_t AddrMatchCode)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+  UNUSED(TransferDirection);
+  UNUSED(AddrMatchCode);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_AddrCallback could be implemented in the user file
    */
@@ -1177,9 +1210,12 @@ __weak void HAL_SMBUS_AddrCallback(SMBUS_HandleTypeDef *hsmbus, uint8_t Transfer
   */
 __weak void HAL_SMBUS_ListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-    /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_ListenCpltCallback could be implemented in the user file
-   */
+  */
 }
 
 /**
@@ -1190,6 +1226,9 @@ __weak void HAL_SMBUS_ListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   */
  __weak void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SMBUS_ErrorCallback could be implemented in the user file
    */ 
@@ -1199,7 +1238,7 @@ __weak void HAL_SMBUS_ListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   * @}
   */
 
-/** @defgroup SMBUS_Group3 Peripheral State and Errors functions 
+/** @addtogroup SMBUS_Exported_Functions_Group3
  *  @brief   Peripheral State and Errors functions 
  *
 @verbatim   
@@ -1238,6 +1277,14 @@ uint32_t HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus)
 /**
   * @}
   */  
+
+/**
+  * @}
+  */
+
+/** @addtogroup SMBUS_Private
+  * @{
+  */
 
 /**
   * @brief  Interrupt Sub-Routine which handle the Interrupt Flags Master Mode
@@ -1805,7 +1852,7 @@ static HAL_StatusTypeDef SMBUS_WaitOnFlagUntilTimeout(SMBUS_HandleTypeDef *hsmbu
   *     @arg SMBUS_SOFTEND_MODE: Enable Software end mode and Reload mode.
   * @param  Request: new state of the SMBUS START condition generation.
   *   This parameter can be one of the following values:
-  *     @arg SMBUS_NO_STARTSTOP: Don't Generate stop and start condition.
+  *     @arg SMBUS_NO_STARTSTOP: Do not Generate stop and start condition.
   *     @arg SMBUS_GENERATE_STOP: Generate stop condition (Size should be set to 0).
   *     @arg SMBUS_GENERATE_START_READ: Generate Restart for read request.
   *     @arg SMBUS_GENERATE_START_WRITE: Generate Restart for write request.
@@ -1834,14 +1881,16 @@ static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddre
   hsmbus->Instance->CR2 = tmpreg;  
 }  
 
+
+/**
+  * @}
+  */
+
 /**
   * @}
   */
 
 #endif /* HAL_SMBUS_MODULE_ENABLED */
-/**
-  * @}
-  */
 
 /**
   * @}

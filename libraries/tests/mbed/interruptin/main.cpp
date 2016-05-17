@@ -58,7 +58,8 @@ void in_handler() {
 #define PIN_OUT     PC_7
 
 #elif defined(TARGET_NUCLEO_F031K6) || \
-      defined(TARGET_NUCLEO_F042K6)
+      defined(TARGET_NUCLEO_F042K6) || \
+      defined(TARGET_NUCLEO_L031K6)
 #define PIN_IN      A4
 #define PIN_OUT     A5
 
@@ -72,6 +73,10 @@ void in_handler() {
 #elif defined(TARGET_RZ_A1H)
 #define PIN_OUT    D1
 #define PIN_IN     D5
+
+#elif defined(TARGET_VK_RZ_A1H)
+#define PIN_OUT    P3_2
+#define PIN_IN     P5_6
 
 #elif defined(TARGET_FF_ARDUINO)
 #define PIN_OUT    D0
@@ -108,6 +113,10 @@ void in_handler() {
 #elif defined(TARGET_SAML21J18A)
 #define PIN_OUT    PA02
 #define PIN_IN     PA03
+
+#elif defined(TARGET_SAMG55J19)
+#define PIN_OUT    PA13
+#define PIN_IN     PB13
 
 #else
 #define PIN_IN      (p5)

@@ -566,6 +566,7 @@ class LPC11U37H_401(LPCTarget):
                 "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
             }
         }
+
 ### Freescale ###
 
 class KL05Z(Target):
@@ -646,6 +647,77 @@ class K20D50M(Target):
             "target":"frdm-k20d50m",
         }
 
+class K22F(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM', 'KPSDK_MCUS', 'KPSDK_CODE']
+        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.detect_code = ["0231"]
+        self.progen = {
+            "target":"frdm-k22f",
+        }
+
+class KL27Z(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0+"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
+        self.macros = ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0261"]
+        self.progen_target = {
+            "target":"frdm-kl27z",
+        }
+
+class K64F(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.supported_form_factors = ["ARDUINO"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0240"]
+        self.progen = {
+            "target":"frdm-k64f",
+        }
+
+class MTS_GAMBIT(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"mts-gambit",
+        }
+
+class HEXIWEAR(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F']
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
+        self.is_disk_virtual = True
+        self.default_toolchain = "ARM"
+        self.detect_code = ["0214"]
+        self.progen = {
+            "target":"hexiwear-k64f",
+        }
+
 class TEENSY3_1(Target):
     OUTPUT_EXT = 'hex'
 
@@ -672,48 +744,6 @@ class TEENSY3_1(Target):
 
         with open(binf.replace(".bin", ".hex"), "w") as f:
             binh.tofile(f, format='hex')
-
-class K22F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE']
-        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0201"]
-        self.progen = {
-            "target":"frdm-k22f",
-        }
-
-class K64F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F', 'FRDM']
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0240"]
-        self.progen = {
-            "target":"frdm-k64f",
-        }
-
-class MTS_GAMBIT(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"mts-gambit",
-        }
 
 ### STMicro ###
 
@@ -946,6 +976,19 @@ class NUCLEO_F746ZG(Target):
             }
         }
 
+class NUCLEO_L031K6(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M0"
+        self.extra_labels = ['STM', 'STM32L0', 'STM32L031K6']
+        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
+        self.default_toolchain = "uARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.detect_code = ["0790"]
+        self.progen = {
+            "target":"nucleo-l031k6",
+        }
+
 class NUCLEO_L053R8(Target):
     def __init__(self):
         Target.__init__(self)
@@ -971,6 +1014,7 @@ class NUCLEO_L073RZ(Target):
         self.progen = {
             "target":"nucleo-l073rz",
         }
+
 
 class NUCLEO_L152RE(Target):
     def __init__(self):
@@ -1082,7 +1126,7 @@ class DISCO_F429ZI(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
-            "target":"",
+            "target":"disco-f429zi",
         }
 
 class DISCO_F469NI(Target):
@@ -1835,7 +1879,7 @@ class ARM_MPS2_M7(ARM_MPS2_Target):
         self.macros = ['CMSDK_CM7']
         self.supported_toolchains = ["ARM"]
         self.default_toolchain = "ARM"
-        
+
 class ARM_IOTSS_Target(Target):
     def __init__(self):
         Target.__init__(self)
@@ -1870,6 +1914,23 @@ class RZ_A1H(Target):
     def program_cycle_s(self):
         return 2
 
+class VK_RZ_A1H(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-A9"
+        self.extra_labels = ['RENESAS', 'VKRZA1H']
+        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target": "vk-rza1h",
+            "iar": {
+                # rewrite generic template, this device needs futher support for FPU in progendef
+                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_rz_a1h.ewp.tmpl')],
+            }
+        }
+
+    def program_cycle_s(self):
+        return 2
 
 ### Maxim Integrated ###
 
@@ -2072,6 +2133,20 @@ class SAML21J18A(Target):
         self.progen = {
             "target":"samr21j18a",
         }
+        self.progen_target ='samr21j18a'
+
+class SAMG55J19(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4"
+        self.extra_labels = ['Atmel', 'SAM_CortexM4', 'SAMG55']
+        self.macros = ['__SAMG55J19__', 'BOARD=75', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
+        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
+        self.default_toolchain = "ARM"
+        self.progen = {
+            "target":"samg55j19",
+        }
+        self.progen_target ='samg55j19'
 
 # Get a single instance for each target
 TARGETS = [
@@ -2119,10 +2194,12 @@ TARGETS = [
     KL43Z(),
     KL46Z(),
     K20D50M(),
-    TEENSY3_1(),
     K22F(),
-    K64F(),
-    MTS_GAMBIT(),       # FRDM K64F
+    KL27Z(),
+    K64F(),       # FRDM K64F
+    MTS_GAMBIT(),
+    HEXIWEAR(),
+    TEENSY3_1(),
 
     ### STMicro ###
     B96B_F446VE(),
@@ -2143,6 +2220,7 @@ TARGETS = [
     NUCLEO_F746ZG(),
     ELMO_F411RE(),
     NUCLEO_F446RE(),
+    NUCLEO_L031K6(),
     NUCLEO_L053R8(),
     NUCLEO_L073RZ(),
     NUCLEO_L152RE(),
@@ -2226,6 +2304,7 @@ TARGETS = [
 
     ### Renesas ###
     RZ_A1H(),
+    VK_RZ_A1H(),
 
     ### Maxim Integrated ###
     MAXWSNENV(),
@@ -2249,6 +2328,8 @@ TARGETS = [
     SAMD21J18A(),
     SAMD21G18A(),
     SAML21J18A(),
+    SAMG55J19(),
+
 ]
 
 # Map each target name to its unique instance

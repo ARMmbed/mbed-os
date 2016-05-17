@@ -19,15 +19,15 @@ float value = 0.75;
 int main() {
 #if defined(TARGET_FF_ARDUINO)
     PwmOut pwm(D9);
+    int period_ms = 10;
 
-    pwm.period_ms(10);
+    pwm.period_ms(period_ms);
     pwm.write(value);
 
     float result = floor(pwm.read() * 100 + 0.5) / 100; // round it to 0.xx
-    printf("Initialize PWM on pin D9 with duty cycle: %.2f\n", result);
+    printf("PWM period = %dms with duty cycle: %d%%\n", period_ms, (int) (result * 100));
 
     notify_completion(result == value ? true : false);
-
 #elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
     PwmOut pwm_p25(p25);
     PwmOut pwm_p26(p26);
@@ -174,6 +174,16 @@ int main() {
 
     float result = floor(pwm.read() * 100 + 0.5) / 100; // round it to 0.xx
     printf("Initialize PWM on pin LED1 with duty cycle: %.2f\n", result);
+
+    notify_completion(result == value ? true : false);
+#elif defined(TARGET_SAMG55J19)
+    PwmOut pwm(PA00);  /*LED Doesnt support PWM for G55 XPro*/
+
+    pwm.period_ms(1000);
+    pwm.write(value);
+
+    float result = floor(pwm.read() * 100 + 0.5) / 100; // round it to 0.xx
+    printf("Initialize PWM on pin PA01 with duty cycle: %.2f\n", result);
 
     notify_completion(result == value ? true : false);
 #else

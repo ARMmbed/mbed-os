@@ -40,6 +40,13 @@
 #define TEST_SDA_PIN PD6
 #define TEST_SCL_PIN PD7
 
+#elif defined(TARGET_RZ_A1H)
+#define TEST_SDA_PIN P1_3
+#define TEST_SCL_PIN P1_2
+void sleep()
+{
+}
+
 #else
 #error Target not supported
 #endif

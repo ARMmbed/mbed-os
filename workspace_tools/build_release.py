@@ -59,6 +59,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
 
     ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
+    ('KL27Z',        ('ARM', 'GCC_ARM', 'IAR')),
     ('KL43Z',        ('ARM', 'GCC_ARM')),
     ('KL46Z',        ('ARM', 'GCC_ARM', 'IAR')),
     ('K64F',         ('ARM', 'GCC_ARM', 'IAR')),
@@ -96,6 +97,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('DISCO_L476VG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_L476RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
     ('NUCLEO_F746ZG', ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
+    ('NUCLEO_L031K6', ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
     ('NUCLEO_L073RZ', ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
 
     ('MOTE_L152RC', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
@@ -112,7 +114,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
     ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
     ('DELTA_DFCM_NNN40',  ('ARM', 'GCC_ARM')),
-    ('NRF51_MICROBIT',      ('ARM',)),
+    ('NRF51_MICROBIT',      ('ARM','GCC_ARM')),
     ('NRF51_MICROBIT_B',      ('ARM',)),
     ('TY51822R3',     ('ARM', 'GCC_ARM')),
 
@@ -126,13 +128,14 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARM_MPS2_M7'   ,     ('ARM',)),
     ('ARM_MPS2_BEID' ,     ('ARM',)),
 
-    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM', 'IAR')),
+    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
     ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
     ('EFM32HG_STK3400',     ('GCC_ARM', 'uARM')),
     ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
     ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
+    ('EFM32PG_STK3401',     ('ARM', 'GCC_ARM', 'uARM')),
 
     ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
     ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),

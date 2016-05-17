@@ -31,6 +31,7 @@ static can_irq_handler irq_handler;
 
 void can_init(can_t *obj, PinName rd, PinName td) 
 {
+    uint32_t filter_number;
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
     obj->can = (CANName)pinmap_merge(can_rd, can_td);
@@ -41,7 +42,7 @@ void can_init(can_t *obj, PinName rd, PinName td)
         obj->index = 0;
     } else {
         __HAL_RCC_CAN2_CLK_ENABLE();
-        obj->index = 0;
+        obj->index = 1;
     }
 
     // Configure the CAN pins
@@ -71,7 +72,13 @@ void can_init(can_t *obj, PinName rd, PinName td)
     if (HAL_CAN_Init(&CanHandle) != HAL_OK) {
        error("Cannot initialize CAN");
     }
-    can_filter(obj, 0, 0, CANStandard, 0);
+
+    filter_number = (obj->can == CAN_1) ? 0 : 14;
+
+    // Set initial CAN frequency to 100kb/s
+    can_frequency(obj, 100000);
+
+    can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id) 
@@ -173,7 +180,7 @@ static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned cha
 
 int can_frequency(can_t *obj, int f) 
 {
-    int pclk ; //= PeripheralClock;
+    int pclk = HAL_RCC_GetPCLK1Freq();
     int btr = can_speed(pclk, (unsigned int)f, 1);
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
 

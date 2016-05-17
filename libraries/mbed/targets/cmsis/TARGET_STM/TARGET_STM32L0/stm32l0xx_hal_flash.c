@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -144,7 +144,7 @@
  ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -185,11 +185,12 @@
   * @{
   */ 
 
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-/** @addtogroup FLASH_Private_Variables FLASH Internal Variables
+/** @addtogroup FLASH_Private
   * @{
   */
 
@@ -198,16 +199,18 @@
   */
 FLASH_ProcessTypeDef ProcFlash;
 
+
+/* Private function prototypes -----------------------------------------------*/
+static void              FLASH_SetErrorCode(void);
+static void              FLASH_Program_Word(uint32_t Address, uint32_t Data);
+
 /**
   * @}
-  */ 
-/* Private function prototypes -----------------------------------------------*/
-static void FLASH_SetErrorCode(void);
-static void FLASH_Program_Word(uint32_t Address, uint32_t Data);
- 
+  */
+
 /* functions -----------------------------------------------------------------*/
 
-/** @addtogroup FLASH_Exported_Functions FLASH Exported functions
+/** @addtogroup FLASH_Exported_Functions
   * @{
   */ 
 
@@ -278,27 +281,31 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
   /* Check the parameters */
   assert_param(IS_FLASH_TYPEPROGRAM(TypeProgram));
 
-  /* Enable End of FLASH Operation interrupt */
-  __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP);
+  /* Wait for last operation to be completed */
+  status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
-  /* Enable Error source interrupt */
-  __HAL_FLASH_ENABLE_IT(FLASH_IT_ERR);
-  
-  ProcFlash.ProcedureOnGoing = FLASH_PROC_PROGRAM;
-  ProcFlash.Address = Address;
-  
-  if(TypeProgram == FLASH_TYPEPROGRAM_WORD)
+  if(status == HAL_OK)
   {
-    /* Program word (32-bit) at a specified address */
-    FLASH_Program_Word(Address, (uint32_t) Data);
-  }
-  
+    /* Enable End of FLASH Operation interrupt */
+    __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP);
+    
+    /* Enable Error source interrupt */
+    __HAL_FLASH_ENABLE_IT(FLASH_IT_ERR);
+    
+    ProcFlash.ProcedureOnGoing = FLASH_PROC_PROGRAM;
+    ProcFlash.Address = Address;
+    
+    if(TypeProgram == FLASH_TYPEPROGRAM_WORD)
+    {
+      /* Program word (32-bit) at a specified address */
+      FLASH_Program_Word(Address, (uint32_t) Data);
+    }
+  }  
   return status;
 }
 
 /**
   * @brief This function handles FLASH interrupt request.
-  * @param  None
   * @retval None
   */
 void HAL_FLASH_IRQHandler(void)
@@ -306,6 +313,18 @@ void HAL_FLASH_IRQHandler(void)
   uint32_t temp;
 
   /* Check FLASH operation error flags */
+
+  /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+   *           (RevID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+   *           as expected. If the user run an application using the first
+   *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+   *           device, the check on the FLASH_FLAG_OPTVERR bit should be ignored.
+   *
+   *           Note :The RevID of the device can be retrieved via the HAL_GetREVID()
+   *           function.
+   *
+   */
+
   if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | FLASH_FLAG_OPTVERR | \
                            FLASH_FLAG_RDERR  | FLASH_FLAG_FWWERR | FLASH_FLAG_NOTZEROERR) != RESET)
   {
@@ -413,6 +432,9 @@ void HAL_FLASH_IRQHandler(void)
   */
 __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_EndOfOperationCallback could be implemented in the user file
    */ 
@@ -427,6 +449,9 @@ __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
   */
 __weak void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_OperationErrorCallback could be implemented in the user file
    */ 
@@ -588,7 +613,7 @@ uint32_t HAL_FLASH_GetError(void)
   * @}
   */
 
-/** @addtogroup FLASH_Private_Functions
+/** @addtogroup FLASH_Private
   * @{
   */
 
@@ -615,12 +640,30 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
       }
     } 
   }
+
+  /* Check FLASH End of Operation flag  */
+  if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_EOP))
+  {
+    /* Clear FLASH End of Operation pending bit */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
+  }
+  
+
   if((__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR) != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR)  != RESET) || \
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_SIZERR) != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR) != RESET) || \
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR)  != RESET) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_FWWERR)  != RESET) || \
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_NOTZEROERR) != RESET))
   {
     /* Save the error code */
+
+    /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+     *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+     *           as expected. If the user run an application using the first
+     *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+     *           device, this error should be ignored. The revId of the device
+     *           can be retrieved via the HAL_GetREVID() function.
+     *
+     */
     FLASH_SetErrorCode();
     return HAL_ERROR;
    }
@@ -631,7 +674,6 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
 
 /**
   * @brief  Set the specific FLASH error flag.
-  * @param  None
   * @retval None
   */
 static void FLASH_SetErrorCode(void)
@@ -650,6 +692,14 @@ static void FLASH_SetErrorCode(void)
   }
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR))
   { 
+   /* WARNING : On the first cut of STM32L031xx and STM32L041xx devices,
+    *           (RefID = 0x1000) the FLASH_FLAG_OPTVERR bit was not behaving
+    *           as expected. If the user run an application using the first
+    *           cut of the STM32L031xx device or the first cut of the STM32L041xx
+    *           device, this error should be ignored. The revId of the device
+    *           can be retrieved via the HAL_GetREVID() function.
+    *
+    */
     ProcFlash.ErrorCode |= HAL_FLASH_ERROR_OPTV;
   }
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR))
@@ -666,6 +716,7 @@ static void FLASH_SetErrorCode(void)
   }
   
   /* Errors are now stored, clear errors flags */
+
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR |
                          FLASH_FLAG_OPTVERR | FLASH_FLAG_RDERR | FLASH_FLAG_FWWERR | 
                          FLASH_FLAG_NOTZEROERR);
@@ -713,10 +764,6 @@ static void FLASH_Program_Word(uint32_t Address, uint32_t Data)
   
   *(__IO uint32_t*)Address = Data;
 }
-
-/**
-  * @}
-  */
 
 /**
   * @}

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of Flash HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -70,7 +70,7 @@
   * @{
   */
 
-#define IS_FLASH_TYPEERASE(VALUE)         (((VALUE) == FLASH_TYPEERASE_PAGES) || ((VALUE) == FLASH_TYPEERASE_MASSERASE))
+#define IS_FLASH_TYPEERASE(VALUE)   (((VALUE) == FLASH_TYPEERASE_PAGES) || ((VALUE) == FLASH_TYPEERASE_MASSERASE))
 
 #define IS_OPTIONBYTE(VALUE)        (((VALUE) <= (OPTIONBYTE_WRP | OPTIONBYTE_RDP | OPTIONBYTE_USER | OPTIONBYTE_DATA)))
 
@@ -86,18 +86,18 @@
 
 #define IS_OB_STDBY_SOURCE(SOURCE)  (((SOURCE) == OB_STDBY_NO_RST) || ((SOURCE) == OB_STDBY_RST))
 
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
 #define IS_OB_BOOT1(BOOT1)         (((BOOT1) == OB_BOOT1_RESET) || ((BOOT1) == OB_BOOT1_SET))
-#endif /* STM32F101xG || STM32F103xG */
+#endif /* FLASH_BANK2_END */
 
 /* Low Density */
-#if  defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6)
+#if (defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6))
 #define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x20) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x08007FFF) : \
                                            ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x08003FFF))
 #endif /* STM32F101x6 || STM32F102x6 || STM32F103x6 */
 
 /* Medium Density */
-#if  defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) || defined(STM32F103xB)
+#if (defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) || defined(STM32F103xB))
 #define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x80) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0801FFFF) : \
                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x40) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0800FFFF) : \
                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x20) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x08007FFF) : \
@@ -105,20 +105,20 @@
 #endif /* STM32F100xB || STM32F101xB || STM32F102xB || STM32F103xB*/
 
 /* High Density */
-#if  defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) 
+#if (defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE))
 #define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x200) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0807FFFF) : \
                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x180) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0805FFFF) : \
                                            ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0803FFFF)))
 #endif /* STM32F100xE || STM32F101xE || STM32F103xE */
 
 /* XL Density */
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
 #define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x400) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x080FFFFF) : \
                                            ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x080BFFFF))
-#endif /* STM32F101xG || STM32F103xG */
+#endif /* FLASH_BANK2_END */
 
 /* Connectivity Line */
-#if  defined(STM32F105xC) || defined(STM32F107xC) 
+#if (defined(STM32F105xC) || defined(STM32F107xC))
 #define IS_FLASH_NB_PAGES(ADDRESS,NBPAGES) (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x100) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0803FFFF) : \
                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) ==  0x80) ? ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0801FFFF) : \
                                            ((ADDRESS)+((NBPAGES)*FLASH_PAGE_SIZE)-1 <= 0x0800FFFF)))
@@ -126,23 +126,23 @@
 
 #define IS_OB_WRP(PAGE) (((PAGE) != 0x0000000))
 
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
 #define IS_FLASH_BANK(BANK) (((BANK) == FLASH_BANK_1)  || \
                              ((BANK) == FLASH_BANK_2)  || \
                              ((BANK) == FLASH_BANK_BOTH))
 #else
 #define IS_FLASH_BANK(BANK) (((BANK) == FLASH_BANK_1))
-#endif /* STM32F101xG || STM32F103xG */
+#endif /* FLASH_BANK2_END */
 
 /* Low Density */
-#if  defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6)
+#if (defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6))
 #define IS_FLASH_PROGRAM_ADDRESS(ADDRESS)  (((ADDRESS) >= FLASH_BASE) && (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x20) ? \
                                             ((ADDRESS) <= FLASH_BANK1_END) :  ((ADDRESS) <= 0x08003FFF)))
 
 #endif /* STM32F101x6 || STM32F102x6 || STM32F103x6 */
 
 /* Medium Density */
-#if  defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) || defined(STM32F103xB)
+#if (defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) || defined(STM32F103xB))
 #define IS_FLASH_PROGRAM_ADDRESS(ADDRESS) (((ADDRESS) >= FLASH_BASE) && (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x80) ? \
                                            ((ADDRESS) <= FLASH_BANK1_END) :  (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x40) ? \
                                            ((ADDRESS) <= 0x0800FFFF) :  (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x20) ? \
@@ -151,7 +151,7 @@
 #endif /* STM32F100xB || STM32F101xB || STM32F102xB || STM32F103xB*/
 
 /* High Density */
-#if  defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) 
+#if (defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE))
 #define IS_FLASH_PROGRAM_ADDRESS(ADDRESS) (((ADDRESS) >= FLASH_BASE) && (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x200) ? \
                                            ((ADDRESS) <= FLASH_BANK1_END) :  (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x180) ? \
                                            ((ADDRESS) <= 0x0805FFFF) :  ((ADDRESS) <= 0x0803FFFF))))
@@ -159,29 +159,20 @@
 #endif /* STM32F100xE || STM32F101xE || STM32F103xE */
 
 /* XL Density */
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
 #define IS_FLASH_PROGRAM_ADDRESS(ADDRESS) (((ADDRESS) >= FLASH_BASE) && (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x400) ? \
                                            ((ADDRESS) <= FLASH_BANK2_END) :  ((ADDRESS) <= 0x080BFFFF)))
 
-#endif /* STM32F101xG || STM32F103xG */
+#endif /* FLASH_BANK2_END */
 
 /* Connectivity Line */
-#if  defined(STM32F105xC) || defined(STM32F107xC) 
+#if (defined(STM32F105xC) || defined(STM32F107xC))
 #define IS_FLASH_PROGRAM_ADDRESS(ADDRESS) (((ADDRESS) >= FLASH_BASE) && (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x100) ? \
                                            ((ADDRESS) <= FLASH_BANK1_END) :  (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0x80) ? \
                                            ((ADDRESS) <= 0x0801FFFF) :  ((ADDRESS) <= 0x0800FFFF))))
 
 #endif /* STM32F105xC || STM32F107xC */
 
-#if defined(STM32F100xB) || defined(STM32F100xE)
-#define IS_FLASH_LATENCY(__LATENCY__)   ((__LATENCY__) == FLASH_LATENCY_0)
-
-#else
-
-#define IS_FLASH_LATENCY(__LATENCY__)  (((__LATENCY__) == FLASH_LATENCY_0) || \
-                                        ((__LATENCY__) == FLASH_LATENCY_1) || \
-                                        ((__LATENCY__) == FLASH_LATENCY_2))
-#endif
 /**
   * @}
   */  
@@ -231,7 +222,7 @@ typedef struct
   uint8_t RDPLevel;     /*!< RDPLevel: Set the read protection level..
                              This parameter can be a value of @ref FLASHEx_OB_Read_Protection */
 
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
   uint8_t USERConfig;   /*!< USERConfig: Program the FLASH User Option Byte: 
                              IWDG / STOP / STDBY / BOOT1
                              This parameter can be a combination of @ref FLASHEx_OB_IWatchdog, @ref FLASHEx_OB_nRST_STOP, 
@@ -241,14 +232,13 @@ typedef struct
                              IWDG / STOP / STDBY
                              This parameter can be a combination of @ref FLASHEx_OB_IWatchdog, @ref FLASHEx_OB_nRST_STOP, 
                              @ref FLASHEx_OB_nRST_STDBY */
-#endif /* STM32F101xG || STM32F103xG */
+#endif /* FLASH_BANK2_END */
 
-  uint32_t DATAAddress; /*!< DATAAddress: Address of the option byte DATA to be prgrammed
+  uint32_t DATAAddress; /*!< DATAAddress: Address of the option byte DATA to be programmed
                              This parameter can be a value of @ref FLASHEx_OB_Data_Address */
   
   uint8_t DATAData;     /*!< DATAData: Data to be stored in the option byte DATA
                              This parameter must be a number between Min_Data = 0x00 and Max_Data = 0xFF */
-  
 } FLASH_OBProgramInitTypeDef;
 
 /**
@@ -267,15 +257,12 @@ typedef struct
 /** @defgroup FLASHEx_Page_Size Page Size
   * @{
   */ 
-#if defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6) || \
-    defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) || defined(STM32F103xB)
+#if (defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6) || defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) || defined(STM32F103xB))
 #define FLASH_PAGE_SIZE          ((uint32_t)0x400)
 #endif /* STM32F101x6 || STM32F102x6 || STM32F103x6 */
        /* STM32F100xB || STM32F101xB || STM32F102xB || STM32F103xB */
 
-#if defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) ||  \
-    defined(STM32F101xG) || defined(STM32F103xG) ||  \
-    defined(STM32F105xC) || defined(STM32F107xC)
+#if (defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) || defined(STM32F101xG) || defined(STM32F103xG) || defined(STM32F105xC) || defined(STM32F107xC))
 #define FLASH_PAGE_SIZE          ((uint32_t)0x800)
 #endif /* STM32F100xB || STM32F101xB || STM32F102xB || STM32F103xB */
        /* STM32F101xG || STM32F103xG */ 
@@ -295,26 +282,10 @@ typedef struct
   * @}
   */
 
-/** @defgroup FLASH_Latency_Values Latency Values
-  * @{
-  */ 
-#define FLASH_LATENCY_0            ((uint8_t)0x0000)    /*!< FLASH Zero Latency cycle */
-
-#if defined(STM32F100xB) || defined(STM32F100xE)
-/* Only Latency0 supported on value lines */
-#else
-#define FLASH_LATENCY_1            FLASH_ACR_LATENCY_0  /*!< FLASH One Latency cycle */
-#define FLASH_LATENCY_2            FLASH_ACR_LATENCY_1  /*!< FLASH Two Latency cycles */
-
-#endif
-/**
-  * @}
-  */
-  
 /** @defgroup FLASHEx_Banks Banks
   * @{
   */
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
 #define FLASH_BANK_1     ((uint32_t)1) /*!< Bank 1   */
 #define FLASH_BANK_2     ((uint32_t)2) /*!< Bank 2   */
 #define FLASH_BANK_BOTH  ((uint32_t)FLASH_BANK_1 | FLASH_BANK_2) /*!< Bank1 and Bank2  */
@@ -334,16 +305,6 @@ typedef struct
   * @{
   */ 
 
-/** @defgroup FLASHEx_OB_WRP_State Option Byte WRP State
-  * @{
-  */ 
-#define OB_WRPSTATE_DISABLE       ((uint32_t)0x00)  /*!<Disable the write protection of the desired pages*/
-#define OB_WRPSTATE_ENABLE        ((uint32_t)0x01)  /*!<Enable the write protection of the desired pagess*/
-
-/**
-  * @}
-  */
-
 /** @defgroup FLASHEx_OB_Type Option Bytes Type
   * @{
   */
@@ -356,59 +317,12 @@ typedef struct
   * @}
   */
 
-  
-/** @defgroup FLASHEx_OB_Read_Protection Option Byte Read Protection
-  * @{
-  */
-#define OB_RDP_LEVEL_0            ((uint8_t)0xA5)
-#define OB_RDP_LEVEL_1            ((uint8_t)0x00)
-/**
-  * @}
-  */ 
-  
-/** @defgroup FLASHEx_OB_nRST_STOP Option Byte nRST STOP
+/** @defgroup FLASHEx_OB_WRP_State Option Byte WRP State
   * @{
   */ 
-#define OB_STOP_NO_RST            ((uint16_t)0x0002) /*!< No reset generated when entering in STOP */
-#define OB_STOP_RST               ((uint16_t)0x0000) /*!< Reset generated when entering in STOP */
-/**
-  * @}
-  */ 
+#define OB_WRPSTATE_DISABLE       ((uint32_t)0x00)  /*!<Disable the write protection of the desired pages*/
+#define OB_WRPSTATE_ENABLE        ((uint32_t)0x01)  /*!<Enable the write protection of the desired pagess*/
 
-/** @defgroup FLASHEx_OB_nRST_STDBY Option Byte nRST STDBY
-  * @{
-  */ 
-#define OB_STDBY_NO_RST           ((uint16_t)0x0004) /*!< No reset generated when entering in STANDBY */
-#define OB_STDBY_RST              ((uint16_t)0x0000) /*!< Reset generated when entering in STANDBY */
-/**
-  * @}
-  */    
-
-/** @defgroup FLASHEx_OB_IWatchdog Option Byte IWatchdog
-  * @{
-  */ 
-#define OB_IWDG_SW                ((uint16_t)0x0001)  /*!< Software IWDG selected */
-#define OB_IWDG_HW                ((uint16_t)0x0000)  /*!< Hardware IWDG selected */
-/**
-  * @}
-  */ 
-  
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
-/** @defgroup FLASHEx_OB_BOOT1 Option Byte BOOT1
-  * @{
-  */
-#define OB_BOOT1_RESET            ((uint16_t)0x0000) /*!< BOOT1 Reset */
-#define OB_BOOT1_SET              ((uint16_t)0x0008) /*!< BOOT1 Set */
-/**
-  * @}
-  */  
-#endif /* STM32F101xG || STM32F103xG */
-
-/** @defgroup FLASHEx_OB_Data_Address  Option Byte Data Address
-  * @{
-  */
-#define OB_DATA_ADDRESS_DATA0     ((uint32_t)0x1FFFF804)
-#define OB_DATA_ADDRESS_DATA1     ((uint32_t)0x1FFFF806)
 /**
   * @}
   */
@@ -417,8 +331,9 @@ typedef struct
   * @{
   */
 /* STM32 Low and Medium density devices */
-#if  defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6) || \
-     defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) || defined(STM32F103xB)
+#if  defined(STM32F101x6) || defined(STM32F102x6) || defined(STM32F103x6) \
+  || defined(STM32F100xB) || defined(STM32F101xB) || defined(STM32F102xB) \
+  || defined(STM32F103xB)
 #define OB_WRP_PAGES0TO3               ((uint32_t)0x00000001) /*!< Write protection of page 0 to 3 */
 #define OB_WRP_PAGES4TO7               ((uint32_t)0x00000002) /*!< Write protection of page 4 to 7 */
 #define OB_WRP_PAGES8TO11              ((uint32_t)0x00000004) /*!< Write protection of page 8 to 11 */
@@ -460,9 +375,9 @@ typedef struct
 
 
 /* STM32 High-density, XL-density and Connectivity line devices */
-#if  defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) || \
-     defined(STM32F101xG) || defined(STM32F103xG) || \
-     defined(STM32F105xC) || defined(STM32F107xC)
+#if  defined(STM32F100xE) || defined(STM32F101xE) || defined(STM32F103xE) \
+  || defined(STM32F101xG) || defined(STM32F103xG) \
+  || defined(STM32F105xC) || defined(STM32F107xC)
 #define OB_WRP_PAGES0TO1               ((uint32_t)0x00000001) /*!< Write protection of page 0 TO 1 */
 #define OB_WRP_PAGES2TO3               ((uint32_t)0x00000002) /*!< Write protection of page 2 TO 3 */
 #define OB_WRP_PAGES4TO5               ((uint32_t)0x00000004) /*!< Write protection of page 4 TO 5 */
@@ -544,6 +459,62 @@ typedef struct
   * @}
   */
 
+/** @defgroup FLASHEx_OB_Read_Protection Option Byte Read Protection
+  * @{
+  */
+#define OB_RDP_LEVEL_0            ((uint8_t)0xA5)
+#define OB_RDP_LEVEL_1            ((uint8_t)0x00)
+/**
+  * @}
+  */
+  
+/** @defgroup FLASHEx_OB_IWatchdog Option Byte IWatchdog
+  * @{
+  */ 
+#define OB_IWDG_SW                ((uint16_t)0x0001)  /*!< Software IWDG selected */
+#define OB_IWDG_HW                ((uint16_t)0x0000)  /*!< Hardware IWDG selected */
+/**
+  * @}
+  */
+
+/** @defgroup FLASHEx_OB_nRST_STOP Option Byte nRST STOP
+  * @{
+  */ 
+#define OB_STOP_NO_RST            ((uint16_t)0x0002) /*!< No reset generated when entering in STOP */
+#define OB_STOP_RST               ((uint16_t)0x0000) /*!< Reset generated when entering in STOP */
+/**
+  * @}
+  */ 
+
+/** @defgroup FLASHEx_OB_nRST_STDBY Option Byte nRST STDBY
+  * @{
+  */ 
+#define OB_STDBY_NO_RST           ((uint16_t)0x0004) /*!< No reset generated when entering in STANDBY */
+#define OB_STDBY_RST              ((uint16_t)0x0000) /*!< Reset generated when entering in STANDBY */
+/**
+  * @}
+  */
+
+#if defined(FLASH_BANK2_END)
+/** @defgroup FLASHEx_OB_BOOT1 Option Byte BOOT1
+  * @{
+  */
+#define OB_BOOT1_RESET            ((uint16_t)0x0000) /*!< BOOT1 Reset */
+#define OB_BOOT1_SET              ((uint16_t)0x0008) /*!< BOOT1 Set */
+/**
+  * @}
+  */
+#endif /* FLASH_BANK2_END */
+
+/** @defgroup FLASHEx_OB_Data_Address  Option Byte Data Address
+  * @{
+  */
+#define OB_DATA_ADDRESS_DATA0     ((uint32_t)0x1FFFF804)
+#define OB_DATA_ADDRESS_DATA1     ((uint32_t)0x1FFFF806)
+/**
+  * @}
+  */
+
 /**
   * @}
   */
@@ -556,7 +527,7 @@ typedef struct
   * @brief Flag definition
   * @{
   */
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
  #define FLASH_FLAG_BSY             FLASH_FLAG_BSY_BANK1       /*!< FLASH Bank1 Busy flag                   */ 
  #define FLASH_FLAG_PGERR           FLASH_FLAG_PGERR_BANK1     /*!< FLASH Bank1 Programming error flag      */
  #define FLASH_FLAG_WRPERR          FLASH_FLAG_WRPERR_BANK1    /*!< FLASH Bank1 Write protected error flag  */
@@ -589,7 +560,7 @@ typedef struct
   * @brief FLASH Interrupt definition
   * @{
   */
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
  #define FLASH_IT_EOP               FLASH_IT_EOP_BANK1        /*!< End of FLASH Operation Interrupt source Bank1 */
  #define FLASH_IT_ERR               FLASH_IT_ERR_BANK1        /*!< Error Interrupt source Bank1                  */
 
@@ -617,82 +588,26 @@ typedef struct
 /**
   * @}
   */
-  
 
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup FLASHEx_Exported_Macros FLASHEx Exported Macros
   * @{
   */
-  
-#if defined(STM32F100xB) || defined(STM32F100xE)
-/* Macros not available */
-#else
-/** @defgroup FLASH_Latency Latency configuration
- *  @brief macros to set the FLASH latency
- * @{
- */ 
-
-/**
-  * @brief  Set the FLASH Latency.
-  * @param  __LATENCY__: FLASH Latency                   
-  *          This parameter can be one of the following values:
-  *            @arg FLASH_LATENCY_0:  FLASH Zero Latency cycle
-  *            @arg FLASH_LATENCY_1:  FLASH One Latency cycle
-  *            @arg FLASH_LATENCY_2:  FLASH Two Latency cycle
-  * @retval None
-  */ 
-#define __HAL_FLASH_SET_LATENCY(__LATENCY__)    (FLASH->ACR = (FLASH->ACR&(~FLASH_ACR_LATENCY)) | (__LATENCY__))
-
-/** @brief  Get the FLASH Latency.
-  * @retval FLASH Latency                   
-  *          This parameter can be one of the following values:
-  *            @arg FLASH_LATENCY_0:  FLASH Zero Latency cycle
-  *            @arg FLASH_LATENCY_1:  FLASH One Latency cycle
-  *            @arg FLASH_LATENCY_2:  FLASH Two Latency cycle
-  */
-#define __HAL_FLASH_GET_LATENCY()               (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))
-
-/**
-  * @}
-  */  
-
-/** @defgroup FLASH_Prefetch Prefetch activation or deactivation
- *  @brief macros to set the FLASH Prefetch
- * @{
- */ 
-
-/**
-  * @brief  Enable the FLASH prefetch buffer.
-  * @retval None
-  */ 
-#define __HAL_FLASH_PREFETCH_BUFFER_ENABLE()    (FLASH->ACR |= FLASH_ACR_PRFTBE)
-
-/**
-  * @brief  Disable the FLASH prefetch buffer.
-  * @retval None
-  */
-#define __HAL_FLASH_PREFETCH_BUFFER_DISABLE()   (FLASH->ACR &= (~FLASH_ACR_PRFTBE))
-
-/**
-  * @}
-  */  
-
-#endif 
 
 /** @defgroup FLASH_Interrupt Interrupt
  *  @brief macros to handle FLASH interrupts
  * @{
  */ 
 
-#if  defined(STM32F101xG) || defined(STM32F103xG) 
+#if defined(FLASH_BANK2_END)
 /**
   * @brief  Enable the specified FLASH interrupt.
-  * @param  __INTERRUPT__ : FLASH interrupt 
+  * @param  __INTERRUPT__  FLASH interrupt 
   *     This parameter can be any combination of the following values:
-  *     @arg FLASH_IT_EOP_BANK1: End of FLASH Operation Interrupt on bank1
-  *     @arg FLASH_IT_ERR_BANK1: Error Interrupt on bank1
-  *     @arg FLASH_IT_EOP_BANK2: End of FLASH Operation Interrupt on bank2
-  *     @arg FLASH_IT_ERR_BANK2: Error Interrupt on bank2
+  *     @arg @ref FLASH_IT_EOP_BANK1 End of FLASH Operation Interrupt on bank1
+  *     @arg @ref FLASH_IT_ERR_BANK1 Error Interrupt on bank1
+  *     @arg @ref FLASH_IT_EOP_BANK2 End of FLASH Operation Interrupt on bank2
+  *     @arg @ref FLASH_IT_ERR_BANK2 Error Interrupt on bank2
   * @retval none
   */ 
 #define __HAL_FLASH_ENABLE_IT(__INTERRUPT__)  do { \
@@ -704,12 +619,12 @@ typedef struct
 
 /**
   * @brief  Disable the specified FLASH interrupt.
-  * @param  __INTERRUPT__ : FLASH interrupt 
+  * @param  __INTERRUPT__  FLASH interrupt 
   *     This parameter can be any combination of the following values:
-  *     @arg FLASH_IT_EOP_BANK1: End of FLASH Operation Interrupt on bank1
-  *     @arg FLASH_IT_ERR_BANK1: Error Interrupt on bank1
-  *     @arg FLASH_IT_EOP_BANK2: End of FLASH Operation Interrupt on bank2
-  *     @arg FLASH_IT_ERR_BANK2: Error Interrupt on bank2
+  *     @arg @ref FLASH_IT_EOP_BANK1 End of FLASH Operation Interrupt on bank1
+  *     @arg @ref FLASH_IT_ERR_BANK1 Error Interrupt on bank1
+  *     @arg @ref FLASH_IT_EOP_BANK2 End of FLASH Operation Interrupt on bank2
+  *     @arg @ref FLASH_IT_ERR_BANK2 Error Interrupt on bank2
   * @retval none
   */ 
 #define __HAL_FLASH_DISABLE_IT(__INTERRUPT__)  do { \
@@ -721,17 +636,17 @@ typedef struct
 
 /**
   * @brief  Get the specified FLASH flag status. 
-  * @param  __FLAG__: specifies the FLASH flag to check.
+  * @param  __FLAG__ specifies the FLASH flag to check.
   *          This parameter can be one of the following values:
-  *            @arg FLASH_FLAG_EOP_BANK1   : FLASH End of Operation flag on bank1
-  *            @arg FLASH_FLAG_WRPERR_BANK1: FLASH Write protected error flag on bank1
-  *            @arg FLASH_FLAG_PGERR_BANK1 : FLASH Programming error flag on bank1
-  *            @arg FLASH_FLAG_BSY_BANK1   : FLASH Busy flag on bank1
-  *            @arg FLASH_FLAG_EOP_BANK2   : FLASH End of Operation flag on bank2
-  *            @arg FLASH_FLAG_WRPERR_BANK2: FLASH Write protected error flag on bank2
-  *            @arg FLASH_FLAG_PGERR_BANK2 : FLASH Programming error flag on bank2
-  *            @arg FLASH_FLAG_BSY_BANK2   : FLASH Busy flag on bank2
-  *            @arg FLASH_FLAG_OPTVERR : Loaded OB and its complement do not match
+  *            @arg @ref FLASH_FLAG_EOP_BANK1    FLASH End of Operation flag on bank1
+  *            @arg @ref FLASH_FLAG_WRPERR_BANK1 FLASH Write protected error flag on bank1
+  *            @arg @ref FLASH_FLAG_PGERR_BANK1  FLASH Programming error flag on bank1
+  *            @arg @ref FLASH_FLAG_BSY_BANK1    FLASH Busy flag on bank1
+  *            @arg @ref FLASH_FLAG_EOP_BANK2    FLASH End of Operation flag on bank2
+  *            @arg @ref FLASH_FLAG_WRPERR_BANK2 FLASH Write protected error flag on bank2
+  *            @arg @ref FLASH_FLAG_PGERR_BANK2  FLASH Programming error flag on bank2
+  *            @arg @ref FLASH_FLAG_BSY_BANK2    FLASH Busy flag on bank2
+  *            @arg @ref FLASH_FLAG_OPTVERR  Loaded OB and its complement do not match
   * @retval The new state of __FLAG__ (SET or RESET).
   */
 #define __HAL_FLASH_GET_FLAG(__FLAG__) (((__FLAG__) == FLASH_FLAG_OPTVERR) ? \
@@ -742,17 +657,17 @@ typedef struct
 
 /**
   * @brief  Clear the specified FLASH flag.
-  * @param  __FLAG__: specifies the FLASH flags to clear.
+  * @param  __FLAG__ specifies the FLASH flags to clear.
   *          This parameter can be any combination of the following values:
-  *            @arg FLASH_FLAG_EOP_BANK1   : FLASH End of Operation flag on bank1
-  *            @arg FLASH_FLAG_WRPERR_BANK1: FLASH Write protected error flag on bank1
-  *            @arg FLASH_FLAG_PGERR_BANK1 : FLASH Programming error flag on bank1
-  *            @arg FLASH_FLAG_BSY_BANK1   : FLASH Busy flag on bank1
-  *            @arg FLASH_FLAG_EOP_BANK2   : FLASH End of Operation flag on bank2
-  *            @arg FLASH_FLAG_WRPERR_BANK2: FLASH Write protected error flag on bank2
-  *            @arg FLASH_FLAG_PGERR_BANK2 : FLASH Programming error flag on bank2
-  *            @arg FLASH_FLAG_BSY_BANK2   : FLASH Busy flag on bank2
-  *            @arg FLASH_FLAG_OPTVERR : Loaded OB and its complement do not match
+  *            @arg @ref FLASH_FLAG_EOP_BANK1    FLASH End of Operation flag on bank1
+  *            @arg @ref FLASH_FLAG_WRPERR_BANK1 FLASH Write protected error flag on bank1
+  *            @arg @ref FLASH_FLAG_PGERR_BANK1  FLASH Programming error flag on bank1
+  *            @arg @ref FLASH_FLAG_BSY_BANK1    FLASH Busy flag on bank1
+  *            @arg @ref FLASH_FLAG_EOP_BANK2    FLASH End of Operation flag on bank2
+  *            @arg @ref FLASH_FLAG_WRPERR_BANK2 FLASH Write protected error flag on bank2
+  *            @arg @ref FLASH_FLAG_PGERR_BANK2  FLASH Programming error flag on bank2
+  *            @arg @ref FLASH_FLAG_BSY_BANK2    FLASH Busy flag on bank2
+  *            @arg @ref FLASH_FLAG_OPTVERR  Loaded OB and its complement do not match
   * @retval none
   */
 #define __HAL_FLASH_CLEAR_FLAG(__FLAG__)  do { \
@@ -777,33 +692,33 @@ typedef struct
 #else
 /**
   * @brief  Enable the specified FLASH interrupt.
-  * @param  __INTERRUPT__ : FLASH interrupt 
+  * @param  __INTERRUPT__  FLASH interrupt 
   *         This parameter can be any combination of the following values:
-  *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
-  *     @arg FLASH_IT_ERR: Error Interrupt    
+  *     @arg @ref FLASH_IT_EOP End of FLASH Operation Interrupt
+  *     @arg @ref FLASH_IT_ERR Error Interrupt    
   * @retval none
   */ 
 #define __HAL_FLASH_ENABLE_IT(__INTERRUPT__)  (FLASH->CR |= (__INTERRUPT__))
 
 /**
   * @brief  Disable the specified FLASH interrupt.
-  * @param  __INTERRUPT__ : FLASH interrupt 
+  * @param  __INTERRUPT__  FLASH interrupt 
   *         This parameter can be any combination of the following values:
-  *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
-  *     @arg FLASH_IT_ERR: Error Interrupt    
+  *     @arg @ref FLASH_IT_EOP End of FLASH Operation Interrupt
+  *     @arg @ref FLASH_IT_ERR Error Interrupt    
   * @retval none
   */ 
 #define __HAL_FLASH_DISABLE_IT(__INTERRUPT__)   (FLASH->CR &= ~(__INTERRUPT__))
 
 /**
   * @brief  Get the specified FLASH flag status. 
-  * @param  __FLAG__: specifies the FLASH flag to check.
+  * @param  __FLAG__ specifies the FLASH flag to check.
   *          This parameter can be one of the following values:
-  *            @arg FLASH_FLAG_EOP   : FLASH End of Operation flag 
-  *            @arg FLASH_FLAG_WRPERR: FLASH Write protected error flag 
-  *            @arg FLASH_FLAG_PGERR : FLASH Programming error flag
-  *            @arg FLASH_FLAG_BSY   : FLASH Busy flag
-  *            @arg FLASH_FLAG_OPTVERR : Loaded OB and its complement do not match
+  *            @arg @ref FLASH_FLAG_EOP    FLASH End of Operation flag 
+  *            @arg @ref FLASH_FLAG_WRPERR FLASH Write protected error flag 
+  *            @arg @ref FLASH_FLAG_PGERR  FLASH Programming error flag
+  *            @arg @ref FLASH_FLAG_BSY    FLASH Busy flag
+  *            @arg @ref FLASH_FLAG_OPTVERR  Loaded OB and its complement do not match
   * @retval The new state of __FLAG__ (SET or RESET).
   */
 #define __HAL_FLASH_GET_FLAG(__FLAG__)  (((__FLAG__) == FLASH_FLAG_OPTVERR) ? \
@@ -811,12 +726,12 @@ typedef struct
                                             (FLASH->SR & (__FLAG__)))
 /**
   * @brief  Clear the specified FLASH flag.
-  * @param  __FLAG__: specifies the FLASH flags to clear.
+  * @param  __FLAG__ specifies the FLASH flags to clear.
   *          This parameter can be any combination of the following values:
-  *            @arg FLASH_FLAG_EOP   : FLASH End of Operation flag 
-  *            @arg FLASH_FLAG_WRPERR: FLASH Write protected error flag 
-  *            @arg FLASH_FLAG_PGERR : FLASH Programming error flag 
-  *            @arg FLASH_FLAG_OPTVERR : Loaded OB and its complement do not match
+  *            @arg @ref FLASH_FLAG_EOP    FLASH End of Operation flag 
+  *            @arg @ref FLASH_FLAG_WRPERR FLASH Write protected error flag 
+  *            @arg @ref FLASH_FLAG_PGERR  FLASH Programming error flag 
+  *            @arg @ref FLASH_FLAG_OPTVERR  Loaded OB and its complement do not match
   * @retval none
   */
 #define __HAL_FLASH_CLEAR_FLAG(__FLAG__)   do { \
@@ -835,17 +750,17 @@ typedef struct
 
 /**
   * @}
-  */  
+  */
 
 /**
   * @}
-  */  
+  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup FLASHEx_Exported_Functions
   * @{
   */
-  
+
 /** @addtogroup FLASHEx_Exported_Functions_Group1
   * @{
   */
@@ -856,7 +771,7 @@ HAL_StatusTypeDef  HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit);
 /**
   * @}
   */
-    
+
 /** @addtogroup FLASHEx_Exported_Functions_Group2
   * @{
   */
@@ -864,7 +779,7 @@ HAL_StatusTypeDef  HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit);
 HAL_StatusTypeDef  HAL_FLASHEx_OBErase(void);
 HAL_StatusTypeDef  HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit);
 void               HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
-
+uint32_t           HAL_FLASHEx_OBGetUserData(uint32_t DATAAdress);
 /**
   * @}
   */

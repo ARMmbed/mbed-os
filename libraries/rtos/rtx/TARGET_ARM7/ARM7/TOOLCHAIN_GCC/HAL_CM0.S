@@ -104,7 +104,7 @@ RestoreContext:
     LDMFD  LR, {R0-R12,LR}^
     NOP
 
-    ADD    LR, LR, 15*4               /* increase starck pointer */
+    ADD    LR, LR, 15*4               /* increase stack pointer */
     /* Set SP(user) to LR */
     STMDB  SP!,{LR}
     LDMIA  SP,{SP}^

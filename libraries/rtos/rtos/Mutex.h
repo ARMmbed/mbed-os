@@ -57,7 +57,7 @@ private:
     osMutexId _osMutexId;
     osMutexDef_t _osMutexDef;
 #ifdef CMSIS_OS_RTX
-#ifdef __MBED_CMSIS_RTOS_CA9
+#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
     int32_t _mutex_data[4];
 #else
     int32_t _mutex_data[3];

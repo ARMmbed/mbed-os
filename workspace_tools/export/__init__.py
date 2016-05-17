@@ -17,9 +17,10 @@ limitations under the License.
 import os, tempfile
 from os.path import join, exists, basename
 from shutil import copytree, rmtree, copy
+import yaml
 
 from workspace_tools.utils import mkdir
-from workspace_tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32
+from workspace_tools.export import uvision4, uvision5, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32, e2studio
 from workspace_tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from workspace_tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
@@ -27,6 +28,7 @@ from project_generator_definitions.definitions import ProGenDef
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
+    'uvision5': uvision5.Uvision5,
     'lpcxpresso': codered.CodeRed,
     'gcc_arm': gccarm.GccArm,
     'ds5_5': ds5_5.DS5_5,
@@ -37,6 +39,7 @@ EXPORTERS = {
     'simplicityv3' : simplicityv3.SimplicityV3,
     'atmelstudio' : atmelstudio.AtmelStudio,
     'sw4stm32'    : sw4stm32.Sw4STM32,
+    'e2studio' : e2studio.E2Studio,
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -62,7 +65,10 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
 
+    use_progen = False
+    supported = True
     report = {'success': False, 'errormsg':''}
+    
     if ide is None or ide == "zip":
         # Simple ZIP exporter
         try:
@@ -79,9 +85,6 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
         else:
             Exporter = EXPORTERS[ide]
             target = EXPORT_MAP.get(target, target)
-            # use progen targets or mbed exporters targets, check progen attribute
-            use_progen = False
-            supported = True
             try:
                 if Exporter.PROGEN_ACTIVE:
                     use_progen = True
@@ -108,6 +111,25 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
 
     zip_path = None
     if report['success']:
+        # readme.txt to contain more exported data
+        exporter_yaml = { 
+            'project_generator': {
+                'active' : False,
+            }
+        }
+        if use_progen:
+            try:
+                import pkg_resources
+                version = pkg_resources.get_distribution('project_generator').version
+                exporter_yaml['project_generator']['version'] = version
+                exporter_yaml['project_generator']['active'] =  True;
+                exporter_yaml['project_generator_definitions'] = {}
+                version = pkg_resources.get_distribution('project_generator_definitions').version
+                exporter_yaml['project_generator_definitions']['version'] = version
+            except ImportError:
+                pass
+        with open(os.path.join(tempdir, 'exporter.yaml'), 'w') as outfile:
+            yaml.dump(exporter_yaml, outfile, default_flow_style=False)
         # add readme file to every offline export.
         open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/Getting-Started-mbed-Exporters#%s"/>'% (ide))
         # copy .hgignore file to exported direcotry as well.

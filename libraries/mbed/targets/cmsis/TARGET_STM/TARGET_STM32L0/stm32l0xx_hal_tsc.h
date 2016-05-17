@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tsc.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   This file contains all the functions prototypes for the TSC firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@
   ******************************************************************************
   */
 
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_TSC_H
 #define __STM32L0xx_TSC_H
@@ -52,10 +52,13 @@
   * @{
   */
 
-/** @addtogroup TSC
+/** @defgroup TSC TSC
   * @{
   */ 
 
+   /** @defgroup TSC_Exported_Types TSC Exported Types
+  * @{
+  */
 /* Exported types ------------------------------------------------------------*/
    
 /** 
@@ -120,13 +123,17 @@ typedef struct
   HAL_LockTypeDef           Lock;      /*!< Lock feature */
 } TSC_HandleTypeDef;
 
+
+/**
+  * @}
+  */
+
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup TSC_Exported_Constants
+/** @defgroup TSC_Exported_Constants TSC Exported Constants
   * @{
   */ 
 
-#define IS_TSC_ALL_INSTANCE(PERIPH) ((PERIPH) == TSC)
 
 #define TSC_CTPH_1CYCLE   ((uint32_t)((uint32_t) 0 << 28))
 #define TSC_CTPH_2CYCLES  ((uint32_t)((uint32_t) 1 << 28))
@@ -144,22 +151,6 @@ typedef struct
 #define TSC_CTPH_14CYCLES ((uint32_t)((uint32_t)13 << 28))
 #define TSC_CTPH_15CYCLES ((uint32_t)((uint32_t)14 << 28))
 #define TSC_CTPH_16CYCLES ((uint32_t)((uint32_t)15 << 28))
-#define IS_TSC_CTPH(VAL) (((VAL) == TSC_CTPH_1CYCLE) || \
-                          ((VAL) == TSC_CTPH_2CYCLES) || \
-                          ((VAL) == TSC_CTPH_3CYCLES) || \
-                          ((VAL) == TSC_CTPH_4CYCLES) || \
-                          ((VAL) == TSC_CTPH_5CYCLES) || \
-                          ((VAL) == TSC_CTPH_6CYCLES) || \
-                          ((VAL) == TSC_CTPH_7CYCLES) || \
-                          ((VAL) == TSC_CTPH_8CYCLES) || \
-                          ((VAL) == TSC_CTPH_9CYCLES) || \
-                          ((VAL) == TSC_CTPH_10CYCLES) || \
-                          ((VAL) == TSC_CTPH_11CYCLES) || \
-                          ((VAL) == TSC_CTPH_12CYCLES) || \
-                          ((VAL) == TSC_CTPH_13CYCLES) || \
-                          ((VAL) == TSC_CTPH_14CYCLES) || \
-                          ((VAL) == TSC_CTPH_15CYCLES) || \
-                          ((VAL) == TSC_CTPH_16CYCLES))
 
 #define TSC_CTPL_1CYCLE   ((uint32_t)((uint32_t) 0 << 24))
 #define TSC_CTPL_2CYCLES  ((uint32_t)((uint32_t) 1 << 24))
@@ -177,30 +168,9 @@ typedef struct
 #define TSC_CTPL_14CYCLES ((uint32_t)((uint32_t)13 << 24))
 #define TSC_CTPL_15CYCLES ((uint32_t)((uint32_t)14 << 24))
 #define TSC_CTPL_16CYCLES ((uint32_t)((uint32_t)15 << 24))
-#define IS_TSC_CTPL(VAL) (((VAL) == TSC_CTPL_1CYCLE) || \
-                          ((VAL) == TSC_CTPL_2CYCLES) || \
-                          ((VAL) == TSC_CTPL_3CYCLES) || \
-                          ((VAL) == TSC_CTPL_4CYCLES) || \
-                          ((VAL) == TSC_CTPL_5CYCLES) || \
-                          ((VAL) == TSC_CTPL_6CYCLES) || \
-                          ((VAL) == TSC_CTPL_7CYCLES) || \
-                          ((VAL) == TSC_CTPL_8CYCLES) || \
-                          ((VAL) == TSC_CTPL_9CYCLES) || \
-                          ((VAL) == TSC_CTPL_10CYCLES) || \
-                          ((VAL) == TSC_CTPL_11CYCLES) || \
-                          ((VAL) == TSC_CTPL_12CYCLES) || \
-                          ((VAL) == TSC_CTPL_13CYCLES) || \
-                          ((VAL) == TSC_CTPL_14CYCLES) || \
-                          ((VAL) == TSC_CTPL_15CYCLES) || \
-                          ((VAL) == TSC_CTPL_16CYCLES))
-
-#define IS_TSC_SS(VAL) (((VAL) == DISABLE) || ((VAL) == ENABLE))
-
-#define IS_TSC_SSD(VAL) (((VAL) == 0) || (((VAL) > 0) && ((VAL) < 128)))
 
 #define TSC_SS_PRESC_DIV1 ((uint32_t)0)  
 #define TSC_SS_PRESC_DIV2  (TSC_CR_SSPSC) 
-#define IS_TSC_SS_PRESC(VAL) (((VAL) == TSC_SS_PRESC_DIV1) || ((VAL) == TSC_SS_PRESC_DIV2))
 
 #define TSC_PG_PRESC_DIV1   ((uint32_t)(0 << 12))
 #define TSC_PG_PRESC_DIV2   ((uint32_t)(1 << 12))
@@ -210,15 +180,6 @@ typedef struct
 #define TSC_PG_PRESC_DIV32  ((uint32_t)(5 << 12))
 #define TSC_PG_PRESC_DIV64  ((uint32_t)(6 << 12))
 #define TSC_PG_PRESC_DIV128 ((uint32_t)(7 << 12))
-#define IS_TSC_PG_PRESC(VAL) (((VAL) == TSC_PG_PRESC_DIV1) || \
-                              ((VAL) == TSC_PG_PRESC_DIV2) || \
-                              ((VAL) == TSC_PG_PRESC_DIV4) || \
-                              ((VAL) == TSC_PG_PRESC_DIV8) || \
-                              ((VAL) == TSC_PG_PRESC_DIV16) || \
-                              ((VAL) == TSC_PG_PRESC_DIV32) || \
-                              ((VAL) == TSC_PG_PRESC_DIV64) || \
-                              ((VAL) == TSC_PG_PRESC_DIV128))
-
 #define TSC_MCV_255   ((uint32_t)(0 << 5))
 #define TSC_MCV_511   ((uint32_t)(1 << 5))
 #define TSC_MCV_1023  ((uint32_t)(2 << 5))
@@ -226,46 +187,31 @@ typedef struct
 #define TSC_MCV_4095  ((uint32_t)(4 << 5))
 #define TSC_MCV_8191  ((uint32_t)(5 << 5))
 #define TSC_MCV_16383 ((uint32_t)(6 << 5))
-#define IS_TSC_MCV(VAL) (((VAL) == TSC_MCV_255) || \
-                         ((VAL) == TSC_MCV_511) || \
-                         ((VAL) == TSC_MCV_1023) || \
-                         ((VAL) == TSC_MCV_2047) || \
-                         ((VAL) == TSC_MCV_4095) || \
-                         ((VAL) == TSC_MCV_8191) || \
-                         ((VAL) == TSC_MCV_16383))
 
 #define TSC_IODEF_OUT_PP_LOW ((uint32_t)0)
 #define TSC_IODEF_IN_FLOAT   (TSC_CR_IODEF)
-#define IS_TSC_IODEF(VAL) (((VAL) == TSC_IODEF_OUT_PP_LOW) || ((VAL) == TSC_IODEF_IN_FLOAT))
 
 #define TSC_SYNC_POLARITY_FALLING      ((uint32_t)0)
 #define TSC_SYNC_POLARITY_RISING (TSC_CR_SYNCPOL)
-#define IS_TSC_SYNC_POL(VAL) (((VAL) == TSC_SYNC_POL_FALL) || ((VAL) == TSC_SYNC_POL_RISE_HIGH))
 
 #define TSC_ACQ_MODE_NORMAL  ((uint32_t)0)
 #define TSC_ACQ_MODE_SYNCHRO (TSC_CR_AM)
-#define IS_TSC_ACQ_MODE(VAL) (((VAL) == TSC_ACQ_MODE_NORMAL) || ((VAL) == TSC_ACQ_MODE_SYNCHRO))
 
 #define TSC_IOMODE_UNUSED   ((uint32_t)0)
 #define TSC_IOMODE_CHANNEL  ((uint32_t)1)
 #define TSC_IOMODE_SHIELD   ((uint32_t)2)
 #define TSC_IOMODE_SAMPLING ((uint32_t)3)
-#define IS_TSC_IOMODE(VAL) (((VAL) == TSC_IOMODE_UNUSED) || \
-                            ((VAL) == TSC_IOMODE_CHANNEL) || \
-                            ((VAL) == TSC_IOMODE_SHIELD) || \
-                            ((VAL) == TSC_IOMODE_SAMPLING))
 
-/** @defgroup TSC_interrupts_definition
+/** @defgroup TSC_interrupts_definition TSC Interrupts Definition
   * @{
   */
 #define TSC_IT_EOA ((uint32_t)TSC_IER_EOAIE)  
 #define TSC_IT_MCE ((uint32_t)TSC_IER_MCEIE) 
-#define IS_TSC_MCE_IT(VAL) (((VAL) == DISABLE) || ((VAL) == ENABLE))
 /**
   * @}
   */ 
 
-/** @defgroup TSC_flags_definition
+/** @defgroup TSC_flags_definition TSC Flags Definition
   * @{
   */ 
 #define TSC_FLAG_EOA ((uint32_t)TSC_ISR_EOAF)
@@ -294,7 +240,6 @@ typedef struct
 #define TSC_GROUP6_IDX ((uint32_t)5)
 #define TSC_GROUP7_IDX ((uint32_t)6)
 #define TSC_GROUP8_IDX ((uint32_t)7)
-#define IS_GROUP_INDEX(VAL) (((VAL) == 0) || (((VAL) > 0) && ((VAL) < TSC_NB_OF_GROUPS)))
 
 #define TSC_GROUP1_IO1 ((uint32_t)0x00000001)
 #define TSC_GROUP1_IO2 ((uint32_t)0x00000002)
@@ -350,7 +295,11 @@ typedef struct
   * @}
   */ 
 
-/* Exported macro ------------------------------------------------------------*/
+/* Exported macros -----------------------------------------------------------*/
+
+/** @defgroup TSC_Exported_Macros TSC Exported Macros
+  * @{
+  */
 
 /** @brief Reset TSC handle state
   * @param  __HANDLE__: TSC handle
@@ -541,34 +490,156 @@ typedef struct
 #define __HAL_TSC_GET_GROUP_STATUS(__HANDLE__, __GX_INDEX__) \
 ((((__HANDLE__)->Instance->IOGCSR & (uint32_t)((uint32_t)1 << ((__GX_INDEX__) + (uint32_t)16))) == (uint32_t)((uint32_t)1 << ((__GX_INDEX__) + (uint32_t)16))) ? TSC_GROUP_COMPLETED : TSC_GROUP_ONGOING)
 
+/**
+  * @}
+  */
+
+/* Private macros ------------------------------------------------------------*/
+
+/** @defgroup TSC_Private_Macros TSC Private Macros
+  * @{
+  */
+#define IS_TSC_ALL_INSTANCE(PERIPH) ((PERIPH) == TSC)
+
+#define IS_TSC_CTPH(VAL) (((VAL) == TSC_CTPH_1CYCLE) || \
+                          ((VAL) == TSC_CTPH_2CYCLES) || \
+                          ((VAL) == TSC_CTPH_3CYCLES) || \
+                          ((VAL) == TSC_CTPH_4CYCLES) || \
+                          ((VAL) == TSC_CTPH_5CYCLES) || \
+                          ((VAL) == TSC_CTPH_6CYCLES) || \
+                          ((VAL) == TSC_CTPH_7CYCLES) || \
+                          ((VAL) == TSC_CTPH_8CYCLES) || \
+                          ((VAL) == TSC_CTPH_9CYCLES) || \
+                          ((VAL) == TSC_CTPH_10CYCLES) || \
+                          ((VAL) == TSC_CTPH_11CYCLES) || \
+                          ((VAL) == TSC_CTPH_12CYCLES) || \
+                          ((VAL) == TSC_CTPH_13CYCLES) || \
+                          ((VAL) == TSC_CTPH_14CYCLES) || \
+                          ((VAL) == TSC_CTPH_15CYCLES) || \
+                          ((VAL) == TSC_CTPH_16CYCLES))
+#define IS_TSC_CTPL(VAL) (((VAL) == TSC_CTPL_1CYCLE) || \
+                          ((VAL) == TSC_CTPL_2CYCLES) || \
+                          ((VAL) == TSC_CTPL_3CYCLES) || \
+                          ((VAL) == TSC_CTPL_4CYCLES) || \
+                          ((VAL) == TSC_CTPL_5CYCLES) || \
+                          ((VAL) == TSC_CTPL_6CYCLES) || \
+                          ((VAL) == TSC_CTPL_7CYCLES) || \
+                          ((VAL) == TSC_CTPL_8CYCLES) || \
+                          ((VAL) == TSC_CTPL_9CYCLES) || \
+                          ((VAL) == TSC_CTPL_10CYCLES) || \
+                          ((VAL) == TSC_CTPL_11CYCLES) || \
+                          ((VAL) == TSC_CTPL_12CYCLES) || \
+                          ((VAL) == TSC_CTPL_13CYCLES) || \
+                          ((VAL) == TSC_CTPL_14CYCLES) || \
+                          ((VAL) == TSC_CTPL_15CYCLES) || \
+                          ((VAL) == TSC_CTPL_16CYCLES))
+
+#define IS_TSC_SS(VAL) (((VAL) == DISABLE) || ((VAL) == ENABLE))
+
+#define IS_TSC_SSD(VAL) (((VAL) == 0) || (((VAL) > 0) && ((VAL) < 128)))
+#define IS_TSC_SS_PRESC(VAL) (((VAL) == TSC_SS_PRESC_DIV1) || ((VAL) == TSC_SS_PRESC_DIV2))
+#define IS_TSC_PG_PRESC(VAL) (((VAL) == TSC_PG_PRESC_DIV1) || \
+                              ((VAL) == TSC_PG_PRESC_DIV2) || \
+                              ((VAL) == TSC_PG_PRESC_DIV4) || \
+                              ((VAL) == TSC_PG_PRESC_DIV8) || \
+                              ((VAL) == TSC_PG_PRESC_DIV16) || \
+                              ((VAL) == TSC_PG_PRESC_DIV32) || \
+                              ((VAL) == TSC_PG_PRESC_DIV64) || \
+                              ((VAL) == TSC_PG_PRESC_DIV128))
+
+#define IS_TSC_MCV(VAL) (((VAL) == TSC_MCV_255) || \
+                         ((VAL) == TSC_MCV_511) || \
+                         ((VAL) == TSC_MCV_1023) || \
+                         ((VAL) == TSC_MCV_2047) || \
+                         ((VAL) == TSC_MCV_4095) || \
+                         ((VAL) == TSC_MCV_8191) || \
+                         ((VAL) == TSC_MCV_16383))
+#define IS_TSC_IODEF(VAL) (((VAL) == TSC_IODEF_OUT_PP_LOW) || ((VAL) == TSC_IODEF_IN_FLOAT))
+#define IS_TSC_SYNC_POL(VAL) (((VAL) == TSC_SYNC_POLARITY_FALLING) || ((VAL) == TSC_SYNC_POLARITY_RISING))
+#define IS_TSC_ACQ_MODE(VAL) (((VAL) == TSC_ACQ_MODE_NORMAL) || ((VAL) == TSC_ACQ_MODE_SYNCHRO))
+#define IS_TSC_IOMODE(VAL) (((VAL) == TSC_IOMODE_UNUSED) || \
+                            ((VAL) == TSC_IOMODE_CHANNEL) || \
+                            ((VAL) == TSC_IOMODE_SHIELD) || \
+                            ((VAL) == TSC_IOMODE_SAMPLING))
+#define IS_TSC_MCE_IT(VAL) (((VAL) == DISABLE) || ((VAL) == ENABLE))
+
+#define IS_TSC_GROUP_INDEX(VAL) (((VAL) == 0) || (((VAL) > 0) && ((VAL) < TSC_NB_OF_GROUPS)))
+
+/**
+  * @}
+  */
+
 /* Exported functions --------------------------------------------------------*/  
 
+/** @defgroup TSC_Exported_Functions TSC Exported Functions
+  * @{
+  */
+
+/** @defgroup TSC_Exported_Functions_Group1 Initialization and de-initialization functions
+  * @{
+  */
 /* Initialization and de-initialization functions *****************************/
 HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef *htsc);
 void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc);
 void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc);
+/**
+  * @}
+  */
 
+/** @defgroup HAL_TSC_Exported_Functions_Group2 IO operation functions
+  * @{
+  */
 /* IO operation functions *****************************************************/
 HAL_StatusTypeDef HAL_TSC_Start(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_Start_IT(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_Stop(TSC_HandleTypeDef* htsc);
 HAL_StatusTypeDef HAL_TSC_Stop_IT(TSC_HandleTypeDef* htsc);
+HAL_StatusTypeDef HAL_TSC_PollForAcquisition(TSC_HandleTypeDef* htsc);
 TSC_GroupStatusTypeDef HAL_TSC_GroupGetStatus(TSC_HandleTypeDef* htsc, uint32_t gx_index);
 uint32_t HAL_TSC_GroupGetValue(TSC_HandleTypeDef* htsc, uint32_t gx_index);
 
+/**
+  * @}
+  */
+/** @defgroup HAL_TSC_Exported_Functions_Group3 Peripheral Control functions
+  * @{
+  */
 /* Peripheral Control functions ***********************************************/
 HAL_StatusTypeDef HAL_TSC_IOConfig(TSC_HandleTypeDef* htsc, TSC_IOConfigTypeDef* config);
 HAL_StatusTypeDef HAL_TSC_IODischarge(TSC_HandleTypeDef* htsc, uint32_t choice);
 
+/**
+  * @}
+  */
+/** @defgroup HAL_TSC_Exported_Functions_Group4 State callback and error Functions
+  * @{
+  */
 /* Peripheral State and Error functions ***************************************/
 HAL_TSC_StateTypeDef HAL_TSC_GetState(TSC_HandleTypeDef* htsc);
-HAL_StatusTypeDef HAL_TSC_PollForAcquisition(TSC_HandleTypeDef* htsc);
 void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc);
 
 /* Callback functions *********************************************************/
 void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc);
 void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc);
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup TSC_Private TSC Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}
@@ -583,7 +654,7 @@ void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc);
 #endif
 
 #endif /*__STM32L0xx_TSC_H */
-#endif /* #if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
+#endif /* #if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx) */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

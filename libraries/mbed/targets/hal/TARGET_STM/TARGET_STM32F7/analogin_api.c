@@ -190,7 +190,7 @@ static inline uint16_t adc_read(analogin_t *obj)
 
     // Wait end of conversion and get value
     HAL_ADC_PollForConversion(&AdcHandle, 10);
-    if (HAL_ADC_GetState(&AdcHandle) == HAL_ADC_STATE_EOC_REG) {
+    if (HAL_ADC_GetState(&AdcHandle) & HAL_ADC_STATE_EOC_REG) {
         return (HAL_ADC_GetValue(&AdcHandle));
     } else {
         return 0;

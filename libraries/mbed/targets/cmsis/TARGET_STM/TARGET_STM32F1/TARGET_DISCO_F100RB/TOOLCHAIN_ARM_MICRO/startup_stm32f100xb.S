@@ -1,9 +1,9 @@
-;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
-;* File Name          : startup_stm32f100xb.s
+;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
+;* File Name          : startup_stm32f103xb.s
 ;* Author             : MCD Application Team
-;* Version            : V4.0.1
-;* Date               : 31-July-2015
-;* Description        : STM32F100xB Devices vector table for MDK-ARM toolchain. 
+;* Version            : V4.1.0
+;* Date               : 29-April-2016
+;* Description        : STM32F103xB Devices vector table for MDK-ARM_MICRO toolchain. 
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -15,7 +15,7 @@
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;********************************************************************************
 ;*
-;* COPYRIGHT(c) 2015 STMicroelectronics
+;* COPYRIGHT(c) 2016 STMicroelectronics
 ;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:

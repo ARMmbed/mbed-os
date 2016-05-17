@@ -36,7 +36,8 @@ SDFileSystem sd(p12, p13, p15, p14, "sd");
       defined(TARGET_NUCLEO_L152RE)
 SDFileSystem sd(D11, D12, D13, D10, "sd");
 
-#elif defined(TARGET_DISCO_F051R8)
+#elif defined(TARGET_DISCO_F051R8) || \
+      defined(TARGET_NUCLEO_L031K6)
 SDFileSystem sd(SPI_MOSI, SPI_MISO, SPI_SCK, SPI_CS, "sd");
 
 #elif defined(TARGET_LPC2368)
@@ -53,7 +54,7 @@ SDFileSystem sd(P8_5, P8_6, P8_3, P8_4, "sd");
 
 #elif defined(TARGET_LPC11U37H_401)
 SDFileSystem sd(SDMOSI, SDMISO, SDSCLK, SDSSEL, "sd");
-    
+
 #else
 SDFileSystem sd(p11, p12, p13, p14, "sd");
 #endif

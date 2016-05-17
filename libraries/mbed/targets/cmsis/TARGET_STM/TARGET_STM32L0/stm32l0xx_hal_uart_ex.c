@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_uart_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Extended UART HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -30,7 +30,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,13 +64,16 @@
   * @{
   */
 
+#ifdef HAL_UART_MODULE_ENABLED
+
 /** @addtogroup UARTEx
   * @brief UARTEx module driver
   * @{
   */
 
-#ifdef HAL_UART_MODULE_ENABLED
-
+/** @addtogroup UARTEx_Private
+  * @{
+  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define UART_REACK_TIMEOUT       ((uint32_t) 1000)
@@ -79,6 +82,10 @@
 /* Private function prototypes -----------------------------------------------*/
 static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection);
 /* Private functions ---------------------------------------------------------*/
+
+/**
+  * @}
+  */
 
 /** @addtogroup UARTEx_Exported_Functions
   * @{
@@ -388,9 +395,31 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
 }
 
 /**
+  * @brief UART wakeup from Stop mode callback
+  * @param huart: uart handle
+  * @retval None
+  */
+ __weak void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_UART_WakeupCallback can be implemented in the user file
+   */
+}
+
+/**
   * @}
   */  
 
+ /**
+  * @}
+  */
+
+/** @addtogroup UARTEx_Private
+  * @{
+  */
 /**
   * @brief Initializes the UART wake-up from stop mode parameters when triggered by address detection.
   * @param huart: uart handle
@@ -416,26 +445,16 @@ static void UART_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpType
   MODIFY_REG(huart->Instance->CR2, USART_CR2_ADD, ((uint32_t)WakeUpSelection.Address << UART_CR2_ADDRESS_LSB_POS));
 }
 
+
 /**
-  * @brief UART wakeup from Stop mode callback
-  * @param huart: uart handle
-  * @retval None
+  * @}
   */
- __weak void HAL_UARTEx_WakeupCallback(UART_HandleTypeDef *huart)
-{
-  /* NOTE : This function should not be modified, when the callback is needed,
-            the HAL_UART_WakeupCallback can be implemented in the user file
-   */
-}
 
 /**
   * @}
   */
 
 #endif /* HAL_UART_MODULE_ENABLED */
-/**
-  * @}
-  */
 
 /**
   * @}

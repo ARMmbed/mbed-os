@@ -109,7 +109,7 @@ typedef enum IRQn
 #define __ICACHE_PRESENT          1
 #define __DCACHE_PRESENT          1
 
-#include "core_CM7.h"                         /* Processor and core peripherals                  */
+#include "core_cm7.h"                         /* Processor and core peripherals                  */
 #include "system_CMSDK_CM7.h"                 /* System Header                                   */
 
 

@@ -17,6 +17,10 @@ BusOut bus2(PB10, PB11, PB12, PB13);
 BusOut bus1(D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, D14, D15);
 BusOut bus2(A5, A4, A3, A2, A1, A0);
 
+#elif defined(TARGET_SAMG55J19)
+BusOut bus1(PA18, PA17, PA25, PA26, PA23, PA00, PA29, PA24, PA10, PA09, PA13, PA11, PA14);
+BusOut bus2(PB00, PB01, PB08, PB09, PB10, PB11, PB14);
+
 #else
 #error [NOT_SUPPORTED] This test is not supported on this target
 

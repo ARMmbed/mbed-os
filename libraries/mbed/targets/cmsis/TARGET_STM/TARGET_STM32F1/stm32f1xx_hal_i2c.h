@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,17 +102,32 @@ typedef struct
 
 typedef enum
 {
-  HAL_I2C_STATE_RESET             = 0x00,  /*!< I2C not yet initialized or disabled         */
-  HAL_I2C_STATE_READY             = 0x01,  /*!< I2C initialized and ready for use           */
-  HAL_I2C_STATE_BUSY              = 0x02,  /*!< I2C internal process is ongoing             */
-  HAL_I2C_STATE_BUSY_TX           = 0x12,  /*!< Data Transmission process is ongoing        */
-  HAL_I2C_STATE_BUSY_RX           = 0x22,  /*!< Data Reception process is ongoing           */
-  HAL_I2C_STATE_MEM_BUSY_TX       = 0x32,  /*!< Memory Data Transmission process is ongoing */
-  HAL_I2C_STATE_MEM_BUSY_RX       = 0x42,  /*!< Memory Data Reception process is ongoing    */
-  HAL_I2C_STATE_TIMEOUT           = 0x03,  /*!< I2C timeout state                           */
-  HAL_I2C_STATE_ERROR             = 0x04   /*!< I2C error state                             */
+  HAL_I2C_STATE_RESET             = 0x00,   /*!< Peripheral is not yet Initialized         */
+  HAL_I2C_STATE_READY             = 0x20,   /*!< Peripheral Initialized and ready for use  */
+  HAL_I2C_STATE_BUSY              = 0x24,   /*!< An internal process is ongoing            */   
+  HAL_I2C_STATE_BUSY_TX           = 0x21,   /*!< Data Transmission process is ongoing      */ 
+  HAL_I2C_STATE_BUSY_RX           = 0x22,   /*!< Data Reception process is ongoing         */
+  HAL_I2C_STATE_TIMEOUT           = 0xA0,   /*!< Timeout state                             */
+  HAL_I2C_STATE_ERROR             = 0xE0    /*!< Error                                     */ 
 
 }HAL_I2C_StateTypeDef;
+
+/** 
+  * @}
+  */
+
+/** @defgroup HAL_mode_structure_definition HAL mode structure definition
+  * @brief  HAL Mode structure definition
+  * @{
+  */
+typedef enum
+{
+  HAL_I2C_MODE_NONE               = 0x00,   /*!< No I2C communication on going             */
+  HAL_I2C_MODE_MASTER             = 0x10,   /*!< I2C communication is in Master Mode       */
+  HAL_I2C_MODE_SLAVE              = 0x20,   /*!< I2C communication is in Slave Mode        */
+  HAL_I2C_MODE_MEM                = 0x40    /*!< I2C communication is in Memory Mode       */
+
+}HAL_I2C_ModeTypeDef;
 
 /** 
   * @}
@@ -142,7 +157,9 @@ typedef struct
 
   __IO HAL_I2C_StateTypeDef  State;      /*!< I2C communication state        */
 
-  __IO uint32_t              ErrorCode;  /* I2C Error code                   */
+  __IO HAL_I2C_ModeTypeDef   Mode;       /*!< I2C communication mode         */
+
+  __IO uint32_t              ErrorCode;  /*!< I2C Error code                 */
 
 }I2C_HandleTypeDef;
 /**
@@ -282,87 +299,88 @@ typedef struct
   * @{
   */
 
-/** @brief Reset I2C handle state
-  * @param  __HANDLE__: specifies the I2C Handle.
+/** @brief Reset I2C handle state.
+  * @param  __HANDLE__ specifies the I2C Handle.
   * @retval None
   */
 #define __HAL_I2C_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_I2C_STATE_RESET)
 
-/** @brief  Enable the specified I2C interrupts.
-  * @param  __HANDLE__: specifies the I2C Handle.
+/** @brief  Enable the specified I2C interrupt.
+  * @param  __HANDLE__ specifies the I2C Handle.
   * @param  __INTERRUPT__: specifies the interrupt source to enable.
   *         This parameter can be one of the following values:
-  *            @arg I2C_IT_BUF: Buffer interrupt enable
-  *            @arg I2C_IT_EVT: Event interrupt enable
-  *            @arg I2C_IT_ERR: Error interrupt enable
+  *            @arg @ref I2C_IT_BUF Buffer interrupt enable
+  *            @arg @ref I2C_IT_EVT Event interrupt enable
+  *            @arg @ref I2C_IT_ERR Error interrupt enable
   * @retval None
   */
 #define __HAL_I2C_ENABLE_IT(__HANDLE__, __INTERRUPT__)   (SET_BIT((__HANDLE__)->Instance->CR2, (__INTERRUPT__)))
 
-/** @brief  Disable the specified I2C interrupts.
-  * @param  __HANDLE__: specifies the I2C Handle.
+/** @brief  Disable the specified I2C interrupt.
+  * @param  __HANDLE__ specifies the I2C Handle.
   * @param  __INTERRUPT__: specifies the interrupt source to disable.
   *         This parameter can be one of the following values:
-  *            @arg I2C_IT_BUF: Buffer interrupt enable
-  *            @arg I2C_IT_EVT: Event interrupt enable
-  *            @arg I2C_IT_ERR: Error interrupt enable
+  *            @arg @ref I2C_IT_BUF Buffer interrupt enable
+  *            @arg @ref I2C_IT_EVT Event interrupt enable
+  *            @arg @ref I2C_IT_ERR Error interrupt enable
   * @retval None
   */
 #define __HAL_I2C_DISABLE_IT(__HANDLE__, __INTERRUPT__)  (CLEAR_BIT((__HANDLE__)->Instance->CR2, (__INTERRUPT__)))
 
-/** @brief  Checks if the specified I2C interrupt source is enabled or disabled.
-  * @param  __HANDLE__: specifies the I2C Handle.
+/** @brief  Check whether the specified I2C interrupt source is enabled or not.
+  * @param  __HANDLE__ specifies the I2C Handle.
   * @param  __INTERRUPT__: specifies the I2C interrupt source to check.
   *          This parameter can be one of the following values:
-  *            @arg I2C_IT_BUF: Buffer interrupt enable
-  *            @arg I2C_IT_EVT: Event interrupt enable
-  *            @arg I2C_IT_ERR: Error interrupt enable
+  *            @arg @ref I2C_IT_BUF Buffer interrupt enable
+  *            @arg @ref I2C_IT_EVT Event interrupt enable
+  *            @arg @ref I2C_IT_ERR Error interrupt enable
   * @retval The new state of __INTERRUPT__ (TRUE or FALSE).
   */
 #define __HAL_I2C_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->CR2 & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
-/** @brief  Checks whether the specified I2C flag is set or not.
-  * @param  __HANDLE__: specifies the I2C Handle.
-  * @param  __FLAG__: specifies the flag to check.
+/** @brief  Check whether the specified I2C flag is set or not.
+  * @param  __HANDLE__ specifies the I2C Handle.
+  * @param  __FLAG__ specifies the flag to check.
   *         This parameter can be one of the following values:
-  *            @arg I2C_FLAG_SMBALERT: SMBus Alert flag
-  *            @arg I2C_FLAG_TIMEOUT: Timeout or Tlow error flag
-  *            @arg I2C_FLAG_PECERR: PEC error in reception flag
-  *            @arg I2C_FLAG_OVR: Overrun/Underrun flag
-  *            @arg I2C_FLAG_AF: Acknowledge failure flag
-  *            @arg I2C_FLAG_ARLO: Arbitration lost flag
-  *            @arg I2C_FLAG_BERR: Bus error flag
-  *            @arg I2C_FLAG_TXE: Data register empty flag
-  *            @arg I2C_FLAG_RXNE: Data register not empty flag
-  *            @arg I2C_FLAG_STOPF: Stop detection flag
-  *            @arg I2C_FLAG_ADD10: 10-bit header sent flag
-  *            @arg I2C_FLAG_BTF: Byte transfer finished flag
-  *            @arg I2C_FLAG_ADDR: Address sent flag
-  *                                Address matched flag
-  *            @arg I2C_FLAG_SB: Start bit flag
-  *            @arg I2C_FLAG_DUALF: Dual flag
-  *            @arg I2C_FLAG_SMBHOST: SMBus host header
-  *            @arg I2C_FLAG_SMBDEFAULT: SMBus default header
-  *            @arg I2C_FLAG_GENCALL: General call header flag
-  *            @arg I2C_FLAG_TRA: Transmitter/Receiver flag
-  *            @arg I2C_FLAG_BUSY: Bus busy flag
-  *            @arg I2C_FLAG_MSL: Master/Slave flag
+  *            @arg @ref I2C_FLAG_SMBALERT SMBus Alert flag
+  *            @arg @ref I2C_FLAG_TIMEOUT Timeout or Tlow error flag
+  *            @arg @ref I2C_FLAG_PECERR PEC error in reception flag
+  *            @arg @ref I2C_FLAG_OVR Overrun/Underrun flag
+  *            @arg @ref I2C_FLAG_AF Acknowledge failure flag
+  *            @arg @ref I2C_FLAG_ARLO Arbitration lost flag
+  *            @arg @ref I2C_FLAG_BERR Bus error flag
+  *            @arg @ref I2C_FLAG_TXE Data register empty flag
+  *            @arg @ref I2C_FLAG_RXNE Data register not empty flag
+  *            @arg @ref I2C_FLAG_STOPF Stop detection flag
+  *            @arg @ref I2C_FLAG_ADD10 10-bit header sent flag
+  *            @arg @ref I2C_FLAG_BTF Byte transfer finished flag
+  *            @arg @ref I2C_FLAG_ADDR Address sent flag
+  *                                     Address matched flag
+  *            @arg @ref I2C_FLAG_SB Start bit flag
+  *            @arg @ref I2C_FLAG_DUALF Dual flag
+  *            @arg @ref I2C_FLAG_SMBHOST SMBus host header
+  *            @arg @ref I2C_FLAG_SMBDEFAULT SMBus default header
+  *            @arg @ref I2C_FLAG_GENCALL General call header flag
+  *            @arg @ref I2C_FLAG_TRA Transmitter/Receiver flag
+  *            @arg @ref I2C_FLAG_BUSY Bus busy flag
+  *            @arg @ref I2C_FLAG_MSL Master/Slave flag
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
 #define __HAL_I2C_GET_FLAG(__HANDLE__, __FLAG__) ((((uint8_t)((__FLAG__) >> 16)) == 0x01)?((((__HANDLE__)->Instance->SR1) & ((__FLAG__) & I2C_FLAG_MASK)) == ((__FLAG__) & I2C_FLAG_MASK)): \
                                                  ((((__HANDLE__)->Instance->SR2) & ((__FLAG__) & I2C_FLAG_MASK)) == ((__FLAG__) & I2C_FLAG_MASK)))
 
-/** @brief  Clears the I2C pending flags which are cleared by writing 0 in a specific bit.
-  * @param  __HANDLE__: specifies the I2C Handle.
-  * @param  __FLAG__: specifies the flag to clear.
+/** @brief  Clear the I2C pending flags which are cleared by writing 0 in a specific bit.
+  * @param  __HANDLE__ specifies the I2C Handle.
+  * @param  __FLAG__ specifies the flag to clear.
   *         This parameter can be any combination of the following values:
-  *            @arg I2C_FLAG_SMBALERT: SMBus Alert flag
-  *            @arg I2C_FLAG_TIMEOUT: Timeout or Tlow error flag
-  *            @arg I2C_FLAG_PECERR: PEC error in reception flag
-  *            @arg I2C_FLAG_OVR: Overrun/Underrun flag (Slave mode)
-  *            @arg I2C_FLAG_AF: Acknowledge failure flag
-  *            @arg I2C_FLAG_ARLO: Arbitration lost flag (Master mode)
-  *            @arg I2C_FLAG_BERR: Bus error flag
+  *            @arg @ref I2C_FLAG_SMBALERT SMBus Alert flag
+  *            @arg @ref I2C_FLAG_TIMEOUT Timeout or Tlow error flag
+  *            @arg @ref I2C_FLAG_PECERR PEC error in reception flag
+  *            @arg @ref I2C_FLAG_OVR Overrun/Underrun flag (Slave mode)
+  *            @arg @ref I2C_FLAG_AF Acknowledge failure flag
+  *            @arg @ref I2C_FLAG_ARLO Arbitration lost flag (Master mode)
+  *            @arg @ref I2C_FLAG_BERR Bus error flag
+  *   
   * @retval None
   */
 #define __HAL_I2C_CLEAR_FLAG(__HANDLE__, __FLAG__)  (__HANDLE__)->Instance->SR1 = (((__HANDLE__)->Instance->SR1) & (~((__FLAG__) & I2C_FLAG_MASK)))
@@ -392,13 +410,13 @@ do{                                                        \
 }while(0)  
 
 /** @brief  Enable the specified I2C peripheral.
-  * @param  __HANDLE__: specifies the I2C Handle. 
+  * @param  __HANDLE__ specifies the I2C Handle. 
   * @retval None
   */
 #define __HAL_I2C_ENABLE(__HANDLE__)                             (SET_BIT((__HANDLE__)->Instance->CR1,  I2C_CR1_PE))
 
 /** @brief  Disable the specified I2C peripheral.
-  * @param  __HANDLE__: specifies the I2C Handle. 
+  * @param  __HANDLE__ specifies the I2C Handle. 
   * @retval None
   */
 #define __HAL_I2C_DISABLE(__HANDLE__)                            (CLEAR_BIT((__HANDLE__)->Instance->CR1, I2C_CR1_PE))
@@ -460,7 +478,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAddr
   * @}
   */ 
 
-/** @addtogroup IRQ_Handler_and_Callbacks IRQ Handler and Callbacks
+/** @addtogroup I2C_Exported_Functions_Group4 IRQ Handler and Callbacks
  * @{
  */   
 /******* I2C IRQHandler and Callbacks used in non blocking modes (Interrupt and DMA) */

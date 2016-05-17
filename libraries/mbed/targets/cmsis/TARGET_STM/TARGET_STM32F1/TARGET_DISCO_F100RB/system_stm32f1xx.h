@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    system_stm32f10x.h
   * @author  MCD Application Team
-  * @version V4.0.0
-  * @date    16-December-2014
+  * @version V4.1.0
+  * @date    29-April-2016
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Header File.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -67,6 +67,8 @@
   */
 
 extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
+extern const uint8_t  AHBPrescTable[16];  /*!< AHB prescalers table values */
+extern const uint8_t  APBPrescTable[8];   /*!< APB prescalers table values */
 
 /**
   * @}

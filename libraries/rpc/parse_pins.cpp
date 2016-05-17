@@ -38,7 +38,7 @@ PinName parse_pins(const char *str) {
                                 , NC, NC, NC, NC, NC, NC, NC, NC, p41, p42, p43, p44, p45, p46};
 #endif
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC1114) || defined(TARGET_RZ_A1H)
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC1114) || defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
     if (str[0] == 'P') {              // Pn_n
         uint32_t port = str[1] - '0';
         uint32_t pin  = str[3] - '0'; // Pn_n
@@ -48,7 +48,7 @@ PinName parse_pins(const char *str) {
         }
         return port_pin((PortName)port, pin);
 
-#elif defined(TARGET_KL25Z) || defined(TARGET_KL05Z) || defined(TARGET_KL46Z) || defined(TARGET_K64F)
+#elif defined(TARGET_KL25Z) || defined(TARGET_KL27Z) || defined(TARGET_KL05Z) || defined(TARGET_KL46Z) || defined(TARGET_K22F) || defined(TARGET_K64F)
     if (str[0] == 'P' && str[1] == 'T') {   // PTxn
         uint32_t port = str[2] - 'A';
         uint32_t pin  = str[3] - '0';       // PTxn

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_RZ_A1H)
+#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
 
 #include "mbed.h"
 #include "USBHALHost.h"

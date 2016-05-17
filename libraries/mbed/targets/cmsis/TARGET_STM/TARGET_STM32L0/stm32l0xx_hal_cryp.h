@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
    
-#if defined (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+#if defined (STM32L021xx) || (STM32L041xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
@@ -52,7 +52,7 @@
   * @{
   */
 
-/** @addtogroup CRYP
+/** @defgroup CRYP CRYP
   * @{
   */ 
 
@@ -177,9 +177,6 @@ typedef struct
 #define CRYP_IT_CC                          AES_CR_CCIE  /*!< Computation Complete interrupt */
 #define CRYP_IT_ERR                         AES_CR_ERRIE /*!< Error interrupt                */
 
-#define IS_CRYP_AES_IT(IT) ((((IT) & (uint32_t)0xFFFFF9FF) == 0x00000000) && ((IT) != 0x00000000))
-#define IS_CRYP_AES_GET_IT(IT) (((IT) == CRYP_IT_CC) || ((IT) == CRYP_IT_ERR))
-
 /**
   * @}
   */
@@ -192,9 +189,6 @@ typedef struct
 #define CRYP_FLAG_RDERR                     AES_SR_RDERR  /*!< Read Error Flag           */
 #define CRYP_FLAG_WRERR                     AES_SR_WRERR  /*!< Write Error Flag          */
 
-#define IS_CRYP_STATUS_FLAG(FLAG) (((FLAG) == CRYP_FLAG_CCF)    || \
-                           ((FLAG) == CRYP_FLAG_RDERR)  || \
-                           ((FLAG) == CRYP_FLAG_WRERR))
 /**
   * @}
   */ 
@@ -314,11 +308,11 @@ typedef struct
 
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup CRYP_Exported_Functions
+/** @defgroup CRYP_Exported_Functions CRYP Exported Functions
   * @{
   */
 
-/** @addtogroup CRYP_Exported_Functions_Group1
+/** @defgroup CRYP_Exported_Functions_Group1 Initialization and de-initialization functions
   * @{
   */
 
@@ -334,7 +328,7 @@ void                  HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
 
-/** @addtogroup CRYP_Exported_Functions_Group2
+/** @defgroup CRYP_Exported_Functions_Group2  AES processing functions
   * @{
   */
 
@@ -366,7 +360,7 @@ HAL_StatusTypeDef     HAL_CRYP_AESCTR_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uin
   * @}
   */ 
 
-/** @addtogroup CRYP_Exported_Functions_Group3
+/** @addtogroup CRYP_Exported_Functions_Group3 DMA callback functions
   * @{
   */
 
@@ -379,7 +373,7 @@ void                  HAL_CRYP_ErrorCallback(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
 
-/** @addtogroup CRYP_Exported_Functions_Group4
+/** @defgroup CRYP_Exported_Functions_Group4 CRYP IRQ handler
   * @{
   */
 
@@ -390,7 +384,7 @@ void                  HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
 
-/** @addtogroup CRYP_Exported_Functions_Group5
+/** @defgroup CRYP_Exported_Functions_Group5 Peripheral State functions
   * @{
   */
 
@@ -405,6 +399,17 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
 
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup CRYP_Private CRYP Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
+
+
 /**
   * @}
   */ 
@@ -413,7 +418,7 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
   
-#endif /* STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
+#endif /* STM32L021xx || STM32L041xx || STM32L061xx || STM32L062xx || STM32L063xx || STM32L081xx || STM32L082xx || STM32L083xx */
 #ifdef __cplusplus
 }
 #endif

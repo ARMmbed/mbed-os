@@ -130,11 +130,16 @@ typedef enum {
     SW1 = P1_5,
 
     // UART Pins
-    USBTX = P1_3,
-    USBRX = P1_2,
+    UART0_RX  = P1_0,
+    UART0_TX  = P1_1,
+    UART1_RX  = P1_2,
+    UART1_TX  = P1_3,
+    USBTX = UART1_TX,
+    USBRX = UART1_RX,
     STDIO_UART_TX = USBTX,
     STDIO_UART_RX = USBRX,
 
+    // I2C Pins
     I2C_SCL = P0_5,
     I2C_SDA = P0_4,
 

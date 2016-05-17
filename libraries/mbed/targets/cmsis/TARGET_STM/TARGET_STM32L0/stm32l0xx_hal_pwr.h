@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @defgroup PWR
+/** @defgroup PWR PWR
   * @{
   */
 
@@ -74,7 +74,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup PWR_Private_Defines PWR Private Defines
+/** @addtogroup PWR_Private
   * @{
   */ 
 
@@ -93,7 +93,8 @@ typedef struct
   */
 #define PWR_WAKEUP_PIN1                PWR_CSR_EWUP1
 #define PWR_WAKEUP_PIN2                PWR_CSR_EWUP2
-#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+#if defined (STM32L011xx) || defined (STM32L021xx) ||  defined (STM32L031xx) || defined (STM32L041xx) || defined (STM32L071xx) || \
+    defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
 #define PWR_WAKEUP_PIN3                PWR_CSR_EWUP3
 #endif
 /**
@@ -184,21 +185,24 @@ typedef struct
 #define PWR_FLAG_VOS                   PWR_CSR_VOSF
 #define PWR_FLAG_REGLP                 PWR_CSR_REGLPF
 
-#define IS_PWR_GET_FLAG(FLAG) (((FLAG) == PWR_FLAG_WU) || ((FLAG) == PWR_FLAG_SB) || \
-                               ((FLAG) == PWR_FLAG_PVDO) || ((FLAG) == PWR_FLAG_VREFINTRDY) || \
-                               ((FLAG) == PWR_FLAG_VOS) || ((FLAG) == PWR_FLAG_REGLP))
-/**
-  * @}
-  */
 
 /**
   * @}
   */
 
-/** @defgroup PWR_Exported_Macro PWR Exported Macro
+/**
+  * @}
+  */
+
+/** @defgroup PWR_Exported_Macro PWR Exported Macros
   * @{
   */
 /** @brief  macros configure the main internal regulator output voltage.
+  *         When exiting Low Power Run Mode or during dynamic voltage scaling configuration,
+  *         the reference manual recommends to poll PWR_FLAG_REGLP bit to wait for the regulator 
+  *         to reach main mode (resp. to get stabilized) for a transition from 0 to 1. 
+  *         Only then the clock can be increased.
+  *
   * @param  __REGULATOR__: specifies the regulator output voltage to achieve
   *         a tradeoff between performance and power consumption when the device does
   *         not operate at the maximum frequency (refer to the datasheets for more details).
@@ -241,7 +245,7 @@ typedef struct
   */
 #define __HAL_PWR_GET_FLAG(__FLAG__)                  ((PWR->CSR & (__FLAG__)) == (__FLAG__))
 
-/** @brief  Clear the PWR's pending flags.
+/** @brief  Clear the PWR pending flags.
   * @param  __FLAG__: specifies the flag to clear.
   *          This parameter can be one of the following values:
   *            @arg PWR_FLAG_WU: Wake Up flag
@@ -305,14 +309,14 @@ typedef struct
   * @brief  PVD EXTI line configuration: set rising & falling edge trigger.
   * @retval None.
   */
-#define __HAL_PWR_PVD_EXTI_ENABLE_RISING_FALLING_EDGE()   __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
+#define __HAL_PWR_PVD_EXTI_ENABLE_RISING_FALLING_EDGE()   do { __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE(); } while(0);
 
 /**
   * @brief Disable the PVD Extended Interrupt Rising & Falling Trigger.
   * This parameter can be:
   * @retval None.
   */
-#define __HAL_PWR_PVD_EXTI_DISABLE_RISING_FALLING_EDGE()  __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE()();
+#define __HAL_PWR_PVD_EXTI_DISABLE_RISING_FALLING_EDGE()  do { __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE(); } while(0);
 
 
 
@@ -333,9 +337,6 @@ typedef struct
   * @retval None.
   */
 #define __HAL_PWR_PVD_EXTI_GENERATE_SWIT()  SET_BIT(EXTI->SWIER, PWR_EXTI_LINE_PVD)
-/**
-  * @}
-  */
 
 /**
   * @brief Generate a Software interrupt on selected EXTI line.
@@ -347,7 +348,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup PWR_Private_Macros PWR Private Macros
+/** @addtogroup PWR_Private
   * @{
   */
 #define IS_PWR_PVD_LEVEL(LEVEL) (((LEVEL) == PWR_PVDLEVEL_0) || ((LEVEL) == PWR_PVDLEVEL_1)|| \
@@ -364,9 +365,15 @@ typedef struct
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
                                 ((PIN) == PWR_WAKEUP_PIN2) || \
                                 ((PIN) == PWR_WAKEUP_PIN3))
-#else
+#elif defined (STM32L051xx) || defined (STM32L052xx) || defined (STM32L053xx) || defined (STM32L061xx) || defined (STM32L062xx) || defined (STM32L063xx)
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
                                 ((PIN) == PWR_WAKEUP_PIN2))
+#elif defined (STM32L031xx) || defined (STM32L041xx)
+#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
+                                ((PIN) == PWR_WAKEUP_PIN2))
+#elif defined (STM32L011xx) || defined (STM32L021xx)
+#define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || \
+                                ((PIN) == PWR_WAKEUP_PIN3))
 #endif
 
 #define IS_PWR_REGULATOR(REGULATOR) (((REGULATOR) == PWR_MAINREGULATOR_ON) || \
@@ -428,6 +435,16 @@ void HAL_PWR_DisableSEVOnPend(void);
 /**
   * @}
   */
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup PWR_Private PWR Private
+  * @{
+  */
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

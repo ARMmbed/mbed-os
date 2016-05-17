@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    06-February-2015
+  * @version V1.5.0
+  * @date    8-January-2016
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -83,14 +83,6 @@ typedef enum
                              This parameter must be a value between 1 and (max number of pages - value of Initial page)*/
 
  } FLASH_EraseInitTypeDef;
-/**
-  * @}
-  */ 
-   
-   
-/** @defgroup FLASH_Private_Types FLASH Private Types
-  * @{
-  */  
 
 /** 
   * @brief  FLASH handle Structure definition  
@@ -114,7 +106,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup FLASH_Private_Variables FLASH Private Variables
+/** @addtogroup FLASH_Private
   * @{
   */  
 
@@ -123,13 +115,8 @@ typedef struct
   *     Put as extern as used also in flash_ex.c. 
   */
 extern FLASH_ProcessTypeDef ProcFlash;   
-/**
-  * @}
-  */
 
-/** @defgroup FLASH_Private_Constants FLASH Private Constants
-  * @{
-  */
+
 #define FLASH_TIMEOUT_VALUE        ((uint32_t)50000) /* 50 s */
 #define FLASH_SIZE_DATA_REGISTER   ((uint32_t)0x1FF8007C)
 /**
@@ -147,7 +134,7 @@ extern FLASH_ProcessTypeDef ProcFlash;
 #define FLASH_SIZE                 (uint32_t)(*((uint16_t *)FLASH_SIZE_DATA_REGISTER) * 1024)
 #define FLASH_PAGE_SIZE            ((uint32_t)128)
 
-/** @defgroup FLASH_Type_Program
+/** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */
 #define FLASH_TYPEPROGRAM_WORD     ((uint32_t)0x02)  /*!<Program a word (32-bit) at a specified address.*/
@@ -183,7 +170,7 @@ extern FLASH_ProcessTypeDef ProcFlash;
 #define FLASH_FLAG_WRPERR          FLASH_SR_WRPERR          /*!< FLASH Write protected error flag */
 #define FLASH_FLAG_PGAERR          FLASH_SR_PGAERR          /*!< FLASH Programming Alignment error flag */
 #define FLASH_FLAG_SIZERR          FLASH_SR_SIZERR          /*!< FLASH Size error flag  */
-#define FLASH_FLAG_OPTVERR         FLASH_SR_OPTVERR         /*!< FLASH Option Validity error flag  */
+#define FLASH_FLAG_OPTVERR         FLASH_SR_OPTVERR         /*!< FLASH Option Validity error flag (not valid with STM32L031xx/STM32L041xx) */
 #define FLASH_FLAG_RDERR           FLASH_SR_RDERR           /*!< FLASH Read protected error flag */
 #define FLASH_FLAG_FWWERR          FLASH_SR_FWWERR          /*!< FLASH Write or Errase operation aborted */
 #define FLASH_FLAG_NOTZEROERR      FLASH_SR_NOTZEROERR      /*!< FLASH Read protected error flag */
@@ -243,11 +230,13 @@ extern FLASH_ProcessTypeDef ProcFlash;
   * @{
   */  
 
-/** @defgroup FLASH_Interrupt macros to handle FLASH interrupts
+/** @defgroup FLASH_Macro_Interrupt Macros to handle FLASH interrupts
+  * @brief Enable and disable the specified FLASH interrupt.
   * @{
   */  
+
 /**
-  * @brief  Enable/Disable the specified FLASH interrupt.
+  * @brief  Enable the specified FLASH interrupt.
   * @param  __INTERRUPT__ : FLASH interrupt 
   *   This parameter can be any combination of the following values:
   *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
@@ -255,6 +244,15 @@ extern FLASH_ProcessTypeDef ProcFlash;
   * @retval none
   */ 
 #define __HAL_FLASH_ENABLE_IT(__INTERRUPT__)   ((FLASH->PECR) |= (__INTERRUPT__))
+
+/**
+  * @brief  Disable the specified FLASH interrupt.
+  * @param  __INTERRUPT__ : FLASH interrupt 
+  *   This parameter can be any combination of the following values:
+  *     @arg FLASH_IT_EOP: End of FLASH Operation Interrupt
+  *     @arg FLASH_IT_ERR: Error Interrupt    
+  * @retval none
+  */ 
 #define __HAL_FLASH_DISABLE_IT(__INTERRUPT__)  ((FLASH->PECR) &= ~(uint32_t)(__INTERRUPT__))
 
 /**
@@ -266,9 +264,9 @@ extern FLASH_ProcessTypeDef ProcFlash;
   *     @arg FLASH_FLAG_READY:       FLASH Ready flag after low power mode
   *     @arg FLASH_FLAG_ENDHV:       FLASH End of high voltage flag
   *     @arg FLASH_FLAG_WRPERR:      FLASH Write protected error flag 
-  *     @arg FLASH_FLAG_PGAERR:      FLASH Programming Alignment error flag
+  *     @arg FLASH_FLAG_PGAERR:      FLASH Programming Alignment error flag (not valid with STM32L031xx/STM32L041xx)
   *     @arg FLASH_FLAG_SIZERR:      FLASH Size error flag
-  *     @arg FLASH_FLAG_OPTVERR:     FLASH Option validity error flag
+  *     @arg FLASH_FLAG_OPTVERR:     FLASH Option validity error flag (not valid with STM32L031xx/STM32L041xx)
   *     @arg FLASH_FLAG_RDERR:       FLASH Read protected error flag
   *     @arg FLASH_FLAG_FWWERR:      FLASH Fetch While Write Error flag
   *     @arg FLASH_FLAG_NOTZEROERR:  Not Zero area error flag  
@@ -282,9 +280,9 @@ extern FLASH_ProcessTypeDef ProcFlash;
   *   This parameter can be any combination of the following values:
   *     @arg FLASH_FLAG_EOP:          FLASH End of Operation flag
   *     @arg FLASH_FLAG_WRPERR:       FLASH Write protected error flag 
-  *     @arg FLASH_FLAG_PGAERR:       FLASH Programming Alignment error flag 
+  *     @arg FLASH_FLAG_PGAERR:       FLASH Programming Alignment error flag (not valid with STM32L031xx/STM32L041xx)
   *     @arg FLASH_FLAG_SIZERR:       FLASH size error flag    
-  *     @arg FLASH_FLAG_OPTVERR:      FLASH Option validity error flag
+  *     @arg FLASH_FLAG_OPTVERR:      FLASH Option validity error flag (not valid with STM32L031xx/STM32L041xx)
   *     @arg FLASH_FLAG_RDERR:        FLASH Read protected error flag
   *     @arg FLASH_FLAG_FWWERR:       FLASH Fetch While Write Error flag
   *     @arg FLASH_FLAG_NOTZEROERR:   Not Zero area error flag  
@@ -363,7 +361,7 @@ uint32_t HAL_FLASH_GetError(void);
   * @}
   */ 
 
-/** @defgroup FLASH_Private_Macros FLASH Private Macros
+/** @addtogroup FLASH_Private
   * @{
   */
 
@@ -371,14 +369,6 @@ uint32_t HAL_FLASH_GetError(void);
 
 #define IS_FLASH_LATENCY(__LATENCY__) (((__LATENCY__) == FLASH_LATENCY_0) || \
                                    ((__LATENCY__) == FLASH_LATENCY_1))
-/**
-  * @}
-  */ 
-
-
-/** @defgroup FLASH_Private_Functions FLASH Private functions
-  * @{
-  */
 
 /** 
   * @brief  Function used internally by HAL FLASH driver. 
@@ -388,6 +378,17 @@ void              FLASH_ErasePage(uint32_t Page_Address);
 /**
   * @}
   */ 
+
+/* Define the private group ***********************************/
+/**************************************************************/
+/** @defgroup FLASH_Private FLASH Private
+  * @{
+  */
+
+/**
+  * @}
+  */
+/**************************************************************/
 
 /**
   * @}

@@ -16,8 +16,6 @@
 //   pull-up resistors on both lines
 // ********************************************************
 
-I2CSlave slave(p9, p10);
-I2C master(p28, p27);
 
 int main()
 {

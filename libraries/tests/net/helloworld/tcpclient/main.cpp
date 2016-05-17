@@ -8,8 +8,11 @@ namespace {
     const char *HTTP_SERVER_NAME = "developer.mbed.org";
     const char *HTTP_SERVER_FILE_PATH = "/media/uploads/mbed_official/hello.txt";
     const int HTTP_SERVER_PORT = 80;
+#if defined(TARGET_VK_RZ_A1H)
+    const int RECV_BUFFER_SIZE = 300;
+#else
     const int RECV_BUFFER_SIZE = 512;
-
+#endif
     // Test related data
     const char *HTTP_OK_STR = "200 OK";
     const char *HTTP_HELLO_STR = "Hello world!";

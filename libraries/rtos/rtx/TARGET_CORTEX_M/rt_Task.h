@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_TASK.H
  *      Purpose: Task functions and system start up.
- *      Rev.:    V4.60
+ *      Rev.:    V4.79
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -33,29 +33,30 @@
  *---------------------------------------------------------------------------*/
 
 /* Definitions */
-#define __CMSIS_RTOS    1
+
+#include "cmsis_os.h"
 
 /* Values for 'state'   */
-#define INACTIVE        0
-#define READY           1
-#define RUNNING         2
-#define WAIT_DLY        3
-#define WAIT_ITV        4
-#define WAIT_OR         5
-#define WAIT_AND        6
-#define WAIT_SEM        7
-#define WAIT_MBX        8
-#define WAIT_MUT        9
+#define INACTIVE        0U
+#define READY           1U
+#define RUNNING         2U
+#define WAIT_DLY        3U
+#define WAIT_ITV        4U
+#define WAIT_OR         5U
+#define WAIT_AND        6U
+#define WAIT_SEM        7U
+#define WAIT_MBX        8U
+#define WAIT_MUT        9U
 
 /* Return codes */
-#define OS_R_TMO        0x01
-#define OS_R_EVT        0x02
-#define OS_R_SEM        0x03
-#define OS_R_MBX        0x04
-#define OS_R_MUT        0x05
+#define OS_R_TMO        0x01U
+#define OS_R_EVT        0x02U
+#define OS_R_SEM        0x03U
+#define OS_R_MBX        0x04U
+#define OS_R_MUT        0x05U
 
-#define OS_R_OK         0x00
-#define OS_R_NOK        0xff
+#define OS_R_OK         0x00U
+#define OS_R_NOK        0xFFU
 
 /* Variables */
 extern struct OS_TSK os_tsk;
@@ -68,6 +69,15 @@ extern void      rt_block      (U16 timeout, U8 block_state);
 extern void      rt_tsk_pass   (void);
 extern OS_TID    rt_tsk_self   (void);
 extern OS_RESULT rt_tsk_prio   (OS_TID task_id, U8 new_prio);
+extern OS_TID    rt_tsk_create (FUNCP task, U32 prio_stksz, void *stk, void *argv);
 extern OS_RESULT rt_tsk_delete (OS_TID task_id);
+#ifdef __CMSIS_RTOS
 extern void      rt_sys_init   (void);
 extern void      rt_sys_start  (void);
+#else
+extern void      rt_sys_init   (FUNCP first_task, U32 prio_stksz, void *stk);
+#endif
+
+/*----------------------------------------------------------------------------
+ * end of file
+ *---------------------------------------------------------------------------*/

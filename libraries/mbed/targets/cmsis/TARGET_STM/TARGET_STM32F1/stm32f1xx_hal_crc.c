@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    15-December-2014
+  * @version V1.0.4
+  * @date    29-April-2016
   * @brief   CRC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
@@ -32,7 +32,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -123,7 +123,7 @@ HAL_StatusTypeDef HAL_CRC_Init(CRC_HandleTypeDef *hcrc)
   if(hcrc->State == HAL_CRC_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
-    hcrc-> Lock = HAL_UNLOCKED;
+    hcrc->Lock = HAL_UNLOCKED;
     
     /* Init the low level hardware */
     HAL_CRC_MspInit(hcrc);
@@ -180,6 +180,8 @@ HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
   */
 __weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcrc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CRC_MspInit could be implemented in the user file
    */
@@ -193,6 +195,8 @@ __weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
   */
 __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcrc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CRC_MspDeInit could be implemented in the user file
    */
