@@ -154,7 +154,7 @@ void Harness::raise_failure(const failure_reason_t reason)
     // this allows using unity assertion macros without setting up utest.
     if (test_cases == NULL) return;
 
-    status_t fail_status = STATUS_ABORT;
+    utest::v1::status_t fail_status = STATUS_ABORT;
     {
         UTEST_ENTER_CRITICAL_SECTION;
 
@@ -175,7 +175,7 @@ void Harness::raise_failure(const failure_reason_t reason)
             location_t fail_loc(location);
             location = LOCATION_CASE_TEARDOWN;
 
-            status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, failure_t(reason, fail_loc));
+            utest::v1::status_t teardown_status = handlers.case_teardown(case_current, case_passed, case_failed, failure_t(reason, fail_loc));
             if (teardown_status < STATUS_CONTINUE) raise_failure(REASON_CASE_TEARDOWN);
             else if (teardown_status > signed(test_length)) raise_failure(REASON_CASE_INDEX);
             else if (teardown_status >= 0) case_index = teardown_status - 1;
@@ -205,7 +205,7 @@ void Harness::schedule_next_case()
 
         if (handlers.case_teardown) {
             // printf("Schedule next case: case_passed = %d, case_failed = %d\n", case_passed, case_failed);    
-            status_t status = handlers.case_teardown(case_current, case_passed, case_failed,
+            utest::v1::status_t status = handlers.case_teardown(case_current, case_passed, case_failed,
                                                      case_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
             if (status < STATUS_CONTINUE)          raise_failure(REASON_CASE_TEARDOWN);
             else if (status > signed(test_length)) raise_failure(REASON_CASE_INDEX);
