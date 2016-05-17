@@ -33,7 +33,7 @@
 #include "fsl_common.h"
 
 /*!
- * @addtogroup ftm_driver
+ * @addtogroup ftm
  * @{
  */
 
@@ -162,7 +162,7 @@ typedef struct _ftm_phase_param
 typedef struct _ftm_fault_param
 {
     bool enableFaultInput; /*!< True: Fault input is enabled; false: Fault input is disabled */
-    bool faultLevel;       /*!< True: Fault polarity is active low i.e '0' indicates a fault;
+    bool faultLevel;       /*!< True: Fault polarity is active low i.e., '0' indicates a fault;
                                 False: Fault polarity is active high */
     bool useFaultFilter;   /*!< True: Use the filtered fault signal;
                                 False: Use the direct path from fault input */
