@@ -46,6 +46,19 @@ void rtc_init(void)
 
     RtcHandle.Instance = RTC;
 
+#if !DEVICE_RTC_LSI
+    // Enable LSE Oscillator
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
+    RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) { // Check if LSE has started correctly
+        // Connect LSE to RTC
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+    } else {
+	    error("Cannot initialize RTC with LSE\n");
+    }
+#else
     // Enable Power clock
     __HAL_RCC_PWR_CLK_ENABLE();
 
@@ -55,27 +68,20 @@ void rtc_init(void)
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
-
-    // Enable LSE Oscillator
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-    RCC_OscInitStruct.LSEState       = RCC_LSE_ON; // External 32.768 kHz clock on OSC_IN/OSC_OUT
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
-        // Connect LSE to RTC
-        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
-    } else {
-        // Enable LSI clock
-        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
-        RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
-        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-            error("RTC error: LSI clock initialization failed.");
-        }
-        // Connect LSI to RTC
-        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
-    }
-
+	
+	// Enable LSI clock
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
+	RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+	RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+	RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+		error("Cannot initialize RTC with LSI\n");
+	}
+	// Connect LSI to RTC
+	__HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
+	// This value is LSI typical value. To be measured precisely using a timer input capture for example.
+#endif
+	
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
 
@@ -88,6 +94,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
+#if DEVICE_RTC_LSI
     // Enable Power clock
     __PWR_CLK_ENABLE();
 
@@ -100,6 +107,7 @@ void rtc_free(void)
 
     // Disable access to Backup domain
     HAL_PWR_DisableBkUpAccess();
+#endif
 
     // Disable LSI and LSE clocks
     RCC_OscInitTypeDef RCC_OscInitStruct;
