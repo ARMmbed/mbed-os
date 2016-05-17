@@ -96,19 +96,15 @@ struct c027_socket {
 };
 
 static void socket_poll(struct c027_socket *socket) {
-    bool was_readable = false;
-
     while (socket->running) {
         socket->mutex.lock();
-        bool is_readable = !!socket->mdm->socketReadable(socket->socket);
-
-        if (is_readable != was_readable) {
+        if (socket->mdm->socketReadable(socket->socket)) {
             if (socket->callback) {
                 socket->callback(socket->data);
             }
-            was_readable = is_readable;
         }
         socket->mutex.unlock();
+        Thread::yield();
     }
 }
 
@@ -166,6 +162,9 @@ int C027Interface::socket_connect(void *handle, const SocketAddress &addr)
 
     socket->mutex.lock(); 
     bool success = _mdm->socketConnect(socket->socket, addr.get_ip_address(), addr.get_port());
+    if (socket->callback) {
+        socket->callback(socket->data);
+    }
     socket->mutex.unlock();
    
     if (!success) {
@@ -186,6 +185,10 @@ int C027Interface::socket_send(void *handle, const void *data, unsigned size)
 
     socket->mutex.lock(); 
     int sent = _mdm->socketSend(socket->socket, (const char *)data, size);
+
+    if (socket->callback) {
+        socket->callback(socket->data);
+    }
     socket->mutex.unlock(); 
 
     if (sent == SOCKET_ERROR) {
@@ -212,6 +215,10 @@ int C027Interface::socket_recv(void *handle, void *data, unsigned size)
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     
+    if (recv == 0) {
+        return NSAPI_ERROR_WOULD_BLOCK;
+    }
+
     return recv;
 }
 
@@ -223,6 +230,10 @@ int C027Interface::socket_sendto(void *handle, const SocketAddress &addr, const 
     int sent = _mdm->socketSendTo(socket->socket,
             *(MDMParser::IP *)addr.get_ip_bytes(), addr.get_port(),
             (const char *)data, size);
+
+    if (socket->callback) {
+        socket->callback(socket->data);
+    }
     socket->mutex.unlock();
             
     if (sent == SOCKET_ERROR) {
@@ -250,6 +261,10 @@ int C027Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *data
 
     if (recv == SOCKET_ERROR) {
         return NSAPI_ERROR_DEVICE_ERROR;
+    }
+
+    if (recv == 0) {
+        return NSAPI_ERROR_WOULD_BLOCK;
     }
 
     if (addr) {
