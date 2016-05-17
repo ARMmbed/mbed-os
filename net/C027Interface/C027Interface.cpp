@@ -19,6 +19,20 @@
 #include "rtos.h"
 
 
+// Portable big -> little endian
+static inline MDMParser::IP ntohl(MDMParser::IP ip) {
+    ip = ((0xff & (ip >> 24)) <<  0)
+       | ((0xff & (ip >> 16)) <<  8)
+       | ((0xff & (ip >>  8)) << 16)
+       | ((0xff & (ip >>  0)) << 24);
+    return ip;
+}
+
+static inline MDMParser::IP htonl(MDMParser::IP ip) {
+    return ntohl(ip);
+}
+
+
 // C027Interface implementation
 C027Interface::C027Interface(const char *simpin, bool debug)
     : _debug(debug)
@@ -54,7 +68,7 @@ int C027Interface::connect(const char *apn, const char *username, const char *pa
     
     if (mdmOk) {
         // join the internet connection 
-        MDMParser::IP ip = _mdm->join(apn, username, password);
+        MDMParser::IP ip = htonl(_mdm->join(apn, username, password));
         _ip_address.set_ip_bytes(&ip, NSAPI_IPv4);
         mdmOk = (ip != NOIP);
     }
@@ -228,7 +242,7 @@ int C027Interface::socket_sendto(void *handle, const SocketAddress &addr, const 
 
     socket->mutex.lock();
     int sent = _mdm->socketSendTo(socket->socket,
-            *(MDMParser::IP *)addr.get_ip_bytes(), addr.get_port(),
+            ntohl(*(MDMParser::IP *)addr.get_ip_bytes()), addr.get_port(),
             (const char *)data, size);
 
     if (socket->callback) {
@@ -268,6 +282,7 @@ int C027Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *data
     }
 
     if (addr) {
+        ip = htonl(ip);
         addr->set_ip_bytes(&ip, NSAPI_IPv4);
         addr->set_port(port);
     }
