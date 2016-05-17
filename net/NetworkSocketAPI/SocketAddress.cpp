@@ -153,7 +153,7 @@ SocketAddress::SocketAddress(NetworkStack *iface, const char *host, uint16_t por
         set_port(port);
     } else if (host && ipv6_is_valid(host)) {
         _ip_version = NSAPI_IPv6;
-        ipv4_from_address(_ip_bytes, host);
+        ipv6_from_address(_ip_bytes, host);
         set_port(port);
     } else {
         // DNS lookup
