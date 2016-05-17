@@ -524,7 +524,11 @@ static void uart_err_irq(IRQn_Type irq_num, uint32_t index) {
         }
         serial_rx_abort_asynch(obj);
         
+#if defined ( __ICCARM__ )
+        was_masked = __disable_irq_iar();
+#else
         was_masked = __disable_irq();
+#endif /* __ICCARM__ */
         if (obj->serial.uart->SCFSR & 0x93) {
             err_read = obj->serial.uart->SCFSR;
             obj->serial.uart->SCFSR = (err_read & ~0x93);
