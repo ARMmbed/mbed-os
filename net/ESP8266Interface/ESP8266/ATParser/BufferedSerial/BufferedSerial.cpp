@@ -89,13 +89,15 @@ int BufferedSerial::printf(const char* format, ...)
     va_start(arg, format);
     r = vsprintf(buffer, format, arg);
     // this may not hit the heap but should alert the user anyways
-    if(r > this->_buf_size) {
+    if(r > (int32_t) this->_buf_size) {
         error("%s %d buffer overwrite (max_buf_size: %d exceeded: %d)!\r\n", __FILE__, __LINE__,this->_buf_size,r);
         va_end(arg);
         return 0;
     }
     va_end(arg);
-    r = BufferedSerial::write(buffer, r);
+    if ( r > 0 ) {
+        r = BufferedSerial::write(buffer, r);
+    }
 
     return r;
 }
