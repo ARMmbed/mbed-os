@@ -34,7 +34,7 @@ namespace rtos {
 
 Thread::Thread(void (*task)(void const *argument), void *argument,
         osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
-#ifdef __MBED_CMSIS_RTOS_CM
+#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
     _thread_def.pthread = task;
     _thread_def.tpriority = priority;
     _thread_def.stacksize = stack_size;
