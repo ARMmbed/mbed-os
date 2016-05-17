@@ -43,7 +43,13 @@ C027Interface::C027Interface(const char *simpin, bool debug)
 int C027Interface::connect(const char *apn, const char *username, const char *password)
 {
     // create the modem
-    _mdm = new MDMSerial;
+    _mdm = new MDMSerial(
+            MDM_IF(MDMTXD,  D1), 
+            MDM_IF(MDMRXD,  D0), 
+            MDM_IF(MDMBAUD, 115200),
+            1024, 
+            1024);
+
     if (_debug) {
         _mdm->setDebug(4);
     } else {
