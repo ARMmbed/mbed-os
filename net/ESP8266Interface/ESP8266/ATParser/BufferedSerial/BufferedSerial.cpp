@@ -122,6 +122,10 @@ void BufferedSerial::rxIrq(void)
     // read from the peripheral and make sure something is available
     if(serial_readable(&_serial)) {
         _rxbuf = serial_getc(&_serial); // if so load them into a buffer
+        // trigger callback if necessary
+        if (_cbs[RxIrq]) {
+            _cbs[RxIrq]();
+        }
     }
 
     return;
@@ -136,6 +140,10 @@ void BufferedSerial::txIrq(void)
         } else {
             // disable the TX interrupt when there is nothing left to send
             RawSerial::attach(NULL, RawSerial::TxIrq);
+            // trigger callback if necessary
+            if (_cbs[TxIrq]) {
+                _cbs[TxIrq]();
+            }
             break;
         }
     }
@@ -155,4 +163,8 @@ void BufferedSerial::prime(void)
     return;
 }
 
+void BufferedSerial::attach(Callback<void()> func, IrqType type)
+{
+    _cbs[type] = func;
+}
 

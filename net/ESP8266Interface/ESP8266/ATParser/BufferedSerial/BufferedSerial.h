@@ -79,6 +79,8 @@ private:
     void rxIrq(void);
     void txIrq(void);
     void prime(void);
+
+    Callback<void()> _cbs[2];
     
 public:
     /** Create a BufferedSerial port, connected to the specified transmit and receive pins
@@ -135,6 +137,22 @@ public:
      *  @return The number of bytes written to the Serial Port Buffer
      */
     virtual ssize_t write(const void *s, std::size_t length);
+
+    /** Attach a function to call whenever a serial interrupt is generated
+     *  @param func A pointer to a void function, or 0 to set as none
+     *  @param type Which serial interrupt to attach the member function to (Serial::RxIrq for receive, TxIrq for transmit buffer empty)
+     */
+    virtual void attach(Callback<void()> func, IrqType type=RxIrq);
+
+    /** Attach a member function to call whenever a serial interrupt is generated
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to call
+     *  @param type Which serial interrupt to attach the member function to (Serial::RxIrq for receive, TxIrq for transmit buffer empty)
+     */
+    template <typename T, typename M>
+    void attach(T *obj, M method, IrqType type=RxIrq) {
+        attach(Callback<void()>(obj, method), type);
+    }
 };
 
 #endif

@@ -144,6 +144,24 @@ public:
     */
     bool writeable();
 
+    /**
+    * Attach a function to call whenever network state has changed
+    *
+    * @param func A pointer to a void function, or 0 to set as none
+    */
+    void attach(Callback<void()> func);
+
+    /**
+    * Attach a function to call whenever network state has changed
+    *
+    * @param obj pointer to the object to call the member function on
+    * @param method pointer to the member function to call
+    */
+    template <typename T, typename M>
+    void attach(T *obj, M method) {
+        attach(Callback<void()>(obj, method));
+    }
+
 private:
     BufferedSerial _serial;
     ATParser _parser;

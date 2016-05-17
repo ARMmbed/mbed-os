@@ -167,3 +167,7 @@ bool ESP8266::writeable()
     return _serial.writeable();
 }
 
+void ESP8266::attach(Callback<void()> func)
+{
+    _serial.attach(func);
+}
