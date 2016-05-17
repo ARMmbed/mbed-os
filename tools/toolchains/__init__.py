@@ -363,14 +363,14 @@ class mbedToolchain:
             for d in copy(dirs):
                 dir_path = join(root, d)
                 
-                if d == '.hg' or d == '.git':
+                if d == '.hg':
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
-                    (d.upper() == 'TESTS') or
+                    (d == 'TESTS') or
                     exists(join(dir_path, '.buildignore'))):
                     dirs.remove(d)
                 
