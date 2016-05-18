@@ -54,6 +54,8 @@
 
 #define DEVICE_SLEEP            1
 
+#define DEVICE_CAN              1
+
 //=======================================
 
 #define DEVICE_SEMIHOST         0
