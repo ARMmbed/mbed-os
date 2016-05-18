@@ -16,6 +16,7 @@
 #include "rtc_api.h"
 
 #include <time.h>
+#include "critical.h"
 #include "rtc_time.h"
 #include "us_ticker_api.h"
 
@@ -74,12 +75,12 @@ clock_t clock() {
 }
 
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void)) {
-    __disable_irq();
+    core_util_critical_section_enter();
     _rtc_read = read_rtc;
     _rtc_write = write_rtc;
     _rtc_init = init_rtc;
     _rtc_isenabled = isenabled_rtc;
-    __enable_irq();
+    core_util_critical_section_exit();
 }
 
 
