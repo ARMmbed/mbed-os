@@ -811,6 +811,15 @@ __asm(
 __STATIC_INLINE void __v7_inv_dcache_all(void) {
     __v7_all_cache(0);
 }
+/** \brief  Clean and Invalidate D$ by MVA
+
+    DCCIMVAC. Data cache clean and invalidate by MVA to PoC
+ */
+__STATIC_INLINE void __v7_clean_inv_dcache_mva(void *va) {
+    __MCR(15, 0, (uint32_t)va, 7, 14, 1);
+    __DMB();
+}
+
 #include "core_ca_mmu.h"
 
 #elif (defined (__GNUC__)) /*------------------ GNU Compiler ---------------------*/
