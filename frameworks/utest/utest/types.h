@@ -111,7 +111,7 @@ namespace v1 {
     /// Stringifies a location.
     const char* stringify(location_t location);
     /// Stringifies a status.
-    const char* stringify(status_t status);
+    const char* stringify(utest::v1::status_t status);
 
     /** Control class for specifying test case attributes
      *
@@ -231,7 +231,7 @@ namespace v1 {
      *    You can return `STATUS_ABORT` if you initialization failed and the test teardown handler will
      *    then be called with the `REASON_SETUP`.
      */
-    typedef status_t (*test_setup_handler_t)(const size_t number_of_cases);
+    typedef utest::v1::status_t (*test_setup_handler_t)(const size_t number_of_cases);
 
     /** Test teardown handler.
      *
@@ -270,7 +270,7 @@ namespace v1 {
      *    failure handler with `REASON_SETUP` and then the case teardown handler with `REASON_SETUP`.
      *    This gives the teardown handler a chance to clean up a failed setup.
      */
-    typedef status_t (*case_setup_handler_t)(const Case *const source, const size_t index_of_case);
+    typedef utest::v1::status_t (*case_setup_handler_t)(const Case *const source, const size_t index_of_case);
 
     /** Primitive test case handler
      *
@@ -316,7 +316,7 @@ namespace v1 {
      *    You can return `STATUS_ABORT` to indicate that your teardown failed, which will call the case
      *    failure handler with `REASON_TEARDOWN`.
      */
-    typedef status_t (*case_teardown_handler_t)(const Case *const source, const size_t passed, const size_t failed, const failure_t reason);
+    typedef utest::v1::status_t (*case_teardown_handler_t)(const Case *const source, const size_t passed, const size_t failed, const failure_t reason);
 
     /** Test case failure handler.
      *
@@ -330,7 +330,7 @@ namespace v1 {
      *    teardown handler with reason. If a failure occurs during teardown, the teardown will not be called again.
      *    You may return `STATUS_IGNORE` which will cause the harness to ignore and not count the failure.
      */
-    typedef status_t (*case_failure_handler_t)(const Case *const source, const failure_t reason);
+    typedef utest::v1::status_t (*case_failure_handler_t)(const Case *const source, const failure_t reason);
 
 
     // deprecations

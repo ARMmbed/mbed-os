@@ -126,34 +126,34 @@ namespace v1 {
     };
 
     /// Prints the number of tests to run and continues.
-    status_t verbose_test_setup_handler   (const size_t number_of_cases);
+    utest::v1::status_t verbose_test_setup_handler   (const size_t number_of_cases);
     /// Prints the number of tests that passed and failed with a reason if provided.
     void     verbose_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure);
     /// Prints the failure for `REASON_TEST_SETUP` and `REASON_TEST_TEARDOWN` and then dies.
     void     verbose_test_failure_handler (const failure_t failure);
 
     /// Prints the index and description of the case being run and continues.
-    status_t verbose_case_setup_handler   (const Case *const source, const size_t index_of_case);
+    utest::v1::status_t verbose_case_setup_handler   (const Case *const source, const size_t index_of_case);
     /// Prints the number of tests that passed and failed with a reason if provided within this case and continues.
-    status_t verbose_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure);
+    utest::v1::status_t verbose_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure);
     /// Prints the reason of the failure and continues, unless the teardown handler failed, for which it aborts.
-    status_t verbose_case_failure_handler (const Case *const source, const failure_t reason);
+    utest::v1::status_t verbose_case_failure_handler (const Case *const source, const failure_t reason);
 
     /// Requests the start test case from greentea and continues.
-    status_t greentea_test_setup_handler   (const size_t number_of_cases);
+    utest::v1::status_t greentea_test_setup_handler   (const size_t number_of_cases);
     /// Reports the test results to greentea.
     void     greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure);
     /// Reports the failure for `REASON_TEST_SETUP` and `REASON_TEST_TEARDOWN` to greentea and then dies.
     void     greentea_test_failure_handler (const failure_t failure);
 
     /// Registers the test case setup with greentea.
-    status_t greentea_case_setup_handler   (const Case *const source, const size_t index_of_case);
+    utest::v1::status_t greentea_case_setup_handler   (const Case *const source, const size_t index_of_case);
     /// Registers the test case teardown with greentea.
-    status_t greentea_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure);
+    utest::v1::status_t greentea_case_teardown_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure);
     /// Reports the failure to greentea and then aborts.
-    status_t greentea_case_failure_abort_handler   (const Case *const source, const failure_t reason);
+    utest::v1::status_t greentea_case_failure_abort_handler   (const Case *const source, const failure_t reason);
     /// Reports the failure to greentea and then continues.
-    status_t greentea_case_failure_continue_handler(const Case *const source, const failure_t reason);
+    utest::v1::status_t greentea_case_failure_continue_handler(const Case *const source, const failure_t reason);
 
     /// The verbose default handlers that always continue on failure
     extern const handlers_t verbose_continue_handlers;
