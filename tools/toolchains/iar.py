@@ -63,10 +63,10 @@ class IAR(mbedToolchain):
         main_cc = join(IAR_BIN, "iccarm")
         self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
         if not "analyze" in self.options:
-            self.cc   = [main_cc] + c_flags
+            self.cc = [main_cc, "--vla"] + c_flags
             self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
         else:
-            self.cc   = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + c_flags
+            self.cc = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT, "--vla"] + c_flags
             self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + ["--c++", "--no_rtti", "--no_exceptions"] + c_flags
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
