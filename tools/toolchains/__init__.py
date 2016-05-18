@@ -366,22 +366,20 @@ class mbedToolchain:
                 if d == '.hg':
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
-                
-                should_exclude_path = False
+
+                if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
+                    (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
+                    (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
+                    (d == 'TESTS') or
+                    exists(join(dir_path, '.buildignore'))):
+                    dirs.remove(d)
                 
                 if exclude_paths:
                     for exclude_path in exclude_paths:
                         rel_path = relpath(dir_path, exclude_path)
                         if not (rel_path.startswith('..')):
-                            should_exclude_path = True
+                            dirs.remove(d)
                             break
-
-                if ((should_exclude_path) or
-                    (d.startswith('.') or d in self.legacy_ignore_dirs) or
-                    (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
-                    (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
-                    (d == 'TESTS')):
-                    dirs.remove(d)
 
             # Add root to include paths
             resources.inc_dirs.append(root)
