@@ -14,20 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed.h"
-#include "test_env.h"
-#include "utest.h"
-#include "unity.h"
-#include "stack_trace.h"
+#include "mbed-drivers/mbed.h"
+#include "greentea-client/test_env.h"
+#include "utest/utest.h"
+#include "unity/unity.h"
+#include "utest/stack_trace.h"
 
 using namespace utest::v1;
 
-#ifdef UTEST_STACK_TRACE
-std::string utest_trace[UTEST_MAX_BACKTRACE];
-#endif // UTEST_STACK_TRACE
 
-int call_counter(0);
-Timeout to;
+static int call_counter(0);
+static Timeout utest_to;
 
 class Utest_func_bind {
 
@@ -48,29 +45,29 @@ private:
 
 void await_case_validate(int expected_call_count) 
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     printf("await_case_validate called with expected call count of %d\n", expected_call_count);
     TEST_ASSERT_EQUAL(expected_call_count, call_counter++);
     Harness::validate_callback();
 }
 
-Utest_func_bind validate1(await_case_validate, 7);
-Utest_func_bind validate2(await_case_validate, 37);
-Utest_func_bind validate3(await_case_validate, 50);
+static Utest_func_bind validate1(await_case_validate, 7);
+static Utest_func_bind validate2(await_case_validate, 37);
+static Utest_func_bind validate3(await_case_validate, 50);
 
  
  
 // Control: Timeout (Failure) -----------------------------------------------------------------------------------------
 control_t timeout_failure_case(const size_t call_count)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(0, call_counter++);
     return CaseTimeout(100);
 }
 status_t timeout_failure_case_failure_handler(const Case *const source, const failure_t failure)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_counter++);
     TEST_ASSERT_EQUAL(REASON_TIMEOUT, failure.reason);
     TEST_ASSERT_EQUAL(LOCATION_CASE_HANDLER, failure.location);
@@ -79,7 +76,7 @@ status_t timeout_failure_case_failure_handler(const Case *const source, const fa
 }
 status_t timeout_failure_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(2, call_counter++);
     TEST_ASSERT_EQUAL(0, passed);
     TEST_ASSERT_EQUAL(1, failed);
@@ -90,23 +87,23 @@ status_t timeout_failure_case_teardown(const Case *const source, const size_t pa
 
 // Control: Timeout (Success) -----------------------------------------------------------------------------------------
 void timeout_success_case_validate() {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(4, call_counter++);
     Harness::validate_callback();
 }
 
 control_t timeout_success_case(const size_t call_count)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(3, call_counter++);
-    to.attach_us(timeout_success_case_validate, 100000); // Fire after 100 ms 
+    utest_to.attach_us(timeout_success_case_validate, 100000); // Fire after 100 ms 
 
     return CaseTimeout(200);
 }
 status_t timeout_success_case_failure_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(5, call_counter++);
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -118,11 +115,11 @@ status_t timeout_success_case_failure_handler(const Case *const source, const si
 // Control: Await -----------------------------------------------------------------------------------------------------
 control_t await_case(const size_t call_count)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(6, call_counter++);
     
-    to.attach_us(&validate1, &Utest_func_bind::callback, (1372*1000)); // Fire after 1372 ms 
+    utest_to.attach_us(&validate1, &Utest_func_bind::callback, (1372*1000)); // Fire after 1372 ms 
                 
     return CaseAwait;
 }
@@ -135,7 +132,7 @@ status_t repeat_all_on_timeout_case_setup(const Case *const source, const size_t
         UTEST_TRACE_START 
         repeat_all_start_flag = false;    
     }
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     static int repeat_counter(0);
     TEST_ASSERT_EQUAL(3, index_of_case);
     TEST_ASSERT_EQUAL(repeat_counter*3 + 8, call_counter++);
@@ -144,7 +141,7 @@ status_t repeat_all_on_timeout_case_setup(const Case *const source, const size_t
 }
 control_t repeat_all_on_timeout_case(const size_t call_count)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     printf("Running case handler for %u. time\n", call_count);
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
@@ -152,13 +149,13 @@ control_t repeat_all_on_timeout_case(const size_t call_count)
     TEST_ASSERT_EQUAL((call_count-1)*3 + 9, call_counter++);
     if (call_count == 10) {
         printf("Scheduling await_case_validate with value 37");
-        to.attach_us(&validate2, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
+        utest_to.attach_us(&validate2, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
     }
     return CaseRepeatAllOnTimeout(100);
 }
 status_t repeat_all_on_timeout_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     static int repeat_counter(0);
     printf("Call counter = %d, passed =%u, failed = %u\n", call_counter, passed, failed);
     
@@ -174,7 +171,7 @@ status_t repeat_all_on_timeout_case_teardown(const Case *const source, const siz
 // Control: RepeatAllOnTimeout ----------------------------------------------------------------------------------------
 status_t repeat_handler_on_timeout_case_setup(const Case *const source, const size_t index_of_case)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(4, index_of_case);
     TEST_ASSERT_EQUAL(39, call_counter++);
     return greentea_case_setup_handler(source, index_of_case);
@@ -182,7 +179,7 @@ status_t repeat_handler_on_timeout_case_setup(const Case *const source, const si
 
 control_t repeat_handler_on_timeout_case(const size_t call_count)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     printf("Running case handler for %u. time\n", call_count);
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
@@ -190,13 +187,13 @@ control_t repeat_handler_on_timeout_case(const size_t call_count)
     TEST_ASSERT_EQUAL(call_count-1 + 40, call_counter++);
     if (call_count == 10) {
         printf("Scheduling await_case_validate with value 50");
-        to.attach_us(&validate3, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
+        utest_to.attach_us(&validate3, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
     }
     return CaseRepeatHandlerOnTimeout(100);
 }
 status_t repeat_handler_on_timeout_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
     TEST_ASSERT_EQUAL(REASON_NONE, failure.reason);
@@ -208,7 +205,7 @@ status_t repeat_handler_on_timeout_case_teardown(const Case *const source, const
 // Control: NoTimeout -------------------------------------------------------------------------------------------------
 control_t no_timeout_case(const size_t call_count)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(52, call_counter++);
     return CaseNoTimeout;
@@ -217,7 +214,7 @@ control_t no_timeout_case(const size_t call_count)
 // Control: NoTimeout -------------------------------------------------------------------------------------------------
 control_t next_case(const size_t call_count)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_count);
     TEST_ASSERT_EQUAL(53, call_counter++);
     return CaseNoTimeout;

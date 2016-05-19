@@ -1,22 +1,26 @@
-#include "test_env.h"
-#include "mbed.h"
-#include "utest.h"
-#include "unity.h"
+#include "mbed-drivers/mbed.h"
+#include "greentea-client/test_env.h"
+#include "utest/utest.h"
+#include "unity/unity.h"
+#include "stack_trace.h"
 
 using namespace utest::v1;
 
 void test_simple() {
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(0, 0);
     printf("Simple test called\n");
 }
 
 status_t test_repeats_setup(const Case *const source, const size_t index_of_case) {
+    UTEST_LOG_FUNCTION();
     // Call the default handler for proper reporting
     status_t status = greentea_case_setup_handler(source, index_of_case);
     printf("Setting up for '%s'\n", source->get_description());
     return status;
 }
 control_t test_repeats(const size_t call_count) {
+    UTEST_LOG_FUNCTION();
     printf("Called for the %u. time\n", call_count);
     TEST_ASSERT_NOT_EQUAL(3, call_count);
     // Specify how often this test is repeated ie. n total calls
@@ -25,6 +29,7 @@ control_t test_repeats(const size_t call_count) {
 
 // Custom setup handler required for proper Greentea support
 status_t greentea_setup(const size_t number_of_cases) {
+    UTEST_LOG_FUNCTION();
     GREENTEA_SETUP(20, "default_auto");
     // Call the default reporting function
     return greentea_test_setup_handler(number_of_cases);
@@ -43,8 +48,7 @@ extern void utest_run(const Specification& specification);
 
 int main()
 {
-    // You MUST set the custom scheduler before running the specification.
-    Harness::set_scheduler(utest_v1_get_scheduler());
+    UTEST_LOG_FUNCTION();
     // Run the specification only AFTER setting the custom scheduler.
     Harness::run(specification);
 }

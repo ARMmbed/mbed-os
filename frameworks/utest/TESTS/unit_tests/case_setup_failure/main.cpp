@@ -21,7 +21,7 @@
 
 using namespace utest::v1;
 
-int call_counter(0);
+static int call_counter(0);
 
 void never_call_case()
 {

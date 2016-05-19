@@ -14,19 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "test_env.h"
-#include "mbed.h"
-#include "utest.h"
-#include "unity.h"
+#include "mbed-drivers/mbed.h"
+#include "greentea-client/test_env.h"
+#include "utest/utest.h"
+#include "unity/unity.h"
 
 #include <stdio.h>
 
 using namespace utest::v1;
 
-int call_counter(0);
+static int call_counter(0);
 
-Timeout to1;
-Timeout to;
+static Timeout utest_to;
 
 // Validate: Simple Validation ----------------------------------------------------------------------------------------
 void simple_validation()
@@ -40,7 +39,7 @@ control_t simple_validation_case()
 {
     printf("Simple validation, posting callback\n");
     TEST_ASSERT_EQUAL(0, call_counter++);
-    to.attach_us(simple_validation, 100); // Fire after 100 us
+    utest_to.attach_us(simple_validation, 100); // Fire after 100 us
 
     return CaseAwait;
 }
@@ -69,7 +68,7 @@ control_t multiple_validation_case()
 {
     TEST_ASSERT_EQUAL(2, call_counter++);
     printf("Multiple validation callback posted.\n");
-    to1.attach_us(multiple_validation, 100000); // Fire after 100 ms
+    utest_to.attach_us(multiple_validation, 100000); // Fire after 100 ms
     return CaseAwait;
 }
 
@@ -146,7 +145,7 @@ control_t attributed_validation_cancel_repeat_case()
     TEST_ASSERT_EQUAL(18, call_counter++);
     printf("Validation cancel repeat callback posted.\n");
 
-    to1.attach_us(attributed_validation_cancel_repeat, 100000); // Fire after 100 ms
+    utest_to.attach_us(attributed_validation_cancel_repeat, 100000); // Fire after 100 ms
     // the RepeatAll will be cancelled during callback validation
     return CaseRepeatAll + CaseAwait;
 }
@@ -178,8 +177,8 @@ control_t attributed_validation_enable_repeat_case(const size_t call_count)
 {
     if (call_count == 1) {
         TEST_ASSERT_EQUAL(21, call_counter++);
-    printf("Validation enable repeat callback posted.\n");
-    to1.attach_us(attributed_validation_enable_repeat, 100000); // Fire after 100 ms
+        printf("Validation enable repeat callback posted.\n");
+        utest_to.attach_us(attributed_validation_enable_repeat, 100000); // Fire after 100 ms
         // the RepeatAll will be cancelled during callback validation
         return CaseAwait;
     }

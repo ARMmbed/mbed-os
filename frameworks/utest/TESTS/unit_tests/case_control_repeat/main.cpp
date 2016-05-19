@@ -21,7 +21,7 @@
 
 using namespace utest::v1;
 
-int call_counter(0);
+static int call_counter(0);
 
 // Control: RepeatAll -------------------------------------------------------------------------------------------------
 status_t repeat_all_case_setup(const Case *const source, const size_t index_of_case)

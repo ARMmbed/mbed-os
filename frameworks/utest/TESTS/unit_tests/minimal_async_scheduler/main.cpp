@@ -22,40 +22,36 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
-#include "stack_trace.h"
+#include "utest/stack_trace.h"
 
 #include "ticker_api.h"
 #include "us_ticker_api.h"
 
 using namespace utest::v1;
 
-#ifdef UTEST_STACK_TRACE
-std::string utest_trace[UTEST_MAX_BACKTRACE];
-#endif // UTEST_STACK_TRACE
-
 // only one callback is active at any given time
 volatile utest_v1_harness_callback_t minimal_callback;
 volatile utest_v1_harness_callback_t ticker_callback;
-Timeout utest_minimal_object;
+static Timeout utest_minimal_object;
 
 // Scheduler ----------------------------------------------------------------------------------------------------------
 static void ticker_handler()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
 //    printf("\t\t>>> Ticker callback fired for %p.\n", ticker_callback);
     minimal_callback = ticker_callback;
 }
 
 static int32_t utest_minimal_init()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     minimal_callback = NULL;
     ticker_callback = NULL;
     return 0;
 }
 static void *utest_minimal_post(const utest_v1_harness_callback_t callback,  timestamp_t delay_ms)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     // printf("\t\t>>> Schedule %p with %ums delay => %p.\n", callback, (unsigned int)delay_ms, (void*)1);
     timestamp_t delay_us = delay_ms *1000;
 
@@ -72,7 +68,7 @@ static void *utest_minimal_post(const utest_v1_harness_callback_t callback,  tim
 }
 static int32_t utest_minimal_cancel(void *handle)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     printf("\t\t>>> Cancel %p => %u\n", handle, (unsigned int)0);
     (void) handle;
     utest_minimal_object.detach();
@@ -80,7 +76,7 @@ static int32_t utest_minimal_cancel(void *handle)
 }
 static int32_t utest_minimal_run()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     /* This is the amazing minimal scheduler.
      * This is just a busy loop that calls the callbacks in this context.
      * THIS LOOP IS BLOCKING.
@@ -115,7 +111,7 @@ int call_counter(0);
 // Basic Test Case ----------------------------------------------------------------------------------------------------
 control_t test_case()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     static int counter(0);
     TEST_ASSERT_EQUAL(counter++, call_counter++);
     printf("Running Test #%d\n", counter);
@@ -125,7 +121,7 @@ control_t test_case()
 // Async Test Case Failure --------------------------------------------------------------------------------------------
 control_t test_case_async()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     static int counter(3);
     TEST_ASSERT_EQUAL(counter++, call_counter++);
     printf("Running Test #%d\n", counter);
@@ -133,7 +129,7 @@ control_t test_case_async()
 }
 status_t test_case_async_failure(const Case *const source, const failure_t reason)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     // ignore the timeout, since this is a test
     return greentea_case_failure_continue_handler(source, reason.ignored());
 }
@@ -154,7 +150,7 @@ status_t greentea_setup(const size_t number_of_cases)
 }
 void greentea_teardown(const size_t passed, const size_t failed, const failure_t failure)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(4, call_counter++);
     TEST_ASSERT_EQUAL(4, passed);
     TEST_ASSERT_EQUAL(0, failed);

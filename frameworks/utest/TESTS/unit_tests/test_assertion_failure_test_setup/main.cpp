@@ -22,7 +22,7 @@
 
 using namespace utest::v1;
 
-bool failure_is_in_setup = false;
+static bool failure_is_in_setup = false;
 
 void never_call_case()
 {
