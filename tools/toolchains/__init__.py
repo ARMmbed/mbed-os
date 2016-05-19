@@ -83,6 +83,18 @@ class Resources:
         self.hex_files = []
         self.bin_files = []
 
+    def __add__(self, resources):
+        if resources is None:
+            return self
+        else:
+            return self.add(resources)
+
+    def __radd__(self, resources):
+        if resources is None:
+            return self
+        else:
+            return self.add(resources)
+
     def add(self, resources):
         self.inc_dirs += resources.inc_dirs
         self.headers += resources.headers
@@ -106,6 +118,7 @@ class Resources:
 
         self.hex_files += resources.hex_files
         self.bin_files += resources.bin_files
+        return self
 
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',

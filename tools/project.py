@@ -79,6 +79,7 @@ if __name__ == '__main__':
                       help="writes tools/export/README.md")
 
     parser.add_option("--source",
+                      action="append",
                       dest="source_dir",
                       default=None,
                       help="The source (input) directory")
@@ -147,8 +148,8 @@ if __name__ == '__main__':
         if src is not None:
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
             project_dir = options.source_dir
-            project_name = basename(project_dir)
-            project_temp = path.join(options.source_dir, 'projectfiles', ide)
+            project_name = basename(project_dir[0])
+            project_temp = path.join(options.source_dir[0], 'projectfiles', ide)
             mkdir(project_temp)
             lib_symbols = []
             if options.macros:
@@ -210,7 +211,6 @@ if __name__ == '__main__':
 
         # Export to selected toolchain
         tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir, project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols, relative=sources_relative)
-        print tmp_path
         if report['success']:
             zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
             if zip:
