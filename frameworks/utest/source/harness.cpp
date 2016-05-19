@@ -84,26 +84,21 @@ bool Harness::run(const Specification& specification, size_t)
 bool Harness::run(const Specification& specification)
 {
     UTEST_LOG_FUNCTION();
-printf("here in harness::run 1\n");
     // check if a specification is currently running
     if (is_busy())
         return false;
-printf("here in harness::run 2\n");
 
     // if the scheduler is invalid, this is the first time we are calling
     if (!is_scheduler_valid(scheduler))
         scheduler = utest_v1_get_scheduler();
-printf("here in harness::run 3\n");
 
-// if the scheduler is still invalid, abort
+    // if the scheduler is still invalid, abort
     if (!is_scheduler_valid(scheduler))
         return false;
-printf("here in harness::run 4\n");
 
     // if the scheduler failed to initialize, abort
     if (scheduler.init() != 0)
         return false;
-printf("here in harness::run 5\n");
     test_cases  = specification.cases;
     test_length = specification.length;
     defaults    = specification.defaults;
