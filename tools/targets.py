@@ -140,7 +140,24 @@ class Target:
                         v.extend(data[attrname + "_add"])
                     # Do we have anything to remove ?
                     if data.has_key(attrname + "_remove"):
-                        [v.remove(e) for e in data[attrname + "_remove"]]
+                        # Macros can be defined either without a value (MACRO) or with a value (MACRO=10).
+                        # When removing, we specify only the name of the macro, without the value. So we need
+                        # to create a mapping between the macro name and its value. This will work for
+                        # extra_labels and other type of arrays as well, since they fall into the "macros
+                        # without a value" category (simple definitions without a value).
+                        name_def_map = {}
+                        for crtv in v:
+                            if crtv.find('=') != -1:
+                                temp = crtv.split('=')
+                                if len(temp) != 2:
+                                    raise ValueError("Invalid macro definition '%s'" % crtv)
+                                name_def_map[temp[0]] = crtv
+                            else:
+                                name_def_map[crtv] = crtv
+                        for e in data[attrname + "_remove"]:
+                            if not e in name_def_map:
+                                raise ValueError("Unable to remove '%s' in '%s.%s' since it doesn't exist" % (e, self.name, attrname))
+                            v.remove(name_def_map[e])
             return v
         # Look for the attribute in the class and its parents, as defined by the resolution order
         v = None
@@ -191,7 +208,7 @@ class Target:
         # A hook was found. The hook's name is in the format "classname.functionname"
         temp = hook_data["function"].split(".")
         if len(temp) != 2:
-            raise HookException("Invalid format for hook '%s' in target '%s' (must be 'class_name.function_name')" % (hook_data["function"], self.name))
+            raise HookError("Invalid format for hook '%s' in target '%s' (must be 'class_name.function_name')" % (hook_data["function"], self.name))
         class_name, function_name = temp[0], temp[1]
         # "class_name" must refer to a class in this file, so check if the class exists
         mdata = self.get_module_data()
