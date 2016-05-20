@@ -216,7 +216,8 @@ class GCC(mbedToolchain):
             libs.extend(libs)
         
         # Build linker command
-        cmd = self.ld + ["-o", output] + objects
+        map_file = splitext(output)[0] + ".map"
+        cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects
         
         if mem_map:
             cmd.extend(['-T', mem_map])

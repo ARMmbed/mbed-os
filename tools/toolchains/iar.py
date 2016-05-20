@@ -145,7 +145,8 @@ class IAR(mbedToolchain):
     @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
-        cmd = [self.ld, "-o", output, "--skip_dynamic_initialization"] + objects + libraries
+        map_file = splitext(output)[0] + ".map"
+        cmd = [self.ld, "-o", output, "--skip_dynamic_initialization", "--map=%s" % map_file] + objects + libraries
 
         if mem_map:
             args.extend(["--config", mem_map])
