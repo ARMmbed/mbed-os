@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pccard.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   PCCARD HAL module driver.
   *          This file provides a generic firmware to drive PCCARD memories mounted 
   *          as external device.
@@ -212,6 +212,8 @@ HAL_StatusTypeDef  HAL_PCCARD_DeInit(PCCARD_HandleTypeDef *hpccard)
   */
 __weak void HAL_PCCARD_MspInit(PCCARD_HandleTypeDef *hpccard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpccard);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCCARD_MspInit could be implemented in the user file
    */ 
@@ -225,6 +227,8 @@ __weak void HAL_PCCARD_MspInit(PCCARD_HandleTypeDef *hpccard)
   */
 __weak void HAL_PCCARD_MspDeInit(PCCARD_HandleTypeDef *hpccard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpccard);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCCARD_MspDeInit could be implemented in the user file
    */ 
@@ -615,6 +619,8 @@ void HAL_PCCARD_IRQHandler(PCCARD_HandleTypeDef *hpccard)
   */
 __weak void HAL_PCCARD_ITCallback(PCCARD_HandleTypeDef *hpccard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpccard);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCCARD_ITCallback could be implemented in the user file
    */

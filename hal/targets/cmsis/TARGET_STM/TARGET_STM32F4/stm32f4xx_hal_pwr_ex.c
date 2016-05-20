@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of PWR extension peripheral:           
@@ -277,7 +277,7 @@ HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling)
 #elif defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
       defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || \
       defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || \
-      defined(STM32F479xx) 
+      defined(STM32F479xx)
 /**
   * @brief Configures the main internal regulator output voltage.
   * @param  VoltageScaling: specifies the regulator output voltage to achieve
@@ -387,7 +387,7 @@ void HAL_PWREx_EnableWakeUpPinPolarityFallingEdge(void)
 #endif /* STM32F469xx || STM32F479xx */
 
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
-    defined(STM32F411xE) 
+    defined(STM32F411xE)
 /**
   * @brief Enables Main Regulator low voltage mode.
   * @note  This mode is only available for STM32F401xx/STM32F410xx/STM32F411xx devices.   
@@ -428,7 +428,7 @@ void HAL_PWREx_DisableLowRegulatorLowVoltage(void)
   *(__IO uint32_t *) CR_LPLVDS_BB = (uint32_t)DISABLE;
 }
 
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE  */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -48,11 +48,9 @@
           after the clock enable bit is set on the hardware register
 
     [..]  
-      Possible Workarounds:
-      (#) Enable the peripheral clock sometimes before the peripheral read/write 
-          register is required.
-      (#) For AHB peripheral, insert two dummy read to the peripheral register.
-      (#) For APB peripheral, insert a dummy read to the peripheral register.
+      Implemented Workaround:
+      (+) For AHB & APB peripherals, a dummy read to the peripheral register has been
+          inserted in each __HAL_RCC_PPP_CLK_ENABLE() macro.
 
   @endverbatim
   ******************************************************************************
@@ -185,28 +183,13 @@ const uint8_t APBAHBPrescTable[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 
              the peripherals mapped on these busses. You can use 
              "HAL_RCC_GetSysClockFreq()" function to retrieve the frequencies of these clocks.  
 
-         -@- All the peripheral clocks are derived from the System clock (SYSCLK) except:
-           (+@) I2S: the I2S clock can be derived either from a specific PLL (PLLI2S) or
-                from an external clock mapped on the I2S_CKIN pin. 
-                You have to use __HAL_RCC_PLLI2S_CONFIG() macro to configure this clock.
-          (+@) SAI: the SAI clock can be derived either from a specific PLL (PLLI2S) or (PLLSAI) or
-                from an external clock mapped on the I2S_CKIN pin. 
-                You have to use __HAL_RCC_PLLI2S_CONFIG() macro to configure this clock. 
-           (+@) RTC: the RTC clock can be derived either from the LSI, LSE or HSE clock
-                divided by 2 to 31. You have to use __HAL_RCC_RTC_CONFIG() and __HAL_RCC_RTC_ENABLE()
-                macros to configure this clock. 
-           (+@) USB OTG FS, SDIO and RTC: USB OTG FS require a frequency equal to 48 MHz
-                to work correctly, while the SDIO require a frequency equal or lower than
-                to 48. This clock is derived of the main PLL through PLLQ divider.
-           (+@) IWDG clock which is always the LSI clock.
-       
          (#) For the STM32F405xx/07xx and STM32F415xx/17xx devices, the maximum
              frequency of the SYSCLK and HCLK is 168 MHz, PCLK2 84 MHz and PCLK1 42 MHz. 
              Depending on the device voltage range, the maximum frequency should
              be adapted accordingly (refer to the product datasheets for more details).
-             
-         (#) For the STM32F42xxx and STM32F43xxx devices, the maximum frequency
-             of the SYSCLK and HCLK is 180 MHz, PCLK2 90 MHz and PCLK1 45 MHz. 
+
+         (#) For the STM32F42xxx, STM32F43xxx, STM32F446xx, STM32F469xx and STM32F479xx devices,
+             the maximum frequency of the SYSCLK and HCLK is 180 MHz, PCLK2 90 MHz and PCLK1 45 MHz. 
              Depending on the device voltage range, the maximum frequency should
              be adapted accordingly (refer to the product datasheets for more details).
              
@@ -897,7 +880,7 @@ void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_M
     /* Configure the MCO1 pin in alternate function mode */    
     GPIO_InitStruct.Pin = MCO1_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
     HAL_GPIO_Init(MCO1_GPIO_PORT, &GPIO_InitStruct);
@@ -920,7 +903,7 @@ void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_M
     /* Configure the MCO2 pin in alternate function mode */
     GPIO_InitStruct.Pin = MCO2_PIN;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Alternate = GPIO_AF0_MCO;
     HAL_GPIO_Init(MCO2_GPIO_PORT, &GPIO_InitStruct);
@@ -1205,6 +1188,9 @@ void HAL_RCC_NMI_IRQHandler(void)
   */
 __weak void HAL_RCC_CSSCallback(void)
 {
+  /* Prevent unused argument(s) compilation warning */
+  __IO uint32_t tmpreg = 0x00;
+  UNUSED(tmpreg);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_RCC_CSSCallback could be implemented in the user file
    */ 

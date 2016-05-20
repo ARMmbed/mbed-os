@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_eth.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of ETH HAL module.
   ******************************************************************************
   * @attention
@@ -2109,15 +2109,17 @@ typedef struct
   * @brief  Enables rising/falling edge trigger to the ETH External interrupt line.
   * @retval None
   */
-#define __HAL_ETH_WAKEUP_EXTI_ENABLE_FALLINGRISING_TRIGGER()  EXTI->RTSR |= ETH_EXTI_LINE_WAKEUP;\
-                                                              EXTI->FTSR |= ETH_EXTI_LINE_WAKEUP
+#define __HAL_ETH_WAKEUP_EXTI_ENABLE_FALLINGRISING_TRIGGER()  do{EXTI->RTSR |= ETH_EXTI_LINE_WAKEUP;\
+                                                                 EXTI->FTSR |= ETH_EXTI_LINE_WAKEUP;\
+                                                                }while(0)
 
 /**
   * @brief  Disables rising/falling edge trigger to the ETH External interrupt line.
   * @retval None
   */
-#define __HAL_ETH_WAKEUP_EXTI_DISABLE_FALLINGRISING_TRIGGER()  EXTI->RTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
-                                                               EXTI->FTSR &= ~(ETH_EXTI_LINE_WAKEUP)
+#define __HAL_ETH_WAKEUP_EXTI_DISABLE_FALLINGRISING_TRIGGER() do{EXTI->RTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
+                                                                 EXTI->FTSR &= ~(ETH_EXTI_LINE_WAKEUP);\
+                                                                }while(0)
 
 /**
   * @brief Generate a Software interrupt on selected EXTI line.

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_fmpi2c.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   FMPI2C HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -193,7 +193,7 @@
 
 #ifdef HAL_FMPI2C_MODULE_ENABLED
 
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) 
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx)
     
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -409,6 +409,8 @@ HAL_StatusTypeDef HAL_FMPI2C_DeInit(FMPI2C_HandleTypeDef *hfmpi2c)
   */
  __weak void HAL_FMPI2C_MspInit(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_MspInit could be implemented in the user file
    */ 
@@ -422,6 +424,8 @@ HAL_StatusTypeDef HAL_FMPI2C_DeInit(FMPI2C_HandleTypeDef *hfmpi2c)
   */
  __weak void HAL_FMPI2C_MspDeInit(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_MspDeInit could be implemented in the user file
    */ 
@@ -2424,6 +2428,8 @@ void HAL_FMPI2C_ER_IRQHandler(FMPI2C_HandleTypeDef *hfmpi2c)
   */
  __weak void HAL_FMPI2C_MasterTxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_TxCpltCallback could be implemented in the user file
    */ 
@@ -2437,6 +2443,8 @@ void HAL_FMPI2C_ER_IRQHandler(FMPI2C_HandleTypeDef *hfmpi2c)
   */
 __weak void HAL_FMPI2C_MasterRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_TxCpltCallback could be implemented in the user file
    */
@@ -2449,6 +2457,8 @@ __weak void HAL_FMPI2C_MasterRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
   */
  __weak void HAL_FMPI2C_SlaveTxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_TxCpltCallback could be implemented in the user file
    */ 
@@ -2462,6 +2472,8 @@ __weak void HAL_FMPI2C_MasterRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
   */
 __weak void HAL_FMPI2C_SlaveRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_TxCpltCallback could be implemented in the user file
    */
@@ -2475,6 +2487,8 @@ __weak void HAL_FMPI2C_SlaveRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
   */
  __weak void HAL_FMPI2C_MemTxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_TxCpltCallback could be implemented in the user file
    */ 
@@ -2488,6 +2502,8 @@ __weak void HAL_FMPI2C_SlaveRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
   */
 __weak void HAL_FMPI2C_MemRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_TxCpltCallback could be implemented in the user file
    */
@@ -2501,6 +2517,8 @@ __weak void HAL_FMPI2C_MemRxCpltCallback(FMPI2C_HandleTypeDef *hfmpi2c)
   */
  __weak void HAL_FMPI2C_ErrorCallback(FMPI2C_HandleTypeDef *hfmpi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hfmpi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FMPI2C_ErrorCallback could be implemented in the user file
    */ 
@@ -4085,7 +4103,7 @@ static void FMPI2C_TransferConfig(FMPI2C_HandleTypeDef *hfmpi2c,  uint16_t DevAd
 /**
   * @}
   */
-#endif /* STM32F410xx || STM32F446xx  */
+#endif /* STM32F410xx || STM32F446xx */
 #endif /* HAL_FMPI2C_MODULE_ENABLED */
 /**
   * @}

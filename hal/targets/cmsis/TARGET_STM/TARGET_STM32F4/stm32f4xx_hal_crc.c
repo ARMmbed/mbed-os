@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   CRC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
@@ -179,6 +179,8 @@ HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
   */
 __weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcrc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CRC_MspInit could be implemented in the user file
    */
@@ -192,6 +194,8 @@ __weak void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
   */
 __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcrc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CRC_MspDeInit could be implemented in the user file
    */

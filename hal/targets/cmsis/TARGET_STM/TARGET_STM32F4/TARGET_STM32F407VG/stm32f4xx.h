@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file    stm32f4xx.h
   * @author  MCD Application Team
-  * @version V2.3.2
-  * @date    26-June-2015
-  * @brief   CMSIS STM32F4xx Device Peripheral Access Layer Header File.           
+  * @version V2.4.2
+  * @date    13-November-2015
+  * @brief   CMSIS STM32F4xx Device Peripheral Access Layer Header File.
   *            
   *          The file is the unique include file that the application programmer
   *          is using in the C source code, usually in main.c. This file contains:
@@ -89,7 +89,7 @@
                                    STM32F439NI, STM32F439IG and STM32F439II Devices */
   /* #define STM32F401xC */   /*!< STM32F401CB, STM32F401CC, STM32F401RB, STM32F401RC, STM32F401VB and STM32F401VC Devices */
   /* #define STM32F401xE */   /*!< STM32F401CD, STM32F401RD, STM32F401VD, STM32F401CE, STM32F401RE and STM32F401VE Devices */
-  /* #define STM32F411xE */   /*!< STM32F411CD, STM32F411RD, STM32F411VD, STM32F411CE, STM32F411RE and STM32F411VE Devices */
+  /* #define STM32F411xE */   /*!< STM32F411CC, STM32F411RC, STM32F411VC, STM32F411CE, STM32F411RE and STM32F411VE Devices */
   /* #define STM32F446xx */   /*!< STM32F446MC, STM32F446ME, STM32F446RC, STM32F446RE, STM32F446VC, STM32F446VE, STM32F446ZC, 
                                    and STM32F446ZE Devices */ 
 #endif
@@ -107,7 +107,7 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V2.3.2
+  * @brief CMSIS Device version number V2.4.1
   */
 #define __STM32F4xx_CMSIS_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */                                  
 #define __STM32F4xx_CMSIS_DEVICE_VERSION_SUB1   (0x03) /*!< [23:16] sub1 version */

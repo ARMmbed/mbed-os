@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
@@ -45,7 +45,7 @@
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-	defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
+  	defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)  
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -415,9 +415,12 @@ typedef struct
 #define CAN_FLAG_FOV1              ((uint32_t)0x00000404)  /*!< FIFO 1 Overrun flag */
 
 /* Operating Mode Flags */
-#define CAN_FLAG_WKU               ((uint32_t)0x00000103)  /*!< Wake up flag           */
+#define CAN_FLAG_INAK              ((uint32_t)0x00000100)  /*!<  Initialization acknowledge flag */
 #define CAN_FLAG_SLAK              ((uint32_t)0x00000101)  /*!< Sleep acknowledge flag */
+#define CAN_FLAG_ERRI              ((uint32_t)0x00000102)  /*!<  Error flag */
+#define CAN_FLAG_WKU               ((uint32_t)0x00000103)  /*!< Wake up flag           */
 #define CAN_FLAG_SLAKI             ((uint32_t)0x00000104)  /*!< Sleep acknowledge flag */
+
 /* @note When SLAK interrupt is disabled (SLKIE=0), no polling on SLAKI is possible.
          In this case the SLAK bit can be polled.*/
 
@@ -562,17 +565,13 @@ typedef struct
   *            @arg CAN_FLAG_WKU: Wake up Flag
   *            @arg CAN_FLAG_SLAK: Sleep acknowledge Flag
   *            @arg CAN_FLAG_SLAKI: Sleep acknowledge Flag
-  *            @arg CAN_FLAG_EWG: Error Warning Flag
-  *            @arg CAN_FLAG_EPV: Error Passive Flag
-  *            @arg CAN_FLAG_BOF: Bus-Off Flag
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
 #define __HAL_CAN_CLEAR_FLAG(__HANDLE__, __FLAG__) \
-((((__FLAG__) >> 8) == 5)? (((__HANDLE__)->Instance->TSR) = ~((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))): \
- (((__FLAG__) >> 8) == 2)? (((__HANDLE__)->Instance->RF0R) = ~((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))): \
- (((__FLAG__) >> 8) == 4)? (((__HANDLE__)->Instance->RF1R) = ~((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))): \
- (((__FLAG__) >> 8) == 1)? (((__HANDLE__)->Instance->MSR) = ~((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))): \
- (((__HANDLE__)->Instance->ESR) = ~((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))))
+((((__FLAG__) >> 8) == 5)? (((__HANDLE__)->Instance->TSR) = ((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))): \
+ (((__FLAG__) >> 8) == 2)? (((__HANDLE__)->Instance->RF0R) = ((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))): \
+ (((__FLAG__) >> 8) == 4)? (((__HANDLE__)->Instance->RF1R) = ((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))): \
+ (((__HANDLE__)->Instance->MSR) = ((uint32_t)1 << ((__FLAG__) & CAN_FLAG_MASK))))
 
 /** @brief  Check if the specified CAN interrupt source is enabled or disabled.
   * @param  __HANDLE__: CAN Handle
@@ -603,7 +602,7 @@ typedef struct
   * @retval None
   */
 #define __HAL_CAN_FIFO_RELEASE(__HANDLE__, __FIFONUMBER__) (((__FIFONUMBER__) == CAN_FIFO0)? \
-((__HANDLE__)->Instance->RF0R |= CAN_RF0R_RFOM0) : ((__HANDLE__)->Instance->RF1R |= CAN_RF1R_RFOM1))
+((__HANDLE__)->Instance->RF0R = CAN_RF0R_RFOM0) : ((__HANDLE__)->Instance->RF1R = CAN_RF1R_RFOM1))
 
 /**
   * @brief  Cancel a transmit request.
@@ -612,9 +611,9 @@ typedef struct
   * @retval None
   */
 #define __HAL_CAN_CANCEL_TRANSMIT(__HANDLE__, __TRANSMITMAILBOX__)\
-(((__TRANSMITMAILBOX__) == CAN_TXMAILBOX_0)? ((__HANDLE__)->Instance->TSR |= CAN_TSR_ABRQ0) :\
- ((__TRANSMITMAILBOX__) == CAN_TXMAILBOX_1)? ((__HANDLE__)->Instance->TSR |= CAN_TSR_ABRQ1) :\
- ((__HANDLE__)->Instance->TSR |= CAN_TSR_ABRQ2))
+(((__TRANSMITMAILBOX__) == CAN_TXMAILBOX_0)? ((__HANDLE__)->Instance->TSR = CAN_TSR_ABRQ0) :\
+ ((__TRANSMITMAILBOX__) == CAN_TXMAILBOX_1)? ((__HANDLE__)->Instance->TSR = CAN_TSR_ABRQ1) :\
+ ((__HANDLE__)->Instance->TSR = CAN_TSR_ABRQ2))
 
 /**
   * @brief  Enable or disable the DBG Freeze for CAN.
@@ -756,7 +755,7 @@ HAL_CAN_StateTypeDef HAL_CAN_GetState(CAN_HandleTypeDef* hcan);
   */
 
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
-          STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx  */
+          STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
@@ -45,7 +45,7 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
-    defined(STM32F469xx) || defined(STM32F479xx) 
+    defined(STM32F469xx) || defined(STM32F479xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_ll_usb.h"
    
@@ -198,16 +198,19 @@ typedef struct
 #define __HAL_USB_OTG_HS_WAKEUP_EXTI_GET_FLAG()     EXTI->PR & (USB_OTG_HS_WAKEUP_EXTI_LINE)
 #define __HAL_USB_OTG_HS_WAKEUP_EXTI_CLEAR_FLAG()   EXTI->PR = (USB_OTG_HS_WAKEUP_EXTI_LINE)
 
-#define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_RISING_EDGE() EXTI->FTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE);\
-                                                          EXTI->RTSR |= USB_OTG_HS_WAKEUP_EXTI_LINE
+#define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_RISING_EDGE() do{EXTI->FTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE);\
+                                                             EXTI->RTSR |= USB_OTG_HS_WAKEUP_EXTI_LINE;\
+                                                            }while(0)
                                                       
-#define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_FALLING_EDGE()  EXTI->FTSR |= (USB_OTG_HS_WAKEUP_EXTI_LINE);\
-                                                            EXTI->RTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE)
+#define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_FALLING_EDGE() do{EXTI->FTSR |= (USB_OTG_HS_WAKEUP_EXTI_LINE);\
+                                                              EXTI->RTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE);\
+                                                             }while(0) 
 
-#define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_RISING_FALLING_EDGE()   EXTI->RTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE);\
-                                                                    EXTI->FTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE;)\
-                                                                    EXTI->RTSR |= USB_OTG_HS_WAKEUP_EXTI_LINE;\
-                                                                    EXTI->FTSR |= USB_OTG_HS_WAKEUP_EXTI_LINE
+#define __HAL_USB_OTG_HS_WAKEUP_EXTI_ENABLE_RISING_FALLING_EDGE() do{EXTI->RTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE);\
+                                                                     EXTI->FTSR &= ~(USB_OTG_HS_WAKEUP_EXTI_LINE);\
+                                                                     EXTI->RTSR |= USB_OTG_HS_WAKEUP_EXTI_LINE;\
+                                                                     EXTI->FTSR |= USB_OTG_HS_WAKEUP_EXTI_LINE;\
+                                                                    }while(0)
 
 #define __HAL_USB_OTG_HS_WAKEUP_EXTI_GENERATE_SWIT()   (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE) 
                                                                                                                     
@@ -216,17 +219,20 @@ typedef struct
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_GET_FLAG()     EXTI->PR & (USB_OTG_FS_WAKEUP_EXTI_LINE)
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_CLEAR_FLAG()   EXTI->PR = USB_OTG_FS_WAKEUP_EXTI_LINE
 
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_RISING_EDGE() EXTI->FTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE);\
-                                                          EXTI->RTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE
+#define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_RISING_EDGE() do{EXTI->FTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE);\
+                                                             EXTI->RTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE;\
+                                                            }while(0)  
 
                                                       
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_FALLING_EDGE()  EXTI->FTSR |= (USB_OTG_FS_WAKEUP_EXTI_LINE);\
-                                                            EXTI->RTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE)
+#define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_FALLING_EDGE()  do{EXTI->FTSR |= (USB_OTG_FS_WAKEUP_EXTI_LINE);\
+                                                               EXTI->RTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE);\
+                                                              }while(0)
 
-#define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_RISING_FALLING_EDGE()  EXTI->RTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE);\
-                                                                   EXTI->FTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE);\
-                                                                   EXTI->RTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE;\
-                                                                   EXTI->FTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE 
+#define __HAL_USB_OTG_FS_WAKEUP_EXTI_ENABLE_RISING_FALLING_EDGE()  do{EXTI->RTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE);\
+                                                                      EXTI->FTSR &= ~(USB_OTG_FS_WAKEUP_EXTI_LINE);\
+                                                                      EXTI->RTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE;\
+                                                                      EXTI->FTSR |= USB_OTG_FS_WAKEUP_EXTI_LINE;\
+                                                                     }while(0) 
                                                          
 #define __HAL_USB_OTG_FS_WAKEUP_EXTI_GENERATE_SWIT()  (EXTI->SWIER |= USB_OTG_FS_WAKEUP_EXTI_LINE)
 /**
@@ -313,19 +319,6 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
 /** @defgroup PCD_Private_Macros PCD Private Macros
  * @{
  */
-/** @defgroup PCD_Instance_definition PCD Instance definition
-  * @{
-  */
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F427xx) || defined(STM32F437xx) ||\
-    defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
- #define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
-                                        ((INSTANCE) == USB_OTG_HS))
-#elif defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) 
- #define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS))
-#endif
-/**
-  * @}
-  */ 
 
 /**
   * @}
@@ -339,7 +332,7 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
   * @}
   */ 
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
-          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
 #ifdef __cplusplus
 }
 #endif

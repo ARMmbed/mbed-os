@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
@@ -377,6 +377,8 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_RTC_MspInit could be implemented in the user file
    */ 
@@ -390,6 +392,8 @@ __weak void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
   */
 __weak void HAL_RTC_MspDeInit(RTC_HandleTypeDef* hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_RTC_MspDeInit could be implemented in the user file
    */ 
@@ -1335,6 +1339,8 @@ void HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef* hrtc)
   */
 __weak void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_RTC_AlarmAEventCallback could be implemented in the user file
    */

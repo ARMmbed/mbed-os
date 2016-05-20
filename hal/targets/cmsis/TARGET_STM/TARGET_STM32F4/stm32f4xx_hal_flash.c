@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -136,7 +136,6 @@ static void   FLASH_Program_Word(uint32_t Address, uint32_t Data);
 static void   FLASH_Program_HalfWord(uint32_t Address, uint16_t Data);
 static void   FLASH_Program_Byte(uint32_t Address, uint8_t Data);
 static void   FLASH_SetErrorCode(void);
-extern void   FLASH_FlushCaches(void);
 
 HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
 /**
@@ -397,6 +396,9 @@ void HAL_FLASH_IRQHandler(void)
   */
 __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  __IO uint32_t tmpreg = 0x00;
+  UNUSED(tmpreg);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_EndOfOperationCallback could be implemented in the user file
    */ 
@@ -412,6 +414,9 @@ __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
   */
 __weak void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  __IO uint32_t tmpreg = 0x00;
+  UNUSED(tmpreg);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_OperationErrorCallback could be implemented in the user file
    */ 
@@ -602,7 +607,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
 /**
   * @brief  Program a double word (64-bit) at a specified address.
   * @note   This function must be used when the device voltage range is from
-  *         2.7V to 3.6V and an External Vpp is present.
+  *         2.7V to 3.6V and Vpp in the range 7V to 9V.
   *
   * @note   If an erase and a program operations are requested simultaneously,    
   *         the erase operation is performed before the program one.
@@ -653,7 +658,7 @@ static void FLASH_Program_Word(uint32_t Address, uint32_t Data)
 /**
   * @brief  Program a half-word (16-bit) at a specified address.
   * @note   This function must be used when the device voltage range is from
-  *         2.7V to 3.6V.
+  *         2.1V to 3.6V.
   *
   * @note   If an erase and a program operations are requested simultaneously,    
   *         the erase operation is performed before the program one.
@@ -678,7 +683,7 @@ static void FLASH_Program_HalfWord(uint32_t Address, uint16_t Data)
 /**
   * @brief  Program byte (8-bit) at a specified address.
   * @note   This function must be used when the device voltage range is from
-  *         2.7V to 3.6V.
+  *         1.8V to 3.6V.
   *
   * @note   If an erase and a program operations are requested simultaneously,    
   *         the erase operation is performed before the program one.

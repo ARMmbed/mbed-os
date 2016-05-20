@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following 
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -304,6 +304,8 @@ HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspInit could be implemented in the user file
    */ 
@@ -317,6 +319,8 @@ __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspDeInit could be implemented in the user file
    */ 
@@ -684,6 +688,8 @@ void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvCpltCallback could be implemented in the user file
    */
@@ -697,6 +703,8 @@ __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvHalfCpltCallbackCh1 could be implemented in the user file
    */
@@ -710,6 +718,8 @@ __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ErrorCallbackCh1 could be implemented in the user file
    */
@@ -723,6 +733,8 @@ __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
   */
 __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_DMAUnderrunCallbackCh1 could be implemented in the user file
    */

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   NOR HAL module driver.
   *          This file provides a generic firmware to drive NOR memories mounted 
   *          as external device.
@@ -96,7 +96,7 @@
 #ifdef HAL_NOR_MODULE_ENABLED
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
       
@@ -232,6 +232,8 @@ HAL_StatusTypeDef HAL_NOR_DeInit(NOR_HandleTypeDef *hnor)
   */
 __weak void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnor);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NOR_MspInit could be implemented in the user file
    */ 
@@ -245,6 +247,8 @@ __weak void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor)
   */
 __weak void HAL_NOR_MspDeInit(NOR_HandleTypeDef *hnor)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnor);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NOR_MspDeInit could be implemented in the user file
    */ 
@@ -259,6 +263,8 @@ __weak void HAL_NOR_MspDeInit(NOR_HandleTypeDef *hnor)
   */
 __weak void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnor);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NOR_BspWait could be implemented in the user file
    */ 
@@ -995,7 +1001,7 @@ HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Addres
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx ||\
           STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx ||\
-          STM32F479xx  */
+          STM32F479xx */
 #endif /* HAL_NOR_MODULE_ENABLED */
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f410rx.h
   * @author  MCD Application Team
-  * @version V2.4.1
-  * @date    09-October-2015
+  * @version V2.4.2
+  * @date    13-November-2015
   * @brief   CMSIS STM32F410Rx Device Peripheral Access Layer Header File. 
   *
   *          This file contains:
@@ -45,12 +45,12 @@
   * @{
   */
 
-/** @addtogroup stm32f410xx
+/** @addtogroup stm32f410rx
   * @{
   */
     
-#ifndef __STM32F410xx_H
-#define __STM32F410xx_H
+#ifndef __STM32F410Rx_H
+#define __STM32F410Rx_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -3968,7 +3968,7 @@ typedef struct
 }
 #endif /* __cplusplus */
 
-#endif /* __STM32F410xx_H */
+#endif /* __STM32F410Rx_H */
 
 
 

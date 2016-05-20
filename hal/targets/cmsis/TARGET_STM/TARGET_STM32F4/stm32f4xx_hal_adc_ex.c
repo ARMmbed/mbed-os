@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the ADC extension peripheral:
   *           + Extended features functions
@@ -601,6 +601,8 @@ uint32_t HAL_ADCEx_MultiModeGetValue(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_ADC_InjectedConvCpltCallback could be implemented in the user file
    */

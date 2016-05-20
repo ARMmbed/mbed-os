@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_adc.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC) peripheral:
   *           + Initialization and de-initialization functions
@@ -349,6 +349,8 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_ADC_MspInit could be implemented in the user file
    */ 
@@ -362,6 +364,8 @@ __weak void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_ADC_MspDeInit could be implemented in the user file
    */ 
@@ -979,6 +983,8 @@ uint32_t HAL_ADC_GetValue(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_ADC_ConvCpltCallback could be implemented in the user file
    */
@@ -992,6 +998,8 @@ __weak void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_ADC_ConvHalfCpltCallback could be implemented in the user file
    */
@@ -1005,6 +1013,8 @@ __weak void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_ADC_LevelOoutOfWindowCallback could be implemented in the user file
    */
@@ -1018,6 +1028,8 @@ __weak void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_ADC_ErrorCallback could be implemented in the user file
    */
@@ -1143,12 +1155,17 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
 }
 
 /**
-  * @brief  Configures the analog watchdog.
+  * @brief Configures the analog watchdog.
+  * @note Analog watchdog thresholds can be modified while ADC conversion is on going.
+  * In this case, some constraints must be taken into account: the programmed threshold 
+  * values are effective from the next ADC EOC (end of unitary conversion).
+  * Considering that registers write delay may happen due to bus activity, this might cause
+  * an uncertainty on the effective timing of the new programmed threshold values.
   * @param  hadc: pointer to a ADC_HandleTypeDef structure that contains
   *         the configuration information for the specified ADC.
   * @param  AnalogWDGConfig : pointer to an ADC_AnalogWDGConfTypeDef structure 
   *         that contains the configuration information of ADC analog watchdog.
-  * @retval HAL status	  
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDGConfTypeDef* AnalogWDGConfig)
 {

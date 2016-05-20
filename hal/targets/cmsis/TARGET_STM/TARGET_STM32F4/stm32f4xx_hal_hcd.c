@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hcd.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   HCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -87,7 +87,7 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
-    defined(STM32F469xx) || defined(STM32F479xx) 
+    defined(STM32F469xx) || defined(STM32F479xx)
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -266,6 +266,8 @@ HAL_StatusTypeDef HAL_HCD_DeInit(HCD_HandleTypeDef *hhcd)
   */
 __weak void  HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCD_MspInit could be implemented in the user file
    */
@@ -278,6 +280,8 @@ __weak void  HAL_HCD_MspInit(HCD_HandleTypeDef *hhcd)
   */
 __weak void  HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PCD_MspDeInit could be implemented in the user file
    */
@@ -554,6 +558,8 @@ void HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd)
   */
 __weak void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_SOF_Callback could be implemented in the user file
    */
@@ -566,6 +572,8 @@ __weak void HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd)
   */
 __weak void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_Connect_Callback could be implemented in the user file
    */
@@ -578,6 +586,8 @@ __weak void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
   */
 __weak void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_Disconnect_Callback could be implemented in the user file
    */
@@ -593,13 +603,17 @@ __weak void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
   *            URB_IDLE/
   *            URB_DONE/
   *            URB_NOTREADY/
-  *            URB_NYET/ 
-  *            URB_ERROR/  
-  *            URB_STALL/    
+  *            URB_NYET/
+  *            URB_ERROR/
+  *            URB_STALL/
   * @retval None
   */
 __weak void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd, uint8_t chnum, HCD_URBStateTypeDef urb_state)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hhcd);
+  UNUSED(chnum);
+  UNUSED(urb_state);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_HCD_HC_NotifyURBChange_Callback could be implemented in the user file
    */
@@ -1180,7 +1194,7 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
     }
     else
     {
-      /* Cleanup HPRT */
+      /* Clean up HPRT */
       USBx_HPRT0 &= ~(USB_OTG_HPRT_PENA | USB_OTG_HPRT_PCDET |\
         USB_OTG_HPRT_PENCHNG | USB_OTG_HPRT_POCCHNG );
       
@@ -1188,7 +1202,7 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
     }    
   }
   
-  /* Check for an overcurrent */
+  /* Check for an over current */
   if((hprt0 & USB_OTG_HPRT_POCCHNG) == USB_OTG_HPRT_POCCHNG)
   {
     hprt0_dup |= USB_OTG_HPRT_POCCHNG;
@@ -1202,7 +1216,7 @@ static void HCD_Port_IRQHandler  (HCD_HandleTypeDef *hhcd)
   * @}
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
-          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
 #endif /* HAL_HCD_MODULE_ENABLED */
 /**
   * @}

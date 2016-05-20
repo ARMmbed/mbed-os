@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   PWR HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -168,7 +168,7 @@ void HAL_PWR_DisableBkUpAccess(void)
           forced in input pull-down configuration and is active on rising edges.
       (+) There is one Wake-up pin: Wake-up Pin 1 on PA.00.
 	   (++) For STM32F446xx there are two Wake-Up pins: Pin1 on PA.00 and Pin2 on PC.13
-           (++) For STM32F410xx there are three Wake-Up pins: Pin1 on PA.00, Pin2 on PC.00 and Pin3 on PC.01
+           (++) For STM32F410xx there are three Wake-Up pins: Pin1 on PA.00, Pin2 on PC.00 and Pin3 on PC.01 
 
     *** Low Power modes configuration ***
     =====================================
@@ -502,6 +502,9 @@ void HAL_PWR_PVD_IRQHandler(void)
   */
 __weak void HAL_PWR_PVDCallback(void)
 {
+  /* Prevent unused argument(s) compilation warning */
+  __IO uint32_t tmpreg = 0x00;
+  UNUSED(tmpreg);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_PWR_PVDCallback could be implemented in the user file
    */ 

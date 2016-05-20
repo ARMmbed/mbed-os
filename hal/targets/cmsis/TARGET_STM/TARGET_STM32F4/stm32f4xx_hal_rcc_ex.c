@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Extension RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -91,7 +91,7 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
-    defined(STM32F469xx) || defined(STM32F479xx) 
+    defined(STM32F469xx) || defined(STM32F479xx)
 /**
   * @brief  Resets the RCC clock configuration to the default reset state.
   * @note   The default reset state of the clock configuration is given below:
@@ -131,7 +131,7 @@ void HAL_RCC_DeInit(void)
   CLEAR_REG(RCC->CIR); 
 }
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
-          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
 
 #if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
 /**
@@ -859,7 +859,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       /* check for Parameters */
       assert_param(IS_RCC_PLLI2SR_VALUE(PeriphClkInit->PLLI2S.PLLI2SR));
       /* Configure the PLLI2S division factors */
-      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) × (PLLI2SN/PLLM) */
+      /* PLLI2S_VCO = f(VCO clock) = f(PLLI2S clock input) x (PLLI2SN/PLLM) */
       /* I2SCLK = f(PLLI2S clock output) = f(VCO clock) / PLLI2SR */
       __HAL_RCC_PLLI2S_CONFIG(PeriphClkInit->PLLI2S.PLLI2SN , PeriphClkInit->PLLI2S.PLLI2SR);
     }
@@ -1436,7 +1436,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   /*---------------------------- RTC configuration ---------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == (RCC_PERIPHCLK_RTC))
   {
-	/* Enable Power Clock*/
+    /* Enable Power Clock*/
     __HAL_RCC_PWR_CLK_ENABLE();
       
     /* Enable write access to Backup domain */
@@ -1446,16 +1446,17 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     tickstart = HAL_GetTick();
       
     while((PWR->CR & PWR_CR_DBP) == RESET)
+    {
+      if((HAL_GetTick() - tickstart ) > RCC_DBP_TIMEOUT_VALUE)
       {
-        if((HAL_GetTick() - tickstart ) > RCC_DBP_TIMEOUT_VALUE)
-        {
-          return HAL_TIMEOUT;
-        }
+        return HAL_TIMEOUT;
       }
-	  
+    }
+      
     /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
     if((RCC->BDCR & RCC_BDCR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL))
-    {      
+    {
+      
       /* Store the content of BDCR register before the reset of Backup Domain */
       tmpreg1 = (RCC->BDCR & ~(RCC_BDCR_RTCSEL));
       /* RTC Clock selection can be changed only if the Backup Domain is reset */
@@ -1609,7 +1610,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   /*---------------------------- RTC configuration ---------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == (RCC_PERIPHCLK_RTC))
   {
-	/* Enable Power Clock*/
+    /* Enable Power Clock*/
     __HAL_RCC_PWR_CLK_ENABLE();
       
     /* Enable write access to Backup domain */
@@ -1619,16 +1620,15 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     tickstart = HAL_GetTick();
       
     while((PWR->CR & PWR_CR_DBP) == RESET)
+    {
+      if((HAL_GetTick() - tickstart ) > RCC_DBP_TIMEOUT_VALUE)
       {
-        if((HAL_GetTick() - tickstart ) > RCC_DBP_TIMEOUT_VALUE)
-        {
-          return HAL_TIMEOUT;
-        }
+        return HAL_TIMEOUT;
       }
-	  
+    }
     /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
     if((RCC->BDCR & RCC_BDCR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL))
-    {      
+    { 
       /* Store the content of BDCR register before the reset of Backup Domain */
       tmpreg1 = (RCC->BDCR & ~(RCC_BDCR_RTCSEL));
       /* RTC Clock selection can be changed only if the Backup Domain is reset */
@@ -1686,7 +1686,7 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 }
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F401xC || STM32F401xE  || STM32F411xE */
 
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /**
   * @brief  Initializes the RCC Oscillators according to the specified parameters in the
   *         RCC_OscInitTypeDef.
@@ -2119,13 +2119,13 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
   RCC_OscInitStruct->PLL.PLLQ = (uint32_t)((RCC->PLLCFGR & RCC_PLLCFGR_PLLQ) >> POSITION_VAL(RCC_PLLCFGR_PLLQ));
   RCC_OscInitStruct->PLL.PLLR = (uint32_t)((RCC->PLLCFGR & RCC_PLLCFGR_PLLR) >> POSITION_VAL(RCC_PLLCFGR_PLLR));
 }
-#endif /* STM32F410xx || STM32F446xx || STM32F469xx || STM32F479xx  */
+#endif /* STM32F410xx || STM32F446xx || STM32F469xx || STM32F479xx */
 
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /**
   * @brief  Select LSE mode
   *   
-  * @note   This mode is only available for STM32F410xx/STM32F411xx/STM32F446xx/STM32F469xx/STM32F479xx devices.
+  * @note   This mode is only available for STM32F410xx/STM32F411xx/STM32F446xx/STM32F469xx/STM32F479xx  devices.
   *     
   * @param  Mode: specifies the LSE mode.
   *          This parameter can be one of the following values:
@@ -2147,7 +2147,7 @@ void HAL_RCCEx_SelectLSEMode(uint8_t Mode)
   }
 }
 
-#endif /* STM32F410xx || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
+#endif /* STM32F410xx || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
 
 #if defined(STM32F446xx)
 /**

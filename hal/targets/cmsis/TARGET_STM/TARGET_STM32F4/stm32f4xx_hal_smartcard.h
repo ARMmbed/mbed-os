@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -104,7 +104,7 @@ typedef struct
                                            to give the division factor of the source clock frequency */
 
   uint32_t NACKState;                 /*!< Specifies the SmartCard NACK Transmission state.
-                                           This parameter can be a value of @ref SmartCard_NACK_State */
+                                           This parameter can be a value of @ref SMARTCARD_NACK_State */
 }SMARTCARD_InitTypeDef;
 
 /** 
@@ -240,7 +240,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SmartCard_NACK_State  SMARTCARD NACK State
+/** @defgroup SMARTCARD_NACK_State  SMARTCARD NACK State
   * @{
   */
 #define SMARTCARD_NACK_ENABLE                  ((uint32_t)USART_CR3_NACK)
@@ -249,7 +249,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SmartCard_DMA_Requests   SMARTCARD DMA requests
+/** @defgroup SMARTCARD_DMA_Requests   SMARTCARD DMA requests
   * @{
   */
 #define SMARTCARD_DMAREQ_TX                    ((uint32_t)USART_CR3_DMAT)
@@ -392,7 +392,7 @@ typedef struct
   */
 #define __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)     \
   do{                                                \
-    __IO uint32_t tmpreg;                            \
+    __IO uint32_t tmpreg = 0x00;                     \
     tmpreg = (__HANDLE__)->Instance->SR;             \
     tmpreg = (__HANDLE__)->Instance->DR;             \
     UNUSED(tmpreg);                                  \

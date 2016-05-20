@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of HASH HAL module.
   ******************************************************************************
   * @attention
@@ -69,7 +69,7 @@
 typedef struct
 {
   uint32_t DataType;  /*!< 32-bit data, 16-bit data, 8-bit data or 1-bit string.
-                           This parameter can be a value of @ref HASH DataType */
+                           This parameter can be a value of @ref HASH_Data_Type */
 
   uint32_t KeySize;   /*!< The key size is used only in HMAC operation          */
 
@@ -91,7 +91,7 @@ typedef enum
   HAL_HASH_STATE_BUSY      = 0x02,  /*!< HASH internal process is ongoing     */
   HAL_HASH_STATE_TIMEOUT   = 0x03,  /*!< HASH timeout state                   */
   HAL_HASH_STATE_ERROR     = 0x04   /*!< HASH error state                     */
-}HAL_HASH_STATETypeDef;
+}HAL_HASH_StateTypeDef; 
 
 /** 
   * @}
@@ -105,7 +105,7 @@ typedef enum
 {
   HAL_HASH_PHASE_READY     = 0x01,  /*!< HASH peripheral is ready for initialization */
   HAL_HASH_PHASE_PROCESS   = 0x02,  /*!< HASH peripheral is in processing phase      */
-}HAL_HASHPhaseTypeDef;
+}HAL_HASH_PhaseTypeDef;
 
 /** 
   * @}
@@ -131,13 +131,13 @@ typedef struct
 
       HAL_StatusTypeDef          Status;            /*!< HASH peripheral status         */
 
-      HAL_HASHPhaseTypeDef       Phase;             /*!< HASH peripheral phase          */
+      HAL_HASH_PhaseTypeDef       Phase;             /*!< HASH peripheral phase          */
 
       DMA_HandleTypeDef          *hdmain;           /*!< HASH In DMA handle parameters  */
 
       HAL_LockTypeDef            Lock;              /*!< HASH locking object            */
 
-     __IO HAL_HASH_STATETypeDef  State;             /*!< HASH peripheral state          */
+     __IO HAL_HASH_StateTypeDef  State;             /*!< HASH peripheral state          */
 } HASH_HandleTypeDef;
 
 /** 
@@ -174,7 +174,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup HASH_Exported_Constants_Group3 HASH DataType
+/** @defgroup HASH_Data_Type HASH Data Type
   * @{
   */
 #define HASH_DATATYPE_32B          ((uint32_t)0x0000) /*!< 32-bit data. No swapping                     */
@@ -353,7 +353,7 @@ void HAL_HASH_IRQHandler(HASH_HandleTypeDef *hhash);
 /** @addtogroup HASH_Exported_Functions_Group8
   * @{
   */
-HAL_HASH_STATETypeDef HAL_HASH_GetState(HASH_HandleTypeDef *hhash);
+HAL_HASH_StateTypeDef HAL_HASH_GetState(HASH_HandleTypeDef *hhash);
 void HAL_HASH_MspInit(HASH_HandleTypeDef *hhash);
 void HAL_HASH_MspDeInit(HASH_HandleTypeDef *hhash);
 void HAL_HASH_InCpltCallback(HASH_HandleTypeDef *hhash);

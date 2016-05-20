@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dsi.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of DSI HAL module.
   ******************************************************************************
   * @attention
@@ -116,7 +116,7 @@ typedef struct
                                               This parameter can be any value of @ref DSI_HSYNC_Polarity         */
   
   uint32_t VSPolarity;                   /*!< VSYNC pin polarity
-                                              This parameter can be any value of @ref DSI_VSYNC_Polarity         */
+                                              This parameter can be any value of @ref DSI_VSYNC_Active_Polarity  */
   
   uint32_t DEPolarity;                   /*!< Data Enable pin polarity
                                               This parameter can be any value of @ref DSI_DATA_ENABLE_Polarity   */
@@ -190,7 +190,7 @@ typedef struct
                                        This parameter can be any value of @ref DSI_HSYNC_Polarity        */
   
   uint32_t VSPolarity;            /*!< VSYNC pin polarity
-                                       This parameter can be any value of @ref DSI_VSYNC_Polarity        */
+                                       This parameter can be any value of @ref DSI_VSYNC_Active_Polarity */
   
   uint32_t DEPolarity;            /*!< Data Enable pin polarity
                                        This parameter can be any value of @ref DSI_DATA_ENABLE_Polarity  */
@@ -712,7 +712,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup DSI_VSYNC_Polarity DSI VSYNC Polarity
+/** @defgroup DSI_VSYNC_Active_Polarity DSI VSYNC Active Polarity
   * @{
   */
 #define DSI_VSYNC_ACTIVE_HIGH       0

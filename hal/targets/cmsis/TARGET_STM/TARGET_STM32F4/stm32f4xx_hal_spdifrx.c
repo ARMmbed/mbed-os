@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_spdifrx.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the SPDIFRX audio interface:
   *           + Initialization and Configuration
@@ -79,7 +79,7 @@
    *** SPDIFRX HAL driver macros list ***
    =============================================
    [..]
-     Below the list of most used macros in USART HAL driver.
+     Below the list of most used macros in SPDIFRX HAL driver.
       (+) __HAL_SPDIFRX_IDLE: Disable the specified SPDIFRX peripheral (IDEL State)
       (+) __HAL_SPDIFRX_SYNC: Enable the synchronization state of the specified SPDIFRX peripheral (SYNC State) 
       (+) __HAL_SPDIFRX_RCV: Enable the receive state of the specified SPDIFRX peripheral (RCV State)
@@ -306,6 +306,8 @@ HAL_StatusTypeDef HAL_SPDIFRX_DeInit(SPDIFRX_HandleTypeDef *hspdif)
   */
 __weak void HAL_SPDIFRX_MspInit(SPDIFRX_HandleTypeDef *hspdif)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspdif);
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_SPDIFRX_MspInit could be implemented in the user file
   */ 
@@ -318,6 +320,8 @@ __weak void HAL_SPDIFRX_MspInit(SPDIFRX_HandleTypeDef *hspdif)
   */
 __weak void HAL_SPDIFRX_MspDeInit(SPDIFRX_HandleTypeDef *hspdif)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspdif);
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_SPDIFRX_MspDeInit could be implemented in the user file
   */ 
@@ -891,6 +895,8 @@ void HAL_SPDIFRX_IRQHandler(SPDIFRX_HandleTypeDef *hspdif)
   */
 __weak void HAL_SPDIFRX_RxHalfCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspdif);
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_SPDIFRX_RxCpltCallback could be implemented in the user file
   */
@@ -903,6 +909,8 @@ __weak void HAL_SPDIFRX_RxHalfCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
   */
 __weak void HAL_SPDIFRX_RxCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspdif);
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_SPDIFRX_RxCpltCallback could be implemented in the user file
   */
@@ -915,6 +923,8 @@ __weak void HAL_SPDIFRX_RxCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
   */
 __weak void HAL_SPDIFRX_CxHalfCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspdif);
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_SPDIFRX_RxCpltCallback could be implemented in the user file
   */
@@ -927,6 +937,8 @@ __weak void HAL_SPDIFRX_CxHalfCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
   */
 __weak void HAL_SPDIFRX_CxCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspdif);
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_SPDIFRX_RxCpltCallback could be implemented in the user file
   */
@@ -939,6 +951,8 @@ __weak void HAL_SPDIFRX_CxCpltCallback(SPDIFRX_HandleTypeDef *hspdif)
   */
 __weak void HAL_SPDIFRX_ErrorCallback(SPDIFRX_HandleTypeDef *hspdif)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspdif);
   /* NOTE : This function Should not be modified, when the callback is needed,
   the HAL_SPDIFRX_ErrorCallback could be implemented in the user file
   */ 

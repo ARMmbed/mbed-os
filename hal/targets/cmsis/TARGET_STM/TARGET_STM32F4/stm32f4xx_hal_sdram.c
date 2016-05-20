@@ -199,6 +199,8 @@ HAL_StatusTypeDef HAL_SDRAM_DeInit(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsdram);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_MspInit could be implemented in the user file
    */ 
@@ -212,6 +214,8 @@ __weak void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_MspDeInit(SDRAM_HandleTypeDef *hsdram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsdram);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_MspDeInit could be implemented in the user file
    */ 
@@ -244,6 +248,8 @@ void HAL_SDRAM_IRQHandler(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_RefreshErrorCallback(SDRAM_HandleTypeDef *hsdram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsdram);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_RefreshErrorCallback could be implemented in the user file
    */ 
@@ -257,6 +263,8 @@ __weak void HAL_SDRAM_RefreshErrorCallback(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_DMA_XferCpltCallback could be implemented in the user file
    */ 
@@ -269,6 +277,8 @@ __weak void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_SDRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_DMA_XferErrorCallback could be implemented in the user file
    */ 

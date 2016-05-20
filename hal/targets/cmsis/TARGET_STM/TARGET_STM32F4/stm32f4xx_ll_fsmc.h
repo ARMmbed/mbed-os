@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fsmc.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of FSMC HAL module.
   ******************************************************************************
   * @attention
@@ -54,7 +54,7 @@
   * @{
   */
 
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) 
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 /* Private types -------------------------------------------------------------*/
 /** @defgroup FSMC_LL_Private_Types FSMC Private Types
   * @{
@@ -89,7 +89,8 @@ typedef struct
 
   uint32_t WrapMode;                     /*!< Enables or disables the Wrapped burst access mode for Flash
                                               memory, valid only when accessing Flash memories in burst mode.
-                                              This parameter can be a value of @ref FSMC_Wrap_Mode                        */
+                                              This parameter can be a value of @ref FSMC_Wrap_Mode                        
+                                              This mode is available only for the STM32F405/407/4015/417xx devices        */
 
   uint32_t WaitSignalActive;             /*!< Specifies if the wait signal is asserted by the memory one
                                               clock cycle before the wait state or during the wait state,
@@ -112,6 +113,9 @@ typedef struct
 
   uint32_t WriteBurst;                   /*!< Enables or disables the write burst operation.
                                               This parameter can be a value of @ref FSMC_Write_Burst                      */
+  
+  uint32_t PageSize;                     /*!< Specifies the memory page size.
+                                              This parameter can be a value of @ref FMC_Page_Size                   */	
 
 }FSMC_NORSRAM_InitTypeDef;
 
@@ -320,6 +324,7 @@ typedef struct
   */
 
 /** @defgroup FSMC_Wrap_Mode FSMC Wrap Mode
+  * @note  These values are available only for the STM32F405/415/407/417xx devices.
   * @{
   */
 #define FSMC_WRAP_MODE_DISABLE                   ((uint32_t)0x00000000)
@@ -371,22 +376,25 @@ typedef struct
 #define FSMC_ASYNCHRONOUS_WAIT_ENABLE            ((uint32_t)0x00008000)
 /**
   * @}
-  */  
+  */
+
+/** @defgroup FSMC_Page_Size FSMC Page Size
+  * @{
+  */
+#define FSMC_PAGE_SIZE_NONE           ((uint32_t)0x00000000)
+#define FSMC_PAGE_SIZE_128            ((uint32_t)FSMC_BCR1_CPSIZE_0)
+#define FSMC_PAGE_SIZE_256            ((uint32_t)FSMC_BCR1_CPSIZE_1)
+#define FSMC_PAGE_SIZE_512            ((uint32_t)(FSMC_BCR1_CPSIZE_0 | FSMC_BCR1_CPSIZE_1))
+#define FSMC_PAGE_SIZE_1024           ((uint32_t)FSMC_BCR1_CPSIZE_2)
+/**
+  * @}
+  */
 
 /** @defgroup FSMC_Write_Burst FSMC Write Burst
   * @{
   */
 #define FSMC_WRITE_BURST_DISABLE                 ((uint32_t)0x00000000)
 #define FSMC_WRITE_BURST_ENABLE                  ((uint32_t)0x00080000)
-/**
-  * @}
-  */
-  
-/** @defgroup FSMC_Continous_Clock FSMC Continous Clock
-  * @{
-  */
-#define FSMC_CONTINUOUS_CLOCK_SYNC_ONLY          ((uint32_t)0x00000000)
-#define FSMC_CONTINUOUS_CLOCK_SYNC_ASYNC         ((uint32_t)0x00100000)
 /**
   * @}
   */
@@ -888,6 +896,14 @@ typedef struct
 
 #define IS_FSMC_CLK_DIV(DIV) (((DIV) > 1) && ((DIV) <= 16))
 
+#define IS_FSMC_PAGESIZE(SIZE) (((SIZE) == FSMC_PAGE_SIZE_NONE) || \
+                                ((SIZE) == FSMC_PAGE_SIZE_128)  || \
+                                ((SIZE) == FSMC_PAGE_SIZE_256)  || \
+                                ((SIZE) == FSMC_PAGE_SIZE_1024))
+
+#define IS_FSMC_WRITE_FIFO(FIFO) (((FIFO) == FSMC_WRITE_FIFO_DISABLE) || \
+                                  ((FIFO) == FSMC_WRITE_FIFO_ENABLE))
+
 /**
   * @}
   */
@@ -977,7 +993,7 @@ HAL_StatusTypeDef  FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device);
 /**
   * @}
   */
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx  */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
 
 /**
   * @}

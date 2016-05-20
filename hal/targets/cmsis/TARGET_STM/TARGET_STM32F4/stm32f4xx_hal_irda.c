@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   IRDA HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the IrDA SIR ENDEC block (IrDA):
@@ -307,6 +307,8 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
   */
  __weak void HAL_IRDA_MspInit(IRDA_HandleTypeDef *hirda)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hirda);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_IRDA_MspInit could be implemented in the user file
    */ 
@@ -320,6 +322,8 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
   */
  __weak void HAL_IRDA_MspDeInit(IRDA_HandleTypeDef *hirda)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hirda);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_IRDA_MspDeInit could be implemented in the user file
    */ 
@@ -1014,6 +1018,8 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
   */
  __weak void HAL_IRDA_TxCpltCallback(IRDA_HandleTypeDef *hirda)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hirda);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_IRDA_TxCpltCallback could be implemented in the user file
    */ 
@@ -1027,6 +1033,8 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
   */
  __weak void HAL_IRDA_TxHalfCpltCallback(IRDA_HandleTypeDef *hirda)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hirda);
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_IRDA_TxHalfCpltCallback could be implemented in the user file
    */
@@ -1040,6 +1048,8 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
   */
 __weak void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hirda);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_IRDA_RxCpltCallback could be implemented in the user file
    */
@@ -1053,6 +1063,8 @@ __weak void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda)
   */
 __weak void HAL_IRDA_RxHalfCpltCallback(IRDA_HandleTypeDef *hirda)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hirda);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_IRDA_RxHalfCpltCallback could be implemented in the user file
    */
@@ -1066,6 +1078,8 @@ __weak void HAL_IRDA_RxHalfCpltCallback(IRDA_HandleTypeDef *hirda)
   */
  __weak void HAL_IRDA_ErrorCallback(IRDA_HandleTypeDef *hirda)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hirda);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_IRDA_ErrorCallback could be implemented in the user file
    */ 

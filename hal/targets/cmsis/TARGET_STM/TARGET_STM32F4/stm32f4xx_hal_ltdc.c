@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_ltdc.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   LTDC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the LTDC peripheral:
@@ -263,6 +263,8 @@ HAL_StatusTypeDef HAL_LTDC_DeInit(LTDC_HandleTypeDef *hltdc)
   */
 __weak void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_MspInit could be implemented in the user file
    */ 
@@ -276,6 +278,8 @@ __weak void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc)
   */
 __weak void HAL_LTDC_MspDeInit(LTDC_HandleTypeDef* hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_MspDeInit could be implemented in the user file
    */
@@ -385,6 +389,8 @@ void HAL_LTDC_IRQHandler(LTDC_HandleTypeDef *hltdc)
   */
 __weak void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_ErrorCallback could be implemented in the user file
    */
@@ -398,6 +404,8 @@ __weak void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc)
   */
 __weak void HAL_LTDC_LineEventCallback(LTDC_HandleTypeDef *hltdc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hltdc);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_LTDC_LineEventCallback could be implemented in the user file
    */
@@ -872,7 +880,7 @@ HAL_StatusTypeDef HAL_LTDC_SetWindowPosition(LTDC_HandleTypeDef *hltdc, uint32_t
   LTDC_SetConfig(hltdc, pLayerCfg, LayerIdx);
 
   /* Sets the Reload type */
-  hltdc->Instance->SRCR = LTDC_SRCR_VBR;
+  hltdc->Instance->SRCR = LTDC_SRCR_IMR;
 
   /* Change the LTDC state*/
   hltdc->State = HAL_LTDC_STATE_READY;

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Controller Area Network (CAN) peripheral:
   *           + Initialization and de-initialization functions 
@@ -115,7 +115,7 @@
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
   
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -492,6 +492,8 @@ HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CAN_MspInit could be implemented in the user file
    */ 
@@ -505,6 +507,8 @@ __weak void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CAN_MspDeInit could be implemented in the user file
    */ 
@@ -1122,8 +1126,6 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan)
   {
     /* Set CAN error code to EWG error */
     hcan->ErrorCode |= HAL_CAN_ERROR_EWG;
-    /* Clear Error Warning Flag */ 
-    __HAL_CAN_CLEAR_FLAG(hcan, CAN_FLAG_EWG);
   }
   
   tmp1 = __HAL_CAN_GET_FLAG(hcan, CAN_FLAG_EPV);
@@ -1134,8 +1136,6 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan)
   {
     /* Set CAN error code to EPV error */
     hcan->ErrorCode |= HAL_CAN_ERROR_EPV;
-    /* Clear Error Passive Flag */ 
-    __HAL_CAN_CLEAR_FLAG(hcan, CAN_FLAG_EPV);
   }
   
   tmp1 = __HAL_CAN_GET_FLAG(hcan, CAN_FLAG_BOF);
@@ -1146,8 +1146,6 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan)
   {
     /* Set CAN error code to BOF error */
     hcan->ErrorCode |= HAL_CAN_ERROR_BOF;
-    /* Clear Bus-Off Flag */ 
-    __HAL_CAN_CLEAR_FLAG(hcan, CAN_FLAG_BOF);
   }
   
   tmp1 = HAL_IS_BIT_CLR(hcan->Instance->ESR, CAN_ESR_LEC);
@@ -1194,6 +1192,8 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan)
   /* Call the Error call Back in case of Errors */
   if(hcan->ErrorCode != HAL_CAN_ERROR_NONE)
   {
+    /* Clear ERRI Flag */ 
+    hcan->Instance->MSR = CAN_MSR_ERRI; 
     /* Set the CAN state ready to be able to start again the process */
     hcan->State = HAL_CAN_STATE_READY;
     /* Call Error callback function */
@@ -1209,6 +1209,8 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CAN_TxCpltCallback could be implemented in the user file
    */
@@ -1222,6 +1224,8 @@ __weak void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CAN_RxCpltCallback could be implemented in the user file
    */
@@ -1235,6 +1239,8 @@ __weak void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_CAN_ErrorCallback could be implemented in the user file
    */
@@ -1425,7 +1431,7 @@ static HAL_StatusTypeDef CAN_Receive_IT(CAN_HandleTypeDef* hcan, uint8_t FIFONum
   * @}
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
-          STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx || STM3F412xE */
+          STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
 
 #endif /* HAL_CAN_MODULE_ENABLED */
 /**

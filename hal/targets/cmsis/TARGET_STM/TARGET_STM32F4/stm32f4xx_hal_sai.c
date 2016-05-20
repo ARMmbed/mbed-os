@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   SAI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Serial Audio Interface (SAI) peripheral:
@@ -489,6 +489,8 @@ HAL_StatusTypeDef HAL_SAI_DeInit(SAI_HandleTypeDef *hsai)
   */
 __weak void HAL_SAI_MspInit(SAI_HandleTypeDef *hsai)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsai);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SAI_MspInit could be implemented in the user file
    */ 
@@ -502,6 +504,8 @@ __weak void HAL_SAI_MspInit(SAI_HandleTypeDef *hsai)
   */
 __weak void HAL_SAI_MspDeInit(SAI_HandleTypeDef *hsai)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsai);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SAI_MspDeInit could be implemented in the user file
    */ 
@@ -1285,6 +1289,8 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
   */
  __weak void HAL_SAI_TxCpltCallback(SAI_HandleTypeDef *hsai)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsai);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SAI_TxCpltCallback could be implemented in the user file
    */ 
@@ -1298,6 +1304,8 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
   */
  __weak void HAL_SAI_TxHalfCpltCallback(SAI_HandleTypeDef *hsai)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsai);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SAI_TxHalfCpltCallback could be implemented in the user file
    */ 
@@ -1311,6 +1319,8 @@ void HAL_SAI_IRQHandler(SAI_HandleTypeDef *hsai)
   */
 __weak void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsai);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SAI_RxCpltCallback could be implemented in the user file
    */
@@ -1324,6 +1334,8 @@ __weak void HAL_SAI_RxCpltCallback(SAI_HandleTypeDef *hsai)
   */
 __weak void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsai);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SAI_RxCpltCallback could be implemented in the user file
    */
@@ -1337,6 +1349,8 @@ __weak void HAL_SAI_RxHalfCpltCallback(SAI_HandleTypeDef *hsai)
   */
 __weak void HAL_SAI_ErrorCallback(SAI_HandleTypeDef *hsai)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsai);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SAI_ErrorCallback could be implemented in the user file
    */ 

@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f411xe.h
   * @author  MCD Application Team
-  * @version V2.3.0
-  * @date    02-March-2015
+  * @version V2.4.2
+  * @date    13-November-2015
   * @brief   CMSIS STM32F411xExx Device Peripheral Access Layer Header File. 
   *
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
   *           - Peripheral's registers declarations and bits definition
-  *           - Macros to access peripheral’s registers hardware
+  *           - Macros to access peripheral's registers hardware
   *
   ******************************************************************************
   * @attention
@@ -45,12 +45,12 @@
   * @{
   */
 
-/** @addtogroup stm32f401xe
+/** @addtogroup stm32f411xe
   * @{
   */
     
-#ifndef __STM32F401xE_H
-#define __STM32F401xE_H
+#ifndef __STM32F411xE_H
+#define __STM32F411xE_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -667,15 +667,12 @@ USB_OTG_HostChannelTypeDef;
 #define CCMDATARAM_BASE       ((uint32_t)0x10000000) /*!< CCM(core coupled memory) data RAM(64 KB) base address in the alias region  */
 #define SRAM1_BASE            ((uint32_t)0x20000000) /*!< SRAM1(112 KB) base address in the alias region                             */
 #define SRAM2_BASE            ((uint32_t)0x2001C000) /*!< SRAM2(16 KB) base address in the alias region                              */
-#define SRAM3_BASE            ((uint32_t)0x20020000) /*!< SRAM3(64 KB) base address in the alias region                              */
 #define PERIPH_BASE           ((uint32_t)0x40000000) /*!< Peripheral base address in the alias region                                */
 #define BKPSRAM_BASE          ((uint32_t)0x40024000) /*!< Backup SRAM(4 KB) base address in the alias region                         */
-#define CCMDATARAM_BB_BASE    ((uint32_t)0x12000000) /*!< CCM(core coupled memory) data RAM(64 KB) base address in the bit-band region  */
 #define SRAM1_BB_BASE         ((uint32_t)0x22000000) /*!< SRAM1(112 KB) base address in the bit-band region                             */
-#define SRAM2_BB_BASE         ((uint32_t)0x2201C000) /*!< SRAM2(16 KB) base address in the bit-band region                              */
-#define SRAM3_BB_BASE         ((uint32_t)0x22020000) /*!< SRAM3(64 KB) base address in the bit-band region                              */
+#define SRAM2_BB_BASE         ((uint32_t)0x22380000) /*!< SRAM2(16 KB) base address in the bit-band region                              */
 #define PERIPH_BB_BASE        ((uint32_t)0x42000000) /*!< Peripheral base address in the bit-band region                                */
-#define BKPSRAM_BB_BASE       ((uint32_t)0x42024000) /*!< Backup SRAM(4 KB) base address in the bit-band region                         */
+#define BKPSRAM_BB_BASE       ((uint32_t)0x42480000) /*!< Backup SRAM(4 KB) base address in the bit-band region                         */
 #define FLASH_END             ((uint32_t)0x0807FFFF) /*!< FLASH end address */
 
 /* Legacy defines */
@@ -2456,7 +2453,6 @@ USB_OTG_HostChannelTypeDef;
 #define  RCC_AHB1LPENR_SRAM1LPEN             ((uint32_t)0x00010000)
 #define  RCC_AHB1LPENR_SRAM2LPEN             ((uint32_t)0x00020000)
 #define  RCC_AHB1LPENR_BKPSRAMLPEN           ((uint32_t)0x00040000)
-#define  RCC_AHB1LPENR_SRAM3LPEN             ((uint32_t)0x00080000)
 #define  RCC_AHB1LPENR_DMA1LPEN              ((uint32_t)0x00200000)
 #define  RCC_AHB1LPENR_DMA2LPEN              ((uint32_t)0x00400000)
 
@@ -2663,7 +2659,7 @@ USB_OTG_HostChannelTypeDef;
 
 /********************  Bits definition for RTC_PRER register  *****************/
 #define RTC_PRER_PREDIV_A                    ((uint32_t)0x007F0000)
-#define RTC_PRER_PREDIV_S                    ((uint32_t)0x00001FFF)
+#define RTC_PRER_PREDIV_S                    ((uint32_t)0x00007FFF)
 
 /********************  Bits definition for RTC_WUTR register  *****************/
 #define RTC_WUTR_WUT                         ((uint32_t)0x0000FFFF)
@@ -4764,6 +4760,12 @@ USB_OTG_HostChannelTypeDef;
 #define IS_IRDA_INSTANCE(INSTANCE) (((INSTANCE) == USART1) || \
                                     ((INSTANCE) == USART2) || \
                                     ((INSTANCE) == USART6))     
+
+/*********************** PCD Instances ****************************************/
+#define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS))
+
+/*********************** HCD Instances ****************************************/
+#define IS_HCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS))
 
 /****************************** IWDG Instances ********************************/
 #define IS_IWDG_ALL_INSTANCE(INSTANCE)  ((INSTANCE) == IWDG)

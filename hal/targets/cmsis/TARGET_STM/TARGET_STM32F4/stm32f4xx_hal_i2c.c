@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   I2C HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
@@ -403,6 +403,8 @@ HAL_StatusTypeDef HAL_I2C_DeInit(I2C_HandleTypeDef *hi2c)
   */
  __weak void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_MspInit could be implemented in the user file
    */
@@ -416,6 +418,8 @@ HAL_StatusTypeDef HAL_I2C_DeInit(I2C_HandleTypeDef *hi2c)
   */
  __weak void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_MspDeInit could be implemented in the user file
    */
@@ -2533,6 +2537,8 @@ void HAL_I2C_ER_IRQHandler(I2C_HandleTypeDef *hi2c)
   */
  __weak void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_TxCpltCallback could be implemented in the user file
    */
@@ -2546,6 +2552,8 @@ void HAL_I2C_ER_IRQHandler(I2C_HandleTypeDef *hi2c)
   */
 __weak void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_TxCpltCallback could be implemented in the user file
    */
@@ -2558,6 +2566,8 @@ __weak void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
   */
  __weak void HAL_I2C_SlaveTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_TxCpltCallback could be implemented in the user file
    */
@@ -2571,6 +2581,8 @@ __weak void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
   */
 __weak void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_TxCpltCallback could be implemented in the user file
    */
@@ -2584,6 +2596,8 @@ __weak void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
   */
  __weak void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_TxCpltCallback could be implemented in the user file
    */
@@ -2597,6 +2611,8 @@ __weak void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *hi2c)
   */
 __weak void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_TxCpltCallback could be implemented in the user file
    */
@@ -2610,6 +2626,8 @@ __weak void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
   */
  __weak void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2c);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2C_ErrorCallback could be implemented in the user file
    */

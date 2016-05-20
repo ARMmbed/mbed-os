@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cec.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   CEC HAL module driver.
-  * 
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Definition Multimedia Interface 
   *          Consumer Electronics Control Peripheral (CEC).
@@ -247,6 +246,8 @@ HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec)
   */
  __weak void HAL_CEC_MspInit(CEC_HandleTypeDef *hcec)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcec);
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CEC_MspInit can be implemented in the user file
    */ 
@@ -259,10 +260,13 @@ HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec)
   */
  __weak void HAL_CEC_MspDeInit(CEC_HandleTypeDef *hcec)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcec);
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CEC_MspDeInit can be implemented in the user file
    */ 
 }
+
 /**
   * @}
   */
@@ -872,6 +876,8 @@ void HAL_CEC_IRQHandler(CEC_HandleTypeDef *hcec)
   */
  __weak void HAL_CEC_TxCpltCallback(CEC_HandleTypeDef *hcec)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcec);
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CEC_TxCpltCallback can be implemented in the user file
    */ 
@@ -884,6 +890,8 @@ void HAL_CEC_IRQHandler(CEC_HandleTypeDef *hcec)
   */
 __weak void HAL_CEC_RxCpltCallback(CEC_HandleTypeDef *hcec)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcec);
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CEC_TxCpltCallback can be implemented in the user file
    */
@@ -896,6 +904,8 @@ __weak void HAL_CEC_RxCpltCallback(CEC_HandleTypeDef *hcec)
   */
  __weak void HAL_CEC_ErrorCallback(CEC_HandleTypeDef *hcec)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcec);
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CEC_ErrorCallback can be implemented in the user file
    */ 

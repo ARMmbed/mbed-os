@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fmc.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   FMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -170,9 +170,9 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
   assert_param(IS_FMC_ASYNWAIT(Init->AsynchronousWait));
   assert_param(IS_FMC_WRITE_BURST(Init->WriteBurst));
   assert_param(IS_FMC_CONTINOUS_CLOCK(Init->ContinuousClock));
+  assert_param(IS_FMC_PAGESIZE(Init->PageSize));
 #if defined (STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
   assert_param(IS_FMC_WRITE_FIFO(Init->WriteFifo));
-  assert_param(IS_FMC_PAGESIZE(Init->PageSize));
 #endif /* STM32F446xx || STM32F469xx || STM32F479xx */
 
   /* Get the BTCR register value */
@@ -180,12 +180,13 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
   /* Clear MBKEN, MUXEN, MTYP, MWID, FACCEN, BURSTEN, WAITPOL, WRAPMOD, WAITCFG, WREN,
-           WAITEN, EXTMOD, ASYNCWAIT, CBURSTRW and CCLKEN bits */
+           WAITEN, EXTMOD, ASYNCWAIT, CPSIZE, CBURSTRW and CCLKEN bits */
   tmpr &= ((uint32_t)~(FMC_BCR1_MBKEN     | FMC_BCR1_MUXEN    | FMC_BCR1_MTYP     | \
                        FMC_BCR1_MWID      | FMC_BCR1_FACCEN   | FMC_BCR1_BURSTEN  | \
                        FMC_BCR1_WAITPOL   | FMC_BCR1_WRAPMOD  | FMC_BCR1_WAITCFG  | \
                        FMC_BCR1_WREN      | FMC_BCR1_WAITEN   | FMC_BCR1_EXTMOD   | \
-                       FMC_BCR1_ASYNCWAIT | FMC_BCR1_CBURSTRW | FMC_BCR1_CCLKEN));
+                       FMC_BCR1_ASYNCWAIT | FMC_BCR1_CPSIZE   | FMC_BCR1_CBURSTRW | \
+                       FMC_BCR1_CCLKEN));
   
   /* Set NORSRAM device control parameters */
   tmpr |= (uint32_t)(Init->DataAddressMux       |\
@@ -199,6 +200,7 @@ HAL_StatusTypeDef  FMC_NORSRAM_Init(FMC_NORSRAM_TypeDef *Device, FMC_NORSRAM_Ini
                     Init->WaitSignal           |\
                     Init->ExtendedMode         |\
                     Init->AsynchronousWait     |\
+                    Init->PageSize             |\
                     Init->WriteBurst           |\
                     Init->ContinuousClock);
 #else /* defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) */
@@ -365,30 +367,12 @@ HAL_StatusTypeDef  FMC_NORSRAM_Extended_Timing_Init(FMC_NORSRAM_EXTENDED_TypeDef
     assert_param(IS_FMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
     assert_param(IS_FMC_DATASETUP_TIME(Timing->DataSetupTime));
     assert_param(IS_FMC_TURNAROUND_TIME(Timing->BusTurnAroundDuration));
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
-    assert_param(IS_FMC_CLK_DIV(Timing->CLKDivision));
-    assert_param(IS_FMC_DATA_LATENCY(Timing->DataLatency));
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx */
     assert_param(IS_FMC_ACCESS_MODE(Timing->AccessMode));
     assert_param(IS_FMC_NORSRAM_BANK(Bank));  
     
     /* Get the BWTR register value */
     tmpr = Device->BWTR[Bank];
 
-#if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx)
-    /* Clear ADDSET, ADDHLD, DATAST, BUSTURN, CLKDIV, DATLAT and ACCMOD bits */
-    tmpr &= ((uint32_t)~(FMC_BWTR1_ADDSET  | FMC_BWTR1_ADDHLD | FMC_BWTR1_DATAST | \
-                         FMC_BWTR1_BUSTURN | FMC_BWTR1_CLKDIV | FMC_BWTR1_DATLAT | \
-                         FMC_BWTR1_ACCMOD));
-    
-    tmpr |= (uint32_t)(Timing->AddressSetupTime                 |\
-                      ((Timing->AddressHoldTime) << 4)          |\
-                      ((Timing->DataSetupTime) << 8)            |\
-                      ((Timing->BusTurnAroundDuration) << 16)   |\
-                      (((Timing->CLKDivision)-1) << 20)         |\
-                      (((Timing->DataLatency)-2) << 24)         |\
-                      (Timing->AccessMode));
-#else /* defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) */
     /* Clear ADDSET, ADDHLD, DATAST, BUSTURN and ACCMOD bits */
     tmpr &= ((uint32_t)~(FMC_BWTR1_ADDSET  | FMC_BWTR1_ADDHLD | FMC_BWTR1_DATAST | \
                          FMC_BWTR1_BUSTURN | FMC_BWTR1_ACCMOD));
@@ -398,7 +382,6 @@ HAL_StatusTypeDef  FMC_NORSRAM_Extended_Timing_Init(FMC_NORSRAM_EXTENDED_TypeDef
                       ((Timing->DataSetupTime) << 8)            |\
                       ((Timing->BusTurnAroundDuration) << 16)   |\
                       (Timing->AccessMode));
-#endif /* defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) */    
 
     Device->BWTR[Bank] = tmpr;
   }

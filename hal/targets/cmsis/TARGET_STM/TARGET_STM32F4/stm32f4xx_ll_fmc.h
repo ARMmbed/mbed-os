@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fmc.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of FMC HAL module.
   ******************************************************************************
   * @attention
@@ -126,8 +126,7 @@ typedef struct
                                               This mode is available only for the STM32F446/469/479xx devices                    */
 
   uint32_t PageSize;                     /*!< Specifies the memory page size.
-                                              This parameter can be a value of @ref FMC_Page_Size 
-                                              This mode is available only for the STM32F446xx devices                    */											  
+                                              This parameter can be a value of @ref FMC_Page_Size                       */											  
 
 }FMC_NORSRAM_InitTypeDef;
 
@@ -475,12 +474,12 @@ typedef struct
   */  
 
 /** @defgroup FMC_Page_Size FMC Page Size
-  * @note  These values are available only for the STM32F446/469/479xx devices.
   * @{
   */
 #define FMC_PAGE_SIZE_NONE           ((uint32_t)0x00000000)
 #define FMC_PAGE_SIZE_128            ((uint32_t)FMC_BCR1_CPSIZE_0)
 #define FMC_PAGE_SIZE_256            ((uint32_t)FMC_BCR1_CPSIZE_1)
+#define FMC_PAGE_SIZE_512            ((uint32_t)(FMC_BCR1_CPSIZE_0 | FMC_BCR1_CPSIZE_1))
 #define FMC_PAGE_SIZE_1024           ((uint32_t)FMC_BCR1_CPSIZE_2)
 /**
   * @}
@@ -490,8 +489,8 @@ typedef struct
   * @note  These values are available only for the STM32F446/469/479xx devices.
   * @{
   */
-#define FMC_WRITE_FIFO_DISABLE           ((uint32_t)0x00000000)
-#define FMC_WRITE_FIFO_ENABLE            ((uint32_t)FMC_BCR1_WFDIS)
+#define FMC_WRITE_FIFO_DISABLE           ((uint32_t)FMC_BCR1_WFDIS)
+#define FMC_WRITE_FIFO_ENABLE            ((uint32_t)0x00000000)
 /**
   * @}
   */
@@ -1276,12 +1275,13 @@ typedef struct
 #define IS_FMC_WRITE_PROTECTION(WRITE) (((WRITE) == FMC_SDRAM_WRITE_PROTECTION_DISABLE) || \
                                         ((WRITE) == FMC_SDRAM_WRITE_PROTECTION_ENABLE))
 										
-#if defined (STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 #define IS_FMC_PAGESIZE(SIZE) (((SIZE) == FMC_PAGE_SIZE_NONE) || \
-                               ((SIZE) == FMC_PAGE_SIZE_128) || \
-                               ((SIZE) == FMC_PAGE_SIZE_256) || \
+                               ((SIZE) == FMC_PAGE_SIZE_128)  || \
+                               ((SIZE) == FMC_PAGE_SIZE_256)  || \
+                               ((SIZE) == FMC_PAGE_SIZE_512)  || \
                                ((SIZE) == FMC_PAGE_SIZE_1024))
 
+#if defined (STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 #define IS_FMC_WRITE_FIFO(FIFO) (((FIFO) == FMC_WRITE_FIFO_DISABLE) || \
                                  ((FIFO) == FMC_WRITE_FIFO_ENABLE))
 #endif /* STM32F446xx || STM32F469xx || STM32F479xx */									 

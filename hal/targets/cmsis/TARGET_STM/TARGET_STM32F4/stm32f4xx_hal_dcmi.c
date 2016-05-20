@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   DCMI HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Digital Camera Interface (DCMI) peripheral:
@@ -249,6 +249,8 @@ HAL_StatusTypeDef HAL_DCMI_DeInit(DCMI_HandleTypeDef *hdcmi)
   */
 __weak void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdcmi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DCMI_MspInit could be implemented in the user file
    */ 
@@ -262,6 +264,8 @@ __weak void HAL_DCMI_MspInit(DCMI_HandleTypeDef* hdcmi)
   */
 __weak void HAL_DCMI_MspDeInit(DCMI_HandleTypeDef* hdcmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdcmi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DCMI_MspDeInit could be implemented in the user file
    */
@@ -541,6 +545,8 @@ void HAL_DCMI_IRQHandler(DCMI_HandleTypeDef *hdcmi)
   */
 __weak void HAL_DCMI_ErrorCallback(DCMI_HandleTypeDef *hdcmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdcmi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DCMI_ErrorCallback could be implemented in the user file
    */
@@ -554,6 +560,8 @@ __weak void HAL_DCMI_ErrorCallback(DCMI_HandleTypeDef *hdcmi)
   */
 __weak void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdcmi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DCMI_LineEventCallback could be implemented in the user file
    */
@@ -567,6 +575,8 @@ __weak void HAL_DCMI_LineEventCallback(DCMI_HandleTypeDef *hdcmi)
   */
 __weak void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdcmi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DCMI_VsyncEventCallback could be implemented in the user file
    */
@@ -580,6 +590,8 @@ __weak void HAL_DCMI_VsyncEventCallback(DCMI_HandleTypeDef *hdcmi)
   */
 __weak void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdcmi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DCMI_FrameEventCallback could be implemented in the user file
    */

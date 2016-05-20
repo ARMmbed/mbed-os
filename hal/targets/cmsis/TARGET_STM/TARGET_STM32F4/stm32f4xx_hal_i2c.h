@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -345,7 +345,7 @@ typedef struct
   */
 #define __HAL_I2C_CLEAR_ADDRFLAG(__HANDLE__)    \
   do{                                           \
-    __IO uint32_t tmpreg;                       \
+    __IO uint32_t tmpreg = 0x00;                \
     tmpreg = (__HANDLE__)->Instance->SR1;       \
     tmpreg = (__HANDLE__)->Instance->SR2;       \
     UNUSED(tmpreg);                             \
@@ -358,7 +358,7 @@ typedef struct
   */
 #define __HAL_I2C_CLEAR_STOPFLAG(__HANDLE__)    \
   do{                                           \
-    __IO uint32_t tmpreg;                       \
+    __IO uint32_t tmpreg = 0x00;                \
     tmpreg = (__HANDLE__)->Instance->SR1;       \
     (__HANDLE__)->Instance->CR1 |= I2C_CR1_PE;  \
     UNUSED(tmpreg);                             \

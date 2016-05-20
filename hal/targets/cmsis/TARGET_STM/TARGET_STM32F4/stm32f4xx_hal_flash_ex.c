@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Extended FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the FLASH extension peripheral:
@@ -118,7 +118,6 @@ extern FLASH_ProcessTypeDef pFlash;
   */
 /* Option bytes control */
 static void               FLASH_MassErase(uint8_t VoltageRange, uint32_t Banks);
-void                      FLASH_FlushCaches(void);
 static HAL_StatusTypeDef  FLASH_OB_EnableWRP(uint32_t WRPSector, uint32_t Banks);
 static HAL_StatusTypeDef  FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks);
 static HAL_StatusTypeDef  FLASH_OB_RDP_LevelConfig(uint8_t Level);
@@ -130,10 +129,10 @@ static uint8_t            FLASH_OB_GetRDP(void);
 static uint8_t            FLASH_OB_GetBOR(void);
 
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) ||\
-    defined(STM32F446xx) 
+    defined(STM32F446xx)
 static HAL_StatusTypeDef  FLASH_OB_EnablePCROP(uint32_t Sector);
 static HAL_StatusTypeDef  FLASH_OB_DisablePCROP(uint32_t Sector);
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx  */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx) 
 static HAL_StatusTypeDef FLASH_OB_EnablePCROP(uint32_t SectorBank1, uint32_t SectorBank2, uint32_t Banks);
@@ -353,35 +352,6 @@ HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit)
 }
 
 /**
-  * @brief  Flush the instruction and data caches
-  * @retval None
-  */
-void FLASH_FlushCaches(void)
-{
-  /* Flush instruction cache  */
-  if(READ_BIT(FLASH->ACR, FLASH_ACR_ICEN))
-  {
-    /* Disable instruction cache  */
-    __HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
-    /* Reset instruction cache */
-    __HAL_FLASH_INSTRUCTION_CACHE_RESET();
-    /* Enable instruction cache */
-    __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
-  }
-  
-  /* Flush data cache */
-  if(READ_BIT(FLASH->ACR, FLASH_ACR_DCEN))
-  {
-    /* Disable data cache  */
-    __HAL_FLASH_DATA_CACHE_DISABLE();
-    /* Reset data cache */
-    __HAL_FLASH_DATA_CACHE_RESET();
-    /* Enable data cache */
-    __HAL_FLASH_DATA_CACHE_ENABLE();
-  }
-}
-
-/**
   * @brief   Get the Option byte configuration
   * @param  pOBInit: pointer to an FLASH_OBInitStruct structure that
   *         contains the configuration information for the programming.
@@ -408,7 +378,7 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) ||\
     defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) ||\
-    defined(STM32F479xx) 
+    defined(STM32F479xx)
 /**
   * @brief   Program option bytes
   * @param  pAdvOBInit: pointer to an FLASH_AdvOBProgramInitTypeDef structure that
@@ -432,21 +402,21 @@ HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram (FLASH_AdvOBProgramInitTypeDef *pAdvO
     {
       /*Enable of Write protection on the selected Sector*/
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
-    defined(STM32F411xE) || defined(STM32F446xx) 
+    defined(STM32F411xE) || defined(STM32F446xx)
       status = FLASH_OB_EnablePCROP(pAdvOBInit->Sectors);
 #else  /* STM32F427xx || STM32F437xx || STM32F429xx|| STM32F439xx || STM32F469xx || STM32F479xx */
       status = FLASH_OB_EnablePCROP(pAdvOBInit->SectorsBank1, pAdvOBInit->SectorsBank2, pAdvOBInit->Banks);
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx  */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx */
     }
     else
     {
       /*Disable of Write protection on the selected Sector*/
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
-    defined(STM32F411xE) || defined(STM32F446xx)  
+    defined(STM32F411xE) || defined(STM32F446xx) 
       status = FLASH_OB_DisablePCROP(pAdvOBInit->Sectors);
 #else /* STM32F427xx || STM32F437xx || STM32F429xx|| STM32F439xx || STM32F469xx || STM32F479xx */
       status = FLASH_OB_DisablePCROP(pAdvOBInit->SectorsBank1, pAdvOBInit->SectorsBank2, pAdvOBInit->Banks);
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx  */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx */
     }
   }
    
@@ -471,7 +441,7 @@ HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram (FLASH_AdvOBProgramInitTypeDef *pAdvO
 void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
 {
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
-    defined(STM32F411xE) || defined(STM32F446xx) 
+    defined(STM32F411xE) || defined(STM32F446xx)
   /*Get Sector*/
   pAdvOBInit->Sectors = (*(__IO uint16_t *)(OPTCR_BYTE2_ADDRESS));
 #else  /* STM32F427xx || STM32F437xx || STM32F429xx|| STM32F439xx || STM32F469xx || STM32F479xx */
@@ -483,7 +453,7 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
 
   /*Get Boot config OB*/
   pAdvOBInit->BootConfig = *(__IO uint8_t *)OPTCR_BYTE0_ADDRESS;
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx  */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx */
 }
 
 /**
@@ -536,7 +506,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
   return HAL_OK;
 }
 #endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F401xC || STM32F401xE || STM32F410xx ||\
-          STM32F411xE || STM32F469xx || STM32F479xx  */
+          STM32F411xE || STM32F469xx || STM32F479xx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /**
@@ -968,7 +938,7 @@ static HAL_StatusTypeDef FLASH_OB_DisablePCROP(uint32_t SectorBank1, uint32_t Se
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) ||\
-    defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) 
+    defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx)
 /**
   * @brief  Mass erase of FLASH memory
   * @param  VoltageRange: The device voltage range which defines the erase parallelism.  
@@ -1124,10 +1094,10 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks)
   
   return status;
 }
-#endif /* STM32F40xxx || STM32F41xxx || STM32F401xx || STM32F410xx || STM32F411xE || STM32F446xx  */
+#endif /* STM32F40xxx || STM32F41xxx || STM32F401xx || STM32F410xx || STM32F411xE || STM32F446xx */
 
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
-    defined(STM32F411xE) || defined(STM32F446xx) 
+    defined(STM32F411xE) || defined(STM32F446xx)
 /**
   * @brief  Enable the read/write protection (PCROP) of the desired sectors.
   * @note   This function can be used only for STM32F401xx devices.
@@ -1183,7 +1153,7 @@ static HAL_StatusTypeDef FLASH_OB_DisablePCROP(uint32_t Sector)
   return status;
 
 }
-#endif /* STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx  */
+#endif /* STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx */
 
 /**
   * @brief  Set the read protection level.
@@ -1340,6 +1310,35 @@ static uint8_t FLASH_OB_GetBOR(void)
 {
   /* Return the FLASH BOR level */
   return (uint8_t)(*(__IO uint8_t *)(OPTCR_BYTE0_ADDRESS) & (uint8_t)0x0C);
+}
+
+/**
+  * @brief  Flush the instruction and data caches
+  * @retval None
+  */
+void FLASH_FlushCaches(void)
+{
+  /* Flush instruction cache  */
+  if(READ_BIT(FLASH->ACR, FLASH_ACR_ICEN)!= RESET)
+  {
+    /* Disable instruction cache  */
+    __HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
+    /* Reset instruction cache */
+    __HAL_FLASH_INSTRUCTION_CACHE_RESET();
+    /* Enable instruction cache */
+    __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
+  }
+  
+  /* Flush data cache */
+  if(READ_BIT(FLASH->ACR, FLASH_ACR_DCEN) != RESET)
+  {
+    /* Disable data cache  */
+    __HAL_FLASH_DATA_CACHE_DISABLE();
+    /* Reset data cache */
+    __HAL_FLASH_DATA_CACHE_RESET();
+    /* Enable data cache */
+    __HAL_FLASH_DATA_CACHE_ENABLE();
+  }
 }
 
 /**

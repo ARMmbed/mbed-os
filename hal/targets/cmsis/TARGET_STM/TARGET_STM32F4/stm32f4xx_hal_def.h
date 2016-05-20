@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -104,7 +104,7 @@ typedef enum
 
 #if (USE_RTOS == 1)
   /* Reserved for future use */
-  #error “USE_RTOS should be 0 in the current HAL release”
+  #error "USE_RTOS should be 0 in the current HAL release"
 #else
   #define __HAL_LOCK(__HANDLE__)                                           \
                                 do{                                        \

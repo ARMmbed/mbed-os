@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
@@ -370,7 +370,7 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_MODFFLAG(__HANDLE__)            \
   do{                                                   \
-    __IO uint32_t tmpreg;                               \
+    __IO uint32_t tmpreg = 0x00;                        \
     tmpreg = (__HANDLE__)->Instance->SR;                \
     (__HANDLE__)->Instance->CR1 &= (~SPI_CR1_SPE);      \
     UNUSED(tmpreg);                                     \
@@ -383,7 +383,7 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_OVRFLAG(__HANDLE__)     \
   do{                                           \
-    __IO uint32_t tmpreg;                       \
+    __IO uint32_t tmpreg = 0x00;                \
     tmpreg = (__HANDLE__)->Instance->DR;        \
     tmpreg = (__HANDLE__)->Instance->SR;        \
     UNUSED(tmpreg);                             \
@@ -395,8 +395,8 @@ typedef struct __SPI_HandleTypeDef
   * @retval None
   */                                           
 #define __HAL_SPI_CLEAR_FREFLAG(__HANDLE__)     \
-  do{                                             \
-  __IO uint32_t tmpreg;                         \
+  do{                                           \
+  __IO uint32_t tmpreg = 0x00;                  \
   tmpreg = (__HANDLE__)->Instance->SR;          \
   UNUSED(tmpreg);                               \
   }while(0) 

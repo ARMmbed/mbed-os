@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sd.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   SD card HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Secure Digital (SD) peripheral:
@@ -183,7 +183,7 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
-    defined(STM32F469xx) || defined(STM32F479xx) 
+    defined(STM32F469xx) || defined(STM32F479xx)
 /** @addtogroup STM32F4xx_HAL_Driver
   * @{
   */
@@ -415,6 +415,8 @@ HAL_StatusTypeDef HAL_SD_DeInit(SD_HandleTypeDef *hsd)
   */
 __weak void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_MspInit could be implemented in the user file
    */
@@ -427,6 +429,8 @@ __weak void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
   */
 __weak void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_MspDeInit could be implemented in the user file
    */
@@ -1441,6 +1445,8 @@ void HAL_SD_IRQHandler(SD_HandleTypeDef *hsd)
   */
 __weak void HAL_SD_XferCpltCallback(SD_HandleTypeDef *hsd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_XferCpltCallback could be implemented in the user file
    */ 
@@ -1453,6 +1459,8 @@ __weak void HAL_SD_XferCpltCallback(SD_HandleTypeDef *hsd)
   */
 __weak void HAL_SD_XferErrorCallback(SD_HandleTypeDef *hsd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_XferErrorCallback could be implemented in the user file
    */ 
@@ -1466,6 +1474,8 @@ __weak void HAL_SD_XferErrorCallback(SD_HandleTypeDef *hsd)
   */
 __weak void HAL_SD_DMA_RxCpltCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_DMA_RxCpltCallback could be implemented in the user file
    */ 
@@ -1479,6 +1489,8 @@ __weak void HAL_SD_DMA_RxCpltCallback(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_SD_DMA_RxErrorCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_DMA_RxErrorCallback could be implemented in the user file
    */ 
@@ -1492,6 +1504,8 @@ __weak void HAL_SD_DMA_RxErrorCallback(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_SD_DMA_TxCpltCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_DMA_TxCpltCallback could be implemented in the user file
    */ 
@@ -1505,6 +1519,8 @@ __weak void HAL_SD_DMA_TxCpltCallback(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_SD_DMA_TxErrorCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SD_DMA_TxErrorCallback could be implemented in the user file
    */ 
@@ -3478,7 +3494,7 @@ static HAL_SD_ErrorTypedef SD_IsCardProgramming(SD_HandleTypeDef *hsd, uint8_t *
   * @}
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
-          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx  */
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
 #endif /* HAL_SD_MODULE_ENABLED */
 
 /**

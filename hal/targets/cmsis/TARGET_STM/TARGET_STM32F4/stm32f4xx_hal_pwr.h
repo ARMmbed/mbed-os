@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
@@ -253,14 +253,18 @@ typedef struct
   * @brief  PVD EXTI line configuration: set rising & falling edge trigger.
   * @retval None.
   */
-#define __HAL_PWR_PVD_EXTI_ENABLE_RISING_FALLING_EDGE()   __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
+#define __HAL_PWR_PVD_EXTI_ENABLE_RISING_FALLING_EDGE()   do{__HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();\
+                                                             __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();\
+                                                            }while(0)
 
 /**
   * @brief Disable the PVD Extended Interrupt Rising & Falling Trigger.
   * This parameter can be:
   * @retval None.
   */
-#define __HAL_PWR_PVD_EXTI_DISABLE_RISING_FALLING_EDGE()  __HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();__HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();
+#define __HAL_PWR_PVD_EXTI_DISABLE_RISING_FALLING_EDGE()  do{__HAL_PWR_PVD_EXTI_DISABLE_RISING_EDGE();\
+                                                             __HAL_PWR_PVD_EXTI_DISABLE_FALLING_EDGE();\
+                                                            }while(0) 
 
 /**
   * @brief checks whether the specified PVD Exti interrupt flag is set or not.

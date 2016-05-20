@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nand.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   NAND HAL module driver.
   *          This file provides a generic firmware to drive NAND memories mounted 
   *          as external device.
@@ -214,6 +214,8 @@ HAL_StatusTypeDef HAL_NAND_DeInit(NAND_HandleTypeDef *hnand)
   */
 __weak void HAL_NAND_MspInit(NAND_HandleTypeDef *hnand)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnand);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NAND_MspInit could be implemented in the user file
    */ 
@@ -227,6 +229,8 @@ __weak void HAL_NAND_MspInit(NAND_HandleTypeDef *hnand)
   */
 __weak void HAL_NAND_MspDeInit(NAND_HandleTypeDef *hnand)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnand);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NAND_MspDeInit could be implemented in the user file
    */ 
@@ -291,6 +295,8 @@ void HAL_NAND_IRQHandler(NAND_HandleTypeDef *hnand)
   */
 __weak void HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hnand);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_NAND_ITCallback could be implemented in the user file
    */
@@ -486,7 +492,7 @@ HAL_StatusTypeDef HAL_NAND_Read_Page(NAND_HandleTypeDef *hnand, NAND_AddressType
     *(__IO uint8_t *)((uint32_t)(deviceaddress | CMD_AREA))  = NAND_CMD_AREA_TRUE1;
       
     /* Get Data into Buffer */    
-    for(index = size; index != 0; index--)
+    for(; index < size; index++)
     {
       *(uint8_t *)pBuffer++ = *(uint8_t *)deviceaddress;
     }
@@ -580,7 +586,7 @@ HAL_StatusTypeDef HAL_NAND_Write_Page(NAND_HandleTypeDef *hnand, NAND_AddressTyp
     }
   
     /* Write data to memory */
-    for(index = size; index != 0; index--)
+    for(; index < size; index++)
     {
       *(__IO uint8_t *)deviceaddress = *(uint8_t *)pBuffer++;
     }
@@ -687,7 +693,7 @@ HAL_StatusTypeDef HAL_NAND_Read_SpareArea(NAND_HandleTypeDef *hnand, NAND_Addres
     *(__IO uint8_t *)((uint32_t)(deviceaddress | CMD_AREA)) = NAND_CMD_AREA_TRUE1;
     
     /* Get Data into Buffer */
-    for (index = size ;index != 0; index--)
+    for(; index < size; index++)
     {
       *(uint8_t *)pBuffer++ = *(uint8_t *)deviceaddress;
     }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_gpio_ex.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of GPIO HAL Extension module.
   ******************************************************************************
   * @attention
@@ -589,6 +589,7 @@
 #define GPIO_AF15_EVENTOUT      ((uint8_t)0x0F)  /* EVENTOUT Alternate Function mapping */
 #endif /* STM32F401xC || STM32F401xE */
 /*----------------------------------------------------------------------------*/
+
 /*---------------------------------------- STM32F411xx------------------------*/
 #if defined(STM32F411xE) 
 /** 
@@ -1082,7 +1083,7 @@
                                                ((__GPIOx__) == (GPIOE))? 4U : 5U)
 #endif /* STM32F401xC || STM32F401xE || STM32F411xE */
 
-#if defined(STM32F446xx) 
+#if defined(STM32F446xx)
 #define GPIO_GET_INDEX(__GPIOx__)    (uint8_t)(((__GPIOx__) == (GPIOA))? 0U :\
                                                ((__GPIOx__) == (GPIOB))? 1U :\
                                                ((__GPIOx__) == (GPIOC))? 2U :\
@@ -1090,7 +1091,7 @@
                                                ((__GPIOx__) == (GPIOE))? 4U :\
                                                ((__GPIOx__) == (GPIOF))? 5U :\
                                                ((__GPIOx__) == (GPIOG))? 6U : 8U)
-#endif /* STM32F446xx  */
+#endif /* STM32F446xx */
 
 /**
   * @}

@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f469xx.h
   * @author  MCD Application Team
-  * @version V2.4.1
-  * @date    09-October-2015
+  * @version V2.4.2
+  * @date    13-November-2015
   * @brief   CMSIS STM32F469xx Device Peripheral Access Layer Header File.
   *
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
   *           - Peripheral's registers declarations and bits definition
-  *           - Macros to access peripheral’s registers hardware
+  *           - Macros to access peripheral's registers hardware
   *
   ******************************************************************************
   * @attention
@@ -1033,10 +1033,9 @@ typedef struct
   __IO uint32_t GHWCFG3;              /*!< User HW config3                              04Ch */
   uint32_t  Reserved6;                /*!< Reserved                                     050h */ 
   __IO uint32_t GLPMCFG;              /*!< LPM Register                                 054h */
-  __IO uint32_t GPWRDN;               /*!< Power Down Register                          058h */
+  uint32_t  Reserved;                 /*!< Reserved                                     058h */
   __IO uint32_t GDFIFOCFG;            /*!< DFIFO Software Config Register               05Ch */
-   __IO uint32_t GADPCTL;             /*!< ADP Timer, Control and Status Register       60Ch */
-    uint32_t  Reserved43[39];         /*!< Reserved                                058h-0FFh */
+  uint32_t  Reserved43[40];           /*!< Reserved                                058h-0FFh */
   __IO uint32_t HPTXFSIZ;             /*!< Host Periodic Tx FIFO Size Reg               100h */
   __IO uint32_t DIEPTXF[0x0F];        /*!< dev Periodic Transmit FIFO */
 } USB_OTG_GlobalTypeDef;
@@ -9250,7 +9249,8 @@ typedef struct
 #define USB_OTG_DOEPMSK_EPDM                    ((uint32_t)0x00000002)            /*!< Endpoint disabled interrupt mask               */
 #define USB_OTG_DOEPMSK_STUPM                   ((uint32_t)0x00000008)            /*!< SETUP phase done mask                          */
 #define USB_OTG_DOEPMSK_OTEPDM                  ((uint32_t)0x00000010)            /*!< OUT token received when endpoint disabled mask */
-#define USB_OTG_DOEPMSK_B2BSTUP                 ((uint32_t)0x00000040)            /*!< Back-to-back SETUP packets received mask       */
+#define USB_OTG_DOEPMSK_OTEPSPRM                ((uint32_t)0x00000020)            /*!< Status Phase Received mask                     */
+#define USB_OTG_DOEPMSK_B2BSTUP                 ((uint32_t)0x00000040)            /*!< Back-to-back SETUP packets received mask */
 #define USB_OTG_DOEPMSK_OPEM                    ((uint32_t)0x00000100)            /*!< OUT packet error mask                          */
 #define USB_OTG_DOEPMSK_BOIM                    ((uint32_t)0x00000200)            /*!< BNA interrupt mask                             */
 
@@ -9468,10 +9468,6 @@ typedef struct
 /********************  Bit definition forUSB_OTG_GCCFG register  ********************/
 #define USB_OTG_GCCFG_PWRDWN                 ((uint32_t)0x00010000)              /*!< Power down */
 #define USB_OTG_GCCFG_VBDEN                  ((uint32_t)0x00200000)              /*!< USB VBUS Detection Enable */
-
-/********************  Bit definition forUSB_OTG_GPWRDN) register  ********************/
-#define USB_OTG_GPWRDN_ADPMEN                 ((uint32_t)0x00000001)             /*!< ADP module enable */
-#define USB_OTG_GPWRDN_ADPIF                  ((uint32_t)0x00800000)             /*!< ADP Interrupt flag */
 
 /********************  Bit definition forUSB_OTG_DEACHINTMSK register  ********************/
 #define USB_OTG_DEACHINTMSK_IEP1INTM          ((uint32_t)0x00000002)            /*!< IN Endpoint 1 interrupt mask bit  */
@@ -9718,6 +9714,7 @@ typedef struct
 #define USB_OTG_DOEPINT_EPDISD                  ((uint32_t)0x00000002)            /*!< Endpoint disabled interrupt */
 #define USB_OTG_DOEPINT_STUP                    ((uint32_t)0x00000008)            /*!< SETUP phase done */
 #define USB_OTG_DOEPINT_OTEPDIS                 ((uint32_t)0x00000010)            /*!< OUT token received when endpoint disabled */
+#define USB_OTG_DOEPINT_OTEPSPR                 ((uint32_t)0x00000020)            /*!< Status Phase Received For Control Write */
 #define USB_OTG_DOEPINT_B2BSTUP                 ((uint32_t)0x00000040)            /*!< Back-to-back SETUP packets received */
 #define USB_OTG_DOEPINT_NYET                    ((uint32_t)0x00004000)            /*!< NYET interrupt */
 
@@ -10095,6 +10092,14 @@ typedef struct
                                     ((INSTANCE) == UART7)  || \
                                     ((INSTANCE) == UART8))
     
+/*********************** PCD Instances ****************************************/
+#define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
+                                        ((INSTANCE) == USB_OTG_HS))
+
+/*********************** HCD Instances ****************************************/
+#define IS_HCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS) || \
+                                       ((INSTANCE) == USB_OTG_HS))
+
 /****************************** SDIO Instances ********************************/
 #define IS_SDIO_ALL_INSTANCE(INSTANCE) ((INSTANCE) == SDIO)
 

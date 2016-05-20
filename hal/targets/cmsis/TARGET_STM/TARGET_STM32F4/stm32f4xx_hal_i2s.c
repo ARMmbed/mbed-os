@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -357,6 +357,8 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_MspInit could be implemented in the user file
    */ 
@@ -370,6 +372,8 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_MspDeInit could be implemented in the user file
    */ 
@@ -437,7 +441,7 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   */
 HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;  
+  uint32_t tmp1 = 0;  
   if((pData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
@@ -446,9 +450,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
   if(hi2s->State == HAL_I2S_STATE_READY)
   { 
     tmp1 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    tmp2 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    if((tmp1 == I2S_DATAFORMAT_24B)|| \
-       (tmp2 == I2S_DATAFORMAT_32B))
+    if((tmp1 == I2S_DATAFORMAT_24B) || (tmp1 == I2S_DATAFORMAT_32B))
     {
       hi2s->TxXferSize = Size*2;
       hi2s->TxXferCount = Size*2;
@@ -522,7 +524,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit(I2S_HandleTypeDef *hi2s, uint16_t *pData, uin
   */
 HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size, uint32_t Timeout)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;   
+  uint32_t tmp1 = 0;   
   if((pData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
@@ -531,9 +533,7 @@ HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint
   if(hi2s->State == HAL_I2S_STATE_READY)
   { 
     tmp1 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    tmp2 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    if((tmp1 == I2S_DATAFORMAT_24B)|| \
-       (tmp2 == I2S_DATAFORMAT_32B))
+    if((tmp1 == I2S_DATAFORMAT_24B) || (tmp1 == I2S_DATAFORMAT_32B))
     {
       hi2s->RxXferSize = Size*2;
       hi2s->RxXferCount = Size*2;
@@ -605,7 +605,7 @@ HAL_StatusTypeDef HAL_I2S_Receive(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint
   */
 HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;     
+  uint32_t tmp1 = 0;     
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
     if((pData == NULL) || (Size == 0)) 
@@ -615,9 +615,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
 
     hi2s->pTxBuffPtr = pData;
     tmp1 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    tmp2 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    if((tmp1 == I2S_DATAFORMAT_24B)|| \
-      (tmp2 == I2S_DATAFORMAT_32B))
+    if((tmp1 == I2S_DATAFORMAT_24B) || (tmp1 == I2S_DATAFORMAT_32B))
     {
       hi2s->TxXferSize = Size*2;
       hi2s->TxXferCount = Size*2;
@@ -673,7 +671,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   */
 HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;     
+  uint32_t tmp1 = 0;     
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
     if((pData == NULL) || (Size == 0)) 
@@ -683,9 +681,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
 
     hi2s->pRxBuffPtr = pData;
     tmp1 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    tmp2 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    if((tmp1 == I2S_DATAFORMAT_24B)||\
-      (tmp2 == I2S_DATAFORMAT_32B))
+    if((tmp1 == I2S_DATAFORMAT_24B) || (tmp1 == I2S_DATAFORMAT_32B))
     {
       hi2s->RxXferSize = Size*2;
       hi2s->RxXferCount = Size*2;
@@ -740,7 +736,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_IT(I2S_HandleTypeDef *hi2s, uint16_t *pData, u
 HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
   uint32_t *tmp;
-  uint32_t tmp1 = 0, tmp2 = 0;     
+  uint32_t tmp1 = 0;     
   
   if((pData == NULL) || (Size == 0)) 
   {
@@ -751,9 +747,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
   {  
     hi2s->pTxBuffPtr = pData;
     tmp1 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    tmp2 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    if((tmp1 == I2S_DATAFORMAT_24B)|| \
-      (tmp2 == I2S_DATAFORMAT_32B))
+    if((tmp1 == I2S_DATAFORMAT_24B) || (tmp1 == I2S_DATAFORMAT_32B))
     {
       hi2s->TxXferSize = Size*2;
       hi2s->TxXferCount = Size*2;
@@ -825,7 +819,7 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData,
 HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, uint16_t Size)
 {
   uint32_t *tmp;
-  uint32_t tmp1 = 0, tmp2 = 0;  
+  uint32_t tmp1 = 0;  
   
   if((pData == NULL) || (Size == 0))
   {
@@ -836,9 +830,7 @@ HAL_StatusTypeDef HAL_I2S_Receive_DMA(I2S_HandleTypeDef *hi2s, uint16_t *pData, 
   {
     hi2s->pRxBuffPtr = pData;
     tmp1 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    tmp2 = hi2s->Instance->I2SCFGR & (SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CHLEN);
-    if((tmp1 == I2S_DATAFORMAT_24B)|| \
-      (tmp2 == I2S_DATAFORMAT_32B))
+    if((tmp1 == I2S_DATAFORMAT_24B) || (tmp1 == I2S_DATAFORMAT_32B))
     {
       hi2s->RxXferSize = Size*2;
       hi2s->RxXferCount = Size*2;
@@ -1093,6 +1085,8 @@ __weak void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_TxHalfCpltCallback could be implemented in the user file
    */ 
@@ -1106,6 +1100,8 @@ __weak void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_TxCpltCallback could be implemented in the user file
    */ 
@@ -1119,6 +1115,8 @@ __weak void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
   */
 __weak void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_RxCpltCallback could be implemented in the user file
    */
@@ -1132,6 +1130,8 @@ __weak void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
   */
 __weak void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_RxCpltCallback could be implemented in the user file
    */
@@ -1145,6 +1145,8 @@ __weak void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_ErrorCallback could be implemented in the user file
    */ 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx.h
   * @author  MCD Application Team
-  * @version V2.4.1
-  * @date    09-October-2015
+  * @version V2.4.2
+  * @date    13-November-2015
   * @brief   CMSIS STM32F4xx Device Peripheral Access Layer Header File.
   *            
   *          The file is the unique include file that the application programmer
@@ -94,7 +94,7 @@
   /* #define STM32F410Tx */   /*!< STM32F410T8 and STM32F410TB Devices */
   /* #define STM32F410Cx */   /*!< STM32F410C8 and STM32F410CB Devices */
   #define STM32F410Rx   /*!< STM32F410R8 and STM32F410RB Devices */
-  /* #define STM32F411xE */   /*!< STM32F411CD, STM32F411RD, STM32F411VD, STM32F411CE, STM32F411RE and STM32F411VE Devices */
+  /* #define STM32F411xE */   /*!< STM32F411CC, STM32F411RC, STM32F411VC, STM32F411CE, STM32F411RE and STM32F411VE Devices */
   /* #define STM32F446xx */   /*!< STM32F446MC, STM32F446ME, STM32F446RC, STM32F446RE, STM32F446VC, STM32F446VE, STM32F446ZC, 
                                    and STM32F446ZE Devices */
   /* #define STM32F469xx */   /*!< STM32F469AI, STM32F469II, STM32F469BI, STM32F469NI, STM32F469AG, STM32F469IG, STM32F469BG, 
@@ -116,11 +116,11 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V2.4.1
+  * @brief CMSIS Device version number V2.4.2
   */
 #define __STM32F4xx_CMSIS_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */                                  
 #define __STM32F4xx_CMSIS_DEVICE_VERSION_SUB1   (0x04) /*!< [23:16] sub1 version */
-#define __STM32F4xx_CMSIS_DEVICE_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
+#define __STM32F4xx_CMSIS_DEVICE_VERSION_SUB2   (0x02) /*!< [15:8]  sub2 version */
 #define __STM32F4xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F4xx_CMSIS_DEVICE_VERSION        ((__STM32F4xx_CMSIS_DEVICE_VERSION_MAIN << 24)\
                                                 |(__STM32F4xx_CMSIS_DEVICE_VERSION_SUB1 << 16)\

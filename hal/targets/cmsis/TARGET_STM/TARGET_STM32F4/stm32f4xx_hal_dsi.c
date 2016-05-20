@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dsi.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   DSI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the DSI peripheral:
@@ -403,6 +403,8 @@ HAL_StatusTypeDef HAL_DSI_ConfigErrorMonitor(DSI_HandleTypeDef *hdsi, uint32_t A
   */
 __weak void HAL_DSI_MspInit(DSI_HandleTypeDef* hdsi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdsi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DSI_MspInit could be implemented in the user file
    */ 
@@ -416,6 +418,8 @@ __weak void HAL_DSI_MspInit(DSI_HandleTypeDef* hdsi)
   */
 __weak void HAL_DSI_MspDeInit(DSI_HandleTypeDef* hdsi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdsi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DSI_MspDeInit could be implemented in the user file
    */
@@ -549,6 +553,8 @@ void HAL_DSI_IRQHandler(DSI_HandleTypeDef *hdsi)
   */
 __weak void HAL_DSI_TearingEffectCallback(DSI_HandleTypeDef *hdsi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdsi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DSI_TearingEffectCallback could be implemented in the user file
    */
@@ -562,6 +568,8 @@ __weak void HAL_DSI_TearingEffectCallback(DSI_HandleTypeDef *hdsi)
   */
 __weak void HAL_DSI_EndOfRefreshCallback(DSI_HandleTypeDef *hdsi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdsi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DSI_EndOfRefreshCallback could be implemented in the user file
    */
@@ -575,6 +583,8 @@ __weak void HAL_DSI_EndOfRefreshCallback(DSI_HandleTypeDef *hdsi)
   */
 __weak void HAL_DSI_ErrorCallback(DSI_HandleTypeDef *hdsi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdsi);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DSI_ErrorCallback could be implemented in the user file
    */

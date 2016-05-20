@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.4.3
+  * @date    11-December-2015
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -353,7 +353,7 @@ typedef struct
   */
 #define __HAL_USART_CLEAR_PEFLAG(__HANDLE__)    \
   do{                                           \
-    __IO uint32_t tmpreg;                       \
+    __IO uint32_t tmpreg = 0x00;                \
     tmpreg = (__HANDLE__)->Instance->SR;        \
     tmpreg = (__HANDLE__)->Instance->DR;        \
     UNUSED(tmpreg);                             \

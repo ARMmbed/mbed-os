@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f401xe.h
   * @author  MCD Application Team
-  * @version V2.3.2
-  * @date    26-June-2015
+  * @version V2.4.2
+  * @date    13-November-2015
   * @brief   CMSIS STM32F401xExx Device Peripheral Access Layer Header File. 
   *
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
   *           - Peripheral's registers declarations and bits definition
-  *           - Macros to access peripheral’s registers hardware
+  *           - Macros to access peripheral's registers hardware
   *
   ******************************************************************************
   * @attention
@@ -4734,6 +4734,13 @@ USB_OTG_HostChannelTypeDef;
 #define IS_IRDA_INSTANCE(INSTANCE) (((INSTANCE) == USART1) || \
                                     ((INSTANCE) == USART2) || \
                                     ((INSTANCE) == USART6))     
+
+
+/*********************** PCD Instances ****************************************/
+#define IS_PCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS))
+
+/*********************** HCD Instances ****************************************/
+#define IS_HCD_ALL_INSTANCE(INSTANCE) (((INSTANCE) == USB_OTG_FS))
 
 /****************************** IWDG Instances ********************************/
 #define IS_IWDG_ALL_INSTANCE(INSTANCE)  ((INSTANCE) == IWDG)
