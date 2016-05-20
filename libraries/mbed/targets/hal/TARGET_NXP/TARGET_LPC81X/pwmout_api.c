@@ -152,10 +152,18 @@ void pwmout_write(pwmout_t* obj, float value) {
     uint32_t t_off = (uint32_t)((float)(obj->pwm->MATCHREL[0].U) * value);
     obj->pwm->MATCHREL[(obj->pwm_ch) + 1].U = t_off; // New endtime
 
+    // Clear OxRES (conflict resolution register) bit first, effect of simultaneous set and clear on output x
+    int offset = (obj->pwm_ch * 2);
+    obj->pwm->RES &= ~(0x3 << offset);
+
     if (value == 0.0f) { // duty is 0%
+        // Clear output
+        obj->pwm->RES |=  (0x2 << offset);
         // Set CLR event to be same as SET event, makes output to be 0 (low)
         obj->pwm->OUT[(obj->pwm_ch)].CLR = (1 << 0);
     } else {
+        // Set output
+        obj->pwm->RES |=  (0x1 << offset);
         // Use normal CLR event (current SCT ch + 1)
         obj->pwm->OUT[(obj->pwm_ch)].CLR = (1 << ((obj->pwm_ch) + 1));
     }
