@@ -11,7 +11,7 @@ _hooks = {}
 _running_hooks = {}
 
 # Available hook types
-_hook_types = ["binary", "compile", "link", "assemble"]
+_hook_types = ["binary", "compile", "link", "assemble", "static_sizes"]
 
 # Available hook steps
 _hook_steps = ["pre", "replace", "post"]
@@ -102,6 +102,9 @@ class Hook:
 
     def hook_cmdline_binary(self, function):
         return self._hook_cmdline("binary", function)
+
+    def hook_cmdline_static_sizes(self, function):
+        return self._hook_cmdline("static_sizes", function)
 
     # Return the command line after applying the hook
     def _get_cmdline(self, hook_type, cmdline):
