@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rng.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   RNG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Random Number Generator (RNG) peripheral:
@@ -29,7 +29,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -82,7 +82,7 @@
 /** @addtogroup RNG_Private_Constants
   * @{
   */
-#define RNG_TIMEOUT_VALUE     2
+#define RNG_TIMEOUT_VALUE     2U
 /**
   * @}
   */ 
@@ -246,7 +246,7 @@ __weak void HAL_RNG_MspDeInit(RNG_HandleTypeDef *hrng)
 
 HAL_StatusTypeDef HAL_RNG_GenerateRandomNumber(RNG_HandleTypeDef *hrng, uint32_t *random32bit)
 {
-  uint32_t tickstart = 0;    
+  uint32_t tickstart = 0U;    
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Process Locked */
@@ -399,7 +399,7 @@ uint32_t HAL_RNG_GetRandomNumber(RNG_HandleTypeDef *hrng)
   }
   else
   {
-    return 0;
+    return 0U;
   }
 }
 
@@ -412,7 +412,7 @@ uint32_t HAL_RNG_GetRandomNumber(RNG_HandleTypeDef *hrng)
   */
 uint32_t HAL_RNG_GetRandomNumber_IT(RNG_HandleTypeDef *hrng)
 {
-  uint32_t random32bit = 0;
+  uint32_t random32bit = 0U;
   
   /* Process locked */
   __HAL_LOCK(hrng);

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp_ex.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of CRYP HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -65,10 +65,10 @@
 /** @defgroup CRYPEx_Exported_Constants_Group1 CRYP AlgoModeDirection
   * @{
   */ 
-#define CRYP_CR_ALGOMODE_AES_GCM_ENCRYPT   ((uint32_t)0x00080000)
-#define CRYP_CR_ALGOMODE_AES_GCM_DECRYPT   ((uint32_t)0x00080004)
-#define CRYP_CR_ALGOMODE_AES_CCM_ENCRYPT   ((uint32_t)0x00080008)
-#define CRYP_CR_ALGOMODE_AES_CCM_DECRYPT   ((uint32_t)0x0008000C)
+#define CRYP_CR_ALGOMODE_AES_GCM_ENCRYPT   ((uint32_t)0x00080000U)
+#define CRYP_CR_ALGOMODE_AES_GCM_DECRYPT   ((uint32_t)0x00080004U)
+#define CRYP_CR_ALGOMODE_AES_CCM_ENCRYPT   ((uint32_t)0x00080008U)
+#define CRYP_CR_ALGOMODE_AES_CCM_DECRYPT   ((uint32_t)0x0008000CU)
 
 /**
   * @}
@@ -78,7 +78,7 @@
   * @brief    The phases are relevant only to AES-GCM and AES-CCM
   * @{
   */ 
-#define CRYP_PHASE_INIT           ((uint32_t)0x00000000)
+#define CRYP_PHASE_INIT           ((uint32_t)0x00000000U)
 #define CRYP_PHASE_HEADER         CRYP_CR_GCM_CCMPH_0
 #define CRYP_PHASE_PAYLOAD        CRYP_CR_GCM_CCMPH_1
 #define CRYP_PHASE_FINAL          CRYP_CR_GCM_CCMPH

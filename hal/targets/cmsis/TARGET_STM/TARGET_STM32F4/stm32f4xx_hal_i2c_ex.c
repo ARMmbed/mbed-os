@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c_ex.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   I2C Extension HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2C extension peripheral:
@@ -30,7 +30,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -108,34 +108,33 @@
   */
 HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t AnalogFilter)
 {
-  uint32_t tmp = 0;
-  
   /* Check the parameters */
   assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
   assert_param(IS_I2C_ANALOG_FILTER(AnalogFilter));
   
-  tmp = hi2c->State;
-  if((tmp == HAL_I2C_STATE_BUSY) || (tmp == HAL_I2C_STATE_BUSY_TX) || (tmp == HAL_I2C_STATE_BUSY_RX))
+  if(hi2c->State == HAL_I2C_STATE_READY)
+  {
+    hi2c->State = HAL_I2C_STATE_BUSY;
+
+    /* Disable the selected I2C peripheral */
+    __HAL_I2C_DISABLE(hi2c);    
+
+    /* Reset I2Cx ANOFF bit */
+    hi2c->Instance->FLTR &= ~(I2C_FLTR_ANOFF);
+
+    /* Disable the analog filter */
+    hi2c->Instance->FLTR |= AnalogFilter;
+
+    __HAL_I2C_ENABLE(hi2c); 
+
+    hi2c->State = HAL_I2C_STATE_READY;
+
+    return HAL_OK;
+  }
+  else
   {
     return HAL_BUSY;
   }
-  
-  hi2c->State = HAL_I2C_STATE_BUSY;
-  
-  /* Disable the selected I2C peripheral */
-  __HAL_I2C_DISABLE(hi2c);    
-  
-  /* Reset I2Cx ANOFF bit */
-  hi2c->Instance->FLTR &= ~(I2C_FLTR_ANOFF);    
-  
-  /* Disable the analog filter */
-  hi2c->Instance->FLTR |= AnalogFilter;
-  
-  __HAL_I2C_ENABLE(hi2c); 
-  
-  hi2c->State = HAL_I2C_STATE_READY;
-  
-  return HAL_OK; 
 }
 
 /**
@@ -147,41 +146,41 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigAnalogFilter(I2C_HandleTypeDef *hi2c, uint32_t
   */
 HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_t DigitalFilter)
 {
-  uint16_t tmpreg = 0;
-  uint32_t tmp = 0;  
-  
+  uint16_t tmpreg = 0U;
+
   /* Check the parameters */
   assert_param(IS_I2C_ALL_INSTANCE(hi2c->Instance));
   assert_param(IS_I2C_DIGITAL_FILTER(DigitalFilter));
   
-  tmp = hi2c->State;
-  if((tmp == HAL_I2C_STATE_BUSY) || (tmp == HAL_I2C_STATE_BUSY_TX) || (tmp == HAL_I2C_STATE_BUSY_RX))
+  if(hi2c->State == HAL_I2C_STATE_READY)
   {
-    return HAL_BUSY;
+    hi2c->State = HAL_I2C_STATE_BUSY;
+    
+    /* Disable the selected I2C peripheral */
+    __HAL_I2C_DISABLE(hi2c);  
+    
+    /* Get the old register value */
+    tmpreg = hi2c->Instance->FLTR;
+    
+    /* Reset I2Cx DNF bit [3:0] */
+    tmpreg &= ~(I2C_FLTR_DNF);
+    
+    /* Set I2Cx DNF coefficient */
+    tmpreg |= DigitalFilter;
+    
+    /* Store the new register value */
+    hi2c->Instance->FLTR = tmpreg;
+    
+    __HAL_I2C_ENABLE(hi2c); 
+    
+    hi2c->State = HAL_I2C_STATE_READY;
+    
+    return HAL_OK; 
   }
-  
-  hi2c->State = HAL_I2C_STATE_BUSY;
-  
-  /* Disable the selected I2C peripheral */
-  __HAL_I2C_DISABLE(hi2c);  
-  
-  /* Get the old register value */
-  tmpreg = hi2c->Instance->FLTR;
-  
-  /* Reset I2Cx DNF bit [3:0] */
-  tmpreg &= ~(I2C_FLTR_DNF);
-  
-  /* Set I2Cx DNF coefficient */
-  tmpreg |= DigitalFilter;
-  
-  /* Store the new register value */
-  hi2c->Instance->FLTR = tmpreg;
-  
-  __HAL_I2C_ENABLE(hi2c); 
-  
-  hi2c->State = HAL_I2C_STATE_READY;
-  
-  return HAL_OK; 
+  else
+  {
+    return HAL_BUSY; 
+  }
 }  
 
 /**

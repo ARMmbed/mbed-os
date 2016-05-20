@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dac_ex.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following 
   *         functionalities of DAC extension peripheral:
@@ -25,7 +25,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -109,11 +109,11 @@
   */
 uint32_t HAL_DACEx_DualGetValue(DAC_HandleTypeDef* hdac)
 {
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   tmp |= hdac->Instance->DOR1;
   
-  tmp |= hdac->Instance->DOR2 << 16;
+  tmp |= hdac->Instance->DOR2 << 16U;
   
   /* Returns the DAC channel data output register value */
   return tmp;
@@ -232,7 +232,7 @@ HAL_StatusTypeDef HAL_DACEx_NoiseWaveGenerate(DAC_HandleTypeDef* hdac, uint32_t 
   */
 HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Alignment, uint32_t Data1, uint32_t Data2)
 {  
-  uint32_t data = 0, tmp = 0;
+  uint32_t data = 0U, tmp = 0U;
   
   /* Check the parameters */
   assert_param(IS_DAC_ALIGN(Alignment));
@@ -242,11 +242,11 @@ HAL_StatusTypeDef HAL_DACEx_DualSetValue(DAC_HandleTypeDef* hdac, uint32_t Align
   /* Calculate and set dual DAC data holding register value */
   if (Alignment == DAC_ALIGN_8B_R)
   {
-    data = ((uint32_t)Data2 << 8) | Data1; 
+    data = ((uint32_t)Data2 << 8U) | Data1; 
   }
   else
   {
-    data = ((uint32_t)Data2 << 16) | Data1;
+    data = ((uint32_t)Data2 << 16U) | Data1;
   }
   
   tmp = (uint32_t)hdac->Instance;

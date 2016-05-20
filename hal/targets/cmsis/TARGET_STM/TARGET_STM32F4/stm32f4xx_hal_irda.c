@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   IRDA HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the IrDA SIR ENDEC block (IrDA):
@@ -97,7 +97,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -143,7 +143,6 @@
 /** @addtogroup IRDA_Private_Constants
   * @{
   */
-#define IRDA_TIMEOUT_VALUE  22000
 /**
   * @}
   */
@@ -223,7 +222,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
   /* Check the IRDA mode parameter in the IRDA handle */
   assert_param(IS_IRDA_POWERMODE(hirda->Init.IrDAMode)); 
   
-  if(hirda->State == HAL_IRDA_STATE_RESET)
+  if(hirda->gState == HAL_IRDA_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
     hirda->Lock = HAL_UNLOCKED;
@@ -231,7 +230,7 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
     HAL_IRDA_MspInit(hirda);
   }
   
-  hirda->State = HAL_IRDA_STATE_BUSY;
+  hirda->gState = HAL_IRDA_STATE_BUSY;
   
   /* Disable the IRDA peripheral */
   __HAL_IRDA_DISABLE(hirda);
@@ -259,7 +258,8 @@ HAL_StatusTypeDef HAL_IRDA_Init(IRDA_HandleTypeDef *hirda)
   
   /* Initialize the IRDA state*/
   hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
-  hirda->State= HAL_IRDA_STATE_READY;
+  hirda->gState= HAL_IRDA_STATE_READY;
+  hirda->RxState= HAL_IRDA_STATE_READY;
   
   return HAL_OK;
 }
@@ -281,7 +281,7 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
   /* Check the parameters */
   assert_param(IS_IRDA_INSTANCE(hirda->Instance)); 
   
-  hirda->State = HAL_IRDA_STATE_BUSY;
+  hirda->gState = HAL_IRDA_STATE_BUSY;
   
   /* Disable the Peripheral */
   __HAL_IRDA_DISABLE(hirda);
@@ -291,7 +291,8 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
   
   hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
 
-  hirda->State = HAL_IRDA_STATE_RESET; 
+  hirda->gState = HAL_IRDA_STATE_RESET; 
+  hirda->RxState = HAL_IRDA_STATE_RESET;
 
   /* Release Lock */
   __HAL_UNLOCK(hirda);
@@ -395,12 +396,11 @@ HAL_StatusTypeDef HAL_IRDA_DeInit(IRDA_HandleTypeDef *hirda)
 HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 {
   uint16_t* tmp;
-  uint32_t  tmp1 = 0;
   
-  tmp1 = hirda->State; 
-  if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
+  /* Check that a Tx process is not already ongoing */
+  if(hirda->gState == HAL_IRDA_STATE_READY) 
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -409,18 +409,11 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
     __HAL_LOCK(hirda);
     
     hirda->ErrorCode = HAL_IRDA_ERROR_NONE; 
-    if(hirda->State == HAL_IRDA_STATE_BUSY_RX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX_RX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX;
-    }
-   
+    hirda->gState = HAL_IRDA_STATE_BUSY_TX;
+       
     hirda->TxXferSize = Size;
     hirda->TxXferCount = Size;
-    while(hirda->TxXferCount > 0)
+    while(hirda->TxXferCount > 0U)
     {
       hirda->TxXferCount--;
       if(hirda->Init.WordLength == IRDA_WORDLENGTH_9B)
@@ -430,14 +423,14 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
           return HAL_TIMEOUT;
         }
         tmp = (uint16_t*) pData;
-        hirda->Instance->DR = (*tmp & (uint16_t)0x01FF);
+        hirda->Instance->DR = (*tmp & (uint16_t)0x01FFU);
         if(hirda->Init.Parity == IRDA_PARITY_NONE)
         {
-          pData +=2;
+          pData +=2U;
         }
         else
         {
-          pData +=1;
+          pData +=1U;
         }
       } 
       else
@@ -446,7 +439,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
         {
           return HAL_TIMEOUT;
         }
-        hirda->Instance->DR = (*pData++ & (uint8_t)0xFF);
+        hirda->Instance->DR = (*pData++ & (uint8_t)0xFFU);
       }
     }
     
@@ -455,15 +448,9 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
       return HAL_TIMEOUT;
     }
     
-    if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_RX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_READY;
-    }
-    
+	/* At end of Tx process, restore hirda->gState to Ready */
+    hirda->gState = HAL_IRDA_STATE_READY;
+        
     /* Process Unlocked */
     __HAL_UNLOCK(hirda);
     
@@ -471,7 +458,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
   }
   else
   {
-    return HAL_BUSY;   
+    return HAL_BUSY;
   }
 }
 
@@ -487,12 +474,11 @@ HAL_StatusTypeDef HAL_IRDA_Transmit(IRDA_HandleTypeDef *hirda, uint8_t *pData, u
 HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size, uint32_t Timeout)
 { 
   uint16_t* tmp;
-  uint32_t  tmp1 = 0;
   
-  tmp1 = hirda->State; 
-  if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
+  /* Check that a Rx process is not already ongoing */
+  if(hirda->RxState == HAL_IRDA_STATE_READY) 
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return  HAL_ERROR;
     }
@@ -500,19 +486,13 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
     /* Process Locked */
     __HAL_LOCK(hirda);
     
-    hirda->ErrorCode = HAL_IRDA_ERROR_NONE; 
-    if(hirda->State == HAL_IRDA_STATE_BUSY_TX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX_RX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_RX;
-    }
+    hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
+    hirda->RxState = HAL_IRDA_STATE_BUSY_RX;
+    
     hirda->RxXferSize = Size;
     hirda->RxXferCount = Size;
     /* Check the remain data to be received */
-    while(hirda->RxXferCount > 0)
+    while(hirda->RxXferCount > 0U)
     {
       hirda->RxXferCount--;
       if(hirda->Init.WordLength == IRDA_WORDLENGTH_9B)
@@ -524,13 +504,13 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
         tmp = (uint16_t*) pData ;
         if(hirda->Init.Parity == IRDA_PARITY_NONE)
         {
-          *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x01FF);
-           pData +=2;
+          *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x01FFU);
+           pData +=2U;
         }
         else
         {
-          *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x00FF);
-          pData +=1;
+          *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x00FFU);
+          pData +=1U;
         }
       } 
       else
@@ -541,23 +521,18 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
         }
         if(hirda->Init.Parity == IRDA_PARITY_NONE)
         {
-          *pData++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x00FF);
+          *pData++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x00FFU);
         }
         else
         {
-          *pData++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x007F);
+          *pData++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x007FU);
         }
       }
     }
-    if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_READY;
-    }
-    
+	
+	/* At end of Rx process, restore hirda->RxState to Ready */
+    hirda->RxState = HAL_IRDA_STATE_READY;
+        
     /* Process Unlocked */
     __HAL_UNLOCK(hirda);
     
@@ -565,7 +540,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
   }
   else
   {
-    return HAL_BUSY;   
+    return HAL_BUSY;
   }
 }
 
@@ -579,12 +554,10 @@ HAL_StatusTypeDef HAL_IRDA_Receive(IRDA_HandleTypeDef *hirda, uint8_t *pData, ui
   */
 HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size)
 {
-  uint32_t  tmp1 = 0;
-  
-  tmp1 = hirda->State;   
-  if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
+  /* Check that a Tx process is not already ongoing */
+  if(hirda->gState == HAL_IRDA_STATE_READY) 
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -594,16 +567,9 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
     hirda->pTxBuffPtr = pData;
     hirda->TxXferSize = Size;
     hirda->TxXferCount = Size;
-    hirda->ErrorCode = HAL_IRDA_ERROR_NONE; 
-    if(hirda->State == HAL_IRDA_STATE_BUSY_RX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX_RX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX;
-    }
-    
+    hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
+    hirda->gState = HAL_IRDA_STATE_BUSY_TX;
+        
    /* Process Unlocked */
     __HAL_UNLOCK(hirda);
 
@@ -617,7 +583,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
   }
   else
   {
-    return HAL_BUSY;   
+    return HAL_BUSY;
   }
 }
 
@@ -631,12 +597,10 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData
   */
 HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size)
 {
-  uint32_t  tmp1 = 0;
-  
-  tmp1 = hirda->State;   
-  if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
+  /* Check that a Rx process is not already ongoing */	
+  if(hirda->RxState == HAL_IRDA_STATE_READY) 
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -647,16 +611,9 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
     hirda->pRxBuffPtr = pData;
     hirda->RxXferSize = Size;
     hirda->RxXferCount = Size;
-    hirda->ErrorCode = HAL_IRDA_ERROR_NONE; 
-    if(hirda->State == HAL_IRDA_STATE_BUSY_TX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX_RX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_RX;
-    }
-    
+    hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
+    hirda->RxState = HAL_IRDA_STATE_BUSY_RX;
+        
     /* Process Unlocked */
     __HAL_UNLOCK(hirda);
 
@@ -673,7 +630,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
   }
   else
   {
-    return HAL_BUSY; 
+    return HAL_BUSY;
   }
 }
 
@@ -688,12 +645,11 @@ HAL_StatusTypeDef HAL_IRDA_Receive_IT(IRDA_HandleTypeDef *hirda, uint8_t *pData,
 HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size)
 {
   uint32_t *tmp;
-  uint32_t  tmp1 = 0;
-  
-  tmp1 = hirda->State;   
-  if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_RX))
+	
+  /* Check that a Tx process is not already ongoing */
+  if(hirda->gState == HAL_IRDA_STATE_READY) 
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -704,17 +660,9 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
     hirda->pTxBuffPtr = pData;
     hirda->TxXferSize = Size;
     hirda->TxXferCount = Size;
-    hirda->ErrorCode = HAL_IRDA_ERROR_NONE; 
-    
-    if(hirda->State == HAL_IRDA_STATE_BUSY_RX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX_RX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX;
-    }
-    
+    hirda->ErrorCode = HAL_IRDA_ERROR_NONE;
+    hirda->gState = HAL_IRDA_STATE_BUSY_TX;
+        
     /* Set the IRDA DMA transfer complete callback */
     hirda->hdmatx->XferCpltCallback = IRDA_DMATransmitCplt;
     
@@ -742,7 +690,7 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
   }
   else
   {
-    return HAL_BUSY;   
+    return HAL_BUSY;
   }
 }
 
@@ -758,12 +706,11 @@ HAL_StatusTypeDef HAL_IRDA_Transmit_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pDat
 HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData, uint16_t Size)
 {
   uint32_t *tmp;
-  uint32_t  tmp1 = 0;
   
-  tmp1 = hirda->State; 
-  if((tmp1 == HAL_IRDA_STATE_READY) || (tmp1 == HAL_IRDA_STATE_BUSY_TX))
+  /* Check that a Rx process is not already ongoing */
+  if(hirda->RxState == HAL_IRDA_STATE_READY) 
   {
-    if((pData == NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0U)) 
     {
       return HAL_ERROR;
     }
@@ -774,15 +721,8 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
     hirda->pRxBuffPtr = pData;
     hirda->RxXferSize = Size;   
     hirda->ErrorCode = HAL_IRDA_ERROR_NONE; 
-    if(hirda->State == HAL_IRDA_STATE_BUSY_TX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX_RX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_RX;
-    }
-    
+    hirda->RxState = HAL_IRDA_STATE_BUSY_RX;
+        
     /* Set the IRDA DMA transfer complete callback */
     hirda->hdmarx->XferCpltCallback = IRDA_DMAReceiveCplt;
     
@@ -807,7 +747,7 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
   }
   else
   {
-    return HAL_BUSY; 
+    return HAL_BUSY;
   }
 }
     
@@ -822,34 +762,21 @@ HAL_StatusTypeDef HAL_IRDA_DMAPause(IRDA_HandleTypeDef *hirda)
   /* Process Locked */
   __HAL_LOCK(hirda);
   
-  if(hirda->State == HAL_IRDA_STATE_BUSY_TX)
+  if(hirda->gState == HAL_IRDA_STATE_BUSY_TX)
   {
     /* Disable the UART DMA Tx request */
     hirda->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAT);
   }
-  else if(hirda->State == HAL_IRDA_STATE_BUSY_RX)
+  if(hirda->RxState == HAL_IRDA_STATE_BUSY_RX)
   {
     /* Disable the UART DMA Rx request */
     hirda->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAR);
   }
-  else if (hirda->State == HAL_IRDA_STATE_BUSY_TX_RX)
-  {
-    /* Disable the UART DMA Tx & Rx requests */
-    hirda->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAT);
-    hirda->Instance->CR3 &= (uint32_t)(~USART_CR3_DMAR);
-  }
-  else
-  {
-    /* Process Unlocked */
-    __HAL_UNLOCK(hirda);
-  
-    return HAL_ERROR; 
-  }
-  
+    
   /* Process Unlocked */
   __HAL_UNLOCK(hirda);
   
-  return HAL_OK; 
+  return HAL_OK;
 }
 
 /**
@@ -863,34 +790,19 @@ HAL_StatusTypeDef HAL_IRDA_DMAResume(IRDA_HandleTypeDef *hirda)
   /* Process Locked */
   __HAL_LOCK(hirda);
   
-  if(hirda->State == HAL_IRDA_STATE_BUSY_TX)
+  if(hirda->gState == HAL_IRDA_STATE_BUSY_TX)
   {
     /* Enable the UART DMA Tx request */
     hirda->Instance->CR3 |= USART_CR3_DMAT;
   }
-  else if(hirda->State == HAL_IRDA_STATE_BUSY_RX)
+  if(hirda->RxState == HAL_IRDA_STATE_BUSY_RX)
   {
     /* Clear the Overrun flag before resuming the Rx transfer */
     __HAL_IRDA_CLEAR_OREFLAG(hirda);
     /* Enable the UART DMA Rx request */
     hirda->Instance->CR3 |= USART_CR3_DMAR;
   }
-  else if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX)
-  {
-    /* Clear the Overrun flag before resuming the Rx transfer */
-    __HAL_IRDA_CLEAR_OREFLAG(hirda);
-    /* Enable the UART DMA Tx & Rx request */
-    hirda->Instance->CR3 |= USART_CR3_DMAT;
-    hirda->Instance->CR3 |= USART_CR3_DMAR;
-  }
-  else
-  {
-    /* Process Unlocked */
-    __HAL_UNLOCK(hirda);
   
-    return HAL_ERROR; 
-  }
-
   /* Process Unlocked */
   __HAL_UNLOCK(hirda);
   
@@ -926,7 +838,8 @@ HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda)
     HAL_DMA_Abort(hirda->hdmarx);
   }
   
-  hirda->State = HAL_IRDA_STATE_READY;
+  hirda->gState = HAL_IRDA_STATE_READY;
+  hirda->RxState = HAL_IRDA_STATE_READY;
 
   return HAL_OK;
 }
@@ -939,7 +852,7 @@ HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda)
   */
 void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
 {
-  uint32_t  tmp1 = 0, tmp2 =0;
+  uint32_t  tmp1 = 0U, tmp2 = 0U;
   
   tmp1 = __HAL_IRDA_GET_FLAG(hirda, IRDA_FLAG_PE);
   tmp2 = __HAL_IRDA_GET_IT_SOURCE(hirda, IRDA_IT_PE);
@@ -956,7 +869,7 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
   if((tmp1 != RESET) && (tmp2 != RESET))
   { 
     __HAL_IRDA_CLEAR_FEFLAG(hirda);
-    hirda->ErrorCode |= HAL_IRDA_ERROR_FE; 
+    hirda->ErrorCode |= HAL_IRDA_ERROR_FE;
   }
   
   tmp1 = __HAL_IRDA_GET_FLAG(hirda, IRDA_FLAG_NE);
@@ -981,7 +894,8 @@ void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda)
   if(hirda->ErrorCode != HAL_IRDA_ERROR_NONE)
   {
     /* Set the IRDA state ready to be able to start again the process */
-    hirda->State = HAL_IRDA_STATE_READY;
+    hirda->gState = HAL_IRDA_STATE_READY;
+	hirda->RxState = HAL_IRDA_STATE_READY;
     HAL_IRDA_ErrorCallback(hirda);
   }
 
@@ -1114,7 +1028,11 @@ __weak void HAL_IRDA_RxHalfCpltCallback(IRDA_HandleTypeDef *hirda)
   */
 HAL_IRDA_StateTypeDef HAL_IRDA_GetState(IRDA_HandleTypeDef *hirda)
 {
-  return hirda->State;
+  uint32_t temp1 = 0x00U, temp2 = 0x00U;
+  temp1 = hirda->gState;
+  temp2 = hirda->RxState;
+  
+  return (HAL_IRDA_StateTypeDef)(temp1 | temp2);
 }
 
 /**
@@ -1141,15 +1059,15 @@ static void IRDA_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 {
   IRDA_HandleTypeDef* hirda = ( IRDA_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
   /* DMA Normal mode */
-  if((hdma->Instance->CR & DMA_SxCR_CIRC) == 0)
+  if((hdma->Instance->CR & DMA_SxCR_CIRC) == 0U)
   {
-    hirda->TxXferCount = 0;
+    hirda->TxXferCount = 0U;
 
     /* Disable the DMA transfer for transmit request by setting the DMAT bit
        in the IRDA CR3 register */
     hirda->Instance->CR3 &= (uint16_t)~((uint16_t)USART_CR3_DMAT);
 
-    /* Enable the IRDA Transmit Complete Interrupt */    
+    /* Enable the IRDA Transmit Complete Interrupt */
     __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_TC);
   }
   /* DMA Circular mode */
@@ -1181,22 +1099,16 @@ static void IRDA_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 {
   IRDA_HandleTypeDef* hirda = ( IRDA_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
   /* DMA Normal mode */
-  if((hdma->Instance->CR & DMA_SxCR_CIRC) == 0)
+  if((hdma->Instance->CR & DMA_SxCR_CIRC) == 0U)
   {
-    hirda->RxXferCount = 0;
+    hirda->RxXferCount = 0U;
 
     /* Disable the DMA transfer for the receiver request by setting the DMAR bit 
        in the IRDA CR3 register */
     hirda->Instance->CR3 &= (uint16_t)~((uint16_t)USART_CR3_DMAR);
 
-    if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
-    {
-      hirda->State = HAL_IRDA_STATE_BUSY_TX;
-    }
-    else
-    {
-      hirda->State = HAL_IRDA_STATE_READY;
-    }
+	/* At end of Rx process, restore hirda->RxState to Ready */
+    hirda->RxState = HAL_IRDA_STATE_READY;
   }
 
   HAL_IRDA_RxCpltCallback(hirda);
@@ -1216,18 +1128,19 @@ static void IRDA_DMAReceiveHalfCplt(DMA_HandleTypeDef *hdma)
 }
 
 /**
-  * @brief  DMA IRDA communication error callback. 
+  * @brief  DMA IRDA communication error callback.
   * @param  hdma: DMA handle
   * @retval None
   */
-static void IRDA_DMAError(DMA_HandleTypeDef *hdma)   
+static void IRDA_DMAError(DMA_HandleTypeDef *hdma)
 {
   IRDA_HandleTypeDef* hirda = ( IRDA_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
   
-  hirda->RxXferCount = 0;
-  hirda->TxXferCount = 0;
+  hirda->RxXferCount = 0U;
+  hirda->TxXferCount = 0U;
   hirda->ErrorCode |= HAL_IRDA_ERROR_DMA; 
-  hirda->State= HAL_IRDA_STATE_READY;
+  hirda->gState= HAL_IRDA_STATE_READY;
+  hirda->RxState= HAL_IRDA_STATE_READY;
   
   HAL_IRDA_ErrorCallback(hirda);
 }
@@ -1243,7 +1156,7 @@ static void IRDA_DMAError(DMA_HandleTypeDef *hdma)
   */
 static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Get tick */
   tickstart = HAL_GetTick();
@@ -1256,7 +1169,7 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_TXE);
@@ -1264,7 +1177,8 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_PE);
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
         
-          hirda->State= HAL_IRDA_STATE_READY;
+          hirda->gState= HAL_IRDA_STATE_READY;
+		  hirda->RxState= HAL_IRDA_STATE_READY;
         
           /* Process Unlocked */
           __HAL_UNLOCK(hirda);
@@ -1281,7 +1195,7 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
       /* Check for the Timeout */
       if(Timeout != HAL_MAX_DELAY)
       {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+        if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
         {
           /* Disable TXE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts for the interrupt process */
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_TXE);
@@ -1289,7 +1203,8 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_PE);
           __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
 
-          hirda->State= HAL_IRDA_STATE_READY;
+          hirda->gState= HAL_IRDA_STATE_READY;
+		  hirda->RxState= HAL_IRDA_STATE_READY;
         
           /* Process Unlocked */
           __HAL_UNLOCK(hirda);
@@ -1299,7 +1214,7 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
       }
     }
   }
-  return HAL_OK;      
+  return HAL_OK;
 }
 
  /**
@@ -1311,35 +1226,34 @@ static HAL_StatusTypeDef IRDA_WaitOnFlagUntilTimeout(IRDA_HandleTypeDef *hirda, 
 static HAL_StatusTypeDef IRDA_Transmit_IT(IRDA_HandleTypeDef *hirda)
 {
   uint16_t* tmp;
-  uint32_t tmp1 = 0;
   
-  tmp1 = hirda->State;
-  if((tmp1 == HAL_IRDA_STATE_BUSY_TX) || (tmp1 == HAL_IRDA_STATE_BUSY_TX_RX))
+  /* Check that a Tx process is ongoing */
+  if(hirda->gState == HAL_IRDA_STATE_BUSY_TX)
   {
     if(hirda->Init.WordLength == IRDA_WORDLENGTH_9B)
     {
       tmp = (uint16_t*) hirda->pTxBuffPtr;
-      hirda->Instance->DR = (uint16_t)(*tmp & (uint16_t)0x01FF);
+      hirda->Instance->DR = (uint16_t)(*tmp & (uint16_t)0x01FFU);
       if(hirda->Init.Parity == IRDA_PARITY_NONE)
       {
-        hirda->pTxBuffPtr += 2;
+        hirda->pTxBuffPtr += 2U;
       }
       else
       {
-        hirda->pTxBuffPtr += 1;
+        hirda->pTxBuffPtr += 1U;
       }
     } 
     else
     {
-      hirda->Instance->DR = (uint8_t)(*hirda->pTxBuffPtr++ & (uint8_t)0x00FF);
+      hirda->Instance->DR = (uint8_t)(*hirda->pTxBuffPtr++ & (uint8_t)0x00FFU);
     }
     
-    if(--hirda->TxXferCount == 0)
+    if(--hirda->TxXferCount == 0U)
     {
       /* Disable the IRDA Transmit Data Register Empty Interrupt */
       __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_TXE);
       
-      /* Enable the IRDA Transmit Complete Interrupt */    
+      /* Enable the IRDA Transmit Complete Interrupt */
       __HAL_IRDA_ENABLE_IT(hirda, IRDA_IT_TC);
     }
 
@@ -1362,19 +1276,12 @@ static HAL_StatusTypeDef IRDA_EndTransmit_IT(IRDA_HandleTypeDef *hirda)
   /* Disable the IRDA Transmit Complete Interrupt */    
   __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_TC);
   
-  /* Check if a receive process is ongoing or not */
-  if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
-  {
-    hirda->State = HAL_IRDA_STATE_BUSY_RX;
-  }
-  else
-  {
-    /* Disable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
-    __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
+  /* Disable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
+  __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
 
-    hirda->State = HAL_IRDA_STATE_READY;
-  }
-  
+  /* Tx process is ended, restore hirda->gState to Ready */
+  hirda->gState = HAL_IRDA_STATE_READY;
+    
   HAL_IRDA_TxCpltCallback(hirda);
   
   return HAL_OK;
@@ -1389,56 +1296,50 @@ static HAL_StatusTypeDef IRDA_EndTransmit_IT(IRDA_HandleTypeDef *hirda)
 static HAL_StatusTypeDef IRDA_Receive_IT(IRDA_HandleTypeDef *hirda)
 {
   uint16_t* tmp;
-  uint32_t tmp1 = 0;
   
-  tmp1 = hirda->State;  
-  if((tmp1 == HAL_IRDA_STATE_BUSY_RX) || (tmp1 == HAL_IRDA_STATE_BUSY_TX_RX))
+  /* Check that a Rx process is ongoing */
+  if(hirda->RxState == HAL_IRDA_STATE_BUSY_RX) 
   {
     if(hirda->Init.WordLength == IRDA_WORDLENGTH_9B)
     {
       tmp = (uint16_t*) hirda->pRxBuffPtr;
       if(hirda->Init.Parity == IRDA_PARITY_NONE)
       {
-        *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x01FF);
-        hirda->pRxBuffPtr += 2;
+        *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x01FFU);
+        hirda->pRxBuffPtr += 2U;
       }
       else
       {
-        *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x00FF);
-        hirda->pRxBuffPtr += 1;
+        *tmp = (uint16_t)(hirda->Instance->DR & (uint16_t)0x00FFU);
+        hirda->pRxBuffPtr += 1U;
       }
     } 
     else
     {
       if(hirda->Init.Parity == IRDA_PARITY_NONE)
       {
-        *hirda->pRxBuffPtr++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x00FF);
+        *hirda->pRxBuffPtr++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x00FFU);
       }
       else
       {
-        *hirda->pRxBuffPtr++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x007F);
+        *hirda->pRxBuffPtr++ = (uint8_t)(hirda->Instance->DR & (uint8_t)0x007FU);
       }
     }
     
-    if(--hirda->RxXferCount == 0)
+    if(--hirda->RxXferCount == 0U)
     {
 
       __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_RXNE);
       
-      if(hirda->State == HAL_IRDA_STATE_BUSY_TX_RX) 
-      {
-        hirda->State = HAL_IRDA_STATE_BUSY_TX;
-      }
-      else
-      {
-        /* Disable the IRDA Parity Error Interrupt */
-        __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_PE);
+      /* Disable the IRDA Parity Error Interrupt */
+      __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_PE);
         
-        /* Disable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
-        __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
-        
-        hirda->State = HAL_IRDA_STATE_READY;
-      }
+      /* Disable the IRDA Error Interrupt: (Frame error, noise error, overrun error) */
+      __HAL_IRDA_DISABLE_IT(hirda, IRDA_IT_ERR);
+      
+	  /* Rx process is completed, restore hirda->RxState to Ready */
+      hirda->RxState = HAL_IRDA_STATE_READY;
+      
       HAL_IRDA_RxCpltCallback(hirda);
       
       return HAL_OK;
@@ -1459,7 +1360,7 @@ static HAL_StatusTypeDef IRDA_Receive_IT(IRDA_HandleTypeDef *hirda)
   */
 static void IRDA_SetConfig(IRDA_HandleTypeDef *hirda)
 {
-  uint32_t tmpreg = 0x00;
+  uint32_t tmpreg = 0x00U;
   
   /* Check the parameters */
   assert_param(IS_IRDA_INSTANCE(hirda->Instance));
@@ -1488,7 +1389,7 @@ static void IRDA_SetConfig(IRDA_HandleTypeDef *hirda)
   /* Write to USART CR1 */
   hirda->Instance->CR1 = (uint32_t)tmpreg;
   
-  /*-------------------------- USART CR3 Configuration -----------------------*/  
+  /*-------------------------- USART CR3 Configuration -----------------------*/
   /* Clear CTSE and RTSE bits */
   hirda->Instance->CR3 &= (uint32_t)~((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE));
   

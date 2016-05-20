@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cec.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   CEC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Definition Multimedia Interface 
@@ -48,7 +48,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -151,7 +151,7 @@ static HAL_StatusTypeDef CEC_Receive_IT(CEC_HandleTypeDef *hcec);
   */
 HAL_StatusTypeDef HAL_CEC_Init(CEC_HandleTypeDef *hcec)
 {
-  uint32_t tmpreg = 0x0;
+  uint32_t tmpreg = 0x0U;
   
   /* Check the CEC handle allocation */
   if(hcec == NULL)
@@ -327,14 +327,14 @@ HAL_StatusTypeDef HAL_CEC_DeInit(CEC_HandleTypeDef *hcec)
   */
 HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationAddress, uint8_t *pData, uint32_t Size, uint32_t Timeout)
 {
- uint8_t  temp = 0;
-  uint32_t tempisr = 0;
-  uint32_t tickstart = 0;
+ uint8_t  temp = 0U;
+  uint32_t tempisr = 0U;
+  uint32_t tickstart = 0U;
 
   if((hcec->State == HAL_CEC_STATE_READY) && (__HAL_CEC_GET_TRANSMISSION_START_FLAG(hcec) == RESET)) 
   {
     hcec->ErrorCode = HAL_CEC_ERROR_NONE;
-    if((pData == NULL ) && (Size > 0)) 
+    if((pData == NULL ) && (Size > 0U)) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;
@@ -351,7 +351,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
     hcec->TxXferCount = Size;
 
     /* case no data to be sent, sender is only pinging the system */
-    if (Size == 0)
+    if (Size == 0U)
     {
       /* Set TX End of Message (TXEOM) bit, must be set before writing data to TXDR */
       __HAL_CEC_LAST_BYTE_TX_SET(hcec);
@@ -363,7 +363,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
     /* Set TX Start of Message  (TXSOM) bit */
     __HAL_CEC_FIRST_BYTE_TX_SET(hcec);
 
-    while (hcec->TxXferCount > 0)
+    while (hcec->TxXferCount > 0U)
     {
       hcec->TxXferCount--;
 
@@ -372,7 +372,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
       {
         if(Timeout != HAL_MAX_DELAY)
         {
-          if((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout))
+          if((Timeout == 0U) || ((HAL_GetTick() - tickstart) > Timeout))
           {
             hcec->State = HAL_CEC_STATE_TIMEOUT;
             /* Process Unlocked */
@@ -387,7 +387,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
          * has Tx Missing Acknowledge error occurred ? 
          * has Arbitration Loss error occurred ? */
         tempisr = hcec->Instance->ISR;
-        if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST)) != 0)
+        if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST)) != 0U)
         {
           /* copy ISR for error handling purposes */
           hcec->ErrorCode = tempisr;
@@ -400,7 +400,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
       }
       /* TXBR to clear BEFORE writing TXDR register */
       __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_TXBR);
-      if (hcec->TxXferCount == 0)
+      if (hcec->TxXferCount == 0U)
       {
         /* if last byte transmission, set TX End of Message (TXEOM) bit */
         __HAL_CEC_LAST_BYTE_TX_SET(hcec);
@@ -409,7 +409,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
 
       /* error check after TX byte write up */
       tempisr = hcec->Instance->ISR;
-      if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST)) != 0)
+      if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE|CEC_FLAG_ARBLST)) != 0U)
       {
         /* copy ISR for error handling purposes */
         hcec->ErrorCode = tempisr;
@@ -440,7 +440,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
 
     /* Final error check once all bytes have been transmitted */
     tempisr = hcec->Instance->ISR;
-    if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE)) != 0)
+    if ((tempisr & (CEC_FLAG_TXUDR|CEC_FLAG_TXERR|CEC_FLAG_TXACKE)) != 0U)
     {
       /* copy ISR for error handling purposes */
       hcec->ErrorCode = tempisr;
@@ -476,7 +476,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit(CEC_HandleTypeDef *hcec, uint8_t DestinationA
 HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint32_t Timeout)
 {
   uint32_t temp;
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
 
   if (hcec->State == HAL_CEC_STATE_READY)
   { 
@@ -487,7 +487,7 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
       return  HAL_ERROR;
     }
 
-    hcec->RxXferSize = 0;
+    hcec->RxXferSize = 0U;
     /* Process Locked */
     __HAL_LOCK(hcec);
 
@@ -500,7 +500,7 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
       {
         if(Timeout != HAL_MAX_DELAY)
         {
-          if((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout))
+          if((Timeout == 0U) || ((HAL_GetTick() - tickstart) > Timeout))
           {
             hcec->State = HAL_CEC_STATE_TIMEOUT;
             __HAL_UNLOCK(hcec);
@@ -514,7 +514,7 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
          * has Rx Bit Rising error occurred ?
          * has Rx Overrun error occurred ? */
         temp = (uint32_t) (hcec->Instance->ISR);
-        if ((temp & (CEC_FLAG_RXACKE|CEC_FLAG_LBPE|CEC_FLAG_SBPE|CEC_FLAG_BRE|CEC_FLAG_RXOVR)) != 0)
+        if ((temp & (CEC_FLAG_RXACKE|CEC_FLAG_LBPE|CEC_FLAG_SBPE|CEC_FLAG_BRE|CEC_FLAG_RXOVR)) != 0U)
         {
           /* copy ISR for error handling purposes */
           hcec->ErrorCode = temp;
@@ -530,7 +530,7 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
       *pData++ = hcec->Instance->RXDR;
       temp = (uint32_t) (hcec->Instance->ISR);
       /* end of message ? */
-      if ((temp &  CEC_ISR_RXEND) != 0)
+      if ((temp &  CEC_ISR_RXEND) != 0U)
       {
          assert_param(IS_CEC_MSGSIZE(hcec->RxXferSize));
          __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_RXEND);
@@ -551,7 +551,7 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
      * loop has not been executed and this means a single byte has been sent */
     *pData++ = hcec->Instance->RXDR;
      /* only one header is received: RxXferSize is set to 0 (no operand, no opcode) */
-     hcec->RxXferSize = 0;
+     hcec->RxXferSize = 0U;
      __HAL_CEC_CLEAR_FLAG(hcec, CEC_FLAG_RXEND);
 
     hcec->State = HAL_CEC_STATE_READY;
@@ -576,13 +576,13 @@ HAL_StatusTypeDef HAL_CEC_Receive(CEC_HandleTypeDef *hcec, uint8_t *pData, uint3
   */  
 HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t DestinationAddress, uint8_t *pData, uint32_t Size)
 {
-  uint8_t  temp = 0; 
+  uint8_t  temp = 0U; 
   /* if the IP isn't already busy and if there is no previous transmission
      already pending due to arbitration lost */
   if (((hcec->State == HAL_CEC_STATE_READY) || (hcec->State == HAL_CEC_STATE_STANDBY_RX)) 
   &&   (__HAL_CEC_GET_TRANSMISSION_START_FLAG(hcec) == RESET)) 
   {
-    if((pData == NULL) && (Size > 0)) 
+    if((pData == NULL) && (Size > 0U)) 
     {
       hcec->State = HAL_CEC_STATE_ERROR;
       return  HAL_ERROR;
@@ -622,7 +622,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
 
     /* in case of no payload (Size = 0), sender is only pinging the system;
      * Set TX End of Message (TXEOM) bit, must be set before writing data to TXDR */
-    if (Size == 0)
+    if (Size == 0U)
     {
       __HAL_CEC_LAST_BYTE_TX_SET(hcec);
     }
@@ -648,7 +648,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
     }
 
     /* if all data have been sent */
-    if(hcec->TxXferCount == 0)
+    if(hcec->TxXferCount == 0U)
     {
       /* Disable Peripheral to write CEC_IER register */
       __HAL_CEC_DISABLE(hcec);
@@ -674,7 +674,7 @@ HAL_StatusTypeDef HAL_CEC_Transmit_IT(CEC_HandleTypeDef *hcec, uint8_t Destinati
     }
     else
     {
-      if (hcec->TxXferCount == 1)
+      if (hcec->TxXferCount == 1U)
       {
         /* if this is the last byte transmission, set TX End of Message (TXEOM) bit */
         __HAL_CEC_LAST_BYTE_TX_SET(hcec);
@@ -718,7 +718,7 @@ HAL_StatusTypeDef HAL_CEC_Receive_IT(CEC_HandleTypeDef *hcec, uint8_t *pData)
     
     /* Process Locked */
     __HAL_LOCK(hcec);
-    hcec->RxXferSize = 0;
+    hcec->RxXferSize = 0U;
     hcec->pRxBuffPtr = pData;
     hcec->ErrorCode = HAL_CEC_ERROR_NONE;
     /* the IP is moving to a ready to receive state */
@@ -835,7 +835,7 @@ void HAL_CEC_IRQHandler(CEC_HandleTypeDef *hcec)
     hcec->State = HAL_CEC_STATE_ERROR;
   }   
 
-  if ((hcec->ErrorCode & CEC_ISR_ALL_ERROR) != 0)
+  if ((hcec->ErrorCode & CEC_ISR_ALL_ERROR) != 0U)
   {
     HAL_CEC_ErrorCallback(hcec);
   }
@@ -975,7 +975,7 @@ static HAL_StatusTypeDef CEC_Transmit_IT(CEC_HandleTypeDef *hcec)
     }
 
     /* if all data have been sent */
-    if(hcec->TxXferCount == 0)
+    if(hcec->TxXferCount == 0U)
     {
       /* Disable Peripheral to write CEC_IER register */
       __HAL_CEC_DISABLE(hcec);
@@ -1001,7 +1001,7 @@ static HAL_StatusTypeDef CEC_Transmit_IT(CEC_HandleTypeDef *hcec)
     }
     else
     {
-      if (hcec->TxXferCount == 1)
+      if (hcec->TxXferCount == 1U)
       {
         /* if this is the last byte transmission, set TX End of Message (TXEOM) bit */
         __HAL_CEC_LAST_BYTE_TX_SET(hcec);
@@ -1051,14 +1051,14 @@ static HAL_StatusTypeDef CEC_Receive_IT(CEC_HandleTypeDef *hcec)
     /* reception is starting */ 
     hcec->State = HAL_CEC_STATE_BUSY_RX;
     tempisr =  (uint32_t) (hcec->Instance->ISR);
-    if ((tempisr & CEC_FLAG_RXBR) != 0)
+    if ((tempisr & CEC_FLAG_RXBR) != 0U)
     {
       /* Process Locked */
       __HAL_LOCK(hcec);
       /* read received byte */
       *hcec->pRxBuffPtr++ = hcec->Instance->RXDR;
       /* if last byte has been received */      
-      if ((tempisr & CEC_FLAG_RXEND) != 0)
+      if ((tempisr & CEC_FLAG_RXEND) != 0U)
       {
         /* clear IT */
         __HAL_CEC_CLEAR_FLAG(hcec,CEC_FLAG_RXBR|CEC_FLAG_RXEND);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   CRC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
@@ -32,7 +32,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -233,7 +233,7 @@ __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
   */
 uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
 {
-  uint32_t index = 0;
+  uint32_t index = 0U;
 
   /* Process Locked */
   __HAL_LOCK(hcrc);
@@ -242,7 +242,7 @@ uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_
   hcrc->State = HAL_CRC_STATE_BUSY;
 
   /* Enter Data to the CRC calculator */
-  for(index = 0; index < BufferLength; index++)
+  for(index = 0U; index < BufferLength; index++)
   {
     hcrc->Instance->DR = pBuffer[index];
   }
@@ -268,7 +268,7 @@ uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_
   */
 uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
 {
-  uint32_t index = 0;
+  uint32_t index = 0U;
 
   /* Process Locked */
   __HAL_LOCK(hcrc); 
@@ -280,7 +280,7 @@ uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t
   __HAL_CRC_DR_RESET(hcrc);
 
   /* Enter Data to the CRC calculator */
-  for(index = 0; index < BufferLength; index++)
+  for(index = 0U; index < BufferLength; index++)
   {
     hcrc->Instance->DR = pBuffer[index];
   }

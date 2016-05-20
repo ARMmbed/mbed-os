@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of TIM HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -65,17 +65,18 @@
 
 typedef struct
 {
-                                  
+
   uint32_t IC1Polarity;            /*!< Specifies the active edge of the input signal.
                                         This parameter can be a value of @ref TIM_Input_Capture_Polarity */
-                                                                   
+
   uint32_t IC1Prescaler;        /*!< Specifies the Input Capture Prescaler.
                                      This parameter can be a value of @ref TIM_Input_Capture_Prescaler */
-                                  
+
   uint32_t IC1Filter;           /*!< Specifies the input capture filter.
-                                     This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */  
+                                     This parameter can be a number between Min_Data = 0x0 and Max_Data = 0xF */
+
   uint32_t Commutation_Delay;  /*!< Specifies the pulse value to be loaded into the Capture Compare Register. 
-                                    This parameter can be a number between Min_Data = 0x0000 and Max_Data = 0xFFFF */                              
+                                    This parameter can be a number between Min_Data = 0x0000U and Max_Data = 0xFFFFU */
 } TIM_HallSensor_InitTypeDef;
 
 /** 
@@ -83,7 +84,8 @@ typedef struct
   */ 
 typedef struct {
   uint32_t  MasterOutputTrigger;   /*!< Trigger output (TRGO) selection. 
-                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */ 
+                                      This parameter can be a value of @ref TIM_Master_Mode_Selection */
+
   uint32_t  MasterSlaveMode;       /*!< Master/slave mode selection. 
                                       This parameter can be a value of @ref TIM_Master_Slave_Mode */
 }TIM_MasterConfigTypeDef;
@@ -120,19 +122,19 @@ typedef struct
 /** @defgroup TIMEx_Remap  TIM Remap
   * @{
   */
-#define TIM_TIM2_TIM8_TRGO                     (0x00000000)
-#define TIM_TIM2_ETH_PTP                       (0x00000400)
-#define TIM_TIM2_USBFS_SOF                     (0x00000800)
-#define TIM_TIM2_USBHS_SOF                     (0x00000C00)
-#define TIM_TIM5_GPIO                          (0x00000000)
-#define TIM_TIM5_LSI                           (0x00000040)
-#define TIM_TIM5_LSE                           (0x00000080)
-#define TIM_TIM5_RTC                           (0x000000C0)
-#define TIM_TIM11_GPIO                         (0x00000000)
-#define TIM_TIM11_HSE                          (0x00000002)
+#define TIM_TIM2_TIM8_TRGO                     (0x00000000U)
+#define TIM_TIM2_ETH_PTP                       (0x00000400U)
+#define TIM_TIM2_USBFS_SOF                     (0x00000800U)
+#define TIM_TIM2_USBHS_SOF                     (0x00000C00U)
+#define TIM_TIM5_GPIO                          (0x00000000U)
+#define TIM_TIM5_LSI                           (0x00000040U)
+#define TIM_TIM5_LSE                           (0x00000080U)
+#define TIM_TIM5_RTC                           (0x000000C0U)
+#define TIM_TIM11_GPIO                         (0x00000000U)
+#define TIM_TIM11_HSE                          (0x00000002U)
 
 #if defined (STM32F446xx) 
-#define TIM_TIM11_SPDIFRX                        (0x00000001)
+#define TIM_TIM11_SPDIFRX                        (0x00000001U)
 #endif /* STM32F446xx */
 /**
   * @}
@@ -142,9 +144,9 @@ typedef struct
 /** @defgroup TIMEx_SystemBreakInput  TIM System Break Input
   * @{
   */
-#define TIM_SYSTEMBREAKINPUT_HARDFAULT     ((uint32_t)0x00000001) /* Core Lockup lock output(Hardfault) is connected to Break Input of TIM1 and TIM8 */
-#define TIM_SYSTEMBREAKINPUT_PVD           ((uint32_t)0x00000004) /* PVD Interrupt is connected to Break Input of TIM1 and TIM8 */
-#define TIM_SYSTEMBREAKINPUT_HARDFAULT_PVD ((uint32_t)0x00000005) /* Core Lockup lock output(Hardfault) and PVD Interrupt are connected to Break Input of TIM1 and TIM8 */   
+#define TIM_SYSTEMBREAKINPUT_HARDFAULT     ((uint32_t)0x00000001U) /* Core Lockup lock output(Hardfault) is connected to Break Input of TIM1 and TIM8 */
+#define TIM_SYSTEMBREAKINPUT_PVD           ((uint32_t)0x00000004U) /* PVD Interrupt is connected to Break Input of TIM1 and TIM8 */
+#define TIM_SYSTEMBREAKINPUT_HARDFAULT_PVD ((uint32_t)0x00000005U) /* Core Lockup lock output(Hardfault) and PVD Interrupt are connected to Break Input of TIM1 and TIM8 */   
 /**
   * @}
   */
@@ -302,7 +304,7 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef* htim);
                                   ((TIM_REMAP) == TIM_TIM5_RTC)||\
                                   ((TIM_REMAP) == TIM_TIM11_GPIO)||\
                                   ((TIM_REMAP) == TIM_TIM11_HSE))
-#endif /* STM32F446xx */                                  
+#endif /* STM32F446xx */
 
 #if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
 #define IS_TIM_SYSTEMBREAKINPUT(BREAKINPUT)   (((BREAKINPUT) == TIM_SYSTEMBREAKINPUT_HARDFAULT)||\
@@ -311,7 +313,7 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef* htim);
 
 #endif /* STM32F410Tx || STM32F410Cx || STM32F410Rx */ 
 
-#define IS_TIM_DEADTIME(DEADTIME)      ((DEADTIME) <= 0xFF) 
+#define IS_TIM_DEADTIME(DEADTIME)      ((DEADTIME) <= 0xFFU) 
 /**
   * @}
   */  

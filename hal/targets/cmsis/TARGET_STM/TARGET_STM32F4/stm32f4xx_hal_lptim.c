@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_lptim.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   LPTIM HAL module driver. 
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Low Power Timer (LPTIM) peripheral:
@@ -92,7 +92,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -227,7 +227,7 @@
   */
 HAL_StatusTypeDef HAL_LPTIM_Init(LPTIM_HandleTypeDef *hlptim)
 {
-  uint32_t tmpcfgr = 0;
+  uint32_t tmpcfgr = 0U;
 
   /* Check the LPTIM handle allocation */
   if(hlptim == NULL)
@@ -910,7 +910,7 @@ HAL_StatusTypeDef HAL_LPTIM_SetOnce_Stop_IT(LPTIM_HandleTypeDef *hlptim)
   */
 HAL_StatusTypeDef HAL_LPTIM_Encoder_Start(LPTIM_HandleTypeDef *hlptim, uint32_t Period)
 {
-  uint32_t tmpcfgr = 0;
+  uint32_t tmpcfgr = 0U;
 
   /* Check the parameters */
   assert_param(IS_LPTIM_INSTANCE(hlptim->Instance));
@@ -988,7 +988,7 @@ HAL_StatusTypeDef HAL_LPTIM_Encoder_Stop(LPTIM_HandleTypeDef *hlptim)
   */
 HAL_StatusTypeDef HAL_LPTIM_Encoder_Start_IT(LPTIM_HandleTypeDef *hlptim, uint32_t Period)
 {
-  uint32_t tmpcfgr = 0;
+  uint32_t tmpcfgr = 0U;
 
   /* Check the parameters */
   assert_param(IS_LPTIM_INSTANCE(hlptim->Instance));

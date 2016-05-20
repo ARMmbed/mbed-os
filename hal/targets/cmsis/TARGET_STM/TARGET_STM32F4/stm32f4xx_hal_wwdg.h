@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_wwdg.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of WWDG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,11 +64,11 @@
   */
 typedef enum
 {
-  HAL_WWDG_STATE_RESET     = 0x00,  /*!< WWDG not yet initialized or disabled */
-  HAL_WWDG_STATE_READY     = 0x01,  /*!< WWDG initialized and ready for use   */
-  HAL_WWDG_STATE_BUSY      = 0x02,  /*!< WWDG internal process is ongoing     */
-  HAL_WWDG_STATE_TIMEOUT   = 0x03,  /*!< WWDG timeout state                   */
-  HAL_WWDG_STATE_ERROR     = 0x04   /*!< WWDG error state                     */
+  HAL_WWDG_STATE_RESET     = 0x00U,  /*!< WWDG not yet initialized or disabled */
+  HAL_WWDG_STATE_READY     = 0x01U,  /*!< WWDG initialized and ready for use   */
+  HAL_WWDG_STATE_BUSY      = 0x02U,  /*!< WWDG internal process is ongoing     */
+  HAL_WWDG_STATE_TIMEOUT   = 0x03U,  /*!< WWDG timeout state                   */
+  HAL_WWDG_STATE_ERROR     = 0x04U   /*!< WWDG error state                     */
 }HAL_WWDG_StateTypeDef;
 
 /** 
@@ -130,7 +130,7 @@ typedef struct
 /** @defgroup WWDG_Prescaler WWDG Prescaler
   * @{
   */ 
-#define WWDG_PRESCALER_1                 ((uint32_t)0x00000000)  /*!< WWDG counter clock = (PCLK1/4096)/1 */
+#define WWDG_PRESCALER_1                 ((uint32_t)0x00000000U)  /*!< WWDG counter clock = (PCLK1/4096)/1 */
 #define WWDG_PRESCALER_2                  WWDG_CFR_WDGTB0  /*!< WWDG counter clock = (PCLK1/4096)/2 */
 #define WWDG_PRESCALER_4                  WWDG_CFR_WDGTB1  /*!< WWDG counter clock = (PCLK1/4096)/4 */
 #define WWDG_PRESCALER_8                  WWDG_CFR_WDGTB  /*!< WWDG counter clock = (PCLK1/4096)/8 */
@@ -300,7 +300,7 @@ HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg);
 
 /* --- CFR Register ---*/
 /* Alias word address of EWI bit */
-#define WWDG_CFR_BASE   (uint32_t)(WWDG_BASE + 0x04)
+#define WWDG_CFR_BASE   (uint32_t)(WWDG_BASE + 0x04U)
 
 /**
   * @}
@@ -318,8 +318,8 @@ HAL_WWDG_StateTypeDef HAL_WWDG_GetState(WWDG_HandleTypeDef *hwwdg);
                                           ((__PRESCALER__) == WWDG_PRESCALER_2) || \
                                           ((__PRESCALER__) == WWDG_PRESCALER_4) || \
                                           ((__PRESCALER__) == WWDG_PRESCALER_8))
-#define IS_WWDG_WINDOW(__WINDOW__) ((__WINDOW__) <= 0x7F)
-#define IS_WWDG_COUNTER(__COUNTER__) (((__COUNTER__) >= 0x40) && ((__COUNTER__) <= 0x7F))
+#define IS_WWDG_WINDOW(__WINDOW__) ((__WINDOW__) <= 0x7FU)
+#define IS_WWDG_COUNTER(__COUNTER__) (((__COUNTER__) >= 0x40U) && ((__COUNTER__) <= 0x7FU))
 /**
   * @}
   */

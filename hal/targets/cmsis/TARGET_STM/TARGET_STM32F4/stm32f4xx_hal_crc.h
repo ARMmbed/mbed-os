@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -65,11 +65,11 @@
   */
 typedef enum
 {
-  HAL_CRC_STATE_RESET     = 0x00,  /*!< CRC not yet initialized or disabled */
-  HAL_CRC_STATE_READY     = 0x01,  /*!< CRC initialized and ready for use   */
-  HAL_CRC_STATE_BUSY      = 0x02,  /*!< CRC internal process is ongoing     */
-  HAL_CRC_STATE_TIMEOUT   = 0x03,  /*!< CRC timeout state                   */
-  HAL_CRC_STATE_ERROR     = 0x04   /*!< CRC error state                     */
+  HAL_CRC_STATE_RESET     = 0x00U,  /*!< CRC not yet initialized or disabled */
+  HAL_CRC_STATE_READY     = 0x01U,  /*!< CRC initialized and ready for use   */
+  HAL_CRC_STATE_BUSY      = 0x02U,  /*!< CRC internal process is ongoing     */
+  HAL_CRC_STATE_TIMEOUT   = 0x03U,  /*!< CRC timeout state                   */
+  HAL_CRC_STATE_ERROR     = 0x04U   /*!< CRC error state                     */
 
 }HAL_CRC_StateTypeDef;
 /** 

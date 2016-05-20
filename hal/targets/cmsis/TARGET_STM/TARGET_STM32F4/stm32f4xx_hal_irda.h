@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -71,7 +71,6 @@ typedef struct
   uint32_t WordLength;                /*!< Specifies the number of data bits transmitted or received in a frame.
                                            This parameter can be a value of @ref IRDA_Word_Length */
 
-
   uint32_t Parity;                   /*!< Specifies the parity mode.
                                            This parameter can be a value of @ref IRDA_Parity
                                            @note When parity is enabled, the computed parity is inserted
@@ -81,26 +80,71 @@ typedef struct
  
   uint32_t Mode;                      /*!< Specifies wether the Receive or Transmit mode is enabled or disabled.
                                            This parameter can be a value of @ref IRDA_Mode */
-                                            
+
   uint8_t  Prescaler;                 /*!< Specifies the Prescaler */
-  
+
   uint32_t IrDAMode;                  /*!< Specifies the IrDA mode
                                            This parameter can be a value of @ref IRDA_Low_Power */
 }IRDA_InitTypeDef;
 
 /** 
-  * @brief HAL State structures definition  
+  * @brief HAL IRDA State structures definition 
+  * @note  HAL IRDA State value is a combination of 2 different substates: gState and RxState.
+  *        - gState contains IRDA state information related to global Handle management 
+  *          and also information related to Tx operations.
+  *          gState value coding follow below described bitmap :
+  *          b7-b6  Error information 
+  *             00 : No Error
+  *             01 : (Not Used)
+  *             10 : Timeout
+  *             11 : Error
+  *          b5     IP initilisation status
+  *             0  : Reset (IP not initialized)
+  *             1  : Init done (IP not initialized. HAL IRDA Init function already called)
+  *          b4-b3  (not used)
+  *             xx : Should be set to 00
+  *          b2     Intrinsic process state
+  *             0  : Ready
+  *             1  : Busy (IP busy with some configuration or internal operations)
+  *          b1     (not used)
+  *             x  : Should be set to 0
+  *          b0     Tx state
+  *             0  : Ready (no Tx operation ongoing)
+  *             1  : Busy (Tx operation ongoing)
+  *        - RxState contains information related to Rx operations.
+  *          RxState value coding follow below described bitmap :
+  *          b7-b6  (not used)
+  *             xx : Should be set to 00
+  *          b5     IP initilisation status
+  *             0  : Reset (IP not initialized)
+  *             1  : Init done (IP not initialized)
+  *          b4-b2  (not used)
+  *            xxx : Should be set to 000
+  *          b1     Rx state
+  *             0  : Ready (no Rx operation ongoing)
+  *             1  : Busy (Rx operation ongoing)
+  *          b0     (not used)
+  *             x  : Should be set to 0.
   */ 
 typedef enum
 {
-  HAL_IRDA_STATE_RESET             = 0x00,    /*!< Peripheral is not yet Initialized */
-  HAL_IRDA_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use */
-  HAL_IRDA_STATE_BUSY              = 0x02,    /*!< An internal process is ongoing */
-  HAL_IRDA_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing */
-  HAL_IRDA_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing */
-  HAL_IRDA_STATE_BUSY_TX_RX        = 0x32,    /*!< Data Transmission and Reception process is ongoing */
-  HAL_IRDA_STATE_TIMEOUT           = 0x03,    /*!< Timeout state */
-  HAL_IRDA_STATE_ERROR             = 0x04     /*!< Error */
+  HAL_IRDA_STATE_RESET             = 0x00U,    /*!< Peripheral is not yet Initialized 
+                                                   Value is allowed for gState and RxState */
+  HAL_IRDA_STATE_READY             = 0x20U,    /*!< Peripheral Initialized and ready for use 
+                                                   Value is allowed for gState and RxState */
+  HAL_IRDA_STATE_BUSY              = 0x24U,    /*!< An internal process is ongoing 
+                                                   Value is allowed for gState only */
+  HAL_IRDA_STATE_BUSY_TX           = 0x21U,    /*!< Data Transmission process is ongoing 
+                                                   Value is allowed for gState only */
+  HAL_IRDA_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing 
+                                                   Value is allowed for RxState only */
+  HAL_IRDA_STATE_BUSY_TX_RX        = 0x23U,    /*!< Data Transmission and Reception process is ongoing 
+                                                   Not to be used for neither gState nor RxState.
+                                                   Value is result of combination (Or) between gState and RxState values */
+  HAL_IRDA_STATE_TIMEOUT           = 0xA0U,    /*!< Timeout state 
+                                                   Value is allowed for gState only */
+  HAL_IRDA_STATE_ERROR             = 0xE0U     /*!< Error 
+                                                   Value is allowed for gState only */
 }HAL_IRDA_StateTypeDef;
 
 /** 
@@ -109,29 +153,34 @@ typedef enum
 typedef struct
 {
   USART_TypeDef               *Instance;        /* USART registers base address       */
-  
+
   IRDA_InitTypeDef            Init;             /* IRDA communication parameters      */
-  
+
   uint8_t                     *pTxBuffPtr;      /* Pointer to IRDA Tx transfer Buffer */
-  
+
   uint16_t                    TxXferSize;       /* IRDA Tx Transfer size              */
-  
+
   uint16_t                    TxXferCount;      /* IRDA Tx Transfer Counter           */
-  
+
   uint8_t                     *pRxBuffPtr;      /* Pointer to IRDA Rx transfer Buffer */
-  
+
   uint16_t                    RxXferSize;       /* IRDA Rx Transfer size              */
-  
-  uint16_t                    RxXferCount;      /* IRDA Rx Transfer Counter           */  
-  
+
+  uint16_t                    RxXferCount;      /* IRDA Rx Transfer Counter           */
+
   DMA_HandleTypeDef           *hdmatx;          /* IRDA Tx DMA Handle parameters      */
-    
+
   DMA_HandleTypeDef           *hdmarx;          /* IRDA Rx DMA Handle parameters      */
-  
+
   HAL_LockTypeDef             Lock;             /* Locking object                     */
-  
-  __IO HAL_IRDA_StateTypeDef  State;            /* IRDA communication state           */
-  
+
+  __IO HAL_IRDA_StateTypeDef  gState;           /* IRDA state information related to global Handle management 
+                                                   and also related to Tx operations.
+                                                   This parameter can be a value of @ref HAL_IRDA_StateTypeDef */
+
+  __IO HAL_IRDA_StateTypeDef  RxState;          /* IRDA state information related to Rx operations.
+                                                   This parameter can be a value of @ref HAL_IRDA_StateTypeDef */
+
   __IO uint32_t               ErrorCode;        /* IRDA Error code                    */
 
 }IRDA_HandleTypeDef;
@@ -147,12 +196,12 @@ typedef struct
   * @brief    IRDA Error Code 
   * @{
   */ 
-#define HAL_IRDA_ERROR_NONE         ((uint32_t)0x00000000)   /*!< No error            */
-#define HAL_IRDA_ERROR_PE           ((uint32_t)0x00000001)   /*!< Parity error        */
-#define HAL_IRDA_ERROR_NE           ((uint32_t)0x00000002)   /*!< Noise error         */
-#define HAL_IRDA_ERROR_FE           ((uint32_t)0x00000004)   /*!< Frame error         */
-#define HAL_IRDA_ERROR_ORE          ((uint32_t)0x00000008)   /*!< Overrun error       */
-#define HAL_IRDA_ERROR_DMA          ((uint32_t)0x00000010)   /*!< DMA transfer error  */
+#define HAL_IRDA_ERROR_NONE         ((uint32_t)0x00000000U)   /*!< No error            */
+#define HAL_IRDA_ERROR_PE           ((uint32_t)0x00000001U)   /*!< Parity error        */
+#define HAL_IRDA_ERROR_NE           ((uint32_t)0x00000002U)   /*!< Noise error         */
+#define HAL_IRDA_ERROR_FE           ((uint32_t)0x00000004U)   /*!< Frame error         */
+#define HAL_IRDA_ERROR_ORE          ((uint32_t)0x00000008U)   /*!< Overrun error       */
+#define HAL_IRDA_ERROR_DMA          ((uint32_t)0x00000010U)   /*!< DMA transfer error  */
 /**
   * @}
   */
@@ -160,7 +209,7 @@ typedef struct
 /** @defgroup IRDA_Word_Length IRDA Word Length
   * @{
   */
-#define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000)
+#define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000U)
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 /**
   * @}
@@ -169,7 +218,7 @@ typedef struct
 /** @defgroup IRDA_Parity  IRDA Parity
   * @{
   */ 
-#define IRDA_PARITY_NONE                    ((uint32_t)0x00000000)
+#define IRDA_PARITY_NONE                    ((uint32_t)0x00000000U)
 #define IRDA_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
 #define IRDA_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
 /**
@@ -190,7 +239,7 @@ typedef struct
   * @{
   */
 #define IRDA_POWERMODE_LOWPOWER                  ((uint32_t)USART_CR3_IRLP)
-#define IRDA_POWERMODE_NORMAL                    ((uint32_t)0x00000000)
+#define IRDA_POWERMODE_NORMAL                    ((uint32_t)0x00000000U)
 /**
   * @}
   */
@@ -200,14 +249,14 @@ typedef struct
   *           - 0xXXXX  : Flag mask in the SR register
   * @{
   */
-#define IRDA_FLAG_TXE                       ((uint32_t)0x00000080)
-#define IRDA_FLAG_TC                        ((uint32_t)0x00000040)
-#define IRDA_FLAG_RXNE                      ((uint32_t)0x00000020)
-#define IRDA_FLAG_IDLE                      ((uint32_t)0x00000010)
-#define IRDA_FLAG_ORE                       ((uint32_t)0x00000008)
-#define IRDA_FLAG_NE                        ((uint32_t)0x00000004)
-#define IRDA_FLAG_FE                        ((uint32_t)0x00000002)
-#define IRDA_FLAG_PE                        ((uint32_t)0x00000001)
+#define IRDA_FLAG_TXE                       ((uint32_t)0x00000080U)
+#define IRDA_FLAG_TC                        ((uint32_t)0x00000040U)
+#define IRDA_FLAG_RXNE                      ((uint32_t)0x00000020U)
+#define IRDA_FLAG_IDLE                      ((uint32_t)0x00000010U)
+#define IRDA_FLAG_ORE                       ((uint32_t)0x00000008U)
+#define IRDA_FLAG_NE                        ((uint32_t)0x00000004U)
+#define IRDA_FLAG_FE                        ((uint32_t)0x00000002U)
+#define IRDA_FLAG_PE                        ((uint32_t)0x00000001U)
 /**
   * @}
   */
@@ -221,16 +270,16 @@ typedef struct
   *                 - 11: CR3 register
   * @{
   */
-#define IRDA_IT_PE                          ((uint32_t)(IRDA_CR1_REG_INDEX << 28 | USART_CR1_PEIE))
-#define IRDA_IT_TXE                         ((uint32_t)(IRDA_CR1_REG_INDEX << 28 | USART_CR1_TXEIE))
-#define IRDA_IT_TC                          ((uint32_t)(IRDA_CR1_REG_INDEX << 28 | USART_CR1_TCIE))
-#define IRDA_IT_RXNE                        ((uint32_t)(IRDA_CR1_REG_INDEX << 28 | USART_CR1_RXNEIE))
-#define IRDA_IT_IDLE                        ((uint32_t)(IRDA_CR1_REG_INDEX << 28 | USART_CR1_IDLEIE))
+#define IRDA_IT_PE                          ((uint32_t)(IRDA_CR1_REG_INDEX << 28U | USART_CR1_PEIE))
+#define IRDA_IT_TXE                         ((uint32_t)(IRDA_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+#define IRDA_IT_TC                          ((uint32_t)(IRDA_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+#define IRDA_IT_RXNE                        ((uint32_t)(IRDA_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+#define IRDA_IT_IDLE                        ((uint32_t)(IRDA_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
 
-#define IRDA_IT_LBD                         ((uint32_t)(IRDA_CR2_REG_INDEX << 28 | USART_CR2_LBDIE))
+#define IRDA_IT_LBD                         ((uint32_t)(IRDA_CR2_REG_INDEX << 28U | USART_CR2_LBDIE))
 
-#define IRDA_IT_CTS                         ((uint32_t)(IRDA_CR3_REG_INDEX << 28 | USART_CR3_CTSIE))
-#define IRDA_IT_ERR                         ((uint32_t)(IRDA_CR3_REG_INDEX << 28 | USART_CR3_EIE))
+#define IRDA_IT_CTS                         ((uint32_t)(IRDA_CR3_REG_INDEX << 28U | USART_CR3_CTSIE))
+#define IRDA_IT_ERR                         ((uint32_t)(IRDA_CR3_REG_INDEX << 28U | USART_CR3_EIE))
 /**
   * @}
   */
@@ -244,13 +293,16 @@ typedef struct
   * @{
   */
 
-/** @brief Reset IRDA handle state
+/** @brief Reset IRDA handle gstate & RxState
   * @param  __HANDLE__: specifies the USART Handle.
   *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
   *         UART peripheral.
   * @retval None
   */
-#define __HAL_IRDA_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_IRDA_STATE_RESET)
+#define __HAL_IRDA_RESET_HANDLE_STATE(__HANDLE__)  do{                                                   \
+                                                       (__HANDLE__)->gState = HAL_IRDA_STATE_RESET;      \
+                                                       (__HANDLE__)->RxState = HAL_IRDA_STATE_RESET;     \
+                                                     } while(0)
 
 /** @brief  Flushs the IRDA DR register 
   * @param  __HANDLE__: specifies the USART Handle.
@@ -307,7 +359,7 @@ typedef struct
   */
 #define __HAL_IRDA_CLEAR_PEFLAG(__HANDLE__)     \
   do{                                           \
-    __IO uint32_t tmpreg = 0x00;                \
+    __IO uint32_t tmpreg = 0x00U;               \
     tmpreg = (__HANDLE__)->Instance->SR;        \
     UNUSED(tmpreg);                             \
   } while(0)
@@ -358,11 +410,11 @@ typedef struct
   *            @arg IRDA_IT_ERR:  Error interrupt(Frame error, noise error, overrun error)
   * @retval None
   */
-#define __HAL_IRDA_ENABLE_IT(__HANDLE__, __INTERRUPT__)   ((((__INTERRUPT__) >> 28) == 1)? ((__HANDLE__)->Instance->CR1 |= ((__INTERRUPT__) & IRDA_IT_MASK)): \
-                                                           (((__INTERRUPT__) >> 28) == 2)? ((__HANDLE__)->Instance->CR2 |=  ((__INTERRUPT__) & IRDA_IT_MASK)): \
+#define __HAL_IRDA_ENABLE_IT(__HANDLE__, __INTERRUPT__)   ((((__INTERRUPT__) >> 28U) == 1U)? ((__HANDLE__)->Instance->CR1 |= ((__INTERRUPT__) & IRDA_IT_MASK)): \
+                                                           (((__INTERRUPT__) >> 28U) == 2U)? ((__HANDLE__)->Instance->CR2 |=  ((__INTERRUPT__) & IRDA_IT_MASK)): \
                                                         ((__HANDLE__)->Instance->CR3 |= ((__INTERRUPT__) & IRDA_IT_MASK)))
-#define __HAL_IRDA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  ((((__INTERRUPT__) >> 28) == 1)? ((__HANDLE__)->Instance->CR1 &= ~((__INTERRUPT__) & IRDA_IT_MASK)): \
-                                                           (((__INTERRUPT__) >> 28) == 2)? ((__HANDLE__)->Instance->CR2 &= ~((__INTERRUPT__) & IRDA_IT_MASK)): \
+#define __HAL_IRDA_DISABLE_IT(__HANDLE__, __INTERRUPT__)  ((((__INTERRUPT__) >> 28U) == 1U)? ((__HANDLE__)->Instance->CR1 &= ~((__INTERRUPT__) & IRDA_IT_MASK)): \
+                                                           (((__INTERRUPT__) >> 28U) == 2U)? ((__HANDLE__)->Instance->CR2 &= ~((__INTERRUPT__) & IRDA_IT_MASK)): \
                                                            ((__HANDLE__)->Instance->CR3 &= ~ ((__INTERRUPT__) & IRDA_IT_MASK)))
     
 /** @brief  Checks whether the specified IRDA interrupt has occurred or not.
@@ -379,7 +431,7 @@ typedef struct
   *            @arg IRDA_IT_PE: Parity Error interrupt
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
-#define __HAL_IRDA_GET_IT_SOURCE(__HANDLE__, __IT__) (((((__IT__) >> 28) == 1)? (__HANDLE__)->Instance->CR1:(((((uint32_t)(__IT__)) >> 28) == 2)? \
+#define __HAL_IRDA_GET_IT_SOURCE(__HANDLE__, __IT__) (((((__IT__) >> 28U) == 1U)? (__HANDLE__)->Instance->CR1:(((((uint32_t)(__IT__)) >> 28U) == 2U)? \
                                                       (__HANDLE__)->Instance->CR2 : (__HANDLE__)->Instance->CR3)) & (((uint32_t)(__IT__)) & IRDA_IT_MASK))
 
 /** @brief  Macro to enable the IRDA's one bit sample method
@@ -481,10 +533,9 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 #define IRDA_IT_MASK  ((uint32_t) USART_CR1_PEIE | USART_CR1_TXEIE | USART_CR1_TCIE | USART_CR1_RXNEIE | \
                                   USART_CR1_IDLEIE | USART_CR2_LBDIE | USART_CR3_CTSIE | USART_CR3_EIE )
 
-
-#define IRDA_CR1_REG_INDEX                  1    
-#define IRDA_CR2_REG_INDEX                  2    
-#define IRDA_CR3_REG_INDEX                  3 
+#define IRDA_CR1_REG_INDEX                  1U
+#define IRDA_CR2_REG_INDEX                  2U
+#define IRDA_CR3_REG_INDEX                  3U
 /**
   * @}
   */
@@ -498,15 +549,19 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 #define IS_IRDA_PARITY(PARITY) (((PARITY) == IRDA_PARITY_NONE) || \
                                 ((PARITY) == IRDA_PARITY_EVEN) || \
                                 ((PARITY) == IRDA_PARITY_ODD))
-#define IS_IRDA_MODE(MODE) ((((MODE) & (uint32_t)0x0000FFF3) == 0x00) && ((MODE) != (uint32_t)0x000000))
+#define IS_IRDA_MODE(MODE) ((((MODE) & (uint32_t)0x0000FFF3U) == 0x00U) && ((MODE) != (uint32_t)0x00000000U))
 #define IS_IRDA_POWERMODE(MODE) (((MODE) == IRDA_POWERMODE_LOWPOWER) || \
                                  ((MODE) == IRDA_POWERMODE_NORMAL))
-#define IS_IRDA_BAUDRATE(BAUDRATE) ((BAUDRATE) < 115201)
+#define IS_IRDA_BAUDRATE(BAUDRATE) ((BAUDRATE) < 115201U)
 
-#define IRDA_DIV(_PCLK_, _BAUD_)                  (((_PCLK_)*25)/(4*(_BAUD_)))
-#define IRDA_DIVMANT(_PCLK_, _BAUD_)              (IRDA_DIV((_PCLK_), (_BAUD_))/100)
-#define IRDA_DIVFRAQ(_PCLK_, _BAUD_)              (((IRDA_DIV((_PCLK_), (_BAUD_)) - (IRDA_DIVMANT((_PCLK_), (_BAUD_)) * 100)) * 16 + 50) / 100)
-#define IRDA_BRR(_PCLK_, _BAUD_)                  ((IRDA_DIVMANT((_PCLK_), (_BAUD_)) << 4)|(IRDA_DIVFRAQ((_PCLK_), (_BAUD_)) & 0x0F))
+#define IRDA_DIV(_PCLK_, _BAUD_)            (((_PCLK_)*25U)/(4U*(_BAUD_)))
+#define IRDA_DIVMANT(_PCLK_, _BAUD_)        (IRDA_DIV((_PCLK_), (_BAUD_))/100U)
+#define IRDA_DIVFRAQ(_PCLK_, _BAUD_)        (((IRDA_DIV((_PCLK_), (_BAUD_)) - (IRDA_DIVMANT((_PCLK_), (_BAUD_)) * 100U)) * 16U + 50U) / 100U)
+/* UART BRR = mantissa + overflow + fraction
+            = (UART DIVMANT << 4) + (UART DIVFRAQ & 0xF0) + (UART DIVFRAQ & 0x0FU) */
+#define IRDA_BRR(_PCLK_, _BAUD_)            (((IRDA_DIVMANT((_PCLK_), (_BAUD_)) << 4U) + \
+                                             (IRDA_DIVFRAQ((_PCLK_), (_BAUD_)) & 0xF0U)) + \
+                                             (IRDA_DIVFRAQ((_PCLK_), (_BAUD_)) & 0x0FU))
 
 /**
   * @}

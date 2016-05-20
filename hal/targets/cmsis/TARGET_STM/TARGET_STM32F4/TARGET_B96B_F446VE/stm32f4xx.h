@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx.h
   * @author  MCD Application Team
-  * @version V2.4.2
-  * @date    13-November-2015
+  * @version V2.4.3
+  * @date    22-January-2016
   * @brief   CMSIS STM32F4xx Device Peripheral Access Layer Header File.
   *            
   *          The file is the unique include file that the application programmer
@@ -18,7 +18,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -77,8 +77,8 @@
 #if !defined (STM32F405xx) && !defined (STM32F415xx) && !defined (STM32F407xx) && !defined (STM32F417xx) && \
     !defined (STM32F427xx) && !defined (STM32F437xx) && !defined (STM32F429xx) && !defined (STM32F439xx) && \
     !defined (STM32F401xC) && !defined (STM32F401xE) && !defined (STM32F410Tx) && !defined (STM32F410Cx) && \
-	!defined (STM32F410Rx) && !defined (STM32F411xE) && !defined (STM32F446xx) && !defined (STM32F469xx) && \
-	!defined (STM32F479xx)
+    !defined (STM32F410Rx) && !defined (STM32F411xE) && !defined (STM32F446xx) && !defined (STM32F469xx) && \
+    !defined (STM32F479xx)
   /* #define STM32F405xx */   /*!< STM32F405RG, STM32F405VG and STM32F405ZG Devices */
   /* #define STM32F415xx */   /*!< STM32F415RG, STM32F415VG and STM32F415ZG Devices */
   /* #define STM32F407xx */   /*!< STM32F407VG, STM32F407VE, STM32F407ZG, STM32F407ZE, STM32F407IG  and STM32F407IE Devices */
@@ -116,16 +116,16 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V2.4.2
+  * @brief CMSIS version number V2.4.3
   */
-#define __STM32F4xx_CMSIS_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */                                  
-#define __STM32F4xx_CMSIS_DEVICE_VERSION_SUB1   (0x04) /*!< [23:16] sub1 version */
-#define __STM32F4xx_CMSIS_DEVICE_VERSION_SUB2   (0x02) /*!< [15:8]  sub2 version */
-#define __STM32F4xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM32F4xx_CMSIS_DEVICE_VERSION        ((__STM32F4xx_CMSIS_DEVICE_VERSION_MAIN << 24)\
-                                                |(__STM32F4xx_CMSIS_DEVICE_VERSION_SUB1 << 16)\
-                                                |(__STM32F4xx_CMSIS_DEVICE_VERSION_SUB2 << 8 )\
-                                                |(__STM32F4xx_CMSIS_DEVICE_VERSION))
+#define __STM32F4xx_CMSIS_VERSION_MAIN   (0x02U) /*!< [31:24] main version */
+#define __STM32F4xx_CMSIS_VERSION_SUB1   (0x04U) /*!< [23:16] sub1 version */
+#define __STM32F4xx_CMSIS_VERSION_SUB2   (0x03U) /*!< [15:8]  sub2 version */
+#define __STM32F4xx_CMSIS_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */
+#define __STM32F4xx_CMSIS_VERSION        ((__STM32F4xx_CMSIS_VERSION_MAIN << 24)\
+                                         |(__STM32F4xx_CMSIS_VERSION_SUB1 << 16)\
+                                         |(__STM32F4xx_CMSIS_VERSION_SUB2 << 8 )\
+                                         |(__STM32F4xx_CMSIS_VERSION))
 
 /**
   * @}
@@ -182,20 +182,20 @@
   */ 
 typedef enum 
 {
-  RESET = 0, 
+  RESET = 0U, 
   SET = !RESET
 } FlagStatus, ITStatus;
 
 typedef enum 
 {
-  DISABLE = 0, 
+  DISABLE = 0U, 
   ENABLE = !DISABLE
 } FunctionalState;
 #define IS_FUNCTIONAL_STATE(STATE) (((STATE) == DISABLE) || ((STATE) == ENABLE))
 
 typedef enum 
 {
-  ERROR = 0, 
+  ERROR = 0U, 
   SUCCESS = !ERROR
 } ErrorStatus;
 

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of DCMI HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -81,11 +81,11 @@ typedef enum
   */ 
 typedef enum
 {
-  HAL_DCMI_STATE_RESET             = 0x00,  /*!< DCMI not yet initialized or disabled  */
-  HAL_DCMI_STATE_READY             = 0x01,  /*!< DCMI initialized and ready for use    */
-  HAL_DCMI_STATE_BUSY              = 0x02,  /*!< DCMI internal processing is ongoing   */
-  HAL_DCMI_STATE_TIMEOUT           = 0x03,  /*!< DCMI timeout state                    */
-  HAL_DCMI_STATE_ERROR             = 0x04   /*!< DCMI error state                      */
+  HAL_DCMI_STATE_RESET             = 0x00U,  /*!< DCMI not yet initialized or disabled  */
+  HAL_DCMI_STATE_READY             = 0x01U,  /*!< DCMI initialized and ready for use    */
+  HAL_DCMI_STATE_BUSY              = 0x02U,  /*!< DCMI internal processing is ongoing   */
+  HAL_DCMI_STATE_TIMEOUT           = 0x03U,  /*!< DCMI timeout state                    */
+  HAL_DCMI_STATE_ERROR             = 0x04U   /*!< DCMI error state                      */
 }HAL_DCMI_StateTypeDef;
 
 /** 
@@ -126,10 +126,10 @@ typedef struct
 /** @defgroup DCMI_Error_Code DCMI Error Code
   * @{
   */
-#define HAL_DCMI_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error              */
-#define HAL_DCMI_ERROR_OVF       ((uint32_t)0x00000001)    /*!< Overflow error        */
-#define HAL_DCMI_ERROR_SYNC      ((uint32_t)0x00000002)    /*!< Synchronization error */
-#define HAL_DCMI_ERROR_TIMEOUT   ((uint32_t)0x00000020)    /*!< Timeout error         */
+#define HAL_DCMI_ERROR_NONE      ((uint32_t)0x00000000U)    /*!< No error              */
+#define HAL_DCMI_ERROR_OVF       ((uint32_t)0x00000001U)    /*!< Overflow error        */
+#define HAL_DCMI_ERROR_SYNC      ((uint32_t)0x00000002U)    /*!< Synchronization error */
+#define HAL_DCMI_ERROR_TIMEOUT   ((uint32_t)0x00000020U)    /*!< Timeout error         */
 /**
   * @}
   */
@@ -137,7 +137,7 @@ typedef struct
 /** @defgroup DCMI_Capture_Mode DCMI Capture Mode
   * @{
   */ 
-#define DCMI_MODE_CONTINUOUS           ((uint32_t)0x00000000)  /*!< The received data are transferred continuously 
+#define DCMI_MODE_CONTINUOUS           ((uint32_t)0x00000000U)  /*!< The received data are transferred continuously 
                                                                     into the destination memory through the DMA             */
 #define DCMI_MODE_SNAPSHOT             ((uint32_t)DCMI_CR_CM)  /*!< Once activated, the interface waits for the start of 
                                                                     frame and then transfers a single frame through the DMA */
@@ -148,7 +148,7 @@ typedef struct
 /** @defgroup DCMI_Synchronization_Mode DCMI Synchronization Mode
   * @{
   */ 
-#define DCMI_SYNCHRO_HARDWARE        ((uint32_t)0x00000000)   /*!< Hardware synchronization data capture (frame/line start/stop)
+#define DCMI_SYNCHRO_HARDWARE        ((uint32_t)0x00000000U)   /*!< Hardware synchronization data capture (frame/line start/stop)
                                                                    is synchronized with the HSYNC/VSYNC signals                  */
 #define DCMI_SYNCHRO_EMBEDDED        ((uint32_t)DCMI_CR_ESS)  /*!< Embedded synchronization data capture is synchronized with 
                                                                    synchronization codes embedded in the data flow               */
@@ -160,7 +160,7 @@ typedef struct
 /** @defgroup DCMI_PIXCK_Polarity DCMI PIXCK Polarity
   * @{
   */
-#define DCMI_PCKPOLARITY_FALLING    ((uint32_t)0x00000000)      /*!< Pixel clock active on Falling edge */
+#define DCMI_PCKPOLARITY_FALLING    ((uint32_t)0x00000000U)      /*!< Pixel clock active on Falling edge */
 #define DCMI_PCKPOLARITY_RISING     ((uint32_t)DCMI_CR_PCKPOL)  /*!< Pixel clock active on Rising edge  */
 
 /**
@@ -170,7 +170,7 @@ typedef struct
 /** @defgroup DCMI_VSYNC_Polarity DCMI VSYNC Polarity
   * @{
   */
-#define DCMI_VSPOLARITY_LOW     ((uint32_t)0x00000000)     /*!< Vertical synchronization active Low  */
+#define DCMI_VSPOLARITY_LOW     ((uint32_t)0x00000000U)     /*!< Vertical synchronization active Low  */
 #define DCMI_VSPOLARITY_HIGH    ((uint32_t)DCMI_CR_VSPOL)  /*!< Vertical synchronization active High */
 
 /**
@@ -180,7 +180,7 @@ typedef struct
 /** @defgroup DCMI_HSYNC_Polarity DCMI HSYNC Polarity
   * @{
   */ 
-#define DCMI_HSPOLARITY_LOW     ((uint32_t)0x00000000)     /*!< Horizontal synchronization active Low  */
+#define DCMI_HSPOLARITY_LOW     ((uint32_t)0x00000000U)     /*!< Horizontal synchronization active Low  */
 #define DCMI_HSPOLARITY_HIGH    ((uint32_t)DCMI_CR_HSPOL)  /*!< Horizontal synchronization active High */
 
 /**
@@ -190,7 +190,7 @@ typedef struct
 /** @defgroup DCMI_MODE_JPEG DCMI MODE JPEG
   * @{
   */
-#define DCMI_JPEG_DISABLE   ((uint32_t)0x00000000)    /*!< Mode JPEG Disabled  */
+#define DCMI_JPEG_DISABLE   ((uint32_t)0x00000000U)    /*!< Mode JPEG Disabled  */
 #define DCMI_JPEG_ENABLE    ((uint32_t)DCMI_CR_JPEG)  /*!< Mode JPEG Enabled   */
 
 /**
@@ -200,7 +200,7 @@ typedef struct
 /** @defgroup DCMI_Capture_Rate DCMI Capture Rate
   * @{
   */
-#define DCMI_CR_ALL_FRAME            ((uint32_t)0x00000000)      /*!< All frames are captured        */
+#define DCMI_CR_ALL_FRAME            ((uint32_t)0x00000000U)      /*!< All frames are captured        */
 #define DCMI_CR_ALTERNATE_2_FRAME    ((uint32_t)DCMI_CR_FCRC_0)  /*!< Every alternate frame captured */
 #define DCMI_CR_ALTERNATE_4_FRAME    ((uint32_t)DCMI_CR_FCRC_1)  /*!< One frame in 4 frames captured */
 
@@ -211,7 +211,7 @@ typedef struct
 /** @defgroup DCMI_Extended_Data_Mode DCMI Extended Data Mode
   * @{
   */
-#define DCMI_EXTEND_DATA_8B     ((uint32_t)0x00000000)                       /*!< Interface captures 8-bit data on every pixel clock  */
+#define DCMI_EXTEND_DATA_8B     ((uint32_t)0x00000000U)                       /*!< Interface captures 8-bit data on every pixel clock  */
 #define DCMI_EXTEND_DATA_10B    ((uint32_t)DCMI_CR_EDM_0)                    /*!< Interface captures 10-bit data on every pixel clock */
 #define DCMI_EXTEND_DATA_12B    ((uint32_t)DCMI_CR_EDM_1)                    /*!< Interface captures 12-bit data on every pixel clock */
 #define DCMI_EXTEND_DATA_14B    ((uint32_t)(DCMI_CR_EDM_0 | DCMI_CR_EDM_1))  /*!< Interface captures 14-bit data on every pixel clock */
@@ -223,7 +223,7 @@ typedef struct
 /** @defgroup DCMI_Window_Coordinate DCMI Window Coordinate
   * @{
   */
-#define DCMI_WINDOW_COORDINATE    ((uint32_t)0x3FFF)  /*!< Window coordinate */
+#define DCMI_WINDOW_COORDINATE    ((uint32_t)0x3FFFU)  /*!< Window coordinate */
 
 /**
   * @}
@@ -232,7 +232,7 @@ typedef struct
 /** @defgroup DCMI_Window_Height DCMI Window Height
   * @{
   */ 
-#define DCMI_WINDOW_HEIGHT    ((uint32_t)0x1FFF)  /*!< Window Height */
+#define DCMI_WINDOW_HEIGHT    ((uint32_t)0x1FFFU)  /*!< Window Height */
 
 /**
   * @}
@@ -257,9 +257,9 @@ typedef struct
 /** 
   * @brief   DCMI SR register
   */ 
-#define DCMI_FLAG_HSYNC     ((uint32_t)0x2001)
-#define DCMI_FLAG_VSYNC     ((uint32_t)0x2002)
-#define DCMI_FLAG_FNE       ((uint32_t)0x2004)
+#define DCMI_FLAG_HSYNC     ((uint32_t)0x2001U) /* State of HSYNC pin with the correct programmed polarity */
+#define DCMI_FLAG_VSYNC     ((uint32_t)0x2002U) /* State of VSYNC pin with the correct programmed polarity */
+#define DCMI_FLAG_FNE       ((uint32_t)0x2004U) /* Status of the FIFO */
 /** 
   * @brief   DCMI RISR register  
   */ 
@@ -271,11 +271,11 @@ typedef struct
 /** 
   * @brief   DCMI MISR register  
   */ 
-#define DCMI_FLAG_FRAMEMI    ((uint32_t)0x1001)
-#define DCMI_FLAG_OVFMI      ((uint32_t)0x1002)
-#define DCMI_FLAG_ERRMI      ((uint32_t)0x1004)
-#define DCMI_FLAG_VSYNCMI    ((uint32_t)0x1008)
-#define DCMI_FLAG_LINEMI     ((uint32_t)0x1010)
+#define DCMI_FLAG_FRAMEMI    ((uint32_t)0x1001U)
+#define DCMI_FLAG_OVFMI      ((uint32_t)0x1002U)
+#define DCMI_FLAG_ERRMI      ((uint32_t)0x1004U)
+#define DCMI_FLAG_VSYNCMI    ((uint32_t)0x1008U)
+#define DCMI_FLAG_LINEMI     ((uint32_t)0x1010U)
 /**
   * @}
   */ 
@@ -315,16 +315,24 @@ typedef struct
   * @param  __HANDLE__: DCMI handle
   * @param  __FLAG__: Get the specified flag.
   *         This parameter can be any combination of the following values:
-  *            @arg DCMI_FLAG_FRAMERI: Frame capture complete flag mask
-  *            @arg DCMI_FLAG_OVFRI: Overflow flag mask
-  *            @arg DCMI_FLAG_ERRRI: Synchronization error flag mask
-  *            @arg DCMI_FLAG_VSYNCRI: VSYNC flag mask
-  *            @arg DCMI_FLAG_LINERI: Line flag mask
+  *            @arg DCMI_FLAG_FRAMERI: Frame capture complete flag
+  *            @arg DCMI_FLAG_OVFRI: Overflow flag
+  *            @arg DCMI_FLAG_ERRRI: Synchronization error flag
+  *            @arg DCMI_FLAG_VSYNCRI: VSYNC flag
+  *            @arg DCMI_FLAG_LINERI: Line flag     
+  *            @arg DCMI_FLAG_FRAMEMI: Frame capture complete flag mask
+  *            @arg DCMI_FLAG_OVFMI: Overflow flag mask
+  *            @arg DCMI_FLAG_ERRMI: Synchronization error flag mask
+  *            @arg DCMI_FLAG_VSYNCMI: VSYNC flag mask
+  *            @arg DCMI_FLAG_LINEMI: Line flag mask
+  *            @arg DCMI_FLAG_HSYNC: HSYNC flag
+  *            @arg DCMI_FLAG_VSYNC: VSYNC flag
+  *            @arg DCMI_FLAG_FNE: FNE flag   
   * @retval The state of FLAG.
   */
 #define __HAL_DCMI_GET_FLAG(__HANDLE__, __FLAG__)\
-((((__FLAG__) & 0x3000) == 0x0)? ((__HANDLE__)->Instance->RISR & (__FLAG__)) :\
- (((__FLAG__) & 0x2000) == 0x0)? ((__HANDLE__)->Instance->MISR & (__FLAG__)) : ((__HANDLE__)->Instance->SR & (__FLAG__)))
+((((__FLAG__) & 0x3000U) == 0x00U)? ((__HANDLE__)->Instance->RISR & (__FLAG__)) :\
+ (((__FLAG__) & 0x2000U) == 0x00U)? ((__HANDLE__)->Instance->MISR & (__FLAG__)) : ((__HANDLE__)->Instance->SR & (__FLAG__)))
 
 /**
   * @brief  Clear the DCMI pending flags.
@@ -454,7 +462,7 @@ uint32_t              HAL_DCMI_GetError(DCMI_HandleTypeDef *hdcmi);
   */
 #define IS_DCMI_CAPTURE_MODE(MODE)(((MODE) == DCMI_MODE_CONTINUOUS) || \
                                    ((MODE) == DCMI_MODE_SNAPSHOT))
-                                                                                                
+
 #define IS_DCMI_SYNCHRO(MODE)(((MODE) == DCMI_SYNCHRO_HARDWARE) || \
                               ((MODE) == DCMI_SYNCHRO_EMBEDDED))
                               

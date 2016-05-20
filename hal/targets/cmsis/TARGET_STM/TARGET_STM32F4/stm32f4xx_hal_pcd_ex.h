@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -60,8 +60,8 @@
 #if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
 typedef enum  
 {
-  PCD_LPM_L0_ACTIVE = 0x00, /* on */
-  PCD_LPM_L1_ACTIVE = 0x01, /* LPM L1 sleep */
+  PCD_LPM_L0_ACTIVE = 0x00U, /* on */
+  PCD_LPM_L1_ACTIVE = 0x01U /* LPM L1 sleep */
 }PCD_LPM_MsgTypeDef;
 #endif /* STM32F446xx || STM32F469xx || STM32F479xx */
 
@@ -81,7 +81,6 @@ HAL_StatusTypeDef HAL_PCDEx_ActivateLPM(PCD_HandleTypeDef *hpcd);
 HAL_StatusTypeDef HAL_PCDEx_DeActivateLPM(PCD_HandleTypeDef *hpcd);
 void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef msg);
 #endif /* STM32F446xx || STM32F469xx || STM32F479xx */
-
 
 /**
   * @}

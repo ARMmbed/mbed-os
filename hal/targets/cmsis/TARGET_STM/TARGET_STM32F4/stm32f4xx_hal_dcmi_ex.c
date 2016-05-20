@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dcmi_ex.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   DCMI Extension HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of DCMI extension peripheral:
@@ -27,7 +27,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -155,26 +155,11 @@ HAL_StatusTypeDef HAL_DCMI_Init(DCMI_HandleTypeDef *hdcmi)
   if(hdcmi->Init.SynchroMode == DCMI_SYNCHRO_EMBEDDED)
   {
     DCMI->ESCR = (((uint32_t)hdcmi->Init.SyncroCode.FrameStartCode)    |
-                  ((uint32_t)hdcmi->Init.SyncroCode.LineStartCode << 8)|
-                  ((uint32_t)hdcmi->Init.SyncroCode.LineEndCode << 16) |
-                  ((uint32_t)hdcmi->Init.SyncroCode.FrameEndCode << 24));
+                  ((uint32_t)hdcmi->Init.SyncroCode.LineStartCode << 8U)|
+                  ((uint32_t)hdcmi->Init.SyncroCode.LineEndCode << 16U) |
+                  ((uint32_t)hdcmi->Init.SyncroCode.FrameEndCode << 24U));
 
   }
-
-  /* Enable the Line interrupt */
-  __HAL_DCMI_ENABLE_IT(hdcmi, DCMI_IT_LINE);
-
-  /* Enable the VSYNC interrupt */
-  __HAL_DCMI_ENABLE_IT(hdcmi, DCMI_IT_VSYNC);
-
-  /* Enable the Frame capture complete interrupt */
-  __HAL_DCMI_ENABLE_IT(hdcmi, DCMI_IT_FRAME);
-
-  /* Enable the Synchronization error interrupt */
-  __HAL_DCMI_ENABLE_IT(hdcmi, DCMI_IT_ERR);
-
-  /* Enable the Overflow interrupt */
-  __HAL_DCMI_ENABLE_IT(hdcmi, DCMI_IT_OVF);
 
   /* Enable DCMI by setting DCMIEN bit */
   __HAL_DCMI_ENABLE(hdcmi);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma_ex.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   DMA Extension HAL module driver
   *         This file provides firmware functions to manage the following 
   *         functionalities of the DMA Extension peripheral:
@@ -27,7 +27,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -122,12 +122,12 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
   __HAL_LOCK(hdma);
 
   /* Current memory buffer used is Memory 0 */
-  if((hdma->Instance->CR & DMA_SxCR_CT) == 0)
+  if((hdma->Instance->CR & DMA_SxCR_CT) == 0U)
   {
     hdma->State = HAL_DMA_STATE_BUSY_MEM0;
   }
   /* Current memory buffer used is Memory 1 */
-  else if((hdma->Instance->CR & DMA_SxCR_CT) != 0)
+  else if((hdma->Instance->CR & DMA_SxCR_CT) != 0U)
   {
     hdma->State = HAL_DMA_STATE_BUSY_MEM1;
   }
@@ -169,12 +169,12 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_
   __HAL_LOCK(hdma);
 
   /* Current memory buffer used is Memory 0 */
-  if((hdma->Instance->CR & DMA_SxCR_CT) == 0)
+  if((hdma->Instance->CR & DMA_SxCR_CT) == 0U)
   {
     hdma->State = HAL_DMA_STATE_BUSY_MEM0;
   }
   /* Current memory buffer used is Memory 1 */
-  else if((hdma->Instance->CR & DMA_SxCR_CT) != 0)
+  else if((hdma->Instance->CR & DMA_SxCR_CT) != 0U)
   {
     hdma->State = HAL_DMA_STATE_BUSY_MEM1;
   }

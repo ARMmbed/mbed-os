@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -105,11 +105,11 @@ typedef struct
 
 typedef enum
 {
-  HAL_CRYP_STATE_RESET             = 0x00,  /*!< CRYP not yet initialized or disabled  */
-  HAL_CRYP_STATE_READY             = 0x01,  /*!< CRYP initialized and ready for use    */
-  HAL_CRYP_STATE_BUSY              = 0x02,  /*!< CRYP internal processing is ongoing   */
-  HAL_CRYP_STATE_TIMEOUT           = 0x03,  /*!< CRYP timeout state                    */
-  HAL_CRYP_STATE_ERROR             = 0x04   /*!< CRYP error state                      */
+  HAL_CRYP_STATE_RESET             = 0x00U,  /*!< CRYP not yet initialized or disabled  */
+  HAL_CRYP_STATE_READY             = 0x01U,  /*!< CRYP initialized and ready for use    */
+  HAL_CRYP_STATE_BUSY              = 0x02U,  /*!< CRYP internal processing is ongoing   */
+  HAL_CRYP_STATE_TIMEOUT           = 0x03U,  /*!< CRYP timeout state                    */
+  HAL_CRYP_STATE_ERROR             = 0x04U   /*!< CRYP error state                      */
 }HAL_CRYP_STATETypeDef;
 
 /** 
@@ -123,9 +123,9 @@ typedef enum
 
 typedef enum
 {
-  HAL_CRYP_PHASE_READY             = 0x01,    /*!< CRYP peripheral is ready for initialization. */
-  HAL_CRYP_PHASE_PROCESS           = 0x02,    /*!< CRYP peripheral is in processing phase */
-  HAL_CRYP_PHASE_FINAL             = 0x03     /*!< CRYP peripheral is in final phase
+  HAL_CRYP_PHASE_READY             = 0x01U,    /*!< CRYP peripheral is ready for initialization. */
+  HAL_CRYP_PHASE_PROCESS           = 0x02U,    /*!< CRYP peripheral is in processing phase */
+  HAL_CRYP_PHASE_FINAL             = 0x03U     /*!< CRYP peripheral is in final phase
                                                    This is relevant only with CCM and GCM modes */
 }HAL_PhaseTypeDef;
 
@@ -180,42 +180,42 @@ typedef struct
 /** @defgroup CRYP_Key_Size CRYP Key Size
   * @{
   */
-#define CRYP_KEYSIZE_128B         ((uint32_t)0x00000000)
+#define CRYP_KEYSIZE_128B         ((uint32_t)0x00000000U)
 #define CRYP_KEYSIZE_192B         CRYP_CR_KEYSIZE_0
 #define CRYP_KEYSIZE_256B         CRYP_CR_KEYSIZE_1
-/**                                
+/**
   * @}
   */
 
 /** @defgroup CRYP_Data_Type CRYP Data Type
   * @{
   */
-#define CRYP_DATATYPE_32B         ((uint32_t)0x00000000)
+#define CRYP_DATATYPE_32B         ((uint32_t)0x00000000U)
 #define CRYP_DATATYPE_16B         CRYP_CR_DATATYPE_0
 #define CRYP_DATATYPE_8B          CRYP_CR_DATATYPE_1
 #define CRYP_DATATYPE_1B          CRYP_CR_DATATYPE
-/**                                
+/**
   * @}
   */
 
 /** @defgroup CRYP_Exported_Constants_Group3 CRYP CRYP_AlgoModeDirection
   * @{
   */
-#define CRYP_CR_ALGOMODE_DIRECTION         ((uint32_t)0x0008003C)
-#define CRYP_CR_ALGOMODE_TDES_ECB_ENCRYPT  ((uint32_t)0x00000000)
-#define CRYP_CR_ALGOMODE_TDES_ECB_DECRYPT  ((uint32_t)0x00000004)
-#define CRYP_CR_ALGOMODE_TDES_CBC_ENCRYPT  ((uint32_t)0x00000008)
-#define CRYP_CR_ALGOMODE_TDES_CBC_DECRYPT  ((uint32_t)0x0000000C)
-#define CRYP_CR_ALGOMODE_DES_ECB_ENCRYPT   ((uint32_t)0x00000010)
-#define CRYP_CR_ALGOMODE_DES_ECB_DECRYPT   ((uint32_t)0x00000014)
-#define CRYP_CR_ALGOMODE_DES_CBC_ENCRYPT   ((uint32_t)0x00000018)
-#define CRYP_CR_ALGOMODE_DES_CBC_DECRYPT   ((uint32_t)0x0000001C)
-#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT   ((uint32_t)0x00000020)
-#define CRYP_CR_ALGOMODE_AES_ECB_DECRYPT   ((uint32_t)0x00000024)
-#define CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT   ((uint32_t)0x00000028)
-#define CRYP_CR_ALGOMODE_AES_CBC_DECRYPT   ((uint32_t)0x0000002C)
-#define CRYP_CR_ALGOMODE_AES_CTR_ENCRYPT   ((uint32_t)0x00000030)
-#define CRYP_CR_ALGOMODE_AES_CTR_DECRYPT   ((uint32_t)0x00000034)
+#define CRYP_CR_ALGOMODE_DIRECTION         ((uint32_t)0x0008003CU)
+#define CRYP_CR_ALGOMODE_TDES_ECB_ENCRYPT  ((uint32_t)0x00000000U)
+#define CRYP_CR_ALGOMODE_TDES_ECB_DECRYPT  ((uint32_t)0x00000004U)
+#define CRYP_CR_ALGOMODE_TDES_CBC_ENCRYPT  ((uint32_t)0x00000008U)
+#define CRYP_CR_ALGOMODE_TDES_CBC_DECRYPT  ((uint32_t)0x0000000CU)
+#define CRYP_CR_ALGOMODE_DES_ECB_ENCRYPT   ((uint32_t)0x00000010U)
+#define CRYP_CR_ALGOMODE_DES_ECB_DECRYPT   ((uint32_t)0x00000014U)
+#define CRYP_CR_ALGOMODE_DES_CBC_ENCRYPT   ((uint32_t)0x00000018U)
+#define CRYP_CR_ALGOMODE_DES_CBC_DECRYPT   ((uint32_t)0x0000001CU)
+#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT   ((uint32_t)0x00000020U)
+#define CRYP_CR_ALGOMODE_AES_ECB_DECRYPT   ((uint32_t)0x00000024U)
+#define CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT   ((uint32_t)0x00000028U)
+#define CRYP_CR_ALGOMODE_AES_CBC_DECRYPT   ((uint32_t)0x0000002CU)
+#define CRYP_CR_ALGOMODE_AES_CTR_ENCRYPT   ((uint32_t)0x00000030U)
+#define CRYP_CR_ALGOMODE_AES_CTR_DECRYPT   ((uint32_t)0x00000034U)
 /**
   * @}
   */
@@ -232,17 +232,17 @@ typedef struct
 /** @defgroup CRYP_Exported_Constants_Group5 CRYP CRYP_Flags
   * @{
   */
-#define CRYP_FLAG_BUSY   ((uint32_t)0x00000010)  /*!< The CRYP core is currently 
+#define CRYP_FLAG_BUSY   ((uint32_t)0x00000010U)  /*!< The CRYP core is currently 
                                                      processing a block of data 
                                                      or a key preparation (for 
                                                      AES decryption). */
-#define CRYP_FLAG_IFEM   ((uint32_t)0x00000001)  /*!< Input FIFO is empty */
-#define CRYP_FLAG_IFNF   ((uint32_t)0x00000002)  /*!< Input FIFO is not Full */
-#define CRYP_FLAG_OFNE   ((uint32_t)0x00000004)  /*!< Output FIFO is not empty */
-#define CRYP_FLAG_OFFU   ((uint32_t)0x00000008)  /*!< Output FIFO is Full */
-#define CRYP_FLAG_OUTRIS ((uint32_t)0x01000002)  /*!< Output FIFO service raw 
+#define CRYP_FLAG_IFEM   ((uint32_t)0x00000001U)  /*!< Input FIFO is empty */
+#define CRYP_FLAG_IFNF   ((uint32_t)0x00000002U)  /*!< Input FIFO is not Full */
+#define CRYP_FLAG_OFNE   ((uint32_t)0x00000004U)  /*!< Output FIFO is not empty */
+#define CRYP_FLAG_OFFU   ((uint32_t)0x00000008U)  /*!< Output FIFO is Full */
+#define CRYP_FLAG_OUTRIS ((uint32_t)0x01000002U)  /*!< Output FIFO service raw 
                                                       interrupt status */
-#define CRYP_FLAG_INRIS  ((uint32_t)0x01000001)  /*!< Input FIFO service raw 
+#define CRYP_FLAG_INRIS  ((uint32_t)0x01000001U)  /*!< Input FIFO service raw 
                                                       interrupt status */
 /**
   * @}
@@ -301,7 +301,7 @@ typedef struct
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
 
-#define __HAL_CRYP_GET_FLAG(__HANDLE__, __FLAG__) ((((uint8_t)((__FLAG__) >> 24)) == 0x01)?((((__HANDLE__)->Instance->RISR) & ((__FLAG__) & CRYP_FLAG_MASK)) == ((__FLAG__) & CRYP_FLAG_MASK)): \
+#define __HAL_CRYP_GET_FLAG(__HANDLE__, __FLAG__) ((((uint8_t)((__FLAG__) >> 24U)) == 0x01U)?((((__HANDLE__)->Instance->RISR) & ((__FLAG__) & CRYP_FLAG_MASK)) == ((__FLAG__) & CRYP_FLAG_MASK)): \
                                                  ((((__HANDLE__)->Instance->RISR) & ((__FLAG__) & CRYP_FLAG_MASK)) == ((__FLAG__) & CRYP_FLAG_MASK)))
 
 /** @brief  Check whether the specified CRYP interrupt is set or not.
@@ -483,7 +483,7 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp);
 /** @defgroup CRYP_Private_Constants CRYP Private Constants
   * @{
   */
-#define CRYP_FLAG_MASK  ((uint32_t)0x0000001F)
+#define CRYP_FLAG_MASK  ((uint32_t)0x0000001FU)
 /**
   * @}
   */ 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_hash_ex.c
   * @author  MCD Application Team
-  * @version V1.4.3
-  * @date    11-December-2015
+  * @version V1.4.4
+  * @date    22-January-2016
   * @brief   HASH HAL Extension module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of HASH peripheral:
@@ -65,7 +65,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -141,10 +141,10 @@ static void HASHEx_WriteData(uint8_t *pInBuffer, uint32_t Size)
   uint32_t buffercounter;
   uint32_t inputaddr = (uint32_t) pInBuffer;
   
-  for(buffercounter = 0; buffercounter < Size; buffercounter+=4)
+  for(buffercounter = 0U; buffercounter < Size; buffercounter+=4U)
   {
     HASH->DIN = *(uint32_t*)inputaddr;
-    inputaddr+=4;
+    inputaddr+=4U;
   }
 }
 
@@ -160,61 +160,61 @@ static void HASHEx_GetDigest(uint8_t *pMsgDigest, uint8_t Size)
   
   switch(Size)
   {
-  case 16:
+  case 16U:
     /* Read the message digest */
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3]);
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3U]);
     break;
-  case 20:
+  case 20U:
     /* Read the message digest */
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[4]);
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[4U]);
     break;
-  case 28:
+  case 28U:
     /* Read the message digest */
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[4]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[5]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[6]);
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[4U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[5U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[6U]);
     break;
-  case 32:
+  case 32U:
     /* Read the message digest */
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH->HR[4]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[5]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[6]);
-    msgdigest+=4;
-    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[7]);
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[0U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[1U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[2U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[3U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH->HR[4U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[5U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[6U]);
+    msgdigest+=4U;
+    *(uint32_t*)(msgdigest) = __REV(HASH_DIGEST->HR[7U]);
     break;
   default:
     break;
@@ -229,8 +229,8 @@ static void HASHEx_GetDigest(uint8_t *pMsgDigest, uint8_t Size)
 static void HASHEx_DMAXferCplt(DMA_HandleTypeDef *hdma)
 {
   HASH_HandleTypeDef* hhash = ( HASH_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
-  uint32_t inputaddr = 0;
-  uint32_t buffersize = 0;
+  uint32_t inputaddr = 0U;
+  uint32_t buffersize = 0U;
   
   if((HASH->CR & HASH_CR_MODE) != HASH_CR_MODE)
   {
@@ -250,28 +250,28 @@ static void HASHEx_DMAXferCplt(DMA_HandleTypeDef *hdma)
     /* Disable the DMA transfer before starting the next transfer */
     HASH->CR &= (uint32_t)(~HASH_CR_DMAE);
     
-    if(hhash->HashInCount <= 2)
+    if(hhash->HashInCount <= 2U)
     {
       /* In case HashInCount = 1, set the DMA to transfer data to HASH DIN register */
-      if(hhash->HashInCount == 1)
+      if(hhash->HashInCount == 1U)
       {
         inputaddr = (uint32_t)hhash->pHashInBuffPtr;
         buffersize = hhash->HashBuffSize;
       }
       /* In case HashInCount = 2, set the DMA to transfer key to HASH DIN register */
-      else if(hhash->HashInCount == 2)
+      else if(hhash->HashInCount == 2U)
       {
         inputaddr = (uint32_t)hhash->Init.pKey;
         buffersize = hhash->Init.KeySize;
       }
       /* Configure the number of valid bits in last word of the message */
-      MODIFY_REG(HASH->STR, HASH_STR_NBLW, 8 * (buffersize % 4));
+      MODIFY_REG(HASH->STR, HASH_STR_NBLW, 8U * (buffersize % 4U));
             
       /* Set the HASH DMA transfer complete */
       hhash->hdmain->XferCpltCallback = HASHEx_DMAXferCplt;
       
       /* Enable the DMA In DMA Stream */
-      HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (buffersize%4 ? (buffersize+3)/4:buffersize/4));
+      HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (buffersize%4U ? (buffersize+3U)/4U:buffersize/4U));
       
       /* Enable DMA requests */
       HASH->CR |= (HASH_CR_DMAE);
@@ -282,7 +282,7 @@ static void HASHEx_DMAXferCplt(DMA_HandleTypeDef *hdma)
       HASH->CR &= (uint32_t)(~HASH_CR_DMAE);
       
       /* Reset the InCount */
-      hhash->HashInCount = 0;
+      hhash->HashInCount = 0U;
       
       /* Change HASH peripheral state */
       hhash->State = HAL_HASH_STATE_READY;
@@ -344,7 +344,7 @@ static void HASHEx_DMAError(DMA_HandleTypeDef *hdma)
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;   
+  uint32_t tickstart = 0U;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -380,7 +380,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -394,7 +394,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   }
   
   /* Read the message digest */
-  HASHEx_GetDigest(pOutBuffer, 28);
+  HASHEx_GetDigest(pOutBuffer, 28U);
   
   /* Change the HASH state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -420,7 +420,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;   
+  uint32_t tickstart = 0U;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -456,7 +456,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -470,7 +470,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   }
   
   /* Read the message digest */
-  HASHEx_GetDigest(pOutBuffer, 32);
+  HASHEx_GetDigest(pOutBuffer, 32U);
   
   /* Change the HASH state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -609,7 +609,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Accumulate(HASH_HandleTypeDef *hhash, uint8_
   */
 HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;   
+  uint32_t tickstart = 0U;   
                                                   
    /* Process Locked */
   __HAL_LOCK(hhash);
@@ -621,7 +621,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   if(hhash->Phase == HAL_HASH_PHASE_READY)
   {
     /* Check if key size is greater than 64 bytes */
-    if(hhash->Init.KeySize > 64)
+    if(hhash->Init.KeySize > 64U)
     {
       /* Select the HMAC SHA224 mode */
       HASH->CR |= (HASH_ALGOSELECTION_SHA224 | HASH_ALGOMODE_HMAC | HASH_HMAC_KEYTYPE_LONGKEY | HASH_CR_INIT);
@@ -654,7 +654,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -727,7 +727,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
     }
   }
   /* Read the message digest */
-  HASHEx_GetDigest(pOutBuffer, 28);
+  HASHEx_GetDigest(pOutBuffer, 28U);
   
   /* Change the HASH state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -753,7 +753,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   */
 HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;   
+  uint32_t tickstart = 0U;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -765,7 +765,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
   if(hhash->Phase == HAL_HASH_PHASE_READY)
   {
     /* Check if key size is greater than 64 bytes */
-    if(hhash->Init.KeySize > 64)
+    if(hhash->Init.KeySize > 64U)
     {
       /* Select the HMAC SHA256 mode */
       HASH->CR |= (HASH_ALGOSELECTION_SHA256 | HASH_ALGOMODE_HMAC | HASH_HMAC_KEYTYPE_LONGKEY);
@@ -801,7 +801,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -874,7 +874,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start(HASH_HandleTypeDef *hhash, uint8_t *pI
     }
   }
   /* Read the message digest */
-  HASHEx_GetDigest(pOutBuffer, 32);
+  HASHEx_GetDigest(pOutBuffer, 32U);
   
   /* Change the HASH state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -945,7 +945,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
       HASH->CR |= HASH_CR_INIT;
     }
     /* Reset interrupt counter */
-    hhash->HashITCounter = 0;
+    hhash->HashITCounter = 0U;
     
     /* Set the phase */
     hhash->Phase = HAL_HASH_PHASE_PROCESS;
@@ -962,11 +962,11 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
   if(__HAL_HASH_GET_FLAG(HASH_FLAG_DCIS))
   {
     /* Read the message digest */
-    HASHEx_GetDigest(hhash->pHashOutBuffPtr, 28);
-    if(hhash->HashInCount == 0)
+    HASHEx_GetDigest(hhash->pHashOutBuffPtr, 28U);
+    if(hhash->HashInCount == 0U)
     {
       /* Disable Interrupts */
-      HASH->IMR = 0;
+      HASH->IMR = 0U;
       /* Change the HASH state */
       hhash->State = HAL_HASH_STATE_READY;
       /* Call digest computation complete callback */
@@ -981,38 +981,38 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
   }
   if(__HAL_HASH_GET_FLAG(HASH_FLAG_DINIS))
   {
-    if(hhash->HashInCount >= 68)
+    if(hhash->HashInCount >= 68U)
     {
       inputaddr = (uint32_t)hhash->pHashInBuffPtr;
       /* Write the Input block in the Data IN register */
-      for(buffercounter = 0; buffercounter < 64; buffercounter+=4)
+      for(buffercounter = 0U; buffercounter < 64U; buffercounter+=4U)
       {
         HASH->DIN = *(uint32_t*)inputaddr;
-        inputaddr+=4;
+        inputaddr+=4U;
       }
-      if(hhash->HashITCounter == 0)
+      if(hhash->HashITCounter == 0U)
       {
         HASH->DIN = *(uint32_t*)inputaddr;
 
-        if(hhash->HashInCount >= 68)
+        if(hhash->HashInCount >= 68U)
         {
           /* Decrement buffer counter */
-          hhash->HashInCount -= 68;
-          hhash->pHashInBuffPtr+= 68;
+          hhash->HashInCount -= 68U;
+          hhash->pHashInBuffPtr+= 68U;
         }
         else
         {
-          hhash->HashInCount = 0;
+          hhash->HashInCount = 0U;
           hhash->pHashInBuffPtr+= hhash->HashInCount;
         }
         /* Set Interrupt counter */
-        hhash->HashITCounter = 1;
+        hhash->HashITCounter = 1U;
       }
       else
       {
         /* Decrement buffer counter */
-        hhash->HashInCount -= 64;
-        hhash->pHashInBuffPtr+= 64;
+        hhash->HashInCount -= 64U;
+        hhash->pHashInBuffPtr+= 64U;
       }
     }
     else
@@ -1026,24 +1026,24 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
       /* Configure the number of valid bits in last word of the message */
       __HAL_HASH_SET_NBVALIDBITS(inputcounter);
       
-      if((inputcounter > 4) && (inputcounter%4))
+      if((inputcounter > 4U) && (inputcounter%4U))
       {
-        inputcounter = (inputcounter+4-inputcounter%4);
+        inputcounter = (inputcounter+4U-inputcounter%4U);
       }
-      else if ((inputcounter < 4) && (inputcounter != 0))
+      else if ((inputcounter < 4U) && (inputcounter != 0U))
       {
-        inputcounter = 4;
+        inputcounter = 4U;
       }
       /* Write the Input block in the Data IN register */
-      for(buffercounter = 0; buffercounter < inputcounter/4; buffercounter++)
+      for(buffercounter = 0U; buffercounter < inputcounter/4U; buffercounter++)
       {
         HASH->DIN = *(uint32_t*)inputaddr;
-        inputaddr+=4;
+        inputaddr+=4U;
       }
       /* Start the digest calculation */
       __HAL_HASH_START_DIGEST();
       /* Reset buffer counter */
-      hhash->HashInCount = 0;
+      hhash->HashInCount = 0U;
       /* Call Input data transfer complete callback */
       HAL_HASH_InCpltCallback(hhash);
     }
@@ -1096,7 +1096,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
       HASH->CR |= HASH_CR_INIT;
     }
     /* Reset interrupt counter */
-    hhash->HashITCounter = 0;
+    hhash->HashITCounter = 0U;
     
     /* Set the phase */
     hhash->Phase = HAL_HASH_PHASE_PROCESS;
@@ -1113,11 +1113,11 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
   if(__HAL_HASH_GET_FLAG(HASH_FLAG_DCIS))
   {
     /* Read the message digest */
-    HASHEx_GetDigest(hhash->pHashOutBuffPtr, 32);
-    if(hhash->HashInCount == 0)
+    HASHEx_GetDigest(hhash->pHashOutBuffPtr, 32U);
+    if(hhash->HashInCount == 0U)
     {
       /* Disable Interrupts */
-      HASH->IMR = 0;
+      HASH->IMR = 0U;
       /* Change the HASH state */
       hhash->State = HAL_HASH_STATE_READY;
       /* Call digest computation complete callback */
@@ -1132,38 +1132,38 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
   }
   if(__HAL_HASH_GET_FLAG(HASH_FLAG_DINIS))
   {
-    if(hhash->HashInCount >= 68)
+    if(hhash->HashInCount >= 68U)
     {
       inputaddr = (uint32_t)hhash->pHashInBuffPtr;
       /* Write the Input block in the Data IN register */
-      for(buffercounter = 0; buffercounter < 64; buffercounter+=4)
+      for(buffercounter = 0U; buffercounter < 64U; buffercounter+=4U)
       {
         HASH->DIN = *(uint32_t*)inputaddr;
-        inputaddr+=4;
+        inputaddr+=4U;
       }
-      if(hhash->HashITCounter == 0)
+      if(hhash->HashITCounter == 0U)
       {
         HASH->DIN = *(uint32_t*)inputaddr;
 
-        if(hhash->HashInCount >= 68)
+        if(hhash->HashInCount >= 68U)
         {
           /* Decrement buffer counter */
-          hhash->HashInCount -= 68;
-          hhash->pHashInBuffPtr+= 68;
+          hhash->HashInCount -= 68U;
+          hhash->pHashInBuffPtr+= 68U;
         }
         else
         {
-          hhash->HashInCount = 0;
+          hhash->HashInCount = 0U;
           hhash->pHashInBuffPtr+= hhash->HashInCount;
         }
         /* Set Interrupt counter */
-        hhash->HashITCounter = 1;
+        hhash->HashITCounter = 1U;
       }
       else
       {
         /* Decrement buffer counter */
-        hhash->HashInCount -= 64;
-        hhash->pHashInBuffPtr+= 64;
+        hhash->HashInCount -= 64U;
+        hhash->pHashInBuffPtr+= 64U;
       }
     }
     else
@@ -1177,24 +1177,24 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_IT(HASH_HandleTypeDef *hhash, uint8_t 
       /* Configure the number of valid bits in last word of the message */
       __HAL_HASH_SET_NBVALIDBITS(inputcounter);
       
-      if((inputcounter > 4) && (inputcounter%4))
+      if((inputcounter > 4U) && (inputcounter%4U))
       {
-        inputcounter = (inputcounter+4-inputcounter%4);
+        inputcounter = (inputcounter+4U-inputcounter%4U);
       }
-      else if ((inputcounter < 4) && (inputcounter != 0))
+      else if ((inputcounter < 4U) && (inputcounter != 0U))
       {
-        inputcounter = 4;
+        inputcounter = 4U;
       }
       /* Write the Input block in the Data IN register */
-      for(buffercounter = 0; buffercounter < inputcounter/4; buffercounter++)
+      for(buffercounter = 0U; buffercounter < inputcounter/4U; buffercounter++)
       {
         HASH->DIN = *(uint32_t*)inputaddr;
-        inputaddr+=4;
+        inputaddr+=4U;
       }
       /* Start the digest calculation */
       __HAL_HASH_START_DIGEST();
       /* Reset buffer counter */
-      hhash->HashInCount = 0;
+      hhash->HashInCount = 0U;
       /* Call Input data transfer complete callback */
       HAL_HASH_InCpltCallback(hhash);
     }
@@ -1219,11 +1219,11 @@ void HAL_HASHEx_IRQHandler(HASH_HandleTypeDef *hhash)
   {
     
     case HASH_ALGOSELECTION_SHA224:
-       HAL_HASHEx_SHA224_Start_IT(hhash, NULL, 0, NULL);
+       HAL_HASHEx_SHA224_Start_IT(hhash, NULL, 0U, NULL);
     break;
     
     case HASH_ALGOSELECTION_SHA256:
-      HAL_HASHEx_SHA256_Start_IT(hhash, NULL, 0, NULL);
+      HAL_HASHEx_SHA256_Start_IT(hhash, NULL, 0U, NULL);
     break;
     
     default:
@@ -1292,7 +1292,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   hhash->hdmain->XferErrorCallback = HASHEx_DMAError;
   
   /* Enable the DMA In DMA Stream */
-  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (Size%4 ? (Size+3)/4:Size/4));
+  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (Size%4U ? (Size+3U)/4U:Size/4U));
   
   /* Enable DMA requests */
   HASH->CR |= (HASH_CR_DMAE);
@@ -1314,7 +1314,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;   
+  uint32_t tickstart = 0U;   
   
   /* Process Locked */
   __HAL_LOCK(hhash);
@@ -1330,7 +1330,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -1344,7 +1344,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA224_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
   }
   
   /* Read the message digest */
-  HASHEx_GetDigest(pOutBuffer, 28);
+  HASHEx_GetDigest(pOutBuffer, 28U);
       
   /* Change HASH peripheral state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -1396,7 +1396,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   hhash->hdmain->XferErrorCallback = HASHEx_DMAError;
   
   /* Enable the DMA In DMA Stream */
-  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (Size%4 ? (Size+3)/4:Size/4));
+  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (Size%4U ? (Size+3U)/4U:Size/4U));
   
   /* Enable DMA requests */
   HASH->CR |= (HASH_CR_DMAE);
@@ -1418,7 +1418,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   */
 HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBuffer, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;   
+  uint32_t tickstart = 0U;   
   
    /* Process Locked */
   __HAL_LOCK(hhash);
@@ -1434,7 +1434,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         /* Change state */
         hhash->State = HAL_HASH_STATE_TIMEOUT;
@@ -1448,7 +1448,7 @@ HAL_StatusTypeDef HAL_HASHEx_SHA256_Finish(HASH_HandleTypeDef *hhash, uint8_t* p
   }
   
   /* Read the message digest */
-  HASHEx_GetDigest(pOutBuffer, 32);
+  HASHEx_GetDigest(pOutBuffer, 32U);
   
   /* Change HASH peripheral state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -1503,13 +1503,13 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   /* Save buffer pointer and size in handle */
   hhash->pHashInBuffPtr = pInBuffer;
   hhash->HashBuffSize = Size;
-  hhash->HashInCount = 0;
+  hhash->HashInCount = 0U;
   
   /* Check if initialization phase has already been performed */
   if(hhash->Phase == HAL_HASH_PHASE_READY)
   {
     /* Check if key size is greater than 64 bytes */
-    if(hhash->Init.KeySize > 64)
+    if(hhash->Init.KeySize > 64U)
     {
       /* Select the HMAC SHA224 mode */
       HASH->CR |= (HASH_ALGOSELECTION_SHA224 | HASH_ALGOMODE_HMAC | HASH_HMAC_KEYTYPE_LONGKEY | HASH_CR_INIT);
@@ -1536,7 +1536,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA224_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   hhash->hdmain->XferErrorCallback = HASHEx_DMAError;
   
   /* Enable the DMA In DMA Stream */
-  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4 ? (hhash->Init.KeySize+3)/4:hhash->Init.KeySize/4));
+  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4U ? (hhash->Init.KeySize+3U)/4U:hhash->Init.KeySize/4U));
   /* Enable DMA requests */
   HASH->CR |= (HASH_CR_DMAE);
   
@@ -1570,13 +1570,13 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   /* Save buffer pointer and size in handle */
   hhash->pHashInBuffPtr = pInBuffer;
   hhash->HashBuffSize = Size;
-  hhash->HashInCount = 0;
+  hhash->HashInCount = 0U;
   
   /* Check if initialization phase has already been performed */
   if(hhash->Phase == HAL_HASH_PHASE_READY)
   {
     /* Check if key size is greater than 64 bytes */
-    if(hhash->Init.KeySize > 64)
+    if(hhash->Init.KeySize > 64U)
     {
       /* Select the HMAC SHA256 mode */
       HASH->CR |= (HASH_ALGOSELECTION_SHA256 | HASH_ALGOMODE_HMAC | HASH_HMAC_KEYTYPE_LONGKEY);
@@ -1606,7 +1606,7 @@ HAL_StatusTypeDef HAL_HMACEx_SHA256_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t
   hhash->hdmain->XferErrorCallback = HASHEx_DMAError;
   
   /* Enable the DMA In DMA Stream */
-  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4 ? (hhash->Init.KeySize+3)/4:hhash->Init.KeySize/4));
+  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4U ? (hhash->Init.KeySize+3U)/4U:hhash->Init.KeySize/4U));
   /* Enable DMA requests */
   HASH->CR |= (HASH_CR_DMAE);
   
