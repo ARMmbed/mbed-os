@@ -21,7 +21,7 @@ TEST BUILD & RUN
 import sys
 from time import sleep
 from shutil import copy
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, isfile, isdir
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -45,7 +45,6 @@ try:
     import tools.private_settings as ps
 except:
     ps = object()
-
 
 if __name__ == '__main__':
     # Parse Options
@@ -166,6 +165,11 @@ if __name__ == '__main__':
                       default=None, help="use the specified linker script")
 
     (options, args) = parser.parse_args()
+
+    for path in options.source_dir :
+        if not isfile(path) and not isdir(path) :
+            args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
+                       format(path))
 
     # Print available tests in order and exit
     if options.list_tests is True:
