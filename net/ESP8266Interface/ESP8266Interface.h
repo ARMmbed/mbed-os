@@ -167,6 +167,12 @@ protected:
 private:
     ESP8266 _esp;
     bool _ids[ESP8266_SOCKET_COUNT];
+
+    void event();
+    struct {
+        void (*callback)(void *);
+        void *data;
+    } _cbs[ESP8266_SOCKET_COUNT];
 };
 
 #endif

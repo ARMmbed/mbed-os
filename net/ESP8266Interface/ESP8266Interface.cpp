@@ -29,6 +29,9 @@ ESP8266Interface::ESP8266Interface(PinName tx, PinName rx, bool debug)
     : _esp(tx, rx, debug)
 {
     memset(_ids, 0, sizeof(_ids));
+    memset(_cbs, 0, sizeof(_cbs));
+
+    _esp.attach(this, &ESP8266Interface::event);
 }
 
 int ESP8266Interface::connect(
@@ -203,4 +206,15 @@ int ESP8266Interface::socket_recvfrom(void *handle, SocketAddress *addr, void *d
 
 void ESP8266Interface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
+    struct esp8266_socket *socket = (struct esp8266_socket *)handle;    
+    _cbs[socket->id].callback = callback;
+    _cbs[socket->id].data = data;
+}
+
+void ESP8266Interface::event() {
+    for (int i = 0; i < ESP8266_SOCKET_COUNT; i++) {
+        if (_cbs[i].callback) {
+            _cbs[i].callback(_cbs[i].data);
+        }
+    }
 }
