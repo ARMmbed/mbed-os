@@ -1,6 +1,11 @@
-
+#! armcc -E
+#ifdef SECONDARY_LOADER
+LR_IROM1 0x00002000 0x80000  {    ; load region size_region
+  ER_IROM1 0x00002000 0x80000  {  ; load address = execution address
+#else
 LR_IROM1 0x00000000 0x80000  {    ; load region size_region
   ER_IROM1 0x00000000 0x80000  {  ; load address = execution address
+#endif
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
