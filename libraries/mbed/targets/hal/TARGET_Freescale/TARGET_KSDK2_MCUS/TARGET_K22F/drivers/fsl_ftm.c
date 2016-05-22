@@ -237,11 +237,8 @@ status_t FTM_Init(FTM_Type *base, const ftm_config_t *config)
     /* Configure the update mechanism for buffered registers */
     FTM_SetPwmSync(base, config->pwmSyncMode);
 
-    if (config->reloadPoints)
-    {
-        /* Setup intermediate register reload points */
-        FTM_SetReloadPoints(base, config->reloadPoints);
-    }
+    /* Setup intermediate register reload points */
+    FTM_SetReloadPoints(base, config->reloadPoints);
 
     /* Set the clock prescale factor */
     base->SC = FTM_SC_PS(config->prescale);
@@ -327,6 +324,9 @@ status_t FTM_SetupPwm(FTM_Type *base,
                       uint32_t srcClock_Hz)
 {
     assert(chnlParams);
+    assert(srcClock_Hz);
+    assert(pwmFreq_Hz);
+    assert(numOfChnls);
 
     uint32_t mod, reg;
     uint32_t ftmClock = (srcClock_Hz / (1U << (base->SC & FTM_SC_PS_MASK)));
@@ -373,7 +373,7 @@ status_t FTM_SetupPwm(FTM_Type *base,
             reg &= ~(FTM_CnSC_MSA_MASK | FTM_CnSC_MSB_MASK | FTM_CnSC_ELSA_MASK | FTM_CnSC_ELSB_MASK);
 
             /* Setup the active level */
-            reg |= (FTM_CnSC_ELSA(chnlParams->level) | FTM_CnSC_ELSB(chnlParams->level));
+            reg |= (uint32_t)(chnlParams->level << FTM_CnSC_ELSA_SHIFT);
 
             /* Edge-aligned mode needs MSB to be 1, don't care for Center-aligned mode */
             reg |= FTM_CnSC_MSB(1U);
@@ -397,6 +397,10 @@ status_t FTM_SetupPwm(FTM_Type *base,
             }
 
             base->CONTROLS[chnlParams->chnlNumber].CnV = cnv;
+#if defined(FSL_FEATURE_FTM_HAS_ENABLE_PWM_OUTPUT) && (FSL_FEATURE_FTM_HAS_ENABLE_PWM_OUTPUT)
+            /* Set to output mode */
+            FTM_SetPwmOutputEnable(base, chnlParams->chnlNumber, true);
+#endif
         }
         else
         {
@@ -445,7 +449,7 @@ status_t FTM_SetupPwm(FTM_Type *base,
             reg &= ~(FTM_CnSC_MSA_MASK | FTM_CnSC_MSB_MASK | FTM_CnSC_ELSA_MASK | FTM_CnSC_ELSB_MASK);
 
             /* Setup the active level for channel n */
-            reg |= (FTM_CnSC_ELSA(chnlParams->level) | FTM_CnSC_ELSB(chnlParams->level));
+            reg |= (uint32_t)(chnlParams->level << FTM_CnSC_ELSA_SHIFT);
 
             /* Update the mode and edge level for channel n */
             base->CONTROLS[chnlParams->chnlNumber * 2].CnSC = reg;
@@ -455,25 +459,25 @@ status_t FTM_SetupPwm(FTM_Type *base,
             reg &= ~(FTM_CnSC_MSA_MASK | FTM_CnSC_MSB_MASK | FTM_CnSC_ELSA_MASK | FTM_CnSC_ELSB_MASK);
 
             /* Setup the active level for channel n + 1 */
-            reg |= (FTM_CnSC_ELSA(chnlParams->level) | FTM_CnSC_ELSB(chnlParams->level));
+            reg |= (uint32_t)(chnlParams->level << FTM_CnSC_ELSA_SHIFT);
 
             /* Update the mode and edge level for channel n + 1*/
             base->CONTROLS[(chnlParams->chnlNumber * 2) + 1].CnSC = reg;
+
+            /* Set the combine bit for the channel pair */
+            base->COMBINE |=
+                (1U << (FTM_COMBINE_COMBINE0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlParams->chnlNumber)));
 
             /* Set the channel pair values */
             base->CONTROLS[chnlParams->chnlNumber * 2].CnV = cnvFirstEdge;
             base->CONTROLS[(chnlParams->chnlNumber * 2) + 1].CnV = cnvFirstEdge + cnv;
 
-            /* Set the combine bit for the channel pair */
-            base->COMBINE |=
-                (1U << (FTM_COMBINE_COMBINE0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * chnlParams->chnlNumber)));
-        }
-
 #if defined(FSL_FEATURE_FTM_HAS_ENABLE_PWM_OUTPUT) && (FSL_FEATURE_FTM_HAS_ENABLE_PWM_OUTPUT)
-        /* Set to output mode */
-        FTM_SetPwmOutputEnable(base, chnlParams->chnlNumber, true);
+            /* Set to output mode */
+            FTM_SetPwmOutputEnable(base, (ftm_chnl_t)((uint8_t)chnlParams->chnlNumber * 2), true);
+            FTM_SetPwmOutputEnable(base, (ftm_chnl_t)((uint8_t)chnlParams->chnlNumber * 2 + 1), true);
 #endif
-
+        }
         chnlParams++;
     }
 
@@ -535,6 +539,13 @@ void FTM_SetupInputCapture(FTM_Type *base,
 {
     uint32_t reg;
 
+    /* Clear the combine bit for the channel pair */
+    base->COMBINE &= ~(1U << (FTM_COMBINE_COMBINE0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * (chnlNumber >> 1))));
+    /* Clear the dual edge capture mode because it's it's higher priority */
+    base->COMBINE &= ~(1U << (FTM_COMBINE_DECAPEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * (chnlNumber >> 1))));
+    /* Clear the quadrature decoder mode beacause it's higher priority */
+    base->QDCTRL &= ~FTM_QDCTRL_QUADEN_MASK;
+
     reg = base->CONTROLS[chnlNumber].CnSC;
     reg &= ~(FTM_CnSC_MSA_MASK | FTM_CnSC_MSB_MASK | FTM_CnSC_ELSA_MASK | FTM_CnSC_ELSB_MASK);
     reg |= captureMode;
@@ -562,14 +573,21 @@ void FTM_SetupOutputCompare(FTM_Type *base,
 {
     uint32_t reg;
 
-    /* Set output on match to the requested level */
-    base->CONTROLS[chnlNumber].CnV = compareValue;
+    /* Clear the combine bit for the channel pair */
+    base->COMBINE &= ~(1U << (FTM_COMBINE_COMBINE0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * (chnlNumber >> 1))));
+    /* Clear the dual edge capture mode because it's it's higher priority */
+    base->COMBINE &= ~(1U << (FTM_COMBINE_DECAPEN0_SHIFT + (FTM_COMBINE_COMBINE1_SHIFT * (chnlNumber >> 1))));
+    /* Clear the quadrature decoder mode beacause it's higher priority */
+    base->QDCTRL &= ~FTM_QDCTRL_QUADEN_MASK;
 
     reg = base->CONTROLS[chnlNumber].CnSC;
     reg &= ~(FTM_CnSC_MSA_MASK | FTM_CnSC_MSB_MASK | FTM_CnSC_ELSA_MASK | FTM_CnSC_ELSB_MASK);
     reg |= compareMode;
     /* Setup the channel output behaviour when a match occurs with the compare value */
     base->CONTROLS[chnlNumber].CnSC = reg;
+
+    /* Set output on match to the requested level */
+    base->CONTROLS[chnlNumber].CnV = compareValue;
 
 #if defined(FSL_FEATURE_FTM_HAS_ENABLE_PWM_OUTPUT) && (FSL_FEATURE_FTM_HAS_ENABLE_PWM_OUTPUT)
     /* Set to output mode */
@@ -662,6 +680,8 @@ void FTM_SetupQuadDecode(FTM_Type *base,
 
 void FTM_SetupFault(FTM_Type *base, ftm_fault_input_t faultNumber, const ftm_fault_param_t *faultParams)
 {
+    assert(faultParams);
+
     uint32_t reg;
 
     reg = base->FLTCTRL;

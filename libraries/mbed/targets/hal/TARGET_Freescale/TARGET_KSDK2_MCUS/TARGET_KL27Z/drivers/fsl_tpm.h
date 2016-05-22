@@ -33,7 +33,7 @@
 #include "fsl_common.h"
 
 /*!
- * @addtogroup tpm_driver
+ * @addtogroup tpm
  * @{
  */
 
@@ -45,7 +45,7 @@
 
 /*! @name Driver version */
 /*@{*/
-#define FSL_TPM_DRIVER_VERSION (MAKE_VERSION(2, 0, 1)) /*!< Version 2.0.1 */
+#define FSL_TPM_DRIVER_VERSION (MAKE_VERSION(2, 0, 2)) /*!< Version 2.0.2 */
 /*@}*/
 
 /*!
@@ -505,7 +505,10 @@ uint32_t TPM_GetEnabledInterrupts(TPM_Type *base);
  * @return The status flags. This is the logical OR of members of the
  *         enumeration ::tpm_status_flags_t
  */
-uint32_t TPM_GetStatusFlags(TPM_Type *base);
+static inline uint32_t TPM_GetStatusFlags(TPM_Type *base)
+{
+    return base->STATUS;
+}
 
 /*!
  * @brief Clears the TPM status flags
@@ -514,7 +517,11 @@ uint32_t TPM_GetStatusFlags(TPM_Type *base);
  * @param mask The status flags to clear. This is a logical OR of members of the
  *             enumeration ::tpm_status_flags_t
  */
-void TPM_ClearStatusFlags(TPM_Type *base, uint32_t mask);
+static inline void TPM_ClearStatusFlags(TPM_Type *base, uint32_t mask)
+{
+    /* Clear the status flags */
+    base->STATUS = mask;
+}
 
 /*! @}*/
 
@@ -548,6 +555,11 @@ static inline void TPM_StopTimer(TPM_Type *base)
 {
     /* Set clock source to none to disable counter */
     base->SC &= ~(TPM_SC_CMOD_MASK);
+
+    /* Wait till this reads as zero acknowledging the counter is disabled */
+    while (base->SC & TPM_SC_CMOD_MASK)
+    {
+    }
 }
 
 /*! @}*/
