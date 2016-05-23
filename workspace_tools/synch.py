@@ -32,7 +32,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from workspace_tools.settings import MBED_ORG_PATH, MBED_ORG_USER, BUILD_DIR
-from workspace_tools.paths import LIB_DIR
+from workspace_tools.paths import *
 from workspace_tools.utils import run_cmd
 
 MBED_URL = "mbed.org"
@@ -47,27 +47,27 @@ commit_msg = ''
 # Tuple data: (repo_name, list_of_code_dirs, [team])
 # team is optional - if not specified, the code is published under mbed_official
 OFFICIAL_CODE = (
-    ("mbed-dev" , "mbed"),
-    ("mbed-rtos", "rtos"),
-    ("mbed-dsp" , "dsp"),
-    ("mbed-rpc" , "rpc"),
+    ("mbed-dev" , MBED_BASE),
+    ("mbed-rtos", RTOS),
+    ("mbed-dsp" , DSP),
+    ("mbed-rpc" , MBED_RPC),
 
-    ("lwip"    , "net/lwip/lwip"),
-    ("lwip-sys", "net/lwip/lwip-sys"),
-    ("Socket"  , "net/lwip/Socket"),
+    ("lwip"    , LWIP_SOURCES+"/lwip"),
+    ("lwip-sys", LWIP_SOURCES+"/lwip-sys"),
+    ("Socket"  , LWIP_SOURCES+"/Socket"),
 
-    ("lwip-eth"         , "net/eth/lwip-eth"),
-    ("EthernetInterface", "net/eth/EthernetInterface"),
+    ("lwip-eth"         , LWIP_SOURCES+"/lwip-eth"),
+    ("EthernetInterface", ETH_SOURCES+"/EthernetInterface"),
 
-    ("USBDevice", "USBDevice"),
-    ("USBHost"  , "USBHost"),
+    ("USBDevice", USB),
+    ("USBHost"  , USB_HOST),
 
-    ("CellularModem", "net/cellular/CellularModem"),
-    ("CellularUSBModem", "net/cellular/CellularUSBModem"),
-    ("UbloxUSBModem", "net/cellular/UbloxUSBModem"),
-    ("UbloxModemHTTPClientTest", ["tests/net/cellular/http/common", "tests/net/cellular/http/ubloxusb"]),
-    ("UbloxModemSMSTest", ["tests/net/cellular/sms/common", "tests/net/cellular/sms/ubloxusb"]),
-    ("FATFileSystem", "fs/fat", "mbed-official"),
+    ("CellularModem", CELLULAR_SOURCES),
+    ("CellularUSBModem", CELLULAR_USB_SOURCES),
+    ("UbloxUSBModem", UBLOX_SOURCES),
+    ("UbloxModemHTTPClientTest", [TEST_DIR+"/net/cellular/http/common", TEST_DIR+"/net/cellular/http/ubloxusb"]),
+    ("UbloxModemSMSTest", [TEST_DIR+"/net/cellular/sms/common", TEST_DIR+"/net/cellular/sms/ubloxusb"]),
+    ("FATFileSystem", FAT_FS, "mbed-official"),
 )
 
 
@@ -281,8 +281,7 @@ def update_code(repositories):
         team_name = r[2] if len(r) == 3 else None
         print '\n=== Updating "%s" ===' % repo_name
         sdk_dirs = [sdk_dir] if type(sdk_dir) != type([]) else sdk_dir
-        sdk_path = [join(LIB_DIR, d) for d in sdk_dirs]
-        update_repo(repo_name, sdk_path, team_name)
+        update_repo(repo_name, sdk_dirs, team_name)
 
 def update_single_repo(repo):
     repos = [r for r in OFFICIAL_CODE if r[0] == repo]
