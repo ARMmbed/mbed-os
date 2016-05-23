@@ -26,6 +26,8 @@
 
 using namespace utest::v1;
 
+std::string utest_trace[UTEST_MAX_BACKTRACE];
+
 static unsigned trace_index = 0;
 static unsigned total_calls = 0;
 
@@ -39,11 +41,7 @@ void utest_trace_initialise()
 }
 
 void utest_add_to_trace(char *func_name)
-{
-    
-    // Check if we have already used this entry. If so free the previously allocated
-    // string.
-    utest_trace[trace_index].clear();
+{    
     utest_trace[trace_index] = std::string(func_name);   
     trace_index = (trace_index + 1 == UTEST_MAX_BACKTRACE) ? 0 : trace_index + 1;
     total_calls ++;

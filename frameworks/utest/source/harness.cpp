@@ -55,19 +55,19 @@ namespace
 }
 
 static void die() {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     while(1) ;
 }
 
 static bool is_scheduler_valid(const utest_v1_scheduler_t scheduler)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     return (scheduler.init && scheduler.post && scheduler.cancel && scheduler.run);
 }
 
 bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     if (is_scheduler_valid(scheduler)) {
         ::scheduler = scheduler;
         return true;
@@ -77,13 +77,13 @@ bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
 
 bool Harness::run(const Specification& specification, size_t)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     return run(specification);
 }
 
 bool Harness::run(const Specification& specification)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     // check if a specification is currently running
     if (is_busy())
         return false;
@@ -91,13 +91,14 @@ bool Harness::run(const Specification& specification)
     // if the scheduler is invalid, this is the first time we are calling
     if (!is_scheduler_valid(scheduler))
         scheduler = utest_v1_get_scheduler();
+
     // if the scheduler is still invalid, abort
     if (!is_scheduler_valid(scheduler))
         return false;
+
     // if the scheduler failed to initialize, abort
     if (scheduler.init() != 0)
         return false;
-
     test_cases  = specification.cases;
     test_length = specification.length;
     defaults    = specification.defaults;
@@ -149,7 +150,7 @@ bool Harness::run(const Specification& specification)
 
 void Harness::raise_failure(const failure_reason_t reason)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     // ignore a failure, if the Harness has not been initialized.
     // this allows using unity assertion macros without setting up utest.
     if (test_cases == NULL) return;
@@ -195,7 +196,7 @@ void Harness::raise_failure(const failure_reason_t reason)
 
 void Harness::schedule_next_case()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     if (!case_timeout_occurred && case_failed_before == case_failed) {
         case_passed++;
     }
@@ -231,7 +232,7 @@ void Harness::schedule_next_case()
 
 void Harness::handle_timeout()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     {
         UTEST_ENTER_CRITICAL_SECTION;
 
@@ -249,7 +250,7 @@ void Harness::handle_timeout()
 
 void Harness::validate_callback(const control_t control)
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     UTEST_ENTER_CRITICAL_SECTION;
     case_validation_count++;
 
@@ -269,7 +270,7 @@ void Harness::validate_callback(const control_t control)
 
 bool Harness::is_busy()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     UTEST_ENTER_CRITICAL_SECTION;
     if (!test_cases)   return false;
     if (!case_current) return false;
@@ -281,7 +282,7 @@ bool Harness::is_busy()
 
 void Harness::run_next_case()
 {
-    UTEST_LOG_FUNCTION
+    UTEST_LOG_FUNCTION();
     if(case_current < (test_cases + test_length))
     {
         handlers.case_setup    = defaults.get_handler(case_current->setup_handler);
