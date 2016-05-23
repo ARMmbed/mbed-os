@@ -120,7 +120,7 @@ This is the list of toolchains that can be used to compile code for the target. 
 
 ## default_toolchain
 
-The name of the toolchain that will be used by default to compile this target (if another toolchain is not specified). Possible values are `ARM`, `uARM`, `GCC_ARM`, `GCC_CR`, `IAR`.
+The name of the toolchain that will be used by default to compile this target (if another toolchain is not specified). Possible values are `ARM` or `uARM`.
 
 ## post_binary_hook
 
