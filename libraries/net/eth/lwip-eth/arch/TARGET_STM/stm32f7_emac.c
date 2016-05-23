@@ -1,5 +1,5 @@
-#if defined(TARGET_STM32F4)
-#include "stm32f4xx_hal.h"
+#if defined(TARGET_NUCLEO_F746ZG)
+#include "stm32f7xx_hal.h"
 #include "lwip/opt.h"
 
 #include "lwip/timers.h"
@@ -9,7 +9,7 @@
 #include "cmsis_os.h"
 #include "mbed_interface.h"
 
-/** @defgroup lwipstm32f4xx_emac_DRIVER	stm32f4 EMAC driver for LWIP
+/** @defgroup lwipstm32f7xx_emac_DRIVER	stm32f7 EMAC driver for LWIP
  * @ingroup lwip_emac
  *
  * @{
@@ -47,10 +47,10 @@ static sys_sem_t rx_ready_sem;    /* receive ready semaphore */
 static sys_mutex_t tx_lock_mutex;
 
 /* function */
-static void stm32f4_rx_task(void *arg);
-static void stm32f4_phy_task(void *arg);
-static err_t stm32f4_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr);
-static err_t stm32f4_low_level_output(struct netif *netif, struct pbuf *p);
+static void stm32f7_rx_task(void *arg);
+static void stm32f7_phy_task(void *arg);
+static err_t stm32f7_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr);
+static err_t stm32f7_low_level_output(struct netif *netif, struct pbuf *p);
 
 /**
  * Override HAL Eth Init function
@@ -68,8 +68,8 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
 
         /**ETH GPIO Configuration
            PC1     ------> ETH_MDC
-           PA1     ------> ETH_REF_CLK
            PA2     ------> ETH_MDIO
+           PA1     ------> ETH_REF_CLK
            PA7     ------> ETH_CRS_DV
            PC4     ------> ETH_RXD0
            PC5     ------> ETH_RXD1
@@ -170,7 +170,7 @@ void ETH_IRQHandler(void)
  * @param netif the already initialized lwip network interface structure
  *        for this ethernetif
  */
-static void stm32f4_low_level_init(struct netif *netif)
+static void stm32f7_low_level_init(struct netif *netif)
 {
     uint32_t regvalue = 0;
     HAL_StatusTypeDef hal_eth_init_status;
@@ -266,7 +266,7 @@ static void stm32f4_low_level_init(struct netif *netif)
  *       dropped because of memory failure (except for the TCP timers).
  */
 
-static err_t stm32f4_low_level_output(struct netif *netif, struct pbuf *p)
+static err_t stm32f7_low_level_output(struct netif *netif, struct pbuf *p)
 {
     err_t errval;
     struct pbuf *q;
@@ -352,7 +352,7 @@ error:
  * @return a pbuf filled with the received packet (including MAC header)
  *         NULL on memory error
  */
-static struct pbuf * stm32f4_low_level_input(struct netif *netif)
+static struct pbuf * stm32f7_low_level_input(struct netif *netif)
 {
     struct pbuf *p = NULL;
     struct pbuf *q;
@@ -431,7 +431,7 @@ static struct pbuf * stm32f4_low_level_input(struct netif *netif)
  *
  * \param[in] netif the lwip network interface structure
  */
-static void stm32f4_rx_task(void *arg)
+static void stm32f7_rx_task(void *arg)
 {
     struct netif   *netif = (struct netif*)arg;
     struct pbuf    *p;
@@ -453,7 +453,7 @@ static void stm32f4_rx_task(void *arg)
  *
  * \param[in] netif the lwip network interface structure
  */
-static void stm32f4_phy_task(void *arg)
+static void stm32f7_phy_task(void *arg)
 {
     struct netif   *netif = (struct netif*)arg;
     uint32_t phy_status = 0;
@@ -483,7 +483,7 @@ static void stm32f4_phy_task(void *arg)
  * \param[in] ipaddr IP address
  * \return ERR_OK or error code
  */
-static err_t stm32f4_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
+static err_t stm32f7_etharp_output(struct netif *netif, struct pbuf *q, ip_addr_t *ipaddr)
 {
     /* Only send packet is link is up */
     if (netif->flags & NETIF_FLAG_LINK_UP) {
@@ -517,14 +517,14 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
 #if LWIP_NETIF_HOSTNAME
     /* Initialize interface hostname */
-    netif->hostname = "lwipstm32f4";
+    netif->hostname = "lwipstm32f7";
 #endif /* LWIP_NETIF_HOSTNAME */
 
     netif->name[0] = 'e';
     netif->name[1] = 'n';
 
-    netif->output = stm32f4_etharp_output;
-    netif->linkoutput = stm32f4_low_level_output;
+    netif->output = stm32f7_etharp_output;
+    netif->linkoutput = stm32f7_low_level_output;
 
     /* semaphore */
     sys_sem_new(&rx_ready_sem, 0);
@@ -532,11 +532,11 @@ err_t eth_arch_enetif_init(struct netif *netif)
     sys_mutex_new(&tx_lock_mutex);
 
     /* task */
-    sys_thread_new("stm32f4_recv_task", stm32f4_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
-    sys_thread_new("stm32f4_phy_task", stm32f4_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
+    sys_thread_new("stm32f4_recv_task", stm32f7_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
+    sys_thread_new("stm32f4_phy_task", stm32f7_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
     
     /* initialize the hardware */
-    stm32f4_low_level_init(netif);
+    stm32f7_low_level_init(netif);
     
     return ERR_OK;
 }
@@ -552,9 +552,10 @@ void eth_arch_disable_interrupts(void)
 {
     NVIC_DisableIRQ(ETH_IRQn);
 }
-#endif // #if defined(TARGET_STM32F4)
+
 /**
  * @}
  */
+#endif //defined (TARGET_NUCLEO_F746ZG)
 
 /* --------------------------------- End Of File ------------------------------ */
