@@ -17,7 +17,7 @@ limitations under the License.
 
 import re
 import sys
-from os import stat, walk, getcwd
+from os import stat, walk, getcwd, sep
 from copy import copy
 from time import time, sleep
 from types import ListType
@@ -32,6 +32,7 @@ from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedExc
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
 from hashlib import md5
+import fnmatch
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -167,6 +168,7 @@ LEGACY_TOOLCHAIN_NAMES = {
 
 class mbedToolchain:
     VERBOSE = True
+    ignorepatterns = []
 
     CORTEX_SYMBOLS = {
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
@@ -345,6 +347,12 @@ class mbedToolchain:
 
         return False
 
+    def is_ignored(self, file_path):
+        for pattern in self.ignorepatterns:
+            if fnmatch.fnmatch(file_path, pattern):
+                return True
+        return False
+
     def scan_resources(self, path, exclude_paths=None):
         labels = self.get_labels()
         resources = Resources(path)
@@ -372,10 +380,28 @@ class mbedToolchain:
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
-                    (d == 'TESTS') or
-                    exists(join(dir_path, '.buildignore'))):
+                    (d == 'TESTS')):
                     dirs.remove(d)
-                
+
+                # Check if folder contains .mbedignore
+                try:
+                    with open (join(dir_path,".mbedignore"), "r") as f:
+                        lines=f.readlines()
+                        lines = [l.strip() for l in lines] # Strip whitespaces
+                        lines = [l for l in lines if l != ""] # Strip empty lines
+                        lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
+                        # Append root path to glob patterns
+                        # and append patterns to ignorepatterns
+                        self.ignorepatterns.extend([join(dir_path,line.strip()) for line in lines])
+                except IOError:
+                    pass
+
+                # Remove dirs that already match the ignorepatterns
+                # to avoid travelling into them and to prevent them
+                # on appearing in include path.
+                if self.is_ignored(join(dir_path,"")):
+                    dirs.remove(d)
+
                 if exclude_paths:
                     for exclude_path in exclude_paths:
                         rel_path = relpath(dir_path, exclude_path)
@@ -388,6 +414,10 @@ class mbedToolchain:
 
             for file in files:
                 file_path = join(root, file)
+
+                if self.is_ignored(file_path):
+                    continue
+
                 _, ext = splitext(file)
                 ext = ext.lower()
 
