@@ -51,7 +51,7 @@ ARM_CPPLIB = join(ARM_LIB, "cpplib")
 MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
 
 # GCC ARM
-GCC_ARM_PATH = "C:/Program Files (x86)/GNU Tools ARM Embedded/4.9 2015q3/bin"
+GCC_ARM_PATH = ""
 
 # GCC CodeRed
 GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
