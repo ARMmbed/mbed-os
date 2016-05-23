@@ -31,6 +31,11 @@ MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
 
+# mbed TLS hardware acceleration directory - hidden from mbed via TARGET_IGNORE
+MBED_TLS_HA_URL:=https://github.com/ARMmbed/mbed-tls-lib.git
+MBED_TLS_HA_DIR:=TARGET_IGNORE/mbed-tls-lib
+MBED_TLS_HA_GIT_CFG=$(MBED_TLS_HA_DIR)/.git/config
+
 .PHONY: all deploy rsync mbedtls clean update
 
 all: mbedtls
@@ -51,13 +56,18 @@ rsync:
 	# Copying licenses
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	cp $(MBED_TLS_DIR)/apache-2.0.txt $(TARGET_PREFIX)
+	#
+	# Copying hardware acceleration example code
+	rm -rf $(TARGET_PREFIX)/targets
+	mkdir -p $(TARGET_PREFIX)/targets
+	rsync -a --delete $(MBED_TLS_HA_DIR)/targets $(TARGET_PREFIX)
 
 deploy: rsync
 	#
 	# Adjusting the default mbed TLS config file to mbed purposes
 	./adjust-config.sh $(MBED_TLS_DIR)/scripts/config.pl $(TARGET_INC)/mbedtls/config.h
 
-update: $(MBED_TLS_GIT_CFG)
+update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
 	# Updating to latest mbed TLS library version
 	git -C $(MBED_TLS_DIR) checkout development
@@ -69,18 +79,26 @@ update: $(MBED_TLS_GIT_CFG)
 	# Updating checked out version tag
 	git -C $(MBED_TLS_DIR) describe --tags --abbrev=40 --dirty > $(TARGET_PREFIX)VERSION.txt
 	#
-	# Updated list of authors, sorted by contributions
+	# Updating list of authors, sorted by contributions
 	git -C $(MBED_TLS_DIR) shortlog -s -n > $(TARGET_PREFIX)AUTHORS.txt
+	#
+	git -C $(MBED_TLS_HA_DIR) pull --rebase origin master
 
 $(MBED_TLS_GIT_CFG):
 	rm -rf $(MBED_TLS_DIR)
 	git clone $(MBED_TLS_URL) $(MBED_TLS_DIR)
+
+$(MBED_TLS_HA_GIT_CFG):
+	rm -rf $(MBED_TLS_HA_DIR)
+	git clone $(MBED_TLS_HA_URL) $(MBED_TLS_HA_DIR)
 
 clean:
 	rm -f $(TARGET_PREFIX)LICENSE
 	rm -f $(TARGET_PREFIX)apache-2.0.txt
 	rm -f $(TARGET_PREFIX)VERSION.txt
 	rm -f $(TARGET_PREFIX)AUTHORS.txt
+	rm -rf $(TARGET_PREFIX)/targets
 	rm -rf $(TARGET_SRC)
 	rm -rf $(TARGET_INC)
 	rm -rf $(MBED_TLS_DIR)
+	rm -rf $(MBED_TLS_HA_DIR)
