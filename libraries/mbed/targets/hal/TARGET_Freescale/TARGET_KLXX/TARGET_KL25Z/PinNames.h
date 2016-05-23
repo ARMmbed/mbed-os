@@ -17,6 +17,7 @@
 #define MBED_PINNAMES_H
 
 #include "cmsis.h"
+#include "pinmode.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -240,12 +241,16 @@ typedef enum {
     NC = (int)0xFFFFFFFF
 } PinName;
 
-/* PullDown not available for KL25 */
-typedef enum {
-    PullNone = 0,
-    PullUp = 2,
-    PullDefault = PullUp
-} PinMode;
+static const int PinModes[] = {
+  0,    // PullNone bitmask
+  2,    // PullUp bitmask
+  -1,   // PullDown not supported
+  -1,   // OpenDrain not supported
+  -1    // Repeater not supported
+};
+
+static const PinMode PullDefault = PullUp;
+
 
 #ifdef __cplusplus
 }
