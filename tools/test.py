@@ -37,6 +37,11 @@ if __name__ == '__main__':
         # Parse Options
         parser = get_default_options_parser()
         
+        parser.add_option("-D", "",
+                          action="append",
+                          dest="macros",
+                          help="Add a macro definition")
+        
         parser.add_option("-j", "--jobs",
                           type="int",
                           dest="jobs",
@@ -133,6 +138,7 @@ if __name__ == '__main__':
                                             report=build_report,
                                             properties=build_properties,
                                             name="mbed-os",
+                                            macros=options.macros,
                                             archive=False)
             
             # Build all the tests
@@ -141,6 +147,7 @@ if __name__ == '__main__':
                     clean=options.clean,
                     report=build_report,
                     properties=build_properties,
+                    macros=options.macros,
                     jobs=options.jobs)
             
             # If a path to a test spec is provided, write it to a file
