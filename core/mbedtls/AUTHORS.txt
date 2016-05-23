@@ -1,0 +1,39 @@
+  2669	Manuel Pégourié-Gonnard
+  1411	Paul Bakker
+   126	Simon Butcher
+    35	Rich Evans
+    26	Janos Follath
+    10	Mansour Moufid
+    10	SimonB
+     9	Robert Cragie
+     6	Alfred Klomp
+     6	Irit Arkin
+     5	Alon Bar-Lev
+     5	Peter Vaskovic
+     4	Jonathan Leroy
+     3	Barry K. Nathan
+     3	Gergely Budai
+     3	Nicholas Wilson
+     3	Steffan Karger
+     3	hasufell
+     2	James Cowgill
+     2	ptahpeteh
+     1	Alex Wilson
+     1	Andre Heinecke
+     1	Bogdan Marinescu
+     1	Brian Daniels
+     1	Brian White
+     1	Daniel Kahn Gillmor
+     1	Embedthis Software
+     1	Jeremie Miller
+     1	Markus Pfeiffer
+     1	Matyas Dolak
+     1	Pascal Bach
+     1	Pascal Junod
+     1	Peter Dettman
+     1	Reini Urban
+     1	Sander Niemeijer
+     1	Shuo Chen
+     1	Tillmann Karras
+     1	veggie
+     1	wslfa
