@@ -40,7 +40,7 @@ uint32_t PreviousVal = 0;
 void us_ticker_irq_handler(void);
 void set_compare(uint16_t count);
 
-extern volatile uint32_t SlaveCounter;
+extern volatile uint16_t SlaveCounter;
 extern volatile uint32_t oc_int_part;
 extern volatile uint16_t oc_rem_part;
 
