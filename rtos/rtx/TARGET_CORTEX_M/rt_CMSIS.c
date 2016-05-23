@@ -842,7 +842,7 @@ uint8_t osThreadGetState (osThreadId thread_id) {
   if (__get_IPSR() != 0U) return osErrorISR;     // Not allowed in ISR
 
   ptcb = rt_tid2ptcb(thread_id);                // Get TCB pointer
-  if (ptcb == NULL) return osErrorParameter;
+  if (ptcb == NULL) return INACTIVE;
 
   return ptcb->state;
 }
