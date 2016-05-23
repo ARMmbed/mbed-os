@@ -55,6 +55,22 @@ void sleep(void);
  */
 void deepsleep(void);
 
+
+/** Send the microcontroller to ultra deep sleep (VLLS0 with POR disabled)
+ *
+ * This processor is setup ready for deep sleep, and sent to sleep using __WFI(). This mode
+ * has the same sleep features as sleep plus it powers down all peripherals and clocks. All state
+ * is OFF.
+ *
+ * The processor can only be woken up by an external RESET or NMI interrupt.
+ *
+ * @note
+ *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
+ * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
+ * able to access the LocalFileSystem
+ */
+void ultradeepsleep(void);
+
 #ifdef __cplusplus
 }
 #endif
