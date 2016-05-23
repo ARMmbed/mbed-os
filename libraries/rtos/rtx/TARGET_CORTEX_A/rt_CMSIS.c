@@ -1312,6 +1312,7 @@ __NO_RETURN void osTimerThread (void const *argument) {
 SVC_2_1(svcSignalSet,             int32_t, osThreadId, int32_t,  RET_int32_t)
 SVC_2_1(svcSignalClear,           int32_t, osThreadId, int32_t,  RET_int32_t)
 SVC_2_3(svcSignalWait,  os_InRegs osEvent, int32_t,    uint32_t, RET_osEvent)
+SVC_2_3(svcSignalWaitOr,  os_InRegs osEvent, int32_t,    uint32_t, RET_osEvent)
 
 // Signal Service Calls
 
@@ -1386,6 +1387,43 @@ os_InRegs osEvent_type svcSignalWait (int32_t signals, uint32_t millisec) {
 #endif
 }
 
+/// Wait for one or more Signal OR-ed Flags to become signaled for the current RUNNING thread
+os_InRegs osEvent_type svcSignalWaitOr (int32_t signals, uint32_t millisec) {
+  OS_RESULT res;
+  osEvent   ret;
+
+  if (signals & (0xFFFFFFFF << osFeature_Signals)) {
+    ret.status = osErrorValue;
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+    osEvent_ret_status;
+    return;
+#else
+    return osEvent_ret_status;
+#endif
+  }
+
+  if (signals != 0) {                           // Wait for all specified signals
+    res = rt_evt_wait(signals, rt_ms2tick(millisec), __FALSE);
+  } else {                                      // Wait for any signal
+    res = rt_evt_wait(0xFFFF,  rt_ms2tick(millisec), __FALSE);
+  }
+
+  if (res == OS_R_EVT) {
+    ret.status = osEventSignal;
+    ret.value.signals = os_tsk.run->waits;
+  } else {
+    ret.status = millisec ? osEventTimeout : osOK;
+    ret.value.signals = 0;
+  }
+
+#if defined (__GNUC__) && defined (__ARM_PCS_VFP)
+  osEvent_ret_value;
+  return;
+#else
+  return osEvent_ret_value;
+#endif
+}
+
 
 // Signal ISR Calls
 
@@ -1433,6 +1471,17 @@ os_InRegs osEvent osSignalWait (int32_t signals, uint32_t millisec) {
     return ret;
   }
   return __svcSignalWait(signals, millisec);
+}
+
+/// Wait for one or more Signal OR-ed Flags to become signaled for the current RUNNING thread
+os_InRegs osEvent osSignalWaitOr (int32_t signals, uint32_t millisec) {
+  osEvent ret;
+
+  if (__exceptional_mode()) {                      // Not allowed in ISR
+    ret.status = osErrorISR;
+    return ret;
+  }
+  return __svcSignalWaitOr(signals, millisec);
 }
 
 
