@@ -176,6 +176,7 @@ class SingleTestRunner(object):
                  _opts_peripheral_by_names=None,
                  _opts_test_only_peripheral=False,
                  _opts_test_only_common=False,
+                 _opts_include_unsupported=False,
                  _opts_verbose_skipped_tests=False,
                  _opts_verbose_test_result_only=False,
                  _opts_verbose=False,
@@ -231,6 +232,7 @@ class SingleTestRunner(object):
         self.opts_peripheral_by_names = _opts_peripheral_by_names
         self.opts_test_only_peripheral = _opts_test_only_peripheral
         self.opts_test_only_common = _opts_test_only_common
+        self.opts_include_unsupported = _opts_include_unsupported
         self.opts_verbose_skipped_tests = _opts_verbose_skipped_tests
         self.opts_verbose_test_result_only = _opts_verbose_test_result_only
         self.opts_verbose = _opts_verbose
@@ -649,7 +651,10 @@ class SingleTestRunner(object):
                     print self.logger.log_line(self.logger.LogType.INFO, 'Non automated test skipped for target %s'% (target))
                 continue
 
-            if test.is_supported(target, toolchain):
+            if self.opts_include_unsupported:
+                # If specfied, build all tests
+                valid_test_map_keys.append(test_id)
+            elif test.is_supported(target, toolchain):
                 if test.peripherals is None and self.opts_only_build_tests:
                     # When users are using 'build only flag' and test do not have
                     # specified peripherals we can allow test building by default
@@ -1775,6 +1780,11 @@ def get_default_test_options_parser():
                       default=False,
                       action="store_true",
                       help='Test only board internals. Skip perpherials tests and perform common tests')
+                      
+    parser.add_option("--include-unsupported",
+                      action="store_true",
+                      dest="include_unsupported",
+                      help="Allow 'unsupported' tests to be built")
 
     parser.add_option('-n', '--test-by-names',
                       dest='test_by_names',

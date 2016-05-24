@@ -239,6 +239,7 @@ if __name__ == '__main__':
                                    _opts_peripheral_by_names=opts.peripheral_by_names,
                                    _opts_test_only_peripheral=opts.test_only_peripheral,
                                    _opts_test_only_common=opts.test_only_common,
+                                   _opts_include_unsupported=opts.include_unsupported,
                                    _opts_verbose_skipped_tests=opts.verbose_skipped_tests,
                                    _opts_verbose_test_result_only=opts.verbose_test_result_only,
                                    _opts_verbose=opts.verbose,
