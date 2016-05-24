@@ -17,6 +17,16 @@
 #
 ###########################################################################
 
+#
+# Use this file to import an mbed TLS release into mbed-OS as follows:
+# 1) set the MBED_TLS_RELEASE to the correct mbed TLS release tag
+# 2) make update
+# 3) make
+# 4) commit and push changes via git
+#
+# WARNING! To import the hardware acceleration sample code the latest revision
+# will be checked out from the master branch of its own repository.
+
 # Set the mbed TLS release to import (this can/should be edited before import)
 MBED_TLS_RELEASE:=yotta-2.3.0
 
@@ -70,6 +80,8 @@ deploy: rsync
 update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
 	# Updating to latest mbed TLS library version
+	# (If it is not an initial checkout we will start with the repo
+	# being in a detached head state)
 	git -C $(MBED_TLS_DIR) checkout development
 	git -C $(MBED_TLS_DIR) pull --rebase origin development
 	#
