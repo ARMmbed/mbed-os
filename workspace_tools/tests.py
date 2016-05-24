@@ -252,22 +252,6 @@ TESTS = [
         "automated": True,
     },
     {
-        "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
-        "source_dir": join(TEST_DIR, "mbed", "spifi1"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
-        "duration": 30,
-        "mcu": ["LPC4088","LPC4088_DM"]
-    },
-    {
-        "id": "MBED_A23", "description": "SPIFI for LPC4088 (test 2)",
-        "source_dir": join(TEST_DIR, "mbed", "spifi2"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
-        "duration": 30,
-        "mcu": ["LPC4088","LPC4088_DM"]
-    },
-    {
         "id": "MBED_A24", "description": "Serial echo with RTS/CTS flow control",
         "source_dir": join(TEST_DIR, "mbed", "echo_flow_control"),
         "dependencies": [MBED_LIBRARIES],
@@ -580,11 +564,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
                 "NUCLEO_F072RB", "NUCLEO_F042K6"]
-    },
-    {
-        "id": "MBED_31", "description": "PWM LED test",
-        "source_dir": join(TEST_DIR, "mbed", "pwm_led"),
-        "dependencies": [MBED_LIBRARIES],
     },
     {
         "id": "MBED_32", "description": "Pin toggling",
@@ -982,25 +961,11 @@ TESTS = [
         "mcu": ["KL25Z"],
     },
     {
-        "id": "KL25Z_3", "description": "TSI Touch Sensor",
-        "source_dir": join(TEST_DIR, "mbed", "tsi"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'TSI')],
-        "mcu": ["KL25Z"],
-    },
-    {
         "id": "KL25Z_4", "description": "RTC",
         "source_dir": join(TEST_DIR, "KL25Z", "rtc"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["KL25Z"],
     },
-    {
-        "id": "KL25Z_5", "description": "MMA8451Q accelerometer",
-        "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
-        "mcu": ["KL25Z", "KL05Z", "KL46Z", "K20D50M"],
-        "automated": True,
-        "duration": 15,
-        },
 
     # Examples
     {
