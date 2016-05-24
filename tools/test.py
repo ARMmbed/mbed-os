@@ -40,8 +40,8 @@ if __name__ == '__main__':
         parser.add_option("-j", "--jobs",
                           type="int",
                           dest="jobs",
-                          default=1,
-                          help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
+                          default=0,
+                          help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
         parser.add_option("--source", dest="source_dir",
                           default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", action="append")
