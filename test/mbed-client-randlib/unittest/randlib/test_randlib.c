@@ -4,6 +4,7 @@
 #include "test_randlib.h"
 #include <string.h>
 #include <inttypes.h>
+#include "randLIB.h"
 
 bool test_randLIB_seed_random()
 {
