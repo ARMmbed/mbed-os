@@ -1,4 +1,5 @@
 colorama
+pyelftools
 pyserial
 prettytable
 Jinja2
