@@ -109,8 +109,10 @@ def build_project(src_path, build_path, target, toolchain_name,
 
     if report != None:
         start = time()
-        id_name = project_id.upper()
-        description = project_description
+        
+        # If project_id is specified, use that over the default name
+        id_name = project_id.upper() if project_id else name.upper()
+        description = project_description if project_description else name
         vendor_label = target.extra_labels[0]
         cur_result = None
         prep_report(report, target.name, toolchain_name, id_name)
@@ -190,7 +192,8 @@ def build_project(src_path, build_path, target, toolchain_name,
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False, archive=True,
          notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None,
-         jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
+         jobs=1, silent=False, report=None, properties=None, extra_verbose=False,
+         project_id=None):
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
@@ -213,7 +216,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     if report != None:
         start = time()
-        id_name = name.upper()
+        
+        # If project_id is specified, use that over the default name
+        id_name = project_id.upper() if project_id else name.upper()
         description = name
         vendor_label = target.extra_labels[0]
         cur_result = None

@@ -17,7 +17,8 @@ limitations under the License.
 Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 
-from tools.utils import construct_enum
+from tools.utils import construct_enum, mkdir
+import os
 
 
 ResultExporterType = construct_enum(HTML='Html_Exporter',
@@ -97,6 +98,9 @@ class ReportExporter():
 
     def write_to_file(self, report, file_name):
         if report is not None:
+            dirname = os.path.dirname(file_name)
+            if dirname:
+                mkdir(dirname)
             with open(file_name, 'w') as f:
                 f.write(report)
 
