@@ -43,7 +43,7 @@ I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 #define TEST_SCL_PIN PA09
 I2C i2c(TEST_SDA_PIN, TEST_SCL_PIN);
 #else
-I2C i2c(p28, p27);
+    #error [NOT_SUPPORTED] Pins mapping is not configured
 #endif
 
 int main() {
