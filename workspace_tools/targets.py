@@ -1321,6 +1321,18 @@ class NZ32_SC151(Target):
         return 1.5
 
 
+### Olimex ###
+#
+class OLIMEX_STM32_H405(Target):
+    def __init__(self):
+        Target.__init__(self)
+        self.core = "Cortex-M4F"
+        self.extra_labels = ['STM', 'STM32F4', 'STM32F405', 'STM32F405RGT6']
+        # self.macros = ['HSE_VALUE=8000000']
+        self.supported_toolchains = ["GCC_ARM"]
+        self.default_toolchain = "GCC_ARM"
+
+
 ### Nordic ###
 
 class MCU_NRF51(Target):
@@ -2245,6 +2257,9 @@ TARGETS = [
     DISCO_F401VC(),
     UBLOX_C029(),       # STM32F439
     NZ32_SC151(),       # STM32L151
+
+    ### Olimex ###
+    OLIMEX_STM32_H405(), # STM32F405
 
     ### Nordic ###
     NRF51822(),             # nRF51_16K
