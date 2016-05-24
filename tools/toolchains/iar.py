@@ -149,7 +149,7 @@ class IAR(mbedToolchain):
         cmd = [self.ld, "-o", output, "--skip_dynamic_initialization", "--map=%s" % map_file] + objects + libraries
 
         if mem_map:
-            args.extend(["--config", mem_map])
+            cmd.extend(["--config", mem_map])
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_linker(cmd)
