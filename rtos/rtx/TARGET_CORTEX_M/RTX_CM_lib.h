@@ -624,11 +624,18 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
+osMutexDef(malloc_mutex);
+static osMutexId malloc_mutex_id;
+osMutexDef(env_mutex);
+static osMutexId env_mutex_id;
+
 extern void __libc_fini_array(void);
 extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
 
 void pre_main(void) {
+    malloc_mutex_id = osMutexCreate(osMutex(malloc_mutex));
+    env_mutex_id = osMutexCreate(osMutex(env_mutex));
     atexit(__libc_fini_array);
     __libc_init_array();
     main(0, NULL);
@@ -649,6 +656,29 @@ __attribute__((naked)) void software_init_hook (void) {
     /* osKernelStart should not return */
     "B       .\n"
   );
+}
+
+// Opaque declaration of _reent structure
+struct _reent;
+
+void __malloc_lock( struct _reent *_r )
+{
+    osMutexWait(malloc_mutex_id, osWaitForever);
+}
+
+void __malloc_unlock( struct _reent *_r )
+{
+    osMutexRelease(malloc_mutex_id);
+}
+
+void __env_lock( struct _reent *_r )
+{
+    osMutexWait(env_mutex_id, osWaitForever);
+}
+
+void __env_unlock( struct _reent *_r )
+{
+    osMutexRelease(env_mutex_id);
 }
 
 #elif defined (__ICCARM__)
