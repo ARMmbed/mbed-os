@@ -378,11 +378,6 @@ TESTS = [
         #"host_test": "stdio_auto"
     },
     {
-        "id": "MBED_3", "description": "PortOut",
-        "source_dir": join(TEST_DIR, "mbed", "portout"),
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
         "id": "MBED_4", "description": "Sleep",
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
@@ -393,18 +388,6 @@ TESTS = [
         "id": "MBED_5", "description": "PWM",
         "source_dir": join(TEST_DIR, "mbed", "pwm"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB]
-    },
-    {
-        "id": "MBED_6", "description": "SW Reset",
-        "source_dir": join(TEST_DIR, "mbed", "reset"),
-        "dependencies": [MBED_LIBRARIES],
-        "duration": 15
-    },
-    {
-        "id": "MBED_7", "description": "stdio  benchmark",
-        "source_dir": join(TEST_DIR, "mbed", "stdio_benchmark"),
-        "dependencies": [MBED_LIBRARIES],
-        "duration": 40
     },
     {
         "id": "MBED_8", "description": "SPI",
@@ -478,11 +461,6 @@ TESTS = [
         "duration": 15
     },
     {
-        "id": "MBED_17", "description": "Serial Interrupt 2",
-        "source_dir": join(TEST_DIR, "mbed", "serial_interrupt_2"),
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
         "id": "MBED_18", "description": "Local FS Directory",
         "source_dir": join(TEST_DIR, "mbed", "dir"),
         "dependencies": [MBED_LIBRARIES],
@@ -492,11 +470,6 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "dir_sd"),
         "dependencies": [MBED_LIBRARIES, FS_LIBRARY],
         "peripherals": ["SD"]
-    },
-    {
-        "id": "MBED_20", "description": "InterruptIn 2",
-        "source_dir": join(TEST_DIR, "mbed", "interruptin_2"),
-        "dependencies": [MBED_LIBRARIES],
     },
     {
         "id": "MBED_21", "description": "freopen Stream",
@@ -550,25 +523,6 @@ TESTS = [
         "id": "MBED_28", "description": "Interrupt chaining (InterruptManager)",
         "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-    },
-    {
-        "id": "MBED_29", "description": "CAN network test",
-        "source_dir": join(TEST_DIR, "mbed", "can"),
-        "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
-                "NUCLEO_F072RB", "NUCLEO_F042K6"]
-    },
-    {
-        "id": "MBED_30", "description": "CAN network test using interrupts",
-        "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
-        "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
-                "NUCLEO_F072RB", "NUCLEO_F042K6"]
-    },
-    {
-        "id": "MBED_32", "description": "Pin toggling",
-        "source_dir": join(TEST_DIR, "mbed", "pin_toggling"),
-        "dependencies": [MBED_LIBRARIES],
     },
     {
         "id": "MBED_33", "description": "C string operations",
@@ -974,11 +928,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         #"host_test" : "dev_null_auto",
-    },
-    {
-        "id": "EXAMPLE_2", "description": "FS + RTOS",
-        "source_dir": join(TEST_DIR, "mbed", "fs"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
     },
 
     # CPPUTEST Library provides Unit testing Framework
