@@ -40,6 +40,7 @@
 #include "rt_MemBox.h"
 #include "rt_Robin.h"
 #include "rt_HAL_CM.h"
+#include "rt_OsEventObserver.h"
 
 /*----------------------------------------------------------------------------
  *      Global Variables
@@ -101,6 +102,9 @@ void rt_switch_req (P_TCB p_new) {
   /* Switch to next task (identified by "p_new"). */
   os_tsk.new_tsk   = p_new;
   p_new->state = RUNNING;
+  if (osEventObs && osEventObs->thread_switch) {
+    osEventObs->thread_switch(p_new->context);
+  }
   DBG_TASK_SWITCH(p_new->task_id);
 }
 

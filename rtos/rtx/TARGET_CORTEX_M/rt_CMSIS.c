@@ -65,6 +65,7 @@
 #include "rt_MemBox.h"
 #include "rt_Memory.h"
 #include "rt_HAL_CM.h"
+#include "rt_OsEventObserver.h"
 
 #include "cmsis_os.h"
 
@@ -504,6 +505,10 @@ osStatus svcKernelStart (void) {
 
   if (os_running) { return osOK; }
 
+  if (osEventObs && osEventObs->pre_start) {
+    osEventObs->pre_start();
+  }
+
   rt_tsk_prio(0U, os_tsk.run->prio_base);       // Restore priority
   if (os_tsk.run->task_id == 0xFFU) {           // Idle Thread
     __set_PSP(os_tsk.run->tsk_stack + (8U*4U)); // Setup PSP
@@ -683,6 +688,12 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
 
   *((uint32_t *)ptcb->tsk_stack + 13) = (uint32_t)osThreadExit;
 
+  if (osEventObs && osEventObs->thread_create) {
+    ptcb->context = osEventObs->thread_create(ptcb->task_id, context);
+  } else {
+    ptcb->context = context;
+  }
+
   return ptcb;
 }
 
@@ -711,6 +722,10 @@ osStatus svcThreadTerminate (osThreadId thread_id) {
 #ifndef __MBED_CMSIS_RTOS_CM
   stk = ptcb->priv_stack ? ptcb->stack : NULL;  // Private stack
 #endif
+
+  if (osEventObs && osEventObs->thread_destroy) {
+    osEventObs->thread_destroy(ptcb->context);
+  }
 
   res = rt_tsk_delete(ptcb->task_id);           // Delete task
 
