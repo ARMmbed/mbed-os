@@ -1119,14 +1119,13 @@ class Test:
         self.__dict__.update(TESTS[n])
 
     def is_supported(self, target, toolchain):
-        return True
-        #if hasattr(self, 'mcu') and not target in self.mcu:
-        #    return False
-        #if hasattr(self, 'exclude_mcu') and target in self.exclude_mcu:
-        #    return False
-        #if not hasattr(self, 'supported'):
-        #    return True
-        #return (target in self.supported) and (toolchain in self.supported[target])
+        if hasattr(self, 'mcu') and not target in self.mcu:
+            return False
+        if hasattr(self, 'exclude_mcu') and target in self.exclude_mcu:
+            return False
+        if not hasattr(self, 'supported'):
+            return True
+        return (target in self.supported) and (toolchain in self.supported[target])
 
     def get_description(self):
         if self.description:
