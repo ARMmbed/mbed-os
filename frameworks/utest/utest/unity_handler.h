@@ -22,9 +22,9 @@
 #include <stdint.h>
 
 /// this function is called from the unity module when an assertion failed.
-void utest_unity_assert_failure();
+void utest_unity_assert_failure(void);
 
 /// this function is called from the unity module when an assertion failed, but is ignored.
-void utest_unity_ignore_failure();
+void utest_unity_ignore_failure(void);
 
 #endif // UTEST_UNITY_ASSERT_FAILURE_H
