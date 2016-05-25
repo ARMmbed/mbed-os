@@ -28,7 +28,7 @@
 
 // Attributes
 
-/** PACKED
+/** MBED_PACKED
  *  Pack a structure, preventing any padding from being added between fields.
  *
  *  @code
@@ -37,55 +37,55 @@
  *  typedef struct {
  *      char x;
  *      int y;
- *  } PACKED foo;
+ *  } MBED_PACKED foo;
  *  @endcode
  */
-#ifndef PACKED
+#ifndef MBED_PACKED
 #if defined(__ICCARM__)
-#define PACKED __packed
+#define MBED_PACKED __packed
 #else
-#define PACKED __attribute__((packed))
+#define MBED_PACKED __attribute__((packed))
 #endif
 #endif
 
-/** ALIGN(N)
+/** MBED_ALIGN(N)
  *  Declare a variable to be aligned on an N-byte boundary.
  *  
  *  @code
  *  #include "toolchain.h"
  *
- *  ALIGN(16) char a;
+ *  MBED_ALIGN(16) char a;
  *  @endcode
  */
-#ifndef ALIGN
+#ifndef MBED_ALIGN
 #if defined(__ICCARM__)
-#define _ALIGN(N) _Pragma(#N)
-#define ALIGN(N) _ALIGN(data_alignment=N)
+#define _MBED_ALIGN(N) _Pragma(#N)
+#define MBED_ALIGN(N) _MBED_ALIGN(data_alignment=N)
 #else
-#define ALIGN(N) __attribute__((aligned(N)))
+#define MBED_ALIGN(N) __attribute__((aligned(N)))
 #endif
 #endif
 
-/** UNUSED
+/** MBED_UNUSED
  *  Declare a function argument to be unused, suppressing compiler warnings
  *
  *  @code
  *  #include "toolchain.h"
  *
- *  void foo(UNUSED int arg) {
+ *  void foo(MBED_UNUSED int arg) {
  *
  *  }
  *  @endcode
  */
-#ifndef UNUSED
+#ifndef MBED_UNUSED
 #if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
-#define UNUSED __attribute__((__unused__))
+#define MBED_UNUSED __attribute__((__unused__))
 #else
-#define UNUSED
+#define MBED_UNUSED
 #endif
 #endif
 
-/** WEAK
+/** MBED_WEAK
  *  Mark a function as being weak.
  *  
  *  @note
@@ -97,84 +97,84 @@
  *  @code
  *  #include "toolchain.h"
  *  
- *  WEAK void foo() {
+ *  MBED_WEAK void foo() {
  *      // a weak implementation of foo that can be overriden by a definition
  *      // without  __weak
  *  }
  *  @endcode
  */
-#ifndef WEAK
+#ifndef MBED_WEAK
 #if defined(__ICCARM__)
-#define WEAK __weak
+#define MBED_WEAK __weak
 #else
-#define WEAK __attribute__((weak))
+#define MBED_WEAK __attribute__((weak))
 #endif
 #endif
 
-/** PURE
+/** MBED_PURE
  *  Hint to the compiler that a function depends only on parameters
  *
  *  @code
  *  #include "toolchain.h"
  *
- *  PURE int foo(int arg){
+ *  MBED_PURE int foo(int arg){
  *      // no access to global variables
  *  }
  *  @endcode
  */
-#ifndef PURE
+#ifndef MBED_PURE
 #if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
-#define PURE __attribute__((const))
+#define MBED_PURE __attribute__((const))
 #else
-#define PURE
+#define MBED_PURE
 #endif
 #endif
 
-/** FORCEINLINE
+/** MBED_FORCEINLINE
  *  Declare a function that must always be inlined. Failure to inline
  *  such a function will result in an error.
  *
  *  @code
  *  #include "toolchain.h"
  *  
- *  FORCEINLINE void foo() {
+ *  MBED_FORCEINLINE void foo() {
  *  
  *  }
  *  @endcode
  */
-#ifndef FORCEINLINE
+#ifndef MBED_FORCEINLINE
 #if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
-#define FORCEINLINE static inline __attribute__((always_inline))
+#define MBED_FORCEINLINE static inline __attribute__((always_inline))
 #elif defined(__ICCARM__)
-#define FORCEINLINE _Pragma("inline=force") static
+#define MBED_FORCEINLINE _Pragma("inline=force") static
 #else
-#define FORCEINLINE static inline
+#define MBED_FORCEINLINE static inline
 #endif
 #endif
 
-/** NORETURN
+/** MBED_NORETURN
  *  Declare a function that will never return.
  *
  *  @code
  *  #include "toolchain.h"
  *  
- *  NORETURN void foo() {
+ *  MBED_NORETURN void foo() {
  *      // must never return
  *      while (1) {}
  *  }
  *  @endcode
  */
-#ifndef NORETURN
+#ifndef MBED_NORETURN
 #if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
-#define NORETURN __attribute__((noreturn))
+#define MBED_NORETURN __attribute__((noreturn))
 #elif defined(__ICCARM__)
-#define NORETURN __noreturn
+#define MBED_NORETURN __noreturn
 #else
-#define NORETURN
+#define MBED_NORETURN
 #endif
 #endif
 
-/** UNREACHABLE
+/** MBED_UNREACHABLE
  *  An unreachable statement. If the statement is reached,
  *  behaviour is undefined. Useful in situations where the compiler
  *  cannot deduce the unreachability of code.
@@ -188,19 +188,19 @@
  *          case 2: return 2;
  *          ...
  *      }
- *      UNREACHABLE;
+ *      MBED_UNREACHABLE;
  *  }
  *  @endcode
  */
-#ifndef UNREACHABLE
+#ifndef MBED_UNREACHABLE
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__CC_ARM)
-#define UNREACHABLE __builtin_unreachable()
+#define MBED_UNREACHABLE __builtin_unreachable()
 #else
-#define UNREACHABLE while (1)
+#define MBED_UNREACHABLE while (1)
 #endif
 #endif
 
-/** DEPRECATED("message string")
+/** MBED_DEPRECATED("message string")
  *  Mark a function declaration as deprecated, if it used then a warning will be
  *  issued by the compiler possibly including the provided message. Note that not
  *  all compilers are able to display the message.
@@ -208,17 +208,17 @@
  *  @code
  *  #include "toolchain.h"
  *  
- *  DEPRECATED("don't foo any more, bar instead")
+ *  MBED_DEPRECATED("don't foo any more, bar instead")
  *  void foo(int arg);
  *  @endcode
  */
-#ifndef DEPRECATED
+#ifndef MBED_DEPRECATED
 #if defined(__GNUC__) || defined(__clang__)
-#define DEPRECATED(M) __attribute__((deprecated(M)))
+#define MBED_DEPRECATED(M) __attribute__((deprecated(M)))
 #elif defined(__CC_ARM)
-#define DEPRECATED(M) __attribute__((deprecated))
+#define MBED_DEPRECATED(M) __attribute__((deprecated))
 #else
-#define DEPRECATED(M)
+#define MBED_DEPRECATED(M)
 #endif
 #endif
 
@@ -233,6 +233,10 @@ typedef int FILEHANDLE;
 #endif
 
 // Backwards compatibility
+#ifndef WEAK
+#define WEAK MBED_WEAK
+#endif
+
 #ifndef EXTERN
 #define EXTERN extern
 #endif
