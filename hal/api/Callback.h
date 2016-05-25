@@ -106,6 +106,9 @@ public:
     /** Call the attached function
      */
     R call(A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
+        if (!_thunk) {
+            return (R)0;
+        }
         return _thunk(_obj, &_func, a0, a1, a2, a3, a4);
     }
 
@@ -244,6 +247,9 @@ public:
     /** Call the attached function
      */
     R call(A0 a0, A1 a1, A2 a2, A3 a3) {
+        if (!_thunk) {
+            return (R)0;
+        }
         return _thunk(_obj, &_func, a0, a1, a2, a3);
     }
 
@@ -382,6 +388,9 @@ public:
     /** Call the attached function
      */
     R call(A0 a0, A1 a1, A2 a2) {
+        if (!_thunk) {
+            return (R)0;
+        }
         return _thunk(_obj, &_func, a0, a1, a2);
     }
 
@@ -520,6 +529,9 @@ public:
     /** Call the attached function
      */
     R call(A0 a0, A1 a1) {
+        if (!_thunk) {
+            return (R)0;
+        }
         return _thunk(_obj, &_func, a0, a1);
     }
 
@@ -658,6 +670,9 @@ public:
     /** Call the attached function
      */
     R call(A0 a0) {
+        if (!_thunk) {
+            return (R)0;
+        }
         return _thunk(_obj, &_func, a0);
     }
 
@@ -796,7 +811,7 @@ public:
     /** Call the attached function
      */
     R call() {
-        if (NULL == _thunk) {
+        if (!_thunk) {
             return (R)0;
         }
         return _thunk(_obj, &_func);
