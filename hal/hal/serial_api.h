@@ -80,18 +80,18 @@ typedef enum {
 typedef void (*uart_irq_handler)(uint32_t id, SerialIrq event);
 
 #if DEVICE_SERIAL_ASYNCH
-/** Asynch serial hal structure
+/** Asynch serial HAL structure
  */
 typedef struct {
     struct serial_s serial;  /**< Target specific serial structure */
-    struct buffer_s tx_buff; /**< Tx buffer */
-    struct buffer_s rx_buff; /**< Rx buffer */
+    struct buffer_s tx_buff; /**< TX buffer */
+    struct buffer_s rx_buff; /**< RX buffer */
     uint8_t char_match;      /**< Character to be matched */
     uint8_t char_found;      /**< State of the matched character */
 } serial_t;
 
 #else
-/** Non-asynch serial hal structure
+/** Non-asynch serial HAL structure
  */
 typedef struct serial_s serial_t;
 
@@ -102,16 +102,16 @@ extern "C" {
 #endif
 
 /**
- * \defgroup GeneralSerial Serial Configuration Functions
+ * \defgroup hal_GeneralSerial Serial Configuration Functions
  * @{
  */
 
 /** Initialize the serial peripheral. It sets the default parameters for serial
- *  peripheral, and configure its specifieds pins.
+ *  peripheral, and configures its specifieds pins.
  *
  * @param obj The serial object
- * @param tx  The TX pin
- * @param rx  The RX pin
+ * @param tx  The TX pin name
+ * @param rx  The RX pin name
  */
 void serial_init(serial_t *obj, PinName tx, PinName rx);
 
@@ -138,10 +138,10 @@ void serial_baud(serial_t *obj, int baudrate);
  */
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits);
 
-/** The serial interrupt handler registration.
+/** The serial interrupt handler registration
  *
  * @param obj     The serial object
- * @param handler The interrupt handler which will be invoked when interrupt fires.
+ * @param handler The interrupt handler which will be invoked when the interrupt fires
  * @param id      The SerialBase object
  */
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id);
@@ -160,7 +160,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable);
  */
 int  serial_getc(serial_t *obj);
 
-/** Put a character. This is a blocking call, waiting for a peripheral to be available
+/** Send a character. This is a blocking call, waiting for a peripheral to be available
  *  for writing
  *
  * @param obj The serial object
@@ -171,7 +171,7 @@ void serial_putc(serial_t *obj, int c);
 /** Check if the serial peripheral is readable
  *
  * @param obj The serial object
- * @return Non-zero value if a character can be read, 0 if nothing to read.
+ * @return Non-zero value if a character can be read, 0 if nothing to read
  */
 int  serial_readable(serial_t *obj);
 
@@ -202,7 +202,7 @@ void serial_break_clear(serial_t *obj);
 
 /** Configure the TX pin for UART function.
  *
- * @param tx The pin used for TX
+ * @param tx The pin name used for TX
  */
 void serial_pinout_tx(PinName tx);
 
@@ -211,8 +211,8 @@ void serial_pinout_tx(PinName tx);
  *
  * @param obj    The serial object
  * @param type   The type of the flow control. Look at the available FlowControl types.
- * @param rxflow The tx pin
- * @param txflow The rx pin
+ * @param rxflow The TX pin name
+ * @param txflow The RX pin name
  */
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow);
 
@@ -221,7 +221,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 /**@}*/
 
 /**
- * \defgroup AsynchSerial Asynchronous Serial Hardware Abstraction Layer
+ * \defgroup hal_AsynchSerial Asynchronous Serial Hardware Abstraction Layer
  * @{
  */
 
@@ -229,13 +229,13 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
  *  tx_buff
  *
  * @param obj       The serial object
- * @param tx        The buffer for sending
- * @param tx_length The number of words to transmit
- * @param tx_width  The bit width of buffer word
+ * @param tx        The transmit buffer
+ * @param tx_length The number of bytes to transmit
+ * @param tx_width  Deprecated argument
  * @param handler   The serial handler
  * @param event     The logical OR of events to be registered
  * @param hint      A suggestion for how to use DMA with this transfer
- * @return Returns number of data transfered, or 0 otherwise
+ * @return Returns number of data transfered, otherwise returns 0
  */
 int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint);
 
@@ -243,9 +243,9 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
  *  The used buffer is specified in the serial object - rx_buff
  *
  * @param obj        The serial object
- * @param rx         The buffer for sending
- * @param rx_length  The number of words to transmit
- * @param rx_width   The bit width of buffer word
+ * @param rx         The receive buffer
+ * @param rx_length  The number of bytes to receive
+ * @param rx_width   Deprecated argument
  * @param handler    The serial handler
  * @param event      The logical OR of events to be registered
  * @param handler    The serial handler
@@ -271,19 +271,19 @@ uint8_t serial_rx_active(serial_t *obj);
 /** The asynchronous TX and RX handler.
  *
  * @param obj The serial object
- * @return Returns event flags if a RX transfer termination condition was met or 0 otherwise
+ * @return Returns event flags if an RX transfer termination condition was met; otherwise returns 0
  */
 int serial_irq_handler_asynch(serial_t *obj);
 
 /** Abort the ongoing TX transaction. It disables the enabled interupt for TX and
- *  flush TX hardware buffer if TX FIFO is used
+ *  flushes the TX hardware buffer if TX FIFO is used
  *
  * @param obj The serial object
  */
 void serial_tx_abort_asynch(serial_t *obj);
 
-/** Abort the ongoing RX transaction It disables the enabled interrupt for RX and
- *  flush RX hardware buffer if RX FIFO is used
+/** Abort the ongoing RX transaction. It disables the enabled interrupt for RX and
+ *  flushes the RX hardware buffer if RX FIFO is used
  *
  * @param obj The serial object
  */
