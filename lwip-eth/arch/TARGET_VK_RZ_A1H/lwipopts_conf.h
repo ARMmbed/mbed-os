@@ -19,11 +19,8 @@
 #ifndef LWIPOPTS_CONF_H
 #define LWIPOPTS_CONF_H
 
-#include "k64f_emac_config.h"
-
 #define LWIP_TRANSPORT_ETHERNET       1
-#define ETH_PAD_SIZE                  2
 
-#define MEM_SIZE                      (ENET_RX_RING_LEN * (ENET_ETH_MAX_FLEN + ENET_BUFF_ALIGNMENT) + ENET_TX_RING_LEN * ENET_ETH_MAX_FLEN)
+#define MEM_SIZE                      (1600 * 16)
 
 #endif
