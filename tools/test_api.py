@@ -2043,15 +2043,20 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
-        bin_file = build_project(src_path, test_build_path, target, toolchain_name,
-                                 options=options,
-                                 jobs=jobs,
-                                 clean=clean,
-                                 macros=macros,
-                                 name=test_name,
-                                 report=report,
-                                 properties=properties,
-                                 verbose=verbose)
+        
+        try:
+            bin_file = build_project(src_path, test_build_path, target, toolchain_name,
+                                     options=options,
+                                     jobs=jobs,
+                                     clean=clean,
+                                     macros=macros,
+                                     name=test_name,
+                                     report=report,
+                                     properties=properties,
+                                     verbose=verbose)
+
+        except Exception, e:
+            continue
         
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.

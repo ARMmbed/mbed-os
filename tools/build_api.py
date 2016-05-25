@@ -306,7 +306,12 @@ def build_library(src_paths, build_path, target, toolchain_name,
     except Exception, e:
         if report != None:
             end = time()
-            cur_result["result"] = "FAIL"
+            
+            if isinstance(e, ToolException):
+                cur_result["result"] = "FAIL"
+            elif isinstance(e, NotSupportedException):
+                cur_result["result"] = "NOT_SUPPORTED"
+            
             cur_result["elapsed_time"] = end - start
 
             toolchain_output = toolchain.get_output()
