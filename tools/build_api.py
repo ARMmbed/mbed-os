@@ -26,7 +26,7 @@ from os.path import join, exists, basename, abspath
 from os import getcwd
 from time import time
 
-from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
+from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException
 from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
