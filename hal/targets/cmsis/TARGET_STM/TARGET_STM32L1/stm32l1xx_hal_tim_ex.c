@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_tim_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Timer extension peripheral:
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -58,7 +58,7 @@
   */
 
 /** @defgroup TIMEx TIMEx
-  * @brief TIM HAL module driver
+  * @brief TIM Extended HAL module driver
   * @{
   */
 
@@ -70,6 +70,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+
+/* Exported functions ---------------------------------------------------------*/
 
 /** @defgroup TIMEx_Exported_Functions TIMEx Exported Functions
   * @{
@@ -84,10 +86,8 @@
   ==============================================================================
   [..]
     This section provides functions allowing to:
-    (+) Configure the commutation event in case of use of the Hall sensor interface.
-      (+) Configure Complementary channels, break features and dead time.
-      (+) Configure Master synchronization.
-      (+) Configure timer remapping capabilities.
+    (+)Configure Master synchronization.
+    (+) Configure timer remapping capabilities.
 
 @endverbatim
   * @{
@@ -134,52 +134,52 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   * @param  htim: TIM handle.
   * @param  Remap: specifies the TIM remapping source.
   *         This parameter is a combination of the following values depending on TIM instance.
+  * @retval HAL status
   *
-  *         For TIM2, the parameter can have the following values:
+  * @note For TIM2, the parameter can have the following values:
   *            @arg TIM_TIM2_ITR1_TIM10_OC:      TIM2 ITR1 input is connected to TIM10 OC
   *            @arg TIM_TIM2_ITR1_TIM5_TGO:      TIM2 ITR1 input is connected to TIM5 TGO
   *
-  *         For TIM3, the parameter can have the following values:
+  * @note For TIM3, the parameter can have the following values:
   *            @arg TIM_TIM3_ITR2_TIM11_OC:      TIM3 ITR2 input is connected to TIM11 OC
   *            @arg TIM_TIM3_ITR2_TIM5_TGO:      TIM3 ITR2 input is connected to TIM5 TGO
   *
-  *         For TIM9, the parameter is a combination of 2 fields (field1 | field2):
-  *                   field1 can have the following values:
+  * @note For TIM9, the parameter is a combination of 2 fields (field1 | field2):
+  * @note For TIM9, the field1 can have the following values:
   *            @arg TIM_TIM9_ITR1_TIM3_TGO:      TIM9 ITR1 input is connected to TIM3 TGO
   *            @arg TIM_TIM9_ITR1_TS:            TIM9 ITR1 input is connected to touch sensing I/O
-  *                   field2 can have the following values:
+  * @note For TIM9, the field2 can have the following values:
   *            @arg TIM_TIM9_GPIO:               TIM9 Channel1 is connected to GPIO
   *            @arg TIM_TIM9_LSE:                TIM9 Channel1 is connected to LSE internal clock
   *            @arg TIM_TIM9_GPIO1:              TIM9 Channel1 is connected to GPIO
   *            @arg TIM_TIM9_GPIO2:              TIM9 Channel1 is connected to GPIO
   *
-  *         For TIM10, the parameter is a combination of 3 fields (field1 | field2 | field3):
-  *                   field1 can have the following values:
+  * @note For TIM10, the parameter is a combination of 3 fields (field1 | field2 | field3):
+  * @note For TIM10, the field1 can have the following values:
   *            @arg TIM_TIM10_TI1RMP:            TIM10 Channel 1 depends on TI1_RMP
   *            @arg TIM_TIM10_RI:                TIM10 Channel 1 is connected to RI
-  *                   field2 can have the following values:
+  * @note For TIM10, the field2 can have the following values:
   *            @arg TIM_TIM10_ETR_LSE:           TIM10 ETR input is connected to LSE clock
   *            @arg TIM_TIM10_ETR_TIM9_TGO:      TIM10 ETR input is connected to TIM9 TGO
-  *                   field3 can have the following values:
+  * @note For TIM10, the field3 can have the following values:
   *            @arg TIM_TIM10_GPIO:              TIM10 Channel1 is connected to GPIO
   *            @arg TIM_TIM10_LSI:               TIM10 Channel1 is connected to LSI internal clock
   *            @arg TIM_TIM10_LSE:               TIM10 Channel1 is connected to LSE internal clock
   *            @arg TIM_TIM10_RTC:               TIM10 Channel1 is connected to RTC wakeup interrupt
   *
-  *         For TIM11, the parameter is a combination of 3 fields (field1 | field2 | field3):
-  *                   field1 can have the following values:
+  * @note For TIM11, the parameter is a combination of 3 fields (field1 | field2 | field3):
+  * @note For TIM11, the field1 can have the following values:
   *            @arg TIM_TIM11_TI1RMP:            TIM11 Channel 1 depends on TI1_RMP
   *            @arg TIM_TIM11_RI:                TIM11 Channel 1 is connected to RI
-  *                   field2 can have the following values:
+  * @note For TIM11, the field2 can have the following values:
   *            @arg TIM_TIM11_ETR_LSE:           TIM11 ETR input is connected to LSE clock
   *            @arg TIM_TIM11_ETR_TIM9_TGO:      TIM11 ETR input is connected to TIM9 TGO 
-  *                   field3 can have the following values:
+  * @note For TIM11, the field3 can have the following values:
   *            @arg TIM_TIM11_GPIO:     TIM11 Channel1 is connected to GPIO           
   *            @arg TIM_TIM11_MSI:      TIM11 Channel1 is connected to MSI internal clock
   *            @arg TIM_TIM11_HSE_RTC:  TIM11 Channel1 is connected to HSE_RTC clock
   *            @arg TIM_TIM11_GPIO1:    TIM11 Channel1 is connected to GPIO
   *
-  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
 {
@@ -198,47 +198,6 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
 
   return HAL_OK;
 }
-
-/**
-  * @}
-  */
-
-/** @defgroup TIMEx_Exported_Functions_Group2 Extension Callbacks functions
- *  @brief   Extension Callbacks functions
- *
-@verbatim
-  ==============================================================================
-                    ##### Extension Callbacks functions #####
-  ==============================================================================
-  [..]
-    This section provides Extension TIM callback functions:
-    (+) Timer Commutation callback
-    (+) Timer Break callback
-
-@endverbatim
-  * @{
-  */
-
-
-/**
-  * @}
-  */
-
-/** @defgroup TIMEx_Exported_Functions_Group3 Extension Peripheral State functions
- *  @brief   Extension Peripheral State functions
- *
-@verbatim
-  ==============================================================================
-                ##### Extension Peripheral State functions #####
-  ==============================================================================
-  [..]
-    This subsection permit to get in run-time the status of the peripheral
-    and the data flow.
-
-@endverbatim
-  * @{
-  */
-
 
 /**
   * @}

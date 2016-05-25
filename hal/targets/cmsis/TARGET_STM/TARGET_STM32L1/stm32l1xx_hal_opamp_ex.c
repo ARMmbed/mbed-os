@@ -2,20 +2,20 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_opamp_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Extended OPAMP HAL module driver.
   *
   *          This file provides firmware functions to manage the following
-  *          functionalities of the Power Controller (OPAMP) peripheral:
+  *          functionalities of the operational amplifier(s)(OPAMP1, OPAMP2 etc)
+  *          peripheral:
   *           + Extended Initialization and de-initialization functions
   *           + Extended Peripheral Control functions
   *         
-  @verbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -45,6 +45,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
 
+#ifdef HAL_OPAMP_MODULE_ENABLED
+
+#if defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) || defined (STM32L162xC) || defined (STM32L152xC) || defined (STM32L151xC)
+
 /** @addtogroup STM32L1xx_HAL_Driver
   * @{
   */
@@ -54,17 +58,13 @@
   * @{
   */
 
-#ifdef HAL_OPAMP_MODULE_ENABLED
-
-#if defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) || defined (STM32L162xC) || defined (STM32L152xC) || defined (STM32L151xC)
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-  
+/* Exported functions --------------------------------------------------------*/
+
 /** @addtogroup OPAMPEx_Exported_Functions OPAMPEx Exported Functions
   * @{
   */
@@ -134,15 +134,15 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t tmp_OpaxSwitchesContextBackup = 0;
   
-  uint8_t trimming_diff_pair_iteration_count = 0;
-  uint8_t delta = 0;
-
+  uint8_t trimming_diff_pair_iteration_count = 0;       /* For calibration loop algorithm: to repeat the calibration loop for both differential transistors pair high and low */
+  uint8_t delta = 0;                                    /* For calibration loop algorithm: Variable for dichotomy steps value */
+  uint8_t final_step_check = 0;                         /* For calibration loop algorithm: Flag for additional check of last trimming step */
   
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
-  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) ||
-     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) ||
-     (hopamp3 == HAL_NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED)   ) 
+  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) ||
+     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED) ||
+     (hopamp3 == NULL) || (hopamp3->State == HAL_OPAMP_STATE_BUSYLOCKED)   ) 
   {
     status = HAL_ERROR;
   }
@@ -246,9 +246,9 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
           
           /* Set bit OPAMP_CSR_OPAXCALOUT default state when trimming value   */
           /* is 00000b. Used to detect the bit toggling during trimming.      */
-          tmp_Opa1calout_DefaultSate = __OPAMP_CSR_OPAXCALOUT(hopamp1);
-          tmp_Opa2calout_DefaultSate = __OPAMP_CSR_OPAXCALOUT(hopamp2);
-          tmp_Opa3calout_DefaultSate = __OPAMP_CSR_OPAXCALOUT(hopamp3);
+          tmp_Opa1calout_DefaultSate = OPAMP_CSR_OPAXCALOUT(hopamp1);
+          tmp_Opa2calout_DefaultSate = OPAMP_CSR_OPAXCALOUT(hopamp2);
+          tmp_Opa3calout_DefaultSate = OPAMP_CSR_OPAXCALOUT(hopamp3);
           
           /* Enable calibration for P differential pair */
           MODIFY_REG(OPAMP->CSR, OPAMP_CSR_OPAXCAL_H_ALL,
@@ -262,28 +262,36 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
         /*    can extend the search range to +/- 15 units.                    */
         /*  - Trimming initial value 15: search range will go from 0 to 30    */
         /*    (Trimming value 31 is forbidden).                               */
+        /* Note: After dichotomy sweep, the trimming result is determined.    */
+        /*       However, the final trimming step is deduced from previous    */
+        /*       trimming steps tested but is not effectively tested.         */
+        /*       An additional test step (using variable "final_step_check")  */
+        /*       allow to Test the final trimming step.                       */
         *opamp1_trimmingvalue = 15;
         *opamp2_trimmingvalue = 15;
         *opamp3_trimmingvalue = 15;
         delta = 16;
         
-        while (delta != 0)
+        while ((delta != 0) || (final_step_check == 1))
         {
           /* Set candidate trimming */
+          MODIFY_REG(*tmp_opamp1_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, *opamp1_trimmingvalue) | tmp_opamp1_otr_otuser);
 
-          MODIFY_REG(*tmp_opamp1_reg_trimming, __OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
-                                               __OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, *opamp1_trimmingvalue) | tmp_opamp1_otr_otuser);
+          MODIFY_REG(*tmp_opamp2_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, *opamp2_trimmingvalue) | tmp_opamp2_otr_otuser);
 
-          MODIFY_REG(*tmp_opamp2_reg_trimming, __OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
-                                               __OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, *opamp2_trimmingvalue) | tmp_opamp2_otr_otuser);
-
-          MODIFY_REG(*tmp_opamp3_reg_trimming, __OPAMP_OFFSET_TRIM_SET(hopamp3, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
-                                               __OPAMP_OFFSET_TRIM_SET(hopamp3, trimming_diff_pair, *opamp3_trimmingvalue) | tmp_opamp3_otr_otuser);
-
+          MODIFY_REG(*tmp_opamp3_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp3, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp3, trimming_diff_pair, *opamp3_trimmingvalue) | tmp_opamp3_otr_otuser);
           
           /* Offset trimming time: during calibration, minimum time needed    */
           /* between two steps to have 1 mV accuracy.                         */
           HAL_Delay(OPAMP_TRIMMING_DELAY);
+          
+          /* Set flag for additional check of last trimming step equal to     */
+          /* dichotomy step before its division by 2 (equivalent to previous  */
+          /* value of dichotomy step).                                        */
+          final_step_check = delta;
           
           /* Divide range by 2 to continue dichotomy sweep */
           delta >>= 1;
@@ -292,7 +300,9 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
           /* result toggle (versus initial state).                            */
           /* Trimming values update with dichotomy delta of previous          */
           /* iteration.                                                       */
-          if (READ_BIT(OPAMP->CSR, __OPAMP_CSR_OPAXCALOUT(hopamp1)) != tmp_Opa1calout_DefaultSate)
+          /* Note: on the last trimming loop, delta is equal to 0 and         */
+          /*       therefore has no effect.                                   */
+          if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp1)) != tmp_Opa1calout_DefaultSate)
           {
             /* If calibration output is has toggled, try lower trimming */
             *opamp1_trimmingvalue -= delta;
@@ -303,11 +313,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
             *opamp1_trimmingvalue += delta;
           }
           
-          /* Set trimming values for next iteration in function of trimming   */
-          /* result toggle (versus initial state).                            */
-          /* Trimming values update with dichotomy delta of previous          */
-          /* iteration.                                                       */
-          if (READ_BIT(OPAMP->CSR, __OPAMP_CSR_OPAXCALOUT(hopamp2)) != tmp_Opa2calout_DefaultSate)
+          if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp2)) != tmp_Opa2calout_DefaultSate)
           {
             /* If calibration output is has toggled, try lower trimming */
             *opamp2_trimmingvalue -= delta;
@@ -317,12 +323,8 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
             /* If calibration output is has not toggled, try higher trimming */
             *opamp2_trimmingvalue += delta;
           }
-            
-          /* Set trimming values for next iteration in function of trimming   */
-          /* result toggle (versus initial state).                            */
-          /* Trimming values update with dichotomy delta of previous          */
-          /* iteration.                                                       */
-          if (READ_BIT(OPAMP->CSR, __OPAMP_CSR_OPAXCALOUT(hopamp3)) != tmp_Opa3calout_DefaultSate)
+
+          if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp3)) != tmp_Opa3calout_DefaultSate)
           {
             /* If calibration output is has toggled, try lower trimming */
             *opamp3_trimmingvalue -= delta;
@@ -332,8 +334,39 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
             /* If calibration output is has not toggled, try higher trimming */
             *opamp3_trimmingvalue += delta;
           }
-          
         }
+        
+        /* Check trimming result of the selected step and perform final fine  */
+        /* trimming.                                                          */
+        /*  - If calibration output is has toggled: the current step is       */
+        /*    already optimized.                                              */
+        /*  - If calibration output is has not toggled: the current step can  */
+        /*    be optimized by incrementing it of one step.                    */
+        if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp1)) == tmp_Opa1calout_DefaultSate)
+        {
+          *opamp1_trimmingvalue += 1;
+          
+          /* Set final fine trimming */
+          MODIFY_REG(*tmp_opamp1_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, *opamp1_trimmingvalue) | tmp_opamp1_otr_otuser);
+        }
+        if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp2)) == tmp_Opa2calout_DefaultSate)
+        {
+          *opamp2_trimmingvalue += 1;
+          
+          /* Set final fine trimming */
+          MODIFY_REG(*tmp_opamp2_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, *opamp2_trimmingvalue) | tmp_opamp2_otr_otuser);
+        }
+        if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp3)) == tmp_Opa3calout_DefaultSate)
+        {
+          *opamp3_trimmingvalue += 1;
+          
+          /* Set final fine trimming */
+          MODIFY_REG(*tmp_opamp3_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp3, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp3, trimming_diff_pair, *opamp3_trimmingvalue) | tmp_opamp3_otr_otuser);
+        }
+        
       }
        
 
@@ -460,14 +493,14 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 
   uint32_t tmp_OpaxSwitchesContextBackup = 0;
   
-  uint8_t trimming_diff_pair_iteration_count = 0;
-  uint8_t delta = 0;
-
+  uint8_t trimming_diff_pair_iteration_count = 0;       /* For calibration loop algorithm: to repeat the calibration loop for both differential transistors pair high and low */
+  uint8_t delta = 0;                                    /* For calibration loop algorithm: Variable for dichotomy steps value */
+  uint8_t final_step_check = 0;                         /* For calibration loop algorithm: Flag for additional check of last trimming step */
   
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
-  if((hopamp1 == HAL_NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) ||
-     (hopamp2 == HAL_NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)   ) 
+  if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) ||
+     (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)   ) 
   {
     status = HAL_ERROR;
   }
@@ -553,8 +586,8 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
           
           /* Set bit OPAMP_CSR_OPAXCALOUT default state when trimming value   */
           /* is 00000b. Used to detect the bit toggling during trimming.      */
-          tmp_Opa1calout_DefaultSate = __OPAMP_CSR_OPAXCALOUT(hopamp1);
-          tmp_Opa2calout_DefaultSate = __OPAMP_CSR_OPAXCALOUT(hopamp2);
+          tmp_Opa1calout_DefaultSate = OPAMP_CSR_OPAXCALOUT(hopamp1);
+          tmp_Opa2calout_DefaultSate = OPAMP_CSR_OPAXCALOUT(hopamp2);
           
           /* Enable calibration for P differential pair */
           MODIFY_REG(OPAMP->CSR, OPAMP_CSR_OPAXCAL_H_ALL,
@@ -568,31 +601,44 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
         /*    can extend the search range to +/- 15 units.                    */
         /*  - Trimming initial value 15: search range will go from 0 to 30    */
         /*    (Trimming value 31 is forbidden).                               */
+        /* Note: After dichotomy sweep, the trimming result is determined.    */
+        /*       However, the final trimming step is deduced from previous    */
+        /*       trimming steps tested but is not effectively tested.         */
+        /*       An additional test step (using variable "final_step_check")  */
+        /*       allow to Test the final trimming step.                       */
         *opamp1_trimmingvalue = 15;
         *opamp2_trimmingvalue = 15;
         delta = 16;
         
-        while (delta != 0)
+        while ((delta != 0) || (final_step_check == 1))
         {
           /* Set candidate trimming */
+          MODIFY_REG(*tmp_opamp1_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, *opamp1_trimmingvalue) | tmp_opamp1_otr_otuser);
 
-          MODIFY_REG(*tmp_opamp1_reg_trimming, __OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
-                                               __OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, *opamp1_trimmingvalue) | tmp_opamp1_otr_otuser);
-
-          MODIFY_REG(*tmp_opamp2_reg_trimming, __OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
-                                               __OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, *opamp2_trimmingvalue) | tmp_opamp2_otr_otuser);
+          MODIFY_REG(*tmp_opamp2_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, *opamp2_trimmingvalue) | tmp_opamp2_otr_otuser);
 
           
           /* Offset trimming time: during calibration, minimum time needed    */
           /* between two steps to have 1 mV accuracy.                         */
           HAL_Delay(OPAMP_TRIMMING_DELAY);
           
+          /* Set flag for additional check of last trimming step equal to     */
+          /* dichotomy step before its division by 2 (equivalent to previous  */
+          /* value of dichotomy step).                                        */
+          final_step_check = delta;
+          
           /* Divide range by 2 to continue dichotomy sweep */
           delta >>= 1;
           
           /* Set trimming values for next iteration in function of trimming   */
           /* result toggle (versus initial state).                            */
-          if (READ_BIT(OPAMP->CSR, __OPAMP_CSR_OPAXCALOUT(hopamp1)) != tmp_Opa1calout_DefaultSate)
+          /* Trimming values update with dichotomy delta of previous          */
+          /* iteration.                                                       */
+          /* Note: on the last trimming loop, delta is equal to 0 and         */
+          /*       therefore has no effect.                                   */
+          if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp1)) != tmp_Opa1calout_DefaultSate)
           {
             /* If calibration output is has toggled, try lower trimming */
             *opamp1_trimmingvalue -= delta;
@@ -603,9 +649,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
             *opamp1_trimmingvalue += delta;
           }
           
-          /* Set trimming values for next iteration in function of trimming   */
-          /* result toggle (versus initial state).                            */
-          if (READ_BIT(OPAMP->CSR, __OPAMP_CSR_OPAXCALOUT(hopamp2)) != tmp_Opa2calout_DefaultSate)
+          if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp2)) != tmp_Opa2calout_DefaultSate)
           {
             /* If calibration output is has toggled, try lower trimming */
             *opamp2_trimmingvalue -= delta;
@@ -615,8 +659,32 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
             /* If calibration output is has not toggled, try higher trimming */
             *opamp2_trimmingvalue += delta;
           }
-          
         }
+        
+        /* Check trimming result of the selected step and perform final fine  */
+        /* trimming.                                                          */
+        /*  - If calibration output is has toggled: the current step is       */
+        /*    already optimized.                                              */
+        /*  - If calibration output is has not toggled: the current step can  */
+        /*    be optimized by incrementing it of one step.                    */
+        if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp1)) == tmp_Opa1calout_DefaultSate)
+        {
+          *opamp1_trimmingvalue += 1;
+          
+          /* Set final fine trimming */
+          MODIFY_REG(*tmp_opamp1_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp1, trimming_diff_pair, *opamp1_trimmingvalue) | tmp_opamp1_otr_otuser);
+        }
+        if (READ_BIT(OPAMP->CSR, OPAMP_CSR_OPAXCALOUT(hopamp2)) == tmp_Opa2calout_DefaultSate)
+        {
+          *opamp2_trimmingvalue += 1;
+          
+          /* Set final fine trimming */
+          MODIFY_REG(*tmp_opamp2_reg_trimming, OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, OPAMP_TRIM_VALUE_MASK) ,
+                                               OPAMP_OFFSET_TRIM_SET(hopamp2, trimming_diff_pair, *opamp2_trimmingvalue) | tmp_opamp2_otr_otuser);
+
+        }
+        
       }
        
 
@@ -690,7 +758,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   */
 
 /** @defgroup OPAMPEx_Exported_Functions_Group2 Extended Peripheral Control functions 
- *  @brief   Extended control functions 
+ *  @brief   Extended peripheral control functions 
  *
 @verbatim   
  ===============================================================================
@@ -715,7 +783,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_Unlock(OPAMP_HandleTypeDef* hopamp)
 
   /* Check the OPAMP handle allocation */
   /* Check if OPAMP locked */
-  if((hopamp == HAL_NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET)
+  if((hopamp == NULL) || (hopamp->State == HAL_OPAMP_STATE_RESET)
                       || (hopamp->State == HAL_OPAMP_STATE_READY)
                       || (hopamp->State == HAL_OPAMP_STATE_CALIBBUSY)
                       || (hopamp->State == HAL_OPAMP_STATE_BUSY))
@@ -738,12 +806,11 @@ HAL_StatusTypeDef HAL_OPAMPEx_Unlock(OPAMP_HandleTypeDef* hopamp)
   * @}
   */
 
-
 /**
   * @}
   */
 
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE || STM32L162xC || STM32L152xC || STM32L151xC */
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX || STM32L162xC || STM32L152xC || STM32L151xC */
 
 #endif /* HAL_OPAMP_MODULE_ENABLED */
 /**

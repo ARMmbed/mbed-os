@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -63,11 +63,11 @@
  */
 
 
-/** @defgroup PWR_WakeUp_Pins PWREx Wakeup Pins
+/** @defgroup PWREx_WakeUp_Pins PWREx Wakeup Pins
   * @{
   */
 
-#if defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) || defined (STM32L151xB) || defined (STM32L151xBA) || defined (STM32L151xC) || defined (STM32L152xB) || defined (STM32L152xBA) || defined (STM32L152xC) || defined (STM32L162xC)
+#if defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) || defined (STM32L151xB) || defined (STM32L151xBA) || defined (STM32L151xC) || defined (STM32L152xB) || defined (STM32L152xBA) || defined (STM32L152xC) || defined (STM32L162xC)
 
 #define PWR_WAKEUP_PIN1                 PWR_CSR_EWUP1
 #define PWR_WAKEUP_PIN2                 PWR_CSR_EWUP2
@@ -102,6 +102,7 @@
   */
   
 /* Peripheral Control methods  ************************************************/
+uint32_t HAL_PWREx_GetVoltageRange(void);
 void HAL_PWREx_EnableFastWakeUp(void);
 void HAL_PWREx_DisableFastWakeUp(void);
 void HAL_PWREx_EnableUltraLowPower(void);

@@ -1,14 +1,14 @@
 /**
   ******************************************************************************
-  * @file    stm32l1xx_hal_pcd.h
+  * @file    stm32l1xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of PCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -62,6 +62,11 @@
 /** @addtogroup PCDEx_Exported_Functions
   * @{
   */
+  
+/** @addtogroup PCDEx_Exported_Functions_Group2
+  * @{
+  */  
+  
 HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd, 
                                      uint16_t ep_addr,
                                      uint16_t ep_kind,
@@ -70,7 +75,10 @@ HAL_StatusTypeDef HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
   * @}
   */
 
-
+/**
+  * @}
+  */
+  
 /**
   * @}
   */ 

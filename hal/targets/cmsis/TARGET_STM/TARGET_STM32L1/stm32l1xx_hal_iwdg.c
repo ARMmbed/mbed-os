@@ -2,35 +2,37 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_iwdg.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   IWDG HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
-  *          functionalities of the IWDG peripheral:
-  *           + Initialization and Configuration functions
+  *          functionalities of the Independent Watchdog (IWDG) peripheral:
+  *           + Initialization and de-initialization functions
   *           + IO operation functions
   *           + Peripheral State functions
   *         
   @verbatim 
-  
-================================================================================
-                    ##### IWDG specific features #####
-================================================================================
+  ==============================================================================
+                    ##### IWDG Generic features #####
+  ==============================================================================
     [..] 
     (+) The IWDG can be started by either software or hardware (configurable
          through option byte).
+
     (+) The IWDG is clocked by its own dedicated Low-Speed clock (LSI) and
          thus stays active even if the main clock fails.
-      (+) Once the IWDG is started, the LSI is forced ON and cannot be disabled
+         Once the IWDG is started, the LSI is forced ON and cannot be disabled
          (LSI cannot be disabled too), and the counter starts counting down from 
          the reset value of 0xFFF. When it reaches the end of count value (0x000)
          a system reset is generated.
+
     (+) The IWDG counter should be refreshed at regular intervals, otherwise the
          watchdog generates an MCU reset when the counter reaches 0.          
+
     (+) The IWDG is implemented in the VDD voltage domain that is still functional
          in STOP and STANDBY mode (IWDG reset can wake-up from STANDBY).
-      (+) IWDGRST flag in RCC_CSR register can be used to inform when an IWDG
+         IWDGRST flag in RCC_CSR register can be used to inform when an IWDG
          reset occurs.
 
     (+) Min-max timeout value @37KHz (LSI): ~108us / ~28.3s
@@ -43,17 +45,18 @@
                      ##### How to use this driver #####
   ==============================================================================
     [..]
-      (+) Set the IWDG prescaler and reload value 
-          using HAL_IWDG_Init() function.
-      (+) Use IWDG using HAL_IWDG_Start() function to:
-          (++) Enable write access to IWDG_PR and IWDG_RLR registers.   
-          (++) Configure the IWDG prescaler and counter reload values.
-          (++) Reload IWDG counter with value defined in the IWDG_RLR register.
-          (++) Start the IWDG, when the IWDG is used in software mode (no need 
-               to enable the LSI, it will be enabled by hardware).
+      (+) Use IWDG using HAL_IWDG_Init() function to :
+         (++) Enable write access to IWDG_PR, IWDG_RLR.
+         (++) Configure the IWDG prescaler, counter reload value.
+              This reload value will be loaded in the IWDG counter each time the counter
+              is reloaded, then the IWDG will start counting down from this value.
+      (+) Use IWDG using HAL_IWDG_Start() function to :
+         (++) Reload IWDG counter with value defined in the IWDG_RLR register.
+         (++) Start the IWDG, when the IWDG is used in software mode (no need 
+              to enable the LSI, it will be enabled by hardware).
       (+) Then the application program must refresh the IWDG counter at regular
           intervals during normal operation to prevent an MCU reset, using
-          HAL_IWDG_Refresh() function.  
+          HAL_IWDG_Refresh() function.
      
      *** IWDG HAL driver macros list ***
      ====================================
@@ -62,16 +65,15 @@
        
       (+) __HAL_IWDG_START: Enable the IWDG peripheral
       (+) __HAL_IWDG_RELOAD_COUNTER: Reloads IWDG counter with value defined in the reload register    
-      (+) __HAL_IWDG_ENABLE_WRITE_ACCESS : Enable write access to IWDG_PR and IWDG_RLR registers
-      (+) __HAL_IWDG_DISABLE_WRITE_ACCESS : Disable write access to IWDG_PR and IWDG_RLR registers
       (+) __HAL_IWDG_GET_FLAG: Get the selected IWDG's flag status
-      (+) __HAL_IWDG_CLEAR_FLAG: Clear the IWDG's pending flags      
+      (+) IWDG_ENABLE_WRITE_ACCESS : Enable write access to IWDG_PR and IWDG_RLR registers
+      (+) IWDG_DISABLE_WRITE_ACCESS : Disable write access to IWDG_PR and IWDG_RLR registers
             
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -114,7 +116,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-
 /** @defgroup IWDG_Private_Defines IWDG Private Defines
   * @{
   */
@@ -128,7 +129,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
 /** @defgroup IWDG_Exported_Functions IWDG Exported Functions
   * @{
@@ -161,7 +162,7 @@
 HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
 {
   /* Check the IWDG handle allocation */
-  if(hiwdg == HAL_NULL)
+  if(hiwdg == NULL)
   {
     return HAL_ERROR;
   }
@@ -180,6 +181,9 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
     
   if(hiwdg->State == HAL_IWDG_STATE_RESET)
   {  
+    /* Allocate lock resource and initialize it */
+    hiwdg->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware */
     HAL_IWDG_MspInit(hiwdg);
   }
@@ -188,7 +192,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   hiwdg->State = HAL_IWDG_STATE_BUSY;  
   
   /* Enable write access to IWDG_PR and IWDG_RLR registers */  
-  __HAL_IWDG_ENABLE_WRITE_ACCESS(hiwdg);
+  IWDG_ENABLE_WRITE_ACCESS(hiwdg);
   
   /* Write to IWDG registers the IWDG_Prescaler & IWDG_Reload values to work with */
   MODIFY_REG(hiwdg->Instance->PR, IWDG_PR_PR, hiwdg->Init.Prescaler);
@@ -209,7 +213,10 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   */
 __weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hiwdg);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_IWDG_MspInit could be implemented in the user file
    */
 }
@@ -241,7 +248,7 @@ __weak void HAL_IWDG_MspInit(IWDG_HandleTypeDef *hiwdg)
   */
 HAL_StatusTypeDef HAL_IWDG_Start(IWDG_HandleTypeDef *hiwdg)
 {
-  /* Process Locked */
+  /* Process locked */
   __HAL_LOCK(hiwdg); 
   
     /* Change IWDG peripheral state */  

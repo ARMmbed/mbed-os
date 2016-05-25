@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_wwdg.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   WWDG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Window Watchdog (WWDG) peripheral:
@@ -31,8 +31,8 @@
     (+) WWDG clock (Hz) = PCLK1 / (4096 * Prescaler)
     (+) WWDG timeout (mS) = 1000 * Counter / WWDG clock
     (+) WWDG Counter refresh is allowed between the following limits :
-        (++) min time (mS) = 1000 * (Counter – Window) / WWDG clock
-        (++) max time (mS) = 1000 * (Counter – 0x40) / WWDG clock
+        (++) min time (mS) = 1000 * (Counter - Window) / WWDG clock
+        (++) max time (mS) = 1000 * (Counter - 0x40) / WWDG clock
     
     (+) Min-max timeout value at @32MHz (PCLK1): ~128us / ~65.6ms.
 
@@ -40,7 +40,7 @@
                      ##### How to use this driver #####
   ==============================================================================
   [..]
-    (+) Enable WWDG APB1 clock using __WWDG_CLK_ENABLE().
+    (+) Enable WWDG APB1 clock using __HAL_RCC_WWDG_CLK_ENABLE().
     (+) Set the WWDG prescaler, refresh window and counter value 
         using HAL_WWDG_Init() function.
     (+) Start the WWDG using HAL_WWDG_Start() function.
@@ -70,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -116,7 +116,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
 /** @defgroup WWDG_Exported_Functions WWDG Exported Functions
   * @{
@@ -151,7 +151,7 @@
 HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
 {
   /* Check the WWDG handle allocation */
-  if(hwwdg == HAL_NULL)
+  if(hwwdg == NULL)
   {
     return HAL_ERROR;
   }
@@ -164,6 +164,9 @@ HAL_StatusTypeDef HAL_WWDG_Init(WWDG_HandleTypeDef *hwwdg)
   
   if(hwwdg->State == HAL_WWDG_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    hwwdg->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware */
     HAL_WWDG_MspInit(hwwdg);
   }
@@ -228,6 +231,9 @@ HAL_StatusTypeDef HAL_WWDG_DeInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_MspInit could be implemented in the user file
    */
@@ -241,6 +247,9 @@ __weak void HAL_WWDG_MspInit(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_MspDeInit(WWDG_HandleTypeDef *hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_MspDeInit could be implemented in the user file
    */
@@ -309,7 +318,7 @@ HAL_StatusTypeDef HAL_WWDG_Start_IT(WWDG_HandleTypeDef *hwwdg)
   hwwdg->State = HAL_WWDG_STATE_BUSY;
   
   /* Enable the Early Wakeup Interrupt */ 
-  __HAL_WWDG_ENABLE_IT(WWDG_IT_EWI);
+  __HAL_WWDG_ENABLE_IT(hwwdg, WWDG_IT_EWI);
 
   /* Enable the peripheral */
   __HAL_WWDG_ENABLE(hwwdg);  
@@ -353,7 +362,7 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   * @brief  Handles WWDG interrupt request.
   * @note   The Early Wakeup Interrupt (EWI) can be used if specific safety operations 
   *         or data logging must be performed before the actual reset is generated. 
-  *         The EWI interrupt is enabled using __HAL_WWDG_ENABLE_IT() macro.
+  *         The EWI interrupt is enabled when calling HAL_WWDG_Start_IT function.
   *         When the downcounter reaches the value 0x40, and EWI interrupt is 
   *         generated and the corresponding Interrupt Service Routine (ISR) can 
   *         be used to trigger specific actions (such as communications or data 
@@ -363,23 +372,27 @@ HAL_StatusTypeDef HAL_WWDG_Refresh(WWDG_HandleTypeDef *hwwdg, uint32_t Counter)
   * @retval None
   */
 void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
-{ 
-  /* WWDG Early Wakeup Interrupt occurred */   
-  if(__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
+{
+  /* Check if Early Wakeup Interrupt is enable */
+  if(__HAL_WWDG_GET_IT_SOURCE(hwwdg, WWDG_IT_EWI) != RESET)
   {
-    /* Early Wakeup callback */ 
-    HAL_WWDG_WakeupCallback(hwwdg);
+    /* Wheck if WWDG Early Wakeup Interrupt occurred */
+    if(__HAL_WWDG_GET_FLAG(hwwdg, WWDG_FLAG_EWIF) != RESET)
+    {
+      /* Early Wakeup callback */ 
+      HAL_WWDG_WakeupCallback(hwwdg);
     
-    /* Change WWDG peripheral state */
-    hwwdg->State = HAL_WWDG_STATE_READY; 
+      /* Change WWDG peripheral state */
+      hwwdg->State = HAL_WWDG_STATE_READY; 
+
+      /* Clear the WWDG Early Wakeup flag */
+      __HAL_WWDG_CLEAR_FLAG(hwwdg, WWDG_FLAG_EWIF);
     
-    /* Clear the WWDG Data Ready flag */
-    __HAL_WWDG_CLEAR_IT(hwwdg, WWDG_FLAG_EWIF);
-    
-    /* Process Unlocked */
-    __HAL_UNLOCK(hwwdg);
+      /* Process Unlocked */
+      __HAL_UNLOCK(hwwdg);
+    }
   }
-} 
+}
 
 /**
   * @brief  Early Wakeup WWDG callback.
@@ -389,6 +402,9 @@ void HAL_WWDG_IRQHandler(WWDG_HandleTypeDef *hwwdg)
   */
 __weak void HAL_WWDG_WakeupCallback(WWDG_HandleTypeDef* hwwdg)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hwwdg);
+
   /* NOTE: This function Should not be modified, when the callback is needed,
            the HAL_WWDG_WakeupCallback could be implemented in the user file
    */

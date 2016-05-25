@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -76,6 +76,16 @@
 @endverbatim
   * @{
   */
+
+/**
+  * @brief Return Voltage Scaling Range.   
+  * @retval VOS bit field (PWR_REGULATOR_VOLTAGE_SCALE1, PWR_REGULATOR_VOLTAGE_SCALE2 or PWR_REGULATOR_VOLTAGE_SCALE3)
+  */  
+uint32_t HAL_PWREx_GetVoltageRange(void)
+{
+  return  (PWR->CR & PWR_CR_VOS);
+}
+
 
 /**
   * @brief  Enables the Fast WakeUp from Ultra Low Power mode.

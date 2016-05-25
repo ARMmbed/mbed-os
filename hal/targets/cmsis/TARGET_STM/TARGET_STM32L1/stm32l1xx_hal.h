@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32l1xx_hal.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -369,135 +369,114 @@
   * @brief  TIM2 Peripherals Debug mode 
   */  
 #if defined (DBGMCU_APB1_FZ_DBG_TIM2_STOP)
-#define __HAL_FREEZE_TIM2_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM2_STOP)
-#define __HAL_UNFREEZE_TIM2_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM2_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM2()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM2_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM2()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM2_STOP)
 #endif
 
 /**
   * @brief  TIM3 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM3_STOP)
-#define __HAL_FREEZE_TIM3_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM3_STOP)
-#define __HAL_UNFREEZE_TIM3_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM3_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM3()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM3_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM3()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM3_STOP)
 #endif
 
 /**
   * @brief  TIM4 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM4_STOP)
-#define __HAL_FREEZE_TIM4_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM4_STOP)
-#define __HAL_UNFREEZE_TIM4_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM4_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM4()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM4_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM4()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM4_STOP)
 #endif
 
 /**
   * @brief  TIM5 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM5_STOP)
-#define __HAL_FREEZE_TIM5_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM5_STOP)
-#define __HAL_UNFREEZE_TIM5_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM5_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM5()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM5_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM5()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM5_STOP)
 #endif
 
 /**
   * @brief  TIM6 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM6_STOP)
-#define __HAL_FREEZE_TIM6_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM6_STOP)
-#define __HAL_UNFREEZE_TIM6_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM6_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM6()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM6_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM6()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM6_STOP)
 #endif
 
 /**
   * @brief  TIM7 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_TIM7_STOP)
-#define __HAL_FREEZE_TIM7_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM7_STOP)
-#define __HAL_UNFREEZE_TIM7_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM7_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM7()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM7_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM7()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_TIM7_STOP)
 #endif
 
 /**
   * @brief  RTC Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_RTC_STOP)
-#define __HAL_FREEZE_RTC_DBGMCU()             SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_RTC_STOP)
-#define __HAL_UNFREEZE_RTC_DBGMCU()           CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_RTC_STOP)
+#define __HAL_DBGMCU_FREEZE_RTC()             SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_RTC_STOP)
+#define __HAL_DBGMCU_UNFREEZE_RTC()           CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_RTC_STOP)
 #endif
 
 /**
   * @brief  WWDG Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_WWDG_STOP)
-#define __HAL_FREEZE_WWDG_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_WWDG_STOP)
-#define __HAL_UNFREEZE_WWDG_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_WWDG_STOP)
+#define __HAL_DBGMCU_FREEZE_WWDG()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_WWDG_STOP)
+#define __HAL_DBGMCU_UNFREEZE_WWDG()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_WWDG_STOP)
 #endif
 
 /**
   * @brief  IWDG Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_IWDG_STOP)
-#define __HAL_FREEZE_IWDG_DBGMCU()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_IWDG_STOP)
-#define __HAL_UNFREEZE_IWDG_DBGMCU()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_IWDG_STOP)
+#define __HAL_DBGMCU_FREEZE_IWDG()            SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_IWDG_STOP)
+#define __HAL_DBGMCU_UNFREEZE_IWDG()          CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_IWDG_STOP)
 #endif
 
 /**
   * @brief  I2C1 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
-#define __HAL_FREEZE_I2C1_TIMEOUT_DBGMCU()    SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
-#define __HAL_UNFREEZE_I2C1_TIMEOUT_DBGMCU()  CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
+#define __HAL_DBGMCU_FREEZE_I2C1_TIMEOUT()    SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
+#define __HAL_DBGMCU_UNFREEZE_I2C1_TIMEOUT()  CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C1_SMBUS_TIMEOUT)
 #endif
 
 /**
   * @brief  I2C2 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
-#define __HAL_FREEZE_I2C2_TIMEOUT_DBGMCU()    SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
-#define __HAL_UNFREEZE_I2C2_TIMEOUT_DBGMCU()  CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
+#define __HAL_DBGMCU_FREEZE_I2C2_TIMEOUT()    SET_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
+#define __HAL_DBGMCU_UNFREEZE_I2C2_TIMEOUT()  CLEAR_BIT(DBGMCU->APB1FZ, DBGMCU_APB1_FZ_DBG_I2C2_SMBUS_TIMEOUT)
 #endif
 
 /**
   * @brief  TIM9 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB2_FZ_DBG_TIM9_STOP)
-#define __HAL_FREEZE_TIM9_DBGMCU()            SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM9_STOP)
-#define __HAL_UNFREEZE_TIM9_DBGMCU()          CLEAR_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM9_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM9()            SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM9_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM9()          CLEAR_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM9_STOP)
 #endif
 
 /**
   * @brief  TIM10 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB2_FZ_DBG_TIM10_STOP)
-#define __HAL_FREEZE_TIM10_DBGMCU()           SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM10_STOP)
-#define __HAL_UNFREEZE_TIM10_DBGMCU()         CLEAR_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM10_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM10()           SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM10_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM10()         CLEAR_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM10_STOP)
 #endif
 
 /**
   * @brief  TIM11 Peripherals Debug mode 
   */
 #if defined (DBGMCU_APB2_FZ_DBG_TIM11_STOP)
-#define __HAL_FREEZE_TIM11_DBGMCU()           SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM11_STOP)
-#define __HAL_UNFREEZE_TIM11_DBGMCU()         CLEAR_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM11_STOP)
+#define __HAL_DBGMCU_FREEZE_TIM11()           SET_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM11_STOP)
+#define __HAL_DBGMCU_UNFREEZE_TIM11()         CLEAR_BIT(DBGMCU->APB2FZ, DBGMCU_APB2_FZ_DBG_TIM11_STOP)
 #endif
 
-/**
-  * @brief  Enables or disables the output of internal reference voltage 
-  *         (VREFINT) on I/O pin.
-  *         The VREFINT output can be routed to any I/O in group 3:
-  *          - For Cat.1 and Cat.2 devices: CH8 (PB0) or CH9 (PB1).
-  *          - For Cat.3 devices: CH8 (PB0), CH9 (PB1) or CH0b (PB2).
-  *          - For Cat.4 and Cat.5 devices: CH8 (PB0), CH9 (PB1), CH0b (PB2), 
-  *            CH1b (PF11) or CH2b (PF12).
-  *         Note: Comparator peripheral clock must be preliminarility enabled,
-  *               either in COMP user function "HAL_COMP_MspInit()" (should be 
-  *               done if comparators are used) or by direct clock enable:
-  *               Refer to macro "__COMP_CLK_ENABLE()".
-  *         Note: In addition with this macro, Vrefint output buffer must be 
-  *               connected to the selected I/O pin. Refer to macro
-  *               "__HAL_RI_IOSWITCH_CLOSE()".
-  * @note  ENABLE: Internal reference voltage connected to I/O group 3
-  * @note  DISABLE: Internal reference voltage disconnected from I/O group 3
-  * @retval None
-  */
-#define __HAL_VREFINT_OUT_ENABLE()       SET_BIT(COMP->CSR, COMP_CSR_VREFOUTEN)
-#define __HAL_VREFINT_OUT_DISABLE()      CLEAR_BIT(COMP->CSR, COMP_CSR_VREFOUTEN)
 
 /**
   * @}
@@ -511,6 +490,36 @@
   * @{
   */
 
+/** @defgroup SYSCFG_VrefInt VREFINT configuration
+  * @{
+  */
+
+/**
+  * @brief  Enables or disables the output of internal reference voltage 
+  *         (VREFINT) on I/O pin.
+  *         The VREFINT output can be routed to any I/O in group 3:
+  *          - For Cat.1 and Cat.2 devices: CH8 (PB0) or CH9 (PB1).
+  *          - For Cat.3 devices: CH8 (PB0), CH9 (PB1) or CH0b (PB2).
+  *          - For Cat.4 and Cat.5 devices: CH8 (PB0), CH9 (PB1), CH0b (PB2), 
+  *            CH1b (PF11) or CH2b (PF12).
+  *         Note: Comparator peripheral clock must be preliminarility enabled,
+  *               either in COMP user function "HAL_COMP_MspInit()" (should be 
+  *               done if comparators are used) or by direct clock enable:
+  *               Refer to macro "__HAL_RCC_COMP_CLK_ENABLE()".
+  *         Note: In addition with this macro, Vrefint output buffer must be 
+  *               connected to the selected I/O pin. Refer to macro
+  *               "__HAL_RI_IOSWITCH_CLOSE()".
+  * @note  ENABLE: Internal reference voltage connected to I/O group 3
+  * @note  DISABLE: Internal reference voltage disconnected from I/O group 3
+  * @retval None
+  */
+#define __HAL_SYSCFG_VREFINT_OUT_ENABLE()       SET_BIT(COMP->CSR, COMP_CSR_VREFOUTEN)
+#define __HAL_SYSCFG_VREFINT_OUT_DISABLE()      CLEAR_BIT(COMP->CSR, COMP_CSR_VREFOUTEN)
+
+/**
+  * @}
+  */
+
 /** @defgroup SYSCFG_BootModeConfig Boot Mode Configuration
   * @{
   */
@@ -518,20 +527,20 @@
 /**
   * @brief  Main Flash memory mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_FLASH()             CLEAR_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE)
+#define __HAL_SYSCFG_REMAPMEMORY_FLASH()             CLEAR_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE)
 
 /** @brief  System Flash memory mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_SYSTEMFLASH()       MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, SYSCFG_MEMRMP_MEM_MODE_0)
+#define __HAL_SYSCFG_REMAPMEMORY_SYSTEMFLASH()       MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, SYSCFG_MEMRMP_MEM_MODE_0)
 
 /** @brief  Embedded SRAM mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_SRAM()              MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, SYSCFG_MEMRMP_MEM_MODE_0 | SYSCFG_MEMRMP_MEM_MODE_1)
+#define __HAL_SYSCFG_REMAPMEMORY_SRAM()              MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, SYSCFG_MEMRMP_MEM_MODE_0 | SYSCFG_MEMRMP_MEM_MODE_1)
 
 #if defined(FSMC_R_BASE)
 /** @brief  FSMC Bank1 (NOR/PSRAM 1 and 2) mapped at 0x00000000
   */
-#define __HAL_REMAPMEMORY_FSMC()              MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, SYSCFG_MEMRMP_MEM_MODE_1)
+#define __HAL_SYSCFG_REMAPMEMORY_FSMC()              MODIFY_REG(SYSCFG->MEMRMP, SYSCFG_MEMRMP_MEM_MODE, SYSCFG_MEMRMP_MEM_MODE_1)
 
 #endif /* FSMC_R_BASE */
 
@@ -922,12 +931,12 @@ void              HAL_ResumeTick(void);
 uint32_t          HAL_GetHalVersion(void);
 uint32_t          HAL_GetREVID(void);
 uint32_t          HAL_GetDEVID(void);
-void              HAL_EnableDBGSleepMode(void);
-void              HAL_DisableDBGSleepMode(void);
-void              HAL_EnableDBGStopMode(void);
-void              HAL_DisableDBGStopMode(void);
-void              HAL_EnableDBGStandbyMode(void);
-void              HAL_DisableDBGStandbyMode(void);
+void              HAL_DBGMCU_EnableDBGSleepMode(void);
+void              HAL_DBGMCU_DisableDBGSleepMode(void);
+void              HAL_DBGMCU_EnableDBGStopMode(void);
+void              HAL_DBGMCU_DisableDBGStopMode(void);
+void              HAL_DBGMCU_EnableDBGStandbyMode(void);
+void              HAL_DBGMCU_DisableDBGStandbyMode(void);
 
 /**
   * @}

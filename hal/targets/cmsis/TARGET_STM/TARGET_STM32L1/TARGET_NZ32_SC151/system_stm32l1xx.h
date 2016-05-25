@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    system_stm32l1xx.h
   * @author  MCD Application Team
-  * @version V2.0.0
-  * @date    5-September-2014
+  * @version V2.1.3
+  * @date    04-March-2016
   * @brief   CMSIS Cortex-M3 Device System Source File for STM32L1xx devices.  
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -74,6 +74,11 @@
                variable is updated automatically.
   */
 extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
+/*
+*/
+extern const uint8_t AHBPrescTable[16];   /*!< AHB prescalers table values */
+extern const uint8_t APBPrescTable[8];    /*!< APB prescalers table values */
+extern const uint8_t PLLMulTable[9];      /*!< PLL multipiers table values */
 
 /**
   * @}

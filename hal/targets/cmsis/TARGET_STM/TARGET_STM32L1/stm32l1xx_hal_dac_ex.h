@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_dac_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of DAC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -61,20 +61,6 @@
 /** @defgroup DACEx_Exported_Constants DACEx Exported Constants
   * @{
   */ 
-   
-/** @defgroup DACEx_wave_generation DACEx wave generation
-  * @{
-  */
-#define DAC_WAVEGENERATION_NONE            ((uint32_t)0x00000000)
-#define DAC_WAVEGENERATION_NOISE           ((uint32_t)DAC_CR_WAVE1_0)
-#define DAC_WAVEGENERATION_TRIANGLE        ((uint32_t)DAC_CR_WAVE1_1)
-
-#define IS_DAC_GENERATE_WAVE(WAVE) (((WAVE) == DAC_WAVEGENERATION_NONE)  || \
-                                    ((WAVE) == DAC_WAVEGENERATION_NOISE) || \
-                                    ((WAVE) == DAC_WAVEGENERATION_TRIANGLE))
-/**
-  * @}
-  */
 
 /** @defgroup DACEx_lfsrunmask_triangleamplitude DACEx lfsrunmask triangleamplitude
   * @{
@@ -138,8 +124,6 @@
 #define DAC_WAVE_NOISE                     ((uint32_t)DAC_CR_WAVE1_0)
 #define DAC_WAVE_TRIANGLE                  ((uint32_t)DAC_CR_WAVE1_1)
 
-#define IS_DAC_WAVE(WAVE) (((WAVE) == DAC_WAVE_NOISE) || \
-                           ((WAVE) == DAC_WAVE_TRIANGLE))
 /**
   * @}
   */
@@ -177,12 +161,13 @@ void HAL_DACEx_DMAUnderrunCallbackCh2(DAC_HandleTypeDef* hdac);
 /**
   * @}
   */
+
 /** @addtogroup DACEx_Private_Functions
   * @{
-  */ 
+  */
 void DAC_DMAConvCpltCh2(DMA_HandleTypeDef *hdma);
-void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma);
 void DAC_DMAHalfConvCpltCh2(DMA_HandleTypeDef *hdma); 
+void DAC_DMAErrorCh2(DMA_HandleTypeDef *hdma);
 
 /**
   * @}

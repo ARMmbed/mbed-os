@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_cryp_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of CRYPEx HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
    
-#if defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE)
+#if defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE) || defined(STM32L162xDX)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal_def.h"
@@ -79,7 +79,7 @@ void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
 
-#endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE*/
+#endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX*/
 
 /**
   * @}

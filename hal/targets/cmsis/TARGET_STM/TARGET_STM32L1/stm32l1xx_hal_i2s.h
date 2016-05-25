@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -44,9 +44,9 @@
 #endif
 
 #if defined(STM32L100xC) || \
-    defined(STM32L151xC) || defined(STM32L151xCA) || defined(STM32L151xD) || defined(STM32L151xE) || \
-    defined(STM32L152xC) || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L152xE) || defined(STM32L151xE) || \
-    defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE)
+    defined(STM32L151xC) || defined(STM32L151xCA) || defined(STM32L151xD) || defined(STM32L151xE) || defined(STM32L151xDX) || \
+    defined(STM32L152xC) || defined(STM32L152xCA) || defined(STM32L152xD) || defined(STM32L152xE) || defined(STM32L152xDX) || defined(STM32L151xE) || defined(STM32L151xDX) || \
+    defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE) || defined(STM32L162xDX)
     
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal_def.h"  
@@ -104,18 +104,6 @@ typedef enum
 }HAL_I2S_StateTypeDef;
 
 /** 
-  * @brief  HAL I2S Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_I2S_ERROR_NONE      = 0x00,    /*!< No error                    */
-  HAL_I2S_ERROR_UDR       = 0x01,    /*!< I2S Underrun error          */
-  HAL_I2S_ERROR_OVR       = 0x02,    /*!< I2S Overrun error           */
-  HAL_I2S_ERROR_FRE       = 0x04,    /*!< I2S Frame format error      */
-  HAL_I2S_ERROR_DMA       = 0x08     /*!< DMA transfer error          */
-}HAL_I2S_ErrorTypeDef;
-
-/** 
   * @brief I2S handle Structure definition  
   */
 typedef struct
@@ -149,7 +137,7 @@ typedef struct
   
   __IO HAL_I2S_StateTypeDef  State;        /* I2S communication state           */
 
-  __IO HAL_I2S_ErrorTypeDef  ErrorCode;    /* I2S Error code                    */
+  __IO uint32_t              ErrorCode;    /* I2S Error code                    */
 
 }I2S_HandleTypeDef;
 /**
@@ -159,6 +147,20 @@ typedef struct
 /* Exported constants --------------------------------------------------------*/
 /** @defgroup I2S_Exported_Constants I2S Exported Constants
   * @{
+  */
+
+/** @defgroup I2S_Error_Codes I2S Error Codes
+  * @{
+  */
+
+#define HAL_I2S_ERROR_NONE      ((uint32_t)0x00)    /*!< No error                    */
+#define HAL_I2S_ERROR_UDR       ((uint32_t)0x01)    /*!< I2S Underrun error          */
+#define HAL_I2S_ERROR_OVR       ((uint32_t)0x02)    /*!< I2S Overrun error           */
+#define HAL_I2S_ERROR_FRE       ((uint32_t)0x04)    /*!< I2S Frame format error      */
+#define HAL_I2S_ERROR_DMA       ((uint32_t)0x08)    /*!< DMA transfer error          */
+
+/**
+  * @}
   */
 
 /** @defgroup I2S_Mode I2S Mode
@@ -194,13 +196,6 @@ typedef struct
                                    ((STANDARD) == I2S_STANDARD_LSB)       || \
                                    ((STANDARD) == I2S_STANDARD_PCM_SHORT) || \
                                    ((STANDARD) == I2S_STANDARD_PCM_LONG))
-/** @defgroup I2S_Legacy I2S Legacy
-  * @{
-  */
-#define I2S_STANDARD_PHILLIPS      I2S_STANDARD_PHILIPS
-/**
-  * @}
-  */
 
 /**
   * @}
@@ -360,6 +355,7 @@ typedef struct
   */                                                                                                   
 #define __HAL_I2S_CLEAR_OVRFLAG(__HANDLE__) do{__IO uint32_t tmpreg = (__HANDLE__)->Instance->DR;\
                                                              tmpreg = (__HANDLE__)->Instance->SR;\
+                                                             UNUSED(tmpreg); \
                                               }while(0)
 /** @brief Clears the I2S UDR pending flag.
   * @param  __HANDLE__: specifies the I2S Handle.
@@ -423,7 +419,7 @@ void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s);
   */
 /* Peripheral Control and State functions  ************************************/
 HAL_I2S_StateTypeDef HAL_I2S_GetState(I2S_HandleTypeDef *hi2s);
-HAL_I2S_ErrorTypeDef HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
+uint32_t             HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
 /**
   * @}
   */
@@ -441,9 +437,9 @@ HAL_I2S_ErrorTypeDef HAL_I2S_GetError(I2S_HandleTypeDef *hi2s);
   * @}
   */
 #endif /* STM32L100xC ||
-          STM32L151xC || STM32L151xCA || STM32L151xD || STM32L151xE ||\\
-          STM32L152xC || STM32L152xCA || STM32L152xD || STM32L152xE || STM32L151xE ||\\
-          STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE */
+          STM32L151xC || STM32L151xCA || STM32L151xD || STM32L151xE || STM32L151xDX ||\\
+          STM32L152xC || STM32L152xCA || STM32L152xD || STM32L152xE || STM32L152xDX || STM32L151xE || STM32L151xDX ||\\
+          STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX */
 
 #ifdef __cplusplus
 }

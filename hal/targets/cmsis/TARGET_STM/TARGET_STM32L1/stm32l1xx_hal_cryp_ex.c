@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_cryp_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   CRYPEx HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,7 +54,7 @@
   * @{
   */
 
-#if defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE)
+#if defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE) || defined(STM32L162xDX)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -90,8 +90,11 @@
   */
 __weak void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcryp);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_CRYP_ComputationCpltCallback could be implemented in the user file
+            the HAL_CRYPEx_ComputationCpltCallback could be implemented in the user file
    */ 
 }
 
@@ -104,7 +107,7 @@ __weak void HAL_CRYPEx_ComputationCpltCallback(CRYP_HandleTypeDef *hcryp)
   * @}
   */
 
-#endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE*/
+#endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX*/
 
 /**
   * @}
