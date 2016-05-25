@@ -796,6 +796,9 @@ public:
     /** Call the attached function
      */
     R call() {
+        if (NULL == _thunk) {
+            return (R)0;
+        }
         return _thunk(_obj, &_func);
     }
 
