@@ -23,6 +23,8 @@
 #include "BufferedSerial.h"
 #include <stdarg.h>
 
+extern "C" int BufferedPrintfC(void *stream, int size, const char* format, va_list arg);
+
 BufferedSerial::BufferedSerial(PinName tx, PinName rx, uint32_t buf_size, uint32_t tx_multiple, const char* name)
     : RawSerial(tx, rx) , _rxbuf(buf_size), _txbuf((uint32_t)(tx_multiple*buf_size))
 {
@@ -79,26 +81,18 @@ int BufferedSerial::puts(const char *s)
     return 0;
 }
 
+extern "C" size_t BufferedSerialThunk(void *buf_serial, const void *s, size_t length)
+{
+    BufferedSerial *buffered_serial = (BufferedSerial *)buf_serial;
+    return buffered_serial->write(s, length);
+}
+
 int BufferedSerial::printf(const char* format, ...)
 {
-    char buffer[this->_buf_size];
-    memset(buffer,0,this->_buf_size);
-    int r = 0;
-
     va_list arg;
     va_start(arg, format);
-    r = vsprintf(buffer, format, arg);
-    // this may not hit the heap but should alert the user anyways
-    if(r > (int32_t) this->_buf_size) {
-        error("%s %d buffer overwrite (max_buf_size: %d exceeded: %d)!\r\n", __FILE__, __LINE__,this->_buf_size,r);
-        va_end(arg);
-        return 0;
-    }
+    int r = BufferedPrintfC((void*)this, this->_buf_size, format, arg);
     va_end(arg);
-    if ( r > 0 ) {
-        r = BufferedSerial::write(buffer, r);
-    }
-
     return r;
 }
 
