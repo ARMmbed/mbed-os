@@ -2,12 +2,12 @@
 #include "test_env.h"
 
 int main() {
+    Serial *pc = new Serial(USBTX, USBRX);
+
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(serial_nc_rx_auto);
     MBED_HOSTTEST_DESCRIPTION(Serial NC RX);
     MBED_HOSTTEST_START("MBED_37");
-
-    Serial *pc = new Serial(NC, USBRX);
 
     char c = pc->getc();
 
