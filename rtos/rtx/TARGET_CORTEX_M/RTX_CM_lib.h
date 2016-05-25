@@ -643,8 +643,6 @@ void pre_main(void) {
 
 __attribute__((naked)) void software_init_hook (void) {
   __asm (
-    ".syntax unified\n"
-    ".thumb\n"
     "bl   osKernelInitialize\n"
 #ifdef __MBED_CMSIS_RTOS_CM
     "bl   set_main_stack\n"
