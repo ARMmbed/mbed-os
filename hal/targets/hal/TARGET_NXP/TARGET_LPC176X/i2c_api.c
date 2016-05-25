@@ -112,20 +112,26 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
 
 inline int i2c_start(i2c_t *obj) {
     int status = 0;
+    int isInterrupted = I2C_CONSET(obj) & (1 << 3);
+
     // 8.1 Before master mode can be entered, I2CON must be initialised to:
     //  - I2EN STA STO SI AA - -
-    //  -  1    0   0   0  x - -
+    //  -  1    0   0   x  x - -
     // if AA = 0, it can't enter slave mode
-    i2c_conclr(obj, 1, 1, 1, 1);
-    
+    i2c_conclr(obj, 1, 1, 0, 1);
+
     // The master mode may now be entered by setting the STA bit
     // this will generate a start condition when the bus becomes free
     i2c_conset(obj, 1, 0, 0, 1);
-    
+    // Clearing SI bit when it wasn't set on entry can jump past state
+    // 0x10 or 0x08 and erroneously send uninitialized slave address.
+    if (isInterrupted)
+        i2c_clear_SI(obj);
+
     i2c_wait_SI(obj);
     status = i2c_status(obj);
-    
-    // Clear start bit now transmitted, and interrupt bit
+
+    // Clear start bit now that it's transmitted
     i2c_conclr(obj, 1, 0, 0, 0);
     return status;
 }
