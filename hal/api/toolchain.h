@@ -237,6 +237,10 @@ typedef int FILEHANDLE;
 #define WEAK MBED_WEAK
 #endif
 
+#ifndef PACKED
+#define PACKED MBED_PACKED
+#endif
+
 #ifndef EXTERN
 #define EXTERN extern
 #endif
