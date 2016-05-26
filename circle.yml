@@ -2,6 +2,7 @@ test:
     override:
         - cd ../testproject && mbed deploy
         - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --tests
         - cd ../testproject && mbed compile -m LPC1768 -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
         - cd ../testproject && mbed compile -m NUCLEO_F401RE -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
         - cd ../testproject && mbed compile -m NRF51822 -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
