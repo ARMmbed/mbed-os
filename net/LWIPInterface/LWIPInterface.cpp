@@ -105,7 +105,7 @@ int LWIPInterface::connect()
 
     // Wait for an IP Address
     // -1: error, 0: timeout
-    if (netif_up.wait(1500) < 0) {
+    if (netif_up.wait(2500) < 0) {
         return NSAPI_ERROR_DHCP_FAILURE;
     }
 
