@@ -438,7 +438,7 @@ static void stm32f7_rx_task(void *arg)
 
     while (1) {
         sys_arch_sem_wait(&rx_ready_sem, 0);
-        p = stm32f4_low_level_input(netif);
+        p = stm32f7_low_level_input(netif);
         if (p != NULL) {
             if (netif->input(p, netif) != ERR_OK) {
                 pbuf_free(p);
@@ -532,8 +532,8 @@ err_t eth_arch_enetif_init(struct netif *netif)
     sys_mutex_new(&tx_lock_mutex);
 
     /* task */
-    sys_thread_new("stm32f4_recv_task", stm32f7_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
-    sys_thread_new("stm32f4_phy_task", stm32f7_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
+    sys_thread_new("stm32f7_recv_task", stm32f7_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
+    sys_thread_new("stm32f7_phy_task", stm32f7_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
     
     /* initialize the hardware */
     stm32f7_low_level_init(netif);
