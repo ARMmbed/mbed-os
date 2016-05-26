@@ -106,10 +106,12 @@ typedef enum {
     // BTN Names
     BTN1 = P0_16,
     BTN2 = P0_1,
-    
+
     // UART
     UART_TX = P0_19,
+    USBTX = UART_TX,
     UART_RX = P0_18,
+    USBRX = UART_RX,
 
     // Arduino Shield Receptacles Names
     D0 = P0_18,
@@ -135,16 +137,16 @@ typedef enum {
     A3 = P0_16,
     A4 = P0_5, // same port as SDA
     A5 = P0_4, // same port as SCL
-    
+
     SDA= P0_5, // same port as A4
     SCL= P0_4, // same port as A5
-    
+
     //SD Card pins
     SDMOSI = P0_9,
     SDMISO = P0_8,
     SDSCLK = P1_29,
     SDSSEL = P1_12,
-    
+
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;
