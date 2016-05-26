@@ -146,7 +146,7 @@
 #if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
 #define FORCEINLINE static inline __attribute__((always_inline))
 #elif defined(__ICCARM__)
-#define FORCEINLINE _Pragma("inline=force") static
+#define FORCEINLINE _Pragma("inline=forced") static
 #else
 #define FORCEINLINE static inline
 #endif
