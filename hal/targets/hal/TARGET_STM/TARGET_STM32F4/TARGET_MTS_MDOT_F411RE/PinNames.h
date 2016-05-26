@@ -157,6 +157,9 @@ typedef enum {
 
     // needed for mbed to build tests
     LED1        = PA_0,
+    LED2        = LED1,
+    LED3        = LED1,
+    LED4        = LED1,
 
     // XBEE_DOUT/DIN, RS232 port on UDK board
     SERIAL_TX   = PA_2,
