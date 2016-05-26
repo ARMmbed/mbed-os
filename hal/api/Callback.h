@@ -873,6 +873,8 @@ private:
     R (*_thunk)(void*, void*); 
 };
 
+ typedef Callback<void(int)> event_callback_t;
+
 
 } // namespace mbed
 

@@ -56,7 +56,6 @@ public:
 };
 
 typedef FunctionPointerArg1<void, void> FunctionPointer;
-typedef FunctionPointerArg1<void, int> event_callback_t;
 
 
 } // namespace mbed
