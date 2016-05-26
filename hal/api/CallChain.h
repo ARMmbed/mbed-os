@@ -16,7 +16,7 @@
 #ifndef MBED_CALLCHAIN_H
 #define MBED_CALLCHAIN_H
 
-#include "FunctionPointer.h"
+#include "Callback.h"
 #include <string.h>
 
 namespace mbed {
@@ -57,7 +57,7 @@ namespace mbed {
  * @endcode
  */
 
-typedef FunctionPointer* pFunctionPointer_t;
+typedef Callback<void()> *pFunctionPointer_t;
 
 class CallChain {
 public:
@@ -70,34 +70,34 @@ public:
 
     /** Add a function at the end of the chain
      *
-     *  @param function A pointer to a void function
+     *  @param func A pointer to a void function
      *
      *  @returns
-     *  The function object created for 'function'
+     *  The function object created for 'func'
      */
-    pFunctionPointer_t add(void (*function)(void));
+    pFunctionPointer_t add(Callback<void()> func);
 
     /** Add a function at the end of the chain
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      *
      *  @returns
-     *  The function object created for 'tptr' and 'mptr'
+     *  The function object created for 'obj' and 'method'
      */
-    template<typename T>
-    pFunctionPointer_t add(T *tptr, void (T::*mptr)(void)) {
-        return common_add(new FunctionPointer(tptr, mptr));
+    template<typename T, typename M>
+    pFunctionPointer_t add(T *obj, M method) {
+        return add(Callback<void()>(obj, method));
     }
 
     /** Add a function at the beginning of the chain
      *
-     *  @param function A pointer to a void function
+     *  @param func A pointer to a void function
      *
      *  @returns
-     *  The function object created for 'function'
+     *  The function object created for 'func'
      */
-    pFunctionPointer_t add_front(void (*function)(void));
+    pFunctionPointer_t add_front(Callback<void()> func);
 
     /** Add a function at the beginning of the chain
      *
@@ -107,9 +107,9 @@ public:
      *  @returns
      *  The function object created for 'tptr' and 'mptr'
      */
-    template<typename T>
-    pFunctionPointer_t add_front(T *tptr, void (T::*mptr)(void)) {
-        return common_add_front(new FunctionPointer(tptr, mptr));
+    template<typename T, typename M>
+    pFunctionPointer_t add_front(T *obj, M method) {
+        return add_front(Callback<void()>(obj, method));
     }
 
     /** Get the number of functions in the chain
@@ -162,8 +162,6 @@ public:
 
 private:
     void _check_size();
-    pFunctionPointer_t common_add(pFunctionPointer_t pf);
-    pFunctionPointer_t common_add_front(pFunctionPointer_t pf);
 
     pFunctionPointer_t* _chain;
     int _size;
