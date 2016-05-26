@@ -52,6 +52,9 @@ class Target:
         # list of macros (-D)
         self.macros = []
 
+        # list of features
+        self.features = []
+
         # Default online compiler:
         self.default_toolchain = "ARM"
 
@@ -149,6 +152,7 @@ class LPC11U24(LPCTarget):
         self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U24_401']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
+        self.features += ["SEMIHOST", "LOCALFILESYSTEM", "SDCARD"]
         self.detect_code = ["1040"]
         self.progen = {
             "target":"lpc11u24_201",
@@ -332,6 +336,7 @@ class LPC1549(LPCTarget):
         self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["CAN", "ANALOGOUT"]
         self.detect_code = ["1549"]
         self.progen = {
             "target":"lpc1549",
@@ -346,6 +351,7 @@ class LPC1768(LPCTarget):
         self.core = "Cortex-M3"
         self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
+        self.features += ["RTOS", "CAN", "I2CSLAVE", "ANALOGOUT", "SEMIHOST", "LOCALFILESYSTEM", "SDCARD", "RPC"]
         self.detect_code = ["1010"]
         self.progen = {
             "target":"mbed-lpc1768",
@@ -393,6 +399,7 @@ class LPC2368(LPCTarget):
         self.core = "ARM7TDMI-S"
         self.extra_labels = ['NXP', 'LPC23XX']
         self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
+        self.features += ["ANALOGOUT", "SEMIHOST", "LOCALFILESYSTEM"]
         self.progen = {
             "target":"lpc2368",
         }
@@ -403,6 +410,7 @@ class LPC2460(LPCTarget):
         self.core = "ARM7TDMI-S"
         self.extra_labels = ['NXP', 'LPC2460']
         self.supported_toolchains = ["GCC_ARM"]
+        self.features += ["ANALOGOUT"]
         self.progen = {
             "target":"lpc2460",
         }
@@ -430,6 +438,7 @@ class LPC812(LPCTarget):
         self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["SDCARD"]
         self.is_disk_virtual = True
         self.detect_code = ["1050"]
         self.progen = {
@@ -476,6 +485,7 @@ class LPC4088(LPCTarget):
         self.core = "Cortex-M4F"
         self.extra_labels = ['NXP', 'LPC408X']
         self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM", "IAR"]
+        self.features += ["ANALOGOUT"]
         self.is_disk_virtual = True
         self.progen = {
             "target":"lpc4088",
@@ -577,6 +587,7 @@ class KL05Z(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["SDCARD"]
         self.is_disk_virtual = True
         self.progen = {
             "target":"frdm-kl05z",
@@ -592,6 +603,7 @@ class KL25Z(Target):
         self.extra_labels = ['Freescale', 'KLXX']
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["ANALOGOUT", "SDCARD"]
         self.is_disk_virtual = True
         self.detect_code = ["0200"]
         self.progen = {
@@ -629,6 +641,7 @@ class KL46Z(Target):
         self.extra_labels = ['Freescale', 'KLXX']
         self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["SDCARD"]
         self.is_disk_virtual = True
         self.detect_code = ["0220"]
         self.progen = {
@@ -655,6 +668,7 @@ class K22F(Target):
         self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["ANALOGOUT"]
         self.is_disk_virtual = True
         self.detect_code = ["0231"]
         self.progen = {
@@ -683,9 +697,10 @@ class K64F(Target):
         self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
         self.default_toolchain = "ARM"
+        self.supported_form_factors = ["ARDUINO"]
+        self.features += ["RTOS", "ETHERNET", "SDCARD"]
+        self.is_disk_virtual = True
         self.detect_code = ["0240"]
         self.progen = {
             "target":"frdm-k64f",
@@ -696,10 +711,10 @@ class MTS_GAMBIT(Target):
         Target.__init__(self)
         self.core = "Cortex-M4F"
         self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
+        self.is_disk_virtual = True
         self.progen = {
             "target":"mts-gambit",
         }
@@ -781,6 +796,7 @@ class NUCLEO_F042K6(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["CAN"]
         self.detect_code = ["0785"]
         self.progen = {
             "target":"nucleo-f042k6",
@@ -807,6 +823,7 @@ class NUCLEO_F072RB(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["CAN", "ANALOGOUT"]
         self.detect_code = ["0730"]
         self.progen = {
             "target":"nucleo-f072rb",
@@ -820,6 +837,7 @@ class NUCLEO_F091RC(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["CAN", "ANALOGOUT"]
         self.detect_code = ["0750"]
         self.progen = {
             "target":"nucleo-f091rc",
@@ -833,6 +851,7 @@ class NUCLEO_F103RB(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0700"]
         self.progen = {
             "target":"nucleo-f103rb",
@@ -846,6 +865,7 @@ class NUCLEO_F302R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0705"]
         self.progen = {
             "target":"nucleo-f302r8",
@@ -859,6 +879,7 @@ class NUCLEO_F303K8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0775"]
         self.progen = {
             "target":"nucleo-f303k8",
@@ -872,6 +893,7 @@ class NUCLEO_F303RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0745"]
         self.progen = {
             "target":"nucleo-f303re",
@@ -885,6 +907,7 @@ class NUCLEO_F334R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0735"]
         self.progen = {
             "target":"nucleo-f334r8",
@@ -897,6 +920,7 @@ class NUCLEO_F401RE(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
+        self.features += ["SDCARD"]
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
         self.detect_code = ["0720"]
         self.progen = {
@@ -911,6 +935,7 @@ class NUCLEO_F410RB(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT", "SDCARD"]
         self.detect_code = ["0740"]
         self.progen = {
             "target":"nucleo-f410rb",
@@ -924,6 +949,7 @@ class NUCLEO_F411RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT", "SDCARD"]
         self.detect_code = ["0740"]
         self.progen = {
             "target":"nucleo-f411re",
@@ -947,6 +973,7 @@ class NUCLEO_F446RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0777"]
         self.progen = {
             "target":"nucleo-f446re",
@@ -960,6 +987,7 @@ class B96B_F446VE(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["CAN", "ANALOGOUT"]
         self.detect_code = ["0840"]
 
 class NUCLEO_F746ZG(Target):
@@ -997,6 +1025,7 @@ class NUCLEO_L053R8(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0715"]
         self.progen = {
             "target":"nucleo-l053r8",
@@ -1010,6 +1039,7 @@ class NUCLEO_L073RZ(Target):
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0760"]
         self.progen = {
             "target":"nucleo-l073rz",
@@ -1024,6 +1054,7 @@ class NUCLEO_L152RE(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO", "MORPHO"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0710"]
         self.progen = {
             "target":"nucleo-l152re",
@@ -1064,6 +1095,7 @@ class ARCH_MAX(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["RTOS", "ANALOGOUT", "SEMIHOST", "LOCALFILESYSTEM"]
         self.macros = ['LSI_VALUE=32000']
         self.progen = {
             "target":"lpc1768",
@@ -1113,6 +1145,7 @@ class DISCO_F407VG(Target):
         self.core = "Cortex-M4F"
         self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
+        self.features += ["SDCARD"]
         self.progen = {
             "target":"disco-f407vg",
         }
@@ -1125,6 +1158,7 @@ class DISCO_F429ZI(Target):
         self.extra_labels = ['STM', 'STM32F4', 'STM32F429', 'STM32F429ZI']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "uARM"
+        self.features += ["SDCARD"]
         self.progen = {
             "target":"disco-f429zi",
         }
@@ -1137,6 +1171,7 @@ class DISCO_F469NI(Target):
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
         self.supported_form_factors = ["ARDUINO"]
+        self.features += ["SDCARD"]
         self.detect_code = ["0788"]
         self.progen = {
             "target":"disco-f469ni",
@@ -1159,6 +1194,7 @@ class DISCO_F746NG(Target):
         self.core = "Cortex-M7F"
         self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0815"]
         self.progen = {
             "target":"disco-f746ng",
@@ -1171,6 +1207,7 @@ class DISCO_L476VG(Target):
         self.extra_labels = ['STM', 'STM32L4', 'STM32L476VG']
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["0820"]
         self.progen = {
             "target":"disco-l476vg",
@@ -1284,6 +1321,7 @@ class MOTE_L152RC(Target):
         self.extra_labels = ['STM', 'STM32L1', 'STM32L152RC']
         self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
         self.default_toolchain = "uARM"
+        self.features += ["ANALOGOUT"]
         self.detect_code = ["4100"]
         self.progen = {
             "target":"stm32l151rc",
@@ -1903,6 +1941,7 @@ class RZ_A1H(Target):
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
         self.default_toolchain = "ARM"
+        self.features += ["RTOS", "I2CSLAVE", "SDCARD"]
         self.progen = {
             "target": "gr-peach",
             "iar": {
@@ -1921,6 +1960,7 @@ class VK_RZ_A1H(Target):
         self.extra_labels = ['RENESAS', 'VKRZA1H']
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.default_toolchain = "ARM"
+        self.features += ["RTOS", "CAN", "SDCARD"]
         self.progen = {
             "target": "vk-rza1h",
             "iar": {
@@ -1954,6 +1994,7 @@ class MAX32600MBED(Target):
         self.macros = ['__SYSTEM_HFX=24000000']
         self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
         self.default_toolchain = "ARM"
+        self.features += ["ANALOGOUT"]
         self.progen = {
             "target": "max32600mbed",
         }
