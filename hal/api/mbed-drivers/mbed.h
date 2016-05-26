@@ -13,28 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_TOOLCHAIN_H
-#define MBED_TOOLCHAIN_H
+#ifndef MBED_STUB_H
+#define MBED_STUB_H
 
-#if defined(TOOLCHAIN_ARM)
-#include <rt_sys.h>
-#endif
-
-#ifndef FILEHANDLE
-typedef int FILEHANDLE;
-#endif
-
-#if defined (__ICCARM__)
-#   define WEAK     __weak
-#   define PACKED   __packed
-#else
-#   define WEAK     __attribute__((weak))
-#   define PACKED   __attribute__((packed))
-#endif
-
-// Backwards compatibility
-#ifndef EXTERN
-#define EXTERN extern
-#endif
+#include "../mbed.h"
 
 #endif

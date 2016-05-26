@@ -1,0 +1,4 @@
+docs/*
+libraries/*
+travis/*
+workspace_tools/*
