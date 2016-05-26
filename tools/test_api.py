@@ -2027,7 +2027,7 @@ def print_tests(tests, format="list"):
 
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
-        silent=False, report=None, properties=None):
+        macros=None, silent=False, report=None, properties=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests and return a test build data structure"""
     
@@ -2047,6 +2047,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                  options=options,
                                  jobs=jobs,
                                  clean=clean,
+                                 macros=macros,
                                  name=test_name,
                                  report=report,
                                  properties=properties,
