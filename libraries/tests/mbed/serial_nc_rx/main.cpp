@@ -11,22 +11,28 @@ int main() {
 
     char c = pc->getc();
 
-    delete pc;
 
-    // This should be true
-    if (c == 'E') {
-      Serial *pc = new Serial(USBTX, NC);
+    // This should be true, sync the start of test
+    if (c == 'S') {
+        pc->printf("RX OK - Start NC test\r\n");
 
-      pc->printf("RX OK - Expected\r\n");
+        // disconnect TX and  get char
+        delete pc;
+        pc = new Serial(NC, USBRX);
+        c = pc->getc();
+        if (c == 'E') {
+            // ok disconnect Rx and answer to host
+            delete pc;
+            pc = new Serial(USBTX, NC);
+            pc->printf("RX OK - Expected\r\n");
 
-      c = pc->getc();
-
-      // This should be false/not get here
-      if (c == 'U') {
-        pc->printf("RX OK - Unexpected\r\n");
-      }
-
-      delete pc;
+            c = pc->getc();
+            // This should be false/not get here
+            if (c == 'U') {
+                pc->printf("RX OK - Unexpected\r\n");
+            }
+        }
+        delete pc;
     }
 
     while (1) {

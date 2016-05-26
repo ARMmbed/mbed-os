@@ -25,6 +25,9 @@ class SerialNCTXTest():
 
     def test(self, selftest):
         selftest.mbed.flush();
+        # Wait 0.5 seconds to ensure mbed is listening
+        time.sleep(0.5)
+
         selftest.mbed.serial_write("S");
 
         strip_chars = string.whitespace + "\0"
