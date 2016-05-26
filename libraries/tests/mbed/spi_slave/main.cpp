@@ -21,7 +21,7 @@ SPISlave device(PA18, PA16, PA19, PA17);		// mosi, miso, sclk, ssel
 #elif defined(TARGET_SAMG55J19)
 SPISlave device(PA10, PA09, PB00, PA25);   // mosi, miso, sclk  cs
 #else
-SPISlave device(p5, p6, p7, p8);            // mosi, miso, sclk, ssel
+  #error [NOT_SUPPORTED] Test not configured
 #endif
 
 
