@@ -27,6 +27,7 @@
 // mbed Debug libraries
 #include "mbed_error.h"
 #include "mbed_interface.h"
+#include "mbed_assert.h"
 
 // mbed Peripheral components
 #include "DigitalIn.h"
