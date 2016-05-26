@@ -138,8 +138,8 @@ typedef enum {
     A4 = P0_5, // same port as SDA
     A5 = P0_4, // same port as SCL
 
-    SDA= P0_5, // same port as A4
-    SCL= P0_4, // same port as A5
+    I2C_SDA= P0_5, // same port as A4, D14
+    I2C_SCL= P0_4, // same port as A5, D15
 
     //SD Card pins
     SDMOSI = P0_9,

@@ -426,11 +426,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
     {
-        "id": "MBED_14", "description": "Serial Interrupt",
-        "source_dir": join(TEST_DIR, "mbed", "serial_interrupt"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-    },
-    {
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
