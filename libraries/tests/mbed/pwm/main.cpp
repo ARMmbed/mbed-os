@@ -1,5 +1,9 @@
 #include "test_env.h"
 
+#if !DEVICE_PWMOUT
+  #error [NOT_SUPPORTED] PWM is not supported
+#endif
+
 /* Timer/Match Register    Pinout Options
 
 CT16B0/MR0  p5 (P0_9)
