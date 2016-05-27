@@ -209,11 +209,11 @@ class LPC11U35_401(LPCTarget):
             }
         }
 
-class LPC11U35_501(LPCTarget):
+class LPC11U35_501_MCU(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -227,7 +227,7 @@ class LPC11U35_501_IBDAP(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -241,7 +241,7 @@ class XADOW_M0(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -255,7 +255,7 @@ class LPC11U35_Y5_MBUG(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -2159,7 +2159,7 @@ TARGETS = [
     LPC11U34_421(),
     MICRONFCBOARD(),    # LPC11U34_421
     LPC11U35_401(),
-    LPC11U35_501(),     # LPC11U35_501
+    LPC11U35_501_MCU(),   # LPC11U35_501
     LPC11U35_501_IBDAP(), # LPC11U35_501
     XADOW_M0(),         # LPC11U35_501
     LPC11U35_Y5_MBUG(), # LPC11U35_501
