@@ -18,17 +18,16 @@
 
  #include "utest/harness.h"
  #include "utest/stack_trace.h"
+ #include "utest/unity_handler.h"
 
 
-extern "C"
-void utest_unity_assert_failure()
+void utest_unity_assert_failure(void)
 {
     UTEST_LOG_FUNCTION();
     utest::v1::Harness::raise_failure(utest::v1::REASON_ASSERTION);
 }
 
-extern "C"
-void utest_unity_ignore_failure()
+void utest_unity_ignore_failure(void)
 {
     UTEST_LOG_FUNCTION();
     utest::v1::Harness::raise_failure(utest::v1::failure_reason_t(utest::v1::REASON_ASSERTION | utest::v1::REASON_IGNORE));
