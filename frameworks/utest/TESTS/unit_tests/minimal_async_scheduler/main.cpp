@@ -127,7 +127,7 @@ control_t test_case_async()
     printf("Running Test #%d\n", counter);
     return CaseTimeout(200);
 }
-status_t test_case_async_failure(const Case *const source, const failure_t reason)
+utest::v1::status_t test_case_async_failure(const Case *const source, const failure_t reason)
 {
     UTEST_LOG_FUNCTION();
     // ignore the timeout, since this is a test
@@ -143,7 +143,7 @@ Case cases[] = {
 };
 
 // Specification: Setup & Teardown ------------------------------------------------------------------------------------
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
     return greentea_test_setup_handler(number_of_cases);

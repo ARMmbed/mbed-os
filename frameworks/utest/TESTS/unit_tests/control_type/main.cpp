@@ -260,7 +260,7 @@ Case cases[] =
     Case("Testing combinations of different group", test_different_group_combinations)
 };
 
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
 

@@ -24,7 +24,7 @@ using namespace utest::v1;
 static int call_counter(0);
 
 // Control: RepeatAll -------------------------------------------------------------------------------------------------
-status_t repeat_all_case_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t repeat_all_case_setup(const Case *const source, const size_t index_of_case)
 {
     static int repeat_counter(0);
     TEST_ASSERT_EQUAL(0, index_of_case);
@@ -40,7 +40,7 @@ control_t repeat_all_case(const size_t call_count)
     TEST_ASSERT_EQUAL((call_count-1)*3 + 1, call_counter++);
     return (call_count < 10) ? CaseRepeatAll : CaseNoRepeat;
 }
-status_t repeat_all_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t repeat_all_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     static int repeat_counter(0);
     TEST_ASSERT_EQUAL(repeat_counter*3 + 2, call_counter++);
@@ -53,7 +53,7 @@ status_t repeat_all_case_teardown(const Case *const source, const size_t passed,
 }
 
 // Control: RepeatHandler ---------------------------------------------------------------------------------------------
-status_t repeat_handler_case_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t repeat_handler_case_setup(const Case *const source, const size_t index_of_case)
 {
     TEST_ASSERT_EQUAL(1, index_of_case);
     TEST_ASSERT_EQUAL(30, call_counter++);
@@ -67,7 +67,7 @@ control_t repeat_handler_case(const size_t call_count)
     TEST_ASSERT_EQUAL((call_count-1) + 31, call_counter++);
     return (call_count < 10) ? CaseRepeatHandler : CaseNoRepeat;
 }
-status_t repeat_handler_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t repeat_handler_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(41, call_counter++);
     TEST_ASSERT_EQUAL(10, passed);
@@ -104,7 +104,7 @@ Case cases[] = {
     Case("Control: CaseNext", next_handler_case)
 };
 
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
 

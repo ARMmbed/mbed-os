@@ -34,11 +34,11 @@ Case cases[] =
 };
 
 // this setup handler fails
-status_t failing_setup_handler(const size_t number_of_cases)
+utest::v1::status_t failing_setup_handler(const size_t number_of_cases)
 {
     GREENTEA_SETUP(5, "default_auto");
 
-    status_t status = greentea_test_setup_handler(number_of_cases);
+    utest::v1::status_t status = greentea_test_setup_handler(number_of_cases);
 
     failure_is_in_setup = true;
     TEST_FAIL_MESSAGE("Explicit assertion failure in test setup handler!");

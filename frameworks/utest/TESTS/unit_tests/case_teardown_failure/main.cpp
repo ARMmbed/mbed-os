@@ -28,7 +28,7 @@ void continue_case()
 {
     TEST_ASSERT_EQUAL(0, call_counter++);
 }
-status_t continue_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t continue_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -37,7 +37,7 @@ status_t continue_case_teardown(const Case *const source, const size_t passed, c
     TEST_ASSERT_EQUAL(1, call_counter++);
     return greentea_case_teardown_handler(source, passed, failed, failure);
 }
-status_t continue_failure(const Case *const, const failure_t)
+utest::v1::status_t continue_failure(const Case *const, const failure_t)
 {
     TEST_FAIL_MESSAGE("Failure handler should have never been called!");
     return STATUS_CONTINUE;
@@ -48,7 +48,7 @@ void ignore_case()
 {
     TEST_ASSERT_EQUAL(2, call_counter++);
 }
-status_t ignore_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t ignore_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -58,7 +58,7 @@ status_t ignore_case_teardown(const Case *const source, const size_t passed, con
     greentea_case_teardown_handler(source, passed, failed, failure);
     return STATUS_ABORT;
 }
-status_t ignore_failure(const Case *const source, const failure_t failure)
+utest::v1::status_t ignore_failure(const Case *const source, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(4, call_counter++);
     TEST_ASSERT_EQUAL(REASON_CASE_TEARDOWN, failure.reason);
@@ -72,7 +72,7 @@ void abort_case()
 {
     TEST_ASSERT_EQUAL(5, call_counter++);
 }
-status_t abort_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t abort_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -82,7 +82,7 @@ status_t abort_case_teardown(const Case *const source, const size_t passed, cons
     greentea_case_teardown_handler(source, passed, failed, failure);
     return STATUS_ABORT;
 }
-status_t abort_failure(const Case *const source, const failure_t failure)
+utest::v1::status_t abort_failure(const Case *const source, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(7, call_counter++);
     TEST_ASSERT_EQUAL(REASON_CASE_TEARDOWN, failure.reason);
@@ -98,7 +98,7 @@ Case cases[] = {
 };
 
 // Specification: Setup & Teardown ------------------------------------------------------------------------------------
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
 
