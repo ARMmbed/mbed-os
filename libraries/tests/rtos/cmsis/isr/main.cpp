@@ -1,3 +1,7 @@
+#if !MBED_RTOS
+  #error [NOT_SUPPORTED] AnalogIn not supported
+#endif
+
 #include "mbed.h"
 #include "rtos.h"
 

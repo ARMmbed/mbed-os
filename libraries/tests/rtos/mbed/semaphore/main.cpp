@@ -1,3 +1,7 @@
+#if !MBED_RTOS
+  #error [NOT_SUPPORTED] AnalogIn not supported
+#endif
+
 #include "mbed.h"
 #include "test_env.h"
 #include "rtos.h"
@@ -20,13 +24,13 @@
 #elif defined(TARGET_STM32F103RB) && defined(TOOLCHAIN_IAR)
     #define STACK_SIZE DEFAULT_STACK_SIZE/4
 #elif defined(TARGET_STM32F030R8) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/4	
+    #define STACK_SIZE DEFAULT_STACK_SIZE/4
 #elif defined(TARGET_STM32F070RB) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2	
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif defined(TARGET_STM32F072RB) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2	
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif defined(TARGET_STM32F302R8) && defined(TOOLCHAIN_IAR)
-    #define STACK_SIZE DEFAULT_STACK_SIZE/2		
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif defined(TARGET_STM32F303K8) && defined(TOOLCHAIN_IAR)
     #define STACK_SIZE DEFAULT_STACK_SIZE/4
 #else
