@@ -49,11 +49,13 @@
 #define DEVICE_SPISLAVE         1
 
 #define DEVICE_RTC              1
-#define DEVICE_RTC_LSI          0
+#define DEVICE_RTC_LSI          1
 
 #define DEVICE_PWMOUT           1
 
 #define DEVICE_SLEEP            1
+
+#define DEVICE_LOWPOWERTIMER    1
 
 //=======================================
 
