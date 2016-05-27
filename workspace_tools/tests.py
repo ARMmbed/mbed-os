@@ -109,7 +109,6 @@ TESTS = [
         "id": "MBED_A2", "description": "Semihost file system",
         "source_dir": join(TEST_DIR, "mbed", "file"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "features": ["LOCALFILESYSTEM"],
         "automated": True,
     },
     {
@@ -158,7 +157,6 @@ TESTS = [
         "id": "MBED_A8", "description": "Analog",
         "source_dir": join(TEST_DIR, "mbed", "analog"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "features": ["ANALOGOUT"],
         "automated": True,
         "peripherals": ["analog_loop"],
     },
@@ -239,7 +237,6 @@ TESTS = [
         "id": "MBED_A20", "description": "I2C master/slave test",
         "source_dir": join(TEST_DIR, "mbed", "i2c_master_slave"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB,],
-        "features": ["I2CSLAVE"],
         "peripherals": ["i2c_loop"]
     },
     {
@@ -276,7 +273,6 @@ TESTS = [
         "id": "MBED_A27", "description": "CAN loopback test",
         "source_dir": join(TEST_DIR, "mbed", "can_loopback"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "features": ["CAN"],
         "automated": True,
         "duration": 20,
         "peripherals": ["can_transceiver"],
@@ -424,32 +420,14 @@ TESTS = [
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
-        "features": ["RPC"],
         "automated": False,
     },
     {
         "id": "MBED_16", "description": "RTC",
         "source_dir": join(TEST_DIR, "mbed", "rtc"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTC"],
         "automated": True,
-        "exclude_mcu": ["NRF51822", "NRF51822_BOOT", "NRF51822_OTA", "NRF51822_Y5_MBUG",
-                        "NRF51_DK", "NRF51_DK_BOOT", "NRF51_DK_OTA",
-                        "NRF51_MICROBIT", "NRF51_MICROBIT_B", "NRF51_MICROBIT_BOOT",
-                        "NRF51_MICROBIT_B_BOOT", "NRF51_MICROBIT_B_OTA", "NRF51_MICROBIT_OTA",
-                        "HRM1017", "HRM1017_BOOT", "HRM1701_OTA",
-                        "TY51822R3", "TY51822R3_BOOT", "TY51822R3_OTA",
-                        "NRF15_DONGLE", "NRF15_DONGLE_BOOT", "NRF15_DONGLE_OTA",
-                        "ARCH_BLE", "ARCH_BLE_BOOT", "ARCH_BLE_OTA",
-                        "ARCH_LINK", "ARCH_LINK_BOOT", "ARCH_LINK_OTA",
-                        "RBLAB_BLENANO", "RBLAB_BLENANO_BOOT", "RBLAB_BLENANO_OTA",
-                        "RBLAB_NRF51822", "RBLAB_NRF51822_BOOT", "RBLAB_NRF51822_OTA",
-                        "SEEED_TINY_BLE", "SEEED_TINY_BLE_BOOT", "SEEED_TINY_BLE_OTA",
-                        "WALLBOT_BLE", "WALLBOT_BLE_BOOT", "WALLBOT_BLE_OTA",
-                        "DELTA_DFCM_NNN40", "DELTA_DFCM_NNN40_BOOT", "DELTA_DFCM_NNN40_OTA",
-                        "LPC1114"],
-        #"host_test": "rtc_auto",
-        "duration": 15
+        "duration": 15,
     },
     {
         "id": "MBED_18", "description": "Local FS Directory",
@@ -471,7 +449,6 @@ TESTS = [
         "id": "MBED_22", "description": "Semihost",
         "source_dir": join(TEST_DIR, "mbed", "semihost"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "features": ["SEMIHOST"],
         "automated": True,
     },
     {
@@ -608,7 +585,6 @@ TESTS = [
         "id": "RTOS_1", "description": "Basic thread",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "basic"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "duration": 15,
         "automated": True,
     },
@@ -616,7 +592,6 @@ TESTS = [
         "id": "RTOS_2", "description": "Mutex resource lock",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mutex"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "duration": 20,
         "automated": True,
     },
@@ -624,7 +599,6 @@ TESTS = [
         "id": "RTOS_3", "description": "Semaphore resource lock",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "semaphore"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "duration": 20,
         "automated": True,
     },
@@ -632,28 +606,24 @@ TESTS = [
         "id": "RTOS_4", "description": "Signals messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "signals"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "automated": True,
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "queue"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "automated": True,
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "mail"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "automated": True,
     },
     {
         "id": "RTOS_7", "description": "Timer",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "timer"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "duration": 15,
         "automated": True,
     },
@@ -661,14 +631,12 @@ TESTS = [
         "id": "RTOS_8", "description": "ISR (Queue)",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "isr"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-        "features": ["RTOS"],
         "automated": True,
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",
         "source_dir": join(TEST_DIR, "rtos", "mbed", "file"),
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
-        "features": ["SDCARD"],
         "automated": True,
         "peripherals": ["SD"],
     },
@@ -846,28 +814,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, DSP_LIBRARIES],
     },
 
-    # KL25Z
-    {
-        "id": "KL25Z_1", "description": "LPTMR",
-        "source_dir": join(TEST_DIR, "KL25Z", "lptmr"),
-        "dependencies": [MBED_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
-        "mcu": ["KL25Z"],
-    },
-    {
-        "id": "KL25Z_2", "description": "PIT",
-        "source_dir": join(TEST_DIR, "KL25Z", "pit"),
-        "dependencies": [MBED_LIBRARIES],
-        "supported": CORTEX_ARM_SUPPORT,
-        "mcu": ["KL25Z"],
-    },
-    {
-        "id": "KL25Z_4", "description": "RTC",
-        "source_dir": join(TEST_DIR, "KL25Z", "rtc"),
-        "dependencies": [MBED_LIBRARIES],
-        "mcu": ["KL25Z"],
-    },
-
     # Examples
     {
         "id": "EXAMPLE_1", "description": "/dev/null",
@@ -897,7 +843,6 @@ TESTS = [
         "id": "UT_2", "description": "Semihost file system",
         "source_dir": join(TEST_DIR, "utest", "semihost_fs"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, CPPUTEST_LIBRARY],
-        "features": ["SEMIHOST"],
         "automated": False,
     },
     {
@@ -986,15 +931,6 @@ class Test:
         self.__dict__.update(TESTS[n])
 
     def is_supported(self, target, toolchain):
-        if hasattr(self, 'features'):
-            found = 0
-            for feature in self.features:
-                if feature in TARGET_MAP[target].features:
-                    found += 1
-                    break
-            if found != len(self.features):
-                return False
-
         return True
         #if hasattr(self, 'mcu') and not target in self.mcu:
         #    return False
