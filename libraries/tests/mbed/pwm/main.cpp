@@ -1,5 +1,9 @@
 #include "test_env.h"
 
+#if !DEVICE_PWMOUT
+  #error [NOT_SUPPORTED] PWM is not supported
+#endif
+
 /* Timer/Match Register    Pinout Options
 
 CT16B0/MR0  p5 (P0_9)
@@ -28,7 +32,7 @@ int main() {
     printf("PWM period = %dms with duty cycle: %d%%\n", period_ms, (int) (result * 100));
 
     notify_completion(result == value ? true : false);
-#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || (defined(TARGET_LPC11U24) && !defined(TARGET_OC_MBUINO)) || defined(TARGET_LPC4088) || defined(TARGET_LPC2460)
     PwmOut pwm_p25(p25);
     PwmOut pwm_p26(p26);
 

@@ -1,3 +1,7 @@
+#if !MBED_RTOS
+  #error [NOT_SUPPORTED] RTOS not supported
+#endif
+
 #include "mbed.h"
 #include "SDFileSystem.h"
 #include "test_env.h"

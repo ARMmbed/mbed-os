@@ -19,7 +19,7 @@ InterruptIn wkp(PB23);
 #elif defined(TARGET_SAML21J18A)
 InterruptIn wkp(PA02);
 #else
-InterruptIn wkp(p14);
+#error [NOT_SUPPORTED] Sleep is not supported
 #endif
 
 void flip() {

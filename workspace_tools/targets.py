@@ -52,6 +52,9 @@ class Target:
         # list of macros (-D)
         self.macros = []
 
+        # list of features
+        self.features = []
+
         # Default online compiler:
         self.default_toolchain = "ARM"
 
@@ -209,11 +212,11 @@ class LPC11U35_401(LPCTarget):
             }
         }
 
-class LPC11U35_501(LPCTarget):
+class LPC11U35_501_MCU(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -227,7 +230,7 @@ class LPC11U35_501_IBDAP(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -241,7 +244,7 @@ class XADOW_M0(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -255,7 +258,7 @@ class LPC11U35_Y5_MBUG(LPCTarget):
     def __init__(self):
         LPCTarget.__init__(self)
         self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
+        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U35_501']
         self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
         self.default_toolchain = "uARM"
         self.progen = {
@@ -651,7 +654,7 @@ class K22F(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM', 'KPSDK_MCUS', 'KPSDK_CODE']
         self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
         self.supported_form_factors = ["ARDUINO"]
@@ -680,12 +683,12 @@ class K64F(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
         self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
+        self.default_toolchain = "ARM"
         self.supported_form_factors = ["ARDUINO"]
         self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
         self.detect_code = ["0240"]
         self.progen = {
             "target":"frdm-k64f",
@@ -695,11 +698,11 @@ class MTS_GAMBIT(Target):
     def __init__(self):
         Target.__init__(self)
         self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
+        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F', 'KPSDK_MCUS', 'KPSDK_CODE', 'MCU_K64F']
         self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
+        self.supported_toolchains = ["ARM", "GCC_ARM"]
         self.default_toolchain = "ARM"
+        self.is_disk_virtual = True
         self.progen = {
             "target":"mts-gambit",
         }
@@ -2159,7 +2162,7 @@ TARGETS = [
     LPC11U34_421(),
     MICRONFCBOARD(),    # LPC11U34_421
     LPC11U35_401(),
-    LPC11U35_501(),     # LPC11U35_501
+    LPC11U35_501_MCU(),   # LPC11U35_501
     LPC11U35_501_IBDAP(), # LPC11U35_501
     XADOW_M0(),         # LPC11U35_501
     LPC11U35_Y5_MBUG(), # LPC11U35_501

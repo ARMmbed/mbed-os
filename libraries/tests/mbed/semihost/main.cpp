@@ -1,4 +1,9 @@
 #include "test_env.h"
+
+#if !DEVICE_SEMIHOST
+  #error [NOT_SUPPORTED] Semihosting is not supported
+#endif
+
 #include "semihost_api.h"
 
 #define MAC_VENDOR_ARM_0    0x00

@@ -21,7 +21,7 @@ I2CSlave slave(I2C_SDA, I2C_SCL);
 #elif defined(TARGET_SAMG55J19)
 I2CSlave slave(PA10, PA09);
 #else
-I2CSlave slave(p28, p27);
+  #error [NOT_SUPPORTED] Test not configured
 #endif
 
  int main() {
