@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef NETWORK_INTERFACE_H
-#define NETWORK_INTERFACE_H
+#ifndef NETWORK_STACK_H
+#define NETWORK_STACK_H
 
 #include "mbed.h"
 #include "SocketAddress.h"

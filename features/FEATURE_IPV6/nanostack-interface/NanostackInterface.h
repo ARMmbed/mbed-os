@@ -11,22 +11,18 @@
 #include "mbed-mesh-api/Mesh6LoWPAN_ND.h"
 #include "mbed-mesh-api/MeshThread.h"
 
-class NanostackInterface : public MeshInterface, public NetworkStack {
+class NanostackInterface : public NetworkStack {
 public:
-    NanostackInterface() : connect_semaphore(0) { }
-    int disconnect();
-
-    /** Get the internally stored IP address
-    /return     IP address of the interface or null if not yet connected
-    */
-    const char *get_ip_address();
-
-    /** Get the internally stored MAC address
-    /return     MAC address of the interface
-    */
-    const char *get_mac_address();
+    static NanostackInterface *get_stack();
 
 protected:
+
+    /** Get the local IP address
+     *
+     *  @return         Null-terminated representation of the local IP address
+     *                  or null if not yet connected
+     */
+    virtual const char *get_ip_address();
 
     /** Opens a socket
      *
@@ -216,11 +212,40 @@ protected:
      */
     virtual int getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
 
+private:
+    static NanostackInterface * _ns_interface;
+};
+
+class MeshInterfaceNanostack : public MeshInterface {
+
+    /** Start the interface
+     *
+     *  @return     0 on success, negative on failure
+     */
+    virtual int connect() = 0;
+
+    /** Stop the interface
+     *
+     *  @return     0 on success, negative on failure
+     */
+    virtual int disconnect();
+
+    /** Get the internally stored IP address
+    /return     IP address of the interface or null if not yet connected
+    */
+    virtual const char *get_ip_address();
+
+    /** Get the internally stored MAC address
+    /return     MAC address of the interface
+    */
+    virtual const char *get_mac_address();
+
 protected:
+    MeshInterfaceNanostack() : connect_semaphore(0) { }
     int register_rf();
     int actual_connect();
+    virtual NetworkStack * get_stack(void);
 
-    virtual AbstractMesh *get_mesh_api() const = 0;
     void mesh_network_handler(mesh_connection_status_t status);
     AbstractMesh *mesh_api;
     int8_t rf_device_id;
@@ -230,7 +255,7 @@ protected:
     Semaphore connect_semaphore;
 };
 
-class LoWPANNDInterface : public NanostackInterface {
+class LoWPANNDInterface : public MeshInterfaceNanostack {
 public:
     int connect();
 protected:
@@ -239,7 +264,7 @@ private:
 
 };
 
-class ThreadInterface : public NanostackInterface {
+class ThreadInterface : public MeshInterfaceNanostack {
 public:
     int connect();
 protected:

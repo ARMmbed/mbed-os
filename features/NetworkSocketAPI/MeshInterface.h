@@ -17,13 +17,13 @@
 #ifndef MESH_INTERFACE_H
 #define MESH_INTERFACE_H
 
-#include "NetworkStack.h"
+#include "NetworkInterface.h"
 
 /** MeshInterface class
  *
  *  Common interface that is shared between mesh hardware
  */
-class MeshInterface
+class MeshInterface : public NetworkInterface
 {
 public:
     /** Start the interface
