@@ -18,6 +18,7 @@
 
 #define MBED_LIBRARY_VERSION 121
 
+#include "toolchain.h"
 #include "platform.h"
 
 // Useful C libraries
@@ -62,6 +63,10 @@
 #include "wait_api.h"
 #include "sleep_api.h"
 #include "rtc_time.h"
+
+// mbed Non-hardware components
+#include "Callback.h"
+#include "FunctionPointer.h"
 
 using namespace mbed;
 using namespace std;

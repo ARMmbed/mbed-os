@@ -32,4 +32,9 @@ typedef int FILEHANDLE;
 #   define PACKED   __attribute__((packed))
 #endif
 
+// Backwards compatibility
+#ifndef EXTERN
+#define EXTERN extern
+#endif
+
 #endif

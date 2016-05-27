@@ -48,9 +48,9 @@ int SerialBase::writeable() {
     return serial_writable(&_serial);
 }
 
-void SerialBase::attach(void (*fptr)(void), IrqType type) {
-    if (fptr) {
-        _irq[type].attach(fptr);
+void SerialBase::attach(Callback<void()> func, IrqType type) {
+    if (func) {
+        _irq[type].attach(func);
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
         serial_irq_set(&_serial, (SerialIrq)type, 0);
