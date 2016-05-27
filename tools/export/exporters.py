@@ -7,6 +7,7 @@ from jinja2 import Template, FileSystemLoader
 from jinja2.environment import Environment
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
+from operator import add
 
 from tools.utils import mkdir
 from tools.toolchains import TOOLCHAIN_CLASSES
@@ -111,17 +112,18 @@ class Exporter(object):
 
         return resources
 
-    def scan_and_copy_resources(self, prj_path, trg_path, relative=False):
+    def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):
         # Copy only the file for the required target and toolchain
         lib_builds = []
         for src in ['lib', 'src']:
-            resources = self.__scan_and_copy(join(prj_path, src), trg_path)
+            resources = reduce(add, [self.__scan_and_copy(join(path, src), trg_path) for path in prj_paths])
             lib_builds.extend(resources.lib_builds)
 
             # The repository files
             for repo_dir in resources.repo_dirs:
                 repo_files = self.__scan_all(repo_dir)
-                self.toolchain.copy_files(repo_files, trg_path, rel_path=join(prj_path, src))
+                for path in proj_paths :
+                    self.toolchain.copy_files(repo_files, trg_path, rel_path=join(path, src))
 
         # The libraries builds
         for bld in lib_builds:
@@ -142,7 +144,7 @@ class Exporter(object):
             self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
         else:
             # use the prj_dir (source, not destination)
-            self.resources = self.toolchain.scan_resources(prj_path)
+            self.resources = reduce(add, [self.toolchain.scan_resources(path) for path in prj_paths])
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
