@@ -60,6 +60,8 @@
 
 #define DEVICE_CAN              1
 
+#define DEVICE_LOWPOWERTIMER    1
+
 //=======================================
 
 #define DEVICE_SEMIHOST         0

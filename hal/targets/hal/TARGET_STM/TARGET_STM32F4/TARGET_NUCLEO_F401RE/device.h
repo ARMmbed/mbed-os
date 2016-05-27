@@ -55,6 +55,8 @@
 
 #define DEVICE_SLEEP            1
 
+#define DEVICE_LOWPOWERTIMER    1
+
 //=======================================
 
 #define DEVICE_SEMIHOST         0
