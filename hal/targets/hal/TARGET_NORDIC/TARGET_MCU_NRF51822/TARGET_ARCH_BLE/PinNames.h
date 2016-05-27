@@ -61,8 +61,8 @@ typedef enum {
     p28 = 28,
     p29 = 29,
     p30 = 30,
-//    p31=31,    
-    
+//    p31=31,
+
     P0_0  = p0,
     P0_1  = p1,
     P0_2  = p2,
@@ -71,7 +71,7 @@ typedef enum {
     P0_5  = p5,
     P0_6  = p6,
     P0_7  = p7,
-    
+
     P0_8  = p8,
     P0_9  = p9,
     P0_10 = p10,
@@ -80,7 +80,7 @@ typedef enum {
     P0_13 = p13,
     P0_14 = p14,
     P0_15 = p15,
-    
+
     P0_16 = p16,
     P0_17 = p17,
     P0_18 = p18,
@@ -89,7 +89,7 @@ typedef enum {
     P0_21 = p21,
     P0_22 = p22,
     P0_23 = p23,
-    
+
     P0_24 = p24,
     P0_25 = p25,
     P0_26 = p26,
@@ -97,12 +97,12 @@ typedef enum {
     P0_28 = p28,
     P0_29 = p29,
     P0_30 = p30,
-    
+
     LED1  = p30,
     LED2  = p14,
     LED3  = p15,
     LED4  = p16,
-        
+
     RX_PIN_NUMBER = p7,
     TX_PIN_NUMBER = p8,
     CTS_PIN_NUMBER = p26,
@@ -111,20 +111,20 @@ typedef enum {
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
-        
+
     SPI_PSELMOSI0 = p25,
     SPI_PSELMISO0 = p28,
     SPI_PSELSS0 = p24,
     SPI_PSELSCK0 = p29,
-        
+
     SPI_PSELMOSI1 = p12,
     SPI_PSELMISO1 = p13,
     SPI_PSELSS1 = p14,
     SPI_PSELSCK1 = p15,
-    
+
     SPIS_PSELMOSI = p12,
     SPIS_PSELMISO = p13,
-    SPIS_PSELSS = p14,    
+    SPIS_PSELSS = p14,
     SPIS_PSELSCK = p15,
 
     I2C_SDA0 = p5,
@@ -141,7 +141,7 @@ typedef enum {
     D5  = p12,
     D6  = p13,
     D7  = p17,
-    
+
     D8  = p18,
     D9  = p23,
     D10 = p24,
@@ -150,7 +150,9 @@ typedef enum {
     D13 = p29,
 
     D14 = p5,
+    I2C_SDA = D14,
     D15 = p6,
+    I2C_SCL = D15,
 
     A0  = p1,
     A1  = p2,

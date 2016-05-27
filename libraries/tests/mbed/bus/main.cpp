@@ -21,6 +21,10 @@ BusOut bus2(A5, A4, A3, A2, A1, A0);
 BusOut bus1(PA18, PA17, PA25, PA26, PA23, PA00, PA29, PA24, PA10, PA09, PA13, PA11, PA14);
 BusOut bus2(PB00, PB01, PB08, PB09, PB10, PB11, PB14);
 
+#elif defined(TARGET_LPC1768) || defined(LPC11U24)
+BusOut bus1(p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19, p20);
+BusOut bus2(p21, p22, p23, p24, p25, p26, p26, p28, p29, p30);
+
 #else
 #error [NOT_SUPPORTED] This test is not supported on this target
 

@@ -125,32 +125,84 @@ def add_project_runs(args):
     project_run_data['hostOses_set'] = set()
     project_run_data['hostOses_set'].add(args.host_os)
 
-    add_report(project_run_data, args.build_report, True, args.build_id, args.host_os)
+    if args.build_report:
+        add_report(project_run_data, args.build_report, True, args.build_id, args.host_os)
 
-    if (args.test_report):
+    if args.test_report:
         add_report(project_run_data, args.test_report, False, args.build_id, args.host_os)
 
-    ts_data = format_project_run_data(project_run_data)
-    r = requests.post(urlparse.urljoin(args.url, "api/projectRuns"), headers=create_headers(args), json=ts_data)
-    finish_command('add-project-runs', r)
+    ts_data = format_project_run_data(project_run_data, args.limit)
+    total_result = True
+    
+    total_parts = len(ts_data)
+    print "Uploading project runs in %d parts" % total_parts
+    
+    for index, data in enumerate(ts_data):
+        r = requests.post(urlparse.urljoin(args.url, "api/projectRuns"), headers=create_headers(args), json=data)
+        print("add-project-runs part %d/%d" % (index + 1, total_parts), r.status_code, r.reason)
+        print(r.text)
+    
+        if r.status_code >= 400:
+            total_result = False
+    
+    if total_result:
+        print "'add-project-runs' completed successfully"
+        sys.exit(0)
+    else:
+        print "'add-project-runs' failed"
+        sys.exit(2)
 
-def format_project_run_data(project_run_data):
+def prep_ts_data():
     ts_data = {}
     ts_data['projectRuns'] = []
-
-    for hostOs in project_run_data['projectRuns'].values():
-        for platform in hostOs.values():
-            for toolchain in platform.values():
-                for project in toolchain.values():
-                    ts_data['projectRuns'].append(project)
-
-    ts_data['platforms'] = list(project_run_data['platforms_set'])
-    ts_data['vendors'] = list(project_run_data['vendors_set'])
-    ts_data['toolchains'] = list(project_run_data['toolchains_set'])
-    ts_data['names'] = list(project_run_data['names_set'])
-    ts_data['hostOses'] = list(project_run_data['hostOses_set'])
-
+    ts_data['platforms'] = set()
+    ts_data['vendors'] = set()
+    ts_data['toolchains'] = set()
+    ts_data['names'] = set()
+    ts_data['hostOses'] = set()
     return ts_data
+
+def finish_ts_data(ts_data, project_run_data):
+    ts_data['platforms'] = list(ts_data['platforms'])
+    ts_data['vendors'] = list(ts_data['vendors'])
+    ts_data['toolchains'] = list(ts_data['toolchains'])
+    ts_data['names'] = list(ts_data['names'])
+    ts_data['hostOses'] = list(ts_data['hostOses'])
+    
+    # Add all vendors to every projectRun submission
+    # TODO Either add "vendor" to the "project_run_data"
+    #      or remove "vendor" entirely from the viewer
+    ts_data['vendors'] = list(project_run_data['vendors_set'])
+    
+def format_project_run_data(project_run_data, limit):
+    all_ts_data = []
+    current_limit_count = 0
+    
+    ts_data = prep_ts_data()
+    ts_data['projectRuns'] = []
+
+    for hostOs_name, hostOs in project_run_data['projectRuns'].iteritems():
+        for platform_name, platform in hostOs.iteritems():
+            for toolchain_name, toolchain in platform.iteritems():
+                for project_name, project in toolchain.iteritems():
+                    if current_limit_count >= limit:
+                        finish_ts_data(ts_data, project_run_data)
+                        all_ts_data.append(ts_data)
+                        ts_data = prep_ts_data()
+                        current_limit_count = 0
+                    
+                    ts_data['projectRuns'].append(project)
+                    ts_data['platforms'].add(platform_name)
+                    ts_data['toolchains'].add(toolchain_name)
+                    ts_data['names'].add(project_name)
+                    ts_data['hostOses'].add(hostOs_name)
+                    current_limit_count += 1
+    
+    if current_limit_count > 0:
+        finish_ts_data(ts_data, project_run_data)
+        all_ts_data.append(ts_data)
+    
+    return all_ts_data
 
 def find_project_run(projectRuns, project):
     keys = ['hostOs', 'platform', 'toolchain', 'project']
@@ -308,9 +360,10 @@ def main(arguments):
 
     add_project_runs_parser = subparsers.add_parser('add-project-runs', help='add project runs to a build')
     add_project_runs_parser.add_argument('-b', '--build-id', required=True, help='build id')
-    add_project_runs_parser.add_argument('-r', '--build-report', required=True, help='path to junit xml build report')
+    add_project_runs_parser.add_argument('-r', '--build-report', required=False, help='path to junit xml build report')
     add_project_runs_parser.add_argument('-t', '--test-report', required=False, help='path to junit xml test report')
     add_project_runs_parser.add_argument('-o', '--host-os', required=True, help='host os on which test was run')
+    add_project_runs_parser.add_argument('-l', '--limit', required=False, type=int, default=1000, help='Limit the number of project runs sent at a time to avoid HTTP errors (default is 1000)')
     add_project_runs_parser.set_defaults(func=add_project_runs)
 
     args = parser.parse_args(arguments)

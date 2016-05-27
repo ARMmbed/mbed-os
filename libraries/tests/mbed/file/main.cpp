@@ -1,6 +1,10 @@
 #include "test_env.h"
 #include "semihost_api.h"
 
+#if !DEVICE_LOCALFILESYSTEM
+  #error [NOT_SUPPORTED] LocalFileSystem not supported
+#endif
+
 Serial pc(USBTX, USBRX);
 
 #define FILENAME      "/local/out.txt"

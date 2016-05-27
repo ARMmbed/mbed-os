@@ -252,22 +252,6 @@ TESTS = [
         "automated": True,
     },
     {
-        "id": "MBED_A22", "description": "SPIFI for LPC4088 (test 1)",
-        "source_dir": join(TEST_DIR, "mbed", "spifi1"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
-        "duration": 30,
-        "mcu": ["LPC4088","LPC4088_DM"]
-    },
-    {
-        "id": "MBED_A23", "description": "SPIFI for LPC4088 (test 2)",
-        "source_dir": join(TEST_DIR, "mbed", "spifi2"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True,
-        "duration": 30,
-        "mcu": ["LPC4088","LPC4088_DM"]
-    },
-    {
         "id": "MBED_A24", "description": "Serial echo with RTS/CTS flow control",
         "source_dir": join(TEST_DIR, "mbed", "echo_flow_control"),
         "dependencies": [MBED_LIBRARIES],
@@ -394,11 +378,6 @@ TESTS = [
         #"host_test": "stdio_auto"
     },
     {
-        "id": "MBED_3", "description": "PortOut",
-        "source_dir": join(TEST_DIR, "mbed", "portout"),
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
         "id": "MBED_4", "description": "Sleep",
         "source_dir": join(TEST_DIR, "mbed", "sleep"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
@@ -409,18 +388,6 @@ TESTS = [
         "id": "MBED_5", "description": "PWM",
         "source_dir": join(TEST_DIR, "mbed", "pwm"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB]
-    },
-    {
-        "id": "MBED_6", "description": "SW Reset",
-        "source_dir": join(TEST_DIR, "mbed", "reset"),
-        "dependencies": [MBED_LIBRARIES],
-        "duration": 15
-    },
-    {
-        "id": "MBED_7", "description": "stdio  benchmark",
-        "source_dir": join(TEST_DIR, "mbed", "stdio_benchmark"),
-        "dependencies": [MBED_LIBRARIES],
-        "duration": 40
     },
     {
         "id": "MBED_8", "description": "SPI",
@@ -459,11 +426,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
     },
     {
-        "id": "MBED_14", "description": "Serial Interrupt",
-        "source_dir": join(TEST_DIR, "mbed", "serial_interrupt"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-    },
-    {
         "id": "MBED_15", "description": "RPC",
         "source_dir": join(TEST_DIR, "mbed", "rpc"),
         "dependencies": [MBED_LIBRARIES, join(LIB_DIR, "rpc"), TEST_MBED_LIB],
@@ -494,11 +456,6 @@ TESTS = [
         "duration": 15
     },
     {
-        "id": "MBED_17", "description": "Serial Interrupt 2",
-        "source_dir": join(TEST_DIR, "mbed", "serial_interrupt_2"),
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
         "id": "MBED_18", "description": "Local FS Directory",
         "source_dir": join(TEST_DIR, "mbed", "dir"),
         "dependencies": [MBED_LIBRARIES],
@@ -508,11 +465,6 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "dir_sd"),
         "dependencies": [MBED_LIBRARIES, FS_LIBRARY],
         "peripherals": ["SD"]
-    },
-    {
-        "id": "MBED_20", "description": "InterruptIn 2",
-        "source_dir": join(TEST_DIR, "mbed", "interruptin_2"),
-        "dependencies": [MBED_LIBRARIES],
     },
     {
         "id": "MBED_21", "description": "freopen Stream",
@@ -566,30 +518,6 @@ TESTS = [
         "id": "MBED_28", "description": "Interrupt chaining (InterruptManager)",
         "source_dir": join(TEST_DIR, "mbed", "interrupt_chaining"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-    },
-    {
-        "id": "MBED_29", "description": "CAN network test",
-        "source_dir": join(TEST_DIR, "mbed", "can"),
-        "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
-                "NUCLEO_F072RB", "NUCLEO_F042K6"]
-    },
-    {
-        "id": "MBED_30", "description": "CAN network test using interrupts",
-        "source_dir": join(TEST_DIR, "mbed", "can_interrupt"),
-        "dependencies": [MBED_LIBRARIES],
-        "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
-                "NUCLEO_F072RB", "NUCLEO_F042K6"]
-    },
-    {
-        "id": "MBED_31", "description": "PWM LED test",
-        "source_dir": join(TEST_DIR, "mbed", "pwm_led"),
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
-        "id": "MBED_32", "description": "Pin toggling",
-        "source_dir": join(TEST_DIR, "mbed", "pin_toggling"),
-        "dependencies": [MBED_LIBRARIES],
     },
     {
         "id": "MBED_33", "description": "C string operations",
@@ -989,25 +917,11 @@ TESTS = [
         "mcu": ["KL25Z"],
     },
     {
-        "id": "KL25Z_3", "description": "TSI Touch Sensor",
-        "source_dir": join(TEST_DIR, "mbed", "tsi"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'TSI')],
-        "mcu": ["KL25Z"],
-    },
-    {
         "id": "KL25Z_4", "description": "RTC",
         "source_dir": join(TEST_DIR, "KL25Z", "rtc"),
         "dependencies": [MBED_LIBRARIES],
         "mcu": ["KL25Z"],
     },
-    {
-        "id": "KL25Z_5", "description": "MMA8451Q accelerometer",
-        "source_dir": join(TEST_DIR, "mbed", "i2c_MMA8451Q"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB, join(PERIPHERALS, 'MMA8451Q')],
-        "mcu": ["KL25Z", "KL05Z", "KL46Z", "K20D50M"],
-        "automated": True,
-        "duration": 15,
-        },
 
     # Examples
     {
@@ -1016,11 +930,6 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True,
         #"host_test" : "dev_null_auto",
-    },
-    {
-        "id": "EXAMPLE_2", "description": "FS + RTOS",
-        "source_dir": join(TEST_DIR, "mbed", "fs"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB, FS_LIBRARY],
     },
 
     # CPPUTEST Library provides Unit testing Framework
@@ -1132,13 +1041,14 @@ class Test:
         self.__dict__.update(TESTS[n])
 
     def is_supported(self, target, toolchain):
-        if hasattr(self, 'mcu') and not target in self.mcu:
-            return False
-        if hasattr(self, 'exclude_mcu') and target in self.exclude_mcu:
-            return False
-        if not hasattr(self, 'supported'):
-            return True
-        return (target in self.supported) and (toolchain in self.supported[target])
+        return True
+        #if hasattr(self, 'mcu') and not target in self.mcu:
+        #    return False
+        #if hasattr(self, 'exclude_mcu') and target in self.exclude_mcu:
+        #    return False
+        #if not hasattr(self, 'supported'):
+        #    return True
+        #return (target in self.supported) and (toolchain in self.supported[target])
 
     def get_description(self):
         if self.description:

@@ -39,14 +39,14 @@ typedef enum {
     P4_0, P4_1, P4_2, P4_3, P4_4, P4_5, P4_6, P4_7, P4_8, P4_9, P4_10, P4_11, P4_12, P4_13, P4_14, P4_15, P4_16, P4_17, P4_18, P4_19, P4_20, P4_21, P4_22, P4_23, P4_24, P4_25, P4_26, P4_27, P4_28, P4_29, P4_30, P4_31,
 
     // Arduino Pin Names
-    
+
     // PIN header connector
 	// for standard-based form factor with expansion board
 	// -----------------------------------------------------------
 	// PMW  = Pulswidth Modulator
 	// EINT = External Interrupt
 	// AOUT = Analog Output
- 
+
 	// Analog Ports (A0-A5)
 	A0 = P0_23, // I2S_CLK
 	A1 = P0_24, // I2S_WS
@@ -64,7 +64,7 @@ typedef enum {
 	D6 = P2_2,  // PWM
 	D7 = P2_11, // EINT
 	// Digital Port (D8-D13)
-	D8 = P2_4,   // PWM  
+	D8 = P2_4,   // PWM
 	D9 = P2_3,   // PWM
 	D10 = P1_21, // PWM  SSEL
 	D11 = P1_24, // PWM  MOSI
@@ -73,14 +73,16 @@ typedef enum {
 	// GND
 	// AREF
 	SDA = P0_0,
+  I2C_SDA = SDA,
 	D14 = SDA,
 	SCL = P0_1,
+  I2C_SCL = SCL,
 	D15 = SCL,
-    
+
 	// I2C (shared with LISA/SARA)
 	GPSSDA = P0_27,
 	GPSSCL = P0_28,
-	// UART 
+	// UART
 	GPSTXD = P0_10,
 	GPSRXD = P0_11,
 	// Control
@@ -88,7 +90,7 @@ typedef enum {
 	GPSPPS = P1_19, // 1PPS Timepulse (output from GPS)
 	GPSINT = P1_22, // Interrupt (input to GPS)
 	GPSEN  = P1_29, // Supply Control (high = enabled)
- 
+
 	// u-blox LISA/SARA cellular modem
 	// http://www.u-blox.com/wireless-modules.html
 	// -----------------------------------------------------------
@@ -101,26 +103,26 @@ typedef enum {
 	MDMDTR = P0_20, // Data Terminal Ready (set high or use handshake)
 	MDMRI  = P0_21, // Ring Indicator
 	MDMRTS = P0_22, // Request to Send (set high or use handshake)
-	
+
 	// USB (not available on C27-G35)
 	MDMUSBDP  = P0_29, // USB D+
 	MDMUSBDN  = P0_30, // USB D-
 	MDMUSBCON = P2_9,  // USB Connect
 	MDMUSBDET = P0_7,  // USB Detect (n/a on REV.A board)
-	// Control 
+	// Control
 	MDMEN     = P2_5,  // Supply Control (high = enabled)
-	MDMPWRON  = P2_6,  // 
+	MDMPWRON  = P2_6,  //
 	MDMGPIO1  = P2_7,  // GPIO1, Network status
 	MDMRST    = P2_8,  // Reset (active low, set as open drain!)
 	MDMLVLOE  = P0_9,  // Serial/GPIO Level Shifter Output Enable (n/a on REV.A board)
 	MDMILVLOE = P0_8,  // I2C Level Shifter Output Enable (n/a on REV.A board)
- 
+
 	// CAN (TJA1040)
 	// -----------------------------------------------------------
 	CANRD = P0_4,
 	CANTD = P0_5,
 	CANS  = P0_6,  // standby (low=normal, high=standby/rxonly)
- 
+
 	// Ethernet (DP83848)
 	// -----------------------------------------------------------
 	ETHTXD0   = P1_0,
@@ -135,13 +137,13 @@ typedef enum {
 	ETHMDIO   = P1_17,
 	ETHOSCEN  = P1_27,
 	ETHRST    = P1_28,
-	ETHLINK   = P1_25, // LED_LINK 
+	ETHLINK   = P1_25, // LED_LINK
 	ETHSPEED  = P1_26, // LED_SPEED
- 
+
 	// ISP port
 	// -----------------------------------------------------------
 	ISP = P2_10,
-    
+
     // Other mbed Pin Names
     LED     = P3_25,
     LED1    = LED,
@@ -149,12 +151,12 @@ typedef enum {
     LED3    = LED,
     LED4    = LED,
     LED_RED = LED,
-    
+
    	// mbed / debug IF (LPC11)
 	// -----------------------------------------------------------
 	// Serial Port
 	USBTX  = P0_2,
-    USBRX  = P0_3,
+  USBRX  = P0_3,
 	USBTXD = USBTX, // identical USBTX
 	USBRXD = USBRX, // identical USBRX
 

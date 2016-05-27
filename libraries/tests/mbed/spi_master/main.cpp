@@ -42,8 +42,7 @@ DigitalOut cs(PA17);
 SPI spi(PA10, PA09, PB00, PA25);   // mosi, miso, sclk  cs
 DigitalOut cs(PA25);
 #else
-SPI spi(p5, p6, p7); // mosi, miso, sclk
-DigitalOut cs(p8);
+  #error [NOT_SUPPORTED] Test not configured
 #endif
 
 int main() {

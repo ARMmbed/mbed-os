@@ -44,17 +44,7 @@ Ticker flipper_2;
 Sender s1(pc, '1');
 Sender s2(pc, '2');
 
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC4088) || defined(TARGET_LPC2368) || defined(TARGET_LPC1114) || defined(TARGET_LPC2460)
-#   define LED_NAME LED2
-#elif defined(TARGET_KL05Z)
-#   define LED_NAME LED2
-#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A) /*to avoid build errors*/
-#   define LED_NAME LED2  /*Only 1 LED available*/
-#else
-#   define LED_NAME PTE31
-#endif
-
-DigitalOut led2(LED_NAME);
+DigitalOut led2(LED2);
 int led2_state = 0;
 void flip_2() {
     if (led2_state) {

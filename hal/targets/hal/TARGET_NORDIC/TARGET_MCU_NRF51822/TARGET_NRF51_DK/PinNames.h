@@ -151,7 +151,9 @@ typedef enum {
     D13 = p29,
 
     D14 = p30,
+    I2C_SDA = D14,
     D15 = p7,
+    I2C_SCL = D15,
 
     A0  = p1,
     A1  = p2,

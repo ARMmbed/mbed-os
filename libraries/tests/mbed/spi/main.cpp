@@ -14,8 +14,7 @@ DigitalOut latchpin(PA17);
 SPI spi(PA10, PA09, PB00, PA25);   // mosi, miso, sclk  cs
 DigitalOut latchpin(PA25);
 #else
-SPI spi(p11, p12, p13);
-DigitalOut latchpin(p10);
+#error [NOT_SUPPORTED] SPI is not supported
 #endif
 
 int main() {
