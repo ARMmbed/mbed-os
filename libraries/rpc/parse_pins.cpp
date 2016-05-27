@@ -18,7 +18,7 @@
 namespace mbed {
 
 PinName parse_pins(const char *str) {
-#if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368)
+#if (defined(TARGET_LPC1768) && !defined(TARGET_UBLOX_C027)) || (defined(TARGET_LPC11U24) && !defined(TARGET_OC_MBUINO)) || defined(TARGET_LPC2368)
     static const PinName pin_names[] = {p5, p6, p7, p8, p9, p10, p11, p12, p13, p14
                                 , p15, p16, p17, p18, p19, p20, p21, p22, p23
                                 , p24, p25, p26, p27, p28, p29, p30};
@@ -36,6 +36,8 @@ PinName parse_pins(const char *str) {
                                 , p15, p16, p17, p18, p19, p20, p21, p22, p23
                                 , p24, p25, p26, NC, NC, p29, p30, NC, NC
                                 , NC, NC, NC, NC, NC, NC, NC, NC, p41, p42, p43, p44, p45, p46};
+#else
+    #error [NOT_SUPPORTED] RPC not supported
 #endif
 
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC11U24) || defined(TARGET_LPC2368) || defined(TARGET_LPC812) || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC1114) || defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
@@ -62,14 +64,16 @@ PinName parse_pins(const char *str) {
 #elif defined(TARGET_NUCLEO_F072RB) || defined(TARGET_NUCLEO_F303K8) || defined(TARGET_NUCLEO_F411RE)
     if (str[0] == 'P') {   // PX_XX e.g.PA_2 PC_15
         uint32_t port = str[1] - 'A';
-        uint32_t pin  = str[3] - '0';       
-        uint32_t pin2 = str[4] - '0';       
+        uint32_t pin  = str[3] - '0';
+        uint32_t pin2 = str[4] - '0';
 
         if (pin2 <= 9) {
             pin = pin * 10 + pin2;
         }
         return port_pin((PortName)port, pin);
 
+#else
+    #error [NOT_SUPPORTED] LocalFileSystem not supported
 #endif
 
 
@@ -96,6 +100,8 @@ PinName parse_pins(const char *str) {
             return NC;
         }
         return pin_names[pin - 1];
+#else
+    #error [NOT_SUPPORTED] LocalFileSystem not supported
 #endif
     } else if (str[0] == 'L') {  // LEDn
         switch (str[3]) {
@@ -115,5 +121,3 @@ PinName parse_pins(const char *str) {
     return NC;
 }
 }
-
-

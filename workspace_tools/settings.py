@@ -24,7 +24,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 ##############################################################################
 # Build System Settings
 ##############################################################################
-BUILD_DIR = abspath(join(ROOT, "build"))
+BUILD_DIR = abspath(join(ROOT, ".build"))
 
 # ARM
 armcc = "standalone" # "keil", or "standalone", or "ds-5"

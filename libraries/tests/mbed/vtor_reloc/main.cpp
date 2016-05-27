@@ -6,7 +6,7 @@
 #include "cmsis_nvic.h"
 #include <string.h>
 
-#if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) 
+#if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A)
 #define PIN_IN      (PB02)
 #define PIN_OUT     (PB03)
 #define NUM_VECTORS (16+28)
@@ -22,9 +22,7 @@
 #define NUM_VECTORS (16+50)
 
 #else
-#define PIN_IN      (p5)
-#define PIN_OUT     (p25)
-#define NUM_VECTORS (16+33)
+#error [NOT_SUPPORTED] Device support has not been added
 #endif
 
 DigitalOut out(PIN_OUT);

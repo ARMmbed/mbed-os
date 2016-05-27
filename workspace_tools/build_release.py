@@ -34,121 +34,121 @@ from workspace_tools.test_api import singletest_in_cli_mode
 from workspace_tools.paths import TEST_DIR
 from workspace_tools.tests import TEST_MAP
 
-OFFICIAL_MBED_LIBRARY_BUILD = (
-    ('LPC11U24',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
-    ('LPC1768',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
-    ('UBLOX_C027',   ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
-    ('ARCH_PRO',     ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
-    ('LPC2368',      ('ARM', 'GCC_ARM')),
-    ('LPC2460',      ('GCC_ARM',)),
-    ('LPC812',       ('uARM','IAR')),
-    ('LPC824',       ('uARM', 'GCC_ARM', 'IAR', 'GCC_CR')),
-    ('SSCI824',      ('uARM','GCC_ARM')),
-    ('LPC1347',      ('ARM','IAR')),
-    ('LPC4088',      ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
-    ('LPC4088_DM',   ('ARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
-    ('LPC1114',      ('uARM','GCC_ARM', 'GCC_CR', 'IAR')),
-    ('LPC11U35_401', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
-    ('LPC11U35_501', ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
-    ('LPC1549',      ('uARM','GCC_ARM','GCC_CR', 'IAR')),
-    ('XADOW_M0',     ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('ARCH_GPRS',    ('ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR')),
-    ('LPC4337',      ('ARM',)),
-    ('LPC11U37H_401', ('ARM', 'uARM','GCC_ARM','GCC_CR')),
-    ('MICRONFCBOARD', ('ARM', 'uARM','GCC_ARM')),
+OFFICIAL_MBED_LIBRARY_BUILD = [
+    ['LPC11U24',     ['ARM', 'uARM', 'GCC_ARM', 'IAR']],
+    ['LPC1768',      ['ARM', 'GCC_ARM', 'GCC_CR', 'IAR']],
+    ['UBLOX_C027',   ['ARM', 'GCC_ARM', 'GCC_CR', 'IAR']],
+    ['ARCH_PRO',     ['ARM', 'GCC_ARM', 'GCC_CR', 'IAR']],
+    ['LPC2368',      ['ARM', 'GCC_ARM']],
+    ['LPC2460',      ['GCC_ARM',]],
+    ['LPC812',       ['uARM','IAR']],
+    ['LPC824',       ['uARM', 'GCC_ARM', 'IAR', 'GCC_CR']],
+    ['SSCI824',      ['uARM','GCC_ARM']],
+    ['LPC1347',      ['ARM','IAR']],
+    ['LPC4088',      ['ARM', 'GCC_ARM', 'GCC_CR', 'IAR']],
+    ['LPC4088_DM',   ['ARM', 'GCC_ARM', 'GCC_CR', 'IAR']],
+    ['LPC1114',      ['uARM','GCC_ARM', 'GCC_CR', 'IAR']],
+    ['LPC11U35_401', ['ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR']],
+    ['LPC11U35_501', ['ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR']],
+    ['LPC1549',      ['uARM','GCC_ARM','GCC_CR', 'IAR']],
+    ['XADOW_M0',     ['ARM', 'uARM','GCC_ARM','GCC_CR']],
+    ['ARCH_GPRS',    ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR', 'IAR']],
+    ['LPC4337',      ['ARM',]],
+    ['LPC11U37H_401', ['ARM', 'uARM','GCC_ARM','GCC_CR']],
+    ['MICRONFCBOARD', ['ARM', 'uARM','GCC_ARM']],
 
-    ('KL05Z',        ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
-    ('KL25Z',        ('ARM', 'GCC_ARM', 'IAR')),
-    ('KL27Z',        ('ARM', 'GCC_ARM', 'IAR')),
-    ('KL43Z',        ('ARM', 'GCC_ARM')),
-    ('KL46Z',        ('ARM', 'GCC_ARM', 'IAR')),
-    ('K64F',         ('ARM', 'GCC_ARM', 'IAR')),
-    ('K22F',         ('ARM', 'GCC_ARM', 'IAR')),
-    ('K20D50M',      ('ARM', 'GCC_ARM' , 'IAR')),
-    ('TEENSY3_1',      ('ARM', 'GCC_ARM')),
+    ['KL05Z',        ['ARM', 'uARM', 'GCC_ARM', 'IAR']],
+    ['KL25Z',        ['ARM', 'GCC_ARM', 'IAR']],
+    ['KL27Z',        ['ARM', 'GCC_ARM', 'IAR']],
+    ['KL43Z',        ['ARM', 'GCC_ARM']],
+    ['KL46Z',        ['ARM', 'GCC_ARM', 'IAR']],
+    ['K64F',         ['ARM', 'GCC_ARM', 'IAR']],
+    ['K22F',         ['ARM', 'GCC_ARM', 'IAR']],
+    ['K20D50M',      ['ARM', 'GCC_ARM' , 'IAR']],
+    ['TEENSY3_1',      ['ARM', 'GCC_ARM']],
 
-    ('B96B_F446VE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F030R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F031K6', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F042K6', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F070RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F072RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F091RC', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F103RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F302R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F303K8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F303RE', ('ARM', 'uARM', 'IAR')),
-    ('NUCLEO_F334R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F401RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F410RB', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F446RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('ELMO_F411RE', ('ARM', 'uARM', 'GCC_ARM')),
-    ('NUCLEO_L053R8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_L152RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('MTS_MDOT_F405RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('MTS_MDOT_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('MTS_DRAGONFLY_F411RE', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('DISCO_L053C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('DISCO_F334C8', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('DISCO_F429ZI', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('DISCO_F469NI', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('DISCO_F746NG', ('ARM', 'uARM', 'GCC_ARM','IAR')),
-    ('DISCO_L476VG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_L476RG', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
-    ('NUCLEO_F746ZG', ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
-    ('NUCLEO_L031K6', ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
-    ('NUCLEO_L073RZ', ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
+    ['B96B_F446VE', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F030R8', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F031K6', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F042K6', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F070RB', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F072RB', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F091RC', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F103RB', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F302R8', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F303K8', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F303RE', ['ARM', 'uARM', 'IAR']],
+    ['NUCLEO_F334R8', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F401RE', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F410RB', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F411RE', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F446RE', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['ELMO_F411RE', ['ARM', 'uARM', 'GCC_ARM']],
+    ['NUCLEO_L053R8', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_L152RE', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['MTS_MDOT_F405RG', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['MTS_MDOT_F411RE', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['MTS_DRAGONFLY_F411RE', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['DISCO_L053C8', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['DISCO_F334C8', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['DISCO_F429ZI', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['DISCO_F469NI', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['DISCO_F746NG', ['ARM', 'uARM', 'GCC_ARM','IAR']],
+    ['DISCO_L476VG', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_L476RG', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
+    ['NUCLEO_F746ZG', ['ARM', 'uARM', 'GCC_ARM', 'IAR']],
+    ['NUCLEO_L031K6', ['ARM', 'uARM', 'GCC_ARM', 'IAR']],
+    ['NUCLEO_L073RZ', ['ARM', 'uARM', 'GCC_ARM', 'IAR']],
 
-    ('MOTE_L152RC', ('ARM', 'uARM', 'IAR', 'GCC_ARM')),
+    ['MOTE_L152RC', ['ARM', 'uARM', 'IAR', 'GCC_ARM']],
 
-    ('ARCH_MAX',     ('ARM', 'GCC_ARM')),
+    ['ARCH_MAX',     ['ARM', 'GCC_ARM']],
 
-    ('NRF51822',     ('ARM', 'GCC_ARM', 'IAR')),
-    ('NRF51_DK',     ('ARM', 'GCC_ARM', 'IAR')),
-    ('NRF51_DONGLE', ('ARM', 'GCC_ARM', 'IAR')),
-    ('HRM1017',      ('ARM', 'GCC_ARM', 'IAR')),
-    ('ARCH_BLE',     ('ARM', 'GCC_ARM', 'IAR')),
-    ('SEEED_TINY_BLE', ('ARM', 'GCC_ARM', 'IAR')),
-    ('RBLAB_NRF51822', ('ARM', 'GCC_ARM')),
-    ('RBLAB_BLENANO', ('ARM', 'GCC_ARM')),
-    ('WALLBOT_BLE',  ('ARM', 'GCC_ARM')),
-    ('DELTA_DFCM_NNN40',  ('ARM', 'GCC_ARM')),
-    ('NRF51_MICROBIT',      ('ARM','GCC_ARM')),
-    ('NRF51_MICROBIT_B',      ('ARM',)),
-    ('TY51822R3',     ('ARM', 'GCC_ARM')),
+    ['NRF51822',     ['ARM', 'GCC_ARM', 'IAR']],
+    ['NRF51_DK',     ['ARM', 'GCC_ARM', 'IAR']],
+    ['NRF51_DONGLE', ['ARM', 'GCC_ARM', 'IAR']],
+    ['HRM1017',      ['ARM', 'GCC_ARM', 'IAR']],
+    ['ARCH_BLE',     ['ARM', 'GCC_ARM', 'IAR']],
+    ['SEEED_TINY_BLE', ['ARM', 'GCC_ARM', 'IAR']],
+    ['RBLAB_NRF51822', ['ARM', 'GCC_ARM']],
+    ['RBLAB_BLENANO', ['ARM', 'GCC_ARM']],
+    ['WALLBOT_BLE',  ['ARM', 'GCC_ARM']],
+    ['DELTA_DFCM_NNN40',  ['ARM', 'GCC_ARM']],
+    ['NRF51_MICROBIT',      ['ARM','GCC_ARM']],
+    ['NRF51_MICROBIT_B',      ['ARM',]],
+    ['TY51822R3',     ['ARM', 'GCC_ARM']],
 
-    ('LPC11U68',     ('ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR')),
-    ('OC_MBUINO',     ('ARM', 'uARM', 'GCC_ARM', 'IAR')),
+    ['LPC11U68',     ['ARM', 'uARM','GCC_ARM','GCC_CR', 'IAR']],
+    ['OC_MBUINO',     ['ARM', 'uARM', 'GCC_ARM', 'IAR']],
 
-    ('ARM_MPS2_M0'   ,     ('ARM',)),
-    ('ARM_MPS2_M0P'   ,     ('ARM',)),
-    ('ARM_MPS2_M3'   ,     ('ARM',)),
-    ('ARM_MPS2_M4'   ,     ('ARM',)),
-    ('ARM_MPS2_M7'   ,     ('ARM',)),
-    ('ARM_IOTSS_BEID' ,     ('ARM',)),
+    ['ARM_MPS2_M0'   ,     ['ARM',]],
+    ['ARM_MPS2_M0P'   ,     ['ARM',]],
+    ['ARM_MPS2_M3'   ,     ['ARM',]],
+    ['ARM_MPS2_M4'   ,     ['ARM',]],
+    ['ARM_MPS2_M7'   ,     ['ARM',]],
+    ['ARM_IOTSS_BEID' ,     ['ARM',]],
 
-    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM', 'IAR')),
+    ['RZ_A1H'   ,     ['ARM', 'GCC_ARM', 'IAR']],
 
-    ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
-    ('EFM32HG_STK3400',     ('GCC_ARM', 'uARM')),
-    ('EFM32LG_STK3600',     ('ARM', 'GCC_ARM', 'uARM')),
-    ('EFM32GG_STK3700',     ('ARM', 'GCC_ARM', 'uARM')),
-    ('EFM32WG_STK3800',     ('ARM', 'GCC_ARM', 'uARM')),
-    ('EFM32PG_STK3401',     ('ARM', 'GCC_ARM', 'uARM')),
+    ['EFM32ZG_STK3200',     ['GCC_ARM', 'uARM']],
+    ['EFM32HG_STK3400',     ['GCC_ARM', 'uARM']],
+    ['EFM32LG_STK3600',     ['ARM', 'GCC_ARM', 'uARM']],
+    ['EFM32GG_STK3700',     ['ARM', 'GCC_ARM', 'uARM']],
+    ['EFM32WG_STK3800',     ['ARM', 'GCC_ARM', 'uARM']],
+    ['EFM32PG_STK3401',     ['ARM', 'GCC_ARM', 'uARM']],
 
-    ('MAXWSNENV', ('ARM', 'GCC_ARM', 'IAR')),
-    ('MAX32600MBED', ('ARM', 'GCC_ARM', 'IAR')),
+    ['MAXWSNENV', ['ARM', 'GCC_ARM', 'IAR']],
+    ['MAX32600MBED', ['ARM', 'GCC_ARM', 'IAR']],
 
-    ('WIZWIKI_W7500',   ('ARM', 'uARM')),
-    ('WIZWIKI_W7500P',('ARM', 'uARM')),
-    ('WIZWIKI_W7500ECO',('ARM', 'uARM')),
+    ['WIZWIKI_W7500',   ['ARM', 'uARM']],
+    ['WIZWIKI_W7500P',['ARM', 'uARM']],
+    ['WIZWIKI_W7500ECO',['ARM', 'uARM']],
 
-    ('SAMR21G18A',('ARM', 'uARM', 'GCC_ARM')),
-    ('SAMD21J18A',('ARM', 'uARM', 'GCC_ARM')),
-    ('SAMD21G18A',('ARM', 'uARM', 'GCC_ARM')),
+    ['SAMR21G18A',['ARM', 'uARM', 'GCC_ARM']],
+    ['SAMD21J18A',['ARM', 'uARM', 'GCC_ARM']],
+    ['SAMD21G18A',['ARM', 'uARM', 'GCC_ARM']],
 
-)
+]
 
 
 if __name__ == '__main__':
@@ -186,6 +186,15 @@ if __name__ == '__main__':
     platforms = None
     if options.platforms != "":
         platforms = set(options.platforms.split(","))
+        for platform in platforms:
+            if platform not in OFFICIAL_MBED_LIBRARY_BUILD:
+                target_def = TARGET_MAP.get(platform)
+                if target_def:
+                    print "WARNING: Injecting platform %s into build release configuration" % platform
+                    OFFICIAL_MBED_LIBRARY_BUILD.append([platform, target_def.supported_toolchains])
+                else:
+                    print "ERROR: Platform %s doesn't exist"
+                    sys.exit()
 
     if options.build_tests:
         # Get all paths
@@ -217,7 +226,7 @@ if __name__ == '__main__':
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
                 continue
-            
+
             if target_name not in TARGET_NAMES:
                 print "Target '%s' is not a valid target. Excluding from release"
                 continue
@@ -257,7 +266,7 @@ if __name__ == '__main__':
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
                 continue
-            
+
             if target_name not in TARGET_NAMES:
                 print "Target '%s' is not a valid target. Excluding from release"
                 continue

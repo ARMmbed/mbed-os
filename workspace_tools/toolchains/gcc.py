@@ -27,7 +27,6 @@ class GCC(mbedToolchain):
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    CIRCULAR_DEPENDENCIES = True
     DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
@@ -171,15 +170,8 @@ class GCC(mbedToolchain):
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
 
-        # NOTE: There is a circular dependency between the mbed library and the clib
-        # We could define a set of week symbols to satisfy the clib dependencies in "sys.o",
-        # but if an application uses only clib symbols and not mbed symbols, then the final
-        # image is not correctly retargeted
-        if self.CIRCULAR_DEPENDENCIES:
-            libs.extend(libs)
-
         self.default_cmd(self.hook.get_cmdline_linker(self.ld + ["-T%s" % mem_map, "-o", output] +
-            objects + ["-L%s" % L for L in lib_dirs] + libs))
+            objects + ["-L%s" % L for L in lib_dirs] + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]))
 
     @hook_tool
     def binary(self, resources, elf, bin):
