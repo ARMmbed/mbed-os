@@ -47,6 +47,14 @@ void sleep()
 {
 }
 
+#elif defined(TARGET_STM32F091RC)
+#define TEST_SDA_PIN I2C_SDA
+#define TEST_SCL_PIN I2C_SCL
+
+#elif defined(TARGET_STM32F401RE)
+#define TEST_SDA_PIN I2C_SDA
+#define TEST_SCL_PIN I2C_SCL
+
 #else
 #error Target not supported
 #endif
