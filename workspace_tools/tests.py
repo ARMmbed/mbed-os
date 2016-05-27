@@ -278,12 +278,6 @@ TESTS = [
         "peripherals": ["can_transceiver"],
     },
     {
-        "id": "MBED_BLINKY", "description": "Blinky",
-        "source_dir": join(TEST_DIR, "mbed", "blinky"),
-        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": False,
-    },
-    {
         "id": "MBED_BUS", "description": "Blinky BUS",
         "source_dir": join(TEST_DIR, "mbed", "bus"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
@@ -439,11 +433,6 @@ TESTS = [
         "source_dir": join(TEST_DIR, "mbed", "dir_sd"),
         "dependencies": [MBED_LIBRARIES, FS_LIBRARY],
         "peripherals": ["SD"]
-    },
-    {
-        "id": "MBED_21", "description": "freopen Stream",
-        "source_dir": join(TEST_DIR, "mbed", "freopen"),
-        "dependencies": [MBED_LIBRARIES],
     },
     {
         "id": "MBED_22", "description": "Semihost",
