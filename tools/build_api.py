@@ -22,7 +22,7 @@ import colorama
 
 from types import ListType
 from shutil import rmtree
-from os.path import join, exists, basename, abspath
+from os.path import join, exists, basename, abspath, normpath
 from os import getcwd
 from time import time
 
@@ -96,7 +96,8 @@ def build_project(src_path, build_path, target, toolchain_name,
     # We need to remove all paths which are repeated to avoid
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
-    project_name = basename(src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd())
+    first_src_path = src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd()
+    project_name = basename(normpath(first_src_path))
 
     if name is None:
         # We will use default project name based on project folder name
