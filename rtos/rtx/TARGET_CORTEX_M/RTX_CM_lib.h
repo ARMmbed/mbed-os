@@ -178,7 +178,7 @@ osMessageQId osMessageQId_osTimerMessageQ;
 #endif
 
 /* Legacy RTX User Timers not used */
-uint32_t       os_tmr = 0U; 
+uint32_t       os_tmr = 0U;
 uint32_t const *m_tmr = NULL;
 uint16_t const mp_tmr_size = 0U;
 
@@ -420,6 +420,11 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32L152RC)
 #define INITIAL_SP            (0x20008000UL)
 
+#elif defined(TARGET_MCU_NORDIC_32K)
+#define INITIAL_SP            (0x20008000UL)
+
+#elif defined(TARGET_MCU_NORDIC_16K)
+#define INITIAL_SP            (0x20004000UL)
 
 #else
 #error "no target defined"
