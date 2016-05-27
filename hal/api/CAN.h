@@ -218,8 +218,20 @@ public:
     *  @param method pointer to the member function to be called
     *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
     */
-   template<typename T>
-   void attach(T* obj, void (T::*method)(void), IrqType type=RxIrq) {
+    template<typename T>
+    void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
+        attach(Callback<void()>(obj, method), type);
+    }
+
+   /** Attach a member function to call whenever a CAN frame received interrupt
+    *  is generated.
+    *
+    *  @param obj pointer to the object to call the member function on
+    *  @param method pointer to the member function to be called
+    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    */
+    template<typename T>
+    void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {
         attach(Callback<void()>(obj, method), type);
     }
 

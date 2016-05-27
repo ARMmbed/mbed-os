@@ -100,8 +100,19 @@ public:
      *  @param method pointer to the member function to be called
      *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
      */
-    template<typename T, typename M>
-    void attach(T *obj, M method, IrqType type=RxIrq) {
+    template<typename T>
+    void attach(T *obj, void (T::*method)(), IrqType type=RxIrq) {
+        attach(Callback<void()>(obj, method), type);
+    }
+
+    /** Attach a member function to call whenever a serial interrupt is generated
+     *
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
+     *  @param type Which serial interrupt to attach the member function to (Seriall::RxIrq for receive, TxIrq for transmit buffer empty)
+     */
+    template<typename T>
+    void attach(T *obj, void (*method)(T*), IrqType type=RxIrq) {
         attach(Callback<void()>(obj, method), type);
     }
 
