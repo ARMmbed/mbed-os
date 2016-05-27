@@ -383,9 +383,18 @@ class mbedToolchain:
         """
         for root, dirs, files in walk(path, followlinks=True):
             # Remove ignored directories
+            # Check if folder contains .mbedignore
+            if ".mbedignore" in files :
+                with open (join(root,".mbedignore"), "r") as f:
+                    lines=f.readlines()
+                    lines = [l.strip() for l in lines] # Strip whitespaces
+                    lines = [l for l in lines if l != ""] # Strip empty lines
+                    lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
+                    # Append root path to glob patterns
+                    # and append patterns to ignorepatterns
+                    self.ignorepatterns.extend([join(root,line.strip()) for line in lines])
             for d in copy(dirs):
                 dir_path = join(root, d)
-                
                 if d == '.hg':
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
@@ -396,18 +405,6 @@ class mbedToolchain:
                     (d == 'TESTS')):
                     dirs.remove(d)
 
-                # Check if folder contains .mbedignore
-                try:
-                    with open (join(dir_path,".mbedignore"), "r") as f:
-                        lines=f.readlines()
-                        lines = [l.strip() for l in lines] # Strip whitespaces
-                        lines = [l for l in lines if l != ""] # Strip empty lines
-                        lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
-                        # Append root path to glob patterns
-                        # and append patterns to ignorepatterns
-                        self.ignorepatterns.extend([join(dir_path,line.strip()) for line in lines])
-                except IOError:
-                    pass
 
                 # Remove dirs that already match the ignorepatterns
                 # to avoid travelling into them and to prevent them
