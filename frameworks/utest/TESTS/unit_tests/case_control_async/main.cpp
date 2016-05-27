@@ -65,7 +65,7 @@ control_t timeout_failure_case(const size_t call_count)
     TEST_ASSERT_EQUAL(0, call_counter++);
     return CaseTimeout(100);
 }
-status_t timeout_failure_case_failure_handler(const Case *const source, const failure_t failure)
+utest::v1::status_t timeout_failure_case_failure_handler(const Case *const source, const failure_t failure)
 {
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, call_counter++);
@@ -74,7 +74,7 @@ status_t timeout_failure_case_failure_handler(const Case *const source, const fa
     verbose_case_failure_handler(source, failure);
     return STATUS_CONTINUE;
 }
-status_t timeout_failure_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t timeout_failure_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(2, call_counter++);
@@ -101,7 +101,7 @@ control_t timeout_success_case(const size_t call_count)
 
     return CaseTimeout(200);
 }
-status_t timeout_success_case_failure_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t timeout_success_case_failure_handler(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(5, call_counter++);
@@ -126,7 +126,7 @@ control_t await_case(const size_t call_count)
 
 // Control: RepeatAllOnTimeout ----------------------------------------------------------------------------------------
 bool repeat_all_start_flag = true;
-status_t repeat_all_on_timeout_case_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t repeat_all_on_timeout_case_setup(const Case *const source, const size_t index_of_case)
 {
     if (repeat_all_start_flag){
         UTEST_TRACE_START 
@@ -153,7 +153,7 @@ control_t repeat_all_on_timeout_case(const size_t call_count)
     }
     return CaseRepeatAllOnTimeout(100);
 }
-status_t repeat_all_on_timeout_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t repeat_all_on_timeout_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     UTEST_LOG_FUNCTION();
     static int repeat_counter(0);
@@ -169,7 +169,7 @@ status_t repeat_all_on_timeout_case_teardown(const Case *const source, const siz
 }
 
 // Control: RepeatAllOnTimeout ----------------------------------------------------------------------------------------
-status_t repeat_handler_on_timeout_case_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t repeat_handler_on_timeout_case_setup(const Case *const source, const size_t index_of_case)
 {
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(4, index_of_case);
@@ -191,7 +191,7 @@ control_t repeat_handler_on_timeout_case(const size_t call_count)
     }
     return CaseRepeatHandlerOnTimeout(100);
 }
-status_t repeat_handler_on_timeout_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t repeat_handler_on_timeout_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(1, passed);
@@ -232,7 +232,7 @@ Case cases[] = {
 };
 
 // Specification: Setup & Teardown ------------------------------------------------------------------------------------
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
 

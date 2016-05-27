@@ -28,7 +28,7 @@ void never_call_case()
     TEST_FAIL_MESSAGE("Case handler should have never been called!");
 }
 
-status_t abort_case_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t abort_case_setup(const Case *const source, const size_t index_of_case)
 {
     call_counter++;
     TEST_ASSERT_EQUAL(0, index_of_case);
@@ -36,7 +36,7 @@ status_t abort_case_setup(const Case *const source, const size_t index_of_case)
     return STATUS_ABORT;
 }
 
-status_t abort_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t abort_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, call_counter);
     TEST_ASSERT_EQUAL(0, passed);
@@ -47,7 +47,7 @@ status_t abort_case_teardown(const Case *const source, const size_t passed, cons
     return greentea_case_teardown_handler(source, 1, 0, failure);
 }
 
-status_t ignore_case_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t ignore_case_setup(const Case *const source, const size_t index_of_case)
 {
     TEST_ASSERT_EQUAL(2, call_counter);
     TEST_ASSERT_EQUAL(1, index_of_case);
@@ -56,7 +56,7 @@ status_t ignore_case_setup(const Case *const source, const size_t index_of_case)
     return STATUS_IGNORE;   // this is the same
 }
 
-status_t ignore_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t ignore_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(3, call_counter);
     TEST_ASSERT_EQUAL(0, passed);
@@ -67,7 +67,7 @@ status_t ignore_case_teardown(const Case *const source, const size_t passed, con
     return greentea_case_teardown_handler(source, 1, 0, failure);
 }
 
-status_t continue_case_setup(const Case *const source, const size_t index_of_case)
+utest::v1::status_t continue_case_setup(const Case *const source, const size_t index_of_case)
 {
     TEST_ASSERT_EQUAL(4, call_counter);
     TEST_ASSERT_EQUAL(2, index_of_case);
@@ -82,7 +82,7 @@ void continue_case_handler()
     call_counter++;
 }
 
-status_t continue_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t continue_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(6, call_counter);
     TEST_ASSERT_EQUAL(1, passed);
@@ -99,7 +99,7 @@ Case cases[] = {
     Case("Setup handler returns CONTINUE", continue_case_setup, continue_case_handler, continue_case_teardown)
 };
 
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
 

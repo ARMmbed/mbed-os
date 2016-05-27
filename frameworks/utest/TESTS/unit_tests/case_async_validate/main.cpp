@@ -72,7 +72,7 @@ control_t multiple_validation_case()
     return CaseAwait;
 }
 
-status_t multiple_validation_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t multiple_validation_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -96,7 +96,7 @@ control_t premature_validation_case()
     return CaseAwait;
 }
 
-status_t premature_validation_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t premature_validation_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -121,7 +121,7 @@ control_t multiple_premature_validation_case()
     return CaseAwait;
 }
 
-status_t multiple_premature_validation_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t multiple_premature_validation_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -150,7 +150,7 @@ control_t attributed_validation_cancel_repeat_case()
     return CaseRepeatAll + CaseAwait;
 }
 
-status_t attributed_validation_cancel_repeat_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t attributed_validation_cancel_repeat_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -186,7 +186,7 @@ control_t attributed_validation_enable_repeat_case(const size_t call_count)
     return CaseNext;
 }
 
-status_t attributed_validation_enable_repeat_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
+utest::v1::status_t attributed_validation_enable_repeat_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
     TEST_ASSERT_EQUAL(2, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -206,7 +206,7 @@ Case cases[] = {
     Case("Validate: Attributed Validation: Enable Repeat Handler", attributed_validation_enable_repeat_case, attributed_validation_enable_repeat_case_teardown)
 };
 
-status_t greentea_setup(const size_t number_of_cases)
+utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(15, "default_auto");
 

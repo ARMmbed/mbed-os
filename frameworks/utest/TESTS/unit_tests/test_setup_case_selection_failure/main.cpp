@@ -33,13 +33,13 @@ Case cases[] =
 };
 
 // this setup handler fails since it sends
-status_t failing_setup_handler(const size_t number_of_cases)
+utest::v1::status_t failing_setup_handler(const size_t number_of_cases)
 {
     GREENTEA_SETUP(5, "default_auto");
 
     TEST_ASSERT_EQUAL(2, number_of_cases);
     greentea_test_setup_handler(number_of_cases);
-    return status_t(3); // return an index outside the range of the test cases
+    return utest::v1::status_t(3); // return an index outside the range of the test cases
 };
 
 // the teardown handler will then be called with the reason `REASON_TEST_SETUP`
