@@ -1,5 +1,5 @@
 #if !MBED_RTOS
-  #error [NOT_SUPPORTED] AnalogIn not supported
+  #error [NOT_SUPPORTED] RTOS not supported
 #endif
 
 #include "mbed.h"
