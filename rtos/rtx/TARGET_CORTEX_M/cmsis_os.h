@@ -57,9 +57,13 @@
 #define CMSIS_OS_RTX
 
 // __MBED_CMSIS_RTOS_CM captures our changes to the RTX kernel
+#ifndef __MBED_CMSIS_RTOS_CM
 #define __MBED_CMSIS_RTOS_CM
+#endif
 // we use __CMSIS_RTOS version, which changes some API in the kernel
+#ifndef __CMSIS_RTOS
 #define __CMSIS_RTOS
+#endif
 
 // The stack space occupied is mainly dependent on the underling C standard library
 #if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
