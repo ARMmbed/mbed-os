@@ -104,7 +104,7 @@ class IAR(mbedToolchain):
 
     def cc_extra(self, object):
         base, _ = splitext(object)
-        return ["-l", base + '.s']
+        return ["-l", base + '.s.txt']
 
     def get_compile_options(self, defines, includes):
         return ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]

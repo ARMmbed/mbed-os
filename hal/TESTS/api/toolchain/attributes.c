@@ -19,29 +19,28 @@ int testPacked() {
     return failed;
 }
 
+ALIGN(8) static char a_align_test;
+ALIGN(8) static char b_align_test;
+ALIGN(16)static char c_align_test;
+ALIGN(8) static char d_align_test;
+ALIGN(16)static char e_align_test;
 
 int testAlign() {
     int failed = 0;
 
-    ALIGN(8)  char a;
-    ALIGN(8)  char b;
-    ALIGN(16) char c;
-    ALIGN(8)  char d;
-    ALIGN(16) char e;
-
-    if(((uintptr_t)&a) & 0x7){
+    if(((uintptr_t)&a_align_test) & 0x7){
         failed++;
     }
-    if(((uintptr_t)&b) & 0x7){
+    if(((uintptr_t)&b_align_test) & 0x7){
         failed++;
     }
-    if(((uintptr_t)&c) & 0xf){
+    if(((uintptr_t)&c_align_test) & 0xf){
         failed++;
     }
-    if(((uintptr_t)&d) & 0x7){
+    if(((uintptr_t)&d_align_test) & 0x7){
         failed++;
     }
-    if(((uintptr_t)&e) & 0xf){
+    if(((uintptr_t)&e_align_test) & 0xf){
         failed++;
     }
 
