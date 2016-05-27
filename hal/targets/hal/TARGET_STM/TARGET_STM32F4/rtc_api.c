@@ -28,6 +28,9 @@
  *******************************************************************************
  */
 #include "rtc_api.h"
+#include "rtc_api_hal.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_hal_rtc_ex.h"
 
 #if DEVICE_RTC
 
@@ -38,9 +41,42 @@ static int rtc_inited = 0;
 #endif
 
 static RTC_HandleTypeDef RtcHandle;
+static uint32_t m_synch_prediv;
 
-void rtc_init(void)
+#if DEVICE_LOWPOWERTIMER
+static void (*irq_handler)(void);
+
+static void rtc_calc_periodic_vals(float req_time, uint32_t *periodic_cnt)
 {
+    uint16_t synch_div;
+    float requested_time = (float)(req_time / 1000000);
+    float ck;
+
+    /*
+     * 38000 is LSI typical value. To be measured precisely using a timer input
+     * capture for example.
+     */
+    float freq = (DEVICE_RTC_LSI ? 38000 : LSE_VALUE);
+
+    for (synch_div = 0; synch_div < (int)freq; synch_div++)
+    {
+        ck = freq / ((synch_div + 1.0) * 128.0);
+        *periodic_cnt = ck * requested_time;
+
+        if (*periodic_cnt < 0xFFFF) {
+            break;
+        }
+    }
+    m_synch_prediv = synch_div;
+}
+
+void RTC_WKUP_IRQHandler()
+{
+    HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
+}
+#endif
+
+void rtc_init(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t rtc_freq = 0;
 
@@ -95,7 +131,12 @@ void rtc_init(void)
 
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
     RtcHandle.Init.AsynchPrediv   = 127;
+#if !DEVICE_LOWPOWERTIMER
     RtcHandle.Init.SynchPrediv    = (rtc_freq / 128) - 1;
+#else
+    RtcHandle.Init.SynchPrediv    = m_synch_prediv;
+#endif
+
     RtcHandle.Init.OutPut         = RTC_OUTPUT_DISABLE;
     RtcHandle.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
@@ -215,5 +256,62 @@ void rtc_write(time_t t)
     HAL_RTC_SetDate(&RtcHandle, &dateStruct, FORMAT_BIN);
     HAL_RTC_SetTime(&RtcHandle, &timeStruct, FORMAT_BIN);
 }
+
+#if DEVICE_LOWPOWERTIMER
+void rtc_set_irq_handler(uint32_t handler)
+{
+    irq_handler = (void (*)(void)) handler;
+}
+
+void rtc_periodic_ticker_init(uint32_t timestamp)
+{
+    uint32_t periodic_counter;
+    uint32_t rtcclk;
+    HAL_StatusTypeDef ret;
+
+    /*
+     * For more informations how WakeUp unit values were calculated please follow
+     * this document: www.st.com/resource/en/application_note/dm00025071.pdf
+     */
+    if (timestamp <= 4000000) {
+        periodic_counter = timestamp / 61.035;
+        rtcclk = RTC_WAKEUPCLOCK_RTCCLK_DIV2;
+        m_synch_prediv = 0;
+    } else {
+        rtc_calc_periodic_vals((float)(timestamp), &periodic_counter);
+        rtcclk = RTC_WAKEUPCLOCK_CK_SPRE_16BITS;
+    }
+
+    rtc_init();
+
+    /*
+     * For some reason we need to clear the wakeup time flag to able to start
+     * the RTC periodic unit.
+     */
+    __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(&RtcHandle, RTC_FLAG_WUTF);
+    ret = HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, periodic_counter - 1, rtcclk);
+
+    if (ret != HAL_OK) {
+        error("SetWakeUpTimer_IT failed!\n");
+    }
+
+    NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t) &RTC_WKUP_IRQHandler);
+    HAL_NVIC_EnableIRQ(RTC_WKUP_IRQn);
+}
+
+void rtc_periodic_ticker_disable_irq()
+{
+    HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
+}
+
+void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
+{
+    if (irq_handler)
+    {
+        // Fire the user callback
+        irq_handler();
+    }
+}
+#endif
 
 #endif
