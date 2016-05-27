@@ -18,6 +18,7 @@
 #define TCPSOCKET_H
 
 #include "Socket.h"
+#include "NetworkInterface.h"
 #include "NetworkStack.h"
 #include "Semaphore.h"
 
@@ -45,6 +46,15 @@ public:
      */
     TCPSocket(NetworkStack *iface);
 
+    /** Create a socket on a network interface
+     *
+     *  Creates and opens a socket on the network stack of the given
+     *  network interface.
+     *
+     *  @param iface    Network interface as target for socket
+     */
+    TCPSocket(NetworkInterface *iface);
+
     /** Opens a socket
      *
      *  Creates a network socket on the specified network stack.
@@ -54,6 +64,17 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual int open(NetworkStack *iface);
+
+    /** Opens a socket
+     *
+     *  Creates a network socket on the network stack of the given
+     *  network interface. Not needed if stack is passed to the
+     *  socket's constructor.
+     *
+     *  @param iface    Network interface as target for socket
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int open(NetworkInterface *iface);
 
     /** Connects TCP socket to a remote host
      *

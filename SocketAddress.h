@@ -65,6 +65,7 @@ enum nsapi_version_t {
 
 // Predeclared classes
 class NetworkStack;
+class NetworkInterface;
 
 
 /** SocketAddress class
@@ -85,6 +86,19 @@ public:
      *  @param port     Optional 16-bit port
      */
     SocketAddress(NetworkStack *iface, const char *host, uint16_t port = 0);
+
+    /** Create a SocketAddress from a hostname and port
+     *
+     *  The hostname may be either a domain name or an IP address. If the
+     *  hostname is an IP address, no network transactions will be performed.
+     *
+     *  On failure, the IP address and port will be set to zero
+     *
+     *  @param iface    Network interface to use for DNS resolution
+     *  @param host     Hostname to resolve
+     *  @param port     Optional 16-bit port
+     */
+    SocketAddress(NetworkInterface *iface, const char *host, uint16_t port = 0);
 
     /** Create a SocketAddress from an IP address and port
      *
@@ -157,6 +171,7 @@ public:
     operator bool() const;
 
 private:
+    void _SocketAddress(NetworkStack *iface, const char *host, uint16_t port);
     char _ip_address[NSAPI_IP_SIZE];
     uint8_t _ip_bytes[NSAPI_IP_BYTES];
     nsapi_version_t _ip_version;

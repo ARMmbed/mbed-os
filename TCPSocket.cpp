@@ -29,6 +29,13 @@ TCPSocket::TCPSocket(NetworkStack *iface)
     open(iface);
 }
 
+TCPSocket::TCPSocket(NetworkInterface *iface)
+    : _pending(0), _read_sem(0), _write_sem(0)
+{
+    // TCPSocket::open is thread safe
+    open(iface->get_stack());
+}
+
 TCPSocket::~TCPSocket()
 {
     close();
@@ -38,6 +45,12 @@ int TCPSocket::open(NetworkStack *iface)
 {
     // Socket::open is thread safe
     return Socket::open(iface, NSAPI_TCP);
+}
+
+int TCPSocket::open(NetworkInterface *iface)
+{
+    // Socket::open is thread safe
+    return TCPSocket::open(iface->get_stack());
 }
 
 int TCPSocket::connect(const SocketAddress &addr)

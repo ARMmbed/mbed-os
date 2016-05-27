@@ -1,4 +1,4 @@
-/* EthernetInterface
+/* EthInterface
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef ETHERNET_INTERFACE_H
-#define ETHERNET_INTERFACE_H
+#ifndef ETH_INTERFACE_H
+#define ETH_INTERFACE_H
 
-#include "NetworkStack.h"
+#include "NetworkInterface.h"
 
-/** EthernetInterface class
+/** EthInterface class
  *
  *  Common interface that is shared between ethernet hardware.
  */
-class EthernetInterface
+class EthInterface : public NetworkInterface
 {
 public:
     /** Start the interface
