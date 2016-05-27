@@ -2029,7 +2029,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
         macros=None, silent=False, report=None, properties=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
-    build all the tests and return a test build data structure"""
+    build all the tests
+    
+    Returns a tuple of the build result (True or False) followed by the test
+    build data structure"""
     
     test_build = {
         "platform": target.name,
@@ -2040,18 +2043,26 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         "tests": {}
     }
     
+    result = True
+    
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
-        bin_file = build_project(src_path, test_build_path, target, toolchain_name,
-                                 options=options,
-                                 jobs=jobs,
-                                 clean=clean,
-                                 macros=macros,
-                                 name=test_name,
-                                 report=report,
-                                 properties=properties,
-                                 verbose=verbose)
+        
+        try:
+            bin_file = build_project(src_path, test_build_path, target, toolchain_name,
+                                     options=options,
+                                     jobs=jobs,
+                                     clean=clean,
+                                     macros=macros,
+                                     name=test_name,
+                                     report=report,
+                                     properties=properties,
+                                     verbose=verbose)
+
+        except Exception, e:
+            result = False
+            continue
         
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.
@@ -2075,7 +2086,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     test_builds["%s-%s" % (target.name, toolchain_name)] = test_build
     
     
-    return test_builds
+    return result, test_builds
     
 
 def test_spec_from_test_build(test_builds):

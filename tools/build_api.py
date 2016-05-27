@@ -26,7 +26,7 @@ from os.path import join, exists, basename, abspath
 from os import getcwd
 from time import time
 
-from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
+from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException
 from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
@@ -306,7 +306,12 @@ def build_library(src_paths, build_path, target, toolchain_name,
     except Exception, e:
         if report != None:
             end = time()
-            cur_result["result"] = "FAIL"
+            
+            if isinstance(e, ToolException):
+                cur_result["result"] = "FAIL"
+            elif isinstance(e, NotSupportedException):
+                cur_result["result"] = "NOT_SUPPORTED"
+            
             cur_result["elapsed_time"] = end - start
 
             toolchain_output = toolchain.get_output()

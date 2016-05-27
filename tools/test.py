@@ -129,49 +129,63 @@ if __name__ == '__main__':
             
             build_report = {}
             build_properties = {}
-            
-            # Build sources
-            lib_build_res = build_library(base_source_paths, options.build_dir, target, options.tool,
-                                            options=options.options,
-                                            jobs=options.jobs,
-                                            clean=options.clean,
-                                            report=build_report,
-                                            properties=build_properties,
-                                            name="mbed-os",
-                                            macros=options.macros,
-                                            archive=False)
-            
-            # Build all the tests
-            test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
-                    options=options.options,
-                    clean=options.clean,
-                    report=build_report,
-                    properties=build_properties,
-                    macros=options.macros,
-                    jobs=options.jobs)
-            
-            # If a path to a test spec is provided, write it to a file
-            if options.test_spec:
-                test_spec_data = test_spec_from_test_build(test_build)
+
+            library_build_success = True
+            try:
+                # Build sources
+                build_library(base_source_paths, options.build_dir, target, options.tool,
+                                                options=options.options,
+                                                jobs=options.jobs,
+                                                clean=options.clean,
+                                                report=build_report,
+                                                properties=build_properties,
+                                                name="mbed-os",
+                                                macros=options.macros,
+                                                archive=False)
+            except Exception, e:
+                library_build_success = False
+                print "Failed to build library"
+                print e
                 
-                # Create the target dir for the test spec if necessary
-                # mkdir will not create the dir if it already exists
-                test_spec_dir = os.path.dirname(options.test_spec)
-                if test_spec_dir:
-                    mkdir(test_spec_dir)
+            if library_build_success:
+                # Build all the tests
+                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
+                        options=options.options,
+                        clean=options.clean,
+                        report=build_report,
+                        properties=build_properties,
+                        macros=options.macros,
+                        jobs=options.jobs)
+                        
+                if not test_build_success:
+                    print "Failed to build some tests, check build log for details"
                 
-                try:
-                    with open(options.test_spec, 'w') as f:
-                        f.write(json.dumps(test_spec_data, indent=2))
-                except IOError, e:
-                    print "[ERROR] Error writing test spec to file"
-                    print e
+                # If a path to a test spec is provided, write it to a file
+                if options.test_spec:
+                    test_spec_data = test_spec_from_test_build(test_build)
+                    
+                    # Create the target dir for the test spec if necessary
+                    # mkdir will not create the dir if it already exists
+                    test_spec_dir = os.path.dirname(options.test_spec)
+                    if test_spec_dir:
+                        mkdir(test_spec_dir)
+                    
+                    try:
+                        with open(options.test_spec, 'w') as f:
+                            f.write(json.dumps(test_spec_data, indent=2))
+                    except IOError, e:
+                        print "[ERROR] Error writing test spec to file"
+                        print e
             
             # If a path to a JUnit build report spec is provided, write it to a file
             if options.build_report_junit:
                 report_exporter = ReportExporter(ResultExporterType.JUNIT)
                 report_exporter.report_to_file(build_report, options.build_report_junit, test_suite_properties=build_properties)
-        sys.exit()
+        
+        if library_build_success and test_build_success:
+            sys.exit(0)
+        else:
+            sys.exit(1)
 
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"
