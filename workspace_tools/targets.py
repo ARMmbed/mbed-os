@@ -79,7 +79,7 @@ class Target:
     @staticmethod
     @cached
     def get_json_target_data():
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "targets.json"), "rt") as f:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../hal/targets.json"), "rt") as f:
             return Target.to_ascii(json.load(f))
 
     # Get the members of this module using Python's "inspect" module
