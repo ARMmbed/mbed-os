@@ -21,7 +21,7 @@
 
 WEAK void mbed_die(void) {
 #if !defined (NRF51_H) && !defined(TARGET_EFM32)
-		core_util_critical_section_enter();
+    core_util_critical_section_enter();
 #endif
 #if   (DEVICE_ERROR_RED == 1)
     gpio_t led_red; gpio_init_out(&led_red, LED_RED);
