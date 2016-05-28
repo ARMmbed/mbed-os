@@ -82,7 +82,7 @@ public:
      *
      *  @param location The location to seek to. Must be a value returned by telldir.
      */
-    virtual void seekdir(off_t location) { }
+    virtual void seekdir(off_t location) { (void)location;}
 
     virtual ~DirHandle() {}
 };
