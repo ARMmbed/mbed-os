@@ -1,0 +1,4 @@
+mbed/docs/*
+mbed/libraries/*
+mbed/travis/*
+mbed/workspace_tools/*
