@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2s.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Integrated Interchip Sound (I2S) peripheral:
@@ -108,7 +108,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -371,6 +371,9 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_MspInit could be implemented in the user file
    */ 
@@ -384,6 +387,9 @@ HAL_StatusTypeDef HAL_I2S_DeInit(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_MspDeInit could be implemented in the user file
    */ 
@@ -1073,6 +1079,9 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_TxHalfCpltCallback could be implemented in the user file
    */ 
@@ -1086,6 +1095,9 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_TxCpltCallback could be implemented in the user file
    */ 
@@ -1099,6 +1111,9 @@ void HAL_I2S_IRQHandler(I2S_HandleTypeDef *hi2s)
   */
 __weak void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_RxCpltCallback could be implemented in the user file
    */
@@ -1112,6 +1127,9 @@ __weak void HAL_I2S_RxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
   */
 __weak void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_RxCpltCallback could be implemented in the user file
    */
@@ -1125,6 +1143,9 @@ __weak void HAL_I2S_RxCpltCallback(I2S_HandleTypeDef *hi2s)
   */
  __weak void HAL_I2S_ErrorCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_ErrorCallback could be implemented in the user file
    */ 

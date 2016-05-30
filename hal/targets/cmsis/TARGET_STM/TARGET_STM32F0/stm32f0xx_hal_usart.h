@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -510,7 +510,7 @@ typedef struct
   *         divided by the smallest oversampling used on the USART (i.e. 8)
   * @retval Test result (TRUE or FALSE).
   */ 
-#define IS_USART_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 9000001)
+#define IS_USART_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 6000001)
 
 /**
   * @brief Ensure that USART frame number of stop bits is valid.
@@ -535,7 +535,7 @@ typedef struct
   * @param __MODE__: USART communication mode. 
   * @retval SET (__MODE__ is valid) or RESET (__MODE__ is invalid)
   */ 
-#define IS_USART_MODE(__MODE__) ((((__MODE__) & (uint32_t)0xFFFFFFF3) == 0x00) && ((__MODE__) != (uint32_t)0x00))
+#define IS_USART_MODE(__MODE__) ((((__MODE__) & (uint32_t)0xFFFFFFF3U) == 0x00) && ((__MODE__) != (uint32_t)0x00))
 
 /**
   * @brief Ensure that USART clock state is valid.

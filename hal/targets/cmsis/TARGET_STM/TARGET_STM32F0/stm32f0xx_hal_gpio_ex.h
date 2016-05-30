@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_gpio_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of GPIO HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -761,8 +761,7 @@
 /** @defgroup GPIOEx_Get_Port_Index GPIOEx_Get Port Index
 * @{
   */
-#if defined (STM32F071xB) || defined (STM32F072xB) || defined (STM32F078xx) || \
-    defined (STM32F091xC) || defined (STM32F098xx)
+#if defined(GPIOD) && defined(GPIOE)
 #define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
                                       ((__GPIOx__) == (GPIOB))? 1U :\
                                       ((__GPIOx__) == (GPIOC))? 2U :\
@@ -770,16 +769,21 @@
                                       ((__GPIOx__) == (GPIOE))? 4U : 5U)
 #endif
 
-#if defined (STM32F030x6) || defined (STM32F030x8) || defined (STM32F070xB) || defined (STM32F030xC) || \
-    defined (STM32F051x8) || defined (STM32F058xx)
+#if defined(GPIOD) && !defined(GPIOE)
 #define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
                                       ((__GPIOx__) == (GPIOB))? 1U :\
                                       ((__GPIOx__) == (GPIOC))? 2U :\
                                       ((__GPIOx__) == (GPIOD))? 3U : 5U)
 #endif
 
-#if defined (STM32F031x6) || defined (STM32F038xx) || \
-    defined (STM32F042x6) || defined (STM32F048xx) || defined (STM32F070x6)
+#if !defined(GPIOD) && defined(GPIOE)
+#define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
+                                      ((__GPIOx__) == (GPIOB))? 1U :\
+                                      ((__GPIOx__) == (GPIOC))? 2U :\
+                                      ((__GPIOx__) == (GPIOE))? 4U : 5U)
+#endif
+
+#if !defined(GPIOD) && !defined(GPIOE)
 #define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
                                       ((__GPIOx__) == (GPIOB))? 1U :\
                                       ((__GPIOx__) == (GPIOC))? 2U : 5U)

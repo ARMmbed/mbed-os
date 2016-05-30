@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -333,9 +333,12 @@ typedef struct
   * @brief  Vddio2 Monitor EXTI line configuration: clear falling edge and rising edge trigger.
   * @retval None.
   */
-#define __HAL_PWR_VDDIO2_EXTI_DISABLE_FALLING_EDGE()    EXTI->FTSR &= ~(PWR_EXTI_LINE_VDDIO2); \
-                                                      EXTI->RTSR &= ~(PWR_EXTI_LINE_VDDIO2)
-
+#define __HAL_PWR_VDDIO2_EXTI_DISABLE_FALLING_EDGE()                 \
+                        do{                                          \
+                            EXTI->FTSR &= ~(PWR_EXTI_LINE_VDDIO2);   \
+                            EXTI->RTSR &= ~(PWR_EXTI_LINE_VDDIO2);   \
+                          } while(0)
+                    
 /**
   * @brief  Vddio2 Monitor EXTI line configuration: set falling edge trigger.
   * @retval None.
