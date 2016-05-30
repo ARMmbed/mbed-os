@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fsmc.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of FSMC HAL module.
   ******************************************************************************
   * @attention
@@ -54,7 +54,7 @@
   * @{
   */
 
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx)
 /* Private types -------------------------------------------------------------*/
 /** @defgroup FSMC_LL_Private_Types FSMC Private Types
   * @{
@@ -114,9 +114,20 @@ typedef struct
   uint32_t WriteBurst;                   /*!< Enables or disables the write burst operation.
                                               This parameter can be a value of @ref FSMC_Write_Burst                      */
 
-  uint32_t PageSize;                     /*!< Specifies the memory page size.
-                                              This parameter can be a value of @ref FMC_Page_Size                         */
+  uint32_t ContinuousClock;              /*!< Enables or disables the FMC clock output to external memory devices.
+                                              This parameter is only enabled through the FMC_BCR1 register, and don't care 
+                                              through FMC_BCR2..4 registers.
+                                              This parameter can be a value of @ref FMC_Continous_Clock    
+                                              This mode is available only for the STM32F412Vx/Zx/Rx devices                 */
 
+  uint32_t WriteFifo;                    /*!< Enables or disables the write FIFO used by the FMC controller.
+                                              This parameter is only enabled through the FMC_BCR1 register, and don't care 
+                                              through FMC_BCR2..4 registers.
+                                              This parameter can be a value of @ref FMC_Write_FIFO
+                                              This mode is available only for the STM32F412Vx/Vx devices                    */
+
+  uint32_t PageSize;                     /*!< Specifies the memory page size.
+                                              This parameter can be a value of @ref FMC_Page_Size                   */
 }FSMC_NORSRAM_InitTypeDef;
 
 /** 
@@ -192,7 +203,7 @@ typedef struct
                                         delay between ALE low and RE low.
                                         This parameter can be a number between Min_Data = 0 and Max_Data = 255 */
 
-}FSMC_NAND_InitTypeDef;  
+}FSMC_NAND_InitTypeDef;
 
 /** 
   * @brief FSMC NAND/PCCARD Timing parameters structure definition
@@ -390,11 +401,31 @@ typedef struct
   * @}
   */
 
+/** @defgroup FSMC_Write_FIFO FSMC Write FIFO
+  * @note  These values are available only for the STM32F412Vx/Zx/Rx devices.
+  * @{
+  */
+#define FSMC_WRITE_FIFO_DISABLE           ((uint32_t)FSMC_BCR1_WFDIS)
+#define FSMC_WRITE_FIFO_ENABLE            ((uint32_t)0x00000000U)
+/**
+  * @}
+  */
+
 /** @defgroup FSMC_Write_Burst FSMC Write Burst
   * @{
   */
 #define FSMC_WRITE_BURST_DISABLE                 ((uint32_t)0x00000000U)
 #define FSMC_WRITE_BURST_ENABLE                  ((uint32_t)0x00080000U)
+/**
+  * @}
+  */
+  
+/** @defgroup FSMC_Continous_Clock FSMC Continous Clock
+  * @note  These values are available only for the STM32F412Vx/Zx/Rx devices.
+  * @{
+  */
+#define FSMC_CONTINUOUS_CLOCK_SYNC_ONLY          ((uint32_t)0x00000000U)
+#define FSMC_CONTINUOUS_CLOCK_SYNC_ASYNC         ((uint32_t)0x00100000U)
 /**
   * @}
   */
@@ -517,6 +548,10 @@ typedef struct
 #define FSMC_NAND_DEVICE                      FSMC_Bank2_3
 #define FSMC_PCCARD_DEVICE                    FSMC_Bank4
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
+
+#define FMC_NORSRAM_MEM_BUS_WIDTH_8           FSMC_NORSRAM_MEM_BUS_WIDTH_8
+#define FMC_NORSRAM_MEM_BUS_WIDTH_16          FSMC_NORSRAM_MEM_BUS_WIDTH_16
+#define FMC_NORSRAM_MEM_BUS_WIDTH_32          FSMC_NORSRAM_MEM_BUS_WIDTH_32
 
 #define FMC_NORSRAM_TypeDef                   FSMC_NORSRAM_TypeDef
 #define FMC_NORSRAM_EXTENDED_TypeDef          FSMC_NORSRAM_EXTENDED_TypeDef
@@ -995,7 +1030,7 @@ HAL_StatusTypeDef  FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device);
 /**
   * @}
   */
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
 
 /**
   * @}

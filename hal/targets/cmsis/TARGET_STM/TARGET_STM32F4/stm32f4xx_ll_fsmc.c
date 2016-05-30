@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_fsmc.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   FSMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -15,7 +15,7 @@
   @verbatim
   ==============================================================================
                         ##### FSMC peripheral features #####
-  ==============================================================================
+  ==============================================================================                  
     [..] The Flexible static memory controller (FSMC) includes two memory controllers:
          (+) The NOR/PSRAM memory controller
          (+) The NAND/PC Card memory controller
@@ -84,7 +84,7 @@
   */
 
 #if defined (HAL_SRAM_MODULE_ENABLED) || defined(HAL_NOR_MODULE_ENABLED) || defined(HAL_NAND_MODULE_ENABLED) || defined(HAL_PCCARD_MODULE_ENABLED)
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx)
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -99,7 +99,7 @@
   * @brief    NORSRAM Controller functions 
   *
   @verbatim 
-  ==============================================================================   
+  ==============================================================================
                    ##### How to use NORSRAM device driver #####
   ==============================================================================
  
@@ -165,10 +165,15 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_
   assert_param(IS_FSMC_ASYNWAIT(Init->AsynchronousWait));
   assert_param(IS_FSMC_WRITE_BURST(Init->WriteBurst));
   assert_param(IS_FSMC_PAGESIZE(Init->PageSize));
-
+#if defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx)
+  assert_param(IS_FSMC_WRITE_FIFO(Init->WriteFifo));
+  assert_param(IS_FSMC_CONTINOUS_CLOCK(Init->ContinuousClock));
+#endif /* STM32F412Zx || TM32F412Vx */
+  
   /* Get the BTCR register value */
   tmpr = Device->BTCR[Init->NSBank];
 
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
   /* Clear MBKEN, MUXEN, MTYP, MWID, FACCEN, BURSTEN, WAITPOL, WRAPMOD, WAITCFG, WREN,
            WAITEN, EXTMOD, ASYNCWAIT, CPSIZE and CBURSTRW bits */
   tmpr &= ((uint32_t)~(FSMC_BCR1_MBKEN     | FSMC_BCR1_MUXEN    | FSMC_BCR1_MTYP     | \
@@ -191,13 +196,51 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_
                      Init->PageSize             |\
                      Init->WriteBurst
                      );
-
+#else /* STM32F412Zx || STM32F412Vx || STM32F412Rx */
+  /* Clear MBKEN, MUXEN, MTYP, MWID, FACCEN, BURSTEN, WAITPOL, WAITCFG, WREN,
+           WAITEN, EXTMOD, ASYNCWAIT,CPSIZE,  CBURSTRW, CCLKEN and WFDIS bits */
+  tmpr &= ((uint32_t)~(FSMC_BCR1_MBKEN     | FSMC_BCR1_MUXEN    | FSMC_BCR1_MTYP      | \
+                       FSMC_BCR1_MWID      | FSMC_BCR1_FACCEN   | FSMC_BCR1_BURSTEN   | \
+                       FSMC_BCR1_WAITPOL   | FSMC_BCR1_WAITCFG  | FSMC_BCR1_WREN      | \
+                       FSMC_BCR1_WAITEN    | FSMC_BCR1_EXTMOD   | FSMC_BCR1_ASYNCWAIT | \
+                       FSMC_BCR1_CPSIZE    | FSMC_BCR1_CBURSTRW | FSMC_BCR1_CCLKEN    | \
+                       FSMC_BCR1_WFDIS));
+  /* Set NORSRAM device control parameters */
+  tmpr |= (uint32_t)(Init->DataAddressMux       |\
+                     Init->MemoryType           |\
+                     Init->MemoryDataWidth      |\
+                     Init->BurstAccessMode      |\
+                     Init->WaitSignalPolarity   |\
+                     Init->WaitSignalActive     |\
+                     Init->WriteOperation       |\
+                     Init->WaitSignal           |\
+                     Init->ExtendedMode         |\
+                     Init->AsynchronousWait     |\
+                     Init->WriteBurst           |\
+                     Init->ContinuousClock      |\
+                     Init->PageSize             |\
+                     Init->WriteFifo);
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */ 
+            
   if(Init->MemoryType == FSMC_MEMORY_TYPE_NOR)
   {
     tmpr |= (uint32_t)FSMC_NORSRAM_FLASH_ACCESS_ENABLE;
   }
 
   Device->BTCR[Init->NSBank] = tmpr;
+
+#if defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx)
+  /* Configure synchronous mode when Continuous clock is enabled for bank2..4 */
+  if((Init->ContinuousClock == FSMC_CONTINUOUS_CLOCK_SYNC_ASYNC) && (Init->NSBank != FSMC_NORSRAM_BANK1))
+  {
+    Device->BTCR[FSMC_NORSRAM_BANK1] |= (uint32_t)(Init->ContinuousClock);
+  }
+
+  if(Init->NSBank != FSMC_NORSRAM_BANK1)
+  {
+    Device->BTCR[FSMC_NORSRAM_BANK1] |= (uint32_t)(Init->WriteFifo);
+  }
+#endif /* STM32F412Zx || STM32F412Vx || STM32F412Rx */
 
   return HAL_OK;
 }
@@ -279,6 +322,16 @@ HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NO
                     (Timing->AccessMode));
   
   Device->BTCR[Bank + 1] = tmpr; 
+
+#if defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx)
+  /* Configure Clock division value (in NORSRAM bank 1) when continuous clock is enabled */
+  if(HAL_IS_BIT_SET(Device->BTCR[FSMC_NORSRAM_BANK1], FSMC_BCR1_CCLKEN))
+  {
+    tmpr = (uint32_t)(Device->BTCR[FSMC_NORSRAM_BANK1 + 1U] & ~(((uint32_t)0x0FU) << 20U)); 
+    tmpr |= (uint32_t)(((Timing->CLKDivision)-1U) << 20U);
+    Device->BTCR[FSMC_NORSRAM_BANK1 + 1U] = tmpr;
+  }
+#endif /* STM32F412Zx || STM32F412Vx || STM32F412Rx */
 
   return HAL_OK;
 }
@@ -646,7 +699,7 @@ HAL_StatusTypeDef FSMC_NAND_DeInit(FSMC_NAND_TypeDef *Device, uint32_t Bank)
 @verbatim   
   ==============================================================================
                        ##### FSMC_NAND Control functions #####
-  ==============================================================================  
+  ==============================================================================
   [..]
     This subsection provides a set of functions allowing to control dynamically
     the FSMC NAND interface.
@@ -755,7 +808,7 @@ HAL_StatusTypeDef FSMC_NAND_GetECC(FSMC_NAND_TypeDef *Device, uint32_t *ECCval, 
   * @brief    PCCARD Controller functions 
   *
   @verbatim 
-  ==============================================================================  
+  ==============================================================================
                     ##### How to use PCCARD device driver #####
   ==============================================================================
   [..]
@@ -960,7 +1013,7 @@ HAL_StatusTypeDef FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device)
 /**
   * @}
   */
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F412Zx || STM32F412Vx */
 #endif /* HAL_SRAM_MODULE_ENABLED || HAL_NOR_MODULE_ENABLED || HAL_NAND_MODULE_ENABLED || HAL_PCCARD_MODULE_ENABLED */
 
 /**

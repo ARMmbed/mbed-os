@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_usb.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   USB Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -66,7 +66,8 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
-    defined(STM32F469xx) || defined(STM32F479xx)
+    defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -134,7 +135,6 @@ HAL_StatusTypeDef USB_CoreInit(USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
  
   if(cfg.dma_enable == ENABLE)
   {
-    USBx->GAHBCFG |= (USB_OTG_GAHBCFG_HBSTLEN_1 | USB_OTG_GAHBCFG_HBSTLEN_2);
     USBx->GAHBCFG |= USB_OTG_GAHBCFG_DMAEN;
   }  
 
@@ -206,7 +206,8 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   uint32_t i = 0U;
 
   /*Activate VBUS Sensing B */
-#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
   USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
   
   if (cfg.vbus_sensing_enable == 0U)
@@ -225,7 +226,7 @@ HAL_StatusTypeDef USB_DevInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef c
   {
     USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
   }
-#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Rx || STM32F412Vx || STM32F412Cx */
 
   /* Restart the Phy Clock */
   USBx_PCGCCTL = 0U;
@@ -1137,13 +1138,14 @@ HAL_StatusTypeDef USB_HostInit (USB_OTG_GlobalTypeDef *USBx, USB_OTG_CfgTypeDef 
   USBx_PCGCCTL = 0U;
   
   /* Activate VBUS Sensing B */
-#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
   USBx->GCCFG |= USB_OTG_GCCFG_VBDEN;
 #else
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSASEN);
   USBx->GCCFG &=~ (USB_OTG_GCCFG_VBUSBSEN);
   USBx->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
-#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Rx || STM32F412Vx || STM32F412Cx */
 
   /* Disable the FS/LS support mode only */
   if((cfg.speed == USB_OTG_SPEED_FULL)&&
@@ -1411,7 +1413,7 @@ HAL_StatusTypeDef USB_HC_Init(USB_OTG_GlobalTypeDef *USBx,
   USBx_HC(ch_num)->HCCHAR = (((dev_address << 22U) & USB_OTG_HCCHAR_DAD)  |\
                              (((epnum & 0x7FU)<< 11U) & USB_OTG_HCCHAR_EPNUM)|\
                              ((((epnum & 0x80U) == 0x80U)<< 15U) & USB_OTG_HCCHAR_EPDIR)|\
-                             (((speed == HPRT0_PRTSPD_LOW_SPEED)<< 17U) & USB_OTG_HCCHAR_LSDEV)|\
+                             (((speed == USB_OTG_SPEED_LOW)<< 17U) & USB_OTG_HCCHAR_LSDEV)|\
                              ((ep_type << 18U) & USB_OTG_HCCHAR_EPTYP)|\
                              (mps & USB_OTG_HCCHAR_MPSIZ));
     
@@ -1566,15 +1568,15 @@ HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
   uint32_t count = 0U;
   
   /* Check for space in the request queue to issue the halt. */
-  if (((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_CTRL << 18U)) || ((USBx_HC(hc_num)->HCCHAR) & (HCCHAR_BULK << 18U)))
+  if (((((USBx_HC(hc_num)->HCCHAR) & USB_OTG_HCCHAR_EPTYP) >> 18) == HCCHAR_CTRL) || (((((USBx_HC(hc_num)->HCCHAR) & 
+  USB_OTG_HCCHAR_EPTYP) >> 18) == HCCHAR_BULK)))
   {
     USBx_HC(hc_num)->HCCHAR |= USB_OTG_HCCHAR_CHDIS;
     
-    if ((USBx->HNPTXSTS & 0xFFFFU) == 0U)
+    if ((USBx->HNPTXSTS & 0xFF0000U) == 0U)
     {
       USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
       USBx_HC(hc_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;  
-      USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_EPDIR;
       do 
       {
         if (++count > 1000U) 
@@ -1597,7 +1599,6 @@ HAL_StatusTypeDef USB_HC_Halt(USB_OTG_GlobalTypeDef *USBx , uint8_t hc_num)
     {
       USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_CHENA;
       USBx_HC(hc_num)->HCCHAR |= USB_OTG_HCCHAR_CHENA;  
-      USBx_HC(hc_num)->HCCHAR &= ~USB_OTG_HCCHAR_EPDIR;
       do 
       {
         if (++count > 1000U) 
@@ -1698,7 +1699,8 @@ HAL_StatusTypeDef USB_StopHost(USB_OTG_GlobalTypeDef *USBx)
   * @}
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
-          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Rx ||
+          STM32F412Vx || STM32F412Cx */
 #endif /* defined(HAL_PCD_MODULE_ENABLED) || defined(HAL_HCD_MODULE_ENABLED) */
 
 /**

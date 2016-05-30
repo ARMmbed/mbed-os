@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_conf_template.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   HAL configuration template file. 
   *          This file should be copied to the application folder and renamed
   *          to stm32f4xx_hal_conf.h.
@@ -95,6 +95,7 @@
 #define HAL_HCD_MODULE_ENABLED
 #define HAL_FMPI2C_MODULE_ENABLED
 #define HAL_SPDIFRX_MODULE_ENABLED
+#define HAL_DFSDM_MODULE_ENABLED
 #define HAL_LPTIM_MODULE_ENABLED
 
 /* ########################## HSE/HSI Values adaptation ##################### */
@@ -416,6 +417,10 @@
 #ifdef HAL_SPDIFRX_MODULE_ENABLED
  #include "stm32f4xx_hal_spdifrx.h"
 #endif /* HAL_SPDIFRX_MODULE_ENABLED */
+
+#ifdef HAL_DFSDM_MODULE_ENABLED
+ #include "stm32f4xx_hal_dfsdm.h"
+#endif /* HAL_DFSDM_MODULE_ENABLED */
 
 #ifdef HAL_LPTIM_MODULE_ENABLED
  #include "stm32f4xx_hal_lptim.h"

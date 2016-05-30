@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rcc.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of RCC HAL module.
   ******************************************************************************
   * @attention
@@ -230,7 +230,7 @@ typedef struct
 #define RCC_SYSCLKSOURCE_STATUS_HSI     RCC_CFGR_SWS_HSI   /*!< HSI used as system clock */
 #define RCC_SYSCLKSOURCE_STATUS_HSE     RCC_CFGR_SWS_HSE   /*!< HSE used as system clock */
 #define RCC_SYSCLKSOURCE_STATUS_PLLCLK  RCC_CFGR_SWS_PLL   /*!< PLL used as system clock */
-#define RCC_SYSCLKSOURCE_STATUS_PLLRCLK ((uint32_t)(RCC_CFGR_SW_0 | RCC_CFGR_SW_1))   /*!< PLLR used as system clock */
+#define RCC_SYSCLKSOURCE_STATUS_PLLRCLK ((uint32_t)(RCC_CFGR_SWS_0 | RCC_CFGR_SWS_1))   /*!< PLLR used as system clock */
 /**
   * @}
   */
@@ -1337,6 +1337,39 @@ void HAL_RCC_CSSCallback(void);
                                      ((SOURCE) == RCC_SYSCLKSOURCE_HSE) || \
                                      ((SOURCE) == RCC_SYSCLKSOURCE_PLLCLK) || \
                                      ((SOURCE) == RCC_SYSCLKSOURCE_PLLRCLK))
+
+#define IS_RCC_RTCCLKSOURCE(__SOURCE__) (((__SOURCE__) == RCC_RTCCLKSOURCE_LSE) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_LSI) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV2) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV3) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV4) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV5) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV6) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV7) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV8) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV9) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV10) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV11) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV12) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV13) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV14) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV15) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV16) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV17) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV18) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV19) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV20) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV21) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV22) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV23) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV24) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV25) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV26) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV27) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV28) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV29) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV30) || \
+                                         ((__SOURCE__) == RCC_RTCCLKSOURCE_HSE_DIV31))
  
 #define IS_RCC_PLLM_VALUE(VALUE) ((VALUE) <= 63U)
 

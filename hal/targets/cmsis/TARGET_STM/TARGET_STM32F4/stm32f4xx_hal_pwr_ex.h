@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
@@ -98,18 +98,21 @@
 /**
   * @}
   */
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
 /** @defgroup PWREx_WakeUp_Pins PWREx WakeUp Pins
   * @{
   */
 #define PWR_WAKEUP_PIN2                 ((uint32_t)0x00000080U)
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx) 
 #define PWR_WAKEUP_PIN3                 ((uint32_t)0x00000040U)
-#endif /* STM32F410xx */
+#endif /* STM32F410xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Zx || STM32F412Vx || \
+          STM32F412Rx || STM32F412Cx */
 /**
   * @}
   */   
-#endif /* STM32F410xx || STM32F446xx */
+#endif /* STM32F410xx || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
 
 /**
   * @}
@@ -229,12 +232,14 @@ void HAL_PWREx_EnableWakeUpPinPolarityFallingEdge(void);
 #endif /* STM32F469xx || STM32F479xx */
 
 #if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F401xC) ||\
-    defined(STM32F401xE) || defined(STM32F411xE)
+    defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F412Zx) || defined(STM32F412Vx) ||\
+    defined(STM32F412Rx) || defined(STM32F412Cx)
 void HAL_PWREx_EnableMainRegulatorLowVoltage(void);
 void HAL_PWREx_DisableMainRegulatorLowVoltage(void);
 void HAL_PWREx_EnableLowRegulatorLowVoltage(void);
 void HAL_PWREx_DisableLowRegulatorLowVoltage(void);
-#endif /* STM32F410xx || STM32F401xC || STM32F401xE || STM32F411xE */
+#endif /* STM32F410xx || STM32F401xC || STM32F401xE || STM32F411xE || STM32F412Zx || STM32F412Vx ||\
+          STM32F412Rx || STM32F412Cx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) ||\
     defined(STM32F469xx) || defined(STM32F479xx)
@@ -332,7 +337,8 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
 
 #if defined(STM32F446xx)
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || ((PIN) == PWR_WAKEUP_PIN2))
-#elif defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
+#elif defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+      defined(STM32F412Rx) || defined(STM32F412Cx)
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || ((PIN) == PWR_WAKEUP_PIN2) || \
                                 ((PIN) == PWR_WAKEUP_PIN3))
 #else

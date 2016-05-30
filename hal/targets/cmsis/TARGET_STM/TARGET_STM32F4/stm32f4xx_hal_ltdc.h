@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_ltdc.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of LTDC HAL module.
   ******************************************************************************
   * @attention
@@ -135,10 +135,10 @@ typedef struct
                                             This parameter must be a number between Min_Data = 0x000 and Max_Data = 0xFFF. */
 
   uint32_t WindowY0;                   /*!< Configures the Window vertical Start Position.
-                                            This parameter must be a number between Min_Data = 0x000 and Max_Data = 0xFFF. */
+                                            This parameter must be a number between Min_Data = 0x000 and Max_Data = 0x7FF. */
 
   uint32_t WindowY1;                   /*!< Configures the Window vertical Stop Position.
-                                            This parameter must be a number between Min_Data = 0x0000U and Max_Data = 0xFFFF. */
+                                            This parameter must be a number between Min_Data = 0x0000 and Max_Data = 0x7FF. */
 
   uint32_t PixelFormat;                /*!< Specifies the pixel format. 
                                             This parameter can be one of value of @ref LTDC_Pixelformat */
@@ -344,6 +344,15 @@ typedef struct
   * @}
   */
 
+/** @defgroup LTDC_Reload_Type LTDC Reload Type
+  * @{
+  */
+#define LTDC_RELOAD_IMMEDIATE            LTDC_SRCR_IMR       /*!< Immediate Reload */
+#define LTDC_RELOAD_VERTICAL_BLANKING    LTDC_SRCR_VBR       /*!< Vertical Blanking Reload */
+/**
+  * @}
+  */
+
 /**
   * @}
   */  
@@ -484,6 +493,7 @@ void HAL_LTDC_MspInit(LTDC_HandleTypeDef* hltdc);
 void HAL_LTDC_MspDeInit(LTDC_HandleTypeDef* hltdc);
 void HAL_LTDC_ErrorCallback(LTDC_HandleTypeDef *hltdc);
 void HAL_LTDC_LineEventCallback(LTDC_HandleTypeDef *hltdc);
+void HAL_LTDC_ReloadEventCallback(LTDC_HandleTypeDef *hltdc);
 /**
   * @}
   */
@@ -517,6 +527,20 @@ HAL_StatusTypeDef HAL_LTDC_DisableCLUT(LTDC_HandleTypeDef *hltdc, uint32_t Layer
 HAL_StatusTypeDef HAL_LTDC_ProgramLineEvent(LTDC_HandleTypeDef *hltdc, uint32_t Line);
 HAL_StatusTypeDef HAL_LTDC_EnableDither(LTDC_HandleTypeDef *hltdc);
 HAL_StatusTypeDef HAL_LTDC_DisableDither(LTDC_HandleTypeDef *hltdc);
+HAL_StatusTypeDef HAL_LTDC_Relaod(LTDC_HandleTypeDef *hltdc, uint32_t ReloadType);
+HAL_StatusTypeDef HAL_LTDC_ConfigLayer_NoReload(LTDC_HandleTypeDef *hltdc, LTDC_LayerCfgTypeDef *pLayerCfg, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_SetWindowSize_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t XSize, uint32_t YSize, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_SetWindowPosition_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t X0, uint32_t Y0, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_SetPixelFormat_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t Pixelformat, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_SetAlpha_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t Alpha, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_SetAddress_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t Address, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_SetPitch_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t LinePitchInPixels, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_ConfigColorKeying_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t RGBValue, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_EnableColorKeying_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_DisableColorKeying_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_EnableCLUT_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t LayerIdx);
+HAL_StatusTypeDef HAL_LTDC_DisableCLUT_NoReload(LTDC_HandleTypeDef *hltdc, uint32_t LayerIdx);
+
 /**
   * @}
   */
@@ -603,6 +627,7 @@ uint32_t              HAL_LTDC_GetError(LTDC_HandleTypeDef *hltdc);
 #define IS_LTDC_CFBLL(CFBLL)                      ((CFBLL) <= LTDC_COLOR_FRAME_BUFFER)
 #define IS_LTDC_CFBLNBR(CFBLNBR)                  ((CFBLNBR) <= LTDC_LINE_NUMBER)
 #define IS_LTDC_LIPOS(LIPOS)                      ((LIPOS) <= 0x7FFU)
+#define IS_LTDC_RELAOD(RELOADTYPE)                (((RELOADTYPE) == LTDC_RELOAD_IMMEDIATE) || ((RELOADTYPE) == LTDC_SRCR_VBR))
 /**
   * @}
   */ 

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma_ex.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   DMA Extension HAL module driver
   *         This file provides firmware functions to manage the following 
   *         functionalities of the DMA Extension peripheral:
@@ -118,39 +118,46 @@ static void DMA_MultiBufferSetConfig(DMA_HandleTypeDef *hdma, uint32_t SrcAddres
   */
 HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t SecondMemAddress, uint32_t DataLength)
 {
-  /* Process Locked */
-  __HAL_LOCK(hdma);
-
-  /* Current memory buffer used is Memory 0 */
-  if((hdma->Instance->CR & DMA_SxCR_CT) == 0U)
-  {
-    hdma->State = HAL_DMA_STATE_BUSY_MEM0;
-  }
-  /* Current memory buffer used is Memory 1 */
-  else if((hdma->Instance->CR & DMA_SxCR_CT) != 0U)
-  {
-    hdma->State = HAL_DMA_STATE_BUSY_MEM1;
-  }
-
-   /* Check the parameters */
+  HAL_StatusTypeDef status = HAL_OK;
+  
+  /* Check the parameters */
   assert_param(IS_DMA_BUFFER_SIZE(DataLength));
-
-  /* Disable the peripheral */
-  __HAL_DMA_DISABLE(hdma);  
-
-  /* Enable the double buffer mode */
-  hdma->Instance->CR |= (uint32_t)DMA_SxCR_DBM;
-
-  /* Configure DMA Stream destination address */
-  hdma->Instance->M1AR = SecondMemAddress;
-
-  /* Configure the source, destination address and the data length */
-  DMA_MultiBufferSetConfig(hdma, SrcAddress, DstAddress, DataLength);
-
-  /* Enable the peripheral */
-  __HAL_DMA_ENABLE(hdma);
-
-  return HAL_OK;
+  
+  /* Memory-to-memory transfer not supported in double buffering mode */
+  if (hdma->Init.Direction == DMA_MEMORY_TO_MEMORY)
+  {
+    hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
+    status = HAL_ERROR;
+  }
+  else
+  {
+    /* Process Locked */
+    __HAL_LOCK(hdma);
+    
+    if(HAL_DMA_STATE_READY == hdma->State)
+    {
+      /* Change DMA peripheral state */
+      hdma->State = HAL_DMA_STATE_BUSY; 
+      
+      /* Enable the double buffer mode */
+      hdma->Instance->CR |= (uint32_t)DMA_SxCR_DBM;
+      
+      /* Configure DMA Stream destination address */
+      hdma->Instance->M1AR = SecondMemAddress;
+      
+      /* Configure the source, destination address and the data length */
+      DMA_MultiBufferSetConfig(hdma, SrcAddress, DstAddress, DataLength);
+      
+      /* Enable the peripheral */
+      __HAL_DMA_ENABLE(hdma);
+    }
+    else
+    {
+      /* Return error status */
+      status = HAL_BUSY;
+    }
+  }
+  return status;
 }
 
 /**
@@ -165,54 +172,73 @@ HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart(DMA_HandleTypeDef *hdma, uint32_t S
   */
 HAL_StatusTypeDef HAL_DMAEx_MultiBufferStart_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t SecondMemAddress, uint32_t DataLength)
 {
-  /* Process Locked */
-  __HAL_LOCK(hdma);
-
-  /* Current memory buffer used is Memory 0 */
-  if((hdma->Instance->CR & DMA_SxCR_CT) == 0U)
-  {
-    hdma->State = HAL_DMA_STATE_BUSY_MEM0;
-  }
-  /* Current memory buffer used is Memory 1 */
-  else if((hdma->Instance->CR & DMA_SxCR_CT) != 0U)
-  {
-    hdma->State = HAL_DMA_STATE_BUSY_MEM1;
-  }
-
+  HAL_StatusTypeDef status = HAL_OK;
+  
   /* Check the parameters */
   assert_param(IS_DMA_BUFFER_SIZE(DataLength));
+  
+  /* Memory-to-memory transfer not supported in double buffering mode */
+  if (hdma->Init.Direction == DMA_MEMORY_TO_MEMORY)
+  {
+    hdma->ErrorCode = HAL_DMA_ERROR_NOT_SUPPORTED;
+    return HAL_ERROR;
+  }
+  
+  /* Check callback functions */
+  if ((NULL == hdma->XferCpltCallback) || (NULL == hdma->XferM1CpltCallback) || (NULL == hdma->XferErrorCallback))
+  {
+    hdma->ErrorCode = HAL_DMA_ERROR_PARAM;
+    return HAL_ERROR;
+  }
+  
+  /* Process locked */
+  __HAL_LOCK(hdma);
+  
+  if(HAL_DMA_STATE_READY == hdma->State)
+  {
+    /* Change DMA peripheral state */
+    hdma->State = HAL_DMA_STATE_BUSY;
+    
+    /* Initialize the error code */
+    hdma->ErrorCode = HAL_DMA_ERROR_NONE;
+    
+    /* Enable the Double buffer mode */
+    hdma->Instance->CR |= (uint32_t)DMA_SxCR_DBM;
+    
+    /* Configure DMA Stream destination address */
+    hdma->Instance->M1AR = SecondMemAddress;
+    
+    /* Configure the source, destination address and the data length */
+    DMA_MultiBufferSetConfig(hdma, SrcAddress, DstAddress, DataLength); 
+    
+    /* Clear all flags */
+    __HAL_DMA_CLEAR_FLAG (hdma, __HAL_DMA_GET_TC_FLAG_INDEX(hdma));
+    __HAL_DMA_CLEAR_FLAG (hdma, __HAL_DMA_GET_HT_FLAG_INDEX(hdma));
+    __HAL_DMA_CLEAR_FLAG (hdma, __HAL_DMA_GET_TE_FLAG_INDEX(hdma));
+    __HAL_DMA_CLEAR_FLAG (hdma, __HAL_DMA_GET_DME_FLAG_INDEX(hdma));
+    __HAL_DMA_CLEAR_FLAG (hdma, __HAL_DMA_GET_FE_FLAG_INDEX(hdma));
 
-  /* Disable the peripheral */
-  __HAL_DMA_DISABLE(hdma);  
-
-  /* Enable the Double buffer mode */
-  hdma->Instance->CR |= (uint32_t)DMA_SxCR_DBM;
-
-  /* Configure DMA Stream destination address */
-  hdma->Instance->M1AR = SecondMemAddress;
-
-  /* Configure the source, destination address and the data length */
-  DMA_MultiBufferSetConfig(hdma, SrcAddress, DstAddress, DataLength); 
-
-  /* Enable the transfer complete interrupt */
-  __HAL_DMA_ENABLE_IT(hdma, DMA_IT_TC);
-
-  /* Enable the Half transfer interrupt */
-  __HAL_DMA_ENABLE_IT(hdma, DMA_IT_HT);
-
-  /* Enable the transfer Error interrupt */
-  __HAL_DMA_ENABLE_IT(hdma, DMA_IT_TE);
-
-  /* Enable the fifo Error interrupt */
-  __HAL_DMA_ENABLE_IT(hdma, DMA_IT_FE);  
-
-  /* Enable the direct mode Error interrupt */
-  __HAL_DMA_ENABLE_IT(hdma, DMA_IT_DME); 
-
-  /* Enable the peripheral */
-  __HAL_DMA_ENABLE(hdma); 
-
-  return HAL_OK; 
+    /* Enable Common interrupts*/
+    hdma->Instance->CR  |= DMA_IT_TC | DMA_IT_TE | DMA_IT_DME;
+    hdma->Instance->FCR |= DMA_IT_FE;
+    
+    if((hdma->XferHalfCpltCallback != NULL) || (hdma->XferM1HalfCpltCallback != NULL))
+    {
+      hdma->Instance->CR  |= DMA_IT_HT;
+    }
+    
+    /* Enable the peripheral */
+    __HAL_DMA_ENABLE(hdma); 
+  }
+  else
+  {     
+    /* Process unlocked */
+    __HAL_UNLOCK(hdma);	  
+    
+    /* Return error status */
+    status = HAL_BUSY;
+  }  
+  return status; 
 }
 
 /**

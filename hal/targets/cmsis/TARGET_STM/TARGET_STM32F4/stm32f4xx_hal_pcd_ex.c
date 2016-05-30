@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -54,7 +54,8 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || \
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) || \
-    defined(STM32F469xx) || defined(STM32F479xx)
+    defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
 /* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
@@ -136,7 +137,8 @@ HAL_StatusTypeDef HAL_PCDEx_SetRxFiFo(PCD_HandleTypeDef *hpcd, uint16_t size)
   return HAL_OK;
 }
 
-#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
 /**
   * @brief  Activate LPM feature
   * @param  hpcd: PCD handle
@@ -182,7 +184,122 @@ __weak void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef m
   UNUSED(hpcd);
   UNUSED(msg);
 }
-#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Rx || STM32F412Vx || STM32F412Cx */
+
+#if defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx)
+/**
+  * @brief  HAL_PCDEx_BCD_VBUSDetect : handle BatteryCharging Process
+  * @param  hpcd: PCD handle
+  * @retval HAL status
+  */
+void HAL_PCDEx_BCD_VBUSDetect(PCD_HandleTypeDef *hpcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+  uint32_t tickstart = HAL_GetTick();
+  
+  /* Start BCD When device is connected */
+  if (USBx_DEVICE->DCTL & USB_OTG_DCTL_SDIS)
+  {
+    /* Enable DCD : Data Contact Detect */
+    USBx->GCCFG |= USB_OTG_GCCFG_DCDEN;
+    
+    /* Wait Detect flag or a timeout is happen*/
+    while ((USBx->GCCFG & USB_OTG_GCCFG_DCDET) == 0U)
+    {
+      /* Check for the Timeout */
+      if((HAL_GetTick() - tickstart ) > 1000U)
+      {
+        HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_ERROR);
+        return;
+      }
+    }
+    
+    /* Right response got */
+    HAL_Delay(100U); 
+    
+    /* Check Detect flag*/
+    if (USBx->GCCFG & USB_OTG_GCCFG_DCDET)
+    {
+      HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_CONTACT_DETECTION);
+    }
+    
+    /*Primary detection: checks if connected to Standard Downstream Port  
+    (without charging capability) */
+    USBx->GCCFG &=~ USB_OTG_GCCFG_DCDEN;
+    USBx->GCCFG |=  USB_OTG_GCCFG_PDEN;
+    HAL_Delay(100U); 
+    
+    if (!(USBx->GCCFG & USB_OTG_GCCFG_PDET))
+    {
+      /* Case of Standard Downstream Port */
+      HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_STD_DOWNSTREAM_PORT);
+    }
+    else  
+    {
+      /* start secondary detection to check connection to Charging Downstream 
+      Port or Dedicated Charging Port */
+      USBx->GCCFG &=~ USB_OTG_GCCFG_PDEN;
+      USBx->GCCFG |=  USB_OTG_GCCFG_SDEN;
+      HAL_Delay(100U); 
+      
+      if ((USBx->GCCFG) & USB_OTG_GCCFG_SDET)
+      { 
+        /* case Dedicated Charging Port  */
+        HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_DEDICATED_CHARGING_PORT);
+      }
+      else
+      {
+        /* case Charging Downstream Port  */
+        HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_CHARGING_DOWNSTREAM_PORT);
+      }
+    }
+    /* Battery Charging capability discovery finished */
+    HAL_PCDEx_BCD_Callback(hpcd, PCD_BCD_DISCOVERY_COMPLETED);
+  }
+}
+
+/**
+  * @brief  HAL_PCDEx_ActivateBCD : active BatteryCharging feature
+  * @param  hpcd: PCD handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_PCDEx_ActivateBCD(PCD_HandleTypeDef *hpcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+
+  hpcd->battery_charging_active = ENABLE; 
+  USBx->GCCFG |= (USB_OTG_GCCFG_BCDEN);
+  
+  return HAL_OK;  
+}
+
+/**
+  * @brief  HAL_PCDEx_DeActivateBCD : de-active BatteryCharging feature
+  * @param  hpcd: PCD handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_PCDEx_DeActivateBCD(PCD_HandleTypeDef *hpcd)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
+  hpcd->battery_charging_active = DISABLE; 
+  USBx->GCCFG &= ~(USB_OTG_GCCFG_BCDEN);
+  return HAL_OK;  
+}
+
+/**
+  * @brief  HAL_PCDEx_BatteryCharging_Callback : Send BatteryCharging message to user layer
+  * @param  hpcd: PCD handle
+  * @param  msg: LPM message
+  * @retval HAL status
+  */
+__weak void HAL_PCDEx_BCD_Callback(PCD_HandleTypeDef *hpcd, PCD_BCD_MsgTypeDef msg)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hpcd);
+  UNUSED(msg);
+}
+
+#endif /* STM32F412Zx || STM32F412Rx || STM32F412Vx || STM32F412Cx */
 
 /**
   * @}
@@ -193,7 +310,8 @@ __weak void HAL_PCDEx_LPM_Callback(PCD_HandleTypeDef *hpcd, PCD_LPM_MsgTypeDef m
   */
 
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||
-          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
+          STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Rx ||
+          STM32F412Vx || STM32F412Cx */
 #endif /* HAL_PCD_MODULE_ENABLED */
 /**
   * @}

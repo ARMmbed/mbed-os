@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash_ramfunc.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   FLASH RAMFUNC module driver.
   *          This file provides a FLASH firmware functions which should be 
   *          executed from internal SRAM
@@ -75,7 +75,9 @@
   * @{
   */
 #ifdef HAL_FLASH_MODULE_ENABLED
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -178,7 +180,7 @@ __RAM_FUNC HAL_FLASHEx_DisableFlashSleepMode(void)
   * @}
   */
 
-#endif /* STM32F410xx || STM32F411xE || STM32F446xx */
+#endif /* STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
 #endif /* HAL_FLASH_MODULE_ENABLED */
 /**
   * @}

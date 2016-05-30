@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
@@ -960,8 +960,8 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sA
   */
 HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format)
 {
-  uint32_t tickstart = 0U;
   uint32_t tmpreg = 0U, subsecondtmpreg = 0U;
+  __IO uint32_t count = RTC_TIMEOUT_VALUE  * (SystemCoreClock / 32U / 1000U) ;
   
   /* Check the parameters */
   assert_param(IS_RTC_FORMAT(Format));
@@ -1057,26 +1057,24 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
     /* Clear flag alarm A */
     __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRAF);
 
-    /* Get tick */
-    tickstart = HAL_GetTick();
-
     /* Wait till RTC ALRAWF flag is set and if Time out is reached exit */
-    while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAWF) == RESET)
+    do
     {
-      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
+      if (count-- == 0)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
-        
-        hrtc->State = HAL_RTC_STATE_TIMEOUT; 
-        
-        /* Process Unlocked */ 
+
+        hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+        /* Process Unlocked */
         __HAL_UNLOCK(hrtc);
-        
+
         return HAL_TIMEOUT;
-      }  
-    }
-    
+      }
+    } 
+    while (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAWF) == RESET);
+
     hrtc->Instance->ALRMAR = (uint32_t)tmpreg;
     /* Configure the Alarm A Sub Second register */
     hrtc->Instance->ALRMASSR = subsecondtmpreg;
@@ -1093,26 +1091,24 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
     /* Clear flag alarm B */
     __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRBF);
 
-    /* Get tick */
-    tickstart = HAL_GetTick();
-
     /* Wait till RTC ALRBWF flag is set and if Time out is reached exit */
-    while(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBWF) == RESET)
+    do
     {
-      if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
+      if (count-- == 0)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
-        
-        hrtc->State = HAL_RTC_STATE_TIMEOUT; 
-        
-        /* Process Unlocked */ 
-        __HAL_UNLOCK(hrtc);
-        
-        return HAL_TIMEOUT;
-      }  
-    }
 
+        hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+        /* Process Unlocked */
+        __HAL_UNLOCK(hrtc);
+
+        return HAL_TIMEOUT;
+      }
+    } 
+    while (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBWF) == RESET);
+    
     hrtc->Instance->ALRMBR = (uint32_t)tmpreg;
     /* Configure the Alarm B Sub Second register */
     hrtc->Instance->ALRMBSSR = subsecondtmpreg;

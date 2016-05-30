@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2s_ex.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   I2S HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2S extension peripheral:
@@ -173,7 +173,8 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) ||\
-    defined(STM32F479xx)
+    defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
+    defined(STM32F412Cx)
 /**
   * @brief Initializes the I2S according to the specified parameters 
   *         in the I2S_InitTypeDef and create the associated handle.
@@ -1188,7 +1189,8 @@ HAL_StatusTypeDef I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s)
   }
 }
 #endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx || STM32F401xx ||\
-          STM32F411xx || STM32F469xx || STM32F479xx */
+          STM32F411xx || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Vx || \
+          STM32F412Rx || STM32F412Cx */
 /**
   * @brief DMA I2S transmit process complete callback 
   * @param  hdma: pointer to a DMA_HandleTypeDef structure that contains
@@ -1208,8 +1210,10 @@ void I2S_DMATxCplt(DMA_HandleTypeDef *hdma)
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) ||\
-    defined(STM32F479xx)
-   /* FullDuplexMode feature enabled */   
+    defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
+    defined(STM32F412Cx)
+    
+    /* FullDuplexMode feature enabled */   
     else
     {
       if(((hi2s->Instance->I2SCFGR & SPI_I2SCFGR_I2SCFG) == I2S_MODE_MASTER_TX) || ((hi2s->Instance->I2SCFGR & SPI_I2SCFGR_I2SCFG) == I2S_MODE_SLAVE_TX))
@@ -1224,8 +1228,7 @@ void I2S_DMATxCplt(DMA_HandleTypeDef *hdma)
       }
     }
 #endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx || STM32F401xx || STM32F411xx ||\
-          STM32F469xx || STM32F479xx */
-
+          STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
     hi2s->TxXferCount = 0U;
     if(hi2s->State == HAL_I2S_STATE_BUSY_TX_RX)
     {
@@ -1261,7 +1264,8 @@ void I2S_DMARxCplt(DMA_HandleTypeDef *hdma)
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F469xx) ||\
-    defined(STM32F479xx)
+    defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
+    defined(STM32F412Cx)
    /* FullDuplexMode feature enabled */   
     else
     {
@@ -1277,8 +1281,7 @@ void I2S_DMARxCplt(DMA_HandleTypeDef *hdma)
       }
     }
 #endif /* STM32F40xxx || STM32F41xxx || STM32F42xxx || STM32F43xxx || STM32F401xx || STM32F411xx ||\
-          STM32F469xx || STM32F479xx */
-    
+          STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
     hi2s->RxXferCount = 0U;
     if(hi2s->State == HAL_I2S_STATE_BUSY_TX_RX)
     {
@@ -1311,7 +1314,8 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
   uint32_t i2ssourceclock = 0U;
 
   /* Configure 12S Clock based on I2S source clock selection */ 
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
   switch(hi2s->Init.ClockSource)
   {
     case I2S_CLOCK_EXTERNAL :
@@ -1320,7 +1324,7 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
       i2ssourceclock = EXTERNAL_CLOCK_VALUE;
       break;
     }
-#if defined(STM32F446xx)
+#if defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx)
     case I2S_CLOCK_PLL :
     { 
       /* Configure the PLLI2S division factor */
@@ -1342,7 +1346,7 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
       i2ssourceclock = (uint32_t)(vcooutput /(((RCC->PLLI2SCFGR & RCC_PLLI2SCFGR_PLLI2SR) >> 28U) & (RCC_PLLI2SCFGR_PLLI2SR >> 28U)));
       break;
     }
-#endif /* STM32F446xx */
+#endif /* STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
     case I2S_CLOCK_PLLR :
     { 
       /* Configure the PLLI2S division factor */
@@ -1385,7 +1389,7 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
       break;
     }
   }
-#endif /* STM32F410xx || STM32F446xx */
+#endif /* STM32F410xx || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
@@ -1395,7 +1399,6 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
   in the project configuration or in the stm32f4xx_conf.h file */
   if(hi2s->Init.ClockSource == I2S_CLOCK_EXTERNAL)
   {
-    __HAL_RCC_I2S_CONFIG(RCC_I2SCLKSOURCE_EXT);
     /* Set the I2S clock to the external clock  value */
     i2ssourceclock = EXTERNAL_CLOCK_VALUE;
   }
@@ -1427,7 +1430,6 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
   in the project configuration or in the stm32f4xx_conf.h file */
   if(hi2s->Init.ClockSource == I2S_CLOCK_EXTERNAL)
   {
-    __HAL_RCC_I2S_CONFIG(RCC_I2SCLKSOURCE_EXT);
     /* Set the I2S clock to the external clock  value */
     i2ssourceclock = EXTERNAL_CLOCK_VALUE;
   }
@@ -1453,7 +1455,7 @@ uint32_t I2S_GetInputClock(I2S_HandleTypeDef *hi2s)
   }
 #endif /* STM32F411xE */
 
-  /* the return result is the value of SAI clock */
+  /* the return result is the value of I2S clock */
   return i2ssourceclock; 
 }
 /**

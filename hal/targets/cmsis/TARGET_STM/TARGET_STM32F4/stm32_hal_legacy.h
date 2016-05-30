@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32_hal_legacy.h
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   This file contains aliases definition for the STM32Cube HAL constants 
   *          macros and functions maintained for legacy purpose.
   ******************************************************************************
@@ -129,7 +129,6 @@
 /** @defgroup HAL_COMP_Aliased_Defines HAL COMP Aliased Defines maintained for legacy purpose
   * @{
   */
-  
 #define COMP_WINDOWMODE_DISABLED       COMP_WINDOWMODE_DISABLE
 #define COMP_WINDOWMODE_ENABLED        COMP_WINDOWMODE_ENABLE
 #define COMP_EXTI_LINE_COMP1_EVENT     COMP_EXTI_LINE_COMP1
@@ -144,6 +143,62 @@
 #define COMP_OUTPUT_TIM3IC1            COMP_OUTPUT_COMP1_TIM3IC1
 #define COMP_OUTPUT_TIM3OCREFCLR       COMP_OUTPUT_COMP1_TIM3OCREFCLR
 #endif /* STM32F373xC || STM32F378xx */
+
+#if defined(STM32L0) || defined(STM32L4)
+#define COMP_WINDOWMODE_ENABLE         COMP_WINDOWMODE_COMP1_INPUT_PLUS_COMMON
+
+#define COMP_NONINVERTINGINPUT_IO1      COMP_INPUT_PLUS_IO1
+#define COMP_NONINVERTINGINPUT_IO2      COMP_INPUT_PLUS_IO2
+#define COMP_NONINVERTINGINPUT_IO3      COMP_INPUT_PLUS_IO3
+ 
+#define COMP_INVERTINGINPUT_1_4VREFINT  COMP_INPUT_MINUS_1_4VREFINT
+#define COMP_INVERTINGINPUT_1_2VREFINT  COMP_INPUT_MINUS_1_2VREFINT
+#define COMP_INVERTINGINPUT_3_4VREFINT  COMP_INPUT_MINUS_3_4VREFINT
+#define COMP_INVERTINGINPUT_VREFINT     COMP_INPUT_MINUS_VREFINT
+#define COMP_INVERTINGINPUT_DAC1_CH1    COMP_INPUT_MINUS_DAC1_CH1
+#define COMP_INVERTINGINPUT_DAC1_CH2    COMP_INPUT_MINUS_DAC1_CH2
+#define COMP_INVERTINGINPUT_DAC1        COMP_INPUT_MINUS_DAC1_CH1
+#define COMP_INVERTINGINPUT_DAC2        COMP_INPUT_MINUS_DAC1_CH2
+#define COMP_INVERTINGINPUT_IO1         COMP_INPUT_MINUS_IO1
+#define COMP_INVERTINGINPUT_IO2         COMP_INPUT_MINUS_IO2
+#define COMP_INVERTINGINPUT_IO3         COMP_INPUT_MINUS_IO3
+#define COMP_INVERTINGINPUT_IO4         COMP_INPUT_MINUS_IO4
+#define COMP_INVERTINGINPUT_IO5         COMP_INPUT_MINUS_IO5
+
+#define COMP_OUTPUTLEVEL_LOW            COMP_OUTPUT_LEVEL_LOW
+#define COMP_OUTPUTLEVEL_HIGH           COMP_OUTPUT_LEVEL_HIGH
+
+/* Note: Literal "COMP_FLAG_LOCK" kept for legacy purpose.                    */
+/*       To check COMP lock state, use macro "__HAL_COMP_IS_LOCKED()".        */
+#if defined(COMP_CSR_LOCK)
+#define COMP_FLAG_LOCK                 COMP_CSR_LOCK
+#elif defined(COMP_CSR_COMP1LOCK)
+#define COMP_FLAG_LOCK                 COMP_CSR_COMP1LOCK
+#elif defined(COMP_CSR_COMPxLOCK)
+#define COMP_FLAG_LOCK                 COMP_CSR_COMPxLOCK
+#endif
+
+#if defined(STM32L4)
+#define COMP_BLANKINGSRCE_TIM1OC5        COMP_BLANKINGSRC_TIM1_OC5_COMP1
+#define COMP_BLANKINGSRCE_TIM2OC3        COMP_BLANKINGSRC_TIM2_OC3_COMP1
+#define COMP_BLANKINGSRCE_TIM3OC3        COMP_BLANKINGSRC_TIM3_OC3_COMP1
+#define COMP_BLANKINGSRCE_TIM3OC4        COMP_BLANKINGSRC_TIM3_OC4_COMP2
+#define COMP_BLANKINGSRCE_TIM8OC5        COMP_BLANKINGSRC_TIM8_OC5_COMP2
+#define COMP_BLANKINGSRCE_TIM15OC1       COMP_BLANKINGSRC_TIM15_OC1_COMP2
+#define COMP_BLANKINGSRCE_NONE           COMP_BLANKINGSRC_NONE
+#endif
+
+#if defined(STM32L0)
+#define COMP_MODE_HIGHSPEED              COMP_POWERMODE_MEDIUMSPEED
+#define COMP_MODE_LOWSPEED               COMP_POWERMODE_ULTRALOWPOWER
+#else
+#define COMP_MODE_HIGHSPEED              COMP_POWERMODE_HIGHSPEED
+#define COMP_MODE_MEDIUMSPEED            COMP_POWERMODE_MEDIUMSPEED
+#define COMP_MODE_LOWPOWER               COMP_POWERMODE_LOWPOWER
+#define COMP_MODE_ULTRALOWPOWER          COMP_POWERMODE_ULTRALOWPOWER
+#endif
+
+#endif
 /**
   * @}
   */
@@ -384,6 +439,7 @@
  #define  GPIO_SPEED_HIGH   GPIO_SPEED_FREQ_HIGH
 #endif /* STM32F0 || STM32F3 || STM32F1 */
 
+#define GPIO_AF6_DFSDM                            GPIO_AF6_DFSDM1
 /**
   * @}
   */
@@ -424,7 +480,7 @@
 #define I2C_NOSTRETCH_ENABLED                   I2C_NOSTRETCH_ENABLE
 #define I2C_ANALOGFILTER_ENABLED                I2C_ANALOGFILTER_ENABLE
 #define I2C_ANALOGFILTER_DISABLED               I2C_ANALOGFILTER_DISABLE
-#if defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32G0) || defined(STM32L4) || defined(STM32L1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32G0) || defined(STM32L4) || defined(STM32L1) || defined(STM32F7)
 #define HAL_I2C_STATE_MEM_BUSY_TX               HAL_I2C_STATE_BUSY_TX
 #define HAL_I2C_STATE_MEM_BUSY_RX               HAL_I2C_STATE_BUSY_RX
 #define HAL_I2C_STATE_MASTER_BUSY_TX            HAL_I2C_STATE_BUSY_TX
@@ -556,6 +612,9 @@
   * @{
   */
 #define I2S_STANDARD_PHILLIPS      I2S_STANDARD_PHILIPS
+#if defined(STM32F7) 
+  #define I2S_CLOCK_SYSCLK           I2S_CLOCK_PLL
+#endif
 /**
   * @}
   */
@@ -872,9 +931,12 @@
 #define ETH_MAC_RXFIFO_BELOW_THRESHOLD   ((uint32_t)0x00000100)  /* Rx FIFO fill level: fill-level below flow-control de-activate threshold */
 #define ETH_MAC_RXFIFO_ABOVE_THRESHOLD   ((uint32_t)0x00000200)  /* Rx FIFO fill level: fill-level above flow-control activate threshold */
 #define ETH_MAC_RXFIFO_FULL              ((uint32_t)0x00000300)  /* Rx FIFO fill level: full */
+#if defined(STM32F1)
+#else
 #define ETH_MAC_READCONTROLLER_IDLE               ((uint32_t)0x00000000)  /* Rx FIFO read controller IDLE state */
 #define ETH_MAC_READCONTROLLER_READING_DATA       ((uint32_t)0x00000020)  /* Rx FIFO read controller Reading frame data */
 #define ETH_MAC_READCONTROLLER_READING_STATUS     ((uint32_t)0x00000040)  /* Rx FIFO read controller Reading frame status (or time-stamp) */
+#endif
 #define ETH_MAC_READCONTROLLER_FLUSHING           ((uint32_t)0x00000060)  /* Rx FIFO read controller Flushing the frame data and status */
 #define ETH_MAC_RXFIFO_WRITE_ACTIVE     ((uint32_t)0x00000010)  /* Rx FIFO write controller active */
 #define ETH_MAC_SMALL_FIFO_NOTACTIVE    ((uint32_t)0x00000000)  /* MAC small FIFO read / write controllers not active */
@@ -886,6 +948,49 @@
 /**
   * @}
   */
+  
+/** @defgroup HAL_DCMI_Aliased_Defines HAL DCMI Aliased Defines maintained for legacy purpose
+  * @{
+  */
+#define HAL_DCMI_ERROR_OVF      HAL_DCMI_ERROR_OVR
+#define DCMI_IT_OVF             DCMI_IT_OVR
+#define DCMI_FLAG_OVFRI         DCMI_FLAG_OVRRI
+#define DCMI_FLAG_OVFMI         DCMI_FLAG_OVRMI
+
+#define HAL_DCMI_ConfigCROP     HAL_DCMI_ConfigCrop
+#define HAL_DCMI_EnableCROP     HAL_DCMI_EnableCrop
+#define HAL_DCMI_DisableCROP    HAL_DCMI_DisableCrop
+
+/**
+  * @}
+  */  
+  
+#if defined(STM32L4xx) || defined(STM32F7) || defined(STM32F427xx) || defined(STM32F437xx) ||\
+    defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx)
+/** @defgroup HAL_DMA2D_Aliased_Defines HAL DMA2D Aliased Defines maintained for legacy purpose
+  * @{
+  */
+#define DMA2D_ARGB8888          DMA2D_OUTPUT_ARGB8888
+#define DMA2D_RGB888            DMA2D_OUTPUT_RGB888  
+#define DMA2D_RGB565            DMA2D_OUTPUT_RGB565  
+#define DMA2D_ARGB1555          DMA2D_OUTPUT_ARGB1555
+#define DMA2D_ARGB4444          DMA2D_OUTPUT_ARGB4444
+
+#define CM_ARGB8888             DMA2D_INPUT_ARGB8888
+#define CM_RGB888               DMA2D_INPUT_RGB888  
+#define CM_RGB565               DMA2D_INPUT_RGB565  
+#define CM_ARGB1555             DMA2D_INPUT_ARGB1555
+#define CM_ARGB4444             DMA2D_INPUT_ARGB4444
+#define CM_L8                   DMA2D_INPUT_L8      
+#define CM_AL44                 DMA2D_INPUT_AL44    
+#define CM_AL88                 DMA2D_INPUT_AL88    
+#define CM_L4                   DMA2D_INPUT_L4      
+#define CM_A8                   DMA2D_INPUT_A8      
+#define CM_A4                   DMA2D_INPUT_A4      
+/**
+  * @}
+  */    
+#endif  /* STM32L4xx ||  STM32F7*/
 
 /** @defgroup HAL_PPP_Aliased_Defines HAL PPP Aliased Defines maintained for legacy purpose
   * @{
@@ -943,7 +1048,10 @@
 #define HAL_DBG_LowPowerConfig(Periph, cmd) (((cmd)==ENABLE)? HAL_DBGMCU_DBG_EnableLowPowerConfig(Periph) : HAL_DBGMCU_DBG_DisableLowPowerConfig(Periph))
 #define HAL_VREFINT_OutputSelect  HAL_SYSCFG_VREFINT_OutputSelect
 #define HAL_Lock_Cmd(cmd) (((cmd)==ENABLE) ? HAL_SYSCFG_Enable_Lock_VREFINT() : HAL_SYSCFG_Disable_Lock_VREFINT())
+#if defined(STM32L0)
+#else
 #define HAL_VREFINT_Cmd(cmd) (((cmd)==ENABLE)? HAL_SYSCFG_EnableVREFINT() : HAL_SYSCFG_DisableVREFINT())
+#endif
 #define HAL_ADC_EnableBuffer_Cmd(cmd)  (((cmd)==ENABLE) ? HAL_ADCEx_EnableVREFINT() : HAL_ADCEx_DisableVREFINT())
 #define HAL_ADC_EnableBufferSensor_Cmd(cmd) (((cmd)==ENABLE) ?  HAL_ADCEx_EnableVREFINTTempSensor() : HAL_ADCEx_DisableVREFINTTempSensor())
 /**
@@ -1447,9 +1555,27 @@
 
 #define __HAL_COMP_GET_EXTI_LINE  COMP_GET_EXTI_LINE
 
+#if defined(STM32L0) || defined(STM32L4)
+/* Note: On these STM32 families, the only argument of this macro             */
+/*       is COMP_FLAG_LOCK.                                                   */
+/*       This macro is replaced by __HAL_COMP_IS_LOCKED with only HAL handle  */
+/*       argument.                                                            */
+#define __HAL_COMP_GET_FLAG(__HANDLE__, __FLAG__)  (__HAL_COMP_IS_LOCKED(__HANDLE__))
+#endif
 /**
   * @}
   */
+
+#if defined(STM32L0) || defined(STM32L4)
+/** @defgroup HAL_COMP_Aliased_Functions HAL COMP Aliased Functions maintained for legacy purpose
+  * @{
+  */
+#define HAL_COMP_Start_IT       HAL_COMP_Start /* Function considered as legacy as EXTI event or IT configuration is done into HAL_COMP_Init() */
+#define HAL_COMP_Stop_IT        HAL_COMP_Stop  /* Function considered as legacy as EXTI event or IT configuration is done into HAL_COMP_Init() */
+/**
+  * @}
+  */
+#endif
 
 /** @defgroup HAL_DAC_Aliased_Macros HAL DAC Aliased Macros maintained for legacy purpose
   * @{
@@ -2494,7 +2620,7 @@
 #endif
 
 #if defined(STM32F7)
-#define RCC_SDIOCLKSOURCE_CK48             RCC_SDMMC1CLKSOURCE_CLK48
+#define RCC_SDIOCLKSOURCE_CLK48             RCC_SDMMC1CLKSOURCE_CLK48
 #define RCC_SDIOCLKSOURCE_SYSCLK           RCC_SDMMC1CLKSOURCE_SYSCLK
 #endif
 
@@ -2611,6 +2737,31 @@
 
 #define RCC_CRS_SYNCWARM       RCC_CRS_SYNCWARN
 #define RCC_CRS_TRIMOV         RCC_CRS_TRIMOVF
+
+#define RCC_PERIPHCLK_CK48               RCC_PERIPHCLK_CLK48
+#define RCC_CK48CLKSOURCE_PLLQ           RCC_CLK48CLKSOURCE_PLLQ
+#define RCC_CK48CLKSOURCE_PLLSAIP        RCC_CLK48CLKSOURCE_PLLSAIP
+#define RCC_CK48CLKSOURCE_PLLI2SQ        RCC_CLK48CLKSOURCE_PLLI2SQ
+#define IS_RCC_CK48CLKSOURCE             IS_RCC_CLK48CLKSOURCE
+#define RCC_SDIOCLKSOURCE_CK48           RCC_SDIOCLKSOURCE_CLK48
+
+#define __HAL_RCC_DFSDM_CLK_ENABLE             __HAL_RCC_DFSDM1_CLK_ENABLE
+#define __HAL_RCC_DFSDM_CLK_DISABLE            __HAL_RCC_DFSDM1_CLK_DISABLE
+#define __HAL_RCC_DFSDM_IS_CLK_ENABLED         __HAL_RCC_DFSDM1_IS_CLK_ENABLED
+#define __HAL_RCC_DFSDM_IS_CLK_DISABLED        __HAL_RCC_DFSDM1_IS_CLK_DISABLED
+#define __HAL_RCC_DFSDM_FORCE_RESET            __HAL_RCC_DFSDM1_FORCE_RESET
+#define __HAL_RCC_DFSDM_RELEASE_RESET          __HAL_RCC_DFSDM1_RELEASE_RESET
+#define __HAL_RCC_DFSDM_CLK_SLEEP_ENABLE       __HAL_RCC_DFSDM1_CLK_SLEEP_ENABLE
+#define __HAL_RCC_DFSDM_CLK_SLEEP_DISABLE      __HAL_RCC_DFSDM1_CLK_SLEEP_DISABLE
+#define __HAL_RCC_DFSDM_IS_CLK_SLEEP_ENABLED   __HAL_RCC_DFSDM1_IS_CLK_SLEEP_ENABLED
+#define __HAL_RCC_DFSDM_IS_CLK_SLEEP_DISABLED  __HAL_RCC_DFSDM1_IS_CLK_SLEEP_DISABLED
+#define DfsdmClockSelection         Dfsdm1ClockSelection
+#define RCC_PERIPHCLK_DFSDM         RCC_PERIPHCLK_DFSDM1
+#define RCC_DFSDMCLKSOURCE_PCLK     RCC_DFSDM1CLKSOURCE_PCLK
+#define RCC_DFSDMCLKSOURCE_SYSCLK   RCC_DFSDM1CLKSOURCE_SYSCLK
+#define __HAL_RCC_DFSDM_CONFIG      __HAL_RCC_DFSDM1_CONFIG
+#define __HAL_RCC_GET_DFSDM_SOURCE  __HAL_RCC_GET_DFSDM1_SOURCE
+
 /**
   * @}
   */
@@ -2899,6 +3050,8 @@
 #define __HAL_TIM_GetICPrescaler        __HAL_TIM_GET_ICPRESCALER
 #define __HAL_TIM_SetCompare            __HAL_TIM_SET_COMPARE
 #define __HAL_TIM_GetCompare            __HAL_TIM_GET_COMPARE
+
+#define TIM_BREAKINPUTSOURCE_DFSDM  TIM_BREAKINPUTSOURCE_DFSDM1
 /**
   * @}
   */

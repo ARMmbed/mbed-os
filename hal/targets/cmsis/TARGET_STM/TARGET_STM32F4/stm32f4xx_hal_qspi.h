@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_qspi.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of QSPI HAL module.
   ******************************************************************************
   * @attention
@@ -43,7 +43,8 @@
  extern "C" {
 #endif
 
-#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
+#if defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -108,6 +109,7 @@ typedef enum
   HAL_QSPI_STATE_BUSY_INDIRECT_RX  = 0x22U,    /*!< Peripheral in indirect mode with reception ongoing    */
   HAL_QSPI_STATE_BUSY_AUTO_POLLING = 0x42U,    /*!< Peripheral in auto polling mode ongoing               */
   HAL_QSPI_STATE_BUSY_MEM_MAPPED   = 0x82U,    /*!< Peripheral in memory mapped mode ongoing              */
+  HAL_QSPI_STATE_ABORT             = 0x08U,    /*!< Peripheral with abort request ongoing                 */
   HAL_QSPI_STATE_ERROR             = 0x04U     /*!< Peripheral in error                                   */
 }HAL_QSPI_StateTypeDef;
 
@@ -212,6 +214,7 @@ typedef struct
 #define HAL_QSPI_ERROR_TIMEOUT         ((uint32_t)0x00000001U) /*!< Timeout error      */
 #define HAL_QSPI_ERROR_TRANSFER        ((uint32_t)0x00000002U) /*!< Transfer error     */
 #define HAL_QSPI_ERROR_DMA             ((uint32_t)0x00000004U) /*!< DMA transfer error */
+#define HAL_QSPI_ERROR_INVALID_PARAM   ((uint32_t)0x00000008U) /*!< Invalid parameters error */
 /**
   * @}
   */ 
@@ -566,6 +569,7 @@ HAL_StatusTypeDef     HAL_QSPI_MemoryMapped(QSPI_HandleTypeDef *hqspi, QSPI_Comm
   */  
 /* Callback functions in non-blocking modes ***********************************/
 void                  HAL_QSPI_ErrorCallback        (QSPI_HandleTypeDef *hqspi);
+void                  HAL_QSPI_AbortCpltCallback    (QSPI_HandleTypeDef *hqspi);
 void                  HAL_QSPI_FifoThresholdCallback(QSPI_HandleTypeDef *hqspi);
 
 /* QSPI indirect mode */
@@ -588,25 +592,13 @@ void                  HAL_QSPI_TimeOutCallback      (QSPI_HandleTypeDef *hqspi);
   * @{
   */  
 /* Peripheral Control and State functions  ************************************/
-HAL_QSPI_StateTypeDef HAL_QSPI_GetState(QSPI_HandleTypeDef *hqspi);
-uint32_t              HAL_QSPI_GetError(QSPI_HandleTypeDef *hqspi);
-HAL_StatusTypeDef     HAL_QSPI_Abort   (QSPI_HandleTypeDef *hqspi);
-void                  HAL_QSPI_SetTimeout(QSPI_HandleTypeDef *hqspi, uint32_t Timeout);
-/**
-  * @}
-  */
-  
-/**
-  * @}
-  */
-  
-/* Private types -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private constants ---------------------------------------------------------*/
-/** @defgroup QSPI_Private_Constants QSPI Private Constants
-  * @{
-  */
-
+HAL_QSPI_StateTypeDef HAL_QSPI_GetState        (QSPI_HandleTypeDef *hqspi);
+uint32_t              HAL_QSPI_GetError        (QSPI_HandleTypeDef *hqspi);
+HAL_StatusTypeDef     HAL_QSPI_Abort           (QSPI_HandleTypeDef *hqspi);
+HAL_StatusTypeDef     HAL_QSPI_Abort_IT        (QSPI_HandleTypeDef *hqspi);
+void                  HAL_QSPI_SetTimeout      (QSPI_HandleTypeDef *hqspi, uint32_t Timeout);
+HAL_StatusTypeDef     HAL_QSPI_SetFifoThreshold(QSPI_HandleTypeDef *hqspi, uint32_t Threshold);
+uint32_t              HAL_QSPI_GetFifoThreshold(QSPI_HandleTypeDef *hqspi);
 /**
   * @}
   */
@@ -777,7 +769,11 @@ void                  HAL_QSPI_SetTimeout(QSPI_HandleTypeDef *hqspi, uint32_t Ti
 /**
   * @}
   */
-#endif /* STM32F446xx || STM32F469xx || STM32F479xx */
+  
+/**
+  * @}
+  */
+#endif /* STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Vx || STM32F412Rx */
 
 #ifdef __cplusplus
 }

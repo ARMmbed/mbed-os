@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
@@ -439,7 +439,7 @@ typedef struct
 /** @brief  Clear the SMARTCARD PE pending flag.
   * @param  __HANDLE__: specifies the USART Handle.
   *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
-  *         UART peripheral.
+  *         SMARTCARD peripheral.
   * @retval None
   */
 #define __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)     \
@@ -453,7 +453,7 @@ typedef struct
 /** @brief  Clear the SMARTCARD FE pending flag.
   * @param  __HANDLE__: specifies the USART Handle.
   *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
-  *         UART peripheral.
+  *         SMARTCARD peripheral.
   * @retval None
   */
 #define __HAL_SMARTCARD_CLEAR_FEFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
@@ -461,7 +461,7 @@ typedef struct
 /** @brief  Clear the SMARTCARD NE pending flag.
   * @param  __HANDLE__: specifies the USART Handle.
   *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
-  *         UART peripheral.
+  *         SMARTCARD peripheral.
   * @retval None
   */
 #define __HAL_SMARTCARD_CLEAR_NEFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
@@ -469,7 +469,7 @@ typedef struct
 /** @brief  Clear the SMARTCARD ORE pending flag.
   * @param  __HANDLE__: specifies the USART Handle.
   *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
-  *         UART peripheral.
+  *         SMARTCARD peripheral.
   * @retval None
   */
 #define __HAL_SMARTCARD_CLEAR_OREFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
@@ -477,7 +477,7 @@ typedef struct
 /** @brief  Clear the SMARTCARD IDLE pending flag.
   * @param  __HANDLE__: specifies the USART Handle.
   *         This parameter can be USARTx where x: 1, 2, 3, 4, 5, 6, 7 or 8 to select the USART or 
-  *         UART peripheral.
+  *         SMARTCARD peripheral.
   * @retval None
   */
 #define __HAL_SMARTCARD_CLEAR_IDLEFLAG(__HANDLE__) __HAL_SMARTCARD_CLEAR_PEFLAG(__HANDLE__)
@@ -580,6 +580,7 @@ HAL_StatusTypeDef HAL_SMARTCARD_Transmit_IT(SMARTCARD_HandleTypeDef *hsc, uint8_
 HAL_StatusTypeDef HAL_SMARTCARD_Receive_IT(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SMARTCARD_Transmit_DMA(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size);
 HAL_StatusTypeDef HAL_SMARTCARD_Receive_DMA(SMARTCARD_HandleTypeDef *hsc, uint8_t *pData, uint16_t Size);
+
 void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsc);
 void HAL_SMARTCARD_TxCpltCallback(SMARTCARD_HandleTypeDef *hsc);
 void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsc);
@@ -618,8 +619,8 @@ uint32_t HAL_SMARTCARD_GetError(SMARTCARD_HandleTypeDef *hsc);
 #define SMARTCARD_DIV(_PCLK_, _BAUD_)            (((_PCLK_)*25U)/(4U*(_BAUD_)))
 #define SMARTCARD_DIVMANT(_PCLK_, _BAUD_)        (SMARTCARD_DIV((_PCLK_), (_BAUD_))/100U)
 #define SMARTCARD_DIVFRAQ(_PCLK_, _BAUD_)        (((SMARTCARD_DIV((_PCLK_), (_BAUD_)) - (SMARTCARD_DIVMANT((_PCLK_), (_BAUD_)) * 100U)) * 16U + 50U) / 100U)
-/* UART BRR = mantissa + overflow + fraction
-            = (UART DIVMANT << 4) + (UART DIVFRAQ & 0xF0) + (UART DIVFRAQ & 0x0FU) */
+/* SMARTCARD BRR = mantissa + overflow + fraction
+            = (SMARTCARD DIVMANT << 4) + (SMARTCARD DIVFRAQ & 0xF0) + (SMARTCARD DIVFRAQ & 0x0FU) */
 #define SMARTCARD_BRR(_PCLK_, _BAUD_)            (((SMARTCARD_DIVMANT((_PCLK_), (_BAUD_)) << 4U) + \
                                                   (SMARTCARD_DIVFRAQ((_PCLK_), (_BAUD_)) & 0xF0U)) + \
                                                   (SMARTCARD_DIVFRAQ((_PCLK_), (_BAUD_)) & 0x0FU))

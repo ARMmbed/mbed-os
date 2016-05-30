@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dsi.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of DSI HAL module.
   ******************************************************************************
   * @attention
@@ -1035,7 +1035,7 @@ HAL_StatusTypeDef HAL_DSI_ConfigVideoMode(DSI_HandleTypeDef *hdsi, DSI_VidCfgTyp
 HAL_StatusTypeDef HAL_DSI_ConfigAdaptedCommandMode(DSI_HandleTypeDef *hdsi, DSI_CmdCfgTypeDef *CmdCfg);
 HAL_StatusTypeDef HAL_DSI_ConfigCommand(DSI_HandleTypeDef *hdsi, DSI_LPCmdTypeDef *LPCmd);
 HAL_StatusTypeDef HAL_DSI_ConfigFlowControl(DSI_HandleTypeDef *hdsi, uint32_t FlowControl);
-HAL_StatusTypeDef HAL_DSI_ConfigPhyTimer(DSI_HandleTypeDef *hdsi, DSI_PHY_TimerTypeDef *PhyTimings);
+HAL_StatusTypeDef HAL_DSI_ConfigPhyTimer(DSI_HandleTypeDef *hdsi, DSI_PHY_TimerTypeDef *PhyTimers);
 HAL_StatusTypeDef HAL_DSI_ConfigHostTimeouts(DSI_HandleTypeDef *hdsi, DSI_HOST_TimeoutTypeDef *HostTimeouts);
 HAL_StatusTypeDef HAL_DSI_Start(DSI_HandleTypeDef *hdsi);
 HAL_StatusTypeDef HAL_DSI_Stop(DSI_HandleTypeDef *hdsi);
@@ -1050,7 +1050,7 @@ HAL_StatusTypeDef HAL_DSI_ShortWrite(DSI_HandleTypeDef *hdsi,
 HAL_StatusTypeDef HAL_DSI_LongWrite(DSI_HandleTypeDef *hdsi,
                                     uint32_t ChannelID,
                                     uint32_t Mode,
-                                    uint32_t Nbparams,
+                                    uint32_t NbParams,
                                     uint32_t Param1,
                                     uint8_t* ParametersTable);
 HAL_StatusTypeDef HAL_DSI_Read(DSI_HandleTypeDef *hdsi,

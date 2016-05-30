@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_eth.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   ETH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Ethernet (ETH) peripheral:
@@ -144,6 +144,7 @@ static void ETH_DMATransmissionDisable(ETH_HandleTypeDef *heth);
 static void ETH_DMAReceptionEnable(ETH_HandleTypeDef *heth);
 static void ETH_DMAReceptionDisable(ETH_HandleTypeDef *heth);
 static void ETH_FlushTransmitFIFO(ETH_HandleTypeDef *heth);
+static void ETH_Delay(uint32_t mdelay);
 
 /**
   * @}
@@ -1895,7 +1896,7 @@ static void ETH_MACTransmissionEnable(ETH_HandleTypeDef *heth)
   /* Wait until the write operation will be taken into account:
      at least four TX_CLK/RX_CLK clock cycles */
   tmpreg1 = (heth->Instance)->MACCR;
-  HAL_Delay(ETH_REG_WRITE_DELAY);
+  ETH_Delay(ETH_REG_WRITE_DELAY);
   (heth->Instance)->MACCR = tmpreg1;
 }
 
@@ -1915,7 +1916,7 @@ static void ETH_MACTransmissionDisable(ETH_HandleTypeDef *heth)
   /* Wait until the write operation will be taken into account:
      at least four TX_CLK/RX_CLK clock cycles */
   tmpreg1 = (heth->Instance)->MACCR;
-  HAL_Delay(ETH_REG_WRITE_DELAY);
+  ETH_Delay(ETH_REG_WRITE_DELAY);
   (heth->Instance)->MACCR = tmpreg1;
 }
 
@@ -1935,7 +1936,7 @@ static void ETH_MACReceptionEnable(ETH_HandleTypeDef *heth)
   /* Wait until the write operation will be taken into account:
      at least four TX_CLK/RX_CLK clock cycles */
   tmpreg1 = (heth->Instance)->MACCR;
-  HAL_Delay(ETH_REG_WRITE_DELAY);
+  ETH_Delay(ETH_REG_WRITE_DELAY);
   (heth->Instance)->MACCR = tmpreg1;
 }
 
@@ -1955,7 +1956,7 @@ static void ETH_MACReceptionDisable(ETH_HandleTypeDef *heth)
   /* Wait until the write operation will be taken into account:
      at least four TX_CLK/RX_CLK clock cycles */
   tmpreg1 = (heth->Instance)->MACCR;
-  HAL_Delay(ETH_REG_WRITE_DELAY);
+  ETH_Delay(ETH_REG_WRITE_DELAY);
   (heth->Instance)->MACCR = tmpreg1;
 }
 
@@ -2023,8 +2024,23 @@ static void ETH_FlushTransmitFIFO(ETH_HandleTypeDef *heth)
   /* Wait until the write operation will be taken into account:
      at least four TX_CLK/RX_CLK clock cycles */
   tmpreg1 = (heth->Instance)->DMAOMR;
-  HAL_Delay(ETH_REG_WRITE_DELAY);
+  ETH_Delay(ETH_REG_WRITE_DELAY);
   (heth->Instance)->DMAOMR = tmpreg1;
+}
+
+/**
+  * @brief  This function provides delay (in milliseconds) based on CPU cycles method.
+  * @param  mdelay: specifies the delay time length, in milliseconds.
+  * @retval None
+  */
+static void ETH_Delay(uint32_t mdelay)
+{
+  __IO uint32_t Delay = mdelay * (SystemCoreClock / 8 / 1000);
+  do 
+  {
+    __NOP();
+  } 
+  while (Delay --);
 }
 
 /**

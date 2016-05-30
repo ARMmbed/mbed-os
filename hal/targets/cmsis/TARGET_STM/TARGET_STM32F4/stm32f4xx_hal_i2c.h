@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -91,7 +91,30 @@ typedef struct
 }I2C_InitTypeDef;
 
 /**
-  * @brief  HAL State structures definition
+  * @brief  HAL State structure definition
+  * @note  HAL I2C State value coding follow below described bitmap :
+  *          b7-b6  Error information 
+  *             00 : No Error
+  *             01 : Abort (Abort user request on going)
+  *             10 : Timeout
+  *             11 : Error
+  *          b5     IP initilisation status
+  *             0  : Reset (IP not initialized)
+  *             1  : Init done (IP initialized and ready to use. HAL I2C Init function called)
+  *          b4     (not used)
+  *             x  : Should be set to 0
+  *          b3
+  *             0  : Ready or Busy (No Listen mode ongoing)
+  *             1  : Listen (IP in Address Listen Mode)
+  *          b2     Intrinsic process state
+  *             0  : Ready
+  *             1  : Busy (IP busy with some configuration or internal operations)
+  *          b1     Rx state
+  *             0  : Ready (no Rx operation ongoing)
+  *             1  : Busy (Rx operation ongoing)
+  *          b0     Tx state
+  *             0  : Ready (no Tx operation ongoing)
+  *             1  : Busy (Tx operation ongoing)
   */
 typedef enum
 {
@@ -105,13 +128,28 @@ typedef enum
                                                  process is ongoing                         */
   HAL_I2C_STATE_BUSY_RX_LISTEN    = 0x2AU,   /*!< Address Listen Mode and Data Reception
                                                  process is ongoing                         */
+  HAL_I2C_STATE_ABORT             = 0x60U,   /*!< Abort user request ongoing                */
   HAL_I2C_STATE_TIMEOUT           = 0xA0U,   /*!< Timeout state                             */
   HAL_I2C_STATE_ERROR             = 0xE0U    /*!< Error                                     */
 
 }HAL_I2C_StateTypeDef;
 
 /**
-  * @brief  HAL State structures definition
+  * @brief  HAL Mode structure definition
+  * @note  HAL I2C Mode value coding follow below described bitmap :
+  *          b7     (not used)
+  *             x  : Should be set to 0
+  *          b6
+  *             0  : None
+  *             1  : Memory (HAL I2C communication is in Memory Mode)
+  *          b5
+  *             0  : None
+  *             1  : Slave (HAL I2C communication is in Slave Mode)
+  *          b4
+  *             0  : None
+  *             1  : Master (HAL I2C communication is in Master Mode)
+  *          b3-b2-b1-b0  (not used)
+  *             xxxx : Should be set to 0000
   */
 typedef enum
 {
@@ -127,33 +165,41 @@ typedef enum
   */
 typedef struct
 {
-  I2C_TypeDef                *Instance;     /*!< I2C registers base address                */
+  I2C_TypeDef                *Instance;      /*!< I2C registers base address               */
+                                             
+  I2C_InitTypeDef            Init;           /*!< I2C communication parameters             */
+                                             
+  uint8_t                    *pBuffPtr;      /*!< Pointer to I2C transfer buffer           */
+                                             
+  uint16_t                   XferSize;       /*!< I2C transfer size                        */
+                                             
+  __IO uint16_t              XferCount;      /*!< I2C transfer counter                     */
+                                             
+  __IO uint32_t              XferOptions;    /*!< I2C transfer options                     */
+                                             
+  __IO uint32_t              PreviousState;  /*!< I2C communication Previous state and mode
+                                                  context for internal usage               */
+                                             
+  DMA_HandleTypeDef          *hdmatx;        /*!< I2C Tx DMA handle parameters             */
+                                             
+  DMA_HandleTypeDef          *hdmarx;        /*!< I2C Rx DMA handle parameters             */
+                                             
+  HAL_LockTypeDef            Lock;           /*!< I2C locking object                       */
+                                             
+  __IO HAL_I2C_StateTypeDef  State;          /*!< I2C communication state                  */
+                                             
+  __IO HAL_I2C_ModeTypeDef   Mode;           /*!< I2C communication mode                   */
+                                             
+  __IO uint32_t              ErrorCode;      /*!< I2C Error code                           */
 
-  I2C_InitTypeDef            Init;          /*!< I2C communication parameters              */
+  __IO uint32_t              Devaddress;     /*!< I2C Target device address                */
 
-  uint8_t                    *pBuffPtr;     /*!< Pointer to I2C transfer buffer            */
+  __IO uint32_t              Memaddress;     /*!< I2C Target memory address                */
 
-  uint16_t                   XferSize;      /*!< I2C transfer size                         */
+  __IO uint32_t              MemaddSize;     /*!< I2C Target memory address  size          */
 
-  __IO uint16_t              XferCount;     /*!< I2C transfer counter                      */
-
-  __IO uint32_t              XferOptions;   /*!< I2C transfer options                      */
-
-  __IO uint32_t              PreviousState; /*!< I2C communication Previous state and mode
-                                                 context for internal usage                */
-
-  DMA_HandleTypeDef          *hdmatx;       /*!< I2C Tx DMA handle parameters              */
-
-  DMA_HandleTypeDef          *hdmarx;       /*!< I2C Rx DMA handle parameters              */
-
-  HAL_LockTypeDef            Lock;          /*!< I2C locking object                        */
-
-  __IO HAL_I2C_StateTypeDef  State;         /*!< I2C communication state                   */
-
-  __IO HAL_I2C_ModeTypeDef   Mode;          /*!< I2C communication mode                    */
-
-  __IO uint32_t              ErrorCode;     /*!< I2C Error code                            */
-
+  __IO uint32_t              EventCount;     /*!< I2C Event counter                        */
+	
 }I2C_HandleTypeDef;
 
 /**
@@ -494,6 +540,7 @@ void HAL_I2C_ListenCpltCallback(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c);
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c);
+void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c);
 /**
   * @}
   */

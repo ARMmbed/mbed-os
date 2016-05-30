@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai_ex.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   SAI Extension HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of SAI extension peripheral:
@@ -120,25 +120,24 @@ void SAI_BlockSynchroConfig(SAI_HandleTypeDef *hsai)
   /* This setting must be done with both audio block (A & B) disabled         */
   switch(hsai->Init.SynchroExt)
   {
-    case SAI_SYNCEXT_DISABLE :
-      tmpregisterGCR = 0U;
-      break;
-    case SAI_SYNCEXT_OUTBLOCKA_ENABLE :
-      tmpregisterGCR = SAI_GCR_SYNCOUT_0;
-      break;
-    case SAI_SYNCEXT_OUTBLOCKB_ENABLE :
-      tmpregisterGCR = SAI_GCR_SYNCOUT_1;
-      break;
-  default:
+  case SAI_SYNCEXT_DISABLE :
     tmpregisterGCR = 0U;
+    break;
+  case SAI_SYNCEXT_OUTBLOCKA_ENABLE :
+    tmpregisterGCR = SAI_GCR_SYNCOUT_0;
+    break;
+  case SAI_SYNCEXT_OUTBLOCKB_ENABLE :
+    tmpregisterGCR = SAI_GCR_SYNCOUT_1;
+    break;
+  default:
     break;
   }
 
   if((hsai->Init.Synchro) == SAI_SYNCHRONOUS_EXT_SAI2)
   {
-        tmpregisterGCR |= SAI_GCR_SYNCIN_0;
+    tmpregisterGCR |= SAI_GCR_SYNCIN_0;
   }
-  
+
   if((hsai->Instance == SAI1_Block_A) || (hsai->Instance == SAI1_Block_B))
   {
     SAI1->GCR = tmpregisterGCR;
@@ -149,7 +148,7 @@ void SAI_BlockSynchroConfig(SAI_HandleTypeDef *hsai)
   }
 #endif /* STM32F446xx */
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || \
-    defined(STM32F469xx) || defined(STM32F479xx)
+  defined(STM32F469xx) || defined(STM32F479xx)
   /* This setting must be done with both audio block (A & B) disabled         */
   switch(hsai->Init.SynchroExt)
   {
@@ -163,7 +162,6 @@ void SAI_BlockSynchroConfig(SAI_HandleTypeDef *hsai)
     tmpregisterGCR = SAI_GCR_SYNCOUT_1;
     break;
   default:
-    tmpregisterGCR = 0U;
     break;
   }
   SAI1->GCR = tmpregisterGCR;

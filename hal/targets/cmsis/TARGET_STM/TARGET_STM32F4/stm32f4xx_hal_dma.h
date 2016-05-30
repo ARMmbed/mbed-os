@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -108,7 +108,7 @@ typedef struct
                                       @note The burst mode is possible only if the address Increment mode is enabled. */
 
   uint32_t PeriphBurst;          /*!< Specifies the Burst transfer configuration for the peripheral transfers. 
-                                      It specifies the amount of data to be transferred in a single non interruptable 
+                                      It specifies the amount of data to be transferred in a single non interruptible 
                                       transaction. 
                                       This parameter can be a value of @ref DMA_Peripheral_burst
                                       @note The burst mode is possible only if the address Increment mode is enabled. */
@@ -122,15 +122,10 @@ typedef enum
 {
   HAL_DMA_STATE_RESET             = 0x00U,  /*!< DMA not yet initialized or disabled */
   HAL_DMA_STATE_READY             = 0x01U,  /*!< DMA initialized and ready for use   */
-  HAL_DMA_STATE_READY_MEM0        = 0x11U,  /*!< DMA Mem0 process success            */
-  HAL_DMA_STATE_READY_MEM1        = 0x21U,  /*!< DMA Mem1 process success            */
-  HAL_DMA_STATE_READY_HALF_MEM0   = 0x31U,  /*!< DMA Mem0 Half process success       */
-  HAL_DMA_STATE_READY_HALF_MEM1   = 0x41U,  /*!< DMA Mem1 Half process success       */
   HAL_DMA_STATE_BUSY              = 0x02U,  /*!< DMA process is ongoing              */
-  HAL_DMA_STATE_BUSY_MEM0         = 0x12U,  /*!< DMA Mem0 process is ongoing         */
-  HAL_DMA_STATE_BUSY_MEM1         = 0x22U,  /*!< DMA Mem1 process is ongoing         */
   HAL_DMA_STATE_TIMEOUT           = 0x03U,  /*!< DMA timeout state                   */
-  HAL_DMA_STATE_ERROR             = 0x04U   /*!< DMA error state                     */
+  HAL_DMA_STATE_ERROR             = 0x04U,  /*!< DMA error state                     */
+  HAL_DMA_STATE_ABORT             = 0x05U,  /*!< DMA Abort state                     */
 }HAL_DMA_StateTypeDef;
 
 /** 
@@ -141,6 +136,20 @@ typedef enum
   HAL_DMA_FULL_TRANSFER      = 0x00U,    /*!< Full transfer     */
   HAL_DMA_HALF_TRANSFER      = 0x01U     /*!< Half Transfer     */
 }HAL_DMA_LevelCompleteTypeDef;
+
+/** 
+  * @brief  HAL DMA Error Code structure definition
+  */
+typedef enum
+{
+  HAL_DMA_XFER_CPLT_CB_ID          = 0x00U,    /*!< Full transfer     */
+  HAL_DMA_XFER_HALFCPLT_CB_ID      = 0x01U,    /*!< Half Transfer     */
+  HAL_DMA_XFER_M1CPLT_CB_ID        = 0x02U,    /*!< M1 Full Transfer  */
+  HAL_DMA_XFER_M1HALFCPLT_CB_ID    = 0x03U,    /*!< M1 Half Transfer  */
+  HAL_DMA_XFER_ERROR_CB_ID         = 0x04U,    /*!< Error             */
+  HAL_DMA_XFER_ABORT_CB_ID         = 0x05U,    /*!< Abort             */
+  HAL_DMA_XFER_ALL_CB_ID           = 0x06U     /*!< All               */
+}HAL_DMA_CallbackIDTypeDef;
 
 /** 
   * @brief  DMA handle Structure definition
@@ -155,21 +164,26 @@ typedef struct __DMA_HandleTypeDef
 
   __IO HAL_DMA_StateTypeDef  State;                                                        /*!< DMA transfer state                     */
 
-  void                       *Parent;                                                      /*!< Parent object state                    */  
+  void                       *Parent;                                                      /*!< Parent object state                    */ 
 
   void                       (* XferCpltCallback)( struct __DMA_HandleTypeDef * hdma);     /*!< DMA transfer complete callback         */
 
   void                       (* XferHalfCpltCallback)( struct __DMA_HandleTypeDef * hdma); /*!< DMA Half transfer complete callback    */
 
   void                       (* XferM1CpltCallback)( struct __DMA_HandleTypeDef * hdma);   /*!< DMA transfer complete Memory1 callback */
-
+  
+  void                       (* XferM1HalfCpltCallback)( struct __DMA_HandleTypeDef * hdma);   /*!< DMA transfer Half complete Memory1 callback */
+  
   void                       (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
+  
+  void                       (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer Abort callback            */  
 
- __IO uint32_t               ErrorCode;                                                    /*!< DMA Error code                         */
-
+ __IO uint32_t               ErrorCode;                                                    /*!< DMA Error code                          */
+  
  uint32_t                    StreamBaseAddress;                                            /*!< DMA Stream Base Address                */
 
- uint32_t                    StreamIndex;                                                  /*!< DMA Stream Index                       */ 
+ uint32_t                    StreamIndex;                                                  /*!< DMA Stream Index                       */
+ 
 }DMA_HandleTypeDef;
 
 /**
@@ -187,11 +201,14 @@ typedef struct __DMA_HandleTypeDef
   * @brief    DMA Error Code 
   * @{
   */ 
-#define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000U)    /*!< No error             */
-#define HAL_DMA_ERROR_TE        ((uint32_t)0x00000001U)    /*!< Transfer error       */
-#define HAL_DMA_ERROR_FE        ((uint32_t)0x00000002U)    /*!< FIFO error           */
-#define HAL_DMA_ERROR_DME       ((uint32_t)0x00000004U)    /*!< Direct Mode error    */
-#define HAL_DMA_ERROR_TIMEOUT   ((uint32_t)0x00000020U)    /*!< Timeout error        */
+#define HAL_DMA_ERROR_NONE            ((uint32_t)0x00000000U)    /*!< No error                               */
+#define HAL_DMA_ERROR_TE              ((uint32_t)0x00000001U)    /*!< Transfer error                         */
+#define HAL_DMA_ERROR_FE              ((uint32_t)0x00000002U)    /*!< FIFO error                             */
+#define HAL_DMA_ERROR_DME             ((uint32_t)0x00000004U)    /*!< Direct Mode error                      */
+#define HAL_DMA_ERROR_TIMEOUT         ((uint32_t)0x00000020U)    /*!< Timeout error                          */
+#define HAL_DMA_ERROR_PARAM           ((uint32_t)0x00000040U)    /*!< Parameter error                        */
+#define HAL_DMA_ERROR_NO_XFER         ((uint32_t)0x00000080U)    /*!< Abort requested with no Xfer ongoing   */ 
+#define HAL_DMA_ERROR_NOT_SUPPORTED   ((uint32_t)0x00000100U)    /*!< Not supported mode                     */     
 /**
   * @}
   */
@@ -221,7 +238,7 @@ typedef struct __DMA_HandleTypeDef
 #define DMA_MEMORY_TO_MEMORY         ((uint32_t)DMA_SxCR_DIR_1)  /*!< Memory to memory direction     */
 /**
   * @}
-  */  
+  */
         
 /** @defgroup DMA_Peripheral_incremented_mode DMA Peripheral incremented mode
   * @brief    DMA peripheral incremented mode 
@@ -326,7 +343,7 @@ typedef struct __DMA_HandleTypeDef
   * @brief    DMA peripheral burst 
   * @{
   */ 
-#define DMA_PBURST_SINGLE       ((uint32_t)0x00000000U)  
+#define DMA_PBURST_SINGLE       ((uint32_t)0x00000000U)
 #define DMA_PBURST_INC4         ((uint32_t)DMA_SxCR_PBURST_0)
 #define DMA_PBURST_INC8         ((uint32_t)DMA_SxCR_PBURST_1)
 #define DMA_PBURST_INC16        ((uint32_t)DMA_SxCR_PBURST)
@@ -654,8 +671,13 @@ HAL_StatusTypeDef HAL_DMA_DeInit(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
-HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
+HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, HAL_DMA_LevelCompleteTypeDef CompleteLevel, uint32_t Timeout);
 void              HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_CleanCallbacks(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_RegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID, void (* pCallback)(DMA_HandleTypeDef *_hdma));
+HAL_StatusTypeDef HAL_DMA_UnRegisterCallback(DMA_HandleTypeDef *hdma, HAL_DMA_CallbackIDTypeDef CallbackID);
+
 /**
   * @}
   */ 

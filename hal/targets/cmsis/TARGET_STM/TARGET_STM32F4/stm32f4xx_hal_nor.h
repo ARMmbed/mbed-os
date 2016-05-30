@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_nor.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of NOR HAL module.
   ******************************************************************************
   * @attention
@@ -44,9 +44,10 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
+#if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) || defined(STM32F412Zx) ||\
+    defined(STM32F412Vx)
   #include "stm32f4xx_ll_fsmc.h"
-#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx */
+#endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F412Zx || STM32F412Vx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
@@ -63,7 +64,8 @@
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
+    defined(STM32F412Vx)
 
 /* Exported typedef ----------------------------------------------------------*/
 /** @defgroup NOR_Exported_Types NOR Exported Types
@@ -268,7 +270,7 @@ HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Addres
   * @param  ADDRESS: NOR memory address 
   * @retval NOR shifted address value
   */
-#define NOR_ADDR_SHIFT(__NOR_ADDRESS__, NOR_MEMORY_WIDTH, ADDRESS)    (uint32_t)(((NOR_MEMORY_WIDTH) == NOR_MEMORY_8B)? ((uint32_t)((__NOR_ADDRESS__) + (2U * (ADDRESS)))):\
+#define NOR_ADDR_SHIFT(__NOR_ADDRESS__, NOR_MEMORY_WIDTH, ADDRESS)    (uint32_t)(((NOR_MEMORY_WIDTH) == NOR_MEMORY_16B)? ((uint32_t)((__NOR_ADDRESS__) + (2U * (ADDRESS)))):\
                                                                                  ((uint32_t)((__NOR_ADDRESS__) + (ADDRESS))))
  
 /**
@@ -284,7 +286,8 @@ HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Addres
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx ||\
           STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx ||\
-          STM32F446xx || STM32F469xx || STM32F479xx */
+          STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx ||\
+          STM32F412Vx */
 /**
   * @}
   */ 

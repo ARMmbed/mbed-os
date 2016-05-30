@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_gpio.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   GPIO HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the General Purpose Input/Output (GPIO) peripheral:
@@ -163,8 +163,8 @@
   */
 
 /** @defgroup GPIO_Exported_Functions_Group1 Initialization and de-initialization functions
- *  @brief    Initialization and Configuration functions
- *
+  *  @brief    Initialization and Configuration functions
+  *
 @verbatim    
  ===============================================================================
               ##### Initialization and de-initialization functions #####
@@ -373,8 +373,8 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
   */
 
 /** @defgroup GPIO_Exported_Functions_Group2 IO operation functions 
- *  @brief   GPIO Read and Write
- *
+  *  @brief   GPIO Read and Write
+  *
 @verbatim
  ===============================================================================
                        ##### IO operation functions #####

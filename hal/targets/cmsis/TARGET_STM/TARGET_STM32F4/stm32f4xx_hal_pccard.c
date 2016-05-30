@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pccard.c
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   PCCARD HAL module driver.
   *          This file provides a generic firmware to drive PCCARD memories mounted 
   *          as external device.

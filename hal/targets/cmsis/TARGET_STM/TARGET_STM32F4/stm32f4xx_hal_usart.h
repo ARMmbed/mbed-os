@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -486,6 +486,7 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_DMA(USART_HandleTypeDef *husart, uin
 HAL_StatusTypeDef HAL_USART_DMAPause(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DMAResume(USART_HandleTypeDef *husart);
 HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart);
+
 void HAL_USART_IRQHandler(USART_HandleTypeDef *husart);
 void HAL_USART_TxCpltCallback(USART_HandleTypeDef *husart);
 void HAL_USART_TxHalfCpltCallback(USART_HandleTypeDef *husart);
