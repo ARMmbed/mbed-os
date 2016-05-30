@@ -97,12 +97,12 @@ build_list = (
     { "target": "NRF51_DK",          "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "NRF51_MICROBIT",    "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
 
-    { "target": "EFM32ZG_STK3200",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
-    { "target": "EFM32HG_STK3400",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "EFM32LG_STK3600",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "EFM32GG_STK3700",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "EFM32WG_STK3800",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "EFM32PG_STK3401",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "EFM32ZG_STK3200",   "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
+    { "target": "EFM32HG_STK3400",   "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
+    { "target": "EFM32LG_STK3600",   "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
+    { "target": "EFM32GG_STK3700",   "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
+    { "target": "EFM32WG_STK3800",   "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
+    { "target": "EFM32PG_STK3401",   "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
 
     { "target": "MAXWSNENV",    "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
     { "target": "MAX32600MBED", "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
