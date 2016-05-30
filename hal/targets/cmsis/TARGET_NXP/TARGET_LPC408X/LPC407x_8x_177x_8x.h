@@ -209,7 +209,9 @@ typedef struct
   __IO uint32_t EXTPOLAR;                   /*!< Offset: 0x14C (R/W)  External Interrupt Polarity Register */
        uint32_t RESERVED6[12];
   __IO uint32_t RSID;                       /*!< Offset: 0x180 (R/W)  Reset Source Identification Register */
-       uint32_t RESERVED7[7];
+       uint32_t RESERVED7[1];
+  __IO uint32_t MATRIXARB;                  /*!< Offset: 0x188 (R/W)  Matrix Arbitration Register */
+       uint32_t RESERVED71[5];
   __IO uint32_t SCS;                        /*!< Offset: 0x1A0 (R/W)  System Controls and Status Register */
   __IO uint32_t IRCTRIM;                    /*!< Offset: 0x1A4 (R/W) Clock Dividers                     */
   __IO uint32_t PCLKSEL;                    /*!< Offset: 0x1A8 (R/W)  Peripheral Clock Selection Register */
