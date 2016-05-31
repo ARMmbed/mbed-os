@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32l152xc.s
   * @author    MCD Application Team
-  * @version   V2.0.0
-  * @date      5-September-2014
+  * @version   V2.1.3
+  * @date      04-March-2016
   * @brief     STM32L152XC Devices vector table for 
   *            Atollic toolchain.
   *            This module performs:
@@ -17,7 +17,7 @@
   *            priority is Privileged, and the Stack is set to Main.
   ******************************************************************************
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -221,7 +221,7 @@ g_pfnVectors:
   .word 0
   .word 0
   .word BootRAM          /* @0x108. This is for boot in RAM mode for 
-                            STM32L152XE devices. */
+                            STM32L152XC devices. */
 
 /*******************************************************************************
 *

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_sdmmc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
-  * @brief   Header file of low layer SDMMC HAL module.
+  * @version V1.1.3
+  * @date    04-March-2016
+  * @brief   Header file of SDMMC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -67,21 +67,21 @@
 typedef struct
 {
   uint32_t ClockEdge;            /*!< Specifies the clock transition on which the bit capture is made.
-                                      This parameter can be a value of @ref SDMMC_LL_Clock_Edge                 */
+                                      This parameter can be a value of @ref SDIO_Clock_Edge                 */
 
   uint32_t ClockBypass;          /*!< Specifies whether the SDIO Clock divider bypass is
                                       enabled or disabled.
-                                      This parameter can be a value of @ref SDMMC_LL_Clock_Bypass               */
+                                      This parameter can be a value of @ref SDIO_Clock_Bypass               */
 
   uint32_t ClockPowerSave;       /*!< Specifies whether SDIO Clock output is enabled or
                                       disabled when the bus is idle.
-                                      This parameter can be a value of @ref SDMMC_LL_Clock_Power_Save           */
+                                      This parameter can be a value of @ref SDIO_Clock_Power_Save           */
 
   uint32_t BusWide;              /*!< Specifies the SDIO bus width.
-                                      This parameter can be a value of @ref SDMMC_LL_Bus_Wide                   */
+                                      This parameter can be a value of @ref SDIO_Bus_Wide                   */
 
   uint32_t HardwareFlowControl;  /*!< Specifies whether the SDIO hardware flow control is enabled or disabled.
-                                      This parameter can be a value of @ref SDMMC_LL_Hardware_Flow_Control      */
+                                      This parameter can be a value of @ref SDIO_Hardware_Flow_Control      */
 
   uint32_t ClockDiv;             /*!< Specifies the clock frequency of the SDIO controller.
                                       This parameter can be a value between Min_Data = 0 and Max_Data = 255 */  
@@ -103,15 +103,15 @@ typedef struct
                                      Max_Data = 64                                                    */
 
   uint32_t Response;            /*!< Specifies the SDIO response type.
-                                     This parameter can be a value of @ref SDMMC_LL_Response_Type         */
+                                     This parameter can be a value of @ref SDIO_Response_Type         */
 
   uint32_t WaitForInterrupt;    /*!< Specifies whether SDIO wait for interrupt request is 
                                      enabled or disabled.
-                                     This parameter can be a value of @ref SDMMC_LL_Wait_Interrupt_State  */
+                                     This parameter can be a value of @ref SDIO_Wait_Interrupt_State  */
 
   uint32_t CPSM;                /*!< Specifies whether SDIO Command path state machine (CPSM)
                                      is enabled or disabled.
-                                     This parameter can be a value of @ref SDMMC_LL_CPSM_State            */
+                                     This parameter can be a value of @ref SDIO_CPSM_State            */
 }SDIO_CmdInitTypeDef;
 
 
@@ -125,18 +125,18 @@ typedef struct
   uint32_t DataLength;          /*!< Specifies the number of data bytes to be transferred.         */
  
   uint32_t DataBlockSize;       /*!< Specifies the data block size for block transfer.
-                                     This parameter can be a value of @ref SDMMC_LL_Data_Block_Size    */
+                                     This parameter can be a value of @ref SDIO_Data_Block_Size    */
  
   uint32_t TransferDir;         /*!< Specifies the data transfer direction, whether the transfer
                                      is a read or write.
-                                     This parameter can be a value of @ref SDMMC_LL_Transfer_Direction */
+                                     This parameter can be a value of @ref SDIO_Transfer_Direction */
  
   uint32_t TransferMode;        /*!< Specifies whether data transfer is in stream or block mode.
-                                     This parameter can be a value of @ref SDMMC_LL_Transfer_Type      */
+                                     This parameter can be a value of @ref SDIO_Transfer_Type      */
  
   uint32_t DPSM;                /*!< Specifies whether SDIO Data path state machine (DPSM)
                                      is enabled or disabled.
-                                     This parameter can be a value of @ref SDMMC_LL_DPSM_State         */
+                                     This parameter can be a value of @ref SDIO_DPSM_State         */
 }SDIO_DataInitTypeDef;
 
 /**
@@ -148,7 +148,7 @@ typedef struct
   * @{
   */
 
-/** @defgroup SDMMC_LL_Clock_Edge Clock Edge
+/** @defgroup SDIO_Clock_Edge Clock Edge
   * @{
   */
 #define SDIO_CLOCK_EDGE_RISING               ((uint32_t)0x00000000)
@@ -160,7 +160,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Clock_Bypass Clock Bypass
+/** @defgroup SDIO_Clock_Bypass Clock Bypass
   * @{
   */
 #define SDIO_CLOCK_BYPASS_DISABLE             ((uint32_t)0x00000000)
@@ -172,7 +172,7 @@ typedef struct
   * @}
   */ 
 
-/** @defgroup SDMMC_LL_Clock_Power_Save Clock Power Saving
+/** @defgroup SDIO_Clock_Power_Save Clock Power Saving
   * @{
   */
 #define SDIO_CLOCK_POWER_SAVE_DISABLE         ((uint32_t)0x00000000)
@@ -184,7 +184,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Bus_Wide Bus Width
+/** @defgroup SDIO_Bus_Wide Bus Width
   * @{
   */
 #define SDIO_BUS_WIDE_1B                      ((uint32_t)0x00000000)
@@ -198,7 +198,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Hardware_Flow_Control Hardware Flow Control
+/** @defgroup SDIO_Hardware_Flow_Control Hardware Flow Control
   * @{
   */
 #define SDIO_HARDWARE_FLOW_CONTROL_DISABLE    ((uint32_t)0x00000000)
@@ -210,7 +210,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup SDMMC_LL_Clock_Division Clock Division
+/** @defgroup SDIO_Clock_Division Clock Division
   * @{
   */
 #define IS_SDIO_CLKDIV(DIV)   ((DIV) <= 0xFF)
@@ -218,7 +218,7 @@ typedef struct
   * @}
   */  
     
-/** @defgroup SDMMC_LL_Command_Index Command Index
+/** @defgroup SDIO_Command_Index Command Index
   * @{
   */
 #define IS_SDIO_CMD_INDEX(INDEX)            ((INDEX) < 0x40)
@@ -226,7 +226,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Response_Type Response Type
+/** @defgroup SDIO_Response_Type Response Type
   * @{
   */
 #define SDIO_RESPONSE_NO                    ((uint32_t)0x00000000)
@@ -240,7 +240,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Wait_Interrupt_State Wait Interrupt
+/** @defgroup SDIO_Wait_Interrupt_State Wait Interrupt
   * @{
   */
 #define SDIO_WAIT_NO                        ((uint32_t)0x00000000)
@@ -254,7 +254,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_CPSM_State CPSM State
+/** @defgroup SDIO_CPSM_State CPSM State
   * @{
   */
 #define SDIO_CPSM_DISABLE                   ((uint32_t)0x00000000)
@@ -266,7 +266,7 @@ typedef struct
   * @}
   */  
 
-/** @defgroup SDMMC_LL_Response_Registers Response Register
+/** @defgroup SDIO_Response_Registers Response Register
   * @{
   */
 #define SDIO_RESP1                          ((uint32_t)0x00000000)
@@ -282,7 +282,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Data_Length Data Lenght
+/** @defgroup SDIO_Data_Length Data Lenght
   * @{
   */
 #define IS_SDIO_DATA_LENGTH(LENGTH) ((LENGTH) <= 0x01FFFFFF)
@@ -290,7 +290,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Data_Block_Size  Data Block Size
+/** @defgroup SDIO_Data_Block_Size Data Block Size
   * @{
   */
 #define SDIO_DATABLOCK_SIZE_1B               ((uint32_t)0x00000000)
@@ -328,7 +328,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Transfer_Direction Transfer Direction
+/** @defgroup SDIO_Transfer_Direction Transfer Direction
   * @{
   */
 #define SDIO_TRANSFER_DIR_TO_CARD            ((uint32_t)0x00000000)
@@ -340,7 +340,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_Transfer_Type Transfer Type
+/** @defgroup SDIO_Transfer_Type Transfer Type
   * @{
   */
 #define SDIO_TRANSFER_MODE_BLOCK             ((uint32_t)0x00000000)
@@ -352,7 +352,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup SDMMC_LL_DPSM_State DPSM State
+/** @defgroup SDIO_DPSM_State DPSM State
   * @{
   */
 #define SDIO_DPSM_DISABLE                    ((uint32_t)0x00000000)
@@ -364,11 +364,11 @@ typedef struct
   * @}
   */
   
-/** @defgroup SDMMC_LL_Read_Wait_Mode Read Wait Mode
+/** @defgroup SDIO_Read_Wait_Mode Read Wait Mode
   * @{
   */
-#define SDIO_READ_WAIT_MODE_CLK               ((uint32_t)0x00000000)
-#define SDIO_READ_WAIT_MODE_DATA2             ((uint32_t)0x00000001)
+#define SDIO_READ_WAIT_MODE_DATA2             ((uint32_t)0x00000000)
+#define SDIO_READ_WAIT_MODE_CLK               ((uint32_t)0x00000001)
 
 #define IS_SDIO_READWAIT_MODE(MODE) (((MODE) == SDIO_READ_WAIT_MODE_CLK) || \
                                      ((MODE) == SDIO_READ_WAIT_MODE_DATA2))
@@ -376,7 +376,7 @@ typedef struct
   * @}
   */  
 
-/** @defgroup SDMMC_LL_Interrupt_sources Interrupt Sources
+/** @defgroup SDIO_Interrupt_sources Interrupt Sources
   * @{
   */
 #define SDIO_IT_CCRCFAIL                    SDIO_STA_CCRCFAIL
@@ -403,12 +403,11 @@ typedef struct
 #define SDIO_IT_RXDAVL                      SDIO_STA_RXDAVL
 #define SDIO_IT_SDIOIT                      SDIO_STA_SDIOIT
 #define SDIO_IT_CEATAEND                    SDIO_STA_CEATAEND
-
 /**
   * @}
   */ 
 
-/** @defgroup SDMMC_LL_Flags Flags
+/** @defgroup SDIO_Flags Flags
   * @{
   */
 #define SDIO_FLAG_CCRCFAIL                  SDIO_STA_CCRCFAIL
@@ -435,25 +434,21 @@ typedef struct
 #define SDIO_FLAG_RXDAVL                    SDIO_STA_RXDAVL
 #define SDIO_FLAG_SDIOIT                    SDIO_STA_SDIOIT
 #define SDIO_FLAG_CEATAEND                  SDIO_STA_CEATAEND
-
 /**
   * @}
   */
 
 /**
   * @}
-  */ 
-  
+  */
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup SDMMC_LL_Exported_macros SDMMC_LL Exported Macros
   * @{
   */
-  
-/** @defgroup SDMMC_LL_Register Bits And Addresses Definitions
-  * @brief SDMMC_LL registers bit address in the alias region
+
+/** @defgroup SDMMC_LL_Alias_Region Bit Address in the alias region
   * @{
   */
-  
 /* ------------ SDIO registers bit address in the alias region -------------- */
 #define SDIO_OFFSET               (SDIO_BASE - PERIPH_BASE)
 
@@ -502,6 +497,14 @@ typedef struct
 /* Alias word address of SDIOEN bit */
 #define SDIOEN_BITNUMBER          0x0B
 #define DCTRL_SDIOEN_BB           (PERIPH_BB_BASE + (DCTRL_OFFSET * 32) + (SDIOEN_BITNUMBER * 4))
+/**
+  * @}
+  */
+
+/** @defgroup SDMMC_LL_Register Bits And Addresses Definitions
+  * @brief SDMMC_LL registers bit address in the alias region
+  * @{
+  */
 
 /* ---------------------- SDIO registers bit mask --------------------------- */
 /* --- CLKCR Register ---*/
@@ -510,6 +513,7 @@ typedef struct
                                              SDIO_CLKCR_BYPASS  | SDIO_CLKCR_WIDBUS |\
                                              SDIO_CLKCR_NEGEDGE | SDIO_CLKCR_HWFC_EN))
 
+/* --- PWRCTRL Register ---*/
 /* --- DCTRL Register ---*/
 /* SDIO DCTRL Clear Mask */
 #define DCTRL_CLEAR_MASK         ((uint32_t)(SDIO_DCTRL_DTEN    | SDIO_DCTRL_DTDIR |\
@@ -524,7 +528,7 @@ typedef struct
 /* SDIO RESP Registers Address */
 #define SDIO_RESP_ADDR           ((uint32_t)(SDIO_BASE + 0x14))
 
-/* SDIO Intialization Frequency (400KHz max) */
+/* SDIO Initialization Frequency (400KHz max) */
 #define SDIO_INIT_CLK_DIV ((uint8_t)0x76)
 
 /* SDIO Data Transfer Frequency */
@@ -533,12 +537,12 @@ typedef struct
 /**
   * @}
   */
-  
+
 /** @defgroup SDMMC_LL_Interrupt_Clock Interrupt And Clock Configuration
   * @brief macros to handle interrupts and specific clock configurations
   * @{
   */
- 
+
 /**
   * @brief  Enable the SDIO device.
   * @retval None
@@ -830,11 +834,11 @@ typedef struct
 /**
   * @}
   */
-  
+
 /**
   * @}
-  */
-  
+  */  
+
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup SDMMC_LL_Exported_Functions
   * @{
@@ -848,7 +852,7 @@ HAL_StatusTypeDef SDIO_Init(SDIO_TypeDef *SDIOx, SDIO_InitTypeDef Init);
 /**
   * @}
   */
-
+  
 /* I/O operation functions  *****************************************************/
 /** @addtogroup HAL_SDMMC_LL_Group2
   * @{
@@ -880,6 +884,7 @@ uint32_t          SDIO_GetFIFOCount(SDIO_TypeDef *SDIOx);
 
 /* SDIO IO Cards mode management functions */
 HAL_StatusTypeDef SDIO_SetSDIOReadWaitMode(uint32_t SDIO_ReadWaitMode);
+
 /**
   * @}
   */
@@ -895,7 +900,7 @@ HAL_StatusTypeDef SDIO_SetSDIOReadWaitMode(uint32_t SDIO_ReadWaitMode);
 /**
   * @}
   */
-  
+
 #ifdef __cplusplus
 }
 #endif

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -194,11 +194,11 @@ typedef struct
 /** @defgroup COMP_WindowMode COMP WindowMode
   * @{
   */
-#define COMP_WINDOWMODE_DISABLED               ((uint32_t)0x00000000)  /*!< Window mode disabled: COMP1 non-inverting input is independant */
-#define COMP_WINDOWMODE_ENABLED                COMP_CSR_WNDWE          /*!< Window mode enabled: COMP1 non-inverting input is no more accessible, even from ADC channel VCOMP) (connected to COMP2 non-inverting input) */
+#define COMP_WINDOWMODE_DISABLE               ((uint32_t)0x00000000)  /*!< Window mode disabled: COMP1 non-inverting input is independant */
+#define COMP_WINDOWMODE_ENABLE                COMP_CSR_WNDWE          /*!< Window mode enabled: COMP1 non-inverting input is no more accessible, even from ADC channel VCOMP) (connected to COMP2 non-inverting input) */
 
-#define IS_COMP_WINDOWMODE(WINDOWMODE) (((WINDOWMODE) == COMP_WINDOWMODE_DISABLED) || \
-                                        ((WINDOWMODE) == COMP_WINDOWMODE_ENABLED))
+#define IS_COMP_WINDOWMODE(WINDOWMODE) (((WINDOWMODE) == COMP_WINDOWMODE_DISABLE) || \
+                                        ((WINDOWMODE) == COMP_WINDOWMODE_ENABLE))
 /**
   * @}
   */
@@ -236,8 +236,8 @@ typedef struct
 /** @defgroup COMP_ExtiLineEvent COMP ExtiLineEvent
   * @{
   */
-#define COMP_EXTI_LINE_COMP1_EVENT             EXTI_RTSR_TR21  /*!< External interrupt line 21 Connected to COMP1 */
-#define COMP_EXTI_LINE_COMP2_EVENT             EXTI_RTSR_TR22  /*!< External interrupt line 22 Connected to COMP2 */
+#define COMP_EXTI_LINE_COMP1             EXTI_RTSR_TR21  /*!< External interrupt line 21 Connected to COMP1 */
+#define COMP_EXTI_LINE_COMP2             EXTI_RTSR_TR22  /*!< External interrupt line 22 Connected to COMP2 */
 
 /**
   * @}
@@ -303,8 +303,7 @@ typedef struct
      :                                                                         \
      CLEAR_BIT(COMP->CSR, COMP_CSR_INSEL)                                      \
   )
-    
-    
+
 /** @brief  Checks whether the specified COMP flag is set or not.
   * @param  __HANDLE__: specifies the COMP Handle.
   * @param  __FLAG__: specifies the flag to check.
@@ -314,91 +313,173 @@ typedef struct
   */
 #define __HAL_COMP_GET_FLAG(__HANDLE__, __FLAG__) (READ_BIT((__HANDLE__)->Instance->CSR, (__FLAG__)) == (__FLAG__))   
 
-
 /**
-  * @brief Enable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
+  * @brief  Enable the COMP1 EXTI line rising edge trigger.
+  * @retval None
   */                                         
-#define __HAL_COMP_EXTI_RISING_IT_ENABLE(__EXTILINE__) (SET_BIT(EXTI->RTSR, (__EXTILINE__)))
+#define __HAL_COMP_COMP1_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP1)
 
 /**
-  * @brief  Disable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
+  * @brief  Disable the COMP1 EXTI line rising edge trigger.
+  * @retval None
   */                                         
-#define __HAL_COMP_EXTI_RISING_IT_DISABLE(__EXTILINE__) (CLEAR_BIT(EXTI->RTSR, (__EXTILINE__)))
+#define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP1)
 
 /**
-  * @brief Enable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
+  * @brief  Enable the COMP1 EXTI line falling edge trigger.
+  * @retval None
   */                                         
-#define __HAL_COMP_EXTI_FALLING_IT_ENABLE(__EXTILINE__) (SET_BIT(EXTI->FTSR, (__EXTILINE__)))
+#define __HAL_COMP_COMP1_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP1)
 
 /**
-  * @brief  Disable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
-  *         This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
+  * @brief  Disable the COMP1 EXTI line falling edge trigger.
+  * @retval None
   */                                         
-#define __HAL_COMP_EXTI_FALLING_IT_DISABLE(__EXTILINE__) (CLEAR_BIT(EXTI->FTSR, (__EXTILINE__)))
+#define __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP1)
 
 /**
-  * @brief  Get the specified EXTI line for a comparator instance
-  * @param  __INSTANCE__: specifies the COMP instance.
-  * @retval value of @ref COMP_ExtiLineEvent
-  */
-#define __HAL_COMP_GET_EXTI_LINE(__INSTANCE__)                                 \
-  ( ( ((__INSTANCE__) == COMP1)                                                \
-    )?                                                                         \
-     (COMP_EXTI_LINE_COMP1_EVENT)                                              \
-     :                                                                         \
-     (COMP_EXTI_LINE_COMP2_EVENT)                                              \
-  )
-    
-/**
-  * @brief Enable the COMP Exti Line.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
+  * @brief  Enable the COMP1 EXTI line rising & falling edge trigger.
+  * @retval None
   */                                         
-#define __HAL_COMP_EXTI_ENABLE_IT(__EXTILINE__) (SET_BIT(EXTI->IMR, (__EXTILINE__)))
+#define __HAL_COMP_COMP1_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
+                                                               __HAL_COMP_COMP1_EXTI_ENABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP1_EXTI_ENABLE_FALLING_EDGE(); \
+                                                             } while(0)
 
 /**
-  * @brief Disable the COMP Exti Line.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
-  */
-#define __HAL_COMP_EXTI_DISABLE_IT(__EXTILINE__) (CLEAR_BIT(EXTI->IMR, (__EXTILINE__)))
+  * @brief  Disable the COMP1 EXTI line rising & falling edge trigger.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP1_EXTI_DISABLE_RISING_FALLING_EDGE()  do { \
+                                                               __HAL_COMP_COMP1_EXTI_DISABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP1_EXTI_DISABLE_FALLING_EDGE(); \
+                                                             } while(0)
 
 /**
-  * @brief  Checks whether the specified EXTI line flag is set or not.
-  * @param  __FLAG__: specifies the COMP Exti sources to be checked.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval The state of __FLAG__ (SET or RESET).
-  */
-#define __HAL_COMP_EXTI_GET_FLAG(__FLAG__) (READ_BIT(EXTI->PR, (__FLAG__)))
-     
-/**
-  * @brief Clear the COMP Exti flags.
-  * @param  __FLAG__: specifies the COMP Exti sources to be cleared.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
-  * @retval None.
-  */
-#define __HAL_COMP_EXTI_CLEAR_FLAG(__FLAG__)   (EXTI->PR = (__FLAG__))
+  * @brief  Enable the COMP1 EXTI line in interrupt mode.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP1_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP1)
 
 /**
-  * @brief  Generates a Software interrupt on selected EXTI line.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to trig.
-  *          This parameter can be a value of @ref COMP_ExtiLineEvent 
+  * @brief  Disable the COMP1 EXTI line in interrupt mode.
   * @retval None
   */
-#define __HAL_COMP_EXTI_GENERATE_SWIT(__EXTILINE__) (SET_BIT(EXTI->SWIER, (__EXTILINE__)))
+#define __HAL_COMP_COMP1_EXTI_DISABLE_IT()            CLEAR_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP1)
+
+/**
+  * @brief  Enable the COMP1 EXTI Line in event mode.
+  * @retval None
+  */
+#define __HAL_COMP_COMP1_EXTI_ENABLE_EVENT()           SET_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP1)
+
+/**
+  * @brief  Disable the COMP1 EXTI Line in event mode.
+  * @retval None
+  */
+#define __HAL_COMP_COMP1_EXTI_DISABLE_EVENT()          CLEAR_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP1)
+
+/**
+  * @brief  Check whether the COMP1 EXTI line flag is set or not.
+  * @retval RESET or SET
+  */
+#define __HAL_COMP_COMP1_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP1)
+     
+/**
+  * @brief  Clear the the COMP1 EXTI flag.
+  * @retval None
+  */
+#define __HAL_COMP_COMP1_EXTI_CLEAR_FLAG()            WRITE_REG(EXTI->PR, COMP_EXTI_LINE_COMP1)
+
+/**
+  * @brief  Generates a Software interrupt on COMP1 EXTI Line.
+  * @retval None
+  */
+#define __HAL_COMP_COMP1_EXTI_GENERATE_SWIT()              SET_BIT(EXTI->SWIER, COMP_EXTI_LINE_COMP1)
+
+/**
+  * @brief  Enable the COMP2 EXTI line rising edge trigger.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE()    SET_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Disable the COMP2 EXTI line rising edge trigger.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE()   CLEAR_BIT(EXTI->RTSR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Enable the COMP2 EXTI line falling edge trigger.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE()   SET_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Disable the COMP2 EXTI line falling edge trigger.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE()  CLEAR_BIT(EXTI->FTSR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Enable the COMP2 EXTI line rising & falling edge trigger.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_ENABLE_RISING_FALLING_EDGE()   do { \
+                                                               __HAL_COMP_COMP2_EXTI_ENABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP2_EXTI_ENABLE_FALLING_EDGE(); \
+                                                             } while(0)
+
+/**
+  * @brief  Disable the COMP2 EXTI line rising & falling edge trigger.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_DISABLE_RISING_FALLING_EDGE()   do { \
+                                                               __HAL_COMP_COMP2_EXTI_DISABLE_RISING_EDGE(); \
+                                                               __HAL_COMP_COMP2_EXTI_DISABLE_FALLING_EDGE(); \
+                                                             } while(0)
+
+/**
+  * @brief  Enable the COMP2 EXTI line.
+  * @retval None
+  */                                         
+#define __HAL_COMP_COMP2_EXTI_ENABLE_IT()             SET_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Disable the COMP2 EXTI line.
+  * @retval None
+  */
+#define __HAL_COMP_COMP2_EXTI_DISABLE_IT()            CLEAR_BIT(EXTI->IMR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Enable the COMP2 EXTI Line in event mode.
+  * @retval None
+  */
+#define __HAL_COMP_COMP2_EXTI_ENABLE_EVENT()           SET_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Disable the COMP2 EXTI Line in event mode.
+  * @retval None
+  */
+#define __HAL_COMP_COMP2_EXTI_DISABLE_EVENT()          CLEAR_BIT(EXTI->EMR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Check whether the COMP2 EXTI line flag is set or not.
+  * @retval RESET or SET
+  */
+#define __HAL_COMP_COMP2_EXTI_GET_FLAG()              READ_BIT(EXTI->PR, COMP_EXTI_LINE_COMP2)
+     
+/**
+  * @brief  Clear the the COMP2 EXTI flag.
+  * @retval None
+  */
+#define __HAL_COMP_COMP2_EXTI_CLEAR_FLAG()            WRITE_REG(EXTI->PR, COMP_EXTI_LINE_COMP2)
+
+/**
+  * @brief  Generates a Software interrupt on COMP1 EXTI Line.
+  * @retval None
+  */
+#define __HAL_COMP_COMP2_EXTI_GENERATE_SWIT()              SET_BIT(EXTI->SWIER, COMP_EXTI_LINE_COMP2)
 
 /**
   * @}
@@ -409,6 +490,19 @@ typedef struct
 /** @defgroup COMP_Private_Macro COMP Private Macro
   * @{
   */
+
+/**
+  * @brief  Get the specified EXTI line for a comparator instance
+  * @param  __INSTANCE__: specifies the COMP instance.
+  * @retval value of @ref COMP_ExtiLineEvent
+  */
+#define COMP_GET_EXTI_LINE(__INSTANCE__)                                       \
+  ( ( ((__INSTANCE__) == COMP1)                                                \
+    )?                                                                         \
+     (COMP_EXTI_LINE_COMP1)                                                    \
+     :                                                                         \
+     (COMP_EXTI_LINE_COMP2)                                                    \
+  )
 
 /**
   * @brief Select the COMP register CSR bit CMPxOUT corresponding to the 

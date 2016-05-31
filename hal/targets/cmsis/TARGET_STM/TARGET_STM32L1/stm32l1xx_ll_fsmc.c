@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_fsmc.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   FSMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -20,7 +20,7 @@
          (+) The NOR/PSRAM memory controller
        
     [..] The FSMC functional block makes the interface with synchronous and asynchronous static
-         memories and SDRAM memories. Its main purposes are:
+         memories. Its main purposes are:
          (+) to translate AHB transactions into the appropriate external device protocol.
          (+) to meet the access time requirements of the external memory devices.
    
@@ -34,28 +34,12 @@
              (++) PSRAM (4 memory banks).
           (+) Independent Chip Select control for each memory bank.
           (+) Independent configuration for each memory bank.          
-        
-  =============================================================================
-                   ##### How to use NORSRAM device driver #####
-  =============================================================================
- 
-  [..] 
-    This driver contains a set of APIs to interface with the FSMC NORSRAM banks in order
-    to run the NORSRAM external devices.
-      
-    (+) FSMC NORSRAM bank reset using the function FSMC_NORSRAM_DeInit() 
-    (+) FSMC NORSRAM bank control configuration using the function FSMC_NORSRAM_Init()
-    (+) FSMC NORSRAM bank timing configuration using the function FSMC_NORSRAM_Timing_Init()
-    (+) FSMC NORSRAM bank extended timing configuration using the function 
-        FSMC_NORSRAM_Extended_Timing_Init()
-    (+) FSMC NORSRAM bank enable/disable write operation using the functions
-        FSMC_NORSRAM_WriteOperation_Enable()/FSMC_NORSRAM_WriteOperation_Disable()
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -89,27 +73,59 @@
   * @{
   */
 
+#if defined (HAL_SRAM_MODULE_ENABLED) || defined(HAL_NOR_MODULE_ENABLED)
+
+#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
 /** @defgroup FSMC_LL FSMC_LL
   * @brief FSMC driver modules
   * @{
   */
 
-#if defined (HAL_SRAM_MODULE_ENABLED) || defined(HAL_NOR_MODULE_ENABLED)
-
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/    
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-/** @defgroup FSMC_Exported_Functions FSMC Exported Functions
+/** @defgroup FSMC_LL_Private_Macros FSMC Low Layer Private Macros
   * @{
   */
 
-/** @defgroup HAL_FSMC_NORSRAM_Group1 Initialization/de-initialization functions 
+/**
+  * @}
+  */
+
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
+
+/** @defgroup FSMC_LL_Exported_Functions FSMC Low Layer Exported Functions
+  * @{
+  */
+
+/** @defgroup FSMC_NORSRAM FSMC NORSRAM Controller functions
+  * @brief    NORSRAM Controller functions 
+  *
+  @verbatim 
+  ==============================================================================   
+                   ##### How to use NORSRAM device driver #####
+  ==============================================================================
+ 
+  [..] 
+    This driver contains a set of APIs to interface with the FSMC NORSRAM banks in order
+    to run the NORSRAM external devices.
+      
+    (+) FSMC NORSRAM bank reset using the function FSMC_NORSRAM_DeInit() 
+    (+) FSMC NORSRAM bank control configuration using the function FSMC_NORSRAM_Init()
+    (+) FSMC NORSRAM bank timing configuration using the function FSMC_NORSRAM_Timing_Init()
+    (+) FSMC NORSRAM bank extended timing configuration using the function 
+        FSMC_NORSRAM_Extended_Timing_Init()
+    (+) FSMC NORSRAM bank enable/disable write operation using the functions
+        FSMC_NORSRAM_WriteOperation_Enable()/FSMC_NORSRAM_WriteOperation_Disable()
+
+
+@endverbatim
+  * @{
+  */
+
+/** @defgroup FSMC_NORSRAM_Group1 Initialization/de-initialization functions 
   * @brief    Initialization and Configuration functions 
   *
   @verbatim    
@@ -133,11 +149,10 @@
   * @param  Init: Pointer to NORSRAM Initialization structure   
   * @retval HAL status
   */
-HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NORSRAM_InitTypeDef* Init)
+HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_InitTypeDef* Init)
 { 
-  uint32_t tmpr = 0;
-    
   /* Check the parameters */
+  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
   assert_param(IS_FSMC_NORSRAM_BANK(Init->NSBank));
   assert_param(IS_FSMC_MUX(Init->DataAddressMux));
   assert_param(IS_FSMC_MEMORY(Init->MemoryType));
@@ -152,27 +167,32 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NORSRAM_
   assert_param(IS_FSMC_ASYNWAIT(Init->AsynchronousWait));
   assert_param(IS_FSMC_WRITE_BURST(Init->WriteBurst));
   
+  /* Disable NORSRAM Device */
+  __FSMC_NORSRAM_DISABLE(Device, Init->NSBank);  
+  
   /* Set NORSRAM device control parameters */
-  tmpr = (uint32_t)(Init->DataAddressMux       |\
-                    Init->MemoryType           |\
-                    Init->MemoryDataWidth      |\
-                    Init->BurstAccessMode      |\
-                    Init->WaitSignalPolarity   |\
-                    Init->WrapMode             |\
-                    Init->WaitSignalActive     |\
-                    Init->WriteOperation       |\
-                    Init->WaitSignal           |\
-                    Init->ExtendedMode         |\
-                    Init->AsynchronousWait     |\
-                    Init->WriteBurst
-                    );
-                    
   if(Init->MemoryType == FSMC_MEMORY_TYPE_NOR)
   {
-    tmpr |= (uint32_t)FSMC_NORSRAM_FLASH_ACCESS_ENABLE;
+    MODIFY_REG(Device->BTCR[Init->NSBank], \
+      (FSMC_BCRx_FACCEN                 | FSMC_BCRx_MUXEN       | FSMC_BCRx_MTYP                                        | \
+      FSMC_BCRx_MWID        | FSMC_BCRx_BURSTEN     | FSMC_BCRx_WAITPOL         | FSMC_BCRx_WRAPMOD | FSMC_BCRx_WAITCFG | \
+      FSMC_BCRx_WREN        | FSMC_BCRx_WAITEN  | FSMC_BCRx_EXTMOD    | FSMC_BCRx_ASYNCWAIT     | FSMC_BCRx_CBURSTRW),    \
+      (FSMC_NORSRAM_FLASH_ACCESS_ENABLE | Init->DataAddressMux  | Init->MemoryType                                      | \
+      Init->MemoryDataWidth | Init->BurstAccessMode | Init->WaitSignalPolarity  | Init->WrapMode    | Init->WaitSignalActive |\
+      Init->WriteOperation  | Init->WaitSignal  | Init->ExtendedMode  | Init->AsynchronousWait  | Init->WriteBurst )      \
+      );
   }
-  
-  Device->BTCR[Init->NSBank] = tmpr;                   
+  else
+  {
+    MODIFY_REG(Device->BTCR[Init->NSBank], \
+      (FSMC_BCRx_FACCEN                  | FSMC_BCRx_MUXEN      | FSMC_BCRx_MTYP                                        | \
+      FSMC_BCRx_MWID        | FSMC_BCRx_BURSTEN     | FSMC_BCRx_WAITPOL         | FSMC_BCRx_WRAPMOD | FSMC_BCRx_WAITCFG | \
+      FSMC_BCRx_WREN        | FSMC_BCRx_WAITEN  | FSMC_BCRx_EXTMOD    | FSMC_BCRx_ASYNCWAIT     | FSMC_BCRx_CBURSTRW),    \
+      (FSMC_NORSRAM_FLASH_ACCESS_DISABLE | Init->DataAddressMux | Init->MemoryType                                      | \
+      Init->MemoryDataWidth | Init->BurstAccessMode | Init->WaitSignalPolarity  | Init->WrapMode    | Init->WaitSignalActive |\
+      Init->WriteOperation  | Init->WaitSignal  | Init->ExtendedMode  | Init->AsynchronousWait  | Init->WriteBurst )      \
+      );
+  }
   
   return HAL_OK;
 }
@@ -185,22 +205,23 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Init(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NORSRAM_
   * @param  Bank: NORSRAM bank number  
   * @retval HAL status
   */
-HAL_StatusTypeDef FSMC_NORSRAM_DeInit(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NORSRAM_EXTENDED_TYPEDEF *ExDevice, uint32_t Bank)
+HAL_StatusTypeDef FSMC_NORSRAM_DeInit(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_EXTENDED_TypeDef *ExDevice, uint32_t Bank)
 {
   /* Check the parameters */
   assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
   assert_param(IS_FSMC_NORSRAM_EXTENDED_DEVICE(ExDevice));
+  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
 
   /* Disable the FSMC_NORSRAM device */
   __FSMC_NORSRAM_DISABLE(Device, Bank);
   
   /* De-initialize the FSMC_NORSRAM device */
   /* FSMC_NORSRAM_BANK1 */
-  if(Bank == FSMC_BANK1_NORSRAM1)
+  if(Bank == FSMC_NORSRAM_BANK1)
   {
     Device->BTCR[Bank] = 0x000030DB;    
   }
-  /* FSMC_BANK1_NORSRAM2, FSMC_BANK1_NORSRAM3 or FSMC_BANK1_NORSRAM4 */
+  /* FSMC_NORSRAM_BANK2, FSMC_NORSRAM_BANK3 or FSMC_NORSRAM_BANK4 */
   else
   {   
     Device->BTCR[Bank] = 0x000030D2; 
@@ -221,11 +242,10 @@ HAL_StatusTypeDef FSMC_NORSRAM_DeInit(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NORSRAM
   * @param  Bank: NORSRAM bank number  
   * @retval HAL status
   */
-HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank)
+HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank)
 {
-  uint32_t tmpr = 0;
-  
   /* Check the parameters */
+  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
   assert_param(IS_FSMC_ADDRESS_SETUP_TIME(Timing->AddressSetupTime));
   assert_param(IS_FSMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
   assert_param(IS_FSMC_DATASETUP_TIME(Timing->DataSetupTime));
@@ -233,19 +253,20 @@ HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NO
   assert_param(IS_FSMC_CLK_DIV(Timing->CLKDivision));
   assert_param(IS_FSMC_DATA_LATENCY(Timing->DataLatency));
   assert_param(IS_FSMC_ACCESS_MODE(Timing->AccessMode));
+  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
   
   /* Set FSMC_NORSRAM device timing parameters */  
-  tmpr = (uint32_t)(Timing->AddressSetupTime                                                    |\
-                   ((Timing->AddressHoldTime)           << POSITION_VAL(FSMC_BTRx_ADDHLD))      |\
-                   ((Timing->DataSetupTime)             << POSITION_VAL(FSMC_BTRx_DATAST))      |\
-                   ((Timing->BusTurnAroundDuration)     << POSITION_VAL(FSMC_BTRx_BUSTURN))     |\
-                   (((Timing->CLKDivision)-1)           << POSITION_VAL(FSMC_BTRx_CLKDIV))      |\
-                   (((Timing->DataLatency)-2)           << POSITION_VAL(FSMC_BTRx_DATLAT))      |\
-                    (Timing->AccessMode)
-                    );
-  
-  Device->BTCR[Bank + 1] = tmpr; 
-  
+  MODIFY_REG(Device->BTCR[Bank + 1],                                              \
+    (FSMC_BTRx_ADDSET | FSMC_BTRx_ADDHLD | FSMC_BTRx_DATAST | FSMC_BTRx_BUSTURN | \
+    FSMC_BTRx_CLKDIV | FSMC_BTRx_DATLAT | FSMC_BTRx_ACCMOD),                      \
+    ( Timing->AddressSetupTime                                                  | \
+    ((Timing->AddressHoldTime)        << POSITION_VAL(FSMC_BTRx_ADDHLD))        | \
+    ((Timing->DataSetupTime)          << POSITION_VAL(FSMC_BTRx_DATAST))        | \
+    ((Timing->BusTurnAroundDuration)  << POSITION_VAL(FSMC_BTRx_BUSTURN))       | \
+    (((Timing->CLKDivision)-1)        << POSITION_VAL(FSMC_BTRx_CLKDIV))        | \
+    (((Timing->DataLatency)-2)        << POSITION_VAL(FSMC_BTRx_DATLAT))        | \
+    (Timing->AccessMode)));
+
   return HAL_OK;   
 }
 
@@ -261,23 +282,30 @@ HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TYPEDEF *Device, FSMC_NO
   *            @arg FSMC_EXTENDED_MODE_ENABLE
   * @retval HAL status
   */
-HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TYPEDEF *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank, uint32_t ExtendedMode)
+HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TypeDef *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank, uint32_t ExtendedMode)
 {
+  /* Check the parameters */
+  assert_param(IS_FSMC_EXTENDED_MODE(ExtendedMode));
+  
   /* Set NORSRAM device timing register for write configuration, if extended mode is used */
   if(ExtendedMode == FSMC_EXTENDED_MODE_ENABLE)
   {
     /* Check the parameters */  
+    assert_param(IS_FSMC_NORSRAM_EXTENDED_DEVICE(Device));  
     assert_param(IS_FSMC_ADDRESS_SETUP_TIME(Timing->AddressSetupTime));
     assert_param(IS_FSMC_ADDRESS_HOLD_TIME(Timing->AddressHoldTime));
     assert_param(IS_FSMC_DATASETUP_TIME(Timing->DataSetupTime));
     assert_param(IS_FSMC_TURNAROUND_TIME(Timing->BusTurnAroundDuration));
     assert_param(IS_FSMC_ACCESS_MODE(Timing->AccessMode));
+    assert_param(IS_FSMC_NORSRAM_BANK(Bank));  
   
-    Device->BWTR[Bank] = (uint32_t)(Timing->AddressSetupTime                 |\
-                                   ((Timing->AddressHoldTime) << POSITION_VAL(FSMC_BWTRx_ADDHLD))          |\
-                                   ((Timing->DataSetupTime) << POSITION_VAL(FSMC_BWTRx_DATAST))            |\
-                                   ((Timing->BusTurnAroundDuration) << POSITION_VAL(FSMC_BWTRx_BUSTURN))   |\
-                                   (Timing->AccessMode));
+    MODIFY_REG(Device->BWTR[Bank],                                                \
+      (FSMC_BWTRx_ADDSET | FSMC_BWTRx_ADDHLD | FSMC_BWTRx_DATAST | FSMC_BWTRx_ACCMOD | FSMC_BWTRx_BUSTURN), \
+      (Timing->AddressSetupTime                                                 | \
+      ((Timing->AddressHoldTime)        << POSITION_VAL(FSMC_BWTRx_ADDHLD))     | \
+      ((Timing->DataSetupTime)          << POSITION_VAL(FSMC_BWTRx_DATAST))     | \
+      Timing->AccessMode                                                        | \
+      ((Timing->BusTurnAroundDuration)  << POSITION_VAL(FSMC_BWTRx_BUSTURN))));
   }
   else                                        
   {
@@ -293,7 +321,7 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TYPED
   */
   
   
-/** @defgroup HAL_FSMC_NORSRAM_Group2 Control functions 
+/** @defgroup FSMC_NORSRAM_Group2 Control functions 
  *  @brief   management functions 
  *
 @verbatim   
@@ -314,10 +342,14 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TYPED
   * @param  Bank: NORSRAM bank number   
   * @retval HAL status
   */
-HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Enable(FSMC_NORSRAM_TYPEDEF *Device, uint32_t Bank)
+HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Enable(FSMC_NORSRAM_TypeDef *Device, uint32_t Bank)
 {
+  /* Check the parameters */
+  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
+  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
+  
   /* Enable write operation */
-  Device->BTCR[Bank] |= FSMC_WRITE_OPERATION_ENABLE; 
+  SET_BIT(Device->BTCR[Bank], FSMC_WRITE_OPERATION_ENABLE); 
 
   return HAL_OK;  
 }
@@ -328,10 +360,15 @@ HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Enable(FSMC_NORSRAM_TYPEDEF *Devic
   * @param  Bank: NORSRAM bank number   
   * @retval HAL status
   */
-HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Disable(FSMC_NORSRAM_TYPEDEF *Device, uint32_t Bank)
+HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Disable(FSMC_NORSRAM_TypeDef *Device, uint32_t Bank)
 { 
+  /* Check the parameters */
+  assert_param(IS_FSMC_NORSRAM_DEVICE(Device));
+  assert_param(IS_FSMC_NORSRAM_BANK(Bank));
+    
   /* Disable write operation */
-  Device->BTCR[Bank] &= ~FSMC_WRITE_OPERATION_ENABLE; 
+  CLEAR_BIT(Device->BTCR[Bank], FSMC_WRITE_OPERATION_ENABLE); 
+
 
   return HAL_OK;  
 }
@@ -344,13 +381,15 @@ HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Disable(FSMC_NORSRAM_TYPEDEF *Devi
   * @}
   */
   
-#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
 
-#endif /* HAL_FSMC_MODULE_ENABLED */
 
 /**
   * @}
   */
+
+#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
+
+#endif /* HAL_FSMC_MODULE_ENABLED */
 
 /**
   * @}

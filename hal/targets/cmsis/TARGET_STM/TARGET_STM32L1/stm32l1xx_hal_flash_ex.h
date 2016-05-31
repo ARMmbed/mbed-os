@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,9 +54,176 @@
   * @{
   */ 
 
+/** @addtogroup FLASHEx_Private_Defines
+  * @{
+  */
+#if defined(FLASH_SR_RDERR) && defined(FLASH_SR_OPTVERRUSR)
+
+#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
+                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
+                                  FLASH_FLAG_OPTVERRUSR | FLASH_FLAG_RDERR)
+
+#elif defined(FLASH_SR_RDERR)
+
+#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
+                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
+                                  FLASH_FLAG_RDERR)
+
+#elif defined(FLASH_SR_OPTVERRUSR)
+
+#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
+                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
+                                  FLASH_FLAG_OPTVERRUSR)
+
+#else
+
+#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
+                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR)
+
+#endif /* FLASH_SR_RDERR & FLASH_SR_OPTVERRUSR */
+
+#if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB) || defined(STM32L100xBA) \
+ || defined(STM32L151xBA) || defined(STM32L152xBA)
+     
+/******* Devices with FLASH 128K *******/
+#define FLASH_NBPAGES_MAX       512 /* 512 pages from page 0 to page 511 */
+
+#elif defined(STM32L100xC) || defined(STM32L151xC) || defined(STM32L152xC) || defined(STM32L162xC) \
+   || defined(STM32L151xCA) || defined(STM32L152xCA) || defined(STM32L162xCA)
+
+/******* Devices with FLASH 256K *******/
+#define FLASH_NBPAGES_MAX       1025 /* 1025 pages from page 0 to page 1024 */
+
+#elif defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD) || defined(STM32L152xDX) \
+   || defined(STM32L162xD) || defined(STM32L162xDX)
+
+/******* Devices with FLASH 384K *******/
+#define FLASH_NBPAGES_MAX       1536 /* 1536 pages from page 0 to page 1535 */
+
+#elif defined(STM32L151xE) || defined(STM32L152xE) || defined(STM32L162xE)
+
+/******* Devices with FLASH 512K *******/
+#define FLASH_NBPAGES_MAX       2048 /* 2048 pages from page 0 to page 2047 */
+
+#endif /* STM32L100xB || STM32L151xB || STM32L152xB || STM32L100xBA || STM32L151xBA || STM32L152xBA */
+
+/** @defgroup FLASHEx_Option_Bytes_Write_Mask FLASHEx Option Bytes Write Mask
+  * @{
+  */ 
+#define WRP_MASK_LOW                 ((uint32_t)0x0000FFFF)
+#define WRP_MASK_HIGH                 ((uint32_t)0xFFFF0000)
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */  
+
+/** @addtogroup FLASHEx_Private_Macros
+  * @{
+  */
+
+#define IS_FLASH_TYPEERASE(__VALUE__)   (((__VALUE__) == FLASH_TYPEERASE_PAGES))
+
+#define IS_OPTIONBYTE(__VALUE__)        (((__VALUE__) <= (OPTIONBYTE_WRP|OPTIONBYTE_RDP|OPTIONBYTE_USER|OPTIONBYTE_BOR)))
+
+#define IS_WRPSTATE(__VALUE__)          (((__VALUE__) == OB_WRPSTATE_DISABLE) || \
+                                         ((__VALUE__) == OB_WRPSTATE_ENABLE))
+                                         
+#define IS_OB_RDP(__LEVEL__)            (((__LEVEL__) == OB_RDP_LEVEL_0) ||\
+                                         ((__LEVEL__) == OB_RDP_LEVEL_1) ||\
+                                         ((__LEVEL__) == OB_RDP_LEVEL_2))
+                                         
+#define IS_OB_BOR_LEVEL(__LEVEL__)      (((__LEVEL__) == OB_BOR_OFF)     || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL1)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL2)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL3)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL4)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL5))
+
+#define IS_OB_IWDG_SOURCE(__SOURCE__)   (((__SOURCE__) == OB_IWDG_SW) || ((__SOURCE__) == OB_IWDG_HW))
+
+#define IS_OB_STOP_SOURCE(__SOURCE__)   (((__SOURCE__) == OB_STOP_NORST) || ((__SOURCE__) == OB_STOP_RST))
+
+#define IS_OB_STDBY_SOURCE(__SOURCE__)  (((__SOURCE__) == OB_STDBY_NORST) || ((__SOURCE__) == OB_STDBY_RST))
+
+#if defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC) \
+ || defined(STM32L162xC)
+    
+#define IS_OBEX(__VALUE__)              ((__VALUE__) == OPTIONBYTE_PCROP)
+
+#endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC */
+
+#if defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD) || defined(STM32L152xDX) \
+ || defined(STM32L162xD) || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE)  \
+ || defined(STM32L162xE)
+
+#define IS_OBEX(__VALUE__)              ((__VALUE__) == OPTIONBYTE_BOOTCONFIG)
+
+#endif /* STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+
+#if defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC) \
+ || defined(STM32L162xC)
+
+#define IS_PCROPSTATE(__VALUE__)        (((__VALUE__) == OB_PCROP_STATE_DISABLE) || \
+                                         ((__VALUE__) == OB_PCROP_STATE_ENABLE))  
+
+#endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC */
+
+#define IS_TYPEERASEDATA(__VALUE__)     (((__VALUE__) == FLASH_TYPEERASEDATA_BYTE) || \
+                                         ((__VALUE__) == FLASH_TYPEERASEDATA_HALFWORD) || \
+                                         ((__VALUE__) == FLASH_TYPEERASEDATA_WORD))
+                                         
+#define IS_TYPEPROGRAMDATA(__VALUE__)   (((__VALUE__) == FLASH_TYPEPROGRAMDATA_BYTE) || \
+                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_HALFWORD) || \
+                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_WORD) || \
+                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_FASTBYTE) || \
+                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_FASTHALFWORD) || \
+                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_FASTWORD))
+
+
+/** @defgroup FLASHEx_Address FLASHEx Address
+  * @{
+  */
+
+#define IS_FLASH_DATA_ADDRESS(__ADDRESS__)          (((__ADDRESS__) >= FLASH_EEPROM_BASE) && ((__ADDRESS__) <= FLASH_EEPROM_END))
+
+#if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB) || defined(STM32L100xBA)  \
+ || defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L100xC) || defined(STM32L151xC) \
+ || defined(STM32L152xC) || defined(STM32L162xC) || defined(STM32L151xCA) || defined(STM32L152xCA) \
+ || defined(STM32L162xCA)
+
+#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE) && ((__ADDRESS__) <= FLASH_END))  
+
+#else /*STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+
+#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE) && ((__ADDRESS__) <= FLASH_BANK2_END))  
+#define IS_FLASH_PROGRAM_BANK1_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BASE) && ((__ADDRESS__) <= FLASH_BANK1_END))  
+#define IS_FLASH_PROGRAM_BANK2_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BANK2_BASE) && ((__ADDRESS__) <= FLASH_BANK2_END))  
+
+#endif /* STM32L100xB || STM32L151xB || STM32L152xB || (...) || STM32L151xCA || STM32L152xCA || STM32L162xCA */
+
+#define IS_NBPAGES(_PAGES_) (((_PAGES_) >= 1) && ((_PAGES_) <= FLASH_NBPAGES_MAX)) 
+
+#if defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD) || defined(STM32L152xDX) \
+ || defined(STM32L162xD) || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE)  \
+ || defined(STM32L162xE)
+    
+#define IS_OB_BOOT_BANK(__BANK__)     (((__BANK__) == OB_BOOT_BANK2) || ((__BANK__) == OB_BOOT_BANK1))
+
+#endif /* STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */  
 /* Exported types ------------------------------------------------------------*/ 
 
-/** @defgroup FLASHEx_Exported_Types FLASHEx Exported Types
+/** @defgroup FLASHEx_Exported_Types Exported Types
   * @{
   */  
 
@@ -66,13 +233,13 @@
 typedef struct
 {
   uint32_t TypeErase;   /*!< TypeErase: Page Erase only.
-                              This parameter can be a value of @ref FLASHEx_Type_Erase */
+                             This parameter can be a value of @ref FLASHEx_Type_Erase */
 
-  uint32_t PageAddress;     /*!< PageAddress: Initial FLASH address to be erased
-                              This parameter must be a value belonging to FLASH Programm address (depending on the devices)  */
+  uint32_t PageAddress; /*!< PageAddress: Initial FLASH address to be erased
+                             This parameter must be a value belonging to FLASH Programm address (depending on the devices)  */
   
-  uint32_t NbPages; /*!< NbPages: Number of pages to be erased.
-                              This parameter must be a value between 1 and (max number of pages - value of Initial page)*/
+  uint32_t NbPages;     /*!< NbPages: Number of pages to be erased.
+                             This parameter must be a value between 1 and (max number of pages - value of Initial page)*/
   
 } FLASH_EraseInitTypeDef;
 
@@ -81,41 +248,46 @@ typedef struct
   */
 typedef struct
 {
-  uint32_t  OptionType;     /*!< OptionType: Option byte to be configured.
-                              This parameter can be a value of @ref FLASHEx_Option_Type */
+  uint32_t  OptionType;       /*!< OptionType: Option byte to be configured.
+                                   This parameter can be a value of @ref FLASHEx_Option_Type */
 
-  uint32_t  WRPState;      /*!< WRPState: Write protection activation or deactivation.
-                              This parameter can be a value of @ref FLASHEx_WRP_State */
+  uint32_t  WRPState;         /*!< WRPState: Write protection activation or deactivation.
+                                   This parameter can be a value of @ref FLASHEx_WRP_State */
 
-  uint32_t  WRPSector0To31;    /*!< WRPSector0To31: specifies the sector(s) which are write protected between Sector 0 to 31
-                              This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection1 */  
+  uint32_t  WRPSector0To31;   /*!< WRPSector0To31: specifies the sector(s) which are write protected between Sector 0 to 31
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection1 */  
   
-#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-  uint32_t  WRPSector32To63;    /*!< WRPSector32To63: specifies the sector(s) which are write protected between Sector 32 to 63
-                                This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection2 */  
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#if defined(STM32L100xC) || defined(STM32L151xC) || defined(STM32L152xC) || defined(STM32L162xC)    \
+ || defined(STM32L151xCA) || defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xCA) \
+ || defined(STM32L152xD) || defined(STM32L152xDX) || defined(STM32L162xCA) || defined(STM32L162xD)  \
+ || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE) || defined(STM32L162xE)
+  uint32_t  WRPSector32To63;  /*!< WRPSector32To63: specifies the sector(s) which are write protected between Sector 32 to 63
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection2 */  
+#endif /* STM32L100xC || STM32L151xC || STM32L152xC || (...) || STM32L151xE || STM32L152xE || STM32L162xE */
 
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-  uint32_t  WRPSector64To95;    /*!< WRPSector64to95: specifies the sector(s) which are write protected between Sector 64 to 95
-                                This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection3 */  
+#if defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD) || defined(STM32L152xDX) \
+ || defined(STM32L162xD) || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE)  \
+ || defined(STM32L162xE)
+  uint32_t  WRPSector64To95;  /*!< WRPSector64to95: specifies the sector(s) which are write protected between Sector 64 to 95
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection3 */  
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
 
-#if defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-  uint32_t  WRPSector96To127;    /*!< WRPSector96To127: specifies the sector(s) which are write protected between Sector 96 to 127
-                              This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection4 */  
-#endif /* STM32L151xE || STM32L152xE || STM32L162xE */
+#if defined(STM32L151xE) || defined(STM32L152xE) || defined(STM32L162xE) || defined(STM32L151xDX) \
+ || defined(STM32L152xDX) || defined(STM32L162xDX)
+  uint32_t  WRPSector96To127; /*!< WRPSector96To127: specifies the sector(s) which are write protected between Sector 96 to 127 or
+                                   Sectors 96 to 111 for STM32L1xxxDX devices.
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection4 */  
+#endif /* STM32L151xE || STM32L152xE || STM32L162xE || STM32L151xDX || ... */
                               
-  uint8_t   RDPLevel;     /*!< RDPLevel: Set the read protection level..
-                              This parameter can be a value of @ref FLASHEx_Option_Bytes_Read_Protection */
+  uint8_t   RDPLevel;         /*!< RDPLevel: Set the read protection level..
+                                   This parameter can be a value of @ref FLASHEx_Option_Bytes_Read_Protection */
 
-  uint8_t   BORLevel;     /*!< BORLevel: Set the BOR Level.
-                              This parameter can be a value of @ref FLASHEx_Option_Bytes_BOR_Level */
+  uint8_t   BORLevel;         /*!< BORLevel: Set the BOR Level.
+                                   This parameter can be a value of @ref FLASHEx_Option_Bytes_BOR_Level */
                                 
-  uint8_t   USERConfig;     /*!< USERConfig: Program the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY.
-                              This parameter can be a combination of @ref FLASHEx_Option_Bytes_IWatchdog, @ref FLASHEx_Option_Bytes_nRST_STOP and @ref FLASHEx_Option_Bytes_nRST_STDBY*/
+  uint8_t   USERConfig;       /*!< USERConfig: Program the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY.
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_IWatchdog, 
+                                   @ref FLASHEx_Option_Bytes_nRST_STOP and @ref FLASHEx_Option_Bytes_nRST_STDBY*/
 } FLASH_OBProgramInitTypeDef;
 
 /**
@@ -123,28 +295,29 @@ typedef struct
   */
 typedef struct
 {
-  uint32_t OptionType;     /*!< OptionType: Option byte to be configured for extension .
-                              This parameter can be a value of @ref FLASHEx_OptionAdv_Type */
+  uint32_t OptionType;          /*!< OptionType: Option byte to be configured for extension .
+                                     This parameter can be a value of @ref FLASHEx_OptionAdv_Type */
 
-#if defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
-  uint32_t PCROPState;    /*!< PCROPState: PCROP activation or deactivation.
-                              This parameter can be a value of @ref FLASHEx_PCROP_State */
+#if defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC) \
+ || defined(STM32L162xC)
+  uint32_t PCROPState;          /*!< PCROPState: PCROP activation or deactivation.
+                                     This parameter can be a value of @ref FLASHEx_PCROP_State */
 
-  uint32_t  PCROPSector0To31;    /*!< PCROPSector0To31: specifies the sector(s) set for PCROP
-                            This parameter can be a value of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection1 */
+  uint32_t  PCROPSector0To31;   /*!< PCROPSector0To31: specifies the sector(s) set for PCROP
+                                     This parameter can be a value of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection1 */
   
-#if defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
-  uint32_t  PCROPSector32To63;    /*!< PCROPSector32To63: specifies the sector(s) set for PCROP
-                            This parameter can be a value of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection2 */
+#if defined(STM32L151xC) || defined(STM32L152xC) || defined(STM32L162xC)
+  uint32_t  PCROPSector32To63;  /*!< PCROPSector32To63: specifies the sector(s) set for PCROP
+                                     This parameter can be a value of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection2 */
 #endif /* STM32L151xC || STM32L152xC || STM32L162xC */
 #endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC */
  
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-  uint16_t BootConfig;         /*!< BootConfig: specifies Option bytes for boot config
-                                This parameter can be a value of @ref FLASHEx_Option_Bytes_BOOT */
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE*/
+#if defined(STM32L151xCA) || defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xCA) \
+ || defined(STM32L152xD) || defined(STM32L152xDX) || defined(STM32L162xCA) || defined(STM32L162xD)  \
+ || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE) || defined(STM32L162xE)
+  uint16_t BootConfig;          /*!< BootConfig: specifies Option bytes for boot config
+                                     This parameter can be a value of @ref FLASHEx_Option_Bytes_BOOT */
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || (...) || STM32L151xE || STM32L152xE || STM32L162xE*/
 } FLASH_AdvOBProgramInitTypeDef;
 
 /**
@@ -154,16 +327,15 @@ typedef struct
 /* Exported constants --------------------------------------------------------*/
 
 
-/** @defgroup FLASHEx_Exported_Constants FLASHEx Exported Constants
+/** @defgroup FLASHEx_Exported_Constants Exported Constants
   * @{
   */  
 
 /** @defgroup FLASHEx_Type_Erase FLASHEx_Type_Erase
   * @{
   */
-#define TYPEERASE_PAGES           ((uint32_t)0x00)  /*!<Page erase only*/
+#define FLASH_TYPEERASE_PAGES           ((uint32_t)0x00)  /*!<Page erase only*/
  
-#define IS_TYPEERASE(__VALUE__)   (((__VALUE__) == TYPEERASE_PAGES))
 /**
   * @}
   */
@@ -176,7 +348,6 @@ typedef struct
 #define OPTIONBYTE_USER           ((uint32_t)0x04)  /*!<USER option byte configuration*/
 #define OPTIONBYTE_BOR            ((uint32_t)0x08)  /*!<BOR option byte configuration*/
 
-#define IS_OPTIONBYTE(__VALUE__)  (((__VALUE__) < (OPTIONBYTE_WRP|OPTIONBYTE_RDP|OPTIONBYTE_USER|OPTIONBYTE_BOR)))
 /**
   * @}
   */
@@ -184,24 +355,12 @@ typedef struct
 /** @defgroup FLASHEx_WRP_State FLASHEx WRP State
   * @{
   */
-#define WRPSTATE_DISABLE        ((uint32_t)0x00)  /*!<Disable the write protection of the desired bank 1 sectors*/
-#define WRPSTATE_ENABLE         ((uint32_t)0x01)  /*!<Enable the write protection of the desired bank 1 sectors*/
+#define OB_WRPSTATE_DISABLE        ((uint32_t)0x00)  /*!<Disable the write protection of the desired bank 1 sectors*/
+#define OB_WRPSTATE_ENABLE         ((uint32_t)0x01)  /*!<Enable the write protection of the desired bank 1 sectors*/
 
-#define IS_WRPSTATE(__VALUE__)  (((__VALUE__) == WRPSTATE_DISABLE) || \
-                                 ((__VALUE__) == WRPSTATE_ENABLE))
 /**
   * @}
   */
-
-/** @defgroup FLASHEx_Option_Bytes_Write_Mask FLASHEx Option Bytes Write Mask
-  * @{
-  */ 
-#define WRP_MASK_LOW                 ((uint32_t)0x0000FFFF)
-#define WRP_MASK_HIGH                 ((uint32_t)0xFFFF0000)
-
-/**
-  * @}
-  */ 
 
 /** @defgroup FLASHEx_Option_Bytes_Write_Protection1 FLASHEx Option Bytes Write Protection1
   * @{
@@ -241,15 +400,16 @@ typedef struct
 #define OB_WRP1_PAGES480TO495 ((uint32_t)0x40000000) /* Write protection of Sector30 */ 
 #define OB_WRP1_PAGES496TO511 ((uint32_t)0x80000000) /* Write protection of Sector31 */ 
   
-#define OB_WRP1_ALLPAGES      ((uint32_t)0xFFFFFFFF) /*!< Write protection of all Sectors */
+#define OB_WRP1_ALLPAGES      ((uint32_t)FLASH_WRPR1_WRP) /*!< Write protection of all Sectors */
   
 /**
   * @}
   */ 
 
-#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L100xC) || defined(STM32L151xC) || defined(STM32L152xC) || defined(STM32L162xC)    \
+ || defined(STM32L151xCA) || defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xCA) \
+ || defined(STM32L152xD) || defined(STM32L152xDX) || defined(STM32L162xCA) || defined(STM32L162xD)  \
+ || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE) || defined(STM32L162xE)
 
 /** @defgroup FLASHEx_Option_Bytes_Write_Protection2 FLASHEx Option Bytes Write Protection2
   * @{
@@ -272,6 +432,12 @@ typedef struct
 #define OB_WRP2_PAGES720TO735   ((uint32_t)0x00002000) /* Write protection of Sector45 */  
 #define OB_WRP2_PAGES736TO751   ((uint32_t)0x00004000) /* Write protection of Sector46 */  
 #define OB_WRP2_PAGES752TO767   ((uint32_t)0x00008000) /* Write protection of Sector47 */  
+
+#if defined(STM32L100xC) || defined(STM32L151xC) || defined(STM32L152xC) || defined(STM32L162xC)   \
+ || defined(STM32L151xCA) || defined(STM32L151xD) || defined(STM32L152xCA) || defined(STM32L152xD) \
+ || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L151xE) || defined(STM32L152xE)  \
+ || defined(STM32L162xE)
+
 #define OB_WRP2_PAGES768TO783   ((uint32_t)0x00010000) /* Write protection of Sector48 */  
 #define OB_WRP2_PAGES784TO799   ((uint32_t)0x00020000) /* Write protection of Sector49 */  
 #define OB_WRP2_PAGES800TO815   ((uint32_t)0x00040000) /* Write protection of Sector50 */  
@@ -289,16 +455,19 @@ typedef struct
 #define OB_WRP2_PAGES992TO1007  ((uint32_t)0x40000000) /* Write protection of Sector62 */
 #define OB_WRP2_PAGES1008TO1023 ((uint32_t)0x80000000) /* Write protection of Sector63 */
 
-#define OB_WRP2_ALLPAGES        ((uint32_t)0xFFFFFFFF) /*!< Write protection of all Sectors */
+#endif /* STM32L100xC || STM32L151xC || STM32L152xC || (...) || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+      
+#define OB_WRP2_ALLPAGES        ((uint32_t)FLASH_WRPR2_WRP) /*!< Write protection of all Sectors */
 
 /**
   * @}
   */ 
 
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L100xC || STM32L151xC || STM32L152xC || (...) || STM32L162xD || STM32L151xDX || STM32L152xE || STM32L162xE */
 
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD) || defined(STM32L152xDX) \
+ || defined(STM32L162xD) || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE)  \
+ || defined(STM32L162xE)
 
 /** @defgroup FLASHEx_Option_Bytes_Write_Protection3 FLASHEx Option Bytes Write Protection3
   * @{
@@ -338,7 +507,7 @@ typedef struct
 #define OB_WRP3_PAGES1504TO1519 ((uint32_t)0x40000000) /* Write protection of Sector94 */
 #define OB_WRP3_PAGES1520TO1535 ((uint32_t)0x80000000) /* Write protection of Sector95 */
 
-#define OB_WRP3_ALLPAGES        ((uint32_t)0xFFFFFFFF) /*!< Write protection of all Sectors */
+#define OB_WRP3_ALLPAGES        ((uint32_t)FLASH_WRPR3_WRP) /*!< Write protection of all Sectors */
 
 /**
   * @}
@@ -346,7 +515,8 @@ typedef struct
 
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE*/
 
-#if defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xE) || defined(STM32L152xE) || defined(STM32L162xE) || defined(STM32L151xDX) \
+ || defined(STM32L152xDX) || defined(STM32L162xDX)
 
 /** @defgroup FLASHEx_Option_Bytes_Write_Protection4 FLASHEx Option Bytes Write Protection4
   * @{
@@ -369,6 +539,9 @@ typedef struct
 #define OB_WRP4_PAGES1744TO1759 ((uint32_t)0x00002000) /* Write protection of Sector109*/ 
 #define OB_WRP4_PAGES1760TO1775 ((uint32_t)0x00004000) /* Write protection of Sector110*/ 
 #define OB_WRP4_PAGES1776TO1791 ((uint32_t)0x00008000) /* Write protection of Sector111*/ 
+
+#if defined(STM32L151xE) || defined(STM32L152xE) || defined(STM32L162xE)
+
 #define OB_WRP4_PAGES1792TO1807 ((uint32_t)0x00010000) /* Write protection of Sector112*/ 
 #define OB_WRP4_PAGES1808TO1823 ((uint32_t)0x00020000) /* Write protection of Sector113*/ 
 #define OB_WRP4_PAGES1824TO1839 ((uint32_t)0x00040000) /* Write protection of Sector114*/ 
@@ -386,25 +559,24 @@ typedef struct
 #define OB_WRP4_PAGES2016TO2031 ((uint32_t)0x40000000) /* Write protection of Sector126*/ 
 #define OB_WRP4_PAGES2032TO2047 ((uint32_t)0x80000000) /* Write protection of Sector127*/ 
 
-#define OB_WRP4_ALLPAGES        ((uint32_t)0xFFFFFFFF) /*!< Write protection of all Sectors */
+#endif /* STM32L151xE || STM32L152xE || STM32L162xE */
+
+#define OB_WRP4_ALLPAGES        ((uint32_t)FLASH_WRPR4_WRP) /*!< Write protection of all Sectors */
 
 /**
   * @}
   */ 
 
-#endif /* STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L151xE || STM32L152xE || STM32L162xE || STM32L151xDX || ... */
 
 /** @defgroup FLASHEx_Option_Bytes_Read_Protection FLASHEx Option Bytes Read Protection
   * @{
   */ 
-#define OB_RDP_LEVEL0         ((uint8_t)0xAA)
-#define OB_RDP_LEVEL1         ((uint8_t)0xBB)
-/*#define OB_RDP_LEVEL2   ((uint8_t)0xCC)*/ /* Warning: When enabling read protection level 2 
+#define OB_RDP_LEVEL_0         ((uint8_t)0xAA)
+#define OB_RDP_LEVEL_1         ((uint8_t)0xBB)
+#define OB_RDP_LEVEL_2         ((uint8_t)0xCC) /* Warning: When enabling read protection level 2 
                                                 it's no more possible to go back to level 1 or 0 */
 
-#define IS_OB_RDP(__LEVEL__)  (((__LEVEL__) == OB_RDP_LEVEL0)||\
-                               ((__LEVEL__) == OB_RDP_LEVEL1))/*||\
-                          ((__LEVEL__) == OB_RDP_LEVEL2))*/
 /**
   * @}
   */ 
@@ -421,13 +593,6 @@ typedef struct
 #define OB_BOR_LEVEL4    ((uint8_t)0x0B) /*!< BOR Reset threshold levels for 2.55V - 2.65V VDD power supply  */
 #define OB_BOR_LEVEL5    ((uint8_t)0x0C) /*!< BOR Reset threshold levels for 2.8V - 2.9V VDD power supply    */
 
-#define IS_OB_BOR_LEVEL(__LEVEL__)  ( ((__LEVEL__) == OB_BOR_OFF)     || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL1)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL2)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL3)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL4)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL5))
-
 /**
   * @}
   */
@@ -439,8 +604,6 @@ typedef struct
 #define OB_IWDG_SW                     ((uint8_t)0x10)  /*!< Software WDG selected */
 #define OB_IWDG_HW                     ((uint8_t)0x00)  /*!< Hardware WDG selected */
 
-#define IS_OB_IWDG_SOURCE(__SOURCE__) (((__SOURCE__) == OB_IWDG_SW) || ((__SOURCE__) == OB_IWDG_HW))
-
 /**
   * @}
   */
@@ -451,8 +614,6 @@ typedef struct
 
 #define OB_STOP_NORST                  ((uint8_t)0x20) /*!< No reset generated when entering in STOP */
 #define OB_STOP_RST                    ((uint8_t)0x00) /*!< Reset generated when entering in STOP */
-#define IS_OB_STOP_SOURCE(__SOURCE__) (((__SOURCE__) == OB_STOP_NORST) || ((__SOURCE__) == OB_STOP_RST))
-
 /**
   * @}
   */
@@ -463,22 +624,19 @@ typedef struct
 
 #define OB_STDBY_NORST                 ((uint8_t)0x40) /*!< No reset generated when entering in STANDBY */
 #define OB_STDBY_RST                   ((uint8_t)0x00) /*!< Reset generated when entering in STANDBY */
-#define IS_OB_STDBY_SOURCE(__SOURCE__) (((__SOURCE__) == OB_STDBY_NORST) || ((__SOURCE__) == OB_STDBY_RST))
 
 /**
   * @}
   */
 
-#if defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
+#if defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC) \
+ || defined(STM32L162xC)
     
 /** @defgroup FLASHEx_OptionAdv_Type FLASHEx Option Advanced Type
   * @{
   */ 
   
-#define OBEX_PCROP        ((uint32_t)0x01)  /*!<PCROP option byte configuration*/
-
-#define IS_OBEX(__VALUE__)        ((__VALUE__) == OBEX_PCROP)
+#define OPTIONBYTE_PCROP        ((uint32_t)0x01)  /*!<PCROP option byte configuration*/
 
 /**
   * @}
@@ -486,16 +644,15 @@ typedef struct
 
 #endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC */
 
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD) || defined(STM32L152xDX) \
+ || defined(STM32L162xD) || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE)  \
+ || defined(STM32L162xE)
 
 /** @defgroup FLASHEx_OptionAdv_Type FLASHEx Option Advanced Type
   * @{
   */ 
   
-#define OBEX_BOOTCONFIG   ((uint32_t)0x02)  /*!<BOOTConfig option byte configuration*/
-
-#define IS_OBEX(__VALUE__)        ((__VALUE__) == OBEX_BOOTCONFIG)
+#define OPTIONBYTE_BOOTCONFIG   ((uint32_t)0x02)  /*!<BOOTConfig option byte configuration*/
 
 /**
   * @}
@@ -503,17 +660,15 @@ typedef struct
 
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
 
-#if defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
+#if defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC) \
+ || defined(STM32L162xC)
 
 /** @defgroup  FLASHEx_PCROP_State FLASHEx PCROP State
   * @{
   */
-#define PCROPSTATE_DISABLE        ((uint32_t)0x00)  /*!<Disable PCROP for selected sectors */
-#define PCROPSTATE_ENABLE         ((uint32_t)0x01)  /*!<Enable PCROP for selected sectors */
+#define OB_PCROP_STATE_DISABLE        ((uint32_t)0x00)  /*!<Disable PCROP for selected sectors */
+#define OB_PCROP_STATE_ENABLE         ((uint32_t)0x01)  /*!<Enable PCROP for selected sectors */
     
-#define IS_PCROPSTATE(__VALUE__)  (((__VALUE__) == PCROPSTATE_DISABLE) || \
-                                   ((__VALUE__) == PCROPSTATE_ENABLE))  
 /**
   * @}
   */
@@ -574,7 +729,7 @@ typedef struct
 
 #endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC */
 
-#if defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
+#if defined(STM32L151xC) || defined(STM32L152xC) || defined(STM32L162xC)
 
 /** @defgroup FLASHEx_Option_Bytes_PC_ReadWrite_Protection2 FLASHEx Option Bytes PC ReadWrite Protection 2
   * @{
@@ -625,13 +780,10 @@ typedef struct
 /** @defgroup FLASHEx_Type_Erase_Data FLASHEx Type Erase Data
   * @{
   */
-#define TYPEERASEDATA_BYTE            ((uint32_t)0x00)  /*!<Erase byte (8-bit) at a specified address.*/
-#define TYPEERASEDATA_HALFWORD        ((uint32_t)0x01)  /*!<Erase a half-word (16-bit) at a specified address.*/
-#define TYPEERASEDATA_WORD            ((uint32_t)0x02)  /*!<Erase a word (32-bit) at a specified address.*/
+#define FLASH_TYPEERASEDATA_BYTE            ((uint32_t)0x00)  /*!<Erase byte (8-bit) at a specified address.*/
+#define FLASH_TYPEERASEDATA_HALFWORD        ((uint32_t)0x01)  /*!<Erase a half-word (16-bit) at a specified address.*/
+#define FLASH_TYPEERASEDATA_WORD            ((uint32_t)0x02)  /*!<Erase a word (32-bit) at a specified address.*/
 
-#define IS_TYPEERASEDATA(__VALUE__)   (((__VALUE__) == TYPEERASEDATA_BYTE) || \
-                                       ((__VALUE__) == TYPEERASEDATA_HALFWORD) || \
-                                       ((__VALUE__) == TYPEERASEDATA_WORD))
 /**
   * @}
   */
@@ -639,146 +791,42 @@ typedef struct
 /** @defgroup FLASHEx_Type_Program_Data FLASHEx Type Program Data
   * @{
   */
-#define TYPEPROGRAMDATA_BYTE            ((uint32_t)0x00)  /*!<Program byte (8-bit) at a specified address.*/
-#define TYPEPROGRAMDATA_HALFWORD        ((uint32_t)0x01)  /*!<Program a half-word (16-bit) at a specified address.*/
-#define TYPEPROGRAMDATA_WORD            ((uint32_t)0x02)  /*!<Program a word (32-bit) at a specified address.*/
-#define TYPEPROGRAMDATA_FASTBYTE        ((uint32_t)0x04)  /*!<Fast Program byte (8-bit) at a specified address.*/
-#define TYPEPROGRAMDATA_FASTHALFWORD    ((uint32_t)0x08)  /*!<Fast Program a half-word (16-bit) at a specified address.*/
-#define TYPEPROGRAMDATA_FASTWORD        ((uint32_t)0x10)  /*!<Fast Program a word (32-bit) at a specified address.*/
-
-#define IS_TYPEPROGRAMDATA(__VALUE__)   (((__VALUE__) == TYPEPROGRAMDATA_BYTE) || \
-                                         ((__VALUE__) == TYPEPROGRAMDATA_HALFWORD) || \
-                                         ((__VALUE__) == TYPEPROGRAMDATA_WORD) || \
-                                         ((__VALUE__) == TYPEPROGRAMDATA_FASTBYTE) || \
-                                         ((__VALUE__) == TYPEPROGRAMDATA_FASTHALFWORD) || \
-                                         ((__VALUE__) == TYPEPROGRAMDATA_FASTWORD))
-/**
-  * @}
-  */
-
-
-/** @defgroup FLASHEx_Address FLASHEx Address
-  * @{
-  */
-#if defined(STM32L100xB) || defined (STM32L151xB) || defined (STM32L152xB) || \
-   defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA)
-     
-/******* Devices with FLASH 128K *******/
-#define FLASH_NBPAGES_MAX       512 /* 512 pages from page 0 to page 511 */
-
-#elif defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined (STM32L151xCA) || defined (STM32L152xCA) || defined (STM32L162xCA)
-
-/******* Devices with FLASH 256K *******/
-#define FLASH_NBPAGES_MAX       1025 /* 1025 pages from page 0 to page 1024 */
-
-#elif defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
-
-/******* Devices with FLASH 384K *******/
-#define FLASH_NBPAGES_MAX       1536 /* 1536 pages from page 0 to page 1535 */
-
-#elif defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-
-/******* Devices with FLASH 512K *******/
-#define FLASH_NBPAGES_MAX       2048 /* 2048 pages from page 0 to page 2047 */
-
-#endif /* STM32L100xB || STM32L151xB || STM32L152xB || STM32L100xBA || STM32L151xBA || STM32L152xBA */
-
-#define IS_FLASH_DATA_ADDRESS(__ADDRESS__)          (((__ADDRESS__) >= FLASH_EEPROM_BASE) && ((__ADDRESS__) <= FLASH_EEPROM_END))
-
-#if defined(STM32L100xB) || defined (STM32L151xB) || defined (STM32L152xB) || \
-    defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined (STM32L151xCA) || defined (STM32L152xCA) || defined (STM32L162xCA)
-
-#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE) && ((__ADDRESS__) <= FLASH_END))  
-
-#else /*STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
-
-#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE) && ((__ADDRESS__) <= FLASH_BANK2_END))  
-#define IS_FLASH_PROGRAM_BANK1_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BASE) && ((__ADDRESS__) <= FLASH_BANK1_END))  
-#define IS_FLASH_PROGRAM_BANK2_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BANK2_BASE) && ((__ADDRESS__) <= FLASH_BANK2_END))  
-
-#endif /* STM32L100xB || STM32L151xB || STM32L152xB || STM32L100xBA || STM32L151xBA || STM32L152xBA  || STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L152xCA || STM32L162xCA */
-
-#define IS_NBPAGES(_PAGES_) (((_PAGES_) >= 1) && ((_PAGES_) <= FLASH_NBPAGES_MAX)) 
+#define FLASH_TYPEPROGRAMDATA_BYTE            ((uint32_t)0x00)  /*!<Program byte (8-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAMDATA_HALFWORD        ((uint32_t)0x01)  /*!<Program a half-word (16-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAMDATA_WORD            ((uint32_t)0x02)  /*!<Program a word (32-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAMDATA_FASTBYTE        ((uint32_t)0x04)  /*!<Fast Program byte (8-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAMDATA_FASTHALFWORD    ((uint32_t)0x08)  /*!<Fast Program a half-word (16-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAMDATA_FASTWORD        ((uint32_t)0x10)  /*!<Fast Program a word (32-bit) at a specified address.*/
 
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup FLASHEx_Flags FLASHEx Flags
   * @{
   */ 
 
 /* Cat2 & Cat3*/
-#if defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
+#if defined(FLASH_SR_RDERR)
     
 #define FLASH_FLAG_RDERR               FLASH_SR_RDERR    /*!< Read protected error flag  */
 
-#endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC */
+#endif /* FLASH_SR_RDERR */
 
 /* Cat3, Cat4 & Cat5*/
-#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(FLASH_SR_OPTVERRUSR)
     
 #define FLASH_FLAG_OPTVERRUSR          FLASH_SR_OPTVERRUSR /*!< FLASH Option User Validity error flag  */
 
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
-
-/* Cat1*/
-#if defined(STM32L100xB) || defined (STM32L151xB) || defined (STM32L152xB) || defined (STM32L100xBA)
-
-#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
-                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR)
-
-#endif /* STM32L100xB || STM32L151xB || STM32L152xB || STM32L100xBA */
-
-/* RDERR only for STM32L151xBA & STM32L152xBA (Cat2)*/
-#if defined (STM32L151xBA) || defined (STM32L152xBA)
-
-#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
-                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
-                                  FLASH_FLAG_RDERR)
-
-#endif /* STM32L151xBA || STM32L152xBA */
-
-/* FLASH_FLAG_OPTVERRUSR & RDERR only for STM32L151xC, STM32L152xC & STM32L152xBA (Cat3) */
-#if defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
-
-#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
-                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
-                                  FLASH_FLAG_OPTVERRUSR | FLASH_FLAG_RDERR)
-
-#endif /* STM32L151xC || STM32L152xC || STM32L162xC */
-
-/* FLASH_FLAG_OPTVERRUSR only for STM32L100xC (Cat3) */
-#if defined (STM32L100xC)
-
-#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
-                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
-                                  FLASH_FLAG_OPTVERRUSR)
-
-#endif /* STM32L100xC */
-
-/* Cat4 & Cat5 */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-    
-#define FLASH_FLAG_MASK         ( FLASH_FLAG_EOP        | FLASH_FLAG_ENDHV  | FLASH_FLAG_WRPERR | \
-                                  FLASH_FLAG_OPTVERR    | FLASH_FLAG_PGAERR | FLASH_FLAG_SIZERR | \
-                                  FLASH_FLAG_OPTVERRUSR)
-
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* FLASH_SR_OPTVERRUSR */
 
 /**
   * @}
   */
   
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD) || defined(STM32L152xDX) \
+ || defined(STM32L162xD) || defined(STM32L162xDX) || defined(STM32L151xE) || defined(STM32L152xE)  \
+ || defined(STM32L162xE)
     
 /** @defgroup FLASHEx_Option_Bytes_BOOT FLASHEx Option Bytes BOOT
   * @{
@@ -789,7 +837,6 @@ typedef struct
                                                             or Bank 1, depending on the activation of the bank */
 #define OB_BOOT_BANK1                 ((uint8_t)(FLASH_OBR_nRST_BFB2 >> 16)) /*!< At startup, if boot pins are set in boot from user Flash position
                                                             and this parameter is selected the device will boot from Bank1(Default) */
-#define IS_OB_BOOT_BANK(__BANK__)     (((__BANK__) == OB_BOOT_BANK2) || ((__BANK__) == OB_BOOT_BANK1))
 
 /**
   * @}
@@ -802,16 +849,16 @@ typedef struct
 
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup FLASHEx_Exported_Macros FLASHEx Exported Macros
+/** @defgroup FLASHEx_Exported_Macros Exported Macros
  *  @{
  */
  
 /**
   * @brief  Set the FLASH Latency.
-  * @param  __LATENCY__: FLASH Latency
+  * @param  __LATENCY__ FLASH Latency
   *          This parameter can be one of the following values:
-  *            @arg FLASH_LATENCY_0:  FLASH Zero Latency cycle
-  *            @arg FLASH_LATENCY_1:  FLASH One Latency cycle
+  *            @arg @ref FLASH_LATENCY_0  FLASH Zero Latency cycle
+  *            @arg @ref FLASH_LATENCY_1  FLASH One Latency cycle
   * @retval none
   */ 
 #define __HAL_FLASH_SET_LATENCY(__LATENCY__)  do  { \
@@ -823,8 +870,8 @@ typedef struct
   * @brief  Get the FLASH Latency.
   * @retval FLASH Latency                   
   *          This parameter can be one of the following values:
-  *            @arg FLASH_LATENCY_0:  FLASH Zero Latency cycle
-  *            @arg FLASH_LATENCY_1:  FLASH One Latency cycle
+  *            @arg @ref FLASH_LATENCY_0  FLASH Zero Latency cycle
+  *            @arg @ref FLASH_LATENCY_1  FLASH One Latency cycle
   */ 
 #define __HAL_FLASH_GET_LATENCY()     (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))
 
@@ -916,18 +963,18 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit);
 HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit);
 void              HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
 
-#if defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC) \
+ || defined(STM32L162xC) || defined(STM32L151xD) || defined(STM32L151xDX) || defined(STM32L152xD)  \
+ || defined(STM32L152xDX) || defined(STM32L162xD) || defined(STM32L162xDX) || defined(STM32L151xE) \
+ || defined(STM32L152xE) || defined(STM32L162xE)
     
 HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram (FLASH_AdvOBProgramInitTypeDef *pAdvOBInit);
 void              HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit);
 
-#endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || (...) || STM32L151xE || STM32L152xE || STM32L162xE */
 
-#if defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
+#if defined(STM32L151xBA) || defined(STM32L152xBA) || defined(STM32L151xC) || defined(STM32L152xC) \
+ || defined(STM32L162xC)
 
 HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void);
 HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void);

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx.h
   * @author  MCD Application Team
-  * @version V2.0.0
-  * @date    5-September-2014
+  * @version V2.1.3
+  * @date    04-March-2016
   * @brief   CMSIS STM32L1xx Device Peripheral Access Layer Header File. 
   *
   *          The file is the unique include file that the application programmer
@@ -18,7 +18,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -64,14 +64,22 @@
   * @{
   */
 
+/**
+  * @brief STM32 Family
+  */
+#if !defined (STM32L1)
+#define STM32L1
+#endif /* STM32L1 */
+
+
 /* Uncomment the line below according to the target STM32L device used in your 
    application 
   */
 
 #if !defined (STM32L100xB) && !defined (STM32L100xBA) && !defined (STM32L100xC) && \
-    !defined (STM32L151xB) && !defined (STM32L151xBA) && !defined (STM32L151xC) && !defined (STM32L151xCA) && !defined (STM32L151xD) && !defined (STM32L151xE) && \
-    !defined (STM32L152xB) && !defined (STM32L152xBA) && !defined (STM32L152xC) && !defined (STM32L152xCA) && !defined (STM32L152xD) && !defined (STM32L152xE) && \
-    !defined (STM32L162xC) && !defined (STM32L162xCA) && !defined (STM32L162xD) && !defined (STM32L162xE)
+    !defined (STM32L151xB) && !defined (STM32L151xBA) && !defined (STM32L151xC) && !defined (STM32L151xCA) && !defined (STM32L151xD) && !defined (STM32L151xDX) && !defined (STM32L151xE) && \
+    !defined (STM32L152xB) && !defined (STM32L152xBA) && !defined (STM32L152xC) && !defined (STM32L152xCA) && !defined (STM32L152xD) && !defined (STM32L152xDX) && !defined (STM32L152xE) && \
+    !defined (STM32L162xC) && !defined (STM32L162xCA) && !defined (STM32L162xD) && !defined (STM32L162xDX) && !defined (STM32L162xE)
   /* #define STM32L100xB  */   /*!< STM32L100C6, STM32L100R and STM32L100RB Devices */
   /* #define STM32L100xBA */   /*!< STM32L100C6-A, STM32L100R8-A and STM32L100RB-A Devices */
   /* #define STM32L100xC  */   /*!< STM32L100RC Devices */
@@ -80,16 +88,19 @@
   /* #define STM32L151xC  */   /*!< STM32L151CC, STM32L151UC, STM32L151RC and STM32L151VC */
   /* #define STM32L151xCA */   /*!< STM32L151RC-A, STM32L151VC-A, STM32L151QC and STM32L151ZC */
   /* #define STM32L151xD  */   /*!< STM32L151QD, STM32L151RD, STM32L151VD & STM32L151ZD */
+  /* #define STM32L151xDX  */  /*!< STM32L151VD-X Devices */
   /* #define STM32L151xE  */   /*!< STM32L151QE, STM32L151RE, STM32L151VE and STM32L151ZE */
   /* #define STM32L152xB  */   /*!< STM32L152C6, STM32L152R6, STM32L152C8, STM32L152R8, STM32L152V8, STM32L152CB, STM32L152RB and STM32L152VB */
   /* #define STM32L152xBA */   /*!< STM32L152C6-A, STM32L152R6-A, STM32L152C8-A, STM32L152R8-A, STM32L152V8-A, STM32L152CB-A, STM32L152RB-A and STM32L152VB-A */
 #define STM32L152xC    /*!< STM32L152CC, STM32L152UC, STM32L152RC and STM32L152VC */
   /* #define STM32L152xCA */   /*!< STM32L152RC-A, STM32L152VC-A, STM32L152QC and STM32L152ZC */
   /* #define STM32L152xD  */   /*!< STM32L152QD, STM32L152RD, STM32L152VD and STM32L152ZD */  
+  /* #define STM32L152xDX  */  /*!< STM32L152VD-X Devices */
   /* #define STM32L152xE  */   /*!< STM32L152QE, STM32L152RE, STM32L152VE and STM32L152ZE */
   /* #define STM32L162xC  */   /*!< STM32L162RC and STM32L162VC */
   /* #define STM32L162xCA */   /*!< STM32L162RC-A, STM32L162VC-A, STM32L162QC and STM32L162ZC */
   /* #define STM32L162xD  */   /*!< STM32L162QD, STM32L162RD, STM32L162VD and STM32L162ZD */
+  /* #define STM32L162xDX  */  /*!< STM32L162VD-X Devices */
   /* #define STM32L162xE  */   /*!< STM32L162RE, STM32L162VE and STM32L162ZE */
 #endif
 
@@ -107,16 +118,16 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V2.0.0
+  * @brief CMSIS Device version number V2.1.3
   */
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */                                  
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
-#define __STM32L1xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM32L1xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN     << 24)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB1 << 16)\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_SUB2 << 8 )\
-                                      |(__CMSIS_DEVICE_HAL_VERSION_RC))
+#define __STM32L1xx_CMSIS_VERSION_MAIN   (0x02) /*!< [31:24] main version */                                  
+#define __STM32L1xx_CMSIS_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
+#define __STM32L1xx_CMSIS_VERSION_SUB2   (0x03) /*!< [15:8]  sub2 version */
+#define __STM32L1xx_CMSIS_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
+#define __STM32L1xx_CMSIS_VERSION        ((__STM32L1xx_CMSIS_VERSION_MAIN << 24)\
+                                         |(__STM32L1xx_CMSIS_VERSION_SUB1 << 16)\
+                                         |(__STM32L1xx_CMSIS_VERSION_SUB2 << 8 )\
+                                         |(__STM32L1xx_CMSIS_VERSION_RC))
 
 /**
   * @}
@@ -142,6 +153,8 @@
   #include "stm32l151xca.h"
 #elif defined(STM32L151xD)
   #include "stm32l151xd.h"
+#elif defined(STM32L151xDX)
+  #include "stm32l151xdx.h"
 #elif defined(STM32L151xE)
   #include "stm32l151xe.h"
 #elif defined(STM32L152xB)
@@ -154,6 +167,8 @@
   #include "stm32l152xca.h"
 #elif defined(STM32L152xD)
   #include "stm32l152xd.h"
+#elif defined(STM32L152xDX)
+  #include "stm32l152xdx.h"
 #elif defined(STM32L152xE)
   #include "stm32l152xe.h"
 #elif defined(STM32L162xC)
@@ -162,6 +177,8 @@
   #include "stm32l162xca.h"
 #elif defined(STM32L162xD)
   #include "stm32l162xd.h"
+#elif defined(STM32L162xDX)
+  #include "stm32l162xdx.h"
 #elif defined(STM32L162xE)
   #include "stm32l162xe.h"
 #else

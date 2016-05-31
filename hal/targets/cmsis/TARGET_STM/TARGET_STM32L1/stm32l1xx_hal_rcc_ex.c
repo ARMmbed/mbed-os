@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Extended RCC HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
   *           + Extended Peripheral Control functions
@@ -13,7 +12,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -47,21 +46,36 @@
   * @{
   */
 
+#ifdef HAL_RCC_MODULE_ENABLED
+
+
 /** @defgroup RCCEx RCCEx
   * @brief RCC Extension HAL module driver
   * @{
   */
 
-#ifdef HAL_RCC_MODULE_ENABLED
-
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/** @defgroup RCCEx_Private_Constants RCCEx Private Constants
+  * @{
+  */
+/**
+  * @}
+  */
+  
 /* Private macro -------------------------------------------------------------*/
+/** @defgroup RCCEx_Private_Macros RCCEx Private Macros
+  * @{
+  */
+/**
+  * @}
+  */
+
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/** @defgroup RCCEx_Private_Functions RCCEx Exported Functions
+/** @defgroup RCCEx_Exported_Functions RCCEx Exported Functions
   * @{
   */
 
@@ -79,110 +93,131 @@
     (@) Important note: Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to
         select the RTC clock source; in this case the Backup domain will be reset in  
         order to modify the RTC Clock source, as consequence RTC registers (including 
-        the backup registers) and RCC_BDCR register are set to their reset values.
+        the backup registers) are set to their reset values.
       
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Initializes the RCC extended peripherals clocks according to the specified parameters in the
-  *         RCC_PeriphCLKInitTypeDef.
-  * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
+  * @brief  Initializes the RCC extended peripherals clocks according to the specified
+  *         parameters in the RCC_PeriphCLKInitTypeDef.
+  * @param  PeriphClkInit pointer to an RCC_PeriphCLKInitTypeDef structure that
   *         contains the configuration information for the Extended Peripherals clocks(RTC/LCD clock).
   * @retval HAL status
+  * @note   If HAL_ERROR returned, first switch-OFF HSE clock oscillator with @ref HAL_RCC_OscConfig()
+  *         to possibly update HSE divider.
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 {
-  uint32_t tickstart = 0;   
-  uint32_t tmpreg = 0;
-
+  uint32_t tickstart = 0;
+  uint32_t temp_reg = 0;
+  
   /* Check the parameters */
   assert_param(IS_RCC_PERIPHCLOCK(PeriphClkInit->PeriphClockSelection));
   
   /*------------------------------- RTC/LCD Configuration ------------------------*/ 
   if ((((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == RCC_PERIPHCLK_RTC) 
-#if defined (STM32L100xB) || defined (STM32L100xBA) || defined (STM32L100xC) ||\
-    defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC) || \
-    defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD) || \
-    defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || \
-    defined(STM32L162xE)
-    || (((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_LCD) == RCC_PERIPHCLK_LCD)
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L162xE */
-    )
+#if defined(LCD)
+   || (((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_LCD) == RCC_PERIPHCLK_LCD)
+#endif /* LCD */
+     )
+  {
+    /* check for RTC Parameters used to output RTCCLK */
+    if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == RCC_PERIPHCLK_RTC)
     {
-    /* Enable Power Controller clock */
-    __PWR_CLK_ENABLE();
+      assert_param(IS_RCC_RTCCLKSOURCE(PeriphClkInit->RTCClockSelection));
+    }
+
+#if defined(LCD)
+    if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_LCD) == RCC_PERIPHCLK_LCD)
+    {
+      assert_param(IS_RCC_RTCCLKSOURCE(PeriphClkInit->LCDClockSelection));
+    }
+#endif /* LCD */
+
+    /* As soon as function is called to change RTC clock source, activation of the 
+       power domain is done. */
+    /* Enable Power Clock*/
+    __HAL_RCC_PWR_CLK_ENABLE();
     
     /* Enable write access to Backup domain */
     SET_BIT(PWR->CR, PWR_CR_DBP);
-
+    
     /* Wait for Backup domain Write protection disable */
     tickstart = HAL_GetTick();
     
     while((PWR->CR & PWR_CR_DBP) == RESET)
     {
-      if((HAL_GetTick() - tickstart ) > DBP_TIMEOUT_VALUE)
+      if((HAL_GetTick() - tickstart ) > RCC_DBP_TIMEOUT_VALUE)
       {
         return HAL_TIMEOUT;
-      }      
+      }
     }
     
-    tmpreg = (RCC->CSR & RCC_CSR_RTCSEL);
-    /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
-    if((tmpreg != (PeriphClkInit->RTCClockSelection & RCC_CSR_RTCSEL))
-#if defined (STM32L100xB) || defined (STM32L100xBA) || defined (STM32L100xC) ||\
-    defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC) || \
-    defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD) || \
-    defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || \
-    defined(STM32L162xE)
-    || (tmpreg != (PeriphClkInit->LCDClockSelection & RCC_CSR_RTCSEL))
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L162xE */
-    )
+    /* Check if user wants to change HSE RTC prescaler whereas HSE is enabled */ 
+    temp_reg = (RCC->CR & RCC_CR_RTCPRE);
+    if ((temp_reg != (PeriphClkInit->RTCClockSelection & RCC_CR_RTCPRE))
+#if defined (LCD)
+     || (temp_reg != (PeriphClkInit->LCDClockSelection & RCC_CR_RTCPRE))
+#endif /* LCD */
+       )
+    { /* Check HSE State */
+      if (((PeriphClkInit->RTCClockSelection & RCC_CSR_RTCSEL) == RCC_CSR_RTCSEL_HSE) && HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY))
+      {
+        /* To update HSE divider, first switch-OFF HSE clock oscillator*/
+        return HAL_ERROR; 
+      }
+    }
+    
+    /* Reset the Backup domain only if the RTC Clock source selection is modified from reset value */ 
+    temp_reg = (RCC->CSR & RCC_CSR_RTCSEL);
+    
+    if((temp_reg != 0x00000000U) && (((temp_reg != (PeriphClkInit->RTCClockSelection & RCC_CSR_RTCSEL)) \
+      && (((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == RCC_PERIPHCLK_RTC))
+#if defined(LCD)
+      || ((temp_reg != (PeriphClkInit->LCDClockSelection & RCC_CSR_RTCSEL)) \
+       && (((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_LCD) == RCC_PERIPHCLK_LCD))
+#endif /* LCD */
+     ))
     {
       /* Store the content of CSR register before the reset of Backup Domain */
-      tmpreg = (RCC->CSR & ~(RCC_CSR_RTCSEL));
+      temp_reg = (RCC->CSR & ~(RCC_CSR_RTCSEL));
+      
       /* RTC Clock selection can be changed only if the Backup Domain is reset */
       __HAL_RCC_BACKUPRESET_FORCE();
       __HAL_RCC_BACKUPRESET_RELEASE();
-      /* Restore the Content of CSR register */
-      RCC->CSR = tmpreg;
-    }
-
-    /* If LSE is selected as RTC clock source, wait for LSE reactivation */
-    if ((PeriphClkInit->RTCClockSelection == RCC_RTCCLKSOURCE_LSE)
-#if defined (STM32L100xB) || defined (STM32L100xBA) || defined (STM32L100xC) ||\
-    defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC) || \
-    defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD) || \
-    defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || \
-    defined(STM32L162xE)
-    || (PeriphClkInit->LCDClockSelection == RCC_RTCCLKSOURCE_LSE)
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L162xE */
-      )
-    {
-      /* Get timeout */   
-      tickstart = HAL_GetTick();
       
-      /* Wait till LSE is ready */  
-      while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
+      /* Restore the Content of CSR register */
+      RCC->CSR = temp_reg;
+      
+       /* Wait for LSERDY if LSE was enabled */
+      if (HAL_IS_BIT_SET(temp_reg, RCC_CSR_LSERDY))
       {
-        if((HAL_GetTick() - tickstart ) > LSE_TIMEOUT_VALUE)
+        /* Get Start Tick */
+        tickstart = HAL_GetTick();
+        
+        /* Wait till LSE is ready */  
+        while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
         {
-          return HAL_TIMEOUT;
-        }      
-      }  
+          if((HAL_GetTick() - tickstart ) > RCC_LSE_TIMEOUT_VALUE)
+          {
+            return HAL_TIMEOUT;
+          }
+        }
+      }
+      
     }
-
     __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
   }
-
+  
   return HAL_OK;
 }
 
 /**
   * @brief  Get the PeriphClkInit according to the internal
   * RCC configuration registers.
-  * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that 
+  * @param  PeriphClkInit pointer to an RCC_PeriphCLKInitTypeDef structure that 
   *         returns the configuration information for the Extended Peripherals clocks(RTC/LCD clocks).
   * @retval None
   */
@@ -192,13 +227,9 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   
   /* Set all possible values for the extended clock type parameter------------*/
   PeriphClkInit->PeriphClockSelection = RCC_PERIPHCLK_RTC;
-#if defined (STM32L100xB) || defined (STM32L100xBA) || defined (STM32L100xC) ||\
-    defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC) || \
-    defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD) || \
-    defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || \
-    defined(STM32L162xE)
+#if defined(LCD)
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_LCD;
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L162xE */
+#endif /* LCD */
 
   /* Get the RTC/LCD configuration -----------------------------------------------*/
   srcclk = __HAL_RCC_GET_RTC_SOURCE();
@@ -212,20 +243,97 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
     /* Source clock is HSE. Need to get the prescaler value*/
     PeriphClkInit->RTCClockSelection = srcclk | (READ_BIT(RCC->CR, RCC_CR_RTCPRE));
   }
-#if defined (STM32L100xB) || defined (STM32L100xBA) || defined (STM32L100xC) ||\
-    defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC) || \
-    defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD) || \
-    defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || \
-    defined(STM32L162xE)
+#if defined(LCD)
   PeriphClkInit->LCDClockSelection = PeriphClkInit->RTCClockSelection;
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L162xE */
+#endif /* LCD */
 }
 
-#if defined(STM32L100xBA) || defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+/**
+  * @brief  Returns the peripheral clock frequency
+  * @note   Returns 0 if peripheral clock is unknown
+  * @param  PeriphClk Peripheral clock identifier
+  *         This parameter can be one of the following values:
+  *            @arg @ref RCC_PERIPHCLK_RTC  RTC peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_LCD  LCD peripheral clock (depends on devices)
+  * @retval Frequency in Hz (0: means that no available frequency for the peripheral)
+  */
+uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
+{
+  uint32_t temp_reg = 0, clkprediv = 0, frequency = 0;
+  uint32_t srcclk = 0;
 
+  /* Check the parameters */
+  assert_param(IS_RCC_PERIPHCLOCK(PeriphClk));
+  
+  switch (PeriphClk)
+  {
+  case RCC_PERIPHCLK_RTC:
+#if defined(LCD)
+  case RCC_PERIPHCLK_LCD:
+#endif /* LCD */
+    {
+      /* Get RCC CSR configuration ------------------------------------------------------*/
+      temp_reg = RCC->CSR;
+
+      /* Get the current RTC source */
+      srcclk = __HAL_RCC_GET_RTC_SOURCE();
+
+      /* Check if LSE is ready if RTC clock selection is LSE */
+      if ((srcclk == RCC_RTCCLKSOURCE_LSE) && (HAL_IS_BIT_SET(temp_reg, RCC_CSR_LSERDY)))
+      {
+        frequency = LSE_VALUE;
+      }
+      /* Check if LSI is ready if RTC clock selection is LSI */
+      else if ((srcclk == RCC_RTCCLKSOURCE_LSI) && (HAL_IS_BIT_SET(temp_reg, RCC_CSR_LSIRDY)))
+      {
+        frequency = LSI_VALUE;
+      }
+      /* Check if HSE is ready and if RTC clock selection is HSE */
+      else if ((srcclk == RCC_RTCCLKSOURCE_HSE_DIVX) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_HSERDY)))
+      {
+        /* Get the current HSE clock divider */
+        clkprediv = __HAL_RCC_GET_RTC_HSE_PRESCALER();
+
+        switch (clkprediv)
+        {
+          case RCC_RTC_HSE_DIV_16:  /* HSE DIV16 has been selected */
+          {
+            frequency = HSE_VALUE / 16;
+            break;
+          }
+          case RCC_RTC_HSE_DIV_8:   /* HSE DIV8 has been selected  */
+          {
+            frequency = HSE_VALUE / 8;
+            break;
+          }
+          case RCC_RTC_HSE_DIV_4:   /* HSE DIV4 has been selected  */
+          {
+            frequency = HSE_VALUE / 4;
+            break;
+          }
+          default:                  /* HSE DIV2 has been selected  */
+          {
+            frequency = HSE_VALUE / 2;
+            break;
+          }
+        }
+      }
+      /* Clock not enabled for RTC */
+      else
+      {
+        frequency = 0;
+      }
+      break;
+    }
+  default: 
+    {
+      break;
+    }
+  }
+  return(frequency);
+}
+
+#if defined(RCC_CSR_LSECSSON)
 /**
   * @brief  Enables the LSE Clock Security System.
   * @note   If a failure is detected on the external 32 kHz oscillator, the LSE clock is no longer supplied
@@ -253,9 +361,59 @@ void HAL_RCCEx_EnableLSECSS(void)
   */
 void HAL_RCCEx_DisableLSECSS(void)
 {
+  /* Disable LSE CSS */
   *(__IO uint32_t *) CSR_LSECSSON_BB = (uint32_t)DISABLE;
+
+  /* Disable LSE CSS IT */
+  __HAL_RCC_DISABLE_IT(RCC_IT_LSECSS);
 }
-#endif /* STM32L100xBA || STM32L151xBA || STM32L152xBA || STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+
+/**
+  * @brief  Enable the LSE Clock Security System IT & corresponding EXTI line.
+  * @note   LSE Clock Security System IT is mapped on RTC EXTI line 19
+  * @retval None
+  */
+void HAL_RCCEx_EnableLSECSS_IT(void)
+{
+  /* Enable LSE CSS */
+  *(__IO uint32_t *) CSR_LSECSSON_BB = (uint32_t)ENABLE;
+
+  /* Enable LSE CSS IT */
+  __HAL_RCC_ENABLE_IT(RCC_IT_LSECSS);
+  
+  /* Enable IT on EXTI Line 19 */
+  __HAL_RCC_LSECSS_EXTI_ENABLE_IT();
+  __HAL_RCC_LSECSS_EXTI_ENABLE_RISING_EDGE();
+}
+
+/**
+  * @brief Handle the RCC LSE Clock Security System interrupt request.
+  * @retval None
+  */
+void HAL_RCCEx_LSECSS_IRQHandler(void)
+{
+  /* Check RCC LSE CSSF flag  */
+  if(__HAL_RCC_GET_IT(RCC_IT_LSECSS))
+  {
+    /* RCC LSE Clock Security System interrupt user callback */
+    HAL_RCCEx_LSECSS_Callback();
+
+    /* Clear RCC LSE CSS pending bit */
+    __HAL_RCC_CLEAR_IT(RCC_IT_LSECSS);
+  }
+}                                                                            
+
+/**
+  * @brief  RCCEx LSE Clock Security System interrupt callback.
+  * @retval none
+  */
+__weak void HAL_RCCEx_LSECSS_Callback(void)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the @ref HAL_RCCEx_LSECSS_Callback should be implemented in the user file
+   */
+}
+#endif /* RCC_CSR_LSECSSON */
   
 /**
   * @}
@@ -265,11 +423,11 @@ void HAL_RCCEx_DisableLSECSS(void)
   * @}
   */
 
-#endif /* HAL_RCC_MODULE_ENABLED */
 /**
   * @}
   */
 
+#endif /* HAL_RCC_MODULE_ENABLED */
 /**
   * @}
   */
