@@ -108,7 +108,7 @@ int spi_master_write(spi_t *obj, int value) {
     // wait rx buffer full
     while (!spi_readable(obj));
     rx_data = DSPI_ReadData(spi_address[obj->instance]);
-    DSPI_ClearStatusFlags(spi_address[obj->instance], kDSPI_RxFifoDrainRequestFlag);
+    DSPI_ClearStatusFlags(spi_address[obj->instance], kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
     return rx_data & 0xffff;
 }
 
