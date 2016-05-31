@@ -363,14 +363,14 @@ void SetSysClock(void)
       {
         while(1)
         {
-          // [TODO] Put something here to tell the user that a problem occured...
+          // HSI did not start !!!
         }
       }
     }
   }
   
-  // Output clock on MCO pin(PA8) for debugging purpose
-  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_SYSCLK, RCC_MCO_NODIV); // 48 MHz
+  // Output system clock on MCO pin(PA8) for debugging purpose
+  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_SYSCLK, RCC_MCO_DIV8); // 48MHz/8=6MHz
 }
 
 #if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
@@ -389,7 +389,6 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     return 0; // FAIL
   }
 
-  
   // Select HSE oscillator as PLL source
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   if (bypass == 0) {
@@ -414,11 +413,11 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
       return 0; // FAIL
   }
   
-  // Output clock on MCO pin(PA8) for debugging purpose
+  // Output HSE clock on MCO pin(PA8) for debugging purpose
   //if (bypass == 0)
-  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV2); // 4 MHz with xtal
+  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV2); // 8MHz/2=4MHz with xtal
   //else
-  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV4); // 2 MHz with ST-Link MCO
+  //  HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSE, RCC_MCO_DIV4); // 8MHz/4=2MHz with ST-Link MCO
   
   return 1; // OK
 }
@@ -444,7 +443,7 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_OscInitStruct.LSIState                = RCC_LSI_OFF;
   RCC_OscInitStruct.PLL.PLLState            = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource           = RCC_PLLSOURCE_HSI; // HSI div 2
-  RCC_OscInitStruct.PLL.PREDIV              = RCC_PREDIV_DIV1;
+  RCC_OscInitStruct.PLL.PREDIV              = RCC_PREDIV_DIV2;
   RCC_OscInitStruct.PLL.PLLMUL              = RCC_PLL_MUL12;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
       return 0; // FAIL
@@ -459,8 +458,8 @@ uint8_t SetSysClock_PLL_HSI(void)
       return 0; // FAIL
   }
 
-  // Output clock on MCO1 pin(PA8) for debugging purpose
-  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSI, RCC_MCO_DIV1); // 48 MHz
+  // Output HSI clock on MCO1 pin(PA8) for debugging purpose
+  //HAL_RCC_MCOConfig(RCC_MCO, RCC_MCOSOURCE_HSI, RCC_MCO_DIV2); // 8MHz/2=4MHz
 
   return 1; // OK
 }
