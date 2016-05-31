@@ -182,6 +182,10 @@ static void init_uart(serial_t *obj, UARTName instance)
     }
 #endif
 
+    /* uAMR & ARM: Call to UART init is done between reset of pre-initialized variables */
+	/* and before HAL Init. SystemCoreClock init required here */
+    SystemCoreClockUpdate();
+
     if (HAL_UART_Init(handle) != HAL_OK) {
         error("Cannot initialize UART\n");
     }
