@@ -48,7 +48,8 @@
 #define DEVICE_SPISLAVE         1
 
 #define DEVICE_RTC              1
-#define DEVICE_RTC_LSI          0
+#define DEVICE_RTC_LSI          1
+/* LSE not soldered by default : RTC date backup not guaranteed */
 
 #define DEVICE_PWMOUT           1
 
