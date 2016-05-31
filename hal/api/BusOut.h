@@ -63,6 +63,7 @@ public:
      *    Binary mask of connected pins
      */
     int mask() {
+        // No lock needed since _nc_mask is not modified outside the constructor
         return _nc_mask;
     }
 
@@ -89,6 +90,8 @@ protected:
      * if bit[n] is cleared - pin is not connected (NC)
      */
     int _nc_mask;
+
+    PlatformMutex _mutex;
 
    /* disallow copy constructor and assignment operators */
 private:

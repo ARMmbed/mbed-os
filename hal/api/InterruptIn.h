@@ -23,6 +23,7 @@
 #include "gpio_api.h"
 #include "gpio_irq_api.h"
 #include "Callback.h"
+#include "critical.h"
 
 namespace mbed {
 
@@ -81,7 +82,9 @@ public:
      */
     template<typename T, typename M>
     void rise(T *obj, M method) {
+        core_util_critical_section_enter();
         rise(Callback<void()>(obj, method));
+        core_util_critical_section_exit();
     }
 
     /** Attach a function to call when a falling edge occurs on the input
@@ -97,7 +100,9 @@ public:
      */
     template<typename T, typename M>
     void fall(T *obj, M method) {
+        core_util_critical_section_enter();
         fall(Callback<void()>(obj, method));
+        core_util_critical_section_exit();
     }
 
     /** Set the input pin mode

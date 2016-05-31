@@ -24,11 +24,21 @@ Serial::Serial(PinName tx, PinName rx, const char *name) : SerialBase(tx, rx), S
 }
 
 int Serial::_getc() {
+    // Mutex is already held
     return _base_getc();
 }
 
 int Serial::_putc(int c) {
+    // Mutex is already held
     return _base_putc(c);
+}
+
+void Serial::lock() {
+    _mutex.lock();
+}
+
+void Serial::unlock() {
+    _mutex.unlock();
 }
 
 } // namespace mbed

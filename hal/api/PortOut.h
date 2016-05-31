@@ -21,6 +21,7 @@
 #if DEVICE_PORTOUT
 
 #include "port_api.h"
+#include "critical.h"
 
 namespace mbed {
 /** A multiple pin digital out
@@ -55,7 +56,9 @@ public:
      *  @param mask A bitmask to identify which bits in the port should be included (0 - ignore)
      */
     PortOut(PortName port, int mask = 0xFFFFFFFF) {
+        core_util_critical_section_enter();
         port_init(&_port, port, mask, PIN_OUTPUT);
+        core_util_critical_section_exit();
     }
 
     /** Write the value to the output port

@@ -135,6 +135,14 @@ public:
      */
     void stop(void);
 
+    /** Acquire exclusive access to this I2C bus
+     */
+    void lock(void);
+
+    /** Release exclusive access to this I2C bus
+     */
+    void unlock(void);
+
 #if DEVICE_I2C_ASYNCH
 
     /** Start non-blocking I2C transfer.
@@ -167,6 +175,7 @@ protected:
     i2c_t _i2c;
     static I2C  *_owner;
     int         _hz;
+    static PlatformMutex _mutex;
 };
 
 } // namespace mbed

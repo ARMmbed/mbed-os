@@ -85,6 +85,20 @@ public:
     virtual void seekdir(off_t location) { (void)location;}
 
     virtual ~DirHandle() {}
+
+protected:
+
+    /** Acquire exclusive access to this object.
+     */
+    virtual void lock() {
+        // Stub
+    }
+
+    /** Release exclusive access to this object.
+     */
+    virtual void unlock() {
+        // Stub
+    }
 };
 
 } // namespace mbed

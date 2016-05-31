@@ -20,6 +20,7 @@
 
 #if DEVICE_PWMOUT
 #include "pwmout_api.h"
+#include "critical.h"
 
 namespace mbed {
 
@@ -59,7 +60,9 @@ public:
      *  @param pin PwmOut pin to connect to
      */
     PwmOut(PinName pin) {
+        core_util_critical_section_enter();
         pwmout_init(&_pwm, pin);
+        core_util_critical_section_exit();
     }
 
     /** Set the ouput duty-cycle, specified as a percentage (float)
@@ -70,7 +73,9 @@ public:
      *    Values outside this range will be saturated to 0.0f or 1.0f.
      */
     void write(float value) {
+        core_util_critical_section_enter();
         pwmout_write(&_pwm, value);
+        core_util_critical_section_exit();
     }
 
     /** Return the current output duty-cycle setting, measured as a percentage (float)
@@ -84,7 +89,10 @@ public:
      *  This value may not match exactly the value set by a previous <write>.
      */
     float read() {
-        return pwmout_read(&_pwm);
+        core_util_critical_section_enter();
+        float val = pwmout_read(&_pwm);
+        core_util_critical_section_exit();
+        return val;
     }
 
     /** Set the PWM period, specified in seconds (float), keeping the duty cycle the same.
@@ -94,48 +102,62 @@ public:
      *   will be set to zero.
      */
     void period(float seconds) {
+        core_util_critical_section_enter();
         pwmout_period(&_pwm, seconds);
+        core_util_critical_section_exit();
     }
 
     /** Set the PWM period, specified in milli-seconds (int), keeping the duty cycle the same.
      */
     void period_ms(int ms) {
+        core_util_critical_section_enter();
         pwmout_period_ms(&_pwm, ms);
+        core_util_critical_section_exit();
     }
 
     /** Set the PWM period, specified in micro-seconds (int), keeping the duty cycle the same.
      */
     void period_us(int us) {
+        core_util_critical_section_enter();
         pwmout_period_us(&_pwm, us);
+        core_util_critical_section_exit();
     }
 
     /** Set the PWM pulsewidth, specified in seconds (float), keeping the period the same.
      */
     void pulsewidth(float seconds) {
+        core_util_critical_section_enter();
         pwmout_pulsewidth(&_pwm, seconds);
+        core_util_critical_section_exit();
     }
 
     /** Set the PWM pulsewidth, specified in milli-seconds (int), keeping the period the same.
      */
     void pulsewidth_ms(int ms) {
+        core_util_critical_section_enter();
         pwmout_pulsewidth_ms(&_pwm, ms);
+        core_util_critical_section_exit();
     }
 
     /** Set the PWM pulsewidth, specified in micro-seconds (int), keeping the period the same.
      */
     void pulsewidth_us(int us) {
+        core_util_critical_section_enter();
         pwmout_pulsewidth_us(&_pwm, us);
+        core_util_critical_section_exit();
     }
 
 #ifdef MBED_OPERATORS
     /** A operator shorthand for write()
      */
     PwmOut& operator= (float value) {
+        // Underlying call is thread safe
         write(value);
         return *this;
     }
 
     PwmOut& operator= (PwmOut& rhs) {
+        // Underlying call is thread safe
         write(rhs.read());
         return *this;
     }
@@ -143,6 +165,7 @@ public:
     /** An operator shorthand for read()
      */
     operator float() {
+        // Underlying call is thread safe
         return read();
     }
 #endif

@@ -27,4 +27,31 @@
 #include <cstdio>
 #include <cstring>
 
+#ifdef MBED_CONF_RTOS_PRESENT
+#include "Mutex.h"
+typedef rtos::Mutex PlatformMutex;
+#else
+/** A stub mutex for when an RTOS is not present
+*/
+class PlatformMutex {
+public:
+    PlatformMutex() {
+        // Stub
+
+    }
+    ~PlatformMutex() {
+        // Stub
+    }
+
+    void lock() {
+        // Do nothing
+    }
+
+    void unlock() {
+        // Do nothing
+    }
+};
+
+#endif
+
 #endif

@@ -13,33 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_FILELIKE_H
-#define MBED_FILELIKE_H
 
-#include "FileBase.h"
-#include "FileHandle.h"
+#include "mbed.h"
+
+#include "AnalogIn.h"
+
+#if DEVICE_ANALOGIN
 
 namespace mbed {
 
-/* Class FileLike
- *  A file-like object is one that can be opened with fopen by
- *  fopen("/name", mode). It is intersection of the classes Base and
- *  FileHandle.
- */
-class FileLike : public FileHandle, public FileBase {
-
-public:
-    /* Constructor FileLike
-     *
-     * Variables
-     *  name - The name to use to open the file.
-     */
-    FileLike(const char *name);
-
-    virtual ~FileLike();
+PlatformMutex AnalogIn::_mutex;
 
 };
-
-} // namespace mbed
 
 #endif

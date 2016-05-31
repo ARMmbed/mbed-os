@@ -18,18 +18,23 @@
 #include "TimerEvent.h"
 #include "FunctionPointer.h"
 #include "ticker_api.h"
+#include "critical.h"
 
 namespace mbed {
 
 void Ticker::detach() {
+    core_util_critical_section_enter();
     remove();
     _function.attach(0);
+    core_util_critical_section_exit();
 }
 
 void Ticker::setup(timestamp_t t) {
+    core_util_critical_section_enter();
     remove();
     _delay = t;
     insert(_delay + ticker_read(_ticker_data));
+    core_util_critical_section_exit();
 }
 
 void Ticker::handler() {

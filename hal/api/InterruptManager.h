@@ -1,6 +1,8 @@
 #ifndef MBED_INTERRUPTMANAGER_H
 #define MBED_INTERRUPTMANAGER_H
 
+#include "platform.h"
+
 #include "cmsis.h"
 #include "CallChain.h"
 #include <string.h>
@@ -52,6 +54,7 @@ public:
      *  The function object created for 'function'
      */
     pFunctionPointer_t add_handler(void (*function)(void), IRQn_Type irq) {
+        // Underlying call is thread safe
         return add_common(function, irq);
     }
 
@@ -64,6 +67,7 @@ public:
      *  The function object created for 'function'
      */
     pFunctionPointer_t add_handler_front(void (*function)(void), IRQn_Type irq) {
+        // Underlying call is thread safe
         return add_common(function, irq, true);
     }
 
@@ -78,6 +82,7 @@ public:
      */
     template<typename T>
     pFunctionPointer_t add_handler(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
+        // Underlying call is thread safe
         return add_common(tptr, mptr, irq);
     }
 
@@ -92,6 +97,7 @@ public:
      */
     template<typename T>
     pFunctionPointer_t add_handler_front(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
+        // Underlying call is thread safe
         return add_common(tptr, mptr, irq, true);
     }
 
@@ -117,12 +123,14 @@ private:
 
     template<typename T>
     pFunctionPointer_t add_common(T *tptr, void (T::*mptr)(void), IRQn_Type irq, bool front=false) {
+        _mutex.lock();
         int irq_pos = get_irq_index(irq);
         bool change = must_replace_vector(irq);
 
         pFunctionPointer_t pf = front ? _chains[irq_pos]->add_front(tptr, mptr) : _chains[irq_pos]->add(tptr, mptr);
         if (change)
             NVIC_SetVector(irq, (uint32_t)&InterruptManager::static_irq_helper);
+        _mutex.unlock();
         return pf;
     }
 
@@ -135,6 +143,7 @@ private:
 
     CallChain* _chains[NVIC_NUM_VECTORS];
     static InterruptManager* _instance;
+    PlatformMutex _mutex;
 };
 
 } // namespace mbed

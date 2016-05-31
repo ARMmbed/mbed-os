@@ -53,7 +53,9 @@ public:
      * @param name (optional) A string to identify the object
      */
     AnalogIn(PinName pin) {
+        _mutex.lock();
         analogin_init(&_adc, pin);
+        _mutex.unlock();
     }
 
     /** Read the input voltage, represented as a float in the range [0.0, 1.0]
@@ -61,7 +63,10 @@ public:
      * @returns A floating-point value representing the current input voltage, measured as a percentage
      */
     float read() {
-        return analogin_read(&_adc);
+        _mutex.lock();
+        float ret = analogin_read(&_adc);
+        _mutex.unlock();
+        return ret;
     }
 
     /** Read the input voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
@@ -70,7 +75,10 @@ public:
      *   16-bit unsigned short representing the current input voltage, normalised to a 16-bit value
      */
     unsigned short read_u16() {
-        return analogin_read_u16(&_adc);
+        _mutex.lock();
+        unsigned short ret = analogin_read_u16(&_adc);
+        _mutex.unlock();
+        return ret;
     }
 
 #ifdef MBED_OPERATORS
@@ -88,12 +96,14 @@ public:
      * @endcode
      */
     operator float() {
+        // Underlying call is thread safe
         return read();
     }
 #endif
 
 protected:
     analogin_t _adc;
+    static PlatformMutex _mutex;
 };
 
 } // namespace mbed
