@@ -25,6 +25,7 @@
 #include "peripheral_clock_defines.h"
 #include "PeripheralPins.h"
 
+/* 7 bit IIC addr - R/W flag not included */
 static int i2c_address = 0;
 /* Array of I2C peripheral base address. */
 static I2C_Type *const i2c_addrs[] = I2C_BASE_PTRS;
@@ -96,9 +97,9 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     I2C_Type *base = i2c_addrs[obj->instance];
     i2c_master_transfer_t master_xfer;
 
-    i2c_address = address;
+    i2c_address = address >> 1;
     memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = address;
+    master_xfer.slaveAddress = address >> 1;
     master_xfer.direction = kI2C_Read;
     master_xfer.data = (uint8_t *)data;
     master_xfer.dataSize = length;
@@ -125,7 +126,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     i2c_master_transfer_t master_xfer;
 
     memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = address;
+    master_xfer.slaveAddress = address >> 1;
     master_xfer.direction = kI2C_Write;
     master_xfer.data = (uint8_t *)data;
     master_xfer.dataSize = length;
