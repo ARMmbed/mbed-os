@@ -1396,7 +1396,7 @@
         "macros": ["EFM32GG990F1024"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
-        "progen": {"target": "efm32gg_stk3700"}
+        "progen": {"target": "efm32gg-stk"}
     },
     "EFM32LG_STK3600": {
         "inherits": ["Target"],
@@ -1404,7 +1404,7 @@
         "macros": ["EFM32LG990F256"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
-        "progen": {"target": "efm32lg_stk3600"}
+        "progen": {"target": "efm32lg-stk"}
     },
     "EFM32WG_STK3800": {
         "inherits": ["Target"],
@@ -1412,7 +1412,7 @@
         "macros": ["EFM32WG990F256"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
-        "progen": {"target": "efm32wg_stk3800"}
+        "progen": {"target": "efm32wg-stk"}
     },
     "EFM32ZG_STK3200": {
         "inherits": ["Target"],
@@ -1422,7 +1422,7 @@
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "macros": ["EFM32ZG222F32"],
         "progen": {
-            "target": "efm32zg_stk3200",
+            "target": "efm32zg-stk",
             "uvision": {
                 "template": ["uvision_microlib.uvproj.tmpl"]
             }
@@ -1436,7 +1436,7 @@
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "macros": ["EFM32HG322F64"],
         "progen": {
-            "target": "efm32hg_stk3400",
+            "target": "efm32hg-stk",
             "uvision": {
                 "template": ["uvision_microlib.uvproj.tmpl"]
             }
@@ -1448,7 +1448,7 @@
         "macros": ["EFM32PG1B200F256GM48"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
-        "progen": {"target": "efm32pg_stk3401"}
+        "progen": {"target": "efm32pg-stk"}
     },
     "WIZWIKI_W7500": {
         "supported_form_factors": ["ARDUINO"],
@@ -1456,7 +1456,7 @@
         "extra_labels": ["WIZNET", "W7500x", "WIZwiki_W7500"],
         "supported_toolchains": ["uARM", "ARM"],
         "inherits": ["Target"],
-        "progen": {"target": "wizwiki_w7500"}
+        "progen": {"target": "wizwiki-w7500"}
     },
     "WIZWIKI_W7500P": {
         "supported_form_factors": ["ARDUINO"],
@@ -1464,7 +1464,7 @@
         "extra_labels": ["WIZNET", "W7500x", "WIZwiki_W7500P"],
         "supported_toolchains": ["uARM", "ARM"],
         "inherits": ["Target"],
-        "progen": {"target": "wizwiki_w7500p"}
+        "progen": {"target": "wizwiki-w7500p"}
     },
     "WIZWIKI_W7500ECO": {
         "inherits": ["Target"],
