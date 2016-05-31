@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "cmsis.h"
-#include <assert.h>
+#include "mbed_assert.h"
 
 // Module include
 #include "critical.h"
@@ -40,9 +40,9 @@ void core_util_critical_section_enter()
     /* If the interrupt_enable_counter overflows or we are in a nested critical section and interrupts
        are enabled, then something has gone badly wrong thus assert an error.
     */
-     assert(interrupt_enable_counter < UINT32_MAX); 
+    MBED_ASSERT(interrupt_enable_counter < UINT32_MAX); 
     if (interrupt_enable_counter > 0) {
-        assert(primask & 0x1);
+        MBED_ASSERT(primask & 0x1);
     }
     interrupt_enable_counter++;
 }
@@ -54,7 +54,7 @@ void core_util_critical_section_exit()
 
         uint32_t primask = __get_PRIMASK(); /* get the current interrupt enabled state */
 
-        assert(primask & 0x1); /* Interrupts must be disabled on invoking an exit from a critical section */
+        MBED_ASSERT(primask & 0x1); /* Interrupts must be disabled on invoking an exit from a critical section */
 
         interrupt_enable_counter--;
 
