@@ -46,8 +46,11 @@ public:
     virtual off_t flen();
 
 protected:
+    virtual void lock();
+    virtual void unlock();
     FILEHANDLE _fh;
     int pos;
+    rtos::Mutex _mutex;
 };
 
 /** A filesystem for accessing the local mbed Microcontroller USB disk drive
@@ -85,6 +88,7 @@ protected:
  *  not exit, you will need to hold down reset on the mbed Microcontroller to be able to see the drive again!
  */
 class LocalFileSystem : public FileSystemLike {
+    // No modifiable state
 
 public:
     LocalFileSystem(const char* n) : FileSystemLike(n) {

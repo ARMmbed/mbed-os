@@ -24,19 +24,28 @@
 namespace mbed {
 
 RawSerial::RawSerial(PinName tx, PinName rx) : SerialBase(tx, rx) {
+    // No lock needed in the constructor
 }
 
 int RawSerial::getc() {
-    return _base_getc();
+    lock();
+    int ret = _base_getc();
+    unlock();
+    return ret;
 }
 
 int RawSerial::putc(int c) {
-    return _base_putc(c);
+    lock();
+    int ret = _base_putc(c);
+    unlock();
+    return ret;
 }
 
 int RawSerial::puts(const char *str) {
+    lock();
     while (*str)
         putc(*str ++);
+    unlock();
     return 0;
 }
 
@@ -45,6 +54,7 @@ int RawSerial::puts(const char *str) {
 // We only call malloc() for the sprintf() buffer if the buffer
 // length is above a certain threshold, otherwise we use just the stack.
 int RawSerial::printf(const char *format, ...) {
+    lock();
     std::va_list arg;
     va_start(arg, format);
     // ARMCC microlib does not properly handle a size of 0.
@@ -62,7 +72,20 @@ int RawSerial::printf(const char *format, ...) {
         delete[] temp;
     }
     va_end(arg);
+    unlock();
     return len;
+}
+
+/** Acquire exclusive access to this serial port
+ */
+void RawSerial::lock() {
+    // No lock used - external synchronization required
+}
+
+/** Release exclusive access to this serial port
+ */
+void RawSerial::unlock() {
+    // No lock used - external synchronization required
 }
 
 } // namespace mbed

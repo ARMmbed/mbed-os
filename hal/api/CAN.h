@@ -220,6 +220,7 @@ public:
     */
     template<typename T>
     void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
+        // Underlying call thread safe
         attach(Callback<void()>(obj, method), type);
     }
 
@@ -232,6 +233,7 @@ public:
     */
     template<typename T>
     void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {
+        // Underlying call thread safe
         attach(Callback<void()>(obj, method), type);
     }
 
@@ -240,6 +242,7 @@ public:
 protected:
     can_t               _can;
     Callback<void()>    _irq[9];
+    rtos::Mutex         _mutex;
 };
 
 } // namespace mbed

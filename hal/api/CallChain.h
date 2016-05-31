@@ -58,6 +58,7 @@ namespace mbed {
  */
 
 typedef Callback<void()> *pFunctionPointer_t;
+class CallChainLink;
 
 class CallChain {
 public:
@@ -160,17 +161,11 @@ public:
     }
 #endif
 
-private:
-    void _check_size();
-
-    pFunctionPointer_t* _chain;
-    int _size;
-    int _elements;
-
     /* disallow copy constructor and assignment operators */
 private:
     CallChain(const CallChain&);
     CallChain & operator = (const CallChain&);
+    CallChainLink *_chain;
 };
 
 } // namespace mbed

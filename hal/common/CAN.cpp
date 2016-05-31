@@ -22,58 +22,87 @@
 namespace mbed {
 
 CAN::CAN(PinName rd, PinName td) : _can(), _irq() {
+    // No lock needed in constructor
     can_init(&_can, rd, td);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }
 
 CAN::~CAN() {
+    // No lock needed in destructor
     can_irq_free(&_can);
     can_free(&_can);
 }
 
 int CAN::frequency(int f) {
-    return can_frequency(&_can, f);
+    _mutex.lock();
+    int ret = can_frequency(&_can, f);
+    _mutex.unlock();
+    return ret;
 }
 
 int CAN::write(CANMessage msg) {
-    return can_write(&_can, msg, 0);
+    _mutex.lock();
+    int ret = can_write(&_can, msg, 0);
+    _mutex.unlock();
+    return ret;
 }
 
 int CAN::read(CANMessage &msg, int handle) {
-    return can_read(&_can, &msg, handle);
+    _mutex.lock();
+    int ret = can_read(&_can, &msg, handle);
+    _mutex.unlock();
+    return ret;
 }
 
 void CAN::reset() {
+    _mutex.lock();
     can_reset(&_can);
+    _mutex.unlock();
 }
 
 unsigned char CAN::rderror() {
-    return can_rderror(&_can);
+    _mutex.lock();
+    int ret = can_rderror(&_can);
+    _mutex.unlock();
+    return ret;
 }
 
 unsigned char CAN::tderror() {
-    return can_tderror(&_can);
+    _mutex.lock();
+    int ret = can_tderror(&_can);
+    _mutex.unlock();
+    return ret;
 }
 
 void CAN::monitor(bool silent) {
+    _mutex.lock();
     can_monitor(&_can, (silent) ? 1 : 0);
+    _mutex.unlock();
 }
 
 int CAN::mode(Mode mode) {
-    return can_mode(&_can, (CanMode)mode);
+    _mutex.lock();
+    int ret = can_mode(&_can, (CanMode)mode);
+    _mutex.unlock();
+    return ret;
 }
 
 int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle) {
-    return can_filter(&_can, id, mask, format, handle);
+    _mutex.lock();
+    int ret = can_filter(&_can, id, mask, format, handle);
+    _mutex.unlock();
+    return ret;
 }
 
 void CAN::attach(Callback<void()> func, IrqType type) {
+    _mutex.lock();
     if (func) {
         _irq[(CanIrqType)type].attach(func);
         can_irq_set(&_can, (CanIrqType)type, 1);
     } else {
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
+    _mutex.unlock();
 }
 
 void CAN::_irq_handler(uint32_t id, CanIrqType type) {

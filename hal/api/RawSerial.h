@@ -81,6 +81,18 @@ public:
     int puts(const char *str);
 
     int printf(const char *format, ...);
+
+protected:
+
+    /** Acquire exclusive access to this serial port
+     */
+    virtual void lock(void);
+
+    /** Release exclusive access to this serial port
+     */
+    virtual void unlock(void);
+
+    rtos::Mutex _mutex;
 };
 
 } // namespace mbed
