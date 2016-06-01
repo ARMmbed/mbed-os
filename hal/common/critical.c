@@ -24,6 +24,8 @@
 // Module include
 #include "critical.h"
 
+#define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
+
 static volatile uint32_t interrupt_enable_counter = 0;
 static volatile uint32_t critical_primask = 0;
 
@@ -66,3 +68,215 @@ void core_util_critical_section_exit()
         }
     }
 }
+
+#if EXCLUSIVE_ACCESS
+
+bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
+{
+    uint8_t currentValue = __LDREXB((volatile uint8_t*)ptr);
+    if (currentValue != *expectedCurrentValue) {
+        *expectedCurrentValue = currentValue;
+        __CLREX();
+        return false;
+    }
+
+    return !__STREXB(desiredValue, (volatile uint8_t*)ptr);
+}
+
+bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
+{
+    uint16_t currentValue = __LDREXH((volatile uint16_t*)ptr);
+    if (currentValue != *expectedCurrentValue) {
+        *expectedCurrentValue = currentValue;
+        __CLREX();
+        return false;
+    }
+
+    return !__STREXH(desiredValue, (volatile uint16_t*)ptr);
+}
+
+
+bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
+{
+    uint32_t currentValue = __LDREXW((volatile uint32_t*)ptr);
+    if (currentValue != *expectedCurrentValue) {
+        *expectedCurrentValue = currentValue;
+        __CLREX();
+        return false;
+    }
+
+    return !__STREXW(desiredValue, (volatile uint32_t*)ptr);
+}
+
+uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
+{
+    uint8_t newValue;
+    do {
+        newValue = __LDREXB((volatile uint8_t*)valuePtr) + delta;
+    } while (__STREXB(newValue, (volatile uint8_t*)valuePtr));
+    return newValue;
+}
+
+uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta)
+{
+    uint16_t newValue;
+    do {
+        newValue = __LDREXH((volatile uint16_t*)valuePtr) + delta;
+    } while (__STREXH(newValue, (volatile uint16_t*)valuePtr));
+    return newValue;
+}
+
+uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta)
+{
+    uint32_t newValue;
+    do {
+        newValue = __LDREXW((volatile uint32_t*)valuePtr) + delta;
+    } while (__STREXW(newValue, (volatile uint32_t*)valuePtr));
+    return newValue;
+}
+
+
+uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta)
+{
+    uint8_t newValue;
+    do {
+        newValue = __LDREXB((volatile uint8_t*)valuePtr) - delta;
+    } while (__STREXB(newValue, (volatile uint8_t*)valuePtr));
+    return newValue;
+}
+
+uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta)
+{
+    uint16_t newValue;
+    do {
+        newValue = __LDREXH((volatile uint16_t*)valuePtr) - delta;
+    } while (__STREXH(newValue, (volatile uint16_t*)valuePtr));
+    return newValue;
+}
+
+uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta)
+{
+    uint32_t newValue;
+    do {
+        newValue = __LDREXW((volatile uint32_t*)valuePtr) - delta;
+    } while (__STREXW(newValue, (volatile uint32_t*)valuePtr));
+    return newValue;
+}
+
+#else
+
+bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
+{
+    bool success;
+    uint8_t currentValue;
+    core_util_critical_section_enter();
+    currentValue = *ptr;
+    if (currentValue == *expectedCurrentValue) {
+        *ptr = desiredValue;
+        success = true;
+    } else {
+        *expectedCurrentValue = currentValue;
+        success = false;
+    }
+    core_util_critical_section_exit();
+    return success;
+}
+
+bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
+{
+    bool success;
+    uint16_t currentValue;
+    core_util_critical_section_enter();
+    currentValue = *ptr;
+    if (currentValue == *expectedCurrentValue) {
+        *ptr = desiredValue;
+        success = true;
+    } else {
+        *expectedCurrentValue = currentValue;
+        success = false;
+    }
+    core_util_critical_section_exit();
+    return success;
+}
+
+
+bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
+{
+    bool success;
+    uint32_t currentValue;
+    core_util_critical_section_enter();
+    currentValue = *ptr;
+    if (currentValue == *expectedCurrentValue) {
+        *ptr = desiredValue;
+        success = true;
+    } else {
+        *expectedCurrentValue = currentValue;
+        success = false;
+    }
+    core_util_critical_section_exit();
+    return success;
+}
+
+uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
+{
+    uint8_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr + delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
+
+uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta)
+{
+    uint16_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr + delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
+
+uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta)
+{
+    uint32_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr + delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
+
+
+uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta)
+{
+    uint8_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr - delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
+
+uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta)
+{
+    uint16_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr - delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
+
+uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta)
+{
+    uint32_t newValue;
+    core_util_critical_section_enter();
+    newValue = *valuePtr - delta;
+    *valuePtr = newValue;
+    core_util_critical_section_exit();
+    return newValue;
+}
+
+#endif
+
