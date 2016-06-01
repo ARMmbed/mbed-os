@@ -34,17 +34,17 @@
  *  @code
  *  #include "toolchain.h"
  *
- *  typedef struct {
+ *  MBED_PACKED(struct) foo {
  *      char x;
  *      int y;
- *  } MBED_PACKED foo;
+ *  };
  *  @endcode
  */
 #ifndef MBED_PACKED
 #if defined(__ICCARM__)
-#define MBED_PACKED __packed
+#define MBED_PACKED(struct) __packed struct
 #else
-#define MBED_PACKED __attribute__((packed))
+#define MBED_PACKED(struct) struct __attribute__((packed))
 #endif
 #endif
 
@@ -238,14 +238,9 @@ typedef int FILEHANDLE;
 #endif
 
 #ifndef PACKED
-#define PACKED MBED_PACKED
+#define PACKED MBED_PACKED()
 #endif
 
-#ifndef EXTERN
-#define EXTERN extern
-#endif
-
-// Backwards compatibility
 #ifndef EXTERN
 #define EXTERN extern
 #endif
