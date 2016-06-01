@@ -94,6 +94,18 @@ def parse_attributes(path) :
             m = re.match(attr_matcher, line)
             if m: yield m.group(1)
 
+remove_matcher = re.compile('^#define\W+DEVICE_(\w+)\W+[10].*$')
+def remove_attributes(path) :
+    with open(path) as input :
+        remainder = filter(lambda l: not re.match(remove_matcher, l), input)
+    with open(path,"wb") as output :
+        output.truncate(0)
+        output.write("// The 'provides' section in 'target.json' is now used"+
+                     " to create the device's hardware preprocessor switches.\n")
+        output.write("// Check the 'provides' section of the target description"+
+                     " in 'targets.json' for more details.\n")
+        output.writelines(remainder)
+
 def user_select(things, message) :
     print(message)
     for thing, number in zip(things, range(len(things))):
@@ -148,10 +160,8 @@ def add_to_targets(targets, device_file, verbose=False, remove=False) :
             for t in target :
                 targets[t]["features"] = sorted(list(set(targets[t].setdefault("features",[]) + attrs)))
                 if verbose : print("[VERBOSE] target {} now features {}".format(t, attrs))
-            if remove :
-                global git_processes
-                git = Popen(['git', 'rm', device_file])
-                git_processes.append(git)
+            if remove is True:
+                remove_attributes(device_file)
 
 if __name__ == '__main__' :
     import argparse
@@ -166,8 +176,8 @@ if __name__ == '__main__' :
                         ' to convert from device.h format to a piece of targets.json')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help="print out every target that is updated in the targets.json")
-    parser.add_argument('-g', '--git-rm', action='store_true',
-                        help="call git rm on every device.h file")
+    parser.add_argument('-r', '--rm', action='store_true',
+                        help="remove the used attributes from a device.h file")
     args = parser.parse_args()
     if not args.target and not args.file and not args.all :
         print("[WARNING] no action specified; auto-formatting targets.json")
@@ -186,17 +196,17 @@ if __name__ == '__main__' :
         for target in args.target :
             device_file = find(target, os.curdir)
             if device_file :
-                add_to_targets(targets, device_file, verbose=args.verbose, remove=args.git_rm)
+                add_to_targets(targets, device_file, verbose=args.verbose, remove=args.rm)
             else :
                 print("[WARNING] could not locate a device file for target {}".format(target))
 
     if args.file :
         for file in args.file :
-            add_to_targets(targets, file, verbose=args.verbose, remove=args.git_rm)
+            add_to_targets(targets, file, verbose=args.verbose, remove=args.rm)
 
     if args.all :
         for file in find_all_devices(os.curdir, verbose=args.verbose) :
-            add_to_targets(targets, file, verbose=args.verbose, remove=args.git_rm)
+            add_to_targets(targets, file, verbose=args.verbose, remove=args.rm)
 
     dump(targets_file_name, targets)
 

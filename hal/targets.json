@@ -37,9 +37,7 @@
     },
     "LPCTarget": {
         "inherits": ["Target"],
-        "post_binary_hook": {
-            "function": "LPCTargetCode.lpc_patch"
-        },
+        "post_binary_hook": {"function": "LPCTargetCode.lpc_patch"},
         "public": false
     },
     "LPC11C24": {
@@ -514,12 +512,12 @@
         "core": "Cortex-M0+",
         "extra_labels": ["Freescale", "KSDK2_MCUS", "FRDM"],
         "macros": ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"],
-        "supported_toolchains": ["ARM","GCC_ARM","IAR"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "supported_form_factors": ["ARDUINO"],
         "is_disk_virtual": true,
         "default_toolchain": "ARM",
         "detect_code": ["0261"],
-        "progen_target": {"target":"frdm-kl27z"}
+        "progen_target": {"target": "frdm-kl27z"}
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
@@ -550,7 +548,7 @@
         "is_disk_virtual": true,
         "default_toolchain": "ARM",
         "detect_code": ["0214"],
-        "progen": {"target":"hexiwear-k64f"}
+        "progen": {"target": "hexiwear-k64f"}
     },
     "NUCLEO_F030R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -741,7 +739,7 @@
         "default_toolchain": "uARM",
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0790"],
-        "progen": {"target":"nucleo-l031k6"}
+        "progen": {"target": "nucleo-l031k6"}
     },
     "NUCLEO_L053R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -913,7 +911,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["STM", "STM32F4", "STM32F411RE"],
         "macros": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000"],
-         "post_binary_hook": {
+        "post_binary_hook": {
             "function": "MTSCode.combine_bins_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO"]
         },
@@ -1030,14 +1028,14 @@
         "macros_add": ["TARGET_MCU_NRF51_16K_S110"],
         "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
             {
-                "name"   : "s110_nrf51822_8.0.0_softdevice.hex",
-                "boot"   : "s110_nrf51822_8.0.0_bootloader.hex",
-                "offset" : 98304
+                "name": "s110_nrf51822_8.0.0_softdevice.hex",
+                "boot": "s110_nrf51822_8.0.0_bootloader.hex",
+                "offset": 98304
             },
             {
-                "name"   : "s110_nrf51822_7.1.0_softdevice.hex",
-                "boot"   : "s110_nrf51822_7.1.0_bootloader.hex",
-                "offset" : 90112
+                "name": "s110_nrf51822_7.1.0_softdevice.hex",
+                "boot": "s110_nrf51822_7.1.0_bootloader.hex",
+                "offset": 90112
             }
         ],
         "public": false
@@ -1491,13 +1489,7 @@
     "SAMR21G18A": {
         "inherits": ["Target"],
         "core": "Cortex-M0+",
-        "macros": [
-            "__SAMR21G18A__",
-            "I2C_MASTER_CALLBACK_MODE=true",
-            "EXTINT_CALLBACK_MODE=true",
-            "USART_CALLBACK_MODE=true",
-            "TC_ASYNC=true"
-        ],
+        "macros": ["__SAMR21G18A__", "I2C_MASTER_CALLBACK_MODE=true", "EXTINT_CALLBACK_MODE=true", "USART_CALLBACK_MODE=true", "TC_ASYNC=true"],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAMR21"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "progen": {"target": "samr21g18a"}
@@ -1505,13 +1497,7 @@
     "SAMD21J18A": {
         "inherits": ["Target"],
         "core": "Cortex-M0+",
-        "macros": [
-            "__SAMD21J18A__",
-            "I2C_MASTER_CALLBACK_MODE=true",
-            "EXTINT_CALLBACK_MODE=true",
-            "USART_CALLBACK_MODE=true",
-            "TC_ASYNC=true"
-        ],
+        "macros": ["__SAMD21J18A__", "I2C_MASTER_CALLBACK_MODE=true", "EXTINT_CALLBACK_MODE=true", "USART_CALLBACK_MODE=true", "TC_ASYNC=true"],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAMD21"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "progen": {"target": "samd21j18a"}
@@ -1519,13 +1505,7 @@
     "SAMD21G18A": {
         "inherits": ["Target"],
         "core": "Cortex-M0+",
-        "macros": [
-            "__SAMD21G18A__",
-            "I2C_MASTER_CALLBACK_MODE=true",
-            "EXTINT_CALLBACK_MODE=true",
-            "USART_CALLBACK_MODE=true",
-            "TC_ASYNC=true"
-        ],
+        "macros": ["__SAMD21G18A__", "I2C_MASTER_CALLBACK_MODE=true", "EXTINT_CALLBACK_MODE=true", "USART_CALLBACK_MODE=true", "TC_ASYNC=true"],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAMD21"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "progen": {"target": "samd21g18a"}
@@ -1533,13 +1513,7 @@
     "SAML21J18A": {
         "inherits": ["Target"],
         "core": "Cortex-M0+",
-        "macros": [
-            "__SAML21J18A__",
-            "I2C_MASTER_CALLBACK_MODE=true",
-            "EXTINT_CALLBACK_MODE=true",
-            "USART_CALLBACK_MODE=true",
-            "TC_ASYNC=true"
-        ],
+        "macros": ["__SAML21J18A__", "I2C_MASTER_CALLBACK_MODE=true", "EXTINT_CALLBACK_MODE=true", "USART_CALLBACK_MODE=true", "TC_ASYNC=true"],
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAML21"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "progen": {"target": "samr21j18a"},
@@ -1552,7 +1526,7 @@
         "macros": ["__SAMG55J19__", "BOARD=75", "I2C_MASTER_CALLBACK_MODE=true", "EXTINT_CALLBACK_MODE=true", "USART_CALLBACK_MODE=true", "TC_ASYNC=true"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "default_toolchain": "ARM",
-        "progen": {"target":"samg55j19"},
+        "progen": {"target": "samg55j19"},
         "progen_target": "samg55j19"
     }
 }
