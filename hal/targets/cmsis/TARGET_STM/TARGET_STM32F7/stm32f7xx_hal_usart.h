@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -103,14 +103,14 @@ typedef struct
   */
 typedef enum
 {
-  HAL_USART_STATE_RESET             = 0x00,    /*!< Peripheral is not initialized   */
-  HAL_USART_STATE_READY             = 0x01,    /*!< Peripheral Initialized and ready for use */
-  HAL_USART_STATE_BUSY              = 0x02,    /*!< an internal process is ongoing */
-  HAL_USART_STATE_BUSY_TX           = 0x12,    /*!< Data Transmission process is ongoing */
-  HAL_USART_STATE_BUSY_RX           = 0x22,    /*!< Data Reception process is ongoing */
-  HAL_USART_STATE_BUSY_TX_RX        = 0x32,    /*!< Data Transmission Reception process is ongoing */
-  HAL_USART_STATE_TIMEOUT           = 0x03,    /*!< Timeout state */
-  HAL_USART_STATE_ERROR             = 0x04     /*!< Error */
+  HAL_USART_STATE_RESET             = 0x00U,    /*!< Peripheral is not initialized   */
+  HAL_USART_STATE_READY             = 0x01U,    /*!< Peripheral Initialized and ready for use */
+  HAL_USART_STATE_BUSY              = 0x02U,    /*!< an internal process is ongoing */
+  HAL_USART_STATE_BUSY_TX           = 0x12U,    /*!< Data Transmission process is ongoing */
+  HAL_USART_STATE_BUSY_RX           = 0x22U,    /*!< Data Reception process is ongoing */
+  HAL_USART_STATE_BUSY_TX_RX        = 0x32U,    /*!< Data Transmission Reception process is ongoing */
+  HAL_USART_STATE_TIMEOUT           = 0x03U,    /*!< Timeout state */
+  HAL_USART_STATE_ERROR             = 0x04U     /*!< Error */
 }HAL_USART_StateTypeDef;
 
 
@@ -119,12 +119,12 @@ typedef enum
   */
 typedef enum
 {
-  USART_CLOCKSOURCE_PCLK1      = 0x00,    /*!< PCLK1 clock source  */
-  USART_CLOCKSOURCE_PCLK2      = 0x01,    /*!< PCLK2 clock source  */
-  USART_CLOCKSOURCE_HSI        = 0x02,    /*!< HSI clock source    */
-  USART_CLOCKSOURCE_SYSCLK     = 0x04,    /*!< SYSCLK clock source */
-  USART_CLOCKSOURCE_LSE        = 0x08,    /*!< LSE clock source       */
-  USART_CLOCKSOURCE_UNDEFINED  = 0x10     /*!< Undefined clock source */
+  USART_CLOCKSOURCE_PCLK1      = 0x00U,    /*!< PCLK1 clock source  */
+  USART_CLOCKSOURCE_PCLK2      = 0x01U,    /*!< PCLK2 clock source  */
+  USART_CLOCKSOURCE_HSI        = 0x02U,    /*!< HSI clock source    */
+  USART_CLOCKSOURCE_SYSCLK     = 0x04U,    /*!< SYSCLK clock source */
+  USART_CLOCKSOURCE_LSE        = 0x08U,    /*!< LSE clock source       */
+  USART_CLOCKSOURCE_UNDEFINED  = 0x10U     /*!< Undefined clock source */
 }USART_ClockSourceTypeDef;
 
 
@@ -175,12 +175,12 @@ typedef struct
   * @brief    USART Error Code 
   * @{
   */ 
-#define HAL_USART_ERROR_NONE         ((uint32_t)0x00000000)   /*!< No error            */
-#define HAL_USART_ERROR_PE           ((uint32_t)0x00000001)   /*!< Parity error        */
-#define HAL_USART_ERROR_NE           ((uint32_t)0x00000002)   /*!< Noise error         */
-#define HAL_USART_ERROR_FE           ((uint32_t)0x00000004)   /*!< Frame error         */
-#define HAL_USART_ERROR_ORE          ((uint32_t)0x00000008)   /*!< Overrun error       */
-#define HAL_USART_ERROR_DMA          ((uint32_t)0x00000010)   /*!< DMA transfer error  */
+#define HAL_USART_ERROR_NONE         ((uint32_t)0x00000000U)   /*!< No error            */
+#define HAL_USART_ERROR_PE           ((uint32_t)0x00000001U)   /*!< Parity error        */
+#define HAL_USART_ERROR_NE           ((uint32_t)0x00000002U)   /*!< Noise error         */
+#define HAL_USART_ERROR_FE           ((uint32_t)0x00000004U)   /*!< Frame error         */
+#define HAL_USART_ERROR_ORE          ((uint32_t)0x00000008U)   /*!< Overrun error       */
+#define HAL_USART_ERROR_DMA          ((uint32_t)0x00000010U)   /*!< DMA transfer error  */
 /**
   * @}
   */
@@ -188,7 +188,7 @@ typedef struct
 /** @defgroup USART_Stop_Bits  USART Number of Stop Bits
   * @{
   */
-#define USART_STOPBITS_1                     ((uint32_t)0x0000)
+#define USART_STOPBITS_1                     ((uint32_t)0x0000U)
 #define USART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
 #define USART_STOPBITS_1_5                   ((uint32_t)(USART_CR2_STOP_0 | USART_CR2_STOP_1))
 /**
@@ -198,7 +198,7 @@ typedef struct
 /** @defgroup USART_Parity    USART Parity
   * @{
   */
-#define USART_PARITY_NONE                   ((uint32_t)0x0000)
+#define USART_PARITY_NONE                   ((uint32_t)0x0000U)
 #define USART_PARITY_EVEN                   ((uint32_t)USART_CR1_PCE)
 #define USART_PARITY_ODD                    ((uint32_t)(USART_CR1_PCE | USART_CR1_PS))
 /**
@@ -218,7 +218,7 @@ typedef struct
 /** @defgroup USART_Over_Sampling USART Over Sampling
   * @{
   */
-#define USART_OVERSAMPLING_16               ((uint32_t)0x0000)
+#define USART_OVERSAMPLING_16               ((uint32_t)0x0000U)
 #define USART_OVERSAMPLING_8                ((uint32_t)USART_CR1_OVER8)
 /**
   * @}
@@ -226,7 +226,7 @@ typedef struct
 /** @defgroup USART_Clock  USART Clock
   * @{
   */
-#define USART_CLOCK_DISABLE                 ((uint32_t)0x0000)
+#define USART_CLOCK_DISABLE                 ((uint32_t)0x0000U)
 #define USART_CLOCK_ENABLE                  ((uint32_t)USART_CR2_CLKEN)
 /**
   * @}
@@ -235,7 +235,7 @@ typedef struct
 /** @defgroup USART_Clock_Polarity  USART Clock Polarity
   * @{
   */
-#define USART_POLARITY_LOW                  ((uint32_t)0x0000)
+#define USART_POLARITY_LOW                  ((uint32_t)0x0000U)
 #define USART_POLARITY_HIGH                 ((uint32_t)USART_CR2_CPOL)
 /**
   * @}
@@ -244,7 +244,7 @@ typedef struct
 /** @defgroup USART_Clock_Phase   USART Clock Phase
   * @{
   */
-#define USART_PHASE_1EDGE                   ((uint32_t)0x0000)
+#define USART_PHASE_1EDGE                   ((uint32_t)0x0000U)
 #define USART_PHASE_2EDGE                   ((uint32_t)USART_CR2_CPHA)
 /**
   * @}
@@ -253,7 +253,7 @@ typedef struct
 /** @defgroup USART_Last_Bit  USART Last Bit
   * @{
   */
-#define USART_LASTBIT_DISABLE               ((uint32_t)0x0000)
+#define USART_LASTBIT_DISABLE               ((uint32_t)0x0000U)
 #define USART_LASTBIT_ENABLE                ((uint32_t)USART_CR2_LBCL)
 /**
   * @}
@@ -273,20 +273,20 @@ typedef struct
   *           - 0xXXXX  : Flag mask in the ISR register
   * @{
   */
-#define USART_FLAG_REACK                     ((uint32_t)0x00400000)
-#define USART_FLAG_TEACK                     ((uint32_t)0x00200000)  
-#define USART_FLAG_BUSY                      ((uint32_t)0x00010000)
-#define USART_FLAG_CTS                       ((uint32_t)0x00000400)
-#define USART_FLAG_CTSIF                     ((uint32_t)0x00000200)
-#define USART_FLAG_LBDF                      ((uint32_t)0x00000100)
-#define USART_FLAG_TXE                       ((uint32_t)0x00000080)
-#define USART_FLAG_TC                        ((uint32_t)0x00000040)
-#define USART_FLAG_RXNE                      ((uint32_t)0x00000020)
-#define USART_FLAG_IDLE                      ((uint32_t)0x00000010)
-#define USART_FLAG_ORE                       ((uint32_t)0x00000008)
-#define USART_FLAG_NE                        ((uint32_t)0x00000004)
-#define USART_FLAG_FE                        ((uint32_t)0x00000002)
-#define USART_FLAG_PE                        ((uint32_t)0x00000001)
+#define USART_FLAG_REACK                     ((uint32_t)0x00400000U)
+#define USART_FLAG_TEACK                     ((uint32_t)0x00200000U)  
+#define USART_FLAG_BUSY                      ((uint32_t)0x00010000U)
+#define USART_FLAG_CTS                       ((uint32_t)0x00000400U)
+#define USART_FLAG_CTSIF                     ((uint32_t)0x00000200U)
+#define USART_FLAG_LBDF                      ((uint32_t)0x00000100U)
+#define USART_FLAG_TXE                       ((uint32_t)0x00000080U)
+#define USART_FLAG_TC                        ((uint32_t)0x00000040U)
+#define USART_FLAG_RXNE                      ((uint32_t)0x00000020U)
+#define USART_FLAG_IDLE                      ((uint32_t)0x00000010U)
+#define USART_FLAG_ORE                       ((uint32_t)0x00000008U)
+#define USART_FLAG_NE                        ((uint32_t)0x00000004U)
+#define USART_FLAG_FE                        ((uint32_t)0x00000002U)
+#define USART_FLAG_PE                        ((uint32_t)0x00000001U)
 /**
   * @}
   */
@@ -302,16 +302,16 @@ typedef struct
   * @{
   */
 
-#define USART_IT_PE                          ((uint16_t)0x0028)
-#define USART_IT_TXE                         ((uint16_t)0x0727)
-#define USART_IT_TC                          ((uint16_t)0x0626)
-#define USART_IT_RXNE                        ((uint16_t)0x0525)
-#define USART_IT_IDLE                        ((uint16_t)0x0424)
-#define USART_IT_ERR                         ((uint16_t)0x0060)
+#define USART_IT_PE                          ((uint16_t)0x0028U)
+#define USART_IT_TXE                         ((uint16_t)0x0727U)
+#define USART_IT_TC                          ((uint16_t)0x0626U)
+#define USART_IT_RXNE                        ((uint16_t)0x0525U)
+#define USART_IT_IDLE                        ((uint16_t)0x0424U)
+#define USART_IT_ERR                         ((uint16_t)0x0060U)
 
-#define USART_IT_ORE                         ((uint16_t)0x0300)
-#define USART_IT_NE                          ((uint16_t)0x0200)
-#define USART_IT_FE                          ((uint16_t)0x0100)
+#define USART_IT_ORE                         ((uint16_t)0x0300U)
+#define USART_IT_NE                          ((uint16_t)0x0200U)
+#define USART_IT_FE                          ((uint16_t)0x0100U)
 /**
   * @}
   */
@@ -548,7 +548,7 @@ uint32_t               HAL_USART_GetError(USART_HandleTypeDef *husart);
 /** @brief USART interruptions flag mask
   * 
   */ 
-#define USART_IT_MASK                             ((uint16_t)0x001F)
+#define USART_IT_MASK                             ((uint16_t)0x001FU)
 
 /**
   * @}
@@ -653,7 +653,7 @@ uint32_t               HAL_USART_GetError(USART_HandleTypeDef *husart);
 #define IS_USART_PARITY(__PARITY__) (((__PARITY__) == USART_PARITY_NONE) || \
                                      ((__PARITY__) == USART_PARITY_EVEN) || \
                                      ((__PARITY__) == USART_PARITY_ODD))
-#define IS_USART_MODE(__MODE__) ((((__MODE__) & (uint32_t)0xFFFFFFF3) == 0x00) && ((__MODE__) != (uint32_t)0x00))
+#define IS_USART_MODE(__MODE__) ((((__MODE__) & (uint32_t)0xFFFFFFF3U) == 0x00U) && ((__MODE__) != (uint32_t)0x00U))
 #define IS_USART_OVERSAMPLING(__SAMPLING__) (((__SAMPLING__) == USART_OVERSAMPLING_16) || \
                                              ((__SAMPLING__) == USART_OVERSAMPLING_8))
 #define IS_USART_CLOCK(__CLOCK__)     (((__CLOCK__)== USART_CLOCK_DISABLE) || \

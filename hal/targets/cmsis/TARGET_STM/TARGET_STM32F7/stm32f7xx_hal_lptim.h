@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_lptim.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   Header file of LPTIM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -58,6 +58,14 @@
 /* Exported types ------------------------------------------------------------*/ 
 /** @defgroup LPTIM_Exported_Types LPTIM Exported Types
   * @{
+  */
+
+/** @defgroup LPTIM_WAKEUPTIMER_EXTILINE LPTIM WAKEUP Timer EXTI Line
+  * @{
+  */
+#define LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT  ((uint32_t)EXTI_IMR_MR23)  /*!< External interrupt line 23 Connected to the LPTIM EXTI Line */
+/**
+  * @}
   */
 
 /** 
@@ -137,11 +145,11 @@ typedef struct
   */ 
 typedef enum __HAL_LPTIM_StateTypeDef
 {
-  HAL_LPTIM_STATE_RESET            = 0x00,    /*!< Peripheral not yet initialized or disabled  */
-  HAL_LPTIM_STATE_READY            = 0x01,    /*!< Peripheral Initialized and ready for use    */
-  HAL_LPTIM_STATE_BUSY             = 0x02,    /*!< An internal process is ongoing              */    
-  HAL_LPTIM_STATE_TIMEOUT          = 0x03,    /*!< Timeout state                               */  
-  HAL_LPTIM_STATE_ERROR            = 0x04     /*!< Internal Process is ongoing                */                                                                             
+  HAL_LPTIM_STATE_RESET            = 0x00U,    /*!< Peripheral not yet initialized or disabled  */
+  HAL_LPTIM_STATE_READY            = 0x01U,    /*!< Peripheral Initialized and ready for use    */
+  HAL_LPTIM_STATE_BUSY             = 0x02U,    /*!< An internal process is ongoing              */    
+  HAL_LPTIM_STATE_TIMEOUT          = 0x03U,    /*!< Timeout state                               */  
+  HAL_LPTIM_STATE_ERROR            = 0x04U     /*!< Internal Process is ongoing                */                                                                             
 }HAL_LPTIM_StateTypeDef;
 
 /** 
@@ -173,7 +181,7 @@ typedef struct
 /** @defgroup LPTIM_Clock_Source LPTIM Clock Source
   * @{
   */
-#define LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC        ((uint32_t)0x00)
+#define LPTIM_CLOCKSOURCE_APBCLOCK_LPOSC        ((uint32_t)0x00U)
 #define LPTIM_CLOCKSOURCE_ULPTIM                LPTIM_CFGR_CKSEL                                           
 /**                                             
   * @}
@@ -182,7 +190,7 @@ typedef struct
 /** @defgroup LPTIM_Clock_Prescaler LPTIM Clock Prescaler
   * @{
   */
-#define LPTIM_PRESCALER_DIV1                    ((uint32_t)0x000000)
+#define LPTIM_PRESCALER_DIV1                    ((uint32_t)0x000000U)
 #define LPTIM_PRESCALER_DIV2                    LPTIM_CFGR_PRESC_0
 #define LPTIM_PRESCALER_DIV4                    LPTIM_CFGR_PRESC_1
 #define LPTIM_PRESCALER_DIV8                    ((uint32_t)(LPTIM_CFGR_PRESC_0 | LPTIM_CFGR_PRESC_1))
@@ -198,7 +206,7 @@ typedef struct
   * @{
   */
 
-#define LPTIM_OUTPUTPOLARITY_HIGH               ((uint32_t)0x00000000)
+#define LPTIM_OUTPUTPOLARITY_HIGH               ((uint32_t)0x00000000U)
 #define LPTIM_OUTPUTPOLARITY_LOW                (LPTIM_CFGR_WAVPOL)
 /**
   * @}
@@ -207,7 +215,7 @@ typedef struct
 /** @defgroup LPTIM_Clock_Sample_Time LPTIM Clock Sample Time
   * @{
   */
-#define LPTIM_CLOCKSAMPLETIME_DIRECTTRANSITION ((uint32_t)0x00000000)
+#define LPTIM_CLOCKSAMPLETIME_DIRECTTRANSITION ((uint32_t)0x00000000U)
 #define LPTIM_CLOCKSAMPLETIME_2TRANSITIONS     LPTIM_CFGR_CKFLT_0
 #define LPTIM_CLOCKSAMPLETIME_4TRANSITIONS     LPTIM_CFGR_CKFLT_1
 #define LPTIM_CLOCKSAMPLETIME_8TRANSITIONS     LPTIM_CFGR_CKFLT
@@ -219,7 +227,7 @@ typedef struct
   * @{
   */
 
-#define LPTIM_CLOCKPOLARITY_RISING                ((uint32_t)0x00000000)
+#define LPTIM_CLOCKPOLARITY_RISING                ((uint32_t)0x00000000U)
 #define LPTIM_CLOCKPOLARITY_FALLING               LPTIM_CFGR_CKPOL_0
 #define LPTIM_CLOCKPOLARITY_RISING_FALLING        LPTIM_CFGR_CKPOL_1
 /**
@@ -229,8 +237,8 @@ typedef struct
 /** @defgroup LPTIM_Trigger_Source LPTIM Trigger Source
   * @{
   */
-#define LPTIM_TRIGSOURCE_SOFTWARE               ((uint32_t)0x0000FFFF)
-#define LPTIM_TRIGSOURCE_0                      ((uint32_t)0x00000000)
+#define LPTIM_TRIGSOURCE_SOFTWARE               ((uint32_t)0x0000FFFFU)
+#define LPTIM_TRIGSOURCE_0                      ((uint32_t)0x00000000U)
 #define LPTIM_TRIGSOURCE_1                      ((uint32_t)LPTIM_CFGR_TRIGSEL_0)
 #define LPTIM_TRIGSOURCE_2                      LPTIM_CFGR_TRIGSEL_1
 #define LPTIM_TRIGSOURCE_3                      ((uint32_t)LPTIM_CFGR_TRIGSEL_0 | LPTIM_CFGR_TRIGSEL_1)
@@ -253,7 +261,7 @@ typedef struct
 /** @defgroup LPTIM_Trigger_Sample_Time LPTIM Trigger Sample Time
   * @{
   */
-#define LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION  ((uint32_t)0x00000000)
+#define LPTIM_TRIGSAMPLETIME_DIRECTTRANSITION  ((uint32_t)0x00000000U)
 #define LPTIM_TRIGSAMPLETIME_2TRANSITIONS      LPTIM_CFGR_TRGFLT_0
 #define LPTIM_TRIGSAMPLETIME_4TRANSITIONS      LPTIM_CFGR_TRGFLT_1
 #define LPTIM_TRIGSAMPLETIME_8TRANSITIONS      LPTIM_CFGR_TRGFLT
@@ -265,7 +273,7 @@ typedef struct
   * @{
   */
 
-#define LPTIM_UPDATE_IMMEDIATE                  ((uint32_t)0x00000000)
+#define LPTIM_UPDATE_IMMEDIATE                  ((uint32_t)0x00000000U)
 #define LPTIM_UPDATE_ENDOFPERIOD                LPTIM_CFGR_PRELOAD
 /**
   * @}
@@ -275,7 +283,7 @@ typedef struct
   * @{
   */
 
-#define LPTIM_COUNTERSOURCE_INTERNAL            ((uint32_t)0x00000000)
+#define LPTIM_COUNTERSOURCE_INTERNAL            ((uint32_t)0x00000000U)
 #define LPTIM_COUNTERSOURCE_EXTERNAL            LPTIM_CFGR_COUNTMODE
 /**
   * @}
@@ -439,6 +447,89 @@ typedef struct
   */
     
 #define __HAL_LPTIM_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->IER & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
+
+/**
+  * @brief  Enable interrupt on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_IT()       (EXTI->IMR |= LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT)
+
+/**
+  * @brief  Disable interrupt on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_IT()      (EXTI->IMR &= ~(LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT))
+
+/**
+  * @brief  Enable event on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_EVENT()    (EXTI->EMR |= LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT)
+
+/**
+  * @brief  Disable event on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_EVENT()   (EXTI->EMR &= ~(LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT))
+
+/**
+  * @brief  Enable falling edge trigger on the LPTIM Wake-up Timer associated Exti line. 
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_FALLING_EDGE()   (EXTI->FTSR |= LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT)
+
+/**
+  * @brief  Disable falling edge trigger on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_FALLING_EDGE()  (EXTI->FTSR &= ~(LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT))
+
+/**
+  * @brief  Enable rising edge trigger on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE()    (EXTI->RTSR |= LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT)
+
+/**
+  * @brief  Disable rising edge trigger on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_RISING_EDGE()   (EXTI->RTSR &= ~(LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT))
+
+/**
+  * @brief  Enable rising & falling edge trigger on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_FALLING_EDGE() do{__HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();\
+                                                                     __HAL_LPTIM_WAKEUPTIMER_EXTI_ENABLE_FALLING_EDGE();\
+                                                                    }while(0)
+
+/**
+  * @brief  Disable rising & falling edge trigger on the LPTIM Wake-up Timer associated Exti line.
+  * This parameter can be:
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_RISING_FALLING_EDGE() do{__HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_RISING_EDGE();\
+                                                                      __HAL_LPTIM_WAKEUPTIMER_EXTI_DISABLE_FALLING_EDGE();\
+                                                                     }while(0)
+
+/**
+  * @brief Check whether the LPTIM Wake-up Timer associated Exti line interrupt flag is set or not.
+  * @retval Line Status.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_GET_FLAG()              (EXTI->PR & LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT)
+
+/**
+  * @brief Clear the LPTIM Wake-up Timer associated Exti line flag.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_CLEAR_FLAG()            (EXTI->PR = LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT)
+
+/**
+  * @brief Generate a Software interrupt on the LPTIM Wake-up Timer associated Exti line.
+  * @retval None.
+  */
+#define __HAL_LPTIM_WAKEUPTIMER_EXTI_GENERATE_SWIT()         (EXTI->SWIER |= LPTIM_EXTI_LINE_WAKEUPTIMER_EVENT)
 
 /**
   * @}
@@ -610,13 +701,13 @@ HAL_LPTIM_StateTypeDef HAL_LPTIM_GetState(LPTIM_HandleTypeDef *hlptim);
 #define IS_LPTIM_COUNTER_SOURCE(__SOURCE__)         (((__SOURCE__) == LPTIM_COUNTERSOURCE_INTERNAL) || \
                                                      ((__SOURCE__) == LPTIM_COUNTERSOURCE_EXTERNAL))
 
-#define IS_LPTIM_AUTORELOAD(__AUTORELOAD__)         ((__AUTORELOAD__) <= 0x0000FFFF)
+#define IS_LPTIM_AUTORELOAD(__AUTORELOAD__)         ((__AUTORELOAD__) <= 0x0000FFFFU)
 
-#define IS_LPTIM_COMPARE(__COMPARE__)               ((__COMPARE__) <= 0x0000FFFF)
+#define IS_LPTIM_COMPARE(__COMPARE__)               ((__COMPARE__) <= 0x0000FFFFU)
   
-#define IS_LPTIM_PERIOD(PERIOD)               ((PERIOD) <= 0x0000FFFF)
+#define IS_LPTIM_PERIOD(PERIOD)               ((PERIOD) <= 0x0000FFFFU)
 
-#define IS_LPTIM_PULSE(PULSE)                 ((PULSE) <= 0x0000FFFF)
+#define IS_LPTIM_PULSE(PULSE)                 ((PULSE) <= 0x0000FFFFU)
 
 /**
   * @}
