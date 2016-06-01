@@ -38,7 +38,9 @@ public:
     */
     Thread(osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
-           unsigned char *stack_pointer=NULL);
+           unsigned char *stack_pointer=NULL) {
+        constructor(priority, stack_size, stack_pointer);
+    }
 
     /** Create a new thread, and start it executing the specified function.
       @param   task           function to be executed by this thread.
@@ -106,10 +108,19 @@ public:
 
     /** Starts a thread executing the specified function.
       @param   task           function to be executed by this thread.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
       @return  status code that indicates the execution status of the function.
     */
-    osStatus start(void (*task)(void const *argument), void *argument=NULL);
+    osStatus start(mbed::Callback<void()> task);
+
+    /** Starts a thread executing the specified function.
+      @param   obj            argument to task
+      @param   method         function to be executed by this thread.
+      @return  status code that indicates the execution status of the function.
+    */
+    template <typename T, typename M>
+    osStatus start(T *obj, M method) {
+        return start(mbed::Callback<void()>(obj, method));
+    }
 
     /** Wait for thread to terminate
       @return  status code that indicates the execution status of the function.
@@ -220,6 +231,9 @@ public:
 private:
     // Required to share definitions without
     // delegated constructors
+    void constructor(osPriority priority=osPriorityNormal,
+                     uint32_t stack_size=DEFAULT_STACK_SIZE,
+                     unsigned char *stack_pointer=NULL);
     void constructor(mbed::Callback<void()> task,
                      osPriority priority=osPriorityNormal,
                      uint32_t stack_size=DEFAULT_STACK_SIZE,

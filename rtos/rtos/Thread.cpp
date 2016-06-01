@@ -32,9 +32,11 @@ extern "C" P_TCB rt_tid2ptcb(osThreadId thread_id);
 
 namespace rtos {
 
-Thread::Thread(osPriority priority,
-        uint32_t stack_size, unsigned char *stack_pointer):
-        _tid(0), _dynamic_stack(stack_pointer == NULL) {
+void Thread::constructor(osPriority priority,
+        uint32_t stack_size, unsigned char *stack_pointer) {
+    _tid = 0;
+    _dynamic_stack = (stack_pointer == NULL);
+
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
     _thread_def.tpriority = priority;
     _thread_def.stacksize = stack_size;
@@ -44,16 +46,9 @@ Thread::Thread(osPriority priority,
 
 void Thread::constructor(Callback<void()> task,
         osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
-    _tid = 0;
-    _dynamic_stack = (stack_pointer == NULL);
+    constructor(priority, stack_size, stack_pointer);
 
-    _task = task;
-#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    _thread_def.tpriority = priority;
-    _thread_def.stacksize = stack_size;
-    _thread_def.stack_pointer = (uint32_t*)stack_pointer;
-#endif
-    switch (start((void (*)(const void *))Callback<void()>::thunk, &_task)) {
+    switch (start(task)) {
         case osErrorResource:
             error("OS ran out of threads!\n");
             break;
@@ -67,13 +62,13 @@ void Thread::constructor(Callback<void()> task,
     }
 }
 
-osStatus Thread::start(void (*task)(void const *argument), void *argument) {
-    if (_tid != NULL) {
+osStatus Thread::start(Callback<void()> task) {
+    if (_tid != 0) {
         return osErrorParameter;
     }
 
 #if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    _thread_def.pthread = task;
+    _thread_def.pthread = (void (*)(const void *))Callback<void()>::thunk;
     if (_thread_def.stack_pointer == NULL) {
         _thread_def.stack_pointer = new uint32_t[_thread_def.stacksize/sizeof(uint32_t)];
         if (_thread_def.stack_pointer == NULL)
@@ -85,6 +80,7 @@ osStatus Thread::start(void (*task)(void const *argument), void *argument) {
         _thread_def.stack_pointer[i] = 0xE25A2EA5;
     }
 #endif
+    _task = task;
     _tid = osThreadCreate(&_thread_def, &_task);
     if (_tid == NULL) {
         if (_dynamic_stack) delete[] (_thread_def.stack_pointer);
