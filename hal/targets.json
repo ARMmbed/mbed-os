@@ -805,6 +805,13 @@
         "detect_code": ["0799"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
     },
+    "NUCLEO_F767ZI": {
+        "inherits": ["Target"],
+        "core": "Cortex-M7F",
+        "extra_labels": ["STM", "STM32F7", "STM32F767", "STM32F767ZI"],
+        "supported_toolchains": ["GCC_ARM"],
+        "progen": { "target": "nucleo-f769zi"}
+    },
     "NUCLEO_L031K6": {
         "inherits": ["Target"],
         "core": "Cortex-M0",
