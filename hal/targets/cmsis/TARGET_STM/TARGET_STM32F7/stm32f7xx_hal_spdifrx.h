@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_spdifrx.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   Header file of SPDIFRX HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -126,12 +126,12 @@ typedef struct
   */ 
 typedef enum
 {
-  HAL_SPDIFRX_STATE_RESET      = 0x00,  /*!< SPDIFRX not yet initialized or disabled                */
-  HAL_SPDIFRX_STATE_READY      = 0x01,  /*!< SPDIFRX initialized and ready for use                  */
-  HAL_SPDIFRX_STATE_BUSY       = 0x02,  /*!< SPDIFRX internal process is ongoing                    */ 
-  HAL_SPDIFRX_STATE_BUSY_RX    = 0x03,  /*!< SPDIFRX internal Data Flow RX process is ongoing       */  
-  HAL_SPDIFRX_STATE_BUSY_CX    = 0x04,  /*!< SPDIFRX internal Control Flow RX process is ongoing    */    
-  HAL_SPDIFRX_STATE_ERROR      = 0x07   /*!< SPDIFRX error state                                    */      
+  HAL_SPDIFRX_STATE_RESET      = 0x00U,  /*!< SPDIFRX not yet initialized or disabled                */
+  HAL_SPDIFRX_STATE_READY      = 0x01U,  /*!< SPDIFRX initialized and ready for use                  */
+  HAL_SPDIFRX_STATE_BUSY       = 0x02U,  /*!< SPDIFRX internal process is ongoing                    */ 
+  HAL_SPDIFRX_STATE_BUSY_RX    = 0x03U,  /*!< SPDIFRX internal Data Flow RX process is ongoing       */  
+  HAL_SPDIFRX_STATE_BUSY_CX    = 0x04U,  /*!< SPDIFRX internal Control Flow RX process is ongoing    */    
+  HAL_SPDIFRX_STATE_ERROR      = 0x07U   /*!< SPDIFRX error state                                    */      
 }HAL_SPDIFRX_StateTypeDef;
 
 /** 
@@ -187,12 +187,12 @@ typedef struct
 /** @defgroup SPDIFRX_ErrorCode SPDIFRX Error Code
   * @{
   */ 
-#define HAL_SPDIFRX_ERROR_NONE      ((uint32_t)0x00000000)  /*!< No error           */
-#define HAL_SPDIFRX_ERROR_TIMEOUT   ((uint32_t)0x00000001)  /*!< Timeout error      */  
-#define HAL_SPDIFRX_ERROR_OVR       ((uint32_t)0x00000002)  /*!< OVR error          */
-#define HAL_SPDIFRX_ERROR_PE        ((uint32_t)0x00000004)  /*!< Parity error       */
-#define HAL_SPDIFRX_ERROR_DMA       ((uint32_t)0x00000008)  /*!< DMA transfer error */
-#define HAL_SPDIFRX_ERROR_UNKNOWN   ((uint32_t)0x00000010)  /*!< Unknown Error error */  
+#define HAL_SPDIFRX_ERROR_NONE      ((uint32_t)0x00000000U)  /*!< No error           */
+#define HAL_SPDIFRX_ERROR_TIMEOUT   ((uint32_t)0x00000001U)  /*!< Timeout error      */  
+#define HAL_SPDIFRX_ERROR_OVR       ((uint32_t)0x00000002U)  /*!< OVR error          */
+#define HAL_SPDIFRX_ERROR_PE        ((uint32_t)0x00000004U)  /*!< Parity error       */
+#define HAL_SPDIFRX_ERROR_DMA       ((uint32_t)0x00000008U)  /*!< DMA transfer error */
+#define HAL_SPDIFRX_ERROR_UNKNOWN   ((uint32_t)0x00000010U)  /*!< Unknown Error error */  
 /**
   * @}
   */
@@ -200,10 +200,10 @@ typedef struct
 /** @defgroup SPDIFRX_Input_Selection SPDIFRX Input Selection
   * @{
   */
-#define SPDIFRX_INPUT_IN0               ((uint32_t)0x00000000)
-#define SPDIFRX_INPUT_IN1               ((uint32_t)0x00010000)  
-#define SPDIFRX_INPUT_IN2               ((uint32_t)0x00020000)
-#define SPDIFRX_INPUT_IN3               ((uint32_t)0x00030000)
+#define SPDIFRX_INPUT_IN0               ((uint32_t)0x00000000U)
+#define SPDIFRX_INPUT_IN1               ((uint32_t)0x00010000U)  
+#define SPDIFRX_INPUT_IN2               ((uint32_t)0x00020000U)
+#define SPDIFRX_INPUT_IN3               ((uint32_t)0x00030000U)
 /**
   * @}
   */
@@ -211,10 +211,10 @@ typedef struct
 /** @defgroup SPDIFRX_Max_Retries SPDIFRX Maximum Retries
   * @{
   */
-#define SPDIFRX_MAXRETRIES_NONE            ((uint32_t)0x00000000)
-#define SPDIFRX_MAXRETRIES_3               ((uint32_t)0x00001000)  
-#define SPDIFRX_MAXRETRIES_15              ((uint32_t)0x00002000)
-#define SPDIFRX_MAXRETRIES_63              ((uint32_t)0x00003000)
+#define SPDIFRX_MAXRETRIES_NONE            ((uint32_t)0x00000000U)
+#define SPDIFRX_MAXRETRIES_3               ((uint32_t)0x00001000U)  
+#define SPDIFRX_MAXRETRIES_15              ((uint32_t)0x00002000U)
+#define SPDIFRX_MAXRETRIES_63              ((uint32_t)0x00003000U)
 /**
   * @}
   */
@@ -222,7 +222,7 @@ typedef struct
 /** @defgroup SPDIFRX_Wait_For_Activity SPDIFRX Wait For Activity
   * @{
   */
-#define SPDIFRX_WAITFORACTIVITY_OFF                   ((uint32_t)0x00000000)
+#define SPDIFRX_WAITFORACTIVITY_OFF                   ((uint32_t)0x00000000U)
 #define SPDIFRX_WAITFORACTIVITY_ON                    ((uint32_t)SPDIFRX_CR_WFA)
 /**
   * @}
@@ -231,7 +231,7 @@ typedef struct
 /** @defgroup SPDIFRX_PT_Mask SPDIFRX Preamble Type Mask
 * @{
 */
-#define SPDIFRX_PREAMBLETYPEMASK_OFF                   ((uint32_t)0x00000000)
+#define SPDIFRX_PREAMBLETYPEMASK_OFF                   ((uint32_t)0x00000000U)
 #define SPDIFRX_PREAMBLETYPEMASK_ON                    ((uint32_t)SPDIFRX_CR_PTMSK)
 /**
   * @}
@@ -240,7 +240,7 @@ typedef struct
 /** @defgroup SPDIFRX_ChannelStatus_Mask  SPDIFRX Channel Status Mask
 * @{
 */
-#define SPDIFRX_CHANNELSTATUS_OFF                 ((uint32_t)0x00000000)        /* The channel status and user bits are copied into the SPDIF_DR */
+#define SPDIFRX_CHANNELSTATUS_OFF                 ((uint32_t)0x00000000U)        /* The channel status and user bits are copied into the SPDIF_DR */
 #define SPDIFRX_CHANNELSTATUS_ON                  ((uint32_t)SPDIFRX_CR_CUMSK)  /* The channel status and user bits are not copied into the SPDIF_DR, zeros are written instead*/
 /**
   * @}
@@ -249,7 +249,7 @@ typedef struct
 /** @defgroup SPDIFRX_V_Mask SPDIFRX Validity Mask
 * @{
 */
-#define SPDIFRX_VALIDITYMASK_OFF                   ((uint32_t)0x00000000)
+#define SPDIFRX_VALIDITYMASK_OFF                   ((uint32_t)0x00000000U)
 #define SPDIFRX_VALIDITYMASK_ON                    ((uint32_t)SPDIFRX_CR_VMSK)
 /**
   * @}
@@ -258,7 +258,7 @@ typedef struct
 /** @defgroup SPDIFRX_PE_Mask  SPDIFRX Parity Error Mask
 * @{
 */
-#define SPDIFRX_PARITYERRORMASK_OFF                   ((uint32_t)0x00000000)
+#define SPDIFRX_PARITYERRORMASK_OFF                   ((uint32_t)0x00000000U)
 #define SPDIFRX_PARITYERRORMASK_ON                    ((uint32_t)SPDIFRX_CR_PMSK)
 /**
   * @}
@@ -267,7 +267,7 @@ typedef struct
 /** @defgroup SPDIFRX_Channel_Selection  SPDIFRX Channel Selection
   * @{
   */
-#define SPDIFRX_CHANNEL_A      ((uint32_t)0x00000000)
+#define SPDIFRX_CHANNEL_A      ((uint32_t)0x00000000U)
 #define SPDIFRX_CHANNEL_B      ((uint32_t)SPDIFRX_CR_CHSEL)
 /**
   * @}
@@ -276,9 +276,9 @@ typedef struct
 /** @defgroup SPDIFRX_Data_Format SPDIFRX Data Format
   * @{
   */
-#define SPDIFRX_DATAFORMAT_LSB                   ((uint32_t)0x00000000)
-#define SPDIFRX_DATAFORMAT_MSB                   ((uint32_t)0x00000010)
-#define SPDIFRX_DATAFORMAT_32BITS                ((uint32_t)0x00000020)
+#define SPDIFRX_DATAFORMAT_LSB                   ((uint32_t)0x00000000U)
+#define SPDIFRX_DATAFORMAT_MSB                   ((uint32_t)0x00000010U)
+#define SPDIFRX_DATAFORMAT_32BITS                ((uint32_t)0x00000020U)
 /**
   * @}
   */ 
@@ -286,7 +286,7 @@ typedef struct
 /** @defgroup SPDIFRX_Stereo_Mode SPDIFRX Stereo Mode
   * @{
   */
-#define SPDIFRX_STEREOMODE_DISABLE           ((uint32_t)0x00000000)
+#define SPDIFRX_STEREOMODE_DISABLE           ((uint32_t)0x00000000U)
 #define SPDIFRX_STEREOMODE_ENABLE           ((uint32_t)SPDIFRX_CR_RXSTEO)
 /**
   * @}
@@ -296,8 +296,8 @@ typedef struct
   * @{
   */
 
-#define SPDIFRX_STATE_IDLE    ((uint32_t)0xFFFFFFFC)
-#define SPDIFRX_STATE_SYNC    ((uint32_t)0x00000001)
+#define SPDIFRX_STATE_IDLE    ((uint32_t)0xFFFFFFFCU)
+#define SPDIFRX_STATE_SYNC    ((uint32_t)0x00000001U)
 #define SPDIFRX_STATE_RCV     ((uint32_t)SPDIFRX_CR_SPDIFEN)
 /**
   * @}
