@@ -141,6 +141,7 @@ if __name__ == '__main__':
                                                 properties=build_properties,
                                                 name="mbed-os",
                                                 macros=options.macros,
+                                                verbose=options.verbose,
                                                 archive=False)
             except Exception, e:
                 library_build_success = False
@@ -155,6 +156,7 @@ if __name__ == '__main__':
                         report=build_report,
                         properties=build_properties,
                         macros=options.macros,
+                        verbose=options.verbose,
                         jobs=options.jobs)
                         
                 if not test_build_success:
