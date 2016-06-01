@@ -300,26 +300,43 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.info("Building library %s (%s, %s)" % (name, target.name, toolchain_name))
 
         # Scan Resources
-        resources = []
-        for src_path in src_paths:
-            resources.append(toolchain.scan_resources(src_path))
+        resources = None
+        for path in src_paths:
+            # Scan resources
+            resource = toolchain.scan_resources(path)
+            
+            # Copy headers, objects and static libraries - all files needed for static lib
+            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
+            if resource.linker_script:
+                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
+
+            # Extend resources collection
+            if not resources:
+                resources = resource
+            else:
+                resources.add(resource)
+
+        # We need to add if necessary additional include directories
+        if inc_dirs:
+            if type(inc_dirs) == ListType:
+                resources.inc_dirs.extend(inc_dirs)
+            else:
+                resources.inc_dirs.append(inc_dirs)
 
         # Add extra include directories / files which are required by library
         # This files usually are not in the same directory as source files so
         # previous scan will not include them
         if inc_dirs_ext is not None:
             for inc_ext in inc_dirs_ext:
-                resources.append(toolchain.scan_resources(inc_ext))
+                resources.add(toolchain.scan_resources(inc_ext))
 
         # Dependencies Include Paths
-        dependencies_include_dir = []
         if dependencies_paths is not None:
             for path in dependencies_paths:
                 lib_resources = toolchain.scan_resources(path)
-                dependencies_include_dir.extend(lib_resources.inc_dirs)
-
-        if inc_dirs:
-            dependencies_include_dir.extend(inc_dirs)
+                resources.inc_dirs.extend(lib_resources.inc_dirs)
 
         if archive:
             # Use temp path when building archive
@@ -330,25 +347,19 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         # Handle configuration
         config = Config(target)
-
-        # Copy headers, objects and static libraries
-        for resource in resources:
-            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
-            if resource.linker_script:
-                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
-            config.add_config_files(resource.json_files)
-
+        # Update the configuration with any .json files found while scanning
+        config.add_config_files(resources.json_files)
+        # And add the configuration macros to the toolchain
         toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
-        objects = []
-        for resource in resources:
-            objects.extend(toolchain.compile_sources(resource, abspath(tmp_path), dependencies_include_dir))
+        for path in src_paths:
+            src = toolchain.scan_resources(path)
+            objects = toolchain.compile_sources(src, abspath(tmp_path), resources.inc_dirs)
+            resources.objects.extend(objects)
 
         if archive:
-            needed_update = toolchain.build_library(objects, build_path, name)
+            needed_update = toolchain.build_library(resources.objects, build_path, name)
         else:
             needed_update = True
 
