@@ -97,7 +97,8 @@ def build_project(src_path, build_path, target, toolchain_name,
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
     first_src_path = src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd()
-    project_name = basename(normpath(first_src_path))
+    abs_path = abspath(first_src_path)
+    project_name = basename(normpath(abs_path))
 
     if name is None:
         # We will use default project name based on project folder name
