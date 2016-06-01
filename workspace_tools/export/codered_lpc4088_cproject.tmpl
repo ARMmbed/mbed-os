@@ -56,7 +56,7 @@
                                     <listOptionValue builtIn="false" value="{{s}}"/>
                                   {% endfor %}
                                 </option>
-                                <option id="gnu.c.compiler.option.misc.other.1521041525" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti" valueType="string"/>
+                                <option id="gnu.c.compiler.option.misc.other.1521041525" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions " valueType="string"/>
 
                                 <option id="gnu.c.compiler.option.include.paths.1293117680" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
                                     {% for path in include_paths %}
@@ -69,7 +69,7 @@
                             <tool id="com.crt.advproject.gas.exe.debug.1277199919" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug">
 								<option id="com.crt.advproject.gas.arch.1079400011" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
                                 <option id="com.crt.advproject.gas.thumb.1976113150" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
-                                <option id="gnu.both.asm.option.flags.crt.1501250871" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__NEWLIB__  -DDEBUG -D__CODE_RED -DFPU_PRESENT=1 " valueType="string"/>
+                                <option id="gnu.both.asm.option.flags.crt.1501250871" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__NEWLIB__  -DDEBUG -D__CODE_RED {% for s in symbols %}-D{{s}} {% endfor %} " valueType="string"/>
                                 <option id="com.crt.advproject.gas.hdrlib.473313643" name="Use headers for C library" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.newlib" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.fpu.478766821" name="Floating point" superClass="com.crt.advproject.gas.fpu" value="com.crt.advproject.gas.fpu.fpv4" valueType="enumerated"/>
                                 <inputType id="com.crt.advproject.assembler.input.910682278" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
@@ -974,14 +974,14 @@
                                     <listOptionValue builtIn="false" value="{{s}}"/>
                                   {% endfor %}
                                 </option>
-                                <option id="gnu.c.compiler.option.misc.other.2015545820" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti" valueType="string"/>
+                                <option id="gnu.c.compiler.option.misc.other.2015545820" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections -fno-exceptions " valueType="string"/>
                                 <option id="gnu.c.compiler.option.optimization.flags.675461365" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-Os" valueType="string"/>
                                 <inputType id="com.crt.advproject.compiler.input.1938378962" superClass="com.crt.advproject.compiler.input"/>
                             </tool>
                             <tool id="com.crt.advproject.gas.exe.release.579950187" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.release">
                                 <option id="com.crt.advproject.gas.arch.1401271875" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
                                 <option id="com.crt.advproject.gas.thumb.1024544278" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
-                                <option id="gnu.both.asm.option.flags.crt.637466836" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__NEWLIB__  -DNDEBUG -D__CODE_RED -DFPU_PRESENT=1 " valueType="string"/>
+                                <option id="gnu.both.asm.option.flags.crt.637466836" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__NEWLIB__  -DNDEBUG -D__CODE_RED {% for s in symbols %}-D{{s}} {% endfor %} " valueType="string"/>
                                 <option id="com.crt.advproject.gas.hdrlib.492600365" name="Use headers for C library" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.newlib" valueType="enumerated"/>
                                 <inputType id="com.crt.advproject.assembler.input.812068162" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
                             </tool>
