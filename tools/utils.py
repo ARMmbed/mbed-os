@@ -21,7 +21,8 @@ from os import listdir, remove, makedirs
 from shutil import copyfile
 from os.path import isdir, join, exists, split, relpath, splitext
 from subprocess import Popen, PIPE, STDOUT, call
-
+import json
+from collections import OrderedDict
 
 def cmd(l, check=True, verbose=False, shell=False, cwd=None):
     text = l if shell else ' '.join(l)
@@ -174,3 +175,23 @@ def check_required_modules(required_modules, verbose=True):
         return False
     else:
         return True
+
+# Utility function: traverse a dictionary and change all the strings in the dictionary to
+# ASCII from Unicode. Useful when reading ASCII JSON data, because the JSON decoder always
+# returns Unicode string.
+# Based on http://stackoverflow.com/a/13105359
+def dict_to_ascii(input):
+    if isinstance(input, dict):
+        return OrderedDict([(dict_to_ascii(key), dict_to_ascii(value)) for key, value in input.iteritems()])
+    elif isinstance(input, list):
+        return [dict_to_ascii(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('ascii')
+    else:
+        return input
+
+# Read a JSON file and return its Python representation, transforming all the strings from Unicode
+# to ASCII. The order of keys in the JSON file is preserved.
+def json_file_to_dict(fname):
+    with open(fname, "rt") as f:
+        return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
