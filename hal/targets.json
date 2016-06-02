@@ -322,21 +322,6 @@
         },
         "detect_code": ["1050"]
     },
-    "ELEKTOR_COCORICO": {
-        "core": "Cortex-M0+",
-        "default_toolchain": "uARM",
-        "extra_labels": ["NXP", "LPC81X"],
-        "is_disk_virtual": true,
-        "supported_toolchains": ["uARM", "IAR", "GCC_ARM"],
-        "inherits": ["LPCTarget"],
-        "progen": {
-            "target": "lpc812m101",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
-        "detect_code": ["C000"]
-    },
     "LPC824": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0+",
@@ -423,7 +408,7 @@
         }
     },
     "ELEKTOR_COCORICO": {
-        "core": "Cortex-M0",
+        "core": "Cortex-M0+",
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC81X"],
         "supported_toolchains": ["uARM", "GCC_ARM", "IAR"],
