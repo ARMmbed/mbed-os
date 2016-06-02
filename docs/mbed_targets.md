@@ -114,6 +114,13 @@ The list of **labels** defines how the build system looks for sources, libraries
 
 If target inheritance is used, it's possible to alter the values of `extra_labels` using `extra_labels_add` and `extra_labels_remove`. This is similar to the `macros_add` and `macros_remove` mechanism described in the previous paragraph.
 
+## features, features_add, features_remove
+
+The list of **features** defines what hardware a device has.
+This allows allowing mbed, libraries, or application source code to select between different implementations of drivers based on hardware availability, to selectively compile drivers for only the hardware that exists, or to test only the tests that apply to a particular platform.
+
+If target inheritance is used, it's possible to alter the values of `features` using `features_add` and `features_remove`. This is similar to the `macros_add` and `macros_remove` mechanism described in the previous two paragraphs.
+
 ## supported_toolchains
 
 This is the list of toolchains that can be used to compile code for the target. The known toolchains are `ARM`, `uARM`, `GCC_ARM`, `GCC_CR`, `IAR`.
