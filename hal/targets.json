@@ -407,6 +407,21 @@
             }
         }
     },
+    "ELEKTOR_COCORICO": {
+        "core": "Cortex-M0+",
+        "default_toolchain": "uARM",
+        "extra_labels": ["NXP", "LPC81X"],
+        "supported_toolchains": ["uARM", "GCC_ARM", "IAR"],
+        "inherits": ["LPCTarget"],
+        "is_disk_virtual": true,
+        "detect_code": ["C000"],
+        "progen": {
+            "target": "cocorico",
+            "uvision": {
+                "template": ["uvision_microlib.uvproj.tmpl"]
+            }
+        }
+    },
     "KL05Z": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0+",
