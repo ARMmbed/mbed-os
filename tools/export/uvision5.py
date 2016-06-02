@@ -86,4 +86,3 @@ class Uvision5(Exporter):
             i += 1
         project_data['common']['macros'].append('__ASSERT_MSG')
         self.progen_gen_file('uvision5', project_data)
-

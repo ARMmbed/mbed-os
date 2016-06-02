@@ -839,6 +839,16 @@
         "detect_code": ["0816"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
     },
+    "NUCLEO_L011K4": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0+",
+        "extra_labels": ["STM", "STM32L0", "STM32L011K4"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "default_toolchain": "uARM",
+        "supported_form_factors": ["ARDUINO"],
+        "detect_code": ["0780"],
+        "progen": {"target":"nucleo-l011k4"}
+    },
     "NUCLEO_L031K6": {
         "inherits": ["Target"],
         "core": "Cortex-M0",
