@@ -1,0 +1,146 @@
+{
+  "builds": {
+    "K64F-GCC_ARM": {
+      "binary_type": "bootable", 
+      "tests": {
+        "mbed-os-core-configuration-store-TESTS-testgroup-find2": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\find2\\mbed-os-core-configuration-store-TESTS-testgroup-find2.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-misc": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\misc\\mbed-os-core-configuration-store-TESTS-testgroup-misc.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-write": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\write\\mbed-os-core-configuration-store-TESTS-testgroup-write.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-read": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\read\\mbed-os-core-configuration-store-TESTS-testgroup-read.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-find": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\find\\mbed-os-core-configuration-store-TESTS-testgroup-find.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-acl": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\acl\\mbed-os-core-configuration-store-TESTS-testgroup-acl.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-close": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\close\\mbed-os-core-configuration-store-TESTS-testgroup-close.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-add_del": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\add_del\\mbed-os-core-configuration-store-TESTS-testgroup-add_del.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-init": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\init\\mbed-os-core-configuration-store-TESTS-testgroup-init.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-flush": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\flush\\mbed-os-core-configuration-store-TESTS-testgroup-flush.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-flash": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\flash\\mbed-os-core-configuration-store-TESTS-testgroup-flash.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-flush2": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\flush2\\mbed-os-core-configuration-store-TESTS-testgroup-flush2.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-example2": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\example2\\mbed-os-core-configuration-store-TESTS-testgroup-example2.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-example3": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\example3\\mbed-os-core-configuration-store-TESTS-testgroup-example3.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-example4": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\example4\\mbed-os-core-configuration-store-TESTS-testgroup-example4.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-example5": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\example5\\mbed-os-core-configuration-store-TESTS-testgroup-example5.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-example1": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\example1\\mbed-os-core-configuration-store-TESTS-testgroup-example1.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-open": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\open\\mbed-os-core-configuration-store-TESTS-testgroup-open.bin"
+            }
+          ]
+        }, 
+        "mbed-os-core-configuration-store-TESTS-testgroup-create": {
+          "binaries": [
+            {
+              "path": ".build\\tests\\K64F\\GCC_ARM\\mbed-os\\core\\configuration-store\\TESTS\\testgroup\\create\\mbed-os-core-configuration-store-TESTS-testgroup-create.bin"
+            }
+          ]
+        } 
+      }, 
+      "toolchain": "GCC_ARM", 
+      "base_path": ".\\.build/tests\\K64F\\GCC_ARM", 
+      "baud_rate": 9600, 
+      "platform": "K64F"
+    }
+  }
+}

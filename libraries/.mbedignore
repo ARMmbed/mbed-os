@@ -1,1 +1,8 @@
-*
+USBDevice/*
+USBHost/*
+doc/*
+dsp/*
+fs/*
+net/*
+rpc/*
+tests/*

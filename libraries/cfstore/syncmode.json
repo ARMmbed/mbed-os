@@ -1,0 +1,16 @@
+{
+	"config": {
+		"hardware": {
+			"mtd": {
+				"async": {
+					"ops": 0
+				}
+			}
+		}
+	},
+	"mbed-os": {
+		"stdio": {
+			"default-baud": 115200
+		}
+	}
+}
