@@ -37,15 +37,25 @@ typedef struct {
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value) {
-    if (value == 1){
-        *obj->reg_data |= (obj->mask);
-    } else if (value == 0){
-        *obj->reg_data &= ~(obj->mask);
+    if (obj->pin < LED1 || obj->pin > LED4) {
+        if (value == 1) {
+            *obj->reg_data |= (obj->mask);
+        } else if (value == 0){
+            *obj->reg_data &= ~(obj->mask);
+        }
+    } else {
+        /* Emulated LEDs return without taking any action */
+        return;
     }
 }
 
 static inline int gpio_read(gpio_t *obj) {
-    return ((*obj->reg_in & obj->mask) ? 1 : 0);
+    if (obj->pin < LED1 || obj->pin > LED4) {
+        return ((*obj->reg_in & obj->mask) ? 1 : 0);
+    } else {
+        /* Emulated LEDs return OFF always */
+        return 0;
+    }
 }
 
 #ifdef __cplusplus

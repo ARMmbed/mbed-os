@@ -24,6 +24,9 @@ uint32_t gpio_set(PinName pin) {
         pin_value = pin;
     } else if (pin >= 16 && pin <= 31) {
         pin_value = pin-16;
+    } else if (pin >= 1001 && pin <= 1004) {
+        /* Emulated LEDs */
+        return (1);
     }
 
     pin_function(pin, 0);
@@ -44,6 +47,9 @@ void gpio_init(gpio_t *obj, PinName pin) {
             pin_value = pin;
         } else if (pin >= 16 && pin <= 31) {
             pin_value = pin-16;
+        } else if (pin >= 1001 && pin <= 1004) {
+            /* Emulated LEDs */
+            return;
         }
 
         obj->mask = 0x1 << pin_value;

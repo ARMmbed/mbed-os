@@ -126,13 +126,14 @@ typedef enum {
     SENSOR_SDA = 506,
     SENSOR_SCL = 507,
 
+    // Emulated LEDS
+    LED1 = 1001,
+    LED2 = 1002,
+    LED3 = 1003,
+    LED4 = 1004,
+
     // Not connected
     NC = (int)0xFFFFFFFF,
-    // LEDS not connected
-    LED1 = NC,
-    LED2 = NC,
-    LED3 = NC,
-    LED4 = NC,
 } PinName;
 
 typedef enum {
