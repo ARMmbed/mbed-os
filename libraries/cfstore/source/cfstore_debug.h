@@ -27,8 +27,7 @@
         printf(_fmt, __VA_ARGS__);                      \
   }while(0);
 
-//#define noCFSTORE_DEBUG
-#define CFSTORE_DEBUG
+#define noCFSTORE_DEBUG
 #ifdef CFSTORE_DEBUG
 
 extern uint32_t cfstore_optDebug_g;
