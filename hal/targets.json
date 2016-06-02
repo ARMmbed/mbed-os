@@ -408,7 +408,7 @@
         }
     },
     "ELEKTOR_COCORICO": {
-        "core": "Cortex-M0",
+        "core": "Cortex-M0+",
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC81X"],
         "supported_toolchains": ["uARM", "GCC_ARM", "IAR"],
