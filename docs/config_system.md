@@ -1,4 +1,4 @@
-# About the cofiguration system
+# About the configuration system
 
 The mbed configuration system can be used to customize the compile time configuration of various mbed components (targets, libraries and applications). Each such component can define a number of *configuration parameters*. The values of these configuration parameters can then be *overridden* in various ways. Configuration is defined using [JSON](http://www.json.org/). Some examples of configuration parameters:
 
@@ -21,7 +21,7 @@ The configuration system understands configuration data defined in targets, libr
             "macro_name": "CUSTOM_MACRO_NAME",
             "value": 0
         },
-        "param1": {
+        "param2": {
             "help": "The second configuration parameter",
             "required": true
         },
