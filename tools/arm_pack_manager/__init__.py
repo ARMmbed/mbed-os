@@ -11,6 +11,7 @@ from sys import stderr, stdout
 from fuzzywuzzy import process
 from itertools import takewhile
 import argparse
+from json import dump, load
 
 
 RootPackURL = "http://www.keil.com/pack/index.idx"
@@ -63,10 +64,12 @@ class Cache () :
         self.silent = silent
         self.counter = 0
         self.total = 1
+        self.index = None
+        self.urls = None
         self.no_timeouts = no_timeouts
 
-    def display_counter (self) :
-        stdout.write("Caching Files {}/{}\r".format(self. counter,self.total))
+    def display_counter (self, message) :
+        stdout.write("{} {}/{}\r".format(message, self.counter, self.total))
         stdout.flush()
 
     def cache_file (self, curl, url) :
@@ -76,7 +79,7 @@ class Cache () :
             makedirs(dirname(dest))
         except OSError as exc :
             if exc.errno == EEXIST : pass
-        else : raise
+            else : raise
         with open(dest, "wb+") as fd :
             curl.setopt(curl.URL, url)
             curl.setopt(curl.FOLLOWLOCATION, True)
@@ -90,7 +93,7 @@ class Cache () :
             except Exception as e :
                 stderr.write("[ ERROR ] file {} did not download {}\n".format(url, str(e)))
         self.counter += 1
-        self.display_counter()
+        self.display_counter("Caching Files")
 
     def cache_pdsc_and_pack (self, curl, url) :
         content = self.cache_and_parse(url)
@@ -108,17 +111,62 @@ class Cache () :
             self.counter += 1
 
     def get_urls(self):
-        return [join(pdsc.get('url'), pdsc.get('name')) for pdsc in self.pull_from_cache(RootPackURL).find_all("pdsc")]
+        if not self.urls :
+            try : root_data = self.pull_from_cache(RootPackURL)
+            except IOError : root_data = self.cache_and_parse(RootPackURL)
+            self.urls = [join(pdsc.get('url'), pdsc.get('name')) for pdsc in root_data.find_all("pdsc")]
+        return self.urls
+
+    def _extract_dict(self, device) :
+        to_ret = dict()
+        try :
+            to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
+                                                    size=m["size"]))
+                                     for m in device("memory")])
+            to_ret["algorithm"] = device.algorithm["name"]
+            to_ret["debug"] = device.debug["svd"]
+            to_ret["compile"] = (device.compile["header"], device.compile["define"])
+        except (KeyError, TypeError) :
+            pass
+        return to_ret
+
+    def _generate_index_helper(self, d) :
+        try :
+            self.index.update(dict([(d['dname'], self._extract_dict(d)) for d in
+                                    (self.pull_from_cache(d)("device"))]))
+        except AttributeError as e :
+            print(e)
+        self.counter += 1
+        self.display_counter("Generating Index")
+
+    def generate_index(self) :
+        self.index = {}
+        self.counter = 0
+        do_queue(Reader, self._generate_index_helper, self.get_urls())
+        with open(join(save_data_path('arm-pack-manager'), "index.json"), "wb+") as out:
+            dump(self.index, out)
+        stdout.write("\n")
+
+    def load_index(self) :
+        if not self.index :
+            try :
+                with open(join(save_data_path('arm-pack-manager'), "index.json")) as i :
+                    self.index = load(i)
+            except IOError :
+                self.generate_index()
+        return self.index
 
     def cache_everything(self) :
         self.cache_pack_list(self.get_urls())
+        self.generate_index()
 
     def cache_descriptors(self) :
         self.cache_descriptor_list(self.get_urls())
+        self.generate_index()
 
     def cache_descriptor_list(self, list) :
         self.total = len(list)
-        self.display_counter()
+        self.display_counter("Caching Files")
         do_queue(Cacher, self.cache_file, list)
         stdout.write("\n")
 
@@ -230,26 +278,21 @@ def command_cache (cache, matches, batch=False, verbose= False) :
         cache.cache_pack_list(to_download)
         return True
 
-def extract_parts (descriptor) :
-    devices = descriptor("device")
-    return dict([(d['dname'], d) for d in devices])
 
 @subcommand('find-part',
             dict(name='matches', nargs="+", help="words to match to processors"),
-            dict(name=['-l',"--list_all"], action="store_true",
-                 help="list all cached parts"))
-def command_find_part (cache, matches, list_all=False) :
-    def foo (d) :
-        try :
-            parts.update(extract_parts(cache.pull_from_cache(d)))
-        except AttributeError as e :
-            print(e)
-    parts = {}
-    do_queue(Reader, foo, cache.get_urls())
+            dict(name=['-l',"--long"], action="store_true",
+                 help="print out part details with part"))
+def command_find_part (cache, matches, long=False) :
+    if long :
+        import pprint
+        pp = pprint.PrettyPrinter()
+    parts = cache.load_index()
     choices = fuzzy_find(matches, parts.keys())
     for part in choices :
         print part
-
+        if long :
+            pp.pprint(cache.index[part])
 
 if __name__ == "__main__" :
     args = parser.parse_args()
