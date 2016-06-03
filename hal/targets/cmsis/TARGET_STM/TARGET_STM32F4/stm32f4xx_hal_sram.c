@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sram.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   SRAM HAL module driver.
   *          This file provides a generic firmware to drive SRAM memories  
   *          mounted as external device.
@@ -64,7 +64,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -106,7 +106,8 @@
 
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-	defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) 
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F412Zx) ||\
+    defined(STM32F412Vx) || defined(STM32F412Rx)
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -201,7 +202,9 @@ HAL_StatusTypeDef  HAL_SRAM_DeInit(SRAM_HandleTypeDef *hsram)
   */
 __weak void HAL_SRAM_MspInit(SRAM_HandleTypeDef *hsram)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsram);
+    /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_MspInit could be implemented in the user file
    */ 
 }
@@ -214,6 +217,8 @@ __weak void HAL_SRAM_MspInit(SRAM_HandleTypeDef *hsram)
   */
 __weak void HAL_SRAM_MspDeInit(SRAM_HandleTypeDef *hsram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsram);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_MspDeInit could be implemented in the user file
    */ 
@@ -227,6 +232,8 @@ __weak void HAL_SRAM_MspDeInit(SRAM_HandleTypeDef *hsram)
   */
 __weak void HAL_SRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_DMA_XferCpltCallback could be implemented in the user file
    */ 
@@ -240,7 +247,9 @@ __weak void HAL_SRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_SRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
+    /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_DMA_XferErrorCallback could be implemented in the user file
    */ 
 }
@@ -283,7 +292,7 @@ HAL_StatusTypeDef HAL_SRAM_Read_8b(SRAM_HandleTypeDef *hsram, uint32_t *pAddress
   hsram->State = HAL_SRAM_STATE_BUSY;  
   
   /* Read data from memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *pDstBuffer = *(__IO uint8_t *)pSramAddress;
     pDstBuffer++;
@@ -325,7 +334,7 @@ HAL_StatusTypeDef HAL_SRAM_Write_8b(SRAM_HandleTypeDef *hsram, uint32_t *pAddres
   hsram->State = HAL_SRAM_STATE_BUSY; 
 
   /* Write data to memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *(__IO uint8_t *)pSramAddress = *pSrcBuffer; 
     pSrcBuffer++;
@@ -361,7 +370,7 @@ HAL_StatusTypeDef HAL_SRAM_Read_16b(SRAM_HandleTypeDef *hsram, uint32_t *pAddres
   hsram->State = HAL_SRAM_STATE_BUSY;  
   
   /* Read data from memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *pDstBuffer = *(__IO uint16_t *)pSramAddress;
     pDstBuffer++;
@@ -403,7 +412,7 @@ HAL_StatusTypeDef HAL_SRAM_Write_16b(SRAM_HandleTypeDef *hsram, uint32_t *pAddre
   hsram->State = HAL_SRAM_STATE_BUSY; 
 
   /* Write data to memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *(__IO uint16_t *)pSramAddress = *pSrcBuffer; 
     pSrcBuffer++;
@@ -437,7 +446,7 @@ HAL_StatusTypeDef HAL_SRAM_Read_32b(SRAM_HandleTypeDef *hsram, uint32_t *pAddres
   hsram->State = HAL_SRAM_STATE_BUSY;  
   
   /* Read data from memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *pDstBuffer = *(__IO uint32_t *)pAddress;
     pDstBuffer++;
@@ -477,7 +486,7 @@ HAL_StatusTypeDef HAL_SRAM_Write_32b(SRAM_HandleTypeDef *hsram, uint32_t *pAddre
   hsram->State = HAL_SRAM_STATE_BUSY; 
 
   /* Write data to memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *(__IO uint32_t *)pAddress = *pSrcBuffer; 
     pSrcBuffer++;
@@ -670,7 +679,8 @@ HAL_SRAM_StateTypeDef HAL_SRAM_GetState(SRAM_HandleTypeDef *hsram)
   * @}
   */
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
-          STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx  */
+          STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx || STM32F412Zx ||\
+          STM32F412Vx || STM32F412Rx || STM32F412Cx */
 #endif /* HAL_SRAM_MODULE_ENABLED */
 /**
   * @}
