@@ -6,6 +6,7 @@
         "extra_labels": [],
         "is_disk_virtual": false,
         "macros": [],
+        "features": [],
         "detect_code": [],
         "public": false
     },

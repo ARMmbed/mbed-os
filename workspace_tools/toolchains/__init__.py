@@ -298,11 +298,7 @@ class mbedToolchain:
 
             # Add target's symbols
             self.symbols += self.target.macros
-            # Add target's hardware
-            try :
-                self.symbols += ["DEVICE_" + feature + "=1" for feature in self.target.features]
-            except AttributeError :
-                pass
+            self.symbols += ["DEVICE_" + feature + "=1" for feature in self.target.features]
             # Add extra symbols passed via 'macros' parameter
             self.symbols += self.macros
 
