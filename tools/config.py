@@ -103,7 +103,22 @@ class ConfigParameter:
 
     # Return the string representation of this configuration parameter
     def __str__(self):
-        return '"%s" = %s (set in "%s", defined in "%s")' % (self.name, self.value, self.set_by, self.defined_by)
+        if self.value is not None:
+            return '%s = %s (macro name: "%s")' % (self.name, self.value, self.macro_name)
+        else:
+            return '%s has no value' % self.name
+
+    # Return a verbose description of this configuration paramater as a string
+    def get_verbose_description(self):
+        desc = "Name: %s%s\n" % (self.name, " (required parameter)" if self.required else "")
+        if self.help_text:
+            desc += "    Description: %s\n" % self.help_text
+        desc += "    Defined by: %s\n" % self.defined_by
+        if not self.value:
+            return desc + "    No value set"
+        desc += "    Macro name: %s\n" % self.macro_name
+        desc += "    Value: %s (set by %s)" % (self.value, self.set_by)
+        return desc
 
 # A representation of a configuration macro. It handles both macros without a value (MACRO)
 # and with a value (MACRO=VALUE)
@@ -297,8 +312,14 @@ class Config:
             if p.required and (p.value is None):
                 raise ConfigException("Required parameter '%s' defined by '%s' doesn't have a value" % (p.name, p.defined_by))
 
+    # Return the macro definitions generated for a dictionary of configuration parameters
+    # params: a dictionary of (name, ConfigParameters instance) mappings
+    @staticmethod
+    def parameters_to_macros(params):
+        return ['%s=%s' % (m.macro_name, m.value) for m in params.values() if m.value is not None]
+
     # Return the configuration data converted to a list of C macros
     def get_config_data_macros(self):
         params, macros = self.get_config_data()
         self._check_required_parameters(params)
-        return macros + ['%s=%s' % (m.macro_name, m.value) for m in params.values() if m.value is not None]
+        return macros + self.parameters_to_macros(params)
