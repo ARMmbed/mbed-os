@@ -17,8 +17,11 @@ CAN can1(PD_0, PD_1);
 #elif defined(TARGET_NUCLEO_F091RC) || defined(TARGET_NUCLEO_F072RB) || \
       defined(TARGET_NUCLEO_F042K6) || defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F303RE) || defined(TARGET_NUCLEO_F303K8) || \
-      defined(TARGET_NUCLEO_F302R8)
+      defined(TARGET_NUCLEO_F302R8) || defined(TARGET_NUCLEO_F446RE) || \
+      defined(TARGET_DISCO_F429ZI)
 CAN can1(PA_11, PA_12);
+#elif defined(TARGET_DISCO_F469NI)
+CAN can1(PB_8, PB_9);
 #else
 CAN can1(p9, p10);
 #endif
@@ -27,6 +30,9 @@ CAN can1(p9, p10);
 CAN can2(p34, p33);
 #elif defined (TARGET_LPC1768)
 CAN can2(p30, p29);
+#elif defined(TARGET_NUCLEO_F446RE) || defined(TARGET_DISCO_F469NI) || \
+      defined(TARGET_DISCO_F429ZI)
+CAN can2(PB_5, PB_6);
 #endif
 char counter = 0;
 
