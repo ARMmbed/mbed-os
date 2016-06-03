@@ -43,6 +43,8 @@
 extern "C" {
 #endif
 
+extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
+
 typedef void(*IRQHandler)();
 uint32_t InterruptHandlerRegister(IRQn_Type, IRQHandler);
 uint32_t InterruptHandlerUnregister(IRQn_Type);

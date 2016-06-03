@@ -51,6 +51,7 @@ void FPUEnable(void);
 
 uint32_t IRQNestLevel;
 unsigned char seen_id0_active = 0; // single byte to hold a flag used in the workaround for GIC errata 733075
+uint32_t SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK;     /*!< System Clock Frequency (Core Clock)  */
 
 
 /**
@@ -197,6 +198,20 @@ uint32_t InterruptHandlerUnregister (IRQn_Type irq)
         return 1;
     }
 }
+
+/**
+ * Update SystemCoreClock variable
+ *
+ * @param  none
+ * @return none
+ *
+ * @brief  Updates the SystemCoreClock with current core Clock.
+ */
+void SystemCoreClockUpdate (void)
+{
+    SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK;
+}
+
 
 /**
  * Initialize the system
