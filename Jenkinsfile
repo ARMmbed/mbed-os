@@ -37,13 +37,7 @@ try {
   
 } catch (err) {
   currentBuild.result = 'FAILURE'
-  mail to: 'iot-eng-mgmt@arm.com', 
-  subject: "${env.JOB_NAME} build failed",
-  body: "Greetings from mbed Continous integration system. This is an automatic email sent because a build has failed.\n\n\
-This CI job checks the compiling of mbed-os with morpheus from Master branch.\n\n\
-mbed-os build from branch ${env.BRANCH_NAME} has failed.\nSee ${env.BUILD_URL} for details\n\n\
-Regards,\n\
-ARM mbed Continuos Integration"
+
 } 
 
 //Create yotta build steps for parallel execution
