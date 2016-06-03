@@ -12,6 +12,7 @@ from fuzzywuzzy import process
 from itertools import takewhile
 import argparse
 from json import dump, load
+from zipfile import ZipFile
 
 
 RootPackURL = "http://www.keil.com/pack/index.idx"
@@ -19,7 +20,7 @@ RootPackURL = "http://www.keil.com/pack/index.idx"
 
 protocol_matcher = compile("\w*://")
 def strip_protocol(url) :
-    return sub(protocol_matcher, "", url)
+    return protocol_matcher.sub("", str(url))
 
 def largest_version(content) :
     return sorted([t['version'] for t in content.package.releases('release')], reverse=True)[0]
@@ -95,17 +96,19 @@ class Cache () :
         self.counter += 1
         self.display_counter("Caching Files")
 
+    def pdsc_to_pack (self, url) :
+        content = self.pull_from_cache(url)
+        new_url = content.package.url.get_text()
+        if not new_url.endswith("/") :
+            new_url = new_url + "/"
+        return (new_url + content.package.vendor.get_text() + "." +
+                content.package.find('name').get_text() + "." +
+                largest_version(content) + ".pack")
+
     def cache_pdsc_and_pack (self, curl, url) :
-        content = self.cache_and_parse(url)
+        self.cache_file(curl, url)
         try :
-            new_url = content.package.url.get_text()
-            if not new_url.endswith("/") :
-                new_url = new_url + "/"
-            self. cache_file(curl,
-                             new_url +
-                             content.package.vendor.get_text() + "." +
-                             content.package.find('name').get_text() + "." +
-                             largest_version(content) + ".pack")
+            self. cache_file(curl, self.pdsc_to_pack(url))
         except AttributeError :
             stderr.write("[ ERROR ] {} does not appear to be a conforming .pdsc file\n".format(url))
             self.counter += 1
@@ -117,8 +120,8 @@ class Cache () :
             self.urls = [join(pdsc.get('url'), pdsc.get('name')) for pdsc in root_data.find_all("pdsc")]
         return self.urls
 
-    def _extract_dict(self, device) :
-        to_ret = dict()
+    def _extract_dict(self, device, filename) :
+        to_ret = dict(file=filename)
         try :
             to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
                                                     size=m["size"]))
@@ -132,12 +135,18 @@ class Cache () :
 
     def _generate_index_helper(self, d) :
         try :
-            self.index.update(dict([(d['dname'], self._extract_dict(d)) for d in
+            self.index.update(dict([(dev['dname'], self._extract_dict(dev, d)) for dev in
                                     (self.pull_from_cache(d)("device"))]))
         except AttributeError as e :
             print(e)
         self.counter += 1
         self.display_counter("Generating Index")
+
+    def get_flash_algorthim_binary(device_name) :
+        self.load_index()
+        device = self.find_device(device_name)
+        pack = ZipFile(self.pdsc_to_pack(device['file']))
+        return pack.open(device['algorithm'])
 
     def generate_index(self) :
         self.index = {}
@@ -146,6 +155,19 @@ class Cache () :
         with open(join(save_data_path('arm-pack-manager'), "index.json"), "wb+") as out:
             dump(self.index, out)
         stdout.write("\n")
+
+    def find_device(self, match) :
+        self.load_index()
+        choices = process.extract(match, self.index.keys(), limit=len(urls))
+        choices = sorted([(v, k) for k, v in choices.iteritems()], reverse=True)
+        if not choices : return []
+        else : choices = list(takewhile(lambda t: t[0] == choices[0][0], choices))
+        return [(v, self.index[v]) for k,v in choices]
+
+    def dump_index_to_file(self, file) :
+        self.load_index()
+        with open(file, "wb+") as out:
+            dump(self.index, out)
 
     def load_index(self) :
         if not self.index :
@@ -172,7 +194,7 @@ class Cache () :
 
     def cache_pack_list(self, list) :
         self.total = len(list) * 2
-        self.display_counter()
+        self.display_counter("Caching Files")
         do_queue(Cacher, self.cache_pdsc_and_pack, list)
         stdout.write("\n")
 
@@ -293,6 +315,14 @@ def command_find_part (cache, matches, long=False) :
         print part
         if long :
             pp.pprint(cache.index[part])
+
+@subcommand('cache-part',
+            dict(name='matches', nargs="+", help="words to match to devices"))
+def command_cache_part (cache, matches) :
+    index = cache.load_index()
+    choices = fuzzy_find(matches, index.keys())
+    urls = [index[c]['file'] for c in choices]
+    cache.cache_pack_list(urls)
 
 if __name__ == "__main__" :
     args = parser.parse_args()
