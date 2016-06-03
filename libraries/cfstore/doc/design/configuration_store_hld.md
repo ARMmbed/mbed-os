@@ -13,12 +13,15 @@ persistent storage media. It implements a subset of the requirements as listed
 in the supported requirements section.
 
 CFSTORE provides the secure and persistent storage for:
+
 - Storing encryption keys data.
 - Storing configuration data.
 - Storing firmware, firmware updates and incremental firmware blocks for assembling into a firmware update.
+
 i.e. CFSTORE is a general purpose registry for storing code and data objects.
 
 These services are presented to clients with:
+
 - A conceptually simple, file-like interface for storing and managing data using (key, value) pairs in 
   persistent storage media. 
 - A simple, hardware-independent API to promote portability across multiple platforms and a low attack surface. 
@@ -39,6 +42,7 @@ Configuration Store (CFSTORE) component.
 
 The scope of this document is describe the CFSTORE high level design for the 
 following features: 
+
 - The creation of new key-value (KV) pairs in the store for writing. 
   The values are binary blobs with no type structure.
 - The opening of pre-existing KV pairs for reading/writing/deletion.
@@ -69,6 +73,7 @@ that match a given search specification.
 ## Outstanding Issues With This Document
 
 The following is a list of outstanding issues with this document:
+
 - The list of supported requirements needs updating.
 - Security considerations need defining.
 - The usage of keys needs defining.
@@ -79,12 +84,15 @@ The following is a list of outstanding issues with this document:
 ## Rationale/Motivation
 
 CFSTORE provides the secure and persistent storage for:
+
 - Storing encryption keys data.
 - Storing configuration data.
 - Storing firmware, firmware updates and incremental firmware blocks for assembling into a firmware update.
+
 i.e. CFSTORE is a general purpose registry for storing code and data objects.
 
 These services are presented to clients in the following way:
+
 - A simple, hardware-independent API to promote portability across multiple platforms and a low attack surface.
 - A very small code/memory footprint so CFSTORE is capable of scaling from highly-constrained memory systems (~10kB free memory)
   where typically available SRAM << NV storage, to less constrained systems with more memory.
@@ -96,6 +104,7 @@ These services are presented to clients in the following way:
 For security reasons the uVisor security model allows applications (general purpose code) 
 only restricted access to NV (flash) storage. This ensures modifications to OS or application 
 code are tightly controlled so ensure:
+
 - Malware cannot become resident in the system.
 - Security measures like Access Control Lists (ACLs) cannot be modified or circumvented by malicious code.
 
@@ -131,6 +140,7 @@ the key-value storage.
 ## Key Value Storage
 
 The CFSTORE KV storage has the following characteristics:
+
 - The only supported key-value payload type is a binary blob. 
 - All values are referenced by a globally name-spaced key string. 
 - The key_name is required to be unique on a device. 
@@ -143,18 +153,25 @@ The CFSTORE KV storage has the following characteristics:
 - Key name sizes are limited to 220 bytes (excluding zero termination).
 
 The following illustrates valid name examples:
+
 ```
-'com.arm.mbed.wifi.accesspoint[5].essid' = 'AccessNG'
-'com.arm.mbed.wifi.accesspoint[home].essid' = 'HomeSweetHome'
-'yotta.your-yotta-registry-module-name.your-value' = 'XYZ'
-'yotta.hello-world.animal[dog][foot][3]' = 'dirty'
+
+    'com.arm.mbed.wifi.accesspoint[5].essid' = 'AccessNG'
+
+    'com.arm.mbed.wifi.accesspoint[home].essid' = 'HomeSweetHome'
+
+    'yotta.your-yotta-registry-module-name.your-value' = 'XYZ'
+
+    'yotta.hello-world.animal[dog][foot][3]' = 'dirty'
 ```
+
 Note that the key-path-prefix 'yotta' is reserved for modules in the [yotta registry](http://yotta.mbed.com/).
 
 
 ## Key Ownership
 
 Key ownership is tied to the name of the key.
+
 - If a client security context (uvisor box) needs to create CFSTORE KV entries, it must 
   have a (mandatory) key name prefix. This is called the security_prefix_name.
 - When a client security context create a KV pair, the security_prefix_name is "enforced" 
@@ -163,6 +180,7 @@ Key ownership is tied to the name of the key.
   clients security_prefix_name.
 
 Consider the following example:
+
 - The client security context (uvisor box) has the security_prefix_name "com.arm.mbed.tls". 
   This security_prefix_name is registered with uvisor as part of box creation. 
 - The client security context creates a CFSTORE KV with client_key_name='com.arm.mbed.tls.cert[5].key'.
@@ -179,13 +197,18 @@ Uvisor box security_prefix_name's are not allowed to overlap.
 ## Access Control Security ###
 
 Access control lists (ACL) enforce access for the following security groups 
+
 - Owner.
 - Other. 
+
 The permissions for these two groups are:
+
 - Reading.
 - Writing.
 - Execution. 
+
 The resulting matrix can be represented by a 6-bit binary field:
+
 - Owner (i.e. the caller during key creation:
   - Read permission bit. 
   - Write permission bit.
@@ -196,6 +219,7 @@ The resulting matrix can be represented by a 6-bit binary field:
   - Execute permission bit.
 
 Note the following: 
+
 - A writable field is not allowed to be executable. 
 - The executable bit is not supported till further notice and is reserved for performing modular firmware updates at a later point.
 - The high level API provides a function for listing accessible values, but ensures that only values with 
@@ -211,12 +235,19 @@ card search to the API. Wild card operations are only supported for finding keys
 The wild card operator can occur once at any point of the search string:
 
 The following shows examples of valid key_name query strings to the Find() method:
+
 ```
-'com.arm.mbed.wifi.accesspoint*.essid'
-'yotta.your-yotta-registry-module-name.*'
-'yotta.hello-world.animal[dog][foot][*]'
-'yotta.hello-world.animal[dog][foot]*'
-'yotta.hello-world.animal[dog*3]'
+
+    'com.arm.mbed.wifi.accesspoint*.essid'
+
+    'yotta.your-yotta-registry-module-name.*'
+
+    'yotta.hello-world.animal[dog][foot][*]'
+
+    'yotta.hello-world.animal[dog][foot]*'
+
+    'yotta.hello-world.animal[dog*3]'
+
 ```
 
 Note that whenever a search returns a key candidate, the search can be resumed to return further matches.
@@ -225,6 +256,7 @@ Note that whenever a search returns a key candidate, the search can be resumed t
 ## Creating & Opening Keys for Writing
 
 Keys must be explicitly created using Create() with the following parameters:
+
 - Security ACLs (owner & others).
 - The intended retention levels.
 - The expected Device Data Security Protection Features
@@ -232,6 +264,7 @@ Keys must be explicitly created using Create() with the following parameters:
 - Mode flags
 
 Note the following:
+
 - Pre-existing keys are opened using the Open().
 - The returned handle allows write access to the value by default.
 - Wild cards are not allowed for creating or opening keys. 
@@ -245,6 +278,7 @@ Note the following:
 ### Overview of Error Handling
 
 The following provides general notes on the handling of errors:
+
 - CFSTORE is intended to "Fail-Safe" i.e. if errors occur then the system should be recoverable from such errors. 
 - "Fail-Safe" requires CFSTORE storage backends must support the flushing of data in an atomic operation. This is so 
   that the loss of power during a flush operation to the CFSTORE backend does not result in the stored data being in 
@@ -260,32 +294,38 @@ The following provides general notes on the handling of errors:
 ### Synchronous/Asynchronous API Calls and Error Handling
 
 The CFSTORE has 2 modes of operations:
+
 - Synchronous (SYNC) mode.
 - Asynchronous (ASYNC) mode.
+
 The mode is determined by inspecting the results of the GetCapabilites() API call.
 
-All CFSTORE API calls (apart of specific exclusions listed below) return an int32_t return code designated RETURN_CODE.
-- A RETURN_CODE < 0 always indicates an error.
-- A RETURN_CODE >= 0 always indicates success. 
--- In SYNC mode the operation has completed successfully. 
--- In ASYNC mode the transaction has been queued successfully, pending completion sometime in the future. 
-   The transaction status of the completed tranaction RETURN_CODE_ASYNC is supplied to the client 
+All CFSTORE API calls (apart of specific exclusions listed below) return an int32_t return code designated ```RETURN_CODE```.
+
+- A ```RETURN_CODE``` < 0 always indicates an error.
+- A ```RETURN_CODE``` >= 0 always indicates success. 
+
+ - In SYNC mode the operation has completed successfully. 
+ - In ASYNC mode the transaction has been queued successfully, pending completion sometime in the future. 
+   The transaction status of the completed tranaction ```RETURN_CODE_ASYNC``` is supplied to the client 
    registered callback handler (if such a callback handler has been registered).
-- Specific API calls may assign meaning to RETURN_CODE or RETURN_CODE_ASYNC when >=0. For example RETURN_CODE or RETURN_CODE_ASYNC
+- Specific API calls may assign meaning to ```RETURN_CODE``` or ```RETURN_CODE_ASYNC``` when >=0. For example ```RETURN_CODE``` or ```RETURN_CODE_ASYNC```
   for a successful Read() call may be interpretted as the number of octets read. Consult the documentation for specific API calls
   for further details.    
 
 In ASYNC mode:
+
 - The client may register a callback handler for asynchronous completion notifications i.e. to receive the final
-  return status code RETURN_CODE_ASYNC.
+  return status code ```RETURN_CODE_ASYNC```.
 - API calls may return synchronously. A client may be able to determine whether an operation has completed 
-  synchronously through knowledge of the assigned meaning of the RETURN_CODE. For example, if RETURN_CODE=100 
+  synchronously through knowledge of the assigned meaning of the ```RETURN_CODE```. For example, if ```RETURN_CODE```=100 
   for a successful Read() call with a supplied buffer length of 100 bytes, then the client infers the call 
   completed synchronously.  
 - If a callback handler is registered then it will receive asynchronous notififications for all API calls irrespective 
   of whether they completed synchronously or asynchronously. 
 
 CFSTORE API calls that do not return int32_t return values (i.e. exclusions to the foregoing) are as follows:
+
 - GetCapabilities().
 - GetStatus().
 - GetVersion().
@@ -293,16 +333,17 @@ CFSTORE API calls that do not return int32_t return values (i.e. exclusions to t
 
 ### Recovering for Errors
 
-CFSTORE clients must check all RETURN_CODE values for errors and act accordingly if an error is detected.
+CFSTORE clients must check all ```RETURN_CODE``` values for errors and act accordingly if an error is detected.
 
 Some API calls may return values < 0 as a part of the their normal operations. For example, when iterating over 
-a list of Find() results matching a wildcard, Find() may return RETURN_CODE < 0 to indicate no more matches are found
+a list of Find() results matching a wildcard, Find() may return ```RETURN_CODE``` < 0 to indicate no more matches are found
 
-If an RETURN_CODE error indicates a system failure the the CFSTORE client should implement the following
+If an ```RETURN_CODE``` error indicates a system failure the the CFSTORE client should implement the following
 recovery procedure:
-- Call Uninitialise() which returns RETURN_CODE_UNINIT. If RETURN_CODE_UNINIT < 0, abort any further action.
+
+- Call Uninitialise() which returns ```RETURN_CODE_UNINIT```. If ```RETURN_CODE_UNINIT``` < 0, abort any further action.
   All client maintained state variables (e.g. hkeys) are the invalid.
-- Call Initialise() which returns RETURN_CODE_REINIT. If RETURN_CODE_REINIT < 0, abort any further action.
+- Call Initialise() which returns ```RETURN_CODE_REINIT```. If ```RETURN_CODE_REINIT``` < 0, abort any further action.
 - Proceed to use CFSTORE.
 
 
@@ -311,6 +352,7 @@ recovery procedure:
 ### CFSTORE Is Not An OS System Component.
 
 Note the following:
+
 - The notion of CFSTORE being and OS System component supporting 
 - CFSTORE is not re-entrant.
 - CFSTORE does not support concurrent access from multiple clients. 
@@ -322,11 +364,13 @@ Note the following:
 ### Max Storage Data Size Limited by Available SRAM
 
 Note the following:
+
 - CFSTORE currently loads all KVs stored in a backend into SRAM. Hence, the backend storage size is limited to the maximum available SRAM for storing KVs.
 
 # Use Cases
 
 The design addresses the requirements of the following use cases:
+
 - CFSTORE Initialisation and Factory Initialisation 
 - FOTA
 
@@ -378,6 +422,7 @@ The design addresses the requirements of the following use cases:
 ```
 
 The above figure shows the following entities:
+
 - NV Storage Media. These are the physical storage media. 
 - Flash Driver layer e.g. CMSIS-Driver.
 - Flash Abstraction Layer, portable across the driver layer.
@@ -388,6 +433,7 @@ The above figure shows the following entities:
 # Configuration-Store Application Programming Interface (CFSTORE-API)
 
 The main API methods for creating, reading and writing CFSTORE KV are as follows:
+
 - (*Create)() creates a new KV in the store.
 - (*Open)() opens a pre-existing KV in the store. KVs can be opened read-only or read-write.
 - (*Read)() permits the random-access reading of the value data from the 'file-like' read location. 
@@ -399,6 +445,7 @@ Note that the above methods show similarities with a file system interface, but 
 file system e.g. CFSTORE does not implement volume management or directory structures required for a file system. 
 
 Additionally, the API supports also includes the following support methods:
+
 - (*GetCapabilities)() to get the capabilities of the CFSTORE implementation (e.g. whether CFSTORE is synchronous or asynchronous).
 - (*GetKeyName)() to get the name of a key given an opaque handle.  
 - (*GetStatus)() to get the status of an in-progress  asynchronous transaction.
@@ -411,12 +458,13 @@ Additionally, the API supports also includes the following support methods:
 - PowerControl() permitting the client to set the power control level..
 - Uninitialise() permitting the client to de-initialise CFSTORE.
   
-The API is aligned with the CMSIS-Driver Model in which the CFSTORE API functions are presented as ARM_CFSTORE_DRIVER dispatch methods.
+The API is aligned with the CMSIS-Driver Model in which the CFSTORE API functions are presented as `ARM_CFSTORE_DRIVER` dispatch methods.
 
 ## CMSIS-Driver Model
 
 The CFSTORE is aligned with the CMSIS-Driver Model pattern as follows:
-- The interface is implemented using an ARM_CFSTORE_DRIVER structure with dispatch functions for the API interface methods.
+
+- The interface is implemented using an `ARM_CFSTORE_DRIVER` structure with dispatch functions for the API interface methods.
 - CMSIS-Driver common methods and CamelCase API naming conventions are adopted as follows: 
   - (*GetCapabilities)().
   - (*GetStatus)().
@@ -425,22 +473,23 @@ The CFSTORE is aligned with the CMSIS-Driver Model pattern as follows:
   - PowerControl().
   - Uninitialise().
 
-This document refers to invocation of the ARM_CFSTORE_DRIVER dispatch methods using a notional pointer 'drv' to the ARM_CFSTORE_DRIVER object instance.
+This document refers to invocation of the `ARM_CFSTORE_DRIVER` dispatch methods using a notional pointer 'drv' to the `ARM_CFSTORE_DRIVER` object instance.
 Thus drv->Initialise() refer to the invocation of the CFSTORE API Initialise() method. 
 
 See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification for function prototypes. 
 See the [CMSIS-Driver Documentation][KEIL_CMSIS_DRIVER] for more information.
 
 
-## CFSTORE API Function Use Opaque Handles (Cfstore_Handle_t hkey) 
+## CFSTORE API Function Use Opaque Handles (`Cfstore_Handle_t` hkey) 
 
 In common with a file interface, CFSTORE API functions return an opaque file handle for accessing a particular KV. In general terms:
+
 - Create() causes CFSTORE to instantiate in-memory data structures (context) for accessing a KV. On success, CFSTORE returns an opqaue handle 
-  to these data structres by setting the Cfstore_Handle_t* hkey argument to a valid handle. The client then "owns" the CFSTORE context, which
+  to these data structres by setting the `Cfstore_Handle_t*` hkey argument to a valid handle. The client then "owns" the CFSTORE context, which
   CFSTORE updates in response to other API calls using the handle. The client returns ownership of the handle to CFSTORE by calling Close(hkey). 
   This causes CFSTORE to free in-memory data structures associated with accessing the KV. 
 - Find() causes CFSTORE to instantiate in-memory data structures (context) for a KV matching the key name query string. On success, 
-  CFSTORE returns an opqaue handle to these data structres by setting the Cfstore_Handle_t* next argument to a valid handle. 
+  CFSTORE returns an opqaue handle to these data structres by setting the `Cfstore_Handle_t*` next argument to a valid handle. 
   The client then "owns" the CFSTORE context, which CFSTORE updates in response to other API calls using the handle. 
   The client returns ownership of the handle to CFSTORE in the following ways:
   - By calling Find() again but this time supplying the previously returned 'next' handle as the 'previous' argument. 
@@ -455,32 +504,34 @@ In common with a file interface, CFSTORE API functions return an opaque file han
 
 The above diagram shows the client-CFSTORE call sequence demonstrating how the client discovers API and CMSIS-Driver versions supported by the API.
 
-1. The client calls drv->GetVersion() which returns an ARM_DRIVER_VERSION structure. GetVersion() is a synchronous function. 
-2. The client calls drv->GetCapabilities() which returns an ARM_Cfstore_Capabilities_t structure
+1. The client calls drv->GetVersion() which returns an `ARM_DRIVER_VERSION` structure. GetVersion() is a synchronous function. 
+2. The client calls drv->GetCapabilities() which returns an `ARM_Cfstore_Capabilities_t` structure
    which reports whether the CFSTORE implementation is either:
   - Synchronous or,
   - Asynchronous. 
   
 ### Synchrononous Mode
 
-In synchronous mode ARM_CFSTORE_DRIVER::Dispatch_Method_Xxx() will return:
-- ARM_DRIVER_OK => CFSTORE Dispatch_Method_Xxx() completed successfully
+In synchronous mode `ARM_CFSTORE_DRIVER::Dispatch_Method_Xxx()` will return:
+
+- `ARM_DRIVER_OK` => CFSTORE Dispatch_Method_Xxx() completed successfully
 - otherwise CFSTORE Dispatch_Method_Xxx() did not complete successfully
   (return code supplies further details).
 
 
 ### Asynchronous Mode
 
-In asynchronous mode ARM_CFSTORE_DRIVER::Dispatch_Method_Xxx() will return:
-- return_value = ARM_DRIVER_OK (==0) => CFSTORE Dispatch_Method_Xxx()
+In asynchronous mode `ARM_CFSTORE_DRIVER::Dispatch_Method_Xxx()` will return:
+
+- `return_value` = `ARM_DRIVER_OK` (==0) => CFSTORE Dispatch_Method_Xxx()
   pending. Dispatch_Method_Xxx completion status will be indicated via
   an asynchronous call to ARM_Cfstore_Callback_t registered with the
-  ARM_CFSTORE_DRIVER::(*Initialise)().
-- return_value > 0 => CFSTORE Dispatch_Method_Xxx() completely
-  synchronously and successfully. The return_value has specific
+  `ARM_CFSTORE_DRIVER::(*Initialise)()`.
+- `return_value` > 0 => CFSTORE Dispatch_Method_Xxx() completely
+  synchronously and successfully. The `return_value` has specific
   meaning for the Dispatch_Method_Xxx() e.g. for the Read() method
-  the return_value is the number of bytes read.
-- otherwise return_value < 0 => CFSTORE Dispatch_Method_Xxx()
+  the `return_value` is the number of bytes read.
+- otherwise `return_value` < 0 => CFSTORE Dispatch_Method_Xxx()
   completed unsuccessfully (return code supplies further details).
 
 The client registered asynchronous callback method ARM_Cfstore_Callback_t is
@@ -498,7 +549,7 @@ typedef void (*ARM_Cfstore_Callback_t)(int32_t status, ARM_Cfstore_OpCode_e cmd_
 ```
 
 Before an asynchronous notification is received, a client can check on the
-status of the call by calling ARM_CFSTORE_DRIVER::(*GetStatus)().
+status of the call by calling `ARM_CFSTORE_DRIVER::(*GetStatus)()`.
 
 
 See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification for function prototypes.
@@ -511,7 +562,7 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for Initialising/Uninitialising the CFSTORE for a synchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the synchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the synchronous flag set).
 
 1. The client calls drv->Initialise() without supplying an asynchronous callback method or client context. 
 2. CFSTORE returns OK, which in this case means success.
@@ -529,21 +580,21 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for Initialising/Uninitialising the CFSTORE for an asynchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the asynchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the asynchronous flag set).
 
 1. The client calls drv->Initialise() to subscribe to command completion events by supplying the following arguments:
-   - a callback method Cfstore_Client_callback() which will be invoked by CFSTORE for asynchronous notification of command completion events.
-   - a client context which will be supplied as an argument to the Cfstore_Client_callback() call.  
+   - a callback method `Cfstore_Client_callback()` which will be invoked by CFSTORE for asynchronous notification of command completion events.
+   - a client context which will be supplied as an argument to the `Cfstore_Client_callback()` call.  
 2. CFSTORE returns OK, which in this case means the CFSTORE operation is pending asynchronous completion.
 3. CFSTORE completes internal initialisation operations necessary to initialise. 
-4. Once internal initialisation has been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=INITIALISE, status, client_context) 
+4. Once internal initialisation has been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=INITIALISE, status, client_context)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument.
 5. Once initialised, the client can call any of the other CFSTORE methods.
 6. After all client operations have been performed, the client calls drv->Uninitialise() to terminate use of CFSTORE.
 7. CFSTORE returns OK, which in this case means the operation is pending asynchronous completion.
 8. CFSTORE completes internal operations necessary to de-initialise.
 9. Once internal de-initialisation has been completed, CFSTORE invokes 
-  Cfstore_Client_callback(OPCODE=UNINITIALISE, status, client_context) 
+  `Cfstore_Client_callback(OPCODE=UNINITIALISE, status, client_context)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument.
   CFSTORE will not invoke the callback method again. 
 
@@ -561,7 +612,7 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for creating a KV for a synchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the synchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the synchronous flag set).
 
 1. The client calls drv->Create(key_name, value_len, key_descriptor, &key_handle) to request CFSTORE to create the KV pair.  
 2. CFSTORE returns OK, which in this case means the Create() has been completed successfully.
@@ -584,32 +635,32 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for creating a KV for an asynchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the asynchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the asynchronous flag set).
 
 1. The client calls drv->Create(key_name, value_len, key_descriptor, &key_handle) to request CFSTORE create the KV pair.  
 2. CFSTORE returns OK, which in this case means the Create() is a pending transaction.
 3. CFSTORE completes internal operations necessary to create the KV pair. 
-4. Once internal create operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=CREATE, status, client_context, key_handle) 
+4. Once internal create operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=CREATE, status, client_context, key_handle)` 
    to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status == OK, key_handle
    is an opaque handle to the newly created open key. 
 5. The client calls drv->Write(key_handle, data, len) to set the data value in the KV.  
 6. CFSTORE returns OK, which in this case means the Write() is a pending transaction.
 7. CFSTORE completes internal operations necessary to write to the KV pair. 
-8. Once internal write operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=WRITE, status, client_context, key_handle) 
+8. Once internal write operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=WRITE, status, client_context, key_handle)` 
    to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status > 0, the value
    of status indicates the number of bytes successfully written. 
 9. The client can perform other operations on the KV pair using the key_handle.  
 10. The client calls drv->Close(key_handle) to close the recently created key.  
 11. CFSTORE returns OK, which in this case means the close is a pending transaction.
 12. CFSTORE completes internal operations necessary to close to the KV pair. 
-13. Once internal close operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle) 
+13. Once internal close operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle)` 
     to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status == OK, the 
     key has successfully been closed and key_handle is NULL. The previously used key_handle should no longer be used.
 14. The client can repeat operation (1)-(13) to create, write and close all KV pairs, as required.
 15. Once all CFSTORE KV changes have be made, the client calls drv->Flush() to commit the changes to backing store.  
 16. CFSTORE returns OK, which in this case means the Flush() is a pending transaction.
 17. CFSTORE completes internal operations necessary to flush the changes. 
-18. Once internal flush operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=FLUSH, status, client_context, NULL) 
+18. Once internal flush operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=FLUSH, status, client_context, NULL)` 
     to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status == OK, the 
     flush operation was completed successfully.
 
@@ -626,7 +677,7 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for opening and reading a pre-existing key in the CFSTORE for a synchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the synchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the synchronous flag set).
 
 1. The client calls drv->Open(key_name, flags, &key_handle) to request CFSTORE to open the KV pair in read-only mode.  
 2. CFSTORE returns OK, which in this case means the Open() has been completed successfully. key_handle is now set to a valid opaque handle to the open KV. 
@@ -649,29 +700,29 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for opening and reading a pre-existing key in the CFSTORE for an asynchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the asynchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the asynchronous flag set).
 
 1. The client calls drv->Open(key_name, flags, &key_handle) to request CFSTORE to open the KV pair.  
 2. CFSTORE returns OK, which in this case means the Open() is a pending transaction.
 3. CFSTORE completes internal operations necessary to open the KV pair. 
-4. Once internal open operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=OPEN, status, client_context, key_handle) 
+4. Once internal open operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=OPEN, status, client_context, key_handle)` 
    to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status == OK, 
    key_handle is a valid opaque handle to the newly opened KV.
 5. The client calls drv->Rseek(key_handle, offset) to set the read location within the value data. The Read() method supports random-access.  
 6. CFSTORE returns OK, which in this case means the Rseek() is a pending transaction.
 7. CFSTORE completes internal operations necessary to rseek to read location. 
-8. Once internal rseek operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=RSEEK, status, client_context, key_handle) 
+8. Once internal rseek operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=RSEEK, status, client_context, key_handle)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument.
 9. The client calls drv->Read(key_handle, data, len) to read the data value in the KV at the read location.  
 10. CFSTORE returns OK, which in this case means the Read() is a pending transaction.
 11. CFSTORE completes internal operations necessary to read the value data. 
-12. Once internal read operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=READ, status, client_context, key_handle) 
+12. Once internal read operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=READ, status, client_context, key_handle)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument.
 13. The client can call other CFSTORE methods for the KV using key_handle, as required.
 14. The client calls drv->Close(key_handle) to close the KV handle.  
 15. CFSTORE returns OK, which in this case means the Close() is a pending transaction.
 16. CFSTORE completes internal operations necessary to close to the KV pair. 
-17. Once internal close operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle) 
+17. Once internal close operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status == OK, the 
   close operation completed successfully, key_handle is null and the previously stored key_handle value is no longer valid.
 18. The client can repeat operation (1)-(17) to create, write and close all KV pairs, as required.
@@ -689,7 +740,7 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for opening and writing a pre-existing key in the CFSTORE for a synchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the synchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the synchronous flag set).
 
 1. The client calls drv->Open(key_name, flags, &key_handle) to request CFSTORE to open the KV pair (read-write access is the default access mode).  
 2. CFSTORE returns OK, which in this case means the Open() has been completed successfully.
@@ -713,32 +764,32 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for opening and writing a pre-existing key in the CFSTORE for an asynchronous CFSTORE implementation 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the asynchronous flag set).
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the asynchronous flag set).
 
 1. The client calls drv->Open(key_name, flags, &key_handle) to request CFSTORE to open the KV pair.  
 2. CFSTORE returns OK, which in this case means the Open() is a pending transaction.
 3. CFSTORE completes internal operations necessary to create the KV pair. 
-4. Once internal create operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=OPEN, status, client_context, key_handle) 
+4. Once internal create operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=OPEN, status, client_context, key_handle)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status == OK, 
   key_handle is a valid handle to the open KV.
 5. The client calls drv->Write(key_handle, data, len) to set the data value in the KV. Note that Write() 
   only supports sequential-access and that len must not exceed the value_len field specified when the KV pair was created.
 6. CFSTORE returns OK, which in this case means the Write() is a pending transaction.
 7. CFSTORE completes internal operations necessary to write to the KV pair. 
-8. Once internal write operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=WRITE, status, client_context, key_handle) 
+8. Once internal write operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=WRITE, status, client_context, key_handle)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument.
 9. The client can perform other operations on the KV pair using the key_handle.  
 10. The client calls drv->Close(key_handle) to close the KV key_handle.  
 11. CFSTORE returns OK, which in this case means the close is a pending transaction.
 12. CFSTORE completes internal operations necessary to close to the KV pair. 
-13. Once internal close operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle) 
+13. Once internal close operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument. For status == OK, the close
   operation was successfully, key_handle is NULL and if the key_handle value was previously stored it is no longer valid.  
 14. The client can repeat operation (1)-(13) to create, write and close all KV pairs, as required.
 15. Once all CFSTORE KV changes have be made, the client calls drv->Flush() to commit the changes to backing store.  
 16. CFSTORE returns OK, which in this case means the Flush() is a pending transaction.
 17. CFSTORE completes internal operations necessary to flush the changes. 
-18. Once internal flush operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=FLUSH, status, client_context, NULL) 
+18. Once internal flush operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=FLUSH, status, client_context, NULL)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument.
 
 Note this example is the pathological case where all CFSTORE methods return OK i.e. the transactions are pending. 
@@ -754,7 +805,7 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for finding pre-existing keys in the CFSTORE for a synchronous CFSTORE implementation.
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the synchronous flag set). The example shows a complete 
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the synchronous flag set). The example shows a complete 
 walk of all the find results.
 
 1. The client calls drv->Find(key_name_search_string, &next, prev=NULL) to request CFSTORE to find matching KV pairs.  
@@ -772,6 +823,7 @@ walk of all the find results.
   handle for the third KV with key_name matching the key_name_search_string.
 
 For the top alternative "Use Case for Full Walk of All Matching Results": 
+
 - 9. The client decides this KV requires new changes and calls additional operations on this KV to change the value data, for example. 
 - 10. The client repeats operations as indicated by (6)-(8) for other matching keys.
 - 11. After the penultimate call to Find() the client sets prev to be the previously return key handle i.e. prev=next. 
@@ -781,6 +833,7 @@ For the top alternative "Use Case for Full Walk of All Matching Results":
   indicating there are no more KVs matching key_name_search_string. The iteration has completed.
 
 For the bottom alternative "Use Case for Partial Walk of All Matching Results": 
+
 - 9. The client has found the desired KV and performs operations on the KV as required.  
 - 10. To terminate the iteration, the client calls drv->Close(next) for CFSTORE to close the open file handle.
 - 11. CFSTORE returns OK, which in this case means the Close() has been completed successfully.
@@ -796,13 +849,13 @@ See the [CFSTORE low level Design][CFSTORE_LLD] for the detailed specification f
 </p>
 
 The above diagram shows the client-CFSTORE call sequence for finding pre-existing keys in the CFSTORE for an asynchronous CFSTORE implementation. 
-(drv->GetCapabilites() has returned an ARM_Cfstore_Capabilities_t structure with the synchronous flag set). The example shows a complete walk
+(drv->GetCapabilites() has returned an `ARM_Cfstore_Capabilities_t` structure with the synchronous flag set). The example shows a complete walk
 of all the find results.
 
 1. The client calls drv->Find(key_name_search_string, &next, prev=NULL) to request CFSTORE to find matching KV pairs.  
 2. CFSTORE returns OK, which in this case means the Find() transaction is pending. 
 3. CFSTORE completes internal operations necessary to find the next matching KV pair.
-4. Once internal operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=FIND, status, client_context, next) 
+4. Once internal operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=FIND, status, client_context, next)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument. 
   For status == OK, next is an open key handle to a KV matching the key_name_search_string. 
 5. The client decides this KV requires no new changes so iterates to get the next match. 
@@ -812,11 +865,12 @@ of all the find results.
   returns the key handle to CFSTORE which closes the handle.  
 7. CFSTORE returns OK, which in this case means the Find() transaction is pending. 
 8. CFSTORE completes internal operations necessary to find the next matching KV pair.
-9. Once internal operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=FIND, status, client_context, next) 
+9. Once internal operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=FIND, status, client_context, next)` 
   to notify the client of the completion status. The previously registered client_context is supplied as an argument.  
   For status == OK, next is an open key handle to a KV matching the key_name_search_string. 
 
 For the top alternative "Use Case for Full Walk of All Matching Results": 
+
 - 10. The client decides this KV requires changes so it makes other CFSTORE calls to modify the KV. Operations (6)-(9) are 
   repeated to find and operate upon other matching KVs.
 - 11. Operations (10)-(15) are repeated to find and operate upon other matching KVs.
@@ -829,11 +883,12 @@ For the top alternative "Use Case for Full Walk of All Matching Results":
   indicating there are no more KVs matching key_name_search_string. The iteration has completed.
 
 For the bottom alternative "Use Case for Partial Walk of All Matching Results": 
+
 - 10. The client decides this KV requires changes so it makes other CFSTORE calls to modify the KV. 
 - 11. To terminate the iteration, the client calls drv->Close(next) for CFSTORE to close the open file handle.
 - 12. CFSTORE returns OK, which in this case means the Close() transaction is pending. 
 - 13. CFSTORE completes internal operations necessary to find the next matching KV pair.
-- 14. Once internal close operations have been completed, CFSTORE invokes Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle) 
+- 14. Once internal close operations have been completed, CFSTORE invokes `Cfstore_Client_callback(OPCODE=CLOSE, status, client_context, key_handle)` 
       to notify the client of the completion status. The previously registered client_context is supplied as an argument.
 
 Note this example is the pathological case where all CFSTORE methods return OK i.e. the transactions are pending. 
@@ -909,7 +964,7 @@ N bytes SRAM plus some additional overhead for setting up the storage transactio
 In the case that N exceeds the available SRAM remaining, the client can s 
 split the writing of the value into M writes, where N/M is smaller than available memory.
 
-In the case the the Write() call fails with return code ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY
+In the case the the Write() call fails with return code `ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY`
 then the client should retry the write transaction with a smaller length (less bytes).
 
 Further, a client of the Write() function should alway check the returned value of the
@@ -924,6 +979,7 @@ In order to changes the Access Control Permission permissions of the pre-existin
 KV={key_name, value1, len1, kdesc1} to 
 {key_name, value1, len1, kdesc2} where kdesc1 != kdesc2 then the client should use the following
 procedure:
+
 - Open the pre-existing KV1
 - Read and store the value length, value data and permissions (if required)
 - Delete the pre-existing key KV1
@@ -976,6 +1032,7 @@ The procedure can be realised as illustrated in the following example code:
 
 The Create() method uses a key descriptor to request storage properties for the KV pair. 
 For example, the descriptor may include the following attributes:
+
 - The NV storage retention level e.g. whether the KV is stored on internal or external NV storage, 
   battery backed or internal SRAM memory.
 - The access control list for the supported groups of owner and other.
@@ -985,6 +1042,7 @@ For example, the descriptor may include the following attributes:
 Associative store APIs often include a GetKeyDesc() convenience method permitting clients to 
 retrieve the KV descriptor after creation. This is not included in the CFSTORE API for the 
 following reasons:
+
 - On Create() the key descriptor specifies options for KV creation e.g. the 
   descriptor may include both of the following options:
   - The KV may be created/stored in internal NV storage with software hardening.   
@@ -1010,67 +1068,10 @@ asynchronous transactions will have associated guard timers to guarantee the ter
 transactions. 
 
 
-# Supported Requirements
-
-The Configuration Store Requirements are documented here:
-
-[CFSTORE_REQUIREMENTS](https://github.com/ARMmbed/meVo/blob/master/config_store/doc/design/configuration_store_requirements.md)
-
-The supported/not supported status of the requirements are as follows:
-- 
-- REQ-1.01-SKVS-R: Not supported. Currently only SRAM back CFSTORE is supported.
-- REQ-1.02-SKVS-R: Not supported. uvisor integration is still outstanding.
-- REQ-1.03-SKVS-R: Supported.
-- REQ-1.04-SKVS-R: Supported.
-- REQ-1.05-SKVS-R: Supported.
-- REQ-1.06-SKVS-R: Supported.
-- REQ-1.07-SKVS-R: CS Stores Binary Blobs:  Supported.
-- REQ-1.08-SKVS-R: CS Key Structure as Name Strings: Supported.
-- REQ-1.09-SKVS-R: Key Creation and Ownership Part 1: Not supported. uvisor integration is still outstanding.
-- REQ-1.10-SKVS-R: Security Context: Not supported. uvisor integration is still outstanding.
-- REQ-1.2.01-SKVS-HLD: Not supported. Currently only SRAM back CFSTORE is supported.
-- REQ-1.2.02-SKVS-HLD: "only during device activity" supported but other options not supported.
-- REQ-1.2.03-SKVS-HLD: Not supported.
-- REQ-1.2.04-SKVS-HLD: Not supported.
-- REQ-1.2.05-SKVS-HLD: Supported.
-- REQ-3.1.01-SKVS-HLAPID-KVS: CS Global Key Namespace: Supported.
-- REQ-3.1.02-SKVS-HLAPID-KVS: CS Key Name String Format Max Length: Supported.
-- REQ-3.1.03-SKVS-HLAPID-KVS: CS Key Name String Allowed Characters: Supported.
-- REQ-3.1.04-SKVS-HLAPID-KVS: Key Name Path Directory Entry List []:  Supported.
-- REQ-3.1.05-SKVS-HLAPID-KVS: CS Global Key Yotta Namespace:  Supported.
-- REQ-3.2.01-SKVS-HLAPID-KACS: Not supported as requires uvisor integration.
-- REQ-3.2.02-SKVS-HLAPID-KACS: CS Key Creation Part 2: Supported.
-- REQ-3.2.03-SKVS-HLAPID-KACS: Partially supported as requires uvisor integration.
-- REQ-3.2.04-SKVS-HLAPID-KACS: Supported.
-- REQ-5.1.01-SKVS-APIL-FK: Key Searching/Finding Scoped by ACL: Supported.
-- REQ-5.1.02-SKVS-APIL-FK: CS Global Key Namespace Reserves Character '*': Supported.
-- REQ-5.1.03-SKVS-APIL-FK: Key Searching/Finding Resume:  Supported.
-- REQ-5.1.04-SKVS-APIL-FK: Key Searching/Finding Internals (key versions): Not supported.
-- REQ-5.2.01-SKVS-APIL-GSI: storage_detect: Not supported.
-- REQ-5.2.02-SKVS-APIL-GSI: Minimal Storage Support: Supported.
-- REQ-5.3.01-SKVS-APIL-COKFW: storage_key_create with O_CREATE: Partially suppported.
-- REQ-5.3.02-SKVS-APIL-COKFW: storage_key_create without O_CREATE: Not supported.
-- REQ-5.3.03-SKVS-APIL-COKFW: O_CONTINUOUS for executable objects: Not supported.
-- REQ-5.3.04-SKVS-APIL-COKFW: O_CONTINUOUS for non-executable objects: Not supported.
-- REQ-6.1.01-SKVS-USP: Supported.
-- REQ-6.2.01-SKVS-USP-DK: Supported.
-- REQ-6.2.02-SKVS-USP-DK: Supported.
-- REQ-6.3.01-SKVS-USP-OKFR storage_key_open_read:  Supported.
-- REQ-6.4.01-SKVS-USP-SIKV storage_value_rseek: Supported.
-- REQ-6.4.02-SKVS-USP-SIKV storage_value_write has no write location: Supported.
-- REQ-6.4.03-SKVS-USP-SIKV storage_value_write sequential-access: Supported.
-- REQ-6.5.01-SKVS-USP-WK: Partially supported.
-- REQ-6.5.01-SKVS-USP-WK: Not supported.
-- REQ-6.6.01-SKVS-USP-EKFU: Not supported.
-- REQ-6.6.02-SKVS-USP-EKFU: Not supported.
-- REQ-7.1.01-SKVS-M: Supported.
-- REQ-7.1.02-SKVS-M: Supported.
-- REQ-7.1.03-SKVS-M KV Value Data May Not Fit into Available (SRAM) Memory. Not supported. 
-
-
 # Contributors
 
 This document was made possible through the contributions of the following people:
+
 - Rohit Grover
 - Simon Hughes
 - Milosch Meriac
@@ -1082,7 +1083,7 @@ This document was made possible through the contributions of the following peopl
 * The [CFSTORE Engineering Requirements][CFSTORE_ENGREQ]
 * The [CFSTORE High Level Design Document][CFSTORE_HLD]
 * The [CFSTORE Low Level Design Document][CFSTORE_LLD]
-* The [CFSTORE Terminology] for definition of terms used in CFSTORE documents [CFSTORE_TERM]
+* The [CFSTORE Terminology for definition of terms used in CFSTORE documents][CFSTORE_TERM]
 * The [Flash Abstraction Layer][FAL]
 
 

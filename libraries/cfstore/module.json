@@ -1,5 +1,5 @@
 {
   "name": "configuration-store",
-  "version": "0.3.1",
-  "description": "Configuration Storage for Secure Key-Value Storage. **** WARNING: YOTTA NO LONGER FULLY SUPPORTED ****",
+  "version": "0.3.2",
+  "description": "Configuration Storage for Secure Key-Value Storage.",
 }
