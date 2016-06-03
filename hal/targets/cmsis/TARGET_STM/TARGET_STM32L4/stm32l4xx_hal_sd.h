@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_sd.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of SD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -42,6 +42,8 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+#if defined(SDMMC1)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_ll_sdmmc.h"
@@ -763,6 +765,8 @@ HAL_SD_TransferStateTypedef HAL_SD_GetStatus(SD_HandleTypeDef *hsd);
 /**
   * @}
   */
+
+#endif /* SDMMC1 */
 
 #ifdef __cplusplus
 }

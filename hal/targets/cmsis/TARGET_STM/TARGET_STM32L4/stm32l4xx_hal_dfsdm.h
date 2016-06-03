@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_dfsdm.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of DFSDM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@
  extern "C" {
 #endif
 
+#if defined(STM32L471xx) || defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
 
@@ -64,9 +65,9 @@
   */ 
 typedef enum
 {
-  HAL_DFSDM_CHANNEL_STATE_RESET = 0x00, /*!< DFSDM channel not initialized */
-  HAL_DFSDM_CHANNEL_STATE_READY = 0x01, /*!< DFSDM channel initialized and ready for use */
-  HAL_DFSDM_CHANNEL_STATE_ERROR = 0xFF  /*!< DFSDM channel state error */
+  HAL_DFSDM_CHANNEL_STATE_RESET = 0x00U, /*!< DFSDM channel not initialized */
+  HAL_DFSDM_CHANNEL_STATE_READY = 0x01U, /*!< DFSDM channel initialized and ready for use */
+  HAL_DFSDM_CHANNEL_STATE_ERROR = 0xFFU  /*!< DFSDM channel state error */
 }HAL_DFSDM_Channel_StateTypeDef;
 
 /** 
@@ -146,12 +147,12 @@ typedef struct
   */ 
 typedef enum
 {
-  HAL_DFSDM_FILTER_STATE_RESET   = 0x00, /*!< DFSDM filter not initialized */
-  HAL_DFSDM_FILTER_STATE_READY   = 0x01, /*!< DFSDM filter initialized and ready for use */
-  HAL_DFSDM_FILTER_STATE_REG     = 0x02, /*!< DFSDM filter regular conversion in progress */
-  HAL_DFSDM_FILTER_STATE_INJ     = 0x03, /*!< DFSDM filter injected conversion in progress */
-  HAL_DFSDM_FILTER_STATE_REG_INJ = 0x04, /*!< DFSDM filter regular and injected conversions in progress */
-  HAL_DFSDM_FILTER_STATE_ERROR   = 0xFF  /*!< DFSDM filter state error */
+  HAL_DFSDM_FILTER_STATE_RESET   = 0x00U, /*!< DFSDM filter not initialized */
+  HAL_DFSDM_FILTER_STATE_READY   = 0x01U, /*!< DFSDM filter initialized and ready for use */
+  HAL_DFSDM_FILTER_STATE_REG     = 0x02U, /*!< DFSDM filter regular conversion in progress */
+  HAL_DFSDM_FILTER_STATE_INJ     = 0x03U, /*!< DFSDM filter injected conversion in progress */
+  HAL_DFSDM_FILTER_STATE_REG_INJ = 0x04U, /*!< DFSDM filter regular and injected conversions in progress */
+  HAL_DFSDM_FILTER_STATE_ERROR   = 0xFFU  /*!< DFSDM filter state error */
 }HAL_DFSDM_Filter_StateTypeDef;
 
 /** 
@@ -255,8 +256,8 @@ typedef struct
 /** @defgroup DFSDM_Channel_OuputClock DFSDM channel output clock selection
   * @{
   */
-#define DFSDM_CHANNEL_OUTPUT_CLOCK_SYSTEM    ((uint32_t)0x00000000) /*!< Source for ouput clock is system clock */
-#define DFSDM_CHANNEL_OUTPUT_CLOCK_AUDIO     DFSDM_CHCFGR1_CKOUTSRC /*!< Source for ouput clock is audio clock */
+#define DFSDM_CHANNEL_OUTPUT_CLOCK_SYSTEM    ((uint32_t)0x00000000U) /*!< Source for ouput clock is system clock */
+#define DFSDM_CHANNEL_OUTPUT_CLOCK_AUDIO     DFSDM_CHCFGR1_CKOUTSRC  /*!< Source for ouput clock is audio clock */
 /**
   * @}
   */
@@ -264,8 +265,8 @@ typedef struct
 /** @defgroup DFSDM_Channel_InputMultiplexer DFSDM channel input multiplexer
   * @{
   */
-#define DFSDM_CHANNEL_EXTERNAL_INPUTS    ((uint32_t)0x00000000) /*!< Data are taken from external inputs */
-#define DFSDM_CHANNEL_INTERNAL_REGISTER  DFSDM_CHCFGR1_DATMPX_1 /*!< Data are taken from internal register */
+#define DFSDM_CHANNEL_EXTERNAL_INPUTS    ((uint32_t)0x00000000U) /*!< Data are taken from external inputs */
+#define DFSDM_CHANNEL_INTERNAL_REGISTER  DFSDM_CHCFGR1_DATMPX_1  /*!< Data are taken from internal register */
 /**
   * @}
   */
@@ -273,7 +274,7 @@ typedef struct
 /** @defgroup DFSDM_Channel_DataPacking DFSDM channel input data packing
   * @{
   */
-#define DFSDM_CHANNEL_STANDARD_MODE         ((uint32_t)0x00000000)  /*!< Standard data packing mode */
+#define DFSDM_CHANNEL_STANDARD_MODE         ((uint32_t)0x00000000U) /*!< Standard data packing mode */
 #define DFSDM_CHANNEL_INTERLEAVED_MODE      DFSDM_CHCFGR1_DATPACK_0 /*!< Interleaved data packing mode */
 #define DFSDM_CHANNEL_DUAL_MODE             DFSDM_CHCFGR1_DATPACK_1 /*!< Dual data packing mode */
 /**
@@ -283,8 +284,8 @@ typedef struct
 /** @defgroup DFSDM_Channel_InputPins DFSDM channel input pins
   * @{
   */
-#define DFSDM_CHANNEL_SAME_CHANNEL_PINS      ((uint32_t)0x00000000) /*!< Input from pins on same channel */
-#define DFSDM_CHANNEL_FOLLOWING_CHANNEL_PINS DFSDM_CHCFGR1_CHINSEL  /*!< Input from pins on following channel */
+#define DFSDM_CHANNEL_SAME_CHANNEL_PINS      ((uint32_t)0x00000000U) /*!< Input from pins on same channel */
+#define DFSDM_CHANNEL_FOLLOWING_CHANNEL_PINS DFSDM_CHCFGR1_CHINSEL   /*!< Input from pins on following channel */
 /**
   * @}
   */
@@ -292,10 +293,10 @@ typedef struct
 /** @defgroup DFSDM_Channel_SerialInterfaceType DFSDM channel serial interface type
   * @{
   */
-#define DFSDM_CHANNEL_SPI_RISING         ((uint32_t)0x00000000) /*!< SPI with rising edge */
-#define DFSDM_CHANNEL_SPI_FALLING        DFSDM_CHCFGR1_SITP_0   /*!< SPI with falling edge */
-#define DFSDM_CHANNEL_MANCHESTER_RISING  DFSDM_CHCFGR1_SITP_1   /*!< Manchester with rising edge */
-#define DFSDM_CHANNEL_MANCHESTER_FALLING DFSDM_CHCFGR1_SITP     /*!< Manchester with falling edge */
+#define DFSDM_CHANNEL_SPI_RISING         ((uint32_t)0x00000000U) /*!< SPI with rising edge */
+#define DFSDM_CHANNEL_SPI_FALLING        DFSDM_CHCFGR1_SITP_0    /*!< SPI with falling edge */
+#define DFSDM_CHANNEL_MANCHESTER_RISING  DFSDM_CHCFGR1_SITP_1    /*!< Manchester with rising edge */
+#define DFSDM_CHANNEL_MANCHESTER_FALLING DFSDM_CHCFGR1_SITP      /*!< Manchester with falling edge */
 /**
   * @}
   */
@@ -303,7 +304,7 @@ typedef struct
 /** @defgroup DFSDM_Channel_SpiClock DFSDM channel SPI clock selection
   * @{
   */
-#define DFSDM_CHANNEL_SPI_CLOCK_EXTERNAL              ((uint32_t)0x00000000)   /*!< External SPI clock */
+#define DFSDM_CHANNEL_SPI_CLOCK_EXTERNAL              ((uint32_t)0x00000000U)  /*!< External SPI clock */
 #define DFSDM_CHANNEL_SPI_CLOCK_INTERNAL              DFSDM_CHCFGR1_SPICKSEL_0 /*!< Internal SPI clock */
 #define DFSDM_CHANNEL_SPI_CLOCK_INTERNAL_DIV2_FALLING DFSDM_CHCFGR1_SPICKSEL_1 /*!< Internal SPI clock divided by 2, falling edge */
 #define DFSDM_CHANNEL_SPI_CLOCK_INTERNAL_DIV2_RISING  DFSDM_CHCFGR1_SPICKSEL   /*!< Internal SPI clock divided by 2, rising edge */
@@ -314,10 +315,10 @@ typedef struct
 /** @defgroup DFSDM_Channel_AwdFilterOrder DFSDM channel analog watchdog filter order
   * @{
   */
-#define DFSDM_CHANNEL_FASTSINC_ORDER ((uint32_t)0x00000000) /*!< FastSinc filter type */
-#define DFSDM_CHANNEL_SINC1_ORDER    DFSDM_AWSCDR_AWFORD_0  /*!< Sinc 1 filter type */
-#define DFSDM_CHANNEL_SINC2_ORDER    DFSDM_AWSCDR_AWFORD_1  /*!< Sinc 2 filter type */
-#define DFSDM_CHANNEL_SINC3_ORDER    DFSDM_AWSCDR_AWFORD    /*!< Sinc 3 filter type */
+#define DFSDM_CHANNEL_FASTSINC_ORDER ((uint32_t)0x00000000U) /*!< FastSinc filter type */
+#define DFSDM_CHANNEL_SINC1_ORDER    DFSDM_CHAWSCDR_AWFORD_0 /*!< Sinc 1 filter type */
+#define DFSDM_CHANNEL_SINC2_ORDER    DFSDM_CHAWSCDR_AWFORD_1 /*!< Sinc 2 filter type */
+#define DFSDM_CHANNEL_SINC3_ORDER    DFSDM_CHAWSCDR_AWFORD   /*!< Sinc 3 filter type */
 /**
   * @}
   */
@@ -325,9 +326,9 @@ typedef struct
 /** @defgroup DFSDM_Filter_Trigger DFSDM filter conversion trigger
   * @{
   */
-#define DFSDM_FILTER_SW_TRIGGER   ((uint32_t)0x00000000) /*!< Software trigger */
-#define DFSDM_FILTER_SYNC_TRIGGER ((uint32_t)0x00000001) /*!< Synchronous with DFSDM0 */
-#define DFSDM_FILTER_EXT_TRIGGER  ((uint32_t)0x00000002) /*!< External trigger (only for injected conversion) */
+#define DFSDM_FILTER_SW_TRIGGER   ((uint32_t)0x00000000U) /*!< Software trigger */
+#define DFSDM_FILTER_SYNC_TRIGGER ((uint32_t)0x00000001U) /*!< Synchronous with DFSDM_FLT0 */
+#define DFSDM_FILTER_EXT_TRIGGER  ((uint32_t)0x00000002U) /*!< External trigger (only for injected conversion) */
 /**
   * @}
   */
@@ -335,17 +336,17 @@ typedef struct
 /** @defgroup DFSDM_Filter_ExtTrigger DFSDM filter external trigger
   * @{
   */
-#define DFSDM_FILTER_EXT_TRIG_TIM1_TRGO  ((uint32_t)0x00000000)                      /*!< For DFSDM 0, 1, 2 and 3 */
-#define DFSDM_FILTER_EXT_TRIG_TIM1_TRGO2 DFSDM_CR1_JEXTSEL_0                         /*!< For DFSDM 0, 1, 2 and 3 */
-#define DFSDM_FILTER_EXT_TRIG_TIM8_TRGO  DFSDM_CR1_JEXTSEL_1                         /*!< For DFSDM 0, 1, 2 and 3 */
-#define DFSDM_FILTER_EXT_TRIG_TIM8_TRGO2 (DFSDM_CR1_JEXTSEL_0 | DFSDM_CR1_JEXTSEL_1) /*!< For DFSDM 0, 1 and 2 */
-#define DFSDM_FILTER_EXT_TRIG_TIM3_TRGO  (DFSDM_CR1_JEXTSEL_0 | DFSDM_CR1_JEXTSEL_1) /*!< For DFSDM 3 */
-#define DFSDM_FILTER_EXT_TRIG_TIM4_TRGO  DFSDM_CR1_JEXTSEL_2                         /*!< For DFSDM 0, 1 and 2 */
-#define DFSDM_FILTER_EXT_TRIG_TIM16_OC1  DFSDM_CR1_JEXTSEL_2                         /*!< For DFSDM 3 */
-#define DFSDM_FILTER_EXT_TRIG_TIM6_TRGO  (DFSDM_CR1_JEXTSEL_0 | DFSDM_CR1_JEXTSEL_2) /*!< For DFSDM 0 and 1 */
-#define DFSDM_FILTER_EXT_TRIG_TIM7_TRGO  (DFSDM_CR1_JEXTSEL_0 | DFSDM_CR1_JEXTSEL_2) /*!< For DFSDM 2 and 3 */
-#define DFSDM_FILTER_EXT_TRIG_EXTI11     (DFSDM_CR1_JEXTSEL_1 | DFSDM_CR1_JEXTSEL_2) /*!< For DFSDM 0, 1, 2 and 3 */
-#define DFSDM_FILTER_EXT_TRIG_EXTI15     DFSDM_CR1_JEXTSEL                           /*!< For DFSDM 0, 1, 2 and 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM1_TRGO  ((uint32_t)0x00000000U)                           /*!< For DFSDM filter 0, 1, 2 and 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM1_TRGO2 DFSDM_FLTCR1_JEXTSEL_0                            /*!< For DFSDM filter 0, 1, 2 and 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM8_TRGO  DFSDM_FLTCR1_JEXTSEL_1                            /*!< For DFSDM filter 0, 1, 2 and 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM8_TRGO2 (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_1) /*!< For DFSDM filter 0, 1 and 2 */
+#define DFSDM_FILTER_EXT_TRIG_TIM3_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_1) /*!< For DFSDM filter 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM4_TRGO  DFSDM_FLTCR1_JEXTSEL_2                            /*!< For DFSDM filter 0, 1 and 2 */
+#define DFSDM_FILTER_EXT_TRIG_TIM16_OC1  DFSDM_FLTCR1_JEXTSEL_2                            /*!< For DFSDM filter 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM6_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM filter 0 and 1 */
+#define DFSDM_FILTER_EXT_TRIG_TIM7_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM filter 2 and 3 */
+#define DFSDM_FILTER_EXT_TRIG_EXTI11     (DFSDM_FLTCR1_JEXTSEL_1 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM filter 0, 1, 2 and 3 */
+#define DFSDM_FILTER_EXT_TRIG_EXTI15     DFSDM_FLTCR1_JEXTSEL                              /*!< For DFSDM filter 0, 1, 2 and 3 */
 /**
   * @}
   */
@@ -353,9 +354,9 @@ typedef struct
 /** @defgroup DFSDM_Filter_ExtTriggerEdge DFSDM filter external trigger edge
   * @{
   */
-#define DFSDM_FILTER_EXT_TRIG_RISING_EDGE  DFSDM_CR1_JEXTEN_0 /*!< External rising edge */
-#define DFSDM_FILTER_EXT_TRIG_FALLING_EDGE DFSDM_CR1_JEXTEN_1 /*!< External falling edge */
-#define DFSDM_FILTER_EXT_TRIG_BOTH_EDGES   DFSDM_CR1_JEXTEN   /*!< External rising and falling edges */
+#define DFSDM_FILTER_EXT_TRIG_RISING_EDGE  DFSDM_FLTCR1_JEXTEN_0 /*!< External rising edge */
+#define DFSDM_FILTER_EXT_TRIG_FALLING_EDGE DFSDM_FLTCR1_JEXTEN_1 /*!< External falling edge */
+#define DFSDM_FILTER_EXT_TRIG_BOTH_EDGES   DFSDM_FLTCR1_JEXTEN   /*!< External rising and falling edges */
 /**
   * @}
   */
@@ -363,12 +364,12 @@ typedef struct
 /** @defgroup DFSDM_Filter_SincOrder DFSDM filter sinc order
   * @{
   */
-#define DFSDM_FILTER_FASTSINC_ORDER ((uint32_t)0x00000000)                /*!< FastSinc filter type */
-#define DFSDM_FILTER_SINC1_ORDER    DFSDM_FCR_FORD_0                      /*!< Sinc 1 filter type */
-#define DFSDM_FILTER_SINC2_ORDER    DFSDM_FCR_FORD_1                      /*!< Sinc 2 filter type */
-#define DFSDM_FILTER_SINC3_ORDER    (DFSDM_FCR_FORD_0 | DFSDM_FCR_FORD_1) /*!< Sinc 3 filter type */
-#define DFSDM_FILTER_SINC4_ORDER    DFSDM_FCR_FORD_2                      /*!< Sinc 4 filter type */
-#define DFSDM_FILTER_SINC5_ORDER    (DFSDM_FCR_FORD_0 | DFSDM_FCR_FORD_2) /*!< Sinc 5 filter type */
+#define DFSDM_FILTER_FASTSINC_ORDER ((uint32_t)0x00000000U)               /*!< FastSinc filter type */
+#define DFSDM_FILTER_SINC1_ORDER    DFSDM_FLTFCR_FORD_0                         /*!< Sinc 1 filter type */
+#define DFSDM_FILTER_SINC2_ORDER    DFSDM_FLTFCR_FORD_1                         /*!< Sinc 2 filter type */
+#define DFSDM_FILTER_SINC3_ORDER    (DFSDM_FLTFCR_FORD_0 | DFSDM_FLTFCR_FORD_1) /*!< Sinc 3 filter type */
+#define DFSDM_FILTER_SINC4_ORDER    DFSDM_FLTFCR_FORD_2                         /*!< Sinc 4 filter type */
+#define DFSDM_FILTER_SINC5_ORDER    (DFSDM_FLTFCR_FORD_0 | DFSDM_FLTFCR_FORD_2) /*!< Sinc 5 filter type */
 /**
   * @}
   */
@@ -376,8 +377,8 @@ typedef struct
 /** @defgroup DFSDM_Filter_AwdDataSource DFSDM filter analog watchdog data source
   * @{
   */
-#define DFSDM_FILTER_AWD_FILTER_DATA  ((uint32_t)0x00000000) /*!< From digital filter */
-#define DFSDM_FILTER_AWD_CHANNEL_DATA DFSDM_CR1_AWFSEL       /*!< From analog watchdog channel */
+#define DFSDM_FILTER_AWD_FILTER_DATA  ((uint32_t)0x00000000U) /*!< From digital filter */
+#define DFSDM_FILTER_AWD_CHANNEL_DATA DFSDM_FLTCR1_AWFSEL     /*!< From analog watchdog channel */
 /**
   * @}
   */
@@ -385,10 +386,10 @@ typedef struct
 /** @defgroup DFSDM_Filter_ErrorCode DFSDM filter error code
   * @{
   */ 
-#define DFSDM_FILTER_ERROR_NONE             ((uint32_t)0x00000000) /*!< No error */
-#define DFSDM_FILTER_ERROR_REGULAR_OVERRUN  ((uint32_t)0x00000001) /*!< Overrun occurs during regular conversion */
-#define DFSDM_FILTER_ERROR_INJECTED_OVERRUN ((uint32_t)0x00000002) /*!< Overrun occurs during injected conversion */
-#define DFSDM_FILTER_ERROR_DMA              ((uint32_t)0x00000003) /*!< DMA error occurs */
+#define DFSDM_FILTER_ERROR_NONE             ((uint32_t)0x00000000U) /*!< No error */
+#define DFSDM_FILTER_ERROR_REGULAR_OVERRUN  ((uint32_t)0x00000001U) /*!< Overrun occurs during regular conversion */
+#define DFSDM_FILTER_ERROR_INJECTED_OVERRUN ((uint32_t)0x00000002U) /*!< Overrun occurs during injected conversion */
+#define DFSDM_FILTER_ERROR_DMA              ((uint32_t)0x00000003U) /*!< DMA error occurs */
 /**
   * @}
   */
@@ -396,11 +397,11 @@ typedef struct
 /** @defgroup DFSDM_BreakSignals DFSDM break signals
   * @{
   */
-#define DFSDM_NO_BREAK_SIGNAL ((uint32_t)0x00000000) /*!< No break signal */
-#define DFSDM_BREAK_SIGNAL_0  ((uint32_t)0x00000001) /*!< Break signal 0 */
-#define DFSDM_BREAK_SIGNAL_1  ((uint32_t)0x00000002) /*!< Break signal 1 */
-#define DFSDM_BREAK_SIGNAL_2  ((uint32_t)0x00000004) /*!< Break signal 2 */
-#define DFSDM_BREAK_SIGNAL_3  ((uint32_t)0x00000008) /*!< Break signal 3 */
+#define DFSDM_NO_BREAK_SIGNAL ((uint32_t)0x00000000U) /*!< No break signal */
+#define DFSDM_BREAK_SIGNAL_0  ((uint32_t)0x00000001U) /*!< Break signal 0 */
+#define DFSDM_BREAK_SIGNAL_1  ((uint32_t)0x00000002U) /*!< Break signal 1 */
+#define DFSDM_BREAK_SIGNAL_2  ((uint32_t)0x00000004U) /*!< Break signal 2 */
+#define DFSDM_BREAK_SIGNAL_3  ((uint32_t)0x00000008U) /*!< Break signal 3 */
 /**
   * @}
   */
@@ -416,14 +417,14 @@ typedef struct
         - the channel mask is 0x00000020 (bit 5 is set)
         - the channel number 5 is 0x00050000 
         --> Consequently, channel 5 definition is 0x00000020 | 0x00050000 = 0x00050020 */
-#define DFSDM_CHANNEL_0                              ((uint32_t)0x00000001)
-#define DFSDM_CHANNEL_1                              ((uint32_t)0x00010002)
-#define DFSDM_CHANNEL_2                              ((uint32_t)0x00020004)
-#define DFSDM_CHANNEL_3                              ((uint32_t)0x00030008)
-#define DFSDM_CHANNEL_4                              ((uint32_t)0x00040010)
-#define DFSDM_CHANNEL_5                              ((uint32_t)0x00050020)
-#define DFSDM_CHANNEL_6                              ((uint32_t)0x00060040)
-#define DFSDM_CHANNEL_7                              ((uint32_t)0x00070080)
+#define DFSDM_CHANNEL_0                              ((uint32_t)0x00000001U)
+#define DFSDM_CHANNEL_1                              ((uint32_t)0x00010002U)
+#define DFSDM_CHANNEL_2                              ((uint32_t)0x00020004U)
+#define DFSDM_CHANNEL_3                              ((uint32_t)0x00030008U)
+#define DFSDM_CHANNEL_4                              ((uint32_t)0x00040010U)
+#define DFSDM_CHANNEL_5                              ((uint32_t)0x00050020U)
+#define DFSDM_CHANNEL_6                              ((uint32_t)0x00060040U)
+#define DFSDM_CHANNEL_7                              ((uint32_t)0x00070080U)
 /**
   * @}
   */
@@ -431,8 +432,8 @@ typedef struct
 /** @defgroup DFSDM_ContinuousMode DFSDM Continuous Mode
   * @{
   */
-#define DFSDM_CONTINUOUS_CONV_OFF            ((uint32_t)0x00000000) /*!< Conversion are not continuous */
-#define DFSDM_CONTINUOUS_CONV_ON             ((uint32_t)0x00000001) /*!< Conversion are continuous */
+#define DFSDM_CONTINUOUS_CONV_OFF            ((uint32_t)0x00000000U) /*!< Conversion are not continuous */
+#define DFSDM_CONTINUOUS_CONV_ON             ((uint32_t)0x00000001U) /*!< Conversion are continuous */
 /**
   * @}
   */
@@ -440,8 +441,8 @@ typedef struct
 /** @defgroup DFSDM_AwdThreshold DFSDM analog watchdog threshold
   * @{
   */
-#define DFSDM_AWD_HIGH_THRESHOLD            ((uint32_t)0x00000000) /*!< Analog watchdog high threshold */
-#define DFSDM_AWD_LOW_THRESHOLD             ((uint32_t)0x00000001) /*!< Analog watchdog low threshold */
+#define DFSDM_AWD_HIGH_THRESHOLD            ((uint32_t)0x00000000U) /*!< Analog watchdog high threshold */
+#define DFSDM_AWD_LOW_THRESHOLD             ((uint32_t)0x00000001U) /*!< Analog watchdog low threshold */
 /**
   * @}
   */
@@ -670,7 +671,7 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
 #define IS_DFSDM_FILTER_AWD_DATA_SOURCE(DATA)         (((DATA) == DFSDM_FILTER_AWD_FILTER_DATA)  || \
                                                        ((DATA) == DFSDM_FILTER_AWD_CHANNEL_DATA))
 #define IS_DFSDM_FILTER_AWD_THRESHOLD(VALUE)           ((-8388608 <= (VALUE)) && ((VALUE) <= 8388607))
-#define IS_DFSDM_BREAK_SIGNALS(VALUE)                  ((VALUE) <= 0xF)
+#define IS_DFSDM_BREAK_SIGNALS(VALUE)                  ((VALUE) <= 0xFU)
 #define IS_DFSDM_REGULAR_CHANNEL(CHANNEL)             (((CHANNEL) == DFSDM_CHANNEL_0)  || \
                                                        ((CHANNEL) == DFSDM_CHANNEL_1)  || \
                                                        ((CHANNEL) == DFSDM_CHANNEL_2)  || \
@@ -679,7 +680,7 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
                                                        ((CHANNEL) == DFSDM_CHANNEL_5)  || \
                                                        ((CHANNEL) == DFSDM_CHANNEL_6)  || \
                                                        ((CHANNEL) == DFSDM_CHANNEL_7))
-#define IS_DFSDM_INJECTED_CHANNEL(CHANNEL)            (((CHANNEL) != 0) && ((CHANNEL) <= 0x000F00FF))
+#define IS_DFSDM_INJECTED_CHANNEL(CHANNEL)            (((CHANNEL) != 0) && ((CHANNEL) <= 0x000F00FFU))
 #define IS_DFSDM_CONTINUOUS_MODE(MODE)                (((MODE) == DFSDM_CONTINUOUS_CONV_OFF)  || \
                                                        ((MODE) == DFSDM_CONTINUOUS_CONV_ON))
 /**
@@ -694,7 +695,7 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
 /**
   * @}
   */
-
+#endif /* STM32L471xx || STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
 #ifdef __cplusplus
 }
 #endif

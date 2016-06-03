@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -204,7 +204,7 @@ typedef struct
   uint32_t DLC;         /*!< Specifies the length of the frame that will be received.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 8 */
 
-  uint32_t Data[8];     /*!< Contains the data to be received.
+  uint8_t Data[8];      /*!< Contains the data to be received.
                              This parameter must be a number between Min_Data = 0 and Max_Data = 0xFF */
 
   uint32_t FMI;         /*!< Specifies the index of the filter the message stored in the mailbox passes through.
@@ -685,9 +685,6 @@ HAL_CAN_StateTypeDef HAL_CAN_GetState(CAN_HandleTypeDef* hcan);
 /** @defgroup CAN_transmit_constants CAN Transmit Constants
   * @{
   */
-#define CAN_TXSTATUS_FAILED         ((uint8_t)0x00)  /*!< CAN transmission failed */
-#define CAN_TXSTATUS_OK             ((uint8_t)0x01)  /*!< CAN transmission succeeded */
-#define CAN_TXSTATUS_PENDING        ((uint8_t)0x02)  /*!< CAN transmission pending */
 #define CAN_TXSTATUS_NOMAILBOX      ((uint8_t)0x04)  /*!< CAN cell did not provide CAN_TxStatus_NoMailBox */
 /**
   * @}

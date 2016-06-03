@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -132,37 +132,37 @@ typedef enum
   */
 typedef struct __SPI_HandleTypeDef
 {
-  SPI_TypeDef             *Instance;      /* SPI registers base address     */
+  SPI_TypeDef                *Instance;      /*!< SPI registers base address               */
 
-  SPI_InitTypeDef         Init;           /* SPI communication parameters   */
+  SPI_InitTypeDef            Init;           /*!< SPI communication parameters             */
 
-  uint8_t                 *pTxBuffPtr;    /* Pointer to SPI Tx transfer Buffer */
+  uint8_t                    *pTxBuffPtr;    /*!< Pointer to SPI Tx transfer Buffer        */
 
-  uint16_t                TxXferSize;     /* SPI Tx Transfer size */
+  uint16_t                   TxXferSize;     /*!< SPI Tx Transfer size                     */
 
-  uint16_t                TxXferCount;    /* SPI Tx Transfer Counter */
+  uint16_t                   TxXferCount;    /*!< SPI Tx Transfer Counter                  */
 
-  uint8_t                 *pRxBuffPtr;    /* Pointer to SPI Rx transfer Buffer */
+  uint8_t                    *pRxBuffPtr;    /*!< Pointer to SPI Rx transfer Buffer        */
 
-  uint16_t                RxXferSize;     /* SPI Rx Transfer size */
+  uint16_t                   RxXferSize;     /*!< SPI Rx Transfer size                     */
 
-  uint16_t                RxXferCount;    /* SPI Rx Transfer Counter */
+  uint16_t                   RxXferCount;    /*!< SPI Rx Transfer Counter                  */
 
-  uint32_t                CRCSize;        /* SPI CRC size used for the transfer */
+  uint32_t                   CRCSize;        /*!< SPI CRC size used for the transfer       */
 
-  void (*RxISR)(struct __SPI_HandleTypeDef *hspi); /* function pointer on Rx IRQ handler   */
+  void (*RxISR)(struct __SPI_HandleTypeDef *hspi); /*!< function pointer on Rx IRQ handler */
 
-  void (*TxISR)(struct __SPI_HandleTypeDef *hspi); /* function pointer on Tx IRQ handler   */
+  void (*TxISR)(struct __SPI_HandleTypeDef *hspi); /*!< function pointer on Tx IRQ handler */
 
-  DMA_HandleTypeDef       *hdmatx;        /* SPI Tx DMA Handle parameters   */
+  DMA_HandleTypeDef          *hdmatx;        /*!< SPI Tx DMA Handle parameters             */
 
-  DMA_HandleTypeDef       *hdmarx;        /* SPI Rx DMA Handle parameters   */
+  DMA_HandleTypeDef          *hdmarx;        /*!< SPI Rx DMA Handle parameters             */
 
-  HAL_LockTypeDef         Lock;           /* Locking object                 */
+  HAL_LockTypeDef            Lock;           /*!< Locking object                           */
 
-  HAL_SPI_StateTypeDef    State;          /* SPI communication state        */
+  __IO HAL_SPI_StateTypeDef  State;          /*!< SPI communication state                  */
 
-  uint32_t                ErrorCode;      /* SPI Error code                 */
+  __IO uint32_t              ErrorCode;      /*!< SPI Error code                           */
 
 }SPI_HandleTypeDef;
 

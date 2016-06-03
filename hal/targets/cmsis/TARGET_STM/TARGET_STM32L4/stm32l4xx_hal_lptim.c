@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_lptim.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   LPTIM HAL module driver. 
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Low Power Timer (LPTIM) peripheral:
@@ -96,7 +96,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -147,7 +147,7 @@
   * @{
   */
 
-/** @defgroup LPTIM_Group1 Initialization/de-initialization functions 
+/** @defgroup LPTIM_Exported_Functions_Group1 Initialization/de-initialization functions 
  *  @brief    Initialization and Configuration functions. 
  *
 @verbatim    
@@ -318,6 +318,9 @@ HAL_StatusTypeDef HAL_LPTIM_DeInit(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_MspInit(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_MspInit could be implemented in the user file
    */
@@ -330,6 +333,9 @@ __weak void HAL_LPTIM_MspInit(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_MspDeInit(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_MspDeInit could be implemented in the user file
    */
@@ -339,7 +345,7 @@ __weak void HAL_LPTIM_MspDeInit(LPTIM_HandleTypeDef *hlptim)
   * @}
   */
 
-/** @defgroup LPTIM_Group2 LPTIM Start-Stop operation functions 
+/** @defgroup LPTIM_Exported_Functions_Group2 LPTIM Start-Stop operation functions 
  *  @brief   Start-Stop operation functions. 
  *
 @verbatim   
@@ -1338,7 +1344,7 @@ HAL_StatusTypeDef HAL_LPTIM_Counter_Stop_IT(LPTIM_HandleTypeDef *hlptim)
   * @}
   */
 
-/** @defgroup LPTIM_Group3 LPTIM Read operation functions 
+/** @defgroup LPTIM_Exported_Functions_Group3 LPTIM Read operation functions 
  *  @brief  Read operation functions.
  *
 @verbatim   
@@ -1398,7 +1404,7 @@ uint32_t HAL_LPTIM_ReadCompare(LPTIM_HandleTypeDef *hlptim)
 
 
 
-/** @defgroup LPTIM_Group4 LPTIM IRQ handler and callbacks
+/** @defgroup LPTIM_Exported_Functions_Group4 LPTIM IRQ handler and callbacks
  *  @brief  LPTIM  IRQ handler.
  *
 @verbatim   
@@ -1518,6 +1524,9 @@ void HAL_LPTIM_IRQHandler(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_CompareMatchCallback could be implemented in the user file
    */  
@@ -1530,6 +1539,9 @@ __weak void HAL_LPTIM_CompareMatchCallback(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_AutoReloadMatchCallback(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_AutoReloadMatchCallback could be implemented in the user file
    */  
@@ -1542,6 +1554,9 @@ __weak void HAL_LPTIM_AutoReloadMatchCallback(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_TriggerCallback(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_TriggerCallback could be implemented in the user file
    */  
@@ -1554,6 +1569,9 @@ __weak void HAL_LPTIM_TriggerCallback(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_CompareWriteCallback(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_CompareWriteCallback could be implemented in the user file
    */  
@@ -1566,6 +1584,9 @@ __weak void HAL_LPTIM_CompareWriteCallback(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_AutoReloadWriteCallback(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_AutoReloadWriteCallback could be implemented in the user file
    */  
@@ -1578,6 +1599,9 @@ __weak void HAL_LPTIM_AutoReloadWriteCallback(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_DirectionUpCallback(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_DirectionUpCallback could be implemented in the user file
    */  
@@ -1590,6 +1614,9 @@ __weak void HAL_LPTIM_DirectionUpCallback(LPTIM_HandleTypeDef *hlptim)
   */
 __weak void HAL_LPTIM_DirectionDownCallback(LPTIM_HandleTypeDef *hlptim)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlptim);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_LPTIM_DirectionDownCallback could be implemented in the user file
    */  
@@ -1599,7 +1626,7 @@ __weak void HAL_LPTIM_DirectionDownCallback(LPTIM_HandleTypeDef *hlptim)
   * @}
   */
 
-/** @defgroup LPTIM_Group5 Peripheral State functions 
+/** @defgroup LPTIM_Exported_Functions_Group5 Peripheral State functions 
  *  @brief   Peripheral State functions. 
  *
 @verbatim   

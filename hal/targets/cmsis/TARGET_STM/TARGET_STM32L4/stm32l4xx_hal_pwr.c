@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -180,14 +180,15 @@ void HAL_PWR_DisableBkUpAccess(void)
     =====================================
     [..]
       The devices feature 8 low-power modes:
-      (+) Low-power Run mode: core and peripherals are running, regulator in low power mode.
-      (+) Sleep mode: Cortex-M4 core stopped, peripherals kept running, regulator in normal mode.
-      (+) Low-power Sleep mode: Cortex-M4 core stopped, peripherals kept running, regulator in low power mode.      
-      (+) Stop 1 mode: all clocks are stopped except LSI and LSE, regulator in normal or low power mode.
-      (+) Stop 2 mode: all clocks are stopped except LSI and LSE, regulator in low power mode, reduced set of waking up IPs compared to Stop 1 mode.      
-      (+) Standby mode with SRAM2: all clocks are stopped except LSI and LSE, SRAM2 content preserved, regulator in low power mode. 
-      (+) Standby mode without SRAM2: all clocks are stopped except LSI and LSE, regulator off.
-      (+) Shutdown mode: all clocks are stopped except LSE, regulator off.       
+      (+) Low-power Run mode: core and peripherals are running, main regulator off, low power regulator on.
+      (+) Sleep mode: Cortex-M4 core stopped, peripherals kept running, main and low power regulators on.
+      (+) Low-power Sleep mode: Cortex-M4 core stopped, peripherals kept running, main regulator off, low power regulator on.
+      (+) Stop 0 mode: all clocks are stopped except LSI and LSE, main and low power regulators on.
+      (+) Stop 1 mode: all clocks are stopped except LSI and LSE, main regulator off, low power regulator on.
+      (+) Stop 2 mode: all clocks are stopped except LSI and LSE, main regulator off, low power regulator on, reduced set of waking up IPs compared to Stop 1 mode.      
+      (+) Standby mode with SRAM2: all clocks are stopped except LSI and LSE, SRAM2 content preserved, main regulator off, low power regulator on. 
+      (+) Standby mode without SRAM2: all clocks are stopped except LSI and LSE, main and low power regulators off.
+      (+) Shutdown mode: all clocks are stopped except LSE, main and low power regulators off.
 
 
    *** Low-power run mode ***
@@ -223,14 +224,14 @@ void HAL_PWR_DisableBkUpAccess(void)
          [..] When exiting the Low-power sleep mode by issuing an interrupt or a wakeup event, 
              the MCU is in Low-power Run mode. 
 
-   *** Stop 1 and Stop 2 modes ***
+   *** Stop 0, Stop 1 and Stop 2 modes ***
    ===============================
     [..]
       (+) Entry:                                                 
-          The Stop 1 or Stop 2 modes are entered thru the following API's:
-          (++) HAL_PWR_EnterSTOPMode() [for legacy porting reasons] or HAL_PWREx_EnterSTOP1Mode() for mode 1
-          (++) HAL_PWREx_EnterSTOP2Mode for mode 2.  
-      (+) Regulator setting (applicable to Stop 1 mode only):
+          The Stop 0, Stop 1 or Stop 2 modes are entered thru the following API's:
+          (++) HAL_PWREx_EnterSTOP0Mode() for mode 0 or HAL_PWREx_EnterSTOP1Mode() for mode 1 or for porting reasons HAL_PWR_EnterSTOPMode().
+          (++) HAL_PWREx_EnterSTOP2Mode() for mode 2.  
+      (+) Regulator setting (applicable to HAL_PWR_EnterSTOPMode() only):
           (++) PWR_MAINREGULATOR_ON
           (++) PWR_LOWPOWERREGULATOR_ON
       (+) Exit (interrupt or event-triggered, specified when entering STOP mode):
@@ -245,7 +246,7 @@ void HAL_PWR_DisableBkUpAccess(void)
           (++) Any EXTI Line (Internal or External) configured in Event mode.
        
        [..]                      
-          When exiting Stop 1 mode, the MCU is either in Run mode or in Low-power Run mode
+          When exiting Stop 0 and Stop 1 modes, the MCU is either in Run mode or in Low-power Run mode
           depending on the LPR bit setting. 
           When exiting Stop 2 mode, the MCU is in Run mode. 
 
@@ -262,14 +263,14 @@ void HAL_PWR_DisableBkUpAccess(void)
 
       (++) Entry:                                    
           (+++) The Standby mode is entered thru HAL_PWR_EnterSTANDBYMode() API. 
-           SRAM1 and register contents are lost except for registers in the Backup domain and 
-           Standby circuitry. SRAM2 content can be preserved if the bit RRS is set in PWR_CR3 register. 
-           To enable this feature, the user can resort to HAL_PWREx_EnableSRAM2ContentRetention() API 
-           to set RRS bit.   
+                SRAM1 and register contents are lost except for registers in the Backup domain and 
+                Standby circuitry. SRAM2 content can be preserved if the bit RRS is set in PWR_CR3 register. 
+                To enable this feature, the user can resort to HAL_PWREx_EnableSRAM2ContentRetention() API 
+                to set RRS bit.   
           
       (++) Exit:
           (+++) WKUP pin rising edge, RTC alarm or wakeup, tamper event, time-stamp event, 
-               external reset in NRST pin, IWDG reset.
+                external reset in NRST pin, IWDG reset.
                 
       [..]    After waking up from Standby mode, program execution restarts in the same way as after a Reset.
           
@@ -394,15 +395,15 @@ void HAL_PWR_DisablePVD(void)
   * @param WakeUpPinPolarity: Specifies which Wake-Up pin to enable.
   *         This parameter can be one of the following legacy values which set the default polarity 
   *         i.e. detection on high level (rising edge):
-  *           @arg PWR_WAKEUP_PIN1, PWR_WAKEUP_PIN2, PWR_WAKEUP_PIN3, PWR_WAKEUP_PIN4, PWR_WAKEUP_PIN5
+  *           @arg @ref PWR_WAKEUP_PIN1, PWR_WAKEUP_PIN2, PWR_WAKEUP_PIN3, PWR_WAKEUP_PIN4, PWR_WAKEUP_PIN5
   *             
   *         or one of the following value where the user can explicitly specify the enabled pin and
   *         the chosen polarity:  
-  *           @arg PWR_WAKEUP_PIN1_HIGH or PWR_WAKEUP_PIN1_LOW 
-  *           @arg PWR_WAKEUP_PIN2_HIGH or PWR_WAKEUP_PIN2_LOW 
-  *           @arg PWR_WAKEUP_PIN3_HIGH or PWR_WAKEUP_PIN3_LOW 
-  *           @arg PWR_WAKEUP_PIN4_HIGH or PWR_WAKEUP_PIN4_LOW
-  *           @arg PWR_WAKEUP_PIN5_HIGH or PWR_WAKEUP_PIN5_LOW 
+  *           @arg @ref PWR_WAKEUP_PIN1_HIGH or PWR_WAKEUP_PIN1_LOW 
+  *           @arg @ref PWR_WAKEUP_PIN2_HIGH or PWR_WAKEUP_PIN2_LOW 
+  *           @arg @ref PWR_WAKEUP_PIN3_HIGH or PWR_WAKEUP_PIN3_LOW 
+  *           @arg @ref PWR_WAKEUP_PIN4_HIGH or PWR_WAKEUP_PIN4_LOW
+  *           @arg @ref PWR_WAKEUP_PIN5_HIGH or PWR_WAKEUP_PIN5_LOW 
   * @note  PWR_WAKEUP_PINx and PWR_WAKEUP_PINx_HIGH are equivalent.               
   * @retval None
   */
@@ -424,14 +425,14 @@ void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinPolarity)
   * @brief Disable the WakeUp PINx functionality.
   * @param WakeUpPinx: Specifies the Power Wake-Up pin to disable.
   *         This parameter can be one of the following values:
-  *           @arg PWR_WAKEUP_PIN1, PWR_WAKEUP_PIN2, PWR_WAKEUP_PIN3, PWR_WAKEUP_PIN4, PWR_WAKEUP_PIN5 
+  *           @arg @ref PWR_WAKEUP_PIN1, PWR_WAKEUP_PIN2, PWR_WAKEUP_PIN3, PWR_WAKEUP_PIN4, PWR_WAKEUP_PIN5 
   * @retval None
   */
 void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
 {
   assert_param(IS_PWR_WAKEUP_PIN(WakeUpPinx));
 
-  CLEAR_BIT(PWR->CR3, WakeUpPinx); 
+  CLEAR_BIT(PWR->CR3, (PWR_CR3_EWUP & WakeUpPinx)); 
 }
 
 
@@ -440,8 +441,8 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   * @note  In Sleep/Low-power Sleep mode, all I/O pins keep the same state as in Run mode.
   * @param Regulator: Specifies the regulator state in Sleep/Low-power Sleep mode.
   *          This parameter can be one of the following values:
-  *            @arg PWR_MAINREGULATOR_ON: Sleep mode (regulator in main mode)
-  *            @arg PWR_LOWPOWERREGULATOR_ON: Low-power Sleep mode (regulator in low-power mode) 
+  *            @arg @ref PWR_MAINREGULATOR_ON Sleep mode (regulator in main mode)
+  *            @arg @ref PWR_LOWPOWERREGULATOR_ON Low-power Sleep mode (regulator in low-power mode) 
   * @note  Low-power Sleep mode is entered from Low-power Run mode. Therefore, if not yet 
   *        in Low-power Run mode before calling HAL_PWR_EnterSLEEPMode() with Regulator set 
   *        to PWR_LOWPOWERREGULATOR_ON, the user can optionally configure the    
@@ -453,8 +454,8 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   *        Run mode, the user must resort to HAL_PWREx_DisableLowPowerRunMode() API.       
   * @param SLEEPEntry: Specifies if Sleep mode is entered with WFI or WFE instruction.
   *           This parameter can be one of the following values:
-  *            @arg PWR_SLEEPENTRY_WFI: enter Sleep or Low-power Sleep mode with WFI instruction
-  *            @arg PWR_SLEEPENTRY_WFE: enter Sleep or Low-power Sleep mode with WFE instruction
+  *            @arg @ref PWR_SLEEPENTRY_WFI enter Sleep or Low-power Sleep mode with WFI instruction
+  *            @arg @ref PWR_SLEEPENTRY_WFE enter Sleep or Low-power Sleep mode with WFE instruction
   * @note  When WFI entry is used, tick interrupt have to be disabled if not desired as 
   *        the interrupt wake up source.   
   * @retval None
@@ -506,11 +507,10 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
 
 
 /**
-  * @brief Enter Stop 1 mode
+  * @brief Enter Stop mode
   * @note  This API is named HAL_PWR_EnterSTOPMode to ensure compatibility with legacy code running
-  *        on devices where only "Stop mode" is mentioned. On STM32L4, Stop 1 mode and Stop modes
-  *        are equivalent. 
-  * @note  In Stop 1 mode, all I/O pins keep the same state as in Run mode.          
+  *        on devices where only "Stop mode" is mentioned with main or low power regulator ON.
+  * @note  In Stop mode, all I/O pins keep the same state as in Run mode.          
   * @note  All clocks in the VCORE domain are stopped; the PLL, the MSI, 
   *        the HSI and the HSE oscillators are disabled. Some peripherals with the wakeup capability 
   *        (I2Cx, USARTx and LPUART) can switch on the HSI to receive a frame, and switch off the HSI 
@@ -518,27 +518,37 @@ void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
   *        only to the peripheral requesting it.
   *        SRAM1, SRAM2 and register contents are preserved.
   *        The BOR is available.
-  *        The voltage regulator can be configured either in normal or low-power mode.  
-  * @note  When exiting Stop 1 mode by issuing an interrupt or a wakeup event,
+  *        The voltage regulator can be configured either in normal (Stop 0) or low-power mode (Stop 1).  
+  * @note  When exiting Stop 0 or Stop 1 mode by issuing an interrupt or a wakeup event,
   *         the HSI RC oscillator is selected as system clock if STOPWUCK bit in RCC_CFGR register
   *         is set; the MSI oscillator is selected if STOPWUCK is cleared.  
-  * @note  When the voltage regulator operates in low power mode, an additional
-  *         startup delay is incurred when waking up from Stop 1 mode.
-  *         By keeping the internal regulator ON during Stop 1 mode, the consumption
+  * @note  When the voltage regulator operates in low power mode (Stop 1), an additional
+  *         startup delay is incurred when waking up.
+  *         By keeping the internal regulator ON during Stop mode (Stop 0), the consumption
   *         is higher although the startup time is reduced.
-  * @param Regulator: Specifies the regulator state in Stop 1 mode.
+  * @param Regulator: Specifies the regulator state in Stop mode.
   *          This parameter can be one of the following values:
-  *            @arg PWR_MAINREGULATOR_ON: Stop 1 mode with regulator ON
-  *            @arg PWR_LOWPOWERREGULATOR_ON: Stop 1 mode with low power regulator ON  
-  * @param STOPEntry: Specifies if Stop 1 mode in entered with WFI or WFE instruction.
+  *            @arg @ref PWR_MAINREGULATOR_ON  Stop 0 mode (main regulator ON)
+  *            @arg @ref PWR_LOWPOWERREGULATOR_ON  Stop 1 mode (low power regulator ON) 
+  * @param STOPEntry: Specifies Stop 0 or Stop 1 mode is entered with WFI or WFE instruction.
   *          This parameter can be one of the following values:
-  *            @arg PWR_STOPENTRY_WFI:Enter Stop 1 mode with WFI instruction
-  *            @arg PWR_STOPENTRY_WFE: Enter Stop 1 mode with WFE instruction           
+  *            @arg @ref PWR_STOPENTRY_WFI  Enter Stop 0 or Stop 1 mode with WFI instruction.
+  *            @arg @ref PWR_STOPENTRY_WFE  Enter Stop 0 or Stop 1 mode with WFE instruction.
   * @retval None
   */
 void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 {
-  HAL_PWREx_EnterSTOP1Mode(Regulator, STOPEntry);
+  /* Check the parameters */
+  assert_param(IS_PWR_REGULATOR(Regulator));
+  
+  if(Regulator == PWR_LOWPOWERREGULATOR_ON)
+  {
+    HAL_PWREx_EnterSTOP1Mode(STOPEntry);
+  }
+  else
+  {
+    HAL_PWREx_EnterSTOP0Mode(STOPEntry);
+  }
 }
 
 /**

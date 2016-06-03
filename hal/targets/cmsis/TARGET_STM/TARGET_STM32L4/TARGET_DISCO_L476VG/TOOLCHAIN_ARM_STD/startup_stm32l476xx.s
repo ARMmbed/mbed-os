@@ -1,9 +1,9 @@
-;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
+;********************** COPYRIGHT(c) 2016  STMicroelectronics ******************
 ;* File Name          : startup_stm32l476xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.0.0
-;* Date               : 26-June-2015
-;* Description        : STM32L476xx Ultra Low Power devices vector table for MDK-ARM_STD toolchain.
+;* Version            : V1.1.1
+;* Date               : 29-April-2016
+;* Description        : STM32L476xx Ultra Low Power devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -14,7 +14,7 @@
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;* <<< Use Configuration Wizard in Context Menu >>>
 ;*******************************************************************************
-; 
+;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:
 ;*   1. Redistributions of source code must retain the above copyright notice,
@@ -43,6 +43,7 @@ __initial_sp    EQU     0x20018000 ; Top of RAM, L4-ECC-SRAM2 retained in standb
 
                 PRESERVE8
                 THUMB
+
 
 ; Vector Table Mapped to Address 0 at Reset
                 AREA    RESET, DATA, READONLY
@@ -110,7 +111,7 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     USART3_IRQHandler                 ; USART3
                 DCD     EXTI15_10_IRQHandler              ; External Line[15:10]
                 DCD     RTC_Alarm_IRQHandler              ; RTC Alarm (A and B) through EXTI Line
-                DCD     DFSDM3_IRQHandler                 ; SD Filter 3 global Interrupt
+                DCD     DFSDM1_FLT3_IRQHandler            ; DFSDM1 Filter 3 global Interrupt
                 DCD     TIM8_BRK_IRQHandler               ; TIM8 Break Interrupt
                 DCD     TIM8_UP_IRQHandler                ; TIM8 Update Interrupt
                 DCD     TIM8_TRG_COM_IRQHandler           ; TIM8 Trigger and Commutation Interrupt
@@ -129,9 +130,9 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     DMA2_Channel3_IRQHandler          ; DMA2 Channel 3
                 DCD     DMA2_Channel4_IRQHandler          ; DMA2 Channel 4
                 DCD     DMA2_Channel5_IRQHandler          ; DMA2 Channel 5
-                DCD     DFSDM0_IRQHandler                 ; SD Filter 0 global Interrupt
-                DCD     DFSDM1_IRQHandler                 ; SD Filter 1 global Interrupt
-                DCD     DFSDM2_IRQHandler                 ; SD Filter 2 global Interrupt
+                DCD     DFSDM1_FLT0_IRQHandler            ; DFSDM1 Filter 0 global Interrupt
+                DCD     DFSDM1_FLT1_IRQHandler            ; DFSDM1 Filter 1 global Interrupt
+                DCD     DFSDM1_FLT2_IRQHandler            ; DFSDM1 Filter 2 global Interrupt
                 DCD     COMP_IRQHandler                   ; COMP Interrupt
                 DCD     LPTIM1_IRQHandler                 ; LP TIM1 interrupt
                 DCD     LPTIM2_IRQHandler                 ; LP TIM2 interrupt
@@ -257,7 +258,7 @@ Default_Handler PROC
         EXPORT     USART3_IRQHandler                 [WEAK]
         EXPORT     EXTI15_10_IRQHandler              [WEAK]
         EXPORT     RTC_Alarm_IRQHandler              [WEAK]
-        EXPORT     DFSDM3_IRQHandler                 [WEAK]
+        EXPORT     DFSDM1_FLT3_IRQHandler            [WEAK]
         EXPORT     TIM8_BRK_IRQHandler               [WEAK]
         EXPORT     TIM8_UP_IRQHandler                [WEAK]
         EXPORT     TIM8_TRG_COM_IRQHandler           [WEAK]
@@ -276,9 +277,9 @@ Default_Handler PROC
         EXPORT     DMA2_Channel3_IRQHandler          [WEAK]
         EXPORT     DMA2_Channel4_IRQHandler          [WEAK]
         EXPORT     DMA2_Channel5_IRQHandler          [WEAK]
-        EXPORT     DFSDM0_IRQHandler                 [WEAK]
-        EXPORT     DFSDM1_IRQHandler                 [WEAK]
-        EXPORT     DFSDM2_IRQHandler                 [WEAK]
+        EXPORT     DFSDM1_FLT0_IRQHandler            [WEAK]
+        EXPORT     DFSDM1_FLT1_IRQHandler            [WEAK]
+        EXPORT     DFSDM1_FLT2_IRQHandler            [WEAK]
         EXPORT     COMP_IRQHandler                   [WEAK]
         EXPORT     LPTIM1_IRQHandler                 [WEAK]
         EXPORT     LPTIM2_IRQHandler                 [WEAK]
@@ -339,7 +340,7 @@ USART2_IRQHandler
 USART3_IRQHandler
 EXTI15_10_IRQHandler
 RTC_Alarm_IRQHandler
-DFSDM3_IRQHandler
+DFSDM1_FLT3_IRQHandler
 TIM8_BRK_IRQHandler
 TIM8_UP_IRQHandler
 TIM8_TRG_COM_IRQHandler
@@ -358,9 +359,9 @@ DMA2_Channel2_IRQHandler
 DMA2_Channel3_IRQHandler
 DMA2_Channel4_IRQHandler
 DMA2_Channel5_IRQHandler
-DFSDM0_IRQHandler
-DFSDM1_IRQHandler
-DFSDM2_IRQHandler
+DFSDM1_FLT0_IRQHandler
+DFSDM1_FLT1_IRQHandler
+DFSDM1_FLT2_IRQHandler
 COMP_IRQHandler
 LPTIM1_IRQHandler
 LPTIM2_IRQHandler
