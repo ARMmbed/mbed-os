@@ -36,6 +36,7 @@
 extern "C" {
 #endif
 
+// See stm32f4xx_hal_gpio.h and stm32f4xx_hal_gpio_ex.h for values of MODE, PUPD and AFNUM
 #define STM_PIN_DATA(MODE, PUPD, AFNUM)  ((int)(((MODE  & 0x0F) << 0) |\
                                                 ((PUPD  & 0x07) << 4) |\
                                                 ((AFNUM & 0x0F) << 7)))
