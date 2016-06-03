@@ -58,7 +58,7 @@ def cached(func):
 class Target:
     # Cumulative attributes can have values appended to them, so they
     # need to be computed differently than regular attributes
-    __cumulative_attributes = ['extra_labels', 'macros']
+    __cumulative_attributes = ['extra_labels', 'macros', 'features']
 
     # {target_name: target_instance} map for all the targets in the system
     __target_map = {}
