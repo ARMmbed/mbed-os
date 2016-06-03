@@ -101,31 +101,43 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     // Enable UART clock
     if (obj->uart == UART_1) {
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_ENABLE();
         obj->index = 0;
     }
 
     if (obj->uart == UART_2) {
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
         __HAL_RCC_USART2_CLK_ENABLE();
         obj->index = 1;
     }
 
     if (obj->uart == UART_3) {
+        __HAL_RCC_USART3_FORCE_RESET();
+        __HAL_RCC_USART3_RELEASE_RESET();
         __HAL_RCC_USART3_CLK_ENABLE();
         obj->index = 2;
     }
 
     if (obj->uart == UART_4) {
+        __HAL_RCC_UART4_FORCE_RESET();
+        __HAL_RCC_UART4_RELEASE_RESET();
         __HAL_RCC_UART4_CLK_ENABLE();
         obj->index = 3;
     }
 
     if (obj->uart == UART_5) {
+        __HAL_RCC_UART5_FORCE_RESET();
+        __HAL_RCC_UART5_RELEASE_RESET();
         __HAL_RCC_UART5_CLK_ENABLE();
         obj->index = 4;
     }
 
     if (obj->uart == LPUART_1) {
+        __HAL_RCC_LPUART1_FORCE_RESET();
+        __HAL_RCC_LPUART1_RELEASE_RESET();
         __HAL_RCC_LPUART1_CLK_ENABLE();
         obj->baudrate = 38400; // Maximum peripheral clock is 4096 x BR -> This is the minimum BR with 80 MHz peripheral clock.
         obj->index = 5;
