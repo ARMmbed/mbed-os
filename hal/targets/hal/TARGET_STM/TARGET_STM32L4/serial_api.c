@@ -67,7 +67,7 @@ static void init_uart(serial_t *obj)
     UartHandle.Init.HwFlowCtl      = SERIAL_OBJ(hw_flow_ctl);
 #else
     UartHandle.Init.HwFlowCtl      = UART_HWCONTROL_NONE;
-#endif    
+#endif
     UartHandle.Init.OverSampling   = UART_OVERSAMPLING_16;
     UartHandle.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_ENABLE;
 
@@ -78,6 +78,9 @@ static void init_uart(serial_t *obj)
     } else {
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
+
+    // Fix because HAL_RCC_GetHCLKFreq() don't update anymore SystemCoreClock
+    SystemCoreClockUpdate();
 
     if (HAL_UART_Init(&UartHandle) != HAL_OK) {
         error("Cannot initialize UART\n");
@@ -250,17 +253,17 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
  */
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
 {
- 
+
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_rts = (UARTName)pinmap_peripheral(rxflow, PinMap_UART_RTS);
     UARTName uart_cts = (UARTName)pinmap_peripheral(txflow, PinMap_UART_CTS);
- 
+
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     SERIAL_OBJ(uart) = (UARTName)pinmap_merge(uart_cts, uart_rts);
- 
+
     MBED_ASSERT(SERIAL_OBJ(uart) != (UARTName)NC);
     UartHandle.Instance = (USART_TypeDef *)(SERIAL_OBJ(uart));
- 
+
     if(type == FlowControlNone) {
         // Disable hardware flow control
       SERIAL_OBJ(hw_flow_ctl) = UART_HWCONTROL_NONE;
