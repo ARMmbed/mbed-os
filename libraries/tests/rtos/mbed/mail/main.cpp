@@ -24,6 +24,8 @@ typedef struct {
     #define STACK_SIZE DEFAULT_STACK_SIZE/2
 #elif (defined(TARGET_STM32F030R8)) && defined(TOOLCHAIN_IAR)
     #define STACK_SIZE DEFAULT_STACK_SIZE/2
+#elif defined(TARGET_MCU_NRF51822)
+    #define STACK_SIZE 512
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
@@ -44,6 +46,8 @@ void send_thread (void const *argument) {
 }
 
 int main (void) {
+    setbuf(stdout, NULL);
+
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(Mail messaging);

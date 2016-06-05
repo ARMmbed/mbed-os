@@ -23,6 +23,8 @@ void blink(void const *n) {
 }
 
 int main(void) {
+    setbuf(stdout, NULL);
+
     MBED_HOSTTEST_TIMEOUT(15);
     MBED_HOSTTEST_SELECT(wait_us_auto);
     MBED_HOSTTEST_DESCRIPTION(Timer);
