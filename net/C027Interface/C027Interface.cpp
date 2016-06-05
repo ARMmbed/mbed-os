@@ -47,6 +47,10 @@ int C027Interface::connect(const char *apn, const char *username, const char *pa
             MDM_IF(MDMTXD,  D1), 
             MDM_IF(MDMRXD,  D0), 
             MDM_IF(MDMBAUD, 115200),
+#if DEVICE_SERIAL_FC
+            MDM_IF(MDMRTS, NC),
+            MDM_IF(MDMCTS, NC),
+#endif
             1024, 
             1024);
 
