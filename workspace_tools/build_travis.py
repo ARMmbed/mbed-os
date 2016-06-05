@@ -92,10 +92,10 @@ build_list = (
     { "target": "LPC4088",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb", "fat"] },
     { "target": "ARCH_PRO",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "LPC1549",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
-    { "target": "NRF51822",          "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NRF51822",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
     { "target": "DELTA_DFCM_NNN40",  "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
-    { "target": "NRF51_DK",          "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
-    { "target": "NRF51_MICROBIT",    "toolchains": "GCC_ARM", "libs": ["dsp", "fat"] },
+    { "target": "NRF51_DK",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
+    { "target": "NRF51_MICROBIT",    "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "fat"] },
 
     { "target": "EFM32ZG_STK3200",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "EFM32HG_STK3400",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
