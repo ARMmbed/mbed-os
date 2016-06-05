@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash_ramfunc.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   FLASH RAMFUNC driver.
   *          This file provides a Flash firmware functions which should be 
   *          executed from internal SRAM
@@ -32,7 +32,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -66,23 +66,32 @@
   * @{
   */
 
-/** @defgroup FLASHRamfunc FLASHRamfunc
+#ifdef HAL_FLASH_MODULE_ENABLED
+
+/** @defgroup FLASH_RAMFUNC FLASH_RAMFUNC
   * @brief FLASH functions executed from RAM
   * @{
   */ 
 
-#ifdef HAL_FLASH_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
+/** @defgroup FLASH_RAMFUNC_Private_Functions Private Functions
+ * @{
+ */
+
 static __RAM_FUNC FLASHRAM_WaitForLastOperation(uint32_t Timeout);
+
+/**
+  * @}
+  */
 
 /* Private functions ---------------------------------------------------------*/
  
-/** @defgroup FLASHRamfunc_Exported_Functions FLASH RAM Exported Functions
+/** @defgroup FLASH_RAMFUNC_Exported_Functions Exported Functions
  *
 @verbatim  
  ===============================================================================
@@ -96,7 +105,7 @@ static __RAM_FUNC FLASHRAM_WaitForLastOperation(uint32_t Timeout);
   * @{
   */ 
 
-/** @defgroup FLASHRamfunc_Exported_Functions_Group1 FLASH RAM Peripheral  features functions 
+/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group1 Peripheral features functions 
   * @{
   */  
 
@@ -131,15 +140,14 @@ __RAM_FUNC HAL_FLASHEx_DisableRunPowerDown(void)
   * @}
   */
 
-/** @defgroup FLASHRamfunc_Exported_Functions_Group2 FLASH RAM Programming and erasing operation functions 
+/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group2 Programming and erasing operation functions 
  *
 @verbatim  
 @endverbatim
   * @{
   */
 
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(FLASH_PECR_PARALLBANK)
 /**
   * @brief  Erases a specified 2 page in program memory in parallel.
   * @note   This function can be used only for STM32L151xD, STM32L152xD), STM32L162xD and Cat5  devices.
@@ -163,7 +171,7 @@ __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_A
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Wait for last operation to be completed */
-  status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+  status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
   if(status == HAL_OK)
   {
@@ -184,7 +192,7 @@ __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_A
     *(__IO uint32_t *)Page_Address2 = 0x00000000;    
  
     /* Wait for last operation to be completed */
-    status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+    status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
 
     /* If the erase operation is completed, disable the ERASE, PROG and PARALLBANK bits */
     FLASH->PECR &= (uint32_t)(~FLASH_PECR_PROG);
@@ -238,7 +246,7 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
   SCnSCB->ACTLR |= SCnSCB_ACTLR_DISMCYCINT_Msk;
 
   /* Wait for last operation to be completed */
-  status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+  status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
   if(status == HAL_OK)
   {
@@ -249,7 +257,7 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
     FLASH->PECR |= FLASH_PECR_PROG;
     
   /* Wait for last operation to be completed */
-  status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+  status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   if(status == HAL_OK)
   {
     /* Write the first half page directly with 32 different words */
@@ -267,7 +275,7 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
       count ++;  
     }
     /* Wait for last operation to be completed */
-    status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+    status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   } 
     /* if the write operation is completed, disable the PROG, FPRG and PARALLBANK bits */
     FLASH->PECR &= (uint32_t)(~FLASH_PECR_PROG);
@@ -280,7 +288,7 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
   /* Return the Write Status */
   return status;
 }
-#endif /* STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* FLASH_PECR_PARALLBANK */
 
 /**
   * @brief  Programs a half page in program memory.
@@ -319,7 +327,7 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer)
   SCnSCB->ACTLR |= SCnSCB_ACTLR_DISMCYCINT_Msk;
   
   /* Wait for last operation to be completed */
-  status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+  status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
   if(status == HAL_OK)
   {
@@ -335,7 +343,7 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer)
       count ++;  
     }
     /* Wait for last operation to be completed */
-    status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+    status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
  
     /* if the write operation is completed, disable the PROG and FPRG bits */
     FLASH->PECR &= (uint32_t)(~FLASH_PECR_PROG);
@@ -352,10 +360,8 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer)
   * @}
   */
 
-/** @defgroup FLASHRamfunc_Exported_Functions_Group3 FLASH RAM DATA EEPROM functions
- *
-@verbatim  
-@endverbatim
+/** @defgroup FLASH_RAMFUNC_Exported_Functions_Group3 DATA EEPROM functions
+  *
   * @{
   */
 
@@ -387,7 +393,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_EraseDoubleWord(uint32_t Address)
   SCnSCB->ACTLR |= SCnSCB_ACTLR_DISMCYCINT_Msk;
     
   /* Wait for last operation to be completed */
-  status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+  status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
   if(status == HAL_OK)
   {
@@ -404,7 +410,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_EraseDoubleWord(uint32_t Address)
     *(__IO uint32_t *)Address = 0x00000000;
    
     /* Wait for last operation to be completed */
-    status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+    status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
     
     /* If the erase operation is completed, disable the ERASE and DATA bits */
     FLASH->PECR &= (uint32_t)(~FLASH_PECR_ERASE);
@@ -446,7 +452,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_ProgramDoubleWord(uint32_t Address, uint64_t D
   SCnSCB->ACTLR |= SCnSCB_ACTLR_DISMCYCINT_Msk;
     
   /* Wait for last operation to be completed */
-  status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+  status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
   if(status == HAL_OK)
   {
@@ -460,7 +466,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_ProgramDoubleWord(uint32_t Address, uint64_t D
      *(__IO uint32_t *)Address = (uint32_t) (Data >> 32);
     
     /* Wait for last operation to be completed */
-    status = FLASHRAM_WaitForLastOperation(HAL_FLASH_TIMEOUT_VALUE);
+    status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
     
     /* If the write operation is completed, disable the FPRG and DATA bits */
     FLASH->PECR &= (uint32_t)(~FLASH_PECR_FPRG);
@@ -481,7 +487,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_ProgramDoubleWord(uint32_t Address, uint64_t D
   * @}
   */
 
-/** @defgroup FLASHRamfunc_Private_Functions FLASH RAM Private Functions
+/** @addtogroup FLASH_RAMFUNC_Private_Functions
   * @{
   */ 
 
@@ -506,18 +512,22 @@ static __RAM_FUNC   FLASHRAM_WaitForLastOperation(uint32_t Timeout)
       return HAL_TIMEOUT;
     }
     
+    /* Check FLASH End of Operation flag  */
+    if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_EOP))
+    {
+      /* Clear FLASH End of Operation pending bit */
+      __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
+    }
+  
     if( (__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR)     != RESET) || 
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGAERR)     != RESET) || 
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_SIZERR)     != RESET) || 
-#if defined (STM32L151xBA) || defined (STM32L152xBA) || \
-    defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
+#if defined(FLASH_SR_RDERR)
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR)      != RESET) || 
-#endif /* STM32L151xBA || STM32L152xBA || STM32L151xC || STM32L152xC || STM32L162xC */
-#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
-    defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#endif /* FLASH_SR_RDERR */
+#if defined(FLASH_SR_OPTVERRUSR)
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERRUSR) != RESET) || 
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* FLASH_SR_OPTVERRUSR */
         (__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR)    != RESET) )
     {
       return HAL_ERROR;
@@ -527,7 +537,6 @@ static __RAM_FUNC   FLASHRAM_WaitForLastOperation(uint32_t Timeout)
     return HAL_OK;
 }
 
-#endif /* HAL_FLASH_MODULE_ENABLED */
   
 /**
   * @}
@@ -537,6 +546,7 @@ static __RAM_FUNC   FLASHRAM_WaitForLastOperation(uint32_t Timeout)
   * @}
   */
 
+#endif /* HAL_FLASH_MODULE_ENABLED */
 /**
   * @}
   */

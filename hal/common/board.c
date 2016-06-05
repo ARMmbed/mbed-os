@@ -17,10 +17,11 @@
 #include "wait_api.h"
 #include "toolchain.h"
 #include "mbed_interface.h"
+#include "critical.h"
 
 WEAK void mbed_die(void) {
 #if !defined (NRF51_H) && !defined(TARGET_EFM32)
-	__disable_irq();	// dont allow interrupts to disturb the flash pattern
+    core_util_critical_section_enter();
 #endif
 #if   (DEVICE_ERROR_RED == 1)
     gpio_t led_red; gpio_init_out(&led_red, LED_RED);

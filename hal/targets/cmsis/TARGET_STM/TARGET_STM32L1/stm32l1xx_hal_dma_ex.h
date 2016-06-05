@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_dma_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of DMA HAL extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L1xx_HAL_DMA_EX_H
@@ -50,27 +50,25 @@
   * @{
   */
 
-/** @addtogroup DMAEx
+/** @defgroup DMAEx DMAEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-/** @defgroup DMAEx_Exported_Macros DMAEx Exported Macros
+/** @defgroup DMAEx_Exported_Macros DMA Extended Exported Macros
   * @{
   */
-
 /* Interrupt & Flag management */
 #if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || \
     defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+    defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 /**
   * @brief  Returns the current DMA Channel transfer complete flag.
   * @param  __HANDLE__: DMA handle
   * @retval The specified transfer complete flag index.
   */
-
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
 (((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel1))? DMA_FLAG_TC1 :\
  ((uint32_t)((__HANDLE__)->Instance) == ((uint32_t)DMA1_Channel2))? DMA_FLAG_TC2 :\
@@ -134,7 +132,6 @@
   *         Where x can be 1_7 or 1_5 to select the DMA Channel flag.   
   * @retval The state of FLAG (SET or RESET).
   */
-
 #define __HAL_DMA_GET_FLAG(__HANDLE__, __FLAG__)\
 (((uint32_t)((__HANDLE__)->Instance) > (uint32_t)DMA1_Channel7)? (DMA2->ISR & (__FLAG__)) :\
   (DMA1->ISR & (__FLAG__)))
@@ -224,16 +221,15 @@
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (DMA1->IFCR = (__FLAG__))
 
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
+/**
+  * @}
+  */
+
 
 /**
   * @}
-  */ 
-
-
-/**
-  * @}
-  */ 
+  */
 
 /**
   * @}

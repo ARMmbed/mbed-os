@@ -39,9 +39,9 @@ void InterruptIn::mode(PinMode pull) {
     gpio_mode(&gpio, pull);
 }
 
-void InterruptIn::rise(void (*fptr)(void)) {
-    if (fptr) {
-        _rise.attach(fptr);
+void InterruptIn::rise(Callback<void()> func) {
+    if (func) {
+        _rise.attach(func);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
     } else {
         _rise.attach(NULL);
@@ -49,9 +49,9 @@ void InterruptIn::rise(void (*fptr)(void)) {
     }
 }
 
-void InterruptIn::fall(void (*fptr)(void)) {
-    if (fptr) {
-        _fall.attach(fptr);
+void InterruptIn::fall(Callback<void()> func) {
+    if (func) {
+        _fall.attach(func);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
     } else {
         _fall.attach(NULL);

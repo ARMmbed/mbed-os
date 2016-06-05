@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
    
-#if defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE)
+#if defined(STM32L162xC) || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L162xE) || defined(STM32L162xDX)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal_def.h"
@@ -104,6 +104,8 @@ typedef enum
   */ 
 typedef struct
 {
+  AES_TypeDef                 *Instance;        /*!< Register base address        */
+
   CRYP_InitTypeDef            Init;             /*!< CRYP required parameters */
 
   uint8_t                     *pCrypInBuffPtr;  /*!< Pointer to CRYP processing (encryption, decryption,...) buffer */
@@ -172,8 +174,8 @@ typedef struct
 /** @defgroup CRYP_AES_Interrupts AES Interrupts
   * @{
   */ 
-#define AES_IT_CC                          AES_CR_CCIE  /*!< Computation Complete interrupt */
-#define AES_IT_ERR                         AES_CR_ERRIE /*!< Error interrupt                */
+#define CRYP_IT_CC                          AES_CR_CCIE  /*!< Computation Complete interrupt */
+#define CRYP_IT_ERR                         AES_CR_ERRIE /*!< Error interrupt                */
 
 /**
   * @}
@@ -183,9 +185,9 @@ typedef struct
 /** @defgroup CRYP_AES_Flags AES Flags
   * @{
   */ 
-#define AES_FLAG_CCF                       AES_SR_CCF    /*!< Computation Complete Flag */
-#define AES_FLAG_RDERR                     AES_SR_RDERR  /*!< Read Error Flag           */
-#define AES_FLAG_WRERR                     AES_SR_WRERR  /*!< Write Error Flag          */
+#define CRYP_FLAG_CCF                       AES_SR_CCF    /*!< Computation Complete Flag */
+#define CRYP_FLAG_RDERR                     AES_SR_RDERR  /*!< Read Error Flag           */
+#define CRYP_FLAG_WRERR                     AES_SR_WRERR  /*!< Write Error Flag          */
 
 /**
   * @}
@@ -194,9 +196,9 @@ typedef struct
 /** @defgroup CRYP_AES_Clear_Flags AES Clear Flags
   * @{
   */ 
-#define AES_CLEARFLAG_CCF                       AES_CR_CCFC   /*!< Computation Complete Flag Clear */
-#define AES_CLEARFLAG_RDERR                     AES_CR_ERRC   /*!< Read Error Clear           */
-#define AES_CLEARFLAG_WRERR                     AES_CR_ERRC   /*!< Write Error Clear          */
+#define CRYP_CLEARFLAG_CCF                       AES_CR_CCFC   /*!< Computation Complete Flag Clear */
+#define CRYP_CLEARFLAG_RDERR                     AES_CR_ERRC   /*!< Read Error Clear           */
+#define CRYP_CLEARFLAG_WRERR                     AES_CR_ERRC   /*!< Write Error Clear          */
 
 /**
   * @}
@@ -213,71 +215,76 @@ typedef struct
   */
 
 /** @brief Reset CRYP handle state
-  * @param  __HANDLE__: specifies the CRYP Handle.
+  * @param  __HANDLE__: specifies the CRYP handle.
   * @retval None
   */
 #define __HAL_CRYP_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_CRYP_STATE_RESET)
 
 /**
   * @brief  Enable/Disable the CRYP peripheral.
+  * @param  __HANDLE__: specifies the CRYP handle.
   * @retval None
   */
-#define __HAL_CRYP_ENABLE()                   SET_BIT(AES->CR, AES_CR_EN)
-#define __HAL_CRYP_DISABLE()                  CLEAR_BIT(AES->CR, AES_CR_EN)
+#define __HAL_CRYP_ENABLE(__HANDLE__)                   SET_BIT((__HANDLE__)->Instance->CR, AES_CR_EN)
+#define __HAL_CRYP_DISABLE(__HANDLE__)                  CLEAR_BIT((__HANDLE__)->Instance->CR, AES_CR_EN)
 
 /**
   * @brief  Set the algorithm mode: AES-ECB, AES-CBC, AES-CTR, DES-ECB, DES-CBC,...
+  * @param  __HANDLE__: specifies the CRYP handle.
   * @param  __MODE__: The algorithm mode.
   * @retval None
   */
-#define __HAL_CRYP_SET_MODE(__MODE__)             SET_BIT(AES->CR, (__MODE__))
+#define __HAL_CRYP_SET_MODE(__HANDLE__,__MODE__)        SET_BIT((__HANDLE__)->Instance->CR, (__MODE__))
 
 
 /** @brief  Check whether the specified CRYP flag is set or not.
+  * @param  __HANDLE__: specifies the CRYP handle.
   * @param  __FLAG__: specifies the flag to check.
   *         This parameter can be one of the following values:
-  *            @arg AES_FLAG_CCF   : Computation Complete Flag
-  *            @arg AES_FLAG_RDERR : Read Error Flag
-  *            @arg AES_FLAG_WRERR : Write Error Flag
+  *            @arg CRYP_FLAG_CCF   : Computation Complete Flag
+  *            @arg CRYP_FLAG_RDERR : Read Error Flag
+  *            @arg CRYP_FLAG_WRERR : Write Error Flag
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
-#define __HAL_CRYP_GET_FLAG(__FLAG__)         ((AES->SR & (__FLAG__)) == (__FLAG__))
+#define __HAL_CRYP_GET_FLAG(__HANDLE__,__FLAG__)         (((__HANDLE__)->Instance->SR & (__FLAG__)) == (__FLAG__))
 
 /** @brief  Clear the CRYP pending flag.
   * @param  __HANDLE__: specifies the CRYP handle.
   * @param  __FLAG__: specifies the flag to clear.
   *         This parameter can be one of the following values:
-  *            @arg AES_CLEARFLAG_CCF   : Computation Complete Clear Flag
-  *            @arg AES_CLEARFLAG_RDERR : Read Error Clear
-  *            @arg AES_CLEARFLAG_WRERR : Write Error Clear
+  *            @arg CRYP_CLEARFLAG_CCF   : Computation Complete Clear Flag
+  *            @arg CRYP_CLEARFLAG_RDERR : Read Error Clear
+  *            @arg CRYP_CLEARFLAG_WRERR : Write Error Clear
   * @retval None
   */
-#define __HAL_CRYP_CLEAR_FLAG(__HANDLE__, __FLAG__) SET_BIT(AES->CR, (__FLAG__))
+#define __HAL_CRYP_CLEAR_FLAG(__HANDLE__, __FLAG__)      SET_BIT((__HANDLE__)->Instance->CR, (__FLAG__))
 
 /**
   * @brief  Enable the CRYP interrupt.
+  * @param  __HANDLE__: specifies the CRYP handle.
   * @param  __INTERRUPT__: CRYP Interrupt.
   * @retval None
   */
-#define __HAL_CRYP_ENABLE_IT(__INTERRUPT__)   SET_BIT(AES->CR, (__INTERRUPT__))
+#define __HAL_CRYP_ENABLE_IT(__HANDLE__,__INTERRUPT__)   SET_BIT((__HANDLE__)->Instance->CR, (__INTERRUPT__))
 
 /**
   * @brief  Disable the CRYP interrupt.
+  * @param  __HANDLE__: specifies the CRYP handle.
   * @param  __INTERRUPT__: CRYP interrupt.
   * @retval None
   */
-#define __HAL_CRYP_DISABLE_IT(__INTERRUPT__)  CLEAR_BIT(AES->CR, (__INTERRUPT__))
+#define __HAL_CRYP_DISABLE_IT(__HANDLE__,__INTERRUPT__)  CLEAR_BIT((__HANDLE__)->Instance->CR, (__INTERRUPT__))
 
 /** @brief  Checks if the specified CRYP interrupt source is enabled or disabled.
-  * @param __HANDLE__: CRYP handle
+  * @param  __HANDLE__: specifies the CRYP handle.
   * @param __INTERRUPT__: CRYP interrupt source to check
   *         This parameter can be one of the following values:
-  *            @arg AES_IT_CC   : Computation Complete interrupt
-  *            @arg AES_IT_ERR : Error interrupt (used for RDERR and WRERR)
+  *            @arg CRYP_IT_CC   : Computation Complete interrupt
+  *            @arg CRYP_IT_ERR : Error interrupt (used for RDERR and WRERR)
   * @retval State of interruption (SET or RESET)
   */
 #define __HAL_CRYP_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) \
-    (( (AES->CR & (__INTERRUPT__)) == (__INTERRUPT__)       \
+    (( ((__HANDLE__)->Instance->CR & (__INTERRUPT__)) == (__INTERRUPT__)       \
      )? SET : RESET                                         \
     )
          
@@ -285,12 +292,12 @@ typedef struct
   * @param  __HANDLE__: specifies the CRYP handle.
   * @param  __IT__: specifies the IT to clear.
   *         This parameter can be one of the following values:
-  *            @arg AES_CLEARFLAG_CCF   : Computation Complete Clear Flag
-  *            @arg AES_CLEARFLAG_RDERR : Read Error Clear
-  *            @arg AES_CLEARFLAG_WRERR : Write Error Clear
+  *            @arg CRYP_CLEARFLAG_CCF   : Computation Complete Clear Flag
+  *            @arg CRYP_CLEARFLAG_RDERR : Read Error Clear
+  *            @arg CRYP_CLEARFLAG_WRERR : Write Error Clear
   * @retval None
   */
-#define __HAL_CRYP_CLEAR_IT(__HANDLE__, __IT__) SET_BIT(AES->CR, (__IT__))
+#define __HAL_CRYP_CLEAR_IT(__HANDLE__, __IT__) SET_BIT((__HANDLE__)->Instance->CR, (__IT__))
 
 /**
   * @}
@@ -400,7 +407,7 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
   
-#endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE*/
+#endif /* STM32L162xC || STM32L162xCA || STM32L162xD || STM32L162xE || STM32L162xDX*/
 
 #ifdef __cplusplus
 }

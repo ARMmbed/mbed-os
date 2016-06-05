@@ -19,6 +19,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* General C++ Object Thunking class
+ *
+ * - allows direct callbacks to non-static C++ class functions
+ * - keeps track for the corresponding class instance
+ * - supports an optional context parameter for the called function
+ * - ideally suited for class object receiving interrupts (NVIC_SetVector)
+ */
+
 #ifndef __CTHUNK_H__
 #define __CTHUNK_H__
 

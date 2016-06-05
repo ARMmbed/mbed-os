@@ -1,3 +1,5 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -24,48 +26,23 @@
 #endif
 /* <-Take measures about optimization problems of web compiler */
 
-#define DEVICE_PORTIN               1
-#define DEVICE_PORTOUT              1
-#define DEVICE_PORTINOUT            1
 
-#define DEVICE_INTERRUPTIN          1
 
-#define DEVICE_ANALOGIN             1
-#define DEVICE_ANALOGOUT            0
 
-#define DEVICE_SERIAL               1
-#define DEVICE_SERIAL_FC            1
-#define DEVICE_SERIAL_ASYNCH        1
 
-#define DEVICE_I2C                  1
-#define DEVICE_I2CSLAVE             1
-#define DEVICE_I2C_ASYNCH           1
 
-#define DEVICE_SPI                  1
-#define DEVICE_SPISLAVE             1
-#define DEVICE_SPI_ASYNCH           1
 #define TRANSACTION_QUEUE_SIZE_SPI 16
 
-#define DEVICE_CAN                  1
 
-#define DEVICE_RTC                  1
 
-#define DEVICE_ETHERNET             1
 
-#define DEVICE_PWMOUT               1
 
-#define DEVICE_SEMIHOST             0
-#define DEVICE_LOCALFILESYSTEM      0
 #define DEVICE_ID_LENGTH            32
 #define DEVICE_MAC_OFFSET           20
 
-#define DEVICE_SLEEP                0
 
-#define DEVICE_DEBUG_AWARENESS      0
 
-#define DEVICE_STDIO_MESSAGES       1
 
-#define DEVICE_ERROR_PATTERN        1
 
 #include "objects.h"
 #include "dma_api.h"

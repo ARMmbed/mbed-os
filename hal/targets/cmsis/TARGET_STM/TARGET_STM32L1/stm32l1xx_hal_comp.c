@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   COMP HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
   *           + Initialization and de-initialization functions
@@ -17,17 +16,15 @@
 ================================================================================
           ##### COMP Peripheral features #####
 ================================================================================
-           
   [..]       
       The STM32L1xx device family integrates 2 analog comparators COMP1 and 
       COMP2:
       (#) The non inverting input and inverting input can be set to GPIO pins.
-          Refer to "table1. COMP Inputs" below.
           HAL COMP driver configures the Routing Interface (RI) to connect the
           selected I/O pins to comparator input.
           Caution: Comparator COMP1 and ADC cannot be used at the same time as 
           ADC since they share the ADC switch matrix: COMP1 non-inverting 
-          input is routed through ADC switch matrix. Except if ADC is intented 
+          input is routed through ADC switch matrix. Except if ADC is intended 
           to measure voltage on COMP1 non-inverting input: it can be performed 
           on ADC channel VCOMP.
 
@@ -36,7 +33,6 @@
       (#) The COMP output can be redirected to embedded timers (TIM2, TIM3, 
           TIM4, TIM10).
           COMP output cannot be redirected to any I/O pin.
-          Refer to "table 2. COMP Outputs redirection to embedded timers" below.
 
       (#) The comparators COMP1 and COMP2 can be combined in window mode. 
           In this mode, COMP2 non inverting input is used as common 
@@ -47,55 +43,12 @@
           (++) COMP1 is internally connected to EXTI Line 21
           (++) COMP2 is internally connected to EXTI Line 22
 
-          From the corresponding IRQ handler, the right interrupt source can be
-          retrieved with macro __HAL_COMP_EXTI_GET_FLAG(). Possible values are: 
-          (++) COMP_EXTI_LINE_COMP1_EVENT
-          (++) COMP_EXTI_LINE_COMP2_EVENT
+          From the corresponding IRQ handler, the right interrupt source can be retrieved with the 
+          macros __HAL_COMP_COMP1_EXTI_GET_FLAG() and __HAL_COMP_COMP2_EXTI_GET_FLAG().
   
-      (#) The comparators also offer the possibility to ouput the voltage 
+      (#) The comparators also offer the possibility to output the voltage 
           reference (VrefInt), used on inverting inputs, on I/O pin through 
-          a buffer. To use it, refer to macro "__HAL_VREFINT_OUT_ENABLE()".
-
-            
-[..] Table 1. COMP Inputs for the STM32L1xx devices
- +----------------------------------------------------------------------+
- |                 |                                |  COMP1  |  COMP2  |
- |-----------------|--------------------------------|---------|---------|
- |                 | 1/4 VREFINT                    |   --    |   OK    |
- |                 | 1/2 VREFINT                    |   --    |   OK    |
- |                 | 3/4 VREFINT                    |   --    |   OK    |
- | Inverting       | VREFINT                        |   OK    |   OK    |
- | input           | DAC Ch1 OUT (PA4)              |   --    |   OK    |
- |                 | DAC Ch2 OUT (PA5)              |   --    |   OK    |
- |                 | IO: PB3                        |   --    |   OK    |
- |-----------------|--------------------------------|---------|---------|
- |                 | IO:                            |         |         |
- |                 |   PB4, 5, 6*, 7*               |   ---   |   OK    |
- | Non-inverting   |   PA0*, 1*, 2*, 3*, 4, 5, 6, 7 |   OK    |   ---   |
- | input           |   PB0, 1, 12, 13, 14, 15       |   OK    |   ---   |
- |                 |   PC0, 1, 2, 3, 4, 5           |   OK    |   ---   |
- |                 |   PE7, 8, 9, 10                |   OK    |   ---   |
- |                 |   PF6, 7, 8, 9, 10             |   OK    |   ---   |
- |                 | OPAMP1 output                  |   OK    |   ---   |
- |                 | OPAMP2 output                  |   OK    |   ---   |
- |                 | OPAMP3 output**                |   OK    |   ---   |
- +----------------------------------------------------------------------+
- *: Available on devices category Cat.3, Cat.4, Cat.5 only. 
- **: Available on devices category Cat.4 only. 
-
- [..] Table 2. COMP Outputs redirection to embedded timers
- +-----------------------------------+     
- |      COMP1      |      COMP2      |
- |-----------------|-----------------|
- |                 |  TIM2 IC4       |
- |                 |  TIM2 OCREF CLR |
- | (no redirection |  TIM3 IC4       |
- |   to timers)    |  TIM3 OCREF CLR |
- |                 |  TIM4 IC4       |
- |                 |  TIM4 OCREF CLR |
- |                 |  TIM10 IC1      |
- +-----------------------------------+
-
+          a buffer. To use it, refer to macro "__HAL_SYSCFG_VREFINT_OUT_ENABLE()".
 
             ##### How to use this driver #####
 ================================================================================
@@ -109,7 +62,7 @@
            - For all inputs: I/O pin in analog mode (Schmitt trigger disabled)
            - Possible alternate configuration, for non-inverting inputs of comparator 2: I/O pin in floating mode (Schmitt trigger enabled).
            It is recommended to use analog configuration to avoid any overconsumption around VDD/2.
-      (++) Enable COMP Peripheral clock using macro __COMP_CLK_ENABLE()
+      (++) Enable COMP Peripheral clock using macro __HAL_RCC_COMP_CLK_ENABLE()
       (++) If required enable the COMP interrupt (EXTI line Interrupt): enable
            the comparator interrupt vector using HAL_NVIC_EnableIRQ(COMP_IRQn)
            and HAL_NVIC_SetPriority(COMP_IRQn, xxx, xxx) functions.
@@ -139,7 +92,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -166,6 +119,48 @@
   ******************************************************************************  
   */
 
+/*
+  Additionnal remark: 
+    Table 1. COMP Inputs for the STM32L1xx devices
+    +----------------------------------------------------------------------+
+    |                 |                                |  COMP1  |  COMP2  |
+    |-----------------|--------------------------------|---------|---------|
+    |                 | 1/4 VREFINT                    |   --    |   OK    |
+    |                 | 1/2 VREFINT                    |   --    |   OK    |
+    |                 | 3/4 VREFINT                    |   --    |   OK    |
+    | Inverting       | VREFINT                        |   OK    |   OK    |
+    | input           | DAC Ch1 OUT (PA4)              |   --    |   OK    |
+    |                 | DAC Ch2 OUT (PA5)              |   --    |   OK    |
+    |                 | IO: PB3                        |   --    |   OK    |
+    |-----------------|--------------------------------|---------|---------|
+    |                 | IO:                            |         |         |
+    |                 |   PB4, 5, 6*, 7*               |   ---   |   OK    |
+    | Non-inverting   |   PA0*, 1*, 2*, 3*, 4, 5, 6, 7 |   OK    |   ---   |
+    | input           |   PB0, 1, 12, 13, 14, 15       |   OK    |   ---   |
+    |                 |   PC0, 1, 2, 3, 4, 5           |   OK    |   ---   |
+    |                 |   PE7, 8, 9, 10                |   OK    |   ---   |
+    |                 |   PF6, 7, 8, 9, 10             |   OK    |   ---   |
+    |                 | OPAMP1 output                  |   OK    |   ---   |
+    |                 | OPAMP2 output                  |   OK    |   ---   |
+    |                 | OPAMP3 output**                |   OK    |   ---   |
+    +----------------------------------------------------------------------+
+    *: Available on devices category Cat.3, Cat.4, Cat.5 only. 
+    **: Available on devices category Cat.4 only. 
+    
+    [..] Table 2. COMP Outputs redirection to embedded timers
+    +-----------------------------------+     
+    |      COMP1      |      COMP2      |
+    |-----------------|-----------------|
+    |                 |  TIM2 IC4       |
+    |                 |  TIM2 OCREF CLR |
+    | (no redirection |  TIM3 IC4       |
+    |   to timers)    |  TIM3 OCREF CLR |
+    |                 |  TIM4 IC4       |
+    |                 |  TIM4 OCREF CLR |
+    |                 |  TIM10 IC1      |
+    +-----------------------------------+
+*/
+
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal.h"
 
@@ -186,15 +181,15 @@
 /** @defgroup COMP_Private_Constants COMP Private Constants
   * @{
   */
-  /* Delay for COMP startup time.                                             */
+  /* Delay for COMP start-up time.                                            */
   /* Maximum delay is 10us for comparator 1 and 25us for comparator 2 in slow */
   /* mode (refer to device datasheet, parameter tSTART).                      */
   /* Delay in CPU cycles, fixed to worst case: maximum CPU frequency 32MHz to */
   /* have the minimum number of CPU cycles to fulfill this delay.             */
-  /*  - Comparator 1: delay minimum of 320 CPU cyles. Wait loop takes 3 CPU   */
+  /*  - Comparator 1: delay minimum of 320 CPU cycles. Wait loop takes 3 CPU  */
   /*                 cycles per iteration, therefore total wait iterations    */
   /*                 number must be initialized at 106 iterations.            */
-  /*  - Comparator 2: delay minimum of 800 CPU cyles. Wait loop takes 3 CPU   */
+  /*  - Comparator 2: delay minimum of 800 CPU cycles. Wait loop takes 3 CPU  */
   /*                 cycles per iteration, therefore total wait iterations    */
   /*                 number must be initialized at 266 iterations.            */
 #define COMP1_START_DELAY_CPU_CYCLES       ((uint32_t)106)
@@ -245,7 +240,7 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -269,8 +264,8 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
     /* In window mode, non-inverting inputs of the 2 comparators are          */
     /* connected together and are using inputs of COMP2 only. If COMP1 is     */
     /* selected, this parameter is discarded.                                 */
-    if ((hcomp->Init.WindowMode == COMP_WINDOWMODE_DISABLED) ||
-        (hcomp->Instance == COMP2)                             )
+    if ((hcomp->Init.WindowMode == COMP_WINDOWMODE_DISABLE) ||
+        (hcomp->Instance == COMP2)                            )
     {
       assert_param(IS_COMP_NONINVERTINGINPUT(hcomp->Init.NonInvertingInput));
     }
@@ -279,8 +274,11 @@ HAL_StatusTypeDef HAL_COMP_Init(COMP_HandleTypeDef *hcomp)
     /* Enable SYSCFG clock and the low level hardware to access comparators */
     if(hcomp->State == HAL_COMP_STATE_RESET)
     {
+      /* Allocate lock resource and initialize it */
+      hcomp->Lock = HAL_UNLOCKED;
+
       /* Enable SYSCFG clock to control the routing Interface (RI) */
-      __SYSCFG_CLK_ENABLE();
+      __HAL_RCC_SYSCFG_CLK_ENABLE();
       
       /* Init the low level hardware */
       HAL_COMP_MspInit(hcomp);
@@ -380,7 +378,7 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -441,6 +439,9 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   */
 __weak void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_COMP_MspInit could be implenetd in the user file
    */
@@ -453,6 +454,9 @@ __weak void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp)
   */
 __weak void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_COMP_MspDeInit could be implenetd in the user file
    */
@@ -489,7 +493,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
   __IO uint32_t wait_loop_index = 0;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -507,7 +511,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
       /*       inverting input selection also enables the comparator 2.       */
       __HAL_COMP_ENABLE(hcomp);
 
-      /* Set delay for COMP startup time */
+      /* Set delay for COMP start-up time */
       if (hcomp->Instance == COMP1)
       {
         wait_loop_cycles = COMP1_START_DELAY_CPU_CYCLES;
@@ -517,7 +521,7 @@ HAL_StatusTypeDef HAL_COMP_Start(COMP_HandleTypeDef *hcomp)
         wait_loop_cycles = COMP2_START_DELAY_CPU_CYCLES;
       }
 
-      /* Delay for COMP startup time.                                         */
+      /* Delay for COMP start-up time.                                         */
       /* Delay fixed to worst case: maximum CPU frequency                     */
       while(wait_loop_index < wait_loop_cycles)
       {
@@ -547,7 +551,7 @@ HAL_StatusTypeDef HAL_COMP_Stop(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
   
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -590,36 +594,34 @@ HAL_StatusTypeDef HAL_COMP_Start_IT(COMP_HandleTypeDef *hcomp)
     assert_param(IS_COMP_TRIGGERMODE(hcomp->Init.TriggerMode));
     
     /* Get the Exti Line output configuration */
-    extiline = __HAL_COMP_GET_EXTI_LINE(hcomp->Instance);
+    extiline = COMP_GET_EXTI_LINE(hcomp->Instance);
     
-    /* Configure the rising edge */
-    /* COMP TriggerMode set to COMP_TRIGGERMODE_IT_RISING or                  */
-    /* COMP_TRIGGERMODE_IT_RISING_FALLING.                                    */
+    /* Configure the trigger rising edge */
     if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_RISING) != RESET)
     {
-      __HAL_COMP_EXTI_RISING_IT_ENABLE(extiline);
+      SET_BIT(EXTI->RTSR, extiline);
     }
     else
     {
-      __HAL_COMP_EXTI_RISING_IT_DISABLE(extiline);
+      CLEAR_BIT(EXTI->RTSR, extiline);
     }
-    
-    /* Configure the falling edge */
-    /* COMP TriggerMode set to COMP_TRIGGERMODE_IT_FALLING or                 */
-    /* COMP_TRIGGERMODE_IT_RISING_FALLING.                                    */
+  
+    /* Configure the trigger falling edge */
     if((hcomp->Init.TriggerMode & COMP_TRIGGERMODE_IT_FALLING) != RESET)
     {
-      __HAL_COMP_EXTI_FALLING_IT_ENABLE(extiline);
+      SET_BIT(EXTI->FTSR, extiline);
     }
     else
     {
-      __HAL_COMP_EXTI_FALLING_IT_DISABLE(extiline);
+      CLEAR_BIT(EXTI->FTSR, extiline);
     }
     
-    /* Enable Exti interrupt mode */
-    __HAL_COMP_EXTI_ENABLE_IT(extiline);
-    /* Clear COMP Exti pending bit */
-    __HAL_COMP_EXTI_CLEAR_FLAG(extiline);
+    /* Clear COMP EXTI pending bit */
+    WRITE_REG(EXTI->PR, extiline);
+    
+    /* Enable EXTI interrupt mode */
+    SET_BIT(EXTI->IMR, extiline);
+    
   }
 
   return status;
@@ -634,8 +636,8 @@ HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp)
 { 
   HAL_StatusTypeDef status = HAL_OK;
   
-  /* Disable the Exti Line interrupt mode */
-  __HAL_COMP_EXTI_DISABLE_IT(__HAL_COMP_GET_EXTI_LINE(hcomp->Instance));
+  /* Disable the EXTI Line interrupt mode */
+  CLEAR_BIT(EXTI->IMR, COMP_GET_EXTI_LINE(hcomp->Instance));
   
   status = HAL_COMP_Stop(hcomp);
   
@@ -649,13 +651,13 @@ HAL_StatusTypeDef HAL_COMP_Stop_IT(COMP_HandleTypeDef *hcomp)
   */
 void HAL_COMP_IRQHandler(COMP_HandleTypeDef *hcomp)
 {
-  uint32_t extiline = __HAL_COMP_GET_EXTI_LINE(hcomp->Instance);
+  uint32_t extiline = COMP_GET_EXTI_LINE(hcomp->Instance);
   
   /* Check COMP Exti flag */
-  if(__HAL_COMP_EXTI_GET_FLAG(extiline) != RESET)
+  if(READ_BIT(EXTI->PR, extiline) != RESET)
   {
-    /* Clear COMP Exti pending bit */
-    __HAL_COMP_EXTI_CLEAR_FLAG(extiline);
+    /* Clear COMP EXTI pending bit */
+    WRITE_REG(EXTI->PR, extiline);
 
     /* COMP trigger user callback */
     HAL_COMP_TriggerCallback(hcomp);    
@@ -694,7 +696,7 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the COMP handle allocation and lock status */
-  if((hcomp == HAL_NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
+  if((hcomp == NULL) || ((hcomp->State & COMP_STATE_BIT_LOCK) != RESET))
   {
     status = HAL_ERROR;
   }
@@ -703,8 +705,20 @@ HAL_StatusTypeDef HAL_COMP_Lock(COMP_HandleTypeDef *hcomp)
     /* Check the parameter */
     assert_param(IS_COMP_ALL_INSTANCE(hcomp->Instance));
 
-    /* Set lock flag */
-    hcomp->State |= COMP_STATE_BIT_LOCK;
+    /* Set lock flag on state */
+    switch(hcomp->State)
+    {
+    case HAL_COMP_STATE_BUSY:
+      hcomp->State = HAL_COMP_STATE_BUSY_LOCKED;
+      break;
+    case HAL_COMP_STATE_READY:
+      hcomp->State = HAL_COMP_STATE_READY_LOCKED;
+      break;
+    default:
+      /* unexpected state */
+      status = HAL_ERROR;
+      break;
+    }
   }
   
   return status; 
@@ -748,6 +762,9 @@ uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
   */
 __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_COMP_TriggerCallback should be implemented in the user file
    */
@@ -780,7 +797,7 @@ __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
 HAL_COMP_StateTypeDef HAL_COMP_GetState(COMP_HandleTypeDef *hcomp)
 {
   /* Check the COMP handle allocation */
-  if(hcomp == HAL_NULL)
+  if(hcomp == NULL)
   {
     return HAL_COMP_STATE_RESET;
   }

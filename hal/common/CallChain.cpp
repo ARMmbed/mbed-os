@@ -12,12 +12,19 @@ CallChain::~CallChain() {
     delete _chain;
 }
 
-pFunctionPointer_t CallChain::add(void (*function)(void)) {
-    return common_add(new FunctionPointer(function));
+pFunctionPointer_t CallChain::add(Callback<void()> func) {
+    _check_size();
+    _chain[_elements] = new Callback<void()>(func);
+    _elements ++;
+    return _chain[_elements];
 }
 
-pFunctionPointer_t CallChain::add_front(void (*function)(void)) {
-    return common_add_front(new FunctionPointer(function));
+pFunctionPointer_t CallChain::add_front(Callback<void()> func) {
+    _check_size();
+    memmove(_chain + 1, _chain, _elements * sizeof(pFunctionPointer_t));
+    _chain[0] = new Callback<void()>(func);
+    _elements ++;
+    return _chain[0];
 }
 
 int CallChain::size() const {
@@ -70,21 +77,6 @@ void CallChain::_check_size() {
     memcpy(new_chain, _chain, _elements * sizeof(pFunctionPointer_t));
     delete _chain;
     _chain = new_chain;
-}
-
-pFunctionPointer_t CallChain::common_add(pFunctionPointer_t pf) {
-    _check_size();
-    _chain[_elements] = pf;
-    _elements ++;
-    return pf;
-}
-
-pFunctionPointer_t CallChain::common_add_front(pFunctionPointer_t pf) {
-    _check_size();
-    memmove(_chain + 1, _chain, _elements * sizeof(pFunctionPointer_t));
-    _chain[0] = pf;
-    _elements ++;
-    return pf;
 }
 
 } // namespace mbed

@@ -565,4 +565,16 @@ char* mbed_gets(char*s, int size, FILE *_file){
 #endif
 }
 
+#if defined (__ICCARM__)
+// Stub out locks when an rtos is not present
+extern "C" WEAK void __iar_system_Mtxinit(__iar_Rmtx *mutex) {}
+extern "C" WEAK void __iar_system_Mtxdst(__iar_Rmtx *mutex) {}
+extern "C" WEAK void __iar_system_Mtxlock(__iar_Rmtx *mutex) {}
+extern "C" WEAK void __iar_system_Mtxunlock(__iar_Rmtx *mutex) {}
+extern "C" WEAK void __iar_file_Mtxinit(__iar_Rmtx *mutex) {}
+extern "C" WEAK void __iar_file_Mtxdst(__iar_Rmtx *mutex) {}
+extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
+extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
+#endif
+
 } // namespace mbed

@@ -51,13 +51,15 @@
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347) || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
    || defined(TARGET_STM32F410RB) || defined(TARGET_KL46Z) || defined(TARGET_KL43Z)  || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC) || defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_TEENSY3_1) \
-   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC)
+   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC) \
+   || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32PG_STK3401)
 #    define OS_TASKCNT         14
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_STM32F303RE) || defined(TARGET_STM32F303K8) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO) || defined(TARGET_LPC1114) \
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL26Z)       || defined(TARGET_KL27Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) \
    || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
-   || defined(TARGET_SSCI824)  || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)  || defined(TARGET_MCU_NRF51822)
+   || defined(TARGET_SSCI824)  || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB) \
+   || defined(TARGET_EFM32HG_STK3400) || defined(TARGET_MCU_NRF51822)
 #    define OS_TASKCNT         6
 #  else
 #    error "no target defined"
@@ -84,14 +86,18 @@
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347)  || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
    || defined(TARGET_STM32F410RB) || defined(TARGET_KL46Z) || defined(TARGET_KL43Z) || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC) || defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_TEENSY3_1) \
-   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC)
+   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC) \
+   ||defined(TARGET_EFM32GG_STK3700)
 #      define OS_MAINSTKSIZE    256
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO)  || defined(TARGET_LPC1114) \
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL26Z)        || defined(TARGET_KL27Z)        || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
-   || defined(TARGET_SSCI824) || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)
+   || defined(TARGET_SSCI824) || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB) \
+   || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32PG_STK3401)
 #      define OS_MAINSTKSIZE    128
-#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) || defined(TARGET_MCU_NRF51822)
+#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) \
+   || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) \
+   || defined(TARGET_EFM32HG_STK3400) || defined(TARGET_MCU_NRF51822)
 #      define OS_MAINSTKSIZE    112
 #  else
 #    error "no target defined"
@@ -243,6 +249,10 @@
 
 #elif defined(TARGET_STM32L152RC)
 #    define OS_CLOCK       24000000
+
+#elif defined(TARGET_EFM32)
+#    include "clocking.h"
+#    define OS_CLOCK       REFERENCE_FREQUENCY
 
 #elif defined(TARGET_MCU_NRF51822)
 #    define OS_CLOCK        32768

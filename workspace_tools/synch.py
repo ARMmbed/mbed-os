@@ -56,7 +56,7 @@ OFFICIAL_CODE = (
     ("lwip-sys", LWIP_SOURCES+"/lwip-sys"),
     ("Socket"  , LWIP_SOURCES+"/Socket"),
 
-    ("lwip-eth"         , LWIP_SOURCES+"/lwip-eth"),
+    ("lwip-eth"         , ETH_SOURCES+"/lwip-eth"),
     ("EthernetInterface", ETH_SOURCES+"/EthernetInterface"),
 
     ("USBDevice", USB),

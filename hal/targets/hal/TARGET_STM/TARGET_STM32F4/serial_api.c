@@ -182,6 +182,10 @@ static void init_uart(serial_t *obj, UARTName instance)
     }
 #endif
 
+    /* uAMR & ARM: Call to UART init is done between reset of pre-initialized variables */
+	/* and before HAL Init. SystemCoreClock init required here */
+    SystemCoreClockUpdate();
+
     if (HAL_UART_Init(handle) != HAL_OK) {
         error("Cannot initialize UART\n");
     }
@@ -1082,15 +1086,8 @@ static void h_UART_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
        in the UART CR3 register */
     huart->Instance->CR3 &= (uint32_t)~((uint32_t)USART_CR3_DMAR);
 
-    /* Check if a transmit process is ongoing or not */
-    if(huart->State == HAL_UART_STATE_BUSY_TX_RX)
-    {
-      huart->State = HAL_UART_STATE_BUSY_TX;
-    }
-    else
-    {
-      huart->State = HAL_UART_STATE_READY;
-    }
+    /* Update Rx state*/
+    huart->RxState = HAL_UART_STATE_READY;
   }
   HAL_UART_RxCpltCallback(huart);
 }
@@ -1104,7 +1101,7 @@ static void h_UART_DMAError(DMA_HandleTypeDef *hdma)
   UART_HandleTypeDef* huart = ( UART_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
   huart->RxXferCount = 0;
   huart->TxXferCount = 0;
-  huart->State= HAL_UART_STATE_READY;
+  huart->gState= HAL_UART_STATE_READY;
   huart->ErrorCode |= HAL_UART_ERROR_DMA;
   HAL_UART_ErrorCallback(huart);
 }
@@ -1124,7 +1121,7 @@ static HAL_StatusTypeDef MBED_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_
     uint32_t *tmp;
     uint32_t tmp1 = 0;
 
-    tmp1 = huart->State;
+    tmp1 = HAL_UART_GetState(huart);
     if((tmp1 == HAL_UART_STATE_READY) || (tmp1 == HAL_UART_STATE_BUSY_TX)) {
         if((pData == NULL ) || (Size == 0)) {
           return HAL_ERROR;
@@ -1138,11 +1135,7 @@ static HAL_StatusTypeDef MBED_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_
 
         huart->ErrorCode = HAL_UART_ERROR_NONE;
         /* Check if a transmit process is ongoing or not */
-        if(huart->State == HAL_UART_STATE_BUSY_TX) {
-            huart->State = HAL_UART_STATE_BUSY_TX_RX;
-        } else {
-            huart->State = HAL_UART_STATE_BUSY_RX;
-        }
+        huart->RxState = HAL_UART_STATE_BUSY_RX;
 
         /* Set the UART DMA transfer complete callback */
         huart->hdmarx->XferCpltCallback = h_UART_DMAReceiveCplt;
@@ -1517,11 +1510,7 @@ void serial_tx_abort_asynch(serial_t *obj)
       // reset states
       handle->TxXferCount = 0;
       // update handle state
-      if (handle->State == HAL_UART_STATE_BUSY_TX_RX) {
-          handle->State = HAL_UART_STATE_BUSY_RX;
-      } else {
-          handle->State = HAL_UART_STATE_READY;
-      }
+	  handle->gState = HAL_UART_STATE_READY;
 }
 
 /** Abort the ongoing RX transaction It disables the enabled interrupt for RX and
@@ -1538,11 +1527,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     // reset states
     handle->RxXferCount = 0;
     // update handle state
-    if (handle->State == HAL_UART_STATE_BUSY_TX_RX) {
-        handle->State = HAL_UART_STATE_BUSY_TX;
-    } else {
-        handle->State = HAL_UART_STATE_READY;
-    }
+    handle->gState = HAL_UART_STATE_READY;
 }
 
 #endif

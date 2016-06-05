@@ -2,6 +2,7 @@
  * Copyright (c) 2010-2011 ARM Limited. All rights reserved.
  */
 #include "SerialHalfDuplex.h"
+#include "critical.h"
 
 #if DEVICE_SERIAL
 
@@ -29,7 +30,7 @@ int SerialHalfDuplex::_putc(int c) {
     int retc;
 
     // TODO: We should not disable all interrupts
-    __disable_irq();
+    core_util_critical_section_enter();
 
     serial_pinout_tx(gpio.pin);
 
@@ -38,7 +39,7 @@ int SerialHalfDuplex::_putc(int c) {
 
     pin_function(gpio.pin, 0);
 
-    __enable_irq();
+    core_util_critical_section_exit();
 
     return retc;
 }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following 
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -29,17 +29,17 @@
       *** DAC Triggers ***
       ====================
     [..]
-    Digital to Analog conversion can be non-triggered using DAC_Trigger_None
+    Digital to Analog conversion can be non-triggered using DAC_TRIGGER_NONE
     and DAC_OUT1/DAC_OUT2 is available once writing to DHRx register. 
     [..] 
     Digital to Analog conversion can be triggered by:
-      (#) External event: EXTI Line 9 (any GPIOx_Pin9) using DAC_Trigger_Ext_IT9.
-          The used pin (GPIOx_Pin9) must be configured in input mode.
+      (#) External event: EXTI Line 9 (any GPIOx_PIN_9) using DAC_TRIGGER_EXT_IT9.
+          The used pin (GPIOx_PIN_9) must be configured in input mode.
   
       (#) Timers TRGO: TIM2, TIM4, TIM6, TIM7, TIM9
           (DAC_Trigger_T2_TRGO, DAC_Trigger_T4_TRGO...)
   
-      (#) Software using DAC_Trigger_Software
+      (#) Software using DAC_TRIGGER_SOFTWARE
   
       *** DAC Buffer mode feature ***
       =============================== 
@@ -48,17 +48,35 @@
       reduce the output impedance, and to drive external loads directly
       without having to add an external operational amplifier.
       To enable, the output buffer use  
-      sConfig.DAC_OutputBuffer = DAC_OutputBuffer_Enable;
+      sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
       [..]           
       (@) Refer to the device datasheet for more details about output 
           impedance value with and without output buffer.
-            
+
+      *** DAC connect feature ***
+      =============================== 
+      [..] 
+      Each DAC channel can be connected internally. 
+      To connect, use
+      sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_ENABLE;
+                                               
+      *** GPIO configurations guidelines ***
+      =====================
+      [..] 
+      When a DAC channel is used (ex channel1 on PA4) and the other is not 
+      (ex channel1 on PA5 is configured in Analog and disabled).
+      Channel1 may disturb channel2 as coupling effect.
+      Note that there is no coupling on channel2 as soon as channel2 is turned on.
+      Coupling on adjacent channel could be avoided as follows:
+      when unused PA5 is configured as INPUT PULL-UP or DOWN. 
+      PA5 is configured in ANALOG just before it is turned on.     
+                                               
        *** DAC wave generation feature ***
        =================================== 
        [..]     
        Both DAC channels can be used to generate
-         (#) Noise wave 
-         (#) Triangle wave
+         (#) Noise wave using HAL_DACEx_NoiseWaveGenerate()
+         (#) Triangle wave using HAL_DACEx_TriangleWaveGenerate()
             
        *** DAC data format ***
        =======================
@@ -68,17 +86,20 @@
          (#) 12-bit left alignment using DAC_ALIGN_12B_L
          (#) 12-bit right alignment using DAC_ALIGN_12B_R
   
-       *** DAC data value to voltage correspondence ***  
+       *** DAC data value to voltage correspondance ***  
        ================================================ 
        [..] 
        The analog output voltage on each DAC channel pin is determined
-       by the following equation: 
+       by the following equation:
+       [..]
        DAC_OUTx = VREF+ * DOR / 4095
-       with  DOR is the Data Output Register
+       (+) with  DOR is the Data Output Register
+       [..]
           VEF+ is the input voltage reference (refer to the device datasheet)
+       [..]
         e.g. To set DAC_OUT1 to 0.7V, use
-          Assuming that VREF+ = 3.3V, DAC_OUT1 = (3.3 * 868) / 4095 = 0.7V
-  
+       (+) Assuming that VREF+ = 3.3V, DAC_OUT1 = (3.3 * 868) / 4095 = 0.7V
+
        *** DMA requests  ***
        =====================
        [..]    
@@ -87,9 +108,11 @@
        HAL_DAC_Start_DMA()
        [..]
        DMA1 requests are mapped as following:
-         (#) DAC channel1 : mapped on DMA1 channel2 which must be 
+         (#) DAC channel1 :
+             mapped on DMA1 channel2 which must be 
              already configured
-         (#) DAC channel2 : mapped on DMA1 channel3 which must be 
+         (#) DAC channel2 :
+             mapped on DMA1 channel3 which must be 
              already configured
        
     -@- For Dual mode and specific signal (Triangle and noise) generation please 
@@ -109,7 +132,7 @@
      =================================
      [..]    
        (+) Start the DAC peripheral using HAL_DAC_Start() 
-       (+) To read the DAC last data output value value, use the HAL_DAC_GetValue() function.
+       (+) To read the DAC last data output value, use the HAL_DAC_GetValue() function.
        (+) Stop the DAC peripheral using HAL_DAC_Stop()
        
      *** DMA mode IO operation ***    
@@ -117,21 +140,22 @@
      [..]    
        (+) Start the DAC peripheral using HAL_DAC_Start_DMA(), at this stage the user specify the length 
            of data to be transferred at each end of conversion
-       (+) At the middle of data transfer HAL_DAC_ConvHalfCpltCallbackCh1()or HAL_DAC_ConvHalfCpltCallbackCh2()  
+       (+) At the middle of data transfer HAL_DACEx_ConvHalfCpltCallbackCh1()or HAL_DACEx_ConvHalfCpltCallbackCh2()  
            function is executed and user can add his own code by customization of function pointer 
            HAL_DAC_ConvHalfCpltCallbackCh1 or HAL_DAC_ConvHalfCpltCallbackCh2
        (+) At The end of data transfer HAL_DAC_ConvCpltCallbackCh1()or HAL_DAC_ConvCpltCallbackCh2()  
            function is executed and user can add his own code by customization of function pointer 
            HAL_DAC_ConvCpltCallbackCh1 or HAL_DAC_ConvCpltCallbackCh2
-       (+) In case of transfer Error, HAL_DAC_ErrorCallbackCh1() function is executed and user can 
-           add his own code by customization of function pointer HAL_DAC_ErrorCallbackCh1
-       (+) In case of DMA underrun, DAC interruption triggers and execute internal function HAL_DAC_IRQHandler.
-           HAL_DAC_DMAUnderrunCallbackCh1()or HAL_DAC_DMAUnderrunCallbackCh2()  
+       (+) In case of transfer Error, HAL_DAC_ErrorCallbackCh1() or HAL_DACEx_ErrorCallbackCh2() function is executed and user can 
+           add his own code by customization of function pointer HAL_DAC_ErrorCallbackCh1 or HAL_DACEx_ErrorCallbackCh2
+       (+) For STM32F100x devices with specific feature: DMA underrun.             
+           In case of DMA underrun, DAC interruption triggers and execute internal function HAL_DAC_IRQHandler.
+           HAL_DAC_DMAUnderrunCallbackCh1()or HAL_DACEx_DMAUnderrunCallbackCh2()  
            function is executed and user can add his own code by customization of function pointer 
-           HAL_DAC_DMAUnderrunCallbackCh1 or HAL_DAC_DMAUnderrunCallbackCh2
+           HAL_DAC_DMAUnderrunCallbackCh1 or HAL_DACEx_DMAUnderrunCallbackCh2
            add his own code by customization of function pointer HAL_DAC_ErrorCallbackCh1
        (+) Stop the DAC peripheral using HAL_DAC_Stop_DMA()
-
+                    
      *** DAC HAL driver macros list ***
      ============================================= 
      [..]
@@ -149,7 +173,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -237,7 +261,7 @@ static void DAC_DMAHalfConvCpltCh1(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 { 
   /* Check DAC handle */
-  if(hdac == HAL_NULL)
+  if(hdac == NULL)
   {
      return HAL_ERROR;
   }
@@ -246,6 +270,9 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
   
   if(hdac->State == HAL_DAC_STATE_RESET)
   {  
+    /* Allocate lock resource and initialize it */
+    hdac->Lock = HAL_UNLOCKED;
+    
     /* Init the low level hardware */
     HAL_DAC_MspInit(hdac);
   }
@@ -272,7 +299,7 @@ HAL_StatusTypeDef HAL_DAC_Init(DAC_HandleTypeDef* hdac)
 HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
 {
   /* Check DAC handle */
-  if(hdac == HAL_NULL)
+  if(hdac == NULL)
   {
      return HAL_ERROR;
   }
@@ -307,6 +334,9 @@ HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspInit could be implemented in the user file
    */ 
@@ -320,6 +350,9 @@ __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_MspDeInit could be implemented in the user file
    */ 
@@ -359,8 +392,6 @@ __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
   */
 HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
 {
-  uint32_t tmp1 = 0, tmp2 = 0;
-  
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
   
@@ -375,10 +406,8 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   
   if(Channel == DAC_CHANNEL_1)
   {
-    tmp1 = hdac->Instance->CR & DAC_CR_TEN1;
-    tmp2 = hdac->Instance->CR & DAC_CR_TSEL1;
     /* Check if software trigger enabled */
-    if((tmp1 ==  DAC_CR_TEN1) && (tmp2 ==  DAC_CR_TSEL1))
+    if((hdac->Instance->CR & (DAC_CR_TEN1 | DAC_CR_TSEL1)) == (DAC_CR_TEN1 | DAC_CR_TSEL1))
     {
       /* Enable the selected DAC software conversion */
       SET_BIT(hdac->Instance->SWTRIGR, DAC_SWTRIGR_SWTRIG1);
@@ -386,10 +415,8 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   }
   else
   {
-    tmp1 = hdac->Instance->CR & DAC_CR_TEN2;
-    tmp2 = hdac->Instance->CR & DAC_CR_TSEL2;    
     /* Check if software trigger enabled */
-    if((tmp1 == DAC_CR_TEN2) && (tmp2 == DAC_CR_TSEL2))
+    if((hdac->Instance->CR & (DAC_CR_TEN2 | DAC_CR_TSEL2)) == (DAC_CR_TEN2 | DAC_CR_TSEL2))
     {
       /* Enable the selected DAC software conversion*/
       SET_BIT(hdac->Instance->SWTRIGR, DAC_SWTRIGR_SWTRIG2);
@@ -401,7 +428,7 @@ HAL_StatusTypeDef HAL_DAC_Start(DAC_HandleTypeDef* hdac, uint32_t Channel)
   
   /* Process unlocked */
   __HAL_UNLOCK(hdac);
-    
+  
   /* Return function status */
   return HAL_OK;
 }
@@ -451,7 +478,7 @@ HAL_StatusTypeDef HAL_DAC_Stop(DAC_HandleTypeDef* hdac, uint32_t Channel)
 HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, uint32_t* pData, uint32_t Length, uint32_t Alignment)
 {
   uint32_t tmpreg = 0;
-    
+  
   /* Check the parameters */
   assert_param(IS_DAC_CHANNEL(Channel));
   assert_param(IS_DAC_ALIGN(Alignment));
@@ -461,21 +488,21 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
   
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_BUSY;
-
+  
   if(Channel == DAC_CHANNEL_1)
   {
     /* Set the DMA transfer complete callback for channel1 */
     hdac->DMA_Handle1->XferCpltCallback = DAC_DMAConvCpltCh1;
-
+    
     /* Set the DMA half transfer complete callback for channel1 */
     hdac->DMA_Handle1->XferHalfCpltCallback = DAC_DMAHalfConvCpltCh1;
-
+       
     /* Set the DMA error callback for channel1 */
     hdac->DMA_Handle1->XferErrorCallback = DAC_DMAErrorCh1;
-
+    
     /* Enable the selected DAC channel1 DMA request */
     SET_BIT(hdac->Instance->CR, DAC_CR_DMAEN1);
-       
+    
     /* Case of use of channel 1 */
     switch(Alignment)
     {
@@ -499,16 +526,16 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
   {
     /* Set the DMA transfer complete callback for channel2 */
     hdac->DMA_Handle2->XferCpltCallback = DAC_DMAConvCpltCh2;
-
+    
     /* Set the DMA half transfer complete callback for channel2 */
     hdac->DMA_Handle2->XferHalfCpltCallback = DAC_DMAHalfConvCpltCh2;
     
     /* Set the DMA error callback for channel2 */
     hdac->DMA_Handle2->XferErrorCallback = DAC_DMAErrorCh2;
-
+    
     /* Enable the selected DAC channel2 DMA request */
     SET_BIT(hdac->Instance->CR, DAC_CR_DMAEN2);
-
+    
     /* Case of use of channel 2 */
     switch(Alignment)
     {
@@ -529,13 +556,13 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
     }
   }
   
-  /* Enable the DMA Stream */
+  /* Enable the DMA channel */
   if(Channel == DAC_CHANNEL_1)
   {
     /* Enable the DAC DMA underrun interrupt */
     __HAL_DAC_ENABLE_IT(hdac, DAC_IT_DMAUDR1);
     
-    /* Enable the DMA Stream */
+    /* Enable the DMA channel */
     HAL_DMA_Start_IT(hdac->DMA_Handle1, (uint32_t)pData, tmpreg, Length);
   } 
   else
@@ -543,20 +570,20 @@ HAL_StatusTypeDef HAL_DAC_Start_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel, u
     /* Enable the DAC DMA underrun interrupt */
     __HAL_DAC_ENABLE_IT(hdac, DAC_IT_DMAUDR2);
     
-    /* Enable the DMA Stream */
+    /* Enable the DMA channel */
     HAL_DMA_Start_IT(hdac->DMA_Handle2, (uint32_t)pData, tmpreg, Length);
   }
-  
-  /* Enable the Peripharal */
-  __HAL_DAC_ENABLE(hdac, Channel);
   
   /* Process Unlocked */
   __HAL_UNLOCK(hdac);
   
+  /* Enable the Peripharal */
+  __HAL_DAC_ENABLE(hdac, Channel);
+  
   /* Return function status */
   return HAL_OK;
 }
-
+ 
 /**
   * @brief  Disables DAC and stop conversion of channel.
   * @param  hdac: pointer to a DAC_HandleTypeDef structure that contains
@@ -575,24 +602,24 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel)
   assert_param(IS_DAC_CHANNEL(Channel));
   
   /* Disable the selected DAC channel DMA request */
-  hdac->Instance->CR &= ~(DAC_CR_DMAEN1 << Channel);
+  CLEAR_BIT(hdac->Instance->CR, DAC_CR_DMAEN1 << Channel);
     
   /* Disable the Peripharal */
   __HAL_DAC_DISABLE(hdac, Channel);
   
   /* Disable the DMA Channel */
   /* Channel1 is used */
-  if(Channel == DAC_CHANNEL_1)
-  { 
+  if (Channel == DAC_CHANNEL_1)
+  {
     status = HAL_DMA_Abort(hdac->DMA_Handle1);
   }
   else /* Channel2 is used for */
-  { 
-    status = HAL_DMA_Abort(hdac->DMA_Handle2); 
+  {
+    status = HAL_DMA_Abort(hdac->DMA_Handle2);
   }
-
+  
   /* Check if DMA Channel effectively disabled */
-  if(status != HAL_OK)
+  if (status != HAL_OK)
   {
     /* Update ADC state machine to error */
     hdac->State = HAL_DAC_STATE_ERROR;      
@@ -602,7 +629,7 @@ HAL_StatusTypeDef HAL_DAC_Stop_DMA(DAC_HandleTypeDef* hdac, uint32_t Channel)
     /* Change DAC state */
     hdac->State = HAL_DAC_STATE_READY;
   }
-
+  
   /* Return function status */
   return status;
 }
@@ -688,6 +715,9 @@ void HAL_DAC_IRQHandler(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvCpltCallbackCh1 could be implemented in the user file
    */
@@ -701,6 +731,9 @@ __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ConvHalfCpltCallbackCh1 could be implemented in the user file
    */
@@ -714,6 +747,9 @@ __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_ErrorCallbackCh1 could be implemented in the user file
    */
@@ -727,6 +763,9 @@ __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
   */
 __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_DAC_DMAUnderrunCallbackCh1 could be implemented in the user file
    */
@@ -764,7 +803,7 @@ __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
   */
 HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConfTypeDef* sConfig, uint32_t Channel)
 {
-  uint32_t tmpreg1 = 0, tmpreg2 = 0;
+  uint32_t tmpreg1 = 0;
 
   /* Check the DAC parameters */
   assert_param(IS_DAC_TRIGGER(sConfig->DAC_Trigger));
@@ -777,20 +816,19 @@ HAL_StatusTypeDef HAL_DAC_ConfigChannel(DAC_HandleTypeDef* hdac, DAC_ChannelConf
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_BUSY;
   
-  /* Get the DAC CR value */
-  tmpreg1 = DAC->CR;
-  /* Clear BOFFx, TENx, TSELx, WAVEx and MAMPx bits */
-  tmpreg1 &= ~(((uint32_t)(DAC_CR_MAMP1 | DAC_CR_WAVE1 | DAC_CR_TSEL1 | DAC_CR_TEN1 | DAC_CR_BOFF1)) << Channel);
   /* Configure for the selected DAC channel: buffer output, trigger */
   /* Set TSELx and TENx bits according to DAC_Trigger value */
   /* Set BOFFx bit according to DAC_OutputBuffer value */   
-  tmpreg2 = (sConfig->DAC_Trigger | sConfig->DAC_OutputBuffer);
+  SET_BIT(tmpreg1, (sConfig->DAC_Trigger | sConfig->DAC_OutputBuffer));
+  
+  /* Clear BOFFx, TENx, TSELx, WAVEx and MAMPx bits */  
   /* Calculate CR register value depending on DAC_Channel */
-  tmpreg1 |= tmpreg2 << Channel;
-  /* Write to DAC CR */
-  DAC->CR = tmpreg1;
+  MODIFY_REG(hdac->Instance->CR,
+             ((uint32_t)(DAC_CR_MAMP1 | DAC_CR_WAVE1 | DAC_CR_TSEL1 | DAC_CR_TEN1 | DAC_CR_BOFF1)) << Channel,
+             tmpreg1 << Channel);
+
   /* Disable wave generation */
-  DAC->CR &= ~(DAC_CR_WAVE1 << Channel);
+  hdac->Instance->CR &= ~(DAC_CR_WAVE1 << Channel);
   
   /* Change DAC state */
   hdac->State = HAL_DAC_STATE_READY;
@@ -830,11 +868,11 @@ HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, ui
   tmp = (uint32_t)hdac->Instance; 
   if(Channel == DAC_CHANNEL_1)
   {
-    tmp += __HAL_DHR12R1_ALIGNEMENT(Alignment);
+    tmp += DAC_DHR12R1_ALIGNMENT(Alignment);
   }
   else
   {
-    tmp += __HAL_DHR12R2_ALIGNEMENT(Alignment);
+    tmp += DAC_DHR12R2_ALIGNMENT(Alignment);
   }
 
   /* Set the DAC channel selected data holding register */

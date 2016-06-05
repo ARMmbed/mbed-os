@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of ADC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L1xx_HAL_ADC_EX_H
@@ -87,7 +87,7 @@ typedef struct
                                                         If this same channel has been previously configured in the other group (regular/injected), it will be updated to last setting.
                                                Note: In case of usage of internal measurement channels (VrefInt/Vbat/TempSensor),
                                                      sampling time constraints must be respected (sampling time can be adjusted in function of ADC clock frequency and sampling time setting)
-                                                     Refer to device datasheet for timings values, parameters TS_vrefint, TS_temp (values rough order: 4us min). */                          
+                                                     Refer to device datasheet for timings values, parameters TS_vrefint, TS_temp (values rough order: 4us min). */
   uint32_t InjectedOffset;                /*!< Defines the offset to be subtracted from the raw converted data (for channels set on injected group only).
                                                Offset value must be a positive number.
                                                Depending of ADC resolution selected (12, 10, 8 or 6 bits),
@@ -137,34 +137,24 @@ typedef struct
   * @{
   */
 
-/** @defgroup ADCEx_injected_rank ADCEx injected rank
+/** @defgroup ADCEx_injected_rank ADCEx rank into injected group
   * @{
   */
 #define ADC_INJECTED_RANK_1    ((uint32_t)0x00000001)
 #define ADC_INJECTED_RANK_2    ((uint32_t)0x00000002)
 #define ADC_INJECTED_RANK_3    ((uint32_t)0x00000003)
 #define ADC_INJECTED_RANK_4    ((uint32_t)0x00000004)
-
-#define IS_ADC_INJECTED_RANK(CHANNEL) (((CHANNEL) == ADC_INJECTED_RANK_1) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_2) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_3) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_4)   )
 /**
   * @}
   */
 
-/** @defgroup ADCEx_External_trigger_edge_Injected ADCEx External trigger edge Injected
+/** @defgroup ADCEx_External_trigger_edge_Injected ADCEx external trigger enable for injected group
   * @{
   */
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_NONE           ((uint32_t)0x00000000)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_RISING         ((uint32_t)ADC_CR2_JEXTEN_0)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_FALLING        ((uint32_t)ADC_CR2_JEXTEN_1)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_RISINGFALLING  ((uint32_t)ADC_CR2_JEXTEN)
-
-#define IS_ADC_EXTTRIGINJEC_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_NONE)         || \
-                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISING)       || \
-                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_FALLING)      || \
-                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISINGFALLING)  )
 /**
   * @}
   */
@@ -185,24 +175,20 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_T9_TRGO     ADC_EXTERNALTRIGINJEC_T9_TRGO
 #define ADC_EXTERNALTRIGINJECCONV_T10_CC1     ADC_EXTERNALTRIGINJEC_T10_CC1
 #define ADC_EXTERNALTRIGINJECCONV_EXT_IT15    ADC_EXTERNALTRIGINJEC_EXT_IT15
-
 #define ADC_INJECTED_SOFTWARE_START      ((uint32_t)0x00000010)
-
-#define IS_ADC_EXTTRIGINJEC(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC1)   || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC2)   || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC3)   || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T7_TRGO)  || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T9_CC1)   || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T9_TRGO)  || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T10_CC1)  || \
-                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
-                                      ((REGTRIG) == ADC_SOFTWARE_START)              )
 /**
   * @}
+  */
+
+/**
+  * @}
+  */
+
+
+/* Private constants ---------------------------------------------------------*/
+
+/** @addtogroup ADCEx_Private_Constants ADCEx Private Constants
+  * @{
   */
 
 /** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Injected ADCEx Internal HAL driver Ext trig src Injected
@@ -223,16 +209,6 @@ typedef struct
 #define ADC_EXTERNALTRIGINJEC_T10_CC1        ((uint32_t)(ADC_CR2_JEXTSEL_3                                       | ADC_CR2_JEXTSEL_0))
 #define ADC_EXTERNALTRIGINJEC_T7_TRGO        ((uint32_t)(ADC_CR2_JEXTSEL_3                    | ADC_CR2_JEXTSEL_1                   ))
 #define ADC_EXTERNALTRIGINJEC_EXT_IT15       ((uint32_t)(ADC_CR2_JEXTSEL_3 | ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_1 | ADC_CR2_JEXTSEL_0))
-
-/**
-  * @}
-  */
-
-
-/** @defgroup ADCEx_injected_nb_conv_verification ADCEx injected nb conv verification
-  * @{
-  */
-#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
 /**
   * @}
   */
@@ -240,8 +216,8 @@ typedef struct
 /**
   * @}
   */
-
-
+  
+  
 /* Exported macro ------------------------------------------------------------*/
 
 /** @defgroup ADCEx_Exported_Macros ADCEx Exported Macros
@@ -263,7 +239,7 @@ typedef struct
 #define __HAL_ADC_CHANNELS_BANK(__HANDLE__, __BANK__)                          \
   MODIFY_REG((__HANDLE__)->Instance->CR2, ADC_CR2_CFG, (__BANK__))
 
-#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 /**
  * @brief Configures the ADC channels speed.
  * Limited to channels 3, 8, 13 and to devices category Cat.3, Cat.4, Cat.5.
@@ -317,7 +293,7 @@ typedef struct
         )                                                                      \
      )                                                                         \
   )
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
     
 /**
   * @}
@@ -332,23 +308,16 @@ typedef struct
 /* code of final user.                                                        */
 
 /**
-  * @brief Set ADC number of ranks into regular channel sequence length.
-  * @param _NbrOfConversion_: Regular channel sequence length 
-  * @retval None
-  */
-#define __ADC_SQR1_L(_NbrOfConversion_) (((_NbrOfConversion_) - (uint8_t)1) << POSITION_VAL(ADC_SQR1_L))
-
-/**
   * @brief Set ADC ranks available in register SQR1.
   * Register SQR1 bits availability depends on device category.
   * @param _NbrOfConversion_: Regular channel sequence length 
   * @retval None
   */
-#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define __ADC_SQR1_SQXX   ADC_SQR1_SQ28 | ADC_SQR1_SQ27 | ADC_SQR1_SQ26 | ADC_SQR1_SQ25
+#if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define __ADC_SQR1_SQXX   (ADC_SQR1_SQ28 | ADC_SQR1_SQ27 | ADC_SQR1_SQ26 | ADC_SQR1_SQ25)
 #else
-#define __ADC_SQR1_SQXX   ADC_SQR1_SQ27 | ADC_SQR1_SQ26 | ADC_SQR1_SQ25
-#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#define __ADC_SQR1_SQXX   (ADC_SQR1_SQ27 | ADC_SQR1_SQ26 | ADC_SQR1_SQ25)
+#endif /* STM32L100xC || STM32L151xC || STM32L152xC || STM32L162xC || STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
 /**
   * @brief Set the ADC's sample time for channel numbers between 30 and 31.
@@ -359,20 +328,23 @@ typedef struct
   * @param _CHANNELNB_: Channel number.  
   * @retval None
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define __ADC_SMPR0(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 30)))
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define ADC_SMPR0(_SAMPLETIME_, _CHANNELNB_)                                   \
+  ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 30)))
 #else
-#define __ADC_SMPR0(_SAMPLETIME_, _CHANNELNB_) ((uint32_t)0x00000000)
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
-    
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#define ADC_SMPR0(_SAMPLETIME_, _CHANNELNB_)                                   \
+  ((uint32_t)0x00000000)
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
+
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 /**
   * @brief Set the ADC's sample time for channel numbers between 20 and 29.
   * @param _SAMPLETIME_: Sample time parameter.
   * @param _CHANNELNB_: Channel number.
   * @retval None
   */
-#define __ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 20)))
+#define ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_)                                   \
+  ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 20)))
 #else
 /**
   * @brief Set the ADC's sample time for channel numbers between 20 and 26.
@@ -380,8 +352,9 @@ typedef struct
   * @param _CHANNELNB_: Channel number.
   * @retval None
   */
-#define __ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 20)))
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#define ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_)                                   \
+  ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 20)))
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
 /**
   * @brief Defines the highest channel available in register SMPR1. Channels
@@ -391,99 +364,12 @@ typedef struct
   * @param None
   * @retval None
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 #define ADC_SMPR1_CHANNEL_MAX   ADC_CHANNEL_29
 #else
 #define ADC_SMPR1_CHANNEL_MAX   ADC_CHANNEL_26
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
-   
-/**
-  * @brief Set the ADC's sample time for channel numbers between 10 and 18.
-  * @param _SAMPLETIME_: Sample time parameter.
-  * @param _CHANNELNB_: Channel number.  
-  * @retval None
-  */
-#define __ADC_SMPR2(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 10)))
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
-/**
-  * @brief Set the ADC's sample time for channel numbers between 0 and 9.
-  * @param _SAMPLETIME_: Sample time parameter.
-  * @param _CHANNELNB_: Channel number.  
-  * @retval None
-  */
-#define __ADC_SMPR3(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * (_CHANNELNB_)))
-
-/**
-  * @brief Set the selected regular channel rank for rank between 1 and 6.
-  * @param _CHANNELNB_: Channel number.
-  * @param _RANKNB_: Rank number.    
-  * @retval None
-  */
-#define __ADC_SQR5_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 1)))
-
-/**
-  * @brief Set the selected regular channel rank for rank between 7 and 12.
-  * @param _CHANNELNB_: Channel number.
-  * @param _RANKNB_: Rank number.    
-  * @retval None
-  */
-#define __ADC_SQR4_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 7)))
-
-/**
-  * @brief Set the selected regular channel rank for rank between 13 and 18.
-  * @param _CHANNELNB_: Channel number.
-  * @param _RANKNB_: Rank number.    
-  * @retval None
-  */
-#define __ADC_SQR3_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 13)))
-
-/**
-  * @brief Set the selected regular channel rank for rank between 19 and 24.
-  * @param _CHANNELNB_: Channel number.
-  * @param _RANKNB_: Rank number.    
-  * @retval None
-  */
-#define __ADC_SQR2_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 19)))
-      
-/**
-  * @brief Set the selected regular channel rank for rank between 25 and 28.
-  * @param _CHANNELNB_: Channel number.
-  * @param _RANKNB_: Rank number.    
-  * @retval None
-  */
-#define __ADC_SQR1_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 25)))
-      
-/**
-  * @brief Set the injected sequence length.
-  * @param _JSQR_JL_: Sequence length.
-  * @retval None
-  */
-#define __ADC_JSQR_JL(_JSQR_JL_)   (((_JSQR_JL_) -1) << 20)
-
-/**
-  * @brief Set the selected injected Channel rank (channels sequence starting from 4-JL)
-  * @param _CHANNELNB_: Channel number.
-  * @param _RANKNB_: Rank number.
-  * @param _JSQR_JL_: Sequence length.
-  * @retval None
-  */
-#define __ADC_JSQR_RK(_CHANNELNB_, _RANKNB_, _JSQR_JL_)                        \
-    ((_CHANNELNB_) << (5 * ((4 - ((_JSQR_JL_) - (_RANKNB_))) - 1)))
-
-      
-/**
-  * @brief Enable the ADC DMA continuous request.
-  * @param _DMACONTREQ_MODE_: DMA continuous request mode.
-  * @retval None
-  */
-#define __ADC_CR2_DMACONTREQ(_DMACONTREQ_MODE_) ((_DMACONTREQ_MODE_) << POSITION_VAL(ADC_CR2_DDS))
-
-/**
-  * @brief Enable ADC continuous conversion mode.
-  * @param _CONTINUOUS_MODE_: Continuous mode.
-  * @retval None
-  */
-#define __ADC_CR2_CONTINUOUS(_CONTINUOUS_MODE_) ((_CONTINUOUS_MODE_) << POSITION_VAL(ADC_CR2_CONT))
 
 /**
   * @brief Define mask of configuration bits of ADC and regular group in
@@ -491,43 +377,27 @@ typedef struct
   * excluded of this mask).
   * @retval None
   */
-#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define __ADC_CR2_MASK_ADCINIT()                                               \
+#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define ADC_CR2_MASK_ADCINIT()                                                 \
   (ADC_CR2_EXTEN | ADC_CR2_EXTSEL | ADC_CR2_ALIGN | ADC_CR2_EOCS | ADC_CR2_DDS | ADC_CR2_DELS | ADC_CR2_CFG | ADC_CR2_CONT)
 #else
-#define __ADC_CR2_MASK_ADCINIT()                                               \
+#define ADC_CR2_MASK_ADCINIT()                                                 \
   (ADC_CR2_EXTEN | ADC_CR2_EXTSEL | ADC_CR2_ALIGN | ADC_CR2_EOCS | ADC_CR2_DDS | ADC_CR2_DELS | ADC_CR2_CONT)
 #endif
 
-/**
-  * @brief Configures the number of discontinuous conversions for the regular group channels.
-  * @param _NBR_DISCONTINUOUS_CONV_: Number of discontinuous conversions.
-  * @retval None
-  */
-#define __ADC_CR1_DISCONTINUOUS_NUM(_NBR_DISCONTINUOUS_CONV_) (((_NBR_DISCONTINUOUS_CONV_) - 1) << POSITION_VAL(ADC_CR1_DISCNUM))
-   
-/**
-  * @brief Enable ADC scan mode to convert multiple ranks with sequencer.
-  * @param _SCAN_MODE_: Scan conversion mode.
-  * @retval None
-  */
-#define __ADC_CR1_SCAN(_SCAN_MODE_)                                            \
-  ( ( (_SCAN_MODE_) == (ADC_SCAN_ENABLE)                                       \
-    )? (ADC_CR1_SCAN) : (0x00000000)                                           \
-  )
 
 /**
   * @brief Get the maximum ADC conversion cycles on all channels.
   * Returns the selected sampling time + conversion time (12.5 ADC clock cycles)
-  * Approximation of sampling time within 2 ranges, returns the higher value:
+  * Approximation of sampling time within 2 ranges, returns the highest value:
   *   below 24 cycles {4 cycles; 9 cycles; 16 cycles; 24 cycles}
   *   between 48 cycles and 384 cycles {48 cycles; 96 cycles; 192 cycles; 384 cycles}
   * Unit: ADC clock cycles
   * @param __HANDLE__: ADC handle
   * @retval ADC conversion cycles on all channels
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define __ADC_CONVCYCLES_MAX_RANGE(__HANDLE__)                                                          \
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define ADC_CONVCYCLES_MAX_RANGE(__HANDLE__)                                                            \
     (( (((__HANDLE__)->Instance->SMPR3 & ADC_SAMPLETIME_ALLCHANNELS_SMPR3BIT2) == RESET)  &&            \
        (((__HANDLE__)->Instance->SMPR2 & ADC_SAMPLETIME_ALLCHANNELS_SMPR2BIT2) == RESET)  &&            \
        (((__HANDLE__)->Instance->SMPR1 & ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT2) == RESET)  &&            \
@@ -536,21 +406,21 @@ typedef struct
         ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_24CYCLES : ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_384CYCLES  \
      )
 #else
-#define __ADC_CONVCYCLES_MAX_RANGE(__HANDLE__)                                                          \
+#define ADC_CONVCYCLES_MAX_RANGE(__HANDLE__)                                                            \
     (( (((__HANDLE__)->Instance->SMPR3 & ADC_SAMPLETIME_ALLCHANNELS_SMPR3BIT2) == RESET)  &&            \
        (((__HANDLE__)->Instance->SMPR2 & ADC_SAMPLETIME_ALLCHANNELS_SMPR2BIT2) == RESET)  &&            \
        (((__HANDLE__)->Instance->SMPR1 & ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT2) == RESET) ) ?            \
                                                                                                         \
         ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_24CYCLES : ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_384CYCLES  \
      )
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
 /**
   * @brief Get the ADC clock prescaler from ADC common control register
   * and convert it to its decimal number setting (refer to reference manual)
   * @retval None
   */
-#define __ADC_GET_CLOCK_PRESCALER_DECIMAL(__HANDLE__)                          \
+#define ADC_GET_CLOCK_PRESCALER_DECIMAL(__HANDLE__)                            \
     ((0x01) << ((ADC->CCR & ADC_CCR_ADCPRE) >> POSITION_VAL(ADC_CCR_ADCPRE)))
 
 /**
@@ -560,20 +430,31 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define __ADC_SMPR0_CLEAR(__HANDLE__)                                          \
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define ADC_SMPR1_CLEAR(__HANDLE__)                                                                     \
+      CLEAR_BIT((__HANDLE__)->Instance->SMPR1, (ADC_SMPR1_SMP29 | ADC_SMPR1_SMP28 | ADC_SMPR1_SMP27 |   \
+                                                ADC_SMPR1_SMP26 | ADC_SMPR1_SMP25 | ADC_SMPR1_SMP24 |   \
+                                                ADC_SMPR1_SMP23 | ADC_SMPR1_SMP22 | ADC_SMPR1_SMP21 |   \
+                                                ADC_SMPR1_SMP20                                      ))
+
+#define ADC_SMPR0_CLEAR(__HANDLE__)                                              \
   (CLEAR_BIT((__HANDLE__)->Instance->SMPR0, (ADC_SMPR0_SMP31 | ADC_SMPR0_SMP30)))
 #else
-#define __ADC_SMPR0_CLEAR(__HANDLE__) __NOP()
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#define ADC_SMPR1_CLEAR(__HANDLE__)                                                                   \
+    CLEAR_BIT((__HANDLE__)->Instance->SMPR1, (ADC_SMPR1_SMP26 | ADC_SMPR1_SMP25 | ADC_SMPR1_SMP24 |   \
+                                              ADC_SMPR1_SMP23 | ADC_SMPR1_SMP22 | ADC_SMPR1_SMP21 |   \
+                                              ADC_SMPR1_SMP20                                      ))
+
+#define ADC_SMPR0_CLEAR(__HANDLE__) __NOP()
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
 /**
   * @brief Clear register CR2.
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define __ADC_CR2_CLEAR(__HANDLE__)                                                                \
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define ADC_CR2_CLEAR(__HANDLE__)                                                                  \
   (CLEAR_BIT((__HANDLE__)->Instance->CR2, (ADC_CR2_SWSTART  | ADC_CR2_EXTEN  | ADC_CR2_EXTSEL  |   \
                                            ADC_CR2_JSWSTART | ADC_CR2_JEXTEN | ADC_CR2_JEXTSEL |   \
                                            ADC_CR2_ALIGN    | ADC_CR2_EOCS   | ADC_CR2_DDS     |   \
@@ -581,15 +462,15 @@ typedef struct
                                            ADC_CR2_CONT     | ADC_CR2_ADON                      )) \
   )
 #else
-#define __ADC_CR2_CLEAR(__HANDLE__)                                                                \
+#define ADC_CR2_CLEAR(__HANDLE__)                                                                  \
   (CLEAR_BIT((__HANDLE__)->Instance->CR2, (ADC_CR2_SWSTART  | ADC_CR2_EXTEN  | ADC_CR2_EXTSEL  |   \
                                            ADC_CR2_JSWSTART | ADC_CR2_JEXTEN | ADC_CR2_JEXTSEL |   \
                                            ADC_CR2_ALIGN    | ADC_CR2_EOCS   | ADC_CR2_DDS     |   \
                                            ADC_CR2_DMA      | ADC_CR2_DELS   |                     \
                                            ADC_CR2_CONT     | ADC_CR2_ADON                      )) \
   )
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
-      
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
+
 /**
   * @brief Set the sampling time of selected channel on register SMPR0
   * Register SMPR0 availability depends on device category. If register is not
@@ -599,31 +480,47 @@ typedef struct
   * @param __CHANNEL__: Channel number.
   * @retval None
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define __ADC_SMPR0_CHANNEL_SET(__HANDLE__, _SAMPLETIME_, __CHANNEL__)         \
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define ADC_SMPR0_CHANNEL_SET(__HANDLE__, _SAMPLETIME_, __CHANNEL__)           \
     MODIFY_REG((__HANDLE__)->Instance->SMPR0,                                  \
-               __ADC_SMPR0(ADC_SMPR0_SMP30, (__CHANNEL__)),                    \
-               __ADC_SMPR0((_SAMPLETIME_), (__CHANNEL__))  )
+               ADC_SMPR0(ADC_SMPR0_SMP30, (__CHANNEL__)),                      \
+               ADC_SMPR0((_SAMPLETIME_), (__CHANNEL__))  )
 #else
-#define __ADC_SMPR0_CHANNEL_SET(__HANDLE__, _SAMPLETIME_, __CHANNEL__) __NOP()
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */     
+#define ADC_SMPR0_CHANNEL_SET(__HANDLE__, _SAMPLETIME_, __CHANNEL__) __NOP()
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */     
 
-      
-/**
-  * @brief Enable the ADC peripheral
-  * @param __HANDLE__: ADC handle
-  * @retval None
+
+#define IS_ADC_INJECTED_RANK(CHANNEL) (((CHANNEL) == ADC_INJECTED_RANK_1) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_2) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_3) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_4)   )
+
+#define IS_ADC_EXTTRIGINJEC_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_NONE)         || \
+                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISING)       || \
+                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_FALLING)      || \
+                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISINGFALLING)  )
+
+#define IS_ADC_EXTTRIGINJEC(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC1)   || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC2)   || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC3)   || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T7_TRGO)  || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T9_CC1)   || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T9_TRGO)  || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_T10_CC1)  || \
+                                      ((REGTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
+                                      ((REGTRIG) == ADC_SOFTWARE_START)                   )
+
+/** @defgroup ADCEx_injected_nb_conv_verification ADCEx injected nb conv verification
+  * @{
   */
-#define __ADC_ENABLE(__HANDLE__)                                               \
-            (__HANDLE__)->Instance->CR2 |= ADC_CR2_ADON
-  
+#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
 /**
-  * @brief Disable the ADC peripheral
-  * @param __HANDLE__: ADC handle
-  * @retval None
+  * @}
   */
-#define __ADC_DISABLE(__HANDLE__)                                              \
-            (__HANDLE__)->Instance->CR2 &= ~ADC_CR2_ADON
 
 /**
   * @}

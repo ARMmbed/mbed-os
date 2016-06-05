@@ -1,31 +1,52 @@
-; STM32L151RC Ultra Low Power High-density Devices vector table for MDK ARM_STD toolchain
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Copyright (c) 2015, STMicroelectronics
-; All rights reserved.
+;******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
+;* File Name          : startup_stm32l151xc.s
+;* Author             : MCD Application Team
+;* Version            : V2.1.3
+;* Date               : 04-March-2016
+;* Description        : STM32L151XC Devices vector for MDK-ARM toolchain.
+;*                      This module performs:
+;*                      - Set the initial SP
+;*                      - Set the initial PC == Reset_Handler
+;*                      - Set the vector table entries with the exceptions ISR
+;*                        address.
+;*                      - Configure the system clock
+;*                      - Branches to __main in the C library (which eventually
+;*                        calls main()).
+;*                      After Reset the Cortex-M3 processor is in Thread mode,
+;*                      priority is Privileged, and the Stack is set to Main.
+;********************************************************************************
+;*
+;* COPYRIGHT(c) 2016 STMicroelectronics
+;*
+;* Redistribution and use in source and binary forms, with or without modification,
+;* are permitted provided that the following conditions are met:
+;*   1. Redistributions of source code must retain the above copyright notice,
+;*      this list of conditions and the following disclaimer.
+;*   2. Redistributions in binary form must reproduce the above copyright notice,
+;*      this list of conditions and the following disclaimer in the documentation
+;*      and/or other materials provided with the distribution.
+;*   3. Neither the name of STMicroelectronics nor the names of its contributors
+;*      may be used to endorse or promote products derived from this software
+;*      without specific prior written permission.
+;*
+;* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+;* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+;* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+;* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+;* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+;* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+;* SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+;* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+;* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
-; Redistribution and use in source and binary forms, with or without
-; modification, are permitted provided that the following conditions are met:
+;*******************************************************************************
 ;
-; 1. Redistributions of source code must retain the above copyright notice,
-;     this list of conditions and the following disclaimer.
-; 2. Redistributions in binary form must reproduce the above copyright notice,
-;    this list of conditions and the following disclaimer in the documentation
-;    and/or other materials provided with the distribution.
-; 3. Neither the name of STMicroelectronics nor the names of its contributors
-;    may be used to endorse or promote products derived from this software
-;    without specific prior written permission.
-;
-; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-; IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-; DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-; FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-; DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-; SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-; CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-; OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Amount of memory (in bytes) allocated for Stack
+; Tailor this value to your application needs
+; <h> Stack Configuration
+;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+; </h>
 
 __initial_sp    EQU     0x2008000 ; Top of RAM (32 KB)
 
@@ -81,7 +102,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     DAC_IRQHandler            ; DAC
                 DCD     COMP_IRQHandler           ; COMP through EXTI Line
                 DCD     EXTI9_5_IRQHandler        ; EXTI Line 9..5
-                DCD     LCD_IRQHandler            ; LCD
+                DCD     0                         ; Reserved
                 DCD     TIM9_IRQHandler           ; TIM9
                 DCD     TIM10_IRQHandler          ; TIM10
                 DCD     TIM11_IRQHandler          ; TIM11
@@ -112,16 +133,16 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     DMA2_Channel3_IRQHandler  ; DMA2 Channel 3
                 DCD     DMA2_Channel4_IRQHandler  ; DMA2 Channel 4
                 DCD     DMA2_Channel5_IRQHandler  ; DMA2 Channel 5
-                DCD     AES_IRQHandler            ; AES
+                DCD     0                         ; Reserved
                 DCD     COMP_ACQ_IRQHandler       ; Comparator Channel Acquisition
-                
+
 __Vectors_End
 
 __Vectors_Size  EQU  __Vectors_End - __Vectors
 
                 AREA    |.text|, CODE, READONLY
 
-; Reset handler
+; Reset handler routine
 Reset_Handler    PROC
                  EXPORT  Reset_Handler             [WEAK]
      IMPORT  __main
@@ -202,7 +223,6 @@ Default_Handler PROC
                 EXPORT  DAC_IRQHandler             [WEAK]
                 EXPORT  COMP_IRQHandler            [WEAK]
                 EXPORT  EXTI9_5_IRQHandler         [WEAK]
-                EXPORT  LCD_IRQHandler             [WEAK]
                 EXPORT  TIM9_IRQHandler            [WEAK]
                 EXPORT  TIM10_IRQHandler           [WEAK]
                 EXPORT  TIM11_IRQHandler           [WEAK]
@@ -230,7 +250,6 @@ Default_Handler PROC
                 EXPORT  DMA2_Channel3_IRQHandler   [WEAK]
                 EXPORT  DMA2_Channel4_IRQHandler   [WEAK]
                 EXPORT  DMA2_Channel5_IRQHandler   [WEAK]
-                EXPORT  AES_IRQHandler             [WEAK]
                 EXPORT  COMP_ACQ_IRQHandler        [WEAK]
 
 WWDG_IRQHandler
@@ -257,7 +276,6 @@ USB_LP_IRQHandler
 DAC_IRQHandler
 COMP_IRQHandler
 EXTI9_5_IRQHandler
-LCD_IRQHandler
 TIM9_IRQHandler
 TIM10_IRQHandler
 TIM11_IRQHandler
@@ -285,7 +303,6 @@ DMA2_Channel2_IRQHandler
 DMA2_Channel3_IRQHandler
 DMA2_Channel4_IRQHandler
 DMA2_Channel5_IRQHandler
-AES_IRQHandler
 COMP_ACQ_IRQHandler
 
                 B       .

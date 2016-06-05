@@ -1,3 +1,5 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -16,42 +18,21 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-#define DEVICE_PORTIN           1
-#define DEVICE_PORTOUT          1
-#define DEVICE_PORTINOUT        0
 
-#define DEVICE_INTERRUPTIN      1
 
-#define DEVICE_ANALOGIN         1
-#define DEVICE_ANALOGOUT        0
 
-#define DEVICE_SERIAL           1
 
-#define DEVICE_I2C              1
-#define DEVICE_I2CSLAVE         1
 
-#define DEVICE_SPI              1
-#define DEVICE_SPISLAVE         1
 
-#define DEVICE_CAN              0
 
-#define DEVICE_RTC              1
 
-#define DEVICE_ETHERNET         0
 
-#define DEVICE_PWMOUT           0
 
-#define DEVICE_SEMIHOST         0
-#define DEVICE_LOCALFILESYSTEM  0
 #define DEVICE_ID_LENGTH       24
 
-#define DEVICE_SLEEP            1
 
-#define DEVICE_DEBUG_AWARENESS  0
 
-#define DEVICE_STDIO_MESSAGES   1
 
-#define DEVICE_ERROR_RED        1
 
 #include "objects.h"
 
