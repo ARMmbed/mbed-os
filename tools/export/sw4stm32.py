@@ -51,6 +51,7 @@ class Sw4STM32(Exporter):
         'NUCLEO_L053R8':    {'name': 'NUCLEO-L053R8',           'mcuId': 'STM32L053R8Tx'},
         'NUCLEO_L073RZ':    {'name': 'NUCLEO-L073RZ',           'mcuId': 'STM32L073RZTx'},
         'NUCLEO_L152RE':    {'name': 'NUCLEO-L152RE',           'mcuId': 'STM32L152RETx'},
+        'NUCLEO_L432KC':    {'name': 'NUCLEO-L432KC',           'mcuId': 'STM32L432KCUx'},
         'NUCLEO_L476RG':    {'name': 'NUCLEO-L476RG',           'mcuId': 'STM32L476RGTx'},
         'NUCLEO_F031K6':    {'name': 'NUCLEO-F031K6',           'mcuId': 'STM32F031K6Tx'},
         'NUCLEO_F042K6':    {'name': 'NUCLEO-F042K6',           'mcuId': 'STM32F042K6Tx'},

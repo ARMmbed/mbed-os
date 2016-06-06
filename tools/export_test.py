@@ -147,6 +147,7 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_L053R8'),
             ('uvision', 'NUCLEO_L073RZ'),
             ('uvision', 'NUCLEO_L152RE'),
+            ('uvision', 'NUCLEO_L432KC'),
             ('uvision', 'NUCLEO_L476RG'),
             ('uvision', 'MTS_MDOT_F405RG'),
             ('uvision', 'MAXWSNENV'),
@@ -213,6 +214,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'NUCLEO_F334R8'),
             ('gcc_arm', 'NUCLEO_L011K4'),
             ('gcc_arm', 'NUCLEO_L031K6'),
+            ('gcc_arm', 'NUCLEO_L432KC'),
             ('gcc_arm', 'MAX32600MBED'),
             ('gcc_arm', 'MTS_MDOT_F405RG'),
             ('gcc_arm', 'MTS_MDOT_F411RE'),
@@ -265,6 +267,7 @@ if __name__ == '__main__':
             ('iar', 'NUCLEO_L053R8'),
             ('iar', 'NUCLEO_L073RZ'),
             ('iar', 'NUCLEO_L152RE'),
+            ('iar', 'NUCLEO_L432KC'),
             ('iar', 'NUCLEO_L476RG'),
             ('iar', 'DISCO_L053C8'),
             ('iar', 'DISCO_F334C8'),
@@ -311,12 +314,13 @@ if __name__ == '__main__':
             ('sw4stm32', 'NUCLEO_L053R8'),
             ('sw4stm32', 'NUCLEO_L073RZ'),
             ('sw4stm32', 'NUCLEO_L152RE'),
+            ('sw4stm32', 'NUCLEO_L432KC'),
             ('sw4stm32', 'NUCLEO_L476RG'),
             ('sw4stm32', 'NUCLEO_F031K6'),
             ('sw4stm32', 'NUCLEO_F042K6'),
             ('sw4stm32', 'NUCLEO_F303K8'),
             ('sw4stm32', 'NUCLEO_F410RB'),
-            
+
             ('e2studio', 'RZ_A1H'),
             # Removed following item to avoid script error
             #(None, None),
