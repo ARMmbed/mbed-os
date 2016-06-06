@@ -247,13 +247,7 @@ if __name__ == '__main__':
             build_dir = options.build_dir
 
         try:
-            target = TARGET_MAP[mcu]
-        except KeyError:
-            print "[ERROR] Target %s not supported" % mcu
-            sys.exit(1)
-
-        try:
-            bin_file = build_project(test.source_dir, build_dir, target, toolchain, test.dependencies, options.options,
+            bin_file = build_project(test.source_dir, build_dir, mcu, toolchain, test.dependencies, options.options,
                                      linker_script=options.linker_script,
                                      clean=options.clean,
                                      verbose=options.verbose,
@@ -271,7 +265,7 @@ if __name__ == '__main__':
                 # Import pyserial: https://pypi.python.org/pypi/pyserial
                 from serial import Serial
 
-                sleep(target.program_cycle_s())
+                sleep(TARGET_MAP[mcu].program_cycle_s())
 
                 serial = Serial(options.serial, timeout = 1)
                 if options.baud:

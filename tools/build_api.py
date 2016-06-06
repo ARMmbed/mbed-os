@@ -33,7 +33,7 @@ from tools.libraries import Library
 from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
-
+from tools.config import Config
 
 def prep_report(report, target_name, toolchain_name, id_name):
     # Setup report keys
@@ -76,12 +76,65 @@ def add_result_to_report(report, result):
     result_wrap = { 0: result }
     report[target][toolchain][id_name].append(result_wrap)
 
+def get_config(src_path, target, toolchain_name):
+    # Convert src_path to a list if needed
+    src_paths = [src_path] if type(src_path) != ListType else src_path
+    # We need to remove all paths which are repeated to avoid
+    # multiple compilations and linking with the same objects
+    src_paths = [src_paths[0]] + list(set(src_paths[1:]))
+
+    # Create configuration object
+    config = Config(target, src_paths)
+
+    # If the 'target' argument is a string, convert it to a target instance
+    if isinstance(target, str):
+        try:
+            target = TARGET_MAP[target]
+        except KeyError:
+            raise KeyError("Target '%s' not found" % target)
+
+    # Toolchain instance
+    try:
+        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options=None, notify=None, macros=None, silent=True, extra_verbose=False)
+    except KeyError as e:
+        raise KeyError("Toolchain %s not supported" % toolchain_name)
+
+    # Scan src_path for config files
+    resources = toolchain.scan_resources(src_paths[0])
+    for path in src_paths[1:]:
+        resources.add(toolchain.scan_resources(path))
+
+    config.add_config_files(resources.json_files)
+    return config.get_config_data()
+
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
         clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None,
-        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None, extra_verbose=False):
+        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None,
+        extra_verbose=False, config=None):
     """ This function builds project. Project can be for example one test / UT
     """
+
+    # Convert src_path to a list if needed
+    src_paths = [src_path] if type(src_path) != ListType else src_path
+
+    # We need to remove all paths which are repeated to avoid
+    # multiple compilations and linking with the same objects
+    src_paths = [src_paths[0]] + list(set(src_paths[1:]))
+    first_src_path = src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd()
+    abs_path = abspath(first_src_path)
+    project_name = basename(normpath(abs_path))
+
+    # If the configuration object was not yet created, create it now
+    config = config or Config(target, src_paths)
+
+    # If the 'target' argument is a string, convert it to a target instance
+    if isinstance(target, str):
+        try:
+            target = TARGET_MAP[target]
+        except KeyError:
+            raise KeyError("Target '%s' not found" % target)
+
     # Toolchain instance
     try:
         toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent, extra_verbose=extra_verbose)
@@ -91,14 +144,6 @@ def build_project(src_path, build_path, target, toolchain_name,
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
-    src_paths = [src_path] if type(src_path) != ListType else src_path
-
-    # We need to remove all paths which are repeated to avoid
-    # multiple compilations and linking with the same objects
-    src_paths = [src_paths[0]] + list(set(src_paths[1:]))
-    first_src_path = src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd()
-    abs_path = abspath(first_src_path)
-    project_name = basename(normpath(abs_path))
 
     if name is None:
         # We will use default project name based on project folder name
@@ -148,12 +193,17 @@ def build_project(src_path, build_path, target, toolchain_name,
                 resources.inc_dirs.extend(inc_dirs)
             else:
                 resources.inc_dirs.append(inc_dirs)
+
+        # Update the configuration with any .json files found while scanning
+        config.add_config_files(resources.json_files)
+        # And add the configuration macros to the toolchain
+        toolchain.add_macros(config.get_config_data_macros())
+
         # Compile Sources
         for path in src_paths:
             src = toolchain.scan_resources(path)
             objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
             resources.objects.extend(objects)
-
 
         # Link Program
         res, needed_update = toolchain.link_program(resources, build_path, name)
@@ -189,7 +239,6 @@ def build_project(src_path, build_path, target, toolchain_name,
 
         # Let Exception propagate
         raise e
-
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False, archive=True,
@@ -279,6 +328,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
         else:
             tmp_path = build_path
 
+        # Handle configuration
+        config = Config(target)
+
         # Copy headers, objects and static libraries
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
@@ -286,6 +338,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
             toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
             if resource.linker_script:
                 toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
+            config.add_config_files(resource.json_files)
+
+        toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
         objects = []
