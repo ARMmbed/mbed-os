@@ -1539,5 +1539,15 @@
         "default_toolchain": "ARM",
         "progen": {"target":"samg55j19"},
         "progen_target": "samg55j19"
+    },
+    "LINUX": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4",
+        "extra_labels": ["LINUX"],
+        "macros": [],
+        "supported_toolchains": ["GCC_LINUX"],
+        "default_toolchain": "GCC_LINUX",
+        "progen": {"target":"linux"},
+        "progen_target": "linux"
     }
 }
