@@ -126,7 +126,7 @@ class Cache () :
             to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
                                                     size=m["size"]))
                                      for m in device("memory")])
-            to_ret["algorithm"] = device.algorithm["name"]
+            to_ret["algorithm"] = device.algorithm["name"].replace('\\','/')
             to_ret["debug"] = device.debug["svd"]
             to_ret["compile"] = (device.compile["header"], device.compile["define"])
         except (KeyError, TypeError) :
@@ -142,10 +142,11 @@ class Cache () :
         self.counter += 1
         self.display_counter("Generating Index")
 
-    def get_flash_algorthim_binary(device_name) :
+    def get_flash_algorthim_binary(self, device_name) :
         self.load_index()
-        device = self.find_device(device_name)
-        pack = ZipFile(self.pdsc_to_pack(device['file']))
+        device = self.index[device_name]
+        pack = ZipFile(join(save_data_path('arm-pack-manager'),
+                            strip_protocol(self.pdsc_to_pack(device['file']))))
         return pack.open(device['algorithm'])
 
     def generate_index(self) :
@@ -158,8 +159,8 @@ class Cache () :
 
     def find_device(self, match) :
         self.load_index()
-        choices = process.extract(match, self.index.keys(), limit=len(urls))
-        choices = sorted([(v, k) for k, v in choices.iteritems()], reverse=True)
+        choices = process.extract(match, self.index.keys(), limit=len(self.index))
+        choices = sorted([(v, k) for k, v in choices], reverse=True)
         if not choices : return []
         else : choices = list(takewhile(lambda t: t[0] == choices[0][0], choices))
         return [(v, self.index[v]) for k,v in choices]
@@ -209,123 +210,4 @@ class Cache () :
     def cache_and_parse(self, url) :
         self.cache_file(Curl(), url)
         return self.pull_from_cache(url)
-
-parser = argparse.ArgumentParser(description='A Handy little utility for keeping your cache of pack files up to date.')
-subparsers = parser.add_subparsers(title="Commands")
-
-def subcommand(name, *args, **kwargs):
-    def subcommand(command):
-        subparser = subparsers.add_parser(name, **kwargs)
-
-        for arg in args:
-            arg = dict(arg)
-            opt = arg['name']
-            del arg['name']
-
-            if isinstance(opt, basestring):
-                subparser.add_argument(opt, **arg)
-            else:
-                subparser.add_argument(*opt, **arg)
-
-        subparser.add_argument("-v", "--verbose", action="store_true", dest="verbose", help="Verbose diagnostic output")
-        subparser.add_argument("-vv", "--very_verbose", action="store_true", dest="very_verbose", help="Very verbose diagnostic output")
-        subparser.add_argument("--no-timeouts", action="store_true", help="Remove all timeouts and try to download unconditionally")
-
-        def thunk(parsed_args):
-            cache = Cache(not parsed_args.verbose, parsed_args.no_timeouts)
-            argv = [arg['dest'] if 'dest' in arg else arg['name'] for arg in args]
-            argv = [(arg if isinstance(arg, basestring) else arg[-1]).strip('-')
-                    for arg in argv]
-            argv = {arg: vars(parsed_args)[arg] for arg in argv
-                    if vars(parsed_args)[arg] is not None}
-
-            return command(cache, **argv)
-
-        subparser.set_defaults(command=thunk)
-        return command
-    return subcommand
-
-def user_selection (message, options) :
-    print(message)
-    for choice, index in zip(options, range(len(options))) :
-        print("({}) {}".format(index, choice))
-    pick = None
-    while pick is None :
-        stdout.write("please select an integer from 0 to {} or \"all\"".format(len(options)-1))
-        input = raw_input()
-        try :
-            if input == "all" :
-                pick = options
-            else :
-                pick = [options[int(input)]]
-        except ValueError :
-            print("I did not understand your input")
-    return pick
-
-def fuzzy_find(matches, urls) :
-    choices = {}
-    for match in matches :
-        for key, value in process.extract(match, urls, limit=len(urls)) :
-            choices.setdefault(key, 0)
-            choices[key] += value
-    choices = sorted([(v, k) for k, v in choices.iteritems()], reverse=True)
-    if not choices : return []
-    elif len(choices) == 1 : return choices[0][1]
-    elif choices[0][0] > choices[1][0] : choices = choices[:1]
-    else : choices = list(takewhile(lambda t: t[0] == choices[0][0], choices))
-    return [v for k,v in choices]
-
-@subcommand('cache',
-            dict(name='matches', nargs="+",
-                 help="a bunch of things to search for in part names"),
-            dict(name=["-b","--batch"], action="store_true",
-                 help="don't ask for user input and assume download all"))
-def command_cache (cache, matches, batch=False, verbose= False) :
-    if len(matches) == 1 and matches[0] == "everything" :
-        cache.cache_everything()
-        return True
-    if len(matches) == 1 and matches[0] == "descriptors" :
-        cache.cache_descriptors()
-        return True
-    else :
-        urls = cache.get_urls()
-        choices = fuzzy_find(matches, map(basename, urls))
-        if not batch and len(choices) > 1 :
-            choices = user_selection("Please select a file to cache", choices)
-        to_download = []
-        for choice in choices :
-            for url in urls :
-                if choice in url :
-                    to_download.append(url)
-        cache.cache_pack_list(to_download)
-        return True
-
-
-@subcommand('find-part',
-            dict(name='matches', nargs="+", help="words to match to processors"),
-            dict(name=['-l',"--long"], action="store_true",
-                 help="print out part details with part"))
-def command_find_part (cache, matches, long=False) :
-    if long :
-        import pprint
-        pp = pprint.PrettyPrinter()
-    parts = cache.load_index()
-    choices = fuzzy_find(matches, parts.keys())
-    for part in choices :
-        print part
-        if long :
-            pp.pprint(cache.index[part])
-
-@subcommand('cache-part',
-            dict(name='matches', nargs="+", help="words to match to devices"))
-def command_cache_part (cache, matches) :
-    index = cache.load_index()
-    choices = fuzzy_find(matches, index.keys())
-    urls = [index[c]['file'] for c in choices]
-    cache.cache_pack_list(urls)
-
-if __name__ == "__main__" :
-    args = parser.parse_args()
-    args.command(args)
-
 
