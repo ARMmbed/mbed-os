@@ -1,6 +1,6 @@
 ###########################################################################
 #
-#  Copyright (c) 2013-2016, ARM Limited, All Rights Reserved
+#  Copyright (c) 2016, ARM Limited, All Rights Reserved
 #  SPDX-License-Identifier: Apache-2.0
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -19,16 +19,15 @@
 
 #
 # Use this file to import an mbed TLS release into mbed-OS as follows:
-# 1) set the MBED_TLS_RELEASE to the correct mbed TLS release tag
-# 2) make update
-# 3) make
-# 4) commit and push changes via git
 #
-# WARNING! To import the hardware acceleration sample code the latest revision
-# will be checked out from the master branch of its own repository.
+#   1) Set the MBED_TLS_RELEASE variable to the required mbed TLS release tag
+#   2) make update
+#   3) make
+#   4) commit and push changes via git
+#
 
 # Set the mbed TLS release to import (this can/should be edited before import)
-MBED_TLS_RELEASE:=yotta-2.3.0
+MBED_TLS_RELEASE ?= mbedtls-2.2.1
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
@@ -40,11 +39,6 @@ MBED_TLS_URL:=https://github.com/ARMmbed/mbedtls.git
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
-
-# mbed TLS hardware acceleration directory - hidden from mbed via TARGET_IGNORE
-MBED_TLS_HA_URL:=https://github.com/ARMmbed/mbed-tls-lib.git
-MBED_TLS_HA_DIR:=TARGET_IGNORE/mbed-tls-lib
-MBED_TLS_HA_GIT_CFG=$(MBED_TLS_HA_DIR)/.git/config
 
 .PHONY: all deploy rsync mbedtls clean update
 
@@ -67,10 +61,6 @@ rsync:
 	cp $(MBED_TLS_DIR)/LICENSE $(TARGET_PREFIX)
 	cp $(MBED_TLS_DIR)/apache-2.0.txt $(TARGET_PREFIX)
 	#
-	# Copying hardware acceleration example code
-	rm -rf $(TARGET_PREFIX)/targets
-	mkdir -p $(TARGET_PREFIX)/targets
-	rsync -a --delete $(MBED_TLS_HA_DIR)/targets $(TARGET_PREFIX)
 
 deploy: rsync
 	#
@@ -79,8 +69,8 @@ deploy: rsync
 
 update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
-	# Updating to latest mbed TLS library version
-	# (If it is not an initial checkout we will start with the repo
+	# Updating to the specified mbed TLS library version
+	# (If it is not an initial checkout we will start with the repository
 	# being in a detached head state)
 	git -C $(MBED_TLS_DIR) checkout development
 	git -C $(MBED_TLS_DIR) pull --rebase origin development
@@ -90,19 +80,10 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
 	# Updating checked out version tag
 	git -C $(MBED_TLS_DIR) describe --tags --abbrev=40 --dirty > $(TARGET_PREFIX)VERSION.txt
-	#
-	# Updating list of authors, sorted by contributions
-	git -C $(MBED_TLS_DIR) shortlog -s -n > $(TARGET_PREFIX)AUTHORS.txt
-	#
-	git -C $(MBED_TLS_HA_DIR) pull --rebase origin master
 
 $(MBED_TLS_GIT_CFG):
 	rm -rf $(MBED_TLS_DIR)
 	git clone $(MBED_TLS_URL) $(MBED_TLS_DIR)
-
-$(MBED_TLS_HA_GIT_CFG):
-	rm -rf $(MBED_TLS_HA_DIR)
-	git clone $(MBED_TLS_HA_URL) $(MBED_TLS_HA_DIR)
 
 clean:
 	rm -f $(TARGET_PREFIX)LICENSE
@@ -113,4 +94,4 @@ clean:
 	rm -rf $(TARGET_SRC)
 	rm -rf $(TARGET_INC)
 	rm -rf $(MBED_TLS_DIR)
-	rm -rf $(MBED_TLS_HA_DIR)
+
