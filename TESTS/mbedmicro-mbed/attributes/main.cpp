@@ -2,7 +2,7 @@
 #include <stdint.h>
 
 #include "toolchain.h"
-#include "test_env.h"
+#include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
 
@@ -30,7 +30,7 @@ void test_wrapper() {
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(40, "default_auto");
+    GREENTEA_SETUP(5, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
