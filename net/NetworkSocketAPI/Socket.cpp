@@ -23,12 +23,6 @@ Socket::Socket()
 {
 }
 
-Socket::~Socket()
-{
-    // Underlying close is thread safe
-    close();
-}
-
 int Socket::open(NetworkStack *iface, nsapi_protocol_t proto)
 {
     _lock.lock();
@@ -47,7 +41,8 @@ int Socket::open(NetworkStack *iface, nsapi_protocol_t proto)
     }
 
     _socket = socket;
-    _iface->socket_attach(_socket, &Socket::thunk, this);
+    _event.attach(this, &Socket::event);
+    _iface->socket_attach(_socket, Callback<void()>::thunk, &_event);
 
     _lock.unlock();
 
@@ -69,7 +64,7 @@ int Socket::close()
 
     // Wakeup anything in a blocking operation
     // on this socket
-    socket_event();
+    event();
 
     _lock.unlock();
     return ret;
@@ -155,17 +150,4 @@ void Socket::attach(Callback<void()> callback)
     _callback = callback;
 
     _lock.unlock();
-}
-
-void Socket::thunk(void *data)
-{
-    Socket *self = (Socket *)data;
-    self->socket_event();
-}
-
-void Socket::socket_event(void)
-{
-    if (_callback) {
-        _callback();
-    }
 }
