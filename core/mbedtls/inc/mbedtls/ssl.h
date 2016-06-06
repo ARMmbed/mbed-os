@@ -542,7 +542,7 @@ typedef struct mbedtls_ssl_flight_item mbedtls_ssl_flight_item;
 struct mbedtls_ssl_session
 {
 #if defined(MBEDTLS_HAVE_TIME)
-    time_t start;               /*!< starting time      */
+    mbedtls_time_t start;       /*!< starting time      */
 #endif
     int ciphersuite;            /*!< chosen ciphersuite */
     int compression;            /*!< chosen compression */
@@ -976,7 +976,7 @@ int mbedtls_ssl_setup( mbedtls_ssl_context *ssl,
  *                 pointers and data.
  *
  * \param ssl      SSL context
- * \return         0 if successful, or POLASSL_ERR_SSL_MALLOC_FAILED,
+ * \return         0 if successful, or MBEDTLS_ERR_SSL_ALLOC_FAILED,
                    MBEDTLS_ERR_SSL_HW_ACCEL_FAILED or
  *                 MBEDTLS_ERR_SSL_COMPRESSION_FAILED
  */

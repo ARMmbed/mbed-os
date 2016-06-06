@@ -35,6 +35,15 @@
 
 #if defined(MBEDTLS_SSL_TLS_C)
 
+#if defined(MBEDTLS_PLATFORM_C)
+#include "mbedtls/platform.h"
+#else
+#include <stdlib.h>
+#define mbedtls_calloc    calloc
+#define mbedtls_free      free
+#define mbedtls_time_t    time_t
+#endif
+
 #include "mbedtls/debug.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/ssl_internal.h"
@@ -44,14 +53,6 @@
 #if defined(MBEDTLS_X509_CRT_PARSE_C) && \
     defined(MBEDTLS_X509_CHECK_EXTENDED_KEY_USAGE)
 #include "mbedtls/oid.h"
-#endif
-
-#if defined(MBEDTLS_PLATFORM_C)
-#include "mbedtls/platform.h"
-#else
-#include <stdlib.h>
-#define mbedtls_calloc    calloc
-#define mbedtls_free       free
 #endif
 
 /* Implementation that should never be optimized out by the compiler */
@@ -2708,7 +2709,7 @@ void mbedtls_ssl_send_flight_completed( mbedtls_ssl_context *ssl )
  */
 int mbedtls_ssl_write_record( mbedtls_ssl_context *ssl )
 {
-    int ret, done = 0;
+    int ret, done = 0, out_msg_type;
     size_t len = ssl->out_msglen;
 
     MBEDTLS_SSL_DEBUG_MSG( 2, ( "=> write record" ) );
@@ -2724,7 +2725,9 @@ int mbedtls_ssl_write_record( mbedtls_ssl_context *ssl )
 #endif
     if( ssl->out_msgtype == MBEDTLS_SSL_MSG_HANDSHAKE )
     {
-        if( ssl->out_msg[0] != MBEDTLS_SSL_HS_HELLO_REQUEST &&
+        out_msg_type = ssl->out_msg[0];
+
+        if( out_msg_type != MBEDTLS_SSL_HS_HELLO_REQUEST &&
             ssl->handshake == NULL )
         {
             MBEDTLS_SSL_DEBUG_MSG( 1, ( "should never happen" ) );
@@ -2751,7 +2754,7 @@ int mbedtls_ssl_write_record( mbedtls_ssl_context *ssl )
             len += 8;
 
             /* Write message_seq and update it, except for HelloRequest */
-            if( ssl->out_msg[0] != MBEDTLS_SSL_HS_HELLO_REQUEST )
+            if( out_msg_type != MBEDTLS_SSL_HS_HELLO_REQUEST )
             {
                 ssl->out_msg[4] = ( ssl->handshake->out_msg_seq >> 8 ) & 0xFF;
                 ssl->out_msg[5] = ( ssl->handshake->out_msg_seq      ) & 0xFF;
@@ -2769,7 +2772,7 @@ int mbedtls_ssl_write_record( mbedtls_ssl_context *ssl )
         }
 #endif /* MBEDTLS_SSL_PROTO_DTLS */
 
-        if( ssl->out_msg[0] != MBEDTLS_SSL_HS_HELLO_REQUEST )
+        if( out_msg_type != MBEDTLS_SSL_HS_HELLO_REQUEST )
             ssl->handshake->update_checksum( ssl, ssl->out_msg, len );
     }
 
