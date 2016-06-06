@@ -66,6 +66,9 @@ if __name__ == '__main__':
         parser.add_option("-f", "--format", type="choice", dest="format",
                           choices=format_choices, default=format_default_choice, help=format_help)
         
+        parser.add_option("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
+                          default=None, help="Continue trying to build all tests if a build failure occurs")
+
         parser.add_option("-n", "--names", dest="names",
                           default=None, help="Limit the tests to a comma separated list of names")
                           
@@ -157,7 +160,8 @@ if __name__ == '__main__':
                         properties=build_properties,
                         macros=options.macros,
                         verbose=options.verbose,
-                        jobs=options.jobs)
+                        jobs=options.jobs,
+                        continue_on_build_fail=options.continue_on_build_fail)
                 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:

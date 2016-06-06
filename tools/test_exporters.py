@@ -20,7 +20,6 @@ Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 from tools.utils import construct_enum, mkdir
 import os
 
-
 ResultExporterType = construct_enum(HTML='Html_Exporter',
                                     JUNIT='JUnit_Exporter',
                                     JUNIT_OPER='JUnit_Exporter_Interoperability',
@@ -73,7 +72,8 @@ class ReportExporter():
         self.result_exporter_type = result_exporter_type
         self.package = package
 
-    def report(self, test_summary_ext, test_suite_properties=None):
+    def report(self, test_summary_ext, test_suite_properties=None,
+               print_log_for_failures=True):
         """ Invokes report depending on exporter_type set in constructor
         """
         if self.result_exporter_type == ResultExporterType.HTML:
@@ -87,7 +87,7 @@ class ReportExporter():
             return self.exporter_junit_ioper(test_summary_ext, test_suite_properties)
         elif self.result_exporter_type == ResultExporterType.PRINT:
             # JUNIT exporter for interoperability test
-            return self.exporter_print(test_summary_ext)
+            return self.exporter_print(test_summary_ext, print_log_for_failures=print_log_for_failures)
         return None
 
     def report_to_file(self, test_summary_ext, file_name, test_suite_properties=None):
@@ -297,11 +297,15 @@ class ReportExporter():
                 test_suites.append(ts)
         return TestSuite.to_xml_string(test_suites)
 
-    def exporter_print_helper(self, array):
+    def exporter_print_helper(self, array, print_log=False):
         for item in array:
             print "  * %s::%s::%s" % (item["target_name"], item["toolchain_name"], item["id"])
+            if print_log:
+                log_lines = item["output"].split("\n")
+                for log_line in log_lines:
+                    print "        %s" % log_line
 
-    def exporter_print(self, test_result_ext):
+    def exporter_print(self, test_result_ext, print_log_for_failures=False):
         """ Export test results in print format.
         """
         failures = []
@@ -340,7 +344,7 @@ class ReportExporter():
 
         if failures:
             print "\n\nBuild failures:"
-            self.exporter_print_helper(failures)
+            self.exporter_print_helper(failures, print_log=print_log_for_failures)
             return False
         else:
             return True
