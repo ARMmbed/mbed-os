@@ -106,7 +106,7 @@ all: $(PROJECT).bin $(PROJECT).hex size
 
 
 {% block target_project_elf %}
-$(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(LINKER_SRCIPT)
+$(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(LINKER_SCRIPT)
 	$(LD) $(LD_FLAGS) -T$(filter-out %.o,$^) $(LIBRARY_PATHS) -o $@ $(filter %.o,$^) -Wl,--start-group $(LIBRARIES) $(LD_SYS_LIBS) -Wl,--end-group
 {% endblock %}
 
