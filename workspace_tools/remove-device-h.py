@@ -144,6 +144,8 @@ def add_to_targets(targets, device_file, verbose=False, remove=False) :
         for key, value in targets.iteritems() :
             for alt in value['extra_labels'] if 'extra_labels' in value else [] :
                 if stem_match(device, alt) : possible_matches.add(key)
+            for alt in value['extra_labels_add'] if 'extra_labels_add' in value else [] :
+                if stem_match(device, alt) : possible_matches.add(key)
         possible_matches = list(possible_matches)
         for match in possible_matches :
             if device == match : possible_matches = [match]

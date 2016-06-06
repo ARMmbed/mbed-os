@@ -1173,17 +1173,20 @@
         "inherits": ["MCU_NRF51_16K"],
         "progen": {"target": "mkit"},
         "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"]
+        "macros_add": ["TARGET_NRF51822_MKIT"],
+        "features": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
     "NRF51822_BOOT": {
         "inherits": ["MCU_NRF51_16K_BOOT"],
         "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"]
+        "macros_add": ["TARGET_NRF51822_MKIT"],
+        "features": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
     "NRF51822_OTA": {
         "inherits": ["MCU_NRF51_16K_OTA"],
         "extra_labels_add": ["NRF51822", "NRF51822_MKIT"],
-        "macros_add": ["TARGET_NRF51822_MKIT"]
+        "macros_add": ["TARGET_NRF51822_MKIT"],
+        "features": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
     "ARCH_BLE": {
         "supported_form_factors": ["ARDUINO"],
