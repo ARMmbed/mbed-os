@@ -2089,7 +2089,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     return result, test_builds
     
 
-def test_spec_from_test_build(test_builds):
+def test_spec_from_test_builds(test_builds):
     return {
         "builds": test_builds
     }

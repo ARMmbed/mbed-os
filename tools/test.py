@@ -25,7 +25,7 @@ import json
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_build
+from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
 from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library
 from tools.targets import TARGET_MAP
@@ -162,7 +162,7 @@ if __name__ == '__main__':
                 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
-                    test_spec_data = test_spec_from_test_build(test_build)
+                    test_spec_data = test_spec_from_test_builds(test_build)
                     
                     # Create the target dir for the test spec if necessary
                     # mkdir will not create the dir if it already exists
