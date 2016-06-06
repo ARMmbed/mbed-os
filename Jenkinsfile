@@ -48,7 +48,7 @@ try {
         dir("mbed-os") {
           checkout scm
           sh "mbed deploy --protocol ssh"
-          sh "mbed compile -m ${target} -t ${toolchain} -c"
+          sh "mbed compile --tests -m ${target} -t ${toolchain} -c"
         }
       }
     }
