@@ -31,6 +31,12 @@ public:
      */
     UDPSocket();
 
+    /** Destroy a socket
+     *
+     *  Closes socket if the socket is still open
+     */
+    virtual ~UDPSocket();
+
     /** Create a socket on a network stack
      *
      *  Creates and opens a socket on the specified network stack.
@@ -102,7 +108,8 @@ public:
      */
     int recvfrom(SocketAddress *address, void *data, unsigned size);
 protected:
-    virtual void socket_event(void);
+    virtual void event();
+    volatile unsigned _pending;
     rtos::Mutex _read_lock;
     rtos::Semaphore _read_sem;
     rtos::Mutex _write_lock;

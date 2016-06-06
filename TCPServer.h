@@ -32,6 +32,12 @@ public:
      */
     TCPServer();
 
+    /** Destroy a socket
+     *
+     *  Closes socket if the socket is still open
+     */
+    virtual ~TCPServer();
+
     /** Create a socket on a network stack
      *
      *  Creates and opens a socket on the specified network stack.
@@ -76,7 +82,8 @@ public:
      */
     int accept(TCPSocket *connection);
 protected:
-    virtual void socket_event(void);
+    virtual void event();
+    volatile unsigned _pending;
     rtos::Semaphore _accept_sem;
 };
 

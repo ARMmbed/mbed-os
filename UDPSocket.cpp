@@ -17,13 +17,20 @@
 #include "UDPSocket.h"
 #include "Timer.h"
 
-UDPSocket::UDPSocket(): _read_sem(0), _write_sem(0)
+UDPSocket::UDPSocket()
+    : _pending(0), _read_sem(0), _write_sem(0)
 {
 }
 
-UDPSocket::UDPSocket(NetworkStack *iface): _read_sem(0), _write_sem(0)
+UDPSocket::UDPSocket(NetworkStack *iface)
+    : _pending(0), _read_sem(0), _write_sem(0)
 {
     open(iface);
+}
+
+UDPSocket::~UDPSocket()
+{
+    close();
 }
 
 int UDPSocket::open(NetworkStack *iface)
@@ -58,6 +65,7 @@ int UDPSocket::sendto(const SocketAddress &address, const void *data, unsigned s
             break;
         }
 
+        _pending = 0;
         int sent = _iface->socket_sendto(_socket, address, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
             ret = sent;
@@ -98,6 +106,7 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
             break;
         }
 
+        _pending = 0;
         int recv = _iface->socket_recvfrom(_socket, address, buffer, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
             ret = recv;
@@ -124,17 +133,19 @@ int UDPSocket::recvfrom(SocketAddress *address, void *buffer, unsigned size)
     return ret;
 }
 
-void UDPSocket::socket_event()
+void UDPSocket::event()
 {
-    int32_t count;
-    count = _write_sem.wait(0);
-    if (count <= 1) {
+    int32_t wcount = _write_sem.wait(0);
+    if (wcount <= 1) {
         _write_sem.release();
     }
-    count = _read_sem.wait(0);
-    if (count <= 1) {
+    int32_t rcount = _read_sem.wait(0);
+    if (rcount <= 1) {
         _read_sem.release();
     }
 
-    Socket::socket_event();
+    _pending += 1;
+    if (_callback && _pending == 1) {
+        _callback();
+    }
 }
