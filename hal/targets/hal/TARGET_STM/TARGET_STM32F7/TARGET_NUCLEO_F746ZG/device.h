@@ -41,6 +41,8 @@
 
 
 
+#define DEVICE_CAN              1
+
 //=======================================
 
 #define DEVICE_ID_LENGTH       24
