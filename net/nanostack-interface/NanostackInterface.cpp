@@ -21,9 +21,11 @@
 #include "ns_address.h"
 #include "nsdynmemLIB.h"
 #include "eventOS_scheduler.h"
+#include "randLIB.h"
 
 #include "mbed-mesh-api/MeshInterfaceFactory.h"
 
+#include "mesh_system.h" // from inside mbed-mesh-api
 #include "socket_api.h"
 #include "driverRFPhy.h"
 #include "net_interface.h"
@@ -482,8 +484,6 @@ int NanostackInterface::register_rf()
 
 int NanostackInterface::actual_connect()
 {
-    nanostack_lock();
-
     mesh_error_t status = get_mesh_api()->connect();
     if (status != MESH_ERROR_NONE) {
         nanostack_unlock();
@@ -513,6 +513,8 @@ int NanostackInterface::disconnect()
 
 int ThreadInterface::connect()
 {
+    // initialize mesh networking resources, memory, timers, etc...
+    mesh_system_init();
     nanostack_lock();
 
     mesh_api = MeshInterfaceFactory::createInterface(MESH_TYPE_THREAD);
@@ -524,6 +526,10 @@ int ThreadInterface::connect()
         nanostack_unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }
+
+    // After the RF is up, we can seed the random from it.
+    randLIB_seed_random();
+
     mesh_error_t status = ((MeshThread *)mesh_api)->init(rf_device_id, AbstractMesh::mesh_network_handler_t(static_cast<NanostackInterface *>(this), &ThreadInterface::mesh_network_handler), eui64, NULL);
     if (status != MESH_ERROR_NONE) {
         nanostack_unlock();
@@ -538,6 +544,8 @@ int ThreadInterface::connect()
 
 int LoWPANNDInterface::connect()
 {
+    // initialize mesh networking resources, memory, timers, etc...
+    mesh_system_init();
     nanostack_lock();
 
     mesh_api = MeshInterfaceFactory::createInterface(MESH_TYPE_6LOWPAN_ND);
@@ -549,6 +557,10 @@ int LoWPANNDInterface::connect()
         nanostack_unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }
+
+    // After the RF is up, we can seed the random from it.
+    randLIB_seed_random();
+
     mesh_error_t status = ((Mesh6LoWPAN_ND *)mesh_api)->init(rf_device_id, AbstractMesh::mesh_network_handler_t(static_cast<NanostackInterface *>(this), &LoWPANNDInterface::mesh_network_handler));
     if (status != MESH_ERROR_NONE) {
         nanostack_unlock();
