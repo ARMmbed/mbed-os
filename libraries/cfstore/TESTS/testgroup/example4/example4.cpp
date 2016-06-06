@@ -86,15 +86,6 @@ static const PvKeyValue_t testDataKeyValue[] = {
 	{ "com.arm.mbed.spv.assets.asset3.payload", "Delete this asset payload" },
 };
 
-/* report whether built/configured for flash sync or async mode */
-/* todo: delete
-static control_t cfstore_example4_test_00(const size_t call_count)
-{
-    (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
-    return CaseNext;
-}
-*/
 
 static control_t cfstore_example4_test_00(const size_t call_count)
 {

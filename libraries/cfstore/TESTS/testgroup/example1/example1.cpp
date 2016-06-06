@@ -57,17 +57,6 @@
  * it can be run a second time on the device without flashing, and the test should
  * still work.
  *
- * todo: remove this comment when flash journal issue fixed:
- * ** KNOWN ISSUE **
- * In the following circumstances this test will fail:
- * - test flashed to target
- * - test run
- * - test run again (without flashing to target)
- * - test will fail as the test cannot create the KV, because the first run of the
- *   test stored and didnt delete the KV, and so it already exists in the cfstore
- *   and cannot be created again.
- * This issue is causes by a flash-journal bug of being unable to commit after
- * a log to delete the last KV.
  */
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
@@ -688,11 +677,6 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
         case CFSTORE_EX_STATE_FIND_DONE2:
             CFSTORE_EX1_LOG("FIND_DONE2%s", "\r\n");
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_status == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, "%s:Error: Find() completion should have been ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND (status=%ld)\r\n", __func__, ctx->callback_status);
-        // todo: delete next 2 lines when fix flash journal issue mentioned below
-            ctx->state = CFSTORE_EX_STATE_UNINITIALIZING;
-            // intentional fall-through
-
-        /* todo: restore this code when issue with flushing empty flash to flash journal has been fixed
             ctx->state = CFSTORE_EX_STATE_FLUSHING2;
             // intentional fall-through
 
@@ -717,7 +701,6 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             CFSTORE_EX1_TEST_ASSERT_MSG(ctx->callback_handle == NULL, "%s:Error: the cfstore_ex_callback(cmd_code==CFSTORE_OPCODE_FLUSH) received non-NULL handle (%p)\r\n", __func__, ctx->callback_handle);
             ctx->state = CFSTORE_EX_STATE_UNINITIALIZING;
             // intentional fall-through
-        */
 
         case CFSTORE_EX_STATE_UNINITIALIZING:
             CFSTORE_EX1_LOG("UNINITIALIZING%s", "\r\n");
@@ -741,13 +724,6 @@ static void cfstore_ex_fms_update(cfstore_example1_ctx_t* ctx)
             CFSTORE_EX1_LOG("*** SUCCESS ***%s", "\r\n");
             CFSTORE_EX1_LOG("***************%s", "\r\n");
             break;
-
-        /* todo: remove these lines when the flash-journal issue is fixed */
-        case CFSTORE_EX_STATE_FLUSHING2:
-        case CFSTORE_EX_STATE_FLUSH_DONE2:
-            CFSTORE_EX1_TEST_ASSERT_MSG(false, "%s:Error: unknown error (line=%u)\r\n", __func__, __LINE__);
-            break;
-
     }
 }
 
