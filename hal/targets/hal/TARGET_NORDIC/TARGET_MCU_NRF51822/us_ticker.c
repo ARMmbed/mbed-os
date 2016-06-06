@@ -19,6 +19,7 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "nrf_delay.h"
+#include "toolchain.h"
 
 /*
  * Note: The micro-second timer API on the nRF51 platform is implemented using
@@ -71,18 +72,9 @@ static uint32_t          previous_tick_cc_value = 0;
  To allow compilation of us_ticker programs without RTOS, those symbols are
  exported from this module as weak ones.
  */
-#if defined (__CC_ARM)           /* ARMCC Compiler */
-__attribute__((weak)) uint32_t const os_trv;
-__attribute__((weak)) uint32_t const os_clockrate;
-__attribute__((weak)) void OS_Tick_Handler() { }
-#elif defined (__GNUC__)        /* GNU Compiler */
-__attribute__((weak)) uint32_t const os_trv = 31;
-__attribute__((weak)) uint32_t const os_clockrate = 1000;
-__attribute__((noreturn, naked, weak)) void OS_Tick_Handler() { }
-#else
-#error Compiler not supported.
-#error Weak definitions of os_trv, os_clockrate and OS_Tick_Handler should be provided.
-#endif
+MBED_WEAK uint32_t const os_trv;
+MBED_WEAK uint32_t const os_clockrate;
+MBED_WEAK void OS_Tick_Handler() { }
 
 static inline void rtc1_enableCompareInterrupt(void)
 {
