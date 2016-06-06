@@ -27,16 +27,26 @@
 #define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
 
 static volatile uint32_t interrupt_enable_counter = 0;
-static volatile uint32_t critical_primask = 0;
+static volatile uint32_t critical_interrupts_disabled = 0;
+
+static inline uint32_t get_interrupts_disabled(void)
+{
+#if defined(__CORTEX_A9)
+    uint32_t interrupts_disabled = (__get_CPSR() & 0x80) >> 7;
+#else
+    uint32_t interrupts_disabled = __get_PRIMASK();
+#endif
+    return interrupts_disabled;
+}
 
 void core_util_critical_section_enter()
 {
-    uint32_t primask = __get_PRIMASK(); /* get the current interrupt enabled state */
+    uint32_t interrupts_disabled = get_interrupts_disabled();
     __disable_irq();
 
-    /* Save the interrupt enabled state as it was prior to any nested critical section lock use */
+    /* Save the interrupt disabled state as it was prior to any nested critical section lock use */
     if (!interrupt_enable_counter) {
-        critical_primask = primask & 0x1;
+        critical_interrupts_disabled = interrupts_disabled & 0x1;
     }
 
     /* If the interrupt_enable_counter overflows or we are in a nested critical section and interrupts
@@ -44,7 +54,7 @@ void core_util_critical_section_enter()
     */
     MBED_ASSERT(interrupt_enable_counter < UINT32_MAX); 
     if (interrupt_enable_counter > 0) {
-        MBED_ASSERT(primask & 0x1);
+        MBED_ASSERT(interrupts_disabled & 0x1);
     }
     interrupt_enable_counter++;
 }
@@ -54,16 +64,16 @@ void core_util_critical_section_exit()
     /* If critical_section_enter has not previously been called, do nothing */
     if (interrupt_enable_counter) {
 
-        uint32_t primask = __get_PRIMASK(); /* get the current interrupt enabled state */
+        uint32_t interrupts_disabled = get_interrupts_disabled(); /* get the current interrupt disabled state */
 
-        MBED_ASSERT(primask & 0x1); /* Interrupts must be disabled on invoking an exit from a critical section */
+        MBED_ASSERT(interrupts_disabled & 0x1); /* Interrupts must be disabled on invoking an exit from a critical section */
 
         interrupt_enable_counter--;
 
         /* Only re-enable interrupts if we are exiting the last of the nested critical sections and
            interrupts were enabled on entry to the first critical section.
         */
-        if (!interrupt_enable_counter && !critical_primask) {
+        if (!interrupt_enable_counter && !critical_interrupts_disabled) {
             __enable_irq();
         }
     }
