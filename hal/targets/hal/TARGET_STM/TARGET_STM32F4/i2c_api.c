@@ -53,8 +53,8 @@ int i2c3_inited = 0;
 int fmpi2c1_inited = 0;
 
 #if defined(I2C3_BASE)
-  #define MODULE_SIZE_I2C 3
-  #if DEVICE_I2C_ASYNCH
+    #define MODULE_SIZE_I2C 3
+    #if DEVICE_I2C_ASYNCH
 static const IRQn_Type I2cEventIRQs[MODULE_SIZE_I2C] = {  
     I2C1_EV_IRQn,  
     I2C2_EV_IRQn, 
@@ -65,10 +65,10 @@ static const IRQn_Type I2cErrorIRQs[MODULE_SIZE_I2C] = {
     I2C2_ER_IRQn,  
     I2C3_ER_IRQn,
 };
-  #endif
+    #endif
 #elif defined(I2C2_BASE)
-  #define MODULE_SIZE_I2C 2
-  #if DEVICE_I2C_ASYNCH
+    #define MODULE_SIZE_I2C 2
+    #if DEVICE_I2C_ASYNCH
 static const IRQn_Type I2cEventIRQs[MODULE_SIZE_I2C] = {  
     I2C1_EV_IRQn,  
     I2C2_EV_IRQn,  
@@ -77,72 +77,68 @@ static const IRQn_Type I2cErrorIRQs[MODULE_SIZE_I2C] = {
     I2C1_ER_IRQn,  
     I2C2_ER_IRQn,  
 };
-  #endif
+    #endif
 #else
-  #define MODULE_SIZE_I2C 1
-  #if DEVICE_I2C_ASYNCH
+    #define MODULE_SIZE_I2C 1
+    #if DEVICE_I2C_ASYNCH
 static const IRQn_Type I2cEventIRQs[MODULE_SIZE_I2C] = {  
     I2C1_EV_IRQn,  
 };  
 static const IRQn_Type I2cErrorIRQs[MODULE_SIZE_I2C] = {  
     I2C1_ER_IRQn,  
 };
-  #endif
+    #endif
 #endif
 
 I2C_HandleTypeDef t_I2cHandle[MODULE_SIZE_I2C];
 
 #if !DEVICE_I2C_ASYNCH
-int i2c_module_lookup(i2c_t *obj)
-{
-	switch(obj->i2c)
-	{
-		case I2C_1: return 0;
+int i2c_module_lookup(i2c_t *obj) {
+    switch(obj->i2c)
+    {
+        case I2C_1: return 0;
 #if defined(I2C2_Base)
-		case I2C_2: return 1;
+        case I2C_2: return 1;
 #endif
 #if defined(I2C3_Base)
-		case I2C_3: return 2;
+        case I2C_3: return 2;
 #endif	    
-		default: return 0;
+        default: return 0;
 	}
 }
 #else //DEVICE_I2C_ASYNCH
-int i2c_module_lookup(i2c_t *obj)
-{
-	switch(obj->i2c.i2c)
-	{
-		case I2C_1: return 0;
+int i2c_module_lookup(i2c_t *obj) {
+    switch(obj->i2c.i2c)
+    {
+        case I2C_1: return 0;
 #if defined(I2C2_Base)
-		case I2C_2: return 1;
+        case I2C_2: return 1;
 #endif
 #if defined(I2C3_Base)
-		case I2C_3: return 2;
+        case I2C_3: return 2;
 #endif	    
-		default: return 0;
-	}
+        default: return 0;
+    }
 }
 
-int i2c_module_lookup_handler(I2C_HandleTypeDef* hi2c)
-{
-  uint32_t I2C_address = (uint32_t)&(hi2c->Instance);
+int i2c_module_lookup_handler(I2C_HandleTypeDef* hi2c) {
+    uint32_t I2C_address = (uint32_t)&(hi2c->Instance);
   
-	switch(I2C_address)
-	{
-		case I2C_1: return 0;
+    switch(I2C_address)
+    {
+        case I2C_1: return 0;
 #if defined(I2C2_BASE)
-		case I2C_2: return 1;
+        case I2C_2: return 1;
 #endif
 #if defined(I2C3_BASE)
-		case I2C_3: return 2;
+        case I2C_3: return 2;
 #endif		
-		default: return 0;
-	}
+        default: return 0;
+    }
 }
 #endif
 
-void i2c_init(i2c_t *obj, PinName sda, PinName scl)
-{
+void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
@@ -227,8 +223,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 #endif 
 }
 
-void i2c_frequency(i2c_t *obj, int hz)
-{
+void i2c_frequency(i2c_t *obj, int hz) {
     MBED_ASSERT((hz > 0) && (hz <= 400000));
 #if !DEVICE_I2C_ASYNCH
     t_I2cHandle[i2c_module_lookup(obj)].Instance = (I2C_TypeDef *)(obj->i2c);
@@ -261,72 +256,69 @@ void i2c_frequency(i2c_t *obj, int hz)
     }
     
 #if DEVICE_I2C_ASYNCH_DMA
-  static DMA_HandleTypeDef hdma_tx;
-  static DMA_HandleTypeDef hdma_rx;
+    static DMA_HandleTypeDef hdma_tx;
+    static DMA_HandleTypeDef hdma_rx;
 
-  if(t_I2cHandle[i2c_module_lookup(obj)].Instance == I2C2) {
-    hdma_tx.Instance                 = DMA1_Stream7;
-    hdma_tx.Init.Channel             = DMA_CHANNEL_1;
-    hdma_rx.Instance                 = DMA1_Stream2;
-    hdma_rx.Init.Channel             = DMA_CHANNEL_1;
-  }
-  else if(t_I2cHandle[i2c_module_lookup(obj)].Instance == I2C3) {
-    hdma_tx.Instance                 = DMA1_Stream4;
-    hdma_tx.Init.Channel             = DMA_CHANNEL_1;
-    hdma_rx.Instance                 = DMA1_Stream1;
-    hdma_rx.Init.Channel             = DMA_CHANNEL_1;
-  }
-  else {
-    hdma_tx.Instance                 = DMA1_Stream7;
-    hdma_tx.Init.Channel             = DMA_CHANNEL_1;
-    hdma_rx.Instance                 = DMA1_Stream0;
-    hdma_rx.Init.Channel             = DMA_CHANNEL_1;
-  }
+    if(t_I2cHandle[i2c_module_lookup(obj)].Instance == I2C2) {
+        hdma_tx.Instance                 = DMA1_Stream7;
+        hdma_tx.Init.Channel             = DMA_CHANNEL_1;
+        hdma_rx.Instance                 = DMA1_Stream2;
+        hdma_rx.Init.Channel             = DMA_CHANNEL_1;
+    } else if(t_I2cHandle[i2c_module_lookup(obj)].Instance == I2C3) {
+        hdma_tx.Instance                 = DMA1_Stream4;
+        hdma_tx.Init.Channel             = DMA_CHANNEL_1;
+        hdma_rx.Instance                 = DMA1_Stream1;
+        hdma_rx.Init.Channel             = DMA_CHANNEL_1;
+    } else {
+        hdma_tx.Instance                 = DMA1_Stream7;
+        hdma_tx.Init.Channel             = DMA_CHANNEL_1;
+        hdma_rx.Instance                 = DMA1_Stream0;
+        hdma_rx.Init.Channel             = DMA_CHANNEL_1;
+    }
   
-  /* Enable DMA1 clock */
-  __HAL_RCC_DMA1_CLK_ENABLE();
+    /* Enable DMA1 clock */
+    __HAL_RCC_DMA1_CLK_ENABLE();
 
-  /* Configure the DMA handler for Transmission process */
-  hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
-  hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
-  hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
-  hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-  hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-  hdma_tx.Init.Mode                = DMA_NORMAL;
-  hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
-  hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;         
-  hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-  hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
-  hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
+    /* Configure the DMA handler for Transmission process */
+    hdma_tx.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+    hdma_tx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    hdma_tx.Init.MemInc              = DMA_MINC_ENABLE;
+    hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_tx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    hdma_tx.Init.Mode                = DMA_NORMAL;
+    hdma_tx.Init.Priority            = DMA_PRIORITY_LOW;
+    hdma_tx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;         
+    hdma_tx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    hdma_tx.Init.MemBurst            = DMA_MBURST_INC4;
+    hdma_tx.Init.PeriphBurst         = DMA_PBURST_INC4;
   
-  HAL_DMA_Init(&hdma_tx);   
+    HAL_DMA_Init(&hdma_tx);   
   
-  /* Associate the initialized DMA handle to the the I2C handle */
-  __HAL_LINKDMA(&t_I2cHandle[i2c_module_lookup(obj)], hdmatx, hdma_tx);
+    /* Associate the initialized DMA handle to the the I2C handle */
+    __HAL_LINKDMA(&t_I2cHandle[i2c_module_lookup(obj)], hdmatx, hdma_tx);
     
-  /* Configure the DMA handler for Transmission process */
-  hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-  hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-  hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
-  hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-  hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-  hdma_rx.Init.Mode                = DMA_NORMAL;
-  hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-  hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;         
-  hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-  hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
-  hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4; 
+    /* Configure the DMA handler for Transmission process */
+    hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+    hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
+    hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
+    hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
+    hdma_rx.Init.Mode                = DMA_NORMAL;
+    hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
+    hdma_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;         
+    hdma_rx.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+    hdma_rx.Init.MemBurst            = DMA_MBURST_INC4;
+    hdma_rx.Init.PeriphBurst         = DMA_PBURST_INC4; 
 
-  HAL_DMA_Init(&hdma_rx);
+    HAL_DMA_Init(&hdma_rx);
     
-  /* Associate the initialized DMA handle to the the I2C handle */
-  __HAL_LINKDMA(&t_I2cHandle[i2c_module_lookup(obj)], hdmarx, hdma_rx);
+    /* Associate the initialized DMA handle to the the I2C handle */
+    __HAL_LINKDMA(&t_I2cHandle[i2c_module_lookup(obj)], hdmarx, hdma_rx);
 #endif
 
 }
 
-inline int i2c_start(i2c_t *obj)
-{
+inline int i2c_start(i2c_t *obj) {
 #if !DEVICE_I2C_ASYNCH
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     t_I2cHandle[i2c_module_lookup(obj)].Instance = (I2C_TypeDef *)(obj->i2c);
@@ -340,7 +332,7 @@ inline int i2c_start(i2c_t *obj)
     __HAL_I2C_CLEAR_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF);
 
     // Wait the STOP condition has been previously correctly sent
-	// This timeout can be avoid in some specific cases by simply clearing the STOP bit
+    // This timeout can be avoid in some specific cases by simply clearing the STOP bit
     timeout = FLAG_TIMEOUT;
     while ((i2c->CR1 & I2C_CR1_STOP) == I2C_CR1_STOP) {
         if ((timeout--) == 0) {
@@ -362,8 +354,7 @@ inline int i2c_start(i2c_t *obj)
     return 0;
 }
 
-inline int i2c_stop(i2c_t *obj)
-{
+inline int i2c_stop(i2c_t *obj) {
 #if !DEVICE_I2C_ASYNCH
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
 #else
@@ -376,8 +367,7 @@ inline int i2c_stop(i2c_t *obj)
     return 0;
 }
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
-{
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
 #if !DEVICE_I2C_ASYNCH
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     t_I2cHandle[i2c_module_lookup(obj)].Instance = (I2C_TypeDef *)(obj->i2c);
@@ -432,8 +422,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     return length;
 }
 
-int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
-{
+int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
 #if !DEVICE_I2C_ASYNCH
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     t_I2cHandle[i2c_module_lookup(obj)].Instance = (I2C_TypeDef *)(obj->i2c);
@@ -483,8 +472,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     return count;
 }
 
-int i2c_byte_read(i2c_t *obj, int last)
-{
+int i2c_byte_read(i2c_t *obj, int last) {
 #if !DEVICE_I2C_ASYNCH
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     t_I2cHandle[i2c_module_lookup(obj)].Instance = (I2C_TypeDef *)(obj->i2c);
@@ -513,8 +501,7 @@ int i2c_byte_read(i2c_t *obj, int last)
     return (int)i2c->DR;
 }
 
-int i2c_byte_write(i2c_t *obj, int data)
-{
+int i2c_byte_write(i2c_t *obj, int data) {
 #if !DEVICE_I2C_ASYNCH
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
     t_I2cHandle[i2c_module_lookup(obj)].Instance = (I2C_TypeDef *)(obj->i2c);
@@ -538,8 +525,7 @@ int i2c_byte_write(i2c_t *obj, int data)
     return 1;
 }
 
-void i2c_reset(i2c_t *obj)
-{
+void i2c_reset(i2c_t *obj) {
     int timeout;
 
     // wait before reset
@@ -583,8 +569,7 @@ void i2c_reset(i2c_t *obj)
 
 #if DEVICE_I2CSLAVE
 
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
-{
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
 #if !DEVICE_I2C_ASYNCH
     I2C_TypeDef *i2c = (I2C_TypeDef *)(obj->i2c);
 #else
@@ -602,8 +587,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
     i2c->OAR1 = tmpreg;
 }
 
-void i2c_slave_mode(i2c_t *obj, int enable_slave)
-{
+void i2c_slave_mode(i2c_t *obj, int enable_slave) {
     if (enable_slave) {
 #if !DEVICE_I2C_ASYNCH			
         obj->slave = 1;
@@ -621,18 +605,17 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
 #define WriteGeneral   2 // the master is writing to all slave
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
-int i2c_slave_receive(i2c_t *obj)
-{
+int i2c_slave_receive(i2c_t *obj) {
     I2C_HandleTypeDef I2cHandle = t_I2cHandle[i2c_module_lookup(obj)];
     int retValue = NoData;
 
     if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY) == 1) {
         if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_ADDR) == 1) {
-            if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TRA) == 1)
+            if (__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_TRA) == 1) {
                 retValue = ReadAddressed;
-            else
+            } else {
                 retValue = WriteAddressed;
-
+            }
             __HAL_I2C_CLEAR_FLAG(&I2cHandle, I2C_FLAG_ADDR);
         }
     }
@@ -640,8 +623,7 @@ int i2c_slave_receive(i2c_t *obj)
     return (retValue);
 }
 
-int i2c_slave_read(i2c_t *obj, char *data, int length)
-{
+int i2c_slave_read(i2c_t *obj, char *data, int length) {
     I2C_HandleTypeDef I2cHandle = t_I2cHandle[i2c_module_lookup(obj)];
     uint32_t Timeout;
     int size = 0;
@@ -694,8 +676,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     return size;
 }
 
-int i2c_slave_write(i2c_t *obj, const char *data, int length)
-{
+int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     I2C_HandleTypeDef I2cHandle = t_I2cHandle[i2c_module_lookup(obj)];
     uint32_t Timeout;
     int size = 0;
@@ -798,131 +779,112 @@ static const IRQn_Type I2C_DMARx_IRQs[MODULE_SIZE_I2C] = {
 };
 #endif
 
-static HAL_StatusTypeDef i2c_WaitOnFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Flag, FlagStatus Status, uint32_t Timeout)
-{
-  uint32_t tickstart = 0;
+static HAL_StatusTypeDef i2c_WaitOnFlagUntilTimeout(I2C_HandleTypeDef *hi2c, uint32_t Flag, FlagStatus Status, uint32_t Timeout) {
+    uint32_t tickstart = 0;
 
-  /* Get tick */
-  tickstart = HAL_GetTick();
+    /* Get tick */
+    tickstart = HAL_GetTick();
 
-  /* Wait until flag is set */
-  if(Status == RESET)
-  {
-    while(__HAL_I2C_GET_FLAG(hi2c, Flag) == RESET)
-    {
-      /* Check for the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
-        {
-          hi2c->State= HAL_I2C_STATE_READY;
+    /* Wait until flag is set */
+    if(Status == RESET) {
+        while(__HAL_I2C_GET_FLAG(hi2c, Flag) == RESET) {
+            /* Check for the Timeout */
+            if(Timeout != HAL_MAX_DELAY) {
+                if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout)) {
+                    hi2c->State= HAL_I2C_STATE_READY;
 
-          /* Process Unlocked */
-          __HAL_UNLOCK(hi2c);
+                  /* Process Unlocked */
+                  __HAL_UNLOCK(hi2c);
 
-          return HAL_TIMEOUT;
+                  return HAL_TIMEOUT;
+                }
+            }
         }
-      }
-    }
-  }
-  else
-  {
-    while(__HAL_I2C_GET_FLAG(hi2c, Flag) != RESET)
-    {
-      /* Check for the Timeout */
-      if(Timeout != HAL_MAX_DELAY)
-      {
-        if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
-        {
-          hi2c->State= HAL_I2C_STATE_READY;
+    } else {
+        while(__HAL_I2C_GET_FLAG(hi2c, Flag) != RESET) {
+            /* Check for the Timeout */
+            if(Timeout != HAL_MAX_DELAY) {
+                if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout)) {
+                    hi2c->State= HAL_I2C_STATE_READY;
 
-          /* Process Unlocked */
-          __HAL_UNLOCK(hi2c);
+                    /* Process Unlocked */
+                    __HAL_UNLOCK(hi2c);
 
-          return HAL_TIMEOUT;
+                    return HAL_TIMEOUT;
+                }
+            }
         }
-      }
     }
-  }
-  return HAL_OK;
+    return HAL_OK;
 }
 
-static void i2c_DMAMasterReceiveCplt(DMA_HandleTypeDef *hdma)
-{
-  I2C_HandleTypeDef* hi2c = (I2C_HandleTypeDef*)((DMA_HandleTypeDef*)hdma)->Parent;
+static void i2c_DMAMasterReceiveCplt(DMA_HandleTypeDef *hdma) {
+    I2C_HandleTypeDef* hi2c = (I2C_HandleTypeDef*)((DMA_HandleTypeDef*)hdma)->Parent;
 
-  /* Generate Stop */
-  if(g_stop[i2c_module_lookup_handler(hi2c)]) hi2c->Instance->CR1 |= I2C_CR1_STOP;
+    /* Generate Stop */
+    if(g_stop[i2c_module_lookup_handler(hi2c)]) hi2c->Instance->CR1 |= I2C_CR1_STOP;
 
-  /* Disable Last DMA */
-  hi2c->Instance->CR2 &= ~I2C_CR2_LAST;
+    /* Disable Last DMA */
+    hi2c->Instance->CR2 &= ~I2C_CR2_LAST;
 
-  /* Disable Acknowledge */
-  hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
+    /* Disable Acknowledge */
+    hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
 
-  /* Disable DMA Request */
-  hi2c->Instance->CR2 &= ~I2C_CR2_DMAEN;
+    /* Disable DMA Request */
+    hi2c->Instance->CR2 &= ~I2C_CR2_DMAEN;
 
-  hi2c->XferCount = 0;
+    hi2c->XferCount = 0;
 
-  /* Wait until BUSY flag is reset */
-  if(g_stop[i2c_module_lookup_handler(hi2c)]) {
-    if(i2c_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_BUSY, SET, I2C_TIMEOUT_FLAG) != HAL_OK)
-    {
-      hi2c->ErrorCode |= HAL_I2C_ERROR_TIMEOUT;
+    /* Wait until BUSY flag is reset */
+    if(g_stop[i2c_module_lookup_handler(hi2c)]) {
+        if(i2c_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_BUSY, SET, I2C_TIMEOUT_FLAG) != HAL_OK) {
+            hi2c->ErrorCode |= HAL_I2C_ERROR_TIMEOUT;
+        }
     }
-  }
 
-  hi2c->State = HAL_I2C_STATE_READY;
+    hi2c->State = HAL_I2C_STATE_READY;
 
-  /* Check if Errors has been detected during transfer */
-  if(hi2c->ErrorCode != HAL_I2C_ERROR_NONE)
-  {
-    HAL_I2C_ErrorCallback(hi2c);
-  }
-  else
-  {
-    HAL_I2C_MasterRxCpltCallback(hi2c);
-  }
+    /* Check if Errors has been detected during transfer */
+    if(hi2c->ErrorCode != HAL_I2C_ERROR_NONE) {
+        HAL_I2C_ErrorCallback(hi2c);
+    } else {
+        HAL_I2C_MasterRxCpltCallback(hi2c);
+    }
 }
 
-static void i2c_DMAMasterTransmitCplt(DMA_HandleTypeDef *hdma)
-{
-  I2C_HandleTypeDef* hi2c = (I2C_HandleTypeDef*)((DMA_HandleTypeDef*)hdma)->Parent;
+static void i2c_DMAMasterTransmitCplt(DMA_HandleTypeDef *hdma) {
+    I2C_HandleTypeDef* hi2c = (I2C_HandleTypeDef*)((DMA_HandleTypeDef*)hdma)->Parent;
 
-  /* Wait until BTF flag is reset */
-  if(i2c_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_BTF, RESET, I2C_TIMEOUT_FLAG) != HAL_OK)
-  {
-    hi2c->ErrorCode |= HAL_I2C_ERROR_TIMEOUT;
-  }
-
-  /* Generate Stop */
-  if(g_stop[i2c_module_lookup_handler(hi2c)]) hi2c->Instance->CR1 |= I2C_CR1_STOP;
-
-  /* Disable DMA Request */
-  hi2c->Instance->CR2 &= ~I2C_CR2_DMAEN;
-
-  hi2c->XferCount = 0;
-
-  /* Wait until BUSY flag is reset */
-  if(g_stop[i2c_module_lookup_handler(hi2c)]) {
-    if(i2c_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_BUSY, SET, I2C_TIMEOUT_FLAG) != HAL_OK)
-    {
-      hi2c->ErrorCode |= HAL_I2C_ERROR_TIMEOUT;
+    /* Wait until BTF flag is reset */
+    if(i2c_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_BTF, RESET, I2C_TIMEOUT_FLAG) != HAL_OK) {
+        hi2c->ErrorCode |= HAL_I2C_ERROR_TIMEOUT;
     }
-  }
 
-  hi2c->State = HAL_I2C_STATE_READY;
+    /* Generate Stop */
+    if(g_stop[i2c_module_lookup_handler(hi2c)]) {
+        hi2c->Instance->CR1 |= I2C_CR1_STOP;
+    }
 
-  /* Check if Errors has been detected during transfer */
-  if(hi2c->ErrorCode != HAL_I2C_ERROR_NONE)
-  {
-    HAL_I2C_ErrorCallback(hi2c);
-  }
-  else
-  {
-    HAL_I2C_MasterTxCpltCallback(hi2c);
-  }
+    /* Disable DMA Request */
+    hi2c->Instance->CR2 &= ~I2C_CR2_DMAEN;
+
+    hi2c->XferCount = 0;
+
+    /* Wait until BUSY flag is reset */
+    if(g_stop[i2c_module_lookup_handler(hi2c)]) {
+        if(i2c_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_BUSY, SET, I2C_TIMEOUT_FLAG) != HAL_OK) {
+            hi2c->ErrorCode |= HAL_I2C_ERROR_TIMEOUT;
+        }
+    }
+
+    hi2c->State = HAL_I2C_STATE_READY;
+
+    /* Check if Errors has been detected during transfer */
+    if(hi2c->ErrorCode != HAL_I2C_ERROR_NONE) {
+        HAL_I2C_ErrorCallback(hi2c);
+    } else {
+        HAL_I2C_MasterTxCpltCallback(hi2c);
+    }
 }
 
 void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint) {
@@ -993,47 +955,46 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
 }
 
-uint32_t i2c_irq_handler_asynch(i2c_t *obj){
-  int event = 0;
+uint32_t i2c_irq_handler_asynch(i2c_t *obj) {
+    int event = 0;
   
-  if(g_receiveDMA[i2c_module_lookup(obj)]) {
-    g_receiveDMA[i2c_module_lookup(obj)]=0;
-		t_I2cHandle[i2c_module_lookup(obj)].hdmarx->XferCpltCallback = i2c_DMAMasterReceiveCplt;
-    HAL_DMA_IRQHandler(t_I2cHandle[i2c_module_lookup(obj)].hdmarx);
-  }
-  if(g_transmitDMA[i2c_module_lookup(obj)]) {
-    g_transmitDMA[i2c_module_lookup(obj)]=0;
-    t_I2cHandle[i2c_module_lookup(obj)].hdmatx->XferCpltCallback = i2c_DMAMasterTransmitCplt;
-    HAL_DMA_IRQHandler(t_I2cHandle[i2c_module_lookup(obj)].hdmatx);
-  }
+    if(g_receiveDMA[i2c_module_lookup(obj)]) {
+        g_receiveDMA[i2c_module_lookup(obj)]=0;
+        t_I2cHandle[i2c_module_lookup(obj)].hdmarx->XferCpltCallback = i2c_DMAMasterReceiveCplt;
+        HAL_DMA_IRQHandler(t_I2cHandle[i2c_module_lookup(obj)].hdmarx);
+    }
+    if(g_transmitDMA[i2c_module_lookup(obj)]) {
+        g_transmitDMA[i2c_module_lookup(obj)]=0;
+        t_I2cHandle[i2c_module_lookup(obj)].hdmatx->XferCpltCallback = i2c_DMAMasterTransmitCplt;
+        HAL_DMA_IRQHandler(t_I2cHandle[i2c_module_lookup(obj)].hdmatx);
+    }
   
-  if(g_transmitIT[i2c_module_lookup(obj)]) {
-    g_transmitIT[i2c_module_lookup(obj)]=0;
-    __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_EVT);
-    __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_ERR);
+    if(g_transmitIT[i2c_module_lookup(obj)]) {
+        g_transmitIT[i2c_module_lookup(obj)]=0;
+        __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_EVT);
+        __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_ERR);
     
-    if(__HAL_I2C_GET_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF)) {
-      __HAL_I2C_CLEAR_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF);
-      event |= I2C_EVENT_TRANSFER_EARLY_NACK;
+        if(__HAL_I2C_GET_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF)) {
+            __HAL_I2C_CLEAR_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF);
+            event |= I2C_EVENT_TRANSFER_EARLY_NACK;
+        } else {
+            __HAL_I2C_CLEAR_ADDRFLAG(&t_I2cHandle[i2c_module_lookup(obj)]);
+            HAL_I2C_EV_IRQHandler(&t_I2cHandle[i2c_module_lookup(obj)], g_stop[i2c_module_lookup(obj)]);
+        }
+        // If not repeated start, send stop.
+        if (g_stop[i2c_module_lookup(obj)]) {
+            i2c_stop(obj);
+        }
+        __HAL_UNLOCK(&t_I2cHandle[i2c_module_lookup(obj)]);
+        t_I2cHandle[i2c_module_lookup(obj)].State=HAL_I2C_STATE_READY;
     }
-    else {
-      __HAL_I2C_CLEAR_ADDRFLAG(&t_I2cHandle[i2c_module_lookup(obj)]);
-      HAL_I2C_EV_IRQHandler(&t_I2cHandle[i2c_module_lookup(obj)], g_stop[i2c_module_lookup(obj)]);
-    }
-    // If not repeated start, send stop.
-    if (g_stop[i2c_module_lookup(obj)]) {
-        i2c_stop(obj);
-    }
-    __HAL_UNLOCK(&t_I2cHandle[i2c_module_lookup(obj)]);
-    t_I2cHandle[i2c_module_lookup(obj)].State=HAL_I2C_STATE_READY;
-  }
   
-  event |= I2C_EVENT_TRANSFER_COMPLETE;
+    event |= I2C_EVENT_TRANSFER_COMPLETE;
   
-  return (event & g_event[i2c_module_lookup(obj)]);
+    return (event & g_event[i2c_module_lookup(obj)]);
 }
 
-uint8_t i2c_active(i2c_t *obj){
+uint8_t i2c_active(i2c_t *obj) {
     I2C_HandleTypeDef *handle = &t_I2cHandle[i2c_module_lookup(obj)];  
     HAL_I2C_StateTypeDef state = HAL_I2C_GetState(handle);  
   
@@ -1047,7 +1008,7 @@ uint8_t i2c_active(i2c_t *obj){
      }  
 }
 
-void i2c_abort_asynch(i2c_t *obj){
+void i2c_abort_asynch(i2c_t *obj) {
     i2c_reset(obj);  
 }
 
@@ -1066,63 +1027,60 @@ uint32_t g_receiveIT[MODULE_SIZE_I2C];
 uint32_t g_errorIT[MODULE_SIZE_I2C];
 
 #if defined(I2C1_BASE)
-void i2c1_irq_handler(void)
-{
-	I2C_HandleTypeDef *handle = &t_I2cHandle[0];
-	HAL_I2C_EV_IRQHandler(handle, g_stop[0]);
-	if(g_transmitIT[0]) {
-   	if(handle->XferCount > 0) {
-			NVIC_SetVector(I2cEventIRQs[0], (uint32_t)i2c1_irq_handler);
-		} else {
-			NVIC_SetVector(I2cEventIRQs[0], g_handler[0]); 
-		}
-	} else {
-    if(handle->XferCount > 2) {
-			NVIC_SetVector(I2cEventIRQs[0], (uint32_t)i2c1_irq_handler);
-		} else {
-			NVIC_SetVector(I2cEventIRQs[0], g_handler[0]); 
-		}
-	}
+void i2c1_irq_handler(void) {
+    I2C_HandleTypeDef *handle = &t_I2cHandle[0];
+    HAL_I2C_EV_IRQHandler(handle, g_stop[0]);
+    if(g_transmitIT[0]) {
+        if(handle->XferCount > 0) {
+            NVIC_SetVector(I2cEventIRQs[0], (uint32_t)i2c1_irq_handler);
+        } else {
+            NVIC_SetVector(I2cEventIRQs[0], g_handler[0]); 
+        }
+    } else {
+        if(handle->XferCount > 2) {
+            NVIC_SetVector(I2cEventIRQs[0], (uint32_t)i2c1_irq_handler);
+        } else {
+            NVIC_SetVector(I2cEventIRQs[0], g_handler[0]); 
+        }
+    }
 }
 #endif
 #if defined(I2C2_BASE)
-void i2c2_irq_handler(void)
-{
-	I2C_HandleTypeDef *handle = &t_I2cHandle[1];
-	HAL_I2C_EV_IRQHandler(handle, g_stop[1]);
-	if(g_transmitIT[1]) {
-		if(handle->XferCount > 0) {
-			NVIC_SetVector(I2cEventIRQs[1], (uint32_t)i2c2_irq_handler);
-		} else {
-			NVIC_SetVector(I2cEventIRQs[1], g_handler[1]); 
-		}
-	} else {
-		if(handle->XferCount > 0) {
-			NVIC_SetVector(I2cEventIRQs[1], (uint32_t)i2c2_irq_handler);
-		} else {
-			NVIC_SetVector(I2cEventIRQs[1], g_handler[1]); 
-		}
-	}
+void i2c2_irq_handler(void) {
+    I2C_HandleTypeDef *handle = &t_I2cHandle[1];
+    HAL_I2C_EV_IRQHandler(handle, g_stop[1]);
+    if(g_transmitIT[1]) {
+        if(handle->XferCount > 0) {
+            NVIC_SetVector(I2cEventIRQs[1], (uint32_t)i2c2_irq_handler);
+        } else {
+            NVIC_SetVector(I2cEventIRQs[1], g_handler[1]); 
+        }
+    } else {
+        if(handle->XferCount > 0) {
+            NVIC_SetVector(I2cEventIRQs[1], (uint32_t)i2c2_irq_handler);
+        } else {
+            NVIC_SetVector(I2cEventIRQs[1], g_handler[1]); 
+        }
+    }
 }
 #endif
 #if defined(I2C3_BASE)
-void i2c3_irq_handler(void)
-{
-	I2C_HandleTypeDef *handle = &t_I2cHandle[2];
-	HAL_I2C_EV_IRQHandler(handle, g_stop[2]);
-	if(g_transmitIT[2]) {
-		if(handle->XferCount > 1) {
-			NVIC_SetVector(I2cEventIRQs[2], (uint32_t)i2c3_irq_handler);
-		} else {
-			NVIC_SetVector(I2cEventIRQs[2], g_handler[2]); 
-		}
-	} else {
-		if(handle->XferCount > 2) {
-			NVIC_SetVector(I2cEventIRQs[2], (uint32_t)i2c3_irq_handler);
-		} else {
-			NVIC_SetVector(I2cEventIRQs[2], g_handler[2]); 
-		}
-	}
+void i2c3_irq_handler(void) {
+    I2C_HandleTypeDef *handle = &t_I2cHandle[2];
+    HAL_I2C_EV_IRQHandler(handle, g_stop[2]);
+    if(g_transmitIT[2]) {
+        if(handle->XferCount > 1) {
+            NVIC_SetVector(I2cEventIRQs[2], (uint32_t)i2c3_irq_handler);
+        } else {
+            NVIC_SetVector(I2cEventIRQs[2], g_handler[2]); 
+        }
+    } else {
+        if(handle->XferCount > 2) {
+            NVIC_SetVector(I2cEventIRQs[2], (uint32_t)i2c3_irq_handler);
+        } else {
+            NVIC_SetVector(I2cEventIRQs[2], g_handler[2]); 
+        }
+    }
 }
 #endif
 
@@ -1165,10 +1123,10 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     // register the same thunking handler for both event and error interrupt!  
     IRQn_Type event_irq_n = I2cEventIRQs[i2c_module_lookup(obj)];  
     IRQn_Type error_irq_n = I2cErrorIRQs[i2c_module_lookup(obj)]; 
-    if(((tx_length > 1)&&(rx_length == 0)) || ((rx_length > 1)&&(tx_length == 0)) || ((rx_length > 1)&&(tx_length > 1))){
-			NVIC_SetVector(event_irq_n, (uint32_t)i2c1_irq_handler); 
+    if(((tx_length > 1)&&(rx_length == 0)) || ((rx_length > 1)&&(tx_length == 0)) || ((rx_length > 1)&&(tx_length > 1))) {
+        NVIC_SetVector(event_irq_n, (uint32_t)i2c1_irq_handler); 
 		} else {
-			NVIC_SetVector(event_irq_n, handler); 
+        NVIC_SetVector(event_irq_n, handler); 
 		}
 		
     HAL_NVIC_SetPriority(event_irq_n, 0, 1);      
@@ -1203,51 +1161,50 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 }
 
 
-uint32_t i2c_irq_handler_asynch(i2c_t *obj){
-  int event = 0;
-  I2C_HandleTypeDef *handle = &t_I2cHandle[i2c_module_lookup(obj)];
+uint32_t i2c_irq_handler_asynch(i2c_t *obj) {
+    int event = 0;
+    I2C_HandleTypeDef *handle = &t_I2cHandle[i2c_module_lookup(obj)];
 
-  // If not repeated start, send stop.
-  // Patch to be sure the stop will be generated
-  if (g_stop[i2c_module_lookup(obj)]) {
-    if((handle->Instance->SR2 & 0x03) == 0x03) {
-      i2c_stop(obj);
+    // If not repeated start, send stop.
+    // Patch to be sure the stop will be generated
+    if (g_stop[i2c_module_lookup(obj)]) {
+        if((handle->Instance->SR2 & 0x03) == 0x03) {
+            i2c_stop(obj);
+        }
     }
-  }
 	
-  if(g_receiveIT[i2c_module_lookup(obj)]) {
-    g_receiveIT[i2c_module_lookup(obj)]=0;
-    HAL_I2C_EV_IRQHandler(handle, g_stop[i2c_module_lookup(obj)]);
-  }
-  if(g_transmitIT[i2c_module_lookup(obj)]) {
-    g_transmitIT[i2c_module_lookup(obj)]=0;
-    HAL_I2C_EV_IRQHandler(handle, g_stop[i2c_module_lookup(obj)]);
-  }
+    if(g_receiveIT[i2c_module_lookup(obj)]) {
+        g_receiveIT[i2c_module_lookup(obj)]=0;
+        HAL_I2C_EV_IRQHandler(handle, g_stop[i2c_module_lookup(obj)]);
+    }
+    if(g_transmitIT[i2c_module_lookup(obj)]) {
+        g_transmitIT[i2c_module_lookup(obj)]=0;
+        HAL_I2C_EV_IRQHandler(handle, g_stop[i2c_module_lookup(obj)]);
+    }
   
-  if(g_errorIT[i2c_module_lookup(obj)]) {
-    g_errorIT[i2c_module_lookup(obj)]=0;
-    __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_EVT);
-    __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_ERR);
+    if(g_errorIT[i2c_module_lookup(obj)]) {
+        g_errorIT[i2c_module_lookup(obj)]=0;
+        __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_EVT);
+        __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_ERR);
     
-    if(__HAL_I2C_GET_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF)) {
-      __HAL_I2C_CLEAR_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF);
-      event |= I2C_EVENT_TRANSFER_EARLY_NACK;
+        if(__HAL_I2C_GET_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF)) {
+            __HAL_I2C_CLEAR_FLAG(&t_I2cHandle[i2c_module_lookup(obj)], I2C_FLAG_AF);
+            event |= I2C_EVENT_TRANSFER_EARLY_NACK;
+        } else {
+            __HAL_I2C_CLEAR_ADDRFLAG(&t_I2cHandle[i2c_module_lookup(obj)]);
+            HAL_I2C_EV_IRQHandler(&t_I2cHandle[i2c_module_lookup(obj)], g_stop[i2c_module_lookup(obj)]);
+        }
+        __HAL_UNLOCK(&t_I2cHandle[i2c_module_lookup(obj)]);
     }
-    else {
-      __HAL_I2C_CLEAR_ADDRFLAG(&t_I2cHandle[i2c_module_lookup(obj)]);
-      HAL_I2C_EV_IRQHandler(&t_I2cHandle[i2c_module_lookup(obj)], g_stop[i2c_module_lookup(obj)]);
-    }
-    __HAL_UNLOCK(&t_I2cHandle[i2c_module_lookup(obj)]);
-  }
 
-	__HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_EVT|I2C_IT_ERR|I2C_IT_BUF);
-  t_I2cHandle[i2c_module_lookup(obj)].State=HAL_I2C_STATE_READY;	
-  event |= I2C_EVENT_TRANSFER_COMPLETE;
+    __HAL_I2C_DISABLE_IT(&t_I2cHandle[i2c_module_lookup(obj)], I2C_IT_EVT|I2C_IT_ERR|I2C_IT_BUF);
+    t_I2cHandle[i2c_module_lookup(obj)].State=HAL_I2C_STATE_READY;	
+    event |= I2C_EVENT_TRANSFER_COMPLETE;
   
-  return (event & g_event[i2c_module_lookup(obj)]);
+    return (event & g_event[i2c_module_lookup(obj)]);
 }
 
-uint8_t i2c_active(i2c_t *obj){
+uint8_t i2c_active(i2c_t *obj) {
     I2C_HandleTypeDef *handle = &t_I2cHandle[i2c_module_lookup(obj)];  
     HAL_I2C_StateTypeDef state = HAL_I2C_GetState(handle);  
   
@@ -1261,7 +1218,7 @@ uint8_t i2c_active(i2c_t *obj){
      }  
 }
 
-void i2c_abort_asynch(i2c_t *obj){
+void i2c_abort_asynch(i2c_t *obj) {
     i2c_reset(obj);  
 }
 
