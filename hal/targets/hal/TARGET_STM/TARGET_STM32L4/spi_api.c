@@ -85,9 +85,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (obj->spi == SPI_1) {
         __HAL_RCC_SPI1_CLK_ENABLE();
     }
+#if defined(SPI2_BASE)
     if (obj->spi == SPI_2) {
         __HAL_RCC_SPI2_CLK_ENABLE();
     }
+#endif
     if (obj->spi == SPI_3) {
         __HAL_RCC_SPI3_CLK_ENABLE();
     }
@@ -129,11 +131,13 @@ void spi_free(spi_t *obj)
         __HAL_RCC_SPI1_CLK_DISABLE();
     }
 
+#if defined(SPI2_BASE)
     if (obj->spi == SPI_2) {
         __HAL_RCC_SPI2_FORCE_RESET();
         __HAL_RCC_SPI2_RELEASE_RESET();
         __HAL_RCC_SPI2_CLK_DISABLE();
     }
+#endif
 
     if (obj->spi == SPI_3) {
         __HAL_RCC_SPI3_FORCE_RESET();
@@ -204,16 +208,18 @@ void spi_frequency(spi_t *obj, int hz)
 	/* Get source clock depending on SPI instance */
     switch ((int)obj->spi) {
         case SPI_1:
-			/* SPI_1. Source CLK is PCKL2 */
-			spi_hz = HAL_RCC_GetPCLK2Freq();
-			break;
-		case SPI_2:
-		case SPI_3:
-			/* SPI_2, SPI_3. Source CLK is PCKL1 */
-			spi_hz = HAL_RCC_GetPCLK1Freq();
-			break;
-		default:
-			error("SPI instance not set");
+    			/* SPI_1. Source CLK is PCKL2 */
+    			spi_hz = HAL_RCC_GetPCLK2Freq();
+    			break;
+#if defined(SPI2_BASE)
+    		case SPI_2:
+#endif
+    		case SPI_3:
+    			/* SPI_2, SPI_3. Source CLK is PCKL1 */
+    			spi_hz = HAL_RCC_GetPCLK1Freq();
+    			break;
+    		default:
+    			error("SPI instance not set");
     }
 
 	/* Define pre-scaler in order to get highest available frequency below requested frequency */
