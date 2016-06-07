@@ -847,7 +847,8 @@
         "default_toolchain": "uARM",
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0780"],
-        "progen": {"target":"nucleo-l011k4"}
+        "progen": {"target":"nucleo-l011k4"},
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
     },
     "NUCLEO_L031K6": {
         "inherits": ["Target"],
