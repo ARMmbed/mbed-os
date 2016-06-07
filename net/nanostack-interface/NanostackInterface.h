@@ -13,6 +13,7 @@
 
 class NanostackInterface : public MeshInterface, public NetworkStack {
 public:
+    NanostackInterface() : connect_semaphore(0) { }
     int disconnect();
 
     /** Get the internally stored IP address
@@ -226,6 +227,7 @@ protected:
     uint8_t eui64[8];
     char ip_addr_str[40];
     char mac_addr_str[24];
+    Semaphore connect_semaphore;
 };
 
 class LoWPANNDInterface : public NanostackInterface {
