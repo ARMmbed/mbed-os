@@ -37,7 +37,7 @@ from paths import TOOLS_BOOTLOADERS
 import json
 import inspect
 import sys
-
+from tools.utils import json_file_to_dict
 
 ########################################################################################################################
 # Generic Target class that reads and interprets the data in targets.json
@@ -58,29 +58,19 @@ def cached(func):
 class Target:
     # Cumulative attributes can have values appended to them, so they
     # need to be computed differently than regular attributes
-    __cumulative_attributes = ['extra_labels', 'macros']
+    __cumulative_attributes = ['extra_labels', 'macros', 'features']
 
-    # Utility function: traverse a dictionary and change all the strings in the dictionary to
-    # ASCII from Unicode. Needed because the original mbed target definitions were written in
-    # Python and used only ASCII strings, but the Python JSON decoder always returns Unicode
-    # Based on http://stackoverflow.com/a/13105359
-    @staticmethod
-    def to_ascii(input):
-        if isinstance(input, dict):
-            return dict([(Target.to_ascii(key), Target.to_ascii(value)) for key, value in input.iteritems()])
-        elif isinstance(input, list):
-            return [Target.to_ascii(element) for element in input]
-        elif isinstance(input, unicode):
-            return input.encode('ascii')
-        else:
-            return input
+    # {target_name: target_instance} map for all the targets in the system
+    __target_map = {}
+
+    # List of targets that were added dynamically using "add_py_targets" (see below)
+    __py_targets = set()
 
     # Load the description of JSON target data
     @staticmethod
     @cached
     def get_json_target_data():
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../mbed/hal/targets.json"), "rt") as f:
-            return Target.to_ascii(json.load(f))
+        return json_file_to_dict(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../mbed/hal/targets.json"))
 
     # Get the members of this module using Python's "inspect" module
     @staticmethod
@@ -172,21 +162,58 @@ class Target:
         return v if attrname != "progen" else self.__add_paths_to_progen(v)
 
     # Return the value of an attribute
-    # This function only looks for the attribute's value in the cache, the real work of computing the
-    # attribute's value is done in the function above (__getattr_helper)
+    # This function only computes the attribute's value once, then adds it to the instance attributes
+    # (in __dict__), so the next time it is returned directly
     def __getattr__(self, attrname):
-        if not self.attr_cache.has_key(attrname):
-            self.attr_cache[attrname] = self.__getattr_helper(attrname)
-        return self.attr_cache[attrname]
+        v = self.__getattr_helper(attrname)
+        self.__dict__[attrname] = v
+        return v
+
+    # Add one or more new target(s) represented as a Python dictionary in 'new_targets'
+    # It it an error to add a target with a name that exists in "targets.json"
+    # However, it is OK to add a target that was previously added via "add_py_targets"
+    # (this makes testing easier without changing the regular semantics)
+    @staticmethod
+    def add_py_targets(new_targets):
+        crt_data = Target.get_json_target_data()
+        # First add all elemnts to the internal dictionary
+        for tk, tv in new_targets.items():
+            if crt_data.has_key(tk) and (not tk in Target.__py_targets):
+                raise Exception("Attempt to add target '%s' that already exists" % tk)
+            crt_data[tk] = tv
+            Target.__py_targets.add(tk)
+        # Then create the new instances and update global variables if needed
+        for tk, tv in new_targets.items():
+            # Is the target already created?
+            old_target = Target.__target_map.get(tk, None)
+            # Instantiate this target. If it is public, update the data in
+            # in TARGETS, TARGET_MAP, TARGET_NAMES
+            new_target = Target(tk)
+            if tv.get("public", True):
+                if old_target: # remove the old target from TARGETS and TARGET_NAMES
+                    TARGETS.remove(old_target)
+                    TARGET_NAMES.remove(tk)
+                # Add the new target
+                TARGETS.append(new_target)
+                TARGET_MAP[tk] = new_target
+                TARGET_NAMES.append(tk)
+            # Update the target cache
+            Target.__target_map[tk] = new_target
+
+    # Return the target instance starting from the target name
+    @staticmethod
+    def get_target(name):
+        if not Target.__target_map.has_key(name):
+            Target.__target_map[name] = Target(name)
+        return Target.__target_map[name]
 
     def __init__(self, name):
         self.name = name
 
         # Compute resolution order once (it will be used later in __getattr__)
         self.resolution_order = self.__get_resolution_order(self.name, [])
-
-        # Attribute cache: once an attribute's value is computed, don't compute it again
-        self.attr_cache = {}
+        # Create also a list with only the names of the targets in the resolution order
+        self.resolution_order_names = [t[0] for t in self.resolution_order]
 
     def program_cycle_s(self):
         try:
@@ -364,7 +391,7 @@ class MCU_NRF51Code:
 ########################################################################################################################
 
 # Instantiate all public targets
-TARGETS = [Target(name) for name, value in Target.get_json_target_data().items() if value.get("public", True)]
+TARGETS = [Target.get_target(name) for name, value in Target.get_json_target_data().items() if value.get("public", True)]
 
 # Map each target name to its unique instance
 TARGET_MAP = dict([(t.name, t) for t in TARGETS])

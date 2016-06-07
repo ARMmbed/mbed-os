@@ -34,7 +34,6 @@ import tools.hooks as hooks
 from hashlib import md5
 import fnmatch
 
-
 #Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
 
@@ -54,6 +53,7 @@ def compile_worker(job):
         'commands': job['commands'],
         'results': results
     }
+
 
 class Resources:
     def __init__(self, base_path=None):
@@ -82,6 +82,7 @@ class Resources:
         # Other files
         self.hex_files = []
         self.bin_files = []
+        self.json_files = []
 
     def __add__(self, resources):
         if resources is None:
@@ -118,12 +119,15 @@ class Resources:
 
         self.hex_files += resources.hex_files
         self.bin_files += resources.bin_files
+        self.json_files += resources.json_files
+
         return self
 
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files', 'bin_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files',
+                      'hex_files', 'bin_files', 'json_files']:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -132,7 +136,8 @@ class Resources:
     def win_to_unix(self):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files', 'bin_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files',
+                      'hex_files', 'bin_files', 'json_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -163,7 +168,6 @@ class Resources:
             s.append('Linker Script: ' + self.linker_script)
 
         return '\n'.join(s)
-
 
 # Support legacy build conventions: the original mbed build system did not have
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
@@ -235,7 +239,7 @@ class mbedToolchain:
         self.CHROOT = None
 
         self.mp_pool = None
-        
+
         if 'UVISOR_PRESENT=1' in self.macros:
             self.target.core = re.sub(r"F$", '', self.target.core)
 
@@ -320,6 +324,11 @@ class mbedToolchain:
 
             # Add target's symbols
             self.symbols += self.target.macros
+            # Add target's hardware
+            try :
+                self.symbols += ["DEVICE_" + feature + "=1" for feature in self.target.features]
+            except AttributeError :
+                pass
             # Add extra symbols passed via 'macros' parameter
             self.symbols += self.macros
 
@@ -328,6 +337,10 @@ class mbedToolchain:
                 self.symbols.extend(["TARGET_FF_%s" % t for t in self.target.supported_form_factors])
 
         return list(set(self.symbols))  # Return only unique symbols
+
+    # Extend the internal list of macros
+    def add_macros(self, new_macros):
+        self.macros.extend(new_macros)
 
     def get_labels(self):
         if self.labels is None:
@@ -471,6 +484,9 @@ class mbedToolchain:
 
                 elif ext == '.bin':
                     resources.bin_files.append(file_path)
+
+                elif ext == '.json':
+                    resources.json_files.append(file_path)
 
         return resources
 

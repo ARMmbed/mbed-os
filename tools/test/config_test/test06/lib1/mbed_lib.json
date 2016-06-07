@@ -1,0 +1,16 @@
+{
+    "name": "lib1",
+    "config": {
+        "p1": "v_p1_lib1",
+        "p2": "v_p2_lib1",
+        "p3": "v_p3_lib1"
+    },
+    "target_overrides": {
+        "b1_label": {
+            "p1": "v_p1_lib1[b1_label]"
+        },
+        "b2_label": {
+            "p2": "v_p2_lib1[b2_label]"
+        }
+    }
+}
