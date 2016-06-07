@@ -143,6 +143,9 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
 # Generate project folders following the online conventions
 ###############################################################################
 def copy_tree(src, dst, clean=True):
+    """
+    Copies the 'src' directory recursively to 'dst' directory
+    """
     if exists(dst):
         if clean:
             rmtree(dst)
@@ -151,23 +154,36 @@ def copy_tree(src, dst, clean=True):
 
     copytree(src, dst)
 
-
 def setup_user_prj(user_dir, prj_path, lib_paths=None):
     """
     Setup a project with the same directory structure of the mbed online IDE
     """
+    report = {'success': True, 'errormsg':''}
+    
     mkdir(user_dir)
 
     # Project Path
-    copy_tree(prj_path, join(user_dir, "src"))
+    if exists(prj_path):
+        copy_tree(prj_path, join(user_dir, "src"))
+        
+        # Project Libraries
+        user_lib = join(user_dir, "lib")
+        mkdir(user_lib)
+    
+        if lib_paths is not None:
+            for lib_path in lib_paths:
+                if exists(lib_path):
+                    copy_tree(lib_path, join(user_lib, basename(lib_path)))
+                else:
+                    report['success'] = False
+                    report['errormsg'] = "Library path '%s' does not exist. Ensure that the library is built." % (lib_path)
+                    break
+    else:
+        report['success'] = False
+        report['errormsg'] = "Project path '%s' does not exist" % (prj_path)
+        
+    return report
 
-    # Project Libraries
-    user_lib = join(user_dir, "lib")
-    mkdir(user_lib)
-
-    if lib_paths is not None:
-        for lib_path in lib_paths:
-            copy_tree(lib_path, join(user_lib, basename(lib_path)))
 
 def mcu_ide_matrix(verbose_html=False, platform_filter=None):
     """  Shows target map using prettytable """

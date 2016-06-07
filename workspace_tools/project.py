@@ -173,16 +173,20 @@ if __name__ == '__main__':
 
         # Build the project with the same directory structure of the mbed online IDE
         project_dir = join(EXPORT_WORKSPACE, test.id)
-        setup_user_prj(project_dir, test.source_dir, test.dependencies)
-
-        # Export to selected toolchain
-        tmp_path, report = export(project_dir, test.id, ide, mcu, EXPORT_WORKSPACE, EXPORT_TMP, extra_symbols=lib_symbols)
-        if report['success']:
-            zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (test.id, ide, mcu))
-            move(tmp_path, zip_path)
-            successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
-        else:
+        
+        report = setup_user_prj(project_dir, test.source_dir, test.dependencies)
+        
+        if not report['success']:
             failures.append("%s::%s\t%s"% (mcu, ide, report['errormsg']))
+        else:        
+            # Export to selected toolchain
+            tmp_path, report = export(project_dir, test.id, ide, mcu, EXPORT_WORKSPACE, EXPORT_TMP, extra_symbols=lib_symbols)
+            if report['success']:
+                zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (test.id, ide, mcu))
+                move(tmp_path, zip_path)
+                successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
+            else:
+                failures.append("%s::%s\t%s"% (mcu, ide, report['errormsg']))
 
     # Prints export results
     print
