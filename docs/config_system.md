@@ -53,7 +53,7 @@ Each mbed library can have an optional `mbed_lib.json` file located in the root 
 
 ```
 {
-    "name": mylib,
+    "name": "mylib",
     "config": {
         "buffer_size": 1024,
         "timer_period": {
