@@ -25,6 +25,29 @@ class SerialNCRXTest():
 
     def test(self, selftest):
         selftest.mbed.flush();
+        # Wait 0.5 seconds to ensure mbed is listening
+        time.sleep(0.5)
+
+        #handshake with target to sync test start
+        selftest.mbed.serial_write("S");
+
+        strip_chars = string.whitespace + "\0"
+
+        out_str = selftest.mbed.serial_readline()
+
+        if not out_str:
+            selftest.notify("HOST: No output detected")
+            return selftest.RESULT_IO_SERIAL
+
+        out_str_stripped = out_str.strip(strip_chars)
+
+        if out_str_stripped != "RX OK - Start NC test":
+            selftest.notify("HOST: Unexpected output. Expected 'RX OK - Expected' but received '%s'" % out_str_stripped)
+            return selftest.RESULT_FAILURE
+
+        # Wait 0.5 seconds to ensure mbed is listening
+        time.sleep(0.5)
+
         selftest.mbed.serial_write("E");
 
         strip_chars = string.whitespace + "\0"

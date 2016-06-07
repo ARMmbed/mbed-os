@@ -2,13 +2,14 @@
 #include "test_env.h"
 
 int main() {
+    Serial *pc = new Serial(USBTX, USBRX);
+
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(serial_nc_tx_auto);
     MBED_HOSTTEST_DESCRIPTION(Serial NC TX);
     MBED_HOSTTEST_START("MBED_38");
 
     // Wait until we receive start signal from host test
-    Serial *pc = new Serial(USBTX, USBRX);
     char c = pc->getc();
     delete pc;
 
