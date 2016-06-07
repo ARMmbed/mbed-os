@@ -32,3 +32,14 @@ void utest_unity_ignore_failure(void)
     UTEST_LOG_FUNCTION();
     utest::v1::Harness::raise_failure(utest::v1::failure_reason_t(utest::v1::REASON_ASSERTION | utest::v1::REASON_IGNORE));
 }
+
+void utest_safe_putc(int chr)
+{
+    volatile uint32_t primask = __get_PRIMASK();
+    if ( (primask & 0x1) == 0){ 
+        (void)putchar(chr);
+    }
+
+}    
+
+

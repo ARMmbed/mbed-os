@@ -60,6 +60,7 @@ utest_v1_scheduler_t utest_v1_get_scheduler()
 #else
 #   include "mbed.h"
 #endif
+
 // only one callback is active at any given time
 static volatile utest_v1_harness_callback_t minimal_callback;
 static volatile utest_v1_harness_callback_t ticker_callback;
@@ -70,7 +71,6 @@ Timeout utest_timeout_object;
 static void ticker_handler()
 {
     UTEST_LOG_FUNCTION();
-    //printf("\t\t>>> Ticker callback fired for %p.\n", ticker_callback);
     minimal_callback = ticker_callback;
 }
 
@@ -85,7 +85,6 @@ static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, ti
     UTEST_LOG_FUNCTION();
     timestamp_t delay_us = delay_ms *1000;
     
-    //printf("\t\t>>> Schedule %p with %ums delay => %p.\n", callback, (unsigned int)delay_ms, (void*)1);
     if (delay_ms) {
         ticker_callback = callback;
         // fire the interrupt in 1000us * delay_ms
@@ -96,15 +95,12 @@ static void *utest_us_ticker_post(const utest_v1_harness_callback_t callback, ti
         minimal_callback = callback;
     }
 
-    //printf("Minimal callback = %p, ticker_callback = %p\n", minimal_callback, ticker_callback);
-
     // return a bogus handle
     return (void*)1;
 }
 static int32_t utest_us_ticker_cancel(void *handle)
 {
     UTEST_LOG_FUNCTION();
-    //printf("\t\t>>> Cancel %p => %u\n", handle, (unsigned int)0);
     (void) handle;
     utest_timeout_object.detach();
     return 0;
@@ -117,7 +113,6 @@ static int32_t utest_us_ticker_run()
         // check if a new callback has been set
         if (minimal_callback)
         {
-            //printf("\t\t>>> Firing callback %p\n", minimal_callback);
             // copy the callback
             utest_v1_harness_callback_t callback = minimal_callback;
             // reset the shared callback
@@ -128,6 +123,22 @@ static int32_t utest_us_ticker_run()
     }
     return 0;
 }
+
+int utest_printf(char *str, ...)
+{
+    volatile uint32_t primask = __get_PRIMASK();\
+    if ( (primask & 0x1) == 0){ \
+        va_list vargs;
+    
+        va_start(vargs, str);
+        vprintf(str, vargs);
+        va_end(vargs);
+    }
+
+    return 0;
+}    
+
+
 extern "C" {
 static const utest_v1_scheduler_t utest_v1_scheduler =
 {
