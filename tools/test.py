@@ -185,7 +185,10 @@ if __name__ == '__main__':
                 report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
                 report_exporter.report_to_file(build_report, options.build_report_junit, test_suite_properties=build_properties)
         
-            if library_build_success and test_build_success:
+            print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
+            status = print_report_exporter.report(build_report)
+        
+            if status:
                 sys.exit(0)
             else:
                 sys.exit(1)
