@@ -27,7 +27,7 @@ sys.path.insert(0, ROOT)
 
 from workspace_tools.build_api import build_mbed_libs
 from workspace_tools.build_api import write_build_report
-from workspace_tools.targets import TARGET_MAP
+from workspace_tools.targets import TARGET_MAP, TARGET_NAMES
 from workspace_tools.test_exporters import ReportExporter, ResultExporterType
 from workspace_tools.test_api import SingleTestRunner
 from workspace_tools.test_api import singletest_in_cli_mode
@@ -126,9 +126,9 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARM_MPS2_M3'   ,     ('ARM',)),
     ('ARM_MPS2_M4'   ,     ('ARM',)),
     ('ARM_MPS2_M7'   ,     ('ARM',)),
-    ('ARM_MPS2_BEID' ,     ('ARM',)),
+    ('ARM_IOTSS_BEID' ,     ('ARM',)),
 
-    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM', 'IAR')),
+    ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
     ('EFM32ZG_STK3200',     ('GCC_ARM', 'uARM')),
     ('EFM32HG_STK3400',     ('GCC_ARM', 'uARM')),
@@ -209,10 +209,17 @@ if __name__ == '__main__':
             "targets": {}
         }
 
+        if options.toolchains:
+            print "Only building using the following toolchains: %s" % (options.toolchains)
+
         for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
             toolchains = None
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
+                continue
+            
+            if target_name not in TARGET_NAMES:
+                print "Target '%s' is not a valid target. Excluding from release"
                 continue
 
             if options.official_only:
@@ -221,7 +228,6 @@ if __name__ == '__main__':
                 toolchains = toolchain_list
 
             if options.toolchains:
-                print "Only building using the following toolchains: %s" % (options.toolchains)
                 toolchainSet = set(toolchains)
                 toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
 
@@ -233,23 +239,27 @@ if __name__ == '__main__':
 
             test_spec["targets"][target_name] = toolchains
 
-            single_test = SingleTestRunner(_muts=mut,
-                                           _opts_report_build_file_name=options.report_build_file_name,
-                                           _test_spec=test_spec,
-                                           _opts_test_by_names=",".join(test_names),
-                                           _opts_verbose=options.verbose,
-                                           _opts_only_build_tests=True,
-                                           _opts_suppress_summary=True,
-                                           _opts_jobs=options.jobs,
-                                           _opts_include_non_automated=True,
-                                           _opts_build_report=build_report,
-                                           _opts_build_properties=build_properties)
-            # Runs test suite in CLI mode
-            test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, new_build_report, new_build_properties = single_test.execute()
+        single_test = SingleTestRunner(_muts=mut,
+                                       _opts_report_build_file_name=options.report_build_file_name,
+                                       _test_spec=test_spec,
+                                       _opts_test_by_names=",".join(test_names),
+                                       _opts_verbose=options.verbose,
+                                       _opts_only_build_tests=True,
+                                       _opts_suppress_summary=True,
+                                       _opts_jobs=options.jobs,
+                                       _opts_include_non_automated=True,
+                                       _opts_build_report=build_report,
+                                       _opts_build_properties=build_properties)
+        # Runs test suite in CLI mode
+        test_summary, shuffle_seed, test_summary_ext, test_suite_properties_ext, new_build_report, new_build_properties = single_test.execute()
     else:
         for target_name, toolchain_list in OFFICIAL_MBED_LIBRARY_BUILD:
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
+                continue
+            
+            if target_name not in TARGET_NAMES:
+                print "Target '%s' is not a valid target. Excluding from release"
                 continue
 
             if options.official_only:

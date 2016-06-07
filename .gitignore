@@ -10,7 +10,7 @@ MANIFEST
 private_settings.py
 
 # Default Build Directory
-build/
+.build/
 venv/
 
 # Eclipse Project Files

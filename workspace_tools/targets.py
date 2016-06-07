@@ -34,462 +34,213 @@ import struct
 import shutil
 from workspace_tools.patch import patch
 from paths import TOOLS_BOOTLOADERS
+import json
+import inspect
+import sys
+
+
+########################################################################################################################
+# Generic Target class that reads and interprets the data in targets.json
+
+# A simple class that represents all the exceptions associated with hooking
+class HookError(Exception):
+    pass
+
+# A simple decorator used for automatically caching data returned by a function
+caches = {}
+def cached(func):
+    def wrapper(*args, **kwargs):
+        if not caches.has_key(func):
+            caches[func] = func(*args, **kwargs)
+        return caches[func]
+    return wrapper
 
 class Target:
-    def __init__(self):
-        # ARM Core
-        self.core = None
+    # Cumulative attributes can have values appended to them, so they
+    # need to be computed differently than regular attributes
+    __cumulative_attributes = ['extra_labels', 'macros', 'features']
 
-        # Is the disk provided by the interface chip of this board virtual?
-        self.is_disk_virtual = False
+    # Utility function: traverse a dictionary and change all the strings in the dictionary to
+    # ASCII from Unicode. Needed because the original mbed target definitions were written in
+    # Python and used only ASCII strings, but the Python JSON decoder always returns Unicode
+    # Based on http://stackoverflow.com/a/13105359
+    @staticmethod
+    def to_ascii(input):
+        if isinstance(input, dict):
+            return dict([(Target.to_ascii(key), Target.to_ascii(value)) for key, value in input.iteritems()])
+        elif isinstance(input, list):
+            return [Target.to_ascii(element) for element in input]
+        elif isinstance(input, unicode):
+            return input.encode('ascii')
+        else:
+            return input
 
-        # list of toolchains that are supported by the mbed SDK for this target
-        self.supported_toolchains = None
+    # Load the description of JSON target data
+    @staticmethod
+    @cached
+    def get_json_target_data():
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../hal/targets.json"), "rt") as f:
+            return Target.to_ascii(json.load(f))
 
-        # list of extra specific labels
-        self.extra_labels = []
+    # Get the members of this module using Python's "inspect" module
+    @staticmethod
+    @cached
+    def get_module_data():
+        return dict([(m[0], m[1]) for m in inspect.getmembers(sys.modules[__name__])])
 
-        # list of macros (-D)
-        self.macros = []
+    # Return the order in which target descriptions are searched for attributes
+    # This mimics the Python 2.2 method resolution order, which is what the old targets.py module used
+    # For more details, check http://makina-corpus.com/blog/metier/2014/python-tutorial-understanding-python-mro-class-search-path
+    # The resolution order contains (name, level) tuples, where "name" is the name of the class and "level"
+    # is the level in the inheritance hierarchy (the target itself is at level 0, its first parent at level 1,
+    # its parent's parent at level 1 and so on)
+    def __get_resolution_order(self, target_name, order, level = 0):
+        if not target_name in [l[0] for l in order]: # the resolution order can't contain duplicate target names
+            order.append((target_name, level))
+        parents = self.get_json_target_data()[target_name].get("inherits", [])
+        for p in parents:
+            order = self.__get_resolution_order(p, order, level + 1)
+        return order
 
-        # Default online compiler:
-        self.default_toolchain = "ARM"
+    # Modify the exporter specification ("progen") by changing all "template" keys to full paths
+    @staticmethod
+    def __add_paths_to_progen(data):
+        out = {}
+        for key, value in data.items():
+            if isinstance(value, dict):
+                out[key] = Target.__add_paths_to_progen(value)
+            elif key == "template":
+                out[key] = [os.path.join(os.path.dirname(__file__), 'export', v) for v in value]
+            else:
+                out[key] = value
+        return out
 
-        self.name = self.__class__.__name__
+    # Comute the value of a given target attribute
+    def __getattr_helper(self, attrname):
+        tdata = self.get_json_target_data()
+        if attrname in self.__cumulative_attributes:
+            # For a cumulative attribute, figure out when it was defined the last time (in attribute
+            # resolution order) then follow the "_add" and "_remove" data fields
+            for idx, t in enumerate(self.resolution_order):
+                if attrname in tdata[t[0]]: # the attribute was defined at this level in the resolution order
+                    def_idx = idx
+                    break
+            else:
+                raise AttributeError("Attribute '%s' not found in target '%s'" % (attrname, self.name))
+            # Get the starting value of the attribute
+            v = (tdata[self.resolution_order[def_idx][0]][attrname] or [])[:]
+            # Traverse the resolution list in high inheritance to low inheritance level, left to right order
+            # to figure out all the other classes that change the definition by adding or removing elements
+            for idx in xrange(self.resolution_order[def_idx][1] - 1, -1, -1):
+                same_level_targets = [t[0] for t in self.resolution_order if t[1] == idx]
+                for t in same_level_targets:
+                    data = tdata[t]
+                    # Do we have anything to add ?
+                    if data.has_key(attrname + "_add"):
+                        v.extend(data[attrname + "_add"])
+                    # Do we have anything to remove ?
+                    if data.has_key(attrname + "_remove"):
+                        # Macros can be defined either without a value (MACRO) or with a value (MACRO=10).
+                        # When removing, we specify only the name of the macro, without the value. So we need
+                        # to create a mapping between the macro name and its value. This will work for
+                        # extra_labels and other type of arrays as well, since they fall into the "macros
+                        # without a value" category (simple definitions without a value).
+                        name_def_map = {}
+                        for crtv in v:
+                            if crtv.find('=') != -1:
+                                temp = crtv.split('=')
+                                if len(temp) != 2:
+                                    raise ValueError("Invalid macro definition '%s'" % crtv)
+                                name_def_map[temp[0]] = crtv
+                            else:
+                                name_def_map[crtv] = crtv
+                        for e in data[attrname + "_remove"]:
+                            if not e in name_def_map:
+                                raise ValueError("Unable to remove '%s' in '%s.%s' since it doesn't exist" % (e, self.name, attrname))
+                            v.remove(name_def_map[e])
+            return v
+        # Look for the attribute in the class and its parents, as defined by the resolution order
+        v = None
+        for t in self.resolution_order:
+            data = tdata[t[0]]
+            if data.has_key(attrname):
+                v = data[attrname]
+                break
+        else: # Attribute not found
+            raise AttributeError("Attribute '%s' not found in target '%s'" % (attrname, self.name))
+        # 'progen' needs the full path to the template (the path in JSON is relative to workspace_tools/export)
+        return v if attrname != "progen" else self.__add_paths_to_progen(v)
 
-        # Code used to determine devices' platform
-        # This code is prefix in URL link provided in mbed.htm (in mbed disk)
-        self.detect_code = []
+    # Return the value of an attribute
+    # This function only looks for the attribute's value in the cache, the real work of computing the
+    # attribute's value is done in the function above (__getattr_helper)
+    def __getattr__(self, attrname):
+        if not self.attr_cache.has_key(attrname):
+            self.attr_cache[attrname] = self.__getattr_helper(attrname)
+        return self.attr_cache[attrname]
+
+    def __init__(self, name):
+        self.name = name
+
+        # Compute resolution order once (it will be used later in __getattr__)
+        self.resolution_order = self.__get_resolution_order(self.name, [])
+
+        # Attribute cache: once an attribute's value is computed, don't compute it again
+        self.attr_cache = {}
 
     def program_cycle_s(self):
-        return 4 if self.is_disk_virtual else 1.5
+        try:
+            return self.__getattr__("program_cycle_s")
+        except AttributeError:
+            return 4 if self.is_disk_virtual else 1.5
 
     def get_labels(self):
         return [self.name] + CORE_LABELS[self.core] + self.extra_labels
 
+    # For now, this function only allows "post binary" hooks (hooks that are executed after
+    # the binary image is extracted from the executable file)
     def init_hooks(self, hook, toolchain_name):
-        pass
+        # If there's no hook, simply return
+        try:
+            hook_data = self.post_binary_hook
+        except AttributeError:
+            return
+        # A hook was found. The hook's name is in the format "classname.functionname"
+        temp = hook_data["function"].split(".")
+        if len(temp) != 2:
+            raise HookError("Invalid format for hook '%s' in target '%s' (must be 'class_name.function_name')" % (hook_data["function"], self.name))
+        class_name, function_name = temp[0], temp[1]
+        # "class_name" must refer to a class in this file, so check if the class exists
+        mdata = self.get_module_data()
+        if not mdata.has_key(class_name) or not inspect.isclass(mdata[class_name]):
+            raise HookError("Class '%s' required by '%s' in target '%s' not found in targets.py" % (class_name, hook_data["function"], self.name))
+        # "function_name" must refer to a static function inside class "class_name"
+        cls = mdata[class_name]
+        if (not hasattr(cls, function_name)) or (not inspect.isfunction(getattr(cls, function_name))):
+            raise HookError("Static function '%s' required by '%s' in target '%s' not found in class '%s'" % (function_name, hook_data["function"], self.name, class_name))
+        # Check if the hook specification also has target restrictions
+        toolchain_restrictions = hook_data.get("toolchains", [])
+        if toolchain_restrictions and (toolchain_name not in toolchain_restrictions):
+            return
+        # Finally, hook the requested function
+        hook.hook_add_binary("post", getattr(cls, function_name))
 
+########################################################################################################################
+# Target specific code goes in this section
+# This code can be invoked from the target description using the "post_binary_hook" key
 
-### MCU Support ###
-
-class CM4_UARM(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4"
-        self.supported_toolchains = ["uARM"]
-        self.default_toolchain = "uARM"
-
-class CM4_ARM(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4"
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-class CM4F_UARM(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.supported_toolchains = ["uARM"]
-        self.default_toolchain = "uARM"
-
-class CM4F_ARM(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-
-### NXP ###
-
-# This class implements the post-link patching step needed by LPC targets
-class LPCTarget(Target):
-    def __init__(self):
-        Target.__init__(self)
-
-    def init_hooks(self, hook, toolchain_name):
-        hook.hook_add_binary("post", self.lpc_patch)
-
+class LPCTargetCode:
     @staticmethod
     def lpc_patch(t_self, resources, elf, binf):
         t_self.debug("LPC Patch: %s" % os.path.split(binf)[1])
         patch(binf)
 
-class LPC11C24(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11CXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-
-        self.progen = {
-            "target":"lpc11c24_301",
-        }
-
-class LPC1114(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11XX_11CXX', 'LPC11XX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc1114_102",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC11U24(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U24_401']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.detect_code = ["1040"]
-        self.progen = {
-            "target":"lpc11u24_201",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class OC_MBUINO(LPC11U24):
-    def __init__(self):
-        LPC11U24.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX']
-        self.macros = ['TARGET_LPC11U24']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc11u24_201",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC11U24_301(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-
-class LPC11U34_421(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-
-class MICRONFCBOARD(LPC11U34_421):
-    def __init__(self):
-        LPC11U34_421.__init__(self)
-        self.macros = ['LPC11U34_421', 'APPNEARME_MICRONFCBOARD']
-        self.extra_labels = ['NXP', 'LPC11UXX', 'APPNEARME_MICRONFCBOARD']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-
-class LPC11U35_401(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc11u35_401",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC11U35_501(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc11u35_501",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC11U35_501_IBDAP(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc11u35_501",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class XADOW_M0(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc11u35_501",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC11U35_Y5_MBUG(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'MCU_LPC11U35_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR" , "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc11u35_501",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC11U37_501(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"lpc11u37_501",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPCCAPPUCCINO(LPC11U37_501):
-    def __init__(self):
-        LPC11U37_501.__init__(self)
-
-class ARCH_GPRS(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX', 'LPC11U37_501']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"lpc11u37_501",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC11U68(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['NXP', 'LPC11U6X']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_CR", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["1168"]
-        self.progen = {
-            "target":"lpc11u68",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC1347(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['NXP', 'LPC13XX']
-        self.supported_toolchains = ["ARM", "GCC_ARM","IAR"]
-        self.progen = {
-            "target":"lpc1347",
-        }
-
-class LPC1549(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['NXP', 'LPC15XX']
-        self.supported_toolchains = ["uARM", "GCC_CR", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["1549"]
-        self.progen = {
-            "target":"lpc1549",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC1768(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['NXP', 'LPC176X', 'MBED_LPC1768']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.detect_code = ["1010"]
-        self.progen = {
-            "target":"mbed-lpc1768",
-        }
-
-class ARCH_PRO(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['NXP', 'LPC176X']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.macros = ['TARGET_LPC1768']
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"arch-pro",
-        }
-
-class UBLOX_C027(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['NXP', 'LPC176X']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.macros = ['TARGET_LPC1768']
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"ublox-c027",
-        }
-
-class XBED_LPC1768(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['NXP', 'LPC176X', 'XBED_LPC1768']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"]
-        self.macros = ['TARGET_LPC1768']
-        self.detect_code = ["1010"]
-        self.progen = {
-            "target":"lpc1768",
-        }
-
-class LPC2368(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "ARM7TDMI-S"
-        self.extra_labels = ['NXP', 'LPC23XX']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "GCC_CR"]
-        self.progen = {
-            "target":"lpc2368",
-        }
-
-class LPC2460(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "ARM7TDMI-S"
-        self.extra_labels = ['NXP', 'LPC2460']
-        self.supported_toolchains = ["GCC_ARM"]
-        self.progen = {
-            "target":"lpc2460",
-        }
-
-class LPC810(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['NXP', 'LPC81X']
-        self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.is_disk_virtual = True
-        self.progen = {
-            "target":"lpc810",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC812(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['NXP', 'LPC81X']
-        self.supported_toolchains = ["uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.detect_code = ["1050"]
-        self.progen = {
-            "target":"lpc812m101",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC824(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM", "GCC_ARM","GCC_CR", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.progen = {
-            "target":"lpc824m201",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class SSCI824(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['NXP', 'LPC82X']
-        self.supported_toolchains = ["uARM", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.is_disk_virtual = True
-        self.progen = {
-            "target":"ssci824",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class LPC4088(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'LPC408X']
-        self.supported_toolchains = ["ARM", "GCC_CR", "GCC_ARM", "IAR"]
-        self.is_disk_virtual = True
-        self.progen = {
-            "target":"lpc4088",
-        }
-
-    def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'ARM_MICRO']:
-            hook.hook_add_binary("post", self.binary_hook)
-
+class LPC4088Code:
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         if not os.path.isdir(binf):
             # Regular binary file, nothing to do
-            LPCTarget.lpc_patch(t_self, resources, elf, binf)
+            LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
             return
         outbin = open(binf + ".temp", "wb")
         partf = open(os.path.join(binf, "ER_IROM1"), "rb")
@@ -513,229 +264,9 @@ class LPC4088(LPCTarget):
         shutil.rmtree(binf, True)
         os.rename(binf + '.temp', binf)
         t_self.debug("Generated custom binary file (internal flash + SPIFI)")
-        LPCTarget.lpc_patch(t_self, resources, elf, binf)
+        LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
 
-class LPC4088_DM(LPC4088):
-    pass
-
-class LPC4330_M4(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'LPC43XX', 'LPC4330']
-        self.supported_toolchains = ["ARM", "GCC_CR", "IAR", "GCC_ARM"]
-        self.progen = {
-            "target":"lpc4330",
-        }
-
-class LPC4330_M0(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC43XX', 'LPC4330']
-        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
-
-class LPC4337(LPCTarget):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['NXP', 'LPC43XX', 'LPC4337']
-        self.supported_toolchains = ["ARM"]
-        self.progen = {
-            "target":"lpc4337",
-        }
-
-class LPC1800(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['NXP', 'LPC43XX']
-        self.supported_toolchains = ["ARM", "GCC_CR", "IAR"]
-
-class LPC11U37H_401(LPCTarget):
-    def __init__(self):
-        LPCTarget.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['NXP', 'LPC11UXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "GCC_CR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"lpc11u37_401",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-### Freescale ###
-
-class KL05Z(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.progen = {
-            "target":"frdm-kl05z",
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-class KL25Z(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0200"]
-        self.progen = {
-            "target":"frdm-kl25z",
-        }
-
-class KL26Z(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.progen = {
-            "target":"kl26z",
-        }
-
-class KL43Z(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.progen = {
-            "target":"frdm-kl43z",
-        }
-
-class KL46Z(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Freescale', 'KLXX']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0220"]
-        self.progen = {
-            "target":"frdm-kl46z",
-        }
-
-class K20D50M(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4"
-        self.extra_labels = ['Freescale', 'K20XX']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "IAR"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0230"]
-        self.progen = {
-            "target":"frdm-k20d50m",
-        }
-
-class K22F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
-        self.macros = ["CPU_MK22FN512VLH12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0231"]
-        self.progen = {
-            "target":"frdm-k22f",
-        }
-
-class KL27Z(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
-        self.macros = ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM","GCC_ARM","IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0261"]
-        self.progen_target = {
-            "target":"frdm-kl27z",
-        }
-
-class K64F(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'FRDM']
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"]
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0240"]
-        self.progen = {
-            "target":"frdm-k64f",
-        }
-
-class MTS_GAMBIT(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"mts-gambit",
-        }
-
-class HEXIWEAR(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Freescale', 'KSDK2_MCUS', 'K64F']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.macros = ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.detect_code = ["0214"]
-        self.progen = {
-            "target":"hexiwear-k64f",
-        }
-
-class TEENSY3_1(Target):
-    OUTPUT_EXT = 'hex'
-
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4"
-        self.extra_labels = ['Freescale', 'K20XX', 'K20DX256']
-        self.supported_toolchains = ["GCC_ARM", "ARM"]
-        self.is_disk_virtual = True
-        self.detect_code = ["0230"]
-        self.progen = {
-            "target":"teensy-31",
-        }
-
-    def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'ARM_MICRO', 'GCC_ARM']:
-            hook.hook_add_binary("post", self.binary_hook)
-
+class TEENSY3_1Code:
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from intelhex import IntelHex
@@ -745,471 +276,10 @@ class TEENSY3_1(Target):
         with open(binf.replace(".bin", ".hex"), "w") as f:
             binh.tofile(f, format='hex')
 
-### STMicro ###
-
-class NUCLEO_F030R8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32F0', 'STM32F030R8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0725"]
-        self.progen = {
-            "target":"nucleo-f030r8",
-        }
-
-class NUCLEO_F031K6(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32F0', 'STM32F031K6']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["0791"]
-        self.progen = {
-            "target":"nucleo-f031k6",
-        }
-
-class NUCLEO_F042K6(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32F0', 'STM32F042K6']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["0785"]
-        self.progen = {
-            "target":"nucleo-f042k6",
-        }
-
-class NUCLEO_F070RB(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32F0', 'STM32F070RB']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0755"]
-        self.progen = {
-            "target":"nucleo-f070rb",
-        }
-
-class NUCLEO_F072RB(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32F0', 'STM32F072RB']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0730"]
-        self.progen = {
-            "target":"nucleo-f072rb",
-        }
-
-class NUCLEO_F091RC(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32F0', 'STM32F091RC']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0750"]
-        self.progen = {
-            "target":"nucleo-f091rc",
-        }
-
-class NUCLEO_F103RB(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['STM', 'STM32F1', 'STM32F103RB']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0700"]
-        self.progen = {
-            "target":"nucleo-f103rb",
-        }
-
-class NUCLEO_F302R8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F3', 'STM32F302R8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0705"]
-        self.progen = {
-            "target":"nucleo-f302r8",
-        }
-
-class NUCLEO_F303K8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F3', 'STM32F303K8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["0775"]
-        self.progen = {
-            "target":"nucleo-f303k8",
-        }
-
-class NUCLEO_F303RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F3', 'STM32F303RE']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0745"]
-        self.progen = {
-            "target":"nucleo-f303re",
-        }
-
-class NUCLEO_F334R8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F3', 'STM32F334R8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0735"]
-        self.progen = {
-            "target":"nucleo-f334r8",
-        }
-
-class NUCLEO_F401RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F401RE']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0720"]
-        self.progen = {
-            "target":"nucleo-f401re",
-        }
-
-class NUCLEO_F410RB(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F410RB']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0740"]
-        self.progen = {
-            "target":"nucleo-f410rb",
-        }
-
-class NUCLEO_F411RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0740"]
-        self.progen = {
-            "target":"nucleo-f411re",
-        }
-
-class ELMO_F411RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["----"]
-
-class NUCLEO_F446RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F446RE']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0777"]
-        self.progen = {
-            "target":"nucleo-f446re",
-        }
-
-class B96B_F446VE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F446VE']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0840"]
-
-class NUCLEO_F746ZG(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M7F"
-        self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746ZG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.detect_code = ["0816"]
-        self.progen = {
-            "target":"nucleo-f746zg",
-            "iar": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_nucleo_f746zg.ewp.tmpl')],
-            }
-        }
-
-class NUCLEO_L031K6(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32L0', 'STM32L031K6']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["0790"]
-        self.progen = {
-            "target":"nucleo-l031k6",
-        }
-
-class NUCLEO_L053R8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['STM', 'STM32L0', 'STM32L053R8']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0715"]
-        self.progen = {
-            "target":"nucleo-l053r8",
-        }
-
-class NUCLEO_L073RZ(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['STM', 'STM32L0', 'STM32L073RZ']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0760"]
-        self.progen = {
-            "target":"nucleo-l073rz",
-        }
-
-
-class NUCLEO_L152RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['STM', 'STM32L1', 'STM32L152RE']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0710"]
-        self.progen = {
-            "target":"nucleo-l152re",
-        }
-
-class NUCLEO_L476RG(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32L4', 'STM32L476RG']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO", "MORPHO"]
-        self.detect_code = ["0765"]
-        self.progen = {
-            "target":"nucleo-l476rg",
-        }
-
-class STM32F3XX(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4"
-        self.extra_labels = ['STM', 'STM32F3XX']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-
-class STM32F407(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F4XX']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-
-class ARCH_MAX(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.macros = ['LSI_VALUE=32000']
-        self.progen = {
-            "target":"lpc1768",
-        }
-    def program_cycle_s(self):
-        return 2
-
-class DISCO_F051R8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['STM', 'STM32F0', 'STM32F051', 'STM32F051R8']
-        self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "uARM"
-
-class DISCO_F100RB(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['STM', 'STM32F1', 'STM32F100RB']
-        self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "uARM"
-
-class DISCO_F303VC(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F3', 'STM32F303', 'STM32F303VC']
-        self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "uARM"
-
-class DISCO_F334C8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F3', 'STM32F334C8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.detect_code = ["0810"]
-        self.progen = {
-            "target":"disco-f334c8",
-        }
-
-class DISCO_F407VG(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F407', 'STM32F407VG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.progen = {
-            "target":"disco-f407vg",
-        }
-        self.default_toolchain = "ARM"
-
-class DISCO_F429ZI(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F429', 'STM32F429ZI']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"disco-f429zi",
-        }
-
-class DISCO_F469NI(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F469', 'STM32F469NI']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.detect_code = ["0788"]
-        self.progen = {
-            "target":"disco-f469ni",
-        }
-
-class DISCO_L053C8(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['STM', 'STM32L0', 'STM32L053C8']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"disco-l053c8",
-        }
-
-class DISCO_F746NG(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M7F"
-        self.extra_labels = ['STM', 'STM32F7', 'STM32F746', 'STM32F746NG']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.detect_code = ["0815"]
-        self.progen = {
-            "target":"disco-f746ng",
-        }
-
-class DISCO_L476VG(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32L4', 'STM32L476VG']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.detect_code = ["0820"]
-        self.progen = {
-            "target":"disco-l476vg",
-        }
-
-class MTS_MDOT_F405RG(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F405RG']
-        self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=48000000']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.is_disk_virtual = True
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"mts-mdot-f405rg",
-        }
-
-class MTS_MDOT_F411RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.macros = ['HSE_VALUE=26000000', 'OS_CLOCK=96000000', 'USE_PLL_HSE_EXTC=0', 'VECT_TAB_OFFSET=0x00010000']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"mts-mdot-f411re",
-        }
-
-    def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['GCC_ARM', 'ARM_STD', 'ARM_MICRO']:
-            hook.hook_add_binary("post", self.combine_bins)
-
-    # combine application binary with bootloader
-    # bootloader + padding to 64kB + application + md5sum (16 bytes)
+class MTSCode:
     @staticmethod
-    def combine_bins(t_self, resources, elf, binf):
-        loader = os.path.join(TOOLS_BOOTLOADERS, "MTS_MDOT_F411RE", "bootloader.bin")
+    def _combine_bins_helper(target_name, t_self, resources, elf, binf):
+        loader = os.path.join(TOOLS_BOOTLOADERS, target_name, "bootloader.bin")
         target = binf + ".tmp"
         if not os.path.exists(loader):
             print "Can't find bootloader binary: " + loader
@@ -1233,147 +303,15 @@ class MTS_MDOT_F411RE(Target):
         os.remove(binf)
         os.rename(target, binf)
 
-class MTS_DRAGONFLY_F411RE(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F411RE']
-        self.macros = ['HSE_VALUE=26000000', 'VECT_TAB_OFFSET=0x08010000']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"mts-dragonfly-f411re",
-        }
-
-    def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['GCC_ARM', 'ARM_STD', 'ARM_MICRO']:
-            hook.hook_add_binary("post", self.combine_bins)
-
-    # combine application binary with bootloader
-    # bootloader + padding to 64kB + application + md5sum (16 bytes)
     @staticmethod
-    def combine_bins(t_self, resources, elf, binf):
-        loader = os.path.join(TOOLS_BOOTLOADERS, "MTS_DRAGONFLY_F411RE", "bootloader.bin")
-        target = binf + ".tmp"
-        if not os.path.exists(loader):
-            print "Can't find bootloader binary: " + loader
-            return
-        outbin = open(target, 'w+b')
-        part = open(loader, 'rb')
-        data = part.read()
-        outbin.write(data)
-        outbin.write('\xFF' * (64*1024 - len(data)))
-        part.close()
-        part = open(binf, 'rb')
-        data = part.read()
-        outbin.write(data)
-        part.close()
-        outbin.seek(0, 0)
-        data = outbin.read()
-        outbin.seek(0, 1)
-        crc = struct.pack('<I', binascii.crc32(data) & 0xFFFFFFFF)
-        outbin.write(crc)
-        outbin.close()
-        os.remove(binf)
-        os.rename(target, binf)
+    def combine_bins_mts_dot(t_self, resources, elf, binf):
+        MTSCode._combine_bins_helper("MTS_MDOT_F411RE", t_self, resources, elf, binf)
 
-class MOTE_L152RC(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['STM', 'STM32L1', 'STM32L152RC']
-        self.supported_toolchains = ["ARM", "uARM", "IAR", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.detect_code = ["4100"]
-        self.progen = {
-            "target":"stm32l151rc",
-        }
-class DISCO_F401VC(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F401', 'STM32F401VC']
-        self.supported_toolchains = ["GCC_ARM"]
-        self.default_toolchain = "GCC_ARM"
+    @staticmethod
+    def combine_bins_mts_dragonfly(t_self, resources, elf, binf):
+        MTSCode._combine_bins_helper("MTS_DRAGONFLY_F411RE", t_self, resources, elf, binf)
 
-class UBLOX_C029(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['STM', 'STM32F4', 'STM32F439', 'STM32F439ZI']
-        self.macros = ['HSE_VALUE=24000000', 'HSE_STARTUP_TIMEOUT=5000']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "uARM"
-        self.supported_form_factors = ["ARDUINO"]
-
-class NZ32_SC151(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['STM', 'STM32L1', 'STM32L151RC']
-        self.supported_toolchains = ["ARM", "uARM", "GCC_ARM"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"stm32l151rc",
-        }
-    # After flashing device, how long to delay until we assume program is running
-    def program_cycle_s(self):
-        return 1.5
-
-
-### Nordic ###
-
-class MCU_NRF51(Target):
-    # the following is a list of possible Nordic softdevices in decreasing order
-    # of preference.
-    EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
-        {
-            'name'   : 's130_nrf51_1.0.0_softdevice.hex',
-            'boot'   : 's130_nrf51_1.0.0_bootloader.hex',
-            'offset' : 0x1C000
-        },
-        {
-            'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
-            'boot'   : 's110_nrf51822_8.0.0_bootloader.hex',
-            'offset' : 0x18000
-        },
-        {
-            'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
-            'boot'   : 's110_nrf51822_7.1.0_bootloader.hex',
-            'offset' : 0x16000
-        },
-        {
-            'name'   : 's110_nrf51822_7.0.0_softdevice.hex',
-            'boot'   : 's110_nrf51822_7.0.0_bootloader.hex',
-            'offset' : 0x16000
-        },
-        {
-            'name'   : 's110_nrf51822_6.0.0_softdevice.hex',
-            'boot'   : 's110_nrf51822_6.0.0_bootloader.hex',
-            'offset' : 0x14000
-        }
-    ]
-    OVERRIDE_BOOTLOADER_FILENAME = "nrf51822_bootloader.hex"
-    OUTPUT_EXT = 'hex'
-    MERGE_SOFT_DEVICE = True
-    MERGE_BOOTLOADER = False
-
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ["NORDIC", "MCU_NRF51", "MCU_NRF51822"]
-        self.macros = ['NRF51', 'TARGET_NRF51822']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-        self.is_disk_virtual = True
-        self.detect_code = ["1070"]
-
-    def program_cycle_s(self):
-        return 6
-
-    def init_hooks(self, hook, toolchain_name):
-        if toolchain_name in ['ARM_STD', 'GCC_ARM']:
-            hook.hook_add_binary("post", self.binary_hook)
-
+class MCU_NRF51Code:
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
 
@@ -1423,924 +361,18 @@ class MCU_NRF51(Target):
         with open(binf.replace(".bin", ".hex"), "w") as f:
             binh.tofile(f, format='hex')
 
+########################################################################################################################
 
-# 16KB Nordic targets are tight on SRAM using S130 (default) so we
-# introduce two possible options:
-# 1) Use S130 (default) - for this derive from MCU_NRF51_16K
-# 2) Use S110  - for this derive from MCU_NRF51_16K_S110
-# Note that the 'default' option will track the default choice
-# for other Nordic targets, and so can take advantage of other
-# future SoftDevice improvements
-
-# The *_BASE targets should *not* be inherited from, as they do not
-# specify enough for building a target
-
-# 16KB MCU version, e.g. Nordic nRF51822, Seeed Arch BLE, etc.
-class MCU_NRF51_16K_BASE(MCU_NRF51):
-    def __init__(self):
-        MCU_NRF51.__init__(self)
-        self.extra_labels += ['MCU_NORDIC_16K', 'MCU_NRF51_16K']
-        self.macros += ['TARGET_MCU_NORDIC_16K', 'TARGET_MCU_NRF51_16K']
-
-# derivative class used to create softdevice+bootloader enabled images
-class MCU_NRF51_16K_BOOT_BASE(MCU_NRF51_16K_BASE):
-    def __init__(self):
-        MCU_NRF51_16K_BASE.__init__(self)
-        self.extra_labels += ['MCU_NRF51_16K_BOOT']
-        self.macros += ['TARGET_MCU_NRF51_16K_BOOT', 'TARGET_OTA_ENABLED']
-        self.MERGE_SOFT_DEVICE = True
-        self.MERGE_BOOTLOADER = True
-
-# derivative class used to create program only images for use with FOTA
-class MCU_NRF51_16K_OTA_BASE(MCU_NRF51_16K_BASE):
-    def __init__(self):
-        MCU_NRF51_16K_BASE.__init__(self)
-        self.extra_labels += ['MCU_NRF51_16K_OTA']
-        self.macros += ['TARGET_MCU_NRF51_16K_OTA', 'TARGET_OTA_ENABLED']
-        self.MERGE_SOFT_DEVICE = False
-
-class MCU_NRF51_16K(MCU_NRF51_16K_BASE):
-    def __init__(self):
-        MCU_NRF51_16K_BASE.__init__(self)
-        self.extra_labels += ['MCU_NRF51_16K_S130']
-        self.macros += ['TARGET_MCU_NRF51_16K_S130']
-
-class MCU_NRF51_S110:
-    """ Interface for overwriting the default SoftDevices """
-    def __init__(self):
-        self.EXPECTED_SOFTDEVICES_WITH_OFFSETS = [
-            {
-                'name'   : 's110_nrf51822_8.0.0_softdevice.hex',
-                'boot'   : 's110_nrf51822_8.0.0_bootloader.hex',
-                'offset' : 0x18000
-            },
-            {
-                'name'   : 's110_nrf51822_7.1.0_softdevice.hex',
-                'boot'   : 's110_nrf51822_7.1.0_bootloader.hex',
-                'offset' : 0x16000
-            }
-        ]
-        self.extra_labels += ['MCU_NRF51_16K_S110']
-        self.macros += ['TARGET_MCU_NRF51_16K_S110']
-
-class MCU_NRF51_16K_S110(MCU_NRF51_16K_BASE, MCU_NRF51_S110):
-    def __init__(self):
-        MCU_NRF51_16K_BASE.__init__(self)
-        MCU_NRF51_S110.__init__(self)
-
-class MCU_NRF51_16K_BOOT(MCU_NRF51_16K_BOOT_BASE):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT_BASE.__init__(self)
-        self.extra_labels += ['MCU_NRF51_16K_S130']
-        self.macros += ['TARGET_MCU_NRF51_16K_S130']
-
-class MCU_NRF51_16K_BOOT_S110(MCU_NRF51_16K_BOOT_BASE, MCU_NRF51_S110):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT_BASE.__init__(self)
-        MCU_NRF51_S110.__init__(self)
-
-class MCU_NRF51_16K_OTA(MCU_NRF51_16K_OTA_BASE):
-    def __init__(self):
-        MCU_NRF51_16K_OTA_BASE.__init__(self)
-        self.extra_labels += ['MCU_NRF51_16K_S130']
-        self.macros += ['TARGET_MCU_NRF51_16K_S130']
-
-class MCU_NRF51_16K_OTA_S110(MCU_NRF51_16K_OTA_BASE, MCU_NRF51_S110):
-    def __init__(self):
-        MCU_NRF51_16K_OTA_BASE.__init__(self)
-        MCU_NRF51_S110.__init__(self)
-
-
-# 32KB MCU version, e.g. Nordic nRF51-DK, nRF51-Dongle, etc.
-class MCU_NRF51_32K(MCU_NRF51):
-    def __init__(self):
-        MCU_NRF51.__init__(self)
-        self.extra_labels += ['MCU_NORDIC_32K', 'MCU_NRF51_32K']
-        self.macros += ['TARGET_MCU_NORDIC_32K', 'TARGET_MCU_NRF51_32K']
-
-class MCU_NRF51_32K_BOOT(MCU_NRF51_32K):
-    def __init__(self):
-        MCU_NRF51_32K.__init__(self)
-        self.extra_labels += ['MCU_NRF51_32K_BOOT']
-        self.macros += ['TARGET_MCU_NRF51_32K_BOOT', 'TARGET_OTA_ENABLED']
-        self.MERGE_SOFT_DEVICE = True
-        self.MERGE_BOOTLOADER = True
-
-class MCU_NRF51_32K_OTA(MCU_NRF51_32K):
-    def __init__(self):
-        MCU_NRF51_32K.__init__(self)
-        self.extra_labels += ['MCU_NRF51_32K_OTA']
-        self.macros += ['TARGET_MCU_NRF51_32K_OTA', 'TARGET_OTA_ENABLED']
-        self.MERGE_SOFT_DEVICE = False
-
-#
-# nRF51 based development kits
-#
-
-# This one is special for legacy reasons
-class NRF51822(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-        self.extra_labels += ['NRF51822', 'NRF51822_MKIT']
-        self.macros += ['TARGET_NRF51822_MKIT']
-        self.progen = {
-            "target":"mkit",
-        }
-class NRF51822_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['NRF51822', 'NRF51822_MKIT']
-        self.macros += ['TARGET_NRF51822_MKIT']
-
-class NRF51822_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['NRF51822', 'NRF51822_MKIT']
-        self.macros += ['TARGET_NRF51822_MKIT']
-
-class ARCH_BLE(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"arch-ble",
-        }
-
-class ARCH_BLE_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['ARCH_BLE']
-        self.macros += ['TARGET_ARCH_BLE']
-        self.supported_form_factors = ["ARDUINO"]
-
-class ARCH_BLE_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['ARCH_BLE']
-        self.macros += ['TARGET_ARCH_BLE']
-        self.supported_form_factors = ["ARDUINO"]
-
-class ARCH_LINK(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-        self.extra_labels += ['ARCH_BLE']
-        self.macros += ['TARGET_ARCH_BLE']
-        self.supported_form_factors = ["ARDUINO"]
-
-class ARCH_LINK_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['ARCH_BLE', 'ARCH_LINK']
-        self.macros += ['TARGET_ARCH_BLE', 'TARGET_ARCH_LINK']
-        self.supported_form_factors = ["ARDUINO"]
-
-class ARCH_LINK_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['ARCH_BLE', 'ARCH_LINK']
-        self.macros += ['TARGET_ARCH_BLE', 'TARGET_ARCH_LINK']
-        self.supported_form_factors = ["ARDUINO"]
-
-class SEEED_TINY_BLE(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-        self.progen = {
-            "target":"seed-tinyble",
-        }
-
-class SEEED_TINY_BLE_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['SEEED_TINY_BLE']
-        self.macros += ['TARGET_SEEED_TINY_BLE']
-
-class SEEED_TINY_BLE_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['SEEED_TINY_BLE']
-        self.macros += ['TARGET_SEEED_TINY_BLE']
-
-class HRM1017(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-        self.macros += ['TARGET_NRF_LFCLK_RC']
-        self.progen = {
-            "target":"hrm1017",
-        }
-class HRM1017_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['HRM1017']
-        self.macros += ['TARGET_HRM1017', 'TARGET_NRF_LFCLK_RC']
-
-class HRM1017_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['HRM1017']
-        self.macros += ['TARGET_HRM1017', 'TARGET_NRF_LFCLK_RC']
-
-class RBLAB_NRF51822(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"rblab-nrf51822",
-        }
-
-class RBLAB_NRF51822_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['RBLAB_NRF51822']
-        self.macros += ['TARGET_RBLAB_NRF51822']
-        self.supported_form_factors = ["ARDUINO"]
-
-class RBLAB_NRF51822_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['RBLAB_NRF51822']
-        self.macros += ['TARGET_RBLAB_NRF51822']
-        self.supported_form_factors = ["ARDUINO"]
-
-class RBLAB_BLENANO(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-
-class RBLAB_BLENANO_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['RBLAB_BLENANO']
-        self.macros += ['TARGET_RBLAB_BLENANO']
-
-class RBLAB_BLENANO_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['RBLAB_BLENANO']
-        self.macros += ['TARGET_RBLAB_BLENANO']
-
-class NRF51822_Y5_MBUG(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-
-class WALLBOT_BLE(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-
-class WALLBOT_BLE_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['WALLBOT_BLE']
-        self.macros += ['TARGET_WALLBOT_BLE']
-
-class WALLBOT_BLE_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['WALLBOT_BLE']
-        self.macros += ['TARGET_WALLBOT_BLE']
-
-class DELTA_DFCM_NNN40(MCU_NRF51_32K):
-    def __init__(self):
-        MCU_NRF51_32K.__init__(self)
-        self.macros += ['TARGET_NRF_LFCLK_RC']
-        self.progen = {
-            "target":"dfcm-nnn40",
-        }
-    def program_cycle_s(self):
-        return 10
-
-class DELTA_DFCM_NNN40_BOOT(MCU_NRF51_32K_BOOT):
-    def __init__(self):
-        MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels += ['DELTA_DFCM_NNN40']
-        self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
-    def program_cycle_s(self):
-        return 10
-
-class DELTA_DFCM_NNN40_OTA(MCU_NRF51_32K_OTA):
-    def __init__(self):
-        MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels += ['DELTA_DFCM_NNN40']
-        self.macros += ['TARGET_DELTA_DFCM_NNN40', 'TARGET_NRF_LFCLK_RC']
-    def program_cycle_s(self):
-        return 10
-
-class NRF51_DK(MCU_NRF51_32K):
-    def __init__(self):
-        MCU_NRF51_32K.__init__(self)
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"nrf51-dk",
-        }
-
-class NRF51_DK_BOOT(MCU_NRF51_32K_BOOT):
-    def __init__(self):
-        MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels += ['NRF51_DK']
-        self.macros += ['TARGET_NRF51_DK']
-        self.supported_form_factors = ["ARDUINO"]
-
-class NRF51_DK_OTA(MCU_NRF51_32K_OTA):
-    def __init__(self):
-        MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels += ['NRF51_DK']
-        self.macros += ['TARGET_NRF51_DK']
-        self.supported_form_factors = ["ARDUINO"]
-
-class NRF51_DONGLE(MCU_NRF51_32K):
-    def __init__(self):
-        MCU_NRF51_32K.__init__(self)
-        self.progen = {
-            "target":"nrf51-dongle",
-        }
-
-class NRF51_DONGLE_BOOT(MCU_NRF51_32K_BOOT):
-    def __init__(self):
-        MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels += ['NRF51_DONGLE']
-        self.macros += ['TARGET_NRF51_DONGLE']
-
-class NRF51_DONGLE_OTA(MCU_NRF51_32K_OTA):
-    def __init__(self):
-        MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels += ['NRF51_DONGLE']
-        self.macros += ['TARGET_NRF51_DONGLE']
-
-class NRF51_MICROBIT(MCU_NRF51_16K_S110):
-    def __init__(self):
-        MCU_NRF51_16K_S110.__init__(self)
-        self.macros += ['TARGET_NRF_LFCLK_RC']
-
-class NRF51_MICROBIT_BOOT(MCU_NRF51_16K_BOOT_S110):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT_S110.__init__(self)
-        self.extra_labels += ['NRF51_MICROBIT']
-        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
-
-class NRF51_MICROBIT_OTA(MCU_NRF51_16K_OTA_S110):
-    def __init__(self):
-        MCU_NRF51_16K_OTA_S110.__init__(self)
-        self.extra_labels += ['NRF51_MICROBIT']
-        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
-
-class NRF51_MICROBIT_B(MCU_NRF51_16K):
-    def __init__(self):
-        MCU_NRF51_16K.__init__(self)
-        self.extra_labels += ['NRF51_MICROBIT']
-        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
-
-class NRF51_MICROBIT_B_BOOT(MCU_NRF51_16K_BOOT):
-    def __init__(self):
-        MCU_NRF51_16K_BOOT.__init__(self)
-        self.extra_labels += ['NRF51_MICROBIT']
-        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
-
-class NRF51_MICROBIT_B_OTA(MCU_NRF51_16K_OTA):
-    def __init__(self):
-        MCU_NRF51_16K_OTA.__init__(self)
-        self.extra_labels += ['NRF51_MICROBIT']
-        self.macros += ['TARGET_NRF51_MICROBIT', 'TARGET_NRF_LFCLK_RC']
-
-class TY51822R3(MCU_NRF51_32K):
-    def __init__(self):
-        MCU_NRF51_32K.__init__(self)
-        self.macros += ['TARGET_NRF_32MHZ_XTAL']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-
-class TY51822R3_BOOT(MCU_NRF51_32K_BOOT):
-    def __init__(self):
-        MCU_NRF51_32K_BOOT.__init__(self)
-        self.extra_labels += ['TY51822R3']
-        self.macros += ['TARGET_TY51822R3', 'TARGET_NRF_32MHZ_XTAL']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-
-class TY51822R3_OTA(MCU_NRF51_32K_OTA):
-    def __init__(self):
-        MCU_NRF51_32K_OTA.__init__(self)
-        self.extra_labels += ['NRF51_DK']
-        self.macros += ['TARGET_TY51822R3', 'TARGET_NRF_32MHZ_XTAL']
-        self.supported_toolchains = ["ARM", "GCC_ARM"]
-
-
-### ARM ###
-
-class ARM_MPS2_Target(Target):
-    def __init__(self):
-        Target.__init__(self)
-
-class ARM_MPS2_M0(ARM_MPS2_Target):
-    def __init__(self):
-        ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M0']
-        self.macros = ['CMSDK_CM0']
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-class ARM_MPS2_M0P(ARM_MPS2_Target):
-    def __init__(self):
-        ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M0P']
-        self.macros = ['CMSDK_CM0plus']
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-class ARM_MPS2_M1(ARM_MPS2_Target):
-    def __init__(self):
-        ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M1"
-        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M1']
-        self.macros = ['CMSDK_CM1']
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-class ARM_MPS2_M3(ARM_MPS2_Target):
-    def __init__(self):
-        ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M3']
-        self.macros = ['CMSDK_CM3']
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-class ARM_MPS2_M4(ARM_MPS2_Target):
-    def __init__(self):
-        ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M4']
-        self.macros = ['CMSDK_CM4']
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-class ARM_MPS2_M7(ARM_MPS2_Target):
-    def __init__(self):
-        ARM_MPS2_Target.__init__(self)
-        self.core = "Cortex-M7"
-        self.extra_labels = ['ARM_SSG', 'MPS2', 'MPS2_M7']
-        self.macros = ['CMSDK_CM7']
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-class ARM_IOTSS_Target(Target):
-    def __init__(self):
-        Target.__init__(self)
-class ARM_IOTSS_BEID(ARM_IOTSS_Target):
-    def __init__(self):
-        ARM_IOTSS_Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['ARM_SSG', 'IOTSS', 'IOTSS_BEID']
-        self.macros = ['CMSDK_BEID']
-        self.supported_toolchains = ["ARM"]
-        self.default_toolchain = "ARM"
-
-
-### Renesas ###
-
-class RZ_A1H(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-A9"
-        self.extra_labels = ['RENESAS', 'MBRZA1H']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.supported_form_factors = ["ARDUINO"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target": "gr-peach",
-            "iar": {
-                # rewrite generic template, this device needs futher support for FPU in progendef
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_rz_a1h.ewp.tmpl')],
-            }
-        }
-
-    def program_cycle_s(self):
-        return 2
-
-class VK_RZ_A1H(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-A9"
-        self.extra_labels = ['RENESAS', 'VKRZA1H']
-        self.supported_toolchains = ["ARM", "GCC_ARM", "IAR"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target": "vk-rza1h",
-            "iar": {
-                # rewrite generic template, this device needs futher support for FPU in progendef
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'iar_rz_a1h.ewp.tmpl')],
-            }
-        }
-
-    def program_cycle_s(self):
-        return 2
-
-### Maxim Integrated ###
-
-class MAXWSNENV(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['Maxim', 'MAX32610']
-        self.macros = ['__SYSTEM_HFX=24000000']
-        self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target": "maxwsnenv",
-        }
-
-class MAX32600MBED(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['Maxim', 'MAX32600']
-        self.macros = ['__SYSTEM_HFX=24000000']
-        self.supported_toolchains = ["GCC_ARM", "IAR", "ARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target": "max32600mbed",
-        }
-
-### Silicon Labs ###
-
-class EFM32GG_STK3700(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32GG990F1024']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"efm32gg_stk3700", #TODO: add to progen
-        }
-
-
-
-class EFM32LG_STK3600(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M3"
-        self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32LG990F256']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"efm32lg_stk3600", #TODO: add to progen
-        }
-
-
-
-class EFM32WG_STK3800(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32WG990F256']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"efm32wg_stk3800", #TODO: add to progen
-        }
-
-
-
-class EFM32ZG_STK3200(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32ZG222F32']
-        self.supported_toolchains = ["GCC_ARM", "uARM"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"efm32zg_stk3200", #TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-
-class EFM32HG_STK3400(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32HG322F64']
-        self.supported_toolchains = ["GCC_ARM", "uARM"]
-        self.default_toolchain = "uARM"
-        self.progen = {
-            "target":"efm32hg_stk3400", #TODO: add to progen
-            "uvision": {
-                "template": [os.path.join(os.path.dirname(__file__), 'export', 'uvision_microlib.uvproj.tmpl')],
-            }
-        }
-
-
-class EFM32PG_STK3401(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4F"
-        self.extra_labels = ['Silicon_Labs', 'EFM32']
-        self.macros = ['EFM32PG1B200F256GM48']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM", "IAR"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"efm32pg_stk3401", #TODO: add to progen
-        }
-
-
-
-##WIZnet
-
-class WIZWIKI_W7500(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500']
-        self.supported_toolchains = ["uARM", "ARM"]
-        self.default_toolchain = "ARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"wizwiki_w7500",
-        }
-
-class WIZWIKI_W7500P(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500P']
-        self.supported_toolchains = ["uARM", "ARM"]
-        self.default_toolchain = "ARM"
-        self.supported_form_factors = ["ARDUINO"]
-        self.progen = {
-            "target":"wizwiki_w7500p", # TODO: add to progen
-        }
-
-class WIZWIKI_W7500ECO(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0"
-        self.extra_labels = ['WIZNET', 'W7500x', 'WIZwiki_W7500ECO']
-        self.supported_toolchains = ["uARM", "ARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"wizwiki_w7500eco", # TODO: add to progen
-        }
-
-
-class SAMR21G18A(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Atmel', 'SAM_CortexM0P', 'SAMR21']
-        self.macros = ['__SAMR21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"samr21g18a",
-        }
-
-class SAMD21J18A(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Atmel', 'SAM_CortexM0P', 'SAMD21']
-        self.macros = ['__SAMD21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"samd21j18a",
-        }
-
-class SAMD21G18A(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Atmel', 'SAM_CortexM0P', 'SAMD21']
-        self.macros = ['__SAMD21G18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"samd21g18a",
-        }
-
-class SAML21J18A(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M0+"
-        self.extra_labels = ['Atmel', 'SAM_CortexM0P', 'SAML21']
-        self.macros = ['__SAML21J18A__', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"samr21j18a",
-        }
-        self.progen_target ='samr21j18a'
-
-class SAMG55J19(Target):
-    def __init__(self):
-        Target.__init__(self)
-        self.core = "Cortex-M4"
-        self.extra_labels = ['Atmel', 'SAM_CortexM4', 'SAMG55']
-        self.macros = ['__SAMG55J19__', 'BOARD=75', 'I2C_MASTER_CALLBACK_MODE=true', 'EXTINT_CALLBACK_MODE=true', 'USART_CALLBACK_MODE=true', 'TC_ASYNC=true']
-        self.supported_toolchains = ["GCC_ARM", "ARM", "uARM"]
-        self.default_toolchain = "ARM"
-        self.progen = {
-            "target":"samg55j19",
-        }
-        self.progen_target ='samg55j19'
-
-# Get a single instance for each target
-TARGETS = [
-
-    ### NXP ###
-    LPC11C24(),
-    LPC11U24(),
-    OC_MBUINO(),        # LPC11U24
-    LPC11U24_301(),
-    LPC11U34_421(),
-    MICRONFCBOARD(),    # LPC11U34_421
-    LPC11U35_401(),
-    LPC11U35_501(),     # LPC11U35_501
-    LPC11U35_501_IBDAP(), # LPC11U35_501
-    XADOW_M0(),         # LPC11U35_501
-    LPC11U35_Y5_MBUG(), # LPC11U35_501
-    LPC11U37_501(),
-    LPCCAPPUCCINO(),    # LPC11U37_501
-    ARCH_GPRS(),        # LPC11U37_501
-    LPC11U68(),
-    LPC1114(),
-    LPC1347(),
-    LPC1549(),
-    LPC1768(),          # LPC1768
-    ARCH_PRO(),         # LPC1768
-    UBLOX_C027(),       # LPC1768
-    XBED_LPC1768(),     # LPC1768
-    LPC2368(),
-    LPC2460(),
-    LPC810(),
-    LPC812(),
-    LPC824(),
-    SSCI824(),          # LPC824
-    LPC4088(),
-    LPC4088_DM(),
-    LPC4330_M4(),
-    LPC4330_M0(),
-    LPC4337(),
-    LPC11U37H_401(),
-
-    ### Freescale ###
-    KL05Z(),
-    KL25Z(),
-    KL26Z(),
-    KL43Z(),
-    KL46Z(),
-    K20D50M(),
-    K22F(),
-    KL27Z(),
-    K64F(),       # FRDM K64F
-    MTS_GAMBIT(),
-    HEXIWEAR(),
-    TEENSY3_1(),
-
-    ### STMicro ###
-    B96B_F446VE(),
-    NUCLEO_F030R8(),
-    NUCLEO_F031K6(),
-    NUCLEO_F042K6(),
-    NUCLEO_F070RB(),
-    NUCLEO_F072RB(),
-    NUCLEO_F091RC(),
-    NUCLEO_F103RB(),
-    NUCLEO_F302R8(),
-    NUCLEO_F303K8(),
-    NUCLEO_F303RE(),
-    NUCLEO_F334R8(),
-    NUCLEO_F401RE(),
-    NUCLEO_F410RB(),
-    NUCLEO_F411RE(),
-    NUCLEO_F746ZG(),
-    ELMO_F411RE(),
-    NUCLEO_F446RE(),
-    NUCLEO_L031K6(),
-    NUCLEO_L053R8(),
-    NUCLEO_L073RZ(),
-    NUCLEO_L152RE(),
-    NUCLEO_L476RG(),
-    STM32F3XX(),
-    STM32F407(),
-    DISCO_F051R8(),
-    DISCO_F100RB(),
-    DISCO_F303VC(),
-    DISCO_F334C8(),
-    DISCO_F746NG(),
-    DISCO_F407VG(),     # STM32F407
-    ARCH_MAX(),         # STM32F407
-    DISCO_F429ZI(),
-    DISCO_F469NI(),
-    DISCO_L053C8(),
-    DISCO_L476VG(),
-    MTS_MDOT_F405RG(),
-    MTS_MDOT_F411RE(),
-    MOTE_L152RC(),
-    MTS_DRAGONFLY_F411RE(),
-    DISCO_F401VC(),
-    UBLOX_C029(),       # STM32F439
-    NZ32_SC151(),       # STM32L151
-
-    ### Nordic ###
-    NRF51822(),             # nRF51_16K
-    NRF51822_BOOT(),        # nRF51_16K
-    NRF51822_OTA(),         # nRF51_16K
-    ARCH_BLE(),             # nRF51_16K
-    ARCH_BLE_BOOT(),        # nRF51_16K
-    ARCH_BLE_OTA(),         # nRF51_16K
-    ARCH_LINK(),            # nRF51_16K
-    ARCH_LINK_BOOT(),       # nRF51_16K
-    ARCH_LINK_OTA(),        # nRF51_16K
-    SEEED_TINY_BLE(),       # nRF51_16K
-    SEEED_TINY_BLE_BOOT(),  # nRF51_16K
-    SEEED_TINY_BLE_OTA(),   # nRF51_16K
-    HRM1017(),              # nRF51_16K
-    HRM1017_BOOT(),         # nRF51_16K
-    HRM1017_OTA(),          # nRF51_16K
-    RBLAB_NRF51822(),       # nRF51_16K
-    RBLAB_NRF51822_BOOT(),  # nRF51_16K
-    RBLAB_NRF51822_OTA(),   # nRF51_16K
-    RBLAB_BLENANO(),        # nRF51_16K
-    RBLAB_BLENANO_BOOT(),   # nRF51_16K
-    RBLAB_BLENANO_OTA(),    # nRF51_16K
-    NRF51822_Y5_MBUG(),     # nRF51_16K
-    WALLBOT_BLE(),          # nRF51_16K
-    WALLBOT_BLE_BOOT(),     # nRF51_16K
-    WALLBOT_BLE_OTA(),      # nRF51_16K
-    DELTA_DFCM_NNN40(),     # nRF51_16K
-    DELTA_DFCM_NNN40_BOOT(),# nRF51_16K
-    DELTA_DFCM_NNN40_OTA(), # nRF51_16K
-    NRF51_DK(),             # nRF51_32K
-    NRF51_DK_BOOT(),        # nRF51_32K
-    NRF51_DK_OTA(),         # nRF51_32K
-    NRF51_DONGLE(),         # nRF51_32K
-    NRF51_DONGLE_BOOT(),    # nRF51_32K
-    NRF51_DONGLE_OTA(),     # nRF51_32K
-    NRF51_MICROBIT(),       # nRF51_16K - S110
-    NRF51_MICROBIT_BOOT(),  # nRF51_16K - S110
-    NRF51_MICROBIT_OTA(),   # nRF51_16K - S110
-    NRF51_MICROBIT_B(),     # nRF51_16K - default
-    NRF51_MICROBIT_B_BOOT(),# nRF51_16K - default
-    NRF51_MICROBIT_B_OTA(), # nRF51_16K - default
-    TY51822R3(),            # nRF51_32K
-    TY51822R3_BOOT(),       # nRF51_32K
-    TY51822R3_OTA(),        # nRF51_32K
-
-
-    ### ARM ###
-    ARM_MPS2_M0(),
-    ARM_MPS2_M0P(),
-    ARM_MPS2_M1(),
-    ARM_MPS2_M3(),
-    ARM_MPS2_M4(),
-    ARM_MPS2_M7(),
-
-    ARM_IOTSS_BEID(),
-
-    ### Renesas ###
-    RZ_A1H(),
-    VK_RZ_A1H(),
-
-    ### Maxim Integrated ###
-    MAXWSNENV(),
-    MAX32600MBED(),
-
-    ### Silicon Labs ###
-    EFM32GG_STK3700(),
-    EFM32LG_STK3600(),
-    EFM32WG_STK3800(),
-    EFM32ZG_STK3200(),
-    EFM32HG_STK3400(),
-	EFM32PG_STK3401(),
-
-    ### WIZnet ###
-    WIZWIKI_W7500(),
-    WIZWIKI_W7500P(),
-    WIZWIKI_W7500ECO(),
-
-    ### Atmel ###
-    SAMR21G18A(),
-    SAMD21J18A(),
-    SAMD21G18A(),
-    SAML21J18A(),
-    SAMG55J19(),
-
-]
+# Instantiate all public targets
+TARGETS = [Target(name) for name, value in Target.get_json_target_data().items() if value.get("public", True)]
 
 # Map each target name to its unique instance
-TARGET_MAP = {}
-for t in TARGETS:
-    TARGET_MAP[t.name] = t
+TARGET_MAP = dict([(t.name, t) for t in TARGETS])
 
 TARGET_NAMES = TARGET_MAP.keys()
 
 # Some targets with different name have the same exporters
-EXPORT_MAP = { }
+EXPORT_MAP = {}
 
 # Detection APIs
 def get_target_detect_codes():

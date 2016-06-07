@@ -13,6 +13,16 @@ CAN can1(p9, p10);
 CAN can1(PD_0, PD_1);
 #elif defined(TARGET_VK_RZ_A1H)
 CAN can1(P5_9, P5_10);
+#elif defined(TARGET_NUCLEO_F091RC) || defined(TARGET_NUCLEO_F072RB) || \
+      defined(TARGET_NUCLEO_F042K6) || defined(TARGET_NUCLEO_F334R8) || \
+      defined(TARGET_NUCLEO_F303RE) || defined(TARGET_NUCLEO_F303K8) || \
+      defined(TARGET_NUCLEO_F302R8) || defined(TARGET_NUCLEO_F446RE) || \
+      defined(TARGET_DISCO_F429ZI)  || defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F746ZG) || defined(TARGET_DISCO_L476VG)  || \
+      defined(TARGET_NUCLEO_L476RG)
+CAN can1(PA_11, PA_12);
+#elif defined(TARGET_DISCO_F469NI) || defined(TARGET_DISCO_F746NG)
+CAN can1(PB_8, PB_9);
 #endif
 
 #define TEST_ITERATIONS     127

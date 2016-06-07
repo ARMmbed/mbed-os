@@ -16,6 +16,7 @@ limitations under the License.
 """
 import re
 from os.path import join
+import copy
 
 from workspace_tools.toolchains import mbedToolchain
 from workspace_tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
@@ -31,10 +32,10 @@ class ARM(mbedToolchain):
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
 
     DEFAULT_FLAGS = {
-        'common': ["-c", "--gnu", "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars"],
-        'asm': ['-I%s' % ARM_INC],
-        'c': ["--md", "--no_depend_system_headers", '-I%s' % ARM_INC,
+        'common': ["--apcs=interwork",
+            "--brief_diagnostics"],
+        'asm': ['-I"%s"' % ARM_INC],
+        'c': ["-c", "--gnu", "-Otime", "--restrict", "--multibyte_chars", "--split_sections", "--md", "--no_depend_system_headers", '-I"%s"' % ARM_INC,
             "--c99", "-D__ASSERT_MSG" ],
         'cxx': ["--cpp", "--no_rtti", "-D__ASSERT_MSG"],
         'ld': [],
@@ -54,18 +55,18 @@ class ARM(mbedToolchain):
 
         main_cc = join(ARM_BIN, "armcc")
 
-        self.flags = self.DEFAULT_FLAGS
+        self.flags = copy.deepcopy(self.DEFAULT_FLAGS)
         self.flags['common'] += ["--cpu=%s" % cpu]
         if "save-asm" in self.options:
             self.flags['common'].extend(["--asm", "--interleave"])
 
         if "debug-info" in self.options:
             self.flags['common'].append("-g")
-            self.flags['common'].append("-O0")
+            self.flags['c'].append("-O0")
         else:
-            self.flags['common'].append("-O3")
+            self.flags['c'].append("-O3")
 
-        self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
+        self.asm = [main_cc] + self.flags['common'] + self.flags['asm'] + self.flags['c']
         if not "analyze" in self.options:
             self.cc = [main_cc] + self.flags['common'] + self.flags['c']
             self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
@@ -162,12 +163,14 @@ class ARM_MICRO(ARM):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
-        # Compiler
-        self.flags['asm']  += ["-D__MICROLIB"]
-        self.flags['c']   += ["--library_type=microlib", "-D__MICROLIB"]
-        self.flags['cxx'] += ["--library_type=microlib", "-D__MICROLIB"]
+        # add microlib to the command line flags
+        self.asm  += ["-D__MICROLIB"]
+        self.cc += ["--library_type=microlib", "-D__MICROLIB"]
+        self.cppc += ["--library_type=microlib", "-D__MICROLIB"]
 
-        # Linker
+        # the exporter uses --library_type flag to set microlib
+        self.flags['c']   += ["--library_type=microlib"]
+        self.flags['cxx'] += ["--library_type=microlib"]
         self.flags['ld'].append("--library_type=microlib")
 
         # We had to patch microlib to add C++ support
