@@ -33,7 +33,7 @@ class GCC(mbedToolchain):
         'common': ["-c", "-Wall", "-Wextra",
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
-            "-ffunction-sections", "-fdata-sections",
+            "-ffunction-sections", "-fdata-sections", "-funsigned-char",
             "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
             ],
         'asm': ["-x", "assembler-with-cpp"],
