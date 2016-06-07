@@ -81,8 +81,6 @@ void test_thread(void const *args) {
 }
 
 int main() {
-    setbuf(stdout, NULL);
-
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default);
     MBED_HOSTTEST_DESCRIPTION(Mutex resource lock);

@@ -72,8 +72,6 @@ void test_thread(void const *delay) {
 }
 
 int main (void) {
-    setbuf(stdout, NULL);
-
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(Semaphore resource lock);

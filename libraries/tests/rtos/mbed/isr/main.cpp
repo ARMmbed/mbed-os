@@ -46,8 +46,6 @@ void queue_thread(void const *argument) {
 }
 
 int main (void) {
-    setbuf(stdout, NULL);
-
     MBED_HOSTTEST_TIMEOUT(20);
     MBED_HOSTTEST_SELECT(default_auto);
     MBED_HOSTTEST_DESCRIPTION(ISR (Queue));
