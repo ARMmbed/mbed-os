@@ -22,17 +22,17 @@ from copy import copy
 from time import time, sleep
 from types import ListType
 from shutil import copyfile
-from os.path import join, splitext, exists, relpath, dirname, basename, split
+from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath
 from inspect import getmro
-
-from elftools.elf.elffile import ELFFile
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
+from tools.memap import MemmapParser
 from hashlib import md5
 import fnmatch
+
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
@@ -406,6 +406,7 @@ class mbedToolchain:
                     # Append root path to glob patterns
                     # and append patterns to ignorepatterns
                     self.ignorepatterns.extend([join(root,line.strip()) for line in lines])
+
             for d in copy(dirs):
                 dir_path = join(root, d)
                 if d == '.hg':
@@ -747,6 +748,7 @@ class mbedToolchain:
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
+        map = join(tmp_path, name + '.map')
 
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             needed_update = True
@@ -759,10 +761,7 @@ class mbedToolchain:
 
             self.binary(r, elf, bin)
 
-        self.info("Memory sections sizes:")
-        size_dict = self.static_sizes(elf)
-        for section, size in size_dict.iteritems():
-            print("{:20} {}".format(section, size))
+        self.mem_stats(map)
 
         self.var("compile_succeded", True)
         self.var("binary", filename)
@@ -820,41 +819,35 @@ class mbedToolchain:
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
 
-    def static_sizes(self, elf):
-        """Accepts elf, returns a dict sizes per section (text, data, bss)"""
-        section_sizes = {}
+    def mem_stats(self, map):
+        # Creates parser object
+        toolchain = self.__class__.__name__
+        t = MemmapParser()
 
-        SHF_WRITE = 0x1
-        SHF_ALLOC = 0x2
-        SHF_EXECINSTR = 0x4
-        SHT_PROGBITS = "SHT_PROGBITS"
-        SHT_NOBITS = "SHT_NOBITS"
-
-        text = 0
-        data = 0
-        bss = 0
-        with open(elf, 'rb') as f:
-            elffile = ELFFile(f)
-            for section in elffile.iter_sections():
-                flags = section['sh_flags']
-                size = section['sh_size']
-                if (flags & SHF_ALLOC) == 0:
-                    # Section has no relevant data so ignore it
-                    continue
-                if (flags & SHF_EXECINSTR) or not (flags & SHF_WRITE):
-                    # Executable code or read only data
-                    text += size
-                elif section['sh_type'] != SHT_NOBITS:
-                    # Non-zero read/write data
-                    data += size
+        try:
+            with open(map, 'rt') as f:
+                # Decode map file depending on the toolchain
+                if toolchain == "ARM_STD" or toolchain == "ARM_MICRO":
+                    t.search_objects(abspath(map), "ARM")
+                    t.parse_map_file_armcc(f)
+                elif toolchain == "GCC_ARM":
+                    t.parse_map_file_gcc(f)
+                elif toolchain == "IAR":
+                    self.info("[WARNING] IAR Compiler not fully supported (yet)")
+                    t.search_objects(abspath(map), toolchain)
+                    t.parse_map_file_iar(f)
                 else:
-                    # Zero init read/write data
-                    bss += size
-        section_sizes["text"] = text
-        section_sizes["data"] = data
-        section_sizes["bss"] = bss
-        return section_sizes
+                    self.info("Unknown toolchain for memory statistics %s" % toolchain)
+                    return
 
+                t.generate_output(sys.stdout, False)
+                map_out = splitext(map)[0] + "_map.json"
+                with open(map_out, 'w') as fo:
+                    t.generate_output(fo, True)
+        except OSError:
+            return
+            
+    
 from tools.settings import ARM_BIN
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
 from tools.settings import IAR_PATH
