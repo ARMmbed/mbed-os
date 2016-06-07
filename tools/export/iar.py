@@ -66,6 +66,8 @@ class IAREmbeddedWorkbench(Exporter):
             }
 
         project_data['tool_specific'] = {}
+        project_data['tool_specific'].setdefault("iar", {})
+        project_data['tool_specific']['iar'].update(self.progen_flags)
         project_data['tool_specific'].update(tool_specific)
         project_data['common']['build_dir'] = os.path.join(project_data['common']['build_dir'], 'iar_arm')
         self.progen_gen_file('iar_arm', project_data)

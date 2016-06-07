@@ -39,6 +39,16 @@ class Exporter(object):
     def get_toolchain(self):
         return self.TOOLCHAIN
 
+    @property
+    def flags(self):
+        return self.toolchain.flags
+
+    @property
+    def progen_flags(self):
+        if not hasattr(self, "_progen_flag_cache") :
+            self._progen_flag_cache = dict([(key + "_flags", value) for key,value in self.flags.iteritems()])
+        return self._progen_flag_cache
+
     def __scan_and_copy(self, src_path, trg_path):
         resources = self.toolchain.scan_resources(src_path)
 

@@ -69,9 +69,9 @@ class IntermediateFile(Exporter):
             'symbols': self.get_symbols(),
             'object_files': self.resources.objects,
             'sys_libs': self.toolchain.sys_libs,
-            'cc_org': self.toolchain.cc[1:],
-            'ld_org': self.toolchain.ld[1:],
-            'cppc_org': self.toolchain.cppc[1:]
+            'cc_org': self.flags['common'] + self.flags['c'],
+            'ld_org': self.flags['common'] + self.flags['ld'],
+            'cppc_org': self.flags['common'] + self.flags['cxx']
         }
 
         # EmBlocks intermediate file template
