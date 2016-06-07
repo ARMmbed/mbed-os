@@ -545,6 +545,24 @@ int LWIPInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *buf,
     return copied;
 }
 
+int LWIPInterface::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen) {
+    struct lwip_socket *s = (struct lwip_socket *)handle;
+
+    switch (optname) {
+        case NSAPI_KEEPALIVE:
+            if (optlen != sizeof(int) || s->proto != NSAPI_TCP) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            s->tcp->so_options |= SOF_KEEPALIVE;
+            s->tcp->keep_intvl = *(int*)optval;
+            return 0;
+            
+        default:
+            return NSAPI_ERROR_UNSUPPORTED;
+    }
+}
+
 void LWIPInterface::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
