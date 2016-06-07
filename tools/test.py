@@ -112,6 +112,7 @@ if __name__ == '__main__':
         if options.list:
             # Print available tests in order and exit
             print_tests(tests, options.format)
+            sys.exit(0)
         else:
             # Build all tests
             if not options.build_dir:
@@ -146,7 +147,6 @@ if __name__ == '__main__':
             except Exception, e:
                 library_build_success = False
                 print "Failed to build library"
-                print e
                 
             if library_build_success:
                 # Build all the tests
@@ -158,9 +158,6 @@ if __name__ == '__main__':
                         macros=options.macros,
                         verbose=options.verbose,
                         jobs=options.jobs)
-                        
-                if not test_build_success:
-                    print "Failed to build some tests, check build log for details"
                 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
@@ -181,13 +178,13 @@ if __name__ == '__main__':
             
             # If a path to a JUnit build report spec is provided, write it to a file
             if options.build_report_junit:
-                report_exporter = ReportExporter(ResultExporterType.JUNIT)
+                report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
                 report_exporter.report_to_file(build_report, options.build_report_junit, test_suite_properties=build_properties)
         
-        if library_build_success and test_build_success:
-            sys.exit(0)
-        else:
-            sys.exit(1)
+            if library_build_success and test_build_success:
+                sys.exit(0)
+            else:
+                sys.exit(1)
 
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"
