@@ -23,13 +23,17 @@
 using namespace utest::v1;
 
 static int call_counter(0);
+static bool executed_case_0 = false;
+static bool executed_case_1 = false;
+static bool executed_case_2 = false;
 
 void handler_case_2()
 {
-    printf("Executing Case 2...\n");
+    executed_case_2 = true;
 }
 utest::v1::status_t teardown_case_2(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
+    TEST_ASSERT_TRUE(executed_case_2);
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
     TEST_ASSERT_EQUAL(REASON_NONE, failure.reason);
@@ -40,10 +44,11 @@ utest::v1::status_t teardown_case_2(const Case *const source, const size_t passe
 }
 void handler_case_0()
 {
-    printf("Executing Case 0...\n");
+    executed_case_0 = true;
 }
 utest::v1::status_t teardown_case_0(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
+    TEST_ASSERT_TRUE(executed_case_0);
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
     TEST_ASSERT_EQUAL(REASON_NONE, failure.reason);
@@ -54,10 +59,11 @@ utest::v1::status_t teardown_case_0(const Case *const source, const size_t passe
 }
 void handler_case_1()
 {
-    printf("Executing Case 1...\n");
+    executed_case_1 = true;
 }
 utest::v1::status_t teardown_case_1(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
+    TEST_ASSERT_TRUE(executed_case_1);
     TEST_ASSERT_EQUAL(1, passed);
     TEST_ASSERT_EQUAL(0, failed);
     TEST_ASSERT_EQUAL(REASON_NONE, failure.reason);

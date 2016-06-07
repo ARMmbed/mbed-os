@@ -31,13 +31,11 @@ static Timeout utest_to;
 void simple_validation()
 {
     TEST_ASSERT_EQUAL(1, call_counter++);
-    printf("Simple validation callback executed.\n");
     Harness::validate_callback();
 }
 
 control_t simple_validation_case()
 {
-    printf("Simple validation, posting callback\n");
     TEST_ASSERT_EQUAL(0, call_counter++);
     utest_to.attach_us(simple_validation, 100); // Fire after 100 us
 
@@ -47,8 +45,6 @@ control_t simple_validation_case()
 // Validate: Multiple Validation --------------------------------------------------------------------------------------
 void multiple_validation()
 {
-    printf("Multiple validation callback executed.\n");
-
     // make sure validation is side-effect free
     TEST_ASSERT_EQUAL(3, call_counter++);
     Harness::validate_callback();
@@ -67,7 +63,6 @@ void multiple_validation()
 control_t multiple_validation_case()
 {
     TEST_ASSERT_EQUAL(2, call_counter++);
-    printf("Multiple validation callback posted.\n");
     utest_to.attach_us(multiple_validation, 100000); // Fire after 100 ms
     return CaseAwait;
 }
@@ -135,7 +130,6 @@ utest::v1::status_t multiple_premature_validation_case_teardown(const Case *cons
 void attributed_validation_cancel_repeat()
 {
     TEST_ASSERT_EQUAL(19, call_counter++);
-    printf("Validation cancel repeat callback executed.\n");
     // cancel all repeats
     Harness::validate_callback(CaseNoRepeat);
 }
@@ -143,7 +137,6 @@ void attributed_validation_cancel_repeat()
 control_t attributed_validation_cancel_repeat_case()
 {
     TEST_ASSERT_EQUAL(18, call_counter++);
-    printf("Validation cancel repeat callback posted.\n");
 
     utest_to.attach_us(attributed_validation_cancel_repeat, 100000); // Fire after 100 ms
     // the RepeatAll will be cancelled during callback validation
@@ -163,7 +156,6 @@ utest::v1::status_t attributed_validation_cancel_repeat_case_teardown(const Case
 // Validate: Attributed Validation: Enable Repeat Handler -------------------------------------------------------------
 void attributed_validation_enable_repeat()
 {
-    printf("Validation enable repeat callback executed.\n");
     TEST_ASSERT_EQUAL(22, call_counter++);
     // cancel all repeats
     Harness::validate_callback(CaseRepeatHandler);
@@ -177,7 +169,6 @@ control_t attributed_validation_enable_repeat_case(const size_t call_count)
 {
     if (call_count == 1) {
         TEST_ASSERT_EQUAL(21, call_counter++);
-        printf("Validation enable repeat callback posted.\n");
         utest_to.attach_us(attributed_validation_enable_repeat, 100000); // Fire after 100 ms
         // the RepeatAll will be cancelled during callback validation
         return CaseAwait;
