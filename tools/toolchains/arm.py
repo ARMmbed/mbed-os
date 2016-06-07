@@ -56,7 +56,6 @@ class ARM(mbedToolchain):
 
         main_cc = join(ARM_BIN, "armcc")
 
-        self.flags = copy.deepcopy(self.DEFAULT_FLAGS)
         self.flags['common'] += ["--cpu=%s" % cpu]
         if "save-asm" in self.options:
             self.flags['common'].extend(["--asm", "--interleave"])
