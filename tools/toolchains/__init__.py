@@ -24,6 +24,7 @@ from types import ListType
 from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath
 from inspect import getmro
+from copy import deepcopy
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
@@ -242,6 +243,7 @@ class mbedToolchain:
 
         if 'UVISOR_PRESENT=1' in self.macros:
             self.target.core = re.sub(r"F$", '', self.target.core)
+        self.flags = deepcopy(self.DEFAULT_FLAGS)
 
     def get_output(self):
         return self.output
