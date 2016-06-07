@@ -287,6 +287,14 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 /******************************************************************************
  * READ/WRITE
  ******************************************************************************/
+int serial_TxComplete(serial_t *obj)
+{
+    int status;
+    UartHandle.Instance = (USART_TypeDef *)(obj->uart);
+    // Check if data is transmitted
+    status = ((__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TC) != RESET) ? 1 : 0);
+    return status;
+}
 
 int serial_getc(serial_t *obj)
 {
@@ -308,6 +316,7 @@ void serial_putc(serial_t *obj, int c)
     } else {
         uart->DR = (uint16_t)(c & (uint16_t)0x1FF);
     }
+    while(!serial_TxComplete(obj));
 }
 
 int serial_readable(serial_t *obj)
@@ -323,7 +332,7 @@ int serial_writable(serial_t *obj)
 {
     int status;
     UartHandle.Instance = (USART_TypeDef *)(obj->uart);
-    // Check if data is transmitted
+    // Check if data has moved to internal buffer
     status = ((__HAL_UART_GET_FLAG(&UartHandle, UART_FLAG_TXE) != RESET) ? 1 : 0);
     return status;
 }
