@@ -104,6 +104,8 @@ Wiring:
      * NUCLEO_F103RB: (RX=PA_11, TX=PA_12)
      * NUCLEO_F746ZG: (RX=PA_11, TX=PA_12)
      * DISCO_F746NG:  (RX=PB_8, TX=PB_9)
+     * DISCO_L476VG:  (RX=PA_11, TX=PA_12)
+     * NUCLEO_L476RG:  (RX=PA_11, TX=PA_12)
 
 """
 TESTS = [
@@ -313,7 +315,7 @@ TESTS = [
 		"NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8",
         "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE",
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
-        "DISCO_F746NG"]
+        "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG"]
     },
     {
         "id": "MBED_BLINKY", "description": "Blinky",
@@ -587,7 +589,8 @@ TESTS = [
         "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE", "DISCO_F469NI",
-                "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG"]
+                "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
+                "NUCLEO_L476RG"]
     },
     {
         "id": "MBED_30", "description": "CAN network test using interrupts",
@@ -596,7 +599,8 @@ TESTS = [
         "mcu": ["LPC1768", "LPC4088", "LPC1549", "RZ_A1H", "B96B_F446VE", "NUCLEO_F091RC",
                 "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F303RE",
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE", "DISCO_F469NI",
-                "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG"]
+                "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
+                "NUCLEO_L476RG"]
     },
     {
         "id": "MBED_31", "description": "PWM LED test",

@@ -83,6 +83,10 @@ typedef enum {
     PWM_17 = (int)TIM17_BASE
 } PWMName;
 
+typedef enum {
+    CAN_1 = (int)CAN1_BASE
+} CANName;
+
 #ifdef __cplusplus
 }
 #endif
