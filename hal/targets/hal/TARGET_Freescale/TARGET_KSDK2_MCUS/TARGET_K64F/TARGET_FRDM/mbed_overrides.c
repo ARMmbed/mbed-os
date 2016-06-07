@@ -44,18 +44,19 @@ void rtc_setup_oscillator(RTC_Type *base)
 // Provide ethernet devices with a semi-unique MAC address from the UUID
 void mbed_mac_address(char *mac)
 {
+    uint16_t MAC[3];                        // 3 16 bits words for the MAC
 
-    unsigned int UUID_LOC_BASE = 0x40048054;    // First adddress of the 4-word UUID
-    char uuid[16];                              // So we can take a local copy of the UUID
-    uint32_t MAC[3]; // 3 16 bits words for the MAC
-
-    // copy the UUID to the variable MAC[]
-    memcpy(uuid,(const void*)UUID_LOC_BASE,sizeof(uuid));
+    // get UID via SIM_UID macros defined in the K64F MCU CMSIS header file
+    uint32_t UID[4];
+    UID[0] = SIM->UIDH;
+    UID[1] = SIM->UIDMH;
+    UID[2] = SIM->UIDML;
+    UID[3] = SIM->UIDL;
 
     // generate three CRC16's using different slices of the UUID
-    MAC[0] = crcSlow(uuid, 8);   // most significant half-word
-    MAC[1] = crcSlow(uuid, 12);
-    MAC[2] = crcSlow(uuid, 16); // least significant half word
+    MAC[0] = crcSlow((const uint8_t *)UID, 8);  // most significant half-word
+    MAC[1] = crcSlow((const uint8_t *)UID, 12); 
+    MAC[2] = crcSlow((const uint8_t *)UID, 16); // least significant half word
 
     // The network stack expects an array of 6 bytes
     // so we copy, and shift and copy from the half-word array to the byte array
