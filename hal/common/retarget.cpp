@@ -88,6 +88,7 @@ FileHandle::~FileHandle() {
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
+static char stdio_prev;
 #endif
 
 static void init_serial() {
@@ -227,7 +228,11 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
         for (unsigned int i = 0; i < length; i++) {
+            if (buffer[i] == '\n' && stdio_prev != '\r') {
+                 serial_putc(&stdio_uart, '\r');
+            }
             serial_putc(&stdio_uart, buffer[i]);
+            stdio_prev = buffer[i];
         }
 #endif
         n = length;
