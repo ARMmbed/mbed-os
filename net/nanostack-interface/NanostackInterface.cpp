@@ -107,8 +107,7 @@ private:
     socket_mode_t mode;
 };
 
-static Semaphore connect_semaphore(0);
-static NanostackSocket * socket_tbl[NS_INTERFACE_SOCKETS_MAX] = {0};
+static NanostackSocket * socket_tbl[NS_INTERFACE_SOCKETS_MAX];
 
 static int map_mesh_error(mesh_error_t err)
 {
