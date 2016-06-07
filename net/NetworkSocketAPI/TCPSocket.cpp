@@ -17,14 +17,21 @@
 #include "TCPSocket.h"
 #include "Timer.h"
 
-TCPSocket::TCPSocket(): _read_sem(0), _write_sem(0)
+TCPSocket::TCPSocket()
+    : _pending(0), _read_sem(0), _write_sem(0)
 {
 }
 
-TCPSocket::TCPSocket(NetworkStack *iface): _read_sem(0), _write_sem(0)
+TCPSocket::TCPSocket(NetworkStack *iface)
+    : _pending(0), _read_sem(0), _write_sem(0)
 {
     // TCPSocket::open is thread safe
     open(iface);
+}
+
+TCPSocket::~TCPSocket()
+{
+    close();
 }
 
 int TCPSocket::open(NetworkStack *iface)
@@ -74,6 +81,7 @@ int TCPSocket::send(const void *data, unsigned size)
             break;
         }
 
+        _pending = 0;
         int sent = _iface->socket_send(_socket, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != sent)) {
             ret = sent;
@@ -114,6 +122,7 @@ int TCPSocket::recv(void *data, unsigned size)
             break;
         }
 
+        _pending = 0;
         int recv = _iface->socket_recv(_socket, data, size);
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
             ret = recv;
@@ -140,17 +149,19 @@ int TCPSocket::recv(void *data, unsigned size)
     return ret;
 }
 
-void TCPSocket::socket_event()
+void TCPSocket::event()
 {
-    int32_t count;
-    count = _write_sem.wait(0);
-    if (count <= 1) {
+    int32_t wcount = _write_sem.wait(0);
+    if (wcount <= 1) {
         _write_sem.release();
     }
-    count = _read_sem.wait(0);
-    if (count <= 1) {
+    int32_t rcount = _read_sem.wait(0);
+    if (rcount <= 1) {
         _read_sem.release();
     }
 
-    Socket::socket_event();
+    _pending += 1;
+    if (_callback && _pending == 1) {
+        _callback();
+    }
 }

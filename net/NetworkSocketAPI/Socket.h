@@ -29,7 +29,7 @@ public:
      *
      *  Closes socket if the socket is still open
      */
-    virtual ~Socket();
+    virtual ~Socket() {}
 
     /** Opens a socket
      *
@@ -169,13 +169,12 @@ public:
 protected:
     Socket();
     int open(NetworkStack *iface, nsapi_protocol_t proto);
-
-    static void thunk(void *);
-    virtual void socket_event(void);
+    virtual void event() = 0;
 
     NetworkStack *_iface;
     void *_socket;
     uint32_t _timeout;
+    Callback<void()> _event;
     Callback<void()> _callback;
     rtos::Mutex _lock;
 };

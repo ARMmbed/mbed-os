@@ -17,13 +17,20 @@
 #include "TCPServer.h"
 #include "Timer.h"
 
-TCPServer::TCPServer(): _accept_sem(0)
+TCPServer::TCPServer()
+    : _pending(0), _accept_sem(0)
 {
 }
 
-TCPServer::TCPServer(NetworkStack *iface): _accept_sem(0)
+TCPServer::TCPServer(NetworkStack *iface)
+    : _pending(0), _accept_sem(0)
 {
     open(iface);
+}
+
+TCPServer::~TCPServer()
+{
+    close();
 }
 
 int TCPServer::open(NetworkStack *iface)
@@ -55,6 +62,7 @@ int TCPServer::accept(TCPSocket *connection)
             break;
         }
 
+        _pending = 0;
         void *socket;
         ret = _iface->socket_accept(&socket, _socket);
         if (0 == ret) {
@@ -66,7 +74,8 @@ int TCPServer::accept(TCPSocket *connection)
 
             connection->_iface = _iface;
             connection->_socket = socket;
-            _iface->socket_attach(socket, &Socket::thunk, connection);
+            connection->_event = Callback<void()>(connection, &TCPSocket::event);
+            _iface->socket_attach(socket, &Callback<void()>::thunk, &connection->_event);
 
             connection->_lock.unlock();
             break;
@@ -90,12 +99,15 @@ int TCPServer::accept(TCPSocket *connection)
     return ret;
 }
 
-void TCPServer::socket_event()
+void TCPServer::event()
 {
-    int32_t status = _accept_sem.wait(0);
-    if (status <= 1) {
+    int32_t acount = _accept_sem.wait(0);
+    if (acount <= 1) {
         _accept_sem.release();
     }
 
-    Socket::socket_event();
+    _pending += 1;
+    if (_callback && _pending == 1) {
+        _callback();
+    }
 }
