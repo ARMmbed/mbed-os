@@ -8,13 +8,12 @@ import sys
 import os
 import re
 import json
-import time
 import argparse
 from prettytable import PrettyTable
 
 debug = False
 
-class MemmapParser(object):
+class MemapParser(object):
 
     def __init__(self):
         """
@@ -42,79 +41,6 @@ class MemmapParser(object):
 
         # list of all object files and mappting to module names
         self.object_to_module = dict()
-
-
-    def generate_output(self, file_desc, json_mode):
-        """
-        Generates summary of memory map data
-
-        Parameters
-            file_desc: descriptor (either stdout or file)
-            json_mode: generates output in json formal (True/False)
-        """
-
-        # Calculate misc flash sections
-        misc_flash_mem = 0
-        for i in self.modules:
-            for k in self.misc_flash_sections:
-                if self.modules[i][k]:
-                    misc_flash_mem += self.modules[i][k]
-
-        # Create table
-        colums = ['Module']
-        for i in list(self.print_sections):
-            colums.append(i)
-
-        table = PrettyTable(colums)
-        table.align["Module"] = "l"
-
-        subtotal = dict()
-        for k in self.sections:
-            subtotal[k] = 0
-
-        json_obj = []
-        for i in sorted(self.modules):
-
-            row = []
-            row.append(i)
-
-            for k in self.sections:
-                subtotal[k] += self.modules[i][k]
-
-            for k in self.print_sections:
-                row.append(self.modules[i][k])
-
-            json_obj.append({"module":i, "size":{\
-                k:self.modules[i][k] for k in self.print_sections}})
-
-            table.add_row(row)
-
-        subtotal_row = ['Subtotals']
-        for k in self.print_sections:
-            subtotal_row.append(subtotal[k])
-
-        table.add_row(subtotal_row)
-
-        if json_mode:
-            json_obj.append({\
-                  'summary':{\
-                  'static_ram':(subtotal['.data']+subtotal['.bss']),\
-                  'heap':(subtotal['.heap']),\
-                  'stack':(subtotal['.stack']),\
-                  'total_ram':(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']),\
-                  'total_flash':(subtotal['.text']+subtotal['.data']+misc_flash_mem),}})
-
-            file_desc.write(json.dumps(json_obj, indent=4))
-            file_desc.write('\n')
-        else:
-            file_desc.write(table.get_string())
-            file_desc.write('\n')
-            file_desc.write("Static RAM memory (data + bss): %s\n" % (str(subtotal['.data']+subtotal['.bss'])))
-            file_desc.write("Heap: %s\n" % str(subtotal['.heap']))
-            file_desc.write("Stack: %s\n" % str(subtotal['.stack']))
-            file_desc.write("Total RAM memory (data + bss + heap + stack): %s\n" % (str(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack'])))
-            file_desc.write("Total Flash memory (text + data + misc): %s\n" % (str(subtotal['.text']+subtotal['.data']+misc_flash_mem)))
-        return
 
     def module_add(self, module_name, size, section):
         """
@@ -395,31 +321,141 @@ class MemmapParser(object):
             print "Warning: specified toolchain doesn't match with path to the memory map file."
             return
 
-        for root, obj_files in os.walk(search_path):
+        for root, dir, obj_files in os.walk(search_path):
             for obj_file in obj_files:
                 if obj_file.endswith(".o"):
                     module_name, object_name = self.path_object_to_module_name(os.path.join(root, obj_file))
 
                     if object_name in self.object_to_module:
-                        print "WARNING: multiple usages of object file: %s" % object_name
-                        print "    Current: %s" % self.object_to_module[object_name]
-                        print "    New:     %s" % module_name
-                        print " "
-
+                        if debug:
+                            print "WARNING: multiple usages of object file: %s" % object_name
+                            print "    Current: %s" % self.object_to_module[object_name]
+                            print "    New:     %s" % module_name
+                            print " "
                     else:
                         self.object_to_module.update({object_name:module_name})
 
+    def generate_output(self, json_mode, file_output=None):
+        """
+        Generates summary of memory map data
+
+        Parameters
+            json_mode: generates output in json formal (True/False)
+            file_desc: descriptor (either stdout or file)
+        """
+
+        try:
+            if file_output:
+                file_desc = open(file_output, 'w')
+            else:
+                file_desc = sys.stdout
+        except IOError as error:
+            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            return False
+
+        # Calculate misc flash sections
+        misc_flash_mem = 0
+        for i in self.modules:
+            for k in self.misc_flash_sections:
+                if self.modules[i][k]:
+                    misc_flash_mem += self.modules[i][k]
+
+        # Create table
+        colums = ['Module']
+        for i in list(self.print_sections):
+            colums.append(i)
+
+        table = PrettyTable(colums)
+        table.align["Module"] = "l"
+
+        subtotal = dict()
+        for k in self.sections:
+            subtotal[k] = 0
+
+        json_obj = []
+        for i in sorted(self.modules):
+
+            row = []
+            row.append(i)
+
+            for k in self.sections:
+                subtotal[k] += self.modules[i][k]
+
+            for k in self.print_sections:
+                row.append(self.modules[i][k])
+
+            json_obj.append({"module":i, "size":{\
+                k:self.modules[i][k] for k in self.print_sections}})
+
+            table.add_row(row)
+
+        subtotal_row = ['Subtotals']
+        for k in self.print_sections:
+            subtotal_row.append(subtotal[k])
+
+        table.add_row(subtotal_row)
+
+        if json_mode:
+            json_obj.append({\
+                  'summary':{\
+                  'static_ram':(subtotal['.data']+subtotal['.bss']),\
+                  'heap':(subtotal['.heap']),\
+                  'stack':(subtotal['.stack']),\
+                  'total_ram':(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']),\
+                  'total_flash':(subtotal['.text']+subtotal['.data']+misc_flash_mem),}})
+
+            file_desc.write(json.dumps(json_obj, indent=4))
+            file_desc.write('\n')
+        else:
+            file_desc.write(table.get_string())
+            file_desc.write('\n')
+            file_desc.write("Static RAM memory (data + bss): %s\n" % (str(subtotal['.data']+subtotal['.bss'])))
+            file_desc.write("Heap: %s\n" % str(subtotal['.heap']))
+            file_desc.write("Stack: %s\n" % str(subtotal['.stack']))
+            file_desc.write("Total RAM memory (data + bss + heap + stack): %s\n" % (str(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack'])))
+            file_desc.write("Total Flash memory (text + data + misc): %s\n" % (str(subtotal['.text']+subtotal['.data']+misc_flash_mem)))
+
+        if file_desc is not sys.stdout:
+            file_desc.close()
+
+        return True
+
+    def parse(self, mapfile, toolchain):
+        """
+        Parse and decode map file depending on the toolchain
+        """
+
+        try:
+            file_input = open(mapfile, 'rt')
+        except IOError as error:
+            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            return False
+
+        if toolchain == "ARM" or toolchain == "ARM_STD" or toolchain == "ARM_MICRO":
+            self.search_objects(os.path.abspath(mapfile), "ARM")
+            self.parse_map_file_armcc(file_input)
+        elif toolchain == "GCC_ARM":
+            self.parse_map_file_gcc(file_input)
+        elif toolchain == "IAR":
+            self.search_objects(os.path.abspath(mapfile), toolchain)
+            self.parse_map_file_iar(file_input)
+        else:
+            return False
+
+        file_input.close()
+
+        return True
+
 def main():
 
-    version = '0.3.8'
-    time_start = time.clock()
+    version = '0.3.9'
 
     # Parser handling
     parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed OS\nversion %s" % version)
 
     parser.add_argument('file', help='memory map file')
 
-    parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain that corresponds to the memory map file (ARM, GCC_ARM, IAR)',\
+    parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain used to build the memory map file (ARM, GCC_ARM, IAR)',\
                         required=True)
 
     parser.add_argument('-o', '--output', help='output file name', required=False)
@@ -436,45 +472,20 @@ def main():
 
     args, remainder = parser.parse_known_args()
 
-    try:
-        file_input = open(args.file, 'rt')
-    except IOError as error:
-        print "I/O error({0}): {1}".format(error.errno, error.strerror)
-        sys.exit(0)
+    # Create memap object
+    memap = MemapParser()
 
-    # Creates parser object
-    memap = MemmapParser()
-
-    # Decode map file depending on the toolchain
-    if args.toolchain == "ARM":
-        memap.search_objects(os.path.abspath(args.file), args.toolchain)
-        memap.parse_map_file_armcc(file_input)
-    elif args.toolchain == "GCC_ARM":
-        memap.parse_map_file_gcc(file_input)
-    elif args.toolchain == "IAR":
-        print "WARNING: IAR Compiler not fully supported (yet)"
-        print " "
-        memap.search_objects(os.path.abspath(args.file), args.toolchain)
-        memap.parse_map_file_iar(file_input)
-    else:
-        print "Invalid toolchain. Options are: ARM, GCC_ARM, IAR"
-        sys.exit(0)
+    # Parse and decode a map file
+    if args.file and args.toolchain:
+        if memap.parse(args.file, args.toolchain) is False:
+            print "Unknown toolchain for memory statistics %s" %  args.toolchain
+            sys.exit(0)
 
     # Write output in file
     if args.output != None:
-        try:
-            file_output = open(args.output, 'w')
-            memap.generate_output(file_output, args.json)
-            file_output.close()
-        except IOError as error:
-            print "I/O error({0}): {1}".format(error.errno, error.strerror)
-            sys.exit(0)
+        memap.generate_output(args.json, args.output)
     else: # Write output in screen
-        memap.generate_output(sys.stdout, args.json)
-
-    file_input.close()
-
-    print "Elapsed time: %smS" %int(round((time.clock()-time_start)*1000))
+        memap.generate_output(args.json)
 
     sys.exit(0)
 
