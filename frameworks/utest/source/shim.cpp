@@ -124,20 +124,6 @@ static int32_t utest_us_ticker_run()
     return 0;
 }
 
-int utest_printf(char *str, ...)
-{
-    volatile uint32_t primask = __get_PRIMASK();\
-    if ( (primask & 0x1) == 0){ \
-        va_list vargs;
-    
-        va_start(vargs, str);
-        vprintf(str, vargs);
-        va_end(vargs);
-    }
-
-    return 0;
-}    
-
 
 extern "C" {
 static const utest_v1_scheduler_t utest_v1_scheduler =

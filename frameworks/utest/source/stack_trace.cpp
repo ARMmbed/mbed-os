@@ -21,8 +21,7 @@
 #include "utest.h"
 #include "unity.h"
 #include "utest/stack_trace.h"
-
-#include <stdio.h>
+#include "utest/utest_serial.h"
 
 using namespace utest::v1;
 

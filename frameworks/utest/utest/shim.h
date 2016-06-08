@@ -76,7 +76,6 @@ extern "C" {
 /// must be implemented by the port
 void utest_v1_enter_critical_section(void);
 void utest_v1_leave_critical_section(void);
-int utest_printf(char *str, ...);
 
 /// This is the default scheduler implementation used by the harness.
 utest_v1_scheduler_t utest_v1_get_scheduler(void);

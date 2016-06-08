@@ -20,8 +20,6 @@
 #define UTEST_UNITY_ASSERT_FAILURE_H
 
 #include <stdint.h>
-#include <stdio.h>
-#include "cmsis.h"
 
 #ifdef __cplusplus
 extern "C" {

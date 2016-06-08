@@ -16,10 +16,10 @@
  ****************************************************************************
  */
 
- #include "utest/harness.h"
- #include "utest/stack_trace.h"
- #include "utest/unity_handler.h"
-
+#include "utest/harness.h"
+#include "utest/stack_trace.h"
+#include "utest/unity_handler.h"
+#include "utest/utest_serial.h"
 
 void utest_unity_assert_failure(void)
 {
@@ -35,11 +35,7 @@ void utest_unity_ignore_failure(void)
 
 void utest_safe_putc(int chr)
 {
-    volatile uint32_t primask = __get_PRIMASK();
-    if ( (primask & 0x1) == 0){ 
-        (void)putchar(chr);
-    }
-
+    utest_serial.putc(chr);
 }    
 
 

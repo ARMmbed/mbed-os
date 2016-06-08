@@ -20,6 +20,7 @@
 #include "utest/case.h"
 #include "greentea-client/test_env.h"
 #include "utest/stack_trace.h"
+#include "utest/utest_serial.h"
 
 using namespace utest::v1;
 
@@ -56,7 +57,7 @@ const handlers_t utest::v1::selftest_handlers = {
 };
 
 
-// --- SPECIAL HANDLERS ---                     
+// --- SPECIAL HANDLERS ---
 static utest::v1::status_t unknown_test_setup_handler(const size_t) {
     UTEST_LOG_FUNCTION();
     utest_printf(">>> I do not know how to tell greentea that the test started, since\n");
