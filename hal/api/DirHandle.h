@@ -44,6 +44,8 @@ namespace mbed {
  *  The root directory is considered to contain all FileLike and
  *  FileSystemLike objects, so the DIR* returned by opendir("/") will
  *  reflect this.
+ *
+ *  @Note Synchronization level: Set by subclass
  */
 class DirHandle {
 

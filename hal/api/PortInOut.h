@@ -26,6 +26,8 @@
 namespace mbed {
 
 /** A multiple pin digital in/out used to set/read multiple bi-directional pins
+ *
+ * @Note Synchronization level: Interrupt safe
  */
 class PortInOut {
 public:

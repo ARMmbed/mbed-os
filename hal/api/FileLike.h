@@ -25,6 +25,8 @@ namespace mbed {
  *  A file-like object is one that can be opened with fopen by
  *  fopen("/name", mode). It is intersection of the classes Base and
  *  FileHandle.
+ *
+ *  @Note Synchronization level: Set by subclass
  */
 class FileLike : public FileHandle, public FileBase {
 

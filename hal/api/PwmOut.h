@@ -26,6 +26,8 @@ namespace mbed {
 
 /** A pulse-width modulation digital output
  *
+ * @Note Synchronization level: Interrupt safe
+ *
  * Example
  * @code
  * // Fade a led on.

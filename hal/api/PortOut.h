@@ -26,6 +26,8 @@
 namespace mbed {
 /** A multiple pin digital out
  *
+ * @Note Synchronization level: Interrupt safe
+ *
  * Example:
  * @code
  * // Toggle all four LEDs

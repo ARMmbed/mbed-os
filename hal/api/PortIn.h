@@ -27,6 +27,8 @@ namespace mbed {
 
 /** A multiple pin digital input
  *
+ * @Note Synchronization level: Interrupt safe
+ *
  *  Example:
  * @code
  * // Switch on an LED if any of mbed pins 21-26 is high

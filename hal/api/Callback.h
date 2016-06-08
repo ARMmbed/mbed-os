@@ -23,6 +23,8 @@ namespace mbed {
 
 
 /** Callback class based on template specialization
+ *
+ * @Note Synchronization level: Not protected
  */
 template <typename F>
 class Callback;
