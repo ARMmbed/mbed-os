@@ -34,7 +34,7 @@
  *
  * \return 0 for success / -1 for failure
   */
-typedef int coap_message_handler_response_recv(int8_t service_id, uint16_t msg_id, sn_coap_hdr_s *response_ptr);
+typedef int coap_message_handler_response_recv(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *response_ptr);
 
 typedef struct coap_msg_handler_s {
     void *(*sn_coap_service_malloc)(uint16_t);

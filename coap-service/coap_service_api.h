@@ -62,11 +62,13 @@ extern "C" {
  * Function that handles CoAP service message receiving and parsing
  *
  * \param msg_id           Id number of the current message.
+ * \param source_address   IPv6 source address.
+ * \param source_port      Source port
  * \param response_ptr     Pointer to CoAP header structure.
  *
  * \return 0 for success / -1 for failure
   */
-typedef int coap_service_response_recv(int8_t service_id, uint16_t msg_id, sn_coap_hdr_s *response_ptr);
+typedef int coap_service_response_recv(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *response_ptr);
 
 /**
  * \brief CoAP service request callback

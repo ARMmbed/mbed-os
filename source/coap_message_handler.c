@@ -104,7 +104,7 @@ static int8_t coap_rx_function(sn_coap_hdr_s *resp_ptr, sn_nsdl_addr_s *address_
         this = transaction_find_client_by_token(resp_ptr->token_ptr);
     }
     if (this && this->resp_cb) {
-        this->resp_cb(this->service_id, resp_ptr->msg_id, NULL);
+        this->resp_cb(this->service_id, address_ptr->addr_ptr, address_ptr->port, NULL);
     }
     transaction_delete(this);
     return 0;
@@ -227,7 +227,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         }
         tr_debug("Service %d, response received", this->service_id);
         if (this->resp_cb) {
-            this->resp_cb(this->service_id, coap_message->msg_id, coap_message);
+            this->resp_cb(this->service_id, source_addr_ptr, port, coap_message);
         }
         sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
         transaction_delete(this);
