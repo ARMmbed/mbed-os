@@ -17,6 +17,8 @@ from project_generator.generate import Generator
 from project_generator.project import Project
 from project_generator.settings import ProjectSettings
 
+from tools.config import Config
+
 class OldLibrariesException(Exception): pass
 
 class Exporter(object):
@@ -32,6 +34,7 @@ class Exporter(object):
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
         self.extra_symbols = extra_symbols
+        self.config_macros = []
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -115,6 +118,8 @@ class Exporter(object):
     def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):
         # Copy only the file for the required target and toolchain
         lib_builds = []
+        # Create the configuration object
+        cfg = Config(self.target, prj_paths)
         for src in ['lib', 'src']:
             resources = reduce(add, [self.__scan_and_copy(join(path, src), trg_path) for path in prj_paths])
             lib_builds.extend(resources.lib_builds)
@@ -145,6 +150,10 @@ class Exporter(object):
         else:
             # use the prj_dir (source, not destination)
             self.resources = reduce(add, [self.toolchain.scan_resources(path) for path in prj_paths])
+        # Add all JSON files discovered during scanning to the configuration object
+        cfg.add_config_files(self.resources.json_files)
+        # Get data from the configuration system
+        self.config_macros = cfg.get_config_data_macros()
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
@@ -163,7 +172,7 @@ class Exporter(object):
         """ This function returns symbols which must be exported.
             Please add / overwrite symbols in each exporter separately
         """
-        symbols = self.toolchain.get_symbols()
+        symbols = self.toolchain.get_symbols() + self.config_macros
         # We have extra symbols from e.g. libraries, we want to have them also added to export
         if add_extra_symbols:
             if self.extra_symbols is not None:
