@@ -767,6 +767,7 @@
         "core": "Cortex-M7F",
         "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "default_toolchain": "ARM",
         "progen": {
             "target": "nucleo-f746zg",
             "iar": {
@@ -983,6 +984,7 @@
         "core": "Cortex-M7F",
         "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746NG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "default_toolchain": "ARM",
         "progen": {"target": "disco-f746ng"},
         "detect_code": ["0815"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
