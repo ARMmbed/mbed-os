@@ -131,9 +131,6 @@ int __collate_range_cmp (c1, c2)
 {
 	static char s1[2], s2[2];
 	int ret;
-#ifndef ASCII_COMPATIBLE_COLLATE
-	int as1, as2, al1, al2;
-#endif
 
 	c1 &= UCHAR_MAX;
 	c2 &= UCHAR_MAX;
