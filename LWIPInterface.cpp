@@ -557,6 +557,14 @@ int LWIPInterface::setsockopt(void *handle, int level, int optname, const void *
             s->tcp->so_options |= SOF_KEEPALIVE;
             return 0;
 
+        case NSAPI_KEEPIDLE:
+            if (optlen != sizeof(int) || s->proto != NSAPI_TCP) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            s->tcp->keep_idle = *(int*)optval;
+            return 0;
+
         case NSAPI_KEEPINTVL:
             if (optlen != sizeof(int) || s->proto != NSAPI_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
