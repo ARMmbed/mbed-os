@@ -124,7 +124,7 @@
 /*@}*/
 
 /*! @brief Access to FTFx->FCCOB */
-volatile uint32_t *const kFCCOBx;
+extern volatile uint32_t *const kFCCOBx;
 
 static flash_config_t privateDeviceConfig;
 #endif /* #ifdef USING_KSDK2 */
