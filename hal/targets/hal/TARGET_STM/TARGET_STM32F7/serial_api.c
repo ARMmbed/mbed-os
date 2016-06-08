@@ -67,6 +67,9 @@ static void init_uart(serial_t *obj)
         UartHandle.Init.Mode = UART_MODE_TX_RX;
     }
 
+    // Fix because HAL_RCC_GetHCLKFreq() don't update anymore SystemCoreClock
+    SystemCoreClockUpdate();
+
     if (HAL_UART_Init(&UartHandle) != HAL_OK) {
         error("Cannot initialize UART");
     }
@@ -85,43 +88,59 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Enable USART clock
     switch (obj->uart) {
         case UART_1:
+            __HAL_RCC_USART1_FORCE_RESET();
+            __HAL_RCC_USART1_RELEASE_RESET();
             __USART1_CLK_ENABLE();
             obj->index = 0;
             break;
         case UART_2:
+            __HAL_RCC_USART2_FORCE_RESET();
+            __HAL_RCC_USART2_RELEASE_RESET();
             __USART2_CLK_ENABLE();
             obj->index = 1;
             break;
 #if defined(USART3_BASE)
         case UART_3:
+            __HAL_RCC_USART3_FORCE_RESET();
+            __HAL_RCC_USART3_RELEASE_RESET();
             __USART3_CLK_ENABLE();
             obj->index = 2;
             break;
 #endif
 #if defined(UART4_BASE)
         case UART_4:
+            __HAL_RCC_UART4_FORCE_RESET();
+            __HAL_RCC_UART4_RELEASE_RESET();
             __UART4_CLK_ENABLE();
             obj->index = 3;
             break;
 #endif
 #if defined(UART5_BASE)
         case UART_5:
+            __HAL_RCC_UART5_FORCE_RESET();
+            __HAL_RCC_UART5_RELEASE_RESET();
             __UART5_CLK_ENABLE();
             obj->index = 4;
             break;
 #endif
         case UART_6:
+            __HAL_RCC_USART6_FORCE_RESET();
+            __HAL_RCC_USART6_RELEASE_RESET();
             __USART6_CLK_ENABLE();
             obj->index = 5;
             break;
 #if defined(UART7_BASE)
         case UART_7:
+            __HAL_RCC_UART7_FORCE_RESET();
+            __HAL_RCC_UART7_RELEASE_RESET();
             __UART7_CLK_ENABLE();
             obj->index = 6;
             break;
 #endif
 #if defined(UART8_BASE)
         case UART_8:
+            __HAL_RCC_UART8_FORCE_RESET();
+            __HAL_RCC_UART8_RELEASE_RESET();
             __UART8_CLK_ENABLE();
             obj->index = 7;
             break;
