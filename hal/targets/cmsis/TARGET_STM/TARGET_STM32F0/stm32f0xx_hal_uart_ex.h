@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of UART HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -158,7 +158,7 @@ typedef struct
 #define UART_FLAG_WUF                       ((uint32_t)0x00100000)
 #endif /* !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6)  && !defined(STM32F070xB)  && !defined(STM32F030xC) */ 
 #define UART_FLAG_RWU                       ((uint32_t)0x00080000)
-#define UART_FLAG_SBKF                      ((uint32_t)0x00040000
+#define UART_FLAG_SBKF                      ((uint32_t)0x00040000)
 #define UART_FLAG_CMF                       ((uint32_t)0x00020000)
 #define UART_FLAG_BUSY                      ((uint32_t)0x00010000)
 #define UART_FLAG_ABRF                      ((uint32_t)0x00008000)  

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of I2C HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,18 +50,18 @@
   * @{
   */
 
-/** @addtogroup I2CEx I2CEx
+/** @addtogroup I2CEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup I2CEx_Exported_Constants I2CEx Exported Constants
+/** @defgroup I2CEx_Exported_Constants I2C Extended Exported Constants
   * @{
   */
 
-/** @defgroup I2CEx_Analog_Filter I2CEx Analog Filter
+/** @defgroup I2CEx_Analog_Filter I2C Extended Analog Filter
   * @{
   */
 #define I2C_ANALOGFILTER_ENABLE         ((uint32_t)0x00000000)
@@ -120,7 +120,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup I2CEx_Exported_Functions
+/** @addtogroup I2CEx_Exported_Functions I2C Extended Exported Functions
   * @{
   */
 

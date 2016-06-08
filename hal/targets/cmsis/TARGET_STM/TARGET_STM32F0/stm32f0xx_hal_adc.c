@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -227,7 +227,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -478,13 +478,27 @@ HAL_StatusTypeDef HAL_ADC_Init(ADC_HandleTypeDef* hadc)
                  ADC_CFGR1_DMACONTREQ(hadc->Init.DMAContinuousRequests)  );
     
     /* Enable discontinuous mode only if continuous mode is disabled */
-    if ((hadc->Init.DiscontinuousConvMode == ENABLE) &&
-        (hadc->Init.ContinuousConvMode == DISABLE)     )
+    if (hadc->Init.DiscontinuousConvMode == ENABLE)
     {
-      /* Enable discontinuous mode of regular group */ 
-      tmpCFGR1 |= ADC_CFGR1_DISCEN;
+      if (hadc->Init.ContinuousConvMode == DISABLE)
+      {
+        /* Enable the selected ADC group regular discontinuous mode */
+        tmpCFGR1 |= ADC_CFGR1_DISCEN;
+      }
+      else
+      {
+        /* ADC regular group discontinuous was intended to be enabled,        */
+        /* but ADC regular group modes continuous and sequencer discontinuous */
+        /* cannot be enabled simultaneously.                                  */
+        
+        /* Update ADC state machine to error */
+        SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
+        
+        /* Set ADC error code to ADC IP internal error */
+        SET_BIT(hadc->ErrorCode, HAL_ADC_ERROR_INTERNAL);
+      }
     }
-      
+    
     /* Enable external trigger if trigger selection is different of software  */
     /* start.                                                                 */
     /* Note: This configuration keeps the hardware feature of parameter       */
@@ -688,6 +702,9 @@ HAL_StatusTypeDef HAL_ADC_DeInit(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_ADC_MspInit must be implemented in the user file.
    */ 
@@ -700,6 +717,9 @@ __weak void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_ADC_MspDeInit must be implemented in the user file.
    */ 
@@ -979,7 +999,7 @@ HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Ti
 HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventType, uint32_t Timeout)
 {
   uint32_t tickstart=0; 
-
+  
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
   assert_param(IS_ADC_EVENT_TYPE(EventType));
@@ -1001,7 +1021,7 @@ HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventTy
         /* Process unlocked */
         __HAL_UNLOCK(hadc);
         
-        return HAL_ERROR;
+        return HAL_TIMEOUT;
       }
     }
   }
@@ -1340,12 +1360,22 @@ HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc)
 
 /**
   * @brief  Get ADC regular group conversion result.
-  * @note   Reading DR register automatically clears EOC (end of conversion of
-  *         regular group) flag.
-  *         Additionally, this functions clears EOS (end of sequence of
-  *         regular group) flag, in case of the end of the sequence is reached.
+  * @note   Reading register DR automatically clears ADC flag EOC
+  *         (ADC group regular end of unitary conversion).
+  * @note   This function does not clear ADC flag EOS 
+  *         (ADC group regular end of sequence conversion).
+  *         Occurrence of flag EOS rising:
+  *          - If sequencer is composed of 1 rank, flag EOS is equivalent
+  *            to flag EOC.
+  *          - If sequencer is composed of several ranks, during the scan
+  *            sequence flag EOC only is raised, at the end of the scan sequence
+  *            both flags EOC and EOS are raised.
+  *         To clear this flag, either use function: 
+  *         in programming model IT: @ref HAL_ADC_IRQHandler(), in programming
+  *         model polling: @ref HAL_ADC_PollForConversion() 
+  *         or @ref __HAL_ADC_CLEAR_FLAG(&hadc, ADC_FLAG_EOS).
   * @param  hadc: ADC handle
-  * @retval Converted value
+  * @retval ADC group regular conversion data
   */
 uint32_t HAL_ADC_GetValue(ADC_HandleTypeDef* hadc)
 {
@@ -1354,9 +1384,6 @@ uint32_t HAL_ADC_GetValue(ADC_HandleTypeDef* hadc)
 
   /* Note: EOC flag is not cleared here by software because automatically     */
   /*       cleared by hardware when reading register DR.                      */
-  
-  /* Clear regular group end of sequence flag */
-  __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_EOS);
   
   /* Return ADC converted value */ 
   return hadc->Instance->DR;
@@ -1485,6 +1512,9 @@ void HAL_ADC_IRQHandler(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_ADC_ConvCpltCallback must be implemented in the user file.
    */
@@ -1497,6 +1527,9 @@ __weak void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_ADC_ConvHalfCpltCallback must be implemented in the user file.
   */
@@ -1509,6 +1542,9 @@ __weak void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_ADC_LevelOoutOfWindowCallback must be implemented in the user file.
   */
@@ -1522,6 +1558,9 @@ __weak void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc)
   */
 __weak void HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_ADC_ErrorCallback must be implemented in the user file.
   */
@@ -1817,7 +1856,12 @@ HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDG
   */
 
 /**
-  * @brief  return the ADC state
+  * @brief  Return the ADC state
+  * @note   ADC state machine is managed by bitfields, ADC status must be 
+  *         compared with states bits.
+  *         For example:                                                         
+  *           " if (HAL_IS_BIT_SET(HAL_ADC_GetState(hadc1), HAL_ADC_STATE_REG_BUSY)) "
+  *           " if (HAL_IS_BIT_SET(HAL_ADC_GetState(hadc1), HAL_ADC_STATE_AWD1)    ) "
   * @param  hadc: ADC handle
   * @retval HAL state
   */

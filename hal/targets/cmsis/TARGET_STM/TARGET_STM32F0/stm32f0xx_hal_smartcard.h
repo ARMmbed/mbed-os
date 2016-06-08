@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smartcard.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of SMARTCARD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -245,7 +245,11 @@ typedef struct
 /** @defgroup SMARTCARD_Word_Length SMARTCARD Word Length
   * @{
   */
+#if defined (USART_CR1_M0)
 #define SMARTCARD_WORDLENGTH_9B             ((uint32_t)USART_CR1_M0)     /*!< SMARTCARD frame length */
+#else
+#define SMARTCARD_WORDLENGTH_9B             ((uint32_t)USART_CR1_M)      /*!< SMARTCARD frame length */
+#endif
 /**
   * @}
   */
@@ -762,7 +766,7 @@ typedef struct
   * @param  __BAUDRATE__: Baud rate set by the configuration function.
   * @retval Test result (TRUE or FALSE)
   */
-#define IS_SMARTCARD_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 4500001)
+#define IS_SMARTCARD_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 3000001)
 
 /** @brief  Check the block length range.
   * @note   The maximum SMARTCARD block length is 0xFF.

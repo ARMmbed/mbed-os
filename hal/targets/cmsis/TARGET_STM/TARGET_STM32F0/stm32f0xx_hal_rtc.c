@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) peripheral:
@@ -57,7 +57,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -344,6 +344,9 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTC_MspInit could be implemented in the user file
    */ 
@@ -356,6 +359,9 @@ __weak void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
   */
 __weak void HAL_RTC_MspDeInit(RTC_HandleTypeDef* hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTC_MspDeInit could be implemented in the user file
    */ 
@@ -506,11 +512,18 @@ HAL_StatusTypeDef HAL_RTC_SetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
 /**
   * @brief  Get RTC current time.
   * @param  hrtc: RTC handle
-  * @param  sTime: Pointer to Time structure
+  * @param  sTime: Pointer to Time structure with Hours, Minutes and Seconds fields returned 
+  *                with input format (BIN or BCD), also SubSeconds field returning the
+  *                RTC_SSR register content and SecondFraction field the Synchronous pre-scaler
+  *                factor to be used for second fraction ratio computation.
   * @param  Format: Specifies the format of the entered parameters.
   *          This parameter can be one of the following values:
   *            @arg RTC_FORMAT_BIN: Binary data format 
   *            @arg RTC_FORMAT_BCD: BCD data format
+  * @note  You can use SubSeconds and SecondFraction (sTime structure fields returned) to convert SubSeconds
+  *        value in second fraction ratio with time unit following generic formula:
+  *        Second fraction ratio * time_unit= [(SecondFraction-SubSeconds)/(SecondFraction+1)] * time_unit
+  *        This conversion can be performed only if no shift operation is pending (ie. SHFP=0) when PREDIV_S >= SS
   * @note You must call HAL_RTC_GetDate() after HAL_RTC_GetTime() to unlock the values 
   * in the higher-order calendar shadow registers to ensure consistency between the time and date values.
   * Reading RTC current time locks the values in calendar shadow registers until Current date is read
@@ -524,9 +537,12 @@ HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTim
   /* Check the parameters */
   assert_param(IS_RTC_FORMAT(Format));
   
-  /* Get subseconds values from the correspondent registers*/
+  /* Get subseconds structure field from the corresponding register*/
   sTime->SubSeconds = (uint32_t)(hrtc->Instance->SSR);
 
+  /* Get SecondFraction structure field from the corresponding register field*/
+  sTime->SecondFraction = (uint32_t)(hrtc->Instance->PRER & RTC_PRER_PREDIV_S);
+  
   /* Get the TR register */
   tmpreg = (uint32_t)(hrtc->Instance->TR & RTC_TR_RESERVED_MASK); 
   
@@ -1121,10 +1137,11 @@ HAL_StatusTypeDef HAL_RTC_GetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sA
   */
 void HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef* hrtc)
 {  
-  if(__HAL_RTC_ALARM_GET_IT(hrtc, RTC_IT_ALRA))
+  /* Get the AlarmA interrupt source enable status */
+  if(__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRA) != RESET)
   {
-    /* Get the status of the Interrupt */
-    if((uint32_t)(hrtc->Instance->CR & RTC_IT_ALRA) != (uint32_t)RESET)
+    /* Get the pending status of the AlarmA Interrupt */
+    if(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAF) != RESET)
     {
       /* AlarmA callback */
       HAL_RTC_AlarmAEventCallback(hrtc);
@@ -1148,6 +1165,9 @@ void HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef* hrtc)
   */
 __weak void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTC_AlarmAEventCallback could be implemented in the user file
    */
