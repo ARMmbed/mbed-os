@@ -19,6 +19,8 @@
  * This is a mock driver using the flash abstraction layer. It allows for writing tests.
  */
 
+#if DEVICE_STORAGE
+
 #include <string.h>
 
 #include "Driver_Storage.h"
@@ -1034,3 +1036,5 @@ ARM_DRIVER_STORAGE ARM_Driver_Storage_(0) = {
     .GetNextBlock       = nextBlock,
     .GetBlock           = getBlock
 };
+
+#endif /* #if DEVICE_STORAGE */
