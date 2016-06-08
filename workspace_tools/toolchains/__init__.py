@@ -281,6 +281,7 @@ class mbedToolchain:
             # Target and Toolchain symbols
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
+            self.symbols.extend(["FEATURE_%s" % t for t in labels['FEATURE']])
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
             # Config support
@@ -314,6 +315,7 @@ class mbedToolchain:
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
                 'TARGET': self.target.get_labels(),
+                'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
         return self.labels
@@ -364,6 +366,7 @@ class mbedToolchain:
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
+                    (d.startswith('FEATURE_') and d[8:] not in labels['FEATURE']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN'])):
                     dirs.remove(d)
 
