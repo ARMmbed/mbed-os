@@ -125,7 +125,7 @@ class MemapParser(object):
                 if int(test_address_len.group(2), 16) == 0: # size == 0
                     return ["", 0] # no valid entry
                 else:
-                    m_name = 'Misc'
+                    m_name = 'Fill'
                     m_size = int(test_address_len.group(2), 16)
                     return [m_name, m_size]
             else:
