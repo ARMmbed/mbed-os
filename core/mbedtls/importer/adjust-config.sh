@@ -1,5 +1,16 @@
 #!/bin/sh
-
+#
+# This file is part of mbed TLS (https://tls.mbed.org)
+#
+# Copyright (c) 2015-2016, ARM Limited, All Rights Reserved
+#
+# Purpose
+#
+# Comments and uncomments #define lines in the given configuration header file
+# to configure the file for use in mbed OS.
+#
+# Usage: adjust-config.sh [path to config script] [path to config file]
+#
 set -eu
 
 if [ $# -ne 2 ]; then
@@ -71,3 +82,6 @@ conf unset MBEDTLS_SSL_CBC_RECORD_SPLITTING
 conf unset MBEDTLS_SSL_PROTO_TLS1
 conf unset MBEDTLS_SSL_PROTO_TLS1_1
 conf unset MBEDTLS_SSL_TRUNCATED_HMAC
+
+conf unset MBEDTLS_PLATFORM_TIME_TYPE_MACRO
+
