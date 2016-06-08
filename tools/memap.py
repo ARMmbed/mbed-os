@@ -7,6 +7,7 @@
 import sys
 import os
 import re
+import csv
 import json
 import argparse
 from prettytable import PrettyTable
@@ -335,7 +336,7 @@ class MemapParser(object):
                     else:
                         self.object_to_module.update({object_name:module_name})
 
-    def generate_output(self, json_mode, file_output=None):
+    def generate_output(self, export_format, file_output=None):
         """
         Generates summary of memory map data
 
@@ -346,7 +347,7 @@ class MemapParser(object):
 
         try:
             if file_output:
-                file_desc = open(file_output, 'w')
+                file_desc = open(file_output, 'wb')
             else:
                 file_desc = sys.stdout
         except IOError as error:
@@ -361,11 +362,11 @@ class MemapParser(object):
                     misc_flash_mem += self.modules[i][k]
 
         # Create table
-        colums = ['Module']
+        columns = ['Module']
         for i in list(self.print_sections):
-            colums.append(i)
+            columns.append(i)
 
-        table = PrettyTable(colums)
+        table = PrettyTable(columns)
         table.align["Module"] = "l"
 
         subtotal = dict()
@@ -395,7 +396,7 @@ class MemapParser(object):
 
         table.add_row(subtotal_row)
 
-        if json_mode:
+        if export_format == 'json':
             json_obj.append({\
                   'summary':{\
                   'static_ram':(subtotal['.data']+subtotal['.bss']),\
@@ -406,7 +407,37 @@ class MemapParser(object):
 
             file_desc.write(json.dumps(json_obj, indent=4))
             file_desc.write('\n')
-        else:
+
+        elif export_format == 'csv-ci': # CSV format for the CI system
+
+            csv_writer = csv.writer(file_desc, delimiter=',', quoting=csv.QUOTE_NONE)
+
+            csv_module_section = []
+            csv_sizes = []
+            for i in sorted(self.modules):
+                for k in self.print_sections:
+                    csv_module_section += [i+k]
+                    csv_sizes += [self.modules[i][k]]
+
+            csv_module_section += ['static_ram']
+            csv_sizes += [subtotal['.data']+subtotal['.bss']]
+
+            csv_module_section += ['heap']
+            csv_sizes += [subtotal['.heap']]
+
+            csv_module_section += ['stack']
+            csv_sizes += [subtotal['.stack']]
+
+            csv_module_section += ['total_ram']
+            csv_sizes += [subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']]
+
+            csv_module_section += ['total_flash']
+            csv_sizes += [subtotal['.text']+subtotal['.data']+misc_flash_mem]
+
+            csv_writer.writerow(csv_module_section)
+            csv_writer.writerow(csv_sizes)
+
+        else: # default format is 'table'
             file_desc.write(table.get_string())
             file_desc.write('\n')
             file_desc.write("Static RAM memory (data + bss): %s\n" % (str(subtotal['.data']+subtotal['.bss'])))
@@ -448,7 +479,7 @@ class MemapParser(object):
 
 def main():
 
-    version = '0.3.9'
+    version = '0.3.10'
 
     # Parser handling
     parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed OS\nversion %s" % version)
@@ -460,8 +491,8 @@ def main():
 
     parser.add_argument('-o', '--output', help='output file name', required=False)
 
-    parser.add_argument('-j', '--json', dest='json', required=False, action="store_true",\
-                      help='output in JSON formatted list')
+    parser.add_argument('-e', '--export', dest='export', required=False,\
+                        help="export format (examples: 'json', 'csv-ci', 'table': default)")
 
     parser.add_argument('-v', '--version', action='version', version=version)
 
@@ -469,6 +500,7 @@ def main():
     if len(sys.argv) <= 1:
         parser.print_help()
         sys.exit(1)
+
 
     args, remainder = parser.parse_known_args()
 
@@ -481,11 +513,15 @@ def main():
             print "Unknown toolchain for memory statistics %s" %  args.toolchain
             sys.exit(0)
 
+    # default export format is table
+    if not args.export:
+        args.export = 'table'
+
     # Write output in file
     if args.output != None:
-        memap.generate_output(args.json, args.output)
+        memap.generate_output(args.export, args.output)
     else: # Write output in screen
-        memap.generate_output(args.json)
+        memap.generate_output(args.export)
 
     sys.exit(0)
 

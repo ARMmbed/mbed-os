@@ -831,13 +831,16 @@ class mbedToolchain:
             self.info("Unknown toolchain for memory statistics %s" % toolchain)
             return
 
-        # Write output to stdout
-        memap.generate_output(False)
-
-        map_out = splitext(map)[0] + "_map.json"
+        # Write output to stdout in text (pretty table) format
+        memap.generate_output('table')
 
         # Write output to file in JSON format
-        memap.generate_output(True, map_out)
+        map_out = splitext(map)[0] + "_map.json"
+        memap.generate_output('json', map_out)
+ 
+        # Write output to file in CSV format for the CI
+        map_csv = splitext(map)[0] + "_map.csv"
+        memap.generate_output('csv-ci', map_csv)
 
 
 from tools.settings import ARM_BIN
