@@ -8,6 +8,7 @@
 
 #include "mbedtls/sha256.h"
 #include "mbedtls/error.h"
+#include "mbedtls/platform.h"
 #include "mbedtls/ssl_cookie.h"
 #include "mbedtls/entropy_poll.h"
 #include "mbedtls/ssl.h"
