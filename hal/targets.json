@@ -1542,11 +1542,11 @@
     },
     "LINUX": {
         "inherits": ["Target"],
-        "core": "Cortex-M4",
+        "core": "",
         "extra_labels": ["LINUX"],
-        "macros": [],
-        "supported_toolchains": ["GCC_LINUX"],
-        "default_toolchain": "GCC_LINUX",
+        "macros": ["TARGET_LIKE_LINUX"],
+        "supported_toolchains": ["GCC_NATIVE"],
+        "default_toolchain": "GCC_NATIVE",
         "progen": {"target":"linux"},
         "progen_target": "linux"
     }
