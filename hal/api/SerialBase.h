@@ -33,6 +33,8 @@ namespace mbed {
 
 /** A base class for serial port implementations
  * Can't be instantiated directly (use Serial or RawSerial)
+ *
+ * @Note Synchronization level: Set by subclass
  */
 class SerialBase {
 

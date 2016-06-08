@@ -39,6 +39,8 @@ namespace mbed {
  * Most SPI devices will also require Chip Select and Reset signals. These
  * can be controlled using <DigitalOut> pins
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example:
  * @code
  * // Send a byte to a SPI slave, and record the response

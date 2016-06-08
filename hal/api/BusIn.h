@@ -22,6 +22,8 @@
 namespace mbed {
 
 /** A digital input bus, used for reading the state of a collection of pins
+ *
+ * @Note Synchronization level: Thread safe
  */
 class BusIn {
 

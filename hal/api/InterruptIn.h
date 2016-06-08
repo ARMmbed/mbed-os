@@ -29,6 +29,8 @@ namespace mbed {
 
 /** A digital interrupt input, used to call a function on a rising or falling edge
  *
+ * @Note Synchronization level: Interrupt safe
+ *
  * Example:
  * @code
  * // Flash an LED while waiting for events

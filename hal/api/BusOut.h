@@ -30,6 +30,8 @@ public:
      *
      *  @param p<n> DigitalOut pin to connect to bus bit <n> (p5-p30, NC)
      *
+     *  @Note Synchronization level: Thread safe
+     *
      *  @note
      *  It is only required to specify as many pin variables as is required
      *  for the bus; the rest will default to NC (not connected)

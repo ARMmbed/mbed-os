@@ -38,6 +38,8 @@ namespace mbed {
  *
  * No one ever directly tals to/instanciates a FileHandle - it gets
  *  created by FileSystem, and wrapped up by stdio.
+ *
+ * @Note Synchronization level: Set by subclass
  */
 class FileHandle {
 

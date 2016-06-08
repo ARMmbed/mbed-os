@@ -11,6 +11,8 @@ namespace mbed {
 
 /** Use this singleton if you need to chain interrupt handlers.
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example (for LPC1768):
  * @code
  * #include "InterruptManager.h"

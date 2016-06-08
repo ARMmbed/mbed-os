@@ -25,6 +25,8 @@ namespace mbed {
  * sequence using CallChain::call(). Used mostly by the interrupt chaining code,
  * but can be used for other purposes.
  *
+ * @Note Synchronization level: Not protected
+ *
  * Example:
  * @code
  * #include "mbed.h"

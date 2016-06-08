@@ -24,6 +24,8 @@ namespace mbed {
 
 /** An ethernet interface, to use with the ethernet pins.
  *
+ * @Note Synchronization level: Not protected
+ *
  * Example:
  * @code
  * // Read destination and source from every ethernet packet

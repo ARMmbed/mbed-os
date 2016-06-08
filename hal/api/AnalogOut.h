@@ -26,6 +26,8 @@ namespace mbed {
 
 /** An analog output, used for setting the voltage on a pin
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example:
  * @code
  * // Make a sawtooth output

@@ -59,6 +59,8 @@ protected:
  *  mbed Microcontroller. Once created, the standard C file access functions are used to open,
  *  read and write files.
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example:
  * @code
  * #include "mbed.h"

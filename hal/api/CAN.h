@@ -27,6 +27,8 @@
 namespace mbed {
 
 /** CANMessage class
+ *
+ * @Note Synchronization level: Thread safe
  */
 class CANMessage : public CAN_Message {
 

@@ -26,6 +26,8 @@ namespace mbed {
 
 /** An analog input, used for reading the voltage on a pin
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example:
  * @code
  * // Print messages when the AnalogIn is greater than 50%
