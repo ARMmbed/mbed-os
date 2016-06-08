@@ -58,7 +58,7 @@ def cached(func):
 class Target:
     # Cumulative attributes can have values appended to them, so they
     # need to be computed differently than regular attributes
-    __cumulative_attributes = ['extra_labels', 'macros', 'features']
+    __cumulative_attributes = ['extra_labels', 'macros', 'device_has']
 
     # Utility function: traverse a dictionary and change all the strings in the dictionary to
     # ASCII from Unicode. Needed because the original mbed target definitions were written in

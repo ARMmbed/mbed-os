@@ -160,8 +160,8 @@ def add_to_targets(targets, device_file, verbose=False, remove=False) :
         attrs = list(parse_attributes(device_file))
         if attrs :
             for t in target :
-                targets[t]["features"] = sorted(list(set(targets[t].setdefault("features",[]) + attrs)))
-                if verbose : print("[VERBOSE] target {} now features {}".format(t, attrs))
+                targets[t]["device_has"] = sorted(list(set(targets[t].setdefault("device_has",[]) + attrs)))
+                if verbose : print("[VERBOSE] target {} now device_has {}".format(t, attrs))
             if remove is True:
                 remove_attributes(device_file)
 
