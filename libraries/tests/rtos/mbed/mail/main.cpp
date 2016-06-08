@@ -30,6 +30,8 @@ typedef struct {
     #define STACK_SIZE 768
 #elif (defined(TARGET_EFM32GG_STK3700)) && !defined(TOOLCHAIN_ARM_MICRO)
     #define STACK_SIZE 1536
+#elif defined(TARGET_MCU_NRF51822)
+    #define STACK_SIZE 512
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif
