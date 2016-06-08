@@ -35,5 +35,8 @@
 
 /* The uVisor API main header file will use the above definitions. */
 #include "uvisor/api/inc/uvisor-lib.h"
+#include "uvisor-lib/rtx/process_malloc.h"
+#include "uvisor-lib/rtx/rtx_box_index.h"
+#include "uvisor-lib/rtx/secure_allocator.h"
 
 #endif /* __UVISOR_LIB_UVISOR_LIB_H__ */

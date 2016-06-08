@@ -28,6 +28,8 @@ TARGET_PREFIX:=../
 TARGET_SUPPORTED:=$(TARGET_PREFIX)targets/TARGET_UVISOR_SUPPORTED
 TARGET_UNSUPPORTED:=$(TARGET_PREFIX)targets/TARGET_UVISOR_UNSUPPORTED
 TARGET_INC:=$(TARGET_PREFIX)includes/uvisor/api
+TARGET_LIB_SRC:=$(TARGET_PREFIX)source
+TARGET_LIB_INC:=$(TARGET_PREFIX)includes/uvisor-lib
 
 # uVisor source directory - hidden from mbed via TARGET_IGNORE
 UVISOR_GIT_URL:=https://github.com/ARMmbed/uvisor
@@ -60,10 +62,17 @@ rsync:
 	rm -rf $(TARGET_INC)
 	mkdir -p $(TARGET_INC)
 	rsync -a --delete $(UVISOR_API)/inc $(TARGET_INC)
+	rsync -a --delete $(UVISOR_API)/rtx/inc/ $(TARGET_LIB_INC)/rtx
 	#
 	# Copying uVisor unsupported sources to unsupported target source...
 	mkdir -p $(TARGET_UNSUPPORTED)
 	cp $(UVISOR_API)/src/unsupported.c $(TARGET_UNSUPPORTED)/
+	#
+	# Copying uVisor shared sources to mbed source...
+	rm -rf $(TARGET_LIB_SRC)
+	mkdir -p $(TARGET_LIB_SRC)
+	cp $(UVISOR_DIR)/core/system/src/page_allocator.c $(TARGET_LIB_SRC)/page_allocator.c_inc
+	rsync -a --delete $(UVISOR_API)/rtx/src/ $(TARGET_LIB_SRC)/rtx
 	#
 	# Copying licenses
 	cp $(UVISOR_DIR)/LICENSE* $(TARGET_SUPPORTED)
