@@ -21,8 +21,7 @@
 #include "utest.h"
 #include "unity.h"
 #include "utest/stack_trace.h"
-
-#include <stdio.h>
+#include "utest/utest_serial.h"
 
 using namespace utest::v1;
 
@@ -51,15 +50,15 @@ void utest_dump_trace()
 {
     unsigned current = (trace_index == 0) ? UTEST_MAX_BACKTRACE - 1 : trace_index - 1;
 
-    printf("==================================================================\n");
-    printf("Utest back trace: Total calls logged = %u.\n", total_calls);
-    printf("==================================================================\n");
+    utest_printf("==================================================================\n");
+    utest_printf("Utest back trace: Total calls logged = %u.\n", total_calls);
+    utest_printf("==================================================================\n");
     while (current != trace_index) {
     
-        printf("%u > %s\n", current, utest_trace[current].c_str());
+        utest_printf("%u > %s\n", current, utest_trace[current].c_str());
         current = (current == 0) ? UTEST_MAX_BACKTRACE - 1 : current - 1;
     }
-    printf("==================================================================\n");
+    utest_printf("==================================================================\n");
 }
 
 #endif

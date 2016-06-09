@@ -18,6 +18,7 @@
 
 #include "utest/harness.h"
 #include "utest/stack_trace.h"
+#include "utest/utest_serial.h"
 
 #include <stdlib.h>
 
@@ -205,7 +206,6 @@ void Harness::schedule_next_case()
         location = LOCATION_CASE_TEARDOWN;
 
         if (handlers.case_teardown) {
-            // printf("Schedule next case: case_passed = %d, case_failed = %d\n", case_passed, case_failed);    
             utest::v1::status_t status = handlers.case_teardown(case_current, case_passed, case_failed,
                                                      case_failed ? failure_t(REASON_CASES, LOCATION_UNKNOWN) : failure_t(REASON_NONE));
             if (status < STATUS_CONTINUE)          raise_failure(REASON_CASE_TEARDOWN);
@@ -254,10 +254,8 @@ void Harness::validate_callback(const control_t control)
     UTEST_ENTER_CRITICAL_SECTION;
     case_validation_count++;
 
-    // printf("validate_callback: case_validation_count = %d\n", case_validation_count);    
     if (case_timeout_handle != NULL || case_control.timeout == TIMEOUT_FOREVER)
     {
-        // printf("Cancelling scheduled callback\n");        
         scheduler.cancel(case_timeout_handle);
         case_timeout_handle = NULL;
         control_t merged_control = case_control + control;
@@ -272,10 +270,12 @@ bool Harness::is_busy()
 {
     UTEST_LOG_FUNCTION();
     UTEST_ENTER_CRITICAL_SECTION;
-    if (!test_cases)   return false;
-    if (!case_current) return false;
-
-    bool res = (case_current < (test_cases + test_length));
+    bool res = false;
+    
+    if (test_cases && case_current) {    
+        res = (case_current < (test_cases + test_length));
+    }
+    
     UTEST_LEAVE_CRITICAL_SECTION;
     return res;
 }

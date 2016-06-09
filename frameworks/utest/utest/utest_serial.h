@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2015, ARM Limited, All Rights Reserved
+ * Copyright (c) 2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,13 +16,13 @@
  ****************************************************************************
  */
 
-#ifndef UTEST_H
-#define UTEST_H
+#ifndef UTEST_SERIAL_H
+#define UTEST_SERIAL_H
 
-#include "types.h"
-#include "case.h"
-#include "default_handlers.h"
-#include "harness.h"
-#include "utest/utest_serial.h"
+#include "mbed.h"
 
-#endif // UTEST_H
+extern RawSerial utest_serial;
+
+#define utest_printf(...) utest_serial.printf(__VA_ARGS__)
+
+#endif // UTEST_SERIAL_H

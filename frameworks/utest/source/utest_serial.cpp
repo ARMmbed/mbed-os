@@ -16,13 +16,13 @@
  ****************************************************************************
  */
 
-#ifndef UTEST_H
-#define UTEST_H
-
-#include "types.h"
-#include "case.h"
-#include "default_handlers.h"
-#include "harness.h"
 #include "utest/utest_serial.h"
 
-#endif // UTEST_H
+RawSerial utest_serial(USBTX, USBRX);
+
+void utest_safe_putc(int chr)
+{
+    utest_serial.putc(chr);
+}    
+
+
