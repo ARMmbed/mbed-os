@@ -20,20 +20,15 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <inttypes.h>
-
 #ifdef TARGET_LIKE_FRDM_K64F_GCC
-#include <mbed-drivers/mbed.h>
+#include "mbed-drivers/mbed.h"
 #endif
 
 #include "cfstore_config.h"
-#include <Driver_Common.h>
+#include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include <configuration-store/configuration_store.h>
+#include "configuration-store/configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -41,6 +36,11 @@
 #include "uvisor-lib/uvisor-lib.h"
 #include "cfstore_uvisor.h"
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
 
 using namespace utest::v1;
 
@@ -78,20 +78,15 @@ int main()
 #else
 
 
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-
 #ifdef TARGET_LIKE_FRDM_K64F_GCC
-#include <mbed-drivers/mbed.h>
+#include "mbed-drivers/mbed.h"
 #endif
 
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
-//#include <flash-abstraction/Driver_Common.h>
-#include <Driver_Common.h>
-#include <configuration-store/configuration_store.h>
+#include "Driver_Common.h"
+#include "configuration-store/configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -99,6 +94,10 @@ int main()
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
+
+#include <stdio.h>
+#include <string.h>
+#include <inttypes.h>
 
 using namespace utest::v1;
 

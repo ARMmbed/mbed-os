@@ -20,9 +20,9 @@
 #ifndef __CFSTORE_UTEST_H
 #define __CFSTORE_UTEST_H
 
-#include <inttypes.h>
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
+#include <inttypes.h>
 
 using namespace utest::v1;
 

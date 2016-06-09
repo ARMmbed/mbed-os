@@ -46,11 +46,21 @@ static char sccsid[] = "@(#)fnmatch.c	8.2 (Berkeley) 4/16/94";
  * Compares a filename or pathname to a pattern.
  */
 
+#include "cfstore_fnmatch.h"
 #include <ctype.h>
-#include <cfstore_fnmatch.h>
 #include <string.h>
 #include <stdio.h>
 #include <limits.h>
+
+/* code copied from the original fnmatch.h */
+
+#define	FNM_NOESCAPE	0x01	/* Disable backslash escaping. */
+#define	FNM_PATHNAME	0x02	/* Slash must be matched by slash. */
+#define	FNM_PERIOD	0x04	/* Period must be matched by period. */
+
+#define	FNM_LEADING_DIR	0x08	/* Ignore /<tail> after Imatch. */
+#define	FNM_CASEFOLD	0x10	/* Case insensitive search. */
+
 
 #define	EOS	'\0'
 
@@ -161,16 +171,16 @@ fnmatch(pattern, string, flags)
 		case EOS:
 			if ((flags & FNM_LEADING_DIR) && *string == '/')
 				return (0);
-			return (*string == EOS ? 0 : FNM_NOMATCH);
+			return (*string == EOS ? 0 : CFSTORE_FNM_NOMATCH);
 		case '?':
 			if (*string == EOS)
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 			if (*string == '/' && (flags & FNM_PATHNAME))
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 			if (*string == '.' && (flags & FNM_PERIOD) &&
 			    (string == stringstart ||
 			    ((flags & FNM_PATHNAME) && *(string - 1) == '/')))
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 			++string;
 			break;
 		case '*':
@@ -182,19 +192,19 @@ fnmatch(pattern, string, flags)
 			if (*string == '.' && (flags & FNM_PERIOD) &&
 			    (string == stringstart ||
 			    ((flags & FNM_PATHNAME) && *(string - 1) == '/')))
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 
 			/* Optimize for pattern with * at end or before /. */
 			if (c == EOS)
 				if (flags & FNM_PATHNAME)
 					return ((flags & FNM_LEADING_DIR) ||
 					    strchr(string, '/') == NULL ?
-					    0 : FNM_NOMATCH);
+					    0 : CFSTORE_FNM_NOMATCH);
 				else
 					return (0);
 			else if (c == '/' && flags & FNM_PATHNAME) {
 				if ((string = strchr(string, '/')) == NULL)
-					return (FNM_NOMATCH);
+					return (CFSTORE_FNM_NOMATCH);
 				break;
 			}
 
@@ -206,16 +216,16 @@ fnmatch(pattern, string, flags)
 					break;
 				++string;
 			}
-			return (FNM_NOMATCH);
+			return (CFSTORE_FNM_NOMATCH);
 		case '[':
 			if (*string == EOS)
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 			if (*string == '/' && (flags & FNM_PATHNAME))
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 			if (*string == '.' && (flags & FNM_PERIOD) &&
 			    (string == stringstart ||
 			    ((flags & FNM_PATHNAME) && *(string - 1) == '/')))
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 
 			switch (rangematch(pattern, *string, flags, &newp)) {
 			case RANGE_ERROR:
@@ -224,7 +234,7 @@ fnmatch(pattern, string, flags)
 				pattern = newp;
 				break;
 			case RANGE_NOMATCH:
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 			}
 			++string;
 			break;
@@ -245,7 +255,7 @@ fnmatch(pattern, string, flags)
 				  tolower((unsigned char)*string)))
 				;
 			else
-				return (FNM_NOMATCH);
+				return (CFSTORE_FNM_NOMATCH);
 			string++;
 			break;
 		}
