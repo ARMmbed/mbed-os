@@ -94,6 +94,11 @@ static void set_mac_address(void)
 /* Interface implementation */
 int LWIPInterface::connect()
 {
+    // Check if we've already connected
+    if (get_ip_address()) {
+        return 0;
+    }
+
     // Set up network
     set_mac_address();
     init_netif(0, 0, 0);
@@ -118,18 +123,20 @@ int LWIPInterface::disconnect()
     dhcp_stop(&netif);
 
     eth_arch_disable_interrupts();
+    ip_addr[0] = '\0';
+    mac_addr[0] = '\0';
 
     return 0;
 }
 
 const char *LWIPInterface::get_ip_address()
 {
-    return ip_addr;
+    return ip_addr[0] ? ip_addr : 0;
 }
 
 const char *LWIPInterface::get_mac_address()
 {
-    return mac_addr;
+    return mac_addr[0] ? mac_addr : 0;
 }
 
 struct lwip_socket {
