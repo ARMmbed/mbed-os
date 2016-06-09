@@ -192,7 +192,7 @@ if __name__ == '__main__':
     if options.usb_host:
         libraries.append("usb_host")
     if options.dsp:
-        libraries.extend(["cmsis_dsp", "dsp"])
+        libraries.extend(["dsp"])
     if options.fat:
         libraries.extend(["fat"])
     if options.ublox:

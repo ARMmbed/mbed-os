@@ -61,7 +61,8 @@ class IAR(mbedToolchain):
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
-         if target.core == "Cortex-M7F":
+        
+        if target.core == "Cortex-M7F":
             self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice] + ["--fpu", "VFPv5_sp"]
         else:
             self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
