@@ -17,15 +17,15 @@
  *
  * test support code implementation file.
  */
+#include "cfstore_config.h"
+#include "cfstore_debug.h"
+#include "cfstore_test.h"
+#include <configuration_store.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <inttypes.h>
-#include "cfstore_config.h"
-#include "cfstore_debug.h"
-#include "cfstore_test.h"
-#include <configuration-store/configuration_store.h>
 
 
 /* ruler for measuring text strings */

@@ -16,11 +16,6 @@
  * limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <inttypes.h>
 #include <cfstore_fnmatch.h>
 
 #if defined CFSTORE_CONFIG_MBED_OS_VERSION && CFSTORE_CONFIG_MBED_OS_VERSION == 3
@@ -35,9 +30,16 @@
 #include <flash-journal/flash_journal.h>
 #include <Driver_Common.h>
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
-#include <configuration-store/configuration_store.h>
+
 #include "cfstore_debug.h"
 #include "cfstore_list.h"
+#include "configuration-store/configuration_store.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <inttypes.h>
 
 
 #ifdef CFSTORE_DEBUG
@@ -2974,11 +2976,11 @@ static int32_t cfstore_find_ex(const char* key_name_query, cfstore_area_hkvt_t *
             CFSTORE_TP(CFSTORE_TP_FIND, "%s:Found matching key (key_name_query = \"%s\", next->key = \"%s\"),next_key_len=%d\n", __func__, key_name_query, key_name, (int) next_key_len);
             cfstore_hkvt_dump(next, __func__);
             return ARM_DRIVER_OK;
-        } else if(ret != FNM_NOMATCH){
+        } else if(ret != CFSTORE_FNM_NOMATCH){
             CFSTORE_ERRLOG("%s:Error: fnmatch() error (ret=%" PRId32 ").\n", __func__, ret);
             return ARM_DRIVER_ERROR;
         }
-        /* FNM_NOMATCH => get the next hkvt if any */
+        /* CFSTORE_FNM_NOMATCH => get the next hkvt if any */
         ret = cfstore_get_next_hkvt(next, next);
         if(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND) {
             CFSTORE_TP(CFSTORE_TP_FIND, "%s:No more KVs found\n", __func__);

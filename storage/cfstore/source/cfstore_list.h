@@ -18,6 +18,8 @@
 #ifndef _CFSTORE_LIST_H_
 #define _CFSTORE_LIST_H_
 
+#include <stddef.h>
+
 /*
  * Doubly linked list implementation based on the following design
  * and psuedo-code:
