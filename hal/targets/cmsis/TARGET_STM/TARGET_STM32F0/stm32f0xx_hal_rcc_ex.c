@@ -2,61 +2,14 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
-  * @brief   Extended RCC HAL module driver
+  * @version V1.4.0
+  * @date    27-May-2016
+  * @brief   Extended RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
   *           + Extended Peripheral Control functions
-  *  
-  @verbatim
-  ==============================================================================
-                      ##### How to use this driver #####
-  ==============================================================================
-    [..]
-      For CRS, RCC Extention HAL driver can be used as follows:
-
-      (#) In System clock config, HSI48 need to be enabled
-
-      (#] Enable CRS clock in IP MSP init which will use CRS functions
-
-      (#) Call CRS functions like this
-          (##) Prepare synchronization configuration necessary for HSI48 calibration
-              (+++) Default values can be set for frequency Error Measurement (reload and error limit)
-                        and also HSI48 oscillator smooth trimming.
-              (+++) Macro @ref __HAL_RCC_CRS_RELOADVALUE_CALCULATE can be also used to calculate 
-                        directly reload value with target and synchronization frequencies values
-          (##) Call function @ref HAL_RCCEx_CRSConfig which
-              (+++) Reset CRS registers to their default values.
-              (+++) Configure CRS registers with synchronization configuration 
-              (+++) Enable automatic calibration and frequency error counter feature
-
-          (##) A polling function is provided to wait for complete Synchronization
-              (+++) Call function @ref HAL_RCCEx_CRSWaitSynchronization()
-              (+++) According to CRS status, user can decide to adjust again the calibration or continue
-                        application if synchronization is OK
-              
-      (#) User can retrieve information related to synchronization in calling function
-            @ref HAL_RCCEx_CRSGetSynchronizationInfo()
-
-      (#) Regarding synchronization status and synchronization information, user can try a new calibration
-           in changing synchronization configuration and call again HAL_RCCEx_CRSConfig.
-           Note: When the SYNC event is detected during the downcounting phase (before reaching the zero value), 
-           it means that the actual frequency is lower than the target (and so, that the TRIM value should be 
-           incremented), while when it is detected during the upcounting phase it means that the actual frequency 
-           is higher (and that the TRIM value should be decremented).
-
-      (#) To use IT mode, user needs to handle it in calling different macros available to do it
-            (__HAL_RCC_CRS_XXX_IT). Interuptions will go through RCC Handler (RCC_IRQn/RCC_CRS_IRQHandler)
-              (++) Call function @ref HAL_RCCEx_CRSConfig()
-              (++) Enable RCC_IRQn (thnaks to NVIC functions)
-              (++) Enable CRS IT (@ref __HAL_RCC_CRS_ENABLE_IT)
-              (++) Implement CRS status management in @ref RCC_CRS_IRQHandler
-
-      (#) To force a SYNC EVENT, user can use function @ref HAL_RCCEx_CRSSoftwareSynchronizationGenerate(). Function can be 
-            called before calling @ref HAL_RCCEx_CRSConfig (for instance in Systick handler)
-            
-  @endverbatim
+  *           + Extended Clock Recovery System Control functions
+  *
   ******************************************************************************
   * @attention
   *
@@ -135,7 +88,7 @@
 /** @defgroup RCCEx_Exported_Functions_Group1 Extended Peripheral Control functions 
   * @brief    Extended Peripheral Control functions
  *
-@verbatim   
+@verbatim
  ===============================================================================
                 ##### Extended Peripheral Control functions  #####
  ===============================================================================  
@@ -146,7 +99,7 @@
     (@) Important note: Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to
         select the RTC clock source; in this case the Backup domain will be reset in  
         order to modify the RTC Clock source, as consequence RTC registers (including 
-        the backup registers) and RCC_BDCR register are set to their reset values.
+        the backup registers) are set to their reset values.
       
 @endverbatim
   * @{
@@ -180,25 +133,37 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     /* check for RTC Parameters used to output RTCCLK */
     assert_param(IS_RCC_RTCCLKSOURCE(PeriphClkInit->RTCClockSelection));
     
-    /* Enable Power Clock*/
-    __HAL_RCC_PWR_CLK_ENABLE();
-    
-    /* Enable write access to Backup domain */
-    SET_BIT(PWR->CR, PWR_CR_DBP);
-    
-    /* Wait for Backup domain Write protection disable */
-    tickstart = HAL_GetTick();
-    
-    while((PWR->CR & PWR_CR_DBP) == RESET)
+    FlagStatus       pwrclkchanged = RESET;
+
+    /* As soon as function is called to change RTC clock source, activation of the 
+       power domain is done. */
+    /* Requires to enable write access to Backup Domain of necessary */
+    if(__HAL_RCC_PWR_IS_CLK_DISABLED())
     {
-      if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
+    __HAL_RCC_PWR_CLK_ENABLE();
+      pwrclkchanged = SET;
+    }
+    
+    if(HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))
+    {
+      /* Enable write access to Backup domain */
+      SET_BIT(PWR->CR, PWR_CR_DBP);
+      
+      /* Wait for Backup domain Write protection disable */
+      tickstart = HAL_GetTick();
+      
+      while(HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))
       {
-        return HAL_TIMEOUT;
+        if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
+        {
+          return HAL_TIMEOUT;
+        }
       }
     }
     
-    /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
-    if((RCC->BDCR & RCC_BDCR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL))
+    /* Reset the Backup domain only if the RTC Clock source selection is modified from reset value */ 
+    temp_reg = (RCC->BDCR & RCC_BDCR_RTCSEL);
+    if((temp_reg != 0x00000000U) && (temp_reg != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL)))
     {
       /* Store the content of BDCR register before the reset of Backup Domain */
       temp_reg = (RCC->BDCR & ~(RCC_BDCR_RTCSEL));
@@ -209,7 +174,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       RCC->BDCR = temp_reg;
       
       /* Wait for LSERDY if LSE was enabled */
-      if (HAL_IS_BIT_SET(temp_reg, RCC_BDCR_LSERDY))
+      if (HAL_IS_BIT_SET(temp_reg, RCC_BDCR_LSEON))
       {
         /* Get Start Tick */
         tickstart = HAL_GetTick();
@@ -223,10 +188,16 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
           }
         }
       }
-      __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
+    }
+    __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
+
+    /* Require to disable power clock if necessary */
+    if(pwrclkchanged == SET)
+    {
+      __HAL_RCC_PWR_CLK_DISABLE();
     }
   }
-  
+
   /*------------------------------- USART1 Configuration ------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_USART1) == RCC_PERIPHCLK_USART1)
   {
@@ -661,14 +632,85 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   return(frequency);
 }
 
-#if defined(CRS)
 /**
-  * @brief  Start automatic synchronization using polling mode
+  * @}
+  */
+
+#if defined(CRS)
+
+/** @defgroup RCCEx_Exported_Functions_Group3 Extended Clock Recovery System Control functions 
+ *  @brief  Extended Clock Recovery System Control functions
+ *
+@verbatim
+ ===============================================================================
+                ##### Extended Clock Recovery System Control functions  #####
+ ===============================================================================
+    [..]
+      For devices with Clock Recovery System feature (CRS), RCC Extention HAL driver can be used as follows:
+
+      (#) In System clock config, HSI48 needs to be enabled
+
+      (#) Enable CRS clock in IP MSP init which will use CRS functions
+
+      (#) Call CRS functions as follows:
+          (##) Prepare synchronization configuration necessary for HSI48 calibration
+              (+++) Default values can be set for frequency Error Measurement (reload and error limit)
+                        and also HSI48 oscillator smooth trimming.
+              (+++) Macro @ref __HAL_RCC_CRS_RELOADVALUE_CALCULATE can be also used to calculate 
+                        directly reload value with target and synchronization frequencies values
+          (##) Call function @ref HAL_RCCEx_CRSConfig which
+              (+++) Reset CRS registers to their default values.
+              (+++) Configure CRS registers with synchronization configuration 
+              (+++) Enable automatic calibration and frequency error counter feature
+           Note: When using USB LPM (Link Power Management) and the device is in Sleep mode, the
+           periodic USB SOF will not be generated by the host. No SYNC signal will therefore be
+           provided to the CRS to calibrate the HSI48 on the run. To guarantee the required clock
+           precision after waking up from Sleep mode, the LSE or reference clock on the GPIOs
+           should be used as SYNC signal.
+
+          (##) A polling function is provided to wait for complete synchronization
+              (+++) Call function @ref HAL_RCCEx_CRSWaitSynchronization()
+              (+++) According to CRS status, user can decide to adjust again the calibration or continue
+                        application if synchronization is OK
+              
+      (#) User can retrieve information related to synchronization in calling function
+            @ref HAL_RCCEx_CRSGetSynchronizationInfo()
+
+      (#) Regarding synchronization status and synchronization information, user can try a new calibration
+           in changing synchronization configuration and call again HAL_RCCEx_CRSConfig.
+           Note: When the SYNC event is detected during the downcounting phase (before reaching the zero value), 
+           it means that the actual frequency is lower than the target (and so, that the TRIM value should be 
+           incremented), while when it is detected during the upcounting phase it means that the actual frequency 
+           is higher (and that the TRIM value should be decremented).
+
+      (#) In interrupt mode, user can resort to the available macros (__HAL_RCC_CRS_XXX_IT). Interrupts will go 
+          through CRS Handler (RCC_IRQn/RCC_IRQHandler)
+              (++) Call function @ref HAL_RCCEx_CRSConfig()
+              (++) Enable RCC_IRQn (thanks to NVIC functions)
+              (++) Enable CRS interrupt (@ref __HAL_RCC_CRS_ENABLE_IT)
+              (++) Implement CRS status management in the following user callbacks called from 
+                   HAL_RCCEx_CRS_IRQHandler():
+                   (+++) @ref HAL_RCCEx_CRS_SyncOkCallback()
+                   (+++) @ref HAL_RCCEx_CRS_SyncWarnCallback()
+                   (+++) @ref HAL_RCCEx_CRS_ExpectedSyncCallback()
+                   (+++) @ref HAL_RCCEx_CRS_ErrorCallback()
+
+      (#) To force a SYNC EVENT, user can use the function @ref HAL_RCCEx_CRSSoftwareSynchronizationGenerate().
+          This function can be called before calling @ref HAL_RCCEx_CRSConfig (for instance in Systick handler)
+            
+@endverbatim
+ * @{
+ */
+
+/**
+  * @brief  Start automatic synchronization for polling mode
   * @param  pInit Pointer on RCC_CRSInitTypeDef structure
   * @retval None
   */
 void HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit)
 {
+  uint32_t value = 0;
+  
   /* Check the parameters */
   assert_param(IS_RCC_CRS_SYNC_DIV(pInit->Prescaler));
   assert_param(IS_RCC_CRS_SYNC_SOURCE(pInit->Source));
@@ -677,52 +719,30 @@ void HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit)
   assert_param(IS_RCC_CRS_ERRORLIMIT(pInit->ErrorLimitValue));
   assert_param(IS_RCC_CRS_HSI48CALIBRATION(pInit->HSI48CalibrationValue));
 
-
   /* CONFIGURATION */
 
   /* Before configuration, reset CRS registers to their default values*/
   __HAL_RCC_CRS_FORCE_RESET();
   __HAL_RCC_CRS_RELEASE_RESET();
 
-  /* Configure Synchronization input */
-  /* Clear SYNCDIV[2:0], SYNCSRC[1:0] & SYNCSPOL bits */
-  CRS->CFGR &= ~(CRS_CFGR_SYNCDIV | CRS_CFGR_SYNCSRC | CRS_CFGR_SYNCPOL);
-
-  /* Set the CRS_CFGR_SYNCDIV[2:0] bits according to Prescaler value */
-  CRS->CFGR |= pInit->Prescaler;
-
+  /* Set the SYNCDIV[2:0] bits according to Prescaler value */
   /* Set the SYNCSRC[1:0] bits according to Source value */
-  CRS->CFGR |= pInit->Source;
-
-  /* Set the SYNCSPOL bits according to Polarity value */
-  CRS->CFGR |= pInit->Polarity;
-
-  /* Configure Frequency Error Measurement */
-  /* Clear RELOAD[15:0] & FELIM[7:0] bits*/
-  CRS->CFGR &= ~(CRS_CFGR_RELOAD | CRS_CFGR_FELIM);
-
+  /* Set the SYNCSPOL bit according to Polarity value */
+  value = (pInit->Prescaler | pInit->Source | pInit->Polarity);
   /* Set the RELOAD[15:0] bits according to ReloadValue value */
-  CRS->CFGR |= pInit->ReloadValue;
-
+  value |= pInit->ReloadValue;
   /* Set the FELIM[7:0] bits according to ErrorLimitValue value */
-  CRS->CFGR |= (pInit->ErrorLimitValue << CRS_CFGR_FELIM_BITNUMBER);
+  value |= (pInit->ErrorLimitValue << CRS_CFGR_FELIM_BITNUMBER);
+  WRITE_REG(CRS->CFGR, value);
 
   /* Adjust HSI48 oscillator smooth trimming */
-  /* Clear TRIM[5:0] bits */
-  CRS->CR &= ~CRS_CR_TRIM;
-
   /* Set the TRIM[5:0] bits according to RCC_CRS_HSI48CalibrationValue value */
-  CRS->CR |= (pInit->HSI48CalibrationValue << CRS_CR_TRIM_BITNUMBER);
-
-
+  MODIFY_REG(CRS->CR, CRS_CR_TRIM, (pInit->HSI48CalibrationValue << CRS_CR_TRIM_BITNUMBER));
+  
   /* START AUTOMATIC SYNCHRONIZATION*/
   
-  /* Enable Automatic trimming */
-  __HAL_RCC_CRS_AUTOMATIC_CALIB_ENABLE();
-
-  /* Enable Frequency error counter */
-  __HAL_RCC_CRS_FREQ_ERROR_COUNTER_ENABLE();
-
+  /* Enable Automatic trimming & Frequency error counter */
+  SET_BIT(CRS->CR, CRS_CR_AUTOTRIMEN | CRS_CR_CEN);
 }
 
 /**
@@ -731,12 +751,11 @@ void HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit)
   */
 void HAL_RCCEx_CRSSoftwareSynchronizationGenerate(void)
 {
-  CRS->CR |= CRS_CR_SWSYNC;
+  SET_BIT(CRS->CR, CRS_CR_SWSYNC);
 }
 
-
 /**
-  * @brief  Function to return synchronization info 
+  * @brief  Return synchronization info 
   * @param  pSynchroInfo Pointer on RCC_CRSSynchroInfoTypeDef structure
   * @retval None
   */
@@ -746,23 +765,21 @@ void HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo
   assert_param(pSynchroInfo != NULL);
   
   /* Get the reload value */
-  pSynchroInfo->ReloadValue = (uint32_t)(CRS->CFGR & CRS_CFGR_RELOAD);
+  pSynchroInfo->ReloadValue = (uint32_t)(READ_BIT(CRS->CFGR, CRS_CFGR_RELOAD));
   
   /* Get HSI48 oscillator smooth trimming */
-  pSynchroInfo->HSI48CalibrationValue = (uint32_t)((CRS->CR & CRS_CR_TRIM) >> CRS_CR_TRIM_BITNUMBER);
+  pSynchroInfo->HSI48CalibrationValue = (uint32_t)(READ_BIT(CRS->CR, CRS_CR_TRIM) >> CRS_CR_TRIM_BITNUMBER);
 
   /* Get Frequency error capture */
-  pSynchroInfo->FreqErrorCapture = (uint32_t)((CRS->ISR & CRS_ISR_FECAP) >> CRS_ISR_FECAP_BITNUMBER);
+  pSynchroInfo->FreqErrorCapture = (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FECAP) >> CRS_ISR_FECAP_BITNUMBER);
 
-  /* Get FFrequency error direction */
-  pSynchroInfo->FreqErrorDirection = (uint32_t)(CRS->ISR & CRS_ISR_FEDIR);
-  
-  
+  /* Get Frequency error direction */
+  pSynchroInfo->FreqErrorDirection = (uint32_t)(READ_BIT(CRS->ISR, CRS_ISR_FEDIR));
 }
 
 /**
-* @brief This function handles CRS Synchronization Timeout.
-* @param Timeout Duration of the timeout
+* @brief Wait for CRS Synchronization status.
+* @param Timeout  Duration of the timeout
 * @note  Timeout is based on the maximum time to receive a SYNC event based on synchronization
 *        frequency.
 * @note    If Timeout set to HAL_MAX_DELAY, HAL_TIMEOUT will be never returned.
@@ -770,25 +787,25 @@ void HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo
 *          This parameter can be a combination of the following values:
 *            @arg @ref RCC_CRS_TIMEOUT
 *            @arg @ref RCC_CRS_SYNCOK
-*            @arg @ref RCC_CRS_SYNCWARM
+*            @arg @ref RCC_CRS_SYNCWARN
 *            @arg @ref RCC_CRS_SYNCERR
 *            @arg @ref RCC_CRS_SYNCMISS
-*            @arg @ref RCC_CRS_TRIMOV
+*            @arg @ref RCC_CRS_TRIMOVF
 */
 uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
 {
   uint32_t crsstatus = RCC_CRS_NONE;
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Get timeout */
   tickstart = HAL_GetTick();
   
-  /* Check that if one of CRS flags have been set */
-  while(RCC_CRS_NONE == crsstatus)
+  /* Wait for CRS flag or timeout detection */
+  do
   {
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0) || ((HAL_GetTick() - tickstart) > Timeout))
+      if((Timeout == 0U) || ((HAL_GetTick() - tickstart) > Timeout))
       {
         crsstatus = RCC_CRS_TIMEOUT;
       }
@@ -807,7 +824,7 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
     if(__HAL_RCC_CRS_GET_FLAG(RCC_CRS_FLAG_SYNCWARN))
     {
       /* CRS SYNC warning */
-      crsstatus |= RCC_CRS_SYNCWARM;
+      crsstatus |= RCC_CRS_SYNCWARN;
     
       /* Clear CRS SYNCWARN bit */
       __HAL_RCC_CRS_CLEAR_FLAG(RCC_CRS_FLAG_SYNCWARN);
@@ -817,7 +834,7 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
     if(__HAL_RCC_CRS_GET_FLAG(RCC_CRS_FLAG_TRIMOVF))
     {
       /* CRS SYNC Error */
-      crsstatus |= RCC_CRS_TRIMOV;
+      crsstatus |= RCC_CRS_TRIMOVF;
     
       /* Clear CRS Error bit */
       __HAL_RCC_CRS_CLEAR_FLAG(RCC_CRS_FLAG_TRIMOVF);
@@ -849,11 +866,132 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
       /* frequency error counter reached a zero value */
       __HAL_RCC_CRS_CLEAR_FLAG(RCC_CRS_FLAG_ESYNC);
     }
-  }
-  
+  } while(RCC_CRS_NONE == crsstatus);
+
   return crsstatus;
 }
-          
+
+/**
+  * @brief Handle the Clock Recovery System interrupt request.
+  * @retval None
+  */
+void HAL_RCCEx_CRS_IRQHandler(void)
+{
+  uint32_t crserror = RCC_CRS_NONE;
+  /* Get current IT flags and IT sources values */
+  uint32_t itflags = READ_REG(CRS->ISR);
+  uint32_t itsources = READ_REG(CRS->CR);
+
+  /* Check CRS SYNCOK flag  */
+  if(((itflags & RCC_CRS_FLAG_SYNCOK) != RESET) && ((itsources & RCC_CRS_IT_SYNCOK) != RESET))
+  {
+    /* Clear CRS SYNC event OK flag */
+    WRITE_REG(CRS->ICR, CRS_ICR_SYNCOKC);
+
+    /* user callback */
+    HAL_RCCEx_CRS_SyncOkCallback();
+  }
+  /* Check CRS SYNCWARN flag  */
+  else if(((itflags & RCC_CRS_FLAG_SYNCWARN) != RESET) && ((itsources & RCC_CRS_IT_SYNCWARN) != RESET))
+  {
+    /* Clear CRS SYNCWARN flag */
+    WRITE_REG(CRS->ICR, CRS_ICR_SYNCWARNC);
+
+    /* user callback */
+    HAL_RCCEx_CRS_SyncWarnCallback();
+  }
+  /* Check CRS Expected SYNC flag  */
+  else if(((itflags & RCC_CRS_FLAG_ESYNC) != RESET) && ((itsources & RCC_CRS_IT_ESYNC) != RESET))
+  {
+    /* frequency error counter reached a zero value */
+    WRITE_REG(CRS->ICR, CRS_ICR_ESYNCC);
+
+    /* user callback */
+    HAL_RCCEx_CRS_ExpectedSyncCallback();
+  }
+  /* Check CRS Error flags  */
+  else
+  {
+    if(((itflags & RCC_CRS_FLAG_ERR) != RESET) && ((itsources & RCC_CRS_IT_ERR) != RESET))
+    {
+      if((itflags & RCC_CRS_FLAG_SYNCERR) != RESET)
+      {
+        crserror |= RCC_CRS_SYNCERR;
+      }
+      if((itflags & RCC_CRS_FLAG_SYNCMISS) != RESET)
+      {
+        crserror |= RCC_CRS_SYNCMISS;
+      }
+      if((itflags & RCC_CRS_FLAG_TRIMOVF) != RESET)
+      {
+        crserror |= RCC_CRS_TRIMOVF;
+      }
+
+      /* Clear CRS Error flags */
+      WRITE_REG(CRS->ICR, CRS_ICR_ERRC);
+    
+      /* user error callback */
+      HAL_RCCEx_CRS_ErrorCallback(crserror);
+    }
+  }
+}
+
+/**
+  * @brief  RCCEx Clock Recovery System SYNCOK interrupt callback.
+  * @retval none
+  */
+__weak void HAL_RCCEx_CRS_SyncOkCallback(void)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the @ref HAL_RCCEx_CRS_SyncOkCallback should be implemented in the user file
+   */
+}
+
+/**
+  * @brief  RCCEx Clock Recovery System SYNCWARN interrupt callback.
+  * @retval none
+  */
+__weak void HAL_RCCEx_CRS_SyncWarnCallback(void)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the @ref HAL_RCCEx_CRS_SyncWarnCallback should be implemented in the user file
+   */
+}
+
+/**
+  * @brief  RCCEx Clock Recovery System Expected SYNC interrupt callback.
+  * @retval none
+  */
+__weak void HAL_RCCEx_CRS_ExpectedSyncCallback(void)
+{
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the @ref HAL_RCCEx_CRS_ExpectedSyncCallback should be implemented in the user file
+   */
+}
+
+/**
+  * @brief  RCCEx Clock Recovery System Error interrupt callback.
+  * @param  Error Combination of Error status. 
+  *         This parameter can be a combination of the following values:
+  *           @arg @ref RCC_CRS_SYNCERR
+  *           @arg @ref RCC_CRS_SYNCMISS
+  *           @arg @ref RCC_CRS_TRIMOVF
+  * @retval none
+  */
+__weak void HAL_RCCEx_CRS_ErrorCallback(uint32_t Error)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Error);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the @ref HAL_RCCEx_CRS_ErrorCallback should be implemented in the user file
+   */
+}
+
+/**
+  * @}
+  */
+
 #endif /* CRS */
 
 /**

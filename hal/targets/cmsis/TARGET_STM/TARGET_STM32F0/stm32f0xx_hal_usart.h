@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_usart.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of USART HAL module.
   ******************************************************************************
   * @attention
@@ -183,12 +183,18 @@ typedef struct
 /** @defgroup USART_Stop_Bits  USART Number of Stop Bits
   * @{
   */
-#define USART_STOPBITS_1                     ((uint32_t)0x0000)
-#define USART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
-#define USART_STOPBITS_1_5                   ((uint32_t)(USART_CR2_STOP_0 | USART_CR2_STOP_1))
+#ifdef USART_SMARTCARD_SUPPORT
+#define USART_STOPBITS_0_5                 ((uint32_t)USART_CR2_STOP_0)                      /*!< USART frame with 0.5 stop bit  */
+#define USART_STOPBITS_1                   ((uint32_t)0x00000000)                            /*!< USART frame with 1 stop bit    */   
+#define USART_STOPBITS_1_5                 ((uint32_t)(USART_CR2_STOP_0 | USART_CR2_STOP_1)) /*!< USART frame with 1.5 stop bits */ 
+#define USART_STOPBITS_2                   ((uint32_t)USART_CR2_STOP_1)                      /*!< USART frame with 2 stop bits   */ 
+#else
+#define USART_STOPBITS_1                   ((uint32_t)0x00000000)                            /*!< USART frame with 1 stop bit    */   
+#define USART_STOPBITS_2                   ((uint32_t)USART_CR2_STOP_1)                      /*!< USART frame with 2 stop bits   */ 
+#endif
 /**
   * @}
-  */ 
+  */
 
 /** @defgroup USART_Parity    USART Parity
   * @{
@@ -506,10 +512,10 @@ typedef struct
 
 /** @brief  Check USART Baud rate
   * @param  __BAUDRATE__: Baudrate specified by the user.
-  *         The maximum Baud Rate is derived from the maximum clock on F0 (i.e. 48 MHz) 
+  *         The maximum Baud Rate is derived from the maximum clock on F0 (i.e. 48 MHz)
   *         divided by the smallest oversampling used on the USART (i.e. 8)
   * @retval Test result (TRUE or FALSE).
-  */ 
+  */
 #define IS_USART_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 6000001)
 
 /**
@@ -517,9 +523,15 @@ typedef struct
   * @param __STOPBITS__: USART frame number of stop bits. 
   * @retval SET (__STOPBITS__ is valid) or RESET (__STOPBITS__ is invalid)
   */
-#define IS_USART_STOPBITS(__STOPBITS__) (((__STOPBITS__) == USART_STOPBITS_1) || \
+#ifdef USART_SMARTCARD_SUPPORT
+#define IS_USART_STOPBITS(__STOPBITS__) (((__STOPBITS__) == USART_STOPBITS_0_5) || \
+                                         ((__STOPBITS__) == USART_STOPBITS_1)   || \
                                          ((__STOPBITS__) == USART_STOPBITS_1_5) || \
                                          ((__STOPBITS__) == USART_STOPBITS_2))
+#else
+#define IS_USART_STOPBITS(__STOPBITS__) (((__STOPBITS__) == USART_STOPBITS_1)   || \
+                                         ((__STOPBITS__) == USART_STOPBITS_2))
+#endif
 
 /**
   * @brief Ensure that USART frame parity is valid.
@@ -624,7 +636,7 @@ void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart);
 
 /* Peripheral Control functions ***********************************************/
 
-/** @addtogroup USART_Exported_Functions_Group3 Peripheral State and Error functions 
+/** @addtogroup USART_Exported_Functions_Group3 Peripheral State and Error functions
   * @{
   */
 
