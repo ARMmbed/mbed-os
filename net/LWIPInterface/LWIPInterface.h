@@ -139,6 +139,21 @@ protected:
      */
     virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size);
 
+    /*  Set stack-specific socket options
+     *
+     *  The setsockopt allow an application to pass stack-specific hints
+     *  to the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
+     *
+     *  @param handle   Socket handle
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative error code on failure
+     */    
+    virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
+
     /** Register a callback on state change of the socket
      *  @param handle       Socket handle
      *  @param callback     Function to call on state change

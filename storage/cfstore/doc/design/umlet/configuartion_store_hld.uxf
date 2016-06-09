@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="13.2">
+  <zoom_level>8</zoom_level>
+  <element>
+    <id>UMLInterface</id>
+    <coordinates>
+      <x>0</x>
+      <y>872</y>
+      <w>784</w>
+      <h>312</h>
+    </coordinates>
+    <panel_attributes>ARM_DRIVER_CFSTORE
+Config-Store (CS) Interface
+--
+ARM_DRIVER_VERSION (*GetVersion)(void);
+int32_t (*Close)(ARM_CFSTORE_HANDLE hkey);
+int32_t (*Create)(const char* key_name, ARM_CFSTORE_SIZE value_len, const ARM_CFSTORE_KEYDESC* kdesc, ARM_CFSTORE_HANDLE hkey);
+int32_t (*Delete)(ARM_CFSTORE_HANDLE hkey);
+int32_t (*Find)(const char* key_name_query, const ARM_CFSTORE_HANDLE previous, ARM_CFSTORE_HANDLE next);
+int32_t (*Flush)(void);
+int32_t (*GetKeyName)(ARM_CFSTORE_HANDLE hkey, char* key_name, uint8_t *key_len);
+ARM_CFSTORE_CAPABILITIES (*GetCapabilities)(void);
+ARM_CFSTORE_STATUS (*GetStatus)(void);
+int32_t (*GetValueLen)(ARM_CFSTORE_HANDLE hkey, ARM_CFSTORE_SIZE *value_len);
+int32_t (*Initialize)(ARM_CFSTORE_CALLBACK callback, void* client_context);
+int32_t (*PowerControl)(ARM_POWER_STATE state);
+int32_t (*Read)(ARM_CFSTORE_HANDLE hkey, void* data, ARM_CFSTORE_SIZE* len);
+int32_t (*Open)(const char* key_name, ARM_CFSTORE_FMODE flags, ARM_CFSTORE_HANDLE hkey);
+int32_t (*Rseek)(ARM_CFSTORE_HANDLE hkey, ARM_CFSTORE_OFFSET offset);
+int32_t (*Uninitialise)(void);
+int32_t (*Write)(ARM_CFSTORE_HANDLE hkey, const char* data, ARM_CFSTORE_SIZE* len);
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>488</x>
+      <y>1168</y>
+      <w>192</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>ARM_CFSTORE_ACCESS_CONTROL_LIST
+--
+uint32_t perm_owner_read : 1;
+uint32_t perm_owner_write : 1;
+uint32_t perm_owner_execute : 1;
+uint32_t perm_other_read : 1;
+uint32_t perm_other_write : 1;
+uint32_t perm_other_execute : 1;
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>688</x>
+      <y>1168</y>
+      <w>264</w>
+      <h>144</h>
+    </coordinates>
+    <panel_attributes>ARM_STOR_DATA_RETENTION_LEVEL
+--
+/* supported volatility values of different sotrage mediums */
+DATA_RETENTION_WHILE_DEVICE_ACTIVE,
+DATA_RETENTION_ACROSS_SLEEP,
+DATA_RETENTION_ACROSS_DEEP_SLEEP,
+DATA_RETENTION_BATTERY_BACKED,
+DATA_RETENTION_NVM,
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1320</x>
+      <y>1168</y>
+      <w>184</w>
+      <h>136</h>
+    </coordinates>
+    <panel_attributes>ARM_CFSTORE_FMODE
+--
+uint32_t continuous : 1;
+uint32_t lazy_flush : 1;
+uint32_t flush_on_close : 1;
+uint32_t read : 1;
+uint32_t write : 1;
+uint32_t execute : 1;
+uint32_t storage_detect : 1;
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>536</x>
+      <y>1072</y>
+      <w>544</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;120.0;660.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1056</x>
+      <y>1072</y>
+      <w>368</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>440.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>968</x>
+      <y>1168</y>
+      <w>344</w>
+      <h>256</h>
+    </coordinates>
+    <panel_attributes>ARM_STOR_SECURITY_FEATURES
+--
+uint8_t acls                : 1; ///&lt; protection against internal software attacks using ACLs.
+uint8_t rollback_protection : 1; ///&lt; roll-back protection.
+uint8_t tamper_proof        : 1; ///&lt; tamper-proof memory (will be deleted on tamper-attempts using board level or chip level sensors).
+uint8_t internal_flash      : 1; ///&lt; Internal flash.
+uint8_t reserved            : 4;
+
+/**
+* Encode support for hardening against various classes of attacks.
+*/
+struct ARM_STOR_HARDENING 
+{
+ uint8_t device_software      : 1; ///&lt; device software (malware running on the device).
+ uint8_t board_level_attacks  : 1; ///&lt; board level attacks (debug probes, copy protection fuses.)
+ uint8_t chip_level_attacks   : 1; ///&lt; chip level attacks (tamper-protection).
+ uint8_t side_channel_attacks : 1; ///&lt; side channel attacks.
+ uint8_t reserved             : 4;
+} hardening_against; ///&lt; hardening.
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>816</x>
+      <y>1072</y>
+      <w>264</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;120.0;310.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1056</x>
+      <y>1072</y>
+      <w>24</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>1304</x>
+      <y>0</y>
+      <w>104</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>Box 1
+Security Context</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>1408</x>
+      <y>0</y>
+      <w>104</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>Box i
+Security Context</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLActor</id>
+    <coordinates>
+      <x>1504</x>
+      <y>0</y>
+      <w>104</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>Box n
+Security Context</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>1376</x>
+      <y>160</y>
+      <w>184</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>Config Store
+{key,value} storage operations
+ </panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1360</x>
+      <y>48</y>
+      <w>128</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;140.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1464</x>
+      <y>48</y>
+      <w>56</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1464</x>
+      <y>48</y>
+      <w>120</w>
+      <h>128</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;uses&gt;&gt;</panel_attributes>
+    <additional_attributes>130.0;10.0;10.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>224</x>
+      <y>656</y>
+      <w>304</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>Note..
+mbed_config_store_hld
+v0.04
+20160225
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>824</x>
+      <y>968</y>
+      <w>264</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>ARM_CFSTORE_KEYDESC
+--
+/*key descriptor attributes */
+ARM_CFSTORE_ACCESS_CONTROL_LIST acl;
+ARM_STOR_DATA_RETENTION_LEVEL drl;
+ARM_STOR_SECURITY_FEATURES security;
+ARM_CFSTORE_FMODE flags;
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>904</x>
+      <y>720</y>
+      <w>240</w>
+      <h>232</h>
+    </coordinates>
+    <panel_attributes>ARM_CFSTORE_OPCODE;
+--
+CFSTORE_OPCODE_CLOSE
+CFSTORE_OPCODE_CREATE
+CFSTORE_OPCODE_DELETE
+CFSTORE_OPCODE_FIND
+CFSTORE_OPCODE_FLUSH
+CFSTORE_OPCODE_GET_KEY_NAME
+CFSTORE_OPCODE_GET_STATUS
+CFSTORE_OPCODE_GET_VALUE_LEN
+CFSTORE_OPCODE_INITIALIZE
+CFSTORE_OPCODE_OPEN
+CFSTORE_OPCODE_POWER_CONTROL
+CFSTORE_OPCODE_READ
+CFSTORE_OPCODE_RSEEK
+CFSTORE_OPCODE_UNINITIALIZE
+CFSTORE_OPCODE_WRITE
+CFSTORE_OPCODE_MAX
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>576</x>
+      <y>608</y>
+      <w>808</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>ARM_CFSTORE_CALLBACK
+--
+typedef void (*ARM_CFSTORE_CALLBACK)(int32_t status, ARM_CFSTORE_OPCODE cmd_code, void *client_context, ARM_CFSTORE_HANDLE handle);
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>392</x>
+      <y>880</y>
+      <w>576</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>700.0;110.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>392</x>
+      <y>664</y>
+      <w>536</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>650.0;10.0;10.0;280.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>392</x>
+      <y>816</y>
+      <w>528</w>
+      <h>88</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>640.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+</diagram>
