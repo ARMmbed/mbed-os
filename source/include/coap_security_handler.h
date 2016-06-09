@@ -21,6 +21,7 @@
 #include <stddef.h>
 #include <inttypes.h>
 #include <stdbool.h>
+#include "mbedtls/platform.h"
 #include "mbedtls/ssl.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/entropy.h"
