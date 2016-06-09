@@ -1,4 +1,5 @@
 # Committing changes to mbedmicro/mbed
+
 * Our current branching model is very simple. We are using ```master``` branch to merge all pull requests.
 * Based on stable ```SHA``` version of ```master``` branch we decide to release and at the same time ```tag``` our build release.
 * Our current release versioning follows simple integer version: ```94```, ```95```, ```96``` etc.
@@ -33,10 +34,10 @@ Please send pull requests with changes which are:
  * Test results are added.
 
 After you send us your pull request our Gate Keeper will change the state of pull request to:
-•	``` enhancement``` or ```bug``` when pull request creates new improvement or fixed issue.
+â€¢	``` enhancement``` or ```bug``` when pull request creates new improvement or fixed issue.
 Than we will set for you labels:
-•	```review``` to let you know your pull request is under review and you can expect review related comments from us.
-•	```in progress``` when you pull request requires some additional change which will for now block this pull request from merging.
+â€¢	```review``` to let you know your pull request is under review and you can expect review related comments from us.
+â€¢	```in progress``` when you pull request requires some additional change which will for now block this pull request from merging.
 At the end we will remove ```review``` label and merge your change if everything goes well.
 
 ## C++ coding rules & coding guidelines
@@ -257,13 +258,13 @@ Please refer to TESTING.md document for detais regarding mbed SDK test suite and
 
 ## Before pull request checklist
 * Your pull request description section contains:
- * Rationale – tell us why you submitted this pull request. This is your change to write us summary of your change.
- * Description – describe changes you’ve made and tell us which new features / functionalities were implemented.
- * Manual / Cookbook / Handbook – you can put here manual, cookbook or handbook related to your change / enhancement. Your documentation can stay with pull request.
+ * Rationale â€“ tell us why you submitted this pull request. This is your change to write us summary of your change.
+ * Description â€“ describe changes youâ€™ve made and tell us which new features / functionalities were implemented.
+ * Manual / Cookbook / Handbook â€“ you can put here manual, cookbook or handbook related to your change / enhancement. Your documentation can stay with pull request.
  * Test results (if applicable).
 * Make sure you followed project's coding rules and styles.
 * No dependencies are created to external C/C++ libraries which are not included already in our repository.
 * Please make sure that in your module all functions have unique prefix (no name space collisions).
-* You reused existing functionality, please do not add or rewrite existing code. E.g. use mbed’s ```FunctionPointer``` if possible to store your function pointers. Do not write another wrapper for it. We already got one. If some functionality is missing, just add it! Extend our APIs wisely!
+* You reused existing functionality, please do not add or rewrite existing code. E.g. use mbedâ€™s ```FunctionPointer``` if possible to store your function pointers. Do not write another wrapper for it. We already got one. If some functionality is missing, just add it! Extend our APIs wisely!
 * Were you consistent? Please continue using style / code formatting, variables naming etc. in file they are modifying.
-* Your code compiles and links. Also doesn’t generate additional compilation warnings.
+* Your code compiles and links. Also doesnâ€™t generate additional compilation warnings.
