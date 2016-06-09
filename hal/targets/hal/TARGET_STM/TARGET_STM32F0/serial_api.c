@@ -101,55 +101,71 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     // Enable USART clock
     if (obj->uart == UART_1) {
-        __USART1_CLK_ENABLE();
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
+        __HAL_RCC_USART1_CLK_ENABLE();
         obj->index = 0;
     }
 
 #if defined USART2_BASE
     if (obj->uart == UART_2) {
-        __USART2_CLK_ENABLE();
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
+        __HAL_RCC_USART2_CLK_ENABLE();
         obj->index = 1;
     }
 #endif
 
 #if defined USART3_BASE
     if (obj->uart == UART_3) {
-        __USART3_CLK_ENABLE();
+        __HAL_RCC_USART3_FORCE_RESET();
+        __HAL_RCC_USART3_RELEASE_RESET();
+        __HAL_RCC_USART3_CLK_ENABLE();
         obj->index = 2;
     }
 #endif
 
 #if defined USART4_BASE
     if (obj->uart == UART_4) {
-        __USART4_CLK_ENABLE();
+        __HAL_RCC_USART4_FORCE_RESET();
+        __HAL_RCC_USART4_RELEASE_RESET();
+        __HAL_RCC_USART4_CLK_ENABLE();
         obj->index = 3;
     }
 #endif
 
 #if defined USART5_BASE
     if (obj->uart == UART_5) {
-        __USART5_CLK_ENABLE();
+        __HAL_RCC_USART5_FORCE_RESET();
+        __HAL_RCC_USART5_RELEASE_RESET();
+        __HAL_RCC_USART5_CLK_ENABLE();
         obj->index = 4;
     }
 #endif
 
 #if defined USART6_BASE
     if (obj->uart == UART_6) {
-        __USART6_CLK_ENABLE();
+        __HAL_RCC_USART6_FORCE_RESET();
+        __HAL_RCC_USART6_RELEASE_RESET();
+        __HAL_RCC_USART6_CLK_ENABLE();
         obj->index = 5;
     }
 #endif
 
 #if defined USART7_BASE
     if (obj->uart == UART_7) {
-        __USART7_CLK_ENABLE();
+        __HAL_RCC_USART7_FORCE_RESET();
+        __HAL_RCC_USART7_RELEASE_RESET();
+        __HAL_RCC_USART7_CLK_ENABLE();
         obj->index = 6;
     }
 #endif
 
 #if defined USART8_BASE
     if (obj->uart == UART_8) {
-        __USART8_CLK_ENABLE();
+        __HAL_RCC_USART8_FORCE_RESET();
+        __HAL_RCC_USART8_RELEASE_RESET();
+        __HAL_RCC_USART8_CLK_ENABLE();
         obj->index = 7;
     }
 #endif
