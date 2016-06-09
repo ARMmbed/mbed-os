@@ -18,8 +18,6 @@
 #ifndef __DRIVER_STORAGE_H
 #define __DRIVER_STORAGE_H
 
-#if DEVICE_STORAGE
-
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -763,7 +761,5 @@ typedef struct _ARM_DRIVER_STORAGE {
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-
-#endif /* #if DEVICE_STORAGE */
 
 #endif /* __DRIVER_STORAGE_H */
