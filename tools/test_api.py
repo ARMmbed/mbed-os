@@ -2042,7 +2042,8 @@ def print_tests(tests, format="list"):
 
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
-        macros=None, silent=False, report=None, properties=None):
+        macros=None, silent=False, report=None, properties=None,
+        continue_on_build_fail=False):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
     
@@ -2077,7 +2078,11 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
         except Exception, e:
             result = False
-            continue
+            
+            if continue_on_build_fail:
+                continue
+            else:
+                break
         
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.
