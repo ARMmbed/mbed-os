@@ -655,7 +655,7 @@ void pre_main(void) {
     main(0, NULL);
 }
 
-__attribute__((naked)) void software_init_hook (void) {
+__attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
     "bl   osKernelInitialize\n"
 #ifdef __MBED_CMSIS_RTOS_CM

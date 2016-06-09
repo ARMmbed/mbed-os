@@ -412,6 +412,18 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 
 #endif
 
+#if defined(TOOLCHAIN_GCC)
+extern "C" WEAK void software_init_hook_rtos(void)
+{
+    // Do nothing by default.
+}
+
+extern "C" void software_init_hook(void)
+{
+    software_init_hook_rtos();
+}
+#endif
+
 // ****************************************************************************
 // mbed_main is a function that is called before main()
 // mbed_sdk_init() is also a function that is called before main(), but unlike
