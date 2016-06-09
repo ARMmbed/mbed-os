@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_lcd.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of LCD Controller HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,14 +43,14 @@
  extern "C" {
 #endif
 
-/** @addtogroup STM32L4xx_HAL_Driver
-  * @{
-  */
-
-#if defined(STM32L476xx) || defined(STM32L486xx)
+#if defined(STM32L433xx) || defined(STM32L443xx) || defined(STM32L476xx) || defined(STM32L486xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
+
+/** @addtogroup STM32L4xx_HAL_Driver
+  * @{
+  */
 
 /** @addtogroup LCD
   * @{
@@ -774,15 +774,16 @@ HAL_StatusTypeDef     LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd);
   * @}
   */
 
-#endif /* STM32L476xx && STM32L486xx */
-
 /**
   * @}
   */
+
+#endif /* STM32L433xx || STM32L443xx || STM32L476xx || STM32L486xx */
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __STM32L4xx_HAL_LCD_H */
-/******************* (C) COPYRIGHT 2014 STMicroelectronics *****END OF FILE****/
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

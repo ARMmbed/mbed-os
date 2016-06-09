@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32L485xx) || defined(STM32L486xx)
+#if defined (STM32L442xx) || defined (STM32L443xx) || defined(STM32L485xx) || defined(STM32L486xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
@@ -140,11 +140,11 @@ typedef enum
 /** 
   * @brief  HAL CRYP Error Codes definition  
   */ 
-#define HAL_CRYP_ERROR_NONE      ((uint32_t)0x00000000)   /*!< No error       */
-#define HAL_CRYP_WRITE_ERROR     ((uint32_t)0x00000001)   /*!< Write error    */
-#define HAL_CRYP_READ_ERROR      ((uint32_t)0x00000002)   /*!< Read error     */
-#define HAL_CRYP_DMA_ERROR       ((uint32_t)0x00000004)   /*!< DMA error      */  
-
+#define HAL_CRYP_ERROR_NONE      ((uint32_t)0x00000000)  /*!< No error        */
+#define HAL_CRYP_WRITE_ERROR     ((uint32_t)0x00000001)  /*!< Write error     */
+#define HAL_CRYP_READ_ERROR      ((uint32_t)0x00000002)  /*!< Read error      */
+#define HAL_CRYP_DMA_ERROR       ((uint32_t)0x00000004)  /*!< DMA error       */  
+#define HAL_CRYP_BUSY_ERROR      ((uint32_t)0x00000008)  /*!< Busy flag error */  
 
 /** 
   * @brief  CRYP handle Structure definition
@@ -159,10 +159,10 @@ typedef struct
 
       uint8_t                  *pCrypOutBuffPtr; /*!< Pointer to CRYP processing (encryption, decryption,...) output buffer */
 
-      __IO uint16_t            CrypInCount;      /*!< Input data size in bytes or, after suspension, the remaining 
+      uint32_t                 CrypInCount;      /*!< Input data size in bytes or, after suspension, the remaining 
                                                        number of bytes to process */
 
-      __IO uint16_t            CrypOutCount;     /*!< Output data size in bytes */
+      uint32_t                 CrypOutCount;     /*!< Output data size in bytes */
 
       HAL_PhaseTypeDef         Phase;            /*!< CRYP peripheral processing phase for GCM, GMAC or CMAC modes.
                                                      Indicates the last phase carried out to ease
@@ -355,10 +355,10 @@ typedef struct
   * @brief  Set the algorithm operating mode.
   * @param  __OPERATING_MODE__: specifies the operating mode
   *          This parameter can be one of the following values:
-  *            @arg CRYP_ALGOMODE_ENCRYPT: encryption     
-  *            @arg CRYP_ALGOMODE_KEYDERIVATION: key derivation        
-  *            @arg CRYP_ALGOMODE_DECRYPT: decryption 
-  *            @arg CRYP_ALGOMODE_KEYDERIVATION_DECRYPT: key derivation and decryption  
+  *            @arg @ref CRYP_ALGOMODE_ENCRYPT encryption     
+  *            @arg @ref CRYP_ALGOMODE_KEYDERIVATION key derivation        
+  *            @arg @ref CRYP_ALGOMODE_DECRYPT decryption 
+  *            @arg @ref CRYP_ALGOMODE_KEYDERIVATION_DECRYPT key derivation and decryption  
   * @retval None
   */
 #define __HAL_CRYP_SET_OPERATINGMODE(__OPERATING_MODE__) MODIFY_REG(AES->CR, AES_CR_MODE, (__OPERATING_MODE__))  
@@ -368,11 +368,11 @@ typedef struct
   * @brief  Set the algorithm chaining mode.
   * @param  __CHAINING_MODE__: specifies the chaining mode
   *          This parameter can be one of the following values:
-  *            @arg CRYP_CHAINMODE_AES_ECB: Electronic CodeBook     
-  *            @arg CRYP_CHAINMODE_AES_CBC: Cipher Block Chaining        
-  *            @arg CRYP_CHAINMODE_AES_CTR: CounTeR mode
-  *            @arg CRYP_CHAINMODE_AES_GCM_GMAC: Galois Counter Mode or Galois Message Authentication Code     
-  *            @arg CRYP_CHAINMODE_AES_CMAC: Cipher Message Authentication Code
+  *            @arg @ref CRYP_CHAINMODE_AES_ECB Electronic CodeBook     
+  *            @arg @ref CRYP_CHAINMODE_AES_CBC Cipher Block Chaining        
+  *            @arg @ref CRYP_CHAINMODE_AES_CTR CounTeR mode
+  *            @arg @ref CRYP_CHAINMODE_AES_GCM_GMAC Galois Counter Mode or Galois Message Authentication Code     
+  *            @arg @ref CRYP_CHAINMODE_AES_CMAC Cipher Message Authentication Code
   * @retval None
   */
 #define __HAL_CRYP_SET_CHAININGMODE(__CHAINING_MODE__) MODIFY_REG(AES->CR, AES_CR_CHMOD, (__CHAINING_MODE__))  
@@ -382,10 +382,10 @@ typedef struct
 /** @brief  Check whether the specified CRYP status flag is set or not.
   * @param  __FLAG__: specifies the flag to check.
   *         This parameter can be one of the following values:
-  *            @arg CRYP_FLAG_BUSY: GCM process suspension forbidden  
-  *            @arg CRYP_IT_WRERR: Write Error 
-  *            @arg CRYP_IT_RDERR: Read Error 
-  *            @arg CRYP_IT_CCF: Computation Complete                 
+  *            @arg @ref CRYP_FLAG_BUSY GCM process suspension forbidden  
+  *            @arg @ref CRYP_IT_WRERR Write Error 
+  *            @arg @ref CRYP_IT_RDERR Read Error 
+  *            @arg @ref CRYP_IT_CCF Computation Complete                 
   * @retval The state of __FLAG__ (TRUE or FALSE).
   */
 #define __HAL_CRYP_GET_FLAG(__FLAG__) ((AES->SR & (__FLAG__)) == (__FLAG__))
@@ -394,8 +394,8 @@ typedef struct
 /** @brief  Clear the CRYP pending status flag.
   * @param  __FLAG__: specifies the flag to clear.
   *         This parameter can be one of the following values:
-  *            @arg CRYP_ERR_CLEAR: Read (RDERR) or Write Error (WRERR) Flag Clear
-  *            @arg CRYP_CCF_CLEAR: Computation Complete Flag (CCF) Clear  
+  *            @arg @ref CRYP_ERR_CLEAR Read (RDERR) or Write Error (WRERR) Flag Clear
+  *            @arg @ref CRYP_CCF_CLEAR Computation Complete Flag (CCF) Clear  
   * @retval None
   */
 #define __HAL_CRYP_CLEAR_FLAG(__FLAG__) SET_BIT(AES->CR, (__FLAG__))
@@ -405,8 +405,8 @@ typedef struct
 /** @brief  Check whether the specified CRYP interrupt source is enabled or not.
   * @param __INTERRUPT__: CRYP interrupt source to check
   *         This parameter can be one of the following values:
-  *            @arg CRYP_IT_ERRIE: Error interrupt (used for RDERR and WRERR)
-  *            @arg CRYP_IT_CCFIE: Computation Complete interrupt  
+  *            @arg @ref CRYP_IT_ERRIE Error interrupt (used for RDERR and WRERR)
+  *            @arg @ref CRYP_IT_CCFIE Computation Complete interrupt  
   * @retval State of interruption (TRUE or FALSE).
   */
 #define __HAL_CRYP_GET_IT_SOURCE(__INTERRUPT__) ((AES->CR & (__INTERRUPT__)) == (__INTERRUPT__))
@@ -415,9 +415,9 @@ typedef struct
 /** @brief  Check whether the specified CRYP interrupt is set or not.
   * @param  __INTERRUPT__: specifies the interrupt to check.
   *         This parameter can be one of the following values:
-  *            @arg CRYP_IT_WRERR: Write Error 
-  *            @arg CRYP_IT_RDERR: Read Error 
-  *            @arg CRYP_IT_CCF:  Computation Complete                 
+  *            @arg @ref CRYP_IT_WRERR Write Error 
+  *            @arg @ref CRYP_IT_RDERR Read Error 
+  *            @arg @ref CRYP_IT_CCF  Computation Complete                 
   * @retval The state of __INTERRUPT__ (TRUE or FALSE).
   */
 #define __HAL_CRYP_GET_IT(__INTERRUPT__) ((AES->SR & (__INTERRUPT__)) == (__INTERRUPT__))
@@ -427,8 +427,8 @@ typedef struct
 /** @brief  Clear the CRYP pending interrupt.
   * @param  __INTERRUPT__: specifies the IT to clear.
   *         This parameter can be one of the following values:
-  *            @arg CRYP_ERR_CLEAR: Read (RDERR) or Write Error (WRERR) Flag Clear
-  *            @arg CRYP_CCF_CLEAR: Computation Complete Flag (CCF) Clear    
+  *            @arg @ref CRYP_ERR_CLEAR Read (RDERR) or Write Error (WRERR) Flag Clear
+  *            @arg @ref CRYP_CCF_CLEAR Computation Complete Flag (CCF) Clear    
   * @retval None
   */
 #define __HAL_CRYP_CLEAR_IT(__INTERRUPT__) SET_BIT(AES->CR, (__INTERRUPT__))
@@ -438,8 +438,8 @@ typedef struct
   * @brief  Enable the CRYP interrupt.  
   * @param  __INTERRUPT__: CRYP Interrupt.
   *         This parameter can be one of the following values:  
-  *            @arg CRYP_IT_ERRIE: Error interrupt (used for RDERR and WRERR)
-  *            @arg CRYP_IT_CCFIE: Computation Complete interrupt    
+  *            @arg @ref CRYP_IT_ERRIE Error interrupt (used for RDERR and WRERR)
+  *            @arg @ref CRYP_IT_CCFIE Computation Complete interrupt    
   * @retval None
   */
 #define __HAL_CRYP_ENABLE_IT(__INTERRUPT__) ((AES->CR) |= (__INTERRUPT__))
@@ -449,8 +449,8 @@ typedef struct
   * @brief  Disable the CRYP interrupt.
   * @param  __INTERRUPT__: CRYP Interrupt.
   *         This parameter can be one of the following values:  
-  *            @arg CRYP_IT_ERRIE: Error interrupt (used for RDERR and WRERR)
-  *            @arg CRYP_IT_CCFIE: Computation Complete interrupt    
+  *            @arg @ref CRYP_IT_ERRIE Error interrupt (used for RDERR and WRERR)
+  *            @arg @ref CRYP_IT_CCFIE Computation Complete interrupt    
   * @retval None
   */
 #define __HAL_CRYP_DISABLE_IT(__INTERRUPT__) ((AES->CR) &= ~(__INTERRUPT__))
@@ -558,7 +558,7 @@ typedef struct
   * @{
   */
   
-/** @addtogroup CRYP_Group1 Initialization and deinitialization functions
+/** @addtogroup CRYP_Exported_Functions_Group1 Initialization and deinitialization functions
   * @{
   */
     
@@ -574,7 +574,7 @@ void HAL_CRYP_MspDeInit(CRYP_HandleTypeDef *hcryp);
   * @}
   */
   
-/** @addtogroup CRYP_Group2 AES processing functions 
+/** @addtogroup CRYP_Exported_Functions_Group2 AES processing functions 
   * @{
   */  
 
@@ -608,7 +608,7 @@ HAL_StatusTypeDef     HAL_CRYP_AESCTR_Decrypt_DMA(CRYP_HandleTypeDef *hcryp, uin
   * @}
   */
   
-/** @addtogroup CRYP_Group3 Callback functions
+/** @addtogroup CRYP_Exported_Functions_Group3 Callback functions
   * @{
   */ 
 /* CallBack functions  ********************************************************/
@@ -620,7 +620,7 @@ void HAL_CRYP_ErrorCallback(CRYP_HandleTypeDef *hcryp);
   * @}
   */
   
-/** @addtogroup CRYP_Group4 CRYP IRQ handler 
+/** @addtogroup CRYP_Exported_Functions_Group4 CRYP IRQ handler 
   * @{
   */    
 
@@ -631,7 +631,7 @@ void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp);
   * @}
   */
   
-/** @addtogroup CRYP_Group5 Peripheral State functions 
+/** @addtogroup CRYP_Exported_Functions_Group5 Peripheral State functions 
   * @{
   */
 
@@ -655,7 +655,7 @@ uint32_t              HAL_CRYP_GetError(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
   
-#endif /* defined(STM32L485xx) || defined(STM32L486xx) */
+#endif /* defined (STM32L442xx) || defined (STM32L443xx) || defined(STM32L485xx) || defined(STM32L486xx) */  
   
 #ifdef __cplusplus
 }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_rtc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Extended RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) Extended peripheral:
@@ -91,7 +91,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -134,6 +134,32 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#if defined(RTC_TAMPER1_SUPPORT) && defined(RTC_TAMPER3_SUPPORT)
+#define RTC_TAMPCR_MASK               ((uint32_t)RTC_TAMPCR_TAMPTS    |\
+                                       (uint32_t)RTC_TAMPCR_TAMPFREQ  | (uint32_t)RTC_TAMPCR_TAMPFLT      | (uint32_t)RTC_TAMPCR_TAMPPRCH |\
+                                       (uint32_t)RTC_TAMPCR_TAMPPUDIS | (uint32_t)RTC_TAMPCR_TAMPIE                                       |\
+                                       (uint32_t)RTC_TAMPCR_TAMP1IE   | (uint32_t)RTC_TAMPCR_TAMP1NOERASE | (uint32_t)RTC_TAMPCR_TAMP1MF  |\
+                                       (uint32_t)RTC_TAMPCR_TAMP2IE   | (uint32_t)RTC_TAMPCR_TAMP2NOERASE | (uint32_t)RTC_TAMPCR_TAMP2MF  |\
+                                       (uint32_t)RTC_TAMPCR_TAMP3IE   | (uint32_t)RTC_TAMPCR_TAMP3NOERASE | (uint32_t)RTC_TAMPCR_TAMP3MF)
+#elif defined(RTC_TAMPER1_SUPPORT)
+#define RTC_TAMPCR_MASK               ((uint32_t)RTC_TAMPCR_TAMPTS    |\
+                                       (uint32_t)RTC_TAMPCR_TAMPFREQ  | (uint32_t)RTC_TAMPCR_TAMPFLT      | (uint32_t)RTC_TAMPCR_TAMPPRCH |\
+                                       (uint32_t)RTC_TAMPCR_TAMPPUDIS | (uint32_t)RTC_TAMPCR_TAMPIE                                       |\
+                                       (uint32_t)RTC_TAMPCR_TAMP1IE   | (uint32_t)RTC_TAMPCR_TAMP1NOERASE | (uint32_t)RTC_TAMPCR_TAMP1MF  |\
+                                       (uint32_t)RTC_TAMPCR_TAMP2IE   | (uint32_t)RTC_TAMPCR_TAMP2NOERASE | (uint32_t)RTC_TAMPCR_TAMP2MF)
+#elif defined(RTC_TAMPER3_SUPPORT)
+#define RTC_TAMPCR_MASK               ((uint32_t)RTC_TAMPCR_TAMPTS    |\
+                                       (uint32_t)RTC_TAMPCR_TAMPFREQ  | (uint32_t)RTC_TAMPCR_TAMPFLT      | (uint32_t)RTC_TAMPCR_TAMPPRCH |\
+                                       (uint32_t)RTC_TAMPCR_TAMPPUDIS | (uint32_t)RTC_TAMPCR_TAMPIE                                       |\
+                                       (uint32_t)RTC_TAMPCR_TAMP2IE   | (uint32_t)RTC_TAMPCR_TAMP2NOERASE | (uint32_t)RTC_TAMPCR_TAMP2MF  |\
+                                       (uint32_t)RTC_TAMPCR_TAMP3IE   | (uint32_t)RTC_TAMPCR_TAMP3NOERASE | (uint32_t)RTC_TAMPCR_TAMP3MF)
+#else
+#define RTC_TAMPCR_MASK               ((uint32_t)RTC_TAMPCR_TAMPTS    |\
+                                       (uint32_t)RTC_TAMPCR_TAMPFREQ  | (uint32_t)RTC_TAMPCR_TAMPFLT      | (uint32_t)RTC_TAMPCR_TAMPPRCH |\
+                                       (uint32_t)RTC_TAMPCR_TAMPPUDIS | (uint32_t)RTC_TAMPCR_TAMPIE                                       |\
+                                       (uint32_t)RTC_TAMPCR_TAMP2IE   | (uint32_t)RTC_TAMPCR_TAMP2NOERASE | (uint32_t)RTC_TAMPCR_TAMP2MF)
+#endif /* RTC_TAMPER1_SUPPORT && RTC_TAMPER3_SUPPORT */
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -468,47 +494,50 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper(RTC_HandleTypeDef *hrtc, RTC_TamperTypeDef
   if(sTamper->NoErase != RTC_TAMPER_ERASE_BACKUP_ENABLE)
   { 
     sTamper->NoErase = 0;
+#if defined(RTC_TAMPER1_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_1) != 0)
     {
       sTamper->NoErase |= RTC_TAMPCR_TAMP1NOERASE;
     }
+#endif /* RTC_TAMPER1_SUPPORT */
     if((sTamper->Tamper & RTC_TAMPER_2) != 0)
     {
       sTamper->NoErase |= RTC_TAMPCR_TAMP2NOERASE;
     }
+#if defined(RTC_TAMPER3_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_3) != 0)
     {
       sTamper->NoErase |= RTC_TAMPCR_TAMP3NOERASE;
     }
+#endif /* RTC_TAMPER3_SUPPORT */
   }
 
   if(sTamper->MaskFlag != RTC_TAMPERMASK_FLAG_DISABLE)
   {
     sTamper->MaskFlag = 0;
+#if defined(RTC_TAMPER1_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_1) != 0)
     {
       sTamper->MaskFlag |= RTC_TAMPCR_TAMP1MF;
     }
+#endif /* RTC_TAMPER1_SUPPORT */
     if((sTamper->Tamper & RTC_TAMPER_2) != 0)
     {
       sTamper->MaskFlag |= RTC_TAMPCR_TAMP2MF;
     }
+#if defined(RTC_TAMPER3_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_3) != 0)
     {
       sTamper->MaskFlag |= RTC_TAMPCR_TAMP3MF;
     }
+#endif /* RTC_TAMPER3_SUPPORT */
   }
 
   tmpreg = ((uint32_t)sTamper->Tamper | (uint32_t)sTamper->Trigger  | (uint32_t)sTamper->NoErase |\
             (uint32_t)sTamper->MaskFlag | (uint32_t)sTamper->Filter | (uint32_t)sTamper->SamplingFrequency |\
             (uint32_t)sTamper->PrechargeDuration | (uint32_t)sTamper->TamperPullUp | sTamper->TimeStampOnTamperDetection);
 
-  hrtc->Instance->TAMPCR &= (uint32_t)~((uint32_t)sTamper->Tamper | (uint32_t)(sTamper->Tamper << 1) | (uint32_t)RTC_TAMPCR_TAMPTS |\
-                                       (uint32_t)RTC_TAMPCR_TAMPFREQ | (uint32_t)RTC_TAMPCR_TAMPFLT | (uint32_t)RTC_TAMPCR_TAMPPRCH |\
-                                       (uint32_t)RTC_TAMPCR_TAMPPUDIS | (uint32_t)RTC_TAMPCR_TAMPIE | (uint32_t)RTC_TAMPCR_TAMP1IE |\
-                                       (uint32_t)RTC_TAMPCR_TAMP2IE | (uint32_t)RTC_TAMPCR_TAMP3IE | (uint32_t)RTC_TAMPCR_TAMP1NOERASE |\
-                                       (uint32_t)RTC_TAMPCR_TAMP2NOERASE | (uint32_t)RTC_TAMPCR_TAMP3NOERASE | (uint32_t)RTC_TAMPCR_TAMP1MF |\
-                                       (uint32_t)RTC_TAMPCR_TAMP2MF | (uint32_t)RTC_TAMPCR_TAMP3MF);
+  hrtc->Instance->TAMPCR &= (uint32_t)~((uint32_t)sTamper->Tamper | (uint32_t)(sTamper->Tamper << 1) | RTC_TAMPCR_MASK);
 
   hrtc->Instance->TAMPCR |= tmpreg;
 
@@ -557,48 +586,51 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper_IT(RTC_HandleTypeDef *hrtc, RTC_TamperType
   if(sTamper->NoErase != RTC_TAMPER_ERASE_BACKUP_ENABLE)
   { 
     sTamper->NoErase = 0;
+#if defined(RTC_TAMPER1_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_1) != 0)
     {
       sTamper->NoErase |= RTC_TAMPCR_TAMP1NOERASE;
     }
+#endif /* RTC_TAMPER1_SUPPORT */
     if((sTamper->Tamper & RTC_TAMPER_2) != 0)
     {
       sTamper->NoErase |= RTC_TAMPCR_TAMP2NOERASE;
     }
+#if defined(RTC_TAMPER3_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_3) != 0)
     {
       sTamper->NoErase |= RTC_TAMPCR_TAMP3NOERASE;
     }
+#endif /* RTC_TAMPER3_SUPPORT */
   }
 
   if(sTamper->MaskFlag != RTC_TAMPERMASK_FLAG_DISABLE)
   {
     sTamper->MaskFlag = 0;
+#if defined(RTC_TAMPER1_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_1) != 0)
     {
       sTamper->MaskFlag |= RTC_TAMPCR_TAMP1MF;
     }
+#endif /* RTC_TAMPER1_SUPPORT */
     if((sTamper->Tamper & RTC_TAMPER_2) != 0)
     {
       sTamper->MaskFlag |= RTC_TAMPCR_TAMP2MF;
     }
+#if defined(RTC_TAMPER3_SUPPORT)
     if((sTamper->Tamper & RTC_TAMPER_3) != 0)
     {
       sTamper->MaskFlag |= RTC_TAMPCR_TAMP3MF;
     }
+#endif /* RTC_TAMPER3_SUPPORT */
   }
 
   tmpreg = ((uint32_t)sTamper->Tamper | (uint32_t)sTamper->Interrupt | (uint32_t)sTamper->Trigger  | (uint32_t)sTamper->NoErase |\
             (uint32_t)sTamper->MaskFlag | (uint32_t)sTamper->Filter | (uint32_t)sTamper->SamplingFrequency |\
             (uint32_t)sTamper->PrechargeDuration | (uint32_t)sTamper->TamperPullUp | sTamper->TimeStampOnTamperDetection);
-  
-  hrtc->Instance->TAMPCR &= (uint32_t)~((uint32_t)sTamper->Tamper | (uint32_t)(sTamper->Tamper << 1) | (uint32_t)RTC_TAMPCR_TAMPTS |\
-                                       (uint32_t)RTC_TAMPCR_TAMPFREQ | (uint32_t)RTC_TAMPCR_TAMPFLT | (uint32_t)RTC_TAMPCR_TAMPPRCH |\
-                                       (uint32_t)RTC_TAMPCR_TAMPPUDIS | (uint32_t)RTC_TAMPCR_TAMPIE | (uint32_t)RTC_TAMPCR_TAMP1IE |\
-                                       (uint32_t)RTC_TAMPCR_TAMP2IE | (uint32_t)RTC_TAMPCR_TAMP3IE | (uint32_t)RTC_TAMPCR_TAMP1NOERASE |\
-                                       (uint32_t)RTC_TAMPCR_TAMP2NOERASE | (uint32_t)RTC_TAMPCR_TAMP3NOERASE | (uint32_t)RTC_TAMPCR_TAMP1MF |\
-                                       (uint32_t)RTC_TAMPCR_TAMP2MF | (uint32_t)RTC_TAMPCR_TAMP3MF);
 
+  hrtc->Instance->TAMPCR &= (uint32_t)~((uint32_t)sTamper->Tamper | (uint32_t)(sTamper->Tamper << 1) | RTC_TAMPCR_MASK);
+  
   hrtc->Instance->TAMPCR |= tmpreg;
 
   /* RTC Tamper Interrupt Configuration: EXTI configuration */
@@ -633,21 +665,25 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateTamper(RTC_HandleTypeDef *hrtc, uint32_t T
   /* Disable the selected Tamper pin */
   hrtc->Instance->TAMPCR &= ((uint32_t)~Tamper);
 
+#if defined(RTC_TAMPER1_SUPPORT)
   if ((Tamper & RTC_TAMPER_1) != 0)
   {
     /* Disable the Tamper1 interrupt */
     hrtc->Instance->TAMPCR &= ((uint32_t)~(RTC_IT_TAMP | RTC_IT_TAMP1));
   }
+#endif /* RTC_TAMPER1_SUPPORT */
   if ((Tamper & RTC_TAMPER_2) != 0)
   {
     /* Disable the Tamper2 interrupt */
     hrtc->Instance->TAMPCR &= ((uint32_t)~(RTC_IT_TAMP | RTC_IT_TAMP2));
   }
+#if defined(RTC_TAMPER3_SUPPORT)
   if ((Tamper & RTC_TAMPER_3) != 0)
   {
     /* Disable the Tamper3 interrupt */
     hrtc->Instance->TAMPCR &= ((uint32_t)~(RTC_IT_TAMP | RTC_IT_TAMP3));
   }
+#endif /* RTC_TAMPER3_SUPPORT */
 
   hrtc->State = HAL_RTC_STATE_READY;
 
@@ -678,6 +714,7 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
     }
   }
 
+#if defined(RTC_TAMPER1_SUPPORT)
   /* Get the Tamper1 interrupts source enable status */
   if(__HAL_RTC_TAMPER_GET_IT_SOURCE(hrtc, RTC_IT_TAMP | RTC_IT_TAMP1) != RESET)
   {
@@ -691,6 +728,7 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
       __HAL_RTC_TAMPER_CLEAR_FLAG(hrtc, RTC_FLAG_TAMP1F);
     }
   }
+#endif /* RTC_TAMPER1_SUPPORT */
     
   /* Get the Tamper2 interrupts source enable status */
   if(__HAL_RTC_TAMPER_GET_IT_SOURCE(hrtc, RTC_IT_TAMP | RTC_IT_TAMP2) != RESET)
@@ -706,6 +744,7 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
     }
   }
 
+#if defined(RTC_TAMPER3_SUPPORT)
   /* Get the Tamper3 interrupts source enable status */
   if(__HAL_RTC_TAMPER_GET_IT_SOURCE(hrtc, RTC_IT_TAMP | RTC_IT_TAMP3) != RESET)
   {
@@ -719,6 +758,7 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
       __HAL_RTC_TAMPER_CLEAR_FLAG(hrtc, RTC_FLAG_TAMP3F);
     }
   }
+#endif /* RTC_TAMPER3_SUPPORT */
   
   /* Clear the EXTI's Flag for RTC TimeStamp and Tamper */
   __HAL_RTC_TAMPER_TIMESTAMP_EXTI_CLEAR_FLAG();
@@ -734,11 +774,15 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_TimeStampEventCallback could be implemented in the user file
   */
 }
 
+#if defined(RTC_TAMPER1_SUPPORT)
 /**
   * @brief  Tamper 1 callback.
   * @param  hrtc: RTC handle
@@ -746,10 +790,14 @@ __weak void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_Tamper1EventCallback could be implemented in the user file
    */
 }
+#endif /* RTC_TAMPER1_SUPPORT */
 
 /**
   * @brief  Tamper 2 callback. 
@@ -758,11 +806,15 @@ __weak void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_Tamper2EventCallback could be implemented in the user file
    */
 }
 
+#if defined(RTC_TAMPER3_SUPPORT)
 /**
   * @brief  Tamper 3 callback. 
   * @param  hrtc: RTC handle
@@ -770,10 +822,14 @@ __weak void HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_Tamper3EventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_Tamper3EventCallback could be implemented in the user file
    */
 }
+#endif /* RTC_TAMPER3_SUPPORT */
 
 /**
   * @brief  Handle TimeStamp polling request.
@@ -814,6 +870,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTimeStampEvent(RTC_HandleTypeDef *hrtc, uint3
   return HAL_OK;
 }
 
+#if defined(RTC_TAMPER1_SUPPORT)
 /**
   * @brief  Handle Tamper 1 Polling.
   * @param  hrtc: RTC handle
@@ -845,6 +902,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper1Event(RTC_HandleTypeDef *hrtc, uint32_
   
   return HAL_OK; 
 }
+#endif /* RTC_TAMPER1_SUPPORT */
 
 /**
   * @brief  Handle Tamper 2 Polling.
@@ -878,6 +936,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper2Event(RTC_HandleTypeDef *hrtc, uint32_
   return HAL_OK;
 }
 
+#if defined(RTC_TAMPER3_SUPPORT)
 /**
   * @brief  Handle Tamper 3 Polling.
   * @param  hrtc: RTC handle
@@ -909,6 +968,7 @@ HAL_StatusTypeDef HAL_RTCEx_PollForTamper3Event(RTC_HandleTypeDef *hrtc, uint32_
 
   return HAL_OK;
 }
+#endif /* RTC_TAMPER3_SUPPORT */
 
 /**
   * @}
@@ -1211,6 +1271,9 @@ void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_WakeUpTimerEventCallback could be implemented in the user file
    */
@@ -1754,6 +1817,9 @@ HAL_StatusTypeDef HAL_RTCEx_DisableBypassShadow(RTC_HandleTypeDef* hrtc)
   */
 __weak void HAL_RTCEx_AlarmBEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_AlarmBEventCallback could be implemented in the user file
    */

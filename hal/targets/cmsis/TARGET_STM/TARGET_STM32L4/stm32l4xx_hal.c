@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -67,18 +67,20 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /**
- * @brief STM32L4xx HAL Driver version number V1.0.0
+ * @brief STM32L4xx HAL Driver version number V1.5.1
    */
 #define __STM32L4xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L4xx_HAL_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32L4xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32L4xx_HAL_VERSION_SUB1   (0x05) /*!< [23:16] sub1 version */
+#define __STM32L4xx_HAL_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
 #define __STM32L4xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32L4xx_HAL_VERSION         ((__STM32L4xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32L4xx_HAL_VERSION_SUB1 << 16)\
                                         |(__STM32L4xx_HAL_VERSION_SUB2 << 8 )\
                                         |(__STM32L4xx_HAL_VERSION_RC))
 
+#if defined(VREFBUF)
 #define VREFBUF_TIMEOUT_VALUE     (uint32_t)10   /* 10 ms (to be confirmed) */
+#endif /* VREFBUF */
 
 /* ------------ SYSCFG registers bit address in the alias region ------------ */
 #define SYSCFG_OFFSET             (SYSCFG_BASE - PERIPH_BASE)
@@ -96,7 +98,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static __IO uint32_t uwTick;
+__IO uint32_t uwTick;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
@@ -257,7 +259,7 @@ __weak void HAL_MspDeInit(void)
 __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
   /*Configure the SysTick to have interrupt in 1ms time basis*/
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+  HAL_SYSTICK_Config(SystemCoreClock/1000);
 
   /*Configure the SysTick IRQ priority */
   HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority ,0);
@@ -406,7 +408,7 @@ uint32_t HAL_GetDEVID(void)
  ===============================================================================
     [..]  This section provides functions allowing to:
       (+) Enable/Disable Debug module during SLEEP mode
-      (+) Enable/Disable Debug module during STOP1/STOP2 modes
+      (+) Enable/Disable Debug module during STOP0/STOP1/STOP2 modes
       (+) Enable/Disable Debug module during STANDBY mode
 
 @endverbatim
@@ -432,7 +434,7 @@ void HAL_DBGMCU_DisableDBGSleepMode(void)
 }
 
 /**
-  * @brief  Enable the Debug Module during STOP1/STOP2 modes.
+  * @brief  Enable the Debug Module during STOP0/STOP1/STOP2 modes.
   * @retval None
   */
 void HAL_DBGMCU_EnableDBGStopMode(void)
@@ -441,7 +443,7 @@ void HAL_DBGMCU_EnableDBGStopMode(void)
 }
 
 /**
-  * @brief  Disable the Debug Module during STOP1/STOP2 modes.
+  * @brief  Disable the Debug Module during STOP0/STOP1/STOP2 modes.
   * @retval None
   */
 void HAL_DBGMCU_DisableDBGStopMode(void)
@@ -483,6 +485,7 @@ void HAL_DBGMCU_DisableDBGStandbyMode(void)
       (+) Enable/Disable the Internal FLASH Bank Swapping
       (+) Configure the Voltage reference buffer
       (+) Enable/Disable the Voltage reference buffer
+      (+) Enable/Disable the I/O analog switch voltage booster
 
 @endverbatim
   * @{
@@ -534,6 +537,7 @@ void HAL_SYSCFG_DisableMemorySwappingBank(void)
   *(__IO uint32_t *)FB_MODE_BB = (uint32_t)DISABLE;
 }
 
+#if defined(VREFBUF)
 /**
   * @brief Configure the internal voltage reference buffer voltage scale.
   * @param  VoltageScaling: specifies the output voltage to achieve
@@ -613,6 +617,27 @@ HAL_StatusTypeDef HAL_SYSCFG_EnableVREFBUF(void)
 void HAL_SYSCFG_DisableVREFBUF(void)
 {
   CLEAR_BIT(VREFBUF->CSR, VREFBUF_CSR_ENVR);
+}
+#endif /* VREFBUF */
+
+/**
+  * @brief  Enable the I/O analog switch voltage booster
+  *
+  * @retval None
+  */
+void HAL_SYSCFG_EnableIOAnalogSwitchBooster(void)
+{
+  SET_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_BOOSTEN);
+}
+
+/**
+  * @brief  Disable the I/O analog switch voltage booster
+  *
+  * @retval None
+  */
+void HAL_SYSCFG_DisableIOAnalogSwitchBooster(void)
+{
+  CLEAR_BIT(SYSCFG->CFGR1, SYSCFG_CFGR1_BOOSTEN);
 }
 
 /**

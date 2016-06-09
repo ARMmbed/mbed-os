@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -97,25 +97,25 @@ typedef struct
 
   uint32_t CRCLength;                 /*!< This parameter is a value of @ref CRC_Polynomial_Sizes and indicates CRC length.
                                            Value can be either one of
-                                           @arg CRC_POLYLENGTH_32B                  (32-bit CRC),
-                                           @arg CRC_POLYLENGTH_16B                  (16-bit CRC),
-                                           @arg CRC_POLYLENGTH_8B                   (8-bit CRC),
-                                           @arg CRC_POLYLENGTH_7B                   (7-bit CRC). */
+                                           @arg @ref CRC_POLYLENGTH_32B                  (32-bit CRC),
+                                           @arg @ref CRC_POLYLENGTH_16B                  (16-bit CRC),
+                                           @arg @ref CRC_POLYLENGTH_8B                   (8-bit CRC),
+                                           @arg @ref CRC_POLYLENGTH_7B                   (7-bit CRC). */
                                               
   uint32_t InitValue;                 /*!< Init value to initiate CRC computation. No need to specify it if DefaultInitValueUse 
                                            is set to DEFAULT_INIT_VALUE_ENABLE.   */                                                
   
   uint32_t InputDataInversionMode;    /*!< This parameter is a value of @ref CRCEx_Input_Data_Inversion and specifies input data inversion mode. 
                                            Can be either one of the following values 
-                                           @arg CRC_INPUTDATA_INVERSION_NONE,      no input data inversion
-                                           @arg CRC_INPUTDATA_INVERSION_BYTE,      byte-wise inversion, 0x1A2B3C4D becomes 0x58D43CB2
-                                           @arg CRC_INPUTDATA_INVERSION_HALFWORD,  halfword-wise inversion, 0x1A2B3C4D becomes 0xD458B23C
-                                           @arg CRC_INPUTDATA_INVERSION_WORD,      word-wise inversion, 0x1A2B3C4D becomes 0xB23CD458 */  
+                                           @arg @ref CRC_INPUTDATA_INVERSION_NONE       no input data inversion
+                                           @arg @ref CRC_INPUTDATA_INVERSION_BYTE       byte-wise inversion, 0x1A2B3C4D becomes 0x58D43CB2
+                                           @arg @ref CRC_INPUTDATA_INVERSION_HALFWORD   halfword-wise inversion, 0x1A2B3C4D becomes 0xD458B23C
+                                           @arg @ref CRC_INPUTDATA_INVERSION_WORD       word-wise inversion, 0x1A2B3C4D becomes 0xB23CD458 */  
                                               
   uint32_t OutputDataInversionMode;   /*!< This parameter is a value of @ref CRCEx_Output_Data_Inversion and specifies output data (i.e. CRC) inversion mode.
                                             Can be either 
-                                            @arg CRC_OUTPUTDATA_INVERSION_DISABLE:   no CRC inversion, 
-                                            @arg CRC_OUTPUTDATA_INVERSION_ENABLE:    CRC 0x11223344 is converted into 0x22CC4488 */                                           
+                                            @arg @ref CRC_OUTPUTDATA_INVERSION_DISABLE   no CRC inversion, 
+                                            @arg @ref CRC_OUTPUTDATA_INVERSION_ENABLE    CRC 0x11223344 is converted into 0x22CC4488 */                                           
 }CRC_InitTypeDef;
 
 
@@ -135,9 +135,9 @@ typedef struct
   
   uint32_t InputDataFormat;                /*!< This parameter is a value of @ref CRC_Input_Buffer_Format and specifies input data format. 
                                             Can be either 
-                                            @arg CRC_INPUTDATA_FORMAT_BYTES,       input data is a stream of bytes (8-bit data)
-                                            @arg CRC_INPUTDATA_FORMAT_HALFWORDS,   input data is a stream of half-words (16-bit data)
-                                            @arg CRC_INPUTDATA_FORMAT_WORDS,       input data is a stream of words (32-bit data)
+                                            @arg @ref CRC_INPUTDATA_FORMAT_BYTES       input data is a stream of bytes (8-bit data)
+                                            @arg @ref CRC_INPUTDATA_FORMAT_HALFWORDS   input data is a stream of half-words (16-bit data)
+                                            @arg @ref CRC_INPUTDATA_FORMAT_WORDS       input data is a stream of words (32-bit data)
                                                                                                                                     
                                            Note that constant CRC_INPUT_FORMAT_UNDEFINED is defined but an initialization error
                                            must occur if InputBufferFormat is not one of the three values listed above  */ 
@@ -215,7 +215,7 @@ typedef struct
 /* WARNING: CRC_INPUT_FORMAT_UNDEFINED is created for reference purposes but
  * an error is triggered in HAL_CRC_Init() if InputDataFormat field is set 
  * to CRC_INPUT_FORMAT_UNDEFINED: the format MUST be defined by the user for 
- * the CRC APIs to provide a correct result */   
+ * the CRC APIs to provide a correct result */ 
 #define CRC_INPUTDATA_FORMAT_UNDEFINED             ((uint32_t)0x00000000)  /*!< Undefined input data format    */
 #define CRC_INPUTDATA_FORMAT_BYTES                 ((uint32_t)0x00000001)  /*!< Input data in byte format      */
 #define CRC_INPUTDATA_FORMAT_HALFWORDS             ((uint32_t)0x00000002)  /*!< Input data in half-word format */
