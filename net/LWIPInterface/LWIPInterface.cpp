@@ -124,12 +124,12 @@ int LWIPInterface::disconnect()
 
 const char *LWIPInterface::get_ip_address()
 {
-    return ip_addr;
+    return ip_addr[0] ? ip_addr : 0;
 }
 
 const char *LWIPInterface::get_mac_address()
 {
-    return mac_addr;
+    return mac_addr[0] ? mac_addr : 0;
 }
 
 struct lwip_socket {
