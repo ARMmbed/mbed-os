@@ -1732,7 +1732,7 @@ def get_default_test_options_parser():
     parser.add_option('-M', '--MUTS',
                       dest='muts_spec_filename',
                       metavar="FILE",
-                      help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
+                      help='Points to file with MUTs specification (overwrites settings.py and mbed_settings.py)')
 
     parser.add_option("-j", "--jobs",
                       dest='jobs',

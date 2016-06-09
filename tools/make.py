@@ -42,7 +42,7 @@ from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.build_api import build_project
 try:
-    import tools.private_settings as ps
+    import mbed_settings as ps
 except:
     ps = object()
 

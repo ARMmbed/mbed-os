@@ -153,9 +153,9 @@ Workspace tools are set of Python scripts used off-line by Mbed SDK team to:
 Before we can run our first test we need to configure our test environment a little!
 Now we need to tell workspace tools where our compilers are.
 
-* Please to go ```mbed/tools/``` directory and create empty file called ```private_settings.py```.
+* Please to go ```mbed``` directory and create empty file called ```mbed_settings.py```.
 ```
-$ touch private_settings.py
+$ touch mbed_settings.py
 ```
 * Populate this file the Python code below: 
 ```python
@@ -203,10 +203,10 @@ GCC_CR_PATH = "C:/Work/toolchains/LPCXpresso_6.1.4_194/lpcxpresso/tools/bin"
 IAR_PATH = "C:/Work/toolchains/iar_6_5/arm"
 ```
 
-Note: Settings in ```private_settings.py``` will overwrite variables with default values in ```mbed/tools/settings.py``` file.
+Note: Settings in ```mbed_settings.py``` will overwrite variables with default values in ```mbed/default_settings.py``` file.
 
 ## Build Mbed SDK library from sources
-Let's build mbed SDK library off-line from sources using your compiler. We've already cloned mbed SDK sources, we've also installed compilers and added their paths to ```private_settings.py```.
+Let's build mbed SDK library off-line from sources using your compiler. We've already cloned mbed SDK sources, we've also installed compilers and added their paths to ```mbed_settings.py```.
 We now should be ready to use workspace tools script ```build.py``` to compile and build mbed SDK from sources.
 
 We are still using console. You should be already in ```mbed/tools/``` directory if not go to ```mbed/tools/``` and type below command:

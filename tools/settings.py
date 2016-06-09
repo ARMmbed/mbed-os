@@ -18,7 +18,7 @@ import logging
 ROOT = abspath(join(dirname(__file__), ".."))
 
 # These default settings have two purposes:
-#    1) Give a template for writing local "private_settings.py"
+#    1) Give a template for writing local "mbed_settings.py"
 #    2) Give default initialization fields for the "toolchains.py" constructors
 
 ##############################################################################
@@ -59,7 +59,7 @@ GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 # IAR
 IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.3/arm"
 
-# Goanna static analyser. Please overload it in private_settings.py
+# Goanna static analyser. Please overload it in mbed_settings.py
 GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"
 
 # cppcheck path (command) and output message format

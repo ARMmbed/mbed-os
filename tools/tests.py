@@ -1142,10 +1142,10 @@ GROUPS = {
 GROUPS["rtos"] = [test["id"] for test in TESTS if test["id"].startswith("RTOS_")]
 GROUPS["net"] = [test["id"] for test in TESTS if test["id"].startswith("NET_")]
 GROUPS["automated"] = [test["id"] for test in TESTS if test.get("automated", False)]
-# Look for 'TEST_GROUPS' in private_settings.py and update the GROUPS dictionary
+# Look for 'TEST_GROUPS' in mbed_settings.py and update the GROUPS dictionary
 # with the information in test_groups if found
 try:
-    from tools.private_settings import TEST_GROUPS
+    from mbed_settings import TEST_GROUPS
 except:
     TEST_GROUPS = {}
 GROUPS.update(TEST_GROUPS)

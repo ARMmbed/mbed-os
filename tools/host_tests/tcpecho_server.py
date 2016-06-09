@@ -17,7 +17,7 @@ limitations under the License.
 from SocketServer import BaseRequestHandler, TCPServer
 from time import time
 
-from private_settings import LOCALHOST
+from mbed_settings import LOCALHOST
 
 MAX_INDEX = 126
 MEGA = float(1024 * 1024)

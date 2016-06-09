@@ -492,7 +492,7 @@ $ git clone https://github.com/mbedmicro/mbed.git
 $ hg clone https://mbed.org/users/rgrover1/code/cpputest/
 ```
 
-After above three steps you should have proper directory structure. All you need to do now is to configure your ```private_settings.py``` in ```mbed/tools/``` directory. Please refer to mbed SDK build script documentation for details.
+After above three steps you should have proper directory structure. All you need to do now is to configure your ```mbed_settings.py``` in ```mbed``` directory. Please refer to mbed SDK build script documentation for details.
 
 ## CppUTest with mbed port 
 To make sure you actualy have CppUTest library with mbed SDK port you can go to CppUTest ```armcc``` platform directory:

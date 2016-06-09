@@ -15,7 +15,7 @@ from tools.targets import TARGET_NAMES
 from tools.libraries import LIBRARIES
 
 try:
-    import tools.private_settings as ps
+    import mbed_settings as ps
 except:
     ps = object()
 
@@ -132,7 +132,7 @@ if __name__ == '__main__':
             args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
         if n:
             if not n in TEST_MAP.keys():
-                # Check if there is an alias for this in private_settings.py
+                # Check if there is an alias for this in mbed_settings.py
                 if getattr(ps, "test_alias", None) is not None:
                     alias = ps.test_alias.get(n, "")
                     if not alias in TEST_MAP.keys():
