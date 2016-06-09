@@ -22,7 +22,8 @@
 extern "C" {
 #endif // __cplusplus
 
-#include "storage-abstraction/Driver_Storage.h"
+#include <stdint.h>
+#include "storage_abstraction/Driver_Storage.h"
 
 /**
  * General return codes. All Flash-Journal APIs return an int32_t to allow for
