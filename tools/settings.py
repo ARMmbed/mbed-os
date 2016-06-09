@@ -99,6 +99,6 @@ MUTs = {
 try:
     # Allow to overwrite the default settings without the need to edit the
     # settings file stored in the repository
-    from tools.private_settings import *
+    from mbed_settings import *
 except ImportError:
-    print '[WARNING] Using default settings. Define your settings in the file "tools/private_settings.py" or in "./mbed_settings.py"'
+    print '[WARNING] Using default settings. Define your settings in the file "./mbed_settings.py"'
