@@ -82,6 +82,11 @@ if __name__ == '__main__':
                       dest="macros",
                       help="Add a macro definition")
 
+    parser.add_option("--include-unsupported",
+                      action="store_true",
+                      dest="include_unsupported",
+                      help="Allow 'unsupported' tests to be built")
+
     # Local run
     parser.add_option("--automated", action="store_true", dest="automated",
                       default=False, help="Automated test")
@@ -217,7 +222,7 @@ if __name__ == '__main__':
         if options.duration is not None:     test.duration = options.duration;
         if options.extra is not None:        test.extra_files = options.extra
 
-        if not test.is_supported(mcu, toolchain):
+        if not options.include_unsupported and not test.is_supported(mcu, toolchain):
             print 'The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain)
             sys.exit()
 
