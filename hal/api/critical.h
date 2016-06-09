@@ -25,16 +25,16 @@ extern "C" {
 #endif
 
 
-/** Determine the current interrupts disabled state
+/** Determine the current interrupts enabled state
   *
-  * This function can be called to determine whether or not interrupts are currently disabled.
+  * This function can be called to determine whether or not interrupts are currently enabled.
   * \note
   * NOTE:
   * This function works for both cortex-A and cortex-M, although the underlyng implementation
   * differs.
-  * @return true if interrupts are disabled, false otherwise
+  * @return true if interrupts are enabled, false otherwise
   */
-bool get_interrupts_disabled(void);
+bool are_interrupts_enabled(void);
 
 /** Mark the start of a critical section
   *
