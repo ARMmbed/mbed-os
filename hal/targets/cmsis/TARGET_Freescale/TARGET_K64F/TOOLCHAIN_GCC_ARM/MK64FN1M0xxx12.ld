@@ -311,18 +311,29 @@ SECTIONS
   .heap :
   {
     . = ALIGN(8);
+    __uvisor_heap_start = .;
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
     . += HEAP_SIZE;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
+    __uvisor_heap_end = .;
   } > m_data_2
 
   .stack :
   {
     . = ALIGN(8);
     . += STACK_SIZE;
+    __StackTop = .;
+  } > m_data_2
+
+  /* Heap space for the page allocator */
+  .page_heap (NOLOAD) :
+  {
+    __uvisor_page_start = .;
+    . = ORIGIN(m_data_2) + LENGTH(m_data_2) - 4;
+    __uvisor_page_end = .;
   } > m_data_2
 
   m_usb_bdt USB_RAM_START (NOLOAD) :
@@ -337,7 +348,6 @@ SECTIONS
   }
 
   /* Initializes stack on the end of block */
-  __StackTop   = ORIGIN(m_data_2) + LENGTH(m_data_2);
   __StackLimit = __StackTop - STACK_SIZE;
   PROVIDE(__stack = __StackTop);
 
