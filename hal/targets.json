@@ -1685,7 +1685,6 @@
         "default_build": "standard"
     },
     "GENERIC_F103C8": {
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
         "default_toolchain": "GCC_ARM",
         "extra_labels": ["STM", "STM32F1", "STM32F103C8"],
