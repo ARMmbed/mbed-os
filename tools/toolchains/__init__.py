@@ -307,6 +307,7 @@ class mbedToolchain:
             # Target and Toolchain symbols
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
+            self.symbols.extend(["FEATURE_%s" % t for t in labels['FEATURE']])
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
             # Config support
@@ -325,10 +326,9 @@ class mbedToolchain:
             # Add target's symbols
             self.symbols += self.target.macros
             # Add target's hardware
-            try :
-                self.symbols += ["DEVICE_" + feature + "=1" for feature in self.target.features]
-            except AttributeError :
-                pass
+            self.symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
+            # Add target's features
+            self.symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
             # Add extra symbols passed via 'macros' parameter
             self.symbols += self.macros
 
@@ -348,6 +348,7 @@ class mbedToolchain:
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
                 'TARGET': self.target.get_labels() + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
+                'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
         return self.labels
@@ -415,6 +416,7 @@ class mbedToolchain:
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
+                    (d.startswith('FEATURE_') and d[8:] not in labels['FEATURE']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
                     (d == 'TESTS')):
                     dirs.remove(d)
