@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "shim.h"
+#include "utest/utest_shim.h"
 
 namespace utest {
 namespace v1 {

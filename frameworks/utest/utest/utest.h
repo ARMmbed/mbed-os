@@ -19,10 +19,10 @@
 #ifndef UTEST_H
 #define UTEST_H
 
-#include "types.h"
-#include "case.h"
-#include "default_handlers.h"
-#include "harness.h"
+#include "utest/utest_types.h"
+#include "utest/utest_case.h"
+#include "utest/utest_default_handlers.h"
+#include "utest/utest_harness.h"
 #include "utest/utest_serial.h"
 
 #endif // UTEST_H

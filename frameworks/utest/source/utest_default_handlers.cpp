@@ -16,9 +16,9 @@
  ****************************************************************************
  */
 
-#include "utest/default_handlers.h"
-#include "utest/case.h"
-#include "utest/stack_trace.h"
+#include "utest/utest_default_handlers.h"
+#include "utest/utest_case.h"
+#include "utest/utest_stack_trace.h"
 #include "utest/utest_serial.h"
 
 using namespace utest::v1;

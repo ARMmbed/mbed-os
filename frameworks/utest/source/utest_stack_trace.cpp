@@ -16,11 +16,11 @@
  */
 #ifdef UTEST_STACK_TRACE
  
-#include "test_env.h"
+#include "greentea-client/test_env.h"
 #include "mbed.h"
-#include "utest.h"
-#include "unity.h"
-#include "utest/stack_trace.h"
+#include "utest/utest.h"
+#include "unity/unity.h"
+#include "utest/utest_stack_trace.h"
 #include "utest/utest_serial.h"
 
 using namespace utest::v1;
