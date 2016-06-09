@@ -16,7 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, exists
+from os.path import join, exists, dirname, splitext, exists
 
 from tools.toolchains import mbedToolchain
 from tools.settings import IAR_PATH
@@ -53,26 +53,31 @@ class IAR(mbedToolchain):
                 
 
         if "debug-info" in self.options:
-            c_flags.append("-r")
             c_flags.append("-On")
         else:
             c_flags.append("-Oh")
+        # add debug symbols for all builds
+        c_flags.append("-r")
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
-        if target.core == "Cortex-M7F":
+         if target.core == "Cortex-M7F":
             self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice] + ["--fpu", "VFPv5_sp"]
         else:
             self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
         if not "analyze" in self.options:
-            self.cc   = [main_cc] + c_flags
-            self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions", "--guard_calls"] + c_flags
+            self.cc = [main_cc, "--vla"] + c_flags
+            self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
         else:
-            self.cc   = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + c_flags
-            self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + ["--c++", "--no_rtti", "--no_exceptions", "--guard_calls"] + c_flags
+            self.cc = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT, "--vla"] + c_flags
+            self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + ["--c++", "--no_rtti", "--no_exceptions"] + c_flags
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
+
+    def parse_dependencies(self, dep_path):
+        return [path.strip() for path in open(dep_path).readlines()
+                if (path and not path.isspace())]
 
     def parse_output(self, output):
         for line in output.splitlines():
@@ -95,28 +100,99 @@ class IAR(mbedToolchain):
                     match.group('message')
                 )
 
-    def get_dep_opt(self, dep_path):
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
         return ["--dependencies", dep_path]
 
-    def cc_extra(self, base):
-        return ["-l", base + '.s']
+    def cc_extra(self, object):
+        base, _ = splitext(object)
+        return ["-l", base + '.s.txt']
 
-    def parse_dependencies(self, dep_path):
-        return [path.strip() for path in open(dep_path).readlines()
-                if (path and not path.isspace())]
+    def get_compile_options(self, defines, includes):
+        return ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
 
+    @hook_tool
     def assemble(self, source, object, includes):
-        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
+        # Build assemble command
+        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
 
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_assembler(cmd)
+
+        # Return command array, don't execute
+        return [cmd]
+
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        # Build compile command
+        cmd = cc +  self.get_compile_options(self.get_symbols(), includes)
+
+        cmd.extend(self.get_dep_option(object))
+
+        cmd.extend(self.cc_extra(object))
+        
+        cmd.extend(["-o", object, source])
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_compiler(cmd)
+
+        return [cmd]
+
+    def compile_c(self, source, object, includes):
+        return self.compile(self.cc, source, object, includes)
+
+    def compile_cpp(self, source, object, includes):
+        return self.compile(self.cppc, source, object, includes)
+
+    @hook_tool
+    def link(self, output, objects, libraries, lib_dirs, mem_map):
+        # Build linker command
+        map_file = splitext(output)[0] + ".map"
+        cmd = [self.ld, "-o", output, "--skip_dynamic_initialization", "--map=%s" % map_file] + objects + libraries
+
+        if mem_map:
+            cmd.extend(["--config", mem_map])
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_linker(cmd)
+
+        # Split link command to linker executable + response file
+        link_files = join(dirname(output), ".link_files.txt")
+        with open(link_files, "wb") as f:
+            cmd_linker = cmd[0]
+            cmd_list = []
+            for c in cmd[1:]:
+                if c:
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
+            string = " ".join(cmd_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([cmd_linker, '-f', link_files])
+
+    @hook_tool
     def archive(self, objects, lib_path):
+        archive_files = join(dirname(lib_path), ".archive_files.txt")
+        with open(archive_files, "wb") as f:
+            o_list = []
+            for o in objects:
+                o_list.append('"%s"' % o)                    
+            string = " ".join(o_list).replace("\\", "/")
+            f.write(string)
+
         if exists(lib_path):
             remove(lib_path)
-        self.default_cmd([self.ar, lib_path] + objects)
 
-    def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = [self.ld, "-o", output, "--config", mem_map, "--skip_dynamic_initialization", "--threaded_lib"]
-        self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
+        self.default_cmd([self.ar, lib_path, '-f', archive_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):
-        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, '--bin', elf, bin]))
+        # Build binary command
+        cmd = [self.elf2bin, "--bin", elf, bin]
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_binary(cmd)
+
+        # Exec command
+        self.default_cmd(cmd)

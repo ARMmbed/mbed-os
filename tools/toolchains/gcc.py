@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext
+from os.path import join, basename, splitext, dirname, exists
 
 from tools.toolchains import mbedToolchain
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
@@ -67,17 +67,18 @@ class GCC(mbedToolchain):
             "-Wno-unused-parameter", "-Wno-missing-field-initializers",
             "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
             "-ffunction-sections", "-fdata-sections",
-            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
+            "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
             ] + self.cpu
 
         if "save-asm" in self.options:
             common_flags.append("-save-temps")
 
         if "debug-info" in self.options:
-            common_flags.append("-g")
             common_flags.append("-O0")
         else:
             common_flags.append("-O2")
+        # add debug symbols for all builds
+        common_flags.append("-g")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -95,12 +96,11 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
-    def assemble(self, source, object, includes):
-        return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
-
     def parse_dependencies(self, dep_path):
         dependencies = []
-        for line in open(dep_path).readlines()[1:]:
+        buff = open(dep_path).readlines()
+        buff[0] = re.sub('^(.*?)\: ', '', buff[0])
+        for line in buff:
             file = line.replace('\\\n', '').strip()
             if file:
                 # GCC might list more than one dependency on a single line, in this case
@@ -160,22 +160,103 @@ class GCC(mbedToolchain):
                     message + match.group('message')
                 )
 
-    def archive(self, objects, lib_path):
-        self.default_cmd([self.ar, "rcs", lib_path] + objects)
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
+        return ["-MD", "-MF", dep_path]
 
+    def get_compile_options(self, defines, includes):
+        return ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+
+    @hook_tool
+    def assemble(self, source, object, includes):
+        # Build assemble command
+        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_assembler(cmd)
+
+        # Return command array, don't execute
+        return [cmd]
+
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        # Build compile command
+        cmd = cc + self.get_compile_options(self.get_symbols(), includes)
+
+        cmd.extend(self.get_dep_option(object))
+
+        cmd.extend(["-o", object, source])
+        
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_compiler(cmd)
+
+        return [cmd]
+
+    def compile_c(self, source, object, includes):
+        return self.compile(self.cc, source, object, includes)
+
+    def compile_cpp(self, source, object, includes):
+        return self.compile(self.cppc, source, object, includes)
+
+    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         libs = []
         for l in libraries:
             name, _ = splitext(basename(l))
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
+        
+        # Build linker command
+        map_file = splitext(output)[0] + ".map"
+        cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+        if mem_map:
+            cmd.extend(['-T', mem_map])
+            
+        for L in lib_dirs:
+            cmd.extend(['-L', L])
+        cmd.extend(libs)
 
-        self.default_cmd(self.hook.get_cmdline_linker(self.ld + ["-T%s" % mem_map, "-o", output] +
-            objects + ["-L%s" % L for L in lib_dirs] + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]))
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_linker(cmd)
+
+        # Split link command to linker executable + response file
+        link_files = join(dirname(output), ".link_files.txt")
+        with open(link_files, "wb") as f:
+            cmd_linker = cmd[0]
+            cmd_list = []
+            for c in cmd[1:]:
+                if c:
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)   
+            string = " ".join(cmd_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([cmd_linker, "@%s" % link_files])
+
+    @hook_tool
+    def archive(self, objects, lib_path):
+        archive_files = join(dirname(lib_path), ".archive_files.txt")
+        with open(archive_files, "wb") as f:
+            o_list = []
+            for o in objects:
+                o_list.append('"%s"' % o)                    
+            string = " ".join(o_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([self.ar, 'rcs', lib_path, "@%s" % archive_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):
-        self.default_cmd(self.hook.get_cmdline_binary([self.elf2bin, "-O", "binary", elf, bin]))
+        # Build binary command
+        cmd = [self.elf2bin, "-O", "binary", elf, bin]
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_binary(cmd)
+
+        # Exec command
+        self.default_cmd(cmd)
 
 
 class GCC_ARM(GCC):

@@ -17,18 +17,21 @@ limitations under the License.
 
 import re
 import sys
-from os import stat, walk
+from os import stat, walk, getcwd, sep
 from copy import copy
 from time import time, sleep
 from types import ListType
 from shutil import copyfile
-from os.path import join, splitext, exists, relpath, dirname, basename, split
+from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath
 from inspect import getmro
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
+from tools.memap import MemmapParser
+from hashlib import md5
+import fnmatch
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -50,6 +53,7 @@ def compile_worker(job):
         'commands': job['commands'],
         'results': results
     }
+
 
 class Resources:
     def __init__(self, base_path=None):
@@ -78,6 +82,19 @@ class Resources:
         # Other files
         self.hex_files = []
         self.bin_files = []
+        self.json_files = []
+
+    def __add__(self, resources):
+        if resources is None:
+            return self
+        else:
+            return self.add(resources)
+
+    def __radd__(self, resources):
+        if resources is None:
+            return self
+        else:
+            return self.add(resources)
 
     def add(self, resources):
         self.inc_dirs += resources.inc_dirs
@@ -102,11 +119,15 @@ class Resources:
 
         self.hex_files += resources.hex_files
         self.bin_files += resources.bin_files
+        self.json_files += resources.json_files
+
+        return self
 
     def relative_to(self, base, dot=False):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files', 'bin_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files',
+                      'hex_files', 'bin_files', 'json_files']:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -115,7 +136,8 @@ class Resources:
     def win_to_unix(self):
         for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
                       'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files', 'hex_files', 'bin_files']:
+                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files',
+                      'hex_files', 'bin_files', 'json_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
         if self.linker_script is not None:
@@ -147,7 +169,6 @@ class Resources:
 
         return '\n'.join(s)
 
-
 # Support legacy build conventions: the original mbed build system did not have
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
@@ -164,16 +185,17 @@ LEGACY_TOOLCHAIN_NAMES = {
 
 class mbedToolchain:
     VERBOSE = True
+    ignorepatterns = []
 
     CORTEX_SYMBOLS = {
-        "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0"],
-        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS"],
+        "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M0+": ["__CORTEX_M0PLUS", "ARM_MATH_CM0PLUS", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M1" : ["__CORTEX_M3", "ARM_MATH_CM1"],
-        "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3"],
-        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4"],
-        "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1"],
-        "Cortex-M7" : ["__CORTEX_M7", "ARM_MATH_CM7"],
-        "Cortex-M7F" : ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1"],
+        "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M7" : ["__CORTEX_M7", "ARM_MATH_CM7", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
+        "Cortex-M7F" : ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-A9" : ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT", "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
     }
 
@@ -210,12 +232,16 @@ class mbedToolchain:
         self.has_config = False
 
         self.build_all = False
+        self.build_dir = None
         self.timestamp = time()
         self.jobs = 1
 
         self.CHROOT = None
 
         self.mp_pool = None
+
+        if 'UVISOR_PRESENT=1' in self.macros:
+            self.target.core = re.sub(r"F$", '', self.target.core)
 
     def get_output(self):
         return self.output
@@ -299,7 +325,10 @@ class mbedToolchain:
 
             # Add target's symbols
             self.symbols += self.target.macros
+            # Add target's hardware
             self.symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
+            # Add target's features
+            self.symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
             # Add extra symbols passed via 'macros' parameter
             self.symbols += self.macros
 
@@ -309,12 +338,16 @@ class mbedToolchain:
 
         return list(set(self.symbols))  # Return only unique symbols
 
+    # Extend the internal list of macros
+    def add_macros(self, new_macros):
+        self.macros.extend(new_macros)
+
     def get_labels(self):
         if self.labels is None:
             toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
-                'TARGET': self.target.get_labels(),
+                'TARGET': self.target.get_labels() + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
                 'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
@@ -341,7 +374,13 @@ class mbedToolchain:
 
         return False
 
-    def scan_resources(self, path):
+    def is_ignored(self, file_path):
+        for pattern in self.ignorepatterns:
+            if fnmatch.fnmatch(file_path, pattern):
+                return True
+        return False
+
+    def scan_resources(self, path, exclude_paths=None):
         labels = self.get_labels()
         resources = Resources(path)
         self.has_config = False
@@ -356,25 +395,55 @@ class mbedToolchain:
         bottom-up mode the directories in dirnames are generated before dirpath
         itself is generated.
         """
-        for root, dirs, files in walk(path):
+        for root, dirs, files in walk(path, followlinks=True):
             # Remove ignored directories
+            # Check if folder contains .mbedignore
+            if ".mbedignore" in files :
+                with open (join(root,".mbedignore"), "r") as f:
+                    lines=f.readlines()
+                    lines = [l.strip() for l in lines] # Strip whitespaces
+                    lines = [l for l in lines if l != ""] # Strip empty lines
+                    lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
+                    # Append root path to glob patterns
+                    # and append patterns to ignorepatterns
+                    self.ignorepatterns.extend([join(root,line.strip()) for line in lines])
+
             for d in copy(dirs):
+                dir_path = join(root, d)
                 if d == '.hg':
-                    dir_path = join(root, d)
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
                     (d.startswith('FEATURE_') and d[8:] not in labels['FEATURE']) or
-                    (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN'])):
+                    (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
+                    (d == 'TESTS')):
                     dirs.remove(d)
+
+
+                # Remove dirs that already match the ignorepatterns
+                # to avoid travelling into them and to prevent them
+                # on appearing in include path.
+                if self.is_ignored(join(dir_path,"")):
+                    dirs.remove(d)
+
+                if exclude_paths:
+                    for exclude_path in exclude_paths:
+                        rel_path = relpath(dir_path, exclude_path)
+                        if not (rel_path.startswith('..')):
+                            dirs.remove(d)
+                            break
 
             # Add root to include paths
             resources.inc_dirs.append(root)
 
             for file in files:
                 file_path = join(root, file)
+
+                if self.is_ignored(file_path):
+                    continue
+
                 _, ext = splitext(file)
                 ext = ext.lower()
 
@@ -419,6 +488,9 @@ class mbedToolchain:
                 elif ext == '.bin':
                     resources.bin_files.append(file_path)
 
+                elif ext == '.json':
+                    resources.json_files.append(file_path)
+
         return resources
 
     def scan_repository(self, path):
@@ -460,9 +532,22 @@ class mbedToolchain:
 
     def relative_object_path(self, build_path, base_dir, source):
         source_dir, name, _ = split_path(source)
+        
         obj_dir = join(build_path, relpath(source_dir, base_dir))
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
+
+    def get_inc_file(self, includes):
+        include_file = join(self.build_dir, ".includes_%s.txt" % self.inc_md5)
+        if not exists(include_file):
+            with open(include_file, "wb") as f:
+                cmd_list = []
+                for c in includes:
+                    if c:
+                        cmd_list.append(('-I%s' % c).replace("\\", "/"))                    
+                string = " ".join(cmd_list)
+                f.write(string)
+        return include_file
 
     def compile_sources(self, resources, build_path, inc_dirs=None):
         # Web IDE progress bar for project build
@@ -470,13 +555,17 @@ class mbedToolchain:
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
 
-        #for i in self.build_params:
-        #    self.debug(i)
-        #    self.debug("%s" % self.build_params[i])
-
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
             inc_paths.extend(inc_dirs)
+        # De-duplicate include paths
+        inc_paths = set(inc_paths)
+        # Sort include paths for consistency
+        inc_paths = sorted(set(inc_paths))
+        # Unique id of all include paths
+        self.inc_md5 = md5(' '.join(inc_paths)).hexdigest()
+        # Where to store response files
+        self.build_dir = build_path
 
         objects = []
         queue = []
@@ -484,16 +573,13 @@ class mbedToolchain:
 
         # The dependency checking for C/C++ is delegated to the compiler
         base_path = resources.base_path
+        # Sort compile queue for consistency
         files_to_compile.sort()
+        work_dir = getcwd()
+
         for source in files_to_compile:
             _, name, _ = split_path(source)
             object = self.relative_object_path(build_path, base_path, source)
-
-            # Avoid multiple mkdir() calls on same work directory
-            work_dir = dirname(object)
-            if work_dir is not prev_dir:
-                prev_dir = work_dir
-                mkdir(work_dir)
 
             # Queue mode (multiprocessing)
             commands = self.compile_command(source, object, inc_paths)
@@ -542,7 +628,7 @@ class mbedToolchain:
         itr = 0
         while True:
             itr += 1
-            if itr > 30000:
+            if itr > 180000:
                 p.terminate()
                 p.join()
                 raise ToolException("Compile did not finish in 5 minutes")
@@ -633,28 +719,6 @@ class mbedToolchain:
             else:
                 raise ToolException(_stderr)
 
-    def compile(self, cc, source, object, includes):
-        _, ext = splitext(source)
-        ext = ext.lower()
-
-        command = cc + ['-D%s' % s for s in self.get_symbols()] + ["-I%s" % i for i in includes] + ["-o", object, source]
-
-        if hasattr(self, "get_dep_opt"):
-            base, _ = splitext(object)
-            dep_path = base + '.d'
-            command.extend(self.get_dep_opt(dep_path))
-
-        if hasattr(self, "cc_extra"):
-            command.extend(self.cc_extra(base))
-
-        return [command]
-
-    def compile_c(self, source, object, includes):
-        return self.compile(self.cc, source, object, includes)
-
-    def compile_cpp(self, source, object, includes):
-        return self.compile(self.cppc, source, object, includes)
-
     def build_library(self, objects, dir, name):
         needed_update = False
         lib = self.STD_LIB_NAME % name
@@ -677,10 +741,16 @@ class mbedToolchain:
             if self.target.OUTPUT_NAMING == "8.3":
                 name = name[0:8]
                 ext = ext[0:3]
-
+        
+        # Create destination directory
+        head, tail =  split(name)
+        new_path = join(tmp_path, head)
+        mkdir(new_path)
+        
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
+        map = join(tmp_path, name + '.map')
 
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             needed_update = True
@@ -693,18 +763,20 @@ class mbedToolchain:
 
             self.binary(r, elf, bin)
 
+        self.mem_stats(map)
+
         self.var("compile_succeded", True)
         self.var("binary", filename)
 
         return bin, needed_update
 
     def default_cmd(self, command):
+        self.debug("Command: %s"% ' '.join(command))
         _stdout, _stderr, _rc = run_cmd(command)
         # Print all warning / erros from stderr to console output
         for error_line in _stderr.splitlines():
             print error_line
 
-        self.debug("Command: %s"% ' '.join(command))
         self.debug("Return: %s"% _rc)
 
         for output_line in _stdout.splitlines():
@@ -749,6 +821,35 @@ class mbedToolchain:
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
 
+    def mem_stats(self, map):
+        # Creates parser object
+        toolchain = self.__class__.__name__
+        t = MemmapParser()
+
+        try:
+            with open(map, 'rt') as f:
+                # Decode map file depending on the toolchain
+                if toolchain == "ARM_STD" or toolchain == "ARM_MICRO":
+                    t.search_objects(abspath(map), "ARM")
+                    t.parse_map_file_armcc(f)
+                elif toolchain == "GCC_ARM":
+                    t.parse_map_file_gcc(f)
+                elif toolchain == "IAR":
+                    self.info("[WARNING] IAR Compiler not fully supported (yet)")
+                    t.search_objects(abspath(map), toolchain)
+                    t.parse_map_file_iar(f)
+                else:
+                    self.info("Unknown toolchain for memory statistics %s" % toolchain)
+                    return
+
+                t.generate_output(sys.stdout, False)
+                map_out = splitext(map)[0] + "_map.json"
+                with open(map_out, 'w') as fo:
+                    t.generate_output(fo, True)
+        except OSError:
+            return
+            
+    
 from tools.settings import ARM_BIN
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
 from tools.settings import IAR_PATH

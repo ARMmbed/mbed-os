@@ -19,20 +19,22 @@ import re
 import tempfile
 import colorama
 
-
+from copy import copy
 from types import ListType
 from shutil import rmtree
-from os.path import join, exists, basename
+from os.path import join, exists, basename, abspath, normpath
+from os import getcwd, walk
 from time import time
+import fnmatch
 
-from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
+from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException
 from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.libraries import Library
 from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
-
+from tools.config import Config
 
 def prep_report(report, target_name, toolchain_name, id_name):
     # Setup report keys
@@ -75,37 +77,90 @@ def add_result_to_report(report, result):
     result_wrap = { 0: result }
     report[target][toolchain][id_name].append(result_wrap)
 
+def get_config(src_path, target, toolchain_name):
+    # Convert src_path to a list if needed
+    src_paths = [src_path] if type(src_path) != ListType else src_path
+    # We need to remove all paths which are repeated to avoid
+    # multiple compilations and linking with the same objects
+    src_paths = [src_paths[0]] + list(set(src_paths[1:]))
+
+    # Create configuration object
+    config = Config(target, src_paths)
+
+    # If the 'target' argument is a string, convert it to a target instance
+    if isinstance(target, str):
+        try:
+            target = TARGET_MAP[target]
+        except KeyError:
+            raise KeyError("Target '%s' not found" % target)
+
+    # Toolchain instance
+    try:
+        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options=None, notify=None, macros=None, silent=True, extra_verbose=False)
+    except KeyError as e:
+        raise KeyError("Toolchain %s not supported" % toolchain_name)
+
+    # Scan src_path for config files
+    resources = toolchain.scan_resources(src_paths[0])
+    for path in src_paths[1:]:
+        resources.add(toolchain.scan_resources(path))
+
+    config.add_config_files(resources.json_files)
+    return config.get_config_data()
+
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
         clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None,
-        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None, extra_verbose=False):
+        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None,
+        extra_verbose=False, config=None):
     """ This function builds project. Project can be for example one test / UT
     """
-    # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent, extra_verbose=extra_verbose)
-    toolchain.VERBOSE = verbose
-    toolchain.jobs = jobs
-    toolchain.build_all = clean
+
+    # Convert src_path to a list if needed
     src_paths = [src_path] if type(src_path) != ListType else src_path
 
     # We need to remove all paths which are repeated to avoid
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
-    PROJECT_BASENAME = basename(src_paths[0])
+    first_src_path = src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd()
+    abs_path = abspath(first_src_path)
+    project_name = basename(normpath(abs_path))
+
+    # If the configuration object was not yet created, create it now
+    config = config or Config(target, src_paths)
+
+    # If the 'target' argument is a string, convert it to a target instance
+    if isinstance(target, str):
+        try:
+            target = TARGET_MAP[target]
+        except KeyError:
+            raise KeyError("Target '%s' not found" % target)
+
+    # Toolchain instance
+    try:
+        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent, extra_verbose=extra_verbose)
+    except KeyError as e:
+        raise KeyError("Toolchain %s not supported" % toolchain_name)
+
+    toolchain.VERBOSE = verbose
+    toolchain.jobs = jobs
+    toolchain.build_all = clean
 
     if name is None:
         # We will use default project name based on project folder name
-        name = PROJECT_BASENAME
-        toolchain.info("Building project %s (%s, %s)" % (PROJECT_BASENAME.upper(), target.name, toolchain_name))
+        name = project_name
+        toolchain.info("Building project %s (%s, %s)" % (project_name, target.name, toolchain_name))
     else:
         # User used custom global project name to have the same name for the
-        toolchain.info("Building project %s to %s (%s, %s)" % (PROJECT_BASENAME.upper(), name, target.name, toolchain_name))
+        toolchain.info("Building project %s to %s (%s, %s)" % (project_name, name, target.name, toolchain_name))
 
 
     if report != None:
         start = time()
-        id_name = project_id.upper()
-        description = project_description
+        
+        # If project_id is specified, use that over the default name
+        id_name = project_id.upper() if project_id else name.upper()
+        description = project_description if project_description else name
         vendor_label = target.extra_labels[0]
         cur_result = None
         prep_report(report, target.name, toolchain_name, id_name)
@@ -139,12 +194,17 @@ def build_project(src_path, build_path, target, toolchain_name,
                 resources.inc_dirs.extend(inc_dirs)
             else:
                 resources.inc_dirs.append(inc_dirs)
+
+        # Update the configuration with any .json files found while scanning
+        config.add_config_files(resources.json_files)
+        # And add the configuration macros to the toolchain
+        toolchain.add_macros(config.get_config_data_macros())
+
         # Compile Sources
         for path in src_paths:
             src = toolchain.scan_resources(path)
             objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
             resources.objects.extend(objects)
-
 
         # Link Program
         res, needed_update = toolchain.link_program(resources, build_path, name)
@@ -181,11 +241,11 @@ def build_project(src_path, build_path, target, toolchain_name,
         # Let Exception propagate
         raise e
 
-
 def build_library(src_paths, build_path, target, toolchain_name,
-         dependencies_paths=None, options=None, name=None, clean=False,
+         dependencies_paths=None, options=None, name=None, clean=False, archive=True,
          notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None,
-         jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
+         jobs=1, silent=False, report=None, properties=None, extra_verbose=False,
+         project_id=None):
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
@@ -201,11 +261,16 @@ def build_library(src_paths, build_path, target, toolchain_name,
         src_paths = [src_paths]
 
     # The first path will give the name to the library
-    name = basename(src_paths[0])
+    project_name = basename(src_paths[0] if src_paths[0] != "." and src_paths[0] != "./" else getcwd())
+    if name is None:
+        # We will use default project name based on project folder name
+        name = project_name
 
     if report != None:
         start = time()
-        id_name = name.upper()
+        
+        # If project_id is specified, use that over the default name
+        id_name = project_id.upper() if project_id else name.upper()
         description = name
         vendor_label = target.extra_labels[0]
         cur_result = None
@@ -233,47 +298,71 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.jobs = jobs
         toolchain.build_all = clean
 
-        toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+        toolchain.info("Building library %s (%s, %s)" % (name, target.name, toolchain_name))
 
         # Scan Resources
-        resources = []
-        for src_path in src_paths:
-            resources.append(toolchain.scan_resources(src_path))
+        resources = None
+        for path in src_paths:
+            # Scan resources
+            resource = toolchain.scan_resources(path)
+            
+            # Copy headers, objects and static libraries - all files needed for static lib
+            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
+            if resource.linker_script:
+                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
+
+            # Extend resources collection
+            if not resources:
+                resources = resource
+            else:
+                resources.add(resource)
+
+        # We need to add if necessary additional include directories
+        if inc_dirs:
+            if type(inc_dirs) == ListType:
+                resources.inc_dirs.extend(inc_dirs)
+            else:
+                resources.inc_dirs.append(inc_dirs)
 
         # Add extra include directories / files which are required by library
         # This files usually are not in the same directory as source files so
         # previous scan will not include them
         if inc_dirs_ext is not None:
             for inc_ext in inc_dirs_ext:
-                resources.append(toolchain.scan_resources(inc_ext))
+                resources.add(toolchain.scan_resources(inc_ext))
 
         # Dependencies Include Paths
-        dependencies_include_dir = []
         if dependencies_paths is not None:
             for path in dependencies_paths:
                 lib_resources = toolchain.scan_resources(path)
-                dependencies_include_dir.extend(lib_resources.inc_dirs)
+                resources.inc_dirs.extend(lib_resources.inc_dirs)
 
-        if inc_dirs:
-            dependencies_include_dir.extend(inc_dirs)
+        if archive:
+            # Use temp path when building archive
+            tmp_path = join(build_path, '.temp')
+            mkdir(tmp_path)
+        else:
+            tmp_path = build_path
 
-        # Create the desired build directory structure
-        bin_path = join(build_path, toolchain.obj_path)
-        mkdir(bin_path)
-        tmp_path = join(build_path, '.temp', toolchain.obj_path)
-        mkdir(tmp_path)
-
-        # Copy Headers
-        for resource in resources:
-            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-        dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+        # Handle configuration
+        config = Config(target)
+        # Update the configuration with any .json files found while scanning
+        config.add_config_files(resources.json_files)
+        # And add the configuration macros to the toolchain
+        toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
-        objects = []
-        for resource in resources:
-            objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies_include_dir))
+        for path in src_paths:
+            src = toolchain.scan_resources(path)
+            objects = toolchain.compile_sources(src, abspath(tmp_path), resources.inc_dirs)
+            resources.objects.extend(objects)
 
-        needed_update = toolchain.build_library(objects, bin_path, name)
+        if archive:
+            needed_update = toolchain.build_library(resources.objects, build_path, name)
+        else:
+            needed_update = True
 
         if report != None and needed_update:
             end = time()
@@ -286,7 +375,12 @@ def build_library(src_paths, build_path, target, toolchain_name,
     except Exception, e:
         if report != None:
             end = time()
-            cur_result["result"] = "FAIL"
+            
+            if isinstance(e, ToolException):
+                cur_result["result"] = "FAIL"
+            elif isinstance(e, NotSupportedException):
+                cur_result["result"] = "NOT_SUPPORTED"
+            
             cur_result["elapsed_time"] = end - start
 
             toolchain_output = toolchain.get_output()
@@ -734,3 +828,63 @@ def write_build_report(build_report, template_filename, filename):
 
     with open(filename, 'w+') as f:
         f.write(template.render(failing_builds=build_report_failing, passing_builds=build_report_passing))
+
+
+def scan_for_source_paths(path, exclude_paths=None):
+    ignorepatterns = []
+    paths = []
+    
+    def is_ignored(file_path):
+        for pattern in ignorepatterns:
+            if fnmatch.fnmatch(file_path, pattern):
+                return True
+        return False
+    
+    
+    """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
+    When topdown is True, the caller can modify the dirnames list in-place
+    (perhaps using del or slice assignment), and walk() will only recurse into
+    the subdirectories whose names remain in dirnames; this can be used to prune
+    the search, impose a specific order of visiting, or even to inform walk()
+    about directories the caller creates or renames before it resumes walk()
+    again. Modifying dirnames when topdown is False is ineffective, because in
+    bottom-up mode the directories in dirnames are generated before dirpath
+    itself is generated.
+    """
+    for root, dirs, files in walk(path, followlinks=True):
+        # Remove ignored directories
+        # Check if folder contains .mbedignore
+        if ".mbedignore" in files :
+            with open (join(root,".mbedignore"), "r") as f:
+                lines=f.readlines()
+                lines = [l.strip() for l in lines] # Strip whitespaces
+                lines = [l for l in lines if l != ""] # Strip empty lines
+                lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
+                # Append root path to glob patterns
+                # and append patterns to ignorepatterns
+                ignorepatterns.extend([join(root,line.strip()) for line in lines])
+
+        for d in copy(dirs):
+            dir_path = join(root, d)
+
+            # Always ignore hidden directories
+            if d.startswith('.'):
+                dirs.remove(d)
+
+            # Remove dirs that already match the ignorepatterns
+            # to avoid travelling into them and to prevent them
+            # on appearing in include path.
+            if is_ignored(join(dir_path,"")):
+                dirs.remove(d)
+
+            if exclude_paths:
+                for exclude_path in exclude_paths:
+                    rel_path = relpath(dir_path, exclude_path)
+                    if not (rel_path.startswith('..')):
+                        dirs.remove(d)
+                        break
+
+        # Add root to include paths
+        paths.append(root)
+
+    return paths

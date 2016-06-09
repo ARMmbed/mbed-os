@@ -9,19 +9,18 @@ You may obtain a copy of the License at
     http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" tools.,
+distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join
-import copy
+from os.path import join, dirname, splitext, basename, exists
 
 from tools.toolchains import mbedToolchain
-from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB
+from tools.settings import ARM_BIN, ARM_INC, ARM_LIB, MY_ARM_CLIB, ARM_CPPLIB, GOANNA_PATH
 from tools.hooks import hook_tool
-from tools.settings import GOANNA_PATH
+from tools.utils import mkdir
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -30,16 +29,6 @@ class ARM(mbedToolchain):
     STD_LIB_NAME = "%s.ar"
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error): (?P<message>.+)')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
-
-    DEFAULT_FLAGS = {
-        'common': ["--apcs=interwork",
-            "--brief_diagnostics"],
-        'asm': ['-I"%s"' % ARM_INC],
-        'c': ["-c", "--gnu", "-Otime", "--restrict", "--multibyte_chars", "--split_sections", "--md", "--no_depend_system_headers", '-I"%s"' % ARM_INC,
-            "--c99", "-D__ASSERT_MSG" ],
-        'cxx': ["--cpp", "--no_rtti", "-D__ASSERT_MSG"],
-        'ld': [],
-    }
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
@@ -54,44 +43,40 @@ class ARM(mbedToolchain):
             cpu = target.core
 
         main_cc = join(ARM_BIN, "armcc")
+        common = ["-c",
+            "--cpu=%s" % cpu, "--gnu",
+            "-Otime", "--split_sections", "--apcs=interwork",
+            "--brief_diagnostics", "--restrict", "--multibyte_chars"
+        ]
 
-        self.flags = copy.deepcopy(self.DEFAULT_FLAGS)
-        self.flags['common'] += ["--cpu=%s" % cpu]
         if "save-asm" in self.options:
-            self.flags['common'].extend(["--asm", "--interleave"])
+            common.extend(["--asm", "--interleave"])
 
         if "debug-info" in self.options:
-            self.flags['common'].append("-g")
-            self.flags['c'].append("-O0")
+            common.append("-O0")
         else:
-            self.flags['c'].append("-O3")
+            common.append("-O3")
+        # add debug symbols for all builds
+        common.append("-g")
 
-        self.asm = [main_cc] + self.flags['common'] + self.flags['asm'] + self.flags['c']
+        common_c = [
+            "--md", "--no_depend_system_headers",
+            '-I%s' % ARM_INC
+        ]
+
+        self.asm = [main_cc] + common + ['-I%s' % ARM_INC]
         if not "analyze" in self.options:
-            self.cc = [main_cc] + self.flags['common'] + self.flags['c']
-            self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
+            self.cc = [main_cc] + common + common_c + ["--c99"]
+            self.cppc = [main_cc] + common + common_c + ["--cpp", "--no_rtti"]
         else:
-            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + self.flags['common'] + self.flags['c'] 
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
+            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--c99"]
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cc.replace('\\', '/'), "--dialect=armcc", '--output-format="%s"' % self.GOANNA_FORMAT] + common + common_c + ["--cpp", "--no_rtti"]
 
         self.ld = [join(ARM_BIN, "armlink")]
         self.sys_libs = []
 
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
-
-    def remove_option(self, option):
-        for tool in [self.asm, self.cc, self.cppc]:
-            if option in tool:
-                tool.remove(option)
-
-    def assemble(self, source, object, includes):
-        # Preprocess first, then assemble
-        tempfile = object + '.E.s'
-        return [
-            self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-E", "-o", tempfile, source],
-            self.hook.get_cmdline_assembler(self.asm + ["-o", object, tempfile])
-        ]
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -122,39 +107,116 @@ class ARM(mbedToolchain):
                     match.group('message')
                 )
 
-    def get_dep_opt(self, dep_path):
+    def get_dep_option(self, object):
+        base, _ = splitext(object)
+        dep_path = base + '.d'
         return ["--depend", dep_path]
 
-    def archive(self, objects, lib_path):
-        self.default_cmd([self.ar, '-r', lib_path] + objects)
+    def get_compile_options(self, defines, includes):        
+        return ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
 
+    @hook_tool
+    def assemble(self, source, object, includes):
+        # Preprocess first, then assemble
+        dir = join(dirname(object), '.temp')
+        mkdir(dir)
+        tempfile = join(dir, basename(object) + '.E.s')
+        
+        # Build preprocess assemble command
+        cmd_pre = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-E", "-o", tempfile, source]
+
+        # Build main assemble command
+        cmd = self.asm + ["-o", object, tempfile]
+
+        # Call cmdline hook
+        cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
+        cmd = self.hook.get_cmdline_assembler(cmd)
+       
+        # Return command array, don't execute
+        return [cmd_pre, cmd]
+
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        # Build compile command
+        cmd = cc + self.get_compile_options(self.get_symbols(), includes)
+        
+        cmd.extend(self.get_dep_option(object))
+            
+        cmd.extend(["-o", object, source])
+
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_compiler(cmd)
+
+        return [cmd]
+
+    def compile_c(self, source, object, includes):
+        return self.compile(self.cc, source, object, includes)
+
+    def compile_cpp(self, source, object, includes):
+        return self.compile(self.cppc, source, object, includes)
+
+    @hook_tool
     def link(self, output, objects, libraries, lib_dirs, mem_map):
+        map_file = splitext(output)[0] + ".map"
         if len(lib_dirs):
-            args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--list=.link_totals.txt"]
+            args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--map", "--list=%s" % map_file]
         else:
-            args = ["-o", output, "--info=totals", "--list=.link_totals.txt"]
+            args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
 
         if mem_map:
             args.extend(["--scatter", mem_map])
 
-        if hasattr(self.target, "link_cmdline_hook"):
-            args = self.target.link_cmdline_hook(self.__class__.__name__, args)
+        # Build linker command
+        cmd = self.ld + args + objects + libraries + self.sys_libs
 
-        self.default_cmd(self.ld + args + objects + libraries + self.sys_libs)
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_linker(cmd)
+
+        # Split link command to linker executable + response file
+        link_files = join(dirname(output), ".link_files.txt")
+        with open(link_files, "wb") as f:
+            cmd_linker = cmd[0]
+            cmd_list = []
+            for c in cmd[1:]:
+                if c:
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)                    
+            string = " ".join(cmd_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([cmd_linker, '--via', link_files])
+
+    @hook_tool
+    def archive(self, objects, lib_path):
+        archive_files = join(dirname(lib_path), ".archive_files.txt")
+        with open(archive_files, "wb") as f:
+            o_list = []
+            for o in objects:
+                o_list.append('"%s"' % o)                    
+            string = " ".join(o_list).replace("\\", "/")
+            f.write(string)
+
+        # Exec command
+        self.default_cmd([self.ar, '-r', lib_path, '--via', archive_files])
 
     @hook_tool
     def binary(self, resources, elf, bin):
-        args = [self.elf2bin, '--bin', '-o', bin, elf]
+        # Build binary command
+        cmd = [self.elf2bin, '--bin', '-o', bin, elf]
 
-        if hasattr(self.target, "binary_cmdline_hook"):
-            args = self.target.binary_cmdline_hook(self.__class__.__name__, args)
+        # Call cmdline hook
+        cmd = self.hook.get_cmdline_binary(cmd)
 
-        self.default_cmd(args)
+        # Exec command
+        self.default_cmd(cmd)
+
 
 class ARM_STD(ARM):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
-        self.ld.append("--libpath=%s" % ARM_LIB)
+        self.cc   += ["-D__ASSERT_MSG"]
+        self.cppc += ["-D__ASSERT_MSG"]
+        self.ld.extend(["--libpath", ARM_LIB])
 
 
 class ARM_MICRO(ARM):
@@ -163,20 +225,18 @@ class ARM_MICRO(ARM):
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
-        # add microlib to the command line flags
+        # Compiler
         self.asm  += ["-D__MICROLIB"]
-        self.cc += ["--library_type=microlib", "-D__MICROLIB"]
-        self.cppc += ["--library_type=microlib", "-D__MICROLIB"]
+        self.cc   += ["--library_type=microlib", "-D__MICROLIB", "-D__ASSERT_MSG"]
+        self.cppc += ["--library_type=microlib", "-D__MICROLIB", "-D__ASSERT_MSG"]
 
-        # the exporter uses --library_type flag to set microlib
-        self.flags['c']   += ["--library_type=microlib"]
-        self.flags['cxx'] += ["--library_type=microlib"]
-        self.flags['ld'].append("--library_type=microlib")
+        # Linker
+        self.ld.append("--library_type=microlib")
 
         # We had to patch microlib to add C++ support
         # In later releases this patch should have entered mainline
         if ARM_MICRO.PATCHED_LIBRARY:
-            self.flags['ld'].append("--noscanlib")
+            self.ld.append("--noscanlib")
 
             # System Libraries
             self.sys_libs.extend([join(MY_ARM_CLIB, lib+".l") for lib in ["mc_p", "mf_p", "m_ps"]])
@@ -187,4 +247,4 @@ class ARM_MICRO(ARM):
             elif target.core in ["Cortex-M0", "Cortex-M0+"]:
                 self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
         else:
-            self.ld.append("--libpath=%s" % ARM_LIB)
+            self.ld.extend(["--libpath", ARM_LIB])
