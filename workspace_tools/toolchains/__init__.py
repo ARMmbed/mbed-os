@@ -298,7 +298,7 @@ class mbedToolchain:
 
             # Add target's symbols
             self.symbols += self.target.macros
-            self.symbols += ["DEVICE_" + feature + "=1" for feature in self.target.features]
+            self.symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
             # Add extra symbols passed via 'macros' parameter
             self.symbols += self.macros
 
