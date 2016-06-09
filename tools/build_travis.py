@@ -139,7 +139,7 @@ def run_builds(dry_run):
         toolchain_list = build["toolchains"]
         if type(toolchain_list) != type([]): toolchain_list = [toolchain_list]
         for toolchain in toolchain_list:
-            cmdline = "python workspace_tools/build.py -m %s -t %s -j 4 -c --silent "% (build["target"], toolchain)
+            cmdline = "python tools/build.py -m %s -t %s -j 4 -c --silent "% (build["target"], toolchain)
             libs = build.get("libs", [])
             if libs:
                 cmdline = cmdline + " ".join(["--" + l for l in libs])
@@ -163,14 +163,14 @@ def run_test_linking(dry_run):
             for test_lib in tests:
                 test_names = tests[test_lib]
                 test_lib_switch = "--" + test_lib if test_lib else ""
-                cmdline = "python workspace_tools/make.py -m %s -t %s -c --silent %s -n %s " % (link["target"], toolchain, test_lib_switch, ",".join(test_names))
+                cmdline = "python tools/make.py -m %s -t %s -c --silent %s -n %s " % (link["target"], toolchain, test_lib_switch, ",".join(test_names))
                 print "Executing: " + cmdline
                 if not dry_run:
                     if os.system(cmdline) != 0:
                         sys.exit(1)
 
 def run_test_testsuite(dry_run):
-    cmdline = "python workspace_tools/singletest.py --version"
+    cmdline = "python tools/singletest.py --version"
     print "Executing: " + cmdline
     if not dry_run:
         if os.system(cmdline) != 0:

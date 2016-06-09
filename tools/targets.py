@@ -168,7 +168,7 @@ class Target:
                 break
         else: # Attribute not found
             raise AttributeError("Attribute '%s' not found in target '%s'" % (attrname, self.name))
-        # 'progen' needs the full path to the template (the path in JSON is relative to workspace_tools/export)
+        # 'progen' needs the full path to the template (the path in JSON is relative to tools/export)
         return v if attrname != "progen" else self.__add_paths_to_progen(v)
 
     # Return the value of an attribute

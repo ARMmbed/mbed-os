@@ -75,7 +75,7 @@ if __name__ == '__main__':
                       action="store_true",
                       dest="supported_ides_html",
                       default=False,
-                      help="writes workspace_tools/export/README.md")
+                      help="writes tools/export/README.md")
 
     (options, args) = parser.parse_args()
 

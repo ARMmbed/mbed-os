@@ -16,9 +16,9 @@ DESCRIPTION = """A set of Python scripts that can be used to compile programs wr
 OWNER_NAMES = 'emilmont, bogdanm'
 OWNER_EMAILS = 'Emilio.Monti@arm.com, Bogdan.Marinescu@arm.com'
 
-# If private_settings.py exists in workspace_tools, read it in a temporary file
+# If private_settings.py exists in tools, read it in a temporary file
 # so it can be restored later
-private_settings = join('workspace_tools', 'private_settings.py')
+private_settings = join('tools', 'private_settings.py')
 backup = None
 if isfile(private_settings):
     backup = TemporaryFile()
