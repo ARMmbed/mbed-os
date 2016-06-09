@@ -21,7 +21,7 @@ TEST BUILD & RUN
 import sys
 from time import sleep
 from shutil import copy
-from os.path import join, abspath, dirname
+from os.path import join, abspath, dirname, isfile, isdir
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -42,10 +42,9 @@ from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.build_api import build_project
 try:
-    import mbed_settings as ps
+    import tools.private_settings as ps
 except:
     ps = object()
-
 
 if __name__ == '__main__':
     # Parse Options
@@ -62,8 +61,8 @@ if __name__ == '__main__':
     parser.add_option("-j", "--jobs",
                       type="int",
                       dest="jobs",
-                      default=1,
-                      help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
+                      default=0,
+                      help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
     parser.add_option("-v", "--verbose",
                       action="store_true",
@@ -94,11 +93,13 @@ if __name__ == '__main__':
     parser.add_option("--dep", dest="dependencies",
                       default=None, help="Dependencies")
     parser.add_option("--source", dest="source_dir",
-                      default=None, help="The source (input) directory")
+                      default=None, help="The source (input) directory", action="append")
     parser.add_option("--duration", type="int", dest="duration",
                       default=None, help="Duration of the test")
     parser.add_option("--build", dest="build_dir",
                       default=None, help="The build (output) directory")
+    parser.add_option("-N", "--artifact-name", dest="artifact_name",
+                      default=None, help="The built project's name")
     parser.add_option("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
     parser.add_option("-s", "--serial", dest="serial",
@@ -164,6 +165,12 @@ if __name__ == '__main__':
                       default=None, help="use the specified linker script")
 
     (options, args) = parser.parse_args()
+
+    if options.source_dir:
+        for path in options.source_dir :
+            if not isfile(path) and not isdir(path) :
+                args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
+                           format(path))
 
     # Print available tests in order and exit
     if options.list_tests is True:
@@ -248,7 +255,8 @@ if __name__ == '__main__':
                                      verbose=options.verbose,
                                      silent=options.silent,
                                      macros=options.macros,
-                                     jobs=options.jobs)
+                                     jobs=options.jobs,
+                                     name=options.artifact_name)
             print 'Image: %s'% bin_file
 
             if options.disk:
@@ -259,7 +267,7 @@ if __name__ == '__main__':
                 # Import pyserial: https://pypi.python.org/pypi/pyserial
                 from serial import Serial
 
-                sleep(target.program_cycle_s())
+                sleep(TARGET_MAP[mcu].program_cycle_s())
 
                 serial = Serial(options.serial, timeout = 1)
                 if options.baud:
@@ -291,3 +299,5 @@ if __name__ == '__main__':
                 traceback.print_exc(file=sys.stdout)
             else:
                 print "[ERROR] %s" % str(e)
+            
+            sys.exit(1)

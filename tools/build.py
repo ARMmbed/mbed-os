@@ -30,7 +30,7 @@ sys.path.insert(0, ROOT)
 from tools.toolchains import TOOLCHAINS
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.options import get_default_options_parser
-from tools.build_api import build_mbed_libs, build_lib
+from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
 from tools.build_api import print_build_results
@@ -41,6 +41,15 @@ if __name__ == '__main__':
 
     # Parse Options
     parser = get_default_options_parser()
+
+    parser.add_option("--source", dest="source_dir",
+                      default=None, help="The source (input) directory", action="append")
+
+    parser.add_option("--build", dest="build_dir",
+                      default=None, help="The build (output) directory")
+
+    parser.add_option("--no-archive", dest="no_archive", action="store_true",
+                      default=False, help="Do not produce archive (.ar) file, but rather .o")
 
     # Extra libraries
     parser.add_option("-r", "--rtos",
@@ -119,7 +128,7 @@ if __name__ == '__main__':
                       help='For some commands you can use filter to filter out results')
 
     parser.add_option("-j", "--jobs", type="int", dest="jobs",
-                      default=1, help="Number of concurrent jobs (default 1). Use 0 for auto based on host machine's number of CPUs")
+                      default=0, help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
     parser.add_option("-v", "--verbose",
                       action="store_true",
@@ -224,7 +233,18 @@ if __name__ == '__main__':
                 tt_id = "%s::%s" % (toolchain, target)
                 try:
                     mcu = TARGET_MAP[target]
-                    lib_build_res = build_mbed_libs(mcu, toolchain,
+                    if options.source_dir:
+                        lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
+                                                    options=options.options,
+                                                    extra_verbose=options.extra_verbose_notify,
+                                                    verbose=options.verbose,
+                                                    silent=options.silent,
+                                                    jobs=options.jobs,
+                                                    clean=options.clean,
+                                                    archive=(not options.no_archive),
+                                                    macros=options.macros)
+                    else:
+                        lib_build_res = build_mbed_libs(mcu, toolchain,
                                                     options=options.options,
                                                     extra_verbose=options.extra_verbose_notify,
                                                     verbose=options.verbose,
@@ -232,6 +252,7 @@ if __name__ == '__main__':
                                                     jobs=options.jobs,
                                                     clean=options.clean,
                                                     macros=options.macros)
+
                     for lib_id in libraries:
                         build_lib(lib_id, mcu, toolchain,
                                   options=options.options,
