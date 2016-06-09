@@ -42,7 +42,7 @@ class IAR(mbedToolchain):
         'asm': [],
         'c': [],
         'cxx': ["--c++",  "--no_rtti", "--no_exceptions", "--guard_calls"],
-        'ld': [],
+        'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
@@ -194,6 +194,10 @@ class IAR(mbedToolchain):
             remove(lib_path)
 
         self.default_cmd([self.ar, lib_path, '-f', archive_files])
+
+    def link(self, output, objects, libraries, lib_dirs, mem_map):
+        args = [self.ld, "-o", output, "--config", mem_map] + self.flags['ld']
+        self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
 
     @hook_tool
     def binary(self, resources, elf, bin):
