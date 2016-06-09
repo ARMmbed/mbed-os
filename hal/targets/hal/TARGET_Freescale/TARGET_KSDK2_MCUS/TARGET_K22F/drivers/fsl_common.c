@@ -77,7 +77,9 @@ void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
     uint32_t __RAM_VECTOR_TABLE_SIZE = (uint32_t)(__RAM_VECTOR_TABLE_SIZE_BYTES);
 #endif /* defined(__CC_ARM) */
     uint32_t n;
+    uint32_t interrupts_disabled;
 
+    interrupts_disabled = __get_PRIMASK();
     __disable_irq();
     if (SCB->VTOR != (uint32_t)__VECTOR_RAM)
     {
@@ -93,5 +95,7 @@ void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
     /* make sure the __VECTOR_RAM is noncachable */
     __VECTOR_RAM[irq + 16] = irqHandler;
 
-    __enable_irq();
+    if (!interrupts_disabled) {
+        __enable_irq();
+    }
 }
