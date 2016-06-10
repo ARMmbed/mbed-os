@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed.h"
+#include "greentea-client/test_env.h"
+#include "unity/unity.h"
+#include "utest/utest.h"
 #include <stdio.h>
 #include <string.h>
 #include <algorithm>
@@ -22,10 +26,6 @@
 #include <queue>
 #include <map>
 #include <math.h>
-#include "mbed.h"
-#include "greentea-client/test_env.h"
-#include "unity/unity.h"
-#include "utest/utest.h"
 
 using namespace utest::v1;
 
