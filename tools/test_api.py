@@ -55,6 +55,7 @@ from tools.build_api import prep_report
 from tools.build_api import prep_properties
 from tools.build_api import create_result
 from tools.build_api import add_result_to_report
+from tools.build_api import scan_for_source_paths
 from tools.libraries import LIBRARIES, LIBRARY_MAP
 from tools.toolchains import TOOLCHAIN_BIN_PATH
 from tools.test_exporters import ReportExporter, ResultExporterType
@@ -1965,6 +1966,12 @@ def test_path_to_name(path):
 def find_tests(base_dir):
     """Given any directory, walk through the subdirectories and find all tests"""
     
+    def is_subdir(path, directory):
+        path = os.path.realpath(path)
+        directory = os.path.realpath(directory)
+        relative = os.path.relpath(path, directory)
+        return not (relative.startswith(os.pardir + os.sep) and relative.startswith(os.pardir))
+    
     def find_tests_in_tests_directory(directory):
         """Given a 'TESTS' directory, return a dictionary of test names and test paths.
         The formate of the dictionary is {"test-name": "./path/to/test"}"""
@@ -1975,10 +1982,11 @@ def find_tests(base_dir):
             if d != "host_tests":
                 # Loop on test case directories
                 for td in os.listdir(os.path.join(directory, d)):
-                    # Add test case to the results if it is a directory
-                    test_case_path = os.path.join(directory, d, td)
-                    if os.path.isdir(test_case_path):
-                        tests[test_path_to_name(test_case_path)] = test_case_path
+                    # Add test case to the results if it is a directory and not "host_tests"
+                    if td != "host_tests":
+                        test_case_path = os.path.join(directory, d, td)
+                        if os.path.isdir(test_case_path):
+                            tests[test_path_to_name(test_case_path)] = test_case_path
         
         return tests
     
@@ -1994,20 +2002,27 @@ def find_tests(base_dir):
         # Not pointing at a "TESTS" directory, so go find one!
         tests = {}
         
-        for root, dirs, files in os.walk(base_dir):
-            # Don't search build directories
-            if '.build' in dirs:
-                dirs.remove('.build')
+        dirs = scan_for_source_paths(base_dir)
+        
+        test_and_sub_dirs = [x for x in dirs if tests_path in x]
+        test_dirs = []
+        for potential_test_dir in test_and_sub_dirs:
+            good_to_add = True
+            if test_dirs:
+                for test_dir in test_dirs:
+                    if is_subdir(potential_test_dir, test_dir):
+                        good_to_add = False
+                        break
             
-            # If a "TESTS" directory is found, find the tests inside of it
-            if tests_path in dirs:
-                # Remove it from the directory walk
-                dirs.remove(tests_path)
-                
-                # Get the tests inside of the "TESTS" directory
-                new_tests = find_tests_in_tests_directory(os.path.join(root, tests_path))
-                if new_tests:
-                    tests.update(new_tests)
+            if good_to_add:
+                test_dirs.append(potential_test_dir)
+        
+        # Only look at valid paths
+        for path in test_dirs:
+            # Get the tests inside of the "TESTS" directory
+            new_tests = find_tests_in_tests_directory(path)
+            if new_tests:
+                tests.update(new_tests)
         
         return tests
     
@@ -2027,7 +2042,8 @@ def print_tests(tests, format="list"):
 
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
-        macros=None, silent=False, report=None, properties=None):
+        macros=None, silent=False, report=None, properties=None,
+        continue_on_build_fail=False):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
     
@@ -2062,7 +2078,11 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
 
         except Exception, e:
             result = False
-            continue
+            
+            if continue_on_build_fail:
+                continue
+            else:
+                break
         
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.

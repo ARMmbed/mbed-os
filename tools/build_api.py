@@ -19,12 +19,13 @@ import re
 import tempfile
 import colorama
 
-
+from copy import copy
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, basename, abspath, normpath
-from os import getcwd
+from os import getcwd, walk
 from time import time
+import fnmatch
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException, ToolException
 from tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
@@ -206,9 +207,9 @@ def build_project(src_path, build_path, target, toolchain_name,
             resources.objects.extend(objects)
 
         # Link Program
-        res, needed_update = toolchain.link_program(resources, build_path, name)
+        res, _ = toolchain.link_program(resources, build_path, name)
 
-        if report != None and needed_update:
+        if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output()
@@ -232,8 +233,6 @@ def build_project(src_path, build_path, target, toolchain_name,
             toolchain_output = toolchain.get_output()
             if toolchain_output:
                 cur_result["output"] += toolchain_output
-
-            cur_result["output"] += str(e)
 
             add_result_to_report(report, cur_result)
 
@@ -300,26 +299,43 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.info("Building library %s (%s, %s)" % (name, target.name, toolchain_name))
 
         # Scan Resources
-        resources = []
-        for src_path in src_paths:
-            resources.append(toolchain.scan_resources(src_path))
+        resources = None
+        for path in src_paths:
+            # Scan resources
+            resource = toolchain.scan_resources(path)
+            
+            # Copy headers, objects and static libraries - all files needed for static lib
+            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
+            if resource.linker_script:
+                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
+
+            # Extend resources collection
+            if not resources:
+                resources = resource
+            else:
+                resources.add(resource)
+
+        # We need to add if necessary additional include directories
+        if inc_dirs:
+            if type(inc_dirs) == ListType:
+                resources.inc_dirs.extend(inc_dirs)
+            else:
+                resources.inc_dirs.append(inc_dirs)
 
         # Add extra include directories / files which are required by library
         # This files usually are not in the same directory as source files so
         # previous scan will not include them
         if inc_dirs_ext is not None:
             for inc_ext in inc_dirs_ext:
-                resources.append(toolchain.scan_resources(inc_ext))
+                resources.add(toolchain.scan_resources(inc_ext))
 
         # Dependencies Include Paths
-        dependencies_include_dir = []
         if dependencies_paths is not None:
             for path in dependencies_paths:
                 lib_resources = toolchain.scan_resources(path)
-                dependencies_include_dir.extend(lib_resources.inc_dirs)
-
-        if inc_dirs:
-            dependencies_include_dir.extend(inc_dirs)
+                resources.inc_dirs.extend(lib_resources.inc_dirs)
 
         if archive:
             # Use temp path when building archive
@@ -330,29 +346,21 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         # Handle configuration
         config = Config(target)
-
-        # Copy headers, objects and static libraries
-        for resource in resources:
-            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
-            if resource.linker_script:
-                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
-            config.add_config_files(resource.json_files)
-
+        # Update the configuration with any .json files found while scanning
+        config.add_config_files(resources.json_files)
+        # And add the configuration macros to the toolchain
         toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
-        objects = []
-        for resource in resources:
-            objects.extend(toolchain.compile_sources(resource, abspath(tmp_path), dependencies_include_dir))
+        for path in src_paths:
+            src = toolchain.scan_resources(path)
+            objects = toolchain.compile_sources(src, abspath(tmp_path), resources.inc_dirs)
+            resources.objects.extend(objects)
 
         if archive:
-            needed_update = toolchain.build_library(objects, build_path, name)
-        else:
-            needed_update = True
+            toolchain.build_library(objects, build_path, name)
 
-        if report != None and needed_update:
+        if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output()
@@ -499,12 +507,12 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         for o in separate_objects:
             objects.remove(o)
 
-        needed_update = toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
+        toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
 
         for o in separate_objects:
             toolchain.copy_files(o, BUILD_TOOLCHAIN)
 
-        if report != None and needed_update:
+        if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output()
@@ -816,3 +824,63 @@ def write_build_report(build_report, template_filename, filename):
 
     with open(filename, 'w+') as f:
         f.write(template.render(failing_builds=build_report_failing, passing_builds=build_report_passing))
+
+
+def scan_for_source_paths(path, exclude_paths=None):
+    ignorepatterns = []
+    paths = []
+    
+    def is_ignored(file_path):
+        for pattern in ignorepatterns:
+            if fnmatch.fnmatch(file_path, pattern):
+                return True
+        return False
+    
+    
+    """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
+    When topdown is True, the caller can modify the dirnames list in-place
+    (perhaps using del or slice assignment), and walk() will only recurse into
+    the subdirectories whose names remain in dirnames; this can be used to prune
+    the search, impose a specific order of visiting, or even to inform walk()
+    about directories the caller creates or renames before it resumes walk()
+    again. Modifying dirnames when topdown is False is ineffective, because in
+    bottom-up mode the directories in dirnames are generated before dirpath
+    itself is generated.
+    """
+    for root, dirs, files in walk(path, followlinks=True):
+        # Remove ignored directories
+        # Check if folder contains .mbedignore
+        if ".mbedignore" in files :
+            with open (join(root,".mbedignore"), "r") as f:
+                lines=f.readlines()
+                lines = [l.strip() for l in lines] # Strip whitespaces
+                lines = [l for l in lines if l != ""] # Strip empty lines
+                lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
+                # Append root path to glob patterns
+                # and append patterns to ignorepatterns
+                ignorepatterns.extend([join(root,line.strip()) for line in lines])
+
+        for d in copy(dirs):
+            dir_path = join(root, d)
+
+            # Always ignore hidden directories
+            if d.startswith('.'):
+                dirs.remove(d)
+
+            # Remove dirs that already match the ignorepatterns
+            # to avoid travelling into them and to prevent them
+            # on appearing in include path.
+            if is_ignored(join(dir_path,"")):
+                dirs.remove(d)
+
+            if exclude_paths:
+                for exclude_path in exclude_paths:
+                    rel_path = relpath(dir_path, exclude_path)
+                    if not (rel_path.startswith('..')):
+                        dirs.remove(d)
+                        break
+
+        # Add root to include paths
+        paths.append(root)
+
+    return paths

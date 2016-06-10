@@ -58,7 +58,7 @@ def cached(func):
 class Target:
     # Cumulative attributes can have values appended to them, so they
     # need to be computed differently than regular attributes
-    __cumulative_attributes = ['extra_labels', 'macros', 'features']
+    __cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
 
     # {target_name: target_instance} map for all the targets in the system
     __target_map = {}
@@ -222,7 +222,12 @@ class Target:
             return 4 if self.is_disk_virtual else 1.5
 
     def get_labels(self):
-        return [self.name] + CORE_LABELS[self.core] + self.extra_labels
+        labels = [self.name] + CORE_LABELS[self.core] + self.extra_labels
+        # Automatically define UVISOR_UNSUPPORTED if the target doesn't specifically
+        # define UVISOR_SUPPORTED
+        if not "UVISOR_SUPPORTED" in labels:
+            labels.append("UVISOR_UNSUPPORTED")
+        return labels
 
     # For now, this function only allows "post binary" hooks (hooks that are executed after
     # the binary image is extracted from the executable file)

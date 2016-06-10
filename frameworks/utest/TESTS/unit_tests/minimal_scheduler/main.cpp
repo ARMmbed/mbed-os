@@ -82,7 +82,6 @@ control_t test_case()
 {
     static int counter(0);
     TEST_ASSERT_EQUAL(counter++, call_counter++);
-    printf("Running Test #%d\n", counter);
     return CaseNext;
 }
 

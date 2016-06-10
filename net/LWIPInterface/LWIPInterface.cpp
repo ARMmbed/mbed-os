@@ -94,6 +94,11 @@ static void set_mac_address(void)
 /* Interface implementation */
 int LWIPInterface::connect()
 {
+    // Check if we've already connected
+    if (get_ip_address()) {
+        return 0;
+    }
+
     // Set up network
     set_mac_address();
     init_netif(0, 0, 0);
@@ -118,18 +123,20 @@ int LWIPInterface::disconnect()
     dhcp_stop(&netif);
 
     eth_arch_disable_interrupts();
+    ip_addr[0] = '\0';
+    mac_addr[0] = '\0';
 
     return 0;
 }
 
 const char *LWIPInterface::get_ip_address()
 {
-    return ip_addr;
+    return ip_addr[0] ? ip_addr : 0;
 }
 
 const char *LWIPInterface::get_mac_address()
 {
-    return mac_addr;
+    return mac_addr[0] ? mac_addr : 0;
 }
 
 struct lwip_socket {
@@ -543,6 +550,39 @@ int LWIPInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *buf,
     s->rx_chain = pbuf_consume(p, p->tot_len, true);
 
     return copied;
+}
+
+int LWIPInterface::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen) {
+    struct lwip_socket *s = (struct lwip_socket *)handle;
+
+    switch (optname) {
+        case NSAPI_KEEPALIVE:
+            if (optlen != sizeof(int) || s->proto != NSAPI_TCP) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            s->tcp->so_options |= SOF_KEEPALIVE;
+            return 0;
+
+        case NSAPI_KEEPIDLE:
+            if (optlen != sizeof(int) || s->proto != NSAPI_TCP) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            s->tcp->keep_idle = *(int*)optval;
+            return 0;
+
+        case NSAPI_KEEPINTVL:
+            if (optlen != sizeof(int) || s->proto != NSAPI_TCP) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            s->tcp->keep_intvl = *(int*)optval;
+            return 0;
+            
+        default:
+            return NSAPI_ERROR_UNSUPPORTED;
+    }
 }
 
 void LWIPInterface::socket_attach(void *handle, void (*callback)(void *), void *data)

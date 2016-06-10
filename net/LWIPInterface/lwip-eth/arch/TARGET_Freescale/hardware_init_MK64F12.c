@@ -41,6 +41,7 @@ void k64f_init_eth_hardware(void)
     MPU->CESR &= ~MPU_CESR_VLD_MASK;
 
     CLOCK_EnableClock(kCLOCK_PortC);
+    CLOCK_EnableClock(kCLOCK_PortB);
     /* Affects PORTC_PCR16 register */
     PORT_SetPinMux(PORTC, 16u, kPORT_MuxAlt4);
     /* Affects PORTC_PCR17 register */

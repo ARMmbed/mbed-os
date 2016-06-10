@@ -31,6 +31,8 @@ void utest_unity_assert_failure(void);
 /// this function is called from the unity module when an assertion failed, but is ignored.
 void utest_unity_ignore_failure(void);
 
+void utest_safe_putc(int chr);
+
 #ifdef __cplusplus
 }
 #endif

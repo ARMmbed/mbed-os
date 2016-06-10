@@ -66,6 +66,9 @@ if __name__ == '__main__':
         parser.add_option("-f", "--format", type="choice", dest="format",
                           choices=format_choices, default=format_default_choice, help=format_help)
         
+        parser.add_option("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
+                          default=None, help="Continue trying to build all tests if a build failure occurs")
+
         parser.add_option("-n", "--names", dest="names",
                           default=None, help="Limit the tests to a comma separated list of names")
                           
@@ -112,6 +115,7 @@ if __name__ == '__main__':
         if options.list:
             # Print available tests in order and exit
             print_tests(tests, options.format)
+            sys.exit(0)
         else:
             # Build all tests
             if not options.build_dir:
@@ -141,11 +145,11 @@ if __name__ == '__main__':
                                                 properties=build_properties,
                                                 name="mbed-os",
                                                 macros=options.macros,
+                                                verbose=options.verbose,
                                                 archive=False)
             except Exception, e:
                 library_build_success = False
                 print "Failed to build library"
-                print e
                 
             if library_build_success:
                 # Build all the tests
@@ -155,10 +159,9 @@ if __name__ == '__main__':
                         report=build_report,
                         properties=build_properties,
                         macros=options.macros,
-                        jobs=options.jobs)
-                        
-                if not test_build_success:
-                    print "Failed to build some tests, check build log for details"
+                        verbose=options.verbose,
+                        jobs=options.jobs,
+                        continue_on_build_fail=options.continue_on_build_fail)
                 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
@@ -179,13 +182,16 @@ if __name__ == '__main__':
             
             # If a path to a JUnit build report spec is provided, write it to a file
             if options.build_report_junit:
-                report_exporter = ReportExporter(ResultExporterType.JUNIT)
+                report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
                 report_exporter.report_to_file(build_report, options.build_report_junit, test_suite_properties=build_properties)
         
-        if library_build_success and test_build_success:
-            sys.exit(0)
-        else:
-            sys.exit(1)
+            print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
+            status = print_report_exporter.report(build_report)
+        
+            if status:
+                sys.exit(0)
+            else:
+                sys.exit(1)
 
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"

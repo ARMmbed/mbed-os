@@ -1,8 +1,8 @@
 {
     "custom_targets": {
         "base": {
+            "inherits": ["Target"],
             "core": "Cortex-M0",
-            "extra_labels": [],
             "config": {
                 "par1": "v_par1_base",
                 "par2": "v_par2_base",

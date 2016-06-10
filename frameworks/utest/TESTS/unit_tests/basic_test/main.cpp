@@ -2,26 +2,24 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
-#include "stack_trace.h"
+#include "utest/utest_stack_trace.h"
 
 using namespace utest::v1;
 
 void test_simple() {
     UTEST_LOG_FUNCTION();
     TEST_ASSERT_EQUAL(0, 0);
-    printf("Simple test called\n");
 }
 
 utest::v1::status_t test_repeats_setup(const Case *const source, const size_t index_of_case) {
     UTEST_LOG_FUNCTION();
     // Call the default handler for proper reporting
     utest::v1::status_t status = greentea_case_setup_handler(source, index_of_case);
-    printf("Setting up for '%s'\n", source->get_description());
+    utest_printf("Setting up for '%s'\n", source->get_description());
     return status;
 }
 control_t test_repeats(const size_t call_count) {
     UTEST_LOG_FUNCTION();
-    printf("Called for the %u. time\n", call_count);
     TEST_ASSERT_NOT_EQUAL(3, call_count);
     // Specify how often this test is repeated ie. n total calls
     return (call_count < 2) ? CaseRepeatAll : CaseNext;

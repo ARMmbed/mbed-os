@@ -31,6 +31,12 @@ public:
      */
     TCPSocket();
 
+    /** Destroy a socket
+     *
+     *  Closes socket if the socket is still open
+     */
+    virtual ~TCPSocket();
+
     /** Create a socket on a network stack
      *
      *  Creates and opens a socket on the specified network stack.
@@ -103,7 +109,8 @@ public:
     int recv(void *data, unsigned size);
 
 protected:
-    virtual void socket_event(void);
+    virtual void event();
+    volatile unsigned _pending;
     rtos::Mutex _read_lock;
     rtos::Semaphore _read_sem;
     rtos::Mutex _write_lock;

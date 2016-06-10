@@ -22,17 +22,17 @@ from copy import copy
 from time import time, sleep
 from types import ListType
 from shutil import copyfile
-from os.path import join, splitext, exists, relpath, dirname, basename, split
+from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath
 from inspect import getmro
-
-from elftools.elf.elffile import ELFFile
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
+from tools.memap import MemapParser
 from hashlib import md5
 import fnmatch
+
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
@@ -307,6 +307,7 @@ class mbedToolchain:
             # Target and Toolchain symbols
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
+            self.symbols.extend(["FEATURE_%s" % t for t in labels['FEATURE']])
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
             # Config support
@@ -325,10 +326,9 @@ class mbedToolchain:
             # Add target's symbols
             self.symbols += self.target.macros
             # Add target's hardware
-            try :
-                self.symbols += ["DEVICE_" + feature + "=1" for feature in self.target.features]
-            except AttributeError :
-                pass
+            self.symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
+            # Add target's features
+            self.symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
             # Add extra symbols passed via 'macros' parameter
             self.symbols += self.macros
 
@@ -348,6 +348,7 @@ class mbedToolchain:
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
                 'TARGET': self.target.get_labels() + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
+                'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
         return self.labels
@@ -406,6 +407,7 @@ class mbedToolchain:
                     # Append root path to glob patterns
                     # and append patterns to ignorepatterns
                     self.ignorepatterns.extend([join(root,line.strip()) for line in lines])
+
             for d in copy(dirs):
                 dir_path = join(root, d)
                 if d == '.hg':
@@ -414,6 +416,7 @@ class mbedToolchain:
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
+                    (d.startswith('FEATURE_') and d[8:] not in labels['FEATURE']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
                     (d == 'TESTS')):
                     dirs.remove(d)
@@ -747,6 +750,7 @@ class mbedToolchain:
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
+        map = join(tmp_path, name + '.map')
 
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             needed_update = True
@@ -759,10 +763,7 @@ class mbedToolchain:
 
             self.binary(r, elf, bin)
 
-        self.info("Memory sections sizes:")
-        size_dict = self.static_sizes(elf)
-        for section, size in size_dict.iteritems():
-            print("{:20} {}".format(section, size))
+        self.mem_stats(map)
 
         self.var("compile_succeded", True)
         self.var("binary", filename)
@@ -820,40 +821,29 @@ class mbedToolchain:
     def var(self, key, value):
         self.notify({'type': 'var', 'key': key, 'val': value})
 
-    def static_sizes(self, elf):
-        """Accepts elf, returns a dict sizes per section (text, data, bss)"""
-        section_sizes = {}
+    def mem_stats(self, map):
+        # Creates parser object
+        toolchain = self.__class__.__name__
 
-        SHF_WRITE = 0x1
-        SHF_ALLOC = 0x2
-        SHF_EXECINSTR = 0x4
-        SHT_PROGBITS = "SHT_PROGBITS"
-        SHT_NOBITS = "SHT_NOBITS"
+        # Create memap object
+        memap = MemapParser()
 
-        text = 0
-        data = 0
-        bss = 0
-        with open(elf, 'rb') as f:
-            elffile = ELFFile(f)
-            for section in elffile.iter_sections():
-                flags = section['sh_flags']
-                size = section['sh_size']
-                if (flags & SHF_ALLOC) == 0:
-                    # Section has no relevant data so ignore it
-                    continue
-                if (flags & SHF_EXECINSTR) or not (flags & SHF_WRITE):
-                    # Executable code or read only data
-                    text += size
-                elif section['sh_type'] != SHT_NOBITS:
-                    # Non-zero read/write data
-                    data += size
-                else:
-                    # Zero init read/write data
-                    bss += size
-        section_sizes["text"] = text
-        section_sizes["data"] = data
-        section_sizes["bss"] = bss
-        return section_sizes
+        # Parse and decode a map file
+        if memap.parse(abspath(map), toolchain) is False:
+            self.info("Unknown toolchain for memory statistics %s" % toolchain)
+            return
+
+        # Write output to stdout in text (pretty table) format
+        memap.generate_output('table')
+
+        # Write output to file in JSON format
+        map_out = splitext(map)[0] + "_map.json"
+        memap.generate_output('json', map_out)
+ 
+        # Write output to file in CSV format for the CI
+        map_csv = splitext(map)[0] + "_map.csv"
+        memap.generate_output('csv-ci', map_csv)
+
 
 from tools.settings import ARM_BIN
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH

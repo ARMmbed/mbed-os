@@ -18,7 +18,7 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
-#include "utest/stack_trace.h"
+#include "utest/utest_stack_trace.h"
 
 using namespace utest::v1;
 
@@ -46,7 +46,6 @@ private:
 void await_case_validate(int expected_call_count) 
 {
     UTEST_LOG_FUNCTION();
-    printf("await_case_validate called with expected call count of %d\n", expected_call_count);
     TEST_ASSERT_EQUAL(expected_call_count, call_counter++);
     Harness::validate_callback();
 }
@@ -142,13 +141,11 @@ utest::v1::status_t repeat_all_on_timeout_case_setup(const Case *const source, c
 control_t repeat_all_on_timeout_case(const size_t call_count)
 {
     UTEST_LOG_FUNCTION();
-    printf("Running case handler for %u. time\n", call_count);
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
     TEST_ASSERT(call_count <= 10);
     TEST_ASSERT_EQUAL((call_count-1)*3 + 9, call_counter++);
     if (call_count == 10) {
-        printf("Scheduling await_case_validate with value 37");
         utest_to.attach_us(&validate2, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
     }
     return CaseRepeatAllOnTimeout(100);
@@ -157,7 +154,6 @@ utest::v1::status_t repeat_all_on_timeout_case_teardown(const Case *const source
 {
     UTEST_LOG_FUNCTION();
     static int repeat_counter(0);
-    printf("Call counter = %d, passed =%u, failed = %u\n", call_counter, passed, failed);
     
     TEST_ASSERT_EQUAL((call_counter == 38) ? 1 : 0, passed);
     TEST_ASSERT_EQUAL(0, failed);
@@ -180,13 +176,11 @@ utest::v1::status_t repeat_handler_on_timeout_case_setup(const Case *const sourc
 control_t repeat_handler_on_timeout_case(const size_t call_count)
 {
     UTEST_LOG_FUNCTION();
-    printf("Running case handler for %u. time\n", call_count);
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
     TEST_ASSERT(call_count <= 10);
     TEST_ASSERT_EQUAL(call_count-1 + 40, call_counter++);
     if (call_count == 10) {
-        printf("Scheduling await_case_validate with value 50");
         utest_to.attach_us(&validate3, &Utest_func_bind::callback, (50*1000)); // Fire after 50ms
     }
     return CaseRepeatHandlerOnTimeout(100);
