@@ -122,6 +122,9 @@ def command_cache_part (cache, matches) :
     urls = [index[c]['file'] for c in choices]
     cache.cache_pack_list(urls)
 
+def get_argparse() :
+    return parser
+
 def main() :
     args = parser.parse_args()
     args.command(args)

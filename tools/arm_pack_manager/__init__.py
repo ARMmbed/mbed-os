@@ -14,7 +14,6 @@ import argparse
 from json import dump, load
 from zipfile import ZipFile
 
-
 RootPackURL = "http://www.keil.com/pack/index.idx"
 
 
@@ -61,6 +60,16 @@ class Cacher (Thread) :
 
 
 class Cache () :
+    """ The Cache object is the only relevant API object at the moment
+
+    Constructing the Cache object does not imply any caching.
+    A user of the API must explicitly call caching functions.
+
+    :param silent: A boolean that, when True, significantly reduces the printing of this Object
+    :type silent: bool
+    :param no_timeouts: A boolean that, when True, disables the default connection timeout and low speed timeout for downloading things.
+    :type no_timeouts: bool
+    """
     def __init__ (self, silent, no_timeouts) :
         self.silent = silent
         self.counter = 0
@@ -74,6 +83,14 @@ class Cache () :
         stdout.flush()
 
     def cache_file (self, curl, url) :
+        """Low level interface to caching a single file.
+
+        :param curl: The user is responsible for providing a curl.Curl object as the curl parameter.
+        :type curl: curl.Curl
+        :param url: The URL to cache.
+        :type url: str
+        :rtype: None
+        """
         if not self.silent : print("Caching {}...".format(url))
         dest = join(save_data_path('arm-pack-manager'), strip_protocol(url))
         try :
@@ -97,6 +114,15 @@ class Cache () :
         self.display_counter("Caching Files")
 
     def pdsc_to_pack (self, url) :
+        """Find the URL of the specified pack file described by a PDSC.
+
+        The PDSC is assumed to be cached and is looked up in the cache by its URL.
+
+        :param url: The url used to look up the PDSC.
+        :type url: str
+        :return: The url of the PACK file.
+        :rtype: str
+        """
         content = self.pull_from_cache(url)
         new_url = content.package.url.get_text()
         if not new_url.endswith("/") :
@@ -114,6 +140,13 @@ class Cache () :
             self.counter += 1
 
     def get_urls(self):
+        """Extract the URLs of all know PDSC files.
+
+        Will pull the index from the internet if it is not cached.
+
+        :return: A list of all PDSC URLs
+        :rtype: [str]
+        """
         if not self.urls :
             try : root_data = self.pull_from_cache(RootPackURL)
             except IOError : root_data = self.cache_and_parse(RootPackURL)
@@ -143,6 +176,15 @@ class Cache () :
         self.display_counter("Generating Index")
 
     def get_flash_algorthim_binary(self, device_name) :
+        """Retrieve the flash algorithm file for a particular part.
+
+        Assumes that both the PDSC and the PACK file associated with that part are in the cache.
+
+        :param device_name: The exact name of a device
+        :type device_name: str
+        :return: A file-like object that, when read, is the ELF file that describes the flashing algorithm
+        :rtype: ZipExtFile
+        """
         self.load_index()
         device = self.index[device_name]
         pack = ZipFile(join(save_data_path('arm-pack-manager'),
@@ -150,11 +192,11 @@ class Cache () :
         return pack.open(device['algorithm'])
 
     def generate_index(self) :
-        self.index = {}
+        self._index = {}
         self.counter = 0
         do_queue(Reader, self._generate_index_helper, self.get_urls())
         with open(join(save_data_path('arm-pack-manager'), "index.json"), "wb+") as out:
-            dump(self.index, out)
+            dump(self._index, out)
         stdout.write("\n")
 
     def find_device(self, match) :
@@ -166,40 +208,87 @@ class Cache () :
         return [(v, self.index[v]) for k,v in choices]
 
     def dump_index_to_file(self, file) :
-        self.load_index()
         with open(file, "wb+") as out:
             dump(self.index, out)
 
-    def load_index(self) :
-        if not self.index :
+    @property
+    def index(self) :
+        """An index of most of the important data in all cached PDSC files.
+
+        :Example:
+
+        >>> from ArmPackManager import Cache
+        >>> a = Cache()
+        >>> a.index["LPC1768"]
+        {u'algorithm': u'Flash/LPC_IAP_512.FLM',
+         u'compile': [u'Device/Include/LPC17xx.h', u'LPC175x_6x'],
+         u'debug': u'SVD/LPC176x5x.svd',
+         u'file': u'http://www.keil.com/pack/Keil.LPC1700_DFP.pdsc',
+         u'memory': {u'IRAM1': {u'size': u'0x8000', u'start': u'0x10000000'},
+                     u'IRAM2': {u'size': u'0x8000', u'start': u'0x2007C000'},
+                     u'IROM1': {u'size': u'0x80000', u'start': u'0x00000000'}}}
+
+        """
+        if not self._index :
             try :
                 with open(join(save_data_path('arm-pack-manager'), "index.json")) as i :
-                    self.index = load(i)
+                    self._index = load(i)
             except IOError :
                 self.generate_index()
-        return self.index
+        return self._index
 
     def cache_everything(self) :
+        """Cache every PACK and PDSC file known.
+
+        Generates an index afterwards.
+
+        .. note:: This process may use 4GB of drive space and take upwards of 10 minutes to complete.
+        """
         self.cache_pack_list(self.get_urls())
         self.generate_index()
 
     def cache_descriptors(self) :
+        """Cache every PDSC file known.
+
+        Generates an index afterwards.
+
+        .. note:: This process may use 11MB of drive space and take upwards of 1 minute.
+        """
         self.cache_descriptor_list(self.get_urls())
         self.generate_index()
 
     def cache_descriptor_list(self, list) :
+        """Cache a list of PDSC files.
+
+        :param list: URLs of PDSC files to cache.
+        :type list: [str]
+        """
         self.total = len(list)
         self.display_counter("Caching Files")
         do_queue(Cacher, self.cache_file, list)
         stdout.write("\n")
 
     def cache_pack_list(self, list) :
+        """Cache a list of PACK files, referenced by their PDSC URL
+
+        :param list: URLs of PDSC files to cache.
+        :type list: [str]
+        """
         self.total = len(list) * 2
         self.display_counter("Caching Files")
         do_queue(Cacher, self.cache_pdsc_and_pack, list)
         stdout.write("\n")
 
     def pull_from_cache(self, url) :
+        """Low level inteface for extracting a PDSC file from the cache.
+
+        Assumes that the file specified is a PDSC file and is in the cache.
+
+        :param url: The URL of a PDSC file.
+        :type url: str
+        :return: A parsed representation of the PDSC file.
+        :rtype: BeautifulSoup
+        """
         dest = join(save_data_path('arm-pack-manager'), strip_protocol(url))
         with open(dest, "r") as fd :
             return BeautifulSoup(fd, "html.parser")
@@ -208,6 +297,13 @@ class Cache () :
         pdsc_files = pull_from_cache(RootPackUrl)
 
     def cache_and_parse(self, url) :
+        """A low level shortcut that Caches and Parses a PDSC file.
+
+        :param url: The URL of the PDSC file.
+        :type url: str
+        :return: A parsed representation of the PDSC file.
+        :rtype: BeautifulSoup
+        """
         self.cache_file(Curl(), url)
         return self.pull_from_cache(url)
 
