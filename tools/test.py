@@ -143,7 +143,7 @@ if __name__ == '__main__':
                                                 clean=options.clean,
                                                 report=build_report,
                                                 properties=build_properties,
-                                                name="mbed-os",
+                                                name="mbed-build",
                                                 macros=options.macros,
                                                 verbose=options.verbose,
                                                 archive=False)

@@ -192,7 +192,7 @@ if __name__ == '__main__':
     if options.usb_host:
         libraries.append("usb_host")
     if options.dsp:
-        libraries.extend(["cmsis_dsp", "dsp"])
+        libraries.extend(["dsp"])
     if options.fat:
         libraries.extend(["fat"])
     if options.ublox:
@@ -233,7 +233,8 @@ if __name__ == '__main__':
                 tt_id = "%s::%s" % (toolchain, target)
                 try:
                     mcu = TARGET_MAP[target]
-                    lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
+                    if options.source_dir:
+                        lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
                                                     options=options.options,
                                                     extra_verbose=options.extra_verbose_notify,
                                                     verbose=options.verbose,
@@ -242,6 +243,16 @@ if __name__ == '__main__':
                                                     clean=options.clean,
                                                     archive=(not options.no_archive),
                                                     macros=options.macros)
+                    else:
+                        lib_build_res = build_mbed_libs(mcu, toolchain,
+                                                    options=options.options,
+                                                    extra_verbose=options.extra_verbose_notify,
+                                                    verbose=options.verbose,
+                                                    silent=options.silent,
+                                                    jobs=options.jobs,
+                                                    clean=options.clean,
+                                                    macros=options.macros)
+
                     for lib_id in libraries:
                         build_lib(lib_id, mcu, toolchain,
                                   options=options.options,

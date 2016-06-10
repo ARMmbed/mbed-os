@@ -390,33 +390,145 @@ def build_library(src_paths, build_path, target, toolchain_name,
         # Let Exception propagate
         raise e
 
-def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
-    """ Wrapper for build_library function.
+######################
+### Legacy methods ###
+######################
+
+def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
+    """ Legacy method for building mbed libraries
         Function builds library in proper directory using all dependencies and macros defined by user.
     """
     lib = Library(lib_id)
-    if lib.is_supported(target, toolchain):
-        # We need to combine macros from parameter list with macros from library definition
-        MACROS = lib.macros if lib.macros else []
-        if macros:
-            MACROS.extend(macros)
-
-        return build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, options,
-                      verbose=verbose,
-                      silent=silent,
-                      clean=clean,
-                      macros=MACROS,
-                      notify=notify,
-                      inc_dirs=lib.inc_dirs,
-                      inc_dirs_ext=lib.inc_dirs_ext,
-                      jobs=jobs,
-                      report=report,
-                      properties=properties,
-                      extra_verbose=extra_verbose)
-    else:
+    if not lib.is_supported(target, toolchain_name):
         print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
         return False
+    
+    # We need to combine macros from parameter list with macros from library definition
+    MACROS = lib.macros if lib.macros else []
+    if macros:
+        macros.extend(MACROS)
+    else:
+        macros = MACROS
 
+    src_paths = lib.source_dir
+    build_path = lib.build_dir
+    dependencies_paths = lib.dependencies
+    inc_dirs = lib.inc_dirs
+    inc_dirs_ext = lib.inc_dirs_ext
+    
+    """ src_path: the path of the source directory
+    build_path: the path of the build directory
+    target: ['LPC1768', 'LPC11U24', 'LPC2368']
+    toolchain: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
+    library_paths: List of paths to additional libraries
+    clean: Rebuild everything if True
+    notify: Notify function for logs
+    verbose: Write the actual tools command lines if True
+    inc_dirs: additional include directories which should be included in build
+    inc_dirs_ext: additional include directories which should be copied to library directory
+    """
+    if type(src_paths) != ListType:
+        src_paths = [src_paths]
+
+    # The first path will give the name to the library
+    name = basename(src_paths[0])
+
+    if report != None:
+        start = time()
+        id_name = name.upper()
+        description = name
+        vendor_label = target.extra_labels[0]
+        cur_result = None
+        prep_report(report, target.name, toolchain_name, id_name)
+        cur_result = create_result(target.name, toolchain_name, id_name, description)
+
+        if properties != None:
+            prep_properties(properties, target.name, toolchain_name, vendor_label)
+
+    for src_path in src_paths:
+        if not exists(src_path):
+            error_msg = "The library source folder does not exist: %s", src_path
+
+            if report != None:
+                cur_result["output"] = error_msg
+                cur_result["result"] = "FAIL"
+                add_result_to_report(report, cur_result)
+
+            raise Exception(error_msg)
+
+    try:
+        # Toolchain instance
+        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent, extra_verbose=extra_verbose)
+        toolchain.VERBOSE = verbose
+        toolchain.jobs = jobs
+        toolchain.build_all = clean
+
+        toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
+
+        # Scan Resources
+        resources = []
+        for src_path in src_paths:
+            resources.append(toolchain.scan_resources(src_path))
+
+        # Add extra include directories / files which are required by library
+        # This files usually are not in the same directory as source files so
+        # previous scan will not include them
+        if inc_dirs_ext is not None:
+            for inc_ext in inc_dirs_ext:
+                resources.append(toolchain.scan_resources(inc_ext))
+
+        # Dependencies Include Paths
+        dependencies_include_dir = []
+        if dependencies_paths is not None:
+            for path in dependencies_paths:
+                lib_resources = toolchain.scan_resources(path)
+                dependencies_include_dir.extend(lib_resources.inc_dirs)
+
+        if inc_dirs:
+            dependencies_include_dir.extend(inc_dirs)
+
+        # Create the desired build directory structure
+        bin_path = join(build_path, toolchain.obj_path)
+        mkdir(bin_path)
+        tmp_path = join(build_path, '.temp', toolchain.obj_path)
+        mkdir(tmp_path)
+
+        # Copy Headers
+        for resource in resources:
+            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+        dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+
+        # Compile Sources
+        objects = []
+        for resource in resources:
+            objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies_include_dir))
+
+        needed_update = toolchain.build_library(objects, bin_path, name)
+
+        if report != None and needed_update:
+            end = time()
+            cur_result["elapsed_time"] = end - start
+            cur_result["output"] = toolchain.get_output()
+            cur_result["result"] = "OK"
+
+            add_result_to_report(report, cur_result)
+
+    except Exception, e:
+        if report != None:
+            end = time()
+            cur_result["result"] = "FAIL"
+            cur_result["elapsed_time"] = end - start
+
+            toolchain_output = toolchain.get_output()
+            if toolchain_output:
+                cur_result["output"] += toolchain_output
+
+            cur_result["output"] += str(e)
+
+            add_result_to_report(report, cur_result)
+
+        # Let Exception propagate
+        raise e
 
 # We do have unique legacy conventions about how we build and package the mbed library
 def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
@@ -538,6 +650,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
 
         # Let Exception propagate
         raise e
+
 
 def get_unique_supported_toolchains():
     """ Get list of all unique toolchains supported by targets """
