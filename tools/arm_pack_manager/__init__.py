@@ -74,7 +74,7 @@ class Cache () :
         self.silent = silent
         self.counter = 0
         self.total = 1
-        self.index = None
+        self._index = {}
         self.urls = None
         self.no_timeouts = no_timeouts
 
@@ -168,7 +168,7 @@ class Cache () :
 
     def _generate_index_helper(self, d) :
         try :
-            self.index.update(dict([(dev['dname'], self._extract_dict(dev, d)) for dev in
+            self._index.update(dict([(dev['dname'], self._extract_dict(dev, d)) for dev in
                                     (self.pull_from_cache(d)("device"))]))
         except AttributeError as e :
             print(e)
@@ -185,7 +185,6 @@ class Cache () :
         :return: A file-like object that, when read, is the ELF file that describes the flashing algorithm
         :rtype: ZipExtFile
         """
-        self.load_index()
         device = self.index[device_name]
         pack = ZipFile(join(save_data_path('arm-pack-manager'),
                             strip_protocol(self.pdsc_to_pack(device['file']))))
@@ -200,7 +199,6 @@ class Cache () :
         stdout.write("\n")
 
     def find_device(self, match) :
-        self.load_index()
         choices = process.extract(match, self.index.keys(), limit=len(self.index))
         choices = sorted([(v, k) for k, v in choices], reverse=True)
         if not choices : return []

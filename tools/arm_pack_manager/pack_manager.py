@@ -1,6 +1,11 @@
 import argparse
 from os.path import basename
 from tools.arm_pack_manager import Cache
+from os.path import basename, join, dirname, exists
+from os import makedirs
+from itertools import takewhile
+from fuzzywuzzy import process
+from tools.arm_pack_manager import Cache
 
 parser = argparse.ArgumentParser(description='A Handy little utility for keeping your cache of pack files up to date.')
 subparsers = parser.add_subparsers(title="Commands")
@@ -75,7 +80,8 @@ def fuzzy_find(matches, urls) :
             dict(name=['-d','--descriptors'], action="store_true",
                  help="download all descriptors"),
             dict(name=["-b","--batch"], action="store_true",
-                 help="don't ask for user input and assume download all"))
+                 help="don't ask for user input and assume download all"),
+            help="Cache a group of PACK or PDSC files")
 def command_cache (cache, matches, everything=False, descriptors=False, batch=False, verbose= False) :
     if everything :
         cache.cache_everything()
@@ -102,22 +108,45 @@ def command_cache (cache, matches, everything=False, descriptors=False, batch=Fa
 @subcommand('find-part',
             dict(name='matches', nargs="+", help="words to match to processors"),
             dict(name=['-l',"--long"], action="store_true",
-                 help="print out part details with part"))
+                 help="print out part details with part"),
+            help="Find a Part and it's description within the cache")
 def command_find_part (cache, matches, long=False) :
     if long :
         import pprint
         pp = pprint.PrettyPrinter()
-    parts = cache.load_index()
+    parts = cache.index
     choices = fuzzy_find(matches, parts.keys())
     for part in choices :
         print part
         if long :
             pp.pprint(cache.index[part])
 
+@subcommand('dump-parts',
+            dict(name='out', help='directory to dump to'),
+            dict(name='parts', nargs='+', help='parts to dump'),
+            help='Create a directory with an index.json describing the part and all of their associated flashing algorithms.'
+)
+def command_dump_parts (cache, out, parts) :
+    index = {}
+    for part in parts :
+        index.update(dict(cache.find_device(part)))
+    for n, p in index.iteritems() :
+        try :
+            if not exists(join(out, dirname(p['algorithm']))) :
+                makedirs(join(out, dirname(p['algorithm'])))
+            with open(join(out, p['algorithm']), "wb+") as fd :
+                fd.write(cache.get_flash_algorthim_binary(n).read())
+        except KeyError:
+            print("[Warning] {} does not have an associated flashing algorithm".format(n))
+    with open(join(out, "index.json"), "wb+") as fd :
+        dump(index,fd)
+
+
 @subcommand('cache-part',
-            dict(name='matches', nargs="+", help="words to match to devices"))
+            dict(name='matches', nargs="+", help="words to match to devices"),
+            help='Cache PACK files associated with the parts matching the provided words')
 def command_cache_part (cache, matches) :
-    index = cache.load_index()
+    index = cache.index
     choices = fuzzy_find(matches, index.keys())
     urls = [index[c]['file'] for c in choices]
     cache.cache_pack_list(urls)
