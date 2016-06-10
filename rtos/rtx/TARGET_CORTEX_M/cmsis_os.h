@@ -317,6 +317,8 @@ const osThreadDef_t os_thread_def_##name = \
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId osThreadCreate (const osThreadDef_t *thread_def, void *argument);
 
+osThreadId osThreadContextCreate (const osThreadDef_t *thread_def, void *argument, void *context);
+
 /// Return the thread ID of the current running thread.
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId osThreadGetId (void);

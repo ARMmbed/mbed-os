@@ -332,6 +332,15 @@ Reset_Handler:
     ldr   r0,=SystemInit
     blx   r0
 #endif
+
+/* The call to uvisor_init() happens independently of uVisor being enabled or
+ * not, so it is conditionally compiled only based on FEATURE_UVISOR. */
+#ifdef    FEATURE_UVISOR
+/* Call uvisor_init() */
+    ldr   r0, =uvisor_init
+    blx   r0
+#endif /* FEATURE_UVISOR */
+
 /*     Loop to copy data from read only memory to RAM. The ranges
  *      of copy from/to are specified by following symbols evaluated in
  *      linker script.

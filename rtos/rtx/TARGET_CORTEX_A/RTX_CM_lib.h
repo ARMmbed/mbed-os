@@ -447,7 +447,7 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
-__attribute__((naked)) void software_init_hook (void) {
+__attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
     ".syntax unified\n"
     ".arm\n"

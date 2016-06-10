@@ -412,6 +412,48 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 
 #endif
 
+#if defined(TOOLCHAIN_GCC)
+#ifdef   FEATURE_UVISOR
+#include "uvisor-lib/uvisor-lib.h"
+#endif/* FEATURE_UVISOR */
+
+#ifndef  FEATURE_UVISOR
+extern "C" {
+void * __wrap__malloc_r(struct _reent * r, size_t size) {
+    extern void * __real__malloc_r(struct _reent * r, size_t size);
+    return __real__malloc_r(r, size);
+}
+void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
+    extern void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
+    return __real__realloc_r(r, ptr, size);
+}
+void __wrap__free_r(struct _reent * r, void * ptr) {
+    extern void __real__free_r(struct _reent * r, void * ptr);
+    __real__free_r(r, ptr);
+}
+}
+#endif/* FEATURE_UVISOR */
+
+extern "C" WEAK void software_init_hook_rtos(void)
+{
+    // Do nothing by default.
+}
+
+extern "C" void software_init_hook(void)
+{
+#ifdef   FEATURE_UVISOR
+    int return_code;
+
+    return_code = uvisor_lib_init();
+    if (return_code) {
+        mbed_die();
+    }
+#endif/* FEATURE_UVISOR */
+
+    software_init_hook_rtos();
+}
+#endif
+
 // ****************************************************************************
 // mbed_main is a function that is called before main()
 // mbed_sdk_init() is also a function that is called before main(), but unlike
