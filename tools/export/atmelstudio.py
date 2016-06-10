@@ -28,6 +28,7 @@ class AtmelStudio(Exporter):
         'SAMR21G18A',
         'SAMD21G18A',
         'SAML21J18A',
+        'SAMG55J19',
     ]
 
     DOT_IN_RELATIVE_PATH = True
