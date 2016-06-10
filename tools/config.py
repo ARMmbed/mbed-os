@@ -143,8 +143,12 @@ class Config:
     # Allowed keys in configuration dictionaries
     # (targets can have any kind of keys, so this validation is not applicable to them)
     __allowed_keys = {
-        "library": set(["name", "config", "target_overrides", "macros", "__config_path"]),
-        "application": set(["config", "custom_targets", "target_overrides", "macros", "__config_path"])
+        "library": set(["name", "config", "target_overrides", "macros", "__config_path"]
+                + [a+'_add'    for a in Target._Target__cumulative_attributes]
+                + [a+'_remove' for a in Target._Target__cumulative_attributes]),
+        "application": set(["config", "custom_targets", "target_overrides", "macros", "__config_path"]
+                + [a+'_add'    for a in Target._Target__cumulative_attributes]
+                + [a+'_remove' for a in Target._Target__cumulative_attributes]),
     }
 
     # The initialization arguments for Config are:
@@ -176,6 +180,7 @@ class Config:
         self.processed_configs = {}
         self.target = target if isinstance(target, str) else target.name
         self.target_labels = Target.get_target(self.target).get_labels()
+        self.target_instance = Target.get_target(self.target)
 
     # Add one or more configuration files
     def add_config_files(self, flist):
@@ -272,6 +277,20 @@ class Config:
                 raise ConfigException("Macro '%s' defined in both '%s' and '%s' with incompatible values" % (m.macro_name, macros[m.macro_name].defined_by, full_unit_name))
             macros[m.macro_name] = m
 
+    # Helper function: process target attributes in config files
+    # data: dict of cumulative attributes
+    # unit_name: the unit (library/application) that defines this macro
+    # unit_kind: the kind of the unit ("library" or "application")
+    def _process_attributes(self, data, unit_name, unit_kind):
+        for attr in Target._Target__cumulative_attributes:
+            attrs = getattr(self.target_instance, attr)
+
+            attrs.extend(data.get(attr+'_add', []))
+            for a in data.get(attr+'_remove', []):
+                attrs.remove(a)
+
+            setattr(self.target_instance, attr, attrs)
+
     # Read and interpret configuration data defined by libs
     # It is assumed that "add_config_files" above was already called and the library configuration data
     # exists in self.lib_config_data
@@ -282,6 +301,7 @@ class Config:
             if unknown_keys:
                 raise ConfigException("Unknown key(s) '%s' in %s" % (",".join(unknown_keys), lib_name))
             all_params.update(self._process_config_and_overrides(lib_data, {}, lib_name, "library"))
+            self._process_attributes(lib_data, lib_name, "library")
             self._process_macros(lib_data.get("macros", []), macros, lib_name, "library")
         return all_params, macros
 
@@ -293,6 +313,8 @@ class Config:
         app_cfg = self.app_config_data
         # The application can have a "config_parameters" and a "target_config_overrides" section just like a library
         self._process_config_and_overrides(app_cfg, params, "app", "application")
+        # The application can also defined attributes
+        self._process_attributes(app_cfg, "app", "application")
         # The application can also defined macros
         self._process_macros(app_cfg.get("macros", []), macros, "app", "application")
 
