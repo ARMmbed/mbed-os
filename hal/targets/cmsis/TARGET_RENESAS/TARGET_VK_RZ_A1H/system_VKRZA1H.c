@@ -49,6 +49,12 @@ void FPUEnable(void);
 
 #endif
 
+#define FRQCR_IFC_MSK          (0x0030)
+#define FRQCR_IFC_SHFT         (8)
+#define FRQCR_IFC_1P1          (0) /* x1/1 */
+#define FRQCR_IFC_2P3          (1) /* x2/3 */
+#define FRQCR_IFC_1P3          (3) /* x1/3 */
+
 uint32_t IRQNestLevel;
 unsigned char seen_id0_active = 0; // single byte to hold a flag used in the workaround for GIC errata 733075
 uint32_t SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK;     /*!< System Clock Frequency (Core Clock)  */
@@ -209,7 +215,22 @@ uint32_t InterruptHandlerUnregister (IRQn_Type irq)
  */
 void SystemCoreClockUpdate (void)
 {
-    SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK;
+    uint32_t frqcr_ifc = ((uint32_t)CPG.FRQCR & (uint32_t)FRQCR_IFC_MSK) >> FRQCR_IFC_SHFT;
+
+    switch (frqcr_ifc) {
+        case FRQCR_IFC_1P1:
+            SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK;
+            break;
+        case FRQCR_IFC_2P3:
+            SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK * 2 / 3;
+            break;
+        case FRQCR_IFC_1P3:
+            SystemCoreClock = CM0_RENESAS_RZ_A1_I_CLK  / 3;
+            break;
+        default:
+            /* do nothing */
+            break;
+    }
 }
 
 
