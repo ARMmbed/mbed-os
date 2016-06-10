@@ -27,7 +27,7 @@ class GCC(mbedToolchain):
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
@@ -136,27 +136,16 @@ class GCC(mbedToolchain):
                 )
                 continue
 
-            # Each line should start with the file information: "filepath: ..."
-            # i should point past the file path                          ^
-            # avoid the first column in Windows (C:\)
-            i = line.find(':', 2)
-            if i == -1: continue
 
-            if state == WHERE:
-                file = line[:i]
-                message = line[i+1:].strip() + ' '
-                state = WHAT
-
-            elif state == WHAT:
-                match = GCC.DIAGNOSTIC_PATTERN.match(line[i+1:])
-                if match is None:
-                    state = WHERE
-                    continue
-
+            match = GCC.DIAGNOSTIC_PATTERN.match(line)
+            if match is not None:
                 self.cc_info(
-                    match.group('severity'),
-                    file, match.group('line'),
-                    message + match.group('message')
+                    match.group('severity').lower(),
+                    match.group('file'),
+                    match.group('line'),
+                    match.group('message'),
+                    target_name=self.target.name,
+                    toolchain_name=self.name
                 )
 
     def get_dep_option(self, object):

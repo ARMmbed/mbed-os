@@ -207,9 +207,9 @@ def build_project(src_path, build_path, target, toolchain_name,
             resources.objects.extend(objects)
 
         # Link Program
-        res, needed_update = toolchain.link_program(resources, build_path, name)
+        res, _ = toolchain.link_program(resources, build_path, name)
 
-        if report != None and needed_update:
+        if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output()
@@ -233,8 +233,6 @@ def build_project(src_path, build_path, target, toolchain_name,
             toolchain_output = toolchain.get_output()
             if toolchain_output:
                 cur_result["output"] += toolchain_output
-
-            cur_result["output"] += str(e)
 
             add_result_to_report(report, cur_result)
 
@@ -360,11 +358,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
             resources.objects.extend(objects)
 
         if archive:
-            needed_update = toolchain.build_library(resources.objects, build_path, name)
-        else:
-            needed_update = True
+            toolchain.build_library(objects, build_path, name)
 
-        if report != None and needed_update:
+        if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output()
@@ -623,12 +619,12 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         for o in separate_objects:
             objects.remove(o)
 
-        needed_update = toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
+        toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
 
         for o in separate_objects:
             toolchain.copy_files(o, BUILD_TOOLCHAIN)
 
-        if report != None and needed_update:
+        if report != None:
             end = time()
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output()
