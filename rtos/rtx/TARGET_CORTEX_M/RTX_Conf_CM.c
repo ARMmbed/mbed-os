@@ -97,8 +97,10 @@
 #      define OS_MAINSTKSIZE    128
 #  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) \
    || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) \
-   || defined(TARGET_EFM32HG_STK3400) || defined(TARGET_MCU_NRF51822)
+   || defined(TARGET_EFM32HG_STK3400)
 #      define OS_MAINSTKSIZE    112
+#  elif defined(TARGET_MCU_NRF51822)
+#      define OS_MAINSTKSIZE    512
 #  else
 #    error "no target defined"
 #  endif
