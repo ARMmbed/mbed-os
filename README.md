@@ -144,20 +144,21 @@ Skip any step where a compatible tool already exists
 3. Install virtualenv in python
 
 ```
-> git clone https://github.com/mbedmicro/mbed
 > pip install virtualenv
+> git clone https://github.com/mbedmicro/mbed
+> cd mbed
 > virtualenv venv
 > 
 ```
 
 Develop
 -------
-1. Update dependencies and start virtual environment. This should be done everytime you pull new changes
+1. Update dependencies and start virtual environment. This should be done everytime you pull new changes. Assuming you're running bash or zsh:
 
 ```
-> "venv/Scripts/activate"
+> "source venv/bin/activate"
 > pip install -r requirements.txt
 > cd workspace_tools
 > ... do things ...
-> "venv/Scripts/deactivate"
+> deactivate
 ```
