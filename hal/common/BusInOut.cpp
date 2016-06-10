@@ -52,55 +52,55 @@ BusInOut::~BusInOut() {
 }
 
 void BusInOut::write(int value) {
-    _mutex.lock();
+    lock();
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             _pin[i]->write((value >> i) & 1);
         }
     }
-    _mutex.unlock();
+    unlock();
 }
 
 int BusInOut::read() {
-    _mutex.lock();
+    lock();
     int v = 0;
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             v |= _pin[i]->read() << i;
         }
     }
-    _mutex.unlock();
+    unlock();
     return v;
 }
 
 void BusInOut::output() {
-    _mutex.lock();
+    lock();
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             _pin[i]->output();
         }
     }
-    _mutex.unlock();
+    unlock();
 }
 
 void BusInOut::input() {
-    _mutex.lock();
+    lock();
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             _pin[i]->input();
         }
     }
-    _mutex.unlock();
+    unlock();
 }
 
 void BusInOut::mode(PinMode pull) {
-    _mutex.lock();
+    lock();
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             _pin[i]->mode(pull);
         }
     }
-    _mutex.unlock();
+    unlock();
 }
 
 #ifdef MBED_OPERATORS
@@ -128,5 +128,13 @@ BusInOut::operator int() {
     return read();
 }
 #endif
+
+void BusInOut::lock() {
+    _mutex.lock();
+}
+
+void BusInOut::unlock() {
+    _mutex.unlock();
+}
 
 } // namespace mbed

@@ -52,24 +52,24 @@ BusOut::~BusOut() {
 }
 
 void BusOut::write(int value) {
-    _mutex.lock();
+    lock();
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             _pin[i]->write((value >> i) & 1);
         }
     }
-    _mutex.unlock();
+    unlock();
 }
 
 int BusOut::read() {
-    _mutex.lock();
+    lock();
     int v = 0;
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             v |= _pin[i]->read() << i;
         }
     }
-    _mutex.unlock();
+    unlock();
     return v;
 }
 
@@ -98,5 +98,13 @@ BusOut::operator int() {
     return read();
 }
 #endif
+
+void BusOut::lock() {
+    _mutex.lock();
+}
+
+void BusOut::unlock() {
+    _mutex.unlock();
+}
 
 } // namespace mbed

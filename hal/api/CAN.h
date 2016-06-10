@@ -242,6 +242,8 @@ public:
     static void _irq_handler(uint32_t id, CanIrqType type);
 
 protected:
+    virtual void lock();
+    virtual void unlock();
     can_t               _can;
     Callback<void()>    _irq[9];
     rtos::Mutex         _mutex;

@@ -53,23 +53,31 @@ BusIn::~BusIn() {
 
 int BusIn::read() {
     int v = 0;
-    _mutex.lock();
+    lock();
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             v |= _pin[i]->read() << i;
         }
     }
-    _mutex.unlock();
+    unlock();
     return v;
 }
 
 void BusIn::mode(PinMode pull) {
-    _mutex.lock();
+    lock();
     for (int i=0; i<16; i++) {
         if (_pin[i] != 0) {
             _pin[i]->mode(pull);
         }
     }
+    unlock();
+}
+
+void BusIn::lock() {
+    _mutex.lock();
+}
+
+void BusIn::unlock() {
     _mutex.unlock();
 }
 

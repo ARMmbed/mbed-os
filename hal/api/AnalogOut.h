@@ -66,9 +66,9 @@ public:
      *    Values outside this range will be saturated to 0.0f or 1.0f.
      */
     void write(float value) {
-        _mutex.lock();
+        lock();
         analogout_write(&_dac, value);
-        _mutex.unlock();
+        unlock();
     }
 
     /** Set the output voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
@@ -77,9 +77,9 @@ public:
      *            normalised to a 16-bit value (0x0000 = 0v, 0xFFFF = 3.3v)
      */
     void write_u16(unsigned short value) {
-        _mutex.lock();
+        lock();
         analogout_write_u16(&_dac, value);
-        _mutex.unlock();
+        unlock();
     }
 
     /** Return the current output voltage setting, measured as a percentage (float)
@@ -93,9 +93,9 @@ public:
      *    This value may not match exactly the value set by a previous write().
      */
     float read() {
-        _mutex.lock();
+        lock();
         float ret = analogout_read(&_dac);
-        _mutex.unlock();
+        unlock();
         return ret;
     }
 
@@ -123,6 +123,15 @@ public:
 #endif
 
 protected:
+
+    virtual void lock() {
+        _mutex.lock();
+    }
+
+    virtual void unlock() {
+        _mutex.unlock();
+    }
+
     dac_t _dac;
     rtos::Mutex _mutex;
 };

@@ -116,11 +116,11 @@ public:
 
     /** Acquire exclusive access to this SPI bus
      */
-    void lock(void);
+    virtual void lock(void);
 
     /** Release exclusive access to this SPI bus
      */
-    void unlock(void);
+    virtual void unlock(void);
 
 #if DEVICE_SPI_ASYNCH
 

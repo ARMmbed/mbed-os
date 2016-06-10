@@ -85,6 +85,8 @@ public:
 #endif
 
 protected:
+    virtual void lock();
+    virtual void unlock();
     DigitalOut* _pin[16];
 
     /** Mask of bus's NC pins

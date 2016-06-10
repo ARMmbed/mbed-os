@@ -139,11 +139,11 @@ public:
 
     /** Acquire exclusive access to this I2C bus
      */
-    void lock(void);
+    virtual void lock(void);
 
     /** Release exclusive access to this I2C bus
      */
-    void unlock(void);
+    virtual void unlock(void);
 
 #if DEVICE_I2C_ASYNCH
 

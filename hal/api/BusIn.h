@@ -94,6 +94,8 @@ protected:
 
     /* disallow copy constructor and assignment operators */
 private:
+    virtual void lock();
+    virtual void unlock();
     BusIn(const BusIn&);
     BusIn & operator = (const BusIn&);
 };
