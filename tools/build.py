@@ -116,16 +116,16 @@ if __name__ == '__main__':
                       default=False,
                       help="Displays supported matrix of MCUs and toolchains")
 
+    parser.add_option('-f', '--filter',
+                      dest='general_filter_regex',
+                      default=None,
+                      help='For some commands you can use filter to filter out results')
+
     parser.add_option("", "--cppcheck",
                       action="store_true",
                       dest="cppcheck_validation",
                       default=False,
                       help="Forces 'cppcheck' static code analysis")
-
-    parser.add_option('-f', '--filter',
-                      dest='general_filter_regex',
-                      default=None,
-                      help='For some commands you can use filter to filter out results')
 
     parser.add_option("-j", "--jobs", type="int", dest="jobs",
                       default=0, help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
