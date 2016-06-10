@@ -113,6 +113,10 @@ public:
      */
     bool remove_handler(pFunctionPointer_t handler, IRQn_Type irq);
 
+protected:
+    virtual void lock();
+    virtual void unlock();
+
 private:
     InterruptManager();
     ~InterruptManager();

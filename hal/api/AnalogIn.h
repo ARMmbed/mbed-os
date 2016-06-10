@@ -55,9 +55,9 @@ public:
      * @param name (optional) A string to identify the object
      */
     AnalogIn(PinName pin) {
-        _mutex.lock();
+        lock();
         analogin_init(&_adc, pin);
-        _mutex.unlock();
+        unlock();
     }
 
     /** Read the input voltage, represented as a float in the range [0.0, 1.0]
@@ -65,9 +65,9 @@ public:
      * @returns A floating-point value representing the current input voltage, measured as a percentage
      */
     float read() {
-        _mutex.lock();
+        lock();
         float ret = analogin_read(&_adc);
-        _mutex.unlock();
+        unlock();
         return ret;
     }
 
@@ -77,9 +77,9 @@ public:
      *   16-bit unsigned short representing the current input voltage, normalised to a 16-bit value
      */
     unsigned short read_u16() {
-        _mutex.lock();
+        lock();
         unsigned short ret = analogin_read_u16(&_adc);
-        _mutex.unlock();
+        unlock();
         return ret;
     }
 
@@ -104,6 +104,15 @@ public:
 #endif
 
 protected:
+
+    virtual void lock() {
+        _mutex.lock();
+    }
+
+    virtual void unlock() {
+        _mutex.unlock();
+    }
+
     analogin_t _adc;
     static PlatformMutex _mutex;
 };

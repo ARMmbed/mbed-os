@@ -56,7 +56,7 @@ InterruptManager::~InterruptManager() {
 }
 
 bool InterruptManager::must_replace_vector(IRQn_Type irq) {
-    _mutex.lock();
+    lock();
 
     int ret = false;
     int irq_pos = get_irq_index(irq);
@@ -65,19 +65,19 @@ bool InterruptManager::must_replace_vector(IRQn_Type irq) {
         _chains[irq_pos]->add((pvoidf)NVIC_GetVector(irq));
         ret = true;
     }
-    _mutex.unlock();
+    unlock();
     return ret;
 }
 
 pFunctionPointer_t InterruptManager::add_common(void (*function)(void), IRQn_Type irq, bool front) {
-    _mutex.lock();
+    lock();
     int irq_pos = get_irq_index(irq);
     bool change = must_replace_vector(irq);
 
     pFunctionPointer_t pf = front ? _chains[irq_pos]->add_front(function) : _chains[irq_pos]->add(function);
     if (change)
         NVIC_SetVector(irq, (uint32_t)&InterruptManager::static_irq_helper);
-    _mutex.unlock();
+    unlock();
     return pf;
 }
 
@@ -85,13 +85,13 @@ bool InterruptManager::remove_handler(pFunctionPointer_t handler, IRQn_Type irq)
     int irq_pos = get_irq_index(irq);
     bool ret = false;
 
-    _mutex.lock();
+    lock();
     if (_chains[irq_pos] != NULL) {
         if (_chains[irq_pos]->remove(handler)) {
             ret = true;
         }
     }
-    _mutex.unlock();
+    unlock();
 
     return ret;
 }
@@ -107,6 +107,14 @@ int InterruptManager::get_irq_index(IRQn_Type irq) {
 
 void InterruptManager::static_irq_helper() {
     InterruptManager::get()->irq_helper();
+}
+
+void InterruptManager::lock() {
+    _mutex.lock();
+}
+
+void InterruptManager::unlock() {
+    _mutex.unlock();
 }
 
 } // namespace mbed
