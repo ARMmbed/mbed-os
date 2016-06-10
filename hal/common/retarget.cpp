@@ -417,6 +417,23 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
 
+#ifndef  FEATURE_UVISOR
+extern "C" {
+void * __wrap__malloc_r(struct _reent * r, size_t size) {
+    extern void * __real__malloc_r(struct _reent * r, size_t size);
+    return __real__malloc_r(r, size);
+}
+void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
+    extern void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
+    return __real__realloc_r(r, ptr, size);
+}
+void __wrap__free_r(struct _reent * r, void * ptr) {
+    extern void __real__free_r(struct _reent * r, void * ptr);
+    __real__free_r(r, ptr);
+}
+}
+#endif/* FEATURE_UVISOR */
+
 extern "C" WEAK void software_init_hook_rtos(void)
 {
     // Do nothing by default.
