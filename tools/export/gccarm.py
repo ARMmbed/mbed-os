@@ -84,6 +84,7 @@ class GccArm(Exporter):
         'NUCLEO_F334R8',
         'NUCLEO_F746ZG',
         'DISCO_L053C8',
+        'NUCLEO_L031K6',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
         'NUCLEO_L476RG',
@@ -95,6 +96,7 @@ class GccArm(Exporter):
         'NUCLEO_L152RE',
         'NRF51_DK',
         'NRF51_DONGLE',
+        'NRF51_MICROBIT',
         'SEEED_TINY_BLE',
         'DISCO_F401VC',
         'DELTA_DFCM_NNN40',
@@ -112,6 +114,7 @@ class GccArm(Exporter):
         'SAMD21J18A',
         'SAMD21G18A',
         'SAML21J18A',
+        'SAMG55J19',
     ]
 
     DOT_IN_RELATIVE_PATH = True

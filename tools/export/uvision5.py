@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ from tools.targets import TARGET_MAP, TARGET_NAMES
 # If you wish to add a new target, add it to project_generator_definitions, and then
 # define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
 # There are 2 default mbed templates (predefined settings) uvision.uvproj and uvproj_microlib.uvproj.tmpl
-class Uvision4(Exporter):
+class Uvision5(Exporter):
     """
-    Exporter class for uvision. This class uses project generator.
+    Exporter class for uvision5. This class uses project generator.
     """
     # These 2 are currently for exporters backward compatiblity
-    NAME = 'uVision4'
+    NAME = 'uVision5'
     TOOLCHAIN = 'ARM'
     # PROGEN_ACTIVE contains information for exporter scripts that this is using progen
     PROGEN_ACTIVE = True
@@ -37,8 +37,8 @@ class Uvision4(Exporter):
     TARGETS = []
     for target in TARGET_NAMES:
         try:
-            if (ProGenDef('uvision').is_supported(str(TARGET_MAP[target])) or
-                ProGenDef('uvision').is_supported(TARGET_MAP[target].progen['target'])):
+            if (ProGenDef('uvision5').is_supported(str(TARGET_MAP[target])) or
+                ProGenDef('uvision5').is_supported(TARGET_MAP[target].progen['target'])):
                 TARGETS.append(target)
         except AttributeError:
             # target is not supported yet
@@ -53,12 +53,12 @@ class Uvision4(Exporter):
         tool_specific = {}
         # Expand tool specific settings by uvision specific settings which are required
         try:
-            if TARGET_MAP[self.target].progen['uvision']['template']:
-                tool_specific['uvision'] = TARGET_MAP[self.target].progen['uvision']
+            if TARGET_MAP[self.target].progen['uvision5']['template']:
+                tool_specific['uvision5'] = TARGET_MAP[self.target].progen['uvision5']
         except KeyError:
             # use default template
             # by the mbed projects
-            tool_specific['uvision'] = {
+            tool_specific['uvision5'] = {
                     'template': [join(dirname(__file__),  'uvision.uvproj.tmpl')],
             }
 
@@ -66,13 +66,13 @@ class Uvision4(Exporter):
         project_data['tool_specific'].update(tool_specific)
 
         # get flags from toolchain and apply
-        project_data['tool_specific']['uvision']['misc'] = {}
-        project_data['tool_specific']['uvision']['misc']['asm_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['asm']))
-        project_data['tool_specific']['uvision']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c']))
+        project_data['tool_specific']['uvision5']['misc'] = {}
+        project_data['tool_specific']['uvision5']['misc']['asm_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['asm']))
+        project_data['tool_specific']['uvision5']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c']))
         # not compatible with c99 flag set in the template
-        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--c99")
-        project_data['tool_specific']['uvision']['misc']['cxx_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['ld']))
-        project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.toolchain.flags['ld']
+        project_data['tool_specific']['uvision5']['misc']['c_flags'].remove("--c99")
+        project_data['tool_specific']['uvision5']['misc']['cxx_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['ld']))
+        project_data['tool_specific']['uvision5']['misc']['ld_flags'] = self.toolchain.flags['ld']
 
         i = 0
         for macro in project_data['common']['macros']:
@@ -85,6 +85,5 @@ class Uvision4(Exporter):
                 project_data['common']['macros'].pop(i)
             i += 1
         project_data['common']['macros'].append('__ASSERT_MSG')
-        project_data['common']['build_dir'] = join(project_data['common']['build_dir'], 'uvision4')
-        self.progen_gen_file('uvision', project_data)
+        self.progen_gen_file('uvision5', project_data)
 

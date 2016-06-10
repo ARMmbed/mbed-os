@@ -60,16 +60,10 @@ LIBRARIES = [
 
     # DSP libraries
     {
-        "id": "cmsis_dsp",
-        "source_dir": DSP_CMSIS,
-        "build_dir": DSP_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
         "id": "dsp",
-        "source_dir": DSP_ABSTRACTION,
+        "source_dir": [DSP_ABSTRACTION, DSP_CMSIS],
         "build_dir": DSP_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, DSP_CMSIS],
+        "dependencies": [MBED_LIBRARIES]
     },
 
     # File system libraries

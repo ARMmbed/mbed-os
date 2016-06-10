@@ -53,15 +53,18 @@ class IAR(mbedToolchain):
                 
 
         if "debug-info" in self.options:
+            c_flags.append("-r")
             c_flags.append("-On")
         else:
             c_flags.append("-Oh")
-        # add debug symbols for all builds
-        c_flags.append("-r")
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
-        self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
+        
+        if target.core == "Cortex-M7F":
+            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice] + ["--fpu", "VFPv5_sp"]
+        else:
+            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
         if not "analyze" in self.options:
             self.cc = [main_cc, "--vla"] + c_flags
             self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions"] + c_flags

@@ -166,10 +166,11 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
 
-    for path in options.source_dir :
-        if not isfile(path) and not isdir(path) :
-            args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
-                       format(path))
+    if options.source_dir:
+        for path in options.source_dir :
+            if not isfile(path) and not isdir(path) :
+                args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
+                           format(path))
 
     # Print available tests in order and exit
     if options.list_tests is True:
