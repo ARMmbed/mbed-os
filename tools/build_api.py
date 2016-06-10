@@ -668,12 +668,12 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
     from prettytable import PrettyTable # Only use it in this function so building works without extra modules
 
     # All tests status table print
-    columns = ["Platform"] + unique_supported_toolchains
-    pt = PrettyTable(["Platform"] + unique_supported_toolchains)
+    columns = ["Target"] + unique_supported_toolchains
+    pt = PrettyTable(["Target"] + unique_supported_toolchains)
     # Align table
     for col in columns:
         pt.align[col] = "c"
-    pt.align["Platform"] = "l"
+    pt.align["Target"] = "l"
 
     perm_counter = 0
     target_counter = 0
@@ -685,25 +685,21 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None):
         target_counter += 1
 
         row = [target]  # First column is platform name
-        default_toolchain = TARGET_MAP[target].default_toolchain
         for unique_toolchain in unique_supported_toolchains:
-            text = "-"
-            if default_toolchain == unique_toolchain:
-                text = "Default"
-                perm_counter += 1
-            elif unique_toolchain in TARGET_MAP[target].supported_toolchains:
+            if unique_toolchain in TARGET_MAP[target].supported_toolchains:
                 text = "Supported"
                 perm_counter += 1
+            else:
+                text = "-"
+            
             row.append(text)
         pt.add_row(row)
 
     result = pt.get_html_string() if verbose_html else pt.get_string()
     result += "\n"
-    result += "*Default - default on-line compiler\n"
-    result += "*Supported - supported off-line compiler\n"
-    result += "\n"
-    result += "Total platforms: %d\n"% (target_counter)
-    result += "Total permutations: %d"% (perm_counter)
+    result += "Supported targets: %d\n"% (target_counter)
+    if target_counter == 1:
+        result += "Supported toolchains: %d"% (perm_counter)
     return result
 
 

@@ -46,12 +46,12 @@ if __name__ == '__main__':
                           action="store_true",
                           dest="supported_toolchains",
                           default=False,
-                          help="Displays supported matrix of MCUs and toolchains")
+                          help="Displays supported matrix of targets and toolchains")
 
         parser.add_option('-f', '--filter',
                           dest='general_filter_regex',
                           default=None,
-                          help='For some commands you can use filter to filter out results')
+                          help='Filter targets')
 
         parser.add_option("-v", "--verbose",
                           action="store_true",
@@ -68,12 +68,18 @@ if __name__ == '__main__':
 
         # If auto_detect attribute is present, we assume other auto-detection
         # parameters like 'toolchains_filter' are also set.
-        print "[mbed] Detecting connected mbed-enabled devices... "
-
         MUTs = get_autodetected_MUTS_list()
 
+        count = 0
         for mut in MUTs.values():
-            print "[mbed] Detected %s, port: %s, mounted: %s"% (mut['mcu'], mut['port'], mut['disk'])
+            print ""
+            print "[mbed] Detected %s, port %s, mounted %s" % (mut['mcu'], mut['port'], mut['disk'])
+            print "[mbed] Supported toolchains for %s" % mut['mcu']
+            print mcu_toolchain_matrix(platform_filter=r'^'+mut['mcu']+'$')
+            count += 1
+        
+        if count == 0:
+            print "[mbed] No mbed targets where detected on your system."
 
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"
