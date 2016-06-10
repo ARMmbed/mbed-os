@@ -462,9 +462,9 @@ static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t va
     // return true if  begin <= val < end
     if (begin < end) {
         if (begin <= val && val < end) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     } else {
         // In this case end < begin because it has wrap around the limits
