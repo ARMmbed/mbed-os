@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "types.h"
+#include "utest/utest_types.h"
 
 
 namespace utest {

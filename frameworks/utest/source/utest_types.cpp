@@ -16,7 +16,7 @@
  ****************************************************************************
  */
 
- #include "utest/types.h"
+ #include "utest/utest_types.h"
 
 const char* utest::v1::stringify(utest::v1::failure_reason_t reason)
 {

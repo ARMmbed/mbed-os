@@ -22,7 +22,7 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
-#include "utest/stack_trace.h"
+#include "utest/utest_stack_trace.h"
 
 #include "ticker_api.h"
 #include "us_ticker_api.h"

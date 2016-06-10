@@ -22,8 +22,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "types.h"
-#include "default_handlers.h"
+#include "utest/utest_types.h"
+#include "utest/utest_default_handlers.h"
 
 
 namespace utest {

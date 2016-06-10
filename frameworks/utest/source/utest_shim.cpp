@@ -16,8 +16,8 @@
  ****************************************************************************
  */
 
-#include "utest/shim.h"
-#include "utest/stack_trace.h"
+#include "utest/utest_shim.h"
+#include "utest/utest_stack_trace.h"
 
 #if UTEST_SHIM_SCHEDULER_USE_MINAR
 #include "minar/minar.h"

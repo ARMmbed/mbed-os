@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "scheduler.h"
+#include "utest/utest_scheduler.h"
 
 #ifdef YOTTA_CFG
 #   include "compiler-polyfill/attributes.h"
