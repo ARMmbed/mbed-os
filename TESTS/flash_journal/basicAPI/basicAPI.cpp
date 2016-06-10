@@ -54,27 +54,27 @@ void callbackHandler(int32_t status, FlashJournal_OpCode_t cmd_code)
 
     switch (cmd_code) {
         case FLASH_JOURNAL_OPCODE_INITIALIZE:
-            printf("journal_callbackHandler: callback for init with status %" PRId32 "\n", status);
+            // printf("journal_callbackHandler: callback for init with status %" PRId32 "\n", status);
             break;
 
         case FLASH_JOURNAL_OPCODE_READ_BLOB:
-            printf("journal_callbackHandler: callback for read with status %" PRId32 "\n", status);
+            // printf("journal_callbackHandler: callback for read with status %" PRId32 "\n", status);
             break;
 
         case FLASH_JOURNAL_OPCODE_LOG_BLOB:
-            printf("journal_callbackHandler: callback for log with status %" PRId32 "\n", status);
+            // printf("journal_callbackHandler: callback for log with status %" PRId32 "\n", status);
             break;
 
         case FLASH_JOURNAL_OPCODE_COMMIT:
-            printf("journal_callbackHandler: callback for commit with status %" PRId32 "\n", status);
+            // printf("journal_callbackHandler: callback for commit with status %" PRId32 "\n", status);
             break;
 
         case FLASH_JOURNAL_OPCODE_RESET:
-            printf("journal_callbackHandler: callback for reset with status %" PRId32 "\n", status);
+            // printf("journal_callbackHandler: callback for reset with status %" PRId32 "\n", status);
             break;
 
         default:
-            printf("journal_callbackHandler: callback for opcode %u with status %" PRId32 "\n", cmd_code, status);
+            // printf("journal_callbackHandler: callback for opcode %u with status %" PRId32 "\n", cmd_code, status);
             break;
     }
     Harness::validate_callback(); // Validate the callback
@@ -198,7 +198,7 @@ control_t test_commitWithoutLogs(const size_t call_count)
 
         case 2:
             rc = FlashJournal_commit(&journal);
-            printf("commit returned %" PRId32 "\r\n", rc);
+            // printf("commit returned %" PRId32 "\r\n", rc);
             TEST_ASSERT(rc >= JOURNAL_STATUS_OK);
             if (rc == JOURNAL_STATUS_OK) {
                 TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
@@ -609,7 +609,7 @@ control_t test_logSeveralOddSizedChunks(size_t call_count)
         printf("test_logSeveralOddSizedChunks: iteration with call_count %u\n", call_count);
         memset(buffer, PATTERN, SIZEOF_ODD_CHUNK);
         rc = FlashJournal_log(&journal, buffer, SIZEOF_ODD_CHUNK);
-        printf("test_logSeveralOddSizedChunks: called FlashJournal_log(): rc = %" PRId32 "\n", rc);
+        // printf("test_logSeveralOddSizedChunks: called FlashJournal_log(): rc = %" PRId32 "\n", rc);
         TEST_ASSERT((rc >= JOURNAL_STATUS_OK) || (rc == JOURNAL_STATUS_SMALL_LOG_REQUEST));
         if (rc == JOURNAL_STATUS_OK) {
             TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
@@ -675,7 +675,7 @@ control_t test_multipleWritesFollowedByCommitFollowedByMultipleReads(const size_
         printf("writing pattern %02x\n", PATTERN ^ call_count);
         memset(buffer, (PATTERN ^ call_count), SIZEOF_WRITE);
         rc = FlashJournal_log(&journal, buffer, SIZEOF_WRITE);
-        printf("test_multipleWritesFollowedByCommitFollowedByMultipleReads: log returned %" PRId32 "\n", rc);
+        // printf("test_multipleWritesFollowedByCommitFollowedByMultipleReads: log returned %" PRId32 "\n", rc);
         TEST_ASSERT(rc >= JOURNAL_STATUS_OK);
         if (rc == JOURNAL_STATUS_OK) {
             TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
@@ -690,7 +690,7 @@ control_t test_multipleWritesFollowedByCommitFollowedByMultipleReads(const size_
             TEST_ASSERT_EQUAL(1, drv->GetCapabilities().asynchronous_ops);
             return CaseTimeout(500) + CaseRepeatAll;
         }
-        printf("test_multipleWritesFollowedByCommitFollowedByMultipleReads: commit returned %" PRId32 "\n", rc);
+        // printf("test_multipleWritesFollowedByCommitFollowedByMultipleReads: commit returned %" PRId32 "\n", rc);
         callbackStatus = rc; /* pass forward the return value so that the next iteration can check callbackStatus */
         return CaseRepeatAll;
     } else if (call_count < (N_WRITES + 1 + N_READS + 1)) {

@@ -309,7 +309,7 @@ void programDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation
 
     TEST_ASSERT((operation == ARM_STORAGE_OPERATION_ERASE) || (operation == ARM_STORAGE_OPERATION_PROGRAM_DATA));
     if (operation == ARM_STORAGE_OPERATION_ERASE) {
-        tr_info("programming %u bytes at address %lu with pattern 0x%" PRIx32, sizeofData, (uint32_t)addr, BYTE_PATTERN);
+        // tr_info("programming %u bytes at address %lu with pattern 0x%" PRIx32, sizeofData, (uint32_t)addr, BYTE_PATTERN);
         status = drv->ProgramData(addr, buffer, sizeofData);
 
         if (status < ARM_DRIVER_OK) {
@@ -386,7 +386,7 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
         TEST_ASSERT(rc > 0);
 
         /* program the sector at addr */
-        tr_info("programming %u bytes at address %lu with pattern 0x%" PRIx32, sizeofData, (uint32_t)addr, BYTE_PATTERN);
+        // tr_info("programming %u bytes at address %lu with pattern 0x%" PRIx32, sizeofData, (uint32_t)addr, BYTE_PATTERN);
         rc = drv->ProgramData((uint32_t)addr, buffer, sizeofData);
         if (rc == ARM_DRIVER_OK) {
             TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
