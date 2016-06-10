@@ -85,5 +85,6 @@ class Uvision4(Exporter):
                 project_data['common']['macros'].pop(i)
             i += 1
         project_data['common']['macros'].append('__ASSERT_MSG')
+        project_data['common']['build_dir'] = join(project_data['common']['build_dir'], 'uvision4')
         self.progen_gen_file('uvision', project_data)
 

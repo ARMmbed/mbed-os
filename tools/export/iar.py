@@ -67,6 +67,7 @@ class IAREmbeddedWorkbench(Exporter):
 
         project_data['tool_specific'] = {}
         project_data['tool_specific'].update(tool_specific)
+        project_data['common']['build_dir'] = os.path.join(project_data['common']['build_dir'], 'iar_arm')
         self.progen_gen_file('iar_arm', project_data)
 
 # Currently not used, we should reuse folder_name to create virtual folders

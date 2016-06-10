@@ -7,6 +7,7 @@ from jinja2 import Template, FileSystemLoader
 from jinja2.environment import Environment
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
+from operator import add
 
 from tools.utils import mkdir
 from tools.toolchains import TOOLCHAIN_CLASSES
@@ -15,6 +16,8 @@ from tools.targets import TARGET_MAP
 from project_generator.generate import Generator
 from project_generator.project import Project
 from project_generator.settings import ProjectSettings
+
+from tools.config import Config
 
 class OldLibrariesException(Exception): pass
 
@@ -31,6 +34,7 @@ class Exporter(object):
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
         self.extra_symbols = extra_symbols
+        self.config_macros = []
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -46,24 +50,40 @@ class Exporter(object):
                 self.toolchain.copy_files(r, trg_path, rel_path=src_path)
         return resources
 
+    @staticmethod
+    def _get_dir_grouped_files(files):
+        """ Get grouped files based on the dirname """
+        files_grouped = {}
+        for file in files:
+            rel_path = os.path.relpath(file, os.getcwd())
+            dir_path = os.path.dirname(rel_path)
+            if dir_path == '':
+                # all files within the current dir go into Source_Files
+                dir_path = 'Source_Files'
+            if not dir_path in files_grouped.keys():
+                files_grouped[dir_path] = []
+            files_grouped[dir_path].append(file)
+        return files_grouped
+
     def progen_get_project_data(self):
         """ Get ProGen project data  """
         # provide default data, some tools don't require any additional
         # tool specific settings
-        sources = []
+        code_files = []
         for r_type in ['c_sources', 'cpp_sources', 's_sources']:
             for file in getattr(self.resources, r_type):
-                sources.append(file)
+                code_files.append(file)
+
+        sources_files = code_files + self.resources.hex_files + self.resources.objects + \
+            self.resources.libraries
+        sources_grouped = Exporter._get_dir_grouped_files(sources_files)
+        headers_grouped = Exporter._get_dir_grouped_files(self.resources.headers)
 
         project_data = {
             'common': {
-                'sources': { 
-                    'Source Files': sources + self.resources.hex_files +
-                        self.resources.objects + self.resources.libraries,
-                },
-                'includes':  { 
-                    'Include Files': self.resources.headers,
-                },
+                'sources': sources_grouped,
+                'includes': headers_grouped,
+                'build_dir':'.build',
                 'target': [TARGET_MAP[self.target].progen['target']],
                 'macros': self.get_symbols(),
                 'export_dir': [self.inputDir],
@@ -73,7 +93,7 @@ class Exporter(object):
         return project_data
 
     def progen_gen_file(self, tool_name, project_data):
-        """ Generate project using ProGen Project API """
+        """" Generate project using ProGen Project API """
         settings = ProjectSettings()
         project = Project(self.program_name, [project_data], settings)
         # TODO: Fix this, the inc_dirs are not valid (our scripts copy files), therefore progen
@@ -95,17 +115,20 @@ class Exporter(object):
 
         return resources
 
-    def scan_and_copy_resources(self, prj_path, trg_path):
+    def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):
         # Copy only the file for the required target and toolchain
         lib_builds = []
+        # Create the configuration object
+        cfg = Config(self.target, prj_paths)
         for src in ['lib', 'src']:
-            resources = self.__scan_and_copy(join(prj_path, src), trg_path)
+            resources = reduce(add, [self.__scan_and_copy(join(path, src), trg_path) for path in prj_paths])
             lib_builds.extend(resources.lib_builds)
 
             # The repository files
             for repo_dir in resources.repo_dirs:
                 repo_files = self.__scan_all(repo_dir)
-                self.toolchain.copy_files(repo_files, trg_path, rel_path=join(prj_path, src))
+                for path in proj_paths :
+                    self.toolchain.copy_files(repo_files, trg_path, rel_path=join(path, src))
 
         # The libraries builds
         for bld in lib_builds:
@@ -120,9 +143,17 @@ class Exporter(object):
             fhandle = file(join(hgdir, 'keep.me'), 'a')
             fhandle.close()
 
-        # Final scan of the actual exported resources
-        self.resources = self.toolchain.scan_resources(trg_path)
-        self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
+        if not relative:
+            # Final scan of the actual exported resources
+            self.resources = self.toolchain.scan_resources(trg_path)
+            self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
+        else:
+            # use the prj_dir (source, not destination)
+            self.resources = reduce(add, [self.toolchain.scan_resources(path) for path in prj_paths])
+        # Add all JSON files discovered during scanning to the configuration object
+        cfg.add_config_files(self.resources.json_files)
+        # Get data from the configuration system
+        self.config_macros = cfg.get_config_data_macros()
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
@@ -141,7 +172,7 @@ class Exporter(object):
         """ This function returns symbols which must be exported.
             Please add / overwrite symbols in each exporter separately
         """
-        symbols = self.toolchain.get_symbols()
+        symbols = self.toolchain.get_symbols() + self.config_macros
         # We have extra symbols from e.g. libraries, we want to have them also added to export
         if add_extra_symbols:
             if self.extra_symbols is not None:
