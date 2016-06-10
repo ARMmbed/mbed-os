@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_cryp.c
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   CRYP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cryptography (CRYP) peripheral:
@@ -70,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -103,7 +103,7 @@
 /** @addtogroup STM32F7xx_HAL_Driver
   * @{
   */
-#if defined (STM32F756xx)
+#if defined (STM32F756xx) || defined (STM32F777xx) || defined (STM32F779xx)
 /** @defgroup CRYP CRYP
   * @brief CRYP HAL module driver.
   * @{
@@ -3815,7 +3815,7 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp)
 /**
   * @}
   */
-#endif /* STM32F756xx */
+#endif /* STM32F756xx || STM32F777xx || STM32F779xx */
 /**
   * @}
   */

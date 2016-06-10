@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_hash.c
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    09-December-2015
+  * @version V1.1.0
+  * @date    22-April-2016
   * @brief   HASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the HASH peripheral:
@@ -68,7 +68,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,7 +102,7 @@
   * @{
   */
 
-#if defined(STM32F756xx)
+#if defined (STM32F756xx) || defined (STM32F777xx) || defined (STM32F779xx)
 
 /** @defgroup HASH HASH
   * @brief HASH HAL module driver.
@@ -1869,7 +1869,7 @@ HAL_HASH_StateTypeDef HAL_HASH_GetState(HASH_HandleTypeDef *hhash)
 /**
   * @}
   */
-#endif /* STM32F756xx */
+#endif /* STM32F756xx || STM32F777xx || STM32F779xx */
 
 /**
   * @}
