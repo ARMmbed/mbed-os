@@ -74,11 +74,10 @@ class GCC(mbedToolchain):
             common_flags.append("-save-temps")
 
         if "debug-info" in self.options:
+            common_flags.append("-g")
             common_flags.append("-O0")
         else:
             common_flags.append("-O2")
-        # add debug symbols for all builds
-        common_flags.append("-g")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
