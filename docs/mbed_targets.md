@@ -1,6 +1,6 @@
 # Adding and configuring mbed targets
 
-mbed uses JSON as a description language for its build targets. The JSON description of mbed targets can be found in `workspace_tools/targets.json`. To better understand how a target is defined, we'll use this example (taken from `targets.json`):
+mbed uses JSON as a description language for its build targets. The JSON description of mbed targets can be found in `tools/targets.json`. To better understand how a target is defined, we'll use this example (taken from `targets.json`):
 
 ```
     "TEENSY3_1": {
@@ -173,4 +173,4 @@ This property is used to pass additional data to the project generator (used to 
 ```
 
 The `target` property of `progen` specifies the target name that must be used for the exporter (if different than the mbed target name).
-For each exporter, a template for exporting can also be specified. In this example, the template used for generating a uVision project file is in a file called `uvision_microlib.uvproj.tmpl`. It is assumed that all the templates are located in `workspace_tools/export`.
+For each exporter, a template for exporting can also be specified. In this example, the template used for generating a uVision project file is in a file called `uvision_microlib.uvproj.tmpl`. It is assumed that all the templates are located in `tools/export`.

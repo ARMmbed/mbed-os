@@ -198,7 +198,7 @@ $ astyle.exe --style=kr --indent=spaces=4 --indent-switches $(FULL_CURRENT_PATH)
 ```
 
 ## Python coding rules & coding guidelines
-Some of our tools in workspace_tools are written in ```Python 2.7```. In case of developing tools for python we prefer to keep similar code styles across all Python source code. Please note that not all rules must be enforced. For example we do not limit you to 80 characters per line, just be sure your code can fit to widescreen display.
+Some of our tools in tools are written in ```Python 2.7```. In case of developing tools for python we prefer to keep similar code styles across all Python source code. Please note that not all rules must be enforced. For example we do not limit you to 80 characters per line, just be sure your code can fit to widescreen display.
 
 Please stay compatible with ```Python 2.7``` but nothing stops you to write your code so in the future it will by Python 3 friendly.
 
@@ -211,7 +211,7 @@ Some general guidelines:
 * Please document your code, write comments and ```doc``` sections for each function or class you implement.
 
 ### Static Code Analizers for Python
-If you are old-school developer for sure you remember tools like lint. "lint was the name originally given to a particular program that flagged some suspicious and non-portable constructs (likely to be bugs) in C language source code." Now lint-like programs are used to check similar code issues for multiple languages, also for Python. Please do use them if you want to commit new code to workspace_tools and other mbed SDK Python tooling.
+If you are old-school developer for sure you remember tools like lint. "lint was the name originally given to a particular program that flagged some suspicious and non-portable constructs (likely to be bugs) in C language source code." Now lint-like programs are used to check similar code issues for multiple languages, also for Python. Please do use them if you want to commit new code to tools and other mbed SDK Python tooling.
 
 Below is the list Python lint tools you may want to use:
 
@@ -254,7 +254,7 @@ class HostRegistry:
 ```
 
 ## Testing
-Please refer to TESTING.md document for detais regarding mbed SDK test suite and build scripts included in ```mbed/workspace_tools/```.
+Please refer to TESTING.md document for detais regarding mbed SDK test suite and build scripts included in ```mbed/tools/```.
 
 ## Before pull request checklist
 * Your pull request description section contains:
