@@ -20,9 +20,14 @@
 /* This file translates mbed-specific pre-processor symbols into
  * uVisor-specific ones. Then the main uvisor-lib.h file is included. */
 
-/* By default uVisor is not there. */
-#if !defined(UVISOR_PRESENT)
+/* mbed uses UVISOR_SUPPORTED to determine whether the full uVisor binaries
+ * should be included or not. This symbol maps to the uVisor-internal symbol
+ * UVISOR_PRESENT. */
+/* By default uVisor is not supported. */
+#if !defined(FEATURE_UVISOR) || !defined(TARGET_UVISOR_SUPPORTED) || defined(TARGET_UVISOR_UNSUPPORTED)
 #define UVISOR_PRESENT 0
+#else
+#define UVISOR_PRESENT 1
 #endif
 
 /* Detect the target using the mbed-specific symbols and determine the MPU
