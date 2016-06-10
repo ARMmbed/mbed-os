@@ -26,12 +26,14 @@ LIBRARIES = [
         "source_dir": MBED_RTX,
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
+        "macros": ["MBED_CONF_RTOS_PRESENT=1"]
     },
     {
         "id": "rtos",
         "source_dir": RTOS_ABSTRACTION,
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, MBED_RTX],
+        "macros": ["MBED_CONF_RTOS_PRESENT=1"]
     },
 
     # RPC
