@@ -29,14 +29,14 @@ int testPacked() {
 }
 
 
+MBED_ALIGN(8)  char a;
+MBED_ALIGN(8)  char b;
+MBED_ALIGN(16) char c;
+MBED_ALIGN(8)  char d;
+MBED_ALIGN(16) char e;
+
 int testAlign() {
     int failed = 0;
-
-    MBED_ALIGN(8)  char a;
-    MBED_ALIGN(8)  char b;
-    MBED_ALIGN(16) char c;
-    MBED_ALIGN(8)  char d;
-    MBED_ALIGN(16) char e;
 
     if(((uintptr_t)&a) & 0x7){
         failed++;
