@@ -110,7 +110,7 @@ int LWIPInterface::connect()
 
     // Wait for an IP Address
     // -1: error, 0: timeout
-    if (netif_up.wait(2500) <= 0) {
+    if (netif_up.wait(15000) <= 0) {
         return NSAPI_ERROR_DHCP_FAILURE;
     }
 
@@ -294,7 +294,7 @@ int LWIPInterface::socket_connect(void *handle, const SocketAddress &addr)
     err_t err = tcp_connect(s->tcp, &ip_addr, addr.get_port(), tcp_connect_irq);
 
     // Wait for connection
-    if (err || connected.wait(1500) <= 0) {
+    if (err || connected.wait(15000) <= 0) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
