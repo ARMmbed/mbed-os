@@ -174,6 +174,8 @@ static u8_t *const memp_bases[] = {
 #  else
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
+#else
+#define ETHMEM_SECTION
 #endif
 
 /** This is the actual memory used by the pools (all pools in one big block). */
