@@ -527,11 +527,18 @@ extern uint32_t          __end__[];
 #endif
 
 void set_main_stack(void) {
+    uint32_t interrupt_stack_size = ((uint32_t)OS_MAINSTKSIZE * 4);
+    uint32_t heap_plus_stack_size = ((uint32_t)INITIAL_SP - (uint32_t)HEAP_START) - interrupt_stack_size;
+    // Main thread's stack is 1/4 of the heap
+    uint32_t main_stack_size = heap_plus_stack_size / 4;
+    // The main thread must be 4 byte aligned
+    uint32_t main_stack_start = ((uint32_t)INITIAL_SP - interrupt_stack_size - main_stack_size) & ~0x7;
+
     // That is the bottom of the main stack block: no collision detection
-    os_thread_def_main.stack_pointer = HEAP_START;
+    os_thread_def_main.stack_pointer = (uint32_t*)main_stack_start;
 
     // Leave OS_MAINSTKSIZE words for the scheduler and interrupts
-    os_thread_def_main.stacksize = (INITIAL_SP - (unsigned int)HEAP_START) - (OS_MAINSTKSIZE * 4);
+    os_thread_def_main.stacksize = main_stack_size;
 }
 
 #if defined (__CC_ARM)
