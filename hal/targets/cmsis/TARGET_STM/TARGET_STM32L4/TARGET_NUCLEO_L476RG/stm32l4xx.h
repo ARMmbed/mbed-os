@@ -2,23 +2,23 @@
   ******************************************************************************
   * @file    stm32l4xx.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.1.1
+  * @date    29-April-2016
   * @brief   CMSIS STM32L4xx Device Peripheral Access Layer Header File.
   *
   *          The file is the unique include file that the application programmer
   *          is using in the C source code, usually in main.c. This file contains:
   *           - Configuration section that allows to select:
   *              - The STM32L4xx device used in the target application
-  *              - To use or not the peripheral’s drivers in application code(i.e.
-  *                code will be based on direct access to peripheral’s registers
+  *              - To use or not the peripheralï¿½s drivers in application code(i.e.
+  *                code will be based on direct access to peripheralï¿½s registers
   *                rather than drivers API), this option is controlled by
   *                "#define USE_HAL_DRIVER"
   *
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -75,7 +75,13 @@
    application
   */
 
-#if !defined (STM32L471xx) && !defined (STM32L475xx) && !defined (STM32L476xx) && !defined (STM32L485xx) && !defined (STM32L486xx)
+#if !defined (STM32L431xx) && !defined (STM32L432xx) && !defined (STM32L433xx) && !defined (STM32L442xx) && !defined (STM32L443xx) && \
+    !defined (STM32L471xx) && !defined (STM32L475xx) && !defined (STM32L476xx) && !defined (STM32L485xx) && !defined (STM32L486xx)
+  /* #define STM32L431xx */   /*!< STM32L431xx Devices */
+  /* #define STM32L432xx */   /*!< STM32L432xx Devices */
+  /* #define STM32L433xx */   /*!< STM32L433xx Devices */
+  /* #define STM32L442xx */   /*!< STM32L442xx Devices */
+  /* #define STM32L443xx */   /*!< STM32L443xx Devices */
   /* #define STM32L471xx */   /*!< STM32L471xx Devices */
   /* #define STM32L475xx */   /*!< STM32L475xx Devices */
 #define STM32L476xx           /*!< STM32L476xx Devices */
@@ -92,20 +98,20 @@
    In this case, these drivers will not be included and the application code will
    be based on direct access to peripherals registers
    */
-#define USE_HAL_DRIVER
+  #define USE_HAL_DRIVER
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V1.0.0
+  * @brief CMSIS Device version number V1.1.1
   */
-#define __STM32L4xx_CMSIS_DEVICE_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L4xx_CMSIS_DEVICE_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32L4xx_CMSIS_DEVICE_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
-#define __STM32L4xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
-#define __STM32L4xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN << 24)\
-                                                |(__CMSIS_DEVICE_VERSION_SUB1 << 16)\
-                                                |(__CMSIS_DEVICE_VERSION_SUB2 << 8 )\
-                                                |(__CMSIS_DEVICE_VERSION_RC))
+#define __STM32L4_CMSIS_VERSION_MAIN   (0x01) /*!< [31:24] main version */
+#define __STM32L4_CMSIS_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
+#define __STM32L4_CMSIS_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
+#define __STM32L4_CMSIS_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
+#define __STM32L4_CMSIS_VERSION        ((__STM32L4_CMSIS_VERSION_MAIN << 24)\
+                                       |(__STM32L4_CMSIS_VERSION_SUB1 << 16)\
+                                       |(__STM32L4_CMSIS_VERSION_SUB2 << 8 )\
+                                       |(__STM32L4_CMSIS_VERSION_RC))
 
 /**
   * @}
@@ -115,7 +121,23 @@
   * @{
   */
 
-#if defined(STM32L471xx)
+#if defined(STM32L431xx)
+  #include "stm32l431xx.h"
+#elif defined(STM32L432xx)
+  #include "stm32l432xx.h"
+#elif defined(STM32L433xx)
+  #include "stm32l433xx.h"
+#elif defined(STM32L442xx)
+  #include "stm32l442xx.h"
+#elif defined(STM32L443xx)
+  #include "stm32l443xx.h"
+#elif defined(STM32L451xx)
+  #include "stm32l451xx.h"
+#elif defined(STM32L452xx)
+  #include "stm32l452xx.h"
+#elif defined(STM32L462xx)
+  #include "stm32l462xx.h"
+#elif defined(STM32L471xx)
   #include "stm32l471xx.h"
 #elif defined(STM32L475xx)
   #include "stm32l475xx.h"
@@ -125,6 +147,18 @@
   #include "stm32l485xx.h"
 #elif defined(STM32L486xx)
   #include "stm32l486xx.h"
+#elif defined(STM32L496xx)
+  #include "stm32l496xx.h"
+#elif defined(STM32L4A6xx)
+  #include "stm32l4a6xx.h"
+#elif defined(STM32L4R5xx)
+  #include "stm32l4r5xx.h"
+#elif defined(STM32L4R9xx)
+  #include "stm32l4r9xx.h"
+#elif defined(STM32L4S5xx)
+  #include "stm32l4s5xx.h"
+#elif defined(STM32L4S9xx)
+  #include "stm32l4s9xx.h"
 #else
  #error "Please select first the target STM32L4xx device used in your application (in stm32l4xx.h file)"
 #endif

@@ -44,6 +44,8 @@ namespace mbed {
  *  The root directory is considered to contain all FileLike and
  *  FileSystemLike objects, so the DIR* returned by opendir("/") will
  *  reflect this.
+ *
+ *  @Note Synchronization level: Set by subclass
  */
 class DirHandle {
 
@@ -82,9 +84,23 @@ public:
      *
      *  @param location The location to seek to. Must be a value returned by telldir.
      */
-    virtual void seekdir(off_t location) { }
+    virtual void seekdir(off_t location) { (void)location;}
 
     virtual ~DirHandle() {}
+
+protected:
+
+    /** Acquire exclusive access to this object.
+     */
+    virtual void lock() {
+        // Stub
+    }
+
+    /** Release exclusive access to this object.
+     */
+    virtual void unlock() {
+        // Stub
+    }
 };
 
 } // namespace mbed

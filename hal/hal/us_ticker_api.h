@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 /**
- * \defgroup UsTicker Microseconds Ticker Functions
+ * \defgroup hal_UsTicker Microseconds Ticker Functions
  * @{
  */
 

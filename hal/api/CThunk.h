@@ -19,6 +19,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* General C++ Object Thunking class
+ *
+ * - allows direct callbacks to non-static C++ class functions
+ * - keeps track for the corresponding class instance
+ * - supports an optional context parameter for the called function
+ * - ideally suited for class object receiving interrupts (NVIC_SetVector)
+ */
+
 #ifndef __CTHUNK_H__
 #define __CTHUNK_H__
 
@@ -62,6 +71,11 @@
 /* IRQ/Exception compatible thunk entry function */
 typedef void (*CThunkEntry)(void);
 
+/**
+ * Class for created a pointer with data bound to it
+ *
+ * @Note Synchronization level: Not protected
+ */
 template<class T>
 class CThunk
 {

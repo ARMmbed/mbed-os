@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_opamp_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of OPAMP HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) || defined (STM32L162xC) || defined (STM32L152xC) || defined (STM32L151xC)
+#if defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) || defined (STM32L162xC) || defined (STM32L152xC) || defined (STM32L151xC)
    
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal_def.h"
@@ -55,9 +55,6 @@
 /** @addtogroup OPAMPEx
   * @{
   */
-
-
-
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants ---------------------------------------------------------*/
 /** @defgroup OPAMPEx_Exported_Constants OPAMPEx Exported Constants
@@ -142,7 +139,7 @@
   * @param __HANDLE__: OPAMP handle
   * @retval "0" for OPAMP1, "1" for OPAMP2, "2" for OPAMP3
   */
-#define __OPAMP_INSTANCE_DECIMAL__(__HANDLE__)                                 \
+#define OPAMP_INSTANCE_DECIMAL(__HANDLE__)                                     \
   ( ( ((__HANDLE__)->Instance == OPAMP1)                                       \
     )?                                                                         \
      ((uint32_t)0)                                                             \
@@ -161,12 +158,65 @@
   * @param __HANDLE__: OPAMP handle
   * @retval "0" for OPAMP1, "1" for OPAMP2
   */
-#define __OPAMP_INSTANCE_DECIMAL__(__HANDLE__)                                 \
+#define OPAMP_INSTANCE_DECIMAL(__HANDLE__)                                     \
   ( ( ((__HANDLE__)->Instance == OPAMP1)                                       \
     )?                                                                         \
      ((uint32_t)0)                                                             \
      :                                                                         \
      ((uint32_t)1)                                                             \
+  )
+#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
+
+#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
+
+/**
+  * @brief Check OPAMP non-inverting input in function of OPAMPx instance
+  * @param __HANDLE__: OPAMP handle
+  * @param INPUT: OPAMP non-inverting input                                        
+  * @retval None
+  */
+#define IS_OPAMP_NONINVERTING_INPUT_CHECK_INSTANCE(__HANDLE__, INPUT)          \
+  ( ( ((__HANDLE__)->Instance == OPAMP1)                                       \
+    )?                                                                         \
+     (                                                                         \
+      ((INPUT) == OPAMP_NONINVERTINGINPUT_IO0)     ||                          \
+      ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH1)                             \
+     )                                                                         \
+     :                                                                         \
+     ( ( ((__HANDLE__)->Instance == OPAMP2)                                    \
+       )?                                                                      \
+        (                                                                      \
+         ((INPUT) == OPAMP_NONINVERTINGINPUT_IO0)     ||                       \
+         ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH1) ||                       \
+         ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH2)                          \
+        )                                                                      \
+        :                                                                      \
+        (                                                                      \
+         ((INPUT) == OPAMP_NONINVERTINGINPUT_IO0)     ||                       \
+         ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH2)                          \
+        )                                                                      \
+     )                                                                         \
+  )
+#else
+/**
+  * @brief Check OPAMP non-inverting input in function of OPAMPx instance
+  * @param __HANDLE__: OPAMP handle
+  * @param INPUT: OPAMP non-inverting input                                        
+  * @retval None
+  */
+#define IS_OPAMP_NONINVERTING_INPUT_CHECK_INSTANCE(__HANDLE__, INPUT)          \
+  ( ( ((__HANDLE__)->Instance == OPAMP1)                                       \
+    )?                                                                         \
+     (                                                                         \
+      ((INPUT) == OPAMP_NONINVERTINGINPUT_IO0)     ||                          \
+      ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH1)                             \
+     )                                                                         \
+     :                                                                         \
+     (                                                                         \
+      ((INPUT) == OPAMP_NONINVERTINGINPUT_IO0)     ||                          \
+      ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH1) ||                          \
+      ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH2)                             \
+     )                                                                         \
   )
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD */
 
@@ -180,7 +230,7 @@
   */
 
 /* I/O operation functions  *****************************************************/
-/** @defgroup OPAMPEx_Exported_Functions_Group1 Extended IO operation functions
+/** @defgroup OPAMPEx_Exported_Functions_Group1 Extended Input and Output operation functions
   * @{
   */
 #if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
@@ -196,7 +246,6 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   * @{
   */
 HAL_StatusTypeDef HAL_OPAMPEx_Unlock(OPAMP_HandleTypeDef *hopamp); 
-
 /**
   * @}
   */
@@ -213,7 +262,7 @@ HAL_StatusTypeDef HAL_OPAMPEx_Unlock(OPAMP_HandleTypeDef *hopamp);
   * @}
   */
 
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE || STM32L162xC || STM32L152xC || STM32L151xC */
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX || STM32L162xC || STM32L152xC || STM32L151xC */
 
 #ifdef __cplusplus
 }

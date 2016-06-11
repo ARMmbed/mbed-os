@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the CORTEX:
@@ -45,7 +45,7 @@
    (+) The HAL_SYSTICK_Config() function calls the SysTick_Config() function which
        is a CMSIS function that:
         (++) Configures the SysTick Reload register with value passed as function parameter.
-        (++) Configures the SysTick IRQ priority to the lowest value (0x0F).
+        (++) Configures the SysTick IRQ priority to the lowest value (0x0FU).
         (++) Resets the SysTick Counter register.
         (++) Configures the SysTick Counter clock source to be Core Clock Source (HCLK).
         (++) Enables the SysTick Interrupt.
@@ -70,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -182,7 +182,7 @@ void HAL_NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
   */
 void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority)
 { 
-  uint32_t prioritygroup = 0x00;
+  uint32_t prioritygroup = 0x00U;
   
   /* Check the parameters */
   assert_param(IS_NVIC_SUB_PRIORITY(SubPriority));
@@ -268,7 +268,7 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
   * @{
   */
 
-#if (__MPU_PRESENT == 1)
+#if (__MPU_PRESENT == 1U)
 /**
   * @brief  Initializes and configures the Region and the memory to be protected.
   * @param  MPU_Init: Pointer to a MPU_Region_InitTypeDef structure that contains
@@ -309,8 +309,8 @@ void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init)
   }
   else
   {
-    MPU->RBAR = 0x00;
-    MPU->RASR = 0x00;
+    MPU->RBAR = 0x00U;
+    MPU->RASR = 0x00U;
   }
 }
 #endif /* __MPU_PRESENT */

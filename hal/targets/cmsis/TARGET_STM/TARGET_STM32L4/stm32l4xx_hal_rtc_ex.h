@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_rtc_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of RTC HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -173,9 +173,13 @@ typedef struct
 /** @defgroup RTCEx_Tamper_Pins_Definitions RTC Tamper Pins Definitions
   * @{
   */
+#if defined(RTC_TAMPER1_SUPPORT)
 #define RTC_TAMPER_1                       RTC_TAMPCR_TAMP1E
+#endif /* RTC_TAMPER1_SUPPORT */
 #define RTC_TAMPER_2                       RTC_TAMPCR_TAMP2E
+#if defined(RTC_TAMPER3_SUPPORT)
 #define RTC_TAMPER_3                       RTC_TAMPCR_TAMP3E
+#endif /* RTC_TAMPER3_SUPPORT */
 /**
   * @}
   */
@@ -183,9 +187,13 @@ typedef struct
 /** @defgroup RTCEx_Tamper_Interrupt_Definitions RTC Tamper Interrupts Definitions
   * @{
   */
+#if defined(RTC_TAMPER1_SUPPORT)
 #define RTC_TAMPER1_INTERRUPT              RTC_TAMPCR_TAMP1IE
+#endif /* RTC_TAMPER1_SUPPORT */
 #define RTC_TAMPER2_INTERRUPT              RTC_TAMPCR_TAMP2IE
+#if defined(RTC_TAMPER3_SUPPORT)
 #define RTC_TAMPER3_INTERRUPT              RTC_TAMPCR_TAMP3IE
+#endif /* RTC_TAMPER3_SUPPORT */
 #define RTC_ALL_TAMPER_INTERRUPT           RTC_TAMPCR_TAMPIE
 /**
   * @}
@@ -431,6 +439,7 @@ typedef struct
   */
 #define __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ISR) = (~((__FLAG__) | RTC_ISR_INIT)|((__HANDLE__)->Instance->ISR & RTC_ISR_INIT)) 
 
+#if defined(RTC_TAMPER1_SUPPORT)
 /**
   * @brief  Enable the RTC Tamper1 input detection.
   * @param  __HANDLE__: specifies the RTC handle.
@@ -444,6 +453,7 @@ typedef struct
   * @retval None
   */
 #define __HAL_RTC_TAMPER1_DISABLE(__HANDLE__)                        ((__HANDLE__)->Instance->TAMPCR &= ~(RTC_TAMPCR_TAMP1E))
+#endif /* RTC_TAMPER1_SUPPORT */
 
 /**
   * @brief  Enable the RTC Tamper2 input detection.
@@ -459,6 +469,7 @@ typedef struct
   */
 #define __HAL_RTC_TAMPER2_DISABLE(__HANDLE__)                        ((__HANDLE__)->Instance->TAMPCR &= ~(RTC_TAMPCR_TAMP2E))
 
+#if defined(RTC_TAMPER3_SUPPORT)
 /**
   * @brief  Enable the RTC Tamper3 input detection.
   * @param  __HANDLE__: specifies the RTC handle.
@@ -472,6 +483,7 @@ typedef struct
   * @retval None
   */
 #define __HAL_RTC_TAMPER3_DISABLE(__HANDLE__)                        ((__HANDLE__)->Instance->TAMPCR &= ~(RTC_TAMPCR_TAMP3E))
+#endif /* RTC_TAMPER3_SUPPORT */
 
 /**
   * @brief  Enable the RTC Tamper interrupt.
@@ -509,9 +521,13 @@ typedef struct
   *            @arg  RTC_IT_TAMP3: Tamper3 interrupt
   * @retval None
   */
+#if defined(RTC_TAMPER1_SUPPORT) && defined(RTC_TAMPER3_SUPPORT)
 #define __HAL_RTC_TAMPER_GET_IT(__HANDLE__, __INTERRUPT__)           (((__INTERRUPT__) == RTC_IT_TAMP1) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 3)) != RESET) ? SET : RESET) : \
                                                                       ((__INTERRUPT__) == RTC_IT_TAMP2) ? (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 5)) != RESET) ? SET : RESET) : \
                                                                       (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 7)) != RESET) ? SET : RESET))
+#else
+#define __HAL_RTC_TAMPER_GET_IT(__HANDLE__, __INTERRUPT__)           (((((__HANDLE__)->Instance->ISR) & ((__INTERRUPT__)>> 5)) != RESET) ? SET : RESET)
+#endif /* RTC_TAMPER1_SUPPORT && RTC_TAMPER3_SUPPORT */
 
 /**
   * @brief  Check whether the specified RTC Tamper interrupt is enabled or not.
@@ -893,14 +909,22 @@ HAL_StatusTypeDef HAL_RTCEx_SetTamper_IT(RTC_HandleTypeDef *hrtc, RTC_TamperType
 HAL_StatusTypeDef HAL_RTCEx_DeactivateTamper(RTC_HandleTypeDef *hrtc, uint32_t Tamper);
 void              HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc);
 
+#if defined(RTC_TAMPER1_SUPPORT)
 void              HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc);
+#endif /* RTC_TAMPER1_SUPPORT */
 void              HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc);
+#if defined(RTC_TAMPER3_SUPPORT)
 void              HAL_RTCEx_Tamper3EventCallback(RTC_HandleTypeDef *hrtc);
+#endif /* RTC_TAMPER3_SUPPORT */
 void              HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc);
 HAL_StatusTypeDef HAL_RTCEx_PollForTimeStampEvent(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
+#if defined(RTC_TAMPER1_SUPPORT)
 HAL_StatusTypeDef HAL_RTCEx_PollForTamper1Event(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
+#endif /* RTC_TAMPER1_SUPPORT */
 HAL_StatusTypeDef HAL_RTCEx_PollForTamper2Event(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
+#if defined(RTC_TAMPER3_SUPPORT)
 HAL_StatusTypeDef HAL_RTCEx_PollForTamper3Event(RTC_HandleTypeDef *hrtc, uint32_t Timeout);
+#endif /* RTC_TAMPER3_SUPPORT */
 /**
   * @}
   */

@@ -40,6 +40,7 @@
 #include "rt_MemBox.h"
 #include "rt_Robin.h"
 #include "rt_HAL_CM.h"
+#include "rt_OsEventObserver.h"
 
 /*----------------------------------------------------------------------------
  *      Global Variables
@@ -101,6 +102,9 @@ void rt_switch_req (P_TCB p_new) {
   /* Switch to next task (identified by "p_new"). */
   os_tsk.new_tsk   = p_new;
   p_new->state = RUNNING;
+  if (osEventObs && osEventObs->thread_switch) {
+    osEventObs->thread_switch(p_new->context);
+  }
   DBG_TASK_SWITCH(p_new->task_id);
 }
 
@@ -401,6 +405,10 @@ void rt_sys_init (FUNCP first_task, U32 prio_stksz, void *stk) {
 #endif
   os_tsk.run = &os_idle_TCB;
   os_tsk.run->state = RUNNING;
+
+  /* Set the current thread to idle, so that on exit from this SVCall we do not
+   * de-reference a NULL TCB. */
+  rt_switch_req(&os_idle_TCB);
 
   /* Initialize ps queue */
   os_psq->first = 0U;

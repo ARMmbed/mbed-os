@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smartcard.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   SMARTCARD HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the SMARTCARD peripheral:
@@ -107,7 +107,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -360,6 +360,9 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsmartcard)
   */
  __weak void HAL_SMARTCARD_MspInit(SMARTCARD_HandleTypeDef *hsmartcard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmartcard);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SMARTCARD_MspInit can be implemented in the user file
    */
@@ -373,6 +376,9 @@ HAL_StatusTypeDef HAL_SMARTCARD_DeInit(SMARTCARD_HandleTypeDef *hsmartcard)
   */
  __weak void HAL_SMARTCARD_MspDeInit(SMARTCARD_HandleTypeDef *hsmartcard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmartcard);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SMARTCARD_MspDeInit can be implemented in the user file
    */
@@ -903,6 +909,9 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsmartcard)
   */
  __weak void HAL_SMARTCARD_TxCpltCallback(SMARTCARD_HandleTypeDef *hsmartcard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmartcard);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SMARTCARD_TxCpltCallback can be implemented in the user file.
    */
@@ -916,6 +925,9 @@ void HAL_SMARTCARD_IRQHandler(SMARTCARD_HandleTypeDef *hsmartcard)
   */
 __weak void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsmartcard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmartcard);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SMARTCARD_RxCpltCallback can be implemented in the user file.
    */
@@ -929,6 +941,9 @@ __weak void HAL_SMARTCARD_RxCpltCallback(SMARTCARD_HandleTypeDef *hsmartcard)
   */
 __weak void HAL_SMARTCARD_ErrorCallback(SMARTCARD_HandleTypeDef *hsmartcard)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmartcard);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SMARTCARD_ErrorCallback can be implemented in the user file.
    */

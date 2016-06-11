@@ -1,8 +1,8 @@
-;/******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
+;/********************* COPYRIGHT(c) 2016 STMicroelectronics ********************
 ;* File Name          : startup_stm32l476xx.s
 ;* Author             : MCD Application Team
-;* Version            : V1.0.0
-;* Date               : 26-June-2015
+;* Version            : V1.1.1
+;* Date               : 29-April-2016
 ;* Description        : STM32L476xx Ultra Low Power Devices vector
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -129,7 +129,7 @@ __vector_table
         DCD     USART3_IRQHandler                 ; USART3
         DCD     EXTI15_10_IRQHandler              ; External Line[15:10]
         DCD     RTC_Alarm_IRQHandler              ; RTC Alarm (A and B) through EXTI Line
-        DCD     DFSDM3_IRQHandler                 ; SD Filter 3 global Interrupt
+        DCD     DFSDM1_FLT3_IRQHandler            ; DFSDM1 Filter 3 global Interrupt
         DCD     TIM8_BRK_IRQHandler               ; TIM8 Break Interrupt
         DCD     TIM8_UP_IRQHandler                ; TIM8 Update Interrupt
         DCD     TIM8_TRG_COM_IRQHandler           ; TIM8 Trigger and Commutation Interrupt
@@ -148,9 +148,9 @@ __vector_table
         DCD     DMA2_Channel3_IRQHandler          ; DMA2 Channel 3
         DCD     DMA2_Channel4_IRQHandler          ; DMA2 Channel 4
         DCD     DMA2_Channel5_IRQHandler          ; DMA2 Channel 5
-        DCD     DFSDM0_IRQHandler                 ; SD Filter 0 global Interrupt
-        DCD     DFSDM1_IRQHandler                 ; SD Filter 1 global Interrupt
-        DCD     DFSDM2_IRQHandler                 ; SD Filter 2 global Interrupt
+        DCD     DFSDM1_FLT0_IRQHandler            ; DFSDM1 Filter 0 global Interrupt
+        DCD     DFSDM1_FLT1_IRQHandler            ; DFSDM1 Filter 1 global Interrupt
+        DCD     DFSDM1_FLT2_IRQHandler            ; DFSDM1 Filter 2 global Interrupt
         DCD     COMP_IRQHandler                   ; COMP Interrupt
         DCD     LPTIM1_IRQHandler                 ; LP TIM1 interrupt
         DCD     LPTIM2_IRQHandler                 ; LP TIM2 interrupt
@@ -438,10 +438,10 @@ EXTI15_10_IRQHandler
 RTC_Alarm_IRQHandler
         B RTC_Alarm_IRQHandler
 
-        PUBWEAK DFSDM3_IRQHandler
+        PUBWEAK DFSDM1_FLT3_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
-DFSDM3_IRQHandler
-        B DFSDM3_IRQHandler
+DFSDM1_FLT3_IRQHandler
+        B DFSDM1_FLT3_IRQHandler
 
         PUBWEAK TIM8_BRK_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
@@ -533,20 +533,20 @@ DMA2_Channel4_IRQHandler
 DMA2_Channel5_IRQHandler
         B DMA2_Channel5_IRQHandler
 
-        PUBWEAK DFSDM0_IRQHandler
+        PUBWEAK DFSDM1_FLT0_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
-DFSDM0_IRQHandler
-        B DFSDM0_IRQHandler
+DFSDM1_FLT0_IRQHandler
+        B DFSDM1_FLT0_IRQHandler
 
-        PUBWEAK DFSDM1_IRQHandler
+        PUBWEAK DFSDM1_FLT1_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
-DFSDM1_IRQHandler
-        B DFSDM1_IRQHandler
+DFSDM1_FLT1_IRQHandler
+        B DFSDM1_FLT1_IRQHandler
 
-        PUBWEAK DFSDM2_IRQHandler
+        PUBWEAK DFSDM1_FLT2_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
-DFSDM2_IRQHandler
-        B DFSDM2_IRQHandler
+DFSDM1_FLT2_IRQHandler
+        B DFSDM1_FLT2_IRQHandler
 
         PUBWEAK COMP_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -167,6 +167,17 @@ typedef struct
   * @{
   */
 
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx)
+#define DAC_TRIGGER_NONE                   ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC_DHRxxxx register 
+                                                                       has been loaded, and not by external trigger */
+#define DAC_TRIGGER_T2_TRGO                ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TEN1)) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_T6_TRGO                ((uint32_t)DAC_CR_TEN1) /*!< TIM6 TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_T7_TRGO                ((uint32_t)(DAC_CR_TSEL1_1 | DAC_CR_TEN1)) /*!< TIM7 TRGO selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_EXT_IT9                ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 | DAC_CR_TEN1)) /*!< EXTI Line9 event selected as external conversion trigger for DAC channel */
+#define DAC_TRIGGER_SOFTWARE               ((uint32_t)(DAC_CR_TSEL1 | DAC_CR_TEN1)) /*!< Conversion started by software trigger for DAC channel */
+#endif     /* STM32L431xx STM32L432xx STM32L433xx STM32L442xx STM32L443xx */
+
+#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
 #define DAC_TRIGGER_NONE                   ((uint32_t)0x00000000) /*!< Conversion is automatic once the DAC_DHRxxxx register 
                                                                        has been loaded, and not by external trigger */
 #define DAC_TRIGGER_T2_TRGO                ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TEN1)) /*!< TIM2 TRGO selected as external conversion trigger for DAC channel */
@@ -177,12 +188,13 @@ typedef struct
 #define DAC_TRIGGER_T8_TRGO                ((uint32_t)(DAC_CR_TSEL1_0 | DAC_CR_TEN1)) /*!< TIM8 TRGO selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_EXT_IT9                ((uint32_t)(DAC_CR_TSEL1_2 | DAC_CR_TSEL1_1 | DAC_CR_TEN1)) /*!< EXTI Line9 event selected as external conversion trigger for DAC channel */
 #define DAC_TRIGGER_SOFTWARE               ((uint32_t)(DAC_CR_TSEL1 | DAC_CR_TEN1)) /*!< Conversion started by software trigger for DAC channel */
+#endif     /* STM32L471xx STM32L475xx STM32L476xx STM32L485xx STM32L486xx */
 
 /**
   * @}
   */   
 
-/** @defgroup DAC_output_buffer
+/** @defgroup DAC_output_buffer DAC output buffer
   * @{
   */
 #define DAC_OUTPUTBUFFER_ENABLE            ((uint32_t)0x00000000)
@@ -192,7 +204,7 @@ typedef struct
   * @}
   */
     
-/** @defgroup DAC_Channel_selection
+/** @defgroup DAC_Channel_selection DAC Channel selection
   * @{
   */
 #define DAC_CHANNEL_1                      ((uint32_t)0x00000000)
@@ -233,7 +245,7 @@ typedef struct
   * @}
   */
   
-/** @defgroup DAC_ConnectOnChipPeripheral
+/** @defgroup DAC_ConnectOnChipPeripheral DAC ConnectOnChipPeripheral
   * @{
   */
 #define DAC_CHIPCONNECT_DISABLE  ((uint32_t)0x00000000)
@@ -384,12 +396,6 @@ typedef struct
                              ((ALIGN) == DAC_ALIGN_8B_R))
 
 #define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0)
-
-#define DAC_DHR12R1_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000008) + (__ALIGNMENT__))
-
-#define DAC_DHR12R2_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000014) + (__ALIGNMENT__))
-
-#define DAC_DHR12RD_ALIGNMENT(__ALIGNMENT__) (((uint32_t)0x00000020) + (__ALIGNMENT__))
 
 #define IS_DAC_REFRESHTIME(TIME)   ((TIME) <= 0x0000000FF)
 

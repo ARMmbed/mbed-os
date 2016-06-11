@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -72,11 +72,11 @@
   */
 
 /**
- * @brief STM32L1xx HAL Driver version number V1.0.0
+ * @brief STM32L1xx HAL Driver version number V1.1.3
    */
 #define __STM32L1xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L1xx_HAL_VERSION_SUB1   (0x00) /*!< [23:16] sub1 version */
-#define __STM32L1xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32L1xx_HAL_VERSION_SUB1   (0x01) /*!< [23:16] sub1 version */
+#define __STM32L1xx_HAL_VERSION_SUB2   (0x03) /*!< [15:8]  sub2 version */
 #define __STM32L1xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32L1xx_HAL_VERSION         ((__STM32L1xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32L1xx_HAL_VERSION_SUB1 << 16)\
@@ -183,14 +183,14 @@ HAL_StatusTypeDef HAL_Init(void)
 HAL_StatusTypeDef HAL_DeInit(void)
 {
   /* Reset of all peripherals */
-  __APB1_FORCE_RESET();
-  __APB1_RELEASE_RESET();
+  __HAL_RCC_APB1_FORCE_RESET();
+  __HAL_RCC_APB1_RELEASE_RESET();
 
-  __APB2_FORCE_RESET();
-  __APB2_RELEASE_RESET();
+  __HAL_RCC_APB2_FORCE_RESET();
+  __HAL_RCC_APB2_RELEASE_RESET();
 
-  __AHB_FORCE_RESET();
-  __AHB_RELEASE_RESET();
+  __HAL_RCC_AHB_FORCE_RESET();
+  __HAL_RCC_AHB_RELEASE_RESET();
 
   /* De-Init the low level hardware */
   HAL_MspDeInit();
@@ -240,7 +240,7 @@ __weak void HAL_MspDeInit(void)
 __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
   /*Configure the SysTick to have interrupt in 1ms time basis*/
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+  HAL_SYSTICK_Config(SystemCoreClock /1000);
 
   /*Configure the SysTick IRQ priority */
   HAL_NVIC_SetPriority(SysTick_IRQn, TickPriority ,0);
@@ -384,7 +384,7 @@ uint32_t HAL_GetDEVID(void)
   * @brief  Enable the Debug Module during SLEEP mode
   * @retval None
   */
-void HAL_EnableDBGSleepMode(void)
+void HAL_DBGMCU_EnableDBGSleepMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
@@ -393,7 +393,7 @@ void HAL_EnableDBGSleepMode(void)
   * @brief  Disable the Debug Module during SLEEP mode
   * @retval None
   */
-void HAL_DisableDBGSleepMode(void)
+void HAL_DBGMCU_DisableDBGSleepMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_SLEEP);
 }
@@ -402,7 +402,7 @@ void HAL_DisableDBGSleepMode(void)
   * @brief  Enable the Debug Module during STOP mode
   * @retval None
   */
-void HAL_EnableDBGStopMode(void)
+void HAL_DBGMCU_EnableDBGStopMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
@@ -411,7 +411,7 @@ void HAL_EnableDBGStopMode(void)
   * @brief  Disable the Debug Module during STOP mode
   * @retval None
   */
-void HAL_DisableDBGStopMode(void)
+void HAL_DBGMCU_DisableDBGStopMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STOP);
 }
@@ -420,7 +420,7 @@ void HAL_DisableDBGStopMode(void)
   * @brief  Enable the Debug Module during STANDBY mode
   * @retval None
   */
-void HAL_EnableDBGStandbyMode(void)
+void HAL_DBGMCU_EnableDBGStandbyMode(void)
 {
   SET_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }
@@ -429,7 +429,7 @@ void HAL_EnableDBGStandbyMode(void)
   * @brief  Disable the Debug Module during STANDBY mode
   * @retval None
   */
-void HAL_DisableDBGStandbyMode(void)
+void HAL_DBGMCU_DisableDBGStandbyMode(void)
 {
   CLEAR_BIT(DBGMCU->CR, DBGMCU_CR_DBG_STANDBY);
 }

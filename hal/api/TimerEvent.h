@@ -22,7 +22,9 @@
 namespace mbed {
 
 /** Base abstraction for timer interrupts
-*/
+ *
+ * @Note Synchronization level: Interrupt safe
+ */
 class TimerEvent {
 public:
     TimerEvent();

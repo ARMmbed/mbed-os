@@ -26,6 +26,8 @@ namespace mbed {
 
 /** An analog output, used for setting the voltage on a pin
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example:
  * @code
  * // Make a sawtooth output
@@ -64,7 +66,9 @@ public:
      *    Values outside this range will be saturated to 0.0f or 1.0f.
      */
     void write(float value) {
+        lock();
         analogout_write(&_dac, value);
+        unlock();
     }
 
     /** Set the output voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
@@ -73,7 +77,9 @@ public:
      *            normalised to a 16-bit value (0x0000 = 0v, 0xFFFF = 3.3v)
      */
     void write_u16(unsigned short value) {
+        lock();
         analogout_write_u16(&_dac, value);
+        unlock();
     }
 
     /** Return the current output voltage setting, measured as a percentage (float)
@@ -87,18 +93,23 @@ public:
      *    This value may not match exactly the value set by a previous write().
      */
     float read() {
-        return analogout_read(&_dac);
+        lock();
+        float ret = analogout_read(&_dac);
+        unlock();
+        return ret;
     }
 
 #ifdef MBED_OPERATORS
     /** An operator shorthand for write()
      */
     AnalogOut& operator= (float percent) {
+        // Underlying write call is thread safe
         write(percent);
         return *this;
     }
 
     AnalogOut& operator= (AnalogOut& rhs) {
+        // Underlying write call is thread safe
         write(rhs.read());
         return *this;
     }
@@ -106,12 +117,23 @@ public:
     /** An operator shorthand for read()
      */
     operator float() {
+        // Underlying read call is thread safe
         return read();
     }
 #endif
 
 protected:
+
+    virtual void lock() {
+        _mutex.lock();
+    }
+
+    virtual void unlock() {
+        _mutex.unlock();
+    }
+
     dac_t _dac;
+    PlatformMutex _mutex;
 };
 
 } // namespace mbed

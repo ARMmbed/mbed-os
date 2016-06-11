@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rtc_ex.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Extended RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) Extended peripheral:
@@ -64,7 +64,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -481,10 +481,11 @@ HAL_StatusTypeDef HAL_RTCEx_DeactivateTamper(RTC_HandleTypeDef *hrtc, uint32_t T
   */
 void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
 {  
-  if(__HAL_RTC_TIMESTAMP_GET_IT(hrtc, RTC_IT_TS))
+  /* Get the TimeStamp interrupt source enable status */
+  if(__HAL_RTC_TIMESTAMP_GET_IT_SOURCE(hrtc, RTC_IT_TS) != RESET)
   {
-    /* Get the status of the Interrupt */
-    if((uint32_t)(hrtc->Instance->CR & RTC_IT_TS) != (uint32_t)RESET)
+    /* Get the pending status of the TIMESTAMP Interrupt */
+    if(__HAL_RTC_TIMESTAMP_GET_FLAG(hrtc, RTC_FLAG_TSF) != RESET)
     {
       /* TIMESTAMP callback */ 
       HAL_RTCEx_TimeStampEventCallback(hrtc);
@@ -494,11 +495,11 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
     }
   }
 
-  /* Get the status of the Interrupt */
-  if(__HAL_RTC_TAMPER_GET_IT(hrtc,RTC_IT_TAMP1))
+  /* Get the Tamper interrupts source enable status */
+  if(__HAL_RTC_TAMPER_GET_IT_SOURCE(hrtc, RTC_IT_TAMP))
   {
-    /* Get the TAMPER Interrupt enable bit and pending bit */
-    if(((hrtc->Instance->TAFCR & (RTC_TAFCR_TAMPIE))) != (uint32_t)RESET)
+   /* Get the pending status of the Tamper1 Interrupt */
+    if(__HAL_RTC_TAMPER_GET_FLAG(hrtc, RTC_FLAG_TAMP1F) != RESET)
     {
       /* Tamper1 callback */
       HAL_RTCEx_Tamper1EventCallback(hrtc);
@@ -508,11 +509,11 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
     }
   }
 
-  /* Get the status of the Interrupt */
-  if(__HAL_RTC_TAMPER_GET_IT(hrtc, RTC_IT_TAMP2))
+  /* Get the Tamper interrupts source enable status */
+  if(__HAL_RTC_TAMPER_GET_IT_SOURCE(hrtc, RTC_IT_TAMP))
   {
-    /* Get the TAMPER Interrupt enable bit and pending bit */
-    if(((hrtc->Instance->TAFCR & RTC_TAFCR_TAMPIE)) != (uint32_t)RESET)
+   /* Get the pending status of the Tamper2 Interrupt */
+    if(__HAL_RTC_TAMPER_GET_FLAG(hrtc, RTC_FLAG_TAMP2F) != RESET)
     {
       /* Tamper2 callback */
       HAL_RTCEx_Tamper2EventCallback(hrtc);
@@ -523,11 +524,11 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
   }
 
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
-  /* Get the status of the Interrupt */
-  if(__HAL_RTC_TAMPER_GET_IT(hrtc, RTC_IT_TAMP3))
+  /* Get the Tamper interrupts source enable status */
+  if(__HAL_RTC_TAMPER_GET_IT_SOURCE(hrtc, RTC_IT_TAMP))
   {
-    /* Get the TAMPER Interrupt enable bit and pending bit */
-    if(((hrtc->Instance->TAFCR & RTC_TAFCR_TAMPIE)) != (uint32_t)RESET)
+   /* Get the pending status of the Tamper3 Interrupt */
+    if(__HAL_RTC_TAMPER_GET_FLAG(hrtc, RTC_FLAG_TAMP3F) != RESET)
     {
       /* Tamper3 callback */
       HAL_RTCEx_Tamper3EventCallback(hrtc);
@@ -552,6 +553,9 @@ void HAL_RTCEx_TamperTimeStampIRQHandler(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_TimeStampEventCallback could be implemented in the user file
   */
@@ -564,6 +568,9 @@ __weak void HAL_RTCEx_TimeStampEventCallback(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_Tamper1EventCallback could be implemented in the user file
    */
@@ -576,6 +583,9 @@ __weak void HAL_RTCEx_Tamper1EventCallback(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_Tamper2EventCallback could be implemented in the user file
    */
@@ -589,6 +599,9 @@ __weak void HAL_RTCEx_Tamper2EventCallback(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_Tamper3EventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_Tamper3EventCallback could be implemented in the user file
    */
@@ -774,6 +787,28 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer(RTC_HandleTypeDef *hrtc, uint32_t Wak
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
 
+  /*Check RTC WUTWF flag is reset only when wake up timer enabled*/
+  if((hrtc->Instance->CR & RTC_CR_WUTE) != RESET){
+    tickstart = HAL_GetTick();
+
+   /* Wait till RTC WUTWF flag is reset and if Time out is reached exit */
+   while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTWF) == SET)
+   {
+    if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
+      {
+       /* Enable the write protection for RTC registers */
+       __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+
+       hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+       /* Process Unlocked */ 
+       __HAL_UNLOCK(hrtc);
+
+       return HAL_TIMEOUT;
+      }
+    }
+  }
+
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
 
   tickstart = HAL_GetTick();
@@ -840,6 +875,28 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
 
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
+
+  /*Check RTC WUTWF flag is reset only when wake up timer enabled*/
+  if((hrtc->Instance->CR & RTC_CR_WUTE) != RESET){
+    tickstart = HAL_GetTick();
+
+   /* Wait till RTC WUTWF flag is reset and if Time out is reached exit */
+   while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTWF) == SET)
+   {
+    if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
+      {
+       /* Enable the write protection for RTC registers */
+       __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+
+       hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+       /* Process Unlocked */ 
+       __HAL_UNLOCK(hrtc);
+
+       return HAL_TIMEOUT;
+      }
+    }
+  }
 
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
 
@@ -963,10 +1020,11 @@ uint32_t HAL_RTCEx_GetWakeUpTimer(RTC_HandleTypeDef *hrtc)
   */
 void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
 {
-  if(__HAL_RTC_WAKEUPTIMER_GET_IT(hrtc, RTC_IT_WUT))
+  /* Get the WAKEUPTIMER interrupt source enable status */
+  if(__HAL_RTC_WAKEUPTIMER_GET_IT_SOURCE(hrtc, RTC_IT_WUT) != RESET)
   {
-    /* Get the status of the Interrupt */
-    if((uint32_t)(hrtc->Instance->CR & RTC_IT_WUT) != (uint32_t)RESET)
+   /* Get the pending status of the WAKEUPTIMER Interrupt */
+    if(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTF) != RESET)
     {
       /* WAKEUPTIMER callback */ 
       HAL_RTCEx_WakeUpTimerEventCallback(hrtc);
@@ -990,6 +1048,9 @@ void HAL_RTCEx_WakeUpTimerIRQHandler(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTCEx_WakeUpTimerEventCallback could be implemented in the user file
    */

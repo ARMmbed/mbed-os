@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_cortex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of CORTEX HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -75,30 +75,6 @@
   */
   
 /* Exported Macros -----------------------------------------------------------*/
-/** @defgroup CORTEX_Exported_Macro CORTEX Exported Macro
-  * @{
-  */
-
-/** @brief Configures the SysTick clock source.
-  * @param __CLKSRC__: specifies the SysTick clock source.
-  *   This parameter can be one of the following values:
-  *     @arg SYSTICK_CLKSOURCE_HCLK_DIV8: AHB clock divided by 8 selected as SysTick clock source.
-  *     @arg SYSTICK_CLKSOURCE_HCLK: AHB clock selected as SysTick clock source.
-  * @retval None
-  */
-#define __HAL_CORTEX_SYSTICKCLK_CONFIG(__CLKSRC__)                             \
-                            do {                                               \
-                                 if ((__CLKSRC__) == SYSTICK_CLKSOURCE_HCLK)   \
-                                  {                                            \
-                                    SysTick->CTRL |= SYSTICK_CLKSOURCE_HCLK;   \
-                                  }                                            \
-                                 else                                          \
-                                    SysTick->CTRL &= ~SYSTICK_CLKSOURCE_HCLK;  \
-                                } while(0)
-
-/**
-  * @}
-  */
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup CORTEX_Exported_Functions CORTEX Exported Functions

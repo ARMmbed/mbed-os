@@ -567,5 +567,15 @@ fpu_init();
   SCB->VTOR  = 0x00000000 & 0x3FFFFF80;
 #endif
 #endif
+
+  /* Must set ROM_LAT bit in the Matrix Arbitration Register otherwise SPIFI
+   * initialization will cause debugging to HardFault */
+  LPC_SC->MATRIXARB |= (1<<16);
+
+  /* Reset LCD Controller to prevent strange behavior when doing a partial
+   * reset (happens when debugging).
+   */
+  LPC_SC->RSTCON0 = 1;
+
   SystemCoreClockUpdate();
 }

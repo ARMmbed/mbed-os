@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 #include "mbed_assert.h"
-#include "mbed_error.h"
+#include "device.h"
+
+#include "mbed_interface.h"
+#include "critical.h"
 
 void mbed_assert_internal(const char *expr, const char *file, int line)
 {
-    error("mbed assertation failed: %s, file: %s, line %d \n", expr, file, line);
+    core_util_critical_section_enter();
+    mbed_error_printf("mbed assertation failed: %s, file: %s, line %d \n", expr, file, line);
+    mbed_die();
 }

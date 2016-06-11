@@ -23,11 +23,9 @@
 #endif
 
 WEAK void error(const char* format, ...) {
-#if DEVICE_STDIO_MESSAGES
     va_list arg;
     va_start(arg, format);
-    vfprintf(stderr, format, arg);
+    mbed_error_vfprintf(format, arg);
     va_end(arg);
-#endif
     exit(1);
 }

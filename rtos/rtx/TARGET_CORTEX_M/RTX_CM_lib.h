@@ -54,12 +54,12 @@
 #define OS_TCB_SIZE     52
 #define OS_TMR_SIZE     8
 
-#if defined (__CC_ARM) && !defined (__MICROLIB)
-
 typedef void    *OS_ID;
 typedef uint32_t OS_TID;
 typedef uint32_t OS_MUT[4];
 typedef uint32_t OS_RESULT;
+
+#if defined (__CC_ARM) && !defined (__MICROLIB)
 
 #define runtask_id()    rt_tsk_self()
 #define mutex_init(m)   rt_mut_init(m)
@@ -122,7 +122,11 @@ uint32_t const os_tickfreq   = OS_CLOCK;
 uint16_t const os_tickus_i   = OS_CLOCK/1000000;
 uint16_t const os_tickus_f   = (((uint64_t)(OS_CLOCK-1000000*(OS_CLOCK/1000000)))<<16)/1000000;
 uint32_t const os_trv        = OS_TRV;
+#if       defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+uint8_t  const os_flags      = 0;
+#else  /* defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) */
 uint8_t  const os_flags      = OS_RUNPRIV;
+#endif /* defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) */
 
 /* Export following defines to uVision debugger. */
 __USED uint32_t const CMSIS_RTOS_API_Version = osCMSIS;
@@ -178,7 +182,7 @@ osMessageQId osMessageQId_osTimerMessageQ;
 #endif
 
 /* Legacy RTX User Timers not used */
-uint32_t       os_tmr = 0U; 
+uint32_t       os_tmr = 0U;
 uint32_t const *m_tmr = NULL;
 uint16_t const mp_tmr_size = 0U;
 
@@ -190,6 +194,77 @@ uint16_t const mp_tmr_size = 0U;
  extern void  *__libspace_start;
 #endif
 
+#if defined (__ICCARM__)
+static osMutexId  std_mutex_id_sys[_MAX_LOCK] = {0};
+static OS_MUT     std_mutex_sys[_MAX_LOCK] = {0};
+#define _FOPEN_MAX 10
+static osMutexId  std_mutex_id_file[_FOPEN_MAX] = {0};
+static OS_MUT     std_mutex_file[_FOPEN_MAX] = {0};
+void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
+{
+  osMutexDef_t def;
+  uint32_t index;
+  for (index = 0; index < _MAX_LOCK; index++) {
+    if (0 == std_mutex_id_sys[index]) {
+      def.mutex = &std_mutex_sys[index];
+      std_mutex_id_sys[index] = osMutexCreate(&def);
+      *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
+      return;
+    }
+  }
+  // This should never happen
+  error("Not enough mutexes\n");
+}
+
+void __iar_system_Mtxdst(__iar_Rmtx *mutex)/*Destroy a system lock */
+{
+  osMutexDelete(*(osMutexId*)*mutex);
+  *mutex = 0;
+}
+
+void __iar_system_Mtxlock(__iar_Rmtx *mutex) /* Lock a system lock */
+{
+  osMutexWait(*(osMutexId*)*mutex, osWaitForever);
+}
+
+void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
+{
+  osMutexRelease(*(osMutexId*)*mutex);
+}
+
+void __iar_file_Mtxinit(__iar_Rmtx *mutex)/*Initialize a file lock */
+{
+    osMutexDef_t def;
+    uint32_t index;
+    for (index = 0; index < _FOPEN_MAX; index++) {
+      if (0 == std_mutex_id_file[index]) {
+        def.mutex = &std_mutex_file[index];
+        std_mutex_id_file[index] = osMutexCreate(&def);
+        *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
+        return;
+      }
+    }
+    // The variable _FOPEN_MAX needs to be increased
+    error("Not enough mutexes\n");
+}
+
+void __iar_file_Mtxdst(__iar_Rmtx *mutex) /* Destroy a file lock */
+{
+  osMutexDelete(*(osMutexId*)*mutex);
+  *mutex = 0;
+}
+
+void __iar_file_Mtxlock(__iar_Rmtx *mutex) /* Lock a file lock */
+{
+  osMutexWait(*(osMutexId*)*mutex, osWaitForever);
+}
+
+void __iar_file_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a file lock */
+{
+  osMutexRelease(*(osMutexId*)*mutex);
+}
+
+#endif
 
 /*----------------------------------------------------------------------------
  *      RTX Optimizations (empty functions)
@@ -420,6 +495,20 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32L152RC)
 #define INITIAL_SP            (0x20008000UL)
 
+#elif defined(TARGET_EFM32GG_STK3700)
+#define INITIAL_SP            (0x20020000UL)
+
+#elif defined(TARGET_EFM32HG_STK3400)
+#define INITIAL_SP            (0x20002000UL)
+
+#elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32PG_STK3401)
+#define INITIAL_SP            (0x20008000UL)
+
+#elif defined(TARGET_MCU_NORDIC_32K)
+#define INITIAL_SP            (0x20008000UL)
+
+#elif defined(TARGET_MCU_NORDIC_16K)
+#define INITIAL_SP            (0x20004000UL)
 
 #else
 #error "no target defined"
@@ -553,20 +642,25 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
+osMutexDef(malloc_mutex);
+static osMutexId malloc_mutex_id;
+osMutexDef(env_mutex);
+static osMutexId env_mutex_id;
+
 extern void __libc_fini_array(void);
 extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
 
 void pre_main(void) {
+    malloc_mutex_id = osMutexCreate(osMutex(malloc_mutex));
+    env_mutex_id = osMutexCreate(osMutex(env_mutex));
     atexit(__libc_fini_array);
     __libc_init_array();
     main(0, NULL);
 }
 
-__attribute__((naked)) void software_init_hook (void) {
+__attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
-    ".syntax unified\n"
-    ".thumb\n"
     "bl   osKernelInitialize\n"
 #ifdef __MBED_CMSIS_RTOS_CM
     "bl   set_main_stack\n"
@@ -578,6 +672,29 @@ __attribute__((naked)) void software_init_hook (void) {
     /* osKernelStart should not return */
     "B       .\n"
   );
+}
+
+// Opaque declaration of _reent structure
+struct _reent;
+
+void __malloc_lock( struct _reent *_r )
+{
+    osMutexWait(malloc_mutex_id, osWaitForever);
+}
+
+void __malloc_unlock( struct _reent *_r )
+{
+    osMutexRelease(malloc_mutex_id);
+}
+
+void __env_lock( struct _reent *_r )
+{
+    osMutexWait(env_mutex_id, osWaitForever);
+}
+
+void __env_unlock( struct _reent *_r )
+{
+    osMutexRelease(env_mutex_id);
 }
 
 #elif defined (__ICCARM__)

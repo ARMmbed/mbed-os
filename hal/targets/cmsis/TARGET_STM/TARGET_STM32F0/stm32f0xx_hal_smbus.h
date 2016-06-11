@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_smbus.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of SMBUS HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -360,79 +360,79 @@ typedef struct
   */  
   
 /** @brief  Reset SMBUS handle state.
-  * @param  __HANDLE__: specifies the SMBUS Handle.
+  * @param  __HANDLE__ specifies the SMBUS Handle.
   * @retval None
   */
 #define __HAL_SMBUS_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_SMBUS_STATE_RESET)
 
 /** @brief  Enable the specified SMBUS interrupts.
-  * @param  __HANDLE__: specifies the SMBUS Handle.
-  * @param  __INTERRUPT__: specifies the interrupt source to enable.
+  * @param  __HANDLE__ specifies the SMBUS Handle.
+  * @param  __INTERRUPT__ specifies the interrupt source to enable.
   *        This parameter can be one of the following values:
-  *            @arg SMBUS_IT_ERRI: Errors interrupt enable
-  *            @arg SMBUS_IT_TCI: Transfer complete interrupt enable
-  *            @arg SMBUS_IT_STOPI: STOP detection interrupt enable
-  *            @arg SMBUS_IT_NACKI: NACK received interrupt enable
-  *            @arg SMBUS_IT_ADDRI: Address match interrupt enable
-  *            @arg SMBUS_IT_RXI: RX interrupt enable
-  *            @arg SMBUS_IT_TXI: TX interrupt enable
+  *            @arg @ref SMBUS_IT_ERRI  Errors interrupt enable
+  *            @arg @ref SMBUS_IT_TCI   Transfer complete interrupt enable
+  *            @arg @ref SMBUS_IT_STOPI STOP detection interrupt enable
+  *            @arg @ref SMBUS_IT_NACKI NACK received interrupt enable
+  *            @arg @ref SMBUS_IT_ADDRI Address match interrupt enable
+  *            @arg @ref SMBUS_IT_RXI   RX interrupt enable
+  *            @arg @ref SMBUS_IT_TXI   TX interrupt enable
   *   
   * @retval None
   */
 #define __HAL_SMBUS_ENABLE_IT(__HANDLE__, __INTERRUPT__)   ((__HANDLE__)->Instance->CR1 |= (__INTERRUPT__))
 
 /** @brief  Disable the specified SMBUS interrupts.
-  * @param  __HANDLE__: specifies the SMBUS Handle.
-  * @param  __INTERRUPT__: specifies the interrupt source to disable.
+  * @param  __HANDLE__ specifies the SMBUS Handle.
+  * @param  __INTERRUPT__ specifies the interrupt source to disable.
   *        This parameter can be one of the following values:
-  *            @arg SMBUS_IT_ERRI: Errors interrupt enable
-  *            @arg SMBUS_IT_TCI: Transfer complete interrupt enable
-  *            @arg SMBUS_IT_STOPI: STOP detection interrupt enable
-  *            @arg SMBUS_IT_NACKI: NACK received interrupt enable
-  *            @arg SMBUS_IT_ADDRI: Address match interrupt enable
-  *            @arg SMBUS_IT_RXI: RX interrupt enable
-  *            @arg SMBUS_IT_TXI: TX interrupt enable
+  *            @arg @ref SMBUS_IT_ERRI  Errors interrupt enable
+  *            @arg @ref SMBUS_IT_TCI   Transfer complete interrupt enable
+  *            @arg @ref SMBUS_IT_STOPI STOP detection interrupt enable
+  *            @arg @ref SMBUS_IT_NACKI NACK received interrupt enable
+  *            @arg @ref SMBUS_IT_ADDRI Address match interrupt enable
+  *            @arg @ref SMBUS_IT_RXI   RX interrupt enable
+  *            @arg @ref SMBUS_IT_TXI   TX interrupt enable
   *   
   * @retval None
   */
 #define __HAL_SMBUS_DISABLE_IT(__HANDLE__, __INTERRUPT__)  ((__HANDLE__)->Instance->CR1 &= (~(__INTERRUPT__)))
  
 /** @brief  Check whether the specified SMBUS interrupt source is enabled or not.
-  * @param  __HANDLE__: specifies the SMBUS Handle.
-  * @param  __INTERRUPT__: specifies the SMBUS interrupt source to check.
+  * @param  __HANDLE__ specifies the SMBUS Handle.
+  * @param  __INTERRUPT__ specifies the SMBUS interrupt source to check.
   *          This parameter can be one of the following values:
-  *            @arg SMBUS_IT_ERRI: Errors interrupt enable
-  *            @arg SMBUS_IT_TCI: Transfer complete interrupt enable
-  *            @arg SMBUS_IT_STOPI: STOP detection interrupt enable
-  *            @arg SMBUS_IT_NACKI: NACK received interrupt enable
-  *            @arg SMBUS_IT_ADDRI: Address match interrupt enable
-  *            @arg SMBUS_IT_RXI: RX interrupt enable
-  *            @arg SMBUS_IT_TXI: TX interrupt enable
+  *            @arg @ref SMBUS_IT_ERRI  Errors interrupt enable
+  *            @arg @ref SMBUS_IT_TCI   Transfer complete interrupt enable
+  *            @arg @ref SMBUS_IT_STOPI STOP detection interrupt enable
+  *            @arg @ref SMBUS_IT_NACKI NACK received interrupt enable
+  *            @arg @ref SMBUS_IT_ADDRI Address match interrupt enable
+  *            @arg @ref SMBUS_IT_RXI   RX interrupt enable
+  *            @arg @ref SMBUS_IT_TXI   TX interrupt enable
   *   
   * @retval The new state of __IT__ (TRUE or FALSE).
   */
 #define __HAL_SMBUS_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) ((((__HANDLE__)->Instance->CR1 & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
 /** @brief  Check whether the specified SMBUS flag is set or not.
-  * @param  __HANDLE__: specifies the SMBUS Handle.
-  * @param  __FLAG__: specifies the flag to check.
+  * @param  __HANDLE__ specifies the SMBUS Handle.
+  * @param  __FLAG__ specifies the flag to check.
   *        This parameter can be one of the following values:
-  *            @arg SMBUS_FLAG_TXE:		Transmit data register empty
-  *            @arg SMBUS_FLAG_TXIS:		Transmit interrupt status
-  *            @arg SMBUS_FLAG_RXNE:		Receive data register not empty
-  *            @arg SMBUS_FLAG_ADDR:		Address matched (slave mode)
-  *            @arg SMBUS_FLAG_AF: 	        NACK received flag
-  *            @arg SMBUS_FLAG_STOPF: 	        STOP detection flag
-  *            @arg SMBUS_FLAG_TC:		Transfer complete (master mode)
-  *            @arg SMBUS_FLAG_TCR:		Transfer complete reload
-  *            @arg SMBUS_FLAG_BERR:		Bus error
-  *            @arg SMBUS_FLAG_ARLO:		Arbitration lost
-  *            @arg SMBUS_FLAG_OVR:		Overrun/Underrun            
-  *            @arg SMBUS_FLAG_PECERR: 	        PEC error in reception
-  *            @arg SMBUS_FLAG_TIMEOUT:         Timeout or Tlow detection flag 
-  *            @arg SMBUS_FLAG_ALERT:		SMBus alert
-  *            @arg SMBUS_FLAG_BUSY: 		Bus busy
-  *            @arg SMBUS_FLAG_DIR: 		Transfer direction (slave mode)
+  *            @arg @ref SMBUS_FLAG_TXE	    Transmit data register empty
+  *            @arg @ref SMBUS_FLAG_TXIS    Transmit interrupt status
+  *            @arg @ref SMBUS_FLAG_RXNE    Receive data register not empty
+  *            @arg @ref SMBUS_FLAG_ADDR    Address matched (slave mode)
+  *            @arg @ref SMBUS_FLAG_AF 	    NACK received flag
+  *            @arg @ref SMBUS_FLAG_STOPF   STOP detection flag
+  *            @arg @ref SMBUS_FLAG_TC	    Transfer complete (master mode)
+  *            @arg @ref SMBUS_FLAG_TCR	    Transfer complete reload
+  *            @arg @ref SMBUS_FLAG_BERR    Bus error
+  *            @arg @ref SMBUS_FLAG_ARLO    Arbitration lost
+  *            @arg @ref SMBUS_FLAG_OVR	    Overrun/Underrun            
+  *            @arg @ref SMBUS_FLAG_PECERR  PEC error in reception
+  *            @arg @ref SMBUS_FLAG_TIMEOUT Timeout or Tlow detection flag 
+  *            @arg @ref SMBUS_FLAG_ALERT   SMBus alert
+  *            @arg @ref SMBUS_FLAG_BUSY    Bus busy
+  *            @arg @ref SMBUS_FLAG_DIR     Transfer direction (slave mode)
   *   
   * @retval The new state of __FLAG__ (TRUE or FALSE).
   */
@@ -440,37 +440,37 @@ typedef struct
 #define __HAL_SMBUS_GET_FLAG(__HANDLE__, __FLAG__) (((((__HANDLE__)->Instance->ISR) & ((__FLAG__) & SMBUS_FLAG_MASK)) == ((__FLAG__) & SMBUS_FLAG_MASK)))
     
 /** @brief  Clear the SMBUS pending flags which are cleared by writing 1 in a specific bit.
-  * @param  __HANDLE__: specifies the SMBUS Handle.
-  * @param  __FLAG__: specifies the flag to clear.
+  * @param  __HANDLE__ specifies the SMBUS Handle.
+  * @param  __FLAG__ specifies the flag to clear.
   *          This parameter can be any combination of the following values:
-  *            @arg SMBUS_FLAG_ADDR:		Address matched (slave mode)
-  *            @arg SMBUS_FLAG_AF: 	        NACK received flag
-  *            @arg SMBUS_FLAG_STOPF: 	        STOP detection flag
-  *            @arg SMBUS_FLAG_BERR:		Bus error
-  *            @arg SMBUS_FLAG_ARLO:		Arbitration lost
-  *            @arg SMBUS_FLAG_OVR:		Overrun/Underrun            
-  *            @arg SMBUS_FLAG_PECERR: 	        PEC error in reception
-  *            @arg SMBUS_FLAG_TIMEOUT:         Timeout or Tlow detection flag 
-  *            @arg SMBUS_FLAG_ALERT:		SMBus alert
+  *            @arg @ref SMBUS_FLAG_ADDR    Address matched (slave mode)
+  *            @arg @ref SMBUS_FLAG_AF 	    NACK received flag
+  *            @arg @ref SMBUS_FLAG_STOPF   STOP detection flag
+  *            @arg @ref SMBUS_FLAG_BERR    Bus error
+  *            @arg @ref SMBUS_FLAG_ARLO    Arbitration lost
+  *            @arg @ref SMBUS_FLAG_OVR	    Overrun/Underrun            
+  *            @arg @ref SMBUS_FLAG_PECERR  PEC error in reception
+  *            @arg @ref SMBUS_FLAG_TIMEOUT Timeout or Tlow detection flag 
+  *            @arg @ref SMBUS_FLAG_ALERT   SMBus alert
   *   
   * @retval None
   */
 #define __HAL_SMBUS_CLEAR_FLAG(__HANDLE__, __FLAG__) ((__HANDLE__)->Instance->ICR = (__FLAG__))
  
 /** @brief  Enable the specified SMBUS peripheral.
-  * @param  __HANDLE__: specifies the SMBUS Handle. 
+  * @param  __HANDLE__ specifies the SMBUS Handle. 
   * @retval None
   */
 #define __HAL_SMBUS_ENABLE(__HANDLE__)                  (SET_BIT((__HANDLE__)->Instance->CR1, I2C_CR1_PE))
 
 /** @brief  Disable the specified SMBUS peripheral.
-  * @param  __HANDLE__: specifies the SMBUS Handle. 
+  * @param  __HANDLE__ specifies the SMBUS Handle. 
   * @retval None
   */
 #define __HAL_SMBUS_DISABLE(__HANDLE__)                 (CLEAR_BIT((__HANDLE__)->Instance->CR1, I2C_CR1_PE))
 
 /** @brief  Generate a Non-Acknowledge SMBUS peripheral in Slave mode.
-  * @param  __HANDLE__: specifies the SMBUS Handle. 
+  * @param  __HANDLE__ specifies the SMBUS Handle. 
   * @retval None
   */
 #define __HAL_SMBUS_GENERATE_NACK(__HANDLE__)           (SET_BIT((__HANDLE__)->Instance->CR2, I2C_CR2_NACK))
@@ -566,7 +566,7 @@ typedef struct
 /** @defgroup SMBUS_Private_Functions SMBUS Private Functions
   * @{
   */
-/* Private functions are defined in stm32l4xx_hal_smbus.c file */
+/* Private functions are defined in stm32f0xx_hal_smbus.c file */
 /**
   * @}
   */ 

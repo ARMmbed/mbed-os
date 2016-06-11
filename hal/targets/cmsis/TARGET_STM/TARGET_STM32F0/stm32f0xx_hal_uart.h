@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -869,7 +869,7 @@ typedef struct
   *         divided by the smallest oversampling used on the USART (i.e. 8) 
   * @retval SET (__BAUDRATE__ is valid) or RESET (__BAUDRATE__ is invalid)
   */
-#define IS_UART_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 9000001)
+#define IS_UART_BAUDRATE(__BAUDRATE__) ((__BAUDRATE__) < 6000001)
 
 /** @brief  Check UART assertion time.
   * @param  __TIME__: 5-bit value assertion time.

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_comp_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of COMP HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -63,7 +63,7 @@
 /** @defgroup COMPEx_NonInvertingInput COMPEx NonInvertingInput
   * @{
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 /* Non-inverting inputs specific to COMP2 */
 #define COMP_NONINVERTINGINPUT_PB4      RI_IOSWITCH_GR6_1       /*!< I/O pin PB4 connection to COMP2 non-inverting input */
 #define COMP_NONINVERTINGINPUT_PB5      RI_IOSWITCH_GR6_2       /*!< I/O pin PB5 connection to COMP2 non-inverting input */
@@ -107,7 +107,7 @@
 #if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD)
 #define COMP_NONINVERTINGINPUT_OPAMP3   COMP_NONINVERTINGINPUT_PC3  /*!< OPAMP3 output connection to COMP1 non-inverting input */
 #endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD */
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
    
 #if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
 /* Non-inverting inputs specific to COMP2 */
@@ -181,7 +181,7 @@
 
 #endif /* STM32L100xB || STM32L151xB || STM32L152xB || STM32L100xBA || STM32L151xBA || STM32L152xBA */
 
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 #define IS_COMP_NONINVERTINGINPUT(INPUT) (((INPUT) == COMP_NONINVERTINGINPUT_PB4)   || \
                                           ((INPUT) == COMP_NONINVERTINGINPUT_PB5)   || \
                                           ((INPUT) == COMP_NONINVERTINGINPUT_PB6)   || \
@@ -216,7 +216,7 @@
                                           ((INPUT) == COMP_NONINVERTINGINPUT_PF8)   || \
                                           ((INPUT) == COMP_NONINVERTINGINPUT_PF9)   || \
                                           ((INPUT) == COMP_NONINVERTINGINPUT_PF10)    )
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
 #if defined(STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC)
 #define IS_COMP_NONINVERTINGINPUT(INPUT) (((INPUT) == COMP_NONINVERTINGINPUT_PB4)   || \
@@ -301,14 +301,14 @@
   * @param  __HANDLE__: COMP handle.
   * @retval None.
   */
-#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 #define __COMP_ROUTING_INTERFACE_TOBECONFIGURED(__HANDLE__)                    \
   (((__HANDLE__)->Init.NonInvertingInput != COMP_NONINVERTINGINPUT_NONE) &&    \
    (READ_BIT(COMP->CSR, COMP_CSR_SW1) == RESET)                            )
 #else
 #define __COMP_ROUTING_INTERFACE_TOBECONFIGURED(__HANDLE__)                    \
   ((__HANDLE__)->Init.NonInvertingInput != COMP_NONINVERTINGINPUT_NONE)
-#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
 /**
   * @}

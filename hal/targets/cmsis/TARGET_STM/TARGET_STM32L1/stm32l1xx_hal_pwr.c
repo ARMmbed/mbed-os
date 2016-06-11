@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   PWR HAL module driver.
   *
   *          This file provides firmware functions to manage the following
@@ -14,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -84,7 +84,7 @@
       write accesses.
       To enable access to the RTC Domain and RTC registers, proceed as follows:
         (+) Enable the Power Controller (PWR) APB1 interface clock using the
-            __PWR_CLK_ENABLE() macro.
+            __HAL_RCC_PWR_CLK_ENABLE() macro.
         (+) Enable access to RTC domain using the HAL_PWR_EnableBkUpAccess() function.
 
 @endverbatim
@@ -102,8 +102,8 @@
   */
 void HAL_PWR_DeInit(void)
 {
-  __PWR_FORCE_RESET();
-  __PWR_RELEASE_RESET();
+  __HAL_RCC_PWR_FORCE_RESET();
+  __HAL_RCC_PWR_RELEASE_RESET();
 }
 
 /**
@@ -157,7 +157,7 @@ void HAL_PWR_DisableBkUpAccess(void)
       (+) A PVDO flag is available to indicate if VDD/VDDA is higher or lower
           than the PVD threshold. This event is internally connected to the EXTI
           line16 and can generate an interrupt if enabled. This is done through
-          __HAL_PVD_EXTI_ENABLE_IT() macro.
+          __HAL_PWR_PVD_EXTI_ENABLE_IT() macro.
       (+) The PVD is stopped in Standby mode.
 
     *** WakeUp pin configuration ***
@@ -354,7 +354,7 @@ void HAL_PWR_DisableBkUpAccess(void)
   *         detection level.
   * @retval None
   */
-void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
+void HAL_PWR_ConfigPVD(PWR_PVDTypeDef *sConfigPVD)
 {
   /* Check the parameters */
   assert_param(IS_PWR_PVD_LEVEL(sConfigPVD->PVDLevel));
@@ -366,7 +366,7 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
   /* Clear any previous config. Keep it clear if no event or IT mode is selected */
   __HAL_PWR_PVD_EXTI_DISABLE_EVENT();
   __HAL_PWR_PVD_EXTI_DISABLE_IT();
-  __HAL_PWR_PVD_EXTI_CLEAR_EGDE_TRIGGER();
+  __HAL_PWR_PVD_EXTI_DISABLE_RISING_FALLING_EDGE();
 
   /* Configure interrupt mode */
   if((sConfigPVD->Mode & PVD_MODE_IT) == PVD_MODE_IT)
@@ -383,12 +383,12 @@ void HAL_PWR_PVDConfig(PWR_PVDTypeDef *sConfigPVD)
   /* Configure the edge */
   if((sConfigPVD->Mode & PVD_RISING_EDGE) == PVD_RISING_EDGE)
   {
-    __HAL_PWR_PVD_EXTI_SET_RISING_EDGE_TRIGGER();
+    __HAL_PWR_PVD_EXTI_ENABLE_RISING_EDGE();
   }
   
   if((sConfigPVD->Mode & PVD_FALLING_EDGE) == PVD_FALLING_EDGE)
   {
-    __HAL_PWR_PVD_EXTI_SET_FALLING_EGDE_TRIGGER();
+    __HAL_PWR_PVD_EXTI_ENABLE_FALLING_EDGE();
   }
 }
 
@@ -562,6 +562,62 @@ void HAL_PWR_EnterSTANDBYMode(void)
   /* Request Wait For Interrupt */
   __WFI();
 }
+
+
+/**
+  * @brief Indicates Sleep-On-Exit when returning from Handler mode to Thread mode. 
+  * @note Set SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
+  *       re-enters SLEEP mode when an interruption handling is over.
+  *       Setting this bit is useful when the processor is expected to run only on
+  *       interruptions handling.         
+  * @retval None
+  */
+void HAL_PWR_EnableSleepOnExit(void)
+{
+  /* Set SLEEPONEXIT bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+}
+
+
+/**
+  * @brief Disables Sleep-On-Exit feature when returning from Handler mode to Thread mode. 
+  * @note Clears SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
+  *       re-enters SLEEP mode when an interruption handling is over.          
+  * @retval None
+  */
+void HAL_PWR_DisableSleepOnExit(void)
+{
+  /* Clear SLEEPONEXIT bit of Cortex System Control Register */
+  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+}
+
+
+/**
+  * @brief Enables CORTEX M3 SEVONPEND bit. 
+  * @note Sets SEVONPEND bit of SCR register. When this bit is set, this causes 
+  *       WFE to wake up when an interrupt moves from inactive to pended.
+  * @retval None
+  */
+void HAL_PWR_EnableSEVOnPend(void)
+{
+  /* Set SEVONPEND bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+}
+
+
+/**
+  * @brief Disables CORTEX M3 SEVONPEND bit. 
+  * @note Clears SEVONPEND bit of SCR register. When this bit is set, this causes 
+  *       WFE to wake up when an interrupt moves from inactive to pended.         
+  * @retval None
+  */
+void HAL_PWR_DisableSEVOnPend(void)
+{
+  /* Clear SEVONPEND bit of Cortex System Control Register */
+  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+}
+
+
 
 /**
   * @brief  This function handles the PWR PVD interrupt request.

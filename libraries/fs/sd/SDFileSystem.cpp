@@ -148,11 +148,13 @@ SDFileSystem::SDFileSystem(PinName mosi, PinName miso, PinName sclk, PinName cs,
 
 int SDFileSystem::initialise_card() {
     // Set to SCK for initialisation, and clock card with cs = 1
+    _spi.lock();
     _spi.frequency(_init_sck);
     _cs = 1;
     for (int i = 0; i < 16; i++) {
         _spi.write(0xFF);
     }
+    _spi.unlock();
 
     // send CMD0, should return with all zeros except IDLE STATE set (bit 0)
     if (_cmd(0, 0) != R1_IDLE_STATE) {
@@ -204,9 +206,11 @@ int SDFileSystem::initialise_card_v2() {
 }
 
 int SDFileSystem::disk_initialize() {
+    lock();
     _is_initialized = initialise_card();
     if (_is_initialized == 0) {
         debug("Fail to initialize card\n");
+        unlock();
         return 1;
     }
     debug_if(SD_DBG, "init card = %d\n", _is_initialized);
@@ -215,22 +219,27 @@ int SDFileSystem::disk_initialize() {
     // Set block length to 512 (CMD16)
     if (_cmd(16, 512) != 0) {
         debug("Set 512-byte block timed out\n");
+        unlock();
         return 1;
     }
 
     // Set SCK for data transfer
     _spi.frequency(_transfer_sck);
+    unlock();
     return 0;
 }
 
 int SDFileSystem::disk_write(const uint8_t* buffer, uint32_t block_number, uint32_t count) {
+    lock();
     if (!_is_initialized) {
+        unlock();
         return -1;
     }
     
     for (uint32_t b = block_number; b < block_number + count; b++) {
         // set write address for single block (CMD24)
         if (_cmd(24, b * cdv) != 0) {
+            unlock();
             return 1;
         }
         
@@ -239,17 +248,21 @@ int SDFileSystem::disk_write(const uint8_t* buffer, uint32_t block_number, uint3
         buffer += 512;
     }
     
+    unlock();
     return 0;
 }
 
 int SDFileSystem::disk_read(uint8_t* buffer, uint32_t block_number, uint32_t count) {
+    lock();
     if (!_is_initialized) {
+        unlock();
         return -1;
     }
     
     for (uint32_t b = block_number; b < block_number + count; b++) {
         // set read address for single block (CMD17)
         if (_cmd(17, b * cdv) != 0) {
+            unlock();
             return 1;
         }
         
@@ -258,24 +271,30 @@ int SDFileSystem::disk_read(uint8_t* buffer, uint32_t block_number, uint32_t cou
         buffer += 512;
     }
 
+    unlock();
     return 0;
 }
 
 int SDFileSystem::disk_status() {
+    lock();
     // FATFileSystem::disk_status() returns 0 when initialized
-    if (_is_initialized) {
-        return 0;
-    } else {
-        return 1;
-    }
+    int ret = _is_initialized ? 0 : 1;
+    unlock();
+    return ret;
 }
 
 int SDFileSystem::disk_sync() { return 0; }
-uint32_t SDFileSystem::disk_sectors() { return _sectors; }
+uint32_t SDFileSystem::disk_sectors() {
+    lock();
+    uint32_t sectors = _sectors;
+    unlock();
+    return sectors;
+}
 
 
 // PRIVATE FUNCTIONS
 int SDFileSystem::_cmd(int cmd, int arg) {
+    _spi.lock();
     _cs = 0;
 
     // send a command
@@ -292,14 +311,17 @@ int SDFileSystem::_cmd(int cmd, int arg) {
         if (!(response & 0x80)) {
             _cs = 1;
             _spi.write(0xFF);
+            _spi.unlock();
             return response;
         }
     }
     _cs = 1;
     _spi.write(0xFF);
+    _spi.unlock();
     return -1; // timeout
 }
 int SDFileSystem::_cmdx(int cmd, int arg) {
+    _spi.lock();
     _cs = 0;
 
     // send a command
@@ -314,16 +336,20 @@ int SDFileSystem::_cmdx(int cmd, int arg) {
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         int response = _spi.write(0xFF);
         if (!(response & 0x80)) {
+            _cs = 1;
+            _spi.unlock();
             return response;
         }
     }
     _cs = 1;
     _spi.write(0xFF);
+    _spi.unlock();
     return -1; // timeout
 }
 
 
 int SDFileSystem::_cmd58() {
+    _spi.lock();
     _cs = 0;
     int arg = 0;
 
@@ -345,15 +371,18 @@ int SDFileSystem::_cmd58() {
             ocr |= _spi.write(0xFF) << 0;
             _cs = 1;
             _spi.write(0xFF);
+            _spi.unlock();
             return response;
         }
     }
     _cs = 1;
     _spi.write(0xFF);
+    _spi.unlock();
     return -1; // timeout
 }
 
 int SDFileSystem::_cmd8() {
+    _spi.lock();
     _cs = 0;
 
     // send a command
@@ -374,15 +403,18 @@ int SDFileSystem::_cmd8() {
             }
             _cs = 1;
             _spi.write(0xFF);
+            _spi.unlock();
             return response[0];
         }
     }
     _cs = 1;
     _spi.write(0xFF);
+    _spi.unlock();
     return -1; // timeout
 }
 
 int SDFileSystem::_read(uint8_t *buffer, uint32_t length) {
+    _spi.lock();
     _cs = 0;
 
     // read until start byte (0xFF)
@@ -397,10 +429,12 @@ int SDFileSystem::_read(uint8_t *buffer, uint32_t length) {
 
     _cs = 1;
     _spi.write(0xFF);
+    _spi.unlock();
     return 0;
 }
 
 int SDFileSystem::_write(const uint8_t*buffer, uint32_t length) {
+    _spi.lock();
     _cs = 0;
 
     // indicate start of block
@@ -419,6 +453,7 @@ int SDFileSystem::_write(const uint8_t*buffer, uint32_t length) {
     if ((_spi.write(0xFF) & 0x1F) != 0x05) {
         _cs = 1;
         _spi.write(0xFF);
+        _spi.unlock();
         return 1;
     }
 
@@ -427,6 +462,7 @@ int SDFileSystem::_write(const uint8_t*buffer, uint32_t length) {
 
     _cs = 1;
     _spi.write(0xFF);
+    _spi.unlock();
     return 0;
 }
 

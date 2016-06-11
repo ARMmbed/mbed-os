@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of TIM HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -73,60 +73,59 @@ typedef struct {
   * @}
   */
 
-
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup TIMEx_Exported_Constants TIMEx_Exported_Constants
+/** @defgroup TIMEx_Exported_Constants TIMEx Exported Constants
   * @{
   */
     
-/** @defgroup TIMEx_Remap TIMEx_Remap
+/** @defgroup TIMEx_Remap TIMEx Remap
   * @{
   */
 
-#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define TIM_TIM2_ITR1_TIM10_OC        (0x00000000)       /* !< TIM2 ITR1 input is connected to TIM10 OC */
-#define TIM_TIM2_ITR1_TIM5_TGO        TIM2_OR_ITR1_RMP   /* !< TIM2 ITR1 input is connected to TIM5 TGO */
-#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) */
+#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define TIM_TIM2_ITR1_TIM10_OC        (0x00000000)       /*!< TIM2 ITR1 input is connected to TIM10 OC */
+#define TIM_TIM2_ITR1_TIM5_TGO        TIM2_OR_ITR1_RMP   /*!< TIM2 ITR1 input is connected to TIM5 TGO */
+#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) */
 
-#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define TIM_TIM3_ITR2_TIM11_OC        (0x00000000)       /* !< TIM3 ITR2 input is connected to TIM11 OC */
-#define TIM_TIM3_ITR2_TIM5_TGO        TIM2_OR_ITR1_RMP   /* !< TIM3 ITR2 input is connected to TIM5 TGO */
-#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) */
+#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define TIM_TIM3_ITR2_TIM11_OC        (0x00000000)       /*!< TIM3 ITR2 input is connected to TIM11 OC */
+#define TIM_TIM3_ITR2_TIM5_TGO        TIM2_OR_ITR1_RMP   /*!< TIM3 ITR2 input is connected to TIM5 TGO */
+#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) */
 
-#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define TIM_TIM9_ITR1_TIM3_TGO        (0x00000000)       /* !< TIM9 ITR1 input is connected to TIM3 TGO */
-#define TIM_TIM9_ITR1_TS              TIM9_OR_ITR1_RMP   /* !< TIM9 ITR1 input is connected to touch sensing I/O */
-#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) */
-#define TIM_TIM9_GPIO                 (0x00000000)       /* !< TIM9 Channel1 is connected to GPIO */
-#define TIM_TIM9_LSE                  TIM_OR_TI1RMP_0    /* !< TIM9 Channel1 is connected to LSE internal clock */
-#define TIM_TIM9_GPIO1                TIM_OR_TI1RMP_1    /* !< TIM9 Channel1 is connected to GPIO */
-#define TIM_TIM9_GPIO2                TIM_OR_TI1RMP      /* !< TIM9 Channel1 is connected to GPIO */
-
-
-#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define TIM_TIM10_TI1RMP              (0x00000000)       /* !< TIM10 Channel 1 depends on TI1_RMP */
-#define TIM_TIM10_RI                  TIM_OR_TI1_RMP_RI  /* !< TIM10 Channel 1 is connected to RI */
-#define TIM_TIM10_ETR_LSE             (0x00000000)       /* !< TIM10 ETR input is connected to LSE clock */
-#define TIM_TIM10_ETR_TIM9_TGO        TIM_OR_ETR_RMP     /* !< TIM10 ETR input is connected to TIM9 TGO */
-#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) */
-#define TIM_TIM10_GPIO                (0x00000000) /* !< TIM10 Channel1 is connected to GPIO */
-#define TIM_TIM10_LSI                 TIM_OR_TI1RMP_0    /* !< TIM10 Channel1 is connected to LSI internal clock */
-#define TIM_TIM10_LSE                 TIM_OR_TI1RMP_1    /* !< TIM10 Channel1 is connected to LSE internal clock */
-#define TIM_TIM10_RTC                 TIM_OR_TI1RMP      /* !< TIM10 Channel1 is connected to RTC wakeup interrupt */
-
-#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
-#define TIM_TIM11_TI1RMP              (0x00000000)       /* !< TIM11 Channel 1 depends on TI1_RMP */
-#define TIM_TIM11_RI                  TIM_OR_TI1_RMP_RI  /* !< TIM11 Channel 1 is connected to RI */
-#define TIM_TIM11_ETR_LSE             (0x00000000)       /* !< TIM11 ETR input is connected to LSE clock */
-#define TIM_TIM11_ETR_TIM9_TGO        TIM_OR_ETR_RMP     /* !< TIM11 ETR input is connected to TIM9 TGO */
-#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) */
-#define TIM_TIM11_GPIO                (0x00000000)       /* !< TIM11 Channel1 is connected to GPIO */
-#define TIM_TIM11_MSI                 TIM_OR_TI1RMP_0    /* !< TIM11 Channel1 is connected to MSI internal clock */
-#define TIM_TIM11_HSE_RTC             TIM_OR_TI1RMP_1    /* !< TIM11 Channel1 is connected to HSE_RTC clock */
-#define TIM_TIM11_GPIO1               TIM_OR_TI1RMP      /* !< TIM11 Channel1 is connected to GPIO */
+#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define TIM_TIM9_ITR1_TIM3_TGO        (0x00000000)       /*!< TIM9 ITR1 input is connected to TIM3 TGO */
+#define TIM_TIM9_ITR1_TS              TIM9_OR_ITR1_RMP   /*!< TIM9 ITR1 input is connected to touch sensing I/O */
+#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) */
+#define TIM_TIM9_GPIO                 (0x00000000)       /*!< TIM9 Channel1 is connected to GPIO */
+#define TIM_TIM9_LSE                  TIM_OR_TI1RMP_0    /*!< TIM9 Channel1 is connected to LSE internal clock */
+#define TIM_TIM9_GPIO1                TIM_OR_TI1RMP_1    /*!< TIM9 Channel1 is connected to GPIO */
+#define TIM_TIM9_GPIO2                TIM_OR_TI1RMP      /*!< TIM9 Channel1 is connected to GPIO */
 
 
-#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define TIM_TIM10_TI1RMP              (0x00000000)       /*!< TIM10 Channel 1 depends on TI1_RMP */
+#define TIM_TIM10_RI                  TIM_OR_TI1_RMP_RI  /*!< TIM10 Channel 1 is connected to RI */
+#define TIM_TIM10_ETR_LSE             (0x00000000)       /*!< TIM10 ETR input is connected to LSE clock */
+#define TIM_TIM10_ETR_TIM9_TGO        TIM_OR_ETR_RMP     /*!< TIM10 ETR input is connected to TIM9 TGO */
+#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) */
+#define TIM_TIM10_GPIO                (0x00000000)       /*!< TIM10 Channel1 is connected to GPIO */
+#define TIM_TIM10_LSI                 TIM_OR_TI1RMP_0    /*!< TIM10 Channel1 is connected to LSI internal clock */
+#define TIM_TIM10_LSE                 TIM_OR_TI1RMP_1    /*!< TIM10 Channel1 is connected to LSE internal clock */
+#define TIM_TIM10_RTC                 TIM_OR_TI1RMP      /*!< TIM10 Channel1 is connected to RTC wakeup interrupt */
+
+#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
+#define TIM_TIM11_TI1RMP              (0x00000000)       /*!< TIM11 Channel 1 depends on TI1_RMP */
+#define TIM_TIM11_RI                  TIM_OR_TI1_RMP_RI  /*!< TIM11 Channel 1 is connected to RI */
+#define TIM_TIM11_ETR_LSE             (0x00000000)       /*!< TIM11 ETR input is connected to LSE clock */
+#define TIM_TIM11_ETR_TIM9_TGO        TIM_OR_ETR_RMP     /*!< TIM11 ETR input is connected to TIM9 TGO */
+#endif /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) */
+#define TIM_TIM11_GPIO                (0x00000000)       /*!< TIM11 Channel1 is connected to GPIO */
+#define TIM_TIM11_MSI                 TIM_OR_TI1RMP_0    /*!< TIM11 Channel1 is connected to MSI internal clock */
+#define TIM_TIM11_HSE_RTC             TIM_OR_TI1RMP_1    /*!< TIM11 Channel1 is connected to HSE_RTC clock */
+#define TIM_TIM11_GPIO1               TIM_OR_TI1RMP      /*!< TIM11 Channel1 is connected to GPIO */
+
+
+#if defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
 #define IS_TIM_REMAP(INSTANCE, TIM_REMAP)               \
         ( (((INSTANCE) == TIM2)  && (((TIM_REMAP) == TIM_TIM2_ITR1_TIM10_OC) || ((TIM_REMAP) == TIM_TIM2_ITR1_TIM5_TGO)))  || \
           (((INSTANCE) == TIM3)  && (((TIM_REMAP) == TIM_TIM3_ITR2_TIM11_OC) || ((TIM_REMAP) == TIM_TIM3_ITR2_TIM5_TGO)))  || \
@@ -134,7 +133,7 @@ typedef struct {
           (((INSTANCE) == TIM10) && ((TIM_REMAP) <= (TIM_TIM10_RI | TIM_TIM10_ETR_TIM9_TGO | TIM_TIM10_RTC)))              || \
           (((INSTANCE) == TIM11) && ((TIM_REMAP) <= (TIM_TIM11_RI | TIM_TIM11_ETR_TIM9_TGO | TIM_TIM11_GPIO1)))               \
         )
-#else /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE) */
+#else /* defined (STM32L100xC) || defined (STM32L151xC) || defined (STM32L152xC) || defined (STM32L162xC) || defined (STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L151xE) || defined (STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX) */
 #define IS_TIM_REMAP(INSTANCE, TIM_REMAP)               \
         ( (((INSTANCE) == TIM9)  && (((TIM_REMAP) == TIM_TIM9_GPIO) || ((TIM_REMAP) == TIM_TIM9_LSE) || ((TIM_REMAP) == TIM_TIM9_GPIO1) || ((TIM_REMAP) == TIM_TIM9_GPIO2)))       || \
           (((INSTANCE) == TIM10) && (((TIM_REMAP) == TIM_TIM10_GPIO) || ((TIM_REMAP) == TIM_TIM10_LSI) || ((TIM_REMAP) == TIM_TIM10_LSE) || ((TIM_REMAP) == TIM_TIM10_RTC)))       || \
@@ -168,23 +167,6 @@ HAL_StatusTypeDef HAL_TIMEx_RemapConfig(TIM_HandleTypeDef *htim, uint32_t Remap)
   * @}
   */
   
-/** @addtogroup TIMEx_Exported_Functions_Group2
-  * @{
-  */
-
-/**
-  * @}
-  */
-
-/* Extension Callback *********************************************************/
-
-/** @addtogroup TIMEx_Exported_Functions_Group3
-  * @{
-  */
-
-/**
-  * @}
-  */
 /* Extension Peripheral State functions  **************************************/
 /**
   * @}

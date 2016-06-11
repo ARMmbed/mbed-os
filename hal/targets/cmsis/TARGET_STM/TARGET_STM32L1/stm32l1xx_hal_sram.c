@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_sram.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   SRAM HAL module driver.
   *          This file provides a generic firmware to drive SRAM memories  
   *          mounted as external device.
@@ -64,7 +64,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -98,28 +98,27 @@
   * @{
   */
 
-/** @defgroup SRAM SRAM
-  * @brief SRAM driver modules
-  * @{
-  */
 #ifdef HAL_SRAM_MODULE_ENABLED
 
 #if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
 
+/** @defgroup SRAM SRAM
+  * @brief SRAM driver modules
+  * @{
+  */
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/    
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
 /** @defgroup SRAM_Exported_Functions SRAM Exported Functions
   * @{
   */
 
 /** @defgroup SRAM_Exported_Functions_Group1 Initialization and de-initialization functions 
-  * @brief    Initialization and Configuration functions 
+  * @brief    Initialization and Configuration functions.
   *
   @verbatim    
   ==============================================================================
@@ -143,13 +142,16 @@
 HAL_StatusTypeDef HAL_SRAM_Init(SRAM_HandleTypeDef *hsram, FSMC_NORSRAM_TimingTypeDef *Timing, FSMC_NORSRAM_TimingTypeDef *ExtTiming)
 { 
   /* Check the SRAM handle parameter */
-  if(hsram == HAL_NULL)
+  if(hsram == NULL)
   {
      return HAL_ERROR;
   }
   
   if(hsram->State == HAL_SRAM_STATE_RESET)
   {  
+    /* Allocate lock resource and initialize it */
+    hsram->Lock = HAL_UNLOCKED;
+    
     /* Initialize the low level hardware (MSP) */
     HAL_SRAM_MspInit(hsram);
   }
@@ -199,6 +201,9 @@ HAL_StatusTypeDef  HAL_SRAM_DeInit(SRAM_HandleTypeDef *hsram)
   */
 __weak void HAL_SRAM_MspInit(SRAM_HandleTypeDef *hsram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsram);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_MspInit could be implemented in the user file
    */ 
@@ -212,6 +217,9 @@ __weak void HAL_SRAM_MspInit(SRAM_HandleTypeDef *hsram)
   */
 __weak void HAL_SRAM_MspDeInit(SRAM_HandleTypeDef *hsram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsram);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_MspDeInit could be implemented in the user file
    */ 
@@ -225,6 +233,9 @@ __weak void HAL_SRAM_MspDeInit(SRAM_HandleTypeDef *hsram)
   */
 __weak void HAL_SRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_DMA_XferCpltCallback could be implemented in the user file
    */ 
@@ -238,6 +249,9 @@ __weak void HAL_SRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_SRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_SRAM_DMA_XferErrorCallback could be implemented in the user file
    */ 
@@ -247,7 +261,7 @@ __weak void HAL_SRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-/** @defgroup SRAM_Exported_Functions_Group2 Input and Output functions 
+/** @defgroup SRAM_Exported_Functions_Group2 Input Output and memory control functions 
   * @brief    Input Output and memory control functions 
   *
   @verbatim    
@@ -512,7 +526,7 @@ HAL_StatusTypeDef HAL_SRAM_Read_DMA(SRAM_HandleTypeDef *hsram, uint32_t *pAddres
   hsram->hdma->XferCpltCallback  = HAL_SRAM_DMA_XferCpltCallback;
   hsram->hdma->XferErrorCallback = HAL_SRAM_DMA_XferErrorCallback;
 
-  /* Enable the DMA Stream */
+  /* Enable the DMA Channel */
   HAL_DMA_Start_IT(hsram->hdma, (uint32_t)pAddress, (uint32_t)pDstBuffer, (uint32_t)BufferSize);
   
   /* Update the SRAM controller state */
@@ -551,7 +565,7 @@ HAL_StatusTypeDef HAL_SRAM_Write_DMA(SRAM_HandleTypeDef *hsram, uint32_t *pAddre
   hsram->hdma->XferCpltCallback  = HAL_SRAM_DMA_XferCpltCallback;
   hsram->hdma->XferErrorCallback = HAL_SRAM_DMA_XferErrorCallback;
 
-  /* Enable the DMA Stream */
+  /* Enable the DMA Channel */
   HAL_DMA_Start_IT(hsram->hdma, (uint32_t)pSrcBuffer, (uint32_t)pAddress, (uint32_t)BufferSize);
   
   /* Update the SRAM controller state */
@@ -568,7 +582,7 @@ HAL_StatusTypeDef HAL_SRAM_Write_DMA(SRAM_HandleTypeDef *hsram, uint32_t *pAddre
   */
   
 /** @defgroup SRAM_Exported_Functions_Group3 Control functions 
- *  @brief   management functions 
+ *  @brief   Control functions 
  *
 @verbatim   
   ==============================================================================
@@ -635,7 +649,7 @@ HAL_StatusTypeDef HAL_SRAM_WriteOperation_Disable(SRAM_HandleTypeDef *hsram)
   * @}
   */
 
-/** @defgroup SRAM_Exported_Functions_Group4 State functions 
+/** @defgroup SRAM_Exported_Functions_Group4 Peripheral State functions 
  *  @brief   Peripheral State functions 
  *
 @verbatim   
@@ -668,11 +682,12 @@ HAL_SRAM_StateTypeDef HAL_SRAM_GetState(SRAM_HandleTypeDef *hsram)
 /**
   * @}
   */
-#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
-#endif /* HAL_SRAM_MODULE_ENABLED */
+
 /**
   * @}
   */
+#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
+#endif /* HAL_SRAM_MODULE_ENABLED */
 
 /**
   * @}

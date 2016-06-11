@@ -24,13 +24,74 @@
 
 #include <stdint.h>
 #include "cmsis_os.h"
+#include "Callback.h"
 
 namespace rtos {
 
 /** The Thread class allow defining, creating, and controlling thread functions in the system. */
 class Thread {
 public:
+    /** Allocate a new thread without starting execution
+      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
+      @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
+      @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+    */
+    Thread(osPriority priority=osPriorityNormal,
+           uint32_t stack_size=DEFAULT_STACK_SIZE,
+           unsigned char *stack_pointer=NULL) {
+        constructor(priority, stack_size, stack_pointer);
+    }
+
     /** Create a new thread, and start it executing the specified function.
+      @param   task           function to be executed by this thread.
+      @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
+      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
+      @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
+      @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+    */
+    Thread(mbed::Callback<void()> task,
+           osPriority priority=osPriorityNormal,
+           uint32_t stack_size=DEFAULT_STACK_SIZE,
+           unsigned char *stack_pointer=NULL) {
+        constructor(task, priority, stack_size, stack_pointer);
+    }
+
+    /** Create a new thread, and start it executing the specified function.
+      @param   obj            argument to task.
+      @param   method         function to be executed by this thread.
+      @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
+      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
+      @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
+      @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+    */
+    template <typename T>
+    Thread(T *obj, void (T::*method)(),
+           osPriority priority=osPriorityNormal,
+           uint32_t stack_size=DEFAULT_STACK_SIZE,
+           unsigned char *stack_pointer=NULL) {
+        constructor(mbed::Callback<void()>(obj, method),
+                    priority, stack_size, stack_pointer);
+    }
+
+    /** Create a new thread, and start it executing the specified function.
+      @param   obj            argument to task.
+      @param   method         function to be executed by this thread.
+      @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
+      @param   priority       initial priority of the thread function. (default: osPriorityNormal).
+      @param   stack_size      stack size (in bytes) requirements for the thread function. (default: DEFAULT_STACK_SIZE).
+      @param   stack_pointer  pointer to the stack area to be used by this thread (default: NULL).
+    */
+    template <typename T>
+    Thread(T *obj, void (*method)(T *),
+           osPriority priority=osPriorityNormal,
+           uint32_t stack_size=DEFAULT_STACK_SIZE,
+           unsigned char *stack_pointer=NULL) {
+        constructor(mbed::Callback<void()>(obj, method),
+                    priority, stack_size, stack_pointer);
+    }
+
+    /** Create a new thread, and start it executing the specified function.
+        Provided for backwards compatibility
       @param   task           function to be executed by this thread.
       @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
@@ -40,7 +101,32 @@ public:
     Thread(void (*task)(void const *argument), void *argument=NULL,
            osPriority priority=osPriorityNormal,
            uint32_t stack_size=DEFAULT_STACK_SIZE,
-           unsigned char *stack_pointer=NULL);
+           unsigned char *stack_pointer=NULL) {
+        constructor(mbed::Callback<void()>(argument, (void (*)(void *))task),
+                    priority, stack_size, stack_pointer);
+    }
+
+    /** Starts a thread executing the specified function.
+      @param   task           function to be executed by this thread.
+      @return  status code that indicates the execution status of the function.
+    */
+    osStatus start(mbed::Callback<void()> task);
+
+    /** Starts a thread executing the specified function.
+      @param   obj            argument to task
+      @param   method         function to be executed by this thread.
+      @return  status code that indicates the execution status of the function.
+    */
+    template <typename T, typename M>
+    osStatus start(T *obj, M method) {
+        return start(mbed::Callback<void()>(obj, method));
+    }
+
+    /** Wait for thread to terminate
+      @return  status code that indicates the execution status of the function.
+      @note not callable from interrupt
+    */
+    osStatus join();
 
     /** Terminate execution of a thread and remove it from Active Threads
       @return  status code that indicates the execution status of the function.
@@ -113,17 +199,20 @@ public:
       @param   signals   wait until all specified signal flags set or 0 for any single signal flag.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event flag information or error code.
+      @note not callable from interrupt
     */
     static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
 
     /** Wait for a specified time period in millisec:
       @param   millisec  time delay value
       @return  status code that indicates the execution status of the function.
+      @note not callable from interrupt
     */
     static osStatus wait(uint32_t millisec);
 
     /** Pass control to next thread that is in state READY.
       @return  status code that indicates the execution status of the function.
+      @note not callable from interrupt
     */
     static osStatus yield();
 
@@ -140,6 +229,17 @@ public:
     virtual ~Thread();
 
 private:
+    // Required to share definitions without
+    // delegated constructors
+    void constructor(osPriority priority=osPriorityNormal,
+                     uint32_t stack_size=DEFAULT_STACK_SIZE,
+                     unsigned char *stack_pointer=NULL);
+    void constructor(mbed::Callback<void()> task,
+                     osPriority priority=osPriorityNormal,
+                     uint32_t stack_size=DEFAULT_STACK_SIZE,
+                     unsigned char *stack_pointer=NULL);
+
+    mbed::Callback<void()> _task;
     osThreadId _tid;
     osThreadDef_t _thread_def;
     bool _dynamic_stack;

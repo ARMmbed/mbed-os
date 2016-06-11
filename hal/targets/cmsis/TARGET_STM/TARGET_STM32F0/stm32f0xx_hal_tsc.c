@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tsc.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Touch Sensing Controller (TSC) peripheral:
   *           + Initialization and DeInitialization
@@ -17,33 +17,31 @@
                        ##### TSC specific features #####
 ================================================================================
   [..]
-  (#) Proven and robust surface charge transfer acquisition principle
-    
-  (#) Supports up to 3 capacitive sensing channels per group
-    
-  (#) Capacitive sensing channels can be acquired in parallel offering a very good
-      response time
-      
-  (#) Spread spectrum feature to improve system robustness in noisy environments
-   
-  (#) Full hardware management of the charge transfer acquisition sequence
-   
-  (#) Programmable charge transfer frequency
-   
-  (#) Programmable sampling capacitor I/O pin
-   
-  (#) Programmable channel I/O pin
-   
-  (#) Programmable max count value to avoid long acquisition when a channel is faulty
-   
-  (#) Dedicated end of acquisition and max count error flags with interrupt capability
-   
-  (#) One sampling capacitor for up to 3 capacitive sensing channels to reduce the system
-      components
-   
-  (#) Compatible with proximity, touchkey, linear and rotary touch sensor implementation
+      (+)  Proven and robust surface charge transfer acquisition principle
 
-   
+      (+)  Supports up to 3 capacitive sensing channels per group
+
+      (+)  Capacitive sensing channels can be acquired in parallel offering a very good
+           response time
+
+      (+)  Spread spectrum feature to improve system robustness in noisy environments
+
+      (+)  Full hardware management of the charge transfer acquisition sequence
+
+      (+)  Programmable charge transfer frequency
+
+      (+)  Programmable sampling capacitor I/O pin
+
+      (+)  Programmable channel I/O pin
+
+      (+)  Programmable max count value to avoid long acquisition when a channel is faulty
+
+      (+)  Dedicated end of acquisition and max count error flags with interrupt capability
+
+      (+)  One sampling capacitor for up to 3 capacitive sensing channels to reduce the system
+           components
+      (+)  Compatible with proximity, touchkey, linear and rotary touch sensor implementation
+
                           ##### How to use this driver #####
 ================================================================================
   [..]
@@ -81,7 +79,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -205,7 +203,6 @@ HAL_StatusTypeDef HAL_TSC_Init(TSC_HandleTypeDef* htsc)
                          htsc->Init.SpreadSpectrumPrescaler |
                          htsc->Init.PulseGeneratorPrescaler |
                          htsc->Init.MaxCountValue |
-                         htsc->Init.IODefaultMode |
                          htsc->Init.SynchroPinPolarity |
                          htsc->Init.AcquisitionMode);
 
@@ -282,6 +279,9 @@ HAL_StatusTypeDef HAL_TSC_DeInit(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_MspInit could be implemented in the user file.
    */ 
@@ -295,6 +295,9 @@ __weak void HAL_TSC_MspInit(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_MspDeInit(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_MspDeInit could be implemented in the user file.
    */ 
@@ -345,8 +348,15 @@ HAL_StatusTypeDef HAL_TSC_Start(TSC_HandleTypeDef* htsc)
   /* Clear flags */
   __HAL_TSC_CLEAR_FLAG(htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
 
-  /* Stop discharging the IOs */
-  __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  /* Set touch sensing IOs not acquired to the specified IODefaultMode */
+  if (htsc->Init.IODefaultMode == TSC_IODEF_OUT_PP_LOW)
+  {
+    __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
+  }
+  else
+  {
+    __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  }
   
   /* Launch the acquisition */
   __HAL_TSC_START_ACQ(htsc);
@@ -392,8 +402,15 @@ HAL_StatusTypeDef HAL_TSC_Start_IT(TSC_HandleTypeDef* htsc)
   /* Clear flags */
   __HAL_TSC_CLEAR_FLAG(htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
   
-  /* Stop discharging the IOs */
-  __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  /* Set touch sensing IOs not acquired to the specified IODefaultMode */
+  if (htsc->Init.IODefaultMode == TSC_IODEF_OUT_PP_LOW)
+  {
+    __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
+  }
+  else
+  {
+    __HAL_TSC_SET_IODEF_INFLOAT(htsc);
+  }
   
   /* Launch the acquisition */
   __HAL_TSC_START_ACQ(htsc);
@@ -422,6 +439,9 @@ HAL_StatusTypeDef HAL_TSC_Stop(TSC_HandleTypeDef* htsc)
   /* Stop the acquisition */
   __HAL_TSC_STOP_ACQ(htsc);
 
+  /* Set touch sensing IOs in low power mode (output push-pull) */
+  __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
+  
   /* Clear flags */
   __HAL_TSC_CLEAR_FLAG(htsc, (TSC_FLAG_EOA | TSC_FLAG_MCE));
   
@@ -451,6 +471,9 @@ HAL_StatusTypeDef HAL_TSC_Stop_IT(TSC_HandleTypeDef* htsc)
   
   /* Stop the acquisition */
   __HAL_TSC_STOP_ACQ(htsc);
+  
+  /* Set touch sensing IOs in low power mode (output push-pull) */
+  __HAL_TSC_SET_IODEF_OUTPPLOW(htsc);
   
   /* Disable interrupts */
   __HAL_TSC_DISABLE_IT(htsc, (TSC_IT_EOA | TSC_IT_MCE));
@@ -725,6 +748,9 @@ void HAL_TSC_IRQHandler(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_ConvCpltCallback could be implemented in the user file.
    */
@@ -738,6 +764,9 @@ __weak void HAL_TSC_ConvCpltCallback(TSC_HandleTypeDef* htsc)
   */
 __weak void HAL_TSC_ErrorCallback(TSC_HandleTypeDef* htsc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htsc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_TSC_ErrorCallback could be implemented in the user file.
    */

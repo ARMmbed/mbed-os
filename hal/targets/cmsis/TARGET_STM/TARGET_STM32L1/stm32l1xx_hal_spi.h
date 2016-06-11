@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -119,21 +119,6 @@ typedef enum
 }HAL_SPI_StateTypeDef;
 
 /** 
-  * @brief  HAL SPI Error Code structure definition  
-  */ 
-typedef enum
-{
-  HAL_SPI_ERROR_NONE      = 0x00,    /*!< No error             */
-  HAL_SPI_ERROR_MODF      = 0x01,    /*!< MODF error           */
-  HAL_SPI_ERROR_CRC       = 0x02,    /*!< CRC error            */
-  HAL_SPI_ERROR_OVR       = 0x04,    /*!< OVR error            */
-  HAL_SPI_ERROR_FRE       = 0x08,    /*!< FRE error            */
-  HAL_SPI_ERROR_DMA       = 0x10,    /*!< DMA transfer error   */
-  HAL_SPI_ERROR_FLAG      = 0x20     /*!< Flag: RXNE,TXE, BSY  */
-
-}HAL_SPI_ErrorTypeDef;
-
-/** 
   * @brief  SPI handle Structure definition
   */
 typedef struct __SPI_HandleTypeDef
@@ -166,7 +151,7 @@ typedef struct __SPI_HandleTypeDef
 
   __IO HAL_SPI_StateTypeDef  State;        /* SPI communication state */
 
-  __IO HAL_SPI_ErrorTypeDef  ErrorCode;         /* SPI Error code */
+  __IO uint32_t              ErrorCode;         /* SPI Error code */
 
 }SPI_HandleTypeDef;
 /**
@@ -178,6 +163,21 @@ typedef struct __SPI_HandleTypeDef
 
 /** @defgroup SPI_Exported_Constants SPI Exported Constants
   * @{
+  */
+
+/** @defgroup SPI_Error_Codes SPI Error Codes
+  * @{
+  */ 
+#define HAL_SPI_ERROR_NONE      ((uint32_t)0x00)    /*!< No error             */
+#define HAL_SPI_ERROR_MODF      ((uint32_t)0x01)    /*!< MODF error           */
+#define HAL_SPI_ERROR_CRC       ((uint32_t)0x02)    /*!< CRC error            */
+#define HAL_SPI_ERROR_OVR       ((uint32_t)0x04)    /*!< OVR error            */
+#define HAL_SPI_ERROR_FRE       ((uint32_t)0x08)    /*!< FRE error            */
+#define HAL_SPI_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error   */
+#define HAL_SPI_ERROR_FLAG      ((uint32_t)0x20)    /*!< Flag: RXNE,TXE, BSY  */
+
+/**
+  * @}
   */
 
 /** @defgroup SPI_mode SPI mode
@@ -301,11 +301,11 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_CRC_Calculation SPI CRC Calculation
   * @{
   */
-#define SPI_CRCCALCULATION_DISABLED     ((uint32_t)0x00000000)
-#define SPI_CRCCALCULATION_ENABLED      SPI_CR1_CRCEN
+#define SPI_CRCCALCULATION_DISABLE     ((uint32_t)0x00000000)
+#define SPI_CRCCALCULATION_ENABLE      SPI_CR1_CRCEN
 
-#define IS_SPI_CRC_CALCULATION(CALCULATION) (((CALCULATION) == SPI_CRCCALCULATION_DISABLED) || \
-                                             ((CALCULATION) == SPI_CRCCALCULATION_ENABLED))
+#define IS_SPI_CRC_CALCULATION(CALCULATION) (((CALCULATION) == SPI_CRCCALCULATION_DISABLE) || \
+                                             ((CALCULATION) == SPI_CRCCALCULATION_ENABLE))
 
 #define IS_SPI_CRC_POLYNOMIAL(POLYNOMIAL) (((POLYNOMIAL) >= 0x1) && ((POLYNOMIAL) <= 0xFFFF))
 /**
@@ -407,23 +407,38 @@ typedef struct __SPI_HandleTypeDef
   *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral. 
   * @retval None
   */
-#define __HAL_SPI_CLEAR_MODFFLAG(__HANDLE__) do{(__HANDLE__)->Instance->SR;\
-                                                CLEAR_BIT((__HANDLE__)->Instance->CR1, SPI_CR1_SPE);}while(0) 
+#define __HAL_SPI_CLEAR_MODFFLAG(__HANDLE__)                      \
+  do{                                                             \
+    __IO uint32_t tmpreg;                                         \
+    tmpreg = (__HANDLE__)->Instance->SR;                          \
+    CLEAR_BIT((__HANDLE__)->Instance->CR1, SPI_CR1_SPE);          \
+    UNUSED(tmpreg);                                               \
+  }while(0) 
 
 /** @brief  Clear the SPI OVR pending flag.
   * @param  __HANDLE__: specifies the SPI handle.
   *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral. 
   * @retval None
   */
-#define __HAL_SPI_CLEAR_OVRFLAG(__HANDLE__) do{(__HANDLE__)->Instance->DR;\
-                                               (__HANDLE__)->Instance->SR;}while(0) 
+#define __HAL_SPI_CLEAR_OVRFLAG(__HANDLE__)                \
+  do{                                                      \
+    __IO uint32_t tmpreg;                                  \
+    tmpreg = (__HANDLE__)->Instance->DR;                   \
+    tmpreg = (__HANDLE__)->Instance->SR;                   \
+    UNUSED(tmpreg);                                        \
+  }while(0)  
 
 /** @brief  Clear the SPI FRE pending flag.
   * @param  __HANDLE__: specifies the SPI handle.
   *         This parameter can be SPI where x: 1, 2, or 3 to select the SPI peripheral.
   * @retval None
   */
-#define __HAL_SPI_CLEAR_FREFLAG(__HANDLE__) ((__HANDLE__)->Instance->SR)
+#define __HAL_SPI_CLEAR_FREFLAG(__HANDLE__)                \
+  do{                                                      \
+    __IO uint32_t tmpreg;                                  \
+    tmpreg = (__HANDLE__)->Instance->SR;                   \
+    UNUSED(tmpreg);                                        \
+  }while(0)  
 
 /** @brief  Enables the SPI.
   * @param  __HANDLE__: specifies the SPI Handle.
@@ -528,7 +543,7 @@ void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi);
   * @{
   */
 HAL_SPI_StateTypeDef HAL_SPI_GetState(SPI_HandleTypeDef *hspi);
-HAL_SPI_ErrorTypeDef HAL_SPI_GetError(SPI_HandleTypeDef *hspi);
+uint32_t             HAL_SPI_GetError(SPI_HandleTypeDef *hspi);
 
 /**
   * @}

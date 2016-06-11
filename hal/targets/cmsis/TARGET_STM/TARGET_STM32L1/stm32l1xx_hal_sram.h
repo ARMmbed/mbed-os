@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_sram.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of SRAM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,18 +50,17 @@
   * @{
   */
 
+#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
+
 /** @addtogroup SRAM
   * @{
   */ 
 
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
-
 /* Exported typedef ----------------------------------------------------------*/
 
-/** @defgroup SRAM_Exported_typedef SRAM Exported typedef
+/** @defgroup SRAM_Exported_Types SRAM Exported Types
   * @{
   */ 
-
 /** 
   * @brief  HAL SRAM State structures definition  
   */ 
@@ -80,9 +79,9 @@ typedef enum
   */ 
 typedef struct
 {
-  FSMC_NORSRAM_TYPEDEF           *Instance;  /*!< Register base address                        */ 
+  FSMC_NORSRAM_TypeDef           *Instance;  /*!< Register base address                        */ 
   
-  FSMC_NORSRAM_EXTENDED_TYPEDEF  *Extended;  /*!< Extended mode register base address          */
+  FSMC_NORSRAM_EXTENDED_TypeDef  *Extended;  /*!< Extended mode register base address          */
   
   FSMC_NORSRAM_InitTypeDef       Init;       /*!< SRAM device control configuration parameters */
 
@@ -101,7 +100,7 @@ typedef struct
 /* Exported constants --------------------------------------------------------*/ 
 /* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup SRAM_Exported_macro SRAM Exported macro
+/** @defgroup SRAM_Exported_Macros SRAM Exported Macros
   * @{
   */ 
 
@@ -183,11 +182,11 @@ HAL_SRAM_StateTypeDef HAL_SRAM_GetState(SRAM_HandleTypeDef *hsram);
   * @}
   */ 
 
-#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
-
 /**
   * @}
   */ 
+
+#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
 
 /**
   * @}

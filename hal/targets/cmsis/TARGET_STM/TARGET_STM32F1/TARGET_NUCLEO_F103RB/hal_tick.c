@@ -43,9 +43,10 @@ void set_compare(uint16_t count);
 extern volatile uint32_t SlaveCounter;
 extern volatile uint32_t oc_int_part;
 extern volatile uint16_t oc_rem_part;
+extern volatile uint16_t cnt_val;
 
 void timer_irq_handler(void) {
-    uint16_t cval = TIM_MST->CNT;
+    cnt_val = TIM_MST->CNT;
 
     TimMasterHandle.Instance = TIM_MST;
 
@@ -64,7 +65,7 @@ void timer_irq_handler(void) {
         } else {
             if (oc_int_part > 0) {
                 set_compare(0xFFFF);
-                oc_rem_part = cval; // To finish the counter loop the next time
+                oc_rem_part = cnt_val; // To finish the counter loop the next time
                 oc_int_part--;
             } else {
                 us_ticker_irq_handler();

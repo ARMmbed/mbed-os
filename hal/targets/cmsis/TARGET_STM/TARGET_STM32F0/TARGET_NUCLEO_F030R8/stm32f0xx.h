@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx.h
   * @author  MCD Application Team
-  * @version V2.2.2
-  * @date    26-June-2015
+  * @version V2.2.3
+  * @date    29-January-2016
   * @brief   CMSIS STM32F0xx Device Peripheral Access Layer Header File.           
   *            
   *          The file is the unique include file that the application programmer
@@ -18,7 +18,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -95,7 +95,7 @@
   /* #define STM32F072xB */  /*!< STM32F072x8, STM32F072xB Devices (STM32F072xx microcontrollers where the Flash memory ranges between 64 and 128 Kbytes)             */
   /* #define STM32F078xx */  /*!< STM32F078xx Devices (STM32F078xx microcontrollers where the Flash memory is 128 Kbytes)                                             */
   /* #define STM32F030xC */  /*!< STM32F030xC Devices (STM32F030xC microcontrollers where the Flash memory is 256 Kbytes)                                             */  
-  /* #define STM32F091xC */  /*!< STM32F091xC Devices (STM32F091xx microcontrollers where the Flash memory is 256 Kbytes)                                             */
+  /* #define STM32F091xC */  /*!< STM32F091xB, STM32F091xC Devices (STM32F091xx microcontrollers where the Flash memory ranges between 128 and 256 Kbytes)            */
   /* #define STM32F098xx */  /*!< STM32F098xx Devices (STM32F098xx microcontrollers where the Flash memory is 256 Kbytes)                                             */
 #endif
    
@@ -112,16 +112,16 @@
 #endif /* USE_HAL_DRIVER */
 
 /**
-  * @brief CMSIS Device version number V2.2.2
+  * @brief CMSIS Device version number V2.2.3
   */
-#define __STM32F0xx_CMSIS_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */
-#define __STM32F0xx_CMSIS_DEVICE_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
-#define __STM32F0xx_CMSIS_DEVICE_VERSION_SUB2   (0x02) /*!< [15:8]  sub2 version */
-#define __STM32F0xx_CMSIS_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
-#define __STM32F0xx_CMSIS_DEVICE_VERSION        ((__CMSIS_DEVICE_VERSION_MAIN     << 24)\
-                                                |(__CMSIS_DEVICE_HAL_VERSION_SUB1 << 16)\
-                                                |(__CMSIS_DEVICE_HAL_VERSION_SUB2 << 8 )\
-                                                |(__CMSIS_DEVICE_HAL_VERSION_RC))
+#define __STM32F0_DEVICE_VERSION_MAIN   (0x02) /*!< [31:24] main version */
+#define __STM32F0_DEVICE_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
+#define __STM32F0_DEVICE_VERSION_SUB2   (0x03) /*!< [15:8]  sub2 version */
+#define __STM32F0_DEVICE_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
+#define __STM32F0_DEVICE_VERSION        ((__STM32F0_DEVICE_VERSION_MAIN << 24)\
+                                        |(__STM32F0_DEVICE_VERSION_SUB1 << 16)\
+                                        |(__STM32F0_DEVICE_VERSION_SUB2 << 8 )\
+                                        |(__STM32F0_DEVICE_VERSION_RC))
                                              
 /**
   * @}

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_opamp_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Extended OPAMP HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the operational amplifier(s)(OPAMP1, OPAMP2 etc)
@@ -15,7 +15,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -67,6 +67,8 @@
   * @{
   */
 
+#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+
 /** @addtogroup OPAMPEx_Exported_Functions_Group1
   * @brief    Extended operation functions
   *
@@ -83,6 +85,7 @@
 
 /*  2 OPAMPS available */
 /*  2 OPAMPS can be calibrated in parallel */
+/*  Not available on STM32L43x/STM32L44x where only one OPAMP available */
 
 /**
   * @brief  Run the self calibration of the 2 OPAMPs in parallel.
@@ -113,6 +116,8 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
   __IO uint32_t* tmp_opamp2_reg_trimming;
 
   uint32_t delta;
+  uint32_t opampmode1;
+  uint32_t opampmode2;
   
   if((hopamp1 == NULL) || (hopamp1->State == HAL_OPAMP_STATE_BUSYLOCKED) || \
      (hopamp2 == NULL) || (hopamp2->State == HAL_OPAMP_STATE_BUSYLOCKED)) 
@@ -131,6 +136,16 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       assert_param(IS_OPAMP_POWERMODE(hopamp1->Init.PowerMode));
       assert_param(IS_OPAMP_POWERMODE(hopamp2->Init.PowerMode));
 
+      /* Save OPAMP mode as in                                       */
+      /* STM32L471xx STM32L475xx STM32L476xx STM32L485xx STM32L486xx */
+      /* the calibration is not working in PGA mode                  */
+      opampmode1 = READ_BIT(hopamp1->Instance->CSR,OPAMP_CSR_OPAMODE);
+      opampmode2 = READ_BIT(hopamp2->Instance->CSR,OPAMP_CSR_OPAMODE);
+
+      /* Use of standalone mode */ 
+      MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_OPAMODE, OPAMP_STANDALONE_MODE); 
+      MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_OPAMODE, OPAMP_STANDALONE_MODE); 
+      
       /*  user trimming values are used for offset calibration */
       SET_BIT(hopamp1->Instance->CSR, OPAMP_CSR_USERTRIM);
       SET_BIT(hopamp2->Instance->CSR, OPAMP_CSR_USERTRIM);
@@ -356,8 +371,10 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
       hopamp1->State = HAL_OPAMP_STATE_READY;
       hopamp2->State = HAL_OPAMP_STATE_READY;
 
+      /* Restore OPAMP mode after calibration */
+      MODIFY_REG(hopamp1->Instance->CSR, OPAMP_CSR_OPAMODE, opampmode1);
+      MODIFY_REG(hopamp2->Instance->CSR, OPAMP_CSR_OPAMODE, opampmode2);
     }
-
     else
     {
       /* At least one OPAMP can not be calibrated */ 
@@ -370,6 +387,8 @@ HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPA
 /**
   * @}
   */
+
+#endif
 
 /** @defgroup OPAMPEx_Exported_Functions_Group2 Peripheral Control functions 
  *  @brief   Peripheral Control functions 

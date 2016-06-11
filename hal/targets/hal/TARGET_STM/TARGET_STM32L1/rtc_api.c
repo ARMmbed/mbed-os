@@ -193,6 +193,8 @@ time_t rtc_read(void)
     timeinfo.tm_hour = timeStruct.Hours;
     timeinfo.tm_min  = timeStruct.Minutes;
     timeinfo.tm_sec  = timeStruct.Seconds;
+    // Daylight Saving Time information is not available
+    timeinfo.tm_isdst = -1;
 
     // Convert to timestamp
     time_t t = mktime(&timeinfo);

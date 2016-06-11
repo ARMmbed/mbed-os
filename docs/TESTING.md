@@ -6,7 +6,7 @@ Test suit allows users to run locally on their machines Mbed SDK’s tests inclu
 Each test is supervised by python script called “host test” which will at least Test suite is using build script API to compile and build test source together with required by test libraries like CMSIS, Mbed, Ethernet, USB etc.
 
 ## What is host test?
-Test suite supports test supervisor concept. This concept is realized by separate Python script called ```host test```. Host tests can be found in ```mbed/workspace_tools/host_tests/``` directory. Note: In newer mbed versions (mbed OS) host tests will be separate library.
+Test suite supports test supervisor concept. This concept is realized by separate Python script called ```host test```. Host tests can be found in ```mbed/tools/host_tests/``` directory. Note: In newer mbed versions (mbed OS) host tests will be separate library.
 
 Host test script is executed in parallel with test runner to monitor test execution. Basic host test just monitors device's default serial port for test results returned by test runner. Simple tests will print test result on serial port. In other cases host tests can for example judge by test results returned by test runner if test passed or failed. It all depends on test itself.
 
@@ -14,7 +14,7 @@ In some cases host test can be TCP server echoing packets from test runner and j
 
 ## Test suite core: singletest.py script
 
-```singletest.py``` script located in ```mbed/workspace_tools/``` is a test suite script which allows users to compile, build tests and test runners (also supports CppUTest unit test library). Script also is responsible for test execution on devices selected by configuration files.
+```singletest.py``` script located in ```mbed/tools/``` is a test suite script which allows users to compile, build tests and test runners (also supports CppUTest unit test library). Script also is responsible for test execution on devices selected by configuration files.
 
 ### Parameters of singletest.py
 
@@ -37,7 +37,7 @@ After connecting boards to our host machine (PC) we can check which serial ports
 * ```NUCLEO_F103RB``` serial port is on ```COM11``` and disk drive is ```I:```. 
 If you are working under Linux your port and disk could look like /dev/ttyACM5 and /media/usb5.
 
-This information is needed to create ```muts_all.json``` configuration file. You can create it in ```mbed/workspace_tools/``` directory:
+This information is needed to create ```muts_all.json``` configuration file. You can create it in ```mbed/tools/``` directory:
 ```
 $ touch muts_all.json
 ```
@@ -67,8 +67,8 @@ Its name will be passed to ```singletest.py``` script after ```-M``` (MUTs speci
 
 Note: We will leave field ```peripherals``` empty for the sake of this example. We will explain it later. All you need to do now is to properly fill fields ```mcu```, ```port``` and ```disk```. 
 
-Note: Please make sure files muts_all.json and test_spec.json are in workspace_tools/ directory. We will assume in this example they are.
-Where to find ```mcu``` names? You can use option ```-S``` of ```build.py``` script (in ```mbed/workspace_tools/``` directory) to check all supported off-line MCUs names.
+Note: Please make sure files muts_all.json and test_spec.json are in tools/ directory. We will assume in this example they are.
+Where to find ```mcu``` names? You can use option ```-S``` of ```build.py``` script (in ```mbed/tools/``` directory) to check all supported off-line MCUs names.
 
 Note: If you update mbed device firmware or even disconnect / reconnect mbed device you may find that serial port / disk configuration changed. You need to update configuration file accordingly or you will face connection problems and obviously tests will not run.
 
@@ -172,9 +172,9 @@ For our example purposes let's assume we only have Keil ARM compiler, so let's c
 ```
 #### Run your tests
 
-After you configure all your MUTs and compilers you are ready to run tests. Make sure your devices are connected and your configuration files reflect your current configuration (serial ports, devices). Go to workspace_tools directory in your mbed location.
+After you configure all your MUTs and compilers you are ready to run tests. Make sure your devices are connected and your configuration files reflect your current configuration (serial ports, devices). Go to tools directory in your mbed location.
 ```
-$ cd workspace_tools/
+$ cd tools/
 ```
 and execute test suite script.
 ```
@@ -244,7 +244,7 @@ In below example we would like to have all test binaries called ```firmware.bin`
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json --firmware-name firmware
 ```
-* Where to find test list? Tests are defined in file ```tests.py``` in ```mbed/workspace_tools/``` directory. ```singletest.py``` uses test metadata in ```tests.py``` to resolve libraries dependencies and build tests for proper platforms and peripherals. Option ```-R``` can be used to get test names and direct path and test configuration.
+* Where to find test list? Tests are defined in file ```tests.py``` in ```mbed/tools/``` directory. ```singletest.py``` uses test metadata in ```tests.py``` to resolve libraries dependencies and build tests for proper platforms and peripherals. Option ```-R``` can be used to get test names and direct path and test configuration.
 ```
 $ python singletest.py -R
 +-------------+-----------+---------------------------------------+--------------+-------------------+----------+--------------------------------------------------------+
@@ -344,7 +344,7 @@ test_spec.json:
 ```
 Note: 
 * Please make sure device is connected before we will start running tests.
-* Please make sure files ```muts_all.json``` and ```test_spec.json``` are in ```mbed/workspace_tools/``` directory.
+* Please make sure files ```muts_all.json``` and ```test_spec.json``` are in ```mbed/tools/``` directory.
 Now you can call test suite and execute tests:
 ```
 $ python singletest.py -i test_spec.json -M muts_all.json
@@ -451,7 +451,7 @@ We want to create directory structure similar to one below:
 └───mbed
     ├───libraries
     ├───travis
-    └───workspace_tools
+    └───tools
 ```
 
 Please go to directory with your project. For example it could be c:\Projects\Project.
@@ -492,7 +492,7 @@ $ git clone https://github.com/mbedmicro/mbed.git
 $ hg clone https://mbed.org/users/rgrover1/code/cpputest/
 ```
 
-After above three steps you should have proper directory structure. All you need to do now is to configure your ```private_settings.py``` in ```mbed/workspace_tools/``` directory. Please refer to mbed SDK build script documentation for details.
+After above three steps you should have proper directory structure. All you need to do now is to configure your ```mbed_settings.py``` in ```mbed``` directory. Please refer to mbed SDK build script documentation for details.
 
 ## CppUTest with mbed port 
 To make sure you actualy have CppUTest library with mbed SDK port you can go to CppUTest ```armcc``` platform directory:
@@ -577,7 +577,7 @@ utest
 ```
 
 ## Define unit tests in mbed SDK test suite structure
-All tests defined in test suite are described in ```mbed/workspace_tools/tests.py``` file. This file stores data structure ```TESTS``` which is a list of simple structures describing each test. Below you can find example of ```TESTS``` structure which is configuring one of the unit tests.
+All tests defined in test suite are described in ```mbed/tools/tests.py``` file. This file stores data structure ```TESTS``` which is a list of simple structures describing each test. Below you can find example of ```TESTS``` structure which is configuring one of the unit tests.
 ```
 .
 .
