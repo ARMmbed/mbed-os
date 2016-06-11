@@ -16,17 +16,17 @@
  */
 
 #include "mbed.h"
+#include "critical.h"
 #include "utest/utest.h"
 
 using namespace utest::v1;
 
 void utest_v1_enter_critical_section(void)
 {
-    // will replaced by CriticalSectionLock
-    __disable_irq();
+    core_util_critical_section_enter();
 }
 
 void utest_v1_leave_critical_section(void)
 {
-    __enable_irq();
+    core_util_critical_section_exit();
 }
