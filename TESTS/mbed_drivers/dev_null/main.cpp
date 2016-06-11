@@ -44,5 +44,8 @@ int main() {
         printf("{{to_null;printf redirected to /null}}\n");
         printf("MBED: this printf is already redirected to /null\n");
     }
-    GREENTEA_TESTSUITE_RESULT(false);
+
+    while(1) {
+      // Success is determined by the host test at this point, so busy wait
+    }
 }
