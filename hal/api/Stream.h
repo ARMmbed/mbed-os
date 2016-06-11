@@ -26,6 +26,10 @@ extern void mbed_set_unbuffered_stream(FILE *_file);
 extern int mbed_getc(FILE *_file);
 extern char* mbed_gets(char *s, int size, FILE *_file);
 
+/** File stream
+ *
+ * @Note Synchronization level: Set by subclass
+ */
 class Stream : public FileLike {
 
 public:

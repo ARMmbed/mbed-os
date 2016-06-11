@@ -31,6 +31,8 @@ namespace mbed {
  * Can be used for Full Duplex communication, or Simplex by specifying
  * one pin as NC (Not Connected)
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example:
  * @code
  * // Print "Hello World" to the PC
@@ -65,6 +67,10 @@ public:
 protected:
     virtual int _getc();
     virtual int _putc(int c);
+    virtual void lock();
+    virtual void unlock();
+
+    PlatformMutex _mutex;
 };
 
 } // namespace mbed

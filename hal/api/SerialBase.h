@@ -33,6 +33,8 @@ namespace mbed {
 
 /** A base class for serial port implementations
  * Can't be instantiated directly (use Serial or RawSerial)
+ *
+ * @Note Synchronization level: Set by subclass
  */
 class SerialBase {
 
@@ -119,6 +121,18 @@ public:
     /** Generate a break condition on the serial line
      */
     void send_break();
+
+protected:
+
+    /** Acquire exclusive access to this serial port
+     */
+    virtual void lock(void);
+
+    /** Release exclusive access to this serial port
+     */
+    virtual void unlock(void);
+
+public:
 
 #if DEVICE_SERIAL_FC
     /** Set the flow control type on the serial port
