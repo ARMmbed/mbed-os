@@ -226,6 +226,11 @@ class Config:
                 for attr in Target._Target__cumulative_attributes:
                     attrs = getattr(self.target_instance, attr)
 
+                    if attr in overrides:
+                        del attrs[:]
+                        attrs.extend(overrides[attr])
+                        del overrides[attr]
+
                     if attr+'_add' in overrides:
                         attrs.extend(overrides[attr+'_add'])
                         del overrides[attr+'_add']
