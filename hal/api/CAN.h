@@ -27,6 +27,8 @@
 namespace mbed {
 
 /** CANMessage class
+ *
+ * @Note Synchronization level: Thread safe
  */
 class CANMessage : public CAN_Message {
 
@@ -220,6 +222,7 @@ public:
     */
     template<typename T>
     void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
+        // Underlying call thread safe
         attach(Callback<void()>(obj, method), type);
     }
 
@@ -232,14 +235,18 @@ public:
     */
     template<typename T>
     void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {
+        // Underlying call thread safe
         attach(Callback<void()>(obj, method), type);
     }
 
     static void _irq_handler(uint32_t id, CanIrqType type);
 
 protected:
+    virtual void lock();
+    virtual void unlock();
     can_t               _can;
     Callback<void()>    _irq[9];
+    rtos::Mutex         _mutex;
 };
 
 } // namespace mbed

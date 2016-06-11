@@ -21,6 +21,8 @@
 namespace mbed {
 
 /** A digital input output bus, used for setting the state of a collection of pins
+ *
+ * @Note Synchronization level: Thread safe
  */
 class BusInOut {
 
@@ -79,6 +81,7 @@ public:
      *    Binary mask of connected pins
      */
     int mask() {
+        // No lock needed since _nc_mask is not modified outside the constructor
         return _nc_mask;
     }
 
@@ -98,6 +101,8 @@ public:
 #endif
 
 protected:
+    virtual void lock();
+    virtual void unlock();
     DigitalInOut* _pin[16];
 
     /** Mask of bus's NC pins
@@ -105,6 +110,8 @@ protected:
      * if bit[n] is cleared - pin is not connected (NC)
      */
     int _nc_mask;
+
+    rtos::Mutex _mutex;
 
     /* disallow copy constructor and assignment operators */
 private:

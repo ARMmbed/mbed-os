@@ -23,23 +23,29 @@ InterruptIn::InterruptIn(PinName pin) : gpio(),
                                         gpio_irq(),
                                         _rise(),
                                         _fall() {
+    // No lock needed in the constructor
     gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
     gpio_init_in(&gpio, pin);
 }
 
 InterruptIn::~InterruptIn() {
+    // No lock needed in the destructor
     gpio_irq_free(&gpio_irq);
 }
 
 int InterruptIn::read() {
+    // Read only
     return gpio_read(&gpio);
 }
 
 void InterruptIn::mode(PinMode pull) {
+    core_util_critical_section_enter();
     gpio_mode(&gpio, pull);
+    core_util_critical_section_exit();
 }
 
 void InterruptIn::rise(Callback<void()> func) {
+    core_util_critical_section_enter();
     if (func) {
         _rise.attach(func);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
@@ -47,9 +53,11 @@ void InterruptIn::rise(Callback<void()> func) {
         _rise.attach(NULL);
         gpio_irq_set(&gpio_irq, IRQ_RISE, 0);
     }
+    core_util_critical_section_exit();
 }
 
 void InterruptIn::fall(Callback<void()> func) {
+    core_util_critical_section_enter();
     if (func) {
         _fall.attach(func);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
@@ -57,6 +65,7 @@ void InterruptIn::fall(Callback<void()> func) {
         _fall.attach(NULL);
         gpio_irq_set(&gpio_irq, IRQ_FALL, 0);
     }
+    core_util_critical_section_exit();
 }
 
 void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event) {
@@ -69,15 +78,20 @@ void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event) {
 }
 
 void InterruptIn::enable_irq() {
+    core_util_critical_section_enter();
     gpio_irq_enable(&gpio_irq);
+    core_util_critical_section_exit();
 }
 
 void InterruptIn::disable_irq() {
+    core_util_critical_section_enter();
     gpio_irq_disable(&gpio_irq);
+    core_util_critical_section_exit();
 }
 
 #ifdef MBED_OPERATORS
 InterruptIn::operator int() {
+    // Underlying call is atomic
     return read();
 }
 #endif

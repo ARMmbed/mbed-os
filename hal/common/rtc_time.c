@@ -42,6 +42,7 @@ time_t time(time_t *timer)
 #endif
 
 {
+    core_util_critical_section_enter();
     if (_rtc_isenabled != NULL) {
         if (!(_rtc_isenabled())) {
             set_time(0);
@@ -56,21 +57,26 @@ time_t time(time_t *timer)
     if (timer != NULL) {
         *timer = t;
     }
+    core_util_critical_section_exit();
     return t;
 }
 
 void set_time(time_t t) {
+    core_util_critical_section_enter();
     if (_rtc_init != NULL) {
         _rtc_init();
     }
     if (_rtc_write != NULL) {
         _rtc_write(t);
     }
+    core_util_critical_section_exit();
 }
 
 clock_t clock() {
+    core_util_critical_section_enter();
     clock_t t = us_ticker_read();
     t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
+    core_util_critical_section_exit();
     return t;
 }
 

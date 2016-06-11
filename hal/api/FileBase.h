@@ -62,15 +62,15 @@ public:
 
     static FileBase *get(int n);
 
+    /* disallow copy constructor and assignment operators */
 protected:
     static FileBase *_head;
-
     FileBase   *_next;
-    const char *_name;
-    PathType    _path_type;
+    const char * const _name;
+    const PathType _path_type;
 
-    /* disallow copy constructor and assignment operators */
 private:
+    static rtos::Mutex _mutex;
     FileBase(const FileBase&);
     FileBase & operator = (const FileBase&);
 };

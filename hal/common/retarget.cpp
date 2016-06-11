@@ -50,6 +50,8 @@
 #   define PREFIX(x)    x
 #endif
 
+#define FILE_HANDLE_RESERVED    0xFFFFFFFF
+
 using namespace mbed;
 
 #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
@@ -70,14 +72,17 @@ extern const char __stderr_name[] = "/stderr";
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileHandle *filehandles[OPEN_MAX];
+static rtos::Mutex filehandle_mutex;
 
 FileHandle::~FileHandle() {
+    filehandle_mutex.lock();
     /* Remove all open filehandles for this */
     for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == this) {
             filehandles[fh_i] = NULL;
         }
     }
+    filehandle_mutex.unlock();
 }
 
 #if DEVICE_SERIAL
@@ -150,13 +155,17 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #endif
 
     // find the first empty slot in filehandles
+    filehandle_mutex.lock();
     unsigned int fh_i;
     for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == NULL) break;
     }
     if (fh_i >= sizeof(filehandles)/sizeof(*filehandles)) {
+        filehandle_mutex.unlock();
         return -1;
     }
+    filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
+    filehandle_mutex.unlock();
 
     FileHandle *res;
 
@@ -170,19 +179,29 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     } else {
         FilePath path(name);
 
-        if (!path.exists())
+        if (!path.exists()) {
+            // Free file handle
+            filehandles[fh_i] = NULL;
             return -1;
-        else if (path.isFile()) {
+        } else if (path.isFile()) {
             res = path.file();
         } else {
             FileSystemLike *fs = path.fileSystem();
-            if (fs == NULL) return -1;
+            if (fs == NULL) {
+                // Free file handle
+                filehandles[fh_i] = NULL;
+                return -1;
+            }
             int posix_mode = openmode_to_posix(openmode);
             res = fs->open(path.fileName(), posix_mode); /* NULL if fails */
         }
     }
 
-    if (res == NULL) return -1;
+    if (res == NULL) {
+        // Free file handle
+        filehandles[fh_i] = NULL;
+        return -1;
+    }
     filehandles[fh_i] = res;
 
     return fh_i + 3; // +3 as filehandles 0-2 are stdin/out/err

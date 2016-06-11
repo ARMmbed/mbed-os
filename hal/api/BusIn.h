@@ -22,6 +22,8 @@
 namespace mbed {
 
 /** A digital input bus, used for reading the state of a collection of pins
+ *
+ * @Note Synchronization level: Thread safe
  */
 class BusIn {
 
@@ -65,6 +67,7 @@ public:
      *    Binary mask of connected pins
      */
     int mask() {
+        // No lock needed since _nc_mask is not modified outside the constructor
         return _nc_mask;
     }
 
@@ -87,8 +90,12 @@ protected:
      */
     int _nc_mask;
 
+    rtos::Mutex _mutex;
+
     /* disallow copy constructor and assignment operators */
 private:
+    virtual void lock();
+    virtual void unlock();
     BusIn(const BusIn&);
     BusIn & operator = (const BusIn&);
 };

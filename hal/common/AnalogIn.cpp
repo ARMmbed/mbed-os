@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed_assert.h"
-#include "device.h"
 
-#include "mbed_interface.h"
-#include "critical.h"
+#include "mbed.h"
 
-void mbed_assert_internal(const char *expr, const char *file, int line)
-{
-    core_util_critical_section_enter();
-    mbed_error_printf("mbed assertation failed: %s, file: %s, line %d \n", expr, file, line);
-    mbed_die();
-}
+#include "AnalogIn.h"
+
+#if DEVICE_ANALOGIN
+
+namespace mbed {
+
+rtos::Mutex AnalogIn::_mutex;
+
+};
+
+#endif

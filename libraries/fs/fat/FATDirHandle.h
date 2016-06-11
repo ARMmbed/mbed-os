@@ -36,6 +36,9 @@ class FATDirHandle : public DirHandle {
     virtual off_t telldir();
     virtual void seekdir(off_t location);
 
+protected:
+    virtual void lock();
+    virtual void unlock();
  private:
     FATFS_DIR dir;
     struct dirent cur_entry;

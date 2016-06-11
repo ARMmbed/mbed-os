@@ -2,6 +2,7 @@
 #if defined(NVIC_NUM_VECTORS)
 
 #include "InterruptManager.h"
+#include "critical.h"
 #include <string.h>
 
 #define CHAIN_INITIAL_SIZE    4
@@ -13,12 +14,28 @@ typedef void (*pvoidf)(void);
 InterruptManager* InterruptManager::_instance = (InterruptManager*)NULL;
 
 InterruptManager* InterruptManager::get() {
-    if (NULL == _instance)
-        _instance = new InterruptManager();
+
+    if (NULL == _instance) {
+        InterruptManager* temp = new InterruptManager();
+
+        // Atomically set _instance
+        core_util_critical_section_enter();
+        if (NULL == _instance) {
+            _instance = temp;
+        }
+        core_util_critical_section_exit();
+
+        // Another thread got there first so delete ours
+        if (temp != _instance) {
+            delete temp;
+        }
+
+    }
     return _instance;
 }
 
 InterruptManager::InterruptManager() {
+    // No mutex needed in constructor
     memset(_chains, 0, NVIC_NUM_VECTORS * sizeof(CallChain*));
 }
 
@@ -39,34 +56,44 @@ InterruptManager::~InterruptManager() {
 }
 
 bool InterruptManager::must_replace_vector(IRQn_Type irq) {
-    int irq_pos = get_irq_index(irq);
+    lock();
 
+    int ret = false;
+    int irq_pos = get_irq_index(irq);
     if (NULL == _chains[irq_pos]) {
         _chains[irq_pos] = new CallChain(CHAIN_INITIAL_SIZE);
         _chains[irq_pos]->add((pvoidf)NVIC_GetVector(irq));
-        return true;
+        ret = true;
     }
-    return false;
+    unlock();
+    return ret;
 }
 
 pFunctionPointer_t InterruptManager::add_common(void (*function)(void), IRQn_Type irq, bool front) {
+    lock();
     int irq_pos = get_irq_index(irq);
     bool change = must_replace_vector(irq);
 
     pFunctionPointer_t pf = front ? _chains[irq_pos]->add_front(function) : _chains[irq_pos]->add(function);
     if (change)
         NVIC_SetVector(irq, (uint32_t)&InterruptManager::static_irq_helper);
+    unlock();
     return pf;
 }
 
 bool InterruptManager::remove_handler(pFunctionPointer_t handler, IRQn_Type irq) {
     int irq_pos = get_irq_index(irq);
+    bool ret = false;
 
-    if (NULL == _chains[irq_pos])
-        return false;
-    if (!_chains[irq_pos]->remove(handler))
-        return false;
-    return true;
+    lock();
+    if (_chains[irq_pos] != NULL) {
+        if (_chains[irq_pos]->remove(handler)) {
+            ret = true;
+        }
+    }
+    unlock();
+
+    return ret;
 }
 
 void InterruptManager::irq_helper() {
@@ -74,11 +101,20 @@ void InterruptManager::irq_helper() {
 }
 
 int InterruptManager::get_irq_index(IRQn_Type irq) {
+    // Pure function - no lock needed
     return (int)irq + NVIC_USER_IRQ_OFFSET;
 }
 
 void InterruptManager::static_irq_helper() {
     InterruptManager::get()->irq_helper();
+}
+
+void InterruptManager::lock() {
+    _mutex.lock();
+}
+
+void InterruptManager::unlock() {
+    _mutex.unlock();
 }
 
 } // namespace mbed

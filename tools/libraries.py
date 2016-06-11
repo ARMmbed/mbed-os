@@ -26,12 +26,14 @@ LIBRARIES = [
         "source_dir": MBED_RTX,
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
+        "macros": ["MBED_CONF_RTOS_PRESENT=1"]
     },
     {
         "id": "rtos",
         "source_dir": RTOS_ABSTRACTION,
         "build_dir": RTOS_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, MBED_RTX],
+        "macros": ["MBED_CONF_RTOS_PRESENT=1"]
     },
 
     # RPC
@@ -56,6 +58,7 @@ LIBRARIES = [
         "source_dir": USB_HOST,
         "build_dir": USB_HOST_LIBRARIES,
         "dependencies": [MBED_LIBRARIES, FAT_FS, MBED_RTX, RTOS_ABSTRACTION],
+        "macros": ["MBED_CONF_RTOS_PRESENT=1"]
     },
 
     # DSP libraries
@@ -79,7 +82,8 @@ LIBRARIES = [
         "id": "eth",
         "source_dir": [ETH_SOURCES, LWIP_SOURCES],
         "build_dir": ETH_LIBRARY,
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES]
+        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES],
+        "macros": ["MBED_CONF_RTOS_PRESENT=1"]
     },
 
     {
@@ -87,6 +91,7 @@ LIBRARIES = [
         "source_dir": [UBLOX_SOURCES, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, LWIP_SOURCES],
         "build_dir": UBLOX_LIBRARY,
         "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES],
+        "macros": ["MBED_CONF_RTOS_PRESENT=1"]
     },
 
     # Unit Testing library

@@ -26,6 +26,8 @@ namespace mbed {
 
 /** An analog input, used for reading the voltage on a pin
  *
+ * @Note Synchronization level: Thread safe
+ *
  * Example:
  * @code
  * // Print messages when the AnalogIn is greater than 50%
@@ -53,7 +55,9 @@ public:
      * @param name (optional) A string to identify the object
      */
     AnalogIn(PinName pin) {
+        lock();
         analogin_init(&_adc, pin);
+        unlock();
     }
 
     /** Read the input voltage, represented as a float in the range [0.0, 1.0]
@@ -61,7 +65,10 @@ public:
      * @returns A floating-point value representing the current input voltage, measured as a percentage
      */
     float read() {
-        return analogin_read(&_adc);
+        lock();
+        float ret = analogin_read(&_adc);
+        unlock();
+        return ret;
     }
 
     /** Read the input voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
@@ -70,7 +77,10 @@ public:
      *   16-bit unsigned short representing the current input voltage, normalised to a 16-bit value
      */
     unsigned short read_u16() {
-        return analogin_read_u16(&_adc);
+        lock();
+        unsigned short ret = analogin_read_u16(&_adc);
+        unlock();
+        return ret;
     }
 
 #ifdef MBED_OPERATORS
@@ -88,12 +98,23 @@ public:
      * @endcode
      */
     operator float() {
+        // Underlying call is thread safe
         return read();
     }
 #endif
 
 protected:
+
+    virtual void lock() {
+        _mutex.lock();
+    }
+
+    virtual void unlock() {
+        _mutex.unlock();
+    }
+
     analogin_t _adc;
+    static rtos::Mutex _mutex;
 };
 
 } // namespace mbed
