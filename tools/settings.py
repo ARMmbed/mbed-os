@@ -18,25 +18,25 @@ import logging
 ROOT = abspath(join(dirname(__file__), ".."))
 
 # These default settings have two purposes:
-#    1) Give a template for writing local "private_settings.py"
+#    1) Give a template for writing local "mbed_settings.py"
 #    2) Give default initialization fields for the "toolchains.py" constructors
 
 ##############################################################################
 # Build System Settings
 ##############################################################################
-BUILD_DIR = abspath(join(ROOT, "build"))
+BUILD_DIR = abspath(join(ROOT, ".build"))
 
 # ARM
 armcc = "standalone" # "keil", or "standalone", or "ds-5"
 
 if armcc == "keil":
-    ARM_PATH = "C:/Keil_4_54/ARM"
-    ARM_BIN = join(ARM_PATH, "BIN40")
-    ARM_INC = join(ARM_PATH, "RV31", "INC")
-    ARM_LIB = join(ARM_PATH, "RV31", "LIB")
+    ARM_PATH = "C:/Keil_v5/ARM/ARMCC"
+    ARM_BIN = join(ARM_PATH, "bin")
+    ARM_INC = join(ARM_PATH, "incldue")
+    ARM_LIB = join(ARM_PATH, "lib")
 
 elif armcc == "standalone":
-    ARM_PATH = "C:/Program Files/ARM/armcc_4.1_791"
+    ARM_PATH = "C:/Program Files (x86)/ARM_Compiler_5.06u1"
     ARM_BIN = join(ARM_PATH, "bin")
     ARM_INC = join(ARM_PATH, "include")
     ARM_LIB = join(ARM_PATH, "lib")
@@ -57,9 +57,9 @@ GCC_ARM_PATH = ""
 GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
 
 # IAR
-IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.0/arm"
+IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.3/arm"
 
-# Goanna static analyser. Please overload it in private_settings.py
+# Goanna static analyser. Please overload it in mbed_settings.py
 GOANNA_PATH = "c:/Program Files (x86)/RedLizards/Goanna Central 3.2.3/bin"
 
 # cppcheck path (command) and output message format

@@ -77,6 +77,9 @@ if __name__ == '__main__':
                           default=None, help="Destination path for a test spec file that can be used by the Greentea automated test tool")
 
         parser.add_option("", "--build-report-junit", dest="build_report_junit", help="Output the build results to an junit xml file")
+        
+        parser.add_option("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
+                          default=False, help="Continue trying to build all tests if a build failure occurs")
 
         options, args = parser.parse_args()
         
@@ -175,7 +178,7 @@ if __name__ == '__main__':
                     print "Failed to build library"
                     print e
                     
-                if library_build_success:
+                if options.continue_on_build_fail or library_build_success:
                     # Build all the tests
                     test_build_success, test_build = build_tests(all_tests, [build_directory], build_directory, target, target_toolchain,
                             clean=options.clean,
@@ -183,7 +186,8 @@ if __name__ == '__main__':
                             properties=build_properties,
                             macros=options.macros,
                             verbose=options.verbose,
-                            jobs=options.jobs)
+                            jobs=options.jobs,
+                            continue_on_build_fail=options.continue_on_build_fail)
                             
                     if not test_build_success:
                         total_build_success = False
@@ -192,6 +196,7 @@ if __name__ == '__main__':
                     test_builds.update(test_build)
                 else:
                     total_build_success = False
+                    break
             
         # If a path to a test spec is provided, write it to a file
         if options.test_spec:

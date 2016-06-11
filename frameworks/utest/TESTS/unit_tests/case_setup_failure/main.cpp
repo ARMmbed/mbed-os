@@ -22,10 +22,11 @@
 using namespace utest::v1;
 
 static int call_counter(0);
+static bool never_call = false;
 
 void never_call_case()
 {
-    TEST_FAIL_MESSAGE("Case handler should have never been called!");
+      never_call = true;
 }
 
 utest::v1::status_t abort_case_setup(const Case *const source, const size_t index_of_case)
@@ -38,6 +39,7 @@ utest::v1::status_t abort_case_setup(const Case *const source, const size_t inde
 
 utest::v1::status_t abort_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t failure)
 {
+    TEST_ASSERT_FALSE_MESSAGE(never_call, "Case handler should never have been called!");
     TEST_ASSERT_EQUAL(1, call_counter);
     TEST_ASSERT_EQUAL(0, passed);
     TEST_ASSERT_EQUAL(1, failed);

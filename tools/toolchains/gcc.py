@@ -27,8 +27,7 @@ class GCC(mbedToolchain):
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    CIRCULAR_DEPENDENCIES = True
-    DIAGNOSTIC_PATTERN = re.compile('((?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
@@ -75,11 +74,10 @@ class GCC(mbedToolchain):
             common_flags.append("-save-temps")
 
         if "debug-info" in self.options:
+            common_flags.append("-g")
             common_flags.append("-O0")
         else:
             common_flags.append("-O2")
-        # add debug symbols for all builds
-        common_flags.append("-g")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
@@ -138,27 +136,16 @@ class GCC(mbedToolchain):
                 )
                 continue
 
-            # Each line should start with the file information: "filepath: ..."
-            # i should point past the file path                          ^
-            # avoid the first column in Windows (C:\)
-            i = line.find(':', 2)
-            if i == -1: continue
 
-            if state == WHERE:
-                file = line[:i]
-                message = line[i+1:].strip() + ' '
-                state = WHAT
-
-            elif state == WHAT:
-                match = GCC.DIAGNOSTIC_PATTERN.match(line[i+1:])
-                if match is None:
-                    state = WHERE
-                    continue
-
+            match = GCC.DIAGNOSTIC_PATTERN.match(line)
+            if match is not None:
                 self.cc_info(
-                    match.group('severity'),
-                    file, match.group('line'),
-                    message + match.group('message')
+                    match.group('severity').lower(),
+                    match.group('file'),
+                    match.group('line'),
+                    match.group('message'),
+                    target_name=self.target.name,
+                    toolchain_name=self.name
                 )
 
     def get_dep_option(self, object):
@@ -207,18 +194,10 @@ class GCC(mbedToolchain):
             name, _ = splitext(basename(l))
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
-
-        # NOTE: There is a circular dependency between the mbed library and the clib
-        # We could define a set of week symbols to satisfy the clib dependencies in "sys.o",
-        # but if an application uses only clib symbols and not mbed symbols, then the final
-        # image is not correctly retargeted
-        if self.CIRCULAR_DEPENDENCIES:
-            libs.extend(libs)
         
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects
-        
+        cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
         if mem_map:
             cmd.extend(['-T', mem_map])
             
@@ -273,10 +252,11 @@ class GCC_ARM(GCC):
         GCC.__init__(self, target, options, notify, macros, silent, GCC_ARM_PATH, extra_verbose=extra_verbose)
 
         # Use latest gcc nanolib
-        self.ld.append("--specs=nano.specs")
+        if "thread-safe" not in self.options:
+            self.ld.append("--specs=nano.specs")
         if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
-        elif target.name in ["RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
+        elif target.name in ["RZ_A1H", "VK_RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
             self.ld.extend(["-u_printf_float", "-u_scanf_float"])
 
         self.sys_libs.append("nosys")

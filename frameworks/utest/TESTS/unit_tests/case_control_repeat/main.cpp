@@ -34,7 +34,6 @@ utest::v1::status_t repeat_all_case_setup(const Case *const source, const size_t
 }
 control_t repeat_all_case(const size_t call_count)
 {
-    printf("Running case handler for %u. time\n", call_count);
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
     TEST_ASSERT_EQUAL((call_count-1)*3 + 1, call_counter++);
@@ -61,7 +60,6 @@ utest::v1::status_t repeat_handler_case_setup(const Case *const source, const si
 }
 control_t repeat_handler_case(const size_t call_count)
 {
-    printf("Running case handler for %u. time\n", call_count);
     static int repeat_counter(1);
     TEST_ASSERT_EQUAL(repeat_counter++, call_count);
     TEST_ASSERT_EQUAL((call_count-1) + 31, call_counter++);

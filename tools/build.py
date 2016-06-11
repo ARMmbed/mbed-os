@@ -116,16 +116,16 @@ if __name__ == '__main__':
                       default=False,
                       help="Displays supported matrix of MCUs and toolchains")
 
+    parser.add_option('-f', '--filter',
+                      dest='general_filter_regex',
+                      default=None,
+                      help='For some commands you can use filter to filter out results')
+
     parser.add_option("", "--cppcheck",
                       action="store_true",
                       dest="cppcheck_validation",
                       default=False,
                       help="Forces 'cppcheck' static code analysis")
-
-    parser.add_option('-f', '--filter',
-                      dest='general_filter_regex',
-                      default=None,
-                      help='For some commands you can use filter to filter out results')
 
     parser.add_option("-j", "--jobs", type="int", dest="jobs",
                       default=0, help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
@@ -192,7 +192,7 @@ if __name__ == '__main__':
     if options.usb_host:
         libraries.append("usb_host")
     if options.dsp:
-        libraries.extend(["cmsis_dsp", "dsp"])
+        libraries.extend(["dsp"])
     if options.fat:
         libraries.extend(["fat"])
     if options.ublox:
@@ -233,7 +233,8 @@ if __name__ == '__main__':
                 tt_id = "%s::%s" % (toolchain, target)
                 try:
                     mcu = TARGET_MAP[target]
-                    lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
+                    if options.source_dir:
+                        lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
                                                     options=options.options,
                                                     extra_verbose=options.extra_verbose_notify,
                                                     verbose=options.verbose,
@@ -242,6 +243,16 @@ if __name__ == '__main__':
                                                     clean=options.clean,
                                                     archive=(not options.no_archive),
                                                     macros=options.macros)
+                    else:
+                        lib_build_res = build_mbed_libs(mcu, toolchain,
+                                                    options=options.options,
+                                                    extra_verbose=options.extra_verbose_notify,
+                                                    verbose=options.verbose,
+                                                    silent=options.silent,
+                                                    jobs=options.jobs,
+                                                    clean=options.clean,
+                                                    macros=options.macros)
+
                     for lib_id in libraries:
                         build_lib(lib_id, mcu, toolchain,
                                   options=options.options,

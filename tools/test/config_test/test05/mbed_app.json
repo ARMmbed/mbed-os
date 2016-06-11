@@ -1,8 +1,8 @@
 {
     "custom_targets": {
         "base": {
-            "core": "Cortex-M0",
-            "extra_labels": []
+            "inherits": ["Target"],
+            "core": "Cortex-M0"
         },
         "b1": {
             "inherits": ["base"],

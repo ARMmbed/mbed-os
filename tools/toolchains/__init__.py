@@ -29,7 +29,7 @@ from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import tools.hooks as hooks
-from tools.memap import MemmapParser
+from tools.memap import MemapParser
 from hashlib import md5
 import fnmatch
 
@@ -307,6 +307,7 @@ class mbedToolchain:
             # Target and Toolchain symbols
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
+            self.symbols.extend(["FEATURE_%s" % t for t in labels['FEATURE']])
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
             # Config support
@@ -325,10 +326,9 @@ class mbedToolchain:
             # Add target's symbols
             self.symbols += self.target.macros
             # Add target's hardware
-            try :
-                self.symbols += ["DEVICE_" + feature + "=1" for feature in self.target.features]
-            except AttributeError :
-                pass
+            self.symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
+            # Add target's features
+            self.symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
             # Add extra symbols passed via 'macros' parameter
             self.symbols += self.macros
 
@@ -348,6 +348,7 @@ class mbedToolchain:
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
                 'TARGET': self.target.get_labels() + ["DEBUG" if "debug-info" in self.options else "RELEASE"],
+                'FEATURE': self.target.features,
                 'TOOLCHAIN': toolchain_labels
             }
         return self.labels
@@ -415,6 +416,7 @@ class mbedToolchain:
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
+                    (d.startswith('FEATURE_') and d[8:] not in labels['FEATURE']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
                     (d == 'TESTS')):
                     dirs.remove(d)
@@ -822,32 +824,27 @@ class mbedToolchain:
     def mem_stats(self, map):
         # Creates parser object
         toolchain = self.__class__.__name__
-        t = MemmapParser()
 
-        try:
-            with open(map, 'rt') as f:
-                # Decode map file depending on the toolchain
-                if toolchain == "ARM_STD" or toolchain == "ARM_MICRO":
-                    t.search_objects(abspath(map), "ARM")
-                    t.parse_map_file_armcc(f)
-                elif toolchain == "GCC_ARM":
-                    t.parse_map_file_gcc(f)
-                elif toolchain == "IAR":
-                    self.info("[WARNING] IAR Compiler not fully supported (yet)")
-                    t.search_objects(abspath(map), toolchain)
-                    t.parse_map_file_iar(f)
-                else:
-                    self.info("Unknown toolchain for memory statistics %s" % toolchain)
-                    return
+        # Create memap object
+        memap = MemapParser()
 
-                t.generate_output(sys.stdout, False)
-                map_out = splitext(map)[0] + "_map.json"
-                with open(map_out, 'w') as fo:
-                    t.generate_output(fo, True)
-        except OSError:
+        # Parse and decode a map file
+        if memap.parse(abspath(map), toolchain) is False:
+            self.info("Unknown toolchain for memory statistics %s" % toolchain)
             return
-            
-    
+
+        # Write output to stdout in text (pretty table) format
+        memap.generate_output('table')
+
+        # Write output to file in JSON format
+        map_out = splitext(map)[0] + "_map.json"
+        memap.generate_output('json', map_out)
+ 
+        # Write output to file in CSV format for the CI
+        map_csv = splitext(map)[0] + "_map.csv"
+        memap.generate_output('csv-ci', map_csv)
+
+
 from tools.settings import ARM_BIN
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH
 from tools.settings import IAR_PATH

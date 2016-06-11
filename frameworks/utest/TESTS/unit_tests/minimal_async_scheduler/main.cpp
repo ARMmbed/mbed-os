@@ -22,7 +22,7 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
-#include "utest/stack_trace.h"
+#include "utest/utest_stack_trace.h"
 
 #include "ticker_api.h"
 #include "us_ticker_api.h"
@@ -38,7 +38,6 @@ static Timeout utest_minimal_object;
 static void ticker_handler()
 {
     UTEST_LOG_FUNCTION();
-//    printf("\t\t>>> Ticker callback fired for %p.\n", ticker_callback);
     minimal_callback = ticker_callback;
 }
 
@@ -52,7 +51,6 @@ static int32_t utest_minimal_init()
 static void *utest_minimal_post(const utest_v1_harness_callback_t callback,  timestamp_t delay_ms)
 {
     UTEST_LOG_FUNCTION();
-    // printf("\t\t>>> Schedule %p with %ums delay => %p.\n", callback, (unsigned int)delay_ms, (void*)1);
     timestamp_t delay_us = delay_ms *1000;
 
     if (delay_ms) {
@@ -69,7 +67,6 @@ static void *utest_minimal_post(const utest_v1_harness_callback_t callback,  tim
 static int32_t utest_minimal_cancel(void *handle)
 {
     UTEST_LOG_FUNCTION();
-    printf("\t\t>>> Cancel %p => %u\n", handle, (unsigned int)0);
     (void) handle;
     utest_minimal_object.detach();
     return 0;
@@ -86,7 +83,6 @@ static int32_t utest_minimal_run()
         // check if a new callback has been set
         if (minimal_callback)
         {
-            printf("\t\t>>> Firing callback %p\n", minimal_callback);
             // copy the callback
             utest_v1_harness_callback_t callback = minimal_callback;
             // reset the shared callback
@@ -114,7 +110,6 @@ control_t test_case()
     UTEST_LOG_FUNCTION();
     static int counter(0);
     TEST_ASSERT_EQUAL(counter++, call_counter++);
-    printf("Running Test #%d\n", counter);
     return CaseNext;
 }
 
@@ -124,7 +119,6 @@ control_t test_case_async()
     UTEST_LOG_FUNCTION();
     static int counter(3);
     TEST_ASSERT_EQUAL(counter++, call_counter++);
-    printf("Running Test #%d\n", counter);
     return CaseTimeout(200);
 }
 utest::v1::status_t test_case_async_failure(const Case *const source, const failure_t reason)

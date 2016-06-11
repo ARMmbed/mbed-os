@@ -31,7 +31,7 @@ TOOLS_DATA = join(TOOLS, "data")
 TOOLS_BOOTLOADERS = join(TOOLS, "bootloaders")
 
 # mbed libraries
-MBED_BASE = join(ROOT, "sdk")
+MBED_BASE = join(ROOT, "hal")
 
 MBED_API = join(MBED_BASE, "api")
 MBED_COMMON = join(MBED_BASE, "common")
@@ -50,7 +50,7 @@ MBED_RPC = join(LIB_DIR, "rpc")
 RPC_LIBRARY = join(BUILD_DIR, "rpc")
 
 # mbed RTOS
-RTOS = join(LIB_DIR, "rtos")
+RTOS = join(ROOT, "rtos")
 MBED_RTX = join(RTOS, "rtx")
 RTOS_ABSTRACTION = join(RTOS, "rtos")
 

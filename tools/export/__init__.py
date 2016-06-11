@@ -20,7 +20,7 @@ from shutil import copytree, rmtree, copy
 import yaml
 
 from tools.utils import mkdir
-from tools.export import uvision4, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32
+from tools.export import uvision4, uvision5, codered, gccarm, ds5_5, iar, emblocks, coide, kds, zip, simplicityv3, atmelstudio, sw4stm32, e2studio
 from tools.export.exporters import zip_working_directory_and_clean_up, OldLibrariesException
 from tools.targets import TARGET_NAMES, EXPORT_MAP, TARGET_MAP
 
@@ -28,6 +28,7 @@ from project_generator_definitions.definitions import ProGenDef
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
+    'uvision5': uvision5.Uvision5,
     'lpcxpresso': codered.CodeRed,
     'gcc_arm': gccarm.GccArm,
     'ds5_5': ds5_5.DS5_5,
@@ -38,6 +39,7 @@ EXPORTERS = {
     'simplicityv3' : simplicityv3.SimplicityV3,
     'atmelstudio' : atmelstudio.AtmelStudio,
     'sw4stm32'    : sw4stm32.Sw4STM32,
+    'e2studio' : e2studio.E2Studio,
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -55,7 +57,7 @@ def online_build_url_resolver(url):
 
 
 def export(project_path, project_name, ide, target, destination='/tmp/',
-           tempdir=None, clean=True, extra_symbols=None, zip=True, build_url_resolver=online_build_url_resolver, relative=False):
+           tempdir=None, clean=True, extra_symbols=None, zip=True, relative=False, build_url_resolver=online_build_url_resolver):
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
         target = target.upper()
@@ -63,13 +65,16 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     if tempdir is None:
         tempdir = tempfile.mkdtemp()
 
+    use_progen = False
+    supported = True
     report = {'success': False, 'errormsg':''}
+    
     if ide is None or ide == "zip":
         # Simple ZIP exporter
         try:
             ide = "zip"
             exporter = zip.ZIP(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
-            exporter.scan_and_copy_resources(project_path, tempdir)
+            exporter.scan_and_copy_resources(project_path, tempdir, relative)
             exporter.generate()
             report['success'] = True
         except OldLibrariesException, e:
@@ -80,9 +85,6 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
         else:
             Exporter = EXPORTERS[ide]
             target = EXPORT_MAP.get(target, target)
-            # use progen targets or mbed exporters targets, check progen attribute
-            use_progen = False
-            supported = True
             try:
                 if Exporter.PROGEN_ACTIVE:
                     use_progen = True
@@ -132,8 +134,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
         open(os.path.join(tempdir, 'GettingStarted.htm'),'w').write('<meta http-equiv="refresh" content="0; url=http://mbed.org/handbook/Getting-Started-mbed-Exporters#%s"/>'% (ide))
         # copy .hgignore file to exported direcotry as well.
         if exists(os.path.join(exporter.TEMPLATE_DIR,'.hgignore')):
-            copy(os.path.join(exporter.TEMPLATE_DIR,'.hgignore'),tempdir)
-
+            copy(os.path.join(exporter.TEMPLATE_DIR,'.hgignore'), tempdir)
         if zip:
             zip_path = zip_working_directory_and_clean_up(tempdir, destination, project_name, clean)
         else:
