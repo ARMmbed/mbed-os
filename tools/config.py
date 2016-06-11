@@ -176,6 +176,7 @@ class Config:
         self.processed_configs = {}
         self.target = target if isinstance(target, str) else target.name
         self.target_labels = Target.get_target(self.target).get_labels()
+        self.target_instance = Target.get_target(self.target)
 
     # Add one or more configuration files
     def add_config_files(self, flist):
@@ -221,6 +222,27 @@ class Config:
         for label, overrides in data.get("target_overrides", {}).items():
             # If the label is defined by the target or it has the special value "*", process the overrides
             if (label == '*') or (label in self.target_labels):
+                # Parse out cumulative attributes
+                for attr in Target._Target__cumulative_attributes:
+                    attrs = getattr(self.target_instance, attr)
+
+                    if attr in overrides:
+                        del attrs[:]
+                        attrs.extend(overrides[attr])
+                        del overrides[attr]
+
+                    if attr+'_add' in overrides:
+                        attrs.extend(overrides[attr+'_add'])
+                        del overrides[attr+'_add']
+
+                    if attr+'_remove' in overrides:
+                        for a in overrides[attr+'_remove']:
+                            attrs.remove(a)
+                        del overrides[attr+'_remove']
+
+                    setattr(self.target_instance, attr, attrs)
+
+                # Consider the others as overrides
                 for name, v in overrides.items():
                     # Get the full name of the parameter
                     full_name = ConfigParameter.get_full_name(name, unit_name, unit_kind, label)
