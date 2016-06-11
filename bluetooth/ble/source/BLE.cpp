@@ -25,6 +25,11 @@
 #include <minar/minar.h>
 #endif
 
+#if !defined(YOTTA_CFG_MBED_OS)
+#include <mbed_error.h>
+#include <toolchain.h>
+#endif
+
 ble_error_t
 BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbackContext*> callback)
 {
@@ -82,6 +87,20 @@ BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbac
  * This may be overridden.
  */
 #define INITIALIZER_LIST_FOR_INSTANCE_CONSTRUCTORS createBLEInstance
+
+// yotta unlike mbed-cli has proper dependency mechanisms
+// It is not required to defined a stub for createBLEInstance
+#if !defined(YOTTA_CFG_MBED_OS)
+
+// this stub is required by ARMCC otherwise link will systematically fail
+MBED_WEAK BLEInstanceBase* createBLEInstance() {
+    error("Please provide an implementation for mbed BLE");
+    return NULL;
+}
+
+#endif
+
+
 #endif /* YOTTA_CFG_BLE_INSTANCES_COUNT */
 
 typedef BLEInstanceBase *(*InstanceConstructor_t)(void);
