@@ -60,7 +60,7 @@
   <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-  <armgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP</armgcc.compiler.miscellaneous.OtherFlags>
+  <armgcc.compiler.miscellaneous.OtherFlags>{{c_flags|join(" ")}} {{common_flags|join(" ")}} -MMD -MP</armgcc.compiler.miscellaneous.OtherFlags>
   <armgcccpp.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>NDEBUG</Value>
@@ -77,7 +77,7 @@
   <armgcccpp.compiler.optimization.level>Optimize for size (-Os)</armgcccpp.compiler.optimization.level>
   <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-  <armgcccpp.compiler.miscellaneous.OtherFlags>-std=gnu++98 -fno-rtti -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP</armgcccpp.compiler.miscellaneous.OtherFlags>
+  <armgcccpp.compiler.miscellaneous.OtherFlags>{{cxx_flags|join(" ")}} {{common_flags|join(" ")}} -MMD -MP</armgcccpp.compiler.miscellaneous.OtherFlags>
   <armgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
@@ -88,7 +88,7 @@
     </ListValues>
   </armgcccpp.linker.libraries.LibrarySearchPaths>
   <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-  <armgcccpp.linker.miscellaneous.LinkerFlags>{% for p in library_paths %}-L../{{p}} {% endfor %} {% for f in object_files %}../{{f}} {% endfor %} {% for lib in libraries %}-l{{lib}} {% endfor %} -T../{{linker_script}} -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,--cref -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group </armgcccpp.linker.miscellaneous.LinkerFlags>
+  <armgcccpp.linker.miscellaneous.LinkerFlags>{% for p in library_paths %}-L../{{p}} {% endfor %} {% for f in object_files %}../{{f}} {% endfor %} {% for lib in libraries %}-l{{lib}} {% endfor %} -T../{{linker_script}} {{ld_flags|join(" ")}} {{common_flags|join(" ")}}</armgcccpp.linker.miscellaneous.LinkerFlags>
   <armgcccpp.preprocessingassembler.general.IncludePaths>
     <ListValues>
       {% for i in include_paths %}<Value>../{{i}}</Value> 
@@ -123,7 +123,7 @@
   <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
   <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-  <armgcc.compiler.miscellaneous.OtherFlags>-std=gnu99 -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP</armgcc.compiler.miscellaneous.OtherFlags>    
+  <armgcc.compiler.miscellaneous.OtherFlags>{{c_flags|join(" ")}} {{common_flags|join(" ")}} -MMD -MP</armgcc.compiler.miscellaneous.OtherFlags>    
   <armgcccpp.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>DEBUG</Value>
@@ -141,7 +141,7 @@
   <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
   <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
   <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-  <armgcccpp.compiler.miscellaneous.OtherFlags>-std=gnu++98 -fno-rtti -fno-common -fmessage-length=0 -Wall -fno-exceptions -ffunction-sections -fdata-sections -fomit-frame-pointer -MMD -MP</armgcccpp.compiler.miscellaneous.OtherFlags>
+  <armgcccpp.compiler.miscellaneous.OtherFlags>{{cxx_flags|join(" ")}} {{common_flags|join(" ")}} -MMD -MP</armgcccpp.compiler.miscellaneous.OtherFlags>
   <armgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
@@ -152,7 +152,7 @@
     </ListValues>
   </armgcccpp.linker.libraries.LibrarySearchPaths>
   <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-  <armgcccpp.linker.miscellaneous.LinkerFlags>{% for p in library_paths %}-L../{{p}} {% endfor %} {% for f in object_files %}../{{f}} {% endfor %} {% for lib in libraries %}-l{{lib}} {% endfor %} -T../{{linker_script}} -Wl,--gc-sections --specs=nano.specs -u _printf_float -u _scanf_float -Wl,--wrap,main -Wl,--cref -lstdc++ -lsupc++ -lm -lgcc -Wl,--start-group -lc -lc -lnosys -Wl,--end-group </armgcccpp.linker.miscellaneous.LinkerFlags>
+  <armgcccpp.linker.miscellaneous.LinkerFlags>{% for p in library_paths %}-L../{{p}} {% endfor %} {% for f in object_files %}../{{f}} {% endfor %} {% for lib in libraries %}-l{{lib}} {% endfor %} -T../{{linker_script}} {{ld_flags|join(" ")}} {{common_flags|join(" ")}}</armgcccpp.linker.miscellaneous.LinkerFlags>
   <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
   <armgcccpp.preprocessingassembler.general.IncludePaths>
     <ListValues>

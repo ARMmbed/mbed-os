@@ -29,6 +29,19 @@ class GCC(mbedToolchain):
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
 
+    DEFAULT_FLAGS = {
+        'common': ["-c", "-Wall", "-Wextra",
+            "-Wno-unused-parameter", "-Wno-missing-field-initializers",
+            "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
+            "-ffunction-sections", "-fdata-sections", "-funsigned-char",
+            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
+            ],
+        'asm': ["-x", "assembler-with-cpp"],
+        'c': ["-std=gnu99"],
+        'cxx': ["-std=gnu++98", "-fno-rtti"],
+        'ld': ["-Wl,--gc-sections", "-Wl,--wrap,main"],
+    }
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
@@ -63,33 +76,31 @@ class GCC(mbedToolchain):
 
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
-        common_flags = ["-c", "-Wall", "-Wextra",
-            "-Wno-unused-parameter", "-Wno-missing-field-initializers",
-            "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
-            "-ffunction-sections", "-fdata-sections",
-            "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
-            ] + self.cpu
+        self.flags["common"] += self.cpu
 
         if "save-asm" in self.options:
-            common_flags.append("-save-temps")
+            self.flags["common"].append("-save-temps")
 
         if "debug-info" in self.options:
-            common_flags.append("-g")
-            common_flags.append("-O0")
+            self.flags["common"].append("-g")
+            self.flags["common"].append("-O0")
         else:
-            common_flags.append("-O2")
+            self.flags["common"].append("-O2")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
-        self.asm = [main_cc, "-x", "assembler-with-cpp"] + common_flags
+        self.asm = [main_cc] + self.flags['asm'] + self.flags["common"]
         if not "analyze" in self.options:
-            self.cc  = [main_cc, "-std=gnu99"] + common_flags
-            self.cppc =[main_cppc, "-std=gnu++98", "-fno-rtti"] + common_flags
+            self.cc  = [main_cc]
+            self.cppc =[main_cppc]
         else:
-            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "-std=gnu99", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'), "-std=gnu++98", "-fno-rtti", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
+            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT]
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'),  "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT]
+        self.cc += self.flags['c'] + self.flags['common']
+        self.cppc += self.flags['cxx'] + self.flags['common']
 
-        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main"] + self.cpu
+        self.flags['ld'] += self.cpu
+        self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
