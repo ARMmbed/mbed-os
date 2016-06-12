@@ -18,7 +18,7 @@ from socket import socket, AF_INET, SOCK_DGRAM
 import string, random
 from time import time
 
-from private_settings import CLIENT_ADDRESS
+from mbed_settings import CLIENT_ADDRESS
 
 ECHO_PORT = 7
 

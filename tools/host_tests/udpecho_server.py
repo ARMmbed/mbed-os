@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from SocketServer import BaseRequestHandler, UDPServer
-from private_settings import SERVER_ADDRESS
+from mbed_settings import SERVER_ADDRESS
 
 class UDP_EchoHandler(BaseRequestHandler):
     def handle(self):
