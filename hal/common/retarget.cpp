@@ -636,6 +636,35 @@ extern "C" WEAK void __iar_file_Mtxinit(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxdst(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
+#elif defined(__CC_ARM)
+// Do nothing
+#elif defined (__GNUC__)
+struct _reent;
+// Stub out locks when an rtos is not present
+extern "C" WEAK void __rtos_malloc_lock( struct _reent *_r ) {}
+extern "C" WEAK void __rtos_malloc_unlock( struct _reent *_r ) {}
+extern "C" WEAK void __rtos_env_lock( struct _reent *_r ) {}
+extern "C" WEAK void __rtos_env_unlock( struct _reent *_r ) {}
+
+void __malloc_lock( struct _reent *_r )
+{
+    __rtos_malloc_lock(_r);
+}
+
+void __malloc_unlock( struct _reent *_r )
+{
+    __rtos_malloc_unlock(_r);
+}
+
+void __env_lock( struct _reent *_r )
+{
+    __rtos_env_lock(_r);
+}
+
+void __env_unlock( struct _reent *_r )
+{
+    __rtos_env_unlock(_r);
+}
 #endif
 
 } // namespace mbed

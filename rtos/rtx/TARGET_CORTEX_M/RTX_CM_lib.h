@@ -51,7 +51,7 @@
 #define _declare_box(pool,size,cnt)  uint32_t pool[(((size)+3)/4)*(cnt) + 3]
 #define _declare_box8(pool,size,cnt) uint64_t pool[(((size)+7)/8)*(cnt) + 2]
 
-#define OS_TCB_SIZE     52
+#define OS_TCB_SIZE     60
 #define OS_TMR_SIZE     8
 
 typedef void    *OS_ID;
@@ -527,11 +527,18 @@ extern uint32_t          __end__[];
 #endif
 
 void set_main_stack(void) {
+    uint32_t interrupt_stack_size = ((uint32_t)OS_MAINSTKSIZE * 4);
+    uint32_t heap_plus_stack_size = ((uint32_t)INITIAL_SP - (uint32_t)HEAP_START) - interrupt_stack_size;
+    // Main thread's stack is 1/4 of the heap
+    uint32_t main_stack_size = heap_plus_stack_size / 4;
+    // The main thread must be 4 byte aligned
+    uint32_t main_stack_start = ((uint32_t)INITIAL_SP - interrupt_stack_size - main_stack_size) & ~0x7;
+
     // That is the bottom of the main stack block: no collision detection
-    os_thread_def_main.stack_pointer = HEAP_START;
+    os_thread_def_main.stack_pointer = (uint32_t*)main_stack_start;
 
     // Leave OS_MAINSTKSIZE words for the scheduler and interrupts
-    os_thread_def_main.stacksize = (INITIAL_SP - (unsigned int)HEAP_START) - (OS_MAINSTKSIZE * 4);
+    os_thread_def_main.stacksize = main_stack_size;
 }
 
 #if defined (__CC_ARM)
@@ -677,22 +684,22 @@ __attribute__((naked)) void software_init_hook_rtos (void) {
 // Opaque declaration of _reent structure
 struct _reent;
 
-void __malloc_lock( struct _reent *_r )
+void __rtos_malloc_lock( struct _reent *_r )
 {
     osMutexWait(malloc_mutex_id, osWaitForever);
 }
 
-void __malloc_unlock( struct _reent *_r )
+void __rtos_malloc_unlock( struct _reent *_r )
 {
     osMutexRelease(malloc_mutex_id);
 }
 
-void __env_lock( struct _reent *_r )
+void __rtos_env_lock( struct _reent *_r )
 {
     osMutexWait(env_mutex_id, osWaitForever);
 }
 
-void __env_unlock( struct _reent *_r )
+void __rtos_env_unlock( struct _reent *_r )
 {
     osMutexRelease(env_mutex_id);
 }
