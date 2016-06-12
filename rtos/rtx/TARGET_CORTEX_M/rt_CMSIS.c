@@ -302,7 +302,7 @@ static inline  t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                          \
 #define SVC_Setup(f)                                                           \
   __asm(                                                                       \
     "mov r12,%0\n"                                                             \
-    :: "r"(&f): "r12"                                                          \
+    :: "r"(&f): "r0", "r1", "r2", "r3", "r12"                                  \
   );
 
 #define SVC_Ret3()                                                             \
