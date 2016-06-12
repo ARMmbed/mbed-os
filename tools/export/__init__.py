@@ -28,6 +28,7 @@ from project_generator_definitions.definitions import ProGenDef
 
 EXPORTERS = {
     'uvision': uvision4.Uvision4,
+    'uvision4': uvision4.Uvision4,
     'uvision5': uvision5.Uvision5,
     'lpcxpresso': codered.CodeRed,
     'gcc_arm': gccarm.GccArm,
