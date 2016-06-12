@@ -20,7 +20,7 @@ from os.path import join, abspath, dirname
 ROOT = abspath(join(dirname(__file__), "..", ".."))
 sys.path.insert(0, ROOT)
 
-from tools.private_settings import LOCALHOST
+from mbed_settings import LOCALHOST
 from SocketServer import BaseRequestHandler, TCPServer
 
 
