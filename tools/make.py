@@ -41,6 +41,7 @@ from tools.tests import TEST_MBED_LIB
 from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.build_api import build_project
+from tools.build_api import mcu_toolchain_matrix
 try:
     import tools.private_settings as ps
 except:
@@ -80,6 +81,17 @@ if __name__ == '__main__':
                       action="append",
                       dest="macros",
                       help="Add a macro definition")
+
+    parser.add_option("-S", "--supported-toolchains",
+                      action="store_true",
+                      dest="supported_toolchains",
+                      default=False,
+                      help="Displays supported matrix of MCUs and toolchains")
+
+    parser.add_option('-f', '--filter',
+                      dest='general_filter_regex',
+                      default=None,
+                      help='For some commands you can use filter to filter out results')
 
     # Local run
     parser.add_option("--automated", action="store_true", dest="automated",
@@ -165,6 +177,11 @@ if __name__ == '__main__':
                       default=None, help="use the specified linker script")
 
     (options, args) = parser.parse_args()
+
+    # Only prints matrix of supported toolchains
+    if options.supported_toolchains:
+        print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
+        exit(0)
 
     if options.source_dir:
         for path in options.source_dir :
