@@ -252,8 +252,22 @@ class GCC_ARM(GCC):
         GCC.__init__(self, target, options, notify, macros, silent, GCC_ARM_PATH, extra_verbose=extra_verbose)
 
         # Use latest gcc nanolib
-        if "thread-safe" not in self.options:
+        if "big-build" in self.options:
+            use_nano = False
+        elif "small-build" in self.options:
+            use_nano = True
+        elif target.default_build == "standard":
+            use_nano = False
+        elif target.default_build == "small":
+            use_nano = True
+        else:
+            use_nano = False
+
+        if use_nano:
             self.ld.append("--specs=nano.specs")
+            self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
+            self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
+
         if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         elif target.name in ["RZ_A1H", "VK_RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
