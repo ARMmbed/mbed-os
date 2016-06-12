@@ -8,6 +8,8 @@ MANIFEST
 
 # Private settings
 private_settings.py
+test_spec.json
+projectfiles/
 
 # Default Build Directory
 build/
@@ -74,4 +76,3 @@ cscope.*
 # vim swap files
 *.swp
 *~
-

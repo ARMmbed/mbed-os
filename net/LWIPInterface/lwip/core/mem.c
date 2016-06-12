@@ -187,12 +187,21 @@ struct mem {
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
 #elif defined(TARGET_LPC1768)
-#   define ETHMEM_SECTION __attribute((section("AHBSRAM0")))
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR) || defined(TOOLCHAIN_GCC_ARM)
+#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define ETHMEM_SECTION __attribute__((section("AHBSRAM0"),aligned))
+#  endif
 #else
-#		define ETHMEM_SECTION
+#define ETHMEM_SECTION
 #endif
 
 /** the heap. we need one struct mem at the end and some room for alignment */
+#if defined (__ICCARM__)
+#pragma location = ".ethusbram"
+#endif
 u8_t ram_heap[MEM_SIZE_ALIGNED + (2*SIZEOF_STRUCT_MEM) + MEM_ALIGNMENT] ETHMEM_SECTION;
 #define LWIP_RAM_HEAP_POINTER ram_heap
 #endif /* LWIP_RAM_HEAP_POINTER */
@@ -483,7 +492,7 @@ mem_trim(void *rmem, mem_size_t newsize)
   /* else {
     next struct mem is used but size between mem and mem2 is not big enough
     to create another struct mem
-    -> don't do anyhting. 
+    -> don't do anyhting.
     -> the remaining space stays unused since it is too small
   } */
 #if LWIP_ALLOW_MEM_FREE_FROM_OTHER_CONTEXT
