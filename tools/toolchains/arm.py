@@ -242,6 +242,10 @@ class ARM_MICRO(ARM):
         self.cppc += ["-D__MICROLIB", "--library_type=microlib"]
         self.ld   += ["--library_type=microlib"]
 
+        # Only allow a single thread
+        self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
+        self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
+
         # We had to patch microlib to add C++ support
         # In later releases this patch should have entered mainline
         if ARM_MICRO.PATCHED_LIBRARY:
