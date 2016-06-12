@@ -113,13 +113,12 @@ public:
      */
     bool remove_handler(pFunctionPointer_t handler, IRQn_Type irq);
 
-protected:
-    virtual void lock();
-    virtual void unlock();
-
 private:
     InterruptManager();
     ~InterruptManager();
+
+    void lock();
+    void unlock();
 
     // We declare the copy contructor and the assignment operator, but we don't
     // implement them. This way, if someone tries to copy/assign our instance,

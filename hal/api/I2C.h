@@ -145,6 +145,10 @@ public:
      */
     virtual void unlock(void);
 
+    virtual ~I2C() {
+        // Do nothing
+    }
+
 #if DEVICE_I2C_ASYNCH
 
     /** Start non-blocking I2C transfer.
