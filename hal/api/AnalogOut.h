@@ -122,6 +122,10 @@ public:
     }
 #endif
 
+    virtual ~AnalogOut() {
+        // Do nothing
+    }
+
 protected:
 
     virtual void lock() {

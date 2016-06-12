@@ -103,6 +103,10 @@ public:
     }
 #endif
 
+    virtual ~AnalogIn() {
+        // Do nothing
+    }
+
 protected:
 
     virtual void lock() {
