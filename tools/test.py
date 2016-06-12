@@ -21,6 +21,7 @@ TEST BUILD & RUN
 import sys
 import os
 import json
+import fnmatch
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -105,8 +106,10 @@ if __name__ == '__main__':
             
             all_tests_keys = all_tests.keys()
             for name in all_names:
-                if name in all_tests_keys:
-                    tests[name] = all_tests[name]
+                if any(fnmatch.fnmatch(testname, name) for testname in all_tests):
+                    for testname, test in all_tests.items():
+                        if fnmatch.fnmatch(testname, name):
+                            tests[testname] = test
                 else:
                     print "[Warning] Test with name '%s' was not found in the available tests" % (name)
         else:
