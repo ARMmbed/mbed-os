@@ -50,6 +50,9 @@
 
 /** MBED_ALIGN(N)
  *  Declare a variable to be aligned on an N-byte boundary.
+ *
+ *  @note
+ *  IAR does not support alignment greater than word size on the stack
  *  
  *  @code
  *  #include "toolchain.h"
