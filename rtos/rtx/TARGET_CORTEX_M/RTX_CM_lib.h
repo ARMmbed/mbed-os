@@ -684,22 +684,22 @@ __attribute__((naked)) void software_init_hook_rtos (void) {
 // Opaque declaration of _reent structure
 struct _reent;
 
-void __malloc_lock( struct _reent *_r )
+void __rtos_malloc_lock( struct _reent *_r )
 {
     osMutexWait(malloc_mutex_id, osWaitForever);
 }
 
-void __malloc_unlock( struct _reent *_r )
+void __rtos_malloc_unlock( struct _reent *_r )
 {
     osMutexRelease(malloc_mutex_id);
 }
 
-void __env_lock( struct _reent *_r )
+void __rtos_env_lock( struct _reent *_r )
 {
     osMutexWait(env_mutex_id, osWaitForever);
 }
 
-void __env_unlock( struct _reent *_r )
+void __rtos_env_unlock( struct _reent *_r )
 {
     osMutexRelease(env_mutex_id);
 }
