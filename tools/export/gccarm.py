@@ -148,4 +148,5 @@ class GccArm(Exporter):
             'symbols': self.get_symbols(),
             'cpu_flags': self.toolchain.cpu
         }
+        ctx.update(self.progen_flags)
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
