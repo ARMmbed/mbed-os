@@ -8,14 +8,14 @@ def morpheusTargets = [
   
 // Map morpheus toolchains to compiler labels on Jenkins
 def toolchains = [
-  //ARM: "armcc",
-  //IAR: "iar_arm",
+  ARM: "armcc",
+  IAR: "iar_arm",
   GCC_ARM: "arm-none-eabi-gcc"
   ]
   
 // Initial maps for parallel build steps
 def stepsForParallel = [:]
- 		 
+
 // Jenkins pipeline does not support map.each, we need to use oldschool for loop
 for (int i = 0; i < morpheusTargets.size(); i++) {
   for(int j = 0; j < toolchains.size(); j++) {
