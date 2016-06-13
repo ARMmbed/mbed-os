@@ -204,7 +204,7 @@ SECTIONS
   __UVISOR_BSS_START = ORIGIN(m_data) + __UVISOR_SRAM_OFFSET;
   ASSERT(__interrupts_ram_end__ <= __UVISOR_BSS_START,
          "The ISR relocation region overlaps with the uVisor BSS section.")
-  .uvisor.bss (NOLOAD):
+  .uvisor.bss __UVISOR_BSS_START (NOLOAD):
   {
     . = ALIGN(32);
     __uvisor_bss_start = .;
