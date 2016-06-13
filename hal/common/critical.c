@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-
+#define __STDC_LIMIT_MACROS
 #include <stdint.h>
 #include <stddef.h>
 #include "cmsis.h"
