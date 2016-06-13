@@ -189,7 +189,7 @@ struct mem {
 #elif defined(TARGET_LPC1768)
 #  if defined (__ICCARM__)
 #     define ETHMEM_SECTION
-#  elif defined(TOOLCHAIN_GCC_CR) || defined(TOOLCHAIN_GCC_ARM)
+#  elif defined(TOOLCHAIN_GCC_CR)
 #     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
 #  else
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM0"),aligned))
