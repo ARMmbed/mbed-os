@@ -158,7 +158,7 @@ class IAR(mbedToolchain):
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = [self.ld, "-o", output, "--skip_dynamic_initialization", "--map=%s" % map_file] + objects + libraries
+        cmd = [self.ld, "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
 
         if mem_map:
             cmd.extend(["--config", mem_map])
@@ -194,10 +194,6 @@ class IAR(mbedToolchain):
             remove(lib_path)
 
         self.default_cmd([self.ar, lib_path, '-f', archive_files])
-
-    def link(self, output, objects, libraries, lib_dirs, mem_map):
-        args = [self.ld, "-o", output, "--config", mem_map] + self.flags['ld']
-        self.default_cmd(self.hook.get_cmdline_linker(args + objects + libraries))
 
     @hook_tool
     def binary(self, resources, elf, bin):
