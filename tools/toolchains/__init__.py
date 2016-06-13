@@ -240,7 +240,7 @@ class mbedToolchain:
 
         self.mp_pool = None
 
-        if 'UVISOR_PRESENT=1' in self.macros:
+        if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
 
     def get_output(self):
