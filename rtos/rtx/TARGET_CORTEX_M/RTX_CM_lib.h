@@ -495,7 +495,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32L152RC)
 #define INITIAL_SP            (0x20008000UL)
 
-#elif defined(TARGET_EFM32GG_STK3700)
+#elif defined(TARGET_EFM32GG_STK3700) || defined(TARGET_BEETLE)
 #define INITIAL_SP            (0x20020000UL)
 
 #elif defined(TARGET_EFM32HG_STK3400)

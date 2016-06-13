@@ -30,7 +30,7 @@ static uint32_t clock;
 #define SYSTICK_MAX_RELOAD    0xFFFFFFFF
 #define SYSTICK_DIVIDER_US    (SystemCoreClock/1000000)
 
-void SysTick_Handler(void)
+void SysTick_IRQ_Handler(void)
 {
     MyTicks++;
 #if 0
@@ -60,6 +60,10 @@ void SysTick_Initialize(void)
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk
         | SysTick_CTRL_ENABLE_Msk
         | SysTick_CTRL_TICKINT_Msk;
+
+    /* Register the Interrupt */
+    NVIC_SetVector(SysTick_IRQn, (uint32_t)SysTick_IRQ_Handler);
+    NVIC_EnableIRQ(SysTick_IRQn);
 }
 
 /*

@@ -67,11 +67,12 @@ class Uvision5(Exporter):
 
         # get flags from toolchain and apply
         project_data['tool_specific']['uvision5']['misc'] = {}
-        project_data['tool_specific']['uvision5']['misc']['asm_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['asm']))
-        project_data['tool_specific']['uvision5']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c']))
+        # asm flags only, common are not valid within uvision project, they are armcc specific
+        project_data['tool_specific']['uvision5']['misc']['asm_flags'] = list(set(self.toolchain.flags['asm']))
+        # cxx flags included, as uvision have them all in one tab
+        project_data['tool_specific']['uvision5']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c'] + self.toolchain.flags['cxx']))
         # not compatible with c99 flag set in the template
         project_data['tool_specific']['uvision5']['misc']['c_flags'].remove("--c99")
-        project_data['tool_specific']['uvision5']['misc']['cxx_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['ld']))
         project_data['tool_specific']['uvision5']['misc']['ld_flags'] = self.toolchain.flags['ld']
 
         i = 0
