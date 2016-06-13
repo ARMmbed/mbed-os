@@ -521,8 +521,6 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
             if toolchain_output:
                 cur_result["output"] += toolchain_output
 
-            cur_result["output"] += str(e)
-
             add_result_to_report(report, cur_result)
 
         # Let Exception propagate
