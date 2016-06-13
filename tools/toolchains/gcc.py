@@ -89,7 +89,7 @@ class GCC(mbedToolchain):
             self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "-std=gnu99", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
             self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'), "-std=gnu++98", "-fno-rtti", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
 
-        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main"] + self.cpu
+        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main", "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r"] + self.cpu
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
@@ -175,7 +175,7 @@ class GCC(mbedToolchain):
         cmd.extend(self.get_dep_option(object))
 
         cmd.extend(["-o", object, source])
-
+        
         # Call cmdline hook
         cmd = self.hook.get_cmdline_compiler(cmd)
 
@@ -194,13 +194,13 @@ class GCC(mbedToolchain):
             name, _ = splitext(basename(l))
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
-
+        
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
         if mem_map:
             cmd.extend(['-T', mem_map])
-
+            
         for L in lib_dirs:
             cmd.extend(['-L', L])
         cmd.extend(libs)
@@ -215,7 +215,7 @@ class GCC(mbedToolchain):
             cmd_list = []
             for c in cmd[1:]:
                 if c:
-                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)   
             string = " ".join(cmd_list).replace("\\", "/")
             f.write(string)
 
@@ -228,7 +228,7 @@ class GCC(mbedToolchain):
         with open(archive_files, "wb") as f:
             o_list = []
             for o in objects:
-                o_list.append('"%s"' % o)
+                o_list.append('"%s"' % o)                    
             string = " ".join(o_list).replace("\\", "/")
             f.write(string)
 
@@ -268,7 +268,7 @@ class GCC_ARM(GCC):
             self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
             self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
 
-        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368", "ARM_BEETLE_SOC"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         elif target.name in ["RZ_A1H", "VK_RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
             self.ld.extend(["-u_printf_float", "-u_scanf_float"])
