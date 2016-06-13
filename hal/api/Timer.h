@@ -23,6 +23,8 @@ namespace mbed {
 
 /** A general purpose timer
  *
+ * @Note Synchronization level: Interrupt safe
+ *
  * Example:
  * @code
  * // Count the time to toggle a LED

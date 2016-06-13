@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tsc.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   This file contains all the functions prototypes for the TSC firmware 
   *          library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -403,10 +403,10 @@ typedef struct
 #define TSC_GROUP8_IO1 ((uint32_t)0x10000000)
 #define TSC_GROUP8_IO2 ((uint32_t)0x20000000)
 #define TSC_GROUP8_IO3 ((uint32_t)0x40000000)
-#define TSC_GROUP8_IO4 ((uint32_t)0x80000000)
-#define TSC_GROUP8_ALL_IOS ((uint32_t)0xF0000000)
+#define TSC_GROUP8_IO4 ((uint32_t)0x80000000U)
+#define TSC_GROUP8_ALL_IOS ((uint32_t)0xF0000000U)
 
-#define TSC_ALL_GROUPS_ALL_IOS ((uint32_t)0xFFFFFFFF)
+#define TSC_ALL_GROUPS_ALL_IOS ((uint32_t)0xFFFFFFFFU)
 /**
   * @}
   */

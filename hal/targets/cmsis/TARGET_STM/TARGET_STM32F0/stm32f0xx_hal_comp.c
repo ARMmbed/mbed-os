@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   COMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
@@ -128,7 +128,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -350,6 +350,9 @@ HAL_StatusTypeDef HAL_COMP_DeInit(COMP_HandleTypeDef *hcomp)
   */
 __weak void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_COMP_MspInit could be implenetd in the user file
    */
@@ -362,6 +365,9 @@ __weak void HAL_COMP_MspInit(COMP_HandleTypeDef *hcomp)
   */
 __weak void HAL_COMP_MspDeInit(COMP_HandleTypeDef *hcomp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_COMP_MspDeInit could be implenetd in the user file
    */
@@ -648,6 +654,9 @@ uint32_t HAL_COMP_GetOutputLevel(COMP_HandleTypeDef *hcomp)
   */
 __weak void HAL_COMP_TriggerCallback(COMP_HandleTypeDef *hcomp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcomp);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_COMP_TriggerCallback should be implemented in the user file
    */

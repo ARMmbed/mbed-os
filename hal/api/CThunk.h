@@ -71,6 +71,11 @@
 /* IRQ/Exception compatible thunk entry function */
 typedef void (*CThunkEntry)(void);
 
+/**
+ * Class for created a pointer with data bound to it
+ *
+ * @Note Synchronization level: Not protected
+ */
 template<class T>
 class CThunk
 {

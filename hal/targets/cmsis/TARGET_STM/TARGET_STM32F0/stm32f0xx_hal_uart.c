@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   UART HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Universal Asynchronous Receiver Transmitter (UART) peripheral:
@@ -127,7 +127,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -321,10 +321,26 @@ HAL_StatusTypeDef HAL_UART_Init(UART_HandleTypeDef *huart)
   }
 
   /* In asynchronous mode, the following bits must be kept cleared:
-  - LINEN and CLKEN bits in the USART_CR2 register,
-  - SCEN, HDSEL and IREN  bits in the USART_CR3 register.*/
+  - LINEN (if LIN is supported) and CLKEN bits in the USART_CR2 register,
+  - SCEN (if Smartcard is supported), HDSEL and IREN (if IrDA is supported)  bits in the USART_CR3 register. */
+#if defined (USART_CR2_LINEN)
   huart->Instance->CR2 &= ~(USART_CR2_LINEN | USART_CR2_CLKEN);
+#else
+  huart->Instance->CR2 &= ~(USART_CR2_CLKEN);
+#endif
+#if defined (USART_CR3_SCEN)
+#if defined (USART_CR3_IREN)
   huart->Instance->CR3 &= ~(USART_CR3_SCEN | USART_CR3_HDSEL | USART_CR3_IREN);
+#else
+  huart->Instance->CR3 &= ~(USART_CR3_SCEN | USART_CR3_HDSEL);
+#endif
+#else
+#if defined (USART_CR3_IREN)
+  huart->Instance->CR3 &= ~(USART_CR3_HDSEL | USART_CR3_IREN);
+#else
+  huart->Instance->CR3 &= ~(USART_CR3_HDSEL);
+#endif
+#endif
 
   /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart);
@@ -376,10 +392,24 @@ HAL_StatusTypeDef HAL_HalfDuplex_Init(UART_HandleTypeDef *huart)
   }
 
   /* In half-duplex mode, the following bits must be kept cleared:
-  - LINEN and CLKEN bits in the USART_CR2 register,
-  - SCEN and IREN bits in the USART_CR3 register.*/
+  - LINEN (if LIN is supported) and CLKEN bits in the USART_CR2 register,
+  - SCEN (if Smartcard is supported), and IREN (if IrDA is supported)  bits in the USART_CR3 register. */
+#if defined (USART_CR2_LINEN)
   huart->Instance->CR2 &= ~(USART_CR2_LINEN | USART_CR2_CLKEN);
-  huart->Instance->CR3 &= ~(USART_CR3_IREN | USART_CR3_SCEN);
+#else
+  huart->Instance->CR2 &= ~(USART_CR2_CLKEN);
+#endif
+#if defined (USART_CR3_SCEN)
+#if defined (USART_CR3_IREN)
+  huart->Instance->CR3 &= ~(USART_CR3_SCEN | USART_CR3_IREN);
+#else
+  huart->Instance->CR3 &= ~(USART_CR3_SCEN);
+#endif
+#else
+#if defined (USART_CR3_IREN)
+  huart->Instance->CR3 &= ~(USART_CR3_IREN);
+#endif
+#endif
 
   /* Enable the Half-Duplex mode by setting the HDSEL bit in the CR3 register */
   huart->Instance->CR3 |= USART_CR3_HDSEL;
@@ -447,10 +477,26 @@ HAL_StatusTypeDef HAL_MultiProcessor_Init(UART_HandleTypeDef *huart, uint8_t Add
   }
 
   /* In multiprocessor mode, the following bits must be kept cleared:
-  - LINEN and CLKEN bits in the USART_CR2 register,
-  - SCEN, HDSEL and IREN  bits in the USART_CR3 register. */
+  - LINEN (if LIN is supported) and CLKEN bits in the USART_CR2 register,
+  - SCEN (if Smartcard is supported), HDSEL and IREN (if IrDA is supported) bits in the USART_CR3 register. */
+#if defined (USART_CR2_LINEN)
   huart->Instance->CR2 &= ~(USART_CR2_LINEN | USART_CR2_CLKEN);
+#else
+  huart->Instance->CR2 &= ~(USART_CR2_CLKEN);
+#endif
+#if defined (USART_CR3_SCEN)
+#if defined (USART_CR3_IREN)
   huart->Instance->CR3 &= ~(USART_CR3_SCEN | USART_CR3_HDSEL | USART_CR3_IREN);
+#else
+  huart->Instance->CR3 &= ~(USART_CR3_SCEN | USART_CR3_HDSEL);
+#endif
+#else
+#if defined (USART_CR3_IREN)
+  huart->Instance->CR3 &= ~(USART_CR3_HDSEL | USART_CR3_IREN);
+#else
+  huart->Instance->CR3 &= ~(USART_CR3_HDSEL);
+#endif
+#endif
 
   if (WakeUpMethod == UART_WAKEUPMETHOD_ADDRESSMARK)
   {
@@ -512,6 +558,9 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_MspInit can be implemented in the user file
    */
@@ -524,6 +573,9 @@ HAL_StatusTypeDef HAL_UART_DeInit(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_MspDeInit can be implemented in the user file
    */
@@ -779,9 +831,6 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, uint8_t *pData
     {
       huart->State = HAL_UART_STATE_BUSY_TX;
     }
-
-    /* Enable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-    __HAL_UART_ENABLE_IT(huart, UART_IT_ERR);
 
     /* Process Unlocked */
     __HAL_UNLOCK(huart);
@@ -1103,6 +1152,9 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_TxCpltCallback can be implemented in the user file.
    */
@@ -1115,6 +1167,9 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_UART_TxHalfCpltCallback can be implemented in the user file.
    */
@@ -1127,6 +1182,9 @@ HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart)
   */
 __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_RxCpltCallback can be implemented in the user file.
    */
@@ -1139,6 +1197,9 @@ __weak void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
   */
 __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_UART_RxHalfCpltCallback can be implemented in the user file.
    */
@@ -1151,6 +1212,9 @@ __weak void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
   */
  __weak void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(huart);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_UART_ErrorCallback can be implemented in the user file.
    */
@@ -1793,9 +1857,6 @@ HAL_StatusTypeDef UART_EndTransmit_IT(UART_HandleTypeDef *huart)
   }
   else
   {
-    /* Disable the UART Error Interrupt: (Frame error, noise error, overrun error) */
-    __HAL_UART_DISABLE_IT(huart, UART_IT_ERR);
-
     huart->State = HAL_UART_STATE_READY;
   }
 

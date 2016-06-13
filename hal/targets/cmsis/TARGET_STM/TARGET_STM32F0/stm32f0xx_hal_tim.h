@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -928,9 +928,9 @@ typedef struct
                                    ((MODE) == TIM_ENCODERMODE_TI2) || \
                                    ((MODE) == TIM_ENCODERMODE_TI12))
 
-#define IS_TIM_DMA_SOURCE(SOURCE) ((((SOURCE) & 0xFFFF80FF) == 0x00000000) && ((SOURCE) != 0x00000000))
+#define IS_TIM_DMA_SOURCE(SOURCE) ((((SOURCE) & 0xFFFF80FFU) == 0x00000000) && ((SOURCE) != 0x00000000))
 
-#define IS_TIM_EVENT_SOURCE(SOURCE) ((((SOURCE) & 0xFFFFFF00) == 0x00000000) && ((SOURCE) != 0x00000000))
+#define IS_TIM_EVENT_SOURCE(SOURCE) ((((SOURCE) & 0xFFFFFF00U) == 0x00000000) && ((SOURCE) != 0x00000000))
 
 #define IS_TIM_FLAG(FLAG) (((FLAG) == TIM_FLAG_UPDATE) || \
                            ((FLAG) == TIM_FLAG_CC1)     || \
@@ -1357,7 +1357,7 @@ mode.
   * @param  __PRESC__: specifies the active prescaler register new value.
   * @retval None
   */
-#define __HAL_TIM_SET_PRESCALER (__HANDLE__, __PRESC__)       ((__HANDLE__)->Instance->PSC = (__PRESC__))
+#define __HAL_TIM_SET_PRESCALER(__HANDLE__, __PRESC__)       ((__HANDLE__)->Instance->PSC = (__PRESC__))
 
 /**
   * @brief  Sets the TIM Capture Compare Register value on runtime without

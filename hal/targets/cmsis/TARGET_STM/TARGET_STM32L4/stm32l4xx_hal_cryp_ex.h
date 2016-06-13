@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_cryp_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of CRYPEx HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,8 @@
  extern "C" {
 #endif
 
-#if defined(STM32L485xx) || defined(STM32L486xx)
+#if defined (STM32L442xx) || defined (STM32L443xx) || defined(STM32L485xx) || defined(STM32L486xx)
+   
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
@@ -106,6 +107,7 @@ void HAL_CRYPEx_Read_KeyRegisters(CRYP_HandleTypeDef *hcryp, uint8_t* Output, ui
 void HAL_CRYPEx_Write_KeyRegisters(CRYP_HandleTypeDef *hcryp, uint8_t* Input, uint32_t KeySize);
 void HAL_CRYPEx_Read_ControlRegister(CRYP_HandleTypeDef *hcryp, uint8_t* Output);
 void HAL_CRYPEx_Write_ControlRegister(CRYP_HandleTypeDef *hcryp, uint8_t* Input);
+void HAL_CRYPEx_ProcessSuspend(CRYP_HandleTypeDef *hcryp);
 
 /**
   * @}
@@ -135,7 +137,7 @@ HAL_StatusTypeDef CRYP_AES_Auth_IT(CRYP_HandleTypeDef *hcryp);
   * @}
   */ 
   
-#endif /* defined(STM32L485xx) || defined(STM32L486xx) */
+#endif /* defined (STM32L442xx) || defined (STM32L443xx) || defined(STM32L485xx) || defined(STM32L486xx) */     
   
 #ifdef __cplusplus
 }

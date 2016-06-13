@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_opamp.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   OPAMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the operational amplifier(s) peripheral: 
@@ -20,8 +20,12 @@
           ##### OPAMP Peripheral Features #####
 ================================================================================
            
-  [..] The device integrates 2 operational amplifiers OPAMP1 & OPAMP2
+  [..] The device integrates 1 or 2 operational amplifiers OPAMP1 & OPAMP2
        
+       (#) The OPAMP(s) provide(s) several exclusive running modes.       
+       (++) 1 OPAMP: STM32L431xx STM32L432xx STM32L433xx STM32L442xx STM32L443xx
+       (++) 2 OPAMP: STM32L471xx STM32L475xx STM32L476xx STM32L485xx STM32L486xx
+
        (#) The OPAMP(s) provide(s) several exclusive running modes.
        (++) Standalone mode
        (++) Programmable Gain Amplifier (PGA) mode (Resistor feedback output)
@@ -64,40 +68,12 @@
            output.
        (++) OPAMP gain is either 2, 4, 8 or 16.
         
-       (#) The OPAMPs inverting input can be 
-           selected among the list shown by table below.
+       (#) The OPAMPs inverting input can be selected according to the Reference Manual 
+           "OPAMP function description" chapter.
        
-       (#) The OPAMPs non inverting input can be 
-           selected among the list shown by table below.
+       (#) The OPAMPs non inverting input can be selected according to the Reference Manual 
+           "OPAMP function description" chapter.
        
-   [..] Table 1.  OPAMPs inverting/non-inverting inputs for the STM32L4 devices:
-     
-       (+) +------------------------------------------------------------------------|     
-       (+) |                 |         | OPAMP1               | OPAMP2              |
-       (+) |-----------------|---------|----------------------|---------------------|
-       (+) | Inverting Input | VM_SEL  |                      |                     |
-       (+) |                 |         |  IO0-> PA1           | IO0-> PA7           |
-       (+) |                 |         |  LOW LEAKAGE IO (2)  | LOW LEAKAGE IO (2)  |
-       (+) |                 |         |  Not connected       | Not connected       |
-       (+) | (1)             |         |    PGA mode only     |   PGA mode only     |
-       (+) |-----------------|---------|----------------------|---------------------|
-       (+) |  Non Inverting  | VM_SEL  |                      |                     |
-       (+) |                 |         |  IO0-> PA0 (GPIO)    | IO0-> PA6  (GPIO)   |
-       (+) |    Input        |         |  DAC1_OUT1 internal  | DAC1_OUT2 internal  |
-       (+) +------------------------------------------------------------------------|
-       [..] (1): NA in follower mode.
-       [..](2): Available on some package only (ex. BGA132).
-           
-   [..] Table 2.  OPAMPs outputs for the STM32L4 devices:
-
-       (+) +-------------------------------------------------------------------------     
-       (+) |                 |        | OPAMP1                | OPAMP2              |
-       (+) |-----------------|--------|-----------------------|---------------------|
-       (+) | Output          |  VOUT  |  PA3                  |  PB0                |
-       (+) |                 |        |  & (2) ADC12_IN if    | & (2) ADC12_IN if   |
-       (+) |                 |        |  connected internally | connected internally|
-       (+) |-----------------|--------|-----------------------|---------------------|
-    [..] (2): ADC1 or ADC2 shall select IN15.
       
             ##### How to use this driver #####
 ================================================================================
@@ -171,9 +147,40 @@
 
   @endverbatim
   ******************************************************************************
+
+      Table 1.  OPAMPs inverting/non-inverting inputs for the STM32L4 devices:
+      +------------------------------------------------------------------------|     
+      |                 |         | OPAMP1               | OPAMP2              |
+      |-----------------|---------|----------------------|---------------------|
+      | Inverting Input | VM_SEL  |                      |                     |
+      |                 |         |  IO0-> PA1           | IO0-> PA7           |
+      |                 |         |  LOW LEAKAGE IO (2)  | LOW LEAKAGE IO (2)  |
+      |                 |         |  Not connected       | Not connected       |
+      | (1)             |         |    PGA mode only     |   PGA mode only     |
+      |-----------------|---------|----------------------|---------------------|
+      |  Non Inverting  | VP_SEL  |                      |                     |
+      |                 |         |  IO0-> PA0 (GPIO)    | IO0-> PA6  (GPIO)   |
+      |    Input        |         |  DAC1_OUT1 internal  | DAC1_OUT2 internal  |
+      +------------------------------------------------------------------------|
+       (1): NA in follower mode.
+       (2): Available on some package only (ex. BGA132).
+           
+           
+      Table 2.  OPAMPs outputs for the STM32L4 devices:
+
+      +-------------------------------------------------------------------------     
+      |                 |        | OPAMP1                | OPAMP2              |
+      |-----------------|--------|-----------------------|---------------------|
+      | Output          |  VOUT  |  PA3                  |  PB0                |
+      |                 |        |  & (1) ADC12_IN if    | & (1) ADC12_IN if   |
+      |                 |        |  connected internally | connected internally|
+      |-----------------|--------|-----------------------|---------------------|
+       (1): ADC1 or ADC2 shall select IN15.
+
+  ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -456,6 +463,9 @@ HAL_StatusTypeDef HAL_OPAMP_DeInit(OPAMP_HandleTypeDef *hopamp)
   */
 __weak void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hopamp);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the function "HAL_OPAMP_MspInit()" must be implemented in the user file.
    */
@@ -468,6 +478,9 @@ __weak void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp)
   */
 __weak void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef *hopamp)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hopamp);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the function "HAL_OPAMP_MspDeInit()" must be implemented in the user file.
    */
@@ -592,6 +605,7 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
   uint32_t trimmingvaluen = 0;
   uint32_t trimmingvaluep = 0;
   uint32_t delta;
+  uint32_t opampmode;
   
   __IO uint32_t* tmp_opamp_reg_trimming;   /* Selection of register of trimming depending on power mode: OTR or LPOTR */
     
@@ -603,13 +617,20 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
   }
   else
   {
-  
     /* Check if OPAMP in calibration mode and calibration not yet enable */
     if(hopamp->State ==  HAL_OPAMP_STATE_READY)
     {
       /* Check the parameter */
       assert_param(IS_OPAMP_ALL_INSTANCE(hopamp->Instance));
       assert_param(IS_OPAMP_POWERMODE(hopamp->Init.PowerMode));
+
+      /* Save OPAMP mode as in                                       */
+      /* STM32L471xx STM32L475xx STM32L476xx STM32L485xx STM32L486xx */
+      /* the calibration is not working in PGA mode                  */
+      opampmode = READ_BIT(hopamp->Instance->CSR,OPAMP_CSR_OPAMODE);
+      
+      /* Use of standalone mode */ 
+      MODIFY_REG(hopamp->Instance->CSR, OPAMP_CSR_OPAMODE, OPAMP_STANDALONE_MODE); 
 
       /*  user trimming values are used for offset calibration */
       SET_BIT(hopamp->Instance->CSR, OPAMP_CSR_USERTRIM);
@@ -759,8 +780,10 @@ HAL_StatusTypeDef HAL_OPAMP_SelfCalibrate(OPAMP_HandleTypeDef *hopamp)
         /* Write calibration result P */
         hopamp->Init.TrimmingValuePLowPower = trimmingvaluep;
       }
+    
+    /* Restore OPAMP mode after calibration */
+    MODIFY_REG(hopamp->Instance->CSR, OPAMP_CSR_OPAMODE, opampmode);
     }
-
     else
     {
       /* OPAMP can not be calibrated from this mode */ 

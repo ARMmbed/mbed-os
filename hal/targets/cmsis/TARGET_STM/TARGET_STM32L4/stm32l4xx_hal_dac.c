@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_dac.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   DAC HAL module driver.
   *         This file provides firmware functions to manage the following 
   *         functionalities of the Digital to Analog Converter (DAC) peripheral:
@@ -68,7 +68,7 @@
       =====================
       [..] 
       When a DAC channel is used (ex channel1 on PA4) and the other is not 
-      (ex channel1 on PA5 is configured in Analog and disabled).
+      (ex channel2 on PA5 is configured in Analog and disabled).
       Channel1 may disturb channel2 as coupling effect.
       Note that there is no coupling on channel2 as soon as channel2 is turned on.
       Coupling on adjacent channel could be avoided as follows:
@@ -229,7 +229,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -399,6 +399,9 @@ HAL_StatusTypeDef HAL_DAC_DeInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
 { 
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_DAC_MspInit could be implemented in the user file
    */ 
@@ -412,6 +415,9 @@ __weak void HAL_DAC_MspInit(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_MspDeInit(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_DAC_MspDeInit could be implemented in the user file
    */ 
@@ -807,6 +813,9 @@ HAL_StatusTypeDef HAL_DAC_SetValue(DAC_HandleTypeDef* hdac, uint32_t Channel, ui
   */
 __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_DAC_ConvCpltCallbackCh1 could be implemented in the user file
    */
@@ -820,6 +829,9 @@ __weak void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_DAC_ConvHalfCpltCallbackCh1 could be implemented in the user file
    */
@@ -833,6 +845,9 @@ __weak void HAL_DAC_ConvHalfCpltCallbackCh1(DAC_HandleTypeDef* hdac)
   */
 __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_DAC_ErrorCallbackCh1 could be implemented in the user file
    */
@@ -846,6 +861,9 @@ __weak void HAL_DAC_ErrorCallbackCh1(DAC_HandleTypeDef *hdac)
   */
 __weak void HAL_DAC_DMAUnderrunCallbackCh1(DAC_HandleTypeDef *hdac)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdac);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_DAC_DMAUnderrunCallbackCh1 could be implemented in the user file
    */

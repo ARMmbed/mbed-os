@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Real-Time Clock (RTC) peripheral:
@@ -91,7 +91,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -365,6 +365,9 @@ HAL_StatusTypeDef HAL_RTC_DeInit(RTC_HandleTypeDef *hrtc)
   */
 __weak void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTC_MspInit could be implemented in the user file
    */
@@ -377,6 +380,9 @@ __weak void HAL_RTC_MspInit(RTC_HandleTypeDef* hrtc)
   */
 __weak void HAL_RTC_MspDeInit(RTC_HandleTypeDef* hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTC_MspDeInit could be implemented in the user file
    */ 
@@ -1312,6 +1318,9 @@ void HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef* hrtc)
   */
 __weak void HAL_RTC_AlarmAEventCallback(RTC_HandleTypeDef *hrtc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrtc);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_RTC_AlarmAEventCallback could be implemented in the user file
    */
@@ -1440,7 +1449,7 @@ HAL_RTCStateTypeDef HAL_RTC_GetState(RTC_HandleTypeDef* hrtc)
   * @}
   */
 
-/** @defgroup RTC_Private_Functions Private functions
+/** @defgroup RTC_Private_Functions RTC Private functions
   * @{
   */
 /**

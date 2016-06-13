@@ -1,7 +1,7 @@
 python:
   - "2.7"
 
-script: "python workspace_tools/build_travis.py"
+script: "python tools/build_travis.py"
 before_install:
   - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
   - sudo apt-get update -qq

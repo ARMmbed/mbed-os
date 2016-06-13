@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_opamp.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of OPAMP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -302,15 +302,26 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
                                                ((INPUT) == OPAMP_PGA_MODE) || \
                                                ((INPUT) == OPAMP_FOLLOWER_MODE))
 
+#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
 #define IS_OPAMP_INVERTING_INPUT_STANDALONE(INPUT) (((INPUT) == OPAMP_INVERTINGINPUT_IO0) || \
                                                     ((INPUT) == OPAMP_INVERTINGINPUT_IO1))
+#endif
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx)  || defined (STM32L442xx)  || defined (STM32L443xx)
+#define IS_OPAMP_INVERTING_INPUT_STANDALONE(INPUT) ((INPUT) == OPAMP_INVERTINGINPUT_IO0)
+#endif
 
 #define IS_OPAMP_NONINVERTING_INPUT(INPUT) (((INPUT) == OPAMP_NONINVERTINGINPUT_IO0) || \
                                             ((INPUT) == OPAMP_NONINVERTINGINPUT_DAC_CH))
 
+#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
 #define IS_OPAMP_INVERTING_INPUT_PGA(INPUT) (((INPUT) == OPAMP_INVERTINGINPUT_IO0) || \
                                              ((INPUT) == OPAMP_INVERTINGINPUT_IO1)|| \
                                              ((INPUT) == OPAMP_INVERTINGINPUT_CONNECT_NO))
+#endif
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx)  || defined (STM32L442xx)  || defined (STM32L443xx)
+#define IS_OPAMP_INVERTING_INPUT_PGA(INPUT) (((INPUT) == OPAMP_INVERTINGINPUT_IO0) || \
+                                             ((INPUT) == OPAMP_INVERTINGINPUT_CONNECT_NO))
+#endif
 
 #define IS_OPAMP_PGA_GAIN(GAIN) (((GAIN) == OPAMP_PGA_GAIN_2) || \
                                  ((GAIN) == OPAMP_PGA_GAIN_4) || \

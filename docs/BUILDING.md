@@ -130,11 +130,11 @@ Checking out files: 100% (3994/3994), done.
 ```
 $ cd mbed
 $ ls
-LICENSE  MANIFEST.in  README.md  libraries  setup.py  travis  workspace_tools
+LICENSE  MANIFEST.in  README.md  libraries  setup.py  travis  tools
 ```
 Directory structure we are interested in:
 ```
-  mbed/workspace_tools/           - test suite scripts, build scripts etc.
+  mbed/tools/           - test suite scripts, build scripts etc.
   mbed/libraries/tests/           - mbed SDK tests,
   mbed/libraries/tests/mbed/      - tests for mbed SDK and peripherals tests,
   mbed/libraries/tests/net/echo/  - tests for Ethernet interface,
@@ -153,9 +153,9 @@ Workspace tools are set of Python scripts used off-line by Mbed SDK team to:
 Before we can run our first test we need to configure our test environment a little!
 Now we need to tell workspace tools where our compilers are.
 
-* Please to go ```mbed/workspace_tools/``` directory and create empty file called ```private_settings.py```.
+* Please to go ```mbed``` directory and create empty file called ```mbed_settings.py```.
 ```
-$ touch private_settings.py
+$ touch mbed_settings.py
 ```
 * Populate this file the Python code below: 
 ```python
@@ -203,13 +203,13 @@ GCC_CR_PATH = "C:/Work/toolchains/LPCXpresso_6.1.4_194/lpcxpresso/tools/bin"
 IAR_PATH = "C:/Work/toolchains/iar_6_5/arm"
 ```
 
-Note: Settings in ```private_settings.py``` will overwrite variables with default values in ```mbed/workspace_tools/settings.py``` file.
+Note: Settings in ```mbed_settings.py``` will overwrite variables with default values in ```mbed/default_settings.py``` file.
 
 ## Build Mbed SDK library from sources
-Let's build mbed SDK library off-line from sources using your compiler. We've already cloned mbed SDK sources, we've also installed compilers and added their paths to ```private_settings.py```.
+Let's build mbed SDK library off-line from sources using your compiler. We've already cloned mbed SDK sources, we've also installed compilers and added their paths to ```mbed_settings.py```.
 We now should be ready to use workspace tools script ```build.py``` to compile and build mbed SDK from sources.
 
-We are still using console. You should be already in ```mbed/workspace_tools/``` directory if not go to ```mbed/workspace_tools/``` and type below command:
+We are still using console. You should be already in ```mbed/tools/``` directory if not go to ```mbed/tools/``` and type below command:
 ```
 $ python build.py -m LPC1768 -t ARM
 ```
@@ -276,7 +276,7 @@ Build successes:
 
 ### build.py script
 
-Build script located in mbed/workspace_tools/ is our core script solution to drive compilation, linking and building process for:
+Build script located in mbed/tools/ is our core script solution to drive compilation, linking and building process for:
 
 * mbed SDK (with libs like Ethernet, RTOS, USB, USB host).
 * Tests which also can be linked with libraries like RTOS or Ethernet.
@@ -426,7 +426,7 @@ $ python build.py -t uARM -m NUCLEO_F334R8 --cppcheck
 ```
 
 # make.py script
-```make.py``` is a ```mbed/workspace_tools/``` script used to build tests (we call them sometimes 'programs') one by one manually. This script allows you to flash board, execute and test it. However, this script is deprecated and will not be described here. Instead please use ```singletest.py``` file to build mbed SDK, tests and run automation for test cases included in ```mbedmicro/mbed```.
+```make.py``` is a ```mbed/tools/``` script used to build tests (we call them sometimes 'programs') one by one manually. This script allows you to flash board, execute and test it. However, this script is deprecated and will not be described here. Instead please use ```singletest.py``` file to build mbed SDK, tests and run automation for test cases included in ```mbedmicro/mbed```.
 Note: ```make.py``` script depends on existing already built mbed SDK and library sources so you need to pre-build mbed SDK and other libraries (such as RTOS library) to link 'program' (test) with mbed SDK and RTOS library. To pre-build mbed SDK please use ```build.py``` script.
 
 Just for sake of example please see few ways to use ```make.py``` together with Freedom K64F board.

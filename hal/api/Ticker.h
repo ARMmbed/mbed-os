@@ -25,6 +25,8 @@ namespace mbed {
  *
  *  You can use as many seperate Ticker objects as you require.
  *
+ * @Note Synchronization level: Interrupt safe
+ *
  * Example:
  * @code
  * // Toggle the blinking led after 5 seconds

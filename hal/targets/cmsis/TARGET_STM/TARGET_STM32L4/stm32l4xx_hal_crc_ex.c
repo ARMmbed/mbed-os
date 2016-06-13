@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_crc_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Extended CRC HAL module driver.
   *          This file provides firmware functions to manage the extended 
   *          functionalities of the CRC peripheral.  
@@ -20,7 +20,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -72,7 +72,7 @@
   * @{
   */
 
-/** @defgroup CRCEx_Group1 Extended Initialization/de-initialization functions
+/** @defgroup CRCEx_Exported_Functions_Group1 Extended Initialization/de-initialization functions
   * @brief    Extended Initialization and Configuration functions.
   *
 @verbatim    
@@ -98,10 +98,10 @@
   *         @arg for a polynomial of degree 16, X^16 + X^12 + X^5 + 1 is written 0x1021     
   * @param  PolyLength: CRC polynomial length. 
   *         This parameter can be one of the following values:
-  *          @arg CRC_POLYLENGTH_7B: 7-bit long CRC (generating polynomial of degree 7)
-  *          @arg CRC_POLYLENGTH_8B: 8-bit long CRC (generating polynomial of degree 8)
-  *          @arg CRC_POLYLENGTH_16B: 16-bit long CRC (generating polynomial of degree 16)
-  *          @arg CRC_POLYLENGTH_32B: 32-bit long CRC (generating polynomial of degree 32)                
+  *          @arg @ref CRC_POLYLENGTH_7B  7-bit long CRC (generating polynomial of degree 7)
+  *          @arg @ref CRC_POLYLENGTH_8B  8-bit long CRC (generating polynomial of degree 8)
+  *          @arg @ref CRC_POLYLENGTH_16B 16-bit long CRC (generating polynomial of degree 16)
+  *          @arg @ref CRC_POLYLENGTH_32B 32-bit long CRC (generating polynomial of degree 32)                
   * @retval HAL status
   */                                   
 HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol, uint32_t PolyLength)
@@ -162,10 +162,10 @@ HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol
   * @param  hcrc: CRC handle
   * @param  InputReverseMode: Input Data inversion mode.
   *         This parameter can be one of the following values:
-  *          @arg CRC_INPUTDATA_NOINVERSION: no change in bit order (default value)
-  *          @arg CRC_INPUTDATA_INVERSION_BYTE: Byte-wise bit reversal
-  *          @arg CRC_INPUTDATA_INVERSION_HALFWORD: HalfWord-wise bit reversal
-  *          @arg CRC_INPUTDATA_INVERSION_WORD: Word-wise bit reversal              
+  *          @arg @ref CRC_INPUTDATA_INVERSION_NONE     no change in bit order (default value)
+  *          @arg @ref CRC_INPUTDATA_INVERSION_BYTE     Byte-wise bit reversal
+  *          @arg @ref CRC_INPUTDATA_INVERSION_HALFWORD HalfWord-wise bit reversal
+  *          @arg @ref CRC_INPUTDATA_INVERSION_WORD     Word-wise bit reversal              
   * @retval HAL status
   */                                   
 HAL_StatusTypeDef HAL_CRCEx_Input_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t InputReverseMode)
@@ -190,8 +190,8 @@ HAL_StatusTypeDef HAL_CRCEx_Input_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t
   * @param  hcrc: CRC handle
   * @param  OutputReverseMode: Output Data inversion mode.
   *         This parameter can be one of the following values:
-  *          @arg CRC_OUTPUTDATA_INVERSION_DISABLE: no CRC inversion (default value)
-  *          @arg CRC_OUTPUTDATA_INVERSION_ENABLE: bit-level inversion (e.g. for a 8-bit CRC: 0xB5 becomes 0xAD)            
+  *          @arg @ref CRC_OUTPUTDATA_INVERSION_DISABLE no CRC inversion (default value)
+  *          @arg @ref CRC_OUTPUTDATA_INVERSION_ENABLE  bit-level inversion (e.g. for a 8-bit CRC: 0xB5 becomes 0xAD)            
   * @retval HAL status
   */                                   
 HAL_StatusTypeDef HAL_CRCEx_Output_Data_Reverse(CRC_HandleTypeDef *hcrc, uint32_t OutputReverseMode)

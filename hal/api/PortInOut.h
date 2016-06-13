@@ -21,10 +21,13 @@
 #if DEVICE_PORTINOUT
 
 #include "port_api.h"
+#include "critical.h"
 
 namespace mbed {
 
 /** A multiple pin digital in/out used to set/read multiple bi-directional pins
+ *
+ * @Note Synchronization level: Interrupt safe
  */
 class PortInOut {
 public:
@@ -35,7 +38,9 @@ public:
      *  @param mask A bitmask to identify which bits in the port should be included (0 - ignore)
      */
     PortInOut(PortName port, int mask = 0xFFFFFFFF) {
+        core_util_critical_section_enter();
         port_init(&_port, port, mask, PIN_INPUT);
+        core_util_critical_section_exit();
     }
 
     /** Write the value to the output port
@@ -58,13 +63,17 @@ public:
     /** Set as an output
      */
     void output() {
+        core_util_critical_section_enter();
         port_dir(&_port, PIN_OUTPUT);
+        core_util_critical_section_exit();
     }
 
     /** Set as an input
      */
     void input() {
+        core_util_critical_section_enter();
         port_dir(&_port, PIN_INPUT);
+        core_util_critical_section_exit();
     }
 
     /** Set the input pin mode
@@ -72,7 +81,9 @@ public:
      *  @param mode PullUp, PullDown, PullNone, OpenDrain
      */
     void mode(PinMode mode) {
+        core_util_critical_section_enter();
         port_mode(&_port, mode);
+        core_util_critical_section_exit();
     }
 
     /** A shorthand for write()

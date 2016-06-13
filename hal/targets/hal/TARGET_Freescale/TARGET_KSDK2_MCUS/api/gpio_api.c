@@ -17,6 +17,9 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "fsl_port.h"
+#include "fsl_gpio.h"
+
+static GPIO_Type * const gpio_addrs[] = GPIO_BASE_PTRS;
 
 uint32_t gpio_set(PinName pin) {
     MBED_ASSERT(pin != (PinName)NC);
@@ -41,7 +44,6 @@ void gpio_mode(gpio_t *obj, PinMode mode) {
 void gpio_dir(gpio_t *obj, PinDirection direction) {
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
-    GPIO_Type *gpio_addrs[] = GPIO_BASE_PTRS;
     uint32_t pin_num = obj->pin & 0xFF;
     GPIO_Type *base = gpio_addrs[port];
 
@@ -53,4 +55,20 @@ void gpio_dir(gpio_t *obj, PinDirection direction) {
             base->PDDR |= (1U << pin_num);
             break;
     }
+}
+
+void gpio_write(gpio_t *obj, int value) {
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
+    uint32_t pin = obj->pin & 0xFF;
+
+    GPIO_WritePinOutput(gpio_addrs[port], pin, value);
+}
+
+int gpio_read(gpio_t *obj) {
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
+    uint32_t pin = obj->pin & 0xFF;
+
+    return (int)GPIO_ReadPinInput(gpio_addrs[port], pin);
 }

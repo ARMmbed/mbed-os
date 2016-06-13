@@ -2,18 +2,18 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Extended RCC HAL module driver
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
-  *           + Extended Clock Source configuration functions
+  *           + Extended Peripheral Control functions
   *  
   @verbatim
   ==============================================================================
                       ##### How to use this driver #####
   ==============================================================================
-
+    [..]
       For CRS, RCC Extention HAL driver can be used as follows:
 
       (#) In System clock config, HSI48 need to be enabled
@@ -24,20 +24,20 @@
           (##) Prepare synchronization configuration necessary for HSI48 calibration
               (+++) Default values can be set for frequency Error Measurement (reload and error limit)
                         and also HSI48 oscillator smooth trimming.
-              (+++) Macro __HAL_RCC_CRS_CALCULATE_RELOADVALUE can be also used to calculate 
-                        directly reload value with target and sychronization frequencies values
-          (##) Call function HAL_RCCEx_CRSConfig which
+              (+++) Macro @ref __HAL_RCC_CRS_RELOADVALUE_CALCULATE can be also used to calculate 
+                        directly reload value with target and synchronization frequencies values
+          (##) Call function @ref HAL_RCCEx_CRSConfig which
               (+++) Reset CRS registers to their default values.
               (+++) Configure CRS registers with synchronization configuration 
               (+++) Enable automatic calibration and frequency error counter feature
 
           (##) A polling function is provided to wait for complete Synchronization
-              (+++) Call function HAL_RCCEx_CRSWaitSynchronization()
+              (+++) Call function @ref HAL_RCCEx_CRSWaitSynchronization()
               (+++) According to CRS status, user can decide to adjust again the calibration or continue
                         application if synchronization is OK
               
       (#) User can retrieve information related to synchronization in calling function
-            HAL_RCCEx_CRSGetSynchronizationInfo()
+            @ref HAL_RCCEx_CRSGetSynchronizationInfo()
 
       (#) Regarding synchronization status and synchronization information, user can try a new calibration
            in changing synchronization configuration and call again HAL_RCCEx_CRSConfig.
@@ -48,19 +48,19 @@
 
       (#) To use IT mode, user needs to handle it in calling different macros available to do it
             (__HAL_RCC_CRS_XXX_IT). Interuptions will go through RCC Handler (RCC_IRQn/RCC_CRS_IRQHandler)
-              (++) Call function HAL_RCCEx_CRSConfig()
+              (++) Call function @ref HAL_RCCEx_CRSConfig()
               (++) Enable RCC_IRQn (thnaks to NVIC functions)
-              (++) Enable CRS IT (__HAL_RCC_CRS_ENABLE_IT)
-              (++) Implement CRS status management in RCC_CRS_IRQHandler
+              (++) Enable CRS IT (@ref __HAL_RCC_CRS_ENABLE_IT)
+              (++) Implement CRS status management in @ref RCC_CRS_IRQHandler
 
-      (#) To force a SYNC EVENT, user can use function HAL_RCCEx_CRSSoftwareSynchronizationGenerate(). Function can be 
-            called before calling HAL_RCCEx_CRSConfig (for instance in Systick handler)
+      (#) To force a SYNC EVENT, user can use function @ref HAL_RCCEx_CRSSoftwareSynchronizationGenerate(). Function can be 
+            called before calling @ref HAL_RCCEx_CRSConfig (for instance in Systick handler)
             
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -103,6 +103,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#if defined(CRS)
 /** @defgroup RCCEx_Private_Constants RCCEx Private Constants
   * @{
   */
@@ -113,6 +114,7 @@
 /**
   * @}
   */
+#endif /* CRS */
   
 /* Private macro -------------------------------------------------------------*/
 /** @defgroup RCCEx_Private_Macros RCCEx Private Macros
@@ -121,16 +123,17 @@
 /**
   * @}
   */
+
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Exported functions ---------------------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
 
 /** @defgroup RCCEx_Exported_Functions RCCEx Exported Functions
   * @{
   */
 
 /** @defgroup RCCEx_Exported_Functions_Group1 Extended Peripheral Control functions 
- *  @brief  Extended RCC clocks control functions 
+  * @brief    Extended Peripheral Control functions
  *
 @verbatim   
  ===============================================================================
@@ -152,16 +155,16 @@
 /**
   * @brief  Initializes the RCC extended peripherals clocks according to the specified
   *         parameters in the RCC_PeriphCLKInitTypeDef.
-  * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
+  * @param  PeriphClkInit pointer to an RCC_PeriphCLKInitTypeDef structure that
   *         contains the configuration information for the Extended Peripherals clocks
   *         (USART, RTC, I2C, CEC and USB).
   *
-  * @note   Care must be taken when HAL_RCCEx_PeriphCLKConfig() is used to select 
+  * @note   Care must be taken when @ref HAL_RCCEx_PeriphCLKConfig() is used to select 
   *         the RTC clock source; in this case the Backup domain will be reset in  
   *         order to modify the RTC Clock source, as consequence RTC registers (including 
   *         the backup registers) and RCC_BDCR register are set to their reset values.
   *
-  * @retval None
+  * @retval HAL status
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 {
@@ -169,31 +172,34 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
   uint32_t temp_reg = 0;
 
   /* Check the parameters */
-  assert_param(IS_RCC_PERIPHCLK(PeriphClkInit->PeriphClockSelection));
+  assert_param(IS_RCC_PERIPHCLOCK(PeriphClkInit->PeriphClockSelection));
   
   /*---------------------------- RTC configuration -------------------------------*/
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_RTC) == (RCC_PERIPHCLK_RTC))
   {
-    /* Reset the Backup domain only if the RTC Clock source selction is modified */ 
+    /* check for RTC Parameters used to output RTCCLK */
+    assert_param(IS_RCC_RTCCLKSOURCE(PeriphClkInit->RTCClockSelection));
+    
+    /* Enable Power Clock*/
+    __HAL_RCC_PWR_CLK_ENABLE();
+    
+    /* Enable write access to Backup domain */
+    SET_BIT(PWR->CR, PWR_CR_DBP);
+    
+    /* Wait for Backup domain Write protection disable */
+    tickstart = HAL_GetTick();
+    
+    while((PWR->CR & PWR_CR_DBP) == RESET)
+    {
+      if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
+      {
+        return HAL_TIMEOUT;
+      }
+    }
+    
+    /* Reset the Backup domain only if the RTC Clock source selection is modified */ 
     if((RCC->BDCR & RCC_BDCR_RTCSEL) != (PeriphClkInit->RTCClockSelection & RCC_BDCR_RTCSEL))
     {
-      /* Enable Power Clock*/
-      __HAL_RCC_PWR_CLK_ENABLE();
-      
-      /* Enable write access to Backup domain */
-      SET_BIT(PWR->CR, PWR_CR_DBP);
-      
-      /* Wait for Backup domain Write protection disable */
-      tickstart = HAL_GetTick();
-      
-      while((PWR->CR & PWR_CR_DBP) == RESET)
-      {
-        if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
-        {
-          return HAL_TIMEOUT;
-        }      
-      }
-      
       /* Store the content of BDCR register before the reset of Backup Domain */
       temp_reg = (RCC->BDCR & ~(RCC_BDCR_RTCSEL));
       /* RTC Clock selection can be changed only if the Backup Domain is reset */
@@ -201,23 +207,23 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       __HAL_RCC_BACKUPRESET_RELEASE();
       /* Restore the Content of BDCR register */
       RCC->BDCR = temp_reg;
-
+      
       /* Wait for LSERDY if LSE was enabled */
       if (HAL_IS_BIT_SET(temp_reg, RCC_BDCR_LSERDY))
       {
-        /* Get timeout */
+        /* Get Start Tick */
         tickstart = HAL_GetTick();
-      
+        
         /* Wait till LSE is ready */  
         while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
         {
           if((HAL_GetTick() - tickstart) > RCC_LSE_TIMEOUT_VALUE)
           {
             return HAL_TIMEOUT;
-          }      
-        }  
+          }
+        }
       }
-      __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection); 
+      __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
     }
   }
   
@@ -303,7 +309,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 /**
   * @brief  Get the RCC_ClkInitStruct according to the internal
   * RCC configuration registers.
-  * @param  PeriphClkInit: pointer to an RCC_PeriphCLKInitTypeDef structure that
+  * @param  PeriphClkInit pointer to an RCC_PeriphCLKInitTypeDef structure that
   *         returns the configuration information for the Extended Peripherals clocks
   *         (USART, RTC, I2C, CEC and USB).
   * @retval None
@@ -315,7 +321,7 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   PeriphClkInit->PeriphClockSelection = RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1   | RCC_PERIPHCLK_RTC;  
   /* Get the RTC configuration --------------------------------------------*/
   PeriphClkInit->RTCClockSelection = __HAL_RCC_GET_RTC_SOURCE();
-  /* Get the USART1 configuration --------------------------------------------*/
+  /* Get the USART1 clock configuration --------------------------------------------*/
   PeriphClkInit->Usart1ClockSelection = __HAL_RCC_GET_USART1_SOURCE();
   /* Get the I2C1 clock source -----------------------------------------------*/
   PeriphClkInit->I2c1ClockSelection = __HAL_RCC_GET_I2C1_SOURCE();
@@ -357,16 +363,55 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 /**
   * @brief  Returns the peripheral clock frequency
   * @note   Returns 0 if peripheral clock is unknown
-  * @param  PeriphClk: Peripheral clock identifier
+  * @param  PeriphClk Peripheral clock identifier
   *         This parameter can be one of the following values:
-  *            @arg RCC_PERIPHCLK_RTC     RTC peripheral clock
-  *            @arg RCC_PERIPHCLK_USART1  USART1 peripheral clock
-  *            @arg RCC_PERIPHCLK_USART2  USART2 peripheral clock (*)
-  *            @arg RCC_PERIPHCLK_USART3  USART3 peripheral clock (*)
-  *            @arg RCC_PERIPHCLK_I2C1    I2C1 peripheral clock
-  *            @arg RCC_PERIPHCLK_USB     USB peripheral clock (*)
-  *            @arg RCC_PERIPHCLK_CEC     CEC peripheral clock (*)
-  * @note   (*) means that this peripheral is not present on all the STM32F0xx devices
+  *            @arg @ref RCC_PERIPHCLK_RTC     RTC peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_USART1  USART1 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_I2C1    I2C1 peripheral clock
+  @if STM32F042x6
+  *            @arg @ref RCC_PERIPHCLK_USB     USB peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F048xx
+  *            @arg @ref RCC_PERIPHCLK_USB     USB peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F051x8
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F058xx
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F070x6
+  *            @arg @ref RCC_PERIPHCLK_USB     USB peripheral clock
+  @endif
+  @if STM32F070xB
+  *            @arg @ref RCC_PERIPHCLK_USB     USB peripheral clock
+  @endif
+  @if STM32F071xB
+  *            @arg @ref RCC_PERIPHCLK_USART2  USART2 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F072xB
+  *            @arg @ref RCC_PERIPHCLK_USART2  USART2 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_USB     USB peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F078xx
+  *            @arg @ref RCC_PERIPHCLK_USART2  USART2 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_USB     USB peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F091xC
+  *            @arg @ref RCC_PERIPHCLK_USART2  USART2 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_USART3  USART2 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
+  @if STM32F098xx
+  *            @arg @ref RCC_PERIPHCLK_USART2  USART2 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_USART3  USART2 peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_CEC     CEC peripheral clock
+  @endif
   * @retval Frequency in Hz (0: means that no available frequency for the peripheral)
   */
 uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
@@ -378,7 +423,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 #endif /* USB */
 
   /* Check the parameters */
-  assert_param(IS_RCC_PERIPHCLK(PeriphClk));
+  assert_param(IS_RCC_PERIPHCLOCK(PeriphClk));
   
   switch (PeriphClk)
   {
@@ -538,7 +583,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       srcclk = __HAL_RCC_GET_USB_SOURCE();
 
       /* Check if PLL is ready and if USB clock selection is PLL */
-      if ((srcclk == RCC_USBCLKSOURCE_PLLCLK) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY)))
+      if ((srcclk == RCC_USBCLKSOURCE_PLL) && (HAL_IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY)))
       {
         /* Get PLL clock source and multiplication factor ----------------------*/
         pllmull      = RCC->CFGR & RCC_CFGR_PLLMUL;
@@ -616,9 +661,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   return(frequency);
 }
 
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(CRS)
 /**
   * @brief  Start automatic synchronization using polling mode
   * @param  pInit Pointer on RCC_CRSInitTypeDef structure
@@ -675,10 +718,10 @@ void HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit)
   /* START AUTOMATIC SYNCHRONIZATION*/
   
   /* Enable Automatic trimming */
-  __HAL_RCC_CRS_ENABLE_AUTOMATIC_CALIB();
+  __HAL_RCC_CRS_AUTOMATIC_CALIB_ENABLE();
 
   /* Enable Frequency error counter */
-  __HAL_RCC_CRS_ENABLE_FREQ_ERROR_COUNTER();
+  __HAL_RCC_CRS_FREQ_ERROR_COUNTER_ENABLE();
 
 }
 
@@ -719,18 +762,18 @@ void HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo
 
 /**
 * @brief This function handles CRS Synchronization Timeout.
-* @param Timeout: Duration of the timeout
+* @param Timeout Duration of the timeout
 * @note  Timeout is based on the maximum time to receive a SYNC event based on synchronization
 *        frequency.
 * @note    If Timeout set to HAL_MAX_DELAY, HAL_TIMEOUT will be never returned.
 * @retval Combination of Synchronization status
 *          This parameter can be a combination of the following values:
-*            @arg RCC_CRS_TIMEOUT
-*            @arg RCC_CRS_SYNCOK
-*            @arg RCC_CRS_SYNCWARM
-*            @arg RCC_CRS_SYNCERR
-*            @arg RCC_CRS_SYNCMISS
-*            @arg RCC_CRS_TRIMOV
+*            @arg @ref RCC_CRS_TIMEOUT
+*            @arg @ref RCC_CRS_SYNCOK
+*            @arg @ref RCC_CRS_SYNCWARM
+*            @arg @ref RCC_CRS_SYNCERR
+*            @arg @ref RCC_CRS_SYNCMISS
+*            @arg @ref RCC_CRS_TRIMOV
 */
 uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
 {
@@ -811,9 +854,7 @@ uint32_t HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout)
   return crsstatus;
 }
           
-#endif /* STM32F042x6 || STM32F048xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 
 /**
   * @}

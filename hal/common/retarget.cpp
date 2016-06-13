@@ -50,6 +50,8 @@
 #   define PREFIX(x)    x
 #endif
 
+#define FILE_HANDLE_RESERVED    0xFFFFFFFF
+
 using namespace mbed;
 
 #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
@@ -70,14 +72,17 @@ extern const char __stderr_name[] = "/stderr";
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileHandle *filehandles[OPEN_MAX];
+static PlatformMutex filehandle_mutex;
 
 FileHandle::~FileHandle() {
+    filehandle_mutex.lock();
     /* Remove all open filehandles for this */
     for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == this) {
             filehandles[fh_i] = NULL;
         }
     }
+    filehandle_mutex.unlock();
 }
 
 #if DEVICE_SERIAL
@@ -150,13 +155,17 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #endif
 
     // find the first empty slot in filehandles
+    filehandle_mutex.lock();
     unsigned int fh_i;
     for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == NULL) break;
     }
     if (fh_i >= sizeof(filehandles)/sizeof(*filehandles)) {
+        filehandle_mutex.unlock();
         return -1;
     }
+    filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
+    filehandle_mutex.unlock();
 
     FileHandle *res;
 
@@ -170,19 +179,29 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     } else {
         FilePath path(name);
 
-        if (!path.exists())
+        if (!path.exists()) {
+            // Free file handle
+            filehandles[fh_i] = NULL;
             return -1;
-        else if (path.isFile()) {
+        } else if (path.isFile()) {
             res = path.file();
         } else {
             FileSystemLike *fs = path.fileSystem();
-            if (fs == NULL) return -1;
+            if (fs == NULL) {
+                // Free file handle
+                filehandles[fh_i] = NULL;
+                return -1;
+            }
             int posix_mode = openmode_to_posix(openmode);
             res = fs->open(path.fileName(), posix_mode); /* NULL if fails */
         }
     }
 
-    if (res == NULL) return -1;
+    if (res == NULL) {
+        // Free file handle
+        filehandles[fh_i] = NULL;
+        return -1;
+    }
     filehandles[fh_i] = res;
 
     return fh_i + 3; // +3 as filehandles 0-2 are stdin/out/err
@@ -412,6 +431,48 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 
 #endif
 
+#if defined(TOOLCHAIN_GCC)
+#ifdef   FEATURE_UVISOR
+#include "uvisor-lib/uvisor-lib.h"
+#endif/* FEATURE_UVISOR */
+
+#ifndef  FEATURE_UVISOR
+extern "C" {
+void * __wrap__malloc_r(struct _reent * r, size_t size) {
+    extern void * __real__malloc_r(struct _reent * r, size_t size);
+    return __real__malloc_r(r, size);
+}
+void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
+    extern void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
+    return __real__realloc_r(r, ptr, size);
+}
+void __wrap__free_r(struct _reent * r, void * ptr) {
+    extern void __real__free_r(struct _reent * r, void * ptr);
+    __real__free_r(r, ptr);
+}
+}
+#endif/* FEATURE_UVISOR */
+
+extern "C" WEAK void software_init_hook_rtos(void)
+{
+    // Do nothing by default.
+}
+
+extern "C" void software_init_hook(void)
+{
+#ifdef   FEATURE_UVISOR
+    int return_code;
+
+    return_code = uvisor_lib_init();
+    if (return_code) {
+        mbed_die();
+    }
+#endif/* FEATURE_UVISOR */
+
+    software_init_hook_rtos();
+}
+#endif
+
 // ****************************************************************************
 // mbed_main is a function that is called before main()
 // mbed_sdk_init() is also a function that is called before main(), but unlike
@@ -575,6 +636,35 @@ extern "C" WEAK void __iar_file_Mtxinit(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxdst(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
+#elif defined(__CC_ARM)
+// Do nothing
+#elif defined (__GNUC__)
+struct _reent;
+// Stub out locks when an rtos is not present
+extern "C" WEAK void __rtos_malloc_lock( struct _reent *_r ) {}
+extern "C" WEAK void __rtos_malloc_unlock( struct _reent *_r ) {}
+extern "C" WEAK void __rtos_env_lock( struct _reent *_r ) {}
+extern "C" WEAK void __rtos_env_unlock( struct _reent *_r ) {}
+
+void __malloc_lock( struct _reent *_r )
+{
+    __rtos_malloc_lock(_r);
+}
+
+void __malloc_unlock( struct _reent *_r )
+{
+    __rtos_malloc_unlock(_r);
+}
+
+void __env_lock( struct _reent *_r )
+{
+    __rtos_env_lock(_r);
+}
+
+void __env_unlock( struct _reent *_r )
+{
+    __rtos_env_unlock(_r);
+}
 #endif
 
 } // namespace mbed

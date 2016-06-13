@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_can.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   CAN HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Controller Area Network (CAN) peripheral:           
@@ -73,7 +73,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -350,36 +350,40 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
 {
   uint32_t filternbrbitpos = 0;
   
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
+
   /* Check the parameters */
   assert_param(IS_CAN_FILTER_NUMBER(sFilterConfig->FilterNumber));
   assert_param(IS_CAN_FILTER_MODE(sFilterConfig->FilterMode));
   assert_param(IS_CAN_FILTER_SCALE(sFilterConfig->FilterScale));
   assert_param(IS_CAN_FILTER_FIFO(sFilterConfig->FilterFIFOAssignment));
   assert_param(IS_FUNCTIONAL_STATE(sFilterConfig->FilterActivation));
+  assert_param(IS_CAN_BANKNUMBER(sFilterConfig->BankNumber));
 
   filternbrbitpos = ((uint32_t)1) << sFilterConfig->FilterNumber;
 
   /* Initialisation mode for the filter */
-  hcan->Instance->FMR |= (uint32_t)CAN_FMR_FINIT;
+  CAN1->FMR |= (uint32_t)CAN_FMR_FINIT;
   
   /* Filter Deactivation */
-  hcan->Instance->FA1R &= ~(uint32_t)filternbrbitpos;
+  CAN1->FA1R &= ~(uint32_t)filternbrbitpos;
 
   /* Filter Scale */
   if (sFilterConfig->FilterScale == CAN_FILTERSCALE_16BIT)
   {
     /* 16-bit scale for the filter */
-    hcan->Instance->FS1R &= ~(uint32_t)filternbrbitpos;
+    CAN1->FS1R &= ~(uint32_t)filternbrbitpos;
 
     /* First 16-bit identifier and First 16-bit mask */
     /* Or First 16-bit identifier and Second 16-bit identifier */
-    hcan->Instance->sFilterRegister[sFilterConfig->FilterNumber].FR1 = 
+    CAN1->sFilterRegister[sFilterConfig->FilterNumber].FR1 = 
        ((0x0000FFFF & (uint32_t)sFilterConfig->FilterMaskIdLow) << 16) |
         (0x0000FFFF & (uint32_t)sFilterConfig->FilterIdLow);
 
     /* Second 16-bit identifier and Second 16-bit mask */
     /* Or Third 16-bit identifier and Fourth 16-bit identifier */
-    hcan->Instance->sFilterRegister[sFilterConfig->FilterNumber].FR2 = 
+    CAN1->sFilterRegister[sFilterConfig->FilterNumber].FR2 = 
        ((0x0000FFFF & (uint32_t)sFilterConfig->FilterMaskIdHigh) << 16) |
         (0x0000FFFF & (uint32_t)sFilterConfig->FilterIdHigh);
   }
@@ -387,13 +391,13 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
   if (sFilterConfig->FilterScale == CAN_FILTERSCALE_32BIT)
   {
     /* 32-bit scale for the filter */
-    hcan->Instance->FS1R |= filternbrbitpos;
+    CAN1->FS1R |= filternbrbitpos;
     /* 32-bit identifier or First 32-bit identifier */
-    hcan->Instance->sFilterRegister[sFilterConfig->FilterNumber].FR1 = 
+    CAN1->sFilterRegister[sFilterConfig->FilterNumber].FR1 = 
        ((0x0000FFFF & (uint32_t)sFilterConfig->FilterIdHigh) << 16) |
         (0x0000FFFF & (uint32_t)sFilterConfig->FilterIdLow);
     /* 32-bit mask or Second 32-bit identifier */
-    hcan->Instance->sFilterRegister[sFilterConfig->FilterNumber].FR2 = 
+    CAN1->sFilterRegister[sFilterConfig->FilterNumber].FR2 = 
        ((0x0000FFFF & (uint32_t)sFilterConfig->FilterMaskIdHigh) << 16) |
         (0x0000FFFF & (uint32_t)sFilterConfig->FilterMaskIdLow);
   }
@@ -402,35 +406,35 @@ HAL_StatusTypeDef HAL_CAN_ConfigFilter(CAN_HandleTypeDef* hcan, CAN_FilterConfTy
   if (sFilterConfig->FilterMode == CAN_FILTERMODE_IDMASK)
   {
     /*Id/Mask mode for the filter*/
-    hcan->Instance->FM1R &= ~(uint32_t)filternbrbitpos;
+    CAN1->FM1R &= ~(uint32_t)filternbrbitpos;
   }
   else /* CAN_FilterInitStruct->CAN_FilterMode == CAN_FilterMode_IdList */
   {
     /*Identifier list mode for the filter*/
-    hcan->Instance->FM1R |= (uint32_t)filternbrbitpos;
+    CAN1->FM1R |= (uint32_t)filternbrbitpos;
   }
 
   /* Filter FIFO assignment */
   if (sFilterConfig->FilterFIFOAssignment == CAN_FILTER_FIFO0)
   {
     /* FIFO 0 assignation for the filter */
-    hcan->Instance->FFA1R &= ~(uint32_t)filternbrbitpos;
+    CAN1->FFA1R &= ~(uint32_t)filternbrbitpos;
   }
 
   if (sFilterConfig->FilterFIFOAssignment == CAN_FILTER_FIFO1)
   {
     /* FIFO 1 assignation for the filter */
-    hcan->Instance->FFA1R |= (uint32_t)filternbrbitpos;
+    CAN1->FFA1R |= (uint32_t)filternbrbitpos;
   }
   
   /* Filter activation */
   if (sFilterConfig->FilterActivation == ENABLE)
   {
-    hcan->Instance->FA1R |= filternbrbitpos;
+    CAN1->FA1R |= filternbrbitpos;
   }
 
   /* Leave the initialisation mode for the filter */
-  hcan->Instance->FMR &= ~((uint32_t)CAN_FMR_FINIT);
+  CAN1->FMR &= ~((uint32_t)CAN_FMR_FINIT);
   
   /* Return function status */
   return HAL_OK;
@@ -477,6 +481,9 @@ HAL_StatusTypeDef HAL_CAN_DeInit(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CAN_MspInit could be implemented in the user file
    */ 
@@ -490,6 +497,9 @@ __weak void HAL_CAN_MspInit(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_MspDeInit(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CAN_MspDeInit could be implemented in the user file
    */ 
@@ -1140,6 +1150,8 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan)
   /* Call the Error call Back in case of Errors */
   if(hcan->ErrorCode != HAL_CAN_ERROR_NONE)
   {
+    /* Clear ERRI bit */
+    SET_BIT(hcan->Instance->MSR, CAN_MSR_ERRI);
     /* Set the CAN state ready to be able to start again the process */
     hcan->State = HAL_CAN_STATE_READY;
     /* Call Error callback function */
@@ -1155,6 +1167,9 @@ void HAL_CAN_IRQHandler(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CAN_TxCpltCallback could be implemented in the user file
    */
@@ -1168,6 +1183,9 @@ __weak void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CAN_RxCpltCallback could be implemented in the user file
    */
@@ -1181,6 +1199,9 @@ __weak void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan)
   */
 __weak void HAL_CAN_ErrorCallback(CAN_HandleTypeDef *hcan)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hcan);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_CAN_ErrorCallback could be implemented in the user file
    */

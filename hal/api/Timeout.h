@@ -24,6 +24,8 @@ namespace mbed {
  *
  * You can use as many seperate Timeout objects as you require.
  *
+ * @Note Synchronization level: Interrupt safe
+ *
  * Example:
  * @code
  * // Blink until timeout.

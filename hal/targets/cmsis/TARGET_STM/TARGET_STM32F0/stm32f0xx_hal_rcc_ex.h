@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.3.1
+  * @date    29-January-2016
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F0xx_HAL_RCC_EX_H
-#define __HAL_RCC_STM32F0xx_HAL_RCC_EX_H
+#define __STM32F0xx_HAL_RCC_EX_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -101,31 +101,31 @@
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6)\
- || defined(STM32F070xB) || defined(STM32F030xC)
+#if defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6) || defined(STM32F070xB) \
+ || defined(STM32F030xC)
 
-#define IS_RCC_MCO1SOURCE(SOURCE)  (((SOURCE) == RCC_MCOSOURCE_NONE)         || \
-                                   ((SOURCE) == RCC_MCOSOURCE_LSI)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_LSE)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_SYSCLK)       || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSI)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSE)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_PLLCLK_NODIV) || \
-                                   ((SOURCE) == RCC_MCOSOURCE_PLLCLK_DIV2)  || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSI14))
+#define IS_RCC_MCO1SOURCE(SOURCE)  (((SOURCE) == RCC_MCO1SOURCE_NOCLOCK)     || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_LSI)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_LSE)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_SYSCLK)       || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSI)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSE)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_PLLCLK)       || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_PLLCLK_DIV2)  || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSI14))
 
 #endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F070x6 || STM32F070xB || STM32F030xC */
 
-#if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx)
+#if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx)
 
-#define IS_RCC_MCO1SOURCE(SOURCE)  (((SOURCE) == RCC_MCOSOURCE_NONE)         || \
-                                   ((SOURCE) == RCC_MCOSOURCE_LSI)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_LSE)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_SYSCLK)       || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSI)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSE)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_PLLCLK_DIV2)  || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSI14))
+#define IS_RCC_MCO1SOURCE(SOURCE)  (((SOURCE) == RCC_MCO1SOURCE_NOCLOCK)     || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_LSI)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_LSE)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_SYSCLK)       || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSI)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSE)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_PLLCLK_DIV2)  || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSI14))
 
 #endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
 
@@ -133,16 +133,16 @@
  || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
  || defined(STM32F091xC) || defined(STM32F098xx)
 
-#define IS_RCC_MCO1SOURCE(SOURCE)  (((SOURCE) == RCC_MCOSOURCE_NONE)         || \
-                                   ((SOURCE) == RCC_MCOSOURCE_LSI)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_LSE)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_SYSCLK)       || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSI)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSE)          || \
-                                   ((SOURCE) == RCC_MCOSOURCE_PLLCLK_NODIV) || \
-                                   ((SOURCE) == RCC_MCOSOURCE_PLLCLK_DIV2)  || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSI14)        || \
-                                   ((SOURCE) == RCC_MCOSOURCE_HSI48))
+#define IS_RCC_MCO1SOURCE(SOURCE)  (((SOURCE) == RCC_MCO1SOURCE_NOCLOCK)     || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_LSI)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_LSE)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_SYSCLK)       || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSI)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSE)          || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_PLLCLK)       || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_PLLCLK_DIV2)  || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSI14)        || \
+                                   ((SOURCE) == RCC_MCO1SOURCE_HSI48))
 
 #endif /* STM32F042x6 || STM32F048xx ||             */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
@@ -232,10 +232,10 @@
   * @{
   */
   
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6)\
- || defined(STM32F070xB) || defined(STM32F030xC)
+#if defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6) || defined(STM32F070xB) \
+ || defined(STM32F030xC)
 
-#define RCC_MCOSOURCE_PLLCLK_NODIV       (RCC_CFGR_MCO_PLL | RCC_CFGR_PLLNODIV)
+#define RCC_MCO1SOURCE_PLLCLK       (RCC_CFGR_MCO_PLL | RCC_CFGR_PLLNODIV)
 
 #endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F070x6 || STM32F070xB || STM32F030xC */
 
@@ -243,8 +243,8 @@
  || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
  || defined(STM32F091xC) || defined(STM32F098xx)
 
-#define RCC_MCOSOURCE_HSI48              RCC_CFGR_MCO_HSI48
-#define RCC_MCOSOURCE_PLLCLK_NODIV       (RCC_CFGR_MCO_PLL | RCC_CFGR_PLLNODIV)
+#define RCC_MCO1SOURCE_HSI48        RCC_CFGR_MCO_HSI48
+#define RCC_MCO1SOURCE_PLLCLK       (RCC_CFGR_MCO_PLL | RCC_CFGR_PLLNODIV)
 
 #endif /* STM32F042x6 || STM32F048xx ||             */
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
@@ -265,6 +265,23 @@
   * @{
   */
 
+/* Private Constants -------------------------------------------------------------*/
+#if defined(CRS)
+/** @addtogroup RCCEx_Private_Constants
+ * @{
+ */
+
+/* CRS IT Error Mask */
+#define  RCC_CRS_IT_ERROR_MASK   ((uint32_t)(RCC_CRS_IT_TRIMOVF | RCC_CRS_IT_SYNCERR | RCC_CRS_IT_SYNCMISS))
+
+/* CRS Flag Error Mask */
+#define RCC_CRS_FLAG_ERROR_MASK  ((uint32_t)(RCC_CRS_FLAG_TRIMOVF | RCC_CRS_FLAG_SYNCERR | RCC_CRS_FLAG_SYNCMISS))
+
+/**
+  * @}
+  */
+#endif /* CRS */
+
 /* Private macro -------------------------------------------------------------*/
 /** @defgroup RCCEx_Private_Macros RCCEx Private Macros
   * @{
@@ -272,47 +289,47 @@
 #if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx)\
  || defined(STM32F030xC)
 
-#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
+#define IS_RCC_PERIPHCLOCK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
                                                      RCC_PERIPHCLK_RTC))
 #endif /* STM32F030x6 || STM32F030x8 || STM32F031x6 || STM32F038xx || 
           STM32F030xC */
 
 #if defined(STM32F070x6) || defined(STM32F070xB)
 
-#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
+#define IS_RCC_PERIPHCLOCK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
                                                      RCC_PERIPHCLK_RTC    | RCC_PERIPHCLK_USB))
 #endif /* STM32F070x6 || STM32F070xB */
 
 #if defined(STM32F042x6) || defined(STM32F048xx)
 
-#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1   | \
+#define IS_RCC_PERIPHCLOCK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1   | \
                                                      RCC_PERIPHCLK_CEC    | RCC_PERIPHCLK_RTC    | \
                                                      RCC_PERIPHCLK_USB))
 #endif /* STM32F042x6 || STM32F048xx */
 
 #if defined(STM32F051x8) || defined(STM32F058xx)
 
-#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
+#define IS_RCC_PERIPHCLOCK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_I2C1 | \
                                                      RCC_PERIPHCLK_CEC    | RCC_PERIPHCLK_RTC))
 #endif /* STM32F051x8 || STM32F058xx */
 
 #if defined(STM32F071xB)
 
-#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | \
+#define IS_RCC_PERIPHCLOCK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | \
                                                      RCC_PERIPHCLK_I2C1   | RCC_PERIPHCLK_CEC    | \
                                                      RCC_PERIPHCLK_RTC))
 #endif /* STM32F071xB */
 
 #if defined(STM32F072xB) || defined(STM32F078xx)
 
-#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | \
+#define IS_RCC_PERIPHCLOCK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | \
                                                      RCC_PERIPHCLK_I2C1   | RCC_PERIPHCLK_CEC    | \
                                                      RCC_PERIPHCLK_RTC    | RCC_PERIPHCLK_USB))
 #endif /* STM32F072xB || STM32F078xx */
 
 #if defined(STM32F091xC) || defined(STM32F098xx)
 
-#define IS_RCC_PERIPHCLK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | \
+#define IS_RCC_PERIPHCLOCK(SELECTION) ((SELECTION) <= (RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2 | \
                                                      RCC_PERIPHCLK_I2C1   | RCC_PERIPHCLK_CEC    | \
                                                      RCC_PERIPHCLK_RTC    | RCC_PERIPHCLK_USART3 ))
 #endif /* STM32F091xC || STM32F098xx */
@@ -320,13 +337,14 @@
 #if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F072xB) || defined(STM32F078xx)
 
 #define IS_RCC_USBCLKSOURCE(SOURCE)  (((SOURCE) == RCC_USBCLKSOURCE_HSI48) || \
-                                      ((SOURCE) == RCC_USBCLKSOURCE_PLLCLK))
+                                      ((SOURCE) == RCC_USBCLKSOURCE_PLL))
 
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx */
 
 #if defined(STM32F070x6) || defined(STM32F070xB)
 
-#define IS_RCC_USBCLKSOURCE(SOURCE)  (((SOURCE) == RCC_USBCLKSOURCE_PLLCLK))
+#define IS_RCC_USBCLKSOURCE(SOURCE)  (((SOURCE) == RCC_USBCLKSOURCE_NONE) || \
+                                      ((SOURCE) == RCC_USBCLKSOURCE_PLL))
 
 #endif /* STM32F070x6 || STM32F070xB */
 
@@ -362,29 +380,24 @@
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx)
+#if defined(RCC_CFGR_MCOPRE)
 
+#define IS_RCC_MCODIV(DIV) (((DIV) == RCC_MCODIV_1)  || ((DIV) == RCC_MCODIV_2)   || \
+                            ((DIV) == RCC_MCODIV_4)  || ((DIV) == RCC_MCODIV_8)   || \
+                            ((DIV) == RCC_MCODIV_16) || ((DIV) == RCC_MCODIV_32)  || \
+                            ((DIV) == RCC_MCODIV_64) || ((DIV) == RCC_MCODIV_128))
+#else
+  
 #define IS_RCC_MCODIV(DIV) (((DIV) == RCC_MCODIV_1))
+  
+#endif /* RCC_CFGR_MCOPRE */
 
-#endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
+#define IS_RCC_LSE_DRIVE(__DRIVE__) (((__DRIVE__) == RCC_LSEDRIVE_LOW)        || \
+                                     ((__DRIVE__) == RCC_LSEDRIVE_MEDIUMLOW)  || \
+                                     ((__DRIVE__) == RCC_LSEDRIVE_MEDIUMHIGH) || \
+                                     ((__DRIVE__) == RCC_LSEDRIVE_HIGH))
 
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6)\
- || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F071xB) || defined(STM32F070xB)\
- || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
-
-#define IS_RCC_MCODIV(DIV) (((DIV) == RCC_MCO_DIV1)  || ((DIV) == RCC_MCO_DIV2)   || \
-                            ((DIV) == RCC_MCO_DIV4)  || ((DIV) == RCC_MCO_DIV8)   || \
-                            ((DIV) == RCC_MCO_DIV16) || ((DIV) == RCC_MCO_DIV32)  || \
-                            ((DIV) == RCC_MCO_DIV64) || ((DIV) == RCC_MCO_DIV128))
-
-#endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F042x6 || STM32F048xx || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070x6 || STM32F070xB */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
-
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(CRS)
 
 #define IS_RCC_CRS_SYNC_SOURCE(_SOURCE_) (((_SOURCE_) == RCC_CRS_SYNC_SOURCE_GPIO) || \
                                           ((_SOURCE_) == RCC_CRS_SYNC_SOURCE_LSE)  || \
@@ -400,9 +413,7 @@
 #define IS_RCC_CRS_HSI48CALIBRATION(_VALUE_) (((_VALUE_) <= 0x3F))
 #define IS_RCC_CRS_FREQERRORDIR(_DIR_) (((_DIR_) == RCC_CRS_FREQERRORDIR_UP) || \
                                         ((_DIR_) == RCC_CRS_FREQERRORDIR_DOWN))
-#endif /* STM32F042x6 || STM32F048xx || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 /**
   * @}
   */
@@ -581,9 +592,7 @@ typedef struct
 }RCC_PeriphCLKInitTypeDef;
 #endif /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(CRS)
 
 /** 
   * @brief RCC_CRS Init structure definition  
@@ -600,7 +609,7 @@ typedef struct
                                      This parameter can be a value of @ref RCCEx_CRS_SynchroPolarity */
 
   uint32_t ReloadValue;           /*!< Specifies the value to be loaded in the frequency error counter with each SYNC event.
-                                      It can be calculated in using macro __HAL_RCC_CRS_CALCULATE_RELOADVALUE(_FTARGET_, _FSYNC_)
+                                      It can be calculated in using macro @ref __HAL_RCC_CRS_RELOADVALUE_CALCULATE(_FTARGET_, _FSYNC_)
                                      This parameter must be a number between 0 and 0xFFFF or a value of @ref RCCEx_CRS_ReloadValueDefault .*/
 
   uint32_t ErrorLimitValue;       /*!< Specifies the value to be used to evaluate the captured frequency error value.
@@ -633,9 +642,7 @@ typedef struct
 
 }RCC_CRSSynchroInfoTypeDef;
 
-#endif /* STM32F042x6 || STM32F048xx */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 
 /**
   * @}
@@ -764,8 +771,8 @@ typedef struct
 /** @defgroup RCCEx_USB_Clock_Source RCCEx USB Clock Source
   * @{
   */
-#define RCC_USBCLKSOURCE_HSI48           RCC_CFGR3_USBSW_HSI48
-#define RCC_USBCLKSOURCE_PLLCLK          RCC_CFGR3_USBSW_PLLCLK
+#define RCC_USBCLKSOURCE_HSI48         RCC_CFGR3_USBSW_HSI48  /*!< HSI48 clock selected as USB clock source */
+#define RCC_USBCLKSOURCE_PLL           RCC_CFGR3_USBSW_PLLCLK /*!< PLL clock (PLLCLK) selected as USB clock */
 
 /**
   * @}
@@ -778,7 +785,8 @@ typedef struct
 /** @defgroup RCCEx_USB_Clock_Source RCCEx USB Clock Source
   * @{
   */
-#define RCC_USBCLKSOURCE_PLLCLK          RCC_CFGR3_USBSW_PLLCLK
+#define RCC_USBCLKSOURCE_NONE          ((uint32_t)0x00000000) /*!< USB clock disabled */
+#define RCC_USBCLKSOURCE_PLL           RCC_CFGR3_USBSW_PLLCLK /*!< PLL clock (PLLCLK) selected as USB clock */
 
 /**
   * @}
@@ -845,37 +853,41 @@ typedef struct
   * @{
   */
   
-#if defined(STM32F030x8) || defined(STM32F051x8) || defined(STM32F058xx)
+#if defined(RCC_CFGR_MCOPRE)
+
+#define RCC_MCODIV_1                     ((uint32_t)0x00000000)
+#define RCC_MCODIV_2                     ((uint32_t)0x10000000)
+#define RCC_MCODIV_4                     ((uint32_t)0x20000000)
+#define RCC_MCODIV_8                     ((uint32_t)0x30000000)
+#define RCC_MCODIV_16                    ((uint32_t)0x40000000)
+#define RCC_MCODIV_32                    ((uint32_t)0x50000000)
+#define RCC_MCODIV_64                    ((uint32_t)0x60000000)
+#define RCC_MCODIV_128                   ((uint32_t)0x70000000)
+
+#else
 
 #define RCC_MCODIV_1                    ((uint32_t)0x00000000)
 
-#endif /* STM32F030x8 || STM32F051x8 || STM32F058xx */
-
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F070x6)\
- || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F071xB) || defined(STM32F070xB)\
- || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
-
-#define RCC_MCO_DIV1                     ((uint32_t)0x00000000)
-#define RCC_MCO_DIV2                     ((uint32_t)0x10000000)
-#define RCC_MCO_DIV4                     ((uint32_t)0x20000000)
-#define RCC_MCO_DIV8                     ((uint32_t)0x30000000)
-#define RCC_MCO_DIV16                    ((uint32_t)0x40000000)
-#define RCC_MCO_DIV32                    ((uint32_t)0x50000000)
-#define RCC_MCO_DIV64                    ((uint32_t)0x60000000)
-#define RCC_MCO_DIV128                   ((uint32_t)0x70000000)
-
-#endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F042x6 || STM32F048xx || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070x6 || STM32F070xB */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* RCC_CFGR_MCOPRE */
 
 /**
   * @}
   */
 
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+/** @defgroup RCCEx_LSEDrive_Configuration RCC LSE Drive Configuration
+  * @{
+  */
+
+#define RCC_LSEDRIVE_LOW                 ((uint32_t)0x00000000) /*!< Xtal mode lower driving capability */
+#define RCC_LSEDRIVE_MEDIUMLOW           RCC_BDCR_LSEDRV_1      /*!< Xtal mode medium low driving capability */
+#define RCC_LSEDRIVE_MEDIUMHIGH          RCC_BDCR_LSEDRV_0      /*!< Xtal mode medium high driving capability */
+#define RCC_LSEDRIVE_HIGH                RCC_BDCR_LSEDRV        /*!< Xtal mode higher driving capability */
+
+/**
+  * @}
+  */
+
+#if defined(CRS)
 
 /** @defgroup RCCEx_CRS_SynchroSource RCCEx CRS SynchroSource
   * @{
@@ -984,9 +996,7 @@ typedef struct
   * @}
   */
 
-#endif /* STM32F042x6 || STM32F048xx || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 
 /**
   * @}
@@ -1004,10 +1014,7 @@ typedef struct
   *         using it.
   * @{
   */
-#if defined(STM32F030x6) || defined(STM32F030x8)\
- || defined(STM32F051x8) || defined(STM32F058xx) || defined(STM32F070xB)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(GPIOD)
 
 #define __HAL_RCC_GPIOD_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -1019,13 +1026,9 @@ typedef struct
 
 #define __HAL_RCC_GPIOD_CLK_DISABLE()        (RCC->AHBENR &= ~(RCC_AHBENR_GPIODEN))
 
-#endif /* STM32F030x6 || STM32F030x8 ||  */
-       /* STM32F051x8 || STM32F058xx || STM32F070xB || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* GPIOD */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(GPIOE)
 
 #define __HAL_RCC_GPIOE_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -1037,8 +1040,7 @@ typedef struct
 
 #define __HAL_RCC_GPIOE_CLK_DISABLE()        (RCC->AHBENR &= ~(RCC_AHBENR_GPIOEEN))
 
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* GPIOE */
 
 #if defined(STM32F042x6) || defined(STM32F048xx)\
  || defined(STM32F051x8) || defined(STM32F058xx)\
@@ -1272,9 +1274,7 @@ typedef struct
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB  || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(CRS)
 
 #define __HAL_RCC_CRS_CLK_ENABLE()   do { \
                                         __IO uint32_t tmpreg; \
@@ -1286,9 +1286,7 @@ typedef struct
 
 #define __HAL_RCC_CRS_CLK_DISABLE()    (RCC->APB1ENR &= ~(RCC_APB1ENR_CRSEN))
 
-#endif /* STM32F042x6 || STM32F048xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 
 #if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
@@ -1377,29 +1375,21 @@ typedef struct
 
 /** @brief  Force or release AHB peripheral reset.
   */
-#if defined(STM32F030x6) || defined(STM32F030x8)\
- || defined(STM32F051x8) || defined(STM32F058xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(GPIOD)
 
 #define __HAL_RCC_GPIOD_FORCE_RESET()   (RCC->AHBRSTR |= (RCC_AHBRSTR_GPIODRST))
 
 #define __HAL_RCC_GPIOD_RELEASE_RESET() (RCC->AHBRSTR &= ~(RCC_AHBRSTR_GPIODRST))
 
-#endif /* STM32F030x6 || STM32F030x8 ||                */
-       /* STM32F051x8 || STM32F058xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* GPIOD */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(GPIOE)
 
 #define __HAL_RCC_GPIOE_FORCE_RESET()   (RCC->AHBRSTR |= (RCC_AHBRSTR_GPIOERST))
 
 #define __HAL_RCC_GPIOE_RELEASE_RESET() (RCC->AHBRSTR &= ~(RCC_AHBRSTR_GPIOERST))
 
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* GPIOE */
 
 #if defined(STM32F042x6) || defined(STM32F048xx)\
  || defined(STM32F051x8) || defined(STM32F058xx)\
@@ -1526,17 +1516,13 @@ typedef struct
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(CRS)
 
 #define __HAL_RCC_CRS_FORCE_RESET()      (RCC->APB1RSTR |= (RCC_APB1RSTR_CRSRST))
 
 #define __HAL_RCC_CRS_RELEASE_RESET()    (RCC->APB1RSTR &= ~(RCC_APB1RSTR_CRSRST))
 
-#endif /* STM32F042x6 || STM32F048xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 
 #if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
@@ -1594,27 +1580,19 @@ typedef struct
   */
 /** @brief  AHB Peripheral Clock Enable Disable Status
   */
-#if defined(STM32F030x6) || defined(STM32F030x8)\
- || defined(STM32F051x8) || defined(STM32F058xx) || defined(STM32F070xB)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(GPIOD)
 
 #define __HAL_RCC_GPIOD_IS_CLK_ENABLED()     ((RCC->AHBENR & (RCC_AHBENR_GPIODEN)) != RESET)
 #define __HAL_RCC_GPIOD_IS_CLK_DISABLED()    ((RCC->AHBENR & (RCC_AHBENR_GPIODEN)) == RESET)
 
-#endif /* STM32F030x6 || STM32F030x8 ||  */
-       /* STM32F051x8 || STM32F058xx || STM32F070xB || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* GPIOD */
 
-#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+#if defined(GPIOE)
 
 #define __HAL_RCC_GPIOE_IS_CLK_ENABLED()     ((RCC->AHBENR & (RCC_AHBENR_GPIOEEN)) != RESET)
 #define __HAL_RCC_GPIOE_IS_CLK_DISABLED()    ((RCC->AHBENR & (RCC_AHBENR_GPIOEEN)) == RESET)
 
-#endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
-       /* STM32F091xC || STM32F098xx || STM32F030xC */
+#endif /* GPIOE */
 
 #if defined(STM32F042x6) || defined(STM32F048xx)\
  || defined(STM32F051x8) || defined(STM32F058xx)\
@@ -1751,16 +1729,12 @@ typedef struct
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB  || */
        /* STM32F091xC || STM32F098xx */
 
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(CRS)
 
 #define __HAL_RCC_CRS_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_CRSEN)) != RESET)
 #define __HAL_RCC_CRS_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_CRSEN)) == RESET)
 
-#endif /* STM32F042x6 || STM32F048xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 
 #if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
 
@@ -1825,8 +1799,8 @@ typedef struct
 
 /** @brief  Macro to get the Internal 48Mhz High Speed oscillator (HSI48) state.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_HSI48_ON:  HSI48 enabled
-  *            @arg RCC_HSI48_OFF: HSI48 disabled
+  *            @arg @ref RCC_HSI48_ON  HSI48 enabled
+  *            @arg @ref RCC_HSI48_OFF HSI48 disabled
   */
 #define __HAL_RCC_GET_HSI48_STATE() \
                   (((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CR2_HSI48ON)) != RESET) ? RCC_HSI48_ON : RCC_HSI48_OFF)  
@@ -1835,7 +1809,7 @@ typedef struct
 
 /** @brief  Macro to get the Internal 48Mhz High Speed oscillator (HSI48) state.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_HSI_OFF: HSI48 disabled
+  *            @arg @ref RCC_HSI_OFF HSI48 disabled
   */
 #define __HAL_RCC_GET_HSI48_STATE()   RCC_HSI_OFF 
 
@@ -1855,18 +1829,18 @@ typedef struct
  || defined(STM32F070x6) || defined(STM32F070xB)
 
 /** @brief  Macro to configure the USB clock (USBCLK).
-  * @param  __USBCLKSource__: specifies the USB clock source.
+  * @param  __USBCLKSOURCE__ specifies the USB clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_USBCLKSOURCE_HSI48:  HSI48 selected as USB clock (not available for STM32F070x6 & STM32F070xB)
-  *            @arg RCC_USBCLKSOURCE_PLLCLK: PLL Clock selected as USB clock
+  *            @arg @ref RCC_USBCLKSOURCE_HSI48  HSI48 selected as USB clock (not available for STM32F070x6 & STM32F070xB)
+  *            @arg @ref RCC_USBCLKSOURCE_PLL PLL Clock selected as USB clock
   */
-#define __HAL_RCC_USB_CONFIG(__USBCLKSource__) \
-                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USBSW, (uint32_t)(__USBCLKSource__))
+#define __HAL_RCC_USB_CONFIG(__USBCLKSOURCE__) \
+                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USBSW, (uint32_t)(__USBCLKSOURCE__))
 
 /** @brief  Macro to get the USB clock source.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_USBCLKSOURCE_HSI48:  HSI48 selected as USB clock
-  *            @arg RCC_USBCLKSOURCE_PLLCLK: PLL Clock selected as USB clock
+  *            @arg @ref RCC_USBCLKSOURCE_HSI48  HSI48 selected as USB clock
+  *            @arg @ref RCC_USBCLKSOURCE_PLL PLL Clock selected as USB clock
   */
 #define __HAL_RCC_GET_USB_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_USBSW)))
 
@@ -1880,18 +1854,18 @@ typedef struct
  || defined(STM32F091xC) || defined(STM32F098xx)
 
 /** @brief  Macro to configure the CEC clock.
-  * @param  __CECCLKSource__: specifies the CEC clock source.
+  * @param  __CECCLKSOURCE__ specifies the CEC clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_CECCLKSOURCE_HSI: HSI selected as CEC clock
-  *            @arg RCC_CECCLKSOURCE_LSE: LSE selected as CEC clock
+  *            @arg @ref RCC_CECCLKSOURCE_HSI HSI selected as CEC clock
+  *            @arg @ref RCC_CECCLKSOURCE_LSE LSE selected as CEC clock
   */
-#define __HAL_RCC_CEC_CONFIG(__CECCLKSource__) \
-                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_CECSW, (uint32_t)(__CECCLKSource__))
+#define __HAL_RCC_CEC_CONFIG(__CECCLKSOURCE__) \
+                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_CECSW, (uint32_t)(__CECCLKSOURCE__))
 
 /** @brief  Macro to get the HDMI CEC clock source.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_CECCLKSOURCE_HSI: HSI selected as CEC clock
-  *            @arg RCC_CECCLKSOURCE_LSE: LSE selected as CEC clock
+  *            @arg @ref RCC_CECCLKSOURCE_HSI HSI selected as CEC clock
+  *            @arg @ref RCC_CECCLKSOURCE_LSE LSE selected as CEC clock
   */
 #define __HAL_RCC_GET_CEC_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_CECSW)))
 
@@ -1900,102 +1874,47 @@ typedef struct
        /* STM32F071xB || STM32F072xB || STM32F078xx || */
        /* STM32F091xC || defined(STM32F098xx) */
 
-#if defined(STM32F030x6) || defined(STM32F031x6) || defined(STM32F038xx)\
- || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB)\
- || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
-
-/** @brief  Macro to configure the MCO clock.
-  * @param  __MCOCLKSource__: specifies the MCO clock source.
-  *         This parameter can be one of the following values:
-  *            @arg RCC_MCOSOURCE_HSI: HSI selected as MCO clock
-  *            @arg RCC_MCOSOURCE_HSE: HSE selected as MCO clock
-  *            @arg RCC_MCOSOURCE_LSI: LSI selected as MCO clock
-  *            @arg RCC_MCOSOURCE_LSE: LSE selected as MCO clock
-  *            @arg RCC_MCOSOURCE_PLLCLK_NODIV: PLLCLK selected as MCO clock
-  *            @arg RCC_MCOSOURCE_PLLCLK_DIV2: PLLCLK Divided by 2 selected as MCO clock
-  *            @arg RCC_MCOSOURCE_SYSCLK: System Clock selected as MCO clock
-  *            @arg RCC_MCOSOURCE_HSI14: HSI14 selected as MCO clock
-  *            @arg RCC_MCOSOURCE_HSI48: HSI48 selected as MCO clock
-  * @param  __MCODiv__: specifies the MCO clock prescaler.
-  *          This parameter can be one of the following values:
-  *            @arg RCC_MCO_DIV1: MCO clock source is divided by 1
-  *            @arg RCC_MCO_DIV2: MCO clock source is divided by 2
-  *            @arg RCC_MCO_DIV4: MCO clock source is divided by 4
-  *            @arg RCC_MCO_DIV8: MCO clock source is divided by 8
-  *            @arg RCC_MCO_DIV16: MCO clock source is divided by 16
-  *            @arg RCC_MCO_DIV32: MCO clock source is divided by 32
-  *            @arg RCC_MCO_DIV64: MCO clock source is divided by 64
-  *            @arg RCC_MCO_DIV128: MCO clock source is divided by 128
-  */
-#define __HAL_RCC_MCO_CONFIG(__MCOCLKSource__, __MCODiv__) \
-                 MODIFY_REG(RCC->CFGR, (RCC_CFGR_MCO | RCC_CFGR_MCOPRE), ((__MCOCLKSource__) | (__MCODiv__)))
-#else
-
-/** @brief  Macro to configure the MCO clock.
-  * @param  __MCOCLKSource__: specifies the MCO clock source.
-  *         This parameter can be one of the following values:
-  *            @arg RCC_MCOSOURCE_HSI: HSI selected as MCO clock
-  *            @arg RCC_MCOSOURCE_HSE: HSE selected as MCO clock
-  *            @arg RCC_MCOSOURCE_LSI: LSI selected as MCO clock
-  *            @arg RCC_MCOSOURCE_LSE: LSE selected as MCO clock
-  *            @arg RCC_MCOSOURCE_PLLCLK_DIV2: PLLCLK Divided by 2 selected as MCO clock
-  *            @arg RCC_MCOSOURCE_SYSCLK: System Clock selected as MCO clock
-  *            @arg RCC_MCOSOURCE_HSI14: HSI14 selected as MCO clock
-  *            @arg RCC_MCOSOURCE_HSI48: HSI48 selected as MCO clock
-  * @param  __MCODiv__: specifies the MCO clock prescaler.
-  *         This parameter can be one of the following values:
-  *            @arg RCC_MCODIV_1: No division applied on MCO clock source
-  */
-#define __HAL_RCC_MCO_CONFIG(__MCOCLKSource__, __MCODiv__) \
-                 MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, __MCOCLKSource__)
-
-#endif /* STM32F030x6 || STM32F031x6 || STM32F038xx || STM32F070x6 || */
-       /* STM32F042x6 || STM32F048xx ||                               */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || */
-       /* STM32F091xC || STM32F098xx || STM32F030xC                   */
-                   
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
  || defined(STM32F091xC) || defined(STM32F098xx)
 /** @brief  Macro to configure the USART2 clock (USART2CLK).
-  * @param  __USART2CLKSource__: specifies the USART2 clock source.
+  * @param  __USART2CLKSOURCE__ specifies the USART2 clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_USART2CLKSOURCE_PCLK1: PCLK1 selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_HSI: HSI selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_SYSCLK: System Clock selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_LSE: LSE selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_PCLK1 PCLK1 selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_HSI HSI selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_SYSCLK System Clock selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_LSE LSE selected as USART2 clock
   */
-#define __HAL_RCC_USART2_CONFIG(__USART2CLKSource__) \
-                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USART2SW, (uint32_t)(__USART2CLKSource__))
+#define __HAL_RCC_USART2_CONFIG(__USART2CLKSOURCE__) \
+                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USART2SW, (uint32_t)(__USART2CLKSOURCE__))
 
 /** @brief  Macro to get the USART2 clock source.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_USART2CLKSOURCE_PCLK1: PCLK1 selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_HSI: HSI selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_SYSCLK: System Clock selected as USART2 clock
-  *            @arg RCC_USART2CLKSOURCE_LSE: LSE selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_PCLK1 PCLK1 selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_HSI HSI selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_SYSCLK System Clock selected as USART2 clock
+  *            @arg @ref RCC_USART2CLKSOURCE_LSE LSE selected as USART2 clock
   */
 #define __HAL_RCC_GET_USART2_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_USART2SW)))
 #endif /* STM32F071xB || STM32F072xB || STM32F078xx || STM32F091xC || STM32F098xx*/
 
 #if defined(STM32F091xC) || defined(STM32F098xx)
 /** @brief  Macro to configure the USART3 clock (USART3CLK).
-  * @param  __USART3CLKSource__: specifies the USART3 clock source.
+  * @param  __USART3CLKSOURCE__ specifies the USART3 clock source.
   *         This parameter can be one of the following values:
-  *            @arg RCC_USART3CLKSOURCE_PCLK1: PCLK1 selected as USART3 clock
-  *            @arg RCC_USART3CLKSOURCE_HSI: HSI selected as USART3 clock
-  *            @arg RCC_USART3CLKSOURCE_SYSCLK: System Clock selected as USART3 clock
-  *            @arg RCC_USART3CLKSOURCE_LSE: LSE selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_PCLK1 PCLK1 selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_HSI HSI selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_SYSCLK System Clock selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_LSE LSE selected as USART3 clock
   */
-#define __HAL_RCC_USART3_CONFIG(__USART3CLKSource__) \
-                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USART3SW, (uint32_t)(__USART3CLKSource__))
+#define __HAL_RCC_USART3_CONFIG(__USART3CLKSOURCE__) \
+                  MODIFY_REG(RCC->CFGR3, RCC_CFGR3_USART3SW, (uint32_t)(__USART3CLKSOURCE__))
 
 /** @brief  Macro to get the USART3 clock source.
   * @retval The clock source can be one of the following values:
-  *            @arg RCC_USART3CLKSOURCE_PCLK1: PCLK1 selected as USART3 clock
-  *            @arg RCC_USART3CLKSOURCE_HSI: HSI selected as USART3 clock
-  *            @arg RCC_USART3CLKSOURCE_SYSCLK: System Clock selected as USART3 clock
-  *            @arg RCC_USART3CLKSOURCE_LSE: LSE selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_PCLK1 PCLK1 selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_HSI HSI selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_SYSCLK System Clock selected as USART3 clock
+  *            @arg @ref RCC_USART3CLKSOURCE_LSE LSE selected as USART3 clock
   */
 #define __HAL_RCC_GET_USART3_SOURCE() ((uint32_t)(READ_BIT(RCC->CFGR3, RCC_CFGR3_USART3SW)))
 
@@ -2003,10 +1922,29 @@ typedef struct
 /**
   * @}
   */
-  
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+
+/** @defgroup RCCEx_LSE_Configuration LSE Drive Configuration
+  * @{   
+  */
+
+/**
+  * @brief  Macro to configure the External Low Speed oscillator (LSE) drive capability.
+  * @param  __RCC_LSEDRIVE__ specifies the new state of the LSE drive capability.
+  *          This parameter can be one of the following values:
+  *            @arg @ref RCC_LSEDRIVE_LOW        LSE oscillator low drive capability.
+  *            @arg @ref RCC_LSEDRIVE_MEDIUMLOW  LSE oscillator medium low drive capability.
+  *            @arg @ref RCC_LSEDRIVE_MEDIUMHIGH LSE oscillator medium high drive capability.
+  *            @arg @ref RCC_LSEDRIVE_HIGH       LSE oscillator high drive capability.
+  * @retval None
+  */ 
+#define __HAL_RCC_LSEDRIVE_CONFIG(__RCC_LSEDRIVE__) (MODIFY_REG(RCC->BDCR,\
+        RCC_BDCR_LSEDRV, (uint32_t)(__RCC_LSEDRIVE__) ))
+
+/**
+  * @}
+  */
+
+#if defined(CRS)
 
 /** @defgroup RCCEx_IT_And_Flag RCCEx IT and Flag
   * @{
@@ -2015,91 +1953,100 @@ typedef struct
 
 /**
   * @brief  Enables the specified CRS interrupts.
-  * @param  __INTERRUPT__: specifies the CRS interrupt sources to be enabled.
+  * @param  __INTERRUPT__ specifies the CRS interrupt sources to be enabled.
   *          This parameter can be any combination of the following values:
-  *              @arg RCC_CRS_IT_SYNCOK
-  *              @arg RCC_CRS_IT_SYNCWARN
-  *              @arg RCC_CRS_IT_ERR
-  *              @arg RCC_CRS_IT_ESYNC
+  *              @arg @ref RCC_CRS_IT_SYNCOK
+  *              @arg @ref RCC_CRS_IT_SYNCWARN
+  *              @arg @ref RCC_CRS_IT_ERR
+  *              @arg @ref RCC_CRS_IT_ESYNC
   * @retval None
   */
 #define __HAL_RCC_CRS_ENABLE_IT(__INTERRUPT__)   (CRS->CR |= (__INTERRUPT__))
 
 /**
   * @brief  Disables the specified CRS interrupts.
-  * @param  __INTERRUPT__: specifies the CRS interrupt sources to be disabled.
+  * @param  __INTERRUPT__ specifies the CRS interrupt sources to be disabled.
   *          This parameter can be any combination of the following values:
-  *              @arg RCC_CRS_IT_SYNCOK
-  *              @arg RCC_CRS_IT_SYNCWARN
-  *              @arg RCC_CRS_IT_ERR
-  *              @arg RCC_CRS_IT_ESYNC
+  *              @arg @ref RCC_CRS_IT_SYNCOK
+  *              @arg @ref RCC_CRS_IT_SYNCWARN
+  *              @arg @ref RCC_CRS_IT_ERR
+  *              @arg @ref RCC_CRS_IT_ESYNC
   * @retval None
   */
 #define __HAL_RCC_CRS_DISABLE_IT(__INTERRUPT__)  (CRS->CR &= ~(__INTERRUPT__))
 
 /** @brief  Check the CRS's interrupt has occurred or not.
-  * @param  __INTERRUPT__: specifies the CRS interrupt source to check.
+  * @param  __INTERRUPT__ specifies the CRS interrupt source to check.
   *         This parameter can be one of the following values:
-  *              @arg RCC_CRS_IT_SYNCOK
-  *              @arg RCC_CRS_IT_SYNCWARN
-  *              @arg RCC_CRS_IT_ERR
-  *              @arg RCC_CRS_IT_ESYNC
+  *              @arg @ref RCC_CRS_IT_SYNCOK
+  *              @arg @ref RCC_CRS_IT_SYNCWARN
+  *              @arg @ref RCC_CRS_IT_ERR
+  *              @arg @ref RCC_CRS_IT_ESYNC
   * @retval The new state of __INTERRUPT__ (SET or RESET).
   */
 #define __HAL_RCC_CRS_GET_IT_SOURCE(__INTERRUPT__)     ((CRS->CR & (__INTERRUPT__))? SET : RESET)
 
 /** @brief  Clear the CRS's interrupt pending bits
   *         bits to clear the selected interrupt pending bits.
-  * @param  __INTERRUPT__: specifies the interrupt pending bit to clear.
+  * @param  __INTERRUPT__ specifies the interrupt pending bit to clear.
   *         This parameter can be any combination of the following values:
-  *              @arg RCC_CRS_IT_SYNCOK
-  *              @arg RCC_CRS_IT_SYNCWARN
-  *              @arg RCC_CRS_IT_ERR
-  *              @arg RCC_CRS_IT_ESYNC
-  *              @arg RCC_CRS_IT_TRIMOVF
-  *              @arg RCC_CRS_IT_SYNCERR
-  *              @arg RCC_CRS_IT_SYNCMISS
+  *              @arg @ref RCC_CRS_IT_SYNCOK
+  *              @arg @ref RCC_CRS_IT_SYNCWARN
+  *              @arg @ref RCC_CRS_IT_ERR
+  *              @arg @ref RCC_CRS_IT_ESYNC
+  *              @arg @ref RCC_CRS_IT_TRIMOVF
+  *              @arg @ref RCC_CRS_IT_SYNCERR
+  *              @arg @ref RCC_CRS_IT_SYNCMISS
   */
-/* CRS IT Error Mask */
-#define  RCC_CRS_IT_ERROR_MASK                 ((uint32_t)(RCC_CRS_IT_TRIMOVF | RCC_CRS_IT_SYNCERR | RCC_CRS_IT_SYNCMISS))
-
-#define __HAL_RCC_CRS_CLEAR_IT(__INTERRUPT__)  ((((__INTERRUPT__) &  RCC_CRS_IT_ERROR_MASK)!= 0) ? (CRS->ICR |= CRS_ICR_ERRC) : \
-                                                (CRS->ICR |= (__INTERRUPT__)))
+#define __HAL_RCC_CRS_CLEAR_IT(__INTERRUPT__)  do { \
+                                                 if(((__INTERRUPT__) & RCC_CRS_IT_ERROR_MASK) != RESET) \
+                                                 { \
+                                                   WRITE_REG(CRS->ICR, CRS_ICR_ERRC | ((__INTERRUPT__) & ~RCC_CRS_IT_ERROR_MASK)); \
+                                                 } \
+                                                 else \
+                                                 { \
+                                                   WRITE_REG(CRS->ICR, (__INTERRUPT__)); \
+                                                 } \
+                                               } while(0)
 
 /**
   * @brief  Checks whether the specified CRS flag is set or not.
-  * @param  _FLAG_: specifies the flag to check.
+  * @param  __FLAG__ specifies the flag to check.
   *          This parameter can be one of the following values:
-  *              @arg RCC_CRS_FLAG_SYNCOK
-  *              @arg RCC_CRS_FLAG_SYNCWARN
-  *              @arg RCC_CRS_FLAG_ERR
-  *              @arg RCC_CRS_FLAG_ESYNC
-  *              @arg RCC_CRS_FLAG_TRIMOVF
-  *              @arg RCC_CRS_FLAG_SYNCERR
-  *              @arg RCC_CRS_FLAG_SYNCMISS
+  *              @arg @ref RCC_CRS_FLAG_SYNCOK
+  *              @arg @ref RCC_CRS_FLAG_SYNCWARN
+  *              @arg @ref RCC_CRS_FLAG_ERR
+  *              @arg @ref RCC_CRS_FLAG_ESYNC
+  *              @arg @ref RCC_CRS_FLAG_TRIMOVF
+  *              @arg @ref RCC_CRS_FLAG_SYNCERR
+  *              @arg @ref RCC_CRS_FLAG_SYNCMISS
   * @retval The new state of _FLAG_ (TRUE or FALSE).
   */
-#define __HAL_RCC_CRS_GET_FLAG(_FLAG_)  ((CRS->ISR & (_FLAG_)) == (_FLAG_))
+#define __HAL_RCC_CRS_GET_FLAG(__FLAG__)  ((CRS->ISR & (__FLAG__)) == (__FLAG__))
 
 /**
   * @brief  Clears the CRS specified FLAG.
-  * @param _FLAG_: specifies the flag to clear.
+  * @param __FLAG__ specifies the flag to clear.
   *          This parameter can be one of the following values:
-  *              @arg RCC_CRS_FLAG_SYNCOK
-  *              @arg RCC_CRS_FLAG_SYNCWARN
-  *              @arg RCC_CRS_FLAG_ERR
-  *              @arg RCC_CRS_FLAG_ESYNC
-  *              @arg RCC_CRS_FLAG_TRIMOVF
-  *              @arg RCC_CRS_FLAG_SYNCERR
-  *              @arg RCC_CRS_FLAG_SYNCMISS
+  *              @arg @ref RCC_CRS_FLAG_SYNCOK
+  *              @arg @ref RCC_CRS_FLAG_SYNCWARN
+  *              @arg @ref RCC_CRS_FLAG_ERR
+  *              @arg @ref RCC_CRS_FLAG_ESYNC
+  *              @arg @ref RCC_CRS_FLAG_TRIMOVF
+  *              @arg @ref RCC_CRS_FLAG_SYNCERR
+  *              @arg @ref RCC_CRS_FLAG_SYNCMISS
   * @retval None
   */
-
-/* CRS Flag Error Mask */
-#define RCC_CRS_FLAG_ERROR_MASK                 ((uint32_t)(RCC_CRS_FLAG_TRIMOVF | RCC_CRS_FLAG_SYNCERR | RCC_CRS_FLAG_SYNCMISS))
-
-#define __HAL_RCC_CRS_CLEAR_FLAG(__FLAG__)   ((((__FLAG__) & RCC_CRS_FLAG_ERROR_MASK)!= 0) ? (CRS->ICR |= CRS_ICR_ERRC) : \
-                                              (CRS->ICR |= (__FLAG__)))
+#define __HAL_RCC_CRS_CLEAR_FLAG(__FLAG__)     do { \
+                                                 if(((__FLAG__) & RCC_CRS_FLAG_ERROR_MASK) != RESET) \
+                                                 { \
+                                                   WRITE_REG(CRS->ICR, CRS_ICR_ERRC | ((__FLAG__) & ~RCC_CRS_FLAG_ERROR_MASK)); \
+                                                 } \
+                                                 else \
+                                                 { \
+                                                   WRITE_REG(CRS->ICR, (__FLAG__)); \
+                                                 } \
+                                               } while(0)
 
 /**
   * @}
@@ -2113,26 +2060,26 @@ typedef struct
   * @note   when the CEN bit is set the CRS_CFGR register becomes write-protected.
   * @retval None
   */
-#define __HAL_RCC_CRS_ENABLE_FREQ_ERROR_COUNTER() (CRS->CR |= CRS_CR_CEN)
+#define __HAL_RCC_CRS_FREQ_ERROR_COUNTER_ENABLE() (CRS->CR |= CRS_CR_CEN)
 
 /**
   * @brief  Disables the oscillator clock for frequency error counter.
   * @retval None
   */
-#define __HAL_RCC_CRS_DISABLE_FREQ_ERROR_COUNTER()  (CRS->CR &= ~CRS_CR_CEN)
+#define __HAL_RCC_CRS_FREQ_ERROR_COUNTER_DISABLE()  (CRS->CR &= ~CRS_CR_CEN)
 
 /**
   * @brief  Enables the automatic hardware adjustement of TRIM bits.
   * @note   When the AUTOTRIMEN bit is set the CRS_CFGR register becomes write-protected.
   * @retval None
   */
-#define __HAL_RCC_CRS_ENABLE_AUTOMATIC_CALIB()  (CRS->CR |= CRS_CR_AUTOTRIMEN)
+#define __HAL_RCC_CRS_AUTOMATIC_CALIB_ENABLE()  (CRS->CR |= CRS_CR_AUTOTRIMEN)
 
 /**
   * @brief  Enables or disables the automatic hardware adjustement of TRIM bits.
   * @retval None
   */
-#define __HAL_RCC_CRS_DISABLE_AUTOMATIC_CALIB()  (CRS->CR &= ~CRS_CR_AUTOTRIMEN)
+#define __HAL_RCC_CRS_AUTOMATIC_CALIB_DISABLE()  (CRS->CR &= ~CRS_CR_AUTOTRIMEN)
 
 /**
   * @brief  Macro to calculate reload value to be set in CRS register according to target and sync frequencies
@@ -2144,15 +2091,13 @@ typedef struct
   * @param  _FSYNC_ Synchronization signal frequency (value in Hz)
   * @retval None
   */
-#define __HAL_RCC_CRS_CALCULATE_RELOADVALUE(_FTARGET_, _FSYNC_)  (((_FTARGET_) / (_FSYNC_)) - 1)
+#define __HAL_RCC_CRS_RELOADVALUE_CALCULATE(_FTARGET_, _FSYNC_)  (((_FTARGET_) / (_FSYNC_)) - 1)
 
 /**
   * @}
   */
   
-#endif /* STM32F042x6 || STM32F048xx ||                */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
   
 /**
   * @}
@@ -2171,16 +2116,12 @@ HAL_StatusTypeDef     HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *Perip
 void                  HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit);
 uint32_t              HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
 
-#if defined(STM32F042x6) || defined(STM32F048xx)\
- || defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)\
- || defined(STM32F091xC) || defined(STM32F098xx)
+#if defined(CRS)
 void                  HAL_RCCEx_CRSConfig(RCC_CRSInitTypeDef *pInit);
 void                  HAL_RCCEx_CRSSoftwareSynchronizationGenerate(void);
 void                  HAL_RCCEx_CRSGetSynchronizationInfo(RCC_CRSSynchroInfoTypeDef *pSynchroInfo);
 uint32_t              HAL_RCCEx_CRSWaitSynchronization(uint32_t Timeout);
-#endif /* STM32F042x6 || STM32F048xx || */
-       /* STM32F071xB || STM32F072xB || STM32F078xx || */
-       /* STM32F091xC || STM32F098xx */
+#endif /* CRS */
 
 
 /**
