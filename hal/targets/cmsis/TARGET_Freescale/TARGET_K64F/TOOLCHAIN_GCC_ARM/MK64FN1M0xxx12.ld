@@ -90,7 +90,11 @@ SECTIONS
   } > m_flash_config
 
   /* The program code and other data goes into internal flash */
-  .text :
+  /* Note: The uVisor expects this section at a fixed location, as specified by
+   * the porting process configuration parameter: FLASH_OFFSET. */
+  __UVISOR_TEXT_OFFSET = 0x410;
+  __UVISOR_TEXT_START = ORIGIN(m_interrupts) + __UVISOR_TEXT_OFFSET;
+  .text __UVISOR_TEXT_START :
   {
     /* uVisor code and data */
     . = ALIGN(4);
