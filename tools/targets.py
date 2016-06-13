@@ -70,7 +70,7 @@ class Target:
     @staticmethod
     @cached
     def get_json_target_data():
-        return json_file_to_dict(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../mbed/hal/targets.json"))
+        return json_file_to_dict(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../core/hal/targets.json"))
 
     # Get the members of this module using Python's "inspect" module
     @staticmethod
