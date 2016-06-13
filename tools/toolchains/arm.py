@@ -35,7 +35,7 @@ class ARM(mbedToolchain):
     DEFAULT_FLAGS = {
         'common': ["-c", "--gnu",
             "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars", "-I", "\""+ARM_INC+"\""],
+            "--brief_diagnostics", "--restrict", "--multibyte_chars", "-I \""+ARM_INC+"\""],
         'asm': [],
         'c': ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         'cxx': ["--cpp", "--no_rtti"],
