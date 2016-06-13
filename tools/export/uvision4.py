@@ -71,7 +71,7 @@ class Uvision4(Exporter):
         project_data['tool_specific']['uvision']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c']))
         # not compatible with c99 flag set in the template
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--c99")
-        project_data['tool_specific']['uvision']['misc']['cxx_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['ld']))
+        project_data['tool_specific']['uvision']['misc']['cxx_flags'] = list(set(self.toolchain.flags['common']))
         project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.toolchain.flags['ld']
 
         i = 0
