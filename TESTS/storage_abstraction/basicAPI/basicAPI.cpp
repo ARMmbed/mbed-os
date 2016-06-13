@@ -19,10 +19,6 @@
     #error [NOT_SUPPORTED] Storage not supported for this target
 #endif
 
-#ifdef TARGET_LIKE_POSIX
-#define AVOID_GREENTEA
-#endif
-
 #ifndef AVOID_GREENTEA
 #include "greentea-client/test_env.h"
 #endif
@@ -30,13 +26,6 @@
 #include "unity/unity.h"
 
 #include "storage_abstraction/Driver_Storage.h"
-
-#define YOTTA_CFG_MBED_TRACE //this can be defined also in the yotta configuration file config.yml
-#include "mbed-trace/mbed_trace.h"
-#ifdef TRACE_GROUP
-#undef TRACE_GROUP
-#endif
-#define TRACE_GROUP  "basicAPI"
 
 #include <string.h>
 #include <inttypes.h>
@@ -89,7 +78,7 @@ static void verifyBytePattern(uint64_t addr, size_t sizeofData, T bytePattern)
         TEST_ASSERT_EQUAL(amountBeingVerified, rc);
         for (size_t index = 0; index < amountBeingVerified / sizeof(T); index++) {
             // if (bytePattern != ((const T *)buffer)[index]) {
-            //     tr_info("%u: expected %x, found %x", index, bytePattern, ((const T *)buffer)[index]);
+            //     printf("%u: expected %x, found %x\n", index, bytePattern, ((const T *)buffer)[index]);
             // }
             TEST_ASSERT_EQUAL(bytePattern, ((const T *)buffer)[index]);
         }
@@ -130,7 +119,7 @@ void test_getInfo()
 
 void initializationCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
-    tr_info("init complete callback");
+    printf("init complete callback\n");
     TEST_ASSERT_EQUAL(1, status);
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_INITIALIZE);
 
@@ -140,7 +129,7 @@ void initializationCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operat
 control_t test_initialize(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 3;
-    tr_info("in test_initialize with call_count %u", call_count);
+    printf("in test_initialize with call_count %u\n", call_count);
 
     ARM_STORAGE_CAPABILITIES capabilities = drv->GetCapabilities();
 
@@ -157,7 +146,7 @@ control_t test_initialize(const size_t call_count)
 
 void uninitializationCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
-    tr_info("uninit complete callback");
+    printf("uninit complete callback\n");
     TEST_ASSERT_EQUAL(status, ARM_DRIVER_OK);
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_UNINITIALIZE);
 
@@ -167,7 +156,7 @@ void uninitializationCompleteCallback(int32_t status, ARM_STORAGE_OPERATION oper
 control_t test_uninitialize(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 3;
-    tr_info("in test_uninitialize with call_count %u", call_count);
+    printf("in test_uninitialize with call_count %u\n", call_count);
 
     /* update the completion callback. */
     if (call_count == 1) {
@@ -197,7 +186,7 @@ control_t test_uninitialize(const size_t call_count)
 
 void powerControlCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
-    tr_info("power control complete callback");
+    printf("power control complete callback\n");
     TEST_ASSERT_EQUAL(status, ARM_DRIVER_OK);
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_POWER_CONTROL);
 
@@ -207,7 +196,7 @@ void powerControlCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operatio
 control_t test_powerControl(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 2;
-    tr_info("in test_powerControl with call_count %u", call_count);
+    printf("in test_powerControl with call_count %u\n", call_count);
 
     ARM_STORAGE_CAPABILITIES capabilities = drv->GetCapabilities();
 
@@ -235,7 +224,7 @@ control_t test_powerControl(const size_t call_count)
 
 void readDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
-    tr_info("ReadData complete callback");
+    printf("ReadData complete callback\n");
     TEST_ASSERT_EQUAL(status, ARM_DRIVER_OK);
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_READ_DATA);
 
@@ -245,7 +234,7 @@ void readDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 control_t test_readData(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 5;
-    tr_info("in test_readData with call_count %u", call_count);
+    printf("in test_readData with call_count %u\n", call_count);
 
     ARM_STORAGE_CAPABILITIES capabilities = drv->GetCapabilities();
 
@@ -309,7 +298,7 @@ void programDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation
 
     TEST_ASSERT((operation == ARM_STORAGE_OPERATION_ERASE) || (operation == ARM_STORAGE_OPERATION_PROGRAM_DATA));
     if (operation == ARM_STORAGE_OPERATION_ERASE) {
-        // tr_info("programming %u bytes at address %lu with pattern 0x%" PRIx32, sizeofData, (uint32_t)addr, BYTE_PATTERN);
+        // printf("programming %u bytes at address %lu with pattern 0x%" PRIx32 "\n", sizeofData, (uint32_t)addr, BYTE_PATTERN);
         status = drv->ProgramData(addr, buffer, sizeofData);
 
         if (status < ARM_DRIVER_OK) {
@@ -325,7 +314,7 @@ void programDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation
     /* We come here either because of completion for program-data or as a very
      * unlikely fall through from synchronous completion of program-data (above). */
 
-    tr_info("verifying programmed sector at addr %lu", (uint32_t)addr);
+    printf("verifying programmed sector at addr %lu\n", (uint32_t)addr);
     verifyBytePattern(addr, sizeofData, BYTE_PATTERN);
     ++programIteration;
 
@@ -335,7 +324,7 @@ void programDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation
 control_t test_programDataUsingProgramUnit(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 5;
-    tr_info("in test_programDataUsingProgramUnit with call_count %u", call_count);
+    printf("in test_programDataUsingProgramUnit with call_count %u\n", call_count);
 
     if (call_count == 1) {
         /* Achieve basic initialization for the driver before anything else. */
@@ -376,7 +365,7 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
     uint64_t addr = firstBlock.addr + (call_count - 2) * firstBlock.attributes.erase_unit;
 
     /* erase the sector at 'addr' */
-    tr_info("erasing sector at addr %lu", (uint32_t)addr);
+    printf("erasing sector at addr %lu\n", (uint32_t)addr);
     rc = drv->Erase(addr, firstBlock.attributes.erase_unit);
     TEST_ASSERT(rc >= 0);
     if (rc == ARM_DRIVER_OK) {
@@ -386,7 +375,7 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
         TEST_ASSERT(rc > 0);
 
         /* program the sector at addr */
-        // tr_info("programming %u bytes at address %lu with pattern 0x%" PRIx32, sizeofData, (uint32_t)addr, BYTE_PATTERN);
+        // printf("programming %u bytes at address %lu with pattern 0x%" PRIx32 "\n", sizeofData, (uint32_t)addr, BYTE_PATTERN);
         rc = drv->ProgramData((uint32_t)addr, buffer, sizeofData);
         if (rc == ARM_DRIVER_OK) {
             TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
@@ -394,7 +383,7 @@ control_t test_programDataUsingProgramUnit(const size_t call_count)
         } else {
             TEST_ASSERT(rc > 0);
 
-            tr_info("verifying programmed sector at addr %lu", (uint32_t)addr);
+            printf("verifying programmed sector at addr %lu\n", (uint32_t)addr);
             verifyBytePattern(addr, sizeofData, BYTE_PATTERN);
 
             return (call_count < REPEAT_INSTANCES) ? CaseRepeatAll : CaseNext;
@@ -422,7 +411,7 @@ void programDataOptimalCompleteCallback(int32_t status, ARM_STORAGE_OPERATION op
 
     TEST_ASSERT((operation == ARM_STORAGE_OPERATION_ERASE) || (operation == ARM_STORAGE_OPERATION_PROGRAM_DATA));
     if (operation == ARM_STORAGE_OPERATION_ERASE) {
-        tr_info("programming %u bytes at address %lu with pattern 0x%x", sizeofData, (uint32_t)addr, BYTE_PATTERN);
+        printf("programming %u bytes at address %lu with pattern 0x%x\n", sizeofData, (uint32_t)addr, BYTE_PATTERN);
         status = drv->ProgramData(addr, buffer, sizeofData);
 
         if (status < ARM_DRIVER_OK) {
@@ -438,7 +427,7 @@ void programDataOptimalCompleteCallback(int32_t status, ARM_STORAGE_OPERATION op
     /* We come here either because of completion for program-data or as a very
      * unlikely fall through from synchronous completion of program-data (above). */
 
-    tr_info("verifying programmed sector at addr %lu", (uint32_t)addr);
+    printf("verifying programmed sector at addr %lu\n", (uint32_t)addr);
     verifyBytePattern(addr, sizeofData, BYTE_PATTERN);
     ++programIteration;
 
@@ -448,7 +437,7 @@ void programDataOptimalCompleteCallback(int32_t status, ARM_STORAGE_OPERATION op
 control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 5;
-    tr_info("in test_programDataUsingOptimalProgramUnit with call_count %u", call_count);
+    printf("in test_programDataUsingOptimalProgramUnit with call_count %u\n", call_count);
 
     if (call_count == 1) {
         /* Achieve basic initialization for the driver before anything else. */
@@ -486,7 +475,7 @@ control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
     uint64_t addr = firstBlock.addr + (call_count - 2) * firstBlock.attributes.erase_unit;
 
     /* erase the sector at 'addr' */
-    tr_info("erasing sector at addr %lu", (uint32_t)addr);
+    printf("erasing sector at addr %lu\n", (uint32_t)addr);
     rc = drv->Erase(addr, firstBlock.attributes.erase_unit);
     TEST_ASSERT(rc >= 0);
     if (rc == ARM_DRIVER_OK) {
@@ -497,7 +486,7 @@ control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
         verifyBytePattern(addr, firstBlock.attributes.erase_unit, (uint8_t)0xFF);
 
         /* program the sector at addr */
-        tr_info("programming %u bytes at address %lu with pattern 0x%x", sizeofData, (uint32_t)addr, BYTE_PATTERN);
+        printf("programming %u bytes at address %lu with pattern 0x%x\n", sizeofData, (uint32_t)addr, BYTE_PATTERN);
         rc = drv->ProgramData((uint32_t)addr, buffer, sizeofData);
         if (rc == ARM_DRIVER_OK) {
             TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
@@ -505,7 +494,7 @@ control_t test_programDataUsingOptimalProgramUnit(const size_t call_count)
         } else {
             TEST_ASSERT(rc > 0);
 
-            tr_info("verifying programmed sector at addr %lu", (uint32_t)addr);
+            printf("verifying programmed sector at addr %lu\n", (uint32_t)addr);
             verifyBytePattern(addr, sizeofData, BYTE_PATTERN);
 
             return (call_count < REPEAT_INSTANCES) ? CaseRepeatAll : CaseNext;
@@ -559,7 +548,7 @@ template<size_t ERASE_UNITS_PER_ITERATION>
 void eraseCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
     static unsigned eraseIteration = 0;
-    tr_info("erase<%u> complete callback: iteration %u", ERASE_UNITS_PER_ITERATION, eraseIteration);
+    printf("erase<%u> complete callback: iteration %u\n", ERASE_UNITS_PER_ITERATION, eraseIteration);
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_ERASE);
 
     /* test that the actual sector has been erased */
@@ -571,7 +560,7 @@ void eraseCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
     const uint64_t addr = firstBlock.addr + eraseIteration * ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit;
     ++eraseIteration;
 
-    tr_info("testing erased sector at addr %lu", (uint32_t)addr);
+    printf("testing erased sector at addr %lu\n", (uint32_t)addr);
     verifyBytePattern(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, (uint8_t)0xFF);
 
     Harness::validate_callback();
@@ -581,7 +570,7 @@ template <size_t ERASE_UNITS_PER_ITERATION>
 control_t test_erase(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 5;
-    tr_info("in test_erase<%u> with call_count %u", ERASE_UNITS_PER_ITERATION, call_count);
+    printf("in test_erase<%u> with call_count %u\n", ERASE_UNITS_PER_ITERATION, call_count);
 
     if (call_count == 1) {
         /* Achieve basic initialization for the driver before anything else. */
@@ -594,7 +583,7 @@ control_t test_erase(const size_t call_count)
     TEST_ASSERT(ARM_STORAGE_VALID_BLOCK(&firstBlock));
     TEST_ASSERT(firstBlock.size > 0);
     if (firstBlock.size < ((call_count - 1) * ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit)) {
-        tr_info("firstBlock isn't large enough to support instance %u of test_erase<%u>", call_count, ERASE_UNITS_PER_ITERATION);
+        printf("firstBlock isn't large enough to support instance %u of test_erase<%u>\n", call_count, ERASE_UNITS_PER_ITERATION);
         return CaseNext;
     }
 
@@ -610,7 +599,7 @@ control_t test_erase(const size_t call_count)
     /* choose an increasing address for each iteration. */
     uint64_t addr = firstBlock.addr + (call_count - 2) * ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit;
 
-    tr_info("erasing %lu bytes at addr %lu", (ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit), (uint32_t)addr);
+    printf("erasing %lu bytes at addr %lu\n", (ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit), (uint32_t)addr);
     int32_t rc = drv->Erase(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit);
     if (rc == ARM_DRIVER_OK) {
         TEST_ASSERT_EQUAL(1, capabilities.asynchronous_ops);
@@ -619,7 +608,7 @@ control_t test_erase(const size_t call_count)
         TEST_ASSERT_EQUAL(ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, rc);
 
         /* test that the actual sector has been erased */
-        tr_info("testing erased sector at addr %lu", (uint32_t)addr);
+        printf("testing erased sector at addr %lu\n", (uint32_t)addr);
         verifyBytePattern(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, (uint8_t)0xFF);
 
         return (call_count < REPEAT_INSTANCES) ? CaseRepeatAll : CaseNext;
@@ -628,7 +617,7 @@ control_t test_erase(const size_t call_count)
 
 void eraseChipCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
-    tr_info("eraseChip complete callback");
+    printf("eraseChip complete callback\n");
     TEST_ASSERT_EQUAL(status, ARM_DRIVER_OK);
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_ERASE_ALL);
 
@@ -638,11 +627,11 @@ void eraseChipCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
     uint64_t addr = firstBlock.addr;
 
     /* test that the flash has been erased */
-    tr_info("testing erased chip");
+    printf("testing erased chip\n");
     unsigned index = 0;
     static const unsigned MAX_VERIFY_ITERATIONS = 5;
     while ((index < MAX_VERIFY_ITERATIONS) && (addr < (firstBlock.addr + firstBlock.size))) {
-        tr_debug("testing erased chip at addr %lu", (uint32_t)addr);
+        // printf("testing erased chip at addr %lu\n", (uint32_t)addr);
         verifyBytePattern(addr, firstBlock.attributes.erase_unit, (uint8_t)0xFF);
 
         index++;
@@ -655,11 +644,11 @@ void eraseChipCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 control_t test_eraseAll(const size_t call_count)
 {
     static const unsigned REPEAT_INSTANCES = 5;
-    tr_info("in test_eraseAll with call_count %u", call_count);
+    printf("in test_eraseAll with call_count %u\n", call_count);
 
     ARM_STORAGE_CAPABILITIES capabilities = drv->GetCapabilities();
     if (!capabilities.erase_all) {
-        tr_info("chip erase not supported on this flash");
+        printf("chip erase not supported on this flash\n");
         return CaseNext;
     }
 
@@ -681,7 +670,7 @@ control_t test_eraseAll(const size_t call_count)
     TEST_ASSERT(ARM_STORAGE_VALID_BLOCK(&firstBlock));
     TEST_ASSERT(firstBlock.size > 0);
     uint64_t addr = firstBlock.addr;
-    tr_info("erasing chip");
+    printf("erasing chip\n");
 
     int32_t rc = drv->EraseAll();
     if (rc == ARM_DRIVER_OK) {
@@ -694,7 +683,7 @@ control_t test_eraseAll(const size_t call_count)
         unsigned index = 0;
         static const unsigned MAX_VERIFY_ITERATIONS = 5;
         while ((index < MAX_VERIFY_ITERATIONS) && (addr < (firstBlock.addr + firstBlock.size))) {
-            tr_info("testing erased chip at addr %lu", (uint32_t)addr);
+            printf("testing erased chip at addr %lu\n", (uint32_t)addr);
             verifyBytePattern(addr, firstBlock.attributes.erase_unit, (uint8_t)0xFF);
 
             index++;
@@ -791,7 +780,7 @@ void programDataWithMultipleProgramUnitsCallback(int32_t status, ARM_STORAGE_OPE
            }
         }
 
-        tr_info("Callback: programming %lu bytes at address %lu with pattern 0x%lx", (N_UNITS * info.program_unit), (uint32_t)firstBlock.addr, BYTE_PATTERN);
+        printf("Callback: programming %lu bytes at address %lu with pattern 0x%lx\n", (N_UNITS * info.program_unit), (uint32_t)firstBlock.addr, BYTE_PATTERN);
         rc = drv->ProgramData(firstBlock.addr, buffer, (N_UNITS * info.program_unit));
         TEST_ASSERT(rc >= ARM_DRIVER_OK);
         if (rc == ARM_DRIVER_OK) {
@@ -805,7 +794,7 @@ void programDataWithMultipleProgramUnitsCallback(int32_t status, ARM_STORAGE_OPE
 
     TEST_ASSERT_EQUAL((N_UNITS * info.program_unit), status);
 
-    tr_info("Callback: verifying programmed sector at addr %lu", (uint32_t)firstBlock.addr);
+    printf("Callback: verifying programmed sector at addr %lu\n", (uint32_t)firstBlock.addr);
     if (info.program_unit >= sizeof(BYTE_PATTERN)) {
         verifyBytePattern(firstBlock.addr, (N_UNITS * info.program_unit), BYTE_PATTERN);
     } else {
@@ -819,7 +808,7 @@ template<size_t N_UNITS>
 control_t test_programDataWithMultipleProgramUnits(const size_t call_count)
 {
     int32_t rc;
-    tr_info("in test_programDataWithMultipleProgramUnits<%u> with call_count %u", N_UNITS, call_count);
+    printf("in test_programDataWithMultipleProgramUnits<%u> with call_count %u\n", N_UNITS, call_count);
 
     if (call_count == 1) {
         /* Achieve basic initialization for the driver before anything else. */
@@ -847,11 +836,11 @@ control_t test_programDataWithMultipleProgramUnits(const size_t call_count)
         /* round-up range to the nearest erase_unit */
         rangeNeededForTest = ((rangeNeededForTest + firstBlock.attributes.erase_unit - 1) / firstBlock.attributes.erase_unit) * firstBlock.attributes.erase_unit;
         if (firstBlock.size < rangeNeededForTest) {
-            tr_info("first block not large enough; rangeNeededForTest: %u", rangeNeededForTest);
+            printf("first block not large enough; rangeNeededForTest: %u\n", rangeNeededForTest);
             return CaseNext; /* first block isn't large enough for the intended operation */
         }
 
-        tr_debug("erasing %u bytes at addr %lu", rangeNeededForTest, (uint32_t)firstBlock.addr);
+        // printf("erasing %u bytes at addr %lu\n", rangeNeededForTest, (uint32_t)firstBlock.addr);
         rc = drv->Erase(firstBlock.addr, rangeNeededForTest);
         TEST_ASSERT(rc >= 0);
         if (rc == ARM_DRIVER_OK) {
@@ -874,7 +863,7 @@ control_t test_programDataWithMultipleProgramUnits(const size_t call_count)
                }
             }
 
-            tr_info("programming %lu bytes at address %lu with pattern 0x%lx", (N_UNITS * info.program_unit), (uint32_t)firstBlock.addr, BYTE_PATTERN);
+            printf("programming %lu bytes at address %lu with pattern 0x%lx\n", (N_UNITS * info.program_unit), (uint32_t)firstBlock.addr, BYTE_PATTERN);
             rc = drv->ProgramData(firstBlock.addr, buffer, (N_UNITS * info.program_unit));
             TEST_ASSERT(rc >= 0);
             if (rc == ARM_DRIVER_OK) {
@@ -883,7 +872,7 @@ control_t test_programDataWithMultipleProgramUnits(const size_t call_count)
             } else {
                 TEST_ASSERT_EQUAL((N_UNITS * info.program_unit), rc);
 
-                tr_info("verifying programmed sector at addr %lu", (uint32_t)firstBlock.addr);
+                printf("verifying programmed sector at addr %lu\n", (uint32_t)firstBlock.addr);
                 if (info.program_unit >= sizeof(BYTE_PATTERN)) {
                     verifyBytePattern(firstBlock.addr, (N_UNITS * info.program_unit), BYTE_PATTERN);
                 } else {
@@ -956,9 +945,6 @@ Specification specification(default_setup, cases);
 
 int main(int argc, char** argv)
 {
-    mbed_trace_init();       // initialize the trace library
-    mbed_trace_config_set(TRACE_MODE_COLOR | TRACE_ACTIVE_LEVEL_INFO | TRACE_CARRIAGE_RETURN);
-
     // Run the test specification
     Harness::run(specification);
 }
