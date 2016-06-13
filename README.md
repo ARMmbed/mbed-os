@@ -95,6 +95,7 @@ Silicon Labs:
 * [EFM32 Leopard Gecko](https://developer.mbed.org/platforms/EFM32-Leopard-Gecko/) (Cortex-M3)
 * [EFM32 Giant Gecko](https://developer.mbed.org/platforms/EFM32-Giant-Gecko/) (Cortex-M3)
 * [EFM32 Wonder Gecko](https://developer.mbed.org/platforms/EFM32-Wonder-Gecko/) (Cortex-M4)
+* [EFM32 Pearl Gecko](https://developer.mbed.org/platforms/EFM32-Pearl-Gecko/) (Cortex-M4)
 
 Atmel:
 * [SAM R21 XPRO](https://developer.mbed.org/platforms/SAMR21-XPRO/) (Cortex-M0+)
