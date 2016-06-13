@@ -2077,12 +2077,13 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      verbose=verbose)
 
         except Exception, e:
-            result = False
-            
-            if continue_on_build_fail:
-                continue
-            else:
-                break
+            if not isinstance(e, NotSupportedException):
+                result = False
+                
+                if continue_on_build_fail:
+                    continue
+                else:
+                    break
         
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.
