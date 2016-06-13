@@ -1,0 +1,6 @@
+This module contains softdevice which comes with The Nordic Softdevice License Agreement,
+a BSD-like licence for binary distributions, offered by Nordic for use in mbed. Some
+other files come from the mbed SDK, and are licensed under Apache-2.0. Unless
+specifically indicated otherwise in a file, files are licensed under the
+Apache 2.0 license, as can be found in: apache-2.0.txt. The Nordic Semiconductor Softdevice
+License Agreement can be found in softdevice_nrf51822_licence_agreement.txt.

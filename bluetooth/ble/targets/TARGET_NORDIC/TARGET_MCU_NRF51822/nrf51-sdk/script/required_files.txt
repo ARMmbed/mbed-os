@@ -1,0 +1,136 @@
+# from cmsis-core-nrf51822:
+	cmsis-core-nrf51822/compiler_abstraction.h
+	cmsis-core-nrf51822/nrf.h
+	cmsis-core-nrf51822/nrf51.h
+	cmsis-core-nrf51822/nrf51_bitfields.h
+	cmsis-core-nrf51822/nrf_delay.h
+	cmsis-core-nrf51822/system_nrf51.h
+	source/system_nrf51.c
+
+# from ble-nrf51822
+	source/nordic-sdk/components/ble/ble_radio_notification/ble_radio_notification.c
+	source/nordic-sdk/components/ble/ble_radio_notification/ble_radio_notification.h
+	source/nordic-sdk/components/ble/ble_services/ble_dfu/ble_dfu.c
+	source/nordic-sdk/components/ble/ble_services/ble_dfu/ble_dfu.h
+	source/nordic-sdk/components/ble/common/ble_advdata.c
+	source/nordic-sdk/components/ble/common/ble_advdata.h
+	source/nordic-sdk/components/ble/common/ble_advdata_parser.c
+	source/nordic-sdk/components/ble/common/ble_advdata_parser.h
+	source/nordic-sdk/components/ble/peer_manager/id_manager.h
+	source/nordic-sdk/components/ble/peer_manager/id_manager.c
+	source/nordic-sdk/components/ble/peer_manager/peer_manager_types.h
+	source/nordic-sdk/components/ble/peer_manager/ble_gatt_db.h
+	source/nordic-sdk/components/ble/peer_manager/ble_conn_state.h
+	source/nordic-sdk/components/ble/peer_manager/sdk_mapped_flags.h
+	source/nordic-sdk/components/ble/peer_manager/peer_database.h
+# source/nordic-sdk/components/ble/common/ble_conn_params.cpp the file is called
+	source/nordic-sdk/components/ble/common/ble_conn_params.c
+	source/nordic-sdk/components/ble/common/ble_conn_params.h
+	source/nordic-sdk/components/ble/common/ble_date_time.h
+	source/nordic-sdk/components/ble/common/ble_sensor_location.h
+	source/nordic-sdk/components/ble/common/ble_srv_common.c
+	source/nordic-sdk/components/ble/common/ble_srv_common.h
+	source/nordic-sdk/components/ble/device_manager/config/device_manager_cnfg.h
+	source/nordic-sdk/components/ble/device_manager/device_manager.h
+	source/nordic-sdk/components/ble/device_manager/device_manager_peripheral.c
+	source/nordic-sdk/components/drivers_nrf/ble_flash/ble_flash.c
+	source/nordic-sdk/components/drivers_nrf/ble_flash/ble_flash.h
+	source/nordic-sdk/components/drivers_nrf/hal/compiler_abstraction.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf51.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf51_bitfields.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf51_deprecated.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_delay.c
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_ecb.c
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_ecb.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_gpio.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_gpiote.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_nvmc.c
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_nvmc.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_temp.h
+	source/nordic-sdk/components/drivers_nrf/pstorage/config/pstorage_platform.h
+	source/nordic-sdk/components/drivers_nrf/pstorage/pstorage.c
+	source/nordic-sdk/components/drivers_nrf/pstorage/pstorage.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/bootloader.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/bootloader_types.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/bootloader_util.h
+# source/nordic-sdk/components/libraries/bootloader_dfu/bootloader_util_arm.c new file is called:
+	source/nordic-sdk/components/libraries/bootloader_dfu/bootloader_util.c
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu_bank_internal.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu_ble_svc.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu_ble_svc_internal.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu_init.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu_init_template.c
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu_transport.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/dfu_types.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/experimental/dfu_app_handler.c
+	source/nordic-sdk/components/libraries/bootloader_dfu/experimental/dfu_app_handler.h
+	source/nordic-sdk/components/libraries/bootloader_dfu/hci_transport/hci_mem_pool_internal.h
+	source/nordic-sdk/components/libraries/crc16/crc16.c
+	source/nordic-sdk/components/libraries/hci/hci_mem_pool.c
+	source/nordic-sdk/components/libraries/hci/hci_mem_pool.h
+	source/nordic-sdk/components/libraries/scheduler/app_scheduler.c
+	source/nordic-sdk/components/libraries/util/app_error.c
+	source/nordic-sdk/components/libraries/util/app_util_platform.c
+	source/nordic-sdk/components/libraries/util/app_util_platform.h
+	source/nordic-sdk/components/libraries/util/common.h
+	source/nordic-sdk/components/libraries/util/nordic_common.h
+	source/nordic-sdk/components/libraries/util/nrf_assert.c
+	source/nordic-sdk/components/libraries/util/nrf_assert.h
+	source/nordic-sdk/components/libraries/util/sdk_common.h
+	source/nordic-sdk/components/libraries/util/sdk_errors.h
+	source/nordic-sdk/components/libraries/util/sdk_os.h
+	source/nordic-sdk/components/softdevice/common/softdevice_handler/ant_stack_handler_types.h
+	source/nordic-sdk/components/softdevice/common/softdevice_handler/ble_stack_handler_types.h
+	source/nordic-sdk/components/softdevice/common/softdevice_handler/softdevice_handler.c
+	source/nordic-sdk/components/softdevice/common/softdevice_handler/softdevice_handler.h
+	source/nordic-sdk/components/softdevice/common/softdevice_handler/softdevice_handler_appsh.c
+	source/nordic-sdk/components/softdevice/common/softdevice_handler/softdevice_handler_appsh.h
+# source/nordic-sdk/components/softdevice/s130/doc/ble_api.dox uncertain of the origin of this file
+	source/nordic-sdk/components/softdevice/s130/include/ble.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_err.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_gap.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_gatt.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_gattc.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_gatts.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_hci.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_l2cap.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_ranges.h
+	source/nordic-sdk/components/softdevice/s130/include/ble_types.h
+	source/nordic-sdk/components/softdevice/s130/include/nrf_error.h
+	source/nordic-sdk/components/softdevice/s130/include/nrf_error_sdm.h
+	source/nordic-sdk/components/softdevice/s130/include/nrf_error_soc.h
+	source/nordic-sdk/components/softdevice/s130/include/nrf_mbr.h
+	source/nordic-sdk/components/softdevice/s130/include/nrf_sdm.h
+	source/nordic-sdk/components/softdevice/s130/include/nrf_soc.h
+	source/nordic-sdk/components/softdevice/s130/include/nrf_svc.h
+	source/nordic-sdk/components/softdevice/s130/include/softdevice_assert.h
+	source/nordic-sdk/components/drivers_nrf/hal/nrf_wdt.h
+	source/nordic-sdk/components/ble/common/ble_conn_state.c
+	source/nordic-sdk/components/ble/peer_manager/peer_data.c
+	source/nordic-sdk/components/ble/peer_manager/peer_data.h
+	source/nordic-sdk/components/ble/peer_manager/peer_data_storage.c
+	source/nordic-sdk/components/ble/peer_manager/peer_data_storage.h
+	source/nordic-sdk/components/ble/peer_manager/peer_database.c
+	source/nordic-sdk/components/ble/peer_manager/peer_id.c
+	source/nordic-sdk/components/ble/peer_manager/peer_id.h
+	source/nordic-sdk/components/ble/peer_manager/pm_buffer.c
+	source/nordic-sdk/components/ble/peer_manager/pm_buffer.h
+	source/nordic-sdk/components/ble/peer_manager/pm_mutex.c
+	source/nordic-sdk/components/ble/peer_manager/pm_mutex.h
+	source/nordic-sdk/components/libraries/experimental_section_vars/
+	source/nordic-sdk/components/libraries/fds/
+	source/nordic-sdk/components/libraries/fstorage/
+	source/nordic-sdk/components/libraries/util/sdk_mapped_flags.c
+
+
+# from mbed-hal-nrf51822-mcu
+	mbed-hal-nrf51822-mcu/lib/nordic_sdk/components/libraries/crc16/crc16.h
+	mbed-hal-nrf51822-mcu/lib/nordic_sdk/components/libraries/scheduler/app_scheduler.h
+	mbed-hal-nrf51822-mcu/lib/nordic_sdk/components/libraries/util/app_error.h
+	mbed-hal-nrf51822-mcu/lib/nordic_sdk/components/libraries/util/app_util.h
+
+# included from ble_conn_params.c
+	app_timer.h
+
