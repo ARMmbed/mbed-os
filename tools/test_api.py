@@ -2064,7 +2064,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
-        
+        bin_file = None
         try:
             bin_file = build_project(src_path, test_build_path, target, toolchain_name,
                                      options=options,
@@ -2091,17 +2091,18 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             clean = False
         
         # Normalize the path
-        bin_file = os.path.normpath(bin_file)
-        
-        test_build['tests'][test_name] = {
-            "binaries": [
-                {
-                    "path": bin_file
-                }
-            ]
-        }
-        
-        print 'Image: %s'% bin_file
+        if bin_file:
+            bin_file = os.path.normpath(bin_file)
+            
+            test_build['tests'][test_name] = {
+                "binaries": [
+                    {
+                        "path": bin_file
+                    }
+                ]
+            }
+            
+            print 'Image: %s'% bin_file
     
     test_builds = {}
     test_builds["%s-%s" % (target.name, toolchain_name)] = test_build

@@ -30,7 +30,7 @@ from tools.test_api import test_path_to_name, find_tests, print_tests, build_tes
 from tools.options import get_default_options_parser
 from tools.build_api import build_project, build_library
 from tools.targets import TARGET_MAP
-from tools.utils import mkdir
+from tools.utils import mkdir, ToolException, NotSupportedException
 from tools.test_exporters import ReportExporter, ResultExporterType
 
 if __name__ == '__main__':
@@ -137,7 +137,7 @@ if __name__ == '__main__':
             build_report = {}
             build_properties = {}
 
-            library_build_success = True
+            library_build_success = False
             try:
                 # Build sources
                 build_library(base_source_paths, options.build_dir, target, options.tool,
@@ -150,11 +150,21 @@ if __name__ == '__main__':
                                                 macros=options.macros,
                                                 verbose=options.verbose,
                                                 archive=False)
-            except Exception, e:
-                library_build_success = False
-                print "Failed to build library"
                 
-            if library_build_success:
+                library_build_success = True
+            except ToolException, e:
+                # ToolException output is handled by the build log
+                pass
+            except NotSupportedException, e:
+                # NotSupportedException is handled by the build log
+                pass
+            except Exception, e:
+                # Some other exception occurred, print the error message
+                print e
+            
+            if not library_build_success:
+                print "Failed to build library"
+            else:
                 # Build all the tests
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
                         options=options.options,
