@@ -130,8 +130,10 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     // Output compare channel 2 interrupt for HAL tick
     NVIC_SetVector(TIM_MST_UP_IRQ, (uint32_t)timer_update_irq_handler);
     NVIC_EnableIRQ(TIM_MST_UP_IRQ);
+    NVIC_SetPriority(TIM_MST_UP_IRQ, 0);
     NVIC_SetVector(TIM_MST_OC_IRQ, (uint32_t)timer_oc_irq_handler);
     NVIC_EnableIRQ(TIM_MST_OC_IRQ);
+    NVIC_SetPriority(TIM_MST_OC_IRQ, 1);
 
     // Enable interrupts
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_UPDATE); // For 32-bit counter
