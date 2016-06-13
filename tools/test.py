@@ -103,8 +103,8 @@ if __name__ == '__main__':
         # Filter tests by name if specified
         if options.names:
             all_names = options.names.split(",")
+            all_names = [x.lower() for x in all_names]
             
-            all_tests_keys = all_tests.keys()
             for name in all_names:
                 if any(fnmatch.fnmatch(testname, name) for testname in all_tests):
                     for testname, test in all_tests.items():
