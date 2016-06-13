@@ -127,6 +127,7 @@ OFFICIAL_MBED_LIBRARY_BUILD = (
     ('ARM_MPS2_M4'   ,     ('ARM',)),
     ('ARM_MPS2_M7'   ,     ('ARM',)),
     ('ARM_IOTSS_BEID' ,     ('ARM',)),
+    ('ARM_BEETLE_SOC' ,     ('ARM', 'GCC_ARM')),
 
     ('RZ_A1H'   ,     ('ARM', 'GCC_ARM')),
 
@@ -217,7 +218,7 @@ if __name__ == '__main__':
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
                 continue
-            
+
             if target_name not in TARGET_NAMES:
                 print "Target '%s' is not a valid target. Excluding from release"
                 continue
@@ -257,7 +258,7 @@ if __name__ == '__main__':
             if platforms is not None and not target_name in platforms:
                 print("Excluding %s from release" % target_name)
                 continue
-            
+
             if target_name not in TARGET_NAMES:
                 print "Target '%s' is not a valid target. Excluding from release"
                 continue
