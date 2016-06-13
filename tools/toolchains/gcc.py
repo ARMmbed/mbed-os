@@ -175,7 +175,7 @@ class GCC(mbedToolchain):
         cmd.extend(self.get_dep_option(object))
 
         cmd.extend(["-o", object, source])
-
+        
         # Call cmdline hook
         cmd = self.hook.get_cmdline_compiler(cmd)
 
@@ -194,13 +194,13 @@ class GCC(mbedToolchain):
             name, _ = splitext(basename(l))
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
-
+        
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
         if mem_map:
             cmd.extend(['-T', mem_map])
-
+            
         for L in lib_dirs:
             cmd.extend(['-L', L])
         cmd.extend(libs)
@@ -215,7 +215,7 @@ class GCC(mbedToolchain):
             cmd_list = []
             for c in cmd[1:]:
                 if c:
-                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)   
             string = " ".join(cmd_list).replace("\\", "/")
             f.write(string)
 
@@ -228,7 +228,7 @@ class GCC(mbedToolchain):
         with open(archive_files, "wb") as f:
             o_list = []
             for o in objects:
-                o_list.append('"%s"' % o)
+                o_list.append('"%s"' % o)                    
             string = " ".join(o_list).replace("\\", "/")
             f.write(string)
 
