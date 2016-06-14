@@ -40,7 +40,7 @@ class IAR(mbedToolchain):
             "-e", # Enable IAR language extension
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
         'asm': [],
-        'c': ["--vla"],
+        'c': [],
         'cxx': ["--c++",  "--no_rtti", "--no_exceptions", "--guard_calls"],
         'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
