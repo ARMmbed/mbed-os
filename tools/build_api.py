@@ -195,16 +195,30 @@ def build_project(src_path, build_path, target, toolchain_name,
             else:
                 resources.inc_dirs.append(inc_dirs)
 
-        # Update the configuration with any .json files found while scanning
-        config.add_config_files(resources.json_files)
+        # Update configuration files until added features creates no changes
+        prev_features = set()
+        while True:
+            # Update the configuration with any .json files found while scanning
+            config.add_config_files(resources.json_files)
+
+            # Add features while we find new ones
+            features = config.get_features()
+            if features == prev_features:
+                break
+
+            for feature in features:
+                if feature not in resources.features:
+                    raise KeyError("Feature %s is unavailable" % feature)
+                resources += resources.features[feature]
+
+            prev_features = features
+
         # And add the configuration macros to the toolchain
         toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
-        for path in src_paths:
-            src = toolchain.scan_resources(path)
-            objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
-            resources.objects.extend(objects)
+        objects = toolchain.compile_sources(resources, build_path, resources.inc_dirs)
+        resources.objects.extend(objects)
 
         # Link Program
         res, _ = toolchain.link_program(resources, build_path, name)
@@ -237,7 +251,7 @@ def build_project(src_path, build_path, target, toolchain_name,
             add_result_to_report(report, cur_result)
 
         # Let Exception propagate
-        raise e
+        raise
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False, archive=True,
@@ -346,16 +360,29 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         # Handle configuration
         config = Config(target)
-        # Update the configuration with any .json files found while scanning
-        config.add_config_files(resources.json_files)
+
+        # Update configuration files until added features creates no changes
+        prev_features = set()
+        while True:
+            # Update the configuration with any .json files found while scanning
+            config.add_config_files(resources.json_files)
+
+            # Add features while we find new ones
+            features = config.get_features()
+            if features == prev_features:
+                break
+
+            for feature in features:
+                resources += resources.features[feature]
+
+            prev_features = features
+
         # And add the configuration macros to the toolchain
         toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
-        for path in src_paths:
-            src = toolchain.scan_resources(path)
-            objects = toolchain.compile_sources(src, abspath(tmp_path), resources.inc_dirs)
-            resources.objects.extend(objects)
+        objects = toolchain.compile_sources(resources, build_path, resources.inc_dirs)
+        resources.objects.extend(objects)
 
         if archive:
             toolchain.build_library(objects, build_path, name)

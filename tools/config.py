@@ -176,7 +176,9 @@ class Config:
         self.processed_configs = {}
         self.target = target if isinstance(target, str) else target.name
         self.target_labels = Target.get_target(self.target).get_labels()
-        self.target_instance = Target.get_target(self.target)
+        self.added_features = set()
+        self.removed_features = set()
+        self.removed_unecessary_features = False
 
     # Add one or more configuration files
     def add_config_files(self, flist):
@@ -212,6 +214,23 @@ class Config:
             params[full_name] = ConfigParameter(name, v if isinstance(v, dict) else {"value": v}, unit_name, unit_kind)
         return params
 
+    # Add features to the available features
+    def remove_features(self, features):
+        for feature in features:
+            if feature in self.added_features:
+                raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
+
+        self.removed_features |= set(features)
+
+    # Remove features from the available features
+    def add_features(self, features):
+        for feature in features:
+            if (feature in self.removed_features 
+                or (self.removed_unecessary_features and feature not in self.added_features)):
+                raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
+
+        self.added_features |= set(features)
+
     # Helper function: process "config_parameters" and "target_config_overrides" in a given dictionary
     # data: the configuration data of the library/appliation
     # params: storage for the discovered configuration parameters
@@ -222,25 +241,21 @@ class Config:
         for label, overrides in data.get("target_overrides", {}).items():
             # If the label is defined by the target or it has the special value "*", process the overrides
             if (label == '*') or (label in self.target_labels):
-                # Parse out cumulative attributes
-                for attr in Target._Target__cumulative_attributes:
-                    attrs = getattr(self.target_instance, attr)
+                # Parse out features
+                if 'features' in overrides:
+                    features = overrides['features']
+                    self.remove_features(list(set(self.added_features) - set(features)))
+                    self.add_features(features)
+                    self.removed_unecessary_features = True
+                    del overrides['features']
 
-                    if attr in overrides:
-                        del attrs[:]
-                        attrs.extend(overrides[attr])
-                        del overrides[attr]
+                if 'features_add' in overrides:
+                    self.add_features(overrides['features_add'])
+                    del overrides['features_add']
 
-                    if attr+'_add' in overrides:
-                        attrs.extend(overrides[attr+'_add'])
-                        del overrides[attr+'_add']
-
-                    if attr+'_remove' in overrides:
-                        for a in overrides[attr+'_remove']:
-                            attrs.remove(a)
-                        del overrides[attr+'_remove']
-
-                    setattr(self.target_instance, attr, attrs)
+                if 'features_remove' in overrides:
+                    self.remove_features(overrides['features_remove'])
+                    del overrides['features_remove']
 
                 # Consider the others as overrides
                 for name, v in overrides.items():
@@ -345,3 +360,11 @@ class Config:
         params, macros = self.get_config_data()
         self._check_required_parameters(params)
         return macros + self.parameters_to_macros(params)
+
+    # Returns any features in the configuration data
+    def get_features(self):
+        params, _ = self.get_config_data()
+        self._check_required_parameters(params)
+        return ((set(Target.get_target(self.target).features)
+            | self.added_features) - self.removed_features)
+        
