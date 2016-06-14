@@ -313,7 +313,6 @@ class mbedToolchain:
             # Target and Toolchain symbols
             labels = self.get_labels()
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
-            self.symbols.extend(["FEATURE_%s" % t for t in labels['FEATURE']])
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
             # Config support
