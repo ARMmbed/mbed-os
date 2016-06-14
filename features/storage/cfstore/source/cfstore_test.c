@@ -346,7 +346,7 @@ int32_t cfstore_test_init_1(void)
     char* read_buf = NULL;
     const uint8_t key_name_max_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
     uint8_t key_name_len = 0;
-    char key_name_buf[key_name_max_len];
+    char key_name_buf[CFSTORE_KEY_NAME_MAX_LENGTH+1];
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_SIZE len = 0;
     ARM_CFSTORE_SIZE max_len = 0;
