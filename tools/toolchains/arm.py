@@ -218,10 +218,10 @@ class ARM_STD(ARM):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         # Extend flags
-        self.flags['ld'].extend(["--libpath", ARM_LIB])
+        self.flags['ld'].extend(["--libpath \"%s\"" % ARM_LIB])
         
         # Run-time values
-        self.ld.extend(["--libpath", ARM_LIB])
+        self.ld.extend(["--libpath \"%s\"" % ARM_LIB])
 
 
 class ARM_MICRO(ARM):
@@ -263,6 +263,6 @@ class ARM_MICRO(ARM):
                 self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
         else:
             # Run-time values
-            self.flags['ld'].extend(["--libpath", ARM_LIB])
+            self.flags['ld'].extend(["--libpath \"%s\"" % ARM_LIB])
             # Run-time values
-            self.ld.extend(["--libpath", ARM_LIB])
+            self.ld.extend(["--libpath \"%s\"" % ARM_LIB])
