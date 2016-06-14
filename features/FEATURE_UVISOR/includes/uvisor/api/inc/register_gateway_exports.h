@@ -79,6 +79,10 @@ typedef struct {
                  (((uint16_t) (width) << __UVISOR_RGW_OP_WIDTH_POS) & __UVISOR_RGW_OP_WIDTH_MASK) | \
                  (((uint16_t) (shared) << __UVISOR_RGW_OP_SHARED_POS) & __UVISOR_RGW_OP_SHARED_MASK)))
 
+/** Register gateway operation - Shared */
+#define UVISOR_RGW_SHARED    1
+#define UVISOR_RGW_EXCLUSIVE 0
+
 /** Register gateway operation - Type */
 #define UVISOR_RGW_OP_READ          0 /**< value = *address */
 #define UVISOR_RGW_OP_READ_AND      1 /**< value = *address & mask */

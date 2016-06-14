@@ -31,10 +31,54 @@
 #ifndef _FSL_CLOCK_H_
 #define _FSL_CLOCK_H_
 
+#include "core_cmSecureAccess.h"
 #include "fsl_device_registers.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
+
+#ifdef FEATURE_UVISOR
+
+/* We cannot use the register gateway to secure this access,
+ * since some accesses use dynamically computed addresses and
+ * values, which are not supported by the register gateway.
+ * Therefore, these accesses are implemented using the uVisor
+ * secure access.
+ */
+#define __FSL_CLOCK_SECURE_WRITE(addr, val) \
+    ADDRESS_WRITE(*addr, addr, val)
+
+#define __FSL_CLOCK_SECURE_READ(addr) \
+    ADDRESS_READ(*addr, addr)
+
+#define __FSL_CLOCK_SECURE_BITS_SET(addr, mask) \
+    __FSL_CLOCK_SECURE_WRITE(addr, __FSL_CLOCK_SECURE_READ(addr) | (mask))
+
+#define __FSL_CLOCK_SECURE_BITS_CLEAR(addr, mask) \
+    __FSL_CLOCK_SECURE_WRITE(addr, __FSL_CLOCK_SECURE_READ(addr) & ~(mask))
+
+#define __FSL_CLOCK_SECURE_BITS_SET_VALUE(addr, mask, val) \
+    __FSL_CLOCK_SECURE_WRITE(addr, (__FSL_CLOCK_SECURE_READ(addr) & ~(mask)) | ((val) & (mask)))
+
+#else
+
+/* Fallback implementation. */
+#define __FSL_CLOCK_SECURE_WRITE(addr, val) \
+    SECURE_WRITE(addr, val)
+
+#define __FSL_CLOCK_SECURE_READ(addr) \
+    SECURE_READ(addr)
+
+#define __FSL_CLOCK_SECURE_BITS_SET(addr, mask) \
+    SECURE_BITS_SET(addr, mask)
+
+#define __FSL_CLOCK_SECURE_BITS_CLEAR(addr, mask) \
+    SECURE_BITS_CLEAR(addr, mask)
+
+#define __FSL_CLOCK_SECURE_BITS_SET_VALUE(addr, mask, val) \
+    SECURE_BITS_SET_VALUE(addr, mask, val)
+
+#endif
 
 /*! @addtogroup clock */
 /*! @{ */
@@ -675,7 +719,7 @@ static inline void CLOCK_SetXtal32Freq(uint32_t freq)
 static inline void CLOCK_EnableClock(clock_ip_name_t name)
 {
     uint32_t regAddr = SIM_BASE + CLK_GATE_ABSTRACT_REG_OFFSET((uint32_t)name);
-    (*(volatile uint32_t *)regAddr) |= (1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name));
+    __FSL_CLOCK_SECURE_BITS_SET((uint32_t *) regAddr, (1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name)));
 }
 
 /*!
@@ -686,7 +730,7 @@ static inline void CLOCK_EnableClock(clock_ip_name_t name)
 static inline void CLOCK_DisableClock(clock_ip_name_t name)
 {
     uint32_t regAddr = SIM_BASE + CLK_GATE_ABSTRACT_REG_OFFSET((uint32_t)name);
-    (*(volatile uint32_t *)regAddr) &= ~(1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name));
+    __FSL_CLOCK_SECURE_BITS_CLEAR((uint32_t *) regAddr, (1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name)));
 }
 
 /*!
@@ -696,7 +740,7 @@ static inline void CLOCK_DisableClock(clock_ip_name_t name)
  */
 static inline void CLOCK_SetEr32kClock(uint32_t src)
 {
-    SIM->SOPT1 = ((SIM->SOPT1 & ~SIM_SOPT1_OSC32KSEL_MASK) | SIM_SOPT1_OSC32KSEL(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT1, SIM_SOPT1_OSC32KSEL_MASK, SIM_SOPT1_OSC32KSEL(src));
 }
 
 /*!
@@ -706,7 +750,7 @@ static inline void CLOCK_SetEr32kClock(uint32_t src)
  */
 static inline void CLOCK_SetSdhc0Clock(uint32_t src)
 {
-    SIM->SOPT2 = ((SIM->SOPT2 & ~SIM_SOPT2_SDHCSRC_MASK) | SIM_SOPT2_SDHCSRC(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT2, SIM_SOPT2_SDHCSRC_MASK, SIM_SOPT2_SDHCSRC(src));
 }
 
 /*!
@@ -716,7 +760,7 @@ static inline void CLOCK_SetSdhc0Clock(uint32_t src)
  */
 static inline void CLOCK_SetEnetTime0Clock(uint32_t src)
 {
-    SIM->SOPT2 = ((SIM->SOPT2 & ~SIM_SOPT2_TIMESRC_MASK) | SIM_SOPT2_TIMESRC(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT2, SIM_SOPT2_TIMESRC_MASK, SIM_SOPT2_TIMESRC(src));
 }
 
 /*!
@@ -726,7 +770,7 @@ static inline void CLOCK_SetEnetTime0Clock(uint32_t src)
  */
 static inline void CLOCK_SetRmii0Clock(uint32_t src)
 {
-    SIM->SOPT2 = ((SIM->SOPT2 & ~SIM_SOPT2_RMIISRC_MASK) | SIM_SOPT2_RMIISRC(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT2, SIM_SOPT2_RMIISRC_MASK, SIM_SOPT2_RMIISRC(src));
 }
 
 /*!
@@ -736,7 +780,7 @@ static inline void CLOCK_SetRmii0Clock(uint32_t src)
  */
 static inline void CLOCK_SetTraceClock(uint32_t src)
 {
-    SIM->SOPT2 = ((SIM->SOPT2 & ~SIM_SOPT2_TRACECLKSEL_MASK) | SIM_SOPT2_TRACECLKSEL(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT2, SIM_SOPT2_TRACECLKSEL_MASK, SIM_SOPT2_TRACECLKSEL(src));
 }
 
 /*!
@@ -746,7 +790,7 @@ static inline void CLOCK_SetTraceClock(uint32_t src)
  */
 static inline void CLOCK_SetPllFllSelClock(uint32_t src)
 {
-    SIM->SOPT2 = ((SIM->SOPT2 & ~SIM_SOPT2_PLLFLLSEL_MASK) | SIM_SOPT2_PLLFLLSEL(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT2, SIM_SOPT2_PLLFLLSEL_MASK, SIM_SOPT2_PLLFLLSEL(src));
 }
 
 /*!
@@ -756,7 +800,7 @@ static inline void CLOCK_SetPllFllSelClock(uint32_t src)
  */
 static inline void CLOCK_SetClkOutClock(uint32_t src)
 {
-    SIM->SOPT2 = ((SIM->SOPT2 & ~SIM_SOPT2_CLKOUTSEL_MASK) | SIM_SOPT2_CLKOUTSEL(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT2, SIM_SOPT2_CLKOUTSEL_MASK, SIM_SOPT2_CLKOUTSEL(src));
 }
 
 /*!
@@ -766,7 +810,7 @@ static inline void CLOCK_SetClkOutClock(uint32_t src)
  */
 static inline void CLOCK_SetRtcClkOutClock(uint32_t src)
 {
-    SIM->SOPT2 = ((SIM->SOPT2 & ~SIM_SOPT2_RTCCLKOUTSEL_MASK) | SIM_SOPT2_RTCCLKOUTSEL(src));
+    __FSL_CLOCK_SECURE_BITS_SET_VALUE(&SIM->SOPT2, SIM_SOPT2_RTCCLKOUTSEL_MASK, SIM_SOPT2_RTCCLKOUTSEL(src));
 }
 
 /*! @brief Enable USB FS clock.
@@ -802,8 +846,11 @@ static inline void CLOCK_DisableUsbfs0Clock(void)
  */
 static inline void CLOCK_SetOutDiv(uint32_t outdiv1, uint32_t outdiv2, uint32_t outdiv3, uint32_t outdiv4)
 {
-    SIM->CLKDIV1 = SIM_CLKDIV1_OUTDIV1(outdiv1) | SIM_CLKDIV1_OUTDIV2(outdiv2) | SIM_CLKDIV1_OUTDIV3(outdiv3) |
-                   SIM_CLKDIV1_OUTDIV4(outdiv4);
+    __FSL_CLOCK_SECURE_WRITE(&SIM->CLKDIV1,
+        SIM_CLKDIV1_OUTDIV1(outdiv1) |
+        SIM_CLKDIV1_OUTDIV2(outdiv2) |
+        SIM_CLKDIV1_OUTDIV3(outdiv3) |
+        SIM_CLKDIV1_OUTDIV4(outdiv4));
 }
 
 /*!
@@ -896,7 +943,7 @@ void CLOCK_SetSimConfig(sim_clock_config_t const *config);
  */
 static inline void CLOCK_SetSimSafeDivs(void)
 {
-    SIM->CLKDIV1 = 0x01240000U;
+    __FSL_CLOCK_SECURE_WRITE(&SIM->CLKDIV1, 0x01240000UL);
 }
 
 /*! @name MCG frequency functions. */
@@ -972,11 +1019,11 @@ static inline void CLOCK_SetLowPowerEnable(bool enable)
 {
     if (enable)
     {
-        MCG->C2 |= MCG_C2_LP_MASK;
+        __FSL_CLOCK_SECURE_BITS_SET(&MCG->C2, MCG_C2_LP_MASK);
     }
     else
     {
-        MCG->C2 &= ~MCG_C2_LP_MASK;
+        __FSL_CLOCK_SECURE_BITS_CLEAR(&MCG->C2, MCG_C2_LP_MASK);
     }
 }
 
@@ -1031,7 +1078,7 @@ void CLOCK_EnablePll0(mcg_pll_config_t const *config);
  */
 static inline void CLOCK_DisablePll0(void)
 {
-    MCG->C5 &= ~(MCG_C5_PLLCLKEN0_MASK | MCG_C5_PLLSTEN0_MASK);
+    __FSL_CLOCK_SECURE_BITS_CLEAR(&MCG->C5, MCG_C5_PLLCLKEN0_MASK | MCG_C5_PLLSTEN0_MASK);
 }
 
 /*!

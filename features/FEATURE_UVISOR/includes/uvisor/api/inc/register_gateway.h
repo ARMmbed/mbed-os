@@ -60,16 +60,17 @@
  *
  * @param box_name[in]  The name of the source box as decalred in
  *                      `UVISOR_BOX_CONFIG`.
+ * @param shared[in]    Whether the gateway can be shared with other boxes or
+ *                      not. Two values are available: UVISOR_RGW_SHARED,
+ *                      UVISOR_RGW_EXCLUSIVE.
  * @param addr[in]      The address for the data access.
  * @param operation[in] The operation to perform at the address for the read. It
  *                      is chosen among the `UVISOR_RGW_OP_*` macros.
- * @param shared[in]    True if the gateway can be performed by any box. In this
- *                      case, the box_name field does not guarantee exclusivity.
  * @param mask[in]      The mask to apply for the read operation.
  * @returns The value read from address using the operation and mask provided
  * (or their respective defaults if they have not been provided).
  */
-#define uvisor_read(box_name, addr, op, shared, msk) \
+#define uvisor_read(box_name, shared, addr, op, msk) \
     ({ \
         /* Instanstiate the gateway. This gets resolved at link-time. */ \
         __attribute__((aligned(4))) static TRegisterGateway const register_gateway = { \
@@ -106,15 +107,16 @@
  *
  * @param box_name[in]  The name of the source box as decalred in
  *                      `UVISOR_BOX_CONFIG`.
+ * @param shared[in]    Whether the gateway can be shared with other boxes or
+ *                      not. Two values are available: UVISOR_RGW_SHARED,
+ *                      UVISOR_RGW_EXCLUSIVE.
  * @param addr[in]      The address for the data access.
  * @param val[in]       The value to write at address.
  * @param operation[in] The operation to perform at the address for the read. It
  *                      is chosen among the `UVISOR_RGW_OP_*` macros.
- * @param shared[in]    True if the gateway can be performed by any box. In this
- *                      case, the box_name field does not guarantee exclusivity.
  * @param mask[in]      The mask to apply for the write operation.
  */
-#define uvisor_write(box_name, addr, val, op, shared, msk) \
+#define uvisor_write(box_name, shared, addr, val, op, msk) \
     { \
         /* Instanstiate the gateway. This gets resolved at link-time. */ \
         __attribute__((aligned(4))) static TRegisterGateway const register_gateway = { \
@@ -143,77 +145,95 @@
 /** Get the selected bits at the target address.
  * @param box_name[in] Box name as defined by the uVisor box configuration
  *                     macro `UVISOR_BOX_CONFIG`
+ * @param shared[in]   Whether the gateway can be shared with other boxes or
+ *                     not. Two values are available: UVISOR_RGW_SHARED,
+ *                     UVISOR_RGW_EXCLUSIVE.
  * @param address[in]  Target address
  * @param mask[in]     Bits to select out of the target address
  * @returns The value `*address & mask`.
  */
-#define UVISOR_BITS_GET(box_name, address, mask) \
+#define UVISOR_BITS_GET(box_name, shared, address, mask) \
     /* Register gateway implementation:
      * *address & mask */ \
-    uvisor_read(box_name, address, UVISOR_RGW_OP_READ_AND, false, mask)
+    uvisor_read(box_name, shared, address, UVISOR_RGW_OP_READ_AND, mask)
 
 /** Check the selected bits at the target address.
  * @param box_name[in] Box name as defined by the uVisor box configuration
  *                     macro `UVISOR_BOX_CONFIG`
+ * @param shared[in]   Whether the gateway can be shared with other boxes or
+ *                     not. Two values are available: UVISOR_RGW_SHARED,
+ *                     UVISOR_RGW_EXCLUSIVE.
  * @param address[in]  Address at which to check the bits
  * @param mask[in]     Bits to select out of the target address
- * @returns The value `(bool) (*address & mask) == mask)`.
+ * @returns The value `((*address & mask) == mask)`.
  */
-#define UVISOR_BITS_CHECK(box_name, address, mask) \
-    ((bool) (UVISOR_BITS_GET(box_name, address, mask) == mask))
+#define UVISOR_BITS_CHECK(box_name, shared, address, mask) \
+    ((UVISOR_BITS_GET(box_name, shared, address, mask)) == (mask))
 
 /** Set the selected bits to 1 at the target address.
  *
  * Equivalent to: `*address |= mask`.
  * @param box_name[in] Box name as defined by the uVisor box configuration
  *                     macro `UVISOR_BOX_CONFIG`
+ * @param shared[in]   Whether the gateway can be shared with other boxes or
+ *                     not. Two values are available: UVISOR_RGW_SHARED,
+ *                     UVISOR_RGW_EXCLUSIVE.
  * @param address[in]  Target address
  * @param mask[in]     Bits to select out of the target address
  */
-#define UVISOR_BITS_SET(box_name, address, mask) \
+#define UVISOR_BITS_SET(box_name, shared, address, mask) \
     /* Register gateway implementation:
      * *address |= (mask & mask) */ \
-    uvisor_write(box_name, address, mask, UVISOR_RGW_OP_WRITE_OR, false, mask)
+    uvisor_write(box_name, shared, address, mask, UVISOR_RGW_OP_WRITE_OR, mask)
 
 /** Clear the selected bits at the target address.
  *
  * Equivalent to: `*address &= ~mask`.
  * @param box_name[in] Box name as defined by the uVisor box configuration
  *                     macro `UVISOR_BOX_CONFIG`
+ * @param shared[in]   Whether the gateway can be shared with other boxes or
+ *                     not. Two values are available: UVISOR_RGW_SHARED,
+ *                     UVISOR_RGW_EXCLUSIVE.
  * @param address[in]  Target address
  * @param mask[in]     Bits to select out of the target address
  */
-#define UVISOR_BITS_CLEAR(box_name, address, mask) \
+#define UVISOR_BITS_CLEAR(box_name, shared, address, mask) \
     /* Register gateway implementation:
      * *address &= (0x00000000 | ~mask) */ \
-    uvisor_write(box_name, address, 0x00000000, UVISOR_RGW_OP_WRITE_AND, false, mask)
+    uvisor_write(box_name, shared, address, 0x00000000, UVISOR_RGW_OP_WRITE_AND, mask)
 
 /** Set the selected bits at the target address to the given value.
  *
  * Equivalent to: `*address = (*address & ~mask) | (value & mask)`.
  * @param box_name[in] Box name as defined by the uVisor box configuration
  *                     macro `UVISOR_BOX_CONFIG`
+ * @param shared[in]   Whether the gateway can be shared with other boxes or
+ *                     not. Two values are available: UVISOR_RGW_SHARED,
+ *                     UVISOR_RGW_EXCLUSIVE.
  * @param address[in]  Target address
  * @param mask[in]     Bits to select out of the target address
  * @param value[in]    Value to write at the address location. Note: The value
  *                     must be already shifted to the correct bit position
  */
-#define UVISOR_BITS_SET_VALUE(box_name, address, mask, value) \
+#define UVISOR_BITS_SET_VALUE(box_name, shared, address, mask, value) \
     /* Register gateway implementation:
      * *address = (*address & ~mask) | (value & mask) */ \
-    uvisor_write(box_name, address, value, UVISOR_RGW_OP_WRITE_REPLACE, false, mask)
+    uvisor_write(box_name, shared, address, value, UVISOR_RGW_OP_WRITE_REPLACE, mask)
 
 /** Toggle the selected bits at the target address.
  *
  * Equivalent to: `*address ^= mask`.
  * @param box_name[in] Box name as defined by the uVisor box configuration
  *                     macro `UVISOR_BOX_CONFIG`
+ * @param shared[in]   Whether the gateway can be shared with other boxes or
+ *                     not. Two values are available: UVISOR_RGW_SHARED,
+ *                     UVISOR_RGW_EXCLUSIVE.
  * @param address[in]  Target address
  * @param mask[in]     Bits to select out of the target address
  */
-#define UVISOR_BITS_TOGGLE(box_name, address, mask) \
+#define UVISOR_BITS_TOGGLE(box_name, shared, address, mask) \
     /* Register gateway implementation:
      * *address ^= (0xFFFFFFFF & mask) */ \
-    uvisor_write(box_name, address, 0xFFFFFFFF, UVISOR_RGW_OP_WRITE_XOR, false, mask)
+    uvisor_write(box_name, shared, address, 0xFFFFFFFF, UVISOR_RGW_OP_WRITE_XOR, mask)
 
 #endif /* __UVISOR_API_REGISTER_GATEWAY_H__ */
