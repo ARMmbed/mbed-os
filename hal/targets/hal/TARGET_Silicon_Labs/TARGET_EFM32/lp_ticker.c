@@ -28,7 +28,7 @@
 #include "rtc_api_HAL.h"
 #include "lp_ticker_api.h"
 
-#include "em_int.h"
+#include "critical.h"
 #if (defined RTCC_COUNT) && (RTCC_COUNT > 0)
 #include "em_rtcc.h"
 #endif
@@ -38,21 +38,21 @@ static int rtc_reserved = 0;
 void lp_ticker_init()
 {
     if(!rtc_reserved) {
-        INT_Disable();
+        core_util_critical_section_enter();
         rtc_init_real(RTC_INIT_LPTIMER);
         rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
         rtc_reserved = 1;
-        INT_Enable();
+        core_util_critical_section_exit();
     }
 }
 
 void lp_ticker_free()
 {
     if(rtc_reserved) {
-        INT_Disable();
+        core_util_critical_section_enter();
         rtc_free_real(RTC_INIT_LPTIMER);
         rtc_reserved = 0;
-        INT_Enable();
+        core_util_critical_section_exit();
     }
 }
 
