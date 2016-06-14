@@ -310,6 +310,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
             toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
             if resource.linker_script:
                 toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
+                
+            if resource.hex_files:
+                toolchain.copy_files(resource.hex_files, build_path, rel_path=resource.base_path)
 
             # Extend resources collection
             if not resources:
@@ -494,6 +497,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
         # Copy Headers
         for resource in resources:
             toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            
         dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
 
         # Compile Sources
