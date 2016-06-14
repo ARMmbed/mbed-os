@@ -80,7 +80,7 @@ STMicroelectronics:
 * STM32L0-Discovery (Cortex-M0+)
 * [STM32L4-Discovery](https://developer.mbed.org/platforms/ST-Discovery-L476VG/) (Cortex-M4F)
 * [Arch Max](https://developer.mbed.org/platforms/Seeed-Arch-Max/) (Cortex-M4F)
-
+* [u-blox EVK-ODIN-W2 STM32F439](http://developer.mbed.org/platforms/u-blox-evk-odin-w2/) (Cortex-M4F)
 
 Nordic:
 * [nRF51822-mKIT](https://developer.mbed.org/platforms/Nordic-nRF51822/) (Cortex-M0)
