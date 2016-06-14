@@ -383,8 +383,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
             if toolchain_output:
                 cur_result["output"] += toolchain_output
 
-            cur_result["output"] += str(e)
-
             add_result_to_report(report, cur_result)
 
         # Let Exception propagate
