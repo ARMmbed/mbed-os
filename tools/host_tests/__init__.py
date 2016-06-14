@@ -33,6 +33,7 @@ from udpecho_client_auto import UDPEchoClientTest
 from wfi_auto import WFITest
 from serial_nc_rx_auto import SerialNCRXTest
 from serial_nc_tx_auto import SerialNCTXTest
+from serial_complete_auto import SerialCompleteTest
 
 # Populate registry with supervising objects
 HOSTREGISTRY = HostRegistry()
@@ -52,6 +53,7 @@ HOSTREGISTRY.register_host_test("udpecho_client_auto", UDPEchoClientTest())
 HOSTREGISTRY.register_host_test("wfi_auto", WFITest())
 HOSTREGISTRY.register_host_test("serial_nc_rx_auto", SerialNCRXTest())
 HOSTREGISTRY.register_host_test("serial_nc_tx_auto", SerialNCTXTest())
+HOSTREGISTRY.register_host_test("serial_complete_auto", SerialCompleteTest())
 
 ###############################################################################
 # Functional interface for test supervisor registry
