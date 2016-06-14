@@ -241,8 +241,9 @@ class mbedToolchain:
 
         self.mp_pool = None
 
-        if 'UVISOR_PRESENT=1' in self.macros:
+        if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
+            
         self.flags = deepcopy(self.DEFAULT_FLAGS)
 
     def get_output(self):
@@ -253,9 +254,12 @@ class mbedToolchain:
         """
         msg = None
 
-        if event['type'] in ['info', 'debug']:
+        if not self.VERBOSE and event['type'] == 'tool_error':
             msg = event['message']
-
+        
+        elif event['type'] in ['info', 'debug']:
+            msg = event['message']
+            
         elif event['type'] == 'cc':
             event['severity'] = event['severity'].title()
             event['file'] = basename(event['file'])
@@ -775,9 +779,6 @@ class mbedToolchain:
     def default_cmd(self, command):
         self.debug("Command: %s"% ' '.join(command))
         _stdout, _stderr, _rc = run_cmd(command)
-        # Print all warning / erros from stderr to console output
-        for error_line in _stderr.splitlines():
-            print error_line
 
         self.debug("Return: %s"% _rc)
 
