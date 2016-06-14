@@ -5,7 +5,7 @@ test:
         - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --tests
         - cd ../testproject && mbed compile -m LPC1768 -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
         - cd ../testproject && mbed compile -m NRF51_DK -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
-        - cd ../testproject && export PYTHONPATH=$(readlink -f mbed-os) && python mbed-os/core/tools/test/config_test/config_test.py
+        - cd ../testproject && export PYTHONPATH=mbed-os/core && python mbed-os/core/tools/test/config_test/config_test.py
 
 dependencies:
     pre:
