@@ -1,0 +1,7 @@
+{
+    "target_overrides": {
+        "*": {
+            "features": ["IPV4", "IPV6"]
+        }
+    }
+}

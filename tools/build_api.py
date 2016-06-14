@@ -105,8 +105,26 @@ def get_config(src_path, target, toolchain_name):
     for path in src_paths[1:]:
         resources.add(toolchain.scan_resources(path))
 
-    config.add_config_files(resources.json_files)
-    return config.get_config_data()
+    # Update configuration files until added features creates no changes
+    prev_features = set()
+    while True:
+        # Update the configuration with any .json files found while scanning
+        config.add_config_files(resources.json_files)
+
+        # Add features while we find new ones
+        features = config.get_features()
+        if features == prev_features:
+            break
+
+        for feature in features:
+            if feature in resources.features:
+                resources += resources.features[feature]
+
+        prev_features = features
+
+    cfg, macros = config.get_config_data()
+    features = config.get_features()
+    return cfg, macros, features
 
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
@@ -207,9 +225,8 @@ def build_project(src_path, build_path, target, toolchain_name,
                 break
 
             for feature in features:
-                if feature not in resources.features:
-                    raise KeyError("Feature %s is unavailable" % feature)
-                resources += resources.features[feature]
+                if feature in resources.features:
+                    resources += resources.features[feature]
 
             prev_features = features
 
@@ -373,7 +390,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
                 break
 
             for feature in features:
-                resources += resources.features[feature]
+                if feature in resources.features:
+                    resources += resources.features[feature]
 
             prev_features = features
 
