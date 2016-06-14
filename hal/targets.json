@@ -596,10 +596,6 @@
         "detect_code": ["0240"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "STORAGE"]
     },
-    "K64F_UVISOR": {
-        "inherits": ["K64F"],
-        "extra_labels_add": ["K64F", "UVISOR_SUPPORTED"]
-    },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
