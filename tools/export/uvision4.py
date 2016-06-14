@@ -76,6 +76,8 @@ class Uvision4(Exporter):
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--c99")
         # ARM_INC is by default as system inclusion, not required for exported project
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("-I \""+ARM_INC+"\"")
+        # cpp is not required as it's implicit for cpp files
+        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--cpp")
         project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.toolchain.flags['ld']
 
         i = 0
