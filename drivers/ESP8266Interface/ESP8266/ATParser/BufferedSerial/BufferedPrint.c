@@ -26,7 +26,10 @@ size_t BufferedSerialThunk(void *buf_serial, const void *s, size_t length);
 int BufferedPrintfC(void *stream, int size, const char* format, va_list arg)
 {
     int r;
-    char buffer[size];
+    char buffer[512];
+    if (size >= 512) {
+        return -1;
+    }
     memset(buffer, 0, size);
     r = vsprintf(buffer, format, arg);
     // this may not hit the heap but should alert the user anyways
