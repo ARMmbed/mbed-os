@@ -38,11 +38,9 @@ class IAR(mbedToolchain):
             # Pa093: Implicit conversion from float to integer (ie: wait_ms(85.4) -> wait_ms(85))
             # Pa082: Operation involving two values from two registers (ie: (float)(*obj->MR)/(float)(LPC_PWM1->MR0))
             "-e", # Enable IAR language extension
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082",
-            "--thumb",
-            "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")],
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
         'asm': [],
-        'c': [],
+        'c': ["--vla"],
         'cxx': ["--c++",  "--no_rtti", "--no_exceptions", "--guard_calls"],
         'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
@@ -53,31 +51,35 @@ class IAR(mbedToolchain):
             cpuchoice = "Cortex-M7"
         else:
             cpuchoice = target.core
+        self.flags["common"] += [
+            "--cpu=%s" % cpuchoice, "--thumb",
+            "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
+        ]
 
         if target.core == "Cortex-M7F":
             self.flags["common"].append("--fpu=VFPv5_sp")
 
-        optimization = []
         if "debug-info" in self.options:
-            optimization.append("-r")
-            optimization.append("-On")
+            self.flags["common"].append("-r")
+            self.flags["common"].append("-On")
         else:
-            optimization.append("-Oh")
+            self.flags["common"].append("-Oh")
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
 
+        self.flags["asm"] += ["--cpu", cpuchoice]
         if target.core == "Cortex-M7F":
             self.flags["asm"] += ["--fpu", "VFPv5_sp"]
-        self.asm  = [join(IAR_BIN, "iasmarm")] + self.flags["asm"] + ["--cpu=%s" % cpuchoice]
+        self.asm  = [join(IAR_BIN, "iasmarm")] + self.flags["asm"]
         if not "analyze" in self.options:
             self.cc   = [main_cc]
             self.cppc = [main_cc]
         else:
             self.cc   = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
             self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
-        self.cc += self.flags["common"] + self.flags["c"] + ["--cpu=%s" % cpuchoice] + optimization
-        self.cppc += self.flags["common"] + self.flags["cxx"] + ["--cpu=%s" % cpuchoice] + optimization
+        self.cc += self.flags["common"] + self.flags["c"]
+        self.cppc += self.flags["common"] + self.flags["cxx"]
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
