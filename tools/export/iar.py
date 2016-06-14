@@ -20,7 +20,6 @@ from project_generator_definitions.definitions import ProGenDef
 
 from tools.export.exporters import Exporter
 from tools.targets import TARGET_MAP, TARGET_NAMES
-from tools.settings import IAR_PATH
 
 # If you wish to add a new target, add it to project_generator_definitions, and then
 # define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
@@ -71,15 +70,6 @@ class IAREmbeddedWorkbench(Exporter):
         project_data['tool_specific']['iar'].setdefault("misc", {})
         project_data['tool_specific']['iar'].update(tool_specific['iar'])
         project_data['tool_specific']['iar']['misc'].update(self.progen_flags)
-        # progen does not have common flags, expand c flags by common one
-        project_data['tool_specific']['iar']['misc']['c_flags'] += self.progen_flags['common_flags']
-        # template sets full dlib, this would produce the error as it's duplicate
-        project_data['tool_specific']['iar']['misc']['c_flags'].remove("--dlib_config")
-        project_data['tool_specific']['iar']['misc']['c_flags'].remove(os.path.join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"))
-        # these c++ flags are set by template - c++, no rtti, no exceptions
-        project_data['tool_specific']['iar']['misc']['cxx_flags'].remove("--c++")
-        project_data['tool_specific']['iar']['misc']['cxx_flags'].remove("--no_rtti")
-        project_data['tool_specific']['iar']['misc']['cxx_flags'].remove("--no_exceptions")
         project_data['common']['build_dir'] = os.path.join(project_data['common']['build_dir'], 'iar_arm')
         self.progen_gen_file('iar_arm', project_data)
 
