@@ -1961,76 +1961,44 @@ def test_path_to_name(path):
         name_parts.insert(0, tail)
         head, tail = os.path.split(head)
     
-    return "-".join(name_parts)
+    return "-".join(name_parts).lower()
 
 def find_tests(base_dir):
     """Given any directory, walk through the subdirectories and find all tests"""
     
-    def is_subdir(path, directory):
-        path = os.path.realpath(path)
-        directory = os.path.realpath(directory)
-        relative = os.path.relpath(path, directory)
-        return not (relative.startswith(os.pardir + os.sep) and relative.startswith(os.pardir))
-    
-    def find_tests_in_tests_directory(directory):
+    def find_test_in_directory(directory, tests_path):
         """Given a 'TESTS' directory, return a dictionary of test names and test paths.
         The formate of the dictionary is {"test-name": "./path/to/test"}"""
-        tests = {}
+        test = None
+        if tests_path in directory:
+            head, test_case_directory = os.path.split(directory)
+            if test_case_directory != tests_path and test_case_directory != "host_tests":
+                head, test_group_directory = os.path.split(head)
+                if test_group_directory != tests_path and test_case_directory != "host_tests":
+                    test = {
+                        "name": test_path_to_name(directory),
+                        "path": directory
+                    }
         
-        for d in os.listdir(directory):
-            # dir name host_tests is reserved for host python scripts.
-            if d != "host_tests":
-                # Loop on test case directories
-                for td in os.listdir(os.path.join(directory, d)):
-                    # Add test case to the results if it is a directory and not "host_tests"
-                    if td != "host_tests":
-                        test_case_path = os.path.join(directory, d, td)
-                        if os.path.isdir(test_case_path):
-                            tests[test_path_to_name(test_case_path)] = test_case_path
-        
-        return tests
-    
+        return test
+
     tests_path = 'TESTS'
+    tests = {}
+    dirs = scan_for_source_paths(base_dir)
     
-    # Determine if "base_dir" is already a "TESTS" directory
-    _, top_folder = os.path.split(base_dir)
+    for directory in dirs:
+        test = find_test_in_directory(directory, tests_path)
+        if test:
+            tests[test['name']] = test['path']
     
-    if top_folder == tests_path:
-        # Already pointing at a "TESTS" directory
-        return find_tests_in_tests_directory(base_dir)
-    else:
-        # Not pointing at a "TESTS" directory, so go find one!
-        tests = {}
-        
-        dirs = scan_for_source_paths(base_dir)
-        
-        test_and_sub_dirs = [x for x in dirs if tests_path in x]
-        test_dirs = []
-        for potential_test_dir in test_and_sub_dirs:
-            good_to_add = True
-            if test_dirs:
-                for test_dir in test_dirs:
-                    if is_subdir(potential_test_dir, test_dir):
-                        good_to_add = False
-                        break
-            
-            if good_to_add:
-                test_dirs.append(potential_test_dir)
-        
-        # Only look at valid paths
-        for path in test_dirs:
-            # Get the tests inside of the "TESTS" directory
-            new_tests = find_tests_in_tests_directory(path)
-            if new_tests:
-                tests.update(new_tests)
-        
-        return tests
+    return tests
     
-def print_tests(tests, format="list"):
+def print_tests(tests, format="list", sort=True):
     """Given a dictionary of tests (as returned from "find_tests"), print them
     in the specified format"""
     if format == "list":
-        for test_name, test_path in tests.iteritems():
+        for test_name in sorted(tests.keys()):
+            test_path = tests[test_name]
             print "Test Case:"
             print "    Name: %s" % test_name
             print "    Path: %s" % test_path
@@ -2064,7 +2032,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
-        
+        bin_file = None
         try:
             bin_file = build_project(src_path, test_build_path, target, toolchain_name,
                                      options=options,
@@ -2077,12 +2045,13 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      verbose=verbose)
 
         except Exception, e:
-            result = False
-            
-            if continue_on_build_fail:
-                continue
-            else:
-                break
+            if not isinstance(e, NotSupportedException):
+                result = False
+                
+                if continue_on_build_fail:
+                    continue
+                else:
+                    break
         
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.
@@ -2090,17 +2059,18 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             clean = False
         
         # Normalize the path
-        bin_file = os.path.normpath(bin_file)
-        
-        test_build['tests'][test_name] = {
-            "binaries": [
-                {
-                    "path": bin_file
-                }
-            ]
-        }
-        
-        print 'Image: %s'% bin_file
+        if bin_file:
+            bin_file = os.path.normpath(bin_file)
+            
+            test_build['tests'][test_name] = {
+                "binaries": [
+                    {
+                        "path": bin_file
+                    }
+                ]
+            }
+            
+            print 'Image: %s'% bin_file
     
     test_builds = {}
     test_builds["%s-%s" % (target.name, toolchain_name)] = test_build
