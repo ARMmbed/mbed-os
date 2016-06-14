@@ -667,12 +667,7 @@
         "extra_labels": ["STM", "STM32F3", "STM32F303K8"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
-        "progen": {
-            "target": "nucleo-f303k8",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "nucleo-f303k8"},
         "detect_code": ["0775"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -684,12 +679,7 @@
         "extra_labels": ["STM", "STM32F3", "STM32F303RE"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
-        "progen": {
-            "target": "nucleo-f303re",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "nucleo-f303re"},
         "detect_code": ["0745"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -713,12 +703,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F401RE"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "progen": {
-            "target": "nucleo-f401re",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "nucleo-f401re"},
         "detect_code": ["0720"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -730,12 +715,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F410RB"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "progen": {
-            "target": "nucleo-f410rb",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "nucleo-f410rb"},
         "detect_code": ["0740"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -747,12 +727,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F411RE"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "progen": {
-            "target": "nucleo-f411re",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "nucleo-f411re"},
         "detect_code": ["0740"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -775,12 +750,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F446RE"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "progen": {
-            "target": "nucleo-f446re",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "nucleo-f446re"},
         "detect_code": ["0777"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -806,9 +776,6 @@
             "target": "nucleo-f746zg",
             "iar": {
                 "template": ["iar_nucleo_f746zg.ewp.tmpl"]
-            },
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
             }
         },
         "detect_code": ["0816"],
@@ -952,12 +919,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "default_toolchain": "uARM",
-        "progen": {
-            "target": "disco-f407vg",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "disco-f407vg"},
         "extra_labels": ["STM", "STM32F4", "STM32F407", "STM32F407VG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
@@ -1000,12 +962,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746NG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "progen": {
-            "target": "disco-f746ng",
-            "uvision5": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "disco-f746ng"},
         "detect_code": ["0815"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
     },
