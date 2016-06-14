@@ -60,10 +60,7 @@
         "extra_labels": ["NXP", "LPC11XX_11CXX", "LPC11XX"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "progen": {
-            "target": "lpc1114_102",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc1114_102"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -75,10 +72,7 @@
         "extra_labels": ["NXP", "LPC11UXX", "LPC11U24_401"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {
-            "target": "lpc11u24_201",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u24_201"
         },
         "detect_code": ["1040"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
@@ -88,10 +82,7 @@
         "inherits": ["LPC11U24"],
         "macros": ["TARGET_LPC11U24"],
         "progen": {
-            "target": "lpc11u24_201",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u24_201"
         },
         "extra_labels": ["NXP", "LPC11UXX"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
@@ -124,10 +115,7 @@
         "extra_labels": ["NXP", "LPC11UXX"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "progen": {
-            "target": "lpc11u35_401",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u35_401"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -139,10 +127,7 @@
         "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "progen": {
-            "target": "lpc11u35_501",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u35_501"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -154,10 +139,7 @@
         "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "progen": {
-            "target": "lpc11u35_501",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u35_501"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -169,10 +151,7 @@
         "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "progen": {
-            "target": "lpc11u35_501",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u35_501"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -184,10 +163,7 @@
         "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "progen": {
-            "target": "lpc11u35_501",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u35_501"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -199,20 +175,14 @@
         "extra_labels": ["NXP", "LPC11UXX"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "progen": {
-            "target": "lpc11u37_501",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u37_501"
         },
         "default_build": "small"
     },
     "LPCCAPPUCCINO": {
         "inherits": ["LPC11U37_501"],
         "progen": {
-            "target": "lpc11u37_501",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u37_501"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
@@ -224,10 +194,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "inherits": ["LPCTarget"],
         "progen": {
-            "target": "lpc11u37_501",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u37_501"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -240,10 +207,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_CR", "GCC_ARM", "IAR"],
         "inherits": ["LPCTarget"],
         "progen": {
-            "target": "lpc11u68",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u68"
         },
         "detect_code": ["1168"],
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI"],
@@ -265,10 +229,7 @@
         "supported_toolchains": ["uARM", "GCC_CR", "GCC_ARM", "IAR"],
         "inherits": ["LPCTarget"],
         "progen": {
-            "target": "lpc1549",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc1549"
         },
         "detect_code": ["1549"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "INTERRUPTIN", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE"],
@@ -337,10 +298,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": ["uARM", "IAR", "GCC_ARM"],
         "progen": {
-            "target": "lpc810",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc810"
         },
         "device_has": ["ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -354,10 +312,7 @@
         "supported_toolchains": ["uARM", "IAR", "GCC_ARM"],
         "inherits": ["LPCTarget"],
         "progen": {
-            "target": "lpc812m101",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc812m101"
         },
         "detect_code": ["1050"],
         "device_has": ["ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE"],
@@ -372,10 +327,7 @@
         "supported_toolchains": ["uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "inherits": ["LPCTarget"],
         "progen": {
-            "target": "lpc824m201",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc824m201"
         },
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -388,10 +340,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": ["uARM", "GCC_ARM"],
         "progen": {
-            "target": "ssci824",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "ssci824"
         },
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -450,10 +399,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR"],
         "inherits": ["LPCTarget"],
         "progen": {
-            "target": "lpc11u37_401",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "lpc11u37_401"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_build": "small"
@@ -467,10 +413,7 @@
         "is_disk_virtual": true,
         "detect_code": ["C000"],
         "progen": {
-            "target": "cocorico",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "cocorico"
         },
         "default_build": "small"
     },
@@ -483,10 +426,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "progen": {
-            "target": "frdm-kl05z",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "frdm-kl05z"
         },
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -1627,10 +1567,7 @@
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "macros": ["EFM32ZG222F32"],
         "progen": {
-            "target": "efm32zg-stk",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "efm32zg-stk"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -1643,10 +1580,7 @@
         "extra_labels": ["Silicon_Labs", "EFM32"],
         "macros": ["EFM32HG322F64"],
         "progen": {
-            "target": "efm32hg-stk",
-            "uvision": {
-                "template": ["uvision_microlib.uvproj.tmpl"]
-            }
+            "target": "efm32hg-stk"
         },
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "default_build": "small"
