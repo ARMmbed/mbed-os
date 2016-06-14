@@ -147,6 +147,11 @@ class Config:
         "application": set(["config", "custom_targets", "target_overrides", "macros", "__config_path"])
     }
 
+    # Allowed features in configurations
+    __allowed_features = [
+        "UVISOR", "BLE", "CLIENT", "IPV4", "IPV6"
+    ]
+
     # The initialization arguments for Config are:
     #     target: the name of the mbed target used for this configuration instance
     #     top_level_dirs: a list of top level source directories (where mbed_abb_config.json could be found)
@@ -365,6 +370,12 @@ class Config:
     def get_features(self):
         params, _ = self.get_config_data()
         self._check_required_parameters(params)
-        return ((set(Target.get_target(self.target).features)
+        features = ((set(Target.get_target(self.target).features)
             | self.added_features) - self.removed_features)
+
+        for feature in features:
+            if feature not in self.__allowed_features:
+                raise ConfigException("Feature '%s' is not a supported features" % feature)
+
+        return features
         
