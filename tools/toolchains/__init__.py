@@ -89,6 +89,9 @@ class Resources:
         self.bin_files = []
         self.json_files = []
 
+        # Features
+        self.features = {}
+
     def __add__(self, resources):
         if resources is None:
             return self
@@ -126,6 +129,8 @@ class Resources:
         self.bin_files += resources.bin_files
         self.json_files += resources.json_files
 
+        self.features.update(resources.features)
+
         return self
 
     def relative_to(self, base, dot=False):
@@ -135,6 +140,10 @@ class Resources:
                       'hex_files', 'bin_files', 'json_files']:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
+
+        for f in self.features:
+            self.features[f] = rel_path(self.features[f], base, dot)
+
         if self.linker_script is not None:
             self.linker_script = rel_path(self.linker_script, base, dot)
 
@@ -145,6 +154,10 @@ class Resources:
                       'hex_files', 'bin_files', 'json_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
+
+        for f in self.features:
+            self.features[f] = self.features[f].replace('\\', '/')
+
         if self.linker_script is not None:
             self.linker_script = self.linker_script.replace('\\', '/')
 
@@ -165,6 +178,8 @@ class Resources:
 
                 ('Hex files', self.hex_files),
                 ('Bin files', self.bin_files),
+
+                ('Features', self.features),
             ):
             if resources:
                 s.append('%s:\n  ' % label + '\n  '.join(resources))
@@ -425,11 +440,13 @@ class mbedToolchain:
 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
-                    (d.startswith('FEATURE_') and d[8:] not in labels['FEATURE']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
                     (d == 'TESTS')):
                     dirs.remove(d)
 
+                if (d.startswith('FEATURE_')):
+                    resources.features[d[8:]] = self.scan_resources(dir_path)
+                    dirs.remove(d)
 
                 # Remove dirs that already match the ignorepatterns
                 # to avoid travelling into them and to prevent them
