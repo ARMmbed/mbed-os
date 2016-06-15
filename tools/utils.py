@@ -38,9 +38,10 @@ def run_cmd(command, wd=None, redirect=False):
     try:
         p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
         _stdout, _stderr = p.communicate()
-    except:
+    except OSError as e:
         print "[OS ERROR] Command: "+(' '.join(command))
         raise
+
     return _stdout, _stderr, p.returncode
 
 
