@@ -534,7 +534,8 @@
         "inherits": ["Target"],
         "progen": {"target": "frdm-k64f"},
         "detect_code": ["0240"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "STORAGE"]
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "STORAGE"],
+        "features": ["IPV4"]
     },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
