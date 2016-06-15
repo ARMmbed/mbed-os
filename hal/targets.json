@@ -1744,7 +1744,7 @@
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_ARM"],
         "public": false,
-        "detect_code": ["1070"],
+        "detect_code": ["1101"],
         "program_cycle_s": 6,
         "MERGE_SOFT_DEVICE": true,
         "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
