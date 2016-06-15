@@ -815,7 +815,7 @@
     },
     "NUCLEO_F767ZI": {
         "inherits": ["Target"],
-        "core": "Cortex-M7F",
+        "core": "Cortex-M7F_DP",
         "extra_labels": ["STM", "STM32F7", "STM32F767", "STM32F767ZI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
