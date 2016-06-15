@@ -41,7 +41,7 @@ class IAR(mbedToolchain):
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
         'asm': [],
         'c': [],
-        'cxx': ["--c++",  "--no_rtti", "--no_exceptions", "--guard_calls"],
+        'cxx': ["--guard_calls"],
         'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
     }
 
@@ -51,35 +51,43 @@ class IAR(mbedToolchain):
             cpuchoice = "Cortex-M7"
         else:
             cpuchoice = target.core
-        self.flags["common"] += [
-            "--cpu=%s" % cpuchoice, "--thumb",
-            "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
+        # flags_cmd are used only by our scripts, the project files have them already defined,
+        # using this flags results in the errors (duplication)
+        # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
+        asm_flags_cmd = [
+            "--cpu", cpuchoice
         ]
-
+        # custom c flags
+        c_flags_cmd = [
+            "--cpu", cpuchoice,
+            "--thumb", "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")
+        ]
+        # custom c++ cmd flags
+        cxx_flags_cmd = [
+            "--c++", "--no_rtti", "--no_exceptions"
+        ]
         if target.core == "Cortex-M7F":
-            self.flags["common"].append("--fpu=VFPv5_sp")
+            asm_flags_cmd += ["--fpu", "VFPv5_sp"]
+            c_flags_cmd.append("--fpu=VFPv5_sp")
 
         if "debug-info" in self.options:
-            self.flags["common"].append("-r")
-            self.flags["common"].append("-On")
+            c_flags_cmd.append("-r")
+            c_flags_cmd.append("-On")
         else:
-            self.flags["common"].append("-Oh")
+            c_flags_cmd.append("-Oh")
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
 
-        self.flags["asm"] += ["--cpu", cpuchoice]
-        if target.core == "Cortex-M7F":
-            self.flags["asm"] += ["--fpu", "VFPv5_sp"]
-        self.asm  = [join(IAR_BIN, "iasmarm")] + self.flags["asm"]
+        self.asm  = [join(IAR_BIN, "iasmarm")] + asm_flags_cmd + self.flags["asm"]
         if not "analyze" in self.options:
             self.cc   = [main_cc]
             self.cppc = [main_cc]
         else:
             self.cc   = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
             self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
-        self.cc += self.flags["common"] + self.flags["c"]
-        self.cppc += self.flags["common"] + self.flags["cxx"]
+        self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
+        self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
