@@ -40,6 +40,7 @@ class ConfigParameter:
         self.value = data.get("value", None)
         self.required = data.get("required", False)
         self.macro_name = data.get("macro_name", "MBED_CONF_%s" % self.sanitize(self.name.upper()))
+        self.config_errors = []
 
     # Return the full (prefixed) name of a parameter.
     # If the parameter already has a prefix, check if it is valid
@@ -242,6 +243,7 @@ class Config:
     # unit_name: the unit (library/application) that defines this parameter
     # unit_kind: the kind of the unit ("library" or "application")
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
+        self.config_errors = []
         self._process_config_parameters(data.get("config", {}), params, unit_name, unit_kind)
         for label, overrides in data.get("target_overrides", {}).items():
             # If the label is defined by the target or it has the special value "*", process the overrides
@@ -268,6 +270,9 @@ class Config:
                     full_name = ConfigParameter.get_full_name(name, unit_name, unit_kind, label)
                     if full_name in params:
                         params[full_name].set_value(v, unit_name, unit_kind, label)
+                    else:
+                        self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'" 
+                            % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label))))
         return params
 
     # Read and interpret configuration data defined by targets
@@ -376,4 +381,10 @@ class Config:
                 raise ConfigException("Feature '%s' is not a supported features" % feature)
 
         return features
+
+    # Validate configuration settings. This either returns True or raises an exception
+    def validate_config(self):
+        if self.config_errors:
+            raise self.config_errors[0]
+        return True
         

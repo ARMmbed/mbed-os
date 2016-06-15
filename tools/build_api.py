@@ -121,6 +121,7 @@ def get_config(src_path, target, toolchain_name):
                 resources += resources.features[feature]
 
         prev_features = features
+    config.validate_config()
 
     cfg, macros = config.get_config_data()
     features = config.get_features()
@@ -229,6 +230,7 @@ def build_project(src_path, build_path, target, toolchain_name,
                     resources += resources.features[feature]
 
             prev_features = features
+        config.validate_config()
 
         # And add the configuration macros to the toolchain
         toolchain.add_macros(config.get_config_data_macros())
@@ -394,6 +396,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                     resources += resources.features[feature]
 
             prev_features = features
+        config.validate_config()
 
         # And add the configuration macros to the toolchain
         toolchain.add_macros(config.get_config_data_macros())
