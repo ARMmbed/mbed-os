@@ -41,7 +41,11 @@ CPU_COUNT_MIN = 1
 def compile_worker(job):
     results = []
     for command in job['commands']:
-        _, _stderr, _rc = run_cmd(command, job['work_dir'])
+        try:
+            _, _stderr, _rc = run_cmd(command, job['work_dir'])
+        except KeyboardInterrupt as e:
+            raise ToolException
+
         results.append({
             'code': _rc,
             'output': _stderr,
