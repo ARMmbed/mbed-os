@@ -51,5 +51,11 @@ const OsEventObserver *osEventObs;
 
 void osRegisterForOsEvents(const OsEventObserver *observer)
 {
+    static uint8_t has_been_called = 0;
+    if (has_been_called) {
+        return;
+    }
+    has_been_called = 1;
+
     osEventObs = observer;
 }
