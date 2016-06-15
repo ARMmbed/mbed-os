@@ -129,6 +129,8 @@ if __name__ == '__main__':
 
     parser.add_option("-j", "--jobs", type="int", dest="jobs",
                       default=0, help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
+    parser.add_option("-N", "--artifact-name", dest="artifact_name",
+                      default=None, help="The built project's name")
 
     parser.add_option("-v", "--verbose",
                       action="store_true",
@@ -242,7 +244,8 @@ if __name__ == '__main__':
                                                     jobs=options.jobs,
                                                     clean=options.clean,
                                                     archive=(not options.no_archive),
-                                                    macros=options.macros)
+                                                    macros=options.macros,
+                                                    name=options.artifact_name)
                     else:
                         lib_build_res = build_mbed_libs(mcu, toolchain,
                                                     options=options.options,
