@@ -249,20 +249,20 @@ class Config:
             # If the label is defined by the target or it has the special value "*", process the overrides
             if (label == '*') or (label in self.target_labels):
                 # Parse out features
-                if 'features' in overrides:
-                    features = overrides['features']
-                    self.remove_features(list(set(self.added_features) - set(features)))
+                if 'target.features' in overrides:
+                    features = overrides['target.features']
+                    self.remove_features(self.added_features - set(features))
                     self.add_features(features)
                     self.removed_unecessary_features = True
-                    del overrides['features']
+                    del overrides['target.features']
 
-                if 'features_add' in overrides:
-                    self.add_features(overrides['features_add'])
-                    del overrides['features_add']
+                if 'target.features_add' in overrides:
+                    self.add_features(overrides['target.features_add'])
+                    del overrides['target.features_add']
 
-                if 'features_remove' in overrides:
-                    self.remove_features(overrides['features_remove'])
-                    del overrides['features_remove']
+                if 'target.features_remove' in overrides:
+                    self.remove_features(overrides['target.features_remove'])
+                    del overrides['target.features_remove']
 
                 # Consider the others as overrides
                 for name, v in overrides.items():
