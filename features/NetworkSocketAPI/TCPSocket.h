@@ -17,7 +17,7 @@
 #ifndef TCPSOCKET_H
 #define TCPSOCKET_H
 
-#include "Socket.h"
+#include "NetworkSocketAPI/Socket.h"
 #include "NetworkStack.h"
 #include "Semaphore.h"
 

@@ -17,7 +17,7 @@
 #ifndef UDPSOCKET_H
 #define UDPSOCKET_H
 
-#include "Socket.h"
+#include "NetworkSocketAPI/Socket.h"
 #include "NetworkStack.h"
 #include "Semaphore.h"
 

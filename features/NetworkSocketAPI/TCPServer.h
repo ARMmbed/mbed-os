@@ -17,7 +17,7 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
-#include "Socket.h"
+#include "NetworkSocketAPI/Socket.h"
 #include "TCPSocket.h"
 #include "NetworkStack.h"
 #include "Semaphore.h"
