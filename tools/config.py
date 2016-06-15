@@ -266,10 +266,8 @@ class Config:
                 for name, v in overrides.items():
                     # Get the full name of the parameter
                     full_name = ConfigParameter.get_full_name(name, unit_name, unit_kind, label)
-                    # If an attempt is made to override a parameter that isn't defined, raise an error
-                    if not full_name in params:
-                        raise ConfigException("Attempt to override undefined parameter '%s' in '%s'" % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label)))
-                    params[full_name].set_value(v, unit_name, unit_kind, label)
+                    if full_name in params:
+                        params[full_name].set_value(v, unit_name, unit_kind, label)
         return params
 
     # Read and interpret configuration data defined by targets
