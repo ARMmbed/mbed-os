@@ -215,11 +215,6 @@ static void stm32f7_low_level_init(struct netif *netif)
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
     hal_eth_init_status = HAL_ETH_Init(&EthHandle);
 
-    if (hal_eth_init_status == HAL_OK) {
-       /* Set netif link flag */
-       netif->flags |= NETIF_FLAG_LINK_UP;
-   }
-
     /* Initialize Tx Descriptors list: Chain Mode */
     HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
 
