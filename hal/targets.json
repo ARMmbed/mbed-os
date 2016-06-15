@@ -1734,5 +1734,36 @@
         "progen_target": "samg55j19",
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "default_build": "standard"
+    },
+    "MCU_NRF52": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["NRF52", "TARGET_NRF52832"],
+        "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832"],
+        "OUTPUT_EXT": "hex",
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "public": false,
+        "detect_code": ["1101"],
+        "program_cycle_s": 6,
+        "MERGE_SOFT_DEVICE": true,
+        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
+            {
+                "boot": "",
+                "name": "s132_nrf52_2.0.0_softdevice.hex",
+                "offset": 114688
+            }
+        ],
+        "post_binary_hook": {
+            "function": "MCU_NRF51Code.binary_hook",
+            "toolchains": ["ARM_STD", "GCC_ARM"]
+        },
+        "MERGE_BOOTLOADER": false
+    },
+    "NRF52_DK": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF52"],
+        "progen": {"target": "nrf52-dk"},
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     }
 }
