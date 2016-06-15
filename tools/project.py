@@ -212,8 +212,10 @@ if __name__ == '__main__':
         # Export to selected toolchain
         tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols, relative=sources_relative)
         if report['success']:
-            zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
-            if zip:
+            if not zip:
+                zip_path = join(project_temp, "%s_%s" % (project_name, mcu))
+            else:
+                zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
                 move(tmp_path, zip_path)
             successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
         else:
