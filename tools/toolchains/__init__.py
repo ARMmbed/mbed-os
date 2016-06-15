@@ -64,6 +64,8 @@ class Resources:
     def __init__(self, base_path=None):
         self.base_path = base_path
 
+        self.file_basepath = {}
+
         self.inc_dirs = []
         self.headers = []
 
@@ -105,6 +107,9 @@ class Resources:
             return self.add(resources)
 
     def add(self, resources):
+        for f,p in resources.file_basepath.items():
+            self.file_basepath[f] = p
+
         self.inc_dirs += resources.inc_dirs
         self.headers += resources.headers
 
@@ -404,9 +409,14 @@ class mbedToolchain:
                 return True
         return False
 
-    def scan_resources(self, path, exclude_paths=None):
+    def scan_resources(self, path, exclude_paths=None, base_path=None):
         labels = self.get_labels()
+
         resources = Resources(path)
+        if not base_path:
+            base_path = path
+        resources.base_path = base_path
+
         self.has_config = False
 
         """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
@@ -445,7 +455,7 @@ class mbedToolchain:
                     dirs.remove(d)
 
                 if (d.startswith('FEATURE_')):
-                    resources.features[d[8:]] = self.scan_resources(dir_path)
+                    resources.features[d[8:]] = self.scan_resources(dir_path, base_path=base_path)
                     dirs.remove(d)
 
                 # Remove dirs that already match the ignorepatterns
@@ -466,6 +476,8 @@ class mbedToolchain:
 
             for file in files:
                 file_path = join(root, file)
+
+                resources.file_basepath[file_path] = base_path
 
                 if self.is_ignored(file_path):
                     continue
@@ -597,15 +609,13 @@ class mbedToolchain:
         queue = []
         prev_dir = None
 
-        # The dependency checking for C/C++ is delegated to the compiler
-        base_path = resources.base_path
         # Sort compile queue for consistency
         files_to_compile.sort()
         work_dir = getcwd()
 
         for source in files_to_compile:
             _, name, _ = split_path(source)
-            object = self.relative_object_path(build_path, base_path, source)
+            object = self.relative_object_path(build_path, resources.file_basepath[source], source)
 
             # Queue mode (multiprocessing)
             commands = self.compile_command(source, object, inc_paths)

@@ -227,7 +227,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
             for feature in features:
                 if feature in resources.features:
-                    resources += resources.features[feature]
+                    resources.add(resources.features[feature])
 
             prev_features = features
         config.validate_config()
@@ -236,10 +236,8 @@ def build_project(src_path, build_path, target, toolchain_name,
         toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
-        for path in src_paths:
-            src = toolchain.scan_resources(path)
-            objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
-            resources.objects.extend(objects)
+        objects = toolchain.compile_sources(resources, build_path, resources.inc_dirs)
+        resources.objects.extend(objects)
 
         # Link Program
         res, _ = toolchain.link_program(resources, build_path, name)
@@ -398,7 +396,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
             for feature in features:
                 if feature in resources.features:
-                    resources += resources.features[feature]
+                    resources.add(resources.features[feature])
 
             prev_features = features
         config.validate_config()
@@ -407,10 +405,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
         toolchain.add_macros(config.get_config_data_macros())
 
         # Compile Sources
-        for path in src_paths:
-            src = toolchain.scan_resources(path)
-            objects = toolchain.compile_sources(src, abspath(tmp_path), resources.inc_dirs)
-            resources.objects.extend(objects)
+        objects = toolchain.compile_sources(resources, abspath(tmp_path), resources.inc_dirs)
+        resources.objects.extend(objects)
 
         if archive:
             toolchain.build_library(objects, build_path, name)
