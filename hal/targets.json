@@ -794,7 +794,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M7F",
         "extra_labels": ["STM", "STM32F7", "STM32F767", "STM32F767ZI"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "progen": {"target": "nucleo-f767zi"},
         "detect_code": ["0799"],
