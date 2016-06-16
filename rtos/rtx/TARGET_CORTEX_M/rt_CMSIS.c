@@ -505,10 +505,6 @@ osStatus svcKernelStart (void) {
 
   if (os_running) { return osOK; }
 
-  if (osEventObs && osEventObs->pre_start) {
-    osEventObs->pre_start();
-  }
-
   rt_tsk_prio(0U, os_tsk.run->prio_base);       // Restore priority
   if (os_tsk.run->task_id == 0xFFU) {           // Idle Thread
     __set_PSP(os_tsk.run->tsk_stack + (8U*4U)); // Setup PSP
@@ -567,6 +563,15 @@ osStatus osKernelStart (void) {
   if (__get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
+
+  /* Call the pre-start event (from unprivileged mode) if the handler exists
+   * and the kernel is not running. */
+  /* FIXME osEventObs needs to be readable but not writable from unprivileged
+   * code. */
+  if (!osKernelRunning() && osEventObs && osEventObs->pre_start) {
+    osEventObs->pre_start();
+  }
+
   switch (__get_CONTROL() & 0x03U) {
     case 0x00U:                                 // Privileged Thread mode & MSP
       __set_PSP((uint32_t)(stack + 8));         // Initial PSP

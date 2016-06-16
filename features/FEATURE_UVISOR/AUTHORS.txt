@@ -1,7 +1,7 @@
-   523	Milosch Meriac
-   422	Alessandro Angelino
-    17	Niklas Hauser
-    16	Jaeden Amero
+   513	Milosch Meriac
+   424	Alessandro Angelino
+    18	Jaeden Amero
+    18	Niklas Hauser
      3	Hugo Vincent
      3	JaredCJR
      3	Jim Huang
