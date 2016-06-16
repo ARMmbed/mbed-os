@@ -123,18 +123,18 @@ static void own_free(void *ptr)
 static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_addr_s *address_ptr, void *param)
 {
     coap_service_t *this;
-    coap_transaction_t *transaction_ptr = param;
+    coap_transaction_t *transaction_ptr = coap_message_handler_transaction_valid(param);
     ns_address_t dest_addr;
 
     if (!transaction_ptr || !data_ptr) {
-        return 0;
+        return -1;
     }
 
     tr_debug("Service %d, CoAP TX Function", transaction_ptr->service_id);
 
     this = service_find(transaction_ptr->service_id);
     if (!this) {
-        return 0;
+        return -1;
     }
 
     memcpy(&(dest_addr.address), address_ptr->addr_ptr, 16);

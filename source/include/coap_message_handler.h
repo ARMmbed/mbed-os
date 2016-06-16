@@ -65,6 +65,8 @@ extern coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_pt
 
 extern int8_t coap_message_handler_destroy(coap_msg_handler_t *handle);
 
+extern coap_transaction_t *coap_message_handler_transaction_valid(coap_transaction_t *tr_ptr);
+
 extern coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, uint16_t port);
 
 extern int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t socket_id, uint8_t source_addr_ptr[static 16], uint16_t port,
