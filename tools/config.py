@@ -420,17 +420,15 @@ class Config:
             header_data += "// Configuration parameters\n"
             for m in params.values():
                 if m.value is not None:
-                    header_data += "#define %s%s%s%s// set by %s\n" % (m.macro_name, " " * (max_macro_name_len - len(m.macro_name) + 1), str(m.value),
-                                                                       " " * (max_macro_val_len - len(str(m.value)) + 1), m.set_by)
+                    header_data += "#define {0:<{1}} {2!s:<{3}} // set by {4}\n".format(m.macro_name, max_macro_name_len, m.value, max_macro_val_len, m.set_by)
         # Then macros
         if macros:
             header_data += "// Macros\n"
             for m in macros.values():
                 if m.macro_value:
-                    header_data += "#define %s%s%s%s// defined by %s\n" % (m.macro_name, " " * (max_macro_name_len - len(m.macro_name) + 1), str(m.macro_value),
-                                                                           " " * (max_macro_val_len - len(str(m.macro_value)) + 1), m.defined_by)
+                    header_data += "#define {0:<{1}} {2!s:<{3}} // defined by {4}\n".format(m.macro_name, max_macro_name_len, m.macro_value, max_macro_val_len, m.defined_by)
                 else:
-                    header_data += "#define %s%s// defined by %s\n" % (m.macro_name, " " * (max_macro_name_len + max_macro_val_len - len(m.macro_name) + 2), m.defined_by)
+                    header_data += "#define {0:<{1}} // defined by {2}\n".format(m.macro_name, max_macro_name_len + max_macro_val_len + 1, m.defined_by)
         header_data += "\n#endif\n"
         # If fname is given, write "header_data" to it
         if fname:
