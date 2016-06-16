@@ -193,37 +193,40 @@ SECTIONS
         . = ALIGN(4);
         *(preserve)
     } > SRAM
-    
-    /* The internal heap. */
+
+    /* Heap fills the rest of the space up to the start of the stack */
     .heap (NOLOAD):
     {
-        . = ALIGN(4);
-        __INTHEAP_START__ = .;
-        *(.heap*);
-        /* Specify the heap size as ARM GNU linker doesn't support ASSERT to check that it is a minimum */
-        . = __INTHEAP_START__ + 2048;
+        __end__ = .;
+        end = __end__;
+        __HeapBase = .;
+        *(.heap*)
+        . = ORIGIN(SRAM) + LENGTH(SRAM) - Stack_Size; /* Remember that LENGTH(SRAM) is already reduced by the IPC block */
+        __HeapLimit = .;
     } > SRAM
-    
+
     PROVIDE(__heap_start = ADDR(.heap));
-    PROVIDE(__end__ = __INTHEAP_START__);
-    PROVIDE(__heap_size = SIZEOF(.heap));
-    PROVIDE(__mbed_sbrk_start = ADDR(.heap));
-    PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
     
-    /* Stack in SRAM above the vectors */
-    .stacks (NOLOAD):
+    /* .stack_dummy section doesn't contains any symbols. It is only
+     * used for linker to calculate size of stack sections, and assign
+     * values to stack symbols later */
+    .stack_dummy (NOLOAD):
     {
         __SYSTEM_STACK_START__ = .;
-        KEEP(*(.stacks))
+        *(.stack*)
         __SYSTEM_STACK_END__ = .;
     } > SRAM
-    
-    __SYSTEM_STACK_SIZE__ = __SYSTEM_STACK_END__ - __SYSTEM_STACK_START__;
-    __StackTop = __SYSTEM_STACK_END__;
-    __StackLimit = __StackTop - SIZEOF(.stacks);
+
+    /* Set stack top to end of RAM, and stack limit move down by
+     * size of stack_dummy section */
+    __StackTop = ORIGIN(SRAM) + LENGTH(SRAM); /* Remember that LENGTH(SRAM) is already reduced by the IPC block */
+    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
-    
-    /* The IPC mailboxes are at the top of the RAM */
+
+    /* Check if data + heap + stack exceeds SRAM limit */
+    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
+
+    /* The IPC mailboxes are at the top of the SRAM */
     /* The size of this section (256 bytes) is already taken off the size of SRAM so there is no danger of the heap overflowing into it */
     .ipc_mailbox (NOLOAD):
     {

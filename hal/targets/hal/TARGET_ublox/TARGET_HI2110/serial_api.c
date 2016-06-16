@@ -818,7 +818,7 @@ int serial_readable(serial_t *obj)
              * the number of Rx bytes (make sure it's the status
              * register not the data register as a read from that
              * register would clear the Rx interrupt) */
-            readable = ((LP_UART_STATUS >> 8) & 0x07) != 0;
+            readable = (((LP_UART_STATUS >> 8) & 0x07) != 0);
         }
         break;
         case SERIAL_CONFIG_UART0_RX_UART0_TX:

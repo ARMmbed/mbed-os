@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-        .syntax unified
-        .cpu    cortex-m0
-        .fpu    softvfp
-        .thumb
+    .syntax unified
+    .cpu    cortex-m0
+    .fpu    softvfp
+    .thumb
 
 /* Setup the stack
  *  Since it grows downward the stack_system is the first location is the highest address
@@ -24,16 +24,23 @@
  *  Should the stack overflow, there would be a hard fault in the core
  */
 
-        .section .stacks,"aw",%progbits
+    .section .stacks,"aw",%progbits
 
-        .set    STACK_SIZE_SYSTEM, 0x00000800
-        .align  2
-        .type   stack_system, %object
-        .size   stack_system, STACK_SIZE_SYSTEM
+#ifdef __STACK_SIZE
+    .equ    Stack_Size, __STACK_SIZE
+#else
+    .equ    Stack_Size, (1024 *3)
+#endif
+    .globl    Stack_Size
+    .globl    __StackTop
+    .globl    __StackLimit
+    .align  2
+    .type   stack_system, %object
+    .size   stack_system, Stack_Size
 stack_system_end:
-        .space  STACK_SIZE_SYSTEM-4
+    .space  Stack_Size-4
 stack_system:
-        .space  4
+    .space  4
 
 
 /* This is the code that gets called when the processor first
