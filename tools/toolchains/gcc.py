@@ -172,7 +172,7 @@ class GCC(mbedToolchain):
         opts = ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
         config_header = self.get_config_header()
         if config_header is not None:
-            opts = opts + self.get_conifg_option(config_header)
+            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
