@@ -138,7 +138,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
 void pwmout_free(pwmout_t *obj)
 {
-    MBED_ASSERT(obj->pwm != (PWMName)NC);
+    MBED_ASSERT(obj->pwm_name != (PWMName)NC);
     MBED_ASSERT(obj->pwm_channel < PWM_CHANNELS_PER_INSTANCE);
 
     pwm_t * pwm = (pwm_t *) obj->pwm_struct;
