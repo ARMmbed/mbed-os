@@ -546,7 +546,7 @@ class mbedToolchain:
 
         return resources
 
-    def copy_files(self, files_paths, trg_path, rel_path=None):
+    def copy_files(self, files_paths, trg_path, resources=None, rel_path=None):
 
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
@@ -556,7 +556,9 @@ class mbedToolchain:
                 files_paths.remove(source)
 
         for source in files_paths:
-            if rel_path is not None:
+            if resources is not None:
+                relative_path = relpath(source, resources.file_basepath[source])
+            elif rel_path is not None:
                 relative_path = relpath(source, rel_path)
             else:
                 _, relative_path = split(source)

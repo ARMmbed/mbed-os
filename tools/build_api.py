@@ -336,16 +336,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
         for path in src_paths:
             # Scan resources
             resource = toolchain.scan_resources(path)
-            
-            # Copy headers, objects and static libraries - all files needed for static lib
-            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
-            if resource.linker_script:
-                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
-                
-            if resource.hex_files:
-                toolchain.copy_files(resource.hex_files, build_path, rel_path=resource.base_path)
 
             # Extend resources collection
             if not resources:
@@ -403,6 +393,16 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         # And add the configuration macros to the toolchain
         toolchain.add_macros(config.get_config_data_macros())
+
+        # Copy headers, objects and static libraries - all files needed for static lib
+        toolchain.copy_files(resources.headers, build_path, resources=resources)
+        toolchain.copy_files(resources.objects, build_path, resources=resources)
+        toolchain.copy_files(resources.libraries, build_path, resources=resources)
+        if resources.linker_script:
+            toolchain.copy_files(resources.linker_script, build_path, resources=resources)
+            
+        if resource.hex_files:
+            toolchain.copy_files(resources.hex_files, build_path, resources=resources)
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, abspath(tmp_path), resources.inc_dirs)
@@ -544,7 +544,7 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
 
         # Copy Headers
         for resource in resources:
-            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.headers, build_path, resources=resource)
             
         dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
 
@@ -643,7 +643,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         # Target specific sources
         HAL_SRC = join(MBED_TARGETS_PATH, "hal")
         hal_implementation = toolchain.scan_resources(HAL_SRC)
-        toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, HAL_SRC)
+        toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, resources=hal_implementation)
         incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
         objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
@@ -821,7 +821,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     hal_implementation = toolchain.scan_resources(HAL_SRC)
 
     # Copy files before analysis
-    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, resources=hal_implementation)
     incdirs = toolchain.scan_resources(BUILD_TARGET)
 
     target_includes = ["-I%s" % i for i in incdirs.inc_dirs]
@@ -925,7 +925,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
 
     # Copy Headers
     for resource in resources:
-        toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+        toolchain.copy_files(resource.headers, build_path, resources=resource)
         includes += ["-I%s" % i for i in resource.inc_dirs]
         c_sources += " ".join(resource.c_sources) + " "
         cpp_sources += " ".join(resource.cpp_sources) + " "
