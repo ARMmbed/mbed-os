@@ -232,8 +232,8 @@ def build_project(src_path, build_path, target, toolchain_name,
             prev_features = features
         config.validate_config()
 
-        # Set the toolchain's prefix header with the config data
-        toolchain.set_prefix_header_content(config.get_config_data_header())
+        # Set the toolchain's config header with the config data
+        toolchain.set_config_header_content(config.get_config_data_header())
 
         # Compile Sources
         for path in src_paths:
@@ -403,8 +403,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
             prev_features = features
         config.validate_config()
 
-        # Set the toolchain's prefix header with the config data
-        toolchain.set_prefix_header_content(config.get_config_data_header())
+        # Set the toolchain's config header with the config data
+        toolchain.set_config_header_content(config.get_config_data_header())
 
         # Compile Sources
         for path in src_paths:
