@@ -181,14 +181,15 @@ typedef enum {
     D14     = PF_0,   // SDA
     D15     = PF_1,   // SCL
     // Internal
-    LED_RED = PE_0,   // Red / Mode
-    LED_GRE = PB_6,   // Green / Switch-1
-    LED_BLU = PB_8,   // Blue
+    LED1    = PE_0,   // Red / Mode
+    LED2    = PB_6,   // Green / Switch-1
+    LED3    = PB_8,   // Blue
+	LED4    = D10,
     SW0     = PF_2,   // Switch-0
     SW1     = PB_6,   // Green / Switch-1
     // ST-Link
-    USBRXD  = PD_9,
-    USBTXD  = PD_8,
+    USBRX   = PD_9,
+    USBTX   = PD_8,
     SWDIO   = PA_15, 
     SWCLK   = PA_14, 
     NTRST   = PB_4,  
