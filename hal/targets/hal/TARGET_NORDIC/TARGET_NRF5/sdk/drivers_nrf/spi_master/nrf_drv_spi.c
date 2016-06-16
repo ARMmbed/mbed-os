@@ -80,6 +80,7 @@ typedef struct
 
     bool tx_done : 1;
     bool rx_done : 1;
+    bool abort   : 1;
 } spi_control_block_t;
 static spi_control_block_t m_cb[SPI_COUNT];
 
@@ -202,7 +203,7 @@ ret_code_t nrf_drv_spi_init(nrf_drv_spi_t const * const p_instance,
 
     CODE_FOR_SPIM
     (
-        NRF_SPIM_Type * p_spim = p_instance->p_registers;
+        NRF_SPIM_Type * p_spim = (NRF_SPIM_Type * ) p_instance->p_registers;
         nrf_spim_pins_set(p_spim, p_config->sck_pin, mosi_pin, miso_pin);
         nrf_spim_frequency_set(p_spim,
             (nrf_spim_frequency_t)p_config->frequency);
@@ -221,7 +222,7 @@ ret_code_t nrf_drv_spi_init(nrf_drv_spi_t const * const p_instance,
     )
     CODE_FOR_SPI
     (
-        NRF_SPI_Type * p_spi = p_instance->p_registers;
+        NRF_SPI_Type * p_spi = (NRF_SPI_Type * ) p_instance->p_registers;
         nrf_spi_pins_set(p_spi, p_config->sck_pin, mosi_pin, miso_pin);
         nrf_spi_frequency_set(p_spi,
             (nrf_spi_frequency_t)p_config->frequency);
@@ -264,7 +265,7 @@ void nrf_drv_spi_uninit(nrf_drv_spi_t const * const p_instance)
 
     CODE_FOR_SPIM
     (
-        NRF_SPIM_Type * p_spim = p_instance->p_registers;
+        NRF_SPIM_Type * p_spim = (NRF_SPIM_Type * ) p_instance->p_registers;
         if (p_cb->handler)
         {
             nrf_spim_int_disable(p_spim, DISABLE_ALL);
@@ -280,7 +281,7 @@ void nrf_drv_spi_uninit(nrf_drv_spi_t const * const p_instance)
     )
     CODE_FOR_SPI
     (
-        NRF_SPI_Type * p_spi = p_instance->p_registers;
+        NRF_SPI_Type * p_spi = (NRF_SPI_Type * ) p_instance->p_registers;
         if (p_cb->handler)
         {
             nrf_spi_int_disable(p_spi, DISABLE_ALL);
@@ -352,6 +353,19 @@ static bool transfer_byte(NRF_SPI_Type * p_spi, spi_control_block_t * p_cb)
     //        see how the transfer is started in the 'nrf_drv_spi_transfer'
     //        function.
     uint16_t bytes_used = p_cb->bytes_transferred + 1;
+    
+    if (p_cb->abort)
+    {
+        if (bytes_used < p_cb->evt.data.done.tx_length)
+        {
+            p_cb->evt.data.done.tx_length = bytes_used;
+        }
+        if (bytes_used < p_cb->evt.data.done.rx_length)
+        {
+            p_cb->evt.data.done.rx_length = bytes_used;
+        }
+    }
+    
     if (bytes_used < p_cb->evt.data.done.tx_length)
     {
         nrf_spi_txd_set(p_spi, p_cb->evt.data.done.p_tx_buffer[bytes_used]);
@@ -371,8 +385,8 @@ static void spi_xfer(NRF_SPI_Type                  * p_spi,
                      spi_control_block_t           * p_cb,
                      nrf_drv_spi_xfer_desc_t const * p_xfer_desc)
 {
-    p_cb->bytes_transferred = 0;
     nrf_spi_int_disable(p_spi, NRF_SPI_INT_READY_MASK);
+    p_cb->bytes_transferred = 0;
 
     nrf_spi_event_clear(p_spi, NRF_SPI_EVENT_READY);
 
@@ -516,8 +530,8 @@ ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
 {
     spi_control_block_t * p_cb  = &m_cb[p_instance->drv_inst_idx];
     ASSERT(p_cb->state != NRF_DRV_STATE_UNINITIALIZED);
-    ASSERT(p_tx_buffer != NULL || tx_buffer_length == 0);
-    ASSERT(p_rx_buffer != NULL || rx_buffer_length == 0);
+    ASSERT(p_xfer_desc->p_tx_buffer != NULL || p_xfer_desc->tx_length == 0);
+    ASSERT(p_xfer_desc->p_rx_buffer != NULL || p_xfer_desc->rx_length == 0);
 
     if (p_cb->transfer_in_progress)
     {
@@ -534,6 +548,7 @@ ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
     p_cb->evt.data.done = *p_xfer_desc;
     p_cb->tx_done = false;
     p_cb->rx_done = false;
+    p_cb->abort   = false;
 
     if (p_cb->ss_pin != NRF_DRV_SPI_PIN_NOT_USED)
     {
@@ -541,7 +556,7 @@ ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
     }
     CODE_FOR_SPIM
     (
-        return spim_xfer(p_instance->p_registers, p_cb,  p_xfer_desc, flags);
+        return spim_xfer((NRF_SPIM_Type * ) p_instance->p_registers, p_cb,  p_xfer_desc, flags);
     )
     CODE_FOR_SPI
     (
@@ -550,10 +565,28 @@ ret_code_t nrf_drv_spi_xfer(nrf_drv_spi_t     const * const p_instance,
             p_cb->transfer_in_progress = false;
             return NRF_ERROR_NOT_SUPPORTED;
         }
-        spi_xfer(p_instance->p_registers, p_cb, p_xfer_desc);
+        spi_xfer((NRF_SPI_Type * ) p_instance->p_registers, p_cb, p_xfer_desc);
         return NRF_SUCCESS;
     )
 }
+
+void nrf_drv_spi_abort(nrf_drv_spi_t const * p_instance)
+{
+    spi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    ASSERT(p_cb->state != NRF_DRV_STATE_UNINITIALIZED);
+
+    CODE_FOR_SPIM
+    (
+        nrf_spim_task_trigger(p_spim, NRF_SPIM_TASK_STOP);
+        while (!nrf_spim_event_check(p_spim, NRF_SPIM_EVENT_STOPPED)) {}
+        p_cb->transfer_in_progress = false;
+    )
+    CODE_FOR_SPI
+    (
+        p_cb->abort = true;
+    )
+}
+
 #ifdef SPIM_IN_USE
 static void irq_handler_spim(NRF_SPIM_Type * p_spim, spi_control_block_t * p_cb)
 {

@@ -737,6 +737,12 @@ ret_code_t nrf_drv_twi_xfer(nrf_drv_twi_t           const * p_instance,
     return ret;
 }
 
+bool nrf_drv_twi_is_busy(nrf_drv_twi_t const * p_instance)
+{
+    twi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    return p_cb->busy;
+}
+
 ret_code_t nrf_drv_twi_tx(nrf_drv_twi_t const * p_instance,
                           uint8_t               address,
                           uint8_t const *       p_data,

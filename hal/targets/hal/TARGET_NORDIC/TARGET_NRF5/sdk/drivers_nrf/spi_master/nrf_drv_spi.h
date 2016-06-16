@@ -363,6 +363,9 @@ uint32_t nrf_drv_spi_start_task_get(nrf_drv_spi_t const * p_instance);
  * @return     END event address.
  */
 uint32_t nrf_drv_spi_end_event_get(nrf_drv_spi_t const * p_instance);
+
+void nrf_drv_spi_abort(nrf_drv_spi_t const * p_instance);
+
 #endif // NRF_DRV_SPI_H__
 
 /** @} */
