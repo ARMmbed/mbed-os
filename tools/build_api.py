@@ -214,23 +214,8 @@ def build_project(src_path, build_path, target, toolchain_name,
             else:
                 resources.inc_dirs.append(inc_dirs)
 
-        # Update configuration files until added features creates no changes
-        prev_features = set()
-        while True:
-            # Update the configuration with any .json files found while scanning
-            config.add_config_files(resources.json_files)
-
-            # Add features while we find new ones
-            features = config.get_features()
-            if features == prev_features:
-                break
-
-            for feature in features:
-                if feature in resources.features:
-                    resources.add(resources.features[feature])
-
-            prev_features = features
-        config.validate_config()
+        # Load resources into the config system which might expand/modify resources based on config data
+        resources = config.load_resources(resources)
 
         # Set the toolchain's config header with the config data
         toolchain.set_config_header_content(config.get_config_data_header())
@@ -373,23 +358,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
         # Handle configuration
         config = Config(target)
 
-        # Update configuration files until added features creates no changes
-        prev_features = set()
-        while True:
-            # Update the configuration with any .json files found while scanning
-            config.add_config_files(resources.json_files)
-
-            # Add features while we find new ones
-            features = config.get_features()
-            if features == prev_features:
-                break
-
-            for feature in features:
-                if feature in resources.features:
-                    resources.add(resources.features[feature])
-
-            prev_features = features
-        config.validate_config()
+        # Load resources into the config system which might expand/modify resources based on config data
+        resources = config.load_resources(resources)
 
         # Set the toolchain's config header with the config data
         toolchain.set_config_header_content(config.get_config_data_header())

@@ -396,6 +396,30 @@ class Config:
             raise self.config_errors[0]
         return True
 
+        
+    # Loads configuration data from resources. Also expands resources based on defined features settings
+    def load_resources(self, resources):
+        # Update configuration files until added features creates no changes
+        prev_features = set()
+        while True:
+            # Add/update the configuration with any .json files found while scanning
+            self.add_config_files(resources.json_files)
+
+            # Add features while we find new ones
+            features = self.get_features()
+            if features == prev_features:
+                break
+
+            for feature in features:
+                if feature in resources.features:
+                    resources.add(resources.features[feature])
+
+            prev_features = features
+        self.validate_config()
+
+        return resources
+        
+
     # Return the configuration data converted to the content of a C header file,
     # meant to be included to a C/C++ file. The content is returned as a string.
     # If 'fname' is given, the content is also written to the file called "fname".

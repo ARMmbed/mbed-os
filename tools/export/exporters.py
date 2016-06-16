@@ -129,7 +129,7 @@ class Exporter(object):
         # Copy only the file for the required target and toolchain
         lib_builds = []
         # Create the configuration object
-        cfg = Config(self.target, prj_paths)
+        config = Config(self.target, prj_paths)
         for src in ['lib', 'src']:
             resources = reduce(add, [self.__scan_and_copy(join(path, src), trg_path) for path in prj_paths])
             lib_builds.extend(resources.lib_builds)
@@ -155,15 +155,20 @@ class Exporter(object):
 
         if not relative:
             # Final scan of the actual exported resources
-            self.resources = self.toolchain.scan_resources(trg_path)
-            self.resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
+            resources = self.toolchain.scan_resources(trg_path)
+            resources.relative_to(trg_path, self.DOT_IN_RELATIVE_PATH)
         else:
             # use the prj_dir (source, not destination)
-            self.resources = reduce(add, [self.toolchain.scan_resources(path) for path in prj_paths])
-        # Add all JSON files discovered during scanning to the configuration object
-        cfg.add_config_files(self.resources.json_files)
-        # Get data from the configuration system
-        self.config_macros = cfg.get_config_data_macros()
+            resources = self.toolchain.scan_resources(prj_paths[0])
+            for path in prj_paths[1:]:
+                resources.add(toolchain.scan_resources(path))
+
+        # Loads the resources into the config system which might expand/modify resources based on config data
+        self.resources = config.load_resources(resources)
+
+        # And add the configuration macros to the toolchain
+        self.config_macros = config.get_config_data_macros()
+                
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
