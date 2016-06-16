@@ -210,7 +210,7 @@ LEGACY_TOOLCHAIN_NAMES = {
 
 class mbedToolchain:
     VERBOSE = True
-    ignorepatterns = []
+    ignore_ptrs = []
 
     CORTEX_SYMBOLS = {
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
@@ -407,7 +407,7 @@ class mbedToolchain:
         return False
 
     def is_ignored(self, file_path):
-        for pattern in self.ignorepatterns:
+        for pattern in self.ignore_ptrs:
             if fnmatch.fnmatch(file_path, pattern):
                 return True
         return False
@@ -441,33 +441,30 @@ class mbedToolchain:
                     lines = [l.strip() for l in lines] # Strip whitespaces
                     lines = [l for l in lines if l != ""] # Strip empty lines
                     lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
-                    # Append root path to glob patterns
-                    # and append patterns to ignorepatterns
-                    self.ignorepatterns.extend([join(root,line.strip()) for line in lines])
+                    # Append root path to glob patterns and append patterns to ignore_ptrs
+                    self.ignore_ptrs.extend([join(root,line.strip()) for line in lines])
 
             for d in copy(dirs):
                 dir_path = join(root, d)
                 if d == '.hg':
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
-
+ 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
+                    # Ignore targets that do not match the TARGET in extra_labels list
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
+                    # Ignore toolchain that do not match the current TOOLCHAIN
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
+                    # Ignore .mbedignore files
+                    self.is_ignored(join(dir_path,"")) or
+                    # Ignore TESTS dir
                     (d == 'TESTS')):
                     dirs.remove(d)
-
-                if (d.startswith('FEATURE_')):
+                elif d.startswith('FEATURE_'):
+                    # Recursively scan features but ignore them in the current scan. These are dynamically added by the config system if the conditions are matched
                     resources.features[d[8:]] = self.scan_resources(dir_path, base_path=base_path)
                     dirs.remove(d)
-
-                # Remove dirs that already match the ignorepatterns
-                # to avoid travelling into them and to prevent them
-                # on appearing in include path.
-                if self.is_ignored(join(dir_path,"")):
-                    dirs.remove(d)
-
-                if exclude_paths:
+                elif exclude_paths:
                     for exclude_path in exclude_paths:
                         rel_path = relpath(dir_path, exclude_path)
                         if not (rel_path.startswith('..')):
