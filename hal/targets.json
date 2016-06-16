@@ -1735,5 +1735,23 @@
         "progen_target": "samg55j19",
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "default_build": "standard"
-    }
+    },
+    "HI2110": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "default_toolchain": "GCC_ARM",
+        "supported_toolchains": ["GCC_ARM"],
+        "extra_labels": ["ublox"],
+        "macros": ["TARGET_PROCESSOR_FAMILY_BOUDICA", "BOUDICA_SARA"],
+        "device_has": ["INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "STDIO_MESSAGES"],
+         "default_build": "small"
+   },
+    "SARA_NBIOT": {
+        "inherits": ["HI2110"],
+        "extra_labels": ["ublox", "HI2110"]
+    },
+    "SARA_NBIOT_EVK": {
+        "inherits": ["SARA_NBIOT"],
+        "extra_labels": ["ublox", "HI2110", "SARA_NBIOT"]
+   }
 }

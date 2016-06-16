@@ -510,6 +510,9 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_MCU_NORDIC_16K)
 #define INITIAL_SP            (0x20004000UL)
 
+#elif defined(TARGET_HI2110)
+#define INITIAL_SP            (0x01000000UL + 0x04000 - 256)
+
 #else
 #error "no target defined"
 

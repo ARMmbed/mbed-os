@@ -64,7 +64,7 @@
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) \
    || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
    || defined(TARGET_SSCI824)  || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB) \
-   || defined(TARGET_EFM32HG_STK3400) || defined(TARGET_MCU_NRF51822) || defined(TARGET_BEETLE)
+   || defined(TARGET_EFM32HG_STK3400) || defined(TARGET_MCU_NRF51822) || defined(TARGET_BEETLE) || defined (TARGET_HI2110)
 #    define OS_TASKCNT         6
 #  else
 #    error "no target defined"
@@ -98,7 +98,7 @@
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL26Z)        || defined(TARGET_KL27Z)        || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
    || defined(TARGET_SSCI824) || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB) \
-   || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32PG_STK3401)
+   || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32PG_STK3401) || defined (TARGET_HI2110)
 #      define OS_MAINSTKSIZE    128
 #  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) \
    || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) \
@@ -265,6 +265,9 @@
 
 #elif defined(TARGET_MCU_NRF51822)
 #    define OS_CLOCK        32768
+
+#elif defined(TARGET_HI2110)
+#    define OS_CLOCK        48000000
 
 #  else
 #    error "no target defined"
