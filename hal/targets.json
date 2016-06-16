@@ -1077,7 +1077,7 @@
     "UBLOX_C029": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
-        "default_toolchain": "uARM",
+        "default_toolchain": "GCC_ARM",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI"],
         "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000"],
@@ -1085,6 +1085,7 @@
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
     },
+	
     "NZ32_SC151": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
