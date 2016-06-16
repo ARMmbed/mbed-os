@@ -65,6 +65,16 @@ void timer_irq_handler(void) {
 
 // Reconfigure the HAL tick using a standard timer instead of systick.
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    uint32_t PclkFreq;
+
+    // Get clock configuration
+    // Note: PclkFreq contains here the Latency (not used after)
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
+  
+    // Get TIM5 clock value
+    PclkFreq = HAL_RCC_GetPCLK1Freq();
+  
     // Enable timer clock
     TIM_MST_RCC;
 
@@ -75,8 +85,14 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     // Configure time base
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period            = 0xFFFFFFFF;
-    TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 1000000) - 1; // 1 µs tick
-	  TimMasterHandle.Init.ClockDivision     = 0;
+  
+    // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
+    if (RCC_ClkInitStruct.APB1CLKDivider == RCC_HCLK_DIV1)
+      TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 us tick
+    else
+      TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick  
+  
+    TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
     TimMasterHandle.Init.RepetitionCounter = 0;
     HAL_TIM_OC_Init(&TimMasterHandle);
