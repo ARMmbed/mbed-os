@@ -719,7 +719,7 @@ static inline void CLOCK_SetXtal32Freq(uint32_t freq)
 static inline void CLOCK_EnableClock(clock_ip_name_t name)
 {
     uint32_t regAddr = SIM_BASE + CLK_GATE_ABSTRACT_REG_OFFSET((uint32_t)name);
-    __FSL_CLOCK_SECURE_BITS_SET((uint32_t *) regAddr, (1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name)));
+    __FSL_CLOCK_SECURE_BITS_SET((volatile uint32_t *) regAddr, (1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name)));
 }
 
 /*!
@@ -730,7 +730,7 @@ static inline void CLOCK_EnableClock(clock_ip_name_t name)
 static inline void CLOCK_DisableClock(clock_ip_name_t name)
 {
     uint32_t regAddr = SIM_BASE + CLK_GATE_ABSTRACT_REG_OFFSET((uint32_t)name);
-    __FSL_CLOCK_SECURE_BITS_CLEAR((uint32_t *) regAddr, (1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name)));
+    __FSL_CLOCK_SECURE_BITS_CLEAR((volatile uint32_t *) regAddr, (1U << CLK_GATE_ABSTRACT_BITS_SHIFT((uint32_t)name)));
 }
 
 /*!
