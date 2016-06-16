@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Socket.h"
+#include "NetworkSocketAPI/Socket.h"
 
 Socket::Socket()
     : _iface(0)
