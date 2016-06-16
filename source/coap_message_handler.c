@@ -160,6 +160,16 @@ int8_t coap_message_handler_destroy(coap_msg_handler_t *handle){
     return 0;
 }
 
+coap_transaction_t *coap_message_handler_transaction_valid(coap_transaction_t *tr_ptr)
+{
+    ns_list_foreach(coap_transaction_t, cur_ptr, &request_list) {
+        if (cur_ptr == tr_ptr) {
+            return tr_ptr;
+        }
+    }
+    return NULL;
+}
+
 coap_transaction_t *coap_message_handler_find_transaction(uint8_t *address_ptr, uint16_t port)
 {
     if( !address_ptr )
