@@ -166,7 +166,11 @@ class GCC(mbedToolchain):
         return ["-MD", "-MF", dep_path]
 
     def get_compile_options(self, defines, includes):
-        return ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+        prefix_header = self.get_prefix_header()
+        if prefix_header is not None:
+            opts = opts + ['-include', prefix_header]
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
