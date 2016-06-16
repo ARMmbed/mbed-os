@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_spi.c
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   SPI HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Serial Peripheral Interface (SPI) peripheral:
@@ -52,37 +52,9 @@
       (#) The CRC feature is not managed when the DMA circular mode is enabled
       (#) When the SPI DMA Pause/Stop features are used, we must use the following APIs
           the HAL_SPI_DMAPause()/ HAL_SPI_DMAStop() only under the SPI callbacks
-     [..]                                                                                       
-       Using the HAL it is not possible to reach all supported SPI frequency with the differents
-       the following table resume the max SPI frequency reached with data size 8bits/16bits,    
-       according to frequency used on APBx Peripheral Clock (fPCLK) used by the SPI instance :  
-      +-----------------------------------------------------------------------------------------
-      |         |                | 2Lines Fullduplex   |     2Lines RxOnly   |        1Line     
-      | Process | Tranfert mode  |---------------------|---------------------|------------------
-      |         |                |  Master  |  Slave   |  Master  |  Slave   |  Master  |  Slave
-      |=========================================================================================
-      |    T    |     Polling    | fPCLK/32 | fPCLK/32 |    NA    |    NA    |    NA    |   NA  
-      |    X    |----------------|----------|----------|----------|----------|----------|-------
-      |    /    |     Interrupt  | fPCLK/32 | fPCLK/32 |    NA    |    NA    |    NA    |   NA  
-      |    R    |----------------|----------|----------|----------|----------|----------|-------
-      |    X    |       DMA      | fPCLK/32 | fPCLK/16 |    NA    |    NA    |    NA    |   NA  
-      |=========|================|==========|==========|==========|==========|==========|=======
-      |         |     Polling    | fPCLK/32 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/
-      |         |----------------|----------|----------|----------|----------|----------|-------
-      |    R    |     Interrupt  | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/
-      |    X    |----------------|----------|----------|----------|----------|----------|-------
-      |         |       DMA      | fPCLK/4  | fPCLK/8  | fPCLK/4  |  fPCLK/4 | fPCLK/8  | fPCLK/
-      |=========|================|==========|==========|==========|==========|==========|=======
-      |         |     Polling    | fPCLK/16 | fPCLK/16 |    NA    |    NA    | fPCLK/16 | fPCLK/
-      |         |----------------|----------|----------|----------|----------|----------|-------
-      |    T    |     Interrupt  | fPCLK/32 | fPCLK/16 |    NA    |    NA    | fPCLK/16 | fPCLK/
-      |    X    |----------------|----------|----------|----------|----------|----------|-------
-      |         |       DMA      | fPCLK/2  | fPCLK/16 |    NA    |    NA    | fPCLK/8  | fPCLK/
-      +-----------------------------------------------------------------------------------------
-      @note The max SPI frequency depend on SPI data size (4bits, 5bits,..., 8bits,...15bits, 16
-            SPI mode(2 Lines fullduplex, 2 lines RxOnly, 1 line TX/RX) and Process mode (Polling
+
       @note                                                                                     
-       (#) TX/RX processes are HAL_SPI_TransmitReceive(), HAL_SPI_TransmitReceive_IT() and HAL_S
+       (#) TX/RX processes are HAL_SPI_TransmitReceive(), HAL_SPI_TransmitReceive_IT() and HAL_SPI_TransmitReceive_DMA()
        (#) RX processes are HAL_SPI_Receive(), HAL_SPI_Receive_IT() and HAL_SPI_Receive_DMA()   
        (#) TX processes are HAL_SPI_Transmit(), HAL_SPI_Transmit_IT() and HAL_SPI_Transmit_DMA()
 
@@ -90,7 +62,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -116,6 +88,39 @@
   *
   ******************************************************************************
   */
+
+/*
+  Additional Table:
+
+    Using the HAL it is not possible to reach all supported SPI frequency with the differents
+    the following table resume the max SPI frequency reached with data size 8bits/16bits,    
+    according to frequency used on APBx Peripheral Clock (fPCLK) used by the SPI instance :  
+      +-----------------------------------------------------------------------------------------
+      |         |                | 2Lines Fullduplex   |     2Lines RxOnly   |        1Line     
+      | Process | Tranfert mode  |---------------------|---------------------|------------------
+      |         |                |  Master  |  Slave   |  Master  |  Slave   |  Master  |  Slave
+      |=========================================================================================
+      |    T    |     Polling    | fPCLK/32 | fPCLK/32 |    NA    |    NA    |    NA    |   NA  
+      |    X    |----------------|----------|----------|----------|----------|----------|-------
+      |    /    |     Interrupt  | fPCLK/32 | fPCLK/32 |    NA    |    NA    |    NA    |   NA  
+      |    R    |----------------|----------|----------|----------|----------|----------|-------
+      |    X    |       DMA      | fPCLK/32 | fPCLK/16 |    NA    |    NA    |    NA    |   NA  
+      |=========|================|==========|==========|==========|==========|==========|=======
+      |         |     Polling    | fPCLK/32 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/
+      |         |----------------|----------|----------|----------|----------|----------|-------
+      |    R    |     Interrupt  | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/16 | fPCLK/
+      |    X    |----------------|----------|----------|----------|----------|----------|-------
+      |         |       DMA      | fPCLK/4  | fPCLK/8  | fPCLK/4  |  fPCLK/4 | fPCLK/8  | fPCLK/
+      |=========|================|==========|==========|==========|==========|==========|=======
+      |         |     Polling    | fPCLK/16 | fPCLK/16 |    NA    |    NA    | fPCLK/16 | fPCLK/
+      |         |----------------|----------|----------|----------|----------|----------|-------
+      |    T    |     Interrupt  | fPCLK/32 | fPCLK/16 |    NA    |    NA    | fPCLK/16 | fPCLK/
+      |    X    |----------------|----------|----------|----------|----------|----------|-------
+      |         |       DMA      | fPCLK/2  | fPCLK/16 |    NA    |    NA    | fPCLK/8  | fPCLK/
+      +-----------------------------------------------------------------------------------------
+  @note The max SPI frequency depend on SPI data size (4bits, 5bits,..., 8bits,...15bits, 16
+        SPI mode(2 Lines fullduplex, 2 lines RxOnly, 1 line TX/RX) and Process mode (Polling
+*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
@@ -365,6 +370,9 @@ HAL_StatusTypeDef HAL_SPI_DeInit(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
    /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_MspInit should be implemented in the user file
    */
@@ -378,6 +386,9 @@ __weak void HAL_SPI_MspInit(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_MspDeInit should be implemented in the user file
    */
@@ -862,6 +873,11 @@ __IO uint16_t tmpreg;
         /* Enable CRC Transmission */
         if((hspi->TxXferCount == 0) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
         {
+          /* Set NSS Soft to received correctly the CRC on slave mode with NSS pulse activated */
+          if(((hspi->Instance->CR1 & SPI_CR1_MSTR) == 0) && ((hspi->Instance->CR2 & SPI_CR2_NSSP) == SPI_CR2_NSSP))
+          {
+             SET_BIT(hspi->Instance->CR1, SPI_CR1_SSM);
+          }
           hspi->Instance->CR1|= SPI_CR1_CRCNEXT;
         }
       }
@@ -903,6 +919,11 @@ __IO uint16_t tmpreg;
         /* Enable CRC Transmission */
         if((hspi->TxXferCount == 0) && (hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE))
         {
+          /* Set NSS Soft to received correctly the CRC on slave mode with NSS pulse activated */
+          if(((hspi->Instance->CR1 & SPI_CR1_MSTR) == 0) && ((hspi->Instance->CR2 & SPI_CR2_NSSP) == SPI_CR2_NSSP))
+          {
+             SET_BIT(hspi->Instance->CR1, SPI_CR1_SSM);
+          }
           hspi->Instance->CR1 |= SPI_CR1_CRCNEXT;
         }
       }
@@ -1770,6 +1791,9 @@ void HAL_SPI_IRQHandler(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_TxCpltCallback should be implemented in the user file
    */
@@ -1783,6 +1807,9 @@ __weak void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_RxCpltCallback should be implemented in the user file
    */
@@ -1796,6 +1823,9 @@ __weak void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_TxRxCpltCallback should be implemented in the user file
    */
@@ -1809,6 +1839,9 @@ __weak void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_TxHalfCpltCallback should be implemented in the user file
    */
@@ -1822,6 +1855,9 @@ __weak void HAL_SPI_TxHalfCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_RxHalfCpltCallback() should be implemented in the user file
    */
@@ -1835,6 +1871,9 @@ __weak void HAL_SPI_RxHalfCpltCallback(SPI_HandleTypeDef *hspi)
   */
 __weak void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_TxRxHalfCpltCallback() should be implemented in the user file
    */
@@ -1848,6 +1887,9 @@ __weak void HAL_SPI_TxRxHalfCpltCallback(SPI_HandleTypeDef *hspi)
   */
  __weak void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hspi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SPI_ErrorCallback should be implemented in the user file
    */
@@ -2255,7 +2297,9 @@ static void SPI_2linesTxISR_8BIT(struct __SPI_HandleTypeDef *hspi)
   {
     if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      hspi->Instance->CR1 |= SPI_CR1_CRCNEXT;
+      SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
+      __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
+      return;
     }
     /* Disable TXE interrupt */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
@@ -2335,7 +2379,9 @@ static void SPI_2linesTxISR_16BIT(struct __SPI_HandleTypeDef *hspi)
   {
     if(hspi->Init.CRCCalculation == SPI_CRCCALCULATION_ENABLE)
     {
-      hspi->Instance->CR1 |= SPI_CR1_CRCNEXT;
+      SET_BIT(hspi->Instance->CR1, SPI_CR1_CRCNEXT);
+      __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
+      return;
     }
     /* Disable TXE interrupt */
     __HAL_SPI_DISABLE_IT(hspi, SPI_IT_TXE);
@@ -2569,8 +2615,8 @@ static HAL_StatusTypeDef SPI_WaitFifoStateUntilTimeout(SPI_HandleTypeDef *hspi, 
       if((Timeout == 0) || ((HAL_GetTick()-tickstart) >= Timeout))
       {
         /* Disable the SPI and reset the CRC: the CRC value should be cleared
-                  on both master and slave sides in order to resynchronize the master
-                 and slave for their respective CRC calculation */
+           on both master and slave sides in order to resynchronize the master
+           and slave for their respective CRC calculation */
 
         /* Disable TXE, RXNE and ERR interrupts for the interrupt process */
         __HAL_SPI_DISABLE_IT(hspi, (SPI_IT_TXE | SPI_IT_RXNE | SPI_IT_ERR));
@@ -2687,12 +2733,12 @@ static void SPI_CloseRxTx_ISR(SPI_HandleTypeDef *hspi)
     {
       if(hspi->State == HAL_SPI_STATE_BUSY_RX)
       {
-      	hspi->State = HAL_SPI_STATE_READY;
+        hspi->State = HAL_SPI_STATE_READY;
         HAL_SPI_RxCpltCallback(hspi);
       }
       else
       {
-      	hspi->State = HAL_SPI_STATE_READY;
+        hspi->State = HAL_SPI_STATE_READY;
         HAL_SPI_TxRxCpltCallback(hspi);
       }
     }

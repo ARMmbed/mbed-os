@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdio.h>
 #include "gpio_api.h"
 #include "wait_api.h"
 #include "toolchain.h"
 #include "mbed_interface.h"
+#include "critical.h"
+#include "serial_api.h"
+
+#if DEVICE_SERIAL
+extern int stdio_uart_inited;
+extern serial_t stdio_uart;
+#endif
 
 WEAK void mbed_die(void) {
 #if !defined (NRF51_H) && !defined(TARGET_EFM32)
-	__disable_irq();	// dont allow interrupts to disturb the flash pattern
+    core_util_critical_section_enter();
 #endif
 #if   (DEVICE_ERROR_RED == 1)
     gpio_t led_red; gpio_init_out(&led_red, LED_RED);
@@ -56,4 +64,28 @@ WEAK void mbed_die(void) {
 
         wait_ms(150);
     }
+}
+
+void mbed_error_printf(const char* format, ...) {
+    va_list arg;
+    va_start(arg, format);
+    mbed_error_vfprintf(format, arg);
+    va_end(arg);
+}
+
+void mbed_error_vfprintf(const char * format, va_list arg) {
+#if DEVICE_SERIAL
+    core_util_critical_section_enter();
+    char buffer[128];
+    int size = vsprintf(buffer, format, arg);
+    if (size > 0) {
+        if (!stdio_uart_inited) {
+        serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+        }
+        for (int i = 0; i < size; i++) {
+            serial_putc(&stdio_uart, buffer[i]);
+        }
+    }
+    core_util_critical_section_exit();
+#endif
 }

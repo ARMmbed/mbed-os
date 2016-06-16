@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_rng.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   RNG HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Random Number Generator (RNG) peripheral:
@@ -29,7 +29,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -189,6 +189,9 @@ HAL_StatusTypeDef HAL_RNG_DeInit(RNG_HandleTypeDef *hrng)
   */
 __weak void HAL_RNG_MspInit(RNG_HandleTypeDef *hrng)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrng);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_RNG_MspInit must be implemented in the user file.
    */
@@ -201,6 +204,9 @@ __weak void HAL_RNG_MspInit(RNG_HandleTypeDef *hrng)
   */
 __weak void HAL_RNG_MspDeInit(RNG_HandleTypeDef *hrng)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrng);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_RNG_MspDeInit must be implemented in the user file.
    */
@@ -439,6 +445,10 @@ uint32_t HAL_RNG_ReadLastRandomNumber(RNG_HandleTypeDef *hrng)
   */
 __weak void HAL_RNG_ReadyDataCallback(RNG_HandleTypeDef *hrng, uint32_t random32bit)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrng);
+  UNUSED(random32bit);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_RNG_ReadyDataCallback must be implemented in the user file.
    */
@@ -451,6 +461,9 @@ __weak void HAL_RNG_ReadyDataCallback(RNG_HandleTypeDef *hrng, uint32_t random32
   */
 __weak void HAL_RNG_ErrorCallback(RNG_HandleTypeDef *hrng)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hrng);
+
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_RNG_ErrorCallback must be implemented in the user file.
    */

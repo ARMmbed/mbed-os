@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_lcd.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   LCD Controller HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the LCD Controller (LCD) peripheral:
@@ -70,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -100,7 +100,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 
-#if defined(STM32L476xx) || defined(STM32L486xx)
+#if defined(STM32L433xx) || defined(STM32L443xx) || defined(STM32L476xx) || defined(STM32L486xx)
 
 /** @addtogroup STM32L4xx_HAL_Driver
   * @{
@@ -303,8 +303,11 @@ HAL_StatusTypeDef HAL_LCD_DeInit(LCD_HandleTypeDef *hlcd)
   * @param  hlcd: LCD handle
   * @retval None
   */
- __weak void HAL_LCD_MspDeInit(LCD_HandleTypeDef *hlcd)
+__weak void HAL_LCD_MspDeInit(LCD_HandleTypeDef *hlcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlcd);
+
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_LCD_MspDeInit it to be implemented in the user file
    */
@@ -315,8 +318,11 @@ HAL_StatusTypeDef HAL_LCD_DeInit(LCD_HandleTypeDef *hlcd)
   * @param  hlcd: LCD handle
   * @retval None
   */
- __weak void HAL_LCD_MspInit(LCD_HandleTypeDef *hlcd)
+__weak void HAL_LCD_MspInit(LCD_HandleTypeDef *hlcd)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hlcd);
+
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_LCD_MspInit is to be implemented in the user file
    */
@@ -608,13 +614,13 @@ HAL_StatusTypeDef LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd)
   * @}
   */
 
-#endif /* STM32L476xx || STM32L486xx */
-
 #endif /* HAL_LCD_MODULE_ENABLED */
 
 /**
   * @}
   */
+
+#endif /* STM32L433xx || STM32L443xx || STM32L476xx || STM32L486xx */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

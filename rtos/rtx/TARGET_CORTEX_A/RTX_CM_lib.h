@@ -50,7 +50,7 @@
 #define _declare_box(pool,size,cnt)  uint32_t pool[(((size)+3)/4)*(cnt) + 3]
 #define _declare_box8(pool,size,cnt) uint64_t pool[(((size)+7)/8)*(cnt) + 2]
 
-#define OS_TCB_SIZE     52
+#define OS_TCB_SIZE     60
 #define OS_TMR_SIZE     8
 
 #if defined (__CC_ARM) && !defined (__MICROLIB)
@@ -447,7 +447,7 @@ __asm void __rt_entry (void) {
 
 #elif defined (__GNUC__)
 
-__attribute__((naked)) void software_init_hook (void) {
+__attribute__((naked)) void software_init_hook_rtos (void) {
   __asm (
     ".syntax unified\n"
     ".arm\n"

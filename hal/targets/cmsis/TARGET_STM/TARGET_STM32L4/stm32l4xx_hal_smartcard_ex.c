@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_smartcard_ex.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   SMARTCARD HAL module driver.
   *          This file provides extended firmware functions to manage the following
   *          functionalities of the SmartCard.
@@ -28,7 +28,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -132,17 +132,17 @@ void HAL_SMARTCARDEx_TimeOut_Config(SMARTCARD_HandleTypeDef *hsmartcard, uint32_
 HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard)
 {
 
-  if(hsmartcard->State == HAL_SMARTCARD_STATE_READY)
+  if(hsmartcard->gState == HAL_SMARTCARD_STATE_READY)
   {
     /* Process Locked */
     __HAL_LOCK(hsmartcard);
 
-    hsmartcard->State = HAL_SMARTCARD_STATE_BUSY;
+    hsmartcard->gState = HAL_SMARTCARD_STATE_BUSY;
 
     /* Set the USART RTOEN bit */
     SET_BIT(hsmartcard->Instance->CR2, USART_CR2_RTOEN);
 
-    hsmartcard->State = HAL_SMARTCARD_STATE_READY;
+    hsmartcard->gState = HAL_SMARTCARD_STATE_READY;
 
     /* Process Unlocked */
     __HAL_UNLOCK(hsmartcard);
@@ -164,17 +164,17 @@ HAL_StatusTypeDef HAL_SMARTCARDEx_EnableReceiverTimeOut(SMARTCARD_HandleTypeDef 
 HAL_StatusTypeDef HAL_SMARTCARDEx_DisableReceiverTimeOut(SMARTCARD_HandleTypeDef *hsmartcard)
 {
 
-  if(hsmartcard->State == HAL_SMARTCARD_STATE_READY)
+  if(hsmartcard->gState == HAL_SMARTCARD_STATE_READY)
   {
     /* Process Locked */
     __HAL_LOCK(hsmartcard);
 
-    hsmartcard->State = HAL_SMARTCARD_STATE_BUSY;
+    hsmartcard->gState = HAL_SMARTCARD_STATE_BUSY;
 
     /* Clear the USART RTOEN bit */
     CLEAR_BIT(hsmartcard->Instance->CR2, USART_CR2_RTOEN);
 
-    hsmartcard->State = HAL_SMARTCARD_STATE_READY;
+    hsmartcard->gState = HAL_SMARTCARD_STATE_READY;
 
     /* Process Unlocked */
     __HAL_UNLOCK(hsmartcard);

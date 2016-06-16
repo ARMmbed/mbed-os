@@ -7,10 +7,10 @@ dist
 MANIFEST
 
 # Private settings
-private_settings.py
+mbed_settings.py
 
 # Default Build Directory
-build/
+.build/
 venv/
 
 # Eclipse Project Files

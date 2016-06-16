@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /**
- * \defgroup LpTicker Low Power Ticker Functions
+ * \defgroup hal_LpTicker Low Power Ticker Functions
  * @{
  */
 

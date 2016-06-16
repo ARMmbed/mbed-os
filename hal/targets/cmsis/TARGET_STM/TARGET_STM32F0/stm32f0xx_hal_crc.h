@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_crc.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of CRC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -157,7 +157,7 @@ typedef struct
 /** @defgroup CRC_Default_InitValue Default CRC computation initialization value
   * @{
   */
-#define DEFAULT_CRC_INITVALUE   0xFFFFFFFF
+#define DEFAULT_CRC_INITVALUE   0xFFFFFFFFU
 
 /**
   * @}
@@ -166,11 +166,17 @@ typedef struct
 /** @defgroup CRC_Default_Polynomial Indicates whether or not default polynomial is used
   * @{
   */
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx)
 #define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00)
 #define DEFAULT_POLYNOMIAL_DISABLE      ((uint8_t)0x01)
 
 #define IS_DEFAULT_POLYNOMIAL(DEFAULT) (((DEFAULT) == DEFAULT_POLYNOMIAL_ENABLE) || \
                                         ((DEFAULT) == DEFAULT_POLYNOMIAL_DISABLE))
+#else
+#define DEFAULT_POLYNOMIAL_ENABLE       ((uint8_t)0x00)
+
+#define IS_DEFAULT_POLYNOMIAL(DEFAULT)  ((DEFAULT) == DEFAULT_POLYNOMIAL_ENABLE)
+#endif /* defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F091xC) || defined(STM32F098xx) */
 
 /**
   * @}

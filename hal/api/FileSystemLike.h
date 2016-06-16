@@ -29,6 +29,8 @@ namespace mbed {
  *
  *  Implementations must define at least open (the default definitions
  *  of the rest of the functions just return error values).
+ *
+ * @Note Synchronization level: Set by subclass
  */
 class FileSystemLike : public FileBase {
 
@@ -61,7 +63,7 @@ public:
      *  @param filename the name of the file to remove.
      *  @param returns 0 on success, -1 on failure.
      */
-    virtual int remove(const char *filename) { return -1; };
+    virtual int remove(const char *filename) { (void) filename; return -1; };
 
     /** Rename a file in the filesystem.
      *
@@ -72,7 +74,7 @@ public:
      *    0 on success,
      *   -1 on failure.
      */
-    virtual int rename(const char *oldname, const char *newname) { return -1; };
+    virtual int rename(const char *oldname, const char *newname) { (void) oldname, (void) newname; return -1; };
 
     /** Opens a directory in the filesystem and returns a DirHandle
      *   representing the directory stream.
@@ -83,7 +85,7 @@ public:
      *    A DirHandle representing the directory stream, or
      *   NULL on failure.
      */
-    virtual DirHandle *opendir(const char *name) { return NULL; };
+    virtual DirHandle *opendir(const char *name) { (void) name; return NULL; };
 
     /** Creates a directory in the filesystem.
      *
@@ -94,7 +96,7 @@ public:
      *    0 on success,
      *   -1 on failure.
      */
-    virtual int mkdir(const char *name, mode_t mode) { return -1; }
+    virtual int mkdir(const char *name, mode_t mode) { (void) name, (void) mode; return -1; }
 
     // TODO other filesystem functions (mkdir, rm, rn, ls etc)
 };

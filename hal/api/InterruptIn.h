@@ -22,11 +22,14 @@
 
 #include "gpio_api.h"
 #include "gpio_irq_api.h"
-#include "FunctionPointer.h"
+#include "Callback.h"
+#include "critical.h"
 
 namespace mbed {
 
 /** A digital interrupt input, used to call a function on a rising or falling edge
+ *
+ * @Note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -70,36 +73,38 @@ public:
 
     /** Attach a function to call when a rising edge occurs on the input
      *
-     *  @param fptr A pointer to a void function, or 0 to set as none
+     *  @param func A pointer to a void function, or 0 to set as none
      */
-    void rise(void (*fptr)(void));
+    void rise(Callback<void()> func);
 
     /** Attach a member function to call when a rising edge occurs on the input
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      */
-    template<typename T>
-    void rise(T* tptr, void (T::*mptr)(void)) {
-        _rise.attach(tptr, mptr);
-        gpio_irq_set(&gpio_irq, IRQ_RISE, 1);
+    template<typename T, typename M>
+    void rise(T *obj, M method) {
+        core_util_critical_section_enter();
+        rise(Callback<void()>(obj, method));
+        core_util_critical_section_exit();
     }
 
     /** Attach a function to call when a falling edge occurs on the input
      *
-     *  @param fptr A pointer to a void function, or 0 to set as none
+     *  @param func A pointer to a void function, or 0 to set as none
      */
-    void fall(void (*fptr)(void));
+    void fall(Callback<void()> func);
 
     /** Attach a member function to call when a falling edge occurs on the input
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      */
-    template<typename T>
-    void fall(T* tptr, void (T::*mptr)(void)) {
-        _fall.attach(tptr, mptr);
-        gpio_irq_set(&gpio_irq, IRQ_FALL, 1);
+    template<typename T, typename M>
+    void fall(T *obj, M method) {
+        core_util_critical_section_enter();
+        fall(Callback<void()>(obj, method));
+        core_util_critical_section_exit();
     }
 
     /** Set the input pin mode
@@ -124,8 +129,8 @@ protected:
     gpio_t gpio;
     gpio_irq_t gpio_irq;
 
-    FunctionPointer _rise;
-    FunctionPointer _fall;
+    Callback<void()> _rise;
+    Callback<void()> _fall;
 };
 
 } // namespace mbed

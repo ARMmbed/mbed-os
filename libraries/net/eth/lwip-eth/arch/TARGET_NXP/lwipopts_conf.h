@@ -27,4 +27,10 @@
 #define MEM_SIZE                      16362
 #endif
 
+#if defined (TOOLCHAIN_GCC_CR)
+  /* For LPCXpresso IDE above v8.0.0 to avoid clash with timeval struct */
+  #include <sys/time.h>
+  #define LWIP_TIMEVAL_PRIVATE 0
+#endif
+
 #endif

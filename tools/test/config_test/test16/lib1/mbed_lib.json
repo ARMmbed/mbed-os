@@ -1,0 +1,4 @@
+{
+    "name": "lib1",
+    "macros": ["LIB1_1=1", "LIB1_2"]
+}

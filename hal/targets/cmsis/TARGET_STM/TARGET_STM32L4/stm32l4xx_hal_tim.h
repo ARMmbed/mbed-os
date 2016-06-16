@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -977,7 +977,7 @@ typedef struct
   * @}
   */
 
-/** @defgroup TIM_Break_System
+/** @defgroup TIM_Break_System TIM Break System
   * @{
   */
 #define TIM_BREAK_SYSTEM_ECC                 SYSCFG_CFGR2_ECCL  /*!< Enables and locks the ECC error signal with Break Input of TIM1/8/15/16/17 */
@@ -1336,7 +1336,7 @@ mode.
  ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCR3 = (__COMPARE__)) :\
  ((__CHANNEL__) == TIM_CHANNEL_4) ? ((__HANDLE__)->Instance->CCR4 = (__COMPARE__)) :\
  ((__CHANNEL__) == TIM_CHANNEL_5) ? ((__HANDLE__)->Instance->CCR5 = (__COMPARE__)) :\
- ((__HANDLE__)->Instance->CCR6 |= (__COMPARE__)))
+ ((__HANDLE__)->Instance->CCR6 = (__COMPARE__)))
 
 /**
   * @brief  Get the TIM Capture Compare Register value on runtime.
@@ -1945,10 +1945,7 @@ HAL_TIM_StateTypeDef HAL_TIM_Encoder_GetState(TIM_HandleTypeDef *htim);
 */
 void TIM_Base_SetConfig(TIM_TypeDef *TIMx, TIM_Base_InitTypeDef *Structure);
 void TIM_TI1_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICSelection, uint32_t TIM_ICFilter);
-void TIM_OC1_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
 void TIM_OC2_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
-void TIM_OC3_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
-void TIM_OC4_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config);
 void TIM_ETR_SetConfig(TIM_TypeDef* TIMx, uint32_t TIM_ExtTRGPrescaler,
                        uint32_t TIM_ExtTRGPolarity, uint32_t ExtTRGFilter);
 

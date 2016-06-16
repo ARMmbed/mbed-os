@@ -27,21 +27,21 @@
 #define SPI_EVENT_RX_OVERFLOW (1 << 3)
 #define SPI_EVENT_ALL         (SPI_EVENT_ERROR | SPI_EVENT_COMPLETE | SPI_EVENT_RX_OVERFLOW)
 
-#define SPI_EVENT_INTERNAL_TRANSFER_COMPLETE (1 << 30) // internal flag to report an event occurred
+#define SPI_EVENT_INTERNAL_TRANSFER_COMPLETE (1 << 30) // Internal flag to report that an event occurred
 
 #define SPI_FILL_WORD         (0xFFFF)
 
 #if DEVICE_SPI_ASYNCH
-/** Asynch spi hal structure
+/** Asynch SPI HAL structure
  */
 typedef struct {
-    struct spi_s spi;        /**< Target specific spi structure */
+    struct spi_s spi;        /**< Target specific SPI structure */
     struct buffer_s tx_buff; /**< Tx buffer */
     struct buffer_s rx_buff; /**< Rx buffer */
 } spi_t;
 
 #else
-/** Non-asynch spi hal structure
+/** Non-asynch SPI HAL structure
  */
 typedef struct spi_s spi_t;
 
@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 /**
- * \defgroup GeneralSPI SPI Configuration Functions
+ * \defgroup hal_GeneralSPI SPI Configuration Functions
  * @{
  */
 
@@ -81,7 +81,8 @@ void spi_free(spi_t *obj);
 
 /** Configure the SPI format
  *
- * Set the number of bits per frame, configure clock polarity and phase, shift order and master/slave mode
+ * Set the number of bits per frame, configure clock polarity and phase, shift order and master/slave mode.
+ * The default bit order is MSB.
  * @param[in,out] obj   The SPI object to configure
  * @param[in]     bits  The number of bits per frame
  * @param[in]     mode  The SPI mode (clock polarity, phase, and shift direction)
@@ -159,11 +160,11 @@ uint8_t spi_get_module(spi_t *obj);
 
 /** Begin the SPI transfer. Buffer pointers and lengths are specified in tx_buff and rx_buff
  *
- * @param[in] obj       The SPI object which holds the transfer information
- * @param[in] tx        The buffer to send
- * @param[in] tx_length The number of words to transmit
- * @param[in] rx        The buffer to receive
- * @param[in] rx_length The number of words to receive
+ * @param[in] obj       The SPI object that holds the transfer information
+ * @param[in] tx        The transmit buffer
+ * @param[in] tx_length The number of bytes to transmit
+ * @param[in] rx        The receive buffer
+ * @param[in] rx_length The number of bytes to receive
  * @param[in] bit_width The bit width of buffer words
  * @param[in] event     The logical OR of events to be registered
  * @param[in] handler   SPI interrupt handler
@@ -175,12 +176,12 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
  *
  * Reads the received values out of the RX FIFO, writes values into the TX FIFO and checks for transfer termination
  * conditions, such as buffer overflows or transfer complete.
- * @param[in] obj     The SPI object which holds the transfer information
- * @return event flags if a transfer termination condition was met or 0 otherwise.
+ * @param[in] obj     The SPI object that holds the transfer information
+ * @return Event flags if a transfer termination condition was met; otherwise 0.
  */
 uint32_t spi_irq_handler_asynch(spi_t *obj);
 
-/** Attempts to determine if the SPI peripheral is already in use.
+/** Attempts to determine if the SPI peripheral is already in use
  *
  * If a temporary DMA channel has been allocated, peripheral is in use.
  * If a permanent DMA channel has been allocated, check if the DMA channel is in use.  If not, proceed as though no DMA
@@ -189,7 +190,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj);
  * if the corresponding buffer position is less than the buffer length.  If buffers do not indicate activity, check if
  * there are any bytes in the FIFOs.
  * @param[in] obj The SPI object to check for activity
- * @return non-zero if the SPI port is active or zero if it is not.
+ * @return Non-zero if the SPI port is active or zero if it is not.
  */
 uint8_t spi_active(spi_t *obj);
 

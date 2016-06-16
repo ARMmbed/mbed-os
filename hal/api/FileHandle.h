@@ -38,6 +38,8 @@ namespace mbed {
  *
  * No one ever directly tals to/instanciates a FileHandle - it gets
  *  created by FileSystem, and wrapped up by stdio.
+ *
+ * @Note Synchronization level: Set by subclass
  */
 class FileHandle {
 
@@ -101,17 +103,36 @@ public:
     virtual int fsync() = 0;
 
     virtual off_t flen() {
+        lock();
         /* remember our current position */
         off_t pos = lseek(0, SEEK_CUR);
-        if(pos == -1) return -1;
+        if(pos == -1) {
+            unlock();
+            return -1;
+        }
         /* seek to the end to get the file length */
         off_t res = lseek(0, SEEK_END);
         /* return to our old position */
         lseek(pos, SEEK_SET);
+        unlock();
         return res;
     }
 
     virtual ~FileHandle();
+
+protected:
+
+    /** Acquire exclusive access to this object.
+     */
+    virtual void lock() {
+        // Stub
+    }
+
+    /** Release exclusive access to this object.
+     */
+    virtual void unlock() {
+        // Stub
+    }
 };
 
 } // namespace mbed

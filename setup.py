@@ -16,17 +16,17 @@ DESCRIPTION = """A set of Python scripts that can be used to compile programs wr
 OWNER_NAMES = 'emilmont, bogdanm'
 OWNER_EMAILS = 'Emilio.Monti@arm.com, Bogdan.Marinescu@arm.com'
 
-# If private_settings.py exists in workspace_tools, read it in a temporary file
+# If mbed_settings.py exists in tools, read it in a temporary file
 # so it can be restored later
-private_settings = join('workspace_tools', 'private_settings.py')
+mbed_settings = join('mbed_settings.py')
 backup = None
-if isfile(private_settings):
+if isfile(mbed_settings):
     backup = TemporaryFile()
-    with open(private_settings, "rb") as f:
+    with open(mbed_settings, "rb") as f:
         copyfileobj(f, backup)
 
-# Create the correct private_settings.py for the distribution
-with open(private_settings, "wt") as f:
+# Create the correct mbed_settings.py for the distribution
+with open(mbed_settings, "wt") as f:
     f.write("from mbed_settings import *\n")
 
 setup(name='mbed-tools',
@@ -40,10 +40,10 @@ setup(name='mbed-tools',
       url='https://github.com/mbedmicro/mbed',
       packages=find_packages(),
       license=LICENSE,
-      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3", "colorama>=0.3.3", "Jinja2>=2.7.3", "project-generator>=0.8.11,<0.9.0", "junit-xml", "requests", "pyYAML"])
+      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3", "colorama>=0.3.3", "Jinja2>=2.7.3", "project-generator>=0.9.3,<0.10.0", "junit-xml", "requests", "pyYAML"])
 
-# Restore previous private_settings if needed
+# Restore previous mbed_settings if needed
 if backup:
     backup.seek(0)
-    with open(private_settings, "wb") as f:
+    with open(mbed_settings, "wb") as f:
         copyfileobj(backup, f)

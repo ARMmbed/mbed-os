@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_pwr.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of PWR HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,7 +102,7 @@ typedef struct
 /** @defgroup PWR_PVD_Mode  PWR PVD interrupt and event mode
   * @{
   */
-#define PWR_PVD_MODE_NORMAL                 ((uint32_t)0x00000000)   /*!< basic mode is used */
+#define PWR_PVD_MODE_NORMAL                 ((uint32_t)0x00000000)   /*!< Basic mode is used */
 #define PWR_PVD_MODE_IT_RISING              ((uint32_t)0x00010001)   /*!< External Interrupt Mode with Rising edge trigger detection */
 #define PWR_PVD_MODE_IT_FALLING             ((uint32_t)0x00010002)   /*!< External Interrupt Mode with Falling edge trigger detection */
 #define PWR_PVD_MODE_IT_RISING_FALLING      ((uint32_t)0x00010003)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
@@ -172,35 +172,37 @@ typedef struct
 /** @brief  Check whether or not a specific PWR flag is set.
   * @param  __FLAG__: specifies the flag to check.
   *           This parameter can be one of the following values:
-  *            @arg PWR_FLAG_WUF1: Wake Up Flag 1. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF1 Wake Up Flag 1. Indicates that a wakeup event
   *                  was received from the WKUP pin 1.
-  *            @arg PWR_FLAG_WUF2: Wake Up Flag 2. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF2 Wake Up Flag 2. Indicates that a wakeup event
   *                  was received from the WKUP pin 2.
-  *            @arg PWR_FLAG_WUF3: Wake Up Flag 3. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF3 Wake Up Flag 3. Indicates that a wakeup event
   *                  was received from the WKUP pin 3.
-  *            @arg PWR_FLAG_WUF4: Wake Up Flag 4. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF4 Wake Up Flag 4. Indicates that a wakeup event
   *                  was received from the WKUP pin 4.
-  *            @arg PWR_FLAG_WUF5: Wake Up Flag 5. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF5 Wake Up Flag 5. Indicates that a wakeup event
   *                  was received from the WKUP pin 5.          
-  *            @arg PWR_FLAG_SB: StandBy Flag. Indicates that the system
+  *            @arg @ref PWR_FLAG_SB StandBy Flag. Indicates that the system
   *                  entered StandBy mode.
-  *            @arg PWR_FLAG_WUFI: Wake-Up Flag Internal. Set when a wakeup is detected on
+  *            @arg @ref PWR_FLAG_WUFI Wake-Up Flag Internal. Set when a wakeup is detected on
   *                 the internal wakeup line.
-  *            @arg PWR_FLAG_REGLPS: Low Power Regulator Started. Indicates whether or not the 
+  *            @arg @ref PWR_FLAG_REGLPS Low Power Regulator Started. Indicates whether or not the 
   *                 low-power regulator is ready.
-  *            @arg PWR_FLAG_REGLPF: Low Power Regulator Flag. Indicates whether the 
+  *            @arg @ref PWR_FLAG_REGLPF Low Power Regulator Flag. Indicates whether the 
   *                 regulator is ready in main mode or is in low-power mode. 
-  *            @arg PWR_FLAG_VOSF: Voltage Scaling Flag. Indicates whether the regulator is ready 
+  *            @arg @ref PWR_FLAG_VOSF Voltage Scaling Flag. Indicates whether the regulator is ready 
   *                 in the selected voltage range or is still changing to the required voltage level.
-  *            @arg PWR_FLAG_PVDO: Power Voltage Detector Output. Indicates whether VDD voltage is
+  *            @arg @ref PWR_FLAG_PVDO Power Voltage Detector Output. Indicates whether VDD voltage is
   *                  below or above the selected PVD threshold.
-  *            @arg PWR_FLAG_PVMO1: Peripheral Voltage Monitoring Output 1. Indicates whether VDDUSB voltage is
+  *            @arg @ref PWR_FLAG_PVMO1 Peripheral Voltage Monitoring Output 1. Indicates whether VDDUSB voltage is
   *                  is below or above PVM1 threshold (applicable when USB feature is supported).
-  *            @arg PWR_FLAG_PVMO2: Peripheral Voltage Monitoring Output 2. Indicates whether VDDIO2 voltage is
+  @if STM32L486xx
+  *            @arg @ref PWR_FLAG_PVMO2 Peripheral Voltage Monitoring Output 2. Indicates whether VDDIO2 voltage is
   *                  is below or above PVM2 threshold (applicable when VDDIO2 is present on device). 
-  *            @arg PWR_FLAG_PVMO3: Peripheral Voltage Monitoring Output 3. Indicates whether VDDA voltage is
+  @endif
+  *            @arg @ref PWR_FLAG_PVMO3 Peripheral Voltage Monitoring Output 3. Indicates whether VDDA voltage is
   *                  is below or above PVM3 threshold. 
-  *            @arg PWR_FLAG_PVMO4: Peripheral Voltage Monitoring Output 4. Indicates whether VDDA voltage is
+  *            @arg @ref PWR_FLAG_PVMO4 Peripheral Voltage Monitoring Output 4. Indicates whether VDDA voltage is
   *                  is below or above PVM4 threshold.                           
   *    
   * @retval The new state of __FLAG__ (TRUE or FALSE).
@@ -212,18 +214,18 @@ typedef struct
 /** @brief  Clear a specific PWR flag.
   * @param  __FLAG__: specifies the flag to clear.
   *          This parameter can be one of the following values:
-  *            @arg PWR_FLAG_WUF1: Wake Up Flag 1. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF1 Wake Up Flag 1. Indicates that a wakeup event
   *                  was received from the WKUP pin 1.
-  *            @arg PWR_FLAG_WUF2: Wake Up Flag 2. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF2 Wake Up Flag 2. Indicates that a wakeup event
   *                  was received from the WKUP pin 2.
-  *            @arg PWR_FLAG_WUF3: Wake Up Flag 3. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF3 Wake Up Flag 3. Indicates that a wakeup event
   *                  was received from the WKUP pin 3.
-  *            @arg PWR_FLAG_WUF4: Wake Up Flag 4. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF4 Wake Up Flag 4. Indicates that a wakeup event
   *                  was received from the WKUP pin 4.
-  *            @arg PWR_FLAG_WUF5: Wake Up Flag 5. Indicates that a wakeup event
+  *            @arg @ref PWR_FLAG_WUF5 Wake Up Flag 5. Indicates that a wakeup event
   *                  was received from the WKUP pin 5.
-  *            @arg PWR_FLAG_WU: Encompasses all five Wake Up Flags.
-  *            @arg PWR_FLAG_SB: Standby Flag. Indicates that the system
+  *            @arg @ref PWR_FLAG_WU Encompasses all five Wake Up Flags.
+  *            @arg @ref PWR_FLAG_SB Standby Flag. Indicates that the system
   *                  entered Standby mode.
   * @retval None   
   */

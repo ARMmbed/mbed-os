@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -65,7 +65,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -111,7 +111,7 @@
 /** @addtogroup FLASH_Private_Constants
   * @{
   */
-#define FLASH_TIMEOUT_VALUE       ((uint32_t)50000)/* 50 s */
+#define FLASH_TIMEOUT_VALUE       ((uint32_t)50000U)/* 50 s */
 /**
   * @}
   */         
@@ -136,7 +136,6 @@ static void   FLASH_Program_Word(uint32_t Address, uint32_t Data);
 static void   FLASH_Program_HalfWord(uint32_t Address, uint16_t Data);
 static void   FLASH_Program_Byte(uint32_t Address, uint8_t Data);
 static void   FLASH_SetErrorCode(void);
-extern void   FLASH_FlushCaches(void);
 
 HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout);
 /**
@@ -279,7 +278,7 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
   */
 void HAL_FLASH_IRQHandler(void)
 {
-  uint32_t addresstmp = 0;
+  uint32_t addresstmp = 0U;
   
   /* Check FLASH operation error flags */
   if(__HAL_FLASH_GET_FLAG((FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | \
@@ -289,7 +288,7 @@ void HAL_FLASH_IRQHandler(void)
     {
       /*return the faulty sector*/
       addresstmp = pFlash.Sector;
-      pFlash.Sector = 0xFFFFFFFF;
+      pFlash.Sector = 0xFFFFFFFFU;
     }
     else if(pFlash.ProcedureOnGoing == FLASH_PROC_MASSERASE)
     {
@@ -324,7 +323,7 @@ void HAL_FLASH_IRQHandler(void)
       pFlash.NbSectorsToErase--;
       
       /* Check if there are still sectors to erase*/
-      if(pFlash.NbSectorsToErase != 0)
+      if(pFlash.NbSectorsToErase != 0U)
       {
         addresstmp = pFlash.Sector;
         /*Indicate user which sector has been erased*/
@@ -339,7 +338,7 @@ void HAL_FLASH_IRQHandler(void)
       {
         /*No more sectors to Erase, user callback can be called.*/
         /*Reset Sector and stop Erase sectors procedure*/
-        pFlash.Sector = addresstmp = 0xFFFFFFFF;
+        pFlash.Sector = addresstmp = 0xFFFFFFFFU;
         pFlash.ProcedureOnGoing = FLASH_PROC_NONE;
         
         /* Flush the caches to be sure of the data consistency */
@@ -391,12 +390,14 @@ void HAL_FLASH_IRQHandler(void)
   * @param  ReturnValue: The value saved in this parameter depends on the ongoing procedure
   *                  Mass Erase: Bank number which has been requested to erase
   *                  Sectors Erase: Sector which has been erased 
-  *                    (if 0xFFFFFFFF, it means that all the selected sectors have been erased)
+  *                    (if 0xFFFFFFFFU, it means that all the selected sectors have been erased)
   *                  Program: Address which was selected for data program
   * @retval None
   */
 __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_EndOfOperationCallback could be implemented in the user file
    */ 
@@ -412,6 +413,8 @@ __weak void HAL_FLASH_EndOfOperationCallback(uint32_t ReturnValue)
   */
 __weak void HAL_FLASH_OperationErrorCallback(uint32_t ReturnValue)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(ReturnValue);
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_FLASH_OperationErrorCallback could be implemented in the user file
    */ 
@@ -557,7 +560,7 @@ uint32_t HAL_FLASH_GetError(void)
   */
 HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
 { 
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Clear Error Code */
   pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
@@ -572,7 +575,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
   { 
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         return HAL_TIMEOUT;
       }
@@ -602,7 +605,7 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
 /**
   * @brief  Program a double word (64-bit) at a specified address.
   * @note   This function must be used when the device voltage range is from
-  *         2.7V to 3.6V and an External Vpp is present.
+  *         2.7V to 3.6V and Vpp in the range 7V to 9V.
   *
   * @note   If an erase and a program operations are requested simultaneously,    
   *         the erase operation is performed before the program one.
@@ -653,7 +656,7 @@ static void FLASH_Program_Word(uint32_t Address, uint32_t Data)
 /**
   * @brief  Program a half-word (16-bit) at a specified address.
   * @note   This function must be used when the device voltage range is from
-  *         2.7V to 3.6V.
+  *         2.1V to 3.6V.
   *
   * @note   If an erase and a program operations are requested simultaneously,    
   *         the erase operation is performed before the program one.
@@ -678,7 +681,7 @@ static void FLASH_Program_HalfWord(uint32_t Address, uint16_t Data)
 /**
   * @brief  Program byte (8-bit) at a specified address.
   * @note   This function must be used when the device voltage range is from
-  *         2.7V to 3.6V.
+  *         1.8V to 3.6V.
   *
   * @note   If an erase and a program operations are requested simultaneously,    
   *         the erase operation is performed before the program one.

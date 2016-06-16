@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    system_stm32l4xx.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.1.1
+  * @date    29-April-2016
   * @brief   CMSIS Cortex-M4 Device System Source File for STM32L4xx devices.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -62,10 +62,10 @@
   */
 
 
-/** @addtogroup STM32L4xx_System_Exported_types
+/** @addtogroup STM32L4xx_System_Exported_Variables
   * @{
   */
-  /* This variable is updated in three ways:
+  /* The SystemCoreClock variable is updated in three ways:
       1) by calling CMSIS function SystemCoreClockUpdate()
       2) by calling HAL API function HAL_RCC_GetSysClockFreq()
       3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
@@ -76,6 +76,7 @@
 extern uint32_t SystemCoreClock;            /*!< System Clock Frequency (Core Clock) */
 
 extern const uint8_t AHBPrescTable[16];     /*!< AHB prescalers table values */
+extern const uint8_t  APBPrescTable[8];     /*!< APB prescalers table values */
 extern const uint32_t MSIRangeTable[12];    /*!< MSI ranges table values     */
 
 /**

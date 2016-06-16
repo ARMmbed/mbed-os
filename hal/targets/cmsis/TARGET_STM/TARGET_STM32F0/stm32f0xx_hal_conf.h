@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -93,7 +93,7 @@
   *        Timeout value 
   */
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    ((uint32_t)200)   /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    ((uint32_t)100)   /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -110,7 +110,7 @@
   *        Timeout value 
   */
 #if !defined  (HSI_STARTUP_TIMEOUT) 
- #define HSI_STARTUP_TIMEOUT   ((uint32_t)100) /*!< Time out for HSI start up */
+ #define HSI_STARTUP_TIMEOUT   ((uint32_t)5000) /*!< Time out for HSI start up */
 #endif /* HSI_STARTUP_TIMEOUT */  
 
 /**
@@ -144,11 +144,14 @@
   */
 #if !defined  (LSE_VALUE)
  #define LSE_VALUE  ((uint32_t)32768)    /*!< Value of the External Low Speed oscillator in Hz */
-#endif /* LSE_VALUE */     
+#endif /* LSE_VALUE */
 
+/**
+  * @brief Time out for LSE start up value in ms.
+  */
 #if !defined  (LSE_STARTUP_TIMEOUT)
- #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000)   /*!< Time out for LSE start up, in ms */
-#endif /* HSE_STARTUP_TIMEOUT */
+  #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000)   /*!< Time out for LSE start up, in ms */
+#endif /* LSE_STARTUP_TIMEOUT */
 
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
@@ -293,11 +296,11 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  #define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
+  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
 /* Exported functions ------------------------------------------------------- */
   void assert_failed(uint8_t* file, uint32_t line);
 #else
-  #define assert_param(expr) ((void)0)
+  #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */    
     
 #ifdef __cplusplus

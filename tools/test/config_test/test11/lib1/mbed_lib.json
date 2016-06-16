@@ -1,0 +1,14 @@
+{
+    "name": "lib1",
+    "config": {
+        "p1": "v_p1_lib1",
+        "p2": "v_p2_lib1",
+        "p3": "v_p3_lib1"
+    },
+    "target_overrides": {
+        "K64F": {
+            "p1": "v_p1_lib1[b1_label]",
+            "lib2.p1": "dummy"
+        }
+    }
+}

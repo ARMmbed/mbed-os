@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_dac_ex.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of DAC HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -110,7 +110,16 @@
 /** @defgroup DACEx_Private_Macros DACEx Private Macros
   * @{
   */
-
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx)
+#define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE) || \
+                                 ((TRIGGER) == DAC_TRIGGER_T2_TRGO) || \
+                                 ((TRIGGER) == DAC_TRIGGER_T6_TRGO) || \
+                                 ((TRIGGER) == DAC_TRIGGER_T7_TRGO) || \
+                                 ((TRIGGER) == DAC_TRIGGER_EXT_IT9) || \
+                                 ((TRIGGER) == DAC_TRIGGER_SOFTWARE))      
+#endif     /* STM32L431xx STM32L432xx STM32L433xx STM32L442xx STM32L443xx */    
+    
+#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
 #define IS_DAC_TRIGGER(TRIGGER) (((TRIGGER) == DAC_TRIGGER_NONE) || \
                                  ((TRIGGER) == DAC_TRIGGER_T2_TRGO) || \
                                  ((TRIGGER) == DAC_TRIGGER_T4_TRGO) || \
@@ -120,6 +129,7 @@
                                  ((TRIGGER) == DAC_TRIGGER_T8_TRGO) || \
                                  ((TRIGGER) == DAC_TRIGGER_EXT_IT9) || \
                                  ((TRIGGER) == DAC_TRIGGER_SOFTWARE))      
+#endif     /* STM32L471xx STM32L475xx STM32L476xx STM32L485xx STM32L486xx */
 
 #define IS_DAC_SAMPLETIME(TIME) ((TIME) <= 0x0000003FF)
 

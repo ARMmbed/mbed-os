@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_sdmmc.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   SDMMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -21,13 +21,6 @@
          peripheral bus and MultiMedia cards (MMCs), SD memory cards, SDIO cards and CE-ATA
          devices.
 
-    [..] The MultiMedia Card system specifications are available through the MultiMedia Card
-         Association website at www.mmca.org, published by the MMCA technical committee.
-         SD memory card and SD I/O card system specifications are available through the SD card
-         Association website at www.sdcard.org.
-         CE-ATA system specifications are available through the CE-ATA work group web site at
-         www.ce-ata.org.
-    
     [..] The SDIO features include the following:
          (+) Full compliance with MultiMedia Card System Specification Version 4.2. Card support
              for three different databus modes: 1-bit (default), 4-bit and 8-bit
@@ -65,8 +58,8 @@
       (+) Enable/Disable peripheral clock using RCC peripheral macros related to SDIO
           peripheral.
 
-      (+) Enable the Power ON State using the SDIO_PowerState_ON(hsdio) 
-          function and disable it using the function SDIO_PowerState_OFF(hsdio).
+      (+) Enable the Power ON State using the SDIO_PowerState_ON(SDIOx) 
+          function and disable it using the function SDIO_PowerState_OFF(SDIOx).
                 
       (+) Enable/Disable the clock using the __SDIO_ENABLE()/__SDIO_DISABLE() macros.
   
@@ -80,7 +73,7 @@
                __SDIO_DMA_DISABLE().
   
       (+) To control the CPSM (Command Path State Machine) and send 
-          commands to the card use the SDIO_SendCommand(), 
+          commands to the card use the SDIO_SendCommand(SDIOx), 
           SDIO_GetCommandResponse() and SDIO_GetResponse() functions. First, user has
           to fill the command structure (pointer to SDIO_CmdInitTypeDef) according 
           to the selected command to be sent.
@@ -106,7 +99,7 @@
       (#) First, user has to fill the data structure (pointer to
           SDIO_DataInitTypeDef) according to the selected data type to be received.
           The parameters that should be filled are:
-           (++) Data TimeOut
+           (++) Data Timeout
            (++) Data Length
            (++) Data Block size
            (++) Data Transfer direction: should be from card (To SDIO)
@@ -126,7 +119,7 @@
      (#) First, user has to fill the data structure (pointer to
          SDIO_DataInitTypeDef) according to the selected data type to be received.
          The parameters that should be filled are:
-          (++) Data TimeOut
+          (++) Data Timeout
           (++) Data Length
           (++) Data Block size
           (++) Data Transfer direction:  should be to card (To CARD)
@@ -144,7 +137,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -245,8 +238,6 @@ HAL_StatusTypeDef SDIO_Init(SDIO_TypeDef *SDIOx, SDIO_InitTypeDef Init)
 
   return HAL_OK;
 }
-
-
 
 /**
   * @}
@@ -437,7 +428,7 @@ HAL_StatusTypeDef SDIO_DataConfig(SDIO_TypeDef *SDIOx, SDIO_DataInitTypeDef* SDI
   assert_param(IS_SDIO_TRANSFER_MODE(SDIO_DataInitStruct->TransferMode));
   assert_param(IS_SDIO_DPSM(SDIO_DataInitStruct->DPSM));
 
-  /* Set the SDIO Data TimeOut value */
+  /* Set the SDIO Data Timeout value */
   SDIOx->DTIMER = SDIO_DataInitStruct->DataTimeOut;
 
   /* Set the SDIO DataLength value */
@@ -468,7 +459,7 @@ uint32_t SDIO_GetDataCounter(SDIO_TypeDef *SDIOx)
 
 /**
   * @brief  Get the FIFO data
-  * @param  SDIOx: Pointer to SDIO register base
+  * @param  SDIOx: Pointer to SDIO register base 
   * @retval Data received
   */
 uint32_t SDIO_GetFIFOCount(SDIO_TypeDef *SDIOx)
@@ -495,7 +486,6 @@ HAL_StatusTypeDef SDIO_SetSDIOReadWaitMode(uint32_t SDIO_ReadWaitMode)
   return HAL_OK;  
 }
 
-
 /**
   * @}
   */
@@ -507,7 +497,6 @@ HAL_StatusTypeDef SDIO_SetSDIOReadWaitMode(uint32_t SDIO_ReadWaitMode)
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD */
 
 #endif /* (HAL_SD_MODULE_ENABLED) || (HAL_MMC_MODULE_ENABLED) */
-
 /**
   * @}
   */

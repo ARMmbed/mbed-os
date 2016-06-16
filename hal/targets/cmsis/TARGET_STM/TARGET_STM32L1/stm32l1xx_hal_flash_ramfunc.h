@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash_ramfunc.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of FLASH RAMFUNC driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,7 +50,7 @@
   * @{
   */
 
-/** @addtogroup FLASHRamfunc
+/** @addtogroup FLASH_RAMFUNC
   * @{
   */ 
 
@@ -59,7 +59,7 @@
 
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup FLASHRamfunc_Exported_Functions
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions
   * @{
   */
 
@@ -69,7 +69,7 @@
   *         file.
   */
   
-/** @addtogroup FLASHRamfunc_Exported_Functions_Group1
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group1
   * @{
   */
 
@@ -80,17 +80,16 @@ __RAM_FUNC HAL_FLASHEx_DisableRunPowerDown(void);
   * @}
   */ 
 
-/** @addtogroup FLASHRamfunc_Exported_Functions_Group2
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group2
   * @{
   */
 
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD) || \
-    defined(STM32L151xE) || defined (STM32L152xE) || defined (STM32L162xE)
+#if defined(FLASH_PECR_PARALLBANK)
 
 __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_Address2);
 __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuffer1, uint32_t Address2, uint32_t* pBuffer2);
 
-#endif /* STM32L151xD || STM32L152xD || STM32L162xD || STM32L151xE || STM32L152xE || STM32L162xE */
+#endif /* FLASH_PECR_PARALLBANK */
 
 __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer);
 
@@ -98,7 +97,7 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer);
   * @}
   */ 
 
-/** @addtogroup FLASHRamfunc_Exported_Functions_Group3
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group3
   * @{
   */
 

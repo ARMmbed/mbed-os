@@ -19,10 +19,13 @@
 #include "platform.h"
 
 #include "gpio_api.h"
+#include "critical.h"
 
 namespace mbed {
 
 /** A digital input, used for reading the state of a pin
+ *
+ * @Note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -51,6 +54,7 @@ public:
      *  @param pin DigitalIn pin to connect to
      */
     DigitalIn(PinName pin) : gpio() {
+        // No lock needed in the constructor
         gpio_init_in(&gpio, pin);
     }
 
@@ -60,6 +64,7 @@ public:
      *  @param mode the initial mode of the pin
      */
     DigitalIn(PinName pin, PinMode mode) : gpio() {
+        // No lock needed in the constructor
         gpio_init_in_ex(&gpio, pin, mode);
     }
     /** Read the input, represented as 0 or 1 (int)
@@ -69,6 +74,7 @@ public:
      *    0 for logical 0, 1 for logical 1
      */
     int read() {
+        // Thread safe / atomic HAL call
         return gpio_read(&gpio);
     }
 
@@ -77,7 +83,9 @@ public:
      *  @param mode PullUp, PullDown, PullNone, OpenDrain
      */
     void mode(PinMode pull) {
+        core_util_critical_section_enter();
         gpio_mode(&gpio, pull);
+        core_util_critical_section_exit();
     }
 
     /** Return the output setting, represented as 0 or 1 (int)
@@ -87,6 +95,7 @@ public:
      *    0 if gpio object was initialized with NC
      */
     int is_connected() {
+        // Thread safe / atomic HAL call
         return gpio_is_connected(&gpio);
     }
 
@@ -94,6 +103,7 @@ public:
     /** An operator shorthand for read()
      */
     operator int() {
+        // Underlying read is thread safe
         return read();
     }
 #endif

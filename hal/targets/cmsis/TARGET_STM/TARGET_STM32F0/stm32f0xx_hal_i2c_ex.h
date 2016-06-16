@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of I2C HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,21 +50,21 @@
   * @{
   */
 
-/** @addtogroup I2CEx I2CEx
+/** @addtogroup I2CEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/ 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup I2CEx_Exported_Constants I2CEx Exported Constants
+/** @defgroup I2CEx_Exported_Constants I2C Extended Exported Constants
   * @{
   */
 
-/** @defgroup I2CEx_Analog_Filter I2CEx Analog Filter
+/** @defgroup I2CEx_Analog_Filter I2C Extended Analog Filter
   * @{
   */
-#define I2C_ANALOGFILTER_ENABLE         ((uint32_t)0x00000000)
+#define I2C_ANALOGFILTER_ENABLE         (0x00000000U)
 #define I2C_ANALOGFILTER_DISABLE        I2C_CR1_ANFOFF
 /**
   * @}
@@ -120,7 +120,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
 
-/** @addtogroup I2CEx_Exported_Functions
+/** @addtogroup I2CEx_Exported_Functions I2C Extended Exported Functions
   * @{
   */
 
@@ -155,7 +155,7 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
 #define IS_I2C_ANALOG_FILTER(FILTER)    (((FILTER) == I2C_ANALOGFILTER_ENABLE) || \
                                          ((FILTER) == I2C_ANALOGFILTER_DISABLE))
 
-#define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000F)
+#define IS_I2C_DIGITAL_FILTER(FILTER)   ((FILTER) <= 0x0000000FU)
 
 #if defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F042x6) || defined(STM32F048xx)
 #define IS_I2C_FASTMODEPLUS(__CONFIG__) ((((__CONFIG__) & (I2C_FASTMODEPLUS_PA9)) == I2C_FASTMODEPLUS_PA9)   || \

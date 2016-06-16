@@ -25,6 +25,7 @@
 #include "peripheral_clock_defines.h"
 #include "PeripheralPins.h"
 
+/* 7 bit IIC addr - R/W flag not included */
 static int i2c_address = 0;
 /* Array of I2C peripheral base address. */
 static I2C_Type *const i2c_addrs[] = I2C_BASE_PTRS;
@@ -35,6 +36,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
+    obj->next_repeated_start = 0;
     MBED_ASSERT((int)obj->instance != NC);
 
     i2c_master_config_t master_config;
@@ -77,6 +79,7 @@ int i2c_start(i2c_t *obj) {
 
 int i2c_stop(i2c_t *obj) {
     if (I2C_MasterStop(i2c_addrs[obj->instance]) != kStatus_Success) {
+        obj->next_repeated_start = 0;
         return 1;
     }
 
@@ -94,12 +97,19 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     I2C_Type *base = i2c_addrs[obj->instance];
     i2c_master_transfer_t master_xfer;
 
-    i2c_address = address;
+    i2c_address = address >> 1;
     memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = address;
+    master_xfer.slaveAddress = address >> 1;
     master_xfer.direction = kI2C_Read;
     master_xfer.data = (uint8_t *)data;
     master_xfer.dataSize = length;
+    if (obj->next_repeated_start) {
+        master_xfer.flags |= kI2C_TransferRepeatedStartFlag;
+    }
+    if (!stop) {
+        master_xfer.flags |= kI2C_TransferNoStopFlag;
+    }
+    obj->next_repeated_start = master_xfer.flags & kI2C_TransferNoStopFlag ? 1 : 0;
 
     /* The below function will issue a STOP signal at the end of the transfer.
      * This is required by the hardware in order to receive the last byte
@@ -116,12 +126,17 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     i2c_master_transfer_t master_xfer;
 
     memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = address;
+    master_xfer.slaveAddress = address >> 1;
     master_xfer.direction = kI2C_Write;
     master_xfer.data = (uint8_t *)data;
     master_xfer.dataSize = length;
-    if (!stop)
-        master_xfer.flags = kI2C_TransferNoStopFlag;
+    if (obj->next_repeated_start) {
+        master_xfer.flags |= kI2C_TransferRepeatedStartFlag;
+    }
+    if (!stop) {
+        master_xfer.flags |= kI2C_TransferNoStopFlag;
+    }
+    obj->next_repeated_start = master_xfer.flags & kI2C_TransferNoStopFlag ? 1 : 0;
 
     if (I2C_MasterTransferBlocking(base, &master_xfer) != kStatus_Success) {
         return I2C_ERROR_NO_SLAVE;

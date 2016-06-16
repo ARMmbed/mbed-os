@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_lcd.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of LCD Controller HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -48,8 +48,8 @@
   */
 
 #if defined (STM32L100xB) || defined (STM32L100xBA) || defined (STM32L100xC) ||\
-    defined (STM32L152xB) || defined (STM32L152xBA) || defined (STM32L152xC) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L152xE) ||\
-    defined (STM32L162xC) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L162xE)
+    defined (STM32L152xB) || defined (STM32L152xBA) || defined (STM32L152xC) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L152xE) || defined (STM32L152xDX) ||\
+    defined (STM32L162xC) || defined (STM32L162xCA) || defined (STM32L162xD) || defined (STM32L162xE) || defined (STM32L162xDX)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l1xx_hal_def.h"
@@ -86,6 +86,8 @@ typedef struct
                                  This parameter can be one value of @ref LCD_DeadTime */
   uint32_t PulseOnDuration; /*!< Configures the LCD Pulse On Duration.
                                  This parameter can be one value of @ref LCD_PulseOnDuration */
+  uint32_t HighDrive;      /*!< Configures the LCD High Drive.
+                                 This parameter can be one value of @ref LCD_HighDrive */
   uint32_t BlinkMode;       /*!< Configures the LCD Blink Mode.
                                  This parameter can be one value of @ref LCD_BlinkMode */
   uint32_t BlinkFrequency;  /*!< Configures the LCD Blink frequency.
@@ -107,19 +109,6 @@ typedef enum
 }HAL_LCD_StateTypeDef;
 
 /** 
-  * @brief  HAL LCD Error Code structure definition
-  */ 
-typedef enum
-{
-  HAL_LCD_ERROR_NONE      = 0x00,    /*!< No error */
-  HAL_LCD_ERROR_FCRSF     = 0x01,    /*!< Synchro flag timeout error */
-  HAL_LCD_ERROR_UDR       = 0x02,    /*!< Update display request flag timeout error */
-  HAL_LCD_ERROR_UDD       = 0x04,    /*!< Update display done flag timeout error */
-  HAL_LCD_ERROR_ENS       = 0x08,    /*!< LCD enabled status flag timeout error */
-  HAL_LCD_ERROR_RDY       = 0x10     /*!< LCD Booster ready timeout error */
-}HAL_LCD_ErrorTypeDef;
-
-/** 
   * @brief  UART handle Structure definition
   */  
 typedef struct
@@ -132,7 +121,7 @@ typedef struct
 
   __IO HAL_LCD_StateTypeDef     State;      /* LCD communication state */
   
-  __IO HAL_LCD_ErrorTypeDef     ErrorCode;  /* LCD Error code */
+  __IO uint32_t                 ErrorCode;  /* LCD Error code */
   
 }LCD_HandleTypeDef;
 
@@ -144,6 +133,21 @@ typedef struct
 
 /** @defgroup LCD_Exported_Constants LCD Exported Constants
   * @{
+  */
+
+/** @defgroup LCD_Error_Codes   LCD Error Codes
+  * @{
+  */
+
+#define HAL_LCD_ERROR_NONE      ((uint32_t)0x00)    /*!< No error */
+#define HAL_LCD_ERROR_FCRSF     ((uint32_t)0x01)    /*!< Synchro flag timeout error */
+#define HAL_LCD_ERROR_UDR       ((uint32_t)0x02)    /*!< Update display request flag timeout error */
+#define HAL_LCD_ERROR_UDD       ((uint32_t)0x04)    /*!< Update display done flag timeout error */
+#define HAL_LCD_ERROR_ENS       ((uint32_t)0x08)    /*!< LCD enabled status flag timeout error */
+#define HAL_LCD_ERROR_RDY       ((uint32_t)0x10)    /*!< LCD Booster ready timeout error */
+
+/**
+  * @}
   */
 
 /** @defgroup LCD_Prescaler LCD Prescaler
@@ -316,6 +320,18 @@ typedef struct
   * @}
   */
 
+/** @defgroup LCD_HighDrive LCD HighDrive
+  * @{
+  */
+
+#define LCD_HIGHDRIVE_0           ((uint32_t)0x00000000)          /*!< Low resistance Drive   */
+#define LCD_HIGHDRIVE_1           (LCD_FCR_HD)                    /*!< High resistance Drive  */
+
+#define IS_LCD_HIGHDRIVE(__HIGHDRIVE__) (((__HIGHDRIVE__) == LCD_HIGHDRIVE_0) || \
+                                         ((__HIGHDRIVE__) == LCD_HIGHDRIVE_1))
+/**
+  * @}
+  */
 
 /** @defgroup LCD_DeadTime LCD Dead Time
   * @{
@@ -748,7 +764,7 @@ HAL_StatusTypeDef     LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd);
   * @}
   */
 
-#endif /* STM32L100xB || STM32L100xBA || STM32L100xC ||... || STM32L162xD || STM32L162xE */
+#endif /* STM32L100xB || STM32L100xBA || STM32L100xC ||... || STM32L162xD || STM32L162xE || STM32L162xDX */
 
 /**
   * @}
@@ -760,4 +776,4 @@ HAL_StatusTypeDef     LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd);
 
 #endif /* __STM32L1xx_HAL_LCD_H */
 
-/******************* (C) COPYRIGHT 2014 STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

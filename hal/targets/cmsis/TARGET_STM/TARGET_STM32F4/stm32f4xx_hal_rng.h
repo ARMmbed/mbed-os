@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_rng.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of RNG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -46,7 +46,8 @@
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F469xx) ||\
-    defined(STM32F479xx) 
+    defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
+    defined(STM32F412Cx)
       
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
@@ -71,11 +72,11 @@
   */
 typedef enum
 {
-  HAL_RNG_STATE_RESET     = 0x00,  /*!< RNG not yet initialized or disabled */
-  HAL_RNG_STATE_READY     = 0x01,  /*!< RNG initialized and ready for use   */
-  HAL_RNG_STATE_BUSY      = 0x02,  /*!< RNG internal process is ongoing     */ 
-  HAL_RNG_STATE_TIMEOUT   = 0x03,  /*!< RNG timeout state                   */
-  HAL_RNG_STATE_ERROR     = 0x04   /*!< RNG error state                     */
+  HAL_RNG_STATE_RESET     = 0x00U,  /*!< RNG not yet initialized or disabled */
+  HAL_RNG_STATE_READY     = 0x01U,  /*!< RNG initialized and ready for use   */
+  HAL_RNG_STATE_BUSY      = 0x02U,  /*!< RNG internal process is ongoing     */ 
+  HAL_RNG_STATE_TIMEOUT   = 0x03U,  /*!< RNG timeout state                   */
+  HAL_RNG_STATE_ERROR     = 0x04U   /*!< RNG error state                     */
     
 }HAL_RNG_StateTypeDef;
 
@@ -355,7 +356,8 @@ HAL_RNG_StateTypeDef HAL_RNG_GetState(RNG_HandleTypeDef *hrng);
   */ 
 
 #endif /* STM32F405xx || STM32F415xx || STM32F407xx || STM32F417xx || STM32F427xx || STM32F437xx ||\
-          STM32F429xx || STM32F439xx || STM32F410xx || STM32F469xx || STM32F479xx  */
+          STM32F429xx || STM32F439xx || STM32F410xx || STM32F469xx || STM32F479xx || STM32F412Zx ||\
+          STM32F412Vx || STM32F412Rx || STM32F412Cx */
 
 #ifdef __cplusplus
 }

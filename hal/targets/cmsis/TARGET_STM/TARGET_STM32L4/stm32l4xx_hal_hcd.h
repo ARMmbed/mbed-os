@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_hcd.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   Header file of HCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -193,7 +193,7 @@ HAL_StatusTypeDef       HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
                                                  uint8_t do_ping);
 
  /* Non-Blocking mode: Interrupt */
-void                    HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd);
+void             HAL_HCD_IRQHandler(HCD_HandleTypeDef *hhcd);
 void             HAL_HCD_SOF_Callback(HCD_HandleTypeDef *hhcd);
 void             HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd);
 void             HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd);
@@ -249,7 +249,7 @@ uint32_t                HAL_HCD_GetCurrentSpeed(HCD_HandleTypeDef *hhcd);
 /**
   * @}
   */
-
+  
 #endif /* STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx */
   
 #ifdef __cplusplus

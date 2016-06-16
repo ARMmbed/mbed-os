@@ -112,7 +112,7 @@ SECTIONS
         __data_end__ = .;
         _edata = .;
 
-    } > SRAM2
+    } > SRAM1
 
     .bss :
     {
@@ -124,7 +124,7 @@ SECTIONS
         . = ALIGN(4);
         __bss_end__ = .;
         _ebss = .;
-    } > SRAM2
+    } > SRAM1
 
     .heap (COPY):
     {
@@ -132,7 +132,7 @@ SECTIONS
         end = __end__;
         *(.heap*)
         __HeapLimit = .;
-    } > SRAM2
+    } > SRAM1
 
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
@@ -144,7 +144,7 @@ SECTIONS
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
-    __StackTop = ORIGIN(SRAM2) + LENGTH(SRAM2);
+    __StackTop = ORIGIN(SRAM1) + LENGTH(SRAM1);
     _estack = __StackTop;
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);

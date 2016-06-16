@@ -48,7 +48,8 @@ typedef enum {
 
 typedef enum {
     UART_1 = (int)USART1_BASE,
-    UART_2 = (int)USART2_BASE
+    UART_2 = (int)USART2_BASE,
+    UART_3 = (int)USART3_BASE // defined for compilation issue. UART3 is not present on STM32F303K8
 } UARTName;
 
 #define STDIO_UART_TX  PA_2
@@ -71,6 +72,10 @@ typedef enum {
     PWM_16 = (int)TIM16_BASE,
     PWM_17 = (int)TIM17_BASE
 } PWMName;
+
+typedef enum {
+    CAN_1 = (int)CAN_BASE
+} CANName;
 
 #ifdef __cplusplus
 }

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   Header file of PWR HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@
   */
 #if defined(STM32F405xx) || defined(STM32F407xx) || defined(STM32F415xx) || defined(STM32F417xx)   
 #define PWR_REGULATOR_VOLTAGE_SCALE1         PWR_CR_VOS             /* Scale 1 mode(default value at reset): the maximum value of fHCLK = 168 MHz. */
-#define PWR_REGULATOR_VOLTAGE_SCALE2         ((uint32_t)0x00000000) /* Scale 2 mode: the maximum value of fHCLK = 144 MHz. */
+#define PWR_REGULATOR_VOLTAGE_SCALE2         ((uint32_t)0x00000000U) /* Scale 2 mode: the maximum value of fHCLK = 144 MHz. */
 #else
 #define PWR_REGULATOR_VOLTAGE_SCALE1         PWR_CR_VOS             /* Scale 1 mode(default value at reset): the maximum value of fHCLK is 168 MHz. It can be extended to
                                                                        180 MHz by activating the over-drive mode. */
@@ -98,18 +98,21 @@
 /**
   * @}
   */
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx)   
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx)
 /** @defgroup PWREx_WakeUp_Pins PWREx WakeUp Pins
   * @{
   */
-#define PWR_WAKEUP_PIN2                 ((uint32_t)0x00000080)
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)    
-#define PWR_WAKEUP_PIN3                 ((uint32_t)0x00000040)
-#endif /* STM32F410xx  */
+#define PWR_WAKEUP_PIN2                 ((uint32_t)0x00000080U)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+    defined(STM32F412Rx) || defined(STM32F412Cx) 
+#define PWR_WAKEUP_PIN3                 ((uint32_t)0x00000040U)
+#endif /* STM32F410xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Zx || STM32F412Vx || \
+          STM32F412Rx || STM32F412Cx */
 /**
   * @}
   */   
-#endif /* STM32F410xx || STM32F446xx  */
+#endif /* STM32F410xx || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
 
 /**
   * @}
@@ -131,12 +134,12 @@
   * @retval None
   */
 #define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
-                                                            __IO uint32_t tmpreg;                               \
+                                                            __IO uint32_t tmpreg = 0x00U;                        \
                                                             MODIFY_REG(PWR->CR, PWR_CR_VOS, (__REGULATOR__));   \
                                                             /* Delay after an RCC peripheral clock enabling */  \
                                                             tmpreg = READ_BIT(PWR->CR, PWR_CR_VOS);             \
                                                             UNUSED(tmpreg);                                     \
-				                           } while(0)
+                                                          } while(0)
 #else
 /** @brief  macros configure the main internal regulator output voltage.
   * @param  __REGULATOR__: specifies the regulator output voltage to achieve
@@ -149,12 +152,12 @@
   * @retval None
   */
 #define __HAL_PWR_VOLTAGESCALING_CONFIG(__REGULATOR__) do {                                                     \
-                                                            __IO uint32_t tmpreg;                               \
+                                                            __IO uint32_t tmpreg = 0x00U;                        \
                                                             MODIFY_REG(PWR->CR, PWR_CR_VOS, (__REGULATOR__));   \
                                                             /* Delay after an RCC peripheral clock enabling */  \
                                                             tmpreg = READ_BIT(PWR->CR, PWR_CR_VOS);             \
                                                             UNUSED(tmpreg);                                     \
-				                           } while(0)
+                                                          } while(0)
 #endif /* STM32F405xx || STM32F407xx || STM32F415xx || STM32F417xx */ 
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
@@ -229,12 +232,14 @@ void HAL_PWREx_EnableWakeUpPinPolarityFallingEdge(void);
 #endif /* STM32F469xx || STM32F479xx */
 
 #if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F401xC) ||\
-    defined(STM32F401xE) || defined(STM32F411xE) 
+    defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F412Zx) || defined(STM32F412Vx) ||\
+    defined(STM32F412Rx) || defined(STM32F412Cx)
 void HAL_PWREx_EnableMainRegulatorLowVoltage(void);
 void HAL_PWREx_DisableMainRegulatorLowVoltage(void);
 void HAL_PWREx_EnableLowRegulatorLowVoltage(void);
 void HAL_PWREx_DisableLowRegulatorLowVoltage(void);
-#endif /* STM32F410xx || STM32F401xC || STM32F401xE || STM32F411xE  */
+#endif /* STM32F410xx || STM32F401xC || STM32F401xE || STM32F411xE || STM32F412Zx || STM32F412Vx ||\
+          STM32F412Rx || STM32F412Cx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) || defined(STM32F446xx) ||\
     defined(STM32F469xx) || defined(STM32F479xx)
@@ -264,23 +269,23 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
 /* --- CR Register ---*/
 /* Alias word address of FPDS bit */
 #define FPDS_BIT_NUMBER          POSITION_VAL(PWR_CR_FPDS)
-#define CR_FPDS_BB               (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32) + (FPDS_BIT_NUMBER * 4))
+#define CR_FPDS_BB               (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32U) + (FPDS_BIT_NUMBER * 4U))
 
 /* Alias word address of ODEN bit   */
 #define ODEN_BIT_NUMBER          POSITION_VAL(PWR_CR_ODEN)
-#define CR_ODEN_BB               (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32) + (ODEN_BIT_NUMBER * 4))
+#define CR_ODEN_BB               (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32U) + (ODEN_BIT_NUMBER * 4U))
 
 /* Alias word address of ODSWEN bit */
 #define ODSWEN_BIT_NUMBER        POSITION_VAL(PWR_CR_ODSWEN)
-#define CR_ODSWEN_BB             (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32) + (ODSWEN_BIT_NUMBER * 4))
+#define CR_ODSWEN_BB             (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32U) + (ODSWEN_BIT_NUMBER * 4U))
     
 /* Alias word address of MRLVDS bit */
 #define MRLVDS_BIT_NUMBER        POSITION_VAL(PWR_CR_MRLVDS)
-#define CR_MRLVDS_BB             (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32) + (MRLVDS_BIT_NUMBER * 4))
+#define CR_MRLVDS_BB             (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32U) + (MRLVDS_BIT_NUMBER * 4U))
 
 /* Alias word address of LPLVDS bit */
 #define LPLVDS_BIT_NUMBER        POSITION_VAL(PWR_CR_LPLVDS)
-#define CR_LPLVDS_BB             (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32) + (LPLVDS_BIT_NUMBER * 4))
+#define CR_LPLVDS_BB             (uint32_t)(PERIPH_BB_BASE + (PWR_CR_OFFSET_BB * 32U) + (LPLVDS_BIT_NUMBER * 4U))
 
  /**
   * @}
@@ -292,12 +297,12 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
 /* --- CSR Register ---*/
 /* Alias word address of BRE bit */
 #define BRE_BIT_NUMBER   POSITION_VAL(PWR_CSR_BRE)
-#define CSR_BRE_BB      (uint32_t)(PERIPH_BB_BASE + (PWR_CSR_OFFSET_BB * 32) + (BRE_BIT_NUMBER * 4))
+#define CSR_BRE_BB      (uint32_t)(PERIPH_BB_BASE + (PWR_CSR_OFFSET_BB * 32U) + (BRE_BIT_NUMBER * 4U))
 
 #if defined(STM32F469xx) || defined(STM32F479xx)
 /* Alias word address of WUPP bit */
 #define WUPP_BIT_NUMBER   POSITION_VAL(PWR_CSR_WUPP)
-#define CSR_WUPP_BB      (PERIPH_BB_BASE + (PWR_CSR_OFFSET_BB * 32) + (WUPP_BIT_NUMBER * 4))
+#define CSR_WUPP_BB      (PERIPH_BB_BASE + (PWR_CSR_OFFSET_BB * 32U) + (WUPP_BIT_NUMBER * 4U))
 #endif /* STM32F469xx || STM32F479xx */
 /**
   * @}
@@ -332,7 +337,8 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
 
 #if defined(STM32F446xx)
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || ((PIN) == PWR_WAKEUP_PIN2))
-#elif defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) 
+#elif defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F412Zx) || defined(STM32F412Vx) || \
+      defined(STM32F412Rx) || defined(STM32F412Cx)
 #define IS_PWR_WAKEUP_PIN(PIN) (((PIN) == PWR_WAKEUP_PIN1) || ((PIN) == PWR_WAKEUP_PIN2) || \
                                 ((PIN) == PWR_WAKEUP_PIN3))
 #else

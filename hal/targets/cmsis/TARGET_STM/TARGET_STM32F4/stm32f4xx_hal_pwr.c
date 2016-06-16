@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   PWR HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -63,10 +63,10 @@
 /** @defgroup PWR_PVD_Mode_Mask PWR PVD Mode Mask
   * @{
   */     
-#define PVD_MODE_IT               ((uint32_t)0x00010000)
-#define PVD_MODE_EVT              ((uint32_t)0x00020000)
-#define PVD_RISING_EDGE           ((uint32_t)0x00000001)
-#define PVD_FALLING_EDGE          ((uint32_t)0x00000002)
+#define PVD_MODE_IT               ((uint32_t)0x00010000U)
+#define PVD_MODE_EVT              ((uint32_t)0x00020000U)
+#define PVD_RISING_EDGE           ((uint32_t)0x00000001U)
+#define PVD_FALLING_EDGE          ((uint32_t)0x00000002U)
 /**
   * @}
   */
@@ -168,7 +168,7 @@ void HAL_PWR_DisableBkUpAccess(void)
           forced in input pull-down configuration and is active on rising edges.
       (+) There is one Wake-up pin: Wake-up Pin 1 on PA.00.
 	   (++) For STM32F446xx there are two Wake-Up pins: Pin1 on PA.00 and Pin2 on PC.13
-           (++) For STM32F410xx there are three Wake-Up pins: Pin1 on PA.00, Pin2 on PC.00 and Pin3 on PC.01
+           (++) For STM32F410xx/STM32F412Zx/STM32F412Rx/STM32F412Vx/STM32F412Cx  there are three Wake-Up pins: Pin1 on PA.00, Pin2 on PC.00 and Pin3 on PC.01 
 
     *** Low Power modes configuration ***
     =====================================
@@ -329,8 +329,8 @@ void HAL_PWR_DisablePVD(void)
   * @param WakeUpPinx: Specifies the Power Wake-Up pin to enable.
   *         This parameter can be one of the following values:
   *           @arg PWR_WAKEUP_PIN1
-  *           @arg PWR_WAKEUP_PIN2 available only on STM32F410xx/STM32F446xx devices
-  *           @arg PWR_WAKEUP_PIN3 available only on STM32F410xx devices
+  *           @arg PWR_WAKEUP_PIN2 available only on STM32F410xx/STM32F446xx/STM32F412Zx/STM32F412Rx/STM32F412Vx/STM32F412Cx devices
+  *           @arg PWR_WAKEUP_PIN3 available only on STM32F410xx/STM32F412xx devices
   * @retval None
   */
 void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
@@ -347,8 +347,8 @@ void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
   * @param WakeUpPinx: Specifies the Power Wake-Up pin to disable.
   *         This parameter can be one of the following values:
   *           @arg PWR_WAKEUP_PIN1
-  *           @arg PWR_WAKEUP_PIN2 available only on STM32F410xx/STM32F446xx devices
-  *           @arg PWR_WAKEUP_PIN3 available only on STM32F410xx devices
+  *           @arg PWR_WAKEUP_PIN2 available only on STM32F410xx/STM32F446xx/STM32F412Zx/STM32F412Rx/STM32F412Vx/STM32F412Cx devices
+  *           @arg PWR_WAKEUP_PIN3 available only on STM32F410xx/STM32F412Zx/STM32F412Rx/STM32F412Vx/STM32F412Cx devices
   * @retval None
   */
 void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)

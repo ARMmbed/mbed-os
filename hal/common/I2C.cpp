@@ -20,12 +20,15 @@
 namespace mbed {
 
 I2C *I2C::_owner = NULL;
+PlatformMutex I2C::_mutex;
 
 I2C::I2C(PinName sda, PinName scl) :
 #if DEVICE_I2C_ASYNCH
                                      _irq(this), _usage(DMA_USAGE_NEVER),
 #endif
                                       _i2c(), _hz(100000) {
+    // No lock needed in the constructor
+
     // The init function also set the frequency to 100000
     i2c_init(&_i2c, sda, scl);
 
@@ -34,6 +37,7 @@ I2C::I2C(PinName sda, PinName scl) :
 }
 
 void I2C::frequency(int hz) {
+    lock();
     _hz = hz;
 
     // We want to update the frequency even if we are already the bus owners
@@ -41,60 +45,88 @@ void I2C::frequency(int hz) {
 
     // Updating the frequency of the bus we become the owners of it
     _owner = this;
+    unlock();
 }
 
 void I2C::aquire() {
+    lock();
     if (_owner != this) {
         i2c_frequency(&_i2c, _hz);
         _owner = this;
     }
+    unlock();
 }
 
 // write - Master Transmitter Mode
 int I2C::write(int address, const char* data, int length, bool repeated) {
+    lock();
     aquire();
 
     int stop = (repeated) ? 0 : 1;
     int written = i2c_write(&_i2c, address, data, length, stop);
 
+    unlock();
     return length != written;
 }
 
 int I2C::write(int data) {
-    return i2c_byte_write(&_i2c, data);
+    lock();
+    int ret = i2c_byte_write(&_i2c, data);
+    unlock();
+    return ret;
 }
 
 // read - Master Reciever Mode
 int I2C::read(int address, char* data, int length, bool repeated) {
+    lock();
     aquire();
 
     int stop = (repeated) ? 0 : 1;
     int read = i2c_read(&_i2c, address, data, length, stop);
 
+    unlock();
     return length != read;
 }
 
 int I2C::read(int ack) {
+    lock();
+    int ret;
     if (ack) {
-        return i2c_byte_read(&_i2c, 0);
+        ret = i2c_byte_read(&_i2c, 0);
     } else {
-        return i2c_byte_read(&_i2c, 1);
+        ret = i2c_byte_read(&_i2c, 1);
     }
+    unlock();
+    return ret;
 }
 
 void I2C::start(void) {
+    lock();
     i2c_start(&_i2c);
+    unlock();
 }
 
 void I2C::stop(void) {
+    lock();
     i2c_stop(&_i2c);
+    unlock();
+}
+
+void I2C::lock() {
+    _mutex.lock();
+}
+
+void I2C::unlock() {
+    _mutex.unlock();
 }
 
 #if DEVICE_I2C_ASYNCH
 
 int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
 {
+    lock();
     if (i2c_active(&_i2c)) {
+        unlock();
         return -1; // transaction ongoing
     }
     aquire();
@@ -103,12 +135,15 @@ int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_bu
     int stop = (repeated) ? 0 : 1;
     _irq.callback(&I2C::irq_handler_asynch);
     i2c_transfer_asynch(&_i2c, (void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length, address, stop, _irq.entry(), event, _usage);
+    unlock();
     return 0;
 }
 
 void I2C::abort_transfer(void)
 {
+    lock();
     i2c_abort_asynch(&_i2c);
+    unlock();
 }
 
 void I2C::irq_handler_asynch(void)

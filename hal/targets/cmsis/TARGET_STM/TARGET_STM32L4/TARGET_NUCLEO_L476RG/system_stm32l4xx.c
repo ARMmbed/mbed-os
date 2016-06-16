@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l4xx.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.1.1
+  * @date    29-April-2016
   * @brief   CMSIS Cortex-M4 Device Peripheral Access Layer System Source File
   *
   *   This file provides two functions and one global variable to be called from
@@ -26,26 +26,49 @@
   *
   *   This file configures the system clock as follows:
   *=============================================================================
-  * System clock source                | 1- PLL_HSE_EXTC        | 3- PLL_HSI
-  *                                    | (external 8 MHz clock) | (internal 16 MHz)
-  *                                    | 2- PLL_HSE_XTAL        | or PLL_MSI
-  *                                    | (external 8 MHz xtal)  | (internal 4 MHz)
   *-----------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 48                     | 80
+  *        System Clock source                    | MSI
   *-----------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 48                     | 80
+  *        SYSCLK(Hz)                             | 4000000
   *-----------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 48                     | 80
+  *        HCLK(Hz)                               | 4000000
   *-----------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 48                     | 80
+  *        AHB Prescaler                          | 1
   *-----------------------------------------------------------------------------
-  * USB capable (48 MHz precise clock) | YES                    | NO
+  *        APB1 Prescaler                         | 1
+  *-----------------------------------------------------------------------------
+  *        APB2 Prescaler                         | 1
+  *-----------------------------------------------------------------------------
+  *        PLL_M                                  | 1
+  *-----------------------------------------------------------------------------
+  *        PLL_N                                  | 8
+  *-----------------------------------------------------------------------------
+  *        PLL_P                                  | 7
+  *-----------------------------------------------------------------------------
+  *        PLL_Q                                  | 2
+  *-----------------------------------------------------------------------------
+  *        PLL_R                                  | 2
+  *-----------------------------------------------------------------------------
+  *        PLLSAI1_P                              | NA
+  *-----------------------------------------------------------------------------
+  *        PLLSAI1_Q                              | NA
+  *-----------------------------------------------------------------------------
+  *        PLLSAI1_R                              | NA
+  *-----------------------------------------------------------------------------
+  *        PLLSAI2_P                              | NA
+  *-----------------------------------------------------------------------------
+  *        PLLSAI2_Q                              | NA
+  *-----------------------------------------------------------------------------
+  *        PLLSAI2_R                              | NA
+  *-----------------------------------------------------------------------------
+  *        Require 48MHz for USB OTG FS,          | Disabled
+  *        SDIO and RNG clock                     |
   *-----------------------------------------------------------------------------
   *=============================================================================
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -142,7 +165,7 @@
 /** @addtogroup STM32L4xx_System_Private_Variables
   * @{
   */
-  /* This variable is updated in three ways:
+  /* The SystemCoreClock variable is updated in three ways:
       1) by calling CMSIS function SystemCoreClockUpdate()
       2) by calling HAL API function HAL_RCC_GetHCLKFreq()
       3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
@@ -153,6 +176,7 @@
   uint32_t SystemCoreClock = 4000000;
 
   const uint8_t  AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+  const uint8_t  APBPrescTable[8] =  {0, 0, 0, 0, 1, 2, 3, 4};
   const uint32_t MSIRangeTable[12] = {100000, 200000, 400000, 800000, 1000000, 2000000, \
                                       4000000, 8000000, 16000000, 24000000, 32000000, 48000000};
 /**
@@ -204,7 +228,7 @@ void SystemInit(void)
   RCC->CR &= (uint32_t)0xEAF6FFFF;
 
   /* Reset PLLCFGR register */
-  RCC->PLLCFGR = 0x00000800;
+  RCC->PLLCFGR = 0x00001000;
 
   /* Reset HSEBYP bit */
   RCC->CR &= (uint32_t)0xFFFBFFFF;

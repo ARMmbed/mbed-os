@@ -27,6 +27,7 @@
 #include "FATFileSystem.h"
 #include "FATFileHandle.h"
 #include "FATDirHandle.h"
+#include "critical.h"
 
 DWORD get_fattime(void) {
     time_t rawtime;
@@ -41,33 +42,55 @@ DWORD get_fattime(void) {
 }
 
 FATFileSystem *FATFileSystem::_ffs[_VOLUMES] = {0};
+static PlatformMutex * mutex = NULL;
 
-FATFileSystem::FATFileSystem(const char* n) : FileSystemLike(n) {
+PlatformMutex * get_fat_mutex() {
+    PlatformMutex * new_mutex = new PlatformMutex;
+
+    core_util_critical_section_enter();
+    if (NULL == mutex) {
+        mutex = new_mutex;
+    }
+    core_util_critical_section_exit();
+
+    if (mutex != new_mutex) {
+        delete new_mutex;
+    }
+    return mutex;
+}
+
+FATFileSystem::FATFileSystem(const char* n) : FileSystemLike(n), _mutex(get_fat_mutex()) {
+    lock();
     debug_if(FFS_DBG, "FATFileSystem(%s)\n", n);
     for(int i=0; i<_VOLUMES; i++) {
         if(_ffs[i] == 0) {
             _ffs[i] = this;
             _fsid[0] = '0' + i;
             _fsid[1] = '\0';
-            debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", _name, _fsid);
+            debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
             f_mount(&_fs, _fsid, 0);
+            unlock();
             return;
         }
     }
     error("Couldn't create %s in FATFileSystem::FATFileSystem\n", n);
+    unlock();
 }
 
 FATFileSystem::~FATFileSystem() {
+    lock();
     for (int i=0; i<_VOLUMES; i++) {
         if (_ffs[i] == this) {
             _ffs[i] = 0;
             f_mount(NULL, _fsid, 0);
         }
     }
+    unlock();
 }
 
 FileHandle *FATFileSystem::open(const char* name, int flags) {
-    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", name, _name, _fsid);
+    lock();
+    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", name, getName(), _fsid);
     char n[64];
     sprintf(n, "%s:/%s", _fsid, name);
 
@@ -92,63 +115,95 @@ FileHandle *FATFileSystem::open(const char* name, int flags) {
     FRESULT res = f_open(&fh, n, openmode);
     if (res) {
         debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
+        unlock();
         return NULL;
     }
     if (flags & O_APPEND) {
         f_lseek(&fh, fh.fsize);
     }
-    return new FATFileHandle(fh);
+    FATFileHandle * handle = new FATFileHandle(fh, _mutex);
+    unlock();
+    return handle;
 }
 
 int FATFileSystem::remove(const char *filename) {
+    lock();
     FRESULT res = f_unlink(filename);
     if (res) {
         debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
+        unlock();
         return -1;
     }
+    unlock();
     return 0;
 }
 
 int FATFileSystem::rename(const char *oldname, const char *newname) {
+    lock();
     FRESULT res = f_rename(oldname, newname);
     if (res) {
         debug_if(FFS_DBG, "f_rename() failed: %d\n", res);
+        unlock();
         return -1;
     }
+    unlock();
     return 0;
 }
 
 int FATFileSystem::format() {
+    lock();
     FRESULT res = f_mkfs(_fsid, 0, 512); // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     if (res) {
         debug_if(FFS_DBG, "f_mkfs() failed: %d\n", res);
+        unlock();
         return -1;
     }
+    unlock();
     return 0;
 }
 
 DirHandle *FATFileSystem::opendir(const char *name) {
+    lock();
     FATFS_DIR dir;
     FRESULT res = f_opendir(&dir, name);
     if (res != 0) {
+        unlock();
         return NULL;
     }
-    return new FATDirHandle(dir);
+    FATDirHandle *handle = new FATDirHandle(dir, _mutex);
+    unlock();
+    return handle;
 }
 
 int FATFileSystem::mkdir(const char *name, mode_t mode) {
+    lock();
     FRESULT res = f_mkdir(name);
+    unlock();
     return res == 0 ? 0 : -1;
 }
 
 int FATFileSystem::mount() {
+    lock();
     FRESULT res = f_mount(&_fs, _fsid, 1);
+    unlock();
     return res == 0 ? 0 : -1;
 }
 
 int FATFileSystem::unmount() {
-    if (disk_sync())
+    lock();
+    if (disk_sync()) {
+        unlock();
         return -1;
+    }
     FRESULT res = f_mount(NULL, _fsid, 0);
+    unlock();
     return res == 0 ? 0 : -1;
+}
+
+void FATFileSystem::lock() {
+    _mutex->lock();
+}
+
+void FATFileSystem::unlock() {
+    _mutex->unlock();
 }

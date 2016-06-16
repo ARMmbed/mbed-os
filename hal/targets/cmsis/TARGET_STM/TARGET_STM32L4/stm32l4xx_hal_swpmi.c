@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_swpmi.c
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    26-June-2015
+  * @version V1.5.1
+  * @date    31-May-2016
   * @brief   SWPMI HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Single Wire Protocol Master Interface (SWPMI).
@@ -49,7 +49,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -114,7 +114,7 @@ static HAL_StatusTypeDef SWPMI_EndTransmit_IT(SWPMI_HandleTypeDef *hswpmi);
 static HAL_StatusTypeDef SWPMI_Receive_IT(SWPMI_HandleTypeDef *hswpmi);
 static HAL_StatusTypeDef SWPMI_EndReceive_IT(SWPMI_HandleTypeDef *hswpmi);
 static HAL_StatusTypeDef SWPMI_EndTransmitReceive_IT(SWPMI_HandleTypeDef *hswpmi);
-static HAL_StatusTypeDef SWPMI_WaitOnFlagSetUntilTimeout(SWPMI_HandleTypeDef *hswpmi, uint32_t Flag, uint32_t Timeout);
+static HAL_StatusTypeDef SWPMI_WaitOnFlagSetUntilTimeout(SWPMI_HandleTypeDef *hswpmi, uint32_t Flag, uint32_t Tickstart, uint32_t Timeout);
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -145,6 +145,7 @@ static HAL_StatusTypeDef SWPMI_WaitOnFlagSetUntilTimeout(SWPMI_HandleTypeDef *hs
 HAL_StatusTypeDef HAL_SWPMI_Init(SWPMI_HandleTypeDef *hswpmi)
 {
   HAL_StatusTypeDef status = HAL_OK;
+  __IO uint32_t wait_loop_index = 0;
 
   /* Check the SWPMI handle allocation */
   if(hswpmi == NULL)
@@ -163,9 +164,6 @@ HAL_StatusTypeDef HAL_SWPMI_Init(SWPMI_HandleTypeDef *hswpmi)
     {
       /* Allocate lock resource and initialize it */
       hswpmi->Lock = HAL_UNLOCKED;
-
-      /* Init the low level hardware : GPIO, CLOCK, CORTEX */
-      HAL_SWPMI_MspInit(hswpmi);
     }
 
     hswpmi->State = HAL_SWPMI_STATE_BUSY;
@@ -178,6 +176,22 @@ HAL_StatusTypeDef HAL_SWPMI_Init(SWPMI_HandleTypeDef *hswpmi)
 
     /* Apply Voltage class selection */
     MODIFY_REG(hswpmi->Instance->OR, SWPMI_OR_CLASS, hswpmi->Init.VoltageClass);
+
+    /* Init the low level hardware : GPIO, CLOCK, CORTEX */
+    HAL_SWPMI_MspInit(hswpmi);
+
+    /* If Voltage class B, apply 300 µs delay */
+    if(hswpmi->Init.VoltageClass == SWPMI_VOLTAGE_CLASS_B)
+    {
+      /* Insure 300 µs wait to insure SWPMI_IO output not higher than 1.8V */
+      /* Wait loop initialization and execution                            */
+      /* Note: Variable divided by 4 to compensate partially CPU processing cycles. */
+      wait_loop_index = (300 * (SystemCoreClock / (1000000 * 4))) + 150;
+      while(wait_loop_index != 0)
+      {
+        wait_loop_index--;
+      }
+    }
 
     /* Configure the BRR register (Bitrate) */
     WRITE_REG(hswpmi->Instance->BRR, hswpmi->Init.BitRate);
@@ -240,8 +254,11 @@ HAL_StatusTypeDef HAL_SWPMI_DeInit(SWPMI_HandleTypeDef *hswpmi)
   * @param hswpmi: SWPMI handle
   * @retval None
   */
- __weak void HAL_SWPMI_MspInit(SWPMI_HandleTypeDef *hswpmi)
+__weak void HAL_SWPMI_MspInit(SWPMI_HandleTypeDef *hswpmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hswpmi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SWPMI_MspInit can be implemented in the user file
    */
@@ -252,8 +269,11 @@ HAL_StatusTypeDef HAL_SWPMI_DeInit(SWPMI_HandleTypeDef *hswpmi)
   * @param hswpmi: SWPMI handle
   * @retval None
   */
- __weak void HAL_SWPMI_MspDeInit(SWPMI_HandleTypeDef *hswpmi)
+__weak void HAL_SWPMI_MspDeInit(SWPMI_HandleTypeDef *hswpmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hswpmi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SWPMI_MspDeInit can be implemented in the user file
    */
@@ -385,7 +405,7 @@ HAL_StatusTypeDef HAL_SWPMI_Transmit(SWPMI_HandleTypeDef *hswpmi, uint32_t* pDat
       } while(Size != 0);
 
       /* Wait on TXBEF flag to be able to start a second transfer */
-      if(SWPMI_WaitOnFlagSetUntilTimeout(hswpmi, SWPMI_FLAG_TXBEF, Timeout) != HAL_OK)
+      if(SWPMI_WaitOnFlagSetUntilTimeout(hswpmi, SWPMI_FLAG_TXBEF, tickstart, Timeout) != HAL_OK)
       {
         status = HAL_TIMEOUT;
       }
@@ -989,8 +1009,11 @@ void HAL_SWPMI_IRQHandler(SWPMI_HandleTypeDef *hswpmi)
   * @param hswpmi: SWPMI handle
   * @retval None
   */
- __weak void HAL_SWPMI_TxCpltCallback(SWPMI_HandleTypeDef *hswpmi)
+__weak void HAL_SWPMI_TxCpltCallback(SWPMI_HandleTypeDef *hswpmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hswpmi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SWPMI_TxCpltCallback is to be implemented in the user file
    */
@@ -1001,8 +1024,11 @@ void HAL_SWPMI_IRQHandler(SWPMI_HandleTypeDef *hswpmi)
   * @param  hswpmi: SWPMI handle
   * @retval None
   */
- __weak void HAL_SWPMI_TxHalfCpltCallback(SWPMI_HandleTypeDef *hswpmi)
+__weak void HAL_SWPMI_TxHalfCpltCallback(SWPMI_HandleTypeDef *hswpmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hswpmi);
+
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_SWPMI_TxHalfCpltCallback is to be implemented in the user file
    */
@@ -1015,6 +1041,9 @@ void HAL_SWPMI_IRQHandler(SWPMI_HandleTypeDef *hswpmi)
   */
 __weak void HAL_SWPMI_RxCpltCallback(SWPMI_HandleTypeDef *hswpmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hswpmi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SWPMI_RxCpltCallback is to be implemented in the user file
    */
@@ -1027,6 +1056,9 @@ __weak void HAL_SWPMI_RxCpltCallback(SWPMI_HandleTypeDef *hswpmi)
   */
 __weak void HAL_SWPMI_RxHalfCpltCallback(SWPMI_HandleTypeDef *hswpmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hswpmi);
+
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_SWPMI_RxHalfCpltCallback is to be implemented in the user file
    */
@@ -1037,8 +1069,11 @@ __weak void HAL_SWPMI_RxHalfCpltCallback(SWPMI_HandleTypeDef *hswpmi)
   * @param hswpmi: SWPMI handle
   * @retval None
   */
- __weak void HAL_SWPMI_ErrorCallback(SWPMI_HandleTypeDef *hswpmi)
+__weak void HAL_SWPMI_ErrorCallback(SWPMI_HandleTypeDef *hswpmi)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hswpmi);
+
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SWPMI_ErrorCallback is to be implemented in the user file
    */
@@ -1084,6 +1119,10 @@ uint32_t HAL_SWPMI_GetError(SWPMI_HandleTypeDef *hswpmi)
 {
   return hswpmi->ErrorCode;
 }
+
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -1242,6 +1281,7 @@ static HAL_StatusTypeDef SWPMI_EndTransmitReceive_IT(SWPMI_HandleTypeDef *hswpmi
 static void SWPMI_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 {
   SWPMI_HandleTypeDef* hswpmi = ( SWPMI_HandleTypeDef* )((DMA_HandleTypeDef* )hdma)->Parent;
+  uint32_t tickstart = 0;
 
   /* DMA Normal mode*/
   if((hdma->Instance->CCR & DMA_CCR_CIRC) != SET)
@@ -1252,8 +1292,11 @@ static void SWPMI_DMATransmitCplt(DMA_HandleTypeDef *hdma)
     in the SWPMI CR register */
     CLEAR_BIT(hswpmi->Instance->CR, SWPMI_CR_TXDMA);
 
+    /* Init tickstart for timeout managment*/
+    tickstart = HAL_GetTick();
+
     /* Wait the TXBEF */
-    if(SWPMI_WaitOnFlagSetUntilTimeout(hswpmi, SWPMI_FLAG_TXBEF, SWPMI_TIMEOUT_VALUE) != HAL_OK)
+    if(SWPMI_WaitOnFlagSetUntilTimeout(hswpmi, SWPMI_FLAG_TXBEF, tickstart, SWPMI_TIMEOUT_VALUE) != HAL_OK)
     {
       /* Timeout occurred */
       HAL_SWPMI_ErrorCallback(hswpmi);
@@ -1359,12 +1402,12 @@ static void SWPMI_DMAError(DMA_HandleTypeDef *hdma)
   * @brief  Handle SWPMI Communication Timeout.
   * @param  hswpmi: SWPMI handle
   * @param  Flag: specifies the SWPMI flag to check.
-  * @param  Timeout: Timeout duration
+  * @param  Tickstart Tick start value
+  * @param  Timeout timeout duration.
   * @retval HAL status
   */
-static HAL_StatusTypeDef SWPMI_WaitOnFlagSetUntilTimeout(SWPMI_HandleTypeDef *hswpmi, uint32_t Flag, uint32_t Timeout)
+static HAL_StatusTypeDef SWPMI_WaitOnFlagSetUntilTimeout(SWPMI_HandleTypeDef *hswpmi, uint32_t Flag, uint32_t Tickstart, uint32_t Timeout)
 {
-  uint32_t tickstart = HAL_GetTick();
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Wait until flag is set */
@@ -1373,9 +1416,9 @@ static HAL_StatusTypeDef SWPMI_WaitOnFlagSetUntilTimeout(SWPMI_HandleTypeDef *hs
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((HAL_GetTick() - tickstart ) > Timeout)
+      if((Timeout == 0) || ((HAL_GetTick()-Tickstart) > Timeout))
       {
-        hswpmi->State = HAL_SWPMI_STATE_TIMEOUT;
+        hswpmi->State = HAL_SWPMI_STATE_READY;
 
         status = HAL_TIMEOUT;
         break;
@@ -1385,10 +1428,6 @@ static HAL_StatusTypeDef SWPMI_WaitOnFlagSetUntilTimeout(SWPMI_HandleTypeDef *hs
 
   return status;
 }
-
-/**
-  * @}
-  */
 
 /**
   * @}

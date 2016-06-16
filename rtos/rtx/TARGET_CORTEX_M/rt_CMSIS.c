@@ -65,6 +65,7 @@
 #include "rt_MemBox.h"
 #include "rt_Memory.h"
 #include "rt_HAL_CM.h"
+#include "rt_OsEventObserver.h"
 
 #include "cmsis_os.h"
 
@@ -301,7 +302,7 @@ static inline  t __##f (t1 a1, t2 a2, t3 a3, t4 a4) {                          \
 #define SVC_Setup(f)                                                           \
   __asm(                                                                       \
     "mov r12,%0\n"                                                             \
-    :: "r"(&f): "r12"                                                          \
+    :: "r"(&f): "r0", "r1", "r2", "r3", "r12"                                  \
   );
 
 #define SVC_Ret3()                                                             \
@@ -458,7 +459,7 @@ SVC_0_1(svcKernelRunning,    int32_t,  RET_int32_t)
 SVC_0_1(svcKernelSysTick,    uint32_t, RET_uint32_t)
 
 static void  sysThreadError   (osStatus status);
-osThreadId   svcThreadCreate  (const osThreadDef_t *thread_def, void *argument);
+osThreadId   svcThreadCreate  (const osThreadDef_t *thread_def, void *argument, void *context);
 osMessageQId svcMessageCreate (const osMessageQDef_t *queue_def, osThreadId thread_id);
 
 // Kernel Control Service Calls
@@ -488,7 +489,7 @@ osStatus svcKernelInitialize (void) {
   if (os_initialized == 0U) {
     // Create OS Timers resources (Message Queue & Thread)
     osMessageQId_osTimerMessageQ = svcMessageCreate (&os_messageQ_def_osTimerMessageQ, NULL);
-    osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL);
+    osThreadId_osTimerThread = svcThreadCreate(&os_thread_def_osTimerThread, NULL, NULL);
   }
 
   sysThreadError(osOK);
@@ -562,6 +563,15 @@ osStatus osKernelStart (void) {
   if (__get_IPSR() != 0U) {
     return osErrorISR;                          // Not allowed in ISR
   }
+
+  /* Call the pre-start event (from unprivileged mode) if the handler exists
+   * and the kernel is not running. */
+  /* FIXME osEventObs needs to be readable but not writable from unprivileged
+   * code. */
+  if (!osKernelRunning() && osEventObs && osEventObs->pre_start) {
+    osEventObs->pre_start();
+  }
+
   switch (__get_CONTROL() & 0x03U) {
     case 0x00U:                                 // Privileged Thread mode & MSP
       __set_PSP((uint32_t)(stack + 8));         // Initial PSP
@@ -616,7 +626,7 @@ static void sysThreadError (osStatus status) {
 __NO_RETURN void osThreadExit (void);
 
 // Thread Service Calls declarations
-SVC_2_1(svcThreadCreate,      osThreadId, const osThreadDef_t *, void *,     RET_pointer)
+SVC_3_1(svcThreadCreate,      osThreadId, const osThreadDef_t *, void *, void *, RET_pointer)
 SVC_0_1(svcThreadGetId,       osThreadId,                                    RET_pointer)
 SVC_1_1(svcThreadTerminate,   osStatus,         osThreadId,                  RET_osStatus)
 SVC_0_1(svcThreadYield,       osStatus,                                      RET_osStatus)
@@ -626,7 +636,7 @@ SVC_1_1(svcThreadGetPriority, osPriority,       osThreadId,                  RET
 // Thread Service Calls
 
 /// Create a thread and add it to Active Threads and set it to state READY
-osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
+osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument, void *context) {
   P_TCB  ptcb;
   OS_TID tsk;
   void  *stk;
@@ -683,6 +693,12 @@ osThreadId svcThreadCreate (const osThreadDef_t *thread_def, void *argument) {
 
   *((uint32_t *)ptcb->tsk_stack + 13) = (uint32_t)osThreadExit;
 
+  if (osEventObs && osEventObs->thread_create) {
+    ptcb->context = osEventObs->thread_create(ptcb->task_id, context);
+  } else {
+    ptcb->context = context;
+  }
+
   return ptcb;
 }
 
@@ -711,6 +727,10 @@ osStatus svcThreadTerminate (osThreadId thread_id) {
 #ifndef __MBED_CMSIS_RTOS_CM
   stk = ptcb->priv_stack ? ptcb->stack : NULL;  // Private stack
 #endif
+
+  if (osEventObs && osEventObs->thread_destroy) {
+    osEventObs->thread_destroy(ptcb->context);
+  }
 
   res = rt_tsk_delete(ptcb->task_id);           // Delete task
 
@@ -776,14 +796,17 @@ osPriority svcThreadGetPriority (osThreadId thread_id) {
 
 /// Create a thread and add it to Active Threads and set it to state READY
 osThreadId osThreadCreate (const osThreadDef_t *thread_def, void *argument) {
-  if (__get_IPSR() != 0U) { 
+  return osThreadContextCreate(thread_def, argument, NULL);
+}
+osThreadId osThreadContextCreate (const osThreadDef_t *thread_def, void *argument, void *context) {
+  if (__get_IPSR() != 0U) {
     return NULL;                                // Not allowed in ISR
   }
   if (((__get_CONTROL() & 1U) == 0U) && (os_running == 0U)) {
     // Privileged and not running
-    return   svcThreadCreate(thread_def, argument);
+    return   svcThreadCreate(thread_def, argument, context);
   } else {
-    return __svcThreadCreate(thread_def, argument);
+    return __svcThreadCreate(thread_def, argument, context);
   }
 }
 

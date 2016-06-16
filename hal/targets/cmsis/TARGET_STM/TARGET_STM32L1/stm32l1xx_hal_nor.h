@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_nor.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    5-September-2014
+  * @version V1.1.3
+  * @date    04-March-2016
   * @brief   Header file of NOR HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,105 +50,12 @@
   * @{
   */
 
+#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
 /** @addtogroup NOR
   * @{
   */ 
 
-#if defined (STM32L151xD) || defined (STM32L152xD) || defined (STM32L162xD)
-
-/* Exported typedef ----------------------------------------------------------*/ 
-
-/** @defgroup NOR_Exported_typedef NOR Exported typedef
-  * @{
-  */ 
-  
-/** 
-  * @brief  HAL SRAM State structures definition  
-  */ 
-typedef enum
-{  
-  HAL_NOR_STATE_RESET             = 0x00,  /*!< NOR not yet initialized or disabled  */
-  HAL_NOR_STATE_READY             = 0x01,  /*!< NOR initialized and ready for use    */
-  HAL_NOR_STATE_BUSY              = 0x02,  /*!< NOR internal processing is ongoing   */
-  HAL_NOR_STATE_ERROR             = 0x03,  /*!< NOR error state                      */ 
-  HAL_NOR_STATE_PROTECTED         = 0x04   /*!< NOR NORSRAM device write protected  */
-
-}HAL_NOR_StateTypeDef;    
-
-/**
-  * @brief  FSMC NOR Status typedef
-  */
-typedef enum
-{
-  NOR_SUCCESS = 0,
-  NOR_ONGOING,
-  NOR_ERROR,
-  NOR_TIMEOUT
-
-}NOR_StatusTypedef; 
-
-/**
-  * @brief  FSMC NOR ID typedef
-  */
-typedef struct
-{
-  uint16_t ManufacturerCode;  /*!< Defines the device's manufacturer code used to identify the memory       */
-  
-  uint16_t DeviceCode1;  
-  
-  uint16_t DeviceCode2;                      
-        
-  uint16_t DeviceCode3;       /*!< Defines the devices' codes used to identify the memory. 
-                                    These codes can be accessed by performing read operations with specific 
-                                    control signals and addresses set.They can also be accessed by issuing 
-                                    an Auto Select command                                                   */    
-  
-}NOR_IDTypeDef;
-
-
-/**
-  * @brief  FSMC NOR CFI typedef
-  */
-typedef struct
-{
-  /*!< Defines the information stored in the memory's Common flash interface
-       which contains a description of various electrical and timing parameters, 
-       density information and functions supported by the memory                   */
-  
-  uint16_t CFI1;            
-  
-  uint16_t CFI2;          
-  
-  uint16_t CFI3;                      
-  
-  uint16_t CFI4;                     
-  
-}NOR_CFITypeDef;
-
-/** 
-  * @brief  NOR handle Structure definition  
-  */ 
-typedef struct
-{
-  FSMC_NORSRAM_TYPEDEF          *Instance;    /*!< Register base address                        */ 
-  
-  FSMC_NORSRAM_EXTENDED_TYPEDEF *Extended;    /*!< Extended mode register base address          */
-  
-  FSMC_NORSRAM_InitTypeDef      Init;         /*!< NOR device control configuration parameters  */
-
-  HAL_LockTypeDef               Lock;         /*!< NOR locking object                           */ 
-  
-  __IO HAL_NOR_StateTypeDef     State;        /*!< NOR device access state                      */
-   
-}NOR_HandleTypeDef; 
-
-/**
-  * @}
-  */
-
-/* Exported constants --------------------------------------------------------*/
-
-/** @defgroup NOR_Exported_Constants NOR Exported Constants
+/** @addtogroup NOR_Private_Constants
   * @{
   */
 
@@ -172,27 +79,18 @@ typedef struct
 #define NOR_MEMORY_16B           ((uint8_t)0x1)
 
 /* NOR memory device read/write start address */
-#define NOR_MEMORY_ADRESS1       ((uint32_t)0x60000000)
-#define NOR_MEMORY_ADRESS2       ((uint32_t)0x64000000)
-#define NOR_MEMORY_ADRESS3       ((uint32_t)0x68000000)
-#define NOR_MEMORY_ADRESS4       ((uint32_t)0x6C000000)
+#define NOR_MEMORY_ADRESS1       FSMC_BANK1_1
+#define NOR_MEMORY_ADRESS2       FSMC_BANK1_2
+#define NOR_MEMORY_ADRESS3       FSMC_BANK1_3
+#define NOR_MEMORY_ADRESS4       FSMC_BANK1_4
 
 /**
   * @}
   */
 
-/* Exported macro ------------------------------------------------------------*/
-
-/** @defgroup NOR_Exported_macro NOR Exported macro
+/** @addtogroup NOR_Private_Macros
   * @{
   */
-
-/** @brief Reset NOR handle state
-  * @param  __HANDLE__: NOR handle
-  * @retval None
-  */
-#define __HAL_NOR_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_NOR_STATE_RESET)
-
 
 /**
   * @brief  NOR memory address shifting.
@@ -201,7 +99,7 @@ typedef struct
   * @param  __ADDRESS__: NOR memory address 
   * @retval NOR shifted address value
   */
-#define __NOR_ADDR_SHIFT(__NOR_ADDRESS, __NOR_MEMORY_WIDTH_, __ADDRESS__)       \
+#define NOR_ADDR_SHIFT(__NOR_ADDRESS, __NOR_MEMORY_WIDTH_, __ADDRESS__)       \
             ((uint32_t)(((__NOR_MEMORY_WIDTH_) == NOR_MEMORY_16B)?              \
               ((uint32_t)((__NOR_ADDRESS) + (2 * (__ADDRESS__)))):              \
               ((uint32_t)((__NOR_ADDRESS) + (__ADDRESS__)))))
@@ -212,15 +110,115 @@ typedef struct
   * @param  __DATA__: Data to write
   * @retval None
   */
-#define __NOR_WRITE(__ADDRESS__, __DATA__)  (*(__IO uint16_t *)((uint32_t)(__ADDRESS__)) = (__DATA__))
+#define NOR_WRITE(__ADDRESS__, __DATA__)  (*(__IO uint16_t *)((uint32_t)(__ADDRESS__)) = (__DATA__))
+
+/**
+  * @}
+  */
+
+/* Exported typedef ----------------------------------------------------------*/ 
+/** @defgroup NOR_Exported_Types NOR Exported Types
+  * @{
+  */ 
+  
+/** 
+  * @brief  HAL SRAM State structures definition  
+  */ 
+typedef enum
+{  
+  HAL_NOR_STATE_RESET             = 0x00,  /*!< NOR not yet initialized or disabled  */
+  HAL_NOR_STATE_READY             = 0x01,  /*!< NOR initialized and ready for use    */
+  HAL_NOR_STATE_BUSY              = 0x02,  /*!< NOR internal processing is ongoing   */
+  HAL_NOR_STATE_ERROR             = 0x03,  /*!< NOR error state                      */ 
+  HAL_NOR_STATE_PROTECTED         = 0x04   /*!< NOR NORSRAM device write protected  */
+}HAL_NOR_StateTypeDef;    
+
+/**
+  * @brief  FSMC NOR Status typedef
+  */
+typedef enum
+{
+  HAL_NOR_STATUS_SUCCESS = 0,
+  HAL_NOR_STATUS_ONGOING,
+  HAL_NOR_STATUS_ERROR,
+  HAL_NOR_STATUS_TIMEOUT
+}HAL_NOR_StatusTypeDef; 
+
+/**
+  * @brief  FSMC NOR ID typedef
+  */
+typedef struct
+{
+  uint16_t Manufacturer_Code;  /*!< Defines the device's manufacturer code used to identify the memory       */
+  
+  uint16_t Device_Code1;
+  
+  uint16_t Device_Code2;
+        
+  uint16_t Device_Code3;       /*!< Defines the device's codes used to identify the memory. 
+                                    These codes can be accessed by performing read operations with specific 
+                                    control signals and addresses set.They can also be accessed by issuing 
+                                    an Auto Select command                                                   */    
+}NOR_IDTypeDef;
+
+/**
+  * @brief  FSMC NOR CFI typedef
+  */
+typedef struct
+{
+  /*!< Defines the information stored in the memory's Common flash interface
+       which contains a description of various electrical and timing parameters, 
+       density information and functions supported by the memory                   */
+  
+  uint16_t CFI_1;
+  
+  uint16_t CFI_2;
+  
+  uint16_t CFI_3;
+  
+  uint16_t CFI_4;
+}NOR_CFITypeDef;
+
+/** 
+  * @brief  NOR handle Structure definition  
+  */ 
+typedef struct
+{
+  FSMC_NORSRAM_TypeDef          *Instance;    /*!< Register base address                        */ 
+  
+  FSMC_NORSRAM_EXTENDED_TypeDef *Extended;    /*!< Extended mode register base address          */
+  
+  FSMC_NORSRAM_InitTypeDef      Init;         /*!< NOR device control configuration parameters  */
+
+  HAL_LockTypeDef               Lock;         /*!< NOR locking object                           */ 
+  
+  __IO HAL_NOR_StateTypeDef     State;        /*!< NOR device access state                      */
+   
+}NOR_HandleTypeDef; 
+
+/**
+  * @}
+  */
+
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+
+/** @defgroup NOR_Exported_macro NOR Exported Macros
+  * @{
+  */
+
+/** @brief Reset NOR handle state
+  * @param  __HANDLE__: NOR handle
+  * @retval None
+  */
+#define __HAL_NOR_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_NOR_STATE_RESET)
 
 /**
   * @}
   */
 
 /* Exported functions --------------------------------------------------------*/
-
-/** @addtogroup NOR_Exported_Functions
+/** @addtogroup NOR_Exported_Functions NOR Exported Functions
  *  @{
  */
 
@@ -243,7 +241,7 @@ void              HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout);
  *  @{
  */
 
-/* I/O operation functions  *****************************************************/
+/* I/O operation functions  ***************************************************/
 HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_ID);
 HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor);
 HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint16_t *pData);
@@ -264,7 +262,7 @@ HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR
  *  @{
  */
 
-/* NOR Control functions  *******************************************************/
+/* NOR Control functions  *****************************************************/
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Enable(NOR_HandleTypeDef *hnor);
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor);
 
@@ -276,9 +274,9 @@ HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor);
  *  @{
  */
 
-/* NOR State functions **********************************************************/
+/* NOR State functions ********************************************************/
 HAL_NOR_StateTypeDef  HAL_NOR_GetState(NOR_HandleTypeDef *hnor);
-NOR_StatusTypedef     HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, uint32_t Timeout);
+HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, uint32_t Timeout);
 
 /**
   * @}
@@ -288,11 +286,12 @@ NOR_StatusTypedef     HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Addres
   * @}
   */
   
-#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
 
 /**
   * @}
   */ 
+
+#endif /* STM32L151xD || STM32L152xD || STM32L162xD */
 
 /**
   * @}

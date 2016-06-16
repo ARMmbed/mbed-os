@@ -39,6 +39,11 @@
  *      RTX User configuration part BEGIN
  *---------------------------------------------------------------------------*/
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+#define OS_TASKCNT  1
+#define OS_TIMERS   0
+#endif
+
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 //
 // <h>Thread Configuration
@@ -51,13 +56,15 @@
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347) || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
    || defined(TARGET_STM32F410RB) || defined(TARGET_KL46Z) || defined(TARGET_KL43Z)  || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC) || defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_TEENSY3_1) \
-   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC)
+   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC) \
+   || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32PG_STK3401)
 #    define OS_TASKCNT         14
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_STM32F303RE) || defined(TARGET_STM32F303K8) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO) || defined(TARGET_LPC1114) \
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL26Z)       || defined(TARGET_KL27Z)         || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F334R8) || defined(TARGET_STM32F334C8) \
    || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
-   || defined(TARGET_SSCI824)  || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)
+   || defined(TARGET_SSCI824)  || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB) \
+   || defined(TARGET_EFM32HG_STK3400) || defined(TARGET_MCU_NRF51822) || defined(TARGET_BEETLE)
 #    define OS_TASKCNT         6
 #  else
 #    error "no target defined"
@@ -84,15 +91,21 @@
 #  if   defined(TARGET_LPC1768) || defined(TARGET_LPC2368)   || defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_LPC4330) || defined(TARGET_LPC4337) || defined(TARGET_LPC1347)  || defined(TARGET_K64F) || defined(TARGET_STM32F401RE)\
    || defined(TARGET_STM32F410RB) || defined(TARGET_KL46Z) || defined(TARGET_KL43Z) || defined(TARGET_STM32F407) || defined(TARGET_F407VG)  || defined(TARGET_STM32F303VC) || defined(TARGET_LPC1549) || defined(TARGET_LPC11U68) \
    || defined(TARGET_STM32F411RE) || defined(TARGET_STM32F405RG) || defined(TARGET_K22F) || defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F401VC) || defined(TARGET_MAX32610) || defined(TARGET_MAX32600) || defined(TARGET_TEENSY3_1) \
-   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC)
+   || defined(TARGET_STM32L152RE) || defined(TARGET_STM32F446RE) || defined(TARGET_STM32F446VE) || defined(TARGET_STM32L476VG) || defined(TARGET_STM32L476RG) || defined(TARGET_STM32F469NI) || defined(TARGET_STM32F746NG) || defined(TARGET_STM32F746ZG) || defined(TARGET_STM32L152RC) \
+   ||defined(TARGET_EFM32GG_STK3700)
 #      define OS_MAINSTKSIZE    256
 #  elif defined(TARGET_LPC11U24) || defined(TARGET_LPC11U35_401)  || defined(TARGET_LPC11U35_501) || defined(TARGET_LPCCAPPUCCINO)  || defined(TARGET_LPC1114) \
    || defined(TARGET_LPC812)   || defined(TARGET_KL25Z)         || defined(TARGET_KL26Z)        || defined(TARGET_KL27Z)        || defined(TARGET_KL05Z)        || defined(TARGET_STM32F100RB)  || defined(TARGET_STM32F051R8) \
    || defined(TARGET_STM32F103RB) || defined(TARGET_LPC824) || defined(TARGET_STM32F302R8) || defined(TARGET_STM32F072RB) || defined(TARGET_STM32F091RC) || defined(TARGET_NZ32_SC151) \
-   || defined(TARGET_SSCI824) || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB)
+   || defined(TARGET_SSCI824) || defined(TARGET_STM32F030R8) || defined(TARGET_STM32F070RB) \
+   || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32PG_STK3401)
 #      define OS_MAINSTKSIZE    128
-#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ)
+#  elif defined(TARGET_STM32F334R8) || defined(TARGET_STM32F303RE) ||  defined(TARGET_STM32F303K8) ||  defined(TARGET_STM32F334C8) \
+   || defined(TARGET_STM32L031K6) || defined(TARGET_STM32L053R8) || defined(TARGET_STM32L053C8) || defined(TARGET_STM32L073RZ) \
+   || defined(TARGET_EFM32HG_STK3400) || defined(TARGET_BEETLE)
 #      define OS_MAINSTKSIZE    112
+#  elif defined(TARGET_MCU_NRF51822)
+#      define OS_MAINSTKSIZE    512
 #  else
 #    error "no target defined"
 #  endif
@@ -105,7 +118,7 @@
 #ifndef OS_PRIVCNT
  #define OS_PRIVCNT     0
 #endif
- 
+
 //   <o>Total stack size [bytes] for threads with user-provided stack size <0-1048576:8><#/4>
 //   <i> Defines the combined stack size for threads with user-provided stack size.
 //   <i> Default: 0
@@ -120,16 +133,16 @@
 #ifndef OS_STKCHECK
  #define OS_STKCHECK    1
 #endif
- 
+
 //   <q>Stack usage watermark
 //   <i> Initialize thread stack with watermark pattern for analyzing stack usage (current/maximum) in System and Thread Viewer.
 //   <i> Enabling this option increases significantly the execution time of osThreadCreate.
 #ifndef OS_STKINIT
 #define OS_STKINIT      0
 #endif
- 
-//   <o>Processor mode for thread execution 
-//     <0=> Unprivileged mode 
+
+//   <o>Processor mode for thread execution
+//     <0=> Unprivileged mode
 //     <1=> Privileged mode
 //   <i> Default: Privileged mode
 #ifndef OS_RUNPRIV
@@ -137,19 +150,23 @@
 #endif
 
 // </h>
- 
+
 // <h>RTX Kernel Timer Tick Configuration
 // ======================================
 //   <q> Use Cortex-M SysTick timer as RTX Kernel Timer
-//   <i> Cortex-M processors provide in most cases a SysTick timer that can be used as 
+//   <i> Cortex-M processors provide in most cases a SysTick timer that can be used as
 //   <i> as time-base for RTX.
 #ifndef OS_SYSTICK
- #define OS_SYSTICK     1
+#   if defined(TARGET_MCU_NRF51822)
+#       define OS_SYSTICK                0
+#   else
+#       define OS_SYSTICK                1
+#   endif
 #endif
 //
 //   <o>RTOS Kernel Timer input clock frequency [Hz] <1-1000000000>
-//   <i> Defines the input frequency of the RTOS Kernel Timer.  
-//   <i> When the Cortex-M SysTick timer is used, the input clock 
+//   <i> Defines the input frequency of the RTOS Kernel Timer.
+//   <i> When the Cortex-M SysTick timer is used, the input clock
 //   <i> is on most systems identical with the core clock.
 #ifndef OS_CLOCK
 #  if defined(TARGET_LPC1768) || defined(TARGET_LPC2368) || defined(TARGET_TEENSY3_1)
@@ -171,7 +188,7 @@
 #  elif defined(TARGET_LPC824) || defined(TARGET_SSCI824)
 #    define OS_CLOCK       30000000
 
-#  elif  defined(TARGET_STM32F100RB)
+#  elif  defined(TARGET_STM32F100RB) || defined(TARGET_BEETLE)
 #    define OS_CLOCK       24000000
 
 #  elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM) || defined(TARGET_K64F) || defined(TARGET_K22F)
@@ -240,11 +257,18 @@
 #elif defined(TARGET_STM32L152RC)
 #    define OS_CLOCK       24000000
 
+#elif defined(TARGET_EFM32)
+#    include "clocking.h"
+#    define OS_CLOCK       REFERENCE_FREQUENCY
+
+#elif defined(TARGET_MCU_NRF51822)
+#    define OS_CLOCK        32768
+
 #  else
 #    error "no target defined"
 #  endif
 #endif
- 
+
 //   <o>RTX Timer tick interval value [us] <1-1000000>
 //   <i> The RTX Timer tick interval value is used to calculate timeout values.
 //   <i> When the Cortex-M SysTick timer is enabled, the value also configures the SysTick timer.
@@ -292,14 +316,14 @@
 #ifndef OS_TIMERPRIO
  #define OS_TIMERPRIO   5
 #endif
- 
+
 //   <o>Timer Thread stack size [bytes] <64-4096:8><#/4>
 //   <i> Defines stack size for Timer thread.
 //   <i> Default: 200
 #ifndef OS_TIMERSTKSZ
  #define OS_TIMERSTKSZ  200
 #endif
- 
+
 //   <o>Timer Callback Queue size <1-32>
 //   <i> Number of concurrent active timer callback functions.
 //   <i> Default: 4

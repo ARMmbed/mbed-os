@@ -66,6 +66,11 @@ uint16_t analogin_read_u16(analogin_t *obj) {
 
     adc16_channel_config.channelNumber = obj->adc & 0xF;
     adc16_channel_config.enableInterruptOnConversionCompleted = false;
+
+#if defined(FSL_FEATURE_ADC16_HAS_DIFF_MODE) && FSL_FEATURE_ADC16_HAS_DIFF_MODE
+    adc16_channel_config.enableDifferentialConversion = false;
+#endif
+
     /*
      * When in software trigger mode, each conversion would be launched once calling the "ADC16_ChannelConfigure()"
      * function, which works like writing a conversion command and executing it.

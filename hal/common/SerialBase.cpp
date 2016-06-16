@@ -15,6 +15,7 @@
  */
 #include "SerialBase.h"
 #include "wait_api.h"
+#include "critical.h"
 
 #if DEVICE_SERIAL
 
@@ -26,35 +27,52 @@ SerialBase::SerialBase(PinName tx, PinName rx) :
                                                  _rx_usage(DMA_USAGE_NEVER),
 #endif
                                                 _serial(), _baud(9600) {
+    // No lock needed in the constructor
+
     serial_init(&_serial, tx, rx);
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
 
 void SerialBase::baud(int baudrate) {
+    lock();
     serial_baud(&_serial, baudrate);
     _baud = baudrate;
+    unlock();
 }
 
 void SerialBase::format(int bits, Parity parity, int stop_bits) {
+    lock();
     serial_format(&_serial, bits, (SerialParity)parity, stop_bits);
+    unlock();
 }
 
 int SerialBase::readable() {
-    return serial_readable(&_serial);
+    lock();
+    int ret = serial_readable(&_serial);
+    unlock();
+    return ret;
 }
 
 
 int SerialBase::writeable() {
-    return serial_writable(&_serial);
+    lock();
+    int ret = serial_writable(&_serial);
+    unlock();
+    return ret;
 }
 
-void SerialBase::attach(void (*fptr)(void), IrqType type) {
-    if (fptr) {
-        _irq[type].attach(fptr);
+void SerialBase::attach(Callback<void()> func, IrqType type) {
+    lock();
+    // Disable interrupts when attaching interrupt handler
+    core_util_critical_section_enter();
+    if (func) {
+        _irq[type].attach(func);
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
+    core_util_critical_section_exit();
+    unlock();
 }
 
 void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type) {
@@ -63,15 +81,18 @@ void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type) {
 }
 
 int SerialBase::_base_getc() {
+    // Mutex is already held
     return serial_getc(&_serial);
 }
 
 int SerialBase::_base_putc(int c) {
+    // Mutex is already held
     serial_putc(&_serial, c);
     return c;
 }
 
 void SerialBase::send_break() {
+    lock();
   // Wait for 1.5 frames before clearing the break condition
   // This will have different effects on our platforms, but should
   // ensure that we keep the break active for at least one frame.
@@ -83,10 +104,20 @@ void SerialBase::send_break() {
   serial_break_set(&_serial);
   wait_us(18000000/_baud);
   serial_break_clear(&_serial);
+  unlock();
+}
+
+void SerialBase::lock() {
+    // Stub
+}
+
+void SerialBase:: unlock() {
+    // Stub
 }
 
 #if DEVICE_SERIAL_FC
 void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
+    lock();
     FlowControl flow_type = (FlowControl)type;
     switch(type) {
         case RTS:
@@ -105,6 +136,7 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
         default:
             break;
     }
+    unlock();
 }
 #endif
 

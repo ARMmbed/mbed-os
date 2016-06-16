@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sdram.c
   * @author  MCD Application Team
-  * @version V1.4.1
-  * @date    09-October-2015
+  * @version V1.5.0
+  * @date    06-May-2016
   * @brief   SDRAM HAL module driver.
   *          This file provides a generic firmware to drive SDRAM memories mounted 
   *          as external device.
@@ -63,7 +63,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -199,6 +199,8 @@ HAL_StatusTypeDef HAL_SDRAM_DeInit(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsdram);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_MspInit could be implemented in the user file
    */ 
@@ -212,6 +214,8 @@ __weak void HAL_SDRAM_MspInit(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_MspDeInit(SDRAM_HandleTypeDef *hsdram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsdram);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_MspDeInit could be implemented in the user file
    */ 
@@ -244,6 +248,8 @@ void HAL_SDRAM_IRQHandler(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_RefreshErrorCallback(SDRAM_HandleTypeDef *hsdram)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsdram);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_RefreshErrorCallback could be implemented in the user file
    */ 
@@ -257,6 +263,8 @@ __weak void HAL_SDRAM_RefreshErrorCallback(SDRAM_HandleTypeDef *hsdram)
   */
 __weak void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_DMA_XferCpltCallback could be implemented in the user file
    */ 
@@ -269,6 +277,8 @@ __weak void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma)
   */
 __weak void HAL_SDRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hdma);
   /* NOTE: This function Should not be modified, when the callback is needed,
             the HAL_SDRAM_DMA_XferErrorCallback could be implemented in the user file
    */ 
@@ -318,7 +328,7 @@ HAL_StatusTypeDef HAL_SDRAM_Read_8b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddr
   }  
   
   /* Read data from source */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *pDstBuffer = *(__IO uint8_t *)pSdramAddress;  
     pDstBuffer++;
@@ -343,7 +353,7 @@ HAL_StatusTypeDef HAL_SDRAM_Read_8b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddr
 HAL_StatusTypeDef HAL_SDRAM_Write_8b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddress, uint8_t *pSrcBuffer, uint32_t BufferSize)
 {
   __IO uint8_t *pSdramAddress = (uint8_t *)pAddress;
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   /* Process Locked */
   __HAL_LOCK(hsdram);
@@ -361,7 +371,7 @@ HAL_StatusTypeDef HAL_SDRAM_Write_8b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAdd
   }
   
   /* Write data to memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *(__IO uint8_t *)pSdramAddress = *pSrcBuffer;
     pSrcBuffer++;
@@ -401,7 +411,7 @@ HAL_StatusTypeDef HAL_SDRAM_Read_16b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAdd
   }  
   
   /* Read data from source */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *pDstBuffer = *(__IO uint16_t *)pSdramAddress;  
     pDstBuffer++;
@@ -426,7 +436,7 @@ HAL_StatusTypeDef HAL_SDRAM_Read_16b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAdd
 HAL_StatusTypeDef HAL_SDRAM_Write_16b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddress, uint16_t *pSrcBuffer, uint32_t BufferSize)
 {
   __IO uint16_t *pSdramAddress = (uint16_t *)pAddress;
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   /* Process Locked */
   __HAL_LOCK(hsdram);
@@ -444,7 +454,7 @@ HAL_StatusTypeDef HAL_SDRAM_Write_16b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAd
   }
   
   /* Write data to memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *(__IO uint16_t *)pSdramAddress = *pSrcBuffer;
     pSrcBuffer++;
@@ -484,7 +494,7 @@ HAL_StatusTypeDef HAL_SDRAM_Read_32b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAdd
   }  
   
   /* Read data from source */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *pDstBuffer = *(__IO uint32_t *)pSdramAddress;  
     pDstBuffer++;
@@ -509,7 +519,7 @@ HAL_StatusTypeDef HAL_SDRAM_Read_32b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAdd
 HAL_StatusTypeDef HAL_SDRAM_Write_32b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddress, uint32_t *pSrcBuffer, uint32_t BufferSize)
 {
   __IO uint32_t *pSdramAddress = (uint32_t *)pAddress;
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   /* Process Locked */
   __HAL_LOCK(hsdram);
@@ -527,7 +537,7 @@ HAL_StatusTypeDef HAL_SDRAM_Write_32b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAd
   }
   
   /* Write data to memory */
-  for(; BufferSize != 0; BufferSize--)
+  for(; BufferSize != 0U; BufferSize--)
   {
     *(__IO uint32_t *)pSdramAddress = *pSrcBuffer;
     pSrcBuffer++;
@@ -551,7 +561,7 @@ HAL_StatusTypeDef HAL_SDRAM_Write_32b(SDRAM_HandleTypeDef *hsdram, uint32_t *pAd
   */
 HAL_StatusTypeDef HAL_SDRAM_Read_DMA(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddress, uint32_t *pDstBuffer, uint32_t BufferSize)
 {
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
     
   /* Process Locked */
   __HAL_LOCK(hsdram);
@@ -592,7 +602,7 @@ HAL_StatusTypeDef HAL_SDRAM_Read_DMA(SDRAM_HandleTypeDef *hsdram, uint32_t *pAdd
   */
 HAL_StatusTypeDef HAL_SDRAM_Write_DMA(SDRAM_HandleTypeDef *hsdram, uint32_t *pAddress, uint32_t *pSrcBuffer, uint32_t BufferSize)
 {
-  uint32_t tmp = 0;
+  uint32_t tmp = 0U;
   
   /* Process Locked */
   __HAL_LOCK(hsdram);
