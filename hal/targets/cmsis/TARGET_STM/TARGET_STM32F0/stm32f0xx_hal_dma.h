@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
@@ -143,6 +143,8 @@ typedef struct __DMA_HandleTypeDef
   
   void                  (* XferErrorCallback)( struct __DMA_HandleTypeDef * hdma);    /*!< DMA transfer error callback            */
   
+  void                  (* XferAbortCallback)( struct __DMA_HandleTypeDef * hdma);   /*!< DMA transfer abort callback          */  
+  
   __IO uint32_t         ErrorCode;                                                    /*!< DMA Error code                         */
 } DMA_HandleTypeDef;    
 
@@ -159,9 +161,10 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Error_Code DMA Error Code
   * @{
   */ 
-#define HAL_DMA_ERROR_NONE      ((uint32_t)0x00000000)    /*!< No error             */
-#define HAL_DMA_ERROR_TE        ((uint32_t)0x00000001)    /*!< Transfer error       */
-#define HAL_DMA_ERROR_TIMEOUT   ((uint32_t)0x00000020)    /*!< Timeout error        */
+#define HAL_DMA_ERROR_NONE        ((uint32_t)0x00000000)    /*!< No error             */
+#define HAL_DMA_ERROR_TE          ((uint32_t)0x00000001)    /*!< Transfer error       */
+#define HAL_DMA_ERROR_NO_XFER     ((uint32_t)0x00000004)    /*!< no ongoin transfer   */
+#define HAL_DMA_ERROR_TIMEOUT     ((uint32_t)0x00000020)    /*!< Timeout error        */
 /**
   * @}
   */
@@ -414,6 +417,14 @@ typedef struct __DMA_HandleTypeDef
   */
 #define __HAL_DMA_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)  ((((__HANDLE__)->Instance->CCR & (__INTERRUPT__)) == (__INTERRUPT__)) ? SET : RESET)
 
+/**
+  * @brief  Returns the number of remaining data units in the current DMAy Channelx transfer.
+  * @param  __HANDLE__: DMA handle
+  *   
+  * @retval The number of remaining data units in the current DMA Channel transfer.
+  */
+#define __HAL_DMA_GET_COUNTER(__HANDLE__) ((__HANDLE__)->Instance->CNDTR)
+
 #if defined(SYSCFG_CFGR1_DMA_RMP)
 /** @brief  DMA remapping enable/disable macros
   * @param __DMA_REMAP__: This parameter can be a value of @ref HAL_DMA_remapping
@@ -455,6 +466,7 @@ HAL_StatusTypeDef HAL_DMA_DeInit (DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_Start (DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 HAL_StatusTypeDef HAL_DMA_Abort(DMA_HandleTypeDef *hdma);
+HAL_StatusTypeDef HAL_DMA_Abort_IT(DMA_HandleTypeDef *hdma);
 HAL_StatusTypeDef HAL_DMA_PollForTransfer(DMA_HandleTypeDef *hdma, uint32_t CompleteLevel, uint32_t Timeout);
 void HAL_DMA_IRQHandler(DMA_HandleTypeDef *hdma);
 /**

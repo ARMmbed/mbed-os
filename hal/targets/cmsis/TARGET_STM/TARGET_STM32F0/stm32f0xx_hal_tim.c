@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tim.c
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer (TIM) peripheral:
@@ -159,8 +159,6 @@ static void TIM_TI3_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32
                        uint32_t TIM_ICFilter);
 static void TIM_TI4_SetConfig(TIM_TypeDef *TIMx, uint32_t TIM_ICPolarity, uint32_t TIM_ICSelection,
                        uint32_t TIM_ICFilter);
-static void TIM_ETR_SetConfig(TIM_TypeDef* TIMx, uint32_t TIM_ExtTRGPrescaler,
-                       uint32_t TIM_ExtTRGPolarity, uint32_t ExtTRGFilter);
 static void TIM_ITRx_SetConfig(TIM_TypeDef* TIMx, uint16_t InputTriggerSource);
 static void TIM_DMAPeriodElapsedCplt(DMA_HandleTypeDef *hdma);
 static void TIM_DMATriggerCplt(DMA_HandleTypeDef *hdma);
@@ -1148,7 +1146,7 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
 /**
   * @brief  Starts the PWM signal generation in interrupt mode.
   * @param  htim : TIM handle
-  * @param  Channel : TIM Channel to be disabled
+  * @param  Channel : TIM Channel to be enabled
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -3790,7 +3788,7 @@ HAL_StatusTypeDef HAL_TIM_GenerateEvent(TIM_HandleTypeDef *htim, uint32_t EventS
   *            @arg TIM_CHANNEL_4: TIM Channel 4
   * @retval HAL status
   */ 
-HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim, TIM_ClearInputConfigTypeDef * sClearInputConfig, uint32_t Channel)
+__weak HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim, TIM_ClearInputConfigTypeDef * sClearInputConfig, uint32_t Channel)
 {
   uint32_t tmpsmcr = 0;
 
@@ -4893,7 +4891,7 @@ static void TIM_OC4_SetConfig(TIM_TypeDef *TIMx, TIM_OC_InitTypeDef *OC_Config)
   TIMx->CCER = tmpccer;
 }
 
-void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
+static void TIM_SlaveTimer_SetConfig(TIM_HandleTypeDef *htim,
                               TIM_SlaveConfigTypeDef * sSlaveConfig)
 {
   uint32_t tmpsmcr = 0;
@@ -5331,7 +5329,7 @@ static void TIM_ITRx_SetConfig(TIM_TypeDef *TIMx, uint16_t InputTriggerSource)
   *          This parameter must be a value between 0x00 and 0x0F
   * @retval None
   */
-static void TIM_ETR_SetConfig(TIM_TypeDef* TIMx, uint32_t TIM_ExtTRGPrescaler,
+void TIM_ETR_SetConfig(TIM_TypeDef* TIMx, uint32_t TIM_ExtTRGPrescaler,
                        uint32_t TIM_ExtTRGPolarity, uint32_t ExtTRGFilter)
 {
   uint32_t tmpsmcr = 0;
