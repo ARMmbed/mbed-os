@@ -66,7 +66,9 @@
 #endif
 
 // The stack space occupied is mainly dependent on the underling C standard library
-#if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
+#if defined(OS_STKSIZE)
+#    define WORDS_STACK_SIZE   ((OS_STKSIZE + 3) & ~3)
+#elif defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
 #    define WORDS_STACK_SIZE   512
 #elif defined(TOOLCHAIN_ARM_MICRO)
 #    define WORDS_STACK_SIZE   128
