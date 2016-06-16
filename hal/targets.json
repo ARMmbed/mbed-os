@@ -590,12 +590,7 @@
         "extra_labels": ["STM", "STM32F0", "STM32F042K6"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
-        "progen": {
-            "target": "nucleo-f042k6",
-            "uvision5": {
-                "template": ["uvision_microlib_crossmoduleoptim.uvproj.tmpl"]
-            }
-        },
+        "progen": {"target": "nucleo-f042k6"},
         "detect_code": ["0785"],
         "device_has": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
@@ -769,7 +764,6 @@
     "NUCLEO_F746ZG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",
-        "default_toolchain": "uARM",
         "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746ZG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {
@@ -959,7 +953,6 @@
     "DISCO_F746NG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",
-        "default_toolchain": "uARM",
         "extra_labels": ["STM", "STM32F7", "STM32F746", "STM32F746NG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "disco-f746ng"},
