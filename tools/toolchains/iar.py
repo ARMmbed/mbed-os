@@ -127,7 +127,11 @@ class IAR(mbedToolchain):
         return ["-l", base + '.s.txt']
 
     def get_compile_options(self, defines, includes):
-        return ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + ['--preinclude', config_header]
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):

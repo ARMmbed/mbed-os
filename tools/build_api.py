@@ -232,8 +232,8 @@ def build_project(src_path, build_path, target, toolchain_name,
             prev_features = features
         config.validate_config()
 
-        # And add the configuration macros to the toolchain
-        toolchain.add_macros(config.get_config_data_macros())
+        # Set the toolchain's config header with the config data
+        toolchain.set_config_header_content(config.get_config_data_header())
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, build_path, resources.inc_dirs)
@@ -391,8 +391,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
             prev_features = features
         config.validate_config()
 
-        # And add the configuration macros to the toolchain
-        toolchain.add_macros(config.get_config_data_macros())
+        # Set the toolchain's config header with the config data
+        toolchain.set_config_header_content(config.get_config_data_header())
 
         # Copy headers, objects and static libraries - all files needed for static lib
         toolchain.copy_files(resources.headers, build_path, resources=resources)

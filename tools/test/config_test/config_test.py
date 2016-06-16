@@ -16,7 +16,7 @@ limitations under the License.
 """
 
 from tools.build_api import get_config
-from tools.config import ConfigException
+from tools.config import ConfigException, Config
 import os, sys
 
 # Compare the output of config against a dictionary of known good results
@@ -44,6 +44,7 @@ def test_tree(full_name, name):
         err_msg = None
         try:
             cfg, macros, features = get_config(full_name, target, "GCC_ARM")
+            macros = Config.config_macros_to_macros(macros)
         except ConfigException as e:
             err_msg = e.message
         if err_msg:

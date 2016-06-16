@@ -270,6 +270,9 @@ class mbedToolchain:
             
         self.flags = deepcopy(self.DEFAULT_FLAGS)
 
+        # config_header_content will hold the content of the config header (if used)
+        self.config_header_content = None
+
     def get_output(self):
         return self.output
 
@@ -878,6 +881,26 @@ class mbedToolchain:
         # Write output to file in CSV format for the CI
         map_csv = splitext(map)[0] + "_map.csv"
         memap.generate_output('csv-ci', map_csv)
+
+    # "Prefix headers" are automatically included by the compiler at the beginning of
+    # each source file. They are used to provide configuration data.
+    # header_content - the content of the config header file.
+    def set_config_header_content(self, header_content):
+        self.config_header_content = header_content
+
+    # Return the location of the config header. This function will create the config
+    # header first if needed. The header will be written in a file called "mbed_conf.h"
+    # located in the project's build directory.
+    # If config headers are not used (self.config_header_content is None), the function
+    # returns None
+    def get_config_header(self):
+        if self.config_header_content is None:
+            return None
+        config_file = join(self.build_dir, "mbed_conf.h")
+        if not exists(config_file):
+            with open(config_file, "wt") as f:
+                f.write(self.config_header_content)
+        return config_file
 
 
 from tools.settings import ARM_BIN

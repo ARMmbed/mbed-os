@@ -132,8 +132,10 @@ class ConfigMacro:
             if len(tmp) != 2:
                 raise ValueError("Invalid macro definition '%s' in '%s'" % (name, self.defined_by))
             self.macro_name = tmp[0]
+            self.macro_value = tmp[1]
         else:
             self.macro_name = name
+            self.macro_value = None
 
 # 'Config' implements the mbed configuration mechanism
 class Config:
@@ -343,13 +345,13 @@ class Config:
 
     # Return the configuration data in two parts:
     #   - params: a dictionary with (name, ConfigParam) entries
-    #   - macros: the list of macros defined with "macros" in libraries and in the application
+    #   - macros: the list of macros defined with "macros" in libraries and in the application (as ConfigMacro instances)
     def get_config_data(self):
         all_params = self.get_target_config_data()
         lib_params, macros = self.get_lib_config_data()
         all_params.update(lib_params)
         self.get_app_config_data(all_params, macros)
-        return all_params, [m.name for m in macros.values()]
+        return all_params, macros
 
     # Helper: verify if there are any required parameters without a value in 'params'
     def _check_required_parameters(self, params):
@@ -363,11 +365,17 @@ class Config:
     def parameters_to_macros(params):
         return ['%s=%s' % (m.macro_name, m.value) for m in params.values() if m.value is not None]
 
+    # Return the macro definitions generated for a dictionary of ConfigMacros (as returned by get_config_data)
+    # params: a dictionary of (name, ConfigMacro instance) mappings
+    @staticmethod
+    def config_macros_to_macros(macros):
+        return [m.name for m in macros.values()]
+
     # Return the configuration data converted to a list of C macros
     def get_config_data_macros(self):
         params, macros = self.get_config_data()
         self._check_required_parameters(params)
-        return macros + self.parameters_to_macros(params)
+        return self.config_macros_to_macros(macros) + self.parameters_to_macros(params)
 
     # Returns any features in the configuration data
     def get_features(self):
@@ -387,4 +395,43 @@ class Config:
         if self.config_errors:
             raise self.config_errors[0]
         return True
-        
+
+    # Return the configuration data converted to the content of a C header file,
+    # meant to be included to a C/C++ file. The content is returned as a string.
+    # If 'fname' is given, the content is also written to the file called "fname".
+    # WARNING: if 'fname' names an existing file, that file will be overwritten!
+    def get_config_data_header(self, fname = None):
+        params, macros = self.get_config_data()
+        self._check_required_parameters(params)
+        header_data =  "// Automatically generated configuration file.\n"
+        header_data += "// DO NOT EDIT, content will be overwritten.\n\n"
+        header_data += "#ifndef __MBED_CONFIG_DATA__\n"
+        header_data += "#define __MBED_CONFIG_DATA__\n\n"
+        # Compute maximum length of macro names for proper alignment
+        max_param_macro_name_len = max([len(m.macro_name) for m in params.values() if m.value is not None]) if params else 0
+        max_direct_macro_name_len = max([len(m.macro_name) for m in macros.values()]) if macros else 0
+        max_macro_name_len = max(max_param_macro_name_len, max_direct_macro_name_len)
+        # Compute maximum length of macro values for proper alignment
+        max_param_macro_val_len = max([len(str(m.value)) for m in params.values() if m.value is not None]) if params else 0
+        max_direct_macro_val_len = max([len(m.macro_value or "") for m in macros.values()]) if macros else 0
+        max_macro_val_len = max(max_param_macro_val_len, max_direct_macro_val_len)
+        # Generate config parameters first
+        if params:
+            header_data += "// Configuration parameters\n"
+            for m in params.values():
+                if m.value is not None:
+                    header_data += "#define {0:<{1}} {2!s:<{3}} // set by {4}\n".format(m.macro_name, max_macro_name_len, m.value, max_macro_val_len, m.set_by)
+        # Then macros
+        if macros:
+            header_data += "// Macros\n"
+            for m in macros.values():
+                if m.macro_value:
+                    header_data += "#define {0:<{1}} {2!s:<{3}} // defined by {4}\n".format(m.macro_name, max_macro_name_len, m.macro_value, max_macro_val_len, m.defined_by)
+                else:
+                    header_data += "#define {0:<{1}} // defined by {2}\n".format(m.macro_name, max_macro_name_len + max_macro_val_len + 1, m.defined_by)
+        header_data += "\n#endif\n"
+        # If fname is given, write "header_data" to it
+        if fname:
+            with open(fname, "wt") as f:
+                f.write(header_data)
+        return header_data
