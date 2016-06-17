@@ -11,7 +11,7 @@
  */
 
 #include "ble_advdata.h"
-#include "ble_gap.h"
+#include "nrf_ble_gap.h"
 #include "ble_srv_common.h"
 #include "sdk_common.h"
 
@@ -156,7 +156,7 @@ static uint32_t name_encode(const ble_advdata_t * p_advdata,
     err_code = sd_ble_gap_device_name_get(&p_encoded_data[(*p_offset) + ADV_AD_DATA_OFFSET],
                                           &actual_length);
     VERIFY_SUCCESS(err_code);
-    
+
     // Check if device intend to use short name and it can fit available data size.
     if ((p_advdata->name_type == BLE_ADVDATA_FULL_NAME) && (actual_length <= rem_adv_data_len))
     {
@@ -312,7 +312,7 @@ static uint32_t uuid_list_sized_encode(const ble_advdata_uuid_list_t * p_uuid_li
         uint32_t   err_code;
         uint8_t    encoded_size;
         ble_uuid_t uuid = p_uuid_list->p_uuids[i];
-        
+
         // Find encoded uuid size.
         err_code = sd_ble_uuid_encode(&uuid, &encoded_size, NULL);
         VERIFY_SUCCESS(err_code);
@@ -321,7 +321,7 @@ static uint32_t uuid_list_sized_encode(const ble_advdata_uuid_list_t * p_uuid_li
         if (encoded_size == uuid_size)
         {
             uint8_t heading_bytes = (is_heading_written) ? 0 : ADV_AD_DATA_OFFSET;
-            
+
             // Check for buffer overflow
             if (((*p_offset) + encoded_size + heading_bytes) > max_size)
             {
@@ -405,9 +405,9 @@ static uint32_t conn_int_check(const ble_advdata_conn_int_t *p_conn_int)
     }
 
     // Check Maximum Connection Interval.
-    if ((p_conn_int->max_conn_interval < 0x0006) || 
+    if ((p_conn_int->max_conn_interval < 0x0006) ||
         (
-            (p_conn_int->max_conn_interval > 0x0c80) && 
+            (p_conn_int->max_conn_interval > 0x0c80) &&
             (p_conn_int->max_conn_interval != 0xffff)
         )
        )
@@ -483,10 +483,10 @@ static uint32_t manuf_specific_data_encode(const ble_advdata_manuf_data_t * p_ma
     *p_offset                 += ADV_LENGTH_FIELD_SIZE;
     p_encoded_data[*p_offset]  = BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA;
     *p_offset                 += ADV_AD_TYPE_FIELD_SIZE;
-    
+
     // Encode Company Identifier.
     *p_offset += uint16_encode(p_manuf_sp_data->company_identifier, &p_encoded_data[*p_offset]);
-    
+
     // Encode additional manufacturer specific data.
     if (p_manuf_sp_data->data.size > 0)
     {
@@ -571,7 +571,7 @@ uint32_t adv_data_encode(ble_advdata_t const * const p_advdata,
                                              max_size);
         VERIFY_SUCCESS(err_code);
     }
-		
+
     // Encode Security Manager TK value
     if (NULL != p_advdata->p_tk_value)
     {
@@ -605,7 +605,7 @@ uint32_t adv_data_encode(ble_advdata_t const * const p_advdata,
     {
         err_code = flags_encode(p_advdata->flags, p_encoded_data, p_len, max_size);
         VERIFY_SUCCESS(err_code);
-    } 
+    }
 
     // Encode TX power level.
     if (p_advdata->p_tx_power_level != NULL)
@@ -616,7 +616,7 @@ uint32_t adv_data_encode(ble_advdata_t const * const p_advdata,
                                          max_size);
         VERIFY_SUCCESS(err_code);
     }
-    
+
     // Encode 'more available' uuid list.
     if (p_advdata->uuids_more_available.uuid_cnt > 0)
     {

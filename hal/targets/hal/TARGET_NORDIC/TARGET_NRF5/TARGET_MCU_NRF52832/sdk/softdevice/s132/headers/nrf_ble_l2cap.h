@@ -40,12 +40,12 @@
   @brief Definitions and prototypes for the L2CAP interface.
  */
 
-#ifndef BLE_L2CAP_H__
-#define BLE_L2CAP_H__
+#ifndef NRF_BLE_L2CAP_H__
+#define NRF_BLE_L2CAP_H__
 
-#include "ble_types.h"
-#include "ble_ranges.h"
-#include "ble_err.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble_ranges.h"
+#include "nrf_ble_err.h"
 #include "nrf_svc.h"
 
 #ifdef __cplusplus
@@ -195,7 +195,7 @@ SVCALL(SD_BLE_L2CAP_TX, uint32_t, sd_ble_l2cap_tx(uint16_t conn_handle, ble_l2ca
 #ifdef __cplusplus
 }
 #endif
-#endif // BLE_L2CAP_H__
+#endif // NRF_BLE_L2CAP_H__
 
 /**
   @}

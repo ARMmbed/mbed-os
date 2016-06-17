@@ -25,8 +25,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "nrf.h"
-#include "ble_gap.h"
-#include "ble_hci.h"
+#include "nrf_ble_gap.h"
+#include "nrf_ble_hci.h"
 #include "app_util.h"
 #include "app_util_platform.h"
 #include "ble_gatt_db.h"

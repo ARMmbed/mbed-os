@@ -40,14 +40,14 @@
   @brief  Definitions and prototypes for the GATTS interface.
  */
 
-#ifndef BLE_GATTS_H__
-#define BLE_GATTS_H__
+#ifndef NRF_BLE_GATTS_H__
+#define NRF_BLE_GATTS_H__
 
-#include "ble_types.h"
-#include "ble_ranges.h"
-#include "ble_l2cap.h"
-#include "ble_gap.h"
-#include "ble_gatt.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble_ranges.h"
+#include "nrf_ble_l2cap.h"
+#include "nrf_ble_gap.h"
+#include "nrf_ble_gatt.h"
 #include "nrf_svc.h"
 
 #ifdef __cplusplus
@@ -715,7 +715,7 @@ SVCALL(SD_BLE_GATTS_ATTR_GET, uint32_t, sd_ble_gatts_attr_get(uint16_t handle, b
 #ifdef __cplusplus
 }
 #endif
-#endif // BLE_GATTS_H__
+#endif // NRF_BLE_GATTS_H__
 
 /**
   @}

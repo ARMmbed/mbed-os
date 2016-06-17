@@ -43,6 +43,7 @@
  */
 
 /*lint -save -e14 */
+#if 0
 void app_error_handler(ret_code_t error_code, uint32_t line_num, const uint8_t * p_file_name)
 {
     error_info_t error_info =
@@ -55,6 +56,7 @@ void app_error_handler(ret_code_t error_code, uint32_t line_num, const uint8_t *
 
     UNUSED_VARIABLE(error_info);
 }
+#endif
 
 /*lint -save -e14 */
 void app_error_handler_bare(ret_code_t error_code)

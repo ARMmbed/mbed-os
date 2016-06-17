@@ -1,26 +1,26 @@
-/* 
+/*
  * Copyright (c) Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   2. Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  *   3. Neither the name of Nordic Semiconductor ASA nor the names of other
  *   contributors to this software may be used to endorse or promote products
  *   derived from this software without specific prior written permission.
- * 
+ *
  *   4. This software must only be used in a processor manufactured by Nordic
  *   Semiconductor ASA, or in a processor manufactured by a third party that
  *   is used in combination with a processor manufactured by Nordic Semiconductor.
- * 
- * 
+ *
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,7 +31,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 /**
@@ -40,12 +40,12 @@
   @brief  Definitions and prototypes for the GATT Client interface.
  */
 
-#ifndef BLE_GATTC_H__
-#define BLE_GATTC_H__
+#ifndef NRF_BLE_GATTC_H__
+#define NRF_BLE_GATTC_H__
 
-#include "ble_gatt.h"
-#include "ble_types.h"
-#include "ble_ranges.h"
+#include "nrf_ble_gatt.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble_ranges.h"
 #include "nrf_svc.h"
 
 #ifdef __cplusplus
@@ -215,10 +215,10 @@ typedef struct
 } ble_gattc_evt_attr_info_disc_rsp_t;
 
 /**@brief GATT read by UUID handle value pair. */
-typedef struct 
+typedef struct
 {
   uint16_t            handle;          /**< Attribute Handle. */
-  uint8_t             *p_value;        /**< Pointer to value, variable length (length available as value_len in @ref ble_gattc_evt_char_val_by_uuid_read_rsp_t). 
+  uint8_t             *p_value;        /**< Pointer to value, variable length (length available as value_len in @ref ble_gattc_evt_char_val_by_uuid_read_rsp_t).
                                             Please note that this pointer is absolute to the memory provided by the user when retrieving the event,
                                             so it will effectively point to a location inside the handle_value array. */
 } ble_gattc_handle_value_t;
@@ -305,7 +305,7 @@ typedef struct
 
 /**@brief Initiate or continue a GATT Primary Service Discovery procedure.
  *
- * @details This function initiates or resumes a Primary Service discovery procedure, starting from the supplied handle. 
+ * @details This function initiates or resumes a Primary Service discovery procedure, starting from the supplied handle.
  *          If the last service has not been reached, this function must be called again with an updated start handle value to continue the search.
  *
  * @note If any of the discovered services have 128-bit UUIDs which are not present in the table provided to ble_vs_uuids_assign, a UUID structure with
@@ -314,11 +314,11 @@ typedef struct
  * @events
  * @event{@ref BLE_GATTC_EVT_PRIM_SRVC_DISC_RSP}
  * @endevents
- *       
+ *
  * @mscs
  * @mmsc{@ref BLE_GATTC_PRIM_SRVC_DISC_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] start_handle Handle to start searching from.
  * @param[in] p_srvc_uuid Pointer to the service UUID to be found. If it is NULL, all primary services will be returned.
@@ -340,11 +340,11 @@ SVCALL(SD_BLE_GATTC_PRIMARY_SERVICES_DISCOVER, uint32_t, sd_ble_gattc_primary_se
  * @events
  * @event{@ref BLE_GATTC_EVT_REL_DISC_RSP}
  * @endevents
- *          
+ *
  * @mscs
  * @mmsc{@ref BLE_GATTC_REL_DISC_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_handle_range A pointer to the range of handles of the Service to perform this procedure on.
  *
@@ -373,7 +373,7 @@ SVCALL(SD_BLE_GATTC_RELATIONSHIPS_DISCOVER, uint32_t, sd_ble_gattc_relationships
  * @mscs
  * @mmsc{@ref BLE_GATTC_CHAR_DISC_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_handle_range A pointer to the range of handles of the Service to perform this procedure on.
  *
@@ -398,7 +398,7 @@ SVCALL(SD_BLE_GATTC_CHARACTERISTICS_DISCOVER, uint32_t, sd_ble_gattc_characteris
  * @mscs
  * @mmsc{@ref BLE_GATTC_DESC_DISC_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_handle_range A pointer to the range of handles of the Characteristic to perform this procedure on.
  *
@@ -419,11 +419,11 @@ SVCALL(SD_BLE_GATTC_DESCRIPTORS_DISCOVER, uint32_t, sd_ble_gattc_descriptors_dis
  * @events
  * @event{BLE_GATTC_EVT_DESC_DISC_RSP}
  * @endevents
- *          
+ *
  * @mscs
  * @mmsc{@ref BLE_GATTC_READ_UUID_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_uuid Pointer to a Characteristic value UUID to read.
  * @param[in] p_handle_range A pointer to the range of handles to perform this procedure on.
@@ -440,17 +440,17 @@ SVCALL(SD_BLE_GATTC_CHAR_VALUE_BY_UUID_READ, uint32_t, sd_ble_gattc_char_value_b
 /**@brief Initiate or continue a GATT Read (Long) Characteristic or Descriptor procedure.
  *
  * @details This function initiates or resumes a GATT Read (Long) Characteristic or Descriptor procedure. If the Characteristic or Descriptor
- *          to be read is longer than ATT_MTU - 1, this function must be called multiple times with appropriate offset to read the 
+ *          to be read is longer than ATT_MTU - 1, this function must be called multiple times with appropriate offset to read the
  *          complete value.
  *
  * @events
  * @event{@ref BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP}
  * @endevents
- *          
+ *
  * @mscs
  * @mmsc{@ref BLE_GATTC_VALUE_READ_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] handle The handle of the attribute to be read.
  * @param[in] offset Offset into the attribute value to be read.
@@ -465,16 +465,16 @@ SVCALL(SD_BLE_GATTC_READ, uint32_t, sd_ble_gattc_read(uint16_t conn_handle, uint
 
 /**@brief Initiate a GATT Read Multiple Characteristic Values procedure.
  *
- * @details This function initiates a GATT Read Multiple Characteristic Values procedure. 
+ * @details This function initiates a GATT Read Multiple Characteristic Values procedure.
  *
  * @events
  * @event{@ref BLE_GATTC_EVT_CHAR_VALS_READ_RSP}
  * @endevents
- * 
+ *
  * @mscs
  * @mmsc{@ref BLE_GATTC_READ_MULT_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_handles A pointer to the handle(s) of the attribute(s) to be read.
  * @param[in] handle_count The number of handles in p_handles.
@@ -490,24 +490,24 @@ SVCALL(SD_BLE_GATTC_CHAR_VALUES_READ, uint32_t, sd_ble_gattc_char_values_read(ui
 
 /**@brief Perform a Write (Characteristic Value or Descriptor, with or without response, signed or not, long or reliable) procedure.
  *
- * @details This function can perform all write procedures described in GATT. 
+ * @details This function can perform all write procedures described in GATT.
  *
- * @note    It is important to note that a write without response will <b>consume an application buffer</b>, and will therefore 
- *          generate a @ref BLE_EVT_TX_COMPLETE event when the packet has been transmitted. A write (with response) on the other hand will use the 
- *          standard client internal buffer and thus will only generate a @ref BLE_GATTC_EVT_WRITE_RSP event as soon as the write response 
+ * @note    It is important to note that a write without response will <b>consume an application buffer</b>, and will therefore
+ *          generate a @ref BLE_EVT_TX_COMPLETE event when the packet has been transmitted. A write (with response) on the other hand will use the
+ *          standard client internal buffer and thus will only generate a @ref BLE_GATTC_EVT_WRITE_RSP event as soon as the write response
  *          has been received from the peer. Please see the documentation of @ref sd_ble_tx_packet_count_get for more details.
  *
  * @events
  * @event{@ref BLE_GATTC_EVT_WRITE_RSP, Generated when using write request or queued writes.}
  * @endevents
- *          
+ *
  * @mscs
  * @mmsc{@ref BLE_GATTC_VALUE_WRITE_MSC}
  * @mmsc{@ref BLE_GATTC_VALUE_LONG_WRITE_MSC}
  * @mmsc{@ref BLE_GATTC_VALUE_RELIABLE_WRITE_MSC}
  * @mmsc{@ref BLE_COMMON_APP_BUFF_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] p_write_params A pointer to a write parameters structure.
  *
@@ -524,11 +524,11 @@ SVCALL(SD_BLE_GATTC_WRITE, uint32_t, sd_ble_gattc_write(uint16_t conn_handle, bl
 
 
 /**@brief Send a Handle Value Confirmation to the GATT Server.
- * 
+ *
  * @mscs
  * @mmsc{@ref BLE_GATTC_HVI_MSC}
  * @endmscs
- * 
+ *
  * @param[in] conn_handle The connection handle identifying the connection to perform this procedure on.
  * @param[in] handle The handle of the attribute in the indication.
  *
@@ -561,7 +561,7 @@ SVCALL(SD_BLE_GATTC_ATTR_INFO_DISCOVER, uint32_t, sd_ble_gattc_attr_info_discove
 #ifdef __cplusplus
 }
 #endif
-#endif /* BLE_GATTC_H__ */
+#endif /* NRF_BLE_GATTC_H__ */
 
 /**
   @}

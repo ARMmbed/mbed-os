@@ -13,7 +13,7 @@
 #include "ble_conn_params.h"
 #include <stdlib.h>
 #include "nordic_common.h"
-#include "ble_hci.h"
+#include "nrf_ble_hci.h"
 #include "app_timer.h"
 #include "ble_srv_common.h"
 #include "app_util.h"
@@ -35,7 +35,7 @@ static bool is_conn_params_ok(ble_gap_conn_params_t * p_conn_params)
     //       the client's connection interval.
     if (
         (p_conn_params->max_conn_interval >= m_preferred_conn_params.min_conn_interval)
-        && 
+        &&
         (p_conn_params->max_conn_interval <= m_preferred_conn_params.max_conn_interval)
        )
     {

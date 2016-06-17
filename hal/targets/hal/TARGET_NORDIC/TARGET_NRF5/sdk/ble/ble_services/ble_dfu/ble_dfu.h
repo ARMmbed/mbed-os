@@ -28,9 +28,9 @@
 #define BLE_DFU_H__
 
 #include <stdint.h>
-#include "ble_gatts.h"
-#include "ble_gap.h"
-#include "ble.h"
+#include "nrf_ble_gatts.h"
+#include "nrf_ble_gap.h"
+#include "nrf_ble.h"
 #include "ble_srv_common.h"
 
 #define BLE_DFU_SERVICE_UUID                 0x1530                       /**< The UUID of the DFU Service. */

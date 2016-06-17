@@ -40,11 +40,11 @@
   @brief Definitions and prototypes for the GAP interface.
  */
 
-#ifndef BLE_GAP_H__
-#define BLE_GAP_H__
+#ifndef NRF_BLE_GAP_H__
+#define NRF_BLE_GAP_H__
 
-#include "ble_types.h"
-#include "ble_ranges.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble_ranges.h"
 #include "nrf_svc.h"
 
 #ifdef __cplusplus
@@ -659,8 +659,8 @@ typedef struct
 typedef struct
 {
   uint8_t passkey[BLE_GAP_PASSKEY_LEN];         /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
-  uint8_t match_request : 1;                    /**< If 1 requires the application to report the match using @ref sd_ble_gap_auth_key_reply 
-                                                     with either @ref BLE_GAP_AUTH_KEY_TYPE_NONE if there is no match or 
+  uint8_t match_request : 1;                    /**< If 1 requires the application to report the match using @ref sd_ble_gap_auth_key_reply
+                                                     with either @ref BLE_GAP_AUTH_KEY_TYPE_NONE if there is no match or
                                                      @ref BLE_GAP_AUTH_KEY_TYPE_PASSKEY if there is a match. */
 } ble_gap_evt_passkey_display_t;
 
@@ -680,7 +680,7 @@ typedef struct
 /**@brief Event structure for @ref BLE_GAP_EVT_LESC_DHKEY_REQUEST. */
 typedef struct
 {
-  ble_gap_lesc_p256_pk_t *p_pk_peer;  /**< LE Secure Connections remote P-256 Public Key. This will point to the application-supplied memory 
+  ble_gap_lesc_p256_pk_t *p_pk_peer;  /**< LE Secure Connections remote P-256 Public Key. This will point to the application-supplied memory
                                            inside the keyset during the call to @ref sd_ble_gap_sec_params_reply. */
   uint8_t oobd_req       :1;          /**< LESC OOB data required. A call to @ref sd_ble_gap_lesc_oob_data_set is required to complete the procedure. */
 } ble_gap_evt_lesc_dhkey_request_t;
@@ -720,7 +720,7 @@ typedef struct
   ble_gap_enc_key_t      *p_enc_key;           /**< Encryption Key, or NULL. */
   ble_gap_id_key_t       *p_id_key;            /**< Identity Key, or NULL. */
   ble_gap_sign_info_t    *p_sign_key;          /**< Signing Key, or NULL. */
-  ble_gap_lesc_p256_pk_t *p_pk;                /**< LE Secure Connections P-256 Public Key. When in debug mode the application must use the value defined 
+  ble_gap_lesc_p256_pk_t *p_pk;                /**< LE Secure Connections P-256 Public Key. When in debug mode the application must use the value defined
                                                     in the Core Bluetooth Specification v4.2 Vol.3, Part H, Section 2.3.5.6.1 */
 } ble_gap_sec_keys_t;
 
@@ -1367,8 +1367,8 @@ SVCALL(SD_BLE_GAP_AUTHENTICATE, uint32_t, sd_ble_gap_authenticate(uint16_t conn_
  * @param[in] sec_status Security status, see @ref BLE_GAP_SEC_STATUS.
  * @param[in] p_sec_params Pointer to a @ref ble_gap_sec_params_t security parameters structure. In the central role this must be set to NULL, as the parameters have
  *                         already been provided during a previous call to @ref sd_ble_gap_authenticate.
- * @param[in,out] p_sec_keyset Pointer to a @ref ble_gap_sec_keyset_t security keyset structure. Any keys generated and/or distributed as a result of the ongoing security procedure 
- *                         will be stored into the memory referenced by the pointers inside this structure. The keys will be stored and available to the application 
+ * @param[in,out] p_sec_keyset Pointer to a @ref ble_gap_sec_keyset_t security keyset structure. Any keys generated and/or distributed as a result of the ongoing security procedure
+ *                         will be stored into the memory referenced by the pointers inside this structure. The keys will be stored and available to the application
  *                         upon reception of a @ref BLE_GAP_EVT_AUTH_STATUS event.
  *                         Note that the SoftDevice expects the application to provide memory for storing the
  *                         peer's keys. So it must be ensured that the relevant pointers inside this structure are not NULL. The pointers to the local key
@@ -1735,7 +1735,7 @@ SVCALL(SD_BLE_GAP_CONNECT_CANCEL, uint32_t, sd_ble_gap_connect_cancel(void));
 #ifdef __cplusplus
 }
 #endif
-#endif // BLE_GAP_H__
+#endif // NRF_BLE_GAP_H__
 
 /**
   @}

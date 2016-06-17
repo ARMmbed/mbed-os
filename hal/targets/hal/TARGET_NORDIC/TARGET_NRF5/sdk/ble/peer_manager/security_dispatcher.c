@@ -14,8 +14,8 @@
 #include "security_dispatcher.h"
 
 #include <string.h>
-#include "ble.h"
-#include "ble_gap.h"
+#include "nrf_ble.h"
+#include "nrf_ble_gap.h"
 #include "ble_conn_state.h"
 #include "peer_manager_types.h"
 #include "peer_database.h"
@@ -881,4 +881,3 @@ void smd_ble_evt_handler(ble_evt_t * p_ble_evt)
             break;
     };
 }
-
