@@ -187,6 +187,15 @@ void SystemInit(void)
     #endif
 
     SystemCoreClockUpdate();
+
+    NRF_CLOCK->LFCLKSRC            = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
+    NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
+    NRF_CLOCK->TASKS_LFCLKSTART    = 1;
+
+    while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {
+        // wait for the low frequency clock start
+    }
+
 }
 
 
