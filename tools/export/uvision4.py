@@ -69,16 +69,16 @@ class Uvision4(Exporter):
         # get flags from toolchain and apply
         project_data['tool_specific']['uvision']['misc'] = {}
         # asm flags only, common are not valid within uvision project, they are armcc specific
-        project_data['tool_specific']['uvision']['misc']['asm_flags'] = list(set(self.toolchain.flags['asm']))
+        project_data['tool_specific']['uvision']['misc']['asm_flags'] = list(set(self.progen_flags['asm_flags']))
         # cxx flags included, as uvision have them all in one tab
-        project_data['tool_specific']['uvision']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c'] + self.toolchain.flags['cxx']))
+        project_data['tool_specific']['uvision']['misc']['c_flags'] = list(set(self.progen_flags['common_flags'] + self.progen_flags['c_flags'] + self.progen_flags['cxx_flags']))
         # not compatible with c99 flag set in the template
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--c99")
         # ARM_INC is by default as system inclusion, not required for exported project
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("-I \""+ARM_INC+"\"")
         # cpp is not required as it's implicit for cpp files
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--cpp")
-        project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.toolchain.flags['ld']
+        project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.progen_flags['ld_flags']
 
         i = 0
         for macro in project_data['common']['macros']:
