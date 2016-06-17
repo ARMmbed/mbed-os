@@ -36,6 +36,7 @@
 #include "pinmap.h"
 #include <string.h>
 #include "PeripheralPins.h"
+#include "mbed_error.h"
 
 #define UART_NUM (5)
 
@@ -69,8 +70,12 @@ static void init_uart(serial_t *obj)
     // Disable the reception overrun detection
     UartHandle.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_RXOVERRUNDISABLE_INIT;
     UartHandle.AdvancedInit.OverrunDisable = UART_ADVFEATURE_OVERRUN_DISABLE;
-
-    HAL_UART_Init(&UartHandle);
+    /* uAMR & ARM: Call to UART init is done between reset of pre-initialized variables */
+    /* and before HAL Init. SystemCoreClock init required here */
+    SystemCoreClockUpdate();
+    if (HAL_UART_Init(&UartHandle) != HAL_OK) {
+        error("Cannot initialize UART\n");
+    }
 }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
