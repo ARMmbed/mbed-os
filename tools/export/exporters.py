@@ -176,7 +176,7 @@ class Exporter(object):
 
         # Add the configuration file to the target directory
         self.config_header =  "mbed_conf.h"
-        cfg.get_config_data_header(join(trg_path, self.config_header))
+        config.get_config_data_header(join(trg_path, self.config_header))
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:
