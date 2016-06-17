@@ -298,6 +298,7 @@ int32_t cfstore_test_create_table(const cfstore_kv_data_t* table)
     cfstore_kv_data_t* node = NULL;
     ARM_CFSTORE_KEYDESC kdesc;
 
+    (void) node; /* suppresses warning when building release */
     CFSTORE_FENTRYLOG("%s:entered.\r\n", __func__);
     memset(&kdesc, 0, sizeof(kdesc));
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;

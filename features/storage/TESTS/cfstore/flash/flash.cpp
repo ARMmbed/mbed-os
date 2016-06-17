@@ -140,8 +140,8 @@ UVISOR_BOX_CONFIG(cfstore_flash_box1, UVISOR_BOX_STACK_SIZE);
  * Globals
  */
 
-#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 char cfstore_flash_utest_msg_g[CFSTORE_FLASH_UTEST_MSG_BUF_SIZE];
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 uint16_t cfstore_flash_mtd_async_ops_g = 0;
 extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
 
