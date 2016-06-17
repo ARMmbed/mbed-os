@@ -910,7 +910,7 @@ class mbedToolchain:
     def get_config_header(self):
         if self.config_header_content is None:
             return None
-        config_file = join(self.build_dir, "mbed_conf.h")
+        config_file = join(self.build_dir, "mbed_config.h")
         if not exists(config_file):
             with open(config_file, "wt") as f:
                 f.write(self.config_header_content)
