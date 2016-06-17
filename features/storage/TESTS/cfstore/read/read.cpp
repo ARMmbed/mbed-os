@@ -44,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_read_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -215,7 +215,7 @@ static control_t cfstore_read_test_02_end(const size_t call_count)
     (void) call_count;
     /*todo: implement test */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_read_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Warn: Not implemented\n", __func__);
-    CFSTORE_LOG("%s: WARN: requires implementation\n", __func__);
+    CFSTORE_DBGLOG("%s: WARN: requires implementation\n", __func__);
     TEST_ASSERT_MESSAGE(true, cfstore_read_utest_msg_g);
     return CaseNext;
 }

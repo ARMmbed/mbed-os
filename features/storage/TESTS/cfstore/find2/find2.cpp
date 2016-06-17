@@ -44,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_find2_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -103,6 +103,12 @@ static char cfstore_find2_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
 UVISOR_BOX_NAMESPACE("com.arm.mbed.cfstore.test.find2.box1");
 UVISOR_BOX_CONFIG(cfstore_find2_box1, UVISOR_BOX_STACK_SIZE);
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
+
+#ifdef CFSTORE_DEBUG
+#define CFSTORE_FIND2_GREENTEA_TIMEOUT_S     360
+#else
+#define CFSTORE_FIND2_GREENTEA_TIMEOUT_S     60
+#endif
 
 extern ARM_CFSTORE_DRIVER cfstore_driver;
 
@@ -258,14 +264,15 @@ static control_t cfstore_find2_test_02(const size_t call_count)
 		rc = cfstore_driver.Write(hkey, value, &length);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_find2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%sError: failed to write key\n", __func__);
         TEST_ASSERT_MESSAGE(rc >= ARM_DRIVER_OK, cfstore_find2_utest_msg_g);
-		printf("Success!\n");
+        /* revert to CFSTORE_LOG if more trace required */
+		CFSTORE_DBGLOG("Success!%s", "\n");
     }
     return CaseNext;
 }
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(400, "default_auto");
+    GREENTEA_SETUP(CFSTORE_FIND2_GREENTEA_TIMEOUT_S, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 

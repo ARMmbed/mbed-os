@@ -44,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_create_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -709,7 +709,7 @@ static control_t cfstore_create_test_06_end(const size_t call_count)
 
     ret32 = drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+    TEST_ASSERT_MESSAGE(ret32 >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
     return CaseNext;
 }
 

@@ -51,7 +51,7 @@ using namespace utest::v1;
 static control_t cfstore_flash_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -512,7 +512,7 @@ void cfstore_flash_fsm_write_on_entry(void* context)
         /* check the key_name read from flash is correct */
         blob = (cfstore_flash_data_blob_t*) ctx->area_0_head;
         value = (uint8_t) blob->data[CFSTORE_TEST_DATA_KEYNAME_SIZE];
-        printf("INFO: value read from flash = %u\r\n", value);
+        CFSTORE_DBGLOG("INFO: value read from flash = %u\r\n", value);
         /* update the value */
         value++;
         memcpy((void*) &blob->data[CFSTORE_TEST_DATA_KEYNAME_SIZE], (const void*) &value, sizeof(uint8_t));

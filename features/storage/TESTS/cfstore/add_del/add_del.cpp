@@ -168,7 +168,8 @@ static control_t cfstore_add_del_test_01_end(const size_t call_count)
         hkey = NULL;
     }
     /* check that the KV has been deleted */
-    printf("LOG: WARNING: About to look for non-existent key (key_name=%s) (which will generate internal trace reporting errors if debug trace enabled).\n", cfstore_add_del_test_07_data[0].key_name);
+    /* revert to CFSTORE_LOG if more trace required */
+    CFSTORE_DBGLOG("LOG: WARNING: About to look for non-existent key (key_name=%s) (which will generate internal trace reporting errors if debug trace enabled).\n", cfstore_add_del_test_07_data[0].key_name);
     ret = cfstore_test_kv_is_found(cfstore_add_del_test_07_data[0].key_name, &bfound);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error failed to delete a key (ret=%" PRId32 ").\n", __func__, ret);
     TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND, cfstore_add_del_utest_msg_g);
@@ -326,7 +327,7 @@ static control_t cfstore_add_del_test_04(const size_t call_count)
     (void) call_count;
     /*todo: implement test */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Warn: Not implemented\n", __func__);
-    CFSTORE_LOG("%s: WARN: requires implementation\n", __func__);
+    CFSTORE_DBGLOG("%s: WARN: requires implementation\n", __func__);
     TEST_ASSERT_MESSAGE(true, cfstore_add_del_utest_msg_g);
     return CaseNext;
 }

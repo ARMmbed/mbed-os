@@ -46,7 +46,7 @@
 #ifdef CFSTORE_DEBUG
 uint32_t cfstore_optDebug_g = 1;
 uint32_t cfstore_optLogLevel_g = CFSTORE_LOG_NONE; /*CFSTORE_LOG_NONE|CFSTORE_LOG_ERR|CFSTORE_LOG_DEBUG|CFSTORE_LOG_FENTRY */
-uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY */
+uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY; */
 #endif
 
 
@@ -2003,7 +2003,6 @@ static int32_t cfstore_flash_init(void)
     cfstore_ctx_t* ctx = cfstore_ctx_get();
 
     CFSTORE_FENTRYLOG("%s:entered: \n", __func__);
-    CFSTORE_FENTRYLOG("%s:: CFSTORE_CONFIG_BACKEND_FLASH_ENABLED=%d\n", __func__, (int) CFSTORE_CONFIG_BACKEND_FLASH_ENABLED);
     ctx->cmd_code = (FlashJournal_OpCode_t)((int) FLASH_JOURNAL_OPCODE_RESET+1);
     ctx->expected_blob_size = 0;
     ctx->fsm.event = cfstore_fsm_event_max;
@@ -2524,7 +2523,7 @@ static int32_t cfstore_validate_key_name_ex(const char* key_name, const char* pe
         	pos = cfstore_validate_pos_next_brace(pos);
         }
         if(brace_count != 0){
-            CFSTORE_ERRLOG("%s: Unmatched brace found in key_name (count=%" PRId32 ".\n", __func__, brace_count);
+            CFSTORE_ERRLOG("%s: Unmatched brace found in key_name (count=%d.\n", __func__, brace_count);
             return ARM_CFSTORE_DRIVER_ERROR_INVALID_KEY_NAME;
         }
     }

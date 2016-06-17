@@ -273,7 +273,8 @@ static control_t cfstore_example2_test_01(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_example2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Read() returned unexpected string (%s) where nulls have been converted to '=' chars\n", __func__, readBuf);
     TEST_ASSERT_MESSAGE(strncmp(readBuf, "Grumpy man=man=", (PvStrLen(value) + 1)) == 0, cfstore_example2_utest_msg_g);
 
-    CFSTORE_LOG("Success: New value of KV (%s) value blob (with nulls converted to '=') = (%s)\n", key, readBuf);
+    /* revert to CFSTORE_LOG if more trace required */
+    CFSTORE_DBGLOG("Success: New value of KV (%s) value blob (with nulls converted to '=') = (%s)\n", key, readBuf);
 
 	drv->Close(updatedKeyH);
 	

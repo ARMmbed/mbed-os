@@ -44,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_find_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_DBGLOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -131,7 +131,7 @@ static control_t cfstore_find_test_01(const size_t call_count)
     (void) call_count;
     /*todo: implement test */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Warn: Not implemented\n", __func__);
-    CFSTORE_LOG("%s: WARN: requires implementation\n", __func__);
+    CFSTORE_DBGLOG("%s: WARN: requires implementation\n", __func__);
     TEST_ASSERT_MESSAGE(true, cfstore_find_utest_msg_g);
     return CaseNext;
 }
@@ -164,7 +164,7 @@ static control_t cfstore_find_test_02(const size_t call_count)
     (void) call_count;
     /*todo: implement test */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Warn: Not implemented\n", __func__);
-    CFSTORE_LOG("%s: WARN: requires implementation\n", __func__);
+    CFSTORE_DBGLOG("%s: WARN: requires implementation\n", __func__);
     TEST_ASSERT_MESSAGE(true, cfstore_find_utest_msg_g);
     return CaseNext;
 }
@@ -238,7 +238,8 @@ static control_t cfstore_find_test_03_end(const size_t call_count)
 
         }
         read_buf[len] = '\0';
-        printf("Successfully found KV and read value data (key_name=\"%s\", value=\"%s\")\r\n", node->key_name, read_buf);
+        /* revert to CFSTORE_LOG if more trace required */
+        CFSTORE_DBGLOG("Successfully found KV and read value data (key_name=\"%s\", value=\"%s\")\r\n", node->key_name, read_buf);
         memset(read_buf, 0, len);
         drv->Close(next);
         node++;
@@ -274,7 +275,7 @@ static control_t cfstore_find_test_04(const size_t call_count)
     (void) call_count;
     /*todo: implement test */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Warn: Not implemented\n", __func__);
-    CFSTORE_LOG("%s: WARN: requires implementation\n", __func__);
+    CFSTORE_DBGLOG("%s: WARN: requires implementation\n", __func__);
     TEST_ASSERT_MESSAGE(true, cfstore_find_utest_msg_g);
     return CaseNext;
 }
@@ -391,7 +392,7 @@ static control_t cfstore_find_test_05_end(const size_t call_count)
 
     ret32 = drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_find_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
+    TEST_ASSERT_MESSAGE(ret32 >= ARM_DRIVER_OK, cfstore_find_utest_msg_g);
     return CaseNext;
 }
 

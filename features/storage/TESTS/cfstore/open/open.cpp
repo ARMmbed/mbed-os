@@ -45,7 +45,7 @@ using namespace utest::v1;
 static control_t cfstore_open_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -183,7 +183,7 @@ static control_t cfstore_open_test_01_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write full value data (key_name=\"%s\", value=\"%s\"), len=%d, (ret=%" PRId32 ")\n", __func__, node->key_name, node->value, (int) len, ret);
     TEST_ASSERT_MESSAGE(len == strlen(node->value), cfstore_open_utest_msg_g);
 
-    printf("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
+    CFSTORE_DBGLOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
     ret = drv->Close(hkey);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to close handle (ret=%" PRId32 ")\n", __func__, ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
@@ -198,7 +198,7 @@ static control_t cfstore_open_test_01_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to allocated read buffer \n", __func__);
     TEST_ASSERT_MESSAGE(read_buf != NULL, cfstore_open_utest_msg_g);
 
-    printf("Opened KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
+    CFSTORE_DBGLOG("Opened KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
     memset(read_buf, 0, len);
     ret = drv->Read(hkey, read_buf, &len);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")\n", __func__, node->key_name, node->value);
@@ -460,6 +460,7 @@ static control_t cfstore_open_test_05_end(const size_t call_count)
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
+    (void) pos_str; /* suppress warning in release build*/
 
     /* create bad keyname strings with invalid character code at start of keyname */
     node = cfstore_open_kv_name_ascii_table;
