@@ -20,22 +20,26 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
+
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #include "cfstore_uvisor.h"
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
+
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+#include "flash_journal_strategy_sequential.h"
+#include "flash_journal.h"
+#include "Driver_Common.h"
+#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,18 +81,21 @@ int main()
 #else
 
 
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
-#include <flash-journal-strategy-sequential/flash_journal_strategy_sequential.h>
-#include <flash-journal/flash_journal.h>
-#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
+
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+#include "flash_journal_strategy_sequential.h"
+#include "flash_journal.h"
+#include "Driver_Common.h"
+#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
+
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
@@ -133,7 +140,7 @@ UVISOR_BOX_CONFIG(cfstore_flash_box1, UVISOR_BOX_STACK_SIZE);
  * Globals
  */
 
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 char cfstore_flash_utest_msg_g[CFSTORE_FLASH_UTEST_MSG_BUF_SIZE];
 uint16_t cfstore_flash_mtd_async_ops_g = 0;
 extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
@@ -703,9 +710,14 @@ static control_t cfstore_flash_journal_async_test_01(void)
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_flash_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
-#ifdef YOTTA_CFG_CFSTORE_BACKEND_SRAM
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flash_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flash_utest_msg_g);
+
+#ifndef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
     CFSTORE_LOG("INITIALIZING: BACKEND=SRAM. Skipping flash test%s", "\n");
 #endif
     return CaseNext;
@@ -714,7 +726,7 @@ static control_t cfstore_flash_test_00(const size_t call_count)
 /* Specify all your test cases here */
 Case cases[] = {
         Case("flash_journal_async_test_00", cfstore_flash_test_00),
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
         Case("flash_journal_async_test_01", cfstore_flash_journal_async_test_01),
 #endif
 };

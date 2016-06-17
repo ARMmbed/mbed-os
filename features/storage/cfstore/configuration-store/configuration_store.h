@@ -102,16 +102,11 @@ typedef struct _ARM_CFSTORE_STATUS {
  *
  * CFSTORE_HANDLE_BUFSIZE
  *  size of the buffer owned and supplied by client to CFSTORE to hold internal
- *  data structures, referenced by the key handle. Note this can change on
- *  different platforms depending on the sizeof types.
- *
+ *  data structures, referenced by the key handle.
  */
 #define CFSTORE_KEY_NAME_MAX_LENGTH     220
 #define CFSTORE_VALUE_SIZE_MAX          (1<<26)
-
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #define CFSTORE_HANDLE_BUFSIZE          24
-#endif
 
 #ifdef TARGET_LIKE_X86_LINUX_NATIVE
 #define CFSTORE_HANDLE_BUFSIZE          40

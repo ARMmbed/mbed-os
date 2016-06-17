@@ -21,15 +21,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -78,15 +75,12 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -135,8 +129,12 @@ static cfstore_kv_data_t cfstore_open_test_01_kv_data[] = {
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_open_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
     return CaseNext;
 }
 
@@ -535,7 +533,9 @@ static control_t cfstore_open_test_05_end(const size_t call_count)
                 {
                     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create KV in store when kv_name contains valid characters (code=%" PRId32 ", ret=%" PRId32 ").\n", __func__, j, ret);
                     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
-                    CFSTORE_LOG("Successfully created a KV with valid keyname containing ascii character code %" PRIu32 " (%c) at the %s of the keyname.\n", j, (int) j, pos_str);
+                    /* revert CFSTORE_LOG for more trace */
+                    CFSTORE_DBGLOG("Successfully created a KV with valid keyname containing ascii character code %" PRIu32 " (%c) at the %s of the keyname.\n", j, (int) j, pos_str);
+                    CFSTORE_LOG("%c", '.');
 
                     ret = cfstore_test_delete(kv_name);
                     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete KV previously created (code=%" PRId32 ", ret=%" PRId32 ").\n", __func__, j, ret);
@@ -545,13 +545,16 @@ static control_t cfstore_open_test_05_end(const size_t call_count)
                 {   /*node->f_allowed == false => not allowed to create kv name with ascii code */
                     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: created KV in store when kv_name contains an invalid character (code=%" PRId32 ", ret=%" PRId32 ").\n", __func__, j, ret);
                     TEST_ASSERT_MESSAGE(ret < ARM_DRIVER_OK, cfstore_open_utest_msg_g);
-                    CFSTORE_LOG("Successfully failed to create a KV with an invalid keyname containing ascii character code %" PRId32 " at the %s of the keyname.\n", j, pos_str);
+                    /* revert CFSTORE_LOG for more trace */
+                    CFSTORE_DBGLOG("Successfully failed to create a KV with an invalid keyname containing ascii character code %" PRId32 " at the %s of the keyname.\n", j, pos_str);
+                    CFSTORE_LOG("%c", '.');
                 }
             }
         }
         node++;
     }
 
+    CFSTORE_LOG("%c", '\n');
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_open_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_open_utest_msg_g);
     return CaseNext;

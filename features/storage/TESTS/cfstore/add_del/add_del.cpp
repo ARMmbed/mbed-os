@@ -20,18 +20,16 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
-#include <mbed-drivers/mbed.h>
-#endif
-
+#include "mbed-drivers/mbed.h"
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
+
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #include "cfstore_uvisor.h"
@@ -77,15 +75,12 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -123,9 +118,12 @@ static cfstore_kv_data_t cfstore_add_del_test_07_data[] = {
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_add_del_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    ARM_CFSTORE_CAPABILITIES caps = cfstore_driver.GetCapabilities();
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", caps.asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
     return CaseNext;
 }
 
@@ -149,7 +147,6 @@ static control_t cfstore_add_del_test_01_end(const size_t call_count)
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-    CFSTORE_LOG("cfstore_add_del_test_07: Start%s", "\n");
     memset(&kdesc, 0, sizeof(kdesc));
     memset(&flags, 0, sizeof(flags));
 
@@ -217,7 +214,6 @@ static control_t cfstore_add_del_test_02_end(const size_t call_count)
 
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
     (void) call_count;
-    CFSTORE_LOG("%s: Start\n", __func__);
     memset(&kdesc, 0, sizeof(kdesc));
 
     /* create  */
@@ -229,7 +225,8 @@ static control_t cfstore_add_del_test_02_end(const size_t call_count)
         ret = cfstore_test_create(node->key_name, (char*) node->value, &len, &kdesc);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to create kv (key_name=%s.\n", __func__, node->key_name);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
-        CFSTORE_LOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
+        /* revert CFSTORE_LOG for more trace */
+        CFSTORE_DBGLOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
         node++;
     }
 
@@ -245,7 +242,8 @@ static control_t cfstore_add_del_test_02_end(const size_t call_count)
         ret = cfstore_test_kv_is_found(node->key_name, &bResult);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: found key when should not be present.\n", __func__);
         TEST_ASSERT_MESSAGE(ret == ARM_CFSTORE_DRIVER_ERROR_KEY_NOT_FOUND && bResult == false, cfstore_add_del_utest_msg_g);
-        CFSTORE_LOG("Found KV successfully (key_name=\"%s\")\n", node->key_name);
+        /* revert CFSTORE_LOG for more trace */
+        CFSTORE_DBGLOG("Found KV successfully (key_name=\"%s\")\n", node->key_name);
         node++;
     }
     ret = drv->Uninitialize();
@@ -286,7 +284,8 @@ static control_t cfstore_add_del_test_03_end(const size_t call_count)
         cfstore_test_delete(node->key_name);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_add_del_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error failed to delete a key (ret=%" PRId32 ").\n", __func__, ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_add_del_utest_msg_g);
-        CFSTORE_LOG("Deleted KV successfully (key_name=\"%s\")\n", node->key_name);
+        /* revert CFSTORE_LOG for more trace */
+        CFSTORE_DBGLOG("Deleted KV successfully (key_name=\"%s\")\n", node->key_name);
         node++;
     }
     /* check the keys have been deleted */

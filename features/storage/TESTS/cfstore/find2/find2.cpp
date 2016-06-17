@@ -20,15 +20,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -78,15 +75,12 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -110,12 +104,7 @@ UVISOR_BOX_NAMESPACE("com.arm.mbed.cfstore.test.find2.box1");
 UVISOR_BOX_CONFIG(cfstore_find2_box1, UVISOR_BOX_STACK_SIZE);
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
-
 extern ARM_CFSTORE_DRIVER cfstore_driver;
-
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
-#define CFSTORE_FIND_MBED_HOSTTEST_TIMEOUT 60
-#endif
 
 void cfstore_find2_callback(int32_t status, ARM_CFSTORE_OPCODE cmd_code, void *client_context, ARM_CFSTORE_HANDLE handle)
 {
@@ -129,8 +118,12 @@ void cfstore_find2_callback(int32_t status, ARM_CFSTORE_OPCODE cmd_code, void *c
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_find2_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_find2_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_find2_utest_msg_g);
     return CaseNext;
 }
 

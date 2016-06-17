@@ -50,15 +50,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -108,9 +105,7 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
 #ifndef YOTTA_CONFIGURATION_STORE_EXAMPLE3_VERSION_STRING
 /* when built as Configuration-Store example, include greentea support otherwise omit */
 #include "utest/utest.h"
@@ -123,7 +118,8 @@ int main()
 #endif  // YOTTA_CONFIGURATION_STORE_EXAMPLE3_VERSION_STRING
 
 #include "cfstore_config.h"
-#include "configuration-store/configuration_store.h"
+#include "cfstore_test.h"
+#include "configuration_store.h"
 
 #ifdef YOTTA_CFG_CONFIG_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
@@ -336,8 +332,11 @@ static control_t cfstore_example3_app_start(const size_t call_count)
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_example3_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_EX1_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_EX1_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
     return CaseNext;
 }
 
