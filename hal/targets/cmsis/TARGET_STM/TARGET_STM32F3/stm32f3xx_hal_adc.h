@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_adc.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -45,6 +45,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal_def.h"
+   
+/* Include ADC HAL Extended module */
+/* (include on top of file since ADC structures are defined in extended file) */
 #include "stm32f3xx_hal_adc_ex.h"
    
 /** @addtogroup STM32F3xx_HAL_Driver
@@ -58,47 +61,75 @@
 /* Exported types ------------------------------------------------------------*/
 /** @defgroup ADC_Exported_Types ADC Exported Types
   * @{
-  */   
+  */
 /** 
-  * @brief  HAL ADC state machine: ADC States structure definition  
-  */ 
-typedef enum
-{
-  HAL_ADC_STATE_RESET                   = 0x00,    /*!< ADC not yet initialized or disabled */
-  HAL_ADC_STATE_READY                   = 0x01,    /*!< ADC peripheral ready for use */
-  HAL_ADC_STATE_BUSY                    = 0x02,    /*!< An internal process is ongoing */ 
-  HAL_ADC_STATE_BUSY_REG                = 0x12,    /*!< Regular conversion is ongoing */
-  HAL_ADC_STATE_BUSY_INJ                = 0x22,    /*!< Injected conversion is ongoing */
-  HAL_ADC_STATE_BUSY_INJ_REG            = 0x32,    /*!< Injected and regular conversion are ongoing */
-  HAL_ADC_STATE_TIMEOUT                 = 0x03,    /*!< Timeout state */
-  HAL_ADC_STATE_ERROR                   = 0x04,    /*!< ADC state error */
-  HAL_ADC_STATE_EOC                     = 0x05,    /*!< Conversion is completed */
-  HAL_ADC_STATE_EOC_REG                 = 0x15,    /*!< Regular conversion is completed */
-  HAL_ADC_STATE_EOC_INJ                 = 0x25,    /*!< Injected conversion is completed */
-  HAL_ADC_STATE_EOC_INJ_REG             = 0x35,    /*!< Injected and regular conversion are completed */
-  HAL_ADC_STATE_AWD                     = 0x06,    /*!< ADC state analog watchdog (main analog watchdog, present on all STM32 devices) */
-  HAL_ADC_STATE_AWD2                    = 0x07,    /*!< ADC state analog watchdog (additional analog watchdog, present only on STM32F3 devices) */
-  HAL_ADC_STATE_AWD3                    = 0x08,    /*!< ADC state analog watchdog (additional analog watchdog, present only on STM32F3 devices) */
-}HAL_ADC_StateTypeDef;
+  * @brief  HAL ADC state machine: ADC states definition (bitfields)
+  * @note   ADC state machine is managed by bitfields, state must be compared
+  *         with bit by bit.
+  *         For example:                                                         
+  *           " if (HAL_IS_BIT_SET(HAL_ADC_GetState(hadc1), HAL_ADC_STATE_REG_BUSY)) "
+  *           " if (HAL_IS_BIT_SET(HAL_ADC_GetState(hadc1), HAL_ADC_STATE_AWD1)    ) "
+  */
+/* States of ADC global scope */
+#define HAL_ADC_STATE_RESET             ((uint32_t)0x00000000)    /*!< ADC not yet initialized or disabled */
+#define HAL_ADC_STATE_READY             ((uint32_t)0x00000001)    /*!< ADC peripheral ready for use */
+#define HAL_ADC_STATE_BUSY_INTERNAL     ((uint32_t)0x00000002)    /*!< ADC is busy to internal process (initialization, calibration) */
+#define HAL_ADC_STATE_TIMEOUT           ((uint32_t)0x00000004)    /*!< TimeOut occurrence */
+
+/* States of ADC errors */
+#define HAL_ADC_STATE_ERROR_INTERNAL    ((uint32_t)0x00000010)    /*!< Internal error occurrence */
+#define HAL_ADC_STATE_ERROR_CONFIG      ((uint32_t)0x00000020)    /*!< Configuration error occurrence */
+#define HAL_ADC_STATE_ERROR_DMA         ((uint32_t)0x00000040)    /*!< DMA error occurrence */
+
+/* States of ADC group regular */
+#define HAL_ADC_STATE_REG_BUSY          ((uint32_t)0x00000100)    /*!< A conversion on group regular is ongoing or can occur (either by continuous mode,
+                                                                       external trigger, low power auto power-on, multimode ADC master control) */
+#define HAL_ADC_STATE_REG_EOC           ((uint32_t)0x00000200)    /*!< Conversion data available on group regular */
+#define HAL_ADC_STATE_REG_OVR           ((uint32_t)0x00000400)    /*!< Not available on STM32F1 device: Overrun occurrence */
+#define HAL_ADC_STATE_REG_EOSMP         ((uint32_t)0x00000800)    /*!< Not available on STM32F1 device: End Of Sampling flag raised  */
+
+/* States of ADC group injected */
+#define HAL_ADC_STATE_INJ_BUSY          ((uint32_t)0x00001000)    /*!< A conversion on group injected is ongoing or can occur (either by auto-injection mode,
+                                                                       external trigger, low power auto power-on, multimode ADC master control) */
+#define HAL_ADC_STATE_INJ_EOC           ((uint32_t)0x00002000)    /*!< Conversion data available on group injected */
+#define HAL_ADC_STATE_INJ_JQOVF         ((uint32_t)0x00004000)    /*!< Not available on STM32F1 device: Injected queue overflow occurrence */
+
+/* States of ADC analog watchdogs */
+#define HAL_ADC_STATE_AWD1              ((uint32_t)0x00010000)    /*!< Out-of-window occurrence of analog watchdog 1 */
+#define HAL_ADC_STATE_AWD2              ((uint32_t)0x00020000)    /*!< Not available on STM32F1 device: Out-of-window occurrence of analog watchdog 2 */
+#define HAL_ADC_STATE_AWD3              ((uint32_t)0x00040000)    /*!< Not available on STM32F1 device: Out-of-window occurrence of analog watchdog 3 */
+
+/* States of ADC multi-mode */
+#define HAL_ADC_STATE_MULTIMODE_SLAVE   ((uint32_t)0x00100000)    /*!< ADC in multimode slave state, controlled by another ADC master ( */
+
 
 /** 
   * @brief  ADC handle Structure definition  
-  */ 
+  */
 typedef struct __ADC_HandleTypeDef
 {
   ADC_TypeDef                   *Instance;              /*!< Register base address */
 
   ADC_InitTypeDef               Init;                   /*!< ADC required parameters */
 
-  __IO uint32_t                 NbrOfConversionRank ;   /*!< ADC conversion rank counter */
-
   DMA_HandleTypeDef             *DMA_Handle;            /*!< Pointer DMA Handler */
 
   HAL_LockTypeDef               Lock;                   /*!< ADC locking object */
 
-  __IO HAL_ADC_StateTypeDef     State;                  /*!< ADC communication state */
+  __IO uint32_t                 State;                  /*!< ADC communication state (bitmap of ADC states) */
 
   __IO uint32_t                 ErrorCode;              /*!< ADC Error code */
+  
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+  ADC_InjectionConfigTypeDef    InjectionConfig ;       /*!< ADC injected channel configuration build-up structure */  
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+  
 }ADC_HandleTypeDef;
 /**
   * @}
@@ -121,8 +152,6 @@ typedef struct __ADC_HandleTypeDef
   */ 
 
 
-/* Include ADC HAL Extended module */
-#include "stm32f3xx_hal_adc_ex.h"
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup ADC_Exported_Functions ADC Exported Functions
@@ -130,7 +159,6 @@ typedef struct __ADC_HandleTypeDef
   */ 
 
 /** @addtogroup ADC_Exported_Functions_Group1 Initialization and de-initialization functions 
- *  @brief    Initialization and Configuration functions 
  * @{
  */ 
 /* Initialization and de-initialization functions  **********************************/
@@ -143,7 +171,6 @@ void                    HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc);
   */
 
 /** @addtogroup ADC_Exported_Functions_Group2 Input and Output operation functions
- *  @brief    IO operation functions 
  * @{
  */ 
 /* Blocking mode: Polling */
@@ -174,7 +201,6 @@ void                    HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
   */
 
 /** @addtogroup ADC_Exported_Functions_Group3 Peripheral Control functions
- *  @brief    Peripheral Control functions 
  * @{
  */ 
 /* Peripheral Control functions ***********************************************/
@@ -189,7 +215,7 @@ HAL_StatusTypeDef       HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_Ana
  * @{
  */ 
 /* Peripheral State functions *************************************************/
-HAL_ADC_StateTypeDef    HAL_ADC_GetState(ADC_HandleTypeDef* hadc);
+uint32_t                HAL_ADC_GetState(ADC_HandleTypeDef* hadc);
 uint32_t                HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
 /**
   * @}

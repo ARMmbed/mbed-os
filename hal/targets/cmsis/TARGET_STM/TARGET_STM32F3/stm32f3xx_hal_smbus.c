@@ -2,19 +2,18 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_smbus.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   SMBUS HAL module driver.
-  *    
   *          This file provides firmware functions to manage the following 
   *          functionalities of the System Management Bus (SMBus) peripheral,
-  *          based on I2C principales of operation :
+  *          based on I2C principles of operation :
   *           + Initialization and de-initialization functions
   *           + IO operation functions
   *           + Peripheral State and Errors functions
   *         
   @verbatim
-  ==============================================================================
+  ==============================================================================    
                         ##### How to use this driver #####
   ==============================================================================
     [..]
@@ -23,7 +22,7 @@
     (#) Declare a SMBUS_HandleTypeDef handle structure, for example:
         SMBUS_HandleTypeDef  hsmbus; 
 
-    (#)Initialize the SMBUS low level resources by implement the HAL_SMBUS_MspInit ()API:
+    (#)Initialize the SMBUS low level resources by implementing the HAL_SMBUS_MspInit() API:
         (##) Enable the SMBUSx interface clock
         (##) SMBUS pins configuration
             (+++) Enable the clock for the SMBUS GPIOs
@@ -32,13 +31,13 @@
             (+++) Configure the SMBUSx interrupt priority 
             (+++) Enable the NVIC SMBUS IRQ Channel
 
-    (#) Configure the Communication Clock Timing, Bus Timeout, Own Address1, Master Adressing Mode,
+    (#) Configure the Communication Clock Timing, Bus Timeout, Own Address1, Master Addressing mode,
         Dual Addressing mode, Own Address2, Own Address2 Mask, General call, Nostretch mode,
         Peripheral mode and Packet Error Check mode in the hsmbus Init structure.
 
     (#) Initialize the SMBUS registers by calling the HAL_SMBUS_Init() API:
-        (+) These API's configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
-            by calling the customed HAL_SMBUS_MspInit(&hsmbus) API.
+        (++) These API's configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
+             by calling the customized HAL_SMBUS_MspInit(&hsmbus) API.
 
     (#) To check if target device is ready for communication, use the function HAL_SMBUS_IsDeviceReady()
 
@@ -47,35 +46,35 @@
     *** Interrupt mode IO operation ***
     ===================================
     [..]
-      (+) Transmit in master/host SMBUS mode an amount of data in non blocking mode using HAL_SMBUS_Master_Transmit_IT()
-      (++) At transmission end of transfer HAL_SMBUS_MasterTxCpltCallback is executed and user can
-           add his own code by customization of function pointer HAL_SMBUS_MasterTxCpltCallback
-      (+) Receive in master/host SMBUS mode an amount of data in non blocking mode using HAL_SMBUS_Master_Receive_IT()
-      (++) At reception end of transfer HAL_SMBUS_MasterRxCpltCallback is executed and user can
-           add his own code by customization of function pointer HAL_SMBUS_MasterRxCpltCallback
-      (+) Abort a master/host SMBUS process commnunication with Interrupt using HAL_SMBUS_Master_Abort_IT()
+      (+) Transmit in master/host SMBUS mode an amount of data in non-blocking mode using HAL_SMBUS_Master_Transmit_IT()
+      (++) At transmission end of transfer HAL_SMBUS_MasterTxCpltCallback() is executed and user can
+           add his own code by customization of function pointer HAL_SMBUS_MasterTxCpltCallback()
+      (+) Receive in master/host SMBUS mode an amount of data in non-blocking mode using HAL_SMBUS_Master_Receive_IT()
+      (++) At reception end of transfer HAL_SMBUS_MasterRxCpltCallback() is executed and user can
+           add his own code by customization of function pointer HAL_SMBUS_MasterRxCpltCallback()
+      (+) Abort a master/host SMBUS process communication with Interrupt using HAL_SMBUS_Master_Abort_IT()
       (++) The associated previous transfer callback is called at the end of abort process
-      (++) mean HAL_SMBUS_MasterTxCpltCallback in case of previous state was master transmit
-      (++) mean HAL_SMBUS_MasterRxCpltCallback in case of previous state was master receive
+      (++) mean HAL_SMBUS_MasterTxCpltCallback() in case of previous state was master transmit
+      (++) mean HAL_SMBUS_MasterRxCpltCallback() in case of previous state was master receive
       (+) Enable/disable the Address listen mode in slave/device or host/slave SMBUS mode
-           using HAL_SMBUS_Slave_Listen_IT() HAL_SMBUS_DisableListen_IT()
-      (++) When address slave/device SMBUS match, HAL_SMBUS_SlaveAddrCallback is executed and user can
+           using HAL_SMBUS_EnableListen_IT() HAL_SMBUS_DisableListen_IT()
+      (++) When address slave/device SMBUS match, HAL_SMBUS_AddrCallback() is executed and user can
            add his own code to check the Address Match Code and the transmission direction request by master/host (Write/Read).
-      (++) At Listen mode end HAL_SMBUS_SlaveListenCpltCallback is executed and user can
-           add his own code by customization of function pointer HAL_SMBUS_SlaveListenCpltCallback
-      (+) Transmit in slave/device SMBUS mode an amount of data in non blocking mode using HAL_SMBUS_Slave_Transmit_IT()
-      (++) At transmission end of transfer HAL_SMBUS_SlaveTxCpltCallback is executed and user can
-           add his own code by customization of function pointer HAL_SMBUS_SlaveTxCpltCallback
-      (+) Receive in slave/device SMBUS mode an amount of data in non blocking mode using HAL_SMBUS_Slave_Receive_IT()
-      (++) At reception end of transfer HAL_SMBUS_SlaveRxCpltCallback is executed and user can
-           add his own code by customization of function pointer HAL_SMBUS_SlaveRxCpltCallback
+      (++) At Listen mode end HAL_SMBUS_ListenCpltCallback() is executed and user can
+           add his own code by customization of function pointer HAL_SMBUS_ListenCpltCallback()
+      (+) Transmit in slave/device SMBUS mode an amount of data in non-blocking mode using HAL_SMBUS_Slave_Transmit_IT()
+      (++) At transmission end of transfer HAL_SMBUS_SlaveTxCpltCallback() is executed and user can
+           add his own code by customization of function pointer HAL_SMBUS_SlaveTxCpltCallback()
+      (+) Receive in slave/device SMBUS mode an amount of data in non-blocking mode using HAL_SMBUS_Slave_Receive_IT()
+      (++) At reception end of transfer HAL_SMBUS_SlaveRxCpltCallback() is executed and user can
+           add his own code by customization of function pointer HAL_SMBUS_SlaveRxCpltCallback()
       (+) Enable/Disable the SMBUS alert mode using HAL_SMBUS_EnableAlert_IT() HAL_SMBUS_DisableAlert_IT()
       (++) When SMBUS Alert is generated HAL_SMBUS_ErrorCallback() is executed and user can
-           add his own code by customization of function pointer HAL_SMBUS_ErrorCallback
+           add his own code by customization of function pointer HAL_SMBUS_ErrorCallback()
            to check the Alert Error Code using function HAL_SMBUS_GetError()
       (+) Get HAL state machine or error values using HAL_SMBUS_GetState() or HAL_SMBUS_GetError()
       (+) In case of transfer Error, HAL_SMBUS_ErrorCallback() function is executed and user can
-           add his own code by customization of function pointer HAL_SMBUS_ErrorCallback
+           add his own code by customization of function pointer HAL_SMBUS_ErrorCallback()
            to check the Error Code using function HAL_SMBUS_GetError()
 
      *** SMBUS HAL driver macros list ***
@@ -83,12 +82,12 @@
      [..]
        Below the list of most used macros in SMBUS HAL driver.
 
-      (+) __HAL_SMBUS_ENABLE: Enable the SMBUS peripheral
-      (+) __HAL_SMBUS_DISABLE: Disable the SMBUS peripheral
-      (+) __HAL_SMBUS_GET_FLAG : Checks whether the specified SMBUS flag is set or not
-      (+) __HAL_SMBUS_CLEAR_FLAG : Clears the specified SMBUS pending flag
-      (+) __HAL_SMBUS_ENABLE_IT: Enables the specified SMBUS interrupt
-      (+) __HAL_SMBUS_DISABLE_IT: Disables the specified SMBUS interrupt
+      (+) __HAL_SMBUS_ENABLE:      Enable the SMBUS peripheral
+      (+) __HAL_SMBUS_DISABLE:     Disable the SMBUS peripheral
+      (+) __HAL_SMBUS_GET_FLAG:    Check whether the specified SMBUS flag is set or not
+      (+) __HAL_SMBUS_CLEAR_FLAG:  Clear the specified SMBUS pending flag
+      (+) __HAL_SMBUS_ENABLE_IT:   Enable the specified SMBUS interrupt
+      (+) __HAL_SMBUS_DISABLE_IT:  Disable the specified SMBUS interrupt
 
      [..]
        (@) You can refer to the SMBUS HAL driver header file for more useful macros
@@ -98,7 +97,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -132,7 +131,7 @@
   * @{
   */
 
-/** @defgroup SMBUS SMBUS HAL module driver
+/** @defgroup SMBUS SMBUS
   * @brief SMBUS HAL module driver
   * @{
   */
@@ -140,37 +139,28 @@
 #ifdef HAL_SMBUS_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/** @defgroup SMBUS_Private_Define SMBUS Private Define
+/* Private constants ---------------------------------------------------------*/
+/** @defgroup SMBUS_Private_Define SMBUS Private Constants
  * @{
  */
-#define TIMING_CLEAR_MASK   ((uint32_t)0xF0FFFFFF)      /*<! SMBUS TIMING clear register Mask */
-#define HAL_TIMEOUT_ADDR    ((uint32_t)10000)           /* 10 s  */
-#define HAL_TIMEOUT_BUSY    ((uint32_t)25)              /* 25 ms */
-#define HAL_TIMEOUT_DIR     ((uint32_t)25)              /* 25 ms */
-#define HAL_TIMEOUT_RXNE    ((uint32_t)25)              /* 25 ms */
-#define HAL_TIMEOUT_STOPF   ((uint32_t)25)              /* 25 ms */
-#define HAL_TIMEOUT_TC      ((uint32_t)25)              /* 25 ms */
-#define HAL_TIMEOUT_TCR     ((uint32_t)25)              /* 25 ms */
-#define HAL_TIMEOUT_TXIS    ((uint32_t)25)              /* 25 ms */
+#define TIMING_CLEAR_MASK   ((uint32_t)0xF0FFFFFFU)      /*!< SMBUS TIMING clear register Mask */
+#define HAL_TIMEOUT_ADDR    ((uint32_t)10000)           /*!< 10 s  */
+#define HAL_TIMEOUT_BUSY    ((uint32_t)25)              /*!< 25 ms */
+#define HAL_TIMEOUT_DIR     ((uint32_t)25)              /*!< 25 ms */
+#define HAL_TIMEOUT_RXNE    ((uint32_t)25)              /*!< 25 ms */
+#define HAL_TIMEOUT_STOPF   ((uint32_t)25)              /*!< 25 ms */
+#define HAL_TIMEOUT_TC      ((uint32_t)25)              /*!< 25 ms */
+#define HAL_TIMEOUT_TCR     ((uint32_t)25)              /*!< 25 ms */
+#define HAL_TIMEOUT_TXIS    ((uint32_t)25)              /*!< 25 ms */
 #define MAX_NBYTE_SIZE      255
 /**
   * @}
   */
 
 /* Private macro -------------------------------------------------------------*/
-/** @defgroup SMBUS_Private_Macro SMBUS Private Macro
- * @{
- */
-#define __SMBUS_GET_ISR_REG(__HANDLE__) ((__HANDLE__)->Instance->ISR)
-#define __SMBUS_CHECK_FLAG(__ISR__, __FLAG__) ((((__ISR__) & ((__FLAG__) & SMBUS_FLAG_MASK)) == ((__FLAG__) & SMBUS_FLAG_MASK)))
-/**
-  * @}
-  */
-
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/** @defgroup SMBUS_Private_Functions SMBUS Private Functions
+/** @addtogroup SMBUS_Private_Functions SMBUS Private Functions
   * @{
   */
 static HAL_StatusTypeDef SMBUS_WaitOnFlagUntilTimeout(SMBUS_HandleTypeDef *hsmbus, uint32_t Flag, FlagStatus Status, uint32_t Timeout);
@@ -185,7 +175,7 @@ static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddre
   * @}
   */
 
-/* Exported functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
 /** @defgroup SMBUS_Exported_Functions SMBUS Exported Functions
   * @{
@@ -199,7 +189,7 @@ static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddre
               ##### Initialization and de-initialization functions #####
  ===============================================================================
     [..]  This subsection provides a set of functions allowing to initialize and 
-          de-initialiaze the SMBUSx peripheral:
+          deinitialize the SMBUSx peripheral:
 
       (+) User must Implement HAL_SMBUS_MspInit() function in which he configures 
           all related peripherals resources (CLOCK, GPIO, IT and NVIC ).
@@ -221,23 +211,23 @@ static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddre
 
 
       (+) Call the function HAL_SMBUS_DeInit() to restore the default configuration 
-          of the selected SMBUSx periperal.       
+          of the selected SMBUSx peripheral.       
 
 @endverbatim
   * @{
   */
 
 /**
-  * @brief  Initializes the SMBUS according to the specified parameters 
-  *         in the SMBUS_InitTypeDef and create the associated handle.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Initialize the SMBUS according to the specified parameters 
+  *         in the SMBUS_InitTypeDef and initialize the associated handle.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 { 
   /* Check the SMBUS handle allocation */
-  if(hsmbus == HAL_NULL)
+  if(hsmbus == NULL)
   {
     return HAL_ERROR;
   }
@@ -257,6 +247,9 @@ HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 
   if(hsmbus->State == HAL_SMBUS_STATE_RESET)
   {
+    /* Allocate lock resource and initialize it */
+    hsmbus->Lock = HAL_UNLOCKED;
+
     /* Init the low level hardware : GPIO, CLOCK, NVIC */
     HAL_SMBUS_MspInit(hsmbus);
   }
@@ -311,7 +304,7 @@ HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
   hsmbus->Instance->CR1 = (hsmbus->Init.GeneralCallMode | hsmbus->Init.NoStretchMode | hsmbus->Init.PacketErrorCheckMode | hsmbus->Init.PeripheralMode | hsmbus->Init.AnalogFilter);
   
   /* Enable Slave Byte Control only in case of Packet Error Check is enabled and SMBUS Peripheral is set in Slave mode */
-  if( (hsmbus->Init.PacketErrorCheckMode == SMBUS_PEC_ENABLED)
+  if( (hsmbus->Init.PacketErrorCheckMode == SMBUS_PEC_ENABLE)
      && ( (hsmbus->Init.PeripheralMode == SMBUS_PERIPHERAL_MODE_SMBUS_SLAVE) || (hsmbus->Init.PeripheralMode == SMBUS_PERIPHERAL_MODE_SMBUS_SLAVE_ARP) ) )
   {
     hsmbus->Instance->CR1 |= I2C_CR1_SBC;
@@ -328,15 +321,15 @@ HAL_StatusTypeDef HAL_SMBUS_Init(SMBUS_HandleTypeDef *hsmbus)
 }
 
 /**
-  * @brief  DeInitializes the SMBUS peripheral. 
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  DeInitialize the SMBUS peripheral. 
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
 {
   /* Check the SMBUS handle allocation */
-  if(hsmbus == HAL_NULL)
+  if(hsmbus == NULL)
   {
     return HAL_ERROR;
   }
@@ -363,27 +356,33 @@ HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
 }
 
 /**
-  * @brief SMBUS MSP Init.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief Initialize the SMBUS MSP.
+  * @param hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
  __weak void HAL_SMBUS_MspInit(SMBUS_HandleTypeDef *hsmbus)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SMBUS_MspInit could be implemented in the user file
    */ 
 }
 
 /**
-  * @brief SMBUS MSP DeInit
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief DeInitialize the SMBUS MSP.
+  * @param hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
  __weak void HAL_SMBUS_MspDeInit(SMBUS_HandleTypeDef *hsmbus)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SMBUS_MspDeInit could be implemented in the user file
    */ 
 }
@@ -407,46 +406,42 @@ HAL_StatusTypeDef HAL_SMBUS_DeInit(SMBUS_HandleTypeDef *hsmbus)
         (++) HAL_SMBUS_IsDeviceReady()
 
     (#) There is only one mode of transfer:
-       (++) No-Blocking mode : The communication is performed using Interrupts.
+       (++) Non-Blocking mode : The communication is performed using Interrupts.
             These functions return the status of the transfer startup.
             The end of the data processing will be indicated through the 
             dedicated SMBUS IRQ when using Interrupt mode.
 
-    (#) No-Blocking mode functions with Interrupt are :
+    (#) Non-Blocking mode functions with Interrupt are :
         (++) HAL_SMBUS_Master_Transmit_IT()
         (++) HAL_SMBUS_Master_Receive_IT()
         (++) HAL_SMBUS_Slave_Transmit_IT()
         (++) HAL_SMBUS_Slave_Receive_IT()
-        (++) HAL_SMBUS_Slave_Listen_IT() or alias HAL_SMBUS_EnableListen_IT()
+        (++) HAL_SMBUS_EnableListen_IT() or alias HAL_SMBUS_EnableListen_IT()
         (++) HAL_SMBUS_DisableListen_IT()
         (++) HAL_SMBUS_EnableAlert_IT()
         (++) HAL_SMBUS_DisableAlert_IT()
 
-    (#) A set of Transfer Complete Callbacks are provided in No_Blocking mode:
+    (#) A set of Transfer Complete Callbacks are provided in non-Blocking mode:
         (++) HAL_SMBUS_MasterTxCpltCallback()
         (++) HAL_SMBUS_MasterRxCpltCallback()
         (++) HAL_SMBUS_SlaveTxCpltCallback()
         (++) HAL_SMBUS_SlaveRxCpltCallback()
-        (++) HAL_SMBUS_SlaveAddrCallback() or alias HAL_SMBUS_AddrCallback()
-        (++) HAL_SMBUS_SlaveListenCpltCallback() or alias HAL_SMBUS_ListenCpltCallback()
+        (++) HAL_SMBUS_AddrCallback()
+        (++) HAL_SMBUS_ListenCpltCallback()
         (++) HAL_SMBUS_ErrorCallback()
 
 @endverbatim
   * @{
   */
 
-/** @defgroup Non-Blocking_mode_Interrupt Non-Blocking mode Interrupt
- * @{
- */
-
 /**
-  * @brief  Transmit in master/host SMBUS mode an amount of data in no-blocking mode with Interrupt
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Transmit in master/host SMBUS mode an amount of data in non-blocking mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  DevAddress: Target device address
-  * @param  pData: Pointer to data buffer
-  * @param  Size: Amount of data to be sent
-  * @param  XferOptions: Options of Transfer, value of @ref SMBUS_XferOptions_definition
+  * @param  DevAddress Target device address
+  * @param  pData Pointer to data buffer
+  * @param  Size Amount of data to be sent
+  * @param  XferOptions Options of Transfer, value of @ref SMBUS_XferOptions_definition
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_Master_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t XferOptions)
@@ -468,7 +463,7 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint
 
     /* In case of Quick command, remove autoend mode */
     /* Manage the stop generation by software */
-    if(hsmbus->pBuffPtr == HAL_NULL)
+    if(hsmbus->pBuffPtr == NULL)
     {
       hsmbus->XferOptions &= ~SMBUS_AUTOEND_MODE;
     }
@@ -504,7 +499,7 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint
 
       /* If PEC mode is enable, size to transmit manage by SW part should be Size-1 byte, corresponding to PEC byte */
       /* PEC byte is automatically sent by HW block, no need to manage it in Transmit process */
-      if(__HAL_SMBUS_GET_PEC_MODE(hsmbus) != RESET)
+      if(SMBUS_GET_PEC_MODE(hsmbus) != RESET)
       {
         hsmbus->XferSize--;
         hsmbus->XferCount--;
@@ -528,13 +523,13 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint
 }
 
 /**
-  * @brief  Receive in master/host SMBUS mode an amount of data in no-blocking mode with Interrupt
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Receive in master/host SMBUS mode an amount of data in non-blocking mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  DevAddress: Target device address
-  * @param  pData: Pointer to data buffer
-  * @param  Size: Amount of data to be sent
-  * @param  XferOptions: Options of Transfer, value of @ref SMBUS_XferOptions_definition
+  * @param  DevAddress Target device address
+  * @param  pData Pointer to data buffer
+  * @param  Size Amount of data to be sent
+  * @param  XferOptions Options of Transfer, value of @ref SMBUS_XferOptions_definition
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_Master_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t XferOptions)
@@ -557,7 +552,7 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint1
     
     /* In case of Quick command, remove autoend mode */
     /* Manage the stop generation by software */
-    if(hsmbus->pBuffPtr == HAL_NULL)
+    if(hsmbus->pBuffPtr == NULL)
     {
       hsmbus->XferOptions &= ~SMBUS_AUTOEND_MODE;
     }
@@ -609,11 +604,11 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint1
 }
 
 /**
-  * @brief  Abort a master/host SMBUS process commnunication with Interrupt
-  * @note : This abort can be called only if state is ready
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Abort a master/host SMBUS process communication with Interrupt.
+  * @note   This abort can be called only if state is ready
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  DevAddress: Target device address
+  * @param  DevAddress Target device address
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_Master_Abort_IT(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress)
@@ -669,12 +664,12 @@ HAL_StatusTypeDef HAL_SMBUS_Master_Abort_IT(SMBUS_HandleTypeDef *hsmbus, uint16_
 }
 
 /**
-  * @brief  Transmit in slave/device SMBUS mode an amount of data in no-blocking mode with Interrupt 
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Transmit in slave/device SMBUS mode an amount of data in non-blocking mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  pData: Pointer to data buffer
-  * @param  Size: Amount of data to be sent
-  * @param  XferOptions: Options of Transfer, value of @ref SMBUS_XferOptions_definition
+  * @param  pData Pointer to data buffer
+  * @param  Size Amount of data to be sent
+  * @param  XferOptions Options of Transfer, value of @ref SMBUS_XferOptions_definition
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8_t *pData, uint16_t Size, uint32_t XferOptions)
@@ -684,7 +679,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8
 
   if(hsmbus->State == HAL_SMBUS_STATE_LISTEN)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -731,7 +726,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8
 
       /* If PEC mode is enable, size to transmit should be Size-1 byte, corresponding to PEC byte */
       /* PEC byte is automatically sent by HW block, no need to manage it in Transmit process */
-      if(__HAL_SMBUS_GET_PEC_MODE(hsmbus) != RESET)
+      if(SMBUS_GET_PEC_MODE(hsmbus) != RESET)
       {
         hsmbus->XferSize--;
         hsmbus->XferCount--;
@@ -760,12 +755,12 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Transmit_IT(SMBUS_HandleTypeDef *hsmbus, uint8
 }
 
 /**
-  * @brief  Receive in slave/device SMBUS mode an amount of data in no-blocking mode with Interrupt 
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Receive in slave/device SMBUS mode an amount of data in non-blocking mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  pData: Pointer to data buffer
-  * @param  Size: Amount of data to be sent
-  * @param  XferOptions: Options of Transfer, value of @ref SMBUS_XferOptions_definition
+  * @param  pData Pointer to data buffer
+  * @param  Size Amount of data to be sent
+  * @param  XferOptions Options of Transfer, value of @ref SMBUS_XferOptions_definition
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_t *pData, uint16_t Size, uint32_t XferOptions)
@@ -775,7 +770,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_
 
   if(hsmbus->State == HAL_SMBUS_STATE_LISTEN)
   {
-    if((pData == HAL_NULL) || (Size == 0)) 
+    if((pData == NULL) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -806,7 +801,7 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_
     /* no need to set RELOAD bit mode, a ACK will be automatically generated in that case */
     /* else need to set RELOAD bit mode to generate an automatic ACK at each byte Received */
     /* This RELOAD bit will be reset for last BYTE to be receive in SMBUS_Slave_ISR */
-    if((hsmbus->XferSize == 1) || ((hsmbus->XferSize == 2) && (__HAL_SMBUS_GET_PEC_MODE(hsmbus) != RESET)))
+    if((hsmbus->XferSize == 1) || ((hsmbus->XferSize == 2) && (SMBUS_GET_PEC_MODE(hsmbus) != RESET)))
     {
       SMBUS_TransferConfig(hsmbus,0,hsmbus->XferSize, hsmbus->XferOptions, SMBUS_NO_STARTSTOP);
     }
@@ -837,12 +832,12 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Receive_IT(SMBUS_HandleTypeDef *hsmbus, uint8_
 }
 
 /**
-  * @brief  This function enable the Address listen mode
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Enable the Address listen mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval HAL status
   */
-HAL_StatusTypeDef HAL_SMBUS_Slave_Listen_IT(SMBUS_HandleTypeDef *hsmbus)
+HAL_StatusTypeDef HAL_SMBUS_EnableListen_IT(SMBUS_HandleTypeDef *hsmbus)
 {
   hsmbus->State = HAL_SMBUS_STATE_LISTEN;
   
@@ -853,8 +848,8 @@ HAL_StatusTypeDef HAL_SMBUS_Slave_Listen_IT(SMBUS_HandleTypeDef *hsmbus)
 }
 
 /**
-  * @brief  This function disable the Address listen mode
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Disable the Address listen mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval HAL status
   */
@@ -877,8 +872,8 @@ HAL_StatusTypeDef HAL_SMBUS_DisableListen_IT(SMBUS_HandleTypeDef *hsmbus)
 }
 
 /**
-  * @brief  This function enable the SMBUS alert mode.
-  * @param  hsmbus : pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Enable the SMBUS alert mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUSx peripheral.
   * @retval HAL status
   */
@@ -896,8 +891,8 @@ HAL_StatusTypeDef HAL_SMBUS_EnableAlert_IT(SMBUS_HandleTypeDef *hsmbus)
   return HAL_OK; 
 }
 /**
-  * @brief  This function disable the SMBUS alert mode.
-  * @param  hsmbus : pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Disable the SMBUS alert mode with Interrupt.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUSx peripheral.
   * @retval HAL status
   */
@@ -913,20 +908,12 @@ HAL_StatusTypeDef HAL_SMBUS_DisableAlert_IT(SMBUS_HandleTypeDef *hsmbus)
 }
 
 /**
-  * @}
-  */
-
-/** @defgroup Blocking_mode_Polling Blocking mode Polling
- * @{
- */
-/**
-  * @brief  Checks if target device is ready for communication. 
-  * @note   This function is used with Memory devices
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Check if target device is ready for communication. 
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  DevAddress: Target device address
-  * @param  Trials: Number of trials
-  * @param  Timeout: Timeout duration
+  * @param  DevAddress Target device address
+  * @param  Trials Number of trials
+  * @param  Timeout Timeout duration
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_SMBUS_IsDeviceReady(SMBUS_HandleTypeDef *hsmbus, uint16_t DevAddress, uint32_t Trials, uint32_t Timeout)
@@ -951,7 +938,7 @@ HAL_StatusTypeDef HAL_SMBUS_IsDeviceReady(SMBUS_HandleTypeDef *hsmbus, uint16_t 
     do
     {
       /* Generate Start */
-      hsmbus->Instance->CR2 = __HAL_SMBUS_GENERATE_START(hsmbus->Init.AddressingMode,DevAddress);
+      hsmbus->Instance->CR2 = SMBUS_GENERATE_START(hsmbus->Init.AddressingMode,DevAddress);
       
       /* No need to Check TC flag, with AUTOEND mode the stop is automatically generated */
       /* Wait until STOPF flag is set or a NACK flag is set*/
@@ -1040,13 +1027,13 @@ HAL_StatusTypeDef HAL_SMBUS_IsDeviceReady(SMBUS_HandleTypeDef *hsmbus, uint16_t 
   * @}
   */
 
-/** @defgroup IRQ_Handler_and_Callbacks IRQ Handler and Callbacks
+/** @defgroup SMBUS_IRQ_Handler_and_Callbacks IRQ Handler and Callbacks
  * @{
  */
 
 /**
-  * @brief  This function handles SMBUS event interrupt request.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Handle SMBUS event interrupt request.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
@@ -1056,10 +1043,10 @@ void HAL_SMBUS_EV_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
   
   /* Use a local variable to store the current ISR flags */
   /* This action will avoid a wrong treatment due to ISR flags change during interrupt handler */
-  tmpisrvalue = __SMBUS_GET_ISR_REG(hsmbus);
+  tmpisrvalue = SMBUS_GET_ISR_REG(hsmbus);
     
   /* SMBUS in mode Transmitter ---------------------------------------------------*/
-  if (((__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TXIS) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TCR) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TC) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_STOPF) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_AF) != RESET)) && (__HAL_SMBUS_GET_IT_SOURCE(hsmbus, (SMBUS_IT_TCI| SMBUS_IT_STOPI| SMBUS_IT_NACKI | SMBUS_IT_TXI)) != RESET))
+  if (((SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TXIS) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TCR) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TC) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_STOPF) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_AF) != RESET)) && (__HAL_SMBUS_GET_IT_SOURCE(hsmbus, (SMBUS_IT_TCI| SMBUS_IT_STOPI| SMBUS_IT_NACKI | SMBUS_IT_TXI)) != RESET))
   {     
     /* Slave mode selected */
     if ((hsmbus->State & HAL_SMBUS_STATE_SLAVE_BUSY_TX) == HAL_SMBUS_STATE_SLAVE_BUSY_TX)
@@ -1074,7 +1061,7 @@ void HAL_SMBUS_EV_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
   }
     
   /* SMBUS in mode Receiver ----------------------------------------------------*/
-  if (((__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_RXNE) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TCR) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TC) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_STOPF) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_AF) != RESET)) && (__HAL_SMBUS_GET_IT_SOURCE(hsmbus, (SMBUS_IT_TCI| SMBUS_IT_STOPI| SMBUS_IT_NACKI | SMBUS_IT_RXI)) != RESET))
+  if (((SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_RXNE) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TCR) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_TC) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_STOPF) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_AF) != RESET)) && (__HAL_SMBUS_GET_IT_SOURCE(hsmbus, (SMBUS_IT_TCI| SMBUS_IT_STOPI| SMBUS_IT_NACKI | SMBUS_IT_RXI)) != RESET))
   {
     /* Slave mode selected */
     if ((hsmbus->State & HAL_SMBUS_STATE_SLAVE_BUSY_RX) == HAL_SMBUS_STATE_SLAVE_BUSY_RX)
@@ -1089,7 +1076,7 @@ void HAL_SMBUS_EV_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
   } 
       
    /* SMBUS in mode Listener Only --------------------------------------------------*/
-  if (((__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_ADDR) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_STOPF) != RESET) || (__SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_AF) != RESET))
+  if (((SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_ADDR) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_STOPF) != RESET) || (SMBUS_CHECK_FLAG(tmpisrvalue, SMBUS_FLAG_AF) != RESET))
      && ((__HAL_SMBUS_GET_IT_SOURCE(hsmbus, SMBUS_IT_ADDRI) != RESET) || (__HAL_SMBUS_GET_IT_SOURCE(hsmbus, SMBUS_IT_STOPI) != RESET) || (__HAL_SMBUS_GET_IT_SOURCE(hsmbus, SMBUS_IT_NACKI) != RESET)))
   {
     if (hsmbus->State == HAL_SMBUS_STATE_LISTEN)
@@ -1100,8 +1087,8 @@ void HAL_SMBUS_EV_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
 }
 
 /**
-  * @brief  This function handles SMBUS error interrupt request.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Handle SMBUS error interrupt request.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
@@ -1164,7 +1151,7 @@ void HAL_SMBUS_ER_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
   /* Call the Error Callback in case of Error detected */
   if((hsmbus->ErrorCode != HAL_SMBUS_ERROR_NONE)&&(hsmbus->ErrorCode != HAL_SMBUS_ERROR_ACKF))
   {
-    /* Do not Reset the the HAL state in case of ALERT error */
+    /* Do not Reset the HAL state in case of ALERT error */
     if((hsmbus->ErrorCode & HAL_SMBUS_ERROR_ALERT) != HAL_SMBUS_ERROR_ALERT)
     {
       if(((hsmbus->State & HAL_SMBUS_STATE_SLAVE_BUSY_TX) == HAL_SMBUS_STATE_SLAVE_BUSY_TX)
@@ -1183,104 +1170,123 @@ void HAL_SMBUS_ER_IRQHandler(SMBUS_HandleTypeDef *hsmbus)
 }
 
 /**
-  * @brief  Master Tx Transfer completed callbacks.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Master Tx Transfer completed callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
  __weak void HAL_SMBUS_MasterTxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_SMBUS_TxCpltCallback could be implemented in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SMBUS_TxCpltCallback() could be implemented in the user file
    */ 
 }
 
 /**
-  * @brief  Master Rx Transfer completed callbacks.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Master Rx Transfer completed callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
 __weak void HAL_SMBUS_MasterRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_SMBUS_TxCpltCallback could be implemented in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SMBUS_TxCpltCallback() could be implemented in the user file
    */
 }
 
-/** @brief  Slave Tx Transfer completed callbacks.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+/** @brief  Slave Tx Transfer completed callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
  __weak void HAL_SMBUS_SlaveTxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_SMBUS_TxCpltCallback could be implemented in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SMBUS_TxCpltCallback() could be implemented in the user file
    */ 
 }
 
 /**
-  * @brief  Slave Rx Transfer completed callbacks.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Slave Rx Transfer completed callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
 __weak void HAL_SMBUS_SlaveRxCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_SMBUS_TxCpltCallback could be implemented in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SMBUS_TxCpltCallback() could be implemented in the user file
    */
 }
 
 /**
-  * @brief  Slave Address Match callbacks.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Slave Address Match callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @param  TransferDirection: Master request Transfer Direction (Write/Read)
   * @param  AddrMatchCode: Address Match Code
   * @retval None
   */
-__weak void HAL_SMBUS_SlaveAddrCallback(SMBUS_HandleTypeDef *hsmbus, uint8_t TransferDirection, uint16_t AddrMatchCode)
+__weak void HAL_SMBUS_AddrCallback(SMBUS_HandleTypeDef *hsmbus, uint8_t TransferDirection, uint16_t AddrMatchCode)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_SMBUS_SlaveAddrCallback could be implemented in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+  UNUSED(TransferDirection);
+  UNUSED(AddrMatchCode);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SMBUS_AddrCallback() could be implemented in the user file
    */
 }
 
 /**
-  * @brief  Listen Complete callbacks.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Listen Complete callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
-__weak void HAL_SMBUS_SlaveListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
+__weak void HAL_SMBUS_ListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-    /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_SMBUS_SlaveListenCpltCallback could be implemented in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+    /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SMBUS_ListenCpltCallback() could be implemented in the user file
    */
 }
 
 /**
-  * @brief  SMBUS error callbacks.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  SMBUS error callback.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval None
   */
  __weak void HAL_SMBUS_ErrorCallback(SMBUS_HandleTypeDef *hsmbus)
 {
-  /* NOTE : This function Should not be modified, when the callback is needed,
-            the HAL_SMBUS_ErrorCallback could be implemented in the user file
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsmbus);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SMBUS_ErrorCallback() could be implemented in the user file
    */ 
 }
 
 /**
   * @}
   */
-
-/**
-  * @}
-  */  
 
 /** @defgroup SMBUS_Exported_Functions_Group3 Peripheral State and Errors functions 
  *  @brief   Peripheral State and Errors functions 
@@ -1298,20 +1304,22 @@ __weak void HAL_SMBUS_SlaveListenCpltCallback(SMBUS_HandleTypeDef *hsmbus)
   */
 
 /**
-  * @brief  Returns the SMBUS state.
-  * @param  hsmbus : SMBUS handle
+  * @brief  Return the SMBUS handle state.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
+  *              the configuration information for the specified SMBUS.
   * @retval HAL state
   */
-HAL_SMBUS_StateTypeDef HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus)
+uint32_t HAL_SMBUS_GetState(SMBUS_HandleTypeDef *hsmbus)
 {
+  /* Return SMBUS handle state */
   return hsmbus->State;
 }
 
 /**
-* @brief  Return the SMBUS error code
-* @param  hsmbus : pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Return the SMBUS error code.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *              the configuration information for the specified SMBUS.
-* @retval SMBUS Error Code
+  * @retval SMBUS Error Code
 */
 uint32_t HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus)
 {
@@ -1327,13 +1335,13 @@ uint32_t HAL_SMBUS_GetError(SMBUS_HandleTypeDef *hsmbus)
   */  
 
 /** @addtogroup SMBUS_Private_Functions SMBUS Private Functions
- *  @brief   Data transfers Private functions 
+  *  @brief   Data transfers Private functions 
   * @{
   */
 
 /**
-  * @brief  Interrupt Sub-Routine which handle the Interrupt Flags Master Mode
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Interrupt Sub-Routine which handle the Interrupt Flags Master Mode.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval HAL status
   */
@@ -1372,7 +1380,7 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
       __HAL_SMBUS_CLEAR_FLAG(hsmbus, SMBUS_FLAG_STOPF);
       
       /* Clear Configuration Register 2 */
-      __HAL_SMBUS_RESET_CR2(hsmbus);
+      SMBUS_RESET_CR2(hsmbus);
     
       /* Flush remaining data in Fifo register in case of error occurs before TXEmpty */
       /* Disable the selected SMBUS peripheral */
@@ -1398,7 +1406,7 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
       __HAL_SMBUS_CLEAR_FLAG(hsmbus, SMBUS_FLAG_STOPF);
       
       /* Clear Configuration Register 2 */
-      __HAL_SMBUS_RESET_CR2(hsmbus);
+      SMBUS_RESET_CR2(hsmbus);
     
       hsmbus->PreviousState = HAL_SMBUS_STATE_READY;
       hsmbus->State = HAL_SMBUS_STATE_READY;
@@ -1440,7 +1448,7 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
         SMBUS_TransferConfig(hsmbus,DevAddress,hsmbus->XferSize, hsmbus->XferOptions, SMBUS_NO_STARTSTOP);
         /* If PEC mode is enable, size to transmit should be Size-1 byte, corresponding to PEC byte */
         /* PEC byte is automatically sent by HW block, no need to manage it in Transmit process */
-        if(__HAL_SMBUS_GET_PEC_MODE(hsmbus) != RESET)
+        if(SMBUS_GET_PEC_MODE(hsmbus) != RESET)
         {
           hsmbus->XferSize--;
           hsmbus->XferCount--;
@@ -1449,8 +1457,8 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
     }
     else if((hsmbus->XferSize == 0)&&(hsmbus->XferCount==0))
     {
-      /* Call TxCpltCallback if no stop mode is set */
-      if(__HAL_SMBUS_GET_STOP_MODE(hsmbus) != SMBUS_AUTOEND_MODE)
+      /* Call TxCpltCallback() if no stop mode is set */
+      if(SMBUS_GET_STOP_MODE(hsmbus) != SMBUS_AUTOEND_MODE)
       {
         /* Call the corresponding callback to inform upper layer of End of Transfer */
         if(hsmbus->State == HAL_SMBUS_STATE_MASTER_BUSY_TX)
@@ -1484,13 +1492,13 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
     if(hsmbus->XferCount == 0)
     {
       /* Specific use case for Quick command */
-      if(hsmbus->pBuffPtr == HAL_NULL)
+      if(hsmbus->pBuffPtr == NULL)
       {
         /* Generate a Stop command */
         hsmbus->Instance->CR2 |= I2C_CR2_STOP;
       }
-      /* Call TxCpltCallback if no stop mode is set */
-      else if(__HAL_SMBUS_GET_STOP_MODE(hsmbus) != SMBUS_AUTOEND_MODE)
+      /* Call TxCpltCallback() if no stop mode is set */
+      else if(SMBUS_GET_STOP_MODE(hsmbus) != SMBUS_AUTOEND_MODE)
       {
         /* No Generate Stop, to permit restart mode */
         /* The stop will be done at the end of transfer, when SMBUS_AUTOEND_MODE enable */
@@ -1529,8 +1537,8 @@ static HAL_StatusTypeDef SMBUS_Master_ISR(SMBUS_HandleTypeDef *hsmbus)
   return HAL_OK; 
 }  
 /**
-  * @brief  Interrupt Sub-Routine which handle the Interrupt Flags Slave Mode
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Interrupt Sub-Routine which handle the Interrupt Flags Slave Mode.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
   * @retval HAL status
   */
@@ -1583,8 +1591,8 @@ static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus)
   }
   else if(__HAL_SMBUS_GET_FLAG(hsmbus, SMBUS_FLAG_ADDR) != RESET)
   {
-    TransferDirection = __HAL_SMBUS_GET_DIR(hsmbus);
-    SlaveAddrCode = __HAL_SMBUS_GET_ADDR_MATCH(hsmbus);
+    TransferDirection = SMBUS_GET_DIR(hsmbus);
+    SlaveAddrCode = SMBUS_GET_ADDR_MATCH(hsmbus);
       
     /* Disable ADDR interrupt to prevent multiple ADDRInterrupt*/
     /* Other ADDRInterrupt will be treat in next Listen usecase */
@@ -1594,7 +1602,7 @@ static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus)
     __HAL_UNLOCK(hsmbus);
 
     /* Call Slave Addr callback */
-    HAL_SMBUS_SlaveAddrCallback(hsmbus, TransferDirection, SlaveAddrCode);
+    HAL_SMBUS_AddrCallback(hsmbus, TransferDirection, SlaveAddrCode);
   }
   else if((__HAL_SMBUS_GET_FLAG(hsmbus, SMBUS_FLAG_RXNE) != RESET) || (__HAL_SMBUS_GET_FLAG(hsmbus, SMBUS_FLAG_TCR) != RESET))
   {
@@ -1652,7 +1660,7 @@ static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus)
           SMBUS_TransferConfig(hsmbus, 0, hsmbus->XferSize, hsmbus->XferOptions, SMBUS_NO_STARTSTOP);
           /* If PEC mode is enable, size to transmit should be Size-1 byte, corresponding to PEC byte */
           /* PEC byte is automatically sent by HW block, no need to manage it in Transmit process */
-          if(__HAL_SMBUS_GET_PEC_MODE(hsmbus) != RESET)
+          if(SMBUS_GET_PEC_MODE(hsmbus) != RESET)
           {
             hsmbus->XferSize--;
             hsmbus->XferCount--;
@@ -1706,7 +1714,7 @@ static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus)
       hsmbus->Instance->CR2 |= I2C_CR2_NACK;
 
       /* Clear Configuration Register 2 */
-      __HAL_SMBUS_RESET_CR2(hsmbus);
+      SMBUS_RESET_CR2(hsmbus);
     
       /* Clear STOP Flag */
       __HAL_SMBUS_CLEAR_FLAG(hsmbus, SMBUS_FLAG_STOPF);
@@ -1722,7 +1730,7 @@ static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus)
       __HAL_UNLOCK(hsmbus);
 
       /* Call the Listen Complete callback, to prevent upper layer of the end of Listen usecase */
-      HAL_SMBUS_SlaveListenCpltCallback(hsmbus);
+      HAL_SMBUS_ListenCpltCallback(hsmbus);
     }
   }
 
@@ -1732,10 +1740,10 @@ static HAL_StatusTypeDef SMBUS_Slave_ISR(SMBUS_HandleTypeDef *hsmbus)
   return HAL_OK;     
 }  
 /**
-  * @brief  Manage the enabling of Interrupts
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Manage the enabling of Interrupts.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  InterruptRequest : Value of @ref SMBUS_Interrupt_configuration_definition.
+  * @param  InterruptRequest Value of @ref SMBUS_Interrupt_configuration_definition.
   * @retval HAL status
   */
 static HAL_StatusTypeDef SMBUS_Enable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t InterruptRequest) 
@@ -1774,10 +1782,10 @@ static HAL_StatusTypeDef SMBUS_Enable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t 
   return HAL_OK;     
 }
 /**
-  * @brief  Manage the disabling of Interrupts
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Manage the disabling of Interrupts.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  InterruptRequest : Value of @ref SMBUS_Interrupt_configuration_definition.
+  * @param  InterruptRequest Value of @ref SMBUS_Interrupt_configuration_definition.
   * @retval HAL status
   */
 static HAL_StatusTypeDef SMBUS_Disable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t InterruptRequest) 
@@ -1795,7 +1803,7 @@ static HAL_StatusTypeDef SMBUS_Disable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t
     /* Disable TC, STOP, NACK, TXI interrupt */
     tmpisr |= SMBUS_IT_TCI | SMBUS_IT_TXI;
     
-    if((__HAL_SMBUS_GET_ALERT_ENABLED(hsmbus) == RESET)
+    if((SMBUS_GET_ALERT_ENABLED(hsmbus) == RESET)
        && ((hsmbus->State & HAL_SMBUS_STATE_LISTEN) != HAL_SMBUS_STATE_LISTEN))
     {
       /* Disable ERR interrupt */
@@ -1814,7 +1822,7 @@ static HAL_StatusTypeDef SMBUS_Disable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t
     /* Disable TC, STOP, NACK, RXI interrupt */
     tmpisr |= SMBUS_IT_TCI | SMBUS_IT_RXI;
     
-    if((__HAL_SMBUS_GET_ALERT_ENABLED(hsmbus) == RESET)
+    if((SMBUS_GET_ALERT_ENABLED(hsmbus) == RESET)
        && ((hsmbus->State & HAL_SMBUS_STATE_LISTEN) != HAL_SMBUS_STATE_LISTEN))
     {
       /* Disable ERR interrupt */
@@ -1833,7 +1841,7 @@ static HAL_StatusTypeDef SMBUS_Disable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t
     /* Enable ADDR, STOP interrupt */
     tmpisr |= SMBUS_IT_ADDRI | SMBUS_IT_STOPI | SMBUS_IT_NACKI;
 
-    if(__HAL_SMBUS_GET_ALERT_ENABLED(hsmbus) == RESET) 
+    if(SMBUS_GET_ALERT_ENABLED(hsmbus) == RESET) 
     {
       /* Disable ERR interrupt */
       tmpisr |= SMBUS_IT_ERRI;
@@ -1848,12 +1856,12 @@ static HAL_StatusTypeDef SMBUS_Disable_IRQ(SMBUS_HandleTypeDef *hsmbus, uint16_t
   return HAL_OK;
 }
 /**
-  * @brief  This function handles SMBUS Communication Timeout.
-  * @param  hsmbus : Pointer to a SMBUS_HandleTypeDef structure that contains
+  * @brief  Handle SMBUS Communication Timeout.
+  * @param  hsmbus Pointer to a SMBUS_HandleTypeDef structure that contains
   *                the configuration information for the specified SMBUS.
-  * @param  Flag: specifies the SMBUS flag to check.
-  * @param  Status: The new Flag status (SET or RESET).
-  * @param  Timeout: Timeout duration
+  * @param  Flag Specifies the SMBUS flag to check.
+  * @param  Status The new Flag status (SET or RESET).
+  * @param  Timeout Timeout duration
   * @retval HAL status
   */
 static HAL_StatusTypeDef SMBUS_WaitOnFlagUntilTimeout(SMBUS_HandleTypeDef *hsmbus, uint32_t Flag, FlagStatus Status, uint32_t Timeout)  
@@ -1905,23 +1913,23 @@ static HAL_StatusTypeDef SMBUS_WaitOnFlagUntilTimeout(SMBUS_HandleTypeDef *hsmbu
 }
 
 /**
-  * @brief  Handles SMBUSx communication when starting transfer or during transfer (TC or TCR flag are set).
-  * @param  hsmbus: SMBUS handle.
-  * @param  DevAddress: specifies the slave address to be programmed.
-  * @param  Size: specifies the number of bytes to be programmed.
+  * @brief  Handle SMBUSx communication when starting transfer or during transfer (TC or TCR flag are set).
+  * @param  hsmbus SMBUS handle.
+  * @param  DevAddress specifies the slave address to be programmed.
+  * @param  Size specifies the number of bytes to be programmed.
   *   This parameter must be a value between 0 and 255.
-  * @param  Mode: new state of the SMBUS START condition generation.
+  * @param  Mode New state of the SMBUS START condition generation.
   *   This parameter can be one or a combination  of the following values:
-  *     @arg SMBUS_NO_MODE: No specific mode enabled.
-  *     @arg SMBUS_RELOAD_MODE: Enable Reload mode.
-  *     @arg SMBUS_AUTOEND_MODE: Enable Automatic end mode.
-  *     @arg SMBUS_SOFTEND_MODE: Enable Software end mode and Reload mode.
-  * @param  Request: new state of the SMBUS START condition generation.
+  *     @arg @ref SMBUS_RELOAD_MODE Enable Reload mode.
+  *     @arg @ref SMBUS_AUTOEND_MODE Enable Automatic end mode.
+  *     @arg @ref SMBUS_SOFTEND_MODE Enable Software end mode and Reload mode.
+  *     @arg @ref SMBUS_SENDPEC_MODE Enable Packet Error Calculation mode.
+  * @param  Request New state of the SMBUS START condition generation.
   *   This parameter can be one of the following values:
-  *     @arg SMBUS_NO_STARTSTOP: Don't Generate stop and start condition.
-  *     @arg SMBUS_GENERATE_STOP: Generate stop condition (Size should be set to 0).
-  *     @arg SMBUS_GENERATE_START_READ: Generate Restart for read request.
-  *     @arg SMBUS_GENERATE_START_WRITE: Generate Restart for write request.
+  *     @arg @ref SMBUS_NO_STARTSTOP Don't Generate stop and start condition.
+  *     @arg @ref SMBUS_GENERATE_STOP Generate stop condition (Size should be set to 0).
+  *     @arg @ref SMBUS_GENERATE_START_READ Generate Restart for read request.
+  *     @arg @ref SMBUS_GENERATE_START_WRITE Generate Restart for write request.
   * @retval None
   */
 static void SMBUS_TransferConfig(SMBUS_HandleTypeDef *hsmbus,  uint16_t DevAddress, uint8_t Size, uint32_t Mode, uint32_t Request)

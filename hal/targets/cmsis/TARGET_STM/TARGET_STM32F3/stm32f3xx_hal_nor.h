@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_nor.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file of NOR HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -45,8 +45,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
-  #include "stm32f3xx_ll_fmc.h"
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
+#include "stm32f3xx_ll_fmc.h"
 
 /** @addtogroup STM32F3xx_HAL_Driver
   * @{
@@ -56,7 +55,64 @@
   * @{
   */ 
 
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
+
+/** @addtogroup NOR_Private_Constants
+  * @{
+  */
+
+/* NOR device IDs addresses */
+#define MC_ADDRESS               ((uint16_t)0x0000)
+#define DEVICE_CODE1_ADDR        ((uint16_t)0x0001)
+#define DEVICE_CODE2_ADDR        ((uint16_t)0x000E)
+#define DEVICE_CODE3_ADDR        ((uint16_t)0x000F)
+
+/* NOR CFI IDs addresses */
+#define CFI1_ADDRESS             ((uint16_t)0x10)
+#define CFI2_ADDRESS             ((uint16_t)0x11)
+#define CFI3_ADDRESS             ((uint16_t)0x12)
+#define CFI4_ADDRESS             ((uint16_t)0x13)
+
+/* NOR memory data width */
+#define NOR_MEMORY_8B            ((uint8_t)0x0)
+#define NOR_MEMORY_16B           ((uint8_t)0x1)
+
+/* NOR memory device read/write start address */
+#define NOR_MEMORY_ADRESS1       FMC_BANK1_1
+#define NOR_MEMORY_ADRESS2       FMC_BANK1_2
+#define NOR_MEMORY_ADRESS3       FMC_BANK1_3
+#define NOR_MEMORY_ADRESS4       FMC_BANK1_4
+
+/**
+  * @}
+  */
+
+/** @addtogroup NOR_Private_Macros
+  * @{
+  */
+
+/**
+  * @brief  NOR memory address shifting.
+  * @param  __NOR_ADDRESS: NOR base address 
+  * @param  __NOR_MEMORY_WIDTH_: NOR memory width
+  * @param  __ADDRESS__: NOR memory address 
+  * @retval NOR shifted address value
+  */
+#define NOR_ADDR_SHIFT(__NOR_ADDRESS, __NOR_MEMORY_WIDTH_, __ADDRESS__)       \
+            ((uint32_t)(((__NOR_MEMORY_WIDTH_) == NOR_MEMORY_16B)?              \
+              ((uint32_t)((__NOR_ADDRESS) + (2 * (__ADDRESS__)))):              \
+              ((uint32_t)((__NOR_ADDRESS) + (__ADDRESS__)))))
+
+/**
+  * @brief  NOR memory write data to specified address.
+  * @param  __ADDRESS__: NOR memory address 
+  * @param  __DATA__: Data to write
+  * @retval None
+  */
+#define NOR_WRITE(__ADDRESS__, __DATA__)  (*(__IO uint16_t *)((uint32_t)(__ADDRESS__)) = (__DATA__))
+
+/**
+  * @}
+  */
 
 /* Exported typedef ----------------------------------------------------------*/ 
 /** @defgroup NOR_Exported_Types NOR Exported Types
@@ -73,7 +129,6 @@ typedef enum
   HAL_NOR_STATE_BUSY              = 0x02,  /*!< NOR internal processing is ongoing   */
   HAL_NOR_STATE_ERROR             = 0x03,  /*!< NOR error state                      */ 
   HAL_NOR_STATE_PROTECTED         = 0x04   /*!< NOR NORSRAM device write protected  */
-
 }HAL_NOR_StateTypeDef;    
 
 /**
@@ -81,12 +136,11 @@ typedef enum
   */
 typedef enum
 {
-  NOR_SUCCESS = 0,
-  NOR_ONGOING,
-  NOR_ERROR,
-  NOR_TIMEOUT
-
-}NOR_StatusTypedef; 
+  HAL_NOR_STATUS_SUCCESS = 0,
+  HAL_NOR_STATUS_ONGOING,
+  HAL_NOR_STATUS_ERROR,
+  HAL_NOR_STATUS_TIMEOUT
+}HAL_NOR_StatusTypeDef; 
 
 /**
   * @brief  FMC NOR ID typedef
@@ -102,7 +156,7 @@ typedef struct
   uint16_t Device_Code3;       /*!< Defines the device's codes used to identify the memory. 
                                     These codes can be accessed by performing read operations with specific 
                                     control signals and addresses set.They can also be accessed by issuing 
-                                    an Auto Select command                                                   */    
+                                    an Auto Select command.                                                   */    
 }NOR_IDTypeDef;
 
 /**
@@ -110,18 +164,15 @@ typedef struct
   */
 typedef struct
 {
-  /*!< Defines the information stored in the memory's Common flash interface
-       which contains a description of various electrical and timing parameters, 
-       density information and functions supported by the memory                   */
-  
   uint16_t CFI_1;            
   
   uint16_t CFI_2;          
   
   uint16_t CFI_3;                      
   
-  uint16_t CFI_4;                     
-
+  uint16_t CFI_4;  /*!< Defines the information stored in the memory's Common flash interface
+                        which contains a description of various electrical and timing parameters, 
+                        density information and functions supported by the memory.                   */
 }NOR_CFITypeDef;
 
 /** 
@@ -146,68 +197,16 @@ typedef struct
   */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup NOR_Exported_Constants NOR Exported Constants
-  * @{
-  */
-/* NOR device IDs addresses */
-#define MC_ADDRESS               ((uint16_t)0x0000)
-#define DEVICE_CODE1_ADDR        ((uint16_t)0x0001)
-#define DEVICE_CODE2_ADDR        ((uint16_t)0x000E)
-#define DEVICE_CODE3_ADDR        ((uint16_t)0x000F)
-
-/* NOR CFI IDs addresses */
-#define CFI1_ADDRESS             ((uint16_t)0x61)
-#define CFI2_ADDRESS             ((uint16_t)0x62)
-#define CFI3_ADDRESS             ((uint16_t)0x63)
-#define CFI4_ADDRESS             ((uint16_t)0x64)
-
-/* NOR operation wait timeout */
-#define NOR_TMEOUT               ((uint16_t)0xFFFF)
-   
-/* NOR memory data width */
-#define NOR_MEMORY_8B            ((uint8_t)0x0)
-#define NOR_MEMORY_16B           ((uint8_t)0x1)
-
-/* NOR memory device read/write start address */
-#define NOR_MEMORY_ADRESS1       ((uint32_t)0x60000000)
-#define NOR_MEMORY_ADRESS2       ((uint32_t)0x64000000)
-#define NOR_MEMORY_ADRESS3       ((uint32_t)0x68000000)
-#define NOR_MEMORY_ADRESS4       ((uint32_t)0x6C000000)
-
-/**
-  * @}
-  */
-
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup NOR_Exported_Macros NOR Exported Macros
   * @{
   */
 
 /** @brief Reset NOR handle state
-  * @param  __HANDLE__: specifies the NOR handle.
+  * @param  __HANDLE__: NOR handle
   * @retval None
   */
 #define __HAL_NOR_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_NOR_STATE_RESET)
-
-/**
-  * @brief  NOR memory address shifting.
-  * @param  __NOR_ADDRESS: NOR base address 
-  * @param  __NOR_MEMORY_WIDTH_: NOR memory width
-  * @param  __ADDRESS__: NOR memory address 
-  * @retval NOR shifted address value
-  */
-#define __NOR_ADDR_SHIFT(__NOR_ADDRESS, __NOR_MEMORY_WIDTH_, __ADDRESS__)       \
-            ((uint32_t)(((__NOR_MEMORY_WIDTH_) == NOR_MEMORY_16B)?              \
-              ((uint32_t)((__NOR_ADDRESS) + (2 * (__ADDRESS__)))):              \
-              ((uint32_t)((__NOR_ADDRESS) + (__ADDRESS__)))))
- 
-/**
-  * @brief  NOR memory write data to specified address.
-  * @param  __ADDRESS__: NOR memory address 
-  * @param  __DATA__: Data to write
-  * @retval None
-  */
-#define __NOR_WRITE(__ADDRESS__, __DATA__)  (*(__IO uint16_t *)((uint32_t)(__ADDRESS__)) = (__DATA__))
 
 /**
   * @}
@@ -222,7 +221,7 @@ typedef struct
   * @{
   */
 
-/* Initialization/de-initialization functions  **********************************/  
+/* Initialization/de-initialization functions  ********************************/
 HAL_StatusTypeDef HAL_NOR_Init(NOR_HandleTypeDef *hnor, FMC_NORSRAM_TimingTypeDef *Timing, FMC_NORSRAM_TimingTypeDef *ExtTiming);
 HAL_StatusTypeDef HAL_NOR_DeInit(NOR_HandleTypeDef *hnor);
 void HAL_NOR_MspInit(NOR_HandleTypeDef *hnor);
@@ -237,7 +236,7 @@ void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout);
   * @{
   */
 
-/* I/O operation functions  *****************************************************/
+/* I/O operation functions  ***************************************************/
 HAL_StatusTypeDef HAL_NOR_Read_ID(NOR_HandleTypeDef *hnor, NOR_IDTypeDef *pNOR_ID);
 HAL_StatusTypeDef HAL_NOR_ReturnToReadMode(NOR_HandleTypeDef *hnor);
 HAL_StatusTypeDef HAL_NOR_Read(NOR_HandleTypeDef *hnor, uint32_t *pAddress, uint16_t *pData);
@@ -258,7 +257,7 @@ HAL_StatusTypeDef HAL_NOR_Read_CFI(NOR_HandleTypeDef *hnor, NOR_CFITypeDef *pNOR
   * @{
   */
 
-/* NOR Control functions  *******************************************************/
+/* NOR Control functions  *****************************************************/
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Enable(NOR_HandleTypeDef *hnor);
 HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor);
 
@@ -270,9 +269,9 @@ HAL_StatusTypeDef HAL_NOR_WriteOperation_Disable(NOR_HandleTypeDef *hnor);
   * @{
   */
 
-/* NOR State functions **********************************************************/
+/* NOR State functions ********************************************************/
 HAL_NOR_StateTypeDef HAL_NOR_GetState(NOR_HandleTypeDef *hnor);
-NOR_StatusTypedef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, uint32_t Timeout);
+HAL_NOR_StatusTypeDef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, uint32_t Timeout);
 
 /**
   * @}
@@ -282,7 +281,6 @@ NOR_StatusTypedef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, u
   * @}
   */  
 
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
 /**
   * @}
   */ 
@@ -290,6 +288,8 @@ NOR_StatusTypedef HAL_NOR_GetStatus(NOR_HandleTypeDef *hnor, uint32_t Address, u
 /**
   * @}
   */
+
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
 
 #ifdef __cplusplus
 }

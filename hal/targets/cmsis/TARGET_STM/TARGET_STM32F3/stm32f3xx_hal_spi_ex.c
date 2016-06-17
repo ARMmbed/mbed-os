@@ -1,10 +1,14 @@
 /**
   ******************************************************************************
-  * @file    stm32f3xx_hal_opamp_ex.h
+  * @file    stm32f3xx_hal_spi_ex.c
   * @author  MCD Application Team
   * @version V1.2.1
   * @date    29-April-2015
-  * @brief   Header file of OPAMP HAL Extended module.
+  * @brief   Extended SPI HAL module driver.
+  *          This file provides firmware functions to manage the following
+  *          SPI peripheral extended functionalities :
+  *           + IO operation functions
+  *
   ******************************************************************************
   * @attention
   *
@@ -35,83 +39,95 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F3xx_HAL_OPAMP_EX_H
-#define __STM32F3xx_HAL_OPAMP_EX_H
-
-#ifdef __cplusplus
- extern "C" {
-#endif
-
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
-    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) 
-
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f3xx_hal_def.h"
+#include "stm32f3xx_hal.h"
 
 /** @addtogroup STM32F3xx_HAL_Driver
   * @{
   */
 
-/** @addtogroup OPAMPEx OPAMPEx
+/** @defgroup SPIEx SPIEx
+  * @brief SPI Extended HAL module driver
   * @{
   */
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions --------------------------------------------------------*/
-/** @addtogroup OPAMPEx_Exported_Functions OPAMP Extended Exported Functions
+#ifdef HAL_SPI_MODULE_ENABLED
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+/** @defgroup SPIEx_Private_Constants SPIEx Private Constants
+  * @{
+  */
+#define SPI_FIFO_SIZE       4
+/**
+  * @}
+  */
+
+/* Private macros ------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
+
+/** @defgroup SPIEx_Exported_Functions SPIEx Exported Functions
   * @{
   */
 
-/** @addtogroup OPAMPEx_Exported_Functions_Group1 Extended Input and Output operation functions
+/** @defgroup SPIEx_Exported_Functions_Group1 IO operation functions
+ *  @brief   Data transfers functions
+ *
+@verbatim
+  ==============================================================================
+                      ##### IO operation functions #####
+ ===============================================================================
+ [..]
+    This subsection provides a set of extended functions to manage the SPI
+    data transfers.
+
+    (#) Rx data flush function:
+        (++) HAL_SPIEx_FlushRxFifo()
+
+@endverbatim
   * @{
   */
 
-/* I/O operation functions  *****************************************************/
-
-#if defined(STM32F302xE) || \
-    defined(STM32F302xC)
-
-HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2); 
-
-#endif /* STM32F302xE || */
-       /* STM32F302xC    */
-
-#if defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F303xC) || defined(STM32F358xx) 
-HAL_StatusTypeDef HAL_OPAMPEx_SelfCalibrateAll(OPAMP_HandleTypeDef *hopamp1, OPAMP_HandleTypeDef *hopamp2, OPAMP_HandleTypeDef *hopamp3, OPAMP_HandleTypeDef *hopamp4);
-#endif /* STM32F303xE || STM32F398xx || */
-       /* STM32F303xC || STM32F358xx    */
-
 /**
-  * @}
+  * @brief Flush the RX fifo.
+  * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
+  *               the configuration information for the specified SPI module.
+  * @retval HAL status
   */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
-
-#ifdef __cplusplus
+HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi)
+{
+  __IO uint32_t tmpreg;
+  uint8_t  count = 0;
+  while((hspi->Instance->SR & SPI_FLAG_FRLVL) !=  SPI_FRLVL_EMPTY)
+  {
+    count++;
+    tmpreg = hspi->Instance->DR;
+    UNUSED(tmpreg); /* To avoid GCC warning */
+    if(count == SPI_FIFO_SIZE)
+    {
+      return HAL_TIMEOUT;
+    }
+  }
+  return HAL_OK;
 }
-#endif
 
+/**
+  * @}
+  */
 
-#endif /* __STM32F3xx_HAL_OPAMP_EX_H */
+/**
+  * @}
+  */
+
+#endif /* HAL_SPI_MODULE_ENABLED */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

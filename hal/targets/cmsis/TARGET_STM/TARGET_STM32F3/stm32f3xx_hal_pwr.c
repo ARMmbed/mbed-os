@@ -2,10 +2,9 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   PWR HAL module driver.
-  *
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
   *           + Initialization/de-initialization functions
@@ -15,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -49,7 +48,7 @@
   * @{
   */
 
-/** @defgroup PWR PWR HAL module driver
+/** @defgroup PWR PWR
   * @brief PWR HAL module driver
   * @{
   */
@@ -72,7 +71,7 @@
   *
 @verbatim
  ===============================================================================
-              ##### Initialization/de-initialization functions #####
+              ##### Initialization and de-initialization functions #####
  ===============================================================================
     [..]
       After reset, the backup domain (RTC registers, RTC backup data
@@ -80,7 +79,7 @@
       write accesses.
       To enable access to the RTC Domain and RTC registers, proceed as follows:
         (+) Enable the Power Controller (PWR) APB1 interface clock using the
-            __PWR_CLK_ENABLE() macro.
+            __HAL_RCC_PWR_CLK_ENABLE() macro.
         (+) Enable access to RTC domain using the HAL_PWR_EnableBkUpAccess() function.
 
 @endverbatim
@@ -88,13 +87,13 @@
   */
 
 /**
-  * @brief Deinitializes the HAL PWR peripheral registers to their default reset values.
+  * @brief Deinitializes the PWR peripheral registers to their default reset values.
   * @retval None
   */
 void HAL_PWR_DeInit(void)
 {
-  __PWR_FORCE_RESET();
-  __PWR_RELEASE_RESET();
+  __HAL_RCC_PWR_FORCE_RESET();
+  __HAL_RCC_PWR_RELEASE_RESET();
 }
 
 /**
@@ -106,7 +105,7 @@ void HAL_PWR_DeInit(void)
   */
 void HAL_PWR_EnableBkUpAccess(void)
 {
-  *(__IO uint32_t *) CR_DBP_BB = (uint32_t)ENABLE;
+  SET_BIT(PWR->CR, PWR_CR_DBP);  
 }
 
 /**
@@ -118,7 +117,7 @@ void HAL_PWR_EnableBkUpAccess(void)
   */
 void HAL_PWR_DisableBkUpAccess(void)
 {
-  *(__IO uint32_t *) CR_DBP_BB = (uint32_t)DISABLE;
+  CLEAR_BIT(PWR->CR, PWR_CR_DBP);  
 }
 
 /**
@@ -133,15 +132,16 @@ void HAL_PWR_DisableBkUpAccess(void)
  ===============================================================================
                  ##### Peripheral Control functions #####
  ===============================================================================
-    [..]
+    
     *** WakeUp pin configuration ***
     ================================
+    [..]
       (+) WakeUp pin is used to wakeup the system from Standby mode. This pin is
           forced in input pull down configuration and is active on rising edges.
       (+) There are up to three WakeUp pins:
-          WakeUp Pin 1 on PA.00.
-          WakeUp Pin 2 on PC.13 (STM32F303xC, STM32F303xE only).
-          WakeUp Pin 3 on PE.06.
+          (++)WakeUp Pin 1 on PA.00.
+          (++)WakeUp Pin 2 on PC.13 (STM32F303xC, STM32F303xE only).
+          (++)WakeUp Pin 3 on PE.06.
 
     *** Main and Backup Regulators configuration ***
     ================================================
@@ -150,7 +150,7 @@ void HAL_PWR_DisableBkUpAccess(void)
           the backup SRAM is powered from VDD which replaces the VBAT power supply to
           save battery life.
 
-      (+) The backup SRAM is not mass erased by an tamper event. It is read
+      (+) The backup SRAM is not mass erased by a tamper event. It is read
           protected to prevent confidential data, such as cryptographic private
           key, from being accessed. The backup SRAM can be erased only through
           the Flash interface when a protection level change from level 1 to
@@ -188,22 +188,21 @@ void HAL_PWR_DisableBkUpAccess(void)
       In Stop mode, all clocks in the 1.8V domain are stopped, the PLL, the HSI,
       and the HSE RC oscillators are disabled. Internal SRAM and register contents
       are preserved.
-      The voltage regulator can be configured either in normal or low-power mode.
-      To minimize the consumption.
+      The voltage regulator can be configured either in normal or low-power mode to minimize the consumption.
 
       (+) Entry:
           The Stop mode is entered using the HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI )
              function with:
-          (++) Main regulator ON.
+          (++) Main regulator ON or
           (++) Low Power regulator ON.
-          (++) PWR_STOPENTRY_WFI: enter STOP mode with WFI instruction
+          (++) PWR_STOPENTRY_WFI: enter STOP mode with WFI instruction or
           (++) PWR_STOPENTRY_WFE: enter STOP mode with WFE instruction
       (+) Exit:
           (++) Any EXTI Line (Internal or External) configured in Interrupt/Event mode.
           (++) Some specific communication peripherals (CEC, USART, I2C) interrupts, 
                when programmed in wakeup mode (the peripheral must be 
                programmed in wakeup mode and the corresponding interrupt vector 
-               must be enabled in the NVIC)
+               must be enabled in the NVIC).
 
    *** Standby mode ***
    ====================
@@ -293,6 +292,8 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   *          This parameter can be one of the following values:
   *            @arg PWR_MAINREGULATOR_ON: SLEEP mode with regulator ON
   *            @arg PWR_LOWPOWERREGULATOR_ON: SLEEP mode with low power regulator ON
+  * @note This parameter has no effect in F3 family and is just maintained to 
+  *       offer full portability of other STM32 families softwares.
   * @param SLEEPEntry: Specifies if SLEEP mode is entered with WFI or WFE instruction.
   *           When WFI entry is used, tick interrupt have to be disabled if not desired as 
   *           the interrupt wake up source.
@@ -303,23 +304,8 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   */
 void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
 {
-   uint32_t tmpreg = 0;
-
   /* Check the parameters */
-  assert_param(IS_PWR_REGULATOR(Regulator));
   assert_param(IS_PWR_SLEEP_ENTRY(SLEEPEntry));
-
-  /* Select the regulator state in SLEEP mode ---------------------------------*/
-  tmpreg = PWR->CR;
-
-  /* Clear PDDS and LPDS bits */
-  tmpreg &= (uint32_t)~(PWR_CR_PDDS | PWR_CR_LPDS);
-
-  /* Set LPDS bit according to Regulator value */
-  tmpreg |= Regulator;
-
-  /* Store the new value */
-  PWR->CR = tmpreg;
 
   /* Clear SLEEPDEEP bit of Cortex System Control Register */
   SCB->SCR &= (uint32_t)~((uint32_t)SCB_SCR_SLEEPDEEP_Msk);
@@ -402,11 +388,10 @@ void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 /**
   * @brief Enters STANDBY mode.
   * @note  In Standby mode, all I/O pins are high impedance except for:
-  *          - Reset pad (still available)
-  *          - RTC_AF1 pin (PC13) if configured for tamper, time-stamp, RTC
-  *            Alarm out, or RTC clock calibration out.
-  *          - RTC_AF2 pin (PI8) if configured for tamper or time-stamp.
-  *          - WKUP pin 1 (PA0) if enabled.
+  *          - Reset pad (still available), 
+  *          - RTC alternate function pins if configured for tamper, time-stamp, RTC
+  *            Alarm out, or RTC clock calibration out, 
+  *          - WKUP pins if enabled.
   * @retval None
   */
 void HAL_PWR_EnterSTANDBYMode(void)
@@ -425,6 +410,59 @@ void HAL_PWR_EnterSTANDBYMode(void)
   __WFI();
 }
 
+/**
+  * @brief Indicates Sleep-On-Exit when returning from Handler mode to Thread mode. 
+  * @note Set SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
+  *       re-enters SLEEP mode when an interruption handling is over.
+  *       Setting this bit is useful when the processor is expected to run only on
+  *       interruptions handling.         
+  * @retval None
+  */
+void HAL_PWR_EnableSleepOnExit(void)
+{
+  /* Set SLEEPONEXIT bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+}
+
+
+/**
+  * @brief Disables Sleep-On-Exit feature when returning from Handler mode to Thread mode. 
+  * @note Clears SLEEPONEXIT bit of SCR register. When this bit is set, the processor 
+  *       re-enters SLEEP mode when an interruption handling is over.          
+  * @retval None
+  */
+void HAL_PWR_DisableSleepOnExit(void)
+{
+  /* Clear SLEEPONEXIT bit of Cortex System Control Register */
+  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPONEXIT_Msk));
+}
+
+
+
+/**
+  * @brief Enables CORTEX M4 SEVONPEND bit. 
+  * @note Sets SEVONPEND bit of SCR register. When this bit is set, this causes 
+  *       WFE to wake up when an interrupt moves from inactive to pended.
+  * @retval None
+  */
+void HAL_PWR_EnableSEVOnPend(void)
+{
+  /* Set SEVONPEND bit of Cortex System Control Register */
+  SET_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+}
+
+
+/**
+  * @brief Disables CORTEX M4 SEVONPEND bit. 
+  * @note Clears SEVONPEND bit of SCR register. When this bit is set, this causes 
+  *       WFE to wake up when an interrupt moves from inactive to pended.         
+  * @retval None
+  */
+void HAL_PWR_DisableSEVOnPend(void)
+{
+  /* Clear SEVONPEND bit of Cortex System Control Register */
+  CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SEVONPEND_Msk));
+}
 /**
   * @}
   */

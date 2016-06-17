@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2s_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file of I2S HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -55,7 +55,7 @@
   * @{
   */
 
-/** @addtogroup I2SEx I2S Extended HAL module driver
+/** @addtogroup I2SEx I2SEx
   * @{
   */ 
 
@@ -65,8 +65,7 @@
 /** @defgroup I2SEx_Exported_Macros I2S Extended Exported Macros
   * @{
   */
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
+#if defined(SPI_I2S_FULLDUPLEX_SUPPORT)
 #define I2SxEXT(__INSTANCE__) ((__INSTANCE__) == (SPI2)? (SPI_TypeDef *)(I2S2ext_BASE): (SPI_TypeDef *)(I2S3ext_BASE))
 
 /** @brief  Enable or disable the specified I2SExt peripheral.
@@ -126,8 +125,7 @@
   * @retval None
   */                                                                                                   
 #define __HAL_I2SEXT_CLEAR_UDRFLAG(__HANDLE__)(I2SxEXT((__HANDLE__)->Instance)->SR)    
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
  /**
   * @}
   */
@@ -139,9 +137,8 @@
   * @{
   */
 
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
-/** @addtogroup I2SEx_Exported_Functions_Group1 Extended features functions 
+#if defined(SPI_I2S_FULLDUPLEX_SUPPORT)
+/** @addtogroup I2SEx_Exported_Functions_Group1 I2S Extended Features Functions 
   * @{
   */
 
@@ -155,8 +152,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
 /**
   * @}
   */
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
 /**
   * @}
@@ -166,16 +162,15 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
   * @}
   */
 
-/** @addtogroup I2S I2S HAL module driver
+/** @addtogroup I2S I2S
   * @{
   */ 
 
 /** @addtogroup I2S_Exported_Functions I2S Exported Functions
   * @{
   */
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
-/** @addtogroup  I2S_Exported_Functions_Group2 Input and Output operation functions
+#if defined(SPI_I2S_FULLDUPLEX_SUPPORT)
+/** @addtogroup  I2S_Exported_Functions_Group2 IO operation functions
   * @{
   */
 /* I2S IRQHandler and Callbacks used in non blocking modes (Interrupt and DMA) */
@@ -184,8 +179,7 @@ void HAL_I2S_TxRxCpltCallback(I2S_HandleTypeDef *hi2s);
 /**
   * @}
   */
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
 /** @addtogroup I2S_Exported_Functions_Group3 Peripheral State and Errors functions
   * @{

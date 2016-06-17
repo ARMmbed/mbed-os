@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file containing functions prototypes of ADC HAL library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -50,12 +50,12 @@
   * @{
   */
 
-/** @addtogroup ADCEx ADC Extended HAL module driver
+/** @addtogroup ADCEx ADCEx
   * @{
   */ 
 
 /* Exported types ------------------------------------------------------------*/
-/** @defgroup ADCEx_Exported_Types ADC Extented Exported Types
+/** @defgroup ADCEx_Exported_Types ADCEx Exported Types
   * @{
   */
 struct __ADC_HandleTypeDef;
@@ -76,14 +76,14 @@ struct __ADC_HandleTypeDef;
   *          - For all parameters except 'LowPowerAutoWait' and 'DMAContinuousRequests': ADC enabled without conversion on going on regular group.
   *          - For parameters 'LowPowerAutoWait' and 'DMAContinuousRequests': ADC enabled without conversion on going on regular and injected groups.
   *         If ADC is not in the appropriate state to modify some parameters, these parameters setting is bypassed
-  *         without error reporting without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fullfills the ADC state condition) on the fly).
+  *         without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fullfills the ADC state condition) on the fly).
   */
 typedef struct
 {
   uint32_t ClockPrescaler;        /*!< Select ADC clock source (synchronous clock derived from AHB clock or asynchronous clock derived from ADC dedicated PLL 72MHz) and clock prescaler.
                                        The clock is common for all the ADCs.
                                        This parameter can be a value of @ref ADCEx_ClockPrescaler
-                                       Note: In case of usage of channels on injected group, ADC frequency should be low than AHB clock frequency /4 for resolution 12 or 10 bits, 
+                                       Note: In case of usage of channels on injected group, ADC frequency should be lower than AHB clock frequency /4 for resolution 12 or 10 bits, 
                                              AHB clock frequency /3 for resolution 8 bits, AHB clock frequency /2 for resolution 6 bits.
                                        Note: In case of usage of the ADC dedicated PLL clock, this clock must be preliminarily enabled and prescaler set at RCC top level. 
                                        Note: This parameter can be modified only if all ADCs of the common ADC group are disabled (for products with several ADCs) */
@@ -102,20 +102,20 @@ typedef struct
                                        This parameter can be a value of @ref ADCEx_Scan_mode */
   uint32_t EOCSelection;          /*!< Specifies what EOC (End Of Conversion) flag is used for conversion by polling and interruption: end of conversion of each rank or complete sequence.
                                        This parameter can be a value of @ref ADCEx_EOCSelection. */
-  uint32_t LowPowerAutoWait;      /*!< Selects the dynamic low power Auto Delay: new conversion start only when the previous
-                                       conversion (for regular group) or previous sequence (for injected group) has been treated by user software.
+  uint32_t LowPowerAutoWait;      /*!< Selects the dynamic low power Auto Delay: ADC conversions are performed only when necessary.
+                                       New conversion starts only when the previous conversion (for regular group) or previous sequence (for injected group) has been treated by user software.
                                        This feature automatically adapts the speed of ADC to the speed of the system that reads the data. Moreover, this avoids risk of overrun for low frequency applications. 
                                        This parameter can be set to ENABLE or DISABLE.
                                        Note: Do not use with interruption or DMA (HAL_ADC_Start_IT(), HAL_ADC_Start_DMA()) since they have to clear immediately the EOC flag to free the IRQ vector sequencer.
                                              Do use with polling: 1. Start conversion with HAL_ADC_Start(), 2. Later on, when conversion data is needed: use HAL_ADC_PollForConversion() to ensure that conversion is completed
-                                             and use HAL_ADC_GetValue() to retrieve conversion result and trig another conversion. */
+                                             and use HAL_ADC_GetValue() to retrieve conversion result and trig another conversion (in case of usage of injected group, use the equivalent functions HAL_ADCExInjected_Start(), HAL_ADCEx_InjectedGetValue(), ...). */
   uint32_t ContinuousConvMode;    /*!< Specifies whether the conversion is performed in single mode (one conversion) or continuous mode for regular group,
                                        after the selected trigger occurred (software start or external trigger).
                                        This parameter can be set to ENABLE or DISABLE. */
   uint32_t NbrOfConversion;       /*!< Specifies the number of ranks that will be converted within the regular group sequencer.
                                        To use the regular group sequencer and convert several ranks, parameter 'ScanConvMode' must be enabled.
                                        This parameter must be a number between Min_Data = 1 and Max_Data = 16.
-                                       Note: This parameter must be modified when no conversion is on going on regular group (ADC disabled, or ADC enabled without continuous mode or external trigger that could lauch a conversion). */
+                                       Note: This parameter must be modified when no conversion is on going on regular group (ADC disabled, or ADC enabled without continuous mode or external trigger that could launch a conversion). */
   uint32_t DiscontinuousConvMode; /*!< Specifies whether the conversions sequence of regular group is performed in Complete-sequence/Discontinuous-sequence (main sequence subdivided in successive parts).
                                        Discontinuous mode is used only if sequencer is enabled (parameter 'ScanConvMode'). If sequencer is disabled, this parameter is discarded.
                                        Discontinuous mode can be enabled only if continuous mode is disabled. If continuous mode is enabled, this parameter setting is discarded.
@@ -134,7 +134,7 @@ typedef struct
                                        or in Continuous mode (DMA transfer unlimited, whatever number of conversions).
                                        Note: In continuous mode, DMA must be configured in circular mode. Otherwise an overrun will be triggered when DMA buffer maximum pointer is reached.
                                        This parameter can be set to ENABLE or DISABLE.
-                                       Note: This parameter must be modified when no conversion is on going on both regular and injected groups (ADC disabled, or ADC enabled without continuous mode or external trigger that could lauch a conversion). */
+                                       Note: This parameter must be modified when no conversion is on going on both regular and injected groups (ADC disabled, or ADC enabled without continuous mode or external trigger that could launch a conversion). */
   uint32_t Overrun;               /*!< Select the behaviour in case of overrun: data overwritten (default) or preserved.
                                        This parameter is for regular group only.
                                        This parameter can be a value of @ref ADCEx_Overrun
@@ -187,7 +187,7 @@ typedef struct
   uint32_t Offset;                 /*!< Defines the offset to be subtracted from the raw converted data when convert channels.
                                         Offset value must be a positive number.
                                         Depending of ADC resolution selected (12, 10, 8 or 6 bits), this parameter must be a number between Min_Data = 0x000 and Max_Data = 0xFFF, 0x3FF, 0xFF or 0x3F respectively.
-                                        Note: This parameter must be modified when no conversion is on going on both regular and injected groups (ADC disabled, or ADC enabled without continuous mode or external trigger that could lauch a conversion). */
+                                        Note: This parameter must be modified when no conversion is on going on both regular and injected groups (ADC disabled, or ADC enabled without continuous mode or external trigger that could launch a conversion). */
 }ADC_ChannelConfTypeDef;
 
 /** 
@@ -203,7 +203,7 @@ typedef struct
   *          - For parameters 'InjectedSamplingTime', 'InjectedOffset', 'InjectedOffsetNumber', 'AutoInjectedConv': ADC enabled without conversion on going on regular and injected groups.
   *          - For parameters 'InjectedChannel', 'InjectedRank', 'InjectedNbrOfConversion', 'ExternalTrigInjecConv', 'ExternalTrigInjecConvEdge': ADC enabled and while conversion on going on regular and injected groups.
   *         If ADC is not in the appropriate state to modify some parameters, these parameters setting is bypassed
-  *         without error reporting without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fulfills the ADC state condition) on the fly).
+  *         without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fulfills the ADC state condition) on the fly).
   */
 typedef struct 
 {
@@ -282,6 +282,18 @@ typedef struct
 }ADC_InjectionConfTypeDef;
 
 /** 
+  * @brief  ADC Injection Configuration 
+  */
+typedef struct
+{
+  uint32_t ContextQueue;                 /*!< Injected channel configuration context: build-up over each 
+                                              HAL_ADCEx_InjectedConfigChannel() call to finally initialize
+                                              JSQR register at HAL_ADCEx_InjectedConfigChannel() last call */
+                                               
+  uint32_t ChannelCount;                 /*!< Number of channels in the injected sequence */                                        
+}ADC_InjectionConfigTypeDef;
+
+/** 
   * @brief  Structure definition of ADC analog watchdog
   * @note   The setting of these parameters with function HAL_ADC_AnalogWDGConfig() is conditioned to ADC state.
   *         ADC state can be either: ADC disabled or ADC enabled without conversion on going on regular and injected groups.
@@ -315,7 +327,11 @@ typedef struct
 /** 
   * @brief  Structure definition of ADC multimode
   * @note   The setting of these parameters with function HAL_ADCEx_MultiModeConfigChannel() is conditioned to ADCs state (both ADCs of the common group).
-  *         State of ADCs of the common group must be: disabled.
+  *         ADC state can be either:
+  *          - For all parameters: ADC disabled (this is the only possible ADC state to modify parameter 'DMAAccessMode')
+  *          - For parameter 'DMAAccessMode': ADC enabled without conversion on going on regular group.
+  *         If ADC is not in the appropriate state to modify some parameters, these parameters setting is bypassed
+  *         without error reporting (as it can be the expected behaviour in case of intended action to update another parameter (which fulfills the ADC state condition) on the fly).
   */
 typedef struct
 {
@@ -325,7 +341,8 @@ typedef struct
                                    selection whether 2 DMA channels (each ADC use its own DMA channel) or 1 DMA channel (one DMA channel for both ADC, DMA of ADC master)
                                    This parameter can be a value of @ref ADCEx_Direct_memory_access_mode_for_multimode
                                    Caution: Limitations with multimode DMA access enabled (1 DMA channel used): In case of dual mode in high speed (more than 5Msps) or high activity of DMA by other peripherals, there is a risk of DMA overrun.
-                                            Therefore, it is recommended to disable multimode DMA access: each ADC use its own DMA channel. */
+                                            Therefore, it is recommended to disable multimode DMA access: each ADC uses its own DMA channel.
+                                            Refer to device errata sheet for more details. */
   uint32_t TwoSamplingDelay;  /*!< Configures the Delay between 2 sampling phases.
                                    This parameter can be a value of @ref ADCEx_delay_between_2_sampling_phases
                                    Delay range depends on selected resolution: from 1 to 12 clock cycles for 12 bits, from 1 to 10 clock cycles for 10 bits
@@ -335,6 +352,7 @@ typedef struct
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
        /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /** 
@@ -493,7 +511,7 @@ typedef struct
 
 /* Exported constants --------------------------------------------------------*/
 
-/** @defgroup ADCEx_Exported_Constants ADC Extended Exported Constants
+/** @defgroup ADCEx_Exported_Constants ADCEx Exported Constants
   * @{
   */
 
@@ -517,7 +535,7 @@ typedef struct
 /** @defgroup ADCEx_ClockPrescaler ADC Extended Clock Prescaler
   * @{
   */
-#define ADC_CLOCK_ASYNC               ((uint32_t)0x00000000)          /*!< ADC asynchronous clock derived from ADC dedicated PLL */
+#define ADC_CLOCK_ASYNC_DIV1          ((uint32_t)0x00000000)          /*!< ADC asynchronous clock derived from ADC dedicated PLL */
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
@@ -535,11 +553,7 @@ typedef struct
 #define ADC_CLOCK_SYNC_PCLK_DIV4      ((uint32_t)ADC1_CCR_CKMODE)     /*!< ADC synchronous clock derived from AHB clock divided by a prescaler of 4 */
 #endif /* STM32F301x8 || STM32F318xx || STM32F302x8 */
 
-#define ADC_CLOCKPRESCALER_PCLK_DIV1   ADC_CLOCK_SYNC_PCLK_DIV1   /* Obsolete naming, kept for compatibility with some other devices */
-#define ADC_CLOCKPRESCALER_PCLK_DIV2   ADC_CLOCK_SYNC_PCLK_DIV2   /* Obsolete naming, kept for compatibility with some other devices */
-#define ADC_CLOCKPRESCALER_PCLK_DIV4   ADC_CLOCK_SYNC_PCLK_DIV4   /* Obsolete naming, kept for compatibility with some other devices */
-
-#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK) (((ADC_CLOCK) == ADC_CLOCK_ASYNC)          || \
+#define IS_ADC_CLOCKPRESCALER(ADC_CLOCK) (((ADC_CLOCK) == ADC_CLOCK_ASYNC_DIV1)     || \
                                           ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV1) || \
                                           ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV2) || \
                                           ((ADC_CLOCK) == ADC_CLOCK_SYNC_PCLK_DIV4)   )
@@ -550,18 +564,10 @@ typedef struct
 /** @defgroup ADCEx_Resolution ADC Extended Resolution
   * @{
   */
-#define ADC_RESOLUTION12b      ((uint32_t)0x00000000)          /*!<  ADC 12-bit resolution */
-#define ADC_RESOLUTION10b      ((uint32_t)ADC_CFGR_RES_0)      /*!<  ADC 10-bit resolution */
-#define ADC_RESOLUTION8b       ((uint32_t)ADC_CFGR_RES_1)      /*!<  ADC 8-bit resolution */
-#define ADC_RESOLUTION6b       ((uint32_t)ADC_CFGR_RES)        /*!<  ADC 6-bit resolution */
-
-#define IS_ADC_RESOLUTION(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION12b) || \
-                                       ((RESOLUTION) == ADC_RESOLUTION10b) || \
-                                       ((RESOLUTION) == ADC_RESOLUTION8b)  || \
-                                       ((RESOLUTION) == ADC_RESOLUTION6b)    )
-
-#define IS_ADC_RESOLUTION_8_6_BITS(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION8b) || \
-                                                ((RESOLUTION) == ADC_RESOLUTION6b)   )
+#define ADC_RESOLUTION_12B      ((uint32_t)0x00000000)          /*!<  ADC 12-bit resolution */
+#define ADC_RESOLUTION_10B      ((uint32_t)ADC_CFGR_RES_0)      /*!<  ADC 10-bit resolution */
+#define ADC_RESOLUTION_8B       ((uint32_t)ADC_CFGR_RES_1)      /*!<  ADC 8-bit resolution */
+#define ADC_RESOLUTION_6B       ((uint32_t)ADC_CFGR_RES)        /*!<  ADC 6-bit resolution */
 /**
   * @}
   */
@@ -571,9 +577,6 @@ typedef struct
   */
 #define ADC_DATAALIGN_RIGHT      ((uint32_t)0x00000000)
 #define ADC_DATAALIGN_LEFT       ((uint32_t)ADC_CFGR_ALIGN)
-
-#define IS_ADC_DATA_ALIGN(ALIGN) (((ALIGN) == ADC_DATAALIGN_RIGHT) || \
-                                  ((ALIGN) == ADC_DATAALIGN_LEFT)    )
 /**
   * @}
   */
@@ -583,25 +586,17 @@ typedef struct
   */
 #define ADC_SCAN_DISABLE         ((uint32_t)0x00000000)
 #define ADC_SCAN_ENABLE          ((uint32_t)0x00000001)
-
-#define IS_ADC_SCAN_MODE(SCAN_MODE) (((SCAN_MODE) == ADC_SCAN_DISABLE) || \
-                                     ((SCAN_MODE) == ADC_SCAN_ENABLE)    )
 /**
   * @}
   */
 
-/** @defgroup ADCEx_External_trigger_edge_Regular ADC Extended External trigger enable and polarity selection for regular channels
+/** @defgroup ADCEx_External_trigger_edge_Regular ADC Extended External trigger enable and polarity selection for regular group
   * @{
   */
 #define ADC_EXTERNALTRIGCONVEDGE_NONE           ((uint32_t)0x00000000)
 #define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CFGR_EXTEN_0)
 #define ADC_EXTERNALTRIGCONVEDGE_FALLING        ((uint32_t)ADC_CFGR_EXTEN_1)
 #define ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING  ((uint32_t)ADC_CFGR_EXTEN)
-
-#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGCONVEDGE_NONE)         || \
-                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISING)       || \
-                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_FALLING)      || \
-                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING)  )
 /**
   * @}
   */
@@ -651,7 +646,7 @@ typedef struct
 #if defined(STM32F303xE) || defined(STM32F398xx)
 /* ADC external triggers specific to device STM303xE: mask to differentiate   */
 /* standard triggers from specific timer 20, needed for reallocation of       */
-/* triggers common to ADC1&2/ADC3&4 and to avoind mixing with standard        */
+/* triggers common to ADC1&2/ADC3&4 and to avoid mixing with standard         */
 /* triggers without remap.                                                    */
 #define ADC_EXTERNALTRIGCONV_T20_MASK       0x1000
 
@@ -679,72 +674,6 @@ typedef struct
                                                                                                           /*!< For ADC3&ADC4: Remap trigger using macro __HAL_REMAPADCTRIGGER_ENABLE(HAL_REMAPADCTRIGGER_ADC34_EXT5) */
 #define ADC_EXTERNALTRIGCONV_T20_TRGO2      (ADC_EXTERNALTRIGCONV_T2_CC2 | ADC_EXTERNALTRIGCONV_T20_MASK) /*!< For ADC1&ADC2: Remap trigger using macro __HAL_REMAPADCTRIGGER_ENABLE(HAL_REMAPADCTRIGGER_ADC12_EXT3) */
                                                                                                           /*!< For ADC3&ADC4: Remap trigger using macro __HAL_REMAPADCTRIGGER_ENABLE(HAL_REMAPADCTRIGGER_ADC34_EXT6) */
-#endif /* STM32F303xE || STM32F398xx */
-
-#if defined(STM32F303xC) || defined(STM32F358xx)
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
-                                                                                 \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC3)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T7_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT2)  || \
-                                                                                 \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO2) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
-                                                                                 \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
-#endif /* STM32F303xC || STM32F358xx */
-
-#if defined(STM32F303xE) || defined(STM32F398xx)
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11)  || \
-                                                                                  \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC1)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC3)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC1)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC1)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T7_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_CC1)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT2)   || \
-                                                                                  \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO2)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO)  || \
-                                                                                  \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC3)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_TRGO2) || \
-                                                                                  \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)               )
 #endif /* STM32F303xE || STM32F398xx */
 
 #endif /* STM32F303xE || STM32F398xx || */
@@ -791,47 +720,6 @@ typedef struct
 #define ADC_EXTERNALTRIGCONV_T20_CC3        ADC_EXTERNALTRIGCONV_T3_CC4  /*!< Remap trigger using macro __HAL_REMAPADCTRIGGER_ENABLE(HAL_REMAPADCTRIGGER_ADC12_EXT15) */
 #endif /* STM32F302xE */
 
-#if defined(STM32F302xE)
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
-                                                                                 \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC2)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC3)  || \
-                                                                                 \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
-#endif /* STM32F302xE */
-
-#if defined(STM32F302xC)
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
-                                                                                 \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
-#endif /* STM32F302xC */
-
 #endif /* STM32F302xE || */
        /* STM32F302xC    */
 
@@ -859,24 +747,6 @@ typedef struct
 #define ADC_EXTERNALTRIGCONV_EXT_IT11       ADC1_2_EXTERNALTRIG_EXT_IT11
 #define ADC_SOFTWARE_START                  ((uint32_t)0x00000001)
 
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO2) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
-                                                                                 \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
 #endif /* STM32F303x8 || STM32F328xx */
 
 #if defined(STM32F334x8)
@@ -900,23 +770,6 @@ typedef struct
 #define ADC_EXTERNALTRIGCONVHRTIM_TRG3      ADC1_2_EXTERNALTRIG_HRTIM_TRG3
 #define ADC_EXTERNALTRIGCONV_EXT_IT11       ADC1_2_EXTERNALTRIG_EXT_IT11
 #define ADC_SOFTWARE_START                  ((uint32_t)0x00000001)
-
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)    || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONVHRTIM_TRG1) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONVHRTIM_TRG3) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)    || \
-                                                                                  \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)               )
 #endif /* STM32F334x8 */
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
@@ -934,158 +787,17 @@ typedef struct
 #define ADC_EXTERNALTRIGCONV_T6_TRGO        ADC1_EXTERNALTRIG_T6_TRGO
 #define ADC_EXTERNALTRIGCONV_T15_TRGO       ADC1_EXTERNALTRIG_T15_TRGO
 #define ADC_SOFTWARE_START                  ((uint32_t)0x00000001)
-
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
 /**
   * @}
   */
-
-/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Regular ADC Extended External trigger selection for regular group (Used Internally)
-  * @{
-  */
-#if defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F303xC) || defined(STM32F358xx)
-/* List of external triggers for common groups ADC1&ADC2 and/or ADC3&ADC4:    */
-/* (used internally by HAL driver. To not use into HAL structure parameters)  */
-
-/* External triggers of regular group for ADC1 & ADC2 */
-#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
-#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
-#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
-#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
-#define ADC1_2_EXTERNALTRIG_T4_CC4           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T8_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T8_TRGO2         ((uint32_t) ADC_CFGR_EXTSEL_3)
-#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
-#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
-
-/* External triggers of regular group for ADC3 & ADC4 */
-#define ADC3_4_EXTERNALTRIG_T3_CC1           ((uint32_t)0x00000000)
-#define ADC3_4_EXTERNALTRIG_T2_CC3           ((uint32_t)ADC_CFGR_EXTSEL_0)
-#define ADC3_4_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
-#define ADC3_4_EXTERNALTRIG_T8_CC1           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC3_4_EXTERNALTRIG_T8_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
-#define ADC3_4_EXTERNALTRIG_EXT_IT2          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC3_4_EXTERNALTRIG_T4_CC1           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC3_4_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC3_4_EXTERNALTRIG_T8_TRGO2         ((uint32_t)ADC_CFGR_EXTSEL_3)
-#define ADC3_4_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
-#define ADC3_4_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
-#define ADC3_4_EXTERNALTRIG_T3_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC3_4_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
-#define ADC3_4_EXTERNALTRIG_T7_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC3_4_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC3_4_EXTERNALTRIG_T2_CC1           ((uint32_t)ADC_CFGR_EXTSEL)
-#endif /* STM32F303xE || STM32F398xx || */
-       /* STM32F303xC || STM32F358xx    */
-
-#if defined(STM32F302xE) || \
-    defined(STM32F302xC)
-/* List of external triggers of common group ADC1&ADC2:                       */
-/* (used internally by HAL driver. To not use into HAL structure parameters)  */
-#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
-#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
-#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
-#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
-#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
-#define ADC1_2_EXTERNALTRIG_T4_CC4           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
-#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#endif /* STM32F302xE || */
-       /* STM32F302xC    */
-
-#if defined(STM32F303x8) || defined(STM32F328xx)
-/* List of external triggers of common group ADC1&ADC2:                       */
-/* (used internally by HAL driver. To not use into HAL structure parameters)  */
-#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
-#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
-#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
-#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
-#define ADC1_2_EXTERNALTRIG_T4_CC4           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T8_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T8_TRGO2         ((uint32_t) ADC_CFGR_EXTSEL_3)
-#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
-#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
-#endif /* STM32F303x8 || STM32F328xx */
-
-#if defined(STM32F334x8)
-/* List of external triggers of common group ADC1&ADC2:                       */
-/* (used internally by HAL driver. To not use into HAL structure parameters)  */
-#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
-#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
-#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
-#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
-#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_HRTIM_TRG1       ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_HRTIM_TRG3       ((uint32_t) ADC_CFGR_EXTSEL_3)
-#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
-#endif /* STM32F334x8 */
-
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-/* List of external triggers of regular group for ADC1:                       */
-/* (used internally by HAL driver. To not use into HAL structure parameters)  */
-#define ADC1_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
-#define ADC1_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
-#define ADC1_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
-#define ADC1_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC1_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
-#define ADC1_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
-#define ADC1_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
-#define ADC1_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
-#define ADC1_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
-#define ADC_SOFTWARE_START                 ((uint32_t)0x00000001)
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
-/**
-  * @}
-  */
-
 
 /** @defgroup ADCEx_EOCSelection ADC Extended End of Regular Sequence/Conversion 
   * @{
   */
-#define EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
-#define EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
-#define EOC_SINGLE_SEQ_CONV     ((uint32_t)(ADC_ISR_EOC | ADC_ISR_EOS))  /*!< reserved for future use */
-
-#define IS_ADC_EOC_SELECTION(EOC_SELECTION) (((EOC_SELECTION) == EOC_SINGLE_CONV)    || \
-                                             ((EOC_SELECTION) == EOC_SEQ_CONV)       || \
-                                             ((EOC_SELECTION) == EOC_SINGLE_SEQ_CONV)  )
+#define ADC_EOC_SINGLE_CONV         ((uint32_t) ADC_ISR_EOC)
+#define ADC_EOC_SEQ_CONV            ((uint32_t) ADC_ISR_EOS)
+#define ADC_EOC_SINGLE_SEQ_CONV     ((uint32_t)(ADC_ISR_EOC | ADC_ISR_EOS))  /*!< reserved for future use */
 /**
   * @}
   */
@@ -1093,11 +805,8 @@ typedef struct
 /** @defgroup ADCEx_Overrun ADC Extended overrun
   * @{
   */
-#define OVR_DATA_OVERWRITTEN            ((uint32_t)0x00000000)   /*!< Default setting, to be used for compatibility with other STM32 devices */
-#define OVR_DATA_PRESERVED              ((uint32_t)0x00000001)
-
-#define IS_ADC_OVERRUN(OVR) (((OVR) == OVR_DATA_PRESERVED)  || \
-                             ((OVR) == OVR_DATA_OVERWRITTEN)  )
+#define ADC_OVR_DATA_OVERWRITTEN    ((uint32_t)0x00000000)   /*!< Default setting, to be used for compatibility with other STM32 devices */
+#define ADC_OVR_DATA_PRESERVED      ((uint32_t)0x00000001)
 /**
   * @}
   */
@@ -1139,45 +848,6 @@ typedef struct
 /* Note: VrefInt internal channels available on all ADCs, but only            */
 /*       one ADC is allowed to be connected to VrefInt at the same time.      */
 #define ADC_CHANNEL_VREFINT     ((uint32_t)ADC_CHANNEL_18)
-
-#define IS_ADC_CHANNEL(CHANNEL) (((CHANNEL) == ADC_CHANNEL_1)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_2)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_3)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_4)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_5)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_6)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_7)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_8)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_9)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_10)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_11)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_12)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_13)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_14)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_15)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_TEMPSENSOR)  || \
-                                 ((CHANNEL) == ADC_CHANNEL_VBAT)        || \
-                                 ((CHANNEL) == ADC_CHANNEL_VREFINT)     || \
-                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP1)     || \
-                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP2)     || \
-                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP3)     || \
-                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP4)       )
-
-#define IS_ADC_DIFF_CHANNEL(CHANNEL) (((CHANNEL) == ADC_CHANNEL_1)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_2)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_3)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_4)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_5)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_6)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_7)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_8)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_9)      || \
-                                      ((CHANNEL) == ADC_CHANNEL_10)     || \
-                                      ((CHANNEL) == ADC_CHANNEL_11)     || \
-                                      ((CHANNEL) == ADC_CHANNEL_12)     || \
-                                      ((CHANNEL) == ADC_CHANNEL_13)     || \
-                                      ((CHANNEL) == ADC_CHANNEL_14)       )
-
 /**
   * @}
   */
@@ -1193,15 +863,6 @@ typedef struct
 #define ADC_SAMPLETIME_61CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP10_2 | ADC_SMPR2_SMP10_0)) /*!< Sampling time 61.5 ADC clock cycles */
 #define ADC_SAMPLETIME_181CYCLES_5    ((uint32_t)(ADC_SMPR2_SMP10_2 | ADC_SMPR2_SMP10_1)) /*!< Sampling time 181.5 ADC clock cycles */
 #define ADC_SAMPLETIME_601CYCLES_5    ((uint32_t)ADC_SMPR2_SMP10)                         /*!< Sampling time 601.5 ADC clock cycles */
-
-#define IS_ADC_SAMPLE_TIME(TIME) (((TIME) == ADC_SAMPLETIME_1CYCLE_5)    || \
-                                  ((TIME) == ADC_SAMPLETIME_2CYCLES_5)   || \
-                                  ((TIME) == ADC_SAMPLETIME_4CYCLES_5)   || \
-                                  ((TIME) == ADC_SAMPLETIME_7CYCLES_5)   || \
-                                  ((TIME) == ADC_SAMPLETIME_19CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_61CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_181CYCLES_5) || \
-                                  ((TIME) == ADC_SAMPLETIME_601CYCLES_5)   )
 /**
   * @}
   */
@@ -1211,9 +872,6 @@ typedef struct
   */
 #define ADC_SINGLE_ENDED                ((uint32_t)0x00000000)
 #define ADC_DIFFERENTIAL_ENDED          ((uint32_t)0x00000001)
-
-#define IS_ADC_SINGLE_DIFFERENTIAL(SING_DIFF) (((SING_DIFF) == ADC_SINGLE_ENDED)      || \
-                                               ((SING_DIFF) == ADC_DIFFERENTIAL_ENDED)  )
 /**
   * @}
   */
@@ -1226,17 +884,11 @@ typedef struct
 #define ADC_OFFSET_2                  ((uint32_t)0x02)
 #define ADC_OFFSET_3                  ((uint32_t)0x03)
 #define ADC_OFFSET_4                  ((uint32_t)0x04)
-
-#define IS_ADC_OFFSET_NUMBER(OFFSET_NUMBER) (((OFFSET_NUMBER) == ADC_OFFSET_NONE) || \
-                                             ((OFFSET_NUMBER) == ADC_OFFSET_1)    || \
-                                             ((OFFSET_NUMBER) == ADC_OFFSET_2)    || \
-                                             ((OFFSET_NUMBER) == ADC_OFFSET_3)    || \
-                                             ((OFFSET_NUMBER) == ADC_OFFSET_4)      )
 /**
   * @}
   */
 
-/** @defgroup ADCEx_regular_rank ADC Extended Regular Channel Rank
+/** @defgroup ADCEx_regular_rank ADC Extended rank into regular group
   * @{
   */
 #define ADC_REGULAR_RANK_1    ((uint32_t)0x00000001)
@@ -1255,23 +907,6 @@ typedef struct
 #define ADC_REGULAR_RANK_14   ((uint32_t)0x0000000E)
 #define ADC_REGULAR_RANK_15   ((uint32_t)0x0000000F)
 #define ADC_REGULAR_RANK_16   ((uint32_t)0x00000010)
-
-#define IS_ADC_REGULAR_RANK(CHANNEL) (((CHANNEL) == ADC_REGULAR_RANK_1 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_2 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_3 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_4 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_5 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_6 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_7 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_8 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_9 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_10) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_11) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_12) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_13) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_14) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_15) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_16)   )
 /**
   * @}
   */
@@ -1283,11 +918,6 @@ typedef struct
 #define ADC_INJECTED_RANK_2    ((uint32_t)0x00000002)
 #define ADC_INJECTED_RANK_3    ((uint32_t)0x00000003)
 #define ADC_INJECTED_RANK_4    ((uint32_t)0x00000004)
-
-#define IS_ADC_INJECTED_RANK(CHANNEL) (((CHANNEL) == ADC_INJECTED_RANK_1) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_2) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_3) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_4)   )
 /**
   * @}
   */
@@ -1299,11 +929,6 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_RISING         ((uint32_t)ADC_JSQR_JEXTEN_0)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_FALLING        ((uint32_t)ADC_JSQR_JEXTEN_1)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_RISINGFALLING  ((uint32_t)ADC_JSQR_JEXTEN)
-
-#define IS_ADC_EXTTRIGINJEC_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_NONE)         || \
-                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISING)       || \
-                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_FALLING)      || \
-                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISINGFALLING)  )
 /**
   * @}
   */
@@ -1469,43 +1094,6 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_T20_TRGO2      (ADC_EXTERNALTRIGINJECCONV_EXT_IT15 | ADC_EXTERNALTRIGCONV_T20_MASK) /*!< For ADC1&ADC2: Remap trigger using macro __HAL_REMAPADCTRIGGER_ENABLE(HAL_REMAPADCTRIGGER_ADC12_JEXT6) */
 #endif /* STM32F302xE */
 
-#if defined(STM32F302xE)
-#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_TRGO2) || \
-                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)             )
-#endif /* STM32F302xE */
-
-#if defined(STM32F302xC)
-#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
-                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
-#endif /* STM32F302xC */
-
 #endif /* STM32F302xE || */
        /* STM32F302xC    */
 
@@ -1533,24 +1121,6 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_EXT_IT15     ADC1_2_EXTERNALTRIGINJEC_EXT_IT15
 
 #define ADC_INJECTED_SOFTWARE_START     ((uint32_t)0x00000001)
-
-#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO2) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO) || \
-                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
 #endif /* STM32F303x8 || STM32F328xx */
 
 #if defined(STM32F334x8)
@@ -1575,22 +1145,6 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_EXT_IT15     ADC1_2_EXTERNALTRIGINJEC_EXT_IT15
 
 #define ADC_INJECTED_SOFTWARE_START     ((uint32_t)0x00000001)
-
-#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)     || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)     || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)     || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_HRTIM_TRG2) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_HRTIM_TRG4) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)     || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)     || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)    || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO)   || \
-                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)            )
 #endif /* STM32F334x8 */
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
@@ -1606,20 +1160,507 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_EXT_IT15   ADC1_EXTERNALTRIGINJEC_EXT_IT15
 
 #define ADC_INJECTED_SOFTWARE_START     ((uint32_t)0x00000001)
-
-#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2) || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO) || \
-                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
 /**
   * @}
   */
 
-/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Injected ADC Extended External Trigger Source of Injected Group (Internal)
+
+/** @defgroup ADCEx_Common_mode ADC Extended Dual ADC Mode
+  * @{
+  */
+#define ADC_MODE_INDEPENDENT                  ((uint32_t)(0x00000000))
+#define ADC_DUALMODE_REGSIMULT_INJECSIMULT    ((uint32_t)(ADC12_CCR_MULTI_0))
+#define ADC_DUALMODE_REGSIMULT_ALTERTRIG      ((uint32_t)(ADC12_CCR_MULTI_1))
+#define ADC_DUALMODE_REGINTERL_INJECSIMULT    ((uint32_t)(ADC12_CCR_MULTI_1 | ADC12_CCR_MULTI_0))
+#define ADC_DUALMODE_INJECSIMULT              ((uint32_t)(ADC12_CCR_MULTI_2 | ADC12_CCR_MULTI_0))
+#define ADC_DUALMODE_REGSIMULT                ((uint32_t)(ADC12_CCR_MULTI_2 | ADC12_CCR_MULTI_1))
+#define ADC_DUALMODE_INTERL                   ((uint32_t)(ADC12_CCR_MULTI_2 | ADC12_CCR_MULTI_1 | ADC12_CCR_MULTI_0))
+#define ADC_DUALMODE_ALTERTRIG                ((uint32_t)(ADC12_CCR_MULTI_3 | ADC12_CCR_MULTI_0))
+/**
+  * @}
+  */
+
+
+/** @defgroup ADCEx_Direct_memory_access_mode_for_multimode ADC Extended DMA Mode for Dual ADC Mode
+  * @{
+  */
+#define ADC_DMAACCESSMODE_DISABLED      ((uint32_t)0x00000000)         /*!< DMA multimode disabled: each ADC will use its own DMA channel */
+#define ADC_DMAACCESSMODE_12_10_BITS    ((uint32_t)ADC12_CCR_MDMA_1)   /*!< DMA multimode enabled (one DMA channel for both ADC, DMA of ADC master) for 12 and 10 bits resolution */
+#define ADC_DMAACCESSMODE_8_6_BITS      ((uint32_t)ADC12_CCR_MDMA)     /*!< DMA multimode enabled (one DMA channel for both ADC, DMA of ADC master) for 8 and 6 bits resolution */
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_delay_between_2_sampling_phases ADC Extended Delay Between 2 Sampling Phases
+  * @{
+  */
+#define ADC_TWOSAMPLINGDELAY_1CYCLE     ((uint32_t)(0x00000000))
+#define ADC_TWOSAMPLINGDELAY_2CYCLES    ((uint32_t)(ADC12_CCR_DELAY_0))
+#define ADC_TWOSAMPLINGDELAY_3CYCLES    ((uint32_t)(ADC12_CCR_DELAY_1))
+#define ADC_TWOSAMPLINGDELAY_4CYCLES    ((uint32_t)(ADC12_CCR_DELAY_1 | ADC12_CCR_DELAY_0))
+#define ADC_TWOSAMPLINGDELAY_5CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2))
+#define ADC_TWOSAMPLINGDELAY_6CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2 | ADC12_CCR_DELAY_0))
+#define ADC_TWOSAMPLINGDELAY_7CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2 | ADC12_CCR_DELAY_1))
+#define ADC_TWOSAMPLINGDELAY_8CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2 | ADC12_CCR_DELAY_1 | ADC12_CCR_DELAY_0))
+#define ADC_TWOSAMPLINGDELAY_9CYCLES    ((uint32_t)(ADC12_CCR_DELAY_3))
+#define ADC_TWOSAMPLINGDELAY_10CYCLES   ((uint32_t)(ADC12_CCR_DELAY_3 | ADC12_CCR_DELAY_0))
+#define ADC_TWOSAMPLINGDELAY_11CYCLES   ((uint32_t)(ADC12_CCR_DELAY_3 | ADC12_CCR_DELAY_1))
+#define ADC_TWOSAMPLINGDELAY_12CYCLES   ((uint32_t)(ADC12_CCR_DELAY_3 | ADC12_CCR_DELAY_1 | ADC12_CCR_DELAY_0))
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_analog_watchdog_number ADC Extended Analog Watchdog Selection
+  * @{
+  */
+#define ADC_ANALOGWATCHDOG_1                    ((uint32_t)0x00000001)
+#define ADC_ANALOGWATCHDOG_2                    ((uint32_t)0x00000002)
+#define ADC_ANALOGWATCHDOG_3                    ((uint32_t)0x00000003)
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_analog_watchdog_mode ADC Extended Analog Watchdog Mode
+  * @{
+  */
+#define ADC_ANALOGWATCHDOG_NONE                 ((uint32_t) 0x00000000)
+#define ADC_ANALOGWATCHDOG_SINGLE_REG           ((uint32_t)(ADC_CFGR_AWD1SGL | ADC_CFGR_AWD1EN))
+#define ADC_ANALOGWATCHDOG_SINGLE_INJEC         ((uint32_t)(ADC_CFGR_AWD1SGL | ADC_CFGR_JAWD1EN))
+#define ADC_ANALOGWATCHDOG_SINGLE_REGINJEC      ((uint32_t)(ADC_CFGR_AWD1SGL | ADC_CFGR_AWD1EN | ADC_CFGR_JAWD1EN))
+#define ADC_ANALOGWATCHDOG_ALL_REG              ((uint32_t) ADC_CFGR_AWD1EN)
+#define ADC_ANALOGWATCHDOG_ALL_INJEC            ((uint32_t) ADC_CFGR_JAWD1EN)
+#define ADC_ANALOGWATCHDOG_ALL_REGINJEC         ((uint32_t)(ADC_CFGR_AWD1EN | ADC_CFGR_JAWD1EN))
+/**
+  * @}
+  */
+
+/** @defgroup ADC_conversion_group ADC Conversion Group
+  * @{
+  */
+#define ADC_REGULAR_GROUP             ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_EOS))
+#define ADC_INJECTED_GROUP            ((uint32_t)(ADC_FLAG_JEOC | ADC_FLAG_JEOS))
+#define ADC_REGULAR_INJECTED_GROUP    ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_EOS | ADC_FLAG_JEOC | ADC_FLAG_JEOS))
+
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_Event_type ADC Extended Event Type
+  * @{
+  */
+#define ADC_AWD1_EVENT           ((uint32_t)ADC_FLAG_AWD1)  /*!< ADC Analog watchdog 1 event (main analog watchdog, present on all STM32 devices) */
+#define ADC_AWD2_EVENT           ((uint32_t)ADC_FLAG_AWD2)  /*!< ADC Analog watchdog 2 event (additional analog watchdog, not present on all STM32 families) */
+#define ADC_AWD3_EVENT           ((uint32_t)ADC_FLAG_AWD3)  /*!< ADC Analog watchdog 3 event (additional analog watchdog, not present on all STM32 families) */
+#define ADC_OVR_EVENT            ((uint32_t)ADC_FLAG_OVR)   /*!< ADC overrun event */
+#define ADC_JQOVF_EVENT          ((uint32_t)ADC_FLAG_JQOVF) /*!< ADC Injected Context Queue Overflow event */
+
+#define ADC_AWD_EVENT            ADC_AWD1_EVENT         /* ADC Analog watchdog 1 event: Alternate naming for compatibility with other STM32 devices having only 1 analog watchdog */
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_interrupts_definition ADC Extended Interrupts Definition
+  * @{
+  */
+#define ADC_IT_RDY           ADC_IER_RDY        /*!< ADC Ready (ADRDY) interrupt source */
+#define ADC_IT_EOSMP         ADC_IER_EOSMP      /*!< ADC End of Sampling interrupt source */
+#define ADC_IT_EOC           ADC_IER_EOC        /*!< ADC End of Regular Conversion interrupt source */
+#define ADC_IT_EOS           ADC_IER_EOS        /*!< ADC End of Regular sequence of Conversions interrupt source */
+#define ADC_IT_OVR           ADC_IER_OVR        /*!< ADC overrun interrupt source */
+#define ADC_IT_JEOC          ADC_IER_JEOC       /*!< ADC End of Injected Conversion interrupt source */
+#define ADC_IT_JEOS          ADC_IER_JEOS       /*!< ADC End of Injected sequence of Conversions interrupt source */
+#define ADC_IT_AWD1          ADC_IER_AWD1       /*!< ADC Analog watchdog 1 interrupt source (main analog watchdog, present on all STM32 devices) */
+#define ADC_IT_AWD2          ADC_IER_AWD2       /*!< ADC Analog watchdog 2 interrupt source (additional analog watchdog, present only on STM32F3 devices) */
+#define ADC_IT_AWD3          ADC_IER_AWD3       /*!< ADC Analog watchdog 3 interrupt source (additional analog watchdog, present only on STM32F3 devices) */
+#define ADC_IT_JQOVF         ADC_IER_JQOVF      /*!< ADC Injected Context Queue Overflow interrupt source */
+
+#define ADC_IT_AWD           ADC_IT_AWD1        /* ADC Analog watchdog 1 interrupt source: Alternate naming for compatibility with other STM32 devices having only 1 analog watchdog */
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_flags_definition ADC Extended Flags Definition
+  * @{
+  */
+#define ADC_FLAG_RDY           ADC_ISR_ADRD     /*!< ADC Ready (ADRDY) flag */
+#define ADC_FLAG_EOSMP         ADC_ISR_EOSMP    /*!< ADC End of Sampling flag */
+#define ADC_FLAG_EOC           ADC_ISR_EOC      /*!< ADC End of Regular Conversion flag */
+#define ADC_FLAG_EOS           ADC_ISR_EOS      /*!< ADC End of Regular sequence of Conversions flag */
+#define ADC_FLAG_OVR           ADC_ISR_OVR      /*!< ADC overrun flag */
+#define ADC_FLAG_JEOC          ADC_ISR_JEOC     /*!< ADC End of Injected Conversion flag */
+#define ADC_FLAG_JEOS          ADC_ISR_JEOS     /*!< ADC End of Injected sequence of Conversions flag */
+#define ADC_FLAG_AWD1          ADC_ISR_AWD1     /*!< ADC Analog watchdog 1 flag (main analog watchdog, present on all STM32 devices) */
+#define ADC_FLAG_AWD2          ADC_ISR_AWD2     /*!< ADC Analog watchdog 2 flag (additional analog watchdog, present only on STM32F3 devices) */
+#define ADC_FLAG_AWD3          ADC_ISR_AWD3     /*!< ADC Analog watchdog 3 flag (additional analog watchdog, present only on STM32F3 devices) */
+#define ADC_FLAG_JQOVF         ADC_ISR_JQOVF    /*!< ADC Injected Context Queue Overflow flag */
+
+#define ADC_FLAG_AWD           ADC_FLAG_AWD1    /* ADC Analog watchdog 1 flag: Alternate naming for compatibility with other STM32 devices having only 1 analog watchdog */
+/**
+  * @}
+  */
+
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
+
+#if defined(STM32F373xC) || defined(STM32F378xx)
+/** @defgroup ADCEx_Data_align ADC Extended Data Alignment
+  * @{
+  */
+#define ADC_DATAALIGN_RIGHT      ((uint32_t)0x00000000)
+#define ADC_DATAALIGN_LEFT       ((uint32_t)ADC_CR2_ALIGN)
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_Scan_mode ADC Extended Scan Mode
+  * @{
+  */
+#define ADC_SCAN_DISABLE         ((uint32_t)0x00000000)
+#define ADC_SCAN_ENABLE          ((uint32_t)ADC_CR1_SCAN)
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_External_trigger_edge_Regular ADC Extended External trigger enable for regular group
+  * @{
+  */
+#define ADC_EXTERNALTRIGCONVEDGE_NONE           ((uint32_t)0x00000000)
+#define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CR2_EXTTRIG)
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_External_trigger_source_Regular ADC Extended External trigger selection for regular group
+  * @{
+  */
+/* List of external triggers with generic trigger name, sorted by trigger     */
+/* name:                                                                      */
+
+/* External triggers of regular group for ADC1 */
+#define ADC_EXTERNALTRIGCONV_T2_CC2      ADC_EXTERNALTRIG_T2_CC2
+#define ADC_EXTERNALTRIGCONV_T3_TRGO     ADC_EXTERNALTRIG_T3_TRGO
+#define ADC_EXTERNALTRIGCONV_T4_CC2      ADC_EXTERNALTRIG_T4_CC2
+#define ADC_EXTERNALTRIGCONV_T19_TRGO    ADC_EXTERNALTRIG_T19_TRGO
+#define ADC_EXTERNALTRIGCONV_T19_CC3     ADC_EXTERNALTRIG_T19_CC3
+#define ADC_EXTERNALTRIGCONV_T19_CC4     ADC_EXTERNALTRIG_T19_CC4
+#define ADC_EXTERNALTRIGCONV_EXT_IT11    ADC_EXTERNALTRIG_EXT_IT11
+#define ADC_SOFTWARE_START               ADC_SWSTART
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_channels ADC Extended Channels
+  * @{
+  */
+/* Note: Depending on devices, some channels may not be available on package  */
+/*       pins. Refer to device datasheet for channels availability.           */
+#define ADC_CHANNEL_0           ((uint32_t)0x00000000)
+#define ADC_CHANNEL_1           ((uint32_t)(ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_2           ((uint32_t)(ADC_SQR3_SQ1_1))
+#define ADC_CHANNEL_3           ((uint32_t)(ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_4           ((uint32_t)(ADC_SQR3_SQ1_2))
+#define ADC_CHANNEL_5           ((uint32_t)(ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_6           ((uint32_t)(ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1))
+#define ADC_CHANNEL_7           ((uint32_t)(ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_8           ((uint32_t)(ADC_SQR3_SQ1_3))
+#define ADC_CHANNEL_9           ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_10          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_1))
+#define ADC_CHANNEL_11          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_12          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2))
+#define ADC_CHANNEL_13          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_14          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1))
+#define ADC_CHANNEL_15          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_16          ((uint32_t)(ADC_SQR3_SQ1_4))
+#define ADC_CHANNEL_17          ((uint32_t)(ADC_SQR3_SQ1_4 | ADC_SQR3_SQ1_0))
+#define ADC_CHANNEL_18          ((uint32_t)(ADC_SQR3_SQ1_4 | ADC_SQR3_SQ1_1))
+
+#define ADC_CHANNEL_TEMPSENSOR  ADC_CHANNEL_16
+#define ADC_CHANNEL_VREFINT     ADC_CHANNEL_17
+#define ADC_CHANNEL_VBAT        ADC_CHANNEL_18
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_sampling_times ADC Extended Sampling Times
+  * @{
+  */
+#define ADC_SAMPLETIME_1CYCLE_5       ((uint32_t)0x00000000)                            /*!< Sampling time 1.5 ADC clock cycle */
+#define ADC_SAMPLETIME_7CYCLES_5      ((uint32_t) ADC_SMPR2_SMP0_0)                     /*!< Sampling time 7.5 ADC clock cycles */
+#define ADC_SAMPLETIME_13CYCLES_5     ((uint32_t) ADC_SMPR2_SMP0_1)                     /*!< Sampling time 13.5 ADC clock cycles */
+#define ADC_SAMPLETIME_28CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_1 | ADC_SMPR2_SMP0_0)) /*!< Sampling time 28.5 ADC clock cycles */
+#define ADC_SAMPLETIME_41CYCLES_5     ((uint32_t) ADC_SMPR2_SMP0_2)                     /*!< Sampling time 41.5 ADC clock cycles */
+#define ADC_SAMPLETIME_55CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_0)) /*!< Sampling time 55.5 ADC clock cycles */
+#define ADC_SAMPLETIME_71CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_1)) /*!< Sampling time 71.5 ADC clock cycles */
+#define ADC_SAMPLETIME_239CYCLES_5    ((uint32_t) ADC_SMPR2_SMP0)                       /*!< Sampling time 239.5 ADC clock cycles */
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_regular_rank ADC Extended rank into regular group
+  * @{
+  */
+#define ADC_REGULAR_RANK_1    ((uint32_t)0x00000001)
+#define ADC_REGULAR_RANK_2    ((uint32_t)0x00000002)
+#define ADC_REGULAR_RANK_3    ((uint32_t)0x00000003)
+#define ADC_REGULAR_RANK_4    ((uint32_t)0x00000004)
+#define ADC_REGULAR_RANK_5    ((uint32_t)0x00000005)
+#define ADC_REGULAR_RANK_6    ((uint32_t)0x00000006)
+#define ADC_REGULAR_RANK_7    ((uint32_t)0x00000007)
+#define ADC_REGULAR_RANK_8    ((uint32_t)0x00000008)
+#define ADC_REGULAR_RANK_9    ((uint32_t)0x00000009)
+#define ADC_REGULAR_RANK_10   ((uint32_t)0x0000000A)
+#define ADC_REGULAR_RANK_11   ((uint32_t)0x0000000B)
+#define ADC_REGULAR_RANK_12   ((uint32_t)0x0000000C)
+#define ADC_REGULAR_RANK_13   ((uint32_t)0x0000000D)
+#define ADC_REGULAR_RANK_14   ((uint32_t)0x0000000E)
+#define ADC_REGULAR_RANK_15   ((uint32_t)0x0000000F)
+#define ADC_REGULAR_RANK_16   ((uint32_t)0x00000010)
+/**
+  * @}
+  */
+       
+/** @defgroup ADCEx_injected_rank ADC Extended Injected Channel Rank
+  * @{
+  */
+#define ADC_INJECTED_RANK_1    ((uint32_t)0x00000001)
+#define ADC_INJECTED_RANK_2    ((uint32_t)0x00000002)
+#define ADC_INJECTED_RANK_3    ((uint32_t)0x00000003)
+#define ADC_INJECTED_RANK_4    ((uint32_t)0x00000004)
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_External_trigger_edge_Injected External Trigger Edge of Injected Group
+  * @{
+  */
+#define ADC_EXTERNALTRIGINJECCONV_EDGE_NONE           ((uint32_t)0x00000000)
+#define ADC_EXTERNALTRIGINJECCONV_EDGE_RISING         ((uint32_t)ADC_CR2_JEXTTRIG)
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_External_trigger_source_Injected External Trigger Source of Injected Group
+  * @{
+  */
+/* External triggers for injected groups of ADC1 */
+#define ADC_EXTERNALTRIGINJECCONV_T2_CC1       ADC_EXTERNALTRIGINJEC_T2_CC1
+#define ADC_EXTERNALTRIGINJECCONV_T2_TRGO      ADC_EXTERNALTRIGINJEC_T2_TRGO
+#define ADC_EXTERNALTRIGINJECCONV_T3_CC4       ADC_EXTERNALTRIGINJEC_T3_CC4
+#define ADC_EXTERNALTRIGINJECCONV_T4_TRGO      ADC_EXTERNALTRIGINJEC_T4_TRGO
+#define ADC_EXTERNALTRIGINJECCONV_T19_CC1      ADC_EXTERNALTRIGINJEC_T19_CC1
+#define ADC_EXTERNALTRIGINJECCONV_T19_CC2      ADC_EXTERNALTRIGINJEC_T19_CC2
+#define ADC_EXTERNALTRIGINJECCONV_EXT_IT15     ADC_EXTERNALTRIGINJEC_EXT_IT15
+#define ADC_INJECTED_SOFTWARE_START            ADC_JSWSTART
+/**
+  * @}
+  */
+
+
+/** @defgroup ADCEx_analog_watchdog_mode ADC Extended analog watchdog mode
+  * @{
+  */
+#define ADC_ANALOGWATCHDOG_NONE                 ((uint32_t)0x00000000)
+#define ADC_ANALOGWATCHDOG_SINGLE_REG           ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN))
+#define ADC_ANALOGWATCHDOG_SINGLE_INJEC         ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_JAWDEN))
+#define ADC_ANALOGWATCHDOG_SINGLE_REGINJEC      ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN | ADC_CR1_JAWDEN))
+#define ADC_ANALOGWATCHDOG_ALL_REG              ((uint32_t) ADC_CR1_AWDEN)
+#define ADC_ANALOGWATCHDOG_ALL_INJEC            ((uint32_t) ADC_CR1_JAWDEN)
+#define ADC_ANALOGWATCHDOG_ALL_REGINJEC         ((uint32_t)(ADC_CR1_AWDEN | ADC_CR1_JAWDEN))
+/**
+  * @}
+  */
+
+/** @defgroup ADC_conversion_group ADC Conversion Group
+  * @{
+  */
+#define ADC_REGULAR_GROUP             ((uint32_t)(ADC_FLAG_EOC))
+#define ADC_INJECTED_GROUP            ((uint32_t)(ADC_FLAG_JEOC))
+#define ADC_REGULAR_INJECTED_GROUP    ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_JEOC))
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_Event_type ADC Extended Event Type
+  * @{
+  */
+#define ADC_AWD_EVENT               ((uint32_t)ADC_FLAG_AWD)   /*!< ADC Analog watchdog event */
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_interrupts_definition ADC Extended Interrupts Definition
+  * @{
+  */
+#define ADC_IT_EOC           ADC_CR1_EOCIE        /*!< ADC End of Regular Conversion interrupt source */
+#define ADC_IT_JEOC          ADC_CR1_JEOCIE       /*!< ADC End of Injected Conversion interrupt source */
+#define ADC_IT_AWD           ADC_CR1_AWDIE        /*!< ADC Analog watchdog interrupt source */
+/**
+  * @}
+  */
+
+/** @defgroup ADCEx_flags_definition ADC Extended Flags Definition
+  * @{
+  */
+#define ADC_FLAG_AWD           ADC_SR_AWD      /*!< ADC Analog watchdog flag */
+#define ADC_FLAG_EOC           ADC_SR_EOC      /*!< ADC End of Regular conversion flag */
+#define ADC_FLAG_JEOC          ADC_SR_JEOC     /*!< ADC End of Injected conversion flag */
+#define ADC_FLAG_JSTRT         ADC_SR_JSTRT    /*!< ADC Injected group start flag */
+#define ADC_FLAG_STRT          ADC_SR_STRT     /*!< ADC Regular group start flag */
+
+/**
+  * @}
+  */
+#endif /* STM32F373xC || STM32F378xx */
+
+/**
+  * @}
+  */
+
+
+     
+/* Private constants ---------------------------------------------------------*/
+
+/** @addtogroup ADCEx_Private_Constants ADCEx Private Constants
+  * @{
+  */
+     
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+
+
+/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Regular ADC Extended Internal HAL driver trigger selection for regular group
+  * @{
+  */
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+/* List of external triggers for common groups ADC1&ADC2 and/or ADC3&ADC4:    */
+/* (used internally by HAL driver. To not use into HAL structure parameters)  */
+
+/* External triggers of regular group for ADC1 & ADC2 */
+#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
+#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
+#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
+#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
+#define ADC1_2_EXTERNALTRIG_T4_CC4           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T8_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T8_TRGO2         ((uint32_t) ADC_CFGR_EXTSEL_3)
+#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
+#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
+
+/* External triggers of regular group for ADC3 & ADC4 */
+#define ADC3_4_EXTERNALTRIG_T3_CC1           ((uint32_t)0x00000000)
+#define ADC3_4_EXTERNALTRIG_T2_CC3           ((uint32_t)ADC_CFGR_EXTSEL_0)
+#define ADC3_4_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
+#define ADC3_4_EXTERNALTRIG_T8_CC1           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC3_4_EXTERNALTRIG_T8_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
+#define ADC3_4_EXTERNALTRIG_EXT_IT2          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC3_4_EXTERNALTRIG_T4_CC1           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC3_4_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC3_4_EXTERNALTRIG_T8_TRGO2         ((uint32_t)ADC_CFGR_EXTSEL_3)
+#define ADC3_4_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
+#define ADC3_4_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
+#define ADC3_4_EXTERNALTRIG_T3_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC3_4_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
+#define ADC3_4_EXTERNALTRIG_T7_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC3_4_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC3_4_EXTERNALTRIG_T2_CC1           ((uint32_t)ADC_CFGR_EXTSEL)
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx    */
+
+#if defined(STM32F302xE) || \
+    defined(STM32F302xC)
+/* List of external triggers of common group ADC1&ADC2:                       */
+/* (used internally by HAL driver. To not use into HAL structure parameters)  */
+#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
+#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
+#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
+#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
+#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
+#define ADC1_2_EXTERNALTRIG_T4_CC4           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
+#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#endif /* STM32F302xE || */
+       /* STM32F302xC    */
+
+#if defined(STM32F303x8) || defined(STM32F328xx)
+/* List of external triggers of common group ADC1&ADC2:                       */
+/* (used internally by HAL driver. To not use into HAL structure parameters)  */
+#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
+#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
+#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
+#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
+#define ADC1_2_EXTERNALTRIG_T4_CC4           ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T8_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T8_TRGO2         ((uint32_t) ADC_CFGR_EXTSEL_3)
+#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T4_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2))
+#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
+#endif /* STM32F303x8 || STM32F328xx */
+
+#if defined(STM32F334x8)
+/* List of external triggers of common group ADC1&ADC2:                       */
+/* (used internally by HAL driver. To not use into HAL structure parameters)  */
+#define ADC1_2_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
+#define ADC1_2_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
+#define ADC1_2_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
+#define ADC1_2_EXTERNALTRIG_T2_CC2           ((uint32_t)(ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T3_TRGO          ((uint32_t)ADC_CFGR_EXTSEL_2)
+#define ADC1_2_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_HRTIM_TRG1       ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_HRTIM_TRG3       ((uint32_t) ADC_CFGR_EXTSEL_3)
+#define ADC1_2_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_2_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_2_EXTERNALTRIG_T3_CC4           ((uint32_t)ADC_CFGR_EXTSEL)
+#endif /* STM32F334x8 */
+
+#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+/* List of external triggers of regular group for ADC1:                       */
+/* (used internally by HAL driver. To not use into HAL structure parameters)  */
+#define ADC1_EXTERNALTRIG_T1_CC1           ((uint32_t)0x00000000)
+#define ADC1_EXTERNALTRIG_T1_CC2           ((uint32_t)ADC_CFGR_EXTSEL_0)
+#define ADC1_EXTERNALTRIG_T1_CC3           ((uint32_t)ADC_CFGR_EXTSEL_1)
+#define ADC1_EXTERNALTRIG_EXT_IT11         ((uint32_t)(ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC1_EXTERNALTRIG_T1_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_0))
+#define ADC1_EXTERNALTRIG_T1_TRGO2         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1))
+#define ADC1_EXTERNALTRIG_T2_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_1 | ADC_CFGR_EXTSEL_0))
+#define ADC1_EXTERNALTRIG_T6_TRGO          ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_0))
+#define ADC1_EXTERNALTRIG_T15_TRGO         ((uint32_t)(ADC_CFGR_EXTSEL_3 | ADC_CFGR_EXTSEL_2 | ADC_CFGR_EXTSEL_1))
+#define ADC_SOFTWARE_START                 ((uint32_t)0x00000001)
+#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
+/**
+  * @}
+  */
+
+
+/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Injected ADC Extended Internal HAL driver trigger selection for injected group
   * @{
   */
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
@@ -1652,7 +1693,7 @@ typedef struct
 /*       However, this channel is implemented with a SW offset of 0x10000 for */
 /*       differentiation between similar triggers of common groups ADC1&ADC2, */
 /*       ADC3&ADC4 (Differentiation processed into macro                      */
-/*       __HAL_ADC_JSQR_JEXTSEL)                                              */
+/*       ADC_JSQR_JEXTSEL_SET)                                                */
 #define ADC3_4_EXTERNALTRIGINJEC_T1_TRGO    ((uint32_t)0x00000000)
 #define ADC3_4_EXTERNALTRIGINJEC_T1_CC4     ((uint32_t)ADC_JSQR_JEXTSEL_0)
 #define ADC3_4_EXTERNALTRIGINJEC_T4_CC3     ((uint32_t)ADC_JSQR_JEXTSEL_1 | 0x10000)
@@ -1750,190 +1791,6 @@ typedef struct
   * @}
   */
 
-/** @defgroup ADCEx_Common_mode ADC Extended Dual ADC Mode
-  * @{
-  */
-#define ADC_MODE_INDEPENDENT                  ((uint32_t)(0x00000000))
-#define ADC_DUALMODE_REGSIMULT_INJECSIMULT    ((uint32_t)(ADC12_CCR_MULTI_0))
-#define ADC_DUALMODE_REGSIMULT_ALTERTRIG      ((uint32_t)(ADC12_CCR_MULTI_1))
-#define ADC_DUALMODE_INJECSIMULT              ((uint32_t)(ADC12_CCR_MULTI_2 | ADC12_CCR_MULTI_0))
-#define ADC_DUALMODE_REGSIMULT                ((uint32_t)(ADC12_CCR_MULTI_2 | ADC12_CCR_MULTI_1))
-#define ADC_DUALMODE_INTERL                   ((uint32_t)(ADC12_CCR_MULTI_2 | ADC12_CCR_MULTI_1 | ADC12_CCR_MULTI_0))
-#define ADC_DUALMODE_ALTERTRIG                ((uint32_t)(ADC12_CCR_MULTI_3 | ADC12_CCR_MULTI_0))
-
-#define IS_ADC_MODE(MODE) (((MODE) == ADC_MODE_INDEPENDENT)               || \
-                           ((MODE) == ADC_DUALMODE_REGSIMULT_INJECSIMULT) || \
-                           ((MODE) == ADC_DUALMODE_REGSIMULT_ALTERTRIG)   || \
-                           ((MODE) == ADC_DUALMODE_INJECSIMULT)           || \
-                           ((MODE) == ADC_DUALMODE_REGSIMULT)             || \
-                           ((MODE) == ADC_DUALMODE_INTERL)                || \
-                           ((MODE) == ADC_DUALMODE_ALTERTRIG)               )
-/**
-  * @}
-  */
-
-
-/** @defgroup ADCEx_Direct_memory_access_mode_for_multimode ADC Extended DMA Mode for Dual ADC Mode
-  * @{
-  */
-#define ADC_DMAACCESSMODE_DISABLED      ((uint32_t)0x00000000)         /*!< DMA multimode disabled: each ADC will use its own DMA channel */
-#define ADC_DMAACCESSMODE_12_10_BITS    ((uint32_t)ADC12_CCR_MDMA_1)   /*!< DMA multimode enabled (one DMA channel for both ADC, DMA of ADC master) for 12 and 10 bits resolution */
-#define ADC_DMAACCESSMODE_8_6_BITS      ((uint32_t)ADC12_CCR_MDMA)     /*!< DMA multimode enabled (one DMA channel for both ADC, DMA of ADC master) for 8 and 6 bits resolution */
-
-#define IS_ADC_DMA_ACCESS_MODE(MODE) (((MODE) == ADC_DMAACCESSMODE_DISABLED)   || \
-                                      ((MODE) == ADC_DMAACCESSMODE_12_10_BITS) || \
-                                      ((MODE) == ADC_DMAACCESSMODE_8_6_BITS)     )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_delay_between_2_sampling_phases ADC Extended Delay Between 2 Sampling Phases
-  * @{
-  */
-#define ADC_TWOSAMPLINGDELAY_1CYCLE     ((uint32_t)(0x00000000))
-#define ADC_TWOSAMPLINGDELAY_2CYCLES    ((uint32_t)(ADC12_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_3CYCLES    ((uint32_t)(ADC12_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_4CYCLES    ((uint32_t)(ADC12_CCR_DELAY_1 | ADC12_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_5CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2))
-#define ADC_TWOSAMPLINGDELAY_6CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2 | ADC12_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_7CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2 | ADC12_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_8CYCLES    ((uint32_t)(ADC12_CCR_DELAY_2 | ADC12_CCR_DELAY_1 | ADC12_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_9CYCLES    ((uint32_t)(ADC12_CCR_DELAY_3))
-#define ADC_TWOSAMPLINGDELAY_10CYCLES   ((uint32_t)(ADC12_CCR_DELAY_3 | ADC12_CCR_DELAY_0))
-#define ADC_TWOSAMPLINGDELAY_11CYCLES   ((uint32_t)(ADC12_CCR_DELAY_3 | ADC12_CCR_DELAY_1))
-#define ADC_TWOSAMPLINGDELAY_12CYCLES   ((uint32_t)(ADC12_CCR_DELAY_3 | ADC12_CCR_DELAY_1 | ADC12_CCR_DELAY_0))
-
-#define IS_ADC_SAMPLING_DELAY(DELAY) (((DELAY) == ADC_TWOSAMPLINGDELAY_1CYCLE)   || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_2CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_3CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_4CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_5CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_6CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_7CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_8CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_9CYCLES)  || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_10CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_11CYCLES) || \
-                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_12CYCLES)   )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_analog_watchdog_number ADC Extended Analog Watchdog Selection
-  * @{
-  */
-#define ADC_ANALOGWATCHDOG_1                    ((uint32_t)0x00000001)
-#define ADC_ANALOGWATCHDOG_2                    ((uint32_t)0x00000002)
-#define ADC_ANALOGWATCHDOG_3                    ((uint32_t)0x00000003)
-
-#define IS_ADC_ANALOG_WATCHDOG_NUMBER(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_1) || \
-                                                 ((WATCHDOG) == ADC_ANALOGWATCHDOG_2) || \
-                                                 ((WATCHDOG) == ADC_ANALOGWATCHDOG_3)   )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_analog_watchdog_mode ADC Extended Analog Watchdog Mode
-  * @{
-  */
-#define ADC_ANALOGWATCHDOG_NONE                 ((uint32_t) 0x00000000)
-#define ADC_ANALOGWATCHDOG_SINGLE_REG           ((uint32_t)(ADC_CFGR_AWD1SGL | ADC_CFGR_AWD1EN))
-#define ADC_ANALOGWATCHDOG_SINGLE_INJEC         ((uint32_t)(ADC_CFGR_AWD1SGL | ADC_CFGR_JAWD1EN))
-#define ADC_ANALOGWATCHDOG_SINGLE_REGINJEC      ((uint32_t)(ADC_CFGR_AWD1SGL | ADC_CFGR_AWD1EN | ADC_CFGR_JAWD1EN))
-#define ADC_ANALOGWATCHDOG_ALL_REG              ((uint32_t) ADC_CFGR_AWD1EN)
-#define ADC_ANALOGWATCHDOG_ALL_INJEC            ((uint32_t) ADC_CFGR_JAWD1EN)
-#define ADC_ANALOGWATCHDOG_ALL_REGINJEC         ((uint32_t)(ADC_CFGR_AWD1EN | ADC_CFGR_JAWD1EN))
-
-#define IS_ADC_ANALOG_WATCHDOG_MODE(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_NONE)             || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REG)       || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_INJEC)     || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REGINJEC)  || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REG)          || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_INJEC)        || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REGINJEC)       )
-/**
-  * @}
-  */
-
-/** @defgroup ADC_conversion_group ADC Conversion Group
-  * @{
-  */
-#define REGULAR_GROUP             ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_EOS))
-#define INJECTED_GROUP            ((uint32_t)(ADC_FLAG_JEOC | ADC_FLAG_JEOS))
-#define REGULAR_INJECTED_GROUP    ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_EOS | ADC_FLAG_JEOC | ADC_FLAG_JEOS))
-
-#define IS_ADC_CONVERSION_GROUP(CONVERSION) (((CONVERSION) == REGULAR_GROUP)        || \
-                                            ((CONVERSION) == INJECTED_GROUP)        || \
-                                            ((CONVERSION) == REGULAR_INJECTED_GROUP)  )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_Event_type ADC Extended Event Type
-  * @{
-  */
-#define AWD1_EVENT           ((uint32_t)ADC_FLAG_AWD1)  /*!< ADC Analog watchdog 1 event (main analog watchdog, present on all STM32 devices) */
-#define AWD2_EVENT           ((uint32_t)ADC_FLAG_AWD2)  /*!< ADC Analog watchdog 2 event (additional analog watchdog, present only on STM32F3 devices) */
-#define AWD3_EVENT           ((uint32_t)ADC_FLAG_AWD3)  /*!< ADC Analog watchdog 3 event (additional analog watchdog, present only on STM32F3 devices) */
-#define OVR_EVENT            ((uint32_t)ADC_FLAG_OVR)   /*!< ADC overrun event */
-#define JQOVF_EVENT          ((uint32_t)ADC_FLAG_JQOVF) /*!< ADC Injected Context Queue Overflow event */
-
-#define AWD_EVENT            AWD1_EVENT         /*!< ADC Analog watchdog 1 event: Naming for compatibility with other STM32 devices having only 1 analog watchdog */
-
-#define IS_ADC_EVENT_TYPE(EVENT) (((EVENT) == AWD_EVENT)  || \
-                                  ((EVENT) == AWD2_EVENT) || \
-                                  ((EVENT) == AWD3_EVENT) || \
-                                  ((EVENT) == OVR_EVENT)  || \
-                                  ((EVENT) == JQOVF_EVENT)  )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_interrupts_definition ADC Extended Interrupts Definition
-  * @{
-  */
-#define ADC_IT_RDY           ADC_IER_RDY        /*!< ADC Ready (ADRDY) interrupt source */
-#define ADC_IT_EOSMP         ADC_IER_EOSMP      /*!< ADC End of Sampling interrupt source */
-#define ADC_IT_EOC           ADC_IER_EOC        /*!< ADC End of Regular Conversion interrupt source */
-#define ADC_IT_EOS           ADC_IER_EOS        /*!< ADC End of Regular sequence of Conversions interrupt source */
-#define ADC_IT_OVR           ADC_IER_OVR        /*!< ADC overrun interrupt source */
-#define ADC_IT_JEOC          ADC_IER_JEOC       /*!< ADC End of Injected Conversion interrupt source */
-#define ADC_IT_JEOS          ADC_IER_JEOS       /*!< ADC End of Injected sequence of Conversions interrupt source */
-#define ADC_IT_AWD1          ADC_IER_AWD1       /*!< ADC Analog watchdog 1 interrupt source (main analog watchdog, present on all STM32 devices) */
-#define ADC_IT_AWD2          ADC_IER_AWD2       /*!< ADC Analog watchdog 2 interrupt source (additional analog watchdog, present only on STM32F3 devices) */
-#define ADC_IT_AWD3          ADC_IER_AWD3       /*!< ADC Analog watchdog 3 interrupt source (additional analog watchdog, present only on STM32F3 devices) */
-#define ADC_IT_JQOVF         ADC_IER_JQOVF      /*!< ADC Injected Context Queue Overflow interrupt source */
-
-#define ADC_IT_AWD           ADC_IT_AWD1        /*!< ADC Analog watchdog 1 interrupt source: Naming for compatibility with other STM32 devices having only 1 analog watchdog */
-
-/* Check of single flag */
-#define IS_ADC_IT(IT) (((IT) == ADC_IT_RDY)  || ((IT) == ADC_IT_EOSMP) || \
-                       ((IT) == ADC_IT_EOC)  || ((IT) == ADC_IT_EOS)   || \
-                       ((IT) == ADC_IT_OVR)  || ((IT) == ADC_IT_EOS)   || \
-                       ((IT) == ADC_IT_JEOS) || ((IT) == ADC_IT_AWD1)  || \
-                       ((IT) == ADC_IT_AWD2) || ((IT) == ADC_IT_AWD3)  || \
-                       ((IT) == ADC_IT_JQOVF)                            )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_flags_definition ADC Extended Flags Definition
-  * @{
-  */
-#define ADC_FLAG_RDY           ADC_ISR_ADRD     /*!< ADC Ready (ADRDY) flag */
-#define ADC_FLAG_EOSMP         ADC_ISR_EOSMP    /*!< ADC End of Sampling flag */
-#define ADC_FLAG_EOC           ADC_ISR_EOC      /*!< ADC End of Regular Conversion flag */
-#define ADC_FLAG_EOS           ADC_ISR_EOS      /*!< ADC End of Regular sequence of Conversions flag */
-#define ADC_FLAG_OVR           ADC_ISR_OVR      /*!< ADC overrun flag */
-#define ADC_FLAG_JEOC          ADC_ISR_JEOC     /*!< ADC End of Injected Conversion flag */
-#define ADC_FLAG_JEOS          ADC_ISR_JEOS     /*!< ADC End of Injected sequence of Conversions flag */
-#define ADC_FLAG_AWD1          ADC_ISR_AWD1     /*!< ADC Analog watchdog 1 flag (main analog watchdog, present on all STM32 devices) */
-#define ADC_FLAG_AWD2          ADC_ISR_AWD2     /*!< ADC Analog watchdog 2 flag (additional analog watchdog, present only on STM32F3 devices) */
-#define ADC_FLAG_AWD3          ADC_ISR_AWD3     /*!< ADC Analog watchdog 3 flag (additional analog watchdog, present only on STM32F3 devices) */
-#define ADC_FLAG_JQOVF         ADC_ISR_JQOVF    /*!< ADC Injected Context Queue Overflow flag */
-
-#define ADC_FLAG_AWD           ADC_FLAG_AWD1    /*!< ADC Analog watchdog 1 flag: Naming for compatibility with other STM32 devices having only 1 analog watchdog */
-
 #define ADC_FLAG_ALL    (ADC_FLAG_RDY | ADC_FLAG_EOSMP | ADC_FLAG_EOC | ADC_FLAG_EOS |  \
                          ADC_FLAG_JEOC | ADC_FLAG_JEOS | ADC_FLAG_OVR | ADC_FLAG_AWD1 | \
                          ADC_FLAG_AWD2 | ADC_FLAG_AWD3 | ADC_FLAG_JQOVF)
@@ -1942,203 +1799,18 @@ typedef struct
 #define ADC_FLAG_POSTCONV_ALL (ADC_FLAG_EOC | ADC_FLAG_EOS  | ADC_FLAG_JEOC | ADC_FLAG_JEOS | \
                                ADC_FLAG_OVR | ADC_FLAG_AWD1 | ADC_FLAG_AWD2 | ADC_FLAG_AWD3 | \
                                ADC_FLAG_JQOVF)
-
-/* Check of single flag */
-#define IS_ADC_FLAG(FLAG) (((FLAG) == ADC_FLAG_RDY)  || ((FLAG) == ADC_FLAG_EOSMP) || \
-                           ((FLAG) == ADC_FLAG_EOC)  || ((FLAG) == ADC_FLAG_EOS)   || \
-                           ((FLAG) == ADC_FLAG_OVR)  || ((FLAG) == ADC_FLAG_JEOC)  || \
-                           ((FLAG) == ADC_FLAG_JEOS) || ((FLAG) == ADC_FLAG_AWD1)  || \
-                           ((FLAG) == ADC_FLAG_AWD2) || ((FLAG) == ADC_FLAG_AWD3)  || \
-                           ((FLAG) == ADC_FLAG_JQOVF)                                )
-/**
-  * @}
-  */
-
-/** @defgroup ADC_multimode_bits ADC Multimode Bits
-  * @{
-  */
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-#define ADC_CCR_MULTI             ADC12_CCR_MULTI        /*!< Multi ADC mode selection */
-#define ADC_CCR_MULTI_0           ADC12_CCR_MULTI_0      /*!< MULTI bit 0 */
-#define ADC_CCR_MULTI_1           ADC12_CCR_MULTI_1      /*!< MULTI bit 1 */
-#define ADC_CCR_MULTI_2           ADC12_CCR_MULTI_2      /*!< MULTI bit 2 */
-#define ADC_CCR_MULTI_3           ADC12_CCR_MULTI_3      /*!< MULTI bit 3 */
-#define ADC_CCR_MULTI_4           ADC12_CCR_MULTI_4      /*!< MULTI bit 4 */
-#define ADC_CCR_DELAY             ADC12_CCR_DELAY        /*!< Delay between 2 sampling phases */
-#define ADC_CCR_DELAY_0           ADC12_CCR_DELAY_0      /*!< DELAY bit 0 */
-#define ADC_CCR_DELAY_1           ADC12_CCR_DELAY_1      /*!< DELAY bit 1 */
-#define ADC_CCR_DELAY_2           ADC12_CCR_DELAY_2      /*!< DELAY bit 2 */
-#define ADC_CCR_DELAY_3           ADC12_CCR_DELAY_3      /*!< DELAY bit 3 */
-#define ADC_CCR_DMACFG            ADC12_CCR_DMACFG       /*!< DMA configuration for multi-ADC mode */
-#define ADC_CCR_MDMA              ADC12_CCR_MDMA         /*!< DMA mode for multi-ADC mode */
-#define ADC_CCR_MDMA_0            ADC12_CCR_MDMA_0       /*!< MDMA bit 0 */
-#define ADC_CCR_MDMA_1            ADC12_CCR_MDMA_1       /*!< MDMA bit 1 */
-#define ADC_CCR_CKMODE            ADC12_CCR_CKMODE       /*!< ADC clock mode */
-#define ADC_CCR_CKMODE_0          ADC12_CCR_CKMODE_0     /*!< CKMODE bit 0 */
-#define ADC_CCR_CKMODE_1          ADC12_CCR_CKMODE_1     /*!< CKMODE bit 1 */
-#define ADC_CCR_VREFEN            ADC12_CCR_VREFEN       /*!< VREFINT enable */
-#define ADC_CCR_TSEN              ADC12_CCR_TSEN         /*!< Temperature sensor enable */
-#define ADC_CCR_VBATEN            ADC12_CCR_VBATEN       /*!< VBAT enable */
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx    */
-
-#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-#define ADC_CCR_MULTI             ADC1_CCR_MULTI        /*!< Multi ADC mode selection */
-#define ADC_CCR_MULTI_0           ADC1_CCR_MULTI_0      /*!< MULTI bit 0 */
-#define ADC_CCR_MULTI_1           ADC1_CCR_MULTI_1      /*!< MULTI bit 1 */
-#define ADC_CCR_MULTI_2           ADC1_CCR_MULTI_2      /*!< MULTI bit 2 */
-#define ADC_CCR_MULTI_3           ADC1_CCR_MULTI_3      /*!< MULTI bit 3 */
-#define ADC_CCR_MULTI_4           ADC1_CCR_MULTI_4      /*!< MULTI bit 4 */
-#define ADC_CCR_DELAY             ADC1_CCR_DELAY        /*!< Delay between 2 sampling phases */
-#define ADC_CCR_DELAY_0           ADC1_CCR_DELAY_0      /*!< DELAY bit 0 */
-#define ADC_CCR_DELAY_1           ADC1_CCR_DELAY_1      /*!< DELAY bit 1 */
-#define ADC_CCR_DELAY_2           ADC1_CCR_DELAY_2      /*!< DELAY bit 2 */
-#define ADC_CCR_DELAY_3           ADC1_CCR_DELAY_3      /*!< DELAY bit 3 */
-#define ADC_CCR_DMACFG            ADC1_CCR_DMACFG       /*!< DMA configuration for multi-ADC mode */
-#define ADC_CCR_MDMA              ADC1_CCR_MDMA         /*!< DMA mode for multi-ADC mode */
-#define ADC_CCR_MDMA_0            ADC1_CCR_MDMA_0       /*!< MDMA bit 0 */
-#define ADC_CCR_MDMA_1            ADC1_CCR_MDMA_1       /*!< MDMA bit 1 */
-#define ADC_CCR_CKMODE            ADC1_CCR_CKMODE       /*!< ADC clock mode */
-#define ADC_CCR_CKMODE_0          ADC1_CCR_CKMODE_0     /*!< CKMODE bit 0 */
-#define ADC_CCR_CKMODE_1          ADC1_CCR_CKMODE_1     /*!< CKMODE bit 1 */
-#define ADC_CCR_VREFEN            ADC1_CCR_VREFEN       /*!< VREFINT enable */
-#define ADC_CCR_TSEN              ADC1_CCR_TSEN         /*!< Temperature sensor enable */
-#define ADC_CCR_VBATEN            ADC1_CCR_VBATEN       /*!< VBAT enable */
-#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
-
-
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_range_verification ADC Extended Range Verification
-  * in function of ADC resolution selected (12, 10, 8 or 6 bits)
-  * @{
-  */
-#define IS_ADC_RANGE(RESOLUTION, ADC_VALUE)                                         \
-   ((((RESOLUTION) == ADC_RESOLUTION12b) && ((ADC_VALUE) <= ((uint32_t)0x0FFF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION10b) && ((ADC_VALUE) <= ((uint32_t)0x03FF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION8b)  && ((ADC_VALUE) <= ((uint32_t)0x00FF))) || \
-    (((RESOLUTION) == ADC_RESOLUTION6b)  && ((ADC_VALUE) <= ((uint32_t)0x003F)))   )
-/**
-  * @}
-  */
-
-/** @defgroup ADC_injected_nb_conv_verification ADC Injected Conversion Number Verification
-  * @{
-  */
-#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
-/**
-  * @}
-  */
-
-/** @defgroup ADC_regular_nb_conv_verification ADC Regular Conversion Number Verification
-  * @{
-  */
-#define IS_ADC_REGULAR_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)16)))
-/**
-  * @}
-  */
-
-/** @defgroup ADC_regular_discontinuous_mode_number_verification ADC Regular Discontinuous Mode NumberVerification
-  * @{
-  */
-#define IS_ADC_REGULAR_DISCONT_NUMBER(NUMBER) (((NUMBER) >= ((uint32_t)1)) && ((NUMBER) <= ((uint32_t)8)))
-/**
-  * @}
-  */
-
-/** @defgroup ADC_calibration_factor_length_verification ADC Calibration Factor Length Verification
-  * @{
-  */
-/**
-  * @brief Calibration factor length verification (7 bits maximum)
-  * @param _Calibration_Factor_: Calibration factor value
-  * @retval None
-  */
-#define IS_ADC_CALFACT(_Calibration_Factor_) ((_Calibration_Factor_) <= ((uint32_t)0x7F))
-/**
-  * @}
-  */
+      
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
        /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
-
+      
 #if defined(STM32F373xC) || defined(STM32F378xx)
-/** @defgroup ADCEx_Data_align ADC Extended Data Alignment
+
+/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Regular ADC Extended Internal HAL driver trigger selection for regular group
   * @{
   */
-#define ADC_DATAALIGN_RIGHT      ((uint32_t)0x00000000)
-#define ADC_DATAALIGN_LEFT       ((uint32_t)ADC_CR2_ALIGN)
-
-#define IS_ADC_DATA_ALIGN(ALIGN) (((ALIGN) == ADC_DATAALIGN_RIGHT) || \
-                                  ((ALIGN) == ADC_DATAALIGN_LEFT)    )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_Scan_mode ADC Extended Scan Mode
-  * @{
-  */
-#define ADC_SCAN_DISABLE         ((uint32_t)0x00000000)
-#define ADC_SCAN_ENABLE          ((uint32_t)0x00000001)
-
-#define IS_ADC_SCAN_MODE(SCAN_MODE) (((SCAN_MODE) == ADC_SCAN_DISABLE) || \
-                                     ((SCAN_MODE) == ADC_SCAN_ENABLE)    )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_External_trigger_edge_Regular ADC Extended External trigger enable for regular channels
-  * @{
-  */
-#define ADC_EXTERNALTRIGCONVEDGE_NONE           ((uint32_t)0x00000000)
-#define ADC_EXTERNALTRIGCONVEDGE_RISING         ((uint32_t)ADC_CR2_EXTTRIG)
-
-#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGCONVEDGE_NONE)  || \
-                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISING)  )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_External_trigger_source_Regular ADC Extended External trigger selection for regular group
-  * @{
-  */
-/* List of external triggers with generic trigger name, sorted by trigger     */
-/* name:                                                                      */
-
-/* External triggers of regular group for ADC1 */
-#define ADC_EXTERNALTRIGCONV_T2_CC2      ADC_EXTERNALTRIG_T2_CC2
-#define ADC_EXTERNALTRIGCONV_T3_TRGO     ADC_EXTERNALTRIG_T3_TRGO
-#define ADC_EXTERNALTRIGCONV_T4_CC2      ADC_EXTERNALTRIG_T4_CC2
-#define ADC_EXTERNALTRIGCONV_T19_TRGO    ADC_EXTERNALTRIG_T19_TRGO
-#define ADC_EXTERNALTRIGCONV_T19_CC3     ADC_EXTERNALTRIG_T19_CC3
-#define ADC_EXTERNALTRIGCONV_T19_CC4     ADC_EXTERNALTRIG_T19_CC4
-#define ADC_EXTERNALTRIGCONV_EXT_IT11    ADC_EXTERNALTRIG_EXT_IT11
-#define ADC_SOFTWARE_START               ADC_SWSTART
-
-#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC2)   || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T19_TRGO) || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T19_CC3)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T19_CC4)  || \
-                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
-                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
-/**
-  * @}
-  */
-
-
-/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Regular ADC Extended External trigger selection for regular group (Used Internally)
-  * @{
-  */
-
 /* List of external triggers of regular group for ADC1:                       */
 /* (used internally by HAL driver. To not use into HAL structure parameters)  */
 
@@ -2151,88 +1823,29 @@ typedef struct
 #define ADC_EXTERNALTRIG_T4_CC2            ((uint32_t)(ADC_CR2_EXTSEL_2 | ADC_CR2_EXTSEL_0))
 #define ADC_EXTERNALTRIG_EXT_IT11          ((uint32_t)(ADC_CR2_EXTSEL_2 | ADC_CR2_EXTSEL_1))
 #define ADC_SWSTART                        ((uint32_t)(ADC_CR2_EXTSEL_2 | ADC_CR2_EXTSEL_1 | ADC_CR2_EXTSEL_0))
-
 /**
   * @}
   */
 
-
-/** @defgroup ADCEx_channels ADC Extended Channels
+/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Injected ADC Extended Internal HAL driver trigger selection for injected group
   * @{
   */
-/* Note: Depending on devices, some channels may not be available on package  */
-/*       pins. Refer to device datasheet for channels availability.           */
-#define ADC_CHANNEL_0           ((uint32_t)0x00000000)
-#define ADC_CHANNEL_1           ((uint32_t)(ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_2           ((uint32_t)(ADC_SQR3_SQ1_1))
-#define ADC_CHANNEL_3           ((uint32_t)(ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_4           ((uint32_t)(ADC_SQR3_SQ1_2))
-#define ADC_CHANNEL_5           ((uint32_t)(ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_6           ((uint32_t)(ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1))
-#define ADC_CHANNEL_7           ((uint32_t)(ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_8           ((uint32_t)(ADC_SQR3_SQ1_3))
-#define ADC_CHANNEL_9           ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_10          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_1))
-#define ADC_CHANNEL_11          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_12          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2))
-#define ADC_CHANNEL_13          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_14          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1))
-#define ADC_CHANNEL_15          ((uint32_t)(ADC_SQR3_SQ1_3 | ADC_SQR3_SQ1_2 | ADC_SQR3_SQ1_1 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_16          ((uint32_t)(ADC_SQR3_SQ1_4))
-#define ADC_CHANNEL_17          ((uint32_t)(ADC_SQR3_SQ1_4 | ADC_SQR3_SQ1_0))
-#define ADC_CHANNEL_18          ((uint32_t)(ADC_SQR3_SQ1_4 | ADC_SQR3_SQ1_1))
+/* List of external triggers of injected group for ADC1:                      */
+/* (used internally by HAL driver. To not use into HAL structure parameters)  */
 
-#define ADC_CHANNEL_TEMPSENSOR  ADC_CHANNEL_16
-#define ADC_CHANNEL_VREFINT     ADC_CHANNEL_17
-#define ADC_CHANNEL_VBAT        ADC_CHANNEL_18
-
-#define IS_ADC_CHANNEL(CHANNEL) (((CHANNEL) == ADC_CHANNEL_0)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_1)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_2)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_3)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_4)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_5)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_6)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_7)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_8)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_9)           || \
-                                 ((CHANNEL) == ADC_CHANNEL_10)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_11)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_12)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_13)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_14)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_15)          || \
-                                 ((CHANNEL) == ADC_CHANNEL_TEMPSENSOR)  || \
-                                 ((CHANNEL) == ADC_CHANNEL_VREFINT)     || \
-                                 ((CHANNEL) == ADC_CHANNEL_VBAT)          )
+/* External triggers of injected group for ADC1 */
+#define ADC_EXTERNALTRIGINJEC_T19_CC1      ((uint32_t) 0x00000000)
+#define ADC_EXTERNALTRIGINJEC_T19_CC2      ((uint32_t) ADC_CR2_JEXTSEL_0)
+#define ADC_EXTERNALTRIGINJEC_T2_TRGO      ((uint32_t) ADC_CR2_JEXTSEL_1)
+#define ADC_EXTERNALTRIGINJEC_T2_CC1       ((uint32_t)(ADC_CR2_JEXTSEL_1 | ADC_CR2_JEXTSEL_0))
+#define ADC_EXTERNALTRIGINJEC_T3_CC4       ((uint32_t) ADC_CR2_JEXTSEL_2)
+#define ADC_EXTERNALTRIGINJEC_T4_TRGO      ((uint32_t)(ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_0))
+#define ADC_EXTERNALTRIGINJEC_EXT_IT15     ((uint32_t)(ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_1))
+#define ADC_JSWSTART                       ((uint32_t)(ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_1 | ADC_CR2_JEXTSEL_0))
 /**
   * @}
   */
-
-/** @defgroup ADCEx_sampling_times ADC Extended Sampling Times
-  * @{
-  */
-#define ADC_SAMPLETIME_1CYCLE_5       ((uint32_t)0x00000000)                            /*!< Sampling time 1.5 ADC clock cycle */
-#define ADC_SAMPLETIME_7CYCLES_5      ((uint32_t) ADC_SMPR2_SMP0_0)                     /*!< Sampling time 7.5 ADC clock cycles */
-#define ADC_SAMPLETIME_13CYCLES_5     ((uint32_t) ADC_SMPR2_SMP0_1)                     /*!< Sampling time 13.5 ADC clock cycles */
-#define ADC_SAMPLETIME_28CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_1 | ADC_SMPR2_SMP0_0)) /*!< Sampling time 28.5 ADC clock cycles */
-#define ADC_SAMPLETIME_41CYCLES_5     ((uint32_t) ADC_SMPR2_SMP0_2)                     /*!< Sampling time 41.5 ADC clock cycles */
-#define ADC_SAMPLETIME_55CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_0)) /*!< Sampling time 55.5 ADC clock cycles */
-#define ADC_SAMPLETIME_71CYCLES_5     ((uint32_t)(ADC_SMPR2_SMP0_2 | ADC_SMPR2_SMP0_1)) /*!< Sampling time 71.5 ADC clock cycles */
-#define ADC_SAMPLETIME_239CYCLES_5    ((uint32_t) ADC_SMPR2_SMP0)                       /*!< Sampling time 239.5 ADC clock cycles */
-
-#define IS_ADC_SAMPLE_TIME(TIME) (((TIME) == ADC_SAMPLETIME_1CYCLE_5)    || \
-                                  ((TIME) == ADC_SAMPLETIME_7CYCLES_5)   || \
-                                  ((TIME) == ADC_SAMPLETIME_13CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_28CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_41CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_55CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_71CYCLES_5)  || \
-                                  ((TIME) == ADC_SAMPLETIME_239CYCLES_5)   )
-/**
-  * @}
-  */
-
+      
 /** @defgroup ADCEx_sampling_times_all_channels ADC Extended Sampling Times All Channels
   * @{
   */
@@ -2278,248 +1891,21 @@ typedef struct
 #define ADC_SAMPLETIME_71CYCLES5_SMPR1ALLCHANNELS  (ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT2 | ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT1)
 #define ADC_SAMPLETIME_239CYCLES5_SMPR1ALLCHANNELS (ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT2 | ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT1 | ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT0)
 
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_regular_rank ADC Extended Regular Channel Rank
-  * @{
-  */
-#define ADC_REGULAR_RANK_1    ((uint32_t)0x00000001)
-#define ADC_REGULAR_RANK_2    ((uint32_t)0x00000002)
-#define ADC_REGULAR_RANK_3    ((uint32_t)0x00000003)
-#define ADC_REGULAR_RANK_4    ((uint32_t)0x00000004)
-#define ADC_REGULAR_RANK_5    ((uint32_t)0x00000005)
-#define ADC_REGULAR_RANK_6    ((uint32_t)0x00000006)
-#define ADC_REGULAR_RANK_7    ((uint32_t)0x00000007)
-#define ADC_REGULAR_RANK_8    ((uint32_t)0x00000008)
-#define ADC_REGULAR_RANK_9    ((uint32_t)0x00000009)
-#define ADC_REGULAR_RANK_10   ((uint32_t)0x0000000A)
-#define ADC_REGULAR_RANK_11   ((uint32_t)0x0000000B)
-#define ADC_REGULAR_RANK_12   ((uint32_t)0x0000000C)
-#define ADC_REGULAR_RANK_13   ((uint32_t)0x0000000D)
-#define ADC_REGULAR_RANK_14   ((uint32_t)0x0000000E)
-#define ADC_REGULAR_RANK_15   ((uint32_t)0x0000000F)
-#define ADC_REGULAR_RANK_16   ((uint32_t)0x00000010)
-
-#define IS_ADC_REGULAR_RANK(CHANNEL) (((CHANNEL) == ADC_REGULAR_RANK_1 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_2 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_3 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_4 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_5 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_6 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_7 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_8 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_9 ) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_10) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_11) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_12) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_13) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_14) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_15) || \
-                                      ((CHANNEL) == ADC_REGULAR_RANK_16)   )
-/**
-  * @}
-  */
-       
-/** @defgroup ADCEx_injected_rank ADC Extended Injected Channel Rank
-  * @{
-  */
-#define ADC_INJECTED_RANK_1    ((uint32_t)0x00000001)
-#define ADC_INJECTED_RANK_2    ((uint32_t)0x00000002)
-#define ADC_INJECTED_RANK_3    ((uint32_t)0x00000003)
-#define ADC_INJECTED_RANK_4    ((uint32_t)0x00000004)
-
-#define IS_ADC_INJECTED_RANK(CHANNEL) (((CHANNEL) == ADC_INJECTED_RANK_1) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_2) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_3) || \
-                                       ((CHANNEL) == ADC_INJECTED_RANK_4)   )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_External_trigger_edge_Injected External Trigger Edge of Injected Group
-  * @{
-  */
-#define ADC_EXTERNALTRIGINJECCONV_EDGE_NONE           ((uint32_t)0x00000000)
-#define ADC_EXTERNALTRIGINJECCONV_EDGE_RISING         ((uint32_t)ADC_CR2_JEXTTRIG)
-
-#define IS_ADC_EXTTRIGINJEC_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_NONE)  || \
-                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISING)  )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_External_trigger_source_Injected External Trigger Source of Injected Group
-  * @{
-  */
-/* External triggers for injected groups of ADC1 */
-#define ADC_EXTERNALTRIGINJECCONV_T2_CC1       ADC_EXTERNALTRIGINJEC_T2_CC1
-#define ADC_EXTERNALTRIGINJECCONV_T2_TRGO      ADC_EXTERNALTRIGINJEC_T2_TRGO
-#define ADC_EXTERNALTRIGINJECCONV_T3_CC4       ADC_EXTERNALTRIGINJEC_T3_CC4
-#define ADC_EXTERNALTRIGINJECCONV_T4_TRGO      ADC_EXTERNALTRIGINJEC_T4_TRGO
-#define ADC_EXTERNALTRIGINJECCONV_T19_CC1      ADC_EXTERNALTRIGINJEC_T19_CC1
-#define ADC_EXTERNALTRIGINJECCONV_T19_CC2      ADC_EXTERNALTRIGINJEC_T19_CC2
-#define ADC_EXTERNALTRIGINJECCONV_EXT_IT15     ADC_EXTERNALTRIGINJEC_EXT_IT15
-#define ADC_INJECTED_SOFTWARE_START            ADC_JSWSTART
-
-#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T19_CC1)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T19_CC2)  || \
-                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
-                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
-/**
-  * @}
-  */
-
-
-/** @defgroup ADCEx_Internal_HAL_driver_Ext_trig_src_Injected ADC Extended External Trigger Source of Injected Group (Internal)
-  * @{
-  */
-
-/* List of external triggers of injected group for ADC1:                      */
-/* (used internally by HAL driver. To not use into HAL structure parameters)  */
-#define ADC_EXTERNALTRIGINJEC_T19_CC1      ((uint32_t) 0x00000000)
-#define ADC_EXTERNALTRIGINJEC_T19_CC2      ((uint32_t) ADC_CR2_JEXTSEL_0)
-#define ADC_EXTERNALTRIGINJEC_T2_TRGO      ((uint32_t) ADC_CR2_JEXTSEL_1)
-#define ADC_EXTERNALTRIGINJEC_T2_CC1       ((uint32_t)(ADC_CR2_JEXTSEL_1 | ADC_CR2_JEXTSEL_0))
-#define ADC_EXTERNALTRIGINJEC_T3_CC4       ((uint32_t) ADC_CR2_JEXTSEL_2)
-#define ADC_EXTERNALTRIGINJEC_T4_TRGO      ((uint32_t)(ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_0))
-#define ADC_EXTERNALTRIGINJEC_EXT_IT15     ((uint32_t)(ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_1))
-#define ADC_JSWSTART                       ((uint32_t)(ADC_CR2_JEXTSEL_2 | ADC_CR2_JEXTSEL_1 | ADC_CR2_JEXTSEL_0))
-
-/**
-  * @}
-  */
-
-
-/** @defgroup ADCEx_analog_watchdog_mode ADC Extended analog watchdog mode
-  * @{
-  */
-#define ADC_ANALOGWATCHDOG_NONE                 ((uint32_t)0x00000000)
-#define ADC_ANALOGWATCHDOG_SINGLE_REG           ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN))
-#define ADC_ANALOGWATCHDOG_SINGLE_INJEC         ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_JAWDEN))
-#define ADC_ANALOGWATCHDOG_SINGLE_REGINJEC      ((uint32_t)(ADC_CR1_AWDSGL | ADC_CR1_AWDEN | ADC_CR1_JAWDEN))
-#define ADC_ANALOGWATCHDOG_ALL_REG              ((uint32_t) ADC_CR1_AWDEN)
-#define ADC_ANALOGWATCHDOG_ALL_INJEC            ((uint32_t) ADC_CR1_JAWDEN)
-#define ADC_ANALOGWATCHDOG_ALL_REGINJEC         ((uint32_t)(ADC_CR1_AWDEN | ADC_CR1_JAWDEN))
-
-#define IS_ADC_ANALOG_WATCHDOG_MODE(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_NONE)             || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REG)       || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_INJEC)     || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REGINJEC)  || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REG)          || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_INJEC)        || \
-                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REGINJEC)       )
-/**
-  * @}
-  */
-
-/** @defgroup ADC_conversion_group ADC Conversion Group
-  * @{
-  */
-#define REGULAR_GROUP             ((uint32_t)(ADC_FLAG_EOC))
-#define INJECTED_GROUP            ((uint32_t)(ADC_FLAG_JEOC))
-#define REGULAR_INJECTED_GROUP    ((uint32_t)(ADC_FLAG_EOC | ADC_FLAG_JEOC))
-
-#define IS_ADC_CONVERSION_GROUP(CONVERSION) (((CONVERSION) == REGULAR_GROUP)         || \
-                                             ((CONVERSION) == INJECTED_GROUP)        || \
-                                             ((CONVERSION) == REGULAR_INJECTED_GROUP)  )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_Event_type ADC Extended Event Type
-  * @{
-  */
-#define AWD_EVENT               ((uint32_t)ADC_FLAG_AWD)   /*!< ADC Analog watchdog event */
-
-#define IS_ADC_EVENT_TYPE(EVENT) ((EVENT) == AWD_EVENT)
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_interrupts_definition ADC Extended Interrupts Definition
-  * @{
-  */
-#define ADC_IT_EOC           ADC_CR1_EOCIE        /*!< ADC End of Regular Conversion interrupt source */
-#define ADC_IT_JEOC          ADC_CR1_JEOCIE       /*!< ADC End of Injected Conversion interrupt source */
-#define ADC_IT_AWD           ADC_CR1_AWDIE        /*!< ADC Analog watchdog interrupt source */
-
-/* Check of single flag */
-#define IS_ADC_IT(IT) (((IT) == ADC_IT_EOC ) || \
-                       ((IT) == ADC_IT_JEOC) || \
-                       ((IT) == ADC_IT_AWD )   )
-/**
-  * @}
-  */
-
-/** @defgroup ADCEx_flags_definition ADC Extended Flags Definition
-  * @{
-  */
-#define ADC_FLAG_AWD           ADC_SR_AWD      /*!< ADC Analog watchdog flag */
-#define ADC_FLAG_EOC           ADC_SR_EOC      /*!< ADC End of Regular conversion flag */
-#define ADC_FLAG_JEOC          ADC_SR_JEOC     /*!< ADC End of Injected conversion flag */
-#define ADC_FLAG_JSTRT         ADC_SR_JSTRT    /*!< ADC Injected group start flag */
-#define ADC_FLAG_STRT          ADC_SR_STRT     /*!< ADC Regular group start flag */
-
 /* Combination of all post-conversion flags bits: EOC/EOS, JEOC/JEOS, OVR, AWDx */
 #define ADC_FLAG_POSTCONV_ALL   (ADC_FLAG_EOC | ADC_FLAG_JEOC | ADC_FLAG_AWD )
-
-/* Check of single flag */
-#define IS_ADC_FLAG(FLAG) (((FLAG) == ADC_FLAG_AWD)   || \
-                           ((FLAG) == ADC_FLAG_EOC)   || \
-                           ((FLAG) == ADC_FLAG_JEOC)  || \
-                           ((FLAG) == ADC_FLAG_JSTRT) || \
-                           ((FLAG) == ADC_FLAG_STRT)    )
 /**
   * @}
   */
-
-/** @defgroup ADCEx_range_verification ADC Extended Range Verification
-  * For a unique ADC resolution: 12 bits
-  * @{
-  */
-#define IS_ADC_RANGE(ADC_VALUE) ((ADC_VALUE) <= ((uint32_t)0x0FFF))
-/**
-  * @}
-  */
-
-/** @defgroup ADC_injected_nb_conv_verification ADC Injected Conversion Number Verification
-  * @{
-  */
-#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
-/**
-  * @}
-  */
-
-/** @defgroup ADC_regular_nb_conv_verification ADC Regular Conversion Number Verification
-  * @{
-  */
-#define IS_ADC_REGULAR_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)16)))
-/**
-  * @}
-  */
-
-/** @defgroup ADC_regular_discontinuous_mode_number_verification ADC Regular Discontinuous Mode NumberVerification
-  * @{
-  */
-#define IS_ADC_REGULAR_DISCONT_NUMBER(NUMBER) (((NUMBER) >= ((uint32_t)1)) && ((NUMBER) <= ((uint32_t)8)))
-/**
-  * @}
-  */
+     
 #endif /* STM32F373xC || STM32F378xx */
-
+     
 /**
   * @}
   */
+     
+/* Exported macro ------------------------------------------------------------*/
 
-/* Exported macros -----------------------------------------------------------*/
-
-/** @addtogroup ADC_Exported_Macro ADC Exported Macros
+/** @defgroup ADCEx_Exported_Macros ADCEx Exported Macros
   * @{
   */
 /* Macro for internal HAL driver usage, and possibly can be used into code of */
@@ -2529,15 +1915,290 @@ typedef struct
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
     defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+
+/**
+  * @brief Enable the ADC peripheral
+  * @param __HANDLE__: ADC handle
+  * @note ADC enable requires a delay for ADC stabilization time
+  *       (refer to device datasheet, parameter tSTAB)
+  * @note On STM32F3 devices, some hardware constraints must be strictly
+  *       respected before using this macro:
+  *        - ADC internal voltage regulator must be preliminarily enabled.
+  *          This is performed by function HAL_ADC_Init().
+  *        - ADC state requirements: ADC must be disabled, no conversion on 
+  *          going, no calibration on going.
+  *          These checks are performed by functions HAL_ADC_start_xxx().
+  * @retval None
+  */
+#define __HAL_ADC_ENABLE(__HANDLE__)                                           \
+ (SET_BIT((__HANDLE__)->Instance->CR, ADC_CR_ADEN))
+
+/**
+  * @brief Disable the ADC peripheral
+  * @param __HANDLE__: ADC handle
+  * @note On STM32F3 devices, some hardware constraints must be strictly
+  *       respected before using this macro:
+  *        - ADC state requirements: ADC must be enabled, no conversion on 
+  *          going.
+  *          These checks are performed by functions HAL_ADC_start_xxx().
+  * @retval None
+  */
+#define __HAL_ADC_DISABLE(__HANDLE__)                                          \
+  do{                                                                          \
+      SET_BIT((__HANDLE__)->Instance->CR, ADC_CR_ADDIS);                       \
+      __HAL_ADC_CLEAR_FLAG((__HANDLE__), (ADC_FLAG_EOSMP | ADC_FLAG_RDY));     \
+  } while(0)
+
+/**
+  * @brief Enable the ADC end of conversion interrupt.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC Interrupt
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_RDY:   ADC Ready (ADRDY) interrupt source
+  *            @arg ADC_IT_EOSMP: ADC End of Sampling interrupt source
+  *            @arg ADC_IT_EOC:   ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_EOS:   ADC End of Regular sequence of Conversions interrupt source
+  *            @arg ADC_IT_OVR:   ADC overrun interrupt source
+  *            @arg ADC_IT_JEOC:  ADC End of Injected Conversion interrupt source
+  *            @arg ADC_IT_JEOS:  ADC End of Injected sequence of Conversions interrupt source
+  *            @arg ADC_IT_AWD1:  ADC Analog watchdog 1 interrupt source (main analog watchdog, present on all STM32 devices)
+  *            @arg ADC_IT_AWD2:  ADC Analog watchdog 2 interrupt source (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_IT_AWD3:  ADC Analog watchdog 3 interrupt source (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_IT_JQOVF: ADC Injected Context Queue Overflow interrupt source
+  * @retval None
+  */
+#define __HAL_ADC_ENABLE_IT(__HANDLE__, __INTERRUPT__)                         \
+  (SET_BIT((__HANDLE__)->Instance->IER, (__INTERRUPT__)))
+
+/**
+  * @brief Disable the ADC end of conversion interrupt.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC Interrupt
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_RDY:   ADC Ready (ADRDY) interrupt source
+  *            @arg ADC_IT_EOSMP: ADC End of Sampling interrupt source
+  *            @arg ADC_IT_EOC:   ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_EOS:   ADC End of Regular sequence of Conversions interrupt source
+  *            @arg ADC_IT_OVR:   ADC overrun interrupt source
+  *            @arg ADC_IT_JEOC:  ADC End of Injected Conversion interrupt source
+  *            @arg ADC_IT_JEOS:  ADC End of Injected sequence of Conversions interrupt source
+  *            @arg ADC_IT_AWD1:  ADC Analog watchdog 1 interrupt source (main analog watchdog, present on all STM32 devices)
+  *            @arg ADC_IT_AWD2:  ADC Analog watchdog 2 interrupt source (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_IT_AWD3:  ADC Analog watchdog 3 interrupt source (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_IT_JQOVF: ADC Injected Context Queue Overflow interrupt source
+  * @retval None
+  */
+#define __HAL_ADC_DISABLE_IT(__HANDLE__, __INTERRUPT__)                        \
+  (CLEAR_BIT((__HANDLE__)->Instance->IER, (__INTERRUPT__)))
+
+/** @brief  Checks if the specified ADC interrupt source is enabled or disabled.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC interrupt source to check
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_RDY:   ADC Ready (ADRDY) interrupt source
+  *            @arg ADC_IT_EOSMP: ADC End of Sampling interrupt source
+  *            @arg ADC_IT_EOC:   ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_EOS:   ADC End of Regular sequence of Conversions interrupt source
+  *            @arg ADC_IT_OVR:   ADC overrun interrupt source
+  *            @arg ADC_IT_JEOC:  ADC End of Injected Conversion interrupt source
+  *            @arg ADC_IT_JEOS:  ADC End of Injected sequence of Conversions interrupt source
+  *            @arg ADC_IT_AWD1:  ADC Analog watchdog 1 interrupt source (main analog watchdog, present on all STM32 devices)
+  *            @arg ADC_IT_AWD2:  ADC Analog watchdog 2 interrupt source (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_IT_AWD3:  ADC Analog watchdog 3 interrupt source (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_IT_JQOVF: ADC Injected Context Queue Overflow interrupt source
+  * @retval State of interruption (SET or RESET)
+  */
+#define __HAL_ADC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)                     \
+  (((__HANDLE__)->Instance->IER & (__INTERRUPT__)) == (__INTERRUPT__))
+
+/**
+  * @brief Get the selected ADC's flag status.
+  * @param __HANDLE__: ADC handle
+  * @param __FLAG__: ADC flag
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_FLAG_RDY:   ADC Ready (ADRDY) flag
+  *            @arg ADC_FLAG_EOSMP: ADC End of Sampling flag
+  *            @arg ADC_FLAG_EOC:   ADC End of Regular Conversion flag
+  *            @arg ADC_FLAG_EOS:   ADC End of Regular sequence of Conversions flag
+  *            @arg ADC_FLAG_OVR:   ADC overrun flag
+  *            @arg ADC_FLAG_JEOC:  ADC End of Injected Conversion flag
+  *            @arg ADC_FLAG_JEOS:  ADC End of Injected sequence of Conversions flag
+  *            @arg ADC_FLAG_AWD1:  ADC Analog watchdog 1 flag (main analog watchdog, present on all STM32 devices)
+  *            @arg ADC_FLAG_AWD2:  ADC Analog watchdog 2 flag (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_FLAG_AWD3:  ADC Analog watchdog 3 flag (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_FLAG_JQOVF: ADC Injected Context Queue Overflow flag
+  * @retval None
+  */
+#define __HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__)                               \
+  ((((__HANDLE__)->Instance->ISR) & (__FLAG__)) == (__FLAG__))
+
+/**
+  * @brief Clear the ADC's pending flags
+  * @param __HANDLE__: ADC handle
+  * @param __FLAG__: ADC flag
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_FLAG_RDY:   ADC Ready (ADRDY) flag
+  *            @arg ADC_FLAG_EOSMP: ADC End of Sampling flag
+  *            @arg ADC_FLAG_EOC:   ADC End of Regular Conversion flag
+  *            @arg ADC_FLAG_EOS:   ADC End of Regular sequence of Conversions flag
+  *            @arg ADC_FLAG_OVR:   ADC overrun flag
+  *            @arg ADC_FLAG_JEOC:  ADC End of Injected Conversion flag
+  *            @arg ADC_FLAG_JEOS:  ADC End of Injected sequence of Conversions flag
+  *            @arg ADC_FLAG_AWD1:  ADC Analog watchdog 1 flag (main analog watchdog, present on all STM32 devices)
+  *            @arg ADC_FLAG_AWD2:  ADC Analog watchdog 2 flag (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_FLAG_AWD3:  ADC Analog watchdog 3 flag (additional analog watchdog, present only on STM32F3 devices)
+  *            @arg ADC_FLAG_JQOVF: ADC Injected Context Queue Overflow flag
+  * @retval None
+  */
+/* Note: bit cleared bit by writing 1 (writing 0 has no effect on any bit of  */
+/*       register ISR).                                                       */
+#define __HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__)                             \
+  (WRITE_REG((__HANDLE__)->Instance->ISR, (__FLAG__)))
+
+/** @brief  Reset ADC handle state
+  * @param  __HANDLE__: ADC handle
+  * @retval None
+  */
+#define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__)                               \
+  ((__HANDLE__)->State = HAL_ADC_STATE_RESET)
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
+
+#if defined(STM32F373xC) || defined(STM32F378xx)
+
+/**
+  * @brief Enable the ADC peripheral
+  * @note ADC enable requires a delay for ADC stabilization time
+  *       (refer to device datasheet, parameter tSTAB)
+  * @note On STM32F37x devices, if ADC is already enabled this macro trigs
+  *       a conversion SW start on regular group.
+  * @param __HANDLE__: ADC handle
+  * @retval None
+  */
+#define __HAL_ADC_ENABLE(__HANDLE__)                                           \
+  (SET_BIT((__HANDLE__)->Instance->CR2, (ADC_CR2_ADON)))
+  
+/**
+  * @brief Disable the ADC peripheral
+  * @param __HANDLE__: ADC handle
+  * @retval None
+  */
+#define __HAL_ADC_DISABLE(__HANDLE__)                                          \
+  (CLEAR_BIT((__HANDLE__)->Instance->CR2, (ADC_CR2_ADON)))
+    
+/** @brief Enable the ADC end of conversion interrupt.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC Interrupt
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_JEOC: ADC End of Injected Conversion interrupt source
+  *            @arg ADC_IT_AWD: ADC Analog watchdog interrupt source
+  * @retval None
+  */
+#define __HAL_ADC_ENABLE_IT(__HANDLE__, __INTERRUPT__)                         \
+  (SET_BIT((__HANDLE__)->Instance->CR1, (__INTERRUPT__)))
+
+/** @brief Disable the ADC end of conversion interrupt.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC Interrupt
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_JEOC: ADC End of Injected Conversion interrupt source
+  *            @arg ADC_IT_AWD: ADC Analog watchdog interrupt source
+  * @retval None
+  */
+#define __HAL_ADC_DISABLE_IT(__HANDLE__, __INTERRUPT__)                        \
+  (CLEAR_BIT((__HANDLE__)->Instance->CR1, (__INTERRUPT__)))
+
+/** @brief  Checks if the specified ADC interrupt source is enabled or disabled.
+  * @param __HANDLE__: ADC handle
+  * @param __INTERRUPT__: ADC interrupt source to check
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_IT_EOC: ADC End of Regular Conversion interrupt source
+  *            @arg ADC_IT_JEOC: ADC End of Injected Conversion interrupt source
+  *            @arg ADC_IT_AWD: ADC Analog watchdog interrupt source
+  * @retval State of interruption (SET or RESET)
+  */
+#define __HAL_ADC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)                     \
+  (((__HANDLE__)->Instance->CR1 & (__INTERRUPT__)) == (__INTERRUPT__))
+
+/** @brief Get the selected ADC's flag status.
+  * @param __HANDLE__: ADC handle
+  * @param __FLAG__: ADC flag
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_FLAG_STRT: ADC Regular group start flag
+  *            @arg ADC_FLAG_JSTRT: ADC Injected group start flag
+  *            @arg ADC_FLAG_EOC: ADC End of Regular conversion flag
+  *            @arg ADC_FLAG_JEOC: ADC End of Injected conversion flag
+  *            @arg ADC_FLAG_AWD: ADC Analog watchdog flag
+  * @retval None
+  */
+#define __HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__)                               \
+  ((((__HANDLE__)->Instance->SR) & (__FLAG__)) == (__FLAG__))
+    
+/** @brief Clear the ADC's pending flags
+  * @param __HANDLE__: ADC handle
+  * @param __FLAG__: ADC flag
+  *          This parameter can be any combination of the following values:
+  *            @arg ADC_FLAG_STRT: ADC Regular group start flag
+  *            @arg ADC_FLAG_JSTRT: ADC Injected group start flag
+  *            @arg ADC_FLAG_EOC: ADC End of Regular conversion flag
+  *            @arg ADC_FLAG_JEOC: ADC End of Injected conversion flag
+  *            @arg ADC_FLAG_AWD: ADC Analog watchdog flag
+  * @retval None
+  */
+#define __HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__)                             \
+  (WRITE_REG((__HANDLE__)->Instance->SR, ~(__FLAG__)))
+
+/** @brief  Reset ADC handle state
+  * @param  __HANDLE__: ADC handle
+  * @retval None
+  */
+#define __HAL_ADC_RESET_HANDLE_STATE(__HANDLE__)                               \
+  ((__HANDLE__)->State = HAL_ADC_STATE_RESET)
+#endif /* STM32F373xC || STM32F378xx */
+
+/**
+  * @}
+  */
+
+/* Private macro ------------------------------------------------------------*/
+
+/** @addtogroup ADCEx_Private_Macro ADCEx Private Macros
+  * @{
+  */
+/* Macro reserved for internal HAL driver usage, not intended to be used in   */
+/* code of final user.                                                        */
+      
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+
+/**
+  * @brief Verification of hardware constraints before ADC can be enabled
+  * @param __HANDLE__: ADC handle
+  * @retval SET (ADC can be enabled) or RESET (ADC cannot be enabled)
+  */
+#define ADC_ENABLING_CONDITIONS(__HANDLE__)                                    \
+  (( HAL_IS_BIT_CLR((__HANDLE__)->Instance->CR                        ,        \
+                    (ADC_CR_ADCAL    | ADC_CR_JADSTP | ADC_CR_ADSTP |          \
+                     ADC_CR_JADSTART |ADC_CR_ADSTART | ADC_CR_ADDIS |          \
+                     ADC_CR_ADEN                                     ) )       \
+   ) ? SET : RESET)
+
 /**
   * @brief Verification of ADC state: enabled or disabled
   * @param __HANDLE__: ADC handle
   * @retval SET (ADC enabled) or RESET (ADC disabled)
   */
-#define __HAL_ADC_IS_ENABLED(__HANDLE__)                                                    \
-       (( ((((__HANDLE__)->Instance->CR) & (ADC_CR_ADEN | ADC_CR_ADDIS)) == ADC_CR_ADEN) && \
-          ((((__HANDLE__)->Instance->ISR) & ADC_FLAG_RDY) == ADC_FLAG_RDY)                  \
-        ) ? SET : RESET)
+#define ADC_IS_ENABLE(__HANDLE__)                                                      \
+  (( ((((__HANDLE__)->Instance->CR) & (ADC_CR_ADEN | ADC_CR_ADDIS)) == ADC_CR_ADEN) && \
+     ((((__HANDLE__)->Instance->ISR) & ADC_FLAG_RDY) == ADC_FLAG_RDY)                  \
+   ) ? SET : RESET)
 
 /**
   * @brief Test if conversion trigger of regular group is software start
@@ -2545,8 +2206,8 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval SET (software start) or RESET (external trigger)
   */
-#define __HAL_ADC_IS_SOFTWARE_START_REGULAR(__HANDLE__)                        \
-       (((__HANDLE__)->Instance->CFGR & ADC_CFGR_EXTEN) == RESET)
+#define ADC_IS_SOFTWARE_START_REGULAR(__HANDLE__)                              \
+  (((__HANDLE__)->Instance->CFGR & ADC_CFGR_EXTEN) == RESET)
 
 /**
   * @brief Test if conversion trigger of injected group is software start
@@ -2554,35 +2215,35 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval SET (software start) or RESET (external trigger)
   */
-#define __HAL_ADC_IS_SOFTWARE_START_INJECTED(__HANDLE__)                       \
-       (((__HANDLE__)->Instance->JSQR & ADC_JSQR_JEXTEN) == RESET)
+#define ADC_IS_SOFTWARE_START_INJECTED(__HANDLE__)                             \
+  (((__HANDLE__)->Instance->JSQR & ADC_JSQR_JEXTEN) == RESET)
 
 /**
   * @brief Check if no conversion on going on regular and/or injected groups
   * @param __HANDLE__: ADC handle
   * @retval SET (conversion is on going) or RESET (no conversion is on going)
   */
-#define __HAL_ADC_IS_CONVERSION_ONGOING_REGULAR_INJECTED(__HANDLE__)                    \
-       (( (((__HANDLE__)->Instance->CR) & (ADC_CR_ADSTART | ADC_CR_JADSTART)) == RESET  \
-        ) ? RESET : SET)
+#define ADC_IS_CONVERSION_ONGOING_REGULAR_INJECTED(__HANDLE__)                     \
+  (( (((__HANDLE__)->Instance->CR) & (ADC_CR_ADSTART | ADC_CR_JADSTART)) == RESET  \
+   ) ? RESET : SET)
 
 /**
   * @brief Check if no conversion on going on regular group
   * @param __HANDLE__: ADC handle
   * @retval SET (conversion is on going) or RESET (no conversion is on going)
   */
-#define __HAL_ADC_IS_CONVERSION_ONGOING_REGULAR(__HANDLE__)                    \
-       (( (((__HANDLE__)->Instance->CR) & ADC_CR_ADSTART) == RESET             \
-        ) ? RESET : SET)
+#define ADC_IS_CONVERSION_ONGOING_REGULAR(__HANDLE__)                          \
+  (( (((__HANDLE__)->Instance->CR) & ADC_CR_ADSTART) == RESET                  \
+   ) ? RESET : SET)
 
 /**
   * @brief Check if no conversion on going on injected group
   * @param __HANDLE__: ADC handle
   * @retval SET (conversion is on going) or RESET (no conversion is on going)
   */
-#define __HAL_ADC_IS_CONVERSION_ONGOING_INJECTED(__HANDLE__)                   \
-       (( (((__HANDLE__)->Instance->CR) & ADC_CR_JADSTART) == RESET            \
-        ) ? RESET : SET)
+#define ADC_IS_CONVERSION_ONGOING_INJECTED(__HANDLE__)                         \
+  (( (((__HANDLE__)->Instance->CR) & ADC_CR_JADSTART) == RESET                 \
+   ) ? RESET : SET)
 
 /**
   * @brief Returns resolution bits in CFGR1 register: RES[1:0].
@@ -2590,164 +2251,31 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#define __HAL_ADC_GET_RESOLUTION(__HANDLE__) (((__HANDLE__)->Instance->CFGR) & ADC_CFGR_RES)
-
-/** @brief  Checks if the specified ADC interrupt source is enabled or disabled.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC interrupt source to check
-  * @retval State of interruption (SET or RESET)
-  */
-#define __HAL_ADC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)                     \
-    (( ((__HANDLE__)->Instance->IER & (__INTERRUPT__)) == (__INTERRUPT__)      \
-     )? SET : RESET                                                            \
-    )
+#define ADC_GET_RESOLUTION(__HANDLE__) (((__HANDLE__)->Instance->CFGR) & ADC_CFGR_RES)
 
 /**
-  * @brief Enable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
+  * @brief Simultaneously clears and sets specific bits of the handle State
+  * @note: ADC_STATE_CLR_SET() macro is merely aliased to generic macro MODIFY_REG(),
+  *        the first parameter is the ADC handle State, the second parameter is the
+  *        bit field to clear, the third and last parameter is the bit field to set.
   * @retval None
   */
-#define __HAL_ADC_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->IER) |= (__INTERRUPT__))
-
-/**
-  * @brief Disable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
-  * @retval None
-  */
-#define __HAL_ADC_DISABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->IER) &= ~(__INTERRUPT__))
-
-/**
-  * @brief Get the selected ADC's flag status.
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
-  * @retval None
-  */
-#define __HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->Instance->ISR) & (__FLAG__)) == (__FLAG__))
-
-/**
-  * @brief Clear the ADC's pending flags
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
-  * @retval None
-  */
-/* Note: bit cleared bit by writing 1 (writing 0 has no effect on any bit of register ISR) */
-#define __HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->ISR) = (__FLAG__))
+#define ADC_STATE_CLR_SET MODIFY_REG
 
 /**
   * @brief Clear ADC error code (set it to error code: "no error")
   * @param __HANDLE__: ADC handle
   * @retval None
   */
-#define __HAL_ADC_CLEAR_ERRORCODE(__HANDLE__) ((__HANDLE__)->ErrorCode = HAL_ADC_ERROR_NONE)
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx || */
-       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
-       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
-      
-#if defined(STM32F373xC) || defined(STM32F378xx)
-/**
-  * @brief Verification of ADC state: enabled or disabled
-  * @param __HANDLE__: ADC handle
-  * @retval SET (ADC enabled) or RESET (ADC disabled)
-  */
-#define __HAL_ADC_IS_ENABLED(__HANDLE__)                                     \
-       ((( ((__HANDLE__)->Instance->CR2 & ADC_CR2_ADON) == ADC_CR2_ADON )    \
-        ) ? SET : RESET)
-
-/**
-  * @brief Test if conversion trigger of regular group is software start
-  *        or external trigger.
-  * @param __HANDLE__: ADC handle
-  * @retval SET (software start) or RESET (external trigger)
-  */
-#define __HAL_ADC_IS_SOFTWARE_START_REGULAR(__HANDLE__) \
-       (((__HANDLE__)->Instance->CR2 & ADC_CR2_EXTSEL) == ADC_SOFTWARE_START)
-
-/**
-  * @brief Test if conversion trigger of injected group is software start
-  *        or external trigger.
-  * @param __HANDLE__: ADC handle
-  * @retval SET (software start) or RESET (external trigger)
-  */
-#define __HAL_ADC_IS_SOFTWARE_START_INJECTED(__HANDLE__) \
-       (((__HANDLE__)->Instance->CR2 & ADC_CR2_JEXTSEL) == ADC_INJECTED_SOFTWARE_START)
-
-/** @brief  Checks if the specified ADC interrupt source is enabled or disabled.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC interrupt source to check
-  * @retval State of interruption (SET or RESET)
-  */
-#define __HAL_ADC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__)                     \
-    (( ((__HANDLE__)->Instance->CR1 & (__INTERRUPT__)) == (__INTERRUPT__)      \
-     )? SET : RESET                                                            \
-    )
+#define ADC_CLEAR_ERRORCODE(__HANDLE__) ((__HANDLE__)->ErrorCode = HAL_ADC_ERROR_NONE)
          
-         
-/**
-  * @brief Enable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
-  * @retval None
-  */
-#define __HAL_ADC_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR1) |= (__INTERRUPT__))
-
-/**
-  * @brief Disable the ADC end of conversion interrupt.
-  * @param __HANDLE__: ADC handle
-  * @param __INTERRUPT__: ADC Interrupt
-  * @retval None
-  */
-#define __HAL_ADC_DISABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR1) &= ~(__INTERRUPT__))
-
-/**
-  * @brief Get the selected ADC's flag status.
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
-  * @retval None
-  */
-#define __HAL_ADC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->Instance->SR) & (__FLAG__)) == (__FLAG__))
-
-/**
-  * @brief Clear the ADC's pending flags
-  * @param __HANDLE__: ADC handle
-  * @param __FLAG__: ADC flag
-  * @retval None
-  */
-#define __HAL_ADC_CLEAR_FLAG(__HANDLE__, __FLAG__) (((__HANDLE__)->Instance->SR) = ~(__FLAG__))
-
-/**
-  * @brief Clear ADC error code (set it to error code: "no error")
-  * @param __HANDLE__: ADC handle
-  * @retval None
-  */
-#define __HAL_ADC_CLEAR_ERRORCODE(__HANDLE__) ((__HANDLE__)->ErrorCode = HAL_ADC_ERROR_NONE)
-      
-#endif /* STM32F373xC || STM32F378xx */
-/**
-  * @}
-  */
-      
-
-/* Macro reserved for internal HAL driver usage, not intended to be used in   */
-/* code of final user.                                                        */
-
-/** @defgroup ADCEx_Exported_Macro_internal_HAL_driver ADC Extended Exported Macros (Internal)
-  * @{
-  */
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
-    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
-    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-
 /**
   * @brief Set the ADC's sample time for Channels numbers between 0 and 9.
   * @param _SAMPLETIME_: Sample time parameter.
   * @param _CHANNELNB_: Channel number.  
   * @retval None
   */
-#define __HAL_ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * (_CHANNELNB_)))
+#define ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * (_CHANNELNB_)))
     
 /**
   * @brief Set the ADC's sample time for Channels numbers between 10 and 18.
@@ -2755,7 +2283,7 @@ typedef struct
   * @param _CHANNELNB_: Channel number.  
   * @retval None
   */
-#define __HAL_ADC_SMPR2(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 10)))
+#define ADC_SMPR2(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 10)))
 
 /**
   * @brief Set the selected regular Channel rank for rank between 1 and 4.
@@ -2763,7 +2291,7 @@ typedef struct
   * @param _RANKNB_: Rank number.    
   * @retval None
   */
-#define __HAL_ADC_SQR1_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * (_RANKNB_)))
+#define ADC_SQR1_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * (_RANKNB_)))
 
 /**
   * @brief Set the selected regular Channel rank for rank between 5 and 9.
@@ -2771,7 +2299,7 @@ typedef struct
   * @param _RANKNB_: Rank number.    
   * @retval None
   */
-#define __HAL_ADC_SQR2_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * ((_RANKNB_) - 5)))
+#define ADC_SQR2_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * ((_RANKNB_) - 5)))
 
 /**
   * @brief Set the selected regular Channel rank for rank between 10 and 14.
@@ -2779,7 +2307,7 @@ typedef struct
   * @param _RANKNB_: Rank number.    
   * @retval None
   */
-#define __HAL_ADC_SQR3_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * ((_RANKNB_) - 10)))
+#define ADC_SQR3_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * ((_RANKNB_) - 10)))
 
 /**
   * @brief Set the selected regular Channel rank for rank between 15 and 16.
@@ -2787,7 +2315,7 @@ typedef struct
   * @param _RANKNB_: Rank number.    
   * @retval None
   */
-#define __HAL_ADC_SQR4_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * ((_RANKNB_) - 15)))
+#define ADC_SQR4_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * ((_RANKNB_) - 15)))
 
 /**
   * @brief Set the selected injected Channel rank.
@@ -2795,7 +2323,7 @@ typedef struct
   * @param _RANKNB_: Rank number.   
   * @retval None
   */
-#define __HAL_ADC_JSQR_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * (_RANKNB_) +2))
+#define ADC_JSQR_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (6 * (_RANKNB_) +2))
 
 
 /**
@@ -2803,63 +2331,63 @@ typedef struct
   * @param _CHANNEL_: channel to be monitored by Analog Watchdog 1.
   * @retval None
   */
-#define __HAL_ADC_CFGR_AWD1CH(_CHANNEL_) ((_CHANNEL_) << 26)
+#define ADC_CFGR_AWD1CH_SHIFT(_CHANNEL_) ((_CHANNEL_) << 26)
 
 /**
   * @brief Configure the channel number into Analog Watchdog 2 or 3.
   * @param _CHANNEL_: ADC Channel
   * @retval None
   */
-#define __HAL_ADC_CFGR_AWD23CR(_CHANNEL_) (1U << (_CHANNEL_)) 
+#define ADC_CFGR_AWD23CR(_CHANNEL_) (1U << (_CHANNEL_)) 
 
 /**
   * @brief Enable automatic conversion of injected group
   * @param _INJECT_AUTO_CONVERSION_: Injected automatic conversion.
   * @retval None
   */
-#define __HAL_ADC_CFGR_INJECT_AUTO_CONVERSION(_INJECT_AUTO_CONVERSION_) ((_INJECT_AUTO_CONVERSION_) << 25)
+#define ADC_CFGR_INJECT_AUTO_CONVERSION(_INJECT_AUTO_CONVERSION_) ((_INJECT_AUTO_CONVERSION_) << 25)
 
 /**
   * @brief Enable ADC injected context queue
   * @param _INJECT_CONTEXT_QUEUE_MODE_: Injected context queue mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR_INJECT_CONTEXT_QUEUE(_INJECT_CONTEXT_QUEUE_MODE_) ((_INJECT_CONTEXT_QUEUE_MODE_) << 21)
+#define ADC_CFGR_INJECT_CONTEXT_QUEUE(_INJECT_CONTEXT_QUEUE_MODE_) ((_INJECT_CONTEXT_QUEUE_MODE_) << 21)
 
 /**
   * @brief Enable ADC discontinuous conversion mode for injected group
   * @param _INJECT_DISCONTINUOUS_MODE_: Injected discontinuous mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR_INJECT_DISCCONTINUOUS(_INJECT_DISCONTINUOUS_MODE_) ((_INJECT_DISCONTINUOUS_MODE_) << 20)
+#define ADC_CFGR_INJECT_DISCCONTINUOUS(_INJECT_DISCONTINUOUS_MODE_) ((_INJECT_DISCONTINUOUS_MODE_) << 20)
 
 /**
   * @brief Enable ADC discontinuous conversion mode for regular group
   * @param _REG_DISCONTINUOUS_MODE_: Regular discontinuous mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR_REG_DISCCONTINUOUS(_REG_DISCONTINUOUS_MODE_) ((_REG_DISCONTINUOUS_MODE_) << 16)
+#define ADC_CFGR_REG_DISCCONTINUOUS(_REG_DISCONTINUOUS_MODE_) ((_REG_DISCONTINUOUS_MODE_) << 16)
 
 /**
   * @brief Configures the number of discontinuous conversions for regular group.
   * @param _NBR_DISCONTINUOUS_CONV_: Number of discontinuous conversions.
   * @retval None
   */
-#define __HAL_ADC_CFGR_DISCONTINUOUS_NUM(_NBR_DISCONTINUOUS_CONV_) (((_NBR_DISCONTINUOUS_CONV_) - 1) << 17)
+#define ADC_CFGR_DISCONTINUOUS_NUM(_NBR_DISCONTINUOUS_CONV_) (((_NBR_DISCONTINUOUS_CONV_) - 1) << 17)
 
 /**
   * @brief Enable the ADC auto delay mode.
   * @param _AUTOWAIT_: Auto delay bit enable or disable.
   * @retval None
   */
-#define __HAL_ADC_CFGR_AUTOWAIT(_AUTOWAIT_) ((_AUTOWAIT_) << 14)
+#define ADC_CFGR_AUTOWAIT(_AUTOWAIT_) ((_AUTOWAIT_) << 14)
 
 /**
   * @brief Enable ADC continuous conversion mode.
   * @param _CONTINUOUS_MODE_: Continuous mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR_CONTINUOUS(_CONTINUOUS_MODE_) ((_CONTINUOUS_MODE_) << 13)
+#define ADC_CFGR_CONTINUOUS(_CONTINUOUS_MODE_) ((_CONTINUOUS_MODE_) << 13)
     
 /**
   * @brief Enable ADC overrun mode.
@@ -2867,10 +2395,10 @@ typedef struct
   * @retval Overrun bit setting to be programmed into CFGR register
   */
 /* Note: Bit ADC_CFGR_OVRMOD not used directly in constant                    */
-/* "OVR_DATA_OVERWRITTEN" to have this case defined to 0x00, to set it as the */
-/* default case to be compliant with other STM32 devices.                     */
-#define __HAL_ADC_CFGR_OVERRUN(_OVERRUN_MODE_)                                 \
-  ( ( (_OVERRUN_MODE_) != (OVR_DATA_PRESERVED)                                 \
+/* "ADC_OVR_DATA_OVERWRITTEN" to have this case defined to 0x00, to set it    */
+/* as the default case to be compliant with other STM32 devices.              */
+#define ADC_CFGR_OVERRUN(_OVERRUN_MODE_)                                       \
+  ( ( (_OVERRUN_MODE_) != (ADC_OVR_DATA_PRESERVED)                             \
     )? (ADC_CFGR_OVRMOD) : (0x00000000)                                        \
   )
 
@@ -2879,7 +2407,7 @@ typedef struct
   * @param _DMACONTREQ_MODE_: DMA continuous request mode.
   * @retval None
   */
-#define __HAL_ADC_CFGR_DMACONTREQ(_DMACONTREQ_MODE_) ((_DMACONTREQ_MODE_) << 1)
+#define ADC_CFGR_DMACONTREQ(_DMACONTREQ_MODE_) ((_DMACONTREQ_MODE_) << 1)
 
 /**
   * @brief For devices with 3 ADCs or more: Defines the external trigger source 
@@ -2899,7 +2427,7 @@ typedef struct
     defined(STM32F303xC) || defined(STM32F358xx)
 
 #if defined(STM32F303xC) || defined(STM32F358xx)
-#define __HAL_ADC_CFGR_EXTSEL(__HANDLE__, __EXT_TRIG_CONV__)                   \
+#define ADC_CFGR_EXTSEL_SET(__HANDLE__, __EXT_TRIG_CONV__)                     \
  (( ((((__HANDLE__)->Instance) == ADC3) || (((__HANDLE__)->Instance) == ADC4)) \
   )?                                                                           \
    ( ( (__EXT_TRIG_CONV__) == ADC_EXTERNALTRIGCONV_T2_TRGO                     \
@@ -2926,7 +2454,7 @@ typedef struct
 #if defined(STM32F303xE) || defined(STM32F398xx)
 /* Note: Macro including external triggers specific to device STM303xE: using */
 /*       Timer20 with ADC trigger input remap.                                */
-#define __HAL_ADC_CFGR_EXTSEL(__HANDLE__, __EXT_TRIG_CONV__)                   \
+#define ADC_CFGR_EXTSEL_SET(__HANDLE__, __EXT_TRIG_CONV__)                     \
  (( ((((__HANDLE__)->Instance) == ADC3) || (((__HANDLE__)->Instance) == ADC4)) \
   )?                                                                           \
    ( ( (__EXT_TRIG_CONV__) == ADC_EXTERNALTRIGCONV_T2_TRGO                     \
@@ -2965,7 +2493,7 @@ typedef struct
  )
 #endif /* STM32F303xE || STM32F398xx */
 #else
-#define __HAL_ADC_CFGR_EXTSEL(__HANDLE__, __EXT_TRIG_CONV__)                   \
+#define ADC_CFGR_EXTSEL_SET(__HANDLE__, __EXT_TRIG_CONV__)                     \
    (__EXT_TRIG_CONV__)
 #endif /* STM32F303xE || STM32F398xx || */
        /* STM32F303xC || STM32F358xx    */
@@ -2987,7 +2515,7 @@ typedef struct
   */
 #if defined(STM32F303xC) || defined(STM32F303xE) || defined(STM32F398xx) || defined(STM32F358xx)
 #if defined(STM32F303xC) || defined(STM32F358xx)
-#define __HAL_ADC_JSQR_JEXTSEL(__HANDLE__, __EXT_TRIG_INJECTCONV__)            \
+#define ADC_JSQR_JEXTSEL_SET(__HANDLE__, __EXT_TRIG_INJECTCONV__)              \
  (( ((((__HANDLE__)->Instance) == ADC3) || (((__HANDLE__)->Instance) == ADC4)) \
   )?                                                                           \
    ( ( (__EXT_TRIG_INJECTCONV__) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO          \
@@ -3019,7 +2547,7 @@ typedef struct
 #if defined(STM32F303xE) || defined(STM32F398xx)
 /* Note: Macro including external triggers specific to device STM303xE: using */
 /*       Timer20 with ADC trigger input remap.                                */
-#define __HAL_ADC_JSQR_JEXTSEL(__HANDLE__, __EXT_TRIG_INJECTCONV__)            \
+#define ADC_JSQR_JEXTSEL_SET(__HANDLE__, __EXT_TRIG_INJECTCONV__)              \
  (( ((((__HANDLE__)->Instance) == ADC3) || (((__HANDLE__)->Instance) == ADC4)) \
   )?                                                                           \
    ( ( (__EXT_TRIG_INJECTCONV__) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO          \
@@ -3060,7 +2588,7 @@ typedef struct
  )
 #endif /* STM32F303xE || STM32F398xx */
 #else
-#define __HAL_ADC_JSQR_JEXTSEL(__HANDLE__, __EXT_TRIG_INJECTCONV__)            \
+#define ADC_JSQR_JEXTSEL_SET(__HANDLE__, __EXT_TRIG_INJECTCONV__)              \
    (__EXT_TRIG_INJECTCONV__)
 #endif /* STM32F303xE || STM32F398xx || */
        /* STM32F303xC || STM32F358xx    */
@@ -3070,80 +2598,49 @@ typedef struct
   * @param _CHANNEL_: ADC Channel
   * @retval None
   */
-#define __HAL_ADC_OFR_CHANNEL(_CHANNEL_) ((_CHANNEL_) << 26)
+#define ADC_OFR_CHANNEL(_CHANNEL_) ((_CHANNEL_) << 26)
 
 /**
   * @brief Configure the channel number into differential mode selection register
   * @param _CHANNEL_: ADC Channel
   * @retval None
   */
-#define __HAL_ADC_DIFSEL_CHANNEL(_CHANNEL_) (1U << (_CHANNEL_)) 
+#define ADC_DIFSEL_CHANNEL(_CHANNEL_) (1U << (_CHANNEL_)) 
 
 /**
   * @brief Calibration factor in differential mode to be set into calibration register
   * @param _Calibration_Factor_: Calibration factor value
   * @retval None
   */
-#define __HAL_ADC_CALFACT_DIFF_SET(_Calibration_Factor_) ((_Calibration_Factor_) << 16)
+#define ADC_CALFACT_DIFF_SET(_Calibration_Factor_) ((_Calibration_Factor_) << 16)
 
 /**
   * @brief Calibration factor in differential mode to be retrieved from calibration register
   * @param _Calibration_Factor_: Calibration factor value
   * @retval None
   */
-#define __HAL_ADC_CALFACT_DIFF_GET(_Calibration_Factor_) ((_Calibration_Factor_) >> 16)
+#define ADC_CALFACT_DIFF_GET(_Calibration_Factor_) ((_Calibration_Factor_) >> 16)
      
 /**
   * @brief Configure the analog watchdog high threshold into registers TR1, TR2 or TR3.
   * @param _Threshold_: Threshold value
   * @retval None
   */
-#define __HAL_ADC_TRX_HIGHTHRESHOLD(_Threshold_) ((_Threshold_) << 16)
+#define ADC_TRX_HIGHTHRESHOLD(_Threshold_) ((_Threshold_) << 16)
 
 /**
   * @brief Enable the ADC DMA continuous request for ADC multimode.
   * @param _DMAContReq_MODE_: DMA continuous request mode.
   * @retval None
   */
-#define __HAL_ADC_CCR_MULTI_DMACONTREQ(_DMAContReq_MODE_) ((_DMAContReq_MODE_) << 13)
-    
-
-/**
-  * @brief Enable the ADC peripheral
-  * @param __HANDLE__: ADC handle
-  * @retval None
-  */
-#define __HAL_ADC_ENABLE(__HANDLE__) ((__HANDLE__)->Instance->CR |= ADC_CR_ADEN)
-
-/**
-  * @brief Verification of hardware constraints before ADC can be enabled
-  * @param __HANDLE__: ADC handle
-  * @retval SET (ADC can be enabled) or RESET (ADC cannot be enabled)
-  */
-#define __HAL_ADC_ENABLING_CONDITIONS(__HANDLE__)                             \
-       (( ( ((__HANDLE__)->Instance->CR) &                                    \
-            (ADC_CR_ADCAL | ADC_CR_JADSTP | ADC_CR_ADSTP | ADC_CR_JADSTART |  \
-             ADC_CR_ADSTART | ADC_CR_ADDIS | ADC_CR_ADEN                    ) \
-           ) == RESET                                                         \
-        ) ? SET : RESET)
-         
-/**
-  * @brief Disable the ADC peripheral
-  * @param __HANDLE__: ADC handle
-  * @retval None
-  */
-#define __HAL_ADC_DISABLE(__HANDLE__)                                          \
-  do{                                                                          \
-         (__HANDLE__)->Instance->CR |= ADC_CR_ADDIS;                           \
-          __HAL_ADC_CLEAR_FLAG((__HANDLE__), (ADC_FLAG_EOSMP | ADC_FLAG_RDY)); \
-  } while(0)
+#define ADC_CCR_MULTI_DMACONTREQ(_DMAContReq_MODE_) ((_DMAContReq_MODE_) << 13)
     
 /**
   * @brief Verification of hardware constraints before ADC can be disabled
   * @param __HANDLE__: ADC handle
   * @retval SET (ADC can be disabled) or RESET (ADC cannot be disabled)
   */
-#define __HAL_ADC_DISABLING_CONDITIONS(__HANDLE__)                             \
+#define ADC_DISABLING_CONDITIONS(__HANDLE__)                                   \
        (( ( ((__HANDLE__)->Instance->CR) &                                     \
             (ADC_CR_JADSTART | ADC_CR_ADSTART | ADC_CR_ADEN)) == ADC_CR_ADEN   \
         ) ? SET : RESET)
@@ -3161,7 +2658,7 @@ typedef struct
   * @param _Offset_: Value to be shifted
   * @retval None
   */
-#define __HAL_ADC_OFFSET_SHIFT_RESOLUTION(__HANDLE__, _Offset_) \
+#define ADC_OFFSET_SHIFT_RESOLUTION(__HANDLE__, _Offset_)                      \
         ((_Offset_) << ((((__HANDLE__)->Instance->CFGR & ADC_CFGR_RES) >> 3)*2))
 
 /**
@@ -3176,7 +2673,7 @@ typedef struct
   * @param _Threshold_: Value to be shifted
   * @retval None
   */
-#define __HAL_ADC_AWD1THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_) \
+#define ADC_AWD1THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_)            \
         ((_Threshold_) << ((((__HANDLE__)->Instance->CFGR & ADC_CFGR_RES) >> 3)*2))
 
 /**
@@ -3190,11 +2687,11 @@ typedef struct
   * @param _Threshold_: Value to be shifted
   * @retval None
   */
-#define __HAL_ADC_AWD23THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_) \
+#define ADC_AWD23THRESHOLD_SHIFT_RESOLUTION(__HANDLE__, _Threshold_)           \
          ( ((__HANDLE__)->Instance->CFGR & ADC_CFGR_RES) != (ADC_CFGR_RES_1 | ADC_CFGR_RES_0) ? \
             ((_Threshold_) >> (4- ((((__HANDLE__)->Instance->CFGR & ADC_CFGR_RES) >> 3)*2))) : \
             (_Threshold_) << 2 )
-          
+
 /**
   * @brief Defines if the selected ADC is within ADC common register ADC1_2 or ADC3_4
   * if available (ADC2, ADC3, ADC4 availability depends on STM32 product)
@@ -3203,25 +2700,54 @@ typedef struct
   */
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F303xC) || defined(STM32F358xx)
-#define __HAL_ADC_COMMON_REGISTER(__HANDLE__)                                       \
-     ( ( ((((__HANDLE__)->Instance) == ADC1) || (((__HANDLE__)->Instance) == ADC2)) \
-       )? (ADC1_2_COMMON) : (ADC3_4_COMMON)                                                           \
-     )
+#define ADC_MASTER_INSTANCE(__HANDLE__)                                          \
+  ( ( ((((__HANDLE__)->Instance) == ADC1) || (((__HANDLE__)->Instance) == ADC2)) \
+    )? (ADC1) : (ADC3)                                                           \
+  )
 #endif /* STM32F303xE || STM32F398xx || */
        /* STM32F303xC || STM32F358xx    */
 
-#if defined(STM32F302xE)                                                || \
-    defined(STM32F302xC)                                                || \
+#if defined(STM32F302xE)                                                ||     \
+    defined(STM32F302xC)                                                ||     \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-#define __HAL_ADC_COMMON_REGISTER(__HANDLE__)                                       \
-     (ADC1_2_COMMON)
+#define ADC_MASTER_INSTANCE(__HANDLE__)                                        \
+  (ADC1)
 #endif /* STM32F302xE                               || */
        /* STM32F302xC                               || */
        /* STM32F303x8 || STM32F328xx || STM32F334x8    */
        
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-#define __HAL_ADC_COMMON_REGISTER(__HANDLE__)                                       \
-     (ADC1_COMMON)
+#define ADC_MASTER_INSTANCE(__HANDLE__)                                        \
+  (ADC1)
+#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
+
+/**
+  * @brief Defines if the selected ADC is within ADC common register ADC1_2 or ADC3_4
+  * if available (ADC2, ADC3, ADC4 availability depends on STM32 product)
+  * @param __HANDLE__: ADC handle
+  * @retval Common control register ADC1_2 or ADC3_4
+  */
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+#define ADC_COMMON_REGISTER(__HANDLE__)                                          \
+  ( ( ((((__HANDLE__)->Instance) == ADC1) || (((__HANDLE__)->Instance) == ADC2)) \
+    )? (ADC1_2_COMMON) : (ADC3_4_COMMON)                                         \
+  )
+#endif /* STM32F303xE || STM32F398xx || */
+       /* STM32F303xC || STM32F358xx    */
+
+#if defined(STM32F302xE)                                                ||     \
+    defined(STM32F302xC)                                                ||     \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+#define ADC_COMMON_REGISTER(__HANDLE__)                                        \
+  (ADC1_2_COMMON)
+#endif /* STM32F302xE                               || */
+       /* STM32F302xC                               || */
+       /* STM32F303x8 || STM32F328xx || STM32F334x8    */
+       
+#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+#define ADC_COMMON_REGISTER(__HANDLE__)                                        \
+  (ADC1_COMMON)
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
        
 /**
@@ -3231,7 +2757,7 @@ typedef struct
   */
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F303xC) || defined(STM32F358xx)
-#define __HAL_ADC_COMMON_CCR_MULTI(__HANDLE__)                                   \
+#define ADC_COMMON_CCR_MULTI(__HANDLE__)                                         \
   ( ( ((((__HANDLE__)->Instance) == ADC1) || (((__HANDLE__)->Instance) == ADC2)) \
     )?                                                                           \
      (ADC1_2_COMMON->CCR & ADC12_CCR_MULTI)                                      \
@@ -3241,17 +2767,17 @@ typedef struct
 #endif /* STM32F303xE || STM32F398xx || */
        /* STM32F303xC || STM32F358xx    */
     
-#if defined(STM32F302xE)                                                || \
-    defined(STM32F302xC)                                                || \
+#if defined(STM32F302xE)                                                ||    \
+    defined(STM32F302xC)                                                ||    \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-#define __HAL_ADC_COMMON_CCR_MULTI(__HANDLE__)                                   \
+#define ADC_COMMON_CCR_MULTI(__HANDLE__)                                      \
   (ADC1_2_COMMON->CCR & ADC12_CCR_MULTI)
 #endif /* STM32F302xE                               || */
        /* STM32F302xC                               || */
        /* STM32F303x8 || STM32F328xx || STM32F334x8    */
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-#define __HAL_ADC_COMMON_CCR_MULTI(__HANDLE__)                                   \
+#define ADC_COMMON_CCR_MULTI(__HANDLE__)                                      \
   (RESET)
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
 
@@ -3263,16 +2789,90 @@ typedef struct
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-#define __HAL_ADC_NONMULTIMODE_OR_MULTIMODEMASTER(__HANDLE__)                                   \
-  ((__HAL_ADC_COMMON_CCR_MULTI(__HANDLE__) == RESET) || (IS_ADC_MULTIMODE_MASTER_INSTANCE((__HANDLE__)->Instance)))
+#define ADC_NONMULTIMODE_OR_MULTIMODEMASTER(__HANDLE__)                        \
+  ((ADC_COMMON_CCR_MULTI(__HANDLE__) == ADC_MODE_INDEPENDENT) ||               \
+   (IS_ADC_MULTIMODE_MASTER_INSTANCE((__HANDLE__)->Instance))   )
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx    */
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-#define __HAL_ADC_NONMULTIMODE_OR_MULTIMODEMASTER(__HANDLE__)                                   \
+#define ADC_NONMULTIMODE_OR_MULTIMODEMASTER(__HANDLE__)                        \
   (!RESET)
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
+
+/**
+  * @brief Verification of condition for ADC group regular start conversion: ADC must be in non-multimode or multimode on group injected only, or multimode with handle of ADC master (applicable for devices with several ADCs)
+  * @param __HANDLE__: ADC handle.
+  * @retval None
+  */
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+#define ADC_NONMULTIMODE_REG_OR_MULTIMODEMASTER(__HANDLE__)                    \
+  ((ADC_COMMON_CCR_MULTI(__HANDLE__) == ADC_MODE_INDEPENDENT)     ||           \
+   (ADC_COMMON_CCR_MULTI(__HANDLE__) == ADC_DUALMODE_INJECSIMULT) ||           \
+   (ADC_COMMON_CCR_MULTI(__HANDLE__) == ADC_DUALMODE_ALTERTRIG)   ||           \
+   (IS_ADC_MULTIMODE_MASTER_INSTANCE((__HANDLE__)->Instance))       )
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx    */
+
+#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+#define ADC_NONMULTIMODE_REG_OR_MULTIMODEMASTER(__HANDLE__)                    \
+  (!RESET)
+#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
+
+/**
+  * @brief Verification of condition for ADC group injected start conversion: ADC must be in non-multimode or multimode on group regular only, or multimode with handle of ADC master (applicable for devices with several ADCs)
+  * @param __HANDLE__: ADC handle.
+  * @retval None
+  */
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+#define ADC_NONMULTIMODE_INJ_OR_MULTIMODEMASTER(__HANDLE__)                    \
+  ((ADC_COMMON_CCR_MULTI(__HANDLE__) == ADC_MODE_INDEPENDENT)   ||             \
+   (ADC_COMMON_CCR_MULTI(__HANDLE__) == ADC_DUALMODE_REGSIMULT) ||             \
+   (ADC_COMMON_CCR_MULTI(__HANDLE__) == ADC_DUALMODE_INTERL)    ||             \
+   (IS_ADC_MULTIMODE_MASTER_INSTANCE((__HANDLE__)->Instance))     )
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx    */
+
+#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+#define ADC_NONMULTIMODE_INJ_OR_MULTIMODEMASTER(__HANDLE__)                    \
+  (!RESET)
+#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
+
+/**
+  * @brief Check ADC multimode setting: In case of multimode, check whether ADC master of the selected ADC has feature auto-injection enabled (applicable for devices with several ADCs)
+  * @param __HANDLE__: ADC handle
+  * @retval None
+  */
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+#define ADC_MULTIMODE_AUTO_INJECTED(__HANDLE__)                                \
+  (( (((__HANDLE__)->Instance) == ADC1) || (((__HANDLE__)->Instance) == ADC2)  \
+   )?                                                                          \
+    (ADC1->CFGR & ADC_CFGR_JAUTO)                                              \
+    :                                                                          \
+    (ADC3->CFGR & ADC_CFGR_JAUTO)                                              \
+  )
+#elif defined(STM32F302xE)                                                || \
+      defined(STM32F302xC)                                                || \
+      defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
+#define ADC_MULTIMODE_AUTO_INJECTED(__HANDLE__)                                \
+  (( (((__HANDLE__)->Instance) == ADC1) || (((__HANDLE__)->Instance) == ADC2)  \
+   )?                                                                          \
+    (ADC1->CFGR & ADC_CFGR_JAUTO)                                              \
+    :                                                                          \
+    (RESET)                                                                    \
+  )
+#else
+#define ADC_MULTIMODE_AUTO_INJECTED(__HANDLE__)                                \
+  (RESET)
+#endif /* STM32F101xG || defined STM32F103x6 || defined STM32F103xB || defined STM32F105xC || defined STM32F107xC || defined STM32F103xE || defined STM32F103xG */
 
 /**
   * @brief Set handle of the other ADC sharing the same common register ADC1_2 or ADC3_4
@@ -3283,7 +2883,7 @@ typedef struct
   */
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F303xC) || defined(STM32F358xx)
-#define __HAL_ADC_COMMON_ADC_OTHER(__HANDLE__, __HANDLE_OTHER_ADC__)           \
+#define ADC_COMMON_ADC_OTHER(__HANDLE__, __HANDLE_OTHER_ADC__)                 \
   ( ( ((__HANDLE__)->Instance == ADC1)                                         \
     )?                                                                         \
      ((__HANDLE_OTHER_ADC__)->Instance = ADC2)                                 \
@@ -3300,7 +2900,7 @@ typedef struct
              )?                                                                \
               ((__HANDLE_OTHER_ADC__)->Instance = ADC3)                        \
               :                                                                \
-              ((__HANDLE_OTHER_ADC__)->Instance = HAL_NULL)                        \
+              ((__HANDLE_OTHER_ADC__)->Instance = NULL)                        \
            )                                                                   \
          )                                                                     \
      )                                                                         \
@@ -3311,7 +2911,7 @@ typedef struct
 #if defined(STM32F302xE)                                                || \
     defined(STM32F302xC)                                                || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-#define __HAL_ADC_COMMON_ADC_OTHER(__HANDLE__, __HANDLE_OTHER_ADC__)           \
+#define ADC_COMMON_ADC_OTHER(__HANDLE__, __HANDLE_OTHER_ADC__)                 \
   ( ( ((__HANDLE__)->Instance == ADC1)                                         \
     )?                                                                         \
      ((__HANDLE_OTHER_ADC__)->Instance = ADC2)                                 \
@@ -3323,8 +2923,8 @@ typedef struct
        /* STM32F303x8 || STM32F328xx || STM32F334x8    */
 
 #if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
-#define __HAL_ADC_COMMON_ADC_OTHER(__HANDLE__, __HANDLE_OTHER_ADC__)           \
-  ((__HANDLE_OTHER_ADC__)->Instance = HAL_NULL)
+#define ADC_COMMON_ADC_OTHER(__HANDLE__, __HANDLE_OTHER_ADC__)                 \
+  ((__HANDLE_OTHER_ADC__)->Instance = NULL)
 #endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
 
 /**
@@ -3336,7 +2936,7 @@ typedef struct
   */
 #if defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F303xC) || defined(STM32F358xx)
-#define __HAL_ADC_MULTI_SLAVE(__HANDLE_MASTER__, __HANDLE_SLAVE__)             \
+#define ADC_MULTI_SLAVE(__HANDLE_MASTER__, __HANDLE_SLAVE__)                   \
   ( ( ((__HANDLE_MASTER__)->Instance == ADC1)                                  \
     )?                                                                         \
      ((__HANDLE_SLAVE__)->Instance = ADC2)                                     \
@@ -3345,7 +2945,7 @@ typedef struct
        )?                                                                      \
         ((__HANDLE_SLAVE__)->Instance = ADC4)                                  \
         :                                                                      \
-        ((__HANDLE_SLAVE__)->Instance = HAL_NULL)                                  \
+        ((__HANDLE_SLAVE__)->Instance = NULL)                                  \
      )                                                                         \
   )
 #endif /* STM32F303xE || STM32F398xx || */
@@ -3354,17 +2954,553 @@ typedef struct
 #if defined(STM32F302xE)                                                || \
     defined(STM32F302xC)                                                || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
-#define __HAL_ADC_MULTI_SLAVE(__HANDLE_MASTER__, __HANDLE_SLAVE__)             \
+#define ADC_MULTI_SLAVE(__HANDLE_MASTER__, __HANDLE_SLAVE__)             \
   ( ( ((__HANDLE_MASTER__)->Instance == ADC1)                                  \
     )?                                                                         \
      ((__HANDLE_SLAVE__)->Instance = ADC2)                                     \
      :                                                                         \
-     ( HAL_NULL )                                                                  \
+     ( NULL )                                                                  \
   )
 #endif /* STM32F302xE                               || */
        /* STM32F302xC                               || */
        /* STM32F303x8 || STM32F328xx || STM32F334x8    */
 
+
+#define IS_ADC_RESOLUTION(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION_12B) || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_10B) || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_8B)  || \
+                                       ((RESOLUTION) == ADC_RESOLUTION_6B)    )
+
+#define IS_ADC_RESOLUTION_8_6_BITS(RESOLUTION) (((RESOLUTION) == ADC_RESOLUTION_8B) || \
+                                                ((RESOLUTION) == ADC_RESOLUTION_6B)   )
+
+
+#define IS_ADC_DATA_ALIGN(ALIGN) (((ALIGN) == ADC_DATAALIGN_RIGHT) || \
+                                  ((ALIGN) == ADC_DATAALIGN_LEFT)    )
+
+#define IS_ADC_SCAN_MODE(SCAN_MODE) (((SCAN_MODE) == ADC_SCAN_DISABLE) || \
+                                     ((SCAN_MODE) == ADC_SCAN_ENABLE)    )
+
+#define IS_ADC_EOC_SELECTION(EOC_SELECTION) (((EOC_SELECTION) == ADC_EOC_SINGLE_CONV)    || \
+                                             ((EOC_SELECTION) == ADC_EOC_SEQ_CONV)       || \
+                                             ((EOC_SELECTION) == ADC_EOC_SINGLE_SEQ_CONV)  )
+
+#define IS_ADC_OVERRUN(OVR) (((OVR) == ADC_OVR_DATA_PRESERVED)  || \
+                             ((OVR) == ADC_OVR_DATA_OVERWRITTEN)  )
+
+#define IS_ADC_CHANNEL(CHANNEL) (((CHANNEL) == ADC_CHANNEL_1)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_2)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_3)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_4)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_5)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_6)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_7)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_8)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_9)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_10)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_11)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_12)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_13)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_14)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_15)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_TEMPSENSOR)  || \
+                                 ((CHANNEL) == ADC_CHANNEL_VBAT)        || \
+                                 ((CHANNEL) == ADC_CHANNEL_VREFINT)     || \
+                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP1)     || \
+                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP2)     || \
+                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP3)     || \
+                                 ((CHANNEL) == ADC_CHANNEL_VOPAMP4)       )
+
+#define IS_ADC_DIFF_CHANNEL(CHANNEL) (((CHANNEL) == ADC_CHANNEL_1)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_2)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_3)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_4)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_5)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_6)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_7)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_8)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_9)      || \
+                                      ((CHANNEL) == ADC_CHANNEL_10)     || \
+                                      ((CHANNEL) == ADC_CHANNEL_11)     || \
+                                      ((CHANNEL) == ADC_CHANNEL_12)     || \
+                                      ((CHANNEL) == ADC_CHANNEL_13)     || \
+                                      ((CHANNEL) == ADC_CHANNEL_14)       )
+
+#define IS_ADC_SAMPLE_TIME(TIME) (((TIME) == ADC_SAMPLETIME_1CYCLE_5)    || \
+                                  ((TIME) == ADC_SAMPLETIME_2CYCLES_5)   || \
+                                  ((TIME) == ADC_SAMPLETIME_4CYCLES_5)   || \
+                                  ((TIME) == ADC_SAMPLETIME_7CYCLES_5)   || \
+                                  ((TIME) == ADC_SAMPLETIME_19CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_61CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_181CYCLES_5) || \
+                                  ((TIME) == ADC_SAMPLETIME_601CYCLES_5)   )
+
+#define IS_ADC_SINGLE_DIFFERENTIAL(SING_DIFF) (((SING_DIFF) == ADC_SINGLE_ENDED)      || \
+                                               ((SING_DIFF) == ADC_DIFFERENTIAL_ENDED)  )
+
+#define IS_ADC_OFFSET_NUMBER(OFFSET_NUMBER) (((OFFSET_NUMBER) == ADC_OFFSET_NONE) || \
+                                             ((OFFSET_NUMBER) == ADC_OFFSET_1)    || \
+                                             ((OFFSET_NUMBER) == ADC_OFFSET_2)    || \
+                                             ((OFFSET_NUMBER) == ADC_OFFSET_3)    || \
+                                             ((OFFSET_NUMBER) == ADC_OFFSET_4)      )
+
+#define IS_ADC_REGULAR_RANK(CHANNEL) (((CHANNEL) == ADC_REGULAR_RANK_1 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_2 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_3 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_4 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_5 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_6 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_7 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_8 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_9 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_10) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_11) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_12) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_13) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_14) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_15) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_16)   )
+
+#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGCONVEDGE_NONE)         || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISING)       || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_FALLING)      || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISINGFALLING)  )
+
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+
+#if defined(STM32F303xC) || defined(STM32F358xx)
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
+                                                                                 \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T7_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT2)  || \
+                                                                                 \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO2) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
+                                                                                 \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
+#endif /* STM32F303xC || STM32F358xx */
+
+#if defined(STM32F303xE) || defined(STM32F398xx)
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11)  || \
+                                                                                  \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC1)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC3)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC1)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC1)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T7_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_CC1)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT2)   || \
+                                                                                  \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO2)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO)  || \
+                                                                                  \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_TRGO2) || \
+                                                                                  \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)               )
+#endif /* STM32F303xE || STM32F398xx */
+
+#endif /* STM32F303xC || STM32F303xE || STM32F398xx || STM32F358xx */
+
+#if defined(STM32F302xE) || \
+    defined(STM32F302xC)
+
+#if defined(STM32F302xE)
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
+                                                                                 \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC2)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T20_CC3)  || \
+                                                                                 \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
+#endif /* STM32F302xE */
+
+#if defined(STM32F302xC)
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
+                                                                                 \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
+#endif /* STM32F302xC */
+
+#endif /* STM32F302xE || */
+       /* STM32F302xC    */
+
+#if defined(STM32F303x8) || defined(STM32F328xx)
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC4)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T8_TRGO2) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)   || \
+                                                                                 \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
+#endif /* STM32F303x8 || STM32F328xx */
+
+#if defined(STM32F334x8)
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)    || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONVHRTIM_TRG1) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONVHRTIM_TRG3) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_CC4)    || \
+                                                                                  \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)               )
+#endif /* STM32F334x8 */
+
+#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC1)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_CC3)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T1_TRGO2) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T6_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T15_TRGO) || \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
+#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
+
+#define IS_ADC_EXTTRIGINJEC_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_NONE)         || \
+                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISING)       || \
+                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_FALLING)      || \
+                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISINGFALLING)  )
+
+
+#if defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F303xC) || defined(STM32F358xx)
+
+#if defined(STM32F303xC) || defined(STM32F358xx)
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
+                                                                                           \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC3)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T7_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC2)   || \
+                                                                                           \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO2) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO) || \
+                                                                                           \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
+#endif /* STM32F303xC || STM32F358xx */
+
+#if defined(STM32F303xE) || defined(STM32F398xx)
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15)  || \
+                                                                                            \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC3)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_CC4)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T7_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC2)    || \
+                                                                                            \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC4)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO2)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO)  || \
+                                                                                            \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_CC2)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_TRGO2) || \
+                                                                                            \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)           )
+#endif /* STM32F303xE || STM32F398xx */
+
+#endif /* STM32F303xC || STM32F303xE || STM32F398xx || STM32F358xx */
+
+#if defined(STM32F302xE) || \
+    defined(STM32F302xC)
+
+#if defined(STM32F302xE)
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T20_TRGO2) || \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)             )
+#endif /* STM32F302xE */
+
+#if defined(STM32F302xC)
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
+#endif /* STM32F302xC */
+
+#endif /* STM32F302xE || */
+       /* STM32F302xC    */
+
+#if defined(STM32F303x8) || defined(STM32F328xx)
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T8_TRGO2) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO) || \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
+#endif /* STM32F303x8 || STM32F328xx */
+
+#if defined(STM32F334x8)
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)     || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)     || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)     || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_HRTIM_TRG2) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_HRTIM_TRG4) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC3)     || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_TRGO)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC1)     || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)    || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO)   || \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)            )
+#endif /* STM32F334x8 */
+
+#if defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T1_TRGO2) || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T6_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T15_TRGO) || \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
+#endif /* STM32F301x8 || STM32F302x8 || STM32F318xx */
+
+#define IS_ADC_INJECTED_RANK(CHANNEL) (((CHANNEL) == ADC_INJECTED_RANK_1) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_2) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_3) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_4)   )
+
+#define IS_ADC_MODE(MODE) (((MODE) == ADC_MODE_INDEPENDENT)               || \
+                           ((MODE) == ADC_DUALMODE_REGSIMULT_INJECSIMULT) || \
+                           ((MODE) == ADC_DUALMODE_REGSIMULT_ALTERTRIG)   || \
+                           ((MODE) == ADC_DUALMODE_REGINTERL_INJECSIMULT) || \
+                           ((MODE) == ADC_DUALMODE_INJECSIMULT)           || \
+                           ((MODE) == ADC_DUALMODE_REGSIMULT)             || \
+                           ((MODE) == ADC_DUALMODE_INTERL)                || \
+                           ((MODE) == ADC_DUALMODE_ALTERTRIG)               )
+
+#define IS_ADC_DMA_ACCESS_MODE(MODE) (((MODE) == ADC_DMAACCESSMODE_DISABLED)   || \
+                                      ((MODE) == ADC_DMAACCESSMODE_12_10_BITS) || \
+                                      ((MODE) == ADC_DMAACCESSMODE_8_6_BITS)     )
+
+#define IS_ADC_SAMPLING_DELAY(DELAY) (((DELAY) == ADC_TWOSAMPLINGDELAY_1CYCLE)   || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_2CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_3CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_4CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_5CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_6CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_7CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_8CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_9CYCLES)  || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_10CYCLES) || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_11CYCLES) || \
+                                      ((DELAY) == ADC_TWOSAMPLINGDELAY_12CYCLES)   )
+
+#define IS_ADC_ANALOG_WATCHDOG_NUMBER(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_1) || \
+                                                 ((WATCHDOG) == ADC_ANALOGWATCHDOG_2) || \
+                                                 ((WATCHDOG) == ADC_ANALOGWATCHDOG_3)   )
+
+#define IS_ADC_ANALOG_WATCHDOG_MODE(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_NONE)             || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REG)       || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_INJEC)     || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REGINJEC)  || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REG)          || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_INJEC)        || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REGINJEC)       )
+
+#define IS_ADC_CONVERSION_GROUP(CONVERSION) (((CONVERSION) == ADC_REGULAR_GROUP)         || \
+                                             ((CONVERSION) == ADC_INJECTED_GROUP)        || \
+                                             ((CONVERSION) == ADC_REGULAR_INJECTED_GROUP)  )
+
+#define IS_ADC_EVENT_TYPE(EVENT) (((EVENT) == ADC_AWD_EVENT)  || \
+                                  ((EVENT) == ADC_AWD2_EVENT) || \
+                                  ((EVENT) == ADC_AWD3_EVENT) || \
+                                  ((EVENT) == ADC_OVR_EVENT)  || \
+                                  ((EVENT) == ADC_JQOVF_EVENT)  )
+
+/** @defgroup ADCEx_range_verification ADC Extended Range Verification
+  * in function of ADC resolution selected (12, 10, 8 or 6 bits)
+  * @{
+  */
+#define IS_ADC_RANGE(RESOLUTION, ADC_VALUE)                                         \
+   ((((RESOLUTION) == ADC_RESOLUTION_12B) && ((ADC_VALUE) <= ((uint32_t)0x0FFF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_10B) && ((ADC_VALUE) <= ((uint32_t)0x03FF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_8B)  && ((ADC_VALUE) <= ((uint32_t)0x00FF))) || \
+    (((RESOLUTION) == ADC_RESOLUTION_6B)  && ((ADC_VALUE) <= ((uint32_t)0x003F)))   )
+/**
+  * @}
+  */
+
+/** @defgroup ADC_injected_nb_conv_verification ADC Injected Conversion Number Verification
+  * @{
+  */
+#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
+/**
+  * @}
+  */
+
+/** @defgroup ADC_regular_nb_conv_verification ADC Regular Conversion Number Verification
+  * @{
+  */
+#define IS_ADC_REGULAR_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)16)))
+/**
+  * @}
+  */
+
+/** @defgroup ADC_regular_discontinuous_mode_number_verification ADC Regular Discontinuous Mode NumberVerification
+  * @{
+  */
+#define IS_ADC_REGULAR_DISCONT_NUMBER(NUMBER) (((NUMBER) >= ((uint32_t)1)) && ((NUMBER) <= ((uint32_t)8)))
+/**
+  * @}
+  */
+
+/** @defgroup ADC_calibration_factor_length_verification ADC Calibration Factor Length Verification
+  * @{
+  */
+/**
+  * @brief Calibration factor length verification (7 bits maximum)
+  * @param _Calibration_Factor_: Calibration factor value
+  * @retval None
+  */
+#define IS_ADC_CALFACT(_Calibration_Factor_) ((_Calibration_Factor_) <= ((uint32_t)0x7F))
+/**
+  * @}
+  */
+    
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
@@ -3372,12 +3508,58 @@ typedef struct
 
 
 #if defined(STM32F373xC) || defined(STM32F378xx)
+
+/**
+  * @brief Verification of ADC state: enabled or disabled
+  * @param __HANDLE__: ADC handle
+  * @retval SET (ADC enabled) or RESET (ADC disabled)
+  */
+#define ADC_IS_ENABLE(__HANDLE__)                                              \
+  ((( ((__HANDLE__)->Instance->CR2 & ADC_CR2_ADON) == ADC_CR2_ADON )           \
+   ) ? SET : RESET)
+
+/**
+  * @brief Test if conversion trigger of regular group is software start
+  *        or external trigger.
+  * @param __HANDLE__: ADC handle
+  * @retval SET (software start) or RESET (external trigger)
+  */
+#define ADC_IS_SOFTWARE_START_REGULAR(__HANDLE__)                              \
+  (((__HANDLE__)->Instance->CR2 & ADC_CR2_EXTSEL) == ADC_SOFTWARE_START)
+
+/**
+  * @brief Test if conversion trigger of injected group is software start
+  *        or external trigger.
+  * @param __HANDLE__: ADC handle
+  * @retval SET (software start) or RESET (external trigger)
+  */
+#define ADC_IS_SOFTWARE_START_INJECTED(__HANDLE__)                             \
+  (((__HANDLE__)->Instance->CR2 & ADC_CR2_JEXTSEL) == ADC_INJECTED_SOFTWARE_START)
+
+/**
+  * @brief Simultaneously clears and sets specific bits of the handle State
+  * @note: ADC_STATE_CLR_SET() macro is merely aliased to generic macro MODIFY_REG(),
+  *        the first parameter is the ADC handle State, the second parameter is the
+  *        bit field to clear, the third and last parameter is the bit field to set.
+  * @retval None
+  */
+#define ADC_STATE_CLR_SET MODIFY_REG
+
+/**
+  * @brief Clear ADC error code (set it to error code: "no error")
+  * @param __HANDLE__: ADC handle
+  * @retval None
+  */
+#define ADC_CLEAR_ERRORCODE(__HANDLE__)                                        \
+  ((__HANDLE__)->ErrorCode = HAL_ADC_ERROR_NONE)
+
 /**
   * @brief Set ADC number of conversions into regular channel sequence length.
   * @param _NbrOfConversion_: Regular channel sequence length 
   * @retval None
   */
-#define __HAL_ADC_SQR1_L(_NbrOfConversion_) (((_NbrOfConversion_) - (uint8_t)1) << 20)
+#define ADC_SQR1_L_SHIFT(_NbrOfConversion_)                                    \
+  (((_NbrOfConversion_) - (uint8_t)1) << 20)
 
 /**
   * @brief Set the ADC's sample time for channel numbers between 10 and 18.
@@ -3385,7 +3567,8 @@ typedef struct
   * @param _CHANNELNB_: Channel number.  
   * @retval None
   */
-#define __HAL_ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 10)))
+#define ADC_SMPR1(_SAMPLETIME_, _CHANNELNB_)                                   \
+  ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 10)))
 
 /**
   * @brief Set the ADC's sample time for channel numbers between 0 and 9.
@@ -3393,7 +3576,8 @@ typedef struct
   * @param _CHANNELNB_: Channel number.  
   * @retval None
   */
-#define __HAL_ADC_SMPR2(_SAMPLETIME_, _CHANNELNB_) ((_SAMPLETIME_) << (3 * (_CHANNELNB_)))
+#define ADC_SMPR2(_SAMPLETIME_, _CHANNELNB_)                                   \
+  ((_SAMPLETIME_) << (3 * (_CHANNELNB_)))
 
 /**
   * @brief Set the selected regular channel rank for rank between 1 and 6.
@@ -3401,7 +3585,8 @@ typedef struct
   * @param _RANKNB_: Rank number.    
   * @retval None
   */
-#define __HAL_ADC_SQR3_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 1)))
+#define ADC_SQR3_RK(_CHANNELNB_, _RANKNB_)                                     \
+  ((_CHANNELNB_) << (5 * ((_RANKNB_) - 1)))
 
 /**
   * @brief Set the selected regular channel rank for rank between 7 and 12.
@@ -3409,7 +3594,8 @@ typedef struct
   * @param _RANKNB_: Rank number.    
   * @retval None
   */
-#define __HAL_ADC_SQR2_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 7)))
+#define ADC_SQR2_RK(_CHANNELNB_, _RANKNB_)                                     \
+  ((_CHANNELNB_) << (5 * ((_RANKNB_) - 7)))
 
 /**
   * @brief Set the selected regular channel rank for rank between 13 and 16.
@@ -3417,47 +3603,56 @@ typedef struct
   * @param _RANKNB_: Rank number.    
   * @retval None
   */
-#define __HAL_ADC_SQR1_RK(_CHANNELNB_, _RANKNB_) ((_CHANNELNB_) << (5 * ((_RANKNB_) - 13)))
+#define ADC_SQR1_RK(_CHANNELNB_, _RANKNB_)                                     \
+  ((_CHANNELNB_) << (5 * ((_RANKNB_) - 13)))
 
 /**
   * @brief Set the injected sequence length.
   * @param _JSQR_JL_: Sequence length.
   * @retval None
   */
-#define __HAL_ADC_JSQR_JL(_JSQR_JL_)   (((_JSQR_JL_) -1) << 20)
+#define ADC_JSQR_JL_SHIFT(_JSQR_JL_)                                           \
+  (((_JSQR_JL_) -1) << 20)
 
 /**
-  * @brief Set the selected injected Channel rank (channels sequence starting from 4-JL)
+  * @brief Set the selected injected channel rank
+  *        Note: on STM32F37x devices, channel rank position in JSQR register
+  *              is depending on total number of ranks selected into
+  *              injected sequencer (ranks sequence starting from 4-JL)
   * @param _CHANNELNB_: Channel number.
   * @param _RANKNB_: Rank number.
   * @param _JSQR_JL_: Sequence length.
   * @retval None
   */
-#define __HAL_ADC_JSQR_RK(_CHANNELNB_, _RANKNB_, _JSQR_JL_)         \
-    ((_CHANNELNB_) << (5 * ((4 - ((_JSQR_JL_) - (_RANKNB_))) - 1)))
+#define ADC_JSQR_RK_JL(_CHANNELNB_, _RANKNB_, _JSQR_JL_)                       \
+  ((_CHANNELNB_) << (5 * ((4 - ((_JSQR_JL_) - (_RANKNB_))) - 1)))
 
 /**
   * @brief Enable ADC continuous conversion mode.
   * @param _CONTINUOUS_MODE_: Continuous mode.
   * @retval None
   */
-#define __HAL_ADC_CR2_CONTINUOUS(_CONTINUOUS_MODE_) ((_CONTINUOUS_MODE_) << 1)
+#define ADC_CR2_CONTINUOUS(_CONTINUOUS_MODE_)                                  \
+  ((_CONTINUOUS_MODE_) << 1)
 
 /**
   * @brief Configures the number of discontinuous conversions for the regular group channels.
   * @param _NBR_DISCONTINUOUS_CONV_: Number of discontinuous conversions.
   * @retval None
   */
-#define __HAL_ADC_CR1_DISCONTINUOUS_NUM(_NBR_DISCONTINUOUS_CONV_) (((_NBR_DISCONTINUOUS_CONV_) - 1) << 13)
+#define ADC_CR1_DISCONTINUOUS_NUM(_NBR_DISCONTINUOUS_CONV_)                    \
+  (((_NBR_DISCONTINUOUS_CONV_) - 1) << 13)
    
 /**
   * @brief Enable ADC scan mode to convert multiple ranks with sequencer.
   * @param _SCAN_MODE_: Scan conversion mode.
   * @retval None
   */
-#define __HAL_ADC_CR1_SCAN(_SCAN_MODE_)                                        \
-  ( ( (_SCAN_MODE_) == (ADC_SCAN_ENABLE)                                       \
-    )? (ADC_CR1_SCAN) : (0x00000000)                                           \
+/* Note: Scan mode is compared to ENABLE for legacy purpose, this parameter   */
+/*       is equivalent to ADC_SCAN_ENABLE.                                    */
+#define ADC_CR1_SCAN_SET(_SCAN_MODE_)                                          \
+  (( ((_SCAN_MODE_) == ADC_SCAN_ENABLE) || ((_SCAN_MODE_) == ENABLE)           \
+   )? (ADC_SCAN_ENABLE) : (ADC_SCAN_DISABLE)                                   \
   )
     
 /**
@@ -3465,20 +3660,22 @@ typedef struct
   * @param _Calibration_Factor_: Calibration factor value
   * @retval None
   */
-#define __HAL_ADC_CALFACT_DIFF_SET(_Calibration_Factor_) ((_Calibration_Factor_) << 16)
+#define ADC_CALFACT_DIFF_SET(_Calibration_Factor_)                             \
+  ((_Calibration_Factor_) << 16)
 
 /**
   * @brief Calibration factor in differential mode to be retrieved from calibration register
   * @param _Calibration_Factor_: Calibration factor value
   * @retval None
   */
-#define __HAL_ADC_CALFACT_DIFF_GET(_Calibration_Factor_) ((_Calibration_Factor_) >> 16)
+#define ADC_CALFACT_DIFF_GET(_Calibration_Factor_)                             \
+  ((_Calibration_Factor_) >> 16)
       
       
 /**
   * @brief Get the maximum ADC conversion cycles on all channels.
   * Returns the selected sampling time + conversion time (12.5 ADC clock cycles)
-  * Approximation of sampling time within 4 ranges, returns the higher value:
+  * Approximation of sampling time within 4 ranges, returns the highest value:
   *   below 7.5 cycles {1.5 cycle; 7.5 cycles},
   *   between 13.5 cycles and 28.5 cycles {13.5 cycles; 28.5 cycles}
   *   between 41.5 cycles and 71.5 cycles {41.5 cycles; 55.5 cycles; 71.5cycles}
@@ -3487,7 +3684,7 @@ typedef struct
   * @param __HANDLE__: ADC handle
   * @retval ADC conversion cycles on all channels
   */   
-#define __HAL_ADC_CONVCYCLES_MAX_RANGE(__HANDLE__)                                                               \
+#define ADC_CONVCYCLES_MAX_RANGE(__HANDLE__)                                                                     \
     (( (((__HANDLE__)->Instance->SMPR2 & ADC_SAMPLETIME_ALLCHANNELS_SMPR2BIT2) == RESET)  &&                     \
        (((__HANDLE__)->Instance->SMPR1 & ADC_SAMPLETIME_ALLCHANNELS_SMPR1BIT2) == RESET) ) ?                     \
                                                                                                                  \
@@ -3511,38 +3708,149 @@ typedef struct
   *                       ADC presc {4, 6, 8} and APB2 presc {0, 2, 4})
   *   total prescaler maximum: 128 (ADC presc {4, 6, 8} and APB2 presc {8, 16})
   * Unit: none (prescaler factor)
-  * @param __HANDLE__: ADC handle
   * @retval ADC and APB2 prescaler factor
   */
-#define __HAL_ADC_CLOCK_PRECSALER_RANGE(__HANDLE__)                       \
-    (( (RCC->CFGR & (RCC_CFGR_ADCPRE_1 | RCC_CFGR_ADCPRE_0)) == RESET) ?  \
-        (( (RCC->CFGR & RCC_CFGR_PPRE2_2) == RESET) ? 2 : 32 )            \
-        :                                                                 \
-        (( (RCC->CFGR & RCC_CFGR_PPRE2_1) == RESET) ? 32 : 128 )          \
-      )
+#define ADC_CLOCK_PRESCALER_RANGE()                                            \
+  (( (RCC->CFGR & (RCC_CFGR_ADCPRE_1 | RCC_CFGR_ADCPRE_0)) == RESET) ?         \
+      (( (RCC->CFGR & RCC_CFGR_PPRE2_2) == RESET) ? 2 : 32 )                   \
+      :                                                                        \
+      (( (RCC->CFGR & RCC_CFGR_PPRE2_1) == RESET) ? 32 : 128 )                 \
+  )
 
 /**
   * @brief Get the ADC clock prescaler from system clock configuration register. 
   * @retval None
   */
-#define __HAL_ADC_GET_CLOCK_PRESCALER() (((RCC->CFGR & RCC_CFGR_ADCPRE) >> 14) +1)
+#define ADC_GET_CLOCK_PRESCALER() (((RCC->CFGR & RCC_CFGR_ADCPRE) >> 14) +1)
 
-/**
-  * @brief Enable the ADC peripheral (if not already enable to not trig a conversion)
-  * @param __HANDLE__: ADC handle
-  * @retval None
+#define IS_ADC_DATA_ALIGN(ALIGN) (((ALIGN) == ADC_DATAALIGN_RIGHT) || \
+                                  ((ALIGN) == ADC_DATAALIGN_LEFT)    )
+
+#define IS_ADC_SCAN_MODE(SCAN_MODE) (((SCAN_MODE) == ADC_SCAN_DISABLE) || \
+                                     ((SCAN_MODE) == ADC_SCAN_ENABLE)    )
+
+#define IS_ADC_CHANNEL(CHANNEL) (((CHANNEL) == ADC_CHANNEL_0)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_1)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_2)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_3)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_4)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_5)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_6)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_7)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_8)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_9)           || \
+                                 ((CHANNEL) == ADC_CHANNEL_10)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_11)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_12)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_13)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_14)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_15)          || \
+                                 ((CHANNEL) == ADC_CHANNEL_TEMPSENSOR)  || \
+                                 ((CHANNEL) == ADC_CHANNEL_VREFINT)     || \
+                                 ((CHANNEL) == ADC_CHANNEL_VBAT)          )
+
+#define IS_ADC_SAMPLE_TIME(TIME) (((TIME) == ADC_SAMPLETIME_1CYCLE_5)    || \
+                                  ((TIME) == ADC_SAMPLETIME_7CYCLES_5)   || \
+                                  ((TIME) == ADC_SAMPLETIME_13CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_28CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_41CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_55CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_71CYCLES_5)  || \
+                                  ((TIME) == ADC_SAMPLETIME_239CYCLES_5)   )
+
+#define IS_ADC_REGULAR_RANK(CHANNEL) (((CHANNEL) == ADC_REGULAR_RANK_1 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_2 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_3 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_4 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_5 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_6 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_7 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_8 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_9 ) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_10) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_11) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_12) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_13) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_14) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_15) || \
+                                      ((CHANNEL) == ADC_REGULAR_RANK_16)   )
+
+#define IS_ADC_EXTTRIG_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGCONVEDGE_NONE)  || \
+                                   ((EDGE) == ADC_EXTERNALTRIGCONVEDGE_RISING)  )
+
+#define IS_ADC_EXTTRIG(REGTRIG) (((REGTRIG) == ADC_EXTERNALTRIGCONV_T2_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T3_TRGO)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T4_CC2)   || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T19_TRGO) || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T19_CC3)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_T19_CC4)  || \
+                                 ((REGTRIG) == ADC_EXTERNALTRIGCONV_EXT_IT11) || \
+                                 ((REGTRIG) == ADC_SOFTWARE_START)              )
+
+#define IS_ADC_EXTTRIGINJEC_EDGE(EDGE) (((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_NONE)  || \
+                                        ((EDGE) == ADC_EXTERNALTRIGINJECCONV_EDGE_RISING)  )
+
+#define IS_ADC_EXTTRIGINJEC(INJTRIG) (((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_CC1)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T2_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T3_CC4)   || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T4_TRGO)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T19_CC1)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_T19_CC2)  || \
+                                      ((INJTRIG) == ADC_EXTERNALTRIGINJECCONV_EXT_IT15) || \
+                                      ((INJTRIG) == ADC_INJECTED_SOFTWARE_START)          )
+
+#define IS_ADC_INJECTED_RANK(CHANNEL) (((CHANNEL) == ADC_INJECTED_RANK_1) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_2) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_3) || \
+                                       ((CHANNEL) == ADC_INJECTED_RANK_4)   )
+
+#define IS_ADC_ANALOG_WATCHDOG_MODE(WATCHDOG) (((WATCHDOG) == ADC_ANALOGWATCHDOG_NONE)             || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REG)       || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_INJEC)     || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_SINGLE_REGINJEC)  || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REG)          || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_INJEC)        || \
+                                               ((WATCHDOG) == ADC_ANALOGWATCHDOG_ALL_REGINJEC)       )
+
+#define IS_ADC_CONVERSION_GROUP(CONVERSION) (((CONVERSION) == ADC_REGULAR_GROUP)          || \
+                                             ((CONVERSION) == ADC_INJECTED_GROUP)         || \
+                                             ((CONVERSION) == ADC_REGULAR_INJECTED_GROUP)   )
+
+#define IS_ADC_EVENT_TYPE(EVENT) ((EVENT) == ADC_AWD_EVENT)
+
+/** @defgroup ADCEx_range_verification ADC Extended Range Verification
+  * For a unique ADC resolution: 12 bits
+  * @{
   */
-#define __HAL_ADC_ENABLE(__HANDLE__)                                         \
-            (__HANDLE__)->Instance->CR2 |= ADC_CR2_ADON
-  
+#define IS_ADC_RANGE(ADC_VALUE) ((ADC_VALUE) <= ((uint32_t)0x0FFF))
 /**
-  * @brief Disable the ADC peripheral
-  * @param __HANDLE__: ADC handle
-  * @retval None
+  * @}
   */
-#define __HAL_ADC_DISABLE(__HANDLE__)                                        \
-            (__HANDLE__)->Instance->CR2 &= ~ADC_CR2_ADON
-      
+
+/** @defgroup ADC_injected_nb_conv_verification ADC Injected Conversion Number Verification
+  * @{
+  */
+#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
+/**
+  * @}
+  */
+
+/** @defgroup ADC_regular_nb_conv_verification ADC Regular Conversion Number Verification
+  * @{
+  */
+#define IS_ADC_REGULAR_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)16)))
+/**
+  * @}
+  */
+
+/** @defgroup ADC_regular_discontinuous_mode_number_verification ADC Regular Discontinuous Mode NumberVerification
+  * @{
+  */
+#define IS_ADC_REGULAR_DISCONT_NUMBER(NUMBER) (((NUMBER) >= ((uint32_t)1)) && ((NUMBER) <= ((uint32_t)8)))
+/**
+  * @}
+  */
+              
 #endif /* STM32F373xC || STM32F378xx */
 /**
   * @}
@@ -3550,14 +3858,13 @@ typedef struct
 
 
 /* Exported functions --------------------------------------------------------*/  
-/** @addtogroup ADCEx_Exported_Functions ADC Extended Exported Functions
+/** @addtogroup ADCEx_Exported_Functions ADCEx Exported Functions
   * @{
   */ 
           
 /* Initialization/de-initialization functions *********************************/
 
-/** @addtogroup ADCEx_Exported_Functions_Group2 Extended Input and Output operation functions
-  * @brief    Extended IO operation functions
+/** @addtogroup ADCEx_Exported_Functions_Group2 ADCEx Input and Output operation functions
   * @{
   */ 
 /* I/O operation functions ****************************************************/
@@ -3568,7 +3875,7 @@ typedef struct
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
     defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 HAL_StatusTypeDef       HAL_ADCEx_Calibration_Start(struct __ADC_HandleTypeDef* hadc, uint32_t SingleDiff);
-uint32_t        HAL_ADCEx_Calibration_GetValue(struct __ADC_HandleTypeDef *hadc, uint32_t SingleDiff);
+uint32_t                HAL_ADCEx_Calibration_GetValue(struct __ADC_HandleTypeDef *hadc, uint32_t SingleDiff);
 HAL_StatusTypeDef       HAL_ADCEx_Calibration_SetValue(struct __ADC_HandleTypeDef *hadc, uint32_t SingleDiff, uint32_t CalibrationFactor);
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
@@ -3587,15 +3894,33 @@ HAL_StatusTypeDef       HAL_ADCEx_InjectedPollForConversion(struct __ADC_HandleT
 /* Non-blocking mode: Interruption */
 HAL_StatusTypeDef       HAL_ADCEx_InjectedStart_IT(struct __ADC_HandleTypeDef* hadc);
 HAL_StatusTypeDef       HAL_ADCEx_InjectedStop_IT(struct __ADC_HandleTypeDef* hadc);
-     
+
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
     defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
-    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) 
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 /* ADC multimode */
 HAL_StatusTypeDef       HAL_ADCEx_MultiModeStart_DMA(struct __ADC_HandleTypeDef *hadc, uint32_t *pData, uint32_t Length);
 HAL_StatusTypeDef       HAL_ADCEx_MultiModeStop_DMA(struct __ADC_HandleTypeDef *hadc); 
 uint32_t                HAL_ADCEx_MultiModeGetValue(struct __ADC_HandleTypeDef *hadc);
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
+/* ADC group regular stop conversion without impacting group injected */
+/* Blocking mode: Polling */
+HAL_StatusTypeDef       HAL_ADCEx_RegularStop(struct __ADC_HandleTypeDef* hadc);
+/* Non-blocking mode: Interruption */
+HAL_StatusTypeDef       HAL_ADCEx_RegularStop_IT(struct __ADC_HandleTypeDef* hadc);
+/* Non-blocking mode: DMA */
+HAL_StatusTypeDef       HAL_ADCEx_RegularStop_DMA(struct __ADC_HandleTypeDef* hadc);
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+/* ADC multimode */
+HAL_StatusTypeDef       HAL_ADCEx_RegularMultiModeStop_DMA(struct __ADC_HandleTypeDef *hadc);
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
@@ -3612,6 +3937,8 @@ void                    HAL_ADCEx_InjectedConvCpltCallback(struct __ADC_HandleTy
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
     defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
 void                    HAL_ADCEx_InjectedQueueOverflowCallback(struct __ADC_HandleTypeDef* hadc);
+void                    HAL_ADCEx_LevelOutOfWindow2Callback(struct __ADC_HandleTypeDef* hadc);
+void                    HAL_ADCEx_LevelOutOfWindow3Callback(struct __ADC_HandleTypeDef* hadc);
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
@@ -3620,8 +3947,7 @@ void                    HAL_ADCEx_InjectedQueueOverflowCallback(struct __ADC_Han
   * @}
   */
      
-/** @addtogroup ADCEx_Exported_Functions_Group3 Extended Peripheral Control functions
-  * @brief    Extended Peripheral Control functions
+/** @addtogroup ADCEx_Exported_Functions_Group3 ADCEx Peripheral Control functions
   * @{
   */ 
 /* Peripheral Control functions ***********************************************/
