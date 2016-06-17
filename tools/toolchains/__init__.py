@@ -251,7 +251,6 @@ class mbedToolchain:
         # Labels generated from toolchain and target rules/features (used for selective build)
         self.labels = None
         
-        self.has_config = False
         # config_header_content will hold the content of the config header (if used)
         self.config_header_content = None
 
@@ -359,10 +358,6 @@ class mbedToolchain:
             self.symbols = ["TARGET_%s" % t for t in labels['TARGET']]
             self.symbols.extend(["TOOLCHAIN_%s" % t for t in labels['TOOLCHAIN']])
 
-            # Config support
-            if self.has_config:
-                self.symbols.append('HAVE_MBED_CONFIG_H')
-
             # Cortex CPU symbols
             if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
                 self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
@@ -437,8 +432,6 @@ class mbedToolchain:
             base_path = path
         resources.base_path = base_path
 
-        self.has_config = False
-
         """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         When topdown is True, the caller can modify the dirnames list in-place
         (perhaps using del or slice assignment), and walk() will only recurse into
@@ -512,8 +505,6 @@ class mbedToolchain:
                     resources.cpp_sources.append(file_path)
 
                 elif ext == '.h' or ext == '.hpp':
-                    if basename(file_path) == "mbed_config.h":
-                        self.has_config = True
                     resources.headers.append(file_path)
 
                 elif ext == '.o':
