@@ -233,7 +233,7 @@ class Config:
     # Remove features from the available features
     def add_features(self, features):
         for feature in features:
-            if (feature in self.removed_features 
+            if (feature in self.removed_features
                 or (self.removed_unecessary_features and feature not in self.added_features)):
                 raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
 
@@ -273,7 +273,7 @@ class Config:
                     if full_name in params:
                         params[full_name].set_value(v, unit_name, unit_kind, label)
                     else:
-                        self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'" 
+                        self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'"
                             % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label))))
         return params
 
@@ -396,7 +396,7 @@ class Config:
             raise self.config_errors[0]
         return True
 
-        
+
     # Loads configuration data from resources. Also expands resources based on defined features settings
     def load_resources(self, resources):
         # Update configuration files until added features creates no changes
@@ -418,7 +418,7 @@ class Config:
         self.validate_config()
 
         return resources
-        
+
 
     # Return the configuration data converted to the content of a C header file,
     # meant to be included to a C/C++ file. The content is returned as a string.
