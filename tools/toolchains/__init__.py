@@ -455,7 +455,8 @@ class mbedToolchain:
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
                     (d == 'TESTS')):
-                    dirs.remove(d)
+                    if d in dirs:
+                        dirs.remove(d)
 
                 if (d.startswith('FEATURE_')):
                     resources.features[d[8:]] = self.scan_resources(dir_path, base_path=base_path)
@@ -465,12 +466,13 @@ class mbedToolchain:
                 # to avoid travelling into them and to prevent them
                 # on appearing in include path.
                 if self.is_ignored(join(dir_path,"")):
-                    dirs.remove(d)
+                    if d in dirs: 
+                        dirs.remove(d)
 
                 if exclude_paths:
                     for exclude_path in exclude_paths:
                         rel_path = relpath(dir_path, exclude_path)
-                        if not (rel_path.startswith('..')):
+                        if not (rel_path.startswith('..')) and d in dirs:
                             dirs.remove(d)
                             break
 
