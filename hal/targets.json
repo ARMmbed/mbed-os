@@ -540,7 +540,7 @@
             "storage_driver_mode": {
                 "help": "Configuration parameter to select flash storage driver mode. 1 => async operation, 0 => sync operation",
                 "macro_name": "STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS",
-                "value": 0
+                "value": 1
             }
         }
     },
