@@ -109,7 +109,7 @@ do                                                                              
 #define CFSTORE_ASSERT(_x)                   do { } while(0)
 #define CFSTORE_INLINE                       inline
 #define CFSTORE_DBGLOG(_fmt, ...)            do { } while(0)
-#define CFSTORE_ERRLOG(_fmt, ...)            do { printf(_fmt, __VA_ARGS__); } while(0)
+#define CFSTORE_ERRLOG(_fmt, ...)            do { } while(0)
 #define CFSTORE_FENTRYLOG(_fmt, ...)         do { } while(0)
 #define CFSTORE_TP(_tp, _fmt, ...)           do { } while(0)
 #endif /* CFSTORE_DEBUG */

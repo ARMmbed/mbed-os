@@ -20,15 +20,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -47,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_init_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -77,15 +74,12 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "Driver_Common.h"
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -115,8 +109,12 @@ ARM_CFSTORE_DRIVER *cfstore_drv = &cfstore_driver;
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_init_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_init_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
     return CaseNext;
 }
 
@@ -125,24 +123,24 @@ static void cfstore_init_test_01(cfstore_init_ctx_t* ctx)
     int32_t ret;
 
     (void) ctx;
-	CFSTORE_LOG("INITIALIZING%s", "\r\n");
+	CFSTORE_DBGLOG("INITIALIZING%s", "\r\n");
 	ret = cfstore_drv->Initialize(NULL, NULL);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_init_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Initialize() should return ret >= 0 for async/synch modes(ret=%ld)\r\n", __func__, ret);
 	TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
 
-	CFSTORE_LOG("FLUSHING1%s", "\r\n");
+	CFSTORE_DBGLOG("FLUSHING1%s", "\r\n");
 	ret = cfstore_drv->Flush();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_init_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Flush() failed (ret=%ld)\r\n", __func__, ret);
 	TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
 
-	CFSTORE_LOG("UNINITIALIZING%s", "\r\n");
+	CFSTORE_DBGLOG("UNINITIALIZING%s", "\r\n");
 	ret = cfstore_drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_init_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() should return ret >= 0 for synch mode(ret=%ld)\r\n", __func__, ret);
 	TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_init_utest_msg_g);
 
-	CFSTORE_LOG("***************%s", "\r\n");
-	CFSTORE_LOG("*** SUCCESS ***%s", "\r\n");
-	CFSTORE_LOG("***************%s", "\r\n");
+	CFSTORE_DBGLOG("***************%s", "\r\n");
+	CFSTORE_DBGLOG("*** SUCCESS ***%s", "\r\n");
+	CFSTORE_DBGLOG("***************%s", "\r\n");
 	return;
 }
 

@@ -10,7 +10,6 @@
 /*
  * CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
  *  = 1 >1 build with the flash
- * CFSTORE_CONFIG_BACKEND_SRAM_ENABLED
  * CFSTORE_CONFIG_BACKEND_UVISOR_ENABLED
  * CFSTORE_CONFIG_MBED_OS_VERSION
  *  3 => mbedosV3
@@ -18,8 +17,6 @@
  */
 
 /* default values */
-#define CFSTORE_CONFIG_BACKEND_FLASH_ENABLED    1
-#define CFSTORE_CONFIG_BACKEND_SRAM_ENABLED     0
 #define CFSTORE_CONFIG_BACKEND_UVISOR_ENABLED   0
 #define CFSTORE_CONFIG_MBED_OS_VERSION		    3
 
@@ -38,23 +35,25 @@
 #ifdef __MBED__
 #undef CFSTORE_CONFIG_MBED_OS_VERSION
 #define CFSTORE_CONFIG_MBED_OS_VERSION    4
-/* currently build only sram version (port flash-journal later) */
 
-#define YOTTA_CFG_CFSTORE_BACKEND_SRAM
-
-/* define the symbol that yotta would define for the k64f target */
-#define TARGET_LIKE_FRDM_K64F_GCC
 
 /* at present time building for sram so set yotta symbol for sync mode i.e. async_ops = 0*/
 #define YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS     0
 #endif /* __MBED__ */
 
-#if defined YOTTA_CFG_CFSTORE_BACKEND_SRAM
-#undef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
-#define CFSTORE_CONFIG_BACKEND_FLASH_ENABLED    0
-#undef CFSTORE_CONFIG_BACKEND_SRAM_ENABLED
-#define CFSTORE_CONFIG_BACKEND_SRAM_ENABLED     1
-#endif /* YOTTA_CFG_CFSTORE_BACKEND_SRAM */
-
+/* DEVICE_STORAGE
+ *   defined by the mbed configuration system if a target supports flash storage
+ *   back-end. See targets.json for target flash support.
+ *    - If a target supports storage then by default cfstore will persist KVs to
+ *      storage.
+ *    - If a target does not support storage then (by default) cfstore will store KVs
+ *      in SRAM only (i.e. operate in SRAM in-memory mode).
+ *
+ * CFSTORE_STORAGE_DISABLE
+ *   Disable use of storage support (if present)
+ */
+#if defined DEVICE_STORAGE && CFSTORE_STORAGE_DISABLE==0
+#define CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+#endif
 
 #endif /*__CFSTORE_CONFIG_H*/

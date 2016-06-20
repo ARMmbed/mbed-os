@@ -20,15 +20,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -47,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_create_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -78,15 +75,12 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -314,8 +308,12 @@ out1:
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_create_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
     return CaseNext;
 }
 
@@ -368,7 +366,8 @@ static control_t cfstore_create_test_01_end(const size_t call_count)
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
         node++;
     }
-    CFSTORE_LOG("KV successfully increased in size and other KVs remained unchanged.%s", "\n");
+    /* revert CFSTORE_LOG for more trace */
+    CFSTORE_DBGLOG("KV successfully increased in size and other KVs remained unchanged.%s", "\n");
     /* Shrink the KV from KV MID_ENTRY_02 to MID_ENTRY_03 */
     ret = cfstore_create_test_KV_change(&cfstore_create_test_01_data[1], &cfstore_create_test_01_data[2]);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to decrease size of KV (ret=%" PRId32 ").\n", __func__, ret);
@@ -383,7 +382,8 @@ static control_t cfstore_create_test_01_end(const size_t call_count)
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
         node++;
     }
-    CFSTORE_LOG("KV successfully decreased in size and other KVs remained unchanged.%s", "\n");
+    /* revert CFSTORE_LOG for more trace */
+    CFSTORE_DBGLOG("KV successfully decreased in size and other KVs remained unchanged.%s", "\n");
 
     /* Delete the KV */
     ret = cfstore_test_delete(cfstore_create_test_01_data[2].key_name);
@@ -486,7 +486,8 @@ static control_t cfstore_create_test_03_end(const size_t call_count)
         ret = cfstore_create_test_02_core(call_count);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: something went wrong (ret=%" PRId32 ").\n", __func__, ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
-        CFSTORE_LOG("Successfully completed create/destroy loop %" PRId32 ".\n", i);
+        /* revert CFSTORE_LOG for more trace */
+        CFSTORE_DBGLOG("Successfully completed create/destroy loop %" PRId32 ".\n", i);
     }
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
     TEST_ASSERT_MESSAGE(drv->Uninitialize() >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
@@ -531,10 +532,11 @@ static control_t cfstore_create_test_04_end(const size_t call_count)
         bytes_stored += kv_value_min_len/8 * (i+1);  /* kv value blob */
         bytes_stored += 8;                           /* kv overhead */
         if(ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY){
-            CFSTORE_LOG("Out of memory on %" PRId32 "-th KV, trying to allocate memory totalling %" PRIu32 ".\n", i, bytes_stored);
+            CFSTORE_ERRLOG("Out of memory on %" PRId32 "-th KV, trying to allocate memory totalling %" PRIu32 ".\n", i, bytes_stored);
             break;
         }
-        CFSTORE_LOG("Successfully stored %" PRId32 "-th KV bytes,  totalling %" PRIu32 ".\n", i, bytes_stored);
+        /* revert CFSTORE_LOG for more trace */
+        CFSTORE_DBGLOG("Successfully stored %" PRId32 "-th KV bytes,  totalling %" PRIu32 ".\n", i, bytes_stored);
     }
     ret = cfstore_test_delete_all();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete_all() attributes to clean up after test (ret=%" PRId32 ").\n", __func__, ret);
@@ -585,10 +587,11 @@ static control_t cfstore_create_test_05_end(const size_t call_count)
         bytes_stored += kv_value_min_len/64 * (i+1);                           /* kv value blob */
         bytes_stored += 8;                                                     /* kv overhead */
         if(ret == ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY){
-            CFSTORE_LOG("Out of memory on %" PRId32 "-th KV, trying to allocate memory totalling %" PRIu32 ".\n", i, bytes_stored);
+            CFSTORE_ERRLOG("Out of memory on %" PRId32 "-th KV, trying to allocate memory totalling %" PRIu32 ".\n", i, bytes_stored);
             break;
         }
-        CFSTORE_LOG("Successfully stored %" PRId32 "-th KV bytes,  totalling %" PRIu32 ".\n", i, bytes_stored);
+        /* revert CFSTORE_LOG for more trace */
+        CFSTORE_DBGLOG("Successfully stored %" PRId32 "-th KV bytes,  totalling %" PRIu32 ".\n", i, bytes_stored);
     }
     ret = cfstore_test_delete_all();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to delete_all() attributes to clean up after test.\n", __func__);
@@ -706,7 +709,7 @@ static control_t cfstore_create_test_06_end(const size_t call_count)
 
     ret32 = drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_create_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
+    TEST_ASSERT_MESSAGE(ret32 >= ARM_DRIVER_OK, cfstore_create_utest_msg_g);
     return CaseNext;
 }
 

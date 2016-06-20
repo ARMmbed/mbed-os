@@ -49,15 +49,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -106,10 +103,7 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "Driver_Common.h"
 
 #ifndef YOTTA_CONFIGURATION_STORE_EXAMPLE5_VERSION_STRING
@@ -124,7 +118,13 @@ int main()
 #endif  // YOTTA_CONFIGURATION_STORE_EXAMPLE5_VERSION_STRING
 
 #include "cfstore_config.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
+
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+#include "flash_journal_strategy_sequential.h"
+#include "flash_journal.h"
+#include "Driver_Common.h"
+#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -203,6 +203,30 @@ extern ARM_CFSTORE_DRIVER cfstore_driver;
 ARM_CFSTORE_DRIVER *cfstore_drv = &cfstore_driver;
 
 
+/* @brief   test startup code to reset flash
+ */
+int32_t cfstore_test_startup(void)
+{
+    ARM_CFSTORE_CAPABILITIES caps = cfstore_driver.GetCapabilities();
+    CFSTORE_EX5_LOG("INITIALIZING: caps.asynchronous_ops=%d\n", (int) caps.asynchronous_ops);
+
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+    int32_t ret = ARM_DRIVER_ERROR;
+    FlashJournal_t jrnl;
+    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
+    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+
+    ret = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
+    CFSTORE_EX5_TEST_ASSERT_MSG(ret >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_initialize() failed (ret=%d)\r\n", __func__, (int) ret);
+
+    ret = FlashJournal_reset(&jrnl);
+    CFSTORE_EX5_TEST_ASSERT_MSG(ret >= JOURNAL_STATUS_OK, "%s:Error: FlashJournal_reset() failed (ret=%d)\r\n", __func__, (int) ret);
+#endif /*  CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
+
+    return ARM_DRIVER_OK;
+}
+
+
 static void cfstore_ex5_test_01(cfstore_EXAMPLE5_ctx_t* ctx)
 {
     int32_t ret;
@@ -234,13 +258,11 @@ static void cfstore_ex5_test_01(cfstore_EXAMPLE5_ctx_t* ctx)
 	ret = cfstore_drv->Flush();
 	CFSTORE_EX5_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Flush() failed (ret=%ld)\r\n", __func__, ret);
 
-	/* commenting out the 2nd flush() means the test works.*/
-	//CFSTORE_EX5_LOG("FLUSHING2%s", "\r\n");
-	//ret = cfstore_drv->Flush();
-	//CFSTORE_EX5_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Flush() failed (ret=%ld)\r\n", __func__, ret);
-
-	/* todo: re-instate when Flush() really persists to flash on mbedOSv3+++.
-	 * currently in the supported sram version Uninitialize() clears the sram
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+	/* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED => flash storage support present.
+	 * if this was not the case (i.e. cfstore running SRAM in memory mode) then
+	 * we dont compile in the  Uninitialize()/Initialize() as the
+	 * Uninitialize() clears the sram */
 	CFSTORE_EX5_LOG("UNINITIALIZING1%s", "\r\n");
 	ret = cfstore_drv->Uninitialize();
 	CFSTORE_EX5_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Uninitialize() should return ret >= 0 for synch mode(ret=%ld)\r\n", __func__, ret);
@@ -248,7 +270,7 @@ static void cfstore_ex5_test_01(cfstore_EXAMPLE5_ctx_t* ctx)
 	CFSTORE_EX5_LOG("INITIALIZING2%s", "\r\n");
 	ret = cfstore_drv->Initialize(NULL, NULL);
 	CFSTORE_EX5_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: Initialize() should return ret >= 0 for async/synch modes(ret=%ld)\r\n", __func__, ret);
-	*/
+#endif
 
 	CFSTORE_EX5_LOG("OPENING%s", "\r\n");
 	memset(&ctx->flags, 0, sizeof(ctx->flags));
@@ -291,6 +313,7 @@ static void cfstore_ex5_test_01(cfstore_EXAMPLE5_ctx_t* ctx)
 
 static control_t cfstore_EXAMPLE5_app_start(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
     cfstore_EXAMPLE5_ctx_t* ctx = &cfstore_EXAMPLE5_ctx_g;
 
     (void) call_count;
@@ -307,6 +330,8 @@ static control_t cfstore_EXAMPLE5_app_start(const size_t call_count)
         CFSTORE_EX5_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");
         return CaseNext;
     }
+    ret = cfstore_test_startup();
+    CFSTORE_EX5_TEST_ASSERT_MSG(ret >= ARM_DRIVER_OK, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
     cfstore_ex5_test_01(ctx);
     return CaseNext;
 }

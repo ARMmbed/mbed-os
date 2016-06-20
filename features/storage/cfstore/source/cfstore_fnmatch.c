@@ -33,16 +33,16 @@
 #ifndef _NO_FNMATCH
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)fnmatch.c	8.2 (Berkeley) 4/16/94";
+static char sccsid[] = "@(#)cfstore_fnmatch.c	8.2 (Berkeley) 4/16/94";
 #endif /* LIBC_SCCS and not lint */
 
 /* In order to support ARM toolchain, this have been removed from the original
- * fnmatch.c from newlib.
+ * cfstore_fnmatch.c from newlib.
  * #include <sys/cdefs.h>
  */
 
 /*
- * Function fnmatch() as specified in POSIX 1003.2-1992, section B.6.
+ * Function cfstore_fnmatch() as specified in POSIX 1003.2-1992, section B.6.
  * Compares a filename or pathname to a pattern.
  */
 
@@ -52,7 +52,7 @@ static char sccsid[] = "@(#)fnmatch.c	8.2 (Berkeley) 4/16/94";
 #include <stdio.h>
 #include <limits.h>
 
-/* code copied from the original fnmatch.h */
+/* code copied from the original cfstore_fnmatch.h */
 
 #define	FNM_NOESCAPE	0x01	/* Disable backslash escaping. */
 #define	FNM_PATHNAME	0x02	/* Slash must be matched by slash. */
@@ -157,10 +157,7 @@ int __collate_range_cmp (c1, c2)
 
 static int rangematch(const char *, char, int, char **);
 
-int
-fnmatch(pattern, string, flags)
-	const char *pattern, *string;
-	int flags;
+int cfstore_fnmatch(const char *pattern, const char *string, int flags)
 {
 	const char *stringstart;
 	char *newp;
@@ -210,7 +207,7 @@ fnmatch(pattern, string, flags)
 
 			/* General case, use recursion. */
 			while ((test = *string) != EOS) {
-				if (!fnmatch(pattern, string, flags & ~FNM_PERIOD))
+				if (!cfstore_fnmatch(pattern, string, flags & ~FNM_PERIOD))
 					return (0);
 				if (test == '/' && flags & FNM_PATHNAME)
 					break;

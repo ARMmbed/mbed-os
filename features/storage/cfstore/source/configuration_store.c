@@ -16,24 +16,25 @@
  * limitations under the License.
  */
 
-#include <cfstore_fnmatch.h>
+#include "cfstore_config.h"
+#include "cfstore_debug.h"
+#include "cfstore_list.h"
+#include "cfstore_fnmatch.h"
+#include "configuration_store.h"
 
 #if defined CFSTORE_CONFIG_MBED_OS_VERSION && CFSTORE_CONFIG_MBED_OS_VERSION == 3
 #include <core-util/critical.h>
 #endif /* CFSTORE_CONFIG_MBED_OS_VERSION == 3 */
-#include "cfstore_config.h"
+
 #ifdef YOTTA_CFG_CFSTORE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif /* YOTTA_CFG_CFSTORE_UVISOR */
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
-#include <flash-journal-strategy-sequential/flash_journal_strategy_sequential.h>
-#include <flash-journal/flash_journal.h>
-#include <Driver_Common.h>
-#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
-#include "cfstore_debug.h"
-#include "cfstore_list.h"
-#include "configuration-store/configuration_store.h"
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+#include "flash_journal_strategy_sequential.h"
+#include "flash_journal.h"
+#include "Driver_Common.h"
+#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,14 +46,14 @@
 #ifdef CFSTORE_DEBUG
 uint32_t cfstore_optDebug_g = 1;
 uint32_t cfstore_optLogLevel_g = CFSTORE_LOG_NONE; /*CFSTORE_LOG_NONE|CFSTORE_LOG_ERR|CFSTORE_LOG_DEBUG|CFSTORE_LOG_FENTRY */
-uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY */
+uint32_t cfstore_optLogTracepoint_g = CFSTORE_TP_NONE; /*CFSTORE_TP_NONE|CFSTORE_TP_CLOSE|CFSTORE_TP_CREATE|CFSTORE_TP_DELETE|CFSTORE_TP_FILE|CFSTORE_TP_FIND|CFSTORE_TP_FLUSH|CFSTORE_TP_INIT|CFSTORE_TP_OPEN|CFSTORE_TP_READ|CFSTORE_TP_WRITE|CFSTORE_TP_VERBOSE1|CFSTORE_TP_VERBOSE2|CFSTORE_TP_VERBOSE3|CFSTORE_TP_FENTRY; */
 #endif
 
 
 /*
  * Externs
  */
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
 ARM_DRIVER_STORAGE *cfstore_storage_drv = &ARM_Driver_Storage_(0);
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
@@ -193,7 +194,7 @@ typedef struct cfstore_fsm_t
 
 
 #ifdef CFSTORE_DEBUG
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 /* strings used for debug trace */
 static const char* cfstore_flash_opcode_str[] =
 {
@@ -234,7 +235,7 @@ static const char* cfstore_flash_event_str[] =
 /*
  * Forward decl
  */
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 static int32_t cfstore_fsm_state_handle_event(cfstore_fsm_t* fsm, cfstore_fsm_event_t event, void* context);
 static int32_t cfstore_fsm_state_set(cfstore_fsm_t* fsm, cfstore_fsm_state_t new_state, void* ctx);
 #endif  /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
@@ -384,7 +385,7 @@ typedef struct cfstore_ctx_t
     uint32_t area_dirty_flag : 1;
     uint32_t f_reserved0 : 30;
 
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
     /* flash journal related data */
     FlashJournal_t jrnl;
     FlashJournal_Info_t info;
@@ -439,11 +440,11 @@ typedef struct cfstore_flash_journal_error_code_node
 /*
  * Globals
  */
-#ifndef YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS
+#ifndef STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
 static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = 1, .uvisor_support_enabled = 0 };
 #else
-static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS, .uvisor_support_enabled = 0 };
-#endif /* YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS */
+static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS, .uvisor_support_enabled = 0 };
+#endif /* STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS */
 
 static const ARM_DRIVER_VERSION cfstore_driver_version_g = { .api = ARM_CFSTORE_API_VERSION, .drv = ARM_CFSTORE_DRV_VERSION };
 
@@ -615,7 +616,7 @@ static ARM_CFSTORE_SIZE cfstore_ctx_get_area_len(void)
 static inline uint32_t cfstore_ctx_get_program_unit(cfstore_ctx_t* ctx)
 {
     CFSTORE_ASSERT(ctx!= NULL);
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
     return ctx->info.program_unit;
 #else
     /* the program unit is 1 so byte aligned when no flash backend present */
@@ -729,10 +730,45 @@ void *cfstore_realloc(void *ptr, ARM_CFSTORE_SIZE size)
 
 #endif /* CFSTORE_YOTTA_CFG_CFSTORE_SRAM_ADDR */
 
+
+#ifdef TARGET_LIKE_X86_LINUX_NATIVE
+static inline void cfstore_critical_section_init(CFSTORE_LOCK* lock){ *lock = 0; }
+static inline void cfstore_critical_section_lock(CFSTORE_LOCK* lock, const char* tag){ (void) tag; __sync_fetch_and_add(lock, 1); }
+static inline void cfstore_critical_section_unlock(CFSTORE_LOCK* lock, const char* tag){(void) tag;  __sync_fetch_and_sub(lock, 1); }
+
+static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_dec(cfstore_area_hkvt_t* hkvt, uint8_t *refcount)
+{
+    cfstore_area_header_t *hdr = (cfstore_area_header_t*) hkvt->head;
+    uint32_t __refcount;
+
+    __refcount =__sync_fetch_and_sub(&hdr->refcount, 1);
+    if(refcount) *refcount = __refcount;
+    return ARM_DRIVER_OK;
+}
+
+static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_inc(cfstore_area_hkvt_t* hkvt, uint8_t *refcount)
+{
+    int32_t ret = ARM_CFSTORE_DRIVER_ERROR_HANDLE_COUNT_MAX;
+    uint32_t __refcount;
+    cfstore_area_header_t *hdr = (cfstore_area_header_t*) hkvt->head;
+
+    if( (__refcount = __sync_fetch_and_add(&hdr->refcount, 1)) < CFSTORE_LOCK_REFCOUNT_MAX) {
+        if(refcount) *refcount = __refcount;
+        ret = ARM_DRIVER_OK;
+    } else {
+        /* maximum count reach, back down and return error*/
+        __sync_fetch_and_sub(&hdr->refcount, 1);
+    }
+    return ret;
+}
+
+
+#else
+
 /*
  * Platform Specific Function Implementations
  */
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
+
 static inline void cfstore_critical_section_init(CFSTORE_LOCK* lock){ *lock = 0; }
 static inline void cfstore_critical_section_unlock(CFSTORE_LOCK* lock, const char* tag)
 {
@@ -778,39 +814,6 @@ static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_inc(cfstore_area_hkvt_t* hkv
         ret = ARM_DRIVER_OK;
     }
     /* todo: put mbedosv3++ critical section exit here */
-    return ret;
-}
-#endif /* TARGET_LIKE_FRDM_K64F_GCC */
-
-
-#ifdef TARGET_LIKE_X86_LINUX_NATIVE
-static inline void cfstore_critical_section_init(CFSTORE_LOCK* lock){ *lock = 0; }
-static inline void cfstore_critical_section_lock(CFSTORE_LOCK* lock, const char* tag){ (void) tag; __sync_fetch_and_add(lock, 1); }
-static inline void cfstore_critical_section_unlock(CFSTORE_LOCK* lock, const char* tag){(void) tag;  __sync_fetch_and_sub(lock, 1); }
-
-static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_dec(cfstore_area_hkvt_t* hkvt, uint8_t *refcount)
-{
-    cfstore_area_header_t *hdr = (cfstore_area_header_t*) hkvt->head;
-    uint32_t __refcount;
-
-    __refcount =__sync_fetch_and_sub(&hdr->refcount, 1);
-    if(refcount) *refcount = __refcount;
-    return ARM_DRIVER_OK;
-}
-
-static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_inc(cfstore_area_hkvt_t* hkvt, uint8_t *refcount)
-{
-    int32_t ret = ARM_CFSTORE_DRIVER_ERROR_HANDLE_COUNT_MAX;
-    uint32_t __refcount;
-    cfstore_area_header_t *hdr = (cfstore_area_header_t*) hkvt->head;
-
-    if( (__refcount = __sync_fetch_and_add(&hdr->refcount, 1)) < CFSTORE_LOCK_REFCOUNT_MAX) {
-        if(refcount) *refcount = __refcount;
-        ret = ARM_DRIVER_OK;
-    } else {
-        /* maximum count reach, back down and return error*/
-        __sync_fetch_and_sub(&hdr->refcount, 1);
-    }
     return ret;
 }
 
@@ -1336,7 +1339,7 @@ static int32_t cfstore_flash_set_tail(void)
     return ret;
 }
 
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 
 /*
  * flash helper functions
@@ -1615,8 +1618,6 @@ static int32_t cfstore_fsm_reading(void* context)
                     memset(&ctx->info, 0, sizeof(ctx->info));
                     goto out;
                 }
-                /* clear info data */
-                memset(&ctx->info, 0, sizeof(ctx->info));
                 ret = cfstore_fsm_state_set(&ctx->fsm, cfstore_fsm_state_ready, ctx);
                 if(ret < ARM_DRIVER_OK){
                     CFSTORE_ERRLOG("%s:Error: cfstore_fsm_state_set() failed (ret=%" PRId32 ")\n", __func__, ret);
@@ -2002,7 +2003,6 @@ static int32_t cfstore_flash_init(void)
     cfstore_ctx_t* ctx = cfstore_ctx_get();
 
     CFSTORE_FENTRYLOG("%s:entered: \n", __func__);
-    CFSTORE_FENTRYLOG("%s:: CFSTORE_CONFIG_BACKEND_FLASH_ENABLED=%d\n", __func__, (int) CFSTORE_CONFIG_BACKEND_FLASH_ENABLED);
     ctx->cmd_code = (FlashJournal_OpCode_t)((int) FLASH_JOURNAL_OPCODE_RESET+1);
     ctx->expected_blob_size = 0;
     ctx->fsm.event = cfstore_fsm_event_max;
@@ -2523,7 +2523,7 @@ static int32_t cfstore_validate_key_name_ex(const char* key_name, const char* pe
         	pos = cfstore_validate_pos_next_brace(pos);
         }
         if(brace_count != 0){
-            CFSTORE_ERRLOG("%s: Unmatched brace found in key_name (count=%" PRId32 ".\n", __func__, brace_count);
+            CFSTORE_ERRLOG("%s: Unmatched brace found in key_name (count=%d.\n", __func__, brace_count);
             return ARM_CFSTORE_DRIVER_ERROR_INVALID_KEY_NAME;
         }
     }
@@ -2970,14 +2970,14 @@ static int32_t cfstore_find_ex(const char* key_name_query, cfstore_area_hkvt_t *
         next_key_len = cfstore_hkvt_get_key_len(next);
         next_key_len++;
         cfstore_get_key_name_ex(next, key_name, &next_key_len);
-        ret = fnmatch(key_name_query, key_name, 0);
+        ret = cfstore_fnmatch(key_name_query, key_name, 0);
         if(ret == 0){
             /* found the entry in the store. return handle */
             CFSTORE_TP(CFSTORE_TP_FIND, "%s:Found matching key (key_name_query = \"%s\", next->key = \"%s\"),next_key_len=%d\n", __func__, key_name_query, key_name, (int) next_key_len);
             cfstore_hkvt_dump(next, __func__);
             return ARM_DRIVER_OK;
         } else if(ret != CFSTORE_FNM_NOMATCH){
-            CFSTORE_ERRLOG("%s:Error: fnmatch() error (ret=%" PRId32 ").\n", __func__, ret);
+            CFSTORE_ERRLOG("%s:Error: cfstore_fnmatch() error (ret=%" PRId32 ").\n", __func__, ret);
             return ARM_DRIVER_ERROR;
         }
         /* CFSTORE_FNM_NOMATCH => get the next hkvt if any */
@@ -3721,7 +3721,7 @@ static int32_t cfstore_initialise(ARM_CFSTORE_CALLBACK callback, void* client_co
 {
 	int ret = ARM_DRIVER_ERROR;
     cfstore_ctx_t* ctx = cfstore_ctx_get();
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
     ARM_STORAGE_CAPABILITIES storage_caps;
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
 
@@ -3757,8 +3757,7 @@ static int32_t cfstore_initialise(ARM_CFSTORE_CALLBACK callback, void* client_co
         ctx->power_state = ARM_POWER_FULL;
         ctx->status = ARM_DRIVER_OK;
 
-#if defined CFSTORE_CONFIG_BACKEND_FLASH_ENABLED && CFSTORE_CONFIG_BACKEND_FLASH_ENABLED == 1
-        // todo: put in cfstore_flash_init() ?
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
         /* set the cfstore async flag according to the storage driver mode */
         storage_caps = cfstore_storage_drv->GetCapabilities();
         cfstore_caps_g.asynchronous_ops = storage_caps.asynchronous_ops;
