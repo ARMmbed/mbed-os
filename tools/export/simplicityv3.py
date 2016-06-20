@@ -101,6 +101,8 @@ class SimplicityV3(Exporter):
 
     DOT_IN_RELATIVE_PATH = False
 
+    MBED_CONF_ACTIVE = True
+
     orderedPaths = Folder("Root")
 
     def check_and_add_path(self, path):

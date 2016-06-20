@@ -171,12 +171,15 @@ class Exporter(object):
         # Loads the resources into the config system which might expand/modify resources based on config data
         self.resources = config.load_resources(resources)
 
-        # And add the configuration macros to the toolchain
-        self.config_macros = config.get_config_data_macros()
 
-        # Add the configuration file to the target directory
-        self.config_header =  "mbed_conf.h"
-        config.get_config_data_header(join(trg_path, self.config_header))
+        if hasattr(self, "MBED_CONF_ACTIVE") and self.MBED_CONF_ACTIVE :
+            # Add the configuration file to the target directory
+            self.config_header = "mbed_conf.h"
+            config.get_config_data_header(join(trg_path, self.config_header))
+            self.config_macros = []
+        else :
+            # And add the configuration macros to the toolchain
+            self.config_macros = config.get_config_data_macros()
         # Check the existence of a binary build of the mbed library for the desired target
         # This prevents exporting the mbed libraries from source
         # if not self.toolchain.mbed_libs:

@@ -33,6 +33,8 @@ class AtmelStudio(Exporter):
 
     DOT_IN_RELATIVE_PATH = True
 
+    MBED_CONF_ACTIVE = True
+
     def generate(self):
 
         source_files = []

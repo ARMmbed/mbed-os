@@ -121,6 +121,8 @@ class GccArm(Exporter):
 
     DOT_IN_RELATIVE_PATH = True
 
+    MBED_CONF_ACTIVE = True
+
     def generate(self):
         # "make" wants Unix paths
         self.resources.win_to_unix()

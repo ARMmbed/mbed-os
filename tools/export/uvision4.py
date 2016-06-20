@@ -34,6 +34,8 @@ class Uvision4(Exporter):
     # PROGEN_ACTIVE contains information for exporter scripts that this is using progen
     PROGEN_ACTIVE = True
 
+    MBED_CONF_ACTIVE = True
+
     # backward compatibility with our scripts
     TARGETS = []
     for target in TARGET_NAMES:
