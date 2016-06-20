@@ -535,7 +535,14 @@
         "progen": {"target": "frdm-k64f"},
         "detect_code": ["0240"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "STORAGE"],
-        "features": ["IPV4"]
+        "features": ["IPV4"],
+        "config": {
+            "storage_driver_mode": {
+                "help": "Configuration parameter to select flash storage driver mode. 1 => async operation, 0 => sync operation",
+                "macro_name": "STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS",
+                "value": 1
+            }
+        }
     },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
