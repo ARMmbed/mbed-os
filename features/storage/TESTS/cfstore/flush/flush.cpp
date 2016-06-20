@@ -20,15 +20,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -47,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_flush_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -78,15 +75,12 @@ int main()
 
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -146,7 +140,6 @@ static int32_t cfstore_flush_test_01_x86_sync(void)
     int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_DRIVER* drv = &cfstore_driver;
 
-    CFSTORE_LOG("cfstore_flush_test_01: Start%s", "\r\n");
     ret = drv->Initialize(NULL, NULL);
     if(ret != ARM_DRIVER_OK){
         CFSTORE_ERRLOG("%s:Initialize() call failed (ret=%" PRId32 ").\r\n", __func__, ret);
@@ -162,11 +155,6 @@ static int32_t cfstore_flush_test_01_x86_sync(void)
         goto out0;
     }
  out0:
-    if(ret == ARM_DRIVER_OK){
-        CFSTORE_LOG("cfstore_flush_test_01: End: Success%s", "\r\n");
-    } else {
-        CFSTORE_LOG("cfstore_flush_test_01: End: Failed%s", "\r\n");
-    }
     return ret;
 }
 #endif /* TARGET_LIKE_X86_LINUX_NATIVE */
@@ -401,7 +389,8 @@ static void cfstore_flush_fsm_flush_on_entry(void* context)
         ret = drv->Flush();
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to flush data to cfstore flash (ret=%" PRId32 ").\r\n", __func__, ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
-        CFSTORE_LOG("FLUSH: Success pending for new KV creation (name=%s, value=%s)\n", cfstore_flush_test_02_kv_data->key_name, cfstore_flush_test_02_kv_data->value)
+        /* revert to CFSTORE_LOG if more trace required */
+        CFSTORE_DBGLOG("FLUSH: Success pending for new KV creation (name=%s, value=%s)\n", cfstore_flush_test_02_kv_data->key_name, cfstore_flush_test_02_kv_data->value);
     } else {
         /*read the value, increment by 1 and write value back */
         len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
@@ -410,7 +399,8 @@ static void cfstore_flush_fsm_flush_on_entry(void* context)
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
 
         ivalue = atoi(value);
-        CFSTORE_LOG("FLUSH: Read KV from flash (name=%s, value=%" PRId32 ")\n", cfstore_flush_test_02_kv_data->key_name, ivalue);
+        /* revert to CFSTORE_LOG if more trace required */
+        CFSTORE_DBGLOG("FLUSH: Read KV from flash (name=%s, value=%" PRId32 ")\n", cfstore_flush_test_02_kv_data->key_name, ivalue);
         /* increment value */
         ++ivalue;
         snprintf(value, CFSTORE_KEY_NAME_MAX_LENGTH+1, "%" PRId32 "", ivalue);
@@ -423,7 +413,8 @@ static void cfstore_flush_fsm_flush_on_entry(void* context)
         ret = drv->Flush();
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_FLUSH_UTEST_MSG_BUF_SIZE, "%s:Error: failed to flush data to cfstore flash (ret=%" PRId32 ").\r\n", __func__, ret);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
-        CFSTORE_LOG("FLUSH: Success pending for new KV value to flash (name=%s, value=%" PRId32 ")\n", cfstore_flush_test_02_kv_data->key_name, ivalue);
+        /* revert to CFSTORE_LOG if more trace required */
+        CFSTORE_DBGLOG("FLUSH: Success pending for new KV value to flash (name=%s, value=%" PRId32 ")\n", cfstore_flush_test_02_kv_data->key_name, ivalue);
     }
     return;
 }
@@ -443,7 +434,8 @@ static void cfstore_flush_fsm_flushing(void* context)
     TEST_ASSERT_MESSAGE(ctx->status >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
     /* only change state if status >= 0*/
     if(ctx->status >= 0){
-        CFSTORE_LOG("FLUSH: Successfully flushed data to flash.%s", "\n");
+        /* revert to CFSTORE_LOG if more trace required */
+        CFSTORE_DBGLOG("FLUSH: Successfully flushed data to flash.%s", "\n");
         cfstore_flush_fsm_state_set(&ctx->fsm, cfstore_flush_fsm_state_uninitializing, ctx);
     }
     return;
@@ -595,8 +587,12 @@ static control_t cfstore_flush_test_02_k64f(void)
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_flush_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_flush_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_flush_utest_msg_g);
     return CaseNext;
 }
 

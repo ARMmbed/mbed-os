@@ -17,10 +17,18 @@
  *
  * test support code implementation file.
  */
+
 #include "cfstore_config.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include <configuration_store.h>
+#include "configuration_store.h"
+
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+#include "flash_journal_strategy_sequential.h"
+#include "flash_journal.h"
+#include "Driver_Common.h"
+#endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -105,6 +113,39 @@ const char* cfstore_test_opcode_str[] =
     "CFSTORE_OPCODE_WRITE",
     "CFSTORE_OPCODE_MAX"
 };
+
+
+/* @brief   test startup code to reset flash
+ */
+int32_t cfstore_test_startup(void)
+{
+    ARM_CFSTORE_CAPABILITIES caps = cfstore_driver.GetCapabilities();
+    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%d\n", (int) caps.asynchronous_ops);
+
+#ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
+
+    int32_t ret = ARM_DRIVER_ERROR;
+    FlashJournal_t jrnl;
+    extern ARM_DRIVER_STORAGE ARM_Driver_Storage_(0);
+    const ARM_DRIVER_STORAGE *drv = &ARM_Driver_Storage_(0);
+
+    ret = FlashJournal_initialize(&jrnl, drv, &FLASH_JOURNAL_STRATEGY_SEQUENTIAL, NULL);
+    if(ret < JOURNAL_STATUS_OK){
+        CFSTORE_ERRLOG("%s:Error: failed to initialize flash journaling layer (ret=%d)\n", __func__, (int) ret);
+        return ARM_DRIVER_ERROR;
+    }
+    ret = FlashJournal_reset(&jrnl);
+    if(ret < JOURNAL_STATUS_OK){
+        CFSTORE_ERRLOG("%s:Error: failed to reset flash journal (ret=%" PRId32 ")\n", __func__, ret);
+        return ARM_DRIVER_ERROR;
+    }
+
+#endif /*  CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
+
+    return ARM_DRIVER_OK;
+}
+
+
 /* @brief   test utility function to check a node appears correctly in the cfstore
  * @note    this function expects cfstore to have been initialised with
  *          a call to ARM_CFSTORE_DRIVER::Initialize()
@@ -257,6 +298,7 @@ int32_t cfstore_test_create_table(const cfstore_kv_data_t* table)
     cfstore_kv_data_t* node = NULL;
     ARM_CFSTORE_KEYDESC kdesc;
 
+    (void) node; /* suppresses warning when building release */
     CFSTORE_FENTRYLOG("%s:entered.\r\n", __func__);
     memset(&kdesc, 0, sizeof(kdesc));
     kdesc.drl = ARM_RETENTION_WHILE_DEVICE_ACTIVE;
@@ -421,7 +463,8 @@ int32_t cfstore_test_init_1(void)
             drv->Close(hkey);
             return ARM_DRIVER_ERROR;
         }
-        CFSTORE_LOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\r\n", key_name_buf, read_buf);
+        /* revert CFSTORE_LOG for more trace */
+        CFSTORE_DBGLOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\r\n", key_name_buf, read_buf);
         drv->Close(hkey);
         node++;
     }

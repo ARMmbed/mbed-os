@@ -21,15 +21,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -48,7 +45,7 @@ using namespace utest::v1;
 static control_t cfstore_close_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -78,13 +75,10 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "utest/utest.h"
@@ -120,9 +114,12 @@ static cfstore_kv_data_t cfstore_close_test_01_kv_data[] = {
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_close_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    ARM_CFSTORE_CAPABILITIES caps = cfstore_driver.GetCapabilities();
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", caps.asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_close_utest_msg_g);
     return CaseNext;
 }
 
@@ -187,7 +184,8 @@ static control_t cfstore_close_test_01_end(const size_t call_count)
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write full value data (key_name=\"%s\", value=\"%s\"), len=%d, (ret=%d)\n", __func__, node->key_name, node->value, (int) len, (int) ret);
     TEST_ASSERT_MESSAGE(len == strlen(node->value), cfstore_close_utest_msg_g);
-    printf("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
+    /* revert to CFSTORE_LOG if more trace required */
+    CFSTORE_DBGLOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
 
     /* step 03: Now open second handle while keeping first handle open */
     flags.read = true;
@@ -196,7 +194,8 @@ static control_t cfstore_close_test_01_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to open node (key_name=\"%s\", value=\"%s\")(ret=%" PRId32 ")\n", __func__, node->key_name, node->value, ret);
     TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_close_utest_msg_g);
     len = strlen(node->value) + 1;
-    printf("Opened KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
+    /* revert to CFSTORE_LOG if more trace required */
+    CFSTORE_DBGLOG("Opened KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
 
     /* step 04 */
     ret = drv->Read(hkey2, read_buf, &len);
@@ -216,7 +215,8 @@ static control_t cfstore_close_test_01_end(const size_t call_count)
 
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write full value data (key_name=\"%s\", value=\"%s\"), len=%d, (ret=%" PRId32 ")\n", __func__, node->key_name, node->value, (int) len, ret);
     TEST_ASSERT_MESSAGE(len == strlen(node->value), cfstore_close_utest_msg_g);
-    printf("Wrote KV successfully with new data (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
+    /* revert to CFSTORE_LOG if more trace required */
+    CFSTORE_DBGLOG("Wrote KV successfully with new data (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
 
     /* step 06 delete hkey2 */
     ret = drv->Delete(hkey2);
@@ -272,7 +272,8 @@ static control_t cfstore_close_test_01_end(const size_t call_count)
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to write full value data (key_name=\"%s\", value=\"%s\"), len=%d, (ret=%" PRId32 ")\n", __func__, node->key_name, node->value, (int) len, ret);
     TEST_ASSERT_MESSAGE(len == strlen(node->value), cfstore_close_utest_msg_g);
 
-    printf("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
+    /* revert to CFSTORE_LOG if more trace required */
+    CFSTORE_DBGLOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\n", node->key_name, node->value);
 
     ret = drv->Uninitialize();
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_close_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: Uninitialize() call failed.\n", __func__);

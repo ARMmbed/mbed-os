@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 
 /* Defines */
 #define CFSTORE_INIT_1_TABLE_HEAD               { "a", ""}
@@ -75,6 +75,7 @@ int32_t cfstore_test_init_1(void);
 int32_t cfstore_test_kv_is_found(const char* key_name, bool* bfound);
 int32_t cfstore_test_kv_name_gen(char* name, const size_t len);
 int32_t cfstore_test_read(const char* key_name, char* data, size_t* len);
+int32_t cfstore_test_startup(void);
 int32_t cfstore_test_write(const char* key_name, const char* data, size_t* len);
 
 #ifdef __cplusplus

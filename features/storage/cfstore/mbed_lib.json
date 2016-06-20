@@ -1,0 +1,10 @@
+{
+    "name": "configuration-store",
+    "config": {
+        "storage_disable": {
+            "help": "Configuration parameter to disable flash storage if present. Default = 0, implying that by default flash storage is used if present.",
+            "macro_name": "CFSTORE_STORAGE_DISABLE",
+            "value": 0
+        }
+    }
+}

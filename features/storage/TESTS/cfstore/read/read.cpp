@@ -20,15 +20,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -47,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_read_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -78,15 +75,12 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -119,8 +113,12 @@ static cfstore_kv_data_t cfstore_read_test_01_kv_data[] = {
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_read_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_read_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_read_utest_msg_g);
     return CaseNext;
 }
 
@@ -217,7 +215,7 @@ static control_t cfstore_read_test_02_end(const size_t call_count)
     (void) call_count;
     /*todo: implement test */
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_read_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Warn: Not implemented\n", __func__);
-    CFSTORE_LOG("%s: WARN: requires implementation\n", __func__);
+    CFSTORE_DBGLOG("%s: WARN: requires implementation\n", __func__);
     TEST_ASSERT_MESSAGE(true, cfstore_read_utest_msg_g);
     return CaseNext;
 }

@@ -21,15 +21,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -48,7 +45,7 @@ using namespace utest::v1;
 static control_t cfstore_misc_test_00(const size_t call_count)
 {
     (void) call_count;
-    printf("Not implemented for ARM toolchain\n");
+    CFSTORE_LOG("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
@@ -79,16 +76,13 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "Driver_Common.h"
 #include "cfstore_config.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -120,8 +114,12 @@ UVISOR_SET_MODE_ACL(UVISOR_ENABLED, cfstore_acl_uvisor_box_misc_g);
 /* report whether built/configured for flash sync or async mode */
 static control_t cfstore_misc_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
+
     (void) call_count;
-    CFSTORE_LOG("INITIALIZING: caps.asynchronous_ops=%lu\n", cfstore_driver.GetCapabilities().asynchronous_ops);
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
     return CaseNext;
 }
 
@@ -223,17 +221,15 @@ static control_t cfstore_misc_test_02(const size_t call_count)
     (void) call_count;
     memset(&caps, 0, sizeof(caps));
     caps = drv->GetCapabilities();
-    //CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Capabilities() failed to return asynchronous_ops == false.\r\n", __func__);
-    //TEST_ASSERT_MESSAGE(caps.asynchronous_ops == false, cfstore_misc_utest_msg_g);
 
-#ifdef YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS
-    /* sync mode */
-    printf("%s:sync mode: caps.asynchronous_ops =%" PRIu32 "\n", __func__, caps.asynchronous_ops);
+#if defined STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS && defined STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS==0
+    /* sync mode i.e. STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS==0 */
+    CFSTORE_DBGLOG("%s:sync mode: caps.asynchronous_ops =%" PRIu32 "\n", __func__, caps.asynchronous_ops);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetCapabilities() reported caps.asynchronous_ops != false but system built for sync operation.\r\n", __func__);
     TEST_ASSERT_MESSAGE(caps.asynchronous_ops == false, cfstore_misc_utest_msg_g);
 #else
-    /* async mode */
-    printf("%s:async mode: caps.asynchronous_ops =%" PRIu32 "\n", __func__, caps.asynchronous_ops);
+    /* async mode i.e. STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS==1 */
+    CFSTORE_DBGLOG("%s:async mode: caps.asynchronous_ops =%" PRIu32 "\n", __func__, caps.asynchronous_ops);
     CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: GetCapabilities() reported caps.asynchronous_ops != true but system built for async operation.\r\n", __func__);
     TEST_ASSERT_MESSAGE(caps.asynchronous_ops == true, cfstore_misc_utest_msg_g);
 #endif
@@ -297,7 +293,8 @@ static control_t cfstore_misc_test_03_end(const size_t call_count)
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to GetKeyName() (key_name (expected)=\"%s\", key_name (returned)=\"%s\", value=\"%s\"), len return=%d, len expected=%d\r\n", __func__, node->key_name, key_name_buf, node->value, (int) key_name_len, (int) strlen(node->key_name));
         TEST_ASSERT_MESSAGE(key_name_len == strlen(node->key_name)+1, cfstore_misc_utest_msg_g);
 
-        CFSTORE_LOG("GetKeyName() successfully reported key_name (key_name=\"%s\")\r\n", key_name_buf);
+        /* revert to CFSTORE_LOG if more trace required */
+        CFSTORE_DBGLOG("GetKeyName() successfully reported key_name (key_name=\"%s\")\r\n", key_name_buf);
         ret = drv->Close(hkey);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to close key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
         TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_misc_utest_msg_g);
@@ -348,7 +345,8 @@ static control_t cfstore_misc_test_04_end(const size_t call_count)
         drv->GetValueLen(hkey, &len);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Errro: GetValueLen() retrieve incorrect length of value blob(expected=%d, returned=%d)\r\n", __func__, (int) strlen(node->value), (int) len);
         TEST_ASSERT_MESSAGE(len == strlen(node->value), cfstore_misc_utest_msg_g);
-        CFSTORE_LOG("GetValueLen() successfully reported correct value blob length%s", "\r\n");
+        /* revert to CFSTORE_LOG if more trace required */
+        CFSTORE_DBGLOG("GetValueLen() successfully reported correct value blob length%s", "\r\n");
 
         ret = drv->Close(hkey);
         CFSTORE_TEST_UTEST_MESSAGE(cfstore_misc_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Failed to close key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);

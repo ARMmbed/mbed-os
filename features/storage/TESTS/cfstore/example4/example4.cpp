@@ -20,15 +20,12 @@
 #if defined __MBED__ && ! defined TOOLCHAIN_GCC_ARM
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "Driver_Common.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -78,15 +75,12 @@ int main()
 #else
 
 
-#ifdef TARGET_LIKE_FRDM_K64F_GCC
 #include "mbed-drivers/mbed.h"
-#endif
-
 #include "cfstore_config.h"
 #include "cfstore_test.h"
 #include "cfstore_debug.h"
 #include "Driver_Common.h"
-#include "configuration-store/configuration_store.h"
+#include "configuration_store.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -136,6 +130,7 @@ static const PvKeyValue_t testDataKeyValue[] = {
 
 static control_t cfstore_example4_test_00(const size_t call_count)
 {
+    int32_t ret = ARM_DRIVER_ERROR;
     ARM_CFSTORE_CAPABILITIES caps;;
 
     (void) call_count;
@@ -149,6 +144,9 @@ static control_t cfstore_example4_test_00(const size_t call_count)
         CFSTORE_LOG("*** Skipping test as binary built for flash journal async mode, and this test is sync-only%s", "\n");
         return CaseNext;
     }
+    ret = cfstore_test_startup();
+    CFSTORE_TEST_UTEST_MESSAGE(cfstore_example4_utest_msg_g, CFSTORE_UTEST_MSG_BUF_SIZE, "%s:Error: failed to perform test startup (ret=%d).\n", __func__, (int) ret);
+    TEST_ASSERT_MESSAGE(ret >= ARM_DRIVER_OK, cfstore_example4_utest_msg_g);
     return CaseNext;
 }
 
@@ -246,9 +244,9 @@ Case cases[] = {
            /*          1         2         3         4         5         6        7  */
            /* 1234567890123456789012345678901234567890123456789012345678901234567890 */
         Case("EXAMPLE4_test_00", cfstore_example4_test_00),
-#if defined YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS && YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS == 0
+#if defined STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS && STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS==0
         Case("EXAMPLE4_test_01", cfstore_example4_test_01),
-#endif // YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS
+#endif // STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
 };
 
 
