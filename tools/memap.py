@@ -477,6 +477,15 @@ class MemapParser(object):
 
         return True
 
+    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
+    @staticmethod
+    def parse_toolchain(string) :
+        newstring = string.upper().replace("-","_")
+        if newstring not in MemapParser.toolchains:
+            raise (argparse.ArgumentTypeError("{} is not a supported toolchain. Supported toolchains are {}".format(string, ", ".join(MemapParser.toolchains))))
+        else:
+            return newstring
+
 def main():
 
     version = '0.3.10'
@@ -486,8 +495,8 @@ def main():
 
     parser.add_argument('file', help='memory map file')
 
-    parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain used to build the memory map file (ARM, GCC_ARM, IAR)',\
-                        required=True)
+    parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain used to build the memory map file (%s)' % ", ".join(MemapParser.toolchains),\
+                        required=True, type=MemapParser.parse_toolchain)
 
     parser.add_argument('-o', '--output', help='output file name', required=False)
 
@@ -510,7 +519,6 @@ def main():
     # Parse and decode a map file
     if args.file and args.toolchain:
         if memap.parse(args.file, args.toolchain) is False:
-            print "Unknown toolchain for memory statistics %s" %  args.toolchain
             sys.exit(0)
 
     # default export format is table
