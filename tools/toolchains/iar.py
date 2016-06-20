@@ -126,11 +126,14 @@ class IAR(mbedToolchain):
         base, _ = splitext(object)
         return ["-l", base + '.s.txt']
 
+    def get_config_option(self, config_header):
+        return ['--preinclude', config_header]
+
     def get_compile_options(self, defines, includes):
         opts = ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
         config_header = self.get_config_header()
         if config_header is not None:
-            opts = opts + ['--preinclude', config_header]
+            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
