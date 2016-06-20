@@ -17,6 +17,7 @@ limitations under the License.
 import sys
 import inspect
 import os
+import argparse
 from os import listdir, remove, makedirs
 from shutil import copyfile
 from os.path import isdir, join, exists, split, relpath, splitext
@@ -196,3 +197,23 @@ def dict_to_ascii(input):
 def json_file_to_dict(fname):
     with open(fname, "rt") as f:
         return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
+
+# Wowza, double closure
+def argparse_list_type(casedness, prefer_hyphen=False) :
+    def middle(list, type_name):
+        def parse_type(string):
+            if prefer_hyphen: newstring = casedness(string).replace("_","-")
+            else:             newstring = casedness(string).replace("-","_")
+            if string in list:
+                return string
+            elif string not in list and newstring in list:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Did you mean {2}?".format(string, type_name, newstring))
+            else:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Supported {1}s are {2}.".format(string, type_name, ", ".join(list)))
+        return parse_type
+    return middle
+
+argparse_uppercase_type = argparse_list_type(str.upper, False)
+argparse_lowercase_type = argparse_list_type(str.lower, False)
+argparse_uppercase_hyphen_type = argparse_list_type(str.upper, True)
+argparse_lowercase_hyphen_type = argparse_list_type(str.lower, True)

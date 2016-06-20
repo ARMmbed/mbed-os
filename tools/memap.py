@@ -10,6 +10,7 @@ import re
 import csv
 import json
 import argparse
+from utils import argparse_uppercase_type, argparse_lowercase_hyphen_type
 from prettytable import PrettyTable
 
 debug = False
@@ -336,6 +337,8 @@ class MemapParser(object):
                     else:
                         self.object_to_module.update({object_name:module_name})
 
+    export_formats = ["json", "csv-ci", "table"]
+
     def generate_output(self, export_format, file_output=None):
         """
         Generates summary of memory map data
@@ -451,6 +454,8 @@ class MemapParser(object):
 
         return True
 
+    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
+
     def parse(self, mapfile, toolchain):
         """
         Parse and decode map file depending on the toolchain
@@ -477,24 +482,6 @@ class MemapParser(object):
 
         return True
 
-    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
-    @staticmethod
-    def parse_toolchain(string) :
-        newstring = string.upper().replace("-","_")
-        if newstring not in MemapParser.toolchains:
-            raise (argparse.ArgumentTypeError("{} is not a supported toolchain. Supported toolchains are {}".format(string, ", ".join(MemapParser.toolchains))))
-        else:
-            return newstring
-
-    export_formats = ["json", "csv-ci", "table"]
-    @staticmethod
-    def parse_export_format(string):
-        newstring = string.lower().replace("_","-")
-        if newstring not in MemapParser.export_formats:
-            raise (argparse.ArgumentTypeError("{} is not a supported export format. Supported export formats are {}".format(string, ", ".join(MemapParser.export_formats))))
-        else :
-            return newstring
-
 def main():
 
     version = '0.3.10'
@@ -505,11 +492,11 @@ def main():
     parser.add_argument('file', help='memory map file')
 
     parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain used to build the memory map file (%s)' % ", ".join(MemapParser.toolchains),\
-                        required=True, type=MemapParser.parse_toolchain)
+                        required=True, type=argparse_uppercase_type(MemapParser.toolchains, "toolchain"))
 
     parser.add_argument('-o', '--output', help='output file name', required=False)
 
-    parser.add_argument('-e', '--export', dest='export', required=False, default='table', type=MemapParser.parse_export_format,\
+    parser.add_argument('-e', '--export', dest='export', required=False, default='table', type=argparse_lowercase_hyphen_type(MemapParser.export_formats,'export format'),\
                         help="export format (examples: %s: default)" % ", ".join(MemapParser.export_formats))
 
     parser.add_argument('-v', '--version', action='version', version=version)
