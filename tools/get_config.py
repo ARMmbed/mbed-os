@@ -36,14 +36,14 @@ except:
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_clean=False, add_options=False)
-    parser.add_option("--source", dest="source_dir",
+    parser.add_argument("--source", dest="source_dir",
                       default=None, help="The source (input) directory", action="append")
-    parser.add_option("--prefix", dest="prefix", action="append",
+    parser.add_argument("--prefix", dest="prefix", action="append",
                       default=None, help="Restrict listing to parameters that have this prefix")
-    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
+    parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
 
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
     for path in options.source_dir :
         if not isdir(path) :
