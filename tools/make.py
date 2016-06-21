@@ -38,29 +38,13 @@ from tools.paths import FS_LIBRARY
 from tools.paths import UBLOX_LIBRARY
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
+from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from argparse import ArgumentTypeError
-try:
-    import tools.private_settings as ps
-except:
-    ps = object()
-
-def test_known(string):
-    i = int(string)
-    if i >= 0 and i < len(TESTS) : return i
-    else : raise ArgumentTypeError("{0} does not index a test".format(i))
-
-def test_name_known(string):
-    nlist = string.split(',')
-    for test_id in nlist:
-        if test_id not in TEST_MAP.keys():
-            raise ArgumentTypeError("Program with name '%s' not found"% test_id)
-
-    return [TEST_MAP[n].n for n in nlist]
 
 if __name__ == '__main__':
     # Parse Options
