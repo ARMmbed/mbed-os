@@ -106,15 +106,16 @@ def get_default_test_webservice_options_parser():
     parser = get_default_test_options_parser()
 
     # Things related to web services offered by test suite scripts
-    parser.add_option('', '--rest-api',
-                      dest='rest_api_enabled',
-                      default=False,
-                      action="store_true",
-                      help='Enables REST API.')
+    parser.add_argument('', '--rest-api',
+                        dest='rest_api_enabled',
+                        default=False,
+                        action="store_true",
+                        help='Enables REST API.')
 
-    parser.add_option('', '--rest-api-port',
-                      dest='rest_api_port_no',
-                      help='Sets port for REST API interface')
+    parser.add_argument('', '--rest-api-port',
+                        dest='rest_api_port_no',
+                        type=int,
+                        help='Sets port for REST API interface')
 
     return parser
 
