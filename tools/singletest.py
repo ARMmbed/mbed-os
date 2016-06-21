@@ -230,6 +230,7 @@ if __name__ == '__main__':
                                    _opts_report_html_file_name=opts.report_html_file_name,
                                    _opts_report_junit_file_name=opts.report_junit_file_name,
                                    _opts_report_build_file_name=opts.report_build_file_name,
+                                   _opts_report_text_file_name=opts.report_text_file_name,
                                    _test_spec=test_spec,
                                    _opts_goanna_for_mbed_sdk=opts.goanna_for_mbed_sdk,
                                    _opts_goanna_for_tests=opts.goanna_for_tests,
