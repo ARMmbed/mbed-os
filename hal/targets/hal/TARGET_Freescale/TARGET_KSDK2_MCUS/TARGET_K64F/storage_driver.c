@@ -212,10 +212,10 @@ static const ARM_STORAGE_CAPABILITIES caps = {
      *   1, drivers may still complete asynchronous operations synchronously as
      *   necessary--in which case they return a positive error code to indicate
      *   synchronous completion. */
-#ifndef STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
+#ifndef YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS
     .asynchronous_ops = 1,
 #else
-    .asynchronous_ops = STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS,
+    .asynchronous_ops = YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS,
 #endif
 
     /* Enable chip-erase functionality if we own all of block-1. */
