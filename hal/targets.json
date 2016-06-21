@@ -1105,8 +1105,7 @@
             "TARGET_NRF51822",
             "BLE_STACK_SUPPORT_REQD",
             "SOFTDEVICE_PRESENT",
-            "S130",
-            "BLE_STACK_SUPPORT_REQD"
+            "S130"
         ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822", "NRF5"],
@@ -1726,7 +1725,7 @@
     "MCU_NRF52": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT"],
+        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132"],
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
