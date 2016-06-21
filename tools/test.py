@@ -32,14 +32,14 @@ from tools.build_api import build_project, build_library
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException
 from tools.test_exporters import ReportExporter, ResultExporterType
-from utils import argparse_lowercase_type
+from utils import argparse_filestring_type, argparse_lowercase_type
 
 if __name__ == '__main__':
     try:
         # Parse Options
         parser = get_default_options_parser()
         
-        parser.add_argument("-D", "",
+        parser.add_argument("-D",
                           action="append",
                           dest="macros",
                           help="Add a macro definition")
@@ -51,6 +51,7 @@ if __name__ == '__main__':
                           help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
         parser.add_argument("--source", dest="source_dir",
+                          type=argparse_filestring_type,
                           default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", action="append")
 
         parser.add_argument("--build", dest="build_dir",
@@ -60,18 +61,20 @@ if __name__ == '__main__':
                           default=False, help="List (recursively) available tests in order and exit")
 
         parser.add_argument("-p", "--paths", dest="paths",
+                          type=argparse_filestring_type, nargs="*"
                           default=None, help="Limit the tests to those within the specified comma separated list of paths")
         
         format_choices = ["list", "json"]
         format_default_choice = "list"
         format_help = "Change the format in which tests are listed. Choices include: %s. Default: %s" % (", ".join(format_choices), format_default_choice)
-        parser.add_argument("-f", "--format", type=argparse_lowercase_type(format_coices,"format"), dest="format",
-                           default=format_default_choice, help=format_help)
+        parser.add_argument("-f", "--format", dest="format",
+                            type=argparse_lowercase_type(format_choices, "format"),
+                            default=format_default_choice, help=format_help)
         
         parser.add_argument("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
                           default=None, help="Continue trying to build all tests if a build failure occurs")
 
-        parser.add_argument("-n", "--names", dest="names",
+        parser.add_argument("-n", "--names", dest="names", nargs="*"
                           default=None, help="Limit the tests to a comma separated list of names")
                           
         parser.add_argument("--test-spec", dest="test_spec",
@@ -90,7 +93,7 @@ if __name__ == '__main__':
 
         # Filter tests by path if specified 
         if options.paths:
-            all_paths = options.paths.split(",")
+            all_paths = options.paths
         else:
             all_paths = ["."]
         
@@ -103,7 +106,7 @@ if __name__ == '__main__':
         
         # Filter tests by name if specified
         if options.names:
-            all_names = options.names.split(",")
+            all_names = options.names
             all_names = [x.lower() for x in all_names]
             
             for name in all_names:

@@ -42,21 +42,38 @@ from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
+from utils import argparse_filestring_type
+from argparse import ArgumentTypeError
 try:
     import tools.private_settings as ps
 except:
     ps = object()
 
+def test_known(string):
+    i = int(string)
+    if i >= 0 and i < len(TESTS) : return i
+    else : raise ArgumentTypeError("{0} does not index a test".format(i))
+
+def test_name_known(string):
+    nlist = string.split(',')
+    for test_id in nlist:
+        if test_id not in TEST_MAP.keys():
+            raise ArgumentTypeError("Program with name '%s' not found"% test_id)
+
+    return [TEST_MAP[n].n for n in nlist]
+
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser()
-    parser.add_argument("-p",
-                      type=int,
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("-p",
+                      type=test_known,
                       dest="program",
                       help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
 
-    parser.add_argument("-n",
-                      dest="program_name",
+    group.add_argument("-n",
+                       type=test_name_known,
+                      dest="program",
                       help="The name of the desired test program")
 
     parser.add_argument("-j", "--jobs",
@@ -104,7 +121,7 @@ if __name__ == '__main__':
                       default=None, help="Required peripherals")
     parser.add_argument("--dep", dest="dependencies",
                       default=None, help="Dependencies")
-    parser.add_argument("--source", dest="source_dir",
+    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
                       default=None, help="The source (input) directory", action="append")
     parser.add_argument("--duration", type=int, dest="duration",
                       default=None, help="Duration of the test")
@@ -174,6 +191,7 @@ if __name__ == '__main__':
 
     # Specify a different linker script
     parser.add_argument("-l", "--linker", dest="linker_script",
+                      type=argparse_filestring_type,
                       default=None, help="use the specified linker script")
 
     options = parser.parse_args()
@@ -183,12 +201,6 @@ if __name__ == '__main__':
         print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
         exit(0)
 
-    if options.source_dir:
-        for path in options.source_dir :
-            if not isfile(path) and not isdir(path) :
-                args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
-                           format(path))
-
     # Print available tests in order and exit
     if options.list_tests is True:
         print '\n'.join(map(str, sorted(TEST_MAP.values())))
@@ -197,25 +209,9 @@ if __name__ == '__main__':
     # force program to "0" if a source dir is specified
     if options.source_dir is not None:
         p = 0
-        n = None
     else:
     # Program Number or name
-        p, n = options.program, options.program_name
-
-    if n is not None and p is not None:
-        args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
-    if n:
-        # We will transform 'n' to list of 'p' (integers which are test numbers)
-        nlist = n.split(',')
-        for test_id in nlist:
-            if test_id not in TEST_MAP.keys():
-                args_error(parser, "[ERROR] Program with name '%s' not found"% test_id)
-
-        p = [TEST_MAP[n].n for n in nlist]
-    elif p is None or (p < 0) or (p > (len(TESTS)-1)):
-        message = "[ERROR] You have to specify one of the following tests:\n"
-        message += '\n'.join(map(str, sorted(TEST_MAP.values())))
-        args_error(parser, message)
+        p = options.program
 
     # If 'p' was set via -n to list of numbers make this a single element integer list
     if type(p) != type([]):

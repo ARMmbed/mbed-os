@@ -28,6 +28,7 @@ from tools.utils import args_error
 from tools.options import get_default_options_parser
 from tools.build_api import get_config
 from config import Config
+from utils import argparse_filestring_type
 try:
     import tools.private_settings as ps
 except:
@@ -36,19 +37,15 @@ except:
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_clean=False, add_options=False)
-    parser.add_argument("--source", dest="source_dir",
-                      default=None, help="The source (input) directory", action="append")
+    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
+                      default=[], help="The source (input) directory", action="append")
     parser.add_argument("--prefix", dest="prefix", action="append",
-                      default=None, help="Restrict listing to parameters that have this prefix")
+                      default=[], help="Restrict listing to parameters that have this prefix")
     parser.add_argument("-v", "--verbose", action="store_true", dest="verbose",
                       default=False, help="Verbose diagnostic output")
 
     options = parser.parse_args()
 
-    for path in options.source_dir :
-        if not isdir(path) :
-            args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
-                       format(path))
     # Target
     if options.mcu is None :
         args_error(parser, "[ERROR] You should specify an MCU")

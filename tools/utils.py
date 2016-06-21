@@ -217,3 +217,7 @@ argparse_uppercase_type = argparse_list_type(str.upper, False)
 argparse_lowercase_type = argparse_list_type(str.lower, False)
 argparse_uppercase_hyphen_type = argparse_list_type(str.upper, True)
 argparse_lowercase_hyphen_type = argparse_list_type(str.lower, True)
+
+def argparse_filestring_type(string) :
+    if exists(string) : return string
+    else : raise argparse.ArgumentTypeError("{0} does not exist in the filesystem.".format(string))

@@ -35,6 +35,7 @@ from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
+from utils import argparse_filestring_type
 
 if __name__ == '__main__':
     start = time()
@@ -42,10 +43,10 @@ if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser()
 
-    parser.add_argument("--source", dest="source_dir",
+    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
                       default=None, help="The source (input) directory", action="append")
 
-    parser.add_argument("--build", dest="build_dir",
+    parser.add_argument("--build", dest="build_dir", type=argparse_filestring_type,
                       default=None, help="The build (output) directory")
 
     parser.add_argument("--no-archive", dest="no_archive", action="store_true",
@@ -160,10 +161,6 @@ if __name__ == '__main__':
     # Get target list
     if options.mcu:
         mcu_list = (options.mcu).split(",")
-        for mcu in mcu_list:
-            if mcu not in TARGET_NAMES:
-                print "Given MCU '%s' not into the supported list:\n%s" % (mcu, TARGET_NAMES)
-                sys.exit(1)
         targets = mcu_list
     else:
         targets = TARGET_NAMES
@@ -171,10 +168,6 @@ if __name__ == '__main__':
     # Get toolchains list
     if options.tool:
         toolchain_list = (options.tool).split(",")
-        for tc in toolchain_list:
-            if tc not in TOOLCHAINS:
-                print "Given toolchain '%s' not into the supported list:\n%s" % (tc, TOOLCHAINS)
-                sys.exit(1)
         toolchains = toolchain_list
     else:
         toolchains = TOOLCHAINS
