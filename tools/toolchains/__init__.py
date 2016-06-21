@@ -210,7 +210,6 @@ LEGACY_TOOLCHAIN_NAMES = {
 
 class mbedToolchain:
     VERBOSE = True
-    ignorepatterns = []
 
     CORTEX_SYMBOLS = {
         "Cortex-M0" : ["__CORTEX_M0", "ARM_MATH_CM0", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
@@ -230,48 +229,70 @@ class mbedToolchain:
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         self.target = target
         self.name = self.__class__.__name__
+        
+        # compile/assemble/link/binary hooks
         self.hook = hooks.Hook(target, self)
-        self.silent = silent
-        self.output = ""
 
+        # Build options passed by -o flag
+        self.options = options if options is not None else []
+        self.options.extend(BUILD_OPTIONS)
+        if self.options:
+            self.info("Build Options: %s" % (', '.join(self.options)))
+
+        # Toolchain flags
+        self.flags = deepcopy(self.DEFAULT_FLAGS)
+        
+        # User-defined macros
+        self.macros = macros or []
+        
+        # Macros generated from toolchain and target rules/features
+        self.symbols = None
+        
+        # Labels generated from toolchain and target rules/features (used for selective build)
+        self.labels = None
+        
+        self.has_config = False
+        # config_header_content will hold the content of the config header (if used)
+        self.config_header_content = None
+
+        # Non-incremental compile
+        self.build_all = False
+        
+        # Build output dir
+        self.build_dir = None
+        self.timestamp = time()
+
+        # Output build naming based on target+toolchain combo (mbed 2.0 builds)
+        self.obj_path = join("TARGET_"+target.name, "TOOLCHAIN_"+self.name)
+
+        # Number of concurrent build jobs. 0 means auto (based on host system cores)
+        self.jobs = 0
+
+        self.CHROOT = None            
+
+        # Ignore patterns from .mbedignore files
+        self.ignore_patterns = []
+
+        # Pre-mbed 2.0 ignore dirs
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
+        # Output notify function
         if notify:
             self.notify_fun = notify
         elif extra_verbose:
             self.notify_fun = self.print_notify_verbose
         else:
             self.notify_fun = self.print_notify
-
-        self.options = options if options is not None else []
-
-        self.macros = macros or []
-        self.options.extend(BUILD_OPTIONS)
-        if self.options:
-            self.info("Build Options: %s" % (', '.join(self.options)))
-
-        self.obj_path = join("TARGET_"+target.name, "TOOLCHAIN_"+self.name)
-
-        self.symbols = None
-        self.labels = None
-        self.has_config = False
-
-        self.build_all = False
-        self.build_dir = None
-        self.timestamp = time()
-        self.jobs = 1
-
-        self.CHROOT = None
-
-        self.mp_pool = None
-
+        
+        # Silent builds (no output)
+        self.silent = silent
+        
+        # Print output buffer
+        self.output = ""
+        
+        # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
-            
-        self.flags = deepcopy(self.DEFAULT_FLAGS)
-
-        # config_header_content will hold the content of the config header (if used)
-        self.config_header_content = None
 
     def get_output(self):
         return self.output
@@ -324,10 +345,6 @@ class mbedToolchain:
         """ Little closure for notify functions
         """
         return self.notify_fun(event, self.silent)
-
-    def __exit__(self):
-        if self.mp_pool is not None:
-            self.mp_pool.terminate()
 
     def goanna_parse_line(self, line):
         if "analyze" in self.options:
@@ -407,7 +424,7 @@ class mbedToolchain:
         return False
 
     def is_ignored(self, file_path):
-        for pattern in self.ignorepatterns:
+        for pattern in self.ignore_patterns:
             if fnmatch.fnmatch(file_path, pattern):
                 return True
         return False
@@ -441,33 +458,30 @@ class mbedToolchain:
                     lines = [l.strip() for l in lines] # Strip whitespaces
                     lines = [l for l in lines if l != ""] # Strip empty lines
                     lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
-                    # Append root path to glob patterns
-                    # and append patterns to ignorepatterns
-                    self.ignorepatterns.extend([join(root,line.strip()) for line in lines])
+                    # Append root path to glob patterns and append patterns to ignore_patterns
+                    self.ignore_patterns.extend([join(root,line.strip()) for line in lines])
 
             for d in copy(dirs):
                 dir_path = join(root, d)
                 if d == '.hg':
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
-
+ 
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
+                    # Ignore targets that do not match the TARGET in extra_labels list
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
+                    # Ignore toolchain that do not match the current TOOLCHAIN
                     (d.startswith('TOOLCHAIN_') and d[10:] not in labels['TOOLCHAIN']) or
+                    # Ignore .mbedignore files
+                    self.is_ignored(join(dir_path,"")) or
+                    # Ignore TESTS dir
                     (d == 'TESTS')):
                     dirs.remove(d)
-
-                if (d.startswith('FEATURE_')):
+                elif d.startswith('FEATURE_'):
+                    # Recursively scan features but ignore them in the current scan. These are dynamically added by the config system if the conditions are matched
                     resources.features[d[8:]] = self.scan_resources(dir_path, base_path=base_path)
                     dirs.remove(d)
-
-                # Remove dirs that already match the ignorepatterns
-                # to avoid travelling into them and to prevent them
-                # on appearing in include path.
-                if self.is_ignored(join(dir_path,"")):
-                    dirs.remove(d)
-
-                if exclude_paths:
+                elif exclude_paths:
                     for exclude_path in exclude_paths:
                         rel_path = relpath(dir_path, exclude_path)
                         if not (rel_path.startswith('..')):

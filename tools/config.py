@@ -35,9 +35,8 @@ class ConfigParameter:
     def __init__(self, name, data, unit_name, unit_kind):
         self.name = self.get_full_name(name, unit_name, unit_kind, allow_prefix = False)
         self.defined_by = self.get_display_name(unit_name, unit_kind)
-        self.set_by = self.defined_by
+        self.set_value(data.get("value", None), unit_name, unit_kind)
         self.help_text = data.get("help", None)
-        self.value = data.get("value", None)
         self.required = data.get("required", False)
         self.macro_name = data.get("macro_name", "MBED_CONF_%s" % self.sanitize(self.name.upper()))
         self.config_errors = []
@@ -93,13 +92,14 @@ class ConfigParameter:
     def sanitize(name):
         return name.replace('.', '_').replace('-', '_')
 
-    # Sets a value for this parameter, remember the place where it was set
+    # Sets a value for this parameter, remember the place where it was set.
+    # If the value is a boolean, it is converted to 1 (for True) or to 0 (for False).
     # value: the value of the parameter
     # unit_name: the unit (target/library/application) that defines this parameter
     # unit_ kind: the kind of the unit ("target", "library" or "application")
     # label: the name of the label in the 'target_config_overrides' section (optional)
     def set_value(self, value, unit_name, unit_kind, label = None):
-        self.value = value
+        self.value = int(value) if isinstance(value, bool) else value
         self.set_by = self.get_display_name(unit_name, unit_kind, label)
 
     # Return the string representation of this configuration parameter
@@ -233,7 +233,7 @@ class Config:
     # Remove features from the available features
     def add_features(self, features):
         for feature in features:
-            if (feature in self.removed_features 
+            if (feature in self.removed_features
                 or (self.removed_unecessary_features and feature not in self.added_features)):
                 raise ConfigException("Configuration conflict. Feature %s both added and removed." % feature)
 
@@ -273,7 +273,7 @@ class Config:
                     if full_name in params:
                         params[full_name].set_value(v, unit_name, unit_kind, label)
                     else:
-                        self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'" 
+                        self.config_errors.append(ConfigException("Attempt to override undefined parameter '%s' in '%s'"
                             % (full_name, ConfigParameter.get_display_name(unit_name, unit_kind, label))))
         return params
 
@@ -396,7 +396,7 @@ class Config:
             raise self.config_errors[0]
         return True
 
-        
+
     # Loads configuration data from resources. Also expands resources based on defined features settings
     def load_resources(self, resources):
         # Update configuration files until added features creates no changes
@@ -418,7 +418,7 @@ class Config:
         self.validate_config()
 
         return resources
-        
+
 
     # Return the configuration data converted to the content of a C header file,
     # meant to be included to a C/C++ file. The content is returned as a string.
