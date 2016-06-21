@@ -199,7 +199,7 @@ def json_file_to_dict(fname):
         return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
 
 # Wowza, double closure
-def argparse_list_type(casedness, prefer_hyphen=False) :
+def argparse_type(casedness, prefer_hyphen=False) :
     def middle(list, type_name):
         def parse_type(string):
             if prefer_hyphen: newstring = casedness(string).replace("_","-")
@@ -213,10 +213,15 @@ def argparse_list_type(casedness, prefer_hyphen=False) :
         return parse_type
     return middle
 
-argparse_uppercase_type = argparse_list_type(str.upper, False)
-argparse_lowercase_type = argparse_list_type(str.lower, False)
-argparse_uppercase_hyphen_type = argparse_list_type(str.upper, True)
-argparse_lowercase_hyphen_type = argparse_list_type(str.lower, True)
+argparse_uppercase_type = argparse_type(str.upper, False)
+argparse_lowercase_type = argparse_type(str.lower, False)
+argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
+argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
+
+def argparse_many(fn):
+    def wrap(string):
+        return [fn(s) for s in string.split(",")]
+    return wrap
 
 def argparse_filestring_type(string) :
     if exists(string) : return string
