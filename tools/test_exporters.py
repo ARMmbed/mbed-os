@@ -363,7 +363,7 @@ class ReportExporter():
         success_code = 0    # Success code that can be leter returned to
         # Pretty table package is used to print results
         pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
-                          "Elapsed Time (sec)", "Timeout (sec)"])
+                          "Elapsed Time", "Timeout"])
         pt.align["Result"] = "l" # Left align
         pt.align["Target"] = "l" # Left align
         pt.align["Toolchain"] = "l" # Left align
