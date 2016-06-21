@@ -2,8 +2,8 @@
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x0001C000, LENGTH = 0x24000
-  RAM (rwx) :  ORIGIN = 0x20002800, LENGTH = 0x5800
+  FLASH (rx) : ORIGIN = 0x0001B000, LENGTH = 0x25000
+  RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0x5108
 }
 
 OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
@@ -113,6 +113,15 @@ SECTIONS
 		__data_end__ = .;
 
 	} > RAM
+
+    __edata = .;
+
+    .fs_data :
+    {
+      PROVIDE(__start_fs_data = .);
+      KEEP(*(.fs_data))
+      PROVIDE(__stop_fs_data = .);
+    } > RAM
 
 	.bss :
 	{

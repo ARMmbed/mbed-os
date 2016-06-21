@@ -32,7 +32,7 @@
 #elif defined(ANT_STACK_SUPPORT_REQD)
     #include "ant_interface.h"
 #elif defined(BLE_STACK_SUPPORT_REQD)
-    #include "ble.h"
+    #include "nrf_ble.h"
 #endif
 
 
@@ -437,7 +437,7 @@ uint32_t sd_check_ram_start(uint32_t sd_req_ram_start)
 #endif //NRF_LOG_USES_RTT
         return NRF_SUCCESS;
     }
-#endif//defined(S130) || defined(S132) || defined(S332) 
+#endif//defined(S130) || defined(S132) || defined(S332)
     return NRF_SUCCESS;
 }
 

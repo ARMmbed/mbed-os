@@ -14,7 +14,7 @@
 #include "gatts_cache_manager.h"
 
 #include <string.h>
-#include "ble_gap.h"
+#include "nrf_ble_gap.h"
 #include "ble_conn_state.h"
 #include "peer_manager_types.h"
 #include "peer_manager_internal.h"

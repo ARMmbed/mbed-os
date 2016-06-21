@@ -16,8 +16,8 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "ble.h"
-#include "ble_gap.h"
+#include "nrf_ble.h"
+#include "nrf_ble_gap.h"
 #include "peer_manager_types.h"
 
 
@@ -194,7 +194,7 @@ ret_code_t gscm_service_changed_ind_send(uint16_t conn_handle);
  */
 void gscm_db_change_notification_done(pm_peer_id_t peer_id);
 
-/** @} 
+/** @}
  * @endcond
 */
 

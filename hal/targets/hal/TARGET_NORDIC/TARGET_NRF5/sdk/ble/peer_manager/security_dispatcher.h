@@ -16,8 +16,8 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "ble.h"
-#include "ble_gap.h"
+#include "nrf_ble.h"
+#include "nrf_ble_gap.h"
 #include "peer_manager_types.h"
 
 
@@ -247,7 +247,7 @@ ret_code_t smd_link_secure(uint16_t               conn_handle,
                            ble_gap_sec_params_t * p_sec_params,
                            bool                   force_repairing);
 
-/** @} 
+/** @}
  * @endcond
  */
 

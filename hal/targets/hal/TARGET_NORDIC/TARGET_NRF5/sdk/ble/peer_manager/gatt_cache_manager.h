@@ -16,8 +16,8 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "ble.h"
-#include "ble_gap.h"
+#include "nrf_ble.h"
+#include "nrf_ble_gap.h"
 #include "peer_manager_types.h"
 
 
@@ -202,7 +202,7 @@ ret_code_t gcm_local_db_cache_get(pm_peer_id_t peer_id, pm_peer_data_local_gatt_
  */
 void gcm_local_database_has_changed(void);
 
-/** @} 
+/** @}
   * @endcond
  */
 

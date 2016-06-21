@@ -30,7 +30,7 @@
  *          all contextual information is flushed. For example, SMP Information Exchanged during
  *          pairing and GATT Configuration is not retained on disconnection.
  *
- *          Note that this module allows management of contextual information but 
+ *          Note that this module allows management of contextual information but
  *          does not provide an interface for connection management. Therefore, entering connectible
  *          mode, connection establishment, or disconnection of a link with peer is not in scope
  *          of this module.
@@ -67,8 +67,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "sdk_common.h"
-#include "ble.h"
-#include "ble_gap.h"
+#include "nrf_ble.h"
+#include "nrf_ble_gap.h"
 #include "device_manager_cnfg.h"
 
 /**
@@ -79,7 +79,7 @@
  * @details Possible Service/Protocol context per peer device. The Device Manager provides the
  *          functionality of persistently storing the Service/Protocol context and can automatically
  *          load them when needed.
- *          For example system attributes for a GATT Server. Based on the nature of the application, 
+ *          For example system attributes for a GATT Server. Based on the nature of the application,
  *          not all service types may be needed. The application can specify
  *          only the service/protocol context it wants to use at the time of registration.
  * @{
@@ -193,7 +193,7 @@ typedef uint8_t dm_application_instance_t;
 /**
  * @brief Connection Instance.
  *
- * @details Identifies connection instance for an active device. This instance is allocated by the 
+ * @details Identifies connection instance for an active device. This instance is allocated by the
  *          device manager when a connection is established and is notified with DM_EVT_CONNECTION
  *          with the event result NRF_SUCCESS.
  */
@@ -254,7 +254,7 @@ typedef struct dm_sign_key
 /** @brief Security keys. */
 typedef struct dm_sec_keyset
 {
-    union 
+    union
     {
         dm_enc_key_t       * p_enc_key;  /**< Pointer to Device Manager encryption information structure. */
     } enc_key;
@@ -364,7 +364,7 @@ typedef struct
  * @param[in] p_handle   Identifies the peer for which the event is being notified.
  * @param[in] p_event    Identifies the event, any associated parameters and parameter length.
  *                       See \ref dm_events for details on event types and their significance.
- * @param[in,out] event_result   Provide additional information on the event. 
+ * @param[in,out] event_result   Provide additional information on the event.
  *                      In addition to SDK error codes there is also a return value
  *                      indicating if maximum number of connections has been reached when connecting or bonding.
  *
@@ -423,7 +423,7 @@ typedef enum
  *          - Context Management APIs.
  *          - Utility APIs.
  *
- *          MSCs describe usage of these APIs.  
+ *          MSCs describe usage of these APIs.
  *          See @ref dm_msc.
  * @{
  */
@@ -462,7 +462,7 @@ ret_code_t dm_init(dm_init_param_t const * p_init_param);
  *          Maximum number of application instances device manager can support is determined
  *          by DM_MAX_APPLICATIONS.
  *
- *          All applications must be registered before initiating or accepting connections from the peer.     
+ *          All applications must be registered before initiating or accepting connections from the peer.
  *
  * @param[in]  p_appl_param    Application parameters.
  * @param[out] p_appl_instance Application Instance Identifier in case registration is successful.
@@ -551,7 +551,7 @@ ret_code_t dm_security_status_req(dm_handle_t const * p_handle, dm_security_stat
  * @param[in,out] p_whitelist Pointer where created whitelist is provided to the application.
  *
  * @note 'addr_count' and 'irk_count' fields of the structure should be populated with the maximum
- *       number of devices that the application wishes to request in the whitelist. 
+ *       number of devices that the application wishes to request in the whitelist.
  *       If the number of bonded devices is less than requested, the fields are updated with that number of devices.
  *       If the number of devices are more than requested, the module will populate the list
  *       with devices in the order the bond was established with the peer devices. Also, if this routine is
@@ -686,7 +686,7 @@ ret_code_t dm_service_context_get(dm_handle_t const    * p_handle,
  *
  * @details This API allows application to delete a Service Context identified for a peer device
  *          identified by the 'p_handle' parameter. If this API returns NRF_SUCCESS,
- *          DM_EVT_SERVICE_CONTEXT_DELETED event is notified to the application. 
+ *          DM_EVT_SERVICE_CONTEXT_DELETED event is notified to the application.
  *          Event result is notified along with the event and indicates success or failure of this
  *          procedure.
  *
@@ -830,7 +830,7 @@ ret_code_t dm_peer_addr_get(dm_handle_t const * p_handle,
  * @retval NRF_ERROR_INVALID_PARAM If this procedure is requested while connected to the peer or if the address
  *                                 type was set to BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE.
  *
- * @note Setting or updating a peer's device address is permitted 
+ * @note Setting or updating a peer's device address is permitted
  *       only for a peer that is bonded and disconnected.
  * @note Updated address is reflected only after DM_EVT_DEVICE_CONTEXT_STORED is notified to the
  *       application for this bonded device instance. In order to avoid abnormal behaviour, it is
@@ -871,8 +871,8 @@ ret_code_t dm_distributed_keys_get(dm_handle_t const * p_handle,
  * @brief Function for getting the corresponding dm_handle_t based on the connection handle.
  *
  * @param[in]     conn_handle Connection handle as provided by the SoftDevice.
- * @param[in,out] p_handle    Pointer to the p_handle containg the application instance for the 
- *                            registered application. If the application instance is valid then 
+ * @param[in,out] p_handle    Pointer to the p_handle containg the application instance for the
+ *                            registered application. If the application instance is valid then
  *                            the p_handle will be filled with requested data.
  *
  * @retval NRF_SUCCESS          On success, else an error code indicating reason for failure.
@@ -885,4 +885,3 @@ ret_code_t dm_handle_get(uint16_t conn_handle, dm_handle_t * p_handle);
 /** @} */
 /** @} */
 #endif // DEVICE_MANAGER_H__
-

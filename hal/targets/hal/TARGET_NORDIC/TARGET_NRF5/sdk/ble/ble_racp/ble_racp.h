@@ -22,9 +22,9 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "ble.h"
-#include "ble_types.h"
-#include "ble.h"
+#include "nrf_ble.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble.h"
 
 /**@brief Record Access Control Point opcodes. */
 #define RACP_OPCODE_RESERVED                0       /**< Record Access Control Point opcode - Reserved for future use. */
@@ -93,4 +93,3 @@ uint8_t ble_racp_encode(const ble_racp_value_t * p_racp_val, uint8_t * p_data);
 #endif // BLE_RACP_H__
 
 /** @} */
-

@@ -40,7 +40,7 @@
 #include "ble_stack_handler_types.h"
 #include "ant_stack_handler_types.h"
 #if defined(BLE_STACK_SUPPORT_REQD)
-    #include "ble.h"
+    #include "nrf_ble.h"
 #endif
 #include "app_ram_base.h"
 #define SOFTDEVICE_SCHED_EVT_SIZE       0                                                 /**< Size of button events being passed through the scheduler (is to be used for computing the maximum size of scheduler events). For SoftDevice events, this size is 0, since the events are being pulled in the event handler. */
@@ -124,7 +124,7 @@ bool softdevice_handler_isEnabled(void);
  *                                 used, this buffer must be provided by the application. The
  *                                 buffer must be large enough to hold the biggest stack event the
  *                                 application is supposed to handle. The buffer must be aligned to
- *                                 a 4 byte boundary. This parameter is unused if BLE stack support 
+ *                                 a 4 byte boundary. This parameter is unused if BLE stack support
  *                                 is not required.
  * @param[in]  ble_evt_buffer_size Size of SoftDevice BLE event buffer. This parameter is unused if
  *                                 BLE stack support is not required.
@@ -182,7 +182,7 @@ uint32_t softdevice_sys_evt_handler_set(sys_evt_handler_t sys_evt_handler);
  *
  * @retval    NRF_SUCCESS     If the operation was successful.
  */
-uint32_t softdevice_enable_get_default_config(uint8_t central_links_count, 
+uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
                                               uint8_t periph_links_count,
                                               ble_enable_params_t * p_ble_enable_params);
 

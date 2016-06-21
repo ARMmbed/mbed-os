@@ -23,11 +23,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "ble_types.h"
+#include "nrf_ble_types.h"
 #include "app_util.h"
-#include "ble.h"
-#include "ble_gap.h"
-#include "ble_gatt.h"
+#include "nrf_ble.h"
+#include "nrf_ble_gap.h"
+#include "nrf_ble_gatt.h"
 
 /** @defgroup UUID_SERVICES Service UUID definitions
  * @{ */
@@ -169,7 +169,7 @@ typedef void (*ble_srv_error_handler_t) (uint32_t nrf_error);
 
 
 
-/**@brief Value of a Report Reference descriptor. 
+/**@brief Value of a Report Reference descriptor.
  *
  * @details This is mapping information that maps the parent characteristic to the Report ID(s) and
  *          Report Type(s) defined within a Report Map characteristic.
@@ -225,7 +225,7 @@ static __INLINE bool ble_srv_is_notification_enabled(uint8_t const * p_encoded_d
     uint16_t cccd_value = uint16_decode(p_encoded_data);
     return ((cccd_value & BLE_GATT_HVX_NOTIFICATION) != 0);
 }
-    
+
 /**@brief Function for decoding a CCCD value, and then testing if indication is
  *        enabled.
  *
@@ -333,7 +333,7 @@ typedef struct
 } ble_add_descr_params_t;
 
 
-/**@brief Function for adding a characteristic to a given service. 
+/**@brief Function for adding a characteristic to a given service.
  *
  * If no pointer is given for the initial value,
  * the initial length parameter will be ignored and the initial length will be 0.
