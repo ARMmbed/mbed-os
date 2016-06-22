@@ -1223,7 +1223,7 @@ TEST_MAP = dict([(test['id'], Test(i)) for i, test in enumerate(TESTS)])
 def test_known(string):
     i = int(string)
     if i >= 0 and i < len(TESTS) : return i
-    else : raise ArgumentTypeError("{0} does not index a test".format(i))
+    else : raise ArgumentTypeError("{0} does not index a test. The accepted range is 0 to {1}".format(i, len(TEST_MAP) - 1))
 
 def test_name_known(string):
     nlist = string.split(',')
@@ -1231,6 +1231,6 @@ def test_name_known(string):
         if test_id not in TEST_MAP.keys():
             if getattr(ps, "test_alias", None) is None or \
                ps.test_alias.get(test_id, "") not in TEST_MAP.keys():
-                raise ArgumentTypeError("Program with name '%s' not found"% test_id)
+                raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are {1}".format(test_id, ", ".join(TEST_MAP.keys())))
 
     return [TEST_MAP[n].n for n in nlist]
