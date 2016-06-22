@@ -1388,7 +1388,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "nrf51-dk"},
-        "device_has": ["ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "RTC", "SERIAL_ASYNCH", "SLEEP"]
+        "device_has": ["ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH"]
     },
     "NRF51_DK_BOOT": {
         "supported_form_factors": ["ARDUINO"],
@@ -1764,6 +1764,6 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
         "progen": {"target": "nrf52-dk"},
-        "device_has": ["ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP"]
+        "device_has": ["ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH"]
     }
 }

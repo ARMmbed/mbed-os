@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//#include <math.h>
 
 #include "spi_api.h"
+
+#if DEVICE_SPI
+
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "nrf_drv_spi.h"
 #include "app_util_platform.h"
-
-#if DEVICE_SPI
 
 #define SPI_MESSAGE_SIZE 1
 volatile uint8_t m_tx_buf[SPI_MESSAGE_SIZE] = {0};
@@ -55,15 +55,16 @@ static void master_event_handler(nrf_drv_spi_evt_t const * event)
     }
 }
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk)
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    m_config.sck_pin = sclk;
-    m_config.mosi_pin = mosi;
-    m_config.miso_pin = miso;
-    
+    m_config.sck_pin  = (uint8_t)sclk;
+    m_config.mosi_pin = (mosi != NC) ? (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
+    m_config.miso_pin = (miso != NC) ? (uint8_t)miso : NRF_DRV_SPI_PIN_NOT_USED;
+    m_config.ss_pin   = (ssel != NC) ? (uint8_t)ssel : NRF_DRV_SPI_PIN_NOT_USED;
+
     SPI_S(obj)->busy = false;
     m_spi_struct = obj;
-    
+
     SPI_DRV(obj) = &spi1;
     (void)nrf_drv_spi_init(&spi1, &m_config, master_event_handler);
 }
@@ -122,13 +123,15 @@ static nrf_drv_spi_frequency_t freq_translate(int hz)
     return frequency;
 }
 
-void spi_format(spi_t *obj, int bits, int mode, spi_bitorder_t order)
+void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     if (bits != 8) {
         error("Only 8bits SPI supported");
     }
-    
-    m_config.bit_order = ((order == SPI_MSB) ? NRF_DRV_SPI_BIT_ORDER_MSB_FIRST : NRF_DRV_SPI_BIT_ORDER_LSB_FIRST);
+    if (slave != 0) {
+        error("SPI slave mode is not supported");
+    }
+
     nrf_drv_spi_mode_t config_mode = mode_translate(mode);
 
     if (m_config.mode != config_mode) {
@@ -182,14 +185,14 @@ void spi_slave_write(spi_t *obj, int value)
 
 #if DEVICE_SPI_ASYNCH
 
-
 void spi_master_transfer(spi_t *obj,
-                         void *tx, size_t tx_length,
-                         void *rx, size_t rx_length,
-                         uint32_t handler,
-                         uint32_t event,
-                         DMAUsage hint)
+                         const void *tx, size_t tx_length,
+                         void *rx, size_t rx_length, uint8_t bit_width,
+                         uint32_t handler, uint32_t event, DMAUsage hint)
 {
+    (void)hint;
+    (void)bit_width;
+
     m_user_handler = (user_handler_t)handler;
     m_event = event;
     
@@ -213,6 +216,7 @@ void spi_abort_asynch(spi_t *obj)
 {
     nrf_drv_spi_abort(SPI_DRV(obj));
 }
-#endif
+
+#endif // DEVICE_SPI_ASYNCH
 
 #endif // DEVICE_SPI

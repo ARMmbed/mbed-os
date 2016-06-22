@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed_assert.h"
-#include "mbed_error.h"
+
 #include "i2c_api.h"
-#include "nrf_drv_twi.h"
-#include "app_util_platform.h"
 
 #if DEVICE_I2C
+
+#include "mbed_assert.h"
+#include "mbed_error.h"
+#include "nrf_drv_twi.h"
+#include "app_util_platform.h"
 
 #if DEVICE_I2C_ASYNCH
     #define TWI_IDX(obj)    ((obj)->i2c.twi_idx)
