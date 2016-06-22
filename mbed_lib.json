@@ -7,8 +7,7 @@
         },
 
         "stdio-baud-rate": {
-            "help": "Baud rate for stdio",
-            "value": 9600
+            "help": "Baud rate for stdio"
         }
     }
 }
