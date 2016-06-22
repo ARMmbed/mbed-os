@@ -28,6 +28,7 @@
  *******************************************************************************
  */
 #include "mbed_assert.h"
+#include "mbed_error.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -212,58 +213,50 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     init_spi(obj);
 }
 
+static const uint16_t baudrate_prescaler_table[] =	{SPI_BAUDRATEPRESCALER_2,
+                                                    SPI_BAUDRATEPRESCALER_4,
+                                                    SPI_BAUDRATEPRESCALER_8,
+                                                    SPI_BAUDRATEPRESCALER_16,
+                                                    SPI_BAUDRATEPRESCALER_32,
+                                                    SPI_BAUDRATEPRESCALER_64,
+                                                    SPI_BAUDRATEPRESCALER_128,
+                                                    SPI_BAUDRATEPRESCALER_256};
+
 void spi_frequency(spi_t *obj, int hz)
 {
-    // The frequencies are obtained with:
-    // - SPI2/SPI3 clock =  54 MHz (APB1 clock)
-    // - SPI1/SPI4/SPI5/SPI6 clocks = 108 MHz (APB2 clock)
-    switch(obj->spi) {
-      case SPI_1:
-      case SPI_4:
-      case SPI_5:
-      case SPI_6:
-                if (hz < 800000) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 422 kHz
-        } else if ((hz >= 800000) && (hz < 1000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 844 kHz
-        } else if ((hz >= 1000000) && (hz < 3000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 1.69 MHz
-        } else if ((hz >= 3000000) && (hz < 6000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 3.38 MHz
-        } else if ((hz >= 6000000) && (hz < 12000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 6.75 MHz
-        } else if ((hz >= 12000000) && (hz < 24000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 13.5 MHz
-        } else if ((hz >= 24000000) && (hz < 54000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 27 MHz
-        } else { // >= 54000000
-            obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 54 MHz
-        }
-        break;
-      case SPI_2:
-      case SPI_3:
-        if (hz < 400000) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 211 kHz
-        } else if ((hz >= 400000) && (hz < 800000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 422 kHz
-        } else if ((hz >= 800000) && (hz < 1000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 844 kHz
-        } else if ((hz >= 1000000) && (hz < 3000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 1.69 MHz
-        } else if ((hz >= 3000000) && (hz < 6000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 3.38 MHz
-        } else if ((hz >= 6000000) && (hz < 12000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 6.75 MHz
-        } else if ((hz >= 12000000) && (hz < 24000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 13.5 MHz
-        } else { // >= 24000000
-            obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 27 MHz
-        }
-        break;
-      default:
-        return;
+	int spi_hz = 0;
+	uint8_t prescaler_rank = 0;
+	
+	/* Get source clock depending on SPI instance */
+    switch ((int)obj->spi) {
+        case SPI_1:
+		case SPI_4:
+		case SPI_5:
+		case SPI_6:	
+			/* SPI_1, SPI_4, SPI_5 and SPI_6. Source CLK is PCKL2 */
+			spi_hz = HAL_RCC_GetPCLK2Freq();
+			break;
+		case SPI_2:
+		case SPI_3:
+			/* SPI_2 and SPI_3. Source CLK is PCKL1 */
+			spi_hz = HAL_RCC_GetPCLK1Freq();
+			break;
+		default:
+			error("SPI instance not set");
     }
-    
+
+	/* Define pre-scaler in order to get highest available frequency below requested frequency */
+	while ((spi_hz > hz) && (prescaler_rank < sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0]))){
+		spi_hz = spi_hz / 2;
+		prescaler_rank++;
+	}
+
+	if (prescaler_rank <= sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) {
+		obj->br_presc = baudrate_prescaler_table[prescaler_rank-1];
+	} else {
+		error("Couldn't setup requested SPI frequency");
+	}
+
     init_spi(obj);
 }
 
