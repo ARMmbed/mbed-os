@@ -8,9 +8,9 @@ SRC_FILES = \
 
 TEST_SRC_FILES = \
 	main.cpp \
-        coap_service_apitest.cpp \
-        test_coap_service_api.c \
-	../stub/ns_trace_stub.c \
+	coap_service_apitest.cpp \
+	test_coap_service_api.c \
+	../stub/mbed_trace_stub.c \
 	../stub/ns_list_stub.c \
 	../stub/system_timer_stub.c \
 	../stub/nsdynmemLIB_stub.c \

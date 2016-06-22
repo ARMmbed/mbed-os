@@ -8,9 +8,9 @@ SRC_FILES = \
 
 TEST_SRC_FILES = \
 	main.cpp \
-        coap_message_handlertest.cpp \
-        test_coap_message_handler.c \
-	../stub/ns_trace_stub.c \
+	coap_message_handlertest.cpp \
+	test_coap_message_handler.c \
+	../stub/mbed_trace_stub.c \
 	../stub/sn_coap_protocol_stub.c \
 	../stub/sn_coap_parser_stub.c \
 	../stub/sn_coap_builder_stub.c \

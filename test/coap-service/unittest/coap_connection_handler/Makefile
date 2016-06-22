@@ -10,7 +10,7 @@ TEST_SRC_FILES = \
 	main.cpp \
 	coap_connection_handlertest.cpp \
 	test_coap_connection_handler.c \
-	../stub/ns_trace_stub.c \
+	../stub/mbed_trace_stub.c \
 	../stub/ns_list_stub.c \
 	../stub/ns_timer_stub.c \
 	../stub/timeout_stub.c \

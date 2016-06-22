@@ -10,7 +10,7 @@ TEST_SRC_FILES = \
 	main.cpp \
 	coap_security_handlertest.cpp \
 	test_coap_security_handler.c \
-	../stub/ns_trace_stub.c \
+	../stub/mbed_trace_stub.c \
 	../stub/ns_list_stub.c \
 	../stub/ns_timer_stub.c \
 	../stub/mbedtls_stub.c \
