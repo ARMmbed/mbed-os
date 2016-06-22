@@ -17,42 +17,37 @@
 
 #if DEVICE_LOWPOWERTIMER
 
-#include "rtc_common.h"
+#include "common_rtc.h"
 #include "sleep_api.h"
 
 void lp_ticker_init(void)
 {
-    rtc_common_init();
+    common_rtc_init();
 }
 
 uint32_t lp_ticker_read(void)
 {
-    return rtc_common_32bit_ticks_get();
+    return common_rtc_32bit_ticks_get();
 }
 
 void lp_ticker_set_interrupt(uint32_t now, uint32_t time)
 {
     (void)now;
-    // The passed 32-bit 'time' value is wrapped properly by the driver, so it
-    // is usable by the 24-bit counter.
-    ret_code_t result = nrf_drv_rtc_cc_set(&m_rtc_common, LP_TICKER_CC_CHANNEL,
-        time, true);
-    if (result != NRF_SUCCESS)
-    {
-        MBED_ASSERT(false);
-    }
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, LP_TICKER_CC_CHANNEL, RTC_WRAP(time));
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_COMPARE_2);
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_COMPARE2_MASK);
 }
 
 uint32_t lp_ticker_get_overflows_counter(void)
 {
-    // Cut out the part of 'm_rtc_common_overflows' used by
-    // 'rtc_common_32bit_ticks_get()'.
-    return (m_rtc_common_overflows >> (32 - RTC_COUNTER_BITS));
+    // Cut out the part of 'm_common_rtc_overflows' used by
+    // 'common_rtc_32bit_ticks_get()'.
+    return (m_common_rtc_overflows >> (32u - RTC_COUNTER_BITS));
 }
 
 uint32_t lp_ticker_get_compare_match(void)
 {
-    return nrf_rtc_cc_get(m_rtc_common.p_reg, LP_TICKER_CC_CHANNEL);
+    return nrf_rtc_cc_get(COMMON_RTC_INSTANCE, LP_TICKER_CC_CHANNEL);
 }
 
 void lp_ticker_sleep_until(uint32_t now, uint32_t time)

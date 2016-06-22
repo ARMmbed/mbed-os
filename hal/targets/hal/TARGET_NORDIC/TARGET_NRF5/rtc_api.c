@@ -17,7 +17,7 @@
 
 #if DEVICE_RTC
 
-#include "rtc_common.h"
+#include "common_rtc.h"
 #include "nrf_drv_clock.h"
 #include "app_util_platform.h"
 
@@ -25,7 +25,7 @@ static time_t m_time_base;
 
 void rtc_init(void)
 {
-    rtc_common_init();
+    common_rtc_init();
 }
 
 void rtc_free(void)
@@ -37,16 +37,16 @@ void rtc_free(void)
 
 int rtc_isenabled(void)
 {
-    return m_rtc_common_enabled;
+    return m_common_rtc_enabled;
 }
 
 static uint32_t rtc_seconds_get(void)
 {
     // Convert current counter value to seconds.
-    uint32_t seconds = nrf_drv_rtc_counter_get(&m_rtc_common) / RTC_INPUT_FREQ;
+    uint32_t seconds = nrf_rtc_counter_get(COMMON_RTC_INSTANCE) / RTC_INPUT_FREQ;
     // Add proper amount of seconds for each registered overflow of the counter.
-    uint32_t seconds_per_overflow = (1 << RTC_COUNTER_BITS) / RTC_INPUT_FREQ;
-    return (seconds + (m_rtc_common_overflows * seconds_per_overflow));
+    uint32_t seconds_per_overflow = (1uL << RTC_COUNTER_BITS) / RTC_INPUT_FREQ;
+    return (seconds + (m_common_rtc_overflows * seconds_per_overflow));
 }
 
 time_t rtc_read(void)

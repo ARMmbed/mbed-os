@@ -14,63 +14,95 @@
  * limitations under the License.
  */
 #include "us_ticker_api.h"
-#include "rtc_common.h"
+#include "common_rtc.h"
 #include "app_util.h"
 
 
 //------------------------------------------------------------------------------
-// Common stuff used also by lp_ticker and rtc_api (see "rtc_common.h").
+// Common stuff used also by lp_ticker and rtc_api (see "common_rtc.h").
 //
 #include "nrf_drv_clock.h"
 #include "app_util_platform.h"
 
-nrf_drv_rtc_t const m_rtc_common = NRF_DRV_RTC_INSTANCE(1);
-bool                m_rtc_common_enabled = false;
-uint32_t volatile   m_rtc_common_overflows = 0;
+bool              m_common_rtc_enabled = false;
+uint32_t volatile m_common_rtc_overflows = 0;
 
-static void irq_handler(nrf_drv_rtc_int_type_t int_type)
+#if defined(TARGET_MCU_NRF51822)
+void common_rtc_irq_handler(void)
+#else
+void RTC1_IRQHandler(void)
+#endif
 {
-    if (int_type == (NRF_DRV_RTC_INT_COMPARE0 + US_TICKER_CC_CHANNEL)) {
+    nrf_rtc_event_t event;
+    uint32_t int_mask;
+
+    event = NRF_RTC_EVENT_COMPARE_0;
+    int_mask = NRF_RTC_INT_COMPARE0_MASK;
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event))
+    {
+        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
+        nrf_rtc_event_disable(COMMON_RTC_INSTANCE, int_mask);
         us_ticker_irq_handler();
     }
-    else if (int_type == NRF_DRV_RTC_INT_OVERFLOW) {
-        ++m_rtc_common_overflows;
+
+#if DEVICE_LOWPOWERTIMER
+    event = NRF_RTC_EVENT_COMPARE_2;
+    int_mask = NRF_RTC_INT_COMPARE2_MASK;
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event))
+    {
+        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
+        nrf_rtc_event_disable(COMMON_RTC_INSTANCE, int_mask);
+    }
+#endif
+
+    event = NRF_RTC_EVENT_OVERFLOW;
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event))
+    {
+        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
+        ++m_common_rtc_overflows;
     }
 }
 
-void rtc_common_init(void)
+void common_rtc_init(void)
 {
-    if (m_rtc_common_enabled) {
+    if (m_common_rtc_enabled) {
         return;
     }
 
-    (void)nrf_drv_clock_init();
     // RTC is driven by the low frequency (32.768 kHz) clock, a proper request
     // must be made to have it running.
-    nrf_drv_clock_lfclk_request(NULL);
+    // Currently this clock is started in 'SystemInit' (see "system_nrf51.c"
+    // or "system_nrf52.c", respectively).
 
-    nrf_drv_rtc_config_t const config = {
-        .prescaler          = 0, // no prescaling
-        .interrupt_priority = APP_IRQ_PRIORITY_LOW,
-        .reliable           = false
-    };
-    if (nrf_drv_rtc_init(&m_rtc_common, &config, irq_handler) != NRF_SUCCESS) {
-        MBED_ASSERT(false); // initialization failed
-        return;
-    }
-    nrf_drv_rtc_overflow_enable(&m_rtc_common, true);
+    nrf_rtc_prescaler_set(COMMON_RTC_INSTANCE, 0);
 
-    nrf_drv_rtc_enable(&m_rtc_common);
-    m_rtc_common_enabled = true;
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
+    nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
+        NRF_RTC_INT_COMPARE0_MASK |
+    #if defined(TARGET_MCU_NRF51822)
+        NRF_RTC_INT_COMPARE1_MASK |
+    #endif
+    #if DEVICE_LOWPOWERTIMER
+        NRF_RTC_INT_COMPARE2_MASK |
+    #endif
+        NRF_RTC_INT_OVERFLOW_MASK);
+
+    nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
+        APP_IRQ_PRIORITY_LOW);
+
+    nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_START);
+
+    m_common_rtc_enabled = true;
 }
 
-uint32_t rtc_common_32bit_ticks_get(void)
+uint32_t common_rtc_32bit_ticks_get(void)
 {
-    uint32_t ticks = nrf_drv_rtc_counter_get(&m_rtc_common);
+    uint32_t ticks = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
     // The counter used for time measurements is less than 32 bit wide,
     // so its value is complemented with the number of registered overflows
     // of the counter.
-    ticks += (m_rtc_common_overflows << RTC_COUNTER_BITS);
+    ticks += (m_common_rtc_overflows << RTC_COUNTER_BITS);
     return ticks;
 }
 //------------------------------------------------------------------------------
@@ -78,12 +110,12 @@ uint32_t rtc_common_32bit_ticks_get(void)
 
 void us_ticker_init(void)
 {
-    rtc_common_init();
+    common_rtc_init();
 }
 
 static uint64_t us_ticker_64bit_get(void)
 {
-    uint32_t ticks = rtc_common_32bit_ticks_get();
+    uint32_t ticks = common_rtc_32bit_ticks_get();
     // [ticks -> microseconds]
     return ROUNDED_DIV(((uint64_t)ticks) * 1000000, RTC_INPUT_FREQ);
 }
@@ -122,24 +154,24 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     // difference between the compare value to be set and the current counter
     // value is 2 ticks. This guarantees that the compare trigger is properly
     // setup before the compare condition occurs.
-    uint32_t closest_safe_compare = rtc_common_32bit_ticks_get() + 2;
+    uint32_t closest_safe_compare = common_rtc_32bit_ticks_get() + 2;
     if ((int)(compare_value - closest_safe_compare) <= 0) {
         compare_value = closest_safe_compare;
     }
-    ret_code_t result = nrf_drv_rtc_cc_set(&m_rtc_common, US_TICKER_CC_CHANNEL,
-        compare_value, true);
-    if (result != NRF_SUCCESS) {
-        MBED_ASSERT(false);
-    }
+
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, US_TICKER_CC_CHANNEL,
+        RTC_WRAP(compare_value));
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_COMPARE_0);
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_COMPARE0_MASK);
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    nrf_drv_rtc_cc_disable(&m_rtc_common, US_TICKER_CC_CHANNEL);
+    nrf_rtc_event_disable(COMMON_RTC_INSTANCE, NRF_RTC_INT_COMPARE0_MASK);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    // No implementation needed. Interrupt flags are cleared by IRQ handler
-    // in 'nrf_drv_rtc'.
+    // No implementation needed. The event that triggers the interrupt is
+    // cleared in 'common_rtc_irq_handler'.
 }

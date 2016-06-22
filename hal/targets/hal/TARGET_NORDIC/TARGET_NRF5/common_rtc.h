@@ -14,21 +14,26 @@
  * limitations under the License.
  */
 
-#ifndef RTC_COMMON_H
-#define RTC_COMMON_H
+#ifndef COMMON_RTC_H
+#define COMMON_RTC_H
 
-#include "nrf_drv_rtc.h"
+#include "nrf_rtc.h"
 
-#define RTC_COUNTER_BITS        24
+#define RTC_COUNTER_BITS        24u
 
-#define LP_TICKER_CC_CHANNEL    0
-#define US_TICKER_CC_CHANNEL    1
+// Instance 0 is reserved for SoftDevice.
+// Instance 1 is used as a common one for us_ticker, lp_ticker and (in case
+// of NRF51) as an alternative tick source for RTOS.
+#define COMMON_RTC_INSTANCE     NRF_RTC1
 
-extern nrf_drv_rtc_t const m_rtc_common;
-extern bool                m_rtc_common_enabled;
-extern uint32_t volatile   m_rtc_common_overflows;
+#define US_TICKER_CC_CHANNEL    0
+#define OS_TICK_CC_CHANNEL      1
+#define LP_TICKER_CC_CHANNEL    2
 
-void     rtc_common_init(void);
-uint32_t rtc_common_32bit_ticks_get(void);
+extern bool              m_common_rtc_enabled;
+extern uint32_t volatile m_common_rtc_overflows;
 
-#endif // RTC_COMMON_H
+void     common_rtc_init(void);
+uint32_t common_rtc_32bit_ticks_get(void);
+
+#endif // COMMON_RTC_H
