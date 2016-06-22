@@ -3,7 +3,7 @@
 # named p1 from both lib1 and lib2.
 
 expected_results = {
-   "K64F": {
+   "test_target": {
         "desc": "app without its own parameters overrides parameters in other libs",
         "lib1.p1": "v_p1_lib1_app",
         "lib1.p2": "v_p2_lib1",
