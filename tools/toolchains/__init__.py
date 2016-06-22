@@ -233,12 +233,6 @@ class mbedToolchain:
         # compile/assemble/link/binary hooks
         self.hook = hooks.Hook(target, self)
 
-        # Build options passed by -o flag
-        self.options = options if options is not None else []
-        self.options.extend(BUILD_OPTIONS)
-        if self.options:
-            self.info("Build Options: %s" % (', '.join(self.options)))
-
         # Toolchain flags
         self.flags = deepcopy(self.DEFAULT_FLAGS)
         
@@ -288,6 +282,12 @@ class mbedToolchain:
         
         # Print output buffer
         self.output = ""
+
+        # Build options passed by -o flag
+        self.options = options if options is not None else []
+        self.options.extend(BUILD_OPTIONS)
+        if self.options:
+            self.info("Build Options: %s" % (', '.join(self.options)))
         
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
