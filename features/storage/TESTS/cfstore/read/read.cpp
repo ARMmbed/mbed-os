@@ -44,7 +44,7 @@ using namespace utest::v1;
 static control_t cfstore_read_test_00(const size_t call_count)
 {
     (void) call_count;
-    CFSTORE_LOG("Not implemented for ARM toolchain\n");
+    printf("Not implemented for ARM toolchain\n");
     return CaseNext;
 }
 
