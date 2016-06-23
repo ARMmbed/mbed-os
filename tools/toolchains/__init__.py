@@ -227,6 +227,8 @@ class mbedToolchain:
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
     GOANNA_DIAGNOSTIC_PATTERN = re.compile(r'"\[Goanna\] (?P<severity>warning) \[(?P<file>[^:]+):(?P<line>\d+)\] \- (?P<message>.*)"')
 
+    MBED_CONFIG_FILE_NAME="mbed_config.h"
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         self.target = target
         self.name = self.__class__.__name__
@@ -908,7 +910,7 @@ class mbedToolchain:
     def get_config_header(self):
         if self.config_data is None:
             return None
-        config_file = join(self.build_dir, "mbed_config.h")
+        config_file = join(self.build_dir, self.MBED_CONFIG_FILE_NAME)
         if not exists(config_file):
             with open(config_file, "wt") as f:
                 f.write(Config.config_to_header(self.config_data))

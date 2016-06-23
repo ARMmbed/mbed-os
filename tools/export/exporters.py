@@ -174,7 +174,7 @@ class Exporter(object):
 
         if hasattr(self, "MBED_CONF_ACTIVE") and self.MBED_CONF_ACTIVE :
             # Add the configuration file to the target directory
-            self.config_header = "mbed_conf.h"
+            self.config_header = self.toolchain.MBED_CONFIG_FILE_NAME
             config.get_config_data_header(join(trg_path, self.config_header))
             self.config_macros = []
         else :
