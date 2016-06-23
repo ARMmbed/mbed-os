@@ -21,6 +21,8 @@
 #include "app_util_platform.h"
 #include "nrf_gpio.h"
 
+#if DEVICE_SERIAL
+
 #if DEVICE_SERIAL_ASYNCH
 #define SERIAL_S(obj)   (&obj->serial)
 #else
@@ -211,8 +213,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         UART_CB.initialized = true;
         nrf_drv_uart_rx_enable();
 
-        stdio_uart_inited = 1;
-        memcpy(&stdio_uart, obj, sizeof(serial_t));
+        if (tx == STDIO_UART_TX && rx == STDIO_UART_RX) {
+            stdio_uart_inited = 1;
+            memcpy(&stdio_uart, obj, sizeof(serial_t));
+        }
     }
     else {
         error("UART init failure.");
@@ -225,6 +229,8 @@ void serial_free(serial_t *obj)
     if (UART_CB.initialized) {
         nrf_drv_uart_uninit();
         UART_CB.initialized = false;
+
+        stdio_uart_inited = 0;
     }
 }
 
@@ -240,32 +246,40 @@ int serial_writable(serial_t *obj)
 int serial_readable(serial_t *obj)
 {
     (void)obj;
-    return nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_RXDRDY);
+    return (!UART_CB.rx_active &&
+            nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_RXDRDY));
 }
 
 void serial_putc(serial_t *obj, int c)
 {
     (void)obj;
-    UART_CB.async_mode = false;
-    UART_CB.tx_active = true;
-    uint8_t data = c;
-    nrf_drv_uart_tx(&data, 1);
 
-    while (UART_CB.tx_active) {
+    // Interrupt on the TXDRDY event must be temporarily disabled, otherwise
+    // the driver would try to handle (and clear) this event in the interrupt
+    // handler.
+    nrf_uart_int_disable(UART_INSTANCE, NRF_UART_INT_MASK_TXDRDY);
+
+    nrf_uart_task_trigger(UART_INSTANCE, NRF_UART_TASK_STARTTX);
+    nrf_uart_txd_set(UART_INSTANCE, (uint8_t)c);
+    while (!nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_TXDRDY)) {
     }
+    nrf_uart_task_trigger(UART_INSTANCE, NRF_UART_TASK_STOPTX);
+
+    nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
+    nrf_uart_int_enable(UART_INSTANCE, NRF_UART_INT_MASK_TXDRDY);
 }
 
 int serial_getc(serial_t *obj)
 {
     (void)obj;
-    UART_CB.async_mode = false;
-    UART_CB.rx_active = true;
-    uint8_t data;
-    nrf_drv_uart_rx(&data, 1);
 
-    while (UART_CB.rx_active) {
+    nrf_uart_task_trigger(UART_INSTANCE, NRF_UART_TASK_STARTRX);
+    while (!nrf_uart_event_check(UART_INSTANCE, NRF_UART_EVENT_RXDRDY)) {
     }
-    return (int)data;
+    nrf_uart_task_trigger(UART_INSTANCE, NRF_UART_TASK_STOPRX);
+    nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_RXDRDY);
+
+    return nrf_uart_rxd_get(UART_INSTANCE);
 }
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
@@ -467,3 +481,5 @@ void serial_clear(serial_t *obj)
 {
     (void)obj;
 }
+
+#endif // DEVICE_SERIAL
