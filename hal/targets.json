@@ -1100,7 +1100,13 @@
         "inherits": ["Target"],
         "core": "Cortex-M0",
         "OVERRIDE_BOOTLOADER_FILENAME": "nrf51822_bootloader.hex",
-        "macros": ["NRF51", "TARGET_NRF51822", "SOFTDEVICE_PRESENT"],
+        "macros": [
+            "NRF51",
+            "TARGET_NRF51822",
+            "BLE_STACK_SUPPORT_REQD",
+            "SOFTDEVICE_PRESENT",
+            "S130"
+        ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822", "NRF5"],
         "OUTPUT_EXT": "hex",
@@ -1110,29 +1116,9 @@
         "MERGE_SOFT_DEVICE": true,
         "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
             {
-                "boot": "s130_nrf51_1.0.0_bootloader.hex",
-                "name": "s130_nrf51_1.0.0_softdevice.hex",
-                "offset": 114688
-            },
-            {
-                "boot": "s110_nrf51822_8.0.0_bootloader.hex",
-                "name": "s110_nrf51822_8.0.0_softdevice.hex",
-                "offset": 98304
-            },
-            {
-                "boot": "s110_nrf51822_7.1.0_bootloader.hex",
-                "name": "s110_nrf51822_7.1.0_softdevice.hex",
-                "offset": 90112
-            },
-            {
-                "boot": "s110_nrf51822_7.0.0_bootloader.hex",
-                "name": "s110_nrf51822_7.0.0_softdevice.hex",
-                "offset": 90112
-            },
-            {
-                "boot": "s110_nrf51822_6.0.0_bootloader.hex",
-                "name": "s110_nrf51822_6.0.0_softdevice.hex",
-                "offset": 81920
+                "boot": "",
+                "name": "s130_nrf51_2.0.0_softdevice.hex",
+                "offset": 110592
             }
         ],
         "detect_code": ["1070"],
@@ -1140,7 +1126,8 @@
             "function": "MCU_NRF51Code.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM"]
         },
-        "program_cycle_s": 6
+        "program_cycle_s": 6,
+        "features": ["BLE"]
     },
     "MCU_NRF51_16K_BASE": {
         "inherits": ["MCU_NRF51"],
@@ -1738,7 +1725,7 @@
     "MCU_NRF52": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["NRF52", "TARGET_NRF52832", "SOFTDEVICE_PRESENT"],
+        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132"],
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -1758,12 +1745,34 @@
             "function": "MCU_NRF51Code.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM"]
         },
-        "MERGE_BOOTLOADER": false
+        "MERGE_BOOTLOADER": false,
+        "features": ["BLE"]
     },
     "NRF52_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
         "progen": {"target": "nrf52-dk"},
+        "macros_add": [
+            "BOARD_PCA10040",
+            "NRF52_PAN_12",
+            "NRF52_PAN_15",
+            "NRF52_PAN_58",
+            "NRF52_PAN_55",
+            "NRF52_PAN_54",
+            "NRF52_PAN_31",
+            "NRF52_PAN_30",
+            "NRF52_PAN_51",
+            "NRF52_PAN_36",
+            "NRF52_PAN_53",
+            "S132",
+            "CONFIG_GPIO_AS_PINRESET",
+            "BLE_STACK_SUPPORT_REQD",
+            "SWI_DISABLE0",
+            "NRF52_PAN_20",
+            "NRF52_PAN_64",
+            "NRF52_PAN_62",
+            "NRF52_PAN_63"
+        ],
         "device_has": ["ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH"]
     }
 }

@@ -17,7 +17,7 @@
  * @ingroup  ble_sdk_lib
  * @brief    Module for handling connectable BLE advertising.
  *
- * @details  The Advertising Module handles connectable advertising for your application. It can 
+ * @details  The Advertising Module handles connectable advertising for your application. It can
  *           be configured with advertising modes to suit most typical use cases.
  *           Your main application can react to changes in advertising modes
  *           if an event handler is provided.
@@ -34,8 +34,8 @@
 #define BLE_ADVERTISING_H__
 
 #include <stdint.h>
-#include "ble_gattc.h"
-#include "ble.h"
+#include "nrf_ble_gattc.h"
+#include "nrf_ble.h"
 #include "nrf_error.h"
 #include "ble_advdata.h"
 
@@ -116,7 +116,7 @@ typedef struct
 
 #define BLE_ADV_FAST_ENABLED           true
 #define BLE_ADV_FAST_DISABLED          false
-    
+
 #define BLE_ADV_SLOW_ENABLED           true
 #define BLE_ADV_SLOW_DISABLED          false
 
@@ -176,7 +176,7 @@ uint32_t ble_advertising_init(ble_advdata_t const                 * p_advdata,
  * @param[in] advertising_mode  Advertising mode.
  *
  * @retval @ref NRF_SUCCESS On success, else an error code indicating reason for failure.
- * @retval @ref NRF_ERROR_INVALID_STATE                             
+ * @retval @ref NRF_ERROR_INVALID_STATE
  */
 uint32_t ble_advertising_start(ble_adv_mode_t advertising_mode);
 

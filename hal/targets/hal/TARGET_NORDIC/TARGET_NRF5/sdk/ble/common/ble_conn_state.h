@@ -42,7 +42,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "ble.h"
+#include "nrf_ble.h"
 #include "sdk_mapped_flags.h"
 
 /**@brief Connection handle statuses.

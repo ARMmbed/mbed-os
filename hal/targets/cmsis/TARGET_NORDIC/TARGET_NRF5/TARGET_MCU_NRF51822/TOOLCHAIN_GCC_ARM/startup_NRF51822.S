@@ -117,8 +117,9 @@ __Vectors:
 
 /* Reset Handler */
 
-    .equ    NRF_POWER_RAMON_ADDRESS,            0x40000524
-    .equ    NRF_POWER_RAMON_RAMxON_ONMODE_Msk,  0x3
+    .equ    NRF_POWER_RAMON_ADDRESS,             0x40000524
+    .equ    NRF_POWER_RAMONB_ADDRESS,            0x40000554
+    .equ    NRF_POWER_RAMONx_RAMxON_ONMODE_Msk,  0x3  
 
     .text
     .thumb
@@ -129,10 +130,14 @@ __Vectors:
 Reset_Handler:
     .fnstart
 
-/* Make sure ALL RAM banks are powered on */
+    MOVS    R1, #NRF_POWER_RAMONx_RAMxON_ONMODE_Msk
     LDR     R0, =NRF_POWER_RAMON_ADDRESS
     LDR     R2, [R0]
-    MOVS    R1, #NRF_POWER_RAMON_RAMxON_ONMODE_Msk
+    ORRS    R2, R1
+    STR     R2, [R0]
+
+    LDR     R0, =NRF_POWER_RAMONB_ADDRESS
+    LDR     R2, [R0]
     ORRS    R2, R1
     STR     R2, [R0]
 

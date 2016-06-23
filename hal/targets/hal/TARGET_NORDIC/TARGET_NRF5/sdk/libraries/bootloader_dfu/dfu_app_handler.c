@@ -15,8 +15,8 @@
 #include "bootloader_util.h"
 #include "nrf.h"
 #include "nrf_sdm.h"
-#include "ble_gatt.h"
-#include "ble_gatts.h"
+#include "nrf_ble_gatt.h"
+#include "nrf_ble_gatts.h"
 #include "app_error.h"
 #include "dfu_ble_svc.h"
 #include "device_manager.h"
@@ -165,7 +165,7 @@ void dfu_app_on_dfu_evt(ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
 
         default:
             {
-                // Unsupported event received from DFU Service. 
+                // Unsupported event received from DFU Service.
                 // Send back BLE_DFU_RESP_VAL_NOT_SUPPORTED message to peer.
                 uint32_t err_code = ble_dfu_response_send(p_dfu,
                                                           BLE_DFU_START_PROCEDURE,
@@ -186,7 +186,7 @@ void dfu_app_reset_prepare_set(dfu_app_reset_prepare_t reset_prepare_func)
 void dfu_app_dm_appl_instance_set(dm_application_instance_t app_instance)
 {
     uint32_t err_code;
-    
+
     err_code = dm_application_instance_set(&app_instance, &m_dm_handle);
     APP_ERROR_CHECK(err_code);
 }

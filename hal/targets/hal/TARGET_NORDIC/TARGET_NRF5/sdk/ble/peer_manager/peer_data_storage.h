@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "ble_gap.h"
+#include "nrf_ble_gap.h"
 #include "peer_manager_types.h"
 #include "peer_manager_internal.h"
 

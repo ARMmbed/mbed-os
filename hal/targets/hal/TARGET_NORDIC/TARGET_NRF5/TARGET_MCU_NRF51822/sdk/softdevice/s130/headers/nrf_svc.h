@@ -1,26 +1,26 @@
-/* 
+/*
  * Copyright (c) Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   1. Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   2. Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
- * 
+ *
  *   3. Neither the name of Nordic Semiconductor ASA nor the names of other
  *   contributors to this software may be used to endorse or promote products
  *   derived from this software without specific prior written permission.
- * 
+ *
  *   4. This software must only be used in a processor manufactured by Nordic
  *   Semiconductor ASA, or in a processor manufactured by a third party that
  *   is used in combination with a processor manufactured by Nordic Semiconductor.
- * 
- * 
+ *
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,9 +31,9 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
- 
+
 #ifndef NRF_SVC__
 #define NRF_SVC__
 
@@ -42,7 +42,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+
 #ifdef SVCALL_AS_NORMAL_FUNCTION
 #define SVCALL(number, return_type, signature) return_type signature
 #else
@@ -52,9 +52,9 @@ extern "C" {
 #define SVCALL(number, return_type, signature) return_type __svc(number) signature
 #elif defined (__GNUC__)
 #ifdef __cplusplus
-#define GCC_CAST_CPP (uint8_t)
+#define GCC_CAST_CPP (uint16_t)
 #else
-#define GCC_CAST_CPP    
+#define GCC_CAST_CPP
 #endif
 #define SVCALL(number, return_type, signature)          \
   _Pragma("GCC diagnostic push")                        \
@@ -69,14 +69,14 @@ extern "C" {
     );                                                  \
   }                                                     \
   _Pragma("GCC diagnostic pop")
-  
+
 #elif defined (__ICCARM__)
 #define PRAGMA(x) _Pragma(#x)
 #define SVCALL(number, return_type, signature)          \
 PRAGMA(swi_number = (number))                           \
  __swi return_type signature;
 #else
-#define SVCALL(number, return_type, signature) return_type signature  
+#define SVCALL(number, return_type, signature) return_type signature
 #endif
 #endif  // SVCALL
 

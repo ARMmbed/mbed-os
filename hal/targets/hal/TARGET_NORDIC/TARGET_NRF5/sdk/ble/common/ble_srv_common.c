@@ -11,7 +11,7 @@
  */
 
 /* Attention!
-*  To maintain compliance with Nordic Semiconductor ASA’s Bluetooth profile
+*  To maintain compliance with Nordic Semiconductor ASAï¿½s Bluetooth profile
 *  qualification listings, this section of source code must not be modified.
 */
 
@@ -19,7 +19,7 @@
 #include <string.h>
 #include "nordic_common.h"
 #include "app_error.h"
-#include "ble.h"
+#include "nrf_ble.h"
 
 uint8_t ble_srv_report_ref_encode(uint8_t                    * p_encoded_buffer,
                                   const ble_srv_report_ref_t * p_report_ref)

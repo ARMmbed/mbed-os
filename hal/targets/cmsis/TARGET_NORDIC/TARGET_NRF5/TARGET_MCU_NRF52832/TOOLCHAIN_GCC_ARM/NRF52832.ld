@@ -83,7 +83,6 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)

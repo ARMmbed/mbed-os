@@ -12,7 +12,7 @@
 #include "device_manager.h"
 #include "app_trace.h"
 #include "pstorage.h"
-#include "ble_hci.h"
+#include "nrf_ble_hci.h"
 #include "app_error.h"
 
 #if defined ( __CC_ARM )
@@ -189,7 +189,7 @@ typedef enum
  * @defgroup api_param_check API Parameters check macros.
  *
  * @details Macros for verifying parameters passed to the module in the APIs. These macros
- *          could be mapped to nothing in the final version of the code in order to save execution 
+ *          could be mapped to nothing in the final version of the code in order to save execution
  *          time and program size.
  * @{
  */
@@ -362,7 +362,7 @@ typedef enum
 /**@brief Peer identification information.
  */
 typedef struct
-{ 
+{
     ble_gap_id_key_t peer_id;   /**< IRK and/or address of peer. */
     uint16_t         ediv;      /**< Peer's encrypted diversifier. */
     uint8_t          id_bitmap; /**< Contains information if above field is valid. */
@@ -602,11 +602,11 @@ static __INLINE void application_instance_init(uint32_t index)
 static __INLINE void connection_instance_init(uint32_t index)
 {
     DM_TRC("[DM]: Initializing Connection Instance 0x%08X.\r\n", index);
-    
+
     m_connection_table[index].state         = STATE_IDLE;
     m_connection_table[index].conn_handle   = BLE_CONN_HANDLE_INVALID;
     m_connection_table[index].bonded_dev_id = DM_INVALID_ID;
-    
+
     memset(&m_connection_table[index].peer_addr, 0, sizeof (ble_gap_addr_t));
 }
 
@@ -618,7 +618,7 @@ static __INLINE void connection_instance_init(uint32_t index)
 static __INLINE void peer_instance_init(uint32_t index)
 {
     DM_TRC("[DM]: Initializing Peer Instance 0x%08X.\r\n", index);
-    
+
     memset(m_peer_table[index].peer_id.id_addr_info.addr, 0, BLE_GAP_ADDR_LEN);
     memset(m_peer_table[index].peer_id.id_info.irk, 0, BLE_GAP_SEC_KEY_LEN);
 
@@ -735,7 +735,7 @@ static __INLINE ret_code_t device_instance_allocate(uint8_t *              p_dev
             err_code          = NRF_SUCCESS;
 
             DM_LOG("[DM]: Allocated device instance 0x%02X\r\n", index);
-            
+
             break;
         }
     }
@@ -789,7 +789,7 @@ static ret_code_t device_instance_find(ble_gap_addr_t const * p_addr, uint32_t *
     uint32_t   index;
 
     err_code = NRF_ERROR_NOT_FOUND;
-    
+
     if (NULL != p_addr)
     {
         DM_TRC("[DM]: Searching for device 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X.\r\n",
@@ -872,12 +872,12 @@ static __INLINE uint32_t connection_instance_allocate(uint32_t * p_instance)
 
     if (err_code == NRF_SUCCESS)
     {
-        DM_LOG("[DM]:[%02X]: Connection Instance Allocated.\r\n", (*p_instance));        
+        DM_LOG("[DM]:[%02X]: Connection Instance Allocated.\r\n", (*p_instance));
         m_connection_table[*p_instance].state = STATE_CONNECTED;
     }
     else
     {
-        DM_LOG("[DM]: No free connection instances available\r\n");        
+        DM_LOG("[DM]: No free connection instances available\r\n");
         err_code = NRF_ERROR_NO_MEM;
     }
 
@@ -2716,7 +2716,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                        p_ble_evt->evt.gap_evt.params.sec_params_request.peer_params.bond);
 
                 keys_exchanged.keys_peer.p_enc_key  = NULL;
-                keys_exchanged.keys_peer.p_id_key   = &m_peer_table[m_connection_table[index].bonded_dev_id].peer_id; 
+                keys_exchanged.keys_peer.p_id_key   = &m_peer_table[m_connection_table[index].bonded_dev_id].peer_id;
                 keys_exchanged.keys_peer.p_sign_key = NULL;
                 keys_exchanged.keys_peer.p_pk       = NULL;
                 keys_exchanged.keys_own.p_enc_key   = &m_bond_table[index].peer_enc_key;
@@ -2726,7 +2726,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
 
                 err_code = sd_ble_gap_sec_params_reply(p_ble_evt->evt.gap_evt.conn_handle,
                                                        BLE_GAP_SEC_STATUS_SUCCESS,
-                                                       &m_application_table[0].sec_param, 
+                                                       &m_application_table[0].sec_param,
                                                        &keys_exchanged);
 
                 if (err_code != NRF_SUCCESS)
@@ -2735,19 +2735,19 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                     event_result = err_code;
                     notify_app   = false;
                 }
-                
+
             }
             else
             {
-                //Bond/key refresh. 
+                //Bond/key refresh.
                 DM_LOG("[DM]: !!! Bond/key refresh !!!\r\n");
                 //Set the update flag for bond data.
                 m_connection_table[index].state |= STATE_BOND_INFO_UPDATE;
                 event.event_id                   = DM_EVT_SECURITY_SETUP_REFRESH;
-                
+
                 err_code = sd_ble_gap_sec_params_reply(p_ble_evt->evt.gap_evt.conn_handle,
                                                        BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
-                                                       NULL, 
+                                                       NULL,
                                                        NULL);
 
                 if (err_code != NRF_SUCCESS)
@@ -2756,7 +2756,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                     event_result = err_code;
                     notify_app   = false;
                 }
-                
+
             }
             break;
 
@@ -2846,7 +2846,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
             {
                 //Lost bond case, generate a security refresh event!
                 memset(m_gatts_table[index].attributes, 0, DM_GATT_SERVER_ATTR_MAX_SIZE);
-                
+
                 event.event_id                   = DM_EVT_SECURITY_SETUP_REFRESH;
                 m_connection_table[index].state |= STATE_PAIRING_PENDING;
                 m_connection_table[index].state |= STATE_BOND_INFO_UPDATE;
@@ -2863,7 +2863,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
                 if (err_code != NRF_SUCCESS)
                 {
                     DM_ERR("[DM]:[CI 0x%02X]:[DI 0x%02X]: Failed to apply service context\r\n",
-                            handle.connection_id, 
+                            handle.connection_id,
                             handle.device_id);
 
                     event_result = DM_SERVICE_CONTEXT_NOT_APPLIED;
@@ -2871,7 +2871,7 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
             }
             event_result = NRF_SUCCESS;
             notify_app   = true;
-            
+
             break;
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
@@ -2883,14 +2883,14 @@ void dm_ble_evt_handler(ble_evt_t * p_ble_evt)
 
         case BLE_GAP_EVT_SEC_REQUEST:
             DM_LOG("[DM]: >> BLE_GAP_EVT_SEC_REQUEST\r\n");
-            
+
             //Verify if the device is already bonded, and if it is bonded, initiate encryption.
-            //If the device is not bonded, an instance needs to be allocated in order to initiate 
-            //bonding. The application have to initiate the procedure, the module will not do this 
+            //If the device is not bonded, an instance needs to be allocated in order to initiate
+            //bonding. The application have to initiate the procedure, the module will not do this
             //automatically.
             event.event_id = DM_EVT_SECURITY_SETUP;
             notify_app     = true;
-            
+
             break;
 
         default:

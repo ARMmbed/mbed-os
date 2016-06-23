@@ -9,39 +9,39 @@
  * the file.
  *
  */
-  
+
 /** @file
  *
- * @defgroup nrf_dfu_ble_svc DFU BLE SVC 
+ * @defgroup nrf_dfu_ble_svc DFU BLE SVC
  * @{
  *
  * @brief DFU BLE SVC in bootloader. The DFU BLE SuperVisor Calls allow an application to execute
- *        functions in the installed bootloader. 
+ *        functions in the installed bootloader.
  *
- * @details This module implements handling of SuperVisor Calls in the bootloader. 
+ * @details This module implements handling of SuperVisor Calls in the bootloader.
  *          SuperVisor Calls allow for an application to execute calls into the bootloader.
- *          Currently, it is possible to exchange bonding information (like keys) from the 
- *          application to a bootloader supporting DFU OTA using BLE, so the update process can be 
+ *          Currently, it is possible to exchange bonding information (like keys) from the
+ *          application to a bootloader supporting DFU OTA using BLE, so the update process can be
  *          done through an already existing bond.
  *
- * @note The application must make sure that all SuperVisor Calls (SVC) are forwarded to the 
- *       bootloader to ensure correct behavior. Forwarding of SVCs to the bootloader is 
- *       done using the SoftDevice SVC @ref sd_softdevice_vector_table_base_set with the value 
+ * @note The application must make sure that all SuperVisor Calls (SVC) are forwarded to the
+ *       bootloader to ensure correct behavior. Forwarding of SVCs to the bootloader is
+ *       done using the SoftDevice SVC @ref sd_softdevice_vector_table_base_set with the value
  *       present in @c NRF_UICR->NRFFW[0].
  */
- 
+
 #ifndef DFU_BLE_SVC_H__
 #define DFU_BLE_SVC_H__
 
 #include "nrf_svc.h"
 #include <stdint.h>
-#include "ble_gap.h"
+#include "nrf_ble_gap.h"
 #include "nrf.h"
 #include "nrf_soc.h"
 #include "nrf_error_sdm.h"
 
 #define BOOTLOADER_SVC_BASE     0x0     /**< The number of the lowest SVC number reserved for the bootloader. */
-#define SYSTEM_SERVICE_ATT_SIZE 8       /**< Size of the system service attribute length including CRC-16 at the end. */  
+#define SYSTEM_SERVICE_ATT_SIZE 8       /**< Size of the system service attribute length including CRC-16 at the end. */
 
 /**@brief The SVC numbers used by the SVC functions in the SoC library. */
 enum BOOTLOADER_SVCS

@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "ble_gap.h"
+#include "nrf_ble_gap.h"
 #include "peer_manager_types.h"
 
 
@@ -125,7 +125,7 @@ pm_peer_id_t peer_id_get_next_deleted(pm_peer_id_t prev_peer_id);
  */
 uint32_t peer_id_n_ids(void);
 
-/** @} 
+/** @}
  * @endcond
  */
 

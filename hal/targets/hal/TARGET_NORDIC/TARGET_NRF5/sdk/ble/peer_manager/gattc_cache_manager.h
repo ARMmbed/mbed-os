@@ -16,8 +16,8 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "ble.h"
-#include "ble_gap.h"
+#include "nrf_ble.h"
+#include "nrf_ble_gap.h"
 #include "peer_manager_types.h"
 
 
@@ -98,8 +98,8 @@ ret_code_t gccm_remote_db_retrieve(pm_peer_id_t        peer_id,
                                    uint32_t          * p_n_services);
 
 
-/** @} 
- * @endcond 
+/** @}
+ * @endcond
  */
 
 #endif /* GATTC_CACHE_MANAGER_H__ */
