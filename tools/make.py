@@ -83,7 +83,7 @@ if __name__ == '__main__':
                       dest="macros",
                       help="Add a macro definition")
 
-    parser.add_argument("-S", "--supported-toolchains",
+    group.add_argument("-S", "--supported-toolchains",
                       action="store_true",
                       dest="supported_toolchains",
                       default=False,
@@ -105,7 +105,7 @@ if __name__ == '__main__':
                       default=None, help="Required peripherals")
     parser.add_argument("--dep", dest="dependencies",
                       default=None, help="Dependencies")
-    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
+    group.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
                       default=None, help="The source (input) directory", action="append")
     parser.add_argument("--duration", type=int, dest="duration",
                       default=None, help="Duration of the test")
@@ -119,7 +119,7 @@ if __name__ == '__main__':
                       default=None, help="The mbed serial port")
     parser.add_argument("-b", "--baud", type=int, dest="baud",
                       default=None, help="The mbed serial baud rate")
-    parser.add_argument("-L", "--list-tests", action="store_true", dest="list_tests",
+    group.add_argument("-L", "--list-tests", action="store_true", dest="list_tests",
                       default=False, help="List available tests in order and exit")
 
     # Ideally, all the tests with a single "main" thread can be run with, or
