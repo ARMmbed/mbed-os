@@ -64,13 +64,13 @@ if __name__ == '__main__':
                       default=False,
                       help="use the mbed library build, instead of the sources")
 
-    parser.add_argument("-L", "--list-tests",
+    group.add_argument("-L", "--list-tests",
                       action="store_true",
                       dest="list_tests",
                       default=False,
                       help="list available programs in order and exit")
 
-    parser.add_argument("-S", "--list-matrix",
+    group.add_argument("-S", "--list-matrix",
                       action="store_true",
                       dest="supported_ides",
                       default=False,
@@ -82,7 +82,7 @@ if __name__ == '__main__':
                       default=False,
                       help="writes tools/export/README.md")
 
-    parser.add_argument("--source",
+    group.add_argument("--source",
                       nargs="*",
                       type=argparse_filestring_type,
                       dest="source_dir",
