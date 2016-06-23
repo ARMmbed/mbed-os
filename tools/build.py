@@ -44,7 +44,7 @@ if __name__ == '__main__':
     parser = get_default_options_parser()
 
     parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
-                      default=None, help="The source (input) directory", action="append")
+                        default=None, help="The source (input) directory", nargs="*")
 
     parser.add_argument("--build", dest="build_dir", type=argparse_filestring_type,
                       default=None, help="The build (output) directory")
@@ -107,7 +107,7 @@ if __name__ == '__main__':
                       help="Compiles 'cpputest' unit test library (library should be on the same directory level as mbed repository)")
 
     parser.add_argument("-D",
-                      action="append",
+                      nargs="*",
                       dest="macros",
                       help="Add a macro definition")
 

@@ -79,7 +79,7 @@ if __name__ == '__main__':
                       help="Silent diagnostic output (no copy, compile notification)")
 
     parser.add_argument("-D",
-                      action="append",
+                      nargs="*",
                       dest="macros",
                       help="Add a macro definition")
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     parser.add_argument("--dep", dest="dependencies",
                       default=None, help="Dependencies")
     group.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
-                      default=None, help="The source (input) directory", action="append")
+                       default=None, help="The source (input) directory", nargs="*")
     parser.add_argument("--duration", type=int, dest="duration",
                       default=None, help="Duration of the test")
     parser.add_argument("--build", dest="build_dir",

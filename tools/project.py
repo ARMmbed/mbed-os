@@ -90,7 +90,7 @@ if __name__ == '__main__':
                       help="The source (input) directory")
 
     parser.add_argument("-D",
-                      action="append",
+                      nargs="*",
                       dest="macros",
                       help="Add a macro definition")
 
