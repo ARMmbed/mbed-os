@@ -38,7 +38,7 @@ class ARM(mbedToolchain):
             "--brief_diagnostics", "--restrict", "--multibyte_chars", "-I \""+ARM_INC+"\""],
         'asm': [],
         'c': ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
-        'cxx': ["--cpp", "--no_rtti"],
+        'cxx': ["--cpp", "--no_rtti", "--no_vla"],
         'ld': [],
     }
 
