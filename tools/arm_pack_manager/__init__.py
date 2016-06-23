@@ -222,13 +222,18 @@ class Cache () :
         >>> from ArmPackManager import Cache
         >>> a = Cache()
         >>> a.index["LPC1768"]
-        {u'algorithm': u'Flash/LPC_IAP_512.FLM',
+        {u'algorithm': {u'RAMsize': u'0x0FE0',
+                u'RAMstart': u'0x10000000',
+                u'name': u'Flash/LPC_IAP_512.FLM',
+                u'size': u'0x80000',
+                u'start': u'0x00000000'},
          u'compile': [u'Device/Include/LPC17xx.h', u'LPC175x_6x'],
          u'debug': u'SVD/LPC176x5x.svd',
          u'file': u'http://www.keil.com/pack/Keil.LPC1700_DFP.pdsc',
          u'memory': {u'IRAM1': {u'size': u'0x8000', u'start': u'0x10000000'},
                      u'IRAM2': {u'size': u'0x8000', u'start': u'0x2007C000'},
                      u'IROM1': {u'size': u'0x80000', u'start': u'0x00000000'}}}
+
 
         """
         if not self._index :
