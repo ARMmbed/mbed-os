@@ -376,7 +376,12 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #define INITIAL_SP            (0x20003000UL)
 
 #elif defined(TARGET_K64F)
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+extern uint32_t __StackTop[];
+#define INITIAL_SP            (__StackTop)
+#else
 #define INITIAL_SP            (0x20030000UL)
+#endif
 
 #elif defined(TARGET_K22F)
 #define INITIAL_SP            (0x20010000UL)
