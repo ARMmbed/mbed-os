@@ -188,14 +188,15 @@ void SystemInit(void)
 
     SystemCoreClockUpdate();
 
-    NRF_CLOCK->LFCLKSRC            = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
-    NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
-    NRF_CLOCK->TASKS_LFCLKSTART    = 1;
+    // Start the external 32khz crystal oscillator.
+    NRF_CLOCK->LFCLKSRC             = (CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos);
+    NRF_CLOCK->EVENTS_LFCLKSTARTED  = 0;
+    NRF_CLOCK->TASKS_LFCLKSTART     = 1;
 
+    // Wait for the external oscillator to start up.
     while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0) {
-        // wait for the low frequency clock start
+        // Do nothing.
     }
-
 }
 
 

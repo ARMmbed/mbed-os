@@ -1375,7 +1375,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF51_32K"],
         "progen": {"target": "nrf51-dk"},
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
+        "device_has": ["ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH"]
     },
     "NRF51_DK_BOOT": {
         "supported_form_factors": ["ARDUINO"],
@@ -1729,7 +1729,7 @@
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
-        "supported_toolchains": ["ARM", "GCC_ARM"],
+        "supported_toolchains": ["GCC_ARM"],
         "public": false,
         "detect_code": ["1101"],
         "program_cycle_s": 6,
@@ -1773,6 +1773,6 @@
             "NRF52_PAN_62",
             "NRF52_PAN_63"
         ],
-        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
+        "device_has": ["ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH"]
     }
 }

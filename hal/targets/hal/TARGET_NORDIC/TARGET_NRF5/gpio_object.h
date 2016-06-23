@@ -1,5 +1,3 @@
-// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
-// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -15,24 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_DEVICE_H
-#define MBED_DEVICE_H
+#ifndef MBED_GPIO_OBJECT_H
+#define MBED_GPIO_OBJECT_H
 
+#include "mbed_assert.h"
 
+#include "nrf_gpio.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+typedef struct {
+    PinName  pin;
+} gpio_t;
 
+static inline void gpio_write(gpio_t *obj, int value) {
+    MBED_ASSERT(obj->pin != (PinName)NC);
+    if (value) {
+        nrf_gpio_pin_set(obj->pin);
+    } else {
+        nrf_gpio_pin_clear(obj->pin);
+    }
+}
 
+static inline int gpio_is_connected(const gpio_t *obj) {
+    return obj->pin != (PinName)NC;
+}
 
-
-
-
-
-
-
-
-
-
-#include "objects.h"
+#ifdef __cplusplus
+}
+#endif
 
 #endif

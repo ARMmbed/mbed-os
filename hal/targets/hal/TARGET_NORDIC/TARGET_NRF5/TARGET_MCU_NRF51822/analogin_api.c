@@ -18,6 +18,8 @@
 #include "cmsis.h"
 #include "pinmap.h"
 
+#ifdef DEVICE_ANALOGIN
+
 #define ANALOGIN_MEDIAN_FILTER      1
 #define ADC_10BIT_RANGE             0x3FF
 #define ADC_RANGE    ADC_10BIT_RANGE
@@ -79,3 +81,5 @@ float analogin_read(analogin_t *obj)
     uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }
+
+#endif // DEVICE_ANALOGIN
