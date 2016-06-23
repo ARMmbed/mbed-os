@@ -24,11 +24,26 @@
 // Instance 0 is reserved for SoftDevice.
 // Instance 1 is used as a common one for us_ticker, lp_ticker and (in case
 // of NRF51) as an alternative tick source for RTOS.
+// ["os_tick.c" uses hard coded addresses of the 'NRF_RTC1->EVENT_COMPARE[1]'
+//  register in inline assembly implementations of COMMON_RTC_IRQ_HANDLER,
+//  please remember to update those in case of doing changes here]
 #define COMMON_RTC_INSTANCE     NRF_RTC1
-
+#define COMMON_RTC_IRQ_HANDLER  RTC1_IRQHandler
 #define US_TICKER_CC_CHANNEL    0
 #define OS_TICK_CC_CHANNEL      1
 #define LP_TICKER_CC_CHANNEL    2
+
+#define COMMON_RTC_EVENT_COMPARE(channel) \
+    CONCAT_2(NRF_RTC_EVENT_COMPARE_, channel)
+#define COMMON_RTC_INT_COMPARE_MASK(channel) \
+    CONCAT_3(NRF_RTC_INT_COMPARE, channel, _MASK)
+
+#define US_TICKER_EVENT     COMMON_RTC_EVENT_COMPARE(US_TICKER_CC_CHANNEL)
+#define US_TICKER_INT_MASK  COMMON_RTC_INT_COMPARE_MASK(US_TICKER_CC_CHANNEL)
+#define OS_TICK_EVENT       COMMON_RTC_EVENT_COMPARE(OS_TICK_CC_CHANNEL)
+#define OS_TICK_INT_MASK    COMMON_RTC_INT_COMPARE_MASK(OS_TICK_CC_CHANNEL)
+#define LP_TICKER_EVENT     COMMON_RTC_EVENT_COMPARE(LP_TICKER_CC_CHANNEL)
+#define LP_TICKER_INT_MASK  COMMON_RTC_INT_COMPARE_MASK(LP_TICKER_CC_CHANNEL)
 
 extern bool              m_common_rtc_enabled;
 extern uint32_t volatile m_common_rtc_overflows;

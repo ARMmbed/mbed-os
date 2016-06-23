@@ -17,7 +17,7 @@
 
 #include "common_rtc.h"
 #include "toolchain.h"
-#include "nrf_delay.h"
+#include "nrf_drv_common.h"
 
 
 #define MAX_RTC_COUNTER_VAL     ((1uL << RTC_COUNTER_BITS) - 1)
@@ -44,7 +44,7 @@ MBED_WEAK void OS_Tick_Handler() { }
 
 #if defined (__CC_ARM)         /* ARMCC Compiler */
 
-__asm void RTC1_IRQHandler(void)
+__asm void COMMON_RTC_IRQ_HANDLER(void)
 {
     IMPORT  OS_Tick_Handler
     IMPORT  common_rtc_irq_handler
@@ -59,7 +59,7 @@ __asm void RTC1_IRQHandler(void)
      * would never been dequeued.
      *
      * \code
-     * void RTC1_IRQHandler(void) {
+     * void COMMON_RTC_IRQ_HANDLER(void) {
          if(NRF_RTC1->EVENTS_COMPARE[1]) {
              // never return...
              OS_Tick_Handler();
@@ -83,7 +83,7 @@ US_TICKER_HANDLER
 
 #elif defined (__GNUC__)        /* GNU Compiler */
 
-__attribute__((naked)) void RTC1_IRQHandler(void)
+__attribute__((naked)) void COMMON_RTC_IRQ_HANDLER(void)
 {
     /**
      * Chanel 1 of RTC1 is used by RTX as a systick.
@@ -95,7 +95,7 @@ __attribute__((naked)) void RTC1_IRQHandler(void)
      * would never been dequeued.
      *
      * \code
-     * void RTC1_IRQHandler(void) {
+     * void COMMON_RTC_IRQ_HANDLER(void) {
          if(NRF_RTC1->EVENTS_COMPARE[1]) {
              // never return...
              OS_Tick_Handler();
@@ -122,7 +122,7 @@ __attribute__((naked)) void RTC1_IRQHandler(void)
 #else
 
 #error Compiler not supported.
-#error Provide a definition of RTC1_IRQHandler.
+#error Provide a definition of COMMON_RTC_IRQ_HANDLER.
 
 /*
  * Chanel 1 of RTC1 is used by RTX as a systick.
@@ -134,7 +134,7 @@ __attribute__((naked)) void RTC1_IRQHandler(void)
  * will never been dequeued. After a certain time a stack overflow will happen.
  *
  * \code
- * void RTC1_IRQHandler(void) {
+ * void COMMON_RTC_IRQ_HANDLER(void) {
      if(NRF_RTC1->EVENTS_COMPARE[1]) {
          // never return...
          OS_Tick_Handler();
@@ -188,8 +188,8 @@ static uint32_t get_next_tick_cc_delta() {
 }
 
 static inline void clear_tick_interrupt() {
-    NRF_RTC1->EVENTS_COMPARE[1] = 0;
-    NRF_RTC1->EVTENCLR = (1 << 17);
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, OS_TICK_EVENT);
+    nrf_rtc_event_disable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
 }
 
 /**
@@ -224,7 +224,7 @@ static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t va
  * Register the next tick.
  */
 static void register_next_tick() {
-    previous_tick_cc_value = NRF_RTC1->CC[1];
+    previous_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
     uint32_t delta = get_next_tick_cc_delta();
     uint32_t new_compare_value = (previous_tick_cc_value + delta) & MAX_RTC_COUNTER_VAL;
 
@@ -236,16 +236,16 @@ static void register_next_tick() {
     // This code is very short 20-38 cycles in the worst case, it shouldn't
     // disturb softdevice.
     __disable_irq();
-    uint32_t current_counter = NRF_RTC1->COUNTER;
+    uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
 
     // If an overflow occur, set the next tick in COUNTER + delta clock cycles
     if (is_in_wrapped_range(previous_tick_cc_value, new_compare_value, current_counter) == false) {
         new_compare_value = current_counter + delta;
     }
-    NRF_RTC1->CC[1] = new_compare_value;
-
-    // set the interrupt of CC channel 1 and reenable IRQs
-    NRF_RTC1->INTENSET = RTC_INTENSET_COMPARE1_Msk;
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL, new_compare_value);
+    // Enable generation of the compare event for the value set above (this
+    // event will trigger the interrupt).
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
     __enable_irq();
 }
 
@@ -259,11 +259,10 @@ int os_tick_init (void)
 {
     common_rtc_init();
 
-    NRF_RTC1->CC[1] = 0;
-    clear_tick_interrupt();
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL, 0);
     register_next_tick();
 
-    return RTC1_IRQn;
+    return nrf_drv_get_IRQn(COMMON_RTC_INSTANCE);
 }
 
 /**
@@ -283,8 +282,8 @@ void os_tick_irqack(void)
  * @return 1 if the timer has overflowed and 0 otherwise.
  */
 uint32_t os_tick_ovf(void) {
-    uint32_t current_counter = NRF_RTC1->COUNTER;
-    uint32_t next_tick_cc_value = NRF_RTC1->CC[1];
+    uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+    uint32_t next_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
 
     return is_in_wrapped_range(previous_tick_cc_value, next_tick_cc_value, current_counter) ? 0 : 1;
 }
@@ -299,8 +298,8 @@ uint32_t os_tick_ovf(void) {
  * @return the value of the alternative hardware timer.
  */
 uint32_t os_tick_val(void) {
-    uint32_t current_counter = NRF_RTC1->COUNTER;
-    uint32_t next_tick_cc_value = NRF_RTC1->CC[1];
+    uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+    uint32_t next_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
 
     // do not use os_tick_ovf because its counter value can be different
     if(is_in_wrapped_range(previous_tick_cc_value, next_tick_cc_value, current_counter)) {
