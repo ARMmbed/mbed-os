@@ -159,7 +159,11 @@ class Cache () :
             to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
                                                     size=m["size"]))
                                      for m in device("memory")])
-            to_ret["algorithm"] = device.algorithm["name"].replace('\\','/')
+            to_ret["algorithm"] = dict(name=device.algorithm["name"].replace('\\','/'),
+                                       start=device.algorithm["start"],
+                                       size=device.algorithm["size"],
+                                       RAMstart=device.algorithm["ramstart"],
+                                       RAMsize=device.algorithm["ramsize"])
             to_ret["debug"] = device.debug["svd"]
             to_ret["compile"] = (device.compile["header"], device.compile["define"])
         except (KeyError, TypeError) :
