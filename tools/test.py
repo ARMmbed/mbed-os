@@ -32,7 +32,7 @@ from tools.build_api import build_project, build_library
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException
 from tools.test_exporters import ReportExporter, ResultExporterType
-from utils import argparse_filestring_type, argparse_lowercase_type
+from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 
 if __name__ == '__main__':
     try:
@@ -61,7 +61,7 @@ if __name__ == '__main__':
                           default=False, help="List (recursively) available tests in order and exit")
 
         parser.add_argument("-p", "--paths", dest="paths",
-                          type=argparse_filestring_type, nargs="*"
+                          type=argparse_many(argparse_filestring_type),
                           default=None, help="Limit the tests to those within the specified comma separated list of paths")
         
         format_choices = ["list", "json"]
@@ -74,7 +74,8 @@ if __name__ == '__main__':
         parser.add_argument("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
                           default=None, help="Continue trying to build all tests if a build failure occurs")
 
-        parser.add_argument("-n", "--names", dest="names", nargs="*"
+        #TODO validate the names instead of just passing through str
+        parser.add_argument("-n", "--names", dest="names", type=argparse_many(str),
                           default=None, help="Limit the tests to a comma separated list of names")
                           
         parser.add_argument("--test-spec", dest="test_spec",
