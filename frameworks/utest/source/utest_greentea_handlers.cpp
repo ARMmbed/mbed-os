@@ -24,13 +24,12 @@
 
 using namespace utest::v1;
 
-static utest::v1::status_t unknown_test_setup_handler(const size_t);
 static void selftest_failure_handler(const failure_t);
 static void test_failure_handler(const failure_t);
 
 
 const handlers_t utest::v1::greentea_abort_handlers = {
-    unknown_test_setup_handler,
+    default_greentea_test_setup_handler,
     greentea_test_teardown_handler,
     test_failure_handler,
     greentea_case_setup_handler,
@@ -39,7 +38,7 @@ const handlers_t utest::v1::greentea_abort_handlers = {
 };
 
 const handlers_t utest::v1::greentea_continue_handlers = {
-    unknown_test_setup_handler,
+    default_greentea_test_setup_handler,
     greentea_test_teardown_handler,
     test_failure_handler,
     greentea_case_setup_handler,
@@ -48,7 +47,7 @@ const handlers_t utest::v1::greentea_continue_handlers = {
 };
 
 const handlers_t utest::v1::selftest_handlers = {
-    unknown_test_setup_handler,
+    default_greentea_test_setup_handler,
     greentea_test_teardown_handler,
     selftest_failure_handler,
     greentea_case_setup_handler,
@@ -58,13 +57,6 @@ const handlers_t utest::v1::selftest_handlers = {
 
 
 // --- SPECIAL HANDLERS ---
-static utest::v1::status_t unknown_test_setup_handler(const size_t) {
-    UTEST_LOG_FUNCTION();
-    utest_printf(">>> I do not know how to tell greentea that the test started, since\n");
-    utest_printf(">>> you forgot to override the `test_setup_handler` in your specification.\n");
-
-    return STATUS_ABORT;
-}
 
 static void selftest_failure_handler(const failure_t failure) {
     UTEST_LOG_FUNCTION();
@@ -88,6 +80,14 @@ static void test_failure_handler(const failure_t failure) {
 }
 
 // --- GREENTEA HANDLERS ---
+utest::v1::status_t utest::v1::default_greentea_test_setup_handler(const size_t number_of_cases)
+{
+    UTEST_LOG_FUNCTION();
+    GREENTEA_SETUP(UTEST_DEFAULT_GREENTEA_TIMEOUT, UTEST_DEFAULT_HOST_TEST_NAME);
+    return greentea_test_setup_handler(number_of_cases);
+}
+
+
 utest::v1::status_t utest::v1::greentea_test_setup_handler(const size_t number_of_cases)
 {
     UTEST_LOG_FUNCTION();

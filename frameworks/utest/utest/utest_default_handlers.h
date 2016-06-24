@@ -139,8 +139,22 @@ namespace v1 {
     /// Prints the reason of the failure and continues, unless the teardown handler failed, for which it aborts.
     utest::v1::status_t verbose_case_failure_handler (const Case *const source, const failure_t reason);
 
+    /// Default greentea test case set up handler
+    #define UTEST_DEFAULT_GREENTEA_TIMEOUT  10  //Seconds
+    #define UTEST_DEFAULT_HOST_TEST_NAME    "default_auto"
+
+    utest::v1::status_t default_greentea_test_setup_handler   (const size_t number_of_cases);
+
     /// Requests the start test case from greentea and continues.
+    /// Example usage:
+    /// utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+    ///    GREENTEA_SETUP(5, "default_auto");
+    ///    return greentea_test_setup_handler(number_of_cases);
+    /// }
+    ///
+    /// Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
     utest::v1::status_t greentea_test_setup_handler   (const size_t number_of_cases);
+
     /// Reports the test results to greentea.
     void     greentea_test_teardown_handler(const size_t passed, const size_t failed, const failure_t failure);
     /// Reports the failure for `REASON_TEST_SETUP` and `REASON_TEST_TEARDOWN` to greentea and then dies.
