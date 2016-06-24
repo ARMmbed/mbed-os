@@ -228,7 +228,7 @@ static const ARM_STORAGE_CAPABILITIES caps = {
 };
 
 static const ARM_STORAGE_INFO info = {
-    .total_storage    = 512 * 1024, /**< Total available storage, in units of octets. */
+    .total_storage        = BLOCK1_SIZE, /**< Total available storage, in units of octets. By default, BLOCK0 is reserved to hold program code. */
 
     .program_unit         = PROGRAM_UNIT,
     .optimal_program_unit = OPTIMAL_PROGRAM_UNIT,
