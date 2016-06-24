@@ -221,9 +221,9 @@ static const ARM_STORAGE_CAPABILITIES caps = {
     /* Enable chip-erase functionality if we own all of block-1. */
     #if ((!defined (YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR) || (YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR == BLOCK1_START_ADDR)) && \
          (!defined (YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE)       || (YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE == BLOCK1_SIZE)))
-    .erase_all  = 1,    /**< Supports EraseChip operation. */
+    .erase_all        = 1,    /**< Supports EraseChip operation. */
     #else
-    .erase_all  = 0,    /**< Supports EraseChip operation. */
+    .erase_all        = 0,    /**< Supports EraseChip operation. */
     #endif
 };
 
@@ -233,19 +233,19 @@ static const ARM_STORAGE_INFO info = {
     .program_unit         = PROGRAM_UNIT,
     .optimal_program_unit = OPTIMAL_PROGRAM_UNIT,
 
-    .program_cycles   = ARM_STORAGE_PROGRAM_CYCLES_INFINITE, /**< A measure of endurance for reprogramming.
-                                                              *   Use ARM_STOR_PROGRAM_CYCLES_INFINITE for infinite or unknown endurance. */
+    .program_cycles       = ARM_STORAGE_PROGRAM_CYCLES_INFINITE, /**< A measure of endurance for reprogramming.
+                                                                  *   Use ARM_STOR_PROGRAM_CYCLES_INFINITE for infinite or unknown endurance. */
 
-    .erased_value     = 0x1,  /**< Contents of erased memory (1 to indicate erased octets with state 0xFF). */
-    .memory_mapped   = 1,
+    .erased_value         = 0x1,  /**< Contents of erased memory (1 to indicate erased octets with state 0xFF). */
+    .memory_mapped        = 1,
 
-    .programmability = ARM_STORAGE_PROGRAMMABILITY_ERASABLE, /**< A value of type enum ARM_STOR_PROGRAMMABILITY. */
-    .retention_level = ARM_RETENTION_NVM,
-    .security = {
-        .acls                = 0, /**< against internal software attacks using ACLs. */
-        .rollback_protection = 0, /**< roll-back protection. */
-        .tamper_proof        = 0, /**< tamper-proof memory (will be deleted on tamper-attempts using board level or chip level sensors). */
-        .internal_flash      = 1, /**< Internal flash. */
+    .programmability      = ARM_STORAGE_PROGRAMMABILITY_ERASABLE, /**< A value of type enum ARM_STOR_PROGRAMMABILITY. */
+    .retention_level      = ARM_RETENTION_NVM,
+    .security             = {
+        .acls                 = 0, /**< against internal software attacks using ACLs. */
+        .rollback_protection  = 0, /**< roll-back protection. */
+        .tamper_proof         = 0, /**< tamper-proof memory (will be deleted on tamper-attempts using board level or chip level sensors). */
+        .internal_flash       = 1, /**< Internal flash. */
 
         .software_attacks     = 0,
         .board_level_attacks  = 0,
@@ -253,7 +253,6 @@ static const ARM_STORAGE_INFO info = {
         .side_channel_attacks = 0,
     }
 };
-
 
 /**
  * This is the command code written into the first FCCOB register, FCCOB0.
@@ -944,7 +943,7 @@ static int32_t eraseAll(void)
 static ARM_STORAGE_STATUS getStatus(void)
 {
     ARM_STORAGE_STATUS status = {
-        .busy = 0,
+        .busy  = 0,
         .error = 0,
     };
 
@@ -972,7 +971,7 @@ static uint32_t resolveAddress(uint64_t addr) {
     return (uint32_t)addr;
 }
 
-int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP)
+int32_t nextBlock(const ARM_STORAGE_BLOCK *prevP, ARM_STORAGE_BLOCK *nextP)
 {
     if (prevP == NULL) {
         /* fetching the first block (instead of next) */
@@ -1021,20 +1020,20 @@ int32_t getBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP)
 }
 
 ARM_DRIVER_STORAGE ARM_Driver_Storage_(0) = {
-    .GetVersion         = getVersion,
-    .GetCapabilities    = getCapabilities,
-    .Initialize         = initialize,
-    .Uninitialize       = uninitialize,
-    .PowerControl       = powerControl,
-    .ReadData           = readData,
-    .ProgramData        = programData,
-    .Erase              = erase,
-    .EraseAll           = eraseAll,
-    .GetStatus          = getStatus,
-    .GetInfo            = getInfo,
-    .ResolveAddress     = resolveAddress,
-    .GetNextBlock       = nextBlock,
-    .GetBlock           = getBlock
+    .GetVersion      = getVersion,
+    .GetCapabilities = getCapabilities,
+    .Initialize      = initialize,
+    .Uninitialize    = uninitialize,
+    .PowerControl    = powerControl,
+    .ReadData        = readData,
+    .ProgramData     = programData,
+    .Erase           = erase,
+    .EraseAll        = eraseAll,
+    .GetStatus       = getStatus,
+    .GetInfo         = getInfo,
+    .ResolveAddress  = resolveAddress,
+    .GetNextBlock    = nextBlock,
+    .GetBlock        = getBlock
 };
 
 #endif /* #if DEVICE_STORAGE */
