@@ -314,7 +314,9 @@ void programDataCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation
     /* We come here either because of completion for program-data or as a very
      * unlikely fall through from synchronous completion of program-data (above). */
 
+#ifndef __CC_ARM
     printf("verifying programmed sector at addr %lu\n", (uint32_t)addr);
+#endif
     verifyBytePattern(addr, sizeofData, BYTE_PATTERN);
     ++programIteration;
 
@@ -411,7 +413,9 @@ void programDataOptimalCompleteCallback(int32_t status, ARM_STORAGE_OPERATION op
 
     TEST_ASSERT((operation == ARM_STORAGE_OPERATION_ERASE) || (operation == ARM_STORAGE_OPERATION_PROGRAM_DATA));
     if (operation == ARM_STORAGE_OPERATION_ERASE) {
+#ifndef __CC_ARM
         printf("programming %u bytes at address %lu with pattern 0x%x\n", sizeofData, (uint32_t)addr, BYTE_PATTERN);
+#endif
         status = drv->ProgramData(addr, buffer, sizeofData);
 
         if (status < ARM_DRIVER_OK) {
@@ -427,7 +431,9 @@ void programDataOptimalCompleteCallback(int32_t status, ARM_STORAGE_OPERATION op
     /* We come here either because of completion for program-data or as a very
      * unlikely fall through from synchronous completion of program-data (above). */
 
+#ifndef __CC_ARM
     printf("verifying programmed sector at addr %lu\n", (uint32_t)addr);
+#endif
     verifyBytePattern(addr, sizeofData, BYTE_PATTERN);
     ++programIteration;
 
@@ -548,7 +554,9 @@ template<size_t ERASE_UNITS_PER_ITERATION>
 void eraseCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
     static unsigned eraseIteration = 0;
+#ifndef __CC_ARM
     printf("erase<%u> complete callback: iteration %u\n", ERASE_UNITS_PER_ITERATION, eraseIteration);
+#endif
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_ERASE);
 
     /* test that the actual sector has been erased */
@@ -560,7 +568,9 @@ void eraseCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
     const uint64_t addr = firstBlock.addr + eraseIteration * ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit;
     ++eraseIteration;
 
+#ifndef __CC_ARM
     printf("testing erased sector at addr %lu\n", (uint32_t)addr);
+#endif
     verifyBytePattern(addr, ERASE_UNITS_PER_ITERATION * firstBlock.attributes.erase_unit, (uint8_t)0xFF);
 
     Harness::validate_callback();
@@ -617,7 +627,9 @@ control_t test_erase(const size_t call_count)
 
 void eraseChipCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
 {
+#ifndef __CC_ARM
     printf("eraseChip complete callback\n");
+#endif
     TEST_ASSERT_EQUAL(status, ARM_DRIVER_OK);
     TEST_ASSERT_EQUAL(operation, ARM_STORAGE_OPERATION_ERASE_ALL);
 
@@ -627,7 +639,9 @@ void eraseChipCompleteCallback(int32_t status, ARM_STORAGE_OPERATION operation)
     uint64_t addr = firstBlock.addr;
 
     /* test that the flash has been erased */
+#ifndef __CC_ARM
     printf("testing erased chip\n");
+#endif
     unsigned index = 0;
     static const unsigned MAX_VERIFY_ITERATIONS = 5;
     while ((index < MAX_VERIFY_ITERATIONS) && (addr < (firstBlock.addr + firstBlock.size))) {
@@ -780,7 +794,9 @@ void programDataWithMultipleProgramUnitsCallback(int32_t status, ARM_STORAGE_OPE
            }
         }
 
+#ifndef __CC_ARM
         printf("Callback: programming %lu bytes at address %lu with pattern 0x%lx\n", (N_UNITS * info.program_unit), (uint32_t)firstBlock.addr, BYTE_PATTERN);
+#endif
         rc = drv->ProgramData(firstBlock.addr, buffer, (N_UNITS * info.program_unit));
         TEST_ASSERT(rc >= ARM_DRIVER_OK);
         if (rc == ARM_DRIVER_OK) {
@@ -794,7 +810,9 @@ void programDataWithMultipleProgramUnitsCallback(int32_t status, ARM_STORAGE_OPE
 
     TEST_ASSERT_EQUAL((N_UNITS * info.program_unit), status);
 
+#ifndef __CC_ARM
     printf("Callback: verifying programmed sector at addr %lu\n", (uint32_t)firstBlock.addr);
+#endif
     if (info.program_unit >= sizeof(BYTE_PATTERN)) {
         verifyBytePattern(firstBlock.addr, (N_UNITS * info.program_unit), BYTE_PATTERN);
     } else {
