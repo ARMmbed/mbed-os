@@ -32,69 +32,64 @@ from tools.build_api import build_project, build_library
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException
 from tools.test_exporters import ReportExporter, ResultExporterType
-from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 
 if __name__ == '__main__':
     try:
         # Parse Options
         parser = get_default_options_parser()
         
-        parser.add_argument("-D",
-                          nargs="*",
+        parser.add_option("-D", "",
+                          action="append",
                           dest="macros",
                           help="Add a macro definition")
-       
-        parser.add_argument("-j", "--jobs",
-                          type=int,
+        
+        parser.add_option("-j", "--jobs",
+                          type="int",
                           dest="jobs",
                           default=0,
                           help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
-        parser.add_argument("--source", dest="source_dir",
-                          type=argparse_filestring_type,
-                            default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", nargs="*")
+        parser.add_option("--source", dest="source_dir",
+                          default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", action="append")
 
-        parser.add_argument("--build", dest="build_dir",
+        parser.add_option("--build", dest="build_dir",
                           default=None, help="The build (output) directory")
 
-        parser.add_argument("-l", "--list", action="store_true", dest="list",
+        parser.add_option("-l", "--list", action="store_true", dest="list",
                           default=False, help="List (recursively) available tests in order and exit")
 
-        parser.add_argument("-p", "--paths", dest="paths",
-                          type=argparse_many(argparse_filestring_type),
+        parser.add_option("-p", "--paths", dest="paths",
                           default=None, help="Limit the tests to those within the specified comma separated list of paths")
         
         format_choices = ["list", "json"]
         format_default_choice = "list"
         format_help = "Change the format in which tests are listed. Choices include: %s. Default: %s" % (", ".join(format_choices), format_default_choice)
-        parser.add_argument("-f", "--format", dest="format",
-                            type=argparse_lowercase_type(format_choices, "format"),
-                            default=format_default_choice, help=format_help)
+        parser.add_option("-f", "--format", type="choice", dest="format",
+                          choices=format_choices, default=format_default_choice, help=format_help)
         
-        parser.add_argument("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
+        parser.add_option("--continue-on-build-fail", action="store_true", dest="continue_on_build_fail",
                           default=None, help="Continue trying to build all tests if a build failure occurs")
 
-        #TODO validate the names instead of just passing through str
-        parser.add_argument("-n", "--names", dest="names", type=argparse_many(str),
+        parser.add_option("-n", "--names", dest="names",
                           default=None, help="Limit the tests to a comma separated list of names")
                           
-        parser.add_argument("--test-spec", dest="test_spec",
+        parser.add_option("--test-spec", dest="test_spec",
                           default=None, help="Destination path for a test spec file that can be used by the Greentea automated test tool")
         
-        parser.add_argument("--build-report-junit", dest="build_report_junit",
+        parser.add_option("--build-report-junit", dest="build_report_junit",
                           default=None, help="Destination path for a build report in the JUnit xml format")
         
-        parser.add_argument("-v", "--verbose",
+        parser.add_option("-v", "--verbose",
                           action="store_true",
                           dest="verbose",
                           default=False,
                           help="Verbose diagnostic output")
 
-        options = parser.parse_args()
+        (options, args) = parser.parse_args()
 
         # Filter tests by path if specified 
         if options.paths:
-            all_paths = options.paths
+            all_paths = options.paths.split(",")
         else:
             all_paths = ["."]
         
@@ -107,7 +102,7 @@ if __name__ == '__main__':
         
         # Filter tests by name if specified
         if options.names:
-            all_names = options.names
+            all_names = options.names.split(",")
             all_names = [x.lower() for x in all_names]
             
             for name in all_names:
@@ -137,7 +132,7 @@ if __name__ == '__main__':
                 base_source_paths = ['.']
             
             
-            target = TARGET_MAP[options.mcu[0]]
+            target = TARGET_MAP[options.mcu]
             
             build_report = {}
             build_properties = {}
@@ -145,7 +140,7 @@ if __name__ == '__main__':
             library_build_success = False
             try:
                 # Build sources
-                build_library(base_source_paths, options.build_dir, target, options.tool[0],
+                build_library(base_source_paths, options.build_dir, target, options.tool,
                                                 options=options.options,
                                                 jobs=options.jobs,
                                                 clean=options.clean,
@@ -171,7 +166,7 @@ if __name__ == '__main__':
                 print "Failed to build library"
             else:
                 # Build all the tests
-                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool[0],
+                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
                         options=options.options,
                         clean=options.clean,
                         report=build_report,

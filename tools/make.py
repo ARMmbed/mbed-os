@@ -38,152 +38,156 @@ from tools.paths import FS_LIBRARY
 from tools.paths import UBLOX_LIBRARY
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
-from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
-from utils import argparse_filestring_type
-from argparse import ArgumentTypeError
+try:
+    import tools.private_settings as ps
+except:
+    ps = object()
 
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser()
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-p",
-                      type=test_known,
+    parser.add_option("-p",
+                      type="int",
                       dest="program",
                       help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
 
-    group.add_argument("-n",
-                       type=test_name_known,
-                      dest="program",
+    parser.add_option("-n",
+                      dest="program_name",
                       help="The name of the desired test program")
 
-    parser.add_argument("-j", "--jobs",
-                      type=int,
+    parser.add_option("-j", "--jobs",
+                      type="int",
                       dest="jobs",
                       default=0,
                       help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
-    parser.add_argument("-v", "--verbose",
+    parser.add_option("-v", "--verbose",
                       action="store_true",
                       dest="verbose",
                       default=False,
                       help="Verbose diagnostic output")
 
-    parser.add_argument("--silent",
+    parser.add_option("--silent",
                       action="store_true",
                       dest="silent",
                       default=False,
                       help="Silent diagnostic output (no copy, compile notification)")
 
-    parser.add_argument("-D",
-                      nargs="*",
+    parser.add_option("-D", "",
+                      action="append",
                       dest="macros",
                       help="Add a macro definition")
 
-    group.add_argument("-S", "--supported-toolchains",
+    parser.add_option("-S", "--supported-toolchains",
                       action="store_true",
                       dest="supported_toolchains",
                       default=False,
                       help="Displays supported matrix of MCUs and toolchains")
 
-    parser.add_argument('-f', '--filter',
+    parser.add_option('-f', '--filter',
                       dest='general_filter_regex',
                       default=None,
                       help='For some commands you can use filter to filter out results')
 
     # Local run
-    parser.add_argument("--automated", action="store_true", dest="automated",
+    parser.add_option("--automated", action="store_true", dest="automated",
                       default=False, help="Automated test")
-    parser.add_argument("--host", dest="host_test",
+    parser.add_option("--host", dest="host_test",
                       default=None, help="Host test")
-    parser.add_argument("--extra", dest="extra",
+    parser.add_option("--extra", dest="extra",
                       default=None, help="Extra files")
-    parser.add_argument("--peripherals", dest="peripherals",
+    parser.add_option("--peripherals", dest="peripherals",
                       default=None, help="Required peripherals")
-    parser.add_argument("--dep", dest="dependencies",
+    parser.add_option("--dep", dest="dependencies",
                       default=None, help="Dependencies")
-    group.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
-                       default=None, help="The source (input) directory", nargs="*")
-    parser.add_argument("--duration", type=int, dest="duration",
+    parser.add_option("--source", dest="source_dir",
+                      default=None, help="The source (input) directory", action="append")
+    parser.add_option("--duration", type="int", dest="duration",
                       default=None, help="Duration of the test")
-    parser.add_argument("--build", dest="build_dir",
+    parser.add_option("--build", dest="build_dir",
                       default=None, help="The build (output) directory")
-    parser.add_argument("-N", "--artifact-name", dest="artifact_name",
+    parser.add_option("-N", "--artifact-name", dest="artifact_name",
                       default=None, help="The built project's name")
-    parser.add_argument("-d", "--disk", dest="disk",
+    parser.add_option("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
-    parser.add_argument("-s", "--serial", dest="serial",
+    parser.add_option("-s", "--serial", dest="serial",
                       default=None, help="The mbed serial port")
-    parser.add_argument("-b", "--baud", type=int, dest="baud",
+    parser.add_option("-b", "--baud", type="int", dest="baud",
                       default=None, help="The mbed serial baud rate")
-    group.add_argument("-L", "--list-tests", action="store_true", dest="list_tests",
+    parser.add_option("-L", "--list-tests", action="store_true", dest="list_tests",
                       default=False, help="List available tests in order and exit")
 
     # Ideally, all the tests with a single "main" thread can be run with, or
     # without the rtos, eth, usb_host, usb, dsp, fat, ublox
-    parser.add_argument("--rtos",
+    parser.add_option("--rtos",
                       action="store_true", dest="rtos",
                       default=False, help="Link with RTOS library")
 
-    parser.add_argument("--rpc",
+    parser.add_option("--rpc",
                       action="store_true", dest="rpc",
                       default=False, help="Link with RPC library")
 
-    parser.add_argument("--eth",
+    parser.add_option("--eth",
                       action="store_true", dest="eth",
                       default=False,
                       help="Link with Ethernet library")
 
-    parser.add_argument("--usb_host",
+    parser.add_option("--usb_host",
                       action="store_true",
                       dest="usb_host",
                       default=False,
                       help="Link with USB Host library")
 
-    parser.add_argument("--usb",
+    parser.add_option("--usb",
                       action="store_true",
                       dest="usb",
                       default=False,
                       help="Link with USB Device library")
 
-    parser.add_argument("--dsp",
+    parser.add_option("--dsp",
                       action="store_true",
                       dest="dsp",
                       default=False,
                       help="Link with DSP library")
 
-    parser.add_argument("--fat",
+    parser.add_option("--fat",
                       action="store_true",
                       dest="fat",
                       default=False,
                       help="Link with FS ad SD card file system library")
 
-    parser.add_argument("--ublox",
+    parser.add_option("--ublox",
                       action="store_true",
                       dest="ublox",
                       default=False,
                       help="Link with U-Blox library")
 
-    parser.add_argument("--testlib",
+    parser.add_option("--testlib",
                       action="store_true",
                       dest="testlib",
                       default=False,
                       help="Link with mbed test library")
 
     # Specify a different linker script
-    parser.add_argument("-l", "--linker", dest="linker_script",
-                      type=argparse_filestring_type,
+    parser.add_option("-l", "--linker", dest="linker_script",
                       default=None, help="use the specified linker script")
 
-    options = parser.parse_args()
+    (options, args) = parser.parse_args()
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
         print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
         exit(0)
+
+    if options.source_dir:
+        for path in options.source_dir :
+            if not isfile(path) and not isdir(path) :
+                args_error(parser, "[ERROR] you passed \"{}\" to --source, which does not exist".
+                           format(path))
 
     # Print available tests in order and exit
     if options.list_tests is True:
@@ -193,9 +197,25 @@ if __name__ == '__main__':
     # force program to "0" if a source dir is specified
     if options.source_dir is not None:
         p = 0
+        n = None
     else:
     # Program Number or name
-        p = options.program
+        p, n = options.program, options.program_name
+
+    if n is not None and p is not None:
+        args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
+    if n:
+        # We will transform 'n' to list of 'p' (integers which are test numbers)
+        nlist = n.split(',')
+        for test_id in nlist:
+            if test_id not in TEST_MAP.keys():
+                args_error(parser, "[ERROR] Program with name '%s' not found"% test_id)
+
+        p = [TEST_MAP[n].n for n in nlist]
+    elif p is None or (p < 0) or (p > (len(TESTS)-1)):
+        message = "[ERROR] You have to specify one of the following tests:\n"
+        message += '\n'.join(map(str, sorted(TEST_MAP.values())))
+        args_error(parser, message)
 
     # If 'p' was set via -n to list of numbers make this a single element integer list
     if type(p) != type([]):
@@ -204,12 +224,12 @@ if __name__ == '__main__':
     # Target
     if options.mcu is None :
         args_error(parser, "[ERROR] You should specify an MCU")
-    mcu = options.mcu[0]
+    mcu = options.mcu
 
     # Toolchain
     if options.tool is None:
         args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
-    toolchain = options.tool[0]
+    toolchain = options.tool
 
     # Test
     for test_no in p:
