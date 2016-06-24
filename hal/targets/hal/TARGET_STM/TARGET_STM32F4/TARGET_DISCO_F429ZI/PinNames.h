@@ -212,6 +212,11 @@ typedef enum {
     SERIAL_RX   = PA_10,
     USBTX       = PA_9,
     USBRX       = PA_10,
+    SPI_MOSI    = PA_7,
+    SPI_MISO    = PA_6,
+    SPI_SCK     = PA_5,
+    SPI_CS      = PB_6,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
