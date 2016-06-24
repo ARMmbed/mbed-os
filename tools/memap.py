@@ -10,6 +10,7 @@ import re
 import csv
 import json
 import argparse
+from utils import argparse_uppercase_type, argparse_lowercase_hyphen_type
 from prettytable import PrettyTable
 
 debug = False
@@ -339,6 +340,8 @@ class MemapParser(object):
                     else:
                         self.object_to_module.update({object_name:module_name})
 
+    export_formats = ["json", "csv-ci", "table"]
+
     def generate_output(self, export_format, file_output=None):
         """
         Generates summary of memory map data
@@ -488,6 +491,8 @@ class MemapParser(object):
         """
         return self.mem_summary
 
+    toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "IAR"]
+
     def parse(self, mapfile, toolchain):
         """
         Parse and decode map file depending on the toolchain
@@ -520,13 +525,13 @@ def main():
 
     parser.add_argument('file', help='memory map file')
 
-    parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain used to build the memory map file (ARM, GCC_ARM, IAR)',\
-                        required=True)
+    parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain used to build the memory map file (%s)' % ", ".join(MemapParser.toolchains),\
+                        required=True, type=argparse_uppercase_type(MemapParser.toolchains, "toolchain"))
 
     parser.add_argument('-o', '--output', help='output file name', required=False)
 
-    parser.add_argument('-e', '--export', dest='export', required=False,\
-                        help="export format (examples: 'json', 'csv-ci', 'table': default)")
+    parser.add_argument('-e', '--export', dest='export', required=False, default='table', type=argparse_lowercase_hyphen_type(MemapParser.export_formats,'export format'),\
+                        help="export format (examples: %s: default)" % ", ".join(MemapParser.export_formats))
 
     parser.add_argument('-v', '--version', action='version', version=version)
 
@@ -544,12 +549,7 @@ def main():
     # Parse and decode a map file
     if args.file and args.toolchain:
         if memap.parse(args.file, args.toolchain) is False:
-            print "Unknown toolchain for memory statistics %s" %  args.toolchain
             sys.exit(0)
-
-    # default export format is table
-    if not args.export:
-        args.export = 'table'
 
     # Write output in file
     if args.output != None:
