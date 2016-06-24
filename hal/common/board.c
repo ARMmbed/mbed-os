@@ -80,7 +80,12 @@ void mbed_error_vfprintf(const char * format, va_list arg) {
     int size = vsprintf(buffer, format, arg);
     if (size > 0) {
         if (!stdio_uart_inited) {
-        serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+            serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+#if defined(STDIO_UART_BAUD_RATE)
+            serial_baud(&stdio_uart, STDIO_UART_BAUD_RATE);
+#elif defined(MBED_CONF_CORE_STDIO_BAUD_RATE)
+            serial_baud(&stdio_uart, MBED_CONF_CORE_STDIO_BAUD_RATE);
+#endif
         }
         for (int i = 0; i < size; i++) {
             serial_putc(&stdio_uart, buffer[i]);
