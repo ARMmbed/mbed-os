@@ -16,6 +16,13 @@ limitations under the License.
 """
 from tools.paths import *
 from tools.data.support import *
+from argparse import ArgumentTypeError
+from utils import columnate
+
+try:
+    import tools.private_settings as ps
+except:
+    ps = object()
 
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")
@@ -1212,3 +1219,19 @@ class Test:
             return None
 
 TEST_MAP = dict([(test['id'], Test(i)) for i, test in enumerate(TESTS)])
+
+# parser helpers
+def test_known(string):
+    i = int(string)
+    if i >= 0 and i < len(TESTS) : return i
+    else : raise ArgumentTypeError("{0} does not index a test. The accepted range is 0 to {1}\nThe test mapping is:\n{2}".format(i, len(TEST_MAP) - 1, columnate([str(i) + ":" + t['id'] for i,t in zip(range(len(TESTS)), TESTS)])))
+
+def test_name_known(string):
+    nlist = string.split(',')
+    for test_id in nlist:
+        if test_id not in TEST_MAP.keys():
+            if getattr(ps, "test_alias", None) is None or \
+               ps.test_alias.get(test_id, "") not in TEST_MAP.keys():
+                raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are: \n{1}".format(test_id, columnate([t['id'] for t in TESTS])))
+
+    return [TEST_MAP[n].n for n in nlist]
