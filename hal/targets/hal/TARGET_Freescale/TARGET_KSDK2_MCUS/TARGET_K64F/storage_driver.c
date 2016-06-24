@@ -156,7 +156,7 @@ const uint8_t         *currentOperatingData;
 #define OPTIMAL_PROGRAM_UNIT              (1024UL)
 #define PROGRAM_PHRASE_SIZEOF_INLINE_DATA (8)
 #define SIZEOF_DOUBLE_PHRASE              (FSL_FEATURE_FLASH_PFLASH_SECTION_CMD_ADDRESS_ALIGMENT)
-#else
+#else /* ifdef USING_KSDK2 */
 #define ERASE_UNIT                        (4096)
 #define BLOCK1_START_ADDR                 (0x80000UL)
 #define BLOCK1_SIZE                       (0x80000UL)
@@ -288,9 +288,9 @@ static inline bool failedWithAccessError(void)
 
     /* checking access error */
     return registerValue & FTFx_FSTAT_ACCERR_MASK;
-#else
+#else /* ifdef USING_KSDK2 */
     return BR_FTFE_FSTAT_ACCERR(FTFE);
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline bool failedWithProtectionError()
@@ -301,9 +301,9 @@ static inline bool failedWithProtectionError()
 
     /* checking protection error */
     return registerValue & FTFx_FSTAT_FPVIOL_MASK;
-#else
+#else /* ifdef USING_KSDK2 */
     return BR_FTFE_FSTAT_FPVIOL(FTFE);
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline bool failedWithRunTimeError()
@@ -314,9 +314,9 @@ static inline bool failedWithRunTimeError()
 
     /* checking MGSTAT0 non-correctable error */
     return registerValue & FTFx_FSTAT_MGSTAT0_MASK;
-#else
+#else /* ifdef USING_KSDK2 */
     return BR_FTFE_FSTAT_MGSTAT0(FTFE);
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline void clearAccessError(void)
@@ -415,7 +415,7 @@ static inline void setupAddressInCCOB123(uint64_t addr)
     BW_FTFE_FCCOB2_CCOBn((uintptr_t)FTFE, (addr >>  8) & 0xFFUL); /* bits [15:8]  of the address. */
     BW_FTFE_FCCOB3_CCOBn((uintptr_t)FTFE, (addr >>  0) & 0xFFUL); /* bits [7:0]   of the address. */
 }
-#endif
+#endif /* ifndef USING_KSDK2 */
 
 static inline void setupEraseSector(uint64_t addr)
 {
@@ -446,7 +446,7 @@ static inline void setup8ByteWrite(uint64_t addr, const void *data)
     /* Program 8 bytes of data into FCCOB(4..11)_CCOBn */
     kFCCOBx[1] = ((const uint32_t *)data)[0];
     kFCCOBx[2] = ((const uint32_t *)data)[1];
-#else
+#else /* ifdef USING_KSDK2 */
     BW_FTFE_FCCOB0_CCOBn((uintptr_t)FTFE, PGM8);
     setupAddressInCCOB123(addr);
 
@@ -458,7 +458,7 @@ static inline void setup8ByteWrite(uint64_t addr, const void *data)
     BW_FTFE_FCCOB9_CCOBn((uintptr_t)FTFE, ((const uint8_t *)data)[6]); /* byte 6 of program value. */
     BW_FTFE_FCCOBA_CCOBn((uintptr_t)FTFE, ((const uint8_t *)data)[5]); /* byte 5 of program value. */
     BW_FTFE_FCCOBB_CCOBn((uintptr_t)FTFE, ((const uint8_t *)data)[4]); /* byte 4 of program value. */
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 static inline void setupProgramSection(uint64_t addr, const void *data, size_t cnt)
@@ -469,7 +469,7 @@ static inline void setupProgramSection(uint64_t addr, const void *data, size_t c
 
     kFCCOBx[0] = BYTES_JOIN_TO_WORD_1_3(PGMSEC, addr);
     kFCCOBx[1] = BYTES_JOIN_TO_WORD_2_2(cnt >> 4, 0xFFFFU);
-#else
+#else /* ifdef USING_KSDK2 */
     static const uintptr_t FlexRAMBase = 0x14000000;
     memcpy((void *)FlexRAMBase, (const uint8_t *)data, cnt);
 
@@ -478,7 +478,7 @@ static inline void setupProgramSection(uint64_t addr, const void *data, size_t c
 
     BW_FTFE_FCCOB4_CCOBn((uintptr_t)FTFE, ((((uint32_t)(cnt >> 4)) & (0x0000FF00)) >> 8)); /* number of 128-bits to program [15:8] */
     BW_FTFE_FCCOB5_CCOBn((uintptr_t)FTFE,  (((uint32_t)(cnt >> 4)) & (0x000000FF)));       /* number of 128-bits to program  [7:0] */
-#endif
+#endif /* ifdef USING_KSDK2 */
 }
 
 /**
@@ -760,7 +760,7 @@ static int32_t initialize(ARM_Storage_Callback_t callback)
     if (rc != kStatus_FLASH_Success) {
         return ARM_DRIVER_ERROR;
     }
-#endif
+#endif /* ifdef USING_KSDK2 */
 
     if (controllerCurrentlyBusy()) {
         /* The user cannot initiate any further FTFE commands until notified that the
