@@ -225,8 +225,10 @@ def argparse_many(fn):
     return wrap
 
 def argparse_filestring_type(string) :
-    if exists(string) : return string
-    else : raise argparse.ArgumentTypeError("{0} does not exist in the filesystem.".format(string))
+    if exists(string) :
+        return string
+    else :
+        raise argparse.ArgumentTypeError("{0}"" does not exist in the filesystem.".format(string))
 
 def columnate(strings, seperator=", ", chars=80):
     col_width = max(len(s) for s in strings)
