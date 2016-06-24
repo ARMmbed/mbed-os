@@ -204,12 +204,12 @@ if __name__ == '__main__':
     # Target
     if options.mcu is None :
         args_error(parser, "[ERROR] You should specify an MCU")
-    mcu = options.mcu
+    mcu = options.mcu[0]
 
     # Toolchain
     if options.tool is None:
         args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
-    toolchain = options.tool
+    toolchain = options.tool[0]
 
     # Test
     for test_no in p:

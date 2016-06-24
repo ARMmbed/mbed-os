@@ -17,7 +17,7 @@ limitations under the License.
 from argparse import ArgumentParser
 from tools.toolchains import TOOLCHAINS
 from tools.targets import TARGET_NAMES
-from utils import argparse_uppercase_type, argparse_lowercase_hyphen_type
+from utils import argparse_uppercase_type, argparse_lowercase_hyphen_type, argparse_many
 
 
 def get_default_options_parser(add_clean=True, add_options=True):
@@ -31,12 +31,12 @@ def get_default_options_parser(add_clean=True, add_options=True):
     parser.add_argument("-m", "--mcu",
                       help="build for the given MCU (%s)" % ', '.join(targetnames),
                       metavar="MCU",
-                      type=argparse_uppercase_type(targetnames, "MCU"))
+                      type=argparse_many(argparse_uppercase_type(targetnames, "MCU")))
 
     parser.add_argument("-t", "--tool",
                       help="build using the given TOOLCHAIN (%s)" % ', '.join(toolchainlist),
                       metavar="TOOLCHAIN",
-                      type=argparse_uppercase_type(toolchainlist, "toolchain"))
+                      type=argparse_many(argparse_uppercase_type(toolchainlist, "toolchain")))
 
     if add_clean:
         parser.add_argument("-c", "--clean", action="store_true", default=False,

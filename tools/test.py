@@ -137,7 +137,7 @@ if __name__ == '__main__':
                 base_source_paths = ['.']
             
             
-            target = TARGET_MAP[options.mcu]
+            target = TARGET_MAP[options.mcu[0]]
             
             build_report = {}
             build_properties = {}
@@ -145,7 +145,7 @@ if __name__ == '__main__':
             library_build_success = False
             try:
                 # Build sources
-                build_library(base_source_paths, options.build_dir, target, options.tool,
+                build_library(base_source_paths, options.build_dir, target, options.tool[0],
                                                 options=options.options,
                                                 jobs=options.jobs,
                                                 clean=options.clean,
@@ -171,7 +171,7 @@ if __name__ == '__main__':
                 print "Failed to build library"
             else:
                 # Build all the tests
-                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
+                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool[0],
                         options=options.options,
                         clean=options.clean,
                         report=build_report,

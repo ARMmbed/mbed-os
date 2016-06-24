@@ -159,18 +159,10 @@ if __name__ == '__main__':
         exit(0)
 
     # Get target list
-    if options.mcu:
-        mcu_list = (options.mcu).split(",")
-        targets = mcu_list
-    else:
-        targets = TARGET_NAMES
+    targets = options.mcu if options.mcu else TARGET_NAMES
 
     # Get toolchains list
-    if options.tool:
-        toolchain_list = (options.tool).split(",")
-        toolchains = toolchain_list
-    else:
-        toolchains = TOOLCHAINS
+    toolchains = options.tool if options.tool else TOOLCHAINS
 
     # Get libraries list
     libraries = []
