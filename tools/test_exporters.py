@@ -195,10 +195,11 @@ class ReportExporter():
 
         unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
         targets = sorted(test_result_ext.keys())
-        result += '<table><tr>'
+        result += '<table>'
         for target in targets:
             toolchains = sorted(test_result_ext[target].keys())
             for toolchain in toolchains:
+                result += '<tr>'
                 result += '<td></td>'
                 result += '<td></td>'
 
