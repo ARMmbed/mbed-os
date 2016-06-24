@@ -443,9 +443,8 @@ class mbedToolchain:
         itself is generated.
         """
         for root, dirs, files in walk(path, followlinks=True):
-            # Remove ignored directories
             # Check if folder contains .mbedignore
-            if ".mbedignore" in files :
+            if ".mbedignore" in files:
                 with open (join(root,".mbedignore"), "r") as f:
                     lines=f.readlines()
                     lines = [l.strip() for l in lines] # Strip whitespaces
@@ -454,8 +453,13 @@ class mbedToolchain:
                     # Append root path to glob patterns and append patterns to ignore_patterns
                     self.ignore_patterns.extend([join(root,line.strip()) for line in lines])
 
+            # Skip the whole folder if ignored, e.g. .mbedignore containing '*'
+            if self.is_ignored(join(root,"")):
+                continue
+
             for d in copy(dirs):
                 dir_path = join(root, d)
+                # Add internal repo folders/files. This is needed for exporters
                 if d == '.hg':
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
@@ -469,9 +473,10 @@ class mbedToolchain:
                     self.is_ignored(join(dir_path,"")) or
                     # Ignore TESTS dir
                     (d == 'TESTS')):
-                    dirs.remove(d)
+                        dirs.remove(d)
                 elif d.startswith('FEATURE_'):
-                    # Recursively scan features but ignore them in the current scan. These are dynamically added by the config system if the conditions are matched
+                    # Recursively scan features but ignore them in the current scan.
+                    # These are dynamically added by the config system if the conditions are matched
                     resources.features[d[8:]] = self.scan_resources(dir_path, base_path=base_path)
                     dirs.remove(d)
                 elif exclude_paths:
