@@ -982,7 +982,7 @@ int32_t nextBlock(const ARM_STORAGE_BLOCK *prevP, ARM_STORAGE_BLOCK *nextP)
     }
 
     static const size_t NUM_SEGMENTS = sizeof(blockTable) / sizeof(ARM_STORAGE_BLOCK);
-    for (size_t index = 0; index < (NUM_SEGMENTS - 1); index++) {
+    for (size_t index = 0; (NUM_SEGMENTS > 1) && (index < (NUM_SEGMENTS - 1)); index++) {
         if ((blockTable[index].addr == prevP->addr) && (blockTable[index].size == prevP->size)) {
             if (nextP) {
                 memcpy(nextP, &blockTable[index + 1], sizeof(ARM_STORAGE_BLOCK));
