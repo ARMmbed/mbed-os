@@ -1,10 +1,13 @@
 """
 mbed SDK
-Copyright (c) 2011-2013 ARM Limited
+Copyright (c) 2016 ARM Limited
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
+
+http://www.apache.org/licenses/LICENSE-2.0
+
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -12,43 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from os.path import join, abspath, dirname
+from os import getenv
+from os.path import join, abspath, dirname, exists
 import logging
 
 ROOT = abspath(join(dirname(__file__), ".."))
 
-# These default settings have two purposes:
-#    1) Give a template for writing local "mbed_settings.py"
-#    2) Give default initialization fields for the "toolchains.py" constructors
 
 ##############################################################################
-# Build System Settings
+# Toolchains and Build System Settings
 ##############################################################################
 BUILD_DIR = abspath(join(ROOT, ".build"))
 
-# ARM
-armcc = "standalone" # "keil", or "standalone", or "ds-5"
-
-if armcc == "keil":
-    ARM_PATH = "C:/Keil_v5/ARM/ARMCC"
-    ARM_BIN = join(ARM_PATH, "bin")
-    ARM_INC = join(ARM_PATH, "incldue")
-    ARM_LIB = join(ARM_PATH, "lib")
-
-elif armcc == "standalone":
-    ARM_PATH = "C:/Program Files (x86)/ARM_Compiler_5.06u1"
-    ARM_BIN = join(ARM_PATH, "bin")
-    ARM_INC = join(ARM_PATH, "include")
-    ARM_LIB = join(ARM_PATH, "lib")
-
-elif armcc == "ds-5":
-    ARM_PATH = "C:/Program Files (x86)/DS-5"
-    ARM_BIN = join(ARM_PATH, "bin")
-    ARM_INC = join(ARM_PATH, "include")
-    ARM_LIB = join(ARM_PATH, "lib")
-
-ARM_CPPLIB = join(ARM_LIB, "cpplib")
-MY_ARM_CLIB = join(ARM_PATH, "lib", "microlib")
+# ARM Compiler 5
+ARM_PATH = "C:/Keil_v5/ARM/ARMCC"
 
 # GCC ARM
 GCC_ARM_PATH = ""
@@ -71,6 +51,42 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+
+##############################################################################
+# User Settings (file)
+##############################################################################
+try:
+    # Allow to overwrite the default settings without the need to edit the
+    # settings file stored in the repository
+    from mbed_settings import *
+except ImportError:
+    pass
+
+
+##############################################################################
+# User Settings (env vars)
+##############################################################################
+_ENV_PATHS = ['ARM_PATH', 'GCC_ARM_PATH', 'GCC_CR_PATH', 'IAR_PATH']
+
+for _n in _ENV_PATHS:
+    if getenv(_n):
+        if exists(getenv(_n)):
+            globals()[_n] = getenv(_n)
+        else:
+            print "WARNING: %s set as environment variable but doesn't exist" % _n
+
+
+##############################################################################
+# ARM Compiler Paths
+##############################################################################
+
+ARM_BIN = join(ARM_PATH, "bin")
+ARM_INC = join(ARM_PATH, "include")
+ARM_LIB = join(ARM_PATH, "lib")
+ARM_CPPLIB = join(ARM_LIB, "cpplib")
+MY_ARM_CLIB = join(ARM_LIB, "lib", "microlib")
+
+
 ##############################################################################
 # Test System Settings
 ##############################################################################
@@ -92,13 +108,3 @@ MUTs = {
         "peripherals":  ["TMP102", "digital_loop", "port_loop", "analog_loop", "SD"]
     },
 }
-
-##############################################################################
-# Private Settings
-##############################################################################
-try:
-    # Allow to overwrite the default settings without the need to edit the
-    # settings file stored in the repository
-    from mbed_settings import *
-except ImportError:
-    print '[WARNING] Using default settings. Define your settings in the file "./mbed_settings.py"'

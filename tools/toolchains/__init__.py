@@ -285,7 +285,10 @@ class mbedToolchain:
 
         # Build options passed by -o flag
         self.options = options if options is not None else []
+
+        # Build options passed by settings.py or mbed_settings.py
         self.options.extend(BUILD_OPTIONS)
+
         if self.options:
             self.info("Build Options: %s" % (', '.join(self.options)))
         
