@@ -43,6 +43,9 @@ void analogin_init(analogin_t *obj, PinName pin)
 #if defined(ADC1)
     static int adc1_inited = 0;
 #endif
+#if defined(ADC2)
+    static int adc2_inited = 0;
+#endif
 #if defined(ADC3)
     static int adc3_inited = 0;
 #endif
@@ -68,6 +71,13 @@ void analogin_init(analogin_t *obj, PinName pin)
     if (obj->adc == ADC_1) {
         __ADC1_CLK_ENABLE();
         adc1_inited = 1;
+    }
+#endif
+#if defined(ADC2)
+    if ((obj->adc == ADC_2) && adc2_inited) return;
+    if (obj->adc == ADC_2) {
+        __ADC2_CLK_ENABLE();
+        adc2_inited = 1;
     }
 #endif
 #if defined(ADC3)
