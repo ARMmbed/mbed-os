@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include "mbed.h"
-#include "LWIPInterface.h"
+#include "EthernetInterface.h"
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -36,7 +36,7 @@ int main() {
     GREENTEA_SETUP(20, "default_auto");
 
     bool result = true;
-    LWIPInterface eth;
+    EthernetInterface eth;
     //eth.init(); //Use DHCP
     eth.connect();
     printf("TCP client IP Address is %s\r\n", eth.get_ip_address());

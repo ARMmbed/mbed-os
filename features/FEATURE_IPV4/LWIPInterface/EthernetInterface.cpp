@@ -15,7 +15,8 @@
  */
 
 #include "mbed.h"
-#include "LWIPInterface.h"
+#include "EthernetInterface.h"
+#include "NetworkStack.h"
 
 #include "lwip/inet.h"
 #include "lwip/netif.h"
@@ -33,6 +34,131 @@
 #include "lwip/dns.h"
 #include "lwip/def.h"
 #include "lwip/ip_addr.h"
+
+class LWIPInterface : public NetworkStack
+{
+    /** Get the local IP address
+     *
+     *  @return         Null-terminated representation of the local IP address
+     *                  or null if not yet connected
+     */
+    virtual const char *get_ip_address();
+
+    /** Open a socket
+     *  @param handle       Handle in which to store new socket
+     *  @param proto        Type of socket to open, NSAPI_TCP or NSAPI_UDP
+     *  @return             0 on success, negative on failure
+     */
+    virtual int socket_open(void **handle, nsapi_protocol_t proto);
+
+    /** Close the socket
+     *  @param handle       Socket handle
+     *  @return             0 on success, negative on failure
+     *  @note On failure, any memory associated with the socket must still
+     *        be cleaned up
+     */
+    virtual int socket_close(void *handle);
+
+    /** Bind a server socket to a specific port
+     *  @param handle       Socket handle
+     *  @param address      Local address to listen for incoming connections on
+     *  @return             0 on success, negative on failure.
+     */
+    virtual int socket_bind(void *handle, const SocketAddress &address);
+
+    /** Start listening for incoming connections
+     *  @param handle       Socket handle
+     *  @param backlog      Number of pending connections that can be queued up at any
+     *                      one time [Default: 1]
+     *  @return             0 on success, negative on failure
+     */
+    virtual int socket_listen(void *handle, int backlog);
+
+    /** Connects this TCP socket to the server
+     *  @param handle       Socket handle
+     *  @param address      SocketAddress to connect to
+     *  @return             0 on success, negative on failure
+     */
+    virtual int socket_connect(void *handle, const SocketAddress &address);
+
+    /** Accept a new connection.
+     *  @param handle       Handle in which to store new socket
+     *  @param server       Socket handle to server to accept from
+     *  @return             0 on success, negative on failure
+     *  @note This call is not-blocking, if this call would block, must
+     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     */
+    virtual int socket_accept(void **handle, void *server);
+
+    /** Send data to the remote host
+     *  @param handle       Socket handle
+     *  @param data         The buffer to send to the host
+     *  @param size         The length of the buffer to send
+     *  @return             Number of written bytes on success, negative on failure
+     *  @note This call is not-blocking, if this call would block, must
+     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     */
+    virtual int socket_send(void *handle, const void *data, unsigned size);
+
+    /** Receive data from the remote host
+     *  @param handle       Socket handle
+     *  @param data         The buffer in which to store the data received from the host
+     *  @param size         The maximum length of the buffer
+     *  @return             Number of received bytes on success, negative on failure
+     *  @note This call is not-blocking, if this call would block, must
+     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     */
+    virtual int socket_recv(void *handle, void *data, unsigned size);
+
+    /** Send a packet to a remote endpoint
+     *  @param handle       Socket handle
+     *  @param address      The remote SocketAddress
+     *  @param data         The packet to be sent
+     *  @param size         The length of the packet to be sent
+     *  @return the         number of written bytes on success, negative on failure
+     *  @note This call is not-blocking, if this call would block, must
+     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     */
+    virtual int socket_sendto(void *handle, const SocketAddress &address, const void *data, unsigned size);
+
+    /** Receive a packet from a remote endpoint
+     *  @param handle       Socket handle
+     *  @param address      Destination for the remote SocketAddress or null
+     *  @param buffer       The buffer for storing the incoming packet data
+     *                      If a packet is too long to fit in the supplied buffer,
+     *                      excess bytes are discarded
+     *  @param size         The length of the buffer
+     *  @return the         number of received bytes on success, negative on failure
+     *  @note This call is not-blocking, if this call would block, must
+     *        immediately return NSAPI_ERROR_WOULD_WAIT
+     */
+    virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size);
+
+    /*  Set stack-specific socket options
+     *
+     *  The setsockopt allow an application to pass stack-specific hints
+     *  to the underlying stack. For unsupported options,
+     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
+     *
+     *  @param handle   Socket handle
+     *  @param level    Stack-specific protocol level
+     *  @param optname  Stack-specific option identifier
+     *  @param optval   Option value
+     *  @param optlen   Length of the option value
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
+
+    /** Register a callback on state change of the socket
+     *  @param handle       Socket handle
+     *  @param callback     Function to call on state change
+     *  @param data         Argument to pass to callback
+     *  @note Callback may be called in an interrupt context.
+     */
+    virtual void socket_attach(void *handle, void (*callback)(void *), void *data);
+
+
+};
 
 
 /* TCP/IP and Network Interface Initialisation */
@@ -90,55 +216,6 @@ static void set_mac_address(void)
 #endif
 }
 
-
-/* Interface implementation */
-int LWIPInterface::connect()
-{
-    // Check if we've already connected
-    if (get_ip_address()) {
-        return 0;
-    }
-
-    // Set up network
-    set_mac_address();
-    init_netif(0, 0, 0);
-
-    // Connect to network
-    eth_arch_enable_interrupts();
-
-    dhcp_start(&netif);
-
-    // Wait for an IP Address
-    // -1: error, 0: timeout
-    if (netif_up.wait(15000) <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE;
-    }
-
-    return 0;
-}
-
-int LWIPInterface::disconnect()
-{
-    dhcp_release(&netif);
-    dhcp_stop(&netif);
-
-    eth_arch_disable_interrupts();
-    ip_addr[0] = '\0';
-    mac_addr[0] = '\0';
-
-    return 0;
-}
-
-const char *LWIPInterface::get_ip_address()
-{
-    return ip_addr[0] ? ip_addr : 0;
-}
-
-const char *LWIPInterface::get_mac_address()
-{
-    return mac_addr[0] ? mac_addr : 0;
-}
-
 struct lwip_socket {
     nsapi_protocol_t proto;
     union {
@@ -157,6 +234,11 @@ struct lwip_socket {
 static void udp_recv_irq(
         void *arg, struct udp_pcb *upcb, struct pbuf *p,
         struct ip_addr *addr, uint16_t port);
+
+const char *LWIPInterface::get_ip_address()
+{
+    return ip_addr[0] ? ip_addr : 0;
+}
 
 int LWIPInterface::socket_open(void **handle, nsapi_protocol_t proto)
 {
@@ -590,4 +672,62 @@ void LWIPInterface::socket_attach(void *handle, void (*callback)(void *), void *
     struct lwip_socket *s = (struct lwip_socket *)handle;
     s->callback = callback;
     s->data = data;
+}
+
+EthernetInterface::EthernetInterface()
+{
+    _stack = (NetworkStack*)new LWIPInterface();
+}
+
+/* Interface implementation */
+int EthernetInterface::connect()
+{
+    // Check if we've already connected
+    if (get_ip_address()) {
+        return 0;
+    }
+
+    // Set up network
+    set_mac_address();
+    init_netif(0, 0, 0);
+
+    // Connect to network
+    eth_arch_enable_interrupts();
+
+    dhcp_start(&netif);
+
+    // Wait for an IP Address
+    // -1: error, 0: timeout
+    if (netif_up.wait(15000) <= 0) {
+        return NSAPI_ERROR_DHCP_FAILURE;
+    }
+
+    return 0;
+}
+
+int EthernetInterface::disconnect()
+{
+    dhcp_release(&netif);
+    dhcp_stop(&netif);
+
+    eth_arch_disable_interrupts();
+    ip_addr[0] = '\0';
+    mac_addr[0] = '\0';
+
+    return 0;
+}
+
+const char *EthernetInterface::get_ip_address()
+{
+    return ip_addr[0] ? ip_addr : 0;
+}
+
+const char *EthernetInterface::get_mac_address()
+{
+    return mac_addr[0] ? mac_addr : 0;
+}
+
+NetworkStack * EthernetInterface::get_stack()
+{
+    return _stack;
 }
