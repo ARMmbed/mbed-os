@@ -24,7 +24,7 @@ import json
 import uuid
 import pprint
 import random
-import argparse
+import optparse
 import datetime
 import threading
 import ctypes
@@ -58,12 +58,7 @@ from tools.build_api import add_result_to_report
 from tools.build_api import scan_for_source_paths
 from tools.libraries import LIBRARIES, LIBRARY_MAP
 from tools.toolchains import TOOLCHAIN_BIN_PATH
-from tools.toolchains import TOOLCHAINS
 from tools.test_exporters import ReportExporter, ResultExporterType
-from tools.utils import argparse_filestring_type
-from tools.utils import argparse_uppercase_type
-from tools.utils import argparse_lowercase_type
-from tools.utils import argparse_many
 
 import tools.host_tests.host_tests_plugins as host_tests_plugins
 
@@ -628,7 +623,7 @@ class SingleTestRunner(object):
 
         for test_id in test_map_keys:
             test = TEST_MAP[test_id]
-            if self.opts_test_by_names and test_id not in self.opts_test_by_names:
+            if self.opts_test_by_names and test_id not in self.opts_test_by_names.split(','):
                 continue
 
             if test_ids and test_id not in test_ids:
@@ -639,7 +634,7 @@ class SingleTestRunner(object):
                     print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
                 continue
 
-            if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names]):
+            if self.opts_peripheral_by_names and test.peripherals and not len([i for i in test.peripherals if i in self.opts_peripheral_by_names.split(',')]):
                 # We will skip tests not forced with -p option
                 if self.opts_verbose_skipped_tests:
                     print self.logger.log_line(self.logger.LogType.INFO, 'Common test skipped for target %s'% (target))
@@ -660,7 +655,7 @@ class SingleTestRunner(object):
                     # When users are using 'build only flag' and test do not have
                     # specified peripherals we can allow test building by default
                     pass
-                elif self.opts_peripheral_by_names and test_id not in self.opts_peripheral_by_names:
+                elif self.opts_peripheral_by_names and test_id not in self.opts_peripheral_by_names.split(','):
                     # If we force peripheral with option -p we expect test
                     # to pass even if peripheral is not in MUTs file.
                     pass
@@ -778,7 +773,7 @@ class SingleTestRunner(object):
         """
         result = {}
         if test_loops_str:
-            test_loops = test_loops_str
+            test_loops = test_loops_str.split(',')
             for test_loop in test_loops:
                 test_loop_count = test_loop.split('=')
                 if len(test_loop_count) == 2:
@@ -1718,7 +1713,7 @@ def get_autodetected_TEST_SPEC(mbeds_list,
                     toolchains += supported_toolchains
                 if toolchain_filter is not None:
                     all_toolchains = supported_toolchains + [default_toolchain]
-                    for toolchain in toolchain_filter:
+                    for toolchain in toolchain_filter.split(','):
                         if toolchain in all_toolchains:
                             toolchains.append(toolchain)
 
@@ -1729,239 +1724,231 @@ def get_autodetected_TEST_SPEC(mbeds_list,
 def get_default_test_options_parser():
     """ Get common test script options used by CLI, web services etc.
     """
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--tests',
-                        dest='test_spec_filename',
-                        metavar="FILE",
-                        type=argparse_filestring_type,
-                        help='Points to file with test specification')
+    parser = optparse.OptionParser()
+    parser.add_option('-i', '--tests',
+                      dest='test_spec_filename',
+                      metavar="FILE",
+                      help='Points to file with test specification')
 
-    parser.add_argument('-M', '--MUTS',
-                        dest='muts_spec_filename',
-                        metavar="FILE",
-                        type=argparse_filestring_type,
-                        help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
+    parser.add_option('-M', '--MUTS',
+                      dest='muts_spec_filename',
+                      metavar="FILE",
+                      help='Points to file with MUTs specification (overwrites settings.py and private_settings.py)')
 
-    parser.add_argument("-j", "--jobs",
-                        dest='jobs',
-                        metavar="NUMBER",
-                        type=int,
-                        help="Define number of compilation jobs. Default value is 1")
+    parser.add_option("-j", "--jobs",
+                      dest='jobs',
+                      metavar="NUMBER",
+                      type="int",
+                      help="Define number of compilation jobs. Default value is 1")
 
     if get_module_avail('mbed_lstools'):
         # Additional features available when mbed_lstools is installed on host and imported
         # mbed_lstools allow users to detect connected to host mbed-enabled devices
-        parser.add_argument('--auto',
-                            dest='auto_detect',
-                            action="store_true",
-                            help='Use mbed-ls module to detect all connected mbed devices')
+        parser.add_option('', '--auto',
+                          dest='auto_detect',
+                          metavar=False,
+                          action="store_true",
+                          help='Use mbed-ls module to detect all connected mbed devices')
 
-        toolchain_list = list(TOOLCHAINS) + ["DEFAULT", "ALL"]
-        parser.add_argument('--tc',
-                            dest='toolchains_filter',
-                        type=argparse_many(argparse_uppercase_type(toolchain_list, "toolchains")),
-                            help="Toolchain filter for --auto argument. Use toolchains names separated by comma, 'default' or 'all' to select toolchains")
+        parser.add_option('', '--tc',
+                          dest='toolchains_filter',
+                          help="Toolchain filter for --auto option. Use toolchains names separated by comma, 'default' or 'all' to select toolchains")
 
         test_scopes = ','.join(["'%s'" % n for n in get_available_oper_test_scopes()])
-        parser.add_argument('--oper',
-                            dest='operability_checks',
-                            type=argparse_lowercase_type(get_available_oper_test_scopes(), "scopes"),
-                            help='Perform interoperability tests between host and connected mbed devices. Available test scopes are: %s' % test_scopes)
+        parser.add_option('', '--oper',
+                          dest='operability_checks',
+                          help='Perform interoperability tests between host and connected mbed devices. Available test scopes are: %s' % test_scopes)
 
-    parser.add_argument('--clean',
-                        dest='clean',
-                        action="store_true",
-                        help='Clean the build directory')
+    parser.add_option('', '--clean',
+                      dest='clean',
+                      metavar=False,
+                      action="store_true",
+                      help='Clean the build directory')
 
-    parser.add_argument('-P', '--only-peripherals',
-                        dest='test_only_peripheral',
-                        default=False,
-                        action="store_true",
-                        help='Test only peripheral declared for MUT and skip common tests')
+    parser.add_option('-P', '--only-peripherals',
+                      dest='test_only_peripheral',
+                      default=False,
+                      action="store_true",
+                      help='Test only peripheral declared for MUT and skip common tests')
 
-    parser.add_argument('-C', '--only-commons',
-                        dest='test_only_common',
-                        default=False,
-                        action="store_true",
-                        help='Test only board internals. Skip perpherials tests and perform common tests')
+    parser.add_option('-C', '--only-commons',
+                      dest='test_only_common',
+                      default=False,
+                      action="store_true",
+                      help='Test only board internals. Skip perpherials tests and perform common tests')
 
-    parser.add_argument('-n', '--test-by-names',
-                        dest='test_by_names',
-                        type=argparse_many(str),
-                        help='Runs only test enumerated it this switch. Use comma to separate test case names')
+    parser.add_option('-n', '--test-by-names',
+                      dest='test_by_names',
+                      help='Runs only test enumerated it this switch. Use comma to separate test case names')
 
-    parser.add_argument('-p', '--peripheral-by-names',
+    parser.add_option('-p', '--peripheral-by-names',
                       dest='peripheral_by_names',
-                      type=argparse_many(str),
                       help='Forces discovery of particular peripherals. Use comma to separate peripheral names')
 
     copy_methods = host_tests_plugins.get_plugin_caps('CopyMethod')
     copy_methods_str = "Plugin support: " + ', '.join(copy_methods)
 
-    parser.add_argument('-c', '--copy-method',
-                        dest='copy_method',
-                        type=argparse_uppercase_type(copy_methods, "flash method"),
-                        help="Select binary copy (flash) method. Default is Python's shutil.copy() method. %s"% copy_methods_str)
+    parser.add_option('-c', '--copy-method',
+                      dest='copy_method',
+                      help="Select binary copy (flash) method. Default is Python's shutil.copy() method. %s"% copy_methods_str)
 
     reset_methods = host_tests_plugins.get_plugin_caps('ResetMethod')
     reset_methods_str = "Plugin support: " + ', '.join(reset_methods)
 
-    parser.add_argument('-r', '--reset-type',
-                        dest='mut_reset_type',
-                        default=None,
-                        type=argparse_uppercase_type(reset_methods, "reset method"),
-                        help='Extra reset method used to reset MUT by host test script. %s'% reset_methods_str)
+    parser.add_option('-r', '--reset-type',
+                      dest='mut_reset_type',
+                      default=None,
+                      help='Extra reset method used to reset MUT by host test script. %s'% reset_methods_str)
 
-    parser.add_argument('-g', '--goanna-for-tests',
-                        dest='goanna_for_tests',
-                        action="store_true",
-                        help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
+    parser.add_option('-g', '--goanna-for-tests',
+                      dest='goanna_for_tests',
+                      metavar=False,
+                      action="store_true",
+                      help='Run Goanna static analyse tool for tests. (Project will be rebuilded)')
 
-    parser.add_argument('-G', '--goanna-for-sdk',
-                        dest='goanna_for_mbed_sdk',
-                        action="store_true",
-                        help='Run Goanna static analyse tool for mbed SDK (Project will be rebuilded)')
+    parser.add_option('-G', '--goanna-for-sdk',
+                      dest='goanna_for_mbed_sdk',
+                      metavar=False,
+                      action="store_true",
+                      help='Run Goanna static analyse tool for mbed SDK (Project will be rebuilded)')
 
-    parser.add_argument('-s', '--suppress-summary',
-                        dest='suppress_summary',
-                        default=False,
-                        action="store_true",
-                        help='Suppresses display of wellformatted table with test results')
+    parser.add_option('-s', '--suppress-summary',
+                      dest='suppress_summary',
+                      default=False,
+                      action="store_true",
+                      help='Suppresses display of wellformatted table with test results')
 
-    parser.add_argument('-t', '--test-summary',
-                        dest='test_x_toolchain_summary',
-                        default=False,
-                        action="store_true",
-                        help='Displays wellformatted table with test x toolchain test result per target')
+    parser.add_option('-t', '--test-summary',
+                      dest='test_x_toolchain_summary',
+                      default=False,
+                      action="store_true",
+                      help='Displays wellformatted table with test x toolchain test result per target')
 
-    parser.add_argument('-A', '--test-automation-report',
-                        dest='test_automation_report',
-                        default=False,
-                        action="store_true",
-                        help='Prints information about all tests and exits')
+    parser.add_option('-A', '--test-automation-report',
+                      dest='test_automation_report',
+                      default=False,
+                      action="store_true",
+                      help='Prints information about all tests and exits')
 
-    parser.add_argument('-R', '--test-case-report',
-                        dest='test_case_report',
-                        default=False,
-                        action="store_true",
-                        help='Prints information about all test cases and exits')
+    parser.add_option('-R', '--test-case-report',
+                      dest='test_case_report',
+                      default=False,
+                      action="store_true",
+                      help='Prints information about all test cases and exits')
 
-    parser.add_argument("-S", "--supported-toolchains",
-                        action="store_true",
-                        dest="supported_toolchains",
-                        default=False,
-                        help="Displays supported matrix of MCUs and toolchains")
+    parser.add_option("-S", "--supported-toolchains",
+                      action="store_true",
+                      dest="supported_toolchains",
+                      default=False,
+                      help="Displays supported matrix of MCUs and toolchains")
 
-    parser.add_argument("-O", "--only-build",
-                        action="store_true",
-                        dest="only_build_tests",
-                        default=False,
-                        help="Only build tests, skips actual test procedures (flashing etc.)")
+    parser.add_option("-O", "--only-build",
+                      action="store_true",
+                      dest="only_build_tests",
+                      default=False,
+                      help="Only build tests, skips actual test procedures (flashing etc.)")
 
-    parser.add_argument('--parallel',
-                        dest='parallel_test_exec',
-                        default=False,
-                        action="store_true",
-                        help='Experimental, you execute test runners for connected to your host MUTs in parallel (speeds up test result collection)')
+    parser.add_option('', '--parallel',
+                      dest='parallel_test_exec',
+                      default=False,
+                      action="store_true",
+                      help='Experimental, you execute test runners for connected to your host MUTs in parallel (speeds up test result collection)')
 
-    parser.add_argument('--config',
-                        dest='verbose_test_configuration_only',
-                        default=False,
-                        action="store_true",
-                        help='Displays full test specification and MUTs configration and exits')
+    parser.add_option('', '--config',
+                      dest='verbose_test_configuration_only',
+                      default=False,
+                      action="store_true",
+                      help='Displays full test specification and MUTs configration and exits')
 
-    parser.add_argument('--loops',
-                        dest='test_loops_list',
-                        type=argparse_many(str),
-                        help='Set no. of loops per test. Format: TEST_1=1,TEST_2=2,TEST_3=3')
+    parser.add_option('', '--loops',
+                      dest='test_loops_list',
+                      help='Set no. of loops per test. Format: TEST_1=1,TEST_2=2,TEST_3=3')
 
-    parser.add_argument('--global-loops',
-                        dest='test_global_loops_value',
-                        type=int,
-                        help='Set global number of test loops per test. Default value is set 1')
+    parser.add_option('', '--global-loops',
+                      dest='test_global_loops_value',
+                      help='Set global number of test loops per test. Default value is set 1')
 
-    parser.add_argument('--consolidate-waterfall',
-                        dest='consolidate_waterfall_test',
-                        default=False,
-                        action="store_true",
-                        help='Used with --waterfall argument. Adds only one test to report reflecting outcome of waterfall test.')
+    parser.add_option('', '--consolidate-waterfall',
+                      dest='consolidate_waterfall_test',
+                      default=False,
+                      action="store_true",
+                      help='Used with --waterfall option. Adds only one test to report reflecting outcome of waterfall test.')
 
-    parser.add_argument('-W', '--waterfall',
-                        dest='waterfall_test',
-                        default=False,
-                        action="store_true",
-                        help='Used with --loops or --global-loops arguments. Tests until OK result occurs and assumes test passed')
+    parser.add_option('-W', '--waterfall',
+                      dest='waterfall_test',
+                      default=False,
+                      action="store_true",
+                      help='Used with --loops or --global-loops options. Tests until OK result occurs and assumes test passed')
 
-    parser.add_argument('-N', '--firmware-name',
-                        dest='firmware_global_name',
-                        help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts')
+    parser.add_option('-N', '--firmware-name',
+                      dest='firmware_global_name',
+                      help='Set global name for all produced projects. Note, proper file extension will be added by buid scripts')
 
-    parser.add_argument('-u', '--shuffle',
-                        dest='shuffle_test_order',
-                        default=False,
-                        action="store_true",
-                        help='Shuffles test execution order')
+    parser.add_option('-u', '--shuffle',
+                      dest='shuffle_test_order',
+                      default=False,
+                      action="store_true",
+                      help='Shuffles test execution order')
 
-    parser.add_argument('--shuffle-seed',
-                        dest='shuffle_test_seed',
-                        default=None,
-                        help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
+    parser.add_option('', '--shuffle-seed',
+                      dest='shuffle_test_seed',
+                      default=None,
+                      help='Shuffle seed (If you want to reproduce your shuffle order please use seed provided in test summary)')
 
-    parser.add_argument('-f', '--filter',
-                        dest='general_filter_regex',
-                        type=argparse_many(str),
-                        default=None,
-                        help='For some commands you can use filter to filter out results')
+    parser.add_option('-f', '--filter',
+                      dest='general_filter_regex',
+                      default=None,
+                      help='For some commands you can use filter to filter out results')
 
-    parser.add_argument('--inc-timeout',
-                        dest='extend_test_timeout',
-                        metavar="NUMBER",
-                        type=int,
-                        help='You can increase global timeout for each test by specifying additional test timeout in seconds')
+    parser.add_option('', '--inc-timeout',
+                      dest='extend_test_timeout',
+                      metavar="NUMBER",
+                      type="int",
+                      help='You can increase global timeout for each test by specifying additional test timeout in seconds')
 
-    parser.add_argument('--db',
-                        dest='db_url',
-                        help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
+    parser.add_option('', '--db',
+                      dest='db_url',
+                      help='This specifies what database test suite uses to store its state. To pass DB connection info use database connection string. Example: \'mysql://username:password@127.0.0.1/db_name\'')
 
-    parser.add_argument('-l', '--log',
-                        dest='log_file_name',
-                        help='Log events to external file (note not all console entries may be visible in log file)')
+    parser.add_option('-l', '--log',
+                      dest='log_file_name',
+                      help='Log events to external file (note not all console entries may be visible in log file)')
 
-    parser.add_argument('--report-html',
-                        dest='report_html_file_name',
-                        help='You can log test suite results in form of HTML report')
+    parser.add_option('', '--report-html',
+                      dest='report_html_file_name',
+                      help='You can log test suite results in form of HTML report')
 
-    parser.add_argument('--report-junit',
-                        dest='report_junit_file_name',
-                        help='You can log test suite results in form of JUnit compliant XML report')
+    parser.add_option('', '--report-junit',
+                      dest='report_junit_file_name',
+                      help='You can log test suite results in form of JUnit compliant XML report')
 
-    parser.add_argument("--report-build",
-                        dest="report_build_file_name",
-                        help="Output the build results to a junit xml file")
+    parser.add_option("", "--report-build",
+                      dest="report_build_file_name",
+                      help="Output the build results to a junit xml file")
 
-    parser.add_argument('--verbose-skipped',
-                        dest='verbose_skipped_tests',
-                        default=False,
-                        action="store_true",
-                        help='Prints some extra information about skipped tests')
+    parser.add_option('', '--verbose-skipped',
+                      dest='verbose_skipped_tests',
+                      default=False,
+                      action="store_true",
+                      help='Prints some extra information about skipped tests')
 
-    parser.add_argument('-V', '--verbose-test-result',
-                        dest='verbose_test_result_only',
-                        default=False,
-                        action="store_true",
-                        help='Prints test serial output')
+    parser.add_option('-V', '--verbose-test-result',
+                      dest='verbose_test_result_only',
+                      default=False,
+                      action="store_true",
+                      help='Prints test serial output')
 
-    parser.add_argument('-v', '--verbose',
-                        dest='verbose',
-                        default=False,
-                        action="store_true",
-                        help='Verbose mode (prints some extra information)')
+    parser.add_option('-v', '--verbose',
+                      dest='verbose',
+                      default=False,
+                      action="store_true",
+                      help='Verbose mode (prints some extra information)')
 
-    parser.add_argument('--version',
-                        dest='version',
-                        default=False,
-                        action="store_true",
-                        help='Prints script version and exits')
+    parser.add_option('', '--version',
+                      dest='version',
+                      default=False,
+                      action="store_true",
+                      help='Prints script version and exits')
     return parser
 
 def test_path_to_name(path):
