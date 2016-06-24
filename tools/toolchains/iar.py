@@ -127,7 +127,7 @@ class IAR(mbedToolchain):
         return ["-l", base + '.s.txt']
 
     def get_config_option(self, config_header):
-        return ['--preinclude', config_header]
+        return ['--preinclude=' + config_header]
 
     def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-f', self.get_inc_file(includes)]

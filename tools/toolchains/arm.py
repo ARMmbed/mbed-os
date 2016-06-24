@@ -115,7 +115,7 @@ class ARM(mbedToolchain):
         return ["--depend", dep_path]
 
     def get_config_option(self, config_header) :
-        return ['--preinclude', config_header]
+        return ['--preinclude=' + config_header]
 
     def get_compile_options(self, defines, includes):        
         opts = ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
