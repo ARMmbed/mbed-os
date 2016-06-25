@@ -236,6 +236,13 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
     return success;
 }
 
+bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *desiredValue) {
+    return core_util_atomic_cas_u32(
+            (unsigned *)ptr,
+            (unsigned *)expectedCurrentValue,
+            (unsigned)desiredValue);
+}
+
 uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
 {
     uint8_t newValue;
@@ -264,6 +271,10 @@ uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta)
     *valuePtr = newValue;
     core_util_critical_section_exit();
     return newValue;
+}
+
+void *core_util_atomic_incr_ptr(void **valuePtr, unsigned delta) {
+    return core_util_atomic_incr((unsigned)valuePtr, delta);
 }
 
 
@@ -295,6 +306,10 @@ uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta)
     *valuePtr = newValue;
     core_util_critical_section_exit();
     return newValue;
+}
+
+void *core_util_atomic_decr_ptr(void **valuePtr, unsigned delta) {
+    return core_util_atomic_decr((unsigned)valuePtr, delta);
 }
 
 #endif
