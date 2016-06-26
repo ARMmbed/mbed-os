@@ -1,6 +1,10 @@
 #include "mbed.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 Queue<uint32_t, 5> queue;
 
 DigitalOut myled(LED1);

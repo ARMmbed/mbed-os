@@ -2,6 +2,10 @@
 #include "test_env.h"
 #include "rtos.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define SIGNALS_TO_EMIT     100
 #define SIGNAL_HANDLE_DELEY 25
 #define SIGNAL_SET_VALUE    0x01
