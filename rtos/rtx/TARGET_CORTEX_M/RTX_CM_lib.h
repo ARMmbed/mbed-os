@@ -713,6 +713,8 @@ extern __weak void __iar_init_core( void );
 extern __weak void __iar_init_vfp( void );
 extern void __iar_dynamic_initialization(void);
 extern void mbed_sdk_init(void);
+extern void mbed_main(void);
+extern int main(void);
 extern void exit(int arg);
 
 static uint8_t low_level_init_needed;
@@ -721,6 +723,7 @@ void pre_main(void) {
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
+    mbed_main();
     main();
 }
 
