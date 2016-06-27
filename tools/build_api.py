@@ -217,8 +217,8 @@ def build_project(src_path, build_path, target, toolchain_name,
         # Load resources into the config system which might expand/modify resources based on config data
         resources = config.load_resources(resources)
 
-        # Set the toolchain's config header with the config data
-        toolchain.set_config_header_content(config.get_config_data_header())
+        # Set the toolchain's configuration data
+        toolchain.set_config_data(config.get_config_data())
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, build_path, resources.inc_dirs)
@@ -361,8 +361,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
         # Load resources into the config system which might expand/modify resources based on config data
         resources = config.load_resources(resources)
 
-        # Set the toolchain's config header with the config data
-        toolchain.set_config_header_content(config.get_config_data_header())
+        # Set the toolchain's configuration data
+        toolchain.set_config_data(config.get_config_data())
 
         # Copy headers, objects and static libraries - all files needed for static lib
         toolchain.copy_files(resources.headers, build_path, resources=resources)

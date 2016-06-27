@@ -126,17 +126,22 @@ class IAR(mbedToolchain):
         base, _ = splitext(object)
         return ["-l", base + '.s.txt']
 
-    def get_compile_options(self, defines, includes):
+    def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + ['--preinclude', config_header]
+        if for_asm:
+            # The assembler doesn't support '--preinclude', so we need to add
+            # the macros directly
+            opts = opts + ['-D%s' % d for d in self.get_config_macros()]
+        else:
+            config_header = self.get_config_header()
+            if config_header is not None:
+                opts = opts + ['--preinclude', config_header]
         return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
         # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes) + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(), includes, for_asm=True) + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)
