@@ -33,7 +33,7 @@ class AtmelStudio(Exporter):
 
     DOT_IN_RELATIVE_PATH = True
 
-    MBED_CONF_ACTIVE = True
+    MBED_CONFIG_HEADER_SUPPORTED = True
 
     def generate(self):
 

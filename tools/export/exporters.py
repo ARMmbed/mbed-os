@@ -172,7 +172,7 @@ class Exporter(object):
         self.resources = config.load_resources(resources)
 
 
-        if hasattr(self, "MBED_CONF_ACTIVE") and self.MBED_CONF_ACTIVE :
+        if hasattr(self, "MBED_CONFIG_HEADER_SUPPORTED") and self.MBED_CONFIG_HEADER_SUPPORTED :
             # Add the configuration file to the target directory
             self.config_header = self.toolchain.MBED_CONFIG_FILE_NAME
             config.get_config_data_header(join(trg_path, self.config_header))

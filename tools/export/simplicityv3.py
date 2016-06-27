@@ -101,7 +101,7 @@ class SimplicityV3(Exporter):
 
     DOT_IN_RELATIVE_PATH = False
 
-    MBED_CONF_ACTIVE = True
+    MBED_CONFIG_HEADER_SUPPORTED = True
 
     orderedPaths = Folder("Root")
 
