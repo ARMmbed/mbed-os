@@ -58,7 +58,7 @@ def online_build_url_resolver(url):
 
 
 def export(project_path, project_name, ide, target, destination='/tmp/',
-           tempdir=None, clean=True, extra_symbols=None, zip=True, relative=False, build_url_resolver=online_build_url_resolver):
+           tempdir=None, clean=True, extra_symbols=None, zip=True, sources_relative=False, build_url_resolver=online_build_url_resolver):
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
         target = target.upper()
@@ -75,7 +75,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
         try:
             ide = "zip"
             exporter = zip.ZIP(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
-            exporter.scan_and_copy_resources(project_path, tempdir, relative)
+            exporter.scan_and_copy_resources(project_path, tempdir, sources_relative)
             exporter.generate()
             report['success'] = True
         except OldLibrariesException, e:
@@ -101,8 +101,8 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
             if supported:
                 # target checked, export
                 try:
-                    exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
-                    exporter.scan_and_copy_resources(project_path, tempdir, relative)
+                    exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols, sources_relative=sources_relative)
+                    exporter.scan_and_copy_resources(project_path, tempdir, sources_relative)
                     exporter.generate()
                     report['success'] = True
                 except OldLibrariesException, e:
