@@ -69,7 +69,7 @@ Total Flash memory (text + data + misc): 66014 bytes
 Find here extended description on the multiple memory sections shown in the previous table.
 
 - text: is where the code application and constants are located in Flash
-- data: non-zero initialized variables; allocated in both RAM and Flash memory (RAM memory is initialized at run time from Flash)
+- data: non-zero initialized variables; allocated in both RAM and Flash memory (variables are initialized in RAM at run time from Flash)
 - bss: uninitialized data allocated in RAM, or variables initialized to zero
 - heap: dynamic allocated memory defined at build time, usually used by malloc, etc, in RAM
 - stack: used to store local data, temporary data when branching to a subroutine and context switch info; it's considered dynamic allocated memory region in RAM defined at build time
