@@ -369,6 +369,9 @@ class MemapParser(object):
         table = PrettyTable(columns)
         table.align["Module"] = "l"
 
+        for i in list(self.print_sections):
+            table.align[i] = 'r'
+
         subtotal = dict()
         for k in self.sections:
             subtotal[k] = 0
@@ -399,10 +402,7 @@ class MemapParser(object):
         if export_format == 'json':
             json_obj.append({\
                   'summary':{\
-                  'static_ram':(subtotal['.data']+subtotal['.bss']),\
-                  'heap':(subtotal['.heap']),\
-                  'stack':(subtotal['.stack']),\
-                  'total_ram':(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']),\
+                  'total_static_ram':(subtotal['.data']+subtotal['.bss']),\
                   'total_flash':(subtotal['.text']+subtotal['.data']+misc_flash_mem),}})
 
             file_desc.write(json.dumps(json_obj, indent=4))
@@ -419,17 +419,8 @@ class MemapParser(object):
                     csv_module_section += [i+k]
                     csv_sizes += [self.modules[i][k]]
 
-            csv_module_section += ['static_ram']
+            csv_module_section += ['total_static_ram']
             csv_sizes += [subtotal['.data']+subtotal['.bss']]
-
-            csv_module_section += ['heap']
-            csv_sizes += [subtotal['.heap']]
-
-            csv_module_section += ['stack']
-            csv_sizes += [subtotal['.stack']]
-
-            csv_module_section += ['total_ram']
-            csv_sizes += [subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']]
 
             csv_module_section += ['total_flash']
             csv_sizes += [subtotal['.text']+subtotal['.data']+misc_flash_mem]
@@ -440,11 +431,8 @@ class MemapParser(object):
         else: # default format is 'table'
             file_desc.write(table.get_string())
             file_desc.write('\n')
-            file_desc.write("Static RAM memory (data + bss): %s\n" % (str(subtotal['.data']+subtotal['.bss'])))
-            file_desc.write("Heap: %s\n" % str(subtotal['.heap']))
-            file_desc.write("Stack: %s\n" % str(subtotal['.stack']))
-            file_desc.write("Total RAM memory (data + bss + heap + stack): %s\n" % (str(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack'])))
-            file_desc.write("Total Flash memory (text + data + misc): %s\n" % (str(subtotal['.text']+subtotal['.data']+misc_flash_mem)))
+            file_desc.write("Total Static RAM memory (data + bss): %s bytes\n" % (str(subtotal['.data']+subtotal['.bss'])))
+            file_desc.write("Total Flash memory (text + data + misc): %s bytes\n" % (str(subtotal['.text']+subtotal['.data']+misc_flash_mem)))
 
         if file_desc is not sys.stdout:
             file_desc.close()
@@ -479,7 +467,7 @@ class MemapParser(object):
 
 def main():
 
-    version = '0.3.10'
+    version = '0.3.11'
 
     # Parser handling
     parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed OS\nversion %s" % version)
