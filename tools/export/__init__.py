@@ -101,7 +101,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
             if supported:
                 # target checked, export
                 try:
-                    exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols)
+                    exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols, sources_relative=relative)
                     exporter.scan_and_copy_resources(project_path, tempdir, relative)
                     exporter.generate()
                     report['success'] = True

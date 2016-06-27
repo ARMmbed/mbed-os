@@ -25,7 +25,7 @@ class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
 
-    def __init__(self, target, inputDir, program_name, build_url_resolver, extra_symbols=None):
+    def __init__(self, target, inputDir, program_name, build_url_resolver, extra_symbols=None, sources_relative=True):
         self.inputDir = inputDir
         self.target = target
         self.program_name = program_name
@@ -35,6 +35,7 @@ class Exporter(object):
         self.jinja_environment = Environment(loader=jinja_loader)
         self.extra_symbols = extra_symbols
         self.config_macros = []
+        self.sources_relative = sources_relative
 
     def get_toolchain(self):
         return self.TOOLCHAIN
@@ -109,7 +110,7 @@ class Exporter(object):
         # TODO: Fix this, the inc_dirs are not valid (our scripts copy files), therefore progen
         # thinks it is not dict but a file, and adds them to workspace.
         project.project['common']['include_paths'] = self.resources.inc_dirs
-        project.generate(tool_name, copied=True)
+        project.generate(tool_name, copied=not self.sources_relative)
 
     def __scan_all(self, path):
         resources = []
