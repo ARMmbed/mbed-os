@@ -403,6 +403,9 @@ class MemapParser(object):
             json_obj.append({\
                   'summary':{\
                   'total_static_ram':(subtotal['.data']+subtotal['.bss']),\
+                  'allocated_heap':(subtotal['.heap']),\
+                  'allocated_stack':(subtotal['.stack']),\
+                  'total_ram':(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']),\
                   'total_flash':(subtotal['.text']+subtotal['.data']+misc_flash_mem),}})
 
             file_desc.write(json.dumps(json_obj, indent=4))
@@ -422,6 +425,21 @@ class MemapParser(object):
             csv_module_section += ['total_static_ram']
             csv_sizes += [subtotal['.data']+subtotal['.bss']]
 
+            csv_module_section += ['allocated_heap']
+            if subtotal['.heap'] == 0:
+                csv_sizes += ['unknown']
+            else:
+                csv_sizes += [subtotal['.heap']]
+
+            csv_module_section += ['allocated_stack']
+            if subtotal['.stack'] == 0:
+                csv_sizes += ['unknown']
+            else:
+                csv_sizes += [subtotal['.stack']]
+
+            csv_module_section += ['total_ram']
+            csv_sizes += [subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']]
+
             csv_module_section += ['total_flash']
             csv_sizes += [subtotal['.text']+subtotal['.data']+misc_flash_mem]
 
@@ -431,7 +449,19 @@ class MemapParser(object):
         else: # default format is 'table'
             file_desc.write(table.get_string())
             file_desc.write('\n')
+
+            if subtotal['.heap'] == 0:
+                file_desc.write("Allocated Heap: unknown\n")
+            else:
+                file_desc.write("Allocated Heap: %s bytes\n" % str(subtotal['.heap']))
+            
+            if subtotal['.stack'] == 0:
+                file_desc.write("Allocated Stack: unknown\n")
+            else:
+                file_desc.write("Allocated Stack: %s bytes\n" % str(subtotal['.stack']))
+
             file_desc.write("Total Static RAM memory (data + bss): %s bytes\n" % (str(subtotal['.data']+subtotal['.bss'])))
+            file_desc.write("Total RAM memory (data + bss + heap + stack): %s bytes\n" % (str(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack'])))
             file_desc.write("Total Flash memory (text + data + misc): %s bytes\n" % (str(subtotal['.text']+subtotal['.data']+misc_flash_mem)))
 
         if file_desc is not sys.stdout:
