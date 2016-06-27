@@ -25,6 +25,7 @@ from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath
 from inspect import getmro
 from copy import deepcopy
+from tools.config import Config
 
 from multiprocessing import Pool, cpu_count
 from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
@@ -245,8 +246,8 @@ class mbedToolchain:
         # Labels generated from toolchain and target rules/features (used for selective build)
         self.labels = None
         
-        # config_header_content will hold the content of the config header (if used)
-        self.config_header_content = None
+        # This will hold the configuration data (as returned by Config.get_config_data())
+        self.config_data = None
 
         # Non-incremental compile
         self.build_all = False
@@ -892,11 +893,9 @@ class mbedToolchain:
         map_csv = splitext(map)[0] + "_map.csv"
         memap.generate_output('csv-ci', map_csv)
 
-    # "Prefix headers" are automatically included by the compiler at the beginning of
-    # each source file. They are used to provide configuration data.
-    # header_content - the content of the config header file.
-    def set_config_header_content(self, header_content):
-        self.config_header_content = header_content
+    # Set the configuration data
+    def set_config_data(self, config_data):
+        self.config_data = config_data
 
     # Return the location of the config header. This function will create the config
     # header first if needed. The header will be written in a file called "mbed_conf.h"
@@ -904,14 +903,17 @@ class mbedToolchain:
     # If config headers are not used (self.config_header_content is None), the function
     # returns None
     def get_config_header(self):
-        if self.config_header_content is None:
+        if self.config_data is None:
             return None
         config_file = join(self.build_dir, "mbed_config.h")
         if not exists(config_file):
             with open(config_file, "wt") as f:
-                f.write(self.config_header_content)
+                f.write(Config.config_to_header(self.config_data))
         return config_file
 
+    # Return the list of macros geenrated by the build system
+    def get_config_macros(self):
+        return Config.config_to_macros(self.config_data) if self.config_data else []
 
 from tools.settings import ARM_BIN
 from tools.settings import GCC_ARM_PATH, GCC_CR_PATH

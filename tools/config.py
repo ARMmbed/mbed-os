@@ -354,7 +354,8 @@ class Config:
         return all_params, macros
 
     # Helper: verify if there are any required parameters without a value in 'params'
-    def _check_required_parameters(self, params):
+    @staticmethod
+    def _check_required_parameters(params):
         for p in params.values():
             if p.required and (p.value is None):
                 raise ConfigException("Required parameter '%s' defined by '%s' doesn't have a value" % (p.name, p.defined_by))
@@ -372,10 +373,17 @@ class Config:
         return [m.name for m in macros.values()]
 
     # Return the configuration data converted to a list of C macros
+    # config - configuration data as (ConfigParam instances, ConfigMacro instances) tuple
+    #          (as returned by get_config_data())
+    @staticmethod
+    def config_to_macros(config):
+        params, macros = config[0], config[1]
+        Config._check_required_parameters(params)
+        return Config.config_macros_to_macros(macros) + Config.parameters_to_macros(params)
+
+    # Return the configuration data converted to a list of C macros
     def get_config_data_macros(self):
-        params, macros = self.get_config_data()
-        self._check_required_parameters(params)
-        return self.config_macros_to_macros(macros) + self.parameters_to_macros(params)
+        return self.config_to_macros(self.get_config_data())
 
     # Returns any features in the configuration data
     def get_features(self):
@@ -419,14 +427,16 @@ class Config:
 
         return resources
 
-
     # Return the configuration data converted to the content of a C header file,
     # meant to be included to a C/C++ file. The content is returned as a string.
     # If 'fname' is given, the content is also written to the file called "fname".
     # WARNING: if 'fname' names an existing file, that file will be overwritten!
-    def get_config_data_header(self, fname = None):
-        params, macros = self.get_config_data()
-        self._check_required_parameters(params)
+    # config - configuration data as (ConfigParam instances, ConfigMacro instances) tuple
+    #          (as returned by get_config_data())
+    @staticmethod
+    def config_to_header(config, fname = None):
+        params, macros = config[0], config[1]
+        Config._check_required_parameters(params)
         header_data =  "// Automatically generated configuration file.\n"
         header_data += "// DO NOT EDIT, content will be overwritten.\n\n"
         header_data += "#ifndef __MBED_CONFIG_DATA__\n"
@@ -459,3 +469,10 @@ class Config:
             with open(fname, "wt") as f:
                 f.write(header_data)
         return header_data
+
+    # Return the configuration data converted to the content of a C header file,
+    # meant to be included to a C/C++ file. The content is returned as a string.
+    # If 'fname' is given, the content is also written to the file called "fname".
+    # WARNING: if 'fname' names an existing file, that file will be overwritten!
+    def get_config_data_header(self, fname = None):
+        return self.config_to_header(self.get_config_data(), fname)
