@@ -225,6 +225,10 @@ uint32_t       os_tmr = 0;
 uint32_t const *m_tmr = NULL;
 uint16_t const mp_tmr_size = 0;
 
+/* singleton mutex */
+osMutexId singleton_mutex_id;
+osMutexDef(singleton_mutex);
+
 #if defined (__CC_ARM) && !defined (__MICROLIB)
  /* A memory space for arm standard library. */
  static uint32_t std_libspace[OS_TASK_CNT][96/4];
@@ -434,6 +438,7 @@ void $Sub$$__cpp_initialize__aeabi_(void)
 
 void pre_main()  
 {  
+  singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
   $Super$$__cpp_initialize__aeabi_();  
   main();  
 }
@@ -447,6 +452,7 @@ int main(void);
 
 void pre_main (void)
 {
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
     __rt_lib_init((unsigned)armcc_heap_base, (unsigned)armcc_heap_top);
     main();
 }
@@ -484,6 +490,7 @@ extern void __libc_init_array (void);
 extern int main(int argc, char **argv);
 
 void pre_main(void) {
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
     atexit(__libc_fini_array);
     __libc_init_array();
     main(0, NULL);
@@ -516,6 +523,7 @@ extern int main(void);
 static uint8_t low_level_init_needed;
 
 void pre_main(void) {
+    singleton_mutex_id = osMutexCreate(osMutex(singleton_mutex));
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }

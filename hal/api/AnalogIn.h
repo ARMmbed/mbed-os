@@ -21,6 +21,7 @@
 #if DEVICE_ANALOGIN
 
 #include "analogin_api.h"
+#include "SingletonPtr.h"
 
 namespace mbed {
 
@@ -110,15 +111,15 @@ public:
 protected:
 
     virtual void lock() {
-        _mutex.lock();
+        _mutex->lock();
     }
 
     virtual void unlock() {
-        _mutex.unlock();
+        _mutex->unlock();
     }
 
     analogin_t _adc;
-    static PlatformMutex _mutex;
+    static SingletonPtr<PlatformMutex> _mutex;
 };
 
 } // namespace mbed

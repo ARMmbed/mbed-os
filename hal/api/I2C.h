@@ -21,6 +21,7 @@
 #if DEVICE_I2C
 
 #include "i2c_api.h"
+#include "SingletonPtr.h"
 
 #if DEVICE_I2C_ASYNCH
 #include "CThunk.h"
@@ -181,7 +182,7 @@ protected:
     i2c_t _i2c;
     static I2C  *_owner;
     int         _hz;
-    static PlatformMutex _mutex;
+    static SingletonPtr<PlatformMutex> _mutex;
 };
 
 } // namespace mbed

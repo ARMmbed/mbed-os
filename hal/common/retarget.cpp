@@ -21,6 +21,7 @@
 #include "toolchain.h"
 #include "semihost_api.h"
 #include "mbed_interface.h"
+#include "SingletonPtr.h"
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -72,17 +73,17 @@ extern const char __stderr_name[] = "/stderr";
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileHandle *filehandles[OPEN_MAX];
-static PlatformMutex filehandle_mutex;
+static SingletonPtr<PlatformMutex> filehandle_mutex;
 
 FileHandle::~FileHandle() {
-    filehandle_mutex.lock();
+    filehandle_mutex->lock();
     /* Remove all open filehandles for this */
     for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == this) {
             filehandles[fh_i] = NULL;
         }
     }
-    filehandle_mutex.unlock();
+    filehandle_mutex->unlock();
 }
 
 #if DEVICE_SERIAL
@@ -162,17 +163,17 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #endif
 
     // find the first empty slot in filehandles
-    filehandle_mutex.lock();
+    filehandle_mutex->lock();
     unsigned int fh_i;
     for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == NULL) break;
     }
     if (fh_i >= sizeof(filehandles)/sizeof(*filehandles)) {
-        filehandle_mutex.unlock();
+        filehandle_mutex->unlock();
         return -1;
     }
     filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
-    filehandle_mutex.unlock();
+    filehandle_mutex->unlock();
 
     FileHandle *res;
 

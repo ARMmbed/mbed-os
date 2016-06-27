@@ -22,7 +22,7 @@
 
 namespace mbed {
 
-PlatformMutex AnalogIn::_mutex;
+SingletonPtr<PlatformMutex> AnalogIn::_mutex;
 
 };
 
