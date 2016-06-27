@@ -2,7 +2,7 @@
 # pylint: disable=too-many-arguments, too-many-locals, too-many-branches, too-many-lines, line-too-long, too-many-nested-blocks, too-many-public-methods, too-many-instance-attributes
 # pylint: disable=invalid-name, missing-docstring
 
-# Memory Map File Analyser for ARM mbed OS
+# Memory Map File Analyser for ARM mbed
 
 import sys
 import os
@@ -317,7 +317,7 @@ class MemapParser(object):
         if test_rex:
             search_path = test_rex.group(1) + toolchain + '/mbed-os/'
         else:
-            # It looks this is not an mbed OS project
+            # It looks this is not an mbed project
             # object-to-module mapping cannot be generated
             print "Warning: specified toolchain doesn't match with path to the memory map file."
             return
@@ -454,7 +454,7 @@ class MemapParser(object):
                 file_desc.write("Allocated Heap: unknown\n")
             else:
                 file_desc.write("Allocated Heap: %s bytes\n" % str(subtotal['.heap']))
-            
+
             if subtotal['.stack'] == 0:
                 file_desc.write("Allocated Stack: unknown\n")
             else:
@@ -500,7 +500,7 @@ def main():
     version = '0.3.11'
 
     # Parser handling
-    parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed OS\nversion %s" % version)
+    parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed\nversion %s" % version)
 
     parser.add_argument('file', help='memory map file')
 
