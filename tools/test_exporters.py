@@ -195,10 +195,11 @@ class ReportExporter():
 
         unique_test_ids = self.get_all_unique_test_ids(test_result_ext)
         targets = sorted(test_result_ext.keys())
-        result += '<table><tr>'
+        result += '<table>'
         for target in targets:
             toolchains = sorted(test_result_ext[target].keys())
             for toolchain in toolchains:
+                result += '<tr>'
                 result += '<td></td>'
                 result += '<td></td>'
 
@@ -324,15 +325,18 @@ class ReportExporter():
                     for test_runner in test_runs:
                         #test_run = test_result_ext[target][toolchain][test][test_run_number][0]
                         test_run = test_runner[0]
-
-                        if test_run["result"] == "FAIL":
-                            failures.append(test_run)
-                        elif test_run["result"] == "SKIP" or test_run["result"] == "NOT_SUPPORTED":
-                            skips.append(test_run)
-                        elif test_run["result"] == "OK":
-                            successes.append(test_run)
+                        
+                        if "result" in test_run:
+                            if test_run["result"] == "FAIL":
+                                failures.append(test_run)
+                            elif test_run["result"] == "SKIP" or test_run["result"] == "NOT_SUPPORTED":
+                                skips.append(test_run)
+                            elif test_run["result"] == "OK":
+                                successes.append(test_run)
+                            else:
+                                raise Exception("Unhandled result type: %s" % (test_run["result"]))
                         else:
-                            raise Exception("Unhandled result type: %s" % (test_run["result"]))
+                            raise Exception("'test_run' did not have a 'result' value")
 
         if successes:
             print "\n\nBuild successes:"

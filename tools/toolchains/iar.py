@@ -30,47 +30,64 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
 
+    DEFAULT_FLAGS = {
+        'common': [
+            "--no_wrap_diagnostics",
+            # Pa050: No need to be notified about "non-native end of line sequence"
+            # Pa084: Pointless integer comparison -> checks for the values of an enum, but we use values outside of the enum to notify errors (ie: NC).
+            # Pa093: Implicit conversion from float to integer (ie: wait_ms(85.4) -> wait_ms(85))
+            # Pa082: Operation involving two values from two registers (ie: (float)(*obj->MR)/(float)(LPC_PWM1->MR0))
+            "-e", # Enable IAR language extension
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082"],
+        'asm': [],
+        'c': ["--vla"],
+        'cxx': ["--guard_calls"],
+        'ld': ["--skip_dynamic_initialization", "--threaded_lib"],
+    }
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
         if target.core == "Cortex-M7F":
             cpuchoice = "Cortex-M7"
         else:
             cpuchoice = target.core
-        c_flags = [
-            "--cpu=%s" % cpuchoice, "--thumb",
-            "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
-            "-e", # Enable IAR language extension
-            "--no_wrap_diagnostics",
-            # Pa050: No need to be notified about "non-native end of line sequence"
-            # Pa084: Pointless integer comparison -> checks for the values of an enum, but we use values outside of the enum to notify errors (ie: NC).
-            # Pa093: Implicit conversion from float to integer (ie: wait_ms(85.4) -> wait_ms(85))
-            # Pa082: Operation involving two values from two registers (ie: (float)(*obj->MR)/(float)(LPC_PWM1->MR0))
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082",
+        # flags_cmd are used only by our scripts, the project files have them already defined,
+        # using this flags results in the errors (duplication)
+        # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
+        asm_flags_cmd = [
+            "--cpu", cpuchoice
         ]
-
+        # custom c flags
+        c_flags_cmd = [
+            "--cpu", cpuchoice,
+            "--thumb", "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")
+        ]
+        # custom c++ cmd flags
+        cxx_flags_cmd = [
+            "--c++", "--no_rtti", "--no_exceptions"
+        ]
         if target.core == "Cortex-M7F":
-            c_flags.append("--fpu=VFPv5_sp")
-                
+            asm_flags_cmd += ["--fpu", "VFPv5_sp"]
+            c_flags_cmd.append("--fpu=VFPv5_sp")
 
         if "debug-info" in self.options:
-            c_flags.append("-r")
-            c_flags.append("-On")
+            c_flags_cmd.append("-r")
+            c_flags_cmd.append("-On")
         else:
-            c_flags.append("-Oh")
+            c_flags_cmd.append("-Oh")
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
-        
-        if target.core == "Cortex-M7F":
-            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice] + ["--fpu", "VFPv5_sp"]
-        else:
-            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
+
+        self.asm  = [join(IAR_BIN, "iasmarm")] + asm_flags_cmd + self.flags["asm"]
         if not "analyze" in self.options:
-            self.cc = [main_cc, "--vla"] + c_flags
-            self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
+            self.cc   = [main_cc]
+            self.cppc = [main_cc]
         else:
-            self.cc = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT, "--vla"] + c_flags
-            self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT] + ["--c++", "--no_rtti", "--no_exceptions"] + c_flags
+            self.cc   = [join(GOANNA_PATH, "goannacc"), '--with-cc="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
+            self.cppc = [join(GOANNA_PATH, "goannac++"), '--with-cxx="%s"' % main_cc.replace('\\', '/'), "--dialect=iar-arm", '--output-format="%s"' % self.GOANNA_FORMAT]
+        self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
+        self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
         self.ld   = join(IAR_BIN, "ilinkarm")
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
@@ -110,7 +127,11 @@ class IAR(mbedToolchain):
         return ["-l", base + '.s.txt']
 
     def get_compile_options(self, defines, includes):
-        return ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + ['--preinclude', config_header]
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
@@ -149,7 +170,7 @@ class IAR(mbedToolchain):
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = [self.ld, "-o", output, "--skip_dynamic_initialization", "--map=%s" % map_file] + objects + libraries
+        cmd = [self.ld, "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
 
         if mem_map:
             cmd.extend(["--config", mem_map])

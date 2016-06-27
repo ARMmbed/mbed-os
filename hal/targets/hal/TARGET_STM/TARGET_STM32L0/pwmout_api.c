@@ -56,7 +56,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
 #endif
     if (obj->pwm == PWM_21) __TIM21_CLK_ENABLE();
+#if defined(TIM22_BASE)
     if (obj->pwm == PWM_22) __TIM22_CLK_ENABLE();
+#endif
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);

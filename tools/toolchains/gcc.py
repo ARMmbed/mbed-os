@@ -29,6 +29,20 @@ class GCC(mbedToolchain):
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|error): (?P<message>.+)')
 
+    DEFAULT_FLAGS = {
+        'common': ["-c", "-Wall", "-Wextra",
+            "-Wno-unused-parameter", "-Wno-missing-field-initializers",
+            "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
+            "-ffunction-sections", "-fdata-sections", "-funsigned-char",
+            "-MMD", "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
+            ],
+        'asm': ["-x", "assembler-with-cpp"],
+        'c': ["-std=gnu99"],
+        'cxx': ["-std=gnu++98", "-fno-rtti", "-Wvla"],
+        'ld': ["-Wl,--gc-sections", "-Wl,--wrap,main",
+            "-Wl,--wrap,_malloc_r", "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r"],
+    }
+
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, tool_path="", extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
@@ -63,33 +77,31 @@ class GCC(mbedToolchain):
 
         # Note: We are using "-O2" instead of "-Os" to avoid this known GCC bug:
         # http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46762
-        common_flags = ["-c", "-Wall", "-Wextra",
-            "-Wno-unused-parameter", "-Wno-missing-field-initializers",
-            "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
-            "-ffunction-sections", "-fdata-sections",
-            "-fno-delete-null-pointer-checks", "-fomit-frame-pointer"
-            ] + self.cpu
+        self.flags["common"] += self.cpu
 
         if "save-asm" in self.options:
-            common_flags.append("-save-temps")
+            self.flags["common"].append("-save-temps")
 
         if "debug-info" in self.options:
-            common_flags.append("-g")
-            common_flags.append("-O0")
+            self.flags["common"].append("-g")
+            self.flags["common"].append("-O0")
         else:
-            common_flags.append("-O2")
+            self.flags["common"].append("-O2")
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
         main_cppc = join(tool_path, "arm-none-eabi-g++")
-        self.asm = [main_cc, "-x", "assembler-with-cpp"] + common_flags
+        self.asm = [main_cc] + self.flags['asm'] + self.flags["common"]
         if not "analyze" in self.options:
-            self.cc  = [main_cc, "-std=gnu99"] + common_flags
-            self.cppc =[main_cppc, "-std=gnu++98", "-fno-rtti"] + common_flags
+            self.cc  = [main_cc]
+            self.cppc =[main_cppc]
         else:
-            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "-std=gnu99", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
-            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'), "-std=gnu++98", "-fno-rtti", "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT] + common_flags
+            self.cc  = [join(GOANNA_PATH, "goannacc"), "--with-cc=" + main_cc.replace('\\', '/'), "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT]
+            self.cppc= [join(GOANNA_PATH, "goannac++"), "--with-cxx=" + main_cppc.replace('\\', '/'),  "--dialect=gnu", '--output-format="%s"' % self.GOANNA_FORMAT]
+        self.cc += self.flags['c'] + self.flags['common']
+        self.cppc += self.flags['cxx'] + self.flags['common']
 
-        self.ld = [join(tool_path, "arm-none-eabi-gcc"), "-Wl,--gc-sections", "-Wl,--wrap,main"] + self.cpu
+        self.flags['ld'] += self.cpu
+        self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
         self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
@@ -154,7 +166,11 @@ class GCC(mbedToolchain):
         return ["-MD", "-MF", dep_path]
 
     def get_compile_options(self, defines, includes):
-        return ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + ['-include', config_header]
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
@@ -175,7 +191,7 @@ class GCC(mbedToolchain):
         cmd.extend(self.get_dep_option(object))
 
         cmd.extend(["-o", object, source])
-        
+
         # Call cmdline hook
         cmd = self.hook.get_cmdline_compiler(cmd)
 
@@ -194,13 +210,13 @@ class GCC(mbedToolchain):
             name, _ = splitext(basename(l))
             libs.append("-l%s" % name[3:])
         libs.extend(["-l%s" % l for l in self.sys_libs])
-        
+
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
         if mem_map:
             cmd.extend(['-T', mem_map])
-            
+
         for L in lib_dirs:
             cmd.extend(['-L', L])
         cmd.extend(libs)
@@ -215,7 +231,7 @@ class GCC(mbedToolchain):
             cmd_list = []
             for c in cmd[1:]:
                 if c:
-                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)   
+                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)
             string = " ".join(cmd_list).replace("\\", "/")
             f.write(string)
 
@@ -228,7 +244,7 @@ class GCC(mbedToolchain):
         with open(archive_files, "wb") as f:
             o_list = []
             for o in objects:
-                o_list.append('"%s"' % o)                    
+                o_list.append('"%s"' % o)
             string = " ".join(o_list).replace("\\", "/")
             f.write(string)
 
@@ -268,7 +284,7 @@ class GCC_ARM(GCC):
             self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
             self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
 
-        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
+        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368", "ARM_BEETLE_SOC"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         elif target.name in ["RZ_A1H", "VK_RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F446RE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
             self.ld.extend(["-u_printf_float", "-u_scanf_float"])
@@ -291,4 +307,3 @@ class GCC_CR(GCC):
         if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368"]:
             self.ld.extend(["-u _printf_float", "-u _scanf_float"])
         self.ld += ["-nostdlib"]
-

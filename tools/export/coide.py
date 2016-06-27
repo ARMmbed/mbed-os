@@ -29,6 +29,7 @@ class CoIDE(Exporter):
         'ARCH_PRO',
         'ARCH_MAX',
         'UBLOX_C027',
+        'NUCLEO_L011K4',
         'NUCLEO_L053R8',
         'NUCLEO_L152RE',
         'NUCLEO_F030R8',

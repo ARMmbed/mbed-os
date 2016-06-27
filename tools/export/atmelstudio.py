@@ -71,6 +71,7 @@ class AtmelStudio(Exporter):
             'solution_uuid': solution_uuid.upper(),
             'project_uuid': project_uuid.upper()
         }
+        ctx.update(self.progen_flags)
         target = self.target.lower()
         self.gen_file('atmelstudio6_2.atsln.tmpl', ctx, '%s.atsln' % self.program_name)
         self.gen_file('atmelstudio6_2.cppproj.tmpl', ctx, '%s.cppproj' % self.program_name)

@@ -653,6 +653,12 @@ TESTS = [
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
         "automated": True
     },
+    {
+        "id": "MBED_39", "description": "Serial Complete",
+        "source_dir": join(TEST_DIR, "mbed", "serial_complete"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True
+    },
 
     # CMSIS RTOS tests
     {
@@ -715,7 +721,7 @@ TESTS = [
                 "NUCLEO_L031K6", "NUCLEO_L053R8", "DISCO_L053C8", "NUCLEO_L073RZ", "NUCLEO_F072RB", "NUCLEO_F091RC", "DISCO_L476VG", "NUCLEO_L476RG",
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE", "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG", "NUCLEO_F746ZG", "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_2", "description": "Mutex resource lock",
@@ -731,7 +737,7 @@ TESTS = [
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE", "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG",
                 "NUCLEO_F746ZG", "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_3", "description": "Semaphore resource lock",
@@ -747,7 +753,7 @@ TESTS = [
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE", "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG",
                 "NUCLEO_F746ZG",  "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_4", "description": "Signals messaging",
@@ -762,7 +768,7 @@ TESTS = [
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE", "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG",
                 "NUCLEO_F746ZG",  "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_5", "description": "Queue messaging",
@@ -777,7 +783,7 @@ TESTS = [
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE",
                 "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG", "NUCLEO_F746ZG", "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_6", "description": "Mail messaging",
@@ -792,7 +798,7 @@ TESTS = [
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE",
                 "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG", "NUCLEO_F746ZG", "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_7", "description": "Timer",
@@ -809,7 +815,7 @@ TESTS = [
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE",
                 "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG", "NUCLEO_F746ZG", "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_8", "description": "ISR (Queue)",
@@ -824,7 +830,7 @@ TESTS = [
                 "DISCO_F401VC", "NUCLEO_F303RE", "NUCLEO_F303K8", "MAXWSNENV", "MAX32600MBED", "NUCLEO_L152RE",
                 "NUCLEO_F446RE", "NUCLEO_F103RB", "DISCO_F746NG", "NUCLEO_F746ZG", "MOTE_L152RC", "B96B_F446VE",
                 "EFM32HG_STK3400", "EFM32PG_STK3401", "EFM32LG_STK3600", "EFM32GG_STK3700", "EFM32WG_STK3800",
-                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE"],
+                "NRF51822", "NRF51_DK", "NRF51_MICROBIT", "SEEED_TINY_BLE", "ARM_BEETLE_SOC"],
     },
     {
         "id": "RTOS_9", "description": "SD File write-read",

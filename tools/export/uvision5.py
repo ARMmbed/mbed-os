@@ -19,6 +19,7 @@ from project_generator_definitions.definitions import ProGenDef
 
 from tools.export.exporters import Exporter
 from tools.targets import TARGET_MAP, TARGET_NAMES
+from tools.settings import ARM_INC
 
 # If you wish to add a new target, add it to project_generator_definitions, and then
 # define progen_target name in the target class (`` self.progen_target = 'my_target_name' ``)
@@ -67,11 +68,16 @@ class Uvision5(Exporter):
 
         # get flags from toolchain and apply
         project_data['tool_specific']['uvision5']['misc'] = {}
-        project_data['tool_specific']['uvision5']['misc']['asm_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['asm']))
-        project_data['tool_specific']['uvision5']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c']))
+        # asm flags only, common are not valid within uvision project, they are armcc specific
+        project_data['tool_specific']['uvision5']['misc']['asm_flags'] = list(set(self.toolchain.flags['asm']))
+        # cxx flags included, as uvision have them all in one tab
+        project_data['tool_specific']['uvision5']['misc']['c_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['c'] + self.toolchain.flags['cxx']))
+        # ARM_INC is by default as system inclusion, not required for exported project
+        project_data['tool_specific']['uvision5']['misc']['c_flags'].remove("-I \""+ARM_INC+"\"")
         # not compatible with c99 flag set in the template
         project_data['tool_specific']['uvision5']['misc']['c_flags'].remove("--c99")
-        project_data['tool_specific']['uvision5']['misc']['cxx_flags'] = list(set(self.toolchain.flags['common'] + self.toolchain.flags['ld']))
+        # cpp is not required as it's implicit for cpp files
+        project_data['tool_specific']['uvision5']['misc']['c_flags'].remove("--cpp")
         project_data['tool_specific']['uvision5']['misc']['ld_flags'] = self.toolchain.flags['ld']
 
         i = 0
@@ -86,4 +92,3 @@ class Uvision5(Exporter):
             i += 1
         project_data['common']['macros'].append('__ASSERT_MSG')
         self.progen_gen_file('uvision5', project_data)
-

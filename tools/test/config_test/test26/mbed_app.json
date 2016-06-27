@@ -1,0 +1,16 @@
+{
+    "custom_targets": {
+        "test_target": {
+            "core": "Cortex-M0",
+            "extra_labels": [],
+            "features": [],
+            "default_build": "standard"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["IPV4"],
+            "lib2.test": "GOOD"
+        }
+    }
+}

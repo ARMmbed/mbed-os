@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_tim.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
@@ -230,7 +230,7 @@ typedef struct
   uint32_t ClearInputState;      /*!< TIM clear Input state 
                                       This parameter can be ENABLE or DISABLE */
   uint32_t ClearInputSource;     /*!< TIM clear Input sources 
-                                      This parameter can be a value of @ref TIM_ClearInput_Source */
+                                      This parameter can be a value of @ref TIMEx_Clock_Clear_Input_Source */
   uint32_t ClearInputPolarity;   /*!< TIM Clear Input polarity 
                                       This parameter can be a value of @ref TIM_ClearInput_Polarity */
   uint32_t ClearInputPrescaler;  /*!< TIM Clear Input prescaler 
@@ -588,15 +588,6 @@ typedef struct
 #define TIM_CLOCKPRESCALER_DIV2                 TIM_ETRPRESCALER_DIV2     /*!< Prescaler for External ETR Clock: Capture performed once every 2 events. */
 #define TIM_CLOCKPRESCALER_DIV4                 TIM_ETRPRESCALER_DIV4     /*!< Prescaler for External ETR Clock: Capture performed once every 4 events. */
 #define TIM_CLOCKPRESCALER_DIV8                 TIM_ETRPRESCALER_DIV8     /*!< Prescaler for External ETR Clock: Capture performed once every 8 events. */
-/**
-  * @}
-  */
-
-/** @defgroup TIM_ClearInput_Source TIM ClearInput Source
-  * @{
-  */
-#define TIM_CLEARINPUTSOURCE_ETR           ((uint32_t)0x0001)
-#define TIM_CLEARINPUTSOURCE_NONE          ((uint32_t)0x0000)
 /**
   * @}
   */
@@ -968,9 +959,6 @@ typedef struct
                                           ((PRESCALER) == TIM_CLOCKPRESCALER_DIV8))
 
 #define IS_TIM_CLOCKFILTER(ICFILTER)      ((ICFILTER) <= 0xF)
-
-#define IS_TIM_CLEARINPUT_SOURCE(SOURCE)  (((SOURCE) == TIM_CLEARINPUTSOURCE_NONE) || \
-                                          ((SOURCE) == TIM_CLEARINPUTSOURCE_ETR))
 
 #define IS_TIM_CLEARINPUT_POLARITY(POLARITY) (((POLARITY) == TIM_CLEARINPUTPOLARITY_INVERTED) || \
                                               ((POLARITY) == TIM_CLEARINPUTPOLARITY_NONINVERTED))
@@ -1741,6 +1729,16 @@ HAL_TIM_StateTypeDef HAL_TIM_Encoder_GetState(TIM_HandleTypeDef *htim);
   * @}
   */
 
+/**
+  * @}
+  */
+
+/* Private Functions --------------------------------------------------------*/
+/** @addtogroup TIM_Private_Functions
+ * @{
+ */
+void TIM_ETR_SetConfig(TIM_TypeDef* TIMx, uint32_t TIM_ExtTRGPrescaler,
+                       uint32_t TIM_ExtTRGPolarity, uint32_t ExtTRGFilter);
 /**
   * @}
   */

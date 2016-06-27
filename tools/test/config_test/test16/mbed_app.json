@@ -1,0 +1,11 @@
+{
+    "custom_targets": {
+        "test_target": {
+            "core": "Cortex-M0",
+            "extra_labels": [],
+            "features": [],
+            "default_build": "standard"
+        }
+    },
+    "macros": ["APP1=10", "APP2", "LIB2_1=5"]
+}

@@ -84,6 +84,7 @@ class GccArm(Exporter):
         'NUCLEO_F334R8',
         'NUCLEO_F746ZG',
         'DISCO_L053C8',
+        'NUCLEO_L011K4',
         'NUCLEO_L031K6',
         'NUCLEO_L053R8',
         'NUCLEO_L073RZ',
@@ -115,6 +116,7 @@ class GccArm(Exporter):
         'SAMD21G18A',
         'SAML21J18A',
         'SAMG55J19',
+        'ARM_BEETLE_SOC',
     ]
 
     DOT_IN_RELATIVE_PATH = True
@@ -147,4 +149,5 @@ class GccArm(Exporter):
             'symbols': self.get_symbols(),
             'cpu_flags': self.toolchain.cpu
         }
+        ctx.update(self.progen_flags)
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')

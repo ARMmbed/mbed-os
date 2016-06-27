@@ -35,10 +35,10 @@ class ARM(mbedToolchain):
     DEFAULT_FLAGS = {
         'common': ["-c", "--gnu",
             "-Otime", "--split_sections", "--apcs=interwork",
-            "--brief_diagnostics", "--restrict", "--multibyte_chars", "-I", "\""+ARM_INC+"\""],
+            "--brief_diagnostics", "--restrict", "--multibyte_chars", "-I \""+ARM_INC+"\""],
         'asm': [],
         'c': ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
-        'cxx': ["--cpp", "--no_rtti"],
+        'cxx': ["--cpp", "--no_rtti", "--no_vla"],
         'ld': [],
     }
 
@@ -56,7 +56,6 @@ class ARM(mbedToolchain):
 
         main_cc = join(ARM_BIN, "armcc")
 
-        self.flags = copy.deepcopy(self.DEFAULT_FLAGS)
         self.flags['common'] += ["--cpu=%s" % cpu]
         if "save-asm" in self.options:
             self.flags['common'].extend(["--asm", "--interleave"])
@@ -116,7 +115,11 @@ class ARM(mbedToolchain):
         return ["--depend", dep_path]
 
     def get_compile_options(self, defines, includes):        
-        return ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + ['--preinclude', config_header]
+        return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
@@ -219,10 +222,10 @@ class ARM_STD(ARM):
         ARM.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
 
         # Extend flags
-        self.flags['ld'].extend(["--libpath", ARM_LIB])
+        self.flags['ld'].extend(["--libpath \"%s\"" % ARM_LIB])
         
         # Run-time values
-        self.ld.extend(["--libpath", ARM_LIB])
+        self.ld.extend(["--libpath \"%s\"" % ARM_LIB])
 
 
 class ARM_MICRO(ARM):
@@ -264,6 +267,6 @@ class ARM_MICRO(ARM):
                 self.sys_libs.extend([join(ARM_CPPLIB, lib+".l") for lib in ["cpp_ps", "cpprt_p"]])
         else:
             # Run-time values
-            self.flags['ld'].extend(["--libpath", ARM_LIB])
+            self.flags['ld'].extend(["--libpath \"%s\"" % ARM_LIB])
             # Run-time values
-            self.ld.extend(["--libpath", ARM_LIB])
+            self.ld.extend(["--libpath \"%s\"" % ARM_LIB])

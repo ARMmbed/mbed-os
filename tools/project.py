@@ -149,7 +149,7 @@ if __name__ == '__main__':
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
             project_dir = options.source_dir
             project_name = n if n else "Unnamed_Project"
-            project_temp = path.join(options.source_dir[0], 'projectfiles', ide)
+            project_temp = path.join(options.source_dir[0], 'projectfiles', '%s_%s' % (ide, mcu))
             mkdir(project_temp)
             lib_symbols = []
             if options.macros:
@@ -205,15 +205,17 @@ if __name__ == '__main__':
 
             # Build the project with the same directory structure of the mbed online IDE
             project_name = test.id
-            project_dir = join(EXPORT_WORKSPACE, project_name)
+            project_dir = [join(EXPORT_WORKSPACE, project_name)]
             project_temp = EXPORT_TMP
-            setup_user_prj(project_dir, test.source_dir, test.dependencies)
+            setup_user_prj(project_dir[0], test.source_dir, test.dependencies)
 
         # Export to selected toolchain
-        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir, project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols, relative=sources_relative)
+        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
         if report['success']:
-            zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
-            if zip:
+            if not zip:
+                zip_path = join(project_temp, project_name)
+            else:
+                zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
                 move(tmp_path, zip_path)
             successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
         else:

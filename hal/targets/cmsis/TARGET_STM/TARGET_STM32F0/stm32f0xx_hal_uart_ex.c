@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_uart_ex.c
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Extended UART HAL module driver.
   *          This file provides firmware functions to manage the following extended
   *          functionalities of the Universal Asynchronous Receiver Transmitter Peripheral (UART).
@@ -103,39 +103,7 @@ static void UARTEx_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpTy
         (++) Baud Rate
         (++) Word Length (Fixed to 8-bits only for LIN mode)
         (++) Stop Bit
-        (++) Parity: If the parity is enabled, then the MSB bit of the data written
-             in the data register is transmitted but is changed by the parity bit.
-             According to device capability (support or not of 7-bit word length),
-             frame length is either defined by the M bit (8-bits or 9-bits)
-             or by the M1 and M0 bits (7-bit, 8-bit or 9-bit).
-             Possible UART frame formats are as listed in the following table:
-            
-            (+++)    Table 1. UART frame format.             
-            (+++)    +-----------------------------------------------------------------------+
-            (+++)    |       M bit       |  PCE bit  |             UART frame                |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         0         |     0     |    | SB |    8-bit data   | STB |     |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         0         |     1     |    | SB | 7-bit data | PB | STB |     |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         1         |     0     |    | SB |    9-bit data   | STB |     |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         1         |     1     |    | SB | 8-bit data | PB | STB |     |
-            (+++)    +-----------------------------------------------------------------------+
-            (+++)    |  M1 bit |  M0 bit |  PCE bit  |             UART frame                |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    0    |     0     |    | SB |    8 bit data   | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    0    |     1     |    | SB | 7 bit data | PB | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    1    |     0     |    | SB |    9 bit data   | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    1    |     1     |    | SB | 8 bit data | PB | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    1    |    0    |     0     |    | SB |    7 bit data   | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    1    |    0    |     1     |    | SB | 6 bit data | PB | STB |     |
-            (+++)    +-----------------------------------------------------------------------+
+        (++) Parity
         (++) Hardware flow control
         (++) Receiver/transmitter modes
         (++) Over Sampling Method
@@ -156,6 +124,43 @@ static void UARTEx_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpTy
 @endverbatim
   * @{
   */
+
+/*
+  Additional Table:  If the parity is enabled, then the MSB bit of the data written
+                     in the data register is transmitted but is changed by the parity bit.
+                     According to device capability (support or not of 7-bit word length),
+                     frame length is either defined by the M bit (8-bits or 9-bits)
+                     or by the M1 and M0 bits (7-bit, 8-bit or 9-bit).
+                     Possible UART frame formats are as listed in the following table:
+            
+      Table 1. UART frame format.             
+      +-----------------------------------------------------------------------+
+      |       M bit       |  PCE bit  |             UART frame                |
+      |-------------------|-----------|---------------------------------------|
+      |         0         |     0     |    | SB |    8-bit data   | STB |     |
+      |-------------------|-----------|---------------------------------------|
+      |         0         |     1     |    | SB | 7-bit data | PB | STB |     |
+      |-------------------|-----------|---------------------------------------|
+      |         1         |     0     |    | SB |    9-bit data   | STB |     |
+      |-------------------|-----------|---------------------------------------|
+      |         1         |     1     |    | SB | 8-bit data | PB | STB |     |
+      +-----------------------------------------------------------------------+
+      |  M1 bit |  M0 bit |  PCE bit  |             UART frame                |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    0    |     0     |    | SB |    8 bit data   | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    0    |     1     |    | SB | 7 bit data | PB | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    1    |     0     |    | SB |    9 bit data   | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    1    |     1     |    | SB | 8 bit data | PB | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    1    |    0    |     0     |    | SB |    7 bit data   | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    1    |    0    |     1     |    | SB | 6 bit data | PB | STB |     |
+      +-----------------------------------------------------------------------+
+
+*/
 
 /**
   * @brief Initialize the RS485 Driver enable feature according to the specified
@@ -197,7 +202,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   /* Check the Driver Enable deassertion time */
   assert_param(IS_UART_DEASSERTIONTIME(DeassertionTime));
 
-  if(huart->State == HAL_UART_STATE_RESET)
+  if(huart->gState == HAL_UART_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
     huart->Lock = HAL_UNLOCKED;
@@ -206,7 +211,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
     HAL_UART_MspInit(huart);
   }
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Disable the Peripheral */
   __HAL_UART_DISABLE(huart);
@@ -236,7 +241,7 @@ HAL_StatusTypeDef HAL_RS485Ex_Init(UART_HandleTypeDef *huart, uint32_t Polarity,
   /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart);
 
-  /* TEACK and/or REACK to check before moving huart->State to Ready */
+  /* TEACK and/or REACK to check before moving huart->gState and huart->RxState to Ready */
   return (UART_CheckIdleState(huart));
 }
 
@@ -275,7 +280,7 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
     return HAL_ERROR;
   }
 
-  if(huart->State == HAL_UART_STATE_RESET)
+  if(huart->gState == HAL_UART_STATE_RESET)
   {
     /* Allocate lock resource and initialize it */
     huart->Lock = HAL_UNLOCKED;
@@ -284,7 +289,7 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
     HAL_UART_MspInit(huart);
   }
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Disable the Peripheral */
   __HAL_UART_DISABLE(huart);
@@ -315,7 +320,7 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
     /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart);
 
-  /* TEACK and/or REACK to check before moving huart->State to Ready */
+  /* TEACK and/or REACK to check before moving huart->gState and huart->RxState to Ready */
   return (UART_CheckIdleState(huart));
 }
 #endif /* !defined(STM32F030x6) && !defined(STM32F030x8)&& !defined(STM32F070xB)&& !defined(STM32F070x6)&& !defined(STM32F030xC) */ 
@@ -332,11 +337,7 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
                       ##### IO operation function #####
  ===============================================================================
     [..]
-    This subsection provides functions allowing to manage the UART interrupts
-    and to handle Wake up interrupt call-back.
-        
-    (#) Non-Blocking mode API with Interrupt is :
-        (++) HAL_UART_IRQHandler()
+    This subsection provides function to handle Wake up interrupt call-back.
 
     (#) Callback provided in No_Blocking mode:
         (++) HAL_UARTEx_WakeupCallback()
@@ -344,94 +345,6 @@ HAL_StatusTypeDef HAL_LIN_Init(UART_HandleTypeDef *huart, uint32_t BreakDetectLe
 @endverbatim
   * @{
   */
-
-
-/**
-  * @brief Handle UART interrupt request.
-  * @param huart: UART handle.
-  * @retval None
-  */
-void HAL_UART_IRQHandler(UART_HandleTypeDef *huart)
-{
-  /* UART parity error interrupt occurred -------------------------------------*/
-  if((__HAL_UART_GET_IT(huart, UART_IT_PE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_PE) != RESET))
-  {
-    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_PEF);
-
-    huart->ErrorCode |= HAL_UART_ERROR_PE;
-    /* Set the UART state ready to be able to start again the process */
-    huart->State = HAL_UART_STATE_READY;
-  }
-
-  /* UART frame error interrupt occurred --------------------------------------*/
-  if((__HAL_UART_GET_IT(huart, UART_IT_FE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
-  {
-    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_FEF);
-
-    huart->ErrorCode |= HAL_UART_ERROR_FE;
-    /* Set the UART state ready to be able to start again the process */
-    huart->State = HAL_UART_STATE_READY;
-  }
-
-  /* UART noise error interrupt occurred --------------------------------------*/
-  if((__HAL_UART_GET_IT(huart, UART_IT_NE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
-  {
-    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_NEF);
-
-    huart->ErrorCode |= HAL_UART_ERROR_NE;
-    /* Set the UART state ready to be able to start again the process */
-    huart->State = HAL_UART_STATE_READY;
-  }
-
-  /* UART Over-Run interrupt occurred -----------------------------------------*/
-  if((__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET))
-  {
-    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_OREF);
-
-    huart->ErrorCode |= HAL_UART_ERROR_ORE;
-    /* Set the UART state ready to be able to start again the process */
-    huart->State = HAL_UART_STATE_READY;
-  }
-
-   /* Call UART Error Call back function if need be --------------------------*/
-  if(huart->ErrorCode != HAL_UART_ERROR_NONE)
-  {
-    HAL_UART_ErrorCallback(huart);
-  }
-
-#if !defined(STM32F030x6) && !defined(STM32F030x8)&& !defined(STM32F070xB)&& !defined(STM32F070x6)&& !defined(STM32F030xC)
-  /* UART wakeup from Stop mode interrupt occurred -------------------------------------*/
-  if((__HAL_UART_GET_IT(huart, UART_IT_WUF) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_WUF) != RESET))
-  {
-    __HAL_UART_CLEAR_IT(huart, UART_CLEAR_WUF);
-    /* Set the UART state ready to be able to start again the process */
-    huart->State = HAL_UART_STATE_READY;
-    HAL_UARTEx_WakeupCallback(huart);
-  }
-#endif /* !defined(STM32F030x6) && !defined(STM32F030x8)&& !defined(STM32F070xB)&& !defined(STM32F070x6)&& !defined(STM32F030xC) */
-
-  /* UART in mode Receiver ---------------------------------------------------*/
-  if((__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) && (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET))
-  {
-    UART_Receive_IT(huart);
-    /* Clear RXNE interrupt flag */
-    __HAL_UART_SEND_REQ(huart, UART_RXDATA_FLUSH_REQUEST);
-  }
-
-
-  /* UART in mode Transmitter ------------------------------------------------*/
- if((__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) &&(__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TXE) != RESET))
-  {
-    UART_Transmit_IT(huart);
-  }
-
-  /* UART in mode Transmitter (transmission end) -----------------------------*/
- if((__HAL_UART_GET_IT(huart, UART_IT_TC) != RESET) &&(__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC) != RESET))
-  {
-    UART_EndTransmit_IT(huart);
-  }
-
-}
 
 #if !defined(STM32F030x6) && !defined(STM32F030x8)&& !defined(STM32F070xB)&& !defined(STM32F070x6)&& !defined(STM32F030xC)
 /**
@@ -492,14 +405,14 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
   HAL_StatusTypeDef status = HAL_OK;
 
   /* check the wake-up from stop mode UART instance */
-  assert_param(IS_UART_WAKEUP_INSTANCE(huart->Instance));
+  assert_param(IS_UART_WAKEUP_FROMSTOP_INSTANCE(huart->Instance));
   /* check the wake-up selection parameter */
   assert_param(IS_UART_WAKEUP_SELECTION(WakeUpSelection.WakeUpEvent));
 
   /* Process Locked */
   __HAL_LOCK(huart);
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Disable the Peripheral */
   __HAL_UART_DISABLE(huart);
@@ -523,7 +436,7 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
   else
   {
     /* Initialize the UART State */
-    huart->State = HAL_UART_STATE_READY;
+    huart->gState = HAL_UART_STATE_READY;
   }
 
   /* Process Unlocked */
@@ -542,17 +455,17 @@ HAL_StatusTypeDef HAL_UARTEx_StopModeWakeUpSourceConfig(UART_HandleTypeDef *huar
 HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart)
 {
   /* Check parameter */
-  assert_param(IS_UART_WAKEUP_INSTANCE(huart->Instance));
+  assert_param(IS_UART_WAKEUP_FROMSTOP_INSTANCE(huart->Instance));
 
   /* Process Locked */
   __HAL_LOCK(huart);
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Set UESM bit */
   SET_BIT(huart->Instance->CR1, USART_CR1_UESM);
 
-  huart->State = HAL_UART_STATE_READY;
+  huart->gState = HAL_UART_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -568,17 +481,17 @@ HAL_StatusTypeDef HAL_UARTEx_EnableStopMode(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef HAL_UARTEx_DisableStopMode(UART_HandleTypeDef *huart)
 {
   /* Check parameter */
-  assert_param(IS_UART_WAKEUP_INSTANCE(huart->Instance));
+  assert_param(IS_UART_WAKEUP_FROMSTOP_INSTANCE(huart->Instance));
 
   /* Process Locked */
   __HAL_LOCK(huart);
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Clear UESM bit */
   CLEAR_BIT(huart->Instance->CR1, USART_CR1_UESM);
 
-  huart->State = HAL_UART_STATE_READY;
+  huart->gState = HAL_UART_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -611,7 +524,7 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
   /* Check the address length parameter */
   assert_param(IS_UART_ADDRESSLENGTH_DETECT(AddressLength));
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Disable the Peripheral */
   __HAL_UART_DISABLE(huart);
@@ -622,7 +535,7 @@ HAL_StatusTypeDef HAL_MultiProcessorEx_AddressLength_Set(UART_HandleTypeDef *hua
   /* Enable the Peripheral */
   __HAL_UART_ENABLE(huart);
 
-  /* TEACK and/or REACK to check before moving huart->State to Ready */
+  /* TEACK and/or REACK to check before moving huart->gState to Ready */
   return (UART_CheckIdleState(huart));
 }
 
@@ -641,12 +554,12 @@ HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart)
   /* Process Locked */
   __HAL_LOCK(huart);
 
-  huart->State = HAL_UART_STATE_BUSY;
+  huart->gState = HAL_UART_STATE_BUSY;
 
   /* Send break characters */
   huart->Instance->RQR |= UART_SENDBREAK_REQUEST;
 
-  huart->State = HAL_UART_STATE_READY;
+  huart->gState = HAL_UART_STATE_READY;
 
   /* Process Unlocked */
   __HAL_UNLOCK(huart);
@@ -677,7 +590,7 @@ HAL_StatusTypeDef HAL_LIN_SendBreak(UART_HandleTypeDef *huart)
 static void UARTEx_Wakeup_AddressConfig(UART_HandleTypeDef *huart, UART_WakeUpTypeDef WakeUpSelection)
 {
   /* Check parmeters */
-  assert_param(IS_UART_WAKEUP_INSTANCE(huart->Instance));
+  assert_param(IS_UART_WAKEUP_FROMSTOP_INSTANCE(huart->Instance));
   assert_param(IS_UART_ADDRESSLENGTH_DETECT(WakeUpSelection.AddressLength));
 
   /* Set the USART address length */

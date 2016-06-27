@@ -48,7 +48,7 @@ __initial_sp    EQU     0x20018000 ; Top of RAM, L4-ECC-SRAM2 retained in standb
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x18000 ; 96KB
+Heap_Size       EQU     0x17800 ; 94KB (96KB, -2*1KB for main thread and scheduler)
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
                 EXPORT  __heap_base

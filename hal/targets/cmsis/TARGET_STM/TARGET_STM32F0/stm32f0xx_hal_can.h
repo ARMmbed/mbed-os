@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
@@ -234,7 +234,7 @@ typedef struct
   __IO HAL_CAN_StateTypeDef   State;      /*!< CAN communication state        */
   
   __IO uint32_t               ErrorCode;  /*!< CAN Error code                 
-                                               This parameter can be a value of @ref HAL_CAN_Error_Code */
+                                               This parameter can be a value of @ref CAN_Error_Code */
   
 }CAN_HandleTypeDef;
 /**
@@ -247,7 +247,7 @@ typedef struct
   * @{
   */
 
-/** @defgroup HAL_CAN_Error_Code CAN Error Code
+/** @defgroup CAN_Error_Code CAN Error Code
   * @{
   */
 #define HAL_CAN_ERROR_NONE              ((uint32_t)0x00000000)  /*!< No error             */

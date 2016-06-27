@@ -495,7 +495,7 @@ osThreadDef_t os_thread_def_main = {(os_pthread)pre_main, osPriorityNormal, 1U, 
 #elif defined(TARGET_STM32L152RC)
 #define INITIAL_SP            (0x20008000UL)
 
-#elif defined(TARGET_EFM32GG_STK3700)
+#elif defined(TARGET_EFM32GG_STK3700) || defined(TARGET_BEETLE)
 #define INITIAL_SP            (0x20020000UL)
 
 #elif defined(TARGET_EFM32HG_STK3400)
@@ -713,6 +713,8 @@ extern __weak void __iar_init_core( void );
 extern __weak void __iar_init_vfp( void );
 extern void __iar_dynamic_initialization(void);
 extern void mbed_sdk_init(void);
+extern void mbed_main(void);
+extern int main(void);
 extern void exit(int arg);
 
 static uint8_t low_level_init_needed;
@@ -721,6 +723,7 @@ void pre_main(void) {
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
+    mbed_main();
     main();
 }
 
