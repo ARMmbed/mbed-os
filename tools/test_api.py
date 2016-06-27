@@ -2048,6 +2048,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         except Exception, e:
             if not isinstance(e, NotSupportedException):
                 result = False
+
+                print e
                 
                 if continue_on_build_fail:
                     continue
