@@ -72,6 +72,7 @@ rsync:
 	rm -rf $(TARGET_LIB_SRC)
 	mkdir -p $(TARGET_LIB_SRC)
 	cp $(UVISOR_DIR)/core/system/src/page_allocator.c $(TARGET_LIB_SRC)/page_allocator.c_inc
+	cp $(UVISOR_DIR)/core/system/inc/page_allocator_config.h $(TARGET_LIB_SRC)/page_allocator_config.h
 	rsync -a --delete $(UVISOR_API)/rtx/src/ $(TARGET_LIB_SRC)/rtx
 	#
 	# Copying licenses
