@@ -30,11 +30,14 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error)(?P<message>.+)')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
-        mbedToolchain.__init__(self, target, options, notify, macros, silent)
-
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
+        mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
+        if target.core == "Cortex-M7F":
+            cpuchoice = "Cortex-M7"
+        else:
+            cpuchoice = target.core
         c_flags = [
-            "--cpu=%s" % target.core, "--thumb",
+            "--cpu=%s" % cpuchoice, "--thumb",
             "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h"),
             "-e", # Enable IAR language extension
             "--no_wrap_diagnostics",
@@ -45,6 +48,10 @@ class IAR(mbedToolchain):
             "--diag_suppress=Pa050,Pa084,Pa093,Pa082",
         ]
 
+        if target.core == "Cortex-M7F":
+            c_flags.append("--fpu=VFPv5_sp")
+                
+
         if "debug-info" in self.options:
             c_flags.append("-r")
             c_flags.append("-On")
@@ -53,7 +60,10 @@ class IAR(mbedToolchain):
 
         IAR_BIN = join(IAR_PATH, "bin")
         main_cc = join(IAR_BIN, "iccarm")
-        self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", target.core]
+        if target.core == "Cortex-M7F":
+            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice] + ["--fpu", "VFPv5_sp"]
+        else:
+            self.asm  = [join(IAR_BIN, "iasmarm")] + ["--cpu", cpuchoice]
         if not "analyze" in self.options:
             self.cc   = [main_cc] + c_flags
             self.cppc = [main_cc, "--c++",  "--no_rtti", "--no_exceptions"] + c_flags
@@ -94,7 +104,7 @@ class IAR(mbedToolchain):
     def parse_dependencies(self, dep_path):
         return [path.strip() for path in open(dep_path).readlines()
                 if (path and not path.isspace())]
-                
+
     def assemble(self, source, object, includes):
         return [self.hook.get_cmdline_assembler(self.asm + ['-D%s' % s for s in self.get_symbols() + self.macros] + ["-I%s" % i for i in includes] + ["-o", object, source])]
 

@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------/
-/  FatFs - FAT file system module include R0.11     (C)ChaN, 2015
+/  FatFs - FAT file system module include R0.11a    (C)ChaN, 2015
 /----------------------------------------------------------------------------/
 / FatFs module is a free software that opened under license policy of
 / following conditions.
@@ -17,7 +17,7 @@
 
 
 #ifndef _FATFS
-#define _FATFS	32020	/* Revision ID */
+#define _FATFS	64180	/* Revision ID */
 
 #ifdef __cplusplus
 extern "C" {
@@ -144,10 +144,10 @@ typedef struct {
 	FATFS*	fs;				/* Pointer to the owner file system object (**do not change order**) */
 	WORD	id;				/* Owner file system mount ID (**do not change order**) */
 	WORD	index;			/* Current read/write index number */
-	DWORD	sclust;			/* Table start cluster (0:Root FATFS_DIR) */
+	DWORD	sclust;			/* Table start cluster (0:Root dir) */
 	DWORD	clust;			/* Current cluster */
 	DWORD	sect;			/* Current sector */
-	BYTE*	FATFS_DIR;			/* Pointer to the current SFN entry in the win[] */
+	BYTE*	dir;			/* Pointer to the current SFN entry in the win[] */
 	BYTE*	fn;				/* Pointer to the SFN (in/out) {file[8],ext[3],status[1]} */
 #if _FS_LOCK
 	UINT	lockid;			/* File lock ID (index of file semaphore table Files[]) */
@@ -200,7 +200,7 @@ typedef enum {
 	FR_TIMEOUT,				/* (15) Could not get a grant to access the volume within defined period */
 	FR_LOCKED,				/* (16) The operation is rejected according to the file sharing policy */
 	FR_NOT_ENOUGH_CORE,		/* (17) LFN working buffer could not be allocated */
-	FR_TOO_MANY_OPEN_FILES,	/* (18) Number of open files > _FS_SHARE */
+	FR_TOO_MANY_OPEN_FILES,	/* (18) Number of open files > _FS_LOCK */
 	FR_INVALID_PARAMETER	/* (19) Given parameter is invalid */
 } FRESULT;
 
@@ -226,8 +226,8 @@ FRESULT f_mkdir (const TCHAR* path);								/* Create a sub directory */
 FRESULT f_unlink (const TCHAR* path);								/* Delete an existing file or directory */
 FRESULT f_rename (const TCHAR* path_old, const TCHAR* path_new);	/* Rename/Move a file or directory */
 FRESULT f_stat (const TCHAR* path, FILINFO* fno);					/* Get file status */
-FRESULT f_chmod (const TCHAR* path, BYTE attr, BYTE mask);			/* Change attribute of the file/FATFS_DIR */
-FRESULT f_utime (const TCHAR* path, const FILINFO* fno);			/* Change times-tamp of the file/FATFS_DIR */
+FRESULT f_chmod (const TCHAR* path, BYTE attr, BYTE mask);			/* Change attribute of the file/dir */
+FRESULT f_utime (const TCHAR* path, const FILINFO* fno);			/* Change times-tamp of the file/dir */
 FRESULT f_chdir (const TCHAR* path);								/* Change current directory */
 FRESULT f_chdrive (const TCHAR* path);								/* Change current drive */
 FRESULT f_getcwd (TCHAR* buff, UINT len);							/* Get current directory */
@@ -266,7 +266,7 @@ DWORD get_fattime (void);
 
 /* Unicode support functions */
 #if _USE_LFN							/* Unicode - OEM code conversion */
-WCHAR ff_convert (WCHAR chr, UINT FATFS_DIR);	/* OEM-Unicode bidirectional conversion */
+WCHAR ff_convert (WCHAR chr, UINT dir);	/* OEM-Unicode bidirectional conversion */
 WCHAR ff_wtoupper (WCHAR chr);			/* Unicode upper-case conversion */
 #if _USE_LFN == 3						/* Memory functions */
 void* ff_memalloc (UINT msize);			/* Allocate memory block */
@@ -348,4 +348,3 @@ int ff_del_syncobj (_SYNC_t sobj);				/* Delete a sync object */
 #endif
 
 #endif /* _FATFS */
-

@@ -14,12 +14,26 @@
 #define FLOW_CONTROL_CTS    PA07
 #define RTS_CHECK_PIN       PB03
 
-#elif defined(TARGET_SAMD21J18A)
-#define UART_TX             PA22
-#define UART_RX             PA23
+#elif defined(TARGET_SAMD21J18A) /*USB debug port is not having RTS and CTS pins in expansion connectors in D21 Xplained Pro Board*/
+#define UART_TX             PA22 /* Short this pin to PA04 */
+#define UART_RX             PA23 /* Short this pin to PA05 */
 #define FLOW_CONTROL_RTS    PA24
 #define FLOW_CONTROL_CTS    PA25
 #define RTS_CHECK_PIN       PB03
+
+#elif defined(TARGET_SAMD21G18A) /*USB debug port is not having RTS and CTS pins in expansion connectors in W25 Xplained Pro Board*/
+#define UART_TX             PA16 /* Short this pin to PB10 */
+#define UART_RX             PA17 /* Short this pin to PB11 */
+#define FLOW_CONTROL_RTS    PA18
+#define FLOW_CONTROL_CTS    PA19
+#define RTS_CHECK_PIN       PB03
+
+#elif defined(TARGET_SAMG55J19) 
+#define UART_TX             PA28 
+#define UART_RX             PA27 
+#define FLOW_CONTROL_RTS    PA31
+#define FLOW_CONTROL_CTS    PA30
+#define RTS_CHECK_PIN       PA18
 
 #else
 #error This test is not supported on this target

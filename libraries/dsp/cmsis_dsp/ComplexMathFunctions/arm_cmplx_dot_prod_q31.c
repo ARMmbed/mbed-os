@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_cmplx_dot_prod_q31.c    
@@ -76,6 +76,7 @@ void arm_cmplx_dot_prod_q31(
   q63_t * imagResult)
 {
   q63_t real_sum = 0, imag_sum = 0;              /* Temporary result storage */
+  q31_t a0,b0,c0,d0;
 
 #ifndef ARM_MATH_CM0_FAMILY
 
@@ -90,25 +91,48 @@ void arm_cmplx_dot_prod_q31(
    ** a second loop below computes the remaining 1 to 3 samples. */
   while(blkCnt > 0u)
   {
-    /* CReal = A[0]* B[0] + A[2]* B[2] + A[4]* B[4] + .....+ A[numSamples-2]* B[numSamples-2] */
-    /* Convert real data in 2.62 to 16.48 by 14 right shifts */
-    real_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-    /* CImag = A[1]* B[1] + A[3]* B[3] + A[5]* B[5] + .....+ A[numSamples-1]* B[numSamples-1] */
-    /* Convert imag data in 2.62 to 16.48 by 14 right shifts */
-    imag_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += ((q63_t)a0 * c0) >> 14;
+      imag_sum += ((q63_t)a0 * d0) >> 14;
+      real_sum -= ((q63_t)b0 * d0) >> 14;
+      imag_sum += ((q63_t)b0 * c0) >> 14;
+      
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += ((q63_t)a0 * c0) >> 14;
+      imag_sum += ((q63_t)a0 * d0) >> 14;
+      real_sum -= ((q63_t)b0 * d0) >> 14;
+      imag_sum += ((q63_t)b0 * c0) >> 14;
+      
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += ((q63_t)a0 * c0) >> 14;
+      imag_sum += ((q63_t)a0 * d0) >> 14;
+      real_sum -= ((q63_t)b0 * d0) >> 14;
+      imag_sum += ((q63_t)b0 * c0) >> 14;
+      
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += ((q63_t)a0 * c0) >> 14;
+      imag_sum += ((q63_t)a0 * d0) >> 14;
+      real_sum -= ((q63_t)b0 * d0) >> 14;
+      imag_sum += ((q63_t)b0 * c0) >> 14;
 
-    real_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-    imag_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-
-    real_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-    imag_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-
-    real_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-    imag_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-
-
-    /* Decrement the loop counter */
-    blkCnt--;
+      /* Decrement the loop counter */
+      blkCnt--;
   }
 
   /* If the numSamples  is not a multiple of 4, compute any remaining output samples here.    
@@ -117,13 +141,18 @@ void arm_cmplx_dot_prod_q31(
 
   while(blkCnt > 0u)
   {
-    /* CReal = A[0]* B[0] + A[2]* B[2] + A[4]* B[4] + .....+ A[numSamples-2]* B[numSamples-2] */
-    real_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-    /* CImag = A[1]* B[1] + A[3]* B[3] + A[5]* B[5] + .....+ A[numSamples-1]* B[numSamples-1] */
-    imag_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += ((q63_t)a0 * c0) >> 14;
+      imag_sum += ((q63_t)a0 * d0) >> 14;
+      real_sum -= ((q63_t)b0 * d0) >> 14;
+      imag_sum += ((q63_t)b0 * c0) >> 14;
 
-    /* Decrement the loop counter */
-    blkCnt--;
+      /* Decrement the loop counter */
+      blkCnt--;
   }
 
 #else
@@ -132,13 +161,18 @@ void arm_cmplx_dot_prod_q31(
 
   while(numSamples > 0u)
   {
-    /* outReal = realA[0]* realB[0] + realA[2]* realB[2] + realA[4]* realB[4] + .....+ realA[numSamples-2]* realB[numSamples-2] */
-    real_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
-    /* outImag = imagA[1]* imagB[1] + imagA[3]* imagB[3] + imagA[5]* imagB[5] + .....+ imagA[numSamples-1]* imagB[numSamples-1] */
-    imag_sum += (q63_t) * pSrcA++ * (*pSrcB++) >> 14;
+      a0 = *pSrcA++;
+      b0 = *pSrcA++;
+      c0 = *pSrcB++;
+      d0 = *pSrcB++;  
+  
+      real_sum += ((q63_t)a0 * c0) >> 14;
+      imag_sum += ((q63_t)a0 * d0) >> 14;
+      real_sum -= ((q63_t)b0 * d0) >> 14;
+      imag_sum += ((q63_t)b0 * c0) >> 14;
 
-    /* Decrement the loop counter */
-    numSamples--;
+      /* Decrement the loop counter */
+      numSamples--;
   }
 
 #endif /* #ifndef ARM_MATH_CM0_FAMILY */

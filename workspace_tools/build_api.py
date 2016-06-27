@@ -23,8 +23,9 @@ import colorama
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, basename
+from time import time
 
-from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext
+from workspace_tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException
 from workspace_tools.paths import MBED_TARGETS_PATH, MBED_LIBRARIES, MBED_API, MBED_HAL, MBED_COMMON
 from workspace_tools.targets import TARGET_NAMES, TARGET_MAP
 from workspace_tools.libraries import Library
@@ -33,13 +34,55 @@ from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
 
 
+def prep_report(report, target_name, toolchain_name, id_name):
+    # Setup report keys
+    if not target_name in report:
+        report[target_name] = {}
+
+    if not toolchain_name in report[target_name]:
+        report[target_name][toolchain_name] = {}
+
+    if not id_name in report[target_name][toolchain_name]:
+        report[target_name][toolchain_name][id_name] = []
+
+def prep_properties(properties, target_name, toolchain_name, vendor_label):
+    # Setup test properties
+    if not target_name in properties:
+        properties[target_name] = {}
+
+    if not toolchain_name in properties[target_name]:
+        properties[target_name][toolchain_name] = {}
+
+    properties[target_name][toolchain_name]["target"] = target_name
+    properties[target_name][toolchain_name]["vendor"] = vendor_label
+    properties[target_name][toolchain_name]["toolchain"] = toolchain_name
+
+def create_result(target_name, toolchain_name, id_name, description):
+    cur_result = {}
+    cur_result["target_name"] = target_name
+    cur_result["toolchain_name"] = toolchain_name
+    cur_result["id"] = id_name
+    cur_result["description"] = description
+    cur_result["elapsed_time"] = 0
+    cur_result["output"] = ""
+
+    return cur_result
+
+def add_result_to_report(report, result):
+    target = result["target_name"]
+    toolchain = result["toolchain_name"]
+    id_name = result['id']
+    result_wrap = { 0: result }
+    report[target][toolchain][id_name].append(result_wrap)
+
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
-        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None, jobs=1, silent=False):
+        clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None,
+        jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None, extra_verbose=False):
     """ This function builds project. Project can be for example one test / UT
     """
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, notify, macros, silent, extra_verbose=extra_verbose)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
@@ -48,7 +91,6 @@ def build_project(src_path, build_path, target, toolchain_name,
     # We need to remove all paths which are repeated to avoid
     # multiple compilations and linking with the same objects
     src_paths = [src_paths[0]] + list(set(src_paths[1:]))
-
     PROJECT_BASENAME = basename(src_paths[0])
 
     if name is None:
@@ -59,48 +101,95 @@ def build_project(src_path, build_path, target, toolchain_name,
         # User used custom global project name to have the same name for the
         toolchain.info("Building project %s to %s (%s, %s)" % (PROJECT_BASENAME.upper(), name, target.name, toolchain_name))
 
-    # Scan src_path and libraries_paths for resources
-    resources = toolchain.scan_resources(src_paths[0])
-    for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path))
-    if libraries_paths is not None:
-        src_paths.extend(libraries_paths)
-        for path in libraries_paths:
+
+    if report != None:
+        start = time()
+        id_name = project_id.upper()
+        description = project_description
+        vendor_label = target.extra_labels[0]
+        cur_result = None
+        prep_report(report, target.name, toolchain_name, id_name)
+        cur_result = create_result(target.name, toolchain_name, id_name, description)
+
+        if properties != None:
+            prep_properties(properties, target.name, toolchain_name, vendor_label)
+
+    try:
+        # Scan src_path and libraries_paths for resources
+        resources = toolchain.scan_resources(src_paths[0])
+        for path in src_paths[1:]:
             resources.add(toolchain.scan_resources(path))
+        if libraries_paths is not None:
+            src_paths.extend(libraries_paths)
+            for path in libraries_paths:
+                resources.add(toolchain.scan_resources(path))
 
-    if linker_script is not None:
-        resources.linker_script = linker_script
+        if linker_script is not None:
+            resources.linker_script = linker_script
 
-    # Build Directory
-    if clean:
-        if exists(build_path):
-            rmtree(build_path)
-    mkdir(build_path)
+        # Build Directory
+        if clean:
+            if exists(build_path):
+                rmtree(build_path)
+        mkdir(build_path)
 
-    # We need to add if necessary additional include directories
-    if inc_dirs:
-        if type(inc_dirs) == ListType:
-            resources.inc_dirs.extend(inc_dirs)
-        else:
-            resources.inc_dirs.append(inc_dirs)
+        # We need to add if necessary additional include directories
+        if inc_dirs:
+            if type(inc_dirs) == ListType:
+                resources.inc_dirs.extend(inc_dirs)
+            else:
+                resources.inc_dirs.append(inc_dirs)
+        # Compile Sources
+        for path in src_paths:
+            src = toolchain.scan_resources(path)
+            objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
+            resources.objects.extend(objects)
 
-    # Compile Sources
-    for path in src_paths:
-        src = toolchain.scan_resources(path)
-        objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
-        resources.objects.extend(objects)
 
-    # Link Program
-    return toolchain.link_program(resources, build_path, name)
+        # Link Program
+        res, needed_update = toolchain.link_program(resources, build_path, name)
+
+        if report != None and needed_update:
+            end = time()
+            cur_result["elapsed_time"] = end - start
+            cur_result["output"] = toolchain.get_output()
+            cur_result["result"] = "OK"
+
+            add_result_to_report(report, cur_result)
+
+        return res
+
+    except Exception, e:
+        if report != None:
+            end = time()
+
+            if isinstance(e, NotSupportedException):
+                cur_result["result"] = "NOT_SUPPORTED"
+            else:
+                cur_result["result"] = "FAIL"
+
+            cur_result["elapsed_time"] = end - start
+
+            toolchain_output = toolchain.get_output()
+            if toolchain_output:
+                cur_result["output"] += toolchain_output
+
+            cur_result["output"] += str(e)
+
+            add_result_to_report(report, cur_result)
+
+        # Let Exception propagate
+        raise e
 
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False,
-         notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None, jobs=1, silent=False):
+         notify=None, verbose=False, macros=None, inc_dirs=None, inc_dirs_ext=None,
+         jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
     """ src_path: the path of the source directory
     build_path: the path of the build directory
     target: ['LPC1768', 'LPC11U24', 'LPC2368']
-    toolchain: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CS', 'GCC_CR']
+    toolchain: ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
     library_paths: List of paths to additional libraries
     clean: Rebuild everything if True
     notify: Notify function for logs
@@ -111,62 +200,107 @@ def build_library(src_paths, build_path, target, toolchain_name,
     if type(src_paths) != ListType:
         src_paths = [src_paths]
 
-    for src_path in src_paths:
-        if not exists(src_path):
-            raise Exception("The library source folder does not exist: %s", src_path)
-
-    # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent)
-    toolchain.VERBOSE = verbose
-    toolchain.jobs = jobs
-    toolchain.build_all = clean
-
     # The first path will give the name to the library
     name = basename(src_paths[0])
-    toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
-    # Scan Resources
-    resources = []
+    if report != None:
+        start = time()
+        id_name = name.upper()
+        description = name
+        vendor_label = target.extra_labels[0]
+        cur_result = None
+        prep_report(report, target.name, toolchain_name, id_name)
+        cur_result = create_result(target.name, toolchain_name, id_name, description)
+
+        if properties != None:
+            prep_properties(properties, target.name, toolchain_name, vendor_label)
+
     for src_path in src_paths:
-        resources.append(toolchain.scan_resources(src_path))
+        if not exists(src_path):
+            error_msg = "The library source folder does not exist: %s", src_path
 
-    # Add extra include directories / files which are required by library
-    # This files usually are not in the same directory as source files so
-    # previous scan will not include them
-    if inc_dirs_ext is not None:
-        for inc_ext in inc_dirs_ext:
-            resources.append(toolchain.scan_resources(inc_ext))
+            if report != None:
+                cur_result["output"] = error_msg
+                cur_result["result"] = "FAIL"
+                add_result_to_report(report, cur_result)
 
-    # Dependencies Include Paths
-    dependencies_include_dir = []
-    if dependencies_paths is not None:
-        for path in dependencies_paths:
-            lib_resources = toolchain.scan_resources(path)
-            dependencies_include_dir.extend(lib_resources.inc_dirs)
+            raise Exception(error_msg)
 
-    if inc_dirs:
-        dependencies_include_dir.extend(inc_dirs)
+    try:
+        # Toolchain instance
+        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent, extra_verbose=extra_verbose)
+        toolchain.VERBOSE = verbose
+        toolchain.jobs = jobs
+        toolchain.build_all = clean
 
-    # Create the desired build directory structure
-    bin_path = join(build_path, toolchain.obj_path)
-    mkdir(bin_path)
-    tmp_path = join(build_path, '.temp', toolchain.obj_path)
-    mkdir(tmp_path)
+        toolchain.info("Building library %s (%s, %s)" % (name.upper(), target.name, toolchain_name))
 
-    # Copy Headers
-    for resource in resources:
-        toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-    dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+        # Scan Resources
+        resources = []
+        for src_path in src_paths:
+            resources.append(toolchain.scan_resources(src_path))
 
-    # Compile Sources
-    objects = []
-    for resource in resources:
-        objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies_include_dir))
+        # Add extra include directories / files which are required by library
+        # This files usually are not in the same directory as source files so
+        # previous scan will not include them
+        if inc_dirs_ext is not None:
+            for inc_ext in inc_dirs_ext:
+                resources.append(toolchain.scan_resources(inc_ext))
 
-    toolchain.build_library(objects, bin_path, name)
+        # Dependencies Include Paths
+        dependencies_include_dir = []
+        if dependencies_paths is not None:
+            for path in dependencies_paths:
+                lib_resources = toolchain.scan_resources(path)
+                dependencies_include_dir.extend(lib_resources.inc_dirs)
 
+        if inc_dirs:
+            dependencies_include_dir.extend(inc_dirs)
 
-def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False):
+        # Create the desired build directory structure
+        bin_path = join(build_path, toolchain.obj_path)
+        mkdir(bin_path)
+        tmp_path = join(build_path, '.temp', toolchain.obj_path)
+        mkdir(tmp_path)
+
+        # Copy Headers
+        for resource in resources:
+            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+        dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
+
+        # Compile Sources
+        objects = []
+        for resource in resources:
+            objects.extend(toolchain.compile_sources(resource, tmp_path, dependencies_include_dir))
+
+        needed_update = toolchain.build_library(objects, bin_path, name)
+
+        if report != None and needed_update:
+            end = time()
+            cur_result["elapsed_time"] = end - start
+            cur_result["output"] = toolchain.get_output()
+            cur_result["result"] = "OK"
+
+            add_result_to_report(report, cur_result)
+
+    except Exception, e:
+        if report != None:
+            end = time()
+            cur_result["result"] = "FAIL"
+            cur_result["elapsed_time"] = end - start
+
+            toolchain_output = toolchain.get_output()
+            if toolchain_output:
+                cur_result["output"] += toolchain_output
+
+            cur_result["output"] += str(e)
+
+            add_result_to_report(report, cur_result)
+
+        # Let Exception propagate
+        raise e
+
+def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
     """ Wrapper for build_library function.
         Function builds library in proper directory using all dependencies and macros defined by user.
     """
@@ -177,7 +311,7 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
         if macros:
             MACROS.extend(macros)
 
-        build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, options,
+        return build_library(lib.source_dir, lib.build_dir, target, toolchain, lib.dependencies, options,
                       verbose=verbose,
                       silent=silent,
                       clean=clean,
@@ -185,83 +319,135 @@ def build_lib(lib_id, target, toolchain, options=None, verbose=False, clean=Fals
                       notify=notify,
                       inc_dirs=lib.inc_dirs,
                       inc_dirs_ext=lib.inc_dirs_ext,
-                      jobs=jobs)
+                      jobs=jobs,
+                      report=report,
+                      properties=properties,
+                      extra_verbose=extra_verbose)
     else:
         print 'Library "%s" is not yet supported on target %s with toolchain %s' % (lib_id, target.name, toolchain)
+        return False
 
 
 # We do have unique legacy conventions about how we build and package the mbed library
-def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False):
+def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, silent=False, report=None, properties=None, extra_verbose=False):
     """ Function returns True is library was built and false if building was skipped """
+
+    if report != None:
+        start = time()
+        id_name = "MBED"
+        description = "mbed SDK"
+        vendor_label = target.extra_labels[0]
+        cur_result = None
+        prep_report(report, target.name, toolchain_name, id_name)
+        cur_result = create_result(target.name, toolchain_name, id_name, description)
+
+        if properties != None:
+            prep_properties(properties, target.name, toolchain_name, vendor_label)
+
     # Check toolchain support
     if toolchain_name not in target.supported_toolchains:
         supported_toolchains_text = ", ".join(target.supported_toolchains)
         print '%s target is not yet supported by toolchain %s' % (target.name, toolchain_name)
         print '%s target supports %s toolchain%s' % (target.name, supported_toolchains_text, 's' if len(target.supported_toolchains) > 1 else '')
+
+        if report != None:
+            cur_result["result"] = "SKIP"
+            add_result_to_report(report, cur_result)
+
         return False
 
-    # Toolchain
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent)
-    toolchain.VERBOSE = verbose
-    toolchain.jobs = jobs
-    toolchain.build_all = clean
+    try:
+        # Toolchain
+        toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, silent=silent, extra_verbose=extra_verbose)
+        toolchain.VERBOSE = verbose
+        toolchain.jobs = jobs
+        toolchain.build_all = clean
 
-    # Source and Build Paths
-    BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
-    BUILD_TOOLCHAIN = join(BUILD_TARGET, "TOOLCHAIN_" + toolchain.name)
-    mkdir(BUILD_TOOLCHAIN)
+        # Source and Build Paths
+        BUILD_TARGET = join(MBED_LIBRARIES, "TARGET_" + target.name)
+        BUILD_TOOLCHAIN = join(BUILD_TARGET, "TOOLCHAIN_" + toolchain.name)
+        mkdir(BUILD_TOOLCHAIN)
 
-    TMP_PATH = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
-    mkdir(TMP_PATH)
+        TMP_PATH = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
+        mkdir(TMP_PATH)
 
-    # CMSIS
-    toolchain.info("Building library %s (%s, %s)"% ('CMSIS', target.name, toolchain_name))
-    cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
-    resources = toolchain.scan_resources(cmsis_src)
+        # CMSIS
+        toolchain.info("Building library %s (%s, %s)"% ('CMSIS', target.name, toolchain_name))
+        cmsis_src = join(MBED_TARGETS_PATH, "cmsis")
+        resources = toolchain.scan_resources(cmsis_src)
 
-    toolchain.copy_files(resources.headers, BUILD_TARGET)
-    toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
-    toolchain.copy_files(resources.bin_files, BUILD_TOOLCHAIN)
+        toolchain.copy_files(resources.headers, BUILD_TARGET)
+        toolchain.copy_files(resources.linker_script, BUILD_TOOLCHAIN)
+        toolchain.copy_files(resources.bin_files, BUILD_TOOLCHAIN)
 
-    objects = toolchain.compile_sources(resources, TMP_PATH)
-    toolchain.copy_files(objects, BUILD_TOOLCHAIN)
+        objects = toolchain.compile_sources(resources, TMP_PATH)
+        toolchain.copy_files(objects, BUILD_TOOLCHAIN)
 
-    # mbed
-    toolchain.info("Building library %s (%s, %s)" % ('MBED', target.name, toolchain_name))
+        # mbed
+        toolchain.info("Building library %s (%s, %s)" % ('MBED', target.name, toolchain_name))
 
-    # Common Headers
-    toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
-    toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
+        # Common Headers
+        toolchain.copy_files(toolchain.scan_resources(MBED_API).headers, MBED_LIBRARIES)
+        toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers, MBED_LIBRARIES)
 
-    # Target specific sources
-    HAL_SRC = join(MBED_TARGETS_PATH, "hal")
-    hal_implementation = toolchain.scan_resources(HAL_SRC)
-    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, HAL_SRC)
-    incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
-    objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
+        # Target specific sources
+        HAL_SRC = join(MBED_TARGETS_PATH, "hal")
+        hal_implementation = toolchain.scan_resources(HAL_SRC)
+        toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, HAL_SRC)
+        incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
+        objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
-    # Common Sources
-    mbed_resources = toolchain.scan_resources(MBED_COMMON)
-    objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES] + incdirs)
+        # Common Sources
+        mbed_resources = toolchain.scan_resources(MBED_COMMON)
+        objects += toolchain.compile_sources(mbed_resources, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
-    # A number of compiled files need to be copied as objects as opposed to
-    # being part of the mbed library, for reasons that have to do with the way
-    # the linker search for symbols in archives. These are:
-    #   - retarget.o: to make sure that the C standard lib symbols get overridden
-    #   - board.o: mbed_die is weak
-    #   - mbed_overrides.o: this contains platform overrides of various weak SDK functions
-    separate_names, separate_objects = ['retarget.o', 'board.o', 'mbed_overrides.o'], []
-    for o in objects:
-        for name in separate_names:
-            if o.endswith(name):
-                separate_objects.append(o)
-    for o in separate_objects:
-        objects.remove(o)
-    toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
-    for o in separate_objects:
-        toolchain.copy_files(o, BUILD_TOOLCHAIN)
-    return True
+        # A number of compiled files need to be copied as objects as opposed to
+        # being part of the mbed library, for reasons that have to do with the way
+        # the linker search for symbols in archives. These are:
+        #   - retarget.o: to make sure that the C standard lib symbols get overridden
+        #   - board.o: mbed_die is weak
+        #   - mbed_overrides.o: this contains platform overrides of various weak SDK functions
+        separate_names, separate_objects = ['retarget.o', 'board.o', 'mbed_overrides.o'], []
 
+        for o in objects:
+            for name in separate_names:
+                if o.endswith(name):
+                    separate_objects.append(o)
+
+        for o in separate_objects:
+            objects.remove(o)
+
+        needed_update = toolchain.build_library(objects, BUILD_TOOLCHAIN, "mbed")
+
+        for o in separate_objects:
+            toolchain.copy_files(o, BUILD_TOOLCHAIN)
+
+        if report != None and needed_update:
+            end = time()
+            cur_result["elapsed_time"] = end - start
+            cur_result["output"] = toolchain.get_output()
+            cur_result["result"] = "OK"
+
+            add_result_to_report(report, cur_result)
+
+        return True
+
+    except Exception, e:
+        if report != None:
+            end = time()
+            cur_result["result"] = "FAIL"
+            cur_result["elapsed_time"] = end - start
+
+            toolchain_output = toolchain.get_output()
+            if toolchain_output:
+                cur_result["output"] += toolchain_output
+
+            cur_result["output"] += str(e)
+
+            add_result_to_report(report, cur_result)
+
+        # Let Exception propagate
+        raise e
 
 def get_unique_supported_toolchains():
     """ Get list of all unique toolchains supported by targets """
@@ -323,9 +509,9 @@ def get_target_supported_toolchains(target):
     return TARGET_MAP[target].supported_toolchains if target in TARGET_MAP else None
 
 
-def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
+def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, extra_verbose=False):
     # Toolchain
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, extra_verbose=extra_verbose)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
     toolchain.build_all = clean
@@ -436,19 +622,19 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
 
 
 def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd, cppcheck_msg_format,
-                             options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1):
+                             options=None, verbose=False, clean=False, macros=None, notify=None, jobs=1, extra_verbose=False):
     lib = Library(lib_id)
     if lib.is_supported(target, toolchain):
         static_analysis_scan_library(lib.source_dir, lib.build_dir, target, toolchain, cppcheck_cmd, cppcheck_msg_format,
                       lib.dependencies, options,
-                      verbose=verbose, clean=clean, macros=macros, notify=notify, jobs=jobs)
+                      verbose=verbose, clean=clean, macros=macros, notify=notify, jobs=jobs, extra_verbose=extra_verbose)
     else:
         print 'Library "%s" is not yet supported on target %s with toolchain %s'% (lib_id, target.name, toolchain)
 
 
 def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, cppcheck_cmd, cppcheck_msg_format,
          dependencies_paths=None, options=None, name=None, clean=False,
-         notify=None, verbose=False, macros=None, jobs=1):
+         notify=None, verbose=False, macros=None, jobs=1, extra_verbose=False):
     """ Function scans library (or just some set of sources/headers) for staticly detectable defects """
     if type(src_paths) != ListType:
         src_paths = [src_paths]
@@ -458,7 +644,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
             raise Exception("The library source folder does not exist: %s", src_path)
 
     # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify)
+    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, options, macros=macros, notify=notify, extra_verbose=extra_verbose)
     toolchain.VERBOSE = verbose
     toolchain.jobs = jobs
 

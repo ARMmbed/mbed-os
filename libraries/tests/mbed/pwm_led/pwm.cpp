@@ -12,6 +12,7 @@
       defined(TARGET_NUCLEO_F303RE) || \
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F410RB) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
@@ -19,20 +20,24 @@
 #define TEST_LED D3
 
 #elif defined (TARGET_K22F) || \
+      defined(TARGET_KL27Z) || \
       defined (TARGET_LPC824)
 #define TEST_LED LED_GREEN
 
 #elif defined (TARGET_MAXWSNENV)
 #define TEST_LED LED_GREEN
 
-#elif defined (TARGET_DISCO_F407VG) 
+#elif defined (TARGET_DISCO_F407VG)
 #define TEST_LED LED1
 
-#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A)
+#elif defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) || defined(TARGET_SAML21J18A)
 #define TEST_LED LED1
 
+#elif defined(TARGET_SAMG55J19)
+#define TEST_LED PA01 /*LED in board doesnt have PWM functionality*/
+      
 #else
-#error This test is not supported on this target.
+  #error [NOT_SUPPORTED] This test is not supported on this target
 #endif
 
 PwmOut led(TEST_LED);

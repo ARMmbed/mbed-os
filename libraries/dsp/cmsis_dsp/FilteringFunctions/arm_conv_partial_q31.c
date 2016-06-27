@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:		arm_conv_partial_q31.c    
@@ -128,8 +128,8 @@ arm_status arm_conv_partial_q31(
     /* Conditions to check which loopCounter holds    
      * the first and last indices of the output samples to be calculated. */
     check = firstIndex + numPoints;
-    blockSize3 = ((int32_t) check - (int32_t) srcALen);
-    blockSize3 = (blockSize3 > 0) ? blockSize3 : 0;
+    blockSize3 = ((int32_t)check > (int32_t)srcALen) ? (int32_t)check - (int32_t)srcALen : 0;
+    blockSize3 = ((int32_t)firstIndex > (int32_t)srcALen - 1) ? blockSize3 - (int32_t)firstIndex + (int32_t)srcALen : blockSize3;
     blockSize1 = (((int32_t) srcBLen - 1) - (int32_t) firstIndex);
     blockSize1 = (blockSize1 > 0) ? ((check > (srcBLen - 1u)) ? blockSize1 :
                                      (int32_t) numPoints) : 0;
@@ -241,7 +241,14 @@ arm_status arm_conv_partial_q31(
      */
 
     /* Working pointer of inputA */
-    px = pIn1;
+    if((int32_t)firstIndex - (int32_t)srcBLen + 1 > 0)
+    {
+      px = pIn1 + firstIndex - srcBLen + 1;
+    }
+    else
+    {
+      px = pIn1;
+    }
 
     /* Working pointer of inputB */
     pSrc2 = pIn2 + (srcBLen - 1u);

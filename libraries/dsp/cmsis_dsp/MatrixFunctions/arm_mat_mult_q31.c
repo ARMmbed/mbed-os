@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------    
-* Copyright (C) 2010-2013 ARM Limited. All rights reserved.    
+* Copyright (C) 2010-2014 ARM Limited. All rights reserved.    
 *    
-* $Date:        17. January 2013 
-* $Revision: 	V1.4.1
+* $Date:        19. March 2015
+* $Revision: 	V.1.4.5
 *    
 * Project: 	    CMSIS DSP Library    
 * Title:	    arm_mat_mult_q31.c    
@@ -261,7 +261,7 @@ arm_status arm_mat_mult_q31(
         }
 
         /* Convert the result from 2.62 to 1.31 format and store in destination buffer */
-        *px++ = (q31_t) (sum >> 31);
+        *px++ = (q31_t) clip_q63_to_q31(sum >> 31);
 
         /* Decrement the column loop counter */
         col--;

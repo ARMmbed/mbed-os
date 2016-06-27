@@ -140,7 +140,7 @@ void USBEndpoint::queueTransfer()
 
     //Now add this free TD at this end of the queue
     state = USB_TYPE_PROCESSING;
-    td_current->nextTD = td_next;
+    td_current->nextTD = (hcTd*)td_next;
     hced->tailTD = td_next;
 }
 
@@ -158,5 +158,5 @@ void USBEndpoint::unqueueTransfer(volatile HCTD * td)
 void USBEndpoint::queueEndpoint(USBEndpoint * ed)
 {
     nextEp = ed;
-    hced->nextED = (ed == NULL) ? 0 : ed->getHCED();
+    hced->nextED = (ed == NULL) ? 0 : (hcEd*)(ed->getHCED());
 }

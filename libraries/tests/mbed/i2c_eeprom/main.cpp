@@ -24,6 +24,9 @@
 #if defined(TARGET_KL25Z)
 I2C i2c(PTC9, PTC8);
 
+#elif defined(TARGET_KL27Z)
+I2C i2c(PTD6, PTD7);
+
 #elif defined(TARGET_KL46Z)
 I2C i2c(PTC9, PTC8);
 
@@ -57,11 +60,13 @@ I2C i2c(I2C_SDA0, I2C_SCL0);
       defined(TARGET_NUCLEO_F303RE) || \
       defined(TARGET_NUCLEO_F334R8) || \
       defined(TARGET_NUCLEO_F401RE) || \
+      defined(TARGET_NUCLEO_F410RB) || \
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE) || \
-      defined(TARGET_FF_ARDUINO)
+      defined(TARGET_FF_ARDUINO)    || \
+      defined(TARGET_VK_RZ_A1H)
 I2C i2c(I2C_SDA, I2C_SCL);
 
 #else

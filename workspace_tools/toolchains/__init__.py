@@ -26,46 +26,13 @@ from os.path import join, splitext, exists, relpath, dirname, basename, split
 from inspect import getmro
 
 from multiprocessing import Pool, cpu_count
-from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, split_path
+from workspace_tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path
 from workspace_tools.settings import BUILD_OPTIONS, MBED_ORG_USER
 import workspace_tools.hooks as hooks
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
-
-def print_notify(event, silent=False):
-    """ Default command line notification
-    """
-    if event['type'] in ['info', 'debug']:
-        print event['message']
-
-    elif event['type'] == 'cc':
-        event['severity'] = event['severity'].title()
-        event['file'] = basename(event['file'])
-        print '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
-
-    elif event['type'] == 'progress':
-        if not silent:
-            print '%s: %s' % (event['action'].title(), basename(event['file']))
-
-def print_notify_verbose(event, silent=False):
-    """ Default command line notification with more verbose mode
-    """
-    if event['type'] in ['info', 'debug']:
-        print_notify(event) # standard handle
-
-    elif event['type'] == 'cc':
-        event['severity'] = event['severity'].title()
-        event['file'] = basename(event['file'])
-        event['mcu_name'] = "None"
-        event['toolchain'] = "None"
-        event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
-        event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
-        print '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
-
-    elif event['type'] == 'progress':
-        print_notify(event) # standard handle
 
 def compile_worker(job):
     results = []
@@ -186,11 +153,11 @@ class Resources:
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
     'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
-    'ARM', 'GCC_ARM', 'GCC_CR', 'GCC_CS', 'IAR', 'uARM'
+    'ARM', 'GCC_ARM', 'GCC_CR', 'IAR', 'uARM'
 ])
 LEGACY_TOOLCHAIN_NAMES = {
     'ARM_STD':'ARM', 'ARM_MICRO': 'uARM',
-    'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR', 'GCC_CS': 'GCC_CS',
+    'GCC_ARM': 'GCC_ARM', 'GCC_CR': 'GCC_CR',
     'IAR': 'IAR',
 }
 
@@ -213,15 +180,22 @@ class mbedToolchain:
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
     GOANNA_DIAGNOSTIC_PATTERN = re.compile(r'"\[Goanna\] (?P<severity>warning) \[(?P<file>[^:]+):(?P<line>\d+)\] \- (?P<message>.*)"')
 
-    def __init__(self, target, options=None, notify=None, macros=None, silent=False):
+    def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         self.target = target
         self.name = self.__class__.__name__
         self.hook = hooks.Hook(target, self)
         self.silent = silent
+        self.output = ""
 
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
-        self.notify_fun = notify if notify is not None else print_notify
+        if notify:
+            self.notify_fun = notify
+        elif extra_verbose:
+            self.notify_fun = self.print_notify_verbose
+        else:
+            self.notify_fun = self.print_notify
+
         self.options = options if options is not None else []
 
         self.macros = macros or []
@@ -242,6 +216,50 @@ class mbedToolchain:
         self.CHROOT = None
 
         self.mp_pool = None
+
+    def get_output(self):
+        return self.output
+
+    def print_notify(self, event, silent=False):
+        """ Default command line notification
+        """
+        msg = None
+
+        if event['type'] in ['info', 'debug']:
+            msg = event['message']
+
+        elif event['type'] == 'cc':
+            event['severity'] = event['severity'].title()
+            event['file'] = basename(event['file'])
+            msg = '[%(severity)s] %(file)s@%(line)s: %(message)s' % event
+
+        elif event['type'] == 'progress':
+            if not silent:
+                msg = '%s: %s' % (event['action'].title(), basename(event['file']))
+
+        if msg:
+            print msg
+            self.output += msg + "\n"
+
+    def print_notify_verbose(self, event, silent=False):
+        """ Default command line notification with more verbose mode
+        """
+        if event['type'] in ['info', 'debug']:
+            self.print_notify(event) # standard handle
+
+        elif event['type'] == 'cc':
+            event['severity'] = event['severity'].title()
+            event['file'] = basename(event['file'])
+            event['mcu_name'] = "None"
+            event['toolchain'] = "None"
+            event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
+            event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
+            msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
+            print msg
+            self.output += msg + "\n"
+
+        elif event['type'] == 'progress':
+            self.print_notify(event) # standard handle
 
     def notify(self, event):
         """ Little closure for notify functions
@@ -274,7 +292,7 @@ class mbedToolchain:
                 self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
 
             # Symbols defined by the on-line build.system
-            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, '__MBED__=1'])
+            self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, 'TARGET_LIKE_MBED', '__MBED__=1'])
             if MBED_ORG_USER:
                 self.symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
@@ -393,7 +411,7 @@ class mbedToolchain:
 
                 elif ext == '.hex':
                     resources.hex_files.append(file_path)
-                
+
                 elif ext == '.bin':
                     resources.bin_files.append(file_path)
 
@@ -415,6 +433,7 @@ class mbedToolchain:
         return resources
 
     def copy_files(self, files_paths, trg_path, rel_path=None):
+
         # Handle a single file
         if type(files_paths) != ListType: files_paths = [files_paths]
 
@@ -585,6 +604,9 @@ class mbedToolchain:
 
         return None
 
+    def is_not_supported_error(self, output):
+        return "#error directive: [NOT_SUPPORTED]" in output
+
     def compile_output(self, output=[]):
         _rc = output[0]
         _stderr = output[1]
@@ -596,11 +618,16 @@ class mbedToolchain:
         for error_line in _stderr.splitlines():
             self.debug("Output: %s"% error_line)
 
+
         # Check return code
         if _rc != 0:
             for line in _stderr.splitlines():
                 self.tool_error(line)
-            raise ToolException(_stderr)
+
+            if self.is_not_supported_error(_stderr):
+                raise NotSupportedException(_stderr)
+            else:
+                raise ToolException(_stderr)
 
     def compile(self, cc, source, object, includes):
         _, ext = splitext(source)
@@ -625,13 +652,18 @@ class mbedToolchain:
         return self.compile(self.cppc, source, object, includes)
 
     def build_library(self, objects, dir, name):
+        needed_update = False
         lib = self.STD_LIB_NAME % name
         fout = join(dir, lib)
         if self.need_update(fout, objects):
             self.info("Library: %s" % lib)
             self.archive(objects, fout)
+            needed_update = True
+
+        return needed_update
 
     def link_program(self, r, tmp_path, name):
+        needed_update = False
         ext = 'bin'
         if hasattr(self.target, 'OUTPUT_EXT'):
             ext = self.target.OUTPUT_EXT
@@ -647,10 +679,12 @@ class mbedToolchain:
         bin = join(tmp_path, filename)
 
         if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
+            needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
 
         if self.need_update(bin, [elf]):
+            needed_update = True
             self.progress("elf2bin", name)
 
             self.binary(r, elf, bin)
@@ -658,7 +692,7 @@ class mbedToolchain:
         self.var("compile_succeded", True)
         self.var("binary", filename)
 
-        return bin
+        return bin, needed_update
 
     def default_cmd(self, command):
         _stdout, _stderr, _rc = run_cmd(command)
@@ -712,33 +746,26 @@ class mbedToolchain:
         self.notify({'type': 'var', 'key': key, 'val': value})
 
 from workspace_tools.settings import ARM_BIN
-from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH, GCC_CS_PATH, CW_EWL_PATH, CW_GCC_PATH
+from workspace_tools.settings import GCC_ARM_PATH, GCC_CR_PATH
 from workspace_tools.settings import IAR_PATH
 
 TOOLCHAIN_BIN_PATH = {
     'ARM': ARM_BIN,
     'uARM': ARM_BIN,
     'GCC_ARM': GCC_ARM_PATH,
-    'GCC_CS': GCC_CS_PATH,
     'GCC_CR': GCC_CR_PATH,
-    'GCC_CW_EWL': CW_EWL_PATH,
-    'GCC_CW_NEWLIB': CW_GCC_PATH,
     'IAR': IAR_PATH
 }
 
 from workspace_tools.toolchains.arm import ARM_STD, ARM_MICRO
-from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CS, GCC_CR
-from workspace_tools.toolchains.gcc import GCC_CW_EWL, GCC_CW_NEWLIB
+from workspace_tools.toolchains.gcc import GCC_ARM, GCC_CR
 from workspace_tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
     'ARM': ARM_STD,
     'uARM': ARM_MICRO,
     'GCC_ARM': GCC_ARM,
-    'GCC_CS': GCC_CS,
     'GCC_CR': GCC_CR,
-    'GCC_CW_EWL': GCC_CW_EWL,
-    'GCC_CW_NEWLIB': GCC_CW_NEWLIB,
     'IAR': IAR
 }
 

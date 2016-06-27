@@ -1,5 +1,9 @@
 #include "mbed.h"
 
+#if !DEVICE_SEMIHOST
+  #error [NOT_SUPPORTED] Semihost not supported
+#endif
+
 Serial pc(USBTX, USBRX);
 
 extern "C" void mbed_reset();

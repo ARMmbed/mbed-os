@@ -1,5 +1,9 @@
 #include "mbed.h"
 
+#if !DEVICE_SLEEP
+  #error [NOT_SUPPORTED] Sleep is not supported
+#endif
+
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
 Timeout to1;

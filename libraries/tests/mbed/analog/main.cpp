@@ -1,5 +1,13 @@
 #include "test_env.h"
 
+#if !DEVICE_ANALOGIN
+  #error [NOT_SUPPORTED] AnalogIn not supported
+#endif
+
+#if !DEVICE_ANALOGOUT
+  #error [NOT_SUPPORTED] AnalogOut not supported
+#endif
+
 #if defined(TARGET_K64F) | defined (TARGET_K22F)
 AnalogIn in(A0);
 AnalogOut out(DAC0_OUT);
@@ -36,13 +44,18 @@ AnalogOut out(D12); //D12 is P0_12, the DAC output pin
       defined(TARGET_NUCLEO_L073RZ) || \
       defined(TARGET_NUCLEO_L152RE)
 AnalogIn in(A0);
-AnalogOut out(A2); // DAC output
+AnalogOut out(A2);
+
+#elif defined(TARGET_NUCLEO_F746ZG)
+AnalogIn in(A0);
+AnalogOut out(PA_4);
 
 #elif defined(TARGET_ARCH_MAX)
 AnalogIn in(PA_0);
 AnalogOut out(PA_4);
 
-#elif defined(TARGET_DISCO_F407VG)
+#elif defined(TARGET_DISCO_F407VG) || \
+      defined(TARGET_DISCO_F469NI)
 AnalogIn in(PC_5);
 AnalogOut out(PA_4);
 
@@ -54,8 +67,12 @@ AnalogOut out(PA_5);
 AnalogIn in(AIN_7P);
 AnalogOut out(AOUT_DO);
 
-#elif defined(TARGET_SAMD21J18A)
+#elif defined(TARGET_SAMD21J18A) ||  defined(TARGET_SAML21J18A)
 AnalogIn in(PA04);
+AnalogOut out(PA02);
+
+#elif defined(TARGET_SAMD21G18A)
+AnalogIn in(PB02);
 AnalogOut out(PA02);
 
 #else
