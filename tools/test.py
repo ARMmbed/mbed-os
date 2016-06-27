@@ -140,16 +140,16 @@ if __name__ == '__main__':
             library_build_success = False
             try:
                 # Build sources
-                build_library(base_source_paths, options.build_dir, target, options.tool,
-                                                options=options.options,
-                                                jobs=options.jobs,
-                                                clean=options.clean,
-                                                report=build_report,
-                                                properties=build_properties,
-                                                name="mbed-build",
-                                                macros=options.macros,
-                                                verbose=options.verbose,
-                                                archive=False)
+                res = build_library(base_source_paths, options.build_dir, target, options.tool,
+                                    options=options.options,
+                                    jobs=options.jobs,
+                                    clean=options.clean,
+                                    report=build_report,
+                                    properties=build_properties,
+                                    name="mbed-build",
+                                    macros=options.macros,
+                                    verbose=options.verbose,
+                                    archive=False)
                 
                 library_build_success = True
             except ToolException, e:
@@ -174,7 +174,8 @@ if __name__ == '__main__':
                         macros=options.macros,
                         verbose=options.verbose,
                         jobs=options.jobs,
-                        continue_on_build_fail=options.continue_on_build_fail)
+                                                             continue_on_build_fail=options.continue_on_build_fail,
+                                                             resources=res)
                 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:

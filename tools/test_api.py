@@ -2009,9 +2009,9 @@ def print_tests(tests, format="list", sort=True):
         sys.exit(1)
 
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
-        options=None, clean=False, notify=None, verbose=False, jobs=1,
-        macros=None, silent=False, report=None, properties=None,
-        continue_on_build_fail=False):
+                options=None, clean=False, notify=None, verbose=False, jobs=1,
+                macros=None, silent=False, report=None, properties=None,
+                continue_on_build_fail=False, resources=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
     
@@ -2031,7 +2031,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
-        src_path = base_source_paths + [test_path]
+        src_path = [test_path]
         bin_file = None
         try:
             bin_file = build_project(src_path, test_build_path, target, toolchain_name,
@@ -2042,7 +2042,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      name=test_name,
                                      report=report,
                                      properties=properties,
-                                     verbose=verbose)
+                                     verbose=verbose,
+                                     extra_resources=res)
 
         except Exception, e:
             if not isinstance(e, NotSupportedException):

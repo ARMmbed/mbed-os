@@ -131,7 +131,7 @@ def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
         clean=False, notify=None, verbose=False, name=None, macros=None, inc_dirs=None,
         jobs=1, silent=False, report=None, properties=None, project_id=None, project_description=None,
-        extra_verbose=False, config=None):
+                  extra_verbose=False, config=None, extra_resources=None):
     """ This function builds project. Project can be for example one test / UT
     """
 
@@ -191,6 +191,7 @@ def build_project(src_path, build_path, target, toolchain_name,
     try:
         # Scan src_path and libraries_paths for resources
         resources = sum(map(toolchain.scan_resources,src_paths))
+        resources += extra_resources
         if libraries_paths is not None:
             src_paths.extend(libraries_paths)
             for path in libraries_paths:
