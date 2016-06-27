@@ -1,6 +1,5 @@
 test:
     override:
-        - cd ../testproject && mbed deploy
         - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
         - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --tests
         - cd ../testproject && mbed compile -m LPC1768 -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
@@ -10,7 +9,7 @@ dependencies:
     pre:
         - cd ../ && ls
         - cd ../ && git clone https://github.com/ARMmbed/mbed-cli.git
-        - cd ../mbed-cli && pip install -e .
+        - cd ../mbed-cli && sudo pip install -e .
         - cd ../ && mkdir testproject
         - cd ../ && cp -r mbed-os testproject
         - cd ../testproject && git init
@@ -18,4 +17,5 @@ dependencies:
         - sudo apt-get -y update
         - sudo apt-get -y install gcc-arm-none-eabi=4.9.3.2015q3-1precise1
     override:
-        - cd ../testproject/mbed-os && pip install -r requirements.txt
+        - cd ../testproject && mbed deploy
+        - cd ../testproject/mbed-os/core && sudo pip install -r requirements.txt
