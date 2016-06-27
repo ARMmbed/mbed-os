@@ -190,9 +190,7 @@ def build_project(src_path, build_path, target, toolchain_name,
 
     try:
         # Scan src_path and libraries_paths for resources
-        resources = toolchain.scan_resources(src_paths[0])
-        for path in src_paths[1:]:
-            resources.add(toolchain.scan_resources(path))
+        resources = sum(map(toolchain.scan_resources,src_paths))
         if libraries_paths is not None:
             src_paths.extend(libraries_paths)
             for path in libraries_paths:
