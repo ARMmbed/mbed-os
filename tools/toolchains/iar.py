@@ -130,7 +130,7 @@ class IAR(mbedToolchain):
         return ['--preinclude=' + config_header]
 
     def get_compile_options(self, defines, includes, for_asm=False):
-        opts = ['-f', self.get_inc_file(includes)]
+        opts = ['-D%s' % d for d in defines] + ['-f', self.get_inc_file(includes)]
         config_header = self.get_config_header()
         if for_asm:
             # The assembler doesn't support '--preinclude', so we need to add
