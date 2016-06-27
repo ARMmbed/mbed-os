@@ -69,11 +69,11 @@ except ImportError:
 _ENV_PATHS = ['ARM_PATH', 'GCC_ARM_PATH', 'GCC_CR_PATH', 'IAR_PATH']
 
 for _n in _ENV_PATHS:
-    if getenv(_n):
-        if exists(getenv(_n)):
-            globals()[_n] = getenv(_n)
+    if getenv('MBED_'+_n):
+        if exists(getenv('MBED_'+_n)):
+            globals()[_n] = getenv('MBED_'+_n)
         else:
-            print "WARNING: %s set as environment variable but doesn't exist" % _n
+            print "WARNING: MBED_%s set as environment variable but doesn't exist" % _n
 
 
 ##############################################################################
