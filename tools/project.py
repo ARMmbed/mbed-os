@@ -149,7 +149,7 @@ if __name__ == '__main__':
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
             project_dir = options.source_dir
             project_name = n if n else "Unnamed_Project"
-            project_temp = path.join(options.source_dir[0], 'projectfiles', ide)
+            project_temp = path.join(options.source_dir[0], 'projectfiles', '%s_%s' % (ide, mcu))
             mkdir(project_temp)
             lib_symbols = []
             if options.macros:
@@ -213,7 +213,7 @@ if __name__ == '__main__':
         tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
         if report['success']:
             if not zip:
-                zip_path = join(project_temp, "%s_%s" % (project_name, mcu))
+                zip_path = join(project_temp, project_name)
             else:
                 zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
                 move(tmp_path, zip_path)
