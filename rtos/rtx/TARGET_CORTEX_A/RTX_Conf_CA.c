@@ -74,7 +74,7 @@
 //   <i> Defines stack size for main thread.
 //   <i> Default: 200
 #ifndef OS_MAINSTKSIZE
- #define OS_MAINSTKSIZE 2048
+ #define OS_MAINSTKSIZE 4096
 #endif
 
 #ifndef __MBED_CMSIS_RTOS_CA9
