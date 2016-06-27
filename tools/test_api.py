@@ -2011,7 +2011,7 @@ def print_tests(tests, format="list", sort=True):
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 options=None, clean=False, notify=None, verbose=False, jobs=1,
                 macros=None, silent=False, report=None, properties=None,
-                continue_on_build_fail=False, resources=None):
+                continue_on_build_fail=False, extra_resources=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
     
@@ -2043,7 +2043,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                                      report=report,
                                      properties=properties,
                                      verbose=verbose,
-                                     extra_resources=res)
+                                     extra_resources=extra_resources)
 
         except Exception, e:
             if not isinstance(e, NotSupportedException):

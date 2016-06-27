@@ -167,15 +167,15 @@ if __name__ == '__main__':
             else:
                 # Build all the tests
                 test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, target, options.tool,
-                        options=options.options,
-                        clean=options.clean,
-                        report=build_report,
-                        properties=build_properties,
-                        macros=options.macros,
-                        verbose=options.verbose,
-                        jobs=options.jobs,
+                                                             options=options.options,
+                                                             clean=options.clean,
+                                                             report=build_report,
+                                                             properties=build_properties,
+                                                             macros=options.macros,
+                                                             verbose=options.verbose,
+                                                             jobs=options.jobs,
                                                              continue_on_build_fail=options.continue_on_build_fail,
-                                                             resources=res)
+                                                             extra_resources=res)
                 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
