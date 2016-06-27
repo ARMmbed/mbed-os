@@ -103,7 +103,7 @@ Case cases[] = {
     Case("Testing serial threads with wait", test_serial_threads<10, increment_with_wait>),
 
     Case("Testing single thread with child", test_single_thread<increment_with_child>),
-    Case("Testing parallel threads with child", test_parallel_threads<3, increment_with_child>),
+    Case("Testing parallel threads with child", test_parallel_threads<2, increment_with_child>),
     Case("Testing serial threads with child", test_serial_threads<10, increment_with_child>),
 
     Case("Testing single thread with murder", test_single_thread<increment_with_murder>),
