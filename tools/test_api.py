@@ -2008,6 +2008,14 @@ def print_tests(tests, format="list", sort=True):
         print "Unknown format '%s'" % format
         sys.exit(1)
 
+def test_case_folder_name_from_path(test_path):
+    """Given the path to a test, this returns the name of the test case folder,
+    Ex. if test_path is TESTS/test_group/test_case, then test_case would
+    be returned"""
+    
+    _, test_case_folder_name = os.path.split(test_path)
+    return test_case_folder_name
+
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
         macros=None, silent=False, report=None, properties=None,
@@ -2033,13 +2041,16 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
         bin_file = None
+        test_case_folder_name = test_case_folder_name_from_path(test_path)
+        
+        
         try:
             bin_file = build_project(src_path, test_build_path, target, toolchain_name,
                                      options=options,
                                      jobs=jobs,
                                      clean=clean,
                                      macros=macros,
-                                     name=test_name,
+                                     name=test_case_folder_name,
                                      report=report,
                                      properties=properties,
                                      verbose=verbose)
