@@ -107,26 +107,12 @@ class Resources:
         else:
             return self.add(resources)
 
-    def add(self, resources):
-        for f,p in resources.file_basepath.items():
-            self.file_basepath[f] = p
-
+    def add_not_source(self, resources):
         self.inc_dirs += resources.inc_dirs
         self.headers += resources.headers
 
-        self.s_sources += resources.s_sources
-        self.c_sources += resources.c_sources
-        self.cpp_sources += resources.cpp_sources
-
-        self.lib_dirs |= resources.lib_dirs
         self.objects += resources.objects
         self.libraries += resources.libraries
-
-        self.lib_builds += resources.lib_builds
-        self.lib_refs += resources.lib_refs
-
-        self.repo_dirs += resources.repo_dirs
-        self.repo_files += resources.repo_files
 
         if resources.linker_script is not None:
             self.linker_script = resources.linker_script
@@ -134,6 +120,24 @@ class Resources:
         self.hex_files += resources.hex_files
         self.bin_files += resources.bin_files
         self.json_files += resources.json_files
+
+
+    def add(self, resources):
+        self.add_not_source(resources)
+
+        self.s_sources += resources.s_sources
+        self.c_sources += resources.c_sources
+        self.cpp_sources += resources.cpp_sources
+
+        self.repo_dirs += resources.repo_dirs
+        self.repo_files += resources.repo_files
+
+        self.lib_dirs |= resources.lib_dirs
+        self.lib_builds += resources.lib_builds
+        self.lib_refs += resources.lib_refs
+
+        for f,p in resources.file_basepath.items():
+            self.file_basepath[f] = p
 
         self.features.update(resources.features)
 

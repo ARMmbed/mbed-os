@@ -191,13 +191,7 @@ def build_project(src_path, build_path, target, toolchain_name,
     try:
         # Scan src_path and libraries_paths for resources
         resources = sum(map(toolchain.scan_resources,src_paths), None)
-        resources.objects.extend(extra_resources.objects)
-        resources.inc_dirs.extend(extra_resources.inc_dirs)
-        resources.headers.extend(extra_resources.headers)
-        resources.libraries.extend(extra_resources.libraries)
-        resources.hex_files.extend(extra_resources.hex_files)
-        resources.bin_files.extend(extra_resources.bin_files)
-        resources.json_files.extend(extra_resources.json_files)
+        resources.add_not_source(extra_resources)
         if libraries_paths is not None:
             src_paths.extend(libraries_paths)
             for path in libraries_paths:
@@ -205,8 +199,6 @@ def build_project(src_path, build_path, target, toolchain_name,
 
         if linker_script is not None:
             resources.linker_script = linker_script
-        elif extra_resources:
-            resources.linker_script = extra_resources.linker_script
 
         # Build Directory
         if clean:
