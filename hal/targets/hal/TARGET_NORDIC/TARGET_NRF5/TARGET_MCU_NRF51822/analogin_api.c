@@ -58,7 +58,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
 uint16_t analogin_read_u16(analogin_t *obj)
 {
-    nrf_adc_value_t adc_value = 0xFFFF;
+    nrf_adc_value_t adc_value;
        
     nrf_drv_adc_channel_t adc_channel = NRF_DRV_ADC_DEFAULT_CHANNEL(obj->adc_pin);
     
