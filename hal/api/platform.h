@@ -21,6 +21,7 @@
 #include "device.h"
 #include "PinNames.h"
 #include "PeripheralNames.h"
+#include "critical.h"
 
 #include <cstddef>
 #include <cstdlib>
@@ -53,5 +54,56 @@ public:
 };
 
 #endif
+
+/** The static version of a PlatformMutex
+ *
+ * This class must only be used in a static context -
+ * this class must never be allocated or created on the
+ * stack.
+ *
+ * This class is lazily initialized on first use.
+ * This class is a POD type so if it is not used it will
+ * be garbage collected.
+ */
+struct PlatformMutexStatic {
+    PlatformMutex* _mutex;
+
+    void _init() {
+        PlatformMutex* current = _mutex;
+        PlatformMutex* new_mutex;
+
+        if (NULL == current) {
+            bool done = false;
+            new_mutex = new PlatformMutex;
+            while (!done) {
+                done = core_util_atomic_cas_ptr((void**)&_mutex, (void**)&current, (void*)new_mutex);
+                if (current != NULL) {
+                    // Mutex was created on another thread first
+                    // so delete ours
+                    delete new_mutex;
+                    break;
+                }
+            }
+        }
+    }
+
+    /** Wait until this Mutex becomes available.
+     */
+    void lock() {
+        if (NULL == _mutex) {
+            _init();
+        }
+        _mutex->lock();
+    }
+
+    /** Unlock the mutex that has previously been locked by the same thread
+     */
+    void unlock() {
+        if (NULL == _mutex) {
+            _init();
+        }
+        _mutex->unlock();
+    }
+};
 
 #endif

@@ -65,7 +65,7 @@ public:
     /* disallow copy constructor and assignment operators */
 private:
     static FileBase *_head;
-    static PlatformMutex _mutex;
+    static PlatformMutexStatic _mutex;
 
     FileBase   *_next;
     const char * const _name;

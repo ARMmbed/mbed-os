@@ -22,7 +22,7 @@
 
 namespace mbed {
 
-PlatformMutex AnalogIn::_mutex;
+PlatformMutexStatic AnalogIn::_mutex;
 
 };
 

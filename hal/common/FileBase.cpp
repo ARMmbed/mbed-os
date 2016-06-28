@@ -18,7 +18,7 @@
 namespace mbed {
 
 FileBase *FileBase::_head = NULL;
-PlatformMutex FileBase::_mutex;
+PlatformMutexStatic FileBase::_mutex;
 
 FileBase::FileBase(const char *name, PathType t) : _next(NULL),
                                                    _name(name),

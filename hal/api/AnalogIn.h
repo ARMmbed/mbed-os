@@ -118,7 +118,7 @@ protected:
     }
 
     analogin_t _adc;
-    static PlatformMutex _mutex;
+    static PlatformMutexStatic _mutex;
 };
 
 } // namespace mbed
