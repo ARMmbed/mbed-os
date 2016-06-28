@@ -657,7 +657,7 @@ TESTS = [
         "id": "MBED_39", "description": "Serial Complete",
         "source_dir": join(TEST_DIR, "mbed", "serial_complete"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
-        "automated": True
+        "automated": False
     },
 
     # CMSIS RTOS tests
