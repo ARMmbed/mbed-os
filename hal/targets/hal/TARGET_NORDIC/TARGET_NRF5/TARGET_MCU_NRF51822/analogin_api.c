@@ -12,17 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 #include "mbed_assert.h"
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "nrf_drv_adc.h"
 
 #ifdef DEVICE_ANALOGIN
 
-#define ANALOGIN_MEDIAN_FILTER      1
-#define ADC_10BIT_RANGE             0x3FF
-#define ADC_RANGE    ADC_10BIT_RANGE
+
+#define ADC_10BIT_RANGE  0x3FF
+#define ADC_RANGE        ADC_10BIT_RANGE
 
 static const PinMap PinMap_ADC[] = {
     {p1, ADC0_0, 4},
@@ -38,47 +39,42 @@ static const PinMap PinMap_ADC[] = {
     {NC, NC, 0}
 };
 
+
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    int analogInputPin = 0;
-    const PinMap *map  = PinMap_ADC;
-
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC); //(NRF_ADC_Type *)
+    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
 
-    while (map->pin != NC) {
-        if (map->pin == pin) {
-            analogInputPin = map->function;
-            break;
-        }
-        map++;
-    }
-    obj->adc_pin = (uint8_t)analogInputPin;
-
-    NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled;
-    NRF_ADC->CONFIG = (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos) |
-                      (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) |
-                      (ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling << ADC_CONFIG_REFSEL_Pos) |
-                      (analogInputPin << ADC_CONFIG_PSEL_Pos) |
-                      (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);
+    uint32_t pinFunc = pinmap_function(pin, PinMap_ADC);
+    MBED_ASSERT(pinFunc != (uint32_t)NC);
+    
+    obj->adc_pin =  pinFunc;
+    
+    ret_code_t ret_code;
+                                              // p_config, event_handler
+    ret_code = nrf_drv_adc_init(NULL , NULL); // select blocking mode
+    MBED_ASSERT(ret_code == NRF_SUCCESS);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
 {
-    NRF_ADC->CONFIG     &= ~ADC_CONFIG_PSEL_Msk;
-    NRF_ADC->CONFIG     |= obj->adc_pin << ADC_CONFIG_PSEL_Pos;
-    NRF_ADC->EVENTS_END  = 0;
-    NRF_ADC->TASKS_START = 1;
+    nrf_adc_value_t adc_value;
+       
+    nrf_drv_adc_channel_t adc_channel = NRF_DRV_ADC_DEFAULT_CHANNEL(obj->adc_pin);
+    
 
-    while (!NRF_ADC->EVENTS_END) {
-    }
-
-    return (uint16_t)NRF_ADC->RESULT; // 10 bit
+    ret_code_t ret_code;
+    
+    ret_code = nrf_drv_adc_sample_convert( &adc_channel, &adc_value);
+    MBED_ASSERT(ret_code == NRF_SUCCESS);
+    
+    return adc_value;
 }
 
 float analogin_read(analogin_t *obj)
 {
     uint16_t value = analogin_read_u16(obj);
+
     return (float)value * (1.0f / (float)ADC_RANGE);
 }
 
