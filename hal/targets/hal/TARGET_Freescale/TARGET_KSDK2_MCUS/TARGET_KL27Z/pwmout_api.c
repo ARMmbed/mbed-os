@@ -34,6 +34,9 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
     obj->pwm_name = pwm;
 
     uint32_t pwm_base_clock;
+
+    /* Set the TPM clock source to be IRC 48M */
+    CLOCK_SetTpmClock(1U);
     pwm_base_clock = CLOCK_GetFreq(kCLOCK_McgIrc48MClk);
     float clkval = (float)pwm_base_clock / 1000000.0f;
     uint32_t clkdiv = 0;
