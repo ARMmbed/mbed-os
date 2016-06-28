@@ -27,7 +27,7 @@
 #
 
 # Set the mbed TLS release to import (this can/should be edited before import)
-MBED_TLS_RELEASE ?= mbedtls-2.2.1
+MBED_TLS_RELEASE ?= mbedtls-2.3.0
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
@@ -35,7 +35,7 @@ TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
-MBED_TLS_URL:=https://github.com/ARMmbed/mbedtls.git
+MBED_TLS_URL:=https://github.com/ARMmbed/mbedtls-restricted.git
 MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
@@ -79,7 +79,7 @@ update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	git -C $(MBED_TLS_DIR) checkout $(MBED_TLS_RELEASE)
 	#
 	# Updating checked out version tag
-	git -C $(MBED_TLS_DIR) describe --tags --abbrev=40 --dirty > $(TARGET_PREFIX)VERSION.txt
+	echo $(MBED_TLS_RELEASE) > $(TARGET_PREFIX)VERSION.txt
 
 $(MBED_TLS_GIT_CFG):
 	rm -rf $(MBED_TLS_DIR)
