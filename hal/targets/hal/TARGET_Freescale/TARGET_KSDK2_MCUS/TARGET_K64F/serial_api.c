@@ -98,6 +98,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         temp |= (UART_C1_PE_MASK | UART_C1_M_MASK);
         if (parity == ParityOdd) {
             temp |= UART_C1_PT_MASK;
+        } else if (parity == ParityEven) {
+            // PT=0 so nothing more to do  
         } else {
             // Hardware does not support forced parity
             MBED_ASSERT(0);
