@@ -69,6 +69,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->pin = pin;
     obj->period = 0;
     obj->pulse = 0;
+    obj->prescaler = 1;
 
     pwmout_period_us(obj, 20000); // 20 ms per default
 }
@@ -188,11 +189,11 @@ void pwmout_period_us(pwmout_t* obj, int us)
         error("Cannot initialize PWM");
     }
 
-    // Set duty cycle again
-    pwmout_write(obj, dc);
-
     // Save for future use
     obj->period = us;
+
+    // Set duty cycle again
+    pwmout_write(obj, dc);
 
     __HAL_TIM_ENABLE(&TimHandle);
 }
