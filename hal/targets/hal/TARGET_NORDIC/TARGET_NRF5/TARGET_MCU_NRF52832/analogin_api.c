@@ -17,69 +17,61 @@
 #include "analogin_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "app_util_platform.h"
+#include "nrf_drv_saadc.h"
 
 #ifdef DEVICE_ANALOGIN
 
-#define ANALOGIN_MEDIAN_FILTER      1
-#define ADC_10BIT_RANGE             0x3FF
-#define ADC_RANGE    ADC_10BIT_RANGE
+#define ADC_12BIT_RANGE 0xFFF
+#define ADC_RANGE       ADC_12BIT_RANGE
 
-static const PinMap PinMap_ADC[] = {
-    {p1, ADC0_0, 4},
-    {p2, ADC0_0, 8},
-    {p3, ADC0_0, 16},
-    {p4, ADC0_0, 32},
-    {p5, ADC0_0, 64},
-    {p6, ADC0_0, 128},
-    {NC, NC, 0}
+void analog_in_event_handler(nrf_drv_saadc_evt_t const *p_event)// type of nrf_drv_saadc_event_handler_t 
+{
+    (void) p_event;
+}
+
+const nrf_drv_saadc_config_t saadc_config = 
+{
+    .resolution         = NRF_SAADC_RESOLUTION_12BIT,
+    .oversample         = NRF_SAADC_OVERSAMPLE_DISABLED,
+    .interrupt_priority = APP_IRQ_PRIORITY_LOW
 };
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    // TODO: usage on nrf52 ?
-#if 0
-    int analogInputPin = 0;
-    const PinMap *map  = PinMap_ADC;
-
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC); //(NRF_ADC_Type *)
-    MBED_ASSERT(obj->adc != (ADCName)NC);
-
-    while (map->pin != NC) {
-        if (map->pin == pin) {
-            analogInputPin = map->function;
-            break;
-        }
-        map++;
-    }
-    obj->adc_pin = (uint8_t)analogInputPin;
-
-    NRF_ADC->ENABLE = ADC_ENABLE_ENABLE_Enabled;
-    NRF_ADC->CONFIG = (ADC_CONFIG_RES_10bit << ADC_CONFIG_RES_Pos) |
-                      (ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling << ADC_CONFIG_INPSEL_Pos) |
-                      (ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling << ADC_CONFIG_REFSEL_Pos) |
-                      (analogInputPin << ADC_CONFIG_PSEL_Pos) |
-                      (ADC_CONFIG_EXTREFSEL_None << ADC_CONFIG_EXTREFSEL_Pos);
-#endif
+    /// @todo check if initialized
+    ret_code_t ret_code;
+    
+    ret_code = nrf_drv_saadc_init(&saadc_config, analog_in_event_handler);
+    MBED_ASSERT(((ret_code == NRF_SUCCESS) || (ret_code == NRF_ERROR_INVALID_STATE))); //NRF_ERROR_INVALID_STATE expected for multiple channels used.
+    
+    uint8_t saadcIn = nrf_drv_saadc_gpio_to_ain(pin);
+    MBED_ASSERT(saadcIn != NRF_SAADC_INPUT_DISABLED);
+    
+    obj->adc     = ADC0_0; // only one instance of ADC in nRF52 SoC
+    obj->adc_pin = saadcIn  - 1;
+    
+    nrf_saadc_channel_config_t channel_config =
+            NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(saadcIn);
+    
+    ret_code = nrf_drv_saadc_channel_init(obj->adc_pin, &channel_config);
+    MBED_ASSERT(ret_code == NRF_SUCCESS);
 }
 
-uint16_t analogin_read_u16(analogin_t *obj)
+int16_t analogin_read_i16(analogin_t *obj)
 {
-    // TODO: usage on nrf52 ?
-#if 0
-    NRF_ADC->CONFIG     &= ~ADC_CONFIG_PSEL_Msk;
-    NRF_ADC->CONFIG     |= obj->adc_pin << ADC_CONFIG_PSEL_Pos;
-    NRF_ADC->TASKS_START = 1;
-    while (((NRF_ADC->BUSY & ADC_BUSY_BUSY_Msk) >> ADC_BUSY_BUSY_Pos) == ADC_BUSY_BUSY_Busy) {
-    }
-
-    return (uint16_t)NRF_ADC->RESULT; // 10 bit
-#endif
-    return 0;
+    nrf_saadc_value_t adc_value;
+    ret_code_t ret_code;
+    
+    ret_code = nrf_drv_saadc_sample_convert(obj->adc_pin, &adc_value);
+    MBED_ASSERT(ret_code == NRF_SUCCESS);
+    
+    return adc_value;
 }
 
 float analogin_read(analogin_t *obj)
 {
-    uint16_t value = analogin_read_u16(obj);
+    int16_t value = analogin_read_i16(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }
 
