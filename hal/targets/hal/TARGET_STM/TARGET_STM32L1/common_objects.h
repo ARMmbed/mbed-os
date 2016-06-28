@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#ifndef MBED_COMMON_OBJECTS_H
+#define MBED_COMMON_OBJECTS_H
 
 #include "cmsis.h"
 #include "PortNames.h"
@@ -39,62 +39,13 @@
 extern "C" {
 #endif
 
-struct gpio_irq_s {
-    IRQn_Type irq_n;
-    uint32_t irq_index;
-    uint32_t event;
+struct pwmout_s {
+    PWMName pwm;
     PinName pin;
+    uint32_t period;
+    uint32_t pulse;
 };
 
-struct port_s {
-    PortName port;
-    uint32_t mask;
-    PinDirection direction;
-    __IO uint32_t *reg_in;
-    __IO uint32_t *reg_out;
-};
-
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-};
-
-struct dac_s {
-    DACName dac;
-    PinName pin;
-};
-
-struct serial_s {
-    UARTName uart;
-    int index; // Used by irq
-    uint32_t baudrate;
-    uint32_t databits;
-    uint32_t stopbits;
-    uint32_t parity;
-    PinName  pin_tx;
-    PinName  pin_rx;
-};
-
-struct spi_s {
-    SPIName spi;
-    uint32_t bits;
-    uint32_t cpol;
-    uint32_t cpha;
-    uint32_t mode;
-    uint32_t nss;
-    uint32_t br_presc;
-    PinName  pin_miso;
-    PinName  pin_mosi;
-    PinName  pin_sclk;
-    PinName  pin_ssel;
-};
-
-struct i2c_s {
-    I2CName  i2c;
-    uint32_t slave;
-};
-
-#include "common_objects.h"
 #include "gpio_object.h"
 
 #ifdef __cplusplus
@@ -102,3 +53,4 @@ struct i2c_s {
 #endif
 
 #endif
+
