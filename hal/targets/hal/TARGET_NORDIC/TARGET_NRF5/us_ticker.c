@@ -30,35 +30,35 @@ uint32_t volatile m_common_rtc_overflows = 0;
 #if defined(TARGET_MCU_NRF51822)
 void common_rtc_irq_handler(void)
 #else
-void RTC1_IRQHandler(void)
+void COMMON_RTC_IRQ_HANDLER(void)
 #endif
 {
     nrf_rtc_event_t event;
     uint32_t int_mask;
 
-    event = NRF_RTC_EVENT_COMPARE_0;
-    int_mask = NRF_RTC_INT_COMPARE0_MASK;
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event))
-    {
+    event = US_TICKER_EVENT;
+    int_mask = US_TICKER_INT_MASK;
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event)) {
         nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
         nrf_rtc_event_disable(COMMON_RTC_INSTANCE, int_mask);
+
         us_ticker_irq_handler();
     }
 
 #if DEVICE_LOWPOWERTIMER
-    event = NRF_RTC_EVENT_COMPARE_2;
-    int_mask = NRF_RTC_INT_COMPARE2_MASK;
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event))
-    {
+    event = LP_TICKER_EVENT;
+    int_mask = LP_TICKER_INT_MASK;
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event)) {
         nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
         nrf_rtc_event_disable(COMMON_RTC_INSTANCE, int_mask);
     }
 #endif
 
     event = NRF_RTC_EVENT_OVERFLOW;
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event))
-    {
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event)) {
         nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
+        // Don't disable this event. It shall occur periodically.
+
         ++m_common_rtc_overflows;
     }
 }
@@ -76,17 +76,40 @@ void common_rtc_init(void)
 
     nrf_rtc_prescaler_set(COMMON_RTC_INSTANCE, 0);
 
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, US_TICKER_EVENT);
+#if defined(TARGET_MCU_NRF51822)
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, OS_TICK_EVENT);
+#endif
+#if DEVICE_LOWPOWERTIMER
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
+#endif
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
-    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
+
+    // Interrupts on all related events are enabled permanently. Particular
+    // events will be enabled or disabled as needed (such approach is more
+    // energy efficient).
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
-        NRF_RTC_INT_COMPARE0_MASK |
     #if defined(TARGET_MCU_NRF51822)
-        NRF_RTC_INT_COMPARE1_MASK |
+        OS_TICK_INT_MASK |
     #endif
     #if DEVICE_LOWPOWERTIMER
-        NRF_RTC_INT_COMPARE2_MASK |
+        LP_TICKER_INT_MASK |
     #endif
+        US_TICKER_INT_MASK |
         NRF_RTC_INT_OVERFLOW_MASK);
+
+    // This event is enabled permanently, since overflow indications are needed
+    // continuously.
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
+    // All other relevant events are initially disabled.
+    nrf_rtc_event_disable(COMMON_RTC_INSTANCE,
+    #if defined(TARGET_MCU_NRF51822)
+        OS_TICK_INT_MASK |
+    #endif
+    #if DEVICE_LOWPOWERTIMER
+        LP_TICKER_INT_MASK |
+    #endif
+        US_TICKER_INT_MASK);
 
     nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
         APP_IRQ_PRIORITY_LOW);
@@ -161,13 +184,12 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     nrf_rtc_cc_set(COMMON_RTC_INSTANCE, US_TICKER_CC_CHANNEL,
         RTC_WRAP(compare_value));
-    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_COMPARE_0);
-    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_COMPARE0_MASK);
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, US_TICKER_INT_MASK);
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    nrf_rtc_event_disable(COMMON_RTC_INSTANCE, NRF_RTC_INT_COMPARE0_MASK);
+    nrf_rtc_event_disable(COMMON_RTC_INSTANCE, US_TICKER_INT_MASK);
 }
 
 void us_ticker_clear_interrupt(void)
