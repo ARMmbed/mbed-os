@@ -3,55 +3,64 @@
 #include "unity.h"
 #include "utest.h"
 #include "rtos.h"
+#include "SynchronizedIntegral.h"
+#include "LockGuard.h"
 
 
 using namespace utest::v1;
 
+// The counter type used accross all the tests
+// It is internall ysynchronized so read
+typedef SynchronizedIntegral<int> counter_t;
 
 // Tasks with different functions to test on threads
-void increment(const void *var) {
-    (*(int *)var)++;
+void increment(counter_t* counter) {
+    (*counter)++;
 }
 
-void increment_with_yield(const void *var) {
+void increment_with_yield(counter_t* counter) {
     Thread::yield();
-    (*(int *)var)++;
+    (*counter)++;
 }
 
-void increment_with_wait(const void *var) {
+void increment_with_wait(counter_t* counter) {
     Thread::wait(100);
-    (*(int *)var)++;
+    (*counter)++;
 }
 
-void increment_with_child(const void *var) {
-    Thread child(increment, (void*)var);
+void increment_with_child(counter_t* counter) {
+    Thread child(counter, increment);
     child.join();
 }
 
-void increment_with_murder(const void *var) {
-    Thread child(increment_with_wait, (void*)var);
-    // Kill child before it can increment var
-    child.terminate();
-    (*(int *)var)++;
-}
+void increment_with_murder(counter_t* counter) {
+    {
+        // take ownership of the counter mutex so it prevent the child to
+        // modify counter.
+        LockGuard lock(counter->internal_mutex());
+        Thread child(counter, increment);
+        child.terminate();
+    }
 
+    (*counter)++;
+}
 
 // Tests that spawn tasks in different configurations
-template <void (*F)(const void *)>
+template <void (*F)(counter_t *)>
 void test_single_thread() {
-    int var = 0;
-    Thread thread(F, &var);
+    counter_t counter(0);
+    Thread thread(&counter, F);
     thread.join();
-    TEST_ASSERT_EQUAL(var, 1);
+    TEST_ASSERT_EQUAL(counter, 1);
 }
 
-template <int N, void (*F)(const void *)>
+template <int N, void (*F)(counter_t *)>
 void test_parallel_threads() {
-    int var = 0;
+    counter_t counter(0);
     Thread *threads[N];
 
     for (int i = 0; i < N; i++) {
-        threads[i] = new Thread(F, &var);
+        threads[i] = new Thread(&counter, F);
     }
 
     for (int i = 0; i < N; i++) {
@@ -59,21 +68,20 @@ void test_parallel_threads() {
         delete threads[i];
     }
 
-    TEST_ASSERT_EQUAL(var, N);
+    TEST_ASSERT_EQUAL(counter, N);
 }
 
-template <int N, void (*F)(const void *)>
+template <int N, void (*F)(counter_t *)>
 void test_serial_threads() {
-    int var = 0;
+    counter_t counter(0);
 
     for (int i = 0; i < N; i++) {
-        Thread thread(F, &var);
+        Thread thread(&counter, F);
         thread.join();
     }
 
-    TEST_ASSERT_EQUAL(var, N);
+    TEST_ASSERT_EQUAL(counter, N);
 }
-    
 
 utest::v1::status_t test_setup(const size_t number_of_cases) {
     GREENTEA_SETUP(40, "default_auto");
@@ -93,7 +101,7 @@ Case cases[] = {
     Case("Testing single thread with wait", test_single_thread<increment_with_wait>),
     Case("Testing parallel threads with wait", test_parallel_threads<3, increment_with_wait>),
     Case("Testing serial threads with wait", test_serial_threads<10, increment_with_wait>),
-    
+
     Case("Testing single thread with child", test_single_thread<increment_with_child>),
     Case("Testing parallel threads with child", test_parallel_threads<3, increment_with_child>),
     Case("Testing serial threads with child", test_serial_threads<10, increment_with_child>),
