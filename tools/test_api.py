@@ -46,6 +46,7 @@ from tools.paths import HOST_TESTS
 from tools.utils import ToolException
 from tools.utils import NotSupportedException
 from tools.utils import construct_enum
+from tools.memap import MemapParser
 from tools.targets import TARGET_MAP
 from tools.test_db import BaseDBAccess
 from tools.build_api import build_project, build_mbed_libs, build_lib
@@ -1970,12 +1971,12 @@ def test_path_to_name(path):
     while (tail and tail != "."):
         name_parts.insert(0, tail)
         head, tail = os.path.split(head)
-    
+
     return "-".join(name_parts).lower()
 
 def find_tests(base_dir):
     """Given any directory, walk through the subdirectories and find all tests"""
-    
+
     def find_test_in_directory(directory, tests_path):
         """Given a 'TESTS' directory, return a dictionary of test names and test paths.
         The formate of the dictionary is {"test-name": "./path/to/test"}"""
@@ -1989,20 +1990,20 @@ def find_tests(base_dir):
                         "name": test_path_to_name(directory),
                         "path": directory
                     }
-        
+
         return test
 
     tests_path = 'TESTS'
     tests = {}
     dirs = scan_for_source_paths(base_dir)
-    
+
     for directory in dirs:
         test = find_test_in_directory(directory, tests_path)
         if test:
             tests[test['name']] = test['path']
-    
+
     return tests
-    
+
 def print_tests(tests, format="list", sort=True):
     """Given a dictionary of tests (as returned from "find_tests"), print them
     in the specified format"""
@@ -2033,12 +2034,11 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         continue_on_build_fail=False):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
-    
+
     Returns a tuple of the build result (True or False) followed by the test
     build data structure"""
-    
-    execution_directory = "."
 
+    execution_directory = "."
     base_path = norm_relative_path(build_path, execution_directory)
 
     target_name = target if isinstance(target, str) else target.name
@@ -2051,9 +2051,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         "binary_type": "bootable",
         "tests": {}
     }
-    
+
     result = True
-    
+
+    map_outputs_total = list()
     for test_name, test_path in tests.iteritems():
         test_build_path = os.path.join(build_path, test_path)
         src_path = base_source_paths + [test_path]
@@ -2072,21 +2073,21 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         except Exception, e:
             if not isinstance(e, NotSupportedException):
                 result = False
-                
+
                 if continue_on_build_fail:
                     continue
                 else:
                     break
-        
+
         # If a clean build was carried out last time, disable it for the next build.
         # Otherwise the previously built test will be deleted.
         if clean:
             clean = False
-        
+
         # Normalize the path
         if bin_file:
             bin_file = norm_relative_path(bin_file, execution_directory)
-            
+
             test_build['tests'][test_name] = {
                 "binaries": [
                     {
@@ -2094,15 +2095,15 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                     }
                 ]
             }
-            
+
             print 'Image: %s'% bin_file
-    
+
     test_builds = {}
     test_builds["%s-%s" % (target_name, toolchain_name)] = test_build
     
-    
+
     return result, test_builds
-    
+
 
 def test_spec_from_test_builds(test_builds):
     return {
