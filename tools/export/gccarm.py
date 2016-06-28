@@ -117,6 +117,7 @@ class GccArm(Exporter):
         'SAML21J18A',
         'SAMG55J19',
         'ARM_BEETLE_SOC',
+        'ELMO_F411RE',
     ]
 
     DOT_IN_RELATIVE_PATH = True
