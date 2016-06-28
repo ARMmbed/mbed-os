@@ -28,6 +28,12 @@ TCPServer::TCPServer(NetworkStack *iface)
     open(iface);
 }
 
+TCPServer::TCPServer(NetworkInterface *iface)
+    : _pending(0), _accept_sem(0)
+{
+    open(iface->get_stack());
+}
+
 TCPServer::~TCPServer()
 {
     close();
@@ -36,6 +42,11 @@ TCPServer::~TCPServer()
 int TCPServer::open(NetworkStack *iface)
 {
     return Socket::open(iface, NSAPI_TCP);
+}
+
+int TCPServer::open(NetworkInterface *iface)
+{
+    return TCPServer::open(iface->get_stack());
 }
 
 int TCPServer::listen(int backlog)

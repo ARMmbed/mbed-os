@@ -3,7 +3,7 @@
 #endif
 
 #include "mbed.h"
-#include "LWIPInterface.h"
+#include "EthernetInterface.h"
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
 
@@ -27,7 +27,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 int main() {
     GREENTEA_SETUP(20, "udp_echo_client");
 
-    LWIPInterface eth;
+    EthernetInterface eth;
     eth.connect();
     printf("UDP client IP Address is %s\n", eth.get_ip_address());
 

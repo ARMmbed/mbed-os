@@ -15,6 +15,7 @@
  */
 
 #include "SocketAddress.h"
+#include "NetworkInterface.h"
 #include "NetworkStack.h"
 #include <string.h>
 #include "mbed.h"
@@ -144,28 +145,12 @@ static void ipv6_to_address(char *addr, const uint8_t *bytes)
 
 SocketAddress::SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
 {
-    memset(&_ip_address, 0, sizeof _ip_address);
+    _SocketAddress(iface, host, port);
+}
 
-    // Check for valid IP addresses
-    if (host && ipv4_is_valid(host)) {
-        _ip_version = NSAPI_IPv4;
-        ipv4_from_address(_ip_bytes, host);
-        set_port(port);
-    } else if (host && ipv6_is_valid(host)) {
-        _ip_version = NSAPI_IPv6;
-        ipv6_from_address(_ip_bytes, host);
-        set_port(port);
-    } else {
-        // DNS lookup
-        int err = iface->gethostbyname(this, host);
-        if (!err) {
-            set_port(port);
-        } else {
-            _ip_version = NSAPI_IPv4;
-            memset(_ip_bytes, 0, NSAPI_IPv4_BYTES);
-            set_port(0);
-        }
-    }
+SocketAddress::SocketAddress(NetworkInterface *iface, const char *host, uint16_t port)
+{
+    _SocketAddress(iface->get_stack(), host, port);
 }
 
 SocketAddress::SocketAddress(const char *addr, uint16_t port)
@@ -272,4 +257,30 @@ SocketAddress::operator bool() const
     }
 
     return false;
+}
+
+void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
+{
+    memset(&_ip_address, 0, sizeof _ip_address);
+
+    // Check for valid IP addresses
+    if (host && ipv4_is_valid(host)) {
+        _ip_version = NSAPI_IPv4;
+        ipv4_from_address(_ip_bytes, host);
+        set_port(port);
+    } else if (host && ipv6_is_valid(host)) {
+        _ip_version = NSAPI_IPv6;
+        ipv6_from_address(_ip_bytes, host);
+        set_port(port);
+    } else {
+        // DNS lookup
+        int err = iface->gethostbyname(this, host);
+        if (!err) {
+            set_port(port);
+        } else {
+            _ip_version = NSAPI_IPv4;
+            memset(_ip_bytes, 0, NSAPI_IPv4_BYTES);
+            set_port(0);
+        }
+    }
 }

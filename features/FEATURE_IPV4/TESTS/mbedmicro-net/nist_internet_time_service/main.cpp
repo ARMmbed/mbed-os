@@ -3,7 +3,7 @@
 #endif
 
 #include "mbed.h"
-#include "LWIPInterface.h"
+#include "EthernetInterface.h"
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
 
@@ -21,7 +21,7 @@ int main() {
     const time_t TIME1970 = 2208988800L;
     int ntp_values[12] = {0};
 
-    LWIPInterface eth;
+    EthernetInterface eth;
     //eth.init(); //Use DHCP
     eth.connect();
     printf("UDP client IP Address is %s\n", eth.get_ip_address());

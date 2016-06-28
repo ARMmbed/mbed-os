@@ -17,7 +17,7 @@
 #ifndef WIFI_INTERFACE_H
 #define WIFI_INTERFACE_H
 
-#include "NetworkStack.h"
+#include "NetworkInterface.h"
 
 /** Enum of WiFi encryption types
  *
@@ -37,7 +37,7 @@ enum nsapi_security_t {
  *
  *  Common interface that is shared between WiFi devices
  */
-class WiFiInterface
+class WiFiInterface: public NetworkInterface
 {
 public:
     /** Start the interface

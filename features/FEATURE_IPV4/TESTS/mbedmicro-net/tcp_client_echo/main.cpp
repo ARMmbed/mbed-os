@@ -3,7 +3,7 @@
 #endif
 
 #include "mbed.h"
-#include "LWIPInterface.h"
+#include "EthernetInterface.h"
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -28,7 +28,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 int main() {
     GREENTEA_SETUP(20, "tcp_echo_client");
 
-    LWIPInterface eth;
+    EthernetInterface eth;
     eth.connect();
 
     printf("MBED: TCPClient IP address is '%s'\n", eth.get_ip_address());

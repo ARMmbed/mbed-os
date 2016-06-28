@@ -28,6 +28,12 @@ UDPSocket::UDPSocket(NetworkStack *iface)
     open(iface);
 }
 
+UDPSocket::UDPSocket(NetworkInterface *iface)
+    : _pending(0), _read_sem(0), _write_sem(0)
+{
+    open(iface->get_stack());
+}
+
 UDPSocket::~UDPSocket()
 {
     close();
@@ -36,6 +42,11 @@ UDPSocket::~UDPSocket()
 int UDPSocket::open(NetworkStack *iface)
 {
     return Socket::open(iface, NSAPI_UDP);
+}
+
+int UDPSocket::open(NetworkInterface *iface)
+{
+    return UDPSocket::open(iface->get_stack());
 }
 
 int UDPSocket::sendto(const char *host, uint16_t port, const void *data, unsigned size)
