@@ -210,7 +210,7 @@ if __name__ == '__main__':
             setup_user_prj(project_dir[0], test.source_dir, test.dependencies)
 
         # Export to selected toolchain
-        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
+        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, make_zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
         if report['success']:
             if not zip:
                 zip_path = join(project_temp, project_name)
