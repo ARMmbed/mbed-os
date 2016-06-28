@@ -80,6 +80,8 @@ class Uvision4(Exporter):
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("-I \""+ARM_INC+"\"")
         # cpp is not required as it's implicit for cpp files
         project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--cpp")
+        # we want no-vla for only cxx, but it's also applied for C in IDE, thus we remove it
+        project_data['tool_specific']['uvision']['misc']['c_flags'].remove("--no_vla")
         project_data['tool_specific']['uvision']['misc']['ld_flags'] = self.progen_flags['ld_flags']
 
         i = 0
