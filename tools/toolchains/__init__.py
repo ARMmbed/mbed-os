@@ -22,7 +22,7 @@ from copy import copy
 from time import time, sleep
 from types import ListType
 from shutil import copyfile
-from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath
+from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir
 from inspect import getmro
 from copy import deepcopy
 from tools.config import Config
@@ -431,13 +431,21 @@ class mbedToolchain:
         return False
 
     def scan_resources(self, path, exclude_paths=None, base_path=None):
-        labels = self.get_labels()
-
         resources = Resources(path)
         if not base_path:
-            base_path = path
+            if isfile(path):
+                base_path = dirname(path)
+            else:
+                base_path = path
         resources.base_path = base_path
 
+        if isfile(path):
+            self.add_file(path, resources, base_path, exclude_paths=exclude_paths)
+        else:
+            self.add_dir(path, resources, base_path, exclude_paths=exclude_paths)
+        return resources
+
+    def add_dir(self, path, resources, base_path, exclude_paths=None):
         """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         When topdown is True, the caller can modify the dirnames list in-place
         (perhaps using del or slice assignment), and walk() will only recurse into
@@ -448,6 +456,7 @@ class mbedToolchain:
         bottom-up mode the directories in dirnames are generated before dirpath
         itself is generated.
         """
+        labels = self.get_labels()
         for root, dirs, files in walk(path, followlinks=True):
             # Check if folder contains .mbedignore
             if ".mbedignore" in files:
@@ -469,7 +478,7 @@ class mbedToolchain:
                 if d == '.hg':
                     resources.repo_dirs.append(dir_path)
                     resources.repo_files.extend(self.scan_repository(dir_path))
- 
+
                 if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
                     # Ignore targets that do not match the TARGET in extra_labels list
                     (d.startswith('TARGET_') and d[7:] not in labels['TARGET']) or
@@ -497,58 +506,59 @@ class mbedToolchain:
 
             for file in files:
                 file_path = join(root, file)
+                self.add_file(file_path, resources, base_path)
 
-                resources.file_basepath[file_path] = base_path
+    def add_file(self, file_path, resources, base_path, exclude_paths=None):
+        resources.file_basepath[file_path] = base_path
 
-                if self.is_ignored(file_path):
-                    continue
+        if self.is_ignored(file_path):
+            return
 
-                _, ext = splitext(file)
-                ext = ext.lower()
+        _, ext = splitext(file_path)
+        ext = ext.lower()
 
-                if   ext == '.s':
-                    resources.s_sources.append(file_path)
+        if   ext == '.s':
+            resources.s_sources.append(file_path)
 
-                elif ext == '.c':
-                    resources.c_sources.append(file_path)
+        elif ext == '.c':
+            resources.c_sources.append(file_path)
 
-                elif ext == '.cpp':
-                    resources.cpp_sources.append(file_path)
+        elif ext == '.cpp':
+            resources.cpp_sources.append(file_path)
 
-                elif ext == '.h' or ext == '.hpp':
-                    resources.headers.append(file_path)
+        elif ext == '.h' or ext == '.hpp':
+            resources.headers.append(file_path)
 
-                elif ext == '.o':
-                    resources.objects.append(file_path)
+        elif ext == '.o':
+            resources.objects.append(file_path)
 
-                elif ext == self.LIBRARY_EXT:
-                    resources.libraries.append(file_path)
-                    resources.lib_dirs.add(root)
+        elif ext == self.LIBRARY_EXT:
+            resources.libraries.append(file_path)
+            resources.lib_dirs.add(dirname(file_path))
 
-                elif ext == self.LINKER_EXT:
-                    if resources.linker_script is not None:
-                        self.info("Warning: Multiple linker scripts detected: %s -> %s" % (resources.linker_script, file_path))
-                    resources.linker_script = file_path
+        elif ext == self.LINKER_EXT:
+            if resources.linker_script is not None:
+                self.info("Warning: Multiple linker scripts detected: %s -> %s" % (resources.linker_script, file_path))
+            resources.linker_script = file_path
 
-                elif ext == '.lib':
-                    resources.lib_refs.append(file_path)
+        elif ext == '.lib':
+            resources.lib_refs.append(file_path)
 
-                elif ext == '.bld':
-                    resources.lib_builds.append(file_path)
+        elif ext == '.bld':
+            resources.lib_builds.append(file_path)
 
-                elif file == '.hgignore':
-                    resources.repo_files.append(file_path)
+        elif file == '.hgignore':
+            resources.repo_files.append(file_path)
 
-                elif ext == '.hex':
-                    resources.hex_files.append(file_path)
+        elif ext == '.hex':
+            resources.hex_files.append(file_path)
 
-                elif ext == '.bin':
-                    resources.bin_files.append(file_path)
+        elif ext == '.bin':
+            resources.bin_files.append(file_path)
 
-                elif ext == '.json':
-                    resources.json_files.append(file_path)
+        elif ext == '.json':
+            resources.json_files.append(file_path)
 
-        return resources
 
     def scan_repository(self, path):
         resources = []
