@@ -5,6 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "nsdynmemLIB_stub.h"
+#include "mbedtls/platform.h"
 #include "mbedtls/ssl.h"
 #include "coap_connection_handler.h"
 #include "coap_security_handler_stub.h"
