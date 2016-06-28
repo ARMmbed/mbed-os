@@ -165,11 +165,14 @@ class GCC(mbedToolchain):
         dep_path = base + '.d'
         return ["-MD", "-MF", dep_path]
 
+    def get_config_option(self, config_header):
+        return ['-include', config_header]
+
     def get_compile_options(self, defines, includes):
         opts = ['-D%s' % d for d in defines] + ['@%s' % self.get_inc_file(includes)]
         config_header = self.get_config_header()
         if config_header is not None:
-            opts = opts + ['-include', config_header]
+            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool

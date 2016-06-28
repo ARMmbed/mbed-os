@@ -22,6 +22,8 @@ class CodeRed(Exporter):
     NAME = 'CodeRed'
     TOOLCHAIN = 'GCC_CR'
 
+    MBED_CONFIG_HEADER_SUPPORTED = True
+
     TARGETS = [
         'LPC1768',
         'LPC4088',
