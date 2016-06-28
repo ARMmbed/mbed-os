@@ -169,6 +169,9 @@ namespace v1 {
     /// Reports the failure to greentea and then continues.
     utest::v1::status_t greentea_case_failure_continue_handler(const Case *const source, const failure_t reason);
 
+    /// Notify greentea of testcase name.
+    void greentea_testcase_notification_handler(const char *testcase);
+
     /// The verbose default handlers that always continue on failure
     extern const handlers_t verbose_continue_handlers;
 
