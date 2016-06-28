@@ -138,7 +138,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
 
 void pwmout_free(pwmout_t *obj)
 {
-    MBED_ASSERT(obj->pwm != (PWMName)NC);
+    MBED_ASSERT(obj->pwm_name != (PWMName)NC);
     MBED_ASSERT(obj->pwm_channel < PWM_CHANNELS_PER_INSTANCE);
 
     pwm_t * pwm = (pwm_t *) obj->pwm_struct;
@@ -160,7 +160,8 @@ void pwmout_write(pwmout_t *obj, float value)
     if (value > 1.0f) {
         value = 1.0f;
     }
-    uint16_t ticks = (uint16_t)((float)app_pwm_cycle_ticks_get(pwm->instance) * value);
+
+    app_pwm_channel_duty_set(pwm->instance, obj->pwm_channel, (app_pwm_duty_t)(value * 100.0f) );
 }
 
 float pwmout_read(pwmout_t *obj)
