@@ -1,9 +1,9 @@
 test:
     override:
-        - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
-        - cd ../testproject && mbed compile -m K64F -t GCC_ARM -j 0 --tests
-        - cd ../testproject && mbed compile -m LPC1768 -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
-        - cd ../testproject && mbed compile -m NRF51_DK -t GCC_ARM -j 0 --source=. --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && mbed compile -m K64F -t GCC_ARM --source=. --source=mbed-os/TESTS/integration/basic
+        - cd ../testproject && mbed test --compile -m K64F -t GCC_ARM
+        - cd ../testproject && mbed test --compile -m LPC1768 -t GCC_ARM
+        - cd ../testproject && mbed test --compile -m NRF51_DK -t GCC_ARM
 
 dependencies:
     pre:
