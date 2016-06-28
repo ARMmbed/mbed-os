@@ -317,6 +317,7 @@ static int send_to_socket(int8_t socket_id, uint8_t *address_ptr, uint16_t port,
 
 static int receive_from_socket(int8_t socket_id, unsigned char *buf, size_t len)
 {
+    (void)len;
     internal_socket_t *sock = int_socket_find_by_socket_id(socket_id);
     if( sock->data && sock->data_len > 0 ){
         memcpy( buf, sock->data, sock->data_len );

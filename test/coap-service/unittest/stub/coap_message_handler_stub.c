@@ -39,15 +39,14 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
     return coap_message_handler_stub.int16_value;
 }
 
-uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16],
-                                                      uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, const char *uri, uint8_t cont_type,
-                                                      const uint8_t *payload_ptr, uint16_t payload_len, coap_message_handler_response_recv *request_response_cb)
+uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, 
+    const uint8_t destination_addr[static 16], uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, 
+    const char *uri, sn_coap_content_format_e cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_message_handler_response_recv *request_response_cb)
 {
     return coap_message_handler_stub.uint16_value;
 }
 
-int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code,
-                                                     int32_t content_type, const uint8_t *payload_ptr, uint16_t payload_len)
+int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr,  sn_coap_msg_code_e message_code,sn_coap_content_format_e content_type, const uint8_t *payload_ptr, uint16_t payload_len)
 {
     return coap_message_handler_stub.int8_value;
 }
@@ -56,5 +55,4 @@ int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t current_ti
 {
     return coap_message_handler_stub.int8_value;
 }
-
 

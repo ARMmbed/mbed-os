@@ -36,7 +36,7 @@ typedef struct uri_registration {
 typedef NS_LIST_HEAD(uri_registration_t, link) uri_registration_list_t;
 
 typedef struct coap_service {
-    coap_service_security_done_cb *security_done_cb;
+    coap_service_security_done_cb *coap_security_done_cb;
     coap_service_security_start_cb *security_start_cb;
     coap_service_virtual_socket_send_cb *virtual_socket_send_cb;
     uri_registration_list_t uri_list;
@@ -244,8 +244,8 @@ static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t p
 {
     //TODO: this is not enough if shared socket. Inform all!
     coap_service_t *this = service_find_by_socket(socket_id);
-    if (this && this->security_done_cb) { // secure done callback
-        this->security_done_cb(this->service_id, address, keyblock);
+    if (this && this->coap_security_done_cb) { // secure done callback
+        this->coap_security_done_cb(this->service_id, address, keyblock);
     }
 
     //TODO refactor this away. There should be no transaction_ptr(s) before done_cb has been called
@@ -276,7 +276,7 @@ static int get_passwd_cb(int8_t socket_id, uint8_t address[static 16], uint16_t 
 }
 
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options,
-                                 coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *security_done_cb)
+                                 coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb)
 {
     (void) interface_id;
 
@@ -295,7 +295,7 @@ int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_
     this->service_options = service_options;
 
     this->security_start_cb = start_ptr;
-    this->security_done_cb = security_done_cb;
+    this->coap_security_done_cb = coap_security_done_cb;
 
     if (tasklet_id == -1) {
         tr_debug("service tasklet init");
@@ -447,13 +447,13 @@ int8_t coap_service_unregister_uri(int8_t service_id, const char *uri)
 }
 
 uint16_t coap_service_request_send(int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16], uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, const char *uri,
-                                  uint8_t cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb){
+        sn_coap_content_format_e cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb){
     //TODO: coap_service_response_recv is an ugly cast, this should be refactored away + sn_coap_hdr_s MUST NOT be exposed to users of coap-service!
     //Callback would be still needed, but where to store callback?
     return coap_message_handler_request_send(coap_service_handle, service_id, options, destination_addr, destination_port, msg_type, msg_code, uri, cont_type, payload_ptr, payload_len, request_response_cb);
 }
 
-int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type, const uint8_t *payload_ptr,uint16_t payload_len){
+int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len){
     return coap_message_handler_response_send(coap_service_handle, service_id, options, request_ptr, message_code, content_type, payload_ptr, payload_len);
 }
 

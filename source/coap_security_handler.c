@@ -26,7 +26,7 @@ const int ECJPAKE_SUITES[] = {
 };
 #endif
 
-const static int PSK_SUITES[] = {
+static const int PSK_SUITES[] = {
     MBEDTLS_TLS_PSK_WITH_AES_128_CBC_SHA256,
     MBEDTLS_TLS_PSK_WITH_AES_256_CCM_8,
     MBEDTLS_TLS_PSK_WITH_AES_128_CCM_8,
@@ -204,7 +204,7 @@ static int simple_cookie_check(void *ctx,
 }
 
 /**** Key export function ****/
-
+#if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
 static int export_key_block(void *ctx,
                             const unsigned char *mk, const unsigned char *kb,
                             size_t maclen, size_t keylen, size_t ivlen)
@@ -224,6 +224,7 @@ static int export_key_block(void *ctx,
     memcpy(p_key_block->value, kb /* + (2 * maclen)*/, (2 * keylen) + (2 * ivlen));
     return 0;
 }
+#endif
 
 int coap_security_handler_configure_keys( coap_security_t *sec, coap_security_keys_t keys )
 {
@@ -559,6 +560,7 @@ int f_recv(void *ctx, unsigned char *buf, size_t len){
 int entropy_poll( void *ctx, unsigned char *output, size_t len,
                            size_t *olen )
 {
+    (void)ctx;
     //TODO: change to more secure random
     randLIB_seed_random();
     char *c = (char*)ns_dyn_mem_temporary_alloc(len);

@@ -119,11 +119,11 @@ typedef int coap_service_security_done_cb(int8_t service_id, uint8_t address[sta
  * \param listen_port        Port that Application wants to use for communicate with coap server.
  * \param service_options    Options of the current service.
  * \param *start_ptr         Callback to inform security handling is started and to fetch device password.
- * \param *security_done_cb  Callback to inform security handling is done.
+ * \param *coap_security_done_cb  Callback to inform security handling is done.
  *
  *  \return service_id / -1 for failure
  */
-extern int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options, coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *security_done_cb);
+extern int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options, coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb);
 
 /**
  * \brief Service delete
@@ -245,7 +245,7 @@ extern int8_t coap_service_unregister_uri(int8_t service_id, const char *uri);
  * \return msg_id               Id number of the current message.
  */
 extern uint16_t coap_service_request_send(int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16], uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, const char *uri,
-                                  uint8_t cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb);
+        sn_coap_content_format_e cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb);
 
 /**
  * \brief Sends CoAP service response
@@ -260,7 +260,7 @@ extern uint16_t coap_service_request_send(int8_t service_id, uint8_t options, co
  * \return -1              For failure
  *-         0              For success
  */
-extern int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type, const uint8_t *payload_ptr,uint16_t payload_len);
+extern int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len);
 
 extern int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint32_t max);
 #ifdef __cplusplus

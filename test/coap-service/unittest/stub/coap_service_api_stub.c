@@ -19,7 +19,7 @@
 #include "net_interface.h"
 
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options,
-                                 coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *security_done_cb)
+                                 coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb)
 {
     return 0;
 }
@@ -48,12 +48,13 @@ int8_t coap_service_unregister_uri(int8_t service_id, const char *uri)
     return 0;
 }
 
-uint16_t coap_service_request_send(int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16], uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, const char *uri,
-                                  uint8_t cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_message_handler_response_recv *request_response_cb){
+uint16_t coap_service_request_send(int8_t service_id, uint8_t options, const uint8_t destination_addr[static 16], uint16_t destination_port, sn_coap_msg_type_e msg_type, sn_coap_msg_code_e msg_code, const char *uri, sn_coap_content_format_e cont_type, const uint8_t *payload_ptr, uint16_t payload_len, coap_service_response_recv *request_response_cb)
+{
     return 0;
 }
 
-int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, int32_t content_type, const uint8_t *payload_ptr,uint16_t payload_len){
+int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len)
+{
     return 0;
 }
 
