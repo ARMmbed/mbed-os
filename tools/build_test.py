@@ -13,11 +13,13 @@ from utils import args_error
 
 class BuildTest():
     def __init__(self, desired_ides, tests, targets):
+        #map of targets and the ides that can build programs for them
         self.target_ides = {}
         for target in targets:
             self.target_ides[target] =[]
             for ide in desired_ides:
                 if target in EXPORTERS[ide].TARGETS:
+                    #target is supported by ide
                     self.target_ides[target].append(ide)
             if len(self.target_ides[target]) == 0:
                 del self.target_ides[target]
@@ -27,6 +29,7 @@ class BuildTest():
 
     @staticmethod
     def get_pgen_targets(ides):
+        #targets supported by pgen and desired ides for tests
         targs = []
         for ide in ides:
             for target in TARGET_NAMES:
@@ -36,10 +39,12 @@ class BuildTest():
         return targs
 
     def _generate_and_build(self, tests):
+        #build results
         successes = []
         failures = []
         for mcu, ides in self.target_ides.items():
             for test in tests:
+                #resolve name alias
                 test = get_test_from_name(test)
                 for ide in ides:
                     project_dir, project_name, project_temp = setup_project(mcu, ide, test)
@@ -78,8 +83,8 @@ if __name__ == '__main__':
     options = parser.parse_args()
 
     tests = options.tests
-    ides = options.ides
-    targets = options.targets
+    ides = [ide.lower() for ide in options.ides]
+    targets = [target.upper() for target in options.targets]
 
     if any(get_test_from_name(test) is None for test in tests):
         args_error(parser, "[ERROR] test name not recognized")
