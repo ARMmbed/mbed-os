@@ -1506,7 +1506,8 @@
                 "template": ["uvision5_arm_beetle_soc.uvproj.tmpl"]
             }
         },
-        "device_has": ["ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI"]
+        "device_has": ["ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI"],
+	"features": ["BLE"]
     },
     "RZ_A1H": {
         "supported_form_factors": ["ARDUINO"],
