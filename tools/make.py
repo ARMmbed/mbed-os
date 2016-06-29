@@ -50,7 +50,7 @@ from argparse import ArgumentTypeError
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser()
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("-p",
                       type=argparse_many(test_known),
                       dest="program",
