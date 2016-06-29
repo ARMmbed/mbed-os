@@ -1683,5 +1683,15 @@
         "progen_target": "samg55j19",
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "default_build": "standard"
+    },
+    "GENERIC_F103C8": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M3",
+        "default_toolchain": "GCC_ARM",
+        "extra_labels": ["STM", "STM32F1", "STM32F103C8"],
+        "supported_toolchains": ["GCC_ARM"],
+        "inherits": ["Target"],
+        "progen": {"target": "generic-f103c8"},
+        "features": ["ANALOGIN", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
     }
 }
