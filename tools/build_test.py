@@ -78,7 +78,7 @@ if __name__ == '__main__':
                       nargs='+',
                       dest ="targets",
                       help="generate project for the given MCUs (%s)" % '\n '.join(accepted_targets),
-                      default = TARGET_NAMES)
+                      default = accepted_targets)
 
     options = parser.parse_args()
 
