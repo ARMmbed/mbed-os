@@ -15,6 +15,7 @@ try:
 except:
     ps = object()
 
+
 def get_program(n):
     p = TEST_MAP[n].n
     return p
@@ -22,6 +23,7 @@ def get_program(n):
 
 def get_test(p):
     return Test(p)
+
 
 def get_test_from_name(n):
     if not n in TEST_MAP.keys():
@@ -36,7 +38,12 @@ def get_test_from_name(n):
             return None
     return get_program(n)
 
+
 def setup_project(mcu, ide, program = None, source_dir= None, macros = None, build = None):
+
+    # Some libraries have extra macros (called by exporter symbols) to we need to pass
+    # them to maintain compilation macros integrity between compiled library and
+    # header files we might use with it
     lib_symbols = []
     if macros:
         lib_symbols += macros
@@ -59,7 +66,7 @@ def setup_project(mcu, ide, program = None, source_dir= None, macros = None, bui
             if MBED_LIBRARIES in test.dependencies:
                 test.dependencies.remove(MBED_LIBRARIES)
                 test.dependencies.append(MBED_BASE)
-
+        # Build the project with the same directory structure of the mbed online IDE
         project_name = test.id
         project_dir = [join(EXPORT_WORKSPACE, project_name)]
         project_temp = EXPORT_TMP

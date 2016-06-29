@@ -136,6 +136,7 @@ if __name__ == '__main__':
         args_error(parser, "[ERROR] You should specify an IDE")
     ide = options.ide
 
+    # Program Number or name
     p, n, src= options.program, options.program_name, options.source_dir
 
     if src is None:
@@ -155,6 +156,8 @@ if __name__ == '__main__':
     # Export results
     successes = []
     failures = []
+
+    # source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
     zip = src is None
     clean = src is None
 
