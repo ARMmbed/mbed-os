@@ -25,12 +25,12 @@
 #define ADC_12BIT_RANGE 0xFFF
 #define ADC_RANGE       ADC_12BIT_RANGE
 
-void analog_in_event_handler(nrf_drv_saadc_evt_t const *p_event)// type of nrf_drv_saadc_event_handler_t 
+static void analog_in_event_handler(nrf_drv_saadc_evt_t const *p_event)// type of nrf_drv_saadc_event_handler_t 
 {
     (void) p_event;
 }
 
-const nrf_drv_saadc_config_t saadc_config = 
+static const nrf_drv_saadc_config_t saadc_config = 
 {
     .resolution         = NRF_SAADC_RESOLUTION_12BIT,
     .oversample         = NRF_SAADC_OVERSAMPLE_DISABLED,
@@ -39,7 +39,6 @@ const nrf_drv_saadc_config_t saadc_config =
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    /// @todo check if initialized
     ret_code_t ret_code;
     
     ret_code = nrf_drv_saadc_init(&saadc_config, analog_in_event_handler);
@@ -52,13 +51,17 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->adc_pin = saadcIn  - 1;
     
     nrf_saadc_channel_config_t channel_config =
-            NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(saadcIn);
+            NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(saadcIn); //Single ended, negative input to ADC shorted to GND.
     
     ret_code = nrf_drv_saadc_channel_init(obj->adc_pin, &channel_config);
     MBED_ASSERT(ret_code == NRF_SUCCESS);
 }
 
-int16_t analogin_read_i16(analogin_t *obj)
+/**
+ * NRF52 SAR ADC module provides measurement with sign.
+ * Already mbed API dosn't support readout of signed integer value.
+ */
+static int16_t analogin_read_i16(analogin_t *obj)
 {
     nrf_saadc_value_t adc_value;
     ret_code_t ret_code;
@@ -67,6 +70,23 @@ int16_t analogin_read_i16(analogin_t *obj)
     MBED_ASSERT(ret_code == NRF_SUCCESS);
     
     return adc_value;
+}
+
+uint16_t analogin_read_u16(analogin_t *obj)
+{
+    int16_t adc_value;
+    
+    adc_value = analogin_read_i16(obj);
+    
+    if (adc_value < 0)
+    {
+        // Even in the single ended mode measured value can be {-0}. Saturation for avoid casting to a big integer.
+        return 0;
+    }
+    else
+    {
+        return (uint16_t) adc_value;
+    }
 }
 
 float analogin_read(analogin_t *obj)
