@@ -255,7 +255,11 @@ __inline static void rt_svc_init (void) {
   if (prigroup >= sh) {
     sh = prigroup + 1U;
   }
+
+/* Only change the SVCall priority if uVisor is not present. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
   NVIC_SYS_PRI2 = ((0xFEFFFFFFU << sh) & 0xFF000000U) | (NVIC_SYS_PRI2 & 0x00FFFFFFU);
+#endif /* !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)) */
 #endif
 }
 
