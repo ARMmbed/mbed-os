@@ -217,6 +217,7 @@ private:
 };
 
 class MeshInterfaceNanostack : public MeshInterface {
+public:
 
     /** Start the interface
      *
