@@ -41,7 +41,7 @@ if __name__ == '__main__':
         parser = get_default_options_parser()
         
         parser.add_argument("-D",
-                          nargs="*",
+                          action="append",
                           dest="macros",
                           help="Add a macro definition")
        
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
         parser.add_argument("--source", dest="source_dir",
                           type=argparse_filestring_type,
-                            default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", nargs="*")
+                            default=None, help="The source (input) directory (for sources other than tests). Defaults to current directory.", action="append")
 
         parser.add_argument("--build", dest="build_dir",
                           default=None, help="The build (output) directory")

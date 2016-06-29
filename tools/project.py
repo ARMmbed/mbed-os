@@ -84,14 +84,14 @@ if __name__ == '__main__':
                       help="writes tools/export/README.md")
 
     parser.add_argument("--source",
-                      nargs="*",
+                      action="append",
                       type=argparse_filestring_type,
                       dest="source_dir",
                       default=[],
                       help="The source (input) directory")
 
     parser.add_argument("-D",
-                      nargs="*",
+                      action="append",
                       dest="macros",
                       help="Add a macro definition")
 

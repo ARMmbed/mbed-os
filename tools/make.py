@@ -80,7 +80,7 @@ if __name__ == '__main__':
                       help="Silent diagnostic output (no copy, compile notification)")
 
     parser.add_argument("-D",
-                      nargs="*",
+                      action="append",
                       dest="macros",
                       help="Add a macro definition")
 
