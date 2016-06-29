@@ -14,6 +14,8 @@
 #ifndef NRF_SAADC_H_
 #define NRF_SAADC_H_
 
+#ifdef NRF52
+
 /**
  * @defgroup nrf_saadc_hal SAADC HAL
  * @{
@@ -26,6 +28,8 @@
 #include <stddef.h>
 #include "nrf.h"
 #include "nrf_assert.h"
+
+
 
 #define NRF_SAADC_CHANNEL_COUNT 8
 
@@ -550,5 +554,7 @@ void nrf_saadc_channel_init(uint8_t channel, nrf_saadc_channel_config_t const * 
 /**
  *@}
  **/
+ 
+#endif //  NRF52
 
 #endif /* NRF_SAADC_H_ */

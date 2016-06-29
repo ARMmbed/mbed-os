@@ -10,6 +10,7 @@
  *
  */
 
+#ifdef NRF52
 /**
  * @file
  * @brief SAADC HAL implementation
@@ -29,3 +30,6 @@ void nrf_saadc_channel_init(uint8_t channel, nrf_saadc_channel_config_t const * 
     nrf_saadc_channel_input_set(channel, config->pin_p, config->pin_n);
     return;
 }
+
+#endif //NRF52
+
