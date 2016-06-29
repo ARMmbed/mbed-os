@@ -1234,11 +1234,9 @@ def test_known(string):
         raise ArgumentTypeError("{0} does not index a test. The accepted range is 0 to {1}\nThe test mapping is:\n{2}".format(i, len(TEST_MAP) - 1, columnate([str(i) + ":" + t['id'] for i,t in zip(range(len(TESTS)), TESTS)])))
 
 def test_name_known(string):
-    nlist = string.split(',')
-    for test_id in nlist:
-        if test_id not in TEST_MAP.keys():
-            if getattr(ps, "test_alias", None) is None or \
-               ps.test_alias.get(test_id, "") not in TEST_MAP.keys():
-                raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are: \n{1}".format(test_id, columnate([t['id'] for t in TESTS])))
+    if string not in TEST_MAP.keys() and \
+       (getattr(ps, "test_alias", None) is None or \
+        ps.test_alias.get(test_id, "") not in TEST_MAP.keys()):
+        raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are: \n{1}".format(string, columnate([t['id'] for t in TESTS])))
 
-    return [TEST_MAP[n].n for n in nlist]
+    return TEST_MAP[string].n
