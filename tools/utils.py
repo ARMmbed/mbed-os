@@ -223,6 +223,27 @@ argparse_lowercase_type = argparse_type(str.lower, False)
 argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
 argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
 
+def argparse_force_type(case):
+    def middle(list, type_name):
+        # validate that an argument passed in (as string) is a member of the list of possible
+        # arguments after converting it's case. Offer a suggestion if the hyphens/underscores
+        # do not match the expected style of the argument.
+        def parse_type(string):
+            string = case(string)
+            newstring = string.replace("-","_")
+            if string in list:
+                return string
+            elif string not in list and newstring in list:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Did you mean {2}?".format(string, type_name, newstring))
+            else:
+                raise argparse.ArgumentTypeError("{0} is not a supported {1}. Supported {1}s are:\n{2}".format(string, type_name, columnate(list)))
+        return parse_type
+    return middle
+
+# these two types convert the case of their arguments _before_ validation
+argparse_force_uppercase_type = argparse_force_type(str.upper)
+argparse_force_lowercase_type = argparse_force_type(str.lower)
+
 # An argument parser combinator that takes in an argument parser and creates a new parser that
 # accepts a comma separated list of the same thing.
 def argparse_many(fn):

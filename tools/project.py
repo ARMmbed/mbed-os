@@ -16,6 +16,7 @@ from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_NAMES
 from tools.libraries import LIBRARIES
 from utils import argparse_lowercase_type, argparse_uppercase_type, argparse_filestring_type, argparse_many
+from utils import argparse_force_lowercase_type, argparse_force_uppercase_type
 
 
 
@@ -32,14 +33,14 @@ if __name__ == '__main__':
                       metavar="MCU",
                       default='LPC1768',
                       required=True,
-                      type=argparse_many(argparse_uppercase_type(targetnames, "MCU")),
+                      type=argparse_many(argparse_force_uppercase_type(targetnames, "MCU")),
                       help="generate project for the given MCU (%s)"% ', '.join(targetnames))
 
     parser.add_argument("-i",
                       dest="ide",
                       default='uvision',
                       required=True,
-                      type=argparse_many(argparse_lowercase_type(toolchainlist, "toolchain")),
+                      type=argparse_many(argparse_force_lowercase_type(toolchainlist, "toolchain")),
                       help="The target IDE: %s"% str(toolchainlist))
 
     parser.add_argument("-c", "--clean",
