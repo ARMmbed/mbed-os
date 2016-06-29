@@ -315,7 +315,7 @@ void rt_systick (void) {
 __weak void rt_stk_check (void) {
 #ifdef __MBED_CMSIS_RTOS_CM
     /* Check for stack overflow. */
-    if (os_tsk.run->task_id == 0x02) {
+    if (os_tsk.run->task_id == MAIN_THREAD_ID) {
         // TODO: For the main thread the check should be done against the main heap pointer
     } else {
         if ((os_tsk.run->tsk_stack < (U32)os_tsk.run->stack) ||

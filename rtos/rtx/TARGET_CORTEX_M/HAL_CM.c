@@ -35,7 +35,7 @@
 #include "rt_TypeDef.h"
 #include "RTX_Config.h"
 #include "rt_HAL_CM.h"
-
+#include "cmsis_os.h"
 
 /*----------------------------------------------------------------------------
  *      Global Variables
@@ -93,12 +93,12 @@ void rt_init_stack (P_TCB p_TCB, FUNCP task_body) {
 
 #ifdef __MBED_CMSIS_RTOS_CM
   /* Set a magic word for checking of stack overflow.
-   For the main thread (ID: 0x02) the stack is in a memory area shared with the
+   For the main thread (ID: MAIN_THREAD_ID) the stack is in a memory area shared with the
    heap, therefore the last word of the stack is a moving target.
    We want to do stack/heap collision detection instead.
    Similar applies to stack filling for the magic pattern.
   */
-  if (p_TCB->task_id != 0x02) {
+  if (p_TCB->task_id != MAIN_THREAD_ID) {
     p_TCB->stack[0] = MAGIC_WORD;
 
     /* Initialize stack with magic pattern. */
