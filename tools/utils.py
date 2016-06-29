@@ -202,6 +202,9 @@ def json_file_to_dict(fname):
 # Wowza, double closure
 def argparse_type(casedness, prefer_hyphen=False) :
     def middle(list, type_name):
+        # validate that an argument passed in (as string) is a member of the list of possible
+        # arguments. Offer a suggestion if the case of the string, or the hyphens/underscores
+        # do not match the expected style of the argument.
         def parse_type(string):
             if prefer_hyphen: newstring = casedness(string).replace("_","-")
             else:             newstring = casedness(string).replace("-","_")
@@ -214,22 +217,27 @@ def argparse_type(casedness, prefer_hyphen=False) :
         return parse_type
     return middle
 
+# short cuts for the argparse_type versions
 argparse_uppercase_type = argparse_type(str.upper, False)
 argparse_lowercase_type = argparse_type(str.lower, False)
 argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
 argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
 
+# An argument parser combinator that takes in an argument parser and creates a new parser that
+# accepts a comma separated list of the same thing.
 def argparse_many(fn):
     def wrap(string):
         return [fn(s) for s in string.split(",")]
     return wrap
 
+# An argument parser that verifies that a string passed in corresponds to a file
 def argparse_filestring_type(string) :
     if exists(string) :
         return string
     else :
         raise argparse.ArgumentTypeError("{0}"" does not exist in the filesystem.".format(string))
 
+# render a list of strings as a in a bunch of columns
 def columnate(strings, seperator=", ", chars=80):
     col_width = max(len(s) for s in strings)
     total_width = col_width + len(seperator)
