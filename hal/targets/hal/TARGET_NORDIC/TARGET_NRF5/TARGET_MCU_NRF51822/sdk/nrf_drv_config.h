@@ -228,7 +228,7 @@
 #define PWM_COUNT   (PWM0_ENABLED + PWM1_ENABLED + PWM2_ENABLED)
 
 /* SPI */
-#define SPI0_ENABLED 1
+#define SPI0_ENABLED 0
 
 #if (SPI0_ENABLED == 1)
 #define SPI0_USE_EASY_DMA 0
@@ -281,7 +281,7 @@
 #define SPIS0_INSTANCE_INDEX 0
 #endif
 
-#define SPIS1_ENABLED 0
+#define SPIS1_ENABLED 1
 
 #if (SPIS1_ENABLED == 1)
 #define SPIS1_CONFIG_SCK_PIN         2
