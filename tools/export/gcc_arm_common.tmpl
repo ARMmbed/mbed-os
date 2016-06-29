@@ -4,20 +4,20 @@
 # cross-platform directory manipulation
 ifeq ($(OS),Windows_NT)
     MAKEDIR = if not exist "$(1)" mkdir "$(1)"
-    RM = rmdir /S /Q  
+    RM = rmdir /S /Q
 else
     MAKEDIR = mkdir -p $(1)
-    RM = rm -rf 
+    RM = rm -rf
 endif
 
-ifeq (,$(filter bin,$(notdir $(CURDIR))))
+ifeq (,$(filter .build,$(notdir $(CURDIR))))
 .SUFFIXES:
-OBJDIR := bin
+OBJDIR := .build
 MAKETARGET = $(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile \
 		SRCDIR=$(CURDIR) $(MAKECMDGOALS)
 .PHONY: $(OBJDIR) clean
 $(OBJDIR):
-	+@$(call MAKEDIR, $@)
+	+@$(call MAKEDIR,$@)
 	+@$(MAKETARGET)
 Makefile : ;
 % :: $(OBJDIR) ; :
@@ -86,21 +86,21 @@ all: $(PROJECT).bin $(PROJECT).hex size
 
 
 .asm.o:
-	+@$(call MAKEDIR, $(dir $@))
+	+@$(call MAKEDIR,$(dir $@))
 	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
 .s.o:
-	+@$(call MAKEDIR, $(dir $@))
+	+@$(call MAKEDIR,$(dir $@))
 	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
 .S.o:
-	+@$(call MAKEDIR, $(dir $@))
+	+@$(call MAKEDIR,$(dir $@))
 	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
 
 .c.o:
-	+@$(call MAKEDIR, $(dir $@))
+	+@$(call MAKEDIR,$(dir $@))
 	$(CC)  $(CC_FLAGS) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
 
 .cpp.o:
-	+@$(call MAKEDIR, $(dir $@))
+	+@$(call MAKEDIR,$(dir $@))
 	$(CPP) $(CPPC_FLAGS) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
 
 
