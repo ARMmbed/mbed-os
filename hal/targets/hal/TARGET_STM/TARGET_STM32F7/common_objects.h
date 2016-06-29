@@ -42,6 +42,7 @@ extern "C" {
 struct pwmout_s {
     PWMName pwm;
     PinName pin;
+    uint32_t prescaler;
     uint32_t period;
     uint32_t pulse;
     uint8_t channel;
