@@ -430,6 +430,12 @@ class mbedToolchain:
                 return True
         return False
 
+    # Create a Resources object from the path pointed to by *path* by either traversing a
+    # a directory structure, when *path* is a directory, or adding *path* to the resources,
+    # when *path* is a file.
+    # The parameter *base_path* is used to set the base_path attribute of the Resources
+    # object and the parameter *exclude_paths* is used by the directory traversal to
+    # exclude certain paths from the traversal.
     def scan_resources(self, path, exclude_paths=None, base_path=None):
         resources = Resources(path)
         if not base_path:
@@ -445,6 +451,9 @@ class mbedToolchain:
             self._add_dir(path, resources, base_path, exclude_paths=exclude_paths)
         return resources
 
+    # A helper function for scan_resources. _add_dir traverses *path* (assumed to be a
+    # directory) and heeds the ".mbedignore" files along the way. _add_dir calls _add_file
+    # on every file it considers adding to the resources object.
     def _add_dir(self, path, resources, base_path, exclude_paths=None):
         """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         When topdown is True, the caller can modify the dirnames list in-place
@@ -508,6 +517,8 @@ class mbedToolchain:
                 file_path = join(root, file)
                 self._add_file(file_path, resources, base_path)
 
+    # A helper function for both scan_resources and _add_dir. _add_file adds one file
+    # (*file_path*) to the resources object based on the file type.
     def _add_file(self, file_path, resources, base_path, exclude_paths=None):
         resources.file_basepath[file_path] = base_path
 
