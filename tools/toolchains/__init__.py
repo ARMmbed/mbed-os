@@ -440,12 +440,12 @@ class mbedToolchain:
         resources.base_path = base_path
 
         if isfile(path):
-            self.add_file(path, resources, base_path, exclude_paths=exclude_paths)
+            self._add_file(path, resources, base_path, exclude_paths=exclude_paths)
         else:
-            self.add_dir(path, resources, base_path, exclude_paths=exclude_paths)
+            self._add_dir(path, resources, base_path, exclude_paths=exclude_paths)
         return resources
 
-    def add_dir(self, path, resources, base_path, exclude_paths=None):
+    def _add_dir(self, path, resources, base_path, exclude_paths=None):
         """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
         When topdown is True, the caller can modify the dirnames list in-place
         (perhaps using del or slice assignment), and walk() will only recurse into
@@ -506,9 +506,9 @@ class mbedToolchain:
 
             for file in files:
                 file_path = join(root, file)
-                self.add_file(file_path, resources, base_path)
+                self._add_file(file_path, resources, base_path)
 
-    def add_file(self, file_path, resources, base_path, exclude_paths=None):
+    def _add_file(self, file_path, resources, base_path, exclude_paths=None):
         resources.file_basepath[file_path] = base_path
 
         if self.is_ignored(file_path):
