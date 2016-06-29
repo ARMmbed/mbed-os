@@ -48,7 +48,7 @@ if __name__ == '__main__':
                       default=False,
                       help="clean the export directory")
 
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group(required=False)
     group.add_argument("-p",
                       type=test_known,
                       dest="program",
@@ -83,7 +83,7 @@ if __name__ == '__main__':
                       default=False,
                       help="writes tools/export/README.md")
 
-    group.add_argument("--source",
+    parser.add_argument("--source",
                       nargs="*",
                       type=argparse_filestring_type,
                       dest="source_dir",
@@ -144,7 +144,7 @@ if __name__ == '__main__':
         if src:
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
             project_dir = options.source_dir
-            project_name = TESTS[p]
+            project_name = TESTS[p] if p else "Unnamed_project"
             project_temp = path.join(options.source_dir[0], 'projectfiles', '%s_%s' % (ide, mcu))
             mkdir(project_temp)
             lib_symbols = []
