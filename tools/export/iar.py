@@ -46,7 +46,7 @@ class IAREmbeddedWorkbench(Exporter):
             # target is not supported yet
             continue
 
-    def generate(self):
+    def generate(self, **kwargs):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
         tool_specific = {}
@@ -75,7 +75,10 @@ class IAREmbeddedWorkbench(Exporter):
         # VLA is enabled via template IccAllowVLA
         project_data['tool_specific']['iar']['misc']['c_flags'].remove("--vla")
         project_data['common']['build_dir'] = os.path.join(project_data['common']['build_dir'], 'iar_arm')
-        self.progen_gen_file('iar_arm', project_data)
+        if 'progen_build' in kwargs:
+            self.progen_gen_file('iar_arm', project_data, True)
+        else:
+            self.progen_gen_file('iar_arm', project_data)
 
 # Currently not used, we should reuse folder_name to create virtual folders
 class IarFolder():

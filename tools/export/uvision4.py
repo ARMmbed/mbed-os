@@ -50,7 +50,7 @@ class Uvision4(Exporter):
     def get_toolchain(self):
         return TARGET_MAP[self.target].default_toolchain
 
-    def generate(self):
+    def generate(self, **kwargs):
         """ Generates the project files """
         project_data = self.progen_get_project_data()
         tool_specific = {}
@@ -96,4 +96,7 @@ class Uvision4(Exporter):
             i += 1
         project_data['common']['macros'].append('__ASSERT_MSG')
         project_data['common']['build_dir'] = join(project_data['common']['build_dir'], 'uvision4')
-        self.progen_gen_file('uvision', project_data)
+        if 'progen_build' in kwargs and kwargs.get('progen_build') == True:
+            self.progen_gen_file('uvision', project_data, True)
+        else:
+            self.progen_gen_file('uvision', project_data)
