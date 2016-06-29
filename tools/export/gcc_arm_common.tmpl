@@ -2,9 +2,9 @@
 # see http://mbed.org/handbook/Exporting-to-GCC-ARM-Embedded
 
 ifeq ($(OS),Windows_NT)
-	MAKEDIR = mkdir
+	MAKEDIR = IF exists $(1) () ELSE (mkdir $(1))
 else
-	MAKEDIR = mkdir -p
+	MAKEDIR = [ -d $(1) ] || mkdir -p $(1)
 endif
 
 ifeq (,$(filter bin,$(notdir $(CURDIR))))
@@ -14,7 +14,7 @@ MAKETARGET = $(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile \
 		SRCDIR=$(CURDIR) $(MAKECMDGOALS)
 .PHONY: $(OBJDIR) clean
 $(OBJDIR):
-	+@$(MAKEDIR) $@
+	+@$(call MAKEDIR, $@)
 	+@$(MAKETARGET)
 Makefile : ;
 % :: $(OBJDIR) ; :
@@ -83,21 +83,21 @@ all: $(PROJECT).bin $(PROJECT).hex size
 
 
 .asm.o:
-	@$(MAKEDIR) $(dir $@)
+	+@$(call MAKEDIR, $(dir $@))
 	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
 .s.o:
-	@$(MAKEDIR) $(dir $@)
+	+@$(call MAKEDIR, $(dir $@))
 	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
 .S.o:
-	@$(MAKEDIR) $(dir $@)
+	+@$(call MAKEDIR, $(dir $@))
 	$(CC) $(CPU) -c $(ASM_FLAGS) -o $@ $<
 
 .c.o:
-	@$(MAKEDIR) $(dir $@)
+	+@$(call MAKEDIR, $(dir $@))
 	$(CC)  $(CC_FLAGS) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
 
 .cpp.o:
-	@$(MAKEDIR) $(dir $@)
+	+@$(call MAKEDIR, $(dir $@))
 	$(CPP) $(CPPC_FLAGS) $(CC_SYMBOLS) $(INCLUDE_PATHS) -o $@ $<
 
 
