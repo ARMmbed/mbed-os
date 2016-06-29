@@ -1228,8 +1228,10 @@ TEST_MAP = dict([(test['id'], Test(i)) for i, test in enumerate(TESTS)])
 # parser helpers
 def test_known(string):
     i = int(string)
-    if i >= 0 and i < len(TESTS) : return i
-    else : raise ArgumentTypeError("{0} does not index a test. The accepted range is 0 to {1}\nThe test mapping is:\n{2}".format(i, len(TEST_MAP) - 1, columnate([str(i) + ":" + t['id'] for i,t in zip(range(len(TESTS)), TESTS)])))
+    if i >= 0 and i < len(TESTS):
+        return i
+    else:
+        raise ArgumentTypeError("{0} does not index a test. The accepted range is 0 to {1}\nThe test mapping is:\n{2}".format(i, len(TEST_MAP) - 1, columnate([str(i) + ":" + t['id'] for i,t in zip(range(len(TESTS)), TESTS)])))
 
 def test_name_known(string):
     nlist = string.split(',')
