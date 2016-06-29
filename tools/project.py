@@ -40,7 +40,7 @@ if __name__ == '__main__':
                       dest="ide",
                       default='uvision',
                       required=True,
-                      type=argparse_many(argparse_force_lowercase_type(toolchainlist, "toolchain")),
+                      type=argparse_force_lowercase_type(toolchainlist, "toolchain"),
                       help="The target IDE: %s"% str(toolchainlist))
 
     parser.add_argument("-c", "--clean",
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
     for mcu in options.mcu:
         # Program Number or name
-        p, src, ides = options.program, options.source_dir, options.ide
+        p, src, ide = options.program, options.source_dir, options.ide
 
         if src:
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
@@ -181,17 +181,16 @@ if __name__ == '__main__':
             setup_user_prj(project_dir[0], test.source_dir, test.dependencies)
 
         # Export to selected toolchain
-        for ide in ides:
-            tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, make_zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
-            if report['success']:
-                if not zip:
-                    zip_path = join(project_temp, project_name)
-                else:
-                    zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
-                    move(tmp_path, zip_path)
-                successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
+        tmp_path, report = export(project_dir, project_name, ide, mcu, project_dir[0], project_temp, clean=clean, make_zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative)
+        if report['success']:
+            if not zip:
+                zip_path = join(project_temp, project_name)
             else:
-                failures.append("%s::%s\t%s"% (mcu, ide, report['errormsg']))
+                zip_path = join(EXPORT_DIR, "%s_%s_%s.zip" % (project_name, ide, mcu))
+                move(tmp_path, zip_path)
+            successes.append("%s::%s\t%s"% (mcu, ide, zip_path))
+        else:
+            failures.append("%s::%s\t%s"% (mcu, ide, report['errormsg']))
 
     # Prints export results
     print
