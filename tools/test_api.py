@@ -2008,6 +2008,15 @@ def print_tests(tests, format="list", sort=True):
         print "Unknown format '%s'" % format
         sys.exit(1)
 
+def norm_relative_path(path, start):
+    """This function will create a normalized, relative path. It mimics the
+    python os.path.relpath function, but also normalizes a Windows-syle path
+    that use backslashes to a Unix style path that uses forward slashes."""
+    path = os.path.normpath(path)
+    path = os.path.relpath(path, start)
+    path = path.replace("\\", "/")
+    return path
+
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         options=None, clean=False, notify=None, verbose=False, jobs=1,
         macros=None, silent=False, report=None, properties=None,
@@ -2018,10 +2027,14 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     Returns a tuple of the build result (True or False) followed by the test
     build data structure"""
     
+    execution_directory = "."
+
+    base_path = norm_relative_path(build_path, execution_directory)
+    
     test_build = {
         "platform": target.name,
         "toolchain": toolchain_name,
-        "base_path": build_path,
+        "base_path": base_path,
         "baud_rate": 9600,
         "binary_type": "bootable",
         "tests": {}
@@ -2060,7 +2073,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         
         # Normalize the path
         if bin_file:
-            bin_file = os.path.normpath(bin_file)
+            bin_file = norm_relative_path(bin_file, execution_directory)
             
             test_build['tests'][test_name] = {
                 "binaries": [
