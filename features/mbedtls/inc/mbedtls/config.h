@@ -294,12 +294,7 @@
  * Requires MBEDTLS_ENTROPY_C, MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
  *
  */
-#ifndef MBEDTLS_ENTROPY_HARDWARE_ALT
-/* For devices without HW entropy souces, we are forced to use
- * NULL entropy. */
-#define MBEDTLS_TEST_NULL_ENTROPY
-#define MBEDTLS_NO_DEFAULT_ENTROPY_SOURCES
-#endif // MBEDTLS_ENTROPY_HARDWARE_ALT
+//#define MBEDTLS_TEST_NULL_ENTROPY
 
 /**
  * \def MBEDTLS_ENTROPY_HARDWARE_ALT
@@ -2570,6 +2565,9 @@
 //#define MBEDTLS_X509_MAX_INTERMEDIATE_CA   8   /**< Maximum number of intermediate CAs in a verification chain. */
 
 /* \} name SECTION: Customisation configuration options */
+
+/* Target and application specific configurations */
+//#define YOTTA_CFG_MBEDTLS_USER_CONFIG_FILE "target_config.h"
 
 /*
  * Allow user to override any previous default.
