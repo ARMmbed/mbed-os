@@ -10,7 +10,7 @@ import re
 import csv
 import json
 import argparse
-from utils import argparse_uppercase_type, argparse_lowercase_hyphen_type
+from utils import argparse_uppercase_type, argparse_lowercase_hyphen_type, argparse_filestring_type
 from prettytable import PrettyTable
 
 debug = False
@@ -523,7 +523,7 @@ def main():
     # Parser handling
     parser = argparse.ArgumentParser(description="Memory Map File Analyser for ARM mbed\nversion %s" % version)
 
-    parser.add_argument('file', help='memory map file')
+    parser.add_argument('file', type=argparse_filestring_type, help='memory map file')
 
     parser.add_argument('-t', '--toolchain', dest='toolchain', help='select a toolchain used to build the memory map file (%s)' % ", ".join(MemapParser.toolchains),\
                         required=True, type=argparse_uppercase_type(MemapParser.toolchains, "toolchain"))
