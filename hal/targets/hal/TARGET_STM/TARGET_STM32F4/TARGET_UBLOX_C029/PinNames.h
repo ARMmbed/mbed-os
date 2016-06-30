@@ -188,8 +188,8 @@ typedef enum {
     SW0     = PF_2,   // Switch-0
     SW1     = PB_6,   // Green / Switch-1
     // ST-Link
-    USBRX   = PD_9,
-    USBTX   = PD_8,
+    USBRX   = PA_10,
+    USBTX   = PA_9,
     SWDIO   = PA_15, 
     SWCLK   = PA_14, 
     NTRST   = PB_4,  
