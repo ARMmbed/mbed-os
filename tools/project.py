@@ -168,12 +168,9 @@ if __name__ == '__main__':
         lib_symbols = []
         if options.macros:
             lib_symbols += options.macros
-        project_dir, project_name, project_temp = setup_project(mcu,
-                      ide,
-                      p,
-                      src,
-                      options.macros,
-                      options.build)
+        project_dir, project_name, project_temp = setup_project(mcu, ide, p, src,
+                                                                options.macros,
+                                                                options.build)
 
         tmp_path, report = perform_export(project_dir, project_name, ide, mcu,
                                           project_temp, clean, zip, lib_symbols,
