@@ -16,6 +16,7 @@ limitations under the License.
 """
 from exporters import Exporter
 from os.path import splitext, basename
+from os import curdir
 
 
 class GccArm(Exporter):
@@ -128,6 +129,7 @@ class GccArm(Exporter):
     def generate(self):
         # "make" wants Unix paths
         self.resources.win_to_unix()
+        self.resources.relative_to(curdir)
 
         to_be_compiled = []
         for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
