@@ -13,12 +13,13 @@ endif
 ifeq (,$(filter .build,$(notdir $(CURDIR))))
 .SUFFIXES:
 OBJDIR := .build
-MAKETARGET = $(MAKE) --no-print-directory -C $@ -f $(CURDIR)/Makefile \
+MAKETARGET = $(MAKE) --no-print-directory -C $(OBJDIR) -f $(CURDIR)/Makefile \
 		SRCDIR=$(CURDIR) $(MAKECMDGOALS)
 .PHONY: $(OBJDIR) clean
-$(OBJDIR):
-	+@$(call MAKEDIR,$@)
+all:
+	+@$(call MAKEDIR,$(OBJDIR))
 	+@$(MAKETARGET)
+$(OBJDIR): all
 Makefile : ;
 % :: $(OBJDIR) ; :
 clean :
