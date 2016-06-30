@@ -76,6 +76,14 @@ bool Harness::set_scheduler(const utest_v1_scheduler_t scheduler)
     return false;
 }
 
+
+void Harness::notify_testcases()
+{
+    for(unsigned i = 0; i < test_length; i++) {
+        utest::v1::greentea_testcase_notification_handler(test_cases[i].get_description());
+    }
+}
+
 bool Harness::run(const Specification& specification, size_t)
 {
     UTEST_LOG_FUNCTION();
@@ -133,6 +141,8 @@ bool Harness::run(const Specification& specification)
         exit(1);
         return true;
     }
+
+    notify_testcases();
 
     case_index = setup_status;
     case_current = &test_cases[case_index];

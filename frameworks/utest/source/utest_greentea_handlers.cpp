@@ -80,6 +80,13 @@ static void test_failure_handler(const failure_t failure) {
 }
 
 // --- GREENTEA HANDLERS ---
+
+void utest::v1::greentea_testcase_notification_handler(const char *testcase)
+{
+    UTEST_LOG_FUNCTION();
+    greentea_send_kv(GREENTEA_TEST_ENV_TESTCASE_NAME, testcase);
+}
+
 utest::v1::status_t utest::v1::default_greentea_test_setup_handler(const size_t number_of_cases)
 {
     UTEST_LOG_FUNCTION();

@@ -91,6 +91,8 @@ namespace v1 {
         static void run_next_case();
         static void handle_timeout();
         static void schedule_next_case();
+    private:
+        static void notify_testcases();
     };
 
 }   // namespace v1
