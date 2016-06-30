@@ -122,7 +122,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     }
 
     // No available peripheral
-    error("No available I2C");
+    error("No available I2C peripheral\r\n");
 }
 
 void i2c_reset(i2c_t *obj)
@@ -215,7 +215,7 @@ int i2c_byte_write(i2c_t *obj, int data)
 
 #if DEVICE_I2C_ASYNCH
 
-void i2c_transfer_asynch(i2c_t *obj, void *tx, size_t tx_length,
+void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length,
                          void *rx, size_t rx_length, uint32_t address,
                          uint32_t stop, uint32_t handler,
                          uint32_t event, DMAUsage hint)

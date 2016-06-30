@@ -34,8 +34,7 @@ void lp_ticker_set_interrupt(uint32_t now, uint32_t time)
 {
     (void)now;
     nrf_rtc_cc_set(COMMON_RTC_INSTANCE, LP_TICKER_CC_CHANNEL, RTC_WRAP(time));
-    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_COMPARE_2);
-    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_COMPARE2_MASK);
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
 }
 
 uint32_t lp_ticker_get_overflows_counter(void)
