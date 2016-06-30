@@ -162,14 +162,14 @@ typedef enum {
     A2      = PC_2,  // AI12
     A3      = PF_7,  // LPOCLK, not AI
     A4      = PG_4,  // not AI
-    A5      = PB_3,  // not AI
+    A5      = PE_0,  // not AI
     // D0-D15
     D0      = PD_9,   // UART3-RX
     D1      = PD_8,   // UART3-TX
     D2      = PA_10,  // UART1-RX
     D3      = PA_11,  // CAN1-RX
     D4      = PA_12,  // CAN1-TX
-    D5      = PA_15,
+    D5      = PB_8,
     D6      = PD_11,  // UART3-CTS
     D7      = PD_12,  // UART3-RTS
     D8      = PA_9,   // UART1-TX
