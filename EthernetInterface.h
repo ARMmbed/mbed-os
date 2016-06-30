@@ -30,8 +30,6 @@ class NetworkStack;
 class EthernetInterface : public EthInterface
 {
 public:
-    EthernetInterface();
-
     /** Start the interface
      *  @return             0 on success, negative on failure
      */

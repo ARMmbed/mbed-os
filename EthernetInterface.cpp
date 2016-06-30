@@ -18,148 +18,33 @@
 #include "EthernetInterface.h"
 #include "NetworkStack.h"
 
+#include "eth_arch.h"
 #include "lwip/opt.h"
+#include "lwip/api.h"
 #include "lwip/inet.h"
 #include "lwip/netif.h"
 #include "lwip/dhcp.h"
 #include "lwip/tcpip.h"
-#include "lwip/sockets.h"
-#include "lwip/netdb.h"
-#include "netif/etharp.h"
-#include "eth_arch.h"
-#include "lwip/netif.h"
-#include "lwip/udp.h"
 #include "lwip/tcp.h"
-#include "lwip/tcp_impl.h"
-#include "lwip/timers.h"
-#include "lwip/dns.h"
-#include "lwip/def.h"
-#include "lwip/ip_addr.h"
 
 
-/* Predeclared LWIPInterface class */
-class LWIPInterface : public NetworkStack
+/* Predeclared LWIPStack class */
+static class LWIPStack : public NetworkStack
 {
-    /** Get the local IP address
-     *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if not yet connected
-     */
     virtual const char *get_ip_address();
-
-    /** Open a socket
-     *  @param handle       Handle in which to store new socket
-     *  @param proto        Type of socket to open, NSAPI_TCP or NSAPI_UDP
-     *  @return             0 on success, negative on failure
-     */
     virtual int socket_open(void **handle, nsapi_protocol_t proto);
-
-    /** Close the socket
-     *  @param handle       Socket handle
-     *  @return             0 on success, negative on failure
-     *  @note On failure, any memory associated with the socket must still
-     *        be cleaned up
-     */
     virtual int socket_close(void *handle);
-
-    /** Bind a server socket to a specific port
-     *  @param handle       Socket handle
-     *  @param address      Local address to listen for incoming connections on
-     *  @return             0 on success, negative on failure.
-     */
     virtual int socket_bind(void *handle, const SocketAddress &address);
-
-    /** Start listening for incoming connections
-     *  @param handle       Socket handle
-     *  @param backlog      Number of pending connections that can be queued up at any
-     *                      one time [Default: 1]
-     *  @return             0 on success, negative on failure
-     */
     virtual int socket_listen(void *handle, int backlog);
-
-    /** Connects this TCP socket to the server
-     *  @param handle       Socket handle
-     *  @param address      SocketAddress to connect to
-     *  @return             0 on success, negative on failure
-     */
     virtual int socket_connect(void *handle, const SocketAddress &address);
-
-    /** Accept a new connection.
-     *  @param handle       Handle in which to store new socket
-     *  @param server       Socket handle to server to accept from
-     *  @return             0 on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
-     */
     virtual int socket_accept(void **handle, void *server);
-
-    /** Send data to the remote host
-     *  @param handle       Socket handle
-     *  @param data         The buffer to send to the host
-     *  @param size         The length of the buffer to send
-     *  @return             Number of written bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
-     */
     virtual int socket_send(void *handle, const void *data, unsigned size);
-
-    /** Receive data from the remote host
-     *  @param handle       Socket handle
-     *  @param data         The buffer in which to store the data received from the host
-     *  @param size         The maximum length of the buffer
-     *  @return             Number of received bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
-     */
     virtual int socket_recv(void *handle, void *data, unsigned size);
-
-    /** Send a packet to a remote endpoint
-     *  @param handle       Socket handle
-     *  @param address      The remote SocketAddress
-     *  @param data         The packet to be sent
-     *  @param size         The length of the packet to be sent
-     *  @return the         number of written bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
-     */
     virtual int socket_sendto(void *handle, const SocketAddress &address, const void *data, unsigned size);
-
-    /** Receive a packet from a remote endpoint
-     *  @param handle       Socket handle
-     *  @param address      Destination for the remote SocketAddress or null
-     *  @param buffer       The buffer for storing the incoming packet data
-     *                      If a packet is too long to fit in the supplied buffer,
-     *                      excess bytes are discarded
-     *  @param size         The length of the buffer
-     *  @return the         number of received bytes on success, negative on failure
-     *  @note This call is not-blocking, if this call would block, must
-     *        immediately return NSAPI_ERROR_WOULD_WAIT
-     */
     virtual int socket_recvfrom(void *handle, SocketAddress *address, void *buffer, unsigned size);
-
-    /*  Set stack-specific socket options
-     *
-     *  The setsockopt allow an application to pass stack-specific hints
-     *  to the underlying stack. For unsupported options,
-     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
-     *
-     *  @param handle   Socket handle
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
-     *  @param optval   Option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative error code on failure
-     */
     virtual int setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen);
-
-    /** Register a callback on state change of the socket
-     *  @param handle       Socket handle
-     *  @param callback     Function to call on state change
-     *  @param data         Argument to pass to callback
-     *  @note Callback may be called in an interrupt context.
-     */
     virtual void socket_attach(void *handle, void (*callback)(void *), void *data);
-};
+} lwip_stack;
 
 
 /* Static arena of sockets */
@@ -202,12 +87,11 @@ static void lwip_arena_dealloc(struct lwip_socket *s)
     s->in_use = false;
 }
 
-static void lwip_socket_callback(
-        struct netconn *nc, enum netconn_evt, u16_t len) {
+static void lwip_socket_callback(struct netconn *nc, enum netconn_evt, u16_t len) {
     sys_prot_t prot = sys_arch_protect();
 
     for (int i = 0; i < MEMP_NUM_NETCONN; i++) {
-        if (lwip_arena[i].in_use 
+        if (lwip_arena[i].in_use
             && lwip_arena[i].conn == nc
             && lwip_arena[i].cb) {
             lwip_arena[i].cb(lwip_arena[i].data);
@@ -256,7 +140,7 @@ static void lwip_set_mac_address()
 #else
     char mac[6];
     mbed_mac_address(mac);
-    snprintf(lwip_mac_addr, 19, "%02x:%02x:%02x:%02x:%02x:%02x", 
+    snprintf(lwip_mac_addr, 19, "%02x:%02x:%02x:%02x:%02x:%02x",
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #endif
 }
@@ -307,7 +191,7 @@ static int lwip_init()
     return 0;
 }
 
-static void lwip_deinit() 
+static void lwip_deinit()
 {
     dhcp_release(&lwip_netif);
     dhcp_stop(&lwip_netif);
@@ -321,7 +205,7 @@ static int lwip_err_remap(err_t err) {
     switch (err) {
         case ERR_OK:
             return 0;
-        case ERR_MEM:   
+        case ERR_MEM:
             return NSAPI_ERROR_NO_MEMORY;
         case ERR_CONN:
         case ERR_CLSD:
@@ -342,11 +226,11 @@ static int lwip_err_remap(err_t err) {
 }
 
 /* LWIP stack implementation */
-const char *LWIPInterface::get_ip_address() {
+const char *LWIPStack::get_ip_address() {
     return lwip_get_ip_address();
 }
 
-int LWIPInterface::socket_open(void **handle, nsapi_protocol_t proto)
+int LWIPStack::socket_open(void **handle, nsapi_protocol_t proto)
 {
     struct lwip_socket *s = lwip_arena_alloc();
     if (!s) {
@@ -367,7 +251,7 @@ int LWIPInterface::socket_open(void **handle, nsapi_protocol_t proto)
     return 0;
 }
 
-int LWIPInterface::socket_close(void *handle)
+int LWIPStack::socket_close(void *handle)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -377,7 +261,7 @@ int LWIPInterface::socket_close(void *handle)
 }
 
 
-int LWIPInterface::socket_bind(void *handle, const SocketAddress &addr)
+int LWIPStack::socket_bind(void *handle, const SocketAddress &addr)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -388,7 +272,7 @@ int LWIPInterface::socket_bind(void *handle, const SocketAddress &addr)
     return lwip_err_remap(err);
 }
 
-int LWIPInterface::socket_listen(void *handle, int backlog)
+int LWIPStack::socket_listen(void *handle, int backlog)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -396,7 +280,7 @@ int LWIPInterface::socket_listen(void *handle, int backlog)
     return lwip_err_remap(err);
 }
 
-int LWIPInterface::socket_connect(void *handle, const SocketAddress &addr)
+int LWIPStack::socket_connect(void *handle, const SocketAddress &addr)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -410,7 +294,7 @@ int LWIPInterface::socket_connect(void *handle, const SocketAddress &addr)
     return lwip_err_remap(err);
 }
 
-int LWIPInterface::socket_accept(void **handle, void *server)
+int LWIPStack::socket_accept(void **handle, void *server)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(server);
     struct lwip_socket *ns = lwip_arena_alloc();
@@ -422,10 +306,10 @@ int LWIPInterface::socket_accept(void **handle, void *server)
     }
 
     *reinterpret_cast<struct lwip_socket**>(handle) = ns;
-    return 0; 
+    return 0;
 }
 
-int LWIPInterface::socket_send(void *handle, const void *data, unsigned size)
+int LWIPStack::socket_send(void *handle, const void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -437,7 +321,7 @@ int LWIPInterface::socket_send(void *handle, const void *data, unsigned size)
     return size;
 }
 
-int LWIPInterface::socket_recv(void *handle, void *data, unsigned size)
+int LWIPStack::socket_recv(void *handle, void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -462,7 +346,7 @@ int LWIPInterface::socket_recv(void *handle, void *data, unsigned size)
     return recv;
 }
 
-int LWIPInterface::socket_sendto(void *handle, const SocketAddress &addr, const void *data, unsigned size)
+int LWIPStack::socket_sendto(void *handle, const SocketAddress &addr, const void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -485,7 +369,7 @@ int LWIPInterface::socket_sendto(void *handle, const SocketAddress &addr, const 
     return size;
 }
 
-int LWIPInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *data, unsigned size)
+int LWIPStack::socket_recvfrom(void *handle, SocketAddress *addr, void *data, unsigned size)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -507,7 +391,7 @@ int LWIPInterface::socket_recvfrom(void *handle, SocketAddress *addr, void *data
     return recv;
 }
 
-int LWIPInterface::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen) {
+int LWIPStack::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen) {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
     switch (optname) {
@@ -515,7 +399,7 @@ int LWIPInterface::setsockopt(void *handle, int level, int optname, const void *
             if (optlen != sizeof(int) || s->conn->type != NETCONN_TCP) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
-            
+
             s->conn->pcb.tcp->so_options |= SOF_KEEPALIVE;
             return 0;
 
@@ -534,13 +418,13 @@ int LWIPInterface::setsockopt(void *handle, int level, int optname, const void *
 
             s->conn->pcb.tcp->keep_intvl = *(int*)optval;
             return 0;
-            
+
         default:
             return NSAPI_ERROR_UNSUPPORTED;
     }
 }
 
-void LWIPInterface::socket_attach(void *handle, void (*callback)(void *), void *data)
+void LWIPStack::socket_attach(void *handle, void (*callback)(void *), void *data)
 {
     struct lwip_socket *s = static_cast<struct lwip_socket*>(handle);
 
@@ -550,11 +434,6 @@ void LWIPInterface::socket_attach(void *handle, void (*callback)(void *), void *
 
 
 /* Interface implementation */
-EthernetInterface::EthernetInterface()
-{
-    _stack = new LWIPInterface();
-}
-
 int EthernetInterface::connect()
 {
     return lwip_init();
@@ -578,5 +457,5 @@ const char *EthernetInterface::get_mac_address()
 
 NetworkStack *EthernetInterface::get_stack()
 {
-    return _stack;
+    return &lwip_stack;
 }
