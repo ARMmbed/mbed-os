@@ -39,11 +39,6 @@
  *      RTX User configuration part BEGIN
  *---------------------------------------------------------------------------*/
 
-#if defined(MBED_RTOS_SINGLE_THREAD)
-#define OS_TASKCNT  1
-#define OS_TIMERS   0
-#endif
-
 //-------- <<< Use Configuration Wizard in Context Menu >>> -----------------
 //
 // <h>Thread Configuration
