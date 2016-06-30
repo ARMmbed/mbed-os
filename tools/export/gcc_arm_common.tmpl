@@ -2,7 +2,7 @@
 # see http://mbed.org/handbook/Exporting-to-GCC-ARM-Embedded
 
 # cross-platform directory manipulation
-ifeq ($(OS),Windows_NT)
+ifeq ($(OSTYPE),)
     MAKEDIR = if not exist "$(1)" mkdir "$(1)"
     RM = rmdir /S /Q
 else
