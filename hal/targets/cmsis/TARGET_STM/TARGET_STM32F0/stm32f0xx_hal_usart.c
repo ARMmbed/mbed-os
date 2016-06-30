@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   USART HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Universal Synchronous Asynchronous Receiver Transmitter
@@ -212,38 +212,7 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
         (++) Baud Rate
         (++) Word Length
         (++) Stop Bit
-        (++) Parity: If the parity is enabled, then the MSB bit of the data written
-             in the data register is transmitted but is changed by the parity bit.
-             According to device capability (support or not of 7-bit word length),
-             frame length is either defined by the M bit (8-bits or 9-bits)
-             or by the M1 and M0 bits (7-bit, 8-bit or 9-bit).
-             Possible USART frame formats are as listed in the following table:
-            (+++)    Table 1. USART frame format.             
-            (+++)    +-----------------------------------------------------------------------+
-            (+++)    |       M bit       |  PCE bit  |             USART frame                |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         0         |     0     |    | SB |    8-bit data   | STB |     |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         0         |     1     |    | SB | 7-bit data | PB | STB |     |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         1         |     0     |    | SB |    9-bit data   | STB |     |
-            (+++)    |-------------------|-----------|---------------------------------------|
-            (+++)    |         1         |     1     |    | SB | 8-bit data | PB | STB |     |
-            (+++)    +-----------------------------------------------------------------------+
-            (+++)    |  M1 bit |  M0 bit |  PCE bit  |             USART frame                |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    0    |     0     |    | SB |    8 bit data   | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    0    |     1     |    | SB | 7 bit data | PB | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    1    |     0     |    | SB |    9 bit data   | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    0    |    1    |     1     |    | SB | 8 bit data | PB | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    1    |    0    |     0     |    | SB |    7 bit data   | STB |     |
-            (+++)    |---------|---------|-----------|---------------------------------------|
-            (+++)    |    1    |    0    |     1     |    | SB | 6 bit data | PB | STB |     |
-            (+++)    +-----------------------------------------------------------------------+
+        (++) Parity
         (++) USART polarity
         (++) USART phase
         (++) USART LastBit
@@ -256,6 +225,43 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
 @endverbatim
   * @{
   */
+
+/*
+  Additional Table:  If the parity is enabled, then the MSB bit of the data written
+                     in the data register is transmitted but is changed by the parity bit.
+                     According to device capability (support or not of 7-bit word length),
+                     frame length is either defined by the M bit (8-bits or 9-bits)
+                     or by the M1 and M0 bits (7-bit, 8-bit or 9-bit).
+                     Possible USART frame formats are as listed in the following table:
+
+      Table 1. USART frame format.             
+      +-----------------------------------------------------------------------+
+      |       M bit       |  PCE bit  |             USART frame                |
+      |-------------------|-----------|---------------------------------------|
+      |         0         |     0     |    | SB |    8-bit data   | STB |     |
+      |-------------------|-----------|---------------------------------------|
+      |         0         |     1     |    | SB | 7-bit data | PB | STB |     |
+      |-------------------|-----------|---------------------------------------|
+      |         1         |     0     |    | SB |    9-bit data   | STB |     |
+      |-------------------|-----------|---------------------------------------|
+      |         1         |     1     |    | SB | 8-bit data | PB | STB |     |
+      +-----------------------------------------------------------------------+
+      |  M1 bit |  M0 bit |  PCE bit  |             USART frame                |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    0    |     0     |    | SB |    8 bit data   | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    0    |     1     |    | SB | 7 bit data | PB | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    1    |     0     |    | SB |    9 bit data   | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    0    |    1    |     1     |    | SB | 8 bit data | PB | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    1    |    0    |     0     |    | SB |    7 bit data   | STB |     |
+      |---------|---------|-----------|---------------------------------------|
+      |    1    |    0    |     1     |    | SB | 6 bit data | PB | STB |     |
+      +-----------------------------------------------------------------------+
+
+*/
 
 /**
   * @brief  Initializes the USART mode according to the specified
@@ -452,6 +458,10 @@ HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
   * @param pTxData: Pointer to data buffer.
   * @param Size: Amount of data to be sent.
   * @param Timeout: Timeout duration.
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffer containing data to be sent, should be aligned on a half word frontier (16 bits)
+  *         (as sent data will be handled using u16 pointer cast). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pTxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size, uint32_t Timeout)
@@ -463,6 +473,17 @@ HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxDa
     if((pTxData == NULL) || (Size == 0))
     {
       return  HAL_ERROR;
+    }
+
+    /* In case of 9bits/No Parity transfer, pTxData buffer provided as input paramter 
+       should be aligned on a u16 frontier, as data to be filled into TDR will be 
+       handled through a u16 cast. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if((((uint32_t)pTxData)&1) != 0)
+      {
+        return  HAL_ERROR;
+      }
     }
 
     /* Process Locked */
@@ -519,6 +540,10 @@ HAL_StatusTypeDef HAL_USART_Transmit(USART_HandleTypeDef *husart, uint8_t *pTxDa
   * @param pRxData: Pointer to data buffer.
   * @param Size: Amount of data to be received.
   * @param Timeout: Timeout duration.
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffer for storing data to be received, should be aligned on a half word frontier (16 bits)
+  *         (as received data will be handled using u16 pointer cast). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pRxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxData, uint16_t Size, uint32_t Timeout)
@@ -532,6 +557,18 @@ HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxDat
     {
       return  HAL_ERROR;
     }
+
+    /* In case of 9bits/No Parity transfer, pRxData buffer provided as input paramter 
+       should be aligned on a u16 frontier, as data to be received from RDR will be 
+       handled through a u16 cast. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if((((uint32_t)pRxData)&1) != 0)
+      {
+        return  HAL_ERROR;
+      }
+    }
+
     /* Process Locked */
     __HAL_LOCK(husart);
 
@@ -598,6 +635,10 @@ HAL_StatusTypeDef HAL_USART_Receive(USART_HandleTypeDef *husart, uint8_t *pRxDat
   * @param pRxData: pointer to RX data buffer.
   * @param Size: amount of data to be sent (same amount to be received).
   * @param Timeout: Timeout duration.
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffers containing data to be sent/received, should be aligned on a half word frontier (16 bits)
+  *         (as sent/received data will be handled using u16 pointer cast). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pTxData and pRxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size, uint32_t Timeout)
@@ -611,6 +652,18 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
     {
       return  HAL_ERROR;
     }
+
+    /* In case of 9bits/No Parity transfer, pTxData and pRxData buffers provided as input paramter 
+       should be aligned on a u16 frontier, as data to be filled into TDR/retrieved from RDR will be 
+       handled through a u16 cast. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if(((((uint32_t)pTxData)&1) != 0) || ((((uint32_t)pRxData)&1) != 0))
+      {
+        return  HAL_ERROR;
+      }
+    }
+
     /* Process Locked */
     __HAL_LOCK(husart);
 
@@ -684,6 +737,10 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive(USART_HandleTypeDef *husart, uint8_t
   * @param husart: USART handle.
   * @param pTxData: pointer to data buffer.
   * @param Size: amount of data to be sent.
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffer containing data to be sent, should be aligned on a half word frontier (16 bits)
+  *         (as sent data will be handled using u16 pointer cast). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pTxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size)
@@ -693,6 +750,17 @@ HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, uint8_t *pT
     if((pTxData == NULL) || (Size == 0))
     {
       return HAL_ERROR;
+    }
+
+    /* In case of 9bits/No Parity transfer, pTxData buffer provided as input paramter 
+       should be aligned on a u16 frontier, as data to be filled into TDR will be 
+       handled through a u16 cast. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if((((uint32_t)pTxData)&1) != 0)
+      {
+        return  HAL_ERROR;
+      }
     }
 
     /* Process Locked */
@@ -731,6 +799,10 @@ HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, uint8_t *pT
   * @param husart: USART handle.
   * @param pRxData: pointer to data buffer.
   * @param Size: amount of data to be received.
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffer for storing data to be received, should be aligned on a half word frontier (16 bits)
+  *         (as received data will be handled using u16 pointer cast). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pRxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRxData, uint16_t Size)
@@ -741,6 +813,18 @@ HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRx
     {
       return HAL_ERROR;
     }
+
+    /* In case of 9bits/No Parity transfer, pRxData buffer provided as input paramter 
+       should be aligned on a u16 frontier, as data to be received from RDR will be 
+       handled through a u16 cast. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if((((uint32_t)pRxData)&1) != 0)
+      {
+        return  HAL_ERROR;
+      }
+    }
+
     /* Process Locked */
     __HAL_LOCK(husart);
 
@@ -790,6 +874,10 @@ HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRx
   * @param pTxData: pointer to TX data buffer.
   * @param pRxData: pointer to RX data buffer.
   * @param Size: amount of data to be sent (same amount to be received).
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffers containing data to be sent/received, should be aligned on a half word frontier (16 bits)
+  *         (as sent/received data will be handled using u16 pointer cast). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pTxData and pRxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_TransmitReceive_IT(USART_HandleTypeDef *husart, uint8_t *pTxData, uint8_t *pRxData,  uint16_t Size)
@@ -801,6 +889,18 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_IT(USART_HandleTypeDef *husart, uint
     {
       return HAL_ERROR;
     }
+
+    /* In case of 9bits/No Parity transfer, pTxData and pRxData buffers provided as input paramter 
+       should be aligned on a u16 frontier, as data to be filled into TDR/retrieved from RDR will be 
+       handled through a u16 cast. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if(((((uint32_t)pTxData)&1) != 0) || ((((uint32_t)pRxData)&1) != 0))
+      {
+        return  HAL_ERROR;
+      }
+    }
+
     /* Process Locked */
     __HAL_LOCK(husart);
 
@@ -846,6 +946,10 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_IT(USART_HandleTypeDef *husart, uint
   * @param husart: USART handle.
   * @param pTxData: pointer to data buffer.
   * @param Size: amount of data to be sent.
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffer containing data to be sent, should be aligned on a half word frontier (16 bits)
+  *         (as sent data will be handled by DMA from halfword frontier). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pTxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_Transmit_DMA(USART_HandleTypeDef *husart, uint8_t *pTxData, uint16_t Size)
@@ -858,6 +962,18 @@ HAL_StatusTypeDef HAL_USART_Transmit_DMA(USART_HandleTypeDef *husart, uint8_t *p
     {
       return HAL_ERROR;
     }
+
+    /* In case of 9bits/No Parity transfer, pTxData buffer provided as input paramter 
+       should be aligned on a u16 frontier, as data copy into TDR will be 
+       handled by DMA from a u16 frontier. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if((((uint32_t)pTxData)&1) != 0)
+      {
+        return  HAL_ERROR;
+      }
+    }
+
     /* Process Locked */
     __HAL_LOCK(husart);
 
@@ -904,8 +1020,10 @@ HAL_StatusTypeDef HAL_USART_Transmit_DMA(USART_HandleTypeDef *husart, uint8_t *p
   * @param husart: USART handle.
   * @param pRxData: pointer to data buffer.
   * @param Size: amount of data to be received.
-  * @note   When the USART parity is enabled (PCE = 1), the received data contain
-  *         the parity bit (MSB position).
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffer for storing data to be received, should be aligned on a half word frontier (16 bits)
+  *         (as received data will be handled by DMA from halfword frontier). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pRxData.
   * @note The USART DMA transmit channel must be configured in order to generate the clock for the slave.  
   * @retval HAL status
   */
@@ -918,6 +1036,17 @@ HAL_StatusTypeDef HAL_USART_Receive_DMA(USART_HandleTypeDef *husart, uint8_t *pR
     if((pRxData == NULL) || (Size == 0))
     {
       return HAL_ERROR;
+    }
+
+    /* In case of 9bits/No Parity transfer, pRxData buffer provided as input paramter 
+       should be aligned on a u16 frontier, as data copy from RDR will be 
+       handled by DMA from a u16 frontier. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if((((uint32_t)pRxData)&1) != 0)
+      {
+        return  HAL_ERROR;
+      }
     }
 
     /* Process Locked */
@@ -975,7 +1104,10 @@ HAL_StatusTypeDef HAL_USART_Receive_DMA(USART_HandleTypeDef *husart, uint8_t *pR
   * @param pTxData: pointer to TX data buffer.
   * @param pRxData: pointer to RX data buffer.
   * @param Size: amount of data to be received/sent.
-  * @note   When the USART parity is enabled (PCE = 1) the data received contain the parity bit.
+  * @note   When UART parity is not enabled (PCE = 0), and Word Length is configured to 9 bits (M1-M0 = 01),
+  *         address of user data buffers containing data to be sent/received, should be aligned on a half word frontier (16 bits)
+  *         (as sent/received data will be handled by DMA from halfword frontier). Depending on compilation chain,
+  *         use of specific alignment compilation directives or pragmas might be required to ensure proper alignment for pTxData and pRxData.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_TransmitReceive_DMA(USART_HandleTypeDef *husart, uint8_t *pTxData, uint8_t *pRxData, uint16_t Size)
@@ -988,6 +1120,18 @@ HAL_StatusTypeDef HAL_USART_TransmitReceive_DMA(USART_HandleTypeDef *husart, uin
     {
       return HAL_ERROR;
     }
+
+    /* In case of 9bits/No Parity transfer, pTxData and pRxData buffers provided as input paramter 
+       should be aligned on a u16 frontier, as data copy to/from TDR/RDR will be 
+       handled by DMA from a u16 frontier. */
+    if ((husart->Init.WordLength == USART_WORDLENGTH_9B) && (husart->Init.Parity == USART_PARITY_NONE))
+    {
+      if(((((uint32_t)pTxData)&1) != 0) || ((((uint32_t)pRxData)&1) != 0))
+      {
+        return  HAL_ERROR;
+      }
+    }
+
     /* Process Locked */
     __HAL_LOCK(husart);
 
@@ -1449,16 +1593,16 @@ static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart)
   switch (clocksource)
   {
     case USART_CLOCKSOURCE_PCLK1:
-      usartdiv = (uint16_t)((2*HAL_RCC_GetPCLK1Freq()) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2*HAL_RCC_GetPCLK1Freq()) + (husart->Init.BaudRate/2)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_HSI:
-      usartdiv = (uint16_t)((2*HSI_VALUE) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2*HSI_VALUE) + (husart->Init.BaudRate/2)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_SYSCLK:
-      usartdiv = (uint16_t)((2*HAL_RCC_GetSysClockFreq()) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2*HAL_RCC_GetSysClockFreq()) + (husart->Init.BaudRate/2)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_LSE:
-      usartdiv = (uint16_t)((2*LSE_VALUE) / husart->Init.BaudRate);
+      usartdiv = (uint16_t)(((2*LSE_VALUE) + (husart->Init.BaudRate/2)) / husart->Init.BaudRate);
       break;
     case USART_CLOCKSOURCE_UNDEFINED:
     default:
@@ -1487,7 +1631,7 @@ static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart)
      Bits are defined for some specific devices, and are available only for UART instances supporting WakeUp from Stop Mode feature. 
   */
 #if !defined(STM32F030x6) && !defined(STM32F030x8)&& !defined(STM32F070xB)&& !defined(STM32F070x6)&& !defined(STM32F030xC)
-  if (IS_UART_WAKEUP_INSTANCE(husart->Instance))
+  if (IS_UART_WAKEUP_FROMSTOP_INSTANCE(husart->Instance))
   {
     /* Check if the Transmitter is enabled */
     if((husart->Instance->CR1 & USART_CR1_TE) == USART_CR1_TE)
@@ -1731,7 +1875,7 @@ static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart)
 
     if(husart->TxXferCount == 0)
     {
-      /* Disable the USART Transmit Complete Interrupt */
+      /* Disable the USART Transmit data register empty interrupt */
       __HAL_USART_DISABLE_IT(husart, USART_IT_TXE);
 
       /* Enable the USART Transmit Complete Interrupt */

@@ -62,7 +62,7 @@ if __name__ == '__main__':
     options.prefix = options.prefix or [""]
 
     try:
-        params, macros = get_config(options.source_dir, target, toolchain)
+        params, macros, features = get_config(options.source_dir, target, toolchain)
         if not params and not macros:
             print "No configuration data available."
             _exit(0)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         print "Macros"
         print "------"
         if macros:
-            print 'Defined with "macros":', macros
+            print 'Defined with "macros":', Config.config_macros_to_macros(macros)
         print "Generated from configuration parameters:", Config.parameters_to_macros(params)
 
     except KeyboardInterrupt, e:

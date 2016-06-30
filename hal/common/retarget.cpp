@@ -88,6 +88,10 @@ FileHandle::~FileHandle() {
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
+#if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
+static char stdio_in_prev;
+static char stdio_out_prev;
+#endif
 #endif
 
 static void init_serial() {
@@ -226,9 +230,19 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
     if (fh < 3) {
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
+#if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
+        for (unsigned int i = 0; i < length; i++) {
+            if (buffer[i] == '\n' && stdio_out_prev != '\r') {
+                 serial_putc(&stdio_uart, '\r');
+            }
+            serial_putc(&stdio_uart, buffer[i]);
+            stdio_out_prev = buffer[i];
+        }
+#else
         for (unsigned int i = 0; i < length; i++) {
             serial_putc(&stdio_uart, buffer[i]);
         }
+#endif
 #endif
         n = length;
     } else {
@@ -254,7 +268,28 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
         // only read a character at a time from stdin
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
+#if MBED_CONF_CORE_STDIO_CONVERT_NEWLINES
+        while (true) {
+            char c = serial_getc(&stdio_uart);
+            if ((c == '\r' && stdio_in_prev != '\n') ||
+                (c == '\n' && stdio_in_prev != '\r')) {
+                stdio_in_prev = c;
+                *buffer = '\n';
+                break;
+            } else if ((c == '\r' && stdio_in_prev == '\n') ||
+                       (c == '\n' && stdio_in_prev == '\r')) {
+                stdio_in_prev = c;
+                // onto next character
+                continue;
+            } else {
+                stdio_in_prev = c;
+                *buffer = c;
+                break;
+            }
+        }
+#else
         *buffer = serial_getc(&stdio_uart);
+#endif
 #endif
         n = 1;
     } else {

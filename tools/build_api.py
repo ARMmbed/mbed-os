@@ -105,8 +105,27 @@ def get_config(src_path, target, toolchain_name):
     for path in src_paths[1:]:
         resources.add(toolchain.scan_resources(path))
 
-    config.add_config_files(resources.json_files)
-    return config.get_config_data()
+    # Update configuration files until added features creates no changes
+    prev_features = set()
+    while True:
+        # Update the configuration with any .json files found while scanning
+        config.add_config_files(resources.json_files)
+
+        # Add features while we find new ones
+        features = config.get_features()
+        if features == prev_features:
+            break
+
+        for feature in features:
+            if feature in resources.features:
+                resources += resources.features[feature]
+
+        prev_features = features
+    config.validate_config()
+
+    cfg, macros = config.get_config_data()
+    features = config.get_features()
+    return cfg, macros, features
 
 def build_project(src_path, build_path, target, toolchain_name,
         libraries_paths=None, options=None, linker_script=None,
@@ -195,16 +214,15 @@ def build_project(src_path, build_path, target, toolchain_name,
             else:
                 resources.inc_dirs.append(inc_dirs)
 
-        # Update the configuration with any .json files found while scanning
-        config.add_config_files(resources.json_files)
-        # And add the configuration macros to the toolchain
-        toolchain.add_macros(config.get_config_data_macros())
+        # Load resources into the config system which might expand/modify resources based on config data
+        resources = config.load_resources(resources)
+
+        # Set the toolchain's configuration data
+        toolchain.set_config_data(config.get_config_data())
 
         # Compile Sources
-        for path in src_paths:
-            src = toolchain.scan_resources(path)
-            objects = toolchain.compile_sources(src, build_path, resources.inc_dirs)
-            resources.objects.extend(objects)
+        objects = toolchain.compile_sources(resources, build_path, resources.inc_dirs)
+        resources.objects.extend(objects)
 
         # Link Program
         res, _ = toolchain.link_program(resources, build_path, name)
@@ -237,7 +255,7 @@ def build_project(src_path, build_path, target, toolchain_name,
             add_result_to_report(report, cur_result)
 
         # Let Exception propagate
-        raise e
+        raise
 
 def build_library(src_paths, build_path, target, toolchain_name,
          dependencies_paths=None, options=None, name=None, clean=False, archive=True,
@@ -303,13 +321,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
         for path in src_paths:
             # Scan resources
             resource = toolchain.scan_resources(path)
-            
-            # Copy headers, objects and static libraries - all files needed for static lib
-            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.objects, build_path, rel_path=resource.base_path)
-            toolchain.copy_files(resource.libraries, build_path, rel_path=resource.base_path)
-            if resource.linker_script:
-                toolchain.copy_files(resource.linker_script, build_path, rel_path=resource.base_path)
 
             # Extend resources collection
             if not resources:
@@ -346,16 +357,26 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         # Handle configuration
         config = Config(target)
-        # Update the configuration with any .json files found while scanning
-        config.add_config_files(resources.json_files)
-        # And add the configuration macros to the toolchain
-        toolchain.add_macros(config.get_config_data_macros())
+
+        # Load resources into the config system which might expand/modify resources based on config data
+        resources = config.load_resources(resources)
+
+        # Set the toolchain's configuration data
+        toolchain.set_config_data(config.get_config_data())
+
+        # Copy headers, objects and static libraries - all files needed for static lib
+        toolchain.copy_files(resources.headers, build_path, resources=resources)
+        toolchain.copy_files(resources.objects, build_path, resources=resources)
+        toolchain.copy_files(resources.libraries, build_path, resources=resources)
+        if resources.linker_script:
+            toolchain.copy_files(resources.linker_script, build_path, resources=resources)
+            
+        if resource.hex_files:
+            toolchain.copy_files(resources.hex_files, build_path, resources=resources)
 
         # Compile Sources
-        for path in src_paths:
-            src = toolchain.scan_resources(path)
-            objects = toolchain.compile_sources(src, abspath(tmp_path), resources.inc_dirs)
-            resources.objects.extend(objects)
+        objects = toolchain.compile_sources(resources, abspath(tmp_path), resources.inc_dirs)
+        resources.objects.extend(objects)
 
         if archive:
             toolchain.build_library(objects, build_path, name)
@@ -493,7 +514,8 @@ def build_lib(lib_id, target, toolchain_name, options=None, verbose=False, clean
 
         # Copy Headers
         for resource in resources:
-            toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+            toolchain.copy_files(resource.headers, build_path, resources=resource)
+            
         dependencies_include_dir.extend(toolchain.scan_resources(build_path).inc_dirs)
 
         # Compile Sources
@@ -591,7 +613,7 @@ def build_mbed_libs(target, toolchain_name, options=None, verbose=False, clean=F
         # Target specific sources
         HAL_SRC = join(MBED_TARGETS_PATH, "hal")
         hal_implementation = toolchain.scan_resources(HAL_SRC)
-        toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, HAL_SRC)
+        toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files + hal_implementation.libraries, BUILD_TARGET, resources=hal_implementation)
         incdirs = toolchain.scan_resources(BUILD_TARGET).inc_dirs
         objects = toolchain.compile_sources(hal_implementation, TMP_PATH, [MBED_LIBRARIES] + incdirs)
 
@@ -769,7 +791,7 @@ def static_analysis_scan(target, toolchain_name, CPPCHECK_CMD, CPPCHECK_MSG_FORM
     hal_implementation = toolchain.scan_resources(HAL_SRC)
 
     # Copy files before analysis
-    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, HAL_SRC)
+    toolchain.copy_files(hal_implementation.headers + hal_implementation.hex_files, BUILD_TARGET, resources=hal_implementation)
     incdirs = toolchain.scan_resources(BUILD_TARGET)
 
     target_includes = ["-I%s" % i for i in incdirs.inc_dirs]
@@ -873,7 +895,7 @@ def static_analysis_scan_library(src_paths, build_path, target, toolchain_name, 
 
     # Copy Headers
     for resource in resources:
-        toolchain.copy_files(resource.headers, build_path, rel_path=resource.base_path)
+        toolchain.copy_files(resource.headers, build_path, resources=resource)
         includes += ["-I%s" % i for i in resource.inc_dirs]
         c_sources += " ".join(resource.c_sources) + " "
         cpp_sources += " ".join(resource.cpp_sources) + " "

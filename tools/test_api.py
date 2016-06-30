@@ -898,7 +898,7 @@ class SingleTestRunner(object):
                                                       reset=host_test_reset,
                                                       reset_tout=reset_tout,
                                                       copy_method=selected_copy_method,
-                                                      program_cycle_s=target_by_mcu.program_cycle_s())
+                                                      program_cycle_s=target_by_mcu.program_cycle_s)
                 single_test_result, single_test_output, single_testduration, single_timeout = host_test_result
 
             # Store test result
@@ -2083,4 +2083,3 @@ def test_spec_from_test_builds(test_builds):
     return {
         "builds": test_builds
     }
-    

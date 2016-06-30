@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.3.1
-  * @date    29-January-2016
+  * @version V1.4.0
+  * @date    27-May-2016
   * @brief   PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -250,7 +250,8 @@ void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinx)
 {
   /* Check the parameters */
   assert_param(IS_PWR_WAKEUP_PIN(WakeUpPinx));
-  PWR->CSR |= (PWR_CSR_EWUP1 << (uint8_t)WakeUpPinx);
+  /* Enable the EWUPx pin */
+  SET_BIT(PWR->CSR, WakeUpPinx);
 }
 
 /**
@@ -264,7 +265,8 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
 {
   /* Check the parameters */
   assert_param(IS_PWR_WAKEUP_PIN(WakeUpPinx));
-  PWR->CSR &= ~(PWR_CSR_EWUP1 << (uint8_t)WakeUpPinx);
+  /* Disable the EWUPx pin */
+  CLEAR_BIT(PWR->CSR, WakeUpPinx);
 }
 
 /**

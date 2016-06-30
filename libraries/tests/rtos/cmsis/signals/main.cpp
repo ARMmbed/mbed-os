@@ -1,6 +1,10 @@
 #include "mbed.h"
 #include "cmsis_os.h"
 
+#if defined(MBED_RTOS_SINGLE_THREAD)
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 DigitalOut led(LED1);
 
 void led_thread(void const *argument) {

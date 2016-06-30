@@ -28,6 +28,7 @@
  *******************************************************************************
  */
 #include "mbed_assert.h"
+#include "mbed_error.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -168,49 +169,45 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     init_spi(obj);
 }
 
+static const uint16_t baudrate_prescaler_table[] =	{SPI_BAUDRATEPRESCALER_2,
+                                                    SPI_BAUDRATEPRESCALER_4,
+                                                    SPI_BAUDRATEPRESCALER_8,
+                                                    SPI_BAUDRATEPRESCALER_16,
+                                                    SPI_BAUDRATEPRESCALER_32,
+                                                    SPI_BAUDRATEPRESCALER_64,
+                                                    SPI_BAUDRATEPRESCALER_128,
+                                                    SPI_BAUDRATEPRESCALER_256};
+
 void spi_frequency(spi_t *obj, int hz)
 {
-    if (obj->spi == SPI_1) {
-        // Values depend of PCLK2: 64 MHz if HSI is used, 72 MHz if HSE is used
-        if (hz < 500000) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 250 kHz - 281 kHz
-        } else if ((hz >= 500000) && (hz < 1000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 500 kHz - 563 kHz
-        } else if ((hz >= 1000000) && (hz < 2000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 1 MHz - 1.13 MHz
-        } else if ((hz >= 2000000) && (hz < 4000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 2 MHz - 2.25 MHz
-        } else if ((hz >= 4000000) && (hz < 8000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 4 MHz - 4.5 MHz
-        } else if ((hz >= 8000000) && (hz < 16000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 8 MHz - 9 MHz
-        } else if ((hz >= 16000000) && (hz < 32000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 16 MHz - 18 MHz
-        } else { // >= 32000000
-            obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 32 MHz - 36 MHz
-        }
+    int spi_hz = 0;
+	uint8_t prescaler_rank = 0;
+
+	/* Get source clock depending on SPI instance */
+    switch ((int)obj->spi) {
+        case SPI_1:
+			/* SPI_1. Source CLK is PCKL2 */
+			spi_hz = HAL_RCC_GetPCLK2Freq();
+			break;
+		case SPI_2:
+			/* SPI_2. Source CLK is PCKL1 */
+			spi_hz = HAL_RCC_GetPCLK1Freq();
+			break;
+		default:
+			error("SPI instance not set");
     }
 
-    if (obj->spi == SPI_2) {
-        // Values depend of PCLK1: 32 MHz if HSI is used, 36 MHz if HSE is used
-        if (hz < 250000) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_256; // 125 kHz - 141 kHz
-        } else if ((hz >= 250000) && (hz < 500000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_128; // 250 kHz - 281 kHz
-        } else if ((hz >= 500000) && (hz < 1000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_64; // 500 kHz - 563 kHz
-        } else if ((hz >= 1000000) && (hz < 2000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_32; // 1 MHz - 1.13 MHz
-        } else if ((hz >= 2000000) && (hz < 4000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_16; // 2 MHz - 2.25 MHz
-        } else if ((hz >= 4000000) && (hz < 8000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_8; // 4 MHz - 4.5 MHz
-        } else if ((hz >= 8000000) && (hz < 16000000)) {
-            obj->br_presc = SPI_BAUDRATEPRESCALER_4; // 8 MHz - 9 MHz
-        } else { // >= 16000000
-            obj->br_presc = SPI_BAUDRATEPRESCALER_2; // 16 MHz - 18 MHz
-        }
-    }
+	/* Define pre-scaler in order to get highest available frequency below requested frequency */
+	while ((spi_hz > hz) && (prescaler_rank < sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0]))){
+		spi_hz = spi_hz / 2;
+		prescaler_rank++;
+	}
+
+	if (prescaler_rank <= sizeof(baudrate_prescaler_table)/sizeof(baudrate_prescaler_table[0])) {
+		obj->br_presc = baudrate_prescaler_table[prescaler_rank-1];
+	} else {
+		error("Couldn't setup requested SPI frequency");
+	}
 
     init_spi(obj);
 }

@@ -53,9 +53,14 @@ void core_util_critical_section_enter()
        are enabled, then something has gone badly wrong thus assert an error.
     */
     MBED_ASSERT(interrupt_enable_counter < UINT32_MAX); 
+// FIXME
+#ifndef   FEATURE_UVISOR
     if (interrupt_enable_counter > 0) {
         MBED_ASSERT(interrupts_disabled & 0x1);
     }
+#else
+#warning "core_util_critical_section_enter needs fixing to work from unprivileged code"
+#endif /* FEATURE_UVISOR */
     interrupt_enable_counter++;
 }
 
@@ -64,9 +69,14 @@ void core_util_critical_section_exit()
     /* If critical_section_enter has not previously been called, do nothing */
     if (interrupt_enable_counter) {
 
+// FIXME
+#ifndef   FEATURE_UVISOR
         uint32_t interrupts_disabled = get_interrupts_disabled(); /* get the current interrupt disabled state */
 
         MBED_ASSERT(interrupts_disabled & 0x1); /* Interrupts must be disabled on invoking an exit from a critical section */
+#else
+#warning "core_util_critical_section_exit needs fixing to work from unprivileged code"
+#endif /* FEATURE_UVISOR */
 
         interrupt_enable_counter--;
 
