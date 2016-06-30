@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
@@ -24,50 +25,58 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
-#include <stddef.h>
-#include "us_ticker_api.h"
-#include "PeripheralNames.h"
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
 
-#if defined(TIM5_BASE)
-  #define TIM_MST TIM5
-#else
-  #define TIM_MST TIM2
+#include "cmsis.h"
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-static TIM_HandleTypeDef TimMasterHandle;
-static int us_ticker_inited = 0;
+typedef enum {
+    ADC_1 = (int)ADC1_BASE,
+} ADCName;
 
-void us_ticker_init(void)
-{
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
+typedef enum {
+    DAC_1 = (int)DAC_BASE
+} DACName;
 
-    TimMasterHandle.Instance = TIM_MST;
+typedef enum {
+    UART_1 = (int)USART1_BASE,
+    UART_2 = (int)USART2_BASE,
+    LPUART_1 = (int)LPUART1_BASE
+} UARTName;
 
-    HAL_InitTick(0); // The passed value is not used
+#define STDIO_UART_TX  PA_2
+#define STDIO_UART_RX  PA_15
+#define STDIO_UART     UART_2
+
+typedef enum {
+    SPI_1 = (int)SPI1_BASE,
+    SPI_3 = (int)SPI3_BASE
+} SPIName;
+
+typedef enum {
+    I2C_1 = (int)I2C1_BASE,
+    I2C_3 = (int)I2C3_BASE
+} I2CName;
+
+typedef enum {
+    PWM_1  = (int)TIM1_BASE,
+    PWM_2  = (int)TIM2_BASE,
+    PWM_15 = (int)TIM15_BASE,
+    PWM_16 = (int)TIM16_BASE,
+} PWMName;
+
+typedef enum {
+    CAN_1 = (int)CAN1_BASE
+} CANName;
+
+#ifdef __cplusplus
 }
+#endif
 
-uint32_t us_ticker_read()
-{
-    if (!us_ticker_inited) us_ticker_init();
-    return TIM_MST->CNT;
-}
-
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
-    // Set new output compare value
-    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
-    // Enable IT
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_disable_interrupt(void)
-{
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_clear_interrupt(void)
-{
-    __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-}
+#endif

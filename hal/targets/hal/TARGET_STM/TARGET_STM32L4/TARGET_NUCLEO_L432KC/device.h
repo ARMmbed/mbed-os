@@ -1,4 +1,7 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
+ *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
@@ -24,50 +27,27 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
-#include <stddef.h>
-#include "us_ticker_api.h"
-#include "PeripheralNames.h"
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#if defined(TIM5_BASE)
-  #define TIM_MST TIM5
-#else
-  #define TIM_MST TIM2
+
+
+
+
+
+
+
+
+
+//=======================================
+
+#define DEVICE_ID_LENGTH       24
+
+
+
+
+#include "objects.h"
+
 #endif
-
-static TIM_HandleTypeDef TimMasterHandle;
-static int us_ticker_inited = 0;
-
-void us_ticker_init(void)
-{
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
-
-    TimMasterHandle.Instance = TIM_MST;
-
-    HAL_InitTick(0); // The passed value is not used
-}
-
-uint32_t us_ticker_read()
-{
-    if (!us_ticker_inited) us_ticker_init();
-    return TIM_MST->CNT;
-}
-
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
-    // Set new output compare value
-    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
-    // Enable IT
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_disable_interrupt(void)
-{
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_clear_interrupt(void)
-{
-    __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-}

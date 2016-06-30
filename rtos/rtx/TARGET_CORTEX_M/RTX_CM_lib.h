@@ -488,6 +488,9 @@ extern uint32_t __StackTop[];
 #elif defined(TARGET_STM32F070RB) || defined(TARGET_STM32F030R8)
 #define INITIAL_SP            (0x20002000UL)
 
+#elif defined(TARGET_STM32L432KC)
+#define INITIAL_SP            (0x2000C000UL)
+
 #elif defined(TARGET_STM32L476VG)
 #define INITIAL_SP            (0x20018000UL)
 

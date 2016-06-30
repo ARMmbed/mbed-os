@@ -1,0 +1,35 @@
+/* [ROM = 256kb = 0x40000] */
+define symbol __intvec_start__     = 0x08000000;
+define symbol __region_ROM_start__ = 0x08000000;
+define symbol __region_ROM_end__   = 0x0803FFFF;
+
+/* [RAM = 48kb + 16kb = 0xC000] */
+/* Vector table dynamic copy: Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM */
+define symbol __NVIC_start__          = 0x10000000;
+define symbol __NVIC_end__            = 0x10000187; /* Aligned on 8 bytes (392 = 49 x 8) */
+define symbol __region_SRAM2_start__  = 0x10000188;
+define symbol __region_SRAM2_end__    = 0x10003FFF;
+define symbol __region_SRAM1_start__  = 0x20000000;
+define symbol __region_SRAM1_end__    = 0x2000BFFF;
+
+/* Memory regions */
+define memory mem with size = 4G;
+define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__];
+define region SRAM2_region = mem:[from __region_SRAM2_start__ to __region_SRAM2_end__];
+define region SRAM1_region = mem:[from __region_SRAM1_start__ to __region_SRAM1_end__];
+
+/* Stack 1/8 and Heap 1/4 of RAM */
+define symbol __size_cstack__ = 0x2000;
+define symbol __size_heap__   = 0x4000;
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block STACKHEAP with fixed order { block HEAP, block CSTACK };
+
+initialize by copy with packing = zeros { readwrite };
+do not initialize  { section .noinit };
+
+place at address mem:__intvec_start__ { readonly section .intvec };
+
+place in ROM_region   { readonly };
+place in SRAM1_region   { readwrite, block STACKHEAP };
+place in SRAM2_region { };

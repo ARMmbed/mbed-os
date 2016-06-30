@@ -1,4 +1,6 @@
 /* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
+ *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
@@ -24,50 +26,30 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-#include <stddef.h>
-#include "us_ticker_api.h"
-#include "PeripheralNames.h"
+ *******************************************************************************
+ */ 
+#include "cmsis_nvic.h"
 
-#if defined(TIM5_BASE)
-  #define TIM_MST TIM5
-#else
-  #define TIM_MST TIM2
-#endif
+#define NVIC_RAM_VECTOR_ADDRESS   (0x10000000)  // Vectors positioned at start of SRAM2
+#define NVIC_FLASH_VECTOR_ADDRESS (0x08000000)  // Initial vector position in flash
 
-static TIM_HandleTypeDef TimMasterHandle;
-static int us_ticker_inited = 0;
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+    uint32_t *vectors = (uint32_t *)SCB->VTOR;
+    uint32_t i;
 
-void us_ticker_init(void)
-{
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
-
-    TimMasterHandle.Instance = TIM_MST;
-
-    HAL_InitTick(0); // The passed value is not used
+    // Copy and switch to dynamic vectors if the first time called
+    if (SCB->VTOR == NVIC_FLASH_VECTOR_ADDRESS) {
+        uint32_t *old_vectors = vectors;
+        vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+        for (i=0; i<NVIC_NUM_VECTORS; i++) {
+            vectors[i] = old_vectors[i];
+        }
+        SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+    }
+    vectors[IRQn + NVIC_USER_IRQ_OFFSET] = vector;
 }
 
-uint32_t us_ticker_read()
-{
-    if (!us_ticker_inited) us_ticker_init();
-    return TIM_MST->CNT;
-}
-
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
-    // Set new output compare value
-    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
-    // Enable IT
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_disable_interrupt(void)
-{
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_clear_interrupt(void)
-{
-    __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    uint32_t *vectors = (uint32_t*)SCB->VTOR;
+    return vectors[IRQn + NVIC_USER_IRQ_OFFSET];
 }

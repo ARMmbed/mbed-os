@@ -1,4 +1,5 @@
 /* mbed Microcontroller Library
+ *******************************************************************************
  * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
@@ -24,50 +25,100 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
-#include <stddef.h>
-#include "us_ticker_api.h"
-#include "PeripheralNames.h"
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
-#if defined(TIM5_BASE)
-  #define TIM_MST TIM5
-#else
-  #define TIM_MST TIM2
+#include "cmsis.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-static TIM_HandleTypeDef TimMasterHandle;
-static int us_ticker_inited = 0;
+struct gpio_irq_s {
+    IRQn_Type irq_n;
+    uint32_t irq_index;
+    uint32_t event;
+    PinName pin;
+};
 
-void us_ticker_init(void)
-{
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
+struct port_s {
+    PortName port;
+    uint32_t mask;
+    PinDirection direction;
+    __IO uint32_t *reg_in;
+    __IO uint32_t *reg_out;
+};
 
-    TimMasterHandle.Instance = TIM_MST;
+struct analogin_s {
+    ADCName adc;
+    PinName pin;
+    uint32_t channel;
+};
 
-    HAL_InitTick(0); // The passed value is not used
+struct dac_s {
+    DACName dac;
+    PinName pin;
+    uint32_t channel;
+};
+
+struct serial_s {
+    UARTName uart;
+    int index; // Used by irq
+    uint32_t baudrate;
+    uint32_t databits;
+    uint32_t stopbits;
+    uint32_t parity;
+    PinName  pin_tx;
+    PinName  pin_rx;
+#if DEVICE_SERIAL_FC
+    uint32_t hw_flow_ctl;
+    PinName pin_rts;
+    PinName pin_cts;
+#endif
+};
+
+struct spi_s {
+    SPIName spi;
+    uint32_t bits;
+    uint32_t cpol;
+    uint32_t cpha;
+    uint32_t mode;
+    uint32_t nss;
+    uint32_t br_presc;
+    PinName  pin_miso;
+    PinName  pin_mosi;
+    PinName  pin_sclk;
+    PinName  pin_ssel;
+};
+
+struct i2c_s {
+    I2CName  i2c;
+    uint32_t slave;
+};
+
+struct pwmout_s {
+    PWMName pwm;
+    PinName pin;
+    uint32_t period;
+    uint32_t pulse;
+    uint32_t channel;
+    uint32_t inverted;
+};
+
+struct can_s {
+    CANName can;
+    int index;
+};
+
+#include "gpio_object.h"
+
+#ifdef __cplusplus
 }
+#endif
 
-uint32_t us_ticker_read()
-{
-    if (!us_ticker_inited) us_ticker_init();
-    return TIM_MST->CNT;
-}
-
-void us_ticker_set_interrupt(timestamp_t timestamp)
-{
-    // Set new output compare value
-    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
-    // Enable IT
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_disable_interrupt(void)
-{
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
-
-void us_ticker_clear_interrupt(void)
-{
-    __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-}
+#endif
