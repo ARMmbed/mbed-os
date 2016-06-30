@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
 #include "mbed_assert.h"
 #include "analogin_api.h"
 #include "cmsis.h"
@@ -57,26 +58,14 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(ret_code == NRF_SUCCESS);
 }
 
-/**
- * NRF52 SAR ADC module provides measurement with sign.
- * Already mbed API dosn't support readout of signed integer value.
- */
-static int16_t analogin_read_i16(analogin_t *obj)
+
+uint16_t analogin_read_u16(analogin_t *obj)
 {
-    nrf_saadc_value_t adc_value;
+    int16_t    adc_value;
     ret_code_t ret_code;
     
     ret_code = nrf_drv_saadc_sample_convert(obj->adc_pin, &adc_value);
     MBED_ASSERT(ret_code == NRF_SUCCESS);
-    
-    return adc_value;
-}
-
-uint16_t analogin_read_u16(analogin_t *obj)
-{
-    int16_t adc_value;
-    
-    adc_value = analogin_read_i16(obj);
     
     if (adc_value < 0)
     {
@@ -91,7 +80,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
 
 float analogin_read(analogin_t *obj)
 {
-    int16_t value = analogin_read_i16(obj);
+    uint16_t value = analogin_read_u16(obj);
     return (float)value * (1.0f / (float)ADC_RANGE);
 }
 
