@@ -1106,7 +1106,8 @@
             "toolchains": ["ARM_STD", "GCC_ARM"]
         },
         "program_cycle_s": 6,
-        "default_build": "small"
+        "default_build": "small",
+        "features": ["BLE"]
     },
     "MCU_NRF51_16K_BASE": {
         "inherits": ["MCU_NRF51"],
