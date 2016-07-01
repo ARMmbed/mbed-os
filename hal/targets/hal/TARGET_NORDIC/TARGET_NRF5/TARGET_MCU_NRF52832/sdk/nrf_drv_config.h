@@ -254,7 +254,7 @@
 #define SPI1_INSTANCE_INDEX (SPI0_ENABLED)
 #endif
 
-#define SPI2_ENABLED 0
+#define SPI2_ENABLED 1
 
 #if (SPI2_ENABLED == 1)
 #define SPI2_USE_EASY_DMA 0
@@ -270,7 +270,7 @@
 #define SPI_COUNT   (SPI0_ENABLED + SPI1_ENABLED + SPI2_ENABLED)
 
 /* SPIS */
-#define SPIS0_ENABLED 0
+#define SPIS0_ENABLED 1
 
 #if (SPIS0_ENABLED == 1)
 #define SPIS0_CONFIG_SCK_PIN         2
@@ -281,7 +281,7 @@
 #define SPIS0_INSTANCE_INDEX 0
 #endif
 
-#define SPIS1_ENABLED 0
+#define SPIS1_ENABLED 1
 
 #if (SPIS1_ENABLED == 1)
 #define SPIS1_CONFIG_SCK_PIN         2
@@ -292,7 +292,7 @@
 #define SPIS1_INSTANCE_INDEX SPIS0_ENABLED
 #endif
 
-#define SPIS2_ENABLED 0
+#define SPIS2_ENABLED 1
 
 #if (SPIS2_ENABLED == 1)
 #define SPIS2_CONFIG_SCK_PIN         2

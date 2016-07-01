@@ -21,8 +21,6 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 
-#include "nrf_drv_spi.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -31,9 +29,7 @@ struct serial_s {
 };
 
 struct spi_s {
-    nrf_drv_spi_t *p_spi;
-    volatile bool busy;
-    bool async_mode;
+    uint8_t spi_idx;
 };
 
 struct port_s {

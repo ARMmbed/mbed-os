@@ -23,83 +23,329 @@
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "nrf_drv_spi.h"
+#include "nrf_drv_spis.h"
 #include "app_util_platform.h"
 
-#define SPI_MESSAGE_SIZE 1
-volatile uint8_t m_tx_buf[SPI_MESSAGE_SIZE] = {0};
-volatile uint8_t m_rx_buf[SPI_MESSAGE_SIZE] = {0};
+#if DEVICE_SPI_ASYNCH
+    #define SPI_IDX(obj)    ((obj)->spi.spi_idx)
+#else
+    #define SPI_IDX(obj)    ((obj)->spi_idx)
+#endif
+#define SPI_INFO(obj)       (&m_spi_info[SPI_IDX(obj)])
+#define MASTER_INST(obj)    (&m_instances[SPI_IDX(obj)].master)
+#define SLAVE_INST(obj)     (&m_instances[SPI_IDX(obj)].slave)
 
-static nrf_drv_spi_config_t m_config = NRF_DRV_SPI_DEFAULT_CONFIG(1);
-static nrf_drv_spi_t spi1 = NRF_DRV_SPI_INSTANCE(1); 
-
-typedef void (*user_handler_t)(void);
-static user_handler_t m_user_handler;
-static uint32_t m_event;
-static spi_t * m_spi_struct;
+typedef struct {
+    bool    initialized;
+    bool    master;
+    uint8_t sck_pin;
+    uint8_t mosi_pin;
+    uint8_t miso_pin;
+    uint8_t ss_pin;
+    uint8_t spi_mode;
+    nrf_drv_spi_frequency_t frequency;
+    volatile union {
+        bool busy;     // master
+        bool readable; // slave
+    } flag;
+    volatile uint8_t tx_buf;
+    volatile uint8_t rx_buf;
 
 #if DEVICE_SPI_ASYNCH
-    #define SPI_S(obj)      (&obj->spi)
-    #define SPI_DRV(obj)    (obj->spi.p_spi)
-#else
-    #define SPI_S(obj)      (obj)
-    #define SPI_DRV(obj)    (obj->p_spi)
+    uint32_t handler;
+    uint32_t event;
 #endif
+} spi_info_t;
+static spi_info_t m_spi_info[SPI_COUNT];
 
-static void master_event_handler(nrf_drv_spi_evt_t const * event)
+typedef struct {
+    nrf_drv_spi_t  master;
+    nrf_drv_spis_t slave;
+} sdk_driver_instances_t;
+static sdk_driver_instances_t m_instances[SPI_COUNT] = {
+    #if SPI0_ENABLED
+    {
+        NRF_DRV_SPI_INSTANCE(0),
+        NRF_DRV_SPIS_INSTANCE(0)
+    },
+    #endif
+    #if SPI1_ENABLED
+    {
+        NRF_DRV_SPI_INSTANCE(1),
+        NRF_DRV_SPIS_INSTANCE(1)
+    },
+    #endif
+    #if SPI2_ENABLED
+    {
+        NRF_DRV_SPI_INSTANCE(2),
+        NRF_DRV_SPIS_INSTANCE(2)
+    },
+    #endif
+};
+
+static void master_event_handler(uint8_t spi_idx,
+                                 nrf_drv_spi_evt_t const *p_event)
 {
-    if (event->type == NRF_DRV_SPI_EVENT_DONE) {
-        SPI_S(m_spi_struct)->busy = false;
-        if (SPI_S(m_spi_struct)->async_mode) {
-            m_user_handler();
+    spi_info_t *p_spi_info = &m_spi_info[spi_idx];
+
+    if (p_event->type == NRF_DRV_SPI_EVENT_DONE) {
+        p_spi_info->flag.busy = false;
+        if (p_spi_info->handler) {
+            void (*handler)(void) = (void (*)(void))p_spi_info->handler;
+            p_spi_info->handler = 0;
+            handler();
         }
     }
 }
+#define MASTER_EVENT_HANDLER(idx) \
+    static void master_event_handler_##idx(nrf_drv_spi_evt_t const *p_event) { \
+        master_event_handler(SPI##idx##_INSTANCE_INDEX, p_event); \
+    }
+#if SPI0_ENABLED
+    MASTER_EVENT_HANDLER(0)
+#endif
+#if SPI1_ENABLED
+    MASTER_EVENT_HANDLER(1)
+#endif
+#if SPI2_ENABLED
+    MASTER_EVENT_HANDLER(2)
+#endif
 
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+static nrf_drv_spi_handler_t const m_master_event_handlers[SPI_COUNT] = {
+#if SPI0_ENABLED
+    master_event_handler_0,
+#endif
+#if SPI1_ENABLED
+    master_event_handler_1,
+#endif
+#if SPI2_ENABLED
+    master_event_handler_2,
+#endif
+};
+
+
+static void slave_event_handler(uint8_t spi_idx,
+                                nrf_drv_spis_event_t event)
 {
-    m_config.sck_pin  = (uint8_t)sclk;
-    m_config.mosi_pin = (mosi != NC) ? (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
-    m_config.miso_pin = (miso != NC) ? (uint8_t)miso : NRF_DRV_SPI_PIN_NOT_USED;
-    m_config.ss_pin   = (ssel != NC) ? (uint8_t)ssel : NRF_DRV_SPI_PIN_NOT_USED;
+    spi_info_t *p_spi_info = &m_spi_info[spi_idx];
 
-    SPI_S(obj)->busy = false;
-    m_spi_struct = obj;
+    if (event.evt_type == NRF_DRV_SPIS_XFER_DONE) {
+        // Signal that there is some data received that could be read.
+        p_spi_info->flag.readable = true;
 
-    SPI_DRV(obj) = &spi1;
-    (void)nrf_drv_spi_init(&spi1, &m_config, master_event_handler);
+        // And prepare for the next transfer.
+        // Previous data set in 'spi_slave_write' (if any) has been transmitted,
+        // now use the default one, until some new is set by 'spi_slave_write'.
+        p_spi_info->tx_buf = NRF_DRV_SPIS_DEFAULT_ORC;
+        nrf_drv_spis_buffers_set(&m_instances[spi_idx].slave,
+            (uint8_t const *)&p_spi_info->tx_buf, 1,
+            (uint8_t *)&p_spi_info->rx_buf, 1);
+    }
+}
+#define SLAVE_EVENT_HANDLER(idx) \
+    static void slave_event_handler_##idx(nrf_drv_spis_event_t event) { \
+        slave_event_handler(SPIS##idx##_INSTANCE_INDEX, event); \
+    }
+#if SPIS0_ENABLED
+    SLAVE_EVENT_HANDLER(0)
+#endif
+#if SPIS1_ENABLED
+    SLAVE_EVENT_HANDLER(1)
+#endif
+#if SPIS2_ENABLED
+    SLAVE_EVENT_HANDLER(2)
+#endif
+
+static nrf_drv_spis_event_handler_t const m_slave_event_handlers[SPIS_COUNT] = {
+#if SPIS0_ENABLED
+    slave_event_handler_0,
+#endif
+#if SPIS1_ENABLED
+    slave_event_handler_1,
+#endif
+#if SPIS2_ENABLED
+    slave_event_handler_2,
+#endif
+};
+
+static void prepare_master_config(nrf_drv_spi_config_t *p_config,
+                                  spi_info_t const *p_spi_info)
+{
+    p_config->sck_pin   = p_spi_info->sck_pin;
+    p_config->mosi_pin  = p_spi_info->mosi_pin;
+    p_config->miso_pin  = p_spi_info->miso_pin;
+    p_config->ss_pin    = p_spi_info->ss_pin;
+    p_config->frequency = p_spi_info->frequency;
+    p_config->mode      = (nrf_drv_spi_mode_t)p_spi_info->spi_mode;
+
+    p_config->irq_priority = APP_IRQ_PRIORITY_LOW;
+    p_config->orc          = 0xFF;
+    p_config->bit_order    = NRF_DRV_SPI_BIT_ORDER_MSB_FIRST;
+}
+
+static void prepare_slave_config(nrf_drv_spis_config_t *p_config,
+                                 spi_info_t const *p_spi_info)
+{
+    p_config->sck_pin   = p_spi_info->sck_pin;
+    p_config->mosi_pin  = p_spi_info->mosi_pin;
+    p_config->miso_pin  = p_spi_info->miso_pin;
+    p_config->csn_pin   = p_spi_info->ss_pin;
+    p_config->mode      = (nrf_drv_spis_mode_t)p_spi_info->spi_mode;
+
+    p_config->irq_priority = APP_IRQ_PRIORITY_LOW;
+    p_config->orc          = NRF_DRV_SPIS_DEFAULT_ORC;
+    p_config->def          = NRF_DRV_SPIS_DEFAULT_DEF;
+    p_config->bit_order    = NRF_DRV_SPIS_BIT_ORDER_MSB_FIRST;
+    p_config->csn_pullup   = NRF_DRV_SPIS_DEFAULT_CSN_PULLUP;
+    p_config->miso_drive   = NRF_DRV_SPIS_DEFAULT_MISO_DRIVE;
+}
+
+void spi_init(spi_t *obj,
+              PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
+    int i;
+    for (i = 0; i < SPI_COUNT; ++i) {
+        spi_info_t *p_spi_info = &m_spi_info[i];
+        if (!p_spi_info->initialized) {
+            p_spi_info->sck_pin   = (uint8_t)sclk;
+            p_spi_info->mosi_pin  = (mosi != NC) ?
+                (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
+            p_spi_info->miso_pin  = (miso != NC) ?
+                (uint8_t)miso : NRF_DRV_SPI_PIN_NOT_USED;
+            p_spi_info->ss_pin    = (ssel != NC) ?
+                (uint8_t)ssel : NRF_DRV_SPI_PIN_NOT_USED;
+            p_spi_info->spi_mode  = (uint8_t)NRF_DRV_SPI_MODE_0;
+            p_spi_info->frequency = NRF_DRV_SPI_FREQ_1M;
+
+            // By default each SPI instance is initialized to work as a master.
+            // Should the slave mode be used, the instance will be reconfigured
+            // appropriately in 'spi_format'.
+            nrf_drv_spi_config_t config;
+            prepare_master_config(&config, p_spi_info);
+
+            nrf_drv_spi_t const *p_spi = &m_instances[i].master;
+            ret_code_t ret_code = nrf_drv_spi_init(p_spi,
+                &config, m_master_event_handlers[i]);
+            if (ret_code == NRF_SUCCESS) {
+                p_spi_info->initialized = true;
+                p_spi_info->master      = true;
+                p_spi_info->flag.busy   = false;
+            #if DEVICE_SPI_ASYNCH
+                p_spi_info->handler     = 0;
+            #endif
+                SPI_IDX(obj) = i;
+
+                return;
+            }
+        }
+    }
+
+    // No available peripheral
+    error("No available SPI peripheral\r\n");
 }
 
 void spi_free(spi_t *obj)
 {
-    nrf_drv_spi_uninit(&spi1);
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    if (p_spi_info->master) {
+        nrf_drv_spi_uninit(MASTER_INST(obj));
+    }
+    else {
+        nrf_drv_spis_uninit(SLAVE_INST(obj));
+    }
+    p_spi_info->initialized = false;
 }
 
 int spi_busy(spi_t *obj)
 {
-    return (int)(SPI_S(obj)->busy);
+    return (int)(SPI_INFO(obj)->flag.busy);
 }
 
-static nrf_drv_spi_mode_t mode_translate(int mode)
+void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    nrf_drv_spi_mode_t config_mode = NRF_DRV_SPI_MODE_0;
-    switch (mode) {
-        case 0:
-            config_mode = NRF_DRV_SPI_MODE_0;
-            break;
-        case 1:
-            config_mode = NRF_DRV_SPI_MODE_1;
-            break;
-        case 2:
-            config_mode = NRF_DRV_SPI_MODE_2;
-            break;
-        case 3:
-            config_mode = NRF_DRV_SPI_MODE_3;
-            break;
-        default:
-            error("SPI format error");
-            break;
+    if (bits != 8) {
+        error("Only 8-bits SPI is supported\r\n");
     }
-    return config_mode;
+    if (mode > 3) {
+        error("SPI format error\r\n");
+    }
+
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+
+    if (slave)
+    {
+        nrf_drv_spis_mode_t spi_modes[4] = {
+            NRF_DRV_SPIS_MODE_0,
+            NRF_DRV_SPIS_MODE_1,
+            NRF_DRV_SPIS_MODE_2,
+            NRF_DRV_SPIS_MODE_3,
+        };
+        nrf_drv_spis_mode_t new_mode = spi_modes[mode];
+
+        // If the peripheral is currently working as a master, the SDK driver
+        // it uses needs to be switched from SPI to SPIS.
+        if (p_spi_info->master) {
+            nrf_drv_spi_uninit(MASTER_INST(obj));
+        }
+        // I the SPI mode has to be changed, the SDK's SPIS driver needs to be
+        // re-initialized (there is no other way to change its configuration).
+        else if (p_spi_info->spi_mode != (uint8_t)new_mode) {
+            nrf_drv_spis_uninit(SLAVE_INST(obj));
+        }
+        else {
+            return;
+        }
+
+        p_spi_info->spi_mode = (uint8_t)new_mode;
+        p_spi_info->master = false;
+        p_spi_info->flag.readable = false;
+
+        // Initialize SDK's SPIS driver with the new configuration.
+        nrf_drv_spis_config_t config;
+        prepare_slave_config(&config, p_spi_info);
+        (void)nrf_drv_spis_init(SLAVE_INST(obj), &config,
+            m_slave_event_handlers[SPI_IDX(obj)]);
+
+        // Prepare the slave for transfer.
+        p_spi_info->tx_buf = NRF_DRV_SPIS_DEFAULT_ORC;
+        nrf_drv_spis_buffers_set(SLAVE_INST(obj),
+            (uint8_t const *)&p_spi_info->tx_buf, 1,
+            (uint8_t *)&p_spi_info->rx_buf, 1);
+    }
+    else // master
+    {
+        nrf_drv_spi_mode_t spi_modes[4] = {
+            NRF_DRV_SPI_MODE_0,
+            NRF_DRV_SPI_MODE_1,
+            NRF_DRV_SPI_MODE_2,
+            NRF_DRV_SPI_MODE_3,
+        };
+        nrf_drv_spi_mode_t new_mode = spi_modes[mode];
+
+        // If the peripheral is currently working as a slave, the SDK driver
+        // it uses needs to be switched from SPIS to SPI.
+        if (!p_spi_info->master) {
+            nrf_drv_spis_uninit(SLAVE_INST(obj));
+        }
+        // I the SPI mode has to be changed, the SDK's SPI driver needs to be
+        // re-initialized (there is no other way to change its configuration).
+        else if (p_spi_info->spi_mode != (uint8_t)new_mode) {
+            nrf_drv_spi_uninit(MASTER_INST(obj));
+        }
+        else {
+            return;
+        }
+
+        p_spi_info->spi_mode = (uint8_t)new_mode;
+        p_spi_info->master = true;
+        p_spi_info->flag.busy = false;
+
+        // Initialize SDK's SPI driver with the new configuration.
+        nrf_drv_spi_config_t config;
+        prepare_master_config(&config, p_spi_info);
+        (void)nrf_drv_spi_init(MASTER_INST(obj), &config,
+            m_master_event_handlers[SPI_IDX(obj)]);
+    }
 }
 
 static nrf_drv_spi_frequency_t freq_translate(int hz)
@@ -123,64 +369,73 @@ static nrf_drv_spi_frequency_t freq_translate(int hz)
     return frequency;
 }
 
-void spi_format(spi_t *obj, int bits, int mode, int slave)
-{
-    if (bits != 8) {
-        error("Only 8bits SPI supported");
-    }
-    if (slave != 0) {
-        error("SPI slave mode is not supported");
-    }
-
-    nrf_drv_spi_mode_t config_mode = mode_translate(mode);
-
-    if (m_config.mode != config_mode) {
-        nrf_drv_spi_uninit(&spi1);
-        m_config.mode = config_mode;
-        (void)nrf_drv_spi_init(&spi1, &m_config, master_event_handler);
-    }
-
-}
-
 void spi_frequency(spi_t *obj, int hz)
 {
-    nrf_drv_spi_frequency_t frequency = freq_translate(hz);
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    nrf_drv_spi_frequency_t new_frequency = freq_translate(hz);
 
-    if (frequency != m_config.frequency) {
-        nrf_drv_spi_uninit(&spi1);
-        m_config.frequency = frequency;
-        (void)nrf_drv_spi_init(&spi1, &m_config, master_event_handler);
+    if (p_spi_info->master)
+    {
+        if (p_spi_info->frequency != new_frequency) {
+            p_spi_info->frequency = new_frequency;
+
+            nrf_drv_spi_config_t config;
+            prepare_master_config(&config, p_spi_info);
+
+            nrf_drv_spi_t const *p_spi = MASTER_INST(obj);
+            nrf_drv_spi_uninit(p_spi);
+            (void)nrf_drv_spi_init(p_spi, &config,
+                m_master_event_handlers[SPI_IDX(obj)]);
+        }
     }
+    // There is no need to set anything in slaves when it comes to frequency,
+    // since slaves just synchronize with the clock provided by a master.
 }
 
 int spi_master_write(spi_t *obj, int value)
 {
-    while (SPI_S(obj)->busy);
-    m_tx_buf[0] = value;
-    SPI_S(obj)->async_mode = false;
-    SPI_S(obj)->busy = true;
-    
-    (void)nrf_drv_spi_transfer(SPI_DRV(obj), (uint8_t const *) m_tx_buf, 1,
-                                             (uint8_t *) m_rx_buf, 1);
-    
-    while (SPI_S(obj)->busy);
-    return m_rx_buf[0];
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+
+#if DEVICE_SPI_ASYNCH
+    while (p_spi_info->flag.busy) {
+    }
+#endif
+
+    p_spi_info->tx_buf = value;
+    p_spi_info->flag.busy = true;
+    (void)nrf_drv_spi_transfer(MASTER_INST(obj),
+        (uint8_t const *)&p_spi_info->tx_buf, 1,
+        (uint8_t *)&p_spi_info->rx_buf, 1);
+    while (p_spi_info->flag.busy) {
+    }
+
+    return p_spi_info->rx_buf;
 }
 
 int spi_slave_receive(spi_t *obj)
 {
-    return 0;
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    MBED_ASSERT(!p_spi_info->master);
+    return p_spi_info->flag.readable;
+;
 }
 
 int spi_slave_read(spi_t *obj)
 {
-    return 0;
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    MBED_ASSERT(!p_spi_info->master);
+    while (!p_spi_info->flag.readable) {
+    }
+    p_spi_info->flag.readable = false;
+    return p_spi_info->rx_buf;
 }
 
 void spi_slave_write(spi_t *obj, int value)
 {
-    (void) obj;
-    (void) value;
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    MBED_ASSERT(!p_spi_info->master);
+
+    p_spi_info->tx_buf = (uint8_t)value;
 }
 
 #if DEVICE_SPI_ASYNCH
@@ -190,31 +445,38 @@ void spi_master_transfer(spi_t *obj,
                          void *rx, size_t rx_length, uint8_t bit_width,
                          uint32_t handler, uint32_t event, DMAUsage hint)
 {
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    MBED_ASSERT(p_spi_info->master);
     (void)hint;
     (void)bit_width;
 
-    m_user_handler = (user_handler_t)handler;
-    m_event = event;
-    
-    SPI_S(obj)->async_mode = true;
-    SPI_S(obj)->busy = true;
-    (void)nrf_drv_spi_transfer(SPI_DRV(obj), (uint8_t const *) tx, tx_length,
-                                             (uint8_t *) rx, rx_length);
+    p_spi_info->handler = handler;
+    p_spi_info->event   = event;
+
+    p_spi_info->flag.busy = true;
+    (void)nrf_drv_spi_transfer(MASTER_INST(obj),
+        (uint8_t const *)tx, tx_length,
+        (uint8_t *)rx, rx_length);
 }
 
 uint32_t spi_irq_handler_asynch(spi_t *obj)
 {
-    return m_event & SPI_EVENT_COMPLETE;
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    MBED_ASSERT(p_spi_info->master);
+    return p_spi_info->event & SPI_EVENT_COMPLETE;
 }
 
 uint8_t spi_active(spi_t *obj)
 {
-    return SPI_S(obj)->busy;
+    spi_info_t *p_spi_info = SPI_INFO(obj);
+    MBED_ASSERT(p_spi_info->master);
+    return p_spi_info->flag.busy;
 }
 
 void spi_abort_asynch(spi_t *obj)
 {
-    nrf_drv_spi_abort(SPI_DRV(obj));
+    MBED_ASSERT(SPI_INFO(obj)->master);
+    nrf_drv_spi_abort(MASTER_INST(obj));
 }
 
 #endif // DEVICE_SPI_ASYNCH
