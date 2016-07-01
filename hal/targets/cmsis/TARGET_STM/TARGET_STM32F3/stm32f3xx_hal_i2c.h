@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -314,7 +314,7 @@ typedef struct __I2C_HandleTypeDef
   * @}
   */
   
-/** @defgroup I2C_XferDirection I2C Transfer Direction
+/** @defgroup I2C_XFERDIRECTION I2C Transfer Direction Master Point of View
   * @{
   */
 #define I2C_DIRECTION_TRANSMIT          (0x00000000U)

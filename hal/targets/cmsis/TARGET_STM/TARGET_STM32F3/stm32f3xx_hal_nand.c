@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_nand.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   NAND HAL module driver.
   *          This file provides a generic firmware to drive NAND memories mounted 
   *          as external device.

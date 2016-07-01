@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_hrtim.h
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   Header file of HRTIM HAL module.
   ******************************************************************************
   * @attention
@@ -2116,8 +2116,8 @@ typedef struct {
             ((TIMDELAYEDPROTECTION) == HRTIM_TIMER_A_B_C_DELAYEDPROTECTION_DELAYEDBOTH_EEV7))    \
             ||                                                                           \
             (((TIMPUSHPULLMODE) ==  HRTIM_TIMPUSHPULLMODE_ENABLED) &&                    \
-            ((TIMDELAYEDPROTECTION) == HRTIM_TIMER_A_B_C_DELAYEDPROTECTION_BALANCED_EEV6)     || \
-            ((TIMDELAYEDPROTECTION) == HRTIM_TIMER_A_B_C_DELAYEDPROTECTION_BALANCED_EEV7)))
+             (((TIMDELAYEDPROTECTION) == HRTIM_TIMER_A_B_C_DELAYEDPROTECTION_BALANCED_EEV6)     || \
+             ((TIMDELAYEDPROTECTION) == HRTIM_TIMER_A_B_C_DELAYEDPROTECTION_BALANCED_EEV7))))
 
 #define IS_HRTIM_TIMUPDATETRIGGER(TIMUPDATETRIGGER) (((TIMUPDATETRIGGER) & 0xFE07FFFFU) == 0x00000000)
 

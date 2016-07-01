@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -70,11 +70,11 @@
   * @{
   */
 /**
- * @brief STM32F3xx HAL Driver version number V1.2.1
+ * @brief STM32F3xx HAL Driver version number V1.3.0
    */
 #define __STM32F3xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32F3xx_HAL_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
-#define __STM32F3xx_HAL_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
+#define __STM32F3xx_HAL_VERSION_SUB1   (0x03) /*!< [23:16] sub1 version */
+#define __STM32F3xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32F3xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32F3xx_HAL_VERSION         ((__STM32F3xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32F3xx_HAL_VERSION_SUB1 << 16)\

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_tim_ex.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer Extended peripheral:
@@ -1883,179 +1883,6 @@ HAL_StatusTypeDef HAL_TIM_PWM_ConfigChannel(TIM_HandleTypeDef *htim,
   return HAL_OK;
 }
 
-/**
-  * @brief  Configures the OCRef clear feature
-  * @param  htim: TIM handle
-  * @param  sClearInputConfig: pointer to a TIM_ClearInputConfigTypeDef structure that
-  *         contains the OCREF clear feature and parameters for the TIM peripheral. 
-  * @param  Channel: specifies the TIM Channel
-  *          This parameter can be one of the following values:
-  *            @arg TIM_CHANNEL_1: TIM Channel 1
-  *            @arg TIM_CHANNEL_2: TIM Channel 2
-  *            @arg TIM_CHANNEL_3: TIM Channel 3
-  *            @arg TIM_CHANNEL_4: TIM Channel 4
-  *            @arg TIM_Channel_5: TIM Channel 5
-  *            @arg TIM_Channel_6: TIM Channel 6
-  * @note For STM32F302xC, STM32F302xE, STM32F303xC, STM32F303xE, STM32F358xx,
-  *       STM32F398xx and STM32F303x8 up to 6 OC channels can be configured
-  * @retval None
-  */ 
-HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
-                                           TIM_ClearInputConfigTypeDef *sClearInputConfig,
-                                           uint32_t Channel)
-{ 
-  uint32_t tmpsmcr = 0;
-
-  /* Check the parameters */ 
-  assert_param(IS_TIM_OCXREF_CLEAR_INSTANCE(htim->Instance));
-  assert_param(IS_TIM_CLEARINPUT_SOURCE(sClearInputConfig->ClearInputSource));
-                                        
-  /* Check input state */
-  __HAL_LOCK(htim);
-
-  htim->State = HAL_TIM_STATE_BUSY;
-  
-  switch (sClearInputConfig->ClearInputSource)
-  {
-    case TIM_CLEARINPUTSOURCE_NONE:
-    {
-      /* Get the TIMx SMCR register value */
-      tmpsmcr = htim->Instance->SMCR;
-      
-      /* Clear the OCREF clear selection bit */
-      tmpsmcr &= ~TIM_SMCR_OCCS;
-      
-      /* Clear the ETR Bits */
-      tmpsmcr &= ~(TIM_SMCR_ETF | TIM_SMCR_ETPS | TIM_SMCR_ECE | TIM_SMCR_ETP);
-      
-      /* Set TIMx_SMCR */
-      htim->Instance->SMCR = tmpsmcr;
-   }
-    break;
-    
-    case TIM_CLEARINPUTSOURCE_OCREFCLR:
-    {
-      /* Clear the OCREF clear selection bit */
-      htim->Instance->SMCR &= ~TIM_SMCR_OCCS;
-    }
-    break;
-    
-    case TIM_CLEARINPUTSOURCE_ETR:
-    {
-      /* Check the parameters */ 
-      assert_param(IS_TIM_CLEARINPUT_POLARITY(sClearInputConfig->ClearInputPolarity));
-      assert_param(IS_TIM_CLEARINPUT_PRESCALER(sClearInputConfig->ClearInputPrescaler));
-      assert_param(IS_TIM_CLEARINPUT_FILTER(sClearInputConfig->ClearInputFilter));
-      
-      TIM_ETR_SetConfig(htim->Instance,
-                        sClearInputConfig->ClearInputPrescaler,
-                        sClearInputConfig->ClearInputPolarity,
-                        sClearInputConfig->ClearInputFilter);
-      
-      /* Set the OCREF clear selection bit */
-      htim->Instance->SMCR |= TIM_SMCR_OCCS;
-    }
-    break;
-    default:
-    break;
-  }
-  
-  switch (Channel)
-  { 
-    case TIM_CHANNEL_1:
-      {
-        if(sClearInputConfig->ClearInputState != RESET)
-        {
-          /* Enable the Ocref clear feature for Channel 1 */
-          htim->Instance->CCMR1 |= TIM_CCMR1_OC1CE;
-        }
-        else
-        {
-          /* Disable the Ocref clear feature for Channel 1 */
-          htim->Instance->CCMR1 &= ~TIM_CCMR1_OC1CE;      
-        }
-      }    
-      break;
-    case TIM_CHANNEL_2:    
-      {
-        if(sClearInputConfig->ClearInputState != RESET)
-        {
-          /* Enable the Ocref clear feature for Channel 2 */
-          htim->Instance->CCMR1 |= TIM_CCMR1_OC2CE;
-        }
-        else
-        {
-          /* Disable the Ocref clear feature for Channel 2 */
-          htim->Instance->CCMR1 &= ~TIM_CCMR1_OC2CE;      
-        }
-      }    
-    break;
-    case TIM_CHANNEL_3:    
-      {
-        if(sClearInputConfig->ClearInputState != RESET)
-        {
-          /* Enable the Ocref clear feature for Channel 3 */
-          htim->Instance->CCMR2 |= TIM_CCMR2_OC3CE;
-        }
-        else
-        {
-          /* Disable the Ocref clear feature for Channel 3 */
-          htim->Instance->CCMR2 &= ~TIM_CCMR2_OC3CE;      
-        }
-      }    
-    break;
-    case TIM_CHANNEL_4:    
-      {
-        if(sClearInputConfig->ClearInputState != RESET)
-        {
-          /* Enable the Ocref clear feature for Channel 4 */
-          htim->Instance->CCMR2 |= TIM_CCMR2_OC4CE;
-        }
-        else
-        {
-          /* Disable the Ocref clear feature for Channel 4 */
-          htim->Instance->CCMR2 &= ~TIM_CCMR2_OC4CE;      
-        }
-      }    
-    break;
-    case TIM_CHANNEL_5:    
-      {
-        if(sClearInputConfig->ClearInputState != RESET)
-        {
-          /* Enable the Ocref clear feature for Channel 1 */
-          htim->Instance->CCMR3 |= TIM_CCMR3_OC5CE;
-        }
-        else
-        {
-          /* Disable the Ocref clear feature for Channel 1 */
-          htim->Instance->CCMR3 &= ~TIM_CCMR3_OC5CE;      
-        }
-      }    
-    break;
-    case TIM_CHANNEL_6:    
-      {
-        if(sClearInputConfig->ClearInputState != RESET)
-        {
-          /* Enable the Ocref clear feature for Channel 1 */
-          htim->Instance->CCMR3 |= TIM_CCMR3_OC6CE;
-        }
-        else
-        {
-          /* Disable the Ocref clear feature for Channel 1 */
-          htim->Instance->CCMR3 &= ~TIM_CCMR3_OC6CE;      
-        }
-      }    
-    break;
-    default:  
-    break;
-  } 
-
-  htim->State = HAL_TIM_STATE_READY;
-  
-  __HAL_UNLOCK(htim);
-
-  return HAL_OK;  
-}  
 
 /**
   * @brief  Configures the TIM in master mode.
@@ -2503,6 +2330,194 @@ HAL_StatusTypeDef HAL_TIMEx_GroupChannel5(TIM_HandleTypeDef *htim, uint32_t Chan
        /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
        /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 
+/**
+  * @}
+  */
+
+/** @addtogroup TIM_Exported_Functions_Group8
+  * @{
+  */
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
+    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+/**
+  * @brief  Configures the OCRef clear feature
+  * @param  htim: TIM handle
+  * @param  sClearInputConfig: pointer to a TIM_ClearInputConfigTypeDef structure that
+  *         contains the OCREF clear feature and parameters for the TIM peripheral. 
+  * @param  Channel: specifies the TIM Channel
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1
+  *            @arg TIM_CHANNEL_2: TIM Channel 2
+  *            @arg TIM_CHANNEL_3: TIM Channel 3
+  *            @arg TIM_CHANNEL_4: TIM Channel 4
+  *            @arg TIM_Channel_5: TIM Channel 5
+  *            @arg TIM_Channel_6: TIM Channel 6
+  * @note For STM32F302xC, STM32F302xE, STM32F303xC, STM32F303xE, STM32F358xx,
+  *       STM32F398xx and STM32F303x8 up to 6 OC channels can be configured
+  * @retval None
+  */ 
+HAL_StatusTypeDef HAL_TIM_ConfigOCrefClear(TIM_HandleTypeDef *htim,
+                                           TIM_ClearInputConfigTypeDef *sClearInputConfig,
+                                           uint32_t Channel)
+{ 
+  uint32_t tmpsmcr = 0;
+
+  /* Check the parameters */ 
+  assert_param(IS_TIM_OCXREF_CLEAR_INSTANCE(htim->Instance));
+  assert_param(IS_TIM_CLEARINPUT_SOURCE(sClearInputConfig->ClearInputSource));
+                                        
+  /* Check input state */
+  __HAL_LOCK(htim);
+
+  htim->State = HAL_TIM_STATE_BUSY;
+  
+  switch (sClearInputConfig->ClearInputSource)
+  {
+    case TIM_CLEARINPUTSOURCE_NONE:
+    {
+      /* Get the TIMx SMCR register value */
+      tmpsmcr = htim->Instance->SMCR;
+      
+      /* Clear the OCREF clear selection bit */
+      tmpsmcr &= ~TIM_SMCR_OCCS;
+      
+      /* Clear the ETR Bits */
+      tmpsmcr &= ~(TIM_SMCR_ETF | TIM_SMCR_ETPS | TIM_SMCR_ECE | TIM_SMCR_ETP);
+      
+      /* Set TIMx_SMCR */
+      htim->Instance->SMCR = tmpsmcr;
+   }
+    break;
+    
+    case TIM_CLEARINPUTSOURCE_OCREFCLR:
+    {
+      /* Clear the OCREF clear selection bit */
+      htim->Instance->SMCR &= ~TIM_SMCR_OCCS;
+    }
+    break;
+    
+    case TIM_CLEARINPUTSOURCE_ETR:
+    {
+      /* Check the parameters */ 
+      assert_param(IS_TIM_CLEARINPUT_POLARITY(sClearInputConfig->ClearInputPolarity));
+      assert_param(IS_TIM_CLEARINPUT_PRESCALER(sClearInputConfig->ClearInputPrescaler));
+      assert_param(IS_TIM_CLEARINPUT_FILTER(sClearInputConfig->ClearInputFilter));
+      
+      TIM_ETR_SetConfig(htim->Instance,
+                        sClearInputConfig->ClearInputPrescaler,
+                        sClearInputConfig->ClearInputPolarity,
+                        sClearInputConfig->ClearInputFilter);
+      
+      /* Set the OCREF clear selection bit */
+      htim->Instance->SMCR |= TIM_SMCR_OCCS;
+    }
+    break;
+    default:
+    break;
+  }
+  
+  switch (Channel)
+  { 
+    case TIM_CHANNEL_1:
+      {
+        if(sClearInputConfig->ClearInputState != RESET)
+        {
+          /* Enable the Ocref clear feature for Channel 1 */
+          htim->Instance->CCMR1 |= TIM_CCMR1_OC1CE;
+        }
+        else
+        {
+          /* Disable the Ocref clear feature for Channel 1 */
+          htim->Instance->CCMR1 &= ~TIM_CCMR1_OC1CE;      
+        }
+      }    
+      break;
+    case TIM_CHANNEL_2:    
+      {
+        if(sClearInputConfig->ClearInputState != RESET)
+        {
+          /* Enable the Ocref clear feature for Channel 2 */
+          htim->Instance->CCMR1 |= TIM_CCMR1_OC2CE;
+        }
+        else
+        {
+          /* Disable the Ocref clear feature for Channel 2 */
+          htim->Instance->CCMR1 &= ~TIM_CCMR1_OC2CE;      
+        }
+      }    
+    break;
+    case TIM_CHANNEL_3:    
+      {
+        if(sClearInputConfig->ClearInputState != RESET)
+        {
+          /* Enable the Ocref clear feature for Channel 3 */
+          htim->Instance->CCMR2 |= TIM_CCMR2_OC3CE;
+        }
+        else
+        {
+          /* Disable the Ocref clear feature for Channel 3 */
+          htim->Instance->CCMR2 &= ~TIM_CCMR2_OC3CE;      
+        }
+      }    
+    break;
+    case TIM_CHANNEL_4:    
+      {
+        if(sClearInputConfig->ClearInputState != RESET)
+        {
+          /* Enable the Ocref clear feature for Channel 4 */
+          htim->Instance->CCMR2 |= TIM_CCMR2_OC4CE;
+        }
+        else
+        {
+          /* Disable the Ocref clear feature for Channel 4 */
+          htim->Instance->CCMR2 &= ~TIM_CCMR2_OC4CE;      
+        }
+      }    
+    break;
+    case TIM_CHANNEL_5:    
+      {
+        if(sClearInputConfig->ClearInputState != RESET)
+        {
+          /* Enable the Ocref clear feature for Channel 1 */
+          htim->Instance->CCMR3 |= TIM_CCMR3_OC5CE;
+        }
+        else
+        {
+          /* Disable the Ocref clear feature for Channel 1 */
+          htim->Instance->CCMR3 &= ~TIM_CCMR3_OC5CE;      
+        }
+      }    
+    break;
+    case TIM_CHANNEL_6:    
+      {
+        if(sClearInputConfig->ClearInputState != RESET)
+        {
+          /* Enable the Ocref clear feature for Channel 1 */
+          htim->Instance->CCMR3 |= TIM_CCMR3_OC6CE;
+        }
+        else
+        {
+          /* Disable the Ocref clear feature for Channel 1 */
+          htim->Instance->CCMR3 &= ~TIM_CCMR3_OC6CE;      
+        }
+      }    
+    break;
+    default:  
+    break;
+  } 
+
+  htim->State = HAL_TIM_STATE_READY;
+  
+  __HAL_UNLOCK(htim);
+
+  return HAL_OK;  
+}  
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
+       /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
 /**
   * @}
   */

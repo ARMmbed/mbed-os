@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32_hal_legacy.h
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   This file contains aliases definition for the STM32Cube HAL constants 
   *          macros and functions maintained for legacy purpose.
   ******************************************************************************
@@ -150,6 +150,9 @@
 #define COMP_NONINVERTINGINPUT_IO1      COMP_INPUT_PLUS_IO1
 #define COMP_NONINVERTINGINPUT_IO2      COMP_INPUT_PLUS_IO2
 #define COMP_NONINVERTINGINPUT_IO3      COMP_INPUT_PLUS_IO3
+#define COMP_NONINVERTINGINPUT_IO4      COMP_INPUT_PLUS_IO4
+#define COMP_NONINVERTINGINPUT_IO5      COMP_INPUT_PLUS_IO5
+#define COMP_NONINVERTINGINPUT_IO6      COMP_INPUT_PLUS_IO6
  
 #define COMP_INVERTINGINPUT_1_4VREFINT  COMP_INPUT_MINUS_1_4VREFINT
 #define COMP_INVERTINGINPUT_1_2VREFINT  COMP_INPUT_MINUS_1_2VREFINT
@@ -160,8 +163,16 @@
 #define COMP_INVERTINGINPUT_DAC1        COMP_INPUT_MINUS_DAC1_CH1
 #define COMP_INVERTINGINPUT_DAC2        COMP_INPUT_MINUS_DAC1_CH2
 #define COMP_INVERTINGINPUT_IO1         COMP_INPUT_MINUS_IO1
+#if defined(STM32L0)
+/* Issue fixed on STM32L0 COMP driver: only 2 dedicated IO (IO1 and IO2),     */
+/* IO2 was wrongly assigned to IO shared with DAC and IO3 was corresponding   */
+/* to the second dedicated IO (only for COMP2).                               */
+#define COMP_INVERTINGINPUT_IO2         COMP_INPUT_MINUS_DAC1_CH2
+#define COMP_INVERTINGINPUT_IO3         COMP_INPUT_MINUS_IO2
+#else
 #define COMP_INVERTINGINPUT_IO2         COMP_INPUT_MINUS_IO2
 #define COMP_INVERTINGINPUT_IO3         COMP_INPUT_MINUS_IO3
+#endif
 #define COMP_INVERTINGINPUT_IO4         COMP_INPUT_MINUS_IO4
 #define COMP_INVERTINGINPUT_IO5         COMP_INPUT_MINUS_IO5
 

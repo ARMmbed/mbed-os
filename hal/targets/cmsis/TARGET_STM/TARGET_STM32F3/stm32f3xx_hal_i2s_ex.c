@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2s_ex.c
   * @author  MCD Application Team
-  * @version V1.2.1
-  * @date    29-April-2015
+  * @version V1.3.0
+  * @date    01-July-2016
   * @brief   I2S Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2S Extended peripheral:
@@ -19,21 +19,7 @@
         called I2Sxext ie. I2S2ext for SPI2 and I2S3ext for SPI3).
     (#) The Extended block is not a full SPI IP, it is used only as I2S slave to
         implement full duplex mode. The Extended block uses the same clock sources
-        as its master (refer to the following Figure).
-
-                +-----------------------+
-    I2Sx_SCK    |                       |
-  ----------+-->|          I2Sx         |------------------->I2Sx_SD(in/out)
-         +--|-->|                       |
-        |   |   +-----------------------+
-        |   |          
- I2S_WS |   |           
- ------>|   |          
-        |   |   +-----------------------+
-        |   +-->|                       |
-        |       |       I2Sx_ext        |------------------->I2Sx_extSD(in/out)
-         +----->|                       |
-                +-----------------------+
+        as its master.
 
      (#) Both I2Sx and I2Sx_ext can be configured as transmitters or receivers.
 
@@ -114,6 +100,26 @@
   *
   ******************************************************************************
   */ 
+
+/*
+  Additional Figure: The Extended block uses the same clock sources as its master.
+                     (refer to the following Figure).
+
+                +-----------------------+
+    I2Sx_SCK    |                       |
+  ----------+-->|          I2Sx         |------------------->I2Sx_SD(in/out)
+         +--|-->|                       |
+        |   |   +-----------------------+
+        |   |          
+ I2S_WS |   |           
+ ------>|   |          
+        |   |   +-----------------------+
+        |   +-->|                       |
+        |       |       I2Sx_ext        |------------------->I2Sx_extSD(in/out)
+         +----->|                       |
+                +-----------------------+
+
+*/
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
