@@ -21,22 +21,22 @@ static unsigned int fcache_mode;
 /* Functions */
 
 /*
- * FCache_Initialize: flash cache initialize funtion
+ * FCache_DriverInitialize: flash cache driver initialize funtion
  */
-void FCache_Initialize()
+void FCache_DriverInitialize()
 {
     unsigned int irqstat;
 
     /* Clear interrupt status register */
-    irqstat = readl(SYS_FCACHE_IRQSTAT) & (FCACHE_POW_ERR | FCACHE_MAN_INV_ERR);
-    writel(SYS_FCACHE_IRQSTAT, irqstat);
+    irqstat = FCache_Readl(SYS_FCACHE_IRQSTAT) & (FCACHE_POW_ERR | FCACHE_MAN_INV_ERR);
+    FCache_Writel(SYS_FCACHE_IRQSTAT, irqstat);
 
     /* Cache Disabled: Set enabled to 0 */
     enabled = 0;
 }
 
 /*
- * FCache_Enable: Enables the flash cache
+ * FCache_Enable: Enables the flash cache mode
  * mode: supported modes:
  * 0 - auto-power auto-invalidate
  * 1 - manual-power, manual-invalidate
@@ -52,9 +52,9 @@ void FCache_Enable(int mode)
             /* Statistic counters enabled, Cache enable,
              * auto-inval, auto-power control
              */
-            writel(SYS_FCACHE_CCR, (FCACHE_EN | FCACHE_STATISTIC_EN));
+            FCache_Writel(SYS_FCACHE_CCR, (FCACHE_EN | FCACHE_STATISTIC_EN));
             /* Wait until the cache is enabled */
-            while ((readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_ENABLED);
+            while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_ENABLED);
             /* Cache Enabled: Set enabled to 1 */
             enabled = 1;
             break;
@@ -64,33 +64,33 @@ void FCache_Enable(int mode)
              * Manual power request (Setting: Power CTRL:
              * Manual, Invalidate: Manual)
              */
-            writel(SYS_FCACHE_CCR, (FCACHE_POW_REQ
+            FCache_Writel(SYS_FCACHE_CCR, (FCACHE_POW_REQ
                         | FCACHE_SET_MAN_POW
                         | FCACHE_SET_MAN_INV
                         | FCACHE_STATISTIC_EN));
             /* Wait until the cache rams are powered */
-            while ((readl(SYS_FCACHE_SR) & FCACHE_POW_STAT) != FCACHE_POW_STAT);
+            while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_POW_STAT) != FCACHE_POW_STAT);
             /* Statistic counters enabled, Cache enabled
              * Manual invalidate request (Setting: Power CTRL:
              * Manual, Invalidate: Manual)
              */
-            writel(SYS_FCACHE_CCR, (FCACHE_INV_REQ
+            FCache_Writel(SYS_FCACHE_CCR, (FCACHE_INV_REQ
                         | FCACHE_POW_REQ
                         | FCACHE_SET_MAN_POW
                         | FCACHE_SET_MAN_INV
                         | FCACHE_STATISTIC_EN));
             /* Wait until the cache is invalidated */
-            while ((readl(SYS_FCACHE_SR) & FCACHE_INV_STAT) == FCACHE_INV_STAT);
+            while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_INV_STAT) == FCACHE_INV_STAT);
             /* Statistic counters enabled, Cache enable,
              * manual-inval, manual-power control
              */
-            writel(SYS_FCACHE_CCR, (FCACHE_EN
+            FCache_Writel(SYS_FCACHE_CCR, (FCACHE_EN
                         | FCACHE_POW_REQ
                         | FCACHE_SET_MAN_POW
                         | FCACHE_SET_MAN_INV
                         | FCACHE_STATISTIC_EN));
             /* Wait until the cache is enabled */
-            while ((readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_ENABLED);
+            while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_ENABLED);
             /* Cache Enabled: Set enabled to 1 */
             enabled = 1;
             break;
@@ -100,7 +100,7 @@ void FCache_Enable(int mode)
 }
 
 /*
- * FCache_Disable: Disables the cache
+ * FCache_Disable: Disables the flash cache mode previously enabled
  */
 void FCache_Disable()
 {
@@ -110,9 +110,9 @@ void FCache_Disable()
             /* Statistic counters enabled, Cache disable,
              * auto-inval, auto-power control
              */
-            writel(SYS_FCACHE_CCR, FCACHE_STATISTIC_EN);
+            FCache_Writel(SYS_FCACHE_CCR, FCACHE_STATISTIC_EN);
             /* Wait until the cache is disabled */
-            while ((readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
+            while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
             /* Cache Enabled: Set enabled to 0 */
             enabled = 0;
             break;
@@ -120,12 +120,12 @@ void FCache_Disable()
             /* Statistic counters enabled, Cache disable,
              * manual-inval, manual-power control
              */
-            writel(SYS_FCACHE_CCR, (FCACHE_POW_REQ
+            FCache_Writel(SYS_FCACHE_CCR, (FCACHE_POW_REQ
                         | FCACHE_SET_MAN_POW
                         | FCACHE_SET_MAN_INV
                         | FCACHE_STATISTIC_EN));
             /* Wait until the cache is disabled */
-            while ((readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
+            while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
             /* Cache Enabled: Set enabled to 0 */
             enabled = 0;
             break;
@@ -151,18 +151,18 @@ int FCache_Invalidate()
             goto error;
 
         /* Trigger INV_REQ */
-        writel(SYS_FCACHE_CCR, (FCACHE_INV_REQ
+        FCache_Writel(SYS_FCACHE_CCR, (FCACHE_INV_REQ
                     | FCACHE_POW_REQ
                     | FCACHE_SET_MAN_POW
                     | FCACHE_SET_MAN_INV
                     | FCACHE_STATISTIC_EN));
 
         /* Wait until INV_REQ is finished */
-        while ((readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
+        while ((FCache_Readl(SYS_FCACHE_SR) & FCACHE_CS) != FCACHE_CS_DISABLED);
 
         /* Clear Stats */
-        writel(SYS_FCACHE_CSHR, 0);
-        writel(SYS_FCACHE_CSMR, 0);
+        FCache_Writel(SYS_FCACHE_CSHR, 0);
+        FCache_Writel(SYS_FCACHE_CSMR, 0);
 
         /* Enable Flash Cache */
         if (enabled == 0)
@@ -183,9 +183,9 @@ unsigned int * FCache_GetStats()
     static unsigned int stats[2];
 
     /* Cache Statistics HIT Register */
-    stats[0] = readl(SYS_FCACHE_CSHR);
+    stats[0] = FCache_Readl(SYS_FCACHE_CSHR);
     /* Cache Statistics MISS Register */
-    stats[1] = readl(SYS_FCACHE_CSMR);
+    stats[1] = FCache_Readl(SYS_FCACHE_CSMR);
 
     return stats;
 }
@@ -197,4 +197,3 @@ unsigned int FCache_isEnabled()
 {
     return enabled;
 }
-
