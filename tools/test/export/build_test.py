@@ -24,7 +24,6 @@ import shutil
 from os.path import join, abspath, dirname, exists, basename
 r=dirname(__file__)
 ROOT = abspath(join(r, "..","..",".."))
-print ROOT
 sys.path.insert(0, ROOT)
 
 from tools.export import EXPORTERS
@@ -35,7 +34,7 @@ from tools.utils import args_error
 
 
 class ProgenBuildTest():
-    def __init__(self, desired_ides, tests, targets, clean=False):
+    def __init__(self, desired_ides, tests, targets):
         #map of targets and the ides that can build programs for them
         self.target_ides = {}
         for target in targets:
@@ -47,10 +46,6 @@ class ProgenBuildTest():
             if len(self.target_ides[target]) == 0:
                 del self.target_ides[target]
 
-        self.clean = clean
-
-        successes, failures = self._generate_and_build(tests)
-        print_results(successes, failures)
 
     @staticmethod
     def get_pgen_targets(ides):
@@ -96,7 +91,7 @@ class ProgenBuildTest():
             shutil.rmtree(project_files_dir, ignore_errors=True)
         os.rename(project_dir, project_files_dir)
 
-    def _generate_and_build(self, tests):
+    def generate_and_build(self, tests, clean=False):
 
         #build results
         successes = []
@@ -115,7 +110,7 @@ class ProgenBuildTest():
                     else:
                         failures.append("%s::%s\t%s for %s" % (mcu, ide, report['errormsg'], project_name))
 
-                    ProgenBuildTest.handle_project_files(ide, project_temp, mcu, project_name, self.clean)
+                    ProgenBuildTest.handle_project_files(ide, project_temp, mcu, project_name, clean)
         return successes, failures
 
 
@@ -164,6 +159,10 @@ if __name__ == '__main__':
     if any(ide not in accepted_ides for ide in ides):
         args_error(parser, "[ERROR] ide must be in %s" % ', '.join(accepted_ides))
 
-    b = ProgenBuildTest(ides, tests, targets, options.clean)
+    b = ProgenBuildTest(ides, tests, targets)
+    successes, failures = b.generate_and_build(tests, options.clean)
+    print_results(successes, failures)
+    sys.exit(len(failures))
+
 
 
