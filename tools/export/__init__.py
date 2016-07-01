@@ -97,7 +97,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
             except AttributeError:
                 pass
 
-            if target not in Exporter.TARGETS or ide.upper() not in TARGET_MAP[target].supported_toolchains:
+            if target not in Exporter.TARGETS or Exporter.TOOLCHAIN not in TARGET_MAP[target].supported_toolchains:
                 supported = False
 
             if use_progen:
