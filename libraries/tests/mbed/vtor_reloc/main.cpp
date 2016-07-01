@@ -4,6 +4,7 @@
 
 #include "test_env.h"
 #include "cmsis_nvic.h"
+#include "toolchain.h"
 #include <string.h>
 
 #if defined(TARGET_SAMR21G18A) || defined(TARGET_SAMD21J18A) || defined(TARGET_SAMD21G18A) 
@@ -31,7 +32,7 @@ DigitalOut out(PIN_OUT);
 DigitalOut myled(LED1);
 
 volatile int checks = 0;
-uint32_t int_table[NUM_VECTORS] __attribute__ ((aligned(256)));
+uint32_t int_table[NUM_VECTORS] MBED_ALIGN(256);
 
 #define FALLING_EDGE_COUNT 5
 
