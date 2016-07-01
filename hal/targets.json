@@ -773,6 +773,7 @@
                 "template": ["iar_nucleo_f746zg.ewp.tmpl"]
             }
         },
+        "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["IPV4"]
