@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_gpio_ex.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file of GPIO HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -50,18 +50,18 @@
   * @{
   */
 
-/** @addtogroup GPIOEx GPIO Extended HAL module driver
+/** @defgroup GPIOEx GPIOEx
+  * @brief GPIO Extended HAL module driver
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
-
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup GPIOEx_Exported_Constants GPIO Extended Exported Constants
+/** @defgroup GPIOEx_Exported_Constants GPIOEx Exported Constants
   * @{
-  */ 
-  
-/** @defgroup GPIOEx_Alternate_function_selection GPIO Extended Alternate function selection
+  */
+
+/** @defgroup GPIOEx_Alternate_function_selection GPIOEx Alternate function selection
   * @{
   */
   
@@ -1478,17 +1478,59 @@
   */
 
 /* Exported macro ------------------------------------------------------------*/
+/** @defgroup GPIOEx_Exported_Macros GPIOEx Exported Macros
+  * @{
+  */
+
+/** @defgroup GPIOEx_Get_Port_Index GPIOEx_Get Port Index
+* @{
+  */
+#if defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx) || \
+    defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx)
+#define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
+                                      ((__GPIOx__) == (GPIOB))? 1U :\
+                                      ((__GPIOx__) == (GPIOC))? 2U :\
+                                      ((__GPIOx__) == (GPIOD))? 3U : 5U)
+#endif /* STM32F303x8 || STM32F334x8 || STM32F328xx || */
+       /* STM32F301x8 || STM32F302x8 || STM32F318xx    */
+
+#if defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx) || \
+    defined(STM32F373xC) || defined(STM32F378xx)
+#define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
+                                      ((__GPIOx__) == (GPIOB))? 1U :\
+                                      ((__GPIOx__) == (GPIOC))? 2U :\
+                                      ((__GPIOx__) == (GPIOD))? 3U :\
+                                      ((__GPIOx__) == (GPIOE))? 4U : 5U)
+#endif /* STM32F302xC || STM32F303xC || STM32F358xx || */
+       /* STM32F373xC || STM32F378xx                   */
+
+#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
+#define GPIO_GET_INDEX(__GPIOx__)    (((__GPIOx__) == (GPIOA))? 0U :\
+                                      ((__GPIOx__) == (GPIOB))? 1U :\
+                                      ((__GPIOx__) == (GPIOC))? 2U :\
+                                      ((__GPIOx__) == (GPIOD))? 3U :\
+                                      ((__GPIOx__) == (GPIOE))? 4U :\
+                                      ((__GPIOx__) == (GPIOF))? 5U :\
+                                      ((__GPIOx__) == (GPIOG))? 6U : 7U)
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
 /* Exported functions --------------------------------------------------------*/ 
-
+/**
+  * @}
+  */
 
 /**
   * @}
-  */ 
+  */
 
-/**
-  * @}
-  */ 
-  
 #ifdef __cplusplus
 }
 #endif

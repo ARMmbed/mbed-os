@@ -2,13 +2,12 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   CORTEX HAL module driver.
-  *
   *          This file provides firmware functions to manage the following
   *          functionalities of the CORTEX:
-  *           + Initialization/de-initialization functions
+  *           + Initialization and de-initialization functions
   *           + Peripheral Control functions
   *
   *  @verbatim
@@ -17,10 +16,10 @@
   ==============================================================================
 
     [..]
-    *** How to configure Interrupts using Cortex HAL driver ***
+    *** How to configure Interrupts using CORTEX HAL driver ***
     ===========================================================
     [..]
-    This section provide functions allowing to configure the NVIC interrupts (IRQ).
+    This section provides functions allowing to configure the NVIC interrupts (IRQ).
     The Cortex-M4 exceptions are managed by CMSIS functions.
 
     (#) Configure the NVIC Priority Grouping using HAL_NVIC_SetPriorityGrouping()
@@ -61,10 +60,10 @@
         (+@) Lowest hardware priority (IRQ number)
 
     [..]
-    *** How to configure Systick using Cortex HAL driver ***
+    *** How to configure Systick using CORTEX HAL driver ***
     ========================================================
     [..]
-    Setup SysTick Timer for time base.
+    Setup SysTick Timer for time base 
            
    (+) The HAL_SYSTICK_Config()function calls the SysTick_Config() function which
        is a CMSIS function that:
@@ -94,7 +93,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -128,8 +127,8 @@
   * @{
   */
 
-/** @defgroup CORTEX CORTEX HAL module driver
-  * @brief CORTEX HAL module driver
+/** @defgroup CORTEX CORTEX
+  * @brief CORTEX CORTEX HAL module driver
   * @{
   */
 
@@ -140,7 +139,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Exported functions --------------------------------------------------------*/
+/* Exported functions ---------------------------------------------------------*/
 
 /** @defgroup CORTEX_Exported_Functions CORTEX Exported Functions
   * @{
@@ -155,7 +154,7 @@
               ##### Initialization and de-initialization functions #####
   ==============================================================================
     [..]
-      This section provide the Cortex HAL driver functions allowing to configure Interrupts
+      This section provides the CORTEX HAL driver functions allowing to configure Interrupts
       Systick functionalities
 
 @endverbatim
@@ -228,6 +227,9 @@ void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t Sub
   */
 void HAL_NVIC_EnableIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Enable interrupt */
   NVIC_EnableIRQ(IRQn);
 }
@@ -241,6 +243,9 @@ void HAL_NVIC_EnableIRQ(IRQn_Type IRQn)
   */
 void HAL_NVIC_DisableIRQ(IRQn_Type IRQn)
 {
+  /* Check the parameters */
+  assert_param(IS_NVIC_DEVICE_IRQ(IRQn));
+  
   /* Disable interrupt */
   NVIC_DisableIRQ(IRQn);
 }
@@ -279,12 +284,59 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
   ==============================================================================
     [..]
       This subsection provides a set of functions allowing to control the CORTEX
-      (NVIC, SYSTICK) functionalities.
+      (NVIC, SYSTICK, MPU) functionalities.
 
 
 @endverbatim
   * @{
   */
+
+#if (__MPU_PRESENT == 1)
+/**
+  * @brief  Initializes and configures the Region and the memory to be protected.
+  * @param  MPU_Init: Pointer to a MPU_Region_InitTypeDef structure that contains
+  *                the initialization and configuration information.
+  * @retval None
+  */
+void HAL_MPU_ConfigRegion(MPU_Region_InitTypeDef *MPU_Init)
+{
+  /* Check the parameters */
+  assert_param(IS_MPU_REGION_NUMBER(MPU_Init->Number));
+  assert_param(IS_MPU_REGION_ENABLE(MPU_Init->Enable));
+
+  /* Set the Region number */
+  MPU->RNR = MPU_Init->Number;
+
+  if ((MPU_Init->Enable) != RESET)
+  {
+    /* Check the parameters */
+    assert_param(IS_MPU_INSTRUCTION_ACCESS(MPU_Init->DisableExec));
+    assert_param(IS_MPU_REGION_PERMISSION_ATTRIBUTE(MPU_Init->AccessPermission));
+    assert_param(IS_MPU_TEX_LEVEL(MPU_Init->TypeExtField));
+    assert_param(IS_MPU_ACCESS_SHAREABLE(MPU_Init->IsShareable));
+    assert_param(IS_MPU_ACCESS_CACHEABLE(MPU_Init->IsCacheable));
+    assert_param(IS_MPU_ACCESS_BUFFERABLE(MPU_Init->IsBufferable));
+    assert_param(IS_MPU_SUB_REGION_DISABLE(MPU_Init->SubRegionDisable));
+    assert_param(IS_MPU_REGION_SIZE(MPU_Init->Size));
+    
+    MPU->RBAR = MPU_Init->BaseAddress;
+    MPU->RASR = ((uint32_t)MPU_Init->DisableExec             << MPU_RASR_XN_Pos)   |
+                ((uint32_t)MPU_Init->AccessPermission        << MPU_RASR_AP_Pos)   |
+                ((uint32_t)MPU_Init->TypeExtField            << MPU_RASR_TEX_Pos)  |
+                ((uint32_t)MPU_Init->IsShareable             << MPU_RASR_S_Pos)    |
+                ((uint32_t)MPU_Init->IsCacheable             << MPU_RASR_C_Pos)    |
+                ((uint32_t)MPU_Init->IsBufferable            << MPU_RASR_B_Pos)    |
+                ((uint32_t)MPU_Init->SubRegionDisable        << MPU_RASR_SRD_Pos)  |
+                ((uint32_t)MPU_Init->Size                    << MPU_RASR_SIZE_Pos) |
+                ((uint32_t)MPU_Init->Enable                  << MPU_RASR_ENABLE_Pos);
+  }
+  else
+  {
+    MPU->RBAR = 0x00;
+    MPU->RASR = 0x00;
+  }
+}
+#endif /* __MPU_PRESENT */
 
 /**
   * @brief  Gets the priority grouping field from the NVIC Interrupt Controller.

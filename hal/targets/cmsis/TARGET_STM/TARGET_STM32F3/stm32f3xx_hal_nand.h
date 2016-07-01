@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_nand.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   Header file of NAND HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -45,8 +45,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
-  #include "stm32f3xx_ll_fmc.h"
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
+#include "stm32f3xx_ll_fmc.h"
 
 /** @addtogroup STM32F3xx_HAL_Driver
   * @{
@@ -56,7 +55,69 @@
   * @{
   */ 
 
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx)
+/** @addtogroup NAND_Private_Constants
+  * @{
+  */
+
+#define NAND_DEVICE1               FMC_BANK2
+#define NAND_DEVICE2               FMC_BANK3
+#define NAND_WRITE_TIMEOUT         ((uint32_t)1000)
+
+#define CMD_AREA                   ((uint32_t)(1<<16))  /* A16 = CLE high */
+#define ADDR_AREA                  ((uint32_t)(1<<17))  /* A17 = ALE high */
+
+#define NAND_CMD_AREA_A            ((uint8_t)0x00)
+#define NAND_CMD_AREA_B            ((uint8_t)0x01)
+#define NAND_CMD_AREA_C            ((uint8_t)0x50)
+#define NAND_CMD_AREA_TRUE1        ((uint8_t)0x30)
+
+#define NAND_CMD_WRITE0            ((uint8_t)0x80)
+#define NAND_CMD_WRITE_TRUE1       ((uint8_t)0x10)  
+#define NAND_CMD_ERASE0            ((uint8_t)0x60)
+#define NAND_CMD_ERASE1            ((uint8_t)0xD0)  
+#define NAND_CMD_READID            ((uint8_t)0x90)  
+#define NAND_CMD_STATUS            ((uint8_t)0x70)
+#define NAND_CMD_LOCK_STATUS       ((uint8_t)0x7A)
+#define NAND_CMD_RESET             ((uint8_t)0xFF)
+
+/* NAND memory status */
+#define NAND_VALID_ADDRESS         ((uint32_t)0x00000100)
+#define NAND_INVALID_ADDRESS       ((uint32_t)0x00000200)
+#define NAND_TIMEOUT_ERROR         ((uint32_t)0x00000400)
+#define NAND_BUSY                  ((uint32_t)0x00000000)
+#define NAND_ERROR                 ((uint32_t)0x00000001)
+#define NAND_READY                 ((uint32_t)0x00000040)
+
+/**
+  * @}
+  */
+
+/** @addtogroup NAND_Private_Macros
+  * @{
+  */
+
+/**
+  * @brief  NAND memory address computation.
+  * @param  __ADDRESS__: NAND memory address.
+  * @param  __HANDLE__ : NAND handle.
+  * @retval NAND Raw address value
+  */
+#define ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) (((__ADDRESS__)->Page) + \
+                         (((__ADDRESS__)->Block + (((__ADDRESS__)->Zone) * ((__HANDLE__)->Info.ZoneSize)))* ((__HANDLE__)->Info.BlockSize * ((__HANDLE__)->Info.PageSize + (__HANDLE__)->Info.SpareAreaSize))))
+
+/**
+  * @brief  NAND memory address cycling.
+  * @param  __ADDRESS__: NAND memory address.
+  * @retval NAND address cycling value.
+  */
+#define ADDR_1ST_CYCLE(__ADDRESS__)       (uint8_t)(__ADDRESS__)              /* 1st addressing cycle */
+#define ADDR_2ND_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 8)       /* 2nd addressing cycle */
+#define ADDR_3RD_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 16)      /* 3rd addressing cycle */
+#define ADDR_4TH_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__) >> 24)      /* 4th addressing cycle */
+
+/**
+  * @}
+  */
 
 /* Exported typedef ----------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
@@ -102,7 +163,7 @@ typedef struct
 
   uint16_t Block;  /*!< NAND memory Block address */
 
-}NAND_AddressTypedef;
+}NAND_AddressTypeDef;
 
 /** 
   * @brief  NAND Memory info Structure definition
@@ -141,32 +202,6 @@ typedef struct
   */
 
 /* Exported constants --------------------------------------------------------*/
-/** @defgroup NAND_Exported_Constants NAND Exported Constants
- * @{
- */ 
-#define NAND_DEVICE1               ((uint32_t)0x70000000) 
-#define NAND_DEVICE2               ((uint32_t)0x80000000) 
-#define NAND_WRITE_TIMEOUT         ((uint32_t)0x01000000)
-
-#define CMD_AREA                   ((uint32_t)(1<<16))  /* A16 = CLE high */
-#define ADDR_AREA                  ((uint32_t)(1<<17))  /* A17 = ALE high */
-
-#define	NAND_CMD_AREA_A            ((uint8_t)0x00)
-#define	NAND_CMD_AREA_B            ((uint8_t)0x01)
-#define NAND_CMD_AREA_C            ((uint8_t)0x50)
-
-/* NAND memory status */
-#define NAND_VALID_ADDRESS         ((uint32_t)0x00000100)
-#define NAND_INVALID_ADDRESS       ((uint32_t)0x00000200)
-#define NAND_TIMEOUT_ERROR         ((uint32_t)0x00000400)
-#define NAND_BUSY                  ((uint32_t)0x00000000)
-#define NAND_ERROR                 ((uint32_t)0x00000001)
-#define NAND_READY                 ((uint32_t)0x00000040)
-
-/**
-  * @}
-  */
-  
 /* Exported macro ------------------------------------------------------------*/
 /** @defgroup NAND_Exported_Macros NAND Exported Macros
  * @{
@@ -178,23 +213,6 @@ typedef struct
   */
 #define __HAL_NAND_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_NAND_STATE_RESET)
 
-/**
-  * @brief  NAND memory address computation.
-  * @param  __ADDRESS__: NAND memory address.
-  * @param  __HANDLE__ : NAND handle.
-  * @retval NAND Raw address value
-  */
-#define ARRAY_ADDRESS(__ADDRESS__ , __HANDLE__) ((__ADDRESS__)->Page + (((__ADDRESS__)->Block + (((__ADDRESS__)->Zone) * ((__HANDLE__)->Info.ZoneSize)))* ((__HANDLE__)->Info.BlockSize)))
-
-/**
-  * @brief  NAND memory address cycling.
-  * @param  __ADDRESS__: NAND memory address.
-  * @retval NAND address cycling value.
-  */
-#define ADDR_1st_CYCLE(__ADDRESS__)       (uint8_t)((__ADDRESS__)& 0xFF)               /* 1st addressing cycle */
-#define ADDR_2nd_CYCLE(__ADDRESS__)       (uint8_t)(((__ADDRESS__)& 0xFF00) >> 8)      /* 2nd addressing cycle */
-#define ADDR_3rd_CYCLE(__ADDRESS__)       (uint8_t)(((__ADDRESS__)& 0xFF0000) >> 16)   /* 3rd addressing cycle */
-#define ADDR_4th_CYCLE(__ADDRESS__)       (uint8_t)(((__ADDRESS__)& 0xFF000000) >> 24) /* 4th addressing cycle */
 /**
   * @}
   */
@@ -227,13 +245,13 @@ void        HAL_NAND_ITCallback(NAND_HandleTypeDef *hnand);
 /* IO operation functions  ****************************************************/
 HAL_StatusTypeDef  HAL_NAND_Read_ID(NAND_HandleTypeDef *hnand, NAND_IDTypeDef *pNAND_ID);
 HAL_StatusTypeDef  HAL_NAND_Reset(NAND_HandleTypeDef *hnand);
-HAL_StatusTypeDef  HAL_NAND_Read_Page(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress, uint8_t *pBuffer, uint32_t NumPageToRead);
-HAL_StatusTypeDef  HAL_NAND_Write_Page(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress, uint8_t *pBuffer, uint32_t NumPageToWrite);
-HAL_StatusTypeDef  HAL_NAND_Read_SpareArea(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress, uint8_t *pBuffer, uint32_t NumSpareAreaToRead);
-HAL_StatusTypeDef  HAL_NAND_Write_SpareArea(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress, uint8_t *pBuffer, uint32_t NumSpareAreaTowrite);
-HAL_StatusTypeDef  HAL_NAND_Erase_Block(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress);
+HAL_StatusTypeDef  HAL_NAND_Read_Page(NAND_HandleTypeDef *hnand, NAND_AddressTypeDef *pAddress, uint8_t *pBuffer, uint32_t NumPageToRead);
+HAL_StatusTypeDef  HAL_NAND_Write_Page(NAND_HandleTypeDef *hnand, NAND_AddressTypeDef *pAddress, uint8_t *pBuffer, uint32_t NumPageToWrite);
+HAL_StatusTypeDef  HAL_NAND_Read_SpareArea(NAND_HandleTypeDef *hnand, NAND_AddressTypeDef *pAddress, uint8_t *pBuffer, uint32_t NumSpareAreaToRead);
+HAL_StatusTypeDef  HAL_NAND_Write_SpareArea(NAND_HandleTypeDef *hnand, NAND_AddressTypeDef *pAddress, uint8_t *pBuffer, uint32_t NumSpareAreaTowrite);
+HAL_StatusTypeDef  HAL_NAND_Erase_Block(NAND_HandleTypeDef *hnand, NAND_AddressTypeDef *pAddress);
 uint32_t           HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
-uint32_t           HAL_NAND_Address_Inc(NAND_HandleTypeDef *hnand, NAND_AddressTypedef *pAddress);
+uint32_t           HAL_NAND_Address_Inc(NAND_HandleTypeDef *hnand, NAND_AddressTypeDef *pAddress);
 
 /**
   * @}
@@ -252,7 +270,7 @@ HAL_StatusTypeDef  HAL_NAND_GetECC(NAND_HandleTypeDef *hnand, uint32_t *ECCval, 
   * @}
   */
     
-/** @defgroup NAND_Exported_Functions_Group4 Peripheral State functions 
+/** @addtogroup NAND_Exported_Functions_Group4 Peripheral State functions 
   * @{
   */
 
@@ -267,8 +285,7 @@ uint32_t HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 /**
   * @}
   */
-    
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
+
 /**
   * @}
   */ 
@@ -276,6 +293,8 @@ uint32_t HAL_NAND_Read_Status(NAND_HandleTypeDef *hnand);
 /**
   * @}
   */ 
+
+#endif /* STM32F302xE || STM32F303xE || STM32F398xx */
 
 #ifdef __cplusplus
 }

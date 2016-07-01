@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_i2s_ex.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
+  * @version V1.2.1
+  * @date    29-April-2015
   * @brief   I2S Extended HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of I2S Extended peripheral:
@@ -88,7 +88,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -118,10 +118,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
 
-/** @addtogroup STM32F3xx_HAL_Driver
-  * @{
-  */
-
 #ifdef HAL_I2S_MODULE_ENABLED
 
 #if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
@@ -129,13 +125,16 @@
     defined(STM32F301x8) || defined(STM32F302x8) || defined(STM32F318xx) || \
     defined(STM32F373xC) || defined(STM32F378xx)
 
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
+/** @addtogroup STM32F3xx_HAL_Driver
+  * @{
+  */
 
-/** @defgroup I2SEx I2S Extended HAL module driver
+/** @defgroup I2SEx I2SEx
   * @brief I2S Extended HAL module driver
   * @{
   */
+
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
 
 /* Private typedef -----------------------------------------------------------*/
 /** @defgroup I2SEx_Private_Typedef I2S Extended Private Typedef
@@ -170,12 +169,11 @@ static HAL_StatusTypeDef I2S_FullDuplexWaitFlagStateUntilTimeout(I2S_HandleTypeD
 /**
   * @}
   */
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
 /* Exported functions ---------------------------------------------------------*/
 
-/** @addtogroup I2S I2S HAL module driver
+/** @addtogroup I2S I2S
   * @{
   */
 
@@ -188,7 +186,7 @@ static HAL_StatusTypeDef I2S_FullDuplexWaitFlagStateUntilTimeout(I2S_HandleTypeD
   *
 @verbatim
  ===============================================================================
-              ##### Initialization/de-initialization functions #####
+              ##### Initialization and de-initialization functions #####
  ===============================================================================
     [..]  This subsection provides a set of functions allowing to initialize and 
           de-initialiaze the I2Sx peripheral in simplex mode:
@@ -221,18 +219,16 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
 {
   uint16_t tmpreg = 0, i2sdiv = 2, i2sodd = 0, packetlength = 1;
   uint32_t tmp = 0, i2sclk = 0;
-#if defined(STM32F302xE) || defined(STM32F303xE) || defined(STM32F398xx) || \
-    defined(STM32F302xC) || defined(STM32F303xC) || defined(STM32F358xx)
+#if defined(SPI_I2S_FULLDUPLEX_SUPPORT)
   RCC_PeriphCLKInitTypeDef rccperiphclkinit;
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
-  
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
+
   /* Check the I2S handle allocation */
-  if(hi2s == HAL_NULL)
+  if(hi2s == NULL)
   {
     return HAL_ERROR;
   }
-  
+
   /* Check the parameters */
   assert_param(IS_I2S_ALL_INSTANCE(hi2s->Instance));
   assert_param(IS_I2S_MODE(hi2s->Init.Mode));
@@ -243,22 +239,22 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   assert_param(IS_I2S_CPOL(hi2s->Init.CPOL));  
   assert_param(IS_I2S_CLOCKSOURCE(hi2s->Init.ClockSource));
   assert_param(IS_I2S_FULLDUPLEX_MODE(hi2s->Init.FullDuplexMode));
-  
+
   hi2s->State = HAL_I2S_STATE_BUSY;
-  
+
   /* Init the low level hardware : GPIO, CLOCK, CORTEX...etc */
   HAL_I2S_MspInit(hi2s);
-  
+
   /*----------------------- SPIx I2SCFGR & I2SPR Configuration -----------------*/
   /* Clear I2SMOD, I2SE, I2SCFG, PCMSYNC, I2SSTD, CKPOL, DATLEN and CHLEN bits */
   hi2s->Instance->I2SCFGR &= ~(SPI_I2SCFGR_CHLEN | SPI_I2SCFGR_DATLEN | SPI_I2SCFGR_CKPOL | \
                                SPI_I2SCFGR_I2SSTD | SPI_I2SCFGR_PCMSYNC | SPI_I2SCFGR_I2SCFG | \
                                SPI_I2SCFGR_I2SE | SPI_I2SCFGR_I2SMOD); 
   hi2s->Instance->I2SPR = 0x0002;
-  
+
   /* Get the I2SCFGR register value */
   tmpreg = hi2s->Instance->I2SCFGR;
-  
+
   /* If the default value has to be written, reinitialize i2sdiv and i2sodd*/
   if(hi2s->Init.AudioFreq == I2S_AUDIOFREQ_DEFAULT)
   {
@@ -281,8 +277,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     }
     
     /* Get I2S source Clock frequency  ****************************************/
-#if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx) || \
-    defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
     rccperiphclkinit.PeriphClockSelection = RCC_PERIPHCLK_I2S;
 
     /* If an external I2S clock has to be used, the specific define should be set  
@@ -305,8 +300,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
       /* Get the I2S source clock value */
       i2sclk = HAL_RCC_GetSysClockFreq();
     }
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
 #if defined (STM32F373xC) || defined (STM32F378xx)
     if(hi2s->Instance == SPI1)
@@ -363,8 +357,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   /* Write to SPIx I2SCFGR */  
   hi2s->Instance->I2SCFGR = tmpreg;
   
-#if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx) || \
-    defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
   if (hi2s->Init.FullDuplexMode == I2S_FULLDUPLEXMODE_ENABLE)
   {
     /* Clear I2SMOD, I2SE, I2SCFG, PCMSYNC, I2SSTD, CKPOL, DATLEN and CHLEN bits */
@@ -397,8 +390,7 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
     /* Write to SPIx I2SCFGR */  
     I2SxEXT(hi2s->Instance)->I2SCFGR = tmpreg;
   }
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
   hi2s->ErrorCode = HAL_I2S_ERROR_NONE;
   hi2s->State= HAL_I2S_STATE_READY;
@@ -409,9 +401,8 @@ HAL_StatusTypeDef HAL_I2S_Init(I2S_HandleTypeDef *hi2s)
   * @}
   */
 
-#if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx) || \
-    defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
-/** @addtogroup  I2S_Exported_Functions_Group2 Input and Output operation functions
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
+/** @addtogroup  I2S_Exported_Functions_Group2 IO operation functions
   * @{
   */
 
@@ -540,6 +531,9 @@ void HAL_I2S_FullDuplex_IRQHandler(I2S_HandleTypeDef *hi2s)
   */
 __weak void HAL_I2S_TxRxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hi2s);
+
   /* NOTE : This function Should not be modified, when the callback is needed,
             the HAL_I2S_TxRxCpltCallback could be implenetd in the user file
    */
@@ -549,8 +543,7 @@ __weak void HAL_I2S_TxRxCpltCallback(I2S_HandleTypeDef *hi2s)
   * @}
   */
 
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
 /** @addtogroup I2S_Exported_Functions_Group3 Peripheral State and Errors functions
   *  @brief   Peripheral State functions
@@ -587,16 +580,14 @@ HAL_StatusTypeDef HAL_I2S_DMAPause(I2S_HandleTypeDef *hi2s)
     /* Pause the audio file playing by disabling the I2S DMA request */
     hi2s->Instance->CR2 &= (uint32_t)(~SPI_CR2_RXDMAEN);
   }
-#if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx) || \
-    defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
   else if(hi2s->State == HAL_I2S_STATE_BUSY_TX_RX)
   {
     /* Pause the audio file playing by disabling the I2S DMA request */
     hi2s->Instance->CR2 &= (uint32_t)(~(SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN));
     I2SxEXT(hi2s->Instance)->CR2 &= (uint32_t)(~(SPI_CR2_RXDMAEN | SPI_CR2_TXDMAEN));
   }
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
   /* Process Unlocked */
   __HAL_UNLOCK(hi2s);
@@ -624,8 +615,7 @@ HAL_StatusTypeDef HAL_I2S_DMAResume(I2S_HandleTypeDef *hi2s)
     /* Enable the I2S DMA request */
     hi2s->Instance->CR2 |= SPI_CR2_RXDMAEN;
   }
-#if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx) || \
-    defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
   else if(hi2s->State == HAL_I2S_STATE_BUSY_TX_RX)
   {
     /* Pause the audio file playing by disabling the I2S DMA request */
@@ -639,8 +629,7 @@ HAL_StatusTypeDef HAL_I2S_DMAResume(I2S_HandleTypeDef *hi2s)
       __HAL_I2SEXT_ENABLE(hi2s);
     }
   }
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
   /* If the I2S peripheral is still not enabled, enable it */
   if ((hi2s->Instance->I2SCFGR & SPI_I2SCFGR_I2SE) == 0)
@@ -681,8 +670,7 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
     /* Disable the I2S DMA Channel */
     HAL_DMA_Abort(hi2s->hdmarx);
   }
-#if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx) || \
-    defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
   else if(hi2s->State == HAL_I2S_STATE_BUSY_TX_RX)
   {
     /* Disable the I2S DMA requests */
@@ -696,8 +684,7 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
     /* Disable I2Sext peripheral */
     __HAL_I2SEXT_DISABLE(hi2s);
   }
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
 
   /* Disable I2S peripheral */
   __HAL_I2S_DISABLE(hi2s);
@@ -722,9 +709,8 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   * @}
   */  
 
-#if defined (STM32F302xE) || defined (STM32F303xE) || defined (STM32F398xx) || \
-    defined (STM32F302xC) || defined (STM32F303xC) || defined (STM32F358xx)
-/** @addtogroup I2SEx I2S Extended HAL module driver
+#if defined (SPI_I2S_FULLDUPLEX_SUPPORT)
+/** @addtogroup I2SEx
   * @brief I2S Extended HAL module driver
   * @{
   */
@@ -733,7 +719,7 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   * @{
   */
 
-/** @defgroup I2SEx_Exported_Functions_Group1 Extended features functions 
+/** @defgroup I2SEx_Exported_Functions_Group1 I2S Extended Features Functions 
   *  @brief   Extended features functions
   *
 @verbatim   
@@ -789,7 +775,7 @@ HAL_StatusTypeDef HAL_I2S_DMAStop(I2S_HandleTypeDef *hi2s)
   */
 HAL_StatusTypeDef HAL_I2SEx_TransmitReceive(I2S_HandleTypeDef *hi2s, uint16_t *pTxData, uint16_t *pRxData, uint16_t Size, uint32_t Timeout)
 {
-  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   }
@@ -1028,7 +1014,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_IT(I2S_HandleTypeDef *hi2s, uint16_t
 {
   if(hi2s->State == HAL_I2S_STATE_READY)
   {
-    if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+    if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
     {
       return  HAL_ERROR;                                    
     }
@@ -1176,7 +1162,7 @@ HAL_StatusTypeDef HAL_I2SEx_TransmitReceive_DMA(I2S_HandleTypeDef *hi2s, uint16_
 {
   uint32_t *tmp;
     
-  if((pTxData == HAL_NULL ) || (pRxData == HAL_NULL ) || (Size == 0)) 
+  if((pTxData == NULL ) || (pRxData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;                                    
   }
@@ -1494,38 +1480,86 @@ static HAL_StatusTypeDef I2S_FullDuplexWaitFlagStateUntilTimeout(I2S_HandleTypeD
      
   if(i2sUsed == I2S_USE_I2S)
   {
-    while((__HAL_I2S_GET_FLAG(hi2s, Flag)) != State)
-    {
-      if(Timeout != HAL_MAX_DELAY)
+    if(State == RESET)
+    {    
+      /* Wait until flag is reset */
+      while((__HAL_I2S_GET_FLAG(hi2s, Flag)) != RESET)
       {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+        if(Timeout != HAL_MAX_DELAY)
         {
-          /* Set the I2S State ready */
-          hi2s->State= HAL_I2S_STATE_READY;
-    
-          /* Process Unlocked */
-          __HAL_UNLOCK(hi2s);
-      
-          return HAL_TIMEOUT;
+          if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+          {
+            /* Set the I2S State ready */
+            hi2s->State= HAL_I2S_STATE_READY;
+            
+            /* Process Unlocked */
+            __HAL_UNLOCK(hi2s);
+            
+            return HAL_TIMEOUT;
+          }
+        }
+      }
+    }
+    else /* State == SET */
+    {
+      /* Wait until flag is set */
+      while((__HAL_I2S_GET_FLAG(hi2s, Flag)) != SET)
+      {
+        if(Timeout != HAL_MAX_DELAY)
+        {
+          if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+          {
+            /* Set the I2S State ready */
+            hi2s->State= HAL_I2S_STATE_READY;
+            
+            /* Process Unlocked */
+            __HAL_UNLOCK(hi2s);
+            
+            return HAL_TIMEOUT;
+          }
         }
       }
     }
   }
-  else
+  else /* i2sUsed == I2S_USE_I2SEXT */
   {
-    while((__HAL_I2SEXT_GET_FLAG(hi2s, Flag)) != State)
-    {
-      if(Timeout != HAL_MAX_DELAY)
+    if(State == RESET)
+    {    
+      /* Wait until flag is reset */
+      while((__HAL_I2SEXT_GET_FLAG(hi2s, Flag)) != RESET)
       {
-        if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+        if(Timeout != HAL_MAX_DELAY)
         {
-          /* Set the I2S State ready */
-          hi2s->State= HAL_I2S_STATE_READY;
-    
-          /* Process Unlocked */
-          __HAL_UNLOCK(hi2s);
-      
-          return HAL_TIMEOUT;
+          if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+          {
+            /* Set the I2S State ready */
+            hi2s->State= HAL_I2S_STATE_READY;
+            
+            /* Process Unlocked */
+            __HAL_UNLOCK(hi2s);
+            
+            return HAL_TIMEOUT;
+          }
+        }
+      }
+    }
+    else /* State == SET */
+    {
+      /* Wait until flag is set */
+      while((__HAL_I2SEXT_GET_FLAG(hi2s, Flag)) != SET)
+      {
+        if(Timeout != HAL_MAX_DELAY)
+        {
+          if((Timeout == 0) || ((HAL_GetTick()-tickstart) > Timeout))
+          {
+            /* Set the I2S State ready */
+            hi2s->State= HAL_I2S_STATE_READY;
+            
+            /* Process Unlocked */
+            __HAL_UNLOCK(hi2s);
+            
+            return HAL_TIMEOUT;
+          }
         }
       }
     }
@@ -1533,6 +1567,8 @@ static HAL_StatusTypeDef I2S_FullDuplexWaitFlagStateUntilTimeout(I2S_HandleTypeD
   
   return HAL_OK;      
 }
+#endif /* SPI_I2S_FULLDUPLEX_SUPPORT */
+
 /**
   * @}
   */
@@ -1540,8 +1576,6 @@ static HAL_StatusTypeDef I2S_FullDuplexWaitFlagStateUntilTimeout(I2S_HandleTypeD
 /**
   * @}
   */  
-#endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
-       /* STM32F302xC || STM32F303xC || STM32F358xx    */
 
 #endif /* STM32F302xE || STM32F303xE || STM32F398xx || */
        /* STM32F302xC || STM32F303xC || STM32F358xx || */
