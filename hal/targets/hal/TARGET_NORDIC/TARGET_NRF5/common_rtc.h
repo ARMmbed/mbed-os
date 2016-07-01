@@ -50,5 +50,8 @@ extern uint32_t volatile m_common_rtc_overflows;
 
 void     common_rtc_init(void);
 uint32_t common_rtc_32bit_ticks_get(void);
+uint64_t common_rtc_64bit_us_get(void);
+void     common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
+                                  uint32_t int_mask);
 
 #endif // COMMON_RTC_H

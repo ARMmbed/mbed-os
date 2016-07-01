@@ -16,6 +16,7 @@
 #include "us_ticker_api.h"
 #include "common_rtc.h"
 #include "app_util.h"
+#include "lp_ticker_api.h"
 
 
 //------------------------------------------------------------------------------
@@ -51,6 +52,8 @@ void COMMON_RTC_IRQ_HANDLER(void)
     if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event)) {
         nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
         nrf_rtc_event_disable(COMMON_RTC_INSTANCE, int_mask);
+
+        lp_ticker_irq_handler();
     }
 #endif
 
@@ -128,27 +131,16 @@ uint32_t common_rtc_32bit_ticks_get(void)
     ticks += (m_common_rtc_overflows << RTC_COUNTER_BITS);
     return ticks;
 }
-//------------------------------------------------------------------------------
 
-
-void us_ticker_init(void)
-{
-    common_rtc_init();
-}
-
-static uint64_t us_ticker_64bit_get(void)
+uint64_t common_rtc_64bit_us_get(void)
 {
     uint32_t ticks = common_rtc_32bit_ticks_get();
     // [ticks -> microseconds]
     return ROUNDED_DIV(((uint64_t)ticks) * 1000000, RTC_INPUT_FREQ);
 }
 
-uint32_t us_ticker_read()
-{
-    return (uint32_t)us_ticker_64bit_get();
-}
-
-void us_ticker_set_interrupt(timestamp_t timestamp)
+void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
+                              uint32_t int_mask)
 {
     // The internal counter is clocked with a frequency that cannot be easily
     // multiplied to 1 MHz, therefore besides the translation of values
@@ -159,12 +151,13 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     // is then translated to counter ticks. Finally, the lower 24 bits of thus
     // calculated value is written to the counter compare register to prepare
     // the interrupt generation.
-    uint64_t current_time64 = us_ticker_64bit_get();
+    uint64_t current_time64 = common_rtc_64bit_us_get();
     // [add upper 32 bits from the current time to the timestamp value]
-    uint64_t timestamp64 = timestamp + (current_time64 & ~(uint64_t)0xFFFFFFFF);
+    uint64_t timestamp64 = us_timestamp +
+        (current_time64 & ~(uint64_t)0xFFFFFFFF);
     // [if the original timestamp value happens to be after the 32 bit counter
     //  of microsends overflows, correct the upper 32 bits accordingly]
-    if (timestamp < (uint32_t)(current_time64 & 0xFFFFFFFF)) {
+    if (us_timestamp < (uint32_t)(current_time64 & 0xFFFFFFFF)) {
         timestamp64 += ((uint64_t)1 << 32);
     }
     // [microseconds -> ticks, always round the result up to avoid too early
@@ -182,9 +175,26 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         compare_value = closest_safe_compare;
     }
 
-    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, US_TICKER_CC_CHANNEL,
-        RTC_WRAP(compare_value));
-    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, US_TICKER_INT_MASK);
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, RTC_WRAP(compare_value));
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, int_mask);
+}
+//------------------------------------------------------------------------------
+
+
+void us_ticker_init(void)
+{
+    common_rtc_init();
+}
+
+uint32_t us_ticker_read()
+{
+    return (uint32_t)common_rtc_64bit_us_get();
+}
+
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
+    common_rtc_set_interrupt(timestamp,
+        US_TICKER_CC_CHANNEL, US_TICKER_INT_MASK);
 }
 
 void us_ticker_disable_interrupt(void)
