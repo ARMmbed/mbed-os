@@ -35,7 +35,7 @@ from tools.utils import args_error
 
 
 class ProgenBuildTest():
-    def __init__(self, desired_ides, tests, targets):
+    def __init__(self, desired_ides, tests, targets, clean=False):
         #map of targets and the ides that can build programs for them
         self.target_ides = {}
         for target in targets:
@@ -46,6 +46,8 @@ class ProgenBuildTest():
                     self.target_ides[target].append(ide)
             if len(self.target_ides[target]) == 0:
                 del self.target_ides[target]
+
+        self.clean = clean
 
         successes, failures = self._generate_and_build(tests)
         print_results(successes, failures)
@@ -62,7 +64,7 @@ class ProgenBuildTest():
         return targs
 
     @staticmethod
-    def handle_build_log(tool, project_dir, target, test):
+    def handle_project_files(tool, project_dir, target, test, clean=False):
         log = ''
         new_dir = os.path.dirname(project_dir)
         if tool == 'uvision' or tool == 'uvision5':
@@ -74,15 +76,25 @@ class ProgenBuildTest():
                 print f.read()
         except:
             print("No log file found")
-        log_name = "_".join([test, target, tool])+".txt"
 
-        os.rename(log, log_name)
+        test_prefix = "_".join([test, target, tool])
+        log_name = os.path.join(new_dir,test_prefix+"_log.txt")
+        project_files_dir = os.path.join(os.path.dirname(project_dir),test_prefix)
+
         #check if a log already exists for this platform+test+ide
-        if os.path.exists(os.path.join(new_dir,log_name)):
+        if os.path.exists(log_name):
             #delete it if so
-            os.remove(os.path.join(new_dir,log_name))
-        shutil.move(log_name, new_dir)
-        shutil.rmtree(project_dir, ignore_errors = True)
+            os.remove(log_name)
+        os.rename(log, log_name)
+
+        if clean:
+            shutil.rmtree(project_dir, ignore_errors=True)
+            return
+
+        #check if project files exist
+        if not clean and os.path.exists(project_files_dir):
+            shutil.rmtree(project_files_dir, ignore_errors=True)
+        os.rename(project_dir, project_files_dir)
 
     def _generate_and_build(self, tests):
 
@@ -103,7 +115,7 @@ class ProgenBuildTest():
                     else:
                         failures.append("%s::%s\t%s for %s" % (mcu, ide, report['errormsg'], project_name))
 
-                    ProgenBuildTest.handle_build_log(ide, project_temp, mcu, project_name)
+                    ProgenBuildTest.handle_project_files(ide, project_temp, mcu, project_name, self.clean)
         return successes, failures
 
 
@@ -131,6 +143,12 @@ if __name__ == '__main__':
                       help="generate project for the given MCUs (%s)" % '\n '.join(accepted_targets),
                       default = accepted_targets)
 
+    parser.add_argument("-c", "--clean",
+                        dest="clean",
+                        action = "store_true",
+                        help="clean up the exported project files",
+                        default=False)
+
     options = parser.parse_args()
 
     tests = options.tests
@@ -146,6 +164,6 @@ if __name__ == '__main__':
     if any(ide not in accepted_ides for ide in ides):
         args_error(parser, "[ERROR] ide must be in %s" % ', '.join(accepted_ides))
 
-    b = ProgenBuildTest(ides, tests, targets)
+    b = ProgenBuildTest(ides, tests, targets, options.clean)
 
 
