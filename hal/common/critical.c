@@ -27,26 +27,25 @@
 #define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
 
 static volatile uint32_t interrupt_enable_counter = 0;
-static volatile uint32_t critical_interrupts_disabled = 0;
+static volatile bool critical_interrupts_disabled = false;
 
-static inline uint32_t get_interrupts_disabled(void)
+bool core_util_are_interrupts_enabled(void)
 {
 #if defined(__CORTEX_A9)
-    uint32_t interrupts_disabled = (__get_CPSR() & 0x80) >> 7;
+    return ((__get_CPSR() & 0x80) == 0);
 #else
-    uint32_t interrupts_disabled = __get_PRIMASK();
+    return ((__get_PRIMASK() & 0x1) == 0);
 #endif
-    return interrupts_disabled;
 }
 
 void core_util_critical_section_enter()
 {
-    uint32_t interrupts_disabled = get_interrupts_disabled();
+    bool interrupts_disabled = !core_util_are_interrupts_enabled();
     __disable_irq();
 
     /* Save the interrupt disabled state as it was prior to any nested critical section lock use */
     if (!interrupt_enable_counter) {
-        critical_interrupts_disabled = interrupts_disabled & 0x1;
+        critical_interrupts_disabled = interrupts_disabled;
     }
 
     /* If the interrupt_enable_counter overflows or we are in a nested critical section and interrupts
@@ -56,7 +55,7 @@ void core_util_critical_section_enter()
 // FIXME
 #ifndef   FEATURE_UVISOR
     if (interrupt_enable_counter > 0) {
-        MBED_ASSERT(interrupts_disabled & 0x1);
+        MBED_ASSERT(interrupts_disabled);
     }
 #else
 #warning "core_util_critical_section_enter needs fixing to work from unprivileged code"
@@ -71,9 +70,9 @@ void core_util_critical_section_exit()
 
 // FIXME
 #ifndef   FEATURE_UVISOR
-        uint32_t interrupts_disabled = get_interrupts_disabled(); /* get the current interrupt disabled state */
+        bool interrupts_disabled = !core_util_are_interrupts_enabled(); /* get the current interrupt disabled state */
 
-        MBED_ASSERT(interrupts_disabled & 0x1); /* Interrupts must be disabled on invoking an exit from a critical section */
+        MBED_ASSERT(interrupts_disabled); /* Interrupts must be disabled on invoking an exit from a critical section */
 #else
 #warning "core_util_critical_section_exit needs fixing to work from unprivileged code"
 #endif /* FEATURE_UVISOR */
