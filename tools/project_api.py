@@ -84,7 +84,7 @@ def perform_export(dir, name, ide, mcu, temp, clean=False, zip=False, lib_symbol
     return tmp_path, report
 
 
-def print_results(successes, failures):
+def print_results(successes, failures, skips = []):
     print
     if len(successes) > 0:
         print "Successful: "
@@ -94,4 +94,8 @@ def print_results(successes, failures):
         print "Failed: "
         for failure in failures:
             print "  * %s" % failure
+    if len(skips) > 0:
+        print "Skipped: "
+        for skip in skips:
+            print "  * %s" % skip
 

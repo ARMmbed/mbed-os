@@ -70,7 +70,7 @@ class ProgenBuildTest():
             with open(log, 'r') as f:
                 print f.read()
         except:
-            print("No log file found")
+            return
 
         test_prefix = "_".join([test, target, tool])
         log_name = os.path.join(new_dir,test_prefix+"_log.txt")
@@ -96,6 +96,7 @@ class ProgenBuildTest():
         #build results
         successes = []
         failures = []
+        skips = []
         for mcu, ides in self.target_ides.items():
             for test in tests:
                 #resolve name alias
@@ -107,11 +108,13 @@ class ProgenBuildTest():
 
                     if report['success']:
                         successes.append("build for %s::%s\t%s" % (mcu, ide, project_name))
+                    elif report['skip']:
+                        skips.append("%s::%s\t%s" % (mcu, ide, project_name))
                     else:
                         failures.append("%s::%s\t%s for %s" % (mcu, ide, report['errormsg'], project_name))
 
                     ProgenBuildTest.handle_project_files(ide, project_temp, mcu, project_name, clean)
-        return successes, failures
+        return successes, failures, skips
 
 
 if __name__ == '__main__':
@@ -160,8 +163,8 @@ if __name__ == '__main__':
         args_error(parser, "[ERROR] ide must be in %s" % ', '.join(accepted_ides))
 
     b = ProgenBuildTest(ides, tests, targets)
-    successes, failures = b.generate_and_build(tests, options.clean)
-    print_results(successes, failures)
+    successes, failures, skips = b.generate_and_build(tests, options.clean)
+    print_results(successes, failures, skips)
     sys.exit(len(failures))
 
 

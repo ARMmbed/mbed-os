@@ -70,7 +70,9 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     use_progen = False
 
     supported = True
-    report = {'success': False, 'errormsg':''}
+    report = {'success': False, 'errormsg':'', 'skip': False}
+
+
     
     if ide is None or ide == "zip":
         # Simple ZIP exporter
@@ -85,6 +87,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
     else:
         if ide not in EXPORTERS:
             report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
+            report['skip'] = True
         else:
             Exporter = EXPORTERS[ide]
             target = EXPORT_MAP.get(target, target)
@@ -93,11 +96,12 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
                     use_progen = True
             except AttributeError:
                 pass
+
+            if target not in Exporter.TARGETS or ide.upper() not in TARGET_MAP[target].supported_toolchains:
+                supported = False
+
             if use_progen:
                 if not ProGenDef(ide).is_supported(TARGET_MAP[target].progen['target']):
-                    supported = False
-            else:
-                if target not in Exporter.TARGETS:
                     supported = False
 
             if supported:
@@ -120,6 +124,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
 
             else:
                 report['errormsg'] = ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN % (target, ide)
+                report['skip'] = True
 
     zip_path = None
     if report['success']:
