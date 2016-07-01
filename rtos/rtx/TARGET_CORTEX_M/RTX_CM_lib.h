@@ -518,6 +518,9 @@ extern uint32_t __StackTop[];
 #elif defined(TARGET_MCU_NORDIC_16K)
 #define INITIAL_SP            (0x20004000UL)
 
+#elif (defined(TARGET_STM32F767ZI))
+#define INITIAL_SP            (0x20080000UL)
+
 #else
 #error "no target defined"
 
