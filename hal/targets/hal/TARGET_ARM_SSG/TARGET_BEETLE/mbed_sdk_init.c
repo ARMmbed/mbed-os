@@ -20,10 +20,11 @@ void mbed_sdk_init(void) {
     SystemPowerConfig();
 
     /* Config EFlash Controller Clock */
-    EFlash_Initialize();
+    EFlash_DriverInitialize();
+    EFlash_ClockConfig();
 
-    /* Initialize Flash Cache */
-    FCache_Initialize();
+    /* Enable Flash Cache Stats */
+    FCache_DriverInitialize();
     FCache_Enable(1);
     FCache_Invalidate();
 }
