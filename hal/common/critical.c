@@ -29,7 +29,7 @@
 static volatile uint32_t interrupt_enable_counter = 0;
 static volatile bool critical_interrupts_disabled = false;
 
-bool are_interrupts_enabled(void)
+bool core_util_are_interrupts_enabled(void)
 {
 #if defined(__CORTEX_A9)
     return ((__get_CPSR() & 0x80) == 0);
@@ -40,7 +40,7 @@ bool are_interrupts_enabled(void)
 
 void core_util_critical_section_enter()
 {
-    bool interrupts_disabled = !are_interrupts_enabled();
+    bool interrupts_disabled = !core_util_are_interrupts_enabled();
     __disable_irq();
 
     /* Save the interrupt disabled state as it was prior to any nested critical section lock use */
@@ -70,7 +70,7 @@ void core_util_critical_section_exit()
 
 // FIXME
 #ifndef   FEATURE_UVISOR
-        bool interrupts_disabled = !are_interrupts_enabled(); /* get the current interrupt disabled state */
+        bool interrupts_disabled = !core_util_are_interrupts_enabled(); /* get the current interrupt disabled state */
 
         MBED_ASSERT(interrupts_disabled); /* Interrupts must be disabled on invoking an exit from a critical section */
 #else

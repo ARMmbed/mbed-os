@@ -34,7 +34,7 @@ extern "C" {
   * differs.
   * @return true if interrupts are enabled, false otherwise
   */
-bool are_interrupts_enabled(void);
+bool core_util_are_interrupts_enabled(void);
 
 /** Mark the start of a critical section
   *
