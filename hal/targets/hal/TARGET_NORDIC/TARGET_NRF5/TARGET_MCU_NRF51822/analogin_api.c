@@ -53,7 +53,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     ret_code_t ret_code;
                                               // p_config, event_handler
     ret_code = nrf_drv_adc_init(NULL , NULL); // select blocking mode
-    MBED_ASSERT(ret_code == NRF_SUCCESS);
+    MBED_ASSERT((ret_code == NRF_SUCCESS) || (ret_code == NRF_ERROR_INVALID_STATE)); //NRF_ERROR_INVALID_STATE expected for multiple channels used.
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
