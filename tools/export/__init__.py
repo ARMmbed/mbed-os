@@ -59,7 +59,7 @@ def online_build_url_resolver(url):
 
 def export(project_path, project_name, ide, target, destination='/tmp/',
            tempdir=None, pgen_build = False, clean=True, extra_symbols=None, make_zip=True, sources_relative=False,
-           build_url_resolver=online_build_url_resolver, **kwargs):
+           build_url_resolver=online_build_url_resolver, progen_build=False):
     # Convention: we are using capitals for toolchain and target names
     if target is not None:
         target = target.upper()
@@ -68,9 +68,6 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
         tempdir = tempfile.mkdtemp()
 
     use_progen = False
-    build = False
-    if 'progen_build' in kwargs and kwargs.get('progen_build') == True:
-        build = True
 
     supported = True
     report = {'success': False, 'errormsg':''}
@@ -108,7 +105,7 @@ def export(project_path, project_name, ide, target, destination='/tmp/',
                 try:
                     exporter = Exporter(target, tempdir, project_name, build_url_resolver, extra_symbols=extra_symbols, sources_relative=sources_relative)
                     exporter.scan_and_copy_resources(project_path, tempdir, sources_relative)
-                    if build:
+                    if progen_build:
                         #try to build with pgen ide builders
                         try:
                             exporter.generate(progen_build=True)

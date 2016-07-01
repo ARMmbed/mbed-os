@@ -1,17 +1,40 @@
+#!/usr/bin/env python
+"""
+mbed SDK
+Copyright (c) 2011-2013 ARM Limited
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+
 import sys
+import argparse
+import os
+import shutil
 from os.path import join, abspath, dirname, exists, basename
-ROOT = abspath(join(dirname(__file__), ".."))
+r=dirname(__file__)
+ROOT = abspath(join(r, "..","..",".."))
+print ROOT
 sys.path.insert(0, ROOT)
 
-import argparse
-
-from export import EXPORTERS
-from targets import TARGET_NAMES, TARGET_MAP
-from project_api import setup_project, perform_export, print_results, get_test_from_name
+from tools.export import EXPORTERS
+from tools.targets import TARGET_NAMES, TARGET_MAP
+from tools.project_api import setup_project, perform_export, print_results, get_test_from_name
 from project_generator_definitions.definitions import ProGenDef
-from utils import args_error
+from tools.utils import args_error
 
-class BuildTest():
+
+class ProgenBuildTest():
     def __init__(self, desired_ides, tests, targets):
         #map of targets and the ides that can build programs for them
         self.target_ides = {}
@@ -38,7 +61,31 @@ class BuildTest():
                     targs.append(target)
         return targs
 
+    @staticmethod
+    def handle_build_log(tool, project_dir, target, test):
+        log = ''
+        new_dir = os.path.dirname(project_dir)
+        if tool == 'uvision' or tool == 'uvision5':
+            log = os.path.join(project_dir,"build","build_log.txt")
+        elif tool == 'iar':
+            log = os.path.join(project_dir, 'build_log.txt')
+        try:
+            with open(log, 'r') as f:
+                print f.read()
+        except:
+            print("No log file found")
+        log_name = "_".join([test, target, tool])+".txt"
+
+        os.rename(log, log_name)
+        #check if a log already exists for this platform+test+ide
+        if os.path.exists(os.path.join(new_dir,log_name)):
+            #delete it if so
+            os.remove(os.path.join(new_dir,log_name))
+        shutil.move(log_name, new_dir)
+        shutil.rmtree(project_dir, ignore_errors = True)
+
     def _generate_and_build(self, tests):
+
         #build results
         successes = []
         failures = []
@@ -50,17 +97,21 @@ class BuildTest():
                     project_dir, project_name, project_temp = setup_project(mcu, ide, test)
                     tmp_path, report = perform_export(project_dir, project_name, ide, mcu, project_temp,
                                                       progen_build = True)
+
                     if report['success']:
                         successes.append("build for %s::%s\t%s" % (mcu, ide, project_name))
                     else:
                         failures.append("%s::%s\t%s for %s" % (mcu, ide, report['errormsg'], project_name))
+
+                    ProgenBuildTest.handle_build_log(ide, project_temp, mcu, project_name)
         return successes, failures
 
 
 if __name__ == '__main__':
     accepted_ides = ["iar", "uvision", "uvision5"]
-    accepted_targets = sorted(BuildTest.get_pgen_targets(accepted_ides))
+    accepted_targets = sorted(ProgenBuildTest.get_pgen_targets(accepted_ides))
     default_tests = ["MBED_BLINKY"]
+
     parser = argparse.ArgumentParser(description = "Test progen builders. Leave any flag off to run with all possible options.")
     parser.add_argument("-i", "--IDEs",
                       nargs = '+',
@@ -68,7 +119,7 @@ if __name__ == '__main__':
                       help="tools you wish to perfrom build tests. (%s)" % ', '.join(accepted_ides),
                       default = accepted_ides)
 
-    parser.add_argument("-t", "--tests",
+    parser.add_argument("-n",
                     nargs='+',
                     dest="tests",
                     help="names of desired test programs",
@@ -95,6 +146,6 @@ if __name__ == '__main__':
     if any(ide not in accepted_ides for ide in ides):
         args_error(parser, "[ERROR] ide must be in %s" % ', '.join(accepted_ides))
 
-    b = BuildTest(ides, tests, targets)
+    b = ProgenBuildTest(ides, tests, targets)
 
 

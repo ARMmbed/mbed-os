@@ -39,7 +39,7 @@ def get_test_from_name(n):
     return get_program(n)
 
 
-def setup_project(mcu, ide, program = None, source_dir= None, macros = None, build = None):
+def setup_project(mcu, ide, program=None, source_dir=None, macros=None, build=None):
 
     # Some libraries have extra macros (called by exporter symbols) to we need to pass
     # them to maintain compilation macros integrity between compiled library and
@@ -75,12 +75,12 @@ def setup_project(mcu, ide, program = None, source_dir= None, macros = None, bui
     return project_dir, project_name, project_temp
 
 
-def perform_export(dir, name, ide, mcu, temp, clean = True, zip = True, lib_symbols = '',
-                   sources_relative = False, progen_build = False):
+def perform_export(dir, name, ide, mcu, temp, clean=False, zip=False, lib_symbols='',
+                   sources_relative=False, progen_build=False):
 
     tmp_path, report = export(dir, name, ide, mcu, dir[0], temp, clean=clean,
                               make_zip=zip, extra_symbols=lib_symbols, sources_relative=sources_relative,
-                              progen_build = progen_build)
+                              progen_build=progen_build)
     return tmp_path, report
 
 
