@@ -534,14 +534,20 @@ extern uint32_t          __end__[];
 #define HEAP_START      (__end__)
 #elif defined(__ICCARM__)
 #pragma section="HEAP"
-#define HEAP_START     (void *)__section_begin("HEAP")
+#define HEAP_END  (void *)__section_end("HEAP")
 #endif
 
 void set_main_stack(void) {
     uint32_t interrupt_stack_size = ((uint32_t)OS_MAINSTKSIZE * 4);
+#if defined(__ICCARM__)
+	/* For IAR heap is defined  .icf file */
+	uint32_t main_stack_size = ((uint32_t)INITIAL_SP - (uint32_t)HEAP_END) - interrupt_stack_size;
+#else
+	/* For ARM , uARM, or GCC_ARM , heap can grow and reach main stack */
     uint32_t heap_plus_stack_size = ((uint32_t)INITIAL_SP - (uint32_t)HEAP_START) - interrupt_stack_size;
     // Main thread's stack is 1/4 of the heap
-    uint32_t main_stack_size = heap_plus_stack_size / 4;
+    uint32_t main_stack_size = heap_plus_stack_size/4;
+#endif
     // The main thread must be 4 byte aligned
     uint32_t main_stack_start = ((uint32_t)INITIAL_SP - interrupt_stack_size - main_stack_size) & ~0x7;
 
