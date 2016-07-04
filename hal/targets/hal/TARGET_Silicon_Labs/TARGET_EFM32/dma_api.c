@@ -25,7 +25,6 @@
 #include "dma_api_HAL.h"
 #include "em_device.h"
 #include "em_cmu.h"
-#include "em_int.h"
 
 #ifdef DMA_PRESENT
 #include "em_dma.h"
@@ -198,7 +197,6 @@ bool LDMAx_ChannelEnabled( int ch )
     EFM_ASSERT(ch < DMA_CHAN_COUNT);
     uint32_t chMask = 1 << ch;
     return (bool)(LDMA->CHEN & chMask);
-    INT_Disable();
 }
 
 #endif /* LDMA_PRESENT */
