@@ -44,6 +44,7 @@ class Sw4STM32(Exporter):
         'NUCLEO_F303RE':    {'name': 'NUCLEO-F303RE',           'mcuId': 'STM32F303RETx'},
         'NUCLEO_F334R8':    {'name': 'NUCLEO-F334R8',           'mcuId': 'STM32F334R8Tx'},
         'NUCLEO_F401RE':    {'name': 'NUCLEO-F401RE',           'mcuId': 'STM32F401RETx'},
+        'NUCLEO_F429ZI':    {'name': 'NUCLEO-F429ZI',           'mcuId': 'STM32F429ZITx'},
         'NUCLEO_F411RE':    {'name': 'NUCLEO-F411RE',           'mcuId': 'STM32F411RETx'},
         'NUCLEO_F446RE':    {'name': 'NUCLEO-F446RE',           'mcuId': 'STM32F446RETx'},
         'NUCLEO_F446ZE':    {'name': 'NUCLEO-F446ZE',           'mcuId': 'STM32F446ZETx'},
