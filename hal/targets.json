@@ -759,7 +759,8 @@
     },
     "NUCLEO_F429ZI": {
         "inherits": ["Target"],
-        "core": "Cortex-M4F",
+        "core": "Cortex-M4",
+        "fpu": "single",
         "default_toolchain": "uARM",
         "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
@@ -783,7 +784,8 @@
     },
     "NUCLEO_F446ZE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
-        "core": "Cortex-M4F",
+        "core": "Cortex-M4",
+        "fpu": "single",
         "default_toolchain": "uARM",
         "extra_labels": ["STM", "STM32F4", "STM32F446ZE"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
