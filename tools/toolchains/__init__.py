@@ -216,11 +216,13 @@ class mbedToolchain:
         "Cortex-M1" : ["__CORTEX_M3", "ARM_MATH_CM1"],
         "Cortex-M3" : ["__CORTEX_M3", "ARM_MATH_CM3", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M4" : ["__CORTEX_M4", "ARM_MATH_CM4", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M4F" : ["__CORTEX_M4", "ARM_MATH_CM4", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-M7" : ["__CORTEX_M7", "ARM_MATH_CM7", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M7F" : ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
-        "Cortex-M7F_DP" : ["__CORTEX_M7", "ARM_MATH_CM7", "__FPU_PRESENT=1", "__CMSIS_RTOS", "__MBED_CMSIS_RTOS_CM"],
         "Cortex-A9" : ["__CORTEX_A9", "ARM_MATH_CA9", "__FPU_PRESENT", "__CMSIS_RTOS", "__EVAL", "__MBED_CMSIS_RTOS_CA9"],
+    }
+    
+    CORTEX_FPU_SYMBOLS = {
+        "single" : ["__FPU_PRESENT=1"],
+        "double" : ["__FPU_PRESENT=1"],
     }
 
     GOANNA_FORMAT = "[Goanna] warning [%FILENAME%:%LINENO%] - [%CHECKNAME%(%SEVERITY%)] %MESSAGE%"
@@ -366,6 +368,8 @@ class mbedToolchain:
             # Cortex CPU symbols
             if self.target.core in mbedToolchain.CORTEX_SYMBOLS:
                 self.symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
+            if self.target.fpu in mbedToolchain.CORTEX_FPU_SYMBOLS:
+                self.symbols.extend(mbedToolchain.CORTEX_FPU_SYMBOLS[self.target.fpu])
 
             # Symbols defined by the on-line build.system
             self.symbols.extend(['MBED_BUILD_TIMESTAMP=%s' % self.timestamp, 'TARGET_LIKE_MBED', '__MBED__=1'])

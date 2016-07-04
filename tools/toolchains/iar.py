@@ -47,28 +47,39 @@ class IAR(mbedToolchain):
 
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         mbedToolchain.__init__(self, target, options, notify, macros, silent, extra_verbose=extra_verbose)
-        if target.core == "Cortex-M7F":
-            cpuchoice = "Cortex-M7"
-        else:
-            cpuchoice = target.core
+        cpuchoice = target.core
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
         # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
-        asm_flags_cmd = [
-            "--cpu", cpuchoice
-        ]
+        if target.core == "Cortex-M4" and target.fpu == "single":
+          asm_flags_cmd = [
+              "--cpu", "Cortex-M4F"
+          ]
+        else:
+          asm_flags_cmd = [
+              "--cpu", cpuchoice
+          ]
         # custom c flags
-        c_flags_cmd = [
-            "--cpu", cpuchoice,
-            "--thumb", "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")
-        ]
+        if target.core == "Cortex-M4" and target.fpu == "single":
+          c_flags_cmd = [
+              "--cpu", "Cortex-M4F",
+              "--thumb", "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")
+          ]
+        else:
+          c_flags_cmd = [
+              "--cpu", cpuchoice,
+              "--thumb", "--dlib_config", join(IAR_PATH, "inc", "c", "DLib_Config_Full.h")
+          ]
         # custom c++ cmd flags
         cxx_flags_cmd = [
             "--c++", "--no_rtti", "--no_exceptions"
         ]
-        if target.core == "Cortex-M7F":
+        if target.core == "Cortex-M7" and target.fpu == "single":
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
+        if target.core == "Cortex-M7" and target.fpu == "double":
+            asm_flags_cmd += ["--fpu", "VFPv5"]
+            c_flags_cmd.append("--fpu=VFPv5")
 
         if "debug-info" in self.options:
             c_flags_cmd.append("-r")
