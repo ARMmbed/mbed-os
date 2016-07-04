@@ -35,10 +35,10 @@ int EFlash_IdCheck()
 {
     unsigned int eflash_id;
 
-    eflash_id = readl(SYS_EFLASH_PIDR2) & (EFLASH_DES_1 | EFLASH_JEDEC);
+    eflash_id = EFlash_Readl(SYS_EFLASH_PIDR2) & (EFLASH_DES_1 | EFLASH_JEDEC);
 
-    if (readl(SYS_EFLASH_PIDR0) != FLS_PID0
-            || readl(SYS_EFLASH_PIDR1) != FLS_PID1
+    if (EFlash_Readl(SYS_EFLASH_PIDR0) != FLS_PID0
+            || EFlash_Readl(SYS_EFLASH_PIDR1) != FLS_PID1
             || eflash_id != FLS_PID2)
         /* port ID and ARM ID does not match */
         return 1;
@@ -52,7 +52,7 @@ int EFlash_ReturnBank1BaseAddress()
     unsigned int hwparams0;
     int baseaddr;
 
-    hwparams0 = readl(SYS_EFLASH_HWPARAMS0) & EFLASH_FLASHSIZE;
+    hwparams0 = EFlash_Readl(SYS_EFLASH_HWPARAMS0) & EFLASH_FLASHSIZE;
 
     switch(hwparams0)
     {
@@ -73,31 +73,35 @@ int EFlash_ReturnBank1BaseAddress()
     return baseaddr;
 }
 
-/* EFlash_Initialize: eFlash Initialize function */
-void EFlash_Initialize()
+/* EFlash_DriverInitialize: eFlash Driver Initialize function */
+void EFlash_DriverInitialize()
 {
     /* Find the start address of banks */
     eflash.basebank0 = 0x0;
     eflash.basebank0_me = 0x40000000;
     eflash.basebank1 = EFlash_ReturnBank1BaseAddress();
     eflash.basebank1_me = 0x80000000;
+}
 
+/* EFlash_ClockConfig: eFlash Clock Configuration */
+void EFlash_ClockConfig()
+{
     /* Wait until eFlash controller gets unlocked */
-    while ((readl(SYS_EFLASH_STATUS) & EFLASH_LOCK_MASK) == EFLASH_LOCK);
+    while ((EFlash_Readl(SYS_EFLASH_STATUS) & EFLASH_LOCK_MASK) == EFLASH_LOCK);
 
     /*
-     * Configure to use external clock
-     * EXTCL = 31250 ns ->
-     *   1 ms = 32 clock count 32khz ext_clk -> ER_CLK_COUNT = 32
-     *   1 us = 84 clock count system_clk -> WR_CLK_COUNT = 84
-     *   EXT_CLK_CONF = 0x1 [Erase] External clock used for erase counters (>1ms)
-     *   HCLK used for write counters
-     *   RD_CLK_COUNT = 0x3
-     */
-    writel(SYS_EFLASH_CONFIG0, 0x00200B43);
+    * Configure to use external clock
+    * EXTCL = 31250 ns ->
+    *   1 ms = 32 clock count 32khz ext_clk -> ER_CLK_COUNT = 32
+    *   1 us = 84 clock count system_clk -> WR_CLK_COUNT = 84
+    *   EXT_CLK_CONF = 0x1 [Erase] External clock used for erase counters (>1ms)
+    *   HCLK used for write counters
+    *   RD_CLK_COUNT = 0x3
+    */
+    EFlash_Writel(SYS_EFLASH_CONFIG0, 0x00200B43);
 
     /* Wait until eFlash controller gets unlocked */
-    while ((readl(SYS_EFLASH_STATUS) & EFLASH_BUSY_MASK) == EFLASH_BUSY);
+    while ((EFlash_Readl(SYS_EFLASH_STATUS) & EFLASH_BUSY_MASK) == EFLASH_BUSY);
 }
 
 /*
@@ -116,87 +120,87 @@ void EFlash_Erase(int mode)
     {
         case 0:
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #0 */
-            writel(SYS_EFLASH_WADDR, eflash.basebank0);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank0);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             break;
         case 1:
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #1 */
-            writel(SYS_EFLASH_WADDR, eflash.basebank1);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank1);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             break;
         case 2:
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #0 + info pages */
-            writel(SYS_EFLASH_WADDR, eflash.basebank0_me);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank0_me);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             break;
         case 3:
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #1 + info pages */
-            writel(SYS_EFLASH_WADDR, eflash.basebank1_me);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank1_me);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             break;
         case 4:
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #0 */
-            writel(SYS_EFLASH_WADDR, eflash.basebank0);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank0);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #1 */
-            writel(SYS_EFLASH_WADDR, eflash.basebank1);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank1);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller gets unlocked */
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             break;
         case 5:
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #0 + info pages */
-            writel(SYS_EFLASH_WADDR, eflash.basebank0_me);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank0_me);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             /* Wait until eFlash controller gets unlocked */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_LOCK_MASK) == EFLASH_LOCK);
             /* Erase Block #1 + info pages */
-            writel(SYS_EFLASH_WADDR, eflash.basebank1_me);
-            writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
+            EFlash_Writel(SYS_EFLASH_WADDR, eflash.basebank1_me);
+            EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_MASS_ERASE);
             /* Wait until eFlash controller is not busy */
-            while ((readl(SYS_EFLASH_STATUS)
+            while ((EFlash_Readl(SYS_EFLASH_STATUS)
                         & EFLASH_BUSY_MASK) == EFLASH_BUSY);
             break;
         default:
@@ -208,10 +212,10 @@ void EFlash_Erase(int mode)
 void EFlash_ErasePage(unsigned int waddr)
 {
     /* Erase the page starting a waddr */
-    writel(SYS_EFLASH_WADDR, waddr);
-    writel(SYS_EFLASH_CTRL, EFLASH_ERASE);
+    EFlash_Writel(SYS_EFLASH_WADDR, waddr);
+    EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_ERASE);
     /* Wait until eFlash controller gets unlocked */
-    while ((readl(SYS_EFLASH_STATUS)
+    while ((EFlash_Readl(SYS_EFLASH_STATUS)
                 & EFLASH_BUSY_MASK) == EFLASH_BUSY);
 }
 
@@ -224,13 +228,13 @@ void EFlash_ErasePage(unsigned int waddr)
 void EFlash_Write(unsigned int waddr, unsigned int data)
 {
     /* Set Write Data Register */
-    writel(SYS_EFLASH_WDATA, data);
+    EFlash_Writel(SYS_EFLASH_WDATA, data);
     /* Set Write Address Register */
-    writel(SYS_EFLASH_WADDR, waddr);
+    EFlash_Writel(SYS_EFLASH_WADDR, waddr);
     /* Start Write Operation through CTRL register */
-    writel(SYS_EFLASH_CTRL, EFLASH_WRITE);
+    EFlash_Writel(SYS_EFLASH_CTRL, EFLASH_WRITE);
     /* Wait until eFlash controller gets unlocked */
-    while ((readl(SYS_EFLASH_STATUS)
+    while ((EFlash_Readl(SYS_EFLASH_STATUS)
                 & EFLASH_BUSY_MASK) == EFLASH_BUSY);
 
     /* Flash Cache invalidate if FCache enabled */
@@ -275,7 +279,7 @@ int EFlash_WritePage(unsigned int waddr, unsigned int page_size,
  */
 unsigned int EFlash_Read(unsigned int waddr)
 {
-    unsigned int eflash_read = readl(waddr);
+    unsigned int eflash_read = EFlash_Readl(waddr);
     return eflash_read;
 }
 

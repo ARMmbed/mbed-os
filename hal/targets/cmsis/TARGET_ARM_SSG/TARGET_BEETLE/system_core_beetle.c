@@ -119,3 +119,36 @@ void SystemPowerResume(power_mode_t mode)
         __DSB();
     }
 }
+
+
+/*
+ * System config data storage functions
+ * Reserved as the data is not strictly persistent
+ */
+
+/*
+ * __System_Config_GetBDAddr(): Address for the BLE device on the air.
+ */
+void __System_Config_GetBDAddr(uint8_t *addr, uint8_t byte_len)
+{
+    SystemCoreConfigData *p;
+    int bank1addr = EFlash_ReturnBank1BaseAddress();
+
+    if (byte_len > 6)
+    {
+        return;
+    }
+
+    if (bank1addr < 0)
+    {
+        memset(addr, 0xFF, byte_len);
+    }
+    else
+    {
+        /* 2x bank1 address is the top as banks have to be symmetric sizes */
+        /* The data is stored at the end.*/
+        p = (SystemCoreConfigData *) ((2 * bank1addr) - SYSTEM_CORE_CONFIG_DATA_SIZE);
+
+        memcpy(addr, p->BD_ADDR, byte_len);
+    }
+}
