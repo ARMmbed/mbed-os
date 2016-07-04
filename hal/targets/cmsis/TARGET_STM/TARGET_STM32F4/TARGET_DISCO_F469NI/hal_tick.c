@@ -80,9 +80,9 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
     TimMasterHandle.Instance = TIM_MST;
     TimMasterHandle.Init.Period            = 0xFFFFFFFF;
 	if ( SystemCoreClock == 16000000 ) { 
-		TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 1000000) - 1; // 1 �s tick
+		TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 1000000) - 1; // 1 us tick
 	} else {
-		TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 2 / 1000000) - 1; // 1 �s tick
+		TimMasterHandle.Init.Prescaler         = (uint32_t)( SystemCoreClock / 2 / 1000000) - 1; // 1 us tick
 	}
     TimMasterHandle.Init.ClockDivision     = 0;
     TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
