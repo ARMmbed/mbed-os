@@ -751,6 +751,18 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
     },
+    "NUCLEO_F446ZE": {
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "uARM",
+        "extra_labels": ["STM", "STM32F4", "STM32F446ZE"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "inherits": ["Target"],
+        "progen": {"target": "nucleo-f446ze"},
+        "detect_code": ["0778"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "default_build": "small"
+    },
     "B96B_F446VE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",

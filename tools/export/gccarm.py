@@ -70,6 +70,7 @@ class GccArm(Exporter):
         'NUCLEO_F410RB',
         'NUCLEO_F411RE',
         'NUCLEO_F446RE',
+        'NUCLEO_F446ZE',
         'B96B_F446VE',
         'ARCH_MAX',
         'NUCLEO_F030R8',

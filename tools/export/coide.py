@@ -46,6 +46,7 @@ class CoIDE(Exporter):
         'NUCLEO_F410RB',
         'NUCLEO_F411RE',
         'NUCLEO_F446RE',
+        'NUCLEO_F446ZE',
         'DISCO_L053C8',
         'DISCO_F051R8',
         'DISCO_F100RB',
