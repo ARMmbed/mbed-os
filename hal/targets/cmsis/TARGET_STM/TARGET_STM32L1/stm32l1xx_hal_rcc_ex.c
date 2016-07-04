@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Extended RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
   *           + Extended Peripheral Control functions
-  *  
+  *
   ******************************************************************************
   * @attention
   *
@@ -47,7 +47,6 @@
   */
 
 #ifdef HAL_RCC_MODULE_ENABLED
-
 
 /** @defgroup RCCEx RCCEx
   * @brief RCC Extension HAL module driver
@@ -110,8 +109,8 @@
   */
 HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 {
-  uint32_t tickstart = 0;
-  uint32_t temp_reg = 0;
+  uint32_t tickstart = 0U;
+  uint32_t temp_reg = 0U;
   
   /* Check the parameters */
   assert_param(IS_RCC_PERIPHCLOCK(PeriphClkInit->PeriphClockSelection));
@@ -136,25 +135,34 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     }
 #endif /* LCD */
 
+    FlagStatus       pwrclkchanged = RESET;
+
     /* As soon as function is called to change RTC clock source, activation of the 
        power domain is done. */
-    /* Enable Power Clock*/
-    __HAL_RCC_PWR_CLK_ENABLE();
-    
-    /* Enable write access to Backup domain */
-    SET_BIT(PWR->CR, PWR_CR_DBP);
-    
-    /* Wait for Backup domain Write protection disable */
-    tickstart = HAL_GetTick();
-    
-    while((PWR->CR & PWR_CR_DBP) == RESET)
+    /* Requires to enable write access to Backup Domain of necessary */
+    if(__HAL_RCC_PWR_IS_CLK_DISABLED())
     {
-      if((HAL_GetTick() - tickstart ) > RCC_DBP_TIMEOUT_VALUE)
-      {
-        return HAL_TIMEOUT;
-      }
+      __HAL_RCC_PWR_CLK_ENABLE();
+      pwrclkchanged = SET;
     }
     
+    if(HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))
+    {
+      /* Enable write access to Backup domain */
+      SET_BIT(PWR->CR, PWR_CR_DBP);
+      
+      /* Wait for Backup domain Write protection disable */
+      tickstart = HAL_GetTick();
+
+      while(HAL_IS_BIT_CLR(PWR->CR, PWR_CR_DBP))
+      {
+        if((HAL_GetTick() - tickstart) > RCC_DBP_TIMEOUT_VALUE)
+        {
+          return HAL_TIMEOUT;
+        }
+      }
+    }
+
     /* Check if user wants to change HSE RTC prescaler whereas HSE is enabled */ 
     temp_reg = (RCC->CR & RCC_CR_RTCPRE);
     if ((temp_reg != (PeriphClkInit->RTCClockSelection & RCC_CR_RTCPRE))
@@ -192,7 +200,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       RCC->CSR = temp_reg;
       
        /* Wait for LSERDY if LSE was enabled */
-      if (HAL_IS_BIT_SET(temp_reg, RCC_CSR_LSERDY))
+      if (HAL_IS_BIT_SET(temp_reg, RCC_CSR_LSEON))
       {
         /* Get Start Tick */
         tickstart = HAL_GetTick();
@@ -206,17 +214,21 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
           }
         }
       }
-      
     }
     __HAL_RCC_RTC_CONFIG(PeriphClkInit->RTCClockSelection);
+
+    /* Require to disable power clock if necessary */
+    if(pwrclkchanged == SET)
+    {
+      __HAL_RCC_PWR_CLK_DISABLE();
+    }
   }
   
   return HAL_OK;
 }
 
 /**
-  * @brief  Get the PeriphClkInit according to the internal
-  * RCC configuration registers.
+  * @brief  Get the PeriphClkInit according to the internal RCC configuration registers.
   * @param  PeriphClkInit pointer to an RCC_PeriphCLKInitTypeDef structure that 
   *         returns the configuration information for the Extended Peripherals clocks(RTC/LCD clocks).
   * @retval None
@@ -227,7 +239,7 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   
   /* Set all possible values for the extended clock type parameter------------*/
   PeriphClkInit->PeriphClockSelection = RCC_PERIPHCLK_RTC;
-#if defined(LCD)
+#if defined(LCD)   
   PeriphClkInit->PeriphClockSelection |= RCC_PERIPHCLK_LCD;
 #endif /* LCD */
 
@@ -249,18 +261,19 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
 }
 
 /**
-  * @brief  Returns the peripheral clock frequency
-  * @note   Returns 0 if peripheral clock is unknown
+  * @brief  Return the peripheral clock frequency
+  * @note   Return 0 if peripheral clock is unknown
   * @param  PeriphClk Peripheral clock identifier
   *         This parameter can be one of the following values:
-  *            @arg @ref RCC_PERIPHCLK_RTC  RTC peripheral clock
-  *            @arg @ref RCC_PERIPHCLK_LCD  LCD peripheral clock (depends on devices)
+  *            @arg @ref RCC_PERIPHCLK_RTC      RTC peripheral clock
+  *            @arg @ref RCC_PERIPHCLK_LCD      LCD peripheral clock (*)
+  * @note   (*) means that this peripheral is not present on all the devices
   * @retval Frequency in Hz (0: means that no available frequency for the peripheral)
   */
 uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 {
-  uint32_t temp_reg = 0, clkprediv = 0, frequency = 0;
-  uint32_t srcclk = 0;
+  uint32_t temp_reg = 0U, clkprediv = 0U, frequency = 0U;
+  uint32_t srcclk = 0U;
 
   /* Check the parameters */
   assert_param(IS_RCC_PERIPHCLOCK(PeriphClk));
@@ -298,22 +311,22 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         {
           case RCC_RTC_HSE_DIV_16:  /* HSE DIV16 has been selected */
           {
-            frequency = HSE_VALUE / 16;
+            frequency = HSE_VALUE / 16U;
             break;
           }
           case RCC_RTC_HSE_DIV_8:   /* HSE DIV8 has been selected  */
           {
-            frequency = HSE_VALUE / 8;
+            frequency = HSE_VALUE / 8U;
             break;
           }
           case RCC_RTC_HSE_DIV_4:   /* HSE DIV4 has been selected  */
           {
-            frequency = HSE_VALUE / 4;
+            frequency = HSE_VALUE / 4U;
             break;
           }
           default:                  /* HSE DIV2 has been selected  */
           {
-            frequency = HSE_VALUE / 2;
+            frequency = HSE_VALUE / 2U;
             break;
           }
         }
@@ -321,7 +334,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       /* Clock not enabled for RTC */
       else
       {
-        frequency = 0;
+        frequency = 0U;
       }
       break;
     }
@@ -333,7 +346,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
   return(frequency);
 }
 
-#if defined(RCC_CSR_LSECSSON)
+#if defined(RCC_LSECSS_SUPPORT)
 /**
   * @brief  Enables the LSE Clock Security System.
   * @note   If a failure is detected on the external 32 kHz oscillator, the LSE clock is no longer supplied
@@ -413,8 +426,12 @@ __weak void HAL_RCCEx_LSECSS_Callback(void)
             the @ref HAL_RCCEx_LSECSS_Callback should be implemented in the user file
    */
 }
-#endif /* RCC_CSR_LSECSSON */
+#endif /* RCC_LSECSS_SUPPORT */
   
+/**
+  * @}
+  */
+
 /**
   * @}
   */

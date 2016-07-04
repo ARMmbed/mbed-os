@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_rcc_ex.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of RCC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -33,7 +33,7 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L1xx_HAL_RCC_EX_H
@@ -80,12 +80,7 @@
 /** @addtogroup RCCEx_Private_Macros
   * @{
   */
-
-#if defined(STM32L100xB) || defined(STM32L100xBA) || defined(STM32L100xC)\
- || defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC)\
- || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
- || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
- || defined(STM32L162xE) || defined(STM32L162xDX)
+#if defined(LCD)
 
 #define IS_RCC_PERIPHCLOCK(__CLK__) ((RCC_PERIPHCLK_RTC <= (__CLK__)) && ((__CLK__) <= RCC_PERIPHCLK_LCD))
 
@@ -93,7 +88,7 @@
 
 #define IS_RCC_PERIPHCLOCK(__CLK__) ((__CLK__) == RCC_PERIPHCLK_RTC)
 
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
+#endif /* LCD */
 
 /**
   * @}
@@ -116,16 +111,12 @@ typedef struct
   uint32_t RTCClockSelection;         /*!< specifies the RTC clock source.
                                        This parameter can be a value of @ref RCC_RTC_LCD_Clock_Source */
 
-#if defined(STM32L100xB) || defined(STM32L100xBA) || defined(STM32L100xC)\
- || defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC)\
- || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
- || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
- || defined(STM32L162xE) || defined(STM32L162xDX)
+#if defined(LCD)
 
   uint32_t LCDClockSelection;         /*!< specifies the LCD clock source.
                                        This parameter can be a value of @ref RCC_RTC_LCD_Clock_Source */
 
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
+#endif /* LCD */
 } RCC_PeriphCLKInitTypeDef;
 
 /**
@@ -143,30 +134,25 @@ typedef struct
   */
 #define RCC_PERIPHCLK_RTC           ((uint32_t)0x00000001)
 
-#if defined(STM32L100xB) || defined(STM32L100xBA) || defined(STM32L100xC)\
- || defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC)\
- || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
- || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
- || defined(STM32L162xE) || defined(STM32L162xDX)
+#if defined(LCD)
 
 #define RCC_PERIPHCLK_LCD           ((uint32_t)0x00000002)
 
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
+#endif /* LCD */
 
 /**
   * @}
   */
 
-#if defined(RCC_CSR_LSECSSON)
+#if defined(RCC_LSECSS_SUPPORT)
 /** @defgroup RCCEx_EXTI_LINE_LSECSS  RCC LSE CSS external interrupt line
   * @{
   */
-#define RCC_EXTI_LINE_LSECSS             (EXTI_IMR_MR19)         /*!< External interrupt line 19 connected to the LSE CSS EXTI Line */
+#define RCC_EXTI_LINE_LSECSS             (EXTI_IMR_IM19)         /*!< External interrupt line 19 connected to the LSE CSS EXTI Line */
 /**
   * @}
   */
-#endif /* RCC_CSR_LSECSSON */
-
+#endif /* RCC_LSECSS_SUPPORT */
 
 /**
   * @}
@@ -880,44 +866,7 @@ typedef struct
   */
   
   
-#if defined(STM32L100xB) || defined(STM32L100xBA) || defined(STM32L100xC)\
- || defined(STM32L152xB) || defined(STM32L152xBA) || defined(STM32L152xC)\
- || defined(STM32L162xC) || defined(STM32L152xCA) || defined(STM32L152xD)\
- || defined(STM32L162xCA) || defined(STM32L162xD) || defined(STM32L152xE) || defined(STM32L152xDX)\
- || defined(STM32L162xE) || defined(STM32L162xDX)
-    
-/** @defgroup RCCEx_LCD_Configuration LCd Configuration
-  * @brief  Macros to configure clock source of LCD peripherals.
-  * @{
-  */  
-
-/** @brief Macro to configures LCD clock (LCDCLK).
-  *  @note   LCD and RTC use the same configuration
-  *  @note   LCD can however be used in the Stop low power mode if the LSE or LSI is used as the
-  *   LCD clock source.
-  *    
-  *  @param  __LCD_CLKSOURCE__ specifies the LCD clock source.
-  *          This parameter can be one of the following values:
-  *             @arg @ref RCC_RTCCLKSOURCE_LSE LSE selected as RTC clock
-  *             @arg @ref RCC_RTCCLKSOURCE_LSI LSI selected as RTC clock
-  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV2 HSE divided by 2 selected as RTC clock
-  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV4 HSE divided by 4 selected as RTC clock
-  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV8 HSE divided by 8 selected as RTC clock
-  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV16 HSE divided by 16 selected as RTC clock
-  */
-#define __HAL_RCC_LCD_CONFIG(__LCD_CLKSOURCE__) __HAL_RCC_RTC_CONFIG(__LCD_CLKSOURCE__)
-
-/** @brief macros to get the LCD clock source.
-  */
-#define __HAL_RCC_GET_LCD_SOURCE()              __HAL_RCC_GET_RTC_SOURCE()
-
-/**
-  * @}
-  */
-
-#endif /* STM32L100xB || STM32L152xBA || ... || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
-
-#if defined(RCC_CSR_LSECSSON)
+#if defined(RCC_LSECSS_SUPPORT)
 
 /**
   * @brief Enable interrupt on RCC LSE CSS EXTI Line 19.
@@ -1008,7 +957,44 @@ typedef struct
   */
 #define __HAL_RCC_LSECSS_EXTI_GENERATE_SWIT()  SET_BIT(EXTI->SWIER, RCC_EXTI_LINE_LSECSS)
 
-#endif /* RCC_CSR_LSECSSON */
+#endif /* RCC_LSECSS_SUPPORT */
+
+#if defined(LCD)
+    
+/** @defgroup RCCEx_LCD_Configuration LCD Configuration
+  * @brief  Macros to configure clock source of LCD peripherals.
+  * @{
+  */  
+
+/** @brief Macro to configures LCD clock (LCDCLK).
+  *  @note   LCD and RTC use the same configuration
+  *  @note   LCD can however be used in the Stop low power mode if the LSE or LSI is used as the
+  *          LCD clock source.
+  *    
+  *  @param  __LCD_CLKSOURCE__ specifies the LCD clock source.
+  *          This parameter can be one of the following values:
+  *             @arg @ref RCC_RTCCLKSOURCE_LSE LSE selected as LCD clock
+  *             @arg @ref RCC_RTCCLKSOURCE_LSI LSI selected as LCD clock
+  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV2 HSE divided by 2 selected as LCD clock
+  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV4 HSE divided by 4 selected as LCD clock
+  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV8 HSE divided by 8 selected as LCD clock
+  *             @arg @ref RCC_RTCCLKSOURCE_HSE_DIV16 HSE divided by 16 selected as LCD clock
+  */
+#define __HAL_RCC_LCD_CONFIG(__LCD_CLKSOURCE__) __HAL_RCC_RTC_CONFIG(__LCD_CLKSOURCE__)
+
+/** @brief Macro to get the LCD clock source.
+  */
+#define __HAL_RCC_GET_LCD_SOURCE()              __HAL_RCC_GET_RTC_SOURCE()
+
+/** @brief Macro to get the LCD clock pre-scaler.
+  */
+#define  __HAL_RCC_GET_LCD_HSE_PRESCALER()      __HAL_RCC_GET_RTC_HSE_PRESCALER()
+
+/**
+  * @}
+  */
+
+#endif /* LCD */
 
 
 /**
@@ -1028,7 +1014,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
 void              HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit);
 uint32_t          HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk);
 
-#if defined(RCC_CSR_LSECSSON)
+#if defined(RCC_LSECSS_SUPPORT)
 
 void              HAL_RCCEx_EnableLSECSS(void);
 void              HAL_RCCEx_DisableLSECSS(void);
@@ -1036,7 +1022,8 @@ void              HAL_RCCEx_EnableLSECSS_IT(void);
 void              HAL_RCCEx_LSECSS_IRQHandler(void);
 void              HAL_RCCEx_LSECSS_Callback(void);
 
-#endif /* RCC_CSR_LSECSSON */
+#endif /* RCC_LSECSS_SUPPORT */
+
 /**
   * @}
   */

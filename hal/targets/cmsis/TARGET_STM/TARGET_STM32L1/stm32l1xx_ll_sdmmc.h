@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_sdmmc.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of SDMMC HAL module.
   ******************************************************************************
   * @attention

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_rtc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Extended RTC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Real Time Clock (RTC) Extension peripheral:
@@ -1649,7 +1649,11 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
     }
   }
 
+  /* Disable the Wake-Up timer */
   __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
+
+  /* Clear flag Wake-Up */
+  __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
 
   tickstart = HAL_GetTick();
 

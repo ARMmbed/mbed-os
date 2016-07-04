@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Extended PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -128,7 +128,7 @@ HAL_StatusTypeDef  HAL_PCDEx_PMAConfig(PCD_HandleTypeDef *hpcd,
     ep->doublebuffer = 1;
     /*Configure the PMA*/
     ep->pmaaddr0 =  pmaadress & 0xFFFF;
-    ep->pmaaddr1 =  (pmaadress & 0xFFFF0000) >> 16;
+    ep->pmaaddr1 =  (pmaadress & 0xFFFF0000U) >> 16;
   }
   
   return HAL_OK; 

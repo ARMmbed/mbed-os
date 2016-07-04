@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -69,7 +69,7 @@
   * @{
   */
 
-#define SYSCFG_BOOT_MAINFLASH          ((uint32_t)0x00000000)
+#define SYSCFG_BOOT_MAINFLASH          (0x00000000U)
 #define SYSCFG_BOOT_SYSTEMFLASH        ((uint32_t)SYSCFG_MEMRMP_BOOT_MODE_0)
 #if defined(FSMC_R_BASE)
 #define SYSCFG_BOOT_FSMC               ((uint32_t)SYSCFG_MEMRMP_BOOT_MODE_1)
@@ -105,7 +105,7 @@
   * @{
   */ 
   
-#define TIM_SELECT_NONE  ((uint32_t)0x00000000)    /*!< None selected */
+#define TIM_SELECT_NONE  (0x00000000U)    /*!< None selected */
 #define TIM_SELECT_TIM2  ((uint32_t)RI_ICR_TIM_0)  /*!< Timer 2 selected */
 #define TIM_SELECT_TIM3  ((uint32_t)RI_ICR_TIM_1)  /*!< Timer 3 selected */
 #define TIM_SELECT_TIM4  ((uint32_t)RI_ICR_TIM)    /*!< Timer 4 selected */
@@ -123,22 +123,22 @@
   * @{
   */ 
                                                           /* TIMx_IC1 TIMx_IC2  TIMx_IC3  TIMx_IC4 */  
-#define RI_INPUTCAPTUREROUTING_0   ((uint32_t)0x00000000) /* PA0       PA1      PA2       PA3      */
-#define RI_INPUTCAPTUREROUTING_1   ((uint32_t)0x00000001) /* PA4       PA5      PA6       PA7      */
-#define RI_INPUTCAPTUREROUTING_2   ((uint32_t)0x00000002) /* PA8       PA9      PA10      PA11     */
-#define RI_INPUTCAPTUREROUTING_3   ((uint32_t)0x00000003) /* PA12      PA13     PA14      PA15     */
-#define RI_INPUTCAPTUREROUTING_4   ((uint32_t)0x00000004) /* PC0       PC1      PC2       PC3      */
-#define RI_INPUTCAPTUREROUTING_5   ((uint32_t)0x00000005) /* PC4       PC5      PC6       PC7      */
-#define RI_INPUTCAPTUREROUTING_6   ((uint32_t)0x00000006) /* PC8       PC9      PC10      PC11     */
-#define RI_INPUTCAPTUREROUTING_7   ((uint32_t)0x00000007) /* PC12      PC13     PC14      PC15     */
-#define RI_INPUTCAPTUREROUTING_8   ((uint32_t)0x00000008) /* PD0       PD1      PD2       PD3      */
-#define RI_INPUTCAPTUREROUTING_9   ((uint32_t)0x00000009) /* PD4       PD5      PD6       PD7      */
-#define RI_INPUTCAPTUREROUTING_10  ((uint32_t)0x0000000A) /* PD8       PD9      PD10      PD11     */
-#define RI_INPUTCAPTUREROUTING_11  ((uint32_t)0x0000000B) /* PD12      PD13     PD14      PD15     */
-#define RI_INPUTCAPTUREROUTING_12  ((uint32_t)0x0000000C) /* PE0       PE1      PE2       PE3      */
-#define RI_INPUTCAPTUREROUTING_13  ((uint32_t)0x0000000D) /* PE4       PE5      PE6       PE7      */
-#define RI_INPUTCAPTUREROUTING_14  ((uint32_t)0x0000000E) /* PE8       PE9      PE10      PE11     */
-#define RI_INPUTCAPTUREROUTING_15  ((uint32_t)0x0000000F) /* PE12      PE13     PE14      PE15     */
+#define RI_INPUTCAPTUREROUTING_0   (0x00000000U) /* PA0       PA1      PA2       PA3      */
+#define RI_INPUTCAPTUREROUTING_1   (0x00000001U) /* PA4       PA5      PA6       PA7      */
+#define RI_INPUTCAPTUREROUTING_2   (0x00000002U) /* PA8       PA9      PA10      PA11     */
+#define RI_INPUTCAPTUREROUTING_3   (0x00000003U) /* PA12      PA13     PA14      PA15     */
+#define RI_INPUTCAPTUREROUTING_4   (0x00000004U) /* PC0       PC1      PC2       PC3      */
+#define RI_INPUTCAPTUREROUTING_5   (0x00000005U) /* PC4       PC5      PC6       PC7      */
+#define RI_INPUTCAPTUREROUTING_6   (0x00000006U) /* PC8       PC9      PC10      PC11     */
+#define RI_INPUTCAPTUREROUTING_7   (0x00000007U) /* PC12      PC13     PC14      PC15     */
+#define RI_INPUTCAPTUREROUTING_8   (0x00000008U) /* PD0       PD1      PD2       PD3      */
+#define RI_INPUTCAPTUREROUTING_9   (0x00000009U) /* PD4       PD5      PD6       PD7      */
+#define RI_INPUTCAPTUREROUTING_10  (0x0000000AU) /* PD8       PD9      PD10      PD11     */
+#define RI_INPUTCAPTUREROUTING_11  (0x0000000BU) /* PD12      PD13     PD14      PD15     */
+#define RI_INPUTCAPTUREROUTING_12  (0x0000000CU) /* PE0       PE1      PE2       PE3      */
+#define RI_INPUTCAPTUREROUTING_13  (0x0000000DU) /* PE4       PE5      PE6       PE7      */
+#define RI_INPUTCAPTUREROUTING_14  (0x0000000EU) /* PE8       PE9      PE10      PE11     */
+#define RI_INPUTCAPTUREROUTING_15  (0x0000000FU) /* PE12      PE13     PE14      PE15     */
 
 #define IS_RI_INPUTCAPTURE_ROUTING(__ROUTING__) (((__ROUTING__) == RI_INPUTCAPTUREROUTING_0) || \
                                              ((__ROUTING__) == RI_INPUTCAPTUREROUTING_1) || \
@@ -164,7 +164,7 @@
 /** @defgroup RI_IOSwitch IO Switch
   * @{
   */ 
-#define RI_ASCR1_REGISTER       ((uint32_t)0x80000000)
+#define RI_ASCR1_REGISTER       (0x80000000U)
 /* ASCR1 I/O switch: bit 31 is set to '1' to indicate that the mask is in ASCR1 register */
 #define RI_IOSWITCH_CH0         ((uint32_t)RI_ASCR1_REGISTER | RI_ASCR1_CH_0)
 #define RI_IOSWITCH_CH1         ((uint32_t)RI_ASCR1_REGISTER | RI_ASCR1_CH_1)

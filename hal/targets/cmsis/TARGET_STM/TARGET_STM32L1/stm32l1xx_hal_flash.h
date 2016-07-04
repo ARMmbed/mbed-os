@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of Flash HAL module.
   ******************************************************************************
   * @attention
@@ -57,7 +57,7 @@
 /** @addtogroup FLASH_Private_Constants
   * @{
   */
-#define FLASH_TIMEOUT_VALUE   ((uint32_t)50000)/* 50 s */
+#define FLASH_TIMEOUT_VALUE   ((uint32_t)50000U) /* 50 s */
 /**
   * @}
   */
@@ -79,7 +79,6 @@
 /** @defgroup FLASH_Exported_Types FLASH Exported Types
   * @{
   */  
-
 
 /**
   * @brief  FLASH Procedure structure definition
@@ -123,24 +122,25 @@ typedef struct
   * @{
   */
 
-#define HAL_FLASH_ERROR_NONE      ((uint32_t)0x00)  /*!< No error */
-#define HAL_FLASH_ERROR_PGA       ((uint32_t)0x01)  /*!< Programming alignment error */
-#define HAL_FLASH_ERROR_WRP       ((uint32_t)0x02)  /*!< Write protection error */
-#define HAL_FLASH_ERROR_OPTV      ((uint32_t)0x04)  /*!< Option validity error */
-#define HAL_FLASH_ERROR_SIZE      ((uint32_t)0x08)  /*!<  */
-#define HAL_FLASH_ERROR_OPTVUSR   ((uint32_t)0x10)  /*!< Option UserValidity Error. */
-#define HAL_FLASH_ERROR_RD        ((uint32_t)0x20)  /*!< Read protected error */
-#define HAL_FLASH_ERROR_OPERATION ((uint32_t)0x40)  /*!< Not used */
+#define HAL_FLASH_ERROR_NONE      0x00U  /*!< No error */
+#define HAL_FLASH_ERROR_PGA       0x01U  /*!< Programming alignment error */
+#define HAL_FLASH_ERROR_WRP       0x02U  /*!< Write protection error */
+#define HAL_FLASH_ERROR_OPTV      0x04U  /*!< Option validity error */
+#define HAL_FLASH_ERROR_SIZE      0x08U  /*!<  */
+#define HAL_FLASH_ERROR_RD        0x10U  /*!< Read protected error */
+#define HAL_FLASH_ERROR_OPTVUSR   0x20U  /*!< Option UserValidity Error. */
+#define HAL_FLASH_ERROR_OPERATION 0x40U  /*!< Not used */
 
 /**
   * @}
   */
 
-/** @defgroup FLASH_Page_Size FLASH Page Size
+/** @defgroup FLASH_Page_Size FLASH size information
   * @{
   */ 
 
-#define FLASH_PAGE_SIZE           ((uint32_t)256)
+#define FLASH_SIZE                (uint32_t)(*((uint16_t *)FLASHSIZE_BASE) * 1024U)
+#define FLASH_PAGE_SIZE           ((uint32_t)256U)  /*!< FLASH Page Size in bytes */
 
 /**
   * @}
@@ -149,7 +149,7 @@ typedef struct
 /** @defgroup FLASH_Type_Program FLASH Type Program
   * @{
   */ 
-#define FLASH_TYPEPROGRAM_WORD       ((uint32_t)0x02)  /*!<Program a word (32-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAM_WORD       ((uint32_t)0x02U)  /*!<Program a word (32-bit) at a specified address.*/
 
 /**
   * @}
@@ -158,7 +158,7 @@ typedef struct
 /** @defgroup FLASH_Latency FLASH Latency
   * @{
   */ 
-#define FLASH_LATENCY_0            ((uint32_t)0x00000000)    /*!< FLASH Zero Latency cycle */
+#define FLASH_LATENCY_0            ((uint32_t)0x00000000U)    /*!< FLASH Zero Latency cycle */
 #define FLASH_LATENCY_1            FLASH_ACR_LATENCY         /*!< FLASH One Latency cycle */
 
 /**
@@ -187,6 +187,14 @@ typedef struct
 #define FLASH_FLAG_PGAERR          FLASH_SR_PGAERR     /*!< FLASH Programming Alignment error flag */
 #define FLASH_FLAG_SIZERR          FLASH_SR_SIZERR     /*!< FLASH Size error flag  */
 #define FLASH_FLAG_OPTVERR         FLASH_SR_OPTVERR    /*!< FLASH Option Validity error flag  */
+/* Cat2 & Cat3*/
+#if defined(FLASH_SR_RDERR)
+#define FLASH_FLAG_RDERR           FLASH_SR_RDERR    /*!< Read protected error flag  */
+#endif /* FLASH_SR_RDERR */
+/* Cat3, Cat4 & Cat5*/
+#if defined(FLASH_SR_OPTVERRUSR)
+#define FLASH_FLAG_OPTVERRUSR      FLASH_SR_OPTVERRUSR /*!< FLASH Option User Validity error flag  */
+#endif /* FLASH_SR_OPTVERRUSR */
 
 /**
   * @}
@@ -196,21 +204,21 @@ typedef struct
   * @{
   */ 
 
-#define FLASH_PDKEY1               ((uint32_t)0x04152637) /*!< Flash power down key1 */
-#define FLASH_PDKEY2               ((uint32_t)0xFAFBFCFD) /*!< Flash power down key2: used with FLASH_PDKEY1 
+#define FLASH_PDKEY1               ((uint32_t)0x04152637U) /*!< Flash power down key1 */
+#define FLASH_PDKEY2               ((uint32_t)0xFAFBFCFDU) /*!< Flash power down key2: used with FLASH_PDKEY1 
                                                               to unlock the RUN_PD bit in FLASH_ACR */
 
-#define FLASH_PEKEY1               ((uint32_t)0x89ABCDEF) /*!< Flash program erase key1 */
-#define FLASH_PEKEY2               ((uint32_t)0x02030405) /*!< Flash program erase key: used with FLASH_PEKEY2
+#define FLASH_PEKEY1               ((uint32_t)0x89ABCDEFU) /*!< Flash program erase key1 */
+#define FLASH_PEKEY2               ((uint32_t)0x02030405U) /*!< Flash program erase key: used with FLASH_PEKEY2
                                                                to unlock the write access to the FLASH_PECR register and
                                                                data EEPROM */
 
-#define FLASH_PRGKEY1              ((uint32_t)0x8C9DAEBF) /*!< Flash program memory key1 */
-#define FLASH_PRGKEY2              ((uint32_t)0x13141516) /*!< Flash program memory key2: used with FLASH_PRGKEY2
+#define FLASH_PRGKEY1              ((uint32_t)0x8C9DAEBFU) /*!< Flash program memory key1 */
+#define FLASH_PRGKEY2              ((uint32_t)0x13141516U) /*!< Flash program memory key2: used with FLASH_PRGKEY2
                                                                to unlock the program memory */
 
-#define FLASH_OPTKEY1              ((uint32_t)0xFBEAD9C8) /*!< Flash option key1 */
-#define FLASH_OPTKEY2              ((uint32_t)0x24252627) /*!< Flash option key2: used with FLASH_OPTKEY1 to
+#define FLASH_OPTKEY1              ((uint32_t)0xFBEAD9C8U) /*!< Flash option key1 */
+#define FLASH_OPTKEY2              ((uint32_t)0x24252627U) /*!< Flash option key2: used with FLASH_OPTKEY1 to
                                                               unlock the write access to the option byte block */
 /**
   * @}
@@ -263,8 +271,30 @@ typedef struct
   *            @arg @ref FLASH_FLAG_PGAERR      FLASH Programming Alignment error flag
   *            @arg @ref FLASH_FLAG_SIZERR      FLASH Size error flag
   *            @arg @ref FLASH_FLAG_OPTVERR     FLASH Option validity error error flag
-  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option UserValidity (available only Cat.3, Cat.4 and Cat.5 devices)
-  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP) (available only Cat.2 and Cat.3 devices)
+@if STM32L100xB
+@elif STM32L100xBA
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+@elif STM32L151xB
+@elif STM32L151xBA
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+@elif STM32L152xB
+@elif STM32L152xBA
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+@elif STM32L100xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@elif STM32L151xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@elif STM32L152xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@elif STM32L162xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@else
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@endif
   *            @arg @ref FLASH_FLAG_WRPERR      FLASH Write protected error flag 
   * @retval The new state of __FLAG__ (SET or RESET).
   */
@@ -280,8 +310,30 @@ typedef struct
   *            @arg @ref FLASH_FLAG_PGAERR      FLASH Programming Alignment error flag
   *            @arg @ref FLASH_FLAG_SIZERR      FLASH Size error flag
   *            @arg @ref FLASH_FLAG_OPTVERR     FLASH Option validity error error flag
-  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option UserValidity (available only Cat.3, Cat.4 and Cat.5 devices)
-  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP) (available only Cat.2 and Cat.3 devices)
+@if STM32L100xB
+@elif STM32L100xBA
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+@elif STM32L151xB
+@elif STM32L151xBA
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+@elif STM32L152xB
+@elif STM32L152xBA
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+@elif STM32L100xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@elif STM32L151xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@elif STM32L152xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@elif STM32L162xC
+  *            @arg @ref FLASH_FLAG_RDERR       FLASH Read Protection error flag (PCROP)
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@else
+  *            @arg @ref FLASH_FLAG_OPTVERRUSR  FLASH Option User validity error
+@endif
   *            @arg @ref FLASH_FLAG_WRPERR      FLASH Write protected error flag 
   * @retval none
   */
@@ -308,8 +360,8 @@ typedef struct
   * @{
   */
 /* IO operation functions *****************************************************/
-HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
-HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, uint64_t Data);
+HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint32_t Data);
+HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, uint32_t Data);
 
 /* FLASH IRQ handler function */
 void       HAL_FLASH_IRQHandler(void);
@@ -353,7 +405,6 @@ uint32_t HAL_FLASH_GetError(void);
 /** @addtogroup FLASH_Private_Functions
  * @{
  */
-void                    FLASH_PageErase(uint32_t PageAddress);
 HAL_StatusTypeDef       FLASH_WaitForLastOperation(uint32_t Timeout);
 
 /**

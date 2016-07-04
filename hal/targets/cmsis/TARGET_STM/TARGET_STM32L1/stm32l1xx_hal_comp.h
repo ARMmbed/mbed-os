@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
@@ -133,7 +133,7 @@ typedef struct
 /** @defgroup COMP_Output COMP Output
   * @{
   */
-#define COMP_OUTPUT_TIM2IC4                     ((uint32_t)0x00000000)                                      /*!< COMP2 output connected to TIM2 Input Capture 4 */
+#define COMP_OUTPUT_TIM2IC4                     (0x00000000U)                                               /*!< COMP2 output connected to TIM2 Input Capture 4 */
 #define COMP_OUTPUT_TIM2OCREFCLR                (                                        COMP_CSR_OUTSEL_0) /*!< COMP2 output connected to TIM2 OCREF Clear */
 #define COMP_OUTPUT_TIM3IC4                     (                    COMP_CSR_OUTSEL_1                    ) /*!< COMP2 output connected to TIM3 Input Capture 4 */
 #define COMP_OUTPUT_TIM3OCREFCLR                (                    COMP_CSR_OUTSEL_1 | COMP_CSR_OUTSEL_0) /*!< COMP2 output connected to TIM3 OCREF Clear */
@@ -182,7 +182,7 @@ typedef struct
   */
 /* Please refer to the electrical characteristics in the device datasheet for
    the power consumption values */
-#define COMP_MODE_LOWSPEED          ((uint32_t)0x00000000)  /*!< Low Speed */
+#define COMP_MODE_LOWSPEED          (0x00000000U)           /*!< Low Speed */
 #define COMP_MODE_HIGHSPEED         COMP_CSR_SPEED          /*!< High Speed */
 
 #define IS_COMP_MODE(SPEED)    (((SPEED) == COMP_MODE_LOWSPEED) || \
@@ -194,7 +194,7 @@ typedef struct
 /** @defgroup COMP_WindowMode COMP WindowMode
   * @{
   */
-#define COMP_WINDOWMODE_DISABLE               ((uint32_t)0x00000000)  /*!< Window mode disabled: COMP1 non-inverting input is independant */
+#define COMP_WINDOWMODE_DISABLE               (0x00000000U)  /*!< Window mode disabled: COMP1 non-inverting input is independant */
 #define COMP_WINDOWMODE_ENABLE                COMP_CSR_WNDWE          /*!< Window mode enabled: COMP1 non-inverting input is no more accessible, even from ADC channel VCOMP) (connected to COMP2 non-inverting input) */
 
 #define IS_COMP_WINDOWMODE(WINDOWMODE) (((WINDOWMODE) == COMP_WINDOWMODE_DISABLE) || \
@@ -208,11 +208,11 @@ typedef struct
   */ 
 /* Comparator output is low when the non-inverting input is at a lower        */
 /* voltage than the inverting input.                                          */
-#define COMP_OUTPUTLEVEL_LOW                   ((uint32_t)0x00000000)
+#define COMP_OUTPUTLEVEL_LOW                   (0x00000000U)
 
 /* Comparator output is high when the non-inverting input is at a higher      */
 /* voltage than the inverting input.                                          */
-#define COMP_OUTPUTLEVEL_HIGH                  ((uint32_t)0x00000001)
+#define COMP_OUTPUTLEVEL_HIGH                  (0x00000001U)
 /**
   * @}
   */ 
@@ -220,10 +220,10 @@ typedef struct
 /** @defgroup COMP_TriggerMode COMP TriggerMode 
   * @{
   */
-#define COMP_TRIGGERMODE_NONE                  ((uint32_t)0x00000000)   /*!< No External Interrupt trigger detection */
-#define COMP_TRIGGERMODE_IT_RISING             ((uint32_t)0x00000001)   /*!< External Interrupt Mode with Rising edge trigger detection */
-#define COMP_TRIGGERMODE_IT_FALLING            ((uint32_t)0x00000002)   /*!< External Interrupt Mode with Falling edge trigger detection */
-#define COMP_TRIGGERMODE_IT_RISING_FALLING     ((uint32_t)0x00000003)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
+#define COMP_TRIGGERMODE_NONE                  (0x00000000U)   /*!< No External Interrupt trigger detection */
+#define COMP_TRIGGERMODE_IT_RISING             (0x00000001U)   /*!< External Interrupt Mode with Rising edge trigger detection */
+#define COMP_TRIGGERMODE_IT_FALLING            (0x00000002U)   /*!< External Interrupt Mode with Falling edge trigger detection */
+#define COMP_TRIGGERMODE_IT_RISING_FALLING     (0x00000003U)   /*!< External Interrupt Mode with Rising/Falling edge trigger detection */
 
 #define IS_COMP_TRIGGERMODE(MODE)  (((MODE) == COMP_TRIGGERMODE_NONE)             || \
                                     ((MODE) == COMP_TRIGGERMODE_IT_RISING)        || \
@@ -246,7 +246,7 @@ typedef struct
 /** @defgroup COMP_NonInvertingInputPull COMP NonInvertingInputPull
   * @{
   */
-#define COMP_NONINVERTINGINPUT_NOPULL           ((uint32_t)0x00000000)  /*!< No internal pull-up or pull-down resistor connected to comparator non inverting input */
+#define COMP_NONINVERTINGINPUT_NOPULL           (0x00000000U)           /*!< No internal pull-up or pull-down resistor connected to comparator non inverting input */
 #define COMP_NONINVERTINGINPUT_10KPU            COMP_CSR_10KPU          /*!< Internal 10kOhm pull-up resistor connected to comparator non inverting input */
 #define COMP_NONINVERTINGINPUT_10KPD            COMP_CSR_10KPD          /*!< Internal 10kOhm pull-down resistor connected to comparator non inverting input */
 #define COMP_NONINVERTINGINPUT_400KPU           COMP_CSR_400KPU         /*!< Internal 400kOhm pull-up resistor connected to comparator non inverting input */

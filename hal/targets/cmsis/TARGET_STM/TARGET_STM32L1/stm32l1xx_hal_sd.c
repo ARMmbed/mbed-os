@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_sd.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   SD card HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Secure Digital (SD) peripheral:
@@ -212,67 +212,67 @@
                                                     SDIO_FLAG_CMDREND  | SDIO_FLAG_CMDSENT  | SDIO_FLAG_DATAEND  |\
                                                     SDIO_FLAG_DBCKEND))  
 
-#define SDIO_CMD0TIMEOUT                ((uint32_t)0x00010000)
+#define SDIO_CMD0TIMEOUT                (0x00010000U)
 
 /** 
   * @brief  Mask for errors Card Status R1 (OCR Register) 
   */
-#define SD_OCR_ADDR_OUT_OF_RANGE        ((uint32_t)0x80000000)
-#define SD_OCR_ADDR_MISALIGNED          ((uint32_t)0x40000000)
-#define SD_OCR_BLOCK_LEN_ERR            ((uint32_t)0x20000000)
-#define SD_OCR_ERASE_SEQ_ERR            ((uint32_t)0x10000000)
-#define SD_OCR_BAD_ERASE_PARAM          ((uint32_t)0x08000000)
-#define SD_OCR_WRITE_PROT_VIOLATION     ((uint32_t)0x04000000)
-#define SD_OCR_LOCK_UNLOCK_FAILED       ((uint32_t)0x01000000)
-#define SD_OCR_COM_CRC_FAILED           ((uint32_t)0x00800000)
-#define SD_OCR_ILLEGAL_CMD              ((uint32_t)0x00400000)
-#define SD_OCR_CARD_ECC_FAILED          ((uint32_t)0x00200000)
-#define SD_OCR_CC_ERROR                 ((uint32_t)0x00100000)
-#define SD_OCR_GENERAL_UNKNOWN_ERROR    ((uint32_t)0x00080000)
-#define SD_OCR_STREAM_READ_UNDERRUN     ((uint32_t)0x00040000)
-#define SD_OCR_STREAM_WRITE_OVERRUN     ((uint32_t)0x00020000)
-#define SD_OCR_CID_CSD_OVERWRITE       ((uint32_t)0x00010000)
-#define SD_OCR_WP_ERASE_SKIP            ((uint32_t)0x00008000)
-#define SD_OCR_CARD_ECC_DISABLED        ((uint32_t)0x00004000)
-#define SD_OCR_ERASE_RESET              ((uint32_t)0x00002000)
-#define SD_OCR_AKE_SEQ_ERROR            ((uint32_t)0x00000008)
-#define SD_OCR_ERRORBITS                ((uint32_t)0xFDFFE008)
+#define SD_OCR_ADDR_OUT_OF_RANGE        (0x80000000U)
+#define SD_OCR_ADDR_MISALIGNED          (0x40000000U)
+#define SD_OCR_BLOCK_LEN_ERR            (0x20000000U)
+#define SD_OCR_ERASE_SEQ_ERR            (0x10000000U)
+#define SD_OCR_BAD_ERASE_PARAM          (0x08000000U)
+#define SD_OCR_WRITE_PROT_VIOLATION     (0x04000000U)
+#define SD_OCR_LOCK_UNLOCK_FAILED       (0x01000000U)
+#define SD_OCR_COM_CRC_FAILED           (0x00800000U)
+#define SD_OCR_ILLEGAL_CMD              (0x00400000U)
+#define SD_OCR_CARD_ECC_FAILED          (0x00200000U)
+#define SD_OCR_CC_ERROR                 (0x00100000U)
+#define SD_OCR_GENERAL_UNKNOWN_ERROR    (0x00080000U)
+#define SD_OCR_STREAM_READ_UNDERRUN     (0x00040000U)
+#define SD_OCR_STREAM_WRITE_OVERRUN     (0x00020000U)
+#define SD_OCR_CID_CSD_OVERWRITE        (0x00010000U)
+#define SD_OCR_WP_ERASE_SKIP            (0x00008000U)
+#define SD_OCR_CARD_ECC_DISABLED        (0x00004000U)
+#define SD_OCR_ERASE_RESET              (0x00002000U)
+#define SD_OCR_AKE_SEQ_ERROR            (0x00000008U)
+#define SD_OCR_ERRORBITS                (0xFDFFE008U)
 
 /** 
   * @brief  Masks for R6 Response 
   */
-#define SD_R6_GENERAL_UNKNOWN_ERROR     ((uint32_t)0x00002000)
-#define SD_R6_ILLEGAL_CMD               ((uint32_t)0x00004000)
-#define SD_R6_COM_CRC_FAILED            ((uint32_t)0x00008000)
+#define SD_R6_GENERAL_UNKNOWN_ERROR     (0x00002000U)
+#define SD_R6_ILLEGAL_CMD               (0x00004000U)
+#define SD_R6_COM_CRC_FAILED            (0x00008000U)
 
-#define SD_VOLTAGE_WINDOW_SD            ((uint32_t)0x80100000)
-#define SD_HIGH_CAPACITY                ((uint32_t)0x40000000)
-#define SD_STD_CAPACITY                 ((uint32_t)0x00000000)
-#define SD_CHECK_PATTERN                ((uint32_t)0x000001AA)
+#define SD_VOLTAGE_WINDOW_SD            (0x80100000U)
+#define SD_HIGH_CAPACITY                (0x40000000U)
+#define SD_STD_CAPACITY                 (0x00000000U)
+#define SD_CHECK_PATTERN                (0x000001AAU)
 
-#define SD_MAX_VOLT_TRIAL               ((uint32_t)0x0000FFFF)
-#define SD_ALLZERO                      ((uint32_t)0x00000000)
+#define SD_MAX_VOLT_TRIAL               (0x0000FFFFU)
+#define SD_ALLZERO                      (0x00000000U)
 
-#define SD_WIDE_BUS_SUPPORT             ((uint32_t)0x00040000)
-#define SD_SINGLE_BUS_SUPPORT           ((uint32_t)0x00010000)
-#define SD_CARD_LOCKED                  ((uint32_t)0x02000000)
+#define SD_WIDE_BUS_SUPPORT             (0x00040000U)
+#define SD_SINGLE_BUS_SUPPORT           (0x00010000U)
+#define SD_CARD_LOCKED                  (0x02000000U)
 
-#define SD_DATATIMEOUT                  ((uint32_t)0xFFFFFFFF)
-#define SD_0TO7BITS                     ((uint32_t)0x000000FF)
-#define SD_8TO15BITS                    ((uint32_t)0x0000FF00)
-#define SD_16TO23BITS                   ((uint32_t)0x00FF0000)
-#define SD_24TO31BITS                   ((uint32_t)0xFF000000)
-#define SD_MAX_DATA_LENGTH              ((uint32_t)0x01FFFFFF)
+#define SD_DATATIMEOUT                  (0xFFFFFFFFU)
+#define SD_0TO7BITS                     (0x000000FFU)
+#define SD_8TO15BITS                    (0x0000FF00U)
+#define SD_16TO23BITS                   (0x00FF0000U)
+#define SD_24TO31BITS                   (0xFF000000U)
+#define SD_MAX_DATA_LENGTH              (0x01FFFFFFU)
 
-#define SD_HALFFIFO                     ((uint32_t)0x00000008)
-#define SD_HALFFIFOBYTES                ((uint32_t)0x00000020)
+#define SD_HALFFIFO                     (0x00000008U)
+#define SD_HALFFIFOBYTES                (0x00000020U)
 
 /** 
   * @brief  Command Class Supported 
   */
-#define SD_CCCC_LOCK_UNLOCK             ((uint32_t)0x00000080)
-#define SD_CCCC_WRITE_PROT              ((uint32_t)0x00000040)
-#define SD_CCCC_ERASE                   ((uint32_t)0x00000020)
+#define SD_CCCC_LOCK_UNLOCK             (0x00000080U)
+#define SD_CCCC_WRITE_PROT              (0x00000040U)
+#define SD_CCCC_ERASE                   (0x00000020U)
 
 /** 
   * @brief  Following commands are SD Card Specific commands.
@@ -1528,34 +1528,34 @@ HAL_SD_ErrorTypedef HAL_SD_Get_CardInfo(SD_HandleTypeDef *hsd, HAL_SD_CardInfoTy
   pCardInfo->RCA      = (uint16_t)(hsd->RCA);
   
   /* Byte 0 */
-  tmp = (hsd->CSD[0] & 0xFF000000) >> 24;
+  tmp = (hsd->CSD[0] & 0xFF000000U) >> 24;
   pCardInfo->SD_csd.CSDStruct      = (uint8_t)((tmp & 0xC0) >> 6);
   pCardInfo->SD_csd.SysSpecVersion = (uint8_t)((tmp & 0x3C) >> 2);
   pCardInfo->SD_csd.Reserved1      = tmp & 0x03;
   
   /* Byte 1 */
-  tmp = (hsd->CSD[0] & 0x00FF0000) >> 16;
+  tmp = (hsd->CSD[0] & 0x00FF0000U) >> 16;
   pCardInfo->SD_csd.TAAC = (uint8_t)tmp;
   
   /* Byte 2 */
-  tmp = (hsd->CSD[0] & 0x0000FF00) >> 8;
+  tmp = (hsd->CSD[0] & 0x0000FF00U) >> 8;
   pCardInfo->SD_csd.NSAC = (uint8_t)tmp;
   
   /* Byte 3 */
-  tmp = hsd->CSD[0] & 0x000000FF;
+  tmp = hsd->CSD[0] & 0x000000FFU;
   pCardInfo->SD_csd.MaxBusClkFrec = (uint8_t)tmp;
   
   /* Byte 4 */
-  tmp = (hsd->CSD[1] & 0xFF000000) >> 24;
+  tmp = (hsd->CSD[1] & 0xFF000000U) >> 24;
   pCardInfo->SD_csd.CardComdClasses = (uint16_t)(tmp << 4);
   
   /* Byte 5 */
-  tmp = (hsd->CSD[1] & 0x00FF0000) >> 16;
+  tmp = (hsd->CSD[1] & 0x00FF0000U) >> 16;
   pCardInfo->SD_csd.CardComdClasses |= (uint16_t)((tmp & 0xF0) >> 4);
   pCardInfo->SD_csd.RdBlockLen       = (uint8_t)(tmp & 0x0F);
   
   /* Byte 6 */
-  tmp = (hsd->CSD[1] & 0x0000FF00) >> 8;
+  tmp = (hsd->CSD[1] & 0x0000FF00U) >> 8;
   pCardInfo->SD_csd.PartBlockRead   = (uint8_t)((tmp & 0x80) >> 7);
   pCardInfo->SD_csd.WrBlockMisalign = (uint8_t)((tmp & 0x40) >> 6);
   pCardInfo->SD_csd.RdBlockMisalign = (uint8_t)((tmp & 0x20) >> 5);
@@ -1567,23 +1567,23 @@ HAL_SD_ErrorTypedef HAL_SD_Get_CardInfo(SD_HandleTypeDef *hsd, HAL_SD_CardInfoTy
     pCardInfo->SD_csd.DeviceSize = (tmp & 0x03) << 10;
     
     /* Byte 7 */
-    tmp = (uint8_t)(hsd->CSD[1] & 0x000000FF);
+    tmp = (uint8_t)(hsd->CSD[1] & 0x000000FFU);
     pCardInfo->SD_csd.DeviceSize |= (tmp) << 2;
     
     /* Byte 8 */
-    tmp = (uint8_t)((hsd->CSD[2] & 0xFF000000) >> 24);
+    tmp = (uint8_t)((hsd->CSD[2] & 0xFF000000U) >> 24);
     pCardInfo->SD_csd.DeviceSize |= (tmp & 0xC0) >> 6;
     
     pCardInfo->SD_csd.MaxRdCurrentVDDMin = (tmp & 0x38) >> 3;
     pCardInfo->SD_csd.MaxRdCurrentVDDMax = (tmp & 0x07);
     
     /* Byte 9 */
-    tmp = (uint8_t)((hsd->CSD[2] & 0x00FF0000) >> 16);
+    tmp = (uint8_t)((hsd->CSD[2] & 0x00FF0000U) >> 16);
     pCardInfo->SD_csd.MaxWrCurrentVDDMin = (tmp & 0xE0) >> 5;
     pCardInfo->SD_csd.MaxWrCurrentVDDMax = (tmp & 0x1C) >> 2;
     pCardInfo->SD_csd.DeviceSizeMul      = (tmp & 0x03) << 1;
     /* Byte 10 */
-    tmp = (uint8_t)((hsd->CSD[2] & 0x0000FF00) >> 8);
+    tmp = (uint8_t)((hsd->CSD[2] & 0x0000FF00U) >> 8);
     pCardInfo->SD_csd.DeviceSizeMul |= (tmp & 0x80) >> 7;
     
     pCardInfo->CardCapacity  = (pCardInfo->SD_csd.DeviceSize + 1) ;
@@ -1594,21 +1594,21 @@ HAL_SD_ErrorTypedef HAL_SD_Get_CardInfo(SD_HandleTypeDef *hsd, HAL_SD_CardInfoTy
   else if (hsd->CardType == HIGH_CAPACITY_SD_CARD)
   {
     /* Byte 7 */
-    tmp = (uint8_t)(hsd->CSD[1] & 0x000000FF);
+    tmp = (uint8_t)(hsd->CSD[1] & 0x000000FFU);
     pCardInfo->SD_csd.DeviceSize = (tmp & 0x3F) << 16;
     
     /* Byte 8 */
-    tmp = (uint8_t)((hsd->CSD[2] & 0xFF000000) >> 24);
+    tmp = (uint8_t)((hsd->CSD[2] & 0xFF000000U) >> 24);
     
     pCardInfo->SD_csd.DeviceSize |= (tmp << 8);
     
     /* Byte 9 */
-    tmp = (uint8_t)((hsd->CSD[2] & 0x00FF0000) >> 16);
+    tmp = (uint8_t)((hsd->CSD[2] & 0x00FF0000U) >> 16);
     
     pCardInfo->SD_csd.DeviceSize |= (tmp);
     
     /* Byte 10 */
-    tmp = (uint8_t)((hsd->CSD[2] & 0x0000FF00) >> 8);
+    tmp = (uint8_t)((hsd->CSD[2] & 0x0000FF00U) >> 8);
     
     pCardInfo->CardCapacity = (uint64_t)((((uint64_t)pCardInfo->SD_csd.DeviceSize + 1)) * 512 * 1024);
     pCardInfo->CardBlockSize = 512;    
@@ -1623,26 +1623,26 @@ HAL_SD_ErrorTypedef HAL_SD_Get_CardInfo(SD_HandleTypeDef *hsd, HAL_SD_CardInfoTy
   pCardInfo->SD_csd.EraseGrMul  = (tmp & 0x3F) << 1;
   
   /* Byte 11 */
-  tmp = (uint8_t)(hsd->CSD[2] & 0x000000FF);
+  tmp = (uint8_t)(hsd->CSD[2] & 0x000000FFU);
   pCardInfo->SD_csd.EraseGrMul     |= (tmp & 0x80) >> 7;
   pCardInfo->SD_csd.WrProtectGrSize = (tmp & 0x7F);
   
   /* Byte 12 */
-  tmp = (uint8_t)((hsd->CSD[3] & 0xFF000000) >> 24);
+  tmp = (uint8_t)((hsd->CSD[3] & 0xFF000000U) >> 24);
   pCardInfo->SD_csd.WrProtectGrEnable = (tmp & 0x80) >> 7;
   pCardInfo->SD_csd.ManDeflECC        = (tmp & 0x60) >> 5;
   pCardInfo->SD_csd.WrSpeedFact       = (tmp & 0x1C) >> 2;
   pCardInfo->SD_csd.MaxWrBlockLen     = (tmp & 0x03) << 2;
   
   /* Byte 13 */
-  tmp = (uint8_t)((hsd->CSD[3] & 0x00FF0000) >> 16);
+  tmp = (uint8_t)((hsd->CSD[3] & 0x00FF0000U) >> 16);
   pCardInfo->SD_csd.MaxWrBlockLen      |= (tmp & 0xC0) >> 6;
   pCardInfo->SD_csd.WriteBlockPaPartial = (tmp & 0x20) >> 5;
   pCardInfo->SD_csd.Reserved3           = 0;
   pCardInfo->SD_csd.ContentProtectAppli = (tmp & 0x01);
   
   /* Byte 14 */
-  tmp = (uint8_t)((hsd->CSD[3] & 0x0000FF00) >> 8);
+  tmp = (uint8_t)((hsd->CSD[3] & 0x0000FF00U) >> 8);
   pCardInfo->SD_csd.FileFormatGrouop = (tmp & 0x80) >> 7;
   pCardInfo->SD_csd.CopyFlag         = (tmp & 0x40) >> 6;
   pCardInfo->SD_csd.PermWrProtect    = (tmp & 0x20) >> 5;
@@ -1651,73 +1651,73 @@ HAL_SD_ErrorTypedef HAL_SD_Get_CardInfo(SD_HandleTypeDef *hsd, HAL_SD_CardInfoTy
   pCardInfo->SD_csd.ECC              = (tmp & 0x03);
   
   /* Byte 15 */
-  tmp = (uint8_t)(hsd->CSD[3] & 0x000000FF);
+  tmp = (uint8_t)(hsd->CSD[3] & 0x000000FFU);
   pCardInfo->SD_csd.CSD_CRC   = (tmp & 0xFE) >> 1;
   pCardInfo->SD_csd.Reserved4 = 1;
   
   /* Byte 0 */
-  tmp = (uint8_t)((hsd->CID[0] & 0xFF000000) >> 24);
+  tmp = (uint8_t)((hsd->CID[0] & 0xFF000000U) >> 24);
   pCardInfo->SD_cid.ManufacturerID = tmp;
   
   /* Byte 1 */
-  tmp = (uint8_t)((hsd->CID[0] & 0x00FF0000) >> 16);
+  tmp = (uint8_t)((hsd->CID[0] & 0x00FF0000U) >> 16);
   pCardInfo->SD_cid.OEM_AppliID = tmp << 8;
   
   /* Byte 2 */
-  tmp = (uint8_t)((hsd->CID[0] & 0x000000FF00) >> 8);
+  tmp = (uint8_t)((hsd->CID[0] & 0x000000FF00U) >> 8);
   pCardInfo->SD_cid.OEM_AppliID |= tmp;
   
   /* Byte 3 */
-  tmp = (uint8_t)(hsd->CID[0] & 0x000000FF);
+  tmp = (uint8_t)(hsd->CID[0] & 0x000000FFU);
   pCardInfo->SD_cid.ProdName1 = tmp << 24;
   
   /* Byte 4 */
-  tmp = (uint8_t)((hsd->CID[1] & 0xFF000000) >> 24);
+  tmp = (uint8_t)((hsd->CID[1] & 0xFF000000U) >> 24);
   pCardInfo->SD_cid.ProdName1 |= tmp << 16;
   
   /* Byte 5 */
-  tmp = (uint8_t)((hsd->CID[1] & 0x00FF0000) >> 16);
+  tmp = (uint8_t)((hsd->CID[1] & 0x00FF0000U) >> 16);
   pCardInfo->SD_cid.ProdName1 |= tmp << 8;
   
   /* Byte 6 */
-  tmp = (uint8_t)((hsd->CID[1] & 0x0000FF00) >> 8);
+  tmp = (uint8_t)((hsd->CID[1] & 0x0000FF00U) >> 8);
   pCardInfo->SD_cid.ProdName1 |= tmp;
   
   /* Byte 7 */
-  tmp = (uint8_t)(hsd->CID[1] & 0x000000FF);
+  tmp = (uint8_t)(hsd->CID[1] & 0x000000FFU);
   pCardInfo->SD_cid.ProdName2 = tmp;
   
   /* Byte 8 */
-  tmp = (uint8_t)((hsd->CID[2] & 0xFF000000) >> 24);
+  tmp = (uint8_t)((hsd->CID[2] & 0xFF000000U) >> 24);
   pCardInfo->SD_cid.ProdRev = tmp;
   
   /* Byte 9 */
-  tmp = (uint8_t)((hsd->CID[2] & 0x00FF0000) >> 16);
+  tmp = (uint8_t)((hsd->CID[2] & 0x00FF0000U) >> 16);
   pCardInfo->SD_cid.ProdSN = tmp << 24;
   
   /* Byte 10 */
-  tmp = (uint8_t)((hsd->CID[2] & 0x0000FF00) >> 8);
+  tmp = (uint8_t)((hsd->CID[2] & 0x0000FF00U) >> 8);
   pCardInfo->SD_cid.ProdSN |= tmp << 16;
   
   /* Byte 11 */
-  tmp = (uint8_t)(hsd->CID[2] & 0x000000FF);
+  tmp = (uint8_t)(hsd->CID[2] & 0x000000FFU);
   pCardInfo->SD_cid.ProdSN |= tmp << 8;
   
   /* Byte 12 */
-  tmp = (uint8_t)((hsd->CID[3] & 0xFF000000) >> 24);
+  tmp = (uint8_t)((hsd->CID[3] & 0xFF000000U) >> 24);
   pCardInfo->SD_cid.ProdSN |= tmp;
   
   /* Byte 13 */
-  tmp = (uint8_t)((hsd->CID[3] & 0x00FF0000) >> 16);
+  tmp = (uint8_t)((hsd->CID[3] & 0x00FF0000U) >> 16);
   pCardInfo->SD_cid.Reserved1   |= (tmp & 0xF0) >> 4;
   pCardInfo->SD_cid.ManufactDate = (tmp & 0x0F) << 8;
   
   /* Byte 14 */
-  tmp = (uint8_t)((hsd->CID[3] & 0x0000FF00) >> 8);
+  tmp = (uint8_t)((hsd->CID[3] & 0x0000FF00U) >> 8);
   pCardInfo->SD_cid.ManufactDate |= tmp;
   
   /* Byte 15 */
-  tmp = (uint8_t)(hsd->CID[3] & 0x000000FF);
+  tmp = (uint8_t)(hsd->CID[3] & 0x000000FFU);
   pCardInfo->SD_cid.CID_CRC   = (tmp & 0xFE) >> 1;
   pCardInfo->SD_cid.Reserved2 = 1;
   
@@ -1848,7 +1848,7 @@ HAL_SD_ErrorTypedef HAL_SD_HighSpeed (SD_HandleTypeDef *hsd)
   }
   
   /* Test the Version supported by the card*/ 
-  SD_SPEC = (SD_scr[1]  & 0x01000000) | (SD_scr[1]  & 0x02000000);
+  SD_SPEC = (SD_scr[1]  & 0x01000000U) | (SD_scr[1]  & 0x02000000U);
   
   if (SD_SPEC != SD_ALLZERO)
   {
@@ -1878,7 +1878,7 @@ HAL_SD_ErrorTypedef HAL_SD_HighSpeed (SD_HandleTypeDef *hsd)
     SDIO_DataConfig(hsd->Instance, &sdio_datainitstructure);
     
     /* Send CMD6 switch mode */
-    sdio_cmdinitstructure.Argument         = 0x80FFFF01;
+    sdio_cmdinitstructure.Argument         = 0x80FFFF01U;
     sdio_cmdinitstructure.CmdIndex         = SD_CMD_HS_SWITCH;
     SDIO_SendCommand(hsd->Instance, &sdio_cmdinitstructure); 
     

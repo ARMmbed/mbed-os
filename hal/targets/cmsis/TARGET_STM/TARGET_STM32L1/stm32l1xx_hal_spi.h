@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
@@ -131,13 +131,13 @@ typedef struct __SPI_HandleTypeDef
 
   uint16_t                   TxXferSize;   /* SPI Tx transfer size */
   
-  uint16_t                   TxXferCount;  /* SPI Tx Transfer Counter */
+  __IO uint16_t              TxXferCount;  /* SPI Tx Transfer Counter */
 
   uint8_t                    *pRxBuffPtr;  /* Pointer to SPI Rx transfer Buffer */
 
   uint16_t                   RxXferSize;   /* SPI Rx transfer size */
 
-  uint16_t                   RxXferCount;  /* SPI Rx Transfer Counter */
+  __IO uint16_t              RxXferCount;  /* SPI Rx Transfer Counter */
 
   DMA_HandleTypeDef          *hdmatx;      /* SPI Tx DMA handle parameters */
 
@@ -409,10 +409,10 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_MODFFLAG(__HANDLE__)                      \
   do{                                                             \
-    __IO uint32_t tmpreg;                                         \
-    tmpreg = (__HANDLE__)->Instance->SR;                          \
+    __IO uint32_t tmpreg_modf;                                         \
+    tmpreg_modf = (__HANDLE__)->Instance->SR;                          \
     CLEAR_BIT((__HANDLE__)->Instance->CR1, SPI_CR1_SPE);          \
-    UNUSED(tmpreg);                                               \
+    UNUSED(tmpreg_modf);                                               \
   }while(0) 
 
 /** @brief  Clear the SPI OVR pending flag.
@@ -422,10 +422,10 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_OVRFLAG(__HANDLE__)                \
   do{                                                      \
-    __IO uint32_t tmpreg;                                  \
-    tmpreg = (__HANDLE__)->Instance->DR;                   \
-    tmpreg = (__HANDLE__)->Instance->SR;                   \
-    UNUSED(tmpreg);                                        \
+    __IO uint32_t tmpreg_ovr;                                  \
+    tmpreg_ovr = (__HANDLE__)->Instance->DR;                   \
+    tmpreg_ovr = (__HANDLE__)->Instance->SR;                   \
+    UNUSED(tmpreg_ovr);                                        \
   }while(0)  
 
 /** @brief  Clear the SPI FRE pending flag.
@@ -435,9 +435,9 @@ typedef struct __SPI_HandleTypeDef
   */
 #define __HAL_SPI_CLEAR_FREFLAG(__HANDLE__)                \
   do{                                                      \
-    __IO uint32_t tmpreg;                                  \
-    tmpreg = (__HANDLE__)->Instance->SR;                   \
-    UNUSED(tmpreg);                                        \
+    __IO uint32_t tmpreg_fre;                                  \
+    tmpreg_fre = (__HANDLE__)->Instance->SR;                   \
+    UNUSED(tmpreg_fre);                                        \
   }while(0)  
 
 /** @brief  Enables the SPI.
