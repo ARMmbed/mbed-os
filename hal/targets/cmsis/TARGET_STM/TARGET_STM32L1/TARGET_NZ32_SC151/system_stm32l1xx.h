@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    system_stm32l1xx.h
   * @author  MCD Application Team
-  * @version V2.1.3
-  * @date    04-March-2016
+  * @version V2.2.0
+  * @date    01-July-2016
   * @brief   CMSIS Cortex-M3 Device System Source File for STM32L1xx devices.  
   ******************************************************************************
   * @attention
