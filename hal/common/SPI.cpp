@@ -36,8 +36,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     // No lock needed in the constructor
 
     spi_init(&_spi, mosi, miso, sclk, ssel);
-    spi_format(&_spi, _bits, _mode, 0);
-    spi_frequency(&_spi, _hz);
+    aquire();
 }
 
 void SPI::format(int bits, int mode) {
