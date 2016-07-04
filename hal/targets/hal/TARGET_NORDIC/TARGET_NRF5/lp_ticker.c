@@ -42,8 +42,7 @@ void lp_ticker_disable_interrupt(void)
 
 void lp_ticker_clear_interrupt(void)
 {
-    // No implementation needed. The event that triggers the interrupt is
-    // cleared in 'common_rtc_irq_handler'.
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
 }
 
 #endif // DEVICE_LOWPOWERTIMER

@@ -34,32 +34,19 @@ void common_rtc_irq_handler(void)
 void COMMON_RTC_IRQ_HANDLER(void)
 #endif
 {
-    nrf_rtc_event_t event;
-    uint32_t int_mask;
-
-    event = US_TICKER_EVENT;
-    int_mask = US_TICKER_INT_MASK;
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event)) {
-        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
-        nrf_rtc_event_disable(COMMON_RTC_INSTANCE, int_mask);
-
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, US_TICKER_EVENT)) {
         us_ticker_irq_handler();
     }
 
 #if DEVICE_LOWPOWERTIMER
-    event = LP_TICKER_EVENT;
-    int_mask = LP_TICKER_INT_MASK;
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event)) {
-        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
-        nrf_rtc_event_disable(COMMON_RTC_INSTANCE, int_mask);
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, LP_TICKER_EVENT)) {
 
         lp_ticker_irq_handler();
     }
 #endif
 
-    event = NRF_RTC_EVENT_OVERFLOW;
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, event)) {
-        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, event);
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW)) {
+        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
         // Don't disable this event. It shall occur periodically.
 
         ++m_common_rtc_overflows;
@@ -204,6 +191,5 @@ void us_ticker_disable_interrupt(void)
 
 void us_ticker_clear_interrupt(void)
 {
-    // No implementation needed. The event that triggers the interrupt is
-    // cleared in 'common_rtc_irq_handler'.
+    nrf_rtc_event_clear(COMMON_RTC_INSTANCE, US_TICKER_EVENT);
 }
