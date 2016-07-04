@@ -42,7 +42,6 @@ extern "C" {
 #define STM_PIN_MODE(X)   (((X) >> 0) & 0x0F)
 #define STM_PIN_PUPD(X)   (((X) >> 4) & 0x07)
 #define STM_PIN_AFNUM(X)  (((X) >> 7) & 0x0F)
-#define STM_PIN_AFNUM(X)    (((X) >> 7)  & 0x0F)
 #define STM_PIN_CHANNEL(X)  (((X) >> 11) & 0x0F)
 #define STM_PIN_INVERTED(X) (((X) >> 15) & 0x01)
 #define STM_MODE_INPUT              (0)
