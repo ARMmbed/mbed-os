@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32l152xe.s
   * @author    MCD Application Team
-  * @version   V2.1.3
-  * @date      04-March-2016
+  * @version   V2.2.0
+  * @date      01-July-2016
   * @brief     STM32L152XE Devices vector table for 
   *            Atollic toolchain.
   *            This module performs:
