@@ -739,6 +739,17 @@
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
     },
+    "NUCLEO_F429ZI": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "uARM",
+        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "progen": {"target": "nucleo-f429zi"},
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "detect_code": ["0796"],
+        "default_build": "small"
+    },
     "NUCLEO_F446RE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4F",
@@ -964,14 +975,6 @@
         "progen": {"target": "disco-f429zi"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "RTC_LSI", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_build": "small"
-    },
-    "NUCLEO_F429ZI": {
-        "inherits": ["Target"],
-        "core": "Cortex-M4F",
-        "default_toolchain": "uARM",
-        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "progen": {"target": "nucleo-f429zi"}
     },
     "DISCO_F469NI": {
         "supported_form_factors": ["ARDUINO"],

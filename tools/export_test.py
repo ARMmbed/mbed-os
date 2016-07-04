@@ -107,6 +107,7 @@ if __name__ == '__main__':
             ('coide', 'NUCLEO_F410RB'),
             ('coide', 'NUCLEO_F411RE'),
             ('coide', 'DISCO_F429ZI'),
+            ('coide', 'NUCLEO_F429ZI'),
             #('coide', 'DISCO_F469NI'), removed because template not available
             ('coide', 'NUCLEO_F334R8'),
             ('coide', 'MTS_MDOT_F405RG'),
