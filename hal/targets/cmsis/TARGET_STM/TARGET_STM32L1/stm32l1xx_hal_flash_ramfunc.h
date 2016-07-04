@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash_ramfunc.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    04-March-2016
+  * @version V1.2.0
+  * @date    01-July-2016
   * @brief   Header file of FLASH RAMFUNC driver.
   ******************************************************************************
   * @attention
@@ -98,6 +98,14 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer);
   */ 
 
 /** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group3
+  * @{
+  */
+__RAM_FUNC  HAL_FLASHEx_GetError(uint32_t *Error);
+/**
+  * @}
+  */ 
+
+/** @addtogroup FLASH_RAMFUNC_Exported_Functions_Group4
   * @{
   */
 
