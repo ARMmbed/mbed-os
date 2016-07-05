@@ -1974,7 +1974,6 @@ def get_default_test_options_parser():
                         help='Prints script version and exits')
     return parser
 
-
 def test_path_to_name(path):
     """Change all slashes in a path into hyphens
     This creates a unique cross-platform test name based on the path
