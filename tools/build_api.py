@@ -282,6 +282,16 @@ def build_library(src_paths, build_path, target, toolchain_name,
         # We will use default project name based on project folder name
         name = project_name
 
+    # If the configuration object was not yet created, create it now
+    config = Config(target, src_paths)
+
+    # If the 'target' argument is a string, convert it to a target instance
+    if isinstance(target, str):
+        try:
+            target = TARGET_MAP[target]
+        except KeyError:
+            raise KeyError("Target '%s' not found" % target)
+
     if report != None:
         start = time()
         
@@ -354,9 +364,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
             mkdir(tmp_path)
         else:
             tmp_path = build_path
-
-        # Handle configuration
-        config = Config(target)
 
         # Load resources into the config system which might expand/modify resources based on config data
         resources = config.load_resources(resources)
