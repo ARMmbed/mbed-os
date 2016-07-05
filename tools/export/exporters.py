@@ -109,7 +109,7 @@ class Exporter(object):
         }
         return project_data
 
-    def progen_gen_file(self, tool_name, project_data, pgen_build=False):
+    def progen_gen_file(self, tool_name, project_data, progen_build=False):
         """" Generate project using ProGen Project API """
         settings = ProjectSettings()
         project = Project(self.program_name, [project_data], settings)
@@ -117,7 +117,7 @@ class Exporter(object):
         # thinks it is not dict but a file, and adds them to workspace.
         project.project['common']['include_paths'] = self.resources.inc_dirs
         project.generate(tool_name, copied=not self.sources_relative)
-        if pgen_build:
+        if progen_build:
             print("Project exported, building...")
             result = project.build(tool_name)
             if result == -1:
