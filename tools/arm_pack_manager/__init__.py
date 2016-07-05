@@ -205,8 +205,7 @@ class Cache () :
     def find_device(self, match) :
         choices = process.extract(match, self.index.keys(), limit=len(self.index))
         choices = sorted([(v, k) for k, v in choices], reverse=True)
-        if not choices : return []
-        else : choices = list(takewhile(lambda t: t[0] == choices[0][0], choices))
+        if choices : choices = list(takewhile(lambda t: t[0] == choices[0][0], choices))
         return [(v, self.index[v]) for k,v in choices]
 
     def dump_index_to_file(self, file) :
