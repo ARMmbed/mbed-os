@@ -49,7 +49,7 @@ bool core_util_are_interrupts_enabled(void);
   *    section) will be preserved on exit from the section.
   * 4) This implementation will currently only work on code running in privileged mode.
   */
-void core_util_critical_section_enter();
+void core_util_critical_section_enter(void);
 
 /** Mark the end of a critical section
   *
@@ -62,7 +62,7 @@ void core_util_critical_section_enter();
   *    section) will be preserved on exit from the section.
   * 4) This implementation will currently only work on code running in privileged mode.
   */
-void core_util_critical_section_exit();
+void core_util_critical_section_exit(void);
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a
@@ -282,7 +282,7 @@ bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *des
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta);
+uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta);
 
 /**
  * Atomic increment.
@@ -290,7 +290,7 @@ uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta);
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta);
+uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta);
 
 /**
  * Atomic increment.
@@ -298,7 +298,7 @@ uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta);
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta);
+uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta);
 
 /**
  * Atomic increment.
@@ -314,7 +314,7 @@ void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta);
+uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta);
 
 /**
  * Atomic decrement.
@@ -322,7 +322,7 @@ uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta);
+uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta);
 
 /**
  * Atomic decrement.
@@ -330,7 +330,7 @@ uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta);
+uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta);
 
 /**
  * Atomic decrement.

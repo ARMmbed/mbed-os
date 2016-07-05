@@ -34,7 +34,7 @@ bool core_util_are_interrupts_enabled(void)
 #endif
 }
 
-void core_util_critical_section_enter()
+void core_util_critical_section_enter(void)
 {
     bool interrupts_disabled = !core_util_are_interrupts_enabled();
     __disable_irq();
@@ -59,7 +59,7 @@ void core_util_critical_section_enter()
     interrupt_enable_counter++;
 }
 
-void core_util_critical_section_exit()
+void core_util_critical_section_exit(void)
 {
     /* If critical_section_enter has not previously been called, do nothing */
     if (interrupt_enable_counter) {
@@ -123,7 +123,7 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
     return !__STREXW(desiredValue, (volatile uint32_t*)ptr);
 }
 
-uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
+uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     do {
@@ -132,7 +132,7 @@ uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta)
+uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     do {
@@ -141,7 +141,7 @@ uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta)
+uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     do {
@@ -151,7 +151,7 @@ uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta)
 }
 
 
-uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta)
+uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     do {
@@ -160,7 +160,7 @@ uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta)
+uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     do {
@@ -169,7 +169,7 @@ uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta)
+uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     do {
@@ -239,7 +239,7 @@ bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *des
             (uintptr_t)desiredValue);
 }
 
-uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
+uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     core_util_critical_section_enter();
@@ -249,7 +249,7 @@ uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta)
+uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     core_util_critical_section_enter();
@@ -259,7 +259,7 @@ uint16_t core_util_atomic_incr_u16(uint16_t * valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta)
+uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     core_util_critical_section_enter();
@@ -274,7 +274,7 @@ void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta) {
 }
 
 
-uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta)
+uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     core_util_critical_section_enter();
@@ -284,7 +284,7 @@ uint8_t core_util_atomic_decr_u8(uint8_t * valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta)
+uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     core_util_critical_section_enter();
@@ -294,7 +294,7 @@ uint16_t core_util_atomic_decr_u16(uint16_t * valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta)
+uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     core_util_critical_section_enter();
