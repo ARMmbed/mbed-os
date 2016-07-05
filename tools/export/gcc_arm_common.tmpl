@@ -29,14 +29,14 @@ clean :
 {% endblock %}
 else
 
-VPATH = $(SRCDIR)
+VPATH = {% for path in vpath %}{{path}} {% endfor %}
 
 GCC_BIN = 
 PROJECT = {{name}}
 OBJECTS = {% for f in to_be_compiled %}{{f}} {% endfor %}
 SYS_OBJECTS = {% for f in object_files %}{{f}} {% endfor %}
-INCLUDE_PATHS = {% for p in include_paths %}-I../{{p}} {% endfor %}
-LIBRARY_PATHS = {% for p in library_paths %}-L../{{p}} {% endfor %}
+INCLUDE_PATHS = {% for p in include_paths %}-I{{p}} {% endfor %}
+LIBRARY_PATHS = {% for p in library_paths %}-L{{p}} {% endfor %}
 LIBRARIES = {% for lib in libraries %}-l{{lib}} {% endfor %}
 LINKER_SCRIPT = {{linker_script}}
 {%- block additional_variables -%}{% endblock %}
