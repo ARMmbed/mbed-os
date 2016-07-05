@@ -133,7 +133,8 @@ class GccArm(Exporter):
     def generate(self):
         # "make" wants Unix paths
         self.resources.win_to_unix()
-        self.resources.relative_to(self.prj_paths[0])
+        if self.sources_relative:
+            self.resources.relative_to(self.prj_paths[0])
 
         to_be_compiled = []
         for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
@@ -159,7 +160,7 @@ class GccArm(Exporter):
             'libraries': libraries,
             'symbols': self.get_symbols(),
             'cpu_flags': self.toolchain.cpu,
-            'vpath': [relpath(s, build_dir) for s in self.prj_paths] if self.sources_relative else ["../"]
+            'vpath': [relpath(s, build_dir) for s in self.prj_paths] if self.sources_relative else [".."]
         }
 
         for key in ['include_paths', 'library_paths', 'linker_script']:
