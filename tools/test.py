@@ -106,8 +106,8 @@ if __name__ == '__main__':
 
         # Find all tests in the relevant paths
         for path in all_paths:
-            all_tests.update(find_tests(path))
-
+            all_tests.update(find_tests(path, options.mcu, options.tool, options.options))
+            
         # Filter tests by name if specified
         if options.names:
             all_names = options.names
