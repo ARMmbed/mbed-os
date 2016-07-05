@@ -108,7 +108,7 @@ void core_util_critical_section_exit(void);
  *
  * function incr(p : pointer to int, a : int) returns int {
  *     done = false
- *     *value = *p // This fetch operation need not be atomic.
+ *     value = *p // This fetch operation need not be atomic.
  *     while not done {
  *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
  *     }
@@ -161,7 +161,7 @@ bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_
  *
  * function incr(p : pointer to int, a : int) returns int {
  *     done = false
- *     *value = *p // This fetch operation need not be atomic.
+ *     value = *p // This fetch operation need not be atomic.
  *     while not done {
  *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
  *     }
@@ -214,7 +214,7 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
  *
  * function incr(p : pointer to int, a : int) returns int {
  *     done = false
- *     *value = *p // This fetch operation need not be atomic.
+ *     value = *p // This fetch operation need not be atomic.
  *     while not done {
  *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
  *     }
@@ -267,7 +267,7 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
  *
  * function incr(p : pointer to int, a : int) returns int {
  *     done = false
- *     *value = *p // This fetch operation need not be atomic.
+ *     value = *p // This fetch operation need not be atomic.
  *     while not done {
  *         done = atomic_cas(p, &value, value + a) // *value gets updated automatically until success
  *     }
@@ -303,8 +303,11 @@ uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta);
 /**
  * Atomic increment.
  * @param  valuePtr Target memory location being incremented.
- * @param  delta    The amount being incremented.
+ * @param  delta    The amount being incremented in bytes.
  * @return          The new incremented value.
+ *
+ * @note The type of the pointer argument is not taken into account
+ *       and the pointer is incremented by bytes.
  */
 void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta);
 
@@ -335,8 +338,11 @@ uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta);
 /**
  * Atomic decrement.
  * @param  valuePtr Target memory location being decremented.
- * @param  delta    The amount being decremented.
+ * @param  delta    The amount being decremented in bytes.
  * @return          The new decremented value.
+ *
+ * @note The type of the pointer argument is not taken into account
+ *       and the pointer is decremented by bytes
  */
 void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta);
 
