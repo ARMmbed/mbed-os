@@ -132,9 +132,9 @@ def command_dump_parts (cache, out, parts) :
         index.update(dict(cache.find_device(part)))
     for n, p in index.iteritems() :
         try :
-            if not exists(join(out, dirname(p['algorithm']))) :
-                makedirs(join(out, dirname(p['algorithm'])))
-            with open(join(out, p['algorithm']), "wb+") as fd :
+            if not exists(join(out, dirname(p['algorithm']['file']))) :
+                makedirs(join(out, dirname(p['algorithm']['file'])))
+            with open(join(out, p['algorithm']['file']), "wb+") as fd :
                 fd.write(cache.get_flash_algorthim_binary(n).read())
         except KeyError:
             print("[Warning] {} does not have an associated flashing algorithm".format(n))
