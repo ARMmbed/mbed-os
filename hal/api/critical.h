@@ -19,6 +19,8 @@
 #define __MBED_UTIL_CRITICAL_H__
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -304,7 +306,7 @@ uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta);
  * @param  delta    The amount being incremented.
  * @return          The new incremented value.
  */
-void *core_util_atomic_incr_ptr(void **valuePtr, unsigned delta);
+void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta);
 
 /**
  * Atomic decrement.
@@ -336,7 +338,7 @@ uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta);
  * @param  delta    The amount being decremented.
  * @return          The new decremented value.
  */
-void *core_util_atomic_decr_ptr(void **valuePtr, unsigned delta);
+void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta);
 
 #ifdef __cplusplus
 } // extern "C"

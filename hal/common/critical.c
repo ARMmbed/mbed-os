@@ -15,14 +15,10 @@
  * limitations under the License.
  */
 
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#include <stddef.h>
+#include "critical.h"
+
 #include "cmsis.h"
 #include "mbed_assert.h"
-
-// Module include
-#include "critical.h"
 
 #define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
 
@@ -238,9 +234,9 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
 
 bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *desiredValue) {
     return core_util_atomic_cas_u32(
-            (unsigned *)ptr,
-            (unsigned *)expectedCurrentValue,
-            (unsigned)desiredValue);
+            (uintptr_t *)ptr,
+            (uintptr_t *)expectedCurrentValue,
+            (uintptr_t)desiredValue);
 }
 
 uint8_t core_util_atomic_incr_u8(uint8_t * valuePtr, uint8_t delta)
@@ -273,8 +269,8 @@ uint32_t core_util_atomic_incr_u32(uint32_t * valuePtr, uint32_t delta)
     return newValue;
 }
 
-void *core_util_atomic_incr_ptr(void **valuePtr, unsigned delta) {
-    return core_util_atomic_incr((unsigned)valuePtr, delta);
+void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta) {
+    return core_util_atomic_incr((uintptr_t)valuePtr, (uintptr_t)delta);
 }
 
 
@@ -308,8 +304,8 @@ uint32_t core_util_atomic_decr_u32(uint32_t * valuePtr, uint32_t delta)
     return newValue;
 }
 
-void *core_util_atomic_decr_ptr(void **valuePtr, unsigned delta) {
-    return core_util_atomic_decr((unsigned)valuePtr, delta);
+void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta) {
+    return core_util_atomic_decr((uintptr_t)valuePtr, (uintptr_t)delta);
 }
 
 #endif
