@@ -155,20 +155,24 @@ class Cache () :
 
     def _extract_dict(self, device, filename, pack) :
         to_ret = dict(pdsc_file=filename, pack_file=pack)
-        if device == u'301': stderr.write(filename+"\n")
-        try :
-            to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
-                                                    size=m["size"]))
-                                     for m in device("memory")])
-            to_ret["algorithm"] = dict(name=device.algorithm["name"].replace('\\','/'),
+        try : to_ret["memory"] = dict([(m["id"], dict(start=m["start"],
+                                                      size=m["size"]))
+                                       for m in device("memory")])
+        except (KeyError, TypeError, IndexError) as e : pass
+        try: to_ret["algorithm"] = dict(name=device.algorithm["name"].replace('\\','/'),
                                        start=device.algorithm["start"],
                                        size=device.algorithm["size"],
                                        RAMstart=device.algorithm["ramstart"],
                                        RAMsize=device.algorithm["ramsize"])
-            to_ret["debug"] = device.debug["svd"]
-            to_ret["compile"] = (device.compile["header"], device.compile["define"])
-        except (KeyError, TypeError) :
-            pass
+        except (KeyError, TypeError, IndexError) as e : pass
+        try: to_ret["debug"] = device.debug["svd"]
+        except (KeyError, TypeError, IndexError) as e : pass
+        try: to_ret["compile"] = (device.compile["header"], device.compile["define"])
+        except (KeyError, TypeError, IndexError) as e : pass
+        try: to_ret["core"] = device.parent.processor['dcore']
+        except (KeyError, TypeError, IndexError) as e : pass
+        try: to_ret["core"] = device.parent.parent.processor['dcore']
+        except (KeyError, TypeError, IndexError) as e : pass
         return to_ret
 
     def _generate_index_helper(self, d) :
