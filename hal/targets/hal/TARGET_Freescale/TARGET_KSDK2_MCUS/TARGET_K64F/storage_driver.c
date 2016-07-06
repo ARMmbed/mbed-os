@@ -126,7 +126,6 @@
 /*! @brief Access to FTFx->FCCOB */
 extern volatile uint32_t *const kFCCOBx;
 
-static flash_config_t privateDeviceConfig;
 #endif /* #ifdef USING_KSDK2 */
 
 /*
@@ -753,13 +752,6 @@ static int32_t initialize(ARM_Storage_Callback_t callback)
 
         return 1; /* synchronous completion. */
     }
-
-#ifdef USING_KSDK2
-    status_t rc = FLASH_Init(&privateDeviceConfig);
-    if (rc != kStatus_FLASH_Success) {
-        return ARM_DRIVER_ERROR;
-    }
-#endif /* ifdef USING_KSDK2 */
 
     if (controllerCurrentlyBusy()) {
         /* The user cannot initiate any further FTFE commands until notified that the
