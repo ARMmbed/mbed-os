@@ -166,6 +166,7 @@ class SingleTestRunner(object):
                  _opts_report_html_file_name=None,
                  _opts_report_junit_file_name=None,
                  _opts_report_build_file_name=None,
+                 _opts_report_text_file_name=None,
                  _opts_build_report={},
                  _opts_build_properties={},
                  _test_spec={},
@@ -224,6 +225,7 @@ class SingleTestRunner(object):
         self.opts_report_html_file_name = _opts_report_html_file_name
         self.opts_report_junit_file_name = _opts_report_junit_file_name
         self.opts_report_build_file_name = _opts_report_build_file_name
+        self.opts_report_text_file_name = _opts_report_text_file_name
         self.opts_goanna_for_mbed_sdk = _opts_goanna_for_mbed_sdk
         self.opts_goanna_for_tests = _opts_goanna_for_tests
         self.opts_shuffle_test_order = _opts_shuffle_test_order
@@ -1513,6 +1515,10 @@ def singletest_in_cli_mode(single_test):
         # Export results in form of JUnit XML report to separate file
         report_exporter = ReportExporter(ResultExporterType.JUNIT)
         report_exporter.report_to_file(test_summary_ext, single_test.opts_report_junit_file_name, test_suite_properties=test_suite_properties_ext)
+    if single_test.opts_report_text_file_name:
+        # Export results in form of a text file
+        report_exporter = ReportExporter(ResultExporterType.TEXT)
+        report_exporter.report_to_file(test_summary_ext, single_test.opts_report_text_file_name, test_suite_properties=test_suite_properties_ext)
     if single_test.opts_report_build_file_name:
         # Export build results as html report to sparate file
         report_exporter = ReportExporter(ResultExporterType.JUNIT, package="build")
@@ -1925,6 +1931,10 @@ def get_default_test_options_parser():
     parser.add_option("", "--report-build",
                       dest="report_build_file_name",
                       help="Output the build results to a junit xml file")
+
+    parser.add_option("", "--report-text",
+                      dest="report_text_file_name",
+                      help="Output the build results to a text file")
 
     parser.add_option('', '--verbose-skipped',
                       dest='verbose_skipped_tests',
