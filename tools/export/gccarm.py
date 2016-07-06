@@ -15,8 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from exporters import Exporter
-from os.path import splitext, basename
-from os import curdir
+from os.path import splitext, basename, relpath, join, abspath
+from os import curdir, getcwd
 
 
 class GccArm(Exporter):
@@ -132,8 +132,9 @@ class GccArm(Exporter):
 
     def generate(self):
         # "make" wants Unix paths
+        if self.sources_relative:
+            self.resources.relative_to(self.prj_paths[0])
         self.resources.win_to_unix()
-        self.resources.relative_to(curdir)
 
         to_be_compiled = []
         for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
@@ -148,6 +149,7 @@ class GccArm(Exporter):
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
+        build_dir = abspath(join(self.inputDir, ".build"))
         ctx = {
             'name': self.program_name,
             'to_be_compiled': to_be_compiled,
@@ -157,7 +159,20 @@ class GccArm(Exporter):
             'linker_script': self.resources.linker_script,
             'libraries': libraries,
             'symbols': self.get_symbols(),
-            'cpu_flags': self.toolchain.cpu
+            'cpu_flags': self.toolchain.cpu,
+            'vpath': [relpath(s, build_dir) for s in self.prj_paths] if self.sources_relative else [".."]
         }
+
+        for key in ['include_paths', 'library_paths', 'linker_script']:
+            if isinstance(ctx[key], list):
+                ctx[key] = [ctx['vpath'][0] + "/" + t for t in ctx[key]]
+            else:
+                ctx[key] = ctx['vpath'][0] + "/" + ctx[key]
+        if "../." not in ctx["include_paths"]:
+            ctx["include_paths"] += ['../.']
         ctx.update(self.progen_flags)
         self.gen_file('gcc_arm_%s.tmpl' % self.target.lower(), ctx, 'Makefile')
+
+    def scan_and_copy_resources(self, prj_paths, trg_path, relative=False):
+        self.prj_paths = prj_paths
+        Exporter.scan_and_copy_resources(self, prj_paths, trg_path, relative)

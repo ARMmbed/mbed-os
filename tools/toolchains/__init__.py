@@ -147,7 +147,7 @@ class Resources:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
 
-        self.features = {k: f.relative_to(base, dot) for k, f in self.features.iteritems()}
+        self.features = {k: f.relative_to(base, dot) for k, f in self.features.iteritems() if f}
 
         if self.linker_script is not None:
             self.linker_script = rel_path(self.linker_script, base, dot)
@@ -160,7 +160,7 @@ class Resources:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
 
-        self.features = {k: f.win_to_unix() for k, f in self.features.iteritems()}
+        self.features = {k: f.win_to_unix() for k, f in self.features.iteritems() if f}
 
         if self.linker_script is not None:
             self.linker_script = self.linker_script.replace('\\', '/')

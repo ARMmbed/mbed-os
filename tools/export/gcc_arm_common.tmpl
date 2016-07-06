@@ -2,18 +2,19 @@
 # see http://mbed.org/handbook/Exporting-to-GCC-ARM-Embedded
 
 # cross-platform directory manipulation
-ifeq ($(OSTYPE),)
+ifeq ($(shell echo $$OS),$$OS)
     MAKEDIR = if not exist "$(1)" mkdir "$(1)"
-    RM = rmdir /S /Q
+    RM = rmdir /S /Q "$(1)"
 else
-    MAKEDIR = mkdir -p $(1)
-    RM = rm -rf
+    MAKEDIR = $(SHELL) -c "mkdir -p \"$(1)\""
+    RM = $(SHELL) -c "rm -rf \"$(1)\""
 endif
 
 ifeq (,$(filter .build,$(notdir $(CURDIR))))
 .SUFFIXES:
 OBJDIR := .build
-MAKETARGET = $(MAKE) --no-print-directory -C $(OBJDIR) -f $(CURDIR)/Makefile \
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+MAKETARGET = $(MAKE) --no-print-directory -C $(OBJDIR) -f $(mkfile_path) \
 		SRCDIR=$(CURDIR) $(MAKECMDGOALS)
 .PHONY: $(OBJDIR) clean
 all:
@@ -23,19 +24,19 @@ $(OBJDIR): all
 Makefile : ;
 % :: $(OBJDIR) ; :
 clean :
-	$(RM) $(OBJDIR)
+	$(call RM,$(OBJDIR))
 {% block target_clean -%}
 {% endblock %}
 else
 
-VPATH = $(SRCDIR)
+VPATH = {% for path in vpath %}{{path}} {% endfor %}
 
 GCC_BIN = 
 PROJECT = {{name}}
 OBJECTS = {% for f in to_be_compiled %}{{f}} {% endfor %}
 SYS_OBJECTS = {% for f in object_files %}{{f}} {% endfor %}
-INCLUDE_PATHS = {% for p in include_paths %}-I../{{p}} {% endfor %}
-LIBRARY_PATHS = {% for p in library_paths %}-L../{{p}} {% endfor %}
+INCLUDE_PATHS = {% for p in include_paths %}-I{{p}} {% endfor %}
+LIBRARY_PATHS = {% for p in library_paths %}-L{{p}} {% endfor %}
 LIBRARIES = {% for lib in libraries %}-l{{lib}} {% endfor %}
 LINKER_SCRIPT = {{linker_script}}
 {%- block additional_variables -%}{% endblock %}
