@@ -173,6 +173,21 @@ class Cache () :
         except (KeyError, TypeError, IndexError) as e : pass
         try: to_ret["core"] = device.parent.parent.processor['dcore']
         except (KeyError, TypeError, IndexError) as e : pass
+        to_ret["processor"] = {}
+        try: to_ret["processor"]["fpu"] = device.processor['dfpu']
+        except (KeyError, TypeError, IndexError) as e: pass
+        try: to_ret["processor"]["endianness"] = device.processor['dendian']
+        except (KeyError, TypeError, IndexError) as e: pass
+        try: to_ret["processor"]["clock"] = device.processor['dclock']
+        except (KeyError, TypeError, IndexError) as e: pass
+        try: to_ret["vendor"] = device.parent['dvendor']
+        except (KeyError, TypeError, IndexError) as e: pass
+        try: to_ret["vendor"] = device.parent.parent['dvendor']
+        except (KeyError, TypeError, IndexError) as e: pass
+
+        if len(to_ret["processor"].keys()) == 0:
+            del to_ret["processor"]
+
         return to_ret
 
     def _generate_index_helper(self, d) :
