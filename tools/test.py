@@ -132,7 +132,7 @@ if __name__ == '__main__':
                 base_source_paths = ['.']
             
             
-            target = TARGET_MAP[options.mcu]
+            target = options.mcu
             
             build_report = {}
             build_properties = {}

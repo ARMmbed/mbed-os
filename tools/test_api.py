@@ -2030,9 +2030,11 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     execution_directory = "."
 
     base_path = norm_relative_path(build_path, execution_directory)
+
+    target_name = target if isinstance(target, str) else target.name
     
     test_build = {
-        "platform": target.name,
+        "platform": target_name,
         "toolchain": toolchain_name,
         "base_path": base_path,
         "baud_rate": 9600,
@@ -2086,7 +2088,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             print 'Image: %s'% bin_file
     
     test_builds = {}
-    test_builds["%s-%s" % (target.name, toolchain_name)] = test_build
+    test_builds["%s-%s" % (target_name, toolchain_name)] = test_build
     
     
     return result, test_builds
