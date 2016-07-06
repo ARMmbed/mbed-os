@@ -302,7 +302,7 @@
         "core": "ARM7TDMI-S",
         "progen": {"target": "lpc2368"},
         "extra_labels": ["NXP", "LPC23XX"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "GCC_CR"],
+        "supported_toolchains": ["GCC_ARM", "GCC_CR"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release": true
     },
