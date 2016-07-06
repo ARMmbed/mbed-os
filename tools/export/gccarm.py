@@ -132,9 +132,9 @@ class GccArm(Exporter):
 
     def generate(self):
         # "make" wants Unix paths
-        self.resources.win_to_unix()
         if self.sources_relative:
             self.resources.relative_to(self.prj_paths[0])
+        self.resources.win_to_unix()
 
         to_be_compiled = []
         for r_type in ['s_sources', 'c_sources', 'cpp_sources']:
