@@ -1570,6 +1570,7 @@
         "inherits": ["MCU_NRF51_16K"],
         "extra_labels_add": ["NRF51_MICROBIT"],
         "macros_add": ["TARGET_NRF51_MICROBIT", "TARGET_NRF_LFCLK_RC"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "release": true
     },
     "NRF51_MICROBIT_B_BOOT": {
