@@ -611,7 +611,6 @@ static int32_t executeCommand(void)
 
 static void ftfe_ccie_irq_handler(void)
 {
-    NVIC_ClearPendingIRQ(FTFE_IRQn);
     disbleCommandCompletionInterrupt();
 
     /* check for errors */
