@@ -87,6 +87,7 @@ class GccArm(Exporter):
         'NUCLEO_F303K8',
         'NUCLEO_F303RE',
         'NUCLEO_F334R8',
+        'NUCLEO_F303ZE',
         'NUCLEO_F746ZG',
         'NUCLEO_F767ZI',
         'DISCO_L053C8',
