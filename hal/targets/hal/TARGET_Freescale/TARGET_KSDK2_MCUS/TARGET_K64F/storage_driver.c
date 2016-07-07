@@ -711,19 +711,16 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
     while (1) {
         /* Spin waiting for the command execution to complete.  */
         while (controllerCurrentlyBusy());
+        #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+        __enable_irq();
+        #endif
 
         /* Execution may result in failure. Check for errors */
         if (failedWithAccessError() || failedWithProtectionError()) {
             clearErrorStatusBits();
-            #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
-                __enable_irq();
-            #endif
             return ARM_DRIVER_ERROR_PARAMETER;
         }
         if (failedWithRunTimeError()) {
-            #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
-                __enable_irq();
-            #endif
             return ARM_DRIVER_ERROR; /* unspecified runtime error. */
         }
 
@@ -731,65 +728,32 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
         switch (context->currentCommand) {
             case ARM_STORAGE_OPERATION_PROGRAM_DATA:
                 if (context->amountLeftToOperate == 0) {
-                    #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
-                        __enable_irq();
-                    #endif
                     return context->sizeofCurrentOperation;
                 }
 
-                /* Allow pending interrupts to be handled before launching the successive
-                 * operation. This avoids having to block interrupts for long periods.
-                 *
-                 * ProgramData operates in steps of 1KB; initial experiments
-                 * indicate that the time needed to complete a 1KB write is
-                 * around 6.5ms. As a programData progresses, interrupts would
-                 * need to be held blocked for periods of such duration
-                 * if EXISTS_POSSIBILITY_OF_CONCURRENT_READ.
-                 */
-                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
-                    __enable_irq();
-                    /* service any pending interrupts at this moment */
-                    __disable_irq();
-                #endif
-
                 /* start the successive program operation */
                 setupNextProgramData(context);
+                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                __disable_irq();
+                #endif
                 launchCommand();
                 /* continue on to the next iteration of the parent loop */
                 break;
 
             case ARM_STORAGE_OPERATION_ERASE:
                 if (context->amountLeftToOperate == 0) {
-                    #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
-                        __enable_irq();
-                    #endif
                     return context->sizeofCurrentOperation;
                 }
 
-                /* Allow pending interrupts to be handled before launching the successive
-                 * operation. This avoids having to block interrupts for long periods.
-                 *
-                 * Erase operates in steps of 4KB (ERASE_UNIT); initial
-                 * experiments indicate that the time needed to complete a 4KB
-                 * erase is around 4ms. As an erase progresses, interrupts
-                 * would need to be held blocked for periods of such duration
-                 * if EXISTS_POSSIBILITY_OF_CONCURRENT_READ.
-                 */
-                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
-                    __enable_irq();
-                    /* service any pending interrupts at this moment */
-                    __disable_irq();
-                #endif
-
                 setupNextErase(context); /* start the successive erase operation */
+                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                __disable_irq();
+                #endif
                 launchCommand();
                 /* continue on to the next iteration of the parent loop */
                 break;
 
             default:
-                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
-                    __enable_irq();
-                #endif
                 return 1;
         }
     }
