@@ -46,6 +46,8 @@ from tools.build_api import mcu_toolchain_matrix
 from utils import argparse_filestring_type
 from utils import argparse_many
 from argparse import ArgumentTypeError
+from tools.toolchains import mbedToolchain
+from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
     # Parse Options
@@ -212,6 +214,17 @@ if __name__ == '__main__':
         args_error(parser, "[ERROR] You should specify a TOOLCHAIN")
     toolchain = options.tool[0]
 
+    if options.color:
+        # This import happens late to prevent initializing colorization when we don't need it
+        import colorize
+        if options.verbose:
+            notify = mbedToolchain.print_notify_verbose
+        else:
+            notify = mbedToolchain.print_notify
+        notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
+    else:
+        notify = None
+
     # Test
     for test_no in p:
         test = Test(test_no)
@@ -250,6 +263,7 @@ if __name__ == '__main__':
                                      linker_script=options.linker_script,
                                      clean=options.clean,
                                      verbose=options.verbose,
+                                     notify=notify,
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
