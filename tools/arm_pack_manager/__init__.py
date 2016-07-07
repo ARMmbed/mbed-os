@@ -167,11 +167,11 @@ class Cache () :
 
 
         except (KeyError, TypeError, IndexError) as e : pass
-        try: to_ret["debug"] = device.debug["svd"]
+        try: to_ret["debug"] = device.parent.parent.debug["svd"]
         except (KeyError, TypeError, IndexError) as e : pass
         try: to_ret["debug"] = device.parent.debug["svd"]
         except (KeyError, TypeError, IndexError) as e : pass
-        try: to_ret["debug"] = device.parent.parent.debug["svd"]
+        try: to_ret["debug"] = device.debug["svd"]
         except (KeyError, TypeError, IndexError) as e : pass
 
         to_ret["compile"] = {}
@@ -179,7 +179,7 @@ class Cache () :
         except (KeyError, TypeError, IndexError) as e : compile_l1 = []
         try: compile_l2 = device.parent.parent("compile")
         except (KeyError, TypeError, IndexError) as e : compile_l2 = []
-        compile = compile_l1 + compile_l2
+        compile = compile_l2 + compile_l1
         for c in compile:
             try: to_ret["compile"]["header"] = c["header"]
             except (KeyError, TypeError, IndexError) as e : pass
@@ -198,7 +198,7 @@ class Cache () :
         except (KeyError, TypeError, IndexError) as e: proc_l2 = []
         try: proc_l3 = device.parent.parent("processor")
         except (KeyError, TypeError, IndexError) as e: proc_l3 = []
-        proc = proc_l1 + proc_l2 + proc_l3
+        proc = proc_l3 + proc_l2 + proc_l1
         for p in proc:
             try: to_ret["processor"]["fpu"] = p['dfpu']
             except (KeyError, TypeError, IndexError) as e: pass
