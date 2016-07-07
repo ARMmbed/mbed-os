@@ -50,18 +50,60 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->channel = STM_PIN_CHANNEL(function);
     obj->inverted = STM_PIN_INVERTED(function);
 
-    // Enable TIM clock
-    if (obj->pwm == PWM_1) __TIM1_CLK_ENABLE();
-    if (obj->pwm == PWM_2) __TIM2_CLK_ENABLE();
-#if defined(TIM3)
-    if (obj->pwm == PWM_3) __TIM3_CLK_ENABLE();
+#if defined(TIM1_BASE)
+    if (obj->pwm == PWM_1) __HAL_RCC_TIM1_CLK_ENABLE();
 #endif
-#if defined(TIM8)
-    if (obj->pwm == PWM_8) __TIM8_CLK_ENABLE();
+#if defined(TIM2_BASE)
+    if (obj->pwm == PWM_2) __HAL_RCC_TIM2_CLK_ENABLE();
 #endif
-    if (obj->pwm == PWM_15) __TIM15_CLK_ENABLE();
-    if (obj->pwm == PWM_16) __TIM16_CLK_ENABLE();
-    if (obj->pwm == PWM_17) __TIM17_CLK_ENABLE();
+#if defined(TIM3_BASE)
+    if (obj->pwm == PWM_3) __HAL_RCC_TIM3_CLK_ENABLE();
+#endif
+#if defined(TIM4_BASE)
+    if (obj->pwm == PWM_4) __HAL_RCC_TIM4_CLK_ENABLE();
+#endif
+#if defined(TIM5_BASE)
+    if (obj->pwm == PWM_5) __HAL_RCC_TIM5_CLK_ENABLE();
+#endif
+#if defined(TIM8_BASE)
+    if (obj->pwm == PWM_8) __HAL_RCC_TIM8_CLK_ENABLE();
+#endif
+#if defined(TIM9_BASE)
+    if (obj->pwm == PWM_9) __HAL_RCC_TIM9_CLK_ENABLE();
+#endif
+#if defined(TIM10_BASE)
+    if (obj->pwm == PWM_10) __HAL_RCC_TIM10_CLK_ENABLE();
+#endif
+#if defined(TIM11_BASE)
+    if (obj->pwm == PWM_11) __HAL_RCC_TIM11_CLK_ENABLE();
+#endif
+#if defined(TIM12_BASE)
+    if (obj->pwm == PWM_12) __HAL_RCC_TIM12_CLK_ENABLE();
+#endif
+#if defined(TIM13_BASE)
+    if (obj->pwm == PWM_13) __HAL_RCC_TIM13_CLK_ENABLE();
+#endif
+#if defined(TIM14_BASE)
+    if (obj->pwm == PWM_14) __HAL_RCC_TIM14_CLK_ENABLE();
+#endif
+#if defined(TIM15_BASE)
+    if (obj->pwm == PWM_15) __HAL_RCC_TIM15_CLK_ENABLE();
+#endif
+#if defined(TIM16_BASE)
+    if (obj->pwm == PWM_16) __HAL_RCC_TIM16_CLK_ENABLE();
+#endif
+#if defined(TIM17_BASE)
+    if (obj->pwm == PWM_17) __HAL_RCC_TIM17_CLK_ENABLE();
+#endif
+#if defined(TIM18_BASE)
+    if (obj->pwm == PWM_18) __HAL_RCC_TIM18_CLK_ENABLE();
+#endif
+#if defined(TIM19_BASE)
+    if (obj->pwm == PWM_19) __HAL_RCC_TIM19_CLK_ENABLE();
+#endif
+#if defined(TIM20_BASE)
+    if (obj->pwm == PWM_20) __HAL_RCC_TIM20_CLK_ENABLE();
+#endif
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_PWM);
