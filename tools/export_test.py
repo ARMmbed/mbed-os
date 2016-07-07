@@ -110,6 +110,7 @@ if __name__ == '__main__':
             ('coide', 'NUCLEO_F429ZI'),
             #('coide', 'DISCO_F469NI'), removed because template not available
             ('coide', 'NUCLEO_F334R8'),
+            ('coide', 'NUCLEO_F303ZE'),
             ('coide', 'MTS_MDOT_F405RG'),
             ('coide', 'MTS_MDOT_F411RE'),
 
@@ -139,6 +140,7 @@ if __name__ == '__main__':
             ('uvision', 'NUCLEO_F303K8'),
             ('uvision', 'NUCLEO_F303RE'),
             ('uvision', 'NUCLEO_F334R8'),
+            ('uvision', 'NUCLEO_F303ZE'),
             ('uvision', 'NUCLEO_F401RE'),
             ('uvision', 'NUCLEO_F410RB'),
             ('uvision', 'NUCLEO_F411RE'),
@@ -215,6 +217,7 @@ if __name__ == '__main__':
             ('gcc_arm', 'NUCLEO_F429ZI'),
             ('gcc_arm', 'NUCLEO_F446RE'),
             ('gcc_arm', 'NUCLEO_F446ZE'),
+            ('gcc_arm', 'NUCLEO_F303ZE'),
             ('gcc_arm', 'ELMO_F411RE'),
             ('gcc_arm', 'DISCO_F469NI'),
             ('gcc_arm', 'NUCLEO_F334R8'),
@@ -265,6 +268,7 @@ if __name__ == '__main__':
             ('iar', 'NUCLEO_F303K8'),
             ('iar', 'NUCLEO_F303RE'),
             ('iar', 'NUCLEO_F334R8'),
+            ('iar', 'NUCLEO_F303ZE'),
             ('iar', 'NUCLEO_F401RE'),
             ('iar', 'NUCLEO_F410RB'),
             ('iar', 'NUCLEO_F411RE'),
@@ -329,7 +333,7 @@ if __name__ == '__main__':
             ('sw4stm32', 'NUCLEO_L476RG'),
             ('sw4stm32', 'NUCLEO_F031K6'),
             ('sw4stm32', 'NUCLEO_F042K6'),
-            ('sw4stm32', 'NUCLEO_F303K8'),
+            ('sw4stm32', 'NUCLEO_F303ZE'),
             ('sw4stm32', 'NUCLEO_F410RB'),
 
             ('e2studio', 'RZ_A1H'),
