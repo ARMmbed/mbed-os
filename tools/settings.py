@@ -51,6 +51,10 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+CLI_COLOR_MAP = {
+    "warning": "yellow",
+    "error"  : "red"
+}
 
 ##############################################################################
 # User Settings (file)
