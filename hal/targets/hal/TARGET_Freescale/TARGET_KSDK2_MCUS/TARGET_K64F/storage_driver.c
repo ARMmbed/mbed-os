@@ -126,27 +126,7 @@
 /*! @brief Access to FTFx->FCCOB */
 extern volatile uint32_t *const kFCCOBx;
 
-static flash_config_t privateDeviceConfig;
 #endif /* #ifdef USING_KSDK2 */
-
-/*
- * forward declarations
- */
-static int32_t getBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP);
-static int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP);
-
-/*
- * Global state for the driver.
- */
-ARM_Storage_Callback_t commandCompletionCallback;
-static bool            initialized = false;
-ARM_POWER_STATE        powerState  = ARM_POWER_OFF;
-
-ARM_STORAGE_OPERATION  currentCommand;
-uint64_t               currentOperatingStorageAddress;
-size_t                 sizeofCurrentOperation;
-size_t                 amountLeftToOperate;
-const uint8_t         *currentOperatingData;
 
 #ifdef USING_KSDK2
 #define ERASE_UNIT                        (FSL_FEATURE_FLASH_PFLASH_BLOCK_SECTOR_SIZE)
@@ -166,22 +146,152 @@ const uint8_t         *currentOperatingData;
 #define SIZEOF_DOUBLE_PHRASE              (16)
 #endif /* #ifdef USING_KSDK2 */
 
+/* While the K64F flash controller is capable of launching operations asynchronously and
+ * allowing program execution to continue while an erase/program is active, it
+ * doesn't allow simultaneous read accesses while and erase/program is active on
+ * the same block of flash.
+ *
+ * Read/fetch accesses can originate arbitrarily as a result of program
+ * execution. This means that code which operates on flash should not reside in
+ * flash; or at least it should not reside in the same bank of flash as it is
+ * operating upon. The only way to ensure that application code and flash driver
+ * are residing on separate banks of flash is to reserve bank-0 (or BLOCK0) for
+ * the application and bank-1 (BLOCK1) for the driver--this also happens to be
+ * the default setting.
+ *
+ * But it is quite likely that this default will be over-ridden by the use of
+ * config options depending upon the actual application. If we don't have a
+ * clean separation between the application and the space managed by this
+ * driver, then we need to enforce the following:
+ *
+ *   - Force synchronous mode of execution in the storage_driver.
+ *   - Disable interrupts during erase/program operations.
+ *   - Ensure all code and data structures used in the storage driver execute
+ *     out of RAM. Refer to __RAMFUNC (below) which allows for this.
+ *
+ * It is difficult to determine the application's span of internal-flash at
+ * compile time. Therefore we assume that CONFIG_HARDWARE_MTD_START_ADDR is the
+ * boundary between application and this driver. When this boundary is set to
+ * lie at BLOCK1_START_ADDR, there is no possibility of read-while-write run-
+ * time errors.
+ *
+ * In the following, caps.asynchronous_ops is defined to be 1 if and only if
+ * asynchronous operation mode is requested and there doesn't exist the
+ * possibility of concurrent reads.
+ */
+
+#if (defined(CONFIG_HARDWARE_MTD_START_ADDR) && (CONFIG_HARDWARE_MTD_START_ADDR != BLOCK1_START_ADDR))
+#define EXISTS_POSSIBILITY_OF_CONCURRENT_READ 1
+#else
+#define EXISTS_POSSIBILITY_OF_CONCURRENT_READ 0
+#endif
+
+/* Define '__RAMFUNC' as an attribute to mark a function as residing in RAM. */
+#if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+#if defined(__GNUC__) || defined (__CC_ARM) || defined(__clang__) // GCC, armcc and llvm/clang
+#ifndef __RAMFUNC
+/* define __RAMFUNC to put a declaration in the .data section--i.e. the
+ * initialized data section. This will be copied into RAM automatically by the
+ * startup sequence. */
+#define __RAMFUNC __attribute__ ((section (".data#"))) /* The '#' following ".data" needs a bit of
+                        * explanation. Without it, we are liable to get the following warning 'Warning: ignoring
+                        * changed section attributes for .data'. This is because __attribute__((section(".data")))
+                        * generates the following assembly:
+                        *
+                        * .section .data,"ax",%progbits
+                        *
+                        * But .data doesn't need the 'x' (execute) attribute bit. To remove the warning, we specify
+                        * the attribute with a '#' at the tail, which emits:
+                        *
+                        * .section .data#,"ax",%progbits
+                        *
+                        * Note that '#' (in the above) acts like a comment-start, and masks the additional
+                        * attributes which don't apply to '.data'.
+                        */
+#endif /* #ifndef __RAMFUNC */
+#elif defined ( __ICCARM__ )
+#ifndef __RAMFUNC
+#define __RAMFUNC __ramfunc
+#endif
+#else // unknown compiler
+    #error "This compiler is not yet supported. If you can contribute support for defining a function to be RAM resident, please provide a definition for __RAMFUNC"
+#endif
+
+/**
+ * @brief RAM resident memcpy. This is needed to avoid read-while-write collision errors.
+ *
+ * If we require all functions involved in the erase and programming of flash to
+ * be memory-resident (see the explanations around __RAMFUNC above), then we
+ * need to provide our own version of memcpy().
+ *
+ * @param _dest
+ *            The destination memory. Needs to be aligned to a uint32_t boundary.
+ * @param _src
+ *            The source memory. Needs to be aligned to a uint32_t boundary.
+ * @param n
+ *            The number of bytes to copy. Needs to be a multiple of sizeof(uint32_t).
+ *
+ * @Note For the sake of achieving a faster implementation than byte-wise copy,
+ *       we've chosen to iterate in units of uint32_t, so this destination
+ *       address  must be aligned to a 32-bit boundary, and 'n' should be a
+ *       multiple of sizeof(uint32_t). This is not a problem for this driver
+ *       because address and sizes will all be aligned at least to a
+ *       PROGRAM_PHRASE_SIZEOF_INLINE_DATA.
+ */
+__RAMFUNC
+static void MEMCPY(void *_dest, const void *_src, size_t n)
+{
+    uint32_t       *dest = _dest;
+    const uint32_t *src  = _src;
+    while (n) {
+        *dest++ = *src++;
+        n -= sizeof(uint32_t);
+    }
+}
+
+#else /* #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ */
+#define __RAMFUNC  /* empty */
+#define MEMCPY     memcpy
+#endif /* #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ */
+
+
+/*
+ * forward declarations
+ */
+static int32_t getBlock(uint64_t addr, ARM_STORAGE_BLOCK *blockP);
+static int32_t nextBlock(const ARM_STORAGE_BLOCK* prevP, ARM_STORAGE_BLOCK *nextP);
+
+/*
+ * Global state for the driver.
+ */
+struct mtd_k64f_data {
+    ARM_Storage_Callback_t commandCompletionCallback;
+    bool                   initialized;
+    ARM_POWER_STATE        powerState;
+
+    ARM_STORAGE_OPERATION  currentCommand;
+    uint64_t               currentOperatingStorageAddress;
+    size_t                 sizeofCurrentOperation;
+    size_t                 amountLeftToOperate;
+    const uint8_t         *currentOperatingData;
+} mtd_k64f_data;
+
 /*
  * Static configuration.
  */
 static const ARM_STORAGE_BLOCK blockTable[] = {
     {
         /**< This is the start address of the flash block. */
-#ifdef YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR
-        .addr       = YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR,
+#ifdef CONFIG_HARDWARE_MTD_START_ADDR
+        .addr       = CONFIG_HARDWARE_MTD_START_ADDR,
 #else
         .addr       = BLOCK1_START_ADDR,
 #endif
 
         /**< This is the size of the flash block, in units of bytes.
          *   Together with addr, it describes a range [addr, addr+size). */
-#ifdef YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE
-        .size       = YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE,
+#ifdef CONFIG_HARDWARE_MTD_SIZE
+        .size       = CONFIG_HARDWARE_MTD_SIZE,
 #else
         .size       = BLOCK1_SIZE,
 #endif
@@ -202,6 +312,14 @@ static const ARM_DRIVER_VERSION version = {
     .drv = ARM_DRIVER_VERSION_MAJOR_MINOR(1,00)
 };
 
+
+#if ((!defined(CONFIG_HARDWARE_MTD_ASYNC_OPS) || CONFIG_HARDWARE_MTD_ASYNC_OPS) && \
+     !EXISTS_POSSIBILITY_OF_CONCURRENT_READ)
+#define ASYNC_OPS 1
+#else
+#define ASYNC_OPS 0
+#endif
+
 static const ARM_STORAGE_CAPABILITIES caps = {
     /**< Signal Flash Ready event. In other words, can APIs like initialize,
      *   read, erase, program, etc. operate in asynchronous mode?
@@ -212,15 +330,11 @@ static const ARM_STORAGE_CAPABILITIES caps = {
      *   1, drivers may still complete asynchronous operations synchronously as
      *   necessary--in which case they return a positive error code to indicate
      *   synchronous completion. */
-#ifndef YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS
-    .asynchronous_ops = 1,
-#else
-    .asynchronous_ops = YOTTA_CFG_CONFIG_HARDWARE_MTD_ASYNC_OPS,
-#endif
+    .asynchronous_ops = ASYNC_OPS,
 
     /* Enable chip-erase functionality if we own all of block-1. */
-    #if ((!defined (YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR) || (YOTTA_CFG_CONFIG_HARDWARE_MTD_START_ADDR == BLOCK1_START_ADDR)) && \
-         (!defined (YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE)       || (YOTTA_CFG_CONFIG_HARDWARE_MTD_SIZE == BLOCK1_SIZE)))
+    #if ((!defined (CONFIG_HARDWARE_MTD_START_ADDR) || (CONFIG_HARDWARE_MTD_START_ADDR == BLOCK1_START_ADDR)) && \
+         (!defined (CONFIG_HARDWARE_MTD_SIZE)       || (CONFIG_HARDWARE_MTD_SIZE == BLOCK1_SIZE)))
     .erase_all        = 1,    /**< Supports EraseChip operation. */
     #else
     .erase_all        = 0,    /**< Supports EraseChip operation. */
@@ -228,7 +342,11 @@ static const ARM_STORAGE_CAPABILITIES caps = {
 };
 
 static const ARM_STORAGE_INFO info = {
+#ifdef CONFIG_HARDWARE_MTD_SIZE
+    .total_storage        = CONFIG_HARDWARE_MTD_SIZE, /**< Total available storage, in units of octets. */
+#else
     .total_storage        = BLOCK1_SIZE, /**< Total available storage, in units of octets. By default, BLOCK0 is reserved to hold program code. */
+#endif
 
     .program_unit         = PROGRAM_UNIT,
     .optimal_program_unit = OPTIMAL_PROGRAM_UNIT,
@@ -265,11 +383,11 @@ enum FlashCommandOps {
     SETRAM = (uint8_t)0x81, /* Set FlexRAM. (unused for now) */
 };
 
-
 /**
  * Read out the CCIF (Command Complete Interrupt Flag) to ensure all previous
  * operations have completed.
  */
+__RAMFUNC
 static inline bool controllerCurrentlyBusy(void)
 {
 #ifdef USING_KSDK2
@@ -279,6 +397,7 @@ static inline bool controllerCurrentlyBusy(void)
 #endif
 }
 
+__RAMFUNC
 static inline bool failedWithAccessError(void)
 {
 #ifdef USING_KSDK2
@@ -292,6 +411,7 @@ static inline bool failedWithAccessError(void)
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline bool failedWithProtectionError()
 {
 #ifdef USING_KSDK2
@@ -305,6 +425,7 @@ static inline bool failedWithProtectionError()
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline bool failedWithRunTimeError()
 {
 #ifdef USING_KSDK2
@@ -318,6 +439,7 @@ static inline bool failedWithRunTimeError()
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline void clearAccessError(void)
 {
 #ifdef USING_KSDK2
@@ -327,6 +449,7 @@ static inline void clearAccessError(void)
 #endif
 }
 
+__RAMFUNC
 static inline void clearProtectionError(void)
 {
 #ifdef USING_KSDK2
@@ -351,6 +474,7 @@ static inline void clearProtectionError(void)
  * be cleared to launch a command. The FPVIOL bit is cleared by writing a 1 to
  * it.
  */
+__RAMFUNC
 static inline void clearErrorStatusBits()
 {
     if (failedWithAccessError()) {
@@ -361,6 +485,7 @@ static inline void clearErrorStatusBits()
     }
 }
 
+__RAMFUNC
 static inline void enableCommandCompletionInterrupt(void)
 {
 #ifdef USING_KSDK2
@@ -370,6 +495,7 @@ static inline void enableCommandCompletionInterrupt(void)
 #endif
 }
 
+__RAMFUNC
 static inline void disbleCommandCompletionInterrupt(void)
 {
 #ifdef USING_KSDK2
@@ -379,6 +505,7 @@ static inline void disbleCommandCompletionInterrupt(void)
 #endif
 }
 
+__RAMFUNC
 static inline bool commandCompletionInterruptEnabled(void)
 {
 #ifdef USING_KSDK2
@@ -388,16 +515,12 @@ static inline bool commandCompletionInterruptEnabled(void)
 #endif
 }
 
-static inline bool asyncOperationsEnabled(void)
-{
-    return caps.asynchronous_ops;
-}
-
 /**
  * Once all relevant command parameters have been loaded, the user launches the
  * command by clearing the FSTAT[CCIF] bit by writing a '1' to it. The CCIF flag
  * remains zero until the FTFE command completes.
  */
+__RAMFUNC
 static inline void launchCommand(void)
 {
 #ifdef USING_KSDK2
@@ -408,6 +531,7 @@ static inline void launchCommand(void)
 }
 
 #ifndef USING_KSDK2
+__RAMFUNC
 static inline void setupAddressInCCOB123(uint64_t addr)
 {
     BW_FTFE_FCCOB1_CCOBn((uintptr_t)FTFE, (addr >> 16) & 0xFFUL); /* bits [23:16] of the address. */
@@ -416,6 +540,7 @@ static inline void setupAddressInCCOB123(uint64_t addr)
 }
 #endif /* ifndef USING_KSDK2 */
 
+__RAMFUNC
 static inline void setupEraseSector(uint64_t addr)
 {
 #ifdef USING_KSDK2
@@ -426,6 +551,7 @@ static inline void setupEraseSector(uint64_t addr)
 #endif
 }
 
+__RAMFUNC
 static inline void setupEraseBlock(uint64_t addr)
 {
 #ifdef USING_KSDK2
@@ -436,6 +562,7 @@ static inline void setupEraseBlock(uint64_t addr)
 #endif
 }
 
+__RAMFUNC
 static inline void setup8ByteWrite(uint64_t addr, const void *data)
 {
     /* Program FCCOB to load the required command parameters. */
@@ -460,17 +587,18 @@ static inline void setup8ByteWrite(uint64_t addr, const void *data)
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline void setupProgramSection(uint64_t addr, const void *data, size_t cnt)
 {
 #ifdef USING_KSDK2
     static const uintptr_t FlexRAMBase = FSL_FEATURE_FLASH_FLEX_RAM_START_ADDRESS;
-    memcpy((void *)FlexRAMBase, (const uint8_t *)data, cnt);
+    MEMCPY((void *)FlexRAMBase, (const uint8_t *)data, cnt);
 
     kFCCOBx[0] = BYTES_JOIN_TO_WORD_1_3(PGMSEC, addr);
     kFCCOBx[1] = BYTES_JOIN_TO_WORD_2_2(cnt >> 4, 0xFFFFU);
 #else /* ifdef USING_KSDK2 */
     static const uintptr_t FlexRAMBase = 0x14000000;
-    memcpy((void *)FlexRAMBase, (const uint8_t *)data, cnt);
+    MEMCPY((void *)FlexRAMBase, (const uint8_t *)data, cnt);
 
     BW_FTFE_FCCOB0_CCOBn((uintptr_t)FTFE, PGMSEC);
     setupAddressInCCOB123(addr);
@@ -486,6 +614,7 @@ static inline void setupProgramSection(uint64_t addr, const void *data, size_t c
  * that 'addr' is aligned to a double-phrase boundary (see \ref
  * SIZEOF_DOUBLE_PHRASE)--if not, then only a single phrase (8-bytes) write is possible.
  */
+__RAMFUNC
 static inline size_t sizeofLargestProgramSection(uint64_t addr, size_t size)
 {
     /* ensure 'size' is aligned to a double-phrase boundary */
@@ -511,22 +640,23 @@ static inline size_t sizeofLargestProgramSection(uint64_t addr, size_t size)
  * Advance the state machine for program-data. This function is called only if
  * amountLeftToOperate is non-zero.
  */
-static inline void setupNextProgramData(void)
+__RAMFUNC
+static inline void setupNextProgramData(struct mtd_k64f_data *context)
 {
-    if ((amountLeftToOperate == PROGRAM_PHRASE_SIZEOF_INLINE_DATA) ||
-        ((currentOperatingStorageAddress % SIZEOF_DOUBLE_PHRASE) == PROGRAM_PHRASE_SIZEOF_INLINE_DATA)) {
-        setup8ByteWrite(currentOperatingStorageAddress, currentOperatingData);
+    if ((context->amountLeftToOperate == PROGRAM_PHRASE_SIZEOF_INLINE_DATA) ||
+        ((context->currentOperatingStorageAddress % SIZEOF_DOUBLE_PHRASE) == PROGRAM_PHRASE_SIZEOF_INLINE_DATA)) {
+        setup8ByteWrite(context->currentOperatingStorageAddress, context->currentOperatingData);
 
-        amountLeftToOperate            -= PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
-        currentOperatingStorageAddress += PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
-        currentOperatingData           += PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
+        context->amountLeftToOperate            -= PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
+        context->currentOperatingStorageAddress += PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
+        context->currentOperatingData           += PROGRAM_PHRASE_SIZEOF_INLINE_DATA;
     } else {
-        size_t amount = sizeofLargestProgramSection(currentOperatingStorageAddress, amountLeftToOperate);
-        setupProgramSection(currentOperatingStorageAddress, currentOperatingData, amount);
+        size_t amount = sizeofLargestProgramSection(context->currentOperatingStorageAddress, context->amountLeftToOperate);
+        setupProgramSection(context->currentOperatingStorageAddress, context->currentOperatingData, amount);
 
-        amountLeftToOperate            -= amount;
-        currentOperatingStorageAddress += amount;
-        currentOperatingData           += amount;
+        context->amountLeftToOperate            -= amount;
+        context->currentOperatingStorageAddress += amount;
+        context->currentOperatingData           += amount;
     }
 }
 
@@ -534,120 +664,141 @@ static inline void setupNextProgramData(void)
  * Advance the state machine for erase. This function is called only if
  * amountLeftToOperate is non-zero.
  */
-static inline void setupNextErase(void)
+__RAMFUNC
+static inline void setupNextErase(struct mtd_k64f_data *context)
 {
-    setupEraseSector(currentOperatingStorageAddress);     /* Program FCCOB to load the required command parameters. */
+    setupEraseSector(context->currentOperatingStorageAddress); /* Program FCCOB to load the required command parameters. */
 
-    amountLeftToOperate            -= ERASE_UNIT;
-    currentOperatingStorageAddress += ERASE_UNIT;
+    context->amountLeftToOperate            -= ERASE_UNIT;
+    context->currentOperatingStorageAddress += ERASE_UNIT;
 }
 
-static int32_t executeCommand(void)
+__RAMFUNC
+static int32_t executeCommand(struct mtd_k64f_data *context)
 {
+#if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+    __disable_irq();
+#endif
     launchCommand();
+
+    /* !Note!: After launching the command, we should be very careful not to execute any
+     * code which might access the flash concurrent to the ongoing operation.
+     * Any code that needs to run in parallel should be executed from RAM (see __RAMFUNC).
+     * Interrupts should be disabled except when executing asynchronously. */
 
     /* At this point, The FTFE reads the command code and performs a series of
      * parameter checks and protection checks, if applicable, which are unique
      * to each command. */
 
-    if (asyncOperationsEnabled()) {
-        /* Asynchronous operation */
+#if ASYNC_OPS
+    /* Asynchronous operation */
 
-        /* Spin waiting for the command execution to begin. */
-        while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
+    (void)context; /* avoid compiler warning about un-used variables */
+
+    /* Spin waiting for the command execution to begin. */
+    while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
+    if (failedWithAccessError() || failedWithProtectionError()) {
+        clearErrorStatusBits();
+        return ARM_DRIVER_ERROR_PARAMETER;
+    }
+
+    enableCommandCompletionInterrupt();
+
+    return ARM_DRIVER_OK; /* signal asynchronous completion. An interrupt will signal completion later. */
+#else /* #if ASYNC_OPS */
+    /* Synchronous operation. This is the common case. */
+
+    while (1) {
+        /* Spin waiting for the command execution to complete.  */
+        while (controllerCurrentlyBusy());
+        #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+        __enable_irq();
+        #endif
+
+        /* Execution may result in failure. Check for errors */
         if (failedWithAccessError() || failedWithProtectionError()) {
             clearErrorStatusBits();
             return ARM_DRIVER_ERROR_PARAMETER;
         }
+        if (failedWithRunTimeError()) {
+            return ARM_DRIVER_ERROR; /* unspecified runtime error. */
+        }
 
-        enableCommandCompletionInterrupt();
+        /* signal synchronous completion. */
+        switch (context->currentCommand) {
+            case ARM_STORAGE_OPERATION_PROGRAM_DATA:
+                if (context->amountLeftToOperate == 0) {
+                    return context->sizeofCurrentOperation;
+                }
 
-        return ARM_DRIVER_OK; /* signal asynchronous completion. An interrupt will signal completion later. */
-    } else {
-        /* Synchronous operation. */
+                /* start the successive program operation */
+                setupNextProgramData(context);
+                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                __disable_irq();
+                #endif
+                launchCommand();
+                /* continue on to the next iteration of the parent loop */
+                break;
 
-        while (1) {
+            case ARM_STORAGE_OPERATION_ERASE:
+                if (context->amountLeftToOperate == 0) {
+                    return context->sizeofCurrentOperation;
+                }
 
-            /* Spin waiting for the command execution to complete.  */
-            while (controllerCurrentlyBusy());
+                setupNextErase(context); /* start the successive erase operation */
+                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                __disable_irq();
+                #endif
+                launchCommand();
+                /* continue on to the next iteration of the parent loop */
+                break;
 
-            /* Execution may result in failure. Check for errors */
-            if (failedWithAccessError() || failedWithProtectionError()) {
-                clearErrorStatusBits();
-                return ARM_DRIVER_ERROR_PARAMETER;
-            }
-            if (failedWithRunTimeError()) {
-                return ARM_DRIVER_ERROR; /* unspecified runtime error. */
-            }
-
-            /* signal synchronous completion. */
-            switch (currentCommand) {
-                case ARM_STORAGE_OPERATION_PROGRAM_DATA:
-                    if (amountLeftToOperate == 0) {
-                        return sizeofCurrentOperation;
-                    }
-
-                    /* start the successive program operation */
-                    setupNextProgramData();
-                    launchCommand();
-                    /* continue on to the next iteration of the parent loop */
-                    break;
-
-                case ARM_STORAGE_OPERATION_ERASE:
-                    if (amountLeftToOperate == 0) {
-                        return sizeofCurrentOperation;
-                    }
-
-                    setupNextErase(); /* start the successive erase operation */
-                    launchCommand();
-                    /* continue on to the next iteration of the parent loop */
-                    break;
-
-                default:
-                    return 1;
-            }
+            default:
+                return 1;
         }
     }
+#endif /* #ifdef ASYNC_OPS */
 }
 
+#if ASYNC_OPS
 static void ftfe_ccie_irq_handler(void)
 {
-    NVIC_ClearPendingIRQ(FTFE_IRQn);
     disbleCommandCompletionInterrupt();
 
+    struct mtd_k64f_data *context = &mtd_k64f_data;
     /* check for errors */
     if (failedWithAccessError() || failedWithProtectionError()) {
         clearErrorStatusBits();
-        if (commandCompletionCallback) {
-            commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, currentCommand);
+        if (context->commandCompletionCallback) {
+            context->commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, context->currentCommand);
         }
         return;
     }
     if (failedWithRunTimeError()) {
-        if (commandCompletionCallback) {
-            commandCompletionCallback(ARM_DRIVER_ERROR, currentCommand);
+        if (context->commandCompletionCallback) {
+            context->commandCompletionCallback(ARM_DRIVER_ERROR, context->currentCommand);
         }
         return;
     }
 
-    switch (currentCommand) {
+    switch (context->currentCommand) {
         case ARM_STORAGE_OPERATION_PROGRAM_DATA:
-            if (amountLeftToOperate == 0) {
-                if (commandCompletionCallback) {
-                    commandCompletionCallback(sizeofCurrentOperation, ARM_STORAGE_OPERATION_PROGRAM_DATA);
+            if (context->amountLeftToOperate == 0) {
+                if (context->commandCompletionCallback) {
+                    context->commandCompletionCallback(context->sizeofCurrentOperation, ARM_STORAGE_OPERATION_PROGRAM_DATA);
                 }
                 return;
             }
 
             /* start the successive program operation */
-            setupNextProgramData();
+            setupNextProgramData(context);
             launchCommand();
 
             while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
             if (failedWithAccessError() || failedWithProtectionError()) {
                 clearErrorStatusBits();
-                if (commandCompletionCallback) {
-                    commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, ARM_STORAGE_OPERATION_PROGRAM_DATA);
+                if (context->commandCompletionCallback) {
+                    context->commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, ARM_STORAGE_OPERATION_PROGRAM_DATA);
                 }
                 return;
             }
@@ -656,21 +807,21 @@ static void ftfe_ccie_irq_handler(void)
             break;
 
         case ARM_STORAGE_OPERATION_ERASE:
-            if (amountLeftToOperate == 0) {
-                if (commandCompletionCallback) {
-                    commandCompletionCallback(sizeofCurrentOperation, ARM_STORAGE_OPERATION_ERASE);
+            if (context->amountLeftToOperate == 0) {
+                if (context->commandCompletionCallback) {
+                    context->commandCompletionCallback(context->sizeofCurrentOperation, ARM_STORAGE_OPERATION_ERASE);
                 }
                 return;
             }
 
-            setupNextErase();
+            setupNextErase(context);
             launchCommand();
 
             while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
             if (failedWithAccessError() || failedWithProtectionError()) {
                 clearErrorStatusBits();
-                if (commandCompletionCallback) {
-                    commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, ARM_STORAGE_OPERATION_ERASE);
+                if (context->commandCompletionCallback) {
+                    context->commandCompletionCallback(ARM_DRIVER_ERROR_PARAMETER, ARM_STORAGE_OPERATION_ERASE);
                 }
                 return;
             }
@@ -679,12 +830,13 @@ static void ftfe_ccie_irq_handler(void)
             break;
 
         default:
-            if (commandCompletionCallback) {
-                commandCompletionCallback(ARM_DRIVER_OK, currentCommand);
+            if (context->commandCompletionCallback) {
+                context->commandCompletionCallback(ARM_DRIVER_OK, context->currentCommand);
             }
             break;
     }
 }
+#endif /* #if ASYNC_OPS */
 
 /**
  * This is a helper function which can be used to do arbitrary sanity checking
@@ -706,7 +858,6 @@ static int32_t checkForEachBlockInRange(uint64_t startAddr, uint32_t size, int32
         if ((rc = check(&block)) != ARM_DRIVER_OK) {
             return rc;
         }
-
 
         /* move on to the following block */
         if (nextBlock(&block, &block) != ARM_DRIVER_OK) {
@@ -746,20 +897,15 @@ static ARM_STORAGE_CAPABILITIES getCapabilities(void)
 
 static int32_t initialize(ARM_Storage_Callback_t callback)
 {
-    currentCommand = ARM_STORAGE_OPERATION_INITIALIZE;
+    struct mtd_k64f_data *context = &mtd_k64f_data;
+    memset(context, 0, sizeof(mtd_k64f_data));
+    context->currentCommand = ARM_STORAGE_OPERATION_INITIALIZE;
 
-    if (initialized) {
-        commandCompletionCallback = callback;
+    if (context->initialized) {
+        context->commandCompletionCallback = callback;
 
         return 1; /* synchronous completion. */
     }
-
-#ifdef USING_KSDK2
-    status_t rc = FLASH_Init(&privateDeviceConfig);
-    if (rc != kStatus_FLASH_Success) {
-        return ARM_DRIVER_ERROR;
-    }
-#endif /* ifdef USING_KSDK2 */
 
     if (controllerCurrentlyBusy()) {
         /* The user cannot initiate any further FTFE commands until notified that the
@@ -769,52 +915,57 @@ static int32_t initialize(ARM_Storage_Callback_t callback)
 
     clearErrorStatusBits();
 
-    commandCompletionCallback = callback;
+    context->commandCompletionCallback = callback;
 
     /* Enable the command-completion interrupt. */
-    if (asyncOperationsEnabled()) {
-        NVIC_SetVector(FTFE_IRQn, (uint32_t)ftfe_ccie_irq_handler);
-        NVIC_ClearPendingIRQ(FTFE_IRQn);
-        NVIC_EnableIRQ(FTFE_IRQn);
-    }
+#if ASYNC_OPS
+    NVIC_SetVector(FTFE_IRQn, (uint32_t)ftfe_ccie_irq_handler);
+    NVIC_ClearPendingIRQ(FTFE_IRQn);
+    NVIC_EnableIRQ(FTFE_IRQn);
+#endif
 
-    initialized = true;
+    context->initialized = true;
 
     return 1; /* synchronous completion. */
 }
 
 static int32_t uninitialize(void) {
-    currentCommand = ARM_STORAGE_OPERATION_UNINITIALIZE;
+    struct mtd_k64f_data *context = &mtd_k64f_data;
+    context->currentCommand = ARM_STORAGE_OPERATION_UNINITIALIZE;
 
-    if (!initialized) {
+    if (!context->initialized) {
         return ARM_DRIVER_ERROR;
     }
 
     /* Disable the command-completion interrupt. */
-    if (asyncOperationsEnabled() && commandCompletionInterruptEnabled()) {
+#if ASYNC_OPS
+    if (commandCompletionInterruptEnabled()) {
         disbleCommandCompletionInterrupt();
         NVIC_DisableIRQ(FTFE_IRQn);
         NVIC_ClearPendingIRQ(FTFE_IRQn);
     }
+#endif
 
-    commandCompletionCallback = NULL;
-    initialized               = false;
+    context->commandCompletionCallback = NULL;
+    context->initialized               = false;
     return 1; /* synchronous completion. */
 }
 
 static int32_t powerControl(ARM_POWER_STATE state)
 {
-    currentCommand = ARM_STORAGE_OPERATION_POWER_CONTROL;
+    struct mtd_k64f_data *context = &mtd_k64f_data;
+    context->currentCommand = ARM_STORAGE_OPERATION_POWER_CONTROL;
 
-    powerState = state;
+    context->powerState = state;
     return 1; /* signal synchronous completion. */
 }
 
 static int32_t readData(uint64_t addr, void *data, uint32_t size)
 {
-    currentCommand = ARM_STORAGE_OPERATION_READ_DATA;
+    struct mtd_k64f_data *context = &mtd_k64f_data;
+    context->currentCommand = ARM_STORAGE_OPERATION_READ_DATA;
 
-    if (!initialized) {
+    if (!context->initialized) {
         return ARM_DRIVER_ERROR; /* illegal */
     }
 
@@ -826,13 +977,15 @@ static int32_t readData(uint64_t addr, void *data, uint32_t size)
         return ARM_DRIVER_ERROR_PARAMETER; /* illegal address range */
     }
 
+	context->currentCommand = ARM_STORAGE_OPERATION_READ_DATA;
     memcpy(data, (const void *)(uintptr_t)addr, size);
     return size; /* signal synchronous completion. */
 }
 
 static int32_t programData(uint64_t addr, const void *data, uint32_t size)
 {
-    if (!initialized) {
+    struct mtd_k64f_data *context = &mtd_k64f_data;
+    if (!context->initialized) {
         return (int32_t)ARM_DRIVER_ERROR; /* illegal */
     }
 
@@ -853,27 +1006,28 @@ static int32_t programData(uint64_t addr, const void *data, uint32_t size)
         return ARM_STORAGE_ERROR_NOT_PROGRAMMABLE;
     }
 
-    currentCommand = ARM_STORAGE_OPERATION_PROGRAM_DATA;
-
     if (controllerCurrentlyBusy()) {
         /* The user cannot initiate any further FTFE commands until notified that the
          * current command has completed.*/
         return ARM_DRIVER_ERROR_BUSY;
     }
 
-    sizeofCurrentOperation         = size;
-    amountLeftToOperate            = size;
-    currentOperatingData           = data;
-    currentOperatingStorageAddress = addr;
+    context->currentCommand                 = ARM_STORAGE_OPERATION_PROGRAM_DATA;
+    context->sizeofCurrentOperation         = size;
+    context->amountLeftToOperate            = size;
+    context->currentOperatingData           = data;
+    context->currentOperatingStorageAddress = addr;
 
     clearErrorStatusBits();
-    setupNextProgramData();
-    return executeCommand();
+    setupNextProgramData(context);
+    return executeCommand(context);
 }
 
 static int32_t erase(uint64_t addr, uint32_t size)
 {
-    if (!initialized) {
+    struct mtd_k64f_data *context = &mtd_k64f_data;
+
+    if (!context->initialized) {
         return (int32_t)ARM_DRIVER_ERROR; /* illegal */
     }
     /* argument validation */
@@ -893,28 +1047,27 @@ static int32_t erase(uint64_t addr, uint32_t size)
         return ARM_STORAGE_ERROR_NOT_ERASABLE;
     }
 
-    currentCommand = ARM_STORAGE_OPERATION_ERASE;
-
-    currentOperatingStorageAddress = addr;
-    sizeofCurrentOperation         = size;
-    amountLeftToOperate            = size;
-
     if (controllerCurrentlyBusy()) {
         /* The user cannot initiate any further FTFE commands until notified that the
          * current command has completed.*/
         return (int32_t)ARM_DRIVER_ERROR_BUSY;
     }
 
+    context->currentCommand                 = ARM_STORAGE_OPERATION_ERASE;
+    context->currentOperatingStorageAddress = addr;
+    context->sizeofCurrentOperation         = size;
+    context->amountLeftToOperate            = size;
+
     clearErrorStatusBits();
-    setupNextErase();
-    return executeCommand();
+    setupNextErase(context);
+    return executeCommand(context);
 }
 
 static int32_t eraseAll(void)
 {
-    currentCommand = ARM_STORAGE_OPERATION_ERASE_ALL;
+    struct mtd_k64f_data *context = &mtd_k64f_data;
 
-    if (!initialized) {
+    if (!context->initialized) {
         return (int32_t)ARM_DRIVER_ERROR; /* illegal */
     }
 
@@ -932,22 +1085,25 @@ static int32_t eraseAll(void)
         return (int32_t)ARM_DRIVER_ERROR_BUSY;
     }
 
+    context->currentCommand = ARM_STORAGE_OPERATION_ERASE_ALL;
+
     clearErrorStatusBits();
 
     /* Program FCCOB to load the required command parameters. */
     setupEraseBlock(BLOCK1_START_ADDR);
-
-    return executeCommand();
+    return executeCommand(context);
 }
 
 static ARM_STORAGE_STATUS getStatus(void)
 {
+    struct mtd_k64f_data *context = &mtd_k64f_data;
+
     ARM_STORAGE_STATUS status = {
         .busy  = 0,
         .error = 0,
     };
 
-    if (!initialized) {
+    if (!context->initialized) {
         status.error = 1;
         return status;
     }
