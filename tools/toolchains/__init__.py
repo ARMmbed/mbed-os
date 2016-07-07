@@ -274,6 +274,14 @@ class mbedToolchain:
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
         # Output notify function
+        # This function is passed all events, and expected to handle notification of the
+        # user, emit the events to a log, etc.
+        # The API for all notify methods passed into the notify parameter is as follows:
+        # def notify(Event, Silent)
+        # Where *Event* is a dict representing the toolchain event that was generated
+        #            e.g.: a compile succeeded, or a warning was emitted by the compiler
+        #                  or an application was linked
+        #       *Silent* is a boolean
         if notify:
             self.notify_fun = notify
         elif extra_verbose:
