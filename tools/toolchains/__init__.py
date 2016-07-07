@@ -338,7 +338,6 @@ class mbedToolchain:
             event['severity'] = event['severity'].title()
             event['file'] = basename(event['file'])
             event['mcu_name'] = "None"
-            event['toolchain'] = "None"
             event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
             event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
             msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
@@ -351,6 +350,7 @@ class mbedToolchain:
     def notify(self, event):
         """ Little closure for notify functions
         """
+        event['toolchain'] = self
         return self.notify_fun(event, self.silent)
 
     def goanna_parse_line(self, line):

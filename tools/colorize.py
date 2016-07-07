@@ -66,10 +66,11 @@ def colorstring_to_escapecode(color_string):
 def print_in_color_notifier (color_map, print_fn):
     def wrap(event, silent=False):
         fd = sys.stdout
+        self = event['toolchain']
         if fd.isatty() and 'severity' in event and event['severity'] in color_map:
             fd.write(colorstring_to_escapecode(color_map[event['severity']]))
-            print_fn(event, silent)
+            print_fn(self, event, silent)
             fd.write(colorstring_to_escapecode('default'))
         else:
-            print_fn(event, silent)
+            print_fn(self, event, silent)
     return wrap
