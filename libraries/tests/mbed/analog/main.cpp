@@ -64,6 +64,10 @@ AnalogOut out(PA_4);
 AnalogIn in(PC_5);
 AnalogOut out(PA_4);
 
+#elif defined(TARGET_NUCLEO_F303ZE)
+AnalogIn in(PC_5);
+AnalogOut out(PA_5);
+
 #elif defined(TARGET_DISCO_F429ZI)
 AnalogIn in(PC_3);
 AnalogOut out(PA_5);
