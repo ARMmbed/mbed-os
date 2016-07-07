@@ -146,6 +146,102 @@ extern volatile uint32_t *const kFCCOBx;
 #define SIZEOF_DOUBLE_PHRASE              (16)
 #endif /* #ifdef USING_KSDK2 */
 
+/* While the K64F flash controller is capable of launching operations asynchronously and
+ * allowing program execution to continue while an erase/program is active, it
+ * doesn't allow simultaneous read accesses while and erase/program is active on
+ * the same block of flash.
+ *
+ * Read/fetch accesses can originate arbitrarily as a result of program
+ * execution. This means that code which operates on flash should not reside in
+ * flash; or at least it should not reside in the same bank of flash as it is
+ * operating upon. The only way to ensure that application code and flash driver
+ * are residing on separate banks of flash is to reserve bank-0 (or BLOCK0) for
+ * the application and bank-1 (BLOCK1) for the driver--this also happens to be
+ * the default setting.
+ *
+ * But it is quite likely that this default will be over-ridden by the use of
+ * config options depending upon the actual application. If we don't have a
+ * clean separation between the application and the space managed by this
+ * driver, then we need to enforce the following:
+ *
+ *   - Force synchronous mode of execution in the storage_driver.
+ *   - Disable interrupts during erase/program operations.
+ *   - Ensure all code and data structures used in the storage driver execute
+ *     out of RAM. Refer to __RAMFUNC (below) which allows for this.
+ *
+ * It is difficult to determine the application's span of internal-flash at
+ * compile time. Therefore we assume that CONFIG_HARDWARE_MTD_START_ADDR is the
+ * boundary between application and this driver. When this boundary is set to
+ * lie at BLOCK1_START_ADDR, there is no possibility of read-while-write run-
+ * time errors.
+ *
+ * In the following, caps.asynchronous_ops is defined to be 1 if and only if
+ * asynchronous operation mode is requested and there doesn't exist the
+ * possibility of concurrent reads.
+ */
+
+#if (defined(CONFIG_HARDWARE_MTD_START_ADDR) && (CONFIG_HARDWARE_MTD_START_ADDR != BLOCK1_START_ADDR))
+#define EXISTS_POSSIBILITY_OF_CONCURRENT_READ 1
+#else
+#define EXISTS_POSSIBILITY_OF_CONCURRENT_READ 0
+#endif
+
+/* Define '__RAMFUNC' as an attribute to mark a function as residing in RAM. */
+#if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+#if defined(__GNUC__) || defined (__CC_ARM) || defined(__clang__) // GCC, armcc and llvm/clang
+#ifndef __RAMFUNC
+/* define __RAMFUNC to put a declaration in the .data section--i.e. the
+ * initialized data section. This will be copied into RAM automatically by the
+ * startup sequence. */
+#define __RAMFUNC __attribute__ ((section (".data#"))) /* The '#' following ".data" needs a bit of
+                        * explanation. Without it, we are liable to get the following warning 'Warning: ignoring
+                        * changed section attributes for .data'. This is because __attribute__((section(".data")))
+                        * generates the following assembly:
+                        *
+                        * .section .data,"ax",%progbits
+                        *
+                        * But .data doesn't need the 'x' (execute) attribute bit. To remove the warning, we specify
+                        * the attribute with a '#' at the tail, which emits:
+                        *
+                        * .section .data#,"ax",%progbits
+                        *
+                        * Note that '#' (in the above) acts like a comment-start, and masks the additional
+                        * attributes which don't apply to '.data'.
+                        */
+#endif /* #ifndef __RAMFUNC */
+#elif defined ( __ICCARM__ )
+#ifndef __RAMFUNC
+#define __RAMFUNC __ramfunc
+#endif
+#else // unknown compiler
+    #error "This compiler is not yet supported. If you can contribute support for defining a function to be RAM resident, please provide a definition for __RAMFUNC"
+#endif
+
+/**
+ * @brief RAM resident memcpy.
+ *
+ * If we require all functions involved in the erase and programming of flash to
+ * be memory-resident (see the explanations around __RAMFUNC above), then we
+ * need to provide our own version of memcpy().
+ *
+ * @Note 'n' should be a multiple of sizeof(uint32_t).
+ */
+__RAMFUNC
+static void MEMCPY(void *_dest, const void *_src, size_t n)
+{
+    uint32_t       *dest = _dest;
+    const uint32_t *src  = _src;
+    while (n) {
+        *dest++ = *src++;
+        n -= sizeof(uint32_t);
+    }
+}
+
+#else /* #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ */
+#define __RAMFUNC  /* empty */
+#define MEMCPY     memcpy
+#endif /* #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ */
+
 
 /*
  * forward declarations
@@ -205,7 +301,8 @@ static const ARM_DRIVER_VERSION version = {
 };
 
 
-#if (!defined(CONFIG_HARDWARE_MTD_ASYNC_OPS) || CONFIG_HARDWARE_MTD_ASYNC_OPS)
+#if ((!defined(CONFIG_HARDWARE_MTD_ASYNC_OPS) || CONFIG_HARDWARE_MTD_ASYNC_OPS) && \
+     !EXISTS_POSSIBILITY_OF_CONCURRENT_READ)
 #define ASYNC_OPS 1
 #else
 #define ASYNC_OPS 0
@@ -278,6 +375,7 @@ enum FlashCommandOps {
  * Read out the CCIF (Command Complete Interrupt Flag) to ensure all previous
  * operations have completed.
  */
+__RAMFUNC
 static inline bool controllerCurrentlyBusy(void)
 {
 #ifdef USING_KSDK2
@@ -287,6 +385,7 @@ static inline bool controllerCurrentlyBusy(void)
 #endif
 }
 
+__RAMFUNC
 static inline bool failedWithAccessError(void)
 {
 #ifdef USING_KSDK2
@@ -300,6 +399,7 @@ static inline bool failedWithAccessError(void)
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline bool failedWithProtectionError()
 {
 #ifdef USING_KSDK2
@@ -313,6 +413,7 @@ static inline bool failedWithProtectionError()
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline bool failedWithRunTimeError()
 {
 #ifdef USING_KSDK2
@@ -326,6 +427,7 @@ static inline bool failedWithRunTimeError()
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline void clearAccessError(void)
 {
 #ifdef USING_KSDK2
@@ -335,6 +437,7 @@ static inline void clearAccessError(void)
 #endif
 }
 
+__RAMFUNC
 static inline void clearProtectionError(void)
 {
 #ifdef USING_KSDK2
@@ -359,6 +462,7 @@ static inline void clearProtectionError(void)
  * be cleared to launch a command. The FPVIOL bit is cleared by writing a 1 to
  * it.
  */
+__RAMFUNC
 static inline void clearErrorStatusBits()
 {
     if (failedWithAccessError()) {
@@ -369,6 +473,7 @@ static inline void clearErrorStatusBits()
     }
 }
 
+__RAMFUNC
 static inline void enableCommandCompletionInterrupt(void)
 {
 #ifdef USING_KSDK2
@@ -378,6 +483,7 @@ static inline void enableCommandCompletionInterrupt(void)
 #endif
 }
 
+__RAMFUNC
 static inline void disbleCommandCompletionInterrupt(void)
 {
 #ifdef USING_KSDK2
@@ -387,6 +493,7 @@ static inline void disbleCommandCompletionInterrupt(void)
 #endif
 }
 
+__RAMFUNC
 static inline bool commandCompletionInterruptEnabled(void)
 {
 #ifdef USING_KSDK2
@@ -401,6 +508,7 @@ static inline bool commandCompletionInterruptEnabled(void)
  * command by clearing the FSTAT[CCIF] bit by writing a '1' to it. The CCIF flag
  * remains zero until the FTFE command completes.
  */
+__RAMFUNC
 static inline void launchCommand(void)
 {
 #ifdef USING_KSDK2
@@ -411,6 +519,7 @@ static inline void launchCommand(void)
 }
 
 #ifndef USING_KSDK2
+__RAMFUNC
 static inline void setupAddressInCCOB123(uint64_t addr)
 {
     BW_FTFE_FCCOB1_CCOBn((uintptr_t)FTFE, (addr >> 16) & 0xFFUL); /* bits [23:16] of the address. */
@@ -419,6 +528,7 @@ static inline void setupAddressInCCOB123(uint64_t addr)
 }
 #endif /* ifndef USING_KSDK2 */
 
+__RAMFUNC
 static inline void setupEraseSector(uint64_t addr)
 {
 #ifdef USING_KSDK2
@@ -429,6 +539,7 @@ static inline void setupEraseSector(uint64_t addr)
 #endif
 }
 
+__RAMFUNC
 static inline void setupEraseBlock(uint64_t addr)
 {
 #ifdef USING_KSDK2
@@ -439,6 +550,7 @@ static inline void setupEraseBlock(uint64_t addr)
 #endif
 }
 
+__RAMFUNC
 static inline void setup8ByteWrite(uint64_t addr, const void *data)
 {
     /* Program FCCOB to load the required command parameters. */
@@ -463,17 +575,18 @@ static inline void setup8ByteWrite(uint64_t addr, const void *data)
 #endif /* ifdef USING_KSDK2 */
 }
 
+__RAMFUNC
 static inline void setupProgramSection(uint64_t addr, const void *data, size_t cnt)
 {
 #ifdef USING_KSDK2
     static const uintptr_t FlexRAMBase = FSL_FEATURE_FLASH_FLEX_RAM_START_ADDRESS;
-    memcpy((void *)FlexRAMBase, (const uint8_t *)data, cnt);
+    MEMCPY((void *)FlexRAMBase, (const uint8_t *)data, cnt);
 
     kFCCOBx[0] = BYTES_JOIN_TO_WORD_1_3(PGMSEC, addr);
     kFCCOBx[1] = BYTES_JOIN_TO_WORD_2_2(cnt >> 4, 0xFFFFU);
 #else /* ifdef USING_KSDK2 */
     static const uintptr_t FlexRAMBase = 0x14000000;
-    memcpy((void *)FlexRAMBase, (const uint8_t *)data, cnt);
+    MEMCPY((void *)FlexRAMBase, (const uint8_t *)data, cnt);
 
     BW_FTFE_FCCOB0_CCOBn((uintptr_t)FTFE, PGMSEC);
     setupAddressInCCOB123(addr);
@@ -489,6 +602,7 @@ static inline void setupProgramSection(uint64_t addr, const void *data, size_t c
  * that 'addr' is aligned to a double-phrase boundary (see \ref
  * SIZEOF_DOUBLE_PHRASE)--if not, then only a single phrase (8-bytes) write is possible.
  */
+__RAMFUNC
 static inline size_t sizeofLargestProgramSection(uint64_t addr, size_t size)
 {
     /* ensure 'size' is aligned to a double-phrase boundary */
@@ -514,6 +628,7 @@ static inline size_t sizeofLargestProgramSection(uint64_t addr, size_t size)
  * Advance the state machine for program-data. This function is called only if
  * amountLeftToOperate is non-zero.
  */
+__RAMFUNC
 static inline void setupNextProgramData(struct mtd_k64f_data *context)
 {
     if ((context->amountLeftToOperate == PROGRAM_PHRASE_SIZEOF_INLINE_DATA) ||
@@ -537,6 +652,7 @@ static inline void setupNextProgramData(struct mtd_k64f_data *context)
  * Advance the state machine for erase. This function is called only if
  * amountLeftToOperate is non-zero.
  */
+__RAMFUNC
 static inline void setupNextErase(struct mtd_k64f_data *context)
 {
     setupEraseSector(context->currentOperatingStorageAddress); /* Program FCCOB to load the required command parameters. */
@@ -545,9 +661,18 @@ static inline void setupNextErase(struct mtd_k64f_data *context)
     context->currentOperatingStorageAddress += ERASE_UNIT;
 }
 
+__RAMFUNC
 static int32_t executeCommand(struct mtd_k64f_data *context)
 {
+#if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+    __disable_irq();
+#endif
     launchCommand();
+
+    /* !Note!: After launching the command, we should be very careful not to execute any
+     * code which might access the flash concurrent to the ongoing operation.
+     * Any code that needs to run in parallel should be executed from RAM (see __RAMFUNC).
+     * Interrupts should be disabled except when executing asynchronously. */
 
     /* At this point, The FTFE reads the command code and performs a series of
      * parameter checks and protection checks, if applicable, which are unique
@@ -569,7 +694,7 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
 
     return ARM_DRIVER_OK; /* signal asynchronous completion. An interrupt will signal completion later. */
 #else /* #if ASYNC_OPS */
-    /* Synchronous operation. */
+    /* Synchronous operation. This is the common case. */
 
     while (1) {
         /* Spin waiting for the command execution to complete.  */
@@ -578,9 +703,15 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
         /* Execution may result in failure. Check for errors */
         if (failedWithAccessError() || failedWithProtectionError()) {
             clearErrorStatusBits();
+            #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                __enable_irq();
+            #endif
             return ARM_DRIVER_ERROR_PARAMETER;
         }
         if (failedWithRunTimeError()) {
+            #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                __enable_irq();
+            #endif
             return ARM_DRIVER_ERROR; /* unspecified runtime error. */
         }
 
@@ -588,8 +719,26 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
         switch (context->currentCommand) {
             case ARM_STORAGE_OPERATION_PROGRAM_DATA:
                 if (context->amountLeftToOperate == 0) {
+                    #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                        __enable_irq();
+                    #endif
                     return context->sizeofCurrentOperation;
                 }
+
+                /* Allow pending interrupts to be handled before launching the successive
+                 * operation. This avoids having to block interrupts for long periods.
+                 *
+                 * ProgramData operates in steps of 1KB; initial experiments
+                 * indicate that the time needed to complete a 1KB write is
+                 * around 6.5ms. As a programData progresses, interrupts would
+                 * need to be held blocked for periods of such duration
+                 * if EXISTS_POSSIBILITY_OF_CONCURRENT_READ.
+                 */
+                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                    __enable_irq();
+                    /* service any pending interrupts at this moment */
+                    __disable_irq();
+                #endif
 
                 /* start the successive program operation */
                 setupNextProgramData(context);
@@ -599,8 +748,26 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
 
             case ARM_STORAGE_OPERATION_ERASE:
                 if (context->amountLeftToOperate == 0) {
+                    #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                        __enable_irq();
+                    #endif
                     return context->sizeofCurrentOperation;
                 }
+
+                /* Allow pending interrupts to be handled before launching the successive
+                 * operation. This avoids having to block interrupts for long periods.
+                 *
+                 * Erase operates in steps of 4KB (ERASE_UNIT); initial
+                 * experiments indicate that the time needed to complete a 4KB
+                 * erase is around 4ms. As an erase progresses, interrupts
+                 * would need to be held blocked for periods of such duration
+                 * if EXISTS_POSSIBILITY_OF_CONCURRENT_READ.
+                 */
+                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                    __enable_irq();
+                    /* service any pending interrupts at this moment */
+                    __disable_irq();
+                #endif
 
                 setupNextErase(context); /* start the successive erase operation */
                 launchCommand();
@@ -608,6 +775,9 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
                 break;
 
             default:
+                #if EXISTS_POSSIBILITY_OF_CONCURRENT_READ
+                    __enable_irq();
+                #endif
                 return 1;
         }
     }
