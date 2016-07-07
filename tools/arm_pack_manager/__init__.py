@@ -164,29 +164,59 @@ class Cache () :
                                        size=device.algorithm["size"],
                                        RAMstart=device.algorithm["ramstart"],
                                        RAMsize=device.algorithm["ramsize"])
+
+
         except (KeyError, TypeError, IndexError) as e : pass
         try: to_ret["debug"] = device.debug["svd"]
         except (KeyError, TypeError, IndexError) as e : pass
-        try: to_ret["compile"] = (device.compile["header"], device.compile["define"])
+        try: to_ret["debug"] = device.parent.debug["svd"]
         except (KeyError, TypeError, IndexError) as e : pass
+        try: to_ret["debug"] = device.parent.parent.debug["svd"]
+        except (KeyError, TypeError, IndexError) as e : pass
+
+        to_ret["compile"] = {}
+        try: compile_l1 = device.parent("compile")
+        except (KeyError, TypeError, IndexError) as e : compile_l1 = []
+        try: compile_l2 = device.parent.parent("compile")
+        except (KeyError, TypeError, IndexError) as e : compile_l2 = []
+        compile = compile_l1 + compile_l2
+        for c in compile:
+            try: to_ret["compile"]["header"] = c["header"]
+            except (KeyError, TypeError, IndexError) as e : pass
+            try: to_ret["compile"]["define"] =  c["define"]
+            except (KeyError, TypeError, IndexError) as e : pass
+
         try: to_ret["core"] = device.parent.processor['dcore']
         except (KeyError, TypeError, IndexError) as e : pass
         try: to_ret["core"] = device.parent.parent.processor['dcore']
         except (KeyError, TypeError, IndexError) as e : pass
+
         to_ret["processor"] = {}
-        try: to_ret["processor"]["fpu"] = device.processor['dfpu']
-        except (KeyError, TypeError, IndexError) as e: pass
-        try: to_ret["processor"]["endianness"] = device.processor['dendian']
-        except (KeyError, TypeError, IndexError) as e: pass
-        try: to_ret["processor"]["clock"] = device.processor['dclock']
-        except (KeyError, TypeError, IndexError) as e: pass
+        try: proc_l1 = device("processor")
+        except (KeyError, TypeError, IndexError) as e: proc_l1 = []
+        try: proc_l2 = device.parent("processor")
+        except (KeyError, TypeError, IndexError) as e: proc_l2 = []
+        try: proc_l3 = device.parent.parent("processor")
+        except (KeyError, TypeError, IndexError) as e: proc_l3 = []
+        proc = proc_l1 + proc_l2 + proc_l3
+        for p in proc:
+            try: to_ret["processor"]["fpu"] = p['dfpu']
+            except (KeyError, TypeError, IndexError) as e: pass
+            try: to_ret["processor"]["endianness"] = p['dendian']
+            except (KeyError, TypeError, IndexError) as e: pass
+            try: to_ret["processor"]["clock"] = p['dclock']
+            except (KeyError, TypeError, IndexError) as e: pass
+
         try: to_ret["vendor"] = device.parent['dvendor']
         except (KeyError, TypeError, IndexError) as e: pass
         try: to_ret["vendor"] = device.parent.parent['dvendor']
         except (KeyError, TypeError, IndexError) as e: pass
 
-        if len(to_ret["processor"].keys()) == 0:
+        if not to_ret["processor"]:
             del to_ret["processor"]
+
+        if not to_ret["compile"]:
+            del to_ret["compile"]
 
         return to_ret
 
