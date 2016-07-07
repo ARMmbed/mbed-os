@@ -218,13 +218,25 @@ extern volatile uint32_t *const kFCCOBx;
 #endif
 
 /**
- * @brief RAM resident memcpy.
+ * @brief RAM resident memcpy. This is needed to avoid read-while-write collision errors.
  *
  * If we require all functions involved in the erase and programming of flash to
  * be memory-resident (see the explanations around __RAMFUNC above), then we
  * need to provide our own version of memcpy().
  *
- * @Note 'n' should be a multiple of sizeof(uint32_t).
+ * @param _dest
+ *            The destination memory. Needs to be aligned to a uint32_t boundary.
+ * @param _src
+ *            The source memory. Needs to be aligned to a uint32_t boundary.
+ * @param n
+ *            The number of bytes to copy. Needs to be a multiple of sizeof(uint32_t).
+ *
+ * @Note For the sake of achieving a faster implementation than byte-wise copy,
+ *       we've chosen to iterate in units of uint32_t, so this destination
+ *       address  must be aligned to a 32-bit boundary, and 'n' should be a
+ *       multiple of sizeof(uint32_t). This is not a problem for this driver
+ *       because address and sizes will all be aligned at least to a
+ *       PROGRAM_PHRASE_SIZEOF_INLINE_DATA.
  */
 __RAMFUNC
 static void MEMCPY(void *_dest, const void *_src, size_t n)
