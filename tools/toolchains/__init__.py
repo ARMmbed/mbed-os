@@ -233,28 +233,28 @@ class mbedToolchain:
     def __init__(self, target, options=None, notify=None, macros=None, silent=False, extra_verbose=False):
         self.target = target
         self.name = self.__class__.__name__
-        
+
         # compile/assemble/link/binary hooks
         self.hook = hooks.Hook(target, self)
 
         # Toolchain flags
         self.flags = deepcopy(self.DEFAULT_FLAGS)
-        
+
         # User-defined macros
         self.macros = macros or []
-        
+
         # Macros generated from toolchain and target rules/features
         self.symbols = None
-        
+
         # Labels generated from toolchain and target rules/features (used for selective build)
         self.labels = None
-        
+
         # This will hold the configuration data (as returned by Config.get_config_data())
         self.config_data = None
 
         # Non-incremental compile
         self.build_all = False
-        
+
         # Build output dir
         self.build_dir = None
         self.timestamp = time()
@@ -265,7 +265,7 @@ class mbedToolchain:
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
         self.jobs = 0
 
-        self.CHROOT = None            
+        self.CHROOT = None
 
         # Ignore patterns from .mbedignore files
         self.ignore_patterns = []
@@ -280,12 +280,13 @@ class mbedToolchain:
             self.notify_fun = self.print_notify_verbose
         else:
             self.notify_fun = self.print_notify
-        
+
         # Silent builds (no output)
         self.silent = silent
-        
+
         # Print output buffer
-        self.output = ""
+        self.output = str()
+        self.map_outputs = list()   # Place to store memmap scan results in JSON like data structures
 
         # Build options passed by -o flag
         self.options = options if options is not None else []
@@ -295,7 +296,7 @@ class mbedToolchain:
 
         if self.options:
             self.info("Build Options: %s" % (', '.join(self.options)))
-        
+
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
@@ -310,10 +311,10 @@ class mbedToolchain:
 
         if not self.VERBOSE and event['type'] == 'tool_error':
             msg = event['message']
-        
+
         elif event['type'] in ['info', 'debug']:
             msg = event['message']
-            
+
         elif event['type'] == 'cc':
             event['severity'] = event['severity'].title()
             event['file'] = basename(event['file'])
@@ -615,7 +616,7 @@ class mbedToolchain:
 
     def relative_object_path(self, build_path, base_dir, source):
         source_dir, name, _ = split_path(source)
-        
+
         obj_dir = join(build_path, relpath(source_dir, base_dir))
         mkdir(obj_dir)
         return join(obj_dir, name + '.o')
@@ -627,7 +628,7 @@ class mbedToolchain:
                 cmd_list = []
                 for c in includes:
                     if c:
-                        cmd_list.append(('-I%s' % c).replace("\\", "/"))                    
+                        cmd_list.append(('-I%s' % c).replace("\\", "/"))
                 string = " ".join(cmd_list)
                 f.write(string)
         return include_file
@@ -822,12 +823,12 @@ class mbedToolchain:
             if self.target.OUTPUT_NAMING == "8.3":
                 name = name[0:8]
                 ext = ext[0:3]
-        
+
         # Create destination directory
         head, tail =  split(name)
         new_path = join(tmp_path, head)
         mkdir(new_path)
-        
+
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
         bin = join(tmp_path, filename)
@@ -844,7 +845,7 @@ class mbedToolchain:
 
             self.binary(r, elf, bin)
 
-        self.mem_stats(map)
+        self.map_outputs = self.mem_stats(map)
 
         self.var("compile_succeded", True)
         self.var("binary", filename)
@@ -900,7 +901,11 @@ class mbedToolchain:
         self.notify({'type': 'var', 'key': key, 'val': value})
 
     def mem_stats(self, map):
-        # Creates parser object
+        """! Creates parser object
+        @param map Path to linker map file to parse and decode
+        @return Memory summary structure with memory usage statistics
+                None if map file can't be opened and processed
+        """
         toolchain = self.__class__.__name__
 
         # Create memap object
@@ -909,7 +914,7 @@ class mbedToolchain:
         # Parse and decode a map file
         if memap.parse(abspath(map), toolchain) is False:
             self.info("Unknown toolchain for memory statistics %s" % toolchain)
-            return
+            return None
 
         # Write output to stdout in text (pretty table) format
         memap.generate_output('table')
@@ -917,10 +922,15 @@ class mbedToolchain:
         # Write output to file in JSON format
         map_out = splitext(map)[0] + "_map.json"
         memap.generate_output('json', map_out)
- 
+
         # Write output to file in CSV format for the CI
         map_csv = splitext(map)[0] + "_map.csv"
         memap.generate_output('csv-ci', map_csv)
+
+        # Here we return memory statistics structure (constructed after
+        # call to generate_output) which contains raw data in bytes
+        # about sections + summary
+        return memap.get_memory_summary()
 
     # Set the configuration data
     def set_config_data(self, config_data):

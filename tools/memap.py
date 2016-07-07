@@ -26,9 +26,9 @@ class MemapParser(object):
 
         self.misc_flash_sections = ('.interrupts', '.flash_config')
 
-        self.other_sections = ('.interrupts_ram', '.init', '.ARM.extab', \
-                               '.ARM.exidx', '.ARM.attributes', '.eh_frame', \
-                               '.init_array', '.fini_array', '.jcr', '.stab', \
+        self.other_sections = ('.interrupts_ram', '.init', '.ARM.extab',
+                               '.ARM.exidx', '.ARM.attributes', '.eh_frame',
+                               '.init_array', '.fini_array', '.jcr', '.stab',
                                '.stabstr', '.ARM.exidx', '.ARM')
 
         # sections to print info (generic for all toolchains)
@@ -42,6 +42,9 @@ class MemapParser(object):
 
         # list of all object files and mappting to module names
         self.object_to_module = dict()
+
+        # Memory usage summary structure
+        self.mem_summary = dict()
 
     def module_add(self, module_name, size, section):
         """
@@ -67,7 +70,7 @@ class MemapParser(object):
                 return i  # should name of the section (assuming it's a known one)
 
         if line.startswith('.'):
-            return 'unknown'     # all others are clasified are unknown
+            return 'unknown'     # all others are classified are unknown
         else:
             return False         # everything else, means no change in section
 
@@ -363,11 +366,12 @@ class MemapParser(object):
 
         # Create table
         columns = ['Module']
-        for i in list(self.print_sections):
-            columns.append(i)
+        columns.extend(self.print_sections)
 
         table = PrettyTable(columns)
         table.align["Module"] = "l"
+        for col in self.print_sections:
+            table.align[col] = 'r'
 
         for i in list(self.print_sections):
             table.align[i] = 'r'
@@ -388,8 +392,12 @@ class MemapParser(object):
             for k in self.print_sections:
                 row.append(self.modules[i][k])
 
-            json_obj.append({"module":i, "size":{\
-                k:self.modules[i][k] for k in self.print_sections}})
+            json_obj.append({
+                "module":i,
+                "size":{
+                    k:self.modules[i][k] for k in self.print_sections
+                }
+            })
 
             table.add_row(row)
 
@@ -399,16 +407,19 @@ class MemapParser(object):
 
         table.add_row(subtotal_row)
 
-        if export_format == 'json':
-            json_obj.append({\
-                  'summary':{\
-                  'total_static_ram':(subtotal['.data']+subtotal['.bss']),\
-                  'allocated_heap':(subtotal['.heap']),\
-                  'allocated_stack':(subtotal['.stack']),\
-                  'total_ram':(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']),\
-                  'total_flash':(subtotal['.text']+subtotal['.data']+misc_flash_mem),}})
+        summary = {
+            'summary':{
+                'static_ram':(subtotal['.data']+subtotal['.bss']),
+                'heap':(subtotal['.heap']),
+                'stack':(subtotal['.stack']),
+                'total_ram':(subtotal['.data']+subtotal['.bss']+subtotal['.heap']+subtotal['.stack']),
+                'total_flash':(subtotal['.text']+subtotal['.data']+misc_flash_mem),
+            }
+        }
 
-            file_desc.write(json.dumps(json_obj, indent=4))
+        if export_format == 'json':
+            json_to_file = json_obj + [summary]
+            file_desc.write(json.dumps(json_to_file, indent=4))
             file_desc.write('\n')
 
         elif export_format == 'csv-ci': # CSV format for the CI system
@@ -467,33 +478,38 @@ class MemapParser(object):
         if file_desc is not sys.stdout:
             file_desc.close()
 
+        self.mem_summary = json_obj + [summary]
+
         return True
+
+    def get_memory_summary(self):
+        """! Object is available only after self.generate_output('json') is called
+        @return Return memory summary object
+        """
+        return self.mem_summary
 
     def parse(self, mapfile, toolchain):
         """
         Parse and decode map file depending on the toolchain
         """
 
+        result = True
         try:
-            file_input = open(mapfile, 'rt')
+            with open(mapfile, 'rt') as file_input:
+                if toolchain == "ARM" or toolchain == "ARM_STD" or toolchain == "ARM_MICRO":
+                    self.search_objects(os.path.abspath(mapfile), "ARM")
+                    self.parse_map_file_armcc(file_input)
+                elif toolchain == "GCC_ARM":
+                    self.parse_map_file_gcc(file_input)
+                elif toolchain == "IAR":
+                    self.search_objects(os.path.abspath(mapfile), toolchain)
+                    self.parse_map_file_iar(file_input)
+                else:
+                    result = False
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
-            return False
-
-        if toolchain == "ARM" or toolchain == "ARM_STD" or toolchain == "ARM_MICRO":
-            self.search_objects(os.path.abspath(mapfile), "ARM")
-            self.parse_map_file_armcc(file_input)
-        elif toolchain == "GCC_ARM":
-            self.parse_map_file_gcc(file_input)
-        elif toolchain == "IAR":
-            self.search_objects(os.path.abspath(mapfile), toolchain)
-            self.parse_map_file_iar(file_input)
-        else:
-            return False
-
-        file_input.close()
-
-        return True
+            result = False
+        return result
 
 def main():
 
