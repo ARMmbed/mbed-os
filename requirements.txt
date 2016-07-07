@@ -7,5 +7,6 @@ project-generator>=0.9.3,<0.10.0
 junit-xml
 pyYAML
 requests
-mbed-ls
-mbed-greentea
+mbed-ls>=0.2.13
+mbed-host-tests>=0.2.18
+mbed-greentea>=0.2.24
