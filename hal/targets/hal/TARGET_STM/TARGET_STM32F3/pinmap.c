@@ -71,16 +71,50 @@ uint32_t Set_GPIO_Clock(uint32_t port_idx)
             gpio_add = GPIOD_BASE;
             __GPIOD_CLK_ENABLE();
             break;
-#if defined(GPIOE_BASE)
+#if defined GPIOE_BASE
         case PortE:
             gpio_add = GPIOE_BASE;
             __GPIOE_CLK_ENABLE();
             break;
 #endif
+#if defined GPIOF_BASE
         case PortF:
             gpio_add = GPIOF_BASE;
             __GPIOF_CLK_ENABLE();
             break;
+#endif
+#if defined GPIOG_BASE
+        case PortG:
+            gpio_add = GPIOG_BASE;
+            __GPIOG_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOH_BASE
+        case PortH:
+            gpio_add = GPIOH_BASE;
+            __GPIOH_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOI_BASE
+        case PortI:
+            gpio_add = GPIOI_BASE;
+            __GPIOI_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOJ_BASE
+        case PortJ:
+            gpio_add = GPIOJ_BASE;
+            __GPIOJ_CLK_ENABLE();
+            break;
+#endif
+#if defined GPIOK_BASE
+        case PortK:
+            gpio_add = GPIOK_BASE;
+            __GPIOK_CLK_ENABLE();
+            break;
+#endif
+
+
         default:
             error("Pinmap error: wrong port number.");
             break;
