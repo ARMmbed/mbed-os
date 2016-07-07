@@ -204,6 +204,13 @@ static const ARM_DRIVER_VERSION version = {
     .drv = ARM_DRIVER_VERSION_MAJOR_MINOR(1,00)
 };
 
+
+#if (!defined(CONFIG_HARDWARE_MTD_ASYNC_OPS) || CONFIG_HARDWARE_MTD_ASYNC_OPS)
+#define ASYNC_OPS 1
+#else
+#define ASYNC_OPS 0
+#endif
+
 static const ARM_STORAGE_CAPABILITIES caps = {
     /**< Signal Flash Ready event. In other words, can APIs like initialize,
      *   read, erase, program, etc. operate in asynchronous mode?
@@ -214,11 +221,7 @@ static const ARM_STORAGE_CAPABILITIES caps = {
      *   1, drivers may still complete asynchronous operations synchronously as
      *   necessary--in which case they return a positive error code to indicate
      *   synchronous completion. */
-#ifndef CONFIG_HARDWARE_MTD_ASYNC_OPS
-    .asynchronous_ops = 1,
-#else
-    .asynchronous_ops = CONFIG_HARDWARE_MTD_ASYNC_OPS,
-#endif
+    .asynchronous_ops = ASYNC_OPS,
 
     /* Enable chip-erase functionality if we own all of block-1. */
     #if ((!defined (CONFIG_HARDWARE_MTD_START_ADDR) || (CONFIG_HARDWARE_MTD_START_ADDR == BLOCK1_START_ADDR)) && \
@@ -270,7 +273,6 @@ enum FlashCommandOps {
     PGMSEC = (uint8_t)0x0B, /* program section */
     SETRAM = (uint8_t)0x81, /* Set FlexRAM. (unused for now) */
 };
-
 
 /**
  * Read out the CCIF (Command Complete Interrupt Flag) to ensure all previous
@@ -392,11 +394,6 @@ static inline bool commandCompletionInterruptEnabled(void)
 #else
     return (BR_FTFE_FCNFG_CCIE((uintptr_t)FTFE) != 0);
 #endif
-}
-
-static inline bool asyncOperationsEnabled(void)
-{
-    return caps.asynchronous_ops;
 }
 
 /**
@@ -556,66 +553,68 @@ static int32_t executeCommand(struct mtd_k64f_data *context)
      * parameter checks and protection checks, if applicable, which are unique
      * to each command. */
 
-    if (asyncOperationsEnabled()) {
-        /* Asynchronous operation */
+#if ASYNC_OPS
+    /* Asynchronous operation */
 
-        /* Spin waiting for the command execution to begin. */
-        while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
+    (void)context; /* avoid compiler warning about un-used variables */
+
+    /* Spin waiting for the command execution to begin. */
+    while (!controllerCurrentlyBusy() && !failedWithAccessError() && !failedWithProtectionError());
+    if (failedWithAccessError() || failedWithProtectionError()) {
+        clearErrorStatusBits();
+        return ARM_DRIVER_ERROR_PARAMETER;
+    }
+
+    enableCommandCompletionInterrupt();
+
+    return ARM_DRIVER_OK; /* signal asynchronous completion. An interrupt will signal completion later. */
+#else /* #if ASYNC_OPS */
+    /* Synchronous operation. */
+
+    while (1) {
+        /* Spin waiting for the command execution to complete.  */
+        while (controllerCurrentlyBusy());
+
+        /* Execution may result in failure. Check for errors */
         if (failedWithAccessError() || failedWithProtectionError()) {
             clearErrorStatusBits();
             return ARM_DRIVER_ERROR_PARAMETER;
         }
+        if (failedWithRunTimeError()) {
+            return ARM_DRIVER_ERROR; /* unspecified runtime error. */
+        }
 
-        enableCommandCompletionInterrupt();
+        /* signal synchronous completion. */
+        switch (context->currentCommand) {
+            case ARM_STORAGE_OPERATION_PROGRAM_DATA:
+                if (context->amountLeftToOperate == 0) {
+                    return context->sizeofCurrentOperation;
+                }
 
-        return ARM_DRIVER_OK; /* signal asynchronous completion. An interrupt will signal completion later. */
-    } else {
-        /* Synchronous operation. */
+                /* start the successive program operation */
+                setupNextProgramData(context);
+                launchCommand();
+                /* continue on to the next iteration of the parent loop */
+                break;
 
-        while (1) {
+            case ARM_STORAGE_OPERATION_ERASE:
+                if (context->amountLeftToOperate == 0) {
+                    return context->sizeofCurrentOperation;
+                }
 
-            /* Spin waiting for the command execution to complete.  */
-            while (controllerCurrentlyBusy());
+                setupNextErase(context); /* start the successive erase operation */
+                launchCommand();
+                /* continue on to the next iteration of the parent loop */
+                break;
 
-            /* Execution may result in failure. Check for errors */
-            if (failedWithAccessError() || failedWithProtectionError()) {
-                clearErrorStatusBits();
-                return ARM_DRIVER_ERROR_PARAMETER;
-            }
-            if (failedWithRunTimeError()) {
-                return ARM_DRIVER_ERROR; /* unspecified runtime error. */
-            }
-
-            /* signal synchronous completion. */
-            switch (context->currentCommand) {
-                case ARM_STORAGE_OPERATION_PROGRAM_DATA:
-                    if (context->amountLeftToOperate == 0) {
-                        return context->sizeofCurrentOperation;
-                    }
-
-                    /* start the successive program operation */
-                    setupNextProgramData(context);
-                    launchCommand();
-                    /* continue on to the next iteration of the parent loop */
-                    break;
-
-                case ARM_STORAGE_OPERATION_ERASE:
-                    if (context->amountLeftToOperate == 0) {
-                        return context->sizeofCurrentOperation;
-                    }
-
-                    setupNextErase(context); /* start the successive erase operation */
-                    launchCommand();
-                    /* continue on to the next iteration of the parent loop */
-                    break;
-
-                default:
-                    return 1;
-            }
+            default:
+                return 1;
         }
     }
+#endif /* #ifdef ASYNC_OPS */
 }
 
+#if ASYNC_OPS
 static void ftfe_ccie_irq_handler(void)
 {
     disbleCommandCompletionInterrupt();
@@ -691,6 +690,7 @@ static void ftfe_ccie_irq_handler(void)
             break;
     }
 }
+#endif /* #if ASYNC_OPS */
 
 /**
  * This is a helper function which can be used to do arbitrary sanity checking
@@ -772,11 +772,11 @@ static int32_t initialize(ARM_Storage_Callback_t callback)
     context->commandCompletionCallback = callback;
 
     /* Enable the command-completion interrupt. */
-    if (asyncOperationsEnabled()) {
-        NVIC_SetVector(FTFE_IRQn, (uint32_t)ftfe_ccie_irq_handler);
-        NVIC_ClearPendingIRQ(FTFE_IRQn);
-        NVIC_EnableIRQ(FTFE_IRQn);
-    }
+#if ASYNC_OPS
+    NVIC_SetVector(FTFE_IRQn, (uint32_t)ftfe_ccie_irq_handler);
+    NVIC_ClearPendingIRQ(FTFE_IRQn);
+    NVIC_EnableIRQ(FTFE_IRQn);
+#endif
 
     context->initialized = true;
 
@@ -792,11 +792,13 @@ static int32_t uninitialize(void) {
     }
 
     /* Disable the command-completion interrupt. */
-    if (asyncOperationsEnabled() && commandCompletionInterruptEnabled()) {
+#if ASYNC_OPS
+    if (commandCompletionInterruptEnabled()) {
         disbleCommandCompletionInterrupt();
         NVIC_DisableIRQ(FTFE_IRQn);
         NVIC_ClearPendingIRQ(FTFE_IRQn);
     }
+#endif
 
     context->commandCompletionCallback = NULL;
     context->initialized               = false;
