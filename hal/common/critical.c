@@ -270,7 +270,7 @@ uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
 }
 
 void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta) {
-    return core_util_atomic_incr((uintptr_t)valuePtr, (uintptr_t)delta);
+    return core_util_atomic_incr_u32((uintptr_t)valuePtr, (uintptr_t)delta);
 }
 
 
@@ -305,8 +305,9 @@ uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
 }
 
 void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta) {
-    return core_util_atomic_decr((uintptr_t)valuePtr, (uintptr_t)delta);
+    return core_util_atomic_decr_u32((uintptr_t)valuePtr, (uintptr_t)delta);
 }
+
 
 #endif
 
