@@ -1,5 +1,5 @@
 from os import walk
-from os.path import join, abspath, dirname, basename
+from os.path import join, abspath, dirname, basename, splitext
 import sys
 
 ROOT = abspath(join(dirname(__file__), "..", ".."))
@@ -26,6 +26,12 @@ if __name__ == "__main__":
         for file in r.c_sources + r.s_sources + r.cpp_sources + r.objects + r.libraries + r.hex_files + r.bin_files:
             scanned_files.setdefault(basename(file), [])
             scanned_files[basename(file)].append(file)
+            filenameparts = splitext(file)
+            if filenameparts[-1] in ["c", "cpp", "s", "S"]:
+                filenameparts[-1] = "o"
+                file = ".".join(filenamparts)
+                scanned_files.setdefault(basename(file), [])
+                scanned_files[basename(file)].append(file)
 
     count_dupe = 0
     for key, value in scanned_files.iteritems():
