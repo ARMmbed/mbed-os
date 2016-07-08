@@ -17,6 +17,7 @@ limitations under the License.
 import sys
 import inspect
 import os
+from time import sleep
 from os import listdir, remove, makedirs
 from shutil import copyfile
 from os.path import isdir, join, exists, split, relpath, splitext
@@ -33,10 +34,18 @@ def cmd(l, check=True, verbose=False, shell=False, cwd=None):
         raise Exception('ERROR %d: "%s"' % (rc, text))
 
 
-def run_cmd(command, wd=None, redirect=False):
+def run_cmd(command, wd=None, redirect=False, timeout=15):
     assert is_cmd_valid(command[0])
     try:
         p = Popen(command, stdout=PIPE, stderr=STDOUT if redirect else PIPE, cwd=wd)
+        if timeout:
+            wait = 0.0
+            while p.poll() is None:
+                wait += 0.01
+                if wait > timeout:
+                    p.kill()
+                    raise OSError(1, "Subprocess timed out after %0.2f seconds" % timeout)
+                sleep(0.01)
         _stdout, _stderr = p.communicate()
     except OSError as e:
         print "[OS ERROR] Command: "+(' '.join(command))
