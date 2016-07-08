@@ -35,6 +35,7 @@ from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import static_analysis_scan, static_analysis_scan_lib, static_analysis_scan_library
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
+from utils import argparse_filestring_type
 
 if __name__ == '__main__':
     start = time()
@@ -42,115 +43,115 @@ if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser()
 
-    parser.add_option("--source", dest="source_dir",
-                      default=None, help="The source (input) directory", action="append")
+    parser.add_argument("--source", dest="source_dir", type=argparse_filestring_type,
+                        default=None, help="The source (input) directory", action="append")
 
-    parser.add_option("--build", dest="build_dir",
+    parser.add_argument("--build", dest="build_dir",
                       default=None, help="The build (output) directory")
 
-    parser.add_option("--no-archive", dest="no_archive", action="store_true",
+    parser.add_argument("--no-archive", dest="no_archive", action="store_true",
                       default=False, help="Do not produce archive (.ar) file, but rather .o")
 
     # Extra libraries
-    parser.add_option("-r", "--rtos",
+    parser.add_argument("-r", "--rtos",
                       action="store_true",
                       dest="rtos",
                       default=False,
                       help="Compile the rtos")
 
-    parser.add_option("--rpc",
+    parser.add_argument("--rpc",
                       action="store_true",
                       dest="rpc",
                       default=False,
                       help="Compile the rpc library")
 
-    parser.add_option("-e", "--eth",
+    parser.add_argument("-e", "--eth",
                       action="store_true", dest="eth",
                       default=False,
                       help="Compile the ethernet library")
 
-    parser.add_option("-U", "--usb_host",
+    parser.add_argument("-U", "--usb_host",
                       action="store_true",
                       dest="usb_host",
                       default=False,
                       help="Compile the USB Host library")
 
-    parser.add_option("-u", "--usb",
+    parser.add_argument("-u", "--usb",
                       action="store_true",
                       dest="usb",
                       default=False,
                       help="Compile the USB Device library")
 
-    parser.add_option("-d", "--dsp",
+    parser.add_argument("-d", "--dsp",
                       action="store_true",
                       dest="dsp",
                       default=False,
                       help="Compile the DSP library")
 
-    parser.add_option("-F", "--fat",
+    parser.add_argument("-F", "--fat",
                       action="store_true",
                       dest="fat",
                       default=False,
                       help="Compile FS and SD card file system library")
 
-    parser.add_option("-b", "--ublox",
+    parser.add_argument("-b", "--ublox",
                       action="store_true",
                       dest="ublox",
                       default=False,
                       help="Compile the u-blox library")
 
-    parser.add_option("", "--cpputest",
+    parser.add_argument( "--cpputest",
                       action="store_true",
                       dest="cpputest_lib",
                       default=False,
                       help="Compiles 'cpputest' unit test library (library should be on the same directory level as mbed repository)")
 
-    parser.add_option("-D", "",
+    parser.add_argument("-D",
                       action="append",
                       dest="macros",
                       help="Add a macro definition")
 
-    parser.add_option("-S", "--supported-toolchains",
+    parser.add_argument("-S", "--supported-toolchains",
                       action="store_true",
                       dest="supported_toolchains",
                       default=False,
                       help="Displays supported matrix of MCUs and toolchains")
 
-    parser.add_option('-f', '--filter',
+    parser.add_argument('-f', '--filter',
                       dest='general_filter_regex',
                       default=None,
                       help='For some commands you can use filter to filter out results')
 
-    parser.add_option("", "--cppcheck",
+    parser.add_argument("--cppcheck",
                       action="store_true",
                       dest="cppcheck_validation",
                       default=False,
                       help="Forces 'cppcheck' static code analysis")
 
-    parser.add_option("-j", "--jobs", type="int", dest="jobs",
+    parser.add_argument("-j", "--jobs", type=int, dest="jobs",
                       default=0, help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
-    parser.add_option("-N", "--artifact-name", dest="artifact_name",
+    parser.add_argument("-N", "--artifact-name", dest="artifact_name",
                       default=None, help="The built project's name")
 
-    parser.add_option("-v", "--verbose",
+    parser.add_argument("-v", "--verbose",
                       action="store_true",
                       dest="verbose",
                       default=False,
                       help="Verbose diagnostic output")
 
-    parser.add_option("--silent",
+    parser.add_argument("--silent",
                       action="store_true",
                       dest="silent",
                       default=False,
                       help="Silent diagnostic output (no copy, compile notification)")
 
-    parser.add_option("-x", "--extra-verbose-notifications",
+    parser.add_argument("-x", "--extra-verbose-notifications",
                       action="store_true",
                       dest="extra_verbose_notify",
                       default=False,
                       help="Makes compiler more verbose, CI friendly.")
 
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
@@ -158,26 +159,10 @@ if __name__ == '__main__':
         exit(0)
 
     # Get target list
-    if options.mcu:
-        mcu_list = (options.mcu).split(",")
-        for mcu in mcu_list:
-            if mcu not in TARGET_NAMES:
-                print "Given MCU '%s' not into the supported list:\n%s" % (mcu, TARGET_NAMES)
-                sys.exit(1)
-        targets = mcu_list
-    else:
-        targets = TARGET_NAMES
+    targets = options.mcu if options.mcu else TARGET_NAMES
 
     # Get toolchains list
-    if options.tool:
-        toolchain_list = (options.tool).split(",")
-        for tc in toolchain_list:
-            if tc not in TOOLCHAINS:
-                print "Given toolchain '%s' not into the supported list:\n%s" % (tc, TOOLCHAINS)
-                sys.exit(1)
-        toolchains = toolchain_list
-    else:
-        toolchains = TOOLCHAINS
+    toolchains = options.tool if options.tool else TOOLCHAINS
 
     # Get libraries list
     libraries = []

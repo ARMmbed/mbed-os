@@ -4,7 +4,7 @@ ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from shutil import move, rmtree
-from optparse import OptionParser
+from argparse import ArgumentParser
 from os import path
 
 from tools.paths import EXPORT_DIR, EXPORT_WORKSPACE, EXPORT_TMP
@@ -12,84 +12,90 @@ from tools.paths import MBED_BASE, MBED_LIBRARIES
 from tools.export import export, setup_user_prj, EXPORTERS, mcu_ide_matrix
 from tools.utils import args_error, mkdir
 from tools.tests import TESTS, Test, TEST_MAP
+from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_NAMES
 from tools.libraries import LIBRARIES
+from utils import argparse_lowercase_type, argparse_uppercase_type, argparse_filestring_type, argparse_many
+from utils import argparse_force_lowercase_type, argparse_force_uppercase_type
 
-try:
-    import tools.private_settings as ps
-except:
-    ps = object()
 
 
 if __name__ == '__main__':
     # Parse Options
-    parser = OptionParser()
+    parser = ArgumentParser()
 
     targetnames = TARGET_NAMES
     targetnames.sort()
     toolchainlist = EXPORTERS.keys()
     toolchainlist.sort()
 
-    parser.add_option("-m", "--mcu",
+    parser.add_argument("-m", "--mcu",
                       metavar="MCU",
                       default='LPC1768',
+                      required=True,
+                      type=argparse_many(argparse_force_uppercase_type(targetnames, "MCU")),
                       help="generate project for the given MCU (%s)"% ', '.join(targetnames))
 
-    parser.add_option("-i",
+    parser.add_argument("-i",
                       dest="ide",
                       default='uvision',
+                      required=True,
+                      type=argparse_force_lowercase_type(toolchainlist, "toolchain"),
                       help="The target IDE: %s"% str(toolchainlist))
 
-    parser.add_option("-c", "--clean",
+    parser.add_argument("-c", "--clean",
                       action="store_true",
                       default=False,
                       help="clean the export directory")
 
-    parser.add_option("-p",
-                      type="int",
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument("-p",
+                      type=test_known,
                       dest="program",
                       help="The index of the desired test program: [0-%d]"% (len(TESTS)-1))
 
-    parser.add_option("-n",
-                      dest="program_name",
+    group.add_argument("-n",
+                      type=test_name_known,
+                      dest="program",
                       help="The name of the desired test program")
 
-    parser.add_option("-b",
+    parser.add_argument("-b",
                       dest="build",
                       action="store_true",
                       default=False,
                       help="use the mbed library build, instead of the sources")
 
-    parser.add_option("-L", "--list-tests",
+    group.add_argument("-L", "--list-tests",
                       action="store_true",
                       dest="list_tests",
                       default=False,
                       help="list available programs in order and exit")
 
-    parser.add_option("-S", "--list-matrix",
+    group.add_argument("-S", "--list-matrix",
                       action="store_true",
                       dest="supported_ides",
                       default=False,
                       help="displays supported matrix of MCUs and IDEs")
 
-    parser.add_option("-E",
+    parser.add_argument("-E",
                       action="store_true",
                       dest="supported_ides_html",
                       default=False,
                       help="writes tools/export/README.md")
 
-    parser.add_option("--source",
+    parser.add_argument("--source",
                       action="append",
+                      type=argparse_filestring_type,
                       dest="source_dir",
-                      default=None,
+                      default=[],
                       help="The source (input) directory")
 
-    parser.add_option("-D", "",
+    parser.add_argument("-D",
                       action="append",
                       dest="macros",
                       help="Add a macro definition")
 
-    (options, args) = parser.parse_args()
+    options = parser.parse_args()
 
     # Print available tests in order and exit
     if options.list_tests is True:
@@ -122,16 +128,6 @@ if __name__ == '__main__':
         if exists(EXPORT_DIR):
             rmtree(EXPORT_DIR)
 
-    # Target
-    if options.mcu is None :
-        args_error(parser, "[ERROR] You should specify an MCU")
-    mcus = options.mcu
-
-    # IDE
-    if options.ide is None:
-        args_error(parser, "[ERROR] You should specify an IDE")
-    ide = options.ide
-
     # Export results
     successes = []
     failures = []
@@ -141,14 +137,14 @@ if __name__ == '__main__':
     # source_dir = use relative paths, otherwise sources are copied
     sources_relative = True if options.source_dir else False
 
-    for mcu in mcus.split(','):
+    for mcu in options.mcu:
         # Program Number or name
-        p, n, src, ide = options.program, options.program_name, options.source_dir, options.ide
+        p, src, ide = options.program, options.source_dir, options.ide
 
-        if src is not None:
+        if src:
             # --source is used to generate IDE files to toolchain directly in the source tree and doesn't generate zip file
             project_dir = options.source_dir
-            project_name = n if n else "Unnamed_Project"
+            project_name = TESTS[p] if p else "Unnamed_project"
             project_temp = path.join(options.source_dir[0], 'projectfiles', '%s_%s' % (ide, mcu))
             mkdir(project_temp)
             lib_symbols = []
@@ -157,31 +153,6 @@ if __name__ == '__main__':
             zip = False   # don't create zip
             clean = False # don't cleanup because we use the actual source tree to generate IDE files
         else:
-            if n is not None and p is not None:
-                args_error(parser, "[ERROR] specify either '-n' or '-p', not both")
-            if n:
-                if not n in TEST_MAP.keys():
-                    # Check if there is an alias for this in private_settings.py
-                    if getattr(ps, "test_alias", None) is not None:
-                        alias = ps.test_alias.get(n, "")
-                        if not alias in TEST_MAP.keys():
-                            args_error(parser, "[ERROR] Program with name '%s' not found" % n)
-                        else:
-                            n = alias
-                    else:
-                        args_error(parser, "[ERROR] Program with name '%s' not found" % n)
-                p = TEST_MAP[n].n
-                
-            if p is None or (p < 0) or (p > (len(TESTS)-1)):
-                message = "[ERROR] You have to specify one of the following tests:\n"
-                message += '\n'.join(map(str, sorted(TEST_MAP.values())))
-                args_error(parser, message)
-
-            # Project
-            if p is None or (p < 0) or (p > (len(TESTS)-1)):
-                message = "[ERROR] You have to specify one of the following tests:\n"
-                message += '\n'.join(map(str, sorted(TEST_MAP.values())))
-                args_error(parser, message)
             test = Test(p)
 
             # Some libraries have extra macros (called by exporter symbols) to we need to pass
