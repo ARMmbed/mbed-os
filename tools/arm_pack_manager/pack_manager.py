@@ -116,20 +116,31 @@ def command_cache (cache, matches, everything=False, descriptors=False, batch=Fa
             dict(name='matches', nargs="+", help="words to match to processors"),
             dict(name=['-l',"--long"], action="store_true",
                  help="print out part details with part"),
+            dict(name=['-p', '--parts-only'], action="store_false", dest="print_aliases"),
+            dict(name=['-a', '--aliases-only'], action="store_false", dest="print_parts"),
             help="Find a Part and it's description within the cache")
-def command_find_part (cache, matches, long=False, intersection=True) :
+def command_find_part (cache, matches, long=False, intersection=True,
+                       print_aliases=True, print_parts=True) :
     if long :
         import pprint
         pp = pprint.PrettyPrinter()
     parts = cache.index
     if intersection :
         choices = fuzzy_find(matches, parts.keys())
+        aliases = fuzzy_find(matches, cache.aliases.keys())
     else :
         choices = sum([fuzzy_find([m], parts.keys()) for m in matches], [])
-    for part in choices :
-        print part
-        if long :
-            pp.pprint(cache.index[part])
+        aliases = sum([fuzzy_find([m], cache.aliases.keys()) for m in matches], [])
+    if print_parts:
+        for part in choices :
+            print part
+            if long :
+                pp.pprint(cache.index[part])
+    if print_aliases:
+        for alias in aliases :
+            print alias
+            if long :
+                pp.pprint(cache.index[cache.aliases[alias]])
 
 @subcommand('dump-parts',
             dict(name='out', help='directory to dump to'),
@@ -163,10 +174,13 @@ def command_cache_part (cache, matches, intersection=True) :
     index = cache.index
     if intersection :
         choices = fuzzy_find(matches, index.keys())
+        aliases = fuzzy_find(matches, cache.aliases.keys())
     else :
         choices = sum([fuzzy_find([m], index.keys()) for m in matches], [])
-    urls = list(set([index[c]['pdsc_file'] for c in choices]))
-    cache.cache_pack_list(urls)
+        aliases = sum([fuzzy_find([m], cache.aliases.keys()) for m in matches], [])
+    urls = set([index[c]['pdsc_file'] for c in choices])
+    urls += set([index[cache.aliasse[a]] for a in aliases])
+    cache.cache_pack_list(list(urls))
 
 def get_argparse() :
     return parser

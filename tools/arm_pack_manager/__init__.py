@@ -75,6 +75,7 @@ class Cache () :
         self.counter = 0
         self.total = 1
         self._index = {}
+        self._aliases = {}
         self.urls = None
         self.no_timeouts = no_timeouts
 
@@ -231,6 +232,21 @@ class Cache () :
         self.counter += 1
         self.display_counter("Generating Index")
 
+    def _generate_aliases_helper(self, d) :
+        try :
+            mydict = []
+            for dev in self.pdsc_from_cache(d)("board"):
+                try :
+                    mydict.append((dev['name'], dev.mounteddevice['dname']))
+                except (KeyError, TypeError, IndexError) as e:
+                    pass
+            print mydict
+            self._aliases.update(dict(mydict))
+        except (AttributeError, TypeError) as e :
+            pass
+        self.counter += 1
+        self.display_counter("Scanning for Aliases")
+
     def get_flash_algorthim_binary(self, device_name) :
         """Retrieve the flash algorithm file for a particular part.
 
@@ -263,6 +279,14 @@ class Cache () :
         do_queue(Reader, self._generate_index_helper, self.get_urls())
         with open(join(save_data_path('arm-pack-manager'), "index.json"), "wb+") as out:
             dump(self._index, out)
+        stdout.write("\n")
+
+    def generate_aliases(self) :
+        self._aliases = {}
+        self.counter = 0
+        do_queue(Reader, self._generate_aliases_helper, self.get_urls())
+        with open(join(save_data_path('arm-pack-manager'), "aliases.json"), "wb+") as out:
+            dump(self._aliases, out)
         stdout.write("\n")
 
     def find_device(self, match) :
@@ -305,6 +329,36 @@ class Cache () :
             except IOError :
                 self.generate_index()
         return self._index
+    @property
+    def aliases(self) :
+        """An index of most of the important data in all cached PDSC files.
+
+        :Example:
+
+        >>> from ArmPackManager import Cache
+        >>> a = Cache()
+        >>> a.index["LPC1768"]
+        {u'algorithm': {u'RAMsize': u'0x0FE0',
+                u'RAMstart': u'0x10000000',
+                u'name': u'Flash/LPC_IAP_512.FLM',
+                u'size': u'0x80000',
+                u'start': u'0x00000000'},
+         u'compile': [u'Device/Include/LPC17xx.h', u'LPC175x_6x'],
+         u'debug': u'SVD/LPC176x5x.svd',
+         u'pdsc_file': u'http://www.keil.com/pack/Keil.LPC1700_DFP.pdsc',
+         u'memory': {u'IRAM1': {u'size': u'0x8000', u'start': u'0x10000000'},
+                     u'IRAM2': {u'size': u'0x8000', u'start': u'0x2007C000'},
+                     u'IROM1': {u'size': u'0x80000', u'start': u'0x00000000'}}}
+
+
+        """
+        if not self._aliases :
+            try :
+                with open(join(save_data_path('arm-pack-manager'), "aliases.json")) as i :
+                    self._aliases = load(i)
+            except IOError :
+                self.generate_aliases()
+        return self._aliases
 
     def cache_everything(self) :
         """Cache every PACK and PDSC file known.
@@ -315,6 +369,7 @@ class Cache () :
         """
         self.cache_pack_list(self.get_urls())
         self.generate_index()
+        self.generate_aliases()
 
     def cache_descriptors(self) :
         """Cache every PDSC file known.
@@ -325,6 +380,7 @@ class Cache () :
         """
         self.cache_descriptor_list(self.get_urls())
         self.generate_index()
+        self.generate_aliases()
 
     def cache_descriptor_list(self, list) :
         """Cache a list of PDSC files.
