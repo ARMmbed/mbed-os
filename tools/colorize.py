@@ -20,35 +20,30 @@ limitations under the License.
 
 import sys
 import re
-from colorama import init
+from colorama import init, Fore, Back, Style
 init()
 
 colors = {
     'none' : "",
-    'default' : "\033[.0m",
-    'bold' : "\033[.1m",
-    'underline' : "\033[.4m",
-    'blink' : "\033[.5m",
-    'reverse' : "\033[.7m",
-    'concealed' : "\033[.8m",
+    'default' : Style.RESET_ALL,
 
-    'black' : "\033[.30m",
-    'red' : "\033[.31m",
-    'green' : "\033[.32m",
-    'yellow' : "\033[.33m",
-    'blue' : "\033[.34m",
-    'magenta' : "\033[.35m",
-    'cyan' : "\033[.36m",
-    'white' : "\033[.37m",
+    'black'   : Fore.BLACK,
+    'red'     : Fore.RED,
+    'green'   : Fore.GREEN,
+    'yellow'  : Fore.YELLOW,
+    'blue'    : Fore.BLUE,
+    'magenta' : Fore.MAGENTA,
+    'cyan'    : Fore.CYAN,
+    'white'   : Fore.WHITE,
 
-    'on_black' : "\033[.40m",
-    'on_red' : "\033[.41m",
-    'on_green' : "\033[.42m",
-    'on_yellow' : "\033[.43m",
-    'on_blue' : "\033[.44m",
-    'on_magenta' : "\033[.45m",
-    'on_cyan' : "\033[46m",
-    'on_white' : "\033[47m",
+    'on_black'   : Back.BLACK,
+    'on_red'     : Back.RED,
+    'on_green'   : Back.GREEN,
+    'on_yellow'  : Back.YELLOW,
+    'on_blue'    : Back.BLUE,
+    'on_magenta' : Back.MAGENTA,
+    'on_cyan'    : Back.CYAN,
+    'on_white'   : Back.WHITE,
 }
 
 # Convert a color string from a string into an ascii escape code that will print
