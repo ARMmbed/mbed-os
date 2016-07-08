@@ -232,12 +232,6 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
     return success;
 }
 
-bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *desiredValue) {
-    return core_util_atomic_cas_u32(
-            (uint32_t *)ptr,
-            (uint32_t *)expectedCurrentValue,
-            (uint32_t)desiredValue);
-}
 
 uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
 {
@@ -267,10 +261,6 @@ uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
     *valuePtr = newValue;
     core_util_critical_section_exit();
     return newValue;
-}
-
-void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta) {
-    return (void *)core_util_atomic_incr_u32((uint32_t *)valuePtr, (uint32_t)delta);
 }
 
 
@@ -304,10 +294,21 @@ uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
     return newValue;
 }
 
+#endif
+
+
+bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *desiredValue) {
+    return core_util_atomic_cas_u32(
+            (uint32_t *)ptr,
+            (uint32_t *)expectedCurrentValue,
+            (uint32_t)desiredValue);
+}
+
+void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta) {
+    return (void *)core_util_atomic_incr_u32((uint32_t *)valuePtr, (uint32_t)delta);
+}
+
 void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta) {
     return (void *)core_util_atomic_decr_u32((uint32_t *)valuePtr, (uint32_t)delta);
 }
-
-
-#endif
 
