@@ -60,6 +60,7 @@ typedef struct
 {
     uint32_t period_us;
     uint32_t duty_us;
+    float    duty;
 } pwm_signal_t;
 
 typedef struct
@@ -98,12 +99,14 @@ void pwmout_init(pwmout_t *obj, PinName pin)
             obj->pwm_channel = i;
             
             m_pwm[i].p_pwm_driver = &m_pwm_driver[i];
-            m_pwm[i].signal.period_us = 200000; // 0.02 s
-            m_pwm[i].signal.duty_us   = 100000;
+            m_pwm[i].signal.period_us = 100000; // 0.02 s
+            m_pwm[i].signal.duty_us   = 50000;
+            m_pwm[i].signal.duty      = (0.5);
             
             obj->pwm_struct  = &m_pwm[i];
 
             internal_pwmout_exe(obj);
+
             break;
         }
     }
@@ -132,6 +135,8 @@ void pwmout_write(pwmout_t *obj, float percent)
     }
     
     pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
+    
+    p_pwm_signal->duty = percent / 100;
     
     int us  = (((int)p_pwm_signal->period_us) * percent) / 100;
     
@@ -163,6 +168,8 @@ void pwmout_period_ms(pwmout_t *obj, int ms)
 void pwmout_period_us(pwmout_t *obj, int us)
 {
     pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
+    
+    p_pwm_signal->duty_us = (int)((float)us * p_pwm_signal->duty);
     
     p_pwm_signal->period_us  = us;
     
@@ -207,7 +214,7 @@ static ret_code_t pulsewidth_us_set_get(int period_us, int duty_us, pulsewidth_s
     
     for(div = 1; div <= 128 ; div <<= 1) 
     {
-        if (0xFFFF >= period_us)
+        if (0x7FFF >= period_us)
         {
             p_settings->period  = period_us; // unit [us * div]
             p_settings->duty = duty_us;       // unit [us * div]
@@ -224,7 +231,7 @@ static ret_code_t pulsewidth_us_set_get(int period_us, int duty_us, pulsewidth_s
     return NRF_ERROR_INVALID_PARAM;
 }
 
-        static nrf_pwm_values_common_t seq_values[1];
+        static volatile nrf_pwm_values_common_t seq_values[1];
         
         static nrf_pwm_sequence_t const seq =
         {
@@ -243,8 +250,8 @@ static void internal_pwmout_exe(pwmout_t *obj)
     
     p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
     
-    if (NRF_SUCCESS == pulsewidth_us_set_get(p_pwm_signal->period_us,
-                                             p_pwm_signal->duty_us,
+    if (NRF_SUCCESS == pulsewidth_us_set_get(p_pwm_signal->period_us * 16,
+                                             p_pwm_signal->duty_us * 16,
                                              &pulsewidth_set))
     {
         //@todo apply pulsewidth_set
@@ -278,7 +285,7 @@ static void internal_pwmout_exe(pwmout_t *obj)
         
         seq_values[0] = pulsewidth_set.duty;
         
-        nrf_drv_pwm_simple_playback(p_pwm_driver, &seq, 3, NRF_DRV_PWM_FLAG_LOOP);
+        nrf_drv_pwm_simple_playback(p_pwm_driver, &seq, 0, NRF_DRV_PWM_FLAG_LOOP);
 
         
     }
