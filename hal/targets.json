@@ -12,6 +12,16 @@
         "public": false,
         "default_lib": "std"
     },
+    ".Super-Target": {
+        "device_has": ["AACI", "ANALOGIN", "STDIO_MESSAGES", "STORAGE", "TSC", "PORTIN", "I2C_ASYNCH", "DEBUG_AWARENESS", "I2CSLAVE", "CAN", "RTC_LSI", "LOCALFILESYSTEM", "CLCD", "LOWPOWERTIMER", "RTC", "ERROR_PATTERN", "SPI", "SERIAL_ASYNCH", "SERIAL_FC", "SEMIHOST", "INTERRUPTIN", "SPI_ASYNCH", "PORTOUT", "SERIAL", "ANALOGOUT", "SPISLAVE", "PORTINOUT", "PWMOUT", "SLEEP", "ERROR_RED", "ETHERNET", "I2C", "SERIAL_ASYNCH_DMA"],
+        "features": ["BLE", "IPV4", "IPV6", "CLIENT", "UVISOR"],
+        "extra_labels": [],
+        "core": "Cortex-M4",
+        "fpu": "double",
+        "public": true,
+        "default_build": "standard",
+        "release": true
+    },
     "CM4_UARM": {
         "inherits": ["Target"],
         "core": "Cortex-M4",
