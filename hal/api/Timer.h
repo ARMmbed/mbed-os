@@ -76,9 +76,9 @@ public:
      */
     int read_us();
 
-#ifdef MBED_OPERATORS
+    /** An operator shorthand for read()
+     */
     operator float();
-#endif
 
 protected:
     int slicetime();

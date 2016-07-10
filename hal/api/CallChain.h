@@ -154,14 +154,12 @@ public:
      */
     void call();
 
-#ifdef MBED_OPERATORS
     void operator ()(void) {
         call();
     }
     pFunctionPointer_t operator [](int i) const {
         return get(i);
     }
-#endif
 
     /* disallow copy constructor and assignment operators */
 private:
@@ -173,4 +171,3 @@ private:
 } // namespace mbed
 
 #endif
-

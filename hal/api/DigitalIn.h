@@ -99,14 +99,12 @@ public:
         return gpio_is_connected(&gpio);
     }
 
-#ifdef MBED_OPERATORS
     /** An operator shorthand for read()
      */
     operator int() {
         // Underlying read is thread safe
         return read();
     }
-#endif
 
 protected:
     gpio_t gpio;

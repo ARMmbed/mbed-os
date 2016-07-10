@@ -40,7 +40,7 @@ void Timer::start() {
 void Timer::stop() {
     core_util_critical_section_enter();
     _time += slicetime();
-    _running = 0; 
+    _running = 0;
     core_util_critical_section_exit();
 }
 
@@ -76,10 +76,8 @@ void Timer::reset() {
     core_util_critical_section_exit();
 }
 
-#ifdef MBED_OPERATORS
 Timer::operator float() {
     return read();
 }
-#endif
 
 } // namespace mbed

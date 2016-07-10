@@ -83,7 +83,6 @@ public:
         return ret;
     }
 
-#ifdef MBED_OPERATORS
     /** An operator shorthand for read()
      *
      * The float() operator can be used as a shorthand for read() to simplify common code sequences
@@ -101,7 +100,6 @@ public:
         // Underlying call is thread safe
         return read();
     }
-#endif
 
     virtual ~AnalogIn() {
         // Do nothing

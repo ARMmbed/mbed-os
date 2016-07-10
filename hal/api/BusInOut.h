@@ -85,7 +85,6 @@ public:
         return _nc_mask;
     }
 
-#ifdef MBED_OPERATORS
      /** A shorthand for write()
      */
     BusInOut& operator= (int v);
@@ -98,7 +97,6 @@ public:
     /** A shorthand for read()
      */
     operator int();
-#endif
 
 protected:
     virtual void lock();
