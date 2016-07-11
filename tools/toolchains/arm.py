@@ -62,8 +62,8 @@ class ARM(mbedToolchain):
         if "save-asm" in self.options:
             self.flags['common'].extend(["--asm", "--interleave"])
 
+        self.flags['common'].append("-g")
         if "debug-info" in self.options:
-            self.flags['common'].append("-g")
             self.flags['c'].append("-O0")
         else:
             self.flags['c'].append("-O3")

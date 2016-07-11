@@ -83,8 +83,8 @@ class GCC(mbedToolchain):
         if "save-asm" in self.options:
             self.flags["common"].append("-save-temps")
 
+        self.flags["common"].append("-g")
         if "debug-info" in self.options:
-            self.flags["common"].append("-g")
             self.flags["common"].append("-O0")
         else:
             self.flags["common"].append("-O2")
