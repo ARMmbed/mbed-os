@@ -40,7 +40,7 @@ setup(name='mbed-tools',
       url='https://github.com/mbedmicro/mbed',
       packages=find_packages(),
       license=LICENSE,
-      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3", "colorama>=0.3.3", "Jinja2>=2.7.3", "project-generator>=0.9.3,<0.10.0", "junit-xml", "requests", "pyYAML"])
+      install_requires=["PrettyTable>=0.7.2", "PySerial>=2.7", "IntelHex>=1.3", "colorama>=0.3.3", "Jinja2>=2.7.3", "project-generator>=0.9.3,<0.10.0", "project_generator_definitions>=0.2.26,<0.3.0", "junit-xml", "requests", "pyYAML"])
 
 # Restore previous mbed_settings if needed
 if backup:
