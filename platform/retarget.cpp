@@ -149,13 +149,21 @@ static inline int openmode_to_posix(int openmode) {
     return posix;
 }
 
+extern "C" WEAK void mbed_sdk_init(void);
+extern "C" WEAK void mbed_sdk_init(void) {
+}
+
 extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
     // Before version 5.03, we were using a patched version of microlib with proper names
     // This is the workaround that the microlib author suggested us
     static int n = 0;
+    static int mbed_sdk_inited = 0;
+    if (!mbed_sdk_inited) {
+        mbed_sdk_inited = 1;
+        mbed_sdk_init();
+    }
     if (!std::strcmp(name, ":tt")) return n++;
-
     #else
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.
      */
@@ -514,10 +522,6 @@ extern "C" void software_init_hook(void)
 
 extern "C" WEAK void mbed_main(void);
 extern "C" WEAK void mbed_main(void) {
-}
-
-extern "C" WEAK void mbed_sdk_init(void);
-extern "C" WEAK void mbed_sdk_init(void) {
 }
 
 #if defined(TOOLCHAIN_ARM)
