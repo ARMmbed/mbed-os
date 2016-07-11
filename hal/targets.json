@@ -1013,7 +1013,7 @@
         "extra_labels": ["STM", "STM32F4", "STM32F407", "STM32F407VG"],
         "macros": ["LSI_VALUE=32000"],
         "inherits": ["Target"],
-        "progen": {"target": "lpc1768"},
+        "progen": {"target": "arch-max"},
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release": true
     },
