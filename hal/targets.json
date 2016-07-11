@@ -699,6 +699,18 @@
         "default_build": "small",
         "release": true
     },
+    "NUCLEO_F207ZG": {
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M3",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32F2", "STM32F207ZG"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "inherits": ["Target"],
+        "progen": {"target": "nucleo-f207zg"},
+        "detect_code": ["0835"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "default_build": "small"
+    },
     "NUCLEO_F302R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M4",
