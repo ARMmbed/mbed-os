@@ -112,6 +112,40 @@ const PinMap PinMap_UART_RX[] = {
     {NC  ,  NC    , 0}
 };
 
+const PinMap PinMap_UART_CTS[] = {
+    {PTB13, UART_3, 2},
+    {PTE2 , UART_1, 3},
+    {PTE6 , UART_3, 3},
+    {PTE26, UART_4, 3},
+    {PTA0 , UART_0, 2},
+    {PTA16, UART_0, 3},
+    {PTB3 , UART_0, 3},
+    {PTB9 , UART_3, 3},
+    {PTC2 , UART_1, 3},
+    {PTC13, UART_4, 3},
+    {PTC19, UART_3, 3},
+    {PTD1 , UART_2, 3},
+    {PTD5 , UART_0, 3},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_UART_RTS[] = {
+    {PTB12, UART_3, 2},
+    {PTE3 , UART_1, 3},
+    {PTE7 , UART_3, 3},
+    {PTE27, UART_4, 3},
+    {PTA17, UART_0, 3},
+    {PTB8 , UART_3, 3},
+    {PTC1 , UART_1, 3},
+    {PTC12, UART_4, 3},
+    {PTC18, UART_3, 3},
+    {PTD0 , UART_2, 3},
+    {PTD4 , UART_0, 3},
+    {PTA3 , UART_0, 2},
+    {PTB2 , UART_0, 3},
+    {NC   , NC    , 0}
+};
+
 /************SPI***************/
 const PinMap PinMap_SPI_SCLK[] = {
     {PTD1 , SPI_0, 2},
