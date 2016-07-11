@@ -233,7 +233,7 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 }
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
-    i2c_addrs[obj->instance]->A1 = ((uint32_t)(address)) << 1U;
+    i2c_addrs[obj->instance]->A1 = address & 0xfe;
 }
 #endif
 
