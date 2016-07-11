@@ -94,8 +94,8 @@ class IAR(mbedToolchain):
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
 
+        c_flags_cmd.append("-r")
         if "debug-info" in self.options:
-            c_flags_cmd.append("-r")
             c_flags_cmd.append("-On")
         else:
             c_flags_cmd.append("-Oh")
