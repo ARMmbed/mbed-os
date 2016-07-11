@@ -524,10 +524,14 @@ extern "C" WEAK void mbed_sdk_init(void) {
 extern "C" int $Super$$main(void);
 
 extern "C" int $Sub$$main(void) {
-    mbed_sdk_init();
     mbed_main();
     return $Super$$main();
 }
+
+extern "C" void _platform_post_stackheap_init (void) {
+    mbed_sdk_init();
+}
+
 #elif defined(TOOLCHAIN_GCC)
 extern "C" int __real_main(void);
 
