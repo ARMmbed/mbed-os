@@ -64,25 +64,25 @@ __Vectors       DCD     |Image$$ARM_LIB_STACK$$ZI$$Limit|  ; Top of Stack
 
                 ; External Interrupts
                 DCD     fIrqTim0Handler
-              	DCD     fIrqTim1Handler
-              	DCD     fIrqTim2Handler
-              	DCD     fIrqUart1Handler
-              	DCD     fIrqSpiHandler
-              	DCD     fIrqI2CHandler
-              	DCD     fIrqGpioHandler
-              	DCD     fIrqRtcHandler
-              	DCD     fIrqFlashHandler
-              	DCD     fIrqMacHwHandler
-              	DCD     fIrqAesHandler
-              	DCD     fIrqAdcHandler
-              	DCD     fIrqClockCalHandler
-              	DCD     fIrqUart2Handler
-              	DCD     fIrqUviHandler
-              	DCD     fIrqDmaHandler
-               	DCD     fIrqDbgPwrUpHandler
-               	DCD     fIrqSpi2Handler
-               	DCD     fIrqI2C2Handler
-               	DCD     fIrqFVDDHCompHandler
+                DCD     fIrqTim1Handler
+                DCD     fIrqTim2Handler
+                DCD     fIrqUart1Handler
+                DCD     fIrqSpiHandler
+                DCD     fIrqI2CHandler
+                DCD     fIrqGpioHandler
+                DCD     fIrqRtcHandler
+                DCD     fIrqFlashHandler
+                DCD     fIrqMacHwHandler
+                DCD     fIrqAesHandler
+                DCD     fIrqAdcHandler
+                DCD     fIrqClockCalHandler
+                DCD     fIrqUart2Handler
+                DCD     fIrqUviHandler
+                DCD     fIrqDmaHandler
+                DCD     fIrqDbgPwrUpHandler
+                DCD     fIrqSpi2Handler
+                DCD     fIrqI2C2Handler
+                DCD     fIrqFVDDHCompHandler
 __Vectors_End
 
 __Vectors_Size  EQU     __Vectors_End - __Vectors

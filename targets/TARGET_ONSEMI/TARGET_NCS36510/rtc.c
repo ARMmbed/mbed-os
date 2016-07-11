@@ -50,24 +50,24 @@ static uint64_t LastRtcTimeus;
 /* See rtc.h for details */
 void fRtcInit(void)
 {
-    CLOCK_ENABLE(CLOCK_RTC); 			/* enable rtc peripheral */
-    CLOCKREG->CCR.BITS.RTCEN = True; 	/* Enable RTC clock 32K */
+    CLOCK_ENABLE(CLOCK_RTC);             /* enable rtc peripheral */
+    CLOCKREG->CCR.BITS.RTCEN = True;     /* Enable RTC clock 32K */
 
     /* Reset RTC control register */
-    RTCREG->CONTROL.WORD 	= False;
+    RTCREG->CONTROL.WORD     = False;
 
     /* Initialize all counters */
-    RTCREG->SECOND_COUNTER		= False;
-    RTCREG->SUB_SECOND_COUNTER	= False;
-    RTCREG->SECOND_ALARM 		= False;
-    RTCREG->SUB_SECOND_ALARM 	= False;
+    RTCREG->SECOND_COUNTER       = False;
+    RTCREG->SUB_SECOND_COUNTER   = False;
+    RTCREG->SECOND_ALARM         = False;
+    RTCREG->SUB_SECOND_ALARM     = False;
     LastRtcTimeus = 0;
 
     /* Reset RTC Status register */
-    RTCREG->STATUS.WORD 	= False;
+    RTCREG->STATUS.WORD      = False;
 
     /* Clear interrupt status */
-    RTCREG->INT_CLEAR.WORD 	= False;
+    RTCREG->INT_CLEAR.WORD   = False;
 
     /* Start sec & sub_sec counter */
     while(RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);/* Wait previous write to complete */
@@ -99,8 +99,8 @@ void fRtcFree(void)
 /* See rtc.h for details */
 void fRtcSetInterrupt(uint32_t timestamp)
 {
-    SubSecond 		= False;
-    uint32_t Second	= False;
+    SubSecond          = False;
+    uint32_t Second    = False;
     uint8_t DividerAdjust = 1;
 
     if(timestamp) {
@@ -122,7 +122,7 @@ void fRtcSetInterrupt(uint32_t timestamp)
             }
 
             volatile uint64_t Temp = (timestamp / DividerAdjust * RTC_CLOCK_HZ);
-            timestamp = (uint64_t)(Temp / RTC_SEC_TO_US * DividerAdjust);
+            Temp = (uint64_t)(Temp / RTC_SEC_TO_US * DividerAdjust);
             SubSecond = Temp & RTC_SUB_SEC_MASK;
 
             if(SubSecond <= 5) {
@@ -134,7 +134,7 @@ void fRtcSetInterrupt(uint32_t timestamp)
                 /* Second interrupt not enabled */
 
                 /* Set SUB SEC_ALARM */
-                RTCREG->SUB_SECOND_ALARM = SubSecond;	/* Write to sub second alarm */
+                RTCREG->SUB_SECOND_ALARM = SubSecond;    /* Write to sub second alarm */
 
                 /* Enable sub second interrupt */
                 RTCREG->CONTROL.WORD |= (True << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS);
@@ -190,8 +190,8 @@ uint64_t fRtcRead(void)
      */
 
     do {
-        Second		= RTCREG->SECOND_COUNTER;    	/* Get SEC_COUNTER reg value */
-        SubSecond	= (RTCREG->SUB_SECOND_COUNTER - 1) & 0x7FFF;      /* Get SUB_SEC_COUNTER reg value */
+        Second       = RTCREG->SECOND_COUNTER;        /* Get SEC_COUNTER reg value */
+        SubSecond    = (RTCREG->SUB_SECOND_COUNTER - 1) & 0x7FFF;      /* Get SUB_SEC_COUNTER reg value */
     } while (Second != RTCREG->SECOND_COUNTER);                     /* Repeat if the second has changed */
 
     //note: casting to float removed to avoid reduction in resolution
@@ -207,8 +207,8 @@ uint64_t fRtcRead(void)
 /* See rtc.h for details */
 void fRtcWrite(uint64_t RtcTimeus)
 {
-    uint32_t Second		= 0;
-    uint16_t SubSecond	= 0;
+    uint32_t Second       = 0;
+    uint16_t SubSecond    = 0;
     /* Stop RTC */
     RTCREG->CONTROL.WORD &= ~((True << RTC_CONTROL_SUBSEC_CNT_START_BIT_POS) |
                               (True << RTC_CONTROL_SEC_CNT_START_BIT_POS));
@@ -237,6 +237,7 @@ void fRtcWrite(uint64_t RtcTimeus)
 /* See rtc.h for details */
 void fRtcHandler(void)
 {
+	while(RTCREG->STATUS.BITS.BSY_ANY_WRT == True); /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
     /* SUB_SECOND/SECOND interrupt occured */
     volatile uint32_t TempStatus = RTCREG->STATUS.WORD;
 
@@ -265,11 +266,12 @@ void fRtcHandler(void)
     } else {
         /* We reach here after sub_second or (Sub second + second) interrupt occured */
         while(RTCREG->STATUS.BITS.BSY_CTRL_REG_WRT == True);
+		/* Disable Second and sub_second interrupt */
         RTCREG->CONTROL.WORD &= ~(True << RTC_CONTROL_SUBSEC_CNT_INT_BIT_POS) |
                                 (True << RTC_CONTROL_SEC_CNT_INT_BIT_POS);
     }
 
-    while(RTCREG->STATUS.BITS.BSY_ANY_WRT == True); /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
+	lp_ticker_irq_handler();
 }
 
 boolean fIsRtcEnabled(void)

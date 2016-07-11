@@ -47,8 +47,8 @@
 #define DDSR (uint8_t)0x02
 #define TERI (uint8_t)0x04
 #define DDCD (uint8_t)0x08
-//#define CTS	 (uint8_t)0x10
-#define DSR	 (uint8_t)0x20
+//#define CTS   (uint8_t)0x10
+#define DSR     (uint8_t)0x20
 #define RI   (uint8_t)0x40
 #define DCD  (uint8_t)0x80
 #define IER_PWRDNENACTIVE          ((uint8_t)(1<<5))

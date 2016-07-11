@@ -78,17 +78,17 @@ static void us_timer_init(void)
     TIM0REG->LOAD = 0xFFFF;
 
     /* set timer prescale 32 (1 us), mode & enable */
-    TIM0REG->CONTROL.WORD = ((CLK_DIVIDER_32		<< TIMER_PRESCALE_BIT_POS) |
-                             (TIME_MODE_PERIODIC	<< TIMER_MODE_BIT_POS) |
-                             (TIMER_ENABLE_BIT 	<< TIMER_ENABLE_BIT_POS));
+    TIM0REG->CONTROL.WORD = ((CLK_DIVIDER_32        << TIMER_PRESCALE_BIT_POS) |
+                             (TIME_MODE_PERIODIC    << TIMER_MODE_BIT_POS) |
+                             (TIMER_ENABLE_BIT      << TIMER_ENABLE_BIT_POS));
 
     /* Ticker init */
     /* load timer value */
     TIM1REG->LOAD = 0xFFFF;
 
     /* set timer prescale 32 (1 us), mode & enable */
-    TIM1REG->CONTROL.WORD = ((CLK_DIVIDER_32		<< TIMER_PRESCALE_BIT_POS) |
-                             (TIME_MODE_PERIODIC	<< TIMER_MODE_BIT_POS));
+    TIM1REG->CONTROL.WORD = ((CLK_DIVIDER_32        << TIMER_PRESCALE_BIT_POS) |
+                             (TIME_MODE_PERIODIC    << TIMER_MODE_BIT_POS));
 
     /* Register & enable interrupt associated with the timer */
     NVIC_SetVector(Tim0_IRQn,(uint32_t)us_timer_isr);
@@ -115,17 +115,17 @@ uint32_t us_ticker_read()
     }
 
     /* Get the current tick from the hw and sw timers */
-    tim0cval = TIM0REG->VALUE; 		/* read current time */
-    retval = (0xFFFF - tim0cval);	/* subtract down count */
+    tim0cval = TIM0REG->VALUE;         /* read current time */
+    retval = (0xFFFF - tim0cval);      /* subtract down count */
 
     NVIC_DisableIRQ(Tim0_IRQn);
     if (TIM0REG->CONTROL.BITS.INT) {
         TIM0REG->CLEAR = 0;
         msb_counter++;
-        tim0cval = TIM0REG->VALUE;	/* read current time again after interrupt */
+        tim0cval = TIM0REG->VALUE;    /* read current time again after interrupt */
         retval = (0xFFFF - tim0cval);
     }
-    retval |= msb_counter << 16;	/* add software bits */
+    retval |= msb_counter << 16;      /* add software bits */
     NVIC_EnableIRQ(Tim0_IRQn);
     return retval;
 }

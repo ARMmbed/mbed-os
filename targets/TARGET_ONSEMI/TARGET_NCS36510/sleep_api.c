@@ -39,11 +39,52 @@
 
 void mbed_enter_sleep(sleep_t *obj)
 {
-    /* Empty implementation, this will be implemented for mbed5.0 */
+
+#ifdef SLEEP_TYPE_DEFAULT
+
+    if(SLEEP_TYPE_DEFAULT == SLEEP_TYPE_SLEEP) {
+        /* Sleep mode */
+        sleep();
+    } else if(SLEEP_TYPE_DEFAULT == SLEEP_TYPE_DEEPSLEEP) {
+        /* Deep Sleep mode */
+        deepsleep();
+    } else {
+        /* Coma mode */
+        coma();
+    }
+
+#else
+
+    if(obj->SleepType == SLEEP_TYPE_NONE) {
+        /* Select low power mode based on sleep duration */
+
+        if(obj->timeToSleep <= SLEEP_DURATION_SLEEP_MAX) {
+            /* Sleep mode */
+            sleep();
+        } else if(obj->timeToSleep <= SLEEP_DURATION_DEEPSLEEP_MAX) {
+            /* Deep sleep */
+            deepsleep();
+        } else {
+            /* Coma */
+            coma();
+        }
+    } else if(obj->SleepType == SLEEP_TYPE_SLEEP) {
+        /* Sleep mode */
+        sleep();
+    } else if(obj->SleepType == SLEEP_TYPE_DEEPSLEEP) {
+        /* Deep Sleep mode */
+        deepsleep();
+    } else {
+        /* Coma mode */
+        coma();
+    }
+
+#endif
 }
 
 void mbed_exit_sleep(sleep_t *obj)
 {
     (void)obj;
 }
+
 #endif /* DEVICE_SLEEP */
