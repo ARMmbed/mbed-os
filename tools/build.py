@@ -38,6 +38,7 @@ from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 from utils import argparse_filestring_type
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
+from argcomplete import autocomplete
 
 if __name__ == '__main__':
     start = time()
@@ -153,6 +154,7 @@ if __name__ == '__main__':
                       default=False,
                       help="Makes compiler more verbose, CI friendly.")
 
+    autocomplete(parser, validator=lambda x,y:True)
     options = parser.parse_args()
 
     # Only prints matrix of supported toolchains
