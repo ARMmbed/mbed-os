@@ -47,28 +47,28 @@
 *************************************************************************************************/
 
 /** no pull up nor pull down */
-#define PAD_PULL_NONE	(uint8_t)0x01
+#define PAD_PULL_NONE    (uint8_t)0x01
 /** pull down */
-#define PAD_PULL_DOWN	(uint8_t)0x00
+#define PAD_PULL_DOWN    (uint8_t)0x00
 /** pull up */
-#define PAD_PULL_UP		(uint8_t)0x03
+#define PAD_PULL_UP      (uint8_t)0x03
 
 /** Drive strength */
-#define PAD_DRIVE_L0		(uint8_t)0x00
-#define PAD_DRIVE_L1		(uint8_t)0x01
-#define PAD_DRIVE_L2		(uint8_t)0x02
-#define PAD_DRIVE_L3		(uint8_t)0x03
-#define PAD_DRIVE_L4		(uint8_t)0x04
-#define PAD_DRIVE_L5		(uint8_t)0x05
-#define PAD_DRIVE_L6		(uint8_t)0x06
+#define PAD_DRIVE_L0        (uint8_t)0x00
+#define PAD_DRIVE_L1        (uint8_t)0x01
+#define PAD_DRIVE_L2        (uint8_t)0x02
+#define PAD_DRIVE_L3        (uint8_t)0x03
+#define PAD_DRIVE_L4        (uint8_t)0x04
+#define PAD_DRIVE_L5        (uint8_t)0x05
+#define PAD_DRIVE_L6        (uint8_t)0x06
 
 /** output configuration push/pull */
-#define PAD_OUTCFG_PUSHPULL	(uint8_t)0x00
+#define PAD_OUTCFG_PUSHPULL    (uint8_t)0x00
 /** output configuration open drain */
 #define PAD_OOUTCFG_OPENDRAIN (uint8_t)0x01
 
 /** lowest power PAD configuration, shall be the default */
-#define PAD_LOW_POWER	(PAD_PULL_NONE | (PAD_DRIVE_L0<<2) | (PAD_OOUTCFG_OPENDRAIN<<5))
+#define PAD_LOW_POWER    (PAD_PULL_NONE | (PAD_DRIVE_L0<<2) | (PAD_OOUTCFG_OPENDRAIN<<5))
 
 /** custom Power PAD configuration */
 #ifdef REVD
@@ -76,8 +76,8 @@
 #define PAD_INPUT_PD_L1_PP  (PAD_PULL_DOWN | (PAD_DRIVE_L1<<2) | (PAD_OUTCFG_PUSHPULL<<5))
 #define PAD_UNUSED_PD_L0_PP (PAD_PULL_DOWN | (PAD_DRIVE_L0<<2) | (PAD_OUTCFG_PUSHPULL<<5))
 
-#define PAD_UART_TX	(PAD_PULL_UP | (PAD_DRIVE_L1<<2) | (PAD_OUTCFG_PUSHPULL<<5))
-#define PAD_UART_RX (PAD_PULL_UP | (PAD_DRIVE_L1<<2) | (PAD_OOUTCFG_OPENDRAIN<<5))
+#define PAD_UART_TX    (PAD_PULL_UP | (PAD_DRIVE_L1<<2) | (PAD_OUTCFG_PUSHPULL<<5))
+#define PAD_UART_RX    (PAD_PULL_UP | (PAD_DRIVE_L1<<2) | (PAD_OOUTCFG_OPENDRAIN<<5))
 #endif /* REVD */
 
 /**************************************************************************************************

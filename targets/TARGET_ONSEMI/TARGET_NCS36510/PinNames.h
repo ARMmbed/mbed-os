@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    GPIO0	= 0,
+    GPIO0 = 0,
     GPIO1,
     GPIO2,
     GPIO3,
@@ -64,56 +64,56 @@ typedef enum {
     UART2_TX = GPIO8,
     UART2_RX = GPIO9,
 
-    I2C1_SCLK_1 	= GPIO2,
-    I2C1_SDATA_1 	= GPIO3,
-    I2C1_SCLK_2		= GPIO5,
-    I2C1_SDATA_2 	= GPIO4,
-    I2C1_SCLK 	= I2C1_SCLK_1,  /*Default*/
-    I2C1_SDATA 	= I2C1_SDATA_1,  /*Default*/
+    I2C1_SCLK_1    = GPIO2,
+    I2C1_SDATA_1   = GPIO3,
+    I2C1_SCLK_2    = GPIO5,
+    I2C1_SDATA_2   = GPIO4,
+    I2C1_SCLK      = I2C1_SCLK_1,   /*Default*/
+    I2C1_SDATA     = I2C1_SDATA_1,  /*Default*/
 
-    I2C2_SCLK_1 	= GPIO14,
-    I2C2_SDATA_1 	= GPIO15,
-    I2C2_SCLK_2 	= GPIO17,
-    I2C2_SDATA_2 	= GPIO16,
-    I2C2_SCLK 	= I2C2_SCLK_2,  /*Default*/
-    I2C2_SDATA 	= I2C2_SDATA_2,  /*Default*/
-    I2C_SCL 	= I2C1_SCLK_1,  /*Default*/
-    I2C_SDA 	= I2C1_SDATA_1,  /*Default*/
+    I2C2_SCLK_1    = GPIO14,
+    I2C2_SDATA_1   = GPIO15,
+    I2C2_SCLK_2    = GPIO17,
+    I2C2_SDATA_2   = GPIO16,
+    I2C2_SCLK      = I2C2_SCLK_2,  /*Default*/
+    I2C2_SDATA     = I2C2_SDATA_2, /*Default*/
+    I2C_SCL        = I2C1_SCLK_1,  /*Default*/
+    I2C_SDA        = I2C1_SDATA_1, /*Default*/
 
     /* SPI 1 with 1st set of CROSS BAR */
-    SPI1_SSNO0_1	= GPIO0,
-    SPI1_SSNO1_1	= GPIO1,
-    SPI1_SSNO2_1	= GPIO2,
-    SPI1_SSNO3_1	= GPIO3,
+    SPI1_SSNO0_1    = GPIO0,
+    SPI1_SSNO1_1    = GPIO1,
+    SPI1_SSNO2_1    = GPIO2,
+    SPI1_SSNO3_1    = GPIO3,
 
     /* SPI 1 with 2st set of CROSS BAR */
-    SPI1_SCLK_2 	= GPIO4,
-    SPI1_SDATAO_2	= GPIO5,
-    SPI1_SDATAI_2 	= GPIO6,
-    SPI1_SSNI_2 	= GPIO7,
-    SPI1_SSNO0_2 	= GPIO8,
-    SPI1_SSNO1_2 	= GPIO9,
-    SPI1_SSNO2_2 	= GPIO10,
+    SPI1_SCLK_2      = GPIO4,
+    SPI1_SDATAO_2    = GPIO5,
+    SPI1_SDATAI_2    = GPIO6,
+    SPI1_SSNI_2      = GPIO7,
+    SPI1_SSNO0_2     = GPIO8,
+    SPI1_SSNO1_2     = GPIO9,
+    SPI1_SSNO2_2     = GPIO10,
 
-    SPI1_SCLK 	= SPI1_SCLK_2,  /*Default*/
-    SPI1_SDATAO	= SPI1_SDATAO_2, /*Default*/
-    SPI1_SDATAI 	= SPI1_SDATAI_2,  /*Default*/
-    SPI1_SSNI 	= SPI1_SSNI_2,  /*Default*/
-    SPI1_SSNO0 	= SPI1_SSNO0_2,  /*Default*/
-    SPI1_SSNO1 	= SPI1_SSNO1_2,  /*Default*/
-    SPI1_SSNO2 	= SPI1_SSNO2_2,  /*Default*/
+    SPI1_SCLK    = SPI1_SCLK_2,   /*Default*/
+    SPI1_SDATAO  = SPI1_SDATAO_2, /*Default*/
+    SPI1_SDATAI  = SPI1_SDATAI_2, /*Default*/
+    SPI1_SSNI    = SPI1_SSNI_2,   /*Default*/
+    SPI1_SSNO0   = SPI1_SSNO0_2,  /*Default*/
+    SPI1_SSNO1   = SPI1_SSNO1_2,  /*Default*/
+    SPI1_SSNO2   = SPI1_SSNO2_2,  /*Default*/
 
     /* SPI 1 with 3rd set of CROSS BAR */
-    SPI1_SCLK_3 	= GPIO8,
-    SPI1_SDATAO_3	= GPIO9,
-    SPI1_SDATAI_3 	= GPIO10,
+    SPI1_SCLK_3     = GPIO8,
+    SPI1_SDATAO_3   = GPIO9,
+    SPI1_SDATAI_3   = GPIO10,
 
     /* SPI 2 */
-    SPI2_SCLK 	= GPIO14,
-    SPI2_SDATAO = GPIO15,
-    SPI2_SDATAI = GPIO16,
-    SPI2_SSNI 	= GPIO17,
-    SPI2_SSNO0 	= GPIO17,
+    SPI2_SCLK     = GPIO14,
+    SPI2_SDATAO   = GPIO15,
+    SPI2_SDATAI   = GPIO16,
+    SPI2_SSNI     = GPIO17,
+    SPI2_SSNO0    = GPIO17,
 
     // Generic signals namings
     LED1        = GPIO4,
@@ -157,17 +157,17 @@ typedef enum {
 } PinDirection;
 
 typedef enum {
-    PushPullPullDown = 0,
-    PushPullNoPull = 1,
-    PushPullPullUp = 2,
+    PushPullPullDown  = 0,
+    PushPullNoPull    = 1,
+    PushPullPullUp    = 2,
     OpenDrainPullDown = 3,
-    OpenDrainNoPull = 4,
-    OpenDrainPullUp = 5,
-    PullNone  = PushPullNoPull,
-    PullUp    = PushPullPullUp,
-    PullDown  = PushPullPullDown,
-    OpenDrain = OpenDrainPullUp,
-    PullDefault = PullNone
+    OpenDrainNoPull   = 4,
+    OpenDrainPullUp   = 5,
+    PullNone          = PushPullNoPull,
+    PullUp            = PushPullPullUp,
+    PullDown          = PushPullPullDown,
+    OpenDrain         = OpenDrainPullUp,
+    PullDefault       = PullNone
 
 } PinMode;
 

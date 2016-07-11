@@ -47,8 +47,8 @@
 /** Miscellaneous I/O codes /
  * @details
  */
-#define SET_RF_CHANNEL		(0x0) /**< <b>Ioctl request code</b>: Set Rf channel frequency */
-#define SET_TX_POWER		(0x1) /**< <b>Ioctl request code</b>: Set Tx output power */
+#define SET_RF_CHANNEL      (0x0) /**< <b>Ioctl request code</b>: Set Rf channel frequency */
+#define SET_TX_POWER        (0x1) /**< <b>Ioctl request code</b>: Set Tx output power */
 
 /*************************************************************************************************
 *                                                                                                *

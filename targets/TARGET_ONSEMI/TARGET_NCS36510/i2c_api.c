@@ -32,7 +32,7 @@
 #include "i2c.h"
 #include "i2c_api.h"
 
-#define I2C_READ_WRITE_BIT_MASK	0xFE
+#define I2C_READ_WRITE_BIT_MASK    0xFE
 
 /* See i2c_api.h for details */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
@@ -85,7 +85,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         /* Error sending coomand/s */
         return Count;
     }
-    if(stop) {	/* Send stop bit if requested */
+    if(stop) {    /* Send stop bit if requested */
         status = fI2cStop(obj);
         if(status) {
             /* Error sending stop bit */
@@ -122,7 +122,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
         return Count;
     }
 
-    if(stop) {	/* If stop requested */
+    if(stop) {    /* If stop requested */
         /* Send stop bit */
         status = fI2cStop(obj);
         if(status) {

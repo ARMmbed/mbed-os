@@ -35,17 +35,17 @@
 #include <stdint.h>
 #include <stdio.h>
 
-typedef unsigned char		BYTE;
-typedef unsigned short		WORD;
-typedef unsigned long		DWORD;
-typedef unsigned long long	QWORD;
+typedef unsigned char        BYTE;
+typedef unsigned short       WORD;
+typedef unsigned long        DWORD;
+typedef unsigned long long   QWORD;
 
 
 typedef unsigned char boolean;
 
-#define True		(1)
-#define False		(0)
+#define True        (1)
+#define False       (0)
 
-#define Null		NULL
+#define Null        NULL
 
 #endif /* _UTIL_TYPES_H_ */

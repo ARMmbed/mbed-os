@@ -24,7 +24,7 @@
 * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
 * @endinternal
 *
-* @ingroup 
+* @ingroup
 *
 * @details
 */
@@ -35,7 +35,7 @@
 #define NVIC_FLASH_VECTOR_ADDRESS (0x00000000)  // Initial vector position in flash
 
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) 
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
     static volatile uint32_t *vectors = (uint32_t *)NVIC_FLASH_VECTOR_ADDRESS;
 

@@ -42,18 +42,18 @@
 #include "crossbar.h"
 #include "clock.h"
 
-#define SLEEP_TYPE_NONE			0
-#define SLEEP_TYPE_SLEEP		1
-#define SLEEP_TYPE_DEEPSLEEP	2
-#define SLEEP_TYPE_COMA			3
+#define SLEEP_TYPE_NONE            0
+#define SLEEP_TYPE_SLEEP        1
+#define SLEEP_TYPE_DEEPSLEEP    2
+#define SLEEP_TYPE_COMA            3
 
-#define SLEEP_DURATION_SLEEP_MIN		10  		/* msec */
-#define SLEEP_DURATION_SLEEP_MAX		200 		/* msec */
-#define SLEEP_DURATION_DEEPSLEEP_MAX	500 		/* msec */
-#define SLEEP_DURATION_COMA_MAX			1000000000 	/* TODO 1000 sec */
+#define SLEEP_TYPE_DEFAULT SLEEP_TYPE_DEEPSLEEP
 
-void sleep(void);
-void deepsleep(void);
+#define SLEEP_DURATION_SLEEP_MIN        10          /* msec */
+#define SLEEP_DURATION_SLEEP_MAX        200         /* msec */
+#define SLEEP_DURATION_DEEPSLEEP_MAX    500         /* msec */
+#define SLEEP_DURATION_COMA_MAX         1000000000  /* TODO 1000 sec */
+
 void coma(void);
 
 #endif // SLEEP_H_
