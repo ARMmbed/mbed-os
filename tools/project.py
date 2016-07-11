@@ -12,8 +12,9 @@ from tools.export import export, EXPORTERS, mcu_ide_matrix
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_NAMES
+from tools.libraries import LIBRARIES
 from utils import argparse_filestring_type, argparse_many
-from utils import argparse_force_lowercase_type, argparse_force_uppercase_type
+from utils import argparse_force_lowercase_type, argparse_force_uppercase_type, argparse_dir_not_parent
 from project_api import setup_project, perform_export, print_results, get_lib_symbols
 
 
@@ -59,6 +60,7 @@ if __name__ == '__main__':
                       dest="build",
                       action="store_true",
                       default=False,
+                        type=argparse_dir_not_parent(ROOT),
                       help="use the mbed library build, instead of the sources")
 
     group.add_argument("-L", "--list-tests",
