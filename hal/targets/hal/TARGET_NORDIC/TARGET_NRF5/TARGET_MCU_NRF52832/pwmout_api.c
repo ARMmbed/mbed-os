@@ -47,19 +47,45 @@
 #include "app_util_platform.h"
 #include "nrf_drv_pwm.h"
 
-
-#define MAX_PWM_PERIOD_US   (0x7FFF << 3)                       // -> 7FFF (1_us/16) * 128
+#define MAX_PWM_COUNTERTOP  (0x7FFF)                 // 0x7FFF is the max of COUNTERTOP value for the PWM peripherial of the nRF52.
+#define MAX_PWM_PERIOD_US   (MAX_PWM_COUNTERTOP * 8) // PWM hw is driven by 16 MHz clock, hence the tick is 1_us/16,
+                                                     // and 128 is the max prescaler value.
 #define MAX_PWM_PERIOD_MS   ((MAX_PWM_PERIOD_US / 1000) + 1)    // approximations advance
 #define MAX_PWM_PERIOD_S    ((MAX_PWM_PERIOD_US / 1000000) + 1) // approximations advance
 
-#define PWM_INSTANCE_COUNT  3
+#ifdef PWM0_ENABLED
+    #define __PWM0_NUM 1
+#else
+    #define __PWM0_NUM 0
+#endif
+
+#ifdef PWM1_ENABLED
+    #define __PWM1_NUM 1
+#else
+    #define __PWM1_NUM 0
+#endif
+
+#ifdef PWM2_ENABLED
+    #define __PWM2_NUM 1
+#else
+    #define __PWM2_NUM 0
+#endif
+
+
+#define PWM_INSTANCE_COUNT  (__PWM0_NUM + __PWM1_NUM + __PWM2_NUM)
 
 ///> instances of nRF52 PWM driver
-static nrf_drv_pwm_t m_pwm_driver[PWM_INSTANCE_COUNT] =
+static const nrf_drv_pwm_t m_pwm_driver[PWM_INSTANCE_COUNT] =
 {
+#ifdef PWM0_ENABLED
     NRF_DRV_PWM_INSTANCE(0),
+#endif
+#ifdef PWM1_ENABLED
     NRF_DRV_PWM_INSTANCE(1),
+#endif
+#ifdef PWM2_ENABLED
     NRF_DRV_PWM_INSTANCE(2)
+#endif
 };
 
 typedef struct
@@ -78,20 +104,26 @@ typedef struct
 
 static pwm_t m_pwm[PWM_INSTANCE_COUNT] =
 {
+#ifdef PWM0_ENABLED
     {.p_pwm_driver = NULL},
+#endif
+#ifdef PWM0_ENABLED
     {.p_pwm_driver = NULL},
+#endif
+#ifdef PWM0_ENABLED
     {.p_pwm_driver = NULL}
+#endif
 };  /// Array of internal PWM instances.
 
 typedef struct
 {
-    uint16_t period_hwu;
-    uint16_t duty_hwu;
+    uint16_t       period_hwu; // unit related to pwm_clk
+    uint16_t       duty_hwu;   // unit related to pwm_clk
     nrf_pwm_clk_t  pwm_clk;
 } pulsewidth_set_t; /// helper type for timing calculations
     
     
-static void internal_pwmout_exe(pwmout_t *obj, bool new_period);
+static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initialization);
     
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
@@ -105,14 +137,14 @@ void pwmout_init(pwmout_t *obj, PinName pin)
             
             obj->pwm_channel = i;
             
-            m_pwm[i].p_pwm_driver = &m_pwm_driver[i];
+            m_pwm[i].p_pwm_driver = (nrf_drv_pwm_t *) &m_pwm_driver[i];
             m_pwm[i].signal.period_us = 200000; // 0.02 s
             m_pwm[i].signal.duty_us   = 100000;
-            m_pwm[i].signal.duty      = (0.5);
+            m_pwm[i].signal.duty      = 0.5f;
             
             obj->pwm_struct  = &m_pwm[i];
 
-            internal_pwmout_exe(obj, true);
+            internal_pwmout_exe(obj, true, true);
 
             break;
         }
@@ -135,16 +167,16 @@ void pwmout_write(pwmout_t *obj, float percent)
     {
         percent = 0;
     }
-    else if (percent > 100)
+    else if (percent > 1)
     {
-        percent = 100;
+        percent = 1;
     }
     
     pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
     
-    p_pwm_signal->duty = percent / 100;
+    p_pwm_signal->duty = percent;
     
-    int us  = (((int)p_pwm_signal->period_us) * percent) / 100;
+    int us  = (((int)p_pwm_signal->period_us) * percent);
     
     pwmout_pulsewidth_us(obj, us);
 }
@@ -153,7 +185,7 @@ float pwmout_read(pwmout_t *obj)
 {
     pwm_signal_t * p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
     
-    return (float)p_pwm_signal->duty_us / (float)p_pwm_signal->period_us * 100;
+    return (float)p_pwm_signal->duty_us / (float)p_pwm_signal->period_us;
 }
 
 void pwmout_period(pwmout_t *obj, float seconds)
@@ -209,7 +241,7 @@ void pwmout_period_us(pwmout_t *obj, int us)
     
     p_pwm_signal->period_us  = us;
     
-    internal_pwmout_exe(obj, true);
+    internal_pwmout_exe(obj, true, false);
 }
 
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
@@ -263,7 +295,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
     p_pwm_signal->duty_us  = us;
     p_pwm_signal->duty     = us / p_pwm_signal->period_us;
     
-    internal_pwmout_exe(obj, false);
+    internal_pwmout_exe(obj, false, false);
 }
 
 
@@ -271,24 +303,24 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 
 
 
-static ret_code_t pulsewidth_us_set_get(int period_us, int duty_us, pulsewidth_set_t * const p_settings)
+static ret_code_t pulsewidth_us_set_get(int period_hwu, int duty_hwu, pulsewidth_set_t * p_settings)
 {
     uint16_t      div;
     nrf_pwm_clk_t pwm_clk = NRF_PWM_CLK_16MHz;
     
-    for(div = 1; div <= 128 ; div <<= 1) 
+    for(div = 1; div <= 128 ; div <<= 1) // 128 is the maximum of clock prescaler for PWM peripherial
     {
-        if (0x7FFF >= period_us)
+        if (MAX_PWM_COUNTERTOP >= period_hwu)
         {
-            p_settings->period_hwu  = period_us; // unit [us/16 * div]
-            p_settings->duty_hwu = duty_us;       // unit [us/16 * div]
+            p_settings->period_hwu  = period_hwu; // unit [us/16 * div]
+            p_settings->duty_hwu = duty_hwu;       // unit [us/16 * div]
             p_settings->pwm_clk   = pwm_clk;
     
             return NRF_SUCCESS;
         }
         
-        period_us >>= 1;
-        duty_us >>= 1;
+        period_hwu >>= 1;
+        duty_hwu >>= 1;
         pwm_clk++;
     }
     
@@ -296,7 +328,7 @@ static ret_code_t pulsewidth_us_set_get(int period_us, int duty_us, pulsewidth_s
 }
 
 
-static void internal_pwmout_exe(pwmout_t *obj, bool new_period)
+static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initialization)
 {
     pulsewidth_set_t          pulsewidth_set;
     pwm_signal_t            * p_pwm_signal;
@@ -305,13 +337,13 @@ static void internal_pwmout_exe(pwmout_t *obj, bool new_period)
     
     p_pwm_signal = &(((pwm_t*)obj->pwm_struct)->signal);
     
-    if (NRF_SUCCESS == pulsewidth_us_set_get(p_pwm_signal->period_us * 16,
-                                             p_pwm_signal->duty_us * 16,
+    if (NRF_SUCCESS == pulsewidth_us_set_get(p_pwm_signal->period_us * 16, // base clk for PWM is 16 MHz
+                                             p_pwm_signal->duty_us * 16,   // base clk for PWM is 16 MHz
                                              &pulsewidth_set))
     {
         p_pwm_driver = (((pwm_t*)obj->pwm_struct)->p_pwm_driver);
         
-        nrf_pwm_sequence_t seq =
+        const nrf_pwm_sequence_t seq =
         {
             .values.p_common = (nrf_pwm_values_common_t*) (((pwm_t*)obj->pwm_struct)->seq_values),
             .length          = 1,
@@ -340,7 +372,10 @@ static void internal_pwmout_exe(pwmout_t *obj, bool new_period)
                 .step_mode    = NRF_PWM_STEP_AUTO
             };
             
-            nrf_drv_pwm_uninit(p_pwm_driver);
+            if (!initialization)
+            {
+                nrf_drv_pwm_uninit(p_pwm_driver);
+            }
         
             ret_code = nrf_drv_pwm_init( p_pwm_driver, &config0, NULL);
         
