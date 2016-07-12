@@ -48,18 +48,15 @@ class HookError(Exception):
 caches = {}
 def cached(func):
     def wrapper(*args, **kwargs):
-        if not caches.has_key(func):
-            caches[func] = func(*args, **kwargs)
-        return caches[func]
+        if not caches.has_key((func.__name__, args)):
+            caches[(func.__name__, args)] = func(*args, **kwargs)
+        return caches[(func.__name__, args)]
     return wrapper
 
 class Target:
     # Cumulative attributes can have values appended to them, so they
     # need to be computed differently than regular attributes
     __cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
-
-    # {target_name: target_instance} map for all the targets in the system
-    __target_map = {}
 
     # List of targets that were added dynamically using "add_py_targets" (see below)
     __py_targets = set()
@@ -200,10 +197,9 @@ class Target:
 
     # Return the target instance starting from the target name
     @staticmethod
+    @cached
     def get_target(name):
-        if not Target.__target_map.has_key(name):
-            Target.__target_map[name] = Target(name)
-        return Target.__target_map[name]
+        return Target(name)
 
     def __init__(self, name):
         self.name = name
