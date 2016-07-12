@@ -13,5 +13,6 @@ before_install:
   - python --version
 install:
   - sudo pip install colorama
+  - sudo pip install argcomplete
   - sudo pip install prettytable
   - sudo pip install jinja2
