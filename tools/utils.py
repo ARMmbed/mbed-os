@@ -196,8 +196,12 @@ def dict_to_ascii(input):
 # Read a JSON file and return its Python representation, transforming all the strings from Unicode
 # to ASCII. The order of keys in the JSON file is preserved.
 def json_file_to_dict(fname):
-    with open(fname, "rt") as f:
-        return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
+    try:
+        with open(fname, "rt") as f:
+            return dict_to_ascii(json.load(f, object_pairs_hook=OrderedDict))
+    except (ValueError, IOError):
+        sys.stderr.write("Error parsing '%s':\n" % fname)
+        raise
 
 # Wowza, double closure
 def argparse_type(casedness, prefer_hyphen=False) :
