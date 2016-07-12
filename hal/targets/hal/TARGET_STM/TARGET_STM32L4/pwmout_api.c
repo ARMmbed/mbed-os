@@ -167,8 +167,6 @@ void pwmout_period_us(pwmout_t* obj, int us)
 
     __HAL_TIM_DISABLE(&TimHandle);
 
-    SystemCoreClockUpdate();
-
     /* To make it simple, we use to possible prescaler values which lead to:
      * pwm unit = 1us, period/pulse can be from 1us to 65535us
      * or

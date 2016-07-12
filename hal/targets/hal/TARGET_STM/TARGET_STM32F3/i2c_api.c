@@ -113,9 +113,6 @@ void i2c_frequency(i2c_t *obj, int hz)
     timeout = LONG_TIMEOUT;
     while ((__HAL_I2C_GET_FLAG(&I2cHandle, I2C_FLAG_BUSY)) && (timeout-- != 0));
 
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
-
     /*
        Values calculated with I2C_Timing_Configuration_V1.0.1.xls file (see AN4235)
        * Standard mode (up to 100 kHz)
