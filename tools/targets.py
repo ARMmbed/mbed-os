@@ -61,11 +61,21 @@ class Target:
     # List of targets that were added dynamically using "add_py_targets" (see below)
     __py_targets = set()
 
+    # Location of the 'targets.json' file
+    __targets_json_location = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json')
+
     # Load the description of JSON target data
     @staticmethod
     @cached
     def get_json_target_data():
-        return json_file_to_dict(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json'))
+        return json_file_to_dict(Target.__targets_json_location)
+
+    # Set the location of the targets.json file
+    @staticmethod
+    def set_targets_json_location(location):
+        Target.__targets_json_location = location
+        # Invalidate caches, since the location of the JSON file changed
+        caches.clear()
 
     # Get the members of this module using Python's "inspect" module
     @staticmethod
@@ -410,3 +420,15 @@ def get_target_detect_codes():
         for detect_code in target.detect_code:
             result[detect_code] = target.name
     return result
+
+# Sets the location of the JSON file that contains the targets
+def set_targets_json_location(location):
+    # First instruct Target about the new location
+    Target.set_targets_json_location(location)
+    # Then re-initialize TARGETS, TARGET_MAP and TARGET_NAMES
+    # The re-initialization does not create new variables, it keeps the old ones instead
+    # This ensures compatibility with code that does "from tools.targets import TARGET_NAMES"
+    TARGETS[:] = [Target.get_target(name) for name, value in Target.get_json_target_data().items() if value.get("public", True)]
+    TARGET_MAP.clear()
+    TARGET_MAP.update(dict([(t.name, t) for t in TARGETS]))
+    TARGET_NAMES[:] = TARGET_MAP.keys()
