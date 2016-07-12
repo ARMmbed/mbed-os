@@ -82,10 +82,6 @@ static void init_uart(serial_t *obj)
         huart->Init.Mode = UART_MODE_TX_RX;
     }
 
-    /* uAMR & ARM: Call to UART init is done between reset of pre-initialized variables */
-    /* and before HAL Init. SystemCoreClock init required here */
-    SystemCoreClockUpdate();
-
     if (HAL_UART_Init(huart) != HAL_OK) {
         error("Cannot initialize UART\n");
     }
