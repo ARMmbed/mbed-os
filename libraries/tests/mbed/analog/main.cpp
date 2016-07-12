@@ -51,6 +51,10 @@ AnalogOut out(A2);
 AnalogIn in(A0);
 AnalogOut out(PA_4);
 
+#elif defined(TARGET_NUCLEO_F207ZG)
+AnalogIn in(A0);
+AnalogOut out(D13);
+
 #elif defined(TARGET_ARCH_MAX)
 AnalogIn in(PA_0);
 AnalogOut out(PA_4);
