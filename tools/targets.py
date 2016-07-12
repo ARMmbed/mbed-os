@@ -58,9 +58,6 @@ class Target:
     # need to be computed differently than regular attributes
     __cumulative_attributes = ['extra_labels', 'macros', 'device_has', 'features']
 
-    # List of targets that were added dynamically using "add_py_targets" (see below)
-    __py_targets = set()
-
     # Location of the 'targets.json' file
     __targets_json_location = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'hal', 'targets.json')
 
@@ -175,35 +172,20 @@ class Target:
         return v
 
     # Add one or more new target(s) represented as a Python dictionary in 'new_targets'
-    # It it an error to add a target with a name that exists in "targets.json"
-    # However, it is OK to add a target that was previously added via "add_py_targets"
-    # (this makes testing easier without changing the regular semantics)
+    # It is an error to add a target with a name that already exists.
     @staticmethod
     def add_py_targets(new_targets):
         crt_data = Target.get_json_target_data()
-        # First add all elemnts to the internal dictionary
         for tk, tv in new_targets.items():
-            if crt_data.has_key(tk) and (not tk in Target.__py_targets):
+            if crt_data.has_key(tk):
                 raise Exception("Attempt to add target '%s' that already exists" % tk)
+            # Add target data to the internal target dictionary
             crt_data[tk] = tv
-            Target.__py_targets.add(tk)
-        # Then create the new instances and update global variables if needed
-        for tk, tv in new_targets.items():
-            # Is the target already created?
-            old_target = Target.__target_map.get(tk, None)
-            # Instantiate this target. If it is public, update the data in
-            # in TARGETS, TARGET_MAP, TARGET_NAMES
+            # Create the new target and add it to the relevant data structures
             new_target = Target(tk)
-            if tv.get("public", True):
-                if old_target: # remove the old target from TARGETS and TARGET_NAMES
-                    TARGETS.remove(old_target)
-                    TARGET_NAMES.remove(tk)
-                # Add the new target
-                TARGETS.append(new_target)
-                TARGET_MAP[tk] = new_target
-                TARGET_NAMES.append(tk)
-            # Update the target cache
-            Target.__target_map[tk] = new_target
+            TARGETS.append(new_target)
+            TARGET_MAP[tk] = new_target
+            TARGET_NAMES.append(tk)
 
     # Return the target instance starting from the target name
     @staticmethod
