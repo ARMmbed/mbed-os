@@ -36,7 +36,8 @@ extern const PinMap PinMap_I2C_SCL[];
 /************UART***************/
 extern const PinMap PinMap_UART_TX[];
 extern const PinMap PinMap_UART_RX[];
-
+extern const PinMap PinMap_UART_CTS[];
+extern const PinMap PinMap_UART_RTS[];
 /************SPI***************/
 extern const PinMap PinMap_SPI_SCLK[];
 extern const PinMap PinMap_SPI_MOSI[];
