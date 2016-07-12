@@ -54,7 +54,7 @@
 #define MAX_PWM_PERIOD_S    ((MAX_PWM_PERIOD_US / 1000000) + 1) // approximations advance
 
 
-#define PWM_INSTANCE_COUNT  (PWM_COUNT) // import from the PWM driver header
+#define PWM_INSTANCE_COUNT  (PWM_COUNT) // import from the nrf_drv_config.h file
 
 ///> instances of nRF52 PWM driver
 static const nrf_drv_pwm_t m_pwm_driver[PWM_INSTANCE_COUNT] =
