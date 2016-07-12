@@ -33,6 +33,7 @@
  *---------------------------------------------------------------------------*/
 
 #if   defined (__CC_ARM)
+#include <rt_misc.h>
 #pragma O3
 #define __USED __attribute__((used))
 #elif defined (__GNUC__)
@@ -442,25 +443,12 @@ void pre_main()
 void * armcc_heap_base;
 void * armcc_heap_top;
 
-__asm void pre_main (void)
-{
-  IMPORT  __rt_lib_init
-  IMPORT  main
-  IMPORT  armcc_heap_base
-  IMPORT  armcc_heap_top
+int main(void);
 
-  LDR     R0,=armcc_heap_base
-  LDR     R1,=armcc_heap_top
-  LDR     R0,[R0]
-  LDR     R1,[R1]
-  /* Save link register (keep 8 byte alignment with dummy R4) */
-  PUSH    {R4, LR}
-  BL      __rt_lib_init
-  BL       main
-  /* Return to the thread destroy function.
-   */
-  POP     {R4, PC}
-  ALIGN
+void pre_main (void)
+{
+    __rt_lib_init((unsigned)armcc_heap_base, (unsigned)armcc_heap_top);
+    main();
 }
 
 __asm void __rt_entry (void) {
