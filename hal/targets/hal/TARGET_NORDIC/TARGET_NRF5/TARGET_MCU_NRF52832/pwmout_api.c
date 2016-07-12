@@ -53,37 +53,19 @@
 #define MAX_PWM_PERIOD_MS   ((MAX_PWM_PERIOD_US / 1000) + 1)    // approximations advance
 #define MAX_PWM_PERIOD_S    ((MAX_PWM_PERIOD_US / 1000000) + 1) // approximations advance
 
-#ifdef PWM0_ENABLED
-    #define __PWM0_NUM 1
-#else
-    #define __PWM0_NUM 0
-#endif
 
-#ifdef PWM1_ENABLED
-    #define __PWM1_NUM 1
-#else
-    #define __PWM1_NUM 0
-#endif
-
-#ifdef PWM2_ENABLED
-    #define __PWM2_NUM 1
-#else
-    #define __PWM2_NUM 0
-#endif
-
-
-#define PWM_INSTANCE_COUNT  (__PWM0_NUM + __PWM1_NUM + __PWM2_NUM)
+#define PWM_INSTANCE_COUNT  (PWM_COUNT) // import from the PWM driver header
 
 ///> instances of nRF52 PWM driver
 static const nrf_drv_pwm_t m_pwm_driver[PWM_INSTANCE_COUNT] =
 {
-#ifdef PWM0_ENABLED
+#if PWM0_ENABLED
     NRF_DRV_PWM_INSTANCE(0),
 #endif
-#ifdef PWM1_ENABLED
+#if PWM1_ENABLED
     NRF_DRV_PWM_INSTANCE(1),
 #endif
-#ifdef PWM2_ENABLED
+#if PWM2_ENABLED
     NRF_DRV_PWM_INSTANCE(2)
 #endif
 };
@@ -104,13 +86,13 @@ typedef struct
 
 static pwm_t m_pwm[PWM_INSTANCE_COUNT] =
 {
-#ifdef PWM0_ENABLED
+#if PWM0_ENABLED
     {.p_pwm_driver = NULL},
 #endif
-#ifdef PWM0_ENABLED
+#if PWM1_ENABLED
     {.p_pwm_driver = NULL},
 #endif
-#ifdef PWM0_ENABLED
+#if PWM2_ENABLED
     {.p_pwm_driver = NULL}
 #endif
 };  /// Array of internal PWM instances.
