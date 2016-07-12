@@ -36,6 +36,7 @@ from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from tools.toolchains import mbedToolchain
 from tools.settings import CLI_COLOR_MAP
+from tools.export import export
 
 if __name__ == '__main__':
     try:
@@ -83,7 +84,10 @@ if __name__ == '__main__':
                           
         parser.add_argument("--test-spec", dest="test_spec",
                           default=None, help="Destination path for a test spec file that can be used by the Greentea automated test tool")
-        
+        parser.add_argument("--export", dest="export",  action="store_true",
+                          default=False, help="Export a project")
+        parser.add_argument("-i", dest="ide", 
+                          default=None, help="IDE")
         parser.add_argument("--build-report-junit", dest="build_report_junit",
                           default=None, help="Destination path for a build report in the JUnit xml format")
         
@@ -138,6 +142,20 @@ if __name__ == '__main__':
             # Print available tests in order and exit
             print_tests(tests, options.format)
             sys.exit(0)
+        elif options.export:
+            base_source_paths = options.source_dir
+            # Default base source path is the current directory
+            if not base_source_paths:
+                base_source_paths = ['.']
+            target = options.mcu
+            for test_name, test_path in tests.iteritems():
+                src_path = base_source_paths + [test_path]
+                # don't clean, no zip, using sources
+                tmp_path, report = export(src_path, test_name, options.ide, target, src_path[0], tempdir=options.build_dir, clean=False, make_zip=False, sources_relative=True if base_source_paths else False)
+                if report['success']:
+                    print("Exported %s::%s\t%s"% (target, options.ide, os.path.join(options.build_dir, test_name)))
+                else:
+                    print("%s::%s\t%s"% (target, options.ide, report['errormsg']))
         else:
             # Build all tests
             if not options.build_dir:
