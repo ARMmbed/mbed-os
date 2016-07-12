@@ -538,6 +538,7 @@ void pre_main (void)
 __asm void __rt_entry (void) {
 
   IMPORT  __user_setup_stackheap
+  IMPORT  _platform_post_stackheap_init
   IMPORT  os_thread_def_main
   IMPORT  osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
@@ -558,6 +559,7 @@ __asm void __rt_entry (void) {
   /* Ignore return value of __user_setup_stackheap since
    * this will be setup by set_stack_heap
    */
+  BL      _platform_post_stackheap_init
   BL      osKernelInitialize
 #ifdef __MBED_CMSIS_RTOS_CM
   BL      set_stack_heap
