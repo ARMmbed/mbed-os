@@ -128,8 +128,6 @@ class GccArm(Exporter):
 
     DOT_IN_RELATIVE_PATH = True
 
-    MBED_CONFIG_HEADER_SUPPORTED = True
-
     def generate(self):
         # "make" wants Unix paths
         if self.sources_relative:

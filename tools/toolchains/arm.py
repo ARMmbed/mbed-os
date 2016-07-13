@@ -116,15 +116,8 @@ class ARM(mbedToolchain):
         dep_path = base + '.d'
         return ["--depend", dep_path]
 
-    def get_config_option(self, config_header) :
-        return ['--preinclude=' + config_header]
-
     def get_compile_options(self, defines, includes):        
-        opts = ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + self.get_config_option(config_header)
-        return opts
+        return ['-D%s' % d for d in defines] + ['--via', self.get_inc_file(includes)]
 
     @hook_tool
     def assemble(self, source, object, includes):
