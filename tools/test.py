@@ -34,6 +34,8 @@ from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException
 from tools.test_exporters import ReportExporter, ResultExporterType
 from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
+from tools.toolchains import mbedToolchain
+from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
     try:
@@ -121,6 +123,17 @@ if __name__ == '__main__':
         else:
             tests = all_tests
 
+        if options.color:
+            # This import happens late to prevent initializing colorization when we don't need it
+            import colorize
+            if options.verbose:
+                notify = mbedToolchain.print_notify_verbose
+            else:
+                notify = mbedToolchain.print_notify
+            notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
+        else:
+            notify = None
+
         if options.list:
             # Print available tests in order and exit
             print_tests(tests, options.format)
@@ -155,6 +168,7 @@ if __name__ == '__main__':
                                                 name="mbed-build",
                                                 macros=options.macros,
                                                 verbose=options.verbose,
+                                                notify=notify,
                                                 archive=False)
 
                 library_build_success = True
@@ -179,6 +193,7 @@ if __name__ == '__main__':
                         properties=build_properties,
                         macros=options.macros,
                         verbose=options.verbose,
+                        notify=notify,
                         jobs=options.jobs,
                         continue_on_build_fail=options.continue_on_build_fail)
 

@@ -274,6 +274,14 @@ class mbedToolchain:
         self.legacy_ignore_dirs = LEGACY_IGNORE_DIRS - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
 
         # Output notify function
+        # This function is passed all events, and expected to handle notification of the
+        # user, emit the events to a log, etc.
+        # The API for all notify methods passed into the notify parameter is as follows:
+        # def notify(Event, Silent)
+        # Where *Event* is a dict representing the toolchain event that was generated
+        #            e.g.: a compile succeeded, or a warning was emitted by the compiler
+        #                  or an application was linked
+        #       *Silent* is a boolean
         if notify:
             self.notify_fun = notify
         elif extra_verbose:
@@ -338,7 +346,6 @@ class mbedToolchain:
             event['severity'] = event['severity'].title()
             event['file'] = basename(event['file'])
             event['mcu_name'] = "None"
-            event['toolchain'] = "None"
             event['target_name'] = event['target_name'].upper() if event['target_name'] else "Unknown"
             event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
             msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
@@ -351,6 +358,7 @@ class mbedToolchain:
     def notify(self, event):
         """ Little closure for notify functions
         """
+        event['toolchain'] = self
         return self.notify_fun(event, self.silent)
 
     def goanna_parse_line(self, line):

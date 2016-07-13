@@ -37,6 +37,10 @@ def get_default_options_parser(add_clean=True, add_options=True):
                       metavar="TOOLCHAIN",
                       type=argparse_many(argparse_force_uppercase_type(toolchainlist, "toolchain")))
 
+    parser.add_argument("--color",
+                        help="print Warnings, and Errors in color",
+                        action="store_true", default=False)
+
     if add_clean:
         parser.add_argument("-c", "--clean", action="store_true", default=False,
                       help="clean the build directory")

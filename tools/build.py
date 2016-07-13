@@ -28,6 +28,7 @@ sys.path.insert(0, ROOT)
 
 
 from tools.toolchains import TOOLCHAINS
+from tools.toolchains import mbedToolchain
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.build_api import build_library, build_mbed_libs, build_lib
@@ -36,6 +37,7 @@ from tools.build_api import static_analysis_scan, static_analysis_scan_lib, stat
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 from utils import argparse_filestring_type
+from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 
 if __name__ == '__main__':
     start = time()
@@ -164,6 +166,17 @@ if __name__ == '__main__':
     # Get toolchains list
     toolchains = options.tool if options.tool else TOOLCHAINS
 
+    if options.color:
+        # This import happens late to prevent initializing colorization when we don't need it
+        import colorize
+        if options.verbose:
+            notify = mbedToolchain.print_notify_verbose
+        else:
+            notify = mbedToolchain.print_notify
+        notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
+    else:
+        notify = None
+
     # Get libraries list
     libraries = []
 
@@ -224,6 +237,7 @@ if __name__ == '__main__':
                         lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
                                                     options=options.options,
                                                     extra_verbose=options.extra_verbose_notify,
+                                                    notify=notify,
                                                     verbose=options.verbose,
                                                     silent=options.silent,
                                                     jobs=options.jobs,
@@ -235,6 +249,7 @@ if __name__ == '__main__':
                         lib_build_res = build_mbed_libs(mcu, toolchain,
                                                     options=options.options,
                                                     extra_verbose=options.extra_verbose_notify,
+                                                    notify=notify,
                                                     verbose=options.verbose,
                                                     silent=options.silent,
                                                     jobs=options.jobs,
@@ -245,6 +260,7 @@ if __name__ == '__main__':
                         build_lib(lib_id, mcu, toolchain,
                                   options=options.options,
                                   extra_verbose=options.extra_verbose_notify,
+                                  notify=notify,
                                   verbose=options.verbose,
                                   silent=options.silent,
                                   clean=options.clean,
