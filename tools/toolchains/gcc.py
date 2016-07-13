@@ -289,14 +289,6 @@ class GCC_ARM(GCC):
             self.cc += ["-DMBED_RTOS_SINGLE_THREAD"]
             self.cppc += ["-DMBED_RTOS_SINGLE_THREAD"]
             self.macros.extend(["MBED_RTOS_SINGLE_THREAD"])
-
-        if target.name in ["LPC1768", "LPC4088", "LPC4088_DM", "LPC4330", "UBLOX_C027", "LPC2368", "ARM_BEETLE_SOC"]:
-            self.ld.extend(["-u _printf_float", "-u _scanf_float"])
-            self.flags['ld'].extend(["-u _printf_float", "-u _scanf_float"])
-        elif target.name in ["RZ_A1H", "VK_RZ_A1H", "ARCH_MAX", "DISCO_F407VG", "DISCO_F429ZI", "DISCO_F469NI", "NUCLEO_F401RE", "NUCLEO_F410RB", "NUCLEO_F411RE", "NUCLEO_F429ZI", "NUCLEO_F446RE", "NUCLEO_F446ZE", "ELMO_F411RE", "MTS_MDOT_F411RE", "MTS_DRAGONFLY_F411RE", "DISCO_F746NG"]:
-            self.ld.extend(["-u_printf_float", "-u_scanf_float"])
-            self.flags['ld'].extend(["-u_printf_float", "-u_scanf_float"])
-
         self.sys_libs.append("nosys")
 
 
