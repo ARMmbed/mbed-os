@@ -41,7 +41,9 @@
 
 #if defined (__CC_ARM)          /* ARM Compiler */
 
-#if ((defined(__TARGET_ARCH_7_M) || defined(__TARGET_ARCH_7E_M)) && !defined(NO_EXCLUSIVE_ACCESS))
+// ARMCC has deprecated use for ldrex and strex functions
+// from C so do not used them on any devices.
+#if (0)
  #define __USE_EXCLUSIVE_ACCESS
 #else
  #undef  __USE_EXCLUSIVE_ACCESS
