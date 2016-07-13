@@ -32,28 +32,20 @@
 #if DEVICE_SLEEP
 
 #include "cmsis.h"
-#include "hal_tick.h"
 
-static TIM_HandleTypeDef TimMasterHandle;
-
-void sleep(void)
-{
-    // Disable HAL tick interrupt
-    TimMasterHandle.Instance = TIM_MST;
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
-
+void sleep(void) {
+    // Stop HAL systick
+    HAL_SuspendTick();
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-
-    // Enable HAL tick interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    // Restart HAL systick
+    HAL_ResumeTick();
 }
 
 void deepsleep(void)
 {
-    // Disable HAL tick interrupt
-    TimMasterHandle.Instance = TIM_MST;
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    // Stop HAL systick
+    HAL_SuspendTick();
 
     // Request to enter STOP mode with regulator in low power mode
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
@@ -61,8 +53,8 @@ void deepsleep(void)
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();
 
-    // Enable HAL tick interrupt
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
+    // Restart HAL systick
+    HAL_ResumeTick();
 }
 
 #endif
