@@ -47,6 +47,21 @@ class MemapParser(object):
         # Memory usage summary structure
         self.mem_summary = dict()
 
+        # Colors used for sections in HTML report
+        self.html_section_color_map = {
+            # This is in module part
+            '.data' : 'LightSalmon',
+            '.bss' : 'MediumSlateBlue',
+            '.text' : 'LightGreen',
+
+            # This is included in 'summary' section
+            'total_flash' : 'Crimson',
+            'static_ram' : 'LightPink',
+            'stack' : 'DarkSeaGreen',
+            'heap' : 'DodgerBlue',
+            'total_ram' : 'GoldenRod',
+        }
+
     def module_add(self, module_name, size, section):
         """
         Adds a module / section to the list
@@ -340,7 +355,94 @@ class MemapParser(object):
                     else:
                         self.object_to_module.update({object_name:module_name})
 
-    export_formats = ["json", "csv-ci", "table"]
+    export_formats = ["json", "csv-ci", "table", "html"]
+
+    def memap_generate_html_module_report(self, module_data):
+        """! Function generates memory map usage HTML with bar chart and summary on the right
+        @param module_data Dict with module memory map usage statistics
+
+        module_data = {
+            "module": "Misc",
+            "size": {
+                ".data": 2228,
+                ".bss": 2152,
+                ".text": 57635
+            }
+        }
+        @return HTML formatted output with module's memory map stats
+        """
+
+        result = str()
+        module_size = module_data.get('size', module_data.get('summary', dict()))
+        table_str = """
+        <table cellspacing=5 cellpadding=0>
+            <tr>
+                <td>
+                    <table cellspacing=0 cellpadding=2>
+                      <tr>
+                        %s
+                      </tr>
+                    </table>
+                </td>
+                <td>
+                    <table cellspacing=2 cellpadding=0>
+                        %s
+                    </table>
+                </td>
+            </tr>
+        </table>
+        """
+
+        if module_size:
+            total_section_size = 0
+            for section in sorted(module_size):
+                # section: .data, .bss, .text
+                total_section_size += module_size[section]
+
+            td_str = str()
+            td_summary_str = str()
+            for section in sorted(module_size):
+                section_size = 100.0 * module_size[section] / total_section_size
+                td_size_px = 4 * int(section_size)
+                #print td_size_px, module_size[section], total_section_size
+                color = self.html_section_color_map.get(section, "Silver")
+                td_str += "<td valign='top' bgcolor='%s' width='%dpx' height='55px' title='Section %s %d Bytes'></td>\n"% (color,
+                    td_size_px,
+                    section,
+                    module_size[section])
+
+                td_summary_str += """
+                <tr>
+                    <td width=150px>Section <font color='%s'><b>%s</b></font>:</td>
+                    <td width=100px align='right'>%d Bytes</td>
+                    <td width=100px align='right'>%.2f %%</td>
+                </tr>
+                """% (color,
+                      section,
+                      module_size[section],
+                      section_size)
+
+            result += table_str% (td_str, td_summary_str)
+
+        return result
+
+
+    def memap_generate_html_report(self, module_data):
+        """! Function generates report from memory usage data
+        @param module_data Memory usage data, modules + summary
+        @return string with HTML report output (should be redirected to .html file)
+        """
+        result = "<h2>mbed-os memory usage statistics report</h2>\n"
+
+        for data in module_data:
+            if 'module' in data:
+                module_name = data['module']
+                result += "<b>Module '%s' memory statistics:</b> </br>"% (module_name)
+            else:
+                result += "<hr>"
+                result += "<b>Summary of memory statistics:</b>  </br>"
+            result += self.memap_generate_html_module_report(data)
+        return result
 
     def generate_output(self, export_format, file_output=None):
         """
@@ -424,6 +526,12 @@ class MemapParser(object):
             json_to_file = json_obj + [summary]
             file_desc.write(json.dumps(json_to_file, indent=4))
             file_desc.write('\n')
+
+        elif export_format == 'html': # HTML human friendly format
+
+            json_to_file = json_obj + [summary]
+            html_output = self.memap_generate_html_report(json_to_file)
+            file_desc.write(html_output)
 
         elif export_format == 'csv-ci': # CSV format for the CI system
 
